@@ -1,0 +1,17 @@
+## SQL Editor Text Filter
+# MySQL Workbench Plugin
+# <description>
+# Written in MySQL Workbench %wbversion%
+
+from wb import *
+import grt
+#import mforms
+
+ModuleInfo = DefineModule(%modulename%, author="Author Name", version="1.0", description="Contains Plugin %pluginname%")
+
+# This plugin takes the selected text in a SQL text sditor and replaces it with the returned value
+@ModuleInfo.exportFilter(%pluginname%, caption="Caption", input="selectedText")
+def %functionname%(text):
+    # Modify text here
+    return text
+

@@ -1,0 +1,8 @@
+extension=json
+description=JSON
+pre_quote_strings=1
+quote="
+include_column_types=
+null_syntax=null
+row_separator=,
+null_syntax=NULL

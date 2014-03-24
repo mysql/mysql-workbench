@@ -1,0 +1,339 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+
+{{#CREATE_SCHEMA}}
+Schema {{CREATE_SCHEMA_NAME}} was created
+{{/CREATE_SCHEMA}}
+
+{{#DROP_SCHEMA}}
+Schema {{DROP_SCHEMA_NAME}} was dropped
+{{/DROP_SCHEMA}}
+
+{{#ALTER_SCHEMA}}
+Schema {{ALTER_SCHEMA_NAME}} was modified
+
+{{#ALTER_SCHEMA_NAME}}
+  - name changed {{OLD_SCHEMA_NAME}} --> {{NEW_SCHEMA_NAME}}
+{{/ALTER_SCHEMA_NAME}}
+
+{{#ALTER_SCHEMA_CHARSET}}
+  - default character set {{OLD_SCHEMA_CHARSET}} --> {{NEW_SCHEMA_CHARSET}}
+{{/ALTER_SCHEMA_CHARSET}}
+
+{{#ALTER_SCHEMA_COLLATE}}
+  - default collate {{OLD_SCHEMA_COLLATE}} --> {{NEW_SCHEMA_COLLATE}}
+{{/ALTER_SCHEMA_COLLATE}}
+
+{{/ALTER_SCHEMA}}
+
+{{#DROP_TABLE}}
+Table {{DROP_TABLE_NAME}} was dropped
+{{/DROP_TABLE}}
+
+{{#CREATE_TABLE}}
+Table {{CREATE_TABLE_NAME}} was created
+
+{{#CREATE_TABLE_COLUMNS_HEADER}}
+  columns:
+{{/CREATE_TABLE_COLUMNS_HEADER}}
+
+{{#TABLE_COLUMN}}  
+  - {{TABLE_COLUMN_NAME}} of type {{TABLE_COLUMN_TYPE}}
+{{/TABLE_COLUMN}}
+
+{{#CREATE_TABLE_COLUMNS_FOOTER}}
+  __
+{{/CREATE_TABLE_COLUMNS_FOOTER}}
+
+{{#CREATE_TABLE_INDEXES_HEADER}}
+  indices:
+{{/CREATE_TABLE_INDEXES_HEADER}}
+
+{{#TABLE_INDEX}}  
+  - {{TABLE_INDEX_NAME}} with columns: {{TABLE_INDEX_COLUMNS}}
+{{/TABLE_INDEX}}
+
+{{#CREATE_TABLE_INDEXES_FOOTER}}
+  __
+{{/CREATE_TABLE_INDEXES_FOOTER}}
+
+{{#CREATE_TABLE_FKS_HEADER}}
+  foreign keys:
+{{/CREATE_TABLE_FKS_HEADER}}
+
+{{#TABLE_FK}}  
+  - {{TABLE_FK_NAME}} with columns: {{TABLE_FK_COLUMNS}}, referred table: {{TABLE_FK_REF_TABLE}} with columns: {{TABLE_FK_REF_COLUMNS}}
+    - action on update: {{TABLE_FK_ON_UPDATE}}
+    - action on delete: {{TABLE_FK_ON_DELETE}}
+{{/TABLE_FK}}
+
+{{#CREATE_TABLE_FKS_FOOTER}}
+  __
+{{/CREATE_TABLE_FKS_FOOTER}}
+
+
+{{#CREATE_TABLE_ATTRIBUTES_HEADER}}
+  attributes:
+{{/CREATE_TABLE_ATTRIBUTES_HEADER}}
+
+{{#TABLE_ATTR_ENGINE}}
+  - engine: {{TABLE_ENGINE}}
+{{/TABLE_ATTR_ENGINE}}
+
+{{#TABLE_ATTR_AUTOINC}}
+  - next auto increment: {{TABLE_AUTOINC}}
+{{/TABLE_ATTR_AUTOINC}}
+
+{{#TABLE_ATTR_PASSWORD}}
+  - password: {{TABLE_PASSWORD}}
+{{/TABLE_ATTR_PASSWORD}}
+
+{{#TABLE_ATTR_DELAY_KEY_WRITE}}
+  - delay key writes: {{TABLE_DELAY_KEY_WRITE}}
+{{/TABLE_ATTR_DELAY_KEY_WRITE}}
+
+{{#TABLE_ATTR_CHARSET}}
+  - default character set: {{TABLE_CHARSET}}
+{{/TABLE_ATTR_CHARSET}}
+
+{{#TABLE_ATTR_COLLATE}}
+  - default collate: {{TABLE_COLLATE}}
+{{/TABLE_ATTR_COLLATE}}
+
+{{#TABLE_ATTR_MERGE_UNION}}
+  - merge table list: {{TABLE_MERGE_UNION}}
+{{/TABLE_ATTR_MERGE_UNION}}
+
+{{#TABLE_ATTR_MERGE_INSERT}}
+  - merge insert method: {{TABLE_MERGE_INSERT}}
+{{/TABLE_ATTR_MERGE_INSERT}}
+
+{{#TABLE_ATTR_PACK_KEYS}}
+  - pack keys: {{TABLE_PACK_KEYS}}
+{{/TABLE_ATTR_PACK_KEYS}}
+
+{{#TABLE_ATTR_CHECKSUM}}
+  - checksum: {{TABLE_CHECKSUM}}
+{{/TABLE_ATTR_CHECKSUM}}
+
+{{#TABLE_ATTR_ROW_FORMAT}}
+  - row format: {{TABLE_ROW_FORMAT}}
+{{/TABLE_ATTR_ROW_FORMAT}}
+
+{{#TABLE_ATTR_AVG_ROW_LENGTH}}
+  - average row length: {{TABLE_AVG_ROW_LENGTH}}
+{{/TABLE_ATTR_AVG_ROW_LENGTH}}
+
+{{#TABLE_ATTR_MIN_ROWS}}
+  - min rows: {{TABLE_MIN_ROWS}}
+{{/TABLE_ATTR_MIN_ROWS}}
+
+{{#TABLE_ATTR_MAX_ROWS}}
+  - max rows: {{TABLE_MAX_ROWS}}
+{{/TABLE_ATTR_MAX_ROWS}}
+
+{{#TABLE_ATTR_COMMENT}}
+  - comment: {{TABLE_COMMENT}}
+{{/TABLE_ATTR_COMMENT}}
+
+{{#TABLE_ATTR_DATADIR}}
+  - directory for data files: {{TABLE_DATADIR}}
+{{/TABLE_ATTR_DATADIR}}
+
+{{#TABLE_ATTR_INDEXDIR}}
+  - directory for index files: {{TABLE_INDEXDIR}}
+{{/TABLE_ATTR_INDEXDIR}}
+
+{{#CREATE_TABLE_ATTRIBUTES_FOOTER}}
+  __
+{{/CREATE_TABLE_ATTRIBUTES_FOOTER}}
+
+{{/CREATE_TABLE}}
+
+{{#ALTER_TABLE}}
+Table {{ALTER_TABLE_NAME}} was modified
+
+{{#ALTER_TABLE_COLUMNS_HEADER}}
+  columns:
+{{/ALTER_TABLE_COLUMNS_HEADER}}
+
+{{#TABLE_COLUMN_ADDED}}
+  - added column {{TABLE_COLUMN_NAME}} of type {{TABLE_COLUMN_TYPE}}
+{{/TABLE_COLUMN_ADDED}}
+
+{{#TABLE_COLUMN_REMOVED}}
+  - removed column {{TABLE_COLUMN_NAME}}
+{{/TABLE_COLUMN_REMOVED}}
+
+{{#TABLE_COLUMN_MODIFIED}}
+  - modified column {{TABLE_COLUMN_NAME}}
+{{/TABLE_COLUMN_MODIFIED}}
+
+{{#ALTER_TABLE_COLUMNS_FOOTER}}
+  __
+{{/ALTER_TABLE_COLUMNS_FOOTER}}
+
+{{#ALTER_TABLE_INDEXES_HEADER}}
+  indices:
+{{/ALTER_TABLE_INDEXES_HEADER}}
+
+{{#TABLE_INDEX_ADDED}}  
+  - added index {{TABLE_INDEX_NAME}} with columns: {{TABLE_INDEX_COLUMNS}}
+{{/TABLE_INDEX_ADDED}}
+
+{{#TABLE_INDEX_REMOVED}}  
+  - removed index {{TABLE_INDEX_NAME}}
+{{/TABLE_INDEX_REMOVED}}
+
+{{#ALTER_TABLE_INDEXES_FOOTER}}
+  __
+{{/ALTER_TABLE_INDEXES_FOOTER}}
+
+{{#ALTER_TABLE_FKS_HEADER}}
+  foreign keys:
+{{/ALTER_TABLE_FKS_HEADER}}
+
+{{#TABLE_FK_ADDED}}  
+  - added foreign key {{TABLE_FK_NAME}} with columns: {{TABLE_FK_COLUMNS}}, referred table: {{TABLE_FK_REF_TABLE}} with columns: {{TABLE_FK_REF_COLUMNS}}
+    - action on update: {{TABLE_FK_ON_UPDATE}}
+    - action on delete: {{TABLE_FK_ON_DELETE}}
+{{/TABLE_FK_ADDED}}
+
+{{#TABLE_FK_REMOVED}}  
+  - removed foreign key: {{TABLE_FK_NAME}}
+{{/TABLE_FK_REMOVED}}
+
+{{#ALTER_TABLE_FKS_FOOTER}}
+  __
+{{/ALTER_TABLE_FKS_FOOTER}}
+
+
+{{#ALTER_TABLE_ATTRIBUTES_HEADER}}
+  attributes:
+{{/ALTER_TABLE_ATTRIBUTES_HEADER}}
+
+{{#TABLE_ATTR_NAME}}
+  - name: {{OLD_TABLE_NAME}} --> {{NEW_TABLE_NAME}}
+{{/TABLE_ATTR_NAME}}
+
+{{#TABLE_ATTR_ENGINE}}
+  - engine: {{OLD_TABLE_ENGINE}} --> {{NEW_TABLE_ENGINE}}
+{{/TABLE_ATTR_ENGINE}}
+
+{{#TABLE_ATTR_AUTOINC}}
+  - next auto increment: {{OLD_TABLE_AUTOINC}} --> {{NEW_TABLE_AUTOINC}}
+{{/TABLE_ATTR_AUTOINC}}
+
+{{#TABLE_ATTR_PASSWORD}}
+  - password: {{OLD_TABLE_PASSWORD}} --> {{NEW_TABLE_PASSWORD}}
+{{/TABLE_ATTR_PASSWORD}}
+
+{{#TABLE_ATTR_DELAY_KEY_WRITE}}
+  - delay key writes: {{OLD_TABLE_DELAY_KEY_WRITE}} --> {{NEW_TABLE_DELAY_KEY_WRITE}}
+{{/TABLE_ATTR_DELAY_KEY_WRITE}}
+
+{{#TABLE_ATTR_CHARSET}}
+  - default character set: {{OLD_TABLE_CHARSET}} --> {{NEW_TABLE_CHARSET}}
+{{/TABLE_ATTR_CHARSET}}
+
+{{#TABLE_ATTR_COLLATE}}
+  - default collate: {{OLD_TABLE_COLLATE}} --> {{NEW_TABLE_COLLATE}}
+{{/TABLE_ATTR_COLLATE}}
+
+{{#TABLE_ATTR_MERGE_UNION}}
+  - merge table list: {{OLD_TABLE_MERGE_UNION}} --> {{NEW_TABLE_MERGE_UNION}}
+{{/TABLE_ATTR_MERGE_UNION}}
+
+{{#TABLE_ATTR_MERGE_INSERT}}
+  - merge insert method: {{OLD_TABLE_MERGE_INSERT}} --> {{NEW_TABLE_MERGE_INSERT}}
+{{/TABLE_ATTR_MERGE_INSERT}}
+
+{{#TABLE_ATTR_PACK_KEYS}}
+  - pack keys: {{OLD_TABLE_PACK_KEYS}} --> {{NEW_TABLE_PACK_KEYS}}
+{{/TABLE_ATTR_PACK_KEYS}}
+
+{{#TABLE_ATTR_CHECKSUM}}
+  - checksum: {{OLD_TABLE_CHECKSUM}} --> {{NEW_TABLE_CHECKSUM}}
+{{/TABLE_ATTR_CHECKSUM}}
+
+{{#TABLE_ATTR_ROW_FORMAT}}
+  - row format: {{OLD_TABLE_ROW_FORMAT}} --> {{NEW_TABLE_ROW_FORMAT}}
+{{/TABLE_ATTR_ROW_FORMAT}}
+
+{{#TABLE_ATTR_AVG_ROW_LENGTH}}
+  - average row length: {{OLD_TABLE_AVG_ROW_LENGTH}} --> {{NEW_TABLE_AVG_ROW_LENGTH}}
+{{/TABLE_ATTR_AVG_ROW_LENGTH}}
+
+{{#TABLE_ATTR_MIN_ROWS}}
+  - min rows: {{OLD_TABLE_MIN_ROWS}} --> {{NEW_TABLE_MIN_ROWS}}
+{{/TABLE_ATTR_MIN_ROWS}}
+
+{{#TABLE_ATTR_MAX_ROWS}}
+  - max rows: {{OLD_TABLE_MAX_ROWS}} --> {{NEW_TABLE_MAX_ROWS}}
+{{/TABLE_ATTR_MAX_ROWS}}
+
+{{#TABLE_ATTR_COMMENT}}
+  - comment: {{OLD_TABLE_COMMENT}} --> {{NEW_TABLE_COMMENT}}
+{{/TABLE_ATTR_COMMENT}}
+
+{{#ALTER_TABLE_ATTRIBUTES_FOOTER}}
+  __
+{{/ALTER_TABLE_ATTRIBUTES_FOOTER}}
+
+{{#ALTER_TABLE_PART_HEADER}}
+  partitioning:
+{{/ALTER_TABLE_PART_HEADER}}
+
+{{#ALTER_TABLE_PART_ADDED}}
+  - partitioning was added
+{{/ALTER_TABLE_PART_ADDED}}
+
+{{#ALTER_TABLE_PART_MODIFIED}}
+  - partitioning optins were modified
+{{/ALTER_TABLE_PART_MODIFIED}}
+
+{{#ALTER_TABLE_PART_REMOVED}}
+  - partitioning was removed
+{{/ALTER_TABLE_PART_REMOVED}}
+
+{{#ALTER_TABLE_PART_FOOTER}}
+  __
+{{/ALTER_TABLE_PART_FOOTER}}
+
+{{/ALTER_TABLE}}
+
+{{#DROP_TRIGGER}}
+Trigger {{DROP_TRIGGER_NAME}} was dropped
+{{/DROP_TRIGGER}}
+
+{{#CREATE_TRIGGER}}
+Trigger {{CREATE_TRIGGER_NAME}} was created
+{{/CREATE_TRIGGER}}
+
+{{#DROP_VIEW}}
+View {{DROP_VIEW_NAME}} was dropped
+{{/DROP_VIEW}}
+
+{{#CREATE_VIEW}}
+View {{CREATE_VIEW_NAME}} was created
+{{/CREATE_VIEW}}
+
+{{#DROP_ROUTINE}}
+Routine {{DROP_ROUTINE_NAME}} was dropped
+{{/DROP_ROUTINE}}
+
+{{#CREATE_ROUTINE}}
+Routine {{CREATE_ROUTINE_NAME}} was created
+{{/CREATE_ROUTINE}}
+
+{{#DROP_USER}}
+User {{DROP_USER_NAME}} was dropped
+{{/DROP_USER}}
+
+{{#CREATE_USER}}
+User {{CREATE_USER_NAME}} was created
+{{/CREATE_USER}}
+
+----------------------------------------------
+End of MySQL Workbench Report

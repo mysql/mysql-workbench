@@ -1,0 +1,350 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_OSS|Win32">
+      <Configuration>Release_OSS</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_OSS|x64">
+      <Configuration>Release_OSS</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E439EBC5-F066-4B0F-B2BB-7D8E49D8E747}</ProjectGuid>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <Keyword>ManagedCProj</Keyword>
+    <RootNamespace>mforms</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>.\;..;..\..\base;..\..\base.wr\src;..\..\grt\src;..\..\..\backend\windows\wbpublic.wr\src;..\..\..\backend\wbpublic;..\..\..\backend\wbprivate;..\..\..\generated;..\..\..\library\canvas\src;$(SolutionDir);$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\..\mysql-gui-win-res\include\;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\libxml</AdditionalIncludeDirectories>
+      <CallingConvention>
+      </CallingConvention>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <CompileAsManaged>true</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;DECL_MFORMS_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>.\;..;..\..\base;..\..\grt\src;..\..\..\backend\windows\wbpublic.wr\src;..\..\..\backend\wbpublic;..\..\..\backend\wbprivate;..\..\..\generated;..\..\..\library\canvas\src;$(SolutionDir);$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\..\mysql-gui-win-res\include\;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\libxml</AdditionalIncludeDirectories>
+      <CallingConvention>
+      </CallingConvention>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <CompileAsManaged>true</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>.\;..;..\..\base;..\..\base.wr\src;..\..\grt\src;..\..\..\backend\windows\wbpublic.wr\src;..\..\..\backend\wbpublic;..\..\..\backend\wbprivate;..\..\..\generated;..\..\..\library\canvas\src;$(SolutionDir);$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\..\mysql-gui-win-res\include\;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\libxml</AdditionalIncludeDirectories>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;DECL_MFORMS_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>.\;..;..\..\base;..\..\grt\src;..\..\..\backend\windows\wbpublic.wr\src;..\..\..\backend\wbpublic;..\..\..\backend\wbprivate;..\..\..\generated;..\..\..\library\canvas\src;$(SolutionDir);$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\..\mysql-gui-win-res\include\;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\libxml</AdditionalIncludeDirectories>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>.\;..;..\..\base;..\..\base.wr\src;..\..\grt\src;..\..\..\backend\windows\wbpublic.wr\src;..\..\..\backend\wbpublic;..\..\..\backend\wbprivate;..\..\..\generated;..\..\..\library\canvas\src;$(SolutionDir);$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\..\mysql-gui-win-res\include\;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\libxml</AdditionalIncludeDirectories>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;DECL_MFORMS_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>.\;..;..\..\base;..\..\grt\src;..\..\..\backend\windows\wbpublic.wr\src;..\..\..\backend\wbpublic;..\..\..\backend\wbprivate;..\..\..\generated;..\..\..\library\canvas\src;$(SolutionDir);$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\..\mysql-gui-win-res\include\;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\libxml</AdditionalIncludeDirectories>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="wf_app.h" />
+    <ClInclude Include="wf_appview.h" />
+    <ClInclude Include="wf_base.h" />
+    <ClInclude Include="wf_box.h" />
+    <ClInclude Include="wf_button.h" />
+    <ClInclude Include="wf_checkbox.h" />
+    <ClInclude Include="wf_code_editor.h" />
+    <ClInclude Include="wf_dockingpoint.h" />
+    <ClInclude Include="wf_drawbox.h" />
+    <ClInclude Include="wf_filechooser.h" />
+    <ClInclude Include="wf_find_panel.h" />
+    <ClInclude Include="wf_form.h" />
+    <ClInclude Include="wf_hypertext.h" />
+    <ClInclude Include="wf_imagebox.h" />
+    <ClInclude Include="wf_label.h" />
+    <ClInclude Include="wf_listbox.h" />
+    <ClInclude Include="wf_menu.h" />
+    <ClInclude Include="wf_menubar.h" />
+    <ClInclude Include="wf_mforms.h" />
+    <ClInclude Include="wf_native.h" />
+    <ClInclude Include="wf_panel.h" />
+    <ClInclude Include="wf_popover.h" />
+    <ClInclude Include="wf_popup.h" />
+    <ClInclude Include="wf_progressbar.h" />
+    <ClInclude Include="wf_radiobutton.h" />
+    <ClInclude Include="wf_scrollpanel.h" />
+    <ClInclude Include="wf_selector.h" />
+    <ClInclude Include="wf_splitter.h" />
+    <ClInclude Include="wf_table.h" />
+    <ClInclude Include="wf_tabview.h" />
+    <ClInclude Include="wf_textbox.h" />
+    <ClInclude Include="wf_textentry.h" />
+    <ClInclude Include="wf_toolbar.h" />
+    <ClInclude Include="wf_treenode.h" />
+    <ClInclude Include="wf_treenodeview.h" />
+    <ClInclude Include="wf_utilities.h" />
+    <ClInclude Include="wf_view.h" />
+    <ClInclude Include="wf_webbrowser.h" />
+    <ClInclude Include="wf_wizard.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\wf_app.cpp" />
+    <ClCompile Include="src\wf_appview.cpp" />
+    <ClCompile Include="src\wf_base.cpp" />
+    <ClCompile Include="src\wf_box.cpp" />
+    <ClCompile Include="src\wf_button.cpp" />
+    <ClCompile Include="src\wf_checkbox.cpp" />
+    <ClCompile Include="src\wf_code_editor.cpp" />
+    <ClCompile Include="src\wf_dockingpoint.cpp" />
+    <ClCompile Include="src\wf_drawbox.cpp" />
+    <ClCompile Include="src\wf_filechooser.cpp" />
+    <ClCompile Include="src\wf_find_panel.cpp" />
+    <ClCompile Include="src\wf_form.cpp" />
+    <ClCompile Include="src\wf_hypertext.cpp" />
+    <ClCompile Include="src\wf_imagebox.cpp" />
+    <ClCompile Include="src\wf_label.cpp" />
+    <ClCompile Include="src\wf_listbox.cpp" />
+    <ClCompile Include="src\wf_menu.cpp" />
+    <ClCompile Include="src\wf_menubar.cpp" />
+    <ClCompile Include="src\wf_mforms.cpp" />
+    <ClCompile Include="src\wf_native.cpp" />
+    <ClCompile Include="src\wf_panel.cpp" />
+    <ClCompile Include="src\wf_popover.cpp" />
+    <ClCompile Include="src\wf_popup.cpp" />
+    <ClCompile Include="src\wf_progressbar.cpp" />
+    <ClCompile Include="src\wf_radiobutton.cpp" />
+    <ClCompile Include="src\wf_scrollpanel.cpp" />
+    <ClCompile Include="src\wf_selector.cpp" />
+    <ClCompile Include="src\wf_splitter.cpp" />
+    <ClCompile Include="src\wf_table.cpp" />
+    <ClCompile Include="src\wf_tabview.cpp" />
+    <ClCompile Include="src\wf_textbox.cpp" />
+    <ClCompile Include="src\wf_textentry.cpp" />
+    <ClCompile Include="src\wf_toolbar.cpp" />
+    <ClCompile Include="src\wf_treenode.cpp" />
+    <ClCompile Include="src\wf_treenodeview.cpp" />
+    <ClCompile Include="src\wf_utilities.cpp" />
+    <ClCompile Include="src\wf_view.cpp" />
+    <ClCompile Include="src\wf_webbrowser.cpp" />
+    <ClCompile Include="src\wf_wizard.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MySQLAssembly.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ext\Aga.Controls\Aga.Controls.csproj">
+      <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\ext\HTMLRenderer\HTMLRenderer.csproj">
+      <Project>{1b058920-24b4-4140-8ae7-c8c6c38ca52d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\frontend\windows\WBControls\WBControls.csproj">
+      <Project>{dc4a311e-dbc3-4fb6-88d9-58ed6eaccd1e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\base.windows\base.windows.csproj">
+      <Project>{cfef6684-f44d-4fd7-943e-61f2e0057f4e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\base.wr\base.wr.vcxproj">
+      <Project>{2e5416c9-dd1e-48e4-8bf2-9706bdfc5cbb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\base\base.vcxproj">
+      <Project>{142530c4-b184-4833-9a1a-f268b6e336a7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\grt\grt.vcxproj">
+      <Project>{7de910df-4057-447d-98c3-5b1ece715ed5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\forms.vcxproj">
+      <Project>{f8a2dbad-8b45-4a4e-8811-c9b8a1b0f2b7}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

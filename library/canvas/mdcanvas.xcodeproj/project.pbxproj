@@ -1,0 +1,1173 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2B0F065D0B9D054400F1F8DD /* mdc_canvas_view_macosx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8AD00B9BDA6E000164E3 /* mdc_canvas_view_macosx.cpp */; };
+		2B0F065F0B9D054400F1F8DD /* mdc_algorithms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A570B9BD945000164E3 /* mdc_algorithms.cpp */; };
+		2B0F06600B9D054400F1F8DD /* mdc_algorithms.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A580B9BD945000164E3 /* mdc_algorithms.h */; };
+		2B0F06610B9D054400F1F8DD /* mdc_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A590B9BD945000164E3 /* mdc_box.cpp */; };
+		2B0F06620B9D054400F1F8DD /* mdc_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A5A0B9BD945000164E3 /* mdc_box.h */; };
+		2B0F06630B9D054400F1F8DD /* mdc_canvas_item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A5B0B9BD945000164E3 /* mdc_canvas_item.cpp */; };
+		2B0F06640B9D054400F1F8DD /* mdc_canvas_item.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A5C0B9BD945000164E3 /* mdc_canvas_item.h */; };
+		2B0F06650B9D054400F1F8DD /* mdc_canvas_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A5D0B9BD945000164E3 /* mdc_canvas_manager.h */; };
+		2B0F06660B9D054400F1F8DD /* mdc_canvas_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A600B9BD945000164E3 /* mdc_canvas_view.cpp */; };
+		2B0F06670B9D054400F1F8DD /* mdc_canvas_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A610B9BD945000164E3 /* mdc_canvas_view.h */; };
+		2B0F06680B9D054400F1F8DD /* mdc_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A620B9BD945000164E3 /* mdc_common.h */; };
+		2B0F06690B9D054400F1F8DD /* mdc_draw_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A630B9BD945000164E3 /* mdc_draw_util.cpp */; };
+		2B0F066A0B9D054400F1F8DD /* mdc_draw_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A640B9BD945000164E3 /* mdc_draw_util.h */; };
+		2B0F066B0B9D054400F1F8DD /* mdc_figure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A650B9BD945000164E3 /* mdc_figure.cpp */; };
+		2B0F066C0B9D054400F1F8DD /* mdc_figure.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A660B9BD945000164E3 /* mdc_figure.h */; };
+		2B0F066E0B9D054400F1F8DD /* mdc_grid.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A680B9BD945000164E3 /* mdc_grid.h */; };
+		2B0F066F0B9D054400F1F8DD /* mdc_group.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A690B9BD945000164E3 /* mdc_group.h */; };
+		2B0F06700B9D054400F1F8DD /* mdc_item_handle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A6A0B9BD945000164E3 /* mdc_item_handle.h */; };
+		2B0F06710B9D054400F1F8DD /* mdc_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A6B0B9BD945000164E3 /* mdc_layer.cpp */; };
+		2B0F06720B9D054400F1F8DD /* mdc_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A6C0B9BD945000164E3 /* mdc_layer.h */; };
+		2B0F06730B9D054400F1F8DD /* mdc_layouter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A6D0B9BD945000164E3 /* mdc_layouter.cpp */; };
+		2B0F06740B9D054400F1F8DD /* mdc_layouter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A6E0B9BD945000164E3 /* mdc_layouter.h */; };
+		2B0F06750B9D054400F1F8DD /* mdc_line.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A6F0B9BD945000164E3 /* mdc_line.h */; };
+		2B0F06760B9D054400F1F8DD /* mdc_polygon.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A700B9BD945000164E3 /* mdc_polygon.h */; };
+		2B0F06770B9D054400F1F8DD /* mdc_rectangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A710B9BD945000164E3 /* mdc_rectangle.cpp */; };
+		2B0F06780B9D054400F1F8DD /* mdc_rectangle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A720B9BD945000164E3 /* mdc_rectangle.h */; };
+		2B0F06790B9D054400F1F8DD /* mdc_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A730B9BD945000164E3 /* mdc_text.cpp */; };
+		2B0F067A0B9D054400F1F8DD /* mdc_text.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A740B9BD945000164E3 /* mdc_text.h */; };
+		2B0F067D0B9D054400F1F8DD /* mdc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A770B9BD945000164E3 /* mdc.h */; };
+		2B0F06FE0B9D060600F1F8DD /* mdc_canvas_view_macosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8ACF0B9BDA6E000164E3 /* mdc_canvas_view_macosx.h */; };
+		2B0F06FF0B9D060600F1F8DD /* mdc_canvas_view_macosx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8AD00B9BDA6E000164E3 /* mdc_canvas_view_macosx.cpp */; };
+		2B0F07010B9D060600F1F8DD /* mdc_algorithms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A570B9BD945000164E3 /* mdc_algorithms.cpp */; };
+		2B0F07020B9D060600F1F8DD /* mdc_algorithms.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A580B9BD945000164E3 /* mdc_algorithms.h */; };
+		2B0F07030B9D060600F1F8DD /* mdc_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A590B9BD945000164E3 /* mdc_box.cpp */; };
+		2B0F07040B9D060600F1F8DD /* mdc_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A5A0B9BD945000164E3 /* mdc_box.h */; };
+		2B0F07050B9D060600F1F8DD /* mdc_canvas_item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A5B0B9BD945000164E3 /* mdc_canvas_item.cpp */; };
+		2B0F07060B9D060600F1F8DD /* mdc_canvas_item.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A5C0B9BD945000164E3 /* mdc_canvas_item.h */; };
+		2B0F07070B9D060600F1F8DD /* mdc_canvas_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A5D0B9BD945000164E3 /* mdc_canvas_manager.h */; };
+		2B0F07080B9D060600F1F8DD /* mdc_canvas_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A600B9BD945000164E3 /* mdc_canvas_view.cpp */; };
+		2B0F07090B9D060600F1F8DD /* mdc_canvas_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A610B9BD945000164E3 /* mdc_canvas_view.h */; };
+		2B0F070A0B9D060600F1F8DD /* mdc_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A620B9BD945000164E3 /* mdc_common.h */; };
+		2B0F070B0B9D060600F1F8DD /* mdc_draw_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A630B9BD945000164E3 /* mdc_draw_util.cpp */; };
+		2B0F070C0B9D060600F1F8DD /* mdc_draw_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A640B9BD945000164E3 /* mdc_draw_util.h */; };
+		2B0F070D0B9D060600F1F8DD /* mdc_figure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A650B9BD945000164E3 /* mdc_figure.cpp */; };
+		2B0F070E0B9D060600F1F8DD /* mdc_figure.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A660B9BD945000164E3 /* mdc_figure.h */; };
+		2B0F07110B9D060600F1F8DD /* mdc_group.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A690B9BD945000164E3 /* mdc_group.h */; };
+		2B0F07120B9D060600F1F8DD /* mdc_item_handle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A6A0B9BD945000164E3 /* mdc_item_handle.h */; };
+		2B0F07130B9D060600F1F8DD /* mdc_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A6B0B9BD945000164E3 /* mdc_layer.cpp */; };
+		2B0F07140B9D060600F1F8DD /* mdc_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A6C0B9BD945000164E3 /* mdc_layer.h */; };
+		2B0F07150B9D060600F1F8DD /* mdc_layouter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A6D0B9BD945000164E3 /* mdc_layouter.cpp */; };
+		2B0F07160B9D060600F1F8DD /* mdc_layouter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A6E0B9BD945000164E3 /* mdc_layouter.h */; };
+		2B0F07170B9D060600F1F8DD /* mdc_line.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A6F0B9BD945000164E3 /* mdc_line.h */; };
+		2B0F07180B9D060600F1F8DD /* mdc_polygon.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A700B9BD945000164E3 /* mdc_polygon.h */; };
+		2B0F07190B9D060600F1F8DD /* mdc_rectangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A710B9BD945000164E3 /* mdc_rectangle.cpp */; };
+		2B0F071A0B9D060600F1F8DD /* mdc_rectangle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A720B9BD945000164E3 /* mdc_rectangle.h */; };
+		2B0F071B0B9D060600F1F8DD /* mdc_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B8A730B9BD945000164E3 /* mdc_text.cpp */; };
+		2B0F071C0B9D060600F1F8DD /* mdc_text.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A740B9BD945000164E3 /* mdc_text.h */; };
+		2B0F071F0B9D060600F1F8DD /* mdc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B8A770B9BD945000164E3 /* mdc.h */; };
+		2B0F080B0B9DFD6900F1F8DD /* MDCanvasView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0F08090B9DFD6900F1F8DD /* MDCanvasView.h */; };
+		2B0F080C0B9DFD6900F1F8DD /* MDCanvasView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F080A0B9DFD6900F1F8DD /* MDCanvasView.mm */; };
+		2B0F095B0B9E0A9200F1F8DD /* libglitz-cgl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0F095A0B9E0A9200F1F8DD /* libglitz-cgl.a */; };
+		2B0F095D0B9E0AA400F1F8DD /* libglitz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0F095C0B9E0AA400F1F8DD /* libglitz.a */; };
+		2B0F095E0B9E0AA900F1F8DD /* libcairo.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B3B8B000B9BDB3D000164E3 /* libcairo.dylib */; };
+		2B0F09A30B9E1BC100F1F8DD /* testapp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F09A20B9E1BC100F1F8DD /* testapp.mm */; };
+		2B0F09BB0B9E1D0600F1F8DD /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2B0F09BA0B9E1D0600F1F8DD /* MainMenu.nib */; };
+		2B0F09D90B9E1EF500F1F8DD /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0F09D80B9E1EF500F1F8DD /* Cocoa.framework */; };
+		2B0F09DF0B9E1F0300F1F8DD /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0F09D80B9E1EF500F1F8DD /* Cocoa.framework */; };
+		2B0F09F30B9E1F2B00F1F8DD /* MDCanvasView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B3B8B380B9BDC6B000164E3 /* MDCanvasView.framework */; };
+		2B0F0C7F0B9E56B400F1F8DD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B3B8AB40B9BDA3E000164E3 /* OpenGL.framework */; };
+		2B1860550BA2918F009D2955 /* mdc_constraint_solver.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1860530BA2918F009D2955 /* mdc_constraint_solver.h */; };
+		2B1860560BA2918F009D2955 /* mdc_constraint_solver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B1860540BA2918F009D2955 /* mdc_constraint_solver.cpp */; };
+		2B1860570BA2918F009D2955 /* mdc_constraint_solver.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1860530BA2918F009D2955 /* mdc_constraint_solver.h */; };
+		2B1860580BA2918F009D2955 /* mdc_constraint_solver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B1860540BA2918F009D2955 /* mdc_constraint_solver.cpp */; };
+		2B186BB00BA5BC6E009D2955 /* mdc_area_group.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B186BAE0BA5BC6E009D2955 /* mdc_area_group.h */; };
+		2B186BB20BA5BC6E009D2955 /* mdc_area_group.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B186BAE0BA5BC6E009D2955 /* mdc_area_group.h */; };
+		2B186FAA0BA733BC009D2955 /* mdc_back_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B186FA80BA733BC009D2955 /* mdc_back_layer.h */; };
+		2B186FAB0BA733BC009D2955 /* mdc_back_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B186FA90BA733BC009D2955 /* mdc_back_layer.cpp */; };
+		2B186FAC0BA733BC009D2955 /* mdc_back_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B186FA80BA733BC009D2955 /* mdc_back_layer.h */; };
+		2B186FAD0BA733BC009D2955 /* mdc_back_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B186FA90BA733BC009D2955 /* mdc_back_layer.cpp */; };
+		2B186FCB0BA734BF009D2955 /* mdc_interaction_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B186FC90BA734BF009D2955 /* mdc_interaction_layer.h */; };
+		2B186FCC0BA734BF009D2955 /* mdc_interaction_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B186FCA0BA734BF009D2955 /* mdc_interaction_layer.cpp */; };
+		2B186FCD0BA734BF009D2955 /* mdc_interaction_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B186FC90BA734BF009D2955 /* mdc_interaction_layer.h */; };
+		2B186FCE0BA734BF009D2955 /* mdc_interaction_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B186FCA0BA734BF009D2955 /* mdc_interaction_layer.cpp */; };
+		2B22FAD10C1D3EA800965B47 /* mdc_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B22FAD00C1D3EA800965B47 /* mdc_common.cpp */; };
+		2B22FAD20C1D3EA800965B47 /* mdc_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B22FAD00C1D3EA800965B47 /* mdc_common.cpp */; };
+		2B22FB290C1D6B7B00965B47 /* mdc_icon_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B22FB270C1D6B7B00965B47 /* mdc_icon_manager.cpp */; };
+		2B22FB2A0C1D6B7B00965B47 /* mdc_icon_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B22FB280C1D6B7B00965B47 /* mdc_icon_manager.h */; };
+		2B22FB2B0C1D6B7B00965B47 /* mdc_icon_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B22FB270C1D6B7B00965B47 /* mdc_icon_manager.cpp */; };
+		2B22FB2C0C1D6B7B00965B47 /* mdc_icon_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B22FB280C1D6B7B00965B47 /* mdc_icon_manager.h */; };
+		2B3E2A240BDCBA370000EE10 /* mdc_area_group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B186BAF0BA5BC6E009D2955 /* mdc_area_group.cpp */; };
+		2B3E2A290BDCBA400000EE10 /* mdc_area_group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B186BAF0BA5BC6E009D2955 /* mdc_area_group.cpp */; };
+		2B3E2CBC0BDD10060000EE10 /* libsigc-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B3E2CBB0BDD10060000EE10 /* libsigc-2.0.a */; };
+		2B3E2CBD0BDD10060000EE10 /* libsigc-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B3E2CBB0BDD10060000EE10 /* libsigc-2.0.a */; };
+		2B3E31E80BE11C090000EE10 /* mdc_canvas_view_glitz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E31E60BE11C090000EE10 /* mdc_canvas_view_glitz.cpp */; };
+		2B3E31E90BE11C090000EE10 /* mdc_canvas_view_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E31E70BE11C090000EE10 /* mdc_canvas_view_image.cpp */; };
+		2B3E31EA0BE11C090000EE10 /* mdc_canvas_view_glitz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E31E60BE11C090000EE10 /* mdc_canvas_view_glitz.cpp */; };
+		2B3E31EB0BE11C090000EE10 /* mdc_canvas_view_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E31E70BE11C090000EE10 /* mdc_canvas_view_image.cpp */; };
+		2B3E31EF0BE11C1A0000EE10 /* mdc_canvas_view_glitz.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3E31ED0BE11C1A0000EE10 /* mdc_canvas_view_glitz.h */; };
+		2B3E31F00BE11C1A0000EE10 /* mdc_canvas_view_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3E31EE0BE11C1A0000EE10 /* mdc_canvas_view_image.h */; };
+		2B3E31F10BE11C1A0000EE10 /* mdc_canvas_view_glitz.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3E31ED0BE11C1A0000EE10 /* mdc_canvas_view_glitz.h */; };
+		2B3E31F20BE11C1A0000EE10 /* mdc_canvas_view_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3E31EE0BE11C1A0000EE10 /* mdc_canvas_view_image.h */; };
+		2B3E37FA0BE52A3C0000EE10 /* mdc_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3E37F90BE52A3C0000EE10 /* mdc_prefix.h */; };
+		2B3E37FB0BE52A3C0000EE10 /* mdc_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3E37F90BE52A3C0000EE10 /* mdc_prefix.h */; };
+		2B3E38E40BE5355D0000EE10 /* mdc_button.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3E38E20BE5355D0000EE10 /* mdc_button.h */; };
+		2B3E38E50BE5355D0000EE10 /* mdc_button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E38E30BE5355D0000EE10 /* mdc_button.cpp */; };
+		2B3E38E60BE5355D0000EE10 /* mdc_button.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3E38E20BE5355D0000EE10 /* mdc_button.h */; };
+		2B3E38E70BE5355D0000EE10 /* mdc_button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E38E30BE5355D0000EE10 /* mdc_button.cpp */; };
+		2B3E3AA00BE5795D0000EE10 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E3A9E0BE5795D0000EE10 /* main.cpp */; };
+		2B3E3B280BE57E200000EE10 /* libmdcanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0F06F90B9D05EF00F1F8DD /* libmdcanvas.a */; };
+		2B3E3B490BE57E9C0000EE10 /* test_helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E3B480BE57E9C0000EE10 /* test_helpers.cpp */; };
+		2B3E3B7C0BE580730000EE10 /* libcairo.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B3B8B000B9BDB3D000164E3 /* libcairo.dylib */; };
+		2B3E41180BE7B2ED0000EE10 /* mdc_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E41170BE7B2ED0000EE10 /* mdc_line.cpp */; };
+		2B3E41190BE7B2ED0000EE10 /* mdc_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E41170BE7B2ED0000EE10 /* mdc_line.cpp */; };
+		2B4465550C3B69CA00409786 /* libgthread-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B4465540C3B69CA00409786 /* libgthread-2.0.a */; };
+		2B4465560C3B69CA00409786 /* libgthread-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B4465540C3B69CA00409786 /* libgthread-2.0.a */; };
+		2B70063E0BE7CCF1007B460B /* mdc_vertex_handle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B70063C0BE7CCF1007B460B /* mdc_vertex_handle.h */; };
+		2B70063F0BE7CCF1007B460B /* mdc_vertex_handle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B70063D0BE7CCF1007B460B /* mdc_vertex_handle.cpp */; };
+		2B7006400BE7CCF1007B460B /* mdc_vertex_handle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B70063C0BE7CCF1007B460B /* mdc_vertex_handle.h */; };
+		2B7006410BE7CCF1007B460B /* mdc_vertex_handle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B70063D0BE7CCF1007B460B /* mdc_vertex_handle.cpp */; };
+		2B7006460BE7CD16007B460B /* mdc_box_handle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7006440BE7CD16007B460B /* mdc_box_handle.h */; };
+		2B7006470BE7CD16007B460B /* mdc_box_handle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7006450BE7CD16007B460B /* mdc_box_handle.cpp */; };
+		2B7006480BE7CD16007B460B /* mdc_box_handle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7006440BE7CD16007B460B /* mdc_box_handle.h */; };
+		2B7006490BE7CD16007B460B /* mdc_box_handle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7006450BE7CD16007B460B /* mdc_box_handle.cpp */; };
+		2B7007800BE836BB007B460B /* hierarchy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E3A910BE579320000EE10 /* hierarchy.cpp */; };
+		2B7008DB0BE8E72D007B460B /* algorithms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E3A8D0BE579320000EE10 /* algorithms.cpp */; };
+		2B70099E0BE90D75007B460B /* mdc_magnet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B70099C0BE90D75007B460B /* mdc_magnet.h */; };
+		2B70099F0BE90D75007B460B /* mdc_magnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B70099D0BE90D75007B460B /* mdc_magnet.cpp */; };
+		2B7009A00BE90D75007B460B /* mdc_magnet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B70099C0BE90D75007B460B /* mdc_magnet.h */; };
+		2B7009A10BE90D75007B460B /* mdc_magnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B70099D0BE90D75007B460B /* mdc_magnet.cpp */; };
+		2B7009A60BE90D86007B460B /* mdc_connector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7009A40BE90D86007B460B /* mdc_connector.h */; };
+		2B7009A70BE90D86007B460B /* mdc_connector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7009A50BE90D86007B460B /* mdc_connector.cpp */; };
+		2B7009A80BE90D86007B460B /* mdc_connector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7009A40BE90D86007B460B /* mdc_connector.h */; };
+		2B7009A90BE90D86007B460B /* mdc_connector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7009A50BE90D86007B460B /* mdc_connector.cpp */; };
+		2B700C950BEA804C007B460B /* mdc_bounds_magnet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B700C930BEA804C007B460B /* mdc_bounds_magnet.h */; };
+		2B700C960BEA804C007B460B /* mdc_bounds_magnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B700C940BEA804C007B460B /* mdc_bounds_magnet.cpp */; };
+		2B700C970BEA804C007B460B /* mdc_bounds_magnet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B700C930BEA804C007B460B /* mdc_bounds_magnet.h */; };
+		2B700C980BEA804C007B460B /* mdc_bounds_magnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B700C940BEA804C007B460B /* mdc_bounds_magnet.cpp */; };
+		2BC478D80BA767B200949EEB /* mdc_frame.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC478D60BA767B200949EEB /* mdc_frame.h */; };
+		2BC478DA0BA767B200949EEB /* mdc_frame.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC478D60BA767B200949EEB /* mdc_frame.h */; };
+		2BC47CA20BA8CC2000949EEB /* mdc_selection.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC47CA00BA8CC2000949EEB /* mdc_selection.h */; };
+		2BC47CA30BA8CC2000949EEB /* mdc_selection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC47CA10BA8CC2000949EEB /* mdc_selection.cpp */; };
+		2BC47CA40BA8CC2000949EEB /* mdc_selection.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC47CA00BA8CC2000949EEB /* mdc_selection.h */; };
+		2BC47CA50BA8CC2000949EEB /* mdc_selection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC47CA10BA8CC2000949EEB /* mdc_selection.cpp */; };
+		2BC907860B9F7459009B9768 /* mdc_events.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC907850B9F7458009B9768 /* mdc_events.h */; };
+		2BC907870B9F7459009B9768 /* mdc_events.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC907850B9F7458009B9768 /* mdc_events.h */; };
+		2BC908FC0B9F874F009B9768 /* mdc_group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC908FB0B9F874F009B9768 /* mdc_group.cpp */; };
+		2BC908FD0B9F874F009B9768 /* mdc_group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC908FB0B9F874F009B9768 /* mdc_group.cpp */; };
+		2BC90C8B0B9FB787009B9768 /* MDCanvasScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90C890B9FB787009B9768 /* MDCanvasScrollView.h */; };
+		2BC90C8C0B9FB787009B9768 /* MDCanvasScrollView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90C8A0B9FB787009B9768 /* MDCanvasScrollView.mm */; };
+		2BC910C50BA03A40009B9768 /* mdc_icon_text.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC910C30BA03A40009B9768 /* mdc_icon_text.h */; };
+		2BC910C60BA03A40009B9768 /* mdc_icon_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC910C40BA03A40009B9768 /* mdc_icon_text.cpp */; };
+		2BC910C70BA03A40009B9768 /* mdc_icon_text.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC910C30BA03A40009B9768 /* mdc_icon_text.h */; };
+		2BC910C80BA03A40009B9768 /* mdc_icon_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC910C40BA03A40009B9768 /* mdc_icon_text.cpp */; };
+		2BF647230BA10577000482C6 /* mdc_item_handle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF647210BA10577000482C6 /* mdc_item_handle.cpp */; };
+		2BF647250BA10577000482C6 /* mdc_item_handle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF647210BA10577000482C6 /* mdc_item_handle.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2B0F099F0B9E1B9E00F1F8DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B3B8B370B9BDC6B000164E3;
+			remoteInfo = MDCanvasView;
+		};
+		2B3E3A7F0BE578E90000EE10 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B0F06F80B9D05EF00F1F8DD;
+			remoteInfo = mdcanvas;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2B0F06F90B9D05EF00F1F8DD /* libmdcanvas.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmdcanvas.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B0F08090B9DFD6900F1F8DD /* MDCanvasView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MDCanvasView.h; path = src/cocoa/MDCanvasView.h; sourceTree = "<group>"; };
+		2B0F080A0B9DFD6900F1F8DD /* MDCanvasView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MDCanvasView.mm; path = src/cocoa/MDCanvasView.mm; sourceTree = "<group>"; };
+		2B0F095A0B9E0A9200F1F8DD /* libglitz-cgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libglitz-cgl.a"; path = "/usr/local/lib/libglitz-cgl.a"; sourceTree = "<absolute>"; };
+		2B0F095C0B9E0AA400F1F8DD /* libglitz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglitz.a; path = /usr/local/lib/libglitz.a; sourceTree = "<absolute>"; };
+		2B0F09940B9E1B6B00F1F8DD /* testapp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = testapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B0F09960B9E1B6C00F1F8DD /* testapp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "testapp-Info.plist"; sourceTree = "<group>"; };
+		2B0F09A10B9E1BC100F1F8DD /* testapp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = testapp.h; path = src/cocoa/testapp.h; sourceTree = "<group>"; };
+		2B0F09A20B9E1BC100F1F8DD /* testapp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = testapp.mm; path = src/cocoa/testapp.mm; sourceTree = "<group>"; };
+		2B0F09BA0B9E1D0600F1F8DD /* MainMenu.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = MainMenu.nib; path = src/cocoa/MainMenu.nib; sourceTree = "<group>"; };
+		2B0F09D80B9E1EF500F1F8DD /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		2B1860530BA2918F009D2955 /* mdc_constraint_solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_constraint_solver.h; path = src/mdc_constraint_solver.h; sourceTree = "<group>"; };
+		2B1860540BA2918F009D2955 /* mdc_constraint_solver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_constraint_solver.cpp; path = src/mdc_constraint_solver.cpp; sourceTree = "<group>"; };
+		2B186BAE0BA5BC6E009D2955 /* mdc_area_group.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_area_group.h; path = src/mdc_area_group.h; sourceTree = "<group>"; };
+		2B186BAF0BA5BC6E009D2955 /* mdc_area_group.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_area_group.cpp; path = src/mdc_area_group.cpp; sourceTree = "<group>"; };
+		2B186FA80BA733BC009D2955 /* mdc_back_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_back_layer.h; path = src/mdc_back_layer.h; sourceTree = "<group>"; };
+		2B186FA90BA733BC009D2955 /* mdc_back_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_back_layer.cpp; path = src/mdc_back_layer.cpp; sourceTree = "<group>"; };
+		2B186FC90BA734BF009D2955 /* mdc_interaction_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_interaction_layer.h; path = src/mdc_interaction_layer.h; sourceTree = "<group>"; };
+		2B186FCA0BA734BF009D2955 /* mdc_interaction_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_interaction_layer.cpp; path = src/mdc_interaction_layer.cpp; sourceTree = "<group>"; };
+		2B22FAD00C1D3EA800965B47 /* mdc_common.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_common.cpp; path = src/mdc_common.cpp; sourceTree = "<group>"; };
+		2B22FB270C1D6B7B00965B47 /* mdc_icon_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_icon_manager.cpp; path = src/mdc_icon_manager.cpp; sourceTree = "<group>"; };
+		2B22FB280C1D6B7B00965B47 /* mdc_icon_manager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_icon_manager.h; path = src/mdc_icon_manager.h; sourceTree = "<group>"; };
+		2B3B8A570B9BD945000164E3 /* mdc_algorithms.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_algorithms.cpp; path = src/mdc_algorithms.cpp; sourceTree = "<group>"; };
+		2B3B8A580B9BD945000164E3 /* mdc_algorithms.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_algorithms.h; path = src/mdc_algorithms.h; sourceTree = "<group>"; };
+		2B3B8A590B9BD945000164E3 /* mdc_box.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_box.cpp; path = src/mdc_box.cpp; sourceTree = "<group>"; };
+		2B3B8A5A0B9BD945000164E3 /* mdc_box.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_box.h; path = src/mdc_box.h; sourceTree = "<group>"; };
+		2B3B8A5B0B9BD945000164E3 /* mdc_canvas_item.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_canvas_item.cpp; path = src/mdc_canvas_item.cpp; sourceTree = "<group>"; };
+		2B3B8A5C0B9BD945000164E3 /* mdc_canvas_item.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_canvas_item.h; path = src/mdc_canvas_item.h; sourceTree = "<group>"; };
+		2B3B8A5D0B9BD945000164E3 /* mdc_canvas_manager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_canvas_manager.h; path = src/mdc_canvas_manager.h; sourceTree = "<group>"; };
+		2B3B8A600B9BD945000164E3 /* mdc_canvas_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_canvas_view.cpp; path = src/mdc_canvas_view.cpp; sourceTree = "<group>"; };
+		2B3B8A610B9BD945000164E3 /* mdc_canvas_view.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_canvas_view.h; path = src/mdc_canvas_view.h; sourceTree = "<group>"; };
+		2B3B8A620B9BD945000164E3 /* mdc_common.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_common.h; path = src/mdc_common.h; sourceTree = "<group>"; };
+		2B3B8A630B9BD945000164E3 /* mdc_draw_util.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_draw_util.cpp; path = src/mdc_draw_util.cpp; sourceTree = "<group>"; };
+		2B3B8A640B9BD945000164E3 /* mdc_draw_util.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_draw_util.h; path = src/mdc_draw_util.h; sourceTree = "<group>"; };
+		2B3B8A650B9BD945000164E3 /* mdc_figure.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_figure.cpp; path = src/mdc_figure.cpp; sourceTree = "<group>"; };
+		2B3B8A660B9BD945000164E3 /* mdc_figure.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_figure.h; path = src/mdc_figure.h; sourceTree = "<group>"; };
+		2B3B8A670B9BD945000164E3 /* mdc_grid.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_grid.cpp; path = src/mdc_grid.cpp; sourceTree = "<group>"; };
+		2B3B8A680B9BD945000164E3 /* mdc_grid.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_grid.h; path = src/mdc_grid.h; sourceTree = "<group>"; };
+		2B3B8A690B9BD945000164E3 /* mdc_group.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_group.h; path = src/mdc_group.h; sourceTree = "<group>"; };
+		2B3B8A6A0B9BD945000164E3 /* mdc_item_handle.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_item_handle.h; path = src/mdc_item_handle.h; sourceTree = "<group>"; };
+		2B3B8A6B0B9BD945000164E3 /* mdc_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_layer.cpp; path = src/mdc_layer.cpp; sourceTree = "<group>"; };
+		2B3B8A6C0B9BD945000164E3 /* mdc_layer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_layer.h; path = src/mdc_layer.h; sourceTree = "<group>"; };
+		2B3B8A6D0B9BD945000164E3 /* mdc_layouter.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_layouter.cpp; path = src/mdc_layouter.cpp; sourceTree = "<group>"; };
+		2B3B8A6E0B9BD945000164E3 /* mdc_layouter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_layouter.h; path = src/mdc_layouter.h; sourceTree = "<group>"; };
+		2B3B8A6F0B9BD945000164E3 /* mdc_line.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_line.h; path = src/mdc_line.h; sourceTree = "<group>"; };
+		2B3B8A700B9BD945000164E3 /* mdc_polygon.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_polygon.h; path = src/mdc_polygon.h; sourceTree = "<group>"; };
+		2B3B8A710B9BD945000164E3 /* mdc_rectangle.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_rectangle.cpp; path = src/mdc_rectangle.cpp; sourceTree = "<group>"; };
+		2B3B8A720B9BD945000164E3 /* mdc_rectangle.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_rectangle.h; path = src/mdc_rectangle.h; sourceTree = "<group>"; };
+		2B3B8A730B9BD945000164E3 /* mdc_text.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_text.cpp; path = src/mdc_text.cpp; sourceTree = "<group>"; };
+		2B3B8A740B9BD945000164E3 /* mdc_text.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_text.h; path = src/mdc_text.h; sourceTree = "<group>"; };
+		2B3B8A770B9BD945000164E3 /* mdc.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc.h; path = src/mdc.h; sourceTree = "<group>"; };
+		2B3B8AB40B9BDA3E000164E3 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		2B3B8ACF0B9BDA6E000164E3 /* mdc_canvas_view_macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_canvas_view_macosx.h; path = src/mdc_canvas_view_macosx.h; sourceTree = "<group>"; };
+		2B3B8AD00B9BDA6E000164E3 /* mdc_canvas_view_macosx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_canvas_view_macosx.cpp; path = src/mdc_canvas_view_macosx.cpp; sourceTree = "<group>"; };
+		2B3B8B000B9BDB3D000164E3 /* libcairo.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcairo.dylib; path = /usr/local/lib/libcairo.dylib; sourceTree = "<absolute>"; };
+		2B3B8B380B9BDC6B000164E3 /* MDCanvasView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MDCanvasView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B3B8B390B9BDC6B000164E3 /* MDCanvasView-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "MDCanvasView-Info.plist"; sourceTree = "<group>"; };
+		2B3E2CBB0BDD10060000EE10 /* libsigc-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libsigc-2.0.a"; path = "/usr/local/lib/libsigc-2.0.a"; sourceTree = "<absolute>"; };
+		2B3E31E60BE11C090000EE10 /* mdc_canvas_view_glitz.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_canvas_view_glitz.cpp; path = src/mdc_canvas_view_glitz.cpp; sourceTree = "<group>"; };
+		2B3E31E70BE11C090000EE10 /* mdc_canvas_view_image.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_canvas_view_image.cpp; path = src/mdc_canvas_view_image.cpp; sourceTree = "<group>"; };
+		2B3E31ED0BE11C1A0000EE10 /* mdc_canvas_view_glitz.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_canvas_view_glitz.h; path = src/mdc_canvas_view_glitz.h; sourceTree = "<group>"; };
+		2B3E31EE0BE11C1A0000EE10 /* mdc_canvas_view_image.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mdc_canvas_view_image.h; path = src/mdc_canvas_view_image.h; sourceTree = "<group>"; };
+		2B3E37F90BE52A3C0000EE10 /* mdc_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdc_prefix.h; sourceTree = "<group>"; };
+		2B3E38E20BE5355D0000EE10 /* mdc_button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_button.h; path = src/mdc_button.h; sourceTree = "<group>"; };
+		2B3E38E30BE5355D0000EE10 /* mdc_button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_button.cpp; path = src/mdc_button.cpp; sourceTree = "<group>"; };
+		2B3E3A7D0BE578DF0000EE10 /* tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tests; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B3E3A8D0BE579320000EE10 /* algorithms.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = algorithms.cpp; path = "unit-tests/algorithms.cpp"; sourceTree = "<group>"; };
+		2B3E3A8E0BE579320000EE10 /* events.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = events.cpp; path = "unit-tests/events.cpp"; sourceTree = "<group>"; };
+		2B3E3A8F0BE579320000EE10 /* exportpng.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = exportpng.cpp; path = "unit-tests/exportpng.cpp"; sourceTree = "<group>"; };
+		2B3E3A900BE579320000EE10 /* grouping.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = grouping.cpp; path = "unit-tests/grouping.cpp"; sourceTree = "<group>"; };
+		2B3E3A910BE579320000EE10 /* hierarchy.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = hierarchy.cpp; path = "unit-tests/hierarchy.cpp"; sourceTree = "<group>"; };
+		2B3E3A920BE579320000EE10 /* layouting.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = layouting.cpp; path = "unit-tests/layouting.cpp"; sourceTree = "<group>"; };
+		2B3E3A930BE579320000EE10 /* rendering.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = rendering.cpp; path = "unit-tests/rendering.cpp"; sourceTree = "<group>"; };
+		2B3E3A940BE579320000EE10 /* test_figure.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = test_figure.h; path = "unit-tests/test_figure.h"; sourceTree = "<group>"; };
+		2B3E3A9E0BE5795D0000EE10 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../testing/tut/source/main.cpp; sourceTree = SOURCE_ROOT; };
+		2B3E3AB80BE579F30000EE10 /* test.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = test.h; path = ../../testing/tut/include/test.h; sourceTree = SOURCE_ROOT; };
+		2B3E3AB90BE579F30000EE10 /* tut_helpers.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = tut_helpers.h; path = ../../testing/tut/include/tut_helpers.h; sourceTree = SOURCE_ROOT; };
+		2B3E3ABA0BE579F30000EE10 /* tut_reporter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = tut_reporter.h; path = ../../testing/tut/include/tut_reporter.h; sourceTree = SOURCE_ROOT; };
+		2B3E3ABB0BE579F30000EE10 /* test_helpers.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = test_helpers.h; path = ../../testing/tut/include/test_helpers.h; sourceTree = SOURCE_ROOT; };
+		2B3E3ABC0BE579F30000EE10 /* tut.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = tut.h; path = ../../testing/tut/include/tut.h; sourceTree = SOURCE_ROOT; };
+		2B3E3ABD0BE579F30000EE10 /* tut_restartable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = tut_restartable.h; path = ../../testing/tut/include/tut_restartable.h; sourceTree = SOURCE_ROOT; };
+		2B3E3B480BE57E9C0000EE10 /* test_helpers.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = test_helpers.cpp; path = ../../testing/tut/source/test_helpers.cpp; sourceTree = SOURCE_ROOT; };
+		2B3E40230BE6CA1D0000EE10 /* constraintsolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = constraintsolver.cpp; path = "unit-tests/constraintsolver.cpp"; sourceTree = "<group>"; };
+		2B3E41170BE7B2ED0000EE10 /* mdc_line.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_line.cpp; path = src/mdc_line.cpp; sourceTree = "<group>"; };
+		2B4465540C3B69CA00409786 /* libgthread-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgthread-2.0.a"; path = "/sw/lib/libgthread-2.0.a"; sourceTree = "<absolute>"; };
+		2B70063C0BE7CCF1007B460B /* mdc_vertex_handle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_vertex_handle.h; path = src/mdc_vertex_handle.h; sourceTree = "<group>"; };
+		2B70063D0BE7CCF1007B460B /* mdc_vertex_handle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_vertex_handle.cpp; path = src/mdc_vertex_handle.cpp; sourceTree = "<group>"; };
+		2B7006440BE7CD16007B460B /* mdc_box_handle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_box_handle.h; path = src/mdc_box_handle.h; sourceTree = "<group>"; };
+		2B7006450BE7CD16007B460B /* mdc_box_handle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_box_handle.cpp; path = src/mdc_box_handle.cpp; sourceTree = "<group>"; };
+		2B70099C0BE90D75007B460B /* mdc_magnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_magnet.h; path = src/mdc_magnet.h; sourceTree = "<group>"; };
+		2B70099D0BE90D75007B460B /* mdc_magnet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_magnet.cpp; path = src/mdc_magnet.cpp; sourceTree = "<group>"; };
+		2B7009A40BE90D86007B460B /* mdc_connector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_connector.h; path = src/mdc_connector.h; sourceTree = "<group>"; };
+		2B7009A50BE90D86007B460B /* mdc_connector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_connector.cpp; path = src/mdc_connector.cpp; sourceTree = "<group>"; };
+		2B700C930BEA804C007B460B /* mdc_bounds_magnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_bounds_magnet.h; path = src/mdc_bounds_magnet.h; sourceTree = "<group>"; };
+		2B700C940BEA804C007B460B /* mdc_bounds_magnet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_bounds_magnet.cpp; path = src/mdc_bounds_magnet.cpp; sourceTree = "<group>"; };
+		2BC478D60BA767B200949EEB /* mdc_frame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_frame.h; path = src/mdc_frame.h; sourceTree = "<group>"; };
+		2BC478D70BA767B200949EEB /* mdc_frame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_frame.cpp; path = src/mdc_frame.cpp; sourceTree = "<group>"; };
+		2BC47CA00BA8CC2000949EEB /* mdc_selection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_selection.h; path = src/mdc_selection.h; sourceTree = "<group>"; };
+		2BC47CA10BA8CC2000949EEB /* mdc_selection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_selection.cpp; path = src/mdc_selection.cpp; sourceTree = "<group>"; };
+		2BC907850B9F7458009B9768 /* mdc_events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_events.h; path = src/mdc_events.h; sourceTree = "<group>"; };
+		2BC908FB0B9F874F009B9768 /* mdc_group.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_group.cpp; path = src/mdc_group.cpp; sourceTree = "<group>"; };
+		2BC90C890B9FB787009B9768 /* MDCanvasScrollView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MDCanvasScrollView.h; path = src/cocoa/MDCanvasScrollView.h; sourceTree = "<group>"; };
+		2BC90C8A0B9FB787009B9768 /* MDCanvasScrollView.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MDCanvasScrollView.mm; path = src/cocoa/MDCanvasScrollView.mm; sourceTree = "<group>"; };
+		2BC910C30BA03A40009B9768 /* mdc_icon_text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_icon_text.h; path = src/mdc_icon_text.h; sourceTree = "<group>"; };
+		2BC910C40BA03A40009B9768 /* mdc_icon_text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_icon_text.cpp; path = src/mdc_icon_text.cpp; sourceTree = "<group>"; };
+		2BF647210BA10577000482C6 /* mdc_item_handle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_item_handle.cpp; path = src/mdc_item_handle.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2B0F06F70B9D05EF00F1F8DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B3E2CBD0BDD10060000EE10 /* libsigc-2.0.a in Frameworks */,
+				2B4465560C3B69CA00409786 /* libgthread-2.0.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B0F09920B9E1B6B00F1F8DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B0F09F30B9E1F2B00F1F8DD /* MDCanvasView.framework in Frameworks */,
+				2B0F09D90B9E1EF500F1F8DD /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3B8B360B9BDC6B000164E3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B0F095E0B9E0AA900F1F8DD /* libcairo.dylib in Frameworks */,
+				2B0F095B0B9E0A9200F1F8DD /* libglitz-cgl.a in Frameworks */,
+				2B0F095D0B9E0AA400F1F8DD /* libglitz.a in Frameworks */,
+				2B0F0C7F0B9E56B400F1F8DD /* OpenGL.framework in Frameworks */,
+				2B0F09DF0B9E1F0300F1F8DD /* Cocoa.framework in Frameworks */,
+				2B3E2CBC0BDD10060000EE10 /* libsigc-2.0.a in Frameworks */,
+				2B4465550C3B69CA00409786 /* libgthread-2.0.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3E3A7B0BE578DF0000EE10 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B3E3B280BE57E200000EE10 /* libmdcanvas.a in Frameworks */,
+				2B3E3B7C0BE580730000EE10 /* libcairo.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DDFF38A45A11DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8B380B9BDC6B000164E3 /* MDCanvasView.framework */,
+				2B0F06F90B9D05EF00F1F8DD /* libmdcanvas.a */,
+				2B0F09940B9E1B6B00F1F8DD /* testapp.app */,
+				2B3E3A7D0BE578DF0000EE10 /* tests */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* mdcanvas */ = {
+			isa = PBXGroup;
+			children = (
+				2B3E37F90BE52A3C0000EE10 /* mdc_prefix.h */,
+				08FB77ACFE841707C02AAC07 /* Source */,
+				2B0F08120B9DFE0000F1F8DD /* Cocoa */,
+				2B0F09A10B9E1BC100F1F8DD /* testapp.h */,
+				2B0F09A20B9E1BC100F1F8DD /* testapp.mm */,
+				2B3E3A820BE579030000EE10 /* Unit Tests */,
+				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
+				034768DDFF38A45A11DB9C8B /* Products */,
+				2B3B8B390B9BDC6B000164E3 /* MDCanvasView-Info.plist */,
+				2B0F09960B9E1B6C00F1F8DD /* testapp-Info.plist */,
+				2B0F09BA0B9E1D0600F1F8DD /* MainMenu.nib */,
+			);
+			name = mdcanvas;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				2B3E2CBB0BDD10060000EE10 /* libsigc-2.0.a */,
+				2B3B8B000B9BDB3D000164E3 /* libcairo.dylib */,
+				2B0F095A0B9E0A9200F1F8DD /* libglitz-cgl.a */,
+				2B0F095C0B9E0AA400F1F8DD /* libglitz.a */,
+				2B4465540C3B69CA00409786 /* libgthread-2.0.a */,
+				2B3B8AB40B9BDA3E000164E3 /* OpenGL.framework */,
+				2B0F09D80B9E1EF500F1F8DD /* Cocoa.framework */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		08FB77ACFE841707C02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A770B9BD945000164E3 /* mdc.h */,
+				2B3B8A620B9BD945000164E3 /* mdc_common.h */,
+				2B22FAD00C1D3EA800965B47 /* mdc_common.cpp */,
+				2BC907850B9F7458009B9768 /* mdc_events.h */,
+				2B3B8A570B9BD945000164E3 /* mdc_algorithms.cpp */,
+				2B3B8A580B9BD945000164E3 /* mdc_algorithms.h */,
+				2B1860530BA2918F009D2955 /* mdc_constraint_solver.h */,
+				2B1860540BA2918F009D2955 /* mdc_constraint_solver.cpp */,
+				2B3B8A630B9BD945000164E3 /* mdc_draw_util.cpp */,
+				2B3B8A640B9BD945000164E3 /* mdc_draw_util.h */,
+				2B3B8A5D0B9BD945000164E3 /* mdc_canvas_manager.h */,
+				2BC47CA00BA8CC2000949EEB /* mdc_selection.h */,
+				2BC47CA10BA8CC2000949EEB /* mdc_selection.cpp */,
+				2B22FB270C1D6B7B00965B47 /* mdc_icon_manager.cpp */,
+				2B22FB280C1D6B7B00965B47 /* mdc_icon_manager.h */,
+				2B1866E80BA441EC009D2955 /* View */,
+				2B3E33270BE174E10000EE10 /* Layers */,
+				2B70066F0BE7CE7D007B460B /* Handles */,
+				2B7009AE0BE90FF7007B460B /* Connections */,
+				2B1865C20BA34EAD009D2955 /* Items */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		2B0F08120B9DFE0000F1F8DD /* Cocoa */ = {
+			isa = PBXGroup;
+			children = (
+				2B0F08090B9DFD6900F1F8DD /* MDCanvasView.h */,
+				2B0F080A0B9DFD6900F1F8DD /* MDCanvasView.mm */,
+				2BC90C890B9FB787009B9768 /* MDCanvasScrollView.h */,
+				2BC90C8A0B9FB787009B9768 /* MDCanvasScrollView.mm */,
+			);
+			name = Cocoa;
+			sourceTree = "<group>";
+		};
+		2B1865C10BA34E98009D2955 /* Grouping */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A690B9BD945000164E3 /* mdc_group.h */,
+				2BC908FB0B9F874F009B9768 /* mdc_group.cpp */,
+				2B186BAE0BA5BC6E009D2955 /* mdc_area_group.h */,
+				2B186BAF0BA5BC6E009D2955 /* mdc_area_group.cpp */,
+			);
+			name = Grouping;
+			sourceTree = "<group>";
+		};
+		2B1865C20BA34EAD009D2955 /* Items */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A5C0B9BD945000164E3 /* mdc_canvas_item.h */,
+				2B3B8A5B0B9BD945000164E3 /* mdc_canvas_item.cpp */,
+				2B3B8A650B9BD945000164E3 /* mdc_figure.cpp */,
+				2B3B8A660B9BD945000164E3 /* mdc_figure.h */,
+				2BC914700BA06242009B9768 /* Shapes */,
+				2B3E40F00BE7AB770000EE10 /* Lines */,
+				2BC914710BA0624F009B9768 /* Layouting */,
+				2B1865C10BA34E98009D2955 /* Grouping */,
+			);
+			name = Items;
+			sourceTree = "<group>";
+		};
+		2B1866E80BA441EC009D2955 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A600B9BD945000164E3 /* mdc_canvas_view.cpp */,
+				2B3B8A610B9BD945000164E3 /* mdc_canvas_view.h */,
+				2B3B8ACF0B9BDA6E000164E3 /* mdc_canvas_view_macosx.h */,
+				2B3B8AD00B9BDA6E000164E3 /* mdc_canvas_view_macosx.cpp */,
+				2B3E31E60BE11C090000EE10 /* mdc_canvas_view_glitz.cpp */,
+				2B3E31E70BE11C090000EE10 /* mdc_canvas_view_image.cpp */,
+				2B3E31ED0BE11C1A0000EE10 /* mdc_canvas_view_glitz.h */,
+				2B3E31EE0BE11C1A0000EE10 /* mdc_canvas_view_image.h */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		2B3E33270BE174E10000EE10 /* Layers */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A6C0B9BD945000164E3 /* mdc_layer.h */,
+				2B3B8A6B0B9BD945000164E3 /* mdc_layer.cpp */,
+				2B186FA80BA733BC009D2955 /* mdc_back_layer.h */,
+				2B186FA90BA733BC009D2955 /* mdc_back_layer.cpp */,
+				2B186FC90BA734BF009D2955 /* mdc_interaction_layer.h */,
+				2B186FCA0BA734BF009D2955 /* mdc_interaction_layer.cpp */,
+			);
+			name = Layers;
+			sourceTree = "<group>";
+		};
+		2B3E3A820BE579030000EE10 /* Unit Tests */ = {
+			isa = PBXGroup;
+			children = (
+				2B3E3AB80BE579F30000EE10 /* test.h */,
+				2B3E3AB90BE579F30000EE10 /* tut_helpers.h */,
+				2B3E3ABA0BE579F30000EE10 /* tut_reporter.h */,
+				2B3E3ABB0BE579F30000EE10 /* test_helpers.h */,
+				2B3E3ABC0BE579F30000EE10 /* tut.h */,
+				2B3E3ABD0BE579F30000EE10 /* tut_restartable.h */,
+				2B3E3A9E0BE5795D0000EE10 /* main.cpp */,
+				2B3E3B480BE57E9C0000EE10 /* test_helpers.cpp */,
+				2B3E3A8D0BE579320000EE10 /* algorithms.cpp */,
+				2B3E40230BE6CA1D0000EE10 /* constraintsolver.cpp */,
+				2B3E3A8E0BE579320000EE10 /* events.cpp */,
+				2B3E3A8F0BE579320000EE10 /* exportpng.cpp */,
+				2B3E3A900BE579320000EE10 /* grouping.cpp */,
+				2B3E3A910BE579320000EE10 /* hierarchy.cpp */,
+				2B3E3A920BE579320000EE10 /* layouting.cpp */,
+				2B3E3A930BE579320000EE10 /* rendering.cpp */,
+				2B3E3A940BE579320000EE10 /* test_figure.h */,
+			);
+			name = "Unit Tests";
+			sourceTree = "<group>";
+		};
+		2B3E40F00BE7AB770000EE10 /* Lines */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A6F0B9BD945000164E3 /* mdc_line.h */,
+				2B3E41170BE7B2ED0000EE10 /* mdc_line.cpp */,
+			);
+			name = Lines;
+			sourceTree = "<group>";
+		};
+		2B70066F0BE7CE7D007B460B /* Handles */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A6A0B9BD945000164E3 /* mdc_item_handle.h */,
+				2BF647210BA10577000482C6 /* mdc_item_handle.cpp */,
+				2B70063C0BE7CCF1007B460B /* mdc_vertex_handle.h */,
+				2B70063D0BE7CCF1007B460B /* mdc_vertex_handle.cpp */,
+				2B7006440BE7CD16007B460B /* mdc_box_handle.h */,
+				2B7006450BE7CD16007B460B /* mdc_box_handle.cpp */,
+			);
+			name = Handles;
+			sourceTree = "<group>";
+		};
+		2B7009AE0BE90FF7007B460B /* Connections */ = {
+			isa = PBXGroup;
+			children = (
+				2B7009A40BE90D86007B460B /* mdc_connector.h */,
+				2B7009A50BE90D86007B460B /* mdc_connector.cpp */,
+				2B70099C0BE90D75007B460B /* mdc_magnet.h */,
+				2B70099D0BE90D75007B460B /* mdc_magnet.cpp */,
+				2B700C930BEA804C007B460B /* mdc_bounds_magnet.h */,
+				2B700C940BEA804C007B460B /* mdc_bounds_magnet.cpp */,
+			);
+			name = Connections;
+			sourceTree = "<group>";
+		};
+		2BC914700BA06242009B9768 /* Shapes */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A710B9BD945000164E3 /* mdc_rectangle.cpp */,
+				2B3B8A720B9BD945000164E3 /* mdc_rectangle.h */,
+				2B3B8A730B9BD945000164E3 /* mdc_text.cpp */,
+				2B3B8A740B9BD945000164E3 /* mdc_text.h */,
+				2BC910C30BA03A40009B9768 /* mdc_icon_text.h */,
+				2BC910C40BA03A40009B9768 /* mdc_icon_text.cpp */,
+				2B3B8A700B9BD945000164E3 /* mdc_polygon.h */,
+				2B3E38E20BE5355D0000EE10 /* mdc_button.h */,
+				2B3E38E30BE5355D0000EE10 /* mdc_button.cpp */,
+			);
+			name = Shapes;
+			sourceTree = "<group>";
+		};
+		2BC914710BA0624F009B9768 /* Layouting */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B8A6D0B9BD945000164E3 /* mdc_layouter.cpp */,
+				2B3B8A6E0B9BD945000164E3 /* mdc_layouter.h */,
+				2BC478D70BA767B200949EEB /* mdc_frame.cpp */,
+				2BC478D60BA767B200949EEB /* mdc_frame.h */,
+				2B3B8A590B9BD945000164E3 /* mdc_box.cpp */,
+				2B3B8A5A0B9BD945000164E3 /* mdc_box.h */,
+				2B3B8A670B9BD945000164E3 /* mdc_grid.cpp */,
+				2B3B8A680B9BD945000164E3 /* mdc_grid.h */,
+			);
+			name = Layouting;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		2B0F06F50B9D05EF00F1F8DD /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B0F06FE0B9D060600F1F8DD /* mdc_canvas_view_macosx.h in Headers */,
+				2B0F07020B9D060600F1F8DD /* mdc_algorithms.h in Headers */,
+				2B0F07040B9D060600F1F8DD /* mdc_box.h in Headers */,
+				2B0F07060B9D060600F1F8DD /* mdc_canvas_item.h in Headers */,
+				2B0F07070B9D060600F1F8DD /* mdc_canvas_manager.h in Headers */,
+				2B0F07090B9D060600F1F8DD /* mdc_canvas_view.h in Headers */,
+				2B0F070A0B9D060600F1F8DD /* mdc_common.h in Headers */,
+				2B0F070C0B9D060600F1F8DD /* mdc_draw_util.h in Headers */,
+				2B0F070E0B9D060600F1F8DD /* mdc_figure.h in Headers */,
+				2B0F07110B9D060600F1F8DD /* mdc_group.h in Headers */,
+				2B0F07120B9D060600F1F8DD /* mdc_item_handle.h in Headers */,
+				2B0F07140B9D060600F1F8DD /* mdc_layer.h in Headers */,
+				2B0F07160B9D060600F1F8DD /* mdc_layouter.h in Headers */,
+				2B0F07170B9D060600F1F8DD /* mdc_line.h in Headers */,
+				2B0F07180B9D060600F1F8DD /* mdc_polygon.h in Headers */,
+				2B0F071A0B9D060600F1F8DD /* mdc_rectangle.h in Headers */,
+				2B0F071C0B9D060600F1F8DD /* mdc_text.h in Headers */,
+				2B0F071F0B9D060600F1F8DD /* mdc.h in Headers */,
+				2BC907870B9F7459009B9768 /* mdc_events.h in Headers */,
+				2BC910C70BA03A40009B9768 /* mdc_icon_text.h in Headers */,
+				2B1860550BA2918F009D2955 /* mdc_constraint_solver.h in Headers */,
+				2B186BB00BA5BC6E009D2955 /* mdc_area_group.h in Headers */,
+				2B186FAA0BA733BC009D2955 /* mdc_back_layer.h in Headers */,
+				2B186FCB0BA734BF009D2955 /* mdc_interaction_layer.h in Headers */,
+				2BC478DA0BA767B200949EEB /* mdc_frame.h in Headers */,
+				2BC47CA40BA8CC2000949EEB /* mdc_selection.h in Headers */,
+				2B3E31F10BE11C1A0000EE10 /* mdc_canvas_view_glitz.h in Headers */,
+				2B3E31F20BE11C1A0000EE10 /* mdc_canvas_view_image.h in Headers */,
+				2B3E37FA0BE52A3C0000EE10 /* mdc_prefix.h in Headers */,
+				2B3E38E40BE5355D0000EE10 /* mdc_button.h in Headers */,
+				2B7006400BE7CCF1007B460B /* mdc_vertex_handle.h in Headers */,
+				2B7006480BE7CD16007B460B /* mdc_box_handle.h in Headers */,
+				2B7009A00BE90D75007B460B /* mdc_magnet.h in Headers */,
+				2B7009A80BE90D86007B460B /* mdc_connector.h in Headers */,
+				2B700C970BEA804C007B460B /* mdc_bounds_magnet.h in Headers */,
+				2B22FB2C0C1D6B7B00965B47 /* mdc_icon_manager.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3B8B330B9BDC6B000164E3 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B0F06600B9D054400F1F8DD /* mdc_algorithms.h in Headers */,
+				2B0F06620B9D054400F1F8DD /* mdc_box.h in Headers */,
+				2B0F06640B9D054400F1F8DD /* mdc_canvas_item.h in Headers */,
+				2B0F06650B9D054400F1F8DD /* mdc_canvas_manager.h in Headers */,
+				2B0F06670B9D054400F1F8DD /* mdc_canvas_view.h in Headers */,
+				2B0F06680B9D054400F1F8DD /* mdc_common.h in Headers */,
+				2B0F066A0B9D054400F1F8DD /* mdc_draw_util.h in Headers */,
+				2B0F066C0B9D054400F1F8DD /* mdc_figure.h in Headers */,
+				2B0F066E0B9D054400F1F8DD /* mdc_grid.h in Headers */,
+				2B0F066F0B9D054400F1F8DD /* mdc_group.h in Headers */,
+				2B0F06700B9D054400F1F8DD /* mdc_item_handle.h in Headers */,
+				2B0F06720B9D054400F1F8DD /* mdc_layer.h in Headers */,
+				2B0F06740B9D054400F1F8DD /* mdc_layouter.h in Headers */,
+				2B0F06750B9D054400F1F8DD /* mdc_line.h in Headers */,
+				2B0F06760B9D054400F1F8DD /* mdc_polygon.h in Headers */,
+				2B0F06780B9D054400F1F8DD /* mdc_rectangle.h in Headers */,
+				2B0F067A0B9D054400F1F8DD /* mdc_text.h in Headers */,
+				2B0F067D0B9D054400F1F8DD /* mdc.h in Headers */,
+				2B0F080B0B9DFD6900F1F8DD /* MDCanvasView.h in Headers */,
+				2BC907860B9F7459009B9768 /* mdc_events.h in Headers */,
+				2BC90C8B0B9FB787009B9768 /* MDCanvasScrollView.h in Headers */,
+				2BC910C50BA03A40009B9768 /* mdc_icon_text.h in Headers */,
+				2B1860570BA2918F009D2955 /* mdc_constraint_solver.h in Headers */,
+				2B186BB20BA5BC6E009D2955 /* mdc_area_group.h in Headers */,
+				2B186FAC0BA733BC009D2955 /* mdc_back_layer.h in Headers */,
+				2B186FCD0BA734BF009D2955 /* mdc_interaction_layer.h in Headers */,
+				2BC478D80BA767B200949EEB /* mdc_frame.h in Headers */,
+				2BC47CA20BA8CC2000949EEB /* mdc_selection.h in Headers */,
+				2B3E31EF0BE11C1A0000EE10 /* mdc_canvas_view_glitz.h in Headers */,
+				2B3E31F00BE11C1A0000EE10 /* mdc_canvas_view_image.h in Headers */,
+				2B3E37FB0BE52A3C0000EE10 /* mdc_prefix.h in Headers */,
+				2B3E38E60BE5355D0000EE10 /* mdc_button.h in Headers */,
+				2B70063E0BE7CCF1007B460B /* mdc_vertex_handle.h in Headers */,
+				2B7006460BE7CD16007B460B /* mdc_box_handle.h in Headers */,
+				2B70099E0BE90D75007B460B /* mdc_magnet.h in Headers */,
+				2B7009A60BE90D86007B460B /* mdc_connector.h in Headers */,
+				2B700C950BEA804C007B460B /* mdc_bounds_magnet.h in Headers */,
+				2B22FB2A0C1D6B7B00965B47 /* mdc_icon_manager.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		2B0F06F80B9D05EF00F1F8DD /* mdcanvas */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B0F07200B9D061100F1F8DD /* Build configuration list for PBXNativeTarget "mdcanvas" */;
+			buildPhases = (
+				2B0F06F50B9D05EF00F1F8DD /* Headers */,
+				2B0F06F60B9D05EF00F1F8DD /* Sources */,
+				2B0F06F70B9D05EF00F1F8DD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = mdcanvas;
+			productName = mdcanvas;
+			productReference = 2B0F06F90B9D05EF00F1F8DD /* libmdcanvas.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		2B0F09930B9E1B6B00F1F8DD /* testapp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B0F09980B9E1B6D00F1F8DD /* Build configuration list for PBXNativeTarget "testapp" */;
+			buildPhases = (
+				2B0F09900B9E1B6B00F1F8DD /* Resources */,
+				2B0F09910B9E1B6B00F1F8DD /* Sources */,
+				2B0F09920B9E1B6B00F1F8DD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2B0F09A00B9E1B9E00F1F8DD /* PBXTargetDependency */,
+			);
+			name = testapp;
+			productName = testapp;
+			productReference = 2B0F09940B9E1B6B00F1F8DD /* testapp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2B3B8B370B9BDC6B000164E3 /* MDCanvasView */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B3B8B3A0B9BDC6C000164E3 /* Build configuration list for PBXNativeTarget "MDCanvasView" */;
+			buildPhases = (
+				2B3B8B330B9BDC6B000164E3 /* Headers */,
+				2B3B8B340B9BDC6B000164E3 /* Resources */,
+				2B3B8B350B9BDC6B000164E3 /* Sources */,
+				2B3B8B360B9BDC6B000164E3 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MDCanvasView;
+			productName = MDCanvasView;
+			productReference = 2B3B8B380B9BDC6B000164E3 /* MDCanvasView.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		2B3E3A7C0BE578DF0000EE10 /* tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B3E3A830BE579030000EE10 /* Build configuration list for PBXNativeTarget "tests" */;
+			buildPhases = (
+				2B3E3A7A0BE578DF0000EE10 /* Sources */,
+				2B3E3A7B0BE578DF0000EE10 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2B3E3A800BE578E90000EE10 /* PBXTargetDependency */,
+			);
+			name = tests;
+			productName = tests;
+			productReference = 2B3E3A7D0BE578DF0000EE10 /* tests */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB916408733D950010E9CD /* Build configuration list for PBXProject "mdcanvas" */;
+			hasScannedForEncodings = 1;
+			mainGroup = 0867D691FE84028FC02AAC07 /* mdcanvas */;
+			productRefGroup = 034768DDFF38A45A11DB9C8B /* Products */;
+			projectDirPath = "";
+			targets = (
+				2B3B8B370B9BDC6B000164E3 /* MDCanvasView */,
+				2B0F06F80B9D05EF00F1F8DD /* mdcanvas */,
+				2B0F09930B9E1B6B00F1F8DD /* testapp */,
+				2B3E3A7C0BE578DF0000EE10 /* tests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2B0F09900B9E1B6B00F1F8DD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B0F09BB0B9E1D0600F1F8DD /* MainMenu.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3B8B340B9BDC6B000164E3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2B0F06F60B9D05EF00F1F8DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B0F06FF0B9D060600F1F8DD /* mdc_canvas_view_macosx.cpp in Sources */,
+				2B0F07010B9D060600F1F8DD /* mdc_algorithms.cpp in Sources */,
+				2B0F07030B9D060600F1F8DD /* mdc_box.cpp in Sources */,
+				2B0F07050B9D060600F1F8DD /* mdc_canvas_item.cpp in Sources */,
+				2B0F07080B9D060600F1F8DD /* mdc_canvas_view.cpp in Sources */,
+				2B0F070B0B9D060600F1F8DD /* mdc_draw_util.cpp in Sources */,
+				2B0F070D0B9D060600F1F8DD /* mdc_figure.cpp in Sources */,
+				2B0F07130B9D060600F1F8DD /* mdc_layer.cpp in Sources */,
+				2B0F07150B9D060600F1F8DD /* mdc_layouter.cpp in Sources */,
+				2B0F07190B9D060600F1F8DD /* mdc_rectangle.cpp in Sources */,
+				2B0F071B0B9D060600F1F8DD /* mdc_text.cpp in Sources */,
+				2BC908FD0B9F874F009B9768 /* mdc_group.cpp in Sources */,
+				2BC910C80BA03A40009B9768 /* mdc_icon_text.cpp in Sources */,
+				2BF647250BA10577000482C6 /* mdc_item_handle.cpp in Sources */,
+				2B1860560BA2918F009D2955 /* mdc_constraint_solver.cpp in Sources */,
+				2B186FAB0BA733BC009D2955 /* mdc_back_layer.cpp in Sources */,
+				2B186FCC0BA734BF009D2955 /* mdc_interaction_layer.cpp in Sources */,
+				2BC47CA50BA8CC2000949EEB /* mdc_selection.cpp in Sources */,
+				2B3E2A240BDCBA370000EE10 /* mdc_area_group.cpp in Sources */,
+				2B3E31EA0BE11C090000EE10 /* mdc_canvas_view_glitz.cpp in Sources */,
+				2B3E31EB0BE11C090000EE10 /* mdc_canvas_view_image.cpp in Sources */,
+				2B3E38E50BE5355D0000EE10 /* mdc_button.cpp in Sources */,
+				2B3E41180BE7B2ED0000EE10 /* mdc_line.cpp in Sources */,
+				2B7006410BE7CCF1007B460B /* mdc_vertex_handle.cpp in Sources */,
+				2B7006490BE7CD16007B460B /* mdc_box_handle.cpp in Sources */,
+				2B7009A10BE90D75007B460B /* mdc_magnet.cpp in Sources */,
+				2B7009A90BE90D86007B460B /* mdc_connector.cpp in Sources */,
+				2B700C980BEA804C007B460B /* mdc_bounds_magnet.cpp in Sources */,
+				2B22FAD20C1D3EA800965B47 /* mdc_common.cpp in Sources */,
+				2B22FB2B0C1D6B7B00965B47 /* mdc_icon_manager.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B0F09910B9E1B6B00F1F8DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B0F09A30B9E1BC100F1F8DD /* testapp.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3B8B350B9BDC6B000164E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B1860580BA2918F009D2955 /* mdc_constraint_solver.cpp in Sources */,
+				2BF647230BA10577000482C6 /* mdc_item_handle.cpp in Sources */,
+				2B0F065D0B9D054400F1F8DD /* mdc_canvas_view_macosx.cpp in Sources */,
+				2B0F065F0B9D054400F1F8DD /* mdc_algorithms.cpp in Sources */,
+				2B0F06610B9D054400F1F8DD /* mdc_box.cpp in Sources */,
+				2B0F06630B9D054400F1F8DD /* mdc_canvas_item.cpp in Sources */,
+				2B0F06660B9D054400F1F8DD /* mdc_canvas_view.cpp in Sources */,
+				2B0F06690B9D054400F1F8DD /* mdc_draw_util.cpp in Sources */,
+				2B0F066B0B9D054400F1F8DD /* mdc_figure.cpp in Sources */,
+				2B0F06710B9D054400F1F8DD /* mdc_layer.cpp in Sources */,
+				2B0F06730B9D054400F1F8DD /* mdc_layouter.cpp in Sources */,
+				2B0F06770B9D054400F1F8DD /* mdc_rectangle.cpp in Sources */,
+				2B0F06790B9D054400F1F8DD /* mdc_text.cpp in Sources */,
+				2B0F080C0B9DFD6900F1F8DD /* MDCanvasView.mm in Sources */,
+				2BC908FC0B9F874F009B9768 /* mdc_group.cpp in Sources */,
+				2BC90C8C0B9FB787009B9768 /* MDCanvasScrollView.mm in Sources */,
+				2BC910C60BA03A40009B9768 /* mdc_icon_text.cpp in Sources */,
+				2B186FAD0BA733BC009D2955 /* mdc_back_layer.cpp in Sources */,
+				2B186FCE0BA734BF009D2955 /* mdc_interaction_layer.cpp in Sources */,
+				2BC47CA30BA8CC2000949EEB /* mdc_selection.cpp in Sources */,
+				2B3E2A290BDCBA400000EE10 /* mdc_area_group.cpp in Sources */,
+				2B3E31E80BE11C090000EE10 /* mdc_canvas_view_glitz.cpp in Sources */,
+				2B3E31E90BE11C090000EE10 /* mdc_canvas_view_image.cpp in Sources */,
+				2B3E38E70BE5355D0000EE10 /* mdc_button.cpp in Sources */,
+				2B3E41190BE7B2ED0000EE10 /* mdc_line.cpp in Sources */,
+				2B70063F0BE7CCF1007B460B /* mdc_vertex_handle.cpp in Sources */,
+				2B7006470BE7CD16007B460B /* mdc_box_handle.cpp in Sources */,
+				2B70099F0BE90D75007B460B /* mdc_magnet.cpp in Sources */,
+				2B7009A70BE90D86007B460B /* mdc_connector.cpp in Sources */,
+				2B700C960BEA804C007B460B /* mdc_bounds_magnet.cpp in Sources */,
+				2B22FAD10C1D3EA800965B47 /* mdc_common.cpp in Sources */,
+				2B22FB290C1D6B7B00965B47 /* mdc_icon_manager.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B3E3A7A0BE578DF0000EE10 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B3E3AA00BE5795D0000EE10 /* main.cpp in Sources */,
+				2B3E3B490BE57E9C0000EE10 /* test_helpers.cpp in Sources */,
+				2B7007800BE836BB007B460B /* hierarchy.cpp in Sources */,
+				2B7008DB0BE8E72D007B460B /* algorithms.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2B0F09A00B9E1B9E00F1F8DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B3B8B370B9BDC6B000164E3 /* MDCanvasView */;
+			targetProxy = 2B0F099F0B9E1B9E00F1F8DD /* PBXContainerItemProxy */;
+		};
+		2B3E3A800BE578E90000EE10 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B0F06F80B9D05EF00F1F8DD /* mdcanvas */;
+			targetProxy = 2B3E3A7F0BE578E90000EE10 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB916508733D950010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/cairo,
+					/usr/local/include,
+					"/usr/local/include/sigc++-2.0",
+					"/usr/local/lib/sigc++-2.0/include",
+					"/sw/include/glib-2.0",
+					"/sw/lib/glib-2.0/include",
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		1DEB916608733D950010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = ppc;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/cairo,
+					/usr/local/include,
+					"/usr/local/include/sigc++-2.0",
+					"/usr/local/lib/sigc++-2.0/include",
+					"/sw/include/glib-2.0",
+					"/sw/lib/glib-2.0/include",
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				SEPARATE_STRIP = YES;
+			};
+			name = Release;
+		};
+		2B0F07210B9D061100F1F8DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = mdc_prefix.h;
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/sw/lib,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = mdcanvas;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		2B0F07220B9D061100F1F8DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = mdc_prefix.h;
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/sw/lib,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = mdcanvas;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		2B0F09990B9E1B6D00F1F8DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "testapp-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/sw/lib,
+				);
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = testapp;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		2B0F099A0B9E1B6D00F1F8DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "testapp-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/sw/lib,
+				);
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = testapp;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		2B3B8B3B0B9BDC6C000164E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = mdc_prefix.h;
+				INFOPLIST_FILE = "MDCanvasView-Info.plist";
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/sw/lib,
+				);
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = MDCanvasView;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		2B3B8B3C0B9BDC6C000164E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = mdc_prefix.h;
+				INFOPLIST_FILE = "MDCanvasView-Info.plist";
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/sw/lib,
+				);
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = MDCanvasView;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		2B3E3A840BE579030000EE10 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = EXCLUDE_MYSQL_SUPPORT;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/cairo,
+					/usr/local/include,
+					"/usr/local/include/sigc++-2.0",
+					"/usr/local/lib/sigc++-2.0/include",
+					"/sw/lib/glib-2.0/include",
+					"/sw/include/glib-2.0",
+				);
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = tests;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		2B3E3A850BE579030000EE10 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = EXCLUDE_MYSQL_SUPPORT;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/cairo,
+					/usr/local/include,
+					"/usr/local/include/sigc++-2.0",
+					"/usr/local/lib/sigc++-2.0/include",
+					"/sw/lib/glib-2.0/include",
+					"/sw/include/glib-2.0",
+				);
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = tests;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB916408733D950010E9CD /* Build configuration list for PBXProject "mdcanvas" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB916508733D950010E9CD /* Debug */,
+				1DEB916608733D950010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B0F07200B9D061100F1F8DD /* Build configuration list for PBXNativeTarget "mdcanvas" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B0F07210B9D061100F1F8DD /* Debug */,
+				2B0F07220B9D061100F1F8DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B0F09980B9E1B6D00F1F8DD /* Build configuration list for PBXNativeTarget "testapp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B0F09990B9E1B6D00F1F8DD /* Debug */,
+				2B0F099A0B9E1B6D00F1F8DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B3B8B3A0B9BDC6C000164E3 /* Build configuration list for PBXNativeTarget "MDCanvasView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B3B8B3B0B9BDC6C000164E3 /* Debug */,
+				2B3B8B3C0B9BDC6C000164E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B3E3A830BE579030000EE10 /* Build configuration list for PBXNativeTarget "tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B3E3A840BE579030000EE10 /* Debug */,
+				2B3E3A850BE579030000EE10 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}

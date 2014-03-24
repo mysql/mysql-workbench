@@ -1,0 +1,877 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="wbcanvas Source Files">
+      <UniqueIdentifier>{eb4766ed-b6c7-4c8a-b9c8-9eeb8b4f60bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Generated Source">
+      <UniqueIdentifier>{408102be-277e-4d93-befe-20d3132b7b18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated Headers">
+      <UniqueIdentifier>{6889d6bf-6398-4209-a915-c16d3543735b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grt Header Files">
+      <UniqueIdentifier>{4330cbdb-6c41-444f-b924-bd81f4cdc930}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grt Source Files">
+      <UniqueIdentifier>{b7c1999c-a68f-41ba-88d4-5ec738cdea47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grtdb Header Files">
+      <UniqueIdentifier>{52935c53-8acf-40ca-ba30-3b6eb8fce345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grtdb Source Files">
+      <UniqueIdentifier>{e127ba5e-7130-4ab8-a4d6-53b8420034bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grtui Header Files">
+      <UniqueIdentifier>{3d4899aa-7a4e-44cb-ac70-69861a29e77a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grtui Source Files">
+      <UniqueIdentifier>{a4e7a5c4-e8b0-43b6-9172-19dfcc560860}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grtsqlparser Header Files">
+      <UniqueIdentifier>{7c1e65c9-f51c-4e04-8da1-780d5405c4dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grtsqlparser Source Files">
+      <UniqueIdentifier>{bec77441-5fe5-4aba-bcf5-26bebe7582e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wbcanvas Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="sqlide Source Files">
+      <UniqueIdentifier>{ac6dae6f-05b2-40d9-ae57-97dc2b169e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sqlide Header Files">
+      <UniqueIdentifier>{af3a1f46-b9e7-426f-8738-b9d6b05bfa86}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="wbcanvas\badge_figure.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\base_bridge.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\connection_figure.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\figure_common.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\image_figure.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\layer_figure.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\model_connection_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\model_diagram_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\model_figure_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\model_layer_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\model_model_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\model_object_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\note_figure.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\routine_group_figure.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\table_figure.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\table_figure_idef1x.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\table_figure_simple.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\table_figure_wb.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\view_figure.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\workbench_model_imagefigure_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\workbench_model_notefigure_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\workbench_physical_connection_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\workbench_physical_diagram_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\workbench_physical_model_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\workbench_physical_routinegroupfigure_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\workbench_physical_tablefigure_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\workbench_physical_viewfigure_impl.cpp">
+      <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db\db_Column.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db\db_DatabaseObject.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db\db_ForeignKey.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db\db_Index.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db.query\db_query_EditableResultset.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db.query\db_query_Editor.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db.query\db_query_QueryBuffer.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db.query\db_query_Resultset.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db\db_Schema.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db\db_Table.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db\db_Trigger.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\model\model_Connection.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\model\model_Diagram.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\model\model_Figure.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\model\model_Layer.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\model\model_Model.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\model\model_Object.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.logical\workbench_logical_Diagram.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.logical\workbench_logical_Model.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.model\workbench_model_ImageFigure.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.model\workbench_model_NoteFigure.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_Connection.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_Diagram.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_Model.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_RoutineGroupFigure.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_TableFigure.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_ViewFigure.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\action_list.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\common.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\editor_base.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_dispatcher.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_manager.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_message_list.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_reporter.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_shell.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_string_list_model.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_threaded_task.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_value_inspector.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\grt_value_tree.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\icon_manager.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\parse_utils.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\plugin_manager.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\refresh_ui.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\tree_model.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\validation_manager.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\charset_list.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\charset_utils.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\db_helpers.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\db_object_filter.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\db_object_helpers.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\db_object_master_filter.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\dbobject_roles.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\diff_dbobjectmatch.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\editor_dbobject.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\editor_routine.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\editor_routinegroup.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\editor_schema.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\editor_table.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\editor_user.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\editor_user_role.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\editor_view.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\role_tree_model.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\binary_data_editor.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\checkbox_list_control.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\confirm_save_dialog.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\db_conn_be.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\file_charset_dialog.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\grt_wizard_form.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\grt_wizard_plugin.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\grtdb_connect_dialog.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\grtdb_connect_panel.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\grtdb_connection_editor.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\grtdb_object_filter.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\gui_plugin_base.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\string_list_editor.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\text_input_dialog.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\wizard_finished_page.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\wizard_object_filter_page.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\wizard_progress_page.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\wizard_schema_filter_page.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\wizard_view_text_page.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\module_utils.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\sql_facade.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\sql_inserts_loader.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\sql_normalizer.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\sql_parser_base.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\sql_semantic_check.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\sql_specifics.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\sql_statement_decomposer.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\recordset_cdbc_storage.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\recordset_data_storage.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\recordset_sql_storage.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\recordset_sqlite_storage.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\recordset_table_inserts_storage.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\recordset_text_storage.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\sql_script_run_wizard.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\sqlide.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\sqlide_generics.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="grtui\inserts_export_form.cpp">
+      <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\autocomplete_object_name_cache.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\ui\ui_db_ConnectPanel.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\recordset_be.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\sql_editor_be_autocomplete.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\sql_editor_be.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\var_grid_model_be.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\table_inserts_loader_be.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\ui\mforms_ObjectReference.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db.migration\db_migration_Migration.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\ui\grt_PyObject.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\ui\ui_ObjectEditor.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\ui\ui_ObjectEditor_impl.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+    <ClCompile Include="grtdb\sync_profile.cpp">
+      <Filter>grtdb Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db\db_RoutineGroup.cpp">
+      <Filter>Generated Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\generated\grts\structs.app.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.db.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.db.mgmt.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.db.mysql.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.db.query.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.eer.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.model.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.workbench.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.workbench.logical.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.workbench.model.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.workbench.model.reporting.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.workbench.physical.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\action_list.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\clipboard.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\common.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\editor_base.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\exceptions.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_dispatcher.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_manager.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_message_list.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_reporter.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_shell.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_string_list_model.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_threaded_task.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_value_inspector.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_value_tree.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\grt_walker.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\icon_manager.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\incremental_list_updater.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\parse_utils.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\plugin_manager.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\refresh_ui.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\tree_model.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grt\validation_manager.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\catalog_templates.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\charset_list.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\charset_utils.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\db_helpers.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\db_object_filter.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\db_object_helpers.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\db_object_master_filter.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\dbobject_roles.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\diff_dbobjectmatch.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\editor_dbobject.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\editor_routine.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\editor_routinegroup.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\editor_schema.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\editor_table.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\editor_user.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\editor_user_role.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\editor_view.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\role_tree_model.h">
+      <Filter>grtdb Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\binary_data_editor.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\checkbox_list_control.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\confirm_save_dialog.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\db_conn_be.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\file_charset_dialog.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\grt_wizard_form.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\grt_wizard_plugin.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\grtdb_connect_panel.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\grtdb_connection_editor.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\grtdb_object_filter.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\gui_plugin_base.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\string_list_editor.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\text_input_dialog.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\wizard_finished_page.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\wizard_object_filter_page.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\wizard_progress_page.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\wizard_schema_filter_page.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\wizard_view_text_page.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\fk_ref.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\invalid_sql_parser.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\module_utils.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_facade.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_inserts_loader.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_normalizer.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_parser.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_parser_base.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_schema_rename.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_semantic_check.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_specifics.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_statement_decomposer.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\sql_syntax_check.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\badge_figure.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\base_bridge.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\connection_figure.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\figure_common.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\image_figure.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\layer_figure.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\model_connection_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\model_diagram_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\model_figure_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\model_layer_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\model_model_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\model_object_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\note_figure.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\routine_group_figure.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\table_figure.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\table_figure_idef1x.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\table_figure_simple.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\table_figure_wb.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\view_figure.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\workbench_model_imagefigure_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\workbench_model_notefigure_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\workbench_physical_connection_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\workbench_physical_diagram_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\workbench_physical_model_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\workbench_physical_routinegroupfigure_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\workbench_physical_tablefigure_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbcanvas\workbench_physical_viewfigure_impl.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\recordset_be.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\recordset_cdbc_storage.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\recordset_data_storage.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\recordset_sql_storage.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\recordset_sqlite_storage.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\recordset_table_inserts_storage.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\recordset_text_storage.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\sql_editor_be.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\sql_script_run_wizard.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\sqlide.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\sqlide_generics.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\sqlide_generics_private.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\table_inserts_loader_be.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\var_grid_model_be.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wbpublic_public_interface.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="grtui\inserts_export_form.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\autocomplete_object_name_cache.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.ui.h">
+      <Filter>Generated Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\ui\mforms_ObjectReference_impl.h">
+      <Filter>Generated Source</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\ui\ui_ObjectEditor_impl.h">
+      <Filter>Generated Source</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\connection_page.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtdb\sync_profile.h">
+      <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

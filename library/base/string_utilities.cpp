@@ -1,0 +1,1821 @@
+/* 
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+#define NOMINMAX
+#include "base/string_utilities.h"
+#include "base/file_functions.h"
+#include "base/log.h"
+
+#include <stdexcept>
+#include <functional>
+#include <locale>
+#include <algorithm>
+#include <math.h>
+#include <errno.h>
+#include <string.h>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
+DEFAULT_LOG_DOMAIN(DOMAIN_BASE);
+
+
+
+// updated as of 5.7
+static const char *reserved_keywords[] = {
+  "ACCESSIBLE",
+  "ADD",
+  "ALL",
+  "ALTER",
+  "ANALYZE",
+  "AND",
+  "AS",
+  "ASC",
+  "ASENSITIVE",
+  "BEFORE",
+  "BETWEEN",
+  "BIGINT",
+  "BINARY",
+  "BLOB",
+  "BOTH",
+  "BY",
+  "CALL",
+  "CASCADE",
+  "CASE",
+  "CHANGE",
+  "CHAR",
+  "CHARACTER",
+  "CHECK",
+  "COLLATE",
+  "COLUMN",
+  "CONDITION",
+  "CONSTRAINT",
+  "CONTINUE",
+  "CONVERT",
+  "CREATE",
+  "CROSS",
+  "CURRENT_DATE",
+  "CURRENT_TIME",
+  "CURRENT_TIMESTAMP",
+  "CURRENT_USER",
+  "CURSOR",
+  "DATABASE",
+  "DATABASES",
+  "DAY_HOUR",
+  "DAY_MICROSECOND",
+  "DAY_MINUTE",
+  "DAY_SECOND",
+  "DEC",
+  "DECIMAL",
+  "DECLARE",
+  "DEFAULT",
+  "DELAYED",
+  "DELETE",
+  "DESC",
+  "DESCRIBE",
+  "DETERMINISTIC",
+  "DISTINCT",
+  "DISTINCTROW",
+  "DIV",
+  "DOUBLE",
+  "DROP",
+  "DUAL",
+  "EACH",
+  "ELSE",
+  "ELSEIF",
+  "ENCLOSED",
+  "ESCAPED",
+  "EXISTS",
+  "EXIT",
+  "EXPLAIN",
+  "FALSE",
+  "FETCH",
+  "FLOAT",
+  "FLOAT4",
+  "FLOAT8",
+  "FOR",
+  "FORCE",
+  "FOREIGN",
+  "FROM",
+  "FULLTEXT",
+  "GET",
+  "GRANT",
+  "GROUP",
+  "HAVING",
+  "HIGH_PRIORITY",
+  "HOUR_MICROSECOND",
+  "HOUR_MINUTE",
+  "HOUR_SECOND",
+  "IF",
+  "IGNORE",
+  "IN",
+  "INDEX",
+  "INFILE",
+  "INNER",
+  "INOUT",
+  "INSENSITIVE",
+  "INSERT",
+  "INT",
+  "INT1",
+  "INT2",
+  "INT3",
+  "INT4",
+  "INT8",
+  "INTEGER",
+  "INTERVAL",
+  "INTO",
+  "IO_AFTER_GTIDS",
+  "IO_BEFORE_GTIDS",
+  "IS",
+  "ITERATE",
+  "JOIN",
+  "KEY",
+  "KEYS",
+  "KILL",
+  "LEADING",
+  "LEAVE",
+  "LEFT",
+  "LIKE",
+  "LIMIT",
+  "LINEAR",
+  "LINES",
+  "LOAD",
+  "LOCALTIME",
+  "LOCALTIMESTAMP",
+  "LOCK",
+  "LONG",
+  "LONGBLOB",
+  "LONGTEXT",
+  "LOOP",
+  "LOW_PRIORITY",
+  "MASTER_BIND",
+  "MASTER_SSL_VERIFY_SERVER_CERT",
+  "MATCH",
+  "MAXVALUE",
+  "MEDIUMBLOB",
+  "MEDIUMINT",
+  "MEDIUMTEXT",
+  "MIDDLEINT",
+  "MINUTE_MICROSECOND",
+  "MINUTE_SECOND",
+  "MOD",
+  "MODIFIES",
+  "NATURAL",
+  "NONBLOCKING",
+  "NOT",
+  "NO_WRITE_TO_BINLOG",
+  "NULL",
+  "NUMERIC",
+  "ON",
+  "OPTIMIZE",
+  "OPTION",
+  "OPTIONALLY",
+  "OR",
+  "ORDER",
+  "OUT",
+  "OUTER",
+  "OUTFILE",
+  "PARTITION",
+  "PRECISION",
+  "PRIMARY",
+  "PROCEDURE",
+  "PURGE",
+  "RANGE",
+  "READ",
+  "READS",
+  "READ_WRITE",
+  "REAL",
+  "REFERENCES",
+  "REGEXP",
+  "RELEASE",
+  "RENAME",
+  "REPEAT",
+  "REPLACE",
+  "REQUIRE",
+  "RESIGNAL",
+  "RESTRICT",
+  "RETURN",
+  "REVOKE",
+  "RIGHT",
+  "RLIKE",
+  "SCHEMA",
+  "SCHEMAS",
+  "SECOND_MICROSECOND",
+  "SELECT",
+  "SENSITIVE",
+  "SEPARATOR",
+  "SET",
+  "SHOW",
+  "SIGNAL",
+  "SMALLINT",
+  "SPATIAL",
+  "SPECIFIC",
+  "SQL",
+  "SQLEXCEPTION",
+  "SQLSTATE",
+  "SQLWARNING",
+  "SQL_BIG_RESULT",
+  "SQL_CALC_FOUND_ROWS",
+  "SQL_SMALL_RESULT",
+  "SSL",
+  "STARTING",
+  "STRAIGHT_JOIN",
+  "TABLE",
+  "TERMINATED",
+  "THEN",
+  "TINYBLOB",
+  "TINYINT",
+  "TINYTEXT",
+  "TO",
+  "TRAILING",
+  "TRIGGER",
+  "TRUE",
+  "UNDO",
+  "UNION",
+  "UNIQUE",
+  "UNLOCK",
+  "UNSIGNED",
+  "UPDATE",
+  "USAGE",
+  "USE",
+  "USING",
+  "UTC_DATE",
+  "UTC_TIME",
+  "UTC_TIMESTAMP",
+  "VALUES",
+  "VARBINARY",
+  "VARCHAR",
+  "VARCHARACTER",
+  "VARYING",
+  "WHEN",
+  "WHERE",
+  "WHILE",
+  "WITH",
+  "WRITE",
+  "XOR",
+  "YEAR_MONTH",
+  "ZEROFILL",
+  NULL
+};
+
+
+namespace base {
+
+#ifdef _WIN32
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Converts an UTF-8 encoded string to an UTF-16 string.
+ */
+std::wstring string_to_wstring(const std::string &s)
+{
+  int required;
+
+  required= MultiByteToWideChar(CP_UTF8, 0, s.data(), -1, NULL, 0);
+  if (required == 0)
+    return std::wstring();
+
+  // Required contains the length for the result string including the terminating 0.
+  WCHAR *buffer = g_new(WCHAR, required);
+  MultiByteToWideChar(CP_UTF8, 0, s.data(), -1, buffer, required);
+  std::wstring converted(buffer);
+  g_free(buffer);
+
+  return converted;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Converts an UTF-16 encoded string to an UTF-8 string.
+ */
+std::string wstring_to_string(const std::wstring &s)
+{
+  char* converted;
+  int required = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), -1, NULL, 0, NULL, NULL);
+  converted = (char*) g_malloc(required);
+  WideCharToMultiByte(CP_UTF8, 0, s.c_str(), -1, converted, required, NULL, NULL);
+  std::string result = converted;
+  g_free(converted);
+
+  return result;
+}
+
+std::wstring path_from_utf8(const std::string &s)
+{
+  return string_to_wstring(s);
+}
+#else
+std::string path_from_utf8(const std::string &s)
+{
+  return s;
+}
+
+#endif
+
+//--------------------------------------------------------------------------------------------------
+
+std::string string_to_path_for_open(const std::string &s)
+{
+#ifdef _WIN32
+  std::wstring ws = string_to_wstring(s);
+  int buflen = GetShortPathNameW(ws.c_str(), NULL, 0);
+  if (buflen > 0)
+  {
+    wchar_t *buffer = g_new(wchar_t, buflen);
+    if (GetShortPathNameW(ws.c_str(), buffer, buflen) > 0)
+    {
+      char *buffer2;
+      buflen = WideCharToMultiByte(CP_UTF8, 0, buffer, buflen, NULL, 0, 0, 0);
+      buffer2 = g_new(char, buflen);
+      if (WideCharToMultiByte(CP_UTF8, 0, buffer, buflen, buffer2, buflen, 0, 0) == 0)
+      {
+        std::string path(buffer2);
+        g_free(buffer2);
+        g_free(buffer);
+        return path;
+      }
+      g_free(buffer2);
+    }
+    g_free(buffer);
+  }
+  return s;
+#else
+  return s;
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+  
+inline bool is_invalid_filesystem_char(int ch)
+{
+  static const char invalids[] = "/?<>\\:*|\"^";
+  
+  return memchr(invalids, ch, sizeof(invalids)-1) != NULL;
+}
+  
+std::string sanitize_file_name(const std::string &s)
+{
+  static const char *invalid_filenames[] = {
+    "com1", "com2", "com3", "com4", "com5", "com6",
+    "com7", "com8", "com9", "lpt1", "lpt2", "lpt3", "lpt4", 
+    "lpt5", "lpt6", "lpt7", "lpt8", "lpt9", "con", "nul", "prn",
+    ".", "..", 
+    NULL
+  };
+  std::string out;
+  
+  for (std::string::const_iterator c = s.begin(); c != s.end(); ++c)
+  {
+    // utf-8 has the high-bit = 1, so we just copy those verbatim
+    if (isalnum(*c) || (unsigned char)*c >= 128 || (ispunct(*c) && !is_invalid_filesystem_char(*c)))
+      out.push_back(*c);
+    else
+      out.push_back('_');
+  }
+  
+  // not valid under windows
+  if (!out.empty() && (out[out.size()-1] == ' ' || out[out.size()-1] == '.'))
+    out[out.size()-1] = '_';
+  
+  for (const char **fn = invalid_filenames; *fn; ++fn)
+  {
+    if (strcmp(out.c_str(), *fn) == 0)
+    {
+      out.append("_");
+      break;
+    }
+  }
+  
+  return out;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string trim_right(const std::string& s, const std::string& t)
+{
+  std::string d(s);
+  std::string::size_type i (d.find_last_not_of(t));
+  if (i == std::string::npos)
+    return "";
+  else
+    return d.erase(d.find_last_not_of(t) + 1) ;
+}  
+
+//--------------------------------------------------------------------------------------------------
+
+std::string trim_left(const std::string& s, const std::string& t)
+{
+  std::string d(s);
+  return d.erase(0, s.find_first_not_of(t)) ;
+}  
+
+//--------------------------------------------------------------------------------------------------
+
+std::string trim(const std::string& s, const std::string& t)
+{
+  std::string d(s);
+  return trim_left(trim_right(d, t), t) ;
+}  
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Simple case conversion routine, which returns a new string.
+ * Note: converting to lower can be wrong when the returned string is used for string comparison,
+ * because in some cultures letter cases are more complicated. Use string_compare instead in such cases.
+ */
+std::string tolower(const std::string& s)
+{
+  char *str_down = g_utf8_strdown(s.c_str(), s.length());
+  std::string result(str_down);
+  g_free(str_down);
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string toupper(const std::string& s)
+{
+  char *str_up= g_utf8_strup(s.c_str(), s.length());
+  std::string result(str_up);
+  g_free(str_up);
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string truncate_text(const std::string& s, int max_length)
+{
+  if ((int) s.length() > max_length)
+  {
+    std::string shortened(s.substr(0, max_length));
+    const char *prev = g_utf8_find_prev_char(shortened.c_str(), shortened.c_str() + (max_length - 1));
+    if (prev)
+    {
+      shortened.resize(prev - shortened.c_str(), 0);
+      shortened.append("...");
+    }
+    return shortened;
+  }
+  return s;
+}
+  
+//--------------------------------------------------------------------------------------------------
+
+std::string sanitize_utf8(const std::string& s)
+{
+  const char *end = 0;
+  if (!g_utf8_validate(s.data(), s.size(), &end))
+    return std::string(s.data(), end);
+  return s;
+}
+  
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> split(const std::string &s, const std::string &sep, int count)
+{
+  std::vector<std::string> parts;
+  std::string ss= s;
+
+  std::string::size_type p;
+
+  if (s.empty())
+    return parts;
+
+  if (count == 0)
+    count= -1;
+
+  p= ss.find(sep);
+  while (!ss.empty() && p != std::string::npos && (count < 0 || count > 0))
+  {
+    parts.push_back(ss.substr(0, p));
+    ss= ss.substr(p+sep.size());
+
+    --count;
+    p= ss.find(sep);
+  }
+  parts.push_back(ss);
+
+  return parts;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> split_by_set(const std::string &s, const std::string &separator_set, int count)
+{
+  std::vector<std::string> parts;
+  std::string ss= s;
+
+  std::string::size_type p;
+
+  if (s.empty())
+    return parts;
+
+  if (count == 0)
+    count= -1;
+
+  p= ss.find_first_of(separator_set);
+  while (!ss.empty() && p != std::string::npos && (count < 0 || count > 0))
+  {
+    parts.push_back(ss.substr(0, p));
+    ss = ss.substr(p + 1);
+
+    --count;
+    p = ss.find_first_of(separator_set);
+  }
+  parts.push_back(ss);
+
+  return parts;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> split_token_list(const std::string &s, int sep)
+{
+  std::vector<std::string> parts;
+  std::string ss= s;
+  
+  std::string::size_type end = s.size(), pe, p = 0;
+  
+  {
+    bool done;
+    bool empty_pending = true;
+
+    while (p < end)
+    {
+      empty_pending = false;
+      switch (s[p])
+      {
+        case '\'':
+          pe = p+1;
+          done = false;
+          // keep going until we find closing '
+          while (pe < end && !done)
+          {
+            switch (s[pe++])
+            {
+              case '\'':
+                if (pe < end && s[pe] == '\'')
+                  pe++;
+                else
+                  done = true;
+                break;
+              case '\\':
+                if (pe < end)
+                  pe++;
+                break;
+            }
+          }
+          parts.push_back(s.substr(p, pe-p));
+          p = pe;
+          // skip whitespace
+          while (p < end && (s[p] == ' ' || s[p] == '\t' || s[p] == '\r' || s[p] == '\n')) p++;
+          if (p < end)
+          {
+            if (s[p] != sep)
+              log_debug("Error splitting string list\n");
+            else
+              p++;
+          }
+          break;
+
+        case '"':
+          pe = p+1;
+          done = false;
+          // keep going until we find closing "
+          while (pe < end && !done)
+          {
+            switch (s[pe++])
+            {
+              case '"':
+                if (pe < end && s[pe] == '"')
+                  pe++;
+                else
+                  done = true;
+                break;
+              case '\\':
+                if (pe < end)
+                  pe++;
+                break;
+            }
+          }
+          parts.push_back(s.substr(p, pe-p));
+          p = pe;
+          // skip whitespace
+          while (p < end && (s[p] == ' ' || s[p] == '\t' || s[p] == '\r' || s[p] == '\n')) p++;
+          if (p < end)
+          {
+            if (s[p] != sep)
+              log_debug("Error splitting string list\n");
+            else
+              p++;
+          }
+          break;
+
+        case ' ':
+        case '\t':
+          p++;
+          break;
+
+        default:
+          // skip until separator
+          pe = p;
+          while (pe < end)
+          {
+            if (s[pe] == sep)
+            {
+              empty_pending = true;
+              break;
+            }
+            pe++;
+          }
+          parts.push_back(trim_right(s.substr(p, pe-p)));
+          p = pe+1;
+          // skip whitespace
+          while (p < end && (s[p] == ' ' || s[p] == '\t' || s[p] == '\r' || s[p] == '\n')) p++;
+          break;
+      }
+    }
+    if (empty_pending)
+      parts.push_back("");
+  }
+
+  return parts;
+}
+  
+//--------------------------------------------------------------------------------------------------
+  
+bool partition(const std::string &s, const std::string &sep, std::string &left, std::string &right)
+{
+  std::string::size_type p = s.find(sep);
+  if (p != std::string::npos)
+  {
+    left = s.substr(0, p);
+    right = s.substr(p + sep.size());
+    return true;
+  }
+  left = s;
+  right = "";
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the index of the given string in the given vector or -1 if not found.
+ */
+int index_of(const std::vector<std::string> &list, const std::string &s)
+{
+  std::vector<std::string>::const_iterator location = std::find(list.begin(), list.end(), s);
+  if (location == list.end())
+    return -1;
+  return location - list.begin();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns a string containing all characters beginning at "start" from the given string "id", which form
+ * a valid, unqualified identifier. The returned identifier does not contain any quoting anymore.
+ * Note: this function is UTF-8 safe as it skips over all characters except some which are guaranteed
+ *       not to be part of any valid UTF-8 sequence.
+ *
+ * @param id The string to examine.
+ * @param start The start position to search from.
+ *
+ * @result Returns the first found identifier starting at "start" or an empty string if nothing was 
+ *         found. Parameter "start" points to the first character after the found identifier.
+ */
+std::string get_identifier(const std::string& id, std::string::const_iterator& start)
+{
+  std::string::const_iterator token_end= id.end();
+  bool is_symbol_quoted= false;
+  for (std::string::const_iterator i= start, i_end= token_end; i != i_end; ++i)
+  {
+    if (i_end != token_end)
+      break;
+    switch (*i)
+    {
+      case '.':
+        if (!is_symbol_quoted)
+          token_end= i;
+        break;
+      case ' ':
+        if (!is_symbol_quoted)
+          token_end= i;
+        break;
+      case '\'':
+      case '"':
+      case '`':
+        if (*i == *start)
+        {
+          if (i != start)
+            token_end= i + 1;
+          else
+            is_symbol_quoted= true;
+        }
+        break;
+    }
+  }
+
+  if (token_end - start < 2)
+    is_symbol_quoted= false;
+  std::string result(start, token_end);
+  start= token_end;
+  if (is_symbol_quoted)
+    return result.substr(1, result.size() - 2);
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Splits the given string into identifier parts assuming a format as allowed by the MySQL syntax for
+ * qualified identifiers, e.g. part1.part2.part3 (any of the parts might be quoted).
+ * In addition to the traditional syntax also these enhancements are supported:
+ * - Unlimited level of nesting.
+ * - Quoting might be done using single quotes, double quotes and back ticks.
+ *
+ * If an identifier is not separated by a dot from the rest of the input then this is considered
+ * invalid input and ignored. Only identifiers found until that syntax violation are returned.
+ */
+std::vector<std::string> split_qualified_identifier(const std::string& id)
+{
+  std::vector<std::string> result;
+  std::string::const_iterator iterator= id.begin();
+  std::string token;
+  do
+  {
+    token = get_identifier(id, iterator);
+    if (token == "")
+      break;
+    result.push_back(token);
+  } while ((iterator != id.end()) && (*iterator++ == '.'));
+  
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Removes the first path part from @path and returns this part as well as the shortend path.
+ */
+std::string pop_path_front(std::string &path)
+{
+  std::string::size_type p= path.find('/');
+  std::string res;
+  if (p == std::string::npos || p == path.length()-1)
+  {
+    res= path;
+    path.clear();
+    return res;
+  }
+  res= path.substr(0, p);
+  path= path.substr(p+1);
+  return res;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Removes the last path part from @path and returns this part as well as the shortend path.
+ */
+std::string pop_path_back(std::string &path)
+{
+  std::string::size_type p= path.rfind('/');
+  std::string res;
+  if (p == std::string::npos || p == path.length()-1)
+  {
+    res= path;
+    path.clear();
+    return res;
+  }
+  res= path.substr(p+1);
+  path= path.substr(0, p);
+  return res;
+}
+  
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Helper routine to format a string into an STL string using the printf parameter syntax.
+ */
+std::string strfmt(const char *fmt, ...)
+{
+  va_list args;
+  char *tmp;
+  std::string ret;
+  
+  va_start(args, fmt);
+  tmp= g_strdup_vprintf(fmt, args);
+  va_end(args);
+  
+  ret= tmp;
+  g_free(tmp);
+  
+  return ret;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
+BASELIBRARY_PUBLIC_FUNC std::string sizefmt(int64_t s, bool metric)
+{
+  float one_kb;
+  const char* unit;
+  if (metric)
+  {
+    one_kb = 1000;
+    unit = "B";
+  }
+  else
+  {
+    one_kb = 1024;
+    unit = "iB";   // http://en.wikipedia.org/wiki/Binary_prefix
+  }
+
+  if (s < one_kb)
+    return strfmt("%iB", (int) s);
+  else
+  {
+    float value = s / one_kb;
+    if (value < one_kb)
+      return strfmt("%.02fK%s", value, unit);
+    else
+    {
+      value /= one_kb;
+      if (value < one_kb)
+        return strfmt("%.02fM%s", value, unit);
+      else
+      {
+        value /= one_kb;
+        if (value < one_kb)
+          return strfmt("%.02fG%s", value, unit);
+        else
+        {
+          value /= one_kb;
+          if (value < one_kb)
+            return strfmt("%.02fT%s", value, unit);
+          else
+            return strfmt("%.02fP%s", value / one_kb, unit);
+        }
+      }
+    }
+  }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Helper routine to strip a string into an STL string using the printf parameter syntax.
+ */
+std::string strip_text(const std::string &text, bool left, bool right)
+{//TODO sigc rewrite it in std/boost way
+  std::locale loc;
+  boost::function<bool (std::string::value_type)> is_space=
+    boost::bind(&std::isspace<std::string::value_type>, _1, loc);
+
+  std::string::const_iterator l_edge= !left ? text.begin() :
+    std::find_if(text.begin(), text.end(), boost::bind(std::logical_not<bool>(), boost::bind(is_space,_1)));
+  std::string::const_reverse_iterator r_edge= !right ? text.rbegin() :
+    std::find_if(text.rbegin(), text.rend(), boost::bind(std::logical_not<bool>(), boost::bind(is_space,_1)));
+
+  return std::string(l_edge, r_edge.base());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Add the given extension to the filename, if necessary.
+ * 
+ */
+std::string normalize_path_extension(std::string filename, std::string extension)
+{
+  if (!extension.empty() && !filename.empty())
+  {
+    std::string::size_type p = filename.rfind('.');
+    std::string old_extension = p != std::string::npos ? filename.substr(p) : "";
+
+    if (old_extension.find('/') != std::string::npos || old_extension.find('\\') != std::string::npos)
+      old_extension.clear();
+  
+    if (!extension.empty() && extension[0] != '.')
+      extension = "."+extension;
+
+    if (old_extension.empty())
+      filename.append(extension);
+    else
+    {
+      if (old_extension != extension)
+        filename = filename.substr(0, p).append(extension);
+    }      
+  }
+  return filename;
+}
+
+/**
+ * Removes all unnecessary path separators as well as "./" combinations.
+ * If there is a parent-dir entry (../) then this as well as the directly prefacing
+ * dir entry is removed.
+ */
+std::string normalize_path(const std::string path)
+{
+  // First convert all separators to the one that is used on the platform (no mix)
+  // and ease so at the same time further processing here.
+  std::string result;
+  std::string separator(1, G_DIR_SEPARATOR);
+  
+  result= path;
+  replace(result, "\\", separator);
+  replace(result, "/", separator);
+  
+  std::string double_separator = separator + separator;
+  while (result.find(double_separator) != std::string::npos)
+    replace(result, double_separator, separator);
+  
+  // Sanity check. Return *after* we have converted the slashs. This is part of the normalization.
+  if (result.size() < 2)
+    return result;
+  
+  std::vector<std::string> parts= split(result, separator);
+  
+  // Construct result backwards while examining the path parts.
+  result= "";
+  int pending_count= 0;
+  for (int i= parts.size() - 1; i >= 0; i--)
+  {
+    if (parts[i].compare(".") == 0)
+      // References to the current directory can be removed without further change.
+      continue;
+    
+    if (parts[i].compare("..") == 0)
+    {
+      // An entry that points back to the parent dir.
+      // Ignore this and keep track for later removal of the parent dir.
+      pending_count++;
+    }
+    else
+      if (pending_count > 0)
+      {
+        // If this is a normal dir entry and we have pending parent-dir redirections
+        // then go one step up by removing (ignoring) this entry.
+        pending_count--;
+      }
+      else
+        result = separator + parts[i] + result;
+  }
+  
+  // Don't return the leading separator.
+  return result.substr(1);
+}
+
+std::string expand_tilde(const std::string &path)
+{
+  if (!path.empty() && path[0] == '~' && (path.size() == 1 || path[1] == G_DIR_SEPARATOR))
+  {
+    const char *homedir = g_getenv("HOME");
+    if (!homedir)
+      homedir = g_get_home_dir();
+    
+    return std::string(homedir).append(path.substr(1));
+  }
+  return path;
+}
+  
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Checks the input for characters not allowed in the file system and converts them to underscore.
+ */
+std::string make_valid_filename(const std::string &name)
+{
+  std::string result;
+  std::string illegal_chars = "\\/:?\"<>|*";
+  for (std::string::const_iterator iterator = name.begin(); iterator != name.end(); ++iterator)
+  {
+    if (illegal_chars.find(*iterator) != std::string::npos)
+      result += '_';
+    else
+      result += *iterator;
+  }
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Get a string containing the 'len' left most characters.
+ */
+std::string left(const std::string& s, unsigned int len)
+{
+  return s.substr(0, len);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Get a string containing the 'len' right most characters.
+ */
+std::string right(const std::string& s, unsigned int len)
+{
+  // If len is negative or zero, then an empty string is returned
+  if (len < 1)
+    return "";
+  
+  return s.substr(std::max((int)(s.length() - len), 0));
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Tests if t begins with part.
+ */
+bool starts_with(const std::string& s, const std::string& part)
+{
+  return s.compare(0, part.length(), part) == 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Tests if t ends with part.
+ */
+bool ends_with(const std::string& s, const std::string& part)
+{
+  int start_at = s.length() - part.length();
+  
+  // If start_at < 0 then the search string is bigger then the source, so the results is false.
+  // On the other hand, if it starts after the end, something went wrong...
+  if (start_at < 0 || start_at > (int)s.length())
+    return false;
+  
+  return s.compare(start_at, std::string::npos, part) == 0;
+}
+//--------------------------------------------------------------------------------------------------
+
+void replace(std::string& value, const std::string& search, const std::string& replacement)
+{
+  std::string::size_type next;
+
+  for (next = value.find(search); next != std::string::npos; next = value.find(search,next))
+  {
+    value.replace(next,search.length(), replacement);
+    next += replacement.length();
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Write text data to file, converting to \r\n if in Windows.
+ */
+void set_text_file_contents(const std::string &filename, const std::string &data)
+{
+#ifdef _WIN32
+  // Opening a file in text mode will automatically convert \n to \r\n.
+  FILE *f = base_fopen(filename.c_str(), "w+t");
+  if (!f)
+    throw std::runtime_error(g_strerror(errno));
+
+  size_t bytes_written= fwrite(data.data(), 1, data.size(), f);
+  fclose(f);
+  if (bytes_written != data.size())
+    throw std::runtime_error(g_strerror(errno));
+#else
+  GError *error = NULL;
+  g_file_set_contents(filename.c_str(), data.data(), data.size(), &error);
+  if (error)
+  {
+    std::string msg = error->message;
+    g_error_free(error);
+    throw std::runtime_error(msg);
+  }
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Read text data from file, converting to \n if necessary.
+ */
+std::string get_text_file_contents(const std::string &filename)
+{
+  FILE *f = base_fopen(filename.c_str(), "r");
+  if (!f)
+    throw std::runtime_error(g_strerror(errno));
+
+  std::string text;
+  char buffer[4098];
+  size_t c;
+
+  while ((c = fread(buffer, 1, sizeof(buffer), f)) > 0)
+  {
+    char *bufptr = buffer;
+    char *eobuf = buffer + c;
+    while (bufptr < eobuf)
+    {
+      char *eol = (char*)memchr(bufptr, '\r', eobuf - bufptr);
+      if (eol)
+      {
+        // if \r is in string, we append everyting up to it and then add \n
+        text.append(bufptr, eol-bufptr);
+        text.append("\n");
+        bufptr = eol+1;
+        if (*bufptr == '\n') // make sure it is \r\n and not only \r
+          bufptr++;
+      }
+      else
+      {
+        // no \r found, append the whole thing and go for more
+        text.append(bufptr);
+        break;
+      }
+    }
+  }
+
+  if (c == (size_t)-1)
+  {
+    int err = errno;
+    fclose(f);
+    throw std::runtime_error(g_strerror(err));
+  }
+
+  fclose(f);
+
+  return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Escape a string to be used in a SQL query
+ * Same code as used by mysql. Handles null bytes in the middle of the string.
+ * If wildcards is true then _ and % are masked as well.
+ */
+std::string escape_sql_string(const std::string &s, bool wildcards)
+{
+  std::string result;
+  result.reserve(s.size());
+  
+  for (std::string::const_iterator ch= s.begin(); ch != s.end(); ++ch)
+  {
+    char escape= 0;
+    
+    switch (*ch) 
+    {
+      case 0:                             /* Must be escaped for 'mysql' */
+        escape= '0';
+        break;
+      case '\n':                          /* Must be escaped for logs */
+        escape= 'n';
+        break;
+      case '\r':
+        escape= 'r';
+        break;
+      case '\\':
+        escape= '\\';
+        break;
+      case '\'':
+        escape= '\'';
+        break;
+      case '"':                           /* Better safe than sorry */
+        escape= '"';
+        break;
+      case '\032':                        /* This gives problems on Win32 */
+        escape= 'Z';
+        break;
+      case '_':
+        if (wildcards)
+          escape = '_';
+        break;
+      case '%':
+        if (wildcards)
+          escape = '%';
+        break;
+    }
+    if (escape)
+    {
+      result.push_back('\\');
+      result.push_back(escape);
+    }
+    else
+      result.push_back(*ch);
+  }
+  return result;
+}
+
+/**
+ * Removes repeated quote chars and supported escape sequences from the given string.
+ * Invalid escape sequences are handled like in the server, by dropping the backslash and
+ * using the wrong char as normal char.
+ */
+std::string unescape_sql_string(const std::string &s, char quote_char)
+{
+  std::string result;
+  result.reserve(s.size());
+  
+  for (std::string::const_iterator ch = s.begin(); ch != s.end(); ++ch)
+  {
+    int out = *ch;
+    if (out == quote_char)
+    {
+      if ((ch + 1) != s.end() && *(ch + 1) == quote_char)
+        ++ch; // Skip the first of the quote char pair.
+    }
+    else if (out == '\\')
+    {
+      ++ch;
+      if (ch == s.end())
+        break;
+
+      switch (*ch)
+      {
+        case 'n': out = '\n'; break;
+        case 't': out = '\t'; break;
+        case 'r': out = '\r'; break;
+        case 'b': out = '\b'; break;
+        case '0': out = 0; break;         // Ascii null
+        case 'Z': out = '\032'; break;    // Win32 end of file
+        default: out = *ch; break;
+      }
+    }
+    result.push_back(out);
+  }
+  return result;
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+
+// NOTE: This is not the same as escape_sql_string, as embedded ` must be escaped as ``, not \`
+// and \ ' and " must not be escaped
+std::string escape_backticks(const std::string &s)
+{
+  std::string result;
+  result.reserve(s.size());
+  
+  for (std::string::const_iterator ch= s.begin(); ch != s.end(); ++ch)
+  {
+    char escape= 0;
+    
+    switch (*ch) 
+    {
+      case 0:                             /* Must be escaped for 'mysql' */
+        escape= '0';
+        break;
+      case '\n':                          /* Must be escaped for logs */
+        escape= 'n';
+        break;
+      case '\r':
+        escape= 'r';
+        break;
+      case '\032':                        /* This gives problems on Win32 */
+        escape= 'Z';
+        break;
+      case '`':
+        // special case
+        result.push_back('`');
+        break;        
+    }
+    if (escape)
+    {
+      result.push_back('\\');
+      result.push_back(escape);
+    }
+    else
+      result.push_back(*ch);
+  }
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Parses the given command line (which must be a usual mysql start command) and extracts the
+ * value for the given parameter. The function can only return options of the form "option-name = option-value"
+ * (both quoted and unquoted).
+ */
+std::string extract_option_from_command_line(const std::string& option, const std::string &command_line)
+{
+  std::string result;
+  size_t position = command_line.find(option);
+  if (position != std::string::npos)
+  {
+    position += option.size(); // Skip option name and find equal sign.
+    while (position < command_line.size() && command_line[position] != '=')
+      position++;
+
+    if (command_line[position] == '=')
+    {
+      position++;
+
+      // Skip any white space.
+      while (position < command_line.size() && command_line[position] == ' ')
+        position++;
+
+      char terminator;
+      if (command_line[position] == '"' || command_line[position] == '\'')
+        terminator = command_line[position++];
+      else
+        terminator = ' ';
+
+      size_t end_position = command_line.find(terminator, position);
+      if (end_position == std::string::npos)
+      {
+        // Terminator not found means the string was either not properly terminated (if quoted)
+        // or contains no space char. In this case take everything we can get.
+        if (terminator != ' ')
+          position++;
+        result = command_line.substr(position);
+      }
+      else
+        result = command_line.substr(position, end_position - position);
+    }
+  }
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Splits the given font description and returns its details in the provided fields.
+ *
+ * @return True if successful, otherwise false.
+ */
+bool parse_font_description(const std::string &fontspec, std::string &font, float &size, bool &bold,
+                            bool &italic)
+{
+  std::vector<std::string> parts = split(fontspec, " ");
+  font = fontspec;
+  size = 12;
+  bold = false;
+  italic = false;
+  
+  if (parts.empty())
+    return false;
+  
+  if (!parts.empty() && sscanf(parts.back().c_str(), "%f", &size) == 1)
+    parts.pop_back();
+  
+  for (int i= 0; i < 2 && !parts.empty(); i++)
+  {
+    if (g_ascii_strcasecmp(parts.back().c_str(), "bold")==0)
+    {
+      bold = true;
+      parts.pop_back();
+    }
+    
+    if (g_ascii_strcasecmp(parts.back().c_str(), "italic")==0)
+    {
+      italic = true;
+      parts.pop_back();
+    }
+  }
+  
+  if (!parts.empty())
+  {
+    font = parts[0];
+    for (unsigned int i = 1; i < parts.size(); i++)
+      font += " " + parts[i];
+  }
+  return true;  
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string unquote_identifier(const std::string& identifier)
+{
+  int start = 0;
+  int size = identifier.size();
+
+  if (size == 0)
+    return "";
+
+  if (identifier[0] == '"' || identifier[0] == '`')
+    start++;
+
+  if (identifier[size - 1] == '"' || identifier[size - 1] == '`')
+    size--;
+
+  size -= start;
+
+  return identifier.substr(start, size);
+}
+
+//--------------------------------------------------------------------------------------------------
+  
+std::string quote_identifier(const std::string& identifier, const char quote_char)
+{
+  return quote_char + identifier + quote_char;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Quotes the given identifier, but only if it needs to be quoted.
+ * http://dev.mysql.com/doc/refman/5.1/en/identifiers.html specifies what is allowed in unquoted identifiers.
+ * Leading numbers are not strictly forbidden but discouraged as they may lead to ambiguous behavior.
+ */
+std::string quote_identifier_if_needed(const std::string &ident, const char quote_char)
+{
+  bool needs_quotation= is_reserved_word(ident);  // check whether it's a reserved keyword
+  size_t digits = 0;
+
+  if (!needs_quotation)
+  {
+    for (std::string::const_iterator i= ident.begin(); i != ident.end(); ++i)
+    {
+      if ((*i >= 'a' && *i <= 'z') || (*i >= 'A' && *i <= 'Z') || (*i >= '0' && *i <= '9')
+          || (*i == '_') || (*i == '$') || ((unsigned char)(*i) > 0x7F))
+      {
+        if (*i >= '0' && *i <= '9')
+          digits++;
+
+        continue;
+      }
+      needs_quotation = true;
+      break;
+    }
+  }
+
+  if (needs_quotation || digits == ident.length())
+    return quote_char + ident + quote_char;
+  else
+    return ident;
+}
+
+//--------------------------------------------------------------------------------------------------
+  
+/**
+ * Function : stl_string_compare
+ * Description : comparison function to be used on the sorting process
+ * Return Value : following the STL requirements should return true if the
+ *                first string is lower than the second
+ */
+bool stl_string_compare(const std::string &first, const std::string &second, bool case_sensitive)
+{
+  return string_compare(first, second, case_sensitive) < 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Culturally correct string comparison. Also properly compares different normalization forms.
+ * For a large amount of strings this function is not very effective as it generates the sort keys
+ * repeatedly (not to mention normalization).
+ * So if we ever need sorting of 10000 strings we have to add a separate implementation.
+ *
+ * @param first, the left string to compare.
+ * @param second, the right string to compare.
+ * @result   0 - If the strings are equal.
+ *         < 0 - If first sorts before second.
+ *         > 0 - If second sorts before first.
+ */
+int string_compare(const std::string &first, const std::string &second, bool case_sensitive)
+{
+  int result = 0;
+
+  gchar *left = g_utf8_normalize(first.c_str(), -1, G_NORMALIZE_DEFAULT);
+  gchar *right = g_utf8_normalize(second.c_str(), -1, G_NORMALIZE_DEFAULT);
+  if (!case_sensitive)
+  {
+    gchar *s1 = g_utf8_casefold(left, -1);
+    gchar *s2 = g_utf8_casefold(right, -1);
+    result = g_utf8_collate(s1, s2);
+    g_free(s1);
+    g_free(s2);
+  }
+  else
+    result = g_utf8_collate(left, right);
+
+  g_free(left);
+  g_free(right);
+  
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Convenience function to determine if 2 strings are the same. This works also for culturally
+ * equal letters (e.g. german ß and ss) and any normalization form.
+ */
+bool same_string(const std::string &first, const std::string &second, bool case_sensitive)
+{
+  return string_compare(first, second, case_sensitive) == 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Determines if the given candidate is part of the given text. As with the string_compare matches
+ * are culturally correct.
+ */
+bool contains_string(const std::string &text, const std::string &candidate, bool case_sensitive)
+{
+  if (text.size() == 0 || candidate.size() == 0)
+    return false;
+  
+  gchar *hay_stack = g_utf8_normalize(text.c_str(), -1, G_NORMALIZE_DEFAULT);
+  gchar *needle = g_utf8_normalize(candidate.c_str(), -1, G_NORMALIZE_DEFAULT);
+
+  if (!case_sensitive)
+  {
+    gchar *temp = g_utf8_casefold(hay_stack, -1);
+    g_free(hay_stack);
+    hay_stack = temp;
+
+    temp = g_utf8_casefold(needle, -1);
+    g_free(needle);
+    needle = temp;
+  }
+
+  gunichar start_char = g_utf8_get_char(needle);
+
+  bool result = false;
+  gchar *run = hay_stack;
+  while (!result)
+  {
+    gchar *p = g_utf8_strchr(run, -1, start_char);
+    if (p == NULL)
+      break;
+
+    // Found the start char in the remaining text. See if that part matches the needle.
+    gchar *needle_run = needle;
+    bool mismatch = false;
+    for (size_t i = 0; i < candidate.size(); ++i, ++p, ++needle_run)
+    {
+      if (g_utf8_get_char(needle_run) != g_utf8_get_char(p))
+      {
+        mismatch = true;
+        break;
+      }
+    }
+    if (mismatch)
+      ++run;
+    else
+      result = true;
+  }
+  g_free(hay_stack);
+  g_free(needle);
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool is_reserved_word(const std::string &word)
+{
+    std::string upper = base::toupper(word);
+    for (const char **kw = reserved_keywords; *kw != NULL; ++kw)
+    {
+      if (upper.compare(*kw) == 0)
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+EolHelpers::Eol_format EolHelpers::detect(const std::string &text)
+{
+  std::string::size_type pos= text.find_first_of("\r\n");
+  if (std::string::npos == pos)
+    return default_eol_format();
+  if ('\r' == text[pos])
+    return ('\n' == text[pos+1]) ? eol_crlf : eol_cr;
+  else
+    return eol_lf;
+}
+
+int EolHelpers::count_lines(const std::string &text)
+{
+  Eol_format eol_format= detect(text);
+  char eol_sym= (eol_cr == eol_format) ? '\r' : '\n';
+  return std::count(text.begin(), text.end(), eol_sym);
+}
+
+bool EolHelpers::check(const std::string &text)
+{
+  std::string::size_type pos= text.find_first_of("\n\r");
+  if (std::string::npos == pos)
+    return true;
+  Eol_format eol_format= detect(text);
+  if (eol_lf == eol_format)
+  {
+    if (text.find("\r") != std::string::npos)
+      return false;
+  }
+  else if (eol_cr == eol_format)
+  {
+    if (text.find("\n") != std::string::npos)
+      return false;
+  }
+  else if (eol_crlf == eol_format)
+  {
+    do
+    {
+      if (('\n' == text[pos]) || ('\n' != text[pos+1]))
+        return false;
+      ++pos;
+      ++pos;
+      pos= text.find_first_of("\n\r", pos);
+    }
+    while (std::string::npos != pos);
+  }
+  return true;
+}
+
+void EolHelpers::conv(const std::string &src_text, Eol_format src_eol_format, std::string &dest_text, Eol_format dest_eol_format)
+{
+  if (src_eol_format == dest_eol_format)
+    throw std::logic_error("source and target line ending formats coincide, no need to convert");
+
+  const std::string &src_eol= eol(src_eol_format);
+  const std::string &dest_eol= eol(dest_eol_format);
+  std::string::size_type src_eol_length= src_eol.size();
+
+  if (dest_eol.size() != src_eol.size())
+  {
+    dest_text.clear();
+    int line_count= count_lines(src_text);
+    size_t dest_size= src_text.size() + line_count * (dest_eol.size() - src_eol.size());
+    dest_text.reserve(dest_size);
+    std::string::size_type prev_pos= 0;
+    std::string::size_type pos= 0;
+    while ((pos= src_text.find(src_eol, pos)) != std::string::npos)
+    {
+      dest_text.append(src_text, prev_pos, pos-prev_pos).append(dest_eol);
+      pos+= src_eol_length;
+      prev_pos= pos;
+    }
+    dest_text.append(src_text, prev_pos, std::string::npos);
+  }
+  else
+  {
+    dest_text= src_text;
+    std::string::size_type pos= 0;
+    while ((pos= dest_text.find(src_eol, pos)) != std::string::npos)
+    {
+      dest_text.replace(pos, src_eol_length, dest_eol);
+      pos+= src_eol_length;
+    }
+  }
+}
+
+void EolHelpers::fix(const std::string &src_text, std::string &dest_text, Eol_format eol_format)
+{
+  const std::string &dest_eol= eol(eol_format);
+  std::string::size_type dest_eol_length= dest_eol.size();
+
+  dest_text.clear();
+  if (eol_crlf == eol_format)
+  {
+    int cr_count= std::count(src_text.begin(), src_text.end(), '\r');
+    int lf_count= std::count(src_text.begin(), src_text.end(), '\n');
+    int crlf_count= 0;
+    {
+      std::string::size_type pos= 0;
+      while ((pos= src_text.find(dest_eol, pos)) != std::string::npos)
+      {
+        ++crlf_count;
+        pos+= dest_eol_length;
+      }
+    }
+    size_t dest_size= src_text.size() + (cr_count - crlf_count) + (lf_count - crlf_count);
+    dest_text.reserve(dest_size);
+  }
+
+  std::string::size_type prev_pos= 0;
+  std::string::size_type pos= 0;
+  std::string crlf= "\r\n";
+  while ((pos= src_text.find_first_of(crlf, pos)) != std::string::npos)
+  {
+    dest_text.append(src_text, prev_pos, pos-prev_pos).append(dest_eol);
+    if (('\r' == src_text[pos]) && ('\n' == src_text[pos+1]))
+      ++pos;
+    ++pos;
+    prev_pos= pos;
+  }
+  dest_text.append(src_text, prev_pos, std::string::npos);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string reflow_text(const std::string &text, unsigned int line_length, const std::string &left_fill, bool indent_first, unsigned int max_lines)
+{
+  bool use_fill = true;
+  const unsigned int minimum_text_length = 5;
+
+  //  Check if the line length complies to the minimum required
+  if (line_length < minimum_text_length)
+    return "";
+
+  //  Only use left_fill when it's small enough to fit in the line and make the function able
+  //  to do what it has to do
+  const unsigned int left_fill_length = left_fill.size();
+  
+  if (left_fill_length + minimum_text_length >= line_length)
+    use_fill = false;
+
+  //  Check for empty string...if we let it go, a left_fill will be inserted
+  if (text.size() == 0)
+    return "";
+  
+  //  Check if it's a valid utf8 string
+  const char *invalid_data_ptr = NULL;
+
+  if (g_utf8_validate(text.c_str(), text.size(), &invalid_data_ptr) != TRUE)
+    throw std::invalid_argument(std::string("base::reflow_text received an invalid string: ") + text);
+  
+  const std::string initial = (indent_first && use_fill) ? left_fill : "";
+  const std::string new_line = use_fill ? std::string("\n") + left_fill : std::string("\n");
+  std::string result = initial;
+
+  const char *char_string = text.c_str();
+  const char *iter = char_string;
+
+  unsigned int space_position_source = 0;
+  unsigned int line_char_counter = 0;
+  unsigned int line_counter = 0;
+  unsigned int char_count_after_space = 0;
+  unsigned int text_real_length = use_fill ? line_length - left_fill_length : line_length;
+
+
+
+  while (*iter)
+  {
+    //  Get the full utf8 char into the result string
+    result += std::string(iter, g_utf8_skip[*(const guchar *)(iter)]);
+
+    line_char_counter++;
+    char_count_after_space++;
+
+    if (g_unichar_isspace(*iter) && line_char_counter > left_fill_length)
+    {
+        space_position_source = iter - char_string + 1;
+        char_count_after_space = 0;
+    }
+
+    if (line_char_counter == text_real_length)
+    {
+      //  Check for special case when we have a word as big as a line
+      if (char_count_after_space == text_real_length)
+      {
+        result += new_line;
+
+        space_position_source += char_count_after_space;
+        line_char_counter = char_count_after_space = 0;
+      }
+      else
+      {
+        //  Find last space character position in the result string
+        unsigned int break_position = space_position_source + line_counter * new_line.size() + initial.size();
+
+        //  Insert a \n in the right position, right after the space char(or at the end of the string)
+        result.size() == break_position ? result += new_line : result.insert(break_position, new_line);
+
+        //  Mark the characters that were already inserted after the new line
+        line_char_counter = char_count_after_space;
+      }
+      
+      if (++line_counter == max_lines)
+      {
+        result.resize(result.size() - char_count_after_space - new_line.size());
+        result += "\n(...)";
+        break;
+      }
+    }
+
+    iter = g_utf8_next_char((gchar *)iter);      //  Get the next char from the sequence
+  }
+
+#ifdef DEBUG
+  if (g_utf8_validate(result.c_str(), result.size(), &invalid_data_ptr) != TRUE)
+    throw std::logic_error(strfmt("base::reflow_text produced an invalid string:\nInput:\n%s\nOutput:\n%s", text.c_str(), result.c_str()));
+#endif
+  
+  return result;
+}
+
+} // namespace base

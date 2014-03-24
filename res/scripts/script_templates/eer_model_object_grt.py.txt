@@ -1,0 +1,18 @@
+## EER Model Utility
+# MySQL Workbench Plugin
+# <description>
+# Written in MySQL Workbench %wbversion%
+
+from wb import *
+import grt
+#import mforms
+
+ModuleInfo = DefineModule(%modulename%, author="Author Name", version="1.0", description="Contains Plugin %pluginname%")
+
+# This plugin takes the EER Model as an argument and will appear in the Plugins -> Utilities menu
+@ModuleInfo.plugin(%pluginname%, caption="Caption", description="description", input=[wbinputs.currentModel()], pluginMenu="Utilities")
+@ModuleInfo.export(grt.INT, grt.classes.workbench_physical_Model)
+def %functionname%(model):
+    # Put plugin contents here
+    return 0
+

@@ -1,0 +1,1823 @@
+/* 
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+
+#include "stdafx.h"
+
+#include "recordset_be.h"
+#include "recordset_data_storage.h"
+#include "sqlide_generics_private.h"
+#include "grtpp.h"
+#include "cppdbc.h"
+#include "grtui/binary_data_editor.h"
+
+#include "mforms/menubar.h"
+#include "mforms/toolbar.h"
+#include "mforms/utilities.h"
+#include "mforms/filechooser.h"
+
+#include "base/string_utilities.h"
+#include "base/boost_smart_ptr_helpers.h"
+#include "sqlite/command.hpp"
+#include <boost/foreach.hpp>
+#include <fstream>
+
+#include "recordset_text_storage.h"
+
+using namespace bec;
+using namespace base;
+
+#define CATCH_AND_DISPATCH_EXCEPTION(rethrow, context) \
+catch (sql::SQLException &e)\
+{\
+  rethrow ? throw : task->send_msg(grt::ErrorMsg, strfmt("Error Code: %i\n%s", e.getErrorCode(), e.what()), context);\
+}\
+catch (sqlite::database_exception &e)\
+{\
+  rethrow ? throw : task->send_msg(grt::ErrorMsg, e.what(), context);\
+}\
+catch (std::exception &e)\
+{\
+  rethrow ? throw : task->send_msg(grt::ErrorMsg, e.what(), context);\
+}
+
+
+const std::string ERRMSG_PENDING_CHANGES= _("There are pending changes. Please commit or rollback first.");
+std::string Recordset::_add_change_record_statement= "insert into `changes` (`record`, `action`, `column`) values (?, ?, ?)";
+
+
+Recordset::ClientData::~ClientData()
+{
+}
+
+
+Recordset::Ref Recordset::create(bec::GRTManager *grtm)
+{
+  Ref instance(new Recordset(grtm));
+  return instance;
+}
+
+
+Recordset::Ref Recordset::create(GrtThreadedTask::Ref parent_task)
+{
+  Ref instance(new Recordset(parent_task));
+  return instance;
+}
+
+static gint next_id = 0;
+
+Recordset::Recordset(GRTManager *grtm)
+  : VarGridModel(grtm), _inserts_editor(false), task(GrtThreadedTask::create(grtm))
+{
+  _toolbar = NULL;
+  _client_data = NULL;
+  _context_menu = 0;
+  _id = g_atomic_int_get(&next_id);
+  g_atomic_int_inc(&next_id);
+
+  task->send_task_res_msg(false);
+  apply_changes= boost::bind(&Recordset::apply_changes_, this);
+  register_default_actions();
+  reset();
+}
+
+
+Recordset::Recordset(GrtThreadedTask::Ref parent_task)
+  : VarGridModel(parent_task->grtm()), _inserts_editor(false), task(GrtThreadedTask::create(parent_task))
+{
+  _toolbar = NULL;
+  _client_data = NULL;
+  _context_menu = 0;
+  _id = g_atomic_int_get(&next_id);
+  g_atomic_int_inc(&next_id);
+
+  task->send_task_res_msg(false);
+  apply_changes= boost::bind(&Recordset::apply_changes_, this);
+  register_default_actions();
+  reset();
+}
+
+
+Recordset::~Recordset()
+{
+  delete _client_data;
+  delete _context_menu;
+}
+
+
+bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow)
+{
+  VarGridModel::reset();
+
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+
+  bool res= false;
+
+  _aux_column_count= 0;
+  _rowid_column= 0;
+  _real_row_count= 0;
+  _min_new_rowid= 0;
+  _next_new_rowid= 0;
+  _sort_columns.clear();
+  _column_filter_expr_map.clear();
+  _data_search_string.clear();
+
+  RETAIN_WEAK_PTR (Recordset_data_storage, data_storage_ptr, data_storage)
+  if (data_storage)
+  {
+    try
+    {
+      data_storage->do_unserialize(this, data_swap_db.get());
+      rebuild_data_index(data_swap_db.get(), false, false);
+
+      _column_count= _column_names.size();
+      _aux_column_count= data_storage->aux_column_count();
+
+      // add aux `id` column required by 2-level caching
+      ++_aux_column_count;
+      ++_column_count;
+      _rowid_column= _column_count - 1;
+      _column_names.push_back("id");
+      _column_types.push_back(int());
+      _real_column_types.push_back(int());
+      _column_quoting.push_back(false);
+
+      {
+        sqlite::query q(*data_swap_db, "select coalesce(max(id)+1, 0) from `data`");
+        if (q.emit())
+        {
+          boost::shared_ptr<sqlite::result> rs= q.get_result();
+          _min_new_rowid= rs->get_int(0);
+        }
+        else
+        {
+          _min_new_rowid= 0;
+        }
+        _next_new_rowid= _min_new_rowid;
+      }
+
+      recalc_row_count(data_swap_db.get());
+
+      _readonly= data_storage->readonly();
+
+      _readonly_reason = data_storage->readonly_reason();
+      res = true;
+    }
+    CATCH_AND_DISPATCH_EXCEPTION(rethrow, "Reset recordset")
+  }
+
+  refresh_ui_status_bar();
+  refresh_ui();
+
+  return res;
+}
+
+
+void Recordset::reset()
+{
+  reset(false);
+}
+
+
+bool Recordset::reset(bool rethrow)
+{
+  return reset(_data_storage, rethrow);
+}
+
+
+bool Recordset::can_close()
+{
+  return can_close(true);
+}
+
+
+bool Recordset::can_close(bool interactive)
+{
+  bool res= !has_pending_changes();
+  if (!res && interactive)
+  {
+    int r= mforms::Utilities::show_warning(_("Close Recordset"),
+      strfmt(_("There are unsaved changed to the recordset data: %s. Do you want to apply them before closing?"), _caption.c_str()),
+      _("Apply"), _("Cancel"), _("Don't Apply"));
+    switch (r)
+    {
+    case mforms::ResultOk: // Apply
+      apply_changes();
+      res= !has_pending_changes();
+      break;
+    case mforms::ResultCancel:
+      res= false;
+      break;
+    case mforms::ResultOther:
+      res= true;
+      break;
+    }
+  }
+  return res;
+}
+
+
+bool Recordset::close()
+{
+  RETVAL_IF_FAIL_TO_RETAIN_RAW_PTR (Recordset, this, false)
+  on_close(weak_ptr_from(this));
+  return true;
+}
+
+
+void Recordset::refresh()
+{
+  if (has_pending_changes())
+  {
+    task->send_msg(grt::ErrorMsg, ERRMSG_PENDING_CHANGES, _("Refresh Recordset"));
+    return;
+  }
+
+  std::string data_search_string = _data_search_string;
+
+  VarGridModel::refresh();
+  reset();
+
+  // reapply filter, if needed
+  if (!data_search_string.empty())
+    set_data_search_string(data_search_string);
+}
+
+
+void Recordset::rollback()
+{
+  if (!reset(false))
+    task->send_msg(grt::ErrorMsg, _("Rollback failed"), _("Rollback recordset changes"));
+}
+
+
+void Recordset::refresh_ui_status_bar()
+{
+  if (_grtm->in_main_thread())
+    refresh_ui_status_bar_signal();
+}
+
+
+RowId Recordset::real_row_count() const
+{
+  return _real_row_count;
+}
+
+
+void Recordset::recalc_row_count(sqlite::connection *data_swap_db)
+{
+  // row count (visible rows only, some can be filtered out by applied column filters)
+  {
+    sqlite::query q(*data_swap_db, "select count(*) from `data_index`");
+    if (q.emit())
+    {
+      boost::shared_ptr<sqlite::result> rs= q.get_result();
+      _row_count= rs->get_int(0);
+    }
+    else
+    {
+      _row_count= 0;
+    }
+  }
+
+  // real row count (as if no column filters applied)
+  {
+    sqlite::query q(*data_swap_db, "select count(*) from `data`");
+    if (q.emit())
+    {
+      boost::shared_ptr<sqlite::result> rs= q.get_result();
+      _real_row_count= rs->get_int(0);
+    }
+    else
+    {
+      _real_row_count= 0;
+    }
+  }
+}
+
+
+Recordset::Cell Recordset::cell(RowId row, ColumnId column)
+{
+  if (_row_count == row)
+  {
+    RowId rowid= _next_new_rowid++; // rowid of the new record
+    {
+      boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+      sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
+
+      // insert new empty data record
+      {
+        std::list<sqlite::variant_t> bind_vars;
+        bind_vars.push_back((int)rowid);
+        emit_partition_commands(data_swap_db.get(), data_swap_db_partition_count(), "insert into `data%s` (id) values (?)", bind_vars);
+      }
+
+      // insert new data index record
+      {
+        sqlite::command insert_data_index_record_statement(*data_swap_db, "insert into `data_index` (id) values (?)");
+        insert_data_index_record_statement % (int)rowid;	
+        insert_data_index_record_statement.emit();
+      }
+
+      // log insert action
+      {
+        sqlite::command add_change_record_statement(*data_swap_db, _add_change_record_statement);
+        add_change_record_statement % (int)rowid;
+        add_change_record_statement % 1;
+        static sqlite::null_type null_obj;
+        add_change_record_statement % null_obj;
+        add_change_record_statement.emit();
+      }
+
+      transaction_guarder.commit();
+    }
+
+    _data.resize(_data.size() + _column_count);
+    ++_row_count;
+
+    // init new row fields with null-values
+    Cell new_cell= _data.begin() + (_data.size() - _column_count);
+    for (ColumnId col= 0; _column_count > col; ++col, ++new_cell)
+      *(new_cell)= sqlite::null_t();
+    _data[_data.size() - _column_count + _rowid_column]= (int)rowid;
+
+  }
+
+  return VarGridModel::cell(row, column);
+}
+
+
+void Recordset::after_set_field(const NodeId &node, int column, const sqlite::variant_t &value)
+{
+  VarGridModel::after_set_field(node, column, value);
+  mark_dirty(node[0], column, value);
+  refresh_ui_status_bar();
+  tree_changed();
+}
+
+
+void Recordset::mark_dirty(RowId row, ColumnId column, const sqlite::variant_t &new_value)
+{
+  base::RecMutexLock data_mutex(_data_mutex);
+
+  RowId rowid(row);
+  NodeId node(row);
+  if (get_field_(node, _rowid_column, (int&)rowid))
+  {
+    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+    sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
+
+    // update record
+    {
+      size_t partition= data_swap_db_column_partition(column);
+      std::string partition_suffix= data_swap_db_partition_suffix(partition);
+      std::string sql= strfmt("update `data%s` set `_%u`=? where `id`=?", partition_suffix.c_str(), (unsigned int) column);
+      sqlite::command update_data_record_statement(*data_swap_db, sql);
+      sqlide::BindSqlCommandVar bind_sql_command_var(&update_data_record_statement);
+      boost::apply_visitor(bind_sql_command_var, new_value);
+      update_data_record_statement % (int)rowid;
+      update_data_record_statement.emit();
+    }
+
+    // log update action
+    {
+      sqlite::command add_data_change_record_statement(*data_swap_db, _add_change_record_statement);
+      add_data_change_record_statement % (int)rowid;
+      add_data_change_record_statement % 0;
+      add_data_change_record_statement % (int)column;
+      add_data_change_record_statement.emit();
+    }
+
+    transaction_guarder.commit();
+  }
+}
+
+std::string Recordset::caption()
+{
+  return base::strfmt("%s%s", _caption.c_str(), has_pending_changes()?"*":"");
+}
+
+bool Recordset::delete_node(const bec::NodeId &node)
+{
+  std::vector<bec::NodeId> nodes(1, node);
+  return delete_nodes(nodes);
+}
+
+
+bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
+{
+  {
+    base::RecMutexLock data_mutex(_data_mutex);
+
+    {
+      std::sort(nodes.begin(), nodes.end());
+      std::vector<bec::NodeId>::iterator i= std::unique(nodes.begin(), nodes.end());
+      nodes.erase(i, nodes.end());
+    }
+    RowId processed_node_count= 0;
+
+    BOOST_FOREACH (const NodeId &node, nodes)
+    {
+      RowId row= node[0] - processed_node_count;
+      if (!node.is_valid() || (row >= _row_count))
+        return false;
+    }
+
+    BOOST_FOREACH (const NodeId &node, nodes)
+    {
+      node[0]-= processed_node_count;
+      RowId row= node[0];
+
+      int rowid;
+      if (get_field_(node, _rowid_column, rowid))
+      {
+        boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+        sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
+
+        // save copy of the record being deleted
+        for (size_t partition= 0, partition_count= data_swap_db_partition_count(); partition < partition_count; ++partition)
+        {
+          std::string partition_suffix= data_swap_db_partition_suffix(partition);
+          sqlite::command save_deleted_data_record_statement(*data_swap_db,
+            strfmt("insert into `deleted_rows%s` select * from `data%s` where id=?", partition_suffix.c_str(), partition_suffix.c_str()));
+          save_deleted_data_record_statement % rowid;
+          save_deleted_data_record_statement.emit();
+        }
+
+        // delete data record
+        {
+          std::list<sqlite::variant_t> bind_vars;
+          bind_vars.push_back(rowid);
+          emit_partition_commands(data_swap_db.get(), data_swap_db_partition_count(), "delete from `data%s` where id=?", bind_vars);
+        }
+
+        // delete data index record
+        {
+          sqlite::command delete_data_index_record_statement(*data_swap_db, "delete from `data_index` where id=?");
+          delete_data_index_record_statement % rowid;
+          delete_data_index_record_statement.emit();
+        }
+
+        // log delete action
+        {
+          sqlite::command add_change_record_statement(*data_swap_db, _add_change_record_statement);
+          add_change_record_statement % rowid;
+          add_change_record_statement % -1;
+          static sqlite::null_type null_obj;
+          add_change_record_statement % null_obj;
+          add_change_record_statement.emit();
+        }
+
+        transaction_guarder.commit();
+
+        --_row_count;
+        --_data_frame_end;
+
+        // delete record from cached data frame
+        {
+          Cell row_begin= _data.begin() + (row - _data_frame_begin) * _column_count;
+          _data.erase(row_begin, row_begin + _column_count);
+        }
+
+        ++processed_node_count;
+      }
+    }
+
+    nodes.clear();
+  }
+
+  if (rows_changed)
+    rows_changed();
+
+  refresh_ui_status_bar();
+
+  return true;
+}
+
+
+bool Recordset::has_pending_changes()
+{
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  if (data_swap_db)
+  {
+    sqlite::query check_pending_changes_statement(*data_swap_db, "select exists(select 1 from `changes`)");
+    boost::shared_ptr<sqlite::result> rs= check_pending_changes_statement.emit_result();
+    return (rs->get_int(0) == 1);
+  }
+  else
+  {
+    return false;
+  }
+}
+
+
+void Recordset::pending_changes(int &upd_count, int &ins_count, int &del_count) const
+{
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+
+  std::string count_pending_changes_statement_sql=
+    "select 1, (select count(*) from `data` where id>=?)\n"
+    "union all\n"
+    "select -1, (select count(*) from `deleted_rows` where id<?)\n"
+    "union all\n"
+    "select 0, (select count(1) from\n"
+    "(select `record` from `changes` where `action`=0 and `record`<? group by `record`\n"
+    "except\n"
+    "select id from `deleted_rows`))";
+  sqlite::query count_pending_changes_statement(*data_swap_db, count_pending_changes_statement_sql);
+  count_pending_changes_statement % (int)_min_new_rowid;
+  count_pending_changes_statement % (int)_min_new_rowid;
+  count_pending_changes_statement % (int)_min_new_rowid;
+  boost::shared_ptr<sqlite::result> rs= count_pending_changes_statement.emit_result();
+  do
+  {
+    switch (rs->get_int(0))
+    {
+    case 0:
+      upd_count= rs->get_int(1);
+      break;
+    case 1:
+      ins_count= rs->get_int(1);
+      break;
+    case -1:
+      del_count= rs->get_int(1);
+      break;
+    }
+  }
+  while (rs->next_row());
+}
+
+
+grt::StringRef Recordset::do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordset_data_storage::Ptr data_storage_ptr)
+{
+  RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, self_ptr, self, grt::StringRef(""))
+  RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset_data_storage, data_storage_ptr, data_storage, grt::StringRef(""))
+  try
+  {
+    data_storage->apply_changes(self_ptr);
+    task->send_msg(grt::InfoMsg, _("Commit complete"), _("Commit recordset changes"));
+    reset(data_storage_ptr, false);
+  }
+  CATCH_AND_DISPATCH_EXCEPTION(false, "Commit recordset changes")
+
+  return grt::StringRef("");
+}
+
+
+void Recordset::apply_changes_(Recordset_data_storage::Ptr data_storage_ptr)
+{
+  task->finish_cb(boost::bind(&Recordset::on_apply_changes_finished, this));
+  task->exec(true,
+    boost::bind(&Recordset::do_apply_changes, this, _1, weak_ptr_from(this), data_storage_ptr));
+}
+
+
+
+static int process_task_msg(int msgType, const std::string &message, const std::string &detail,
+                            int &error_count, std::string &messages_out)
+{
+  if (msgType == grt::ErrorMsg)
+    error_count++;
+  
+  if (!message.empty())
+  {
+    if (!messages_out.empty())
+      messages_out.append("\n");
+    messages_out.append(message);
+  }  
+  return 0;
+}
+
+
+bool Recordset::apply_changes_and_gather_messages(std::string &messages)
+{
+  int error_count = 0;
+  GrtThreadedTask::Msg_cb cb(task->msg_cb());
+
+  task->msg_cb(boost::bind(process_task_msg, _1, _2, _3, boost::ref(error_count), boost::ref(messages)));
+  apply_changes();
+  task->msg_cb(cb);
+
+  return error_count == 0;
+}
+
+
+void Recordset::rollback_and_gather_messages(std::string &messages)
+{
+  int error_count = 0;
+  GrtThreadedTask::Msg_cb cb(task->msg_cb());
+  
+  task->msg_cb(boost::bind(process_task_msg, _1, _2, _3, boost::ref(error_count), boost::ref(messages)));
+  rollback();
+  task->msg_cb(cb);
+}
+
+
+int Recordset::on_apply_changes_finished()
+{
+  task->finish_cb(GrtThreadedTask::Finish_cb());
+  if (rows_changed)
+    rows_changed();
+  refresh_ui_status_bar();
+  return refresh_ui();
+}
+
+
+void Recordset::apply_changes_()
+{
+  apply_changes_(_data_storage);
+}
+
+
+bool Recordset::limit_rows()
+{
+  return (_data_storage ? _data_storage->limit_rows() : false);
+}
+
+
+void Recordset::limit_rows(bool value)
+{
+  if (has_pending_changes())
+  {
+    task->send_msg(grt::ErrorMsg, ERRMSG_PENDING_CHANGES, _("Limit Rows"));
+    return;
+  }
+
+  if (_data_storage)
+  {
+    if (_data_storage->limit_rows() != value)
+    {
+      _data_storage->limit_rows(value);
+      refresh();
+    }
+  }
+}
+
+
+void Recordset::toggle_limit_rows()
+{
+  limit_rows(!limit_rows());
+}
+
+
+void Recordset::scroll_rows_frame_forward()
+{
+  if (_data_storage)
+  {
+    _data_storage->scroll_rows_frame_forward();
+    refresh();
+  }
+}
+
+
+void Recordset::scroll_rows_frame_backward()
+{
+  if (_data_storage && (_data_storage->limit_rows_offset() != 0))
+  {
+    _data_storage->scroll_rows_frame_backward();
+    refresh();
+  }
+}
+
+
+int Recordset::limit_rows_count()
+{
+  return (_data_storage ? _data_storage->limit_rows_count() : 0);
+}
+
+
+void Recordset::limit_rows_count(int value)
+{
+  if (_data_storage)
+    _data_storage->limit_rows_count(value);
+}
+
+
+bool Recordset::limit_rows_applicable()
+{
+  if (_data_storage && !_data_storage->limit_rows_applicable())
+    return false;
+
+  bool limit_rows_= limit_rows();
+  int limit_rows_count_= limit_rows_count();
+  int row_count_= real_row_count();
+  return (limit_rows_ && (row_count_ == limit_rows_count_))
+    || (!limit_rows_ && (row_count_ > limit_rows_count_))
+    || (0 < _data_storage->limit_rows_offset());
+}
+
+
+Recordset_data_storage::Ref Recordset::data_storage_for_export(const std::string &format)
+{
+  _data_storage_for_export.reset();
+
+  {
+    std::vector<Recordset_storage_info> storage_types(Recordset_text_storage::storage_types(_grtm));
+    for (std::vector<Recordset_storage_info>::const_iterator i = storage_types.begin(); 
+         i != storage_types.end(); ++i)
+    {
+      if (i->name == format)
+      {
+        Recordset_text_storage::Ref ds(Recordset_text_storage::create(_grtm));
+        ds->data_format(format);
+        _data_storage_for_export = ds;
+        break;
+      }
+    }
+  }
+  
+  if (_data_storage_for_export)
+    return _data_storage_for_export;
+  throw std::runtime_error(strfmt("Data storage format is not supported: %s", format.c_str()));
+}
+
+
+std::vector<Recordset_storage_info> Recordset::data_storages_for_export()
+{
+  std::vector<Recordset_storage_info> storage_types;
+  
+  storage_types = Recordset_text_storage::storage_types(_grtm);
+  
+  return storage_types;
+}
+
+
+void Recordset::sort_by(ColumnId column, int direction, bool retaining)
+{
+  if (_column_count == 0)
+    return;
+
+  if (!retaining)
+  {
+    _sort_columns.clear();
+    if (!(direction))
+    {
+      boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+      rebuild_data_index(data_swap_db.get(), true, true);
+      //refresh_ui();
+      return;
+    }
+  }
+
+  bool sort_column_exists= false;
+  bool is_resort_needed= true;
+  for (SortColumns::iterator sort_column= _sort_columns.begin(), end= _sort_columns.end(); sort_column != end; ++sort_column)
+  {
+    if (sort_column->first == column)
+    {
+      if ((direction))
+      {
+        sort_column->second= direction;
+        sort_column_exists= true;
+      }
+      else
+      {
+        if (_sort_columns.rbegin()->first == column)
+          is_resort_needed= false;
+        _sort_columns.erase(sort_column);
+      }
+      break;
+    }
+  }
+  if (!sort_column_exists && (direction))
+    _sort_columns.push_back(std::make_pair(column, direction));
+
+  if (!is_resort_needed || _sort_columns.empty())
+    return;
+
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  rebuild_data_index(data_swap_db.get(), true, true);
+}
+
+
+std::string Recordset::get_column_filter_expr(ColumnId column) const
+{
+  Column_filter_expr_map::const_iterator i= _column_filter_expr_map.find(column);
+  if (i != _column_filter_expr_map.end())
+    return i->second;
+  return "";
+}
+
+
+bool Recordset::has_column_filters() const
+{
+  return !_column_filter_expr_map.empty();
+}
+
+
+bool Recordset::has_column_filter(ColumnId column) const
+{
+  Column_filter_expr_map::const_iterator i= _column_filter_expr_map.find(column);
+  return (i != _column_filter_expr_map.end());
+}
+
+
+void Recordset::reset_column_filters()
+{
+  _column_filter_expr_map.clear();
+
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  rebuild_data_index(data_swap_db.get(), true, true);
+}
+
+
+void Recordset::reset_column_filter(ColumnId column)
+{
+  Column_filter_expr_map::iterator i= _column_filter_expr_map.find(column);
+  if (i == _column_filter_expr_map.end())
+    return;
+  _column_filter_expr_map.erase(i);
+
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  rebuild_data_index(data_swap_db.get(), true, true);
+}
+
+
+void Recordset::set_column_filter(ColumnId column, const std::string &filter_expr)
+{
+  if ((int)column >= get_column_count())
+    return;
+  Column_filter_expr_map::const_iterator i= _column_filter_expr_map.find(column);
+  if ((i != _column_filter_expr_map.end()) && (i->second == filter_expr))
+    return;
+  _column_filter_expr_map[column]= filter_expr;
+
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  rebuild_data_index(data_swap_db.get(), true, true);
+}
+
+
+int Recordset::column_filter_icon_id() const
+{
+  IconManager *icon_man= IconManager::get_instance();
+  return icon_man->get_icon_id("tiny_search.png");
+}
+
+
+const std::string & Recordset::data_search_string() const
+{
+  return _data_search_string;
+}
+
+
+void Recordset::set_data_search_string(const std::string &value)
+{
+  if (value == _data_search_string)
+    return;
+  _data_search_string= value;
+
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  rebuild_data_index(data_swap_db.get(), true, true);
+}
+
+
+void Recordset::reset_data_search_string()
+{
+  if (_data_search_string.empty())
+    return;
+  _data_search_string.clear();
+
+  boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+  rebuild_data_index(data_swap_db.get(), true, true);
+}
+
+
+void Recordset::rebuild_data_index(sqlite::connection *data_swap_db, bool do_cache_data_frame, bool do_refresh_ui)
+{
+  {
+    base::RecMutexLock data_mutex(_data_mutex);
+
+    std::string where_clause;
+    {
+      sqlide::QuoteVar qv;
+      {
+        qv.escape_string= boost::bind(sqlide::QuoteVar::escape_ansi_sql_string, _1);
+        qv.store_unknown_as_string= true;
+        qv.allow_func_escaping= false;
+      }
+      sqlite::variant_t var_string_type= std::string();
+      sqlite::variant_t var_string;
+      std::string sql_string;
+
+      // column filters subclause
+      std::string where_subclause1;
+      {
+        BOOST_FOREACH (Column_filter_expr_map::value_type &column_filter_expr, _column_filter_expr_map)
+        {
+          var_string= column_filter_expr.second;
+          sql_string= boost::apply_visitor(qv, var_string_type, var_string);
+          where_subclause1+= strfmt("_%u like %s and ", (unsigned int) column_filter_expr.first, sql_string.c_str());
+        }
+        if (!where_subclause1.empty())
+        {
+          where_subclause1.resize(where_subclause1.size()-std::string(" and ").size());
+          where_subclause1.insert(0, "(");
+          where_subclause1.append(")");
+        }
+      }
+
+      // data search subclause
+      std::string where_subclause2;
+      if (!_data_search_string.empty())
+      {
+        var_string= "%" + _data_search_string + "%";
+        sql_string= boost::apply_visitor(qv, var_string_type, var_string);
+        for (int column= 0, column_count= get_column_count(); column < column_count; ++column)
+        {
+          where_subclause2+= strfmt("_%u like %s or ", (unsigned int) column, sql_string.c_str());
+        }
+        if (!where_subclause2.empty())
+        {
+          where_subclause2.resize(where_subclause2.size()-std::string(" or ").size());
+          where_subclause2.insert(0, "(");
+          where_subclause2.append(")");
+        }
+      }
+
+      if (!where_subclause1.empty() || !where_subclause2.empty())
+      {
+        std::string subclauses_mediator= (!where_subclause1.empty() && !where_subclause2.empty()) ? " and " : "";
+        where_clause= strfmt("where %s%s%s", where_subclause1.c_str(), subclauses_mediator.c_str(), where_subclause2.c_str());
+      }
+    }
+
+    std::string orderby_clause;
+    {
+      BOOST_FOREACH (SortColumns::value_type &sort_column, _sort_columns)
+      {
+        std::string column_expr;
+        switch (get_real_column_type(sort_column.first))
+        {
+        case NumericType:
+        case FloatType:
+        case DatetimeType:
+          column_expr= strfmt("cast(_%u as numeric)", (unsigned int) sort_column.first);
+          break;
+        case StringType:
+          column_expr= strfmt("_%u COLLATE NOCASE", (unsigned int) sort_column.first);
+          break;
+
+        default:
+          column_expr= strfmt("_%u", (unsigned int) sort_column.first);
+          break;
+        }
+        const char *dir;
+        switch (sort_column.second)
+        {
+        case 1: dir= "ASC"; break;
+        case -1: dir= "DESC"; break;
+        default: dir= ""; break;
+        }
+        orderby_clause += strfmt("%s %s, ", column_expr.c_str(), dir);
+      }
+      if (!orderby_clause.empty())
+      {
+        orderby_clause.resize(orderby_clause.size()-std::string(", ").size());
+        orderby_clause.insert(0, "order by ");
+      }
+    }
+
+    std::string tables_join= "`data`";
+    {
+      for (size_t partition= 1, partition_count= data_swap_db_partition_count(); partition < partition_count; ++partition)
+      {
+        std::string partition_suffix= data_swap_db_partition_suffix(partition);
+        tables_join+= strfmt(" inner join `data%s` on (`data`.id=`data%s`.id)", partition_suffix.c_str(), partition_suffix.c_str());
+      }
+    }
+
+    {
+      sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db);
+
+      std::string temp_table_name= "`data_index_" + grt::get_guid() + "`";
+
+      sqlite::execute(*data_swap_db, strfmt("create table if not exists %s (`id` integer)", temp_table_name.c_str()), true);
+      sqlite::execute(*data_swap_db, strfmt("insert into %s select `data`.`id` from %s %s %s", temp_table_name.c_str(), tables_join.c_str(), where_clause.c_str(), orderby_clause.c_str()), true);
+      sqlite::execute(*data_swap_db, "drop table if exists `data_index`", true);
+      sqlite::execute(*data_swap_db, strfmt("alter table %s rename to `data_index`", temp_table_name.c_str()), true);
+
+      transaction_guarder.commit();
+    }
+
+    recalc_row_count(data_swap_db);
+
+    if (do_cache_data_frame && _column_count > 0)
+      cache_data_frame(0, true);
+  }
+
+  if (do_refresh_ui)
+    refresh_ui();
+}
+
+
+void Recordset::paste_rows_from_clipboard(int dest_row)
+{
+  std::string text = mforms::Utilities::get_clipboard_text();
+  std::vector<std::string> rows;
+  
+  if (text.find("\r\n") != std::string::npos)
+    rows = base::split(text, "\r\n");
+  else
+    rows = base::split(text, "\n");
+
+  if (rows.empty())
+    return;
+  
+  if (rows.back().empty())
+    rows.pop_back();
+  
+  if (dest_row < 0 || dest_row == count()-1)
+    dest_row = count()-1;
+  else
+  {
+    if (rows.size() > 1)
+    {
+      if (mforms::Utilities::show_message_and_remember("Paste Rows",
+                                                       "Cannot paste more than one row into an existing row, would you like to append them?",
+                                                       "Append", "Cancel", "",
+                                                       "Recordset.appendMultipleRowsOnPaste", "") != mforms::ResultOk)
+        return;
+      dest_row = count()-1;
+    }
+  }
+  
+  int separator = ',';
+  if (text.find('\t') != std::string::npos)
+    separator = '\t';
+  
+  for (std::vector<std::string>::const_iterator row = rows.begin(); row != rows.end(); ++row)
+  {
+    if (!row->empty())
+    {
+      std::vector<std::string> parts = base::split_token_list(*row, separator);
+      
+      if ((int)parts.size() != get_column_count())
+      {
+        mforms::Utilities::show_error("Cannot Paste Row",
+                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%i vs %i).\n"
+                                             "Data must be in the same format used by the Copy Row Content command.",
+                                             (int)parts.size(), (int)get_column_count()),
+                                      "OK");
+
+        if (rows_changed && row != rows.begin())
+          rows_changed();
+
+        return;
+      }
+      size_t i = 0;
+      for (std::vector<std::string>::const_iterator p = parts.begin(); p != parts.end(); ++p, ++i)
+      {
+        std::string token = base::trim(*p);
+        if (token == "NULL")
+          set_field_null(dest_row, i);
+        else
+        {
+          if (!token.empty() && token[0] == '\'' && token[token.size()-1] == '\'')
+            token = token.substr(1, token.size()-2);
+          set_field(dest_row, i, base::unescape_sql_string(token, '\''));
+        }
+      }
+      dest_row++;
+    }
+  }
+
+  if (rows_changed)
+    rows_changed();
+}
+
+
+mforms::ContextMenu *Recordset::get_context_menu()
+{
+  if (!_context_menu)
+    _context_menu = new mforms::ContextMenu();
+  return _context_menu;
+}
+
+
+void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clicked_column)
+{
+  // TODO: lift the restriction to a single column.
+  //       We need to support multiple cells (in multiple columns) on all platforms.
+  _selected_rows = rows;
+  _selected_column = clicked_column;
+
+  if (_context_menu)
+  {
+    _context_menu->remove_all();
+
+    bool ro = is_readonly();
+
+    mforms::MenuItem *item;
+
+    item = _context_menu->add_item_with_title(ro ? "Open Value in Viewer" : "Open Value in Editor",
+                                              boost::bind(&Recordset::activate_menu_item, this, "edit_cell", rows, clicked_column),
+                                              "edit_cell");
+    item->set_enabled((rows.size() == 1) && (clicked_column >= 0));
+    if (item->get_enabled())
+    {
+      switch (get_real_column_type(clicked_column))
+      {
+      case StringType:
+      case BlobType:
+        break;
+      default:
+        item->set_enabled(false);
+        break;
+      }
+    }
+
+    _context_menu->add_separator();
+
+    item = _context_menu->add_item_with_title("Set Field(s) to NULL",
+                                       boost::bind(&Recordset::activate_menu_item, this, "set_to_null", rows, clicked_column),
+                                       "set_to_null");
+
+    // On Windows we can select individual cells, so it is perfectly ok to allow acting on multiple
+    // cells. The other platforms only select entire rows in the multi-selection case.
+    // So we to have disallow acting on them to avoid changing unrelated entries.
+  #ifdef _WIN32
+    item->set_enabled(clicked_column >= 0 && !ro);
+  #else
+    item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
+  #endif
+
+    item = _context_menu->add_item_with_title("Mark Field Value as a Function/Literal",
+                                      boost::bind(&Recordset::activate_menu_item, this, "set_to_function", rows, clicked_column),
+                                      "set_to_function");
+  #ifdef _WIN32
+    item->set_enabled(clicked_column >= 0 && !ro);
+  #else
+    item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
+  #endif
+    
+    item = _context_menu->add_item_with_title("Delete Row(s)",
+                                              boost::bind(&Recordset::activate_menu_item, this, "delete_row", rows, clicked_column),
+                                              "delete_row");
+    item->set_enabled(rows.size() > 0 && !ro);
+
+    _context_menu->add_separator();
+
+    item = _context_menu->add_item_with_title("Load Value From File...",
+                                              boost::bind(&Recordset::activate_menu_item, this, "load_from_file", rows, clicked_column),
+                                              "load_from_file");
+    item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
+
+    item = _context_menu->add_item_with_title("Save Value To File...",
+                                              boost::bind(&Recordset::activate_menu_item, this, "save_to_file", rows, clicked_column),
+                                              "save_to_file");
+    item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
+
+    _context_menu->add_separator();
+
+    item = _context_menu->add_item_with_title("Copy Row",
+                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row", rows, clicked_column),
+                                              "copy_row");
+    item->set_enabled(rows.size() > 0);
+    item = _context_menu->add_item_with_title("Copy Row (with names)",
+                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_with_names", rows, clicked_column),
+                                              "copy_row_with_names");
+
+    item = _context_menu->add_item_with_title("Copy Row (unquoted)",
+                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted", rows, clicked_column),
+                                              "copy_row_unquoted");
+    item->set_enabled(rows.size() > 0);
+    item = _context_menu->add_item_with_title("Copy Row (with names, unquoted)",
+                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted_with_names", rows, clicked_column),
+                                              "copy_row_unquoted_with_names");
+
+    item = _context_menu->add_item_with_title("Copy Row (tab separated)",
+                                              boost::bind(&Recordset::activate_menu_item, this, "copy_row_tabsep", rows, clicked_column),
+                                              "copy_row_tabsep");
+    item->set_enabled(rows.size() > 0);
+
+    item = _context_menu->add_item_with_title("Copy Field",
+                                              boost::bind(&Recordset::activate_menu_item, this, "copy_field", rows, clicked_column),
+                                              "copy_field");
+    item->set_enabled(clicked_column >= 0 && rows.size() == 1);
+
+    item = _context_menu->add_item_with_title("Copy Field (unquoted)",
+                                              boost::bind(&Recordset::activate_menu_item, this, "copy_field_unquoted", rows, clicked_column),
+                                              "copy_field_unquoted");
+    item->set_enabled(clicked_column >= 0 && rows.size() == 1);
+
+    item = _context_menu->add_item_with_title("Paste Row",
+                                              boost::bind(&Recordset::activate_menu_item, this, "paste_row", rows, clicked_column),
+                                              "paste_row");
+    item->set_enabled(rows.size() <= 1 && !mforms::Utilities::get_clipboard_text().empty() && !ro);
+  }
+}
+
+
+void Recordset::activate_menu_item(const std::string &action, const std::vector<int> &rows, int clicked_column)
+{
+  bool need_ui_refresh = false;
+
+  // TODO: the tests here for rows count and clicked_column are all unnecessary. This has already be done.
+  if (action == "edit_cell")
+  {
+    if (rows.size() == 1 && clicked_column >= 0)
+    {
+      open_field_data_editor(rows[0], clicked_column);
+    }
+  }
+  else if (action == "set_to_null")
+  {
+    for (size_t i = 0; i < rows.size(); ++i)
+    {
+      bec::NodeId node;
+      node.append(rows[i]);
+      set_field_null(node, clicked_column);
+    }
+  }
+  else if (action == "set_to_function")
+  {
+    for (size_t i = 0; i < rows.size(); ++i)
+    {
+      bec::NodeId node;
+      Cell cell;
+      
+      node.append(rows[i]);
+      std::string function;
+      if (!get_cell(cell, node, clicked_column, false))
+        function = "";
+      else
+        function = boost::apply_visitor(_var_to_str, *cell);
+      if (!g_str_has_prefix(function.c_str(), "\\func"))
+        set_field(node, clicked_column, std::string("\\func ")+function);
+    }
+  }  
+  else if (action == "delete_row")
+  {
+    if (rows.size() > 0)
+    {
+      std::vector<int> sorted_rows(rows);
+      std::sort(sorted_rows.begin(), sorted_rows.end());
+      std::vector<bec::NodeId> nodes;
+      for (std::vector<int>::reverse_iterator iter = sorted_rows.rbegin(); iter != sorted_rows.rend(); ++iter)
+        nodes.push_back(bec::NodeId(*iter));
+      delete_nodes(nodes);
+      need_ui_refresh = true;
+    }
+  }
+  else if (action == "save_to_file")
+  {
+    if (rows.size() == 1 && clicked_column >= 0)
+    {
+      bec::NodeId node;
+      node.append(rows[0]);
+      save_to_file(node, clicked_column);
+    }
+  }
+  else if (action == "load_from_file")
+  {
+    if (rows.size() == 1 && clicked_column >= 0)
+    {
+      bec::NodeId node;
+      node.append(rows[0]);
+      load_from_file(node, clicked_column);
+    }
+  }  
+  else if (action == "copy_row")
+  {
+    if (rows.size() > 0)
+    {
+      copy_rows_to_clipboard(rows, ", ");
+    }
+  }
+  else if (action == "copy_row_with_names")
+  {
+    copy_rows_to_clipboard(rows, ", ", true, true);
+  }
+  else if (action == "copy_row_unquoted")
+  {
+    if (rows.size() > 0)
+    {
+      copy_rows_to_clipboard(rows, ", ", false);
+    }
+  }
+  else if (action == "copy_row_unquoted_with_names")
+  {
+    copy_rows_to_clipboard(rows, ", ", false, true);
+  }
+  else if (action == "copy_row_tabsep")
+  {
+    if (rows.size() > 0)
+    {
+      copy_rows_to_clipboard(rows, "\t", false);
+    }
+  }  
+  else if (action == "copy_field")
+  {
+    if (rows.size() == 1 && clicked_column >= 0)
+    {
+      copy_field_to_clipboard(rows[0], clicked_column);
+    }
+  }
+  else if (action == "copy_field_unquoted")
+  {
+    if (rows.size() == 1 && clicked_column >= 0)
+    {
+      copy_field_to_clipboard(rows[0], clicked_column, false);
+    }
+  }
+  else if (action == "paste_row")
+  {
+    paste_rows_from_clipboard(rows.empty() ? -1 : rows[0]);
+    need_ui_refresh = true;
+  }
+
+  if (need_ui_refresh)
+    refresh_ui();
+}
+
+
+void Recordset::copy_rows_to_clipboard(const std::vector<int> &indeces, std::string sep, bool quoted, bool with_header)
+{
+  ColumnId editable_col_count= get_column_count();
+  if (!editable_col_count)
+    return;
+
+  sqlide::QuoteVar qv;
+  {
+    qv.escape_string= boost::bind(base::escape_sql_string, _1, false);
+    qv.store_unknown_as_string= true;
+    qv.allow_func_escaping= true;
+  }
+
+  Cell cell;
+  std::string text;
+
+  if (with_header)
+  {
+    text = "# ";
+    for (ColumnId col= 0; editable_col_count > col; ++col)
+    {
+      if (col > 0)
+        text.append(sep);
+      text.append(get_column_caption(col));
+    }
+    text.append("\n");
+  }
+
+  BOOST_FOREACH (RowId row, indeces)
+  {
+    std::string line;
+    for (ColumnId col= 0; editable_col_count > col; ++col)
+    {
+      bec::NodeId node(row);
+      if (!get_cell(cell, node, col, false))
+        continue;
+      if (col > 0)
+        line+= sep;
+      if (quoted)
+        line+= boost::apply_visitor(qv, _column_types[col], *cell);
+      else
+        line+= boost::apply_visitor(_var_to_str, *cell);
+    }
+    if (!line.empty())
+      text+= line+"\n";
+  }
+  mforms::Utilities::set_clipboard_text(text);
+}
+
+
+void Recordset::copy_field_to_clipboard(int row, int column, bool quoted)
+{
+  sqlide::QuoteVar qv;
+  {
+    qv.escape_string= boost::bind(sqlide::QuoteVar::escape_ansi_sql_string, _1);
+    qv.store_unknown_as_string= true;
+    qv.allow_func_escaping= true;
+  }
+  std::string text;
+  bec::NodeId node(row);
+  Cell cell;
+  if (get_cell(cell, node, column, false))
+  {
+    if (quoted)
+      text= boost::apply_visitor(qv, _column_types[column], *cell);
+    else
+      text= boost::apply_visitor(_var_to_str, *cell);
+  }
+  mforms::Utilities::set_clipboard_text(text);
+}
+
+
+std::string Recordset::status_text()
+{
+  std::string limit_text;
+
+  if (limit_rows_applicable() && limit_rows())
+    limit_text = ", row LIMIT active";
+  else
+    limit_text = "";
+  
+  std::string skipped_row_count_text;
+  if (_data_storage && _data_storage->limit_rows())
+  {
+    int limit_rows_offset= _data_storage->limit_rows_offset();
+    if (limit_rows_offset > 0)
+      skipped_row_count_text= strfmt(" after %i skipped", limit_rows_offset);
+  }
+
+  std::string status_text = strfmt("Fetched %i records%s%s", (int)real_row_count(), skipped_row_count_text.c_str(), limit_text.c_str());
+  {
+    int upd_count = 0, ins_count = 0, del_count = 0;
+    pending_changes(upd_count, ins_count, del_count);
+    if (upd_count > 0)
+      status_text += strfmt(", updated %i", upd_count);
+    if (ins_count > 0)
+      status_text += strfmt(", inserted %i", ins_count);
+    if (del_count > 0)
+      status_text += strfmt(", deleted %i", del_count);
+  }
+  status_text.append(".");
+  if (!status_text_trailer.empty())
+    status_text.append(" ").append(status_text_trailer);
+  
+  return status_text;
+}
+
+static mforms::ToolBarItem *add_toolbar_action_item(mforms::ToolBar *toolbar, bec::IconManager *im, const std::string &item_icon, const std::string &item_name, const std::string &item_tooltip)
+{
+  mforms::ToolBarItem *item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+  item->set_name(item_name);
+  item->set_icon(im->get_icon_path(item_icon));
+  item->set_tooltip(item_tooltip);
+  toolbar->add_item(item);
+  return item;
+}
+
+static mforms::ToolBarItem *add_toolbar_action_item(mforms::ToolBar *toolbar, bec::IconManager *im, const std::string &item_name, const std::string &item_tooltip)
+{
+  return add_toolbar_action_item(toolbar, im, item_name + ".png", item_name, item_tooltip);
+}
+
+static void add_toolbar_label_item(mforms::ToolBar *toolbar, const std::string &label)
+{
+  mforms::ToolBarItem *item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));;
+  item->set_text(label);
+  toolbar->add_item(item);
+}
+
+void Recordset::search_activated(mforms::ToolBarItem *item)
+{
+  std::string text;
+  if ((text = item->get_text()).empty())
+    reset_data_search_string();
+  else
+    set_data_search_string(text);
+}
+
+void Recordset::rebuild_toolbar()
+{
+  if (_toolbar)
+  {
+    _toolbar->remove_all();
+    // hack so that this label only appears for resultset grids and not inserts editor
+    if (!_inserts_editor)
+    {
+      mforms::ToolBarItem *item = mforms::manage(new mforms::ToolBarItem(mforms::TitleItem));;
+      item->set_text("Result Grid");
+      _toolbar->add_item(item);
+      _toolbar->add_separator_item();
+    }
+
+    mforms::ToolBarItem *item;
+    bec::IconManager *im = bec::IconManager::get_instance();
+
+    item = add_toolbar_action_item(_toolbar, im, "record_sort_reset.png", "record_sort_reset", "Resets all sorted columns");
+    item->signal_activated()->connect(boost::bind(&Recordset::sort_by, this, 0, 0, false));
+
+    if (!_data_storage || _data_storage->reloadable())
+    {
+      item = add_toolbar_action_item(_toolbar, im, "record_refresh.png", "record_refresh", "Refresh data re-executing the original query");
+      item->signal_activated()->connect(boost::bind(&Recordset::refresh, this));
+    }
+
+    add_toolbar_label_item(_toolbar, "Filter Rows:");
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::SearchFieldItem));
+    item->signal_activated()->connect(boost::bind(&Recordset::search_activated, this, _1));
+    _toolbar->add_item(item);
+
+    if (!is_readonly() || _inserts_editor)
+    {
+      _toolbar->add_separator_item();
+      add_toolbar_label_item(_toolbar, "Edit:");
+      add_toolbar_action_item(_toolbar, im, "record_edit", "Edit current row"); // connect in frontend
+      add_toolbar_action_item(_toolbar, im, "record_add", "Insert new row"); // connect in frontend
+      add_toolbar_action_item(_toolbar, im, "record_del", "Delete selected rows"); // connect in frontend
+    }
+    _toolbar->add_separator_item();
+    if (!is_readonly() || _inserts_editor)
+      add_toolbar_label_item(_toolbar, "Export/Import:");
+    else
+      add_toolbar_label_item(_toolbar, "Export:");
+    add_toolbar_action_item(_toolbar, im, "record_export", "Export recordset to an external file");
+    if (!is_readonly() || _inserts_editor)
+      add_toolbar_action_item(_toolbar, im, "record_import", "Import records from an external file");
+    
+#ifndef __APPLE__
+    _toolbar->add_separator_item();
+    add_toolbar_label_item(_toolbar, "Wrap Cell Content:");
+    add_toolbar_action_item(_toolbar, im, "record_wrap_vertical", "Toggle wrapping of cell contents"); // connect in frontend
+#endif
+    
+    if (limit_rows_applicable())
+    {
+      _toolbar->add_separator_item();
+      add_toolbar_label_item(_toolbar, "Fetch rows:");
+      item = add_toolbar_action_item(_toolbar, im, "record_fetch_prev.png", "scroll_rows_frame_backward", "Fetch previous frame of records from the data source");
+      item->signal_activated()->connect(boost::bind(&Recordset::scroll_rows_frame_backward, this));
+      item = add_toolbar_action_item(_toolbar, im, "record_fetch_next.png", "scroll_rows_frame_forward", "Fetch next frame of records from the data source");
+      item->signal_activated()->connect(boost::bind(&Recordset::scroll_rows_frame_forward, this));
+    }
+
+    if (_inserts_editor/* && !is_readonly()*/)
+    {
+      _toolbar->add_separator_item();
+      add_toolbar_label_item(_toolbar, "Apply changes:");
+      item = add_toolbar_action_item(_toolbar, im, "record_save", "Apply changes to data");
+      item->signal_activated()->connect(boost::bind(&Recordset::call_apply_changes, this));
+      item = add_toolbar_action_item(_toolbar, im, "record_discard", "Discard changes to data");
+      item->signal_activated()->connect(boost::bind(&Recordset::rollback, this));
+    }
+  }
+}
+
+mforms::ToolBar *Recordset::get_toolbar()
+{
+  if (!_toolbar)
+  {
+    _toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
+    rebuild_toolbar();
+  }
+  
+  return _toolbar;
+}
+
+
+void Recordset::call_apply_changes()
+{
+  apply_changes();
+}
+
+ActionList & Recordset::action_list()
+{
+  return _action_list;
+}
+
+
+void Recordset::register_default_actions()
+{
+  _action_list.register_action("record_sort_reset",
+    boost::bind(&Recordset::sort_by, this, 0, 0, false));
+
+  _action_list.register_action("scroll_rows_frame_forward",
+    boost::bind(&Recordset::scroll_rows_frame_forward, this));
+
+  _action_list.register_action("scroll_rows_frame_backward",
+    boost::bind(&Recordset::scroll_rows_frame_backward, this));
+
+  _action_list.register_action("record_fetch_all",
+    boost::bind(&Recordset::toggle_limit_rows, this));
+
+  _action_list.register_action("record_refresh",
+    boost::bind(&Recordset::refresh, this));
+}
+
+
+class DataEditorSelector : public boost::static_visitor<BinaryDataEditor*>
+{
+public:
+  DataEditorSelector(bec::GRTManager *grtm, bool read_only) : _grtm(grtm), _read_only(read_only) {}
+  DataEditorSelector(bec::GRTManager *grtm, bool read_only, const std::string &encoding) : _grtm(grtm), _encoding(encoding), _read_only(read_only) {}
+  const std::string & encoding() const { return _encoding; }
+  void encoding(const std::string &value) { _encoding= value; }
+private:
+  bec::GRTManager *_grtm;
+  std::string _encoding;
+  bool _read_only;
+public:
+  result_type operator()(const sqlite::null_t &v) { return new BinaryDataEditor(_grtm, NULL, 0, _encoding, _read_only); }
+  result_type operator()(const std::string &v) { return new BinaryDataEditor(_grtm, v.c_str(), v.length(), _encoding, _read_only); }
+  result_type operator()(const sqlite::blob_ref_t &v) { return new BinaryDataEditor(_grtm, ((!v || v->empty()) ? NULL : (const char*)&(*v)[0]), v->size(), _encoding, _read_only); }
+  template<typename V> result_type operator()(const V &v) { return NULL; }
+};
+class DataEditorSelector2 : public boost::static_visitor<BinaryDataEditor*>
+{
+public:
+  DataEditorSelector2(bec::GRTManager *grtm, bool read_only) : _grtm(grtm), _read_only(read_only) {}
+private:
+  bec::GRTManager *_grtm;
+  bool _read_only;
+public:
+  template<typename V> result_type operator()(const std::string &t, const V &v) { return DataEditorSelector(_grtm, _read_only, "UTF-8")(v); }
+  template<typename V> result_type operator()(const sqlite::blob_ref_t &t, const V &v) { return DataEditorSelector(_grtm, _read_only, "LATIN1")(v); }
+  template<typename T, typename V> result_type operator()(const T &r, const V &v) {
+    //return NULL;
+    // For unknown types treat them for now as string values. Since we have a binary editor pane there that should work
+    // all the time well enough.
+    return DataEditorSelector(_grtm, _read_only, "UTF-8")(v);
+  }
+};
+void Recordset::open_field_data_editor(RowId row, ColumnId column)
+{
+  base::RecMutexLock data_mutex(_data_mutex);
+
+  try
+  {
+    sqlite::variant_t blob_value;
+    sqlite::variant_t *value;
+
+    if (sqlide::is_var_blob(_real_column_types[column]))
+    {
+      if (!_data_storage)
+        return;
+      RowId rowid;
+      NodeId node(row);
+      if (!get_field_(node, _rowid_column, (int&)rowid))
+        return;
+      boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+      _data_storage->fetch_blob_value(this, data_swap_db.get(), rowid, column, blob_value);
+      value= &blob_value;
+    }
+    else
+    {
+      Cell cell;
+      bec::NodeId node(row);
+      if (!get_cell(cell, node, column, false))
+        return;
+      value= &(*cell);
+    }
+
+    DataEditorSelector2 data_editor_selector2(_grtm, is_readonly());
+    BinaryDataEditor *data_editor=
+      boost::apply_visitor(data_editor_selector2, _real_column_types[column], *value);
+    if (!data_editor)
+      return;
+    data_editor->set_title(base::strfmt("Edit Data for %s", _column_names[column].c_str()));
+    data_editor->set_release_on_close(true);
+    data_editor->signal_saved.connect(boost::bind(&Recordset::set_field_value,this, row, column, data_editor));
+    data_editor->show(true);
+  }
+  CATCH_AND_DISPATCH_EXCEPTION(false, "Open field editor")
+}
+
+
+class DataValueConv : public boost::static_visitor<sqlite::variant_t>
+{
+public:
+  DataValueConv() : _data(NULL), _length(0) {}
+  DataValueConv(const char *data, size_t length) { set_data(data, length); }
+  void set_data(const char *data, size_t length) { _data= data; _length= length; }
+private:
+  const char *_data;
+  size_t _length;
+public:
+  result_type operator()(const sqlite::blob_ref_t &t)
+  {
+    sqlite::blob_ref_t val= sqlite::blob_ref_t(new sqlite::blob_t());
+    val->resize(_length);
+    memcpy(&(*val)[0], _data, _length);
+    return val;
+  }
+  result_type operator()(const std::string &t) { return std::string(_data, _length); }
+  template<typename T> result_type operator()(const T &t) { return sqlite::unknown_t(); }
+};
+
+
+void Recordset::set_field_value(RowId row, ColumnId column, BinaryDataEditor *data_editor)
+{
+  set_field_raw_data(row, column, data_editor->data(), data_editor->length());
+}
+
+
+void Recordset::set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length)
+{
+  DataValueConv data_value_conv(data, data_length);
+  sqlite::variant_t value= boost::apply_visitor(data_value_conv, _real_column_types[column]);
+  if (sqlide::is_var_unknown(value))
+    throw std::logic_error("Can't save value of this data type.");
+  bec::NodeId node(row);
+  set_field(node, column, value);
+}
+
+
+void Recordset::load_from_file(const bec::NodeId &node, int column, const std::string &file)
+{
+  char *data;
+  gsize length;
+  GError *error = 0;
+  
+  if (!g_file_get_contents(file.c_str(), &data, &length, &error))
+  {
+    mforms::Utilities::show_error("Cannot Load Field Value",
+                                  error ? error->message : "Error loading file data", 
+                                  "OK");
+    return;
+  }
+  
+  try
+  {
+    set_field_raw_data(node[0], column, data, length);  
+  }
+  catch (const std::exception &exc)
+  {
+    mforms::Utilities::show_error("Cannot Load Field Value", exc.what(), "OK", "", "");
+  }
+}
+
+
+void Recordset::load_from_file(const bec::NodeId &node, int column)
+{
+  mforms::FileChooser chooser(mforms::OpenFile);
+  
+  chooser.set_title("Load Field Value");
+  
+  if (chooser.run_modal())
+    load_from_file(node, column, chooser.get_path());
+}
+
+
+class DataValueDump : public boost::static_visitor<void>
+{
+public:
+  DataValueDump(const char *filename) : os(filename, std::ios_base::out|std::ios_base::binary) {}
+  std::ofstream os;
+public:
+  result_type operator()(const sqlite::blob_ref_t &v)
+  {
+    std::copy(v->begin(), v->end(), std::ostreambuf_iterator<char>(os));
+  }
+  result_type operator()(const std::string &v) { os << v; }
+  template<typename T> result_type operator()(const T &) {}
+};
+
+
+void Recordset::save_to_file(const bec::NodeId &node, int column, const std::string &file)
+{
+  base::RecMutexLock data_mutex(_data_mutex);
+      
+  sqlite::variant_t blob_value;
+  sqlite::variant_t *value;
+  
+  if (sqlide::is_var_blob(_real_column_types[column]))
+  {
+    if (!_data_storage)
+      return;
+    int rowid;
+    if (!get_field_(node, _rowid_column, rowid))
+      return;
+    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+    _data_storage->fetch_blob_value(this, data_swap_db.get(), rowid, column, blob_value);
+    value= &blob_value;
+  }
+  else
+  {
+    Cell cell;
+    if (!get_cell(cell, node, column, false))
+      return;
+    value= &(*cell);
+  }
+  
+  DataValueDump data_value_dump(file.c_str());
+  if (data_value_dump.os)
+  {
+    boost::apply_visitor(data_value_dump, *value);
+  }
+}
+
+
+void Recordset::save_to_file(const bec::NodeId &node, int column)
+{
+  mforms::FileChooser chooser(mforms::SaveFile);
+  
+  chooser.set_title("Save Field Value");
+  
+  if (chooser.run_modal())
+  {
+    try
+    {      
+      save_to_file(node, column, chooser.get_path());
+    }
+    CATCH_AND_DISPATCH_EXCEPTION(false, "Save field to file")
+  }
+}

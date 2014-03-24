@@ -1,0 +1,31 @@
+/* XPM */
+static const char *editor_error[] = {
+/* columns rows colors chars-per-pixel */
+"12 12 13 1",
+"  c #D8424F",
+". c #DA4B57",
+"X c #D9515D",
+"o c #D9535E",
+"O c #DC5460",
+"+ c #DA636E",
+"@ c #EB9FA6",
+"# c #DEB3B7",
+"$ c #DEB9BC",
+"% c #ECA2A8",
+"& c transparent",
+"* c #F9E2E4",
+"= c #FFFFFF",
+/* pixels */
+"&&&&&&&&&&&&",
+"&$+      +$&",
+"&X  .  .  X&",
+"&  %*OO*%  &",
+"& .*=**=*. &",
+"&  O*==*O  &",
+"&  O*==*O  &",
+"& .*=**=*. &",
+"&  %*OO*%  &",
+"&X  .  .  X&",
+"&#X      X#&",
+"&&&&&&&&&&&&"
+};

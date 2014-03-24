@@ -1,0 +1,82 @@
+#!/bin/bash
+
+version=$1
+major=`echo $version|cut -d. -f1`
+minor=`echo $version|cut -d. -f2`
+release=`echo $version|cut -d. -f3`
+release_number=`echo $version|cut -d. -f3|sed -e 's/\([0-9]*\).*/\1/'`
+revision=`echo $version|cut -d. -f4`
+build=`echo $version|cut -d. -f5`
+release_type=$2
+edition_name=$3
+license_type=$4
+
+if test "$build" = ""; then
+  build=0
+fi
+
+if test "$version" = ""; then
+  echo "$0 <major.minor.release.revision[.build]> [<release-type>]"
+  exit 1
+fi
+
+if test "$revision" = ""; then
+  echo "$0 <major.minor.release.revision[.build]> [<release-type>]"
+  exit 1
+fi
+
+if test x$release_type != x; then
+    dot_release_type=.$release_type
+    space_release_type=" $release_type"
+else
+    dot_release_type=
+    space_release_type=
+fi
+
+echo "Updating wb_version.h"
+sed -i -e "s/#define APP_MAJOR_NUMBER.*/#define APP_MAJOR_NUMBER $major/" \
+   -e "s/#define APP_MINOR_NUMBER.*/#define APP_MINOR_NUMBER $minor/" \
+   -e "s/#define APP_RELEASE_NUMBER.*/#define APP_RELEASE_NUMBER $release_number/" \
+   -e "s/#define APP_RELEASE_TYPE.*/#define APP_RELEASE_TYPE \"$release_type\"/" \
+   -e "s/#define APP_REVISION_NUMBER.*/#define APP_REVISION_NUMBER $revision/" \
+   -e "s/#define APP_BUILD_NUMBER.*/#define APP_BUILD_NUMBER $build/" \
+        backend/wbprivate/workbench/wb_version.h 
+
+if test "$edition_name" != "" -a "$license_type" != ""; then
+sed -i -e "s/#define APP_LICENSE_TYPE.*/#define APP_LICENSE_TYPE \"$license_type\"/" \
+   -e "s/#define APP_EDITION_NAME.*/#define APP_EDITION_NAME \"$edition_name\"/" \
+        backend/wbprivate/workbench/wb_version.h 
+fi
+
+echo "Updating AssemblyInfo.cs"
+sed -i -e "s/\[assembly: AssemblyVersion(.*)\]/[assembly: AssemblyVersion(\"$major.$minor.$release_number.$revision\")]/"\
+        -e "s/\[assembly: AssemblyFileVersion(.*)\]/[assembly: AssemblyFileVersion(\"$major.$minor.$release_number.$revision\")]/" \
+        -e "s/\[assembly: AssemblyReleaseType(.*)\]/[assembly: AssemblyReleaseType(\"$release_type\")]/" \
+  frontend/windows/MySQLWorkbench/Properties/AssemblyInfo.cs
+
+if test "$edition_type" != ""; then
+sed -i -e "s/\[assembly: AssemblyConfiguration(.*)\]/[assembly: AssemblyConfiguration(\"$edition_type\")]/"\
+  frontend/windows/MySQLWorkbench/Properties/AssemblyInfo.cs
+fi
+
+echo "Updating Info.plist"
+cat Info.plist | sed -e "/<key>CFBundleShortVersionString<\/key>/,/<\/string>/c \
+	<key>CFBundleShortVersionString</key>\n	<string>$major.$minor.$release$dot_release_type</string>" > Info.plist.new
+mv -f Info.plist.new Info.plist
+
+# check if build/debian/changelog needs update
+echo "Checking if build/debian/changelog needs updating"
+if ! grep $major.$minor.$release- build/debian/changelog; then
+	echo "build/debian/changelog needs update, adding a new entry"
+	cat <<EOF > build/debian/changelog.new
+mysql-workbench ($major.$minor.$release$dot_release_type-1) unstable; urgency=low
+
+  * New release
+
+ -- `bzr whoami`  `date -R`
+
+EOF
+	cat build/debian/changelog >> build/debian/changelog.new
+	mv -f build/debian/changelog.new build/debian/changelog
+	head -10 build/debian/changelog
+fi

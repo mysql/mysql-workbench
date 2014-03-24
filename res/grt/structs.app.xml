@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+    <requires file="structs.xml"/>
+
+    <gstruct name="app.Application" parent="GrtObject" attr:caption="GRT Application" attr:desc="a GRT application object">
+      <members>
+        <member name="doc" type="object" struct-name="app.Document" owned="1" attr:desc="the document the application is working with"/>
+        <member name="info" type="object" struct-name="app.Info" attr:desc="information about the application"/>
+        <member name="options" type="object" struct-name="app.Options" attr:desc="application options"/>
+        <member name="state" type="dict" attr:desc="application state info, keys in format domain:option"/>
+        <member name="registry" type="object" struct-name="app.Registry" attr:desc="information about the application"/>
+        <member name="starters" type="object" struct-name="app.Starters" attr:desc="Application starters"/>
+        <member name="customData" type="dict" attr:desc="a generic dictionary to hold additional information used by e.g. plugins"/>
+      </members>
+    </gstruct>
+      
+    <gstruct name="app.Document" parent="GrtObject" attr:caption="Application Information" attr:desc="information about the application">
+      <members>
+        <member name="info" type="object" struct-name="app.DocumentInfo" owned="1" attr:desc="user supplied info about the document"/>
+        <member name="pageSettings" type="object" struct-name="app.PageSettings" owned="1"/>
+        <member name="customData" type="dict"/>
+      </members>
+    </gstruct>
+    
+    <gstruct name="app.Info" parent="GrtObject" attr:caption="Application Information" attr:desc="information about the application">
+      <members>
+        <member name="caption" type="string" attr:desc="the application's caption"/>
+        <member name="version" type="object" struct-name="GrtVersion" owned="1" attr:desc="the version of the application"/>
+        <member name="description" type="string" attr:desc="a short description of the application"/>
+        <member name="copyright" type="string" attr:desc="the copyright message"/>
+        <member name="license" type="string" attr:desc="the license message"/>
+        <member name="edition" type="string" attr:desc="the edition name"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.DocumentInfo" parent="GrtObject" attr:caption="Document Information" attr:desc="information about the document">
+      <members>
+        <member name="caption" type="string" attr:desc="Caption of the document"/>
+        <member name="version" type="string" attr:desc="Version of the document"/>
+        <member name="author" type="string" attr:desc="Author of the document"/>
+        <member name="project" type="string" attr:desc="Name of the project"/>
+        <member name="dateCreated" type="string" attr:desc="Date of creation of the document"/>
+        <member name="dateChanged" type="string" attr:desc="Date of last modification of the document"/>
+        <member name="description" type="string" attr:desc="Description/comments for the document"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.Options" parent="GrtObject" attr:caption="Application Options" attr:desc="stores the application's options">
+      <members>
+        <member name="commonOptions" type="dict" content-type="string" attr:desc="stores options that are shared between applications"/>
+        <member name="options" type="dict" attr:desc="stores application specific options"/>
+        <member name="paperTypes" type="list" content-type="object" content-struct-name="app.PaperType" owned="1"/>
+        <member name="recentFiles" type="list" content-type="string" attr:desc="recently opened files"/>
+        <member name="disabledPlugins" type="list" content-type="string" attr:desc="list of plugin names that are disabled"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.Starters" parent="GrtObject" attr:caption="Home Screen Starters" attr:desc="Stores all defined home screen starters.">
+      <members>
+        <member name="predefined" type="list" content-type="object" content-struct-name="app.Starter" owned="1"/>
+        <member name="custom" type="list" content-type="object" content-struct-name="app.Starter" owned="1"/>
+        <member name="displayList" type="list" content-type="object" content-struct-name="app.Starter"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.Starter" parent="GrtObject" attr:caption="Application External Content Launcher">
+      <members>
+        <member name="type" type="string" attr:caption="The type of the starter, e.g. WB Plugin, web site etc."/>
+        <member name="title" type="string" attr:caption="The title on the home screen and the starter popup."/>
+        <member name="publisher" type="string" attr:caption="Originator of the starter, e.g. Oracle Corp., Community etc."/>
+        <member name="authorHome" type="string" attr:caption="The author's website."/>
+        <member name="description" type="string" attr:caption="The description of the item used on the starter popup."/>
+        <member name="smallIcon" type="string" default="0" attr:caption="The starter icon for the home screen."/>
+        <member name="largeIcon" type="string" attr:caption="The starter icon for the starter popup."/>
+        <member name="command" type="string" attr:caption="The command to execute when selected, e.g. a plugin or a website link."/>
+		<member name="introduction" type="string" attr:caption="When was this starter added to the application (for predefined starters)."/>
+		<member name="edition" type="string" attr:caption="Which WB edition is this starter for (ce,se, empty/non-existing for both)."/>
+      </members>
+    </gstruct>
+    
+    <gstruct name="app.Registry" parent="GrtObject" attr:caption="Global Application Data" attr:desc="registry that keeps dynamic information used by the application">
+      <members>
+        <member name="pluginGroups" type="list" content-type="object" content-struct-name="app.PluginGroup" owned="1" attr:desc="the list of available plugin groups"/>
+        <member name="plugins" type="list" content-type="object" content-struct-name="app.Plugin" owned="1" attr:desc="the list of available plugins"/>
+        <member name="customDataFields" type="list" content-type="object" owned="1" content-struct-name="app.CustomDataField"/>
+        <member name="appDataDirectory" type="string"/>
+        <member name="appExecutablePath" type="string"/>
+      </members>
+    </gstruct>
+    
+    <gstruct name="app.PaperType" parent="GrtObject" attr:caption="Printer Paper Type">
+      <members>
+        <member name="caption" type="string"/>
+        <member name="width" type="real" attr:caption="width in mm"/>
+        <member name="height" type="real" attr:caption="height in mm"/>
+        <member name="marginsSet" type="int" default="0" attr:caption="whether the margins are set"/>
+        <member name="marginTop" type="real" attr:caption="default top margin"/>
+        <member name="marginBottom" type="real" attr:caption="default bottom margin"/>
+        <member name="marginLeft" type="real" attr:caption="default left margin"/>
+        <member name="marginRight" type="real" attr:caption="default right margin"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.PageSettings" parent="GrtObject" attr:caption="Page Settings">
+      <members>
+        <member name="paperType" type="object" struct-name="app.PaperType" attr:desc="type of paper size (A4, letter etc)"/>
+        <member name="orientation" type="string" attr:desc="landscape or portrait"/>
+        <member name="marginTop" type="real"/>
+        <member name="marginBottom" type="real"/>
+        <member name="marginLeft" type="real"/>
+        <member name="marginRight" type="real"/>
+        <member name="scale" default="5" type="real"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.CustomDataField" parent="GrtObject">
+      <members>
+        <member name="objectStruct" type="string" attr:desc="object struct names that this applies to"/>
+        <member name="type" type="string" attr:desc="type of the field (int, string, double, dict, object, list)"/>
+        <member name="defaultValue" type="string" attr:desc="default value for the field"/>
+        <member name="description" type="string" attr:desc="description of the field"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.CommandItem" parent="GrtObject" attr:caption="Generic Command Item">
+      <members>
+        <member name="context" type="string" attr:desc="application context where the item is valid (eg global, model etc)"/>
+        <member name="platform" type="string" attr:desc="windows, linux, macosx"/>
+        <member name="command" type="string" attr:desc="command name if builtin, or plugin name"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.MenuItem" parent="app.CommandItem" attr:caption="Menu Item">
+      <members>
+        <member name="caption" type="string"/>
+        <member name="itemType" type="string" attr:desc="type of item (action, separator, cascade, check, radio)"/>
+        <member name="subItems" type="list" content-type="object" content-struct-name="app.MenuItem" owned="1"/>
+        <member name="shortcut" type="string" attr:desc="optional shortcut (eg: control+s)"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.ShortcutItem" parent="app.CommandItem" attr:caption="Command Shortcut">
+      <members>
+        <member name="shortcut" type="string"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.Toolbar" parent="GrtObject" attr:caption="Toolbar">
+      <members>
+        <member name="items" type="list" content-type="object" content-struct-name="app.ToolbarItem" owned="1"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.ToolbarItem" parent="app.CommandItem" attr:caption="Toolbar Item">
+      <members>
+        <member name="icon" type="string"/>
+        <member name="altIcon" type="string"/>
+        <member name="itemType" type="string" attr:desc="type of button (action, separator, toggle, segmentedToggle, radio, label, dropdown)"/>
+        <member name="tooltip" type="string"/>
+        <member name="initialState" type="int" attr:desc="For (segmented) toggle only: is the item checked initially?" />
+      </members>
+    </gstruct>
+
+    <gstruct name="app.PluginGroup" parent="GrtObject" attr:caption="Plugin Group" attr:desc="groups a number of plugins together">
+      <members>        
+        <member name="category" type="string" attr:desc="the category this group belongs to"/>
+        <member name="plugins" type="list" content-type="object" content-struct-name="app.Plugin" owned="1" attr:desc="the list of plugins in this group"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.Plugin" parent="GrtObject" attr:caption="Plugin" attr:desc="a plugin that can be registered">
+      <members>
+        <member name="caption" type="string" attr:desc="the plugin caption"/>
+        <member name="description" type="string" attr:desc="the plugin description"/>
+        <member name="moduleName" type="string" attr:desc="the module that implements the editor (for dll plugins, it will be the dll name)"/>
+        <member name="moduleFunctionName" type="string" attr:desc="the module function that implements the editor (for dll plugins, the dll function name)"/>
+        <member name="inputValues" type="list" content-type="object" content-struct-name="app.PluginInputDefinition" owned="1"/>
+        <member name="pluginType" type="string" attr:desc="one of (normal, gui, standalone). Type of plugin."/>
+        <member name="groups" type="list" content-type="string" attr:desc="list of group names the plugin belongs to"/>
+
+        <member content-type="string" name="documentStructNames" type="list" attr:desc="the types of documents that can be handled by this plugin"/>
+
+        <member name="showProgress" type="int" attr:desc="DEPRECATED. set to 1 to show a progress bar during execution, 2 if the progress is indeterminate"/>
+        <member name="rating" type="int" attr:desc="the rating of this plugin. The plugin with the highest rating will be choosen, if some kind of matching is used"/> 
+
+        <member name="attributes" type="dict" attr:desc="additional application specific attributes"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.DocumentPlugin" parent="app.Plugin">
+      <members>
+         <member name="documentStructNames" type="list" content-type="string" attr:desc="type of document that can be handled"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.PluginInputDefinition" parent="GrtObject"/>
+
+    <gstruct name="app.PluginSelectionInput" parent="app.PluginInputDefinition" attr:desc="input is a list of objects taken from the source given in name (eg activeDiagram)">
+      <members>
+        <member name="objectStructNames" type="list" content-type="string" attr:desc="the types of objects that can be handled by this plugin"/>
+        <member name="argumentCardinality" type="string" attr:desc="defines the number of objects the plugin requires: 1 for exactly 1, ? for 0 or 1, + for 1 or more and * for 0 or more"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.PluginFileInput" parent="app.PluginInputDefinition">
+      <members>
+        <member name="dialogTitle" type="string" attr:desc="Title to use in file dialog when requesting a file to the user"/>
+        <member name="dialogType" type="string" attr:desc="Type of file dialog (save, open)"/>
+        <member name="fileExtensions" type="string" attr:desc="Accepted file extensions, starting with the default one  (without the .)"/>
+      </members>
+    </gstruct>
+
+    <gstruct name="app.PluginObjectInput" parent="app.PluginInputDefinition">
+      <members>
+        <member name="objectStructName" type="string"/>
+      </members>
+    </gstruct>
+  </gstructs>

@@ -1,0 +1,4 @@
+# mime types for MySQL Workbench
+
+application/vnd.mysql-workbench-model
+    ext: mwb

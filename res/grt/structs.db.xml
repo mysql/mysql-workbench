@@ -1,0 +1,452 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+      <requires file="structs.xml"/>
+      <!--requires file="structs.db.query.xml"/ causes an include loop-->
+
+      <gstruct name="db.DatabaseObject" parent="GrtNamedObject">
+          <members>
+              <member name="owner" type="object" struct-name="GrtNamedObject" overrides="GrtObject" delegate-set="1"/>
+              <member name="name" type="string" delegate-set="1"/>
+
+              <member name="temp_sql" type="string" attr:desc="the generated SQL statement(s)" attr:editas="hide"/>
+              <member name="commentedOut" type="int" attr:desc="if set to 1 the sql will be commented out but e.g. still be written to the script" attr:editas="hide"/>
+              <member name="customData" type="dict" attr:dontdiff="1" attr:editas="hide"/>
+              <member name="createDate" type="string" attr:dontdiff="1" attr:editas="hide"/>
+
+              <member name="lastChangeDate" type="string" delegate-set="1" attr:dontdiff="1" attr:editas="hide"/>
+
+              <member name="modelOnly" type="int" attr:desc="object exists in model but is not to be written to the database" attr:editas="bool"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.DatabaseDdlObject" parent="db.DatabaseObject">
+          <members>
+              <member name="definer" type="string" attr:editas="hide"/>
+              <member name="sqlBody" type="string" attr:dontdiff="1" attr:editas="hide"/>
+              <member name="sqlDefinition" type="string" attr:editas="hide"/>
+         </members>
+      </gstruct>
+
+      <gstruct name="db.Catalog" parent="GrtNamedObject" attr:caption="Catalog">
+          <members>
+              <member name="defaultCharacterSetName" type="string" attr:caseinsensitive="1"/>
+              <member name="defaultCollationName" type="string" attr:caseinsensitive="1"/>
+              <member name="schemata" type="list" content-type="object" content-struct-name="db.Schema" owned="1"/>
+              <member name="simpleDatatypes" type="list" content-type="object" content-struct-name="db.SimpleDatatype"/>
+              <member name="userDatatypes" type="list" content-type="object" attr:dontdiff="1" content-struct-name="db.UserDatatype" owned="1"/>
+              <member name="characterSets" type="list" content-type="object" content-struct-name="db.CharacterSet"/>
+              <member name="version" type="object" struct-name="GrtVersion" attr:dontdiff="1" owned="1" attr:desc="version of the catalog's database"/>
+              <member name="customData" type="dict" attr:desc="a generic dictionary to hold additional information used by e.g. plugins"/>
+              <member name="defaultSchema" type="object" struct-name="db.Schema" attr:dontdiff="1" attr:desc="currently selected schema"/>
+              <member name="logFileGroups" type="list" content-type="object" content-struct-name="db.LogFileGroup" owned="1"/>
+              <member name="tablespaces" type="list" content-type="object" content-struct-name="db.Tablespace" owned="1"/>
+              <member name="serverLinks" type="list" content-type="object" content-struct-name="db.ServerLink" owned="1"/>
+              <member name="roles" type="list" content-type="object" content-struct-name="db.Role" owned="1"/>
+              <member name="users" type="list" content-type="object" content-struct-name="db.User" owned="1"/>
+          </members>
+      </gstruct>
+      
+      <gstruct name="db.Role" parent="db.DatabaseObject" attr:caption="Role">
+          <members>
+             <member name="childRoles" type="list" content-type="object" content-struct-name="db.Role" attr:desc="the list of roles that derive from this one. They will have all privileges from this role and it's parents." attr:editas="hide"/>
+              <member name="parentRole" type="object" struct-name="db.Role" attr:desc="role that this role derives from or empty if there is no parent role. All privileges which has parent present for current Role" attr:editas="hide"/>
+              <member name="privileges" type="list" content-type="object" content-struct-name="db.RolePrivilege" owned="1" attr:desc="the list of privileges available for this role" attr:editas="hide"/>
+          </members>
+      </gstruct>
+      
+      <gstruct name="db.RolePrivilege" parent="GrtObject" attr:caption="Role Privilege">
+          <members>
+              <member name="privileges" type="list" content-type="string" attr:desc="the privileges for the object, e.g. CREATE" />
+              <member name="databaseObject" type="object" struct-name="db.DatabaseObject" attr:desc="the database object this privilege is assigned to" />
+              <member name="databaseObjectType" type="string" attr:desc="specifies the type, e.g. TABLE, used when wildcards are needed, like test.*"/>
+              <member name="databaseObjectName" type="string" attr:desc="used when wildcards are needed, like test.*"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.User" parent="db.DatabaseObject" attr:caption="User">
+          <members>
+              <member name="password" type="string" attr:desc="the password assigned to the user" attr:editas="hide"/>
+              <member name="roles" type="list" content-type="object" content-struct-name="db.Role" attr:desc="the list of assigned roles" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.LogFileGroup" parent="GrtNamedObject" attr:caption="Log File Group">
+          <members>
+              <member name="undoFile" type="string"/>
+              <member name="initialSize" type="int"/>
+              <member name="undoBufferSize" type="int"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Tablespace" parent="GrtNamedObject" attr:caption="Tablespace">
+          <members>
+              <member name="dataFile" type="string"/>
+              <member name="initialSize" type="int"/>
+              <member name="extendSize" type="int"/>
+              <member name="logFileGroup" type="object" struct-name="db.LogFileGroup" attr:caption="Log File Group" owned="1" attr:desc="the log file group that is used for this tablespace"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="Schema" name="db.Schema" parent="db.DatabaseObject">
+          <members>
+              <member name="defaultCharacterSetName" type="string" attr:caseinsensitive="1" attr:editas="hide"/>
+              <member name="defaultCollationName" type="string" attr:caseinsensitive="1" attr:editas="hide"/>
+              <member attr:caption="Tables" content-struct-name="db.Table" content-type="object" name="tables" type="list" owned="1" attr:editas="hide"/>
+              <member attr:caption="Views" content-struct-name="db.View" content-type="object" name="views" type="list" owned="1" attr:editas="hide"/>
+              <member attr:caption="Routines" content-struct-name="db.Routine" content-type="object" name="routines" type="list" owned="1" attr:editas="hide"/>
+              <member attr:caption="Routine Groups" content-struct-name="db.RoutineGroup" content-type="object" name="routineGroups" type="list" owned="1" attr:dontdiff="1" attr:editas="hide"/>
+              <member attr:caption="Synonyms" content-struct-name="db.Synonym" content-type="object" name="synonyms" type="list" owned="1" attr:editas="hide"/>
+              <member attr:caption="Structured Types" content-struct-name="db.StructuredDatatype" content-type="object" name="structuredTypes" type="list" owned="1" attr:editas="hide"/>
+              <member attr:caption="Sequences" content-struct-name="db.Sequence" content-type="object" name="sequences" type="list" owned="1" attr:editas="hide"/>
+
+
+              <method name="addNewTable" attr:desc="create and add a new table to the schema. For MySQL tables, pass db.mysql as the dbpackage argument">
+                  <argument name="dbpackage" type="string"/>
+                  <return type="object" struct-name="db.Table"/>
+              </method>
+              <method name="addNewView">
+                  <argument name="dbpackage" type="string"/>
+                  <return type="object" struct-name="db.View"/>
+              </method>
+              <method name="addNewRoutine">
+                  <argument name="dbpackage" type="string"/>
+                  <return type="object" struct-name="db.Routine"/>
+              </method>
+              <method name="addNewRoutineGroup">
+                  <argument name="dbpackage" type="string"/>
+                  <return type="object" struct-name="db.RoutineGroup"/>
+              </method>
+
+              <method name="removeTable">
+                  <argument name="table" type="object" struct-name="db.Table"/>
+                  <return type="void"/>
+              </method>
+
+              <method name="getForeignKeysReferencingTable">
+                  <argument name="table" type="object" struct-name="db.Table"/>
+                  <return type="list" content-type="object" content-struct-name="db.ForeignKey"/>
+              </method>
+
+              <signal name="refreshDisplay" attr:desc="notifies when a caption of an object in the schema is changed">
+                  <argument name="sender" type="object" struct-name="db.DatabaseObject"/>
+              </signal>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.ServerLink" parent="db.DatabaseObject" attr:caption="Server Alias">
+          <members>
+              <member name="wrapperName" type="string" attr:desc="the type of database server to connect to"/>
+              <member name="user" type="string" attr:desc="the user to connect with"/>
+              <member name="password" type="string" attr:desc="the password to connect with"/>
+              <member name="host" type="string" attr:desc="the host name the server runs on"/>
+              <member name="schema" type="string" attr:desc="the name of the schema to use"/>
+              <member name="socket" type="string" attr:desc="the socket the server runs on"/>
+              <member name="port" type="string" attr:desc="the port the server runs on"/>
+              <member name="ownerUser" type="string" attr:desc="the owner"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Table" parent="db.DatabaseObject" attr:caption="Table" attr:desc="an object that stores information about a database schema table">
+          <members>
+              <member name="isTemporary" type="int" attr:editas="hide"/>
+              <member name="temporaryScope" type="string" attr:editas="hide"/>
+              <member name="isSystem" type="int" attr:editas="hide"/>
+              <member name="primaryKey" type="object" struct-name="db.Index" attr:caption="Primary Key" attr:editas="hide"/>
+              <member name="columns" type="list" content-type="object" content-struct-name="db.Column" owned="1" allow-null="0" attr:caption="Columns" attr:editas="hide"/>
+              <member name="indices" type="list" content-type="object" content-struct-name="db.Index" owned="1" allow-null="0" attr:caption="Indices" attr:editas="hide"/>
+              <member name="foreignKeys" type="list" content-type="object" content-struct-name="db.ForeignKey" owned="1" allow-null="0" attr:caption="Foreign Keys" attr:editas="hide"/>
+              <member name="triggers" type="list" content-struct-name="db.Trigger" content-type="object" owned="1" allow-null="0" attr:caption="Triggers" attr:editas="hide"/>
+              <member name="isStub" type="int" attr:desc="whether this table is a stub intended for foreign keys and triggers that refer to tables external to this model" attr:editas="bool"/>
+              <!-- member name="template" struct-name="db.StructuredDatatype" type="object"/ -->
+
+
+              <method name="inserts">
+                  <return type="string"/>
+              </method>
+
+              <method name="createInsertsEditor"  attr:desc="creates a grid object representing the inserts data, suitable for browsing and editing its contents">
+        	  <return type="object" struct-name="db.query.EditableResultset"/>
+              </method>
+
+              <method name="addPrimaryKeyColumn">
+                  <argument name="column" type="object" struct-name="db.Column"/>
+                  <return  type="void"/>
+              </method>
+              <method name="removePrimaryKeyColumn">
+                  <argument name="column" type="object" struct-name="db.Column"/>
+                  <return  type="void"/>
+              </method>
+              <method name="isPrimaryKeyColumn">
+                  <argument name="column" type="object" struct-name="db.Column"/>
+                  <return  type="int"/>
+              </method>
+
+              <method name="addColumn">
+                  <argument name="column" type="object" struct-name="db.Column"/>
+                  <return  type="void"/>
+              </method>
+              <method name="removeColumn">
+                  <argument name="column" type="object" struct-name="db.Column"/>
+                  <return  type="void"/>
+              </method>
+
+              <method name="addIndex">
+                  <argument name="index" type="object" struct-name="db.Index"/>
+                  <return  type="void"/>
+              </method>
+              <method name="removeIndex">
+                  <argument name="index" type="object" struct-name="db.Index"/>
+                  <return  type="void"/>
+              </method>
+
+              <method name="createForeignKey">
+                  <argument name="name" type="string"/>
+                  <return  type="object" struct-name="db.ForeignKey"/>
+              </method>
+              <method name="removeForeignKey">
+                  <argument name="fk" type="object" struct-name="db.ForeignKey"/>
+                  <argument name="removeColumns" type="int"/>
+                  <return  type="void"/>
+              </method>
+              <method name="isForeignKeyColumn">
+                  <argument name="column" type="object" struct-name="db.Column"/>
+                  <return  type="int"/>
+              </method>
+
+
+              <method name="isDependantTable">
+                  <return type="int"/>
+              </method>
+
+              <signal name="refreshDisplay" attr:desc="notifies when a caption of something in the table is changed">
+                  <argument name="where" type="string"/>
+              </signal>
+              <signal name="foreignKeyChanged" attr:desc="notifies when a foreign key has been added/removed or its definition changes">
+                  <argument name="fk" type="object" struct-name="db.ForeignKey"/>
+              </signal>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Column" parent="GrtNamedObject">
+          <members>
+              <!-- Diff only what we are able to change later on sync -->
+              <member name="simpleType" type="object" struct-name="db.SimpleDatatype"/>
+              <member name="userType" type="object" struct-name="db.UserDatatype"/>
+              <member name="structuredType" type="object" struct-name="db.StructuredDatatype"/>
+              <member name="precision" type="int" default="-1" attr:desc="for numeric types this represents the total number of digits that are stored including digits right from the decimal point"/>
+              <member name="scale" type="int" default="-1" attr:desc="the number of digits right to the decimal point"/>
+              <member name="length" type="int" default="-1" attr:desc="The total length of the column. For string types this referes to the number of characters that can be stored."/>
+              <member name="datatypeExplicitParams" type="string" attr:desc="For ENUM, SET and similar datatypes the parametes can be defined explictly. Note that brackets need to be included. This will overwrite the precision, scale and length setting"/>
+              <member name="formattedType" type="string" attr:dontdiff="1" calculated="1" delegate-get="1" delegate-set="1"/>
+              <member name="formattedRawType" type="string" attr:dontdiff="1" calculated="1" read-only="1" delegate-get="1"/>
+
+              <member name="isNotNull" type="int"/>
+              <member name="flags" type="list" content-type="string" attr:desc="additional flags like UNSIGNED, ZEROFILL, BINARY"/>
+              <member name="checks" type="list" content-type="object" content-struct-name="db.CheckConstraint" owned="1" attr:caption="Check Contraints"/>
+              <member name="defaultValue" type="string"/>
+              <member name="defaultValueIsNull" type="int" attr:dontdiff="1" />
+              <member name="characterSetName" type="string" attr:caseinsensitive="1"/>
+              <member name="collationName" type="string" attr:caseinsensitive="1"/>
+
+              <method name="setParseType">
+                  <argument name="type" type="string"/>
+        	  <argument name="typeList" type="list" content-type="object" content-struct-name="db.SimpleDatatype"/>
+                  <return  type="int"/>
+              </method>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.DatatypeGroup" parent="GrtObject">
+          <members>
+              <member name="caption" type="string"/>
+              <member name="description" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.SimpleDatatype" parent="GrtObject">
+          <members>
+              <member name="group" type="object" struct-name="db.DatatypeGroup" attr:desc="the datatype group this datatype belongs to"/>
+              <member name="characterMaximumLength" type="int" attr:desc="maximum number of characters this datatype can store"/>
+              <member name="characterOctetLength" type="int" attr:desc="maximum number of 8 bit characters this datatype can store"/>
+              <member name="parameterFormatType" type="int" attr:desc="0 none, 1 (n), 2 [(n)], 3 (m,n), 4 (m[,n]), 5 [(m,n)], 6 [(m[, n])], 10 ('a','b','c')"/>
+              <member name="numericPrecision" type="int" attr:desc="maximum numbers of digits the datatype can store"/>
+              <member name="numericPrecisionRadix" type="int"/>
+              <member name="numericScale" type="int" attr:desc="maximum numbers of digits right from the decimal point the datatype can store"/>
+              <member name="dateTimePrecision" type="int" attr:desc="the datetime precision the datatype can store"/>
+              <member name="needsQuotes" type="int" attr:desc="whether values require quotes around them"/>
+              <member name="validity" type="string" attr:desc="information about validity of this type. Allowed: comparison operator followed by version number"/>
+              <member content-type="string" name="synonyms" type="list" attr:desc="the list of names that can be used as synonym for the datatype"/>
+              <member content-type="string" name="flags" type="list" attr:desc="additional flags like UNSIGNED, ZEROFILL, BINARY"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.UserDatatype" parent="GrtObject">
+          <members>
+              <member name="sqlDefinition" type="string" struct-name="definition of the datatype, eg: VARCHAR(32)"/>
+              <member name="flags" type="string" struct-name="flags for the type, eg: UNSIGNED ZEROFILL"/>
+              <member name="actualType" type="object" struct-name="db.SimpleDatatype"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="Structured Datatype" name="db.StructuredDatatype" parent="db.DatabaseObject">
+          <members>
+              <member name="parentType" struct-name="db.StructuredDatatype" type="object"/>
+              <member content-struct-name="db.Column" content-type="object" name="distinctTypes" type="list" owned="1"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.CheckConstraint" parent="GrtNamedObject">
+          <members>
+              <member name="searchCondition" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Index" parent="GrtNamedObject">
+          <members>
+              <member name="name" type="string" delegate-set="1" overrides="string"/>
+              <member name="isPrimary" type="int"/>
+              <member name="deferability" type="int"/>
+              <member name="unique" type="int" attr:dontdiff="1" />
+              <member name="indexType" type="string" attr:desc="can be INDEX, PRIMARY, UNIQUE, FULLTEXT, SPACIAL"/>
+              <member name="columns" type="list" content-type="object" content-struct-name="db.IndexColumn" owned="1"/>
+              <member name="comment" type="string" attr:dontdiff="1" /> 
+          </members>
+      </gstruct>
+
+      <gstruct name="db.IndexColumn" parent="GrtObject">
+          <members>
+              <member name="name" type="string" attr:dontdiff="1" override-attributes-only="1" attr:desc="the object's name"/>
+              <member name="columnLength" type="int"/>
+              <member name="descend" type="int"/>
+              <member name="referencedColumn" attr:dontdiff="1" struct-name="db.Column" type="object"/>
+              <member name="comment" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.ForeignKey" parent="GrtNamedObject" watch-lists="1">
+          <members>
+              <member name="owner" type="object" struct-name="db.Table" overrides="GrtObject" delegate-set="1"/>
+              <member name="modelOnly" type="int" />
+              <member name="deleteRule" type="string"/>
+              <member name="updateRule" type="string"/>
+              <member name="deferability" type="int"/>
+              <member name="referencedTable" struct-name="db.Table" type="object" delegate-set="1"/>
+              <member name="columns" content-struct-name="db.Column" content-type="object" type="list"/>
+              <member name="referencedColumns" content-struct-name="db.Column" content-type="object" type="list"/>
+
+              <member name="mandatory" type="int" default="1" attr:dontdiff="1" attr:desc="mandatory in the owner table"/> 
+              <member name="referencedMandatory" type="int" default="1" attr:dontdiff="1" attr:desc="mandatory in the referenced table"/> 
+              <member name="many" type="int" default="1" attr:desc="cardinality of owner table" attr:dontdiff="1"/> 
+              <member name="index" type="object" struct-name="db.Index" attr:dontdiff="1" attr:desc="Index that was created for this Foreign Key. This should only be set when a index is created for the FK, in other cases (like on reverse engieer) it should be left unset. For that reason this should not be used to find the matching index for the FK."/>
+              <member name="customData" type="dict" attr:editas="hide"/>
+
+              <method name="checkCompleteness">
+                <return type="int"/>
+              </method>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="View" name="db.View" parent="db.DatabaseDdlObject" attr:desc="a object that stores information about a database schema view">
+          <members>
+              <member name="algorithm" type="int" attr:editas="hide"/>
+              <member name="name" type="string" attr:desc="the current name of the object" overrides="string"/>
+              <member name="withCheckCondition" type="int" attr:editas="hide"/>
+              <member name="isReadOnly" type="int" attr:editas="hide"/>
+              <member name="columns" type="list" content-type="string" attr:editas="hide"/>
+              <member name="oldModelSqlDefinition" type="string" attr:dontdiff="1" attr:desc="this is set at the time of the last sync/rev-eng/fwd-eng to be able to tell if the SQL has been altered when the next sync is performed" attr:editas="hide"/>
+              <member name="oldServerSqlDefinition" type="string" attr:dontdiff="1" attr:desc="this is set at the time of the last sync/rev-eng/fwd-eng to be able to tell if the SQL has been altered when the next sync is performed" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="Routine" name="db.Routine" parent="db.DatabaseDdlObject" attr:desc="an object that stores information about a database schema routine">
+          <members>
+              <member name="name" type="string" attr:desc="the current name of the object" overrides="string"/> <!-- used to be readonly, but must be writable for migration to work... this must be changed back to RO and make it auto-parse and fetch the name from the code. same for views -->
+              <member name="routineType" type="string" attr:editas="hide"/>
+              <member name="sequenceNumber" type="int" attr:dontdiff="1" attr:desc="defines position in editor"/>
+          </members>
+      </gstruct>
+
+      <!-- SP and Function objects are not being used everywhere they should. db.Routine is being used instead, although wrongly. Replacing Routine with the subclasses would break backwards compatibility -->
+
+      <gstruct attr:caption="Function" name="db.Function" parent="db.Routine" />
+
+      <gstruct attr:caption="Stored Procedure" name="db.StoredProcedure" parent="db.Routine" />
+
+      <gstruct attr:caption="Routine Group" attr:desc="a logical group of routines" name="db.RoutineGroup" parent="db.DatabaseObject" force-impl="1">
+          <members>
+              <member content-struct-name="db.Routine" content-type="object" name="routines" type="list" owned="1" attr:editas="hide"/>
+              <member attr:desc="specifies if the n-th routine is expanded in the editor, 0 if collapsed" content-type="int" name="routineExpandedStates" type="list" attr:editas="hide"/>
+              <member attr:desc="specifies the n-th routine height in the editor, 0 for automatic height" content-type="int" name="routineExpandedHeights" type="list" attr:editas="hide"/>
+
+              <signal name="contentChanged"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Trigger" parent="db.DatabaseDdlObject" attr:caption="Trigger">
+          <members>
+              <member name="name" type="string" delegate-set="1" overrides="string"/>
+              <member name="event" type="string" delegate-set="1" attr:desc="the DDL(/DML) event that fires the trigger"/>
+              <member name="condition" type="string" attr:desc="the condition that must be met for the trigger to execute"/>
+              <member name="order" type="int" attr:desc="the order in which triggers of the same event and timing are executed"/>
+              <member name="orientation" type="string" attr:desc="for which object the trigger fires, e.g. ROW"/>
+              <member name="timing" type="string" delegate-set="1" attr:desc="when the trigger fires, AFTER or BEFORE"/>
+              <member name="referenceNewTable" type="string"/>
+              <member name="referenceOldTable" type="string"/>
+              <member name="referenceNewRow" type="string"/>
+              <member name="referenceOldRow" type="string"/>
+              <member name="sequenceNumber" type="int" attr:dontdiff="1" attr:desc="defines position in editor"/>
+              <member name="enabled" type="int"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.CharacterSet" parent="GrtObject">
+          <members>
+              <member name="description" type="string"/>
+              <member name="defaultCollation" type="string"/>
+              <member content-type="string" name="collations" type="list"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Synonym" parent="db.DatabaseObject" attr:caption="Synonym">
+          <members>
+              <member name="isPublic" type="int"/>
+              <member name="referencedObject" struct-name="db.DatabaseObject" type="object"/>
+              <member name="referencedSchemaName" type="string"/>
+              <member name="referencedObjectName" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Sequence" parent="db.DatabaseObject" attr:caption="Sequence" attr:desc="a database sequence object">
+          <members>
+              <member name="minValue" type="string" attr:desc="Minimum value of sequence"/>
+              <member name="maxValue" type="string" attr:desc="Maximum value of sequence"/>
+              <member name="startValue" type="string" attr:desc="The value that starts the sequence"/>
+              <member name="incrementBy" type="string" attr:desc="Value by which sequence is increased"/>
+              <member name="cycleFlag" type="int" attr:desc="Does sequence begin again with minimum value once maximum value has been reached?"/>
+              <member name="orderFlag" type="int" attr:desc="Are the sequence values granted in the order of the request?"/>
+              <member name="cacheSize" type="string" attr:desc="Number of sequence values that are loaded into cache simultaneously"/>
+              <member name="lastNumber" type="string" attr:desc="Last sequence value that was saved"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.Script" parent="GrtStoredNote" attr:caption="SQL Script" attr:desc="a SQL script"/>
+
+      <gstruct attr:caption="Synchronisation Managing Object" attr:desc="an object used for synchronisation" name="db.DatabaseSync" parent="GrtObject">
+          <members>
+              <member attr:desc="the database's catalog" name="dbCatalog" struct-name="db.Catalog" type="object" owned="1"/>
+              <member attr:desc="the tree of changes to apply" name="changeTree" struct-name="db.DatabaseSyncObject" type="object" owned="1"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.DatabaseSyncObject" parent="GrtObject" attr:caption="Synchronisation Object" attr:desc="an object used for object changes">
+          <members>
+              <member attr:desc="if set to 1 the object has been modified" name="changed" type="int"/>
+              <member attr:desc="0 to apply the change to the database, 1 to apply the change to the model" name="alterDirection" type="int"/>
+              <member attr:desc="reference to the model object, empty if this is a new object in the database" name="modelObject" struct-name="GrtNamedObject" type="object"/>
+              <member attr:desc="reference to the database object, empty if this is a new object in the model" name="dbObject" struct-name="GrtNamedObject" type="object"/>
+              <member content-struct-name="db.DatabaseSyncObject" content-type="object" name="children" type="list" owned="1"/>
+              <member attr:desc="a listing of log messages generated during object synchronization" content-struct-name="GrtLogObject" content-type="object" name="syncLog" type="list" owned="1"/>
+          </members>
+      </gstruct>
+
+  </gstructs>

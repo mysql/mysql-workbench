@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<data>
+	<value _ptr_="0B77C1E8" type="dict">
+		<value type="string" key="ConfigurationManager.Language">mysql</value>
+		<value type="int" key="Indentation.IndentWidth">4</value>
+		<value type="int" key="Indentation.TabWidth">4</value>
+		<value type="int" key="Indentation.UseTabs">0</value>
+	</value>
+</data>

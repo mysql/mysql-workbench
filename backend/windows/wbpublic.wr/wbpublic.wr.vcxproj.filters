@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\sqlide.wr">
+      <UniqueIdentifier>{a9310f5c-a1f8-44bc-984a-bfb465a1e856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\grt">
+      <UniqueIdentifier>{31777762-ce4f-4b46-8771-1822dffb16e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\grtdb">
+      <UniqueIdentifier>{f8f54b98-a645-42cf-a706-3053a5f41c66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\sqlide.wr">
+      <UniqueIdentifier>{5ad26752-4a65-4952-8e79-241b00d9e9b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\grt">
+      <UniqueIdentifier>{500d1fbd-ac64-47a5-b615-6006be3e43a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\grtdb">
+      <UniqueIdentifier>{9c04b513-d544-49dd-91f1-2c1ee563f2dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Header Files\user and roles">
+      <UniqueIdentifier>{9f8c32db-a64d-4705-b304-949ef52a041f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\user and roles">
+      <UniqueIdentifier>{b0493141-7e2c-42a5-8230-55554921e6b6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ActionList.cpp">
+      <Filter>Source Files\grt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Grt.cpp">
+      <Filter>Source Files\grt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GrtStringListModel.cpp">
+      <Filter>Source Files\grt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ModelWrappers.cpp">
+      <Filter>Source Files\grt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RefreshUI.cpp">
+      <Filter>Source Files\grt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DBObjectFilterBE.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DBObjectMasterFilterBE.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RoutineEditorBE.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RoutineGroupEditorBE.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewEditorBE.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectRolesBE.cpp">
+      <Filter>Source Files\user and roles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RoleTreeBE.cpp">
+      <Filter>Source Files\user and roles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserEditorBE.cpp">
+      <Filter>Source Files\user and roles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserRoleEditorBE.cpp">
+      <Filter>Source Files\user and roles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlide.wr\src\var_grid_model_wr.cpp">
+      <Filter>Source Files\sqlide.wr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlide.wr\src\recordset_wr.cpp">
+      <Filter>Source Files\sqlide.wr</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SchemaEditorWrapper.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Canvas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="src\GrtThreadedTaskWrapper.cpp">
+      <Filter>Source Files\grt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TableEditorWrapper.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BaseEditorWrapper.cpp">
+      <Filter>Source Files\grt</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\sqlide.wr\src\recordset_wr.h">
+      <Filter>Header Files\sqlide.wr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlide.wr\src\var_grid_model_wr.h">
+      <Filter>Header Files\sqlide.wr</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ActionList.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Exceptions.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Grt.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GrtManager.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GrtShell.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GrtStringListModel.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GrtTemplates.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GrtValueInspector.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IconManager.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ModelWrappers.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RefreshUI.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DBObjectEditorBE.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DBObjectFilterBE.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DBObjectMasterFilterBE.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RoutineEditorBE.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RoutineGroupEditorBE.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewEditorBE.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjectRolesBE.h">
+      <Filter>Header Files\user and roles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RoleTreeBE.h">
+      <Filter>Header Files\user and roles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserEditorBE.h">
+      <Filter>Header Files\user and roles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserRoleEditorBE.h">
+      <Filter>Header Files\user and roles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DelegateWrapper.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SchemaEditorWrapper.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Canvas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\GrtThreadedTaskWrapper.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TableEditorWrapper.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BaseEditorWrapper.h">
+      <Filter>Header Files\grt</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,322 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+
+<?if $(var.SETUP_TYPE) = "commercial" ?>
+  <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN)"?>
+  <?define OLD_PRODUCT_NAME  = "MySQL Workbench 5.2 SE"?>
+  <?define UPGRADE_CODE  = "891D38A2-6F12-426D-8AD5-FF6C81ACFCC8"?>
+  <?define COMPONENT_REG_GUID  = "C7C35155-CBE4-4e44-818B-FC62A2BF5F04"?>
+<?elseif $(var.SETUP_TYPE) = "community" ?>
+  <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN) CE"?>
+  <?define OLD_PRODUCT_NAME  = "MySQL Workbench 5.2 CE"?>
+  <?define UPGRADE_CODE  = "84C668F4-A0C9-4585-A463-AADE0EFC9391"?>
+  <?define COMPONENT_REG_GUID  = "21F689C0-F026-4401-973E-90248293A835"?>
+<?else?>
+  <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN) Debug"?>
+  <?define OLD_PRODUCT_NAME  = "MySQL Workbench 5.2 Debug"?>
+  <?define UPGRADE_CODE  = "FD7A4AFE-E305-499C-8F37-0686C4EC20D4"?>
+  <?define COMPONENT_REG_GUID  = "4AB9F1DE-7679-4728-9BC4-5FE2176E8483"?>
+<?endif?>
+
+    <Product Id="*" Language="1033" Manufacturer="Oracle Corporation" Name="$(var.PRODUCT_NAME)" 
+      UpgradeCode="$(var.UPGRADE_CODE)" Version="$(var.VERSION_DETAIL)">
+
+        <Package Compressed="yes" Description="MySQL Workbench" InstallerVersion="200" Keywords="Installer,MSI,Database" 
+          Languages="1033" Manufacturer="Oracle Corporation" Platform="x86" />
+
+        <MajorUpgrade
+          Schedule="afterInstallValidate"
+          DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit.">
+        </MajorUpgrade>
+
+
+        <Binary Id="BackgroundImg" SourceFile="resources/Background.jpg" />
+        <Binary Id="HeaderImg" SourceFile="resources/Header.jpg" />
+        <Binary Id="NewBinary4" SourceFile="resources/binary/binary4" />
+        <Binary Id="NewBinary9" SourceFile="resources/binary/binary9" />
+        <Binary Id="NewBinary5" SourceFile="resources/binary/binary5" />
+        <Binary Id="NewBinary10" SourceFile="resources/binary/binary10" />
+        <Binary Id="NewBinary11" SourceFile="resources/binary/binary11" />
+        <Binary Id="NewBinary3" SourceFile="resources/binary/binary3" />
+        <Binary Id="NewBinary2" SourceFile="resources/binary/binary2" />
+        <Binary Id="NewBinary14" SourceFile="resources/binary/binary14" />
+        <Binary Id="NewBinary15" SourceFile="resources/binary/binary15" />
+        <Binary Id="NewBinary16" SourceFile="resources/binary/binary16" />
+        <Binary Id="NewBinary17" SourceFile="resources/binary/binary17" />
+        <Binary Id="NewBinary18" SourceFile="resources/binary/binary18" />
+        <Binary Id="NewBinary13" SourceFile="resources/binary/binary13" />
+        <Binary Id="NewBinary6" SourceFile="resources/binary/binary6" />
+        <Binary Id="NewBinary7" SourceFile="resources/binary/binary7" />
+        <Binary Id="NewBinary8" SourceFile="resources/binary/binary8" />
+        <Binary Id="NewBinary12" SourceFile="resources/binary/binary12" />
+
+		<PropertyRef Id="NETFRAMEWORK40CLIENT" />
+		<Property Id="CPP_100_RUNTIMES" Secure="yes">
+			<DirectorySearch Id="CPP_100_RUNTIMES" Path="[WindowsFolder]" Depth="2">
+                <FileSearch Name="msvcr100.dll" MinVersion="10.0.0.0" />
+			</DirectorySearch>
+		</Property>
+
+		<Property Id="OLDINSTALLDIR">
+		  <RegistrySearch Id="OldMySQLWBLocation" Type="raw"
+			Root="HKLM" Key="Software\MySQL AB\$(var.OLD_PRODUCT_NAME)" Name="Location" />
+		</Property>		
+		
+        <Condition Message="The operating system is not adequate for running [ProductName]. You need Windows XP with SP3 and .Net 4.0 Client Profile installed, Windows Vista with SP1 or Windows 7.">
+          (VersionNT = 501 And ServicePackLevel &gt;= 3) Or VersionNT &gt;= 502</Condition>
+        <Condition Message="The processor is not adequate for running [ProductName].">Intel &gt;= 5</Condition>
+        <Condition Message="The amount of RAM is not adequate for running [ProductName].">PhysicalMemory &gt;= 64</Condition>
+        <Condition Message="You need Administrator privileges to be able to install [ProductName].">Privileged</Condition>
+        <Condition Message="MySQL Workbench requires the Visual C++ 2010 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions. ATTENTION: 32bit version is required, regardless of your system type."><![CDATA[Installed OR CPP_100_RUNTIMES]]></Condition>
+        <Condition Message="MySQL Workbench requires the .Net Framework 4.0 Client Profile to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR NETFRAMEWORK40CLIENT]]></Condition>
+
+        <CustomAction Id="NewerVersionInstalled" Error="A newer version of this product is already installed." />
+
+		  <Property Id="WixShellExecTarget" Value="http://dev.mysql.com/resources/wb52_prerequisites.html" />
+
+		  <CustomAction Id="LaunchDL" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+		  <CustomAction Id="SetAdditionalCleanupDir1"
+              Property="LEFTOVERDIR1"
+              Value="[INSTALLDIR]python\encodings" />
+		  <CustomAction Id="SetAdditionalCleanupDir2"
+              Property="LEFTOVERDIR2"
+              Value="[INSTALLDIR]python\logging" />
+
+      <Binary Id="MySQLCA" SourceFile="MySQLCA\bin\Release\MySQLCA.CA.dll" />
+      
+      <CustomAction Id="PrecompilePythonFiles" BinaryKey="MySQLCA" DllEntry="PrecompilePythonFiles" Execute="deferred" Impersonate="no" Return="asyncWait" />
+      <CustomAction Id="PrecompilePythonFiles.SetProperty" Return="check" Property="PrecompilePythonFiles" Value="[INSTALLDIR]"/>
+
+      <CustomAction Id="DeletePythonFolder" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
+      <CustomAction Id="DeletePythonFolder.SetProperty" Return="check" Property="DeletePythonFolder" Value="[INSTALLDIR]python"/>
+
+      <CustomAction Id="DeleteModulesFolder" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
+      <CustomAction Id="DeleteModulesFolder.SetProperty" Return="check" Property="DeleteModulesFolder" Value="[INSTALLDIR]modules"/>
+
+      <CustomAction Id="DeletePycFiles" BinaryKey="MySQLCA" DllEntry="DeleteFilesWildcard" Execute="deferred" Impersonate="no" Return="ignore"/>
+      <CustomAction Id="DeletePycFiles.SetProperty" Return="check" Property="DeletePycFiles" Value="[INSTALLDIR],*.pyc"/>
+	  
+      <CustomAction Id="DeletePythonFolderOldInstall" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
+      <CustomAction Id="DeletePythonFolderOldInstall.SetProperty" Return="check" Property="DeletePythonFolderOldInstall" Value="[OLDINSTALLDIR]python"/>
+  
+      <CustomAction Id="DeleteUtilitiesFolderOldInstall" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
+      <CustomAction Id="DeleteUtilitiesFolderOldInstall.SetProperty" Return="check" Property="DeleteUtilitiesFolderOldInstall" Value="[OLDINSTALLDIR]utilities"/>
+
+      <DirectoryRef Id="INSTALLDIR">
+          <Component Id="RegKeys" Guid="$(var.COMPONENT_REG_GUID)" DiskId="1">
+            <RegistryKey Id="MysqlKey" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
+                      Action="createAndRemoveOnUninstall"/>
+                      
+            <RegistryValue Id="Version" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
+                      Name="Version" Type="string" 
+                      Value="[ProductVersion]"/>
+                      
+            <RegistryValue Id="Location" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
+                      Name="Location" Type="string" 
+                      Value="[INSTALLDIR]"/>
+            <?if $(var.SETUP_TYPE) = "commercial" ?>
+			<RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
+			<RemoveFile Id="pyc_cleanup23" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2_test" />
+			<RemoveFile Id="pyc_cleanup24" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2_test_py25" />
+            <?endif?>
+			<RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />			
+			<RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />			
+			<RemoveFile Id="pyc_cleanup27" Name="pyodbc*.pyd" On="both" Directory="python_site_packages" />
+			<RemoveFile Id="pyc_cleanup28" Name="*.pyc" On="both" Directory="python_site_packages_crypto_signature" />
+			<RemoveFile Id="pyc_cleanup29" Name="*.pyc" On="both" Directory="python_lib_ctypes" />
+			<RemoveFile Id="pyc_cleanup30" Name="*.pyc" On="both" Directory="library_workbench" />
+            <?if $(var.LICENSE_TYPE) = "commercial"?>
+			<RemoveFile Id="pyc_cleanup31" Name="*.pyc" On="both" Directory="modules_wba_audit" />
+			<RemoveFile Id="pyc_cleanup32" Name="*.pyc" On="both" Directory="modules_wba_meb" />
+            <?endif?>
+          </Component>
+        </DirectoryRef>
+
+
+        <Feature Id="MysqlWorkbenchCore" Absent="disallow" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR" Description="Core components needed to run MySQL Workbench" Level="1" Title="MySQL Workbench Core">
+            <ComponentRef Id="Various" />
+            <ComponentRef Id="Third_Party_Libraries" />
+            <ComponentRef Id="Libraries" />
+<!--            <ComponentRef Id="WB_Executables" />  -->
+            <ComponentRef Id="MySQLWorkbench.exe" />
+<!--            <ComponentRef Id="GRT_Shell_GUI" /> -->
+            <ComponentRef Id="data" />
+            <ComponentRef Id="images_curors" />
+            <ComponentRef Id="images_grt" />
+            <ComponentRef Id="images_grt_structs" />
+            <ComponentRef Id="images_icons" />
+            <ComponentRef Id="images_ui" />
+            <ComponentRef Id="images_home" />
+            <ComponentRef Id="images_sql" />
+            <ComponentRef Id="modules_files" />
+            <?if $(var.LICENSE_TYPE) = "commercial"?>
+            <ComponentRef Id="modules_wba_audit" />
+            <ComponentRef Id="modules_wba_meb" />
+            <?endif?>
+            <ComponentRef Id="modules_data" />
+            <ComponentRef Id="modules_data_sqlite" />
+            <ComponentRef Id="modules_data_doclibrary" />
+            <ComponentRef Id="modules_templates" />
+            <ComponentRef Id="library_workbench" />
+            <ComponentRef Id="library_workbench_graphics" />
+			<ComponentRef Id="python_dlls" />
+			<ComponentRef Id="python_lib" />
+			<ComponentRef Id="python_lib_ctypes" />
+			<ComponentRef Id="python_lib_ctypes_macholib" />
+			<ComponentRef Id="python_lib_encodings" />
+			<ComponentRef Id="python_lib_logging" />
+			<ComponentRef Id="python_lib_json" />
+			<ComponentRef Id="python_lib_multiprocessing" />
+			<ComponentRef Id="python_lib_multiprocessing_dummy" />
+      <ComponentRef Id="python_lib_sqlite3" />
+      <ComponentRef Id="python_lib_unittest" />
+      <ComponentRef Id="python_lib_unittest_test" />
+			<ComponentRef Id="python_lib_xml" />
+			<ComponentRef Id="python_lib_xml_dom" />
+			<ComponentRef Id="python_lib_xml_sax" />
+			<ComponentRef Id="python_lib_xml_parsers" />
+			<ComponentRef Id="python_lib_xml_etree" />
+			<ComponentRef Id="python_libs" />
+			<ComponentRef Id="python_site_packages_pyodbc" />
+			<ComponentRef Id="python_site_packages_crypto" />
+			<ComponentRef Id="python_site_packages_crypto_cipher" />
+			<ComponentRef Id="python_site_packages_crypto_hash" />
+			<ComponentRef Id="python_site_packages_crypto_protocol" />
+			<ComponentRef Id="python_site_packages_crypto_publickey" />
+			<ComponentRef Id="python_site_packages_crypto_random" />
+			<ComponentRef Id="python_site_packages_crypto_random_fortuna" />
+			<ComponentRef Id="python_site_packages_crypto_random_osrng" />
+			<ComponentRef Id="python_site_packages_crypto_selftest" />
+			<ComponentRef Id="python_site_packages_crypto_selftest_cipher" />
+			<ComponentRef Id="python_site_packages_crypto_selftest_hash" />
+			<ComponentRef Id="python_site_packages_crypto_selftest_protocol" />
+			<ComponentRef Id="python_site_packages_crypto_selftest_publickey" />
+			<ComponentRef Id="python_site_packages_crypto_selftest_random" />
+			<ComponentRef Id="python_site_packages_crypto_selftest_random_fortuna" />
+			<ComponentRef Id="python_site_packages_crypto_selftest_random_osrng" />
+            <ComponentRef Id="python_site_packages_crypto_selftest_signature" />
+			<ComponentRef Id="python_site_packages_crypto_selftest_util" />
+			<ComponentRef Id="python_site_packages_crypto_signature" />
+			<ComponentRef Id="python_site_packages_crypto_util" />
+			<ComponentRef Id="python_site_packages_paramiko" />
+            <?if $(var.SETUP_TYPE) = "commercial" ?>
+			<ComponentRef Id="python_site_packages_pysqlite2" />
+			<ComponentRef Id="python_site_packages_pysqlite2_test" />
+			<ComponentRef Id="python_site_packages_pysqlite2_test_py25" />
+            <ComponentRef Id="reporting_HTML_Basic_Frames" />
+            <ComponentRef Id="reporting_HTML_Basic_Single_Page" />
+		    <ComponentRef Id="reporting_HTML_Detailed_Frames" />
+		    <ComponentRef Id="reporting_HTML_Detailed_Frames_images" />
+            <ComponentRef Id="reporting_Text_Basic" />
+            <?endif?>
+			<ComponentRef Id="catalog_reporting_TEXT_Basic" />
+            <ComponentRef Id="mysql_canvas" />
+            <ComponentRef Id="structs" />
+            <ComponentRef Id="mysql.profiles" />
+            <ComponentRef Id="snippets" />
+            <ComponentRef Id="script_templates" />
+            <ComponentRef Id="sys" />
+            <ComponentRef Id="sys_functions" />
+            <ComponentRef Id="sys_procedures" />
+            <ComponentRef Id="sys_views_i_s" />
+            <ComponentRef Id="sys_views_p_s" />
+            <ComponentRef Id="extras" />
+<!--            <ComponentRef Id="MySQLWorkbench.chm" /> -->
+            <ComponentRef Id="RegKeys" />
+        </Feature>
+<!--
+        <Feature Id="MysqlGrtShell" ConfigurableDirectory="INSTALLDIR" Description="A standalone GRT Shell for the Windows command line" Level="1" Title="MySQL GRT Shell">
+            <ComponentRef Id="GRT_Shell_DOS" />
+        </Feature>
+-->
+		<?if $(var.SETUP_TYPE) = "commercial" ?>
+        <Feature Id="WorkbenchLGPLSources" Absent="allow" TypicalDefault="advertise" Level="1" ConfigurableDirectory="INSTALLDIR" Description="Sourcecode Packages of LGPL components used for compiling MySQL Workbench" Title="MySQL Workbench LGPL Source Packages">
+            <ComponentRef Id="LGPLSrcPackages" />
+		</Feature>
+		<?endif?>
+
+        <Feature Id="WorkbenchProgramShortcut" Description="Place a Shortcut to MySQL Workbench in your Startmenus MySQL Folder" Level="1" Title="Program Shortcut">
+            <ComponentRef Id="MySQLWorkbenchProgramLink" />
+        </Feature>
+<!--
+        <Feature Id="WorkbenchDesktopShortcut" Description="Place a Shortcut to MySQL Workbench on your Desktop" Level="1" Title="Desktop Shortcut">
+            <ComponentRef Id="MySQLWorkbenchDesktopLink" />
+        </Feature>
+-->
+        <Media Id="1" Cabinet="product.cab" EmbedCab="yes" />
+
+        <Property Id="ErrorDialog" Value="SetupErrorDialog" />
+        <Property Id="DefaultUIFont" Value="Tahoma8" />
+        <Property Id="_IsMaintenance" Value="Change" />
+        <Property Id="_IsSetupTypeMin" Value="Complete" />
+        <Property Id="ALLUSERS" Value="2" />
+        <Property Id="ApplicationUsers" Value="AllUsers" />
+        <Property Id="ARPPRODUCTICON" Value="WBIcon.exe" />
+        <Property Id="ARPURLUPDATEINFO" Value="http://dev.mysql.com/downloads/workbench/6.1.html" />
+        <Property Id="ARPURLINFOABOUT" Value="http://mysql.com/products/workbench/" />
+        <Property Id="INSTALLLEVEL" Value="200" />
+        <Property Id="ProgressType3" Value="installs" />
+        <Property Id="ProgressType2" Value="installed" />
+        <Property Id="ProgressType1" Value="Installing" />
+        <Property Id="ProgressType0" Value="install" />
+        <Property Id="ReinstallFileVersion" Value="o" />
+        <Property Id="RebootYesNo" Value="Yes" />
+        <Property Id="ReinstallModeText" Value="omus" />
+        <Property Id="ReinstallRepair" Value="r" />
+        <Property Id="SetupType" Value="Typical" />
+        <Property Id="NEWERPRODUCTFOUND" Secure="yes" />
+        <Property Id="PREVIOUSVERSIONINSTALLED" Secure="yes" />
+		<Property Id="LAUNCHAPPONEXIT" Value="1" />
+		<CustomAction Id="LaunchApplication" FileKey="file1056" ExeCommand="" Execute="immediate" Impersonate="yes" Return="asyncNoWait" />
+
+        <InstallExecuteSequence>
+			<Custom Action="SetAdditionalCleanupDir1" Before="InstallInitialize"/>
+			<Custom Action="SetAdditionalCleanupDir2" Before="InstallInitialize"/>
+            <Custom Action="NewerVersionInstalled" After="FindRelatedProducts">NEWERPRODUCTFOUND</Custom>
+
+          <Custom Action="PrecompilePythonFiles.SetProperty" Before="PrecompilePythonFiles">NOT(REMOVE="ALL")</Custom>
+          <Custom Action="PrecompilePythonFiles" After="InstallFiles">NOT(REMOVE="ALL")</Custom>
+
+          <Custom Action="DeletePythonFolder.SetProperty" Before="DeletePythonFolder">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+          <Custom Action="DeletePythonFolder" Before="InstallFinalize">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+
+          <Custom Action="DeleteModulesFolder.SetProperty" Before="DeleteModulesFolder">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+          <Custom Action="DeleteModulesFolder" Before="InstallFinalize">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+
+          <Custom Action="DeletePycFiles.SetProperty" Before="DeletePycFiles">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+          <Custom Action="DeletePycFiles" Before="InstallFinalize">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+		  
+          <Custom Action="DeletePythonFolderOldInstall.SetProperty" Before="DeletePythonFolderOldInstall">NOT(REMOVE="ALL")</Custom>
+          <Custom Action="DeletePythonFolderOldInstall" Before="InstallFinalize">NOT(REMOVE="ALL")</Custom>
+		  
+          <Custom Action="DeleteUtilitiesFolderOldInstall.SetProperty" Before="DeleteUtilitiesFolderOldInstall">NOT(REMOVE="ALL")</Custom>
+          <Custom Action="DeleteUtilitiesFolderOldInstall" Before="InstallFinalize">NOT(REMOVE="ALL")</Custom>
+		  
+		  
+        </InstallExecuteSequence>
+
+        <InstallUISequence>
+            <Custom Action="NewerVersionInstalled" After="FindRelatedProducts">NEWERPRODUCTFOUND</Custom>
+            <Show Dialog="SetupCompleteErrorDialog" OnExit="error" />
+            <Show Dialog="SetupInterruptedDialog" OnExit="cancel" />
+            <Show Dialog="SetupCompleteSuccessDialog" OnExit="success" />
+            <Show Dialog="InstallWelcomeDialog" After="CostFinalize">Not Installed And (Not PATCH Or IS_MAJOR_UPGRADE)</Show>
+            <Show Dialog="SetupResumeDialog" After="InstallWelcomeDialog">Installed And (RESUME Or Preselected) And Not PATCH</Show>
+            <Show Dialog="MaintenanceWelcomeDialog" After="SetupResumeDialog">Installed And Not RESUME And Not Preselected And Not PATCH</Show>
+            <Show Dialog="SetupProgressDialog" After="MaintenanceWelcomeDialog" />
+        </InstallUISequence>
+
+        <AdminUISequence>
+            <Show Dialog="SetupCompleteErrorDialog" OnExit="error" />
+            <Show Dialog="SetupInterruptedDialog" OnExit="cancel" />
+            <Show Dialog="SetupCompleteSuccessDialog" OnExit="success" />
+            <Show Dialog="SetupInitializationDialog" Before="CostInitialize" />
+            <Show Dialog="AdminWelcomeDialog" After="CostFinalize" />
+            <Show Dialog="SetupProgressDialog" After="AdminWelcomeDialog" />
+        </AdminUISequence>
+
+<?include source\mysql_common_ui.xml ?>
+
+    </Product>
+</Wix>

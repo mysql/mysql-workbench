@@ -1,0 +1,968 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="db.mgmt.Rdbms" id="com.mysql.rdbms.sqlanywhere">
+    <value type="string" key="caption">Sybase SQLAnywhere</value>
+    <value type="string" key="name">SQLAnywhere</value>
+    <value type="string" key="databaseObjectPackage">db.sqlanywhere</value>
+    <value type="int" key="maximumIdentifierLength">64</value>
+    <link type="object" key="defaultDriver">com.mysql.rdbms.sqlanywhere.driver.odbc</link>
+    <value type="int" key="doesSupportCatalogs">1</value>
+
+    <!-- Privileges -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PrivilegeMapping" key="privilegeNames">
+    </value>
+
+    <!-- Character Sets -->
+
+    <value type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets">
+    </value>
+
+    <!-- Drivers -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PythonDBAPIDriver" key="drivers">
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sqlanywhere.driver.odbc">
+        <value type="string" key="caption">ODBC (manually entered parameters)</value>
+        <value type="string" key="description">Pyodbc ODBC Driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DRIVER=%driver%;HOST=%hostName%:%port%;DATABASEFILE=%schema%;UID=%userName%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">sqlanywhere@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">SQLAnywhereOdbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc.param1">
+            <value type="string" key="caption">Driver:</value>
+            <value type="string" key="defaultValue">SQLAnywhere</value>
+            <value type="string" key="description">The Driver name of your ODBC driver.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">driver</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc.param2">
+            <value type="string" key="caption">Hostname:</value>
+            <value type="string" key="defaultValue">127.0.0.1</value>
+            <value type="string" key="description">Name or IP address of the server host.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">118</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">hostName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc.param3">
+            <value type="string" key="caption">Port:</value>
+            <value type="string" key="defaultValue">2638</value>
+            <value type="string" key="description">TCP/IP port.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">46</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">port</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc.param4">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">dba</value>
+            <value type="string" key="description">Name of the user to connect with.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc.param5">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::SQLAnywhere@%hostName%:%port%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc.param6">
+            <value type="string" key="caption">Database File:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The database to connect to.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">5</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">schema</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc</link>
+            <value type="string" key="paramType">file</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sqlanywhere.driver.odbc_dsn">
+        <value type="string" key="caption">ODBC Data Source</value>
+        <value type="string" key="description">Pyodbc ODBC Driver, using DSN</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DSN=%dsn%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">SQLAnywhereOdbcDSN</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc_dsn.param1">
+            <value type="string" key="caption">DSN:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Pre-configured ODBC data source.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueModule">DbSQLAnywhereRE</value>
+            <value type="string" key="lookupValueMethod">getDataSourceNames</value>
+            <value type="string" key="name">dsn</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc_dsn</link>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc_dsn.param2">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc_dsn</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">&lt;dsn user&gt;::SQLAnywhere@%dsn%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sqlanywhere.driver.odbc_connstr">
+        <value type="string" key="caption">ODBC (direct connection string)</value>
+        <value type="string" key="description">Pyodbc ODBC Driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">%connection_string%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">sqlanywhere@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">SQLAnywhereOdbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc_connstr.param1">
+            <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The full ODBC connection string to use for the connection.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">connection_string</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc_connstr</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb">
+        <value type="string" key="caption">sqlanydb</value>
+        <value type="string" key="description">Python DB API module for Sybase SQLAnywhere</value>
+        <value type="string" key="driverLibraryName">sqlanydb</value>
+	<value type="string" key="connectionStringTemplate">{'host':"""%hostName%:%port%""",'userid':"""%userName%""",'databasename':"""%dbName%""",'servername':"""%serverName%""",'password':"""%password%"""}</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">sqlanywhere@DRIVER=sqlanydb;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">SQLAnyDB</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param1">
+            <value type="string" key="caption">Host:</value>
+            <value type="string" key="defaultValue">127.0.0.1</value>
+            <value type="string" key="description">Host name or IP address of your server</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">118</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">hostName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.sqlanydb</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param2">
+            <value type="string" key="caption">Port:</value>
+            <value type="string" key="defaultValue">2638</value>
+	    <value type="string" key="description">TCP/IP Port</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">46</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">port</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.sqlanydb</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param3">
+            <value type="string" key="caption">Server Name:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Server and Database names</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">109</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">serverName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.sqlanydb</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param4">
+            <value type="string" key="caption">Database Name:</value>
+            <value type="string" key="defaultValue">demo</value>
+	    <value type="string" key="description"></value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">109</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">dbName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.sqlanydb</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param5">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">dba</value>
+            <value type="string" key="description">Name of the connection user.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.sqlanydb</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param6">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.sqlanydb</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::SQLAnywhere@%hostName%:%port%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+        </value>
+      </value>
+
+    </value>
+
+    <!-- Datatypes -->
+
+    <value type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.bit">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BIT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.decimal">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DECIMAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.numeric">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">NUMERIC</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.float">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">FLOAT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.real">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">REAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.double">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DOUBLE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.smallmoney">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">SMALLMONEY</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.money">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">MONEY</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.tinyint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">TINYINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.smallint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">SMALLINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.int">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">INT</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">INTEGER</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.bigint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">BIGINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.char">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">CHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.varchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">VARCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.nchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">NATIONAL CHARACTER</value>
+           <value type="string">NATIONAL CHAR</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.nvarchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">NATIONAL CHARACTER VARYING</value>
+           <value type="string">NATIONAL CHAR VARYING</value>
+           <value type="string">NCHAR VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NVARCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.text">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">LONG VARCHAR</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">TEXT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.ntext">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">LONG NVARCHAR</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">NTEXT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.uniqueidentifierstr">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">36</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">UNIQUEIDENTIFIERSTR</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.xml">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">XML</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.varbit">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">BIT VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">VARBIT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.longvarbit">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">LONG BIT VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">LONG VARBIT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.date">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.time">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+	<value type="list" content-type="string" key="synonyms"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIME</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.datetime">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">SMALLDATETIME</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATETIME</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.timestamp">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">TIMESTAMP WITH TIME ZONE</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIMESTAMP</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.datetimeoffset">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATETIMEOFFSET</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.binary">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">VARBINARY</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">BINARY</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.longbinary">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">IMAGE</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">LONG BINARY</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+
+      <!-- Spatial Datatypes-->
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stgeometry">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_GEOMETRY</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stpoint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_POINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stcurve">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_CURVE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stsurface">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_SURFACE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stgeomcollection">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_GEOMCOLLECTION</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stlinestring">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_LINESTRING</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stcircularstring">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_CIRCULARSTRING</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stcompoundcurve">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_COMPOUNDCURVE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stcurvepolygon">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_CURVEPOLYGON</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stmultipoint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_MULTIPOINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stmulticurve">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_MULTICURVE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stmultisurface">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_MULTISURFACE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stpolygon">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_POLYGON</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stmultilinestring">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_MULTILINESTRING</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlanywhere.datatype.stmultipolygon">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ST_MULTIPOLYGON</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlanywhere</link>
+      </value>
+    </value>
+  </value>
+</data>
