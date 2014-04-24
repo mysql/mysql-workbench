@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.xml"/>
+      <requires file="structs.model.xml"/>
+
+      <gstruct name="workbench.model.NoteFigure" parent="model.Figure" impl-data="1" attr:caption="Text" attr:desc="a model figure representing a text box">
+          <members>
+              <member name="text" type="string" delegate-set="1" attr:desc="the text contents" attr:editas="longtext"/>
+          </members>
+      </gstruct>
+  
+      <gstruct name="workbench.model.ImageFigure" parent="model.Figure" impl-data="1" attr:caption="Image" attr:desc="a model figure representing an image">
+          <members>
+              <member name="filename" type="string" attr:desc="the image file name" attr:editas="file"/>
+              <member name="keepAspectRatio" type="int" delegate-set="1" attr:editas="bool"/>
+
+              <method name="setImageFile">
+                  <argument name="name" type="string"/>
+                  <return type="string"/>
+              </method>
+          </members>
+      </gstruct>
+
+  </gstructs>

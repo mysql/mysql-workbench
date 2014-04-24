@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.db.xml"/>    
+
+      <gstruct attr:caption="Sybase Catalog" name="db.sybase.Catalog" parent="db.Catalog">      
+          <members>        
+              <member content-struct-name="db.sybase.Schema" content-type="object" name="schemata" overrides="db.Schema" type="list" owned="1"/>
+          </members>      
+      </gstruct>    
+
+      <gstruct attr:caption="Sybase Schema" name="db.sybase.Schema" parent="db.Schema">      
+          <members>        
+              <member content-struct-name="db.sybase.Table" content-type="object" name="tables" overrides="db.Table" type="list" owned="1"/>
+              <member content-struct-name="db.sybase.View" content-type="object" name="views" overrides="db.View" type="list" owned="1"/>
+              <member content-struct-name="db.sybase.Routine" content-type="object" name="routines" overrides="db.Routine" type="list" owned="1"/>
+              <member content-struct-name="db.sybase.RoutineGroup" content-type="object" name="routineGroups" overrides="db.RoutineGroup" type="list" owned="1"/>
+              <member content-struct-name="db.sybase.Synonym" content-type="object" name="synonyms" overrides="db.Synonym" type="list" owned="1"/>
+              <member content-struct-name="db.sybase.StructuredDatatype" content-type="object" name="structuredTypes" overrides="db.StructuredDatatype" type="list" owned="1"/>
+              <member content-struct-name="db.sybase.Sequence" content-type="object" name="sequences" overrides="db.Sequence" type="list" owned="1"/>
+          </members>      
+      </gstruct>    
+
+      <gstruct attr:caption="Sybase Table" attr:desc="a Sybase database table object" name="db.sybase.Table" parent="db.Table">      
+          <members>        
+              <member name="createdDatetime" type="string"/>        
+          </members>      
+      </gstruct>    
+
+      <gstruct name="db.sybase.Column" parent="db.Column">      
+          <members>        
+              <member name="identity" type="int"/>        
+              <member name="computed" type="int"/>        
+          </members>      
+      </gstruct>    
+
+      <gstruct name="db.sybase.SimpleDatatype" parent="db.SimpleDatatype"/>    
+
+      <gstruct attr:caption="Sybase Structured Datatype" attr:desc="a Sybase structured datatype object" name="db.sybase.StructuredDatatype" parent="db.StructuredDatatype"/>    
+
+      <gstruct name="db.sybase.UserDatatype" parent="db.UserDatatype">
+           <members>
+              <member name="characterMaximumLength" type="int" attr:desc="maximum number of characters this datatype can store"/>
+              <member name="numericPrecision" type="int" attr:desc="maximum numbers of digits the datatype can store"/>
+              <member name="numericScale" type="int" attr:desc="maximum numbers of digits right from the decimal point the datatype can store"/>
+              <member name="isNullable" type="int" attr:desc="whether NULL is a permitted value"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.sybase.Index" parent="db.Index">      
+          <members>        
+              <member name="ignoreDuplicateRows" type="int"/>        
+              <member name="clustered" type="int"/>        
+              <member name="hasFilter" type="int" attr:desc="whether there is a filter associated to the index" />
+              <member name="filterDefinition" type="string" attr:desc="the definition of the filter associated to the index (expression for the subset of rows included in the filtered index)" />
+          </members>      
+      </gstruct>    
+
+      <gstruct name="db.sybase.IndexColumn" parent="db.IndexColumn"/>    
+
+      <gstruct name="db.sybase.ForeignKey" parent="db.ForeignKey"/>    
+  
+      <gstruct name="db.sybase.Trigger" parent="db.Trigger"/>    
+
+      <gstruct attr:caption="Sybase View" attr:desc="a Sybase database view object" name="db.sybase.View" parent="db.View"/>    
+
+      <gstruct attr:caption="Sybase Routine Group" attr:desc="a Sybase database routine group" name="db.sybase.RoutineGroup" parent="db.RoutineGroup"/>    
+  
+      <gstruct attr:caption="Sybase Routine" attr:desc="a Sybase database routine object" name="db.sybase.Routine" parent="db.Routine"/>    
+
+      <gstruct attr:caption="Sybase Synonym" attr:desc="a Sybase synonym object" name="db.sybase.Synonym" parent="db.Synonym"/>    
+
+      <gstruct attr:caption="Sybase Sequence" attr:desc="a Sybase database sequence object" name="db.sybase.Sequence" parent="db.Sequence"/>    
+
+  </gstructs>

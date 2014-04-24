@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<data>
+  <value type="list" content-type="object" content-struct-name="db.DatatypeGroup">
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.numeric">
+      <value type="string" key="caption">Numeric Types</value>
+      <value type="string" key="description">Datatypes to store numbers of different sizes</value>
+      <value type="string" key="name">numeric</value>
+    </value>
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.string">
+      <value type="string" key="caption">Strings</value>
+      <value type="string" key="description">Datatypes to store shorter text</value>
+      <value type="string" key="name">string</value>
+    </value>
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.text">
+      <value type="string" key="caption">Long Text Types</value>
+      <value type="string" key="description">Datatypes to store long text</value>
+      <value type="string" key="name">text</value>
+    </value>
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.blob">
+      <value type="string" key="caption">Blob Types</value>
+      <value type="string" key="description">Datatypes to store binary data</value>
+      <value type="string" key="name">blob</value>
+    </value>
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.datetime">
+      <value type="string" key="caption">Date and Time Types</value>
+      <value type="string" key="description">Datatypes to store date and time values</value>
+      <value type="string" key="name">datetime</value>
+    </value>
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.gis">
+      <value type="string" key="caption">Geographical Types</value>
+      <value type="string" key="description">Datatypes to store geographical information</value>
+      <value type="string" key="name">gis</value>
+    </value>
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.various">
+      <value type="string" key="caption">Various Types</value>
+      <value type="string" key="description">Various datatypes</value>
+      <value type="string" key="name">various</value>
+    </value>
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.userdefined">
+      <value type="string" key="caption">Userdefined Types</value>
+      <value type="string" key="description">Datatypes defined by a user</value>
+      <value type="string" key="name">userdefined</value>
+    </value>
+    <value type="object" struct-name="db.DatatypeGroup" id="com.mysql.rdbms.common.typegroup.structured">
+      <value type="string" key="caption">Structured Types</value>
+      <value type="string" key="description">Structured datatypes consisting of a collection of simple and other structured datatypes</value>
+      <value type="string" key="name">structured</value>
+    </value>
+  </value>
+</data>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<data grt_format="2.0">
+  <value type="object" struct-name="db.mgmt.Connection" id="2730a95c-8288-11e1-9ea7-0800278e5fcb" struct-checksum="0xefea20d5">
+    <link type="object" struct-name="db.mgmt.Driver" key="driver">com.mysql.rdbms.mssql.driver.odbc</link>
+    <value type="string" key="hostIdentifier">Mssql@172.16.0.1:1433</value>
+    <value _ptr_="0xaf8f798" type="dict" key="modules"/>
+    <value _ptr_="0xaf75438" type="dict" key="parameterValues">
+      <value type="string" key="%userName%::Mssql@%hostName%:%port%">%userName%::Mssql@%hostName%:%port%</value>
+      <value type="string" key="database">AdventureWorks</value>
+      <value type="string" key="hostName">172.16.0.1</value>
+      <value type="string" key="password">c3poLATxce090</value>
+      <value type="int" key="port">1433</value>
+      <value type="string" key="userName">testuser</value>
+    </value>
+    <value type="string" key="name">172.16.0.1:1433</value>
+  </value>
+</data>

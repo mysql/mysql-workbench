@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+   <requires file="structs.xml"/>
+   <requires file="structs.db.xml"/>
+
+   <gstruct name="meta.Tag" parent="GrtObject">
+      <members> <!-- owner is physical.model --> 
+        <member name="category" type="object" struct-name="GrtObject"/>
+        <member name="color" type="string"/>
+        <member name="label" type="string"/>
+        <member name="description" type="string"/>
+
+	<member name="objects" type="list" content-type="object" content-struct-name="meta.TaggedObject"/>
+      </members>
+   </gstruct>
+
+   <gstruct name="meta.TaggedObject" parent="GrtObject">
+      <members>
+        <member name="object" type="object" struct-name="db.DatabaseObject"/>
+        <member name="description" type="string"/>
+      </members>
+   </gstruct>
+</gstructs>

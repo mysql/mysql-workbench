@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<data grt_format="2.0">
+  <value type="list" content-type="object" content-struct-name="db.migration.DatatypeMapping">
+    <value type="object" struct-name="db.migration.DatatypeMapping" id="B426CC8F-0D82-4AF3-8F20-E6345C6D7521" struct-checksum="0x65fd0cbb">
+      <value type="int" key="isUnsigned">-1</value>
+      <value type="int" key="length">-2</value>
+      <value type="int" key="lengthConditionFrom">0</value>
+      <value type="int" key="lengthConditionTo">0</value>
+      <value type="int" key="precision">-1</value>
+      <value type="int" key="precisionConditionFrom">0</value>
+      <value type="int" key="precisionConditionTo">0</value>
+      <value type="int" key="scale">-1</value>
+      <value type="int" key="scaleConditionFrom">0</value>
+      <value type="int" key="scaleConditionTo">0</value>
+      <value type="string" key="sourceDatatypeName">int2</value>
+      <value type="string" key="targetDatatypeName">SMALLINT</value>
+      <value type="string" key="name"></value>
+    </value>
+    <value type="object" struct-name="db.migration.DatatypeMapping" id="0D6CDD96-E7C8-4D9B-9174-7E64210EEB57" struct-checksum="0x65fd0cbb">
+      <value type="int" key="isUnsigned">0</value>
+      <value type="int" key="length">-2</value>
+      <value type="int" key="lengthConditionFrom">0</value>
+      <value type="int" key="lengthConditionTo">0</value>
+      <value type="int" key="precision">-1</value>
+      <value type="int" key="precisionConditionFrom">0</value>
+      <value type="int" key="precisionConditionTo">0</value>
+      <value type="int" key="scale">-1</value>
+      <value type="int" key="scaleConditionFrom">0</value>
+      <value type="int" key="scaleConditionTo">0</value>
+      <value type="string" key="sourceDatatypeName">int4</value>
+      <value type="string" key="targetDatatypeName">INT</value>
+      <value type="string" key="name"></value>
+    </value>
+    <value type="object" struct-name="db.migration.DatatypeMapping" id="BFA4A568-C81F-4F05-94FD-C0D9FFFE7A2C" struct-checksum="0x65fd0cbb">
+      <value type="int" key="isUnsigned">0</value>
+      <value type="int" key="length">-2</value>
+      <value type="int" key="lengthConditionFrom">0</value>
+      <value type="int" key="lengthConditionTo">0</value>
+      <value type="int" key="precision">-1</value>
+      <value type="int" key="precisionConditionFrom">0</value>
+      <value type="int" key="precisionConditionTo">0</value>
+      <value type="int" key="scale">-1</value>
+      <value type="int" key="scaleConditionFrom">0</value>
+      <value type="int" key="scaleConditionTo">0</value>
+      <value type="string" key="sourceDatatypeName">int8</value>
+      <value type="string" key="targetDatatypeName">BIGINT</value>
+      <value type="string" key="name"></value>
+    </value>
+    <value type="object" struct-name="db.migration.DatatypeMapping" id="47695F20-F5E5-4048-BD07-EE8971D251BE" struct-checksum="0x65fd0cbb">
+      <value type="int" key="isUnsigned">-1</value>
+      <value type="int" key="length">-2</value>
+      <value type="int" key="lengthConditionFrom">0</value>
+      <value type="int" key="lengthConditionTo">0</value>
+      <value type="int" key="precision">-1</value>
+      <value type="int" key="precisionConditionFrom">0</value>
+      <value type="int" key="precisionConditionTo">0</value>
+      <value type="int" key="scale">-1</value>
+      <value type="int" key="scaleConditionFrom">0</value>
+      <value type="int" key="scaleConditionTo">0</value>
+      <value type="string" key="sourceDatatypeName">float8</value>
+      <value type="string" key="targetDatatypeName">DOUBLE</value>
+      <value type="string" key="name"></value>
+    </value>
+    <value type="object" struct-name="db.migration.DatatypeMapping" id="3F14CEA2-05E1-4A84-B9A7-42E54E06BD13" struct-checksum="0x65fd0cbb">
+      <value type="int" key="isUnsigned">-1</value>
+      <value type="int" key="length">-2</value>
+      <value type="int" key="lengthConditionFrom">0</value>
+      <value type="int" key="lengthConditionTo">0</value>
+      <value type="int" key="precision">-1</value>
+      <value type="int" key="precisionConditionFrom">0</value>
+      <value type="int" key="precisionConditionTo">0</value>
+      <value type="int" key="scale">-1</value>
+      <value type="int" key="scaleConditionFrom">0</value>
+      <value type="int" key="scaleConditionTo">0</value>
+      <value type="string" key="sourceDatatypeName">float4</value>
+      <value type="string" key="targetDatatypeName">FLOAT</value>
+      <value type="string" key="name"></value>
+    </value>
+    <value type="object" struct-name="db.migration.DatatypeMapping" id="8B9A2031-CF91-4FCB-A498-8D01CC36A1BB" struct-checksum="0x65fd0cbb">
+      <value type="int" key="isUnsigned">-1</value>
+      <value type="int" key="length">-2</value>
+      <value type="int" key="lengthConditionFrom">0</value>
+      <value type="int" key="lengthConditionTo">60000</value>
+      <value type="int" key="precision">-2</value>
+      <value type="int" key="precisionConditionFrom">0</value>
+      <value type="int" key="precisionConditionTo">0</value>
+      <value type="int" key="scale">-2</value>
+      <value type="int" key="scaleConditionFrom">0</value>
+      <value type="int" key="scaleConditionTo">0</value>
+      <value type="string" key="sourceDatatypeName">text</value>
+      <value type="string" key="targetDatatypeName">VARCHAR</value>
+      <value type="string" key="name"></value>
+    </value>
+    <value type="object" struct-name="db.migration.DatatypeMapping" id="7B25F73D-BAF0-47A5-9C6D-464DB3441B81" struct-checksum="0x65fd0cbb">
+      <value type="int" key="isUnsigned">-1</value>
+      <value type="int" key="length">-2</value>
+      <value type="int" key="lengthConditionFrom">60000</value>
+      <value type="int" key="lengthConditionTo">0</value>
+      <value type="int" key="precision">-1</value>
+      <value type="int" key="precisionConditionFrom">0</value>
+      <value type="int" key="precisionConditionTo">0</value>
+      <value type="int" key="scale">-1</value>
+      <value type="int" key="scaleConditionFrom">0</value>
+      <value type="int" key="scaleConditionTo">0</value>
+      <value type="string" key="sourceDatatypeName">text</value>
+      <value type="string" key="targetDatatypeName">LONGTEXT</value>
+      <value type="string" key="name"></value>
+    </value>
+  </value>
+</data>

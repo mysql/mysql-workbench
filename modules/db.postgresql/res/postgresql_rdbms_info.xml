@@ -1,0 +1,825 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="db.mgmt.Rdbms" id="com.mysql.rdbms.postgresql">
+    <value type="string" key="caption">PostgreSQL</value>
+    <value type="string" key="name">Postgresql</value>
+    <value type="string" key="databaseObjectPackage">db.postgresql</value>
+    <value type="int" key="maximumIdentifierLength">64</value>
+    <link type="object" key="defaultDriver">com.mysql.rdbms.postgresql.driver.odbc</link>
+    <value type="int" key="doesSupportCatalogs">1</value>
+
+    <!-- Privileges -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PrivilegeMapping" key="privilegeNames">
+    </value>
+
+    <!-- Character Sets -->
+
+    <value type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets">
+    </value>
+
+    <!-- Drivers -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PythonDBAPIDriver" key="drivers">
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.postgresql.driver.odbc">
+        <value type="string" key="caption">ODBC (manually entered parameters)</value>
+        <value type="string" key="description">Pyodbc ODBC Driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DRIVER=%driver%;SERVER=%hostName%;PORT=%port%;DATABASE=%schema%;UID=%userName%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">postgresql@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">PostgresqlOdbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param6">
+            <value type="string" key="caption">Driver:</value>
+            <value type="string" key="defaultValue">PostgreSQL ANSI</value>
+            <value type="string" key="description">The Driver name of your ODBC driver (E.g. psqlodbc, PostgreSQL ANSI).</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">driver</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param1">
+            <value type="string" key="caption">Hostname:</value>
+            <value type="string" key="defaultValue">127.0.0.1</value>
+            <value type="string" key="description">Name or IP address of the server host.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">118</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">hostName</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param2">
+            <value type="string" key="caption">Port:</value>
+            <value type="string" key="defaultValue">5432</value>
+            <value type="string" key="description">TCP/IP port.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">46</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">port</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param3">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">postgres</value>
+            <value type="string" key="description">Name of the user to connect with.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param4">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::Postgresql@%hostName%:%port%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param5">
+            <value type="string" key="caption">Database:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The database to connect to. Leave blank to select it later.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">schema</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.postgresql.driver.odbc_dsn">
+        <value type="string" key="caption">ODBC Data Source</value>
+        <value type="string" key="description">Pyodbc ODBC Driver, using DSN</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DSN=%dsn%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">PostgresqlOdbcDSN</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc_dsn.param1">
+            <value type="string" key="caption">DSN:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Pre-configured ODBC data source.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueModule">DbPostgresqlRE</value>
+            <value type="string" key="lookupValueMethod">getDataSourceNames</value>
+            <value type="string" key="name">dsn</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc_dsn</link>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc_dsn.param2">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc_dsn</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">&lt;dsn user&gt;::Postgresql@%dsn%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.postgresql.driver.odbc_connstr">
+        <value type="string" key="caption">ODBC (direct connection string)</value>
+        <value type="string" key="description">Pyodbc ODBC Driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">%connection_string%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">postgresql@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">PostgresqlOdbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc_connstr.param1">
+            <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The full ODBC connection string to use for the connection.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">connection_string</value>
+            <link type="object" key="owner">com.mysql.rdbms.postgresql.driver.odbc_connstr</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+        </value>
+      </value>
+
+    </value>
+
+    <!-- Datatypes -->
+
+    <value type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.decimal">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">DEC</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DECIMAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.numeric">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">NUMERIC</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.float">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">FLOAT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.real">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">FLOAT4</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">REAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.double">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">FLOAT8</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DOUBLE PRECISION</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.money">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">MONEY</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.smallint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">INT2</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">SMALLINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.int">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">INTEGER</value>
+           <value type="string">INT4</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">INT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.bigint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">INT8</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">BIGINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.smallserial">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">SERIAL2</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">SMALLSERIAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.serial">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">SERIAL4</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">SERIAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.bigserial">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">SERIAL8</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">BIGSERIAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.char">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">CHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.varchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">VARCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.nchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">NATIONAL CHARACTER</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.nvarchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">NATIONAL CHARACTER VARYING</value>
+           <value type="string">NCHAR VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NVARCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.text">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">TEXT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.bytea">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">BYTEA</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.date">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.time">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">TIME WITH TIME ZONE</value>
+           <value type="string">TIME WITHOUT TIME ZONE</value>
+           <value type="string">TIMETZ</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIME</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.timestamp">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">TIMESTAMP WITH TIME ZONE</value>
+           <value type="string">TIMESTAMP WITHOUT TIME ZONE</value>
+           <value type="string">TIMESTAMPTZ</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIMESTAMP</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.interval">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">INTERVAL</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.bit">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BIT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.bitvarying">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">VARBIT</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BIT VARYING</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.boolean">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">BOOL</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BOOLEAN</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.xml">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">XML</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.json">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">JSON</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.cidr">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">CIDR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.inet">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">INET</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.macaddr">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">MACADDR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.tsquery">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">TSQUERY</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.tsvector">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">TSVECTOR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.txid_snapshot">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">TXID_SNAPSHOT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.uuid">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">UUID</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.txid_snapshot">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">ARRAY</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+
+      <!-- Geometric Datatypes-->
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.box">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BOX</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.circle">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">CIRCLE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.line">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">LINE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.lseg">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">LSEG</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.path">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">PATH</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.point">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">POINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.postgresql.datatype.polygon">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">POLYGON</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.postgresql</link>
+      </value>
+    </value>
+  </value>
+</data>

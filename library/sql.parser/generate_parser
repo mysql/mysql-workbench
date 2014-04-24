@@ -1,0 +1,2 @@
+bison -dl --output ./source/linux/myx_sql_parser.tab.cc ./source/myx_sql_parser.yy
+mv ./source/linux/myx_sql_parser.tab.cc ./source/linux/myx_sql_parser.cpp

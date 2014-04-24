@@ -1,0 +1,10 @@
+cocoa/ScintillaTest/ScintillaTest.xcodeproj/Mike.mode2v3
+cocoa/ScintillaTest/ScintillaTest.xcodeproj/Mike.pbxuser
+*.mode2v3
+*.pbxuser
+.DS_Store
+cocoa/ScintillaTest/build
+bin
+bin
+*.perspectivev3
+cocoa/ScintillaFramework/build

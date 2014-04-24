@@ -1,0 +1,36 @@
+set(DATA_FILES 
+    templates/CSV.pre.tpl
+    templates/CSV.tpl
+    templates/CSV.tpli
+    templates/CSV_semicolon.pre.tpl
+    templates/CSV_semicolon.tpl
+    templates/CSV_semicolon.tpli
+    templates/HTML.post.tpl
+    templates/HTML.pre.tpl
+    templates/HTML.tpl
+    templates/HTML.tpli
+    templates/SQL_inserts.pre.tpl
+    templates/SQL_inserts.tpl
+    templates/SQL_inserts.tpli
+    templates/tab.pre.tpl
+    templates/tab.tpl
+    templates/tab.tpli
+    templates/XLS.post.tpl
+    templates/XLS.pre.tpl
+    templates/XLS.tpl
+    templates/XLS.tpli
+    templates/XML.post.tpl
+    templates/XML.pre.tpl
+    templates/XML.tpl
+    templates/XML.tpli
+    templates/XML_mysql.post.tpl
+    templates/XML_mysql.pre.tpl
+    templates/XML_mysql.tpl
+    templates/XML_mysql.tpli
+    templates/JSON.post.tpl
+    templates/JSON.pre.tpl
+    templates/JSON.tpl
+    templates/JSON.tpli
+)
+
+install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/modules/data/sqlide)
