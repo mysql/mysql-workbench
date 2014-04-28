@@ -1,0 +1,329 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1EC37D95-8840-4881-8814-6943938B43BF}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySQL.GUI.Workbench</RootNamespace>
+    <AssemblyName>MySQLWorkbench</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;COMMERCIAL_CODE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>..\..\..\bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;COMMERCIAL_CODE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x64'">
+    <OutputPath>..\..\..\bin\x64\Release_OSS\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;COMMERCIAL_CODE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>..\..\..\bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;COMMERCIAL_CODE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x86'">
+    <OutputPath>..\..\..\bin\x86\Release_OSS\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\MySQLWorkbench.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApplicationInstanceManager.cs" />
+    <Compile Include="AssemblyReleaseType.cs" />
+    <Compile Include="DiagramOptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DiagramOptionsForm.Designer.cs">
+      <DependentUpon>DiagramOptionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExceptionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExceptionDialog.Designer.cs">
+      <DependentUpon>ExceptionDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="InstanceProxy.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelCatalogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelCatalogForm.Designer.cs">
+      <DependentUpon>ModelCatalogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelDataDictionaryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelDataDictionaryForm.Designer.cs">
+      <DependentUpon>ModelDataDictionaryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelDiagramForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelDiagramForm.Designer.cs">
+      <DependentUpon>ModelDiagramForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelLayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelLayerForm.Designer.cs">
+      <DependentUpon>ModelLayerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelNavigatorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelNavigatorForm.Designer.cs">
+      <DependentUpon>ModelNavigatorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelObjectDescriptionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelObjectDescriptionForm.Designer.cs">
+      <DependentUpon>ModelObjectDescriptionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelOverviewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelOverviewForm.Designer.cs">
+      <DependentUpon>ModelOverviewForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelPropertiesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelPropertiesForm.Designer.cs">
+      <DependentUpon>ModelPropertiesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NodeMultiTypeBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PageSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PageSettingsForm.Designer.cs">
+      <DependentUpon>PageSettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlIdeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SqlIdeForm.Designer.cs">
+      <DependentUpon>SqlIdeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TextEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TextEditorForm.Designer.cs">
+      <DependentUpon>TextEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UndoHistoryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UndoHistoryForm.Designer.cs">
+      <DependentUpon>UndoHistoryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserDatatypesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserDatatypesForm.Designer.cs">
+      <DependentUpon>UserDatatypesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WorkbenchMenuManager.cs" />
+    <EmbeddedResource Include="DiagramOptionsForm.resx">
+      <DependentUpon>DiagramOptionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExceptionDialog.resx">
+      <DependentUpon>ExceptionDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelCatalogForm.resx">
+      <DependentUpon>ModelCatalogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelDataDictionaryForm.resx">
+      <DependentUpon>ModelDataDictionaryForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelDiagramForm.resx">
+      <DependentUpon>ModelDiagramForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelLayerForm.resx">
+      <DependentUpon>ModelLayerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelNavigatorForm.resx">
+      <DependentUpon>ModelNavigatorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelObjectDescriptionForm.resx">
+      <DependentUpon>ModelObjectDescriptionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelOverviewForm.resx">
+      <DependentUpon>ModelOverviewForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelPropertiesForm.resx">
+      <DependentUpon>ModelPropertiesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageSettingsForm.resx">
+      <DependentUpon>PageSettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="SqlIdeForm.resx">
+      <DependentUpon>SqlIdeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TextEditorForm.resx">
+      <DependentUpon>TextEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UndoHistoryForm.resx">
+      <DependentUpon>UndoHistoryForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserDatatypesForm.resx">
+      <DependentUpon>UserDatatypesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\backend\windows\wbprivate.wr\wbprivate.wr.vcxproj">
+      <Project>{597b7650-63d5-415a-9688-6f75e529e470}</Project>
+      <Name>wbprivate.wr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\backend\windows\wbpublic.wr\wbpublic.wr.vcxproj">
+      <Project>{9d8ca378-b2ae-4e1e-9f86-fa01440c57f7}</Project>
+      <Name>wbpublic.wr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\ext\Aga.Controls\Aga.Controls.csproj">
+      <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
+      <Name>Aga.Controls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\library\base.windows\base.windows.csproj">
+      <Project>{09e3ad36-deb1-4302-8e7f-4a970b2ec84b}</Project>
+      <Name>base.windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\library\base.wr\base.wr.vcxproj">
+      <Project>{456d822c-724a-412c-b0eb-9ec88378decb}</Project>
+      <Name>base.wr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\library\forms\winforms\mforms.wr.vcxproj">
+      <Project>{1d67c943-0432-4ee0-8ab0-915540c9538f}</Project>
+      <Name>mforms.wr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\grt.db\grt.db.fe.csproj">
+      <Project>{84d94572-ead9-4839-b16b-699a8c499fe5}</Project>
+      <Name>grt.db.fe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MySQLCsUtilities\MySQLCsUtilities.csproj">
+      <Project>{ed3999b7-1041-449b-a9c8-a5c76b7732fe}</Project>
+      <Name>MySQLCsUtilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sqlide\sqlide.fe.csproj">
+      <Project>{d2e64e9e-3f39-496f-8ce0-1b2652aecdde}</Project>
+      <Name>sqlide.fe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WBControls\WBControls.csproj">
+      <Project>{35c9b1f0-96f0-40fe-b7f7-5a9ba3628db2}</Project>
+      <Name>WBControls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WBPlugins\WBPlugins.csproj">
+      <Project>{960ef7b9-a96a-4290-aed9-2689eb28bbf7}</Project>
+      <Name>WBPlugins</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MySQLWorkbench.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>call "$(SolutionDir)PrepareOutputDir.cmd" "$(SolutionDir)" $(ConfigurationName) $(PlatformTarget)</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

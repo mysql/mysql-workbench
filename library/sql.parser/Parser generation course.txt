@@ -1,0 +1,59 @@
+
+This file contains a concise overview of how the WB parser is generated.
+
+1) Prerequisites: get lex.h and sql_yacc.yy (or whatever is the current server version) from the server source repository. Store lex.h in sql-parser/include and the yacc file in sql-parser/yy_purify-tool.
+
+2) Make a copy of sql-parser/yy_purify-tool/sql_yacc.prf somewhere to be able to compare it with the newly generated one.
+
+3) Use yy_purify-tool to strip server specific text (actions, code etc.) from this grammar file, which (re)creates the sql_yacc.prf file (purified). On Windows use the yy_purify.bat file to do this job.
+
+4) Use a diff tool to compare the old and new prf files. Manually adjust the prf file. Use your intuition to know what needs to be fixed.
+
+5) Copy sql_yacc.prf to the yy_gen-tool folder. Make a copy of the existing sql_yacc.yy file in that folder for later comparison.
+
+6) Use yy_gen-tool to create a new grammar (sql_yacc.yy) file out of the sql_yacc.prf file, which then also contains the semantic for WB. This generation tool is currently Windows-only. Use generate_wb_sql_grammar.bat to do this job. Create the gen tool first if necessary using the provided sln file.
+
+7) Modify the generated yy file:
+-    | WITH_CUBE_SYM
++    | WITH CUBE_SYM
+
+-    | WITH_ROLLUP_SYM
++    | WITH ROLLUP_SYM
+
+-    | DOUBLE_SYM PRECISION
++    | DOUBLE_SYM precision
+
+Now compare the old generated sql_yacc.yy (not the one from the server) and the new generated file. The new file is missing a few things:
+- Copy the copyright and everything following it until the tokens list to the file.
+- Right below the %% is the query rule which is generated such that new ast nodes are created for the END_OF_INPUT token. All 3 alternatives must be changed to set the result AST tree (see the old generated file).
+
+Use the original (server) sql_yacc.yy file as source for the current token list and copy that to the new yy file as well (after the stuff you just inserted). The token list is a bit down the file (around line 1000). The list is followed by a number of other rules until the final %% line. You can copy all that *except* the %type rules, as they produce a wrong generation. The %left and %right rules are mostly used to disambiguate. Without them you get 200+ more shift/reduce conflicts (in addition to the ~160 you get anyway).
+
+8) Copy yy_gen-tool/sql_yacc.yy to source/myx_sql_parser.yy.
+
+9) Use Bison to generate the parser from source/myx_sql_parser.yy. To simplify this process batch files for Linux and Windows exist (see generate_parser[.bat]).
+
+10) Modify include/lex.h (which you copied from the server sources) and add
+
+namespace mysql_parser
+
+around all the code, right after
+
+#include "lex_symbol.h"
+
+11) The new server is now ready to be compiled in WB. You may get compiler errors for unknown symbols from the sql namespace (e.g. sql::_opt_key_algo). These might be new symbols due to additions to the parser and must manually be added to the big enum type in source/sql_parser_symbols.h. Any value you add there needs a string representation in the same place in source/sql_parser_symbols.h.
+
+By adjusting the batch files it is probably possible to avoid the two copy operations.
+
+12) Run the parser unit tests ("mysql_sql_parser" & "mysql_sql_statement_decomposer") and fix any problem coming up.
+
+=======================================================================================================================
+
+Some notes regarding the server generation (from Sergei):
+
+Server grammar uses middle rule actions hardly. In some cases they implicitly resolve reduce/reduce problems. This time, for the first time, I had to add dummy middle rule action to get rid of reduce/reduce conflict. Look for part_value_item: rule in \library\sql-parser\yy_gen-tool\sql_yacc_5_5_5_m3_tailored.yy.
+Note from ml: adding this dummy action will create an invalid AST node, so leave that out for now.
+
+To avoid a headache of resolving this kind of conflicts it makes sense to make tools preserve middle rule actions' placeholders.
+Because of changes in grammar file sql parser code can fail parse some grammatic constructions and fail the tut-tests. So better to run at least "mysql_sql_parser" & "mysql_sql_statement_decomposer" tut-tests to be on a safe side.
+sql -> grt structs code relies on AST structure which can change after update.

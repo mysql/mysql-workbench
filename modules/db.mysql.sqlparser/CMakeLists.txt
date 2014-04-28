@@ -1,0 +1,94 @@
+include_directories(.
+    ./src
+    ${PROJECT_SOURCE_DIR}/generated
+    ${PROJECT_SOURCE_DIR}/backend/wbpublic
+    ${PROJECT_SOURCE_DIR}/library/grt/src 
+    ${PROJECT_SOURCE_DIR}/library/grt/src/diff 
+    ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library/forms
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/include
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/linux
+    ${PROJECT_SOURCE_DIR}/modules
+    ${PROJECT_SOURCE_DIR}/modules/interfaces
+    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
+    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
+    ${PROJECT_SOURCE_DIR}/library/mysql.parser   
+    ${VSQLITE_INCLUDE_DIRS}
+    ${GTK2_INCLUDE_DIRS}
+    ${SIGC++_INCLUDE_DIRS}
+    ${GRT_INCLUDE_DIRS}
+    ${PCRE_INCLUDE_DIR}
+    ${PROJECT_SOURCE_DIR}
+    ${MYSQL_INCLUDE_DIRS}
+)
+
+if (MYSQL_DEFINITIONS)
+	add_definitions(${MYSQL_DEFINITIONS})
+endif()
+
+add_library(db.mysql.sqlparser.grt
+    src/db.mysql.sqlparser.cpp
+    src/mysql_invalid_sql_parser.cpp
+    src/mysql_sql_facade.cpp
+    src/mysql_sql_parser_base.cpp
+    src/mysql_sql_specifics.cpp
+    src/mysql_sql_normalizer.cpp
+    src/mysql_sql_parser.cpp
+    src/mysql_sql_parser_fe.cpp
+    src/mysql_sql_parser_utils.cpp
+    src/mysql_sql_schema_rename.cpp
+    src/mysql_sql_script_splitter.cpp
+    src/mysql_sql_inserts_loader.cpp
+    src/mysql_sql_syntax_check.cpp
+    src/mysql_sql_semantic_check.cpp
+    src/mysql_sql_statement_decomposer.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/charset-def.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/charset.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-big5.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-bin.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-cp932.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-czech.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-eucjpms.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-euc_kr.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-extra.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-gb2312.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-gbk.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-latin1.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-mb.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-simple.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-sjis.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-tis620.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-uca.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-ucs2.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-ujis.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-utf8.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype-win1250ch.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/ctype.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/int2str.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/myx_lex_helpers.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/myx_sql_tree_item.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/myx_statement_parser.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/myx_unicode_scanner.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/sql_parser_symbols.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/my_messnc.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/my_static.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/my_strtoll10.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/my_vsnprintf.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/strmake.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/strnmov.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/strtod.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/strxmov.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/str_alloc.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/linux/myx_sql_parser.cpp
+    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/xml.cpp
+)
+
+set_target_properties(db.mysql.sqlparser.grt PROPERTIES
+#	LINK_FLAGS "-module"
+	PREFIX ""
+)
+
+target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
+
+install(TARGETS db.mysql.sqlparser.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

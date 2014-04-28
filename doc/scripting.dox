@@ -1,0 +1,210 @@
+/*!
+
+\mainpage MySQL Workbench Scripting and Plugin Development
+
+\section python_plugin Python Plugin Interface
+
+\subsection GRT Modules and Plugins
+
+GRT Modules are a group of functions that are exported to be called from other parts of Workbench, such as Workbench itself, other modules, scripts and plugins in any of the languages supported. For a python function to be recognized as a plugin and be inserted into a context menu or to the Plugins menu, 
+
+The following example illustrates how to define a module and define a plugin in Python:
+\code
+# import the wb module, where various utilities for working with plugins are defined
+from wb import *
+
+# import module for working with Workbench data structures
+import grt
+
+# create a module information descriptor. The variable name must be ModuleInfo
+ModuleInfo = DefineModule(name= "MyModule", author= "My Name", version="1.0")
+
+
+# export a function from this module, declaring its return and parameter types and then
+# tell WB that it is a plugin to be shown in the Catalog submenu of the Plugins menu and takes the 
+# catalog of the currently loaded model as input
+@ModuleInfo.plugin("my.plugin.do_stuff", caption= "Do Stuff With Catalog", description="Sample plugin description", input= [wbinputs.currentCatalog()], pluginMenu= "Catalog")
+@ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
+def do_stuff_with_catalog(catalog):
+  # do stuff
+  return 0
+
+\endcode
+
+The Python plugin code must be in a file that ends with "_grt.py" and be placed in your users module folder for Workbench. You can install the file from the Scripting menu or copy it by hand to the folder, its path is displayed in the Scripting Shell window, when Workbench is started.
+
+\subsection plugin_inputs Plugin Input Definition
+
+The wbinputs object from the wb module contains various convenience functions that create plugin input descriptors for
+the parameters that a plugin can request from Workbench. These parameters are usually related to the active environment,
+such as the currently loaded model, selected diagram, open SQL editor etc If the requested arguments are not available,
+the menu entry for the plugin will be disabled.
+
+These should be used in the list given to the input argument of the plugin definition function.
+
+The following is a list of the values that are currently supported:
+
+- <b>Home</b>
+  - \b selectedConnection() The selected connection in the SQL Editor connections list, in the Home tab
+  - \b selectedInstance() The selected server instance in the server administration list, in the Home tab
+
+- <b>Modeling</b>
+  - \b objectOfClass(className) Requests an object of the given type name (a string), such as \ref db_Table, \ref db_Schema (when specifying class names for GRT objects, replace the _ with ., eg: "db.Table"), \ref model_Figure etc The source of the object can be the selection in the diagram or model overview.
+  - \b currentCatalog() The database catalog (\ref db_Catalog) of the currently loaded model.
+  - \b currentDiagram() The \ref model_Diagram object from the currently selected diagram tab.
+
+- <b>SQL Editor</b>
+  - \b currentSQLEditor() The currently selected SQL Editor (\ref db_query_Editor) tab.
+  - \b currentQueryBuffer() The currently selected query buffer (\ref db_query_QueryBuffer) from the active SQL Editor.
+  - \b currentResultset() The currently selected resultset (\ref db_query_Resultset) from the active SQL Editor.
+  - \b currentEditableResultset() The currently selected editable resultset (\ref db_query_EditableResultset) from the active SQL Editor, if it is editable.
+  - <i>Catalog Tree or Overview</i> In right-click/context menu in the sidebar catalog tree or in object overview 
+    - \b selectedLiveDBObject() The selected object when bringing up the context menu, can be any of a schema, table, view or routine. (\ref db_query_LiveDBObject)
+    - \b selectedLiveSchema() The selected object, if it's a schema (\ref db_query_LiveDBObject)
+    - \b selectedLiveTable() The selected object, if it's a table (\ref db_query_LiveDBObject)
+    - \b selectedLiveView() The selected object, if it's a view (\ref db_query_LiveDBObject)
+    - \b selectedLiveRoutine() The selected object, if it's a routine (\ref db_query_LiveDBObject)
+  - <i>Resultset</i> When the context menu is brought up in a resultset grid.
+    - \b clickedRow() The row index (int) of the cell clicked/selected to bring up the context menu.
+    - \b clickedColumn() The column index (int) of the cell clicked/selected to bring up the context menu.
+
+
+\subsection plugin_menus Plugin Menu Entries
+
+The following keywords can be given to the \i pluginMenu argument of the plugin definition function:
+
+- At the Home tab
+  - \b Home/Connections - Context menu in the connections list
+  - \b Home/ModelFiles - Context menu in the model files list
+  - \b Home/Instances - Context menu in the server instances list
+- When a Modeling related tab is selected
+  - \b Model - Model submenu in Plugins menu.
+  - \b Text - Text submenu in the Plugins menu.
+  - \b Utilities - Utilities submenu in Plugins menu.
+  - \b Catalog - Catalog submenu in Plugins menu or in the catalog/overview context menus.
+- When a SQL Editor tab is selected
+  - \b SQL/Editor - Editor submenu in Plugins menu
+  - \b SQL/Catalog - Catalog submenu in Plugins menu, or the live catalog/overview context menus.
+  - \b SQL/Resultset - Resultset submenu in Plugins menu, or the resultset context menu.
+  - \b SQL/Utilities - Utilities submenu in Plugins menu.
+
+\subsection filter_plugin Text Filter Plugins
+
+A specialized plugin type for text editors is also available. These act as "filters", where the selected text is given to the plugin and after some kind of transformation, it is returned to be reinserted to the text editor, replacing the selection that was given to it. Below is an example of such filter:
+
+\code
+
+@ModuleInfo.exportFilter("wb.text.comment", "Un/Comment Selection")
+def commentText(text):
+  lines = text.split("\n")
+  if lines[0].startswith("-- "):
+    return "\n".join((line[3:] if line.startswith("-- ") else line) for line in lines)
+  else:
+    return "\n".join("-- "+line for line in lines)
+
+\endcode
+
+This plugin will be accessible from the context menu in code editor/query buffer in the SQL Editor and will comment or uncomment the currently selected text lines. Note that it is not necessary to export the function in a separate statement, as the input parameter is always a string (the selected text) and so is the return value (the string to replace the selection with).
+
+
+\section s1 Other Parts of the Documentation
+
+\ref MForms - The Mini Forms Library
+
+The MForms library allows writing basic cross-platform graphical user interfaces. It is accessible from Python through the mforms module (import mforms)
+
+\ref globals - The GRT Globals Tree 
+
+Information about the internal object model accessible by plugins and scripts. A list of key nodes in the globals tree is presented.
+
+
+\n
+\n
+\n
+
+\section sample Plugin Writing Tutorial
+
+In this example we are going to write a simple plugin for the SQL Editor and will highlight how to use the reference documentation to get this done most efficiently. 
+
+First, we need to register our plugin as described before, with the common module preamble. 
+
+\code
+
+from wb import *
+import grt
+
+ModuleInfo = DefineModule(name= "MyModule", author= "My Name", version="1.0")
+
+\endcode
+
+The idea for this plugin, is to take the take the query in the current query buffer of the SQL Editor, substitute certain special values (for example, %[random:0,100]% or %[oneof:apple,banana,orange]%) and shows it in a new query buffer. 
+
+We will start with a placeholder plugin definition. The input to the function is the active SQL Editor object, its class is db_query_Editor. According to \ref plugin_inputs "Plugin Input Definition", to request the currently active SQL Editor object, wbinputs.currentSQLEditor() must be used. We also want it to show up in the 
+Utilities submenu from the Plugins menu, so from \ref plugin_menus "Plugin Menu Entries", can use "SQL/Utilities" as the pluginMenu argument.
+
+\code
+
+@ModuleInfo.plugin("my.plugin.fill_random_query", caption= "Fill in Random Values in Query", input=[wbinputs.currentSQLEditor()], pluginMenu="SQL/Utilities")
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
+def fill_random_query(editor):
+	return 0
+
+\endcode
+
+Now, to find out which functions and attributes \ref db_query_Editor offers, we take a look at its entry in the \ref globals "Globals and Classes Reference".
+In our example we want to access the text in the current SQL Query Tab. For this purpose we use the \ref db_query_Editor.activeQueryBuffer attribute, that will return a reference to a \ref db_query_QueryBuffer object. In that object, we can use the \ref db_query_QueryBuffer.script attribute to access its textual contents. Once the contents are processed, we also want to create a new query buffer and set it's contents to the processed text from the first query buffer. \ref db_query_Editor.addQueryBuffer() can be used to create the new buffer and get a reference to it, from its return value. We then use \ref db_query_QueryBuffer.replaceContents() to set its contents to the query we created:
+
+\code
+
+def process_script(script):
+	import re
+	import random
+	tokens = re.split("(%\[.*?\]%)", script)
+	output = []
+	for token in tokens:
+		out_token = token
+		if token.startswith("%[") and token.endswith("]%"):
+			command, sep, args = token[2:-2].partition(":")
+			if command == "oneof":
+				out_token = random.choice(args.split(","))
+			elif command == "random":
+				min_value, sep, max_value = args.partition(",")
+				out_token = "%s" % random.randint(int(min_value), int(max_value))
+		output.append(out_token)
+	return "".join(output)
+
+# because of a bug in the wbinputs.currentSQLEditor() input	specifier from the wb module 
+# in Workbench 5.2.26, we include our own version of it here
+def currentSQLEditor():
+	arg= grt.classes.app_PluginObjectInput()
+    	arg.name= "activeSQLEditor"
+    	arg.objectStructName= "db.query.Editor"
+    	return arg
+
+@ModuleInfo.plugin("my.plugin.fill_random_query", caption= "Fill in Random Values in Query", input=[currentSQLEditor()], pluginMenu="SQL/Utilities")
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
+def fill_random_query(editor):
+	active_buffer = editor.activeQueryBuffer
+	script = active_buffer.script
+
+	try:
+		new_script = process_script(script)	
+	except Exception, exc:
+		new_script = "Error: %s" % exc
+
+	new_buffer = editor.addQueryBuffer()
+	new_buffer.replaceContents(new_script)
+
+	return 0
+
+\endcode
+
+\htmlonly 
+<a href="scripting_sample_grt.py">Here</a> is the complete code in a single file.
+\endhtmlonly
+
+Now that the code is ready, we must install it. From the Scripting menu in Workbench, call Install Plugin/Module File... and select the file to be installed.
+
+
+*/
+

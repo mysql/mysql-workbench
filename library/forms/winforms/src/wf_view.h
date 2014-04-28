@@ -1,0 +1,121 @@
+/* 
+ * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#pragma once
+
+namespace MySQL {
+  namespace Forms {
+
+    public enum class AutoResizeMode {
+      ResizeNone,
+      ResizeVertical,
+      ResizeHorizontal,
+      ResizeBoth
+    };
+
+    ref class ViewEventTarget;
+
+    public class ViewWrapper : public ObjectWrapper
+    {
+    private:
+      gcroot<Windows::Forms::ToolTip ^> tooltip;
+      gcroot<Drawing::Image ^> backgroundImage;
+      gcroot<ViewEventTarget ^> eventTarget;
+
+      mforms::Alignment backgroundImageAlignment;
+      bool layoutSuspended;
+      AutoResizeMode _resize_mode; // Used to constrain certain layout operations.
+    protected:
+      ViewWrapper(mforms::View *view);
+
+      static void destroy(mforms::View *backend);
+      static void show(mforms::View *backend, bool show);
+      static int get_width(mforms::View *backend);
+      static int get_height(mforms::View *backend);
+      static int get_preferred_width(mforms::View *backend);
+      static int get_preferred_height(mforms::View *backend);
+      static int get_x(mforms::View *backend);
+      static int get_y(mforms::View *backend);
+      static void set_size(mforms::View *backend, int w, int h);
+      static void set_padding(mforms::View *backend, int left, int top, int right, int bottom);
+      static void set_position(mforms::View *backend, int x, int y);
+      static std::pair<int, int> client_to_screen(mforms::View *backend, int x, int y);
+      static std::pair<int, int> screen_to_client(mforms::View *backend, int x, int y);
+
+      static void set_enabled(mforms::View *backend, bool flag);
+      static bool is_enabled(mforms::View *backend);
+      static mforms::View *find_subview(mforms::View *backend, std::string &name);
+      static void set_name(mforms::View *backend, const std::string& text);
+      static void relayout(mforms::View *backend);
+      static void set_needs_repaint(mforms::View *backend);
+      static void set_tooltip(mforms::View *backend, const std::string& text);
+      static void set_font(mforms::View *backend, const std::string& text);
+      static bool is_shown(mforms::View *backend);
+      static void suspend_layout(mforms::View *backend, bool flag);
+      static void set_front_color(mforms::View *backend, const std::string &color);
+      static std::string get_front_color(mforms::View *backend);
+      static void set_back_color(mforms::View *backend, const std::string &color);
+      static std::string get_back_color(mforms::View *backend);
+      static void set_back_image(mforms::View *backend, const std::string &path, mforms::Alignment alignment);
+      static void flush_events(mforms::View *backend);
+
+      static void register_drop_formats(mforms::View *backend, mforms::DropDelegate *target,
+        const std::vector<std::string> &formats);
+      static mforms::DragOperation drag_text(mforms::View *backend, mforms::DragDetails details,
+        const std::string &text);
+      static mforms::DragOperation drag_data(mforms::View *backend, mforms::DragDetails details, void *data,
+        const std::string &format);
+
+      static void SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDetails details);
+
+      static void focus(mforms::View *backend);
+
+      virtual void Initialize();
+
+      virtual void set_front_color(String ^color);
+      virtual void set_padding(int left, int top, int right, int bottom);
+      virtual void register_file_drop(mforms::DropDelegate *target) {};
+
+    public:
+
+      // Only containers allow drawing a background (restriction imposed by other platforms)
+      // so we simulate this here by triggering background drawing only for those classes.
+      void DrawBackground(Windows::Forms::PaintEventArgs ^args);
+      void set_resize_mode(AutoResizeMode mode);
+
+      // Utility functions need for event handlers.
+      static bool use_min_width_for_layout(Windows::Forms::Control ^control);
+      static bool use_min_height_for_layout(Windows::Forms::Control ^control);
+      static void remove_auto_resize(Windows::Forms::Control ^control, AutoResizeMode mode);
+      static AutoResizeMode get_auto_resize(Windows::Forms::Control ^control);
+      static bool can_auto_resize_vertically(Windows::Forms::Control ^control);
+      static void set_full_auto_resize(Windows::Forms::Control ^control);
+      static bool can_auto_resize_horizontally(Windows::Forms::Control ^control);
+      static void set_auto_resize(Windows::Forms::Control ^control, AutoResizeMode mode);
+      static bool is_layout_dirty(Windows::Forms::Control ^control);
+      static void set_layout_dirty(Windows::Forms::Control ^control, bool value);
+      static void resize_with_docking(Windows::Forms::Control ^control, System::Drawing::Size &size);
+      static void adjust_auto_resize_from_docking(Windows::Forms::Control ^control);
+      static bool can_layout(Windows::Forms::Control ^control, String ^reason);
+
+      static void init();
+    };
+
+  };
+};

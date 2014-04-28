@@ -1,0 +1,161 @@
+/*
+ * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#import "GRTListDataSource.h"
+#import "MCPPUtilities.h"
+
+#import "MOutlineView.h"
+#import "MTableView.h"
+
+@interface NSObject ()
+- (bec::ListModel*)listModelForTableView:(NSTableView*)table;
+@end
+
+
+@implementation MTableView
+
+- (void)delete: (id)foo
+{
+  if ([[self delegate] respondsToSelector: @selector(userDeleteSelectedRowInTableView:)])
+    [[self delegate] performSelector: @selector(userDeleteSelectedRowInTableView:)
+                          withObject: self];
+}
+
+
+- (std::vector<bec::NodeId>)selectedNodeIds
+{
+  std::vector<bec::NodeId> nodes;
+  NSIndexSet *iset= [self selectedRowIndexes];
+  NSUInteger index = [iset firstIndex];
+  while (index != NSNotFound)
+  {
+    nodes.push_back(bec::NodeId(index));
+    index = [iset indexGreaterThanIndex: index];
+  }
+  
+  return nodes;
+}
+
+
+- (bec::ListModel*)getListModel
+{
+  bec::ListModel *model= 0;
+  id dataSource= [self dataSource];
+  
+  // hack because of stupid implementation of DbMySQLTableEditor
+  if ([dataSource respondsToSelector: @selector(listModelForTableView:)])
+    model= [dataSource listModelForTableView: self];
+  
+  if ([dataSource respondsToSelector: @selector(listModel)])
+    model= [dataSource listModel];
+
+  return model;
+}
+
+
+- (NSMenu *)menuForEvent:(NSEvent *)theEvent
+{
+  bec::ListModel *model= [self getListModel];
+    
+  if (model)
+  {      
+    bec::MenuItemList items= model->get_popup_items_for_nodes([self selectedNodeIds]);
+    
+    if (!items.empty())
+    {
+      NSMenu *menu= [[[NSMenu alloc] initWithTitle: @""] autorelease];
+      [menu setAutoenablesItems: NO];
+      
+      for (bec::MenuItemList::const_iterator iter= items.begin(); iter != items.end(); ++iter)
+      {        
+        if (iter->type == bec::MenuSeparator)
+          [menu addItem: [NSMenuItem separatorItem]];
+        else
+        {
+          NSMenuItem *item= [menu addItemWithTitle: [NSString stringWithCPPString: iter->caption]
+                                action: @selector(activateMenuItem:)
+                         keyEquivalent: @""];
+          [item setTarget: self];
+          if (!iter->enabled)
+            [item setEnabled: NO];
+          [item setRepresentedObject: [NSString stringWithCPPString: iter->name]];
+        }
+      }
+      return menu;
+    }
+  }
+  return [super menuForEvent: theEvent];
+}
+
+
+
+- (void)activateMenuItem:(id)sender
+{
+  bec::ListModel *model= [self getListModel];
+    
+  if (model)
+  {
+    if (model->activate_popup_item_for_nodes([[sender representedObject] UTF8String], 
+                                             [self selectedNodeIds]))
+      [self reloadData];
+    else
+      [[NSNotificationCenter defaultCenter] postNotificationName: NSMenuActionNotification object: sender];
+  }
+}
+
+- (void)rightMouseDown:(NSEvent *)theEvent
+{
+  NSInteger row = [self rowAtPoint: [self convertPoint: [theEvent locationInWindow] fromView: nil]];
+  if (row >= 0)
+  {
+    if (![self isRowSelected: row])
+      [self selectRowIndexes: [NSIndexSet indexSetWithIndex: row]
+        byExtendingSelection: NO];
+  }
+  [super rightMouseDown: theEvent];
+}
+
+
+- (BOOL) canDeleteItem: (id)sender
+{
+  bec::ListModel *model= [self getListModel];
+    
+  std::vector<bec::NodeId> nodes= [self selectedNodeIds];
+  
+  if (model && nodes.size() == 1)
+    return model->can_delete_node(nodes.front());
+  
+  return NO;
+}
+
+
+- (void) deleteItem: (id)sender
+{
+  bec::ListModel *model= [self getListModel];
+  
+  std::vector<bec::NodeId> nodes= [self selectedNodeIds];
+  
+  if (model && nodes.size() == 1)
+  {
+    if (model->delete_node(nodes.front()))
+      [self noteNumberOfRowsChanged];
+  }
+}
+
+@end

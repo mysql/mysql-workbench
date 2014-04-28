@@ -1,0 +1,639 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="db.mgmt.Rdbms" id="com.mysql.rdbms.sql92">
+    <value type="string" key="caption">Generic SQL92 Compliant RDBMS</value>
+    <value type="string" key="name">Sql92</value>
+    <value type="string" key="databaseObjectPackage">db.sql92</value>
+    <value type="int" key="maximumIdentifierLength">64</value>
+    <link type="object" key="defaultDriver">com.mysql.rdbms.sql92.driver.odbc</link>
+    <value type="int" key="doesSupportCatalogs">1</value>
+
+    <!-- Privileges -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PrivilegeMapping" key="privilegeNames">
+    </value>
+
+    <!-- Character Sets -->
+
+    <value type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets">
+    </value>
+
+    <!-- Drivers -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PythonDBAPIDriver" key="drivers">
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sql92.driver.odbc">
+        <value type="string" key="caption">ODBC (manually entered parameters)</value>
+        <value type="string" key="description">Pyodbc ODBC Driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DRIVER=%driver%;SERVER=%hostName%;PORT=%port%;DATABASE=%schema%;UID=%userName%;PWD=%password%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">sql92@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">Sql92Odbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param6">
+            <value type="string" key="caption">Driver:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The Driver name of your ODBC driver (E.g. FreeTDS, PostgreSQL).</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">driver</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param1">
+            <value type="string" key="caption">Hostname:</value>
+            <value type="string" key="defaultValue">127.0.0.1</value>
+            <value type="string" key="description">Name or IP address of the server host.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">118</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">hostName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param2">
+            <value type="string" key="caption">Port:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">TCP/IP port.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">46</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">port</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param3">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">root</value>
+            <value type="string" key="description">Name of the user to connect with.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param4">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::Sql92@%hostName%:%port%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param5">
+            <value type="string" key="caption">Database:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The database to connect to. Leave blank to select it later.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">schema</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sql92.driver.odbc_dsn">
+        <value type="string" key="caption">ODBC Data Source</value>
+        <value type="string" key="description">Pyodbc ODBC Driver, using DSN</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DSN=%dsn%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">Sql92OdbcDSN</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc_dsn.param1">
+            <value type="string" key="caption">DSN:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Pre-configured ODBC data source.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueModule">DbSql92RE</value>
+            <value type="string" key="lookupValueMethod">getDataSourceNames</value>
+            <value type="string" key="name">dsn</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc_dsn</link>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc_dsn.param2">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc_dsn</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">&lt;dsn user&gt;::Sql92@%dsn%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sql92.driver.odbc_connstr">
+        <value type="string" key="caption">ODBC (direct connection string)</value>
+        <value type="string" key="description">Pyodbc ODBC Driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">%connection_string%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">sql92@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">Sql92Odbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc_connstr.param1">
+            <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The full ODBC connection string to use for the connection.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">connection_string</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc_connstr</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+        </value>
+      </value>
+
+      <!--value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sql92.driver.sqlite">
+        <value type="string" key="caption">SQLite ODBC Driver</value>
+        <value type="string" key="description">Pyodbc ODBC Driver SQLite Connection</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DRIVER=SQLITE3;DATABASE=%database%</value>
+
+        <value  type="list" content-type="string" key="files">
+        </value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">Sql92SQLite</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+       <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param1">
+            <value type="string" key="caption">Hostname:</value>
+            <value type="string" key="defaultValue">127.0.0.1</value>
+            <value type="string" key="description">Name or IP address of the server host</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">118</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">hostName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param2">
+            <value type="string" key="caption">Port:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">TCP/IP port</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">46</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">port</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param3">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">root</value>
+            <value type="string" key="description">Name of the user to connect with.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param4">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">%userName%::Mssql@%hostName%:%port%</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param5">
+            <value type="string" key="caption">Database:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The database to connect to</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">schema</value>
+            <link type="object" key="owner">com.mysql.rdbms.sql92.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+        </value>
+      </value-->
+    </value>
+
+    <!-- Datatypes -->
+
+    <value type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.decimal">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">DEC</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DECIMAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.numeric">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">NUMERIC</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.float">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">FLOAT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.real">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">REAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.double">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DOUBLE PRECISION</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.smallint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">SMALLINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.int">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">INTEGER</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">INT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.bigint">   <!-- Not really in SQL92 but widely used-->
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">BIGINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.char">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">CHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.varchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">VARCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.nchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">NATIONAL CHARACTER</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.nvarchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">NATIONAL CHARACTER VARYING</value>
+           <value type="string">NCHAR VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NVARCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.blob">  <!-- Actually an SQL-03 datatype -->
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">BINARY LARGE OBJECT</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">BLOB</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.clob">  <!-- Actually an SQL-03 datatype -->
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER LARGE OBJECT</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">CLOB</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.date">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.time">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">TIME WITH TIME ZONE</value>
+           <value type="string">TIME WITHOUT TIME ZONE</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIME</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.timestamp">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">TIMESTAMP WITH TIME ZONE</value>
+           <value type="string">TIMESTAMP WITHOUT TIME ZONE</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIMESTAMP</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.interval">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">INTERVAL</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.bit">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BIT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.bitvarying">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BIT VARYING</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.boolean">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BOOLEAN</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sql92.datatype.xml">  <!-- Actually an SQL-03 datatype -->
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">XML</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">-1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sql92</link>
+      </value>
+
+    </value>
+  </value>
+</data>

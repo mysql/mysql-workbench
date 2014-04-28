@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+
+<!--
+
+platform: windows,macosx,linux (any combination, separted by a comma)
+context: see wb_context.h for full listing
+	- *global (default)
+	- *model (model, overview.physical)
+	- *query (dbquery)
+	- model
+	- overview.physical
+	- overview.dbquery
+	- dbquery
+-->
+
+<data>
+  <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.dbqtoolbar.dbquery">
+    <value type="string" key="name">dbquery</value>
+
+    <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.newFile</value>
+        <value type="string" key="icon">qe_main-tb-icon_add-sql-editor.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:query.newFile</value>
+        <value type="string" key="tooltip">Create a new SQL tab for executing queries</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.open">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.openFile</value>
+        <value type="string" key="icon">qe_main-tb-icon_open-sql-file.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:query.openFile</value>
+        <value type="string" key="tooltip">Open a SQL script file in a new query tab</value>
+      </value>
+
+      <!-- Wizard is not yet ready.
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.execfile">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.runFile</value>
+        <value type="string" key="icon">qe_main-tb-icon_execute-sql-file.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:query.runFile</value>
+        <value type="string" key="tooltip">Open a large SQL script file or dump file for inspection and execution</value>
+      </value>
+      -->
+
+      <!--value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.saveas">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">qsaveas</value>
+        <value type="string" key="icon">tiny_saveas.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:query.saveas</value>
+        <value type="string" key="tooltip">Save SQL Script to a New File</value>
+      </value-->
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.saveas">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="itemType">separator</value>
+        <value type="string" key="name">s1</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.schema_inspector">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.show_inspector</value>
+        <value type="string" key="icon">object_inspector.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="tooltip">Open Inspector for the selected object</value>
+        <value type="string" key="command">builtin:query.show_inspector</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.inspector">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+ 
+     <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_schema">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.new_schema</value>
+        <value type="string" key="icon">qe_main-tb-icon_add-schema.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="tooltip">Create a new schema in the connected server</value>
+        <value type="string" key="command">builtin:query.new_schema</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_table">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.new_table</value>
+        <value type="string" key="icon">qe_main-tb-icon_add-table.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="tooltip">Create a new table in the active schema in connected server</value>
+        <value type="string" key="command">builtin:query.new_table</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_view">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.new_view</value>
+        <value type="string" key="icon">qe_main-tb-icon_add-view.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="tooltip">Create a new view in the active schema in the connected server</value>
+        <value type="string" key="command">builtin:query.new_view</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_routine">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.new_routine</value>
+        <value type="string" key="icon">qe_main-tb-icon_add-routine.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="tooltip">Create a new stored procedure in the active schema in the connected server</value>
+        <value type="string" key="command">builtin:query.new_routine</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_function">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.new_function</value>
+        <value type="string" key="icon">qe_main-tb-icon_add-function.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="tooltip">Create a new function in the active schema in the connected server</value>
+        <value type="string" key="command">builtin:query.new_function</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.tools">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+ 
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.dbsearch">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">wb.dbsearch</value>
+        <value type="string" key="icon">qe_main-tb-icon_search_db.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:com.mysql.wb.menu.database.search</value>
+        <value type="string" key="tooltip">Search table data for text in objects selected in the sidebar schema tree</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.cancel">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.reconnect">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.reconnect</value>
+        <value type="string" key="icon">qe_main-tb-icon_refresh-conn.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:query.reconnect</value>
+        <value type="string" key="tooltip">Reconnect to DBMS</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.prefs">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="itemType">expander</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.prefs">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">query.preferences</value>
+        <value type="string" key="icon">qe_main-tb-icon_preferences.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">call:Workbench.showOptions</value>
+        <value type="string" key="tooltip">Show preferences dialog</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.expander">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.schematabarhide">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">wb.toggleSidebar</value>
+        <value type="string" key="icon">switcher_left_off.png</value>
+        <value type="string" key="altIcon">switcher_left_on.png</value>
+        <value type="string" key="itemType">segmentedToggle</value>
+        <value type="string" key="command">builtin:wb.toggleSidebar</value>
+        <value type="string" key="tooltip">Toggle Schema Sidebar</value>
+        <value type="int" key="initialState">1</value>
+      </value>
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.outputhide">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">wb.toggleOutputArea</value>
+        <value type="string" key="icon">switcher_bottom_off.png</value>
+        <value type="string" key="altIcon">switcher_bottom_on.png</value>
+        <value type="string" key="itemType">segmentedToggle</value>
+        <value type="string" key="command">builtin:wb.toggleOutputArea</value>
+        <value type="string" key="tooltip">Toggle Output Area</value>
+        <value type="int" key="initialState">1</value>
+      </value>
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.helpbarhide">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
+        <value type="string" key="name">wb.toggleSecondarySidebar</value>
+        <value type="string" key="icon">switcher_right_off.png</value>
+        <value type="string" key="altIcon">switcher_right_on.png</value>
+        <value type="string" key="itemType">segmentedToggle</value>
+        <value type="string" key="command">builtin:wb.toggleSecondarySidebar</value>
+        <value type="string" key="tooltip">Toggle Sidebar</value>
+        <value type="int" key="initialState">1</value>
+      </value>
+    </value>
+  </value>
+</data>

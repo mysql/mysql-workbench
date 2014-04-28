@@ -1,0 +1,91 @@
+
+Localization for MySQL Workbench
+
+How to translate MySQL Workbench to your language.
+
+
+
+Intro
+-----
+
+Workbench supports Windows, Mac OS X and Linux operating systems. There is backend
+code that is written in C++ and is used in all platforms, frontend code that is native
+to each platform and plugins/modules, some of which are platform neutral and some are native.
+
+Internationalization (i18n) of the backend and cross platform code is simple, because all
+messages are in source code and can be extracted, translated and then used with straightforward code.
+I18n of the frontend/GUI is also easy if it's constructed from code, but not so much if the
+UI is created in some sort of form designer (VisualStudio Form Designer in Windows, InterfaceBuilder
+.xib files in Mac OS X and Glade/Gtkbuilder files in Linux). 
+
+Currently only backend i18n is done. Windows GUI i18n will be added later and other platforms
+if time allows.
+
+
+
+How to Translate The Backend
+----------------------------
+
+Pre-Requisites:
+To perform translation work you need to have gettext installed. If you don't have that
+or have no idea what is it you can try asking the developers for the needed translatable files.
+
+
+Translation fo the backend can be summarized in following steps:
+
+1) Mark translatable strings with _() function/marker in source code. That is done by WB developers so
+you should not worry about that.
+
+2) Extract translatable strings into a .pot file. That can be done in Mac OS X or Linux by running
+scan_po_files.sh file in the po subdir. The script will scan all backend files for translatable messages
+and add them to a wbcore.pot file. If you want to translate WB from scratch you need to run this.
+
+3) Rename wbcore.pot to a .po file for the ISO language code name, ex.: pt_BR.po, ja.po
+
+4) Translate the po file for your language. See note below for more details about this.
+
+5) If you're just updating a translation instead of doing it from scratch (or reusing the translation
+from another language to get a headstart) you can just copy and rename the file you want. The
+file may be missing messages that were added to WB since last time it was translated, so you may
+need to update it. To do that, use the following command:
+
+msgmerge -U <lang>.po wbcore.pot
+
+That will merge the new messages from wbcore.pot and add them to the translated po file. 
+Then you just need to translate the new entries.
+
+
+Translating the PO file
+-----------------------
+
+- Any text editor can be used to edit the translatable po files, but there are tools that help you 
+with translation and perform validations, such as poedit.
+
+- Some strings may contain special sequences like %s %i etc. These are special markers used by
+code indicating where some text will be inserted. If you find such text, it is CRITICAL that
+the order and number of occurrences remain intact. You can change the text before and after them
+as you want, but not the order and number of times they appear. For example:
+
+msgid "Schema '%s' created."
+
+Can be translated as:
+
+msgstr "Esquema '%s' foi criado."
+
+Or
+
+"There are %i recordsets with unsaved changes in SQL tab %s.\n"
+
+Can be translated as:
+
+"%i resultados possuem modificacoes que nao foram salvas na aba SQL %s.\n"
+
+But NOT as:
+
+"A aba SQL %s possui %i resultados com modificacoes nao salvas.\n"
+
+It's also important to keep special escapes such as \n or \t, they indicate newlines and tabs.
+
+
+
+

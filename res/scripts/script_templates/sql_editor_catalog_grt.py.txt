@@ -1,0 +1,19 @@
+## SQL Editor Catalog Tree
+# MySQL Workbench Plugin
+# <description>
+# Written in MySQL Workbench %wbversion%
+
+from wb import *
+import grt
+#import mforms
+
+ModuleInfo = DefineModule(%modulename%, author="Author Name", version="1.0", description="Contains Plugin %pluginname%")
+
+# This plugin acts on an object from the catalog tree in the SQL Editor sidebar
+# Other possible inputs: selectedLiveView(), selectedLiveRoutine(), selectedLiveSchema()
+@ModuleInfo.plugin(%pluginname%, caption="Caption", description="description", input=[wbinputs.selectedLiveTable()], pluginMenu="SQL/Catalog")
+@ModuleInfo.export(grt.INT, grt.classes.db_query_LiveDBObject)
+def %functionname%(table):
+    print table.schema,table.name
+    return 0
+

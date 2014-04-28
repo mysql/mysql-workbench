@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+
+<data>
+  <value type="list" key="items" content-type="object" content-struct-name="app.PaperType">
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.letter">
+      <value type="string" key="name">na-letter</value>
+      <value type="string" key="caption">Letter (8.5 in. x 11 in.)</value>
+      <value type="real" key="width">215.9</value>
+      <value type="real" key="height">279.4</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.legal">
+      <value type="string" key="name">na-legal</value>
+      <value type="string" key="caption">Legal (8.5 in. x 14 in.)</value>
+      <value type="real" key="width">215.9</value>
+      <value type="real" key="height">355.6</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.folio">
+      <value type="string" key="name">folio</value>
+      <value type="string" key="caption">Folio (8.5 in. x 13 in.)</value>
+      <value type="real" key="width">215.9</value>
+      <value type="real" key="height">330.2</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.a4">
+      <value type="string" key="name">iso-a4</value>
+      <value type="string" key="caption">A4 (210 mm x 297 mm)</value>
+      <value type="real" key="width">209.9</value>
+      <value type="real" key="height">297.0</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.a5">
+      <value type="string" key="name">iso-a5</value>
+      <value type="string" key="caption">A5 (148 mm x 210 mm)</value>
+      <value type="real" key="width">148.2</value>
+      <value type="real" key="height">209.9</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.b4">
+      <value type="string" key="name">iso-b4</value>
+      <value type="string" key="caption">B4 (250 mm x 353 mm)</value>
+      <value type="real" key="width">250.1</value>
+      <value type="real" key="height">353.0</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.b5">
+      <value type="string" key="name">iso-b5</value>
+      <value type="string" key="caption">B5 (176 mm x 250 mm)</value>
+      <value type="real" key="width">176.0</value>
+      <value type="real" key="height">250.1</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.executive">
+      <value type="string" key="name">executive</value>
+      <value type="string" key="caption">Executive (7.5 in. x 10.5 in.)</value>
+      <value type="real" key="width">184.2</value>
+      <value type="real" key="height">266.7</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.statement">
+      <value type="string" key="name">statement</value>
+      <value type="string" key="caption">Statement (5.5 in. x 8.5 in.)</value>
+      <value type="real" key="width">139.7</value>
+      <value type="real" key="height">215.9</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.a3">
+      <value type="string" key="name">iso-a3</value>
+      <value type="string" key="caption">A3 (297 mm x 420 mm)</value>
+      <value type="real" key="width">297.0</value>
+      <value type="real" key="height">420.2</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.a2">
+      <value type="string" key="name">iso-a2</value>
+      <value type="string" key="caption">A2 (420 mm x 594 mm)</value>
+      <value type="real" key="width">420.0</value>
+      <value type="real" key="height">594.0</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.a1">
+      <value type="string" key="name">iso-a1</value>
+      <value type="string" key="caption">A1 (594 mm x 841 mm)</value>
+      <value type="real" key="width">594.0</value>
+      <value type="real" key="height">841.2</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.a0">
+      <value type="string" key="name">iso-a0</value>
+      <value type="string" key="caption">A0 (841 mm x 1189 mm)</value>
+      <value type="real" key="width">841.0</value>
+      <value type="real" key="height">1189.0</value>
+    </value>
+
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.roc16k">
+      <value type="string" key="name">ROC 16K</value>
+      <value type="string" key="caption">ROC 16K (196 mm x 273 mm)</value>
+      <value type="real" key="width">196.8</value>
+      <value type="real" key="height">273.0</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.jb5">
+      <value type="string" key="name">jis-b5</value>
+      <value type="string" key="caption">JIS B5 (182 mm x 257 mm)</value>
+      <value type="real" key="width">182.0</value>
+      <value type="real" key="height">257.2</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.tabloid">
+      <value type="string" key="name">tabloid</value>
+      <value type="string" key="caption">Tabloid (11 in. x 17 in.)</value>
+      <value type="real" key="width">279.4</value>
+      <value type="real" key="height">431.8</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.quarto">
+      <value type="string" key="name">quarto</value>
+      <value type="string" key="caption">Quarto (215 mm x 275 mm.)</value>
+      <value type="real" key="width">215.0</value>
+      <value type="real" key="height">275.0</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.ansic">
+      <value type="string" key="name">c</value>
+      <value type="string" key="caption">ANSI C (432 mm x 559 mm.)</value>
+      <value type="real" key="width">432.0</value>
+      <value type="real" key="height">559.0</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.ansid">
+      <value type="string" key="name">d</value>
+      <value type="string" key="caption">ANSI D (559 mm x 864 mm.)</value>
+      <value type="real" key="width">559.0</value>
+      <value type="real" key="height">864.0</value>
+    </value>
+    <value type="object" struct-name="app.PaperType" id="com.mysql.wb.papertype.ansie">
+      <value type="string" key="name">e</value>
+      <value type="string" key="caption">ANSI E (864 mm x 1118 mm.)</value>
+      <value type="real" key="width">864.0</value>
+      <value type="real" key="height">1118.0</value>
+    </value>
+
+  </value>
+</data>
+  

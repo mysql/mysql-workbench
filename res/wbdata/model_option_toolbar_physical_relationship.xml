@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<data>
+  <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.tool.option.rel">
+    <value type="string" key="name">options/physical/relationship</value>
+    <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.rel.opt">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tool.option.rel</link>
+        <value type="string" key="name">physical/rel/optional</value>
+        <value type="string" key="command">option:workbench.physical.Connection:optional</value>
+        <value type="string" key="icon">Start is Optional</value>
+        <value type="string" key="itemType">check</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.rel.refopt">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tool.option.rel</link>
+        <value type="string" key="name">physical/rel/refOptional</value>
+        <value type="string" key="command">option:workbench.physical.Connection:refOptional</value>
+        <value type="string" key="icon">End is Optional</value>
+        <value type="string" key="itemType">check</value>
+      </value>
+    </value>
+  </value>
+</data>
+  

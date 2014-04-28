@@ -1,0 +1,1 @@
+def	StringContainer	sampledb	StringContainer	id, str_data

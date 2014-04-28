@@ -1,0 +1,402 @@
+/* 
+ * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#import "MFMenuBar.h"
+#import "MFBase.h"
+#include "base/string_utilities.h"
+#import "MFMForms.h"
+
+@interface MFMenuItem : NSMenuItem <NSMenuDelegate>
+{
+  boost::function<void ()> slot;
+@public
+  mforms::MenuItem *item;
+}
+
+- (id)initWithTitle:(NSString*)title
+               slot:(boost::function<void ()>)aslot;
+
+@end
+
+static NSMenuItem *applicationMenuTemplate = nil;
+static NSMenuItem *defaultEditMenu = nil;
+
+@implementation  MFMenuItem
+
+- (id)initWithTitle:(NSString*)title
+               slot:(boost::function<void ()>)aslot
+{
+  self = [super initWithTitle: title action: @selector(callSlot:) keyEquivalent:@""];
+  if (self)
+  {
+    slot = aslot;
+    [self setTarget: self];
+  }
+  return self;
+}
+
+- (void)callSlot:(id)sender
+{
+  slot();
+}
+
+
+- (void)menuWillOpen:(NSMenu *)menu
+{
+  if (item && dynamic_cast<mforms::MenuBar*>(item->get_top_menu()))
+    dynamic_cast<mforms::MenuBar*>(item->get_top_menu())->will_show_submenu_from(item);
+}
+
+@end
+
+
+
+
+@interface MFContextMenu : NSMenu <NSMenuDelegate>
+{
+@public
+  mforms::ContextMenu *cmenu;
+}
+
+@end
+
+@implementation MFContextMenu
+
+- (id)initWithTitle: (NSString*)title
+{
+  self = [super initWithTitle: title];
+  if (self)
+  {
+    [self setDelegate: self];
+  }
+  return self;
+}
+
+- (void)menuNeedsUpdate:(NSMenu *)menu
+{
+  cmenu->will_show();
+}
+
+@end
+
+
+
+using namespace mforms;
+
+static bool create_menu_bar(MenuBar *aitem)
+{
+  NSMenu *menu = [[[NSMenu alloc] initWithTitle: @"main"] autorelease];
+  [menu addItem: [[applicationMenuTemplate copy] autorelease]];
+  aitem->set_data(menu);
+  return true;
+}
+
+
+static bool create_context_menu(ContextMenu *aitem)
+{
+  MFContextMenu *menu = [[[MFContextMenu alloc] initWithTitle: @"context"] autorelease];
+  menu->cmenu = aitem;
+  [menu setAutoenablesItems: NO];
+  aitem->set_data(menu);
+  return true;
+}
+
+static bool create_menu_item(MenuItem *aitem, const std::string &title, MenuItemType type)
+{
+  if (title.empty())
+  {
+    NSMenuItem *item = [NSMenuItem separatorItem];
+    aitem->set_data(item);
+  }
+  else
+  {
+    MFMenuItem *item = [[[MFMenuItem alloc] initWithTitle: wrap_nsstring(title) slot: boost::bind(&MenuItem::callback, aitem)] autorelease];
+    item->item = aitem;
+    aitem->set_data(item);
+  }
+  return true;
+}
+
+static void set_title(MenuItem *aitem, const std::string &title)
+{
+  NSMenuItem *item = aitem->get_data();
+  [item setTitle: wrap_nsstring(title)];
+}
+
+static std::string get_title(MenuItem *aitem)
+{
+  NSMenuItem *item = aitem->get_data();
+  return [[item title] UTF8String] ?: "";
+}
+
+static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
+{
+  NSMenuItem *item = aitem->get_data();
+  
+  if (!shortcut.empty())
+  {
+    std::vector<std::string> parts(base::split(shortcut, "+", 0));
+    unichar key = 0;
+    NSUInteger mask= 0;
+    
+    if (parts.size() > 0)
+    {
+      std::string askey = parts.back();
+      key= g_utf8_get_char_validated(askey.c_str(), askey.length());
+      parts.pop_back();
+      
+      if (askey.size() == 1 && key != (unichar)-1 && key != (unichar)-2 && 
+          (g_unichar_isalnum(key) || g_unichar_ispunct(key)))
+      {
+        key= g_unichar_tolower(key);
+      }
+      else
+      {
+        if (askey == "Delete")
+          key= NSDeleteCharacter;
+        else if (askey == "BackSpace" || askey == "Backspace")
+          key= NSBackspaceCharacter;
+        else if (askey == "F1")
+          key= NSF1FunctionKey;
+        else if (askey == "F2")
+          key= NSF2FunctionKey;
+        else if (askey == "F3")
+          key= NSF3FunctionKey;
+        else if (askey == "F4")
+          key= NSF4FunctionKey;
+        else if (askey == "F5")
+          key= NSF5FunctionKey;
+        else if (askey == "F6")
+          key= NSF6FunctionKey;
+        else if (askey == "F7")
+          key= NSF7FunctionKey;
+        else if (askey == "F8")
+          key= NSF8FunctionKey;
+        else if (askey == "F9")
+          key= NSF9FunctionKey;
+        else if (askey == "F10")
+          key= NSF10FunctionKey;
+        else if (askey == "F11")
+          key= NSF11FunctionKey;
+        else if (askey == "F12")
+          key= NSF12FunctionKey;
+        else if (askey == "Tab")
+          key = '\t';
+        else if (askey == "Enter" || askey == "Return")
+          key= '\n';
+        else if (askey == "question")
+          key = '?';
+        else if (askey == "Plus")
+          key= '+';
+        else if (askey == "Minus")
+          key = '-';
+        else if (askey == "Slash")
+          key = '/';
+        else if (askey == "Period")
+          key = '.';
+        else if (askey == "Comma")
+          key = ',';
+        else if (askey == "OpenBrackets")
+          key = '[';
+        else if (askey == "CloseBrackets")
+          key = ']';
+        else if (askey == "Escape")
+          key = 0x1B;
+        else if (askey == "Space")
+          key = ' ';
+        else if (askey == "Left")
+          key = NSLeftArrowFunctionKey;
+        else if (askey == "Right")
+          key = NSRightArrowFunctionKey;
+        else if (askey == "Up")
+          key = NSUpArrowFunctionKey;
+        else if (askey == "Down")
+          key = NSDownArrowFunctionKey;
+        else
+          NSLog(@"Unknown character '%s' for menu shortcut", askey.c_str());
+      }
+      
+      [item setKeyEquivalent:[NSString stringWithCharacters:&key length:1]];
+    }
+    
+    if (parts.size() > 0)
+    {
+      for (std::vector<std::string>::const_iterator iter= parts.begin();
+           iter != parts.end(); ++iter)
+      {
+        if (*iter == "Command" || *iter == "Modifier")
+          mask|= NSCommandKeyMask;
+        else if (*iter == "Alt" || *iter == "Alternate" || *iter == "Option")
+          mask|= NSAlternateKeyMask;
+        else if (*iter == "Control")
+          mask|= NSControlKeyMask;
+        else if (*iter == "Shift")
+          mask|= NSShiftKeyMask;
+      }
+      if (mask != 0)
+        [item setKeyEquivalentModifierMask:mask];
+    }
+    else {
+      [item setKeyEquivalentModifierMask: 0];
+    }
+
+  }
+}
+
+static void set_enabled(MenuBase *aitem, bool enabled)
+{
+  NSMenuItem *item = aitem->get_data();
+  [item setEnabled: enabled];
+}
+
+static bool get_enabled(MenuBase *aitem)
+{
+  NSMenuItem *item = aitem->get_data();
+  return [item isEnabled];
+}
+
+static void set_checked(MenuItem *aitem, bool flag)
+{
+  NSMenuItem *item = aitem->get_data();
+  [item setState: flag ? NSOnState : NSOffState];
+}
+
+static bool get_checked(MenuItem *aitem)
+{
+  NSMenuItem *item = aitem->get_data();
+  return [item state] == NSOnState;
+}
+
+static void insert_item(MenuBase *aitem, int index, MenuItem *asubitem)
+{  
+  NSMenu *submenu;
+  MFMenuItem *subitem = asubitem->get_data();
+  bool is_context = false;
+    
+  if (dynamic_cast<MenuBar*>(aitem) || (is_context = (dynamic_cast<ContextMenu*>(aitem) != NULL)))
+    submenu = aitem->get_data();
+  else
+  {
+    MFMenuItem *parItem = aitem->get_data();
+    submenu = [parItem submenu];
+    if (!submenu)
+    {
+      submenu = [[[NSMenu alloc] initWithTitle: [parItem title]] autorelease];
+      [submenu setAutoenablesItems: NO];
+      [parItem setSubmenu: submenu];
+      [submenu setDelegate: parItem];
+    }
+  }
+
+  if (index >= [submenu numberOfItems])
+    [submenu addItem: subitem];
+  else
+    [submenu insertItem: subitem atIndex: is_context ? index : index+1];
+}
+
+static void remove_item(MenuBase *aitem, MenuItem *asubitem)
+{
+  NSMenu *submenu;
+  NSMenuItem *subitem = nil;
+  if (asubitem)
+    subitem = asubitem->get_data();
+  if (dynamic_cast<MenuBar*>(aitem) || dynamic_cast<ContextMenu*>(aitem))
+    submenu = aitem->get_data();
+  else
+    submenu = [aitem->get_data() submenu]; // must be a menuitem
+  if (subitem)
+    [submenu removeItem: subitem];
+  else
+  {
+    while ([submenu numberOfItems] > 0)
+      [submenu removeItemAtIndex: 0];
+  }
+}
+
+static void popup_menu(ContextMenu *menu, int x, int y)
+{
+  [NSMenu popUpContextMenu: menu->get_data()
+                 withEvent: [NSApp currentEvent]
+                   forView: nil];
+}
+
+
+static NSMenuItem *swappedEditMenu = nil;
+
+void cf_swap_edit_menu()
+{
+  NSMenuItem *editMenu = [[NSApp mainMenu] itemAtIndex: 2];  
+  if ([editMenu tag] != 424242)
+  {
+    swappedEditMenu = [editMenu retain];
+    [[NSApp mainMenu] removeItem: swappedEditMenu];
+    [[NSApp mainMenu] insertItem: [[defaultEditMenu copy] autorelease] atIndex: 2];
+  }
+}
+
+void cf_unswap_edit_menu()
+{
+  if (swappedEditMenu)
+  {
+    NSMenuItem *editMenu = [[NSApp mainMenu] itemAtIndex: 2];  
+    if ([editMenu tag] == 424242)
+    {
+      [[NSApp mainMenu] removeItem: editMenu];
+      [[NSApp mainMenu] insertItem: swappedEditMenu atIndex: 2];
+      [swappedEditMenu release];
+      swappedEditMenu = nil;
+    }
+  }  
+}
+
+void cf_menubar_init()
+{
+  ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
+
+  // get default app menu and make a template from it
+  applicationMenuTemplate = [[[NSApp mainMenu] itemAtIndex: 0] retain];
+  
+  // hack
+  // the way to create a Edit menu that works just like the one you get in IB is a mistery
+  // so we create it in IB, keep a reference to it and only display it when we need,
+  // which is in modal windows. Once the modal window is gone, the normal WB 
+  // created menu can be used
+  defaultEditMenu = [[[NSApp mainMenu] itemAtIndex: 1] retain];
+  [[NSApp mainMenu] removeItem: defaultEditMenu];
+  
+  [defaultEditMenu setTag: 424242];
+
+  f->_menu_item_impl.create_context_menu = create_context_menu;
+  f->_menu_item_impl.create_menu_bar = create_menu_bar;
+  f->_menu_item_impl.create_menu_item = create_menu_item;
+  f->_menu_item_impl.set_title = set_title;
+  f->_menu_item_impl.get_title = get_title;
+  f->_menu_item_impl.set_shortcut = set_shortcut;
+  f->_menu_item_impl.set_enabled = set_enabled;
+  f->_menu_item_impl.get_enabled = get_enabled;
+  f->_menu_item_impl.set_checked = set_checked;
+  f->_menu_item_impl.get_checked = get_checked;
+  
+  f->_menu_item_impl.insert_item = insert_item;
+  f->_menu_item_impl.remove_item = remove_item;
+
+  f->_menu_item_impl.popup_menu = popup_menu;
+}
+
+
