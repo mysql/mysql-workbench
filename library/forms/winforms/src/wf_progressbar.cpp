@@ -1,0 +1,107 @@
+/* 
+ * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#include "stdafx.h"
+
+#include "wf_base.h"
+#include "wf_view.h"
+#include "wf_progressbar.h"
+
+using namespace System;
+using namespace System::Drawing;
+using namespace System::Windows::Forms;
+
+using namespace MySQL;
+using namespace MySQL::Forms;
+using namespace MySQL::Controls;
+
+//----------------- ProgressBarWrapper -------------------------------------------------------------
+
+ProgressBarWrapper::ProgressBarWrapper(mforms::ProgressBar *pbar)
+  : ViewWrapper(pbar)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool ProgressBarWrapper::create(mforms::ProgressBar *backend)
+{
+  ProgressBarWrapper *wrapper = new ProgressBarWrapper(backend);
+  ProgressBar ^progressbar = ProgressBarWrapper::Create<ProgressBar>(backend, wrapper);
+  progressbar->Maximum = 1000;
+  progressbar->Minimum = 0;
+  progressbar->Size = System::Drawing::Size(100, 20);
+  return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ProgressBarWrapper::set_value(mforms::ProgressBar *backend, float pct)
+{
+  ProgressBar ^progressbar = ProgressBarWrapper::GetManagedObject<ProgressBar>(backend);
+  int value = (int)(pct * 1000);
+  if (value < progressbar->Minimum)
+    value = progressbar->Minimum;
+  else
+    if (value > progressbar->Maximum)
+      value = progressbar->Maximum;
+
+  progressbar->Value = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ProgressBarWrapper::set_indeterminate(mforms::ProgressBar *backend, bool flag)
+{
+  ProgressBar ^progressbar = ProgressBarWrapper::GetManagedObject<ProgressBar>(backend);
+  if (flag)
+  {
+    progressbar->Style = ProgressBarStyle::Marquee;
+    progressbar->MarqueeAnimationSpeed = 100;
+  }
+  else
+  {
+    progressbar->Style = ProgressBarStyle::Continuous;
+    progressbar->MarqueeAnimationSpeed = 0;
+    progressbar->Value= 0;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ProgressBarWrapper::set_started(mforms::ProgressBar *backend, bool flag)
+{
+  ProgressBar ^progressbar = ProgressBarWrapper::GetManagedObject<ProgressBar>(backend);
+  progressbar->Value = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ProgressBarWrapper::init()
+{
+  mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
+
+  f->_progressbar_impl.create = &ProgressBarWrapper::create;
+  f->_progressbar_impl.set_value = &ProgressBarWrapper::set_value;
+  f->_progressbar_impl.set_indeterminate = &ProgressBarWrapper::set_indeterminate;
+  f->_progressbar_impl.set_started = &ProgressBarWrapper::set_started;
+}
+
+//--------------------------------------------------------------------------------------------------
+

@@ -1,0 +1,6 @@
+extension=sql
+description=SQL INSERT statements
+pre_quote_strings=1
+include_column_types=
+null_syntax=NULL
+arguments=Table Name:TABLE_NAME

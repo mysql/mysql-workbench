@@ -1,0 +1,18 @@
+## Generic Plugin
+# MySQL Workbench Plugin
+# <description>
+# Written in MySQL Workbench %wbversion%
+
+from wb import *
+import grt
+#import mforms
+
+ModuleInfo = DefineModule(%modulename%, author="Author Name", version="1.0", description="Contains Plugin %pluginname%")
+
+# This plugin takes no arguments
+@ModuleInfo.plugin(%pluginname%, caption="Caption", description="description", input=[wbinputs.currentModel()], pluginMenu="Utilities")
+@ModuleInfo.export(grt.INT)
+def %functionname%():
+    # Put plugin contents here
+    return 0
+

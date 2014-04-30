@@ -1,0 +1,2 @@
+def	BlobContainer	`sampledb`	`BlobContainer`	id, blob_data 
+

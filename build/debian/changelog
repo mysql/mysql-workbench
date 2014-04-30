@@ -1,0 +1,392 @@
+mysql-workbench (6.2.0-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com> Tue, 11 Mar 2014 18:12:43 +0100
+
+mysql-workbench (6.1.3-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Tue, 04 Feb 2014 15:29:28 -0300
+
+mysql-workbench (6.1.2-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Mon, 13 Jan 2014 21:18:18 -0300
+
+mysql-workbench (6.1.1-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Fri, 20 Dec 2013 19:08:56 -0300
+
+mysql-workbench (6.1.0-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Sat, 26 Oct 2013 11:33:53 -0300
+
+mysql-workbench (6.0.8-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Wed, 14 Aug 2013 10:26:18 -0300
+
+mysql-workbench (6.0.7-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Wed, 17 Jul 2013 19:37:18 -0300
+
+mysql-workbench (6.0.4-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Wed, 26 Jun 2013 17:52:02 -0300
+
+mysql-workbench (6.0.3-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Thu, 13 Jun 2013 23:59:27 -0300
+
+mysql-workbench (6.0.2-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Mon, 27 May 2013 11:10:16 -0300
+
+mysql-workbench (6.0.1-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Wed, 13 Mar 2013 10:15:34 -0300
+
+mysql-workbench (6.0.0-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Mon, 21 Jan 2013 11:01:38 -0300
+
+mysql-workbench (5.2.47-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Mon, 21 Jan 2013 10:42:30 -0300
+
+mysql-workbench (5.2.46-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Fri, 28 Dec 2012 16:25:09 -0300
+
+mysql-workbench (5.2.45-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Thu, 09 Aug 2012 23:17:59 -0300
+
+mysql-workbench (5.2.41-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Tue, 24 Apr 2012 23:09:58 -0300
+
+mysql-workbench (5.2.40-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Thu, 12 Jan 2012 14:46:09 -0300
+
+mysql-workbench (5.2.38-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Wed, 02 Nov 2011 20:29:31 -0300
+
+mysql-workbench (5.2.36-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Fri, 27 May 2011 12:42:39 -0700
+
+mysql-workbench (5.2.35-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Mon, 09 May 2011 17:08:46 -0300
+
+mysql-workbench (5.2.34-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Tue, 08 Mar 2011 19:55:27 -0300
+
+mysql-workbench (5.2.33-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Thu, 17 Feb 2011 13:45:02 -0300
+
+mysql-workbench (5.2.32-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Fri, 03 Dec 2010 11:40:34 -0300
+
+mysql-workbench (5.2.31-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Tue, 23 Nov 2010 12:27:21 -0300
+
+mysql-workbench (5.2.30-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Wed, 29 Sep 2010 19:08:45 -0300
+
+mysql-workbench (5.2.29-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Thu, 16 Sep 2010 21:11:21 -0300
+
+mysql-workbench (5.2.28-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Tue, 24 Aug 2010 10:06:33 -0300
+
+mysql-workbench (5.2.26-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <akojima@gmail.com>  Thu, 22 Jul 2010 12:58:44 -0300
+
+mysql-workbench (5.2.25-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kojima@sun.com>  Thu, 24 Jun 2010 23:44:27 -0300
+
+mysql-workbench (5.2.24-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kojima@sun.com>  Thu, 17 Jun 2010 00:05:25 -0300
+
+mysql-workbench (5.2.23-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kojima@sun.com>  Thu, 10 Jun 2010 12:57:48 -0300
+
+mysql-workbench (5.2.22-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kojima@sun.com>  Thu, 27 May 2010 23:05:25 -0300
+
+mysql-workbench (5.2.21-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kojima@sun.com>  Sat, 01 May 2010 19:27:07 -0300
+
+mysql-workbench (5.2.20-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kojima@sun.com>  Sat, 24 Apr 2010 14:19:45 -0300
+
+mysql-workbench (5.2.19-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kojima@sun.com>  Thu, 15 Apr 2010 09:45:19 -0300
+
+mysql-workbench (5.2.18-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <alfredo.kojima@sun.com>  Sun, 11 Apr 2010 00:55:22 -0300
+
+mysql-workbench (5.2.17-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Mon, 22 Feb 2010 10:46:37 +0100
+
+mysql-workbench (5.2.16-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Wed, 10 Feb 2010 17:46:06 -0300
+
+mysql-workbench (5.2.15-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Mon, 25 Jan 2010 10:49:16 -0300
+
+mysql-workbench (5.2.14-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Wed, 20 Jan 2010 15:34:01 +0100
+
+mysql-workbench (5.2.13-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Tue, 19 Jan 2010 00:50:59 -0300
+
+mysql-workbench (5.2.12-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Fri, 15 Jan 2010 09:32:44 +0100
+
+mysql-workbench (5.2.11-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Fri, 11 Dec 2009 14:55:19 +0100
+
+mysql-workbench (5.2.10-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Mon, 30 Nov 2009 12:47:31 +0100
+
+mysql-workbench (5.2.9-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Thu, 26 Nov 2009 00:37:14 +0100
+
+mysql-workbench (5.2.8-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Mon, 16 Nov 2009 12:24:42 -0300
+
+mysql-workbench (5.2.7-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Wed, 21 Oct 2009 14:50:08 +0200
+
+mysql-workbench (5.2.6-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Tue, 20 Oct 2009 22:32:21 +0200
+
+mysql-workbench (5.2.5-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Wed, 14 Oct 2009 13:58:09 +0200
+
+mysql-workbench (5.2.4-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Tue, 29 Sep 2009 21:28:09 -0300
+
+mysql-workbench (5.2.3-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Thu, 10 Sep 2009 11:14:08 -0300
+
+mysql-workbench (5.2.2-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Mon, 20 Jul 2009 14:33:42 -0300
+
+mysql-workbench (5.2.1-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Thu, 21 May 2009 13:55:51 +0200
+
+mysql-workbench (5.1.12-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Wed, 22 Apr 2009 09:16:31 -0700
+
+mysql-workbench (5.1.11-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Fri, 17 Apr 2009 22:39:51 +0200
+
+mysql-workbench (5.1.10-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Tue, 07 Apr 2009 19:00:15 +0200
+
+mysql-workbench (5.1.9-1) unstable; urgency=low
+
+  * New release
+
+ -- Johannes Taxacher <tax@sun.com>  Fri, 20 Mar 2009 00:56:34 +0100
+
+mysql-workbench (5.1.8-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Wed, 11 Mar 2009 20:37:07 -0200
+
+mysql-workbench (5.1.7-2) unstable; urgency=low
+
+  * Added build-depends (thanks to Pantelis Koukousoulas)
+  * Updated for Python dependency
+
+ -- Alfredo Kojima <kojima@sun.com>  Mon, 02 Feb 2009 20:49:11 -0200
+
+mysql-workbench (5.1.7-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Fri, 30 Jan 2009 15:21:11 -0200
+
+mysql-workbench (5.1.6-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Tue, 23 Dec 2008 22:51:51 -0200
+
+mysql-workbench (5.1.5-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Fri, 05 Dec 2008 18:00:37 +0100
+
+mysql-workbench (5.1.4-1) unstable; urgency=low
+
+  * New release
+
+ -- Alfredo Kojima <kojima@sun.com>  Thu, 06 Nov 2008 23:21:05 +0100
+
+mysql-workbench (5.1.3-1) unstable; urgency=low
+
+  * Disable optimization during build
+  * Minor fixes
+
+ -- Alfredo Kojima <kojima@sun.com>  Wed, 07 Oct 2008 11:56:30 +0300
+
+mysql-workbench (5.1.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Alfredo Kojima <kojima@sun.com>  Mon, 06 Oct 2008 13:58:14 +0300
+

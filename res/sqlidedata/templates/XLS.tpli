@@ -1,0 +1,5 @@
+extension=xml
+description=Excel Spreadsheet
+pre_quote_strings=0
+include_column_types=xls
+null_syntax=

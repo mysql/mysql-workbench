@@ -1,0 +1,17 @@
+MySQL Workbench has been developed by a small team of great developers 
+in the MySQL group at Oracle Corporation, starting from a personal project 
+of project/team lead Mike Zinner (DBDesigner 4).
+--
+
+Alfredo Kojima		<alfredo.kengi.kojima@oracle.com> - backend, Linux, Mac OS X, lead developer
+Mike Lischke		<mike.lischke@oracle.com> - backend, Windows, Mac OS X, UI, testing
+Alexander Musienko	<alex.musienko@oracle.com> - Windows, synchronization, backup/restore, testing
+Rene Ramirez        <j.rene.ramirez@oracle.com> - backend, Windows, Linux
+Sergio de la Cruz   <sergio.delacruz@oracle.com> - Administration, Python development
+Johannes Taxacher	<johannes.taxacher@oracle.com> - QA, building, testing
+Armando Lopez Valencia <armando.lopezv@oracle.com> - QA
+Rafael Bedoy        <rafael.bedoy@oracle.com> - QA
+Mike Zinner		    <mike.zinner@oracle.com> - team lead, UI design
+
+Sergei Tkachenko	<sergei.tkachenko@sun.com> - Windows, parser, SQL IDE
+Maksym Yehorov		<maksym.yehorov@oracle.com> - Linux, Administration

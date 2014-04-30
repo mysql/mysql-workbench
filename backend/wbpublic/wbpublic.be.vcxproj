@@ -1,0 +1,602 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_OSS|Win32">
+      <Configuration>Release_OSS</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_OSS|x64">
+      <Configuration>Release_OSS</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0400EDFC-838E-4192-ACB9-BF9EFF012FBF}</ProjectGuid>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <RootNamespace>wbpublic.be</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">false</LinkIncremental>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\backend\wbpublic;..\..\generated;..\..\library\base;..\..\library\grt\src;..\..\library\canvas\src;..\..\library\canvas\src\windows;..\..\library\forms;..\..\library\dbc\src;..\..\library\mysql-parser;..\..\ext\vsqlite++\include;..\..\modules;..\..\ext;..\..\ext\scintilla\include;..\..\ext\antlr-runtime\include;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include\cppconn;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\cairo;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1;$(SolutionDir)\..\mysql-gui-win-res\include\pcre;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>_DEBUG;_USRDLL;WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;_WIN32_WINNT=0x0502;CPPCONN_LIB_BUILD;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27_d.lib;OPENGL32.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\backend\wbpublic;..\..\generated;..\..\library\base;..\..\library\grt\src;..\..\library\canvas\src;..\..\library\canvas\src\windows;..\..\library\forms;..\..\library\dbc\src;..\..\library\mysql-parser;..\..\ext\cppconn;..\..\ext\vsqlite++\include;..\..\modules;..\..\ext;..\..\ext\scintilla\include;..\..\ext\antlr-runtime\include;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\cairo;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1;$(SolutionDir)\..\mysql-gui-win-res\include\pcre;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>_DEBUG;_USRDLL;WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;_WIN32_WINNT=0x0502;CPPCONN_LIB_BUILD;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\sqlite\$(Configuration)\sqlite.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\libpcre.a;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27_d.lib;OPENGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\backend\wbpublic;..\..\generated;..\..\library\base;..\..\library\grt\src;..\..\library\canvas\src;..\..\library\canvas\src\windows;..\..\library\forms;..\..\library\dbc\src;..\..\library\mysql-parser;..\..\ext\vsqlite++\include;..\..\modules;..\..\ext;..\..\ext\scintilla\include;..\..\ext\antlr-runtime\include;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include\cppconn;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\cairo;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1;$(SolutionDir)\..\mysql-gui-win-res\include\pcre;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>NDEBUG;_USRDLL;WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;_WIN32_WINNT=0x0502;CPPCONN_LIB_BUILD;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27.lib;OPENGL32.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\backend\wbpublic;..\..\generated;..\..\library\base;..\..\library\grt\src;..\..\library\canvas\src;..\..\library\canvas\src\windows;..\..\library\forms;..\..\library\dbc\src;..\..\library\mysql-parser;..\..\ext\cppconn;..\..\ext\vsqlite++\include;..\..\modules;..\..\ext;..\..\ext\scintilla\include;..\..\ext\antlr-runtime\include;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\cairo;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1;$(SolutionDir)\..\mysql-gui-win-res\include\pcre;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>NDEBUG;_USRDLL;WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;_WIN32_WINNT=0x0502;CPPCONN_LIB_BUILD;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\sqlite\$(Configuration)\sqlite.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\libpcre.a;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27.lib;OPENGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\backend\wbpublic;..\....\..\backend\wbpublic;..\..\generated;..\..\library\base;..\..\library\grt\src;..\..\library\canvas\src;..\..\library\canvas\src\windows;..\..\library\forms;..\..\library\dbc\src;..\..\library\mysql-parser;..\..\ext\vsqlite++\include;..\..\modules;..\..\ext;..\..\ext\scintilla\include;..\..\ext\antlr-runtime\include;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include\cppconn;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\cairo;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1;$(SolutionDir)\..\mysql-gui-win-res\include\pcre;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>NDEBUG;_USRDLL;WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;_WIN32_WINNT=0x0502;CPPCONN_LIB_BUILD;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4345;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27.lib;OPENGL32.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\backend\wbpublic;..\..\generated;..\..\library\base;..\..\library\grt\src;..\..\library\canvas\src;..\..\library\canvas\src\windows;..\..\library\forms;..\..\library\dbc\src;..\..\library\mysql-parser;..\..\ext\cppconn;..\..\ext\vsqlite++\include;..\..\modules;..\..\ext;..\..\ext\scintilla\include;..\..\ext\antlr-runtime\include;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\cairo;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1;$(SolutionDir)\..\mysql-gui-win-res\include\pcre;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>NDEBUG;_USRDLL;WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;_WIN32_WINNT=0x0502;CPPCONN_LIB_BUILD;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\sqlite\$(Configuration)\sqlite.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\cairo\libcairo.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\libpcre.a;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27.lib;OPENGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\library\canvas\mysql.canvas.vcxproj">
+      <Project>{a16d9c05-b6ae-45bf-8f1f-3053fba7444b}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\library\grt\grt.vcxproj">
+      <Project>{7de910df-4057-447d-98c3-5b1ece715ed5}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\library\base\base.vcxproj">
+      <Project>{142530c4-b184-4833-9a1a-f268b6e336a7}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\library\forms\forms.vcxproj">
+      <Project>{f8a2dbad-8b45-4a4e-8811-c9b8a1b0f2b7}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\library\dbc\cdbc.vcxproj">
+      <Project>{24925ed1-c1d5-4da4-bb9d-989b6670846c}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\library\mysql-parser\mysql-parser.vcxproj">
+      <Project>{06fa438a-e226-454f-b396-f96b8997adf7}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="grtui\inserts_export_form.cpp" />
+    <ClCompile Include="objimpl\db.migration\db_migration_Migration.cpp" />
+    <ClCompile Include="objimpl\db\db_RoutineGroup.cpp" />
+    <ClCompile Include="objimpl\ui\grt_PyObject.cpp" />
+    <ClCompile Include="objimpl\ui\mforms_ObjectReference.cpp" />
+    <ClCompile Include="objimpl\ui\ui_db_ConnectPanel.cpp" />
+    <ClCompile Include="objimpl\ui\ui_ObjectEditor.cpp" />
+    <ClCompile Include="objimpl\ui\ui_ObjectEditor_impl.cpp" />
+    <ClCompile Include="sqlide\autocomplete_object_name_cache.cpp" />
+    <ClCompile Include="sqlide\sql_editor_be_autocomplete.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="wbcanvas\badge_figure.cpp" />
+    <ClCompile Include="wbcanvas\base_bridge.cpp" />
+    <ClCompile Include="wbcanvas\connection_figure.cpp" />
+    <ClCompile Include="wbcanvas\figure_common.cpp" />
+    <ClCompile Include="wbcanvas\image_figure.cpp" />
+    <ClCompile Include="wbcanvas\layer_figure.cpp" />
+    <ClCompile Include="wbcanvas\model_connection_impl.cpp" />
+    <ClCompile Include="wbcanvas\model_diagram_impl.cpp" />
+    <ClCompile Include="wbcanvas\model_figure_impl.cpp" />
+    <ClCompile Include="wbcanvas\model_layer_impl.cpp" />
+    <ClCompile Include="wbcanvas\model_model_impl.cpp" />
+    <ClCompile Include="wbcanvas\model_object_impl.cpp" />
+    <ClCompile Include="wbcanvas\note_figure.cpp" />
+    <ClCompile Include="wbcanvas\routine_group_figure.cpp" />
+    <ClCompile Include="wbcanvas\table_figure.cpp" />
+    <ClCompile Include="wbcanvas\table_figure_idef1x.cpp" />
+    <ClCompile Include="wbcanvas\table_figure_simple.cpp" />
+    <ClCompile Include="wbcanvas\table_figure_wb.cpp" />
+    <ClCompile Include="wbcanvas\view_figure.cpp" />
+    <ClCompile Include="wbcanvas\workbench_model_imagefigure_impl.cpp" />
+    <ClCompile Include="wbcanvas\workbench_model_notefigure_impl.cpp" />
+    <ClCompile Include="wbcanvas\workbench_physical_connection_impl.cpp" />
+    <ClCompile Include="wbcanvas\workbench_physical_diagram_impl.cpp" />
+    <ClCompile Include="wbcanvas\workbench_physical_model_impl.cpp" />
+    <ClCompile Include="wbcanvas\workbench_physical_routinegroupfigure_impl.cpp" />
+    <ClCompile Include="wbcanvas\workbench_physical_tablefigure_impl.cpp" />
+    <ClCompile Include="wbcanvas\workbench_physical_viewfigure_impl.cpp" />
+    <ClCompile Include="objimpl\db\db_Column.cpp" />
+    <ClCompile Include="objimpl\db\db_DatabaseObject.cpp" />
+    <ClCompile Include="objimpl\db\db_ForeignKey.cpp" />
+    <ClCompile Include="objimpl\db\db_Index.cpp" />
+    <ClCompile Include="objimpl\db.query\db_query_EditableResultset.cpp" />
+    <ClCompile Include="objimpl\db.query\db_query_Editor.cpp" />
+    <ClCompile Include="objimpl\db.query\db_query_QueryBuffer.cpp" />
+    <ClCompile Include="objimpl\db.query\db_query_Resultset.cpp" />
+    <ClCompile Include="objimpl\db\db_Schema.cpp" />
+    <ClCompile Include="objimpl\db\db_Table.cpp" />
+    <ClCompile Include="objimpl\db\db_Trigger.cpp" />
+    <ClCompile Include="objimpl\model\model_Connection.cpp" />
+    <ClCompile Include="objimpl\model\model_Diagram.cpp" />
+    <ClCompile Include="objimpl\model\model_Figure.cpp" />
+    <ClCompile Include="objimpl\model\model_Layer.cpp" />
+    <ClCompile Include="objimpl\model\model_Model.cpp" />
+    <ClCompile Include="objimpl\model\model_Object.cpp" />
+    <ClCompile Include="objimpl\workbench.logical\workbench_logical_Diagram.cpp" />
+    <ClCompile Include="objimpl\workbench.logical\workbench_logical_Model.cpp" />
+    <ClCompile Include="objimpl\workbench.model\workbench_model_ImageFigure.cpp" />
+    <ClCompile Include="objimpl\workbench.model\workbench_model_NoteFigure.cpp" />
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_Connection.cpp" />
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_Diagram.cpp" />
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_Model.cpp" />
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_RoutineGroupFigure.cpp" />
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_TableFigure.cpp" />
+    <ClCompile Include="objimpl\workbench.physical\workbench_physical_ViewFigure.cpp" />
+    <ClCompile Include="grt\action_list.cpp" />
+    <ClCompile Include="grt\common.cpp" />
+    <ClCompile Include="grt\editor_base.cpp" />
+    <ClCompile Include="grt\grt_dispatcher.cpp" />
+    <ClCompile Include="grt\grt_manager.cpp" />
+    <ClCompile Include="grt\grt_message_list.cpp" />
+    <ClCompile Include="grt\grt_reporter.cpp" />
+    <ClCompile Include="grt\grt_shell.cpp" />
+    <ClCompile Include="grt\grt_string_list_model.cpp" />
+    <ClCompile Include="grt\grt_threaded_task.cpp" />
+    <ClCompile Include="grt\grt_value_inspector.cpp" />
+    <ClCompile Include="grt\grt_value_tree.cpp" />
+    <ClCompile Include="grt\icon_manager.cpp" />
+    <ClCompile Include="grt\parse_utils.cpp" />
+    <ClCompile Include="grt\plugin_manager.cpp" />
+    <ClCompile Include="grt\refresh_ui.cpp" />
+    <ClCompile Include="grt\tree_model.cpp" />
+    <ClCompile Include="grt\validation_manager.cpp" />
+    <ClCompile Include="grtdb\charset_list.cpp" />
+    <ClCompile Include="grtdb\charset_utils.cpp" />
+    <ClCompile Include="grtdb\db_helpers.cpp" />
+    <ClCompile Include="grtdb\db_object_filter.cpp" />
+    <ClCompile Include="grtdb\db_object_helpers.cpp" />
+    <ClCompile Include="grtdb\db_object_master_filter.cpp" />
+    <ClCompile Include="grtdb\dbobject_roles.cpp" />
+    <ClCompile Include="grtdb\diff_dbobjectmatch.cpp" />
+    <ClCompile Include="grtdb\editor_dbobject.cpp" />
+    <ClCompile Include="grtdb\editor_routine.cpp" />
+    <ClCompile Include="grtdb\editor_routinegroup.cpp" />
+    <ClCompile Include="grtdb\editor_schema.cpp" />
+    <ClCompile Include="grtdb\editor_table.cpp" />
+    <ClCompile Include="grtdb\editor_user.cpp" />
+    <ClCompile Include="grtdb\editor_user_role.cpp" />
+    <ClCompile Include="grtdb\editor_view.cpp" />
+    <ClCompile Include="grtdb\role_tree_model.cpp" />
+    <ClCompile Include="grtdb\sync_profile.cpp" />
+    <ClCompile Include="grtui\binary_data_editor.cpp" />
+    <ClCompile Include="grtui\checkbox_list_control.cpp" />
+    <ClCompile Include="grtui\confirm_save_dialog.cpp" />
+    <ClCompile Include="grtui\db_conn_be.cpp" />
+    <ClCompile Include="grtui\file_charset_dialog.cpp" />
+    <ClCompile Include="grtui\grt_wizard_form.cpp" />
+    <ClCompile Include="grtui\grt_wizard_plugin.cpp" />
+    <ClCompile Include="grtui\grtdb_connect_dialog.cpp" />
+    <ClCompile Include="grtui\grtdb_connect_panel.cpp" />
+    <ClCompile Include="grtui\grtdb_connection_editor.cpp" />
+    <ClCompile Include="grtui\grtdb_object_filter.cpp" />
+    <ClCompile Include="grtui\gui_plugin_base.cpp" />
+    <ClCompile Include="grtui\string_list_editor.cpp" />
+    <ClCompile Include="grtui\text_input_dialog.cpp" />
+    <ClCompile Include="grtui\wizard_finished_page.cpp" />
+    <ClCompile Include="grtui\wizard_object_filter_page.cpp" />
+    <ClCompile Include="grtui\wizard_progress_page.cpp" />
+    <ClCompile Include="grtui\wizard_schema_filter_page.cpp" />
+    <ClCompile Include="grtui\wizard_view_text_page.cpp" />
+    <ClCompile Include="grtsqlparser\module_utils.cpp" />
+    <ClCompile Include="grtsqlparser\sql_facade.cpp" />
+    <ClCompile Include="grtsqlparser\sql_inserts_loader.cpp" />
+    <ClCompile Include="grtsqlparser\sql_normalizer.cpp" />
+    <ClCompile Include="grtsqlparser\sql_parser_base.cpp" />
+    <ClCompile Include="grtsqlparser\sql_semantic_check.cpp" />
+    <ClCompile Include="grtsqlparser\sql_specifics.cpp" />
+    <ClCompile Include="grtsqlparser\sql_statement_decomposer.cpp" />
+    <ClCompile Include="sqlide\recordset_be.cpp" />
+    <ClCompile Include="sqlide\recordset_cdbc_storage.cpp" />
+    <ClCompile Include="sqlide\recordset_data_storage.cpp" />
+    <ClCompile Include="sqlide\recordset_sql_storage.cpp" />
+    <ClCompile Include="sqlide\recordset_sqlite_storage.cpp" />
+    <ClCompile Include="sqlide\recordset_table_inserts_storage.cpp" />
+    <ClCompile Include="sqlide\recordset_text_storage.cpp" />
+    <ClCompile Include="sqlide\sql_editor_be.cpp" />
+    <ClCompile Include="sqlide\sql_script_run_wizard.cpp" />
+    <ClCompile Include="sqlide\sqlide.cpp" />
+    <ClCompile Include="sqlide\sqlide_generics.cpp" />
+    <ClCompile Include="sqlide\table_inserts_loader_be.cpp" />
+    <ClCompile Include="sqlide\var_grid_model_be.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\generated\grts\structs.ui.h" />
+    <ClInclude Include="grtui\connection_page.h" />
+    <ClInclude Include="grtui\inserts_export_form.h" />
+    <ClInclude Include="objimpl\ui\mforms_ObjectReference_impl.h" />
+    <ClInclude Include="objimpl\ui\ui_ObjectEditor_impl.h" />
+    <ClInclude Include="sqlide\autocomplete_object_name_cache.h" />
+    <ClInclude Include="..\..\generated\grts\structs.app.h" />
+    <ClInclude Include="..\..\generated\grts\structs.db.h" />
+    <ClInclude Include="..\..\generated\grts\structs.db.mgmt.h" />
+    <ClInclude Include="..\..\generated\grts\structs.db.mysql.h" />
+    <ClInclude Include="..\..\generated\grts\structs.db.query.h" />
+    <ClInclude Include="..\..\generated\grts\structs.eer.h" />
+    <ClInclude Include="..\..\generated\grts\structs.h" />
+    <ClInclude Include="..\..\generated\grts\structs.model.h" />
+    <ClInclude Include="..\..\generated\grts\structs.workbench.h" />
+    <ClInclude Include="..\..\generated\grts\structs.workbench.logical.h" />
+    <ClInclude Include="..\..\generated\grts\structs.workbench.model.h" />
+    <ClInclude Include="..\..\generated\grts\structs.workbench.model.reporting.h" />
+    <ClInclude Include="..\..\generated\grts\structs.workbench.physical.h" />
+    <ClInclude Include="grt\action_list.h" />
+    <ClInclude Include="grt\clipboard.h" />
+    <ClInclude Include="grt\common.h" />
+    <ClInclude Include="grt\editor_base.h" />
+    <ClInclude Include="grt\exceptions.h" />
+    <ClInclude Include="grt\grt_dispatcher.h" />
+    <ClInclude Include="grt\grt_manager.h" />
+    <ClInclude Include="grt\grt_message_list.h" />
+    <ClInclude Include="grt\grt_reporter.h" />
+    <ClInclude Include="grt\grt_shell.h" />
+    <ClInclude Include="grt\grt_string_list_model.h" />
+    <ClInclude Include="grt\grt_threaded_task.h" />
+    <ClInclude Include="grt\grt_value_inspector.h" />
+    <ClInclude Include="grt\grt_value_tree.h" />
+    <ClInclude Include="grt\grt_walker.h" />
+    <ClInclude Include="grt\icon_manager.h" />
+    <ClInclude Include="grt\incremental_list_updater.h" />
+    <ClInclude Include="grt\parse_utils.h" />
+    <ClInclude Include="grt\plugin_manager.h" />
+    <ClInclude Include="grt\refresh_ui.h" />
+    <ClInclude Include="grt\tree_model.h" />
+    <ClInclude Include="grt\validation_manager.h" />
+    <ClInclude Include="grtdb\catalog_templates.h" />
+    <ClInclude Include="grtdb\charset_list.h" />
+    <ClInclude Include="grtdb\charset_utils.h" />
+    <ClInclude Include="grtdb\db_helpers.h" />
+    <ClInclude Include="grtdb\db_object_filter.h" />
+    <ClInclude Include="grtdb\db_object_helpers.h" />
+    <ClInclude Include="grtdb\db_object_master_filter.h" />
+    <ClInclude Include="grtdb\dbobject_roles.h" />
+    <ClInclude Include="grtdb\diff_dbobjectmatch.h" />
+    <ClInclude Include="grtdb\editor_dbobject.h" />
+    <ClInclude Include="grtdb\editor_routine.h" />
+    <ClInclude Include="grtdb\editor_routinegroup.h" />
+    <ClInclude Include="grtdb\editor_schema.h" />
+    <ClInclude Include="grtdb\editor_table.h" />
+    <ClInclude Include="grtdb\editor_user.h" />
+    <ClInclude Include="grtdb\editor_user_role.h" />
+    <ClInclude Include="grtdb\editor_view.h" />
+    <ClInclude Include="grtdb\role_tree_model.h" />
+    <ClInclude Include="grtdb\sync_profile.h" />
+    <ClInclude Include="grtui\binary_data_editor.h" />
+    <ClInclude Include="grtui\checkbox_list_control.h" />
+    <ClInclude Include="grtui\confirm_save_dialog.h" />
+    <ClInclude Include="grtui\db_conn_be.h" />
+    <ClInclude Include="grtui\file_charset_dialog.h" />
+    <ClInclude Include="grtui\grt_wizard_form.h" />
+    <ClInclude Include="grtui\grt_wizard_plugin.h" />
+    <ClInclude Include="grtui\grtdb_connect_panel.h" />
+    <ClInclude Include="grtui\grtdb_connection_editor.h" />
+    <ClInclude Include="grtui\grtdb_object_filter.h" />
+    <ClInclude Include="grtui\gui_plugin_base.h" />
+    <ClInclude Include="grtui\string_list_editor.h" />
+    <ClInclude Include="grtui\text_input_dialog.h" />
+    <ClInclude Include="grtui\wizard_finished_page.h" />
+    <ClInclude Include="grtui\wizard_object_filter_page.h" />
+    <ClInclude Include="grtui\wizard_progress_page.h" />
+    <ClInclude Include="grtui\wizard_schema_filter_page.h" />
+    <ClInclude Include="grtui\wizard_view_text_page.h" />
+    <ClInclude Include="grtsqlparser\fk_ref.h" />
+    <ClInclude Include="grtsqlparser\invalid_sql_parser.h" />
+    <ClInclude Include="grtsqlparser\module_utils.h" />
+    <ClInclude Include="grtsqlparser\sql_facade.h" />
+    <ClInclude Include="grtsqlparser\sql_inserts_loader.h" />
+    <ClInclude Include="grtsqlparser\sql_normalizer.h" />
+    <ClInclude Include="grtsqlparser\sql_parser.h" />
+    <ClInclude Include="grtsqlparser\sql_parser_base.h" />
+    <ClInclude Include="grtsqlparser\sql_schema_rename.h" />
+    <ClInclude Include="grtsqlparser\sql_semantic_check.h" />
+    <ClInclude Include="grtsqlparser\sql_specifics.h" />
+    <ClInclude Include="grtsqlparser\sql_statement_decomposer.h" />
+    <ClInclude Include="grtsqlparser\sql_syntax_check.h" />
+    <ClInclude Include="wbcanvas\badge_figure.h" />
+    <ClInclude Include="wbcanvas\base_bridge.h" />
+    <ClInclude Include="wbcanvas\connection_figure.h" />
+    <ClInclude Include="wbcanvas\figure_common.h" />
+    <ClInclude Include="wbcanvas\image_figure.h" />
+    <ClInclude Include="wbcanvas\layer_figure.h" />
+    <ClInclude Include="wbcanvas\model_connection_impl.h" />
+    <ClInclude Include="wbcanvas\model_diagram_impl.h" />
+    <ClInclude Include="wbcanvas\model_figure_impl.h" />
+    <ClInclude Include="wbcanvas\model_layer_impl.h" />
+    <ClInclude Include="wbcanvas\model_model_impl.h" />
+    <ClInclude Include="wbcanvas\model_object_impl.h" />
+    <ClInclude Include="wbcanvas\note_figure.h" />
+    <ClInclude Include="wbcanvas\routine_group_figure.h" />
+    <ClInclude Include="wbcanvas\table_figure.h" />
+    <ClInclude Include="wbcanvas\table_figure_idef1x.h" />
+    <ClInclude Include="wbcanvas\table_figure_simple.h" />
+    <ClInclude Include="wbcanvas\table_figure_wb.h" />
+    <ClInclude Include="wbcanvas\view_figure.h" />
+    <ClInclude Include="wbcanvas\workbench_model_imagefigure_impl.h" />
+    <ClInclude Include="wbcanvas\workbench_model_notefigure_impl.h" />
+    <ClInclude Include="wbcanvas\workbench_physical_connection_impl.h" />
+    <ClInclude Include="wbcanvas\workbench_physical_diagram_impl.h" />
+    <ClInclude Include="wbcanvas\workbench_physical_model_impl.h" />
+    <ClInclude Include="wbcanvas\workbench_physical_routinegroupfigure_impl.h" />
+    <ClInclude Include="wbcanvas\workbench_physical_tablefigure_impl.h" />
+    <ClInclude Include="wbcanvas\workbench_physical_viewfigure_impl.h" />
+    <ClInclude Include="sqlide\recordset_be.h" />
+    <ClInclude Include="sqlide\recordset_cdbc_storage.h" />
+    <ClInclude Include="sqlide\recordset_data_storage.h" />
+    <ClInclude Include="sqlide\recordset_sql_storage.h" />
+    <ClInclude Include="sqlide\recordset_sqlite_storage.h" />
+    <ClInclude Include="sqlide\recordset_table_inserts_storage.h" />
+    <ClInclude Include="sqlide\recordset_text_storage.h" />
+    <ClInclude Include="sqlide\sql_editor_be.h" />
+    <ClInclude Include="sqlide\sql_script_run_wizard.h" />
+    <ClInclude Include="sqlide\sqlide.h" />
+    <ClInclude Include="sqlide\sqlide_generics.h" />
+    <ClInclude Include="sqlide\sqlide_generics_private.h" />
+    <ClInclude Include="sqlide\table_inserts_loader_be.h" />
+    <ClInclude Include="sqlide\var_grid_model_be.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="wbpublic_public_interface.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,18 @@
+## SQL Editor Resultset Plugin
+# MySQL Workbench Plugin
+# <description>
+# Written in MySQL Workbench %wbversion%
+
+from wb import *
+import grt
+#import mforms
+
+ModuleInfo = DefineModule(%modulename%, author="Author Name", version="1.0", description="Contains Plugin %pluginname%")
+
+# This plugin takes the active editable resultset as parameter
+@ModuleInfo.plugin(%pluginname%, caption="Caption", description="description", input=[wbinputs.currentResultset()], pluginMenu="SQL/Resultset")
+@ModuleInfo.export(grt.INT, grt.classes.db_query_EditableResultset)
+def %functionname%(resultset):
+   
+    return 0
+

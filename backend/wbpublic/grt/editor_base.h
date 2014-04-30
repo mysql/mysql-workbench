@@ -1,0 +1,184 @@
+/* 
+ * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+#ifndef _EDITOR_BASE_H_
+#define _EDITOR_BASE_H_
+
+
+#include "base/ui_form.h"
+#include <grtpp.h>
+#include "grt/grt_manager.h"
+#include <grtpp_undo_manager.h>
+#include "sqlide/sql_editor_be.h"
+#include "refresh_ui.h"
+
+#include "wbpublic_public_interface.h"
+
+
+class GrtObject;
+
+
+namespace bec {
+  struct ChangeSet;
+
+
+
+  class WBPUBLICBACKEND_PUBLIC_FUNC UndoObjectChangeGroup : public grt::UndoGroup
+  {
+    std::string _object_id;
+    std::string _member;
+    
+  public:
+    UndoObjectChangeGroup(const std::string &object_id, const std::string &member);
+
+    virtual bool matches_group(UndoGroup *group) const;
+  };
+
+
+  class WBPUBLICBACKEND_PUBLIC_FUNC BaseEditor : public UIForm, public RefreshUI
+  {
+  public:
+    // Partial refresh.
+    enum {
+      RefreshTextChanged, // Refresh the title of the active editor, button states etc.
+    };
+
+    BaseEditor(GRTManager *grtm, const grt::Ref<GrtObject> &object);
+    virtual ~BaseEditor();
+    
+    virtual std::string get_form_context_name() const;
+
+    virtual Sql_editor::Ref get_sql_editor() { return Sql_editor::Ref(); }
+
+    virtual bool should_close_on_delete_of(const std::string &oid) { return get_object().id() == oid; }
+
+    // must return a copy of the object
+    virtual grt::Ref<GrtObject> get_object()= 0;
+
+    virtual bool is_editing_live_object() { return false; }
+    virtual void apply_changes_to_live_object();
+    virtual void revert_changes_to_live_object();
+    virtual void refresh_live_object() {}
+    virtual void commit_changes() {} // Store changes in the backend but don't reset any dirty state
+                                     // so we still can undo. Live editors reload content to reset the undo stack.
+    virtual void reset_editor_undo_stack() {} // Called after changes were applied (mostly live objects).
+
+    grt::GRT *get_grt() { return _grtm->get_grt(); }
+    GRTManager *get_grt_manager() { return _grtm; }
+
+    virtual void on_object_changed();
+    
+    void freeze_refresh_on_object_change();
+    void thaw_refresh_on_object_change(bool discard_pending = false);
+
+    virtual bool is_editor_dirty();
+    virtual bool can_close();
+
+  protected:
+    GRTManager *_grtm;
+    boost::signals2::scoped_connection _ui_refresh_conn;
+
+    std::set<std::string> _ignored_object_fields_for_ui_refresh;
+    int _ignore_object_changes_for_ui_refresh;
+    int _ignored_object_changes_for_ui_refresh;
+
+    void add_listeners(const grt::Ref<GrtObject> &object);
+
+    void run_from_grt(const boost::function<void ()> &slot);
+
+  private:
+    friend class AutoUndoEdit;
+
+    grt::Ref<GrtObject> _object;
+    void object_member_changed(const std::string &member, const grt::ValueRef &ovalue);
+    
+    void undo_applied();
+  };
+
+  struct FreezeRefresh
+  {
+    BaseEditor *_ed;
+    bool _discard_pending;
+
+    FreezeRefresh(BaseEditor *ed, bool discard_pending = true) : _ed(ed), _discard_pending(discard_pending) { ed->freeze_refresh_on_object_change(); }
+    ~FreezeRefresh() { _ed->thaw_refresh_on_object_change(_discard_pending); }
+  };
+
+  
+  class WBPUBLICBACKEND_PUBLIC_FUNC AutoUndoEdit : public grt::AutoUndo
+  {
+    
+    static void undo_applied(grt::UndoAction *applied, grt::UndoGroup *group, BaseEditor *editor)
+    {
+      if (group == applied)
+        editor->undo_applied();
+    }
+    
+  public:
+    AutoUndoEdit(BaseEditor *editor)
+      // if editing a live object, this should be a no-op
+      : grt::AutoUndo(editor->get_grt(), editor->is_editing_live_object())
+    {
+      if (group)
+      {
+        /*
+        //sigc::connection conn1, conn2;
+
+        conn1= editor->get_grt()->get_undo_manager()->
+        signal_undo().connect(boost::bind(\&AutoUndoEdit::undo_applied, _1, group, editor));
+
+        conn2= editor->get_grt()->get_undo_manager()->
+        signal_redo().connect(boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+
+        mark_for_delete_when_destroyed(editor, conn1, conn2);
+        */
+        editor->scoped_connect(editor->get_grt()->get_undo_manager()->
+          signal_undo(),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+        editor->scoped_connect(editor->get_grt()->get_undo_manager()->
+          signal_redo(),boost::bind(&AutoUndoEdit::undo_applied,_1, group, editor));
+
+      }
+    }
+
+    AutoUndoEdit(BaseEditor *editor, const grt::ObjectRef &object, const std::string &member)
+      : grt::AutoUndo(editor->get_grt(), new UndoObjectChangeGroup(object.id(), member), editor->is_editing_live_object())
+    {
+      if (group)
+      {
+        /*
+        //sigc::connection conn1, conn2;
+
+        conn1= editor->get_grt()->get_undo_manager()->
+        signal_undo().connect(boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+
+        conn2= editor->get_grt()->get_undo_manager()->
+        signal_redo().connect(boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+
+        mark_for_delete_when_destroyed(editor, conn1, conn2);
+        */
+        editor->scoped_connect((editor->get_grt()->get_undo_manager()->
+          signal_undo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+        editor->scoped_connect((editor->get_grt()->get_undo_manager()->
+          signal_redo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
+
+      }
+    }
+  };
+};
+
+#endif /* _EDITOR_BASE_H_ */

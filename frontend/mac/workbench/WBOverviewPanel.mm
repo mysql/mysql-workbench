@@ -1,0 +1,540 @@
+/* 
+ * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; version 2 of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
+
+#import "WBOverviewPanel.h"
+#import "MTogglePane.h"
+#import "WBOverviewListController.h"
+#import "WBSchemaTabView.h"
+#import "WBSchemaTabItem.h"
+#import "WBOverviewComponents.h"
+#import "MVerticalLayoutView.h"
+
+#include "workbench/wb_context.h"
+#include "base/string_utilities.h"
+
+@interface WBOverviewBackgroundView : MVerticalLayoutView
+{
+  NSImage *bgImage;
+  NSImage *shadowImage;
+}
+@end
+
+static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
+{
+  NSSize imageSize= [image size];
+  NSRect imageRect;
+  
+  imageRect.origin= NSMakePoint(0, 0);
+  imageRect.size= imageSize;
+  for (CGFloat y= 0; y < rect.size.height; y+= imageSize.height)
+  {
+    for (CGFloat x= 0; x < rect.size.width; x+= imageSize.width)
+    {
+      [image drawAtPoint:NSMakePoint(rect.origin.x+x, rect.origin.y+y) 
+                fromRect:imageRect
+               operation:composite ? NSCompositeSourceOver : NSCompositeCopy 
+                fraction:1.0];
+    }
+  }
+}
+
+@implementation WBOverviewBackgroundView
+
+- (id)initWithFrame:(NSRect)rect
+{
+  if ((self= [super initWithFrame:rect]) != nil)
+  {
+    bgImage= [[NSImage imageNamed:@"background.png"] retain];
+    [bgImage setFlipped: YES];
+    shadowImage= [[NSImage imageNamed:@"background_top_shadow.png"] retain];
+    [self setExpandSubviewsByDefault: NO];
+  }
+  return self;
+}
+
+- (void)setNoBackground
+{
+  [bgImage release];
+  [shadowImage release];
+  bgImage = nil;
+  shadowImage = nil;    
+}
+
+- (void)dealloc
+{
+  [bgImage release];
+  [shadowImage release];
+  [super dealloc];
+}
+
+
+- (void)drawRect:(NSRect)rect
+{
+  if (shadowImage)
+  {
+    NSRect bounds= [self bounds];
+    NSRect rect = bounds;
+    if (minimumHeight < NSHeight(bounds))
+    {
+      DrawTiledImage(bgImage, NSMakeRect(0, 0, NSWidth(bounds), NSHeight(bounds) - minimumHeight), NO);
+      
+      rect.size.height= minimumHeight;
+      rect.origin.y= NSHeight(bounds) - minimumHeight;
+      [[NSColor whiteColor] set];
+      NSRectFill(rect);
+      
+      rect.size.height= [shadowImage size].height;
+      rect.origin.y= NSHeight(bounds) - minimumHeight - rect.size.height;
+      DrawTiledImage(shadowImage, rect, YES);
+    }
+  }
+}
+
+@end
+
+
+
+
+
+@implementation WBOverviewPanel
+
+static NSString *stringFromNodeId(const bec::NodeId &node)
+{
+  return [NSString stringWithUTF8String: node.repr().c_str()];
+}
+
+- (id)initWithOverviewBE:(wb::OverviewBE*)overview
+{
+  if ((self= [super initWithFrame: NSMakeRect(0, 0, 300, 300)]) != nil)
+  {
+    [self setupWithOverviewBE: overview];
+  }
+  return self;
+}
+
+- (void)setupWithOverviewBE:(wb::OverviewBE*)overview
+{
+  _overview= overview;
+  _overview->set_frontend_data(self);
+  
+  _identifier= [[NSString stringWithUTF8String: _overview->identifier().c_str()] retain];
+  
+  [self setHasVerticalScroller:YES];
+  [self setHasHorizontalScroller:NO];
+  [self setBorderType:NSNoBorder];
+  
+  _backgroundView= [[[WBOverviewBackgroundView alloc] initWithFrame: NSMakeRect(0, 0, 
+                                                                               [self contentSize].width,
+                                                                               [self contentSize].height)] autorelease];
+  [_backgroundView setAutoresizingMask:NSViewWidthSizable||NSViewMaxYMargin|NSViewMinXMargin|NSViewMaxXMargin];
+  [self setDocumentView:_backgroundView];
+  
+  _itemContainers= [[NSMutableDictionary alloc] init];
+}
+
+- (void)setNoBackground
+{
+  [_backgroundView setNoBackground];
+}
+
+- (void)setNoHeader
+{
+  _noHeaders = YES;
+}
+
+- (void)dealloc
+{
+  delete _lastFoundNode;
+
+  [_identifier release];
+  [_searchText release];
+  [_itemContainers release];
+  [super dealloc];
+}
+
+
+- (BOOL)willClose
+{
+  if (_overview->can_close())
+  {
+    _overview->close();
+    _overview = NULL;
+    return YES;
+  }
+  return NO;
+}
+
+
+- (NSImage*)tabIcon
+{
+  return [NSImage imageNamed: [NSString stringWithFormat: @"tab.%s.16x16", _overview->get_form_context_name().c_str()]];
+}
+
+
+- (void)searchString:(NSString*)text
+{
+  if (_searchText && [text hasPrefix:_searchText])
+  {
+    // nothing
+  }
+  else
+  {
+    delete _lastFoundNode;
+    _lastFoundNode= 0;
+  }
+  
+  [_searchText release];
+  _searchText= [text retain];
+  
+  bec::NodeId node= _overview->search_child_item_node_matching(bec::NodeId(), 
+                                                             _lastFoundNode ? *_lastFoundNode : bec::NodeId(),
+                                                             [_searchText UTF8String]);
+  if (node.is_valid())
+  {
+    _lastFoundNode= new bec::NodeId(node);
+    
+    id container= [_itemContainers objectForKey:stringFromNodeId(_overview->get_parent(node))];
+    
+    for (id cont in [_itemContainers objectEnumerator])
+    {
+      if (cont == container)
+      {
+        if ([container respondsToSelector:@selector(selectNode:)])
+          [container selectNode: *_lastFoundNode];
+      }
+      else
+      {
+        if ([cont respondsToSelector:@selector(clearSelection)])
+          [cont clearSelection];
+      }
+    }
+    
+    std::string label;
+    _overview->get_field(*_lastFoundNode, wb::OverviewBE::Label, label);
+    _overview->get_wb()->get_grt_manager()->replace_status_text(base::strfmt(_("Found '%s'"), label.c_str()));
+  }
+  else
+  {
+    delete _lastFoundNode;
+    _lastFoundNode= 0;
+    _overview->get_wb()->get_grt_manager()->replace_status_text(_("No matches found."));
+  }
+}
+
+
+- (NSView*)topView
+{
+  return self;
+}
+
+
+- (NSString*)title
+{  
+  try
+  {
+    return [NSString stringWithUTF8String: _overview->get_title().c_str()];
+  }
+  catch (...)
+  {
+    return @"Overview";
+  }
+}
+
+
+- (NSString*)identifier
+{
+  return _identifier;
+}
+
+
+- (bec::UIForm*)formBE
+{
+  return _overview;
+}
+
+
+- (wb::OverviewBE*)backend
+{
+  return _overview;
+}
+
+- (void)refreshAll
+{
+  for (MTogglePane *item in [_backgroundView subviews])
+  {
+    id view= [item contentView];
+    
+    if ([view respondsToSelector:@selector(refreshChildren)])
+      [view refreshChildren];
+  }
+}
+
+
+- (void)rebuildAll
+{
+  if (!_overview)
+    return;
+
+  // remember name of all selected tabs
+  NSMutableDictionary *selectedTabs = [NSMutableDictionary dictionary];
+  
+  for (id key in [_itemContainers keyEnumerator])
+  {
+    id item = [_itemContainers objectForKey: key];
+    if ([item isKindOfClass: [WBOverviewGroupContainer class]])
+    {
+      WBOverviewGroupContainer *group = item;
+      NSInteger index = [group indexOfTabViewItem: [group selectedTabViewItem]];
+      if (index != NSNotFound)
+        [selectedTabs setObject: [NSNumber numberWithInt: index] forKey: key];
+    }
+  }
+
+  [_itemContainers removeAllObjects];
+  [self buildMainSections];
+  [self refreshAll];
+
+  // reselect the tabs that were selected before
+  if ([selectedTabs count] > 0)
+    for (id key in [selectedTabs keyEnumerator])
+    {
+      id item = [_itemContainers objectForKey: key];
+      if ([item isKindOfClass: [WBOverviewGroupContainer class]])
+      {
+        WBOverviewGroupContainer *group = item;
+        id index = [selectedTabs objectForKey: key];
+        if (index)
+        {
+          // selectTabViewItemWithIdentifier is the only method that works in this hacked tabview thing
+          if ([index intValue] < [group numberOfTabViewItems])
+            [group selectTabViewItemWithIdentifier: [[group tabViewItemAtIndex: [index intValue]] identifier]];
+        }
+      }
+    }
+
+  if (NSHeight([_backgroundView frame]) > NSHeight([self visibleRect]))
+    [[self contentView] scrollToPoint: NSMakePoint(0, NSHeight([_backgroundView frame]) - NSHeight([self visibleRect]))];
+}
+
+
+- (id)itemContainerForNode:(const bec::NodeId&)node
+{
+  return [_itemContainers objectForKey: [NSString stringWithUTF8String: node.repr().c_str()]];
+}
+
+
+- (void)registerContainer:(id)container
+                  forItem:(NSString*)item
+{
+  [_itemContainers setObject:container forKey:item];
+}
+
+
+- (void)unregisterContainerForItem:(NSString*)item
+{
+  [_itemContainers removeObjectForKey:item];
+}
+
+
+- (void)refreshNode:(const bec::NodeId&)node
+{
+  id container= [_itemContainers objectForKey:stringFromNodeId(node)];
+
+  if (container && [container respondsToSelector:@selector(refreshInfo)])
+    [container refreshInfo];
+  else
+  {
+    container= [_itemContainers objectForKey:stringFromNodeId(_overview->get_parent(node))];
+  
+    if ([container respondsToSelector:@selector(refreshChildInfo:)])
+      [container refreshChildInfo:node];
+    else
+      NSLog(@"node %s does not handle refreshing", node.repr().c_str());
+  }
+}
+
+
+- (void)refreshNodeChildren:(const bec::NodeId&)node
+{
+  if (node.is_valid())
+  {
+    try
+    {
+      int type;
+          
+      if (!_overview->get_field(node, wb::OverviewBE::ChildNodeType, type))
+        return;
+      
+      switch ((wb::OverviewBE::OverviewNodeType)type)
+      {
+        case wb::OverviewBE::OGroup:
+          [[_itemContainers objectForKey:stringFromNodeId(node)] refreshChildren];
+          break;
+          
+        case wb::OverviewBE::OItem:
+          [[_itemContainers objectForKey:stringFromNodeId(node)] refreshChildren];
+          break;
+          
+        default: break;
+      }
+      
+      // find the container group of the refreshed node to request a size update
+      bec::NodeId parent;
+      
+      parent= _overview->get_parent(node);
+      while (parent.is_valid())
+      {
+        id container = [_itemContainers objectForKey: stringFromNodeId(parent)];
+        if ([container isKindOfClass: [WBOverviewGroupContainer class]])
+        {
+          [container tile];
+          break;
+        }
+        parent= _overview->get_parent(parent);
+      }
+      
+      return;
+    }
+    catch (const std::exception &exc)
+    {
+      // ignore
+    }
+  }
+  [self rebuildAll];
+}
+
+
+//static int first_child_type(wb::OverviewBE *overview, const bec::NodeId &node)
+//{
+//  if (overview->count_children(node) > 0)
+//  {
+//    int type= -1;
+//    overview->get_field(overview->get_child(node, 0), wb::OverviewBE::NodeType, type);
+//    return type;
+//  }
+//  return -1;
+//}
+
+
+- (NSView*)buildDivision:(const bec::NodeId&)node
+                  inPane:(MTogglePane*)pane
+{
+  int child_type;
+  // Get the type of the item we are adding. It could be division (EER Diagrams, Physical Schemata)
+  // or group (database, ...)
+  // or TODO: add comments here for the rest of the stuff
+  // type is modified inside the get_field
+  if (!_overview->get_field(node, wb::OverviewBE::ChildNodeType, child_type))
+    return nil;
+  
+  if (child_type == wb::OverviewBE::OGroup)
+  {
+    WBOverviewGroupContainer *groups= [[[WBOverviewGroupContainer alloc] initWithOverview:self
+                                                                                   nodeId:node] autorelease];
+    [pane setContentView: groups];
+    
+    [pane addButton:[NSImage imageNamed:@"collapsing_panel_header_tab_add.png"]
+         withAction:@selector(performGroupAdd:)
+             target:groups];
+    [pane addButton:[NSImage imageNamed:@"collapsing_panel_header_tab_del.png"]
+         withAction:@selector(performGroupDelete:)
+             target:groups];
+    
+    [_itemContainers setObject:groups forKey:[NSString stringWithUTF8String: node.repr().c_str()]];
+    
+    [groups buildChildren];
+    
+    return groups;
+  }
+  else if (child_type == wb::OverviewBE::OItem)
+  {
+    WBOverviewItemContainer *itemList= [[[WBOverviewItemContainer alloc] initWithOverview:self
+                                                                                   nodeId:node] autorelease];
+    
+    [_itemContainers setObject:itemList forKey:[NSString stringWithUTF8String: node.repr().c_str()]];
+    
+    [pane setContentView: itemList];
+    
+    return itemList;
+  }
+  else if (child_type == wb::OverviewBE::OSection)
+  {
+    WBOverviewGroup *group= [[[WBOverviewGroup alloc] initWithOverview:self nodeId:node tabItem:nil] autorelease];
+    
+    [_itemContainers setObject:group forKey:[NSString stringWithUTF8String:node.repr().c_str()]];
+    
+    [group buildChildren];
+    
+    [pane setContentView:group];
+    
+    return group;
+  }
+  
+  return nil;
+}
+
+
+- (void)buildMainSections
+{
+  bec::NodeId root, node;
+  CGFloat width= NSWidth([_backgroundView frame]);
+
+  for (NSView *subview in [[_backgroundView subviews] reverseObjectEnumerator])
+    [subview removeFromSuperview];
+
+  _overview->refresh();
+  for (int i= 0; i < _overview->count_children(root); i++)
+  {
+    std::string label;
+    wb::OverviewBE::OverviewNodeType nodeType = wb::OverviewBE::ODivision;
+    int expanded;
+
+    node= _overview->get_child(root, i);
+
+    if (node.is_valid())
+    {
+      _overview->get_field(node, wb::OverviewBE::Label, label);
+      _overview->get_field(node, wb::OverviewBE::NodeType, (int&)nodeType);
+      _overview->get_field(node, wb::OverviewBE::Expanded, expanded);
+      
+      if (nodeType == wb::OverviewBE::ODivision)
+      {
+        MTogglePane *pane= [[[MTogglePane alloc] initWithFrame:NSMakeRect(0, 0, width, 100)
+                                                 includeHeader:!_noHeaders] autorelease];
+        [pane setLabel:[NSString stringWithUTF8String:label.c_str()]];
+        [pane setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
+        [_backgroundView addSubview:pane];
+        
+        id view= [self buildDivision:node
+                              inPane:pane];
+        if (view)
+        { 
+          [pane setExpanded:expanded!=0];
+          
+          // if ([view respondsToSelector:@selector(refreshChildren)])
+          //  [view refreshChildren];
+        }
+      }
+      else
+      {
+        NSLog(@"ERROR: unexpected node type in Overview");
+      }
+    }
+  }
+  [_backgroundView tile];
+}
+
+@end

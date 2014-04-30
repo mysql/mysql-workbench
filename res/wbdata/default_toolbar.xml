@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<data>
+  <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.main">
+    <value type="string" key="name">default</value>
+
+    <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
+    <!--
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.new">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">new_document</value>
+        <value type="string" key="icon">tiny_new.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:wb.file.newDocument</value>
+      </value>
+    
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.open">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">open</value>
+        <value type="string" key="icon">tiny_open.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:wb.file.openModel</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.manage_connections">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">manage_connection</value>
+        <value type="string" key="icon">tiny_manage_connections.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:wb.form.showConnectionManager</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.manage_instances">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">manage_instances</value>
+        <value type="string" key="icon">tiny_manage_instances.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:wb.form.showInstanceManager</value>
+      </value>
+    -->
+    </value>
+  </value>
+</data>

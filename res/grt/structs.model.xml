@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+      <requires file="structs.xml"/>
+      <requires file="structs.app.xml"/>
+
+      <gstruct name="model.Model" parent="GrtObject" attr:caption="Model" impl-data="1" force-impl="1">
+          <members>
+              <member name="currentDiagram" type="object" struct-name="model.Diagram" attr:desc="the currently active diagram" />
+              <member name="diagrams" type="list" content-type="object" content-struct-name="model.Diagram" owned="1" attr:desc="the list of all available diagrams"/>
+              <member name="markers" type="list" content-type="object" content-struct-name="model.Marker" owned="1" attr:desc="a list of markers that can be used to jump to a given diagram at a given position"/>
+              <member name="options" type="dict" attr:desc="model specific options"/>
+              <member name="customData" type="dict"/>
+              
+              <method name="addNewDiagram" abstract="1">
+                  <argument name="deferRealize" type="int"/>
+                  <return type="object" struct-name="model.Diagram"/>
+              </method>
+          </members>
+      </gstruct>
+
+      <gstruct name="model.Diagram" parent="GrtObject" impl-data="1" attr:caption="Diagram" attr:desc="a diagram of the model data">
+          <members>
+              <member name="owner" type="object" struct-name="model.Model" overrides="GrtObject"/>
+              <member name="name" type="string" attr:desc="the current name of the object" attr:readonly="1" overrides="string"/>
+              <member name="description" type="string" attr:editas="longtext"/>
+              <member name="figures" type="list" content-type="object" content-struct-name="model.Figure" owned="1" attr:desc="all figures displayed in this diagram" attr:editas="hide"/>
+              <member name="connections" type="list" content-type="object" content-struct-name="model.Connection" owned="1" attr:desc="all connections displayed in this diagram" attr:editas="hide"/>
+              <member name="layers" type="list" content-type="object" content-struct-name="model.Layer" owned="1" attr:editas="hide"/>
+              <member name="rootLayer" struct-name="model.Layer" type="object" owned="1" delegate-set="1" attr:editas="hide"/>
+              <member name="selection" type="list" content-type="object" content-struct-name="model.Object" attr:editas="hide"/>
+              <member name="height" type="real"/>
+              <member name="width" type="real"/>
+              <member name="x" type="real"/>
+              <member name="y" type="real"/>
+              <member name="zoom" type="real"/>
+              <member name="updateBlocked" type="int" attr:readonly="1" attr:editas="hide"/>
+
+              <member name="closed" type="int" />
+
+              <member name="options" type="dict" attr:desc="diagram specific options" attr:editas="hide"/>
+              
+              <method name="addFigure">
+              		<argument name="figure" type="object" struct-name="model.Figure"/>
+                        <return type="void"/>
+              </method>
+              <method name="removeFigure">
+              		<argument name="figure" type="object" struct-name="model.Figure"/>
+                        <return type="void"/>
+              </method>
+              <method name="addConnection">
+              		<argument name="connection" type="object" struct-name="model.Connection"/>
+                        <return type="void"/>
+	      </method>
+              <method name="removeConnection">
+              		<argument name="connection" type="object" struct-name="model.Connection"/>
+                        <return type="void"/>
+    	      </method>
+              <method name="selectObject">
+              		<argument name="object" type="object" struct-name="model.Object"/>
+                        <return type="void"/>
+              </method>
+              <method name="unselectObject">
+              		<argument name="object" type="object" struct-name="model.Object"/>
+                        <return type="void"/>
+              </method>
+              <method name="unselectAll">
+                        <return type="void"/>
+              </method>
+              <method name="blockUpdates">
+                        <argument name="flag" type="int"/>
+                        <return type="void"/>
+              </method>
+
+              <method name="placeNewLayer" abstract="1">
+                  <argument name="x" type="double"/>
+                  <argument name="y" type="double"/>
+                  <argument name="width" type="double"/>
+                  <argument name="height" type="double"/>
+                  <argument name="name" type="string"/>
+                  <return type="object" struct-name="model.Layer"/>
+              </method>
+              <method name="deleteLayer">
+                  <argument name="layer" type="object" struct-name="model.Layer"/>
+                  <return type="void"/>
+              </method>
+
+              <signal name="objectActivated">
+                  <argument name="object" type="object" struct-name="model.Object"/>
+                  <argument name="modifiers" type="int"/>
+                  <return type="void"/>
+              </signal>
+
+              <method name="setPageCounts">
+                  <argument name="xpages" type="int"/>
+                  <argument name="ypages" type="int"/>
+                  <return type="void"/>
+              </method>
+
+              <signal name="refreshDisplay" attr:desc="notifies when a caption of an object in the diagram is changed">
+                  <argument name="sender" type="object" struct-name="model.Object"/>
+              </signal>
+          </members>
+      </gstruct>
+
+      <gstruct name="model.Object" parent="GrtObject" impl-data="1" force-impl="1" attr:caption="Object" attr:desc="a model object">
+          <members>
+              <member name="owner" type="object" struct-name="model.Diagram" overrides="GrtObject" attr:editas="hide"/>
+              <member name="visible" default="1" type="int" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="model.Figure" parent="model.Object" impl-data="1" force-impl="1" attr:caption="Figure" attr:desc="a single model figure">
+          <members>
+              <!-- member name="enabled" type="int" attr:editas="bool"/ -->
+              <member name="expanded" type="int" default="1" attr:editas="bool" />
+              <member name="group" type="object" struct-name="model.Group" attr:editable="0" attr:editas="hide"/>
+              <member name="height" type="real"/>
+              <member name="layer" type="object" delegate-set="1" struct-name="model.Layer" attr:editable="0" attr:editas="hide"/>
+              <member name="left" type="real"/>
+              <member name="locked" type="int" attr:editas="bool"/>
+              <member name="top" type="real"/>
+              <member name="width" type="real"/>
+              <member name="manualSizing" type="int" attr:desc="manually resize object" attr:editas="bool" />
+              <member name="color" type="string" delegate-set="1" attr:desc="color style name for the figure" attr:editas="color"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="model.Connection" parent="model.Object" impl-data="1" force-impl="1" attr:caption="Connection" attr:desc="a connection between figures">
+          <members>
+              <member name="drawSplit" type="int" attr:desc="set to 1 if the connection line should be drawn split" attr:editas="bool"/>
+              <member name="startFigure" type="object" struct-name="model.Figure" attr:desc="the source figure" attr:editas="hide"/>
+              <member name="endFigure" type="object" struct-name="model.Figure" attr:desc="the target figure" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="model.Group" parent="GrtObject" attr:caption="Group" attr:desc="a group of figures">
+          <members>
+              <member name="owner" type="object" struct-name="model.Diagram" overrides="GrtObject"/>
+              <member name="description" type="string"/>
+              <member name="figures" type="list" content-type="object" content-struct-name="model.Figure"/>
+              <member name="subGroups" type="list" content-type="object" content-struct-name="model.Group"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="model.Layer" parent="model.Object" impl-data="1" attr:caption="Layer" attr:desc="a layer that contains figure">
+          <members>
+              <member name="color" type="string" attr:editas="color"/>
+              <member name="description" type="string" attr:editas="longtext"/>
+              <member name="figures" type="list" content-type="object" content-struct-name="model.Figure" attr:desc="list of figures in layer, in stacking order. Lower elements come first." attr:editas="hide"/>
+              <!-- member name="enabled" type="int" attr:editas="bool"/ -->
+              <member name="groups" type="list" content-type="object" content-struct-name="model.Group" attr:editas="hide"/>
+              <member name="height" type="real"/>
+              <member name="left" type="real"/>
+              <member name="subLayers" type="list" content-type="object" content-struct-name="model.Layer" attr:editas="hide"/>
+              <member name="top" type="real"/>
+              <member name="width" type="real"/>
+
+              <method name="raiseFigure">
+                <argument name="figure" type="object" struct-name="model.Figure"/>
+                <return type="void"/>
+              </method>
+              <method name="lowerFigure">
+                <argument name="figure" type="object" struct-name="model.Figure"/>
+                <return type="void"/>
+              </method>
+          </members>
+      </gstruct>
+
+      <gstruct name="model.Marker" parent="GrtObject" attr:caption="Canvas Marker" attr:desc="a marker storing the active diagram and position on the diagram">
+          <members>
+              <member name="diagram" struct-name="GrtObject" type="object"/>
+              <member name="x" type="real"/>
+              <member name="y" type="real"/>
+              <member name="zoom" type="real"/>
+          </members>
+      </gstruct>
+
+  </gstructs>

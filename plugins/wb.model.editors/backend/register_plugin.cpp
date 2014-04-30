@@ -1,0 +1,140 @@
+
+#include "stdafx.h"
+
+#include "grtpp.h"
+#include "interfaces/plugin.h"
+
+#include "grts/structs.workbench.model.h"
+
+
+#define MODULE_VERSION "1.0.0"
+
+
+#ifdef _WIN32
+# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
+  obj->moduleName(windows_dll)
+#elif defined(__APPLE__)
+# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
+  obj->moduleName(osx_dylib)
+#else
+# define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib)\
+  obj->moduleName(linux_so)
+#endif
+
+
+
+static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt);
+
+
+class WbEditorsModuleImpl : public grt::ModuleImplBase, public PluginInterfaceImpl
+{
+public:
+  WbEditorsModuleImpl(grt::CPPModuleLoader *ldr)
+  : grt::ModuleImplBase(ldr)
+  {
+  }
+
+  DEFINE_INIT_MODULE(MODULE_VERSION, "MySQL AB", grt::ModuleImplBase,
+    DECLARE_MODULE_FUNCTION(WbEditorsModuleImpl::getPluginInfo), NULL);
+
+  virtual grt::ListRef<app_Plugin> getPluginInfo()
+  {
+    return get_mysql_plugins_info(get_grt());
+  }
+};
+
+
+
+static void set_object_argument(app_PluginRef &plugin, const std::string &struct_name)
+{
+  app_PluginObjectInputRef pdef(plugin.get_grt());
+
+  pdef->objectStructName(struct_name);
+  pdef->owner(plugin);
+
+  plugin->inputValues().insert(pdef);
+}
+
+
+
+static grt::ListRef<app_Plugin> get_mysql_plugins_info(grt::GRT *grt)
+{
+  grt::ListRef<app_Plugin> editors(grt);
+
+  app_PluginRef note_editor(grt);
+  app_PluginRef image_editor(grt);
+  app_PluginRef stored_note_editor(grt);
+  app_PluginRef stored_sql_editor(grt);
+  app_PluginRef layer_editor(grt);
+  
+  FRONTEND_LIBNAME(note_editor,
+                   ".\\wb.model.editors.wbp.fe.dll",
+                   "wb.model.editors.wbp.so",
+                   "wb.model.editors.mwbplugin");
+  note_editor->pluginType("gui");
+  note_editor->moduleFunctionName("NoteEditor");
+  set_object_argument(note_editor, "workbench.model.NoteFigure");
+  note_editor->caption("Edit Note");
+  note_editor->rating(10);
+  note_editor->name("wb.plugin.edit.note");
+  note_editor->groups().insert("model/Editors");
+  editors.insert(note_editor);
+
+  FRONTEND_LIBNAME(image_editor,
+                   ".\\wb.model.editors.wbp.fe.dll",
+                   "wb.model.editors.wbp.so",
+                   "wb.model.editors.mwbplugin");
+  image_editor->pluginType("gui");
+  image_editor->moduleFunctionName("ImageEditor");
+  set_object_argument(image_editor, "workbench.model.ImageFigure");
+  image_editor->caption("Edit Image");
+  image_editor->rating(10);
+  image_editor->name("wb.plugin.edit.image");
+  image_editor->groups().insert("model/Editors");
+  editors.insert(image_editor);
+
+  FRONTEND_LIBNAME(layer_editor,
+                   ".\\wb.model.editors.wbp.fe.dll",
+                   "wb.model.editors.wbp.so",
+                   "wb.model.editors.mwbplugin");
+  layer_editor->pluginType("gui");
+  layer_editor->moduleFunctionName("PhysicalLayerEditor");
+  set_object_argument(layer_editor, "workbench.physical.Layer");
+  layer_editor->caption("Edit Layer");
+  layer_editor->rating(10);
+  layer_editor->name("wb.plugin.edit.physical.layer");
+  layer_editor->groups().insert("model/Editors");
+  editors.insert(layer_editor);
+  
+  
+  FRONTEND_LIBNAME(stored_note_editor,
+                   ".\\wb.model.editors.wbp.fe.dll",
+                   "wb.model.editors.wbp.so",
+                   "wb.model.editors.mwbplugin");
+  stored_note_editor->pluginType("gui");
+  stored_note_editor->moduleFunctionName("StoredNoteEditor");
+  set_object_argument(stored_note_editor, "GrtStoredNote");
+  stored_note_editor->caption("Edit Note");
+  stored_note_editor->rating(10);
+  stored_note_editor->name("wb.plugin.edit.stored_note");
+  stored_note_editor->groups().insert("model/Editors");
+  editors.insert(stored_note_editor);
+
+  FRONTEND_LIBNAME(stored_sql_editor,
+                   ".\\wb.model.editors.wbp.fe.dll",
+                   "wb.model.editors.wbp.so",
+                   "wb.model.editors.mwbplugin");
+  stored_sql_editor->pluginType("gui");
+  stored_sql_editor->moduleFunctionName("StoredNoteEditor");
+  set_object_argument(stored_sql_editor, "db.Script");
+  stored_sql_editor->caption("Edit SQL Script");
+  stored_sql_editor->rating(10);
+  stored_sql_editor->name("wb.plugin.edit.sqlscript");
+  stored_sql_editor->groups().insert("model/Editors");
+  editors.insert(stored_sql_editor);
+
+  return editors;
+}
+
+
+GRT_MODULE_ENTRY_POINT(WbEditorsModuleImpl);

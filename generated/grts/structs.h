@@ -1,0 +1,857 @@
+#ifndef __grts_structs_h__
+#define __grts_structs_h__
+
+#include <grtpp.h>
+
+#ifdef _WIN32
+  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list
+  #ifdef GRT_STRUCTS_EXPORT
+  #define GRT_STRUCTS_PUBLIC __declspec(dllexport)
+#else
+  #define GRT_STRUCTS_PUBLIC __declspec(dllimport)
+#endif
+#else
+  #define GRT_STRUCTS_PUBLIC
+#endif
+
+
+
+class GrtObject;
+typedef grt::Ref<GrtObject> GrtObjectRef;
+class GrtVersion;
+typedef grt::Ref<GrtVersion> GrtVersionRef;
+class GrtMessage;
+typedef grt::Ref<GrtMessage> GrtMessageRef;
+class GrtLogEntry;
+typedef grt::Ref<GrtLogEntry> GrtLogEntryRef;
+class GrtLogObject;
+typedef grt::Ref<GrtLogObject> GrtLogObjectRef;
+class GrtNamedObject;
+typedef grt::Ref<GrtNamedObject> GrtNamedObjectRef;
+class GrtStoredNote;
+typedef grt::Ref<GrtStoredNote> GrtStoredNoteRef;
+
+
+  /** the parent of all other objects */
+class  GrtObject : public grt::internal::Object
+{
+  typedef grt::internal::Object super;
+public:
+  GrtObject(grt::GRT *grt, grt::MetaClass *meta=0)
+  : grt::internal::Object(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _name("")
+
+  {
+  }
+
+  static std::string static_class_name() { return "GrtObject"; }
+
+  /** Getter for attribute name
+   
+    the object's name
+   \par In Python:
+value = obj.name
+   */
+  grt::StringRef name() const { return _name; }
+  /** Setter for attribute name
+   
+    the object's name
+    \par In Python:
+obj.name = value
+   */
+  virtual void name(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_name);
+   _name= value;
+    member_changed("name", ovalue, value);
+  }
+
+  /** Getter for attribute owner
+   
+    the object that owns this object
+   \par In Python:
+value = obj.owner
+   */
+  grt::Ref<GrtObject> owner() const { return _owner; }
+  /** Setter for attribute owner
+   
+    the object that owns this object
+    \par In Python:
+obj.owner = value
+   */
+  virtual void owner(const grt::Ref<GrtObject> &value)
+  {
+    grt::ValueRef ovalue(_owner);
+   _owner= value;
+    member_changed("owner", ovalue, value);
+  }
+
+protected:
+
+  grt::StringRef _name;
+  grt::Ref<GrtObject> _owner;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new GrtObject(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&GrtObject::create);
+    {
+      void (GrtObject::*setter)(const grt::StringRef &)= &GrtObject::name;
+      grt::StringRef (GrtObject::*getter)() const= &GrtObject::name;
+      meta->bind_member("name", new grt::MetaClass::Property<GrtObject,grt::StringRef >(getter,setter));
+    }
+    {
+      void (GrtObject::*setter)(const grt::Ref<GrtObject> &)= &GrtObject::owner;
+      grt::Ref<GrtObject> (GrtObject::*getter)() const= &GrtObject::owner;
+      meta->bind_member("owner", new grt::MetaClass::Property<GrtObject,grt::Ref<GrtObject> >(getter,setter));
+    }
+  }
+};
+
+
+  /** version information for an object */
+class  GrtVersion : public GrtObject
+{
+  typedef GrtObject super;
+public:
+  GrtVersion(grt::GRT *grt, grt::MetaClass *meta=0)
+  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _buildNumber(0),
+     _majorNumber(0),
+     _minorNumber(0),
+     _releaseNumber(0),
+     _status(0)
+
+  {
+  }
+
+  static std::string static_class_name() { return "GrtVersion"; }
+
+  /** Getter for attribute buildNumber
+   
+    build number
+   \par In Python:
+value = obj.buildNumber
+   */
+  grt::IntegerRef buildNumber() const { return _buildNumber; }
+  /** Setter for attribute buildNumber
+   
+    build number
+    \par In Python:
+obj.buildNumber = value
+   */
+  virtual void buildNumber(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_buildNumber);
+   _buildNumber= value;
+    member_changed("buildNumber", ovalue, value);
+  }
+
+  /** Getter for attribute majorNumber
+   
+    major version
+   \par In Python:
+value = obj.majorNumber
+   */
+  grt::IntegerRef majorNumber() const { return _majorNumber; }
+  /** Setter for attribute majorNumber
+   
+    major version
+    \par In Python:
+obj.majorNumber = value
+   */
+  virtual void majorNumber(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_majorNumber);
+   _majorNumber= value;
+    member_changed("majorNumber", ovalue, value);
+  }
+
+  /** Getter for attribute minorNumber
+   
+    minor version
+   \par In Python:
+value = obj.minorNumber
+   */
+  grt::IntegerRef minorNumber() const { return _minorNumber; }
+  /** Setter for attribute minorNumber
+   
+    minor version
+    \par In Python:
+obj.minorNumber = value
+   */
+  virtual void minorNumber(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_minorNumber);
+   _minorNumber= value;
+    member_changed("minorNumber", ovalue, value);
+  }
+
+  /** Getter for attribute releaseNumber
+   
+    release number
+   \par In Python:
+value = obj.releaseNumber
+   */
+  grt::IntegerRef releaseNumber() const { return _releaseNumber; }
+  /** Setter for attribute releaseNumber
+   
+    release number
+    \par In Python:
+obj.releaseNumber = value
+   */
+  virtual void releaseNumber(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_releaseNumber);
+   _releaseNumber= value;
+    member_changed("releaseNumber", ovalue, value);
+  }
+
+  /** Getter for attribute status
+   
+    the status, 0 for GA, 1 for alpha, 2 for beta, 3 for RC
+   \par In Python:
+value = obj.status
+   */
+  grt::IntegerRef status() const { return _status; }
+  /** Setter for attribute status
+   
+    the status, 0 for GA, 1 for alpha, 2 for beta, 3 for RC
+    \par In Python:
+obj.status = value
+   */
+  virtual void status(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_status);
+   _status= value;
+    member_changed("status", ovalue, value);
+  }
+
+protected:
+
+  grt::IntegerRef _buildNumber;
+  grt::IntegerRef _majorNumber;
+  grt::IntegerRef _minorNumber;
+  grt::IntegerRef _releaseNumber;
+  grt::IntegerRef _status;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new GrtVersion(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&GrtVersion::create);
+    {
+      void (GrtVersion::*setter)(const grt::IntegerRef &)= &GrtVersion::buildNumber;
+      grt::IntegerRef (GrtVersion::*getter)() const= &GrtVersion::buildNumber;
+      meta->bind_member("buildNumber", new grt::MetaClass::Property<GrtVersion,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (GrtVersion::*setter)(const grt::IntegerRef &)= &GrtVersion::majorNumber;
+      grt::IntegerRef (GrtVersion::*getter)() const= &GrtVersion::majorNumber;
+      meta->bind_member("majorNumber", new grt::MetaClass::Property<GrtVersion,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (GrtVersion::*setter)(const grt::IntegerRef &)= &GrtVersion::minorNumber;
+      grt::IntegerRef (GrtVersion::*getter)() const= &GrtVersion::minorNumber;
+      meta->bind_member("minorNumber", new grt::MetaClass::Property<GrtVersion,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (GrtVersion::*setter)(const grt::IntegerRef &)= &GrtVersion::releaseNumber;
+      grt::IntegerRef (GrtVersion::*getter)() const= &GrtVersion::releaseNumber;
+      meta->bind_member("releaseNumber", new grt::MetaClass::Property<GrtVersion,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (GrtVersion::*setter)(const grt::IntegerRef &)= &GrtVersion::status;
+      grt::IntegerRef (GrtVersion::*getter)() const= &GrtVersion::status;
+      meta->bind_member("status", new grt::MetaClass::Property<GrtVersion,grt::IntegerRef >(getter,setter));
+    }
+  }
+};
+
+
+  /** a dictionary containing a GRT message */
+class  GrtMessage : public GrtObject
+{
+  typedef GrtObject super;
+public:
+  GrtMessage(grt::GRT *grt, grt::MetaClass *meta=0)
+  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+    _details(grt, this, false),
+     _msg(""),
+     _msgType(0)
+
+  {
+  }
+
+  static std::string static_class_name() { return "GrtMessage"; }
+
+  /** Getter for attribute details (read-only)
+   
+    A list of detail information strings belonging to the message
+   \par In Python:
+value = obj.details
+   */
+  grt::StringListRef details() const { return _details; }
+private: // the next attribute is read-only
+  virtual void details(const grt::StringListRef &value)
+  {
+    grt::ValueRef ovalue(_details);
+   _details= value;
+    member_changed("details", ovalue, value);
+  }
+public:
+
+  /** Getter for attribute msg
+   
+    The message string
+   \par In Python:
+value = obj.msg
+   */
+  grt::StringRef msg() const { return _msg; }
+  /** Setter for attribute msg
+   
+    The message string
+    \par In Python:
+obj.msg = value
+   */
+  virtual void msg(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_msg);
+   _msg= value;
+    member_changed("msg", ovalue, value);
+  }
+
+  /** Getter for attribute msgType
+   
+    The type of the message, 0 stands for a normal message, 1 for a warning and 2 for an error
+   \par In Python:
+value = obj.msgType
+   */
+  grt::IntegerRef msgType() const { return _msgType; }
+  /** Setter for attribute msgType
+   
+    The type of the message, 0 stands for a normal message, 1 for a warning and 2 for an error
+    \par In Python:
+obj.msgType = value
+   */
+  virtual void msgType(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_msgType);
+   _msgType= value;
+    member_changed("msgType", ovalue, value);
+  }
+
+  /** Getter for attribute name
+   
+    the message's title
+   \par In Python:
+value = obj.name
+   */
+  /** Setter for attribute name
+   
+    the message's title
+    \par In Python:
+obj.name = value
+   */
+
+protected:
+
+  grt::StringListRef _details;
+  grt::StringRef _msg;
+  grt::IntegerRef _msgType;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new GrtMessage(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&GrtMessage::create);
+    {
+      void (GrtMessage::*setter)(const grt::StringListRef &)= &GrtMessage::details;
+      grt::StringListRef (GrtMessage::*getter)() const= &GrtMessage::details;
+      meta->bind_member("details", new grt::MetaClass::Property<GrtMessage,grt::StringListRef >(getter,setter));
+    }
+    {
+      void (GrtMessage::*setter)(const grt::StringRef &)= &GrtMessage::msg;
+      grt::StringRef (GrtMessage::*getter)() const= &GrtMessage::msg;
+      meta->bind_member("msg", new grt::MetaClass::Property<GrtMessage,grt::StringRef >(getter,setter));
+    }
+    {
+      void (GrtMessage::*setter)(const grt::IntegerRef &)= &GrtMessage::msgType;
+      grt::IntegerRef (GrtMessage::*getter)() const= &GrtMessage::msgType;
+      meta->bind_member("msgType", new grt::MetaClass::Property<GrtMessage,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (GrtMessage::*setter)(const grt::StringRef &)= 0;
+      grt::StringRef (GrtMessage::*getter)() const= 0;
+      meta->bind_member("name", new grt::MetaClass::Property<GrtMessage,grt::StringRef >(getter,setter));
+    }
+  }
+};
+
+
+  /** an individual object log entry */
+class  GrtLogEntry : public GrtObject
+{
+  typedef GrtObject super;
+public:
+  GrtLogEntry(grt::GRT *grt, grt::MetaClass *meta=0)
+  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+    _customData(grt, this, false),
+     _entryType(0)
+
+  {
+  }
+
+  static std::string static_class_name() { return "GrtLogEntry"; }
+
+  /** Getter for attribute customData (read-only)
+   
+    
+   \par In Python:
+value = obj.customData
+   */
+  grt::DictRef customData() const { return _customData; }
+private: // the next attribute is read-only
+  virtual void customData(const grt::DictRef &value)
+  {
+    grt::ValueRef ovalue(_customData);
+   _customData= value;
+    member_changed("customData", ovalue, value);
+  }
+public:
+
+  /** Getter for attribute entryType
+   
+    type of the log entry, 0 for a normal message, 1 for a warning and 2 for an error
+   \par In Python:
+value = obj.entryType
+   */
+  grt::IntegerRef entryType() const { return _entryType; }
+  /** Setter for attribute entryType
+   
+    type of the log entry, 0 for a normal message, 1 for a warning and 2 for an error
+    \par In Python:
+obj.entryType = value
+   */
+  virtual void entryType(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_entryType);
+   _entryType= value;
+    member_changed("entryType", ovalue, value);
+  }
+
+  /** Getter for attribute name
+   
+    the log message
+   \par In Python:
+value = obj.name
+   */
+  /** Setter for attribute name
+   
+    the log message
+    \par In Python:
+obj.name = value
+   */
+
+protected:
+
+  grt::DictRef _customData;
+  grt::IntegerRef _entryType;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new GrtLogEntry(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&GrtLogEntry::create);
+    {
+      void (GrtLogEntry::*setter)(const grt::DictRef &)= &GrtLogEntry::customData;
+      grt::DictRef (GrtLogEntry::*getter)() const= &GrtLogEntry::customData;
+      meta->bind_member("customData", new grt::MetaClass::Property<GrtLogEntry,grt::DictRef >(getter,setter));
+    }
+    {
+      void (GrtLogEntry::*setter)(const grt::IntegerRef &)= &GrtLogEntry::entryType;
+      grt::IntegerRef (GrtLogEntry::*getter)() const= &GrtLogEntry::entryType;
+      meta->bind_member("entryType", new grt::MetaClass::Property<GrtLogEntry,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (GrtLogEntry::*setter)(const grt::StringRef &)= 0;
+      grt::StringRef (GrtLogEntry::*getter)() const= 0;
+      meta->bind_member("name", new grt::MetaClass::Property<GrtLogEntry,grt::StringRef >(getter,setter));
+    }
+  }
+};
+
+
+  /** an object log */
+class  GrtLogObject : public GrtObject
+{
+  typedef GrtObject super;
+public:
+  GrtLogObject(grt::GRT *grt, grt::MetaClass *meta=0)
+  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+    _entries(grt, this, false)
+
+  {
+  }
+
+  static std::string static_class_name() { return "GrtLogObject"; }
+
+  // entries is owned by GrtLogObject
+  /** Getter for attribute entries (read-only)
+   
+    the generated log messages
+   \par In Python:
+value = obj.entries
+   */
+  grt::ListRef<GrtLogEntry> entries() const { return _entries; }
+private: // the next attribute is read-only
+  virtual void entries(const grt::ListRef<GrtLogEntry> &value)
+  {
+    grt::ValueRef ovalue(_entries);
+
+    _entries= value;
+    owned_member_changed("entries", ovalue, value);
+  }
+public:
+
+  /** Getter for attribute logObject
+   
+    a link to the object
+   \par In Python:
+value = obj.logObject
+   */
+  grt::Ref<GrtObject> logObject() const { return _logObject; }
+  /** Setter for attribute logObject
+   
+    a link to the object
+    \par In Python:
+obj.logObject = value
+   */
+  virtual void logObject(const grt::Ref<GrtObject> &value)
+  {
+    grt::ValueRef ovalue(_logObject);
+   _logObject= value;
+    member_changed("logObject", ovalue, value);
+  }
+
+  /** Getter for attribute refObject
+   
+    an optional link to a referenced object
+   \par In Python:
+value = obj.refObject
+   */
+  grt::Ref<GrtObject> refObject() const { return _refObject; }
+  /** Setter for attribute refObject
+   
+    an optional link to a referenced object
+    \par In Python:
+obj.refObject = value
+   */
+  virtual void refObject(const grt::Ref<GrtObject> &value)
+  {
+    grt::ValueRef ovalue(_refObject);
+   _refObject= value;
+    member_changed("refObject", ovalue, value);
+  }
+
+protected:
+
+  grt::ListRef<GrtLogEntry> _entries;// owned
+  grt::Ref<GrtObject> _logObject;
+  grt::Ref<GrtObject> _refObject;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new GrtLogObject(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&GrtLogObject::create);
+    {
+      void (GrtLogObject::*setter)(const grt::ListRef<GrtLogEntry> &)= &GrtLogObject::entries;
+      grt::ListRef<GrtLogEntry> (GrtLogObject::*getter)() const= &GrtLogObject::entries;
+      meta->bind_member("entries", new grt::MetaClass::Property<GrtLogObject,grt::ListRef<GrtLogEntry> >(getter,setter));
+    }
+    {
+      void (GrtLogObject::*setter)(const grt::Ref<GrtObject> &)= &GrtLogObject::logObject;
+      grt::Ref<GrtObject> (GrtLogObject::*getter)() const= &GrtLogObject::logObject;
+      meta->bind_member("logObject", new grt::MetaClass::Property<GrtLogObject,grt::Ref<GrtObject> >(getter,setter));
+    }
+    {
+      void (GrtLogObject::*setter)(const grt::Ref<GrtObject> &)= &GrtLogObject::refObject;
+      grt::Ref<GrtObject> (GrtLogObject::*getter)() const= &GrtLogObject::refObject;
+      meta->bind_member("refObject", new grt::MetaClass::Property<GrtLogObject,grt::Ref<GrtObject> >(getter,setter));
+    }
+  }
+};
+
+
+  /** an object that tracks name changes */
+class  GrtNamedObject : public GrtObject
+{
+  typedef GrtObject super;
+public:
+  GrtNamedObject(grt::GRT *grt, grt::MetaClass *meta=0)
+  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _comment(""),
+     _oldName("")
+
+  {
+  }
+
+  static std::string static_class_name() { return "GrtNamedObject"; }
+
+  /** Getter for attribute comment
+   
+    a text describing the object
+   \par In Python:
+value = obj.comment
+   */
+  grt::StringRef comment() const { return _comment; }
+  /** Setter for attribute comment
+   
+    a text describing the object
+    \par In Python:
+obj.comment = value
+   */
+  virtual void comment(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_comment);
+   _comment= value;
+    member_changed("comment", ovalue, value);
+  }
+
+  /** Getter for attribute name
+   
+    the current name of the object
+   \par In Python:
+value = obj.name
+   */
+  /** Setter for attribute name
+   
+    the current name of the object
+    \par In Python:
+obj.name = value
+   */
+
+  /** Getter for attribute oldName
+   
+    used to keep track of the old, original name of the object if the object gets renamed
+   \par In Python:
+value = obj.oldName
+   */
+  grt::StringRef oldName() const { return _oldName; }
+  /** Setter for attribute oldName
+   
+    used to keep track of the old, original name of the object if the object gets renamed
+    \par In Python:
+obj.oldName = value
+   */
+  virtual void oldName(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_oldName);
+   _oldName= value;
+    member_changed("oldName", ovalue, value);
+  }
+
+protected:
+
+  grt::StringRef _comment;
+  grt::StringRef _oldName;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new GrtNamedObject(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&GrtNamedObject::create);
+    {
+      void (GrtNamedObject::*setter)(const grt::StringRef &)= &GrtNamedObject::comment;
+      grt::StringRef (GrtNamedObject::*getter)() const= &GrtNamedObject::comment;
+      meta->bind_member("comment", new grt::MetaClass::Property<GrtNamedObject,grt::StringRef >(getter,setter));
+    }
+    {
+      void (GrtNamedObject::*setter)(const grt::StringRef &)= 0;
+      grt::StringRef (GrtNamedObject::*getter)() const= 0;
+      meta->bind_member("name", new grt::MetaClass::Property<GrtNamedObject,grt::StringRef >(getter,setter));
+    }
+    {
+      void (GrtNamedObject::*setter)(const grt::StringRef &)= &GrtNamedObject::oldName;
+      grt::StringRef (GrtNamedObject::*getter)() const= &GrtNamedObject::oldName;
+      meta->bind_member("oldName", new grt::MetaClass::Property<GrtNamedObject,grt::StringRef >(getter,setter));
+    }
+  }
+};
+
+
+  /** a note */
+class  GrtStoredNote : public GrtNamedObject
+{
+  typedef GrtNamedObject super;
+public:
+  GrtStoredNote(grt::GRT *grt, grt::MetaClass *meta=0)
+  : GrtNamedObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _createDate(""),
+     _filename(""),
+     _lastChangeDate("")
+
+  {
+  }
+
+  static std::string static_class_name() { return "GrtStoredNote"; }
+
+  /** Getter for attribute createDate
+   
+    
+   \par In Python:
+value = obj.createDate
+   */
+  grt::StringRef createDate() const { return _createDate; }
+  /** Setter for attribute createDate
+   
+    
+    \par In Python:
+obj.createDate = value
+   */
+  virtual void createDate(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_createDate);
+   _createDate= value;
+    member_changed("createDate", ovalue, value);
+  }
+
+  /** Getter for attribute filename
+   
+    
+   \par In Python:
+value = obj.filename
+   */
+  grt::StringRef filename() const { return _filename; }
+  /** Setter for attribute filename
+   
+    
+    \par In Python:
+obj.filename = value
+   */
+  virtual void filename(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_filename);
+   _filename= value;
+    member_changed("filename", ovalue, value);
+  }
+
+  /** Getter for attribute lastChangeDate
+   
+    
+   \par In Python:
+value = obj.lastChangeDate
+   */
+  grt::StringRef lastChangeDate() const { return _lastChangeDate; }
+  /** Setter for attribute lastChangeDate
+   
+    
+    \par In Python:
+obj.lastChangeDate = value
+   */
+  virtual void lastChangeDate(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_lastChangeDate);
+   _lastChangeDate= value;
+    member_changed("lastChangeDate", ovalue, value);
+  }
+
+protected:
+
+  grt::StringRef _createDate;
+  grt::StringRef _filename;
+  grt::StringRef _lastChangeDate;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new GrtStoredNote(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&GrtStoredNote::create);
+    {
+      void (GrtStoredNote::*setter)(const grt::StringRef &)= &GrtStoredNote::createDate;
+      grt::StringRef (GrtStoredNote::*getter)() const= &GrtStoredNote::createDate;
+      meta->bind_member("createDate", new grt::MetaClass::Property<GrtStoredNote,grt::StringRef >(getter,setter));
+    }
+    {
+      void (GrtStoredNote::*setter)(const grt::StringRef &)= &GrtStoredNote::filename;
+      grt::StringRef (GrtStoredNote::*getter)() const= &GrtStoredNote::filename;
+      meta->bind_member("filename", new grt::MetaClass::Property<GrtStoredNote,grt::StringRef >(getter,setter));
+    }
+    {
+      void (GrtStoredNote::*setter)(const grt::StringRef &)= &GrtStoredNote::lastChangeDate;
+      grt::StringRef (GrtStoredNote::*getter)() const= &GrtStoredNote::lastChangeDate;
+      meta->bind_member("lastChangeDate", new grt::MetaClass::Property<GrtStoredNote,grt::StringRef >(getter,setter));
+    }
+  }
+};
+
+
+
+
+inline void register_structs_xml()
+{
+  grt::internal::ClassRegistry::register_class<GrtObject>();
+  grt::internal::ClassRegistry::register_class<GrtVersion>();
+  grt::internal::ClassRegistry::register_class<GrtMessage>();
+  grt::internal::ClassRegistry::register_class<GrtLogEntry>();
+  grt::internal::ClassRegistry::register_class<GrtLogObject>();
+  grt::internal::ClassRegistry::register_class<GrtNamedObject>();
+  grt::internal::ClassRegistry::register_class<GrtStoredNote>();
+}
+
+#ifdef AUTO_REGISTER_GRT_CLASSES
+static struct _autoreg__structs_xml { _autoreg__structs_xml() { register_structs_xml(); } } __autoreg__structs_xml;
+#endif
+
+#endif

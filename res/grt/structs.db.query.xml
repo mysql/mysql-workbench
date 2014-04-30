@@ -1,0 +1,252 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.xml"/> 
+      <requires file="structs.ui.xml"/> 
+      <requires file="structs.db.mgmt.xml"/> 
+
+      <gstruct name="db.query.Editor" parent="GrtObject" impl-data="1" attr:desc="a proxy to an instance of a connection to a DB server, equivalent to a SQL Editor tab.\n This object cannot be instantiated directly.">
+          <members>
+              <member name="connection" struct-name="db.mgmt.Connection" type="object" calculated="1" read-only="1" delegate-get="1" attr:desc="connection data"/>
+              <member name="isConnected" type="int" calculated="1" read-only="1" delegate-get="1" attr:desc="whether the editor is connected"/>
+              <member name="queryEditors" type="list" content-type="object" content-struct-name="db.query.QueryEditor" owned="1" attr:desc="list of open editor buffers. This list cannot be modified"/>
+              <member name="activeQueryEditor" type="object" struct-name="db.query.QueryEditor" read-only="1" delegate-get="1" attr:desc="query editor that is currently selected"/>
+              <member name="defaultSchema" type="string" calculated="1" delegate-get="1" delegate-set="1" attr:desc="The default schema to use for queries (equivalent to USE schema)"/>
+              <member name="serverVersion" type="object" struct-name="GrtVersion"/>
+              <member name="customData" type="dict"/>
+              <member name="dockingPoint" type="object" struct-name="mforms.ObjectReference"/>
+              <member name="sidebar" type="object" struct-name="mforms.ObjectReference"/>
+              <member name="schemaTreeSelection" type="list" content-type="object" content-struct-name="db.query.LiveDBObject" delegate-get="1" calculated="1" read-only="1" />
+
+              <method name="executeScript" attr:desc="execute the script passed as argument">
+                  <argument name="sql" type="string"/>
+                  <return type="list" content-type="object" content-struct-name="db.query.Resultset" attr:desc="the list of resultsets sent back by the server"/>
+              </method>
+              <method name="executeScriptAndOutputToGrid" attr:desc="execute the script passed as argument and displays the generated resultsets as grids in the UI">
+                  <argument name="sql" type="string"/>
+                  <return type="int"/>
+              </method>
+              <method name="createTableEditResultset"  attr:desc="executes a SELECT statement on the table and returns an editable resultset that can be used to modify its contents">
+                  <argument name="schema" type="string" attr:desc="name of the table schema"/>
+                  <argument name="table" type="string" attr:desc="name of the table to edit"/>
+                  <argument name="where" type="string" attr:desc="not yet supported"/>
+                  <argument name="showGrid" type="int" attr:desc="whether the resultset should be displayed as a grid in the UI"/>
+                  <return type="object" struct-name="db.query.EditableResultset" attr:desc="an editable resultset that can be used to modify the table contents"/>
+              </method>
+              <method name="addToOutput"  attr:desc="write a line of text into the SQL Editor output area">
+                  <argument name="text" type="string"/>
+                  <argument name="bringToFront" type="int"/>
+                  <return type="int"/>
+              </method>
+              <method name="addQueryEditor" attr:desc="adds a new query buffer/text editor tab in the UI and return it">
+                  <return type="object" struct-name="db.query.QueryEditor" attr:desc="the newly created query buffer proxy object"/>
+              </method>
+              <method name="editLiveObject" attr:desc="Opens the object editor for the given DB object">
+                  <argument name="object" type="object" struct-name="db.DatabaseObject"/>
+                  <argument name="originalCatalog" type="object" struct-name="db.Catalog"/>
+                  <return type="void"/>
+              </method>
+              <method name="alterLiveObject" attr:desc="Opens the object editor for the named DB object">
+                  <argument name="type" type="string"/>
+                  <argument name="schemaName" type="string"/>
+                  <argument name="objectName" type="string"/>
+                  <return type="void"/>
+              </method>
+              <method name="executeManagementQuery" attr:desc="Executes a query on the aux connection and return a plain resultset, optionally logging the query in the action log">
+                  <argument name="query" type="string"/>
+                  <argument name="log" type="int"/>
+                  <return type="object" struct-name="db.query.Resultset"/>
+              </method>
+              <method name="executeManagementCommand" attr:desc="Executes a statement on the aux connection, optionally logging the query in the action log">
+                  <argument name="statement" type="string"/>
+                  <argument name="log" type="int"/>
+                  <return type="void"/>
+              </method>
+
+              <method name="executeQuery" attr:desc="Executes a query on the main connection and return a plain resultset, optionally logging the query in the action log">
+                  <argument name="query" type="string"/>
+                  <argument name="log" type="int"/>
+                  <return type="object" struct-name="db.query.Resultset"/>
+              </method>
+              <method name="executeCommand" attr:desc="Executes a statement on the main connection, optionally logging the query in the action log">
+                  <argument name="statement" type="string"/>
+                  <argument name="log" type="int"/>
+                  <argument name="background" type="int"/>
+                  <return type="void"/>
+              </method>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.query.QueryBuffer" impl-data="1" parent="GrtObject" attr:desc="a proxy to a SQL script editor buffer.\n This object cannot be instantiated directly.">
+          <members>
+              <member name="script" type="string" calculated="1" delegate-get="1" read-only="1" attr:desc="full contents of the script editor buffer"/>
+              <member name="selectedText" type="string" calculated="1" read-only="1" delegate-get="1" attr:desc="selected text"/>
+              <member name="currentStatement" type="string" calculated="1" delegate-get="1" read-only="1" attr:desc="the SQL statement at current cursor location"/>
+              <member name="selectionStart" type="int" calculated="1" delegate-set="1" delegate-get="1" attr:desc="starting index of text selection"/>
+              <member name="selectionEnd" type="int" calculated="1" delegate-set="1" delegate-get="1" attr:desc="ending index of text selection"/>
+              <member name="insertionPoint" type="int" calculated="1" delegate-set="1" delegate-get="1" attr:desc="gets or sets the position of the current text insertion point (caret/cursor)"/>
+
+              <method name="replaceContents" attr:desc="replace the contents of the query buffer with the provided text">
+                  <argument name="text" type="string"/>
+                  <return type="int"/>
+              </method>
+              <method name="replaceSelection" attr:desc="replace the currently selected text with the provided one, also selecting it">
+                  <argument name="text" type="string"/>
+                  <return type="int"/>
+              </method>
+              <method name="replaceCurrentStatement" attr:desc="replace the statement text under the cursor with the provided one, also selecting it">
+                <argument name="text" type="string"/>
+                <return type="int"/>
+              </method>
+          </members>
+      </gstruct>
+      <gstruct name="db.query.QueryEditor" impl-data="1" parent="db.query.QueryBuffer">
+          <members>
+              <member name="resultsets" type="list" content-type="object" content-struct-name="db.query.Resultset" owned="1" attr:desc="list of open resultsets. This list cannot be modified"/>
+              <member name="activeResultset" type="object" struct-name="db.query.Resultset" attr:desc="resultset that is currently selected in UI"/>
+              <member name="resultDockingPoint" type="object" struct-name="mforms.ObjectReference"/>
+          </members>
+      </gstruct>
+ 
+      <gstruct name="db.query.Resultset" impl-data="1" parent="GrtObject" attr:desc="a database resultset. This object does not allow changes to the resultset, if you need to edit the resultset, see \ref db_query_EditableResultset">
+          <members>        
+              <member name="sql" type="string" read-only="1" calculated="1" delegate-get="1" attr:desc="the SQL statement that generated this resultset"/>   
+              <member name="columns" type="list" owned="1"  content-struct-name="db.query.ResultsetColumn" content-type="object" read-only="1" attr:desc="the columns of the resultset"/>
+
+              <member name="rowCount" type="int" delegate-get="1" calculated="1" read-only="1"/>
+              <member name="currentRow" type="int" delegate-get="1" calculated="1" read-only="1" />
+
+              <method name="goToRow" attr:desc="sets the current row pointer to the given index">
+                  <argument name="row" type="int"/>
+                  <return type="int" attr:desc="(boolean) 1 on success or 0 if the row number is out of bounds"/>
+              </method>
+              <method name="goToFirstRow" attr:desc="sets the current row index to the 1st">
+                  <return type="int" attr:desc="(boolean) 1 on success or 0 if the row number is out of bounds"/>
+              </method>
+              <method name="goToLastRow" attr:desc="sets the current row index to the last">
+                  <return type="int" attr:desc="(boolean) 1 on success or 0 if the row number is out of bounds"/>
+              </method>
+              <method name="nextRow" attr:desc="moves the current row pointer to the next one">
+                  <return type="int" attr:desc="(boolean) 1 on success or 0 if the new row number is out of bounds"/>
+              </method>
+              <method name="previousRow" attr:desc="moves the current row pointer to the previous one">
+                  <return type="int" attr:desc="(boolean) 1 on success or 0 if the new row number is out of bounds"/>
+              </method>
+              <method name="saveFieldValueToFile" attr:desc="saves the contents of the field at given column and current row to a file">
+                  <argument name="column" type="int"/>
+                  <argument name="file" type="string"/>
+                  <return type="int" attr:desc="(boolean)"/>
+              </method>
+              <method name="intFieldValue" attr:desc="returns the integer contents of the field at the given column index and current row">
+                  <argument name="column" type="int"/>
+                  <return type="int" attr:desc="value stored in cell (can be null)"/>
+              </method>
+              <method name="stringFieldValue" attr:desc="returns the contents of the field at the given column index and current row as a string. If the column type is not string, it will be converted">
+                  <argument name="column" type="int"/>
+                  <return type="string" attr:desc="value stored in cell (can be null)"/>
+              </method>
+              <method name="floatFieldValue" attr:desc="returns the float contents of the field at the given column index and current row">
+                  <argument name="column" type="int"/>
+                  <return type="double" attr:desc="value stored in cell (can be null)"/>
+              </method>
+
+              <method name="intFieldValueByName" attr:desc="returns the integer contents of the field at the given column name and current row">
+                  <argument name="column" type="string"/>
+                  <return type="int" attr:desc="value stored in cell (can be null)"/>
+              </method>
+              <method name="stringFieldValueByName" attr:desc="returns the contents of the field at the given column name and current row as a string. If the column type is not string, it will be converted">
+                  <argument name="column" type="string"/>
+                  <return type="string" attr:desc="value stored in cell (can be null)"/>
+              </method>
+              <method name="floatFieldValueByName" attr:desc="returns the float contents of the field at the given column name and current row">
+                  <argument name="column" type="string"/>
+                  <return type="double" attr:desc="value stored in cell (can be null)"/>
+              </method>
+
+              <method name="refresh" attr:desc="refreshes the resultset, re-executing the originator query">
+                  <return type="int"/>
+              </method>
+          </members>
+      </gstruct>    
+
+      <gstruct name="db.query.EditableResultset" impl-data="1" parent="db.query.Resultset" attr:desc="a resultset created for editing table data. Changes made to the resultset are queued to be applied when \ref applyChanges() is called">
+          <members>
+              <member name="schema" type="string" attr:desc="schema name of the table"/>
+              <member name="table" type="string" attr:desc="name of the table being edited"/>
+
+              <method name="setFieldNull" attr:desc="sets the contents of the current row at the given column index to NULL">
+                  <argument name="column" type="int"/>
+                  <return type="int"/>
+              </method>
+              <method name="setFieldNullByName"  attr:desc="sets the contents of the current row at the given column name to NULL">
+                  <argument name="column" type="string"/>
+                  <return type="int"/>
+              </method>
+
+              <method name="setIntFieldValue"  attr:desc="sets the contents of the current row at the given integer type column index">
+                  <argument name="column" type="int"/>
+                  <argument name="value" type="int"/>
+                  <return type="int"/>
+              </method> 
+              <method name="setStringFieldValue"  attr:desc="sets the contents of the current row at the given column index">
+                  <argument name="column" type="int"/>
+                  <argument name="value" type="string"/>
+                  <return type="int"/>
+              </method> 
+              <method name="setFloatFieldValue" attr:desc="sets the contents of the current row at the given column index">
+                  <argument name="column" type="int"/>
+                  <argument name="value" type="double"/>
+                  <return type="int"/>
+              </method>
+
+              <method name="setIntFieldValueByName" attr:desc="sets the contents of the current row at the given column name">
+                  <argument name="column" type="string"/>
+                  <argument name="value" type="int"/>
+                  <return type="int"/>
+              </method> 
+              <method name="setStringFieldValueByName" attr:desc="sets the contents of the current row at the given column name">
+                  <argument name="column" type="string"/>
+                  <argument name="value" type="string"/>
+                  <return type="int"/>
+              </method> 
+              <method name="setFloatFieldValueByName"  attr:desc="sets the contents of the current row at the given column name">
+                  <argument name="column" type="string"/>
+                  <argument name="value" type="double"/>
+                  <return type="int"/>
+              </method>
+              <method name="loadFieldValueFromFile" attr:desc="loads the contents of an external file into the current row at the given column index">
+                  <argument name="column" type="int"/>
+                  <argument name="file" type="string"/>
+                  <return type="int"/>
+              </method>
+
+              <method name="addNewRow" attr:desc="adds a new empty row to the resultset. The row contents must be set before applying changes">
+                  <return type="int"/>
+              </method>
+              <method name="deleteRow" attr:desc="marks a row from the resultset for deletion. The row will only be deleted in the target database when applyChanges() is called">
+                  <argument name="column" type="int"/>
+                  <return type="int"/>
+              </method>
+              <method name="applyChanges" attr:desc="generates a SQL script with all pending changes made to the resultset and executes it, once confirmed through a GUI wizard">
+                  <return type="int"/>
+              </method>
+              <method name="revertChanges" attr:desc="discards all changes made to the resultset">
+                  <return type="int"/>
+              </method>
+          </members>
+      </gstruct>
+ 
+      <gstruct attr:desc="a database resultset column" name="db.query.ResultsetColumn" parent="GrtObject">      
+          <members>        
+              <member name="columnType" type="string" attr:desc="the type of the column, string, int, real, blob, date, time, datetime, geo"/> 
+          </members>      
+      </gstruct> 
+
+     <gstruct name="db.query.LiveDBObject" parent="GrtObject" attr:desc="object name from a live database">
+         <members>
+             <member name="name" override-attributes-only="1" attr:desc="name of the object"/>
+             <member name="type" type="string" attr:desc="type of the object (schema, table, view, routine)"/>
+             <member name="schemaName" type="string" attr:desc="name of the schema the object belongs to"/>
+         </members>
+     </gstruct> 
+ 
+  </gstructs>

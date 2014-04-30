@@ -1,0 +1,235 @@
+/* 
+ * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#include "stdafx.h"
+
+#include "mforms/mforms.h"
+
+using namespace mforms;
+
+ToolBar::ToolBar(ToolBarType type)
+: _type(type)
+{
+  _impl = &ControlFactory::get_instance()->_tool_bar_impl;
+  _impl->create_tool_bar(this, type);
+}
+
+
+ToolBar::~ToolBar()
+{
+  for (std::vector<ToolBarItem*>::iterator iter = _items.begin(); iter != _items.end(); ++iter)
+    (*iter)->release();
+  _items.clear();
+}
+    
+ToolBarItem *ToolBar::find_item(const std::string &name)
+{
+  for (std::vector<ToolBarItem*>::iterator iter = _items.begin(); iter != _items.end(); ++iter)
+    if ((*iter)->get_name() == name)
+      return *iter;
+  return 0;
+}
+
+
+void ToolBar::validate()
+{
+  for (std::vector<ToolBarItem*>::iterator iter = _items.begin(); iter != _items.end(); ++iter)
+    (*iter)->validate();
+}
+
+
+void ToolBar::set_item_enabled(const std::string &name, bool flag)
+{
+  ToolBarItem *item = find_item(name);
+  if (item)
+    item->set_enabled(flag);
+}
+
+void ToolBar::set_item_checked(const std::string &name, bool flag)
+{
+  ToolBarItem *item = find_item(name);
+  if (item)
+    item->set_checked(flag);
+}
+
+bool ToolBar::get_item_checked(const std::string &name)
+{
+  ToolBarItem *item = find_item(name);
+  if (item)
+    return item->get_checked();
+  return false;
+}
+
+
+void ToolBar::add_item(ToolBarItem *item)
+{
+  insert_item(-1, item);
+}
+
+
+ToolBarItem *ToolBar::add_separator_item(const std::string &name)
+{
+  ToolBarItem *item = mforms::manage(new ToolBarItem(SeparatorItem));
+  item->set_name(name);
+  add_item(item);
+  return item;
+}
+
+
+void ToolBar::insert_item(int index, ToolBarItem *item)
+{
+  assert(item->is_managed());
+
+  if (index < 0 || index > (int) _items.size())
+    index = _items.size();
+  _impl->insert_item(this, index, item);
+
+  if (!item->_release_on_add) // Means: don't increase the ref count, the caller retained already, but won't release.
+    item->retain();
+  else
+    item->_release_on_add = false;
+
+  _items.push_back(item);
+}
+
+void ToolBar::remove_all()
+{
+  for (std::vector<ToolBarItem*>::iterator iter = _items.begin(); iter != _items.end(); ++iter)
+  {
+    _impl->remove_item(this, *iter);
+    (*iter)->release();
+  }
+  _items.clear();
+}
+
+void ToolBar::remove_item(ToolBarItem *item)
+{
+  std::vector<ToolBarItem*>::iterator iter = std::find(_items.begin(), _items.end(), item);
+  if (iter != _items.end())
+  {
+    _impl->remove_item(this, *iter);
+    (*iter)->release();
+    _items.erase(iter);
+  }
+}
+
+
+ToolBarItem::ToolBarItem(ToolBarItemType type, const bool expandable)
+: _type(type), _expandable(expandable)
+{
+  _impl = &mforms::ControlFactory::get_instance()->_tool_bar_impl;
+  _impl->create_tool_item(this, type);
+}
+
+void ToolBarItem::set_text(const std::string &text)
+{
+  _impl->set_item_text(this, text);
+}
+
+std::string ToolBarItem::get_text()
+{
+  return _impl->get_item_text(this);
+}
+  
+void ToolBarItem::set_tooltip(const std::string &text)
+{
+  _impl->set_item_tooltip(this, text);
+}
+  
+void ToolBarItem::set_icon(const std::string &path)
+{
+  _icon = path;
+  _impl->set_item_icon(this, path);
+}
+
+void ToolBarItem::set_alt_icon(const std::string &path)
+{
+  _alt_icon = path;
+  _impl->set_item_alt_icon(this, path);
+}
+
+void ToolBarItem::set_enabled(bool flag)
+{
+  _impl->set_item_enabled(this, flag);
+}
+
+bool ToolBarItem::get_enabled()
+{
+  return _impl->get_item_enabled(this);
+}
+
+
+void ToolBarItem::set_checked(bool flag)
+{
+  _impl->set_item_checked(this, flag);
+}
+
+
+bool ToolBarItem::get_checked()
+{
+  return _impl->get_item_checked(this);
+}
+
+
+void ToolBarItem::set_name(const std::string &name)
+{
+  _name = name;
+}
+
+void ToolBarItem::set_selector_items(const std::vector<std::string>& values)
+{
+  _impl->set_selector_items(this, values);
+}
+
+void ToolBarItem::callback()
+{
+  _clicked_signal(this);
+}
+
+void ToolBarItem::validate()
+{
+  if (_validate)
+    set_enabled(_validate());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ToolBarItem::search(const std::string& text)
+{
+  if (_search)
+    _search(text);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ToolBarItem::set_validator(const boost::function<bool ()> &slot)
+{
+  _validate = slot;
+  validate();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ToolBarItem::set_search_handler(const boost::function<void (const std::string&)> &slot)
+{
+  _search = slot;
+}
+
+//--------------------------------------------------------------------------------------------------
+

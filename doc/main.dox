@@ -1,0 +1,12 @@
+/*!
+    \mainpage MySQL Workbench
+
+    \ref GRT
+
+    \dot
+    digraph WB {
+      node [shape=box];
+      grt [label="GRT" URL="\ref GRT"];   
+    }
+    \enddot
+*/

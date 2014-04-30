@@ -1,0 +1,609 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<languages>
+  <!--
+    Settings for scintilla-based code editors in MySQL Workbench.
+    
+    For a list of possible style identifiers see the SciLexer.h file.
+    Keyword list identifiers are taken from the various Lex*.cpp files in Scintilla.
+  -->
+
+  <language name="SCLEX_MYSQL">
+
+    <!-- Lexer properties -->
+    <property name="fold" value="1" />
+    <property name="fold.compact" value="0" />
+    <property name="fold.comment" value="1" />
+
+    <!-- Editor settings -->
+    <setting name="usetabs" value="1" />
+    <setting name="tabwidth" value="4" />
+    <setting name="indentation" value="4" />
+
+    <!-- Keep in mind to use the same list names as defined in the lexers (e.g. LexMySQL.cpp). -->
+    <keywords name="Major Keywords"> <!-- Keywords that can start a statement. -->
+      analyze alter
+      backup
+      call change check create
+      delete desc describe drop
+      explain
+      flush
+      grant
+      handler help
+      insert
+      kill
+      load lock
+      optimize
+      purge
+      rename replace restore revoke
+      select set show
+      truncate
+      unlock update use
+    </keywords>
+
+    <keywords name="Keywords">
+      accessible add all and as asc asensitive
+      before between bigint binary blob both by
+      cascade case char character collate column condition connection constraint
+      continue convert cross current_date current_time current_timestamp current_user cursor
+      database databases day_hour day_microsecond day_minute day_second dec decimal declare default
+      delayed deterministic distinct distinctrow div double dual
+      each else elseif enclosed escaped exists exit
+      false fetch float float4 float8 for force foreign frac_second from fulltext
+      goto group
+      having high_priority hour_microsecond hour_minute hour_second
+      if ignore in index infile inner inout insensitive int int1 int2 int3 int4 int8 integer
+      interval into is iterate
+      join
+      key keys
+      label leading leave left like limit linear lines localtime localtimestamp long
+      longblob longtext loop low_priority
+      master_ssl_verify_server_cert match mediumblob mediumint mediumtext middleint minute_microsecond
+      minute_second mod modifies
+      natural not no_write_to_binlog null numeric
+      on option optionally or order out outer outfile
+      precision primary procedure
+      range read reads read_only read_write real references regexp repeat
+      require restrict return right rlike
+      schema schemas second_microsecond sensitive separator smallint spatial specific
+      sql sqlexception sqlstate sqlwarning sql_big_result sql_calc_found_rows sql_small_result ssl
+      starting straight_join
+      table terminated then tinyblob tinyint tinytext to trailing trigger true
+      undo union unique unsigned until upgrade usage using utc_date utc_time utc_timestamp
+      values varbinary varchar varcharacter varying
+      when where while with write
+      xor
+      year_month
+      zerofill
+    </keywords>
+
+    <keywords name="Functions">
+      abs acos adddate aes_encrypt aes_decrypt ascii asin atan atan2
+      benchmark bin bit_count bit_or bit_and bit_length
+      cast ceil ceiling current_user char_length character_length coalesce concat concat_ws
+      connection_id conv convert count cos cot curdate curtime
+      date_add date_format date_sub dayname dayofmonth dayofweek dayofyear decode degrees
+      des_encrypt des_decrypt
+      elt encode encrypt extract exp export_set
+      field find_in_set floor format found_rows from_days from_unixtime
+      get_lock greatest group_concat group_unique_users
+      hex
+      ifnull inet_aton inet_ntoa instr isnull is_free_lock
+      last_insert_id lcase least length ln load_file locate log log2 log10 lower lpad ltrim
+      make_set master_pos_wait max md5 mid min mod monthname
+      now nullif
+      octet_length oct old_password ord
+      period_add period_diff pi position pow power
+      quarter quote
+      radians rand release_lock repeat reverse round rpad rtrim sec_to_time
+      session_user subdate sign sin sha sha1 soundex space sqrt std stddev strcmp substring
+      substring_index sum sysdate system_user
+      tan time_format time_to_sec to_days trim
+      ucase unique_users unix_timestamp upper user
+      version
+      week weekday
+      yearweek
+    </keywords>
+
+    <keywords name="Procedure keywords">
+      begin end comment
+    </keywords>
+
+    <keywords name="User Keywords 1">
+      delimiter
+    </keywords>
+
+    <!-- These two lists are not used for syntax highlighting but assemble keywords from the other lists that serve a special purpose. -->
+    <keywords name="User Keywords 2"> <!-- Keywords that are allowed at the start of an expression. -->
+      binary case cast convert exists interval match not row
+    </keywords>
+
+    <keywords name="User Keywords 3"> <!-- Like user 2 but those that can appear between two expressions. -->
+      all and any as between escape false in is like or regexp sounds true unknown xor
+    </keywords>
+    
+    <style id="0" fore-color="#000000" /> <!-- SCE_MYSQL_DEFAULT -->
+
+    <style id="1" fore-color="#A0A0A0" /> <!-- SCE_MYSQL_COMMENT -->
+    <style id="2" fore-color="#A0A0A0" /> <!-- SCE_MYSQL_COMMENTLINE -->
+    <style id="21" fore-color="#F77B09" back-color="#F0F0F0" /> <!-- SCE_MYSQL_HIDDENCOMMAND -->
+
+    <style id="3" fore-color="#A58E37" /> <!-- SCE_MYSQL_VARIABLE -->
+    <style id="4" fore-color="#A58E37" /> <!-- SCE_MYSQL_SYSTEMVARIABLE -->
+    <style id="5" fore-color="#A58E37" /> <!-- SCE_MYSQL_KNOWNSYSTEMVARIABLE -->
+
+    <style id="6" fore-color="#F0A030" /> <!-- SCE_MYSQL_NUMBER -->
+    <style id="12" fore-color="#209F20" /> <!-- SCE_MYSQL_SQSTRING -->
+    <style id="13" fore-color="#6D4A27" /> <!-- SCE_MYSQL_DQSTRING -->
+
+    <style id="7" fore-color="#007FBF" bold="Yes" /> <!-- SCE_MYSQL_MAJORKEYWORD -->
+    <style id="8" fore-color="#007FBF" bold="Yes"/> <!-- SCE_MYSQL_KEYWORD -->
+    <style id="15" fore-color="#C040C0" /> <!-- SCE_MYSQL_FUNCTION -->
+    <style id="10" fore-color="#C04000" bold="Yes" /> <!-- SCE_MYSQL_PROCEDUREKEYWORD -->
+    <style id="14" bold="Yes" /> <!-- SCE_MYSQL_OPERATOR -->
+
+    <style id="16" fore-color="#000000" /> <!-- SCE_MYSQL_IDENTIFIER -->
+    <style id="17" fore-color="#7D5A27" /> <!-- SCE_MYSQL_QUOTEDIDENTIFIER -->
+
+    <style id="22" fore-color="#FFFFFF" back-color="#A0A0A0" bold="Yes" /> <!-- SCE_MYSQL_PLACEHOLDER -->
+
+    <style id="18" fore-color="#007F00" /> <!-- SCE_MYSQL_USER1 -->
+
+    <!-- All styles again in their variant in a hidden command (with a 0x40 offset). -->
+    <style id="65" fore-color="#A0A0A0" back-color="#F0F0F0" /> <!-- SCE_MYSQL_COMMENT -->
+    <style id="66" fore-color="#A0A0A0" back-color="#F0F0F0" /> <!-- SCE_MYSQL_COMMENTLINE -->
+
+    <style id="67" fore-color="#A58E37" back-color="#F0F0F0" /> <!-- SCE_MYSQL_VARIABLE -->
+    <style id="68" fore-color="#A58E37" back-color="#F0F0F0" /> <!-- SCE_MYSQL_SYSTEMVARIABLE -->
+    <style id="69" fore-color="#A58E37" back-color="#F0F0F0" /> <!-- SCE_MYSQL_KNOWNSYSTEMVARIABLE -->
+
+    <style id="70" fore-color="#F0A030" back-color="#F0F0F0" /> <!-- SCE_MYSQL_NUMBER -->
+    <style id="76" fore-color="#209F20" back-color="#F0F0F0" /> <!-- SCE_MYSQL_SQSTRING -->
+    <style id="77" fore-color="#6D4A27" back-color="#F0F0F0" /> <!-- SCE_MYSQL_DQSTRING -->
+
+    <style id="71" fore-color="#007FBF" back-color="#F0F0F0" bold="Yes" /> <!-- SCE_MYSQL_MAJORKEYWORD -->
+    <style id="72" fore-color="#007FBF" back-color="#F0F0F0" bold="Yes"/> <!-- SCE_MYSQL_KEYWORD -->
+    <style id="79" fore-color="#C040C0" back-color="#F0F0F0" /> <!-- SCE_MYSQL_FUNCTION -->
+    <style id="74" fore-color="#C04000" back-color="#F0F0F0" bold="Yes" /> <!-- SCE_MYSQL_PROCEDUREKEYWORD -->
+    <style id="78" back-color="#F0F0F0" bold="Yes" /> <!-- SCE_MYSQL_OPERATOR -->
+
+    <style id="80" fore-color="#000000" back-color="#F0F0F0" /> <!-- SCE_MYSQL_IDENTIFIER -->
+    <style id="81" fore-color="#7D5A27" back-color="#F0F0F0" /> <!-- SCE_MYSQL_QUOTEDIDENTIFIER -->
+
+    <style id="86" fore-color="#FFFFFF" back-color="#A0A0A0" bold="Yes" /> <!-- SCE_MYSQL_PLACEHOLDER -->
+
+    <style id="82" fore-color="#007F00" /> <!-- SCE_MYSQL_USER1 -->
+
+  </language>
+
+  <language name="SCLEX_MYSQL_50">
+    <keywords name="Major Keywords">
+      analyze alter
+      backup
+      call change check create
+      delete desc describe drop
+      explain
+      flush
+      grant
+      handler help
+      insert
+      kill
+      load lock
+      optimize
+      purge
+      release rename replace restore revoke
+      select set show
+      truncate
+      unlock update use
+    </keywords>
+
+    <keywords name="Keywords">
+      all asensitive action auto_increment avg after asc and any against aggregate add avg_row_length as algorithm
+      berkeleydb btree bdb boolean before byte between both bigint binary blob bit by block bool
+      code chain compact compressed changed contains charset current_time cascade committed condition collate collation consistent current_date columns cube close connection context case cursor cross client current_timestamp character continue constraint column cipher cascaded char concurrent cpu
+      dynamic delay_key_write deterministic div distinct duplicate dec disable date data day decimal dumpfile declare day_microsecond databases datetime double dual distinctrow des_key_file database discard day_second delayed default day_minute day_hour definer directory
+      enclosed errors escaped each elseif exists engines engine enable else events extended escape exit enum expansion
+      force full from fulltext fetch faults float found first false float4 fields fixed float8 foreign for fast function file frac_second
+      global group geometry get_format geometrycollection grants
+      hour_minute hour_second hash hour high_priority hour_microsecond hosts having
+      issuer index ipc io identified innodb isolation indexes iterate inout invoker import insert_method io_thread innobase is in insensitive if integer ignore infile into inner int4 int1 int3 int2 int8 int interval
+      join
+      key keys
+      localtime level leave leaves loop longtext locks lines longblob logs language long leading linestring localtimestamp local last left low_priority like limit
+      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode master_host max_queries_per_hour mediumtext max_user_connections master master_port master_ssl_key microsecond multipoint mediumblob multilinestring multipolygon mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second master_ssl match max_updates_per_hour master_connect_retry master_log_file master_user minute_microsecond master_password medium master_ssl_cert master_server_id
+      no_write_to_binlog new names none nvarchar natural not name numeric ndbcluster national nchar null ndb next no
+      order one_shot out one open option outfile outer offset on or optionally
+      partial prev process profile primary phase pack_keys processlist point precision profiles procedure privileges password page polygon
+      query quick
+      raid_type replication rollup relay_thread row rtree relay_log_pos raid0 redundant return resume restrict returns raid_chunksize repeatable require recover routine reload rlike row_format reads raid_chunks restore real read regexp right references rows relay_log_file
+      switches sql_tsi_week string sqlwarning second sql_no_cache sql_tsi_day share serial schemas soname sql_buffer_result straight_join sql_cache smallint sqlexception sql_thread slave sql_tsi_minute separator suspend sounds schema serializable snapshot sql_tsi_hour second_microsecond session sql_tsi_second ssl striped subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source sql_tsi_frac_second security sql_tsi_quarter some specific swaps sqlstate super sql_big_result sql_tsi_month signed spatial sql starting
+      to tablespace type types then timestamp timestampadd temptable text true triggers table trigger temporary transaction tables timestampdiff tinytext terminated trailing tinyint time tinyblob
+      utc_date utc_timestamp until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage using unique use_frm
+      varying values value varbinary variables view varcharacter varchar
+      work write warnings where while with when
+      xor x509
+      year year_month
+      zerofill
+    </keywords>
+  </language>
+
+  <language name="SCLEX_MYSQL_51">
+    <keywords name="Major Keywords">
+      analyze alter
+      backup
+      call change check create
+      delete desc describe drop
+      explain
+      flush
+      grant
+      handler help
+      insert install
+      kill
+      load lock
+      optimize
+      purge
+      release remove rename replace restore revoke
+      select set show
+      truncate
+      uninstall unlock update use
+      xa
+    </keywords>
+
+    <keywords name="Keywords">
+      all asensitive action auto_increment avg after asc authors and any against aggregate add avg_row_length accessible as at algorithm autoextend_size
+      btree boolean binary before byte between both bigint blob bit by block bool
+      code chain compact compressed changed contains charset cascade committed condition collate collation consistent current_date completion columns cube close connection context case cursor current_time cross client current_timestamp character continue constraint column cipher cascaded contributors char concurrent cpu
+      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double declare day_microsecond databases datetime datafile distinctrow des_key_file database discard day_second day_hour delayed default day_minute definer directory
+      every enclosed errors escaped each event elseif exists ends engines engine enable else events extended extent_size escape exit enum expansion
+      force full from fulltext fetch faults float found first false float4 fields fixed float8 foreign for fast function file frac_second
+      global group get_format geometry geometrycollection grants
+      hour_minute hour_second hash hour high_priority hour_microsecond hosts host having
+      issuer index ipc identified innodb indexes iterate inout isolation invoker import insert_method io_thread innobase is io in insensitive if integer initial_size ignore infile into inner int4 int1 int3 int2 int8 int interval
+      join
+      key_block_size key keys
+      localtime longtext list leave leaves loop locks lines logs linear language long leading linestring longblob localtimestamp local logfile last left less low_priority like level limit
+      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode master_host max_queries_per_hour mediumtext master_ssl_verify_server_cert max_user_connections master master_ssl_key microsecond multipoint mediumblob multilinestring multipolygon master_port mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second master_ssl max_size match max_updates_per_hour master_connect_retry master_log_file master_user minute_microsecond master_password medium master_ssl_cert master_server_id maxvalue
+      no_write_to_binlog no_wait new nodegroup names none nvarchar natural not name numeric ndbcluster null national nchar ndb next no
+      options or order one_shot out one owner open option outfile outer offset on optionally
+      partial partitions plugins port prev profiles process profile primary phase pack_keys processlist preserve plugin point precision procedure privileges password page partitioning parser polygon
+      query quick
+      replication rollup relay_thread row relay_log_pos read_only redundant return resume restrict returns repeatable require reorganize rtree routine remove reload rlike row_format redofile redo_buffer_size read_write reads recover restore real read regexp range rebuild right references rows relay_log_file
+      switches sql_tsi_week string sqlwarning second sql_no_cache subpartition sql_tsi_day share serial schemas soname sql_buffer_result straight_join sql_cache smallint sqlexception sql_thread slave sql_tsi_minute starts separator suspend sounds schema snapshot sql_tsi_hour second_microsecond session serializable sql_tsi_second ssl subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source sql_tsi_frac_second server security sql_tsi_quarter some specific swaps sqlstate schedule super socket sql_big_result sql_tsi_month signed subpartitions spatial sql starting
+      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers temporary transaction tables timestampdiff tinytext terminated trailing tinyint time tinyblob
+      utc_date utc_timestamp until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage using unique undofile undo_buffer_size use_frm
+      varying values varbinary variables view value varcharacter varchar
+      wait work write wrapper warnings where while with when
+      xor x509
+      year year_month
+      zerofill
+    </keywords>
+  </language>
+
+  <language name="SCLEX_MYSQL_55">
+    <keywords name="Major Keywords">
+      analyze alter
+      begin binlog
+      cache call change check checksum commit create
+      deallocate delete desc describe do drop
+      execute explain
+      flush
+      grant
+      handler help
+      insert install
+      kill
+      load lock
+      optimize
+      partition prepare purge
+      release remove rename repair replace reset revoke rollback
+      savepoint select set show start stop
+      truncate
+      uninstall unlock update use
+      xa
+    </keywords>
+
+    <keywords name="Keywords">
+      all asensitive action auto_increment after asc authors and any against avg aggregate add avg_row_length accessible as at algorithm autoextend_size
+      before between binary bigint bit blob block bool boolean both btree by byte
+      code chain compact compressed cursor_name changed class_origin contains completion constraint_name charset cascade committed condition constraint_schema collate collation consistent current_date columns cube catalog_name close connection context case cursor current_time cross client current_timestamp character column_name continue constraint column cipher cascaded constraint_catalog contributors char concurrent cpu
+      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double declare day_microsecond databases datetime datafile day_minute distinctrow des_key_file database discard day_second day_hour delayed default definer directory
+      every enclosed errors escaped each event elseif exists ends engines engine enable else error events extended extent_size escape exit enum expansion
+      force full from fulltext fetch faults float found first function false float4 fields fixed float8 foreign for fast file format
+      general geometry geometrycollection get_format global grants group
+      hour_minute hour_second hash hour high_priority hour_microsecond hosts host having
+      issuer index ipc identified indexes iterate inout isolation invoker import insert_method io_thread is io in insensitive if integer initial_size ignore infile into inner ignore_server_ids int4 int1 int3 int2 int8 int interval
+      join
+      key_block_size key keys
+      localtime longtext list leave leaves loop locks lines logs linear language long leading linestring longblob localtimestamp local logfile last left less low_priority like limit level
+      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode master_host max_queries_per_hour master_heartbeat_period mediumtext master_ssl_verify_server_cert max_user_connections master master_ssl_key microsecond message_text multipoint mediumblob multilinestring multipolygon master_port mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second mysql_errno master_ssl max_size match max_updates_per_hour master_connect_retry master_log_file master_user minute_microsecond master_password medium master_ssl_cert master_server_id maxvalue
+      no_write_to_binlog no_wait new nodegroup names none nvarchar natural not name numeric ndbcluster null national nchar ndb next no
+      options or order one_shot out one owner open option outfile outer offset on optionally
+      partial partitions plugins port prev profiles process profile proxy primary phase pack_keys processlist preserve plugin point precision procedure privileges password page partitioning parser polygon
+      query quick
+      replication rollup relay_thread row relay_log_pos relay read_only redundant return resume relaylog restrict returns repeatable require resignal reorganize rtree routine remove reload rlike row_format redofile rebuild redo_buffer_size read_write reads recover real read regexp range right references rows relay_log_file
+      switches sql_tsi_week string sqlwarning second slow subclass_origin sql_no_cache subpartition sql_tsi_day share serial schemas soname sql_buffer_result straight_join schema_name sql_cache smallint sqlexception sql_thread slave sql_tsi_minute starts separator suspend sounds schema snapshot sql_tsi_hour second_microsecond session serializable sql_tsi_second ssl subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source signal server security sql_tsi_quarter some specific swaps sqlstate schedule super socket sql_big_result sql_tsi_month signed subpartitions spatial sql starting
+      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers temporary transaction tables timestampdiff tinytext terminated table_name trailing tinyint time tinyblob
+      utc_date utc_timestamp until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage using unique undofile undo_buffer_size use_frm
+      varying values varbinary variables view value varcharacter varchar
+      wait work write wrapper warnings where while with when
+      xor x509 xml
+      year year_month
+      zerofill
+    </keywords>
+  </language>
+
+  <language name="SCLEX_MYSQL_56">
+    <keywords name="Major Keywords">
+      analyze alter
+      begin binlog
+      cache call change check checksum commit create
+      deallocate delete desc describe do drop
+      execute explain
+      flush
+      grant
+      handler help
+      insert install
+      kill
+      load lock
+      optimize
+      partition prepare purge
+      release remove rename repair replace reset revoke rollback
+      savepoint select set show start stop
+      truncate
+      uninstall unlock update use
+      xa
+    </keywords>
+
+    <keywords name="Keywords">
+      all asensitive action auto_increment after asc and any authors against add avg aggregate avg_row_length accessible as at algorithm autoextend_size
+      btree boolean binary before by byte between both bigint blob bit block bool
+      code chain compact current compressed cursor_name changed class_origin contains completion constraint_name charset cascade committed condition constraint_schema collate collation consistent current_date cipher columns cube catalog_name close connection context case cursor current_time cross client current_timestamp character column_name continue constraint column cascaded constraint_catalog contributors char concurrent cpu
+      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double declare day_microsecond diagnostics datetime datafile day_minute distinctrow des_key_file database discard default_auth day_second day_hour delayed default definer databases directory
+      every enclosed errors exchange escaped each event elseif exists ends engines engine enable else error events extended extent_size escape exit enum expansion
+      force full from fulltext fetch faults float found first function false float4 fields fixed float8 foreign for fast file format
+      global group geometry get_format geometrycollection get grants general
+      hour_minute hour_second hash hour high_priority hour_microsecond hosts host having
+      issuer index ipc identified indexes iterate inout isolation io_after_gtids invoker import insert_method io_thread is io in insensitive if integer initial_size ignore infile into inner ignore_server_ids int4 int1 int3 int2 int8 int interval io_before_gtids
+      join
+      key_block_size key keys
+      localtime longtext list leave leaves loop locks lines logs linear language long leading longblob localtimestamp local logfile linestring last left less low_priority like limit level
+      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode master_ssl_crlpath master_host master_ssl_crl max_queries_per_hour master_heartbeat_period mediumtext master_ssl_verify_server_cert max_user_connections master master_delay master_retry_count master_ssl_key message_text multipoint mediumblob multilinestring multipolygon master_port mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second mysql_errno master_ssl max_size match max_updates_per_hour maxvalue master_connect_retry master_log_file master_auto_position master_user microsecond minute_microsecond master_password medium master_ssl_cert master_bind master_server_id
+      no_write_to_binlog no_wait new nodegroup names next none nvarchar natural not name numeric ndbcluster number null national nchar ndb no
+      options or order owner out one open option only outfile outer offset on optionally
+      partial partitions plugins port prev profiles process profile primary proxy phase pack_keys processlist preserve plugin point precision procedure privileges password page partitioning plugin_dir parser polygon
+      query quick
+      replication rollup relay_thread row relay_log_pos relay read_only redundant return resume relaylog restrict returns repeatable require resignal reorganize rtree row_count routine remove reload rlike row_format redofile rebuild redo_buffer_size read_write reads recover real read right regexp range returned_sqlstate references rows relay_log_file
+      switches sql_tsi_week string sqlwarning second slow subclass_origin sql_no_cache subpartition sql_tsi_day share serial schemas soname sql_buffer_result straight_join schema_name sql_cache smallint sqlexception sql_thread slave sql_tsi_minute sql_after_gtids starts separator suspend sounds schema second_microsecond snapshot sql_tsi_hour session serializable sql_tsi_second ssl subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source sql_before_gtids signal server security some specific swaps sqlstate schedule super socket sql_big_result sql_tsi_quarter sql_tsi_month signed subpartitions spatial sql starting
+      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers temporary transaction tables timestampdiff tinytext terminated table_name trailing tinyint time tinyblob
+      utc_date utc_timestamp use until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage using unique undofile undo_buffer_size use_frm
+      varying values varbinary variables view value varcharacter varchar
+      wait work write wrapper warnings weight_string where while with when
+      xor x509 xml
+      year year_month
+      zerofill
+    </keywords>
+  </language> <!-- SCLEX_MYSQL_56 -->
+
+  <language name="SCLEX_LUA">
+
+    <property name="fold.compact" value="0" />
+
+    <setting name="usetabs" value="1" />
+    <setting name="tabwidth" value="4" />
+    <setting name="indentation" value="4" />
+
+    <keywords name="Keywords">
+      and break do else elseif end false for function if
+      in local nil not or repeat return then true until while
+      assert collectgarbage dofile error gcinfo loadfile loadstring
+      print rawget rawset require tonumber tostring type unpack
+      _G getfenv getmetatable ipairs loadlib next pairs pcall
+      rawequal setfenv setmetatable xpcall
+      string table math coroutine io os debug
+      load module select
+      string.byte string.char string.dump string.find string.len
+      string.lower string.rep string.sub string.upper string.format string.gfind string.gsub
+      table.concat table.foreach table.foreachi table.getn table.sort table.insert table.remove table.setn
+      math.abs math.acos math.asin math.atan math.atan2 math.ceil math.cos math.deg math.exp
+      math.floor math.frexp math.ldexp math.log math.log10 math.max math.min math.mod
+      math.pi math.pow math.rad math.random math.randomseed math.sin math.sqrt math.tan
+      string.gmatch string.match string.reverse table.maxn
+      math.cosh math.fmod math.modf math.sinh math.tanh math.huge
+      coroutine.create coroutine.resume coroutine.status
+      coroutine.wrap coroutine.yield
+      io.close io.flush io.input io.lines io.open io.output io.read io.tmpfile io.type io.write
+      io.stdin io.stdout io.stderr
+      os.clock os.date os.difftime os.execute os.exit os.getenv os.remove os.rename
+      os.setlocale os.time os.tmpname
+      coroutine.running package.cpath package.loaded package.loadlib package.path
+      package.preload package.seeall io.popen
+    </keywords>
+
+    <style id="0" fore-color="#000000" /> <!-- SCE_LUA_DEFAULT -->
+
+    <style id="1" fore-color="#A0A0A0" /> <!-- SCE_LUA_COMMENT -->
+    <style id="2" fore-color="#A0A0A0" /> <!-- SCE_LUA_COMMENTLINE -->
+
+    <style id="4" fore-color="#F0A030" /> <!-- SCE_LUA_NUMBER -->
+    <style id="6" fore-color="#209F20" /> <!-- SCE_LUA_STRING -->
+
+    <style id="5" fore-color="#007FBF" bold="Yes" /> <!-- SCE_LUA_WORD -->
+    <style id="10" bold="Yes" /> <!-- SCE_LUA_OPERATOR -->
+
+    <style id="11" fore-color="#000000" /> <!-- SCE_LUA_IDENTIFIER -->
+
+  </language>
+
+  <language name="SCLEX_PYTHON">
+
+    <property name="tab.timmy.whinge.level" value="1" />
+
+    <!-- Editor settings -->
+    <setting name="usetabs" value="0" />
+    <setting name="tabwidth" value="4" />
+    <setting name="indentation" value="4" />
+
+    <!-- Keywords from http://docs.python.org/release/2.3.5/ref/keywords.html -->
+    <keywords name="Keywords">
+      and del for is raise
+      assert elif from lambda return
+      break else global not try 
+      class except if or while 
+      continue exec import pass yield
+      def finally in print
+      as none
+    </keywords>
+
+    <style id="0" fore-color="#000000" /> <!-- SCE_P_DEFAULT -->
+
+    <style id="12" fore-color="#097BF7" /> <!-- SCE_P_COMMENTBLOCK -->
+    <style id="1" fore-color="#097BF7" /> <!-- SCE_P_COMMENTLINE -->
+
+    <style id="2" fore-color="#3EAAFF" /> <!-- SCE_P_NUMBER -->
+    <style id="3" fore-color="#3EAAFF" /> <!-- SCE_P_STRING -->
+    <style id="4" fore-color="#3EAAFF" /> <!-- SCE_P_CHARACTER -->
+    <style id="6" fore-color="#3EAAFF" /> <!-- SCE_P_TRIPLE -->
+    <style id="7" fore-color="#6D4A27" /> <!-- SCE_P_TRIPLEDOUBLE -->
+
+    <style id="5" fore-color="#C00000" bold="Yes"/> <!-- SCE_P_WORD -->
+    <style id="8" fore-color="#003690" bold="Yes" /> <!-- SCE_P_CLASSNAME -->
+    <style id="9" fore-color="#7F0000" bold="Yes" /> <!-- SCE_P_DEFNAME -->
+    <style id="10" fore-color="#000000" bold="Yes" /> <!-- SCE_P_OPERATOR -->
+
+    <style id="11" fore-color="#000000" /> <!-- SCE_P_IDENTIFIER -->
+
+  </language>
+
+  <language name="SCLEX_HTML">
+    <!-- This is a complex lexer with several sublanguages (html, xml, java script, php script, vb sript, python)-->
+
+    <setting name="usetabs" value="0" />
+    <setting name="tabwidth" value="4" />
+    <setting name="indentation" value="4" />
+
+    <keywords name="HTML elements and attributes">
+      !doctype a abbr accept-charset accept accesskey acronym action address align alink alt applet archive area axis
+      b background base basefont bdo bgcolor big blockquote body border br button caption cellpadding cellspacing center
+      char charoff charset checkbox checked cite class classid clear code codebase codetype col colgroup color cols colspan
+      compact content coords data datafld dataformatas datapagesize datasrc datetime dd declare defer del dfn dir disabled
+      div dl dt em enctype event face fieldset file font for form frame frameborder frameset h1 h2 h3 h4 h5 h6 head headers
+      height hidden hr href hreflang hspace html http-equiv i id iframe image img input ins isindex ismap kbd label lang
+      language leftmargin legend li link longdesc map marginwidth marginheight maxlength media menu meta method multiple
+      name noframes nohref noresize noscript noshade nowrap object ol onblur onchange onclick ondblclick onfocus onkeydown
+      onkeypress onkeyup onload onmousedown onmousemove onmouseover onmouseout onmouseup optgroup option onreset onselect
+      onsubmit onunload p param password profile pre prompt public q radio readonly rel reset rev rows rowspan rules s samp
+      scheme scope script select selected shape size small span src standby start strike strong style sub submit summary sup
+      tabindex table target tbody td text textarea tfoot th thead title topmargin tr tt type u ul usemap valign value valuetype
+      var version vlink vspace width xml xmlns
+    </keywords>
+
+    <keywords name="JavaScript keywords">
+      abstract boolean break byte case catch char class const continue debugger default delete do double else enum export
+      extends final finally float for function goto if implements import in instanceof int interface long native new package
+      private protected public return short static super switch synchronized this throw throws transient try typeof var void
+      volatile while with true false prototype
+    </keywords>
+      
+    <keywords name="VBScript keywords">
+      addhandler addressof andalso alias and ansi as assembly attribute auto begin boolean byref byte byval call case catch
+      cbool cbyte cchar cdate cdec cdbl char cint class clng cobj compare const continue cshort csng cstr ctype currency date
+      decimal declare default delegate dim do double each else elseif end enum erase error event exit explicit false finally
+      for friend function get gettype global gosub goto handles if implement implements imports in inherits integer interface
+      is let lib like load long loop lset me mid mod module mustinherit mustoverride mybase myclass namespace new next not
+      nothing notinheritable notoverridable object on option optional or orelse overloads overridable overrides paramarray
+      preserve private property protected public raiseevent readonly redim rem removehandler rset resume return select set
+      shadows shared short single static step stop string structure sub synclock then throw to true try type typeof unload
+      unicode until variant wend when while with withevents writeonly xor
+    </keywords>
+        
+    <keywords name="Python keywords">
+      and as assert break class continue def del elif else except exec finally for from global if import in is lambda None
+      not or pass print raise return triple try while with yield
+    </keywords>
+
+    <keywords name="PHP keywords">
+      and or xor __file__ __line__ array as break case cfunction class const continue declare default die do echo else elseif
+      empty enddeclare endfor endforeach endif endswitch endwhile eval exit extends for foreach function global if include
+      include_once isset list new old_function print require require_once return static switch unset use var while __function__
+      __class__ php_version php_os default_include_path pear_install_dir pear_extension_dir php_extension_dir php_bindir php_libdir
+      php_datadir php_sysconfdir php_localstatedir php_config_file_path php_output_handler_start php_output_handler_cont
+      php_output_handler_end e_error e_warning e_parse e_notice e_core_error e_core_warning e_compile_error e_compile_warning
+      e_user_error e_user_warning e_user_notice e_all true false bool boolean int integer float double real string array object
+      resource null class extends parent stdclass directory __sleep __wakeup interface implements abstract public protected private
+    </keywords>
+
+    <style id="0" fore-color="#000000" /> <!-- SCE_HPHP_DEFAULT -->
+
+    <style id="124" fore-color="#F77B09" /> <!-- SCE_HPHP_COMMENT -->
+    <style id="125" fore-color="#F77B09" /> <!-- SCE_HPHP_COMMENTLINE -->
+    
+    <style id="121" fore-color="#C00000" bold="Yes"/> <!-- SCE_HPHP_WORD -->
+  </language>
+
+  <language name="SCLEX_CPP">
+    <property name="styling.within.preprocessor" value="0" />
+    <property name="lexer.cpp.allow.dollars" value="1" />
+    <property name="lexer.cpp.track.preprocessor" value="1" />
+    <property name="lexer.cpp.update.preprocessor" value="1" />
+    <property name="lexer.cpp.triplequoted.strings" value="1" />
+    <property name="lexer.cpp.hashquoted.strings" value="1" />
+    <property name="fold.cpp.syntax.based" value="1" />
+    <property name="fold.comment" value="1" />
+    <property name="fold.cpp.comment.multiline" value="1" />
+    <property name="fold.cpp.comment.explicit" value="1" />
+    <property name="fold.preprocessor" value="1" />
+    <property name="fold.at.else" value="1" />
+    
+    <!-- Editor settings -->
+    <setting name="usetabs" value="0" />
+    <setting name="tabwidth" value="2" />
+    <setting name="indentation" value="2" />
+
+    <keywords name="Primary keywords and identifiers">
+      alignas alignof and and_eq asm auto bitand bitor bool break case catch char char16_t char32_t class compl const constexpr
+      const_cast continue decltype default delete do double dynamic_cast else enum explicit export extern false float for friend
+      goto if inline int long mutable namespace new noexcept not not_eq nullptr operator or or_eq private protected public register
+      reinterpret_cast return short signed sizeof static static_assert static_cast struct switch template this thread_local throw
+      true try typedef typeid typename union unsigned using virtual void volatile wchar_t while xor xor_eq 
+    </keywords>
+
+    <keywords name="Secondary keywords and identifiers">
+    </keywords>
+
+    <keywords name="Documentation comment keywords">
+    </keywords>
+
+    <keywords name="Global classes and typedefs">
+    </keywords>
+
+    <keywords name="Preprocessor definitions">
+      if elseif else endif defined define import include
+    </keywords>
+
+    <style id="0" fore-color="#000000" /> <!-- SCE_C_DEFAULT -->
+    <style id="1" fore-color="#097BF7" /> <!-- SCE_C_COMMENT -->
+    <style id="2" fore-color="#097BF7" /> <!-- SCE_C_COMMENTLINE -->
+    <style id="3" fore-color="#097BF7" /> <!-- SCE_C_COMMENTDOC -->
+    <style id="4" fore-color="#3EAAFF" /> <!-- SCE_C_NUMBER -->
+    <style id="5" fore-color="#000000"  bold="Yes"/> <!-- SCE_C_WORD -->
+    <style id="6" fore-color="#3EAAFF" /> <!-- SCE_C_STRING -->
+    <style id="7" fore-color="#3EAAFF" /> <!-- SCE_C_CHARACTER -->
+    <style id="8" fore-color="#3EAAFF" /> <!-- SCE_C_UUID -->
+    <style id="9" fore-color="#000000" /> <!-- SCE_C_PREPROCESSOR -->
+    <style id="10" fore-color="#000000" /> <!-- SCE_C_OPERATOR -->
+    <style id="11" fore-color="#000000" /> <!-- SCE_C_IDENTIFIER -->
+    <style id="12" fore-color="#000000" /> <!-- SCE_C_STRINGEOL -->
+    <style id="13" fore-color="#000000" /> <!-- SCE_C_VERBATIM -->
+    <style id="14" fore-color="#000000" /> <!-- SCE_C_REGEX -->
+    <style id="15" fore-color="#097BF7" /> <!-- SCE_C_COMMENTLINEDOC -->
+    <style id="16" fore-color="#000000"  bold="Yes" /> <!-- SCE_C_WORD2 -->
+    <style id="17" fore-color="#000000" /> <!-- SCE_C_COMMENTDOCKEYWORD -->
+    <style id="18" fore-color="#000000" /> <!-- SCE_C_COMMENTDOCKEYWORDERROR -->
+    <style id="19" fore-color="#000000"  bold="Yes" /> <!-- SCE_C_GLOBALCLASS -->
+    <style id="20" fore-color="#3EAAFF" /> <!-- SCE_C_STRINGRAW -->
+    <style id="21" fore-color="#000000" /> <!-- SCE_C_TRIPLEVERBATIM -->
+    <style id="22" fore-color="#000000" /> <!-- SCE_C_HASHQUOTEDSTRING -->
+    <style id="23" fore-color="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENT -->
+    <style id="24" fore-color="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENTDOC -->
+
+    </language>
+
+</languages>

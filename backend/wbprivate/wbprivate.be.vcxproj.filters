@@ -1,0 +1,431 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="sqlide Source Files">
+      <UniqueIdentifier>{90ddd912-109f-4899-ba28-04d5d2f9c209}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sqlide Header Files">
+      <UniqueIdentifier>{1ff1866f-eba7-4dd3-9431-6c22f8460e8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WMI">
+      <UniqueIdentifier>{b80db3ff-624d-409b-8513-7e41f0d94646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files %28UI%29">
+      <UniqueIdentifier>{2e24c0b9-745b-4970-83fb-bafad60a8076}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files %28UI%29">
+      <UniqueIdentifier>{1afdc4c5-1cab-4c97-9311-bf0e1bb4713e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="model\canvas_floater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\home_screen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\metaclasses.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\mini_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\relationship_canvas_floater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\upgrade_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_catalog_tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_command_ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_component_basic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_component_logical.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_component_physical.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_component_physical_relationship.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_context_model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_context_ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_context_ui_home.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_diagram_options.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_layer_tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_model_diagram_form.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_model_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_model_file_upgrade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_module.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_overview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_overview_diagram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_overview_physical.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_overview_physical_schema.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_physical_model_diagram_features.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_tunnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_user_datatypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\webbrowser_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\document_properties_form.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\grt_code_editor.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\grt_python_debugger.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\grt_shell_window.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\new_connection_wizard.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\new_server_instance_wizard.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\output_view.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\plugin_manager_window.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\preferences_form.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\server_instance_editor.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\user_defined_type_editor.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\db_sql_editor_log.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_context_sqlide.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_live_schema_tree.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_form.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_snippets.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wmi.cpp">
+      <Filter>WMI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\advanced_sidebar.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\plugin_install_window.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\select_option_dialog.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\query_side_palette.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_tree_controller.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\db_sql_editor_history_be.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\snippet_popover.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_buffer.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_form_ui.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\wb_db_schema.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_history_tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_help.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_template_list.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_overview_privileges.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\snippet_list.cpp">
+      <Filter>Source Files %28UI%29</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\about_box.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model\wb_catalog_tree_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_result_panel.cpp">
+      <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="model\canvas_floater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\home_screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\mini_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\relationship_canvas_floater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\upgrade_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_backend_public_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_catalog_tree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_command_ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_component_basic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_component_logical.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_component_physical.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_context_ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_diagram_options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_find_dialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_layer_tree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_model_diagram_form.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_model_file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_overview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_overview_diagram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_overview_physical.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_overview_physical_schema.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_tunnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_user_datatypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\webbrowser_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\db_sql_editor_history_be.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_context_sqlide.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_live_schema_tree.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_form.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_snippets.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\document_properties_form.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\grt_code_editor.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\grt_plugin_wizard.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\grt_python_debugger.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\grt_shell_window.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\new_connection_wizard.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\new_server_instance_wizard.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\output_view.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\plugin_manager_window.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\preferences_form.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\server_instance_editor.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\user_defined_type_editor.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wmi.h">
+      <Filter>WMI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\advanced_sidebar.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\plugin_install_window.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\select_option_dialog.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\query_side_palette.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_tree_controller.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\snippet_popover.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_buffer.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_form_ui.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\db_sql_editor_log.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_db_schema.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_history_tree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_help.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_template_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_overview_privileges.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\frontend\common\snippet_list.h">
+      <Filter>Header Files %28UI%29</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\wb_context_ui_home.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\about_box.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_catalog_tree_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_result_panel.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model\wb_context_model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workbench\stdafx.h" />
+  </ItemGroup>
+</Project>

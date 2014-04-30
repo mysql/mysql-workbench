@@ -1,0 +1,5 @@
+extension=xml
+description=XML (mysql format)
+pre_quote_strings=0
+include_column_types=
+null_syntax=NULL
