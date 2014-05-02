@@ -1683,24 +1683,31 @@ void TreeNodeViewImpl::set_allow_sorting(bool flag)
     col->signal_clicked().connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::header_clicked),mcol,col));
     
     //  Align columns text depending on the visualization type
+    float align = 0.0f;
+    
     switch(get_owner()->get_column_type(i))
     {
       case StringColumnType:
       case StringLTColumnType:
       case IconColumnType:
-        col->get_first_cell()->set_alignment(0, 0);
+        align = 0.0f;
         break;
       case IntegerColumnType:
       case LongIntegerColumnType:
       case FloatColumnType:
       case NumberWithUnitColumnType:
-        col->get_first_cell()->set_alignment(1.0f, 0);
+        align = 1.0f;
         break;
       case CheckColumnType:
       case TriCheckColumnType:
-        col->get_first_cell()->set_alignment(0.5f, 0);
+        align = 0.5f;
         break;
     }      
+    
+    Glib::ListHandle<Gtk::CellRenderer*> renderers = col->get_cell_renderers();
+    
+    for (Glib::ListHandle<Gtk::CellRenderer*>::const_iterator iter = renderers.begin(); iter != renderers.end(); ++iter)
+      (*iter)->set_alignment(align, 0);
     
     //  Set the proper compare method to the sorting functions depending on the storage type
     switch (mcol->type())
