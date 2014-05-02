@@ -1,0 +1,11 @@
+add_subdirectory(admin)
+add_subdirectory(cursors)
+add_subdirectory(grt)
+add_subdirectory(home)
+add_subdirectory(icons)
+add_subdirectory(migration)
+add_subdirectory(toolbar)
+add_subdirectory(ui)
+add_subdirectory(sql)
+
+install(FILES ${IMAGE_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/images)

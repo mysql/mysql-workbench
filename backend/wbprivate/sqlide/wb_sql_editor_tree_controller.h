@@ -1,0 +1,171 @@
+/* 
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+
+#include "workbench/wb_backend_public_interface.h"
+#include "sqlide/wb_live_schema_tree.h"
+#include "sqlide/db_sql_editor_log.h" // for RowId
+#include "grt/grt_threaded_task.h"
+
+#include "grts/structs.db.h"
+#include "grts/structs.db.mgmt.h"
+
+#include "grtpp_notifications.h"
+
+#include <boost/enable_shared_from_this.hpp>
+
+class SqlEditorForm;
+
+namespace bec {
+  class GRTManager;
+  class DBObjectEditorBE;
+};
+
+namespace mforms {
+  class View;
+  class Box;
+  class Splitter;
+  class TabView;
+  class HyperText;
+  class MenuItem;
+};
+
+namespace wb {
+  class SimpleSidebar;
+}
+
+class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorTreeController : public base::trackable,
+            public grt::GRTObserver,
+            public wb::LiveSchemaTree::FetchDelegate, public wb::LiveSchemaTree::Delegate,
+            public boost::enable_shared_from_this<SqlEditorTreeController>
+{  
+#if defined(ENABLE_TESTING)
+  friend class EditorFormTester;
+#endif
+  friend class db_query_EditorConcreteImplData;
+
+public:
+  static boost::shared_ptr<SqlEditorTreeController> create(SqlEditorForm *owner);
+  virtual ~SqlEditorTreeController();
+  
+  void finish_init();
+  void prepare_close();
+  
+private:
+  SqlEditorTreeController(SqlEditorForm *owner);
+  
+  SqlEditorForm *_owner;
+  bec::GRTManager *_grtm;
+
+  wb::SimpleSidebar *_schema_side_bar;
+  wb::SimpleSidebar *_admin_side_bar;
+  mforms::TabView *_task_tabview;
+  mforms::Box *_taskbar_box;
+
+  wb::LiveSchemaTree *_schema_tree;
+  wb::LiveSchemaTree _base_schema_tree;
+  wb::LiveSchemaTree _filtered_schema_tree;
+  base::Mutex _schema_contents_mutex;
+  GrtThreadedTask::Ref live_schema_fetch_task;
+  GrtThreadedTask::Ref live_schemata_refresh_task;
+  bool _is_refreshing_schema_tree;
+  bool _unified_mode;
+
+  mforms::Splitter *_side_splitter;
+  mforms::TabView *_info_tabview;
+  mforms::HyperText *_object_info;
+  mforms::HyperText *_session_info;
+  
+  boost::signals2::scoped_connection _splitter_connection;
+
+  // Observer
+  virtual void handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info);
+  
+  // LiveSchemaTree::FetchDelegate
+  virtual std::list<std::string> fetch_schema_list();
+  virtual bool fetch_data_for_filter(const std::string &schema_filter, const std::string &object_filter, const wb::LiveSchemaTree::NewSchemaContentArrivedSlot &arrived_slot);
+  virtual bool fetch_schema_contents(const std::string &schema_name, const wb::LiveSchemaTree::NewSchemaContentArrivedSlot &arrived_slot);
+  virtual bool fetch_object_details(const std::string& schema_name, const std::string& object_name, wb::LiveSchemaTree::ObjectType type, short flags, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot&);
+  virtual bool fetch_routine_details(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type);  
+  // LiveSchemaTree::Delegate
+  virtual void tree_refresh();
+  virtual bool sidebar_action(const std::string&);
+  virtual void tree_activate_objects(const std::string&, const std::vector<wb::LiveSchemaTree::ChangeRecord>& changes);
+  
+public:
+  virtual void tree_create_object(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);  
+
+  std::string generate_alter_script(const db_mgmt_RdbmsRef &rdbms, db_DatabaseObjectRef db_object, std::string algorithm, std::string lock);
+
+private:
+  grt::StringRef do_fetch_live_schema_contents(grt::GRT *grt, boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_name, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot);
+  wb::LiveSchemaTree::ObjectType fetch_object_type(const std::string& schema_name, const std::string& obj_name);
+  void fetch_column_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot);
+  void fetch_trigger_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot);
+  void fetch_index_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot);
+  void fetch_foreign_key_data(const std::string& schema_name, const std::string& obj_name, wb::LiveSchemaTree::ObjectType type, const wb::LiveSchemaTree::NodeChildrenUpdaterSlot &updater_slot);
+
+  grt::StringRef do_fetch_data_for_filter(grt::GRT *grt, boost::weak_ptr<SqlEditorTreeController> self_ptr, const std::string &schema_filter, const std::string &object_filter, wb::LiveSchemaTree::NewSchemaContentArrivedSlot arrived_slot);
+
+  void schema_row_selected();
+  void side_bar_filter_changed(const std::string& filter);
+  void sidebar_splitter_changed();
+
+  void context_menu_will_show(mforms::MenuItem *parent_item);
+public:
+  void refresh_live_object_in_editor(bec::DBObjectEditorBE* obj_editor, bool using_old_name);
+  void refresh_live_object_in_overview(wb::LiveSchemaTree::ObjectType type, const std::string schema_name, const std::string old_obj_name, const std::string new_obj_name);
+
+  void on_active_schema_change(const std::string &schema);
+  void mark_busy(bool busy);
+  
+  void open_alter_object_editor(db_DatabaseObjectRef object, db_CatalogRef server_state_catalog);
+private:
+  grt::StringRef do_refresh_schema_tree_safe(grt::GRT *grt, boost::weak_ptr<SqlEditorForm> self_ptr);
+  
+  int insert_text_to_active_editor(const std::string& str);
+private:
+  void do_alter_live_object(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);
+  
+  std::string get_object_ddl_script(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);
+  
+  bool parse_ddl_into_catalog(db_mgmt_RdbmsRef rdbms, db_CatalogRef client_state_catalog, const std::string &obj_descr, const std::string &ddl_script, std::string sql_mode);
+  
+public:
+  void schema_object_activated(const std::string &action, wb::LiveSchemaTree::ObjectType type, const std::string &schema, const std::string &name);
+  bool apply_changes_to_object(bec::DBObjectEditorBE* obj_editor, bool dry_run);
+  
+  mforms::View *get_sidebar();
+  
+  wb::LiveSchemaTree *get_schema_tree();
+  void request_refresh_schema_tree();
+
+public:
+  void create_live_table_stubs(bec::DBObjectEditorBE *table_editor);
+  bool expand_live_table_stub(bec::DBObjectEditorBE *table_editor, const std::string &schema_name, const std::string &obj_name);
+  
+public:
+  bool activate_live_object(GrtObjectRef object);
+  
+private:
+  db_SchemaRef create_new_schema(db_CatalogRef owner);
+  db_TableRef create_new_table(db_SchemaRef owner);
+  db_ViewRef create_new_view(db_SchemaRef owner);
+  db_RoutineRef create_new_routine(db_SchemaRef owner, wb::LiveSchemaTree::ObjectType type);
+};

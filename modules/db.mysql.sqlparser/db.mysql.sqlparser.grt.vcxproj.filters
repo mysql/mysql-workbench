@@ -1,0 +1,292 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{E9981280-0989-468d-82B4-61AD0CDCB8CA}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{F8F0A6B7-C2B5-46b4-833F-056FEB8D20FC}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="AST Builder">
+      <UniqueIdentifier>{1c19885a-3aad-4ec2-a5c0-527fe1ca3510}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AST Builder\sources">
+      <UniqueIdentifier>{89a8b70f-d807-466c-823e-a62f52a05456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AST Builder\generated">
+      <UniqueIdentifier>{3b0ed046-d923-453a-aa8f-8cec9716f9e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AST Builder\headers">
+      <UniqueIdentifier>{c975314a-0e9d-4a16-8585-6c9ab1c758e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AST Builder\server_sources">
+      <UniqueIdentifier>{65cd9e28-50fa-46e2-973b-e0215331854f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\db.mysql.sqlparser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_invalid_sql_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_facade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_inserts_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_normalizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_parser_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_parser_fe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_parser_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_schema_rename.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_script_splitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_semantic_check.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_specifics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_statement_decomposer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mysql_sql_syntax_check.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\myx_lex_helpers.cpp">
+      <Filter>AST Builder\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\myx_sql_tree_item.cpp">
+      <Filter>AST Builder\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\myx_statement_parser.cpp">
+      <Filter>AST Builder\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\myx_unicode_scanner.cpp">
+      <Filter>AST Builder\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\windows\myx_sql_parser.tab.cc">
+      <Filter>AST Builder\generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\sql_parser_symbols.cpp">
+      <Filter>AST Builder\generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\charset-def.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\charset.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-big5.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-bin.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-cp932.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-czech.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-euc_kr.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-eucjpms.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-extra.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-gb2312.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-gbk.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-latin1.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-mb.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-simple.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-sjis.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-tis620.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-uca.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-ucs2.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-ujis.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-utf8.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype-win1250ch.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\ctype.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\int2str.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\my_lib.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\my_messnc.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\my_static.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\my_strtoll10.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\my_vsnprintf.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\str_alloc.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\strmake.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\strnmov.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\strtod.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\strxmov.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\sql-parser\source\xml.cpp">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\mysql_invalid_sql_parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_facade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_inserts_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_normalizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_parser_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_parser_fe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_parser_public_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_parser_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_schema_rename.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_script_splitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_semantic_check.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_specifics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_statement_decomposer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mysql_sql_syntax_check.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\include\lex.h">
+      <Filter>AST Builder\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\include\myx_lex_helpers.h">
+      <Filter>AST Builder\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\include\myx_sql_parser_public_interface.h">
+      <Filter>AST Builder\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\include\myx_sql_tree_item.h">
+      <Filter>AST Builder\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\include\myx_statement_parser.h">
+      <Filter>AST Builder\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\source\config-win.h">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\source\m_string.h">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\source\my_dir.h">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\source\my_global.h">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\source\my_static.h">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\source\my_sys.h">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\sql-parser\source\sql_lex.h">
+      <Filter>AST Builder\server_sources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\library\sql-parser\source\myx_sql_parser.yy">
+      <Filter>AST Builder</Filter>
+    </None>
+    <None Include="..\..\library\sql-parser\source\windows\myx_sql_parser.tab.hh">
+      <Filter>AST Builder\generated</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+      <requires file="structs.db.xml"/>
+
+      <gstruct attr:caption="MSSQL Catalog" name="db.mssql.Catalog" parent="db.Catalog">
+          <members>
+              <member content-struct-name="db.mssql.Schema" content-type="object" name="schemata" overrides="db.Schema" type="list" owned="1"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="MSSQL Schema" name="db.mssql.Schema" parent="db.Schema">
+          <members>
+              <member content-struct-name="db.mssql.Table" content-type="object" name="tables" overrides="db.Table" type="list" owned="1"/>
+              <member content-struct-name="db.mssql.View" content-type="object" name="views" overrides="db.View" type="list" owned="1"/>
+              <member content-struct-name="db.mssql.Routine" content-type="object" name="routines" overrides="db.Routine" type="list" owned="1"/>
+              <member content-struct-name="db.mssql.RoutineGroup" content-type="object" name="routineGroups" overrides="db.RoutineGroup" type="list" owned="1"/>
+              <member content-struct-name="db.mssql.Synonym" content-type="object" name="synonyms" overrides="db.Synonym" type="list" owned="1"/>
+              <member content-struct-name="db.mssql.StructuredDatatype" content-type="object" name="structuredTypes" overrides="db.StructuredDatatype" type="list" owned="1"/>
+              <member content-struct-name="db.mssql.Sequence" content-type="object" name="sequences" overrides="db.Sequence" type="list" owned="1"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="MSSQL Table" attr:desc="a MSSQL database table object" name="db.mssql.Table" parent="db.Table">
+          <members>
+              <member name="createdDatetime" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mssql.Column" parent="db.Column">
+          <members>
+              <member name="identity" type="int"/>
+              <member name="computed" type="int"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mssql.SimpleDatatype" parent="db.SimpleDatatype"/>
+
+      <gstruct name="db.mssql.UserDatatype" parent="db.UserDatatype">
+           <members>
+              <member name="characterMaximumLength" type="int" attr:desc="maximum number of characters this datatype can store"/>
+              <member name="numericPrecision" type="int" attr:desc="maximum numbers of digits the datatype can store"/>
+              <member name="numericScale" type="int" attr:desc="maximum numbers of digits right from the decimal point the datatype can store"/>
+              <member name="isNullable" type="int" attr:desc="whether NULL is a permitted value"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="MSSQL Structured Datatype" attr:desc="a MSSQL structured datatype object" name="db.mssql.StructuredDatatype" parent="db.StructuredDatatype"/>
+
+      <gstruct name="db.mssql.Index" parent="db.Index">
+          <members>
+              <member name="ignoreDuplicateRows" type="int"/>
+              <member name="clustered" type="int"/>
+              <member name="hasFilter" type="int" attr:desc="whether there is a filter associated to the index" />
+              <member name="filterDefinition" type="string" attr:desc="the definition of the filter associated to the index (expression for the subset of rows included in the filtered index)" />
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mssql.IndexColumn" parent="db.IndexColumn"/>
+
+      <gstruct name="db.mssql.ForeignKey" parent="db.ForeignKey"/>
+
+      <gstruct name="db.mssql.Trigger" parent="db.Trigger"/>
+
+      <gstruct attr:caption="MSSQL View" attr:desc="a MSSQL database view object" name="db.mssql.View" parent="db.View"/>
+
+      <gstruct attr:caption="MSSQL Routine Group" attr:desc="a MSSQL database routine group" name="db.mssql.RoutineGroup" parent="db.RoutineGroup"/>
+
+      <gstruct attr:caption="MSSQL Routine" attr:desc="a MSSQL database routine object" name="db.mssql.Routine" parent="db.Routine"/>
+
+      <gstruct attr:caption="MSSQL Synonym" attr:desc="a MSSQL synonym object" name="db.mssql.Synonym" parent="db.Synonym"/>
+
+      <gstruct attr:caption="MSSQL Sequence" attr:desc="a MSSQL database sequence object" name="db.mssql.Sequence" parent="db.Sequence"/>
+
+  </gstructs>

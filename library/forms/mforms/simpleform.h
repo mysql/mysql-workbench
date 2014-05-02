@@ -1,0 +1,104 @@
+/* 
+ * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+#ifndef _MFORMS_SIMPLEFORM_H_
+#define _MFORMS_SIMPLEFORM_H_
+
+#include <mforms/form.h>
+#include <string>
+#include <list>
+#include <map>
+
+namespace mforms {
+
+  class Label;
+  class View;
+  class Button;
+  class Panel;
+  class Box;
+  class Table;
+
+  class MFORMS_EXPORT SimpleForm : public Form
+  {
+  public:
+    SimpleForm(const std::string &title, const std::string &ok_caption);
+    ~SimpleForm();
+
+    void parse_definition(const std::string &definition);
+
+    //void begin_group();
+    //void end_group();
+
+    void add_label(const std::string &text, bool bold);
+
+    void add_file_picker(const std::string &name, const std::string &caption, 
+      const std::string &default_value="");
+
+    void add_text_entry(const std::string &name, const std::string &caption, 
+      const std::string &default_value="");
+
+    void add_text_area(const std::string &name, const std::string &caption, 
+      int rows, const std::string &default_value="");
+
+    void add_checkbox(const std::string &name, const std::string &caption, 
+      bool default_value= false);
+
+    void add_select(const std::string &name, const std::string &caption,
+      const std::list<std::string> &items, int default_index=-1);
+
+    bool show();
+
+    std::map<std::string, View*> get_views();
+    std::string get_string_value(const std::string &name);
+    bool get_bool_value(const std::string &name);
+    int get_int_value(const std::string &name);
+
+  private:
+
+    // Visual Studio produces a warning about this structure and its use in the list below. It complains about having no
+    // DLL interface for it. Huh? This is a private structure and never given out to anyone.
+    // If that ever changes then remove the pragma and export the list type properly!
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable:4251)
+#endif // _WIN32
+    struct Row
+    {
+      Label *caption;
+      View *view;
+      int spacing;    // TODO: this spacing has no function in a table. Investigate if it is still necessary.
+      bool fullwidth; // TODO: similar this value
+    };
+    std::list<Row> _rows;
+    std::string _ok_caption; // STL type, produces the same DLL-interface warning.
+#ifdef _WIN32
+#pragma warning(pop)
+#endif // _WIN32
+
+    Table *_content;
+    Box *_button_box;
+    Button *_ok_button;
+    Button *_cancel_button;
+    int _caption_width;
+    int _view_width;
+    int _title_width;
+  };
+
+};
+
+#endif

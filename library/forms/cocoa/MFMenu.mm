@@ -1,0 +1,200 @@
+/* 
+ * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#import "MFMenu.h"
+
+#import "MFMForms.h"
+
+//--------------------------------------------------------------------------------------------------
+
+@implementation NSMenu(MForms)
+
++ (void) popUpMenu: (NSMenu*) menu forView: (NSView*) view atLocation: (NSPoint) point pullsDown: (BOOL) pullsDown;
+{
+  NSMenu* popup = [menu copy];
+  NSRect frame = NSMakeRect(point.x + 8, point.y + 12, 1, 1);
+  
+  if (pullsDown)
+    [popup insertItemWithTitle: @"" action: NULL keyEquivalent: @"" atIndex: 0];
+  
+  NSPopUpButtonCell* popUpButtonCell = [[[NSPopUpButtonCell alloc] initTextCell: @""
+                                                                      pullsDown: pullsDown]
+                                        autorelease];
+  [popUpButtonCell setMenu: [popup autorelease]];
+  if (!pullsDown)
+    [popUpButtonCell selectItem: nil];
+  [popUpButtonCell performClickWithFrame: frame inView: view];
+}
+@end
+
+//--------------------------------------------------------------------------------------------------
+
+@implementation MFMenuImpl
+
+- (id) initWithObject:(::mforms::Menu*) aMenu
+{
+  self= [super initWithTitle: @""];
+  if (self)
+  {
+    mOwner = aMenu;
+    mOwner->set_data(self);
+    [self setAutoenablesItems: NO];
+  }
+  return self;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (void) handleCommand: (NSMenuItem*) sender
+{
+  NSString* command = [sender representedObject];
+  mOwner->handle_action([command UTF8String]);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static bool menu_create(mforms::Menu *self)
+{
+  MFMenuImpl* menu = [[[MFMenuImpl alloc] initWithObject:self] autorelease];
+  return menu != nil;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static void menu_remove_item(mforms::Menu *self, int i)
+{
+  MFMenuImpl* menu = self->get_data();
+  [menu removeItemAtIndex: i];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static int menu_add_item(mforms::Menu *self, const std::string &caption, const std::string &action)
+{
+  MFMenuImpl* menu = self->get_data();
+
+  NSMenuItem* item;
+  
+  item = [[NSMenuItem alloc] init];
+  [item setRepresentedObject: [NSString stringWithUTF8String: action.c_str()]];
+  [item setTarget: menu];
+  [item setAction: @selector(handleCommand:)];
+  [item setTitle: [NSString stringWithUTF8String: caption.c_str()]];
+  [item setEnabled: true];
+  
+  [menu addItem: item];
+  return [menu numberOfItems] - 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static int menu_add_separator(mforms::Menu *self)
+{
+  MFMenuImpl* menu = self->get_data();
+
+  NSMenuItem* item;
+  item = [NSMenuItem separatorItem];
+  [menu addItem: item];
+  return [menu numberOfItems] - 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static int menu_add_submenu(mforms::Menu *self, const std::string &caption, mforms::Menu *submenu)
+{
+  MFMenuImpl* menu = self->get_data();
+  
+  NSMenuItem* item;
+  item = [[[NSMenuItem alloc] init] autorelease];
+  [item setTitle: [NSString stringWithUTF8String: caption.c_str()]];
+  [item setEnabled: true];
+
+  [menu addItem: item];
+  MFMenuImpl* theSubMenu = submenu->get_data();
+  [menu setSubmenu: theSubMenu forItem: item];
+  return [menu numberOfItems] - 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static void menu_set_item_enabled(mforms::Menu *self, int i, bool flag)
+{
+  MFMenuImpl* menu = self->get_data();
+  
+  [[menu itemAtIndex: i] setEnabled: flag];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static void menu_popup_at(mforms::Menu *self, mforms::Object *control, int x, int y)
+{
+  MFMenuImpl* menu = self->get_data();
+  
+  if (!control)
+    [NSMenu popUpContextMenu: menu withEvent: [NSApp currentEvent] forView: nil];
+  else
+  {
+    id view = control->get_data();
+    if ([view isKindOfClass: [NSWindow class]])
+    {
+      view = [view contentView];
+      y = NSHeight([view frame]) - y;
+    }
+    [NSMenu popUpMenu: menu
+              forView: view
+           atLocation: NSMakePoint(x, y)
+            pullsDown: NO];
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static void menu_clear(mforms::Menu *self)
+{
+  MFMenuImpl* menu = self->get_data();
+  
+  // [menu removeAllItems]; available on 10.6+
+  while ([menu numberOfItems] > 0)
+    [menu removeItemAtIndex: 0];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void cf_menu_init()
+{
+  ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
+  
+  f->_menu_impl.create= &menu_create;
+  f->_menu_impl.add_item= &menu_add_item;
+  f->_menu_impl.add_separator= &menu_add_separator;
+  f->_menu_impl.add_submenu= &menu_add_submenu;
+  f->_menu_impl.set_item_enabled= &menu_set_item_enabled;
+  f->_menu_impl.popup_at= &menu_popup_at;
+  f->_menu_impl.clear= &menu_clear;
+  f->_menu_impl.remove_item= &menu_remove_item;
+}
+
+@end
+
+//--------------------------------------------------------------------------------------------------
+
+NSMenu *nsmenuForMenu(mforms::Menu *menu)
+{
+  return menu->get_data();
+}

@@ -1,0 +1,18 @@
+#ifndef __WBPUBLIC_BACKEND_PUBLIC_INTERFACE_H__
+#define __WBPUBLIC_BACKEND_PUBLIC_INTERFACE_H__
+
+
+#ifdef _WIN32
+
+#ifdef WBPUBLICBACKEND_EXPORTS
+#define WBPUBLICBACKEND_PUBLIC_FUNC __declspec(dllexport)
+#else
+#define WBPUBLICBACKEND_PUBLIC_FUNC __declspec(dllimport)
+#endif
+
+#else
+#define WBPUBLICBACKEND_PUBLIC_FUNC
+#endif
+
+#endif // __WBPUBLIC_BACKEND_PUBLIC_INTERFACE_H__
+

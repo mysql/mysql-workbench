@@ -1,0 +1,2 @@
+?package(mysql-workbench):needs="X11" section="Applications/Programming"\
+  title="MySQL Workbench" command="/usr/bin/mysql-workbench"

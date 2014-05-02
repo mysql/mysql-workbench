@@ -1,0 +1,66 @@
+/*
+ * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#ifndef _WB_LAYER_TREE_H_
+#define _WB_LAYER_TREE_H_
+
+#include "mforms/treenodeview.h"
+#include <set>
+
+#include "grts/structs.workbench.physical.h"
+
+namespace wb 
+{
+  class WBContextUI;
+  class ModelDiagramForm;
+
+  class LayerTree : public mforms::TreeNodeView
+  {
+  private:
+    class FigureNode : public mforms::TreeNodeData
+    {
+    public:
+      model_ObjectRef object;
+      boost::signals2::scoped_connection conn;
+      bool is_layer;
+    };
+
+    ModelDiagramForm *_form;
+    model_DiagramRef _diagram;
+    std::multimap<std::string, workbench_physical_ConnectionRef> _figure_connections;
+    bool _updating_selection;
+
+    void activate_node(const mforms::TreeNodeRef &node, int column);
+    void handle_menu_action(const std::string &name);
+
+    void selection_changed();
+
+    void add_figure_node(mforms::TreeNodeRef parent, model_FigureRef figure, int insertion_point=-1);
+
+    void object_changed(const std::string &key, const grt::ValueRef &value, mforms::TreeNodeRef node);
+    void diagram_objects_changed(grt::internal::OwnedList *list, bool added, const grt::ValueRef &value);
+  public:
+    LayerTree(WBContextUI *wbui, ModelDiagramForm *_form, const model_DiagramRef &diagram);
+    void refresh();
+
+    void refresh_selection_status();
+  };
+};
+
+#endif

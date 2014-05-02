@@ -1,0 +1,44 @@
+execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
+                OUTPUT_VARIABLE GCC_VERSION)
+if (GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
+  add_definitions(-Wno-unused-but-set-variable)
+endif()
+if (GCC_VERSION)
+  add_definitions(-Wno-error)
+endif()
+
+set(MODULE_DATA_FILES
+    ${CMAKE_BINARY_DIR}/library/forms/swig/mforms.py
+    ${CMAKE_BINARY_DIR}/library/forms/swig/cairo.py
+)
+
+install(FILES ${MODULE_DATA_FILES} DESTINATION ${WB_PYTHON_MODULES_DIR})
+
+include_directories(.
+    ${CAIRO_INCLUDE_DIRS}
+    ${GTK2_INCLUDE_DIRS}
+    ${LIBXML2_INCLUDE_DIR}
+    ${SIGC++_INCLUDE_DIRS}
+    ${PYTHON_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/library/grt/src 
+    ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library/forms
+    ${PROJECT_SOURCE_DIR}/generated
+    ${PROJECT_SOURCE_DIR}/backend/wbpublic
+    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
+)
+
+set(CMAKE_SWIG_FLAGS "-w312")
+
+set_source_files_properties(cairo.i PROPERTIES CPLUSPLUS ON)
+set_source_files_properties(cairo.i PROPERTIES SWIG_FLAGS "-DCAIRO_HAS_PNG_FUNCTIONS=1 -fcompact")
+swig_add_module(cairo python cairo.i)
+swig_link_libraries(cairo ${CAIRO_LIBRARIES})
+
+set(CMAKE_SWIG_FLAGS "-w401,402,509")
+set_source_files_properties(mforms.i PROPERTIES CPLUSPLUS ON)
+set_source_files_properties(mforms.i PROPERTIES SWIG_FLAGS "-w512 -fvirtual")
+swig_add_module(mforms python mforms.i)
+swig_link_libraries(mforms mforms wbscintilla ${GTK2_LIBRARIES} ${LIBXML2_LIBRARIES})
+
+install(TARGETS _mforms _cairo DESTINATION ${WB_PYTHON_MODULES_DIR})

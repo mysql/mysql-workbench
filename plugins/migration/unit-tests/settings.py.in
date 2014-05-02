@@ -1,0 +1,35 @@
+source_instances = (
+    ('sqlite', { 'module'            : 'sqlite3',
+                 'database'          : '/tmp/sampledb.sqlite',
+                 'password'          : '',
+                 'connection_string' : '%(database)s',  # This and 'module' go to wbcopytables --pythondbapi-source=<module>://<connection_string>
+                                                        # and can take values from this source instance dict, as shown in this example
+               }
+    ),
+    # Add more source instances if you need them here
+)
+
+mysql_instances = (
+    ('mysql_5.5', { 'user'        : 'root',
+                  'password'    : '<user pwd here>',
+                  'host'        : '127.0.0.1',
+                  'port'        : 3306,
+                  'database'    : 'sampledb',
+                }
+    ),
+    ('mysql_5.6', { 'user'        : 'root',
+                    'password'    : '<user pwd here>',
+                    'host'        : '172.16.0.101',
+                    'port'        : 3356,
+                    'database'    : 'sampledb',
+                   }
+    ),
+    # Add/remove target mysql servers here. All tests will be run in each of these servers
+)
+
+# Paths to executables:
+mysql_client = '/usr/bin/mysql'
+mysql_dump   = '/usr/bin/mysqldump'
+copytables_path = '<wb install dir>/bin/wbcopytables'
+
+log_file = '/tmp/wbcopytable_tests.log'  # Use an empty string to log to stdout instead

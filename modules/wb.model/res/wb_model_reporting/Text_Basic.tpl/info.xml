@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="workbench.model.reporting.TemplateInfo" id="{BD6879ED-814C-4CA3-A869-9864F83B88DF}" struct-checksum="0xb46b524d">
+    <value type="string" key="description">A basic TEXT report listing schemata and objects.</value>
+    <value type="string" key="name">HTML Basic Frame Report</value>
+    <value type="list" content-type="object" content-struct-name="workbench.model.reporting.TemplateStyleInfo" key="styles">
+      <value type="object" struct-name="workbench.model.reporting.TemplateStyleInfo" id="{7550655C-CD4B-4EB1-8FAB-AAEE49B2261E}" struct-checksum="0xab08451b">
+        <value type="string" key="description">Designed to be viewed with a fixed sized font.</value>
+        <value type="string" key="name">Fixed Size Font</value>
+        <value type="string" key="previewImageFileName">preview_basic.png</value>
+        <value type="string" key="styleTagValue">fixed</value>
+      </value>
+    </value>
+    <value type="string" key="mainFileName">report.txt</value>
+  </value>
+</data>

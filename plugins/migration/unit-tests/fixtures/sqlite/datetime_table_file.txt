@@ -1,0 +1,1 @@
+def	TimeContainer	sampledb	TimeContainer	id, date_data, time_data, timestamp_data

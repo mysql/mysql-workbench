@@ -1,0 +1,124 @@
+/* 
+ * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#include "stdafx.h"
+
+#include "Grt.h"
+#include "GrtTemplates.h"
+#include "DelegateWrapper.h"
+#include "GrtManager.h"
+
+#include "DBObjectEditorBE.h"
+#include "RoleTreeBE.h"
+#include "grtdb/db_object_helpers.h"
+
+#include "UserRoleEditorBE.h"
+
+using namespace MySQL::Grt::Db;
+
+RolePrivilegeListWrapper::RolePrivilegeListWrapper(::bec::RolePrivilegeListBE *inn)
+  : MySQL::Grt::ListModel(inn)
+{
+}
+
+::bec::RolePrivilegeListBE* RolePrivilegeListWrapper::get_unmanaged_object()
+{
+  return static_cast<::bec::RolePrivilegeListBE *>(inner);
+}
+
+RoleObjectListWrapper::RoleObjectListWrapper(::bec::RoleObjectListBE *inn)
+  : MySQL::Grt::ListModel(inn)
+{
+}
+
+::bec::RoleObjectListBE* RoleObjectListWrapper::get_unmanaged_object()
+{
+  return static_cast<::bec::RoleObjectListBE *>(inner);
+}
+
+void RoleObjectListWrapper::set_selected_node(NodeId ^node)
+{
+  get_unmanaged_object()->set_selected_node(*node->get_unmanaged_object());
+}
+
+RoleEditorBE::RoleEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+  : BaseEditorWrapper(
+    new bec::RoleEditorBE(grtm->get_unmanaged_object(), 
+      db_RoleRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0)),
+      get_rdbms_for_db_object(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+      )
+    )
+{
+}
+
+::bec::RoleEditorBE* RoleEditorBE::get_unmanaged_object()
+{
+  return static_cast<::bec::RoleEditorBE *>(inner);
+}
+
+String^ RoleEditorBE::get_name()
+{
+  return CppStringToNative(get_unmanaged_object()->get_name());
+}
+
+void RoleEditorBE::set_name(String ^name)
+{
+  get_unmanaged_object()->set_name(NativeToCppString(name));
+}
+
+void RoleEditorBE::set_parent_role(String ^name)
+{
+  get_unmanaged_object()->set_parent_role(NativeToCppString(name));
+}
+
+String^ RoleEditorBE::get_parent_role()
+{
+  return CppStringToNative(get_unmanaged_object()->get_parent_role());
+}
+
+RoleTreeBE^ RoleEditorBE::get_role_tree()
+{
+  return gcnew RoleTreeBE(get_unmanaged_object()->get_role_tree());
+}
+
+List<String^>^ RoleEditorBE::get_role_list()
+{
+  return CppStringListToNative(get_unmanaged_object()->get_role_list());
+}
+
+RolePrivilegeListWrapper^ RoleEditorBE::get_privilege_list()
+{
+  return gcnew RolePrivilegeListWrapper(get_unmanaged_object()->get_privilege_list());
+}
+
+RoleObjectListWrapper^ RoleEditorBE::get_object_list()
+{
+  return gcnew RoleObjectListWrapper(get_unmanaged_object()->get_object_list());
+}
+
+void RoleEditorBE::add_object(GrtValue ^object)
+{
+  get_unmanaged_object()->add_object(db_DatabaseObjectRef::cast_from(object->get_unmanaged_object()));
+}
+
+void RoleEditorBE::remove_object(NodeId^ node)
+{
+  get_unmanaged_object()->remove_object(*node->get_unmanaged_object());
+}
+

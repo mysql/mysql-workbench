@@ -1,0 +1,1 @@
+def	IntegerContainer	sampledb	IntegerContainer	id, tint, sint, mint, iint, bint

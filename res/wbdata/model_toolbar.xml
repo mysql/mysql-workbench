@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+
+<!--
+
+platform: windows,macosx,linux (any combination, separted by a comma)
+context: see wb_context.h for full listing
+	- *global (default)
+	- *model (model, overview.physical)
+	- *query (dbquery)
+	- model
+	- overview.physical
+	- overview.main
+	- dbquery
+-->
+
+<data>
+  <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.main">
+    <value type="string" key="name">main</value>
+
+    <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
+    
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.new">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">new_document</value>
+        <value type="string" key="icon">tiny_new.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:wb.file.newDocument</value>
+      </value>
+    
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.open">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">open</value>
+        <value type="string" key="icon">tiny_open.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:wb.file.openModel</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.save">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">save</value>
+        <value type="string" key="icon">tiny_save.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:wb.file.saveModel</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.sep.saveas">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="itemType">separator</value>
+        <value type="string" key="name">s1</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.undo">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">undo</value>
+        <value type="string" key="icon">tiny_undo.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:undo</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.redo">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">redo</value>
+        <value type="string" key="icon">tiny_redo.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:redo</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.sep.redo">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.add_diagram">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">adddiagram</value>
+        <value type="string" key="icon">tiny_new_diagram.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:addModelDiagram</value>
+        <value type="string" key="tooltip">Add new Diagram</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.add_schema">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">addschema</value>
+        <value type="string" key="icon">tiny_new_schema.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:addModelSchema</value>
+        <value type="string" key="tooltip">Add new Schema</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.add_table">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">addtable</value>
+        <value type="string" key="icon">tiny_new_table.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:addModelTable</value>
+        <value type="string" key="tooltip">Add new Table</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.add_view">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">addview</value>
+        <value type="string" key="icon">tiny_new_view.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:addModelView</value>
+        <value type="string" key="tooltip">Add new View</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.add_rg">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">addroutine</value>
+        <value type="string" key="icon">tiny_new_routine.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:addModelRoutine</value>
+        <value type="string" key="tooltip">Add new Routine</value>
+      </value>
+
+
+      <!--value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.grt_shell">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">grtshell__right</value>
+        <value type="string" key="icon">tiny_grtshell.png</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">plugin:wb.form.showGRTShell</value>
+        <value type="string" key="tooltip">Show GRT Shell IDE</value>
+        <value type="string" key="platform">windows,linux</value>
+      </value-->
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.sep.search">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="itemType">expander</value>
+        <value type="string" key="name">s3</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.search">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">find</value>
+        <value type="string" key="itemType">search</value>
+        <value type="string" key="command">builtin:find</value>
+        <value type="string" key="tooltip">Search for object in selected model</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.icon.search">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">iconsearch</value>
+        <value type="string" key="itemType">action</value>
+        <value type="string" key="command">builtin:find</value>
+        <value type="string" key="icon">tiny_search.png</value>
+        <value type="string" key="tooltip">Search for object in selected model</value>
+        <value type="string" key="platform">windows</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.sidebarhide">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">wb.toggleSidebar</value>
+        <value type="string" key="icon">switcher_left_off.png</value>
+        <value type="string" key="altIcon">switcher_left_on.png</value>
+        <value type="string" key="itemType">segmentedToggle</value>
+        <value type="string" key="command">builtin:wb.toggleSidebar</value>
+        <value type="string" key="tooltip">Toggle Sidebar</value>
+        <value type="int" key="initialState">1</value>
+      </value>
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.secondarysidebarhide">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
+        <value type="string" key="name">wb.toggleSecondarySidebar</value>
+        <value type="string" key="icon">switcher_right_off.png</value>
+        <value type="string" key="altIcon">switcher_right_on.png</value>
+        <value type="string" key="itemType">segmentedToggle</value>
+        <value type="string" key="command">builtin:wb.toggleSecondarySidebar</value>
+        <value type="string" key="tooltip">Toggle Secondary Sidebar</value>
+        <value type="int" key="initialState">1</value>
+      </value>
+    </value>
+  </value>
+</data>

@@ -1,0 +1,72 @@
+/*! 
+
+\mainpage The GRT Globals Tree and its Classes
+
+\anchor globals
+
+Much of the internal data handled by Workbench is kept in a structure accessible from plugins and scripts, known as a GRT Globals Tree. Configuration data, model information, SQL editor instances are accessible from it. You can browse this tree in the Scripting Shell window, in the Globals sidebar tree. The sidebar also has access to the list of available classes and modules, which the functions they export.
+
+In Python, the Globals Tree root node can be accessed from the root variable in the 'grt' module:
+
+\code
+import grt
+grt.root
+\endcode
+
+All object nodes descend from a base \ref GrtObject class. It has a name and owner fields. The owner field must alway point to the object that precedes it in the globals tree hierarchy, eg: a column is owned by a table, a table is owned by a schema, a schema by a catalog and so on up to the root node, which is an instance of \ref workbench_Workbench.
+
+\section keynotes Key Globals Tree Nodes
+
+- \b root.wb.info.version (\ref GrtVersion) contains the version number of MySQL Workbench.
+
+- \b root.wb.options.recentFiles (list of strings) contains a list of the names of the most recently opened model files. It is displayed in the Recent Files menu and a filtered list in list of recent models in the Home tab.
+
+- \b root.wb.options.options (dictionary of various types, usually integers, doubles and strings) a dictionary containing various configuration options from Workbench. The options stored here are global and apply to any document and are saved when Workbench quits. You may add your own options there, but as a convention, use a format such as pluginname.optionname for the key name, to avoid name collisions with other plugins and Workbench itself.
+
+- \b root.wb.rdbmsMgmt (\ref db.mgmt.Rdbms) RDBMS data. It contains lists of global RDBMS specific information and also lists of stored server connections and instances.
+
+- \b root.wb.rdbmsMgmt.storedConns (list of \ref db_mgmt_Connection) Database connection information, such as connection method, hostname, username etc). This list is displayed in the Home tab, in the list of connections for SQL Development and can be graphically edited from the Manage Connections dialog.
+
+- \b root.wb.rdbmsMgmt.storedInstances (list of \ref db_mgmt_ServerInstance) Database server information. This contains information about how to connect and manage an instance of a MySQL database server (how to connect, SSH connection parameters, command to use for starting/stopping server, querying status of the server, gathering host stats etc). This list is displayed in the Home tab, in the list of server instances for Server Administration. It can be edited from the Manage Server Instances dialog.
+
+- \b root.wb.rdbmsMgmt.rdbms (list of \ref db_mgmt_Rdbms) A list of RDBMS information objects. Currently it contains a single object for Mysql. This provides a list of supported characterSets, drivers and supported data types.
+
+\subsection modeling Modeling
+
+- \b root.wb.doc (\ref workbench_Document) the base node for the currently loaded MySQL Workbench model document. This node will be null if there is no model document loaded. 
+
+- \b root.wb.docPath (string) path to the currently loaded document.
+
+- \b root.wb.doc.physicalModels[0] (\ref workbench_physical_Model) The first (and only) object of the list of physical model objects. This is the starting node for all model related data.
+
+- \b root.wb.doc.physicalModels[0] (dictionary) Model specific options dictionary. Model specific options in this dictionary will override values stored in root.wb.options.options.
+
+- \b root.wb.doc.physicalModels[0].catalog (\ref db_mysql_Catalog) The database object catalog, contains meta-data such as custom data types and also the list of schemas defined in the model. 
+
+- \b root.wb.doc.physicalModels[0].catalog.schemata (list of \ref db_mysql_Schema) A list of the schemas you have in your model. The schema object contains lists of tables, views, stored procedures and functions (ie "routines"). See the \ref db_mysql_Schema class for more information about the schema.
+
+- \b root.wb.doc.pyhsicalModels[0].diagrams (list of \ref workbench_physical_Diagram) A list of EER diagrams in the model. A diagram is a graphical canvas containing figures, some of them representating database objects from the model's catalog.
+
+- \b root.wb.doc.physicalModels[0].diagrams[0].figures (list of \ref model_Figure) A list of figure objects, subclasses of \ref model_Figure, such as \ref workbench_physical_TableFigure, \ref workbench_physical_ViewFigure, \ref workbench_physical_RoutineGroupFigure, \ref workbench_model_NoteFigure or \ref workbench_model_ImageFigure 
+
+- \b root.wb.doc.pyhsicalModels[0].diagrams[0].connections (list of \ref model_Connection) A list of connection objects, of the class \ref workbench_physical_Connection. Connections represent relationships between tables through a line connecting their figures.
+
+- \b root.wb.doc.physicalModels[0].diagrams[0].rootLayer (\ref workbench_physical_Layer) The root layer in the diagram. Layers are used to group and organize related objects together, drawing a colored rectangle around them. However, the root layer does not have a background nor a title and always has the same size as the entire diagram. The root layer can contain figures and other layer objects, but sub-layers may only contain figures. All figures must be inside a layer, even if it's the root layer.
+
+- \b root.wb.doc.physicalModels[0].selection (list of \ref model_Object) The list of currently selected objects in the diagram. May contain connections, layers and figures. This list may be modified to change the selection.
+
+\subsection query Query Editor
+
+- \b root.wb.sqlEditors (list of \ref db_query_Editor) List of currently open SQL Editor tabs/connections.
+
+- \b root.wb.sqlEditors[0].queryBuffers (list of \ref db_query_QueryBuffer) List of text editor (query buffer) tabs currently open in the SQL Editor. 
+
+- \b root.wb.sqlEditors[0].queryBuffers[0].script (string) The contents of the SQL editor script. To change the contents, use the \ref db_query_QueryBuffer.replaceContents method.
+
+- \b root.wb.sqlEditors[0].resultsets (list of \ref db_query_Resultset) List of resultset grid tabs from the SQL Editor that are currently open. The instance may be the editable subclass \ref db_query_EditableResultset, if it was created from the EDIT command and allows editing of its contents.
+
+- \b root.wb.sqlEditors[0].activeQueryBuffer (\ref db_query_QueryBuffer) the currently selected query buffer tab, or null if there is no query buffer tab selected.
+
+- \b root.wb.sqlEditors[0].activeResultset (\ref db_query_Resulrset) the currently selected query resultset tab, or null if there is no resultset tab selected.
+
+*/
