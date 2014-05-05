@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -279,6 +279,21 @@ void Logger::log(const Logger::LogLevel level, const char* const domain, const c
 void Logger::log_exc(const LogLevel level, const char* const domain, const char* msg, const std::exception &exc)
 {
   log(level, domain, "%s: Exception: %s\n", msg, exc.what());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void Logger::log_throw(const LogLevel level, const char* const domain, const char* format, ...)
+{
+  if (_impl->level_is_enabled(level))
+  {
+    va_list args;
+    va_start(args, format);
+    logv(level, domain, format, args);
+    va_end(args);
+
+    throw std::logic_error("");
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
