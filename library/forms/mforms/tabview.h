@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,6 +85,9 @@ namespace mforms
     int get_page_index(View *page);    
     /** Returns the page object at the given page index */
     View *get_page(int index);
+
+    /** Number of tabs in the control */
+    int page_count();
 
     /** Returns true if the tab with the given index can be closed. */
     bool can_close_tab(int index);

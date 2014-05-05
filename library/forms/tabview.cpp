@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,6 +60,13 @@ void TabView::remove_page(View *page)
 {
   _tabview_impl->remove_page(this, page);
   remove_from_cache(page);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int TabView::page_count()
+{
+  return get_subview_count();
 }
 
 //--------------------------------------------------------------------------------------------------

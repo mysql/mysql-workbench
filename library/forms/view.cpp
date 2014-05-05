@@ -163,6 +163,13 @@ View *View::get_subview_at_index(int index)
 
 //--------------------------------------------------------------------------------------------------
 
+int View::get_subview_count()
+{
+  return (int)_subviews.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Returns true if the given subview is a direct child of this view.
  */

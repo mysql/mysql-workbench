@@ -219,6 +219,7 @@ namespace mforms {
     virtual void remove_from_cache(View *sv);
     int get_subview_index(View *sv);
     View *get_subview_at_index(int index);
+    int get_subview_count();
     
     // This works only for containers so is made public in the Container subclass
     virtual void set_back_image(const std::string& path, Alignment alignment);

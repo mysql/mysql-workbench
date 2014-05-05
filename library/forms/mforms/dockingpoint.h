@@ -26,6 +26,8 @@
 #include "base/geometry.h"
 #include "base/drawing.h"
 
+#include <boost/signals2.hpp>
+
 namespace mforms {
 
   class AppView;
@@ -47,6 +49,10 @@ namespace mforms {
     virtual void undock_view(AppView *view) = 0;
     virtual void set_view_title(AppView *view, const std::string &title) = 0;
     virtual std::pair<int, int> get_size() = 0;
+
+    virtual AppView *selected_view() = 0;
+    virtual int view_count() = 0;
+    virtual AppView *view_at_index(int index) = 0;
   };
 #endif
 #endif
@@ -86,6 +92,12 @@ namespace mforms {
      must be set in the AppView before its docked.
      */
     bool select_view(AppView *view);
+
+    /** Returns the currently selected view
+     
+     Note that a return value of NULL may just mean that the selected tab is not an AppView.
+     */
+    AppView *selected_view();
     
     /** Undocks an AppView from the main window.
      */
@@ -102,12 +114,25 @@ namespace mforms {
     
     /** Gets the size of the view. */
     std::pair<int, int> get_size();
-    
+
+    /** Gets the number of AppViews docked */
+    virtual int view_count();
+
+    /** Gets the AppView docket at the given index */
+    virtual AppView *view_at_index(int index);
+
 #ifndef SWIG
     DockingPointDelegate *get_delegate() { return _delegate; }
+
+    boost::signals2::signal<void ()>* signal_view_switched() { return &_view_switched; }
+
+    //XXX Linux, Windows: need to call this whenever a tab is switched (main tabs and connection tabs)
+    void view_switched();
 #endif
   protected:
     DockingPointDelegate *_delegate;
+    boost::signals2::signal<void ()> _view_switched;
+
     bool _delete_delegate;
   };
 };
