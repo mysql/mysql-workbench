@@ -504,8 +504,9 @@ SQLSMALLINT ODBCCopyDataSource::odbc_type_to_c_type(SQLSMALLINT type, bool is_un
 ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
                                        const std::string &connstring,
                                        const std::string &password,
-                                       bool force_utf8_input)
-: _connstring(connstring), _stmt_ok(false)
+                                       bool force_utf8_input,
+                                       const std::string &source_rdbms_type)
+: _connstring(connstring), _stmt_ok(false), _source_rdbms_type(source_rdbms_type)
 {
   _blob_buffer = NULL;
   _utf8_blob_buffer = NULL;
@@ -523,7 +524,7 @@ ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
   bool has_pwd = _connstring.find("PWD=") != std::string::npos;
   if (!has_pwd)
     _connstring.append(";PWD=");
-  log_info("Opening ODBC connection to '%s'\n", (_connstring + (has_pwd ? "" : "XXX")).c_str());
+  log_info("Opening ODBC connection to [%s] '%s'\n", _source_rdbms_type.c_str(), (_connstring + (has_pwd ? "" : "XXX")).c_str());
   //log_debug3("connstring %s%s\n", _connstring.c_str(), password.c_str());
   SQLRETURN ret = SQLDriverConnect(_dbc, NULL,
                                    (SQLCHAR*)(_connstring + (has_pwd ? "" : password)).c_str(), SQL_NTS,
@@ -802,6 +803,7 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
       break;
     }
   }
+  log_debug("Executing query: %s\n", q.c_str());
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
     throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, stmt);
 
@@ -849,6 +851,7 @@ boost::shared_ptr<std::vector<ColumnInfo> > ODBCCopyDataSource::begin_select_tab
                        schema.c_str(), table.c_str(), start_expr.c_str());
   }
 
+  log_debug("Executing query: %s\n", q.c_str());
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(_stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
     throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, _stmt);
 

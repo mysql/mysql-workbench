@@ -273,6 +273,7 @@ int main(int argc, char **argv)
   std::string table_file;
 
   std::set<std::string> trigger_schemas;
+  std::string source_rdbms_type = "unknown";
 
   bool log_level_set = false;
   int i = 1;
@@ -455,6 +456,8 @@ int main(int argc, char **argv)
 
       tables.add_task(param);
     }
+    else if (check_arg_with_value(argv, i, "--source-rdbms-type", argval, false))
+    	source_rdbms_type = argval;
     else
     {
       fprintf(stderr, "%s: Invalid option %s\n", argv[0], argv[i]);
@@ -610,7 +613,7 @@ int main(int argc, char **argv)
         SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &odbc_env);
         SQLSetEnvAttr(odbc_env, SQL_ATTR_ODBC_VERSION, (void *) SQL_OV_ODBC3, 0);
 
-        psource.reset(new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8));
+        psource.reset(new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type));
       }
       else if (source_type == ST_MYSQL)
         psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket));
@@ -652,7 +655,7 @@ int main(int argc, char **argv)
           SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &odbc_env);
           SQLSetEnvAttr(odbc_env, SQL_ATTR_ODBC_VERSION, (void *) SQL_OV_ODBC3, 0);
 
-          psource = new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8);
+          psource = new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type);
         }
         else if (source_type == ST_MYSQL)
           psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket);
