@@ -203,6 +203,8 @@ class ODBCCopyDataSource : public CopyDataSource
   bool _stmt_ok;
   bool _force_utf8_input;
 
+  std::string _source_rdbms_type;
+
   SQLSMALLINT odbc_type_to_c_type(SQLSMALLINT type, bool is_unsigned);
 
   void ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8buf, size_t &utf8buf_len);
@@ -211,7 +213,8 @@ public:
   ODBCCopyDataSource(SQLHENV env,
                      const std::string &connstring,
                      const std::string &password,
-                     bool force_utf8_input);
+                     bool force_utf8_input,
+                     const std::string &source_rdbms_type);
   virtual ~ODBCCopyDataSource();
 
   SQLRETURN get_wchar_buffer_data(RowBuffer &rowbuffer, int column);
