@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_PARSER_MODULE_
-#define _MYSQL_PARSER_MODULE_
+#pragma once
 
 #if defined(_WIN32)
   #ifdef MYSQL_PARSER_EXPORTS
@@ -74,5 +73,3 @@ public:
 private:
   bool _stop;
 };
-
-#endif // _MYSQL_PARSER_MODULE_

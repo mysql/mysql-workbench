@@ -343,7 +343,7 @@ private:
 };
 
 
-double WBPUBLICBACKEND_PUBLIC_FUNC timestamp();
+//double WBPUBLICBACKEND_PUBLIC_FUNC timestamp();
 std::tm WBPUBLICBACKEND_PUBLIC_FUNC local_timestamp();
 std::string WBPUBLICBACKEND_PUBLIC_FUNC format_time(const std::tm &t, const char* format= "%H:%M:%S");
 std::string WBPUBLICBACKEND_PUBLIC_FUNC current_time(const char* format= "%H:%M:%S");

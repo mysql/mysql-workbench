@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,18 +17,20 @@
  * 02110-1301  USA
  */
 
-#ifndef _STDAFX_H_
-#define _STDAFX_H_
-
-#ifdef _WIN32
+#pragma once
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
 
-#endif // _WIN32
-
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <set>
+#include <map>
+#include <list>
 
-#endif // _STDAFX_H_
+#include "grts/structs.db.mgmt.h"
+#include "grts/structs.db.query.h"
+#include "grts/structs.model.h"
+#include "grts/structs.workbench.physical.h"

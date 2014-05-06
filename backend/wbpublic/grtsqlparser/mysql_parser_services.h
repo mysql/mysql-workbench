@@ -32,16 +32,15 @@ typedef struct
   size_t length;
 } ParserErrorEntry;
 
-class ParserContext {
+class WBPUBLICBACKEND_PUBLIC_FUNC ParserContext {
 
 private:
   MySQLRecognizer *_recognizer;
-  db_mgmt_RdbmsRef _rdbms;
 
 public:
   typedef boost::shared_ptr<ParserContext> Ref;
 
-  ParserContext(db_mgmt_RdbmsRef rdbms_);
+  ParserContext(db_mgmt_RdbmsRef rdbms);
   ~ParserContext();
 
   MySQLRecognizer *recognizer() { return _recognizer; };

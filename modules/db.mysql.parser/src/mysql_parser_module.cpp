@@ -66,7 +66,7 @@ int MySQLParserServicesImpl::checkSqlSyntax(ParserContext::Ref context, const ch
                                             size_t length, MySQLQueryType type)
 {
   context->recognizer()->parse(sql, length, true, type);
-  return context->recognizer()->error_info().size();
+  return (int)context->recognizer()->error_info().size();
 }
 
 //--------------------------------------------------------------------------------------------------

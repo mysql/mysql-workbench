@@ -27,8 +27,6 @@ using namespace parser;
 
 ParserContext::ParserContext(db_mgmt_RdbmsRef rdbms)
 {
-  _rdbms = rdbms;
-
   std::set<std::string> charsets;
   grt::ListRef<db_CharacterSet> list = rdbms->characterSets();
   for (size_t i = 0; i < list->count(); i++)
@@ -49,7 +47,7 @@ ParserContext::ParserContext(db_mgmt_RdbmsRef rdbms)
     charsets.erase("utf32");
   }
   
-  _recognizer = new MySQLRecognizer(server_version, "", charsets);
+  _recognizer = new MySQLRecognizer((long)server_version, "", charsets);
 }
 
 //--------------------------------------------------------------------------------------------------

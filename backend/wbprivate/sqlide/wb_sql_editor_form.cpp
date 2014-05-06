@@ -43,6 +43,7 @@
 #include "base/file_utilities.h"
 #include "base/log.h"
 #include "base/boost_smart_ptr_helpers.h"
+#include "base/util_functions.h"
 
 #include "workbench/wb_command_ui.h"
 #include "workbench/wb_context_names.h"
