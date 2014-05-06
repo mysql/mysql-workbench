@@ -459,7 +459,7 @@ public:
      *    The position closest to the mouse pointer.
      *    x and y client coordinates where the mouse lingered.
      */
-    boost::signals2::signal<void (bool, int, int, int)>* signal_dwell() { return &_dwell_event; }
+    boost::signals2::signal<void (bool, size_t, int, int)>* signal_dwell() { return &_dwell_event; }
 
     /** Signal emitted when the user typed an ordinary text character (as opposed to a command character).
      *  It can be used e.g. to trigger auto completion.
@@ -497,7 +497,7 @@ public:
     boost::signals2::signal<void (int, int, int, bool)> _change_event;
     boost::signals2::signal<void (int, int, mforms::ModifierKey)> _gutter_clicked_event;
     boost::signals2::signal<void (AutoCompletionEventType, int, const std::string&)> _auto_completion_event;
-    boost::signals2::signal<void (bool, int, int, int)> _dwell_event;
+    boost::signals2::signal<void (bool, size_t, int, int)> _dwell_event;
     boost::signals2::signal<void (int)> _char_added_event;
     boost::signals2::signal<void ()> _signal_lost_focus;
 

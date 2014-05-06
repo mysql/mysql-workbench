@@ -30,10 +30,10 @@ class AccelGroup;
 }
 
 namespace mforms {
-namespace gtk {
-
-  void set_accel_group(Glib::RefPtr<Gtk::AccelGroup> ag);
   Gtk::MenuBar* widget_for_menubar(MenuBar* self);
+
+namespace gtk {
+  void set_accel_group(Glib::RefPtr<Gtk::AccelGroup> ag);
   void lf_menubar_init();
 
   struct MenuItemImpl

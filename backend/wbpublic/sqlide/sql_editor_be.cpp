@@ -696,7 +696,7 @@ void Sql_editor::char_added(int char_code)
 
 //--------------------------------------------------------------------------------------------------
 
-void Sql_editor::dwell_event(bool started, int position, int x, int y)
+void Sql_editor::dwell_event(bool started, size_t position, int x, int y)
 {
   if (started)
   {
