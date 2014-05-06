@@ -1,0 +1,52 @@
+Plugins
+-------
+
+Plugins are implemented as special modules, with an additional
+DLL/shared library loaded directly by the application.
+This DLL usually contains GUI code.
+
+
+
+./db.mysql
+------------
+
+SQL Import, Export and Sync plugins
+
+Exported Module: 
+	MySQLDbModule (plugin info only)
+
+Exported Plugins:
+  db.plugin.database.rev_eng  Reverse engineer data from DBMS
+  db.plugin.database.frw_eng  Forward engineer data to DBMS
+  db.mysql.plugin.sql_export.catalog Catalog export Wizard (GUI)
+  script.mysql.sync.catalog Catalog sync Wizard (GUI)
+
+./wb.model.editors
+-------------------
+
+Editors for generic model objects (non db related).
+
+Exported Module: 
+	WBEditorsModule (plugin info only)
+
+Exported Plugins:
+	wb.plugin.edit.note			model.Note Object/Figure Editor (GUI)
+	wb.plugin.edit.image		model.Image Object/Figure Editor (GUI)
+	wb.plugin.edit.stored_note	GrtStoredNote Object Editor (GUI)
+	wb.plugin.edit.sqlscrip		db.Script Object Editor (GUI)
+
+
+
+./wb.model.printing
+-------------------
+
+Support for printing model in multiple pages.
+
+Exported Module:
+	WBPrinting (plugin info only)
+
+
+Exported Plugins:
+	wb.print.printToPDFFile		Print to PDF file
+	wb.print.printToPSFile		Print to PS file
+	wb.print.print				Native Print Dialog (GUI)

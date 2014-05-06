@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.xml"/>
+      <requires file="structs.app.xml"/>
+      <requires file="structs.db.xml"/>
+      <requires file="structs.db.query.xml"/>
+      <requires file="structs.db.mgmt.xml"/>
+      <requires file="structs.workbench.physical.xml"/>
+      <requires file="structs.workbench.logical.xml"/>
+      <requires file="structs.db.migration.xml"/>
+
+      <gstruct name="workbench.Workbench" parent="app.Application" attr:caption="Workbench application object" attr:desc="an object to store the workbench's data">
+          <members>
+              <member name="doc" type="object" struct-name="workbench.Document" owned="1" overrides="app.Document" attr:desc="the Workbench document"/>
+              <member name="docPath" type="string" attr:desc="the Workbench document path"/>
+              <member name="sqlEditors" type="list" content-type="object" content-struct-name="db.query.Editor" owned="1" read-only="1" attr:desc="list of open SQL Editor instances"/>
+              <member name="rdbmsMgmt" type="object" struct-name="db.mgmt.Management" owned="1" attr:desc="the RDBMS management information"/>
+              <member name="migration" type="object" struct-name="db.migration.Migration" owned="1" attr:desc="data for Migration Plugin"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="workbench.Document" parent="app.Document" attr:caption="Workbench Document">
+          <members>
+              <member name="logicalModel" type="object" struct-name="workbench.logical.Model" owned="1" attr:desc="the logical model"/>
+              <member name="physicalModels" type="list" content-type="object" owned="1" content-struct-name="workbench.physical.Model" attr:desc="the physical models"/>
+              
+              <member name="overviewCurrentModelType" type="object" struct-name="model.Model" attr:desc="specifies if the panel is currently selected"/>
+              <member name="overviewPanels" type="list" content-type="object" content-struct-name="workbench.OverviewPanel" owned="1" attr:desc="the panels that are presented on the overview page"/>
+          </members>
+      </gstruct>
+      
+            
+      <gstruct name="workbench.OverviewPanel" parent="GrtObject" attr:caption="Overview Panel">
+          <members>
+              <member name="nodeId" type="string" attr:desc="the identifier of panel in the GUI" />
+              <member name="expanded" type="int" attr:desc="specifies if the panel is currently expanded"/>
+              <member name="expandedHeight" type="int" attr:desc="the panel's height when it is expanded"/>
+              <member name="selectedItems" type="list" content-type="int" attr:desc="specifies the indexes of the currently selected items on the panel"/>
+              <member name="hasTabSelection" type="int" attr:desc="specifies if the panel has attached tabs"/>
+              <member name="itemDisplayMode" type="int" attr:desc="defines how the items on the panel are displayed. Setting it to 1 will cause a large icon display, 2 a small icon display and 3 a list"/>
+              
+              <member name="caption" type="string" attr:desc="the caption displayed on the panel's header"/>
+              
+              <member name="implModule" type="string" attr:desc="GRT module implementing the item functionality"/>
+              <member name="itemCountFunction" type="string" attr:desc="the function that returns the number of items"/>
+              <member name="itemInfoFunction" type="string" attr:desc="the function that returns the item information"/>
+              <member name="itemActivationFunction" type="string" attr:desc="the function that is called when the item is activated"/>
+              
+              <member name="tabCountFunction" type="string" attr:desc="the function that returns the number of tabs"/>
+              <member name="tabInfoFunction" type="string" attr:desc="the function that returns the tab information"/>
+              <member name="tabActivationFunction" type="string" attr:desc="the function that is called when the tab is activated"/>
+          </members>
+      </gstruct>
+  </gstructs>

@@ -1,0 +1,121 @@
+/* 
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#include "mforms/mforms.h"
+
+using namespace mforms;
+
+Form::Form(Form *owner, FormFlag flag)
+{
+  _form_impl= &ControlFactory::get_instance()->_form_impl;
+  
+  _content= 0;
+  _fixed_size= false;
+  _release_on_close = false;
+  _form_impl->create(this, owner, flag);
+}
+
+Form::Form()
+{
+  _form_impl= &ControlFactory::get_instance()->_form_impl;
+  _content= 0;
+}
+
+Form *Form::main_form()
+{
+  static Form *main_form = new Form();
+  // the platform specific code should initialize the main_form stub with whatever it wants (namely, 
+  // call set_data() with a pointer to the real main window
+  return main_form;
+}
+
+Form::~Form()
+{
+  if (_content && !_content->release_on_add())
+    _content->release();
+}
+
+void Form::set_title(const std::string &title)
+{
+  if (_form_impl)
+    _form_impl->set_title(this, title);
+}
+
+void Form::set_release_on_close(bool flag)
+{
+  if (_form_impl)
+    _release_on_close = flag;
+}
+
+bool Form::run_modal(Button *accept, Button *cancel)
+{
+  if (_form_impl)
+    return _form_impl->run_modal(this, accept, cancel);
+  return false;
+}
+
+void Form::show_modal(Button *accept, Button *cancel)
+{
+  if (_form_impl)
+    _form_impl->show_modal(this, accept, cancel);
+}
+
+void Form::end_modal(bool result)
+{
+  if (_form_impl)
+    _form_impl->end_modal(this, result);
+}
+
+void Form::close()
+{
+  if (_form_impl)
+    _form_impl->close(this);
+}
+
+
+void Form::center()
+{
+  if (_form_impl)
+    _form_impl->center(this);
+}
+
+
+void Form::set_content(View *view)
+{
+  if (_content != view && _form_impl)
+  {
+    if (_content)
+      _content->release();
+    _content = view;
+    if (!_content->release_on_add())
+      _content->retain();
+    _form_impl->set_content(this, view);
+    _content->set_parent(this);
+
+    // Note: we are not adding the content view to the underlying view's child list and hence
+    //       have to take care for ref counting here.
+  }
+}
+
+void Form::flush_events()
+{
+  if (_form_impl)
+    _form_impl->flush_events(this);
+}
+

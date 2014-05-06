@@ -1,0 +1,6 @@
+On a fresh branch/chechout:
+1. Do a make in testing/tut
+2. create symlink wbdata -> ../../testing/tut/wbdata
+3. create symlink wbdata/images -> ../../../images
+4. Also copy sakila_full.mwb
+

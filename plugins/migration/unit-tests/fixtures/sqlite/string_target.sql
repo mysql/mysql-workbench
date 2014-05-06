@@ -1,0 +1,4 @@
+CREATE  TABLE IF NOT EXISTS `StringContainer` (
+  `id` INT NULL DEFAULT NULL ,
+  `str_data` LONGTEXT NULL DEFAULT NULL ,
+  PRIMARY KEY (`id`) );

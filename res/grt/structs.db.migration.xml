@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.xml"/>    
+      <requires file="structs.db.mgmt.xml"/>    
+
+      <gstruct name="db.migration.Migration" parent="GrtObject" impl-data="1" attr:caption="Migration Settings" attr:desc="an object to store information needed during the migration process">
+          <members>        
+              <member name="sourceConnection" struct-name="db.mgmt.Connection" type="object" owned="1" attr:desc="connection used for the source database"/>
+              <member name="targetConnection" struct-name="db.mgmt.Connection" type="object" owned="1" attr:desc="connection used for the target database"/>
+
+              <member name="sourceDBVersion" struct-name="GrtVersion" type="object" owned="1" />
+              <member name="targetDBVersion" struct-name="GrtVersion" type="object" owned="1" />
+
+              <member name="sourceSchemataNames" content-type="string"  type="list" attr:desc="list of available schemata names in the source database"/>        
+              <member name="selectedSchemataNames" content-type="string"  type="list" attr:desc="list of selected schemata names to reverse engineer"/>        
+
+              <member name="sourceCatalog" struct-name="db.Catalog" type="object" owned="1" attr:desc="a catalog object reflecting the reverse engineered assets from the source database"/>
+              <member name="targetCatalog" struct-name="db.Catalog" type="object" owned="1" attr:desc="the migrated target catalog"/>
+              <member name="targetVersion" struct-name="GrtVersion" type="object" owned="1" attr:desc="the version that the target catalog should have"/>
+
+              <member name="ignoreList" content-type="string"  type="list" attr:desc="list of objects that should not be migrated in the form objecttype:schemaname.objectname"/>        
+              <member name="sourceObjects" content-struct-name="GrtObject" content-type="object"  type="list"  owned="1" attr:desc="temporary list of objects that should be migrated"/>
+              <member name="objectMigrationParams" content-type="string"  type="dict" attr:desc="the dictionary of parameters used during object migration"/>        
+              <member name="objectCreationParams" content-type="string"  type="dict" attr:desc="the dictionary of parameters used during the object creation"/>        
+              <member name="dataBulkTransferParams" content-type="string"  type="dict" attr:desc="the dictionary of parameters used during the bulk data transfer"/>        
+
+              <member name="migrationLog" content-struct-name="GrtLogObject" content-type="object"  type="list"  owned="1" attr:desc="a listing of log messages generated during object migration"/>
+              <member name="creationLog" content-struct-name="GrtLogObject" content-type="object"  type="list"  owned="1" attr:desc="a listing of log messages generated during object creation"/>
+              <member name="dataTransferLog" content-struct-name="GrtLogObject" content-type="object"  type="list" owned="1" attr:desc="a listing of log messages generated during data transfer"/>
+
+              <member name="genericDatatypeMappings" content-struct-name="db.migration.DatatypeMapping" content-type="object"  type="list" owned="1" attr:desc="datatype mapping for generic migration"/>
+
+              <member name="defaultColumnValueMappings" type="dict" attr:desc="a mapping of default column values for the selected source RDBMS. Default values that match one of the values in the dict will be automatically translated."/>
+
+              <member name="applicationData" content-type="string"  type="dict" attr:desc="internal parameters set by the migration tool"/> 
+
+              <method name="addMigrationLogEntry">
+                    <argument name="type" type="int"/>
+                    <argument name="sourceObject" type="object" struct-name="GrtObject"/>
+                    <argument name="targetObject" type="object" struct-name="GrtObject"/>
+                    <argument name="message" type="string"/>
+                    <return type="object" struct-name="GrtLogObject"/>
+              </method>
+
+              <method name="lookupMigratedObject">
+                    <argument name="sourceObject" type="object" struct-name="GrtObject"/>
+                    <return type="object" struct-name="GrtObject"/>
+              </method>
+
+              <method name="lookupSourceObject">
+                    <argument name="targetObject" type="object" struct-name="GrtObject"/>
+                    <return type="object" struct-name="GrtObject"/>
+              </method>
+
+              <method name="findMigrationLogEntry">
+                    <argument name="sourceObject" type="object" struct-name="GrtObject"/>
+                    <argument name="targetObject" type="object" struct-name="GrtObject"/>
+                    <return type="object" struct-name="GrtLogObject"/>
+              </method>
+          </members> 
+      </gstruct>
+
+      <gstruct name="db.migration.DBPreferences" parent="GrtObject">
+          <members>
+              <member name="sourceRdbms" type="object" struct-name="db.mgmt.Rdbms"/>
+              <member name="defaultValueMapping" type="dict"/>
+              <member name="datatypeMapping" content-struct-name="db.migration.DatatypeMapping" content-type="object"  type="list" owned="1"/>
+              <member name="characterSetMapping" type="dict"/>
+              <member name="options" type="dict"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:desc="mapping of a datatype from one database to another" name="db.migration.DatatypeMapping" parent="GrtObject">      
+          <members>        
+              <member name="sourceDatatypeName" type="string" attr:desc="name of the datatype in the source database"/>        
+              <member name="targetDatatypeName" type="string" attr:desc="name of the datatype in the target database"/>        
+              <member name="lengthConditionFrom" type="int" attr:desc="if set to a value different than 0 this becomes a condition"/>        
+              <member name="lengthConditionTo" type="int" attr:desc="if set to a value different than 0 this becomes a condition"/>        
+              <member name="length" type="int" default="-2" attr:desc="overwrite length if different than -2"/>        
+              <member name="precisionConditionFrom" type="int" attr:desc="if set to a value different than 0 this becomes a condition"/>        
+              <member name="precisionConditionTo" type="int" attr:desc="if set to a value different than 0 this becomes a condition"/>        
+              <member name="precision" type="int" default="-2" attr:desc="overwrite precision if different than -2"/>        
+              <member name="scaleConditionFrom" type="int" attr:desc="if set to a value different than 0 this becomes a condition"/>        
+              <member name="scaleConditionTo" type="int" attr:desc="if set to a value different than 0 this becomes a condition"/>        
+              <member name="scale" type="int" default="-2" attr:desc="overwrite scale if different than -2"/>        
+              <member name="isUnsigned" type="int" attr:desc="sets the unsigned flag"/>        
+          </members>      
+      </gstruct>    
+
+      <gstruct name="db.migration.MigrationParameter" parent="GrtObject">
+          <members>
+              <member name="caption" type="string"/>
+              <member name="description" type="string"/>
+              <member name="paramType" type="string" attr:desc="one of string, boolean"/>
+              <member name="defaultValue" type="string"/>
+          </members>
+      </gstruct>
+  </gstructs>

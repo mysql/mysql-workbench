@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.xml"/>
+
+      <gstruct name="eer.Object" parent="GrtNamedObject">
+          <members>
+              <member name="commentedOut" type="int" attr:desc="if set to 1 the object will be commented out but e.g. still be written to scripts"/>
+              <member name="customData" type="dict"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="eer.Catalog" parent="GrtNamedObject" attr:caption="Catalog">
+          <members>
+              <member name="schemata" type="list" content-type="object" content-struct-name="eer.Schema" owned="1"/>
+              <member name="datatypes" type="list" content-type="object" content-struct-name="eer.Datatype" owned="1"/>
+              <member name="userDatatypes" type="list" content-type="object" content-struct-name="eer.Datatype" owned="1"/>
+              <member name="customData" type="dict" attr:desc="a generic dictionary to hold additional information used by e.g. plugins"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="eer.Schema" parent="eer.Object" attr:caption="Schema">
+          <members>        
+              <member name="entities" type="list" content-type="object"  content-struct-name="eer.Entity" owned="1" attr:caption="Entities"/>
+              <member name="relationships" type="list" content-type="object" content-struct-name="eer.Relationship" owned="1" attr:caption="Relationsships"/>
+          </members>      
+      </gstruct>
+
+      <gstruct name="eer.Entity" parent="eer.Object" attr:caption="Entitiy">
+          <members>
+              <member name="attribute" type="list" content-type="object" content-struct-name="eer.Attribute" owned="1"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="eer.Attribute" parent="eer.Object" attr:caption="Attribute">
+          <members>
+              <member name="datatype" type="object" struct-name="eer.Datatype" owned="1"/>
+              <member name="isIdentifying" type="int" attr:desc="specifies if this attribute is an identifying attribute for the entity"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="eer.DatatypeGroup" parent="GrtObject" attr:caption="Datatype Group">
+          <members>
+              <member name="caption" type="string"/>
+              <member name="description" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="eer.Datatype" parent="GrtObject" attr:caption="Datatype">
+          <members>
+              <!--member name="group" type="object" struct-name="db.DatatypeGroup" attr:desc="the datatype group this datatype belongs to"/-->
+              <member name="caption" type="string"/>
+              <member name="description" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="eer.Relationship" parent="eer.Object" attr:caption="Relationship">
+          <members>
+              <member name="startMandatory" type="int" attr:desc="mandatory in the source table"/>
+              <member name="endMandatory" type="int" attr:desc="mandatory in the target table"/>
+              
+              <member name="attribute" type="list" content-type="object" content-struct-name="eer.Attribute" owned="1"/>
+          </members>
+      </gstruct>
+
+  </gstructs>

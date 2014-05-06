@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+    <requires file="structs.xml"/>
+    <requires file="structs.db.mgmt.xml"/>
+    <requires file="structs.model.xml"/>
+
+    <gstruct name="TransientObject" attr:caption="Object" attr:desc="the parent of all transient (non persistent) objects">
+    </gstruct>
+
+    <gstruct name="grt.PyObject" parent="TransientObject" attr:caption="Python object" attr:desc="wraps a Python object reference so it can be stored in a GRT container" impl-data="1" force-impl="1" attr:simple-impl-data="grt::AutoPyObject">
+        <members>
+             <method name="isEqualTo" attr:desc="checks whether the reference points to the same object as another refrence">
+                <argument name="other" type="object" struct-name="grt.PyObject"/>
+                <return type="int"/>
+             </method>
+        </members>
+    </gstruct>
+
+    <gstruct name="mforms.ObjectReference" parent="TransientObject" attr:caption="mforms Object Reference" attr:desc="an object representing a reference to a mforms object" impl-data="1" force-impl="1" attr:simple-impl-data="mforms::Object">
+        <members>
+            <member name="type" type="string" attr:desc="the specific type of mforms object" />
+            <member name="valid" type="int" read-only="1" calculated="1" delegate-get="1" attr:desc="whether the object is currently valid"/>
+
+             <method name="isEqualTo" attr:desc="checks whether the reference points to the same view as another refrence">
+                <argument name="other" type="object" struct-name="mforms.ObjectReference"/>
+                <return type="int"/>
+             </method>
+        </members>
+    </gstruct>
+
+    <gstruct name="ui.ModelPanel" parent="TransientObject">
+        <members>
+            <member name="model" type="object" struct-name="model.Model"/>
+            <member name="commonSidebar" type="object" struct-name="mforms.ObjectReference"/>
+            <member name="customData" type="dict"/>
+        </members>
+    </gstruct>
+
+    <gstruct name="ui.ObjectEditor" parent="TransientObject" impl-data="1" force-impl="1">
+        <members>
+            <member name="object" type="object" struct-name="GrtObject"/>
+            <member name="dockingPoint" type="object" struct-name="mforms.ObjectReference"/>
+            <member name="customData" type="dict"/>
+        </members> 
+    </gstruct>
+
+    <gstruct name="ui.db.ConnectPanel" parent="TransientObject" impl-data="1">
+        <members>
+            <member name="connection" type="object" struct-name="db.mgmt.Connection" delegate-get="1" delegate-set="1" calculated="1"/>
+            <member name="view" type="object" struct-name="mforms.ObjectReference" delegate-get="1" calculated="1" read-only="1" attr:desc="reference to the toplevel mforms View of the connect panel"/>
+            <method name="initialize" attr:desc="initializes the Connection Panel">
+                <argument name="mgmt" type="object" struct-name="db.mgmt.Management"/>
+                <return type="void"/>
+             </method>
+
+            <method name="initializeWithRDBMSSelector" attr:desc="initializes the Connection Panel">
+                <argument name="mgmt" type="object" struct-name="db.mgmt.Management"/>
+                <argument name="allowedRdbmsList" type="list" content-type="object" content-struct-name="db.mgmt.Rdbms"/>
+                <return type="void"/>
+            </method>
+
+            <method name="saveConnectionAs" attr:desc="save the connection with the given name. Throws an exception if the connection name is duplicate or on other errors">
+                <argument name="name" type="string"/>
+                <return type="void"/>
+            </method>
+        </members>
+    </gstruct>
+
+</gstructs>

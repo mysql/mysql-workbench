@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<data>
+  <value type="list" key="items" content-type="object" content-struct-name="app.ShortcutItem">
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.table">
+      <value type="string" key="name">table</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">T</value>
+      <value type="string" key="command">tool:physical/table</value>
+    </value>
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.view">
+      <value type="string" key="name">view</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">V</value>
+      <value type="string" key="command">tool:physical/view</value>
+    </value>
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.rg">
+      <value type="string" key="name">rg</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">G</value>
+      <value type="string" key="command">tool:physical/routinegroup</value>
+    </value>
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.rel1_noid">
+      <value type="string" key="name">rel11_noid</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">1</value>
+      <value type="string" key="command">tool:physical/rel11_noid</value>
+    </value>
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.reln_noid">
+      <value type="string" key="name">rel1n_noid</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">2</value>
+      <value type="string" key="command">tool:physical/rel1n_noid</value>
+    </value>
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.rel11">
+      <value type="string" key="name">rel11</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">3</value>
+      <value type="string" key="command">tool:physical/rel11</value>
+    </value>
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.rel1n">
+      <value type="string" key="name">rel1n</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">4</value>
+      <value type="string" key="command">tool:physical/rel1n</value>
+    </value>
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.relnm">
+      <value type="string" key="name">relnm</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">5</value>
+      <value type="string" key="command">tool:physical/relnm</value>
+    </value>
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.relpick">
+      <value type="string" key="name">relpick</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">6</value>
+      <value type="string" key="command">tool:physical/relpick</value>
+    </value>
+  </value>
+</data>
+  

@@ -1,0 +1,34 @@
+/*!
+    \addtogroup Val Validation
+    \page ValidationOverview Validation module
+        
+ \ref Val classes provide support for writing and running different validation checks. 
+ Most of the core classes are put to wb_validation.h header file. 
+ Class \ref val::AtomBase is a type of interface class, allows to execute atomic
+ validation checks for specific type. \ref AtomBase is used in class
+ \ref Chain for storing pointers to actual checks in vector. Actual check
+ is a template class \ref Atom, see below. \ref AtomBase serves as a layer between
+ code which is called for each particular type. Let's consider that we need
+ to have two checks to be stored in chain:
+ \code
+ Class ValidatorSyntax
+ {
+   public:
+     void do_check(const db_Column& c)
+ };
+
+ Class ValidatorLogic
+ {
+   public:
+     void do_check(const db_Column& c)
+ };
+ \endcode
+ so we can not have a generic algorithm to apply these checks as we have
+ different objects-validators
+ we can not add:
+ Chain->add(ValidatorSyntax(), &ValidatorSyntax::do_check);
+ Chain->add(ValidatorLogic(), &ValidatorLogic::do_check);
+ but we can hide object and method in parameters and pass only argument to those
+ So AtomBase introduces a way to pass object in generic way, while class Atom 
+ hides object and its method to run that check
+*/

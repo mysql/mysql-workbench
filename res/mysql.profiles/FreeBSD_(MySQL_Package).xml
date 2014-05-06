@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<data>
+    <value type="dict">
+    <value type="string" key="sys.config.path">/usr/local/etc/my.cnf</value>
+    <value type="string" key="sys.config.section">mysqld</value>
+      
+    <value type="string" key="sys.mysqld.start">/usr/local/etc/rc.d/mysql-server start</value>
+    <value type="string" key="sys.mysqld.stop">/usr/local/etc/rc.d/mysql-server stop</value>
+    <value type="int" key="sys.usesudo">1</value>
+
+    <value type="string" key="sys.system">FreeBSD</value>
+    <value type="string" key="serverVersion">5.1</value>
+  </value>
+</data>
+  

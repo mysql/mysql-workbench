@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mwb</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>MySQLWorkbenchDoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>MySQL Workbench Model</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>mywb</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>Binary</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mwbpluginz</string>
+				<string>mwbplugin</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>MySQLWBPlugin.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>MySQL Workbench Plugin</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>mywp</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSTypeIsPackage</key>
+			<true/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>Binary</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>sql</string>
+				<string>qbquery</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>SQL File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
+	<key>CFBundleExecutable</key>
+	<string>MySQLWorkbench</string>
+	<key>CFBundleIconFile</key>
+	<string>MySQLWorkbench.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.oracle.mysql.workbench</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>${PRODUCT_NAME}</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+<key>CFBundleShortVersionString</key>
+	<string>6.1.0</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.developer-tools</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2008, 2013, Oracle and/or its affiliates. All rights reserved.</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>

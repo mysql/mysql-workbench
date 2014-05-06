@@ -1,0 +1,887 @@
+<Include>
+
+        <UI>
+            <Error Id="0">{{Fatal error: }}</Error>
+            <Error Id="1">Error [1].</Error>
+            <Error Id="2">Warning [1].</Error>
+            <Error Id="4">Info [1].</Error>
+            <Error Id="5">Internal Error [1]. [2]{, [3]}{, [4]}</Error>
+            <Error Id="7">{{Disk full: }}</Error>
+            <Error Id="8">Action [Time]: [1]. [2]</Error>
+            <Error Id="9">[ProductName]</Error>
+            <Error Id="10">{[2]}{, [3]}{, [4]}</Error>
+            <Error Id="11">Message type: [1], Argument: [2]</Error>
+            <Error Id="12">=== Logging started: [Date]  [Time] ===</Error>
+            <Error Id="13">=== Logging stopped: [Date]  [Time] ===</Error>
+            <Error Id="14">Action start [Time]: [1].</Error>
+            <Error Id="15">Action ended [Time]: [1]. Return value [2].</Error>
+            <Error Id="16">Time remaining: {[1] minutes }{[2] seconds}</Error>
+            <Error Id="17">Out of memory. Shut down other applications before retrying.</Error>
+            <Error Id="18">Installer is no longer responding.</Error>
+            <Error Id="19">Installer terminated prematurely.</Error>
+            <Error Id="20">Please wait while Windows configures [ProductName]</Error>
+            <Error Id="21">Gathering required information...</Error>
+            <Error Id="22">Removing older versions of this application</Error>
+            <Error Id="23">Preparing to remove older versions of this application</Error>
+            <Error Id="32">{[ProductName] }Setup completed successfully.</Error>
+            <Error Id="33">{[ProductName] }Setup failed.</Error>
+            <Error Id="1101">Error reading from file: [2]. {{ System error [3].}}  Verify that the file exists and that you can access it.</Error>
+            <Error Id="1301">Cannot create the file [3].  A directory with this name already exists.  Cancel the installation and try installing to a different location.</Error>
+            <Error Id="1302">Please insert the disk: [2]</Error>
+            <Error Id="1303">The installer has insufficient privileges to access this directory: [2].  The installation cannot continue.  Log on as an administrator or contact your system administrator.</Error>
+            <Error Id="1304">Error writing to file [2].  Verify that you have access to that directory.</Error>
+            <Error Id="1305">Error reading from file [2].  Verify that the file exists and that you can access it.</Error>
+            <Error Id="1306">Another application has exclusive access to the file [2].  Please shut down all other applications, then click Retry.</Error>
+            <Error Id="1307">There is not enough disk space to install the file [2].  Free some disk space and click Retry, or click Cancel to exit.</Error>
+            <Error Id="1308">Source file not found: [2].  Verify that the file exists and that you can access it.</Error>
+            <Error Id="1309">Error reading from file: [3]. {{ System error [2].}}  Verify that the file exists and that you can access it.</Error>
+            <Error Id="1310">Error writing to file: [3]. {{ System error [2].}}  Verify that you have access to that directory.</Error>
+            <Error Id="1311">Source file not found{{(cabinet)}}: [2].  Verify that the file exists and that you can access it.</Error>
+            <Error Id="1312">Cannot create the directory [2].  A file with this name already exists.  Please rename or remove the file and click Retry, or click Cancel to exit.</Error>
+            <Error Id="1313">The volume [2] is currently unavailable.  Please select another.</Error>
+            <Error Id="1314">The specified path [2] is unavailable.</Error>
+            <Error Id="1315">Unable to write to the specified folder [2].</Error>
+            <Error Id="1316">A network error occurred while attempting to read from the file [2]</Error>
+            <Error Id="1317">An error occurred while attempting to create the directory [2]</Error>
+            <Error Id="1318">A network error occurred while attempting to create the directory [2]</Error>
+            <Error Id="1319">A network error occurred while attempting to open the source file cabinet [2].</Error>
+            <Error Id="1320">The specified path is too long [2].</Error>
+            <Error Id="1321">The Installer has insufficient privileges to modify the file [2].</Error>
+            <Error Id="1322">A portion of the path [2] exceeds the length allowed by the system.</Error>
+            <Error Id="1323">The path [2] contains words that are not valid in folders.</Error>
+            <Error Id="1324">The path [2] contains an invalid character.</Error>
+            <Error Id="1325">[2] is not a valid short file name.</Error>
+            <Error Id="1326">Error getting file security: [3] GetLastError: [2]</Error>
+            <Error Id="1327">Invalid Drive: [2]</Error>
+            <Error Id="1328">Error applying patch to file [2].  It has probably been updated by other means, and can no longer be modified by this patch.  For more information contact your patch vendor.  {{System Error: [3]}}</Error>
+            <Error Id="1401">Could not create key [2]. {{ System error [3].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1402">Could not open key: [2]. {{ System error [3].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1403">Could not delete value [2] from key [3]. {{ System error [4].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1404">Could not delete key [2]. {{ System error [3].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1405">Could not read value [2] from key [3]. {{ System error [4].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1406">Could not write value [2] to key [3]. {{ System error [4].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1407">Could not get value names for key [2]. {{ System error [3].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1408">Could not get sub key names for key [2]. {{ System error [3].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1409">Could not read security information for key [2]. {{ System error [3].}}  Verify that you have sufficient access to that key, or contact your support personnel.</Error>
+            <Error Id="1410">Could not increase the available registry space. [2] KB of free registry space is required for the installation of this application.</Error>
+            <Error Id="1500">Another installation is in progress. You must complete that installation before continuing this one.</Error>
+            <Error Id="1501">Error accessing secured data. Please make sure the Windows Installer is configured properly and try the installation again.</Error>
+            <Error Id="1502">User [2] has previously initiated an installation for product [3].  That user will need to run that installation again before using that product.  Your current installation will now continue.</Error>
+            <Error Id="1503">User [2] has previously initiated an installation for product [3].  That user will need to run that installation again before using that product.</Error>
+            <Error Id="1601">Out of disk space -- Volume: '[2]'; required space: [3] KB; available space: [4] KB.  Free some disk space and retry.</Error>
+            <Error Id="1602">Are you sure you want to cancel?</Error>
+            <Error Id="1603">The file [2][3] is being held in use{ by the following process: Name: [4], ID: [5], Window Title: [6]}.  Close that application and retry.</Error>
+            <Error Id="1604">The product [2] is already installed, preventing the installation of this product.  The two products are incompatible.</Error>
+            <Error Id="1605">Out of disk space -- Volume: [2]; required space: [3] KB; available space: [4] KB.  If rollback is disabled, enough space is available. Click Cancel to quit, Retry to check available disk space again, or Ignore to continue without rollback.</Error>
+            <Error Id="1606">Could not access network location [2].</Error>
+            <Error Id="1607">[2]</Error>
+            <Error Id="1608">Could not find any previously installed compliant products on the machine for installing this product.</Error>
+            <Error Id="1701">The key [2] is not valid.  Verify that you entered the correct key.</Error>
+            <Error Id="1702">The installer must restart your system before configuration of [2] can continue.  Click Yes to restart now or No if you plan to restart later.</Error>
+            <Error Id="1703">You must restart your system for the configuration changes made to [2] to take effect. Click Yes to restart now or No if you plan to restart later.</Error>
+            <Error Id="1704">An installation for [2] is currently suspended.  You must undo the changes made by that installation to continue.  Do you want to undo those changes?</Error>
+            <Error Id="1705">A previous installation for this product is in progress.  You must undo the changes made by that installation to continue.  Do you want to undo those changes?</Error>
+            <Error Id="1706">No valid source could be found for product [2].  The Windows Installer cannot continue.</Error>
+            <Error Id="1707">Installation operation completed successfully.</Error>
+            <Error Id="1708">Installation operation failed.</Error>
+            <Error Id="1709">Product: [2] -- [3]</Error>
+            <Error Id="1710">You may either restore your computer to its previous state or continue the installation later. Would you like to restore?</Error>
+            <Error Id="1711">An error occurred while writing installation information to disk.  Check to make sure enough disk space is available, and click Retry, or Cancel to end the installation.</Error>
+            <Error Id="1712">One or more of the files required to restore your computer to its previous state could not be found.  Restoration will not be possible.</Error>
+            <Error Id="1713">[2] cannot install one of its required products. Contact your technical support group.  {{System Error: [3].}}</Error>
+            <Error Id="1714">The older version of [2] cannot be removed.  Contact your technical support group.  {{System Error [3].}}</Error>
+            <Error Id="1801">The path [2] is not valid.  Please specify a valid path.</Error>
+            <Error Id="1802">Out of memory. Shut down other applications before retrying.</Error>
+            <Error Id="1803">There is no disk in drive [2]. Please insert one and click Retry, or click Cancel to go back to the previously selected volume.</Error>
+            <Error Id="1804">There is no disk in drive [2]. Please insert one and click Retry, or click Cancel to return to the browse dialog and select a different volume.</Error>
+            <Error Id="1805">The folder [2] does not exist.  Please enter a path to an existing folder.</Error>
+            <Error Id="1806">You have insufficient privileges to read this folder.</Error>
+            <Error Id="1807">A valid destination folder for the installation could not be determined.</Error>
+            <Error Id="1901">Error attempting to read from the source installation database: [2].</Error>
+            <Error Id="1902">Scheduling reboot operation: Renaming file [2] to [3]. Must reboot to complete operation.</Error>
+            <Error Id="1903">Scheduling reboot operation: Deleting file [2]. Must reboot to complete operation.</Error>
+            <Error Id="1904">Module [2] failed to register.  HRESULT [3].  Contact your support personnel.</Error>
+            <Error Id="1905">Module [2] failed to unregister.  HRESULT [3].  Contact your support personnel.</Error>
+            <Error Id="1906">Failed to cache package [2]. Error: [3]. Contact your support personnel.</Error>
+            <Error Id="1907">Could not register font [2].  Verify that you have sufficient permissions to install fonts, and that the system supports this font.</Error>
+            <Error Id="1908">Could not unregister font [2]. Verify that you have sufficient permissions to remove fonts.</Error>
+            <Error Id="1909">Could not create shortcut [2]. Verify that the destination folder exists and that you can access it.</Error>
+            <Error Id="1910">Could not remove shortcut [2]. Verify that the shortcut file exists and that you can access it.</Error>
+            <Error Id="1911">Could not register type library for file [2].  Contact your support personnel.</Error>
+            <Error Id="1912">Could not unregister type library for file [2].  Contact your support personnel.</Error>
+            <Error Id="1913">Could not update the INI file [2][3].  Verify that the file exists and that you can access it.</Error>
+            <Error Id="1914">Could not schedule file [2] to replace file [3] on reboot.  Verify that you have write permissions to file [3].</Error>
+            <Error Id="1915">Error removing ODBC driver manager, ODBC error [2]: [3]. Contact your support personnel.</Error>
+            <Error Id="1916">Error installing ODBC driver manager, ODBC error [2]: [3]. Contact your support personnel.</Error>
+            <Error Id="1917">Error removing ODBC driver [4], ODBC error [2]: [3]. Verify that you have sufficient privileges to remove ODBC drivers.</Error>
+            <Error Id="1918">Error installing ODBC driver [4], ODBC error [2]: [3]. Verify that the file [4] exists and that you can access it.</Error>
+            <Error Id="1919">Error configuring ODBC data source [4], ODBC error [2]: [3]. Verify that the file [4] exists and that you can access it.</Error>
+            <Error Id="1920">Service [2] ([3]) failed to start.  Verify that you have sufficient privileges to start system services.</Error>
+            <Error Id="1921">Service [2] ([3]) could not be stopped.  Verify that you have sufficient privileges to stop system services.</Error>
+            <Error Id="1922">Service [2] ([3]) could not be deleted.  Verify that you have sufficient privileges to remove system services.</Error>
+            <Error Id="1923">Service [2] ([3]) could not be installed.  Verify that you have sufficient privileges to install system services.</Error>
+            <Error Id="1924">Could not update environment variable [2].  Verify that you have sufficient privileges to modify environment variables.</Error>
+            <Error Id="1925">You do not have sufficient privileges to complete this installation for all users of the machine.  Log on as an administrator and then retry this installation.</Error>
+            <Error Id="1926">Could not set file security for file [3]. Error: [2].  Verify that you have sufficient privileges to modify the security permissions for this file.</Error>
+            <Error Id="1927">Component Services (COM+ 1.0) are not installed on this computer.  This installation requires Component Services in order to complete successfully.  Component Services are available on Windows 2000.</Error>
+            <Error Id="1928">Error registering COM+ application.  Contact your support personnel for more information.</Error>
+            <Error Id="1929">Error unregistering COM+ application.  Contact your support personnel for more information.</Error>
+            <Error Id="1930">The description for service '[2]' ([3]) could not be changed.</Error>
+            <Error Id="1931">The Windows Installer service cannot update the system file [2] because the file is protected by Windows.  You may need to update your operating system for this program to work correctly. {{Package version: [3], OS Protected version: [4]}}</Error>
+            <Error Id="1932">The Windows Installer service cannot update the protected Windows file [2]. {{Package version: [3], OS Protected version: [4], SFP Error: [5]}}</Error>
+            <Error Id="1933">This setup requires Internet Information Server 4.0 or higher for configuring IIS Virtual Roots. Please make sure that you have IIS 4.0 or higher.</Error>
+            <Error Id="1934">This setup requires Administrator privileges for configuring IIS Virtual Roots.</Error>
+            <ProgressText Action="CreateShortcuts" Template="Shortcut: [1]">Creating shortcuts</ProgressText>
+            <ProgressText Action="PublishComponents" Template="Component ID: [1], Qualifier: [2]">Publishing qualified components</ProgressText>
+            <ProgressText Action="PublishFeatures" Template="Feature: [1]">Publishing product features</ProgressText>
+            <ProgressText Action="PublishProduct">Publishing product information</ProgressText>
+            <ProgressText Action="CostInitialize">Computing space requirements</ProgressText>
+            <ProgressText Action="CostFinalize">Computing space requirements</ProgressText>
+            <ProgressText Action="InstallValidate">Validating install</ProgressText>
+            <ProgressText Action="RegisterProduct" Template="[1]">Registering product</ProgressText>
+            <ProgressText Action="UnregisterFonts" Template="Font: [1]">Unregistering fonts</ProgressText>
+            <ProgressText Action="UnpublishFeatures" Template="Feature: [1]">Unpublishing product features</ProgressText>
+            <ProgressText Action="FileCost">Computing space requirements</ProgressText>
+            <ProgressText Action="RemoveFiles" Template="File: [1], Directory: [9]">Removing files</ProgressText>
+            <ProgressText Action="UnpublishComponents" Template="Component ID: [1], Qualifier: [2]">Unpublishing Qualified Components</ProgressText>
+            <ProgressText Action="RemoveExistingProducts" Template="Application: [1], Command line: [2]">Removing applications</ProgressText>
+            <ProgressText Action="RegisterUser" Template="[1]">Registering user</ProgressText>
+            <ProgressText Action="InstallFiles" Template="File: [1],  Directory: [9],  Size: [6]">Copying new files</ProgressText>
+            <ProgressText Action="RemoveRegistryValues" Template="Key: [1], Name: [2]">Removing system registry values</ProgressText>
+            <ProgressText Action="RegisterFonts" Template="Font: [1]">Registering fonts</ProgressText>
+            <ProgressText Action="LaunchConditions">Evaluating launch conditions</ProgressText>
+            <ProgressText Action="RemoveShortcuts" Template="Shortcut: [1]">Removing shortcuts</ProgressText>
+            <ProgressText Action="ProcessComponents">Updating component registration</ProgressText>
+            <ProgressText Action="MigrateFeatureStates" Template="Application: [1]">Migrating feature states from related applications</ProgressText>
+            <ProgressText Action="WriteRegistryValues" Template="Key: [1], Name: [2], Value: [3]">Writing system registry values</ProgressText>
+            <ProgressText Action="FindRelatedProducts" Template="Found application: [1]">Searching for related applications</ProgressText>
+            <ProgressText Action="AppSearch" Template="Property: [1], Signature: [2]">Searching for installed applications</ProgressText>
+            <ProgressText Action="BindImage" Template="File: [1]">Binding executables</ProgressText>
+            <ProgressText Action="CCPSearch">Searching for qualifying products</ProgressText>
+            <ProgressText Action="InstallAdminPackage" Template="File: [1], Directory: [9], Size: [6]">Copying files to the network</ProgressText>
+            <ProgressText Action="RegisterClassInfo" Template="Class ID: [1]">Registering class servers</ProgressText>
+            <ProgressText Action="RegisterExtensionInfo" Template="Extension: [1]">Registering extension servers</ProgressText>
+            <ProgressText Action="RegisterMIMEInfo" Template="MIME Content Type: [1], Extension: [2]">Registering MIME info</ProgressText>
+            <ProgressText Action="RegisterProgIdInfo" Template="ProgID: [1]">Registering program identifiers</ProgressText>
+            <ProgressText Action="RegisterTypeLibraries" Template="LibID: [1]">Registering type libraries</ProgressText>
+            <ProgressText Action="AllocateRegistrySpace" Template="Free space: [1]">Allocating registry space</ProgressText>
+            <ProgressText Action="CreateFolders" Template="Folder: [1]">Creating folders</ProgressText>
+            <ProgressText Action="DeleteServices" Template="Service: [1]">Deleting services</ProgressText>
+            <ProgressText Action="DuplicateFiles" Template="File: [1],  Directory: [9],  Size: [6]">Creating duplicate files</ProgressText>
+            <ProgressText Action="InstallODBC">Installing ODBC components</ProgressText>
+            <ProgressText Action="InstallServices" Template="Service: [2]">Installing new services</ProgressText>
+            <ProgressText Action="MoveFiles" Template="File: [1],  Directory: [9],  Size: [6]">Moving files</ProgressText>
+            <ProgressText Action="PatchFiles" Template="File: [1],  Directory: [2],  Size: [3]">Patching files</ProgressText>
+            <ProgressText Action="RegisterComPlus" Template="AppId: [1]{{, AppType: [2], Users: [3], RSN: [4]}}">Registering COM+ Applications and Components</ProgressText>
+            <ProgressText Action="RemoveDuplicateFiles" Template="File: [1], Directory: [9]">Removing duplicated files</ProgressText>
+            <ProgressText Action="RemoveEnvironmentStrings" Template="Name: [1], Value: [2], Action [3]">Updating environment strings</ProgressText>
+            <ProgressText Action="RemoveFolders" Template="Folder: [1]">Removing folders</ProgressText>
+            <ProgressText Action="RemoveIniValues" Template="File: [1],  Section: [2],  Key: [3], Value: [4]">Removing INI file entries</ProgressText>
+            <ProgressText Action="RemoveODBC">Removing ODBC components</ProgressText>
+            <ProgressText Action="RMCCPSearch">Searching for qualifying products</ProgressText>
+            <ProgressText Action="SelfRegModules" Template="File: [1], Folder: [2]">Registering modules</ProgressText>
+            <ProgressText Action="SelfUnregModules" Template="File: [1], Folder: [2]">Unregistering modules</ProgressText>
+            <ProgressText Action="SetODBCFolders">Initializing ODBC directories</ProgressText>
+            <ProgressText Action="StartServices" Template="Service: [1]">Starting services</ProgressText>
+            <ProgressText Action="StopServices" Template="Service: [1]">Stopping services</ProgressText>
+            <ProgressText Action="UnregisterClassInfo" Template="Class ID: [1]">Unregister class servers</ProgressText>
+            <ProgressText Action="UnregisterComPlus" Template="AppId: [1]{{, AppType: [2]}}">Unregistering COM+ Applications and Components</ProgressText>
+            <ProgressText Action="UnregisterExtensionInfo" Template="Extension: [1]">Unregistering extension servers</ProgressText>
+            <ProgressText Action="UnregisterMIMEInfo" Template="MIME Content Type: [1], Extension: [2]">Unregistering MIME info</ProgressText>
+            <ProgressText Action="UnregisterProgIdInfo" Template="ProgID: [1]">Unregistering program identifiers</ProgressText>
+            <ProgressText Action="UnregisterTypeLibraries" Template="LibID: [1]">Unregistering type libraries</ProgressText>
+            <ProgressText Action="WriteEnvironmentStrings" Template="Name: [1], Value: [2], Action [3]">Updating environment strings</ProgressText>
+            <ProgressText Action="WriteIniValues" Template="File: [1],  Section: [2],  Key: [3], Value: [4]">Writing INI file values</ProgressText>
+            <ProgressText Action="Advertise">Advertising application</ProgressText>
+            <ProgressText Action="GenerateScript" Template="[1]">Generating script operations for action:</ProgressText>
+            <ProgressText Action="InstallSFPCatalogFile" Template="File: [1],  Dependencies: [2]">Installing system catalog</ProgressText>
+            <ProgressText Action="Rollback" Template="[1]">Rolling back action:</ProgressText>
+            <ProgressText Action="RollbackCleanup" Template="File: [1]">Removing backup files</ProgressText>
+            <ProgressText Action="UnmoveFiles" Template="File: [1], Directory: [9]">Removing moved files</ProgressText>
+            <ProgressText Action="UnpublishProduct">Unpublishing product information</ProgressText>
+            <RadioButtonGroup Property="_IsMaintenance">
+                <RadioButton Height="14" Text="{&amp;MSSansBold8}&amp;Modify" Value="Change" Width="290" X="0" Y="0" />
+                <RadioButton Height="14" Text="{&amp;MSSansBold8}Re&amp;pair" Value="Reinstall" Width="290" X="0" Y="60" />
+                <RadioButton Height="14" Text="{&amp;MSSansBold8}&amp;Remove" Value="Remove" Width="290" X="0" Y="120" />
+            </RadioButtonGroup>
+            <RadioButtonGroup Property="_IsSetupTypeMin">
+                <RadioButton Height="14" Text="{&amp;MSSansBold8}&amp;Complete" Value="Complete" Width="264" X="1" Y="16" />
+                <RadioButton Height="14" Text="{&amp;MSSansBold8}Cu&amp;stom" Value="Custom" Width="264" X="1" Y="88" />
+            </RadioButtonGroup>
+            <TextStyle Id="Tahoma8" FaceName="Tahoma" Size="8" />
+            <TextStyle Id="Arial8" FaceName="Arial" Size="8" />
+            <TextStyle Id="Arial9" FaceName="Arial" Size="9" />
+            <TextStyle Id="ArialBlue10" FaceName="Arial" Size="10" Red="0" Green="0" Blue="1" />
+            <TextStyle Id="ArialBlueStrike10" FaceName="Arial" Size="10" Red="0" Green="0" Blue="1" Strike="yes" />
+            <TextStyle Id="CourierNew8" FaceName="Courier New" Size="8" />
+            <TextStyle Id="CourierNew9" FaceName="Courier New" Size="9" />
+            <TextStyle Id="ExpressDefault" FaceName="Tahoma" Size="8" />
+            <TextStyle Id="MSGothic9" FaceName="MS Gothic" Size="9" />
+            <TextStyle Id="MSSansBold8" FaceName="Tahoma" Size="8" Bold="yes" />
+            <TextStyle Id="MSSansSerif8" FaceName="MS Sans Serif" Size="8" />
+            <TextStyle Id="MSSansSerif9" FaceName="MS Sans Serif" Size="9" />
+            <TextStyle Id="MSSGreySerif8" FaceName="MS Sans Serif" Size="8" Red="0" Green="0" Blue="0" />
+            <TextStyle Id="MSSWhiteSerif8" FaceName="Tahoma" Size="8" Red="0" Green="1" Blue="1" />
+            <TextStyle Id="Tahoma10" FaceName="Tahoma" Size="10" />
+            <TextStyle Id="Tahoma9" FaceName="Tahoma" Size="9" />
+            <TextStyle Id="TahomaBold10" FaceName="Tahoma" Size="10" Bold="yes" />
+            <TextStyle Id="TahomaBold8" FaceName="Tahoma" Size="8" Bold="yes" />
+            <TextStyle Id="Times8" FaceName="Times New Roman" Size="8" />
+            <TextStyle Id="Times9" FaceName="Times New Roman" Size="9" />
+            <TextStyle Id="TimesItalic12" FaceName="Times New Roman" Size="12" Italic="yes" />
+            <TextStyle Id="TimesItalicBlue10" FaceName="Times New Roman" Size="10" Red="0" Green="0" Blue="1" Italic="yes" />
+            <TextStyle Id="TimesRed16" FaceName="Times New Roman" Size="16" Red="0" Green="0" Blue="0" />
+            <TextStyle Id="VerdanaBold14" FaceName="Verdana" Size="13" Bold="yes" />
+            <UIText Id="NewFolder">Fldr|New Folder</UIText>
+            <UIText Id="AbsentPath" />
+            <UIText Id="bytes">bytes</UIText>
+            <UIText Id="GB">GB</UIText>
+            <UIText Id="KB">KB</UIText>
+            <UIText Id="MB">MB</UIText>
+            <UIText Id="MenuAbsent">This feature will not be available.</UIText>
+            <UIText Id="MenuAdvertise">This feature will be installed when required.</UIText>
+            <UIText Id="MenuAllCD">This feature, and all subfeatures, will be installed to run from the CD.</UIText>
+            <UIText Id="MenuAllLocal">This feature, and all subfeatures, will be installed on local hard drive.</UIText>
+            <UIText Id="MenuAllNetwork">This feature, and all subfeatures, will be installed to run from the network.</UIText>
+            <UIText Id="MenuCD">This feature will be installed to run from CD.</UIText>
+            <UIText Id="MenuLocal">This feature will be installed on local hard drive.</UIText>
+            <UIText Id="MenuNetwork">This feature will be installed to run from network.</UIText>
+            <UIText Id="SelAbsentAbsent">This feature will remain uninstalled.</UIText>
+            <UIText Id="SelAbsentAdvertise">This feature will be set to be installed when required.</UIText>
+            <UIText Id="SelAbsentCD">This feature will be installed to run from CD.</UIText>
+            <UIText Id="SelAbsentLocal">This feature will be installed on the local hard drive.</UIText>
+            <UIText Id="SelAbsentNetwork">This feature will be installed to run from the network.</UIText>
+            <UIText Id="SelAdvertiseAbsent">This feature will become unavailable.</UIText>
+            <UIText Id="SelAdvertiseAdvertise">Will be installed when required.</UIText>
+            <UIText Id="SelAdvertiseCD">This feature will be available to run from CD.</UIText>
+            <UIText Id="SelAdvertiseLocal">This feature will be installed on your local hard drive.</UIText>
+            <UIText Id="SelAdvertiseNetwork">This feature will be available to run from the network.</UIText>
+            <UIText Id="SelCDAbsent">This feature will be uninstalled completely, and you won't be able to run it from CD.</UIText>
+            <UIText Id="SelCDAdvertise">This feature was run from the CD but will be set to be installed when required.</UIText>
+            <UIText Id="SelCDCD">This feature will continue to be run from the CD</UIText>
+            <UIText Id="SelCDLocal">This feature was run from the CD but will be installed on the local hard drive.</UIText>
+            <UIText Id="SelChildCostNeg">This feature frees up [1] on your hard drive.</UIText>
+            <UIText Id="SelChildCostPos">This feature requires [1] on your hard drive.</UIText>
+            <UIText Id="SelCostPending">Compiling cost for this feature...</UIText>
+            <UIText Id="SelLocalAbsent">This feature will be completely removed.</UIText>
+            <UIText Id="SelLocalAdvertise">This feature will be removed from your local hard drive but will be set to be installed when required.</UIText>
+            <UIText Id="SelLocalCD">This feature will be removed from your local hard drive but will still be available to run from CD.</UIText>
+            <UIText Id="SelLocalLocal">This feature will remain on your local hard drive.</UIText>
+            <UIText Id="SelLocalNetwork">This feature will be removed from your local hard drive, but will be still available to run from the network.</UIText>
+            <UIText Id="SelNetworkAbsent">This feature will be uninstalled completely, and you won't be able to run it from the network.</UIText>
+            <UIText Id="SelNetworkAdvertise">This feature was run from the network but will be installed when required.</UIText>
+            <UIText Id="SelNetworkLocal">This feature was run from the network but will be installed on the local hard drive.</UIText>
+            <UIText Id="SelNetworkNetwork">This feature will continue to be run from the network</UIText>
+            <UIText Id="SelParentCostNegNeg">This feature frees up [1] on your hard drive. It has [2] of [3] subfeatures selected. The subfeatures free up [4] on your hard drive.</UIText>
+            <UIText Id="SelParentCostNegPos">This feature frees up [1] on your hard drive. It has [2] of [3] subfeatures selected. The subfeatures require [4] on your hard drive.</UIText>
+            <UIText Id="SelParentCostPosNeg">This feature requires [1] on your hard drive. It has [2] of [3] subfeatures selected. The subfeatures free up [4] on your hard drive.</UIText>
+            <UIText Id="SelParentCostPosPos">This feature requires [1] on your hard drive. It has [2] of [3] subfeatures selected. The subfeatures require [4] on your hard drive.</UIText>
+            <UIText Id="TimeRemaining">Time remaining: {[1] min }[2] sec</UIText>
+            <UIText Id="VolumeCostAvailable">Available</UIText>
+            <UIText Id="VolumeCostDifference">Differences</UIText>
+            <UIText Id="VolumeCostRequired">Required</UIText>
+            <UIText Id="VolumeCostSize">Disk Size</UIText>
+            <UIText Id="VolumeCostVolume">Volume</UIText>
+            <Dialog Id="SetupErrorDialog" X="50" Y="10" Width="270" Height="110" Title="[ProductName] Installer Information" ErrorDialog="yes">
+                <Control Id="ErrorText" Type="Text" X="50" Y="15" Width="200" Height="50" Text="&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;&lt;error text goes here&gt;" TabSkip="no" />
+                <Control Id="Y" Type="PushButton" X="192" Y="80" Width="66" Height="17" Text="&amp;Yes" TabSkip="yes">
+                    <Publish Event="EndDialog" Value="ErrorYes">1</Publish>
+                </Control>
+                <Control Id="N" Type="PushButton" X="192" Y="80" Width="66" Height="17" Text="&amp;No" TabSkip="yes">
+                    <Publish Event="EndDialog" Value="ErrorNo">1</Publish>
+                </Control>
+                <Control Id="A" Type="PushButton" X="192" Y="80" Width="66" Height="17" Text="&amp;Abort" TabSkip="yes">
+                    <Publish Event="EndDialog" Value="ErrorAbort">1</Publish>
+                </Control>
+                <Control Id="C" Type="PushButton" X="192" Y="80" Width="66" Height="17" Text="&amp;Cancel" TabSkip="yes" Cancel="yes">
+                    <Publish Event="EndDialog" Value="ErrorCancel">1</Publish>
+                </Control>
+                <Control Id="I" Type="PushButton" X="192" Y="80" Width="66" Height="17" Text="&amp;Ignore" TabSkip="yes">
+                    <Publish Event="EndDialog" Value="ErrorIgnore">1</Publish>
+                </Control>
+                <Control Id="O" Type="PushButton" X="192" Y="80" Width="66" Height="17" Text="&amp;OK" TabSkip="yes" Default="yes">
+                    <Publish Event="EndDialog" Value="ErrorOk">1</Publish>
+                </Control>
+                <Control Id="R" Type="PushButton" X="192" Y="80" Width="66" Height="17" Text="&amp;Retry" TabSkip="yes">
+                    <Publish Event="EndDialog" Value="ErrorRetry">1</Publish>
+                </Control>
+                <Control Id="WarningIcon" Type="Icon" X="15" Y="15" Width="24" Height="24" Text="NewBinary4" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+            </Dialog>
+            <Dialog Id="SetupCompleteSuccessDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="OK" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Finish" TabSkip="no" Default="yes" Cancel="yes">
+					<Publish Event="DoAction" Value="LaunchApplication">LAUNCHAPPONEXIT and NOT Installed</Publish>
+                    <Publish Event="EndDialog" Value="Exit">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Disabled="yes" />
+                <Control Id="Image" Type="Bitmap" X="0" Y="0" Width="374" Height="234" Text="BackgroundImg" TabSkip="no" Disabled="yes" />
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no" Disabled="yes" />
+                <Control Id="TextLine3" Type="Text" X="135" Y="55" Width="228" Height="45" Text="The Setup Wizard has successfully uninstalled [ProductName]. Click Finish to exit the wizard." TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType2="uninstalled"</Condition>
+                </Control>
+                <Control Id="UpdateTextLine1" Type="Text" X="135" Y="30" Width="228" Height="45" Text="Setup has finished installing [ProductName]." TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">NOT Installed And ACTION="INSTALL"</Condition>
+                </Control>
+				 <Control Id="LaunchCheckBox" Type="CheckBox" X="10" Y="243" Width="150" Height="17" Property="LAUNCHAPPONEXIT" Hidden="yes" CheckBoxValue="1" Text="Launch MySQL Workbench now">
+					<Condition Action="show">NOT Installed And ACTION="INSTALL"</Condition>
+				 </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="TextLine1" Type="Text" X="135" Y="8" Width="225" Height="45" Text="{&amp;TahomaBold10}Wizard Completed" TabSkip="yes" Transparent="yes" />
+            </Dialog>
+            <Dialog Id="SetupInterruptedDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Finish" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Finish" TabSkip="no" Default="yes" Cancel="yes">
+                    <Condition Action="default">NOT UpdateStarted</Condition>
+                    <Publish Event="EndDialog" Value="Exit">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="yes" Disabled="yes">
+                    <Condition Action="disable">NOT UpdateStarted</Condition>
+                    <Condition Action="enable">UpdateStarted</Condition>
+                    <Publish Property="Suspend" Value="1">1</Publish>
+                    <Publish Event="EndDialog" Value="Exit">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="yes" Disabled="yes">
+                    <Condition Action="default">UpdateStarted</Condition>
+                    <Condition Action="disable">NOT UpdateStarted</Condition>
+                    <Condition Action="enable">UpdateStarted</Condition>
+                    <Publish Property="Suspend">1</Publish>
+                    <Publish Event="EndDialog" Value="Exit">1</Publish>
+                </Control>
+                <Control Id="Image" Type="Bitmap" X="0" Y="0" Width="374" Height="234" Text="BackgroundImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="TextLine1" Type="Text" X="135" Y="8" Width="225" Height="45" Text="{&amp;TahomaBold10}Wizard Completed" TabSkip="yes" Transparent="yes" />
+                <Control Id="FinishText1" Type="Text" X="135" Y="80" Width="228" Height="50" Text="Your system has not been modified. To install this program at a later time, please run the installation again." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">NOT UpdateStarted</Condition>
+                    <Condition Action="hide">UpdateStarted</Condition>
+                </Control>
+                <Control Id="FinishText2" Type="Text" X="135" Y="135" Width="228" Height="25" Text="Click Finish to exit the wizard." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">NOT UpdateStarted</Condition>
+                    <Condition Action="hide">UpdateStarted</Condition>
+                </Control>
+                <Control Id="RestContText1" Type="Text" X="135" Y="80" Width="228" Height="50" Text="You can either keep any existing installed elements on your system to continue this installation at a later time or you can restore your system to its original state prior to the installation." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">UpdateStarted</Condition>
+                    <Condition Action="hide">NOT UpdateStarted</Condition>
+                </Control>
+                <Control Id="RestContText2" Type="Text" X="135" Y="135" Width="228" Height="25" Text="Click Restore or Continue Later to exit the wizard." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">UpdateStarted</Condition>
+                    <Condition Action="hide">NOT UpdateStarted</Condition>
+                </Control>
+                <Control Id="TextLine2" Type="Text" X="135" Y="55" Width="228" Height="25" Text="The wizard was interrupted before [ProductName] could be completely installed." TabSkip="yes" Transparent="yes" />
+            </Dialog>
+            <Dialog Id="SetupCompleteErrorDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Finish" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Finish" TabSkip="no" Default="yes" Cancel="yes">
+                    <Condition Action="default">NOT UpdateStarted</Condition>
+                    <Publish Event="EndDialog" Value="Exit">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Disabled="yes">
+                    <Condition Action="disable">NOT UpdateStarted</Condition>
+                    <Condition Action="enable">UpdateStarted</Condition>
+                    <Publish Property="Suspend" Value="1">1</Publish>
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no" Disabled="yes">
+                    <Condition Action="default">UpdateStarted</Condition>
+                    <Condition Action="disable">NOT UpdateStarted</Condition>
+                    <Condition Action="enable">UpdateStarted</Condition>
+                    <Publish Property="Suspend">1</Publish>
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                </Control>
+                <Control Id="Image" Type="Bitmap" X="0" Y="0" Width="374" Height="234" Text="BackgroundImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="TextLine1" Type="Text" X="135" Y="8" Width="225" Height="45" Text="{&amp;TahomaBold10}[ProductName] Setup Wizard ended prematurely" TabSkip="yes" Transparent="yes" />
+                <Control Id="FinishText1" Type="Text" X="135" Y="80" Width="228" Height="50" Text="Your system has not been modified. To complete installation at another time, please run setup again." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">NOT UpdateStarted</Condition>
+                    <Condition Action="hide">UpdateStarted</Condition>
+                </Control>
+                <Control Id="FinishText2" Type="Text" X="135" Y="135" Width="228" Height="25" Text="Click Finish to exit the wizard." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">NOT UpdateStarted</Condition>
+                    <Condition Action="hide">UpdateStarted</Condition>
+                </Control>
+                <Control Id="RestContText1" Type="Text" X="135" Y="80" Width="228" Height="50" Text="You can either keep any existing installed elements on your system to continue this installation at a later time or you can restore your system to its original state prior to the installation." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">UpdateStarted</Condition>
+                    <Condition Action="hide">NOT UpdateStarted</Condition>
+                </Control>
+                <Control Id="RestContText2" Type="Text" X="135" Y="135" Width="228" Height="25" Text="Click Restore or Continue Later to exit the wizard." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">UpdateStarted</Condition>
+                    <Condition Action="hide">NOT UpdateStarted</Condition>
+                </Control>
+                <Control Id="TextLine2" Type="Text" X="135" Y="55" Width="228" Height="25" Text="The wizard was interrupted before [ProductName] could be completely installed." TabSkip="yes" Transparent="yes" />
+                <Control Id="dlprereq" Type="PushButton" X="10" Y="243" Width="120" Height="17" Text="Download Prerequisites" TabSkip="no" Disabled="no">
+                    <Condition Action="show"><![CDATA[CPP_100_RUNTIMES OR NETFRAMEWORK40CLIENT]]></Condition>
+                    <Publish Property="Suspend">1</Publish>
+                    <Publish Event="DoAction" Value="LaunchDL">1</Publish>
+                </Control>
+            </Dialog>
+            <Dialog Id="CancelSetupDialog" X="50" Y="50" Width="260" Height="85" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="No" Type="PushButton" X="135" Y="57" Width="66" Height="17" Text="&amp;No" TabSkip="no" Default="yes" Cancel="yes">
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                </Control>
+                <Control Id="Yes" Type="PushButton" X="62" Y="57" Width="66" Height="17" Text="&amp;Yes" TabSkip="no">
+                    <Publish Event="EndDialog" Value="Exit">1</Publish>
+                </Control>
+                <Control Id="Text" Type="Text" X="48" Y="15" Width="194" Height="30" Text="Are you sure you want to cancel [ProductName] installation?" TabSkip="yes" />
+                <Control Id="Icon" Type="Icon" X="15" Y="15" Width="24" Height="24" Text="NewBinary4" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+            </Dialog>
+            <Dialog Id="InstallWelcomeDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Default="yes">
+ 				<Publish Event="NewDialog" Value="DestinationFolderDialog">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no" Disabled="yes" />
+                <Control Id="Copyright" Type="Text" X="135" Y="144" Width="228" Height="73" Text="WARNING: This program is protected by copyright law and international treaties." TabSkip="no" Transparent="yes" />
+                <Control Id="PrevVersion" Type="Text" X="135" Y="124" Width="228" Height="73" Text="Setup has detected a previous version of [ProductName]. It will be removed during this installation." TabSkip="no" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">PREVIOUSVERSIONINSTALLED</Condition>
+                </Control>
+                <Control Id="Image" Type="Bitmap" X="0" Y="0" Width="374" Height="234" Text="BackgroundImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="TextLine1" Type="Text" X="135" Y="8" Width="225" Height="45" Text="{&amp;TahomaBold10}Welcome to the Setup Wizard for [ProductName]" TabSkip="yes" Transparent="yes" />
+                <Control Id="TextLine2" Type="Text" X="135" Y="55" Width="228" Height="45" Text="The Setup Wizard will install version $(var.VERSION_DETAIL) on your computer. To continue, click Next." TabSkip="yes" Transparent="yes" />
+            </Dialog>
+            <Dialog Id="MaintenanceWelcomeDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Default="yes">
+                    <Publish Event="NewDialog" Value="MaintenanceTypeDialog">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no" Disabled="yes" />
+                <Control Id="Image" Type="Bitmap" X="0" Y="0" Width="374" Height="234" Text="BackgroundImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="TextLine1" Type="Text" X="135" Y="8" Width="225" Height="45" Text="{&amp;TahomaBold10}Welcome to the Setup Wizard for [ProductName]" TabSkip="yes" Transparent="yes" />
+                <Control Id="TextLine2" Type="Text" X="135" Y="55" Width="228" Height="50" Text="The Setup Wizard will allow you to modify, repair, or remove [ProductName]. To continue, click Next." TabSkip="yes" Transparent="yes" />
+            </Dialog>
+            <Dialog Id="MaintenanceTypeDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="RadioGroup" Type="RadioButtonGroup" X="21" Y="55" Width="290" Height="170" Property="_IsMaintenance" TabSkip="no" />
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no">
+                    <Publish Event="NewDialog" Value="MaintenanceWelcomeDialog">1</Publish>
+                </Control>
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Default="yes">
+                    <Publish Property="ProgressType0" Value="Repair">_IsMaintenance = "Reinstall"</Publish>
+                    <Publish Property="ProgressType0" Value="Modify">_IsMaintenance = "Change"</Publish>
+                    <Publish Property="ProgressType1" Value="Modifying">_IsMaintenance = "Change"</Publish>
+                    <Publish Property="ProgressType1" Value="Repairing">_IsMaintenance = "Reinstall"</Publish>
+                    <Publish Property="ProgressType2" Value="repairs">_IsMaintenance = "Reinstall"</Publish>
+                    <Publish Property="ProgressType2" Value="modified">_IsMaintenance = "Change"</Publish>
+                    <Publish Property="ProgressType3" Value="modifies">_IsMaintenance = "Change"</Publish>
+                    <Publish Property="ProgressType3" Value="repairs">_IsMaintenance = "Reinstall"</Publish>
+                    <Publish Event="ReinstallMode" Value="[ReinstallModeText]">_IsMaintenance = "Reinstall"</Publish>
+                    <Publish Event="Reinstall" Value="ALL">_IsMaintenance = "Reinstall"</Publish>
+                    <Publish Event="NewDialog" Value="ReadyToRemove">_IsMaintenance = "Remove"</Publish>
+                    <Publish Event="NewDialog" Value="CustomSetupDialog">_IsMaintenance = "Change"</Publish>
+                    <Publish Event="NewDialog" Value="ReadyToInstallDialog">_IsMaintenance = "Reinstall"</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Modify, repair, or remove the program." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Program Maintenance" TabSkip="yes" Transparent="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="Ico1" Type="Icon" X="35" Y="75" Width="24" Height="24" Text="NewBinary6" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="Ico2" Type="Icon" X="35" Y="135" Width="24" Height="24" Text="NewBinary7" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="Ico3" Type="Icon" X="35" Y="195" Width="24" Height="24" Text="NewBinary8" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="Text1" Type="Text" X="80" Y="72" Width="260" Height="35" Text="Change which program features are installed. This option displays the Custom Selection dialog in which you can change the way features are installed." TabSkip="yes" />
+                <Control Id="Text2" Type="Text" X="80" Y="135" Width="260" Height="35" Text="Repair installation errors in the program. This option fixes missing or corrupt files, shortcuts, and registry entries." TabSkip="yes" />
+                <Control Id="Text3" Type="Text" X="80" Y="192" Width="260" Height="35" Text="Remove [ProductName] from your computer." TabSkip="yes" />
+            </Dialog>
+            <Dialog Id="AdminWelcomeDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Default="yes">
+                    <Publish Event="NewDialog" Value="AdminNetworkLocationDialog">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no" Disabled="yes" />
+                <Control Id="Image" Type="Bitmap" X="0" Y="0" Width="374" Height="234" Text="BackgroundImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="TextLine1" Type="Text" X="135" Y="8" Width="225" Height="45" Text="{&amp;TahomaBold10}Welcome to the Setup Wizard for [ProductName]" TabSkip="yes" Transparent="yes" />
+                <Control Id="TextLine2" Type="Text" X="135" Y="55" Width="228" Height="45" Text="This Wizard will create a server image of [ProductName] at a specified network location. To continue, click Next." TabSkip="yes" Transparent="yes" />
+            </Dialog>
+            <Dialog Id="AdminNetworkLocationDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="InstallNow" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Install" TabSkip="no" Default="yes">
+                    <Publish Event="SetTargetPath" Value="TARGETDIR">1</Publish>
+                    <Publish Event="NewDialog" Value="OutOfSpaceDialog">OutOfNoRbDiskSpace = 1</Publish>
+                    <Publish Event="EndDialog" Value="Return">OutOfNoRbDiskSpace &lt;&gt; 1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="SetupPathEdit" Type="PathEdit" X="21" Y="102" Width="330" Height="17" Property="TARGETDIR" TabSkip="no" />
+                <Control Id="Browse" Type="PushButton" X="286" Y="124" Width="66" Height="17" Text="&amp;Change..." TabSkip="no">
+                    <Publish Event="SpawnDialog" Value="AdminChangeFolderDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no">
+                    <Publish Event="NewDialog" Value="AdminWelcomeDialog">1</Publish>
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Specify a network location for the server image of the product." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Network Location" TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgText" Type="Text" X="21" Y="51" Width="326" Height="40" Text="Enter the network location or click Change to browse to a location.  Click Install to create a server image of [ProductName] at the specified network location or click Cancel to exit the wizard." TabSkip="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="LBBrowse" Type="Text" X="21" Y="90" Width="100" Height="10" Text="&amp;Network location:" TabSkip="yes" />
+            </Dialog>
+            <Dialog Id="SetupInitializationDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" Modeless="yes">
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Default="yes" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="yes" Disabled="yes" />
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="yes" Disabled="yes" />
+                <Control Id="Image" Type="Bitmap" X="0" Y="0" Width="374" Height="234" Text="BackgroundImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="374" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="TextLine1" Type="Text" X="135" Y="8" Width="225" Height="45" Text="{&amp;TahomaBold10}Welcome to the Setup Wizard for [ProductName]" TabSkip="yes" Transparent="yes" />
+                <Control Id="TextLine2" Type="Text" X="135" Y="55" Width="228" Height="30" Text="[ProductName] Setup is preparing the Setup Wizard which will guide you through the program setup process.  Please wait..." TabSkip="yes" Transparent="yes" />
+                <Control Id="ActionText" Type="Text" X="135" Y="109" Width="220" Height="36" TabSkip="yes" Transparent="yes">
+                    <Subscribe Event="ActionText" Attribute="Text" />
+                </Control>
+                <Control Id="ActionData" Type="Text" X="135" Y="125" Width="228" Height="12" TabSkip="yes" Transparent="yes">
+                    <Subscribe Event="ActionData" Attribute="Text" />
+                </Control>
+            </Dialog>
+            <Dialog Id="SetupProgressDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" Modeless="yes">
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Default="yes" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no" Disabled="yes" />
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Disabled="yes" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="ActionText" Type="Text" X="59" Y="100" Width="275" Height="12" TabSkip="yes">
+                    <Subscribe Event="ActionText" Attribute="Text" />
+                </Control>
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="The program features you selected are being installed." TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType2="installed"</Condition>
+                </Control>
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Installing [ProductName]" TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType1="Installing"</Condition>
+                </Control>
+                <Control Id="DlgText" Type="Text" X="59" Y="51" Width="275" Height="30" Text="Please wait while the Setup Wizard installs [ProductName]. This may take several minutes." TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType3="installs"</Condition>
+                </Control>
+                <Control Id="DlgTitle2" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Uninstalling [ProductName]" TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType1="Uninstalling"</Condition>
+                </Control>
+                <Control Id="DlgText2" Type="Text" X="59" Y="51" Width="275" Height="30" Text="Please wait while the Setup Wizard uninstalls [ProductName]. This may take several minutes." TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType3="uninstalls"</Condition>
+                </Control>
+                <Control Id="DlgDesc2" Type="Text" X="21" Y="23" Width="292" Height="25" Text="The program features you selected are being uninstalled." TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType2="uninstalled"</Condition>
+                </Control>
+                <Control Id="ActionProgress95" Type="ProgressBar" X="59" Y="113" Width="275" Height="12" Text="Progress done" TabSkip="yes" Disabled="yes" ProgressBlocks="yes">
+                    <Subscribe Event="RemoveFiles" Attribute="Progress" />
+                    <Subscribe Event="InstallFiles" Attribute="Progress" />
+                    <Subscribe Event="RemoveRegistryValues" Attribute="Progress" />
+                    <Subscribe Event="WriteRegistryValues" Attribute="Progress" />
+                    <Subscribe Event="MoveFiles" Attribute="Progress" />
+                    <Subscribe Event="WriteIniValues" Attribute="Progress" />
+                    <Subscribe Event="UnmoveFiles" Attribute="Progress" />
+                    <Subscribe Event="AdminInstallFinalize" Attribute="Progress" />
+                    <Subscribe Event="SetProgress" Attribute="Progress" />
+                </Control>
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="LbSec" Type="Text" X="172" Y="139" Width="32" Height="12" Text="(Hidden for now)Sec." TabSkip="yes" Hidden="yes" />
+                <Control Id="LbStatus" Type="Text" X="59" Y="85" Width="70" Height="12" Text="Status:" TabSkip="yes" />
+                <Control Id="SetupIcon" Type="Icon" X="21" Y="51" Width="24" Height="24" Text="NewBinary9" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="ShowTime" Type="Text" X="155" Y="139" Width="17" Height="12" Text="(Hidden for now)" TabSkip="yes" Hidden="yes" />
+                <Control Id="TextTime" Type="Text" X="59" Y="139" Width="96" Height="12" Text=")Hidden for now)Estimated time remaining:" TabSkip="yes" Hidden="yes" />
+            </Dialog>
+            <Dialog Id="SetupResumeDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Default="yes">
+                    <Publish Event="NewDialog" Value="OutOfSpaceDialog">OutOfNoRbDiskSpace = 1</Publish>
+                    <Publish Event="EndDialog" Value="Return">OutOfNoRbDiskSpace &lt;&gt; 1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no" Disabled="yes" />
+                <Control Id="Image" Type="Bitmap" X="0" Y="0" Width="374" Height="234" Text="NewBinary5" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="TextLine1" Type="Text" X="135" Y="8" Width="225" Height="45" Text="{&amp;TahomaBold10}Resuming the Setup Wizard for [ProductName]" TabSkip="yes" Transparent="yes" />
+                <Control Id="PreselectedText" Type="Text" X="135" Y="55" Width="228" Height="45" Text="The Setup Wizard will complete the installation of [ProductName] on your computer. To continue, click Next." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">NOT RESUME</Condition>
+                    <Condition Action="hide">RESUME</Condition>
+                </Control>
+                <Control Id="ResumeText" Type="Text" X="135" Y="46" Width="228" Height="45" Text="The Setup Wizard will complete the suspended installation of [ProductName] on your computer. To continue, click Next." TabSkip="yes" Transparent="yes">
+                    <Condition Action="show">RESUME</Condition>
+                    <Condition Action="hide">NOT RESUME</Condition>
+                </Control>
+            </Dialog>
+            <Dialog Id="OutOfSpaceDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Resume" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="OK" TabSkip="no" Default="yes" Cancel="yes">
+                    <Publish Event="NewDialog" Value="CustomSetupDialog">ACTION &lt;&gt; "ADMIN"</Publish>
+                    <Publish Event="NewDialog" Value="AdminNetworkLocationDialog">ACTION = "ADMIN"</Publish>
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="378" Width="326" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Disk space required for the installation exceeds available disk space." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Out of Disk Space" TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgText" Type="Text" X="21" Y="51" Width="326" Height="43" Text="The highlighted volumes do not have enough disk space available for the currently selected features. You can remove files from the highlighted volumes, choose to install less features onto local drives, or select different destination drives." TabSkip="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="List" Type="VolumeCostList" X="21" Y="95" Width="332" Height="120" Text="{120}{70}{70}{70}{70}" TabSkip="yes" Sunken="yes" Fixed="yes" Remote="yes" />
+            </Dialog>
+            <Dialog Id="SetupTypeDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="RadioGroup" Type="RadioButtonGroup" X="20" Y="59" Width="264" Height="139" Property="_IsSetupTypeMin" TabSkip="no" FixedSize="yes" />
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no">
+                    <Publish Event="NewDialog" Value="DestinationFolderDialog">NOT Installed</Publish>
+                </Control>
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Default="yes">
+                    <Publish Event="NewDialog" Value="CustomSetupDialog">_IsSetupTypeMin = "Custom"</Publish>
+                    <Publish Event="NewDialog" Value="ReadyToInstallDialog">_IsSetupTypeMin &lt;&gt; "Custom"</Publish>
+                    <Publish Property="SelectedSetupType" Value="Custom">_IsSetupTypeMin = "Custom"</Publish>
+                    <Publish Property="SelectedSetupType" Value="Complete">_IsSetupTypeMin = "Complete"</Publish>
+                    <Publish Event="SetInstallLevel" Value="200">_IsSetupTypeMin="Complete"</Publish>
+                    <Publish Event="SetInstallLevel" Value="100">_IsSetupTypeMin="Custom"</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Choose the setup type that best suits your needs." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Setup Type" TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgText" Type="Text" X="22" Y="49" Width="326" Height="10" Text="Please select a setup type." TabSkip="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="CompText" Type="Text" X="80" Y="90" Width="246" Height="30" Text="All program features will be installed. (Requires the most disk space.)" TabSkip="yes" />
+                <Control Id="CompleteIco" Type="Icon" X="34" Y="90" Width="24" Height="24" Text="NewBinary10" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="CustText" Type="Text" X="80" Y="161" Width="246" Height="30" Text="Choose which program features you want installed and where they will be installed. Recommended for advanced users." TabSkip="yes" />
+                <Control Id="CustomIco" Type="Icon" X="34" Y="161" Width="24" Height="24" Text="NewBinary11" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+            </Dialog>
+            <Dialog Id="DestinationFolderDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Default="yes">
+                    <Publish Event="NewDialog" Value="SetupTypeDialog">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="ChangeFolder" Type="PushButton" X="301" Y="65" Width="66" Height="17" Text="&amp;Change..." TabSkip="no">
+                    <Publish Event="SpawnDialog" Value="InstallChangeFolderDialog">1</Publish>
+                    <Publish Property="_BrowseProperty" Value="INSTALLDIR">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no">
+                <Publish Event="NewDialog" Value="InstallWelcomeDialog">1</Publish>
+
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Click Next to install to this folder, or click Change to install to a different folder." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Destination Folder" TabSkip="yes" Transparent="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="Location" Type="Text" X="57" Y="65" Width="240" Height="40" Property="_BrowseProperty" Text="[INSTALLDIR]" TabSkip="yes" />
+                <Control Id="DestFolder" Type="Icon" X="21" Y="52" Width="24" Height="24" Text="NewBinary12" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="LocLabel" Type="Text" X="57" Y="52" Width="290" Height="10" Text="Install [ProductName] to:" TabSkip="yes" />
+            </Dialog>
+            <Dialog Id="CustomSetupDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes" TrackDiskSpace="yes">
+                <Control Id="Tree" Type="SelectionTree" X="8" Y="70" Width="220" Height="118" Property="_BrowseProperty" TabSkip="no" Sunken="yes" />
+                <Control Id="ChangeFolder" Type="PushButton" X="301" Y="203" Width="66" Height="17" Text="&amp;Change..." TabSkip="no">
+                    <Condition Action="hide">Installed</Condition>
+                    <Publish Event="SelectionBrowse" Value="InstallChangeFolderDialog">1</Publish>
+                </Control>
+                <Control Id="Help" Type="PushButton" X="22" Y="243" Width="66" Height="17" Text="&amp;Help" TabSkip="no">
+                    <Publish Event="SpawnDialog" Value="CustomSetupTips">1</Publish>
+                </Control>
+                <Control Id="Details" Type="PushButton" X="93" Y="243" Width="66" Height="17" Text="&amp;Space" TabSkip="no">
+                    <Condition Action="hide">Installed</Condition>
+                    <Publish Event="SelectionBrowse" Value="DiskSpaceRequirements">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no">
+                    <Publish Event="NewDialog" Value="SetupTypeDialog">NOT Installed</Publish>
+                    <Publish Event="NewDialog" Value="MaintenanceTypeDialog">Installed</Publish>
+                </Control>
+                <Control Id="Next" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Next &gt;" TabSkip="no" Default="yes">
+                    <Publish Event="NewDialog" Value="ReadyToInstallDialog">OutOfNoRbDiskSpace &lt;&gt; 1</Publish>
+                    <Publish Event="NewDialog" Value="OutOfSpaceDialog">OutOfNoRbDiskSpace = 1</Publish>
+                    <Publish Property="_IsSetupTypeMin" Value="Custom">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Size" Type="Text" X="241" Y="133" Width="120" Height="50" Text="Feature size" TabSkip="yes">
+                    <Subscribe Event="SelectionSize" Attribute="Text" />
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="17" Y="23" Width="292" Height="25" Text="Select the program features you want installed." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="9" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Custom Setup" TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgText" Type="Text" X="9" Y="51" Width="360" Height="10" Text="Click on an icon in the list below to change how a feature is installed." TabSkip="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="InstallLabel" Type="Text" X="8" Y="190" Width="360" Height="10" Text="Install to:" TabSkip="yes">
+                    <Condition Action="hide">Installed</Condition>
+                </Control>
+                <Control Id="ItemDescription" Type="Text" X="241" Y="80" Width="120" Height="50" Text="Multiline description of the currently selected item" TabSkip="yes">
+                    <Subscribe Event="SelectionDescription" Attribute="Text" />
+                </Control>
+                <Control Id="Location" Type="Text" X="8" Y="203" Width="291" Height="20" Text="&lt;selected feature path&gt;" TabSkip="yes">
+                    <Subscribe Event="SelectionPath" Attribute="Text" />
+                </Control>
+                <Control Id="FeatureGroup" Type="GroupBox" X="235" Y="67" Width="131" Height="120" Text="Feature Description" TabSkip="yes" />
+            </Dialog>
+            <Dialog Id="ReadyToInstallDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes" TrackDiskSpace="yes">
+                <Control Id="InstallNow" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Install" TabSkip="no" Default="yes">
+                    <Publish Event="NewDialog" Value="OutOfSpaceDialog">OutOfNoRbDiskSpace = 1</Publish>
+                    <Publish Event="EndDialog" Value="Return">OutOfNoRbDiskSpace &lt;&gt; 1</Publish>
+                    <Publish Property="ProgressType1" Value="Installing">1</Publish>
+                    <Publish Property="ProgressType2" Value="installed">1</Publish>
+                    <Publish Property="ProgressType3" Value="installs">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no">
+                    <Publish Event="NewDialog" Value="SetupTypeDialog">NOT Installed AND _IsSetupTypeMin &lt;&gt; "Custom"</Publish>
+                    <Publish Event="NewDialog" Value="CustomSetupDialog">Installed OR _IsSetupTypeMin = "Custom"</Publish>
+                    <Publish Event="NewDialog" Value="MaintenanceTypeDialog">Installed AND _IsMaintenance = "Reinstall"</Publish>
+                </Control>
+                <Control Id="GroupBox1" Type="Text" X="19" Y="92" Width="330" Height="133" TabSkip="no" Disabled="yes" Sunken="yes" Transparent="yes" />
+                <Control Id="SetupTypeText1" Type="Text" X="23" Y="97" Width="306" Height="13" Text="Setup Type:" TabSkip="no" />
+                <Control Id="SetupTypeText2" Type="Text" X="37" Y="114" Width="306" Height="14" Text="[SelectedSetupType]" TabSkip="no" />
+                <Control Id="TargetFolderText1" Type="Text" X="24" Y="136" Width="306" Height="11" Text="Destination Folder:" TabSkip="no" />
+                <Control Id="TargetFolderText2" Type="Text" X="37" Y="151" Width="306" Height="13" Text="[INSTALLDIR]" TabSkip="no" />
+                <Control Id="CurrentSettingsText" Type="Text" X="19" Y="80" Width="81" Height="10" Text="Current Settings:" TabSkip="no" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="The wizard is ready to begin installation." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Ready to Modify the Program" TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType0="Modify"</Condition>
+                </Control>
+                <Control Id="DlgTitle2" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Ready to Repair the Program" TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType0="Repair"</Condition>
+                </Control>
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgTitle3" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Ready to Install the Program" TabSkip="yes" Hidden="yes" Transparent="yes">
+                    <Condition Action="show">ProgressType0="install"</Condition>
+                </Control>
+                <Control Id="DlgText1" Type="Text" X="21" Y="54" Width="330" Height="24" Text="If you want to review or change any of your installation settings, click Back. Click Cancel to exit the wizard." TabSkip="yes" />
+            </Dialog>
+            <Dialog Id="InstallChangeFolderDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Tail" Type="PathEdit" X="21" Y="207" Width="332" Height="17" Property="_BrowseProperty" TabSkip="no" Sunken="yes" Indirect="yes" />
+                <Control Id="OK" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="OK" TabSkip="no" Default="yes">
+                    <Publish Event="SetTargetPath" Value="[_BrowseProperty]">1</Publish>
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="Reset" Value="0">1</Publish>
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                </Control>
+                <Control Id="ComboText" Type="Text" X="21" Y="50" Width="99" Height="14" Text="&amp;Look in:" TabSkip="no" />
+                <Control Id="Combo" Type="DirectoryCombo" X="21" Y="64" Width="277" Height="80" Property="_BrowseProperty" TabSkip="no" Indirect="yes" Removable="yes" Fixed="yes" Remote="yes" CDROM="yes" RAMDisk="yes" Floppy="yes" />
+                <Control Id="Up" Type="PushButton" X="310" Y="66" Width="19" Height="19" Text="NewBinary3" ToolTip="Up One Level" TabSkip="no" IconSize="16" FixedSize="yes" Icon="yes">
+                    <Publish Event="DirectoryListUp" Value="0">1</Publish>
+                </Control>
+                <Control Id="NewFolder" Type="PushButton" X="335" Y="66" Width="19" Height="19" Text="NewBinary2" ToolTip="Create New Folder" TabSkip="no" IconSize="16" FixedSize="yes" Icon="yes">
+                    <Publish Event="DirectoryListNew" Value="0">1</Publish>
+                </Control>
+                <Control Id="List" Type="DirectoryList" X="21" Y="90" Width="332" Height="97" Property="_BrowseProperty" TabSkip="no" Sunken="yes" Indirect="yes" />
+                <Control Id="TailText" Type="Text" X="21" Y="193" Width="99" Height="13" Text="&amp;Folder name:" TabSkip="no" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Browse to the destination folder." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Change Current Destination Folder" TabSkip="yes" Transparent="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+            </Dialog>
+            <Dialog Id="CustomSetupTips" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="OK" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="OK" TabSkip="no" Default="yes" Cancel="yes">
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Custom Setup allows you to selectively install program features." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Custom Setup Tips" TabSkip="yes" Transparent="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DontInstall" Type="Icon" X="21" Y="155" Width="24" Height="24" Text="NewBinary14" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="DontInstallText" Type="Text" X="60" Y="155" Width="300" Height="20" Text="Will not be installed." TabSkip="yes" />
+                <Control Id="FirstInstallText" Type="Text" X="60" Y="180" Width="300" Height="20" Text="Will be installed on first use. (Available only if the feature supports this option.)" TabSkip="yes" />
+                <Control Id="Install" Type="Icon" X="21" Y="105" Width="24" Height="24" Text="NewBinary15" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="InstallFirstUse" Type="Icon" X="21" Y="180" Width="24" Height="24" Text="NewBinary16" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="InstallPartial" Type="Icon" X="21" Y="130" Width="24" Height="24" Text="NewBinary17" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="InstallStateMenu" Type="Icon" X="21" Y="52" Width="24" Height="24" Text="NewBinary18" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="InstallStateText" Type="Text" X="21" Y="85" Width="300" Height="10" Text="This install state means the feature..." TabSkip="yes" />
+                <Control Id="InstallText" Type="Text" X="60" Y="105" Width="300" Height="20" Text="Will be completely installed to the local hard drive." TabSkip="yes" />
+                <Control Id="MenuText" Type="Text" X="50" Y="52" Width="300" Height="36" Text="The icon next to the feature name indicates the install state of the feature. Click the icon to drop down the install state menu for each feature." TabSkip="yes" />
+                <Control Id="NetworkInstall" Type="Icon" X="21" Y="205" Width="24" Height="24" Text="NewBinary13" TabSkip="yes" Disabled="yes" IconSize="32" FixedSize="yes" />
+                <Control Id="NetworkInstallText" Type="Text" X="60" Y="205" Width="300" Height="20" Text="Will be installed to run from the network. (Available only if the feature supports this option.)" TabSkip="yes" />
+                <Control Id="PartialText" Type="Text" X="60" Y="130" Width="300" Height="20" Text="Will have some subfeatures installed to the local hard drive. (Available only if the feature has subfeatures.)" TabSkip="yes" />
+            </Dialog>
+            <Dialog Id="DiskSpaceRequirements" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="OK" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="OK" TabSkip="no" Default="yes" Cancel="yes">
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="17" Y="23" Width="292" Height="25" Text="The disk space required for the installation of the selected features." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="9" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Disk Space Requirements" TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgText" Type="Text" X="10" Y="185" Width="358" Height="41" Text="The highlighted volumes do not have enough disk space available for the currently selected features. You can remove files from the highlighted volumes, choose to install less features onto local drives, or select different destination drives." TabSkip="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="List" Type="VolumeCostList" X="8" Y="55" Width="358" Height="125" Text="{120}{70}{70}{70}{70}" TabSkip="yes" Sunken="yes" Fixed="yes" Remote="yes" />
+            </Dialog>
+            <Dialog Id="AdminChangeFolderDialog" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="Tail" Type="PathEdit" X="21" Y="207" Width="332" Height="17" Property="TARGETDIR" TabSkip="no" />
+                <Control Id="OK" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="OK" TabSkip="no" Default="yes">
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                    <Publish Event="SetTargetPath" Value="TARGETDIR">1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="Reset" Value="0">1</Publish>
+                    <Publish Event="EndDialog" Value="Return">1</Publish>
+                </Control>
+                <Control Id="ComboText" Type="Text" X="21" Y="50" Width="99" Height="14" Text="&amp;Look in:" TabSkip="no" />
+                <Control Id="Combo" Type="DirectoryCombo" X="21" Y="64" Width="277" Height="80" Property="TARGETDIR" TabSkip="no" Removable="yes" Fixed="yes" Remote="yes" />
+                <Control Id="Up" Type="PushButton" X="310" Y="66" Width="19" Height="19" Text="NewBinary3" ToolTip="Up one level" TabSkip="no" IconSize="16" FixedSize="yes" Icon="yes">
+                    <Publish Event="DirectoryListUp" Value="0">1</Publish>
+                </Control>
+                <Control Id="NewFolder" Type="PushButton" X="335" Y="66" Width="19" Height="19" Text="NewBinary2" ToolTip="Create new folder" TabSkip="no" IconSize="16" FixedSize="yes" Icon="yes">
+                    <Publish Event="DirectoryListNew" Value="0">1</Publish>
+                </Control>
+                <Control Id="List" Type="DirectoryList" X="21" Y="90" Width="332" Height="97" Property="TARGETDIR" TabSkip="no" Sunken="yes" />
+                <Control Id="TailText" Type="Text" X="21" Y="193" Width="99" Height="13" Text="&amp;Folder name:" TabSkip="no" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Browse to the destination folder." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Change Current Destination Folder" TabSkip="yes" Transparent="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+            </Dialog>
+            <Dialog Id="ReadyToRemove" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes">
+                <Control Id="RemoveNow" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Remove" TabSkip="no" Default="yes">
+                    <Publish Property="ProgressType1" Value="Uninstalling">1</Publish>
+                    <Publish Property="ProgressType2" Value="uninstalled">1</Publish>
+                    <Publish Property="ProgressType3" Value="uninstalls">1</Publish>
+                    <Publish Event="Remove" Value="ALL">1</Publish>
+                    <Publish Event="NewDialog" Value="OutOfSpaceDialog">OutOfNoRbDiskSpace = 1</Publish>
+                    <Publish Event="EndDialog" Value="Return">OutOfNoRbDiskSpace &lt;&gt; 1</Publish>
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="Cancel" TabSkip="no" Cancel="yes">
+                    <Publish Event="SpawnDialog" Value="CancelSetupDialog">1</Publish>
+                </Control>
+                <Control Id="Back" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&lt; &amp;Back" TabSkip="no">
+                    <Publish Event="NewDialog" Value="MaintenanceTypeDialog">1</Publish>
+                </Control>
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="You have chosen to remove the program from your system." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Remove the Program" TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgText" Type="Text" X="21" Y="51" Width="326" Height="24" Text="Click Remove to remove [ProductName] from your computer. After removal, this program will no longer be available for use." TabSkip="yes" />
+                <Control Id="DlgText2" Type="Text" X="21" Y="102" Width="330" Height="24" TabSkip="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgText1" Type="Text" X="21" Y="79" Width="330" Height="23" Text="If you want to review or change any settings, click Back." TabSkip="yes" />
+            </Dialog>
+            <Dialog Id="FilesInUse" X="50" Y="50" Width="374" Height="266" Title="[ProductName] - Setup Wizard" NoMinimize="yes" KeepModeless="yes">
+                <Control Id="Retry" Type="PushButton" X="164" Y="243" Width="66" Height="17" Text="&amp;Retry" TabSkip="no" Default="yes">
+                    <Publish Event="EndDialog" Value="Retry">1</Publish>
+                </Control>
+                <Control Id="Ignore" Type="PushButton" X="230" Y="243" Width="66" Height="17" Text="&amp;Ignore" TabSkip="no">
+                    <Publish Event="EndDialog" Value="Ignore">1</Publish>
+                </Control>
+                <Control Id="Exit" Type="PushButton" X="301" Y="243" Width="66" Height="17" Text="&amp;Exit" TabSkip="no" Cancel="yes">
+                    <Publish Event="EndDialog" Value="Exit">1</Publish>
+                </Control>
+                <Control Id="List" Type="ListBox" X="21" Y="87" Width="331" Height="135" Property="FileInUseProcess" TabSkip="no" />
+                <Control Id="DlgLine" Type="Line" X="0" Y="234" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+                <Control Id="DlgDesc" Type="Text" X="21" Y="23" Width="292" Height="25" Text="Some files that need to be updated are currently in use." TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgTitle" Type="Text" X="13" Y="6" Width="292" Height="25" Text="{&amp;MSSansBold8}Files in Use" TabSkip="yes" Transparent="yes" />
+                <Control Id="DlgText" Type="Text" X="21" Y="51" Width="348" Height="29" Text="The following applications are using files that need to be updated by this setup. Close these applications and click Retry to continue." TabSkip="yes" />
+                <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="374" Height="44" Text="HeaderImg" TabSkip="yes" Disabled="yes" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="378" Height="0" TabSkip="yes" Disabled="yes" />
+            </Dialog>
+        </UI>
+
+</Include>

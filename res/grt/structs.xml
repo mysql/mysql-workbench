@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+
+      <gstruct name="GrtObject" attr:caption="Object" attr:desc="the parent of all other objects">
+          <members>
+              <member name="name" type="string" attr:desc="the object's name"/>
+              <member name="owner" type="object" struct-name="GrtObject" attr:dontdiff="1" attr:desc="the object that owns this object" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="GrtNamedObject" parent="GrtObject" attr:caption="Named Object" attr:desc="an object that tracks name changes">
+          <members>
+              <member name="name" type="string" overrides="string" attr:desc="the current name of the object"/>
+              <member name="oldName" type="string" attr:desc="used to keep track of the old, original name of the object if the object gets renamed" attr:editas="hide"/>
+              <member name="comment" type="string" attr:desc="a text describing the object" attr:editas="longtext"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="GrtStoredNote" parent="GrtNamedObject" attr:caption="Note" attr:desc="a note">
+          <members>
+              <!--member name="name" type="string" attr:desc="the name of the note"/-->
+              <member name="filename" type="string" attr:editas="hide"/>
+              <member name="createDate" type="string" attr:dontdiff="1" attr:editas="hide"/>
+              <member name="lastChangeDate" type="string" attr:dontdiff="1" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="GrtLogObject" parent="GrtObject" attr:caption="Log Object" attr:desc="an object log">
+          <members>
+              <member name="logObject" type="object" struct-name="GrtObject" attr:desc="a link to the object"/>
+              <member name="refObject" type="object" struct-name="GrtObject" attr:desc="an optional link to a referenced object"/>
+              <member name="entries" type="list" content-type="object" owned="1" content-struct-name="GrtLogEntry" attr:desc="the generated log messages"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="GrtLogEntry" parent="GrtObject" attr:caption="GRT Log Entry" attr:desc="an individual object log entry">
+          <members>
+              <member name="name" type="string" attr:desc="the log message"/>
+              <member name="entryType" type="int" attr:desc="type of the log entry, 0 for a normal message, 1 for a warning and 2 for an error"/>
+              <member name="customData" type="dict"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="GrtMessage" parent="GrtObject" attr:caption="GRT Message" attr:desc="a dictionary containing a GRT message">
+          <members>
+              <member name="name" type="string" attr:desc="the message's title"/>
+              <member name="msgType" type="int" attr:desc="The type of the message, 0 stands for a normal message, 1 for a warning and 2 for an error"/>
+              <member name="msg" type="string" attr:desc="The message string"/>
+              <member name="details" type="list" content-type="string" attr:desc="A list of detail information strings belonging to the message"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="GrtVersion" parent="GrtObject" attr:caption="Version Information" attr:desc="version information for an object">
+          <members>
+              <member name="majorNumber" type="int" attr:desc="major version"/>
+              <member name="minorNumber" type="int" attr:desc="minor version"/>
+              <member name="releaseNumber" type="int" attr:desc="release number"/>
+              <member name="buildNumber" type="int" attr:desc="build number"/>
+              <member name="status" type="int" attr:desc="the status, 0 for GA, 1 for alpha, 2 for beta, 3 for RC"/>
+          </members>
+      </gstruct>
+
+  </gstructs>

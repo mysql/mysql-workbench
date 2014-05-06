@@ -1,0 +1,99 @@
+/* 
+ * Copyright (c) 2005, 2013, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+
+#import "MQIndicatorCell.h"
+
+@implementation MQIndicatorCell
+
+- (id)initWithCoder:(NSCoder*)coder
+{
+  self= [super initWithCoder:coder];
+  if (self)
+  {
+    _attribs= [[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSFont systemFontOfSize:11], NSFontAttributeName, 
+                [NSColor blackColor], NSForegroundColorAttributeName,
+                nil] retain];
+    
+    _arrow= [[NSString stringWithUTF8String:"\xe2\x96\xb6"] retain];
+  }
+  return self;
+}
+
+
+- (void)dealloc
+{
+  [_arrow release];
+  [_attribs release];
+  [super dealloc];
+}
+
+
+- (id)copyWithZone:(NSZone*)zone 
+{
+  MQIndicatorCell *copy = (MQIndicatorCell*)[super copyWithZone:zone];
+  copy->_attribs = [_attribs retain];
+  copy->_arrow= [_arrow retain];
+  return copy;
+}
+
+
+- (void)editWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject event:(NSEvent *)theEvent
+{
+}
+
+- (void)selectWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject start:(NSInteger)selStart length:(NSInteger)selLength
+{
+}
+
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
+{
+  [[NSColor whiteColor] set];
+  cellFrame.origin.y -= 1;
+  cellFrame.size.height += 1;
+  cellFrame.size.width += 2;
+  NSRectFill(cellFrame);
+  
+  if (_selected)
+  {
+    if ([[controlView window] firstResponder] == controlView)
+      [_attribs setObject: [NSColor blackColor] forKey: NSForegroundColorAttributeName];
+    else
+      [_attribs setObject: [NSColor lightGrayColor] forKey: NSForegroundColorAttributeName];
+    
+    if (_placeholder)
+      [@"*" drawAtPoint:NSMakePoint(cellFrame.origin.x+cellFrame.size.width-14,cellFrame.origin.y+2)
+           withAttributes:_attribs];
+    else
+      [_arrow drawAtPoint:NSMakePoint(cellFrame.origin.x+cellFrame.size.width-14,cellFrame.origin.y+2)
+           withAttributes:_attribs];
+  }
+}
+
+- (void)setSelected:(BOOL)flag
+{
+  _selected= flag;
+}
+
+- (void)setPlaceholder:(BOOL)flag
+{
+  _placeholder= flag;
+}
+
+@end

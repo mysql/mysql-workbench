@@ -1,0 +1,57 @@
+/*
+* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License as
+* published by the Free Software Foundation; version 2 of the
+* License.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+* 02110-1301  USA
+*/
+
+#include <grts/structs.workbench.model.h>
+
+#include <grtpp_util.h>
+
+
+#include "wbcanvas/workbench_model_notefigure_impl.h"
+
+//================================================================================
+// workbench_model_NoteFigure
+
+
+void workbench_model_NoteFigure::init()
+{
+  if (!_data) _data= new workbench_model_NoteFigure::ImplData(this);
+  model_Figure::set_data(_data);
+}
+
+void workbench_model_NoteFigure::set_data(ImplData *data)
+{
+}
+
+workbench_model_NoteFigure::~workbench_model_NoteFigure()
+{
+  delete _data;
+}
+
+
+void workbench_model_NoteFigure::text(const grt::StringRef &value)
+{
+  grt::ValueRef ovalue(_text);
+  _text= value;
+  _data->set_text(_text);
+  member_changed("text", ovalue, value);
+}
+
+
+
+

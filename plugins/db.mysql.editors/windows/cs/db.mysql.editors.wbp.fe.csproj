@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2CC3B21C-273D-4B65-8A25-7D5099447BF1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySQL.GUI.Workbench.Plugins</RootNamespace>
+    <AssemblyName>db.mysql.editors.wbp.fe</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>..\..\..\..\bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>..\..\..\..\bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x64'">
+    <OutputPath>..\..\..\..\bin\x64\Release_OSS\</OutputPath>
+    <DefineConstants>TRACE;EDITION_OSS</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x86'">
+    <OutputPath>..\..\..\..\bin\x86\Release_OSS\</OutputPath>
+    <DefineConstants>TRACE;EDITION_OSS</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>MySQLAssembly.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DbMysqlRelationshipEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlRelationshipEditor.Designer.cs">
+      <DependentUpon>DbMysqlRelationshipEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DbMysqlRoleEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlRoleEditor.Designer.cs">
+      <DependentUpon>DbMysqlRoleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DbMysqlRoutineEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlRoutineEditor.Designer.cs">
+      <DependentUpon>DbMysqlRoutineEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DbMysqlRoutineGroupEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlRoutineGroupEditor.Designer.cs">
+      <DependentUpon>DbMysqlRoutineGroupEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DbMysqlSchemaEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlSchemaEditor.Designer.cs">
+      <DependentUpon>DbMysqlSchemaEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DbMysqlTableColumnsListModel.cs" />
+    <Compile Include="DbMysqlTableEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlTableEditor.Designer.cs">
+      <DependentUpon>DbMysqlTableEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DbMysqlTableFkColumnListModel.cs" />
+    <Compile Include="DbMysqlTableFkListModel.cs" />
+    <Compile Include="DbMysqlTableIndexColumnsListModel.cs" />
+    <Compile Include="DbMysqlTableIndicesListModel.cs" />
+    <Compile Include="DbMysqlUserEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlUserEditor.Designer.cs">
+      <DependentUpon>DbMysqlUserEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DbMysqlViewEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbMysqlViewEditor.Designer.cs">
+      <DependentUpon>DbMysqlViewEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="DbMysqlRelationshipEditor.resx">
+      <DependentUpon>DbMysqlRelationshipEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DbMysqlRoleEditor.resx">
+      <DependentUpon>DbMysqlRoleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DbMysqlRoutineEditor.resx">
+      <DependentUpon>DbMysqlRoutineEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DbMysqlRoutineGroupEditor.resx">
+      <DependentUpon>DbMysqlRoutineGroupEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DbMysqlSchemaEditor.resx">
+      <DependentUpon>DbMysqlSchemaEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DbMysqlTableEditor.resx">
+      <DependentUpon>DbMysqlTableEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DbMysqlUserEditor.resx">
+      <DependentUpon>DbMysqlUserEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DbMysqlViewEditor.resx">
+      <DependentUpon>DbMysqlViewEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\backend\windows\wbpublic.wr\wbpublic.wr.vcxproj">
+      <Project>{9d8ca378-b2ae-4e1e-9f86-fa01440c57f7}</Project>
+      <Name>wbpublic.wr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\ext\Aga.Controls\Aga.Controls.csproj">
+      <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
+      <Name>Aga.Controls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\frontend\windows\grt.db\grt.db.fe.csproj">
+      <Project>{84d94572-ead9-4839-b16b-699a8c499fe5}</Project>
+      <Name>grt.db.fe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\frontend\windows\MySQLCsUtilities\MySQLCsUtilities.csproj">
+      <Project>{ed3999b7-1041-449b-a9c8-a5c76b7732fe}</Project>
+      <Name>MySQLCsUtilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\frontend\windows\sqlide\sqlide.fe.csproj">
+      <Project>{d2e64e9e-3f39-496f-8ce0-1b2652aecdde}</Project>
+      <Name>sqlide.fe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\frontend\windows\WBControls\WBControls.csproj">
+      <Project>{35c9b1f0-96f0-40fe-b7f7-5a9ba3628db2}</Project>
+      <Name>WBControls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\frontend\windows\WBPlugins\WBPlugins.csproj">
+      <Project>{960ef7b9-a96a-4290-aed9-2689eb28bbf7}</Project>
+      <Name>WBPlugins</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\library\base.wr\base.wr.vcxproj">
+      <Project>{456d822c-724a-412c-b0eb-9ec88378decb}</Project>
+      <Name>base.wr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\library\forms\winforms\mforms.wr.vcxproj">
+      <Project>{1d67c943-0432-4ee0-8ab0-915540c9538f}</Project>
+      <Name>mforms.wr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\wrapper\db.mysql.editors.wbp.wr.vcxproj">
+      <Project>{99443d12-1a0d-4e87-bb3c-7fd0a411f1ba}</Project>
+      <Name>db.mysql.editors.wbp.wr</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

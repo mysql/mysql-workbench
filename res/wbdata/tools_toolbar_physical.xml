@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+
+<data>
+  <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.tools.physical">
+    <value type="string" key="name">tools</value>
+    <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.table">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.table">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/table</value>
+        <value type="string" key="icon">wb_db_table.png</value>
+        <value type="string" key="tooltip">Place a New Table</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="command">tool:physical/table</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.view">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/view</value>
+        <value type="string" key="icon">wb_db_view.png</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="tooltip">Place a New View</value>
+        <value type="string" key="command">tool:physical/view</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rg">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/routinegroup</value>
+        <value type="string" key="icon">wb_db_routinegroup.png</value>
+        <value type="string" key="tooltip">Place a New Routine Group</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="command">tool:physical/routinegroup</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.rel">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rel11_noid">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/rel11_noid</value>
+        <value type="string" key="icon">wb_rel_11_nonid.png</value>
+        <value type="string" key="tooltip">Place a New 1:1 Non-Identifying Relationship</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="command">tool:physical/rel11_noid</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rel1n_noid">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/rel1n_noid</value>
+        <value type="string" key="icon">wb_rel_1n_nonid.png</value>
+        <value type="string" key="tooltip">Place a New 1:n Non-Identifying Relationship</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="command">tool:physical/rel1n_noid</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rel11">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/rel11</value>
+        <value type="string" key="icon">wb_rel_11.png</value>
+        <value type="string" key="tooltip">Place a New 1:1 Identifying Relationship</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="command">tool:physical/rel11</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rel1n">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/rel1n</value>
+        <value type="string" key="icon">wb_rel_1n.png</value>
+        <value type="string" key="tooltip">Place a New 1:n Identifying Relationship</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="command">tool:physical/rel1n</value>
+      </value>
+
+     <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.relnm">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/relnm</value>
+        <value type="string" key="icon">wb_rel_nm.png</value>
+        <value type="string" key="tooltip">Place a New n:m Identifying Relationship</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="command">tool:physical/relnm</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.relpick">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.relpick">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
+        <value type="string" key="name">tool/relpick</value>
+        <value type="string" key="icon">wb_rel_1n_pick.png</value>
+        <value type="string" key="tooltip">Place a Relationship Using Existing Columns</value>
+        <value type="string" key="itemType">radio</value>
+        <value type="string" key="command">tool:physical/relpick</value>
+      </value>
+
+    </value>
+  </value>
+</data>
+  
