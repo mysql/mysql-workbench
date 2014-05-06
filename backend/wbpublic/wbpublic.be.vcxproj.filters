@@ -473,6 +473,9 @@
     <ClInclude Include="wbcanvas\model_layer_impl.h">
       <Filter>wbcanvas Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="grtsqlparser\mysql_parser_services.h">
+      <Filter>grtsqlparser Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -895,6 +898,9 @@
     </ClCompile>
     <ClCompile Include="wbcanvas\note_figure.cpp">
       <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\mysql_parser_services.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

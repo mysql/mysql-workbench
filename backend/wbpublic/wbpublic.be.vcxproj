@@ -269,6 +269,7 @@
     <ClCompile Include="grtdb\role_tree_model.cpp" />
     <ClCompile Include="grtdb\sync_profile.cpp" />
     <ClCompile Include="grtsqlparser\module_utils.cpp" />
+    <ClCompile Include="grtsqlparser\mysql_parser_services.cpp" />
     <ClCompile Include="grtsqlparser\sql_facade.cpp" />
     <ClCompile Include="grtsqlparser\sql_inserts_loader.cpp" />
     <ClCompile Include="grtsqlparser\sql_normalizer.cpp" />
@@ -440,6 +441,7 @@
     <ClInclude Include="grtsqlparser\fk_ref.h" />
     <ClInclude Include="grtsqlparser\invalid_sql_parser.h" />
     <ClInclude Include="grtsqlparser\module_utils.h" />
+    <ClInclude Include="grtsqlparser\mysql_parser_services.h" />
     <ClInclude Include="grtsqlparser\sql_facade.h" />
     <ClInclude Include="grtsqlparser\sql_inserts_loader.h" />
     <ClInclude Include="grtsqlparser\sql_normalizer.h" />

@@ -152,9 +152,6 @@ public:
   void set_triggers_sql(String^ sql, bool sync)
   { get_unmanaged_object()->set_triggers_sql(NativeToCppString(sql), sync); }
 
-  String^ get_all_triggers_sql()
-  { return CppStringToNative(get_unmanaged_object()->get_all_triggers_sql()); }
-  
   Control ^get_trigger_panel();
   void commit_changes();
 

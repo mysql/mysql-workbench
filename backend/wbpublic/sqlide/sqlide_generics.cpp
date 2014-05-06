@@ -112,7 +112,7 @@ void Sqlite_transaction_guarder::commit_and_start_new_transaction()
 
 } // namespace sqlide
 
-
+/*
 double timestamp()
 {
 #if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
@@ -126,7 +126,7 @@ double timestamp()
 #endif
 }
 
-
+*/
 std::tm local_timestamp()
 {
   std::time_t ltime;
