@@ -18,7 +18,9 @@
  */
 
 #include "grt/grt_dispatcher.h"
+
 #include "mysql_routinegroup_editor.h"
+
 #include "base/string_utilities.h"
 
 #include "mforms/code_editor.h"

@@ -18,6 +18,7 @@
  */
 
 #include "dbobject_roles.h"
+
 #include "base/string_utilities.h"
 
 using namespace bec;

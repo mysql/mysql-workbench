@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,9 @@
 
 class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLSchemaEditorBE : public bec::SchemaEditorBE
 {
+private:
   std::string _initial_name;
+  SqlFacade::Ref _sql_facade;
 public:
   void refactor_catalog_upon_schema_rename(const std::string &old_name, const std::string &new_name);
   bool refactor_possible();

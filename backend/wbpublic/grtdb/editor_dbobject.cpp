@@ -18,7 +18,7 @@
  */
 
 #include "editor_dbobject.h"
-#include "grtsqlparser/sql_facade.h"
+
 #include "grt/validation_manager.h"
 #include "grtpp_notifications.h"
 
@@ -49,12 +49,12 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm,
 
   if (_rdbms.is_valid())
   {
-    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_rdbms);
-    _sql_parser= sql_facade->invalidSqlParser();
+    _parsing_services = SqlFacade::instance_for_rdbms(_rdbms);
+    _sql_parser= _parsing_services->invalidSqlParser();
     if (object->customData().has_key("sqlMode"))
       _sql_parser->sql_mode(object->customData().get_string("sqlMode"));
 
-    Sql_specifics::Ref sql_specifics= sql_facade->sqlSpecifics();
+    Sql_specifics::Ref sql_specifics= _parsing_services->sqlSpecifics();
     _non_std_sql_delimiter= sql_specifics->non_std_sql_delimiter();
   }
   

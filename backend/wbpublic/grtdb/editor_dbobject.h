@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,13 +16,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _EDITOR_DBOBJECT_H_
-#define _EDITOR_DBOBJECT_H_
+
+#pragma once
 
 #include "wbpublic_public_interface.h"
 #include "grt/editor_base.h"
 
-#include "grtsqlparser/invalid_sql_parser.h"
+#include "grtsqlparser/sql_facade.h"
+#include "grtsqlparser/invalid_sql_parser.h" // XXX: to go
 
 namespace bec {
 
@@ -94,9 +95,11 @@ namespace bec {
     typedef boost::function<grt::ValueRef (grt::GRT*, grt::StringRef)> Sql_parser_task_cb;
     void set_sql_parser_task_cb(const Sql_parser_task_cb &cb);
     Invalid_sql_parser::Ref _sql_parser;
+    SqlFacade::Ref _parsing_services;
     std::string _non_std_sql_delimiter;
 
   private:
+
     void sql_parser_task_finished_cb(grt::ValueRef value);
     void sql_parser_msg_cb(const grt::Message &msg);
 
@@ -129,6 +132,3 @@ namespace bec {
     bool custom_string_compare(const std::string &first, const std::string &second);
   };
 };
-
-
-#endif /* _EDITOR_DBOBJECT_H_ */

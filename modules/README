@@ -15,7 +15,7 @@ Exported Module (WbMysqlImport):
   parseSqlScriptStringEx  Build catalog from SQL script (extended version).
   renameSchemaReferences  Replace occurences of one schema name into another schema name all over given catalog.
   parseInserts
-  parseTriggers
+  parseTrigger
   parseRoutine
   parseRoutines
 

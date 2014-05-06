@@ -60,7 +60,7 @@
 #define DB_DIR "@db"
 #define DB_FILE "data.db"
 
-#define ZIP_FILE_COMMENT DOCUMENT_FORMAT" archive "ZIP_FILE_FORMAT
+#define ZIP_FILE_COMMENT DOCUMENT_FORMAT " archive " ZIP_FILE_FORMAT
 
 
 

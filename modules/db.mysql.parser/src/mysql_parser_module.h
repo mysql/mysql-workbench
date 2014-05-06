@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@
 
 //--------------------------------------------------------------------------------------------------
 
-class MYSQL_PARSER_PUBLIC MySQLParserServicesImpl : public MySQLParserServices, public grt::ModuleImplBase
+class MYSQL_PARSER_PUBLIC MySQLParserServicesImpl : public parser::MySQLParserServices, public grt::ModuleImplBase
 {
 public:
   MySQLParserServicesImpl(grt::CPPModuleLoader *loader) 
@@ -51,24 +51,25 @@ public:
 
   DEFINE_INIT_MODULE_DOC("1.0", "Oracle Corporation", DOC_MYSQLPARSERSERVICESIMPL, grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::stopProcessing,
-  "Tells the module to stop any ongoing processing as soon as possible. Can be called from any thread.\n"
+    "Tells the module to stop any ongoing processing as soon as possible. Can be called from any thread.\n"
     "Calling any other module function will reset this flag, so make sure any running task returned"
     "before starting a new one.",
     ""),
     DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::getSqlStatementRanges,
-  "Scans the sql code to find start and stop positions of each contained statement. An initial "
+    "Scans the sql code to find start and stop positions of each contained statement. An initial "
     "delimiter must be provided to find a statement's end. Embedded delimiter commands will be taken "
     "into account properly. The found ranges are returned as grt list.\n",
     "sql the sql script to process\n"),
     NULL);
 
-  // Module functions.
-  int stopProcessing();
   grt::BaseListRef getSqlStatementRanges(const std::string &sql);
 
-  // Pure C++ functions.
-  int determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter, 
-    std::vector<std::pair<size_t, size_t> > &ranges);
+  virtual int stopProcessing();
+  virtual int checkSqlSyntax(parser::ParserContext::Ref context, const char *sql, size_t length,
+    MySQLQueryType type);
+
+  virtual int determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
+    std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n");
 
 private:
   bool _stop;

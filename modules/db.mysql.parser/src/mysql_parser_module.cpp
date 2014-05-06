@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,34 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/string_utilities.h"
 
 #include "mysql_parser_module.h"
 
+using namespace parser;
+
 GRT_MODULE_ENTRY_POINT(MySQLParserServicesImpl);
+
+//--------------------------------------------------------------------------------------------------
+
+grt::BaseListRef MySQLParserServicesImpl::getSqlStatementRanges(const std::string &sql)
+{
+  grt::BaseListRef list(get_grt());
+  std::vector<std::pair<size_t, size_t> > ranges;
+
+  determineStatementRanges(sql.c_str(), sql.size(), ";", ranges);
+
+  for (std::vector<std::pair<size_t,size_t> >::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
+  {
+    grt::BaseListRef item(get_grt());
+    item.ginsert(grt::IntegerRef(i->first));
+    item.ginsert(grt::IntegerRef(i->second));
+    list.ginsert(item);
+  }
+  return list;
+}
+
+//--------------------------------------------------------------------------------------------------
 
 /**
  * Signals any ongoing process to stop. This must be called from a different thread than from where
@@ -37,7 +58,20 @@ int MySQLParserServicesImpl::stopProcessing()
 
 //--------------------------------------------------------------------------------------------------
 
-static const char* skip_leading_whitespace(const char *head, const char *tail)
+/**
+ * Parses the given text as a specific query type (see parser for supported types).
+ * Returns the error count.
+ */
+int MySQLParserServicesImpl::checkSqlSyntax(ParserContext::Ref context, const char *sql,
+                                            size_t length, MySQLQueryType type)
+{
+  context->recognizer()->parse(sql, length, true, type);
+  return context->recognizer()->error_info().size();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static const unsigned char* skip_leading_whitespace(const unsigned char *head, const unsigned char *tail)
 {
   while (head < tail && *head <= ' ')
     head++;
@@ -46,66 +80,83 @@ static const char* skip_leading_whitespace(const char *head, const char *tail)
 
 //--------------------------------------------------------------------------------------------------
 
+bool is_line_break(const unsigned char *head, const unsigned char *line_break)
+{
+  if (*line_break == '\0')
+    return false;
+
+  while (*head != '\0' && *line_break != '\0' && *head == *line_break)
+  {
+    head++;
+    line_break++;
+  }
+  return *line_break == '\0';
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
- * Determines the range for each statement in the script and adds them to the ranges parameter.
- * Even though there's no Unicode specific handling here this function is still working well for any
- * Unicode character.
+ * A statement splitter to take a list of sql statements and split them into individual statements,
+ * return their position and length in the original string (instead the copied strings).
  */
-int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter, 
-  std::vector<std::pair<size_t, size_t> > &ranges)
+int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t length,
+                                                      const std::string &initial_delimiter,
+                                                      std::vector<std::pair<size_t, size_t> > &ranges,
+                                                      const std::string &line_break)
 {
   _stop = false;
   std::string delimiter = initial_delimiter.empty() ? ";" : initial_delimiter;
-  const char *delimiter_head = delimiter.c_str();
+  const unsigned char *delimiter_head = (unsigned char*)delimiter.c_str();
 
-  const char keyword[] = "delimiter";
+  const unsigned char keyword[] = "delimiter";
 
-  const char *head = sql;
-  const char *tail = head;
-  const char *end = head + length;
+  const unsigned char *head = (unsigned char *)sql;
+  const unsigned char *tail = head;
+  const unsigned char *end = head + length;
+  const unsigned char *new_line = (unsigned char*)line_break.c_str();
   bool have_content = false; // Set when anything else but comments were found for the current statement.
 
   while (!_stop && tail < end)
   {
     switch (*tail)
     {
-    case '/': // Possible multi line comment or hidden (conditional) command.
-      if (*(tail + 1) == '*')
-      {
-        tail += 2;
-        bool is_hidden_command = (*tail == '!');
-        while (true)
+      case '/': // Possible multi line comment or hidden (conditional) command.
+        if (*(tail + 1) == '*')
         {
-          while (tail < end && *tail != '*')
-            tail++;
-          if (tail == end) // Unfinished comment.
-            break;
-          else
+          tail += 2;
+          bool is_hidden_command = (*tail == '!');
+          while (true)
           {
-            if (*++tail == '/')
-            {
-              tail++; // Skip the slash too.
+            while (tail < end && *tail != '*')
+              tail++;
+            if (tail == end) // Unfinished comment.
               break;
+            else
+            {
+              if (*++tail == '/')
+              {
+                tail++; // Skip the slash too.
+                break;
+              }
             }
           }
+
+          if (!is_hidden_command && !have_content)
+            head = tail; // Skip over the comment.
         }
+        else
+          tail++;
 
-        if (!is_hidden_command && !have_content)
-          head = tail; // Skip over the comment.
-      }
-      else
-        tail++;
+        break;
 
-      break;
-
-    case '-': // Possible single line comment.
+      case '-': // Possible single line comment.
       {
-        char end_char = *(tail + 2);
-        if (*(tail + 1) == '-' && (end_char == ' ' || end_char == '\t' || end_char == '\n' || end_char == '\r'))
+        const unsigned char *end_char = tail + 2;
+        if (*(tail + 1) == '-' && (*end_char == ' ' || *end_char == '\t' || is_line_break(end_char, new_line)))
         {
           // Skip everything until the end of the line.
           tail += 2;
-          while (tail < end && *tail != '\n' && *tail != '\r')
+          while (tail < end && !is_line_break(tail, new_line))
             tail++;
           if (!have_content)
             head = tail;
@@ -116,16 +167,16 @@ int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t le
         break;
       }
 
-    case '#': // MySQL single line comment.
-      while (tail < end && *tail != '\n' && *tail != '\r')
-        tail++;
-      if (!have_content)
-        head = tail;
-      break;
+      case '#': // MySQL single line comment.
+        while (tail < end && !is_line_break(tail, new_line))
+          tail++;
+        if (!have_content)
+          head = tail;
+        break;
 
-    case '"':
-    case '\'':
-    case '`': // Quoted string/id. Skip this in a local loop.
+      case '"':
+      case '\'':
+      case '`': // Quoted string/id. Skip this in a local loop.
       {
         have_content = true;
         char quote = *tail++;
@@ -142,37 +193,37 @@ int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t le
         break;
       }
 
-    case 'd':
-    case 'D':
+      case 'd':
+      case 'D':
       {
         have_content = true;
 
         // Possible start of the keyword DELIMITER. Must be at the start of the text or a character,
         // which is not part of a regular MySQL identifier (0-9, A-Z, a-z, _, $, \u0080-\uffff).
-        unsigned char previous = tail > sql ? *(tail - 1) : 0;
-        bool is_identifier_char = previous >= 0x80 
-          || (previous >= '0' && previous <= '9')
-          || ((previous | 0x20) >= 'a' && (previous | 0x20) <= 'z')
-          || previous == '$'
-          || previous == '_';
-        if (tail == sql || !is_identifier_char)
+        unsigned char previous = tail > (unsigned char *)sql ? *(tail - 1) : 0;
+        bool is_identifier_char = previous >= 0x80
+        || (previous >= '0' && previous <= '9')
+        || ((previous | 0x20) >= 'a' && (previous | 0x20) <= 'z')
+        || previous == '$'
+        || previous == '_';
+        if (tail == (unsigned char *)sql || !is_identifier_char)
         {
-          const char *run = tail + 1;
-          const char *kw = keyword + 1;
+          const unsigned char *run = tail + 1;
+          const unsigned char *kw = keyword + 1;
           int count = 9;
           while (count-- > 1 && (*run++ | 0x20) == *kw++)
             ;
           if (count == 0 && *run == ' ')
           {
-            // Delimiter keyword found. Get the new delimiter (everything til the end of the line).
+            // Delimiter keyword found. Get the new delimiter (everything until the end of the line).
             tail = run++;
-            while (run < end && *run != '\n' && *run != '\r')
+            while (run < end && !is_line_break(run, new_line))
               run++;
-            delimiter = base::trim(std::string(tail, run - tail));
-            delimiter_head = delimiter.c_str();
+            delimiter = base::trim(std::string((char *)tail, run - tail));
+            delimiter_head = (unsigned char*)delimiter.c_str();
 
             // Skip over the delimiter statement and any following line breaks.
-            while (*run == '\r' || *run == '\n')
+            while (is_line_break(run, new_line))
               run++;
             tail = run;
             head = tail;
@@ -186,11 +237,11 @@ int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t le
         break;
       }
 
-    default:
-      if (*tail > ' ')
-        have_content = true;
-      tail++;
-      break;
+      default:
+        if (*tail > ' ')
+          have_content = true;
+        tail++;
+        break;
     }
 
     if (*tail == *delimiter_head)
@@ -202,14 +253,14 @@ int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t le
         // Most common case. Trim the statement and check if it is not empty before adding the range.
         head = skip_leading_whitespace(head, tail);
         if (head < tail)
-          ranges.push_back(std::make_pair<size_t, size_t>(head - sql, tail - head));
+          ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
         head = ++tail;
         have_content = false;
       }
       else
       {
-        const char *run = tail + 1;
-        const char *del = delimiter_head + 1;
+        const unsigned char *run = tail + 1;
+        const unsigned char *del = delimiter_head + 1;
         while (count-- > 1 && (*run++ == *del++))
           ;
 
@@ -219,7 +270,7 @@ int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t le
           // Run points to the first character after the delimiter.
           head = skip_leading_whitespace(head, tail);
           if (head < tail)
-            ranges.push_back(std::make_pair<size_t, size_t>(head - sql, tail - head));
+            ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
           tail = run;
           head = run;
           have_content = false;
@@ -231,29 +282,9 @@ int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t le
   // Add remaining text to the range list.
   head = skip_leading_whitespace(head, tail);
   if (head < tail)
-    ranges.push_back(std::make_pair<size_t, size_t>(head - sql, tail - head));
-
+    ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
+  
   return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
-
-grt::BaseListRef MySQLParserServicesImpl::getSqlStatementRanges(const std::string &sql)
-{
-  grt::BaseListRef list(get_grt());
-  std::vector<std::pair<size_t, size_t> > ranges;
-
-  determineStatementRanges(sql.c_str(), sql.size(), ";", ranges);
-
-  for (std::vector<std::pair<size_t,size_t> >::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
-  {
-    grt::BaseListRef item(get_grt());
-    item.ginsert(grt::IntegerRef((long)i->first));
-    item.ginsert(grt::IntegerRef((long)i->second));
-    list.ginsert(item);
-  }
-  return list;
-}
-
-//--------------------------------------------------------------------------------------------------
-

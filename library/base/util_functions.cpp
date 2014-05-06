@@ -895,7 +895,7 @@ const char *strfindword(const char *str, const char *word)
   return result;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
 // TODO: move to file_functions
 /**
@@ -999,3 +999,20 @@ int copy_folder(const char *source_folder, const char *target_folder)
   }
   return 1;
 }
+
+//--------------------------------------------------------------------------------------------------
+
+double timestamp()
+{
+#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+  return (double)GetTickCount() / 1000.0;
+#else
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  double seconds = tv.tv_sec;
+  double fraction = tv.tv_usec / (double)(1000000);
+  return seconds + fraction;
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------

@@ -491,7 +491,6 @@ public:
   
   void code_edited()
   {
-    // Don't run commit_changes() or the parser will kill your current trigger if it has an error.
     if (_selected_trigger.is_valid())
     {
       if (_code_editor->is_dirty() && _selected_trigger->sqlDefinition() != _code_editor->get_string_value())
@@ -499,6 +498,9 @@ public:
         AutoUndoEdit undo(_editor, _selected_trigger, "sql");
         _editor->freeze_refresh_on_object_change();
         grt::IntegerRef res = _editor->_sql_parser->parse_trigger(_selected_trigger, _code_editor->get_string_value().c_str());
+        db_TriggerRef temp_trigger;
+        _editor->_parsing_services->parseTrigger(temp_trigger, _code_editor->get_string_value());
+
         _editor->thaw_refresh_on_object_change(true);
         _name.set_value(_selected_trigger->name());
         _definer.set_value(_selected_trigger->definer());
@@ -513,31 +515,6 @@ public:
     else
       refresh();
   }
-  //TODO: Check if we can make this code usable again
-//  void name_changed()
-//  {
-//    if (_selected_trigger.is_valid())
-//    {
-//      AutoUndoEdit undo(_editor, _selected_trigger, "name");
-//      _selected_trigger->name(_name.get_string_value());
-//      undo.end(base::strfmt("Rename trigger to %s", _name.get_string_value().c_str()));
-//      mforms::TreeNodeRef node = _list.get_selected_node();
-//      if (node)
-//        node->set_string(0, _name.get_string_value());
-//      selection_changed();
-//    }
-//  }
-  //TODO: Check if we can make this code usable again
-//  void definer_changed()
-//  {
-//    if (_selected_trigger.is_valid())
-//    {
-//      AutoUndoEdit undo(_editor, _selected_trigger, "definer");
-//      _selected_trigger->definer(_definer.get_string_value());
-//      undo.end(base::strfmt("Change trigger definer to %s", _definer.get_string_value().c_str()));
-//      selection_changed();
-//    }
-//  }
 
   void clicked()
   {
@@ -634,15 +611,10 @@ public:
         _name.set_enabled(true);
         _definer.set_enabled(true);
       
-        sql.append(base::strfmt("USE `%s`;\nDELIMITER $$\n", _editor->get_schema_name().c_str()));
         if (trigger->sqlDefinition().empty())
         {
-          sql.append(base::strfmt("CREATE TRIGGER `%s` %s %s ON `%s` FOR EACH ROW\n", trigger->name().c_str(),
-            timing.c_str(), event.c_str(), _editor->get_name().c_str()));
-          
-          // No longer necessary. We can now parse the entire sql (if the user types complete nonsense
-          // we are all lost however, but that's no news).
-          //sql.append("-- Edit trigger body code below this line. Do not edit lines above this one\n");
+          sql.append(base::strfmt("CREATE TRIGGER `%s`.`%s` %s %s ON `%s` FOR EACH ROW\n    ", _editor->get_schema_name().c_str(),
+                                  trigger->name().c_str(), timing.c_str(), event.c_str(), _editor->get_name().c_str()));
         }
         else
           sql.append(trigger->sqlDefinition());
@@ -944,46 +916,6 @@ std::string MySQLTableEditorBE::get_table_option_by_name(const std::string& name
   return std::string("");
 }
 
-//TODO: Check if we still need this, if not ... remove.
-std::string MySQLTableEditorBE::get_all_triggers_sql() const
-{
-  std::string retval;
-
-  retval.append("-- Full Trigger DDL Statements\n");
-  retval.append("-- Note: Only CREATE TRIGGER statements are allowed\n");
-
-  retval.append(
-    strfmt("DELIMITER %s\n\n", _non_std_sql_delimiter.c_str())).append(
-    "USE `").append(_table->owner()->name()).append("`").
-    append(_non_std_sql_delimiter.c_str()).append("\n\n");
-
-  grt::ListRef<db_mysql_Trigger> triggers= _table->triggers();
-  size_t triggers_count= triggers.count();
-  typedef std::map<ssize_t, db_mysql_TriggerRef> OrderedTriggers;
-  typedef std::list<db_mysql_TriggerRef> UnorderedTriggers;
-  OrderedTriggers ordered_triggers;
-  UnorderedTriggers unordered_triggers; // triggers with duplicated sequence number. to upgrade old models smoothly, where sequence numbers are 0.
-
-  for (size_t i= 0; i < triggers_count; ++i)
-  {
-    db_mysql_TriggerRef trigger= triggers.get(i);
-    ssize_t sequenceNumber= trigger->sequenceNumber();
-    if (ordered_triggers.find(sequenceNumber) == ordered_triggers.end())
-      ordered_triggers[sequenceNumber]= trigger;
-    else
-      unordered_triggers.push_back(trigger);
-  }
-
-  //XXX fix parser so that it skips newlines before the trigger
-  for (OrderedTriggers::iterator i= ordered_triggers.begin(), i_end= ordered_triggers.end(); i != i_end; ++i)
-    retval.append(base::strip_text(i->second->sqlDefinition(), true, false)).append(_non_std_sql_delimiter).append("\n\n");
-
-  for (UnorderedTriggers::iterator i= unordered_triggers.begin(), i_end= unordered_triggers.end(); i != i_end; ++i)
-    retval.append(base::strip_text((*i)->sqlDefinition(), true, false)).append(_non_std_sql_delimiter).append("\n\n");
-
-  return retval;
-}
-
 //--------------------------------------------------------------------------------------------------
 
 /**
@@ -1007,21 +939,6 @@ bool MySQLTableEditorBE::can_close()
 {
   _trigger_panel->code_edited(); // Same handling as for focus-lost. Might not be necessary but better safe than sorry.
   return TableEditorBE::can_close();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-//TODO: Do we still need this?
-void MySQLTableEditorBE::commit_changes()
-{
-//  mforms::CodeEditor* editor = get_sql_editor()->get_editor_control();
-//  if (editor->is_dirty())
-//  {
-//    // TODO: no longer needed since we don't set all triggers at once anymore.
-//    set_triggers_sql(get_all_triggers_sql(), true); //we need to always get all editors code not just the currently visible
-//    // Note: don't reset the dirty state of the editor to be able to undo beyond this commit.
-//  }
-  // TODO: anything else to store?
 }
 
 //--------------------------------------------------------------------------------------------------

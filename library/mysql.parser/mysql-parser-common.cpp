@@ -93,8 +93,8 @@ MySQLRecognitionBase::MySQLRecognitionBase(const std::set<std::string> &charsets
 void MySQLRecognitionBase::add_error(const std::string &text, ANTLR3_UINT32 token,
   ANTLR3_MARKER characterIndex, ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length)
 {
-  MySQLParserErrorInfo info = { text, token, characterIndex - (ANTLR3_MARKER)input_start(), line,
-    offset_in_line, length};
+  MySQLParserErrorInfo info = { text, token, static_cast<size_t>(characterIndex - (ANTLR3_MARKER)input_start()), line,
+    offset_in_line, (size_t)length};
   d->_error_info.push_back(info);
 };
 
@@ -117,6 +117,13 @@ bool MySQLRecognitionBase::has_errors()
 unsigned MySQLRecognitionBase::sql_mode()
 {
   return d->_sql_mode;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLRecognitionBase::set_sql_mode(const std::string &sql_mode)
+{
+  d->_sql_mode = parse_sql_mode(sql_mode);
 }
 
 //--------------------------------------------------------------------------------------------------

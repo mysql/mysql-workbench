@@ -300,9 +300,7 @@ private:
   std::string _current_schema;
   std::string _last_ac_statement; // The last statement we used for auto completion.
 
-  long _server_version;
   std::string _sql_mode;
-  std::set<std::string> _charsets; // For lookup needed by parsers to determine repertoires.
 };
 
 #endif /* _SQL_EDITOR_BE_H_ */

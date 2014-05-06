@@ -137,14 +137,12 @@ public:
   virtual bool check_column_referenceable_by_fk(const db_ColumnRef &column1, const db_ColumnRef &column2);
 
   // interactive functions
-  std::string get_all_triggers_sql() const; // TODO: only used internally and in tests, should be protected.
   void load_trigger_sql();
 
   // triggers
   mforms::View *get_trigger_panel();
 
   virtual bool can_close();
-  virtual void commit_changes();
 
   // partitioning
   bool set_partition_type(const std::string &type);

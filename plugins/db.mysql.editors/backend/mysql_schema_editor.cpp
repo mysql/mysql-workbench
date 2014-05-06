@@ -18,18 +18,22 @@
  */
 
 #include "grt/tree_model.h"
+
 #include "mysql_schema_editor.h"
-#include "grtsqlparser/sql_facade.h"
+
 #include "base/log.h"
+
 #include "mforms/utilities.h"
 
 DEFAULT_LOG_DOMAIN("SchemaEditor");
 
 using namespace base;
 
-MySQLSchemaEditorBE::MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_SchemaRef &schema, const db_mgmt_RdbmsRef &rdbms)
+MySQLSchemaEditorBE::MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_SchemaRef &schema,
+                                         const db_mgmt_RdbmsRef &rdbms)
   : bec::SchemaEditorBE(grtm, schema, rdbms)
 {
+  _sql_facade = SqlFacade::instance_for_rdbms(rdbms);
   _initial_name = schema->name();
 }
 
@@ -37,10 +41,9 @@ void MySQLSchemaEditorBE::refactor_catalog_upon_schema_rename(const std::string 
 {
   try
   {
-    //grt::AutoUndo undo(_grtm->get_grt());
     bec::AutoUndoEdit undo(this);
 
-    SqlFacade::instance_for_db_obj(_schema)->renameSchemaReferences(get_catalog(), old_name, new_name);
+    _sql_facade->renameSchemaReferences(get_catalog(), old_name, new_name);
 
     undo.end(strfmt(_("Update references to schema: `%s` -> `%s`"), old_name.c_str(), new_name.c_str()));
   }
@@ -61,7 +64,7 @@ void MySQLSchemaEditorBE::refactor_catalog()
     if (from_name.empty())
       from_name = _initial_name;
 
-    SqlFacade::instance_for_db_obj(_schema)->renameSchemaReferences(get_catalog(), from_name, to_name);
+    _sql_facade->renameSchemaReferences(get_catalog(), from_name, to_name);
 
     get_schema()->customData().set("LastRefactoringTargetName", grt::StringRef(to_name));
 

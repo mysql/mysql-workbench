@@ -19,7 +19,6 @@
 
 #include "grt/grt_dispatcher.h"
 #include "mysql_routine_editor.h"
-#include "grtsqlparser/sql_facade.h"
 
 #include "mforms/code_editor.h"
 

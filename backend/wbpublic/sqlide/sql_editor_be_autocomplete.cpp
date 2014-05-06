@@ -1517,12 +1517,13 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
 
   std::set<std::pair<int, std::string>, CompareAcEntries> new_entries;
   _auto_completion_entries.clear();
-  context.version = _server_version;
+  context.version = 50501; //_server_version; TODO: switch to parser services
 
   bool found_errors = false;
   if (!context.statement.empty())
   {
-    MySQLRecognizer recognizer(_server_version, _sql_mode, _charsets);
+    std::set<std::string> charsets; // TODO: switch to parser services.
+    MySQLRecognizer recognizer(50501 /* _server_version*/, _sql_mode, charsets);
     recognizer.parse(context.statement.c_str(), context.statement.length(), true, QtUnknown);
     MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
 

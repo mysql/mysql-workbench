@@ -20,11 +20,6 @@
 #include "editor_schema.h"
 #include "base/string_utilities.h"
 
-/**
- * @file  editor_schema.cpp
- * @brief 
- */
-
 using namespace grt;
 using namespace bec;
 using namespace base;

@@ -19,12 +19,8 @@
 
 #include "grt/grt_dispatcher.h"
 #include "editor_routinegroup.h"
-#include "base/string_utilities.h"
 
-/**
- * @file  editor_routinegroup.cpp
- * @brief 
- */
+#include "base/string_utilities.h"
 
 using namespace grt;
 using namespace bec;

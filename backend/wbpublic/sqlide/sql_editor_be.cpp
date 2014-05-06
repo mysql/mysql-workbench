@@ -25,8 +25,9 @@
 #include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/threaded_timer.h"
+#include "base/util_functions.h"
 
-#include "grtsqlparser/sql_facade.h"
+#include "grtsqlparser/mysql_parser_services.h"
 
 #include "sqlide.h"
 #include "grt/grt_manager.h"
@@ -42,7 +43,6 @@
 #include "mforms/menu.h"
 #include "mforms/filechooser.h"
 
-#include "mysql-parser.h"
 #include "autocomplete_object_name_cache.h"
 
 #include "sql_editor_be.h"
@@ -52,6 +52,8 @@ DEFAULT_LOG_DOMAIN("Sql_editor");
 using namespace bec;
 using namespace grt;
 using namespace base;
+
+using namespace parser;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -74,32 +76,24 @@ public:
 
   int _last_typed_char;
 
-  SqlFacade::Ref _sql_facade;
+  ParserContext::Ref _parser_context;
+  MySQLParserServices::Ref _services;
 
   double _last_sql_check_progress_msg_timestamp;
   double _sql_check_progress_msg_throttle;
 
-  base::Mutex _sql_checker_mutex;
+  base::RecMutex _sql_checker_mutex;
   MySQLQueryType _parse_unit;  // The type of query we want to limit our parsing to.
-  bool _clearance_pending;
   bec::GRTManager::Timer* _current_timer;
   std::pair<const char*, size_t> _text_info; // Only valid during a parse run.
 
-  base::Mutex _sql_errors_mutex;
-
-  struct ErrorEntry
-  {
-    std::string message;
-    size_t position;
-    size_t line;
-    size_t length;
-  };
-  std::vector<ErrorEntry> _recognition_errors; // List of errors from the last sql check run.
+  base::RecMutex _sql_errors_mutex;
+  std::vector<ParserErrorEntry> _recognition_errors; // List of errors from the last sql check run.
   std::vector<size_t> _error_marker_lines;
 
   bool _splitting_required;
   std::vector<size_t> _statement_marker_lines;
-  base::Mutex _sql_statement_borders_mutex;
+  base::RecMutex _sql_statement_borders_mutex;
 
   // Each entry is a pair of statement position (byte position) and statement length (also bytes).
   std::vector<std::pair<size_t, size_t> > _statement_ranges;
@@ -107,7 +101,6 @@ public:
   bool _is_refresh_enabled;   // whether FE control is permitted to replace its contents from BE
   bool _is_sql_check_enabled; // Enables automatic syntax checks.
   bool _stop_processing;      // To stop ongoing syntax checks (because of text changes etc.).
-  bool _large_content;        // True if the current content exceeds the limit we set.
   bool _owns_toolbar;
 
   boost::signals2::signal<void ()> _text_change_signal;
@@ -122,9 +115,9 @@ public:
 
     _splitting_required = false;
 
-    _sql_facade = SqlFacade::instance_for_rdbms(rdbms);
+    _parser_context = MySQLParserServices::createParserContext(rdbms);
+    _services = MySQLParserServices::get(rdbms.get_grt());
 
-    _large_content = false;
     _current_timer = NULL;
     _is_sql_check_enabled = true;
     _container = NULL;
@@ -144,11 +137,11 @@ public:
       log_debug3("Start splitting\n");
       _splitting_required = false;
 
-      base::MutexLock lock(_sql_statement_borders_mutex);
+      base::RecMutexLock lock(_sql_statement_borders_mutex);
 
       _statement_ranges.clear();
       double start = timestamp();
-      _sql_facade->splitSqlScript(_text_info.first, _text_info.second, ";", _statement_ranges);
+      _services->determineStatementRanges(_text_info.first, _text_info.second, ";", _statement_ranges);
       log_debug3("Splitting ended after %f ticks\n", timestamp() - start);
     }
   }
@@ -201,25 +194,6 @@ Sql_editor::Sql_editor(db_mgmt_RdbmsRef rdbms, GrtVersionRef version)
   _editor_config = NULL;
   _auto_completion_cache = NULL;
 
-  // Create a server version of the form "Mmmrr" as long int for quick comparisons.
-  if (version.is_valid())
-    _server_version = (unsigned)(version->majorNumber() * 10000 + version->minorNumber() * 100 + version->releaseNumber());
-  else
-    _server_version = 50501; // Assume some reasonable default (5.5.1).
-
-  // Prepare the set of charset names for the parsers.
-  grt::ListRef<db_CharacterSet> list= rdbms->characterSets();
-  for (size_t i = 0; i < list->count(); i++)
-    _charsets.insert(base::tolower(*list[i]->name()));
-
-  // 3 character sets were added in version 5.5.3. Remove them from the list if the current version
-  // is lower than that.
-  if (_server_version < 50503)
-  {
-    _charsets.erase("utf8mb4");
-    _charsets.erase("utf16");
-    _charsets.erase("utf32");
-  }
   _sql_mode = "";
 
   setup_editor_menu();
@@ -235,9 +209,9 @@ Sql_editor::~Sql_editor()
     d->_is_sql_check_enabled = false;
     
     // We lock all mutexes for a moment here to ensure no background thread is still holding them.
-    base::MutexLock lock1(d->_sql_checker_mutex);
-    base::MutexLock lock2(d->_sql_errors_mutex);
-    base::MutexLock lock3(d->_sql_statement_borders_mutex);
+    base::RecMutexLock lock1(d->_sql_checker_mutex);
+    base::RecMutexLock lock2(d->_sql_errors_mutex);
+    base::RecMutexLock lock3(d->_sql_statement_borders_mutex);
   }
 
   if (d->_editor_text_submenu != NULL)
@@ -368,6 +342,11 @@ static void save_file(Sql_editor *sql_editor)
 
 void Sql_editor::set_base_toolbar(mforms::ToolBar *toolbar)
 {
+  /* TODO: that is a crude implementation as the toolbar is sometimes directly created and set and *then* also set
+           here, so deleting it crashs.
+  if (d->_toolbar != NULL && d->_owns_toolbar)
+    delete d->_toolbar;
+  */
   d->_toolbar = toolbar;
   d->_owns_toolbar = false;
 
@@ -642,7 +621,8 @@ boost::signals2::signal<void ()>* Sql_editor::text_change_signal()
 
 void Sql_editor::sql_mode(const std::string &value)
 {
-  _sql_mode = value; 
+  _sql_mode = value;
+  d->_parser_context->use_sql_mode(value);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -725,7 +705,7 @@ void Sql_editor::dwell_event(bool started, int position, int x, int y)
       // TODO: sort by position and do a binary search.
       for (size_t i = 0; i < d->_recognition_errors.size(); ++i)
       {
-        Private::ErrorEntry entry = d->_recognition_errors[i];
+        ParserErrorEntry entry = d->_recognition_errors[i];
         if (entry.position <= position && position <= entry.position + entry.length)
         {
           _code_editor->show_calltip(true, position, entry.message);
@@ -752,11 +732,10 @@ bool Sql_editor::start_sql_processing()
   d->_current_timer = NULL; // The timer will be deleted by the grt manager.
 
   {
-    MutexLock sql_errors_mutex(d->_sql_errors_mutex);
+    RecMutexLock sql_errors_mutex(d->_sql_errors_mutex);
     d->_recognition_errors.clear();
   }
 
-  d->_clearance_pending = true;
   d->_stop_processing = false;
 
   _code_editor->set_status_text("");
@@ -776,27 +755,20 @@ bool Sql_editor::do_statement_split_and_check(int id)
   // Start tasks that depend on the statement ranges (markers + auto completion).
   mforms::Utilities::perform_from_main_thread(boost::bind(&Sql_editor::splitting_done, this), false);
 
-  base::MutexLock lock(d->_sql_checker_mutex);
+  if (d->_stop_processing)
+    return false;
+
+  base::RecMutexLock lock(d->_sql_checker_mutex);
 
   // Now do error checking for each of the statements, collecting error positions for later markup.
   d->_last_sql_check_progress_msg_timestamp = timestamp();
-  MySQLRecognizer recognizer(_server_version, _sql_mode, _charsets);
   for (std::vector<std::pair<size_t, size_t> >::const_iterator range_iterator = d->_statement_ranges.begin();
     range_iterator != d->_statement_ranges.end(); ++range_iterator)
   {
-    recognizer.parse(d->_text_info.first + range_iterator->first, range_iterator->second, true, d->_parse_unit);
-    if (recognizer.has_errors())
+    if (d->_services->checkSqlSyntax(d->_parser_context, d->_text_info.first + range_iterator->first,
+                                 range_iterator->second, d->_parse_unit) > 0)
     {
-      const std::vector<MySQLParserErrorInfo> error_info = recognizer.error_info();
-      for (std::vector<MySQLParserErrorInfo>::const_iterator error_iterator = error_info.begin();
-        error_iterator != error_info.end(); ++error_iterator)
-      {
-        Private::ErrorEntry entry = {error_iterator->message, range_iterator->first + error_iterator->charOffset,
-          error_iterator->line, error_iterator->length};
-        d->_recognition_errors.push_back(entry);
-
-        if (d->_stop_processing)
-          return false;
+      d->_recognition_errors = d->_parser_context->get_errors_with_offset(range_iterator->first);
 
         /*
          * ATM we cannot optimize error markup so running intermediate updates just make things slower.
@@ -807,7 +779,6 @@ bool Sql_editor::do_statement_split_and_check(int id)
           d->_last_sql_check_progress_msg_timestamp = timestamp();
         }
         */
-      }
     }
     else
       if (d->_stop_processing)
@@ -1158,7 +1129,7 @@ bool Sql_editor::get_current_statement_range(size_t &start, size_t &end)
   // In case the splitter is right now processing the text we wait here until its done.
   // If the splitter wasn't triggered yet (e.g. when typing fast and then immediately running a statement)
   // then we do the splitting here instead.
-  MutexLock sql_statement_borders_mutex(d->_sql_statement_borders_mutex);
+  RecMutexLock sql_statement_borders_mutex(d->_sql_statement_borders_mutex);
   d->split_statements_if_required();
 
   if (d->_statement_ranges.empty())
@@ -1232,8 +1203,8 @@ void Sql_editor::stop_processing()
     d->_grtm->cancel_timer(d->_current_timer);
     d->_current_timer = NULL;
   }
-  
-  d->_sql_facade->stop_processing();
+
+  d->_services->stopProcessing();
 }
 
 //--------------------------------------------------------------------------------------------------

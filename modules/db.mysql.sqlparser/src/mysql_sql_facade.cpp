@@ -67,9 +67,9 @@ bool is_line_break(const unsigned char *head, const unsigned char *line_break)
     return false;
 
   while (*head != '\0' && *line_break != '\0' && *head == *line_break)
- {
-   head++;
-   line_break++;
+  {
+    head++;
+    line_break++;
   }
   return *line_break == '\0';
 }
@@ -330,35 +330,38 @@ Invalid_sql_parser::Ref MysqlSqlFacadeImpl::invalidSqlParser()
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseInserts(db_TableRef table, const std::string sql)
+int MysqlSqlFacadeImpl::parseInserts(db_TableRef table, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_inserts(db_mysql_TableRef::cast_from(table), sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseTriggers(db_TableRef table, const std::string sql)
+int MysqlSqlFacadeImpl::parseTrigger(db_TriggerRef trigger, const std::string &sql)
 {
-  return Mysql_invalid_sql_parser::create(get_grt())->parse_triggers(db_mysql_TableRef::cast_from(table), sql);
+  // The given trigger must already be part of a valid db structure (i.e. in a table, schema, catalog with rdbms).
+  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(trigger->owner()->owner()->owner()->get_member("rdbms"));
+  //MySQLRecognizer recognizer = new
+  return Mysql_invalid_sql_parser::create(get_grt())->parse_trigger(trigger, sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseRoutine(db_RoutineRef routine, const std::string sql)
+int MysqlSqlFacadeImpl::parseRoutine(db_RoutineRef routine, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_routine(db_mysql_RoutineRef::cast_from(routine), sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseRoutines(db_RoutineGroupRef routineGroup, const std::string sql)
+int MysqlSqlFacadeImpl::parseRoutines(db_RoutineGroupRef routineGroup, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_routines(db_mysql_RoutineGroupRef::cast_from(routineGroup), sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseView(db_ViewRef view, const std::string sql)
+int MysqlSqlFacadeImpl::parseView(db_ViewRef view, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_view(db_mysql_ViewRef::cast_from(view), sql);
 }
@@ -372,27 +375,27 @@ Sql_syntax_check::Ref MysqlSqlFacadeImpl::sqlSyntaxCheck()
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::checkSqlSyntax(const std::string sql)
+int MysqlSqlFacadeImpl::checkSqlSyntax(const std::string &sql)
 {
   return Mysql_sql_syntax_check::create(get_grt())->check_sql(sql.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::checkTriggerSyntax(const std::string sql)
+int MysqlSqlFacadeImpl::checkTriggerSyntax(const std::string &sql)
 {
   return Mysql_sql_syntax_check::create(get_grt())->check_trigger(sql.c_str());
 }
 
 
-int MysqlSqlFacadeImpl::checkViewSyntax(const std::string sql)
+int MysqlSqlFacadeImpl::checkViewSyntax(const std::string &sql)
 {
   return Mysql_sql_syntax_check::create(get_grt())->check_view(sql.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::checkRoutineSyntax(const std::string sql)
+int MysqlSqlFacadeImpl::checkRoutineSyntax(const std::string &sql)
 {
   return Mysql_sql_syntax_check::create(get_grt())->check_routine(sql.c_str());
 }
