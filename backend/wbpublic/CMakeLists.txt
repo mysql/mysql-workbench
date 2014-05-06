@@ -79,6 +79,7 @@ add_library(wbpublic
     grtsqlparser/sql_normalizer.cpp
     grtsqlparser/sql_statement_decomposer.cpp
     grtsqlparser/sql_specifics.cpp
+    grtsqlparser/mysql_parser_services.cpp
     sqlide/sqlide_generics.cpp
     sqlide/sql_editor_be.cpp
     sqlide/sql_editor_be_autocomplete.cpp

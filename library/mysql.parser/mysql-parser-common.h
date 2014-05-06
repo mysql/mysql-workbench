@@ -29,7 +29,7 @@
 #else
   #define MYSQL_PARSER_PUBLIC_FUNC
 #endif
-
+#include <set>
 #include <antlr3.h>
 
 extern "C" {

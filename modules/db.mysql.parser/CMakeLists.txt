@@ -1,7 +1,12 @@
-include_directories(.
+include_directories(${LIBXML2_INCLUDE_DIR}
+    .
     ./src
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
+    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime 
+    ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/mysql.parser   
+    ${PROJECT_SOURCE_DIR}/backend/wbpublic
+    ${PROJECT_SOURCE_DIR}/generated
 )
 
 add_library(db.mysql.parser.grt

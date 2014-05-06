@@ -20,6 +20,7 @@
 #pragma once
 
 #include "wbpublic_public_interface.h"
+#include "grts/structs.db.mgmt.h"
 #include "mysql-parser.h"
 
 namespace parser {
