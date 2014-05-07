@@ -66,8 +66,8 @@ RecordsetWrapper::~RecordsetWrapper()
   delete action_list;
   delete task;
   delete _ref;
-  delete _apply_changes;
-  _apply_changes = nullptr;
+  delete _flush_ui_changes;
+  _flush_ui_changes = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,10 +98,10 @@ void RecordsetWrapper::pending_changes(int %upd_count, int %ins_count, int %del_
 
 //--------------------------------------------------------------------------------------------------
 
-void RecordsetWrapper::set_apply_changes(DelegateSlot0<void, void>::ManagedDelegate ^apply)
+void RecordsetWrapper::set_flush_ui_changes_cb(DelegateSlot0<void, void>::ManagedDelegate ^apply)
 {
-  _apply_changes = gcnew DelegateSlot0<void, void>(apply);
-  _ref->apply_changes = _apply_changes->get_slot();
+  _flush_ui_changes = gcnew DelegateSlot0<void, void>(apply);
+  _ref->flush_ui_changes_cb = _flush_ui_changes->get_slot();
 }
 
 //--------------------------------------------------------------------------------------------------

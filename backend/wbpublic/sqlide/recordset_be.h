@@ -133,7 +133,8 @@ protected:
   Recordset_data_storage_Ref _data_storage;
 
 public:
-  boost::function<void ()> apply_changes;
+  boost::function<void ()> apply_changes_cb;
+  boost::function<void()> flush_ui_changes_cb;
 public:
   bool apply_changes_and_gather_messages(std::string &messages);
   void rollback_and_gather_messages(std::string &messages);
@@ -143,8 +144,8 @@ public:
   bool has_pending_changes();
   void pending_changes(int &upd_count, int &ins_count, int &del_count) const;
   void rollback();
+  void apply_changes();
 private:
-  void call_apply_changes();
   int on_apply_changes_finished();
   void apply_changes_(Recordset_data_storage_Ptr data_storage_ptr);
 

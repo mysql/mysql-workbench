@@ -59,7 +59,7 @@ public:
 
   void pending_changes(int %upd_count, int %ins_count, int %del_count);
   bool has_pending_changes() { return _ref->has_pending_changes(); }
-  void apply_changes() { _ref->apply_changes_(); }
+  void apply_changes() { _ref->apply_changes(); }
   void rollback() { _ref->rollback(); }
 
   void limit_rows(bool value) { _ref->limit_rows(value); }
@@ -90,12 +90,12 @@ public:
   void copy_rows_to_clipboard(List<int> ^indeces);
   void copy_field_to_clipboard(int row, int column) { _ref->copy_field_to_clipboard(row, column); }
 
-  void set_apply_changes(DelegateSlot0<void, void>::ManagedDelegate ^apply);
+  void set_flush_ui_changes_cb(DelegateSlot0<void, void>::ManagedDelegate ^apply);
 
   bool inserts_editor()  { return _ref->inserts_editor(); }
 
 private:
-  DelegateSlot0<void, void> ^_apply_changes;
+  DelegateSlot0<void, void> ^_flush_ui_changes;
 
 public:
   GrtThreadedTaskWrapper ^task;
