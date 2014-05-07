@@ -52,6 +52,7 @@ protected:
   static void destroy(::mforms::View *self);
   static void show(::mforms::View *self, bool show);
   static bool is_shown(::mforms::View *self);
+  static bool is_fully_visible(::mforms::View *self);
   static void set_tooltip(::mforms::View *self, const std::string &text);
   static void set_font(::mforms::View *self, const std::string &fontDescription);
   static int get_width(::mforms::View *self);

@@ -66,6 +66,29 @@ bool ViewImpl::is_shown(::mforms::View *self)
   return false;
 }
 
+bool ViewImpl::is_fully_visible(::mforms::View *self)
+{
+  ViewImpl *view = self->get_data<ViewImpl>();
+  if (view)
+  {
+    //INFO: in gtk3 we can use gtk_widget_is_visible and this code can be removed.
+    Gtk::Widget *w = view->get_outer();
+
+    while (w->is_visible())
+    {
+      if (w->get_parent() == NULL)
+        return true;
+
+      Gtk::Notebook *n = dynamic_cast<Gtk::Notebook*>(w->get_parent());
+      if (n)
+        if (n->page_num(*w) != n->get_current_page()) //We need to check if we're on active tab, if not return false.
+          return false;
+
+      w = w->get_parent();
+    };
+  }
+  return false;
+}
 
 void ViewImpl::set_tooltip(::mforms::View *self, const std::string &text)
 {
@@ -944,6 +967,7 @@ void ViewImpl::init()
 
   f->_view_impl.show                  = &ViewImpl::show;
   f->_view_impl.is_shown              = &ViewImpl::is_shown;
+  f->_view_impl.is_fully_visible      = &ViewImpl::is_fully_visible;
 
   f->_view_impl.set_tooltip           = &ViewImpl::set_tooltip;
   f->_view_impl.set_font              = &ViewImpl::set_font;
