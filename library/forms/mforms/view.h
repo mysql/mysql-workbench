@@ -166,6 +166,7 @@ namespace mforms {
 
     void (*show)(View *self, bool);
     bool (*is_shown)(View *self);
+    bool (*is_fully_visible)(View *self);
     
     void (*set_tooltip)(View *self, const std::string&);
     void (*set_name)(View *self, const std::string&);
@@ -260,7 +261,12 @@ namespace mforms {
     bool is_shown();
 
     /**
-     * Enable view so user can interract with it.
+     * Returns true if the view and all it's parents are visible.
+     */
+    bool is_fully_visible();
+
+    /**
+     * Enable view so user can interact with it.
      */
     void set_enabled(bool flag);
 

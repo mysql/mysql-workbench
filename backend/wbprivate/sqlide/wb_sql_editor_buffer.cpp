@@ -990,23 +990,6 @@ int SqlEditorForm::sql_editor_index(Sql_editor::Ref editor)
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Helper to determine if a given editor belongs to this form if you *don't* have a shared_ptr.
- * Otherwise just use the sql_editor_index() function.
- */
-bool SqlEditorForm::contains_editor(Sql_editor *editor)
-{
-  MutexLock ed_lock(_sql_editors_mutex);
-  for (size_t i = 0; i < _sql_editors.size(); i++)
-  {
-    if (_sql_editors[i]->editor.get() == editor)
-      return true;
-  }
-  return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void SqlEditorForm::set_sql_editor_text(const char *sql, int editor_index)
 {
   if (editor_index < 0)

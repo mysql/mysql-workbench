@@ -165,7 +165,6 @@ public:
   Sql_editor::Ref active_sql_editor();
   Sql_editor::Ref sql_editor(int index);
   int sql_editor_index(Sql_editor::Ref);
-  bool contains_editor(Sql_editor *editor);
   std::string sql_editor_path(int index) { return _sql_editors[index]->filename; }
   std::string sql_editor_caption(int index=-1);
   void sql_editor_caption(int new_index, std::string caption);
