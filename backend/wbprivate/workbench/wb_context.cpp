@@ -16,9 +16,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "wb_tunnel.h" // needs to come 1st because it includes Python.h indirectly
 
-#include "stdafx.h"
+#include "stdafx.h" // needs to come 1st because Vs needs this file but can make problems on Linux
+                    // if it include Python.h indirectly
+
+#include "wb_tunnel.h" // this header include Python.h indirectly
 
 #include <errno.h>
 #include <glib.h>
