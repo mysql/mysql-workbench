@@ -630,6 +630,13 @@ public:
           _fields.push_back(fview);
         }
       }
+
+      if (field_info.empty())
+      {
+        mforms::Label *label = mforms::manage(new mforms::Label("To use the Form Editor, please enable Query -> Collect Resultset Field Metadata from the main menu"));
+        label->set_style(mforms::BigBoldStyle);
+        _table.add(label, 0, 2, 0, 1, mforms::HFillFlag|mforms::VFillFlag|mforms::VExpandFlag);
+      }
     }
   }
 };
@@ -988,7 +995,7 @@ void SqlEditorResult::create_column_info_panel()
     }
     else
     {
-      mforms::Label *label = mforms::manage(new mforms::Label("To get field type information for query results, enable Query -> Collect Resultset Field Metadata"));
+      mforms::Label *label = mforms::manage(new mforms::Label("To get field type information for query results, enable Query -> Collect Resultset Field Metadata from the main menu"));
       label->set_style(mforms::BigBoldStyle);
       box->add(label, true, true);
     }
