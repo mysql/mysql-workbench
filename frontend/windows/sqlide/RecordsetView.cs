@@ -48,7 +48,7 @@ namespace MySQL.Grt.Db
     //  dataSearchTimer.Tick += new EventHandler(OnDataSearchApply);
     }
 
-    public void SetupRecordset(RecordsetWrapper recordset, bool override_apply)
+    public void SetupRecordset(RecordsetWrapper recordset)
     {
       gridView = new GridView(recordset);
    //   gridView.Dock = DockStyle.Fill;
@@ -65,8 +65,8 @@ namespace MySQL.Grt.Db
       actionList.register_action("record_add", AddNewRecord);
       actionList.register_action("record_edit", EditCurrentRecord);
 
-      if (override_apply)
-        recordset.set_apply_changes(SaveChanges);
+      recordset.set_flush_ui_changes_cb(FlushUIChanges);
+
       recordset.set_update_selection_delegate(UpdateSelection);
 
       gridView.KeyDown += gridView_KeyDown;
@@ -349,10 +349,14 @@ namespace MySQL.Grt.Db
       model.rollback();
     }
 
+    public void FlushUIChanges()
+    {
+        // Apply any pending changes in the grid before writing them to model.
+        gridView.EndEdit();
+    }
+
     public void SaveChanges()
     {
-      // Apply any pending changes in the grid before writing them to model.
-      gridView.EndEdit();
       model.apply_changes();
     }
 

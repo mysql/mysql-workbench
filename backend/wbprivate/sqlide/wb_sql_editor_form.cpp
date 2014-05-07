@@ -1962,7 +1962,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
 
                     Recordset::Ref rs= Recordset::create(exec_sql_task);
                     rs->is_field_value_truncation_enabled(true);
-                    rs->apply_changes= boost::bind(&SqlEditorForm::apply_changes_to_recordset, this, Recordset::Ptr(rs));
+                    rs->apply_changes_cb= boost::bind(&SqlEditorForm::apply_changes_to_recordset, this, Recordset::Ptr(rs));
                     rs->on_close.connect(boost::bind(&SqlEditorForm::on_close_recordset, this, _1));
                     rs->caption(strfmt("%s %i",
                                        (table_name.empty() ? _("Result") : table_name.c_str()),
