@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -782,6 +782,19 @@ static bool view_is_shown(::mforms::View *self)
   return false;
 }
 
+static bool view_is_fully_visible(::mforms::View *self)
+{
+  NSView *view = self->get_data();
+  if (view)
+  {
+    if (view.window == nil)
+      return false;
+
+    return !view.isHiddenOrHasHiddenAncestor;
+  }
+  return false;
+}
+
 static void view_set_tooltip(::mforms::View *self, const std::string &text)
 {
   id view = self->get_data();
@@ -962,6 +975,7 @@ void cf_view_init()
 
   f->_view_impl.show                 = &view_show;
   f->_view_impl.is_shown             = &view_is_shown;
+  f->_view_impl.is_fully_visible     = &view_is_fully_visible;
   
   f->_view_impl.set_tooltip          = &view_set_tooltip;
   f->_view_impl.set_name             = &view_set_name;
