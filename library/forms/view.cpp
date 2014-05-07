@@ -318,6 +318,13 @@ bool View::is_shown()
 
 //--------------------------------------------------------------------------------------------------
 
+bool View::is_fully_visible()
+{
+  return (*_view_impl->is_fully_visible)(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void View::set_enabled(bool flag)
 {
   (*_view_impl->set_enabled)(this, flag);

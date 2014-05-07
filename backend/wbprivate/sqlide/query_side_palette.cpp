@@ -353,8 +353,9 @@ void QuerySidePalette::cancel_timer()
 
 void QuerySidePalette::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info)
 {
-    // Selection and caret changes.
-  if ((name == "GNTextSelectionChanged") && _automatic_help && (get_active_tab() == 0))
+  // Selection and caret changes notification.
+  // Only act if this side palette is actually visible.
+  if ((name == "GNTextSelectionChanged") && _automatic_help && (get_active_tab() == 0) && is_fully_visible())
   {
     mforms::Object *object = (mforms::Object*)sender;
     mforms::CodeEditor *code_editor = dynamic_cast<mforms::CodeEditor*>(object);
@@ -364,14 +365,9 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
     Sql_editor *editor = static_cast<Sql_editor*>(code_editor->get_host());
     if (editor != NULL && editor->grtobj().is_valid())
     {
-      // See if this editor instance is actually from the IDE this palette sits in.
-      SqlEditorForm::Ref form = _owner.lock();
-      if (form && form->contains_editor(editor))
-      {
-        check_format_structures(editor);
-        cancel_timer();
-        _help_timer = _grtm->run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
-      }
+      check_format_structures(editor);
+      cancel_timer();
+      _help_timer = _grtm->run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
     }
   }
 }

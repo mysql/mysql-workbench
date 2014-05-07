@@ -629,11 +629,9 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
 //--------------------------------------------------------------------------------------------------
 
 /**
- * A stripped down variant as used in the scanner to determine if the given type is an operator
- * for which no help topic exists. We don't do topic lookup though, but use a fixed list as this
- * won't change.
+ * Checks for tokens we know there is no help topic for.
  */
-bool is_operator_without_topic(unsigned type)
+bool is_token_without_topic(unsigned type)
 {
   switch (type)
   {
@@ -646,6 +644,9 @@ bool is_operator_without_topic(unsigned type)
     case AT_SIGN_SYMBOL:
     case AT_AT_SIGN_SYMBOL:
     case PARAM_MARKER:
+    case SINGLE_QUOTED_TEXT:
+    case BACK_TICK_QUOTED_ID:
+    case DOUBLE_QUOTED_TEXT:
       return true;
 
   default:
@@ -686,7 +687,7 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
   size_t index = tokens.size() - 1;
   while (index > 0)
   {
-    if (token.channel != 0 || scanner.is_number(token.type) || is_operator_without_topic(token.type))
+    if (token.channel != 0 || scanner.is_number(token.type) || is_token_without_topic(token.type))
     {
       token = tokens[--index];
       continue;
@@ -1041,6 +1042,19 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
     }
     break;
 
+  case SESSION_SYMBOL:
+    token = get_previous_real_token(tokens, index);
+    switch (token.type)
+    {
+    case SHOW_SYMBOL:
+      topic = "show";
+      break;
+
+    case SET_SYMBOL:
+      topic = "set";
+      break;
+    }
+    break;
   }
 
   return topic; // Could be empty. This is checked at the caller level.
