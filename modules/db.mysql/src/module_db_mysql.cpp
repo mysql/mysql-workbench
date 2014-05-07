@@ -2286,7 +2286,7 @@ public:
             for(size_t c2= views.count(), j= 0; j < c2; j++)
                 objects_sql.append(view_sql(views.get(j)));
 
-            if (!objects_sql.empty() && create_map.has_key(get_old_object_name_for_key(schema, case_sensitive)))
+            if (!objects_sql.empty() && create_map.has_key(get_full_object_name_for_key(schema, case_sensitive)))
             {
               if (!use_short_names || gen_use)
                 out_sql.append("USE `").append(schema->name().c_str()).append("` ;\n");
