@@ -2338,9 +2338,11 @@ Mysql_sql_parser::process_create_trigger_statement(const SqlAstNode *tree)
   // event
   SET_STR_SI(obj->event, trigger_tail, sql::_trg_event)
 
+  /*
   // orientation
   if (trigger_tail->find_subseq(sql::_FOR_SYM, sql::_EACH_SYM, sql::_ROW_SYM))
     obj->orientation("ROW");
+    */
 
   // enabled
   obj->enabled(1);
