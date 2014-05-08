@@ -410,7 +410,7 @@ void Mysql_invalid_sql_parser::create_stub_trigger(db_DatabaseDdlObjectRef &obj)
 
 void Mysql_invalid_sql_parser::shape_trigger(db_mysql_TriggerRef &obj)
 {
-  obj->sequenceNumber(_next_trigger_seqno++);
+  //obj->sequenceNumber(_next_trigger_seqno++);
 }
 
 
@@ -422,11 +422,12 @@ void Mysql_invalid_sql_parser::setup_stub_obj(db_DatabaseDdlObjectRef obj, bool 
 
   if (set_name)
     obj->name(stub_obj_name());
-
+  /*
   if (db_mysql_TriggerRef::can_wrap(obj))
     db_mysql_TriggerRef::cast_from(obj)->sequenceNumber(_next_trigger_seqno++);
-  else if (db_mysql_RoutineRef::can_wrap(obj) && db_RoutineGroupRef::can_wrap(_active_grand_obj))
+  else */if (db_mysql_RoutineRef::can_wrap(obj) && db_RoutineGroupRef::can_wrap(_active_grand_obj))
     db_mysql_RoutineRef::cast_from(obj)->sequenceNumber(_next_group_routine_seqno++);
+
 }
 
 

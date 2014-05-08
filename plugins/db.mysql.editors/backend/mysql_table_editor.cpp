@@ -436,12 +436,12 @@ public:
   {
     _rtable.remove(_editor->get_sql_editor()->get_container());
   }
-
+  /*
   static bool compare_order(db_TriggerRef a, db_TriggerRef b)
   {
     return a->order() > b->order();
   }
-  
+  */
   void refresh()
   {
     _refreshing = true;

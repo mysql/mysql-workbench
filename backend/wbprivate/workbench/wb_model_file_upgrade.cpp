@@ -668,36 +668,14 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
           ListRef<db_Table> tables= schema->tables();
           for (size_t c= tables.count(), i= 0; i < c; i++)
           {
-              db_TableRef table= tables[i];
+              db_TableRef table = tables[i];
+              grt::ListRef<db_Trigger> triggers = table->triggers();
 
-              std::string triggers_sql;
-
-              triggers_sql.append(strfmt("DELIMITER %s\n\n", non_std_sql_delimiter.c_str())).append(
-                  "USE `").append(table->owner()->name()).append("`").
-                  append(non_std_sql_delimiter.c_str()).append("\n\n");
-
-              grt::ListRef<db_Trigger> triggers= table->triggers();
-              size_t triggers_count= triggers.count();
-              typedef std::map<ssize_t, db_TriggerRef> OrderedTriggers;
-              typedef std::list<db_TriggerRef> UnorderedTriggers;
-              OrderedTriggers ordered_triggers;
-              UnorderedTriggers unordered_triggers;
-
-              for (size_t i= 0; i < triggers_count; ++i)
+              for (size_t i = 0; i < triggers.count(); ++i)
               {
-                  db_TriggerRef trigger= triggers.get(i);
-                  ssize_t sequenceNumber= trigger->sequenceNumber();
-                  if (ordered_triggers.find(sequenceNumber) == ordered_triggers.end())
-                      ordered_triggers[sequenceNumber]= trigger;
-                  else
-                      unordered_triggers.push_back(trigger);
+                db_TriggerRef trigger = triggers.get(i);
+                sql_parser->parse_trigger(trigger, trigger->sqlDefinition());
               }
-
-              for (OrderedTriggers::iterator i= ordered_triggers.begin(), i_end= ordered_triggers.end(); i != i_end; ++i)
-                  sql_parser->parse_trigger(i->second, i->second->sqlDefinition());
-
-              for (UnorderedTriggers::iterator i= unordered_triggers.begin(), i_end= unordered_triggers.end(); i != i_end; ++i)
-                  sql_parser->parse_trigger(*i, (*i)->sqlDefinition());
           }
 
           ListRef<db_View> views = schema->views();
