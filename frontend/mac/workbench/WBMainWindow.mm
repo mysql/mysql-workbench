@@ -509,6 +509,8 @@ void setup_mforms_app(WBMainWindow *mwin);
     else
       [NSApp setMainMenu: _defaultMainMenu];
 
+    mforms::App::get()->view_switched();
+
     [tabSwitcher setNeedsDisplay:YES];
   }
   

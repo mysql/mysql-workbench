@@ -84,7 +84,7 @@ bool TabViewDockingPointDelegate::select_view(mforms::AppView *view)
 void TabViewDockingPointDelegate::undock_view(mforms::AppView *view)
 {
   NSInteger i = [_tabView indexOfTabViewItemWithIdentifier: [NSString stringWithFormat: @"appview:%p", view]];
-  if (i >= 0)
+  if (i != NSNotFound)
   {
     NSTabViewItem *item = [_tabView tabViewItemAtIndex: i];
     if (item)
