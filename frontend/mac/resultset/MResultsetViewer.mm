@@ -33,6 +33,24 @@ static NSImage *descendingSortIndicator= nil;
 
 @implementation MResultsetViewer
 
+
+
+// for use by mforms
+static const char *viewFlagsKey = "viewFlagsKey";
+
+- (NSInteger)viewFlags
+{
+  NSNumber *value = objc_getAssociatedObject(self, viewFlagsKey);
+  return value.intValue;
+}
+
+- (void)setViewFlags: (NSInteger)value
+{
+  objc_setAssociatedObject(self, viewFlagsKey, @(value), OBJC_ASSOCIATION_RETAIN);
+}
+//
+
+
 - (void)rebuildColumns
 {
   for (id column in [[mTableView tableColumns] reverseObjectEnumerator])
@@ -212,6 +230,8 @@ static void selected_record_changed(MResultsetViewer *self)
     [mTableView selectionChangedActionTarget:self];
     [mTableView setSelectionChangedAction:@selector(handleNSTableViewSelectionIsChangingNotification:)];
     [mTableView setAllowsMultipleSelection: YES];
+
+    [[mTableView enclosingScrollView] setBorderType: NSNoBorder];
     
     mforms::ToolBar *tbar = (*mData)->get_toolbar();
     if (tbar->find_item("record_edit"))

@@ -105,6 +105,9 @@ namespace mforms {
     
     /** Closes the AppView as if the user clicks its close button */
     bool close_view(AppView *view);
+
+    /** Calls close_view on all docked views, unless one of them returns false */
+    bool close_all_views();
     
     /** Sets the title of a previously docked AppView. 
      
