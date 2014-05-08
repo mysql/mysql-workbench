@@ -328,13 +328,14 @@ static void open_file(Sql_editor *sql_editor)
 
     if (g_file_get_contents(file.c_str(), &contents, &length, &error))
     {
-      std::string converted;
+      char *converted;
 
       mforms::CodeEditor* code_editor = sql_editor->get_editor_control();
       if (FileCharsetDialog::ensure_filedata_utf8(contents, length, "", file, converted))
       {
+        code_editor->set_text_keeping_state(converted ? converted : contents);
         g_free(contents);
-        code_editor->set_text_keeping_state(converted.c_str());
+        g_free(converted);
       }
       else
       {
@@ -714,6 +715,15 @@ void Sql_editor::char_added(int char_code)
 
 //--------------------------------------------------------------------------------------------------
 
+void Sql_editor::cancel_auto_completion()
+{
+  // make sure a pending timed autocompletion won't kick in after we cancel it
+  d->_last_typed_char = 0;
+  _code_editor->auto_completion_cancel();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void Sql_editor::dwell_event(bool started, int position, int x, int y)
 {
   if (started)
@@ -879,7 +889,9 @@ int Sql_editor::on_sql_check_progress(float progress, const std::string &msg, in
   if (auto_start_code_completion() && !_code_editor->auto_completion_active() &&
     (g_unichar_isalnum(d->_last_typed_char)
      || d->_last_typed_char == '.'
-     || d->_last_typed_char == ' '))
+     /* do not try to autocomplete after a space. The filtering is too weak, so we always get a keyword list that's
+      too long to be useful for anything
+      || d->_last_typed_char == ' '*/))
   {
     d->_last_typed_char = 0;
     show_auto_completion(false);

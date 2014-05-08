@@ -98,11 +98,17 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
 
     switch (tabType)
     {
+      case mforms::TabViewSystemStandard:
+        break;
       case mforms::TabViewTabless:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         break;
-      case mforms::TabViewMainClosable:
-        //[self doCustomize];
+      case mforms::TabViewDocumentClosable:
+        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
+        [mTabSwitcher setTabStyle: MEditorTabSwitcher];
+        tabSwitcherBelow = NO;
+        [mTabSwitcher setTabView: mTabView];
         break;
       case mforms::TabViewPalette:
         [mTabView setControlSize: NSSmallControlSize];
@@ -246,7 +252,7 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
 
 - (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)item
 {
-  if (mOwner->get_type() == mforms::TabViewEditorBottom)
+  if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewDocumentClosable)
     return YES;
   return NO;
 }
@@ -254,7 +260,7 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
 
 - (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)item
 {
-  if (mOwner->get_type() == mforms::TabViewEditorBottom)
+  if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewDocumentClosable)
   {
     return mOwner->can_close_tab([mTabView indexOfTabViewItem: item]);
   }
@@ -387,7 +393,7 @@ static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
 
 static void tabview_set_allow_reordering(::mforms::TabView *self, bool flag)
 {
-  if (self->get_type() != mforms::TabViewEditorBottom)
+  if (self->get_type() != mforms::TabViewEditorBottom || self->get_type() == mforms::TabViewDocumentClosable)
     throw std::invalid_argument("TabView is not of a reorderable type\n");
 
   MFTabViewImpl* tabView = self->get_data();

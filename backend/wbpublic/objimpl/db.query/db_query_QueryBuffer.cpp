@@ -169,8 +169,6 @@ grt::IntegerRef db_query_QueryBuffer::replaceContents(const std::string &text)
     Sql_editor::Ref editor(_data->editor.lock());
     editor->set_refresh_enabled(true);
     editor->sql(text.c_str());
-    // no longer needed
-    // db_query_EditorRef::cast_from(owner())->get_data()->refresh_editor(editor);
   }
   return grt::IntegerRef(0);
 }

@@ -32,6 +32,7 @@
 #include "mforms/utilities.h"
 #include "mforms/filechooser.h"
 
+#include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/boost_smart_ptr_helpers.h"
 #include "sqlite/command.hpp"
@@ -39,6 +40,8 @@
 #include <fstream>
 
 #include "recordset_text_storage.h"
+
+DEFAULT_LOG_DOMAIN("Recordset")
 
 using namespace bec;
 using namespace base;
@@ -182,7 +185,7 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
     CATCH_AND_DISPATCH_EXCEPTION(rethrow, "Reset recordset")
   }
 
-  refresh_ui_status_bar();
+  data_edited();
   refresh_ui();
 
   return res;
@@ -213,7 +216,7 @@ bool Recordset::can_close(bool interactive)
   if (!res && interactive)
   {
     int r= mforms::Utilities::show_warning(_("Close Recordset"),
-      strfmt(_("There are unsaved changed to the recordset data: %s. Do you want to apply them before closing?"), _caption.c_str()),
+      strfmt(_("There are unsaved changes to the recordset data: %s. Do you want to apply them before closing?"), _caption.c_str()),
       _("Apply"), _("Cancel"), _("Don't Apply"));
     switch (r)
     {
@@ -267,10 +270,12 @@ void Recordset::rollback()
 }
 
 
-void Recordset::refresh_ui_status_bar()
+void Recordset::data_edited()
 {
   if (_grtm->in_main_thread())
-    refresh_ui_status_bar_signal();
+    data_edited_signal();
+  else
+    log_debug2("data_edited called from thread\n");
 }
 
 
@@ -369,7 +374,7 @@ void Recordset::after_set_field(const NodeId &node, int column, const sqlite::va
 {
   VarGridModel::after_set_field(node, column, value);
   mark_dirty(node[0], column, value);
-  refresh_ui_status_bar();
+  data_edited();
   tree_changed();
 }
 
@@ -507,7 +512,7 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
   if (rows_changed)
     rows_changed();
 
-  refresh_ui_status_bar();
+  data_edited();
 
   return true;
 }
@@ -636,7 +641,7 @@ int Recordset::on_apply_changes_finished()
   task->finish_cb(GrtThreadedTask::Finish_cb());
   if (rows_changed)
     rows_changed();
-  refresh_ui_status_bar();
+  data_edited();
   return refresh_ui();
 }
 

@@ -87,8 +87,8 @@ public:
   typedef boost::function<grt::StringRef (grt::GRT *)> Proc_cb;
   typedef boost::function<int (int, const std::string&, const std::string&)> Msg_cb;
   typedef boost::function<int (float, const std::string&)> Progress_cb;
-  typedef boost::function<int ()> Finish_cb;
-  typedef boost::function<int (const std::string&)> Fail_cb;
+  typedef boost::function<void ()> Finish_cb;
+  typedef boost::function<void (const std::string&)> Fail_cb;
 
 public:
   void exec(bool sync= false, Proc_cb proc_cb= Proc_cb());

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,6 @@
 @class WBSplitViewUnbrokenizerDelegate;
 @class WBMiniToolbar;
 @class GRTListDataSource;
-@class WBQueryTab;
 
 namespace mforms
 {
@@ -87,15 +86,9 @@ namespace mforms
 
 - (void)addEditor:(WBBasePanel*)editor;
 
-//- (void)executeQuery:(id)sender currentStatementOnly: (bool) currentStatementOnly;
 - (id)initWithBE:(const SqlEditorForm::Ref&)be;
-- (Sql_editor::Ref)activeEditor;
-- (WBQueryTab*)activeQueryTab;
-- (WBQueryTab*)queryTabForBackEndIndex:(int)index;
-- (void)addSQLEditorTabWithBackEndIndex:(int)index;
 - (void)setRightSidebar:(BOOL)flag;
 - (void)flushOutputBuffer;
-- (void)activateBusyAnimationForActiveEditor;
 
 @end
 

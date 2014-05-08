@@ -22,7 +22,7 @@
 
 #include "workbench/wb_backend_public_interface.h"
 
-#include "mforms/box.h"
+#include "mforms/appview.h"
 
 #include "sqlide/recordset_be.h"
 
@@ -38,32 +38,37 @@ namespace mforms
   class TreeNodeView;
 };
 
-class SqlEditorForm;
+class SqlEditorPanel;
 
 class ResultFormView;
 
-class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorResult : public mforms::Box
+class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorResult : public mforms::AppView
 {
-  SqlEditorForm *_owner;
+  SqlEditorPanel *_owner;
   Recordset::Ptr _rset;
 
-  SqlEditorResult(SqlEditorForm *owner, Recordset::Ref rset);
-
 public:
-  typedef boost::shared_ptr<SqlEditorResult> Ref;
+  SqlEditorResult(SqlEditorPanel *owner, Recordset::Ref rset);
 
-  static Ref create(SqlEditorForm *owner, Recordset::Ref rset);
   virtual ~SqlEditorResult();
 
   Recordset::Ref recordset() const;
 
   std::string caption() const;
 
+  virtual bool can_close();
+  virtual void close();
+
   void show_export_recordset();
   void show_import_recordset();
   
   void dock_result_grid(mforms::View *view);
   mforms::View *result_grid() { return _result_grid; }
+
+  void apply_changes();
+  void discard_changes();
+  bool has_pending_changes();
+
 private:
   int _column_info_tab;
   int _query_stats_tab;

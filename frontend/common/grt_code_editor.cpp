@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@ GRTCodeEditor::GRTCodeEditor(GRTShellWindow *owner, bool module, const std::stri
 
   add(&_top, true, true);
 
-  scoped_connect(_text.signal_changed(),boost::bind(&GRTCodeEditor::text_changed, this, _1, _2));  
+  scoped_connect(_text.signal_changed(),boost::bind(&GRTCodeEditor::text_changed, this, _1, _2));
 }
 
 
@@ -221,6 +221,7 @@ bool GRTCodeEditor::can_close()
 
   return true;
 }
+
 //--------------------------------------------------------------------------------------------------
 
 #ifdef _DEBUG

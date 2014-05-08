@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -83,7 +83,7 @@ std::string FileCharsetDialog::run()
 bool FileCharsetDialog::ensure_filedata_utf8(const char *data, size_t length,
                                              const std::string &encoding,                                             
                                              const std::string &filename,
-                                             std::string &output_str,
+                                             char *&utf8_data,
                                              std::string *original_encoding)
 {
   // Byte order marks.
@@ -93,10 +93,10 @@ bool FileCharsetDialog::ensure_filedata_utf8(const char *data, size_t length,
   const char *utf32be_bom= "\0\0\xfe\xff";
   const char *utf8_bom= "\xef\xbb\xbf";
 
-  const gchar *end;
+  size_t utf8_data_length = 0;
+  const gchar *end = NULL;
   bool retrying = false;
 retry:
-  
   if (!g_utf8_validate(data, length, &end))
   {
     std::string default_encoding = "LATIN1";
@@ -178,8 +178,8 @@ retry:
         g_error_free(error);
       if (res == ResultOk)
       {
-        data= converted;
-        length= bytes_written;
+        utf8_data = converted;
+        utf8_data_length = bytes_written;
         // Proceed to an eventual BOM removal.
       }
       else
@@ -193,24 +193,25 @@ retry:
     }
     else
     {
-      data = converted; // We still need to go through the following BOM check.
-      length = bytes_written;
+      utf8_data = converted; // We still need to go through the following BOM check.
+      utf8_data_length = bytes_written;
     }
     if (original_encoding)
       *original_encoding = charset;
     
     // Check (again) for a byte-order-mark and skip it if there is one.
     // We only have UTF-8 now, so only the BOM for this encoding is checked.
-    if ((length >= 3) && (strncmp(data, utf8_bom, 3) == 0))
-      output_str = std::string(data + 3, length - 3);
-    else
-      output_str = std::string(data, length);
-    g_free(converted);
+    if ((utf8_data_length >= 3) && (strncmp(utf8_data, utf8_bom, 3) == 0))
+    {
+      memmove(utf8_data, utf8_data+3, utf8_data_length-3);
+      utf8_data[utf8_data_length-3] = '\0';
+    }
   }
   else
   {
     // data is already utf8
-    output_str = std::string(data, length);
+    utf8_data = NULL;
+    utf8_data_length = 0;
   }
 
   return true;
