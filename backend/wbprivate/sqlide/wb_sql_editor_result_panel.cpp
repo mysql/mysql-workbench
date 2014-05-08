@@ -19,6 +19,7 @@
 
 #include "stdafx.h"
 #include "wb_sql_editor_form.h"
+#include "wb_sql_editor_panel.h"
 #include "wb_sql_editor_result_panel.h"
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "sqlide/recordset_cdbc_storage.h"
@@ -41,6 +42,7 @@
 #include "mforms/toolbar.h"
 #include "mforms/scrollpanel.h"
 #include "mforms/menubar.h"
+#include "mforms/record_grid.h"
 
 #include "mforms/button.h"
 #include "mforms/selector.h"
@@ -645,8 +647,8 @@ public:
 
 
 
-SqlEditorResult::SqlEditorResult(SqlEditorForm *owner, Recordset::Ref rset)
-: mforms::Box(true), _owner(owner), _rset(rset), _column_info_tab(-1), _query_stats_tab(-1), _switcher(NULL)
+SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner, Recordset::Ref rset)
+: mforms::AppView(true, "QueryResult", false), _owner(owner), _rset(rset), _column_info_tab(-1), _query_stats_tab(-1), _switcher(NULL)
 {
   _result_grid = NULL;
   _column_info_menu = NULL;
@@ -654,15 +656,16 @@ SqlEditorResult::SqlEditorResult(SqlEditorForm *owner, Recordset::Ref rset)
   _query_stats_created = false;
   _form_view_created = false;
 
+  set_on_close(boost::bind(&SqlEditorResult::can_close, this));
+
   _tabview = mforms::manage(new mforms::TabView(mforms::TabViewTabless));
   add(_tabview, true, true);
 
   _switcher = mforms::manage(new mforms::TabSwitcher(mforms::VerticalIconSwitcher));
   _switcher->attach_to_tabview(_tabview);
-  _switcher->set_collapsed(_owner->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
+  _switcher->set_collapsed(_owner->owner()->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
 
   add(_switcher, false, true);
-
   
   rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_export_recordset, this));
   if (rset->get_toolbar()->find_item("record_import"))
@@ -670,17 +673,15 @@ SqlEditorResult::SqlEditorResult(SqlEditorForm *owner, Recordset::Ref rset)
   
   _switcher->signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
   _switcher->signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
+
+  if (rset)
+    dock_result_grid(mforms::manage(mforms::RecordGrid::create(rset)));
 }
 
 
 SqlEditorResult::~SqlEditorResult()
 {
   delete _column_info_menu;
-}
-
-SqlEditorResult::Ref SqlEditorResult::create(SqlEditorForm *owner, Recordset::Ref rset)
-{
-  return Ref(new SqlEditorResult(owner, rset));
 }
 
 
@@ -690,12 +691,52 @@ Recordset::Ref SqlEditorResult::recordset() const
 }
 
 
+bool SqlEditorResult::has_pending_changes()
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+    return rset->has_pending_changes();
+  return false;
+}
+
+
+void SqlEditorResult::apply_changes()
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+    rset->apply_changes();
+}
+
+
+void SqlEditorResult::discard_changes()
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+    rset->rollback();
+}
+
+
 std::string SqlEditorResult::caption() const
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs, "")
   {
     return rs->caption();
   }
+}
+
+
+bool SqlEditorResult::can_close()
+{
+  if (Recordset::Ref rs = recordset())
+    return rs->can_close(true);
+  return false;
+}
+
+
+void SqlEditorResult::close()
+{// called by DockingPoint::close_view()
+  if (Recordset::Ref rs = recordset())
+    rs->close();
 }
 
 
@@ -717,7 +758,7 @@ void SqlEditorResult::switch_tab()
     if (!_form_view_created)
     {
       _form_view_created = true;
-      _form_result_view->init_for_resultset(_rset, _owner);
+      _form_result_view->init_for_resultset(_rset, _owner->owner());
     }
     _form_result_view->display_record();
   }
@@ -753,14 +794,14 @@ void SqlEditorResult::switcher_collapsed()
   }
   relayout();
   
-  bec::GRTManager *grtm = _owner->grt_manager();
+  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   grtm->set_app_option("Recordset:SwitcherCollapsed", grt::IntegerRef(state?1:0));
 }
 
 
 void SqlEditorResult::show_export_recordset()
 {
-  bec::GRTManager *grtm = _owner->grt_manager();
+  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   try
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, _rset, rs)
@@ -797,16 +838,15 @@ void SqlEditorResult::show_export_recordset()
 
 void SqlEditorResult::show_import_recordset()
 {
-  bec::GRTManager *grtm = _owner->grt_manager();
+  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   try
   {
-    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, _rset, rs)
-    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Sql_editor, dynamic_cast<SqlEditorForm::RecordsetData*>(rs->client_data())->editor, editor)
+    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
     {
       grt::BaseListRef args(grtm->get_grt());
 
       db_query_ResultsetRef rset;
-      db_query_QueryEditorRef qeditor(db_query_QueryEditorRef::cast_from(editor->grtobj()));
+      db_query_QueryEditorRef qeditor(_owner->grtobj());
       for (size_t c = qeditor->resultsets().count(), i = 0; i < c; i++)
       {
         if (dynamic_cast<WBRecordsetResultset*>(qeditor->resultsets()[i]->get_data())->recordset.get() == rs)
@@ -956,7 +996,7 @@ void SqlEditorResult::create_column_info_panel()
 
     box->add(tbar, false, true);
     
-    if (_owner->collect_field_info())
+    if (_owner->owner()->collect_field_info())
     {
       mforms::TreeNodeView *tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList|mforms::TreeAltRowColors|mforms::TreeShowRowLines|mforms::TreeShowColumnLines|mforms::TreeNoBorder));
       tree->add_column(mforms::IntegerColumnType, "#", 50);

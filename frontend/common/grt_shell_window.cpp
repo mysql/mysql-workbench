@@ -150,7 +150,7 @@ _lower_tab(mforms::TabViewDocument),
     _pause_button->set_enabled(false);
   }  
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
   // TODO: remove as soon as all platforms support closable tabs.
   _close_script_tab_button = add_tool_button("Discard.png", boost::bind(&GRTShellWindow::close_tab, this),
     _("Close this script tab"), false);
@@ -354,7 +354,6 @@ _lower_tab(mforms::TabViewDocument),
   _main_tab.add_page(&_snippet_splitter, "Snippets");
 
   scoped_connect(_main_tab.signal_tab_closing(),boost::bind(&GRTShellWindow::on_tab_closing, this, _1));
-  scoped_connect(_main_tab.signal_tab_closed(),boost::bind(&GRTShellWindow::on_tab_closed, this, _1));
   scoped_connect(_main_tab.signal_tab_changed(),boost::bind(&GRTShellWindow::on_tab_changed, this));
 
   //
@@ -1243,9 +1242,12 @@ void GRTShellWindow::set_editor_title(GRTCodeEditor *editor, const std::string &
 bool GRTShellWindow::request_quit()
 {
   for (std::vector<GRTCodeEditor*>::iterator editor = _editors.begin(); editor != _editors.end(); editor++)
+  {
     if (!(*editor)->can_close())
       return false;
-
+    else
+      close_editor(*editor);
+  }
   return true;
 }
 
@@ -1441,15 +1443,12 @@ bool GRTShellWindow::on_tab_closing(int index)
     return false;
 
   GRTCodeEditor* editor = _editors[index - EDITOR_TAB_OFFSET];
-  return editor->can_close();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void GRTShellWindow::on_tab_closed(int index)
-{
-  GRTCodeEditor* editor = _editors[index - EDITOR_TAB_OFFSET];
-  close_editor(editor);
+  if (editor->can_close())
+  {
+    close_editor(editor);
+    return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------

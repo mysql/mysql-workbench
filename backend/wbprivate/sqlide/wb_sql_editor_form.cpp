@@ -23,13 +23,15 @@
 
 #include "grtdb/db_helpers.h"
 #include "grtsqlparser/sql_facade.h"
-#include "grtui/confirm_save_dialog.h"
 #include "grtdb/editor_dbobject.h"
 #include "grtdb/db_object_helpers.h"
+
+#include "grtui/confirm_save_dialog.h"
 
 #include "sqlide/recordset_be.h"
 #include "sqlide/recordset_cdbc_storage.h"
 #include "sqlide/wb_sql_editor_snippets.h"
+#include "sqlide/wb_sql_editor_panel.h"
 #include "sqlide/wb_sql_editor_result_panel.h"
 #include "sqlide/wb_sql_editor_tree_controller.h"
 #include "sqlide/sql_script_run_wizard.h"
@@ -165,6 +167,15 @@ SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mg
   return instance;
 }
 
+
+void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp)
+{
+  _tabdock = dp;
+
+  scoped_connect(_tabdock->signal_view_switched(), boost::bind(&SqlEditorForm::sql_editor_panel_switched, this));
+}
+
+
 void SqlEditorForm::report_connection_failure(const std::string &error, const db_mgmt_ConnectionRef &target)
 {
   std::string message;
@@ -196,13 +207,12 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _menu(NULL),  // Please use NULL where pointers are assigned, not 0, to avoid confusing the param with ctor flags or similar!
   _toolbar(NULL),
   _autosave_lock(NULL),
+  _tabdock(NULL),
   _autosave_disabled(false),
   _loading_workspace(false),
   _cancel_connect(false),
   _sql_editors_serial(0),
   _scratch_editors_serial(0),
-  _active_sql_editor_index(0),
-  _updating_sql_editor(0),
   _keep_alive_thread(NULL),
   _connection(conn),
   _aux_dbc_conn(new sql::Dbc_connection_handler()),
@@ -230,8 +240,6 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   exec_sql_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, this, _1, _2, _3, ""));
 
   _last_log_message_timestamp = timestamp();
-
-  _progress_status_update_interval= (_grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500))/(double)1000;
 
   int keep_alive_interval= _grtm->get_app_option_int("DbSqlEditor:KeepAliveInterval", 600);
   if (keep_alive_interval != 0)
@@ -306,7 +314,14 @@ void SqlEditorForm::finish_startup()
   // refresh snippets again, in case the initial load from DB is pending for shared snippets
   _side_palette->refresh_snippets();
 
-  GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", wbsql()->get_grt_editor_object(this), grt::DictRef());
+  GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+db_query_EditorRef SqlEditorForm::grtobj()
+{
+  return wbsql()->get_grt_editor_object(this);
 }
 
 //-------------------------------------------------------------------------------------------------- 
@@ -331,7 +346,7 @@ void SqlEditorForm::restore_last_workspace()
   if (!name.empty())
     load_workspace(sanitize_file_name(name));
 
-  if (_sql_editors.empty())
+  if (_tabdock->view_count() == 0)
     new_sql_scratch_area(false);
 
   // Gets the title for a NEW editor
@@ -353,14 +368,10 @@ SqlEditorForm::~SqlEditorForm()
 {
   if (_auto_completion_cache)
     _auto_completion_cache->shutdown();
-  
-  {
-    // Ensure all processing is stopped before freeing the info structure, otherwise references
-    // are kept that prevent the correct deletion of the editor.
-    MutexLock sql_editors_mutex(_sql_editors_mutex);
-    BOOST_FOREACH (Sql_editor_info::Ref sql_editor_info, _sql_editors)
-      sql_editor_info->editor->stop_processing();
-  }
+
+  // debug: ensure that close() was called when the tab is closed
+  if (_toolbar != NULL)
+    log_fatal("SqlEditorForm::close() was not called\n");
 
   NotificationCenter::get()->remove_observer(this);
   GRTNotificationCenter::get()->remove_grt_observer(this);
@@ -378,7 +389,6 @@ SqlEditorForm::~SqlEditorForm()
 
   delete _toolbar;
   delete _menu;
-  reset();
 
   reset_keep_alive_thread();
 }
@@ -448,15 +458,6 @@ void SqlEditorForm::reset_keep_alive_thread()
     _keep_alive_thread= NULL;
   }
 }
-
-
-void SqlEditorForm::jump_to_placeholder()
-{
-  int editor = active_sql_editor_index();
-  if (editor >= 0)
-    sql_editor(editor)->get_editor_control()->jump_to_next_placeholder();
-}
-
 
 grt::StringRef SqlEditorForm::do_disconnect(grt::GRT *grt)
 {
@@ -538,6 +539,15 @@ void SqlEditorForm::close()
       base_rmdir_recursively(_autosave_path.c_str());
   }
 
+  // Ensure all processing is stopped before freeing the info structure, otherwise references
+  // are kept that prevent the correct deletion of the editor.
+  for (size_t c = _tabdock->view_count(), i = 0; i < c; i++)
+  {
+    SqlEditorPanel *p = sql_editor_panel(i);
+    if (p)
+      p->editor_be()->stop_processing();
+  }
+
   _grtm->replace_status_text("Closing SQL Editor...");
   wbsql()->editor_will_close(this);
 
@@ -602,6 +612,17 @@ std::string SqlEditorForm::fetch_data_from_stored_procedure(std::string proc_cal
   return ret_val;
 }
 
+
+void SqlEditorForm::update_sql_mode_for_editors()
+{
+  for (int c = sql_editor_count(), i = 0; i < c; i++)
+  {
+    SqlEditorPanel *panel = sql_editor_panel(i);
+    if (panel)
+      panel->editor_be()->sql_mode(_sql_mode);
+  }
+}
+
 void SqlEditorForm::cache_sql_mode()
 {
   std::string sql_mode;
@@ -610,9 +631,8 @@ void SqlEditorForm::cache_sql_mode()
     if (sql_mode != _sql_mode)
     {
       _sql_mode= sql_mode;
-      MutexLock sql_editors_mutex(_sql_editors_mutex);
-      BOOST_FOREACH (Sql_editor_info::Ref sql_editor_info, _sql_editors)
-        sql_editor_info->editor->sql_mode(sql_mode);
+
+      _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_sql_mode_for_editors, this));
     }
   }
 }
@@ -666,34 +686,25 @@ void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::st
 }
 
 
-int SqlEditorForm::run_sql_in_scratch_tab(const std::string &sql, bool reuse_if_possible, bool start_collapsed)
+SqlEditorPanel* SqlEditorForm::run_sql_in_scratch_tab(const std::string &sql, bool reuse_if_possible, bool start_collapsed)
 {
-  if (_active_sql_editor_index < 0 || !reuse_if_possible || !sql_editor_is_scratch(_active_sql_editor_index))
-    new_sql_scratch_area(start_collapsed);
-  set_sql_editor_text(sql.c_str());
-  run_editor_contents(false);
-  sql_editor(_active_sql_editor_index)->get_editor_control()->reset_dirty();
-  
-  return _active_sql_editor_index;
-}
+  SqlEditorPanel *editor;
 
-/**
- * Starts the auto completion list in the currently active editor. The content of this list is
- * determined from various sources + the current query context.
- */
-void SqlEditorForm::list_members()
-{
-  Sql_editor::Ref editor = active_sql_editor();
-  if (editor)
-    editor->show_auto_completion(true);
+  if (!(editor = active_sql_editor_panel()) || !reuse_if_possible || !editor->is_scratch())
+    editor = new_sql_scratch_area(start_collapsed);
+  editor->editor_be()->get_editor_control()->set_text(sql.c_str());
+  run_editor_contents(false);
+  editor->editor_be()->get_editor_control()->reset_dirty();
+  
+  return editor;
 }
 
 void SqlEditorForm::reset()
 {
   //_log->reset();
-  Sql_editor::Ref editor = active_sql_editor();
-  if (editor)
-    editor->cancel_auto_completion();
+  SqlEditorPanel *panel = active_sql_editor_panel();
+  if (panel)
+    panel->editor_be()->cancel_auto_completion();
 }
 
 
@@ -729,7 +740,9 @@ void SqlEditorForm::refresh_log_messages(bool ignore_last_message_timestamp)
     if (!ignore_last_message_timestamp)
     {
       double now= timestamp();
-      if (_last_log_message_timestamp + _progress_status_update_interval < now)
+      int progress_status_update_interval = _grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000;
+
+      if (_last_log_message_timestamp + progress_status_update_interval < now)
         is_refresh_needed= true;
       _last_log_message_timestamp = now;
     }
@@ -741,46 +754,6 @@ void SqlEditorForm::refresh_log_messages(bool ignore_last_message_timestamp)
   }
 }
 
-
-int SqlEditorForm::recordset_count(int editor)
-{
-  if (editor >= 0 && editor < (int)_sql_editors.size())
-    return sql_editor_recordsets(editor)->size();
-  return 0;
-}
-
-Recordset::Ref SqlEditorForm::recordset(int editor, int index)
-{
-  if (editor >= 0 && editor < (int)_sql_editors.size())
-  {
-    return _sql_editors[editor]->recordsets->at(index);
-  }
-  return Recordset::Ref();
-}
-
-
-boost::shared_ptr<SqlEditorResult> SqlEditorForm::result_panel(Recordset::Ref rset)
-{
-   RecordsetData *rdata = dynamic_cast<RecordsetData*>(rset->client_data());
-   if (!rdata->result_panel)
-      rdata->result_panel = SqlEditorResult::create(this, rset);
-   return rdata->result_panel;
-}
-
-
-Recordset::Ref SqlEditorForm::recordset_for_key(int editor, long key)
-{
-  if (editor >= 0 && editor < (int)_sql_editors.size())
-  {
-    RecordsetsRef rsets = sql_editor_recordsets(editor);
-    for (Recordsets::iterator rend = rsets->end(), rec = rsets->begin(); rec != rend; ++rec)
-    {
-      if ((*rec)->key() == key)
-        return *rec;
-    }
-  }
-  return Recordset::Ref();
-}
 
 void SqlEditorForm::init_connection(sql::Connection* dbc_conn_ref, const db_mgmt_ConnectionRef& connectionProperties, sql::Dbc_connection_handler::Ref& dbc_conn, bool user_connection)
 {
@@ -1030,7 +1003,7 @@ void SqlEditorForm::update_connected_state()
 {
   grt::DictRef args(_grtm->get_grt());
   args.gset("connected", connected());
-  GRTNotificationCenter::get()->send_grt("GRNSQLEditorReconnected", wbsql()->get_grt_editor_object(this), args);
+  GRTNotificationCenter::get()->send_grt("GRNSQLEditorReconnected", grtobj(), args);
 
   update_menu_and_toolbar();
 }
@@ -1109,7 +1082,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       _version = parse_version(grt, _connection_details["dbmsProductVersion"]);
       _version->name(grt::StringRef(_connection_details["dbmsProductName"]));
 
-      db_query_EditorRef editor(_wbsql->get_grt_editor_object(this));
+      db_query_EditorRef editor(grtobj());
       if (editor.is_valid()) // this will be valid only on reconnections
         editor->serverVersion(_version);
 
@@ -1425,24 +1398,24 @@ void SqlEditorForm::cancel_query()
 
 void SqlEditorForm::commit()
 {
-  exec_sql_retaining_editor_contents("COMMIT", Sql_editor::Ref(), false);
+  exec_sql_retaining_editor_contents("COMMIT", NULL, false);
 }
 
 
 void SqlEditorForm::rollback()
 {
-  exec_sql_retaining_editor_contents("ROLLBACK", Sql_editor::Ref(), false);
+  exec_sql_retaining_editor_contents("ROLLBACK", NULL, false);
 }
 
 
 void SqlEditorForm::explain_sql()
 {
   int start, end;
-  Sql_editor::Ref sql_editor_= active_sql_editor();
-  if (sql_editor_)
+  SqlEditorPanel *panel = active_sql_editor_panel();
+  if (panel)
   {
-    sql_editor_->selected_range(start, end);
-    std::string sql= sql_editor_->sql();
+    panel->editor_be()->selected_range(start, end);
+    std::string sql= panel->editor_be()->sql();
     if (start != end)
       sql= sql.substr(start, end-start);
 
@@ -1453,9 +1426,9 @@ void SqlEditorForm::explain_sql()
 
 void SqlEditorForm::explain_current_statement()
 {
-  Sql_editor::Ref sql_editor_= active_sql_editor();
-  if (sql_editor_)
-    do_explain_sql(sql_editor_->current_statement());
+  SqlEditorPanel *panel = active_sql_editor_panel();
+  if (panel)
+    do_explain_sql(panel->editor_be()->current_statement());
 }
 
 
@@ -1470,41 +1443,47 @@ void SqlEditorForm::do_explain_sql(const std::string &sql)
     if (Sql_syntax_check::sql_select == sql_syntax_check->determine_statement_type(*i))
       sql_script+= "EXPLAIN " + *i + ";\n";
 
-  exec_sql_retaining_editor_contents(sql_script, active_sql_editor(), false);
+  exec_sql_retaining_editor_contents(sql_script, active_sql_editor_panel(), false);
 }
 
+static void dummy()
+{
+}
 
-void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_script, Sql_editor::Ref editor, bool sync, bool dont_add_limit_clause)
+// Should actually be called _retaining_old_recordsets
+void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_script, SqlEditorPanel* editor, bool sync, bool dont_add_limit_clause)
 {
   auto_save();
 
   if (!connected())
     throw grt::db_not_connected("Not connected");
   
-  RecordsetsRef recordsets;
-  int i = sql_editor_index(editor);
-  if (i >= 0)
-    recordsets = sql_editor_recordsets(i);
+  if (editor)
+  {
+    editor->query_started(true);
+    exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor));
+    exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1));
+  }
   else
-    recordsets = RecordsetsRef(new Recordsets());  
-  
+  {
+    exec_sql_task->finish_cb(boost::bind(dummy));
+    exec_sql_task->fail_cb(boost::bind(dummy));
+  }
+
   exec_sql_task->exec(sync,
     boost::bind(&SqlEditorForm::do_exec_sql, this, _1,
                weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
-               editor,(ExecFlags)(Retaining | (dont_add_limit_clause?DontAddLimitClause:0)),
-               recordsets));
+               editor, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0),
+               RecordsetsRef()));
 }
+
 
 void SqlEditorForm::run_editor_contents(bool current_statement_only)
 {
-  Sql_editor::Ref editor(active_sql_editor());
-  if (editor)
+  SqlEditorPanel *panel(active_sql_editor_panel());
+  if (panel)
   {
-    if (exec_editor_sql(editor, false, current_statement_only, current_statement_only))
-    {
-      // Show busy animation only if the execution actually started.
-      do_partial_ui_refresh(SqlEditorForm::QueryExecutionStarted);
-    }
+    exec_editor_sql(panel, false, current_statement_only, current_statement_only);
   }
 }
 
@@ -1516,7 +1495,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
   RecordsetsRef rsets(new Recordsets());
   
   do_exec_sql(_grtm->get_grt(), weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
-    Sql_editor::Ref(), (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
+    NULL, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
   
   return rsets;
 }
@@ -1538,20 +1517,18 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
  *                              by accident).
  */
 
-bool SqlEditorForm::exec_editor_sql(Sql_editor::Ref editor, bool sync, bool current_statement_only, 
+bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool current_statement_only,
   bool use_non_std_delimiter, bool dont_add_limit_clause)
 {
-  editor->cancel_auto_completion();
-
   boost::shared_ptr<std::string> shared_sql;
   if (current_statement_only)
-    shared_sql.reset(new std::string(editor->current_statement()));
+    shared_sql.reset(new std::string(editor->editor_be()->current_statement()));
   else
   {
-    std::string sql = editor->selected_text();
+    std::string sql = editor->editor_be()->selected_text();
     if (sql.empty())
     {
-      std::pair<const char*, size_t> text = editor->text_ptr();
+      std::pair<const char*, size_t> text = editor->text_data();
       shared_sql.reset(new std::string(text.first, text.second));
     }
     else
@@ -1570,40 +1547,30 @@ bool SqlEditorForm::exec_editor_sql(Sql_editor::Ref editor, bool sync, bool curr
   if (_grtm->get_app_option_int("DbSqlEditor:ShowWarnings", 1))
     flags = (ExecFlags)(flags | ShowWarnings);
   auto_save();
-  
-  RecordsetsRef recordsets;
 
-  int i = sql_editor_index(editor);
-  if (i >= 0)
-    recordsets = sql_editor_recordsets(i);
-  else
-    recordsets = RecordsetsRef(new Recordsets());
+  editor->query_started(false);
+  exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor));
+  exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1));
 
   exec_sql_task->exec(
     sync,
     boost::bind(&SqlEditorForm::do_exec_sql, this, _1, weak_ptr_from(this), shared_sql,
-    editor, flags, recordsets)
+    editor, flags, RecordsetsRef())
     );
 
   return true;
 }
 
-struct GuardBoolFlag
-{
-  bool *flag;
-  GuardBoolFlag(bool *ptr) : flag(ptr) { if (flag) *flag = true; }
-  ~GuardBoolFlag() { if (flag) *flag = false; }
-};
 void SqlEditorForm::update_live_schema_tree(const std::string &sql)
 {
   if(_grtm)
     _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::handle_command_side_effects, this, sql));
 }
 
+
 grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::shared_ptr<std::string> sql,
-  Sql_editor::Ref editor, ExecFlags flags, RecordsetsRef result_list)
+  SqlEditorPanel *editor, ExecFlags flags, RecordsetsRef result_list)
 {
-  bool retaining = (flags & Retaining) != 0;
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;
   bool dont_add_limit_clause = (flags & DontAddLimitClause) != 0;
   std::map<std::string, boost::int64_t> ps_stats;
@@ -1624,71 +1591,11 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
   _exec_sql_error_count = 0;
 
   bool interrupted = true;
-  Mutex *result_list_mutex = NULL;
   sql::Driver *dbc_driver= NULL;
-  int editor_index = -1;
   try
   {
-    int default_seq = 0;
-    int *rs_sequence = &default_seq;
-    bool *busy_flag = 0;
-
-    if (editor && !retaining)
-    {
-      Sql_editor_info::Ref info;
-      editor_index = 0;
-      for (Sql_editors::iterator info_ = _sql_editors.begin(); info_ != _sql_editors.end(); ++info_, ++editor_index)
-      {
-        if ((*info_)->editor == editor)
-        {
-          info = *info_;
-          rs_sequence = &info->rs_sequence;
-          busy_flag = &info->busy;
-          break;
-        }
-      }
-      
-      GuardBoolFlag guard_busy_flag(busy_flag);
-
-      // close all recordsets for the same editor
-      if (info)
-      {
-        MutexTryLock recordsets_mutex(info->recordset_mutex);
-        if (!recordsets_mutex.locked())
-          throw std::runtime_error("The editor is busy and cannot execute the query now. Please try again later.");
-            
-        RecordsetsRef recordsets(new Recordsets());
-        recordsets->reserve(result_list->size());
-        int index = result_list->size();
-        while (--index >= 0)
-        {
-          if (!(*result_list)[index]->can_close(false))
-            recordsets->push_back((*result_list)[index]);
-          else
-          {
-            // This must perform the same as on_close_recordset(), but without the redundant mutex locking.
-            RecordsetsRef rsets = info->recordsets;
-            Recordset::Ref current_recordset = (*result_list)[index];
-            Recordsets::iterator iter = std::find(rsets->begin(), rsets->end(), current_recordset);
-            if (iter != rsets->end())
-            {
-              if (info->active_result && info->active_result->recordset() == *iter)
-                info->active_result.reset();
-              rsets->erase(iter);
-            }
-            if (editor_index >= 0)
-              recordset_list_changed(editor_index, current_recordset, false);
-          }
-        }
-        result_list->swap(*recordsets.get());
-        result_list_mutex = &info->recordset_mutex;
-      }
-    }
-
     RecMutexLock use_dbc_conn_mutex(ensure_valid_usr_connection());
 
-    GuardBoolFlag guard_busy_flag(busy_flag);
-    
     dbc_driver= _usr_dbc_conn->ref->getDriver();
     dbc_driver->threadInit();
 
@@ -1963,51 +1870,31 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     Recordset::Ref rs= Recordset::create(exec_sql_task);
                     rs->is_field_value_truncation_enabled(true);
                     rs->apply_changes_cb= boost::bind(&SqlEditorForm::apply_changes_to_recordset, this, Recordset::Ptr(rs));
-                    rs->on_close.connect(boost::bind(&SqlEditorForm::on_close_recordset, this, _1));
-                    rs->caption(strfmt("%s %i",
-                                       (table_name.empty() ? _("Result") : table_name.c_str()),
-                                       ++*rs_sequence));
                     rs->generator_query(statement);
 
-                    {
-                      RecordsetData *rdata = new RecordsetData();
-                      rdata->duration = statement_exec_timer.duration();
-		      rdata->editor = Sql_editor::Ptr(editor); 
-                      rdata->ps_stat_error = query_ps_statement_events_error;
-                      rdata->ps_stat_info = ps_stats;
-                      rs->set_client_data(rdata);
-                    }
-
-                    scoped_connect(rs->get_context_menu()->signal_will_show(),
-                          boost::bind(&SqlEditorForm::on_recordset_context_menu_show, this, Recordset::Ptr(rs), Sql_editor::Ptr(editor)));
-                    rs->action_list().register_action("recall_query",
-                      boost::bind(&SqlEditorForm::recall_recordset_query, this, Recordset::Ptr(rs)));
-
-                    // XXX: refresh recordset title on status bar change? Huh?
-                    scoped_connect(&rs->refresh_ui_status_bar_signal,
-                      boost::bind(&bec::RefreshUI::do_partial_ui_refresh, this, (int)RefreshRecordsetTitle));
+                    RecordsetData *rdata = new RecordsetData();
+                    rdata->duration = statement_exec_timer.duration();
+                    rdata->ps_stat_error = query_ps_statement_events_error;
+                    rdata->ps_stat_info = ps_stats;
+                    rs->set_client_data(rdata);
 
                     rs->data_storage(data_storage);
                     rs->reset(true);
                     if (data_storage->valid()) // query statement
                     {
-                      if (result_list_mutex)
-                      {
-                        MutexLock recordsets_mutex(*result_list_mutex);
-                        result_list->push_back(rs);
-                      }
-                      else
+                      if (result_list)
                         result_list->push_back(rs);
 
-                      int editor_index = sql_editor_index(editor);
-                      if (editor_index >= 0)
-                        recordset_list_changed(editor_index, rs, true);
+                      if (editor)
+                        rdata->result_panel = editor->add_panel_for_recordset(rs);
+
                       std::string statement_res_msg= strfmt(_("%i row(s) returned"), rs->row_count());
                       if (!last_statement_info->empty())
                         statement_res_msg.append("\n").append(last_statement_info);
                       std::string exec_and_fetch_durations=
                         (((updated_rows_count >= 0) || (resultset_count)) ? std::string("-") : statement_exec_timer.duration_formatted()) + " / " +
                         statement_fetch_timer.duration_formatted();
+
                       set_log_message(log_message_index, DbSqlEditorLog::OKMsg, statement_res_msg, statement, exec_and_fetch_durations);
                     }
                     //! else failed to fetch data
@@ -2189,7 +2076,7 @@ db_query_ResultsetRef SqlEditorForm::exec_management_query(const std::string &sq
       if (log)
         set_log_message(rid, DbSqlEditorLog::OKMsg, _("OK"), sql, statement_exec_timer.duration_formatted());
 
-      return grtwrap_recordset(wbsql()->get_grt_editor_object(this), results);
+      return grtwrap_recordset(grtobj(), results);
     }
     catch (sql::SQLException &e)
     {
@@ -2217,7 +2104,7 @@ db_query_ResultsetRef SqlEditorForm::exec_main_query(const std::string &sql, boo
       if (log)
       set_log_message(rid, DbSqlEditorLog::OKMsg, _("OK"), sql, statement_exec_timer.duration_formatted());
       
-      return grtwrap_recordset(wbsql()->get_grt_editor_object(this), results);
+      return grtwrap_recordset(grtobj(), results);
     }
     catch (sql::SQLException &e)
     {
@@ -2264,136 +2151,6 @@ void SqlEditorForm::send_message_keep_alive()
   }
 }
 
-
-void SqlEditorForm::active_result_panel(int editor, SqlEditorResult::Ref value)
-{
-  MutexLock lock(_sql_editors_mutex);
-  if (editor >= 0 && editor < (int)_sql_editors.size())
-  {
-    bool found = false;
-    _sql_editors[editor]->active_result = value;
-
-    db_query_QueryEditorRef qeditor(db_query_QueryEditorRef::cast_from(_sql_editors[editor]->editor->grtobj()));
-    for (size_t c = qeditor->resultsets().count(), i = 0; i < c; i++)
-    {
-      if (value && dynamic_cast<WBRecordsetResultset*>(qeditor->resultsets()[i]->get_data())->recordset == value->recordset())
-      {
-        found = true;
-        qeditor->activeResultset(qeditor->resultsets()[i]);
-        break;
-      }
-    }
-    if (!found)
-      qeditor->activeResultset(db_query_ResultsetRef());
-  }
-  if (_menu)
-  {
-    Recordset::Ref rset(value ? value->recordset(): Recordset::Ref());
-
-    _menu->set_item_enabled("query.save_edits", rset && rset->has_pending_changes());
-    _menu->set_item_enabled("query.discard_edits", rset && rset->has_pending_changes());
-    _menu->set_item_enabled("query.export", (bool)rset);
-  }
-}
-
-
-SqlEditorResult::Ref SqlEditorForm::active_result_panel(int editor)
-{
-  MutexLock lock(_sql_editors_mutex);
-  if (editor >= 0 && editor < (int)_sql_editors.size())
-    return _sql_editors[editor]->active_result;
-  return SqlEditorResult::Ref();
-}
-
-
-Recordset::Ref SqlEditorForm::active_recordset(int editor)
-{
-  SqlEditorResult::Ref result(active_result_panel(editor));
-  if (result)
-    result->recordset();
-  return Recordset::Ref();
-}
-
-
-void SqlEditorForm::active_recordset(int editor, Recordset::Ref rset)
-{
-  if (rset)
-  {
-    RecordsetData *rdata = dynamic_cast<RecordsetData*>(rset->client_data());
-    active_result_panel(editor, rdata->result_panel);
-  }
-  else
-    active_result_panel(editor, SqlEditorResult::Ref());
-}
-
-
-bool SqlEditorForm::recordset_reorder(int editor, Recordset::Ref value, int new_index)
-{
-  MutexTryLock lock(_sql_editors_mutex);
-  if (lock.locked())
-  {
-    if (editor >= 0 && editor < (int)_sql_editors.size())
-    {
-      MutexTryLock rlock(_sql_editors[editor]->recordset_mutex);
-      if (rlock.locked())
-      {
-        RecordsetsRef recordsets(sql_editor_recordsets(editor));
-
-        Recordsets::iterator iter = std::find(recordsets->begin(), recordsets->end(), value);
-        if (iter != recordsets->end())
-        {
-          if (new_index >= (int)recordsets->size()-1)
-            new_index= -1;
-          recordsets->erase(iter);
-          if (new_index < 0)
-            recordsets->push_back(value);
-          else
-            recordsets->insert(recordsets->begin() + new_index, value);
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
-
-void SqlEditorForm::on_close_recordset(Recordset::Ptr rs_ptr)
-{
-  int editor = 0;
-  bool clear_recordset = false;
-  RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, rs_ptr, rs)
-  {
-    {
-      MutexLock ed_lock(_sql_editors_mutex);
-      editor = sql_editor_index_for_recordset(rs_ref->key());
-      if (editor >= 0)
-      {
-        MutexLock recordsets_mutex(_sql_editors[editor]->recordset_mutex);
-        RecordsetsRef rsets(sql_editor_recordsets(editor));
-        rsets->erase(std::find(rsets->begin(), rsets->end(), rs_ref));
-        if (_sql_editors[editor]->active_result && _sql_editors[editor]->active_result->recordset() == rs_ref)
-          clear_recordset = true;
-      }
-    }
-    if (clear_recordset)
-      active_result_panel(editor, SqlEditorResult::Ref());
-
-    recordset_list_changed(editor, rs_ref, false);
-    //delme close_recordset_ui.emit(rs->key());    
-  }
-}
-
-void SqlEditorForm::recall_recordset_query(Recordset::Ptr rs_ptr)
-{
-  RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, rs_ptr, rs)
-  {
-    std::string query = rs->generator_query();
-    
-    new_sql_scratch_area();
-    set_sql_editor_text(query.c_str());
-  }
-}
 
 void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
 {
@@ -2695,9 +2452,11 @@ void SqlEditorForm::active_schema(const std::string &value)
     }
 
     // set current schema for the editors to notify the autocompleter
-    for (Sql_editors::const_iterator ed = _sql_editors.begin(); ed != _sql_editors.end(); ++ed)
+    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
     {
-      (*ed)->editor->set_current_schema(value);
+      SqlEditorPanel *panel = sql_editor_panel(i);
+      if (panel)
+        panel->editor_be()->set_current_schema(value);
     }
 
     _live_tree->on_active_schema_change(value);
@@ -2842,15 +2601,15 @@ std::set<std::string> SqlEditorForm::valid_charsets()
 
 bool SqlEditorForm::save_snippet()
 {
-  Sql_editor::Ref editor = active_sql_editor();
-  if (!editor)
+  SqlEditorPanel *panel = active_sql_editor_panel();
+  if (!panel)
     return false;
   std::string text;
   int start, end;
-  if (editor->selected_range(start, end))
-    text = editor->selected_text();
+  if (panel->editor_be()->selected_range(start, end))
+    text = panel->editor_be()->selected_text();
   else
-    text = editor->current_statement();
+    text = panel->editor_be()->current_statement();
 
   if (text.empty())
     return false;
@@ -2883,7 +2642,7 @@ bool SqlEditorForm::can_close_(bool interactive)
 
   _live_tree->prepare_close();
   _grtm->set_app_option("DbSqlEditor:ActiveSidePaletteTab", grt::IntegerRef(_side_palette->get_active_tab()));
-  
+
   bool check_scratch_editors = true;
   bool save_workspace_on_close = false;
 
@@ -2901,27 +2660,24 @@ bool SqlEditorForm::can_close_(bool interactive)
     ConfirmSaveDialog dialog(0, "Close SQL Editor", "The following files/resultsets have unsaved changes.\nDo you want to review these changes before closing?");
     for (int i = 0; i < sql_editor_count(); i++)
     {
-      bool check_editor = !sql_editor_is_scratch(i) || check_scratch_editors;
-      if (sql_editor_path(i).empty() && save_workspace_on_close)
+      SqlEditorPanel *panel = sql_editor_panel(i);
+      if (!panel)
+        continue;
+
+      bool check_editor = !panel->is_scratch() || check_scratch_editors;
+      if (panel->filename().empty() && save_workspace_on_close)
         check_editor = false;
 
-      if (sql_editor(i)->get_editor_control()->is_dirty() && check_editor)
+      if (panel->is_dirty() && check_editor)
       {
         editor_needs_review = true;
-
-        std::string n= sql_editor_path(i);
-        if (!n.empty())
-          n= base::basename(n).append(" - ").append(n);
-        else
-          n= "Unsaved SQL Query";
-        dialog.add_item("Script Buffers", n);
+        dialog.add_item("Script Buffers", panel->get_title());
       }
 
-      RecordsetsRef rsets = sql_editor_recordsets(i);
-      BOOST_FOREACH (Recordset::Ref rs, *(rsets.get()))
+      std::list<SqlEditorResult*> rset(panel->dirty_result_panels());
+      BOOST_FOREACH(SqlEditorResult *r, rset)
       {
-        if (!rs->can_close(false))
-          dialog.add_item("Resultset", rs->caption());
+        dialog.add_item("Resultset", r->caption());
       }
     }
     
@@ -2950,30 +2706,24 @@ bool SqlEditorForm::can_close_(bool interactive)
     {
       for (int i = 0; i < sql_editor_count(); i++)
       {
-        // sql_editor_will_close() checks for unsaved recordsets
-        if (!sql_editor_will_close(i))
+        SqlEditorPanel *panel = sql_editor_panel(i);
+        if (panel && !panel->can_close())
           return false;
       }
     }
   }
-  else // !interactive
+  else // !interactive, return false if there's any unsaved edits in editor or resultsets
   {
     for (int i = 0; i < sql_editor_count(); i++)
     {
-      if (editor_needs_review && sql_editor(i)->get_editor_control()->is_dirty())
-        return false;
-
+      SqlEditorPanel *panel = sql_editor_panel(i);
+      if (panel)
       {
-        MutexTryLock lock(_sql_editors[i]->recordset_mutex);
-        if (!lock.locked())
+        if (editor_needs_review && panel->is_dirty())
           return false;
 
-        RecordsetsRef rsets = sql_editor_recordsets(i);
-        BOOST_FOREACH (Recordset::Ref rs, *(rsets.get()))
-        {
-          if (!rs->can_close(false))
-            return false;
-        }
+        if (!panel->dirty_result_panels().empty())
+          return false;
       }
     }
   }
@@ -2986,33 +2736,9 @@ void SqlEditorForm::check_external_file_changes()
 {
   for (int i = 0; i < sql_editor_count(); i++)
   {
-    if (!_sql_editors[i]->filename.empty())
-    {
-      time_t ts;
-      if (base::file_mtime(_sql_editors[i]->filename, ts))
-      {
-        if (ts > _sql_editors[i]->file_timestamp)
-        {
-          // File was changed externally. For now we ignore local changes if the user chooses to reload.
-          std::string connection_description = connection_descriptor().is_valid() ?
-            base::strfmt("(from connection to %s) ", connection_descriptor()->name().c_str()) : "";
-          if (mforms::Utilities::show_warning("File Changed",
-            base::strfmt(_("File %s %swas changed from outside MySQL Workbench.\nWould you like to discard your changes and reload it?"),
-              _sql_editors[i]->filename.c_str(), connection_description.c_str()),
-              "Reload File", "Ignore", "") == mforms::ResultOk
-            )
-          {
-            _sql_editors[i]->editor->sql("");
-            sql_editor_open_file(i, _sql_editors[i]->filename, _sql_editors[i]->orig_encoding);
-          }
-          else
-          {
-           // _sql_editors[i]->editor->get_editor_control()->set_text(_sql_editors[i]->editor->get_editor_control()->get_text(false).data());
-            _sql_editors[i]->file_timestamp = ts;
-          }
-        }
-      }
-    }
+    SqlEditorPanel *panel = sql_editor_panel(i);
+    if (panel)
+      panel->check_external_file_changes();
   }
 }
 
@@ -3067,7 +2793,7 @@ void SqlEditorForm::note_connection_open_outcome(int error)
 
     log_debug("Notifying server state change of %s to %s\n", connection_descriptor()->hostIdentifier().c_str(), new_state == RunningState ? "running" : "not running");
     GRTNotificationCenter::get()->send_grt("GRNServerStateChanged",
-                                           _wbsql->get_grt_editor_object(this),
+                                           grtobj(),
                                            info);
   }
 }

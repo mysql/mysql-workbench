@@ -23,6 +23,7 @@
 #include <pcrecpp.h>
 
 #include "wb_sql_editor_form.h"
+#include "wb_sql_editor_panel.h"
 #include "query_side_palette.h"
 
 #include "wb_sql_editor_snippets.h"
@@ -351,6 +352,19 @@ void QuerySidePalette::cancel_timer()
 
 //--------------------------------------------------------------------------------------------------
 
+static bool contains_editor(SqlEditorForm::Ref form, Sql_editor *ed)
+{
+  for (int c = form->sql_editor_count(), i = 0; i < c; i++)
+  {
+    SqlEditorPanel *panel = form->sql_editor_panel(i);
+    if (panel && panel->editor_be().get() == ed)
+      return true;
+  }
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void QuerySidePalette::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info)
 {
   // Selection and caret changes notification.
@@ -365,9 +379,14 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
     Sql_editor *editor = static_cast<Sql_editor*>(code_editor->get_host());
     if (editor != NULL && editor->grtobj().is_valid())
     {
-      check_format_structures(editor);
-      cancel_timer();
-      _help_timer = _grtm->run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
+      // See if this editor instance is actually from the IDE this palette sits in.
+      SqlEditorForm::Ref form = _owner.lock();
+      if (form && contains_editor(form, editor))
+      {
+        check_format_structures(editor);
+        cancel_timer();
+        _help_timer = _grtm->run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
+      }
     }
   }
 }
@@ -503,9 +522,9 @@ bool QuerySidePalette::find_context_help(Sql_editor *editor)
   if (editor == NULL)
   {
     SqlEditorForm::Ref form = _owner.lock();
-    Sql_editor::Ref editor_ref = form->active_sql_editor();
-    if (editor_ref)
-      editor = &(*editor_ref);
+    SqlEditorPanel *panel = form->active_sql_editor_panel();
+    if (panel)
+      editor = panel->editor_be().get();
     else
       return false;
   }

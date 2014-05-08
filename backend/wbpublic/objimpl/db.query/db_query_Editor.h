@@ -55,8 +55,6 @@ public:
 
   virtual db_query_ResultsetRef executeManagementQuery(const std::string &sql, bool log)= 0;
   virtual void executeManagementCommand(const std::string &sql, bool log)= 0;
-public:
-  virtual void refresh_editor(boost::shared_ptr<Sql_editor> editor)= 0;
 };
 
 

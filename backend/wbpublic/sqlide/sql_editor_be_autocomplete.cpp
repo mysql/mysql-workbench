@@ -1761,13 +1761,6 @@ void Sql_editor::show_auto_completion(bool auto_choose_single)
 
 //--------------------------------------------------------------------------------------------------
 
-void Sql_editor::cancel_auto_completion()
-{
-  _code_editor->auto_completion_cancel();
-}
-
-//--------------------------------------------------------------------------------------------------
-
 /**
  * The auto completion cache is connection dependent so it must be set by the owner of the editor
  * if there is a connection at all. Ownership of the cache remains with the owner of the editor.
