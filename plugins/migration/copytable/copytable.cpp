@@ -757,8 +757,8 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
       if (inbuf_len > 0)
-        log_warning("%" PRIuPTR " characters could not be converted to UTF-8 from column %s during copy\n",
-                    (uintptr_t)inbuf_len, (*_columns)[column-1].source_name.c_str());
+        log_warning("%lu characters could not be converted to UTF-8 from column %s during copy\n",
+                    inbuf_len, (*_columns)[column-1].source_name.c_str());
 
       *out_length = out_buffer_len - outbuf_len;
     }
