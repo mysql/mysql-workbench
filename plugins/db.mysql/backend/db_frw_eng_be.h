@@ -16,6 +16,7 @@ public:
 
   void set_option(const std::string& name, bool value) { _export.set_option(name, value); }
   void set_option(const std::string& name, const std::string& value) { _export.set_option(name, value); }
+  void set_up_dboptions() { _export.set_db_options(_db_options); }
 
   void start_export() { _export.start_export(false); }
   std::string export_sql_script() { return _export.export_sql_script(); }

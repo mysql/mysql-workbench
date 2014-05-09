@@ -131,6 +131,11 @@ void DbMySQLSQLExport::set_db_options_for_version(const GrtVersionRef &version)
     _db_options = diffsql_module->getTraitsForServerVersion(version->majorNumber(), version->minorNumber(), version->releaseNumber());
 }
 
+void DbMySQLSQLExport::set_db_options(grt::DictRef &db_options)
+{
+    _db_options = db_options;
+}
+
 grt::StringListRef convert_string_vector_to_grt_list(grt::GRT *grt, const std::vector<std::string>& v)
 {
   grt::StringListRef grt_list(grt);
