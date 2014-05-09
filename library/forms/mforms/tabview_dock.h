@@ -27,6 +27,7 @@ namespace mforms {
 
 class MFORMS_EXPORT TabViewDockingPoint : public mforms::DockingPointDelegate
 {
+protected:
   TabView *_tabview;
   std::string _type;
 
