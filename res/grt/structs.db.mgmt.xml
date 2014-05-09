@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.xml"/>    
+      <requires file="structs.db.xml"/>    
+
+      <gstruct name="db.mgmt.Management" parent="GrtObject" attr:desc="Management for RDBMS drivers">
+          <members>
+              <member name="rdbms" type="list" content-type="object" content-struct-name="db.mgmt.Rdbms" owned="1" attr:desc="a list of Rdbms with available drivers"/>
+              <member name="storedConns" type="list" content-type="object" content-struct-name="db.mgmt.Connection" owned="1" attr:desc="a list of stored connections"/>
+              <member name="storedInstances" type="list" content-type="object" content-struct-name="db.mgmt.ServerInstance" owned="1" attr:desc="a list of stored DB server instances"/>
+              <member name="otherStoredConns" type="list" content-type="object" content-struct-name="db.mgmt.Connection" owned="1" attr:desc="a list of stored non-MySQL connections"/>
+              <member name="datatypeGroups" type="list" content-type="object" content-struct-name="db.DatatypeGroup" owned="1" attr:desc="list of datatypegroups"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mgmt.Rdbms" parent="GrtObject" attr:desc="Relational Database Management System">
+          <members>
+              <member name="caption" type="string" attr:desc="the caption that is displayed in the UI"/>
+              <member name="drivers" type="list" content-type="object" content-struct-name="db.mgmt.Driver" owned="1" attr:desc="a list of drivers that can be used to connect to the database system"/>
+              <member name="defaultDriver" type="object" struct-name="db.mgmt.Driver" attr:desc="the default driver to use"/>
+              <member name="databaseObjectPackage" type="string" attr:desc="specifies the schema structs to use, e.g. db.mysql"/>
+              <member name="simpleDatatypes" type="list" content-type="object" content-struct-name="db.SimpleDatatype" owned="1" attr:desc="the list of simple datatypes the RDBMS offers"/>
+              <member name="characterSets" type="list" content-type="object" content-struct-name="db.CharacterSet" owned="1" attr:desc="the list of character sets the RDBMS offers"/>
+              <member name="version" type="object" struct-name="GrtVersion" owned="1" attr:desc="version of the catalog's database"/>
+              <member name="privilegeNames" type="list" content-type="object" content-struct-name="db.mgmt.PrivilegeMapping" owned="1" attr:desc="list of privilege names that are available in this RDBMS"/>
+              <member name="maximumIdentifierLength" type="int" attr:desc="maximum length for identifiers (schema, table, column, index etc)"/>
+              <member name="doesSupportCatalogs" type="int" attr:desc="Whether the RDBMS supports the notion of a database catalog"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mgmt.PrivilegeMapping" parent="GrtObject" attr:desc="specifies which privileges are available for this object type">
+          <members>
+              <member name="structName" type="string" attr:desc="the struct of the database object"/>
+              <member name="privileges" type="list" content-type="string" attr:desc="the list of available privileges for this object type"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mgmt.Driver" parent="GrtObject" attr:desc="information about a database driver">
+          <members>
+              <member name="caption" type="string" attr:desc="the caption that is displayed in the UI"/>
+              <member name="description" type="string" attr:desc="a short description of the driver"/>
+              <member name="filesTarget" type="string" attr:desc="location where the driver files are installed"/>
+              <member name="files" type="list" content-type="string" attr:desc="filename(s) of the driver"/>
+              <member name="driverLibraryName" type="string" attr:desc="location of the driver library"/>
+              <!--member name="downloadUrl" type="string" attr:desc="Url where to download the driver"/-->
+
+              <member name="parameters" type="list" content-struct-name="db.mgmt.DriverParameter" content-type="object" owned="1" attr:desc="the parameters the driver supports"/>
+              <!--member name="defaultModules" type="dict" content-type="string" attr:desc="the default modules"/-->
+              <member name="hostIdentifierTemplate" type="string"/>
+              <!--member name="isAccessable" type="int" attr:desc="set to 1 if the driver is accessable"/>
+              <member name="isInstalled" type="int" attr:desc="set to 1 if the driver is installed"/-->
+          </members>
+      </gstruct>
+
+      <!--gstruct name="db.mgmt.JdbcDriver" parent="db.mgmt.Driver" attr:desc="information about a Jdbc driver">
+          <members>
+              <member name="className" type="string" attr:desc="the classname used to access the Jdbc driver"/>
+              <member name="connectionStringTemplate" type="string" attr:desc="the template used to build the connection parameter"/>
+          </members>
+      </gstruct-->
+
+      <gstruct name="db.mgmt.PythonDBAPIDriver" parent="db.mgmt.Driver" attr:desc="information about a Python DB 2.0 API compliant driver">
+          <members>
+              <member name="connectionStringTemplate" type="string" attr:desc="the template used to build the connection parameter"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mgmt.DriverParameter" parent="GrtObject" attr:desc="a list of all parameters the Jdbc driver supports">
+          <members>
+              <member name="caption" type="string" attr:desc="the caption displayed in the connection dialog"/>
+              <member name="description" type="string" attr:desc="the description displayed in the connection dialog"/>
+
+              <member name="paramType" type="string" attr:desc="can be string, int, boolean, tristate, file, dir"/>
+              <member content-type="string" name="paramTypeDetails" type="dict" attr:desc="additional information e.g. like file extension"/>
+
+              <member name="required" type="int" attr:desc="if set to 1 this parameter is a required parameter"/>
+              <member name="defaultValue" type="string" attr:desc="the default value of the parameter"/>
+              <member name="lookupValueModule" type="string" attr:desc="the module that contains the method to call to get the list of possible values"/>
+              <member name="lookupValueMethod" type="string" attr:desc="the method to call to get the list of possible values"/>
+
+              <member name="layoutAdvanced" type="int" attr:desc="when set to 1 this is paramter is only displayed in the advanced parameter section"/>
+              <member name="layoutRow" type="int" attr:desc="the row the parameter is displayed. There can be more than one parameters on the same row. When set to -1 the parameter is appended at the end of the parameter list"/>
+              <member name="layoutWidth" type="int" attr:desc="the width of the edit"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mgmt.Connection" parent="GrtObject" attr:desc="a stored RDBMS connection">
+          <members>
+              <member name="driver" type="object" struct-name="db.mgmt.Driver" attr:desc="the driver used to connect"/>
+              <member name="parameterValues" type="dict" content-type="string" attr:desc="the parameters the user entered"/>
+              <member name="modules" type="dict" content-type="string" attr:desc="the modules used for this connection"/>
+              <member name="hostIdentifier" type="string" attr:desc="identifier to be used for storing password" />
+              <member name="isDefault" type="int"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mgmt.ServerInstance" parent="GrtObject" attr:desc="DB server connection and management information">
+          <members>
+              <member name="connection" type="object" struct-name="db.mgmt.Connection"/>
+              <member name="loginInfo" type="dict" attr:desc="login information to the server"/>
+              <member name="serverInfo" type="dict" attr:desc="server configuration information"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mgmt.SyncProfile" parent="GrtObject" attr:desc="DB synchronization profile containing a list last known names for each model object in a equivalent schema in the server">
+          <members>
+              <member name="targetHostIdentifier" type="string" attr:desc="identifier for the target DB server"/>
+              <member name="targetSchemaName" type="string" attr:desc="name of the target schema in the DB server"/>
+              <member name="lastKnownDBNames" type="dict" attr:desc="dictionary of object-id to object name values that were last seen in the target DB"/>
+              <member name="lastKnownViewDefinitions" type="dict" attr:desc="dictionary of view object-id to the checksums of the view definitions in both model and server (object-id:model, object-id:server). The canonical location for these values in the object is in oldServerSqlDefinition and oldModelSqlDefinition."/>
+              <member name="lastSyncDate" type="string" attr:desc="last date/time that the model was synchronized to this target"/>
+          </members>
+      </gstruct>
+  </gstructs>
+

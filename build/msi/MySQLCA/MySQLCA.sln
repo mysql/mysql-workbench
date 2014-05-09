@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQLCA", "MySQLCA.csproj", "{9B6E4CA6-C2D6-4782-BF70-98E9BB4CAE8D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B6E4CA6-C2D6-4782-BF70-98E9BB4CAE8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B6E4CA6-C2D6-4782-BF70-98E9BB4CAE8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B6E4CA6-C2D6-4782-BF70-98E9BB4CAE8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B6E4CA6-C2D6-4782-BF70-98E9BB4CAE8D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

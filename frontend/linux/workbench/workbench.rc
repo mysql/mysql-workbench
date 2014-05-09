@@ -1,0 +1,100 @@
+style "content-default" {
+  font_name = "Bitstream Vera Sans 9"
+}
+
+style "overview-header" {
+  font_name= "helvetica bold 10"
+  bg[NORMAL]= "#eee"
+  base[NORMAL]= "#eee"
+  ythickness = 0
+  GtkWidget::interior-focus = 0
+  GtkWidget::focus-line-width = 0
+  GtkButton::child_displacement_x = 0
+  GtkButton::child_displacement_y = 0
+}
+
+style "overview-arrow" {
+  bg[NORMAL]= "#888"
+}
+
+style "overview-note" {
+  base[NORMAL]= "#888"
+  bg[NORMAL]= "#fff"
+}
+
+style "overview-note-page" {
+  base[NORMAL]= "#fff"
+  bg[NORMAL]= "#fff"
+}
+
+style "overview-bg" {
+  bg[NORMAL]= "#ffffff"
+}
+
+style "overview-filler" {
+  bg[NORMAL]= "#4f4f4f"
+}
+
+style "item-container" {
+  GtkIconView::item-padding = 0
+}
+
+style "shell-text" {
+  base[NORMAL]= "#000000"
+  text[NORMAL]= "#cccccc"
+}
+
+style "note" {
+}
+
+style "side-note" {
+   xthickness = 0
+   ythickness = 1
+}
+
+style "docs-text" {
+}
+
+style "central-link" {
+  text[NORMAL]= "#ffffff"
+}
+
+style "central-text" {
+  text[NORMAL]= "#ffffff"
+}
+
+style "toolbar-button" {
+  GtkButton::padding = { 0, 0, 0, 0 }
+  GtkButton::focus-padding = 0
+  GtkButton::focus-line-width = 0
+  GtkButton::interior-focus = 0
+
+}
+
+style "toolbar-combo" {
+}
+
+widget_class "GtkLabel" style "content-default"
+widget_class "GtkButton" style "content-default"
+widget_class "GtkMenuItem" style "content-default"
+widget "wb_main_window.top_vbox.content.*" style "content-default"
+widget "wb_main_window.top_vbox.statusbar1.*" style "content-default"
+widget "*.overview_note" style "overview-note"
+widget "*.overview_note_page" style "overview-note-page"
+widget "*.overview_note_header" style "overview-note-page"
+widget "*.overview_header.*.toggle" style "overview-arrow"
+widget "*.overview_header.*.caption" style "overview-header"
+widget "*.overview_header.*.*.group_toggle" style "overview-header"
+widget "*.overview_header.*" style "overview-header"
+widget "*.overview_header" style "overview-header"
+widget "*.overview_viewport" style "overview-bg"
+widget "*.overview_filler" style "overview-filler"
+widget "*.overview_item_container" style "item-container"
+widget "*.shell_text" style "shell-text"
+widget "*GtkNotebook.*" style "note"
+widget "*.side_model_note*" style "side-note"
+widget "*.module_docs" style "docs-text"
+widget "*.wbcentral*.*GtkLabel*" style "central-text"
+widget "*.wbcentral*.*GtkLinkButton*" style "central-link"
+widget "*.tools_toolbar.*" style "toolbar-button"
+widget "*.options_toolbar.*" style "toolbar-button"

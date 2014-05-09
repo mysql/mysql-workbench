@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">    
+      <requires file="structs.xml"/>
+
+      <gstruct name="workbench.model.reporting.TemplateInfo" parent="GrtObject" attr:caption="Template Information" attr:desc="information about a model reporting template">
+          <members>
+              <member name="name" type="string" attr:desc="the name of the template"/>
+              <member name="description" type="string" attr:desc="A short description of the type of template." attr:editas="longtext"/>
+              <member name="styles" type="list" content-type="object" owned="1" content-struct-name="workbench.model.reporting.TemplateStyleInfo"/>
+              <member name="mainFileName" type="string" attr:desc="the name of the file that will be opened after the report has been created"/>
+          </members>
+      </gstruct>
+      
+      <gstruct name="workbench.model.reporting.TemplateStyleInfo" parent="GrtObject" attr:caption="Template Style Information" attr:desc="information about a model reporting template">
+          <members>
+              <member name="name" type="string" attr:desc="the name of the style"/>
+              <member name="description" type="string" attr:desc="the note text" attr:editas="longtext"/>
+              <member name="styleTagValue" type="string" attr:desc="the value the style tag should be set to, e.g. the name of the css file"/>
+              <member name="previewImageFileName" type="string" attr:desc="the file name of the preview image, has to match preview_*.png"/>
+              <member name="canUseHTMLMarkup" type="int" attr:desc="A flag that indicates if Workbench can use HTML markup for SQL syntax highlighting."/>
+          </members>
+      </gstruct>
+  
+
+  </gstructs>

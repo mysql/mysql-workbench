@@ -1,0 +1,28 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcproj", "{19326277-FD0B-4826-BCD8-F838E128F034}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8FB4B84C-D91B-4A26-BBB2-CC8F87944C17} = {8FB4B84C-D91B-4A26-BBB2-CC8F87944C17}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySQLSQLParser", "MySQLSQLParser.vcproj", "{8FB4B84C-D91B-4A26-BBB2-CC8F87944C17}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19326277-FD0B-4826-BCD8-F838E128F034}.Debug|Win32.ActiveCfg = Debug|Win32
+		{19326277-FD0B-4826-BCD8-F838E128F034}.Debug|Win32.Build.0 = Debug|Win32
+		{19326277-FD0B-4826-BCD8-F838E128F034}.Release|Win32.ActiveCfg = Release|Win32
+		{19326277-FD0B-4826-BCD8-F838E128F034}.Release|Win32.Build.0 = Release|Win32
+		{8FB4B84C-D91B-4A26-BBB2-CC8F87944C17}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8FB4B84C-D91B-4A26-BBB2-CC8F87944C17}.Debug|Win32.Build.0 = Debug|Win32
+		{8FB4B84C-D91B-4A26-BBB2-CC8F87944C17}.Release|Win32.ActiveCfg = Release|Win32
+		{8FB4B84C-D91B-4A26-BBB2-CC8F87944C17}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

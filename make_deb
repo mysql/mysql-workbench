@@ -1,0 +1,18 @@
+ln -s build/debian .
+
+if [ -f ~/target_distro ]; then
+	distro=$(cat ~/target_distro)
+    if head -1 debian/changelog|grep "$distro"; then
+        echo
+    else
+	    sed -e "1s/(\\(.*\\))/(\1$distro)/" debian/changelog > chlog
+    fi
+	mv -f chlog debian/changelog
+fi
+
+DEB_BUILD_OPTIONS=debug dpkg-buildpackage
+
+if [ $? -eq 2 ]; then
+	exit 2
+fi
+exit 0

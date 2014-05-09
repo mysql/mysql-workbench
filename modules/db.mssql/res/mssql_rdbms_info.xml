@@ -1,0 +1,1011 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="db.mgmt.Rdbms" id="com.mysql.rdbms.mssql">
+    <value type="string" key="caption">Microsoft SQL Server</value>
+    <value type="string" key="name">Mssql</value>
+    <value type="string" key="databaseObjectPackage">db.mssql</value>
+    <value type="int" key="maximumIdentifierLength">64</value>
+    <link type="object" key="defaultDriver">com.mysql.rdbms.mssql.driver.odbc_dsn</link>
+    <value type="int" key="doesSupportCatalogs">1</value>
+
+    <!-- Privileges -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PrivilegeMapping" key="privilegeNames">
+    </value>
+
+    <!-- Character Sets -->
+
+    <value type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets">
+    </value>
+
+    <!-- Drivers -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PythonDBAPIDriver" key="drivers">
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.mssql.driver.odbc_dsn">
+        <value type="string" key="caption">ODBC Data Source</value>
+        <value type="string" key="description">ODBC Driver, using DSN</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DSN=%dsn%;DATABASE=%schema%;UID=%userName%;PWD={%password%}</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">Mssql@%dsn%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">MssqlOdbcDSN</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param1">
+            <value type="string" key="caption">DSN:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Pre-configured ODBC data source.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueModule">DbMssqlRE</value>
+            <value type="string" key="lookupValueMethod">getDataSourceNames</value>
+            <value type="string" key="name">dsn</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_dsn</link>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param2">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">sa</value>
+            <value type="string" key="description">Leave blank if specified in data source.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_dsn</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param3">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Leave blank to input when needed.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_dsn</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::Mssql@%dsn%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param4">
+            <value type="string" key="caption">Database:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Leave blank if already in data source or to select it later.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">schema</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_dsn</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+        </value>
+      </value>
+      
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.mssql.driver.odbc_ftds_dsn">
+        <value type="string" key="caption">ODBC Data Source (FreeTDS)</value>
+        <value type="string" key="description">Pyodbc using FreeTDS Driver DSN</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DSN=%dsn%;DATABASE=%schema%;UID=%userName%;TDS_VERSION=%tdsversion%;PWD={%password%}</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">Mssql@%dsn%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">MssqlOdbcDSNFreeTDS</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_ftds_dsn.param1">
+            <value type="string" key="caption">DSN:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Pre-configured ODBC data source.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueModule">DbMssqlRE</value>
+            <value type="string" key="lookupValueMethod">getDataSourceNames</value>
+            <value type="string" key="name">dsn</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_ftds_dsn</link>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_ftds_dsn.param2">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">sa</value>
+            <value type="string" key="description">Leave blank if specified in data source.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_ftds_dsn</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_ftds_dsn.param3">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Leave blank to input when needed.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_ftds_dsn</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::Mssql@%dsn%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.
+odbc_ftds_dsn.param4">
+            <value type="string" key="caption">Protocol Version:</value>
+            <value type="string" key="defaultValue">7.1</value>
+            <value type="string" key="description">TDS protocol version to use by the FreeTDS driver.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">5</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod">getTDSProtocolVersionChoices</value>
+            <value type="string" key="lookupValueModule">DbMssqlRE</value>
+            <value type="string" key="name">tdsversion</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_ftds_dsn</link>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param5">
+            <value type="string" key="caption">Database:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Leave blank if already in data source or to select it later.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">schema</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_ftds_dsn</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.
+odbc_ftds_dsn.aparam2">
+            <value type="string" key="caption">Driver sends Unicode data as UTF-8</value>
+            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="description">Enable if ODBC driver returns Unicode data as UTF-8 instead of UCS-2.
+Required for FreeTDS.</value>
+            <value type="int" key="layoutAdvanced">1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">ODBCDriverUsesUTF8</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_ftds_dsn</link>
+            <value type="string" key="paramType">boolean</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
+          </value>
+        </value>
+      </value>
+      
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.mssql.driver.odbc_native">
+        <value type="string" key="caption">ODBC (native)</value>
+        <value type="string" key="description">Use the Native Microsoft SQL Server ODBC driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DRIVER={%driver%};SERVER=%server%;DATABASE={%schema%};UID=%userName%;PWD={%password%};%extras%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">Mssql@DRIVER=%driver%;SERVER=%server%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">MssqlOdbcNative</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param0">
+            <value type="string" key="caption">Driver:</value>
+            <value type="string" key="defaultValue">SQL Server</value>
+            <value type="string" key="description">The name of the ODBC driver you are using.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">driver</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param1">
+            <value type="string" key="caption">Server:</value>
+            <value type="string" key="defaultValue">localhost\SQLEXPRESS</value>
+            <value type="string" key="description">Address\instance name of the server.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">server</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param3">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">sa</value>
+            <value type="string" key="description">Name of the user to connect with.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param4">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Leave blank to input when needed.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_native</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::Mssql@%server%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param5">
+            <value type="string" key="caption">Database:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The database to connect to. Leave blank to select it later.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">5</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">schema</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.aparam2">
+            <value type="string" key="caption">Additional arguments</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">; separated list of extra arguments to use in the
+ODBC connection string.</value>
+            <value type="int" key="layoutAdvanced">1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">extras</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
+          </value>
+
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.mssql.driver.odbc">
+        <value type="string" key="caption">ODBC (FreeTDS)</value>
+        <value type="string" key="description">Use an ODBC driver to connect to Microsoft SQL Server</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DRIVER={%driver%};SERVER=%hostName%;PORT=%port%;DATABASE=%schema%;UID=%userName%;PWD={%password%};%extras%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">Mssql@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">MssqlOdbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param0">
+            <value type="string" key="caption">Driver:</value>
+            <value type="string" key="defaultValue">FreeTDS</value>
+            <value type="string" key="description">The name of the ODBC driver you are using (E.g. FreeTDS).</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">driver</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param1">
+            <value type="string" key="caption">Hostname:</value>
+            <value type="string" key="defaultValue">127.0.0.1</value>
+            <value type="string" key="description">Name or IP address of the server host.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">118</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">hostName</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param2">
+            <value type="string" key="caption">Port:</value>
+            <value type="string" key="defaultValue">1433</value>
+            <value type="string" key="description">TCP/IP port.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">46</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">port</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param3">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">sa</value>
+            <value type="string" key="description">Name of the user to connect with.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param4">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Leave blank to input when needed.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::Mssql@%hostName%:%port%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param5">
+            <value type="string" key="caption">Database:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The database to connect to. Leave blank to select it later.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">5</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">schema</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.aparam1">
+            <value type="string" key="caption">Driver sends Unicode data as UTF-8</value>
+            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="description">Enable if ODBC driver returns Unicode data as UTF-8
+instead of UCS-2. Required for FreeTDS.</value>
+            <value type="int" key="layoutAdvanced">1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">ODBCDriverUsesUTF8</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc</link>
+            <value type="string" key="paramType">boolean</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.aparam2">
+            <value type="string" key="caption">Additional arguments</value>
+            <value type="string" key="defaultValue">TDS_VERSION=7.1</value>
+            <value type="string" key="description">; separated list of extra arguments to use in the
+ODBC connection string.</value>
+            <value type="int" key="layoutAdvanced">1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">extras</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
+          </value>
+
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.mssql.driver.odbc_connstring">
+        <value type="string" key="caption">ODBC (connection string)</value>
+        <value type="string" key="description">Provide a full ODBC connection string for Microsoft SQL Server</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">%connstring%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">Mssql@%connstring%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">MssqlOdbcConnString</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_connstring.param0">
+            <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The full ODBC connection string.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">connstring</value>
+            <link type="object" key="owner">com.mysql.rdbms.mssql.driver.odbc_connstring</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+        </value>
+      </value>
+    </value>
+
+    <!-- Datatypes -->
+
+    <value type="list" content-type="object" content-struct-name="db.mssql.SimpleDatatype" key="simpleDatatypes">
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.decimal">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DECIMAL</value>
+        <value type="int" key="numericPrecision">38</value>                              <!-- 28 was the old value -->
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">38</value>
+        <value type="int" key="parameterFormatType">4</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.numeric">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">NUMERIC</value>
+        <value type="int" key="numericPrecision">38</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">38</value>
+        <value type="int" key="parameterFormatType">4</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.float">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">FLOAT</value>
+        <value type="int" key="numericPrecision">15</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">15</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.real">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">REAL</value>                                     <!-- The ISO synonym for real is float(24) -->
+        <value type="int" key="numericPrecision">24</value>                              <!-- 7 was the old value -->
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>                                   <!-- 7 was the old value -->
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.tinyint">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+           <value type="string">UNSIGNED</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">TINYINT</value>
+        <value type="int" key="numericPrecision">3</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>                            <!-- 2 was the old value. MSSQL doesn't accept TINYINT(n) -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.smallint">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">SMALLINT</value>
+        <value type="int" key="numericPrecision">5</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale"></value>
+        <value type="int" key="parameterFormatType">0</value>                            <!-- 2 was the old value. MSSQL doesn't accept SMALLINT(n) -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.int">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">INT</value>
+        <value type="int" key="numericPrecision">10</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale"></value>
+        <value type="int" key="parameterFormatType">0</value>                            <!-- 2 was the old value. MSSQL doesn't accept INT(n) -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.bigint">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">BIGINT</value>
+        <value type="int" key="numericPrecision">19</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>                            <!-- 2 was the old value. MSSQL doesn't accept BIGINT(n) -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.char">
+        <value type="int" key="characterMaximumLength">8000</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">CHAR</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.varchar">
+        <value type="int" key="characterMaximumLength">8000</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">VARCHAR</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>                            <!-- 1 was the old value. MSSQL does accept VARCHAR[(n)] -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.nchar">
+        <value type="int" key="characterMaximumLength">4000</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NCHAR</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.nvarchar">
+        <value type="int" key="characterMaximumLength">4000</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NVARCHAR</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">1</value>                            <!-- 2 was the old value. MSSQL does accept NVARCHAR[(n)] -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+
+
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.text">
+        <value type="int" key="characterMaximumLength">2147483647</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">TEXT</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>                            <!-- 2 was the old value. MSSQL doesn't accept TEXT(n) -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.ntext">
+        <value type="int" key="characterMaximumLength">1073741823</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">NTEXT</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+
+
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.image">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">2147483647</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">IMAGE</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.binary">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">8000</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">BINARY</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.varbinary">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">8000</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">VARBINARY</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">2</value>                            <!-- 0 was the old value. MSSQL does accept VARBINARY[(n)] -->
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+
+
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.datetime">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">8</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATETIME</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.smalldatetime">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">6</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">SMALLDATETIME</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.timestamp">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">8</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIMESTAMP</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.datetime2">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">8</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATETIME2</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.datetimeoffset">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">10</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATETIMEOFFSET</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.date">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">3</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATE</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.time">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">5</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIME</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.bit">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BIT</value>
+        <value type="int" key="numericPrecision">1</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>                            <!-- 2 was the old value. MSSQL doesn't accept BIT(n) -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.money">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">MONEY</value>
+        <value type="int" key="numericPrecision">19</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">4</value>
+        <value type="int" key="parameterFormatType">0</value>                            <!-- 6 was the old value. MSSQL doesn't accept MONEY[(n, [m])] -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.smallmoney">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">SMALLMONEY</value>
+        <value type="int" key="numericPrecision">10</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">4</value>
+        <value type="int" key="parameterFormatType">0</value>                            <!-- 6 was the old value. MSSQL doesn't accept SMALLMONEY[(n, [m])] -->
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.uniqueidentifier">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">16</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">UNIQUEIDENTIFIER</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.xml">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">2147483647</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">XML</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.sysname">
+        <value type="int" key="characterMaximumLength">160</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">SYSNAME</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.rowversion">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">8</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">ROWVERSION</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.geometry">
+        <value type="int" key="characterMaximumLength">999</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">GEOMETRY</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.geography">
+        <value type="int" key="characterMaximumLength">999</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">GEOGRAPHY</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.hierarchyid">
+        <value type="int" key="characterMaximumLength">999</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">HIERARCHYID</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+      <value type="object" struct-name="db.mssql.SimpleDatatype" id="com.mysql.rdbms.mssql.datatype.sqlvariant">
+        <value type="int" key="characterMaximumLength">999</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">SQL_VARIANT</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.mssql</link>
+      </value>
+
+    </value>
+  </value>
+</data>

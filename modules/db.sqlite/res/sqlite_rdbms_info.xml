@@ -1,0 +1,412 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="db.mgmt.Rdbms" id="com.mysql.rdbms.sqlite">
+    <value type="string" key="caption">SQLite</value>
+    <value type="string" key="name">SQLite</value>
+    <value type="string" key="databaseObjectPackage">db.sqlite</value>
+    <value type="int" key="maximumIdentifierLength">64</value>
+    <link type="object" key="defaultDriver">com.mysql.rdbms.sqlite.driver.sqlite</link>
+    <value type="int" key="doesSupportCatalogs">0</value>
+
+    <!-- Privileges -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PrivilegeMapping" key="privilegeNames">
+    </value>
+
+    <!-- Character Sets -->
+
+    <value type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets">
+    </value>
+
+    <!-- Drivers -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PythonDBAPIDriver" key="drivers">
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.sqlite.driver.sqlite">
+        <value type="string" key="caption">SQLite Standard Python Module</value>
+        <value type="string" key="description">The sqlite3 module in the Python Standard Library</value>
+        <value type="string" key="driverLibraryName">sqlite3</value>
+        <value type="string" key="connectionStringTemplate"></value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">sqlite@DRIVER=%driver%;SERVER=%hostName%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">SQLiteDriver</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlite.driver.odbc.param5">
+            <value type="string" key="caption">Database File:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The database to connect to.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">dbfile</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlite.driver.sqlite</link>
+            <value type="string" key="paramType">file</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+        </value>
+      </value>
+
+    </value>
+
+    <!-- Datatypes -->
+
+    <value type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.boolean">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.various</link>
+        <value type="string" key="name">BOOLEAN</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.decimal">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DECIMAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.numeric">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">NUMERIC</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">6</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.float">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">FLOA</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">FLOAT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.real">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">REAL</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.double">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">DOUB</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">DOUBLE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.tinyint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">TINYINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.smallint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">SMALLINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.mediumint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">MEDIUMINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.int">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">INT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.integer">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">INTEGER</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.bigint">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">BIGINT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.char">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">CHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.varchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">CHARACTER VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">VARCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.nchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">NATIONAL CHARACTER</value>
+           <value type="string">NATIONAL CHAR</value>
+           <value type="string">NATIVE CHARACTER</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.nvarchar">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">NATIONAL CHARACTER VARYING</value>
+           <value type="string">NATIONAL CHAR VARYING</value>
+           <value type="string">NCHAR VARYING</value>
+           <value type="string">NATIVE CHARACTER VARYING</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NVARCHAR</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.text">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">LONG VARCHAR</value>
+           <value type="string">CLOB</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">TEXT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.ntext">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags">
+        </value>
+        <value type="list" content-type="string" key="synonyms">
+           <value type="string">LONG NVARCHAR</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.text</link>
+        <value type="string" key="name">NTEXT</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.date">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATE</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.time">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+	<value type="list" content-type="string" key="synonyms"/>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIME</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.timestamp">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">TIMESTAMP</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.datetime">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.datetime</link>
+        <value type="string" key="name">DATETIME</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="numericPrecision">-1</value>
+        <value type="int" key="numericPrecisionRadix">-1</value>
+        <value type="int" key="numericScale">-1</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.sqlite.datatype.blob">
+        <value type="int" key="characterMaximumLength">-1</value>
+        <value type="int" key="characterOctetLength">-1</value>
+        <value type="int" key="dateTimePrecision">-1</value>
+        <value type="list" content-type="string" key="flags"/>
+        <value type="list" content-type="string" key="synonyms">
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.blob</link>
+        <value type="string" key="name">BLOB</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="parameterFormatType">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.sqlite</link>
+      </value>
+
+    </value>
+  </value>
+</data>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="workbench.model.reporting.TemplateInfo" id="{BD6879ED-814C-4CA3-A869-9864AC3B88DE}" struct-checksum="0xb46b524d">
+    <value type="string" key="description">A basic, single page HTML report.</value>
+    <value type="string" key="name">HTML Basic Report</value>
+    <value type="list" content-type="object" content-struct-name="workbench.model.reporting.TemplateStyleInfo" key="styles">
+      <value type="object" struct-name="workbench.model.reporting.TemplateStyleInfo" id="{7550655C-CD4B-4EB1-8FAB-CABE49B2261D}" struct-checksum="0xab08451b">
+        <value type="string" key="description">Colorful rectangles around section items.</value>
+        <value type="string" key="name">Colorful</value>
+        <value type="string" key="styleTagValue">basic</value>
+      </value>
+    </value>
+    <value type="string" key="mainFileName">index.html</value>
+  </value>
+</data>

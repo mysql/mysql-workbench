@@ -1,0 +1,66 @@
+/*! @defgroup GRT GRT Library
+@page GRT GRT Library
+
+@image html grt_overview.png "Workbench architecture"
+
+@section grtctx The GRT Context
+
+@section grtvalue GRT Values
+
+GRT Values are reference counted objects encapsulating simple values (integer,
+double or string), containers such as lists and dictionaries and objects.
+Lists are typed and can contain anything, but recommended content types are limited
+to simple values and objects. Objects can contain members of any type as well
+and their contents are defined by a metaclass (aka GRT struct). Objects can also
+contain methods and signals.
+
+Simple values are immutable, ie. the contents of a value will never change,
+unlike lists, dicts and objects.
+
+Lists and dicts are obviously mutable, so if you have references to the
+same list in 2 different places and one of them modifies the list, both
+references will see the updated list. That doesn't happen with simple values.
+
+For convenience, GRT values have wrapper classes that provide automatic
+reference counting and several utility methods. Any allocation, access or
+reference to a GRT value should be done through these wrappers (classes that
+end in Ref) as they will make sure that reference counting is always
+kept correct, avoiding memory leaks.
+
+Objects are defined in a XML file, but are actually implemented as C++
+classes. However these classes are automatically generated from the XML
+definitions. Objects can be directly accessed through these C++ classes but
+can also be accessed from scripting languages, as the metaclasses contain
+everything needed for object "reflection".
+
+Object contents are initialized when the object is constructed. Their default
+values is 0 unless a different value is specified in the XML file.
+Lists and dictionaries are also allocated, but object references are initially set to
+NULL. Lists and dictionaries are assigned to their owner object and cannot be
+replaced externally.
+
+
+@section grtmetaclass Metaclasses
+
+Metaclasses describe the contents of a GRT object. They are used for
+generation C++ classes that implement the GRT objects and also for exposing
+these objects to scripting languages.
+
+
+@section grtmodule Modules
+
+Modules are collection of functions that can be written in C++ or any of the
+supported scripting languages.
+
+
+*/
+
+
+
+
+/* @defgroup GRTInternal GRT Library Internals
+
+Internal classes and functions of the GRT library. Not meant to be used by code
+outside of the GRT.
+
+*/

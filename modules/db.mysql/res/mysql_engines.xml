@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<data>
+ <value _ptr_="019DCB70" type="list" content-type="object" content-struct-name="db.mysql.StorageEngine">
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{FACF75F6-8F5B-4E8C-9132-7D8213D4FE4A}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">InnoDB</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DCC48" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">1</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{30582B2B-C9AE-4CB6-BA78-F3B8FC448D93}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">MyISAM</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DCCF0" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{4356897B-000F-4CDD-8CFF-F98C8F5646B4}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">ndbcluster</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DD110" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">1</value> <!-- supported since 7.3 --> 
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{78231BAE-44DB-4CA7-BF1C-BCE4EC1D6156}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">MEMORY</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DCE88" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{BA5944F5-D7D2-4652-8555-87FF663B74DB}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">EXAMPLE</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DCF00" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{241F26F4-A0CE-4394-82AA-97F579D9637A}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">FEDERATED</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DCED0" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{C17CCBCB-6D35-4275-8852-47DD5730B94B}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">ARCHIVE</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DCD80" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{E3786930-CD92-45D6-9C20-4B9859862400}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">CSV</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DD200" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{4356897B-000F-4CDD-8CFF-F98C8F5646B2}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">BLACKHOLE</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DD110" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.infinidb">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">infinidb</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.ibmdb2i">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">IBMDB2I</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">1</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.brighthouse">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">Brighthouse</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.kfdb">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">KFDB</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.scaledb">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">ScaleDB</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">1</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.tokudb">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">TokuDB</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.xtradb">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">XtraDB</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">1</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.spider">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">Spider</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="{CA82074E-9EAE-41E0-8368-EE62C07F17B5}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">MRG_MyISAM</value>
+     <value type="string" key="oldName"></value>
+     <value _ptr_="019DCF78" type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+	<value type="object" struct-name="db.mysql.StorageEngine" id="{FACF75F6-8F5B-4E8C-9132-7D8213D4FE4A1}" struct-checksum="0xf48dbcd2">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">Aria</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">0</value>
+   </value>
+   <value type="object" struct-name="db.mysql.StorageEngine" id="com.mysql.engine.3rdparty.pbxt">
+     <value type="string" key="caption"></value>
+     <value type="string" key="comment"></value>
+     <value type="string" key="description"></value>
+     <value type="string" key="name">PBXT</value>
+     <value type="string" key="oldName"></value>
+     <value type="list" content-type="object" content-struct-name="db.mysql.StorageEngineOption" key="options"/>
+     <value type="int" key="supportsForeignKeys">1</value>
+   </value>
+ </value>
+</data>

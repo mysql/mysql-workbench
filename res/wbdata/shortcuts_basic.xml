@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+
+<data>
+  <value type="list" key="items" content-type="object" content-struct-name="app.ShortcutItem">
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.select">
+      <value type="string" key="name">select</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">Escape</value>
+      <value type="string" key="command">tool:basic/select</value>
+    </value>
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.hand">
+      <value type="string" key="name">hand</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">H</value>
+      <value type="string" key="command">tool:basic/hand</value>
+    </value>
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.delete">
+      <value type="string" key="name">delete</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">D</value>
+      <value type="string" key="command">tool:basic/delete</value>
+    </value>
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.layer">
+      <value type="string" key="name">layer</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">L</value>
+      <value type="string" key="command">tool:basic/layer</value>
+    </value>
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.note">
+      <value type="string" key="name">note</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">N</value>
+      <value type="string" key="command">tool:basic/note</value>
+    </value>
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.image">
+      <value type="string" key="name">image</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">I</value>
+      <value type="string" key="command">tool:basic/image</value>
+    </value>
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.zoomin">
+      <value type="string" key="name">zoomin</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">control+Add</value>
+      <value type="string" key="command">zoomin</value>
+    </value>
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.zoomout">
+      <value type="string" key="name">zoomout</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">control+Subtract</value>
+      <value type="string" key="command">zoomout</value>
+    </value>
+
+    <value type="object" struct-name="app.ShortcutItem" id="com.mysql.wb.shortcut.zoomdefault">
+      <value type="string" key="name">zoomdefault</value>
+      <value type="string" key="context">model</value>
+      <value type="string" key="platform"></value>
+      <value type="string" key="shortcut">control+Divide</value>
+      <value type="string" key="command">zoomdefault</value>
+    </value>
+
+  </value>
+</data>
+  

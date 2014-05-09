@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+      <requires file="structs.xml"/>
+      <requires file="structs.model.xml"/>
+      <requires file="structs.eer.xml"/>
+
+      <gstruct name="workbench.logical.Model" parent="model.Model" impl-data="1" attr:caption="Model" attr:desc="a logical model holding diagrams">
+          <members>
+              <member name="diagrams" type="list" content-type="object" content-struct-name="workbench.logical.Diagram" owned="1" overrides="model.Diagram" attr:desc="the list of all available diagrams"/>
+
+              <method name="addNewDiagram">
+                  <argument name="deferRealize" type="int"/>
+                  <return  type="object" struct-name="model.Diagram"/>
+              </method>
+          </members>
+      </gstruct>
+
+      <gstruct name="workbench.logical.Diagram" parent="model.Diagram" impl-data="1" attr:caption="Diagram" attr:desc="a model diagram holding layers">
+          <members>
+              <method name="placeNewLayer">
+                  <argument name="x" type="double"/>
+                  <argument name="y" type="double"/>
+                  <argument name="width" type="double"/>
+                  <argument name="height" type="double"/>
+                  <argument name="name" type="string"/>
+                  <return type="object" struct-name="model.Layer"/>
+              </method>
+          </members>
+      </gstruct>
+
+      <gstruct name="workbench.logical.Entity" parent="model.Figure" attr:caption="Entity" attr:desc="a model figure representing a table">
+          <members>
+              <member name="entity" type="object" struct-name="eer.Entity" attr:desc="the entity this figure represents"/>
+              <member name="attributesExpanded" type="int" default="1" attr:desc="indicates whether the columns list is expanded"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="workbench.logical.Relationship" parent="model.Figure" attr:caption="Relationship" attr:desc="a model figure representing a relationship">
+          <members>
+              <member name="relationship" type="object" struct-name="eer.Relationship" attr:desc="the relationship that is represented"/>
+              <member name="attributesExpanded" type="int" default="1" attr:desc="indicates whether the columns list is expanded"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="workbench.logical.Connection" parent="model.Connection" attr:caption="Connection" attr:desc="a model connection">
+          <members>
+              <member name="startFigure" type="object" struct-name="model.Figure" attr:desc="the source figure"/>
+              <member name="endFigure" type="object" struct-name="model.Figure" attr:desc="the target figure"/>
+              <member name="startMany" type="int"/>
+              <member name="endMany" type="int"/>
+              <member name="startCaption" type="string" attr:desc="caption at the start of of the relationship"/>
+              <member name="startCaptionXOffs" type="real" attr:desc="X offset of the start caption"/>
+              <member name="startCaptionYOffs" type="real" attr:desc="Y offset of the start caption"/>
+              <member name="endCaption" type="string" attr:desc="caption at the end of of the relationship"/>
+              <member name="endCaptionXOffs" type="real" attr:desc="X offset of the end caption"/>
+              <member name="endCaptionYOffs" type="real" attr:desc="Y offset of the end caption"/>
+              <member name="comment" type="string" attr:desc="a comment about the relationship"/>
+          </members>
+      </gstruct>
+
+  </gstructs>

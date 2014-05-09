@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<data>
+  <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.option.view">
+    <value type="string" key="name">options/physical/view</value>
+    <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.view.schemalbl">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.view</link>
+        <value type="string" key="command">Schema:</value>
+        <value type="string" key="itemType">label</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.view.schema">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.view</link>
+        <value type="string" key="name">physical/view/schema</value>
+        <value type="string" key="command">option:workbench.physical.ViewFigure:Schema</value>
+        <value type="string" key="itemType">dropdown</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.view.schemasep">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.view</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.view.color">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.view</link>
+        <value type="string" key="name">physical/view/color</value>
+        <value type="string" key="command">option:workbench.physical.ViewFigure:Color</value>
+        <value type="string" key="itemType">dropdown</value>
+      </value>
+    </value>
+  </value>
+</data>

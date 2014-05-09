@@ -1,0 +1,82 @@
+MySQL Workbench 6.1 
+-------------------
+
+MySQL Workbench is a complete database modeling, administration and development program for MySQL.
+
+
+This tree contains the source files for the MySQL Workbench 6.1.
+
+MySQL Workbench is an extensible visual database design tool.
+
+
+Buiding on Linux
+----------------
+
+To Build:
+- Extract the sources into a directory, e.g. wb6
+- Install dependencies. For Ubuntu and other Debian based distros type this in a
+  command line terminal:
+  $> sudo apt-get install build-essential cmake autoconf automake pkg-config libtool libzip-dev libxml2-dev libsigc++-2.0-dev libglade2-dev libgtkmm-2.4-dev libglu1-mesa-dev libgl1-mesa-glx mesa-common-dev libmysqlclient-dev libmysqlcppconn-dev uuid-dev liblua5.1-dev libpixman-1-dev libpcre3-dev libgnome2-dev libgnome-keyring-dev libgtk2.0-dev libpango1.0-dev libcairo2-dev python-dev libboost-dev libctemplate0 libctemplate-dev mysql-client python-pysqlite2 libsqlite3-dev iodbc libiodbc2 libiodbc2-dev libtinyxml-dev
+- You will also need to install VSQLite++ from https://github.com/vinzenz/vsqlite--. Check the INSTALL file there for installation instructions.
+- Create a build directory (better if you create it outside the Workbench source tree), e.g. wb-build
+- Change the directory to the build directory you have just created, e.g. cd ../wb-build
+- Run cmake <path to workbench tree> -DCMAKE_INSTALL_PREFIX=<path where you want WB to be> -DCMAKE_BUILD_TYPE=Release
+- Run make -j3 install
+
+For complete and up-to-date instructions, visit http://wb.mysql.com/?page_id=152
+
+Note about swig:
+- You will need swig 1.3 to build WB
+
+Note about antlr:
+- Antlr 3.4 is needed, but the current release has many bugs. You will need it patched with https://github.com/antlr/antlr3/pull/43 if you don't want to use the bundled version.
+  Then you'll need to 
+      
+      export ANTLR_JAR_PATH=<path_to_your_antlr_complete_file>
+
+Building on Windows
+-------------------
+
+To build on Windows, you need Visual Studio 2010 with C++ and C# support.
+You also need the latest mysql-workbench-externals-1.0-win32 package, which
+contains pre-compiled binaries of all the 3rd party libraries that Workbench 
+depends on.
+
+To Build:
+- Unpack mysql-gui-win-res in the same top directory as Workbench itself
+- Go to the mysql-workbench directory
+- Open MySQLWorkbench.sln solution file
+- Select Release_OSS or the Debug Configuration
+- Select x86 as the Platform
+- Build Project
+
+
+
+Buiding on Mac OS X
+-------------------
+
+To Build:
+- Go to http://rudix.org/ and download and install the following packages
+  gettext, glib, libpng, libsigc++, lua, pkg-config, pcre, libzip, cairo, pixman
+- Install MySQL 5.5.x 32bit (64bit will not work), make sure /usr/local/mysql
+  points to the correct installation
+- Install MySQL Connector/C++, vsqlite++
+- Install Xcode 4.1.0 or later and open the MySQLWorkbench.xcodeproj file
+- Select the OS X 10.6 and Debug or Release and build
+
+==============================================================================
+
+
+MySQL Workbench OSS edition is licensed under the terms of the
+General Public License version 2. For the exact terms of this license,
+please view the included COPYING file.
+
+
+==============================================================================
+
+
+For more information, newer versions, FAQ, mailing lists etc
+visit http://wb.mysql.com
+
+
+The MySQL Workbench Team.

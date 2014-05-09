@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+      <requires file="structs.xml"/>
+      <requires file="structs.model.xml"/>
+      <requires file="structs.meta.xml"/>
+      <requires file="structs.db.xml"/>
+      <requires file="structs.db.mgmt.xml"/>
+
+
+      <gstruct  name="workbench.physical.Diagram" parent="model.Diagram" impl-data="1" attr:caption="Diagram" attr:desc="a model diagram holding layers and figures">
+          <members>
+              <method name="placeTable">
+                  <argument name="table" type="object" struct-name="db.Table"/>
+                  <argument name="x" type="double"/>
+                  <argument name="y" type="double"/>
+                  <return type="object" struct-name="workbench.physical.TableFigure"/>
+              </method>
+              <method name="placeView">
+                  <argument name="view" type="object" struct-name="db.View"/>
+                  <argument name="x" type="double"/>
+                  <argument name="y" type="double"/>
+                  <return type="object" struct-name="workbench.physical.ViewFigure"/>
+              </method>
+              <method name="placeRoutineGroup">
+                  <argument name="routineGroup" type="object" struct-name="db.RoutineGroup"/>
+                  <argument name="x" type="double"/>
+                  <argument name="y" type="double"/>
+                  <return type="object" struct-name="workbench.physical.RoutineGroupFigure"/>
+              </method>
+              <method name="placeNewLayer">
+                  <argument name="x" type="double"/>
+                  <argument name="y" type="double"/>
+                  <argument name="width" type="double"/>
+                  <argument name="height" type="double"/>
+                  <argument name="name" type="string"/>
+                  <return type="object" struct-name="model.Layer"/>
+              </method>
+              <method name="createConnectionForForeignKey">
+                  <argument name="fk" type="object" struct-name="db.ForeignKey"/>
+                  <return type="object" struct-name="workbench.physical.Connection"/>
+              </method>
+              <method name="createConnectionsForTable">
+                  <argument name="table" type="object" struct-name="db.Table"/>
+                  <return type="int"/>
+              </method>
+              <method name="deleteConnectionsForTable">
+	          <argument name="table" type="object" struct-name="db.Table"/>
+                  <return type="void"/>
+              </method>
+              <method name="getFigureForDBObject">
+                  <argument name="object" type="object" struct-name="db.DatabaseObject"/>
+                  <return type="object" struct-name="model.Figure"/>
+              </method>
+              <method name="getConnectionForForeignKey">
+                  <argument name="fk" type="object" struct-name="db.ForeignKey"/>
+                  <return type="object" struct-name="workbench.physical.Connection"/>
+              </method>
+
+              <method name="autoPlaceDBObjects">
+                  <argument name="objects" type="list" content-type="object" content-struct-name="db.DatabaseObject"/>
+                  <return type="void"/>
+              </method>
+          </members>
+      </gstruct>
+
+      <gstruct name="workbench.physical.Layer" impl-data="1" parent="model.Layer">
+      </gstruct>
+
+      <gstruct  name="workbench.physical.Model" parent="model.Model" impl-data="1" attr:caption="Model" attr:desc="a physical model holding diagrams">
+          <members>
+              <member name="diagrams" type="list" content-type="object" content-struct-name="workbench.physical.Diagram" overrides="model.Diagram" owned="1" attr:desc="the list of all available diagrams"/>
+              <member name="rdbms" type="object" struct-name="db.mgmt.Rdbms" attr:desc="the rdbms used for the document"/>
+              <member name="currentConnection" type="object" struct-name="db.mgmt.Connection" attr:desc="the connection used for reverse engineering and synchronisation"/>
+              <member name="connections" type="list" content-type="object" content-struct-name="db.mgmt.Connection" owned="1" attr:desc="all connections that should be used for a full synchronisation"/>
+              <member name="catalog" struct-name="db.Catalog" type="object" owned="1"/>
+              <member name="figureNotation" type="string"/>
+              <member name="connectionNotation" type="string"/>
+              <member name="scripts" type="list" content-type="object" content-struct-name="db.Script" owned="1" attr:desc="a list of scripts that are stored with the model"/>
+              <member name="notes" type="list" content-type="object" content-struct-name="GrtStoredNote" owned="1" attr:desc="a list of notes that are stored with the model"/>
+              <member name="tags" type="list" content-type="object" content-struct-name="meta.Tag" owned="1"/>
+              <member name="tagCategories" type="list" content-type="object" content-struct-name="GrtObject" owned="1"/>
+
+              <member name="syncProfiles" type="dict" content-type="object" content-struct-name="db.mgmt.SyncProfile"/>
+
+              <method name="addNewDiagram">
+                  <argument name="deferRealize" type="int"/>
+                  <return type="object" struct-name="model.Diagram"/>
+              </method>
+          </members>
+      </gstruct>
+
+
+      <gstruct  name="workbench.physical.TableFigure" parent="model.Figure" impl-data="1" attr:caption="Table" attr:desc="a model figure representing a table">
+          <members>
+              <member name="table" type="object" struct-name="db.Table" delegate-set="1" attr:desc="the table this figure represents" attr:editas="hide"/>
+              <member name="columnsExpanded" type="int" default="1" attr:desc="indicates whether the columns list is expanded" attr:editas="hide"/>
+              <member name="indicesExpanded" type="int" default="0" attr:desc="indicates whether the indices list is expanded" attr:editas="bool"/>
+              <member name="foreignKeysExpanded" type="int" default="0" attr:desc="indicates whether the foreign keys list is expanded" attr:editas="hide"/>
+              <member name="triggersExpanded" type="int" default="0" attr:desc="indicates whether the triggers list is expanded" attr:editas="bool"/>
+  
+              <member name="summarizeDisplay" type="int" default="-1" attr:desc="set to -1 for showing table in summarized view mode if there's too many columns, 0 to show all columns and 1 to force summary view"/>
+          </members>
+      </gstruct>
+
+      <gstruct  name="workbench.physical.ViewFigure" parent="model.Figure" impl-data="1" attr:caption="View" attr:desc="a model figure representing a view">
+          <members>
+              <member name="view" type="object" struct-name="db.View" delegate-set="1" attr:desc="the view this figure represents" attr:editas="hide"/>
+
+          </members>
+      </gstruct>
+  
+      <gstruct  name="workbench.physical.RoutineGroupFigure" parent="model.Figure" impl-data="1" attr:caption="Routines" attr:desc="a model figure representing a collection of routines">
+          <members>
+              <member name="routineGroup" type="object" struct-name="db.RoutineGroup" delegate-set="1" attr:desc="the routine group this figure represents" attr:editas="hide"/>
+
+          </members>
+      </gstruct>
+
+      <gstruct  name="workbench.physical.Connection" parent="model.Connection" impl-data="1" attr:caption="Connection" attr:desc="a model connection">
+          <members>
+              <member name="caption" type="string" attr:desc="center caption"/>
+              <member name="captionXOffs" type="real" attr:desc="X offset of the caption"/>
+              <member name="captionYOffs" type="real" attr:desc="Y offset of the caption"/>
+              <member name="extraCaption" type="string" attr:desc="additional center caption"/>
+              <member name="extraCaptionXOffs" type="real" attr:desc="X offset of the caption"/>
+              <member name="extraCaptionYOffs" type="real" attr:desc="Y offset of the caption"/>
+
+              <member name="startCaptionXOffs" type="real" attr:desc="X offset of the start caption"/>
+              <member name="startCaptionYOffs" type="real" attr:desc="Y offset of the start caption"/>
+              <member name="endCaptionXOffs" type="real" attr:desc="X offset of the end caption"/>
+              <member name="endCaptionYOffs" type="real" attr:desc="Y offset of the end caption"/>
+
+              <member name="middleSegmentOffset" type="real" attr:desc="offset of the middle segment of the line, if applicable"/>
+
+              <member name="comment" type="string" attr:desc="a comment about the relationship"/>
+              <member name="foreignKey" type="object" struct-name="db.ForeignKey" delegate-set="1" attr:desc="the foreign key this corresponds to" attr:editas="fields:many,mandatory,referencedMandatory,modelOnly"/>
+          </members>
+      </gstruct>
+
+  </gstructs>

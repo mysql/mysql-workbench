@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+  <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+      <requires file="structs.db.xml"/>
+      <requires file="structs.xml"/>
+
+      <gstruct name="db.mysql.Catalog" parent="db.Catalog">
+          <members>
+              <member name="logFileGroups" type="list" content-type="object" content-struct-name="db.mysql.LogFileGroup" overrides="db.LogFileGroup" owned="1"/>
+              <member name="tablespaces" type="list" content-type="object" content-struct-name="db.mysql.Tablespace" overrides="db.Tablespace" owned="1"/>
+              <member name="serverLinks" type="list" content-type="object" content-struct-name="db.mysql.ServerLink" overrides="db.ServerLink" owned="1"/>
+
+              <member name="schemata" type="list" content-type="object" content-struct-name="db.mysql.Schema" overrides="db.Schema" owned="1"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.Schema" parent="db.Schema" attr:caption="MySQL Schema">
+          <members>
+              <member content-struct-name="db.mysql.Table" content-type="object" name="tables" overrides="db.Table" type="list" owned="1" attr:editas="hide"/>
+              <member content-struct-name="db.mysql.View" content-type="object" name="views" overrides="db.View" type="list" owned="1" attr:editas="hide"/>
+              <member content-struct-name="db.mysql.Routine" content-type="object" name="routines" overrides="db.Routine" type="list" owned="1" attr:editas="hide"/>
+              <member content-struct-name="db.mysql.RoutineGroup" content-type="object" name="routineGroups" overrides="db.RoutineGroup" type="list" owned="1" attr:editas="hide"/>
+              <member content-struct-name="db.mysql.Synonym" content-type="object" name="synonyms" overrides="db.Synonym" type="list" owned="1" attr:editas="hide"/>
+              <member content-struct-name="db.mysql.StructuredDatatype" content-type="object" name="structuredTypes" overrides="db.StructuredDatatype" type="list" owned="1" attr:editas="hide"/>
+              <member content-struct-name="db.mysql.Sequence" content-type="object" name="sequences" overrides="db.Sequence" type="list" owned="1" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.LogFileGroup" parent="db.LogFileGroup" attr:caption="MySQL Log File Group">
+          <members>
+              <member name="engine" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.Tablespace" parent="db.Tablespace" attr:caption="MySQL Tablespace">
+          <members>
+              <member name="engine" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.ServerLink" parent="db.ServerLink" attr:caption="MySQL Server Alias"/>
+
+      <gstruct name="db.mysql.PartitionDefinition" parent="GrtObject" attr:caption="Table Partition Definition">
+          <members>
+              <member name="value" type="string"/>
+              <member name="comment" type="string"/>
+              <member name="dataDirectory" type="string"/>
+              <member name="indexDirectory" type="string"/>
+              <member name="maxRows" type="string"/>
+              <member name="minRows" type="string"/>
+              <member name="subpartitionDefinitions" type="list" content-type="object" content-struct-name="db.mysql.PartitionDefinition" owned="1"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="MySQL Table" name="db.mysql.Table" parent="db.Table">
+          <members>
+              <member name="primaryKey" type="object" struct-name="db.mysql.Index" overrides="db.Index" attr:caption="Primary Key" attr:editas="hide"/>
+              <member name="columns" type="list" content-type="object" content-struct-name="db.mysql.Column" overrides="db.Column" attr:caption="Columns" owned="1" attr:editas="hide"/>
+              <member name="indices" type="list" content-type="object" content-struct-name="db.mysql.Index" overrides="db.Index" attr:caption="Indices" owned="1" attr:editas="hide"/>
+              <member name="foreignKeys" type="list" content-type="object" content-struct-name="db.mysql.ForeignKey" overrides="db.ForeignKey" attr:caption="Foreign Keys" owned="1" attr:editas="hide"/>
+              <member name="triggers" type="list" content-type="object" content-struct-name="db.mysql.Trigger" overrides="db.Trigger" owned="1" attr:caption="Triggers" attr:editas="hide"/>
+              <member name="tableEngine" type="string" attr:editas="hide"/>
+              <member name="nextAutoInc" type="string" attr:editas="numeric" attr:dontdiff="2"/>
+              <member name="password" type="string" attr:editas="hide"/>
+              <member name="delayKeyWrite" type="int" attr:editas="bool"/>
+              <member name="defaultCharacterSetName" type="string" attr:editas="hide"/>
+              <member name="defaultCollationName" type="string" attr:editas="hide"/>
+              <member name="mergeUnion" type="string" attr:editas="hide"/>
+              <member name="mergeInsert" type="string" attr:editas="hide"/>
+              <member name="tableDataDir" type="string"/>
+              <member name="tableIndexDir" type="string"/>
+              <member name="packKeys" type="string" attr:editas="hide"/>
+              <member name="raidType" type="string" attr:editas="hide"/>
+              <member name="raidChunks" type="string" attr:editas="hide"/>
+              <member name="raidChunkSize" type="string" attr:editas="hide"/>
+              <member name="checksum" type="int" attr:editas="hide"/>
+              <member name="rowFormat" type="string" attr:editas="hide"/>
+              <member name="keyBlockSize" type="string" attr:editas="hide"/>
+              <member name="avgRowLength" type="string" attr:editas="hide"/>
+              <member name="minRows" type="string" attr:editas="hide"/>
+              <member name="maxRows" type="string" attr:editas="hide"/>
+              <member name="connection" type="object" struct-name="db.ServerLink"  owned="1" attr:caption="Server Link" attr:desc="if this is a federated table the connection is set to the server link object" attr:editas="hide"/>
+              <member name="connectionString" type="string" attr:desc="if this is a federated table the connection is set to the server link object" attr:editas="hide"/>
+              <member name="partitionType" type="string" attr:editas="hide"/>
+              <member name="partitionExpression" type="string" attr:editas="hide"/>
+              <member name="partitionCount" type="int" attr:editas="hide"/>
+              <member name="subpartitionType" type="string" attr:editas="hide"/>
+              <member name="subpartitionExpression" type="string" attr:editas="hide"/>
+              <member name="subpartitionCount" type="int" attr:editas="hide"/>
+              <member name="partitionDefinitions" type="list" content-type="object" content-struct-name="db.mysql.PartitionDefinition" owned="1" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.Column" parent="db.Column">
+          <members>
+              <member name="autoIncrement" type="int"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.SimpleDatatype" parent="db.SimpleDatatype"/>
+
+      <gstruct attr:caption="MySQL Structured Datatype" name="db.mysql.StructuredDatatype" parent="db.StructuredDatatype"/>
+
+      <gstruct name="db.mysql.Index" parent="db.Index">
+          <members>
+              <member name="indexKind" type="string"/>
+              <member name="keyBlockSize" type="int"/>
+              <member name="withParser" type="string"/>
+              <member name="columns" type="list" content-type="object" content-struct-name="db.mysql.IndexColumn" overrides="db.IndexColumn" owned="1"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.IndexColumn" parent="db.IndexColumn"/>
+
+      <gstruct name="db.mysql.ForeignKey" parent="db.ForeignKey">
+          <members>
+	      <member name="referencedTable"  type="object" struct-name="db.mysql.Table" overrides="db.Table"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.Trigger" parent="db.Trigger" attr:caption="MySQL Trigger"/>
+
+      <gstruct attr:caption="MySQL View" name="db.mysql.View" parent="db.View"/>
+
+      <gstruct attr:caption="MySQL Routine Group" name="db.mysql.RoutineGroup" parent="db.RoutineGroup"/>
+
+      <gstruct attr:caption="MySQL Routine" name="db.mysql.Routine" parent="db.Routine">
+          <members>
+              <member name="security" type="string" attr:editas="hide"/>
+              <member name="returnDatatype" type="string" attr:editas="hide"/>
+              <member attr:caption="Parameters" content-struct-name="db.mysql.RoutineParam" content-type="object" name="params" type="list" owned="1" attr:editas="hide"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.mysql.RoutineParam" parent="GrtObject">
+          <members>
+              <member name="datatype" type="string"/>
+              <member name="paramType" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="MySQL Synonym" attr:desc="a MySQL synonym object" name="db.mysql.Synonym" parent="db.Synonym"/>
+
+      <gstruct attr:caption="MySQL Sequence" attr:desc="a MySQL database sequence object" name="db.mysql.Sequence" parent="db.Sequence"/>
+
+      <gstruct attr:caption="MySQL Storage Engine Option" attr:desc="an option description for a MySQL storage engine" name="db.mysql.StorageEngineOption" parent="GrtNamedObject">
+          <members>
+              <member name="caption" type="string"/>
+              <member name="description" type="string"/>
+              <member name="type" type="string"/>
+          </members>
+      </gstruct>
+
+      <gstruct attr:caption="MySQL Storage Engine Type" attr:desc="a MySQL storage engine type description" name="db.mysql.StorageEngine" parent="GrtNamedObject">
+          <members>
+              <member name="caption" type="string"/>
+              <member name="description" type="string"/>
+              <member name="supportsForeignKeys" type="int"/>
+              <member attr:caption="Options" content-struct-name="db.mysql.StorageEngineOption" content-type="object" name="options" type="list" owned="1"/>
+          </members>
+      </gstruct>
+  </gstructs>

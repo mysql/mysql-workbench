@@ -1,0 +1,47 @@
+die erste Liste, 'alte' MySQL bugs - kann aber sein daß da einige bereits von gelöst sind: http://bugs.mysql.com/search.php?cmd=display&bug_type[]=Any&status[]=Active&severity=all&os=0&bug_age=0&order_by=target&priority=all&limit=70&mine=1770300&tags=sqlparser%2C+formatter&defect_class=all&workaround_viability=all&impact=all&fix_risk=all&fix_effort=all
+
+09:36:41 MySQL bugDB 49457 / 46986 / 41492 / 41009 / 38898 / 38880 sind die, die mir Jira momentan als noch 'offen' zeigt, also die wohl etwas komplizierteren Fälle
+
+09:36:54 42077
+09:37:32 https://bug.oraclecorp.com/pls/bug/webbug_print.show?c_rptno=13253474 - SELECT GROUP_CONCAT('\\\\\n* ', '\'', u.user,  '\'@\'', u.host ,'\' requires the ', u.plugin, ' plugin (',  IF(p.PLUGIN_STATUS = 'DISABLED', 'which is disabled)', 'which is not  installed)')) AS requirement_list FROM mysql.user u LEFT JOIN  INFORMATION_SCHEMA.PLUGINS p ON (u.plugin = p.PLUGIN_NAME) WHERE  (p.PLUGIN_NAME IS NULL OR p.PLUGIN_STATUS = 'DISABLED') AND  TRIM(u.plugin) <> '' 
+
+https://bug.oraclecorp.com/pls/bug/webbug_print.show?c_rptno=12697269 - select f.id, f.hotel_id, ft.phototag_id from b_photo f joinphotophototag ft on ft.photo_id = f.id where hotel_id in (?) and ft.phototag_id in (?);
+09:46:51 hmm, das ist der String aus dem Bug Report:
+ SELECT GROUP_CONCAT('\\\\\n* ', '\'', u.user,  '\'@\'', u.host ,'\' requires the ', u.plugin, ' plugin (',  IF(p.PLUGIN_STATUS = 'DISABLED', 'which is disabled)', 'which is not  installed)')) AS requirement_list FROM mysql.user u LEFT JOIN  INFORMATION_SCHEMA.PLUGINS p ON (u.plugin = p.PLUGIN_NAME) WHERE  (p.PLUGIN_NAME IS NULL OR p.PLUGIN_STATUS = 'DISABLED') AND  TRIM(u.plugin) <> '' 
+ 
+ 
+ SELECT a,b,a+b INTO OUTFILE '/tmp/result.txt'
+   FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+   LINES TERMINATED BY '\n'
+   FROM test_table;
+   
+   SELECT t1.name, t2.salary
+     FROM employee AS t1 INNER JOIN info AS t2 ON t1.name = t2.name;
+
+   SELECT t1.name, t2.salary
+     FROM employee t1 INNER JOIN info t2 ON t1.name = t2.name;
+     
+ SELECT * FROM (SELECT 1, 2, 3) AS t1;
+ 
+ SELECT left_tbl.*
+   FROM left_tbl LEFT JOIN right_tbl ON left_tbl.id = right_tbl.id
+   WHERE right_tbl.id IS NULL;
+  
+   SELECT left_tbl.*
+       FROM { OJ left_tbl LEFT OUTER JOIN right_tbl ON left_tbl.id = right_tbl.id }
+       WHERE right_tbl.id IS NULL;
+       
+       SELECT * FROM table1, table2;
+
+       SELECT * FROM table1 INNER JOIN table2 ON table1.id=table2.id;
+
+       SELECT * FROM table1 LEFT JOIN table2 ON table1.id=table2.id;
+
+       SELECT * FROM table1 LEFT JOIN table2 USING (id);
+
+       SELECT * FROM table1 LEFT JOIN table2 ON table1.id=table2.id
+         LEFT JOIN table3 ON table2.id=table3.id;
+         
+SELECT * FROM (t1, t2) JOIN t3 ON (t1.i1 = t3.i3);
+SELECT * FROM t1 JOIN t2 JOIN t3 ON (t1.i1 = t3.i3);
+SELECT * FROM t1 NATURAL JOIN t2 WHERE b > 1;

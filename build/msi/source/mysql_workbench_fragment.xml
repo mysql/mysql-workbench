@@ -1,0 +1,2091 @@
+<?xml version="1.0" ?><Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+  <?if $(var.SETUP_TYPE) = "commercial" ?>
+  <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN)"?>
+  <?elseif $(var.SETUP_TYPE) = "community" ?>
+  <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN) CE"?>
+  <?else ?>
+  <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN) Debug"?>
+  <?endif ?>
+
+  <?if $(sys.BUILDARCH)="x86"?>
+      <?define Program_Files="ProgramFilesFolder"?>
+  <?elseif $(sys.BUILDARCH)="x64"?>
+      <?define Program_Files="ProgramFiles64Folder"?>
+  <?else?>
+      <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
+  <?endif?>
+  
+  <Fragment>
+
+    <!-- *****************************************************************************************
+      Icons
+    -->
+
+    <Icon Id="WBIcon.exe" SourceFile="resources/MySQLWorkbench.ico"/>
+
+    <!-- *****************************************************************************************
+      Directories / Files
+      
+      Current manual added files max id: file111
+    -->
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory FileSource="." Id="$(var.Program_Files)" Name=".">
+        <Directory Id="MYSQL" Name="MySQL">
+          <Directory FileSource=".\" Id="Mysql_WB_Dir" Name="$(var.PRODUCT_NAME)">
+            <Directory Id="INSTALLDIR" Name=".">
+              <Directory Id="DesktopFolder" Name="."/>
+              <Directory Id="ProgramMenuFolder" Name=".">
+                <Directory Id="MysqlProgramMenuFolder" Name="MySQL"/>
+              </Directory>
+
+              <Component DiskId="1" Guid="4E9CC25E-CB45-47e5-931E-DB57AC74991D" Id="Various" Location="either">
+                <File Id="README" Name="README"/>
+                <?if $(var.LICENSE_TYPE) = "community"?>
+                  <File Id="COPYING" Name="COPYING"/>
+                <?elseif $(var.LICENSE_TYPE) = "commercial"?>
+                  <File Id="LICENSE.mysql" Name="LICENSE.mysql"/>
+                <?endif ?>
+                <RemoveFolder Directory="Mysql_WB_Dir" Id="RemoveWbDirFolder" On="uninstall"/>
+                <RemoveFolder Directory="MysqlProgramMenuFolder" Id="RemoveProgramMenuFolder" On="uninstall"/>
+              </Component>
+
+              <Component DiskId="1" Guid="F7B89C4E-BAA9-44e6-9FB1-F6DB8148790F" Id="Third_Party_Libraries" Location="either">
+                <File Id="file1023" Name="libiconv.dll"/>
+                <File Id="file1085" Name="libintl-8.dll"/>
+                <File Id="file1027" Name="libcairo.dll"/>
+                <File Id="file1034" Name="libmysql.dll"/>
+                <File Id="file1035" Name="libpng.dll"/>
+                <File Id="file1036" Name="libxml2.dll"/>
+                <File Id="file1037" Name="lua.dll"/>
+                <File Id="file1030" Name="libglib-2.0-0.dll"/>
+                <File Id="file1031" Name="libgmodule-2.0-0.dll"/>
+                <File Id="file1032" Name="libgobject-2.0-0.dll"/>
+                <File Id="file1033" Name="libgthread-2.0-0.dll"/>
+                <File Id="file1050" Name="Aga.Controls.dll"/>
+                <File Id="file1064" Name="libctemplate.dll"/>
+                <File Id="file1065" Name="libzip.dll"/>
+                <File Id="file1083" Name="zlib.dll"/>
+                <File Id="file1087" Name="wb.py"/>
+                <File Id="file1088" Name="wb_library.lua"/>
+                <?if $(var.LICENSE_TYPE) = "debug"?>
+                <File Id="file1099d" Name="python27_d.dll"/>
+                <?else ?>
+                <File Id="file1099" Name="python27.dll"/>
+                <?endif ?>
+                <File Id="file1101" Name="mysqldump.exe"/>
+                <File Id="file1102" Name="mysql.exe"/>
+                <File Id="file1103" Name="mysql_system_status.vbs"/>
+                <File Id="file1104" Name="mysql_system_status_rmt.vbs"/>
+                <File Id="file1106" Name="Scintilla.dll"/>
+                <File Id="pcre.dll" Name="pcre.dll"/>
+                <File Id="file68725" Name="sqlite3.dll"/>
+              </Component>
+
+              <?if $(var.SETUP_TYPE) = "commercial" ?>
+              <Directory Id="lgpl_sources_dir" Name="lgpl_sources">
+                <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD612" Id="LGPLSrcPackages" Location="either">
+                  <File Id="file999001" Name="glib-2.12.12.tar.bz2"/>
+                  <File Id="file999002" Name="libiconv-1.14.tar.gz"/>
+                  <File Id="file999003" Name="libxml2-2.9.1.tar.gz"/>
+                  <File Id="file999005" Name="paramiko-1.7.7.1.zip"/>
+                </Component>
+              </Directory>
+              <?endif ?>
+
+              <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
+                <File Id="file101" Name="db.grt.dll"/>
+                <File Id="file102" Name="db.mysql.editors.wbp.be.dll"/>
+                <File Id="file103" Name="db.mysql.editors.wbp.fe.dll"/>
+                <File Id="file104" Name="db.mysql.editors.wbp.wr.dll"/>
+                <File Id="file105" Name="db.mysql.grt.dll"/>
+                <File Id="file106" Name="db.search.wbp.dll"/>
+                <File Id="file111" Name="db.mysql.diff.reporting.wbp.dll"/>
+                <File Id="file119" Name="db.mysql.sqlide.grt.dll"/>
+                <File Id="file112" Name="db.mysql.sqlparser.grt.dll"/>
+                <File Id="file113" Name="db.mysql.wbp.dll"/>
+                <File Id="file115" Name="grt.db.fe.dll"/>
+                <File Id="file116" Name="mysql.forms.dll"/>
+                <File Id="file117" Name="mysqlcppconn.dll"/>
+                <File Id="file118" Name="sqlide.fe.dll"/>
+                <File Id="file121" Name="wb.utils.native.grt.dll"/>
+                <File Id="file122" Name="WbPlugins.dll"/>
+                <File Id="file123" Name="wbprivate.be.dll"/>
+                <File Id="file124" Name="wbprivate.wr.dll"/>
+                <File Id="file125" Name="wbpublic.be.dll"/>
+                <File Id="file126" Name="wbpublic.wr.dll"/>
+                <File Id="file1020" Name="grt.dll"/>
+                <File Id="file1029" Name="cdbc.dll"/>
+                <File Id="file1072" Name="base.dll"/>
+                <File Id="file1073" Name="base.wr.dll"/>
+                <File Id="file1052" Name="MySQLCsUtilities.dll"/>
+                <File Id="file1053" Name="WBControls.dll"/>
+                <File Id="file1067" Name="wb.model.editors.wbp.be.dll"/>
+                <File Id="file1068" Name="wb.model.editors.wbp.fe.dll"/>
+                <File Id="file1069" Name="wb.model.editors.wbp.wr.dll"/>
+                <File Id="file1070" Name="wb.model.grt.dll"/>
+                <File Id="file1074" Name="wb.mysql.import.grt.dll"/>
+                <?if $(var.SETUP_TYPE) != "community" ?>
+                <File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
+                <File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
+                <File Id="file1079" Name="wb.validation.grt.dll"/>
+                <?endif ?>
+                <File Id="file1076" Name="wb.printing.wbp.be.dll"/>
+                <File Id="file1077" Name="wb.printing.wbp.fe.dll"/>
+                <File Id="file1078" Name="wb.printing.wbp.wr.dll"/>
+                <File Id="file1089" Name="mforms.py"/>
+                <File Id="file1090" Name="cairo.py"/>
+                <?if $(var.SETUP_TYPE) = "debug" ?>
+                <File Id="file1098d" Name="_mforms_d.pyd"/>
+                <File Id="file1096d" Name="_cairo_d.pyd"/>
+                <?else ?>
+                <File Id="file1098" Name="_mforms.pyd"/>
+                <File Id="file1096" Name="_cairo.pyd"/>
+                <?endif ?>
+                <File Id="file1097" Name="sshtunnel.py"/>
+                <File Id="file1095" Name="db.mysql.query.grt.dll"/>
+                <File Id="file1105" Name="shell_snippets.py.txt"/>
+                <File Id="file1107" Name="base.windows.dll"/>
+                <File Id="file1108" Name="db_utils.py"/>
+                <File Id="file1109" Name="grt_python_debugger.py"/>
+                <File Id="file1110" Name="wbadminhelper.py"/>
+                <File Id="file1112" Name="mforms.wr.dll"/>
+                <File Id="file1113" Name="wb.model.snippets.wbp.dll"/>
+                <File Id="file1114" Name="HTMLRenderer.dll"/>
+                <File Id="file1115" Name="mysql.parser.dll"/>
+                <File Id="wbcopytables.exe" Name="wbcopytables.exe"/>
+                <?if $(var.SETUP_TYPE) = "commercial" ?>
+                <File Id="file1117" Name="wb.model.advfind.wbp.dll"/>
+                <?endif ?>
+                <File Id="file1116" Name="wbadminhelper.exe"/>
+              </Component>
+
+              <Component DiskId="1" Guid="47641656-8430-4722-B558-DAE76CA7C0CA" Id="MySQLWorkbench.exe" Location="either">
+                <File Id="file1056" KeyPath="yes" Name="MySQLWorkbench.exe"/>
+
+                <File Id="MySQLWorkbenchDoc.ico" Name="MySQLWorkbenchDoc.ico"/>
+                <File Id="MySQLWBPlugin.ico" Name="MySQLWBPlugin.ico"/>
+
+                <RegistryValue Action="write" Id="Reg.Extn.MWB" Key=".mwb" Root="HKCR" Type="string" Value="MWBfile"/>
+
+                <RegistryKey Action="createAndRemoveOnUninstall" Id="Reg.Class.MWB" Key="MWBfile" Root="HKCR">
+                  <RegistryValue Id="Reg.Class.MWB.Value" Type="string" Value="MySQL Workbench File"/>
+                  <RegistryValue Id="Reg.Class.MWB.Icon" Key="DefaultIcon" Type="string" Value="[#MySQLWorkbenchDoc.ico],0"/>
+                  <RegistryValue Action="write" Id="Reg.Class.MWB.Command" Key="Shell\Open\Command" Type="string" Value="&quot;[#file1056]&quot; &quot;%1&quot;"/>
+                </RegistryKey>
+
+              </Component>
+
+              <Component DiskId="1" Guid="5EDFE6C6-57CB-44BB-97B9-CA7CAA96E0A0" Id="MySQLWorkbenchProgramLink" Location="either">
+                <RegistryKey Action="createAndRemoveOnUninstall" Key="SOFTWARE\MySQL AB\[ProductName] \Install" Root="HKCU">
+                  <RegistryValue KeyPath="yes" Name="ProgramSC" Type="integer" Value="1"/>
+                </RegistryKey>
+                <Shortcut Advertise="no" Description="MySQL Workbench Visual Database Designer" Directory="MysqlProgramMenuFolder" Icon="WBIcon.exe" IconIndex="0" Id="WBProgramShortcut" Name="$(var.PRODUCT_NAME)" Show="normal" Target="[INSTALLDIR]MySQLWorkbench.exe" WorkingDirectory="INSTALLDIR"/>
+              </Component>
+              <Component DiskId="1" Guid="DA7365B3-7FCC-4724-B583-6577FA55C841" Id="mysql_canvas" Location="either">
+                <File Id="file12004" Name="mysql.canvas.dll"/>
+              </Component>
+
+              <Directory Id="data_dir" Name="data">
+                <Component DiskId="1" Guid="E50DE540-4BCD-4d5b-BC3F-77AE41880A98" Id="data" KeyPath="yes" Location="either">
+                  <File Id="file2001" Name="db_datatype_groups.xml"/>
+                  <File Id="file2002" Name="main_menu.xml"/>
+                  <File Id="file2003" Name="model_toolbar.xml"/>
+                  <File Id="file2004" Name="model_option_toolbar_layer.xml"/>
+                  <File Id="file2005" Name="model_option_toolbar_note.xml"/>
+                  <File Id="file2006" Name="model_option_toolbar_physical_relationship.xml"/>
+                  <File Id="file2007" Name="model_option_toolbar_physical_routinegroup.xml"/>
+                  <File Id="file2008" Name="model_option_toolbar_physical_table.xml"/>
+                  <File Id="file2009" Name="model_option_toolbar_physical_view.xml"/>
+                  <File Id="file2010" Name="model_option_toolbar_selection.xml"/>
+                  <File Id="file2011" Name="paper_types.xml"/>
+                  <File Id="file2012" Name="shortcuts.xml"/>
+                  <File Id="file2013" Name="shortcuts_basic.xml"/>
+                  <File Id="file2014" Name="shortcuts_physical.xml"/>
+                  <File Id="file2015" Name="tools_toolbar.xml"/>
+                  <File Id="file2016" Name="tools_toolbar_basic.xml"/>
+                  <File Id="file2017" Name="tools_toolbar_physical.xml"/>
+                  <File Id="file2018" Name="data.db"/>
+                  <File Id="file2019" Name="default_toolbar.xml"/>
+                  <File Id="file2020" Name="dbquery_toolbar.xml"/>
+                  <File Id="file2021" Name="predefined_starters.xml"/>
+                  <File Id="file2022" Name="model_diagram_toolbar.xml"/>
+                  <File Id="file2023" Name="code_editor.xml"/>
+                  <File Id="file2024" Name="table_templates.xml"/>
+                </Component>
+              </Directory>
+
+
+              <Directory Id="images" Name="images">
+                <Directory Id="cursors" Name="cursors">
+                  <Component DiskId="1" Guid="73BA1D6A-CF3F-4429-A010-46FBD1BD55A8" Id="images_curors" Location="either">
+                    <File Id="file3001" Name="hand.cur"/>
+                    <File Id="file3002" Name="image.cur"/>
+                    <File Id="file3003" Name="layer.cur"/>
+                    <File Id="file3004" Name="magnify_region.cur"/>
+                    <File Id="file3005" Name="note.cur"/>
+                    <File Id="file3006" Name="rel11.cur"/>
+                    <File Id="file3007" Name="rel1n.cur"/>
+                    <File Id="file3008" Name="relnm.cur"/>
+                    <File Id="file3009" Name="routine.cur"/>
+                    <File Id="file3010" Name="rubber.cur"/>
+                    <File Id="file3011" Name="table.cur"/>
+                    <File Id="file3012" Name="view.cur"/>
+                    <File Id="file3013" Name="zoom_in.cur"/>
+                    <File Id="file3014" Name="zoom_out.cur"/>
+                  </Component>
+                </Directory>
+
+                <Directory Id="grt" Name="grt">
+                  <Component DiskId="1" Guid="DC53C7B9-FFD8-4290-9423-7C5EFAE8EA16" Id="images_grt" Location="either">
+                    <File Id="file4001" Name="grt_list.png"/>
+                    <File Id="file4002" Name="grt_dict.png"/>
+                    <File Id="file4003" Name="grt_object.png"/>
+                    <File Id="file4004" Name="grt_simple_type.png"/>
+                    <File Id="file4005" Name="grt_struct.png"/>
+                    <File Id="file4006" Name="grt_module.png"/>
+                    <File Id="file4007" Name="grt_function.png"/>
+                  </Component>
+
+                  <Directory Id="structs" Name="structs">
+                    <Component DiskId="1" Guid="137E4CA4-BDDF-4fe5-875E-8B1D14898D66" Id="images_grt_structs" Location="either">
+                      <File Id="file5001" Name="db.Column.11x11.png"/>
+                      <File Id="file5002" Name="db.Column.16x16.png"/>
+                      <File Id="file5003" Name="db.Column.fk.11x11.png"/>
+                      <File Id="file5004" Name="db.Column.fk.16x16.png"/>
+                      <File Id="file5094" Name="db.Column.fknn.11x11.png"/>
+                      <File Id="file5095" Name="db.Column.fknn.16x16.png"/>
+                      <File Id="file5096" Name="db.Column.nn.11x11.png"/>
+                      <File Id="file5097" Name="db.Column.nn.16x16.png"/>
+                      <File Id="file5005" Name="db.Column.pk.11x11.png"/>
+                      <File Id="file5006" Name="db.Column.pk.16x16.png"/>
+                      <File Id="file5007" Name="db.Role.16x16.png"/>
+                      <File Id="file5008" Name="db.Role.48x48.png"/>
+                      <File Id="file5009" Name="db.Role.add.16x16.png"/>
+                      <File Id="file5010" Name="db.Role.add.48x48.png"/>
+                      <File Id="file5011" Name="db.Role.editor.48x48.png"/>
+                      <File Id="file5012" Name="db.Routine.16x16.png"/>
+                      <File Id="file5013" Name="db.Routine.24x24.png"/>
+                      <File Id="file5014" Name="db.Routine.64x64.png"/>
+                      <File Id="file5015" Name="db.Routine.add.16x16.png"/>
+                      <File Id="file5016" Name="db.Routine.editor.48x48.png"/>
+                      <File Id="file5017" Name="db.Routine.many.32x32.png"/>
+                      <File Id="file5018" Name="db.RoutineGroup.16x16.png"/>
+                      <File Id="file5019" Name="db.RoutineGroup.add.16x16.png"/>
+                      <File Id="file5020" Name="db.Schema.16x16.png"/>
+                      <File Id="file5021" Name="db.Schema.24x24.png"/>
+                      <File Id="file5022" Name="db.Schema.32x32.png"/>
+                      <File Id="file5023" Name="db.Schema.add.32x32.png"/>
+                      <File Id="file5024" Name="db.Schema.editor.48x48.png"/>
+                      <File Id="file5025" Name="db.Schema.many.16x16.png"/>
+                      <File Id="file5026" Name="db.Schema.many.32x32.png"/>
+                      <File Id="file5027" Name="db.Script.48x48.png"/>
+                      <File Id="file5028" Name="db.Script.add.48x48.png"/>
+                      <File Id="file5029" Name="db.Table.16x16.png"/>
+                      <File Id="file5030" Name="db.Table.24x24.png"/>
+                      <File Id="file5031" Name="db.Table.add.16x16.png"/>
+                      <File Id="file5032" Name="db.Table.editor.48x48.png"/>
+                      <File Id="file5033" Name="db.Table.many.32x32.png"/>
+                      <File Id="file5034" Name="db.User.16x16.png"/>
+                      <File Id="file5035" Name="db.User.48x48.png"/>
+                      <File Id="file5036" Name="db.User.add.16x16.png"/>
+                      <File Id="file5037" Name="db.User.add.48x48.png"/>
+                      <File Id="file5038" Name="db.User.editor.48x48.png"/>
+                      <File Id="file5039" Name="db.View.16x16.png"/>
+                      <File Id="file5040" Name="db.View.24x24.png"/>
+                      <File Id="file5041" Name="db.View.64x64.png"/>
+                      <File Id="file5042" Name="db.View.add.16x16.png"/>
+                      <File Id="file5043" Name="db.View.editor.48x48.png"/>
+                      <File Id="file5044" Name="db.View.many.32x32.png"/>
+                      <File Id="file5049" Name="GrtObject.16x16.png"/>
+                      <File Id="file5050" Name="GrtObject.24x24.png"/>
+                      <File Id="file5051" Name="GrtObject.32x32.png"/>
+                      <File Id="file5052" Name="GrtObject.48x48.png"/>
+                      <File Id="file5053" Name="GrtObject.add.16x16.png"/>
+                      <File Id="file5054" Name="GrtObject.add.24x24.png"/>
+                      <File Id="file5055" Name="GrtObject.add.32x32.png"/>
+                      <File Id="file5056" Name="GrtObject.add.48x48.png"/>
+                      <File Id="file5057" Name="GrtObject.many_32x32.png"/>
+                      <File Id="file5058" Name="GrtStoredNote.48x48.png"/>
+                      <File Id="file5059" Name="GrtStoredNote.add.48x48.png"/>
+                      <File Id="file5060" Name="workbench.logical.Model.16x16.png"/>
+                      <File Id="file5061" Name="workbench.logical.Model.48x48.png"/>
+                      <File Id="file5062" Name="workbench.logical.Diagram.16x16.png"/>
+                      <File Id="file5063" Name="workbench.logical.Diagram.48x48.png"/>
+                      <File Id="file5064" Name="workbench.logical.Diagram.add.48x48.png"/>
+                      <File Id="file5065" Name="workbench.model.ImageFigure.16x16.png"/>
+                      <File Id="file5066" Name="workbench.physical.Layer.16x16.png"/>
+                      <File Id="file5067" Name="workbench.physical.Layer.24x24.png"/>
+                      <File Id="file5068" Name="workbench.physical.Layer.many.16x16.png"/>
+                      <File Id="file5069" Name="workbench.model.NoteFigure.16x16.png"/>
+                      <File Id="file5070" Name="workbench.physical.db2.Model.48x48.png"/>
+                      <File Id="file5071" Name="workbench.physical.Model.16x16.png"/>
+                      <File Id="file5072" Name="workbench.physical.Model.48x48.png"/>
+                      <File Id="file5073" Name="workbench.physical.mssql.Model.48x48.png"/>
+                      <File Id="file5074" Name="workbench.physical.mysql.Model.16x16.png"/>
+                      <File Id="file5075" Name="workbench.physical.mysql.Model.48x48.png"/>
+                      <File Id="file5076" Name="workbench.physical.oracle.Model.48x48.png"/>
+                      <File Id="file5077" Name="workbench.physical.RoutineGroupFigure.16x16.png"/>
+                      <File Id="file5078" Name="workbench.physical.sqlite.Model.48x48.png"/>
+                      <File Id="file5079" Name="workbench.physical.sybase.Model.48x48.png"/>
+                      <File Id="file5080" Name="workbench.physical.TableFigure.16x16.png"/>
+                      <File Id="file5081" Name="workbench.physical.Diagram.16x16.png"/>
+                      <File Id="file5082" Name="workbench.physical.Diagram.48x48.png"/>
+                      <File Id="file5083" Name="workbench.physical.Diagram.add.48x48.png"/>
+                      <File Id="file5084" Name="workbench.physical.ViewFigure.16x16.png"/>
+                      <File Id="file5085" Name="db.View.48x48.png"/>
+                      <File Id="file5086" Name="db.View.add.48x48.png"/>
+                      <File Id="file5087" Name="db.Routine.48x48.png"/>
+                      <File Id="file5088" Name="db.Routine.add.48x48.png"/>
+                      <File Id="file5089" Name="db.RoutineGroup.48x48.png"/>
+                      <File Id="file5090" Name="db.RoutineGroup.add.48x48.png"/>
+                      <File Id="file5167" Name="db.Table.32x32.png"/>
+                      <File Id="file5091" Name="db.Table.48x48.png"/>
+                      <File Id="file5092" Name="db.Table.add.48x48.png"/>
+                      <File Id="file5093" Name="workbench.physical.Diagram.add.16x16.png"/>
+                      <File Id="file5104" Name="db.DatatypeGroup.blob.16x16.png"/>
+                      <File Id="file5098" Name="db.DatatypeGroup.datetime.16x16.png"/>
+                      <File Id="file5099" Name="db.DatatypeGroup.geo.16x16.png"/>
+                      <File Id="file5101" Name="db.DatatypeGroup.numeric.16x16.png"/>
+                      <File Id="file5102" Name="db.DatatypeGroup.text.16x16.png"/>
+                      <File Id="file5103" Name="db.DatatypeGroup.userdefined.16x16.png"/>
+                      <File Id="file5105" Name="db.mgmt.Connection.add.48x48.png"/>
+                      <File Id="file5106" Name="db.mgmt.Connection.16x16.png"/>
+                      <File Id="file5107" Name="db.mgmt.Connection.32x32.png"/>
+                      <File Id="file5108" Name="workbench.Document.16x16.png"/>
+                      <File Id="file5109" Name="db.mgmt.Connection.add.16x16.png"/>
+                      <File Id="file5110" Name="db.mgmt.Connection.48x48.png"/>
+                      <File Id="file5111" Name="workbench.Document.48x48.png"/>
+                      <File Id="file5112" Name="workbench.Document.32x32.png"/>
+                      <File Id="file5113" Name="db.View.many.16x16.png"/>
+                      <File Id="file5114" Name="db.Table.many.16x16.png"/>
+                      <File Id="file5115" Name="db.Routine.many.16x16.png"/>
+                      <File Id="file5116" Name="db.mgmt.Connection.manage.48x48.png"/>
+                      <File Id="file5117" Name="db.Column.pkai.11x11.png"/>
+                      <File Id="file5118" Name="db.Column.pkai.16x16.png"/>
+                      <File Id="file5119" Name="db.mgmt.ServerInstance.48x48.png"/>
+                      <File Id="file5120" Name="db.mgmt.ServerInstance.manage.48x48.png"/>
+                      <File Id="file5121" Name="db.Schema.selected.32x32.png"/>
+                      <File Id="file5129" Name="db.Column.fk.side.16x16.png"/>
+                      <File Id="file5130" Name="db.Column.pk.side.16x16.png"/>
+                      <File Id="file5131" Name="db.Column.side.16x16.png"/>
+                      <File Id="file5132" Name="db.Routine.many.side.16x16.png"/>
+                      <File Id="file5133" Name="db.Routine.side.16x16.png"/>
+                      <File Id="file5134" Name="db.Schema.side.16x16.png"/>
+                      <File Id="file5135" Name="db.Table.many.side.16x16.png"/>
+                      <File Id="file5136" Name="db.Table.side.16x16.png"/>
+                      <File Id="file5137" Name="db.View.many.side.16x16.png"/>
+                      <File Id="file5138" Name="db.View.side.16x16.png"/>
+                      <File Id="file5142" Name="db.Column.many.side.16x16.png"/>
+                      <File Id="file5144" Name="db.ForeignKey.many.side.16x16.png"/>
+                      <File Id="file5146" Name="db.ForeignKey.side.16x16.png"/>
+                      <File Id="file5148" Name="db.Index.many.side.16x16.png"/>
+                      <File Id="file5150" Name="db.Index.side.16x16.png"/>
+                      <File Id="file5152" Name="db.Trigger.many.side.16x16.png"/>
+                      <File Id="file5154" Name="db.Trigger.side.16x16.png"/>
+                      <File Id="file5157" Name="db.Table.editor.24x24.png"/>
+                      <File Id="file5158" Name="db.View.broken.side.16x16.png"/>
+                      <File Id="file5162" Name="db.Index.16x16.png"/>
+                      <File Id="file5163" Name="db.ForeignKey.16x16.png"/>
+                      <File Id="file5164" Name="db.Trigger.16x16.png"/>
+                      <File Id="file5165" Name="db.schema.loading.side.16x16.png"/>
+                      <File Id="file5266" Name="db.schema.unloaded.side.16x16.png"/>
+                      <File Id="file5267" Name="db.Column.pkfk.11x11.png"/>
+                      <File Id="file5268" Name="db.Column.pkfk.16x16.png"/>
+                    </Component>
+                  </Directory>
+                </Directory>
+
+                <Directory Id="icons" Name="icons">
+                  <Component DiskId="1" Guid="1914052F-D4D6-4f7f-AB7D-9AF28DBC1F78" Id="images_icons" Location="either">
+                    <File Id="file6006" Name="tiny_align_h_left.png"/>
+                    <File Id="file6007" Name="tiny_align_h_left2.png"/>
+                    <File Id="file6008" Name="tiny_align_h_middle.png"/>
+                    <File Id="file6009" Name="tiny_align_h_middle2.png"/>
+                    <File Id="file6010" Name="tiny_align_h_right.png"/>
+                    <File Id="file6011" Name="tiny_align_h_right2.png"/>
+                    <File Id="file6012" Name="tiny_align_v_bottom.png"/>
+                    <File Id="file6013" Name="tiny_align_v_bottom2.png"/>
+                    <File Id="file6014" Name="tiny_align_v_middle.png"/>
+                    <File Id="file6015" Name="tiny_align_v_middle2.png"/>
+                    <File Id="file6016" Name="tiny_align_v_top.png"/>
+                    <File Id="file6018" Name="tiny_align_v_top2.png"/>
+                    <File Id="file6017" Name="tiny_gridview.png"/>
+                    <File Id="file6019" Name="tiny_grid.png"/>
+                    <File Id="file6020" Name="tiny_lock.png"/>
+                    <File Id="file6021" Name="tiny_open.png"/>
+                    <File Id="file6022" Name="tiny_redo.png"/>
+                    <File Id="file6023" Name="tiny_ruler.png"/>
+                    <File Id="file6024" Name="tiny_save.png"/>
+                    <File Id="file6053" Name="tiny_saveas.png"/>
+                    <File Id="file6050" Name="tiny_hidesidebar.png"/>
+                    <File Id="file6051" Name="tiny_grtshell.png"/>
+                    <File Id="file6025" Name="tiny_undo.png"/>
+                    <File Id="file6025a" Name="tiny_loadsql.png"/>
+                    <File Id="file6025b" Name="tiny_savesql.png"/>
+                    <File Id="file6025c" Name="tiny_commit.png"/>
+                    <File Id="file6025d" Name="tiny_rollback.png"/>
+                    <File Id="file6025e" Name="tiny_commit_disabled.png"/>
+                    <File Id="file6025f" Name="tiny_rollback_disabled.png"/>
+                    <File Id="file6025g" Name="tiny_execute.png"/>
+                    <File Id="file6025h" Name="tiny_execute_disabled.png"/>
+                    <File Id="file6025i" Name="tiny_cancel.png"/>
+                    <File Id="file6025j" Name="tiny_cancel_disabled.png"/>
+                    <File Id="file6025k" Name="clear_output.png"/>
+                    <File Id="file6026" Name="wb_arrow.png"/>
+                    <File Id="file6027" Name="wb_db_routinegroup.png"/>
+                    <File Id="file6028" Name="wb_db_table.png"/>
+                    <File Id="file6029" Name="wb_db_view.png"/>
+                    <File Id="file6030" Name="wb_draw_ellipse.png"/>
+                    <File Id="file6031" Name="wb_draw_freehand.png"/>
+                    <File Id="file6032" Name="wb_draw_line.png"/>
+                    <File Id="file6033" Name="wb_draw_polygon.png"/>
+                    <File Id="file6034" Name="wb_draw_rect.png"/>
+                    <File Id="file6035" Name="wb_hand.png"/>
+                    <File Id="file6036" Name="wb_image.png"/>
+                    <File Id="file6037" Name="wb_layer.png"/>
+                    <File Id="file6038" Name="wb_magnifier.png"/>
+                    <File Id="file6039" Name="wb_note.png"/>
+                    <File Id="file6040" Name="wb_rel_11.png"/>
+                    <File Id="file6041" Name="wb_rel_11_nonid.png"/>
+                    <File Id="file6042" Name="wb_rel_1n.png"/>
+                    <File Id="file6043" Name="wb_rel_1n_nonid.png"/>
+                    <File Id="file6044" Name="wb_rel_1n_pick.png"/>
+                    <File Id="file6045" Name="wb_rel_nm.png"/>
+                    <File Id="file6046" Name="wb_rubber.png"/>
+                    <File Id="file6047" Name="mini_error.png"/>
+                    <File Id="file6048" Name="mini_warning.png"/>
+                    <File Id="file6049" Name="mini_notice.png"/>
+                    <File Id="file6052" Name="mini_notice_blue.png"/>
+                    <File Id="file6054" Name="comment.png"/>
+                    <File Id="file6055" Name="grt.png"/>
+                    <File Id="file6056" Name="history.png"/>
+                    <File Id="file6057" Name="layers.png"/>
+                    <File Id="file6058" Name="MySQLWorkbench-128.png"/>
+                    <File Id="file6059" Name="MySQLWorkbench-16.png"/>
+                    <File Id="file6061" Name="MySQLWorkbench-32.png"/>
+                    <File Id="file6063" Name="MySQLWorkbench-48.png"/>
+                    <File Id="file6064" Name="MySQLWorkbenchDoc-128.png"/>
+                    <File Id="file6065" Name="MySQLWorkbenchDoc-16.png"/>
+                    <File Id="file6066" Name="MySQLWorkbenchDoc-24.png"/>
+                    <File Id="file6067" Name="MySQLWorkbenchDoc-32.png"/>
+                    <File Id="file6068" Name="MySQLWorkbenchDoc-48.png"/>
+                    <File Id="file6069" Name="MySQLWorkbenchDoc-64.png"/>
+                    <File Id="file6070" Name="MySQLWorkbenchDocIcon128x128.png"/>
+                    <File Id="file6071" Name="MySQLWorkbenchDocIcon16x16.png"/>
+                    <File Id="file6072" Name="MySQLWorkbenchDocIcon32x32.png"/>
+                    <File Id="file6073" Name="MySQLWorkbenchDocIcon48x48.png"/>
+                    <File Id="file6074" Name="properties.png"/>
+                    <File Id="file6075" Name="schemata.png"/>
+                    <File Id="file6076" Name="user_datatypes.png"/>
+                    <File Id="file60007" Name="admin_info_stopped.png"/>
+                    <File Id="file60008" Name="admin_info_running.png"/>
+                    <File Id="file60015" Name="admin_meb_backup.png"/>
+                    <File Id="file60016" Name="admin_meb_restore.png"/>
+                    <File Id="file60017" Name="tiny_bookmark.png"/>
+                    <File Id="file60018" Name="admin_info_unknown.png"/>
+                    <File Id="file60019" Name="MySQLWorkbench.ico"/>
+                    <File Id="file60020" Name="MySQLWorkbench-256.png"/>
+                    <File Id="file60021" Name="MySQLWorkbench-512.png"/>
+                    <File Id="file60022" Name="tiny_execute_current.png"/>
+                    <File Id="file60023" Name="query_continue_on_error.png"/>
+                    <File Id="file60024" Name="query_stop_on_error.png"/>
+                    <File Id="file60025" Name="tiny_autocommit_off.png"/>
+                    <File Id="file60026" Name="tiny_autocommit_on.png"/>
+                    <File Id="file60027" Name="tiny_explain.png"/>
+                    <File Id="file60028" Name="tiny_reconnect.png"/>
+                    <File Id="file60029" Name="tiny_new.png"/>
+                    <File Id="file60030" Name="tiny_manage_connections.png"/>
+                    <File Id="file60031" Name="tiny_new_diagram.png"/>
+                    <File Id="file60032" Name="tiny_new_doc.png"/>
+                    <File Id="file60033" Name="tiny_manage_instances.png"/>
+                    <File Id="file60034" Name="tiny_new_routine.png"/>
+                    <File Id="file60035" Name="tiny_new_schema.png"/>
+                    <File Id="file60036" Name="tiny_new_script.png"/>
+                    <File Id="file60037" Name="tiny_new_table.png"/>
+                    <File Id="file60038" Name="tiny_new_view.png"/>
+                    <File Id="file60041" Name="tiny_refresh.png"/>
+                    <File Id="file60042" Name="tiny_refresh_plugins.png"/>
+                    <File Id="file60043" Name="tiny_search.png"/>
+                    <File Id="file60044" Name="record_add.png"/>
+                    <File Id="file60045" Name="record_back.png"/>
+                    <File Id="file60046" Name="record_del.png"/>
+                    <File Id="file60047" Name="record_discard.png"/>
+                    <File Id="file60048" Name="record_edit.png"/>
+                    <File Id="file60049" Name="record_export.png"/>
+                    <File Id="file60049i" Name="record_import.png"/>
+                    <File Id="file60050" Name="record_fetch_all.png"/>
+                    <File Id="file60051" Name="record_first.png"/>
+                    <File Id="file60052" Name="record_last.png"/>
+                    <File Id="file60053" Name="record_next.png"/>
+                    <File Id="file60054" Name="record_save.png"/>
+                    <File Id="file60055" Name="record_sort_asc.png"/>
+                    <File Id="file60056" Name="record_sort_desc.png"/>
+                    <File Id="file60056a" Name="record_sort_reset.png"/>
+                    <File Id="file60057" Name="record_wrap_vertical.png"/>
+                    <File Id="file60058" Name="snippet_add.png"/>
+                    <File Id="file60059" Name="snippet_del.png"/>
+                    <File Id="file60060" Name="snippet_insert.png"/>
+                    <File Id="file60061" Name="snippet_use.png"/>
+                    <File Id="file60063" Name="record_fetch_prev.png"/>
+                    <File Id="file60064" Name="record_fetch_next.png"/>
+                    <File Id="file60065" Name="tiny_load.png"/>
+                    <File Id="file60066" Name="snippet_clipboard.png"/>
+                    <File Id="file60067" Name="debug_continue.png"/>
+                    <File Id="file60068" Name="debug_pause.png"/>
+                    <File Id="file60069" Name="debug_step.png"/>
+                    <File Id="file60070" Name="debug_step_into.png"/>
+                    <File Id="file60071" Name="debug_step_out.png"/>
+                    <File Id="file60072" Name="debug_stop.png"/>
+                    <File Id="file60073" Name="warning_icon.png"/>
+                    <File Id="file60074" Name="admin_add_user.png"/>
+                    <File Id="file60076" Name="admin_config_wizard.png"/>
+                    <File Id="file60078" Name="admin_export.png"/>
+                    <File Id="file60080" Name="admin_manage_exported.png"/>
+                    <File Id="file60082" Name="admin_manage_privs.png"/>
+                    <File Id="file60084" Name="admin_connections.png"/>
+                    <File Id="file60086" Name="admin_option_file.png"/>
+                    <File Id="file60088" Name="admin_restore_data.png"/>
+                    <File Id="file60090" Name="admin_schema_management.png"/>
+                    <File Id="file60092" Name="admin_scripts.png"/>
+                    <File Id="file60094" Name="admin_server_logs.png"/>
+                    <File Id="file60096" Name="admin_server_status.png"/>
+                    <File Id="file60098" Name="admin_start_stop.png"/>
+                    <File Id="file60100" Name="admin_status_vars.png"/>
+                    <File Id="file60102" Name="admin_system_startup.png"/>
+                    <File Id="file60111" Name="MySQLPlugin-16.png"/>
+                    <File Id="file60112" Name="MySQLPlugin-24.png"/>
+                    <File Id="file60113" Name="MySQLPlugin-32.png"/>
+                    <File Id="file60114" Name="MySQLPlugin-48.png"/>
+                    <File Id="file60115" Name="MySQLPlugin-64.png"/>
+                    <File Id="file60116" Name="MySQLPlugin-128.png"/>
+                    <File Id="file60117" Name="MySQLPlugin-256.png"/>
+                    <File Id="file60118" Name="mini_edit.png"/>
+                    <File Id="file60119" Name="mini_ok.png"/>
+                    <File Id="file60120" Name="record_autosize.png"/>
+                    <File Id="file60121" Name="migration_check_open.png"/>
+                    <File Id="file60122" Name="migration.png"/>
+                    <File Id="file60123" Name="migration_title.png"/>
+                    <File Id="file60124" Name="migration_check_current.png"/>
+                    <File Id="file60126" Name="migration_check_done.png"/>
+                    <File Id="file60127" Name="migration_logo.png"/>
+                    <File Id="file60128" Name="migration_check_point.png"/>
+                    <File Id="file60129" Name="migration_icon_32x32.png"/>
+                    <File Id="file60130" Name="migration_background.png"/>
+                    <File Id="file60131" Name="tiny_more_space.png"/>
+                    <File Id="file60132" Name="tiny_less_space.png"/>
+                    <File Id="file60678" Name="wb-toolbar_automatic-help-off.png"/>
+                    <File Id="file60679" Name="wb-toolbar_automatic-help-on.png"/>
+                    <File Id="file60680" Name="wb-toolbar_manual-help.png"/>
+                    <File Id="file60133" Name="wb-toolbar_nav-back.png"/>
+                    <File Id="file60135" Name="wb-toolbar_nav-forward.png"/>
+                    <File Id="file60664" Name="wb_toolbar_pages_18x18.png"/>
+                    <File Id="file60665" Name="admin_audit_inspector.png"/>
+                    <File Id="file62000" Name="mysql-logo-00.png"/>
+                    <File Id="file62001" Name="mysql-logo-50.png"/>
+                    <File Id="file62002" Name="mysql-logo-51.png"/>
+                    <File Id="file62003" Name="mysql-logo-55.png"/>
+                    <File Id="file62004" Name="mysql-logo-56.png"/>
+                    <File Id="file62005" Name="mysql-logo-57.png"/>
+                    <File Id="file62006" Name="mysql-logo-58.png"/>
+                    <File Id="file62007" Name="mysql-status-off.png"/>
+                    <File Id="file62008" Name="mysql-status-on.png"/>
+                    <File Id="file62009" Name="mysql-status-separator.png"/>
+                    <File Id="file62010" Name="wb-backup-logo-small.png"/>
+                    <File Id="file62011" Name="wb-backup-logo.png"/>
+                    <File Id="file62012" Name="edit_table_templates.png"/>
+                    <File Id="file62013" Name="wb_perform_config.png"/>
+                    <File Id="file62014" Name="title_connections.png"/>
+                    <File Id="file62015" Name="title_export.png"/>
+                    <File Id="file62016" Name="title_import.png"/>
+                    <File Id="file62017" Name="title_logs.png"/>
+                    <File Id="file62018" Name="title_options.png"/>
+                    <File Id="file62019" Name="title_startup.png"/>
+                    <File Id="file62020" Name="title_users.png"/>
+                    <File Id="file62021" Name="title_variables.png"/>
+                    <File Id="file62022" Name="page_restore.png"/>
+                    <File Id="file62023" Name="title_backup.png"/>
+                    <File Id="file62024" Name="title_restore.png"/>
+                    <File Id="file62025" Name="record_refresh.png"/>
+                    <File Id="file62026" Name="dashboard_arrow_in_static.png"/>
+                    <File Id="file62027" Name="dashboard_arrow_out_static.png"/>
+                    <File Id="file62028" Name="dashboard_header_innodb.png"/>
+                    <File Id="file62029" Name="dashboard_header_mysql.png"/>
+                    <File Id="file62030" Name="dashboard_header_network.png"/>
+                    <File Id="file62031" Name="admin_dashboard.png"/>
+                    <File Id="file62033" Name="admin_instrumentation_setup.png"/>
+                    <File Id="file62035" Name="admin_performance_reports.png"/>
+                    <File Id="file62037" Name="title_dashboard.png"/>
+                    <File Id="file62039" Name="title_instrumentation_setup.png"/>
+                    <File Id="file62041" Name="title_performance_reports.png"/>
+                    <File Id="file62040" Name="dashboard_separator.png"/>
+                    <File Id="file62042" Name="ps_easysetup_logo.png"/>
+                  </Component>
+                </Directory>
+
+                <Directory Id="ui" Name="ui">
+                  <Component DiskId="1" Guid="6193D177-EED4-4fb1-BF54-17DB23FDA622" Id="images_ui" Location="either">
+                    <File Id="file6090" Name="wb-wizard-vista-bg.png"/>
+                    <File Id="file6091" Name="message_confirm.png"/>
+                    <File Id="file6092" Name="message_warning.png"/>
+                    <File Id="file6093" Name="message_error.png"/>
+                    <File Id="file60500" Name="Apply.png"/>
+                    <File Id="file60501" Name="Apply_16x16.png"/>
+                    <File Id="file60503" Name="background.png"/>
+                    <File Id="file60504" Name="background_top_shadow.png"/>
+                    <File Id="file60505" Name="Close_18x18.png"/>
+                    <File Id="file60506" Name="collapsing_panel_bg.png"/>
+                    <File Id="file60507" Name="collapsing_panel_grid_bg.png"/>
+                    <File Id="file60508" Name="collapsing_panel_grid_details.png"/>
+                    <File Id="file60509" Name="collapsing_panel_grid_details2.png"/>
+                    <File Id="file60510" Name="collapsing_panel_grid_large_icons.png"/>
+                    <File Id="file60511" Name="collapsing_panel_grid_large_icons2.png"/>
+                    <File Id="file60512" Name="collapsing_panel_grid_small_icons.png"/>
+                    <File Id="file60513" Name="collapsing_panel_grid_small_icons2.png"/>
+                    <File Id="file60514" Name="collapsing_panel_header_bg.png"/>
+                    <File Id="file60515" Name="collapsing_panel_header_bg_flat.png"/>
+                    <File Id="file60516" Name="collapsing_panel_header_shadow.png"/>
+                    <File Id="file60517" Name="collapsing_panel_header_tab_add.png"/>
+                    <File Id="file60518" Name="collapsing_panel_header_tab_add2.png"/>
+                    <File Id="file60519" Name="collapsing_panel_header_tab_del.png"/>
+                    <File Id="file60520" Name="collapsing_panel_header_tab_del2.png"/>
+                    <File Id="file60521" Name="collapsing_panel_header_tab_left.png"/>
+                    <File Id="file60522" Name="collapsing_panel_header_tab_left_flat.png"/>
+                    <File Id="file60523" Name="collapsing_panel_header_tab_middle.png"/>
+                    <File Id="file60524" Name="collapsing_panel_header_tab_middle_flat.png"/>
+                    <File Id="file60525" Name="collapsing_panel_header_tab_right.png"/>
+                    <File Id="file60526" Name="collapsing_panel_header_tab_right_flat.png"/>
+                    <File Id="file60527" Name="collapsing_panel_header_tab_separator.png"/>
+                    <File Id="file60528" Name="collapsing_panel_header_tab_separator_flat.png"/>
+                    <File Id="file60529" Name="collapsing_panel_minus.png"/>
+                    <File Id="file60530" Name="collapsing_panel_minus_flat.png"/>
+                    <File Id="file60531" Name="collapsing_panel_plus.png"/>
+                    <File Id="file60532" Name="collapsing_panel_plus_flat.png"/>
+                    <File Id="file60533" Name="collapsing_panel_tab_left.png"/>
+                    <File Id="file60534" Name="collapsing_panel_tab_middle.png"/>
+                    <File Id="file60535" Name="collapsing_panel_tab_right.png"/>
+                    <File Id="file60536" Name="dialog_input.png"/>
+                    <File Id="file60537" Name="Discard.png"/>
+                    <File Id="file60538" Name="Discard_16x16.png"/>
+                    <File Id="file60540" Name="DotBlue.png"/>
+                    <File Id="file60541" Name="DotDisabled.png"/>
+                    <File Id="file60542" Name="DotGrey.png"/>
+                    <File Id="file60543" Name="DotRed.png"/>
+                    <File Id="file60546" Name="field_overlay_blob.png"/>
+                    <File Id="file60547" Name="field_overlay_null.png"/>
+                    <File Id="file60548" Name="First_16x16.png"/>
+                    <File Id="file60549" Name="header_bar_blue.png"/>
+                    <File Id="file60550" Name="header_bar_gray.png"/>
+                    <File Id="file60551" Name="header_bar_orange.png"/>
+                    <File Id="file60552" Name="Last_16x16.png"/>
+                    <File Id="file60556" Name="MacWizardBackground.png"/>
+                    <File Id="file60558" Name="message_edit.png"/>
+                    <File Id="file60559" Name="navigator_zoom_in.png"/>
+                    <File Id="file60560" Name="navigator_zoom_out.png"/>
+                    <File Id="file60562" Name="note.128x128.png"/>
+                    <File Id="file60565" Name="Refresh_16x16.png"/>
+                    <File Id="file60566" Name="Refresh_18x18.png"/>
+                    <File Id="file60567" Name="Refresh_disabled_18x18.png"/>
+                    <File Id="file60568" Name="sakila.png"/>
+                    <File Id="file60573" Name="search_clear.png"/>
+                    <File Id="file60574" Name="search_doc_action.png"/>
+                    <File Id="file60575" Name="search_icon.png"/>
+                    <File Id="file60576" Name="section_expanded.png"/>
+                    <File Id="file60577" Name="section_unexpandable.png"/>
+                    <File Id="file60578" Name="section_unexpanded.png"/>
+                    <File Id="file60579" Name="separator-dots.png"/>
+                    <File Id="file60580" Name="show_eof.png"/>
+                    <File Id="file60581" Name="show_whitespace.png"/>
+                    <File Id="file60582" Name="small_toolbar_bg.png"/>
+                    <File Id="file60583" Name="statusbar_output.png"/>
+                    <File Id="file60584" Name="statusbar_separator.png"/>
+                    <File Id="file60585" Name="statusbar_shell.png"/>
+                    <File Id="file60586" Name="tab.diagram.16x16.png"/>
+                    <File Id="file60587" Name="tab.overview.home.16x16.png"/>
+                    <File Id="file60588" Name="tab.overview.physical.16x16.png"/>
+                    <File Id="file60589" Name="tab.sqlquery.16x16.png"/>
+                    <File Id="file60590" Name="task_checked.png"/>
+                    <File Id="file60592" Name="task_disabled.png"/>
+                    <File Id="file60594" Name="task_error.png"/>
+                    <File Id="file60596" Name="task_executing.png"/>
+                    <File Id="file60597" Name="task_unchecked.png"/>
+                    <File Id="file60599" Name="task_warning.png"/>
+                    <File Id="file60607" Name="wb_about.png"/>
+                    <File Id="file60610" Name="check.png"/>
+                    <File Id="file60611" Name="uncheck.png"/>
+                    <File Id="file60612" Name="unknown.png"/>
+                    <File Id="file60616" Name="zoom_in.png"/>
+                    <File Id="file60617" Name="zoom_out.png"/>
+                    <File Id="file60618" Name="zoom_reset.png"/>
+                    <File Id="file60619" Name="options-horizontal-separator.png"/>
+                    <File Id="file60624" Name="editor_breakpoint.xpm"/>
+                    <File Id="file60625" Name="editor_breakpoint_hit.xpm"/>
+                    <File Id="file60626" Name="editor_current_pos.xpm"/>
+                    <File Id="file60627" Name="editor_error.xpm"/>
+                    <File Id="file60628" Name="editor_statement.xpm"/>
+                    <File Id="file60629" Name="message_wb_bug.png"/>
+                    <File Id="file60630" Name="message_wb_lock.png"/>
+                    <File Id="file60631" Name="change_alert_thin.png"/>
+                    <File Id="file60632" Name="change_backward.png"/>
+                    <File Id="file60633" Name="change_forward.png"/>
+                    <File Id="file60634" Name="change_ignore.png"/>
+                    <File Id="file60635" Name="change_nothing.png"/>
+                    <File Id="file60636" Name="edit.png"/>
+                    <File Id="file60637" Name="message_wb_wait.png"/>
+                    <File Id="file60639" Name="tree_collapsed.png"/>
+                    <File Id="file60640" Name="tree_expanded.png"/>
+                    <File Id="file60643" Name="wait_panel_cancel_button.png"/>
+                    <File Id="file60644" Name="refresh_sidebar.png"/>
+                    <File Id="file60645" Name="big_switcher_yes.png"/>
+                    <File Id="file60646" Name="big_switcher_no.png"/>
+                    <File Id="file60647" Name="separator_vertical.png"/>
+
+                    <File Id="file60685" Name="switcher_bottom_on_win8.png"/>
+                    <File Id="file60659" Name="switcher_left_on_win8.png"/>
+                    <File Id="file60660" Name="switcher_right_on_win8.png"/>
+                    <File Id="file60661" Name="switcher_bottom_off_win8.png"/>
+                    <File Id="file60662" Name="switcher_left_off_win8.png"/>
+                    <File Id="file60663" Name="switcher_right_off_win8.png"/>
+
+                    <File Id="file60651" Name="search_sidebar.png"/>
+                    <File Id="file60652" Name="EditorCollapsed.png"/>
+                    <File Id="file60653" Name="EditorExpanded.png"/>
+                    <File Id="file60655" Name="background_stripes_light.png"/>
+                    <File Id="file60656" Name="change_alert_drop.png"/>
+                    <File Id="file60657" Name="busy_sidebar.png"/>
+                    <File Id="file60658" Name="audit_log.png"/>
+                    <File Id="file60666" Name="wb_lock.png"/>
+                    <File Id="file60667" Name="change_alert_create.png"/>
+
+                    </Component>
+                </Directory>
+
+                <Directory Id="home" Name="home">
+                  <Component DiskId="1" Guid="609A7F7D-0615-4C3E-83F8-B04ADCD36E1A" Id="images_home" Location="either">
+                    <File Id="home11" Name="WB_Home.png"/>
+                    <File Id="home12" Name="wb_starter_mysql_migration_52.png"/>
+                    <File Id="home13" Name="wb_tile_folder.png"/>
+                    <File Id="home13m" Name="wb_tile_folder_mini.png"/>
+                    <File Id="home14" Name="wb_tile_mouseover.png"/>
+                    <File Id="home15" Name="wb_tile_mouseover_2.png"/>
+                    <File Id="home16" Name="wb_tile_network.png"/>
+                    <File Id="home17" Name="wb_tile_page-down.png"/>
+                    <File Id="home18" Name="wb_tile_page-up.png"/>
+                    <File Id="home19" Name="wb_tile_plus.png"/>
+                    <File Id="home20" Name="wb_tile_sakila.png"/>
+                    <File Id="home21" Name="wb_tile_schema.png"/>
+                    <File Id="home22" Name="wb_tile_time.png"/>
+                    <File Id="home23" Name="wb_tile_user.png"/>
+                    <File Id="home24" Name="wb_doc_model.png"/>
+                    <File Id="home25" Name="wb_doc_sql.png"/>
+                    <File Id="home26" Name="wb_tile_number.png"/>
+                    <File Id="home27" Name="wb_close.png"/>
+                    <File Id="home28" Name="wb_tile_manage.png"/>
+                    <File Id="home29" Name="wb_tile_more.png"/>
+                    <File Id="home30" Name="wb_tile_open.png"/>
+                    <File Id="home40" Name="wb_starter_mysql_bug_reporter_52.png"/>
+                    <File Id="home41" Name="wb_starter_mysql_doc_lib_52.png"/>
+                    <File Id="home42" Name="wb_starter_mysql_news_52.png"/>
+                    <File Id="home43" Name="wb_starter_mysql_wb_blog_52.png"/>
+                    <File Id="home44" Name="wb_starter_mysql_wb_twitters_52.png"/>
+                    <File Id="home45" Name="wb_starter_planet_mysql_52.png"/>
+                    <File Id="home46" Name="wb_starter_generic_52.png"/>
+                    <File Id="home47" Name="wb_starter_mysql_forums_52.png"/>
+                    <File Id="home48" Name="wb_starter_grt_shell_52.png"/>
+                    <File Id="home49" Name="wb_starter_mysql_utilities_52.png"/>
+                    <File Id="home50" Name="wb_starter_edelivery_52.png"/>
+                    <File Id="home51" Name="wb_starter_edelivery_52@2x.png"/>
+                    <File Id="home52" Name="wb_starter_grt_shell_52@2x.png"/>
+                    <File Id="home53" Name="wb_starter_mysql_bug_reporter_52@2x.png"/>
+                    <File Id="home54" Name="wb_starter_mysql_doc_lib_52@2x.png"/>
+                    <File Id="home55" Name="wb_starter_mysql_forums_52@2x.png"/>
+                    <File Id="home56" Name="wb_starter_mysql_migration_52@2x.png"/>
+                    <File Id="home57" Name="wb_starter_mysql_utilities_52@2x.png"/>
+                    <File Id="home58" Name="wb_starter_planet_mysql_52@2x.png"/>
+                    <File Id="home59" Name="wb_starter_support_52.png"/>
+                    <File Id="home60" Name="wb_starter_support_52@2x.png"/>
+                  </Component>
+                </Directory>
+
+                <Directory Id="sql" Name="sql">
+                  <Component DiskId="1" Guid="851684D9-EB81-4D8F-9968-EB5818ABCA52" Id="images_sql" Location="either">
+                    <File Id="file61700" Name="qe_main-tb-icon_add-routine.png"/>
+                    <File Id="file61701" Name="qe_main-tb-icon_add-schema.png"/>
+                    <File Id="file61702" Name="qe_main-tb-icon_add-sql-editor.png"/>
+                    <File Id="file61703" Name="qe_main-tb-icon_add-table.png"/>
+                    <File Id="file61704" Name="qe_main-tb-icon_add-view.png"/>
+                    <File Id="file61705" Name="qe_main-tb-icon_execute-sql-file.png"/>
+                    <File Id="file61706" Name="qe_main-tb-icon_open-sql-file.png"/>
+                    <File Id="file61707" Name="qe_main-tb-icon_refresh-conn.png"/>
+                    <File Id="file61757" Name="qe_main-tb-icon_add-function.png"/>
+                    <File Id="file61708" Name="qe_main-tb-sep.png"/>
+                    <File Id="file61715" Name="qe_sql-editor-tb-icon_autocommit-off.png"/>
+                    <File Id="file61716" Name="qe_sql-editor-tb-icon_autocommit-on.png"/>
+                    <File Id="file61717" Name="qe_sql-editor-tb-icon_beautifier.png"/>
+                    <File Id="file61718" Name="qe_sql-editor-tb-icon_beautifier_current.png"/>
+                    <File Id="file61719" Name="qe_sql-editor-tb-icon_commit.png"/>
+                    <File Id="file61720" Name="qe_sql-editor-tb-icon_execute-current.png"/>
+                    <File Id="file61721" Name="qe_sql-editor-tb-icon_execute.png"/>
+                    <File Id="file61722" Name="qe_sql-editor-tb-icon_explain.png"/>
+                    <File Id="file61723" Name="qe_sql-editor-tb-icon_find.png"/>
+                    <File Id="file61724" Name="qe_sql-editor-tb-icon_open.png"/>
+                    <File Id="file61725" Name="qe_sql-editor-tb-icon_rollback.png"/>
+                    <File Id="file61726" Name="qe_sql-editor-tb-icon_save.png"/>
+                    <File Id="file61727" Name="qe_sql-editor-tb-icon_special-chars-off.png"/>
+                    <File Id="file61728" Name="qe_sql-editor-tb-icon_special-chars-on.png"/>
+                    <File Id="file61729" Name="qe_sql-editor-tb-icon_stop-on-error-off.png"/>
+                    <File Id="file61730" Name="qe_sql-editor-tb-icon_stop-on-error-on.png"/>
+                    <File Id="file61731" Name="qe_sql-editor-tb-icon_stop.png"/>
+                    <File Id="file61732" Name="snippet_sql.png"/>
+                    <File Id="file61733" Name="snippet_htm.png"/>
+                    <File Id="file61734" Name="snippet_lua.png"/>
+                    <File Id="file61735" Name="snippet_mwb.png"/>
+                    <File Id="file61736" Name="snippet_php.png"/>
+                    <File Id="file61737" Name="snippet_py.png"/>
+                    <File Id="file61738" Name="snippet_css.png"/>
+                    <File Id="file61739" Name="auto-completion-column.png"/>
+                    <File Id="file61740" Name="auto-completion-function.png"/>
+                    <File Id="file61741" Name="auto-completion-keyword.png"/>
+                    <File Id="file61742" Name="auto-completion-routine.png"/>
+                    <File Id="file61743" Name="auto-completion-schema.png"/>
+                    <File Id="file61744" Name="auto-completion-table.png"/>
+                    <File Id="file61745" Name="auto-completion-view.png"/>
+                    <File Id="file61745a" Name="auto-completion-engine.png"/>
+                    <File Id="file61746" Name="auto-completion-operator.png"/>
+                    <File Id="file61751" Name="qe_sql-editor-tb-icon_word-wrap-off.png"/>
+                    <File Id="file61752" Name="qe_sql-editor-tb-icon_word-wrap-on.png"/>
+                    <File Id="file61753" Name="wb-sidebar-collapse.png"/>
+                    <File Id="file61754" Name="wb-sidebar-expand.png"/>
+                    <File Id="file61755" Name="qe_main-tb-icon_search_db.png"/>
+                    <File Id="file61756" Name="wb-sidebar-refresh.png"/>
+                    <File Id="file61758" Name="qe_main-tb-icon_preferences.png"/>
+                    <File Id="file61760" Name="qe_sql-editor-tb-icon_row-limit-1k-on.png"/>
+                    <File Id="file61761" Name="qe_sql-editor-tb-icon_row-limit-off.png"/>
+                    <File Id="file61762" Name="qe_sql-editor-tb-icon_row-limit-on.png"/>
+                    <File Id="file61770" Name="switcher_bottom_off.png"/>
+                    <File Id="file61771" Name="switcher_bottom_on.png"/>
+                    <File Id="file61772" Name="switcher_left_off.png"/>
+                    <File Id="file61773" Name="switcher_left_on.png"/>
+                    <File Id="file61774" Name="switcher_right_off.png"/>
+                    <File Id="file61775" Name="switcher_right_on.png"/>
+                    <File Id="file62043" Name="object_inspector.png"/>
+                    <File Id="file62044" Name="title_schema_inspector.png"/>
+                    <File Id="file62045" Name="title_table_inspector.png"/>
+                    <File Id="file62046" Name="output_type-executionplan.png"/>
+                    <File Id="file62047" Name="output_type-explaindata.png"/>
+                    <File Id="file62048" Name="output_type-fieldtypes.png"/>
+                    <File Id="file62049" Name="output_type-item_selected.png"/>
+                    <File Id="file62050" Name="output_type-querystats.png"/>
+                    <File Id="file62051" Name="output_type-resultset.png"/>
+                    <File Id="file62052" Name="output_type-spacialview.png"/>
+                    <File Id="file62053" Name="output_type-toggle-off.png"/>
+                    <File Id="file62054" Name="output_type-toggle-on.png"/>
+                    <File Id="file62055" Name="output_type-formeditor.png"/>
+                  </Component>
+                  
+                </Directory>
+
+              </Directory>
+
+              <!---   BEGIN PYTHON STUFF -->
+              <Directory Id="python" Name="python">
+                <Directory Id="python_dlls" Name="DLLs">
+                  <Component DiskId="1" Guid="e9a008a8-605a-11e0-a9ed-34159e1d64e6" Id="python_dlls" Location="either">
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68002" Name="_ctypes_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68002" Name="_ctypes.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68004" Name="_elementtree_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68004" Name="_elementtree.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68007" Name="_multiprocessing_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68007" Name="_multiprocessing.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68008" Name="_socket_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68008" Name="_socket.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68009" Name="_sqlite3_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68009" Name="_sqlite3.pyd"/>
+                    <?endif ?>
+<!--                    <File Id="file68010" Name="_ssl.pyd"/> -->
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68013" Name="pyexpat_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68013" Name="pyexpat.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68014" Name="select_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68014" Name="select.pyd"/>
+                    <?endif ?>
+
+<!--                    <File Id="file68015" Name="unicodedata.pyd"/> -->
+                  </Component>
+                </Directory>
+                <Directory Id="python_lib" Name="lib">
+                  <Component DiskId="1" Guid="e9a135a2-605a-11e0-a9ed-34159e1d64e6" Id="python_lib" Location="either">
+                    <File Id="file68017" Name="__future__.py"/>
+                    <File Id="file68019" Name="__phello__.foo.py"/>
+                    <File Id="file68020" Name="_abcoll.py"/>
+                    <File Id="file68022" Name="_LWPCookieJar.py"/>
+                    <File Id="file68023" Name="_MozillaCookieJar.py"/>
+                    <File Id="file68024" Name="_pyio.py"/>
+                    <File Id="file68025" Name="_strptime.py"/>
+                    <File Id="file68026" Name="_threading_local.py"/>
+                    <File Id="file68027" Name="_weakrefset.py"/>
+                    <File Id="file68029" Name="abc.py"/>
+                    <File Id="file68031" Name="aifc.py"/>
+                    <File Id="file68032" Name="antigravity.py"/>
+                    <File Id="file68033" Name="anydbm.py"/>
+                    <File Id="file68034" Name="argparse.py"/>
+                    <File Id="file68035" Name="ast.py"/>
+                    <File Id="file68036" Name="asynchat.py"/>
+                    <File Id="file68037" Name="asyncore.py"/>
+                    <File Id="file68038" Name="atexit.py"/>
+                    <File Id="file68040" Name="audiodev.py"/>
+                    <File Id="file68041" Name="base64.py"/>
+                    <File Id="file68043" Name="BaseHTTPServer.py"/>
+                    <File Id="file68044" Name="Bastion.py"/>
+                    <File Id="file68045" Name="bdb.py"/>
+                    <File Id="file68047" Name="binhex.py"/>
+                    <File Id="file68048" Name="bisect.py"/>
+                    <File Id="file68050" Name="calendar.py"/>
+                    <File Id="file68051" Name="cgi.py"/>
+                    <File Id="file68052" Name="CGIHTTPServer.py"/>
+                    <File Id="file68053" Name="cgitb.py"/>
+                    <File Id="file68054" Name="chunk.py"/>
+                    <File Id="file68055" Name="cmd.py"/>
+                    <File Id="file68056" Name="code.py"/>
+                    <File Id="file68057" Name="codecs.py"/>
+                    <File Id="file68059" Name="codeop.py"/>
+                    <File Id="file68060" Name="collections.py"/>
+                    <File Id="file68062" Name="colorsys.py"/>
+                    <File Id="file68063" Name="commands.py"/>
+                    <File Id="file68064" Name="compileall.py"/>
+                    <File Id="file68065" Name="ConfigParser.py"/>
+                    <File Id="file68066" Name="contextlib.py"/>
+                    <File Id="file68067" Name="Cookie.py"/>
+                    <File Id="file68068" Name="cookielib.py"/>
+                    <File Id="file68069" Name="copy.py"/>
+                    <File Id="file68071" Name="copy_reg.py"/>
+                    <File Id="file68073" Name="cProfile.py"/>
+                    <File Id="file68074" Name="csv.py"/>
+                    <File Id="file68075" Name="dbhash.py"/>
+                    <File Id="file68076" Name="decimal.py"/>
+                    <File Id="file68077" Name="difflib.py"/>
+                    <File Id="file68079" Name="dircache.py"/>
+                    <File Id="file68080" Name="dis.py"/>
+                    <File Id="file68081" Name="doctest.py"/>
+                    <File Id="file68082" Name="DocXMLRPCServer.py"/>
+                    <File Id="file68083" Name="dumbdbm.py"/>
+                    <File Id="file68084" Name="dummy_thread.py"/>
+                    <File Id="file68085" Name="dummy_threading.py"/>
+                    <File Id="file68086" Name="filecmp.py"/>
+                    <File Id="file68087" Name="fileinput.py"/>
+                    <File Id="file68088" Name="fnmatch.py"/>
+                    <File Id="file68090" Name="formatter.py"/>
+                    <File Id="file68091" Name="fpformat.py"/>
+                    <File Id="file68092" Name="fractions.py"/>
+                    <File Id="file68093" Name="ftplib.py"/>
+                    <File Id="file68094" Name="functools.py"/>
+                    <File Id="file68096" Name="genericpath.py"/>
+                    <File Id="file68098" Name="getopt.py"/>
+                    <File Id="file68099" Name="getpass.py"/>
+                    <File Id="file68101" Name="gettext.py"/>
+                    <File Id="file68102" Name="glob.py"/>
+                    <File Id="file68103" Name="gzip.py"/>
+                    <File Id="file68104" Name="hashlib.py"/>
+                    <File Id="file68106" Name="heapq.py"/>
+                    <File Id="file68108" Name="hmac.py"/>
+                    <File Id="file68109" Name="htmlentitydefs.py"/>
+                    <File Id="file68110" Name="htmllib.py"/>
+                    <File Id="file68111" Name="HTMLParser.py"/>
+                    <File Id="file68112" Name="httplib.py"/>
+                    <File Id="file68114" Name="ihooks.py"/>
+                    <File Id="file68115" Name="imaplib.py"/>
+                    <File Id="file68116" Name="imghdr.py"/>
+                    <File Id="file68117" Name="imputil.py"/>
+                    <File Id="file68118" Name="inspect.py"/>
+                    <File Id="file68119" Name="io.py"/>
+                    <File Id="file68120" Name="keyword.py"/>
+                    <File Id="file68122" Name="linecache.py"/>
+                    <File Id="file68124" Name="locale.py"/>
+                    <File Id="file68126" Name="macpath.py"/>
+                    <File Id="file68127" Name="macurl2path.py"/>
+                    <File Id="file68128" Name="mailbox.py"/>
+                    <File Id="file68129" Name="mailcap.py"/>
+                    <File Id="file68130" Name="markupbase.py"/>
+                    <File Id="file68131" Name="md5.py"/>
+                    <File Id="file68132" Name="mhlib.py"/>
+                    <File Id="file68133" Name="mimetools.py"/>
+                    <File Id="file68135" Name="mimetypes.py"/>
+                    <File Id="file68136" Name="MimeWriter.py"/>
+                    <File Id="file68137" Name="mimify.py"/>
+                    <File Id="file68138" Name="modulefinder.py"/>
+                    <File Id="file68139" Name="multifile.py"/>
+                    <File Id="file68140" Name="mutex.py"/>
+                    <File Id="file68141" Name="netrc.py"/>
+                    <File Id="file68142" Name="new.py"/>
+                    <File Id="file68144" Name="nntplib.py"/>
+                    <File Id="file68145" Name="ntpath.py"/>
+                    <File Id="file68147" Name="nturl2path.py"/>
+                    <File Id="file68149" Name="numbers.py"/>
+                    <File Id="file68150" Name="opcode.py"/>
+                    <File Id="file68151" Name="optparse.py"/>
+                    <File Id="file68152" Name="os.py"/>
+                    <File Id="file68154" Name="os2emxpath.py"/>
+                    <File Id="file68155" Name="pdb.py"/>
+                    <File Id="file68156" Name="pickle.py"/>
+                    <File Id="file68157" Name="pickletools.py"/>
+                    <File Id="file68158" Name="pipes.py"/>
+                    <File Id="file68159" Name="pkgutil.py"/>
+                    <File Id="file68160" Name="platform.py"/>
+                    <File Id="file68162" Name="plistlib.py"/>
+                    <File Id="file68163" Name="popen2.py"/>
+                    <File Id="file68164" Name="poplib.py"/>
+                    <File Id="file68165" Name="posixfile.py"/>
+                    <File Id="file68166" Name="posixpath.py"/>
+                    <File Id="file68168" Name="pprint.py"/>
+                    <File Id="file68170" Name="profile.py"/>
+                    <File Id="file68171" Name="pstats.py"/>
+                    <File Id="file68172" Name="pty.py"/>
+                    <File Id="file68173" Name="py_compile.py"/>
+                    <File Id="file68175" Name="pydoc.py"/>
+                    <File Id="file68176" Name="Queue.py"/>
+                    <File Id="file68178" Name="quopri.py"/>
+                    <File Id="file68179" Name="random.py"/>
+                    <File Id="file68181" Name="re.py"/>
+                    <File Id="file68183" Name="repr.py"/>
+                    <File Id="file68184" Name="rexec.py"/>
+                    <File Id="file68185" Name="rfc822.py"/>
+                    <File Id="file68187" Name="rlcompleter.py"/>
+                    <File Id="file68188" Name="robotparser.py"/>
+                    <File Id="file68189" Name="runpy.py"/>
+                    <File Id="file68190" Name="sched.py"/>
+                    <File Id="file68191" Name="sets.py"/>
+                    <File Id="file68192" Name="sgmllib.py"/>
+                    <File Id="file68193" Name="sha.py"/>
+                    <File Id="file68194" Name="shelve.py"/>
+                    <File Id="file68195" Name="shlex.py"/>
+                    <File Id="file68196" Name="shutil.py"/>
+                    <File Id="file68198" Name="SimpleHTTPServer.py"/>
+                    <File Id="file68199" Name="SimpleXMLRPCServer.py"/>
+                    <File Id="file68200" Name="site.py"/>
+                    <File Id="file68202" Name="smtpd.py"/>
+                    <File Id="file68203" Name="smtplib.py"/>
+                    <File Id="file68204" Name="sndhdr.py"/>
+                    <File Id="file68205" Name="socket.py"/>
+                    <File Id="file68207" Name="SocketServer.py"/>
+                    <File Id="file68208" Name="sre.py"/>
+                    <File Id="file68209" Name="sre_compile.py"/>
+                    <File Id="file68211" Name="sre_constants.py"/>
+                    <File Id="file68213" Name="sre_parse.py"/>
+                    <File Id="file68215" Name="ssl.py"/>
+                    <File Id="file68217" Name="stat.py"/>
+                    <File Id="file68219" Name="statvfs.py"/>
+                    <File Id="file68220" Name="string.py"/>
+                    <File Id="file68222" Name="StringIO.py"/>
+                    <File Id="file68223" Name="stringold.py"/>
+                    <File Id="file68224" Name="stringprep.py"/>
+                    <File Id="file68225" Name="struct.py"/>
+                    <File Id="file68227" Name="subprocess.py"/>
+                    <File Id="file68229" Name="sunau.py"/>
+                    <File Id="file68230" Name="sunaudio.py"/>
+                    <File Id="file68231" Name="symbol.py"/>
+                    <File Id="file68232" Name="symtable.py"/>
+                    <File Id="file68233" Name="sysconfig.py"/>
+                    <File Id="file68235" Name="tabnanny.py"/>
+                    <File Id="file68236" Name="tarfile.py"/>
+                    <File Id="file68237" Name="telnetlib.py"/>
+                    <File Id="file68238" Name="tempfile.py"/>
+                    <File Id="file68240" Name="textwrap.py"/>
+                    <File Id="file68242" Name="this.py"/>
+                    <File Id="file68243" Name="threading.py"/>
+                    <File Id="file68245" Name="timeit.py"/>
+                    <File Id="file68246" Name="toaiff.py"/>
+                    <File Id="file68247" Name="token.py"/>
+                    <File Id="file68248" Name="tokenize.py"/>
+                    <File Id="file68249" Name="trace.py"/>
+                    <File Id="file68250" Name="traceback.py"/>
+                    <File Id="file68252" Name="tty.py"/>
+                    <File Id="file68253" Name="types.py"/>
+                    <File Id="file68255" Name="urllib.py"/>
+                    <File Id="file68257" Name="urllib2.py"/>
+                    <File Id="file68259" Name="urlparse.py"/>
+                    <File Id="file68261" Name="user.py"/>
+                    <File Id="file68262" Name="UserDict.py"/>
+                    <File Id="file68264" Name="UserList.py"/>
+                    <File Id="file68265" Name="UserString.py"/>
+                    <File Id="file68266" Name="uu.py"/>
+                    <File Id="file68267" Name="uuid.py"/>
+                    <File Id="file68268" Name="warnings.py"/>
+                    <File Id="file68270" Name="wave.py"/>
+                    <File Id="file68271" Name="weakref.py"/>
+                    <File Id="file68273" Name="webbrowser.py"/>
+                    <File Id="file68274" Name="whichdb.py"/>
+                    <File Id="file68275" Name="xdrlib.py"/>
+                    <File Id="file68276" Name="xmllib.py"/>
+                    <File Id="file68277" Name="xmlrpclib.py"/>
+                    <File Id="file68278" Name="zipfile.py"/>
+                    <File Id="file68287" Name="pyclbr.py"/>
+                  </Component>
+
+                  <Directory Id="python_lib_ctypes" Name="ctypes">
+                    <Component DiskId="1" Guid="e9a1f7a8-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_ctypes" Location="either">
+                      <File Id="file68279" Name="__init__.py"/>
+                      <File Id="file68280" Name="_endian.py"/>
+                      <File Id="file68281" Name="util.py"/>
+                      <File Id="file68282" Name="wintypes.py"/>
+                    </Component>
+                    <Directory Id="python_lib_ctypes_macholib" Name="macholib">
+                      <Component DiskId="1" Guid="e9a20c0c-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_ctypes_macholib" Location="either">
+                        <File Id="file68283" Name="__init__.py"/>
+                        <File Id="file68284" Name="dyld.py"/>
+                        <File Id="file68285" Name="dylib.py"/>
+                        <File Id="file68286" Name="framework.py"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_encodings" Name="encodings">
+                    <Component DiskId="1" Guid="e9a247c6-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_encodings" Location="either">
+                      <File Id="file68340" Name="__init__.py"/>
+                      <File Id="file68342" Name="aliases.py"/>
+                      <File Id="file68344" Name="ascii.py"/>
+                      <File Id="file68346" Name="base64_codec.py"/>
+                      <File Id="file68347" Name="big5.py"/>
+                      <File Id="file68348" Name="big5hkscs.py"/>
+                      <File Id="file68349" Name="bz2_codec.py"/>
+                      <File Id="file68350" Name="charmap.py"/>
+                      <File Id="file68351" Name="cp037.py"/>
+                      <File Id="file68352" Name="cp1006.py"/>
+                      <File Id="file68353" Name="cp1026.py"/>
+                      <File Id="file68354" Name="cp1140.py"/>
+                      <File Id="file68355" Name="cp1250.py"/>
+                      <File Id="file68356" Name="cp1251.py"/>
+                      <File Id="file68357" Name="cp1252.py"/>
+                      <File Id="file68359" Name="cp1253.py"/>
+                      <File Id="file68360" Name="cp1254.py"/>
+                      <File Id="file68361" Name="cp1255.py"/>
+                      <File Id="file68362" Name="cp1256.py"/>
+                      <File Id="file68363" Name="cp1257.py"/>
+                      <File Id="file68364" Name="cp1258.py"/>
+                      <File Id="file68365" Name="cp424.py"/>
+                      <File Id="file68366" Name="cp437.py"/>
+                      <File Id="file68367" Name="cp500.py"/>
+                      <File Id="file68368" Name="cp720.py"/>
+                      <File Id="file68369" Name="cp737.py"/>
+                      <File Id="file68370" Name="cp775.py"/>
+                      <File Id="file68371" Name="cp850.py"/>
+                      <File Id="file68372" Name="cp852.py"/>
+                      <File Id="file68373" Name="cp855.py"/>
+                      <File Id="file68374" Name="cp856.py"/>
+                      <File Id="file68375" Name="cp857.py"/>
+                      <File Id="file68376" Name="cp858.py"/>
+                      <File Id="file68377" Name="cp860.py"/>
+                      <File Id="file68378" Name="cp861.py"/>
+                      <File Id="file68379" Name="cp862.py"/>
+                      <File Id="file68380" Name="cp863.py"/>
+                      <File Id="file68381" Name="cp864.py"/>
+                      <File Id="file68382" Name="cp865.py"/>
+                      <File Id="file68383" Name="cp866.py"/>
+                      <File Id="file68384" Name="cp869.py"/>
+                      <File Id="file68385" Name="cp874.py"/>
+                      <File Id="file68386" Name="cp875.py"/>
+                      <File Id="file68387" Name="cp932.py"/>
+                      <File Id="file68388" Name="cp949.py"/>
+                      <File Id="file68389" Name="cp950.py"/>
+                      <File Id="file68390" Name="euc_jis_2004.py"/>
+                      <File Id="file68391" Name="euc_jisx0213.py"/>
+                      <File Id="file68392" Name="euc_jp.py"/>
+                      <File Id="file68393" Name="euc_kr.py"/>
+                      <File Id="file68394" Name="gb18030.py"/>
+                      <File Id="file68395" Name="gb2312.py"/>
+                      <File Id="file68396" Name="gbk.py"/>
+                      <File Id="file68397" Name="hex_codec.py"/>
+                      <File Id="file68398" Name="hp_roman8.py"/>
+                      <File Id="file68399" Name="hz.py"/>
+                      <File Id="file68400" Name="idna.py"/>
+                      <File Id="file68401" Name="iso2022_jp.py"/>
+                      <File Id="file68402" Name="iso2022_jp_1.py"/>
+                      <File Id="file68403" Name="iso2022_jp_2.py"/>
+                      <File Id="file68404" Name="iso2022_jp_2004.py"/>
+                      <File Id="file68405" Name="iso2022_jp_3.py"/>
+                      <File Id="file68406" Name="iso2022_jp_ext.py"/>
+                      <File Id="file68407" Name="iso2022_kr.py"/>
+                      <File Id="file68408" Name="iso8859_1.py"/>
+                      <File Id="file68409" Name="iso8859_10.py"/>
+                      <File Id="file68410" Name="iso8859_11.py"/>
+                      <File Id="file68411" Name="iso8859_13.py"/>
+                      <File Id="file68412" Name="iso8859_14.py"/>
+                      <File Id="file68413" Name="iso8859_15.py"/>
+                      <File Id="file68414" Name="iso8859_16.py"/>
+                      <File Id="file68415" Name="iso8859_2.py"/>
+                      <File Id="file68416" Name="iso8859_3.py"/>
+                      <File Id="file68417" Name="iso8859_4.py"/>
+                      <File Id="file68418" Name="iso8859_5.py"/>
+                      <File Id="file68419" Name="iso8859_6.py"/>
+                      <File Id="file68420" Name="iso8859_7.py"/>
+                      <File Id="file68421" Name="iso8859_8.py"/>
+                      <File Id="file68422" Name="iso8859_9.py"/>
+                      <File Id="file68423" Name="johab.py"/>
+                      <File Id="file68424" Name="koi8_r.py"/>
+                      <File Id="file68425" Name="koi8_u.py"/>
+                      <File Id="file68426" Name="latin_1.py"/>
+                      <File Id="file68427" Name="mac_arabic.py"/>
+                      <File Id="file68428" Name="mac_centeuro.py"/>
+                      <File Id="file68429" Name="mac_croatian.py"/>
+                      <File Id="file68430" Name="mac_cyrillic.py"/>
+                      <File Id="file68431" Name="mac_farsi.py"/>
+                      <File Id="file68432" Name="mac_greek.py"/>
+                      <File Id="file68433" Name="mac_iceland.py"/>
+                      <File Id="file68434" Name="mac_latin2.py"/>
+                      <File Id="file68435" Name="mac_roman.py"/>
+                      <File Id="file68436" Name="mac_romanian.py"/>
+                      <File Id="file68437" Name="mac_turkish.py"/>
+                      <File Id="file68438" Name="mbcs.py"/>
+                      <File Id="file68439" Name="palmos.py"/>
+                      <File Id="file68440" Name="ptcp154.py"/>
+                      <File Id="file68441" Name="punycode.py"/>
+                      <File Id="file68442" Name="quopri_codec.py"/>
+                      <File Id="file68443" Name="raw_unicode_escape.py"/>
+                      <File Id="file68444" Name="rot_13.py"/>
+                      <File Id="file68445" Name="shift_jis.py"/>
+                      <File Id="file68446" Name="shift_jis_2004.py"/>
+                      <File Id="file68447" Name="shift_jisx0213.py"/>
+                      <File Id="file68448" Name="string_escape.py"/>
+                      <File Id="file68449" Name="tis_620.py"/>
+                      <File Id="file68450" Name="undefined.py"/>
+                      <File Id="file68451" Name="unicode_escape.py"/>
+                      <File Id="file68452" Name="unicode_internal.py"/>
+                      <File Id="file68453" Name="utf_16.py"/>
+                      <File Id="file68454" Name="utf_16_be.py"/>
+                      <File Id="file68455" Name="utf_16_le.py"/>
+                      <File Id="file68456" Name="utf_32.py"/>
+                      <File Id="file68457" Name="utf_32_be.py"/>
+                      <File Id="file68458" Name="utf_32_le.py"/>
+                      <File Id="file68459" Name="utf_7.py"/>
+                      <File Id="file68460" Name="utf_8.py"/>
+                      <File Id="file68462" Name="utf_8_sig.py"/>
+                      <File Id="file68463" Name="uu_codec.py"/>
+                      <File Id="file68464" Name="zlib_codec.py"/>
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_logging" Name="logging">
+                    <Component DiskId="1" Guid="e9a2ad7e-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_logging" Location="either">
+                      <File Id="file68465" Name="__init__.py"/>
+                      <File Id="file68467" Name="config.py"/>
+                      <File Id="file68468" Name="handlers.py"/>
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_json" Name="json">
+                    <Component DiskId="1" Guid="e9a2ad7e-605a-11e0-a9ed-34159e1d64e7" Id="python_lib_json" Location="either">
+                      <File Id="file78480" Name="__init__.py"/>
+                      <File Id="file78481" Name="tool.py"/>
+                      <File Id="file78482" Name="encoder.py"/>
+                      <File Id="file78483" Name="decoder.py"/>
+                      <File Id="file78484" Name="scanner.py"/>
+                    </Component>
+                  </Directory>
+
+                  <Directory Id="python_lib_multiprocessing" Name="multiprocessing">
+                    <Component DiskId="1" Guid="e9a2bdc8-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_multiprocessing" Location="either">
+                      <File Id="file68469" Name="__init__.py"/>
+                      <File Id="file68470" Name="connection.py"/>
+                      <File Id="file68471" Name="forking.py"/>
+                      <File Id="file68472" Name="heap.py"/>
+                      <File Id="file68473" Name="managers.py"/>
+                      <File Id="file68474" Name="pool.py"/>
+                      <File Id="file68475" Name="process.py"/>
+                      <File Id="file68476" Name="queues.py"/>
+                      <File Id="file68477" Name="reduction.py"/>
+                      <File Id="file68478" Name="sharedctypes.py"/>
+                      <File Id="file68479" Name="synchronize.py"/>
+                      <File Id="file68480" Name="util.py"/>
+                    </Component>
+                    <Directory Id="python_lib_multiprocessing_dummy" Name="dummy">
+                      <Component DiskId="1" Guid="e9a2d556-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_multiprocessing_dummy" Location="either">
+                        <File Id="file68481" Name="__init__.py"/>
+                        <File Id="file68482" Name="connection.py"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_sqlite3" Name="sqlite3">
+                    <Component DiskId="1" Guid="AA06535D-7FA0-4ACF-B628-AD35A294BBCB" Id="python_lib_sqlite3" Location="either">
+                      <File Id="file68726" Name="__init__.py"/>
+                      <File Id="file68727" Name="dbapi2.py"/>
+                      <File Id="file68728" Name="dump.py"/>
+                    </Component>
+                  </Directory>
+                  
+                  <Directory Id="python_lib_xml" Name="xml">
+                    <Component DiskId="1" Guid="e0a72eda-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml" Location="either">
+                      <File Id="file70000" Name="__init__.py"/>
+                    </Component>
+                    <Directory Id="python_lib_xml_dom" Name="dom">
+                      <Component DiskId="1" Guid="e0a73574-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml_dom" Location="either">
+                        <File Id="file70001" Name="__init__.py"/>
+                        <File Id="file70002" Name="domreg.py"/>
+                        <File Id="file70003" Name="expatbuilder.py"/>
+                        <File Id="file70004" Name="minicompat.py"/>
+                        <File Id="file70005" Name="minidom.py"/>
+                        <File Id="file70006" Name="NodeFilter.py"/>
+                        <File Id="file70007" Name="pulldom.py"/>
+                        <File Id="file70008" Name="xmlbuilder.py"/>
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_lib_xml_etree" Name="etree">
+                      <Component DiskId="1" Guid="e0a73e0c-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml_etree" Location="either">
+                        <File Id="file70009" Name="__init__.py"/>
+                        <File Id="file70010" Name="cElementTree.py"/>
+                        <File Id="file70011" Name="ElementInclude.py"/>
+                        <File Id="file70012" Name="ElementPath.py"/>
+                        <File Id="file70013" Name="ElementTree.py"/>
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_lib_xml_parsers" Name="parsers">
+                      <Component DiskId="1" Guid="e0a74474-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml_parsers" Location="either">
+                        <File Id="file70014" Name="__init__.py"/>
+                        <File Id="file70015" Name="expat.py"/>
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_lib_xml_sax" Name="sax">
+                      <Component DiskId="1" Guid="e0a748e8-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml_sax" Location="either">
+                        <File Id="file70016" Name="__init__.py"/>
+                        <File Id="file70017" Name="_exceptions.py"/>
+                        <File Id="file70018" Name="expatreader.py"/>
+                        <File Id="file70019" Name="handler.py"/>
+                        <File Id="file70020" Name="saxutils.py"/>
+                        <File Id="file70021" Name="xmlreader.py"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+                </Directory>
+
+                <Directory Id="python_site_packages" Name="site-packages">
+                  <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68021d" Name="pyodbc_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68021" Name="pyodbc.pyd"/>
+                    <?endif ?>
+                  </Component>
+                  <Directory Id="python_site_packages_crypto" Name="Crypto">
+                    <Component DiskId="1" Guid="e9a2f630-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto" Location="either">
+                      <File Id="file68503" Name="__init__.py"/>
+                      <File Id="file68505" Name="pct_warnings.py"/>
+                    </Component>
+                    <Directory Id="python_site_packages_crypto_cipher" Name="Cipher">
+                      <Component DiskId="1" Guid="e9a2fd4c-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_cipher" Location="either">
+                        <File Id="file68507" Name="__init__.py"/>
+                        <File Id="file68508" Name="blockalgo.py"/>
+                        <File Id="file685091" Name="AES.py"/>
+                        <File Id="file685111" Name="ARC2.py"/>
+                        <File Id="file685131" Name="ARC4.py"/>
+                        <File Id="file685151" Name="Blowfish.py"/>
+                        <File Id="file685171" Name="CAST.py"/>
+                        <File Id="file685191" Name="DES.py"/>
+                        <File Id="file685201" Name="DES3.py"/>
+                        <File Id="file685231" Name="XOR.py"/>
+                        <File Id="file685251" Name="pkcs1_oaep.py"/>
+                        <File Id="file685271" Name="pkcs1_v1_5.py"/>
+                        <?if $(var.LICENSE_TYPE) = "debug"?>
+                          <File Id="file68510" Name="_AES_d.pyd"/>
+                          <File Id="file68512" Name="_ARC2_d.pyd"/>
+                          <File Id="file68514" Name="_ARC4_d.pyd"/>
+                          <File Id="file68516" Name="_Blowfish_d.pyd"/>
+                          <File Id="file68518" Name="_CAST_d.pyd"/>
+                          <File Id="file68521" Name="_DES3_d.pyd"/>
+                          <File Id="file68522" Name="_DES_d.pyd"/>
+                          <File Id="file68524" Name="_XOR_d.pyd"/>
+                        <?else ?>
+                          <File Id="file68509" Name="_AES.pyd"/>
+                          <File Id="file68511" Name="_ARC2.pyd"/>
+                          <File Id="file68513" Name="_ARC4.pyd"/>
+                          <File Id="file68515" Name="_Blowfish.pyd"/>
+                          <File Id="file68517" Name="_CAST.pyd"/>
+                          <File Id="file68519" Name="_DES.pyd"/>
+                          <File Id="file68520" Name="_DES3.pyd"/>
+                          <File Id="file68523" Name="_XOR.pyd"/>
+                        <?endif ?>
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_site_packages_crypto_hash" Name="Hash">
+                      <Component DiskId="1" Guid="e9a31854-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_hash" Location="either">
+                        <File Id="file68525" Name="__init__.py"/>
+                        <File Id="file68526" Name="hashalgo.py"/>
+                        <File Id="file68527" Name="HMAC.py"/>
+                        <File Id="file685291" Name="MD2.py"/>
+                        <File Id="file685311" Name="MD4.py"/>
+                        <File Id="file68533" Name="MD5.py"/>
+                        <File Id="file68535" Name="RIPEMD.py"/>
+                        <File Id="file68538" Name="SHA.py"/>
+                        <File Id="file68539" Name="SHA256.py"/>
+                        <File Id="file685381" Name="SHA224.py"/>
+                        <File Id="file685382" Name="SHA384.py"/>
+                        <File Id="file685383" Name="SHA512.py"/>
+                        <?if $(var.LICENSE_TYPE) = "debug"?>
+                          <File Id="file68530" Name="_MD2_d.pyd"/>
+                          <File Id="file68532" Name="_MD4_d.pyd"/>
+                          <File Id="file68537" Name="_RIPEMD160_d.pyd"/>
+                          <File Id="file68541" Name="_SHA256_d.pyd"/>
+                          <File Id="file685411" Name="_SHA224_d.pyd"/>
+                          <File Id="file685412" Name="_SHA384_d.pyd"/>
+                          <File Id="file685413" Name="_SHA512_d.pyd"/>
+                        <?else ?>
+                          <File Id="file68529" Name="_MD2.pyd"/>
+                          <File Id="file68531" Name="_MD4.pyd"/>
+                          <File Id="file68536" Name="_RIPEMD160.pyd"/>
+                          <File Id="file68540" Name="_SHA256.pyd"/>
+                          <File Id="file685401" Name="_SHA224.pyd"/>
+                          <File Id="file685402" Name="_SHA384.pyd"/>
+                          <File Id="file685403" Name="_SHA512.pyd"/>
+                        <?endif ?>
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_site_packages_crypto_protocol" Name="Protocol">
+                      <Component DiskId="1" Guid="e9a32254-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_protocol" Location="either">
+                        <File Id="file68542" Name="__init__.py"/>
+                        <File Id="file685421" Name="KDF.py"/>
+                        <File Id="file68543" Name="AllOrNothing.py"/>
+                        <File Id="file68544" Name="Chaffing.py"/>
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_site_packages_crypto_publickey" Name="PublicKey">
+                      <Component DiskId="1" Guid="e9a3277c-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_publickey" Location="either">
+                        <File Id="file68545" Name="__init__.py"/>
+                        <File Id="file68547" Name="_DSA.py"/>
+                        <File Id="file68549" Name="_RSA.py"/>
+                        <File Id="file68551" Name="_slowmath.py"/>
+                        <File Id="file68553" Name="DSA.py"/>
+                        <File Id="file68555" Name="ElGamal.py"/>
+                        <File Id="file68556" Name="pubkey.py"/>
+                        <File Id="file68559" Name="RSA.py"/>
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_site_packages_crypto_random" Name="Random">
+                      <Component DiskId="1" Guid="e9a33dd4-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_random" Location="either">
+                        <File Id="file68561" Name="__init__.py"/>
+                        <File Id="file68563" Name="_UserFriendlyRNG.py"/>
+                        <File Id="file68565" Name="random.py"/>
+                      </Component>
+                      <Directory Id="python_site_packages_crypto_random_fortuna" Name="Fortuna">
+                        <Component DiskId="1" Guid="e9a343c4-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_random_fortuna" Location="either">
+                          <File Id="file68566" Name="__init__.py"/>
+                          <File Id="file68568" Name="FortunaAccumulator.py"/>
+                          <File Id="file68570" Name="FortunaGenerator.py"/>
+                          <File Id="file68572" Name="SHAd256.py"/>
+                        </Component>
+                      </Directory>
+                      <Directory Id="python_site_packages_crypto_random_osrng" Name="OSRNG">
+                        <Component DiskId="1" Guid="e9a35652-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_random_osrng" Location="either">
+                          <File Id="file68574" Name="__init__.py"/>
+                          <File Id="file68576" Name="fallback.py"/>
+                          <File Id="file68577" Name="nt.py"/>
+                          <File Id="file68579" Name="posix.py"/>
+                          <File Id="file68580" Name="rng_base.py"/>
+                        <?if $(var.SETUP_TYPE) = "debug" ?>
+                          <File Id="file68584" Name="winrandom_d.pyd"/>
+                        <?else ?>
+                          <File Id="file68582" Name="winrandom.pyd"/>
+                        <?endif ?>
+                        </Component>
+                      </Directory>
+                    </Directory>
+                    <Directory Id="python_site_packages_crypto_signature" Name="Signature">
+                      <Component DiskId="1" Guid="ad0dc412-57cc-4794-a313-8134d9ea33bb" Id="python_site_packages_crypto_signature" Location="either">
+                        <File Id="file68573" Name="__init__.py"/>
+                        <File Id="file685831" Name="PKCS1_PSS.py"/>
+                        <File Id="file685832" Name="PKCS1_v1_5.py"/>
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_site_packages_crypto_util" Name="Util">
+                      <Component DiskId="1" Guid="e9a69ef2-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_util" Location="either">
+                        <File Id="file68631" Name="__init__.py"/>
+                        <?if $(var.SETUP_TYPE) = "debug" ?>
+                          <File Id="file68634" Name="_counter_d.pyd"/>
+                        <?else ?>
+                           <File Id="file68633" Name="_counter.pyd"/>
+                        <?endif ?>
+                        <File Id="file68635" Name="_number_new.py"/>
+                        <File Id="file68637" Name="asn1.py"/>
+                        <File Id="file68639" Name="Counter.py"/>
+                        <File Id="file68641" Name="number.py"/>
+                        <File Id="file68642" Name="py21compat.py"/>
+                        <File Id="file68643" Name="py3compat.py"/>
+                        <File Id="file68645" Name="randpool.py"/>
+                        <File Id="file68647" Name="RFC1751.py"/>
+                        <?if $(var.SETUP_TYPE) = "debug" ?>
+                          <File Id="file68649" Name="strxor_d.pyd"/>
+                        <?else ?>
+                          <File Id="file68648" Name="strxor.pyd"/>
+                        <?endif ?>
+
+                        <File Id="file68650" Name="winrandom.py"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_site_packages_paramiko" Name="paramiko">
+                    <Component DiskId="1" Guid="e9a7924e-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_paramiko" Location="either">
+                      <File Id="file68652" Name="__init__.py"/>
+                      <File Id="file68654" Name="agent.py"/>
+                      <File Id="file68656" Name="auth_handler.py"/>
+                      <File Id="file68658" Name="ber.py"/>
+                      <File Id="file68660" Name="buffered_pipe.py"/>
+                      <File Id="file68662" Name="channel.py"/>
+                      <File Id="file68664" Name="client.py"/>
+                      <File Id="file68666" Name="common.py"/>
+                      <File Id="file68668" Name="compress.py"/>
+                      <File Id="file68670" Name="config.py"/>
+                      <File Id="file68672" Name="dsskey.py"/>
+                      <File Id="file68674" Name="file.py"/>
+                      <File Id="file68676" Name="hostkeys.py"/>
+                      <File Id="file68678" Name="kex_gex.py"/>
+                      <File Id="file68680" Name="kex_group1.py"/>
+                      <File Id="file68682" Name="logging22.py"/>
+                      <File Id="file68683" Name="message.py"/>
+                      <File Id="file68685" Name="packet.py"/>
+                      <File Id="file68687" Name="pipe.py"/>
+                      <File Id="file68689" Name="pkey.py"/>
+                      <File Id="file68691" Name="primes.py"/>
+                      <File Id="file68693" Name="resource.py"/>
+                      <File Id="file68700" Name="rsakey.py"/>
+                      <File Id="file68702" Name="server.py"/>
+                      <File Id="file68704" Name="sftp.py"/>
+                      <File Id="file68706" Name="sftp_attr.py"/>
+                      <File Id="file68708" Name="sftp_client.py"/>
+                      <File Id="file68710" Name="sftp_file.py"/>
+                      <File Id="file68712" Name="sftp_handle.py"/>
+                      <File Id="file68714" Name="sftp_server.py"/>
+                      <File Id="file68716" Name="sftp_si.py"/>
+                      <File Id="file68718" Name="ssh_exception.py"/>
+                      <File Id="file68720" Name="transport.py"/>
+                      <File Id="file68722" Name="util.py"/>
+                      <File Id="file68724" Name="win_pageant.py"/>
+                    </Component>
+                  </Directory>
+                  <?if $(var.SETUP_TYPE) = "commercial" ?>
+                  <Directory Id="python_site_packages_pysqlite2" Name="pysqlite2">
+                    <Component DiskId="1" Guid="1144fb0c-9b34-4d3d-bf0d-7c7811c09677" Id="python_site_packages_pysqlite2" Location="either">
+                      <File Id="file68800" Name="__init__.py"/>
+                      <File Id="file68801" Name="dbapi2.py"/>
+                      <File Id="file68802" Name="dump.py"/>
+                        <?if $(var.LICENSE_TYPE) = "debug"?>
+                            <File Id="file68803" Name="_sqlite_d.pyd"/>
+                        <?else ?>
+                            <File Id="file68804" Name="_sqlite.pyd"/>
+                        <?endif ?>
+                    </Component>
+                  </Directory>
+                  <?endif ?>
+                </Directory>
+              </Directory>
+              <!---   END PYTHON STUFF -->
+
+              <Directory Id="library_workbench" Name="workbench">
+                <Component DiskId="1" Guid="4b29e751-d608-47c2-b3ab-d156dcbd94c6" Id="library_workbench" Location="either">
+                  <File Id="file200000" Name="__init__.py"/>
+                  <File Id="file200001" Name="db_driver.py"/>
+                  <File Id="file200002" Name="ui.py"/>
+                  <File Id="file200003" Name="database_object_selector_widget.py"/>
+                  <File Id="file200004" Name="wizard_page_widget.py"/>
+                  <File Id="file200005" Name="wizard_progress_page_widget.py"/>
+                  <File Id="file200006" Name="exceptions.py"/>
+                  <File Id="file200007" Name="database_schema_selector_widget.py"/>
+                  <File Id="file200008" Name="utils.py"/>
+                  <File Id="file200009" Name="db_utils.py"/>
+                  <File Id="file200010" Name="template.py"/>
+                  <File Id="file200011" Name="notifications.py"/>
+                  <File Id="file200012" Name="tcp_utils.py"/>
+                  <File Id="file200013" Name="plugins.py"/>
+                  <File Id="file200014" Name="os_utils.py"/>
+                  <File Id="file200015" Name="change_tracker.py"/>
+                  <File Id="file200016" Name="client_utils.py"/>
+                  <File Id="file200017" Name="log.py"/>
+                </Component>
+                <Directory Id="library_workbench_graphics" Name="graphics">
+                  <Component DiskId="1" Guid="4b29e751-d608-47c2-b3ab-d156dcbd94c7" Id="library_workbench_graphics" Location="either">
+                    <File Id="file200020" Name="__init__.py"/>
+                    <File Id="file200021" Name="canvas.py"/>
+                    <File Id="file200022" Name="cairo_utils.py"/>
+                    <File Id="file200023" Name="charting.py"/>
+                  </Component>
+                </Directory>
+              </Directory>
+
+              <Directory Id="modules" Name="modules">
+                <Component DiskId="1" Guid="B3BF58B7-6217-48fb-B1D7-B2265E780CBB" Id="modules_files" Location="either">
+                  <File Id="file_man00001" Name="wb_catalog_utils.py"/>
+                  <File Id="file_man00002" Name="table_utils_grt.py"/>
+                  <File Id="file_man00004" Name="wb_utils_grt.py"/>
+                  <File Id="file_man00005" Name="wb_admin_grt.py"/>
+                  <File Id="file_man00006" Name="wb_model_utils.py"/>
+                  <File Id="file61001" Name="opts.py"/>
+                  <File Id="file61003" Name="wb_admin_config_file_be.py"/>
+                  <File Id="file61004" Name="wb_admin_config_file_ui.py"/>
+                  <File Id="file61006" Name="wb_admin_configuration_startup.py"/>
+                  <File Id="file61007" Name="wb_admin_connections.py"/>
+                  <File Id="file61008" Name="wb_admin_control.py"/>
+                  <File Id="file61009" Name="wb_admin_main.py"/>
+                  <File Id="file61009s" Name="wb_admin_server_status.py"/>
+                  <File Id="file61010" Name="wb_admin_monitor.py"/>
+                  <File Id="file61011" Name="wb_admin_utils.py"/>
+                  <File Id="file61012" Name="wb_admin_variable_list.py"/>
+                  <File Id="file61013" Name="wb_admin_variables.py"/>
+                  <File Id="file61401" Name="wb_admin_ssh.py"/>
+                  <File Id="file61402" Name="wb_admin_security.py"/>
+                  <File Id="file61403" Name="wb_admin_security_be.py"/>
+                  <File Id="file61404" Name="wb_admin_logs.py"/>
+                  <File Id="file61405" Name="wb_admin_user_privileges.py"/>
+                  <File Id="file61422" Name="wb_admin_export.py"/>
+                  <File Id="file614023" Name="wb_admin_export_options.py"/>
+                  <File Id="file614023a" Name="wb_execute_window.py"/>
+                  <File Id="file614024" Name="wb_common.py"/>
+                  <File Id="file614025" Name="wb_server_management.py"/>
+                  <File Id="file614026" Name="wb_server_control.py"/>
+                  <File Id="file614027" Name="wb_doclib_grt.py"/>
+                  <File Id="file614028" Name="sqlide_grt.py"/>
+                  <File Id="file614029" Name="text_grt.py"/>
+                  <File Id="file614030" Name="wba_monitor_be.py"/>
+                  <File Id="file614031" Name="wba_ssh_ui.py"/>
+                  <File Id="file614032" Name="mysqldoclib.py"/>
+                  <File Id="file614033" Name="sql_reformatter.py"/>
+                  <File Id="file614034" Name="wb_admin_ui_profile.py"/>
+                  <File Id="file614035" Name="wb_dev_utils_grt.py"/>
+                  <File Id="file614037" Name="code_utils_grt.py"/>
+                  <File Id="file614038" Name="wb_log_reader.py"/>
+                  <File Id="file614043" Name="text_output.py"/>
+                  <File Id="file614044" Name="sqlide_resultset_ext.py"/>
+                  <File Id="file614045" Name="sqlide_schematree_ext.py"/>
+                  <File Id="file614046" Name="table_templates.py"/>
+                  <File Id="file614047" Name="sqlide_catalogman_ext.py"/>
+                  <File Id="file614048" Name="sqlide_tableman_ext.py"/>
+
+                  <File Id="file650000" Name="migration_grt.py"/>
+                  <File Id="file650001" Name="migration_main.py"/>
+                  <File Id="file650002" Name="migration_overview.py"/>
+                  <File Id="file650003" Name="migration_project_management.py"/>
+                  <File Id="file650004" Name="migration_toolbars.py"/>
+                  <File Id="file650005" Name="migration_ui_style.py"/>
+                  <File Id="file650006" Name="migration.py"/>
+                  <File Id="file650007" Name="migration_source_selection.py"/>
+                  <File Id="file650009" Name="migration_object_migration.py"/>
+                  <File Id="file650010" Name="migration_data_transfer.py"/>
+                  <File Id="file650011" Name="migration_object_editing.py"/>
+                  <File Id="file650012" Name="migration_object_selection.py"/>
+                  <File Id="file650013" Name="migration_schema_creation.py"/>
+                  <File Id="file650014" Name="migration_summary.py"/>
+                  <File Id="file650015" Name="migration_schema_selection.py"/>
+                  <File Id="file650016" Name="datatype_mapping_editor.py"/>
+                  <File Id="file650017" Name="migration_schema_mappings.py"/>
+
+                  <File Id="file66000" Name="db_mssql_grt.py"/>
+                  <File Id="file66001" Name="db_mssql_migration_grt.py"/>
+
+                  <File Id="file66100" Name="db_mysql_fe_grt.py"/>
+                  <File Id="file66101" Name="db_mysql_migration_grt.py"/>
+                  <File Id="file66102" Name="db_mysql_re_grt.py"/>
+
+                  <File Id="file66200" Name="db_generic_re_grt.py"/>
+                  <File Id="file66201" Name="db_generic_migration_grt.py"/>
+                  <File Id="file66202" Name="SQLEXT.py"/>
+
+                  <File Id="file66400" Name="db_sybase_re_grt.py"/>
+                  <File Id="file66401" Name="db_sybase_migration_grt.py"/>
+
+                  <File Id="file66501" Name="db_sql92_re_grt.py"/>
+                  <File Id="file66502" Name="db_sql92_migration_grt.py"/>
+
+                  <File Id="file66601" Name="db_postgresql_re_grt.py"/>
+                  <File Id="file66602" Name="db_postgresql_migration_grt.py"/>
+
+                  <File Id="file66801" Name="db_sqlanywhere_re_grt.py"/>
+                  <File Id="file66802" Name="db_sqlanywhere_migration_grt.py"/>
+
+                  <File Id="file66901" Name="db_sqlite_re_grt.py"/>
+                  <File Id="file66902" Name="db_sqlite_migration_grt.py"/>
+
+                  <File Id="file66204" Name="DataMigrator.py"/>
+
+                  <File Id="file66221" Name="explain_renderer.py"/>
+                  <File Id="file66222" Name="optimizer_trace_renderer.py"/>
+                  <File Id="file66223" Name="performance_charting.py"/>
+                  <File Id="file66224" Name="wb_query_analysis_grt.py"/>
+
+                  <File Id="file66701" Name="db_copy_grt.py"/>
+                  <File Id="file66702" Name="db_copy_main.py"/>
+                  <File Id="file66703" Name="db_copy_overview.py"/>
+                  <File Id="file66704" Name="db_copy_source_target.py"/>
+                  <File Id="file66705" Name="db_copy_schema_selection.py"/>
+                  <File Id="file66706" Name="db_copy_progress.py"/>
+                  <File Id="file66707" Name="db_copy_report.py"/>
+
+                  <File Id="file66708" Name="wb_admin_perfschema.py"/>
+                  <File Id="file66709" Name="wb_admin_performance_dashboard.py"/>
+                  <File Id="file66710" Name="wb_admin_perfschema_instrumentation.py"/>
+                  <File Id="file66711" Name="wb_admin_perfschema_instrumentation_be.py"/>
+                  <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
+
+                </Component>
+
+                <?if $(var.LICENSE_TYPE) = "commercial"?>
+                <Directory Id="modules_wba_audit" Name="wba_audit">
+                  <Component DiskId="1" Guid="58D36A5F-774A-443C-9F70-935497D7249C" Id="modules_wba_audit" Location="either">
+                    <File Id="wba_audit01" Name="__init__.py"/>
+                    <File Id="wba_audit02" Name="wb_admin_audit_inspector.py"/>
+                    <File Id="wba_audit03" Name="wb_admin_audit_log_parser.py"/>
+                    <File Id="wba_audit04" Name="wb_admin_audit_browser.py"/>
+                  </Component>
+                </Directory>
+
+                <Directory Id="modules_wba_meb" Name="wba_meb">
+                  <Component DiskId="1" Guid="B3BF58B7-6217-48fb-B1D7-B2265E780CBA" Id="modules_wba_meb" Location="either">
+                    <File Id="wba_meb01" Name="__init__.py"/>
+                    <File Id="wba_meb02" Name="wb_admin_meb_common.py"/>
+                    <File Id="wba_meb03" Name="wb_admin_meb_config.py"/>
+                    <File Id="wba_meb04" Name="wb_admin_meb_editor.py"/>
+                    <File Id="wba_meb05" Name="wb_admin_meb_management.py"/>
+                    <File Id="wba_meb06" Name="wb_admin_meb_overview.py"/>
+                    <File Id="wba_meb07" Name="wb_admin_meb_restore.py"/>
+                    <File Id="wba_meb08" Name="wb_admin_meb_syshelpers.py"/>
+                    <File Id="wba_meb09" Name="wb_admin_meb.py"/>
+                  </Component>
+                </Directory>
+                <?endif ?>
+ 
+                <Directory Id="modules_templates" Name="templates">
+                  <Component DiskId="1" Guid="C566C04D-80E2-472e-B530-D85782EFD702" Id="modules_templates" Location="either">
+                    <File Id="file66300" Name="Table_Plugin_template.lua"/>
+                    <File Id="file66301" Name="Catalog_Plugin_template.lua"/>
+                  </Component>
+                </Directory>
+
+                <Directory Id="data" Name="data">
+                  <Component DiskId="1" Guid="2bfa656d-c6a9-4c05-b7d8-155ccb03fc21" Id="modules_data" Location="either">
+                    <File Id="file7001" Name="mysql_reserved.xml"/>
+                    <File Id="file7002" Name="mysql_rdbms_info.xml"/>
+                    <File Id="file7003" Name="mysql_engines.xml"/>
+                    <File Id="file7004" Name="mssql_rdbms_info.xml"/>
+                    <File Id="file7005" Name="generic_rdbms_info.xml"/>
+                    <File Id="file7006" Name="com.mysql.rdbms.mysql.sql.editor.xml"/>
+                    <File Id="file7007" Name="migration_generic_typemap.xml"/>
+                    <File Id="file7008" Name="sybase_rdbms_info.xml"/>
+                    <File Id="file7009" Name="sql92_rdbms_info.xml"/>
+                    <File Id="file7010" Name="postgresql_rdbms_info.xml"/>
+                    <File Id="file7011" Name="sqlanywhere_rdbms_info.xml"/>
+                    <File Id="file7012" Name="sqlite_rdbms_info.xml"/>
+                  </Component>
+
+                  <Directory Id="sqlide" Name="sqlide">
+                    <Component DiskId="1" Guid="FB4A154E-6D79-4a81-9C6F-88BD9E3FB402" Id="modules_data_sqlite" Location="either">
+                      <File Id="file8001" Name="XML.tpl"/>
+                      <File Id="file8002" Name="CSV.tpl"/>
+                      <File Id="file8003" Name="HTML.tpl"/>
+                      <File Id="file8004" Name="CSV_semicolon.tpl"/>
+                      <File Id="file8006" Name="tab.tpl"/>
+                      <File Id="file8007" Name="SQL_inserts.tpl"/>
+                      <File Id="file8008" Name="CSV.pre.tpl"/>
+                      <File Id="file8009" Name="CSV_semicolon.pre.tpl"/>
+                      <File Id="file8010" Name="HTML.post.tpl"/>
+                      <File Id="file8011" Name="HTML.pre.tpl"/>
+                      <File Id="file8012" Name="SQL_inserts.pre.tpl"/>
+                      <File Id="file8013" Name="tab.pre.tpl"/>
+                      <File Id="file8014" Name="XML.post.tpl"/>
+                      <File Id="file8015" Name="XML.pre.tpl"/>
+                      <File Id="file8016" Name="XLS.post.tpl"/>
+                      <File Id="file8017" Name="XLS.pre.tpl"/>
+                      <File Id="file8018" Name="XLS.tpl"/>
+                      <File Id="file8019" Name="CSV.tpli"/>
+                      <File Id="file8020" Name="CSV_semicolon.tpli"/>
+                      <File Id="file8021" Name="HTML.tpli"/>
+                      <File Id="file8022" Name="SQL_inserts.tpli"/>
+                      <File Id="file8023" Name="XLS.tpli"/>
+                      <File Id="file8024" Name="XML.tpli"/>
+                      <File Id="file8025" Name="tab.tpli"/>
+                      <File Id="file8026" Name="XML_mysql.post.tpl"/>
+                      <File Id="file8027" Name="XML_mysql.pre.tpl"/>
+                      <File Id="file8028" Name="XML_mysql.tpl"/>
+                      <File Id="file8029" Name="XML_mysql.tpli"/>
+                      <File Id="file8030" Name="JSON.post.tpl"/>
+                      <File Id="file8031" Name="JSON.pre.tpl"/>
+                      <File Id="file8032" Name="JSON.tpl"/>
+                      <File Id="file8033" Name="JSON.tpli"/>
+                    </Component>
+                  </Directory>
+
+                  <Directory Id="modules_data_doclibrary" Name="DocLibrary">
+                    <Component DiskId="1" Guid="5B9E4E74-A25E-4fb0-B9C5-30243B38FFF2" Id="modules_data_doclibrary" Location="either">
+                      <File Id="file8201" Name="mysqldoclib.sqlite"/>
+                      <File Id="file8202" Name="mysqldoclib_webui.sqlite"/>
+                    </Component>
+                  </Directory>
+
+                  <Directory Id="db_mysql_catalog_reporting" Name="db_mysql_catalog_reporting">
+                    <Directory Id="Basic_Text.tpl" Name="Basic_Text.tpl">
+                      <Component DiskId="1" Guid="B0805841-341F-4771-B42C-39083D482DB0" Id="catalog_reporting_TEXT_Basic" Location="either">
+                        <File Id="file9008" Name="basic_text_report.txt.tpl"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+
+                  <?if $(var.SETUP_TYPE) = "commercial" ?>
+
+                  <Directory Id="wb_model_reporting" Name="wb_model_reporting">
+                    <Directory Id="HTML_Basic_Frames.tpl" Name="HTML_Basic_Frames.tpl">
+                      <Component DiskId="1" Guid="33A5782A-F387-4986-9655-0E58B093A111" Id="reporting_HTML_Basic_Frames" Location="either">
+                        <File Id="file9001" Name="basic.css.tpl"/>
+                        <File Id="file9002" Name="index.html.tpl"/>
+                        <File Id="file9003" Name="info.xml"/>
+                        <File Id="file9004" Name="overview.html.tpl"/>
+                        <File Id="file9005" Name="preview_basic.png"/>
+                        <File Id="file9006" Name="restrained.css.tpl"/>
+                        <File Id="file9007" Name="table_details.html.tpl"/>
+                        <File Id="file9009" Name="preview_restrained.png"/>
+                      </Component>
+                    </Directory>
+
+                    <Directory Id="HTML_Basic_Single_Page.tpl" Name="HTML_Basic_Single_Page.tpl">
+                      <Component DiskId="1" Guid="5DAE3081-0B3E-48d5-9358-4308ADCE2E7D" Id="reporting_HTML_Basic_Single_Page" Location="either">
+                        <File Id="file10001" Name="index.html.tpl"/>
+                        <File Id="file10002" Name="info.xml"/>
+                        <File Id="file10003" Name="basic.css.tpl"/>
+                      </Component>
+                    </Directory>
+
+
+                    <Directory Id="HTML_Detailed_Frames.tpl" Name="HTML_Detailed_Frames.tpl">
+                      <Component DiskId="1" Guid="{95F9FB7C-C071-4e37-8BFF-BDF94670EC8B}" Id="reporting_HTML_Detailed_Frames" Location="either">
+                        <File Id="file16002" Name="overview_list.html.tpl"/>
+                        <File Id="file16003" Name="top.html.tpl"/>
+                        <File Id="file16007" Name="basic.css.tpl"/>
+                        <File Id="file16008" Name="overview.html.tpl"/>
+                        <File Id="file16009" Name="index.html.tpl"/>
+                        <File Id="file16011" Name="info.xml"/>
+                        <File Id="file16012" Name="table_details.html.tpl"/>
+                        <File Id="file16014" Name="coated.css.tpl"/>
+                        <File Id="file16020" Name="routine_details.html.tpl"/>
+                        <File Id="file16021" Name="view_details.html.tpl"/>
+                        <File Id="file16022" Name="table_details_list.html.tpl"/>
+                        <File Id="file16023" Name="table_element_details.html.tpl"/>
+                      </Component>
+
+                      <Directory Id="HTML_Detailed_Frames.tpl_images" Name="images">
+                        <Component DiskId="1" Guid="{98DBFAD3-A42E-49ce-8D8F-3A18D3517D82}" Id="reporting_HTML_Detailed_Frames_images" Location="either">
+                          <File Id="file16005" Name="logo.png"/>
+                          <File Id="file16015" Name="next.png"/>
+                          <File Id="file16016" Name="title-background.png"/>
+                          <File Id="file16017" Name="back.png"/>
+                          <File Id="file16018" Name="preview_coated.png"/>
+                          <File Id="file16019" Name="preview_main.png"/>
+                        </Component>
+                      </Directory>
+                    </Directory>
+
+
+                    <Directory Id="Text_Basic.tpl" Name="Text_Basic.tpl">
+                      <Component DiskId="1" Guid="657FBB7A-8E9E-4f20-B93F-E8F8E9D23560" Id="reporting_Text_Basic" Location="either">
+                        <File Id="file11001" Name="preview_basic.png"/>
+                        <File Id="file11002" Name="report.txt.tpl"/>
+                        <File Id="file11003" Name="info.xml"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <?endif ?>
+
+                </Directory>
+              </Directory>
+
+              <Directory Id="mysql.profiles_dir" Name="mysql.profiles">
+                <Component DiskId="1" Guid="{6818AA27-3CA1-4e52-9BE6-94004D7A81D8}" Id="mysql.profiles" Location="either">
+                  <File Id="file12100" Name="Fedora_Linux_(MySQL_Package).xml"/>
+                  <File Id="file12101" Name="Fedora_Linux_(Vendor_Package).xml"/>
+                  <File Id="file121012" Name="Fedora_Linux_15_(Vendor_Package).xml"/>
+                  <File Id="file121012a" Name="Fedora_Linux_16_(Vendor_Package).xml"/>
+                  <File Id="file12102" Name="FreeBSD_(MySQL_Package).xml"/>
+                  <File Id="file12103" Name="Generic_Linux_(MySQL_tar_package).xml"/>
+                  <File Id="file12104" Name="MacOS_X_(MySQL_Package).xml"/>
+                  <File Id="file12105" Name="OpenSolaris_(MySQL_Package).xml"/>
+                  <File Id="file12106" Name="RHEL_(MySQL_Package).xml"/>
+                  <File Id="file12107" Name="SLES_(MySQL_Package).xml"/>
+                  <File Id="file12108" Name="Ubuntu_Linux_(MySQL_Package).xml"/>
+                  <File Id="file12109" Name="Ubuntu_Linux_(Vendor_Package).xml"/>
+                  <File Id="file12108u" Name="Ubuntu_Linux_(sysvinit,_MySQL_Package).xml"/>
+                  <File Id="file12109u" Name="Ubuntu_Linux_(sysvinit,_Vendor_Package).xml"/>
+                  <File Id="file12113" Name="Linux_(Custom).xml"/>
+                  <File Id="file12114" Name="Windows_(MySQL_5.0_x86_Installer_Package).xml"/>
+                  <File Id="file12115" Name="Windows_(MySQL_5.0_x64_Installer_Package).xml"/>
+                  <File Id="file12116" Name="Windows_(MySQL_5.1_x86_Installer_Package).xml"/>
+                  <File Id="file12117" Name="Windows_(MySQL_5.1_x64_Installer_Package).xml"/>
+                  <File Id="file12118" Name="Windows_(MySQL_x86_zip_Package).xml"/>
+                  <File Id="file12119" Name="Windows_(MySQL_x64_zip_Package).xml"/>
+                  <File Id="file12120" Name="Windows_x64_(MySQL_5.0_x86_Installer_Package).xml"/>
+                  <File Id="file12121" Name="Windows_x64_(MySQL_5.1_x86_Installer_Package).xml"/>
+                  <File Id="file12122" Name="Windows_x64_(MySQL_x86_zip_Package).xml"/>
+                  <File Id="file12123" Name="Windows_(MySQL_5.5_Installer_Package).xml"/>
+                  <File Id="file12126" Name="Windows_(MySQL_5.6_Installer_Package).xml"/>
+                  <File Id="file12129" Name="Oracle_Linux_6_(MySQL_Package).xml"/>
+                </Component>
+              </Directory>
+
+              <Directory Id="structs_dir" Name="structs">
+                <Component DiskId="1" Guid="554BE083-2ACC-4ce1-8D58-90774B4E8400" Id="structs" Location="either">
+                  <File Id="file14001" Name="structs.app.xml"/>
+                  <File Id="file14003" Name="structs.db.mgmt.xml"/>
+                  <File Id="file14004" Name="structs.db.migration.xml"/>
+                  <File Id="file14005" Name="structs.db.mssql.xml"/>
+                  <File Id="file14006" Name="structs.db.mysql.xml"/>
+                  <File Id="file14007" Name="structs.db.oracle.xml"/>
+                  <File Id="file14008" Name="structs.db.query.xml"/>
+                  <File Id="file14009" Name="structs.db.sybase.xml"/>
+                  <File Id="file14010" Name="structs.db.xml"/>
+                  <File Id="file14011" Name="structs.eer.xml"/>
+                  <File Id="file14012" Name="structs.model.xml"/>
+                  <File Id="file14013" Name="structs.workbench.logical.xml"/>
+                  <File Id="file14014" Name="structs.workbench.model.reporting.xml"/>
+                  <File Id="file14015" Name="structs.workbench.model.xml"/>
+                  <File Id="file14016" Name="structs.workbench.physical.xml"/>
+                  <File Id="file14017" Name="structs.workbench.xml"/>
+                  <File Id="file14018" Name="structs.xml"/>
+                  <File Id="file14019" Name="structs.meta.xml"/>
+                  <File Id="file14020" Name="structs.ui.xml"/>
+                </Component>
+              </Directory>
+
+              <Directory Id="snippets_dir" Name="snippets">
+                <Component DiskId="1" Guid="324DDF84-3B33-4b9c-AA49-8A102DD0AA88" Id="snippets" Location="either">
+                  <File Id="file17001" Name="SQL DDL Statements.txt"/>
+                  <File Id="file17002" Name="SQL DML Statements.txt"/>
+                  <File Id="file17003" Name="DB Management.txt"/>
+                </Component>
+              </Directory>
+
+              <Directory Id="script_templates_dir" Name="script_templates">
+                <Component DiskId="1" Guid="909E0BD1-0A57-4816-B379-9AAB118E8A1E" Id="script_templates" Location="either">
+                  <File Id="file17501" Name="eer_model_object_grt.py.txt"/>
+                  <File Id="file17502" Name="eer_model_utility_grt.py.txt"/>
+                  <File Id="file17503" Name="generic_grt.py.txt"/>
+                  <File Id="file17504" Name="sql_editor_catalog_grt.py.txt"/>
+                  <File Id="file17505" Name="sql_editor_filter_grt.py.txt"/>
+                  <File Id="file17506" Name="sql_editor_resultset_grt.py.txt"/>
+                  <File Id="file17507" Name="sql_editor_utility_grt.py.txt"/>
+                </Component>
+              </Directory>
+
+              <Directory Id="sys_dir" Name="sys">
+                <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="sys" Location="either">
+                  <File Id="wbsys001" Name="after_setup.sql"/>
+                  <File Id="wbsys002" Name="before_setup.sql"/>
+                  <File Id="wbsys028" Name="sys_56.sql"/>
+                  <File Id="wbsys029" Name="sys_57.sql"/>
+                  <File Id="wbsys030" Name="sys_reports.js"/>
+                </Component>
+                <Directory Id="sys_functions_dir" Name="functions">
+                  <Component DiskId="1" Guid="33B5C8F0-A62C-11E3-86B1-F01FAF106FB3" Id="sys_functions" Location="either">
+                    <File Id="wbsys003" Name="extract_schema_from_file_name.sql"/>
+                    <File Id="wbsys004" Name="extract_table_from_file_name.sql"/>
+                    <File Id="wbsys005" Name="format_bytes.sql"/>
+                    <File Id="wbsys006" Name="format_path.sql"/>
+                    <File Id="wbsys007" Name="format_statement.sql"/>
+                    <File Id="wbsys008" Name="format_time.sql"/>
+                    <File Id="wbsys009" Name="ps_is_account_enabled.sql"/>
+                    <File Id="wbsys010" Name="ps_thread_stack.sql"/>
+                  </Component>
+                </Directory>
+                <Directory Id="sys_procedures_dir" Name="procedures">
+                  <Component DiskId="1" Guid="33B6389E-A62C-11E3-86B1-F01FAF106FB3" Id="sys_procedures" Location="either">
+                    <File Id="wbsys011" Name="create_synonym_db.sql"/>
+                    <File Id="wbsys012" Name="ps_setup_disable_background_threads.sql"/>
+                    <File Id="wbsys013" Name="ps_setup_disable_instrument.sql"/>
+                    <File Id="wbsys014" Name="ps_setup_disable_thread.sql"/>
+                    <File Id="wbsys015" Name="ps_setup_enable_background_threads.sql"/>
+                    <File Id="wbsys016" Name="ps_setup_enable_instrument.sql"/>
+                    <File Id="wbsys017" Name="ps_setup_enable_thread.sql"/>
+                    <File Id="wbsys018" Name="ps_setup_reload_saved.sql"/>
+                    <File Id="wbsys019" Name="ps_setup_reset_to_default.sql"/>
+                    <File Id="wbsys020" Name="ps_setup_reset_to_default_57.sql"/>
+                    <File Id="wbsys021" Name="ps_setup_save.sql"/>
+                    <File Id="wbsys022" Name="ps_setup_show_disabled.sql"/>
+                    <File Id="wbsys023" Name="ps_setup_show_enabled.sql"/>
+                    <File Id="wbsys024" Name="ps_statement_avg_latency_histogram.sql"/>
+                    <File Id="wbsys025" Name="ps_trace_statement_digest.sql"/>
+                    <File Id="wbsys026" Name="ps_trace_thread.sql"/>
+                    <File Id="wbsys027" Name="ps_truncate_all_tables.sql"/>
+                  </Component>
+                </Directory>
+                <Directory Id="sys_views_dir" Name="views">
+                  <Directory Id="sys_views_i_s_dir" Name="i_s">
+                    <Component DiskId="1" Guid="33B7202E-A62C-11E3-86B1-F01FAF106FB3" Id="sys_views_i_s" Location="either">
+                      <File Id="wbsys031" Name="innodb_buffer_stats_by_schema.sql"/>
+                      <File Id="wbsys032" Name="innodb_buffer_stats_by_table.sql"/>
+                      <File Id="wbsys033" Name="schema_object_overview.sql"/>
+                    </Component>
+                  </Directory>
+                  <Directory Id="sys_views_p_s_dir" Name="p_s">
+                    <Component DiskId="1" Guid="33B76200-A62C-11E3-86B1-F01FAF106FB3" Id="sys_views_p_s" Location="either">
+                      <File Id="wbsys034" Name="io_by_thread_by_latency.sql"/>
+                      <File Id="wbsys035" Name="io_global_by_file_by_bytes.sql"/>
+                      <File Id="wbsys036" Name="io_global_by_file_by_latency.sql"/>
+                      <File Id="wbsys037" Name="io_global_by_wait_by_bytes.sql"/>
+                      <File Id="wbsys038" Name="io_global_by_wait_by_latency.sql"/>
+                      <File Id="wbsys039" Name="latest_file_io.sql"/>
+                      <File Id="wbsys040" Name="memory_by_user.sql"/>
+                      <File Id="wbsys041" Name="memory_global_by_current_allocated.sql"/>
+                      <File Id="wbsys042" Name="memory_global_total.sql"/>
+                      <File Id="wbsys043" Name="processlist.sql"/>
+                      <File Id="wbsys044" Name="processlist_57.sql"/>
+                      <File Id="wbsys045" Name="ps_check_lost_instrumentation.sql"/>
+                      <File Id="wbsys046" Name="schema_index_statistics.sql"/>
+                      <File Id="wbsys047" Name="schema_table_statistics.sql"/>
+                      <File Id="wbsys048" Name="schema_table_statistics_with_buffer.sql"/>
+                      <File Id="wbsys049" Name="schema_tables_with_full_table_scans.sql"/>
+                      <File Id="wbsys050" Name="schema_unused_indexes.sql"/>
+                      <File Id="wbsys051" Name="statement_analysis.sql"/>
+                      <File Id="wbsys052" Name="statements_with_errors_or_warnings.sql"/>
+                      <File Id="wbsys053" Name="statements_with_full_table_scans.sql"/>
+                      <File Id="wbsys054" Name="statements_with_runtimes_in_95th_percentile.sql"/>
+                      <File Id="wbsys055" Name="statements_with_sorting.sql"/>
+                      <File Id="wbsys056" Name="statements_with_temp_tables.sql"/>
+                      <File Id="wbsys057" Name="user_summary.sql"/>
+                      <File Id="wbsys058" Name="user_summary_57.sql"/>
+                      <File Id="wbsys059" Name="user_summary_by_file_io.sql"/>
+                      <File Id="wbsys060" Name="user_summary_by_file_io_type.sql"/>
+                      <File Id="wbsys061" Name="user_summary_by_stages.sql"/>
+                      <File Id="wbsys062" Name="user_summary_by_statement_latency.sql"/>
+                      <File Id="wbsys063" Name="user_summary_by_statement_type.sql"/>
+                      <File Id="wbsys064" Name="wait_classes_global_by_avg_latency.sql"/>
+                      <File Id="wbsys065" Name="wait_classes_global_by_latency.sql"/>
+                      <File Id="wbsys066" Name="waits_by_user_by_latency.sql"/>
+                      <File Id="wbsys067" Name="waits_global_by_latency.sql"/>
+                    </Component>
+                  </Directory>
+                </Directory>
+              </Directory>   
+              
+              <Directory Id="sample_models_dir" Name="extras">
+                <Component DiskId="1" Guid="16209AE8-6388-4DD8-ADFB-6548FC014BCA" Id="extras" Location="either">
+                  <File Id="sample001" Name="sakila_full.mwb"/>
+                </Component>
+              </Directory>
+              
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+  </Fragment>
+</Wix>

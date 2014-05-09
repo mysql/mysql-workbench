@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Uncomment the following line if you're having trouble with gnome-keyring lockups.
+# This will cause passwords to be stored only temporarily for the session.
+#WB_NO_GNOME_KEYRING=1
+
+# force disable the Mac style single menu hack in Ubuntu Unity
+UBUNTU_MENUPROXY=0
+
+# Set the destdir=<some_dir> when ever you install using DESTDIR=<some_dir>. 
+destdir=
+
+wblibdir="$destdir@WB_INSTALL_LIB_DIR@"
+
+
+# if libcairo and pixman are in the wb libraries dir, force them to be preloaded
+if test -f $wblibdir/libcairo.so.2; then
+	if test "$LD_PRELOAD" != ""; then
+		export LD_PRELOAD="$LD_PRELOAD:$wblibdir/libcairo.so.2"
+	else
+		export LD_PRELOAD="$wblibdir/libcairo.so.2"
+	fi
+fi
+if test -f $wblibdir/libpixman-1.so.0; then
+	if test "$LD_PRELOAD" != ""; then
+		export LD_PRELOAD="$LD_PRELOAD:$wblibdir/libpixman.so.0"
+	else
+		export LD_PRELOAD="$wblibdir/libpixman.so.0"
+	fi
+fi
+
+
+if test "$LD_LIBRARY_PATH" != ""; then
+    export LD_LIBRARY_PATH="$wblibdir:$LD_LIBRARY_PATH"
+else
+    export LD_LIBRARY_PATH="$wblibdir"
+fi
+
+if test "$PYTHONPATH" != ""; then
+    export PYTHONPATH="$wblibdir:$PYTHONPATH"
+else
+    export PYTHONPATH="$wblibdir"
+fi
+
+export MWB_DATA_DIR="$destdir@WB_PACKAGE_SHARED_DIR@"
+export MWB_LIBRARY_DIR="$destdir@WB_INSTALL_SHARED_DIR@/mysql-workbench/libraries"
+export MWB_MODULE_DIR="$destdir@WB_PYTHON_MODULES_DIR@"
+export MWB_PLUGIN_DIR="$destdir@WB_PACKAGE_PLUGINS_DIR@"
+export DBC_DRIVER_PATH="$destdir@LIB_INSTALL_DIR@/mysql-workbench"
+export MWB_BASE_DIR="$destdir@WB_INSTALL_DIR@"
+export MWB_BINARIES_DIR="$destdir@WB_INSTALL_DIR_EXECUTABLE@"
+
+if type -p catchsegv > /dev/null; then
+catchsegv $MWB_BINARIES_DIR/mysql-workbench-bin "$@"
+else
+$MWB_BINARIES_DIR/mysql-workbench-bin "$@"
+fi

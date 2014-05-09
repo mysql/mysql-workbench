@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+
+<data>
+  <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.option.table">
+    <value type="string" key="name">options/physical/table</value>
+    <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.templatel">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="command">Template:</value>
+        <value type="string" key="itemType">label</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.template">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="name">physical/table/template</value>
+        <value type="string" key="command">option:workbench.physical.TableFigure:Template</value>
+        <value type="string" key="itemType">dropdown</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.schemasep">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.schemalbl">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="command">Schema:</value>
+        <value type="string" key="itemType">label</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.schema">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="name">physical/table/schema</value>
+        <value type="string" key="command">option:workbench.physical.TableFigure:Schema</value>
+        <value type="string" key="itemType">dropdown</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.schemasep">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.enginelbl">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="command">Engine:</value>
+        <value type="string" key="itemType">label</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.engine">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="name">physical/table/engine</value>
+        <value type="string" key="command">option:workbench.physical.TableFigure:Engine</value>
+        <value type="string" key="itemType">dropdown</value>
+      </value>
+      
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.enginesep">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.collationlbl">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="command">Collation:</value>
+        <value type="string" key="itemType">label</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.collation">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="name">physical/table/collation</value>
+        <value type="string" key="command">option:workbench.physical.TableFigure:Collation</value>
+        <value type="string" key="itemType">dropdown</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.collationsep">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="itemType">separator</value>
+      </value>
+
+      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.color">
+        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
+        <value type="string" key="name">physical/table/color</value>
+        <value type="string" key="command">option:workbench.physical.TableFigure:Color</value>
+        <value type="string" key="itemType">dropdown</value>
+      </value>
+    </value>
+  </value>
+</data>
+

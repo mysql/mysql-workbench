@@ -1,0 +1,1 @@
+{{#ROW}}INSERT INTO `{{TABLE_NAME}}` ({{#FIELD}}`{{FIELD_NAME}}`{{#FIELD_separator}},{{/FIELD_separator}}{{/FIELD}}) VALUES ({{#FIELD}}{{FIELD_VALUE}}{{#FIELD_separator}},{{/FIELD_separator}}{{/FIELD}});{{/ROW}}
