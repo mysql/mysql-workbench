@@ -222,19 +222,19 @@ namespace bec {
               if (!child.is_valid())
               {
                 failed = true;
-                log_error("Child item %li of list %s::%s is NULL", i, GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str());
+                log_error("Child item %li of list %s::%s is NULL\n", (long int)i, GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str());
               }
               else
               {
                 if (!child->owner().is_valid())
                 {
-                  log_error("owner of %s::%s[%li] %s is NULL (expected %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), i, child->id().c_str(),
+                  log_error("owner of %s::%s[%li] %s is NULL (expected %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
                             object->id().c_str(), object->class_name().c_str());
                   failed = true;
                 }
                 else if (child->owner() != object)
                 {
-                  log_error("owner of %s::%s[%li] %s is wrong (expected %s <%s>, is %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), i, child->id().c_str(),
+                  log_error("owner of %s::%s[%li] %s is wrong (expected %s <%s>, is %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
                             object->id().c_str(), object->class_name().c_str(), child->owner()->id().c_str(), child->owner()->class_name().c_str());
                   failed = true;
                 }
@@ -256,20 +256,20 @@ namespace bec {
               GrtObjectRef child(GrtObjectRef::cast_from(list.get(i)));
               if (!child.is_valid())
               {
-                log_error("Child item %li of list %s::%s is NULL", i, GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str());
+                log_error("Child item %li of list %s::%s is NULL\n", (long int)i, GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str());
                 failed = true;
               }
               else
               {
                 if (!child->owner().is_valid())
                 {
-                  log_error("owner of %s::%s[%li] %s is NULL (expected %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), i, child->id().c_str(),
+                  log_error("owner of %s::%s[%li] %s is NULL (expected %s <%s>)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i, child->id().c_str(),
                             object->id().c_str(), object->class_name().c_str());
                   failed = true;
                 }
                 else if (child->owner() == object)
                 {
-                  log_error("owner of %s::%s[%li] is wrong (not supposed to be %s)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), i,
+                  log_error("owner of %s::%s[%li] is wrong (not supposed to be %s)\n", GrtNamedObjectRef::cast_from(object)->name().c_str(), member->name.c_str(), (long int)i,
                             child->owner()->id().c_str());
                   failed = true;
                 }
