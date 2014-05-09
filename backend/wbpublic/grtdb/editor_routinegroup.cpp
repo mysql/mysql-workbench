@@ -262,14 +262,11 @@ grt::ValueRef RoutineGroupEditorBE::parse_sql(grt::GRT* grt, grt::StringRef sql)
 }
 
 
-Sql_editor::Ref RoutineGroupEditorBE::get_sql_editor()
+MySQLEditor::Ref RoutineGroupEditorBE::get_sql_editor()
 {
-  Sql_editor::Ref sql_editor= DBObjectEditorBE::get_sql_editor();
+  MySQLEditor::Ref sql_editor= DBObjectEditorBE::get_sql_editor();
   if (sql_editor)
-  {
-    sql_editor->restrict_content_to(Sql_editor::ContentTypeRoutine);
-    //sql_editor->sql_checker()->context_object(_group); TODO: still needed?
-  }
+    sql_editor->restrict_content_to(MySQLEditor::ContentTypeRoutine);
   return sql_editor;
 }
 

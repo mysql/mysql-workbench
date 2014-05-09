@@ -387,7 +387,7 @@ namespace bec {
     void show_export_wizard(mforms::Form *owner);
     void show_import_wizard();
     
-    virtual Sql_editor::Ref get_sql_editor();
+    virtual MySQLEditor::Ref get_sql_editor();
 
     virtual db_TableRef create_stub_table(const std::string &schema, const std::string &table) = 0;
 

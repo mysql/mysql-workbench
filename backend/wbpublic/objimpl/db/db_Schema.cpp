@@ -19,9 +19,12 @@
 
 #include <grts/structs.db.h>
 
-#include "grtpp_util.h"
 #include "base/string_utilities.h"
-#include <grtpp_undo_manager.h>
+#include "base/util_functions.h"
+
+#include "grtpp_util.h"
+
+#include "grtpp_undo_manager.h"
 #include "grt/common.h"
 
 using namespace base;
@@ -55,8 +58,8 @@ db_RoutineRef db_Schema::addNewRoutine(const std::string &dbpackage)
   routine= get_grt()->create_object<db_Routine>(class_name);
   routine->owner(this);
   routine->name(name);
-  routine->createDate(bec::fmttime(0, DATETIME_FMT));
-  routine->lastChangeDate(bec::fmttime(0, DATETIME_FMT));
+  routine->createDate(base::fmttime(0, DATETIME_FMT));
+  routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   _routines.insert(routine);
 
@@ -85,8 +88,8 @@ db_RoutineGroupRef db_Schema::addNewRoutineGroup(const std::string &dbpackage)
   rgroup= get_grt()->create_object<db_RoutineGroup>(class_name);
   rgroup->owner(this);
   rgroup->name(name);
-  rgroup->createDate(bec::fmttime(0, DATETIME_FMT));
-  rgroup->lastChangeDate(bec::fmttime(0, DATETIME_FMT));
+  rgroup->createDate(base::fmttime(0, DATETIME_FMT));
+  rgroup->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   _routineGroups.insert(rgroup);
   if (um)
@@ -114,8 +117,8 @@ db_TableRef db_Schema::addNewTable(const std::string &dbpackage)
   table= get_grt()->create_object<db_Table>(class_name);
   table->owner(this);
   table->name(name);
-  table->createDate(bec::fmttime(0, DATETIME_FMT));
-  table->lastChangeDate(bec::fmttime(0, DATETIME_FMT));
+  table->createDate(base::fmttime(0, DATETIME_FMT));
+  table->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   _tables.insert(table);
   if (um)
@@ -143,8 +146,8 @@ db_ViewRef db_Schema::addNewView(const std::string &dbpackage)
   view= get_grt()->create_object<db_View>(class_name);
   view->owner(this);
   view->name(name);
-  view->createDate(bec::fmttime(0, DATETIME_FMT));
-  view->lastChangeDate(bec::fmttime(0, DATETIME_FMT));
+  view->createDate(base::fmttime(0, DATETIME_FMT));
+  view->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   _views.insert(view);
   if (um)

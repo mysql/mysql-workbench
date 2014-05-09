@@ -20,8 +20,10 @@
 #pragma once
 
 #include "wbpublic_public_interface.h"
-#include "grts/structs.db.mgmt.h"
+
 #include "mysql-parser.h"
+
+#include "db_helpers.h"
 
 namespace parser {
 
@@ -37,16 +39,20 @@ class WBPUBLICBACKEND_PUBLIC_FUNC ParserContext {
 
 private:
   MySQLRecognizer *_recognizer;
+  GrtVersionRef _version;
 
 public:
   typedef boost::shared_ptr<ParserContext> Ref;
 
-  ParserContext(db_mgmt_RdbmsRef rdbms);
+  ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version);
   ~ParserContext();
 
   MySQLRecognizer *recognizer() { return _recognizer; };
 
   void use_sql_mode(const std::string &mode);
+  void use_server_version(GrtVersionRef version);
+  GrtVersionRef get_server_version() { return _version; };
+  
   std::vector<ParserErrorEntry> get_errors_with_offset(size_t offset);
 };
 
@@ -59,12 +65,14 @@ class WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserServices
 public:
   typedef MySQLParserServices *Ref; // We only have a singleton, so define Ref only to keep the pattern.
 
-  static ParserContext::Ref createParserContext(db_mgmt_RdbmsRef rdbms);
+  static ParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version);
   static MySQLParserServices::Ref get(grt::GRT *grt);
 
   virtual int stopProcessing() = 0;
   virtual int determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter, 
     std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
+
+  virtual int parseTrigger(ParserContext::Ref context, db_TriggerRef trigger, const std::string &sql) = 0;
 
   virtual int checkSqlSyntax(ParserContext::Ref context, const char *sql, size_t length, MySQLQueryType type) = 0;
 };

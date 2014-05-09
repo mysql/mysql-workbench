@@ -3234,7 +3234,7 @@ grt::ValueRef TableEditorBE::parse_triggers_sql(grt::GRT* grt, grt::StringRef sq
   if (!_sql_parser.get())
     throw std::logic_error("SQL parser is not initialzed");
 
-  _table->customData().set("NonTriggerSQLFound", grt::IntegerRef(0));
+  _table->customData().set("triggerInvalid", grt::IntegerRef(0));
   grt::IntegerRef res= _sql_parser->parse_triggers(_table, sql.c_str());
 
   undo.end(strfmt(_("Edit triggers of table `%s`.`%s`"), get_schema_name().c_str(), get_name().c_str()));
@@ -3350,12 +3350,12 @@ void TableEditorBE::show_import_wizard()
                                                   
 //--------------------------------------------------------------------------------------------------
 
-Sql_editor::Ref TableEditorBE::get_sql_editor()
+MySQLEditor::Ref TableEditorBE::get_sql_editor()
 {
-  Sql_editor::Ref sql_editor= DBObjectEditorBE::get_sql_editor();
+  MySQLEditor::Ref sql_editor= DBObjectEditorBE::get_sql_editor();
   if (sql_editor)
   {
-    sql_editor->restrict_content_to(Sql_editor::ContentTypeTrigger);
+    sql_editor->restrict_content_to(MySQLEditor::ContentTypeTrigger);
     //sql_editor->sql_checker()->context_object(_table); TODO:: still needed?
   }
   return sql_editor;

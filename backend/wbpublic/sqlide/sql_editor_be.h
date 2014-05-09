@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _SQL_EDITOR_BE_H_
-#define _SQL_EDITOR_BE_H_
+#pragma once
 
 #include "wbpublic_public_interface.h"
 
@@ -38,7 +37,8 @@
 
 #endif
 
-#include "grtsqlparser/sql_semantic_check.h"
+#include "grtsqlparser/mysql_parser_services.h"
+#include "db_helpers.h"
 
 namespace bec {
   class GRTManager;
@@ -68,10 +68,10 @@ class AutoCompleteCache;
 #define AC_ENGINE_IMAGE   9
 
 /**
- * Base class for SQL editor backend classes. Sub-classed by specific RDBMS support modules.
+ * The central MySQL editor class.
  */
 
-class WBPUBLICBACKEND_PUBLIC_FUNC Sql_editor : public base::trackable
+class WBPUBLICBACKEND_PUBLIC_FUNC MySQLEditor : public base::trackable
 {
 public:
   enum ContentType
@@ -172,12 +172,12 @@ public:
 
   };
 
-  typedef boost::shared_ptr<Sql_editor> Ref;
-  typedef boost::weak_ptr<Sql_editor> Ptr;
+  typedef boost::shared_ptr<MySQLEditor> Ref;
+  typedef boost::weak_ptr<MySQLEditor> Ptr;
 
-  static Ref create(db_mgmt_RdbmsRef rdbms, GrtVersionRef version, db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
+  static Ref create(grt::GRT *grt, parser::ParserContext::Ref context, db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
 
-  virtual ~Sql_editor();
+  virtual ~MySQLEditor();
 
   db_query_QueryBufferRef grtobj();
 
@@ -192,7 +192,6 @@ public:
   void show_special_chars(bool flag);
   void enable_word_wrap(bool flag);
 
-  db_mgmt_RdbmsRef rdbms();
   bec::GRTManager *grtm();
 
   int int_option(std::string name);
@@ -235,7 +234,8 @@ public:
   boost::signals2::signal<void ()>* text_change_signal();
 
   std::string sql_mode() { return _sql_mode; };
-  void sql_mode(const std::string &value);
+  void set_sql_mode(const std::string &value);
+  void set_server_version(GrtVersionRef version);
 
   void restrict_content_to(ContentType type);
 
@@ -249,9 +249,7 @@ public:
   void register_file_drop_for(mforms::DropDelegate *target);
 
 protected:
-  Sql_editor(db_mgmt_RdbmsRef rdbms, GrtVersionRef version);
-
-  mforms::CodeEditorConfig *_editor_config;  // Set by descendants.
+  MySQLEditor(grt::GRT *grt, parser::ParserContext::Ref context);
 
 private:
   class Private;
@@ -263,7 +261,7 @@ private:
   void* run_code_completion();
 
   std::string get_written_part(size_t position);
-  virtual bool fill_auto_completion_keywords(std::vector<std::pair<int, std::string> > &entries,
+  bool fill_auto_completion_keywords(std::vector<std::pair<int, std::string> > &entries,
     AutoCompletionWantedParts parts, bool upcase_keywords);
 
   void text_changed(int position, int length, int lines_changed, bool added);
@@ -296,12 +294,10 @@ private:
   AutoCompleteCache *_auto_completion_cache;
 
   mforms::CodeEditor* _code_editor;
+  mforms::CodeEditorConfig *_editor_config;
 
   std::string _current_schema;
   std::string _last_ac_statement; // The last statement we used for auto completion.
 
   std::string _sql_mode;
 };
-
-#endif /* _SQL_EDITOR_BE_H_ */
-

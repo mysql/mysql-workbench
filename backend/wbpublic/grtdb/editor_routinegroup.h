@@ -48,7 +48,7 @@ namespace bec {
     grt::ValueRef parse_sql(grt::GRT*, grt::StringRef sql);
     bool has_syntax_error() { return _has_syntax_error; }
 
-    virtual Sql_editor::Ref get_sql_editor();
+    virtual MySQLEditor::Ref get_sql_editor();
     
     virtual std::string get_routine_sql(db_RoutineRef routine);
 

@@ -29,6 +29,7 @@
 #include "base/string_utilities.h"
 #include "base/geometry.h"
 #include "base/log.h"
+#include "base/util_functions.h"
 
 #include "mforms/code_editor.h"
 
@@ -994,7 +995,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   // Set some global project info.
   main_dict.SetValue(REPORT_TITLE, title);
 
-  string time= bec::fmttime(0, DATETIME_FMT);
+  string time= base::fmttime(0, DATETIME_FMT);
   main_dict.SetValue(REPORT_GENERATED, time);
 
   workbench_DocumentRef document= workbench_DocumentRef::cast_from(model->owner());

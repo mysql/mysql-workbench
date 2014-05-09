@@ -39,10 +39,10 @@ RoutineEditorBE::RoutineEditorBE(GRTManager *grtm, const db_RoutineRef &routine,
     _routine->sqlDefinition(sql);
   }
 
-  Sql_editor::Ref sql_editor= DBObjectEditorBE::get_sql_editor();
+  MySQLEditor::Ref sql_editor= DBObjectEditorBE::get_sql_editor();
   if (sql_editor)
   {
-    sql_editor->restrict_content_to(Sql_editor::ContentTypeRoutine);
+    sql_editor->restrict_content_to(MySQLEditor::ContentTypeRoutine);
     //sql_editor->sql_checker()->context_object(_routine); TODO: do we need that reference anymore?
   }
 }

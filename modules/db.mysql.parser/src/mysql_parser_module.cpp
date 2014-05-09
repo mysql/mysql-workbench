@@ -18,9 +18,12 @@
  */
 
 #include "base/string_utilities.h"
+#include "base/util_functions.h"
 
 #include "mysql_parser_module.h"
+#include "MySQLLexer.h"
 
+using namespace grt;
 using namespace parser;
 
 GRT_MODULE_ENTRY_POINT(MySQLParserServicesImpl);
@@ -54,6 +57,100 @@ int MySQLParserServicesImpl::stopProcessing()
 {
   _stop = true;
   return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Parses the given sql as trigger create script and fills all found details in the given trigger ref.
+ * If there's an error nothing is changed.
+ * Returns the number of errors.
+ */
+int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db_TriggerRef trigger,
+                                          const std::string &sql)
+{
+  trigger->sqlDefinition(sql);
+  trigger->lastChangeDate(base::fmttime(0, DATETIME_FMT));
+
+  context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateTrigger);
+  int error_count = (int)context->recognizer()->error_info().size();
+  int result_flag = 0;
+  if (error_count == 0)
+  {
+    // There's no need for checks if any of the walker calls fail.
+    //  If we arrive here the syntax must be correct.
+    trigger->enabled(1);
+
+    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+    walker.next(2); // Skip root + CREATE.
+
+    if (walker.token_type() == DEFINER_SYMBOL)
+    {
+      walker.next(2); // Skip DEFINER + equal sign.
+      trigger->definer(walker.token_text());
+      walker.next();
+      if (walker.token_type() == OPEN_PAR_SYMBOL) // Optional parentheses.
+        walker.next(2);
+    }
+    walker.next(); // skip TRIGGER
+    std::string name = walker.token_text();
+    walker.next();
+    if (walker.token_type() == DOT_SYMBOL)
+    {
+      // A qualified name. Ignore the schema part.
+      walker.next();
+      name = walker.token_text();
+      walker.next();
+    }
+    trigger->name(name);
+
+    trigger->timing(walker.token_text());
+    walker.next();
+    trigger->event(walker.token_text());
+
+    // The referenced table is not stored in the trigger object as that is defined by it's position
+    // in the grt tree.
+    walker.skip_token_sequence(ON_SYMBOL, TABLE_REF_ID_TOKEN, IDENTIFIER, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
+    ANTLR3_UINT32 type = walker.token_type();
+    if (type == FOLLOWS_SYMBOL || type == PRECEDES_SYMBOL)
+    {
+      trigger->ordering(walker.token_text());
+      walker.next();
+      trigger->otherTrigger(walker.token_text());
+      walker.next();
+    }
+
+    // sqlBody is obsolete.
+  }
+  else
+  {
+    result_flag = 1;
+
+    // Finished with errors. See if we can get at least the trigger name out.
+    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+    if (walker.advance_to_type(TRIGGER_SYMBOL, true))
+    {
+      walker.next();
+      std::string name = walker.token_text();
+      walker.next();
+      if (walker.token_type() == DOT_SYMBOL)
+      {
+        // A qualified name. Ignore the schema part.
+        walker.next();
+        name = walker.token_text();
+        walker.next();
+      }
+      trigger->name(name);
+    }
+  }
+
+  trigger->modelOnly(result_flag);
+  if (trigger->owner().is_valid())
+  {
+    db_TableRef table = db_TableRef::cast_from(trigger->owner());
+    table->customData().set("triggerInvalid", grt::IntegerRef(result_flag));
+  }
+  return error_count;
 }
 
 //--------------------------------------------------------------------------------------------------

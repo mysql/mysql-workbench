@@ -436,12 +436,7 @@ public:
   {
     _rtable.remove(_editor->get_sql_editor()->get_container());
   }
-  /*
-  static bool compare_order(db_TriggerRef a, db_TriggerRef b)
-  {
-    return a->order() > b->order();
-  }
-  */
+
   void refresh()
   {
     _refreshing = true;
@@ -497,9 +492,9 @@ public:
       {
         AutoUndoEdit undo(_editor, _selected_trigger, "sql");
         _editor->freeze_refresh_on_object_change();
-        grt::IntegerRef res = _editor->_sql_parser->parse_trigger(_selected_trigger, _code_editor->get_string_value().c_str());
-        db_TriggerRef temp_trigger;
-        _editor->_parsing_services->parseTrigger(temp_trigger, _code_editor->get_string_value());
+        //grt::IntegerRef res = _editor->_sql_parser->parse_trigger(_selected_trigger, _code_editor->get_string_value().c_str());
+        //db_TriggerRef temp_trigger(_editor->get_grt());
+        _editor->_parser_services->parseTrigger(_editor->_parser_context, _selected_trigger, _code_editor->get_string_value());
 
         _editor->thaw_refresh_on_object_change(true);
         _name.set_value(_selected_trigger->name());
@@ -620,7 +615,7 @@ public:
           sql.append(trigger->sqlDefinition());
 
         _edited_trigger_index = _list.row_for_node(_list.get_selected_node());
-        _code_editor->set_text_keeping_state(sql.c_str());
+        _editor->get_sql_editor()->sql(sql.c_str());
       }
       else
       {
@@ -641,7 +636,7 @@ public:
 
       _edited_trigger_index = _list.row_for_node(_list.get_selected_node());
       sql = "-- Trigger not defined. Click Add Trigger to create it.\n";
-      _code_editor->set_text_keeping_state(sql.c_str());
+      _editor->get_sql_editor()->sql(sql.c_str());
     }
     _button.set_enabled(true);
     _code_editor->reset_dirty();

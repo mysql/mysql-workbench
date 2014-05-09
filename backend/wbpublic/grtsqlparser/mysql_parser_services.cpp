@@ -25,29 +25,37 @@ using namespace parser;
 
 //------------------ ParserContext -----------------------------------------------------------------
 
-ParserContext::ParserContext(db_mgmt_RdbmsRef rdbms)
+ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version)
 {
-  std::set<std::string> charsets;
-  grt::ListRef<db_CharacterSet> list = rdbms->characterSets();
-  for (size_t i = 0; i < list->count(); i++)
-    charsets.insert(base::tolower(*list[i]->name()));
+  _version = version;
+
+  std::set<std::string> filtered_charsets;
+  for (size_t i = 0; i < charsets->count(); i++)
+    filtered_charsets.insert(base::tolower(*charsets[i]->name()));
 
   // 3 character sets were added in version 5.5.3. Remove them from the list if the current version
   // is lower than that.
-  GrtVersionRef version = rdbms->version();
-  size_t server_version;
+  long server_version;
   if (version.is_valid())
-    server_version = (unsigned)(version->majorNumber() * 10000 + version->minorNumber() * 100 + version->releaseNumber());
+  {
+    server_version = version->majorNumber() * 10000;
+    if (version->minorNumber() > -1)
+      server_version += version->minorNumber() * 100;
+    else
+      server_version += 500;
+    if (version->releaseNumber() > -1)
+      server_version += version->releaseNumber();
+  }
   else
     server_version = 50501; // Assume some reasonable default (5.5.1).
   if (server_version < 50503)
   {
-    charsets.erase("utf8mb4");
-    charsets.erase("utf16");
-    charsets.erase("utf32");
+    filtered_charsets.erase("utf8mb4");
+    filtered_charsets.erase("utf16");
+    filtered_charsets.erase("utf32");
   }
   
-  _recognizer = new MySQLRecognizer((long)server_version, "", charsets);
+  _recognizer = new MySQLRecognizer(server_version, "", filtered_charsets);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +70,21 @@ ParserContext::~ParserContext()
 void ParserContext::use_sql_mode(const std::string &mode)
 {
   _recognizer->set_sql_mode(mode);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ParserContext::use_server_version(GrtVersionRef version)
+{
+  _version = version;
+  
+  long server_version;
+  if (version.is_valid())
+    server_version = version->majorNumber() * 10000 + version->minorNumber() * 100 +
+      version->releaseNumber();
+  else
+    server_version = 50501; // Assume some reasonable default (5.5.1).
+  _recognizer->set_server_version(server_version);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,9 +114,9 @@ std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offse
 
 //------------------ MySQLParserServices -----------------------------------------------------------
 
-ParserContext::Ref MySQLParserServices::createParserContext(db_mgmt_RdbmsRef rdbms)
+ParserContext::Ref MySQLParserServices::createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version)
 {
-  boost::shared_ptr<ParserContext> result(new ParserContext(rdbms));
+  boost::shared_ptr<ParserContext> result(new ParserContext(charsets, version));
 
   return result;
 }

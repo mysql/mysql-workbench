@@ -60,7 +60,7 @@ public:
   const std::vector<MySQLParserErrorInfo> &error_info();
   bool has_errors();
   unsigned sql_mode();
-  void set_sql_mode(const std::string &sql_mode);
+  virtual void set_sql_mode(const std::string &sql_mode);
 
   bool is_charset(const std::string &s);
   bool is_identifier(ANTLR3_UINT32 type);
@@ -72,8 +72,6 @@ public:
   static bool is_subtree(struct ANTLR3_BASE_TREE_struct *tree);
 
 protected:
-  unsigned parse_sql_mode(const std::string &sql_mode);
-
   // The start memory address of the input (needed for error position computation).
   virtual void* input_start() = 0;
 
