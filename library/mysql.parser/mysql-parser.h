@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_PARSER_H_
-#define _MYSQL_PARSER_H_
+#pragma once
 
 #include "mysql-parser-common.h"
 #include <stack>
@@ -212,7 +211,7 @@ class MYSQL_PARSER_PUBLIC_FUNC MySQLRecognizerTreeWalker
 public:
   MySQLRecognizer *recognizer() { return _recognizer; };
   
-  bool next();
+  bool next(size_t count = 1);
   bool next_sibling();
   bool previous();
   bool previous_by_index();
@@ -277,7 +276,9 @@ public:
   std::string dump_tree(pANTLR3_BASE_TREE tree, const std::string &indentation);
   
   MySQLRecognizerTreeWalker tree_walker();
-  unsigned sql_mode();
+  
+  virtual void set_sql_mode(const std::string &new_mode);
+  virtual void set_server_version(long new_version);
 
   std::string token_text(pANTLR3_BASE_TREE node);
   MySQLQueryType query_type();
@@ -293,5 +294,3 @@ private:
   class Private;
   Private *d;
 };
-
-#endif // _MYSQL_PARSER_H_

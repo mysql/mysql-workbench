@@ -47,23 +47,32 @@ public:
     : grt::ModuleImplBase(loader)
   {
   }
-
   DEFINE_INIT_MODULE_DOC("1.0", "Oracle Corporation", DOC_MYSQLPARSERSERVICESIMPL, grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::stopProcessing,
     "Tells the module to stop any ongoing processing as soon as possible. Can be called from any thread.\n"
     "Calling any other module function will reset this flag, so make sure any running task returned"
     "before starting a new one.",
     ""),
+/*
+    DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::parseTrigger,
+    "Parses a trigger from the SQL script and applies it to the given view object.",
+    "trigger an instantiated trigger object to fill\n"
+    "sql the SQL script to be parsed"),
+*/
     DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::getSqlStatementRanges,
     "Scans the sql code to find start and stop positions of each contained statement. An initial "
     "delimiter must be provided to find a statement's end. Embedded delimiter commands will be taken "
     "into account properly. The found ranges are returned as grt list.\n",
     "sql the sql script to process\n"),
+
     NULL);
 
   grt::BaseListRef getSqlStatementRanges(const std::string &sql);
 
   virtual int stopProcessing();
+
+  virtual int parseTrigger(parser::ParserContext::Ref context, db_TriggerRef trigger, const std::string &sql);
+
   virtual int checkSqlSyntax(parser::ParserContext::Ref context, const char *sql, size_t length,
     MySQLQueryType type);
 

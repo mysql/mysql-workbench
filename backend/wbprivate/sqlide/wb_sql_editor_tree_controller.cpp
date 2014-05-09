@@ -1883,7 +1883,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
   obj_editor->thaw_refresh_on_object_change();
 
   // enable refresh of sql editor contents
-  Sql_editor::Ref active_sql_editor= obj_editor->get_sql_editor();
+  MySQLEditor::Ref active_sql_editor= obj_editor->get_sql_editor();
   if (active_sql_editor)
   {
     active_sql_editor->set_refresh_enabled(true);
@@ -1985,15 +1985,14 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
 
     if (!dry_run)
     {
-      ValueRef is_trigger_changed= db_object->customData().get("NonTriggerSQLFound");
+      ValueRef is_trigger_changed= db_object->customData().get("triggerInvalid");
       if (is_trigger_changed.is_valid() && (IntegerRef::cast_from(is_trigger_changed) != 0))
       {
         int res= mforms::Utilities::show_warning(
           _("Apply Changes to Object"),
-          _("The object's trigger DDL statement contains sql definitions without matching CREATE TRIGGER.\n"
-          "This will lead to invalid sql generated.\n"
-          "Ensure that you have only trigger creation sql in Triggers tab.\n"
-          "Are you sure you want to apply the DDL statement unchanged?"),
+          _("The tables's trigger SQL code contains errors.\n"
+            "This will lead to invalid sql generated.\n"
+            "Are you sure you want to apply the DDL statement as is?"),
           _("Yes"),
           _("No"));
 
@@ -2376,7 +2375,7 @@ void SqlEditorTreeController::handle_grt_notification(const std::string &name, g
 
 int SqlEditorTreeController::insert_text_to_active_editor(const std::string& str)
 {
-  Sql_editor::Ref editor(_owner->active_sql_editor());
+  MySQLEditor::Ref editor(_owner->active_sql_editor());
   if (editor)
   {
     editor->insert_text(str);

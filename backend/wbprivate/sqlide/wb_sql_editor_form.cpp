@@ -354,7 +354,7 @@ SqlEditorForm::~SqlEditorForm()
     // Ensure all processing is stopped before freeing the info structure, otherwise references
     // are kept that prevent the correct deletion of the editor.
     MutexLock sql_editors_mutex(_sql_editors_mutex);
-    BOOST_FOREACH (Sql_editor_info::Ref sql_editor_info, _sql_editors)
+    BOOST_FOREACH (EditorInfo::Ref sql_editor_info, _sql_editors)
       sql_editor_info->editor->stop_processing();
   }
 
@@ -607,8 +607,8 @@ void SqlEditorForm::cache_sql_mode()
     {
       _sql_mode= sql_mode;
       MutexLock sql_editors_mutex(_sql_editors_mutex);
-      BOOST_FOREACH (Sql_editor_info::Ref sql_editor_info, _sql_editors)
-        sql_editor_info->editor->sql_mode(sql_mode);
+      BOOST_FOREACH (EditorInfo::Ref sql_editor_info, _sql_editors)
+        sql_editor_info->editor->set_sql_mode(sql_mode);
     }
   }
 }
@@ -679,15 +679,14 @@ int SqlEditorForm::run_sql_in_scratch_tab(const std::string &sql, bool reuse_if_
  */
 void SqlEditorForm::list_members()
 {
-  Sql_editor::Ref editor = active_sql_editor();
+  MySQLEditor::Ref editor = active_sql_editor();
   if (editor)
     editor->show_auto_completion(true);
 }
 
 void SqlEditorForm::reset()
 {
-  //_log->reset();
-  Sql_editor::Ref editor = active_sql_editor();
+  MySQLEditor::Ref editor = active_sql_editor();
   if (editor)
     editor->cancel_auto_completion();
 }
@@ -1421,20 +1420,20 @@ void SqlEditorForm::cancel_query()
 
 void SqlEditorForm::commit()
 {
-  exec_sql_retaining_editor_contents("COMMIT", Sql_editor::Ref(), false);
+  exec_sql_retaining_editor_contents("COMMIT",MySQLEditor::Ref(), false);
 }
 
 
 void SqlEditorForm::rollback()
 {
-  exec_sql_retaining_editor_contents("ROLLBACK", Sql_editor::Ref(), false);
+  exec_sql_retaining_editor_contents("ROLLBACK",MySQLEditor::Ref(), false);
 }
 
 
 void SqlEditorForm::explain_sql()
 {
   size_t start, end;
-  Sql_editor::Ref sql_editor_= active_sql_editor();
+ MySQLEditor::Ref sql_editor_= active_sql_editor();
   if (sql_editor_)
   {
     sql_editor_->selected_range(start, end);
@@ -1449,7 +1448,7 @@ void SqlEditorForm::explain_sql()
 
 void SqlEditorForm::explain_current_statement()
 {
-  Sql_editor::Ref sql_editor_= active_sql_editor();
+ MySQLEditor::Ref sql_editor_= active_sql_editor();
   if (sql_editor_)
     do_explain_sql(sql_editor_->current_statement());
 }
@@ -1470,7 +1469,7 @@ void SqlEditorForm::do_explain_sql(const std::string &sql)
 }
 
 
-void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_script, Sql_editor::Ref editor, bool sync, bool dont_add_limit_clause)
+void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_script,MySQLEditor::Ref editor, bool sync, bool dont_add_limit_clause)
 {
   auto_save();
 
@@ -1493,7 +1492,7 @@ void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_sc
 
 void SqlEditorForm::run_editor_contents(bool current_statement_only)
 {
-  Sql_editor::Ref editor(active_sql_editor());
+ MySQLEditor::Ref editor(active_sql_editor());
   if (editor)
   {
     if (exec_editor_sql(editor, false, current_statement_only, current_statement_only))
@@ -1512,7 +1511,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
   RecordsetsRef rsets(new Recordsets());
   
   do_exec_sql(_grtm->get_grt(), weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
-    Sql_editor::Ref(), (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
+   MySQLEditor::Ref(), (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
   
   return rsets;
 }
@@ -1534,7 +1533,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
  *                              by accident).
  */
 
-bool SqlEditorForm::exec_editor_sql(Sql_editor::Ref editor, bool sync, bool current_statement_only, 
+bool SqlEditorForm::exec_editor_sql(MySQLEditor::Ref editor, bool sync, bool current_statement_only, 
   bool use_non_std_delimiter, bool dont_add_limit_clause)
 {
   editor->cancel_auto_completion();
@@ -1597,7 +1596,7 @@ void SqlEditorForm::update_live_schema_tree(const std::string &sql)
 }
 
 grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::shared_ptr<std::string> sql,
-  Sql_editor::Ref editor, ExecFlags flags, RecordsetsRef result_list)
+ MySQLEditor::Ref editor, ExecFlags flags, RecordsetsRef result_list)
 {
   bool retaining = (flags & Retaining) != 0;
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;
@@ -1631,7 +1630,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
 
     if (editor && !retaining)
     {
-      Sql_editor_info::Ref info;
+     EditorInfo::Ref info;
       editor_index = 0;
       for (Sql_editors::iterator info_ = _sql_editors.begin(); info_ != _sql_editors.end(); ++info_, ++editor_index)
       {
@@ -1968,14 +1967,14 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     {
                       RecordsetData *rdata = new RecordsetData();
                       rdata->duration = statement_exec_timer.duration();
-		      rdata->editor = Sql_editor::Ptr(editor); 
+		      rdata->editor =MySQLEditor::Ptr(editor); 
                       rdata->ps_stat_error = query_ps_statement_events_error;
                       rdata->ps_stat_info = ps_stats;
                       rs->set_client_data(rdata);
                     }
 
                     scoped_connect(rs->get_context_menu()->signal_will_show(),
-                          boost::bind(&SqlEditorForm::on_recordset_context_menu_show, this, Recordset::Ptr(rs), Sql_editor::Ptr(editor)));
+                          boost::bind(&SqlEditorForm::on_recordset_context_menu_show, this, Recordset::Ptr(rs),MySQLEditor::Ptr(editor)));
                     rs->action_list().register_action("recall_query",
                       boost::bind(&SqlEditorForm::recall_recordset_query, this, Recordset::Ptr(rs)));
 

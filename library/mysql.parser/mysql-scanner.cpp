@@ -67,7 +67,7 @@ MySQLScanner::MySQLScanner(const char *text, size_t length, bool is_utf8, long s
   d->_text_length = length;
   d->_context.version = server_version;
   d->_context.payload = this;
-  d->_context.sql_mode = parse_sql_mode(sql_mode);
+  set_sql_mode(sql_mode);
 
   // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
   // (everything requiring only one byte per char as Latin1, ASCII and similar).

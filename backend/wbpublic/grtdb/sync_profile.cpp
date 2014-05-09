@@ -17,10 +17,12 @@
  * 02110-1301  USA
  */
 
+#include "base/string_utilities.h"
+#include "base/util_functions.h"
+
 #include "sync_profile.h"
 #include "grtpp_util.h"
 #include "grt/common.h"
-#include "base/string_utilities.h"
 
 db_mgmt_SyncProfileRef bec::create_sync_profile(workbench_physical_ModelRef model, const std::string &profile_name, const std::string &target_schema)
 {
@@ -137,6 +139,6 @@ void bec::update_sync_profile_from_schema(db_mgmt_SyncProfileRef profile, db_Sch
     {
       lastKnownDBNames.set((*routine).id(), (*routine)->name());
     }
-    profile->lastSyncDate(bec::fmttime(0, "%Y-%m-%d %H:%M:%S"));
+    profile->lastSyncDate(base::fmttime(0, "%Y-%m-%d %H:%M:%S"));
   }
 }

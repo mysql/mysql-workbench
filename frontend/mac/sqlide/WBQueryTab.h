@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,19 +51,19 @@ namespace mforms
   int mLastResultTabViewCount;
   float mSplitterPosition;
   WBSQLQueryPanel *mOwner;
-  Sql_editor::Ref mBackend;
+  MySQLEditor::Ref mBackend;
   mforms::DockingPoint *mBottomDockingPoint;
   BOOL mSplitterUpdatePending;
   BOOL mQueryCollapsed;
 }
 
 - (id)initWithOwner:(WBSQLQueryPanel*)owner
-            backEnd: (Sql_editor::Ref)backend;
+            backEnd: (MySQLEditor::Ref)backend;
 
 - (void)setQueryCollapsed: (BOOL)flag;
 - (IBAction)activateQueryArea: (id)sender;
 
-- (Sql_editor::Ref)editorController;
+- (MySQLEditor::Ref)editorController;
 
 - (MResultsetViewer*)selectedResultset;
 

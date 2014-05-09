@@ -123,7 +123,30 @@ unsigned MySQLRecognitionBase::sql_mode()
 
 void MySQLRecognitionBase::set_sql_mode(const std::string &sql_mode)
 {
-  d->_sql_mode = parse_sql_mode(sql_mode);
+  unsigned result = 0;
+
+  std::string sql_mode_string = base::toupper(sql_mode);
+  std::istringstream iss(sql_mode_string);
+  std::string mode;
+  while (std::getline(iss, mode, ','))
+  {
+    mode = base::trim(mode);
+    if (mode == "ANSI" || mode == "DB2" || mode == "MAXDB" || mode == "MSSQL" || mode == "ORACLE" ||
+        mode == "POSTGRESQL")
+      result |= SQL_MODE_ANSI_QUOTES | SQL_MODE_PIPES_AS_CONCAT | SQL_MODE_IGNORE_SPACE;
+    else if (mode == "ANSI_QUOTES")
+      result |= SQL_MODE_ANSI_QUOTES;
+    else if (mode == "PIPES_AS_CONCAT")
+      result |= SQL_MODE_PIPES_AS_CONCAT;
+    else if (mode == "NO_BACKSLASH_ESCAPES")
+      result |= SQL_MODE_NO_BACKSLASH_ESCAPES;
+    else if (mode == "IGNORE_SPACE")
+      result |= SQL_MODE_IGNORE_SPACE;
+    else if (mode == "HIGH_NOT_PRECEDENCE" || mode == "MYSQL323" || mode == "MYSQL40")
+      result |= SQL_MODE_HIGH_NOT_PRECEDENCE;
+  }
+
+  d->_sql_mode = result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,38 +400,6 @@ bool MySQLRecognitionBase::is_operator(ANTLR3_UINT32 type)
 bool MySQLRecognitionBase::is_subtree(struct ANTLR3_BASE_TREE_struct *tree)
 {
   return tree->getChildCount(tree) > 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-unsigned MySQLRecognitionBase::parse_sql_mode(const std::string &sql_mode)
-{
-  unsigned result = 0;
-
-  std::string sql_mode_string = base::toupper(sql_mode);
-  std::istringstream iss(sql_mode_string);
-  std::string mode;
-  while (std::getline(iss, mode, ','))
-  {
-    mode = base::trim(mode);
-    if (mode == "ANSI" || mode == "DB2" || mode == "MAXDB" || mode == "MSSQL" || mode == "ORACLE" ||
-      mode == "POSTGRESQL")
-      result |= SQL_MODE_ANSI_QUOTES | SQL_MODE_PIPES_AS_CONCAT | SQL_MODE_IGNORE_SPACE;
-    else if (mode == "ANSI_QUOTES")
-      result |= SQL_MODE_ANSI_QUOTES;
-    else if (mode == "PIPES_AS_CONCAT")
-      result |= SQL_MODE_PIPES_AS_CONCAT;
-    else if (mode == "NO_BACKSLASH_ESCAPES")
-      result |= SQL_MODE_NO_BACKSLASH_ESCAPES;
-    else if (mode == "IGNORE_SPACE")
-      result |= SQL_MODE_IGNORE_SPACE;
-    else if (mode == "HIGH_NOT_PRECEDENCE" || mode == "MYSQL323" || mode == "MYSQL40")
-      result |= SQL_MODE_HIGH_NOT_PRECEDENCE;
-  }
-
-  d->_sql_mode = result;
-
-  return result;
 }
 
 //--------------------------------------------------------------------------------------------------

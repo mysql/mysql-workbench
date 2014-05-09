@@ -436,7 +436,7 @@ static void toggle_limit(mforms::ToolBarItem *item, SqlEditorForm *sql_editor_fo
 
 //--------------------------------------------------------------------------------------------------
 
-boost::shared_ptr<mforms::ToolBar> SqlEditorForm::setup_editor_toolbar(Sql_editor::Ref editor)
+boost::shared_ptr<mforms::ToolBar> SqlEditorForm::setup_editor_toolbar(MySQLEditor::Ref editor)
 {
   boost::shared_ptr<mforms::ToolBar> tbar(new mforms::ToolBar(mforms::SecondaryToolBar));
 #ifdef _WIN32
@@ -623,7 +623,7 @@ int SqlEditorForm::sql_script_stats(long, long)
 }
 
 
-void SqlEditorForm::on_recordset_context_menu_show(Recordset::Ptr rs_ptr, Sql_editor::Ptr editor_ptr)
+void SqlEditorForm::on_recordset_context_menu_show(Recordset::Ptr rs_ptr, MySQLEditor::Ptr editor_ptr)
 {
   Recordset::Ref rs(rs_ptr.lock());
   if (rs)

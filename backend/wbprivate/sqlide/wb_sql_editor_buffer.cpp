@@ -23,6 +23,8 @@
 #include "grtui/file_charset_dialog.h"
 
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <errno.h>
 
 #include "grt/common.h"
@@ -37,8 +39,7 @@
 #include "mforms/code_editor.h"
 
 #include "query_side_palette.h"
-
-#include <boost/lexical_cast.hpp>
+#include "grtsqlparser/mysql_parser_services.h"
 
 // 20 MB max file size for auto-restoring
 #define MAX_FILE_SIZE_FOR_AUTO_RESTORE 20000000
@@ -119,7 +120,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   // through a callback
   
   int editor_index = 0;
-  BOOST_FOREACH (Sql_editor_info::Ref sql_editor_info, _sql_editors)
+  BOOST_FOREACH (EditorInfo::Ref sql_editor_info, _sql_editors)
   {
     editor_index++;
     
@@ -382,7 +383,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       }
       
       int i = add_sql_editor(true);
-      Sql_editor_info::Ref info(_sql_editors[i]);
+      EditorInfo::Ref info(_sql_editors[i]);
       sql_editor_new_ui(i);
       info->editor->sql(data ? data : "");
       info->editor->get_editor_control()->reset_dirty();
@@ -484,7 +485,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
           else
           {
             int i = add_sql_editor(false);
-            Sql_editor_info::Ref info(_sql_editors[i]);
+            EditorInfo::Ref info(_sql_editors[i]);
             
             // set active editor now so that any callbacks triggered now go to the right editor
             _active_sql_editor_index = i;
@@ -529,10 +530,16 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
 int SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed)
 {
   db_query_QueryEditorRef grtobj(grt_manager()->get_grt());
-  Sql_editor::Ref sql_editor= Sql_editor::create(rdbms(), wbsql()->get_grt_editor_object(this)->serverVersion(), grtobj);
+
+  // In opposition to the object editors, each individual sql editor gets an own parser context
+  // (and hence an own parser), to allow concurrent and multi threaded work.
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt_manager()->get_grt());
+  parser::ParserContext::Ref context = services->createParserContext(rdbms()->characterSets(), wbsql()->get_grt_editor_object(this)->serverVersion());
+  MySQLEditor::Ref sql_editor = MySQLEditor::create(grt_manager()->get_grt(), context, grtobj);
+
   sql_editor->sql_check_progress_msg_throttle(_progress_status_update_interval);
   sql_editor->set_auto_completion_cache(_auto_completion_cache);
-  sql_editor->sql_mode(_sql_mode);
+  sql_editor->set_sql_mode(_sql_mode);
   sql_editor->set_current_schema(active_schema());
   sql_editor->register_file_drop_for(this);
   scoped_connect(sql_editor->text_change_signal(),
@@ -540,7 +547,7 @@ int SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed)
   int sql_editor_index;
   {
     MutexLock sql_editors_mutex(_sql_editors_mutex);
-    Sql_editor_info::Ref info(new Sql_editor_info());
+    EditorInfo::Ref info(new EditorInfo());
     info->toolbar = setup_editor_toolbar(sql_editor);
     info->editor = sql_editor;
     info->is_scratch = scratch;
@@ -666,7 +673,7 @@ void SqlEditorForm::remove_sql_editor(int editor_index)
   if (_side_palette)
     _side_palette->cancel_timer();
 
-  Sql_editor_info::Ref info(_sql_editors.at(editor_index));
+  EditorInfo::Ref info(_sql_editors.at(editor_index));
   info->editor->stop_processing();
   {
     // Notify the UI that recordsets must be closed.
@@ -683,7 +690,7 @@ void SqlEditorForm::remove_sql_editor(int editor_index)
     }
   }
   
-  Sql_editor::Ref active_sql_editor;
+  MySQLEditor::Ref active_sql_editor;
   {
     MutexLock sql_editors_mutex(_sql_editors_mutex);
     if ((editor_index < 0) || (editor_index >= (int)_sql_editors.size()))
@@ -732,31 +739,31 @@ void SqlEditorForm::active_sql_editor_index(int val)
 }
 
 
-Sql_editor::Ref SqlEditorForm::active_sql_editor()
+MySQLEditor::Ref SqlEditorForm::active_sql_editor()
 {
   if (_active_sql_editor_index < 0 || _active_sql_editor_index >= (int) _sql_editors.size())
-    return Sql_editor::Ref();
+    return MySQLEditor::Ref();
   return _sql_editors.at(_active_sql_editor_index)->editor;
 }
 
 
-Sql_editor::Ref SqlEditorForm::active_sql_editor_or_new_scratch()
+MySQLEditor::Ref SqlEditorForm::active_sql_editor_or_new_scratch()
 {
   if (_active_sql_editor_index < 0)
     new_sql_scratch_area(false);
   return active_sql_editor();
 }
 
-Sql_editor::Ref SqlEditorForm::sql_editor(int new_index)
+MySQLEditor::Ref SqlEditorForm::sql_editor(int new_index)
 {
   MutexLock sql_editors_mutex(_sql_editors_mutex);
   if (new_index >= 0 && new_index < (int)_sql_editors.size())
     return _sql_editors.at(new_index)->editor;
-  return Sql_editor::Ref();
+  return MySQLEditor::Ref();
 }
 
 
-bool SqlEditorForm::sql_editor_reorder(Sql_editor::Ref editor, int new_index)
+bool SqlEditorForm::sql_editor_reorder(MySQLEditor::Ref editor, int new_index)
 {
   int old_index = sql_editor_index(editor);
   if (old_index < 0 || old_index == new_index || new_index < 0)
@@ -780,7 +787,7 @@ bool SqlEditorForm::sql_editor_reorder(Sql_editor::Ref editor, int new_index)
     rename_autosave_files(0, new_index + 1);
 
     // Then reorder the editors.
-    Sql_editor_info::Ref info(_sql_editors[old_index]);
+    EditorInfo::Ref info(_sql_editors[old_index]);
     _sql_editors.erase(_sql_editors.begin()+old_index);
     if (new_index >= (int)_sql_editors.size())
       _sql_editors.push_back(info);
@@ -962,7 +969,7 @@ int SqlEditorForm::sql_editor_index_for_recordset(long rset)
 
 RecordsetsRef SqlEditorForm::sql_editor_recordsets(const int index)
 {
-  Sql_editor_info::Ref editor_info = _sql_editors[index];
+  EditorInfo::Ref editor_info = _sql_editors[index];
   RecordsetsRef rsets = editor_info->recordsets;
   
   if (!rsets)
@@ -976,7 +983,7 @@ RecordsetsRef SqlEditorForm::sql_editor_recordsets(const int index)
 
 //--------------------------------------------------------------------------------------------------
 
-int SqlEditorForm::sql_editor_index(Sql_editor::Ref editor)
+int SqlEditorForm::sql_editor_index(MySQLEditor::Ref editor)
 {
   MutexLock ed_lock(_sql_editors_mutex);
   for (size_t i = 0; i < _sql_editors.size(); i++)
@@ -993,7 +1000,7 @@ int SqlEditorForm::sql_editor_index(Sql_editor::Ref editor)
  * Helper to determine if a given editor belongs to this form if you *don't* have a shared_ptr.
  * Otherwise just use the sql_editor_index() function.
  */
-bool SqlEditorForm::contains_editor(Sql_editor *editor)
+bool SqlEditorForm::contains_editor(MySQLEditor *editor)
 {
   MutexLock ed_lock(_sql_editors_mutex);
   for (size_t i = 0; i < _sql_editors.size(); i++)
@@ -1038,7 +1045,7 @@ void SqlEditorForm::new_sql_scratch_area(bool start_collapsed)
 
 void SqlEditorForm::revert_sql_script_file()
 {
-  Sql_editor_info::Ref info(_sql_editors[_active_sql_editor_index]);
+  EditorInfo::Ref info(_sql_editors[_active_sql_editor_index]);
   
   info->editor->sql("");
   sql_editor_open_file(_active_sql_editor_index, info->filename, info->orig_encoding);
@@ -1135,7 +1142,7 @@ void SqlEditorForm::sql_editor_open_file(int index, const std::string &file_path
   {    
     _grtm->replace_status_text(strfmt(_("Executing SQL script file '%s'..."), file_path.c_str()));
     
-    exec_sql_retaining_editor_contents(utf8_contents, Sql_editor::Ref(), true); 
+    exec_sql_retaining_editor_contents(utf8_contents, MySQLEditor::Ref(), true); 
     
     _grtm->replace_status_text(strfmt(_("Finished executing SQL script file '%s'."), file_path.c_str()));
     
@@ -1153,7 +1160,7 @@ void SqlEditorForm::sql_editor_open_file(int index, const std::string &file_path
   set_sql_editor_text(utf8_contents.c_str(), index);
   _updating_sql_editor--;
   
-  Sql_editor_info::Ref editor(_sql_editors[index]);
+  EditorInfo::Ref editor(_sql_editors[index]);
   editor->editor->get_editor_control()->reset_dirty();
 
   editor->filename = file_path;
@@ -1223,7 +1230,7 @@ bool SqlEditorForm::save_sql_script_file(const std::string &file_name, int edito
       return false;
     }
     
-    Sql_editor_info::Ref editor(_sql_editors[editor_index]);
+    EditorInfo::Ref editor(_sql_editors[editor_index]);
     editor->editor->get_editor_control()->reset_dirty();
     editor->filename = path;
     editor->is_scratch = false;

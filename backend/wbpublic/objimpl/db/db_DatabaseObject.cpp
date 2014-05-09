@@ -20,6 +20,8 @@
 #include <grts/structs.db.h>
 
 #include "base/string_utilities.h"
+#include "base/util_functions.h"
+
 #include <grtpp_undo_manager.h>
 
 #include "grt/common.h"
@@ -60,7 +62,7 @@ void db_DatabaseObject::name(const grt::StringRef &value)
 
   _name= value;
   if (_owner.is_valid()) // don't update if the object is still being loaded
-    _lastChangeDate= bec::fmttime(0, DATETIME_FMT);
+    _lastChangeDate= base::fmttime(0, DATETIME_FMT);
 
   member_changed("name", oname, value);
 

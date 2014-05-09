@@ -19,6 +19,8 @@
 
 #include "editor_dbobject.h"
 
+#include "base/util_functions.h"
+
 #include "grt/validation_manager.h"
 #include "grtpp_notifications.h"
 
@@ -34,6 +36,7 @@
 #define DEFAULT_COLLATION_CAPTION "default collation"
 
 using namespace bec;
+using namespace parser;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -45,27 +48,55 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm,
   _ignored_object_fields_for_ui_refresh.insert("lastChangeDate");
 
   if (!_rdbms.is_valid())
-    _rdbms= db_mgmt_RdbmsRef::cast_from(object->customData().get("liveRdbms"));    
+    _rdbms = db_mgmt_RdbmsRef::cast_from(object->customData().get("liveRdbms"));    
 
   if (_rdbms.is_valid())
   {
-    _parsing_services = SqlFacade::instance_for_rdbms(_rdbms);
-    _sql_parser= _parsing_services->invalidSqlParser();
-    if (object->customData().has_key("sqlMode"))
-      _sql_parser->sql_mode(object->customData().get_string("sqlMode"));
+    _parser_services = MySQLParserServices::get(grtm->get_grt());
+    _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), get_catalog()->version());
 
-    Sql_specifics::Ref sql_specifics= _parsing_services->sqlSpecifics();
+    SqlFacade::Ref facade = SqlFacade::instance_for_rdbms(_rdbms);
+    _sql_parser= facade->invalidSqlParser();
+    if (object->customData().has_key("sqlMode"))
+    {
+      _parser_context->use_sql_mode(object->customData().get_string("sqlMode"));
+      _sql_parser->sql_mode(object->customData().get_string("sqlMode"));
+    }
+    Sql_specifics::Ref sql_specifics= facade->sqlSpecifics();
     _non_std_sql_delimiter= sql_specifics->non_std_sql_delimiter();
   }
   
   _val_notify_conn = ValidationManager::signal_notify()->connect(boost::bind(&DBObjectEditorBE::notify_from_validation, this, _1, _2, _3, _4));
-  
-  
+
+  // Get notified about version number changes.
+  grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");
+    
   grt::DictRef info(grtm->get_grt());
   info.gset("form", form_id());
   info.set("object", object);
   // must be delayed, because observer will probably need the form to be finished constructing
   grt::GRTNotificationCenter::get()->send_grt("GRNDBObjectEditorCreated", grt::ObjectRef(), info);    
+}
+
+//--------------------------------------------------------------------------------------------------
+
+DBObjectEditorBE::~DBObjectEditorBE()
+{
+  grt::GRTNotificationCenter::get()->remove_grt_observer(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void DBObjectEditorBE::handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info)
+{
+  if (info.get_int("saved") == 1)
+  {
+    if (name == "GRNPreferencesDidClose")
+    {
+      // We want to see changes for the server version.
+      _parser_context->use_server_version(get_catalog()->version());
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,7 +182,7 @@ bool DBObjectEditorBE::should_close_on_delete_of(const std::string &oid)
 
 void DBObjectEditorBE::update_change_date()
 {
-  get_object().set_member("lastChangeDate", grt::StringRef(fmttime(0, DATETIME_FMT)));
+  get_object().set_member("lastChangeDate", grt::StringRef(base::fmttime(0, DATETIME_FMT)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +205,7 @@ GrtVersionRef DBObjectEditorBE::get_rdbms_target_version()
     
     std::string target_version = get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
     if (target_version.empty())
-      target_version = "5.5";
+      target_version = "5.6";
     
     GrtVersionRef version = bec::parse_version(get_grt_manager()->get_grt(), target_version);
 
@@ -197,17 +228,17 @@ bool DBObjectEditorBE::is_server_version_at_least(int major, int minor)
 
 std::string DBObjectEditorBE::get_name()
 {
-  return get_dbobject()->name();
+  return get_object()->name();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void DBObjectEditorBE::set_name(const std::string &name)
 {
-  if (get_dbobject()->name() != name)
+  if (get_object()->name() != name)
   {
-    RefreshUI::Blocker __centry(*this);
-    //grt::AutoUndo undo(get_grt(), new UndoObjectChangeGroup(get_dbobject().id(), "name"));
+    RefreshUI::Blocker refresh_block(*this);
+
     AutoUndoEdit undo(this, get_dbobject(), "name");
 
     std::string name_= base::trim(name);
@@ -276,10 +307,9 @@ void DBObjectEditorBE::set_sql_commented(bool flag)
 
 db_CatalogRef DBObjectEditorBE::get_catalog()
 {
-  GrtObjectRef object= get_dbobject();
+  GrtObjectRef object = get_dbobject();
 
-  while (object.is_valid() &&
-         !object.is_instance(db_Catalog::static_class_name()))
+  while (object.is_valid() && !object.is_instance(db_Catalog::static_class_name()))
     object= object->owner();
 
   return db_CatalogRef::cast_from(object);
@@ -516,16 +546,14 @@ bool DBObjectEditorBE::parse_charset_collation(const std::string &str, std::stri
 
 //--------------------------------------------------------------------------------------------------
 
-Sql_editor::Ref DBObjectEditorBE::get_sql_editor()
+MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 {
   if (!_sql_editor)
   {
-    _sql_editor = Sql_editor::create(get_rdbms(), GrtVersionRef());
-    _sql_editor->set_sql_check_enabled(false); // Disable automatic parsing. We have our own here.
-    grt::DictRef obj_options= get_dbobject()->customData();
+    _sql_editor = MySQLEditor::create(get_grt(), _parser_context);
+    grt::DictRef obj_options = get_dbobject()->customData();
     if (obj_options.has_key("sqlMode"))
-      _sql_editor->sql_mode(obj_options.get_string("sqlMode"));
-    _sql_editor->set_sql_check_enabled(true);
+      _sql_editor->set_sql_mode(obj_options.get_string("sqlMode"));
   }
   return _sql_editor;
 }
@@ -657,7 +685,7 @@ void DBObjectEditorBE::set_sql_parser_err_cb(const Sql_parser_err_cb &cb)
 
 void DBObjectEditorBE::check_sql()
 {
-  Sql_editor::Ref sql_editor= get_sql_editor();
+  MySQLEditor::Ref sql_editor= get_sql_editor();
   if (sql_editor)
   {
     // provoke database object to refresh FE control contents
@@ -668,11 +696,11 @@ void DBObjectEditorBE::check_sql()
 
 //--------------------------------------------------------------------------------------------------
 
-void DBObjectEditorBE::sql_mode(const std::string &value)
+void DBObjectEditorBE::set_sql_mode(const std::string &value)
 {
-  Sql_editor::Ref sql_editor= get_sql_editor();
+  MySQLEditor::Ref sql_editor = get_sql_editor();
   if (sql_editor)
-    sql_editor->sql_mode(value);
+    sql_editor->set_sql_mode(value);
 }
 
 //--------------------------------------------------------------------------------------------------

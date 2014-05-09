@@ -29,12 +29,9 @@ using namespace base;
 ViewEditorBE::ViewEditorBE(GRTManager *grtm, const db_ViewRef &view, const db_mgmt_RdbmsRef &rdbms)
   : DBObjectEditorBE(grtm, view, rdbms), _view(view), _has_syntax_error(true)
 {
-  Sql_editor::Ref sql_editor = get_sql_editor();
+  MySQLEditor::Ref sql_editor = get_sql_editor();
   if (sql_editor)
-  {
-    sql_editor->restrict_content_to(Sql_editor::ContentTypeView);
-    //sql_editor->sql_checker()->context_object(_view); TODO: still needed?
-  }
+    sql_editor->restrict_content_to(MySQLEditor::ContentTypeView);
 }
 
 //--------------------------------------------------------------------------------------------------

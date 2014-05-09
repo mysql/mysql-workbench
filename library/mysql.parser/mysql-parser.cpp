@@ -249,7 +249,7 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
           // Will probably not occur since ANTLR3_UNWANTED_TOKEN_EXCEPTION will kick in instead.
           error << "expected end of statement";
         else
-          error << "missing keyword '" << get_token_name(tokenNames, exception->expecting) << "'";
+          error << "missing '" << get_token_name(tokenNames, exception->expecting) << "'";
       }
 
       // A missing token has by nature no position information, so we advance to the next token
@@ -456,18 +456,23 @@ void MySQLRecognizerTreeWalker::print_token(pANTLR3_BASE_TREE tree)
  * otherwise the next sibling node is used. If there is no sibling node then the next sibling of
  * the parent is used, if there's one, and so on.
  *
- * @return True if there was a next node, false otherwise. No change in the state is performed if
- *         there was no next node.
+ * @param count Number of steps. Default is 1.
+ * @return True if there was count next nodes, false otherwise. If false then no state change is performed.
  */
-bool MySQLRecognizerTreeWalker::next()
+bool MySQLRecognizerTreeWalker::next(size_t count)
 {
-  pANTLR3_BASE_TREE node = get_next(_tree, true);
-  if (node != NULL)
+  pANTLR3_BASE_TREE node = _tree;
+  while (count > 0)
   {
-    _tree = node;
-    return true;
+    node = get_next(node, true);
+    if (node == NULL)
+      return false;
+
+    --count;
   }
-  return false;
+
+  _tree = node;
+  return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1117,7 +1122,7 @@ MySQLRecognizer::MySQLRecognizer(long server_version, const std::string &sql_mod
   d = new Private();
   d->_context.version = server_version;
   d->_context.payload = this;
-  d->_context.sql_mode = parse_sql_mode(sql_mode);
+  set_sql_mode(sql_mode);
 
   d->_input = NULL;
   d->_lexer = NULL;
@@ -1286,9 +1291,17 @@ MySQLRecognizerTreeWalker MySQLRecognizer::tree_walker()
 
 //--------------------------------------------------------------------------------------------------
 
-unsigned MySQLRecognizer::sql_mode()
+void MySQLRecognizer::set_sql_mode(const std::string &new_mode)
 {
-  return d->_context.sql_mode;
+  MySQLRecognitionBase::set_sql_mode(new_mode);
+  d->_context.sql_mode = sql_mode();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLRecognizer::set_server_version(long new_version)
+{
+  d->_context.version = new_version;
 }
 
 //--------------------------------------------------------------------------------------------------

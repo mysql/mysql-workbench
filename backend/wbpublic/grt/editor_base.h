@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _EDITOR_BASE_H_
-#define _EDITOR_BASE_H_
 
+#pragma once
 
 #include "base/ui_form.h"
 #include <grtpp.h>
@@ -29,9 +28,7 @@
 
 #include "wbpublic_public_interface.h"
 
-
 class GrtObject;
-
 
 namespace bec {
   struct ChangeSet;
@@ -63,12 +60,11 @@ namespace bec {
     
     virtual std::string get_form_context_name() const;
 
-    virtual Sql_editor::Ref get_sql_editor() { return Sql_editor::Ref(); }
+    virtual MySQLEditor::Ref get_sql_editor() { return MySQLEditor::Ref(); }
 
     virtual bool should_close_on_delete_of(const std::string &oid) { return get_object().id() == oid; }
 
-    // must return a copy of the object
-    virtual grt::Ref<GrtObject> get_object()= 0;
+    grt::Ref<GrtObject> get_object() { return _object; };
 
     virtual bool is_editing_live_object() { return false; }
     virtual void apply_changes_to_live_object();
@@ -136,17 +132,6 @@ namespace bec {
     {
       if (group)
       {
-        /*
-        //sigc::connection conn1, conn2;
-
-        conn1= editor->get_grt()->get_undo_manager()->
-        signal_undo().connect(boost::bind(\&AutoUndoEdit::undo_applied, _1, group, editor));
-
-        conn2= editor->get_grt()->get_undo_manager()->
-        signal_redo().connect(boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-
-        mark_for_delete_when_destroyed(editor, conn1, conn2);
-        */
         editor->scoped_connect(editor->get_grt()->get_undo_manager()->
           signal_undo(),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
         editor->scoped_connect(editor->get_grt()->get_undo_manager()->
@@ -160,17 +145,6 @@ namespace bec {
     {
       if (group)
       {
-        /*
-        //sigc::connection conn1, conn2;
-
-        conn1= editor->get_grt()->get_undo_manager()->
-        signal_undo().connect(boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-
-        conn2= editor->get_grt()->get_undo_manager()->
-        signal_redo().connect(boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
-
-        mark_for_delete_when_destroyed(editor, conn1, conn2);
-        */
         editor->scoped_connect((editor->get_grt()->get_undo_manager()->
           signal_undo()),boost::bind(&AutoUndoEdit::undo_applied, _1, group, editor));
         editor->scoped_connect((editor->get_grt()->get_undo_manager()->
@@ -180,5 +154,3 @@ namespace bec {
     }
   };
 };
-
-#endif /* _EDITOR_BASE_H_ */

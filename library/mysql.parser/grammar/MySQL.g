@@ -727,7 +727,7 @@ create_trigger_tail:
 ;
 
 trigger_follows_precedes_clause:
-	{SERVER_VERSION >= 50700}? => (FOLLOWS_SYMBOL | PRECEDES_SYMBOL) text_or_identifier
+	{SERVER_VERSION >= 50700}? => (FOLLOWS_SYMBOL | PRECEDES_SYMBOL) text_or_identifier // not a trigger reference!
 ;
 	
 create_view: // For external use only.

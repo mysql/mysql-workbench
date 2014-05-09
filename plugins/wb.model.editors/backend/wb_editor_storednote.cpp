@@ -17,14 +17,20 @@
  * 02110-1301  USA
  */
 
+#include "base/util_functions.h"
+#include "base/string_utilities.h"
+
 #include "wb_editor_storednote.h"
+
 #include "grts/structs.workbench.physical.h"
 #include "grt/exceptions.h"
-#include "base/string_utilities.h"
 
 #include "mforms/code_editor.h"
 
+#include "grtsqlparser/mysql_parser_services.h"
+
 using namespace base;
+using namespace parser;
 
 StoredNoteEditorBE::StoredNoteEditorBE(bec::GRTManager *grtm, const GrtStoredNoteRef &note)
 : bec::BaseEditor(grtm, note), _note(note)
@@ -39,12 +45,15 @@ bool StoredNoteEditorBE::is_script()
 }
 
 
-Sql_editor::Ref StoredNoteEditorBE::get_sql_editor()
+MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
 {
   if (!_sql_editor)
   {
     workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(_note->owner()));
-    _sql_editor = Sql_editor::create(model->rdbms(), GrtVersionRef());
+    MySQLParserServices::Ref services = MySQLParserServices::get(get_grt());
+    ParserContext::Ref context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version());
+    _sql_editor = MySQLEditor::create(get_grt(), context);
+
     scoped_connect(_sql_editor->text_change_signal(),
       boost::bind(&StoredNoteEditorBE::do_partial_ui_refresh, this, (int)BaseEditor::RefreshTextChanged));
 
@@ -73,7 +82,7 @@ void StoredNoteEditorBE::set_text(grt::StringRef text)
 
   module->call_function("setAttachedFileContents", args);
   
-  _note->lastChangeDate(bec::fmttime(0, DATETIME_FMT));
+  _note->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 }
 
 
@@ -152,7 +161,7 @@ void StoredNoteEditorBE::load_text()
   bool isUTF8;
 
   grt::StringRef text = get_text(isUTF8);
-  Sql_editor::Ref editor = get_sql_editor();
+  MySQLEditor::Ref editor = get_sql_editor();
   mforms::CodeEditor* code_editor = editor->get_editor_control();
   if (isUTF8)
     code_editor->set_text_keeping_state(text.c_str());
@@ -165,7 +174,7 @@ void StoredNoteEditorBE::load_text()
 
 void StoredNoteEditorBE::commit_changes()
 {
-  Sql_editor::Ref editor = get_sql_editor();
+  MySQLEditor::Ref editor = get_sql_editor();
   mforms::CodeEditor* code_editor = editor->get_editor_control();
   if (code_editor->is_dirty())
   {

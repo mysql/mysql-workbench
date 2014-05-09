@@ -69,7 +69,7 @@ static std::map<std::string,std::string> auto_save_sessions;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC db_query_EditorConcreteImplData : public db_query_Editor::ImplData, public base::trackable
 {
-  void sql_editor_list_changed(Sql_editor::Ref editor, bool added)
+  void sql_editor_list_changed(MySQLEditor::Ref editor, bool added)
   {
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
@@ -94,7 +94,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC db_query_EditorConcreteImplData : public db_que
     {
       db_query_QueryEditorRef editor;
       
-      boost::shared_ptr<Sql_editor> sqleditor(ref->sql_editor(editor_index));
+      boost::shared_ptr<MySQLEditor> sqleditor(ref->sql_editor(editor_index));
       if (sqleditor)
       {
         editor = db_query_QueryEditorRef::cast_from(sqleditor->grtobj());
@@ -131,7 +131,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC db_query_EditorConcreteImplData : public db_que
   }
   
   
-  virtual void refresh_editor(Sql_editor::Ref editor)
+  virtual void refresh_editor(MySQLEditor::Ref editor)
   {
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
@@ -235,7 +235,7 @@ public:
   {
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)      
-      ref->exec_sql_retaining_editor_contents(sql, Sql_editor::Ref(), true);
+      ref->exec_sql_retaining_editor_contents(sql, MySQLEditor::Ref(), true);
 
     return grt::IntegerRef(0);
   }
@@ -273,7 +273,7 @@ public:
     if (ref)
     {
       if (background)
-        ref->exec_sql_retaining_editor_contents(sql, Sql_editor::Ref(), false);
+        ref->exec_sql_retaining_editor_contents(sql, MySQLEditor::Ref(), false);
       else
         ref->exec_main_sql(sql, log);
     }
@@ -325,7 +325,7 @@ public:
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
-      Sql_editor::Ref editor(ref->active_sql_editor());
+      MySQLEditor::Ref editor(ref->active_sql_editor());
       if (editor)
         return db_query_QueryEditorRef::cast_from(editor->grtobj());
     }

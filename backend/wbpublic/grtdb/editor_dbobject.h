@@ -19,21 +19,26 @@
 
 #pragma once
 
+#include "grtpp_notifications.h"
+
 #include "wbpublic_public_interface.h"
 #include "grt/editor_base.h"
+
+#include "grtsqlparser/mysql_parser_services.h"
 
 #include "grtsqlparser/sql_facade.h"
 #include "grtsqlparser/invalid_sql_parser.h" // XXX: to go
 
 namespace bec {
 
-  class WBPUBLICBACKEND_PUBLIC_FUNC DBObjectEditorBE : public BaseEditor
+  class WBPUBLICBACKEND_PUBLIC_FUNC DBObjectEditorBE : public BaseEditor, public grt::GRTObserver
   {
   public:
+    virtual ~DBObjectEditorBE();
+
     virtual bool should_close_on_delete_of(const std::string &oid);
 
-    virtual GrtObjectRef get_object() { return get_dbobject(); }
-    virtual db_DatabaseObjectRef get_dbobject()= 0;
+    virtual db_DatabaseObjectRef get_dbobject() { return db_DatabaseObjectRef::cast_from(get_object()); };
     virtual db_mgmt_RdbmsRef get_rdbms() { return _rdbms; }
     GrtVersionRef get_rdbms_target_version();
 
@@ -47,7 +52,7 @@ namespace bec {
     virtual bool is_sql_commented();
     virtual void set_sql_commented(bool flag);
 
-    virtual Sql_editor::Ref get_sql_editor();
+    virtual MySQLEditor::Ref get_sql_editor();
     virtual void reset_editor_undo_stack();
 
     db_SchemaRef get_schema();
@@ -69,13 +74,15 @@ namespace bec {
     std::string format_charset_collation(const std::string &charset, const std::string &collation);
 
     void update_change_date();
-    void sql_mode(const std::string &value);
+    void set_sql_mode(const std::string &value);
 
   protected:
     db_mgmt_RdbmsRef _rdbms;
-    Sql_editor::Ref _sql_editor;
+    MySQLEditor::Ref _sql_editor;
 
     DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef &object, const db_mgmt_RdbmsRef &rdbms);
+
+    virtual void handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info);
 
     virtual std::string get_object_type();
 
@@ -95,8 +102,10 @@ namespace bec {
     typedef boost::function<grt::ValueRef (grt::GRT*, grt::StringRef)> Sql_parser_task_cb;
     void set_sql_parser_task_cb(const Sql_parser_task_cb &cb);
     Invalid_sql_parser::Ref _sql_parser;
-    SqlFacade::Ref _parsing_services;
     std::string _non_std_sql_delimiter;
+
+    parser::MySQLParserServices::Ref _parser_services;
+    parser::ParserContext::Ref _parser_context;
 
   private:
 
