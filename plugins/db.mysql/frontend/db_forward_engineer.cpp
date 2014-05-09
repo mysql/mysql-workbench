@@ -298,7 +298,10 @@ protected:
     _export_be->set_option("TriggersAreSelected", _trigger_filter->get_active());
     _export_be->set_option("RoutinesAreSelected", _routine_filter->get_active());
     _export_be->set_option("ViewsAreSelected", _view_filter->get_active());
-    _export_be->set_option("UsersAreSelected", _user_filter->get_active());    
+    _export_be->set_option("UsersAreSelected", _user_filter->get_active());
+
+    _export_be->set_up_dboptions();
+
     return true;
   }
 
