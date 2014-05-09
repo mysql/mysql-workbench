@@ -1843,7 +1843,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
     
 #endif
 
-  log_debug("Found %ld installed MySQL servers\n", entries.is_valid() ? entries.count() : -1);
+  log_debug("Found %ld installed MySQL servers\n", entries.is_valid() ? (long)entries.count() : -1);
 
   return entries;
 }

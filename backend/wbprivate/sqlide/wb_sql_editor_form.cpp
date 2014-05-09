@@ -1630,8 +1630,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     else
     {
       std::list<std::string> warning;
-      warning.push_back(base::strfmt("Skipping history entries for %li statements, total %li bytes", statement_ranges.size(),
-                                     sql->size()));
+      warning.push_back(base::strfmt("Skipping history entries for %li statements, total %li bytes", (long)statement_ranges.size(),
+                                     (long)sql->size()));
       _history->add_entry(warning);
       logging_queries = false;
     }

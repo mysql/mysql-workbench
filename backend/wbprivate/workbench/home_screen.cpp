@@ -1343,7 +1343,7 @@ public:
       cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);
 #endif
       
-      std::string info = base::strfmt(_("%ld Connections"), entry.children.size() - 1);
+      std::string info = base::strfmt(_("%ld Connections"), (long)entry.children.size() - 1);
       y = bounds.top() + 55;
       cairo_move_to(cr, x, y);
       cairo_show_text(cr, info.c_str());
