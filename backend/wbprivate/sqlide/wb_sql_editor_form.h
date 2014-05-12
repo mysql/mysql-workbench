@@ -134,6 +134,7 @@ public:
 
   void validate_menubar();
 
+  void handle_tab_menu_action(const std::string &action, int tab_index);
 private:
   wb::WBContextSQLIDE *_wbsql;
   GrtVersionRef _version;
