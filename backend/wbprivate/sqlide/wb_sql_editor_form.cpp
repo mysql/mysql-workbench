@@ -2451,14 +2451,16 @@ void SqlEditorForm::active_schema(const std::string &value)
       _usr_dbc_conn->active_schema= value;
     }
 
-    // set current schema for the editors to notify the autocompleter
-    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+    if (_tabdock)
     {
-      SqlEditorPanel *panel = sql_editor_panel(i);
-      if (panel)
-        panel->editor_be()->set_current_schema(value);
+      // set current schema for the editors to notify the autocompleter
+      for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+      {
+        SqlEditorPanel *panel = sql_editor_panel(i);
+        if (panel)
+          panel->editor_be()->set_current_schema(value);
+      }
     }
-
     _live_tree->on_active_schema_change(value);
     // remember active schema
     _connection->parameterValues().gset("DbSqlEditor:LastDefaultSchema", value);

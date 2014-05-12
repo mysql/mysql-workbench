@@ -23,15 +23,17 @@
 #include "workbench/wb_backend_public_interface.h"
 
 #include "mforms/appview.h"
+#include "mforms/tabview_dock.h"
+#include "mforms/tabswitcher.h"
 
 #include "sqlide/recordset_be.h"
+
+#include "grts/structs.db.query.h"
 
 #include <boost/signals2.hpp>
 
 namespace mforms
 {
-  class TabView;
-  class TabSwitcher;
   class ToolBar;
   class ToolBarItem;
   class ContextMenu;
@@ -47,6 +49,8 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorResult : public mforms::AppView
   SqlEditorPanel *_owner;
   Recordset::Ptr _rset;
 
+  class DockingDelegate;
+  
 public:
   SqlEditorResult(SqlEditorPanel *owner, Recordset::Ref rset);
 
@@ -55,6 +59,9 @@ public:
   Recordset::Ref recordset() const;
 
   std::string caption() const;
+
+  db_query_ResultPanelRef grtobj() { return _grtobj; }
+  db_query_ResultsetRef result_grtobj() { return _result_grtobj; }
 
   virtual bool can_close();
   virtual void close();
@@ -65,25 +72,32 @@ public:
   void dock_result_grid(mforms::View *view);
   mforms::View *result_grid() { return _result_grid; }
 
+  mforms::DockingPoint *dock() { return &_tabdock; }
+
   void apply_changes();
   void discard_changes();
   bool has_pending_changes();
 
+  virtual void set_title(const std::string &title);
+
 private:
-  int _column_info_tab;
-  int _query_stats_tab;
-  int _form_result_tab;
-  int _result_grid_tab;
-  mforms::TabView *_tabview;
-  mforms::TabSwitcher *_switcher;
-  mforms::Box *_column_info_box;
-  mforms::Box  *_query_stats_box;
+  mforms::TabView _tabview;
+  mforms::TabSwitcher _switcher;
+  DockingDelegate *_tabdock_delegate;
+  mforms::DockingPoint _tabdock;
+
+  mforms::AppView *_column_info_box;
+  mforms::AppView  *_query_stats_box;
   ResultFormView *_form_result_view;
   mforms::ContextMenu *_column_info_menu;
   std::list<mforms::ToolBar*> _toolbars;
   mforms::View *_result_grid;
   boost::signals2::signal<void (bool)> _collapse_toggled;
   boost::signals2::connection _collapse_toggled_sig;
+
+  db_query_ResultPanelRef _grtobj;
+  db_query_ResultsetRef _result_grtobj;
+
   bool _column_info_created;
   bool _query_stats_created;
   bool _form_view_created;

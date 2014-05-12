@@ -96,6 +96,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
 
   void lower_tab_switched();
   bool lower_tab_closing(int tab);
+  void lower_tab_closed(int tab, mforms::View *page);
   void lower_tab_reordered(int,int);
 
   void result_removed();

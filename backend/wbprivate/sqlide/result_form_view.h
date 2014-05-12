@@ -20,12 +20,12 @@
 #ifndef _RESULT_FORM_VIEW_H_
 #define _RESULT_FORM_VIEW_H_
 
-#include "mforms/box.h"
+#include "mforms/appview.h"
 #include "mforms/scrollpanel.h"
 #include "mforms/table.h"
 #include "mforms/toolbar.h"
 
-class ResultFormView : public mforms::Box
+class ResultFormView : public mforms::AppView
 {
 public:
   class FieldView;
