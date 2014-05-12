@@ -284,6 +284,8 @@ CodeEditor::~CodeEditor()
 
 void CodeEditor::setup()
 {
+  scoped_connect(Form::main_form()->signal_deactivated(), boost::bind(&CodeEditor::auto_completion_cancel, this));
+
   _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_NULL, 0);
   _code_editor_impl->send_editor(this, SCI_STYLERESETDEFAULT, 0, 0); // Reset default style to what it was initially.
   _code_editor_impl->send_editor(this, SCI_STYLECLEARALL, 0, 0); // Set all other styles to the default style.

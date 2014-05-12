@@ -1995,14 +1995,14 @@ static std::set<std::string> get_indexed_column_ids(const db_TableRef &table)
 std::vector<std::string> FKConstraintColumnsListBE::get_ref_columns_list(const NodeId &node, bool filtered)
 {
   db_ForeignKeyRef fk(_owner->get_selected_fk());
-  db_ColumnRef srccolumn(_owner->get_owner()->get_table()->columns()[node[0]]);
 
-  if (fk.is_valid() && fk->referencedTable().is_valid())
+  if (fk.is_valid() && fk->referencedTable().is_valid() && (size_t)node[0] < _owner->get_owner()->get_table()->columns().count())
   {
     std::vector<std::string> names, names2;
     db_TableRef table(fk->referencedTable());
     grt::ListRef<db_Column> columns(table->columns());
     std::set<std::string> indexed_column_ids(get_indexed_column_ids(table));
+    db_ColumnRef srccolumn(_owner->get_owner()->get_table()->columns()[node[0]]);
 
     for (size_t c= columns.count(), i= 0; i < c; i++)
     {     

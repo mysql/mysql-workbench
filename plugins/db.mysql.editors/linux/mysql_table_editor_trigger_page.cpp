@@ -39,5 +39,7 @@ void DbMySQLTableEditorTriggerPage::switch_be(MySQLTableEditorBE* be)
 //------------------------------------------------------------------------------
 void DbMySQLTableEditorTriggerPage::refresh()
 {
+  if (_be)
+    _be->load_trigger_sql();
 }
 

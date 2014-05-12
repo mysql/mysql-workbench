@@ -22,6 +22,7 @@
 
 #include <mforms/drawbox.h>
 #include "cairo/cairo.h"
+#include "base/python_utils.h"
 
 namespace mforms 
 {
@@ -136,14 +137,6 @@ namespace mforms
 
     PyObject *_self;
 
-    class WillEnterPython
-    {
-      PyGILState_STATE state;
-    public:
-      WillEnterPython() : state(PyGILState_Ensure()) {}
-      ~WillEnterPython() {PyGILState_Release(state);}
-    };
-    
     bool call_method(const char *method, PyObject *args)
     {
       bool result = false;

@@ -467,7 +467,7 @@ public:
     {
       std::string t = (*trig)->timing();
       t.append(" ").append((*trig)->event());
-      trigmap.insert(std::make_pair(t, *trig));
+      trigmap.insert(std::make_pair(base::tolower(t), *trig));
     }
 //    std::sort(trigvec.begin(), trigvec.end(), &MySQLTriggerPanel::compare_order);
 
@@ -476,7 +476,7 @@ public:
     for (std::set<std::string>::const_iterator t = leftover.begin(); t != leftover.end(); ++t)
     {
       node = _list.add_node();
-      if ((it = trigmap.find(*t)) != trigmap.end())
+      if ((it = trigmap.find(base::tolower(*t))) != trigmap.end())
         node->set_string(0, it->second->name());
       else
         node->set_string(0, "-");
@@ -489,6 +489,29 @@ public:
     _refreshing = false;
   }
   
+  void reload_selected_trigger()
+  {
+    mforms::TreeNodeRef node = _list.get_selected_node();
+    if (!node)
+    {
+      _list.select_node(_list.node_at_row(0));
+      return;
+    }
+
+    std::string timing, event;
+    base::partition(node->get_string(1), " ", timing, event);
+    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
+    GRTLIST_FOREACH(db_Trigger, triggers, trig)
+    {
+      if (base::string_compare((*trig)->timing(), timing, false) == 0 && base::string_compare((*trig)->event(), event, false) == 0)
+      {
+        _selected_trigger = *trig;
+        break;
+      }
+    }
+
+  }
+
   void code_edited()
   {
     // Don't run commit_changes() or the parser will kill your current trigger if it has an error.
@@ -498,7 +521,7 @@ public:
       {
         AutoUndoEdit undo(_editor, _selected_trigger, "sql");
         _editor->freeze_refresh_on_object_change();
-        grt::IntegerRef res = _editor->_sql_parser->parse_trigger(_selected_trigger, _code_editor->get_string_value().c_str());
+        _editor->_sql_parser->parse_trigger(_selected_trigger, _code_editor->get_string_value().c_str());
         _editor->thaw_refresh_on_object_change(true);
         _name.set_value(_selected_trigger->name());
         _definer.set_value(_selected_trigger->definer());
@@ -585,7 +608,7 @@ public:
       update_editor();
     }
   }
-  
+
   void selection_changed()
   {
     if (_refreshing)
@@ -614,7 +637,7 @@ public:
     db_TriggerRef trigger;
     GRTLIST_FOREACH(db_Trigger, triggers, trig)
     {
-      if ((*trig)->timing() == timing && (*trig)->event() == event)
+      if (base::string_compare((*trig)->timing(), timing, false) == 0 && base::string_compare((*trig)->event(), event, false) == 0)
       {
         trigger = *trig;
         break;

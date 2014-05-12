@@ -521,7 +521,7 @@ boost::shared_ptr<mforms::ToolBar> SqlEditorForm::setup_editor_toolbar(Sql_edito
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_rollback.png"));
   item->set_tooltip(_("Rollback the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
   scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::rollback, this));
-  tbar->add_item(item);  
+  tbar->add_item(item);
   
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
   item->set_name("query.autocommit");
@@ -531,6 +531,14 @@ boost::shared_ptr<mforms::ToolBar> SqlEditorForm::setup_editor_toolbar(Sql_edito
   scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::toggle_autocommit, this));
   tbar->add_item(item);  
   
+  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
+
+  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+  item->set_name("add_snippet");
+  item->set_icon(IconManager::get_instance()->get_icon_path("snippet_add.png"));
+  item->set_tooltip(_("Save current statement or selection to the snippet list."));
+  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, this));
+  tbar->add_item(item);
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
 
   // adds generic SQL editor toolbar buttons

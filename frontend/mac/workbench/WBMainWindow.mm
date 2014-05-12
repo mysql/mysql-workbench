@@ -126,6 +126,19 @@ public:
   return changed;
 }
 
+
+- (void)becomeKeyWindow
+{
+  mforms::Form::main_form()->activated();
+  [super becomeKeyWindow];
+}
+
+- (void)resignKeyWindow
+{
+  [super resignKeyWindow];
+  mforms::Form::main_form()->deactivated();
+}
+
 @end
 
 
@@ -486,7 +499,8 @@ void setup_mforms_app(WBMainWindow *mwin);
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
   id panel = [_panels objectForKey: [tabViewItem identifier]];
-  
+
+  [self activatePanel: panel];
   if (tabView == topTabView)
   {
     NSMenu *menu = [panel menuBar];
@@ -995,19 +1009,14 @@ void setup_mforms_app(WBMainWindow *mwin);
 
 - (void)firstResponderChanged: (NSResponder*)responder
 {
-  BOOL changedActivePanel = NO;
-
   WBBasePanel *panel= [self panelForResponder:responder];
 
-  if ([panel formBE] != _wbui->get_active_form())
-  {
-    changedActivePanel = YES;
-    [self activatePanel: panel];
-  }
+  BOOL changedActivePanel = panel.formBE != _wbui->get_active_form();
+
   // replace Edit menu with the standard one so that copy/paste works without intervention
   if ([responder isKindOfClass: [NSTextView class]])
   {
-    NSLog(@"restore edit menu");
+    NSLog(@"TODO: restore edit menu");
   }
   else if (!changedActivePanel)
     _wbui->get_command_ui()->revalidate_edit_menu_items();

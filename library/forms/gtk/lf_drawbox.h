@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,8 +63,6 @@ protected:
   void mouse_cross_event(GdkEventCrossing *event, ::mforms::DrawBox *self);
   bool mouse_button_event(GdkEventButton *event, ::mforms::DrawBox *self);
   bool mouse_move_event(GdkEventMotion *event, ::mforms::DrawBox *self);
-
-  virtual void set_back_color(const std::string& s);
 
   static bool create(::mforms::DrawBox *self);
   static void set_needs_repaint(::mforms::DrawBox *self);

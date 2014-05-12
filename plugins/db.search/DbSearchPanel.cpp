@@ -186,8 +186,8 @@ void DBSearch::stop()
 
 std::string DBSearch::build_where(const std::string& col, const std::string& data) const
 {
-  static const std::vector<std::string> select_modes = boost::assign::list_of(std::string("="))("LIKE")("REGEXP");
-  static const std::vector<std::string> inverted_select_modes = boost::assign::list_of(std::string("<>"))("NOT LIKE")("NOT REGEXP");
+  static const std::vector<std::string> select_modes = boost::assign::list_of(std::string("LIKE"))("=")("LIKE")("REGEXP");
+  static const std::vector<std::string> inverted_select_modes = boost::assign::list_of(std::string("LIKE"))("<>")("NOT LIKE")("NOT REGEXP");
 
   std::string where_condition;
   if (_cast_to.empty())
@@ -202,7 +202,10 @@ std::string DBSearch::build_where(const std::string& col, const std::string& dat
 
   where_condition.append(" ");
   where_condition.append(_invert ? inverted_select_modes[_search_mode].c_str() : select_modes[_search_mode].c_str());
-  where_condition.append(std::string(base::sqlstring(" ? ", 0) << data));
+  if (_search_mode == Contains)
+    where_condition.append(std::string(base::sqlstring(" ? ", 0) << "%" + data + "%"));
+  else
+    where_condition.append(std::string(base::sqlstring(" ? ", 0) << data));
   return where_condition;
 }
 

@@ -878,6 +878,21 @@ bool ViewWrapper::is_shown(mforms::View *backend)
 
 //-------------------------------------------------------------------------------------------------
 
+bool ViewWrapper::is_fully_visible(mforms::View *backend)
+{
+  Control ^control = GetManagedObject<Control>(backend);
+  while (control->Visible) 
+  {
+    if (control->Parent == nullptr)
+      return true;
+    control = control->Parent;
+  };
+  
+  return false;
+}
+
+//-------------------------------------------------------------------------------------------------
+
 void ViewWrapper::register_drop_formats(mforms::View *backend, mforms::DropDelegate *target,
   const std::vector<std::string> &formats)
 {
@@ -1235,6 +1250,7 @@ void ViewWrapper::init()
   f->_view_impl.set_tooltip = &set_tooltip;
   f->_view_impl.set_font = &set_font;
   f->_view_impl.is_shown = &is_shown;
+  f->_view_impl.is_fully_visible = &is_fully_visible;
   f->_view_impl.suspend_layout = &suspend_layout;
   f->_view_impl.set_front_color = &set_front_color;
   f->_view_impl.get_front_color = &get_front_color;

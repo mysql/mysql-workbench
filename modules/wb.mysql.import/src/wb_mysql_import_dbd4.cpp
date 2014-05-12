@@ -345,7 +345,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
       double viewWidth;
       double viewHeight;
 
-      view= workbench_physical_DiagramRef::cast_from(model->addNewDiagram(0));
+      view= workbench_physical_DiagramRef::cast_from(model->addNewDiagram(1));
 
       calculate_view_size(wb->doc()->pageSettings(), viewWidth, viewHeight);
 

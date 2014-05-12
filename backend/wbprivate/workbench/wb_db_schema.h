@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,6 +36,8 @@ namespace wb
     InternalSchema(const std::string &schema_name, sql::Dbc_connection_handler::Ref &conn);
     ~InternalSchema(void);
 
+    std::string schema_name() const { return _schema_name; }
+
     bool check_schema_exist();
     bool check_function_exists(const std::string &function_name);
     bool check_stored_procedure_exists(const std::string &spname);
@@ -43,6 +45,13 @@ namespace wb
     bool check_view_exists(const std::string &view_name);
 
     bool is_remote_search_deployed();
+
+    bool check_snippets_table_exist();
+    std::string create_snippets_table_exist();
+    int insert_snippet(const std::string &title, const std::string &code);
+    void delete_snippet(int snippet_id);
+    void set_snippet_title(int snippet_id, const std::string &title);
+    void set_snippet_code(int snippet_id, const std::string &code);
 
     std::string create_schema();
     std::string deploy_remote_search();

@@ -113,6 +113,13 @@ String^ AppViewDockContent::GetTitle()
 
 //--------------------------------------------------------------------------------------------------
 
+void AppViewDockContent::SetTitle(String^ title)
+{
+  appview->set_title(NativeToCppStringRaw(title));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void AppViewDockContent::UpdateColors()
 {
   // Change our own background or that of only child, if our content was embedded into a DrawablePanel

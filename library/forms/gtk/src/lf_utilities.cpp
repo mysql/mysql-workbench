@@ -27,7 +27,9 @@ extern "C" {
 #endif
 
 #include <glib/gstdio.h>
+#ifdef HAVE_PRCTL_H
 #include <sys/prctl.h>
+#endif
 
 // this is broken
 //#undef USE_KEYRING
@@ -804,8 +806,10 @@ void UtilitiesImpl::reveal_file(const std::string &path)
 
 void UtilitiesImpl::set_thread_name(const std::string &name)
 {
+#ifdef HAVE_PRCTL_H 
   if (!name.empty())
     prctl(PR_SET_NAME, name.c_str(),0,0,0);
+#endif
 }
 
 //------------------------------------------------------------------------------

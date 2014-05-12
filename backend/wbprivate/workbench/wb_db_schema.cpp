@@ -110,7 +110,7 @@ bool InternalSchema::check_table_or_view_exists(const std::string object_name, b
   try
   {
     std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(base::sqlstring("SHOW TABLES LIKE ? FROM ?", 0) << object_name << _schema_name)));
+    std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(std::string(base::sqlstring("SHOW FULL TABLES FROM ! LIKE ?", 0) << _schema_name << object_name)));
     
     while (!ret_val && rs->next())
     {
@@ -146,6 +146,7 @@ bool InternalSchema::is_remote_search_deployed()
 
   return ret_val;
 }
+
 
 std::string InternalSchema::execute_sql(const std::string &statement)
 {
@@ -372,3 +373,72 @@ std::string InternalSchema::deploy_get_routines()
   return execute_sql(statement);
 }
 
+
+
+// SQL Editor snippets
+
+
+bool InternalSchema::check_snippets_table_exist()
+{
+  return check_schema_exist() && check_table_exists("snippet");
+}
+
+
+std::string InternalSchema::create_snippets_table_exist()
+{
+  if (!check_table_exists("snippet"))
+  {
+    if (!check_schema_exist())
+    {
+      std::string error = create_schema();
+      if (!error.empty())
+        return error;
+    }
+
+    std::string statement(base::sqlstring("CREATE TABLE !.snippet (id INT PRIMARY KEY auto_increment, title varchar(128), code TEXT)", 0) << _schema_name);
+
+    return execute_sql(statement);
+  }
+  return "";
+}
+
+
+int InternalSchema::insert_snippet(const std::string &title, const std::string &code)
+{
+  std::string statement(base::sqlstring("INSERT INTO !.snippet (title, code) VALUES (?, ?)", 0) << _schema_name << title << code);
+
+  std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+  stmt->execute(statement);
+
+  std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT LAST_INSERT_ID()"));
+  if (result->next())
+    return result->getInt(1);
+  return 0;
+}
+
+
+void InternalSchema::delete_snippet(int snippet_id)
+{
+  std::string statement(base::sqlstring("DELETE FROM !.snippet WHERE id = ?", 0) << _schema_name << snippet_id);
+
+  std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+  stmt->execute(statement);
+}
+
+
+void InternalSchema::set_snippet_title(int snippet_id, const std::string &title)
+{
+  std::string statement(base::sqlstring("UPDATE !.snippet SET title = ? WHERE id = ?", 0) << _schema_name << title << snippet_id);
+
+  std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+  stmt->execute(statement);
+}
+
+
+void InternalSchema::set_snippet_code(int snippet_id, const std::string &code)
+{
+  std::string statement(base::sqlstring("UPDATE !.snippet SET code = ? WHERE id = ?", 0) << _schema_name << code << snippet_id);
+
+  std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+  stmt->execute(statement);
+}

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@ import re
 import tempfile
 from threading import Thread
 from workbench.db_driver import get_connection_parameters
-from workbench.utils import replace_string_parameters, parameters_from_dsn, dsn_parameters_to_connection_parameters
+from workbench.utils import replace_string_parameters
 from workbench.exceptions import NotConnectedError
 from workbench import db_utils
 from migration_source_selection import request_password
@@ -223,6 +223,7 @@ class DataMigrator(object):
             args = ['--pythondbapi-source="%s"' % python_conn_string(self._src_conn_object)]
         else:
             args = ['--odbc-source="%s"' % odbc_conn_string(self._src_conn_object, True)]
+        args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
         argv = [self.copytable_path, "--count-only", "--passwords-from-stdin"] + args + table_param
         self._owner.send_info(" ".join(argv))
 
@@ -282,8 +283,6 @@ class DataMigrator(object):
                 else:
                     table_param.append("*")
 
-        stdout = ""
-
         if len(working_set) < num_processes:
             num_processes = len(working_set)
 
@@ -296,6 +295,7 @@ class DataMigrator(object):
             args.append("--log-level=debug3")
 
         args.append("--thread-count=" + str(num_processes));
+        args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
 
         argv = [self.copytable_path] + args + table_param
 

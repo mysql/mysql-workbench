@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,7 +49,6 @@ protected:
   static void set_homogeneous(Box *self, bool flag);
   static void set_spacing(Box *self, int spc);
   //static void set_padding(Box *self, int pad);
-  virtual void set_back_color(const std::string&);
   virtual void set_padding_impl(int left, int top, int right, int bottom);
 
 public:

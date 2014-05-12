@@ -324,6 +324,10 @@ void WBContextUI::show_home_screen()
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Open Connection"), "open_connection");
     menu->add_item(_("Edit Connection..."), "edit_connection");
+
+    menu->add_separator();
+    menu->add_item(_("Move to Group..."), "move_connection_to_group");
+
     {
       std::list<std::string> groups;
       bec::ArgumentPool argument_pool;
@@ -343,7 +347,6 @@ void WBContextUI::show_home_screen()
     menu->add_item(_("Move Up"), "move_connection_up");
     menu->add_item(_("Move Down"), "move_connection_down");
     menu->add_item(_("Move To End"), "move_connection_to_end");
-    menu->add_item(_("Move to Group..."), "move_connection_to_group");
 
     menu->add_separator();
     menu->add_item(_("Delete Connection..."), "delete_connection");

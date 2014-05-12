@@ -33,6 +33,7 @@
 #include "base/geometry.h"
 #include "base/notifications.h"
 #include "base/drawing.h"
+#include "base/log.h"
 
 #include "mforms/toolbar.h"
 #include "mforms/hypertext.h"
@@ -42,21 +43,24 @@
 #include "mforms/code_editor.h"
 
 
-#define USER_SNIPPETS "My Snippets"
+DEFAULT_LOG_DOMAIN("QuerySidebar");
 
 using namespace mforms;
 using namespace base;
 
-//----------------- SnippetList --------------------------------------------------------------------
+//----------------- SnippetListView --------------------------------------------------------------------
 
 /**
   * Internal class containing a list of snippet entries in a scrollable list.
   */
-class SnippetList : public BaseSnippetList
+class SnippetListView : public BaseSnippetList
 {
 private:
+  friend class QuerySidePalette;
+
   wb::SnippetPopover* _snippet_popover;
   bool _user_snippets_active;
+  bool _shared_snippets_active;
 
 private:
 
@@ -83,8 +87,8 @@ private:
   void prepare_context_menu()
   {
     _context_menu = manage(new Menu());
-    _context_menu->set_handler(boost::bind(&SnippetList::on_action, this, _1));
-    _context_menu->signal_will_show()->connect(boost::bind(&SnippetList::menu_will_show, this));
+    _context_menu->set_handler(boost::bind(&SnippetListView::on_action, this, _1));
+    _context_menu->signal_will_show()->connect(boost::bind(&SnippetListView::menu_will_show, this));
 
     _context_menu->add_item(_("Insert Snippet at Cursor"), "insert_text");
     _context_menu->add_item(_("Replace Editor Content with Snippet"), "replace_text");
@@ -103,13 +107,16 @@ private:
 
   void menu_will_show()
   {
+    bool shared_usable = model()->shared_snippets_usable();
+
     _context_menu->set_item_enabled(0, _selected_index > -1);
     _context_menu->set_item_enabled(1, _selected_index > -1);
     _context_menu->set_item_enabled(2, _selected_index > -1);
     _context_menu->set_item_enabled(4, _selected_index > -1);
-    _context_menu->set_item_enabled(6, _selected_index > -1);
-    _context_menu->set_item_enabled(8, _selected_index > -1);
-    _context_menu->set_item_enabled(10, !_user_snippets_active);
+    _context_menu->set_item_enabled(6, _selected_index > -1 && (!_shared_snippets_active || shared_usable));
+    _context_menu->set_item_enabled(7, (!_shared_snippets_active || shared_usable));
+    _context_menu->set_item_enabled(8, _selected_index > -1 && (!_shared_snippets_active || shared_usable));
+    _context_menu->set_item_enabled(10, !_user_snippets_active && !_shared_snippets_active);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -132,21 +139,22 @@ private:
   //------------------------------------------------------------------------------------------------
 
 public:
-  SnippetList(const std::string& icon_name)
+  SnippetListView(const std::string& icon_name)
   : BaseSnippetList(icon_name, DbSqlEditorSnippets::get_instance())
   {
     _user_snippets_active = false;
+    _shared_snippets_active = false;
 
     _snippet_popover = new wb::SnippetPopover();
     _snippet_popover->set_size(376, 257);
-    _snippet_popover->signal_closed()->connect(boost::bind(&SnippetList::popover_closed, this));
+    _snippet_popover->signal_closed()->connect(boost::bind(&SnippetListView::popover_closed, this));
 
     prepare_context_menu();
   }
 
   //------------------------------------------------------------------------------------------------
 
-  ~SnippetList()
+  ~SnippetListView()
   {
     delete _snippet_popover;
     _context_menu->release();
@@ -156,6 +164,8 @@ public:
 
   std::string selected_category() { return model()->selected_category(); }
 
+  bool shared_snippets_active() const { return _shared_snippets_active; }
+
   //------------------------------------------------------------------------------------------------
 
   /**
@@ -164,7 +174,15 @@ public:
   void show_category(std::string category)
   {
     _user_snippets_active = (category == USER_SNIPPETS);
-    model()->select_category(category);
+    _shared_snippets_active = (category == SHARED_SNIPPETS);
+    try
+    {
+      model()->select_category(category);
+    }
+    catch (std::exception &exc)
+    {
+      log_warning("Error switching snippet category: %s\n", exc.what());
+    }
     refresh_snippets();
   }
 
@@ -218,7 +236,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  // End of internal class SnippetList.
+  // End of internal class SnippetListView.
 };
 
 //----------------- QuerySidePalette ---------------------------------------------------------------
@@ -238,6 +256,8 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _automatic_help = _grtm->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 1) == 0;
   _switching_help = false;
   _help_task = GrtThreadedTask::create(_grtm);
+
+  _pending_snippets_refresh = true;
 
   mforms::Box *help_page = manage(new Box(false));
   _help_toolbar = prepare_help_toolbar();
@@ -268,7 +288,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   Box* snippet_page = manage(new Box(false));
 
   content_border = manage(new Box(false));
-  _snippet_list = manage(new SnippetList("snippet_sql.png"));
+  _snippet_list = manage(new SnippetListView("snippet_sql.png"));
 #ifdef _WIN32
   content_border->set_padding(3, 3, 3, 3);
   _snippet_list->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
@@ -303,6 +323,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   }
 
   snippet_selection_changed();
+  show_help_hint_or_update();
 
   base::NotificationCenter::get()->add_observer(this, "GNTextSelectionChanged");
 }
@@ -330,8 +351,9 @@ void QuerySidePalette::cancel_timer()
 
 void QuerySidePalette::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info)
 {
-    // Selection and caret changes.
-  if ((name == "GNTextSelectionChanged") && _automatic_help && (get_active_tab() == 0))
+  // Selection and caret changes notification.
+  // Only act if this side palette is actually visible.
+  if ((name == "GNTextSelectionChanged") && _automatic_help && (get_active_tab() == 0) && is_fully_visible())
   {
     mforms::Object *object = (mforms::Object*)sender;
     mforms::CodeEditor *code_editor = dynamic_cast<mforms::CodeEditor*>(object);
@@ -341,19 +363,12 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
     Sql_editor *editor = static_cast<Sql_editor*>(code_editor->get_host());
     if (editor != NULL && editor->grtobj().is_valid())
     {
-      // See if this editor instance is actually from the IDE this palette sits in.
-      SqlEditorForm::Ref form = _owner.lock();
-      if (form && form->contains_editor(editor))
-      {
-        check_format_structures(editor);
-        cancel_timer();
-        _help_timer = _grtm->run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
-      }
+      check_format_structures(editor);
+      cancel_timer();
+      _help_timer = _grtm->run_every(boost::bind(&QuerySidePalette::find_context_help, this, editor), 0.7);
     }
-
-    return;
   }
-} 
+}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -363,6 +378,7 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic)
 
   if (topic.empty())
   {
+    _last_topic = "";
     update_help_ui();
     return;
   }
@@ -451,6 +467,26 @@ void QuerySidePalette::update_help_ui()
 
 //--------------------------------------------------------------------------------------------------
 
+void QuerySidePalette::show_help_hint_or_update()
+{
+  if (!_automatic_help)
+  {
+    _help_text->set_markup_text(
+      std::string("<hmtl><body style=\"font-family:") + DEFAULT_FONT_FAMILY + "; font-size: 8pt\">"
+      "<div style=\"width: 100%\"><b style=\"font-size: 10pt; color:#B0B0B0\">"
+      "Automatic context help is disabled. Use the toolbar to manually get help for the current caret "
+      "position or to toggle automatic help.<b><br><br><hr></div></body></html>");
+  }
+  else
+  {
+    if (_current_topic_index > 0)
+      _last_topic = _topic_history[_current_topic_index]; // Restore the last displayed topic.
+    update_help_ui();
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Triggered by timer or manually to find a help topic from the given editor's text + position.
  */
@@ -507,8 +543,8 @@ grt::StringRef QuerySidePalette::get_help_topic_threaded(grt::GRT *, const std::
 
 void QuerySidePalette::process_help_topic(const std::string &topic)
 {
-  if (update_help_history(topic))
-    show_help_text_for_topic(topic);
+  update_help_history(topic);
+  show_help_text_for_topic(topic);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,14 +552,12 @@ void QuerySidePalette::process_help_topic(const std::string &topic)
 /**
  * Adds the given topic to the topic history if the current topic is not the same and updates
  * the forward/backward buttons.
- *
- * @returns True if the topic was added to the history, otherwise false.
  */
-bool QuerySidePalette::update_help_history(const std::string &topic)
+void QuerySidePalette::update_help_history(const std::string &topic)
 {
   std::string topic_upper = base::toupper(topic);
   if (_current_topic_index > 0 && _topic_history[_current_topic_index] == topic_upper)
-    return _no_help;
+    return;
 
   if (!topic.empty())
   {
@@ -535,7 +569,6 @@ bool QuerySidePalette::update_help_history(const std::string &topic)
     _back_item->set_enabled(_current_topic_index > 0);
     _forward_item->set_enabled(false);
   }
-  return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -549,8 +582,9 @@ void QuerySidePalette::click_link(const std::string &link)
     base::replace(topic, "%20", " ");
     while (topic.find("  ") != std::string::npos)
       base::replace(topic, "  ", " ");
-    if (update_help_history(topic))
-      show_help_text_for_topic(topic);
+    
+    update_help_history(topic);
+    show_help_text_for_topic(topic);
   }
   else
     mforms::Utilities::open_url(link);
@@ -566,24 +600,7 @@ ToolBar* QuerySidePalette::prepare_snippet_toolbar()
   toolbar->set_padding(0, 0, 0, 0);
   toolbar->set_size(-1, 27);
 #endif
-  ToolBarItem* item = manage(new ToolBarItem(mforms::ActionItem));
-  item->set_name("add_snippet");
-  item->set_icon(App::get()->get_resource_path("snippet_add.png"));
-  item->set_tooltip(_("Add the current editor content as new snippet"));
-  scoped_connect(item->signal_activated(), boost::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, _1));
-  toolbar->add_item(item);
-
-  /* not needed in toolbar
-  item = manage(new ToolBarItem(mforms::ActionItem));
-  item->set_name("del_snippet");
-  item->set_icon(App::get()->get_resource_path("snippet_del.png"));
-  item->set_tooltip(_("Delete the currently selected snippet"));
-  scoped_connect(item->signal_activated(), boost::bind(&QuerySidePalette::snippet_toolbar_item_activated, this, _1));
-  toolbar->add_item(item);
-   */
-
-  item = mforms::manage(new ToolBarItem(mforms::SeparatorItem));
-  toolbar->add_item(item);
+  ToolBarItem* item;
 
   item = mforms::manage(new ToolBarItem(mforms::SelectorItem));
   item->set_name("select_category");
@@ -643,7 +660,6 @@ void QuerySidePalette::snippet_toolbar_item_activated(ToolBarItem* item)
       _snippet_list->refresh_snippets();
   }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
@@ -767,8 +783,8 @@ void QuerySidePalette::help_toolbar_item_activated(ToolBarItem* item)
   if (action == "quick_jump")
   {
     std::string topic = _quick_jump_item->get_text();
-    if (update_help_history(topic))
-      show_help_text_for_topic(topic);
+    update_help_history(topic);
+    show_help_text_for_topic(topic);
     return;
   }
 
@@ -777,6 +793,8 @@ void QuerySidePalette::help_toolbar_item_activated(ToolBarItem* item)
     _automatic_help = item->get_checked();
     _manual_help_item->set_enabled(!_automatic_help);
     _grtm->set_app_option("DbSqlEditor:DisableAutomaticContextHelp", grt::IntegerRef(_automatic_help ? 0 : 1));
+
+    show_help_hint_or_update();
 
     return;
   }
@@ -992,3 +1010,22 @@ std::string QuerySidePalette::format_help_as_html(const std::string &text)
 }
 
 //--------------------------------------------------------------------------------------------------
+
+void QuerySidePalette::refresh_snippets()
+{
+  if (_pending_snippets_refresh && _snippet_list->shared_snippets_active())
+  {
+    SqlEditorForm::Ref owner(_owner.lock());
+
+    try
+    {
+      _snippet_list->model()->load_from_db(owner.get());
+      _pending_snippets_refresh = false;
+    }
+    catch (std::exception &exc)
+    {
+      log_error("Error loading DB snippets: %s\n", exc.what());
+    }
+  }
+  _snippet_list->refresh_snippets();
+}

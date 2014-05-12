@@ -38,6 +38,10 @@ if test "$edition" != "community"; then
         cp ~/guibuild/lgpl-deps/* "template/$app"
 fi
 
+echo "Copying background image"
+cp build/mac/background.tiff template/
+chflags hidden template/background.tiff
+
 echo "Detaching template"
 hdiutil detach template -force -quiet
 

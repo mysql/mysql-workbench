@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,4 +67,26 @@ PyObject *togrt(mforms::Object *object, const std::string &mforms_type_name) //t
     Py_RETURN_NONE;
 }
 
+
+
+
+struct signal_connection_wrapper {
+#ifndef SWIG
+  boost::signals2::connection connection;
+
+  signal_connection_wrapper() {}
+  signal_connection_wrapper(const signal_connection_wrapper &o) : connection(o.connection) {}
+  signal_connection_wrapper(const boost::signals2::connection &c) : connection(c) {}
+
+  signal_connection_wrapper &operator = (const signal_connection_wrapper &o)
+  {
+    connection = o.connection;
+    return *this;
+  }
+#endif
+  void disconnect()
+  {
+    connection.disconnect();
+  }
+};
 

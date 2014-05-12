@@ -20,7 +20,7 @@ import mforms
 import grt 
 
 from workbench.log import log_error
-from mforms import IconStringColumnType, StringColumnType, LongIntegerColumnType, IntegerColumnType
+from mforms import IconStringColumnType, StringColumnType, LongIntegerColumnType, IntegerColumnType, NumberWithUnitColumnType
 from workbench.notifications import NotificationCenter
 from wb_admin_utils import make_panel_header
 from workbench.utils import human_size, Version
@@ -372,10 +372,10 @@ class TableManager(ObjectManager):
                ("Row_format", StringColumnType, "Row Format", 100, None),
                ("Rows", LongIntegerColumnType, "Rows", 80, None),
                ("Avg_row_length", LongIntegerColumnType, "Avg Row Length", 100, None),
-               ({'field' : "Data_length", 'format_func' : lambda x: human_size(long(x))}, StringColumnType, "Data Length", 100, None),
-               ({'field' : "Max_data_length", 'format_func' : lambda x: human_size(long(x))}, StringColumnType, "Max Data Length", 100, None),
-               ({'field' : "Index_length", 'format_func' : lambda x: human_size(long(x))}, StringColumnType, "Index Length", 100, None),
-               ({'field' : "Data_free", 'format_func' : lambda x: human_size(long(x))}, StringColumnType, "Data Free", 80, None),
+               ({'field' : "Data_length", 'format_func' : lambda x: human_size(long(x))}, NumberWithUnitColumnType, "Data Length", 100, None),
+               ({'field' : "Max_data_length", 'format_func' : lambda x: human_size(long(x))}, NumberWithUnitColumnType, "Max Data Length", 100, None),
+               ({'field' : "Index_length", 'format_func' : lambda x: human_size(long(x))}, NumberWithUnitColumnType, "Index Length", 100, None),
+               ({'field' : "Data_free", 'format_func' : lambda x: human_size(long(x))}, NumberWithUnitColumnType, "Data Free", 80, None),
                ("Auto_increment", LongIntegerColumnType, "Auto Increment", 80, None),
                ("Create_time", StringColumnType, "Create Time", 100, None),
                ("Update_time", StringColumnType, "Update Time", 100, None),

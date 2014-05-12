@@ -101,6 +101,8 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
 
   _sidebar1_pane = &_top_pane;
   _sidebar2_pane = &_top_right_pane;
+  PanedConstrainer::make_constrainer(_sidebar1_pane, 120, 0);
+  PanedConstrainer::make_constrainer(_sidebar2_pane, 0, 120);
 
   _top_pane.show_all();
   _top_right_pane.show_all();
@@ -160,7 +162,6 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
     editor->dockingPoint(mforms_to_grt(_grtm->get_grt(), _dpoint));
   }
 }
-
 //------------------------------------------------------------------------------
 
 bool DbSqlEditorView::perform_command(const std::string &cmd)

@@ -165,7 +165,7 @@ int VarGridModel::refresh_ui()
   if (_grtm->in_main_thread())
     refresh_ui_signal();
   else
-    _refresh_connection = _grtm->run_once_when_idle(boost::bind(boost::ref(refresh_ui_signal)));
+    _refresh_connection = _grtm->run_once_when_idle(this, boost::bind(&VarGridModel::refresh_ui, this));
   return 0;
 }
 

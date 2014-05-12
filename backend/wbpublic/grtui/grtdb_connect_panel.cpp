@@ -674,7 +674,7 @@ void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
   // ensure the correct driver is selected in the selector
   ssize_t driver_index = find_object_index_in_list(rdbms->drivers(), driver->id());
   if (driver_index >= 0 && driver_index < _driver_sel.get_item_count())
-    _driver_sel.set_selected(driver_index);
+    _driver_sel.set_selected((int)driver_index);
 
   // mark this connection as the active one for this rdbms type
   if (!_dont_set_default_connection)

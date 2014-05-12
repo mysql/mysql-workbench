@@ -435,8 +435,14 @@ void AutoCompleteCache::refresh_cache_thread()
 
 void *AutoCompleteCache::_refresh_cache_thread(void *data)
 {
-  AutoCompleteCache *self = reinterpret_cast<AutoCompleteCache*>(data);
-  self->refresh_cache_thread();
+  try
+  {
+    AutoCompleteCache *self = reinterpret_cast<AutoCompleteCache*>(data);
+    self->refresh_cache_thread();
+  } catch (sql::SQLException &exc)
+  {
+    log_error("SQLException executing refresh_cache_thread: Error Code: %d\n, %s\n",exc.getErrorCode(), exc.what());
+  }
   return NULL;
 }
 

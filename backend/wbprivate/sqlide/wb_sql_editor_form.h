@@ -165,7 +165,6 @@ public:
   Sql_editor::Ref active_sql_editor();
   Sql_editor::Ref sql_editor(int index);
   int sql_editor_index(Sql_editor::Ref);
-  bool contains_editor(Sql_editor *editor);
   std::string sql_editor_path(int index) { return _sql_editors[index]->filename; }
   std::string sql_editor_caption(int index=-1);
   void sql_editor_caption(int new_index, std::string caption);
@@ -488,7 +487,7 @@ private:
 public:
   void toolbar_command(const std::string& command);
 
-  bool save_snippet(const std::string &text);
+  bool save_snippet();
 
   void show_output_area();
 

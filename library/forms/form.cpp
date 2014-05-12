@@ -21,21 +21,31 @@
 
 using namespace mforms;
 
+//--------------------------------------------------------------------------------------------------
+
 Form::Form(Form *owner, FormFlag flag)
 {
   _form_impl= &ControlFactory::get_instance()->_form_impl;
   
-  _content= 0;
-  _fixed_size= false;
+  _content = NULL;
+  _fixed_size = false;
   _release_on_close = false;
+  _active = true;
   _form_impl->create(this, owner, flag);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 Form::Form()
 {
-  _form_impl= &ControlFactory::get_instance()->_form_impl;
-  _content= 0;
+  _form_impl = &ControlFactory::get_instance()->_form_impl;
+  _content = NULL;
+  _fixed_size = false;
+  _release_on_close = false;
+  _active = true;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 Form *Form::main_form()
 {
@@ -45,11 +55,15 @@ Form *Form::main_form()
   return main_form;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 Form::~Form()
 {
   if (_content && !_content->release_on_add())
     _content->release();
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void Form::set_title(const std::string &title)
 {
@@ -57,11 +71,15 @@ void Form::set_title(const std::string &title)
     _form_impl->set_title(this, title);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void Form::set_release_on_close(bool flag)
 {
   if (_form_impl)
     _release_on_close = flag;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 bool Form::run_modal(Button *accept, Button *cancel)
 {
@@ -70,11 +88,15 @@ bool Form::run_modal(Button *accept, Button *cancel)
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void Form::show_modal(Button *accept, Button *cancel)
 {
   if (_form_impl)
     _form_impl->show_modal(this, accept, cancel);
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void Form::end_modal(bool result)
 {
@@ -82,12 +104,15 @@ void Form::end_modal(bool result)
     _form_impl->end_modal(this, result);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void Form::close()
 {
   if (_form_impl)
     _form_impl->close(this);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Form::center()
 {
@@ -95,6 +120,7 @@ void Form::center()
     _form_impl->center(this);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Form::set_content(View *view)
 {
@@ -113,9 +139,35 @@ void Form::set_content(View *view)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void Form::flush_events()
 {
   if (_form_impl)
     _form_impl->flush_events(this);
 }
 
+//--------------------------------------------------------------------------------------------------
+
+void Form::activated()
+{
+  _active = true;
+  _activated_signal();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void Form::deactivated()
+{
+  _active = false;
+  _deactivated_signal();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool Form::is_active()
+{
+  return _active;
+}
+
+//--------------------------------------------------------------------------------------------------

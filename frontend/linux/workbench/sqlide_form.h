@@ -76,6 +76,7 @@ class DbSqlEditorView : public Gtk::VBox, public FormViewBase
   protected:
     virtual void plugin_tab_added(PluginEditorBase *plugin);
 
+
   private:
     void polish();
 

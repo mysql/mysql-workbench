@@ -155,7 +155,10 @@ class RenderBox(mforms.PyDrawBox):
         if self.tooltip:
             self.tooltip.close()
             self.tooltip = None
-                
+
+        if not mforms.Form.main_form().is_active():
+            return
+
         if fig and getattr(fig, 'hover_text_template', None):
             text = self.make_tooltip_text(fig, fig.hover_text_template)
             if text:
@@ -507,6 +510,7 @@ class WbAdminDashboard(WbAdminBaseTab):
     
     _refresh_tm = None
     drawbox = None
+    _form_deactivated_conn = None
     
     @classmethod
     def wba_register(cls, admin_context):
@@ -521,6 +525,10 @@ class WbAdminDashboard(WbAdminBaseTab):
 
     def create_ui(self):
         #self.create_basic_ui("title_dashboard.png", "Dashboard")
+
+
+        self._form_deactivated_conn = mforms.Form.main_form().add_deactivated_callback(self.form_deactivated)
+
 
         self.content = mforms.newScrollPanel(0)
 
@@ -574,6 +582,10 @@ class WbAdminDashboard(WbAdminBaseTab):
 
 
     def shutdown(self):
+        if self._form_deactivated_conn:
+            self._form_deactivated_conn.disconnect()
+            self._form_deactivated_conn = None
+
         if self._refresh_tm:
             mforms.Utilities.cancel_timeout(self._refresh_tm)
             self._refresh_tm = None
@@ -593,11 +605,14 @@ class WbAdminDashboard(WbAdminBaseTab):
         return True
 
 
+    def form_deactivated(self):
+        if self.drawbox:
+            self.drawbox.close_tooltip()
+
 
     def page_deactivated(self):
         if self.drawbox:
             self.drawbox.close_tooltip()
-
 
     def relayout(self):
         full_width = max(1024, self.content.get_width())

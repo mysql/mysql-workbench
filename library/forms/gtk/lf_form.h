@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2010, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,6 +56,7 @@ class FormImpl : public ViewImpl
   void realized(mforms::Form *owner, Gdk::WMDecoration flags);
   virtual void set_size(int width, int height);
   virtual void set_name(const std::string &name);
+  bool on_focus_event(GdkEventFocus* ev, ::mforms::Form *form);
 
 public:
   FormImpl(::mforms::Form *form, ::mforms::Form *owner, mforms::FormFlag form_flag);

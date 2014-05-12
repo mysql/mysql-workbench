@@ -119,6 +119,7 @@ public:
   void prepare_add_short(char* &buffer, size_t &buffer_len);
   void prepare_add_tiny(char* &buffer, size_t &buffer_len);
   void prepare_add_time(char* &buffer, size_t &buffer_len);
+  void prepare_add_geometry(char* &buffer, size_t &buffer_len, unsigned long *&length);
   void finish_field(bool was_null);
 
   enum enum_field_types target_type(bool &unsig);
@@ -205,6 +206,8 @@ class ODBCCopyDataSource : public CopyDataSource
   bool _stmt_ok;
   bool _force_utf8_input;
 
+  std::string _source_rdbms_type;
+
   SQLSMALLINT odbc_type_to_c_type(SQLSMALLINT type, bool is_unsigned);
 
   void ucs2_to_utf8(char *inbuf, size_t inbuf_len, char *&utf8buf, size_t &utf8buf_len);
@@ -213,12 +216,14 @@ public:
   ODBCCopyDataSource(SQLHENV env,
                      const std::string &connstring,
                      const std::string &password,
-                     bool force_utf8_input);
+                     bool force_utf8_input,
+                     const std::string &source_rdbms_type);
   virtual ~ODBCCopyDataSource();
 
   SQLRETURN get_wchar_buffer_data(RowBuffer &rowbuffer, int column);
   SQLRETURN get_char_buffer_data(RowBuffer &rowbuffer, int column);
   SQLRETURN get_date_time_data(RowBuffer &rowbuffer, int column, int type);
+  SQLRETURN get_geometry_buffer_data(RowBuffer &rowbuffer, int column);
 
 public:
   virtual size_t count_rows(const std::string &schema, const std::string &table, const CopySpec &spec);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,6 +67,7 @@ namespace MySQL {
       static void set_tooltip(mforms::View *backend, const std::string& text);
       static void set_font(mforms::View *backend, const std::string& text);
       static bool is_shown(mforms::View *backend);
+      static bool is_fully_visible(mforms::View *backend);
       static void suspend_layout(mforms::View *backend, bool flag);
       static void set_front_color(mforms::View *backend, const std::string &color);
       static std::string get_front_color(mforms::View *backend);

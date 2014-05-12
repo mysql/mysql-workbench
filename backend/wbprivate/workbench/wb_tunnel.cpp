@@ -48,6 +48,25 @@ public:
   tunnel_auth_error(const std::string &err) : std::runtime_error(err) {}
 };
 
+class tunnel_auth_retry : public std::runtime_error
+{
+public:
+  tunnel_auth_retry(const std::string &err) : std::runtime_error(err) {}
+};
+
+class tunnel_auth_cancelled : public std::runtime_error
+{
+public:
+  tunnel_auth_cancelled(const std::string &err) : std::runtime_error(err) {}
+};
+
+class tunnel_auth_key_error : public std::runtime_error
+{
+public:
+  tunnel_auth_key_error(const std::string &err) : std::runtime_error(err) {}
+};
+
+
 class SSHTunnel : public sql::TunnelConnection
 {
   TunnelManager *_tm;
@@ -119,7 +138,7 @@ void TunnelManager::start()
 {
   std::string progpath = bec::make_path(_wb->get_grt_manager()->get_basedir(), "sshtunnel.py");
 
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
   grt::PythonContext *py = grt::PythonContext::get();
   if (py->run_file(progpath, false) < 0)
   {
@@ -132,7 +151,7 @@ void TunnelManager::start()
 
 int TunnelManager::lookup_tunnel(const char *server, const char *username, const char *target)
 {
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
 
   // Note: without the (char*) cast gcc will complain about passing a const char* to a char*.
   //       Ideally the function signature should be changed to take a const char*.
@@ -156,7 +175,7 @@ int TunnelManager::lookup_tunnel(const char *server, const char *username, const
 
 void TunnelManager::shutdown()
 {
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
   if (_tunnel)
   {
     PyObject *ret = PyObject_CallMethod(_tunnel, (char*) "shutdown", NULL);
@@ -173,7 +192,7 @@ void TunnelManager::shutdown()
 int TunnelManager::open_tunnel(const char *server, const char *username, const char *password, 
                                const char *keyfile, const char *target)
 {
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
   PyObject *ret = PyObject_CallMethod(_tunnel, (char*) "open_tunnel", (char*) "sssss",
                                       server, username, password, keyfile, target);
   if (!ret)
@@ -211,7 +230,7 @@ int TunnelManager::open_tunnel(const char *server, const char *username, const c
 
 void TunnelManager::wait_tunnel(int port)
 {
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
 
   log_debug("Waiting on tunnel to connect...\n");
 
@@ -239,8 +258,34 @@ void TunnelManager::wait_tunnel(int port)
     throw tunnel_auth_error("Authentication error. Please check that your username and password are correct and try again."
             "\nDetails (Original exception message):\n" + str);
 
-  if ( g_str_has_prefix(str.c_str(), "Authentication error") )
+  if (g_str_has_prefix(str.c_str(), "Server key has been stored"))
+  {
+    log_info("TunnelManager.wait_connection server key stored, retrying: %s\n", str.c_str());
+    throw tunnel_auth_retry("Retry due to fingerprint missing, user accept new fingerprint");
+  }
+
+  if (g_str_has_prefix(str.c_str(), "Host key for server "))
+  {
+    log_info("TunnelManager.wait_connection host key does not match, abandoning connection: %s\n", str.c_str());
+    throw tunnel_auth_key_error(str);
+  }
+
+  if (g_str_has_prefix(str.c_str(), "User cancelled"))
+  {
+    log_info("TunnelManager.wait_connection cancelled by the user: %s\n", str.c_str());
+    throw tunnel_auth_cancelled("Tunnel connection cancelled by the user");
+  }
+  if (g_str_has_prefix(str.c_str(), "IO Error"))
+  {
+    log_error("TunnelManager.wait_connection got IOError: %s\n", str.c_str());
+    throw tunnel_auth_key_error(str);
+  }
+
+  if (g_str_has_prefix(str.c_str(), "Authentication error"))
+  {
+    log_info("TunnelManager.wait_connection authentication error: %s\n", str.c_str());
     throw tunnel_auth_error(str);
+  }
 
   throw std::runtime_error("Error connecting SSH tunnel: "+str);
 }
@@ -250,7 +295,7 @@ bool TunnelManager::get_message_for(int port, std::string &type, std::string &me
 {
   std::list<std::pair<std::string, std::string> > messages;
 
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
 
   PyObject *ret = PyObject_CallMethod(_tunnel, (char*) "get_message", (char*) "i", port);
   if (!ret)
@@ -288,7 +333,7 @@ bool TunnelManager::get_message_for(int port, std::string &type, std::string &me
 
 void TunnelManager::close_tunnel(int port)
 {
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
   PyObject *ret = PyObject_CallMethod(_tunnel, (char*) "close", (char*) "i", port);
   if (!ret)
   {
@@ -404,6 +449,22 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
         }
         else
           throw grt::user_cancelled("Tunnel connection cancelled");
+      }
+      catch (tunnel_auth_retry &exc)
+      {
+        log_warning("Opening SSH tunnel: %s\n", exc.what());
+        goto retry;
+      }
+      catch (tunnel_auth_cancelled &exc)
+      {
+        log_debug("Tunnel auth cancelled: %s\n", exc.what());
+        throw grt::user_cancelled(exc.what());
+      }
+      catch (tunnel_auth_key_error &exc)
+      {
+        mforms::Utilities::show_error("Tunnel Connection Error", exc.what(), _("OK"));
+        log_debug("Tunnel auth key error: %s\n", exc.what());
+        throw grt::user_cancelled(exc.what());
       }
       catch (std::exception &exc)
       {
