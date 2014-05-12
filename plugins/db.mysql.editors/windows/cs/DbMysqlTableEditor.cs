@@ -486,6 +486,7 @@ namespace MySQL.GUI.Workbench.Plugins
         columnsListModel.RefreshModel();
         indicesListModel.RefreshModel();
         fkListModel.RefreshModel();
+        tableEditorBE.load_trigger_sql();
 
         // partitioning
         if (tableEditorBE.get_partition_type() == null || tableEditorBE.get_partition_type() == "")
@@ -1663,7 +1664,7 @@ namespace MySQL.GUI.Workbench.Plugins
       if (insertsRecordsetView == null)
       {
         insertsRecordsetView = new MySQL.Grt.Db.RecordsetView();
-        insertsRecordsetView.SetupRecordset(tableEditorBE.get_inserts_model(), true);
+        insertsRecordsetView.SetupRecordset(tableEditorBE.get_inserts_model());
         Control panel = tableEditorBE.get_inserts_panel(insertsRecordsetView.GridView);
         insertsTabPage.Controls.Add(panel);
         panel.Parent = insertsTabPage;

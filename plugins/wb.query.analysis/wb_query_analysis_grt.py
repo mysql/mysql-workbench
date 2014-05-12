@@ -260,10 +260,18 @@ class QueryPlanTab(mforms.Box):
 
 
 class ExplainTab(mforms.AppView):
+    _query_plan = None
+    _costs_tree = None
+    _explain_context = None
+
     def __init__(self, server_version, query, json_text, explain):
         mforms.AppView.__init__(self, False, "QueryExplain", False)
         self.set_managed()
         self.set_release_on_add()
+
+        self.on_close(self.on_tab_close)
+
+        self._form_deactivated_conn = mforms.Form.main_form().add_deactivated_callback(self.form_deactivated)
         
         self._query = query
         self.tabview = mforms.newTabView(0)
@@ -283,7 +291,7 @@ class ExplainTab(mforms.AppView):
             self.tabview.add_page(self._query_plan, "Query Plan")
         
             self._raw_explain = mforms.CodeEditor()
-            self._raw_explain.set_text(json_text)
+            self._raw_explain.set_value(json_text)
             #self._raw_explain.enable_folding(True)
             self._raw_explain.set_language(mforms.LanguagePython)
             self._raw_explain.set_features(mforms.FeatureReadOnly, 1)
@@ -291,10 +299,6 @@ class ExplainTab(mforms.AppView):
 
             #self._costs_tree = self.fill_costs_tree(json)
         #self.tabview.add_page(self._costs_tree, "Query Costs")
-        else:
-            self._query_plan = None
-            self._costs_tree = None
-            self._explain_context = None
 
         # Good old explain
         if explain:
@@ -349,6 +353,7 @@ class ExplainTab(mforms.AppView):
                 self._explain_context._canvas.activate()
             else:
                 self._explain_context._canvas.deactivate()
+                self._explain_context.close_tooltip()
             grt.root.wb.state["wb.query.analysis:ActiveExplainTab"] = self.tabview.get_active_tab()
 
 
@@ -357,6 +362,15 @@ class ExplainTab(mforms.AppView):
         return tree
 
 
+    def form_deactivated(self):
+        if self._query_plan and self._explain_context:
+            self._explain_context.close_tooltip()
+
+    def on_tab_close(self):
+        self.form_deactivated()
+        if self._form_deactivated_conn:
+            self._form_deactivated_conn.disconnect()
+            self._form_deactivated_conn = None
 
 
 @ModuleInfo.plugin("wb.sqlide.visual_explain", caption="Visual Explain", input=[wbinputs.currentQueryEditor()])

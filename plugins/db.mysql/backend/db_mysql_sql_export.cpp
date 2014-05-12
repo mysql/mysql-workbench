@@ -129,6 +129,11 @@ void DbMySQLSQLExport::set_db_options_for_version(const GrtVersionRef &version)
     _db_options = diffsql_module->getTraitsForServerVersion((int)version->majorNumber(), (int)version->minorNumber(), (int)version->releaseNumber());
 }
 
+void DbMySQLSQLExport::set_db_options(grt::DictRef &db_options)
+{
+    _db_options = db_options;
+}
+
 grt::StringListRef convert_string_vector_to_grt_list(grt::GRT *grt, const std::vector<std::string>& v)
 {
   grt::StringListRef grt_list(grt);
@@ -181,7 +186,7 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict(grt::GRT *grt)
   options.set("GenerateWarnings", grt::IntegerRef(_gen_warnings ? 1 : 0));
   options.set("GenerateCreateIndex", grt::IntegerRef(_gen_create_index ? 1 : 0));
   options.set("NoUsersJustPrivileges", grt::IntegerRef(_no_users_just_privileges ? 1 : 0));
-  options.set("NoViewPlaceholders", grt::IntegerRef(_no_users_just_privileges ? 1 : 0));
+  options.set("NoViewPlaceholders", grt::IntegerRef(_no_view_placeholders ? 1 : 0));
   options.set("GenerateInserts", grt::IntegerRef(_gen_inserts ? 1 : 0));
   options.set("NoFKForInserts", grt::IntegerRef(_no_FK_for_inserts ? 1 : 0));
   options.set("TriggersAfterInserts", grt::IntegerRef(_triggers_after_inserts ? 1 : 0));

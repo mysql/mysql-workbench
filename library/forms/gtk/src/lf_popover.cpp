@@ -45,6 +45,7 @@ class PopoverWidget : public Gtk::Window
     virtual bool on_configure_event(GdkEventConfigure* ce);
 
   private:
+    void parent_key_release(GdkEventKey *ev);
     bool tooltip_signal_event(GdkEvent* e);
     bool parent_configure_event(GdkEvent* e);
     void create_shape_path(cairo_t* cr, const int offset);
@@ -98,6 +99,9 @@ PopoverWidget::PopoverWidget(Gtk::Window* parent, mforms::PopoverStyle style)
     _hbox = Gtk::manage(new Gtk::HBox(false, this->get_style()->get_xthickness()));
     _align->add(*_hbox);
     signal_event().connect(sigc::mem_fun(this, &PopoverWidget::tooltip_signal_event));
+    parent->add_events(Gdk::KEY_RELEASE_MASK);
+    parent->signal_key_release_event().connect_notify(sigc::mem_fun(this, &PopoverWidget::parent_key_release));
+
     show();
   }
   else
@@ -112,6 +116,11 @@ PopoverWidget::PopoverWidget(Gtk::Window* parent, mforms::PopoverStyle style)
     add(_fixed);
     _fixed.show_all();
   }
+}
+
+void PopoverWidget::parent_key_release(GdkEventKey* ev)
+{
+  hide();
 }
 //------------------------------------------------------------------------------
 bool PopoverWidget::tooltip_signal_event(GdkEvent* ev)
@@ -367,6 +376,14 @@ void PopoverWidget::adjust_child_position()
 //------------------------------------------------------------------------------
 void PopoverWidget::show_popover(const int rx, const int ry, const mforms::StartPosition pos)
 {
+
+  int xx;
+  int yy;
+  Gdk::ModifierType mask;
+  this->get_window()->get_pointer(xx, yy, mask);
+  if (mask & Gdk::BUTTON1_MASK || mask & Gdk::BUTTON2_MASK || mask & Gdk::BUTTON3_MASK)
+    return;
+
   int x = rx, y = ry;
   if (x < 0 && y < 0)
   {

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,6 +102,9 @@ namespace MySQL.GUI.Workbench.Plugins
 
     protected override void RefreshFormData()
     {
+      if (IsDisposed || Disposing) // To counter pending refreshes while we are going or gone already.
+        return;
+
       base.RefreshFormData();
 
       nameTextBox.Text = routineEditorBE.get_name();

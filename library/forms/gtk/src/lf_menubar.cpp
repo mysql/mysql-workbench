@@ -152,58 +152,206 @@ std::string mforms::gtk::MenuItemImpl::get_title(mforms::MenuItem *item)
   return ret;
 }
 
+static void add_shortcuts(Gtk::MenuItem* menu_item, 
+                          const std::vector<std::string> &modifiers, 
+                          const std::vector<std::string> &shortcuts)
+{
+  std::string modifier;
+  
+  for (std::vector<std::string>::const_iterator iter = modifiers.begin(); iter != modifiers.end(); ++iter)
+  {
+    std::string current_modifier = *iter;
+    std::transform(current_modifier.begin(), current_modifier.end(), current_modifier.begin(), (int(*)(int))std::tolower);
+
+    if (current_modifier == "modifier")
+      current_modifier = "control";
+
+    modifier += "<" + current_modifier + ">";
+  }
+  
+  
+  for (std::vector<std::string>::const_iterator iter = shortcuts.begin(); iter != shortcuts.end(); ++iter)
+  {
+    std::string shortcut = modifier + *iter;
+    Gdk::ModifierType accel_mods = (Gdk::ModifierType)0;
+    guint accel_key = 0;
+    
+    Gtk::AccelGroup::parse(shortcut, accel_key, accel_mods);
+    
+    if (accel_key != 0)
+      menu_item->add_accelerator("activate", accel_group, accel_key, accel_mods, Gtk::ACCEL_VISIBLE);
+    else
+      log_error("Accelerator key not found for %s.\n", shortcut.c_str());
+  }
+  
+}
+
 //------------------------------------------------------------------------------
 void mforms::gtk::MenuItemImpl::set_shortcut(mforms::MenuItem *item, const std::string& item_shortcut)
 {
-  if (!item_shortcut.empty())
+  if (item_shortcut.empty())
   {
-    Gdk::ModifierType   accel_mods = (Gdk::ModifierType)0;
-    guint                accel_key = 0;
-
-    // convert the accelerator format from Control+X to <control>x which is recognized by gtk
-    std::vector<std::string> parts(base::split(item_shortcut, "+"));
-
-    if (parts.size() > 0)
-    {
-      std::string shortcut = parts.back();
-      parts.pop_back();
-
-      if (shortcut == "Space")
-        shortcut = "space";
-      else if (shortcut == "PageUp")
-        shortcut = "Page_Up";
-      else if (shortcut == "PageDown")
-        shortcut = "Page_Down";
-      else if (shortcut == "Slash")
-        shortcut = "slash";
-      else if (shortcut == "Minus")
-        shortcut = "minus";
-      else if (shortcut == "Plus")
-        shortcut = "plus";
-
-      while (parts.size() > 0)
-      {
-        std::string mod = parts.back();
-        parts.pop_back();
-        std::transform(mod.begin(), mod.end(), mod.begin(), (int(*)(int))std::tolower);
-        if ("modifier" == mod)
-          mod = "control";
-        shortcut = "<"+mod+">"+shortcut;
-      }
-
-      if (!shortcut.empty())
-        Gtk::AccelGroup::parse(shortcut, accel_key, accel_mods);
-    }
-
-    Gtk::MenuItem* mi = cast<Gtk::MenuItem*>(item->get_data_ptr());
-    if (accel_key != 0 && mi)
-    {
-      if (accel_group)
-        mi->add_accelerator("activate", accel_group, accel_key, accel_mods, Gtk::ACCEL_VISIBLE);
-      else
-        log_error("AccelGroup was not set for menubar\n");
-    }
+    log_warning("Shortcut is empty\n");
+    return;
   }
+
+  Gtk::MenuItem* menu_item = cast<Gtk::MenuItem*>(item->get_data_ptr());
+  
+  if (menu_item == NULL)
+  {
+    log_error("Menu item was not defined (%s)\n", item_shortcut.c_str());
+    return;
+  }
+  
+  if (accel_group == 0)
+  {
+    log_error("AccelGroup was not set for menubar (%s)\n", item_shortcut.c_str());
+    return;
+  }
+
+  // convert the accelerator format from Control+X to <control>x which is recognized by gtk
+  std::vector<std::string> parts(base::split(item_shortcut, "+"));
+
+  std::vector<std::string> keys;
+  std::string key = parts.back();
+  parts.pop_back();
+
+  if (key == "Space")
+    keys.push_back("space");
+  else if (key == "PageUp")
+  {
+    keys.push_back("Page_Up");
+    keys.push_back("KP_Page_Up");
+  }
+  else if (key == "PageDown")
+  {
+    keys.push_back("Page_Down");
+    keys.push_back("KP_Page_Down");
+  }
+  else if (key == "Slash")
+  {
+    keys.push_back("slash");
+    keys.push_back("KP_Divide");
+  }
+  else if (key == "Minus")
+  {
+    keys.push_back("minus");
+    keys.push_back("KP_Subtract");
+  }
+  else if (key == "Plus")
+  {
+    keys.push_back("plus");
+    keys.push_back("KP_Add");
+  }
+  else if (key == "Asterisk")
+  {
+    keys.push_back("multiply");
+    keys.push_back("KP_Multiply");
+  }
+  else if (key == "Period")
+  {
+    keys.push_back("period");
+    keys.push_back("KP_Decimal");
+  }
+  else if (key == "Return")
+  {
+    keys.push_back("Return");
+    keys.push_back("KP_Enter");
+  }
+  else if (key == "Home")
+  {
+    keys.push_back("Home");
+    keys.push_back("KP_Home");
+  }
+  else if (key == "End")
+  {
+    keys.push_back("End");
+    keys.push_back("KP_End");
+  }
+  else if (key == "Insert")
+  {
+    keys.push_back("Insert");
+    keys.push_back("KP_Insert");
+  }
+  else if (key == "Delete")
+  {
+    keys.push_back("Delete");
+    keys.push_back("KP_Delete");
+  }
+  else if (key == "Up")
+  {
+    keys.push_back("Up");
+    keys.push_back("KP_Up");
+  }
+  else if (key == "Down")
+  {
+    keys.push_back("Down");
+    keys.push_back("KP_Down");
+  }
+  else if (key == "Left")
+  {
+    keys.push_back("Left");
+    keys.push_back("KP_Left");
+  }
+  else if (key == "Right")
+  {
+    keys.push_back("Right");
+    keys.push_back("KP_Right");
+  }
+  else if (key == "0")
+  {
+    keys.push_back("0");
+    keys.push_back("KP_0");
+  }
+  else if (key == "1")
+  {
+    keys.push_back("1");
+    keys.push_back("KP_1");
+  }
+  else if (key == "2")
+  {
+    keys.push_back("2");
+    keys.push_back("KP_2");
+  }
+  else if (key == "3")
+  {
+    keys.push_back("3");
+    keys.push_back("KP_3");
+  }
+  else if (key == "4")
+  {
+    keys.push_back("4");
+    keys.push_back("KP_4");
+  }
+  else if (key == "5")
+  {
+    keys.push_back("5");
+    keys.push_back("KP_5");
+  }
+  else if (key == "6")
+  {
+    keys.push_back("6");
+    keys.push_back("KP_6");
+  }
+  else if (key == "7")
+  {
+    keys.push_back("7");
+    keys.push_back("KP_7");
+  }
+  else if (key == "8")
+  {
+    keys.push_back("8");
+    keys.push_back("KP_8");
+  }
+  else if (key == "9")
+  {
+    keys.push_back("9");
+    keys.push_back("KP_9");
+  }
+  else
+    keys.push_back(key);
+
+  add_shortcuts(menu_item, parts, keys);
 }
 
 //------------------------------------------------------------------------------

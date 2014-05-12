@@ -424,6 +424,8 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
 
 - (void)refreshTableEditorGUITriggersTab
 {
+  if (mBackEnd)
+    mBackEnd->load_trigger_sql();
 }
 
 

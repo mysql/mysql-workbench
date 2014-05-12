@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -581,22 +581,50 @@ void PanedConstrainer::size_alloc(Gtk::Allocation &_alloc)
     return;
   _reentrant = true;
 
-  if (_pan && (_margin_min > 0 || _margin_max > 0))
+  if (_pan && (_top_or_left_limit > 0 || _bottom_or_right_limit > 0))
   {
-    if (_pan->get_position() <= _margin_min)
-      _pan->set_position(0);
-    else if ( _margin_max >= ((_vertical ? _pan->get_height() : _pan->get_width()) - _pan->get_position()))
+    if (_pan->get_position() <= _top_or_left_limit) //If Paned position is lower than specified limit.
+    {
+      if (_allow_sticky)
+      {
+        if (!_was_hidden && _state_notifier_cb)
+        {
+          _was_hidden = true;
+          _state_notifier_cb(PANED_HIDDEN);
+        }
+        _pan->set_position(0); //Hide it if it should be sticky.
+      }
+      else
+        _pan->set_position(_top_or_left_limit); //Prevent making it smaller if it's not sticky
+    } //If Paned is smaller than minimum size allowed by the _bottom_or_right_limit
+    else if ( _bottom_or_right_limit >= ((_vertical ? _pan->get_height() : _pan->get_width()) - _pan->get_position()))
+    {
+        //Set it fully visible
         _pan->set_position(_pan->property_max_position());
+        if (!_was_hidden && _state_notifier_cb)
+        {
+          _was_hidden = true;
+          _state_notifier_cb(PANED_FULLY_VISIBLE);
+        }
+    }
+    else
+    {
+      if(_was_hidden && _state_notifier_cb)
+      {
+        _was_hidden = false;
+        _state_notifier_cb(PANED_VISIBLE);
+      }
+    }
   }
 
   _reentrant = false;
 }
 
-PanedConstrainer::PanedConstrainer(Gtk::Paned *pan) : _pan(pan), _vertical(true)
+PanedConstrainer::PanedConstrainer(Gtk::Paned *pan) : _pan(pan), _vertical(true), _allow_sticky(true), _was_hidden(false)
 {
   _reentrant = false;
-  _margin_min = 60;
-  _margin_max = 60;
+  _top_or_left_limit = 60;
+  _bottom_or_right_limit = 60;
 
   if (_pan)
   {
@@ -610,15 +638,26 @@ PanedConstrainer::PanedConstrainer(Gtk::Paned *pan) : _pan(pan), _vertical(true)
     _size_alloc_sig = _pan->signal_size_allocate().connect(sigc::mem_fun(this, &PanedConstrainer::size_alloc));
   }
 }
-void PanedConstrainer::make_constrainer(Gtk::Paned *paned, int min_size, int max_size)
+PanedConstrainer* PanedConstrainer::make_constrainer(Gtk::Paned *paned, int top_or_left_limit, int bottom_or_right_limit)
 {
   if (paned)
   {
     PanedConstrainer *pc = new PanedConstrainer(paned);
-    pc->set_margin(min_size, max_size);
+    pc->set_limit(top_or_left_limit, bottom_or_right_limit);
     paned->set_data("paned_constrainer", pc);
     paned->add_destroy_notify_callback(reinterpret_cast<void*>(pc), &PanedConstrainer::destroy);
+    return pc;
   }
+  throw std::logic_error("Gtk::Paned is empty");
+}
+void PanedConstrainer::disable_sticky(bool disable)
+{
+  _allow_sticky = !disable;
+}
+
+void PanedConstrainer::set_state_cb(const state_notifier &cb)
+{
+  _state_notifier_cb = cb;
 }
 
 PanedConstrainer::~PanedConstrainer()
@@ -636,10 +675,10 @@ void *PanedConstrainer::destroy(void *data)
   return 0;
 }
 
-void PanedConstrainer::set_margin(int min, int max)
+void PanedConstrainer::set_limit(int top_or_left, int bottom_or_right)
 {
-  _margin_min = min;
-  _margin_max = max;
+  _top_or_left_limit = top_or_left;
+  _bottom_or_right_limit = bottom_or_right;
 }
 
 Gtk::Paned* PanedConstrainer::get()

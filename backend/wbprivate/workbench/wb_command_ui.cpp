@@ -732,7 +732,8 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         
         item = mforms::manage(new mforms::MenuItem(caption, type));
         item->set_name(cmd.args.empty() ? cmd.name : cmd.name+":"+cmd.args);
-        item->set_shortcut(mitem->shortcut());
+        if (!mitem->shortcut().empty())
+          item->set_shortcut(mitem->shortcut());
         scoped_connect(item->signal_clicked(),boost::bind(activate_slot, mitem->command()));
         //update_item_state(mitem, cmd, item);
         if (!enabled)

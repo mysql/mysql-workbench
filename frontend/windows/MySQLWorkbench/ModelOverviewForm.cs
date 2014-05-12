@@ -343,24 +343,28 @@ namespace MySQL.GUI.Workbench
       {
         wbOverview.refresh_node(node, false);
 
-        if (nodeType == (int)Overview.NodeType.Item)
+        switch ((Overview.NodeType)nodeType)
         {
-          // find the object in its container
-          NodeIdWrapper parent = wbOverview.get_parent(node);
-          if (listsByNode.ContainsKey(parent.repr()))
-          {
-            ListView list = listsByNode[parent.repr()];
-            UpdateListViewNode(node, list);
-          }
-        }
-        else
-        {
-          // find the control for the id
-          if (nodeType == (int)Overview.NodeType.Section)
-          {
+          case Overview.NodeType.Root:
+            // Do nothing. We refresh the entire content with the model refresh notification.
+            break;
+
+          case Overview.NodeType.Item:
+            // find the object in its container
+            NodeIdWrapper parent = wbOverview.get_parent(node);
+            if (listsByNode.ContainsKey(parent.repr()))
+            {
+              ListView list = listsByNode[parent.repr()];
+              UpdateListViewNode(node, list);
+            }
+            break;
+
+            
+          case Overview.NodeType.Section:
             // a CollapsingPanel
-          }
-          else if (nodeType == (int)Overview.NodeType.Group)
+            break;
+
+          case Overview.NodeType.Group:
           {
             // schema tabs
             if (panelsByNode.ContainsKey(wbOverview.get_parent(node).repr()))
@@ -370,9 +374,11 @@ namespace MySQL.GUI.Workbench
               panel.Refresh();
               panel.Update();
             }
+            break;
           }
-          else
-            throw new Exception("not handled");
+
+          default:
+            throw new Exception("Model overview: invalid node type found");
         }
       }
     }

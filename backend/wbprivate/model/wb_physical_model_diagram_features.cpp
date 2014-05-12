@@ -22,6 +22,7 @@
 #include "wbcanvas/workbench_physical_connection_impl.h"
 #include "wbcanvas/workbench_physical_tablefigure_impl.h"
 
+#include "mforms/form.h"
 #include "mforms/popover.h"
 #include "mforms/label.h"
 
@@ -97,7 +98,8 @@ void PhysicalModelDiagramFeatures::on_figure_crossed(const model_ObjectRef &owne
     if (over != _last_over_item)
     {
       _last_over_item= over;
-      tooltip_setup(owner);
+      if (mforms::Form::main_form()->is_active())
+        tooltip_setup(owner);
     }
   }
   else
@@ -163,12 +165,20 @@ PhysicalModelDiagramFeatures::PhysicalModelDiagramFeatures(ModelDiagramForm *dia
   
   model_Diagram::ImplData *impl= diagram->get_model_diagram()->get_data();
   
-  scoped_connect(impl->signal_selection_changed(),boost::bind(&PhysicalModelDiagramFeatures::on_selection_changed, this));
+  scoped_connect(impl->signal_selection_changed(),
+    boost::bind(&PhysicalModelDiagramFeatures::on_selection_changed, this));
   
-  scoped_connect(impl->signal_item_crossed(),boost::bind(&PhysicalModelDiagramFeatures::on_figure_crossed, this, _1, _2, _3, _4));
-  scoped_connect(impl->signal_item_double_click(),boost::bind(&PhysicalModelDiagramFeatures::on_figure_double_click, this, _1, _2, _3, _4, _5));
-  scoped_connect(impl->signal_item_mouse_button(),boost::bind(&PhysicalModelDiagramFeatures::on_figure_mouse_button, this, _1, _2, _3, _4, _5, _6));
-  scoped_connect(impl->signal_object_will_unrealize(),boost::bind(&PhysicalModelDiagramFeatures::on_figure_will_unrealize, this, _1));
+  scoped_connect(impl->signal_item_crossed(),
+    boost::bind(&PhysicalModelDiagramFeatures::on_figure_crossed, this, _1, _2, _3, _4));
+  scoped_connect(impl->signal_item_double_click(),
+    boost::bind(&PhysicalModelDiagramFeatures::on_figure_double_click, this, _1, _2, _3, _4, _5));
+  scoped_connect(impl->signal_item_mouse_button(),
+    boost::bind(&PhysicalModelDiagramFeatures::on_figure_mouse_button, this, _1, _2, _3, _4, _5, _6));
+  scoped_connect(impl->signal_object_will_unrealize(),
+    boost::bind(&PhysicalModelDiagramFeatures::on_figure_will_unrealize, this, _1));
+
+  scoped_connect(mforms::Form::main_form()->signal_deactivated(),
+                 boost::bind(&PhysicalModelDiagramFeatures::tooltip_cancel, this));
 }
 
 

@@ -301,6 +301,9 @@ void SqlEditorForm::finish_startup()
 
   this->check_server_problems();
 
+  // refresh snippets again, in case the initial load from DB is pending for shared snippets
+  _side_palette->refresh_snippets();
+
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", wbsql()->get_grt_editor_object(this), grt::DictRef());
 }
 
@@ -884,25 +887,25 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
     throw std::runtime_error("MySQL Server version is older than 5.0, which is not supported");
   }
 
-  // Activate the schema that was last active when this connection was open.
-  // If there's no active schema use the default schema.
+  // Activate default schema, if it's empty, use last active
   if (dbc_conn->active_schema.empty())
   {
-    std::string last_default = temp_connection->parameterValues().get_string("DbSqlEditor:LastDefaultSchema");
-    if (last_default.empty())
-      last_default = temp_connection->parameterValues().get_string("schema");
-    if (!last_default.empty())
+    std::string default_schema = temp_connection->parameterValues().get_string("schema");
+
+    if (default_schema.empty())
+      default_schema = temp_connection->parameterValues().get_string("DbSqlEditor:LastDefaultSchema");
+    if (!default_schema.empty())
     {
       try
       {
-        dbc_conn->ref->setSchema(last_default);
-        dbc_conn->active_schema = last_default;
+        dbc_conn->ref->setSchema(default_schema);
+        dbc_conn->active_schema = default_schema;
 
-        _grtm->run_once_when_idle(this, boost::bind(&set_active_schema, shared_from_this(), last_default));
+        _grtm->run_once_when_idle(this, boost::bind(&set_active_schema, shared_from_this(), default_schema));
       }
       catch (std::exception &exc)
       {
-        log_error("Can't restore LastDefaultSchema (%s): %s", last_default.c_str(), exc.what());
+        log_error("Can't restore DefaultSchema (%s): %s", default_schema.c_str(), exc.what());
         temp_connection->parameterValues().gset("DbSqlEditor:LastDefaultSchema", "");
       }
     }
@@ -1708,7 +1711,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     if (statement_ranges.size() > 1)
     {
       query_ps_stats = false;
-      query_ps_statement_events_error = "Query stats can only be fetched when a sigle statement is executed.";
+      query_ps_statement_events_error = "Query stats can only be fetched when a single statement is executed.";
     }
 
     if (!max_query_size_to_log || max_query_size_to_log >= (int)sql->size())
@@ -1957,7 +1960,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
 
                     Recordset::Ref rs= Recordset::create(exec_sql_task);
                     rs->is_field_value_truncation_enabled(true);
-                    rs->apply_changes= boost::bind(&SqlEditorForm::apply_changes_to_recordset, this, Recordset::Ptr(rs));
+                    rs->apply_changes_cb= boost::bind(&SqlEditorForm::apply_changes_to_recordset, this, Recordset::Ptr(rs));
                     rs->on_close.connect(boost::bind(&SqlEditorForm::on_close_recordset, this, _1));
                     rs->caption(strfmt("%s %i",
                                        (table_name.empty() ? _("Result") : table_name.c_str()),
@@ -2837,12 +2840,26 @@ std::set<std::string> SqlEditorForm::valid_charsets()
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorForm::save_snippet(const std::string &text)
+bool SqlEditorForm::save_snippet()
 {
-  if (text.empty()) return false;
-  
+  Sql_editor::Ref editor = active_sql_editor();
+  if (!editor)
+    return false;
+  std::string text;
+  size_t start, end;
+  if (editor->selected_range(start, end))
+    text = editor->selected_text();
+  else
+    text = editor->current_statement();
+
+  if (text.empty())
+    return false;
+
   DbSqlEditorSnippets::get_instance()->add_snippet("", text, true);
-  
+  _grtm->replace_status_text("SQL saved to snippets list.");
+
+  _side_palette->refresh_snippets();
+
   return true;
 }
 

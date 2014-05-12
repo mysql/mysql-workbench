@@ -325,10 +325,6 @@ void DrawBoxImpl::set_padding_impl(int left, int top, int right, int bottom)
 
 }
 //------------------------------------------------------------------------------
-void DrawBoxImpl::set_back_color(const std::string& s)
-{
-  mforms::gtk::set_bgcolor(&_darea, s);
-}
 
 void DrawBoxImpl::init()
 {

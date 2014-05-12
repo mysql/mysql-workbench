@@ -19,10 +19,12 @@ from mforms import newTreeNodeView, newButton, newBox, newSelector, newCheckBox,
 import mforms
 import grt
 
+from workbench.db_utils import escape_sql_string
+
 from functools import partial
 
 from wb_common import dprint_ex
-from wb_admin_utils import not_running_warning_label, weakcb, make_panel_header
+from wb_admin_utils import weakcb, WbAdminBaseTab
 import json
 
 from workbench.log import log_error
@@ -170,7 +172,86 @@ class WBThreadStack(mforms.Form):
 
 
 
-class WbAdminConnections(mforms.Box):
+class ConnectionDetailsPanel(mforms.Table):
+    def __init__(self, owner):
+        mforms.Table.__init__(self)
+
+        self.owner = owner
+
+        self.set_padding(8)
+        self.set_row_spacing(4)
+        self.set_column_spacing(4)
+        self.set_column_count(2)
+        self.set_row_count(16)
+
+        self.labels = {}
+        self.make_line("Processlist Id:", "PROCESSLIST_ID")
+        self.make_line("Thread Id:", "THREAD_ID")
+        self.make_line("Name:", "NAME")
+        self.make_line("Type:", "TYPE")
+        self.make_line("User:", "PROCESSLIST_USER")
+        self.make_line("Host:", "PROCESSLIST_HOST")
+        self.make_line("Schema:", "PROCESSLIST_DB")
+        self.make_line("Command:", "PROCESSLIST_COMMAND")
+        self.make_line("Time:", "PROCESSLIST_TIME")
+        self.make_line("State:", "PROCESSLIST_STATE")
+        self.make_line("Role:", "ROLE")
+        self.make_line("Instrumented:", "INSTRUMENTED")
+        self.make_line("Parent Thread Id:", "PARENT_THREAD_ID")
+
+        l = mforms.newLabel("Info:")
+        l.set_style(mforms.BoldStyle)
+        self.add(l, 0, 1, 13, 14, 0)
+        self.info = mforms.newCodeEditor()
+        self.info.set_features(mforms.FeatureGutter, 0)
+        self.info.set_features(mforms.FeatureReadOnly, 1)
+        self.info.set_features(mforms.FeatureWrapText, 1)
+        self.info.set_language(mforms.LanguageMySQL56)
+        self.add(self.info, 0, 2, 14, 15, mforms.HFillFlag|mforms.VFillFlag|mforms.HExpandFlag|mforms.VExpandFlag)
+
+        if self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 2):
+            self.explain = mforms.newButton()
+            self.explain.set_enabled(False)
+            self.explain.add_clicked_callback(self.owner.explain_selected)
+            self.explain.set_text("Explain for Connection")
+            self.add(self.explain, 1, 2, 15, 16, mforms.HFillFlag)
+        else:
+            self.explain = None
+
+
+
+    def make_line(self, caption, name):
+        i = len(self.labels)
+        l = mforms.newLabel(caption)
+        l.set_style(mforms.BoldStyle)
+        self.add(l, 0, 1, i, i+1, 0)
+        l = mforms.newLabel("")
+        self.add(l, 1, 2, i, i+1, mforms.HFillFlag|mforms.HExpandFlag)
+        self.labels[name] = l
+
+
+    def update(self, node):
+        self.labels["PROCESSLIST_ID"].set_text("%s" % node.get_long(0) if node else "")
+        self.labels["PROCESSLIST_USER"].set_text(node.get_string(1) if node else "")
+        self.labels["PROCESSLIST_HOST"].set_text(node.get_string(2) if node else "")
+        self.labels["PROCESSLIST_DB"].set_text(node.get_string(3) if node else "")
+        self.labels["PROCESSLIST_COMMAND"].set_text(node.get_string(4) if node else "")
+        self.labels["PROCESSLIST_TIME"].set_text("%s" % node.get_long(5) if node else "")
+        self.labels["PROCESSLIST_STATE"].set_text(node.get_string(6) if node else "")
+        self.labels["THREAD_ID"].set_text("%s" % node.get_long(7) if node else "")
+        self.labels["TYPE"].set_text(node.get_string(8) if node else "")
+        self.labels["NAME"].set_text(node.get_string(9) if node else "")
+        self.labels["PARENT_THREAD_ID"].set_text("%s" % node.get_long(10) if node else "")
+        self.labels["INSTRUMENTED"].set_text(node.get_string(11) if node else "")
+
+        self.info.set_features(mforms.FeatureReadOnly, 0)
+        self.info.set_value(node.get_tag() if node else "")
+        self.info.set_features(mforms.FeatureReadOnly, 1)
+        if self.explain:
+            self.explain.set_enabled(node and node.get_tag())
+
+
+class WbAdminConnections(WbAdminBaseTab):
     ui_created = False
     serial = 0
 
@@ -212,6 +293,18 @@ class WbAdminConnections(mforms.Box):
                             ]
             self.long_int_columns = [0, 5, 7, 10]
             self.info_column = 12
+
+            get_path = mforms.App.get().get_resource_path
+            self.icon_for_object_type = {
+                "GLOBAL" : "",
+                "SCHEMA" : get_path("db.Schema.16x16.png"),
+                "TABLE" : get_path("db.Table.16x16.png"),
+                "FUNCTION" : get_path("db.Role.16x16.png"),
+                "PROCEDURE" : get_path("db.Role.16x16.png"),
+                "TRIGGER" : get_path("db.Trigger.16x16.png"),
+                "EVENT" : get_path("GrtObject.16x16.png"),
+                "COMMIT" : get_path("db.Column.16x16.png")
+            }
         else:
             self.columns = [("Id", mforms.LongIntegerColumnType, "Id", 50),
                             ("User", mforms.StringColumnType, "User", 80),
@@ -229,11 +322,7 @@ class WbAdminConnections(mforms.Box):
         dprint_ex(4, "Enter")
         self.suspend_layout()
 
-        self.heading = make_panel_header("title_connections.png", self.instance_info.name, "Client Connections")
-        self.add(self.heading, False, False)
-
-        self.warning = not_running_warning_label()
-        self.add(self.warning, False, True)
+        self.create_basic_ui("title_connections.png", "Client Connections")
 
         if self.new_processlist():
             widths = grt.root.wb.state.get("wb.admin:ConnectionListColumnWidthsPS", None)
@@ -244,6 +333,8 @@ class WbAdminConnections(mforms.Box):
         else:
             column_widths = None
 
+        self.connection_box = mforms.newBox(True)
+        self.connection_box.set_spacing(8)
         self.connection_list = newTreeNodeView(mforms.TreeDefault|mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.connection_list.set_selection_mode(mforms.TreeSelectMultiple)
         self.connection_list.add_column_resized_callback(self.column_resized)
@@ -256,6 +347,8 @@ class WbAdminConnections(mforms.Box):
         self.connection_list.set_allow_sorting(True)
         
         self.connection_list.add_changed_callback(weakcb(self, "connection_selected"))
+
+        self.connection_box.add(self.connection_list, True, True)
 
         info_table = mforms.newTable()
         info_table.set_row_count(2)
@@ -279,7 +372,7 @@ class WbAdminConnections(mforms.Box):
         self.add(info_table, False, True)
 
         #self.set_padding(8)
-        self.add(self.connection_list, True, True)
+        self.add(self.connection_box, True, True)
 
 
         box = newBox(True)
@@ -334,20 +427,84 @@ class WbAdminConnections(mforms.Box):
         self.hide_sleep_connections = newCheckBox()
         self.hide_sleep_connections.set_text('Hide sleeping connections')
         self.hide_sleep_connections.add_clicked_callback(self.refresh)
+        self.hide_sleep_connections.set_tooltip('Remove connections in the Sleeping state from the connection list.')
         self.check_box.add(self.hide_sleep_connections, False, True)
-        
+
+        self.mdl_locks_page = None
+        self._showing_extras = False
         if self.new_processlist():
             self.hide_background_threads = newCheckBox()
             self.hide_background_threads.set_active(True)
             self.hide_background_threads.set_text('Hide background threads')
+            self.hide_background_threads.set_tooltip('Remove background threads (internal server threads) from the connection list.')
             self.hide_background_threads.add_clicked_callback(self.refresh)
             self.check_box.add(self.hide_background_threads, False, True)
             
             self.truncate_info = newCheckBox()
             self.truncate_info.set_active(True)
             self.truncate_info.set_text('Don\'t load full thread info')
+            self.truncate_info.set_tooltip('Toggle whether to load the entire query information for all connections or just the first 255 characters.\nEnabling this can have a large impact in busy servers or server executing large INSERTs.')
             self.truncate_info.add_clicked_callback(self.refresh)
             self.check_box.add(self.truncate_info, False, True)
+
+            # tab with some extra info, only available if PS exists
+            self.extra_info_tab = mforms.newTabView(mforms.TabViewSystemStandard)
+            self.extra_info_tab.set_size(350, -1)
+            self.extra_info_tab.add_tab_changed_callback(self.extra_tab_changed)
+
+            self.connection_details = ConnectionDetailsPanel(self)
+            self.details_page = self.extra_info_tab.add_page(self.connection_details, "Details")
+
+            self.mdl_list_box = None
+            if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 3):
+                self.mdl_list_box = mforms.newBox(False)
+                self.mdl_list_box.set_spacing(4)
+                self.mdl_list_box.set_padding(8)
+
+                self.mdl_label = mforms.newLabel('Metadata locks (MDL) protect concurrent access to\nobject metadata (not table row/data locks)')
+                self.mdl_list_box.add(self.mdl_label, False, True)
+
+                label = mforms.newLabel("\nGranted Locks (and threads waiting on them)")
+                label.set_style(mforms.BoldStyle)
+                self.mdl_list_box.add(label, False, True)
+                label = mforms.newLabel("Locks this connection currently owns and\nconnections that are waiting for them.")
+                label.set_style(mforms.SmallHelpTextStyle)
+                self.mdl_list_box.add(label, False, True)
+
+                self.mdl_list_held = mforms.newTreeNodeView(mforms.TreeAltRowColors)
+                self.mdl_list_held.add_column(mforms.IconStringColumnType, "Object", 150, False)
+                self.mdl_list_held.add_column(mforms.StringColumnType, "Type", 100, False)
+                self.mdl_list_held.add_column(mforms.StringColumnType, "Duration", 100, False)
+                self.mdl_list_held.end_columns()
+                self.mdl_list_box.add(self.mdl_list_held, True, True)
+
+                label = mforms.newLabel("\nPending Locks")
+                label.set_style(mforms.BoldStyle)
+                self.mdl_list_box.add(label, False, True)
+                hbox = mforms.newBox(True)
+                hbox.set_spacing(4)
+                self.mdl_blocked_icon = mforms.newImageBox()
+                self.mdl_blocked_icon.set_image(mforms.App.get().get_resource_path("message_warning.png"))
+                hbox.add(self.mdl_blocked_icon, False, True)
+                self.mdl_waiting_label = mforms.newLabel("Locks this connection is currently waiting for.")
+                hbox.add(self.mdl_waiting_label, True, True)
+                self.mdl_list_box.add(hbox, False, True)
+                self.mdl_locks_page = self.extra_info_tab.add_page(self.mdl_list_box, "Locks")
+
+            if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 0):
+                self.attributes_list = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)
+                self.attributes_list.add_column(mforms.StringColumnType, "Attribute", 150, False)
+                self.attributes_list.add_column(mforms.StringColumnType, "Value", 200, False)
+                self.attributes_list.end_columns()
+                self.attributes_page = self.extra_info_tab.add_page(self.attributes_list, "Attributes")
+
+            self.connection_box.add(self.extra_info_tab, False, True)
+            self.extra_info_tab.show(False)
+
+            self.show_extras = newButton()
+            self.show_extras.set_text('Show Details')
+            self.show_extras.add_clicked_callback(self.toggle_extras)
+            self.check_box.add_end(self.show_extras, False, True)
 
         self.add(self.check_box, False, True)
         
@@ -418,8 +575,8 @@ class WbAdminConnections(mforms.Box):
             if selected_conn:
                 user_thread = self.new_processlist() == False
                 if not user_thread:
-                    user_thread = len([sel for sel in selected_conn if not sel.get_string(8).startswith('BACKGROUND')]) == 0
-                         
+                    user_thread = len([sel for sel in selected_conn if not sel.get_string(8).startswith('BACKGROUND')]) > 0
+
                 item = self._menu.add_item_with_title("Copy", self.copy_selected, "copy_selected")
                 item = self._menu.add_item_with_title("Copy Info", self.copy_selected_info, "copy_selected_info")
                 item = self._menu.add_item_with_title("Show in Editor", self.edit_selected, "edit_selected")
@@ -475,37 +632,166 @@ class WbAdminConnections(mforms.Box):
                     if result.intByIndex(1) == 1:
                         return True
         return False
-            
+
+
+    def check_if_mdl_available(self):
+        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 3):
+            result = self.ctrl_be.exec_query("select count(*) from performance_schema.setup_instruments where name = 'wait/lock/metadata/sql/mdl' and enabled='YES'")
+            if result:
+                if result.nextRow():
+                    if result.intByIndex(1) == 1:
+                        return True
+        return False
+
+
     def new_processlist(self):
         return self._new_processlist
     
     def connection_selected(self):
         dprint_ex(4, "Enter")
-        if not self.connection_list.get_selection():
+        sel = self.connection_list.get_selection()
+        if not sel:
             self.kill_button.set_enabled(False)
             self.killq_button.set_enabled(False)
         else:
             self.kill_button.set_enabled(True)
             self.killq_button.set_enabled(True)
+
+        if self._showing_extras:
+            if sel and len(sel) == 1:
+                self.connection_details.update(sel[0])
+            else:
+                self.connection_details.update(None)
+            tab = self.extra_info_tab.get_active_tab()
+            if tab == self.mdl_locks_page:
+                self.refresh_mdl_list()
+            elif tab == self.attributes_page:
+                self.refresh_attr_list()
+
         dprint_ex(4, "Leave")
-    
+
+
+    def refresh_attr_list(self):
+        self.attributes_list.clear()
+
+        try:
+            nodes = self.connection_list.get_selection()
+            if nodes and len(nodes) == 1:
+                connid = nodes[0].get_long(0)
+
+                result = self.ctrl_be.exec_query("SELECT * FROM performance_schema.session_connect_attrs WHERE processlist_id = %s ORDER BY ORDINAL_POSITION" % connid)
+                while result and result.nextRow():
+                    node = self.attributes_list.add_node()
+                    node.set_string(0, result.stringByName("ATTR_NAME"))
+                    node.set_string(1, result.stringByName("ATTR_VALUE"))
+        except Exception, e:
+            import traceback
+            log_error("Error looking up attribute information: %s\n" % traceback.format_exc())
+            mforms.Utilities.show_error("Lookup Connection Attributes", "Error looking up connection attributes: %s" % e, "OK", "", "")
+
+
+    def refresh_mdl_list(self):
+        self.mdl_list_held.clear()
+
+        self.mdl_blocked_icon.show(False)
+        waiting_label_text = "This connection is not waiting for any locks."
+
+        try:
+            nodes = self.connection_list.get_selection()
+            if nodes and len(nodes) == 1:
+                thread_id = nodes[0].get_long(7)
+
+                result = self.ctrl_be.exec_query("SELECT * FROM performance_schema.metadata_locks WHERE owner_thread_id = %s" % thread_id)
+                if result is not None:
+                    while result.nextRow():
+                        lock_status = result.stringByName("LOCK_STATUS")
+                        if lock_status == "PENDING":
+                            otype = result.stringByName("OBJECT_TYPE")
+                            oschema = result.stringByName("OBJECT_SCHEMA")
+                            oname = result.stringByName("OBJECT_NAME")
+                            obj_name = [oschema, oname]
+                            if otype == "GLOBAL":
+                                obj_name = "<global>"
+                            else:
+                                obj_name =  ".".join([o for o in obj_name if o is not None])
+                            self.mdl_blocked_icon.show(True)
+
+                            sub_expr = "OBJECT_TYPE = '%s'" % otype
+                            if oschema:
+                                sub_expr += " AND OBJECT_SCHEMA = '%s'" % escape_sql_string(oschema)
+                            if oname:
+                                sub_expr += " AND OBJECT_NAME = '%s'" % escape_sql_string(oname)
+
+                            lock_type = result.stringByName("LOCK_TYPE")
+                            lock_duration = result.stringByName("LOCK_DURATION")
+
+                            subresult = self.ctrl_be.exec_query("""SELECT *
+                                FROM performance_schema.metadata_locks
+                                WHERE %s AND LOCK_STATUS = 'GRANTED'""" % sub_expr)
+                            owners = []
+                            while subresult and subresult.nextRow():
+                                owners.append(subresult.intByName("OWNER_THREAD_ID"))
+                            owner_list = ", ".join([str(i) for i in owners])
+                            if len(owners) == 1:
+                                waiting_label_text = "The connection is waiting for a lock on\n%s %s,\nheld by thread %s." % (otype.lower(), obj_name, owner_list)
+                            else:
+                                waiting_label_text = "The connection is waiting for a lock on\n%s %s,\nheld by threads %s" % (otype.lower(), obj_name, owner_list)
+                            waiting_label_text += "\Type: %s  Duration: %s" % (lock_type, lock_duration)
+                        elif lock_status == "GRANTED":
+                            node = self.mdl_list_held.add_node()
+
+                            otype = result.stringByName("OBJECT_TYPE")
+                            oschema = result.stringByName("OBJECT_SCHEMA")
+                            oname = result.stringByName("OBJECT_NAME")
+                            obj_name = [oschema, oname]
+                            if otype == "GLOBAL":
+                                node.set_string(0, "<global>")
+                            else:
+                                node.set_string(0, ".".join([o for o in obj_name if o is not None]))
+                            node.set_icon_path(0, self.icon_for_object_type.get(otype))
+
+                            sub_expr = "OBJECT_TYPE = '%s'" % otype
+                            if oschema:
+                                sub_expr += " AND OBJECT_SCHEMA = '%s'" % escape_sql_string(oschema)
+                            if oname:
+                                sub_expr += " AND OBJECT_NAME = '%s'" % escape_sql_string(oname)
+
+                            node.set_string(1, result.stringByName("LOCK_TYPE"))
+                            node.set_string(2, result.stringByName("LOCK_DURATION"))
+
+                            subresult = self.ctrl_be.exec_query("""SELECT OWNER_THREAD_ID, LOCK_TYPE, LOCK_DURATION
+                                        FROM performance_schema.metadata_locks
+                                        WHERE %s AND LOCK_STATUS = 'PENDING'""" % sub_expr)
+                            while subresult and subresult.nextRow():
+                                subnode = node.add_child()
+                                subnode.set_string(0, "thread %s" % subresult.intByName("OWNER_THREAD_ID"))
+                                subnode.set_string(1, subresult.stringByName("LOCK_TYPE"))
+                                subnode.set_string(2, subresult.stringByName("LOCK_DURATION"))
+            else:
+                waiting_label_text = ""
+        except Exception, e:
+            import traceback
+            log_error("Error looking up metadata lock information: %s\n" % traceback.format_exc())
+            mforms.Utilities.show_error("Lookup Metadata Locks", "Error looking up metadata lock information: %s" % e, "OK", "", "")
+
+        self.mdl_waiting_label.set_text(waiting_label_text)
+
+
     def page_activated(self):
+        WbAdminBaseTab.page_activated(self)
+
         if not self.ui_created:
             self.create_ui()
             self.ui_created = True
         
         self.page_active = True
         if self.ctrl_be.is_sql_connected():
-            self.warning.show(False)
-            self.heading.show(True)
-            self.connection_list.show(True)
+            self.connection_box.show(True)
             self.info_table.show(True)
             self.button_box.show(True)
             self.check_box.show(True)
         else:
-            self.warning.show(True)
-            self.heading.show(False)
-            self.connection_list.show(False)
+            self.connection_box.show(False)
             self.info_table.show(False)
             self.button_box.show(False)
             self.check_box.show(False)
@@ -584,10 +870,57 @@ class WbAdminConnections(mforms.Box):
             try:
                 self.ctrl_be.exec_sql("UPDATE performance_schema.threads SET instrumented = '%s' WHERE thread_id = %d LIMIT 1" % (instr_state, connid))
             except Exception, e:
-                mforms.Utilities.show_error("Update Thread Instrumentation", "Error setting instrumentation for thread %d: %s" % (connid, e), "OK",  "", "")
+                log_error("Error enabling thread instrumentation: %s\n" % e)
+                mforms.Utilities.show_error("Toggle Thread Instrumentation", "Error setting instrumentation for thread %d: %s" % (connid, e), "OK",  "", "")
                 break
 
         self.refresh()
+
+
+    def extra_tab_changed(self):
+        self.connection_selected()
+
+
+    def enable_mdl_instrumentation(self):
+        try:
+            self.ctrl_be.exec_sql("UPDATE performance_schema.setup_instruments SET enabled='YES' WHERE name = 'wait/lock/metadata/sql/mdl'")
+        except Exception, e:
+            log_error("Error enabling MDL instrumentation: %s\n" % e)
+            mforms.Utilities.show_error("Enable MDL Instrumentation", "Error enabling performance_schema MDL instrumentation.\n%s" % e, "OK",  "", "")
+            return
+
+        self._mdl_enabled = self.check_if_mdl_available()
+        if self._mdl_enabled:
+            self.mdl_list_box.remove(self.mdl_enable_button_sep)
+            self.mdl_list_box.remove(self.mdl_enable_button)
+            self.mdl_enable_button_sep = None
+            self.mdl_enable_button = None
+        else:
+            log_error("MDL instrumentation enabled, but it's still disabled!?\n")
+
+
+    _mdl_enabled = None
+    def toggle_extras(self):
+        self._showing_extras = not self._showing_extras
+        if self._showing_extras:
+            if self._mdl_enabled is None:
+                self._mdl_enabled = self.check_if_mdl_available()
+
+            if not self._mdl_enabled and self.mdl_list_box:
+                self.mdl_enable_button_sep = mforms.newLabel("\n\nMDL instrumentation is currently disabled.\nClick [Enable Instrumentation] to enable it.")
+                self.mdl_list_box.add(self.mdl_enable_button_sep, False, True)
+
+                self.mdl_enable_button = mforms.newButton()
+                self.mdl_enable_button.add_clicked_callback(self.enable_mdl_instrumentation)
+                self.mdl_enable_button.set_text("Enable Instrumentation")
+                self.mdl_list_box.add(self.mdl_enable_button, False, True)
+
+            self.extra_info_tab.show(True)
+            self.connection_selected()
+            self.show_extras.set_text("Hide Details")
+        else:
+            self.extra_info_tab.show(False)
+            self.show_extras.set_text("Show Details")
 
 
     def view_thread_stack(self):

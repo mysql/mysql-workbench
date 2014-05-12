@@ -24,9 +24,13 @@ from workbench.log import log_error
 from workbench.graphics.canvas import VBoxFigure, Canvas, DiamondShapeFigure, RectangleShapeFigure, TextFigure, HFill, draw_varrow, draw_harrow
 from workbench.graphics.cairo_utils import ImageSurface, Context
 
-def decode_json(text):
-    return eval(text, {"false":False, "true":True})
+import StringIO
+import json
 
+
+def decode_json(text):
+    fp = StringIO.StringIO(text)
+    return json.load(fp)
 
 
 
@@ -294,6 +298,8 @@ class ExplainNode(VBoxFigure):
         
         text = self.get_hint_text()
         if text:
+            if type(text) is unicode:
+                text = text.encode("utf8")
             self._context.tooltip = mforms.newPopover(mforms.PopoverStyleTooltip)
 
             xx, yy = self._context.client_to_screen(fig._figure.root_x + fig.inner_width, fig._figure.root_y + fig.inner_height/2)
@@ -381,23 +387,27 @@ class NestedLoopNode(ExplainNode):
 
 
     def do_render_extras(self, cr):
-        if self.parent and not isinstance(self.parent, MaterializedTableNode):
+        if self.parent:
+            is_inside_a_box = isinstance(self.parent, MaterializedTableNode) or isinstance(self.parent, MaterializedJoinNode)
+
             cr.save()
             cr.set_source_rgba(0, 0, 0, 1)
             cr.set_line_width(self.get_line_width())
             if isinstance(self.parent, NestedLoopNode):
-                cr.move_to(self.harrow_source[0], self.parent.harrow_target[1])
-                cr.line_to(*self.parent.harrow_target)
-                cr.stroke()
-                draw_harrow(cr, self.parent.harrow_target, 10, 6)
-                cr.fill()
+                if not is_inside_a_box:
+                    cr.move_to(self.harrow_source[0], self.parent.harrow_target[1])
+                    cr.line_to(*self.parent.harrow_target)
+                    cr.stroke()
+                    draw_harrow(cr, self.parent.harrow_target, 10, 6)
+                    cr.fill()
                 self.render_row_count(cr, self.harrow_source[0] + 4, self.harrow_source[1] - 8)
             else:
-                cr.move_to(*self.varrow_source)
-                cr.line_to(self.varrow_source[0], self.parent.varrow_target[1])
-                cr.stroke()
-                draw_varrow(cr, (self.varrow_source[0], self.parent.varrow_target[1]), 10, 6)
-                cr.fill()
+                if not is_inside_a_box:
+                    cr.move_to(*self.varrow_source)
+                    cr.line_to(self.varrow_source[0], self.parent.varrow_target[1])
+                    cr.stroke()
+                    draw_varrow(cr, (self.varrow_source[0], self.parent.varrow_target[1]), 10, 6)
+                    cr.fill()
                 self.render_row_count(cr, self.varrow_source[0] + 4, self.varrow_source[1])
             cr.restore()
 
@@ -742,8 +752,6 @@ Cacheable: %(cacheable)s
         return text
 
 
-
-
 class OperationNode(ExplainNode):
     is_operation = True
 
@@ -823,7 +831,7 @@ class OperationNode(ExplainNode):
 
 
     def do_render_extras(self, cr):
-        if self.parent and not isinstance(self.parent, MaterializedTableNode):
+        if self.parent and not isinstance(self.parent, MaterializedTableNode) and not isinstance(self.parent, MaterializedJoinNode):
             cr.save()
             cr.set_source_rgba(0, 0, 0, 1)
             cr.set_line_width(self.get_line_width())
@@ -854,7 +862,7 @@ class OperationNode(ExplainNode):
         child = self.child
         child.do_relayout(ctx)
 
-        if isinstance(child, NestedLoopNode) or isinstance(child, TableNode):
+        if (isinstance(child, NestedLoopNode) or isinstance(child, MaterializedJoinNode)) or isinstance(child, TableNode):
             self._width = max(child.width, self.width)
             self._height = child.height + self._context.vspacing + self.inner_height
             if child.width > self._figure.width:
@@ -995,9 +1003,9 @@ class QueryBlockNode(ExplainNode):
         if child:
             child.do_relayout(ctx)
 
-            child.move(self.width, self._figure.y)
+            child.move(self.width + self._context.small_hspacing, self._figure.y)
 
-            self._width += child.width
+            self._width += self._context.small_hspacing + child.width + self._context.small_hspacing
             self._height = max(self._height, child.height)
 
 
@@ -1080,6 +1088,131 @@ class SubQueryBlockNode(QueryBlockNode):
 
     def __repr__(self):
         return "subquery"
+
+
+
+class MaterializedJoinNode(ExplainNode):
+    def __init__(self, context, name, nested_loop, info, cost_info, attributes):
+        ExplainNode.__init__(self, context)
+
+        self.set_spacing(0)
+        self.set_padding(10, 10, 10, 10)
+
+        self._figure = RectangleShapeFigure(name)
+        self._figure.set_layout_flags(HFill)
+        self._figure.set_line_width(1)
+        self._figure.set_color(0.5, 0.5, 0.5, 0.8)
+        self._figure.set_fill_color(0.5, 0.5, 0.5, 0.8)
+        self._figure.set_font_bold(True)
+        self._figure.set_padding(6, 4, 6, 4)
+        self.add(self._figure)
+
+        self.attributes = attributes
+        attrs = []
+        if self.attributes.get("using_temporary_table"):
+            attrs.append("tmp table")
+        if attrs:
+            self._figure_message = TextFigure(",".join(attrs))
+            self._figure_message.set_font_bold(True)
+            self._figure_message.set_font_size(10)
+            self.add(self._figure_message)
+        else:
+            self._figure_message = None
+
+        self.nested_loop = nested_loop
+        nested_loop.parent = self
+
+        self.info = info
+        self.cost_info = cost_info
+        self.child = nested_loop
+
+
+    @property
+    def inner_height(self):
+        h = self._figure.height
+        return h
+
+    @property
+    def inner_width(self):
+        return self.width
+
+    @property
+    def vconnect_pos_offset(self):
+        return self.width/2
+
+    @property
+    def children(self):
+        result = []
+        if self.child:
+            result.append(self.child)
+        return result
+
+    def get_hint_text(self):
+        d = {
+        "using_temporary_table":False
+        }
+        d.update(self.attributes)
+        text = """*Buffered Join Result
+Using Temporary Table: %(using_temporary_table)s
+""" % d
+        return text
+
+    def do_relayout(self, ctx):
+        ExplainNode.do_relayout(self, ctx)
+
+        # calculate layout of the child item
+        child = self.child
+        if child:
+            child.do_relayout(ctx)
+            
+            child_width = child.width
+            
+            # increase the size of this item, to allow fitting the child item
+            self._width = child_width + self.padding_left + self.padding_right
+            self._height = self.inner_height + self._context.vspacing + child.height + self.padding_top + self.padding_bottom
+            
+            # position the child
+            child.move(self.padding_left, self.inner_height + self._context.vspacing)
+
+            # position the inner figure of the node so it aligns with the center of the child
+            self._figure.move(0, 0)
+
+
+    def __repr__(self):
+        return "<"+self.name+">"
+
+
+    def do_render(self, ctx):
+        ExplainNode.do_render(self, ctx)
+        ctx.save()
+        ctx.translate(self.x, self.y)
+        ctx.rectangle(0.5, 0.5, int(self._width), int(self._height)-1)
+        ctx.set_line_width(2)
+        ctx.set_dash([4.0, 2.0], 0)
+        ctx.set_source_rgba(0.5, 0.5, 0.5, 0.9)
+        ctx.stroke()
+        ctx.restore()
+
+    def do_render_extras(self, cr):
+        if self.parent and not isinstance(self.parent, MaterializedTableNode):
+            cr.save()
+            cr.set_source_rgba(0, 0, 0, 1)
+            cr.set_line_width(self.get_line_width())
+            if isinstance(self.parent, NestedLoopNode):
+                cr.move_to(self.harrow_source[0], self.parent.harrow_target[1])
+                cr.line_to(*self.parent.harrow_target)
+                cr.stroke()
+                draw_harrow(cr, self.parent.harrow_target, 10, 6)
+                cr.fill()
+                self.render_row_count(cr, self.harrow_source[0] + 4, self.harrow_source[1] - 8)
+            else:
+                cr.move_to(*self.varrow_source)
+                cr.line_to(self.varrow_source[0], self.parent.varrow_target[1])
+                cr.stroke()
+                draw_varrow(cr, (self.varrow_source[0], self.parent.varrow_target[1]), 10, 6)
+                cr.fill()
+                self.render_row_count(cr, self.varrow_source[0] + 4, self.varrow_source[1])
+            cr.restore()
 
 
 class SubQueries(ExplainNode):
@@ -1216,7 +1349,6 @@ class ExplainContext:
             self._root = nodes[0]
         
             if False:
-                import StringIO
                 s = StringIO.StringIO()
                 self._root.dump(s)
                 print s.getvalue()
@@ -1251,9 +1383,9 @@ class ExplainContext:
             attached_subqueries = None
 
         if 'rows_examined_per_scan' not in table:
-            table['rows_examined_per_scan'] = table.get('rows')
+            table['rows_examined_per_scan'] = (table.get('rows') or 0)
         if 'rows_produced_per_join' not in table:
-            table['rows_produced_per_join'] = table.get('rows') * int(table.get('filtered', 0)) / 100
+            table['rows_produced_per_join'] = (table.get('rows') or 0) * int(table.get('filtered', 0)) / 100
 
         # table nodes that have a materialized_from_subquery node are not real tables
         # so show them as a container for the subquery that it executes
@@ -1416,6 +1548,10 @@ class ExplainContext:
             elif key == "select_list_subqueries":
                 # select (select ...) from ...
                 select_list_subqueries = self.handle_attached_subqueries(key, value)
+            elif key == "buffer_result":
+                # buffer_result is a materialized JOIN
+                assert content is None
+                content = self.handle_query_block(key, value)
             else:
                 self.unexpected(key, name)
         if name == "query_block":
@@ -1436,6 +1572,8 @@ class ExplainContext:
                                       select_list_subqueries,
                                       info=data,
                                       cost_info=cost_info)
+        elif name == "buffer_result":
+            return MaterializedJoinNode(self, name, content, data, cost_info, attributes)
         else:
             if optimized_away_subqueries:
                 return OperationNode(self, name, content, cost_info, attributes, optimized_away_subqueries)
@@ -1458,7 +1596,6 @@ class ExplainContext:
     # Public interface
     def dump(self):
         if self._root:
-            import StringIO
             s = StringIO.StringIO()
             self._root.dump(s, 0)
             print s.getvalue()
@@ -1514,6 +1651,9 @@ class ExplainContext:
     def repaint(self, cr):
         cr.translate(self._offset[0], self._offset[1])
         try:
+            #cr.set_source_rgba(0, 0, 0, 1)
+            #cr.rectangle(0, 0, self.size[0], self.size[1])
+            #cr.stroke()
             self._canvas.repaint(cr, 0, 0, self.size[0], self.size[1])
         except Exception:
             import traceback
@@ -1536,4 +1676,8 @@ class ExplainContext:
         self.aggregate_costs = flag
 
 
+    def close_tooltip(self):
+        if self.tooltip:
+            self.tooltip.close()
+            self.tooltip = None
 

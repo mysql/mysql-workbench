@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,8 +47,6 @@ class LabelImpl : public ViewImpl
     static void set_color(::mforms::Label *self, const std::string &text);
     static void set_wrap_text(::mforms::Label *self, bool flag);
     static void set_text_align(::mforms::Label *self, ::mforms::Alignment align);
-
-    virtual void set_back_color(const std::string& s);
 
     void realized();
   public:

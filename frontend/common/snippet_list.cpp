@@ -215,11 +215,14 @@ public:
       cairo_stroke(cr);
     }
 
-    cairo_set_source_surface(cr, _icon, bounds.left() + SNIPPET_PADDING, bounds.top() + (int) ceil((bounds.height() - icon_height) / 2));
-    if (_enabled)
-      cairo_paint(cr);
-    else
-      cairo_paint_with_alpha(cr, 0.25);
+    if (_icon)
+    {
+      cairo_set_source_surface(cr, _icon, bounds.left() + SNIPPET_PADDING, bounds.top() + (int) ceil((bounds.height() - icon_height) / 2));
+      if (_enabled)
+        cairo_paint(cr);
+      else
+        cairo_paint_with_alpha(cr, 0.25);
+    }
 
     int text_offset= (int) (bounds.height() - _text_height) / 2;
     cairo_select_font_face(cr, SNIPPET_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
@@ -397,7 +400,7 @@ void BaseSnippetList::refresh_snippets()
     std::string description;
     _model->get_field(bec::NodeId(i), 1, description);
 
-    Snippet* snippet = new Snippet(_image, caption, description, true);
+    Snippet* snippet = new Snippet(description.empty() ? NULL : _image, caption, description, true);
     _snippets.push_back(snippet);
   }
   set_layout_dirty(true);

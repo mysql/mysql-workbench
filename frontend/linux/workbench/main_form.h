@@ -134,7 +134,7 @@ private:
   void on_configure_window(GdkEventConfigure *conf);
   void on_window_state(GdkEventWindowState *conf);
   void is_active_changed();
-  
+
   void prepare_close_document();
 
   void update_timer();

@@ -2257,28 +2257,5 @@ on some operating systems (Windows).&lt;/small&gt;</property>
         <property name="tab_fill">False</property>
       </packing>
     </child>
-    <child>
-      <object class="GtkScrolledWindow" id="inserts_recordset_view_placeholder">
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
-      <packing>
-        <property name="position">6</property>
-      </packing>
-    </child>
-    <child type="tab">
-      <object class="GtkLabel" id="label57">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Inserts</property>
-      </object>
-      <packing>
-        <property name="position">6</property>
-        <property name="tab_fill">False</property>
-      </packing>
-    </child>
   </object>
 </interface>

@@ -153,6 +153,26 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  virtual void OnActivated(EventArgs ^args) override
+  {
+    __super::OnActivated(args);
+
+    mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
+    backend->activated();
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  virtual void OnDeactivate(EventArgs ^args) override
+  {
+    __super::OnDeactivate(args);
+
+    mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
+    backend->deactivated();
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
   {
     Windows::Forms::Layout::LayoutEngine^ get() override

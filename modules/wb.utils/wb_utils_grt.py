@@ -340,7 +340,7 @@ def createMissingLocalConnections():
     
     return 1
 
-@ModuleInfo.plugin("wb.tools.connectionFromClipboard", caption="New Connection from Clipboard", input= [], pluginMenu="Home/Connections")
+@ModuleInfo.plugin("wb.tools.connectionFromClipboard", caption="Add Connection(s) from Clipboard", input= [], pluginMenu="Home/Connections")
 @ModuleInfo.export(grt.INT)
 def newConnectionFromClipboard():
     text = mforms.Utilities.get_clipboard_text()
@@ -356,12 +356,12 @@ def newConnectionFromClipboard():
     for line in text.encode("utf8").split("\n"):
         conn = connectionFromString(line)
         if not conn and not parse_errors:
-            mforms.Utilities.show_error("New Connection from Clipboard", "Could not parse connection parameters from string '%s'" % line, "OK", "", "")
+            mforms.Utilities.show_error("Add Connection(s) from Clipboard", "Could not parse connection parameters from string '%s'" % line, "OK", "", "")
             parse_errors = True
             continue
         
         if connectionStringFromConnection(conn) in existing:
-            mforms.Utilities.show_error("New Connection from Clipboard", "The connection %s already exists and was not added." % line,
+            mforms.Utilities.show_error("Add Connection(s) from Clipboard", "The connection %s already exists and was not added." % line,
                                         "OK", "", "")
             continue
         i = 1

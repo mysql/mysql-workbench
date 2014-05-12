@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -127,24 +127,51 @@ float gtk_paned_get_pos_ratio(Gtk::Paned* paned);
 void gtk_reparent_realized(Gtk::Widget *widget, Gtk::Container *new_parent);
 
 class PanedConstrainer {
+public:
+  enum PanedInfo {
+      PANED_HIDDEN, //Paned position is set to 0
+      PANED_VISIBLE, //Paned position is between 0 and it's max position.
+      PANED_FULLY_VISIBLE //Paned position is set to it's max position.
+    };
+  typedef boost::function<void (PanedInfo)> state_notifier;
+
+  /** Add sticky behaviour or limit size for Gtk::Paned widget.
+     *
+     * @param top_or_left_limit should be set to prevent Gtk::Paned to be smaller than the specified size,
+     * or to be automagically hidden when user make it smaller than that value, based on sticky behaviour.
+     * from the left or top side, depends if it's Gtk::HPaned or Gtk::VPaned. Set to 0 to disable this limit.
+     * @param bottom_or_right_limit it's similar to the previous parameter except it limits the right or bottom size,
+     * depends if it's Gtk::HPaned or Gtk::VPaned. Set to 0 to disable this limit.
+
+     * @return PanedContrainer* Pointer to PanedConstrainer. The pointer will be automagically freed when Gtk::Paned is desotryed.
+     */
+  static PanedConstrainer* make_constrainer(Gtk::Paned *paned, int top_or_left_limit, int bottom_or_right_limit);
+
+  void disable_sticky(bool disable);
+  void set_state_cb(const state_notifier &cb);
+  ~PanedConstrainer();
+  static void *destroy(void *data);
+
+  void set_limit(int top_or_left = 0, int bottom_or_right = 0);
+  Gtk::Paned* get();
+
+private:
+
   Gtk::Paned* _pan;
   bool _reentrant;
-  int _margin_min;
-  int _margin_max;
+  int _top_or_left_limit;
+  int _bottom_or_right_limit;
   bool _vertical;
+  bool _allow_sticky;
+  bool _was_hidden;
   sigc::connection _size_alloc_sig;
+
+  state_notifier _state_notifier_cb;
 
   void size_alloc(Gtk::Allocation &_alloc);
   PanedConstrainer(Gtk::Paned *pan);
 
-public:
-  static void make_constrainer(Gtk::Paned *paned, int min_size, int max_size);
 
-  ~PanedConstrainer();
-  static void *destroy(void *data);
-
-  void set_margin(int min = 0, int max = 0);
-  Gtk::Paned* get();
 };
 
 //!
