@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wf_base.h"
 #include "wf_view.h"
 #include "wf_textbox.h"

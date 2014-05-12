@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "Grt.h"
 #include "GrtTemplates.h"
 #include "DelegateWrapper.h"
@@ -33,7 +31,7 @@
 using namespace MySQL::Grt::Db;
 
 RolePrivilegeListWrapper::RolePrivilegeListWrapper(::bec::RolePrivilegeListBE *inn)
-  : MySQL::Grt::ListModel(inn)
+  : MySQL::Grt::ListModelWrapper(inn)
 {
 }
 
@@ -43,7 +41,7 @@ RolePrivilegeListWrapper::RolePrivilegeListWrapper(::bec::RolePrivilegeListBE *i
 }
 
 RoleObjectListWrapper::RoleObjectListWrapper(::bec::RoleObjectListBE *inn)
-  : MySQL::Grt::ListModel(inn)
+  : MySQL::Grt::ListModelWrapper(inn)
 {
 }
 
@@ -52,7 +50,7 @@ RoleObjectListWrapper::RoleObjectListWrapper(::bec::RoleObjectListBE *inn)
   return static_cast<::bec::RoleObjectListBE *>(inner);
 }
 
-void RoleObjectListWrapper::set_selected_node(NodeId ^node)
+void RoleObjectListWrapper::set_selected_node(NodeIdWrapper ^node)
 {
   get_unmanaged_object()->set_selected_node(*node->get_unmanaged_object());
 }
@@ -117,7 +115,7 @@ void RoleEditorBE::add_object(GrtValue ^object)
   get_unmanaged_object()->add_object(db_DatabaseObjectRef::cast_from(object->get_unmanaged_object()));
 }
 
-void RoleEditorBE::remove_object(NodeId^ node)
+void RoleEditorBE::remove_object(NodeIdWrapper^ node)
 {
   get_unmanaged_object()->remove_object(*node->get_unmanaged_object());
 }

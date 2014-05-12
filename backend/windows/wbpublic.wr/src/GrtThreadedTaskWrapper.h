@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,17 +20,10 @@
 #ifndef __GRT_THREADED_TASK_WR_H__
 #define __GRT_THREADED_TASK_WR_H__
 
-
 #include "grt/grt_threaded_task.h"
-
 
 namespace MySQL {
 namespace Grt {
-
-
-using namespace System;
-using namespace System::Collections::Generic;
-
 
 public ref class GrtThreadedTaskWrapper
 {

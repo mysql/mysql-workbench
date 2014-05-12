@@ -35,6 +35,14 @@ class eer_Schema;
 typedef grt::Ref<eer_Schema> eer_SchemaRef;
 
 
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
+
 class  eer_Datatype : public GrtObject
 {
   typedef GrtObject super;
@@ -545,14 +553,14 @@ public:
    \par In Python:
 value = obj.datatype
    */
-  grt::Ref<eer_Datatype> datatype() const { return _datatype; }
+  eer_DatatypeRef datatype() const { return _datatype; }
   /** Setter for attribute datatype
    
     
     \par In Python:
 obj.datatype = value
    */
-  virtual void datatype(const grt::Ref<eer_Datatype> &value)
+  virtual void datatype(const eer_DatatypeRef &value)
   {
     grt::ValueRef ovalue(_datatype);
 
@@ -582,7 +590,7 @@ obj.isIdentifying = value
 
 protected:
 
-  grt::Ref<eer_Datatype> _datatype;// owned
+  eer_DatatypeRef _datatype;// owned
   grt::IntegerRef _isIdentifying;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -598,9 +606,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&eer_Attribute::create);
     {
-      void (eer_Attribute::*setter)(const grt::Ref<eer_Datatype> &)= &eer_Attribute::datatype;
-      grt::Ref<eer_Datatype> (eer_Attribute::*getter)() const= &eer_Attribute::datatype;
-      meta->bind_member("datatype", new grt::MetaClass::Property<eer_Attribute,grt::Ref<eer_Datatype> >(getter,setter));
+      void (eer_Attribute::*setter)(const eer_DatatypeRef &)= &eer_Attribute::datatype;
+      eer_DatatypeRef (eer_Attribute::*getter)() const= &eer_Attribute::datatype;
+      meta->bind_member("datatype", new grt::MetaClass::Property<eer_Attribute,eer_DatatypeRef >(getter,setter));
     }
     {
       void (eer_Attribute::*setter)(const grt::IntegerRef &)= &eer_Attribute::isIdentifying;

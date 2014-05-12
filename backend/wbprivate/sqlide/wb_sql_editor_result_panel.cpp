@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_result_panel.h"
 #include "objimpl/db.query/db_query_Resultset.h"
@@ -194,7 +193,7 @@ public:
       node->set_string(1, *i);
     }
 
-    int height = items.size() * 20;
+    int height = (int)items.size() * 20;
     _tree.set_size(250, height > 100 ? 100 : height);
 
     _tree.set_enabled(editable);
@@ -377,7 +376,7 @@ class ResultFormView : public mforms::Box
     Recordset::Ref rset(_rset.lock());
     if (rset)
     {
-      int row = rset->edited_field_row();
+      ssize_t row = rset->edited_field_row();
       if (row < 0)
         return;
 
@@ -404,7 +403,7 @@ class ResultFormView : public mforms::Box
       else if (name == "next")
       {
         row++;
-        if (row >= rset->count())
+        if (row >= (ssize_t)rset->count())
           row = rset->count()-1;
         rset->set_edited_field(row, rset->edited_field_column());
         if (rset->update_edited_field)
@@ -427,8 +426,8 @@ class ResultFormView : public mforms::Box
     Recordset::Ref rset(_rset.lock());
     if (rset)
     {
-      int row = rset->edited_field_row();
-      if (rset->count() > row && row >= 0)
+      size_t row = rset->edited_field_row();
+      if (rset->count() > row)
         rset->set_field(row, column, value);
     }
   }
@@ -439,8 +438,8 @@ class ResultFormView : public mforms::Box
     Recordset::Ref rset(_rset.lock());
     if (rset)
     {
-      int row = rset->edited_field_row();
-      if (row < rset->count() && row >= 0)
+      size_t row = rset->edited_field_row();
+      if (row < rset->count())
         rset->open_field_data_editor(row, column);
     }
   }
@@ -551,7 +550,7 @@ public:
         (*i)->set_value(value, rset->is_field_null(rset->edited_field_row(), c));
       }
 
-      _label_item->set_text(base::strfmt("%i / %i", rset->edited_field_row()+1, rset->count()));
+      _label_item->set_text(base::strfmt("%zi / %zi", rset->edited_field_row()+1, rset->count()));
       _tbar.find_item("first")->set_enabled(rset->edited_field_row() > 0);
       _tbar.find_item("back")->set_enabled(rset->edited_field_row() > 0);
 
@@ -595,10 +594,10 @@ public:
       _refresh_ui_connection.disconnect();
       rset->refresh_ui_signal.connect(boost::bind(&ResultFormView::display_record, this));
 
-      int cols = rset->get_column_count();
-      _table.set_row_count(cols);
+      size_t cols = rset->get_column_count();
+      _table.set_row_count((int)cols);
 
-      if (rset->edited_field_row() < 0 && rset->count() > 0)
+      if (rset->count() > 0)
       {
         rset->set_edited_field(0, 0);
         if (rset->update_edited_field)

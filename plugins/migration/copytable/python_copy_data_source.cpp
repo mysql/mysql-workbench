@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014,  Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,12 @@
  * 02110-1301  USA
  */
 
-
-// This is to avoid Visual Studio to provide its old non standard
-// implementation of std::min():
-#define NOMINMAX
+#ifdef _WIN32
+  #define HAVE_ROUND
+#endif
 
 #include "python_copy_data_source.h"
-#include <cstring>
+#include "copytable.h"
 
 #include "base/log.h"
 #include "base/string_utilities.h"
@@ -31,15 +30,7 @@
 
 #include "converter.h"
 
-//#include <boost/bind.hpp>
-//#include <boost/lexical_cast.hpp>
-
-#if defined(WIN32)
-#include <Windows.h>
-#endif
-
 DEFAULT_LOG_DOMAIN("copytable");
-
 
 PythonCopyDataSource::PythonCopyDataSource(const std::string &connstring,
                      const std::string &password)
@@ -495,7 +486,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
         Py_ssize_t copied_bytes = 0;
         if (!blob_read_buffer_len) // empty buffer
         {
-          rowbuffer[i].buffer_length = *rowbuffer[i].length = blob_read_buffer_len;
+          rowbuffer[i].buffer_length = *rowbuffer[i].length = (unsigned long)blob_read_buffer_len;
           rowbuffer[i].buffer = NULL;
         }
         while (copied_bytes < blob_read_buffer_len)
@@ -507,8 +498,8 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             if (rowbuffer[i].buffer_length)
               free(rowbuffer[i].buffer);
 
-            *rowbuffer[i].length = blob_read_buffer_len;
-            rowbuffer[i].buffer_length = blob_read_buffer_len;
+            *rowbuffer[i].length = (unsigned long)blob_read_buffer_len;
+            rowbuffer[i].buffer_length = (unsigned long)blob_read_buffer_len;
             rowbuffer[i].buffer = malloc(blob_read_buffer_len);
 
             memcpy(rowbuffer[i].buffer, blob_read_buffer, blob_read_buffer_len);
@@ -653,7 +644,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                 len = buffer_len;
               }
               memcpy(buffer, s, len);
-              *length = len;
+              *length = (unsigned long)len;
               Py_DECREF(ref);
             }
             else
@@ -677,7 +668,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer)
               len = buffer_len;
             }
             memcpy(buffer, s, len);
-            *length = len;
+            *length = (unsigned long)len;
           }
           else  // Neither a PyUnicode nor a PyString object. This should be an error:
           {

@@ -70,10 +70,12 @@ int main(int argc, char **argv)
   base::threading_init();
   gdk_threads_init();
   // process cmdline options
-  wb::WBOptions wboptions;
+  std::string user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
+  base::Logger log(user_data_dir, getenv("MWB_LOG_TO_STDERR")!=NULL);
 
-  wboptions.user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
-  base::Logger log(wboptions.user_data_dir, getenv("MWB_LOG_TO_STDERR")!=NULL);
+  wb::WBOptions wboptions;
+  wboptions.user_data_dir = user_data_dir;
+
 
   wboptions.basedir = getenv("MWB_DATA_DIR");
   wboptions.plugin_search_path = getenv("MWB_PLUGIN_DIR");

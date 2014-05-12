@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grt_message_list.h"
 #include "grt_manager.h"
 #include "validation_manager.h"
@@ -26,6 +24,7 @@
 
 using namespace bec;
 
+//--------------------------------------------------------------------------------------------------
 
 MessageListStorage::MessageListStorage(GRTManager *grtm)
 : _grtm(grtm)
@@ -37,6 +36,7 @@ MessageListStorage::MessageListStorage(GRTManager *grtm)
   scoped_connect(ValidationManager::signal_notify(),boost::bind(&MessageListStorage::validation_notify, this, _1, _2, _3, _4));
 }
 
+//--------------------------------------------------------------------------------------------------
 
 MessageListBE *MessageListStorage::create_list(const std::string &filter_to_source)
 {
@@ -45,11 +45,14 @@ MessageListBE *MessageListStorage::create_list(const std::string &filter_to_sour
   return list;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void MessageListStorage::clear_all()
 {
   _entries.clear();
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void MessageListStorage::handle_message(const grt::Message &msg)
 {
@@ -59,24 +62,19 @@ void MessageListStorage::handle_message(const grt::Message &msg)
       _grtm->run_once_when_idle(boost::bind(_output_handler,msg.text));
     return;
   }
-
   
   MessageEntryRef entry(new MessageEntry());
-  //bool visible= false;
   
   switch (msg.type)
   {
     case grt::ErrorMsg:
       entry->icon= _error_icon; 
-      //visible= true;
       break;
     case grt::WarningMsg:
       entry->icon= _warning_icon;
-      //visible= true;
       break;
     case grt::InfoMsg: 
       entry->icon= _info_icon;
-      //visible= true;
       break;
     case grt::ControlMsg:
       entry->icon = -1; // hack
@@ -99,12 +97,14 @@ void MessageListStorage::handle_message(const grt::Message &msg)
   _new_message(entry);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void MessageListStorage::set_output_handler(const boost::function<void (std::string)> &handler)
+void MessageListStorage::set_output_handler(const boost::function<void(std::string)> &handler)
 {
   _output_handler = handler;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void MessageListStorage::validation_notify(const grt::Validator::Tag&, const grt::ObjectRef& o, const std::string& m, const int level)
 {
@@ -121,8 +121,7 @@ void MessageListStorage::validation_notify(const grt::Validator::Tag&, const grt
   }
 }
 
-//-------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------
 
 MessageListBE::MessageListBE(MessageListStorage *owner)
 : _owner(owner)
@@ -131,6 +130,8 @@ MessageListBE::MessageListBE(MessageListStorage *owner)
 
   _conn = _owner->signal_new_message()->connect(boost::bind(&MessageListBE::add_message, this, _1));
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void MessageListBE::add_message(MessageListStorage::MessageEntryRef message)
 {
@@ -149,34 +150,44 @@ void MessageListBE::add_message(MessageListStorage::MessageEntryRef message)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void MessageListBE::add_source(const std::string &source)
 {
   _wanted_sources.insert(source);
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void MessageListBE::remove_source(const std::string &source)
 {
   _wanted_sources.erase(source);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void MessageListBE::clear()
 {
   _entries.clear();
 }
 
-int MessageListBE::count_children(const NodeId &node)
+//--------------------------------------------------------------------------------------------------
+
+size_t MessageListBE::count_children(const NodeId &node)
 {
   if (node.depth() == 0)
-    return _entries.size();
+    return (int)_entries.size();
   return 0;
 }
 
-bool MessageListBE::get_field(const NodeId &node, int column, std::string &value)
+//--------------------------------------------------------------------------------------------------
+
+bool MessageListBE::get_field(const NodeId &node, ColumnId column, std::string &value)
 {
   switch ((Column)column)
   {
   case Time:
-    if (node[0] < (int)_entries.size())
+    if (node[0] < _entries.size())
     {
       char buffer[100];
       const struct tm *tm= localtime(&_entries[node[0]]->timestamp);
@@ -188,14 +199,14 @@ bool MessageListBE::get_field(const NodeId &node, int column, std::string &value
     break;
 
   case Message:
-    if (node[0] < (int)_entries.size())
+    if (node[0] < _entries.size())
     {
       value= _entries[node[0]]->message;
       return true;
     }
     break;
   case Detail:
-    if (node[0] < (int)_entries.size())
+    if (node[0] < _entries.size())
     {
       value= _entries[node[0]]->detail;
       return true;
@@ -204,10 +215,11 @@ bool MessageListBE::get_field(const NodeId &node, int column, std::string &value
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-IconId MessageListBE::get_field_icon(const NodeId &node, int column, IconSize size)
+IconId MessageListBE::get_field_icon(const NodeId &node, ColumnId column, IconSize size)
 {
-  if (node[0] < (int)_entries.size())
+  if (node[0] < _entries.size())
     return _entries[node[0]]->icon;
 
   return 0;
@@ -221,7 +233,7 @@ IconId MessageListBE::get_field_icon(const NodeId &node, int column, IconSize si
  */
 grt::MessageType bec::MessageListBE::get_message_type( const NodeId &node )
 {
-  if (node[0] < (int)_entries.size())
+  if (node[0] < _entries.size())
     return _entries[node[0]]->type;
 
   return grt::InfoMsg;
@@ -229,12 +241,13 @@ grt::MessageType bec::MessageListBE::get_message_type( const NodeId &node )
 
 //--------------------------------------------------------------------------------------------------
 
-int MessageListBE::count()
+size_t MessageListBE::count()
 {
   _notified= false;
-  return (int)_entries.size();
+  return _entries.size();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 MenuItemList MessageListBE::get_popup_items_for_nodes(const std::vector<NodeId> &nodes)
 {
@@ -250,6 +263,7 @@ MenuItemList MessageListBE::get_popup_items_for_nodes(const std::vector<NodeId> 
   return menu;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool MessageListBE::activate_popup_item_for_nodes(const std::string &name, const std::vector<NodeId> &nodes)
 {
@@ -263,3 +277,5 @@ bool MessageListBE::activate_popup_item_for_nodes(const std::string &name, const
   
   return true;
 }
+
+//--------------------------------------------------------------------------------------------------

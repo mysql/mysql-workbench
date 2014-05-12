@@ -326,7 +326,7 @@ void DbMySQLTableEditorIndexPage::get_value(const Gtk::TreeModel::iterator& iter
   {
     case -2: // Sort order
     {
-      int val = 0;
+      ssize_t val = 0;
       columns_be->get_field(node, ::bec::IndexColumnsListBE::Descending, val);
       set_glib_string(value, val == 0 ? "ASC" : "DESC");
       break;

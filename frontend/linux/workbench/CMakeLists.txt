@@ -24,7 +24,6 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/library/canvas/src
     ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
@@ -32,7 +31,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbprivate
     ${PROJECT_SOURCE_DIR}/frontend/linux/
     ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/dbc/src
+    ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/library/forms/gtk
     ${PROJECT_SOURCE_DIR}/generated/grti
     ${PROJECT_SOURCE_DIR}/modules/wb.model/src
@@ -41,6 +40,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
+    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${GTK2_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${LIBZIP_INCLUDE_DIRS}

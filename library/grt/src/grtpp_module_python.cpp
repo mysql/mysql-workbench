@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtpp_module_python.h"
 #include "grtpp_util.h"
 #include "base/file_utilities.h"

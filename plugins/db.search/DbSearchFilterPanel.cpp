@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "DbSearchFilterPanel.h"
 #include <sstream>
 #include <string>

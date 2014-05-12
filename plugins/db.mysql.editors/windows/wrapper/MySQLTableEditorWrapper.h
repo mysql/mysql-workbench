@@ -63,18 +63,18 @@ public:
   inline ::MySQLTableColumnsListBE *get_unmanaged_object()
   { return static_cast<::MySQLTableColumnsListBE *>(inner); }
 
-  bool set_column_type(NodeId ^nodeid, GrtValue^ value)
+  bool set_column_type(NodeIdWrapper ^nodeid, GrtValue^ value)
   {
     return get_unmanaged_object()->set_column_type(*nodeid->get_unmanaged_object(), GrtObjectRef::cast_from(value->get_unmanaged_object()));
   }
 
-  List<String^>^ get_datatype_flags(NodeId ^nodeid)
+  List<String^>^ get_datatype_flags(NodeIdWrapper ^nodeid)
   { return CppStringListToNative(get_unmanaged_object()->get_datatype_flags(*nodeid->get_unmanaged_object())); }
 
-  void set_column_flag(NodeId ^nodeid, String^ flag_name, int is_set)
+  void set_column_flag(NodeIdWrapper ^nodeid, String^ flag_name, int is_set)
   { get_unmanaged_object()->set_column_flag(*nodeid->get_unmanaged_object(), NativeToCppString(flag_name), is_set); }
 
-  int get_column_flag(NodeId ^nodeid, String^ flag_name)
+  int get_column_flag(NodeIdWrapper ^nodeid, String^ flag_name)
   { return get_unmanaged_object()->get_column_flag(*nodeid->get_unmanaged_object(), NativeToCppString(flag_name)); }
 
 };
@@ -95,10 +95,10 @@ public:
 
 
 
-public ref class MySQLTablePartitionTreeWrapper : public TreeModel
+public ref class MySQLTablePartitionTreeWrapper : public TreeModelWrapper
 {
 public:
-  MySQLTablePartitionTreeWrapper(::MySQLTablePartitionTreeBE *inner) : TreeModel(inner) {}
+  MySQLTablePartitionTreeWrapper(::MySQLTablePartitionTreeBE *inner) : TreeModelWrapper(inner) {}
 
   enum class Columns
   {

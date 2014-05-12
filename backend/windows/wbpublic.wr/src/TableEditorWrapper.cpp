@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "ConvUtils.h"
 #include "Grt.h"
 #include "GrtTemplates.h"
@@ -35,12 +33,12 @@ namespace Grt {
 namespace Db {
 
 TableColumnsListWrapper::TableColumnsListWrapper(bec::TableColumnsListBE *inn)
-  : ListModel(inn)
+  : ListModelWrapper(inn)
 {}
 
 void TableColumnsListWrapper::reorder_many(List<int> ^rows, int nindex)
 {
-  std::vector<int> nlist;
+  std::vector<size_t> nlist;
 
   for (int i= 0; i < rows->Count; i++)
     nlist.push_back(rows[i]);
@@ -48,7 +46,7 @@ void TableColumnsListWrapper::reorder_many(List<int> ^rows, int nindex)
   get_unmanaged_object()->reorder_many(nlist, nindex);
 }
 
-bool TableColumnsListWrapper::get_row(NodeId^ node,
+bool TableColumnsListWrapper::get_row(NodeIdWrapper^ node,
              [Out] String^ %name,
              [Out] String^ %type,
              [Out] bool^ %ispk,
@@ -112,80 +110,80 @@ bool TableColumnsListWrapper::get_row(NodeId^ node,
 }
 
 IndexColumnsListWrapper::IndexColumnsListWrapper(IndexListWrapper^ owner)
-  : ListModel(new bec::IndexColumnsListBE(owner->get_unmanaged_object()))
+  : ListModelWrapper(new bec::IndexColumnsListBE(owner->get_unmanaged_object()))
 {}
 
 IndexColumnsListWrapper::IndexColumnsListWrapper(bec::IndexColumnsListBE *inn)
-  : ListModel(inn)
+  : ListModelWrapper(inn)
 {}
 
-void IndexColumnsListWrapper::set_column_enabled(NodeId^ node, bool flag)
+void IndexColumnsListWrapper::set_column_enabled(NodeIdWrapper^ node, bool flag)
 {
  get_unmanaged_object()->set_column_enabled(*node->get_unmanaged_object(), flag); 
 }
 
-bool IndexColumnsListWrapper::get_column_enabled(NodeId^ node)
+bool IndexColumnsListWrapper::get_column_enabled(NodeIdWrapper^ node)
 {
   return get_unmanaged_object()->get_column_enabled(*node->get_unmanaged_object()); 
 }
 
 int IndexColumnsListWrapper::get_max_order_index()
 {
-  return get_unmanaged_object()->get_max_order_index();
+  return (int)get_unmanaged_object()->get_max_order_index();
 }
 
 
 IndexListWrapper::IndexListWrapper(TableEditorWrapper^ owner)
-  : ListModel(new bec::IndexListBE(owner->get_unmanaged_object()))
+  : ListModelWrapper(new bec::IndexListBE(owner->get_unmanaged_object()))
 {}
 
 IndexListWrapper::IndexListWrapper(bec::IndexListBE *inn)
-  : ListModel(inn)
+  : ListModelWrapper(inn)
 {}
   
 IndexColumnsListWrapper^ IndexListWrapper::get_columns() 
 { return gcnew IndexColumnsListWrapper(get_unmanaged_object()->get_columns()); }
 
-void IndexListWrapper::select_index(NodeId^ node)
+void IndexListWrapper::select_index(NodeIdWrapper^ node)
 { get_unmanaged_object()->select_index(*node->get_unmanaged_object()); }
 
 FKConstraintColumnsListWrapper::FKConstraintColumnsListWrapper(FKConstraintListWrapper^ owner)
-  : ListModel(new bec::FKConstraintColumnsListBE(owner->get_unmanaged_object()))
+  : ListModelWrapper(new bec::FKConstraintColumnsListBE(owner->get_unmanaged_object()))
 {}
 
 FKConstraintColumnsListWrapper::FKConstraintColumnsListWrapper(bec::FKConstraintColumnsListBE *inn)
-  : ListModel(inn)
+  : ListModelWrapper(inn)
 {}
 
-List<String^>^ FKConstraintColumnsListWrapper::get_ref_columns_list(NodeId^ node, bool filtered)
+List<String^>^ FKConstraintColumnsListWrapper::get_ref_columns_list(NodeIdWrapper^ node, bool filtered)
 {
   return CppStringListToNative(
     static_cast<bec::FKConstraintColumnsListBE *>(inner)->get_ref_columns_list(*node->get_unmanaged_object(), filtered));
 }
 
-bool FKConstraintColumnsListWrapper::set_column_is_fk(NodeId^ node, bool flag)
+bool FKConstraintColumnsListWrapper::set_column_is_fk(NodeIdWrapper^ node, bool flag)
 {
   return get_unmanaged_object()->set_column_is_fk(*node->get_unmanaged_object(), flag); 
 }
 
-bool FKConstraintColumnsListWrapper::get_column_is_fk(NodeId^ node)
+bool FKConstraintColumnsListWrapper::get_column_is_fk(NodeIdWrapper^ node)
 {
   return get_unmanaged_object()->get_column_is_fk(*node->get_unmanaged_object()); 
 }
 
 FKConstraintListWrapper::FKConstraintListWrapper(TableEditorWrapper^ owner)
-  : ListModel(new bec::FKConstraintListBE(owner->get_unmanaged_object()))
+  : ListModelWrapper(new bec::FKConstraintListBE(owner->get_unmanaged_object()))
 {}
 
 FKConstraintListWrapper::FKConstraintListWrapper(bec::FKConstraintListBE *inn)
-  : ListModel(inn)
+  : ListModelWrapper(inn)
 {}
 
 /*
 NodeId^ FKConstraintListWrapper::add_column(String^ column_name)
 { return gcnew NodeId(&get_unmanaged_object()->add_column(NativeToCppString(column_name))); }*/
 
-void FKConstraintListWrapper::select_fk(NodeId^ node)
+void FKConstraintListWrapper::select_fk(NodeIdWrapper^ node)
 { get_unmanaged_object()->select_fk(*node->get_unmanaged_object()); }
 
 
@@ -212,40 +210,40 @@ Control ^TableEditorWrapper::get_inserts_panel(Control ^grid)
 //...
 
 // column editing
-NodeId^ TableEditorWrapper::add_column(String^ name)
-{ return gcnew NodeId(&get_unmanaged_object()->add_column(NativeToCppString(name))); }
+NodeIdWrapper^ TableEditorWrapper::add_column(String^ name)
+{ return gcnew NodeIdWrapper(&get_unmanaged_object()->add_column(NativeToCppString(name))); }
 
-void TableEditorWrapper::remove_column(NodeId^ node)
+void TableEditorWrapper::remove_column(NodeIdWrapper^ node)
 { get_unmanaged_object()->remove_column(*node->get_unmanaged_object()); }
 
 //db_Column get_column_with_name(const std::string &name);
 
 // fk editing
-NodeId^ TableEditorWrapper::add_fk(String^ name)
+NodeIdWrapper^ TableEditorWrapper::add_fk(String^ name)
 {
-  return gcnew NodeId(&get_unmanaged_object()->add_fk(NativeToCppString(name)));
+  return gcnew NodeIdWrapper(&get_unmanaged_object()->add_fk(NativeToCppString(name)));
 }
 
-void TableEditorWrapper::remove_fk(NodeId^ node)
+void TableEditorWrapper::remove_fk(NodeIdWrapper^ node)
 { get_unmanaged_object()->remove_fk(*node->get_unmanaged_object()); }
 
-NodeId^ TableEditorWrapper::add_fk_with_columns(List<NodeId ^> ^columns)
+NodeIdWrapper^ TableEditorWrapper::add_fk_with_columns(List<NodeIdWrapper ^> ^columns)
 {
-  std::vector<bec::NodeId> node_vec= ObjectListToCppVector<NodeId, bec::NodeId>(columns);
-  return gcnew NodeId(&get_unmanaged_object()->add_fk_with_columns(node_vec));
+  std::vector<bec::NodeId> node_vec= ObjectListToCppVector<NodeIdWrapper, bec::NodeId>(columns);
+  return gcnew NodeIdWrapper(&get_unmanaged_object()->add_fk_with_columns(node_vec));
 }
 
 // index editing
-NodeId^ TableEditorWrapper::add_index(String^ name)
-{ return gcnew NodeId(&get_unmanaged_object()->add_index(NativeToCppString(name))); }
+NodeIdWrapper^ TableEditorWrapper::add_index(String^ name)
+{ return gcnew NodeIdWrapper(&get_unmanaged_object()->add_index(NativeToCppString(name))); }
 
-void TableEditorWrapper::remove_index(NodeId^ node)
+void TableEditorWrapper::remove_index(NodeIdWrapper^ node)
 { get_unmanaged_object()->remove_index(*node->get_unmanaged_object(), false); }
 
-NodeId^ TableEditorWrapper::add_index_with_columns(List<NodeId ^> ^columns)
+NodeIdWrapper^ TableEditorWrapper::add_index_with_columns(List<NodeIdWrapper ^> ^columns)
 {
-  std::vector<bec::NodeId> node_vec= ObjectListToCppVector<NodeId, bec::NodeId>(columns);
-  return gcnew NodeId(&get_unmanaged_object()->add_index_with_columns(node_vec));
+  std::vector<bec::NodeId> node_vec= ObjectListToCppVector<NodeIdWrapper, bec::NodeId>(columns);
+  return gcnew NodeIdWrapper(&get_unmanaged_object()->add_index_with_columns(node_vec));
 }
 
 List<String^>^ TableEditorWrapper::get_index_types()

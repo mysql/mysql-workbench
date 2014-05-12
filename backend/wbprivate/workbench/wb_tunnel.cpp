@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wb_tunnel.h"
 #include "wb_context.h"
 
@@ -364,9 +362,9 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
     std::string password = parameter_values.get_string("sshPassword");
     std::string keyfile = base::expand_tilde(parameter_values.get_string("sshKeyFile"));
     std::string target = parameter_values.get_string("hostName");
-    int target_port = parameter_values.get_int("port", 3306);
+    size_t target_port = parameter_values.get_int("port", 3306);
 
-    target = strfmt("%s:%i", target.c_str(), target_port);
+    target = strfmt("%s:%zi", target.c_str(), target_port);
 
     // before anything, check if a tunnel already exists for this server/user/target tuple
     _wb->get_grt_manager()->replace_status_text("Looking for existing SSH tunnel to "+server+"...");

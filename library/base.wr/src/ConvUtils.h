@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#pragma once;
+#pragma once
 
 namespace MySQL {
 
@@ -134,9 +134,23 @@ namespace MySQL {
     typedef std::vector<int> TargetContainerType;
 
     TargetContainerType result;
-    result.reserve(static_cast<int>(input->Count));
+    result.reserve(input->Count);
 
     for each(int listitem in input)
+      result.push_back(listitem);
+
+    return result;
+  }
+
+  static std::vector<size_t> IntListToCppVector2(System::Collections::Generic::List<int>^ input)
+  {
+    typedef const System::Collections::Generic::List<int>^ SourceContainerType;
+    typedef std::vector<size_t> TargetContainerType;
+
+    TargetContainerType result;
+    result.reserve(input->Count);
+
+    for each (int listitem in input)
       result.push_back(listitem);
 
     return result;

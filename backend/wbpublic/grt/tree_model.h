@@ -139,7 +139,7 @@ namespace bec
   {
     typedef std::string*                uid;   //!< To map short-living NodeId path to a persistent value
                                                //!< This is needed for Gtk::TreeModel iterators
-    typedef std::vector<int>          Index; 
+    typedef std::vector<size_t>        Index; 
     static Pool<Index>                 *_pool; //!< Pool of allocated std::vectors (Index)
     Index                              *index; //!< Path itself
 
@@ -159,35 +159,35 @@ namespace bec
         : index(0)
     {
       index = pool()->get();
-      if ( copy.index )
+      if (copy.index != NULL)
         *index = *copy.index;
     }
 
-    NodeId(const int i)
-        : index(0)
+    NodeId(size_t i)
+      : index(0)
     {
       index = pool()->get();
       index->push_back(i);
     }
 
     NodeId(const std::string &str)
-        : index(0)
+      : index(0)
     {
       index = pool()->get();
       try
       {
         const char* chr = str.c_str();
-        const int size = (int)str.length();
+        size_t size = str.length();
         std::string num;
         num.reserve(size);
         
-        for ( int i = 0; i < size; i++ )
+        for (size_t i = 0; i < size; i++)
         {
-          if ( isdigit(chr[i]) )
+          if (isdigit(chr[i]))
             num.push_back(chr[i]);
-          else if ( '.' == chr[i] || ':' == chr[i] )
+          else if ('.' == chr[i] || ':' == chr[i])
           {
-            if ( !num.empty() )
+            if (!num.empty())
             {
               index->push_back(atoi(num.c_str()));
               num.clear();
@@ -197,7 +197,7 @@ namespace bec
             throw std::runtime_error("Wrong format of NodeId");
         }
         
-        if ( !num.empty() )
+        if (!num.empty())
           index->push_back(atoi(num.c_str()));
       }
       catch (...)
@@ -229,7 +229,7 @@ namespace bec
       
       if (index && r.index)
       {
-        // Shorter nodeids must go before longer. For example in a list ["0.1", "0.1.1"]
+        // Shorter node ids must go before longer. For example in a list ["0.1", "0.1.1"]
         // longer nodeid is a subnode of the "0.1", so in case of deletion subnode deleted first
         // (That's true only when traversing list from the end)
         if (index->size() < r.index->size())
@@ -238,13 +238,12 @@ namespace bec
           ret = false;
         else
         {
-          // It is assumed that this nodeid is less than @r. Walk index vectors. If current value
+          // It is assumed that this node id is less than @r. Walk index vectors. If current value
           // from this->index is less than or equal to the corresponding value from r.index the pair is skipped
           // as it complies with assumption that this node is less than @r.
           // Once current value becomes greater than @r's the assumption about current node's 
           // less than @r becomes false, therefore this node is greater than @r.
-          const int size = index->size();
-          for (int i = 0; i < size; ++i)
+          for (size_t i = 0; i < index->size(); ++i)
           {
             if ((*index)[i] > (*r.index)[i])
             {
@@ -269,26 +268,26 @@ namespace bec
       return index && node.index && *node.index == *index;
     }
 
-    int depth() const
+    size_t depth() const
     {
-      return (int)index->size();
+      return index->size();
     }
 
-    inline int& operator[] (unsigned int i) const
+    inline size_t& operator[] (size_t i) const
     {
-      if ( i < index->size() )
-        return const_cast<int&>((*index)[i]);
+      if (i < index->size())
+        return const_cast<size_t&>((*index)[i]);
       throw std::range_error("invalid index");
     }
 
-    inline int end() const
+    inline size_t end() const
     {
-      if ( index->size() > 0 )
+      if (index->size() > 0)
         return (*index)[index->size() - 1];
-      throw std::logic_error("invalid node id. NodeId::back applied to an empty NodeId instance.");
+      throw std::logic_error("invalid node id. NodeId::end applied to an empty NodeId instance.");
     }
     
-    inline int back() const
+    inline size_t back() const
     {
       return end();
     }
@@ -297,7 +296,7 @@ namespace bec
     inline bool previous() const
     {
       bool ret = false;
-      if ( index->size() > 0 )
+      if (index->size() > 0)
       {
         --((*index)[index->size() - 1]);
         ret = true;
@@ -309,7 +308,7 @@ namespace bec
     inline bool next() const
     {
       bool ret = false;
-      if ( index->size() > 0 )
+      if (index->size() > 0)
       {
         ++((*index)[index->size() - 1]);
         ret = true;
@@ -334,11 +333,10 @@ namespace bec
     inline std::string repr(const char separator = '.') const
     {
       std::string r = "";
-      const int depth = (int)index->size();
-      for (int i= 0; i < depth; i++)
+      for (size_t i= 0; i < index->size(); i++)
       {
         char buf[30];
-        g_snprintf(buf, sizeof(buf), "%i", (*index)[i]);
+        g_snprintf(buf, sizeof(buf), "%zi", (*index)[i]);
         if (i > 0)
           r= r + separator + buf;
         else
@@ -347,29 +345,25 @@ namespace bec
       return r;
     }
 
-    inline NodeId &append(const int i)
+    inline NodeId &append(size_t i)
     {
-      if (i < 0)
+      if ((ssize_t)i < 0)
         throw std::invalid_argument("negative node index is invalid");
-
       index->push_back(i);
-
       return *this;
     }
 
-    inline NodeId &prepend(const int i)
+    inline NodeId &prepend(size_t i)
     {
-      if (i < 0)
+      if ((ssize_t)i < 0)
         throw std::invalid_argument("negative node index is invalid");
-
       index->insert(index->begin(), i);
-
       return *this;
     }
   };
 
   //----------------------------------------------------------------------------
-  //----------------------------------------------------------------------------
+
   /**
     \class NodeIds
     \brief Mapper of short-living NodeId to a persistent item
@@ -397,7 +391,7 @@ namespace bec
       void flush();
 
       //! Maps path with type of std::string from NodeId. This function is used for
-      //! convience. See map_node_id(const NodeId&)
+      //! convenience. See map_node_id(const NodeId&)
       NodeId::uid map_node_id(const std::string& path_from_nodeid);
       NodeId::uid map_node_id(const NodeId& nid)
       {
@@ -443,20 +437,21 @@ namespace bec
   }
   
   /** Base list model class.
-   *
-   * @ingroup begrt
    */
   class WBPUBLICBACKEND_PUBLIC_FUNC ListModel : public base::trackable
   {
    private:
-    NodeIds               _nodeid_map;
-    boost::signals2::signal<void (bec::NodeId, int)>    _tree_changed_signal;
+    NodeIds _nodeid_map;
+    boost::signals2::signal<void (bec::NodeId, int)> _tree_changed_signal;
     
    public:
-    virtual ~ListModel() {};
+     typedef size_t ColumnId;
+     typedef size_t RowId;
+     
+     virtual ~ListModel() {};
 
-    virtual int count()= 0;
-    virtual NodeId get_node(int index);
+    virtual size_t count() = 0;
+    virtual NodeId get_node(size_t index);
     virtual bool has_next(const NodeId &node);
     virtual NodeId get_next(const NodeId &node);
 
@@ -482,29 +477,25 @@ namespace bec
     {
       return _nodeid_map.map_node_id(nodeuid);
     }
-//    virtual void set_data(NodeId node, void *data)= 0;
-//    virtual void *get_data(NodeId node)= 0;
+    virtual bool get_field(const NodeId &node, ColumnId column, std::string &value);
+    virtual bool get_field(const NodeId &node, ColumnId column, ssize_t &value);
+    virtual bool get_field(const NodeId &node, ColumnId column, bool &value);
+    virtual bool get_field(const NodeId &node, ColumnId column, double &value);
 
-    virtual bool get_field(const NodeId &node, int column, std::string &value);
-    virtual bool get_field(const NodeId &node, int column, int &value);
-    virtual bool get_field(const NodeId &node, int column, long long &value);
-    virtual bool get_field(const NodeId &node, int column, bool &value);
-    virtual bool get_field(const NodeId &node, int column, double &value);
-
-    virtual bool get_field_repr(const NodeId &node, int column, std::string &value) { return get_field(node, column, value); }
+    virtual bool get_field_repr(const NodeId &node, ColumnId column, std::string &value) { return get_field(node, column, value); }
 
     // representation of the field as a GRT value
-    virtual grt::ValueRef get_grt_value(const NodeId &node, int column);
+    virtual grt::ValueRef get_grt_value(const NodeId &node, ColumnId column);
 
-    virtual std::string get_field_description(const NodeId &node, int column);
-    virtual IconId get_field_icon(const NodeId &node, int column, IconSize size);
+    virtual std::string get_field_description(const NodeId &node, ColumnId column);
+    virtual IconId get_field_icon(const NodeId &node, ColumnId column, IconSize size);
 
-    virtual void refresh()= 0;
+    virtual void refresh() = 0;
     virtual void refresh_node(const NodeId &node) {}
 
     virtual void reset() {} //!
 
-    virtual void reorder(const NodeId &node, int index) { throw std::logic_error("not implemented"); }
+    virtual void reorder(const NodeId &node, size_t index) { throw std::logic_error("not implemented"); }
     void reorder_up(const NodeId &node);
     void reorder_down(const NodeId &node);
 
@@ -522,15 +513,14 @@ namespace bec
     virtual bool delete_node(const NodeId &node) { throw std::logic_error("not implemented"); }
 
     // for editable lists only
-    virtual grt::Type get_field_type(const NodeId &node, int column);
+    virtual grt::Type get_field_type(const NodeId &node, ColumnId column);
 
 
-    virtual bool set_field(const NodeId &node, int column, const std::string &value);
-    virtual bool set_field(const NodeId &node, int column, int value);
-    virtual bool set_field(const NodeId &node, int column, long long value);
-    virtual bool set_field(const NodeId &node, int column, double value);
+    virtual bool set_field(const NodeId &node, ColumnId column, const std::string &value);
+    virtual bool set_field(const NodeId &node, ColumnId column, ssize_t value);
+    virtual bool set_field(const NodeId &node, ColumnId column, double value);
 
-    virtual bool set_convert_field(const NodeId &node, int column, const std::string &value);
+    virtual bool set_convert_field(const NodeId &node, ColumnId column, const std::string &value);
 
     //! By default we do not allow to edit items.
     //! This is a recently added method. It will replace occasionally used is_renameable
@@ -544,29 +534,25 @@ namespace bec
     virtual void dump(int show_field);
   protected:
     // for internal use only
-    virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
+    virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
 
     grt::ValueRef parse_value(grt::Type type, const std::string &value);
   };
 
-
-
   /** Base tree model class.
-   *
-   * @ingroup begrt
    */
   class WBPUBLICBACKEND_PUBLIC_FUNC TreeModel : public ListModel
   {
   public:
-    virtual int count();
-    virtual NodeId get_node(int index);
+    virtual size_t count();
+    virtual NodeId get_node(size_t index);
 
     virtual NodeId get_root() const;
-    virtual int get_node_depth(const NodeId &node);
+    virtual size_t get_node_depth(const NodeId &node);
     inline NodeId get_parent(const NodeId &node) const { return node.parent(); }
 
-    virtual int count_children(const NodeId &parent)= 0;
-    virtual NodeId get_child(const NodeId &parent, int index) { return NodeId(parent).append(index); }
+    virtual size_t count_children(const NodeId &parent) = 0;
+    virtual NodeId get_child(const NodeId &parent, size_t index) { return NodeId(parent).append(index); }
     virtual bool has_next(const NodeId &node);
     virtual NodeId get_next(const NodeId &node);
 
@@ -577,13 +563,8 @@ namespace bec
 
     void save_expand_info(const std::string &path);
 
-
     virtual void dump(int show_field);
-  protected:
-
   };
-
-
 
   class WBPUBLICBACKEND_PUBLIC_FUNC GridModel : public ListModel
   {
@@ -600,17 +581,16 @@ namespace bec
       BlobType
     };
 
-    virtual int get_column_count() const= 0;
-    virtual std::string get_column_caption(int column)= 0;
-    virtual ColumnType get_column_type(int column)= 0;
+    virtual size_t get_column_count() const = 0;
+    virtual std::string get_column_caption(ColumnId column)= 0;
+    virtual ColumnType get_column_type(ColumnId column)= 0;
     virtual bool is_readonly() const { return false; } //!
     virtual std::string readonly_reason() const { return std::string(); } //!
-    virtual bool is_field_null(const bec::NodeId &node, int column) { return false; } //!
-    virtual bool set_field_null(const bec::NodeId &node, int column) { return set_convert_field(node, column, ""); } //!
-    virtual void set_edited_field(int row_index, int col_index) { }
+    virtual bool is_field_null(const bec::NodeId &node, ColumnId column) { return false; } //!
+    virtual bool set_field_null(const bec::NodeId &node, ColumnId column) { return set_convert_field(node, column, ""); } //!
+    virtual void set_edited_field(RowId row_index, ColumnId col_index) { }
 
   public:
-    typedef size_t ColumnId;
     typedef std::list<std::pair<ColumnId, int> > SortColumns;
     virtual void sort_by(ColumnId column, int direction, bool retaining) {}
     virtual SortColumns sort_columns() const { return SortColumns(); }
@@ -621,12 +601,4 @@ namespace bec
 
 };
 
-#ifdef _MSC_VER
-#pragma make_public(::bec::ListModel)
-#pragma make_public(::bec::TreeModel)
-#pragma make_public(::bec::NodeId)
-#pragma make_public(::bec::GridModel)
-#endif
-
-
-#endif /* _TREE_MODEL_H_ */
+#endif // _TREE_MODEL_H_

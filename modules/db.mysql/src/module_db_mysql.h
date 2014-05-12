@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -253,7 +253,7 @@ public:
   /**
    * generate sql (create or alter) internal only
    */
-  virtual int generateSQL(GrtNamedObjectRef, const grt::DictRef& options, boost::shared_ptr<grt::DiffChange>);
+  virtual ssize_t generateSQL(GrtNamedObjectRef, const grt::DictRef& options, boost::shared_ptr<grt::DiffChange>);
 
   /**
    * generate report (create or alter) internal only
@@ -265,10 +265,10 @@ public:
   /** 
    * generate SQL export script (CREATE statements only)
    */
-  virtual int makeSQLExportScript(GrtNamedObjectRef, 
-                                  grt::DictRef options, 
-                                  const grt::DictRef& createSQL, 
-                                  const grt::DictRef& dropSQL);
+  virtual ssize_t makeSQLExportScript(GrtNamedObjectRef,
+                                      grt::DictRef options, 
+                                      const grt::DictRef& createSQL, 
+                                      const grt::DictRef& dropSQL);
   
   /**
    * generate CREATE SQL script for an individual object
@@ -288,7 +288,7 @@ public:
   /** 
    * generate SQL alter script
    */
-  virtual int makeSQLSyncScript(grt::DictRef options,  const grt::StringListRef& sql_list, const grt::ListRef<GrtNamedObject>& param2);
+  virtual ssize_t makeSQLSyncScript(grt::DictRef options, const grt::StringListRef& sql_list, const grt::ListRef<GrtNamedObject>& param2);
 
   virtual grt::ListRef<db_mysql_StorageEngine> getKnownEngines();
   

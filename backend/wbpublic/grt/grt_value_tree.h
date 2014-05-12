@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,9 +24,6 @@
 #include "tree_model.h"
 #include "wbpublic_public_interface.h"
 
-// XXX: remove this version, it's of no use
-#define ValueTreeBE_VERSION 4
-
 namespace bec {
 
 class WBPUBLICBACKEND_PUBLIC_FUNC ValueTreeBE : public TreeModel
@@ -47,7 +44,6 @@ protected:
 
     Node() : small_icon(0), large_icon(0), expandable(false), expanded(false)
     {
-
     }
 
     virtual ~Node()
@@ -67,33 +63,36 @@ protected:
   };
 
 public:
-  // -----------------------------------------------------------------------------------------
-  // functions used by the UI
-
-  // the columns to display in the treeview
+  // The columns to display in the treeview.
   enum ValueTreeColumns
   {
     Name,
     Type
   };
 
+  ValueTreeBE(grt::GRT *grt);
+  ~ValueTreeBE();
+
   virtual NodeId get_root() const;
 
   // returns the number of children the given node has
-  virtual int count_children(const NodeId &node_id);
+  virtual size_t count_children(const NodeId &node_id);
+
   // returns the child node with the given index, starting with 0
-  virtual NodeId get_child(const NodeId &parent_id, int index);
+  virtual NodeId get_child(const NodeId &parent_id, size_t index);
   
   // get_field() is used to get the node's field captions. column is ValueTreeColumns.Name or ValueTreeColumns.Type
-  virtual bool get_field(const NodeId &node_id, int column, std::string &value);
+  virtual bool get_field(const NodeId &node_id, ColumnId column, std::string &value);
+
   // get_field_icon() is used to get the node's field icon ids. column is ValueTreeColumns.Name or ValueTreeColumns.Type
-  virtual IconId get_field_icon(const NodeId &node_id, int column, IconSize size);
+  virtual IconId get_field_icon(const NodeId &node_id, ColumnId column, IconSize size);
 
   virtual bool is_expandable(const NodeId &node_id);
   virtual bool is_expanded(const NodeId &node_id);
 
   // needs to be called when a node gets expanded
   virtual bool expand_node(const NodeId &node_id);
+
   // needs to be called when a node is collapsed
   virtual void collapse_node(const NodeId &node_id);
 
@@ -101,12 +100,6 @@ public:
 
   // triggers a complete refresh of the tree
   virtual void refresh();
-
-  // -----------------------------------------------------------------------------------------
-  // functions not used by the UI
-
-  ValueTreeBE(grt::GRT *grt);
-  ~ValueTreeBE();
 
   // function to set the tree's topLevel node to a given GRT value
   void set_displayed_value(const grt::ValueRef &value, const std::string &name);
@@ -117,9 +110,7 @@ public:
   void show_captions(bool flag); // displays attr:caption instead of member name
 
   // single function to get all row captions at once
-  bool get_row(const NodeId &node,
-               std::string &name,
-               std::string &type);
+  bool get_row(const NodeId &node, std::string &name, std::string &type);
 
   // returns the actual Value the node represents. not used in the UI directly.
   grt::ValueRef get_node_value(const NodeId &node_id);
@@ -147,7 +138,7 @@ protected:
   bool _show_captions;
   bool _is_global_path;
 
-  virtual grt::Type get_field_type(const NodeId &node_id, int column);
+  virtual grt::Type get_field_type(const NodeId &node_id, ColumnId column);
 
   Node *get_node_for_id(const NodeId &node_id);
 
@@ -158,15 +149,11 @@ protected:
 
   bool rescan_member(const grt::MetaClass::Member *mem, const NodeId &node_id, Node *node, const grt::ObjectRef &value);
    
-  virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
+  virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
 
   void get_expanded_nodes(std::vector<NodeId> &expanded, const NodeId &path, const Node *node);
 };
 
 };
-
-#ifdef _MSC_VER
-#pragma make_public(::bec::ValueTreeBE)
-#endif
 
 #endif /* _GRT_VALUE_TREE_H_ */

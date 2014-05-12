@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "grt_python_debugger.h"
 #include "grt_code_editor.h"
@@ -155,7 +153,7 @@ bool GRTCodeEditor::save(bool choose_file)
   
   std::string data = _text.get_string_value();
   GError *error = 0;
-  if (!g_file_set_contents(_filename.c_str(), data.c_str(), data.size(), &error))
+  if (!g_file_set_contents(_filename.c_str(), data.c_str(), (gssize)data.size(), &error))
   {
     Utilities::show_error("Error Saving File",
                           base::strfmt("Could not save to %s:\n%s", 

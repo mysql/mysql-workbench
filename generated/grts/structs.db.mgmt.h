@@ -39,11 +39,11 @@ typedef grt::Ref<db_mgmt_Management> db_mgmt_ManagementRef;
 
 
 namespace mforms { 
-	class Object;
+  class Object;
 }; 
 
 namespace grt { 
-	class AutoPyObject;
+  class AutoPyObject;
 }; 
 
   /** DB synchronization profile containing a list last known names for each model object in a equivalent schema in the server */
@@ -226,14 +226,14 @@ public:
    \par In Python:
 value = obj.connection
    */
-  grt::Ref<db_mgmt_Connection> connection() const { return _connection; }
+  db_mgmt_ConnectionRef connection() const { return _connection; }
   /** Setter for attribute connection
    
     
     \par In Python:
 obj.connection = value
    */
-  virtual void connection(const grt::Ref<db_mgmt_Connection> &value)
+  virtual void connection(const db_mgmt_ConnectionRef &value)
   {
     grt::ValueRef ovalue(_connection);
    _connection= value;
@@ -274,7 +274,7 @@ public:
 
 protected:
 
-  grt::Ref<db_mgmt_Connection> _connection;
+  db_mgmt_ConnectionRef _connection;
   grt::DictRef _loginInfo;
   grt::DictRef _serverInfo;
 private: // wrapper methods for use by grt
@@ -291,9 +291,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_ServerInstance::create);
     {
-      void (db_mgmt_ServerInstance::*setter)(const grt::Ref<db_mgmt_Connection> &)= &db_mgmt_ServerInstance::connection;
-      grt::Ref<db_mgmt_Connection> (db_mgmt_ServerInstance::*getter)() const= &db_mgmt_ServerInstance::connection;
-      meta->bind_member("connection", new grt::MetaClass::Property<db_mgmt_ServerInstance,grt::Ref<db_mgmt_Connection> >(getter,setter));
+      void (db_mgmt_ServerInstance::*setter)(const db_mgmt_ConnectionRef &)= &db_mgmt_ServerInstance::connection;
+      db_mgmt_ConnectionRef (db_mgmt_ServerInstance::*getter)() const= &db_mgmt_ServerInstance::connection;
+      meta->bind_member("connection", new grt::MetaClass::Property<db_mgmt_ServerInstance,db_mgmt_ConnectionRef >(getter,setter));
     }
     {
       void (db_mgmt_ServerInstance::*setter)(const grt::DictRef &)= &db_mgmt_ServerInstance::loginInfo;
@@ -332,14 +332,14 @@ public:
    \par In Python:
 value = obj.driver
    */
-  grt::Ref<db_mgmt_Driver> driver() const { return _driver; }
+  db_mgmt_DriverRef driver() const { return _driver; }
   /** Setter for attribute driver
    
     the driver used to connect
     \par In Python:
 obj.driver = value
    */
-  virtual void driver(const grt::Ref<db_mgmt_Driver> &value)
+  virtual void driver(const db_mgmt_DriverRef &value)
   {
     grt::ValueRef ovalue(_driver);
    _driver= value;
@@ -420,7 +420,7 @@ public:
 
 protected:
 
-  grt::Ref<db_mgmt_Driver> _driver;
+  db_mgmt_DriverRef _driver;
   grt::StringRef _hostIdentifier;
   grt::IntegerRef _isDefault;
   grt::DictRef _modules;
@@ -439,9 +439,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mgmt_Connection::create);
     {
-      void (db_mgmt_Connection::*setter)(const grt::Ref<db_mgmt_Driver> &)= &db_mgmt_Connection::driver;
-      grt::Ref<db_mgmt_Driver> (db_mgmt_Connection::*getter)() const= &db_mgmt_Connection::driver;
-      meta->bind_member("driver", new grt::MetaClass::Property<db_mgmt_Connection,grt::Ref<db_mgmt_Driver> >(getter,setter));
+      void (db_mgmt_Connection::*setter)(const db_mgmt_DriverRef &)= &db_mgmt_Connection::driver;
+      db_mgmt_DriverRef (db_mgmt_Connection::*getter)() const= &db_mgmt_Connection::driver;
+      meta->bind_member("driver", new grt::MetaClass::Property<db_mgmt_Connection,db_mgmt_DriverRef >(getter,setter));
     }
     {
       void (db_mgmt_Connection::*setter)(const grt::StringRef &)= &db_mgmt_Connection::hostIdentifier;
@@ -1233,14 +1233,14 @@ obj.databaseObjectPackage = value
    \par In Python:
 value = obj.defaultDriver
    */
-  grt::Ref<db_mgmt_Driver> defaultDriver() const { return _defaultDriver; }
+  db_mgmt_DriverRef defaultDriver() const { return _defaultDriver; }
   /** Setter for attribute defaultDriver
    
     the default driver to use
     \par In Python:
 obj.defaultDriver = value
    */
-  virtual void defaultDriver(const grt::Ref<db_mgmt_Driver> &value)
+  virtual void defaultDriver(const db_mgmt_DriverRef &value)
   {
     grt::ValueRef ovalue(_defaultDriver);
    _defaultDriver= value;
@@ -1348,14 +1348,14 @@ public:
    \par In Python:
 value = obj.version
    */
-  grt::Ref<GrtVersion> version() const { return _version; }
+  GrtVersionRef version() const { return _version; }
   /** Setter for attribute version
    
     version of the catalog's database
     \par In Python:
 obj.version = value
    */
-  virtual void version(const grt::Ref<GrtVersion> &value)
+  virtual void version(const GrtVersionRef &value)
   {
     grt::ValueRef ovalue(_version);
 
@@ -1368,13 +1368,13 @@ protected:
   grt::StringRef _caption;
   grt::ListRef<db_CharacterSet> _characterSets;// owned
   grt::StringRef _databaseObjectPackage;
-  grt::Ref<db_mgmt_Driver> _defaultDriver;
+  db_mgmt_DriverRef _defaultDriver;
   grt::IntegerRef _doesSupportCatalogs;
   grt::ListRef<db_mgmt_Driver> _drivers;// owned
   grt::IntegerRef _maximumIdentifierLength;
   grt::ListRef<db_mgmt_PrivilegeMapping> _privilegeNames;// owned
   grt::ListRef<db_SimpleDatatype> _simpleDatatypes;// owned
-  grt::Ref<GrtVersion> _version;// owned
+  GrtVersionRef _version;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -1404,9 +1404,9 @@ public:
       meta->bind_member("databaseObjectPackage", new grt::MetaClass::Property<db_mgmt_Rdbms,grt::StringRef >(getter,setter));
     }
     {
-      void (db_mgmt_Rdbms::*setter)(const grt::Ref<db_mgmt_Driver> &)= &db_mgmt_Rdbms::defaultDriver;
-      grt::Ref<db_mgmt_Driver> (db_mgmt_Rdbms::*getter)() const= &db_mgmt_Rdbms::defaultDriver;
-      meta->bind_member("defaultDriver", new grt::MetaClass::Property<db_mgmt_Rdbms,grt::Ref<db_mgmt_Driver> >(getter,setter));
+      void (db_mgmt_Rdbms::*setter)(const db_mgmt_DriverRef &)= &db_mgmt_Rdbms::defaultDriver;
+      db_mgmt_DriverRef (db_mgmt_Rdbms::*getter)() const= &db_mgmt_Rdbms::defaultDriver;
+      meta->bind_member("defaultDriver", new grt::MetaClass::Property<db_mgmt_Rdbms,db_mgmt_DriverRef >(getter,setter));
     }
     {
       void (db_mgmt_Rdbms::*setter)(const grt::IntegerRef &)= &db_mgmt_Rdbms::doesSupportCatalogs;
@@ -1434,9 +1434,9 @@ public:
       meta->bind_member("simpleDatatypes", new grt::MetaClass::Property<db_mgmt_Rdbms,grt::ListRef<db_SimpleDatatype> >(getter,setter));
     }
     {
-      void (db_mgmt_Rdbms::*setter)(const grt::Ref<GrtVersion> &)= &db_mgmt_Rdbms::version;
-      grt::Ref<GrtVersion> (db_mgmt_Rdbms::*getter)() const= &db_mgmt_Rdbms::version;
-      meta->bind_member("version", new grt::MetaClass::Property<db_mgmt_Rdbms,grt::Ref<GrtVersion> >(getter,setter));
+      void (db_mgmt_Rdbms::*setter)(const GrtVersionRef &)= &db_mgmt_Rdbms::version;
+      GrtVersionRef (db_mgmt_Rdbms::*getter)() const= &db_mgmt_Rdbms::version;
+      meta->bind_member("version", new grt::MetaClass::Property<db_mgmt_Rdbms,GrtVersionRef >(getter,setter));
     }
   }
 };

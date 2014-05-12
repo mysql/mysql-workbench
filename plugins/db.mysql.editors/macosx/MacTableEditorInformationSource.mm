@@ -74,7 +74,7 @@
 {
   BOOL result = NO;
   if ([self listModel] != nil) {
-    result = [self listModel]->set_field(rowIndex, valueIndex, (int)value);
+    result = [self listModel]->set_field(rowIndex, valueIndex, (ssize_t)value);
   }
   
   [self listModel]->refresh();

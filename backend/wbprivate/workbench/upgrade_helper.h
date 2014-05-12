@@ -4,7 +4,6 @@
 
 // Helper classes and functions for upgrading options and model files.
 
-#include "stdafx.h"
 #include "grt/common.h"
 #include "wb_model_file.h"
 

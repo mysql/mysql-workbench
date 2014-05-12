@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "schema_matching_page.h"
 #include "grt/icon_manager.h"
 #include "grts/structs.db.h"

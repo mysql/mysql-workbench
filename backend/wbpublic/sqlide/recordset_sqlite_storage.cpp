@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-
-#include "stdafx.h"
 
 #include "recordset_sqlite_storage.h"
 #include "recordset_be.h"
@@ -130,9 +127,9 @@ void Recordset_sqlite_storage::do_unserialize(Recordset *recordset, sqlite::conn
 
   column_types.reserve(col_count);
   // some column types might be defined in derived class. don't redefine types for those columns.
-  for (int n= column_types.size(); n < col_count; ++n)
+  for (int n = (int)column_types.size(); n < col_count; ++n)
   {
-    std::string type_name= rs->get_column_decltype(n);
+    std::string type_name = rs->get_column_decltype(n);
     type_name = base::toupper(type_name);
     std::string::size_type tne= type_name.find('(');
     type_name= type_name.substr(0, tne);
@@ -144,7 +141,7 @@ void Recordset_sqlite_storage::do_unserialize(Recordset *recordset, sqlite::conn
   // column names
   column_names.reserve(col_count);
   // some column names might be defined in derived class. don't redefine names for those columns.
-  for (int n= column_names.size(); n < col_count; ++n)
+  for (int n = (int)column_names.size(); n < col_count; ++n)
     column_names.push_back(rs->get_column_name(n));
 
   // pkey columns

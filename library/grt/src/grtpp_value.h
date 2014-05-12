@@ -20,6 +20,14 @@
 #ifndef _GRTPP_VALUE_H_
 #define _GRTPP_VALUE_H_
 
+#ifdef _WIN32
+  #ifdef _WIN64
+    typedef __int64 ssize_t;
+  #else
+    typedef int ssize_t;
+  #endif
+#endif
+
 #include <boost/signals2.hpp>
 #include "base/threading.h"
 
@@ -189,11 +197,11 @@ namespace grt {
     };
     
     
-    
+    // 32 bit or 64 bit integer type.
     class MYSQLGRT_PUBLIC Integer : public Value
     {
     public:
-      typedef long storage_type;
+      typedef ssize_t storage_type;
       
     public:    
       Integer(storage_type value);
@@ -449,14 +457,6 @@ namespace grt {
     };
 
     //------------------------------------------------------------------------------------------------
-    //QQQ Do we really need this, looks like this enum is never used
-    enum ListChangeType
-    {
-      ListAdded,
-      ListRemoved,
-      ListReplaced
-    };
-    
     
     /** Object validity flag for weak-references
      * 

@@ -36,6 +36,14 @@ class model_Model;
 typedef grt::Ref<model_Model> model_ModelRef;
 
 
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
+
   /** a marker storing the active diagram and position on the diagram */
 class  model_Marker : public GrtObject
 {
@@ -58,14 +66,14 @@ public:
    \par In Python:
 value = obj.diagram
    */
-  grt::Ref<GrtObject> diagram() const { return _diagram; }
+  GrtObjectRef diagram() const { return _diagram; }
   /** Setter for attribute diagram
    
     
     \par In Python:
 obj.diagram = value
    */
-  virtual void diagram(const grt::Ref<GrtObject> &value)
+  virtual void diagram(const GrtObjectRef &value)
   {
     grt::ValueRef ovalue(_diagram);
    _diagram= value;
@@ -134,7 +142,7 @@ obj.zoom = value
 
 protected:
 
-  grt::Ref<GrtObject> _diagram;
+  GrtObjectRef _diagram;
   grt::DoubleRef _x;
   grt::DoubleRef _y;
   grt::DoubleRef _zoom;
@@ -152,9 +160,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Marker::create);
     {
-      void (model_Marker::*setter)(const grt::Ref<GrtObject> &)= &model_Marker::diagram;
-      grt::Ref<GrtObject> (model_Marker::*getter)() const= &model_Marker::diagram;
-      meta->bind_member("diagram", new grt::MetaClass::Property<model_Marker,grt::Ref<GrtObject> >(getter,setter));
+      void (model_Marker::*setter)(const GrtObjectRef &)= &model_Marker::diagram;
+      GrtObjectRef (model_Marker::*getter)() const= &model_Marker::diagram;
+      meta->bind_member("diagram", new grt::MetaClass::Property<model_Marker,GrtObjectRef >(getter,setter));
     }
     {
       void (model_Marker::*setter)(const grt::DoubleRef &)= &model_Marker::x;
@@ -233,14 +241,14 @@ public:
    \par In Python:
 value = obj.owner
    */
-  grt::Ref<model_Diagram> owner() const { return grt::Ref<model_Diagram>::cast_from(_owner); }
+  model_DiagramRef owner() const { return model_DiagramRef::cast_from(_owner); }
   /** Setter for attribute owner
    
     
     \par In Python:
 obj.owner = value
    */
-  virtual void owner(const grt::Ref<model_Diagram> &value) { super::owner(value); }
+  virtual void owner(const model_DiagramRef &value) { super::owner(value); }
 
   /** Getter for attribute subGroups (read-only)
    
@@ -287,9 +295,9 @@ public:
       meta->bind_member("figures", new grt::MetaClass::Property<model_Group,grt::ListRef<model_Figure> >(getter,setter));
     }
     {
-      void (model_Group::*setter)(const grt::Ref<model_Diagram> &)= 0;
-      grt::Ref<model_Diagram> (model_Group::*getter)() const= 0;
-      meta->bind_member("owner", new grt::MetaClass::Property<model_Group,grt::Ref<model_Diagram> >(getter,setter));
+      void (model_Group::*setter)(const model_DiagramRef &)= 0;
+      model_DiagramRef (model_Group::*getter)() const= 0;
+      meta->bind_member("owner", new grt::MetaClass::Property<model_Group,model_DiagramRef >(getter,setter));
     }
     {
       void (model_Group::*setter)(const grt::ListRef<model_Group> &)= &model_Group::subGroups;
@@ -325,14 +333,14 @@ public:
    \par In Python:
 value = obj.owner
    */
-  grt::Ref<model_Diagram> owner() const { return grt::Ref<model_Diagram>::cast_from(_owner); }
+  model_DiagramRef owner() const { return model_DiagramRef::cast_from(_owner); }
   /** Setter for attribute owner
    
     
     \par In Python:
 obj.owner = value
    */
-  virtual void owner(const grt::Ref<model_Diagram> &value) { super::owner(value); }
+  virtual void owner(const model_DiagramRef &value) { super::owner(value); }
 
   /** Getter for attribute visible
    
@@ -358,7 +366,7 @@ obj.visible = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -380,9 +388,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&model_Object::create);
     {
-      void (model_Object::*setter)(const grt::Ref<model_Diagram> &)= 0;
-      grt::Ref<model_Diagram> (model_Object::*getter)() const= 0;
-      meta->bind_member("owner", new grt::MetaClass::Property<model_Object,grt::Ref<model_Diagram> >(getter,setter));
+      void (model_Object::*setter)(const model_DiagramRef &)= 0;
+      model_DiagramRef (model_Object::*getter)() const= 0;
+      meta->bind_member("owner", new grt::MetaClass::Property<model_Object,model_DiagramRef >(getter,setter));
     }
     {
       void (model_Object::*setter)(const grt::IntegerRef &)= &model_Object::visible;
@@ -593,18 +601,18 @@ obj.width = value
   \return 
 
    */
-  virtual void lowerFigure(const grt::Ref<model_Figure> &figure);
+  virtual void lowerFigure(const model_FigureRef &figure);
   /** Method. 
   \param figure 
   \return 
 
    */
-  virtual void raiseFigure(const grt::Ref<model_Figure> &figure);
+  virtual void raiseFigure(const model_FigureRef &figure);
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -626,9 +634,9 @@ private: // wrapper methods for use by grt
     return grt::ObjectRef(new model_Layer(grt));
   }
 
-  static grt::ValueRef call_lowerFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Layer*>(self)->lowerFigure(grt::Ref<model_Figure>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_lowerFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Layer*>(self)->lowerFigure(model_FigureRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_raiseFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Layer*>(self)->raiseFigure(grt::Ref<model_Figure>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_raiseFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Layer*>(self)->raiseFigure(model_FigureRef::cast_from(args[0])); return grt::ValueRef(); }
 
 
 public:
@@ -733,14 +741,14 @@ obj.drawSplit = value
    \par In Python:
 value = obj.endFigure
    */
-  grt::Ref<model_Figure> endFigure() const { return _endFigure; }
+  model_FigureRef endFigure() const { return _endFigure; }
   /** Setter for attribute endFigure
    
     the target figure
     \par In Python:
 obj.endFigure = value
    */
-  virtual void endFigure(const grt::Ref<model_Figure> &value)
+  virtual void endFigure(const model_FigureRef &value)
   {
     grt::ValueRef ovalue(_endFigure);
    _endFigure= value;
@@ -753,14 +761,14 @@ obj.endFigure = value
    \par In Python:
 value = obj.startFigure
    */
-  grt::Ref<model_Figure> startFigure() const { return _startFigure; }
+  model_FigureRef startFigure() const { return _startFigure; }
   /** Setter for attribute startFigure
    
     the source figure
     \par In Python:
 obj.startFigure = value
    */
-  virtual void startFigure(const grt::Ref<model_Figure> &value)
+  virtual void startFigure(const model_FigureRef &value)
   {
     grt::ValueRef ovalue(_startFigure);
    _startFigure= value;
@@ -771,14 +779,14 @@ obj.startFigure = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
 
   grt::IntegerRef _drawSplit;
-  grt::Ref<model_Figure> _endFigure;
-  grt::Ref<model_Figure> _startFigure;
+  model_FigureRef _endFigure;
+  model_FigureRef _startFigure;
 private: // wrapper methods for use by grt
   ImplData *_data;
 
@@ -800,14 +808,14 @@ public:
       meta->bind_member("drawSplit", new grt::MetaClass::Property<model_Connection,grt::IntegerRef >(getter,setter));
     }
     {
-      void (model_Connection::*setter)(const grt::Ref<model_Figure> &)= &model_Connection::endFigure;
-      grt::Ref<model_Figure> (model_Connection::*getter)() const= &model_Connection::endFigure;
-      meta->bind_member("endFigure", new grt::MetaClass::Property<model_Connection,grt::Ref<model_Figure> >(getter,setter));
+      void (model_Connection::*setter)(const model_FigureRef &)= &model_Connection::endFigure;
+      model_FigureRef (model_Connection::*getter)() const= &model_Connection::endFigure;
+      meta->bind_member("endFigure", new grt::MetaClass::Property<model_Connection,model_FigureRef >(getter,setter));
     }
     {
-      void (model_Connection::*setter)(const grt::Ref<model_Figure> &)= &model_Connection::startFigure;
-      grt::Ref<model_Figure> (model_Connection::*getter)() const= &model_Connection::startFigure;
-      meta->bind_member("startFigure", new grt::MetaClass::Property<model_Connection,grt::Ref<model_Figure> >(getter,setter));
+      void (model_Connection::*setter)(const model_FigureRef &)= &model_Connection::startFigure;
+      model_FigureRef (model_Connection::*getter)() const= &model_Connection::startFigure;
+      meta->bind_member("startFigure", new grt::MetaClass::Property<model_Connection,model_FigureRef >(getter,setter));
     }
   }
 };
@@ -880,14 +888,14 @@ obj.expanded = value
    \par In Python:
 value = obj.group
    */
-  grt::Ref<model_Group> group() const { return _group; }
+  model_GroupRef group() const { return _group; }
   /** Setter for attribute group
    
     
     \par In Python:
 obj.group = value
    */
-  virtual void group(const grt::Ref<model_Group> &value)
+  virtual void group(const model_GroupRef &value)
   {
     grt::ValueRef ovalue(_group);
    _group= value;
@@ -920,14 +928,14 @@ obj.height = value
    \par In Python:
 value = obj.layer
    */
-  grt::Ref<model_Layer> layer() const { return _layer; }
+  model_LayerRef layer() const { return _layer; }
   /** Setter for attribute layer
    
     
     \par In Python:
 obj.layer = value
    */
-  virtual void layer(const grt::Ref<model_Layer> &value);
+  virtual void layer(const model_LayerRef &value);
 
   /** Getter for attribute left
    
@@ -1033,16 +1041,16 @@ obj.width = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
 
   grt::StringRef _color;
   grt::IntegerRef _expanded;
-  grt::Ref<model_Group> _group;
+  model_GroupRef _group;
   grt::DoubleRef _height;
-  grt::Ref<model_Layer> _layer;
+  model_LayerRef _layer;
   grt::DoubleRef _left;
   grt::IntegerRef _locked;
   grt::IntegerRef _manualSizing;
@@ -1074,9 +1082,9 @@ public:
       meta->bind_member("expanded", new grt::MetaClass::Property<model_Figure,grt::IntegerRef >(getter,setter));
     }
     {
-      void (model_Figure::*setter)(const grt::Ref<model_Group> &)= &model_Figure::group;
-      grt::Ref<model_Group> (model_Figure::*getter)() const= &model_Figure::group;
-      meta->bind_member("group", new grt::MetaClass::Property<model_Figure,grt::Ref<model_Group> >(getter,setter));
+      void (model_Figure::*setter)(const model_GroupRef &)= &model_Figure::group;
+      model_GroupRef (model_Figure::*getter)() const= &model_Figure::group;
+      meta->bind_member("group", new grt::MetaClass::Property<model_Figure,model_GroupRef >(getter,setter));
     }
     {
       void (model_Figure::*setter)(const grt::DoubleRef &)= &model_Figure::height;
@@ -1084,9 +1092,9 @@ public:
       meta->bind_member("height", new grt::MetaClass::Property<model_Figure,grt::DoubleRef >(getter,setter));
     }
     {
-      void (model_Figure::*setter)(const grt::Ref<model_Layer> &)= &model_Figure::layer;
-      grt::Ref<model_Layer> (model_Figure::*getter)() const= &model_Figure::layer;
-      meta->bind_member("layer", new grt::MetaClass::Property<model_Figure,grt::Ref<model_Layer> >(getter,setter));
+      void (model_Figure::*setter)(const model_LayerRef &)= &model_Figure::layer;
+      model_LayerRef (model_Figure::*getter)() const= &model_Figure::layer;
+      meta->bind_member("layer", new grt::MetaClass::Property<model_Figure,model_LayerRef >(getter,setter));
     }
     {
       void (model_Figure::*setter)(const grt::DoubleRef &)= &model_Figure::left;
@@ -1149,9 +1157,9 @@ public:
   static std::string static_class_name() { return "model.Diagram"; }
 
   // args: 
-  boost::signals2::signal<void (grt::Ref<model_Object>, int) >* signal_objectActivated() { return &_signal_objectActivated; }
+  boost::signals2::signal<void (model_ObjectRef, ssize_t) >* signal_objectActivated() { return &_signal_objectActivated; }
   // args: 
-  boost::signals2::signal<void (grt::Ref<model_Object>) >* signal_refreshDisplay() { return &_signal_refreshDisplay; }
+  boost::signals2::signal<void (model_ObjectRef) >* signal_refreshDisplay() { return &_signal_refreshDisplay; }
   /** Getter for attribute closed
    
     
@@ -1301,14 +1309,14 @@ public:
    \par In Python:
 value = obj.owner
    */
-  grt::Ref<model_Model> owner() const { return grt::Ref<model_Model>::cast_from(_owner); }
+  model_ModelRef owner() const { return model_ModelRef::cast_from(_owner); }
   /** Setter for attribute owner
    
     
     \par In Python:
 obj.owner = value
    */
-  virtual void owner(const grt::Ref<model_Model> &value) { super::owner(value); }
+  virtual void owner(const model_ModelRef &value) { super::owner(value); }
 
   // rootLayer is owned by model_Diagram
   /** Getter for attribute rootLayer
@@ -1317,14 +1325,14 @@ obj.owner = value
    \par In Python:
 value = obj.rootLayer
    */
-  grt::Ref<model_Layer> rootLayer() const { return _rootLayer; }
+  model_LayerRef rootLayer() const { return _rootLayer; }
   /** Setter for attribute rootLayer
    
     
     \par In Python:
 obj.rootLayer = value
    */
-  virtual void rootLayer(const grt::Ref<model_Layer> &value);
+  virtual void rootLayer(const model_LayerRef &value);
 
   /** Getter for attribute selection (read-only)
    
@@ -1447,25 +1455,25 @@ obj.zoom = value
   \return 
 
    */
-  virtual void addConnection(const grt::Ref<model_Connection> &connection);
+  virtual void addConnection(const model_ConnectionRef &connection);
   /** Method. 
   \param figure 
   \return 
 
    */
-  virtual void addFigure(const grt::Ref<model_Figure> &figure);
+  virtual void addFigure(const model_FigureRef &figure);
   /** Method. 
   \param flag 
   \return 
 
    */
-  virtual void blockUpdates(long flag);
+  virtual void blockUpdates(ssize_t flag);
   /** Method. 
   \param layer 
   \return 
 
    */
-  virtual void deleteLayer(const grt::Ref<model_Layer> &layer);
+  virtual void deleteLayer(const model_LayerRef &layer);
   /** Method. 
   \param x 
   \param y 
@@ -1475,32 +1483,32 @@ obj.zoom = value
   \return 
 
    */
-  virtual grt::Ref<model_Layer> placeNewLayer(double x, double y, double width, double height, const std::string &name)= 0;
+  virtual model_LayerRef placeNewLayer(double x, double y, double width, double height, const std::string &name)= 0;
   /** Method. 
   \param connection 
   \return 
 
    */
-  virtual void removeConnection(const grt::Ref<model_Connection> &connection);
+  virtual void removeConnection(const model_ConnectionRef &connection);
   /** Method. 
   \param figure 
   \return 
 
    */
-  virtual void removeFigure(const grt::Ref<model_Figure> &figure);
+  virtual void removeFigure(const model_FigureRef &figure);
   /** Method. 
   \param object 
   \return 
 
    */
-  virtual void selectObject(const grt::Ref<model_Object> &object);
+  virtual void selectObject(const model_ObjectRef &object);
   /** Method. 
   \param xpages 
   \param ypages 
   \return 
 
    */
-  virtual void setPageCounts(long xpages, long ypages);
+  virtual void setPageCounts(ssize_t xpages, ssize_t ypages);
   /** Method. 
   \return 
 
@@ -1511,17 +1519,17 @@ obj.zoom = value
   \return 
 
    */
-  virtual void unselectObject(const grt::Ref<model_Object> &object);
+  virtual void unselectObject(const model_ObjectRef &object);
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
-  boost::signals2::signal<void (grt::Ref<model_Object>, int) > _signal_objectActivated;
-  boost::signals2::signal<void (grt::Ref<model_Object>) > _signal_refreshDisplay;
+  boost::signals2::signal<void (model_ObjectRef, ssize_t) > _signal_objectActivated;
+  boost::signals2::signal<void (model_ObjectRef) > _signal_refreshDisplay;
 
   grt::IntegerRef _closed;
   grt::ListRef<model_Connection> _connections;// owned
@@ -1530,7 +1538,7 @@ protected:
   grt::DoubleRef _height;
   grt::ListRef<model_Layer> _layers;// owned
   grt::DictRef _options;
-  grt::Ref<model_Layer> _rootLayer;// owned
+  model_LayerRef _rootLayer;// owned
   grt::ListRef<model_Object> _selection;
   grt::IntegerRef _updateBlocked;
   grt::DoubleRef _width;
@@ -1540,27 +1548,27 @@ protected:
 private: // wrapper methods for use by grt
   ImplData *_data;
 
-  static grt::ValueRef call_addConnection(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->addConnection(grt::Ref<model_Connection>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_addConnection(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->addConnection(model_ConnectionRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_addFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->addFigure(grt::Ref<model_Figure>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_addFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->addFigure(model_FigureRef::cast_from(args[0])); return grt::ValueRef(); }
 
   static grt::ValueRef call_blockUpdates(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->blockUpdates(grt::IntegerRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_deleteLayer(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->deleteLayer(grt::Ref<model_Layer>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_deleteLayer(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->deleteLayer(model_LayerRef::cast_from(args[0])); return grt::ValueRef(); }
 
   static grt::ValueRef call_placeNewLayer(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<model_Diagram*>(self)->placeNewLayer(grt::DoubleRef::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2]), grt::DoubleRef::cast_from(args[3]), grt::StringRef::cast_from(args[4])); }
 
-  static grt::ValueRef call_removeConnection(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->removeConnection(grt::Ref<model_Connection>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_removeConnection(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->removeConnection(model_ConnectionRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_removeFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->removeFigure(grt::Ref<model_Figure>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_removeFigure(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->removeFigure(model_FigureRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_selectObject(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->selectObject(grt::Ref<model_Object>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_selectObject(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->selectObject(model_ObjectRef::cast_from(args[0])); return grt::ValueRef(); }
 
   static grt::ValueRef call_setPageCounts(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->setPageCounts(grt::IntegerRef::cast_from(args[0]), grt::IntegerRef::cast_from(args[1])); return grt::ValueRef(); }
 
   static grt::ValueRef call_unselectAll(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->unselectAll(); return grt::ValueRef(); }
 
-  static grt::ValueRef call_unselectObject(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->unselectObject(grt::Ref<model_Object>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_unselectObject(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<model_Diagram*>(self)->unselectObject(model_ObjectRef::cast_from(args[0])); return grt::ValueRef(); }
 
 
 public:
@@ -1610,14 +1618,14 @@ public:
       meta->bind_member("options", new grt::MetaClass::Property<model_Diagram,grt::DictRef >(getter,setter));
     }
     {
-      void (model_Diagram::*setter)(const grt::Ref<model_Model> &)= 0;
-      grt::Ref<model_Model> (model_Diagram::*getter)() const= 0;
-      meta->bind_member("owner", new grt::MetaClass::Property<model_Diagram,grt::Ref<model_Model> >(getter,setter));
+      void (model_Diagram::*setter)(const model_ModelRef &)= 0;
+      model_ModelRef (model_Diagram::*getter)() const= 0;
+      meta->bind_member("owner", new grt::MetaClass::Property<model_Diagram,model_ModelRef >(getter,setter));
     }
     {
-      void (model_Diagram::*setter)(const grt::Ref<model_Layer> &)= &model_Diagram::rootLayer;
-      grt::Ref<model_Layer> (model_Diagram::*getter)() const= &model_Diagram::rootLayer;
-      meta->bind_member("rootLayer", new grt::MetaClass::Property<model_Diagram,grt::Ref<model_Layer> >(getter,setter));
+      void (model_Diagram::*setter)(const model_LayerRef &)= &model_Diagram::rootLayer;
+      model_LayerRef (model_Diagram::*getter)() const= &model_Diagram::rootLayer;
+      meta->bind_member("rootLayer", new grt::MetaClass::Property<model_Diagram,model_LayerRef >(getter,setter));
     }
     {
       void (model_Diagram::*setter)(const grt::ListRef<model_Object> &)= &model_Diagram::selection;
@@ -1691,14 +1699,14 @@ public:
    \par In Python:
 value = obj.currentDiagram
    */
-  grt::Ref<model_Diagram> currentDiagram() const { return _currentDiagram; }
+  model_DiagramRef currentDiagram() const { return _currentDiagram; }
   /** Setter for attribute currentDiagram
    
     the currently active diagram
     \par In Python:
 obj.currentDiagram = value
    */
-  virtual void currentDiagram(const grt::Ref<model_Diagram> &value)
+  virtual void currentDiagram(const model_DiagramRef &value)
   {
     grt::ValueRef ovalue(_currentDiagram);
    _currentDiagram= value;
@@ -1778,17 +1786,17 @@ public:
   \return 
 
    */
-  virtual grt::Ref<model_Diagram> addNewDiagram(long deferRealize)= 0;
+  virtual model_DiagramRef addNewDiagram(ssize_t deferRealize)= 0;
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
 
-  grt::Ref<model_Diagram> _currentDiagram;
+  model_DiagramRef _currentDiagram;
   grt::DictRef _customData;
   grt::ListRef<model_Diagram> _diagrams;// owned
   grt::ListRef<model_Marker> _markers;// owned
@@ -1806,9 +1814,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(0);
     {
-      void (model_Model::*setter)(const grt::Ref<model_Diagram> &)= &model_Model::currentDiagram;
-      grt::Ref<model_Diagram> (model_Model::*getter)() const= &model_Model::currentDiagram;
-      meta->bind_member("currentDiagram", new grt::MetaClass::Property<model_Model,grt::Ref<model_Diagram> >(getter,setter));
+      void (model_Model::*setter)(const model_DiagramRef &)= &model_Model::currentDiagram;
+      model_DiagramRef (model_Model::*getter)() const= &model_Model::currentDiagram;
+      meta->bind_member("currentDiagram", new grt::MetaClass::Property<model_Model,model_DiagramRef >(getter,setter));
     }
     {
       void (model_Model::*setter)(const grt::DictRef &)= &model_Model::customData;

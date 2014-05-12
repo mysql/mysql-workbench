@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
 #include "connection_helpers.h"
 #include "test_fixture.h"
 #include "base/file_utilities.h"

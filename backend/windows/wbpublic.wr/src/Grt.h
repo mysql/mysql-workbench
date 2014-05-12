@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,18 +25,6 @@
 #include "grt/grt_manager.h"
 #include "grt/grt_shell.h"
 #include "ConvUtils.h"
-
-#include <exception>
-#pragma make_public(std::exception)
-
-#ifdef _MSC_VER
-using namespace System;
-using namespace System::Collections::Generic;
-#endif
-
-#pragma make_public(grt::ValueRef)
-#pragma make_public(grt::Module)
-#pragma make_public(::grt::DictRef)
 
 namespace MySQL {
 namespace Grt {
@@ -111,17 +99,17 @@ public:
   {
     return (GrtValueType)inner->type(); 
   }
-  bool is_object_instance_of(String ^struct_name)
+  bool is_object_instance_of(System::String ^struct_name)
   {
     if (get_type() == GrtValueType::ObjectValue)
       return ::grt::ObjectRef::cast_from(*inner).is_instance(NativeToCppString(struct_name));
     return false;
   }
 
-  String^ object_id()
+  System::String^ object_id()
   {
     if (get_type() != GrtValueType::ObjectValue || !inner || ::grt::ObjectRef::cast_from(*inner).id().empty())
-      return gcnew String("");
+      return gcnew System::String("");
 
     return CppStringToNative(::grt::ObjectRef::cast_from(*inner).id());
   }
@@ -169,84 +157,7 @@ public:
   ::grt::GRT *get_unmanaged_object() 
     { return inner; }
 
-  //static GRT *instance(MYX_GRT *grt)
-  //  { return GRT::instance(grt); }
-
-  //MYX_GRT *grt()
-  //  { return inner->grt(); }
-
-  //  // module wrapper access
-  //Module *get_module(const std::string &name)
-  //  { return inner->get_module(name); }
-
-  //bool register_module(Module *module)
-  //  { return inner->register_module(module); }
-
-  //void register_new_module(const char *module_name, const ModuleList *modules, const InterfaceList *ifaces, ...)
-  //  { return inner->register_new_module(module_name, ); }
-  
-  //void register_new_interface(const char *iface_name, ...)
-  //  { return inner-> }
-
-  //std::vector<Interface*> get_modules_matching(const std::string &interface_name,
-  //                                             const std::string &name_pattern)
-  //  { return inner-> }
-
-  ////module management (add new modules)
-
-  //void register_native_module(const char *modulename, ... /* list of ModuleFunctors */ )
-  //  { return inner-> }
-
-  /*
-  // structs
-  void load_structs_from(String^ path)
-    { inner->load_structs_from(NativeToCppString(path)); }
-  */
-  //int scan_structs_from(const std::string &path)
-  //  { return inner-> }
-
-  //Struct get_struct(const std::string &name)
-  //  { return inner-> }
-
-  //// values
-  //bool serialize(const GenericValue &value, const std::string &path)
-  //  { return inner-> }
-
-  //GenericValue unserialize(const std::string &path)
-  //  { return inner-> }
-
-  //inline GenericValue root()
-  //  { return inner-> }
-
-  //void load_global_tree(const std::string &path)
-  //  { return inner-> }
-
-  //ObjectValue create_object(const char *struct_name, ...)
-  //  { return inner-> }
-
-  //inline GenericValue get(const std::string &path) 
-  //  { return inner-> }
-
-  //inline void set(const std::string &path, const GenericValue &value)
-  //  { return inner-> }
-
-  //// notifications
-  //void enable_thread_notifications()
-  //  { return inner-> }
-
-  //void flush_notifications()
-  //  { return inner-> }
-
-  //void post_notification_now(const std::string &name, const GenericValue &value, const GenericValue &argdata)
-  //  { return inner-> }
-
-  //void post_notification_later(const std::string &name, const GenericValue &value, const GenericValue &argdata)
-  //  { return inner-> }
-
-  //void remove_thread_listeners()
-  //  { return inner-> }
-
-  static String^ version()
+  static System::String^ version()
   {
     return CppStringToNative(GRT_VERSION);
   }

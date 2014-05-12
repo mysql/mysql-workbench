@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -207,7 +207,7 @@ public:
     /** Appends the given number of chars to end of the document. Allows to add nulls too.
      *  The length is (as always) a byte count.
      */
-    void append_text(const char* text, int length);
+    void append_text(const char* text, size_t length);
 
     /** Replaces the selected text in the editor by the new text. If no text is selected then 
      *  the new text is inserted at the caret position. */
@@ -223,7 +223,7 @@ public:
     /** Returns the text in the given range (inclusive endpoints), regardless of the selection state.
      *  The range is automatically adjusted if it lies outside the available total text range.
      */
-    const std::string get_text_in_range(int start, int end);
+    const std::string get_text_in_range(size_t start, size_t end);
 
     /** Returns a direct pointer to the text in the editor control (no copying takes place) and its length
      *  in bytes. The text can contain embedded nulls and should therefore not be handled like
@@ -239,50 +239,50 @@ public:
      * NOTE: Scintilla uses bytes everywhere when a position or length is set or read. So be very
      *       careful when doing char maths (we use utf-8 with a variable code length per character).
      */
-    void set_selection(int start, int length);
+    void set_selection(size_t start, size_t length);
 
     /** Gets the current selection range. */
-    void get_selection(int &start, int &length);
+    void get_selection(size_t &start, size_t &length);
 
     /** Removes the current selection without moving the caret. */
     void clear_selection();
 
     /** Gets the byte range for the given line. Returns false if the line number is invalid */
-    bool get_range_of_line(int line, int &start, int &end);
+    bool get_range_of_line(ssize_t line, ssize_t &start, ssize_t &end);
     
     /** Sets the language for the syntax highlighter. */
     void set_language(SyntaxHighlighterLanguage language);
 
     /** Adds the given markup to a line if not yet there. Does not touch other markup. */
-    void show_markup(LineMarkup markup, int line);
+    void show_markup(LineMarkup markup, size_t line);
 
     /** Removes the given markup from that line, without affecting other markup (except for LineMarkupAll).
      *  If markup is LineMarkupAll then all markers are removed for the given line.
      *  If line is < 0 then all marker are removed from all lines.
      *  However, it is not possible to remove a specific marker from all lines.
      */
-    void remove_markup(LineMarkup markup, int line);
+    void remove_markup(LineMarkup markup, ssize_t line);
 
     /** Adds the given indicator styling to a range of characters. */
-    void show_indicator(RangeIndicator indicator, int start, int length);
+    void show_indicator(RangeIndicator indicator, size_t start, size_t length);
 
     /** Returns the indicator styling at the given position (if any). */
-    RangeIndicator indicator_at(int position);
+    RangeIndicator indicator_at(size_t position);
 
     /** Removes the given indicator styling from the given range. */
-    void remove_indicator(RangeIndicator indicator, int start, int length);
+    void remove_indicator(RangeIndicator indicator, size_t start, size_t length);
 
     /** Returns the number of lines currently in the editor. */
-    int line_count();
+    size_t line_count();
 
     /** The total length of the text in the editor in bytes. */
-    int text_length();
+    size_t text_length();
 
     /** Returns the character position of the given line. */
-    int position_from_line(int line_number);
+    size_t position_from_line(size_t line_number);
 
     /** Returns the line number from the given character position. */
-    int line_from_position(int position);
+    size_t line_from_position(size_t position);
 
     void set_font(const std::string &fontDescription); // e.g. "Trebuchet MS bold 9"
     
@@ -297,11 +297,11 @@ public:
     bool is_dirty();
 
     /** Retrieves or sets the position of the caret in the editor, specified as byte position. */
-    int get_caret_pos();
-    void set_caret_pos(int position);
+    size_t get_caret_pos();
+    void set_caret_pos(size_t position);
     
     /** Retrieves the line and column (both zero-based) for a given byte position. */
-    void get_line_column_pos(int position, int &line, int &column);
+    void get_line_column_pos(size_t position, size_t &line, size_t &column);
 
     /** Standard edit functions used from menus. */
     bool can_undo();
@@ -339,7 +339,7 @@ public:
 
     /** Searches for the given text according to the parameters and replaces it by the text.
      *  Returns the number of replaced text occurrences. */
-    int find_and_replace_text(const std::string& search_text, const std::string& new_text, 
+    size_t find_and_replace_text(const std::string& search_text, const std::string& new_text,
       FindFlags flags, bool do_all);
 
     /** Searches for the next placeholder char combination and selects it when found. The text is
@@ -356,8 +356,8 @@ public:
      *                 first with auto_completion_register_images. Use -1 as id when no image is needed.
      *                 The list should be sorted to make matching working properly.
      */
-    void auto_completion_show(int chars_entered, const std::vector<std::pair<int, std::string> >& entries);
-    void auto_completion_show(int chars_entered, const std::vector<std::string>& entries);
+    void auto_completion_show(size_t chars_entered, const std::vector<std::pair<int, std::string> >& entries);
+    void auto_completion_show(size_t chars_entered, const std::vector<std::string>& entries);
 
     /** Can be used to cancel auto completion while it is in progress (i.e. during handling an
      * auto completion event. Has no effect otherwise. */
@@ -404,7 +404,7 @@ public:
     void auto_completion_fillups(const std::string& fillups);
 
     /** Show the editor's calltip window close to the given position or hide it. */
-    void show_calltip(bool show, int position, const std::string& value);
+    void show_calltip(bool show, size_t position, const std::string& value);
 
     /** Sets the EOL mode used by the editor. If @convert is true all lines in the document are converted
      *  to use the new line ending.

@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "grt/common.h"
 #include "grt/grt_manager.h"
 #include "wb_model_file.h"
@@ -50,7 +49,7 @@ static void fixup_layer_tree(XMLTraverser &xml, xmlNodePtr layerNode, double xof
 
   //if (!sublayers) return;
 
-  for (size_t i= 0; (sublayer = xml.get_object_child_by_index(sublayer_list, i))!=0; i++)
+  for (size_t i = 0; (sublayer = xml.get_object_child_by_index(sublayer_list, (int)i)) != 0; i++)
   {
     double top= xml.get_object_double_value(sublayer, "top");
     double left= xml.get_object_double_value(sublayer, "left");
@@ -235,7 +234,7 @@ bool ModelFile::attempt_xml_document_upgrade(xmlDocPtr xmldoc, const std::string
 
           node= xml.get_object_child(node, "views");
 
-          for (size_t v= 0; (view= xml.get_object_child_by_index(node, v)) != 0; v++)
+          for (size_t v = 0; (view = xml.get_object_child_by_index(node, (int)v)) != 0; v++)
           {
             xmlNodePtr rootLayer= xml.get_object_child(view, "rootLayer");
 
@@ -679,7 +678,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
 
               grt::ListRef<db_Trigger> triggers= table->triggers();
               size_t triggers_count= triggers.count();
-              typedef std::map<int, db_TriggerRef> OrderedTriggers;
+              typedef std::map<ssize_t, db_TriggerRef> OrderedTriggers;
               typedef std::list<db_TriggerRef> UnorderedTriggers;
               OrderedTriggers ordered_triggers;
               UnorderedTriggers unordered_triggers;
@@ -687,7 +686,7 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
               for (size_t i= 0; i < triggers_count; ++i)
               {
                   db_TriggerRef trigger= triggers.get(i);
-                  int sequenceNumber= trigger->sequenceNumber();
+                  ssize_t sequenceNumber= trigger->sequenceNumber();
                   if (ordered_triggers.find(sequenceNumber) == ordered_triggers.end())
                       ordered_triggers[sequenceNumber]= trigger;
                   else
@@ -809,7 +808,7 @@ static void check_figure_layers(workbench_physical_DiagramRef view, std::list<st
   }
 
   // now go through all figures and add figures that are not in any layer to the root
-  for (int i= view->figures().count()-1; i>=0; --i)
+  for (ssize_t i= view->figures().count() - 1; i >= 0; --i)
   {
     model_FigureRef figure(view->figures()[i]);
 

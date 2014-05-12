@@ -110,8 +110,8 @@ namespace wb {
     std::string _title;
     std::vector<Button*> _enabled_buttons;
     std::vector<SidebarEntry*> _entries;
-    int _layout_width;
-    int _layout_height;
+    size_t _layout_width;
+    size_t _layout_height;
     bool _expand_text_visible;
     int _expand_text_width;
     bool _expanded;

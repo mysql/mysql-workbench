@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,13 +37,6 @@
   #include <windows.h>
 #endif
 #include <boost/cstdint.hpp>
-
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
-  #define g_filename_to_utf8 g_filename_to_utf8_utf8
-  #define g_filename_from_utf8 g_filename_from_utf8_utf8
-  #define g_filename_from_uri g_filename_from_uri_utf8
-  #define g_filename_to_uri g_filename_to_uri_utf8
-#endif
 
 #include "glib.h"
 
@@ -104,7 +97,6 @@ BASELIBRARY_PUBLIC_FUNC int base_chdir(const char *path);
 
 BASELIBRARY_PUBLIC_FUNC int copy_file(const char* source, const char* target);
 BASELIBRARY_PUBLIC_FUNC int copy_folder(const char *source_folder, const char *target_folder);
-BASELIBRARY_PUBLIC_FUNC bool html_color_to_triplet(const char* color, double *red, double *green, double *blue);
 
 #include <vector>
 #include <algorithm>

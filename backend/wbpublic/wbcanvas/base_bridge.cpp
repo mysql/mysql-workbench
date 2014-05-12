@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base_bridge.h"
 #include "grt/grt_manager.h"
 

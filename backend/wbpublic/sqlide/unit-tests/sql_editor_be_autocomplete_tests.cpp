@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "tut_stdafx.h"
 
 #include "connection_helpers.h"
 #include "base/file_utilities.h"
@@ -118,7 +116,7 @@ void run_simple_query_tests(Sql_editor::Ref editor, int part, ac_test_entry *tes
     context.line = test_input[i].line;
     context.offset = test_input[i].offset;
 
-    std::string message = base::strfmt("Part %u, step %u", part, i);
+    std::string message = base::strfmt("Part %u, step %lu", part, i);
     if (!editor->create_auto_completion_list(context))
       fail(message + ", unexpected syntax error: " + test_input[i].query);
     match_included_parts(message, context, test_input[i].parts);
@@ -188,7 +186,7 @@ void run_all_queries_tests(Sql_editor::Ref editor, ac_test_entry *test_input, si
     context.line = test_input[i].line;
     context.offset = test_input[i].offset;
     
-    std::string message = base::strfmt("Step %u", i);
+    std::string message = base::strfmt("Step %lu", i);
     if (!editor->create_auto_completion_list(context))
       fail(message + ", unexpected syntax error: " + test_input[i].query);
     match_included_parts(message, context, test_input[i].parts);
@@ -223,7 +221,7 @@ void run_typing_tests(Sql_editor::Ref editor, int part, ac_test_entry *test_inpu
     context.line = test_input[i].line;
     context.offset = test_input[i].offset;
 
-    std::string message = base::strfmt("Part %u, step %u", part, i);
+    std::string message = base::strfmt("Part %u, step %lu", part, i);
     editor->create_auto_completion_list(context);
     match_included_parts(message, context, test_input[i].parts);
     if (test_input[i].check_entries)
@@ -272,15 +270,15 @@ TEST_FUNCTION(5)
   sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
   if (res && res->next())
   {
-    std::string version = res->getString("VERSION");
-    _version = parse_version(_tester.grt, version);
+    std::string version_string = res->getString("VERSION");
+    _version = parse_version(_tester.grt, version_string);
   }
   delete res;
 
   ensure("Server version is invalid", _version.is_valid());
 
   _tester.get_rdbms()->version(_version);
-  version = _version->majorNumber() * 10000 + _version->minorNumber() * 100 + _version->releaseNumber();
+  version = (int)(_version->majorNumber() * 10000 + _version->minorNumber() * 100 + _version->releaseNumber());
   
   // Copy a current version of the code editor configuration file to the test data folder.
   gchar *contents;

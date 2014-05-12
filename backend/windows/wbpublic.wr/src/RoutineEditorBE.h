@@ -24,8 +24,6 @@
 #include "GrtTemplates.h"
 #include "grtdb/editor_routine.h"
 
-#pragma make_public(::bec::RoutineEditorBE)
-
 namespace MySQL {
 namespace Grt {
 namespace Db {

@@ -4,7 +4,7 @@ include_directories(
     ${ODBC_INCLUDE_DIRS} 
     ${PYTHON_INCLUDE_DIRS} 
     ${MYSQL_INCLUDE_DIRS} 
-    ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench
+    ${PROJECT_SOURCE_DIR}/backend/wbprivate
 )
 
 add_definitions(${ODBC_DEFINITIONS})

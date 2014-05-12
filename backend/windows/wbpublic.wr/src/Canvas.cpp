@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "Canvas.h"
 
 using namespace MySQL::GUI::Mdc;

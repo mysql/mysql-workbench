@@ -1,4 +1,21 @@
-#include "stdafx.h"
+/*
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License as
+* published by the Free Software Foundation; version 2 of the
+* License.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+* 02110-1301  USA
+*/
 
 #include <cstring>
 #include "db_mysql_catalog_report.h"
@@ -40,7 +57,7 @@ std::string ActionGenerateReport::trigger_name(const GrtNamedObjectRef obj)const
 static std::string get_index_columns(db_mysql_IndexRef index)
 {
   std::string col_list;
-  for(int sz= index->columns().count(), i= 0; i < sz; i++)
+  for(size_t sz = index->columns().count(), i = 0; i < sz; i++)
   {
     if(i > 0)
       col_list += ", ";
@@ -60,7 +77,7 @@ static void get_fk_desc(db_mysql_ForeignKeyRef fk,
                         std::string& ref_col_list, std::string& on_update, 
                         std::string& on_delete)
 {
-  for(int sz= fk->columns().count(), i= 0; i < sz; i++)
+  for (size_t sz = fk->columns().count(), i = 0; i < sz; i++)
   {
     if(i > 0)
       col_list += ", ";
@@ -72,7 +89,7 @@ static void get_fk_desc(db_mysql_ForeignKeyRef fk,
   db_mysql_TableRef ref_table= fk->referencedTable();
   ref_t.assign(ref_table->name().c_str());
 
-  for(int sz= fk->referencedColumns().count(), i= 0; i < sz; i++)
+  for (size_t sz = fk->referencedColumns().count(), i = 0; i < sz; i++)
   {
     if(i > 0)
       ref_col_list += ", ";
@@ -221,9 +238,8 @@ void ActionGenerateReport::create_table_password(grt::StringRef value)
 
 void ActionGenerateReport::create_table_delay_key_write(grt::IntegerRef value)
 {
-  char itoa_buf[32];
   TemplateDictionary *e= curr_table->AddSectionDictionary(kbtr_TABLE_ATTR_DELAY_KEY_WRITE);
-  e->SetValue(kbtr_TABLE_DELAY_KEY_WRITE, itoa(*value, itoa_buf, 10));
+  e->SetValue(kbtr_TABLE_DELAY_KEY_WRITE, value.repr().c_str());
   has_attributes= true;
 }
 
@@ -264,9 +280,8 @@ void ActionGenerateReport::create_table_pack_keys(grt::StringRef value)
 
 void ActionGenerateReport::create_table_checksum(grt::IntegerRef value)
 {
-  char itoa_buf[32];
   TemplateDictionary *e= curr_table->AddSectionDictionary(kbtr_TABLE_ATTR_CHECKSUM);
-  e->SetValue(kbtr_TABLE_CHECKSUM, itoa(*value, itoa_buf, 10));
+  e->SetValue(kbtr_TABLE_CHECKSUM, value.repr().c_str());
   has_attributes= true;
 }
 
@@ -377,10 +392,9 @@ void ActionGenerateReport::alter_table_password(db_mysql_TableRef table, grt::St
 
 void ActionGenerateReport::alter_table_delay_key_write(db_mysql_TableRef table, grt::IntegerRef value)
 {
-  char itoa_buf[32];
   TemplateDictionary *e= curr_table->AddSectionDictionary(kbtr_TABLE_ATTR_DELAY_KEY_WRITE);
-  e->SetValue(kbtr_NEW_TABLE_DELAY_KEY_WRITE, itoa(*value, itoa_buf, 10));
-  e->SetValue(kbtr_OLD_TABLE_DELAY_KEY_WRITE, itoa(*table->delayKeyWrite(), itoa_buf, 10));
+  e->SetValue(kbtr_NEW_TABLE_DELAY_KEY_WRITE, value.repr().c_str());
+  e->SetValue(kbtr_OLD_TABLE_DELAY_KEY_WRITE, table->delayKeyWrite().repr().c_str());
   has_attributes= true;
 }
 
@@ -426,10 +440,9 @@ void ActionGenerateReport::alter_table_pack_keys(db_mysql_TableRef table, grt::S
 
 void ActionGenerateReport::alter_table_checksum(db_mysql_TableRef table, grt::IntegerRef value)
 {
-  char itoa_buf[32];
   TemplateDictionary *e= curr_table->AddSectionDictionary(kbtr_TABLE_ATTR_CHECKSUM);
-  e->SetValue(kbtr_NEW_TABLE_CHECKSUM, itoa(*value, itoa_buf, 10));
-  e->SetValue(kbtr_OLD_TABLE_CHECKSUM, itoa(*table->checksum(), itoa_buf, 10));
+  e->SetValue(kbtr_NEW_TABLE_CHECKSUM, value.repr().c_str());
+  e->SetValue(kbtr_OLD_TABLE_CHECKSUM, table->checksum().repr().c_str());
   has_attributes= true;
 }
 

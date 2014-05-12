@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 using namespace System;
 using namespace System::Collections::Generic;
 
@@ -123,7 +121,7 @@ ContextMenuStrip ^RecordsetWrapper::get_context_menu(List<int> ^indexes, int cli
 
 //--------------------------------------------------------------------------------------------------
 
-bool RecordsetWrapper::delete_nodes(List<NodeId^> ^nodes)
+bool RecordsetWrapper::delete_nodes(List<NodeIdWrapper^> ^nodes)
 {
   std::vector<bec::NodeId> nodes_= convert_node_list(nodes);
   return _ref->delete_nodes(nodes_);

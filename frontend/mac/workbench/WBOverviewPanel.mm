@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -373,7 +373,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     try
     {
-      int type;
+      ssize_t type;
           
       if (!_overview->get_field(node, wb::OverviewBE::ChildNodeType, type))
         return;
@@ -432,7 +432,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (NSView*)buildDivision:(const bec::NodeId&)node
                   inPane:(MTogglePane*)pane
 {
-  int child_type;
+  ssize_t child_type;
   // Get the type of the item we are adding. It could be division (EER Diagrams, Physical Schemata)
   // or group (database, ...)
   // or TODO: add comments here for the rest of the stuff
@@ -500,14 +500,16 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   {
     std::string label;
     wb::OverviewBE::OverviewNodeType nodeType = wb::OverviewBE::ODivision;
-    int expanded;
+    ssize_t expanded;
 
     node= _overview->get_child(root, i);
 
     if (node.is_valid())
     {
       _overview->get_field(node, wb::OverviewBE::Label, label);
-      _overview->get_field(node, wb::OverviewBE::NodeType, (int&)nodeType);
+      ssize_t temp;
+      _overview->get_field(node, wb::OverviewBE::NodeType, temp);
+      nodeType = (wb::OverviewBE::OverviewNodeType)temp;
       _overview->get_field(node, wb::OverviewBE::Expanded, expanded);
       
       if (nodeType == wb::OverviewBE::ODivision)

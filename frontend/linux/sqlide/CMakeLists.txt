@@ -4,10 +4,9 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbprivate
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/canvas/src
+    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/dbc/src
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${VSQLITE_INCLUDE_DIRS}
     ${GTK2_INCLUDE_DIRS}

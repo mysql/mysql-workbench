@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include <iconv.h>
 #include <boost/foreach.hpp>
@@ -70,7 +68,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form)
 
   scoped_connect(signal_leave(),boost::bind(&ImportInputPage::gather_options, this, _1));
 
-  _autoplace_check.set_active(form->module()->document_int_data("place_figures", 0));
+  _autoplace_check.set_active(form->module()->document_int_data("place_figures", 0) != 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,7 +235,7 @@ void ImportProgressPage::enter(bool advancing)
     _import_be.sql_script(values().get_string("import.filename"));
     _import_be.sql_script_codeset(values().get_string("import.file_codeset"));
     
-    _auto_place= values().get_int("import.place_figures");
+    _auto_place = values().get_int("import.place_figures") != 0;
     
     _auto_place_task->set_enabled(_auto_place);
     

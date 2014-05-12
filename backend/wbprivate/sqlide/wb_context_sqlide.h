@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ namespace wb
     std::list<boost::weak_ptr<SqlEditorForm> > _open_editors;
     app_ToolbarRef _toolbar;
 
-    int _auto_save_interval;
+    ssize_t _auto_save_interval;
     bool _auto_save_active;
     bool _option_change_signal_connected;
     

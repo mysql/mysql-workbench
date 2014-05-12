@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,13 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "validation_manager.h"
 #include "grt/grt_manager.h"
 
 #include <algorithm>
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 bec::ValidationMessagesBE::ValidationMessagesBE()
 {
   _error_icon   = IconManager::get_instance()->get_icon_id("mini_error.png");
@@ -34,15 +33,17 @@ bec::ValidationMessagesBE::ValidationMessagesBE()
   scoped_connect(bec::ValidationManager::signal_notify(),boost::bind(&bec::ValidationMessagesBE::validation_message, this, _1, _2, _3, _4));
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 void bec::ValidationMessagesBE::clear()
 {
   _errors.clear();
   _warnings.clear();
 }
 
-//------------------------------------------------------------------------------
-bool bec::ValidationMessagesBE::get_field(const bec::NodeId &node, int column, std::string &value)
+//--------------------------------------------------------------------------------------------------
+
+bool bec::ValidationMessagesBE::get_field(const bec::NodeId &node, ColumnId column, std::string &value)
 {
   bool ret = false;
   if (column == bec::ValidationMessagesBE::Description)
@@ -60,8 +61,9 @@ bool bec::ValidationMessagesBE::get_field(const bec::NodeId &node, int column, s
   return ret;
 }
 
-//------------------------------------------------------------------------------
-bec::IconId bec::ValidationMessagesBE::get_field_icon(const bec::NodeId &node, int column, IconSize)
+//--------------------------------------------------------------------------------------------------
+
+bec::IconId bec::ValidationMessagesBE::get_field_icon(const bec::NodeId &node, ColumnId column, IconSize)
 {
   bec::IconId icon_id = _info_icon;
   
@@ -78,30 +80,34 @@ bec::IconId bec::ValidationMessagesBE::get_field_icon(const bec::NodeId &node, i
   return icon_id;
 }
 
-//------------------------------------------------------------------------------
-int bec::ValidationMessagesBE::count()
+//--------------------------------------------------------------------------------------------------
+
+size_t bec::ValidationMessagesBE::count()
 {
-  return _errors.size() + _warnings.size();
+  return (_errors.size() + _warnings.size());
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 int bec::ValidationMessagesBE::get_node_popup_items(const bec::NodeId& node, bec::MenuItemList& menu)
 {
   return 0;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 void bec::ValidationMessagesBE::activate_node_popup_item(const bec::NodeId &node, const std::string &name)
 {}
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 bool bec::ValidationMessagesBE::match_message(const bec::ValidationMessagesBE::Message& m, const grt::ObjectRef& obj, const grt::Validator::Tag& tag)
 {
-  //g_message("obj == m.obj %i, tag '%s' == m.tag '%s'", obj == m.obj, tag.c_str(), m.tag.c_str());
   return (obj == m.obj && tag == m.tag);
 };
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 void bec::ValidationMessagesBE::remove_messages(bec::ValidationMessagesBE::MessageList* ml, const grt::ObjectRef& obj, const grt::Validator::Tag& tag)
 {
   bec::ValidationMessagesBE::MessageList::iterator it = ml->end();
@@ -120,7 +126,8 @@ void bec::ValidationMessagesBE::remove_messages(bec::ValidationMessagesBE::Messa
   }
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 void bec::ValidationMessagesBE::validation_message(const grt::Validator::Tag& tag, const grt::ObjectRef& obj, const std::string& msg, const int type)
 {  
   switch (type)
@@ -156,16 +163,17 @@ void bec::ValidationMessagesBE::validation_message(const grt::Validator::Tag& ta
   tree_changed();
 }
 
-
 bec::ValidationManager::MessageSignal* bec::ValidationManager::_signal_notify = 0;
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 bool bec::ValidationManager::is_validation_plugin(const app_PluginRef& plugin)
 {
   return plugin->attributes().has_key("ValidationRT");
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 void bec::ValidationManager::register_validator(grt::GRT* grt, const std::string& type, grt::Validator* v)
 {
   grt::MetaClass* mc = grt->get_metaclass(type);
@@ -175,13 +183,13 @@ void bec::ValidationManager::register_validator(grt::GRT* grt, const std::string
     g_warning("Specified metaclass '%s' is not known.", type.c_str());
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 void bec::ValidationManager::scan(GRTManager* grtm)
 {
   const std::vector<app_PluginRef> plugins = grtm->get_plugin_manager()->get_plugins_for_group("");
-  const int size = plugins.size();
   
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < plugins.size(); ++i)
   {
     if (bec::ValidationManager::is_validation_plugin(plugins[i]))
     {
@@ -201,11 +209,13 @@ void bec::ValidationManager::scan(GRTManager* grtm)
   }
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 bool bec::ValidationManager::validate_instance(const grt::ObjectRef& obj, const grt::Validator::Tag& tag)
 {
   bool ret = true;
-  // Clear messages with correspoding tag from the object
+
+  // Clear messages with corresponding tag from the object.
   (*signal_notify())(tag, obj, tag, grt::NoErrorMsg);
 
   static const grt::MetaClass *mc_to_break_checks = obj->get_grt()->get_metaclass("db.DatabaseObject");
@@ -220,16 +230,20 @@ bool bec::ValidationManager::validate_instance(const grt::ObjectRef& obj, const 
   return ret;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 void bec::ValidationManager::message(const grt::Validator::Tag& tag, const grt::ObjectRef& o, const std::string& m, const int level)
 {
   // Add message to the Object
   (*signal_notify())(tag, o, m, level);
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 void bec::ValidationManager::clear()
 {
   // Clear messages from listeners
   (*signal_notify())("*", grt::ObjectRef(), "", grt::NoErrorMsg);
 }
+
+//--------------------------------------------------------------------------------------------------

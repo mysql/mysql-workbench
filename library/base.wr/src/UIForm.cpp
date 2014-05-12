@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "Stdafx.h"
-
 #include "base/ui_form.h"
 
 #include "ConvUtils.h"

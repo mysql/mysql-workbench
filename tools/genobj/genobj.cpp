@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,15 +32,22 @@
 
 using namespace grt;
 
-
+//--------------------------------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
+  if (argc < 5)
+  {
+    g_print("\nNot enough parameters given. Syntax:\n");
+    g_print("  genobj <structs-file> <structs-dir> <output-dir> <impl-output-dir>\n");
+    return -1;
+  }
+
   GRT grt;
-  std::string structs_file= argv[1];
-  std::string structs_dir= argv[2];
-  std::string output_dir= argv[3];
-  std::string impl_output_dir= argv[4];
+  std::string structs_file = argv[1];
+  std::string structs_dir = argv[2];
+  std::string output_dir = argv[3];
+  std::string impl_output_dir = argv[4];
   
   std::multimap<std::string,std::string> requires;
 
@@ -54,3 +61,5 @@ int main(int argc, char **argv)
 
   return 0;
 }
+
+//--------------------------------------------------------------------------------------------------

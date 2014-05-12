@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,32 +25,32 @@ using namespace base;
 
 Point::Point()
 {
-  x= 0;
-  y= 0;
+  x = 0;
+  y = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 Point::Point(double x, double y)
 {
-  this->x= x;
-  this->y= y;
+  this->x=  x;
+  this->y=  y;
 }
 
 //----------------- Size ---------------------------------------------------------------------------
 
 Size::Size()
 {
-  width= 0;
-  height= 0;
+  width = 0;
+  height = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 Size::Size(double w, double h)
 {
-  width= w;
-  height= h;
+  width = w;
+  height = h;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ Range::Range()
 
 //--------------------------------------------------------------------------------------------------
 
-Range::Range(int position, int size)
+Range::Range(size_t position, size_t size)
 {
   this->position = position;
   this->size = size;
@@ -252,14 +252,14 @@ Range::Range(int position, int size)
 
 //--------------------------------------------------------------------------------------------------
 
-int Range::end()
+size_t Range::end()
 {
   return position + size;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Range::contains_point(int point)
+bool Range::contains_point(size_t point)
 {
   return (point >= position) && (point - position <= size);
 }

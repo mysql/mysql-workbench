@@ -120,10 +120,4 @@ public:
   void execute_in_main_thread(const boost::function<void ()> &function, bool wait, bool force_queue);
 };
 
-
-#ifdef _WIN32
-#pragma make_public(GrtThreadedTask)
-#endif
-
-
 #endif /* _GRT_THREADED_TASK_H_ */

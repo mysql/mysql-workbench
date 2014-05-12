@@ -54,15 +54,15 @@ protected:
   static void selection_changed(::mforms::ListBox *self);
   static bool create(::mforms::ListBox *self, bool multi_select);
   static void clear(::mforms::ListBox *self);
-  static int add_item(::mforms::ListBox *self, const std::string &item);
+  static size_t add_item(::mforms::ListBox *self, const std::string &item);
   static void add_items(::mforms::ListBox *self, const std::list<std::string> &items);
-  static void remove_indices(mforms::ListBox *backend, const std::vector<int> &indices);
-  static void remove_index(mforms::ListBox *backend, int index);
+  static void remove_indices(mforms::ListBox *backend, const std::vector<size_t> &indices);
+  static void remove_index(mforms::ListBox *backend, size_t index);
   static std::string get_text(::mforms::ListBox *self);
-  static void set_index(::mforms::ListBox *self, int index);
-  static int get_index(::mforms::ListBox *self);
+  static void set_index(::mforms::ListBox *self, ssize_t index);
+  static ssize_t get_index(::mforms::ListBox *self);
   static void set_heading(ListBox *self, const std::string &text);
-  static std::vector<int> get_selected_indices(ListBox *self);
+  static std::vector<size_t> get_selected_indices(ListBox *self);
 
  public:
   static void init();

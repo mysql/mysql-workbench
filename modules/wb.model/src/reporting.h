@@ -48,7 +48,7 @@ class LexerDocument : public Scintilla::IDocument
 {
 private:
   const std::string& _text;
-  std::vector<std::pair<int, int> > _lines;
+  std::vector<std::pair<size_t, size_t> > _lines;
   
   char* _style_buffer;
   std::vector<int> _level_cache;

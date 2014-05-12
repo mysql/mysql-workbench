@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "sqlide/recordset_table_inserts_storage.h"
 #include "sqlide/recordset_be.h"
 
@@ -291,13 +289,13 @@ void db_Table::removeColumn(const db_ColumnRef &column)
  
   // remove column from foreign keys
   grt::ListRef<db_ForeignKey> fks= foreignKeys();
-  for (int i = fks.count()-1; i >= 0; --i)
+  for (ssize_t i = fks.count()-1; i >= 0; --i)
   {
     db_ForeignKeyRef fk(fks[i]);
     grt::ListRef<db_Column> fcolumns(fk->columns());
     bool deleted= false;
 
-    for (int j = fcolumns.count()-1; j >= 0; --j)
+    for (ssize_t j = fcolumns.count()-1; j >= 0; --j)
     {
       db_ColumnRef col(fcolumns[j]);
       if (col == column)
@@ -342,7 +340,7 @@ void db_Table::removeColumn(const db_ColumnRef &column)
 }
 
 
-void db_Table::removeForeignKey(const db_ForeignKeyRef &fk, long removeColumns)
+void db_Table::removeForeignKey(const db_ForeignKeyRef &fk, ssize_t removeColumns)
 {
   // remove a fk from table and make sure its index is deleted too
   // if delete_columns is 1, it will also delete the columns that form the FK, except
@@ -359,13 +357,13 @@ void db_Table::removeForeignKey(const db_ForeignKeyRef &fk, long removeColumns)
     grt::ListRef<db_ForeignKey> fks(get_foreign_keys_referencing_table(db_TableRef(this)));
 
     db_ColumnRef cl;
-    for (int i= fk->columns().count() - 1; i > -1; i--)
+    for (ssize_t i= fk->columns().count() - 1; i > -1; i--)
     {
       bool used = false;
       cl = fk->columns().get(i);
       
       // check if cl is used by some external FK 
-      for (int j= 0, c= fks.count(); j < c; j++)
+      for (size_t j = 0, c= fks.count(); j < c; j++)
       {
         db_ForeignKeyRef rfk(fks[j]);
         if (rfk != fk)
@@ -413,7 +411,7 @@ void db_Table::removePrimaryKeyColumn(const db_ColumnRef &column)
   {
     grt::ListRef<db_IndexColumn> pkColumns(pkindex->columns());
     
-    for (int i= pkColumns.count() - 1; i > -1; i--)
+    for (ssize_t i = pkColumns.count() - 1; i > -1; i--)
     {
       db_ColumnRef pkcolumn(pkColumns.get(i)->referencedColumn());
       

@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "recordset_table_inserts_storage.h"
 #include "recordset_be.h"
 #include "base/string_utilities.h"
@@ -64,7 +61,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
   table_name(_table->name());
 
   ListRef<db_Column> columns(_table->columns());
-  int col_count= columns.count();
+  size_t col_count= columns.count();
   if (0 == col_count)
     throw std::runtime_error(strfmt("Table %s doesn't have any column", full_table_name().c_str()));
 
@@ -139,7 +136,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
 
   column_types.reserve(col_count);
   // some column types might be defined in derived class. don't redefine types for those columns.
-  for (int n= column_types.size(); n < col_count; ++n)
+  for (size_t n = column_types.size(); n < col_count; ++n)
   {
     db_ColumnRef column= columns.get(n);
     db_SimpleDatatypeRef stype;

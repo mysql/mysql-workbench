@@ -17,16 +17,16 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
+#include "grtpp.h"
 
 #include "changefactory.h"
 #include "changeobjects.h"
 #include "grts/structs.h"
+
 #include "base/log.h"
 
-//DEFAULT_LOG_DOMAIN("diff")
-
 #ifdef DEBUG_DIFF
+
 static std::string rep(const grt::ValueRef &value)
 {
   switch (value.type())

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "workbench_physical_routinegroupfigure_impl.h"
 #include "workbench_physical_model_impl.h"
@@ -230,9 +228,9 @@ void workbench_physical_RoutineGroupFigure::ImplData::sync_routines()
 
       text= *routine->name();
       
-      if (g_utf8_strlen(text.data(), text.size()) > maxnlength)
+      if (g_utf8_strlen(text.data(), (gssize)text.size()) > maxnlength)
       {
-        gchar *buf= (gchar*)g_malloc(text.size()+1);
+        gchar *buf= (gchar*)g_malloc((gssize)text.size()+1);
         g_utf8_strncpy(buf, text.data(), maxnlength);
         text = buf;
         g_free(buf);

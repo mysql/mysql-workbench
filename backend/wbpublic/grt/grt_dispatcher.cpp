@@ -17,15 +17,14 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grt_dispatcher.h"
 #include "grt_manager.h"
 #include <grtpp_util.h>
 #include <grtpp_shell.h>
 #include "base/log.h"
 #include "base/threading.h"
-#include "library/dbc/src/driver_manager.h"
+#include "driver_manager.h"
+
 
 #include "mforms/utilities.h"
 
@@ -712,6 +711,12 @@ void GRTDispatcher::execute_task(GRTTaskBase *gtask)
     log_exception("exception in grt execute_task, continuing",*error);
     restore_callbacks(gtask);
     gtask->failed(*error);
+  }
+  catch (...)
+  {
+    log_error("Unknown exception in grt execute_task.");
+    restore_callbacks(gtask);
+    gtask->failed(std::runtime_error("Unknown reason"));
   }
 }
 

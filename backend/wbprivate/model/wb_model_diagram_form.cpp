@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "wb_model_diagram_form.h"
 #include "workbench/wb_context.h"
 #include "wb_component.h"
@@ -1158,7 +1155,7 @@ void ModelDiagramForm::cut()
   um->begin_undo_group();
   copy();
   
-  int count= get_copiable_selection().count();
+  int count = (int)get_copiable_selection().count();
   remove_selection();
   um->end_undo_group();
   um->set_action_description(strfmt(_("Cut %s"), edit_target_name.c_str()));

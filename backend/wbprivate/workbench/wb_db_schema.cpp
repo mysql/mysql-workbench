@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wb_db_schema.h"
 #include "base/sqlstring.h"
 #include  "base/string_utilities.h"

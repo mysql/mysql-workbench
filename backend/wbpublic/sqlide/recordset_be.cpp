@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "recordset_be.h"
 #include "recordset_data_storage.h"
 #include "sqlide_generics_private.h"
@@ -316,7 +313,7 @@ Recordset::Cell Recordset::cell(RowId row, ColumnId column)
 {
   if (_row_count == row)
   {
-    RowId rowid= _next_new_rowid++; // rowid of the new record
+    RowId rowid = _next_new_rowid++; // rowid of the new record
     {
       boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
       sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
@@ -355,17 +352,14 @@ Recordset::Cell Recordset::cell(RowId row, ColumnId column)
     Cell new_cell= _data.begin() + (_data.size() - _column_count);
     for (ColumnId col= 0; _column_count > col; ++col, ++new_cell)
       *(new_cell)= sqlite::null_t();
-    _data[_data.size() - _column_count + _rowid_column]= (int)rowid;
-
-    if (rows_changed)
-      rows_changed();
+    _data[_data.size() - _column_count + _rowid_column] = (int)rowid;
   }
 
   return VarGridModel::cell(row, column);
 }
 
 
-void Recordset::after_set_field(const NodeId &node, int column, const sqlite::variant_t &value)
+void Recordset::after_set_field(const NodeId &node, ColumnId column, const sqlite::variant_t &value)
 {
   VarGridModel::after_set_field(node, column, value);
   mark_dirty(node[0], column, value);
@@ -380,7 +374,7 @@ void Recordset::mark_dirty(RowId row, ColumnId column, const sqlite::variant_t &
 
   RowId rowid(row);
   NodeId node(row);
-  if (get_field_(node, _rowid_column, (int&)rowid))
+  if (get_field_(node, _rowid_column, (ssize_t&)rowid))
   {
     boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
     sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
@@ -443,11 +437,11 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
 
     BOOST_FOREACH (const NodeId &node, nodes)
     {
-      node[0]-= processed_node_count;
+      node[0] -= processed_node_count;
       RowId row= node[0];
 
       int rowid;
-      if (get_field_(node, _rowid_column, rowid))
+      if (get_field_(node, _rowid_column, (ssize_t&)rowid))
       {
         boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
         sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
@@ -717,8 +711,8 @@ bool Recordset::limit_rows_applicable()
     return false;
 
   bool limit_rows_= limit_rows();
-  int limit_rows_count_= limit_rows_count();
-  int row_count_= real_row_count();
+  size_t limit_rows_count_= limit_rows_count();
+  size_t row_count_= real_row_count();
   return (limit_rows_ && (row_count_ == limit_rows_count_))
     || (!limit_rows_ && (row_count_ > limit_rows_count_))
     || (0 < _data_storage->limit_rows_offset());
@@ -853,7 +847,7 @@ void Recordset::reset_column_filter(ColumnId column)
 
 void Recordset::set_column_filter(ColumnId column, const std::string &filter_expr)
 {
-  if ((int)column >= get_column_count())
+  if (column >= get_column_count())
     return;
   Column_filter_expr_map::const_iterator i= _column_filter_expr_map.find(column);
   if ((i != _column_filter_expr_map.end()) && (i->second == filter_expr))
@@ -865,7 +859,7 @@ void Recordset::set_column_filter(ColumnId column, const std::string &filter_exp
 }
 
 
-int Recordset::column_filter_icon_id() const
+size_t Recordset::column_filter_icon_id() const
 {
   IconManager *icon_man= IconManager::get_instance();
   return icon_man->get_icon_id("tiny_search.png");
@@ -940,7 +934,7 @@ void Recordset::rebuild_data_index(sqlite::connection *data_swap_db, bool do_cac
       {
         var_string= "%" + _data_search_string + "%";
         sql_string= boost::apply_visitor(qv, var_string_type, var_string);
-        for (int column= 0, column_count= get_column_count(); column < column_count; ++column)
+        for (ColumnId column= 0, column_count= get_column_count(); column < column_count; ++column)
         {
           where_subclause2+= strfmt("_%u like %s or ", (unsigned int) column, sql_string.c_str());
         }
@@ -1028,7 +1022,7 @@ void Recordset::rebuild_data_index(sqlite::connection *data_swap_db, bool do_cac
 }
 
 
-void Recordset::paste_rows_from_clipboard(int dest_row)
+void Recordset::paste_rows_from_clipboard(ssize_t dest_row)
 {
   std::string text = mforms::Utilities::get_clipboard_text();
   std::vector<std::string> rows;
@@ -1044,8 +1038,8 @@ void Recordset::paste_rows_from_clipboard(int dest_row)
   if (rows.back().empty())
     rows.pop_back();
   
-  if (dest_row < 0 || dest_row == count()-1)
-    dest_row = count()-1;
+  if (dest_row < 0 || dest_row == (ssize_t)count()-1)
+    dest_row = count() - 1;
   else
   {
     if (rows.size() > 1)
@@ -1069,12 +1063,12 @@ void Recordset::paste_rows_from_clipboard(int dest_row)
     {
       std::vector<std::string> parts = base::split_token_list(*row, separator);
       
-      if ((int)parts.size() != get_column_count())
+      if (parts.size() != get_column_count())
       {
         mforms::Utilities::show_error("Cannot Paste Row",
-                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%i vs %i).\n"
+                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%li vs %li).\n"
                                              "Data must be in the same format used by the Copy Row Content command.",
-                                             (int)parts.size(), (int)get_column_count()),
+                                             parts.size(), get_column_count()),
                                       "OK");
 
         if (rows_changed && row != rows.begin())
@@ -1082,7 +1076,7 @@ void Recordset::paste_rows_from_clipboard(int dest_row)
 
         return;
       }
-      size_t i = 0;
+      int i = 0;
       for (std::vector<std::string>::const_iterator p = parts.begin(); p != parts.end(); ++p, ++i)
       {
         std::string token = base::trim(*p);
@@ -1399,7 +1393,7 @@ void Recordset::copy_rows_to_clipboard(const std::vector<int> &indeces, std::str
 }
 
 
-void Recordset::copy_field_to_clipboard(int row, int column, bool quoted)
+void Recordset::copy_field_to_clipboard(int row, ColumnId column, bool quoted)
 {
   sqlide::QuoteVar qv;
   {
@@ -1438,7 +1432,7 @@ std::string Recordset::status_text()
       skipped_row_count_text= strfmt(" after %i skipped", limit_rows_offset);
   }
 
-  std::string status_text = strfmt("Fetched %i records%s%s", (int)real_row_count(), skipped_row_count_text.c_str(), limit_text.c_str());
+  std::string status_text = strfmt("Fetched %zi records%s%s", real_row_count(), skipped_row_count_text.c_str(), limit_text.c_str());
   {
     int upd_count = 0, ins_count = 0, del_count = 0;
     pending_changes(upd_count, ins_count, del_count);
@@ -1658,7 +1652,7 @@ void Recordset::open_field_data_editor(RowId row, ColumnId column)
         return;
       RowId rowid;
       NodeId node(row);
-      if (!get_field_(node, _rowid_column, (int&)rowid))
+      if (!get_field_(node, _rowid_column, (ssize_t&)rowid))
         return;
       boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
       _data_storage->fetch_blob_value(this, data_swap_db.get(), rowid, column, blob_value);
@@ -1726,7 +1720,7 @@ void Recordset::set_field_raw_data(RowId row, ColumnId column, const char *data,
 }
 
 
-void Recordset::load_from_file(const bec::NodeId &node, int column, const std::string &file)
+void Recordset::load_from_file(const bec::NodeId &node, ColumnId column, const std::string &file)
 {
   char *data;
   gsize length;
@@ -1751,7 +1745,7 @@ void Recordset::load_from_file(const bec::NodeId &node, int column, const std::s
 }
 
 
-void Recordset::load_from_file(const bec::NodeId &node, int column)
+void Recordset::load_from_file(const bec::NodeId &node, ColumnId column)
 {
   mforms::FileChooser chooser(mforms::OpenFile);
   
@@ -1777,7 +1771,7 @@ public:
 };
 
 
-void Recordset::save_to_file(const bec::NodeId &node, int column, const std::string &file)
+void Recordset::save_to_file(const bec::NodeId &node, ColumnId column, const std::string &file)
 {
   base::RecMutexLock data_mutex(_data_mutex);
       
@@ -1788,7 +1782,7 @@ void Recordset::save_to_file(const bec::NodeId &node, int column, const std::str
   {
     if (!_data_storage)
       return;
-    int rowid;
+    ssize_t rowid;
     if (!get_field_(node, _rowid_column, rowid))
       return;
     boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
@@ -1811,7 +1805,7 @@ void Recordset::save_to_file(const bec::NodeId &node, int column, const std::str
 }
 
 
-void Recordset::save_to_file(const bec::NodeId &node, int column)
+void Recordset::save_to_file(const bec::NodeId &node, ColumnId column)
 {
   mforms::FileChooser chooser(mforms::SaveFile);
   

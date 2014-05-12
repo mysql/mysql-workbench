@@ -7,7 +7,6 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
-    ${PROJECT_SOURCE_DIR}/library/dbc/src
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/modules/
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff

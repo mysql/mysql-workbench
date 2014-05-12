@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "base/log.h"
 
@@ -582,7 +580,6 @@ _node_controller(controller)
 DiffNode *DiffTreeBE::get_node_with_id(const NodeId &nodeid)
 {
   DiffNode *n= _root;
-  int i;
 
   if (!n)
     return NULL;
@@ -590,9 +587,9 @@ DiffNode *DiffTreeBE::get_node_with_id(const NodeId &nodeid)
   if (nodeid.depth() == 0)
     return n;
 
-  for (i= 0; i < nodeid.depth(); i++)
+  for (size_t i= 0; i < nodeid.depth(); i++)
   {
-    if (nodeid[i] >= (int)n->get_children_size())
+    if (nodeid[i] >= n->get_children_size())
       throw std::logic_error("Invalid node id");
 
     n= n->get_child(nodeid[i]);
@@ -600,19 +597,19 @@ DiffNode *DiffTreeBE::get_node_with_id(const NodeId &nodeid)
   return n;
 }
 
-int DiffTreeBE::count_children(const bec::NodeId &nodeid)
+size_t DiffTreeBE::count_children(const bec::NodeId &nodeid)
 {
   DiffNode *node= get_node_with_id(nodeid);
-  if(node)
+  if (node)
     return (int)node->get_children_size();
   return 0;
 }
 
-bec::NodeId DiffTreeBE::get_child(const bec::NodeId &parentid, int child_idx)
+bec::NodeId DiffTreeBE::get_child(const bec::NodeId &parentid, size_t child_idx)
 {
   DiffNode *node= get_node_with_id(parentid);
   
-  if (node && child_idx < (int)node->get_children_size())
+  if (node && child_idx < node->get_children_size())
     return NodeId(parentid).append(child_idx);
   
   if (node)
@@ -621,7 +618,7 @@ bec::NodeId DiffTreeBE::get_child(const bec::NodeId &parentid, int child_idx)
   return NodeId();
 }
 
-bool DiffTreeBE::get_field(const bec::NodeId &node_id, int column, std::string &value)
+bool DiffTreeBE::get_field(const bec::NodeId &node_id, ColumnId column, std::string &value)
 {
   if ((column != ModelObjectName)
    && (column != DbObjectName))
@@ -664,7 +661,7 @@ bool DiffTreeBE::get_field(const bec::NodeId &node_id, int column, std::string &
   return true;
 }
 
-bec::IconId DiffTreeBE::get_field_icon(const bec::NodeId &node_id, int column, IconSize size)
+bec::IconId DiffTreeBE::get_field_icon(const bec::NodeId &node_id, ColumnId column, IconSize size)
 {
   if ((column != ModelObjectName)
    && (column != ModelChanged) 

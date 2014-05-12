@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <boost/assign/std/vector.hpp> // for 'operator += ..'
 
 #include "sql_editor_be.h"
@@ -138,10 +136,10 @@ std::vector<std::pair<int, std::string> >  Sql_editor::update_auto_completion(co
  * If there's a back tick or double quote char then text until this quote char is returned. If there's
  * no quoting char but a space or dot char then everything up to (but not including) this is returned.
  */
-std::string Sql_editor::get_written_part(int position)
+std::string Sql_editor::get_written_part(size_t position)
 {
-  int line = _code_editor->line_from_position(position);
-  int start, stop;
+  ssize_t line = _code_editor->line_from_position(position);
+  ssize_t start, stop;
   _code_editor->get_range_of_line(line, start, stop);
   std::string text = _code_editor->get_text_in_range(start, position);
   if (text.empty())
@@ -1537,7 +1535,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
       log_debug3("===[PARSE TREE ERROR]===\nQuery: %s\nError [%d]: %s\n\tLine: %d\n\tOffset: %d\n\tLength: %d\n", 
         context.statement.c_str(), iter->error, iter->message.c_str(), iter->line, iter->offset, iter->length);
 
-    bool found_token = walker.advance_to_position(context.line, context.offset);
+    bool found_token = walker.advance_to_position((int)context.line, (int)context.offset);
 
     if (!found_token)
     {
@@ -1724,15 +1722,15 @@ void Sql_editor::show_auto_completion(bool auto_choose_single)
   AutoCompletionContext context;
 
   // Get the statement and its absolute position.
-  int caret_position = _code_editor->get_caret_pos();
+  size_t caret_position = _code_editor->get_caret_pos();
   context.line = _code_editor->line_from_position(caret_position);
-  int line_start, line_end;
+  ssize_t line_start, line_end;
   _code_editor->get_range_of_line(context.line, line_start, line_end);
   context.line++; // ANTLR parser is one-based.
-  int offset = caret_position - line_start; // This is a byte offset.
+  size_t offset = caret_position - line_start; // This is a byte offset.
 
-  int min = -1;
-  int max = -1;
+  size_t min;
+  size_t max;
   if (get_current_statement_range(min, max))
   {
     context.line -= _code_editor->line_from_position(min);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-
-#include "stdafx.h"
 
 #include "wb_overview_diagram.h"
 #include "wb_overview_physical.h"
@@ -609,7 +606,7 @@ model_ModelRef PhysicalOverviewBE::get_model()
 
 int PhysicalOverviewBE::get_default_tab_page_index()
 {
-  return _model->catalog()->schemata().get_index(_model->catalog()->defaultSchema());
+  return (int)_model->catalog()->schemata().get_index(_model->catalog()->defaultSchema());
 }
 
 
@@ -835,7 +832,7 @@ bool PhysicalOverviewBE::get_file_data_for_node(const bec::NodeId &node, char *&
   {
     std::string text= _wb->get_attached_file_contents(note->filename());
     
-    data= (char*)g_memdup(text.data(), text.size());
+    data = (char*)g_memdup(text.data(), (int)text.size());
     length= text.size();
 
     return true;

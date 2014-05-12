@@ -7,13 +7,14 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
-    ${PROJECT_SOURCE_DIR}/library/dbc/src
+    ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/modules/
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/plugins
+    ${PROJECT_SOURCE_DIR}/plugins/db.mysql
     ${PROJECT_SOURCE_DIR}
     backend
     ${VSQLITE_INCLUDE_DIRS}

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,16 @@
  * 02110-1301  USA
  */
 
-#ifndef _STDAFX_H_
-#define _STDAFX_H_
+#pragma once
 
-#ifdef _WIN32
+#ifdef _WIN64
+typedef __int64 ssize_t;
+#else
+typedef int ssize_t;
+#endif
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-#include <algorithm>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -41,13 +43,13 @@
 #include <sstream>
 #include <vector>
 #include <stack>
+#include <algorithm>
+#include <errno.h>
+#include <cstdlib>
 
 #include "glib.h"
 #include <glib/gstdio.h>
 
 #include "tinyxml.h"
+
 #include "SciLexer.h"
-
-#endif
-
-#endif // _STDAFX_H_

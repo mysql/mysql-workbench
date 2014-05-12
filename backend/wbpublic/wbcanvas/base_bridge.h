@@ -16,11 +16,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _BASE_BRIDGE_H_
-#define _BASE_BRIDGE_H_
 
-#include <mdc.h>
-#include <grtpp.h>
+#pragma once
+
+#include "mdc.h"
+#include "grtpp.h"
 
 #include "grts/structs.model.h"
 
@@ -43,5 +43,3 @@ protected:
 public:
   virtual void unrealize()= 0;
 };
-
-#endif /* _BASE_BRIDGE_H_ */

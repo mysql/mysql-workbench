@@ -1,138 +1,101 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\Bin\Release\</OutputPath>
-    <DefineConstants>TRACE;COMMERCIAL_CODE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E2B94AFD-FF83-42ED-8330-A5075DEB5A0A}</ProjectGuid>
+    <ProjectGuid>{1EC37D95-8840-4881-8814-6943938B43BF}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MySQL.GUI.Workbench</RootNamespace>
     <AssemblyName>MySQLWorkbench</AssemblyName>
-    <ApplicationIcon>Resources\MySQLWorkbench.ico</ApplicationIcon>
-    <ManifestCertificateThumbprint>5BDBFE1EB36A3B29B6B8F512FBC302A0B7C02ADB</ManifestCertificateThumbprint>
-    <ManifestKeyFile>WB_TemporaryKey.pfx</ManifestKeyFile>
-    <GenerateManifests>false</GenerateManifests>
-    <TargetZone>LocalIntranet</TargetZone>
-    <SignManifests>false</SignManifests>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <StartupObject>
-    </StartupObject>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <PublishUrl>c:\Temp\MySQLWorkbench\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;COMMERCIAL_CODE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_OSS|x86' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\Bin\Release_OSS\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE;COMMERCIAL_CODE EDITION_SE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisLogFile>..\..\..\Bin\Release\MySQLWorkbench.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;COMMERCIAL_CODE EDITION_SE</DefineConstants>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <OutputPath>..\..\..\bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;COMMERCIAL_CODE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisLogFile>..\..\..\Bin\Debug\MySQLWorkbench.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>..\..\..\bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;COMMERCIAL_CODE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Release_OSS\</OutputPath>
-    <DefineConstants>TRACE;EDITION_OSS</DefineConstants>
-    <DebugType>full</DebugType>
+    <OutputPath>..\..\..\bin\x64\Release_OSS\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisLogFile>..\..\..\Bin\Release_OSS\MySQLWorkbench.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;COMMERCIAL_CODE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>..\..\..\bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;COMMERCIAL_CODE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x86'">
+    <OutputPath>..\..\..\bin\x86\Release_OSS\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\MySQLWorkbench.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationInstanceManager.cs" />
     <Compile Include="AssemblyReleaseType.cs" />
+    <Compile Include="DiagramOptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DiagramOptionsForm.Designer.cs">
+      <DependentUpon>DiagramOptionsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ExceptionDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -140,74 +103,11 @@
       <DependentUpon>ExceptionDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="InstanceProxy.cs" />
-    <Compile Include="NodeMultiTypeBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="DiagramOptionsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DiagramOptionsForm.Designer.cs">
-      <DependentUpon>DiagramOptionsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ModelObjectDescriptionForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ModelObjectDescriptionForm.Designer.cs">
-      <DependentUpon>ModelObjectDescriptionForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ModelPropertiesForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ModelPropertiesForm.designer.cs">
-      <DependentUpon>ModelPropertiesForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PageSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PageSettingsForm.Designer.cs">
-      <DependentUpon>PageSettingsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SqlIdeForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SqlIdeForm.Designer.cs">
-      <DependentUpon>SqlIdeForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UndoHistoryForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UndoHistoryForm.Designer.cs">
-      <DependentUpon>UndoHistoryForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ModelDataDictionaryForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ModelDataDictionaryForm.Designer.cs">
-      <DependentUpon>ModelDataDictionaryForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ModelLayerForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ModelLayerForm.Designer.cs">
-      <DependentUpon>ModelLayerForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ModelNavigatorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ModelNavigatorForm.Designer.cs">
-      <DependentUpon>ModelNavigatorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ModelDiagramForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ModelDiagramForm.Designer.cs">
-      <DependentUpon>ModelDiagramForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ModelCatalogForm.cs">
       <SubType>Form</SubType>
@@ -215,46 +115,142 @@
     <Compile Include="ModelCatalogForm.Designer.cs">
       <DependentUpon>ModelCatalogForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs">
+    <Compile Include="ModelDataDictionaryForm.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ModelLayerForm.resx">
+    <Compile Include="ModelDataDictionaryForm.Designer.cs">
+      <DependentUpon>ModelDataDictionaryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelDiagramForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelDiagramForm.Designer.cs">
+      <DependentUpon>ModelDiagramForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelLayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelLayerForm.Designer.cs">
       <DependentUpon>ModelLayerForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    </Compile>
+    <Compile Include="ModelNavigatorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelNavigatorForm.Designer.cs">
+      <DependentUpon>ModelNavigatorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelObjectDescriptionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelObjectDescriptionForm.Designer.cs">
+      <DependentUpon>ModelObjectDescriptionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelOverviewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelOverviewForm.Designer.cs">
+      <DependentUpon>ModelOverviewForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModelPropertiesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelPropertiesForm.Designer.cs">
+      <DependentUpon>ModelPropertiesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NodeMultiTypeBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PageSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PageSettingsForm.Designer.cs">
+      <DependentUpon>PageSettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlIdeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SqlIdeForm.Designer.cs">
+      <DependentUpon>SqlIdeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TextEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TextEditorForm.Designer.cs">
+      <DependentUpon>TextEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UndoHistoryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UndoHistoryForm.Designer.cs">
+      <DependentUpon>UndoHistoryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserDatatypesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserDatatypesForm.Designer.cs">
+      <DependentUpon>UserDatatypesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WorkbenchMenuManager.cs" />
+    <EmbeddedResource Include="DiagramOptionsForm.resx">
+      <DependentUpon>DiagramOptionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExceptionDialog.resx">
+      <DependentUpon>ExceptionDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
-      <SubType>Designer</SubType>
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ModelNavigatorForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ModelNavigatorForm.cs</DependentUpon>
+    <EmbeddedResource Include="ModelCatalogForm.resx">
+      <DependentUpon>ModelCatalogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelDataDictionaryForm.resx">
+      <DependentUpon>ModelDataDictionaryForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ModelDiagramForm.resx">
-      <SubType>Designer</SubType>
       <DependentUpon>ModelDiagramForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ModelCatalogForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ModelCatalogForm.cs</DependentUpon>
+    <EmbeddedResource Include="ModelLayerForm.resx">
+      <DependentUpon>ModelLayerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelNavigatorForm.resx">
+      <DependentUpon>ModelNavigatorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelObjectDescriptionForm.resx">
+      <DependentUpon>ModelObjectDescriptionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelOverviewForm.resx">
+      <DependentUpon>ModelOverviewForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelPropertiesForm.resx">
+      <DependentUpon>ModelPropertiesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageSettingsForm.resx">
+      <DependentUpon>PageSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ModelOverviewForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ModelOverviewForm.cs</DependentUpon>
-    </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <BaseApplicationManifest Include="Properties\app.manifest">
-      <SubType>Designer</SubType>
-    </BaseApplicationManifest>
+    <EmbeddedResource Include="SqlIdeForm.resx">
+      <DependentUpon>SqlIdeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TextEditorForm.resx">
+      <DependentUpon>TextEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UndoHistoryForm.resx">
+      <DependentUpon>UndoHistoryForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserDatatypesForm.resx">
+      <DependentUpon>UserDatatypesForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -264,191 +260,65 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="TextEditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TextEditorForm.Designer.cs">
-      <DependentUpon>TextEditorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UserDatatypesForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UserDatatypesForm.Designer.cs">
-      <DependentUpon>UserDatatypesForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ModelOverviewForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ModelOverviewForm.Designer.cs">
-      <DependentUpon>ModelOverviewForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WorkbenchMenuManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ExceptionDialog.resx">
-      <DependentUpon>ExceptionDialog.cs</DependentUpon>
+    <None Include="App.config">
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DiagramOptionsForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>DiagramOptionsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ModelDataDictionaryForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ModelDataDictionaryForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ModelObjectDescriptionForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ModelObjectDescriptionForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ModelPropertiesForm.resx">
-      <DependentUpon>ModelPropertiesForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PageSettingsForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>PageSettingsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SqlIdeForm.resx">
-      <DependentUpon>SqlIdeForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TextEditorForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>TextEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UndoHistoryForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>UndoHistoryForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserDatatypesForm.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>UserDatatypesForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <None Include="Resources\PinDown_18x18.png" />
-    <None Include="Resources\Pin_18x18.png" />
-    <None Include="Resources\news_arrow.png" />
-    <None Include="Resources\statusbar_separator.png" />
-    <None Include="Resources\statusbar_shell.png" />
-    <None Include="Resources\statusbar_output.png" />
-    <None Include="Resources\header_bar_gray.png" />
-    <None Include="Resources\header_bar_orange.png" />
-    <None Include="Resources\header_bar_blue.png" />
-    <None Include="Resources\menu_se.png" />
-    <None Include="Resources\background_top_shadow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\backend\windows\wbprivate.wr\wbprivate.wr.vcxproj">
-      <Project>{012AA803-469B-41F0-8CF2-F757D3B17200}</Project>
+      <Project>{597b7650-63d5-415a-9688-6f75e529e470}</Project>
       <Name>wbprivate.wr</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\..\backend\windows\wbpublic.wr\wbpublic.wr.vcxproj">
-      <Project>{E1C66107-E1C7-47B0-99B1-5C9D95846050}</Project>
+      <Project>{9d8ca378-b2ae-4e1e-9f86-fa01440c57f7}</Project>
       <Name>wbpublic.wr</Name>
-      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\ext\Aga.Controls\Aga.Controls.csproj">
+      <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
+      <Name>Aga.Controls</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\library\base.windows\base.windows.csproj">
-      <Project>{CFEF6684-F44D-4FD7-943E-61F2E0057F4E}</Project>
+      <Project>{09e3ad36-deb1-4302-8e7f-4a970b2ec84b}</Project>
       <Name>base.windows</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\..\library\base.wr\base.wr.vcxproj">
-      <Project>{2E5416C9-DD1E-48E4-8BF2-9706BDFC5CBB}</Project>
+      <Project>{456d822c-724a-412c-b0eb-9ec88378decb}</Project>
       <Name>base.wr</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\library\forms\winforms\mforms.wr.vcxproj">
-      <Project>{E439EBC5-F066-4B0F-B2BB-7D8E49D8E747}</Project>
+      <Project>{1d67c943-0432-4ee0-8ab0-915540c9538f}</Project>
       <Name>mforms.wr</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\ext\Aga.Controls\Aga.Controls.csproj">
-      <Project>{E73BB233-D88B-44A7-A98F-D71EE158381D}</Project>
-      <Name>Aga.Controls</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\grt.db\grt.db.fe.csproj">
-      <Project>{3FA8F8F4-3F3D-4AA4-8675-7B0A145C7494}</Project>
+      <Project>{84d94572-ead9-4839-b16b-699a8c499fe5}</Project>
       <Name>grt.db.fe</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\MySQLCsUtilities\MySQLCsUtilities.csproj">
-      <Project>{146BEC4D-1647-4854-A928-643C13E9EF5C}</Project>
+      <Project>{ed3999b7-1041-449b-a9c8-a5c76b7732fe}</Project>
       <Name>MySQLCsUtilities</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\sqlide\sqlide.fe.csproj">
-      <Project>{65618AB6-FF34-4BC1-ADAF-8492E85F46E4}</Project>
+      <Project>{d2e64e9e-3f39-496f-8ce0-1b2652aecdde}</Project>
       <Name>sqlide.fe</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\WBControls\WBControls.csproj">
-      <Project>{DC4A311E-DBC3-4FB6-88D9-58ED6EACCD1E}</Project>
+      <Project>{35c9b1f0-96f0-40fe-b7f7-5a9ba3628db2}</Project>
       <Name>WBControls</Name>
     </ProjectReference>
     <ProjectReference Include="..\WBPlugins\WBPlugins.csproj">
-      <Project>{960EF7B9-A96A-4290-AED9-2689EB28BBF7}</Project>
+      <Project>{960ef7b9-a96a-4290-aed9-2689eb28bbf7}</Project>
       <Name>WBPlugins</Name>
-      <Private>False</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\message_wb_bug.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\WBTabHeaderBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\WBSplitterBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\edit.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\navigator_zoom_in.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\navigator_zoom_out.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\MySQLWorkbench.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\oracle_logo_white.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wb_toolbar_pages_18x18.png" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>call "$(SolutionDir)PrepareOutputDir.cmd" "$(SolutionDir)" $(ConfigurationName) $(PlatformTarget)</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -456,10 +326,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-    <PostBuildEvent>call "$(SolutionDir)PrepareOutputDir.cmd" "$(SolutionDir)" $(ConfigurationName)
-</PostBuildEvent>
-  </PropertyGroup>
 </Project>

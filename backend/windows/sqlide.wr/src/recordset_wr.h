@@ -55,7 +55,7 @@ public:
 
   String ^ status_text() { return CppStringToNative(_ref->status_text()); }
 
-  int row_count() { return _ref->row_count(); }
+  int row_count() { return (int)_ref->row_count(); }
 
   void pending_changes(int %upd_count, int %ins_count, int %del_count);
   bool has_pending_changes() { return _ref->has_pending_changes(); }
@@ -71,7 +71,7 @@ public:
 
   void sort_by(int column, int direction, bool retaining) { _ref->sort_by((::ColumnId) column, direction, retaining); }
 
-  bool delete_nodes(List<NodeId^> ^nodes);
+  bool delete_nodes(List<NodeIdWrapper^> ^nodes);
 
   bool has_column_filters() { return _ref->has_column_filters(); }
   bool has_column_filter(int column) { return _ref->has_column_filter((::ColumnId) column); }
@@ -81,7 +81,7 @@ public:
   { _ref->set_column_filter((::ColumnId) column, NativeToCppString(filter_expr)); }
   void reset_column_filter(int column) { _ref->reset_column_filter((::ColumnId) column); }
   void reset_column_filters() { _ref->reset_column_filters(); }
-  int column_filter_icon_id() { return _ref->column_filter_icon_id(); }
+  int column_filter_icon_id() { return (int)_ref->column_filter_icon_id(); }
 
   String^ data_search_string() { return CppStringToNative(_ref->data_search_string()); }
   void set_data_search_string(String ^value) { _ref->set_data_search_string(NativeToCppString(value)); }

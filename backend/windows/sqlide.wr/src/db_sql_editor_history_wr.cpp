@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "GrtTemplates.h"
 #include "db_sql_editor_history_wr.h"
 

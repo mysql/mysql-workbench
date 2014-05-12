@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,7 +18,6 @@
  */
 
 #import "GRTListDataSource.h"
-//#include "mysql_table_editor.h" doesn't belong here
 #import "MTextImageCell.h"
 #import "GRTIconCache.h"
 
@@ -148,7 +147,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
   }
   else if ([anObject isKindOfClass: [NSNumber class]])
   {
-    _list->set_field(rowIndex, [[aTableColumn identifier] integerValue], (int)[anObject integerValue]);
+    _list->set_field(rowIndex, [[aTableColumn identifier] integerValue], (ssize_t)[anObject integerValue]);
   }
 }
 

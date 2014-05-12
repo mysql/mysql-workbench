@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -146,7 +146,7 @@ namespace MySQL.Grt.Db
 			int count = grtList.count();
 			for (int i = 0; i < count; i++)
 			{
-				NodeId nodeId = grtList.get_node(i);
+				NodeIdWrapper nodeId = grtList.get_node(i);
 				GrtListNode node;
 				string caption;
 
@@ -254,7 +254,7 @@ namespace MySQL.Grt.Db
     /// <summary>
     /// Converts the current placeholder (the last line in the columns grid) into a real column.
     /// </summary>
-    void activateColumnPlaceholder(NodeId node)
+    void activateColumnPlaceholder(NodeIdWrapper node)
     {
       // The following code is a bit involved, but it makes the table grid
       // properly display the default PK column name and all its other settings.
@@ -474,7 +474,7 @@ namespace MySQL.Grt.Db
       {
         if (textBox.Tag != defaultNodeControl)
         {
-          grtList.set_field(new NodeId(TreeView.SelectedNode.Index), 0, 0);
+          grtList.set_field(new NodeIdWrapper(TreeView.SelectedNode.Index), 0, 0);
           RefreshModel();
         }
 
@@ -492,7 +492,7 @@ namespace MySQL.Grt.Db
       {
         // notify cancel editing placeholder
         if (TreeView.SelectedNode != null)
-          grtList.set_field(new NodeId(TreeView.SelectedNode.Index), 0, 0);
+          grtList.set_field(new NodeIdWrapper(TreeView.SelectedNode.Index), 0, 0);
         RefreshModel();
       }
 			else if (e.KeyCode == Keys.Tab || e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
@@ -526,7 +526,7 @@ namespace MySQL.Grt.Db
               if (TreeView.SelectedNode != null)
               {
                 // notify cancel editing placeholder
-                grtList.set_field(new NodeId(selIndex), 0, 0);
+                grtList.set_field(new NodeIdWrapper(selIndex), 0, 0);
                 RefreshModel();
               }
             }
@@ -565,7 +565,7 @@ namespace MySQL.Grt.Db
                 if (TreeView.SelectedNode != null)
                 {
                   // notify cancel editing placeholder
-                  grtList.set_field(new NodeId(selIndex), 0, 0);
+                  grtList.set_field(new NodeIdWrapper(selIndex), 0, 0);
                   RefreshModel();
                 }
               }
@@ -575,7 +575,7 @@ namespace MySQL.Grt.Db
               if (TreeView.SelectedNode != null)
               {
                 // notify cancel editing placeholder
-                grtList.set_field(new NodeId(TreeView.SelectedNode.Index), 0, 0);
+                grtList.set_field(new NodeIdWrapper(TreeView.SelectedNode.Index), 0, 0);
                 RefreshModel();
               }
             }

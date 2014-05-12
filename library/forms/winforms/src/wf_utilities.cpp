@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wf_base.h"
 #include "wf_view.h"
 #include "wf_utilities.h"
@@ -27,6 +25,12 @@
 #include "base/string_utilities.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
+
+// When linking statically against comctl32 we have to enable this manifest dependency explicitly
+// otherwise loading mforms.wr fails with a BadImageFormat exception under 64 bit.
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+  name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+  processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 
@@ -118,18 +122,11 @@ CustomMessageBox::CustomMessageBox()
 #define TD_SHIELD_SUCCESS_ICON   MAKEINTRESOURCE(-8)
 #define TD_SHIELD_GRAY_ICON      MAKEINTRESOURCE(-9)
 
-typedef HRESULT (WINAPI *PTaskDialogIndirect)(const TASKDIALOGCONFIG *pTaskConfig,
-  __out_opt int *pnButton, __out_opt int *pnRadioButton, __out_opt BOOL *pfVerificationFlagChecked);
-
-mforms::DialogResult CustomMessageBox::ShowVistaStyle(const std::string& title, const std::string& text,
+mforms::DialogResult CustomMessageBox::ShowInternal(const std::string& title, const std::string& text,
   PCWSTR mainIcon, const std::string& buttonOK, const std::string& buttonCancel,
   const std::string& buttonOther, const std::string& checkbox, bool& checked)
 {
-  log_debug("Creating custom message box in vista style\n");
-
-  // Load TaskDialogIndirect dynamically so we don't get a problem on XP.
-  HMODULE comctl32 = LoadLibraryW(L"comctl32.dll");
-  PTaskDialogIndirect _TaskDialogIndirect = (PTaskDialogIndirect) GetProcAddress(comctl32, "TaskDialogIndirect");
+  log_debug("Creating and showing custom message box\n");
 
   TASKDIALOGCONFIG config = {0};
   config.cbSize = sizeof(config);
@@ -196,8 +193,9 @@ mforms::DialogResult CustomMessageBox::ShowVistaStyle(const std::string& title, 
 
   log_debug("Running custom message box\n");
 
-  HRESULT result = _TaskDialogIndirect(&config, &button, &radioButton, &verificationChecked);
-  FreeLibrary(comctl32);
+  HRESULT result = TaskDialogIndirect(&config, &button, &radioButton, &verificationChecked);
+
+  log_debug("Custom message box closed\n");
 
   if (!SUCCEEDED(result))
     return mforms::ResultCancel;
@@ -212,52 +210,6 @@ mforms::DialogResult CustomMessageBox::ShowVistaStyle(const std::string& title, 
     return mforms::ResultCancel;
     break;
   default:
-    return mforms::ResultOther;
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/// <summary>
-/// Displays the CustomMessageBox and returns a dialog result, depending on the button clicked.
-/// </summary>
-mforms::DialogResult CustomMessageBox::ShowTraditionalStyle(String ^title,  String ^text,
-  Drawing::Image ^image,  String ^button1, String ^button2,  String ^button3,  String ^checkbox,
-  bool& checked)
-{
-  log_debug("Showing traditional custom message box\n");
-  
-  CustomMessageBox^ box = gcnew CustomMessageBox();
-  
-  box->_picture->Image = image; 
-  box->_picture->Size = image->Size;
-  box->Text = title;
-  box->_messageLabel->Text = text;
-  box->_button1->Text = button1;
-  box->_button1->DialogResult = Windows::Forms::DialogResult::OK;
-  box->_button2->Text = button2;
-  box->_button2->DialogResult = Windows::Forms::DialogResult::Cancel;
-  box->_button3->Text = button3;
-  box->_button3->DialogResult = Windows::Forms::DialogResult::Ignore;
-  box->_checkbox->Text = checkbox;
-  box->ComputeLayout();
-
-  box->AcceptButton = box->_button1;
-  box->CancelButton = box->_button2;
-
-  Windows::Forms::DialogResult rc = box->ShowDialog();
-
-  checked = box->_checkbox->Checked;
-  switch (rc)
-  {
-  case Windows::Forms::DialogResult::OK:
-    return mforms::ResultOk;
-
-  default:
-  case Windows::Forms::DialogResult::Cancel:
-    return mforms::ResultCancel;
-
-  case Windows::Forms::DialogResult::Ignore:
     return mforms::ResultOther;
   }
 }
@@ -474,40 +426,12 @@ mforms::DialogResult CustomMessageBox::Show(const std::string& title, const std:
 {
   log_debug("About to show a custom message box\n");
 
-  // Our message looks different depending on whether we are running on XP or Vista and above.
-  if (ControlUtilities::IsVistaOrAbove())
-  {
-    mforms::Utilities::enter_modal_loop();
-    mforms::DialogResult result = ShowVistaStyle(title, text, mainIcon, buttonOK, buttonCancel,
-      buttonOther, checkbox, checked);
-    mforms::Utilities::leave_modal_loop();
+  mforms::Utilities::enter_modal_loop();
+  mforms::DialogResult result = ShowInternal(title, text, mainIcon, buttonOK, buttonCancel,
+    buttonOther, checkbox, checked);
+  mforms::Utilities::leave_modal_loop();
 
-    return result;
-  }
-  else
-  {
-     String^ boxTitle = CppStringToNative(title);
-     String^ boxText = CppStringToNative(text);
-     String^ ok_text = CppStringToNative(buttonOK);
-     String^ cancel_text = CppStringToNative(buttonCancel);
-     String^ other_text = CppStringToNative(buttonOther);
-     String^ checkbox_text = CppStringToNative(checkbox);
-
-    Drawing::Image^ image;
-    if (mainIcon == TD_WARNING_ICON)
-      image = Drawing::Image::FromFile("images/ui/message_warning.png");
-    else
-      if (mainIcon == TD_ERROR_ICON)
-        image = Drawing::Image::FromFile("images/ui/message_error.png");
-      else
-        image = Drawing::Image::FromFile("images/ui/message_confirm.png");
-    
-    mforms::Utilities::enter_modal_loop();
-    mforms::DialogResult result = CustomMessageBox::ShowTraditionalStyle(boxTitle, boxText, image,
-      ok_text, cancel_text, other_text, checkbox_text, checked);
-    mforms::Utilities::leave_modal_loop();
-    return result;
-  }
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -519,55 +443,28 @@ Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ t
 
   mforms::DialogResult result;
 
-  // Our message looks different depending on whether we are running on XP or Vista and above.
-  if (ControlUtilities::IsVistaOrAbove())
+  mforms::Utilities::enter_modal_loop();
+  PCWSTR mainIcon;
+  switch (type)
   {
-    mforms::Utilities::enter_modal_loop();
-    PCWSTR mainIcon;
-    switch (type)
-    {
-    case MessageType::MessageWarning:
-      mainIcon = TD_WARNING_ICON;
-      break;
-    case MessageType::MessageError:
-      mainIcon = TD_ERROR_ICON;
-      break;
-    default:
-      mainIcon = TD_INFORMATION_ICON;
-      break;
-    }
-    bool isChecked = false;
-    result = ShowVistaStyle(
-      NativeToCppString(title), NativeToCppString(text), mainIcon, NativeToCppString(buttonOK),
-      NativeToCppString(buttonCancel), NativeToCppString(buttonOther), NativeToCppString(checkbox),
-      isChecked
-    );
-    checked = isChecked;
-    mforms::Utilities::leave_modal_loop();
+  case MessageType::MessageWarning:
+    mainIcon = TD_WARNING_ICON;
+    break;
+  case MessageType::MessageError:
+    mainIcon = TD_ERROR_ICON;
+    break;
+  default:
+    mainIcon = TD_INFORMATION_ICON;
+    break;
   }
-  else
-  {
-    Drawing::Image^ image;
-    switch (type)
-    {
-    case MessageType::MessageWarning:
-      image = Drawing::Image::FromFile("images/ui/message_warning.png");
-      break;
-    case MessageType::MessageError:
-      image = Drawing::Image::FromFile("images/ui/message_error.png");
-      break;
-    default:
-      image = Drawing::Image::FromFile("images/ui/message_confirm.png");
-      break;
-    }
-
-    mforms::Utilities::enter_modal_loop();
-    bool isChecked = false;
-    result = CustomMessageBox::ShowTraditionalStyle(title, text, image, buttonOK, buttonCancel,
-      buttonOther, checkbox, isChecked);
-    checked = isChecked;
-    mforms::Utilities::leave_modal_loop();
-  }
+  bool isChecked = false;
+  result = ShowInternal(
+    NativeToCppString(title), NativeToCppString(text), mainIcon, NativeToCppString(buttonOK),
+    NativeToCppString(buttonCancel), NativeToCppString(buttonOther), NativeToCppString(checkbox),
+    isChecked
+  );
+  checked = isChecked;
+  mforms::Utilities::leave_modal_loop();
 
   Windows::Forms::DialogResult native_result;
   switch (result)
@@ -1021,8 +918,8 @@ void UtilitiesWrapper::load_passwords()
     DATA_BLOB data_in;
     DATA_BLOB data_out;
 
-    data_in.pbData = (BYTE*) content;
-    data_in.cbData = length;
+    data_in.pbData = (BYTE *) content;
+    data_in.cbData = (DWORD)length;
     
     log_debug2("Decrypting password data\n");
     result = CryptUnprotectData(&data_in, NULL, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &data_out) == TRUE;
@@ -1201,20 +1098,20 @@ typedef struct tagTHREADNAME_INFO
 
 void SetThreadName( DWORD dwThreadID, const char* threadName)
 {
-   THREADNAME_INFO info;
-   info.dwType = 0x1000;
-   info.szName = threadName;
-   info.dwThreadID = dwThreadID;
-   info.dwFlags = 0;
+  THREADNAME_INFO info;
+  info.dwType = 0x1000;
+  info.szName = threadName;
+  info.dwThreadID = dwThreadID;
+  info.dwFlags = 0;
 
-   __try
-   {
-     // Doesn't work at all outside the IDE. Crashes WB on start.
-      //RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
-   }
-   __except(EXCEPTION_CONTINUE_EXECUTION)
-   {
-   }
+  __try
+  {
+    // Doesn't work at all outside the IDE. Crashes WB on start.
+    // RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
+  }
+  __except(EXCEPTION_CONTINUE_EXECUTION)
+  {
+  }
 }
 
 void UtilitiesWrapper::set_thread_name(const std::string &name)
@@ -1238,12 +1135,13 @@ Windows::Forms::Form^ UtilitiesWrapper::get_mainform()
 
 //--------------------------------------------------------------------------------------------------
 
-static base::Mutex timeout_mutex;
+static base::RecMutex timeout_mutex;
 
 ref class TimerHandler
 {
   static mforms::TimeoutHandle last_timeout = 0;
   static Dictionary<mforms::TimeoutHandle, TimerHandler^> ^timeout_handles = gcnew Dictionary<mforms::TimeoutHandle, TimerHandler^>();
+
 public:
   TimerHandler(float interval, const boost::function<bool ()> &slot)
   {
@@ -1256,7 +1154,7 @@ public:
     _timer->Interval = (int) (interval * 1000);
     _timer->Tick += gcnew EventHandler(this, &TimerHandler::timer_tick);
 
-    base::MutexLock lock(timeout_mutex);
+    base::RecMutexLock lock(timeout_mutex);
     _handle = ++last_timeout;
     timeout_handles[_handle] = this;
 
@@ -1274,7 +1172,7 @@ public:
 
   static void cancel(mforms::TimeoutHandle handle)
   {
-    base::MutexLock lock(timeout_mutex);
+    base::RecMutexLock lock(timeout_mutex);
     if (timeout_handles->ContainsKey(handle))
     {
       delete timeout_handles[handle];
@@ -1301,7 +1199,7 @@ private:
     if (!mforms::Utilities::in_modal_loop())
     {
       {
-        base::MutexLock lock(timeout_mutex);
+        base::RecMutexLock lock(timeout_mutex);
         if (timeout_handles->ContainsKey(_handle))
           timeout_handles->Remove(_handle);
       }
@@ -1330,7 +1228,6 @@ mforms::TimeoutHandle UtilitiesWrapper::add_timeout(float interval, const boost:
 
 void UtilitiesWrapper::cancel_timeout(mforms::TimeoutHandle h)
 {
-  base::MutexLock lock(timeout_mutex);
   TimerHandler::cancel(h);
 }
 

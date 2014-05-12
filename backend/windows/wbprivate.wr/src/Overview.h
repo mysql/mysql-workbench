@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 namespace MySQL {
   namespace Workbench {
 
-    public ref class Overview : public ::MySQL::Grt::TreeModel
+    public ref class Overview : public MySQL::Grt::TreeModelWrapper
     {
     protected:
       ref class OverviewUIForm : public ::MySQL::Base::UIForm
@@ -65,11 +65,11 @@ namespace MySQL {
       };
 
       inline ::wb::OverviewBE *get_unmanaged_object()
-      { return static_cast<::wb::OverviewBE*>(TreeModel::get_unmanaged_object()); }
+      { return static_cast<::wb::OverviewBE*>(TreeModelWrapper::get_unmanaged_object()); }
 
 
       Overview(::wb::OverviewBE *inn)
-        : ::MySQL::Grt::TreeModel(inn)
+        : MySQL::Grt::TreeModelWrapper(inn)
       { 
         uiform = gcnew OverviewUIForm(inn);
       }
@@ -98,7 +98,7 @@ namespace MySQL {
         return CppStringToNative(title);
       }
 
-      System::String^ get_node_unique_id(::MySQL::Grt::NodeId^ node)
+      System::String^ get_node_unique_id(MySQL::Grt::NodeIdWrapper ^node)
       {
         std::string id= get_unmanaged_object()->get_node_unique_id(*node->get_unmanaged_object());
         if (id.empty()) return nullptr;
@@ -106,17 +106,17 @@ namespace MySQL {
       }
 
 
-      ::MySQL::Grt::NodeId^ get_focused_child(::MySQL::Grt::NodeId^ node)
+      MySQL::Grt::NodeIdWrapper^ get_focused_child(MySQL::Grt::NodeIdWrapper^ node)
       {
-        return gcnew ::MySQL::Grt::NodeId(&get_unmanaged_object()->get_focused_child(*node->get_unmanaged_object())); 
+        return gcnew MySQL::Grt::NodeIdWrapper(&get_unmanaged_object()->get_focused_child(*node->get_unmanaged_object()));
       }
 
-      void select_node(::MySQL::Grt::NodeId^ node)
+      void select_node(MySQL::Grt::NodeIdWrapper^ node)
       {
         get_unmanaged_object()->select_node(*node->get_unmanaged_object());
       }
 
-      System::Collections::Generic::List<int>^ get_selected_children(::MySQL::Grt::NodeId^ node)
+      System::Collections::Generic::List<int>^ get_selected_children(MySQL::Grt::NodeIdWrapper^ node)
       {
         System::Collections::Generic::List<int>^ list= gcnew System::Collections::Generic::List<int>();
 
@@ -138,7 +138,7 @@ namespace MySQL {
         return get_unmanaged_object()->get_default_tab_page_index();
       }
 
-      void focus_node(::MySQL::Grt::NodeId^ node)
+      void focus_node(MySQL::Grt::NodeIdWrapper ^node)
       {
         get_unmanaged_object()->focus_node(*node->get_unmanaged_object());
       }
@@ -154,27 +154,27 @@ namespace MySQL {
       }
 
 
-      bool is_editable(::MySQL::Grt::NodeId^ node)
+      bool is_editable(MySQL::Grt::NodeIdWrapper ^node)
       {
         return get_unmanaged_object()->is_editable(*node->get_unmanaged_object());
       }
 
-      bool request_add_object(::MySQL::Grt::NodeId^ node)
+      bool request_add_object(MySQL::Grt::NodeIdWrapper ^node)
       {
         return get_unmanaged_object()->request_add_object(*node->get_unmanaged_object());
       }
 
-      bool request_delete_object(::MySQL::Grt::NodeId^ node)
+      bool request_delete_object(MySQL::Grt::NodeIdWrapper ^node)
       {
           return get_unmanaged_object()->request_delete_object(*node->get_unmanaged_object());
       }
 
       bool request_delete_selection()
       {
-        return get_unmanaged_object()->request_delete_selected();
+        return get_unmanaged_object()->request_delete_selected() != 0;
       }
 
-      void refresh_node(::MySQL::Grt::NodeId^ node, bool children)
+      void refresh_node(MySQL::Grt::NodeIdWrapper ^node, bool children)
       {
         try
         {
@@ -186,19 +186,19 @@ namespace MySQL {
         }
       }
 
-      System::String ^get_field_name(::MySQL::Grt::NodeId^ node, int column)
+      System::String ^get_field_name(MySQL::Grt::NodeIdWrapper ^node, int column)
       {
         std::string name= get_unmanaged_object()->get_field_name(*node->get_unmanaged_object(), column);
         return CppStringToNative(name);
       }
 
-      int get_details_field_count(::MySQL::Grt::NodeId^ node)
+      int get_details_field_count(MySQL::Grt::NodeIdWrapper^ node)
       {
         return get_unmanaged_object()->get_details_field_count(*node->get_unmanaged_object());
       }
 
-      ::MySQL::Grt::NodeId^ search_child_item_node_matching(::MySQL::Grt::NodeId ^node, 
-                                                        ::MySQL::Grt::NodeId^ starting_node,
+      MySQL::Grt::NodeIdWrapper^ search_child_item_node_matching(MySQL::Grt::NodeIdWrapper ^node, 
+                                                        MySQL::Grt::NodeIdWrapper^ starting_node,
                                                         System::String ^text)
       {
         bec::NodeId cnode= node != nullptr ? *node->get_unmanaged_object() : bec::NodeId();
@@ -209,7 +209,7 @@ namespace MySQL {
                                                           NativeToCppString(text));
 
         if (result.is_valid())
-          return gcnew ::MySQL::Grt::NodeId(&result);
+          return gcnew MySQL::Grt::NodeIdWrapper(&result);
         return nullptr;
       }
 
@@ -223,13 +223,13 @@ namespace MySQL {
         get_unmanaged_object()->close();
       }
 
-      System::Collections::Generic::List<::MySQL::Base::ToolbarItem^> ^get_toolbar_items(::MySQL::Grt::NodeId^ node)
+      System::Collections::Generic::List<::MySQL::Base::ToolbarItem^> ^get_toolbar_items(MySQL::Grt::NodeIdWrapper^ node)
       {
         bec::ToolbarItemList items = get_unmanaged_object()->get_toolbar_items(*node->get_unmanaged_object());
         return MySQL::Grt::CppVectorToObjectList<::bec::ToolbarItem, ::MySQL::Base::ToolbarItem> (items);
       }
 
-      bool activate_toolbar_item(::MySQL::Grt::NodeId^ node, System::String^ name)
+      bool activate_toolbar_item(MySQL::Grt::NodeIdWrapper^ node, System::String^ name)
       {
         return get_unmanaged_object()->activate_toolbar_item(*node->get_unmanaged_object(), NativeToCppString(name));
       }

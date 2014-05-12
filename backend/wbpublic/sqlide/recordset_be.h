@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #ifndef _RECORDSET_BE_H_
 #define _RECORDSET_BE_H_
 
@@ -31,6 +30,7 @@
 
 class Recordset_data_storage;
 class BinaryDataEditor;
+
 namespace mforms 
 {
   class Form;
@@ -38,7 +38,6 @@ namespace mforms
   class ToolBar;
   class ToolBarItem;
 };
-
 
 struct WBPUBLICBACKEND_PUBLIC_FUNC Recordset_storage_info
 {
@@ -100,14 +99,14 @@ public:
 private:
   void recalc_row_count(sqlite::connection *data_swap_db);
 private:
-  RowId _real_row_count;
+  size_t _real_row_count;
 
 public:
   const Column_names * column_names() const { return &_column_names; }
-  virtual int get_column_count() const { return _column_count-_aux_column_count; }
-  ColumnId aux_column_count() const { return _aux_column_count; }  
+  virtual size_t get_column_count() const { return (int)(_column_count-_aux_column_count); }
+  size_t aux_column_count() const { return _aux_column_count; }  
 protected:
-  ColumnId _aux_column_count;
+  size_t _aux_column_count;
   ColumnId _rowid_column;
 public:
   RowId min_new_rowid() const { return _min_new_rowid; }
@@ -119,7 +118,7 @@ private:
   static std::string _add_change_record_statement;
 
 public:
-  virtual void after_set_field(const bec::NodeId &node, int column, const sqlite::variant_t &value);
+  virtual void after_set_field(const bec::NodeId &node, ColumnId column, const sqlite::variant_t &value);
   virtual bool delete_node(const bec::NodeId &node);
   virtual bool delete_nodes(std::vector<bec::NodeId> &nodes);
 private:
@@ -174,9 +173,9 @@ private:
   
 public:
   void copy_rows_to_clipboard(const std::vector<int> &indeces, std::string sep = ", ", bool quoted=true, bool with_header=false);
-  void copy_field_to_clipboard(int row, int column, bool quoted=true);
+  void copy_field_to_clipboard(int row, ColumnId column, bool quoted=true);
 
-  void paste_rows_from_clipboard(int dest_row);
+  void paste_rows_from_clipboard(ssize_t dest_row);
   
 public:
   std::vector<Recordset_storage_info> data_storages_for_export();
@@ -186,12 +185,12 @@ protected:
   typedef std::map<std::string, std::string> Data_storages_for_export;
   Data_storages_for_export _data_storages_for_export;
 
-  void load_from_file(const bec::NodeId &node, int column);
-  void save_to_file(const bec::NodeId &node, int column);
+  void load_from_file(const bec::NodeId &node, ColumnId column);
+  void save_to_file(const bec::NodeId &node, ColumnId column);
   
 public:
-  void load_from_file(const bec::NodeId &node, int column, const std::string &file);
-  void save_to_file(const bec::NodeId &node, int column, const std::string &file);
+  void load_from_file(const bec::NodeId &node, ColumnId column, const std::string &file);
+  void save_to_file(const bec::NodeId &node, ColumnId column, const std::string &file);
 
 public:
   virtual void sort_by(ColumnId column, int direction, bool retaining);
@@ -206,7 +205,7 @@ public:
   void set_column_filter(ColumnId column, const std::string &filter_expr);
   void reset_column_filter(ColumnId column);
   void reset_column_filters();
-  int column_filter_icon_id() const;
+  size_t column_filter_icon_id() const;
 private:
   typedef std::map<ColumnId, std::string> Column_filter_expr_map;
   Column_filter_expr_map _column_filter_expr_map; // column:filter_expr
@@ -265,11 +264,5 @@ protected:
   void set_field_value(RowId row, ColumnId column, BinaryDataEditor *data_editor);
   void set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length);
 };
-
-
-#ifdef _WIN32
-#pragma make_public(Recordset)
-#endif
-
 
 #endif /* _RECORDSET_BE_H_ */

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "testgrt.h"
 #include "grt_test_utility.h"
 #include "grt/grt_manager.h"
@@ -33,22 +31,21 @@
 #include "grtdb/db_object_helpers.h"
 
 #include "cppdbc.h"
-#include "db_rev_eng_be.h"
+#include "backend/db_rev_eng_be.h"
 
 #include "grtsqlparser/sql_facade.h"
 #include "db_mysql_diffsqlgen.h"
 
-#include "diffchange.h"
-#include "grtdiff.h"
-#include "changeobjects.h"
-#include "changelistobjects.h"
+#include "diff/diffchange.h"
+#include "diff/grtdiff.h"
+#include "diff/changeobjects.h"
+#include "diff/changelistobjects.h"
 #include "grtdb/db_helpers.h"
 #include "grtdb/diff_dbobjectmatch.h"
 
 #include "myx_statement_parser.h"
-//#include "test_import_helpers.h"
-#include "db_mysql_sql_script_sync.h"
-#include "db_mysql_sql_export.h"
+#include "backend/db_mysql_sql_script_sync.h"
+#include "backend/db_mysql_sql_export.h"
 #include "module_db_mysql.h"
 #include "wb_helpers.h"
 

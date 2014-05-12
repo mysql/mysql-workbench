@@ -17,10 +17,9 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "base/string_utilities.h"
 #include "grtpp.h"
+#include "wb_helpers.h"
 
 #include <algorithm>
 

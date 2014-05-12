@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,12 +17,9 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
-
 #ifdef ENABLE_PYTHON_MODULES
-#include "base/string_utilities.h"
 #include "grtpp_shell_python.h"
+#include "base/string_utilities.h"
 
 using namespace grt;
 using namespace base;

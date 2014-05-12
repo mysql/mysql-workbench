@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 using namespace System;
 using namespace System::Reflection;
 using namespace System::Runtime::CompilerServices;
@@ -35,7 +33,7 @@ using namespace Runtime::InteropServices;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("Oracle Corporation")];
 [assembly:AssemblyProductAttribute("mforms.wr")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c) Oracle Corporation 2010, 2013")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c) Oracle Corporation 2010, 2014")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 
@@ -57,5 +55,3 @@ using namespace Runtime::InteropServices;
 [assembly:ComVisible(false)];
 
 [assembly:CLSCompliantAttribute(true)];
-
-[assembly:SecurityPermission(SecurityAction::RequestMinimum, UnmanagedCode = true)];

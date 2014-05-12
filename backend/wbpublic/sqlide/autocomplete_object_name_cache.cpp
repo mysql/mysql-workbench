@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <sqlite/execute.hpp>
 #include <sqlite/query.hpp>
 #include <sqlite/database_exception.hpp>

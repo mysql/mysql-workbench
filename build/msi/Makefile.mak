@@ -8,10 +8,11 @@
 # The variable BIN_DIR needs to be adjusted by the user
 # before executing this makescript
 # example:
-# Set BIN_DIR="..\..\bin\windows"
+# Set BIN_DIR="..\..\bin\x86\release"
 ###############################################################
-CANDLE= ..\..\..\mysql-gui-win-res\bin\wix\candle -nologo -ext WiXNetFxExtension -ext WixUtilExtension
-LIGHT= ..\..\..\mysql-gui-win-res\bin\wix\light -nologo -ext WiXNetFxExtension -ext WixUtilExtension
+
+CANDLE= ..\..\..\mysql-win-res\bin\wix\candle -nologo -ext WiXNetFxExtension -ext WixUtilExtension
+LIGHT= ..\..\..\mysql-win-res\bin\wix\light -nologo -ext WiXNetFxExtension -ext WixUtilExtension
 COMMON_GUI=source
 
 all: mysql_workbench.msi
@@ -20,10 +21,10 @@ mysql_workbench.msi: mysql_workbench.wixobj mysql_workbench_fragment.wixobj
   $(LIGHT) -b $(BIN_DIR)  $** -out $@
 
 mysql_workbench.wixobj: mysql_workbench.xml $(COMMON_GUI)\mysql_common_ui.xml
-  $(CANDLE) mysql_workbench.xml -out $@ -dLICENSE_TYPE=$(LICENSE_TYPE) -dSETUP_TYPE=$(SETUP_TYPE) -dVERSION_MAIN=$(VERSION_MAIN) -dVERSION_DETAIL=$(VERSION_DETAIL) -dLICENSE_SCREEN=$(LICENSE_SCREEN)
+  $(CANDLE) mysql_workbench.xml -out $@ -dLICENSE_TYPE=$(LICENSE_TYPE) -dSETUP_TYPE=$(SETUP_TYPE) -dVERSION_MAIN=$(VERSION_MAIN) -dVERSION_DETAIL=$(VERSION_DETAIL) -dLICENSE_SCREEN=$(LICENSE_SCREEN) -arch $(ARCHITECTURE)
 
 mysql_workbench_fragment.wixobj: mysql_workbench_fragment.xml
-  $(CANDLE) $** -out $@ -dLICENSE_TYPE=$(LICENSE_TYPE) -dSETUP_TYPE=$(SETUP_TYPE) -dVERSION_MAIN=$(VERSION_MAIN) -dVERSION_DETAIL=$(VERSION_DETAIL) -dLICENSE_SCREEN=$(LICENSE_SCREEN)
+  $(CANDLE) $** -out $@ -dLICENSE_TYPE=$(LICENSE_TYPE) -dSETUP_TYPE=$(SETUP_TYPE) -dVERSION_MAIN=$(VERSION_MAIN) -dVERSION_DETAIL=$(VERSION_DETAIL) -dLICENSE_SCREEN=$(LICENSE_SCREEN) -arch $(ARCHITECTURE)
 
 clean:
   del *.wixobj 1> nul 2> nul

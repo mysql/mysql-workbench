@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "MySQLTableEditorWrapper.h"
 #include "grtdb/db_object_helpers.h"
 #include "mforms/view.h"

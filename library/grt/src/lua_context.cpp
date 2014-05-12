@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-
-#include "stdafx.h"
 
 #include "lua_context.h"
 
@@ -749,9 +746,9 @@ int LuaContext::push_convert_value(const grt::ValueRef &value)
       {
         BaseListRef list(BaseListRef::cast_from(value));
 
-        lua_checkstack(_lua, lua_gettop(_lua)+list.count()*2+1);
+        lua_checkstack(_lua, lua_gettop(_lua) + (int)list.count()*2+1);
         lua_newtable(_lua);
-        for (size_t i=0, c= list.count(); i < c; i++)
+        for (int i=0, c= (int)list.count(); i < c; i++)
         {
           push_convert_value(list[i]);
           lua_rawseti(_lua, -2, i+1);
@@ -762,7 +759,7 @@ int LuaContext::push_convert_value(const grt::ValueRef &value)
       {
         DictRef dict(DictRef::cast_from(value));
 
-        lua_checkstack(_lua, lua_gettop(_lua)+dict.count()*2+1);
+        lua_checkstack(_lua, lua_gettop(_lua) + (int)dict.count()*2+1);
         lua_newtable(_lua);
         for (DictRef::const_iterator iter= dict.begin(); iter != dict.end(); ++iter)
         {
@@ -1561,9 +1558,9 @@ static int l_grt_value_getn(lua_State *l)
   }
   
   if (value.type() == ListType)
-    lua_pushnumber(l, BaseListRef::cast_from(value).count());
+    lua_pushnumber(l, (lua_Number)BaseListRef::cast_from(value).count());
   else
-    lua_pushnumber(l, DictRef::cast_from(value).count());
+    lua_pushnumber(l, (lua_Number)DictRef::cast_from(value).count());
 
   return 1;  
 }
@@ -2193,7 +2190,7 @@ static bool push_members(const MetaClass::Member *mem, lua_State *l, size_t *i, 
   lua_pushinteger(l, *i);
   lua_pushstring(l, mem->name.c_str());
 
-  lua_settable(l, tbl_stack_pos);
+  lua_settable(l, (int)tbl_stack_pos);
   
   return true;
 }

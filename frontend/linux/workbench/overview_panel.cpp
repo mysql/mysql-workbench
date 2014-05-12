@@ -365,7 +365,7 @@ void OverviewItemContainer::activate_item(const Gtk::TreeModel::Path &path)
 void OverviewItemContainer::on_selection_changed(const std::vector<bec::NodeId>& sel)
 {
   _overview->begin_selection_marking();
-  int node_type;
+  ssize_t node_type;
   
   for ( int i = sel.size() - 1; i >= 0; --i )
   {
@@ -717,7 +717,7 @@ public:
     std::string label;
     _overview->get_field(_node, wb::OverviewBE::Label, label);
 
-    _label.set_markup(strfmt("<b>%s</b> <small>(%i items)</small>", label.c_str(), _overview->count_children(_node)-1));
+    _label.set_markup(strfmt("<b>%s</b> <small>(%zi items)</small>", label.c_str(), _overview->count_children(_node)-1));
   }
   
   virtual void refresh()
@@ -943,7 +943,7 @@ public:
 
   void refresh_info(const bec::NodeId &node)
   {    
-    if (get_n_pages() > node.back())
+    if (get_n_pages() > (ssize_t)node.back())
       ((OverviewGroup*)get_nth_page(node.back()))->update_label();
   }
 };
@@ -1024,10 +1024,10 @@ void OverviewPanel::rebuild_all()
 
   bec::NodeId root= _overview_be->get_root();
   
-  for (int i= 0; i < _overview_be->count_children(root); i++)
+  for (size_t i= 0; i < _overview_be->count_children(root); i++)
   {
     bec::NodeId node= _overview_be->get_child(root, i);
-    int type;
+    ssize_t type;
 
     _overview_be->get_field(node, wb::OverviewBE::NodeType, type);
 
@@ -1044,7 +1044,7 @@ void OverviewPanel::rebuild_all()
   filler->modify_bg_pixmap(Gtk::STATE_NORMAL, bec::IconManager::get_instance()->get_icon_path("background.png"));
   
   {
-    int group_index= 0;
+    size_t group_index= 0;
     if (_groups->current_page_index() >= 0)
       group_index= _groups->current_page_index();
     if (group_index < _overview_be->count_children(_groups->node()))
@@ -1079,10 +1079,10 @@ void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnod
   _overview_be->get_field(pnode, wb::OverviewBE::Label, text);
 
   // Check if division is expanded
-  int default_expanded= 1;
+  ssize_t default_expanded= 1;
   _overview_be->get_field(pnode, wb::OverviewBE::Expanded, default_expanded);
 
-  int child_type;
+  ssize_t child_type;
   _overview_be->get_field(pnode, wb::OverviewBE::ChildNodeType, child_type);
 
   OverviewDivision *division = 0;
@@ -1104,7 +1104,7 @@ void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnod
     // assumes child nodes are sections
     // Build groups, like 'mydb' tab and its content for a databases
     _overview_be->refresh_node(pnode, true);
-    for (int i= 0; i < _overview_be->count_children(pnode); i++)
+    for (size_t i= 0; i < _overview_be->count_children(pnode); i++)
     {
       bec::NodeId node= _overview_be->get_child(pnode, i);
 
@@ -1136,7 +1136,7 @@ void OverviewPanel::build_division(Gtk::VBox *container, const bec::NodeId &pnod
   }
   else if (child_type == wb::OverviewBE::OSection)
   {
-    for (int i= 0; i < _overview_be->count_children(pnode); i++)
+    for (size_t i= 0; i < _overview_be->count_children(pnode); i++)
     {
       bec::NodeId node= _overview_be->get_child(pnode, i);
       OverviewSection *section= Gtk::manage(new OverviewSection(_overview_be, node, true, true));
@@ -1185,13 +1185,13 @@ void OverviewPanel::build_group(OverviewDivision *division, OverviewGroupContain
 
 void OverviewPanel::build_group_contents(OverviewDivision *division, Gtk::VBox *page, const bec::NodeId &pnode)
 {
-  int type;
+  ssize_t type;
   _overview_be->get_field(pnode, wb::OverviewBE::ChildNodeType, type);
     if (type != wb::OverviewBE::OSection)
       throw std::logic_error("unexpected child node type");
   
   std::string child_name;
-  for (int i= 0; i < _overview_be->count_children(pnode); i++)
+  for (size_t i= 0; i < _overview_be->count_children(pnode); i++)
   {
     bec::NodeId node= _overview_be->get_child(pnode, i);
     OverviewSection *section= Gtk::manage(new OverviewSection(_overview_be, node, true, true));
@@ -1234,14 +1234,14 @@ void OverviewPanel::pre_refresh_groups()
 void OverviewPanel::refresh_active_group_node_children()
 {
   bec::NodeId group_node_id= _groups->node();
-  int current_page_index= _groups->current_page_index();
-  if (-1 == current_page_index || _groups->get_n_pages() < _overview_be->count_children(group_node_id))
+  ssize_t current_page_index= _groups->current_page_index();
+  if (-1 == current_page_index || _groups->get_n_pages() < (ssize_t)_overview_be->count_children(group_node_id))
   {
     rebuild_all();
     select_default_group_page();
     current_page_index= _groups->current_page_index();
   }
-  if ((current_page_index != -1) && ((int)current_page_index < _overview_be->count_children(group_node_id)))
+  if ((current_page_index != -1) && (current_page_index < (ssize_t)_overview_be->count_children(group_node_id)))
   {
     bec::NodeId schema_node_id= _overview_be->get_child(group_node_id, current_page_index);
 
@@ -1379,7 +1379,7 @@ void OverviewPanel::select_default_group_page()
 //------------------------------------------------------------------------------
 void OverviewPanel::refresh_children(const bec::NodeId& node)
 {
-  int type;
+  ssize_t type;
 
   if (!node.is_valid())
   {
@@ -1400,7 +1400,7 @@ void OverviewPanel::refresh_children(const bec::NodeId& node)
     if (_groups->enable_set_focus_node())
     {
       if ((_groups->current_page_index() >= 0) &&
-        (_groups->current_page_index() < _overview_be->count_children(_groups->node())))
+        (_groups->current_page_index() < (ssize_t)_overview_be->count_children(_groups->node())))
       {
         _overview_be->focus_node(_overview_be->get_child(_groups->node(), _groups->current_page_index()));
       }
@@ -1421,7 +1421,7 @@ void OverviewPanel::refresh_node(const bec::NodeId &node)
 {
   if (_freeze) return;
 
-  int type;
+  ssize_t type;
   bec::NodeId parent(_overview_be->get_parent(node));
   _overview_be->get_field(node, wb::OverviewBE::NodeType, type);
 
@@ -1448,7 +1448,7 @@ void OverviewPanel::select_node(const bec::NodeId& node)
 {
   if (_freeze) return;
 
-  int type;
+  ssize_t type;
   bec::NodeId parent(_overview_be->get_parent(node));
   _overview_be->get_field(node, wb::OverviewBE::NodeType, type);
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,9 +48,9 @@ DataBreakpoint::~DataBreakpoint()
  * @param bits Number of bits to set with value.
  * @value The new value to set.
  */
-void DataBreakpoint::SetBits(unsigned long& target, int offset, int bits, int value)
+void DataBreakpoint::SetBits(REGISTER_TYPE& target, REGISTER_TYPE offset, REGISTER_TYPE bits, REGISTER_TYPE value)
 {
-  int mask = (1 << bits) - 1;
+  REGISTER_TYPE mask = (1 << bits) - 1;
   target = (target & ~(mask << offset)) | (value << offset);
 }
 
@@ -96,7 +96,7 @@ void DataBreakpoint::Set(void* address, int size, Condition when)
   // Find an available hardware register.
   for (_register_index = 0; _register_index < 4; ++_register_index)
   {
-	  if ((context.Dr7 & (1 << (2 * _register_index))) == 0)
+    if ((context.Dr7 & (REGISTER_TYPE)(1 << (2 * _register_index))) == 0)
 		  break;
   }
   if (_register_index >= 4)
@@ -105,16 +105,16 @@ void DataBreakpoint::Set(void* address, int size, Condition when)
   switch (_register_index)
   {
     case 0:
-      context.Dr0 = (DWORD) address;
+      context.Dr0 = (REGISTER_TYPE)address;
       break;
     case 1:
-      context.Dr1 = (DWORD) address;
+      context.Dr1 = (REGISTER_TYPE)address;
       break;
     case 2:
-      context.Dr2 = (DWORD) address;
+      context.Dr2 = (REGISTER_TYPE)address;
       break;
     case 3:
-      context.Dr3 = (DWORD) address;
+      context.Dr3 = (REGISTER_TYPE)address;
       break;
   }
 

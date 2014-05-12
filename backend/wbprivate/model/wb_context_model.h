@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,7 +101,7 @@ namespace wb
     void realize();
     void unrealize();
     
-    void activate_canvas_object(const model_ObjectRef &object, int flags);
+    void activate_canvas_object(const model_ObjectRef &object, ssize_t flags);
     
     void update_page_settings();
     

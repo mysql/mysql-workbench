@@ -50,10 +50,10 @@ namespace MySQL.GUI.Workbench
 
     private class Identifier
     {
-      public NodeId id;
+      public NodeIdWrapper id;
       public String objectId;
 
-      public Identifier(NodeId id)
+      public Identifier(NodeIdWrapper id)
       {
         this.id = id;
       }
@@ -86,7 +86,7 @@ namespace MySQL.GUI.Workbench
     private bool overviewInvalid = false;
 
     private String lastSearchText = "";
-    private NodeId lastFoundNode = null;
+    private NodeIdWrapper lastFoundNode = null;
 
     private ModelObjectDescriptionForm modelObjectDescriptionForm;
     private UserDatatypesForm userDatatypesForm;
@@ -204,11 +204,11 @@ namespace MySQL.GUI.Workbench
           break;
 
         case RefreshType.RefreshOverviewNodeChildren:
-          RefreshNodeChildren(new NodeId(str));
+          RefreshNodeChildren(new NodeIdWrapper(str));
           break;
 
         case RefreshType.RefreshOverviewNodeInfo:
-          RefreshNodeInfo(new NodeId(str));
+          RefreshNodeInfo(new NodeIdWrapper(str));
           break;
 
         case RefreshType.RefreshCloseEditor:
@@ -333,7 +333,7 @@ namespace MySQL.GUI.Workbench
         FocusNode(lastFoundNode);
     }
 
-    public void RefreshNodeInfo(NodeId node)
+    public void RefreshNodeInfo(NodeIdWrapper node)
     {
       int nodeType;
 
@@ -351,7 +351,7 @@ namespace MySQL.GUI.Workbench
 
           case Overview.NodeType.Item:
             // find the object in its container
-            NodeId parent = wbOverview.get_parent(node);
+            NodeIdWrapper parent = wbOverview.get_parent(node);
             if (listsByNode.ContainsKey(parent.repr()))
             {
               ListView list = listsByNode[parent.repr()];
@@ -383,7 +383,7 @@ namespace MySQL.GUI.Workbench
       }
     }
 
-    public void RefreshNodeChildren(NodeId node)
+    public void RefreshNodeChildren(NodeIdWrapper node)
     {
       int nodeType;
 
@@ -433,7 +433,7 @@ namespace MySQL.GUI.Workbench
     }
 
 
-    private void RefreshGroupTabs(NodeId node)
+    private void RefreshGroupTabs(NodeIdWrapper node)
     {
       if (panelsByNode.ContainsKey(node.repr()))
       {
@@ -450,7 +450,7 @@ namespace MySQL.GUI.Workbench
       }
     }
 
-    private void RefreshItemList(NodeId node, Overview.NodeType nodeType)
+    private void RefreshItemList(NodeIdWrapper node, Overview.NodeType nodeType)
     {
       if (listsByNode.ContainsKey(node.repr()))
       {
@@ -480,7 +480,7 @@ namespace MySQL.GUI.Workbench
       {
         if (list.SelectedItems.Count > 0)
         {
-          NodeId itemNodeId = (list.SelectedItems[0].Tag as Identifier).id;
+          NodeIdWrapper itemNodeId = (list.SelectedItems[0].Tag as Identifier).id;
           if (itemNodeId != null && wbOverview.is_editable(itemNodeId))
             list.SelectedItems[0].BeginEdit();
         }
@@ -495,14 +495,14 @@ namespace MySQL.GUI.Workbench
       if (!states.ContainsKey(RefreshState.Schema))
       {
         scrollPanel.SuspendLayout();
-        NodeId rootNodeId = wbOverview.get_root();
+        NodeIdWrapper rootNodeId = wbOverview.get_root();
 
         ResetDocument(true);
 
         int count = wbOverview.count_children(rootNodeId);
         for (int i = 0; i < count; i++)
         {
-          NodeId panelNodeId = wbOverview.get_child(rootNodeId, i);
+          NodeIdWrapper panelNodeId = wbOverview.get_child(rootNodeId, i);
           string caption;
           int expanded;
           Overview.DisplayMode displayMode;
@@ -595,7 +595,7 @@ namespace MySQL.GUI.Workbench
     /// <returns>
     /// The index of the image within the associated image list.
     /// </returns>
-    private int FindImageIndex(NodeId id, View view)
+    private int FindImageIndex(NodeIdWrapper id, View view)
     {
       IconSize size = IconSize.Icon16;
       if (view == View.LargeIcon)
@@ -610,7 +610,7 @@ namespace MySQL.GUI.Workbench
         // This is necessary as we cannot guarantee that both image indices are the same for
         // small and large icons (which would be necessary if we want to use the same index for
         // both, large and small icon view). So we have to set the index depending on the view mode.
-        int listIndex = GrtIconManager.get_instance().add_icon_to_imagelist(iconId);
+        int listIndex = IconManagerWrapper.get_instance().add_icon_to_imagelist(iconId);
         imageIndexMapper.Add(iconKey, listIndex);
       }
 
@@ -658,11 +658,11 @@ namespace MySQL.GUI.Workbench
           case View.Tile:
             view.View = newViewMode;
             view.TileSize = new Size(140, 17);
-            view.LargeImageList = GrtIconManager.ImageList16;
+            view.LargeImageList = IconManagerWrapper.ImageList16;
             break;
           case View.LargeIcon:
             view.View = newViewMode;
-            view.LargeImageList = GrtIconManager.ImageList48;
+            view.LargeImageList = IconManagerWrapper.ImageList48;
             break;
           case View.Details:
             // This call will make the scrollbars visible for a moment but works around a more serious problem.
@@ -677,7 +677,7 @@ namespace MySQL.GUI.Workbench
         // Adjust item image indices, as they might not be the same for large and small icons.
         for (int i = 0; i < view.Items.Count; i++)
         {
-          NodeId id = (view.Items[i].Tag as Identifier).id;
+          NodeIdWrapper id = (view.Items[i].Tag as Identifier).id;
           view.Items[i].ImageIndex = FindImageIndex(id, view.View);
         }
         view.PerformLayout();
@@ -685,9 +685,9 @@ namespace MySQL.GUI.Workbench
     }
 
 
-    private void FocusNode(NodeId node)
+    private void FocusNode(NodeIdWrapper node)
     {
-      NodeId parent = wbOverview.get_parent(node);
+      NodeIdWrapper parent = wbOverview.get_parent(node);
       int index = node.end();
 
       if (listsByNode.ContainsKey(parent.repr()))
@@ -708,7 +708,7 @@ namespace MySQL.GUI.Workbench
     {
       if (wbOverview != null)
       {
-        NodeId rootNode = wbOverview.get_root();
+        NodeIdWrapper rootNode = wbOverview.get_root();
         if (rootNode != null)
           return wbOverview.count_children(rootNode);
       }
@@ -722,7 +722,7 @@ namespace MySQL.GUI.Workbench
       caption = "";
       description = "";
 
-      NodeId nodeId = wbOverview.get_root();
+      NodeIdWrapper nodeId = wbOverview.get_root();
       if (nodeId != null)
       {
         wbOverview.get_field(nodeId, (int)Overview.Columns.Label, out caption);
@@ -732,14 +732,14 @@ namespace MySQL.GUI.Workbench
         return false;
     }
 
-    private Identifier CreateIdentifier(NodeId nodeId)
+    private Identifier CreateIdentifier(NodeIdWrapper nodeId)
     {
       Identifier identifier = new Identifier(nodeId);
       identifier.objectId = wbOverview.get_node_unique_id(nodeId);
       return identifier;
     }
 
-    private void FillPanelContent(NodeId panelNodeId, Overview.DisplayMode displayMode, CollapsingPanel overviewPanel)
+    private void FillPanelContent(NodeIdWrapper panelNodeId, Overview.DisplayMode displayMode, CollapsingPanel overviewPanel)
     {
       // Check the node type of the child items
       int itemNodeType;
@@ -843,7 +843,7 @@ namespace MySQL.GUI.Workbench
     /// Returns the listview for a given section. If it does not exist yet it gets created.
     /// Optionally a simple panel is added as header for this section.
     /// </summary>
-    private ListView GetSectionListview(NodeId controlNodeId, CollapsingPanel overviewPanel, bool addSectionHeader,
+    private ListView GetSectionListview(NodeIdWrapper controlNodeId, CollapsingPanel overviewPanel, bool addSectionHeader,
       Overview.DisplayMode displayMode, String caption, String info)
     {
       // Iterate over all sections we have already and find the one with the given control id.
@@ -934,8 +934,8 @@ namespace MySQL.GUI.Workbench
       sectionListview.Dock = DockStyle.Top;
 
       // Set Image Lists
-      sectionListview.SmallImageList = GrtIconManager.ImageList16;
-      sectionListview.LargeImageList = GrtIconManager.ImageList48;
+      sectionListview.SmallImageList = IconManagerWrapper.ImageList16;
+      sectionListview.LargeImageList = IconManagerWrapper.ImageList48;
 
       SetViewMode(sectionListview, displayMode);
 
@@ -992,7 +992,7 @@ namespace MySQL.GUI.Workbench
       overviewPanel.TabHeaderImageList.ColorDepth = ColorDepth.Depth32Bit;
       overviewPanel.TabHeaderImageList.ImageSize = new Size(32, 32);
 
-      overviewPanel.TabHeaderImageList = GrtIconManager.ImageList32;
+      overviewPanel.TabHeaderImageList = IconManagerWrapper.ImageList32;
 
       overviewPanel.DisplayMode = CollapsingPanelDisplayMode.HeaderAndTab;
 
@@ -1063,7 +1063,7 @@ namespace MySQL.GUI.Workbench
         overviewPanel.SuspendLayout();
         try
         {
-          NodeId parentNodeId = null;
+          NodeIdWrapper parentNodeId = null;
 
           // If this panel has tabs, choose the NodeId of the selected tab as parent.
           if (overviewPanel.DisplayMode == CollapsingPanelDisplayMode.HeaderAndTab ||
@@ -1108,7 +1108,7 @@ namespace MySQL.GUI.Workbench
             int itemCount = wbOverview.count_children(parentNodeId);
             if (itemCount > 0)
             {
-              NodeId itemNodeId = wbOverview.get_child(parentNodeId, 0);
+              NodeIdWrapper itemNodeId = wbOverview.get_child(parentNodeId, 0);
 
               // Check the node type of the child items
               int nodeType;
@@ -1119,7 +1119,7 @@ namespace MySQL.GUI.Workbench
               {
                 for (int i = 0; i < itemCount; i++)
                 {
-                  NodeId sectionNodeId = wbOverview.get_child(parentNodeId, i);
+                  NodeIdWrapper sectionNodeId = wbOverview.get_child(parentNodeId, i);
 
                   string caption;
                   wbOverview.get_field(sectionNodeId, (int)Overview.Columns.Label, out caption);
@@ -1156,7 +1156,7 @@ namespace MySQL.GUI.Workbench
       }
     }
 
-    private void PopulateListViewColumns(NodeId sectionNodeId, ListView sectionListview, Overview.DisplayMode displayMode)
+    private void PopulateListViewColumns(NodeIdWrapper sectionNodeId, ListView sectionListview, Overview.DisplayMode displayMode)
     {
       // Refresh columns for this view.
       sectionListview.Columns.Clear();
@@ -1178,7 +1178,7 @@ namespace MySQL.GUI.Workbench
     }
 
 
-    private void PopulateListView(NodeId parentNodeId, ListView listView)
+    private void PopulateListView(NodeIdWrapper parentNodeId, ListView listView)
     {
       listView.BeginUpdate();
       try
@@ -1190,7 +1190,7 @@ namespace MySQL.GUI.Workbench
 
         for (int i = 0; i < itemCount; i++)
         {
-          NodeId itemNodeId = wbOverview.get_child(parentNodeId, i);
+          NodeIdWrapper itemNodeId = wbOverview.get_child(parentNodeId, i);
           string caption;
 
           wbOverview.get_field(itemNodeId, (int)Overview.Columns.Label, out caption);
@@ -1230,7 +1230,7 @@ namespace MySQL.GUI.Workbench
     /// <summary>
     /// Updates all fields of the given node.
     /// </summary>
-    private void UpdateListViewNode(NodeId nodeId, ListView listView)
+    private void UpdateListViewNode(NodeIdWrapper nodeId, ListView listView)
     {
       // Find the listview item that corresponds to the given node id and update it.
       // Don't wrap this with BeginUpdate/EndUpdate. That will produce more flicker than
@@ -1288,7 +1288,7 @@ namespace MySQL.GUI.Workbench
         }
         else if (name == "drop")
         {
-          List <NodeId> node_ids = new List<NodeId>();
+          List <NodeIdWrapper> node_ids = new List<NodeIdWrapper>();
 
           if (item.Owner.Tag is ListView)
           {
@@ -1302,7 +1302,7 @@ namespace MySQL.GUI.Workbench
           wbOverview.activate_popup_item_for_nodes(name, node_ids);
         }
         else
-          wbOverview.activate_popup_item_for_nodes(name, new List<NodeId>() { (item.Tag as Identifier).id });
+          wbOverview.activate_popup_item_for_nodes(name, new List<NodeIdWrapper>() { (item.Tag as Identifier).id });
       }
     }
 
@@ -1315,9 +1315,9 @@ namespace MySQL.GUI.Workbench
         if (panel != null && panel.Tag != null)
         {
           List<MySQL.Base.MenuItem> items;
-          List<NodeId> nodes = new List<NodeId>();
+          List<NodeIdWrapper> nodes = new List<NodeIdWrapper>();
 
-          NodeId itemNodeId= new NodeId();
+          NodeIdWrapper itemNodeId= new NodeIdWrapper();
           int tab = panel.GetTabAtPosition(e.X, e.Y);
           if (tab >= 0)
           {
@@ -1375,7 +1375,7 @@ namespace MySQL.GUI.Workbench
       if (listView != null && e.Button == MouseButtons.Right)
       {
         List<MySQL.Base.MenuItem> items = new List<MySQL.Base.MenuItem>();
-        List<NodeId> item_nodes = new List<NodeId>();
+        List<NodeIdWrapper> item_nodes = new List<NodeIdWrapper>();
 
         if (listView.SelectedItems.Count == 0)
         {
@@ -1415,7 +1415,7 @@ namespace MySQL.GUI.Workbench
 
         foreach (ListViewItem item in listView.SelectedItems)
         {
-          NodeId itemNodeId = (item.Tag as Identifier).id;
+          NodeIdWrapper itemNodeId = (item.Tag as Identifier).id;
           try
           {
             wbOverview.select_node(itemNodeId);
@@ -1440,7 +1440,7 @@ namespace MySQL.GUI.Workbench
         e.CancelEdit = true;
       else
       {
-        NodeId itemNodeId = (item.Tag as Identifier).id;
+        NodeIdWrapper itemNodeId = (item.Tag as Identifier).id;
         if (itemNodeId == null || !wbOverview.is_editable(itemNodeId))
           e.CancelEdit = true;
       }
@@ -1455,7 +1455,7 @@ namespace MySQL.GUI.Workbench
         ListViewItem item = listView.Items[e.Item];
         if (item != null && item.Tag != null)
         {
-          NodeId itemNodeId = (item.Tag as Identifier).id;
+          NodeIdWrapper itemNodeId = (item.Tag as Identifier).id;
           if (itemNodeId != null)
           {
             if (!wbOverview.set_field(itemNodeId, (int)Overview.Columns.Label, e.Label))
@@ -1481,7 +1481,7 @@ namespace MySQL.GUI.Workbench
         {
           if (item.Tag != null)
           {
-            NodeId itemNodeId = (item.Tag as Identifier).id;
+            NodeIdWrapper itemNodeId = (item.Tag as Identifier).id;
             GrtValue val = wbOverview.get_grt_value(itemNodeId, 0);
             if (itemNodeId != null)
               selObjects.Add(val);
@@ -1498,7 +1498,7 @@ namespace MySQL.GUI.Workbench
       ListView view = sender as ListView;
       if (view != null && view.SelectedItems.Count > 0 && view.SelectedItems[0].Tag != null)
       {
-        NodeId nodeId = (view.SelectedItems[0].Tag as Identifier).id;
+        NodeIdWrapper nodeId = (view.SelectedItems[0].Tag as Identifier).id;
         if (nodeId != null)
           wbOverview.activate_node(nodeId);
       }
@@ -1559,13 +1559,13 @@ namespace MySQL.GUI.Workbench
       CollapsingPanel panel = sender as CollapsingPanel;
       if (panel != null && panel.Tag != null)
       {
-        NodeId tabNodeId = wbOverview.get_child((panel.Tag as Identifier).id, index);
+        NodeIdWrapper tabNodeId = wbOverview.get_child((panel.Tag as Identifier).id, index);
         if (tabNodeId != null)
         {
           wbOverview.get_field(tabNodeId, (int)Overview.Columns.Label, out caption);
           description = wbOverview.get_field_description(tabNodeId, 0);
           int grtIconId = wbOverview.get_field_icon(tabNodeId, (int)Overview.Columns.Label, IconSize.Icon32);
-          iconId = GrtIconManager.get_instance().add_icon_to_imagelist(grtIconId);
+          iconId = IconManagerWrapper.get_instance().add_icon_to_imagelist(grtIconId);
         }
       }
 
@@ -1578,7 +1578,7 @@ namespace MySQL.GUI.Workbench
 
       if (panel != null && panel.Tag != null)
       {
-        NodeId groupNodeId = (panel.Tag as Identifier).id;
+        NodeIdWrapper groupNodeId = (panel.Tag as Identifier).id;
 
         // Delete section object.
         wbOverview.request_delete_object(wbOverview.get_focused_child(groupNodeId));
@@ -1591,7 +1591,7 @@ namespace MySQL.GUI.Workbench
 
       if (panel != null && panel.Tag != null)
       {
-        NodeId groupNodeId = (panel.Tag as Identifier).id;
+        NodeIdWrapper groupNodeId = (panel.Tag as Identifier).id;
 
         // Add section object.
         wbOverview.request_add_object(groupNodeId);
@@ -1827,7 +1827,7 @@ namespace MySQL.GUI.Workbench
 
       mainContentSplitContainer.SplitterDistance = sidebarWidth;
 
-      NodeId nodeId = wbOverview.get_root();
+      NodeIdWrapper nodeId = wbOverview.get_root();
       String caption;
       wbOverview.get_field(nodeId, (int)Overview.Columns.Label, out caption);
       String domain = caption + "-overview";
@@ -1854,7 +1854,7 @@ namespace MySQL.GUI.Workbench
 
     private void SaveFormState()
     {
-      NodeId nodeId = wbOverview.get_root();
+      NodeIdWrapper nodeId = wbOverview.get_root();
       String caption;
       wbOverview.get_field(nodeId, (int)Overview.Columns.Label, out caption);
       String domain = caption + "-overview";

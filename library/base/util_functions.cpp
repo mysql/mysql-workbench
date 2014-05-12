@@ -78,7 +78,6 @@ struct hardware_info
   boost::int64_t _memory_in_bytes;
 };
 
-
 //----------------------------------------------------------------------------------------------------------------------
 
 static void __sappend(char **str, int *ressize, int *reslen, const char *sbegin, int count)
@@ -88,8 +87,13 @@ static void __sappend(char **str, int *ressize, int *reslen, const char *sbegin,
     *ressize+= count + 100;
     *str= (char*) g_realloc(*str, *ressize);
   }
-  strncpy(*str+*reslen, sbegin, count);
-  *reslen+= count;
+#ifdef _WIN32
+  strncpy_s(*str + *reslen, *reslen, sbegin, count);
+#else
+  strncpy(*str + *reslen, sbegin, count);
+#endif
+
+  *reslen += count;
   (*str)[*reslen]= 0;
 }
 
@@ -236,10 +240,10 @@ int get_value_from_registry(HKEY root_key, const char *sub_key, const char *key,
   unsigned char Buffer[512];
 
   // Explicitly link to ANSI version, we are using ANSI key names only here.
-  if ((retval= RegOpenKeyExA(root_key, sub_key, 0, KEY_READ, &hSubKey))==ERROR_SUCCESS)
+  if ((retval = RegOpenKeyExA(root_key, sub_key, 0, KEY_READ, &hSubKey)) == ERROR_SUCCESS)
   {
     dwSize = 512;
-    if ((RegQueryValueExA(hSubKey, key, NULL, &dwType, Buffer, &dwSize))==ERROR_SUCCESS)
+    if ((RegQueryValueExA(hSubKey, key, NULL, &dwType, Buffer, &dwSize)) == ERROR_SUCCESS)
     {
       if(dwType==REG_DWORD)
       {
@@ -300,233 +304,25 @@ typedef BOOL (WINAPI *PGPI)(DWORD, DWORD, DWORD, DWORD, PDWORD);
 std::string get_local_os_name()
 {
   std::string result;
+  char buffer[BUFSIZE];
 
-  // From http://msdn.microsoft.com/en-us/library/ms724429%28VS.85%29.aspx
-  OSVERSIONINFOEX osvi;
-  SYSTEM_INFO si;
-  PGNSI pGNSI;
-  PGPI pGPI;
-  BOOL bOsVersionInfoEx;
-  DWORD dwType;
+  std::string product_name;
+  if (get_value_from_registry(HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName", "", buffer, BUFSIZE) == 0)
+    product_name = buffer;
 
-  TCHAR buffer[BUFSIZE];
+  std::string csd_version;
+  if (get_value_from_registry(HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CSDVersion", "", buffer, BUFSIZE) == 0)
+    csd_version = buffer;
 
-  ZeroMemory(&si, sizeof(SYSTEM_INFO));
-  ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-
-  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-
-  if( !(bOsVersionInfoEx = GetVersionEx((OSVERSIONINFO*) &osvi)))
-    return "Unknown";
-
-  // Call GetNativeSystemInfo if supported or GetSystemInfo otherwise.
-
-  pGNSI = (PGNSI) GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo");
-  if(NULL != pGNSI)
-    pGNSI(&si);
-  else
-    GetSystemInfo(&si);
-
-  if (VER_PLATFORM_WIN32_NT == osvi.dwPlatformId && osvi.dwMajorVersion > 4)
+  if (!product_name.empty())
   {
-    StringCchCopy(buffer, BUFSIZE, TEXT("Microsoft "));
-
-    // Test for the specific product.
-    if (osvi.dwMajorVersion == 6)
-    {
-       if (osvi.dwMinorVersion == 0)
-       {
-          if (osvi.wProductType == VER_NT_WORKSTATION)
-              StringCchCat(buffer, BUFSIZE, TEXT("Windows Vista "));
-          else
-            StringCchCat(buffer, BUFSIZE, TEXT("Windows Server 2008 "));
-       }
-
-       if (osvi.dwMinorVersion == 1)
-       {
-          if (osvi.wProductType == VER_NT_WORKSTATION)
-            StringCchCat(buffer, BUFSIZE, TEXT("Windows 7 "));
-          else
-            StringCchCat(buffer, BUFSIZE, TEXT("Windows Server 2008 R2 "));
-       }
-       
-       pGPI = (PGPI) GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetProductInfo");
-       pGPI(osvi.dwMajorVersion, osvi.dwMinorVersion, 0, 0, &dwType);
-
-       switch (dwType)
-       {
-          case PRODUCT_ULTIMATE:
-             StringCchCat(buffer, BUFSIZE, TEXT("Ultimate Edition"));
-             break;
-          case PRODUCT_HOME_PREMIUM:
-             StringCchCat(buffer, BUFSIZE, TEXT("Home Premium Edition"));
-             break;
-          case PRODUCT_HOME_BASIC:
-             StringCchCat(buffer, BUFSIZE, TEXT("Home Basic Edition"));
-             break;
-          case PRODUCT_ENTERPRISE:
-             StringCchCat(buffer, BUFSIZE, TEXT("Enterprise Edition"));
-             break;
-          case PRODUCT_BUSINESS:
-             StringCchCat(buffer, BUFSIZE, TEXT("Business Edition"));
-             break;
-          case PRODUCT_STARTER:
-             StringCchCat(buffer, BUFSIZE, TEXT("Starter Edition"));
-             break;
-          case PRODUCT_CLUSTER_SERVER:
-             StringCchCat(buffer, BUFSIZE, TEXT("Cluster Server Edition"));
-             break;
-          case PRODUCT_DATACENTER_SERVER:
-             StringCchCat(buffer, BUFSIZE, TEXT("Datacenter Edition"));
-             break;
-          case PRODUCT_DATACENTER_SERVER_CORE:
-             StringCchCat(buffer, BUFSIZE, TEXT("Datacenter Edition (core installation)"));
-             break;
-          case PRODUCT_ENTERPRISE_SERVER:
-             StringCchCat(buffer, BUFSIZE, TEXT("Enterprise Edition"));
-             break;
-          case PRODUCT_ENTERPRISE_SERVER_CORE:
-             StringCchCat(buffer, BUFSIZE, TEXT("Enterprise Edition (core installation)"));
-             break;
-          case PRODUCT_ENTERPRISE_SERVER_IA64:
-             StringCchCat(buffer, BUFSIZE, TEXT("Enterprise Edition for Itanium-based Systems"));
-             break;
-          case PRODUCT_SMALLBUSINESS_SERVER:
-             StringCchCat(buffer, BUFSIZE, TEXT("Small Business Server"));
-             break;
-          case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM:
-             StringCchCat(buffer, BUFSIZE, TEXT("Small Business Server Premium Edition"));
-             break;
-          case PRODUCT_STANDARD_SERVER:
-             StringCchCat(buffer, BUFSIZE, TEXT("Standard Edition"));
-             break;
-          case PRODUCT_STANDARD_SERVER_CORE:
-             StringCchCat(buffer, BUFSIZE, TEXT("Standard Edition (core installation)"));
-             break;
-          case PRODUCT_WEB_SERVER:
-             StringCchCat(buffer, BUFSIZE, TEXT("Web Server Edition"));
-             break;
-       }
-    }
-
-    if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
-    {
-       if (GetSystemMetrics(SM_SERVERR2))
-         StringCchCat(buffer, BUFSIZE, TEXT("Windows Server 2003 R2, "));
-       else
-         if (osvi.wSuiteMask==VER_SUITE_STORAGE_SERVER)
-           StringCchCat(buffer, BUFSIZE, TEXT("Windows Storage Server 2003"));
-         else
-           if (osvi.wSuiteMask==VER_SUITE_WH_SERVER)
-             StringCchCat(buffer, BUFSIZE, TEXT("Windows Home Server"));
-           else
-             if (osvi.wProductType == VER_NT_WORKSTATION && si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64)
-                StringCchCat(buffer, BUFSIZE, TEXT("Windows XP Professional x64 Edition"));
-             else
-               StringCchCat(buffer, BUFSIZE, TEXT("Windows Server 2003, "));
-
-       // Test for the server type.
-       if (osvi.wProductType != VER_NT_WORKSTATION)
-       {
-          if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
-          {
-            if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-              StringCchCat(buffer, BUFSIZE, TEXT("Datacenter Edition for Itanium-based Systems"));
-            else
-              if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                StringCchCat(buffer, BUFSIZE, TEXT("Enterprise Edition for Itanium-based Systems"));
-          }
-          else
-            if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-            {
-              if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-                StringCchCat(buffer, BUFSIZE, TEXT("Datacenter x64 Edition"));
-              else
-                if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                  StringCchCat(buffer, BUFSIZE, TEXT("Enterprise x64 Edition"));
-                else
-                  StringCchCat(buffer, BUFSIZE, TEXT("Standard x64 Edition"));
-            }
-
-            else
-            {
-              if (osvi.wSuiteMask & VER_SUITE_COMPUTE_SERVER)
-                StringCchCat(buffer, BUFSIZE, TEXT("Compute Cluster Edition"));
-              else
-                if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-                  StringCchCat(buffer, BUFSIZE, TEXT("Datacenter Edition"));
-                else
-                  if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                    StringCchCat(buffer, BUFSIZE, TEXT("Enterprise Edition"));
-                  else
-                    if (osvi.wSuiteMask & VER_SUITE_BLADE)
-                      StringCchCat(buffer, BUFSIZE, TEXT("Web Edition"));
-                    else
-                      StringCchCat(buffer, BUFSIZE, TEXT("Standard Edition"));
-            }
-       }
-    }
-
-    if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1)
-    {
-       StringCchCat(buffer, BUFSIZE, TEXT("Windows XP "));
-       if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
-         StringCchCat(buffer, BUFSIZE, TEXT("Home Edition"));
-       else
-         StringCchCat(buffer, BUFSIZE, TEXT("Professional"));
-    }
-
-    if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
-    {
-      StringCchCat(buffer, BUFSIZE, TEXT("Windows 2000 "));
-      
-      if (osvi.wProductType == VER_NT_WORKSTATION)
-        StringCchCat(buffer, BUFSIZE, TEXT("Professional"));
-      else 
-      {
-        if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-          StringCchCat(buffer, BUFSIZE, TEXT("Datacenter Server"));
-        else
-          if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-            StringCchCat(buffer, BUFSIZE, TEXT("Advanced Server"));
-          else
-            StringCchCat(buffer, BUFSIZE, TEXT("Server"));
-      }
-    }
-
-    // Include service pack (if any) and build number.
-    if (_tcslen(osvi.szCSDVersion) > 0)
-    {
-      StringCchCat(buffer, BUFSIZE, TEXT(" "));
-      StringCchCat(buffer, BUFSIZE, osvi.szCSDVersion);
-    }
-
-    {
-      TCHAR buf[80];
-
-      StringCchPrintf(buf, 80, TEXT(" (build %d)"), osvi.dwBuildNumber);
-      StringCchCat(buffer, BUFSIZE, buf);
-
-      if (osvi.dwMajorVersion >= 6)
-      {
-        if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-          StringCchCat(buffer, BUFSIZE, TEXT(", 64-bit"));
-        else
-          if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-            StringCchCat(buffer, BUFSIZE, TEXT(", 32-bit"));
-      }
-      
-      int count = WideCharToMultiByte(CP_UTF8, 0, buffer, -1, NULL, 0, NULL, NULL);
-      char *converted = (char*)malloc(count);
-      WideCharToMultiByte(CP_UTF8, 0, buffer, -1, converted, count, NULL, NULL);
-      result = converted;
-      free(converted);
-    }
-
-    return result;
+    result = (base::starts_with(product_name, "Microsoft") ? "" : "Microsoft ") + product_name;
+    if (!csd_version.empty())
+      result += " " + csd_version;
   }
-  else
-    return "";
+  return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -579,7 +375,7 @@ std::string get_local_hardware_info()
     sprintf_s(total_phys_ram, BUFSIZE, "%d B RAM", total_phys_ram_val);
   }
    
-  target_size= 16 + strlen(processor_name) + strlen(total_phys_ram);
+  target_size= 16 + (int)strlen(processor_name) + (int)strlen(total_phys_ram);
   hardware_string = (char*) g_malloc(target_size);
 
   if(sysinfo.dwNumberOfProcessors>1) 
@@ -958,15 +754,13 @@ boost::int64_t get_physical_memory_size()
 
 boost::int64_t get_file_size(const char *filename)
 {
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if _WIN32
   DWORD dwSizeLow;
   DWORD dwSizeHigh = 0;
   HANDLE hfile;
-  char *local_filename;
+  std::wstring name = base::string_to_wstring(filename);
 
-  if ((local_filename= g_filename_from_utf8(filename,-1,NULL,NULL,NULL)) == NULL)
-    return -1;
-  hfile = CreateFileA(local_filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+  hfile = CreateFile(name.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
   if (hfile != INVALID_HANDLE_VALUE) 
@@ -974,7 +768,6 @@ boost::int64_t get_file_size(const char *filename)
     dwSizeLow= GetFileSize(hfile, &dwSizeHigh);
 
     CloseHandle(hfile);
-    g_free(local_filename);
 
     if((dwSizeLow==INVALID_FILE_SIZE)&&(GetLastError()) != NO_ERROR )
     { 
@@ -986,10 +779,8 @@ boost::int64_t get_file_size(const char *filename)
     }
   }
   else
-  {
-    g_free(local_filename);
     return -1;
-  }
+
 #else //!WINDOWS
   struct stat buf;
   char *local_filename;
@@ -1207,20 +998,4 @@ int copy_folder(const char *source_folder, const char *target_folder)
     return 0;
   }
   return 1;
-}
-
-//------------------------------------------------------------------------------
-bool html_color_to_triplet(const char* color, double *red, double *green, double *blue)
-{
-  int tred   = 0;
-  int tgreen = 0;
-  int tblue  = 0;
-
-  const int res = sscanf(color, "#%02x%02x%02x", &tred, &tgreen, &tblue);
-
-  *red   = tred   / 255.0;
-  *green = tgreen / 255.0;
-  *blue  = tblue  / 255.0;
-
-  return res == 3;
 }

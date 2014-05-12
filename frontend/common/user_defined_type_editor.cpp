@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "base/util_functions.h"
 #include "base/string_utilities.h"
@@ -472,7 +470,7 @@ void UserDefinedTypeEditor::ok_clicked()
   for (size_t i= 0; i < _user_types.size(); i++)
   {
     db_UserDatatypeRef type;
-    mforms::TreeNodeRef node(_type_list.node_at_row(i));
+    mforms::TreeNodeRef node(_type_list.node_at_row((int)i));
     if (!node)
       continue;
     

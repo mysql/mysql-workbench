@@ -6,7 +6,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/ext
-    ${PROJECT_SOURCE_DIR}/library/canvas/src
+    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/plugins/wb.printing/backend
     ${PROJECT_SOURCE_DIR}/frontend/linux
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities

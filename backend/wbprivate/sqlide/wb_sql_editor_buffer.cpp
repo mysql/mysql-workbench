@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_buffer.h"
 
@@ -111,8 +110,8 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   
   // save the real id of the connection
   if (_connection.is_valid())
-    g_file_set_contents(make_path(path, "connection_id").c_str(), 
-                        _connection->id().c_str(), _connection->id().size(), NULL);
+    g_file_set_contents(make_path(path, "connection_id").c_str(), _connection->id().c_str(),
+      (gssize)_connection->id().size(), NULL);
 
   //XXX The editor contents need to be up-to-date. Since we can only request a refresh of the backend
   // for the active tab, the frontend must automatically refresh tabs when switching away from them
@@ -134,7 +133,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
       std::string contents = sql_editor_info->filename + "\n" + sql_editor_info->orig_encoding;
       // save the path to the real file
       if (!g_file_set_contents(make_path(path, strfmt("%i.filename", editor_index)).c_str(),
-                               contents.data(), contents.size(), &error))
+        contents.data(), (gssize)contents.size(), &error))
       {
         std::string msg(strfmt("Could not save snapshot of editor contents to %s: %s", path.c_str(), error->message));
         g_error_free(error);
@@ -180,7 +179,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
       std::string fn = make_path(path, filename);
       
       std::pair<const char*, size_t> text = sql_editor_info->editor->text_ptr();
-      if (!g_file_set_contents(fn.c_str(), text.first, text.second, &error))
+      if (!g_file_set_contents(fn.c_str(), text.first, (gssize)text.second, &error))
       {
         std::string msg(strfmt("Could not save snapshot of editor contents to %s: %s", fn.c_str(), error->message));
         g_error_free(error);
@@ -552,7 +551,7 @@ int SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed)
       info->caption = strfmt("Query %i", ++_scratch_editors_serial);
     
     _sql_editors.push_back(info);
-    sql_editor_index= _sql_editors.size() - 1;    
+    sql_editor_index = (int)_sql_editors.size() - 1;
   }
   
   sql_editor_list_changed(sql_editor, true);
@@ -602,7 +601,7 @@ mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::P
         // Ignore this file name, but if this is the only one dropped the activate the particular
         // sql editor.
         if (file_names.size() == 1)
-          active_sql_editor_index(j); // TODO: signal the UI that we changed the active sql editor.
+          active_sql_editor_index((int)j); // TODO: signal the UI that we changed the active sql editor.
         break;
       }
     }
@@ -708,11 +707,11 @@ void SqlEditorForm::remove_sql_editor(int editor_index)
     
     // Rename the remaining editor auto saves to match their index.
     for (size_t i= editor_index; i < _sql_editors.size(); i++)
-      rename_autosave_files(i + 2, i + 1);
+      rename_autosave_files((int)i + 2, (int)i + 1);
   }
   
   if (_active_sql_editor_index >= (int) _sql_editors.size())
-    _active_sql_editor_index= _sql_editors.size()-1;
+    _active_sql_editor_index = (int)_sql_editors.size() - 1;
   
   sql_editor_list_changed(active_sql_editor, false);
 }
@@ -721,7 +720,7 @@ void SqlEditorForm::remove_sql_editor(int editor_index)
 int SqlEditorForm::sql_editor_count()
 {
   MutexLock sql_editors_mutex(_sql_editors_mutex);
-  return _sql_editors.size();
+  return (int)_sql_editors.size();
 }
 
 
@@ -1197,7 +1196,7 @@ bool SqlEditorForm::save_sql_script_file(const std::string &file_name, int edito
     _grtm->replace_status_text(strfmt(_("Saving SQL script to '%s'..."), path.c_str()));
     
     std::pair<const char*, size_t> text = sql_editor(editor_index)->text_ptr();
-    if (!g_file_set_contents(path.c_str(), text.first, text.second, &error))
+    if (!g_file_set_contents(path.c_str(), text.first, (gssize)text.second, &error))
     {
       _grtm->replace_status_text(strfmt(_("Error saving SQL script to '%s'."), path.c_str()));
       

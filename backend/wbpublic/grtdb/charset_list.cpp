@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #ifndef _WIN32
 #include <algorithm>
@@ -24,20 +23,14 @@
 
 #include "charset_list.h"
 #include "grts/structs.db.mgmt.h"
-/**
- * @file  charset_list.cpp
- * @brief 
- */
 
 using namespace bec;
-
 
 CharsetList::CharsetList(grt::GRT *grt, const std::string &path)
   : _grt(grt)
 {
   _charset_list_path= path;
 }
-
 
 void CharsetList::picked_charset(const NodeId &node)
 {
@@ -49,18 +42,18 @@ void CharsetList::picked_charset(const NodeId &node)
 }
 
 
-int CharsetList::count_children(const NodeId &parent)
+size_t CharsetList::count_children(const NodeId &parent)
 {
   grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(_grt->get(_charset_list_path));
 
   if (parent.depth() == 0)
-    return (int)(charsets.count() + _recently_used.size() + 1);
+    return (charsets.count() + _recently_used.size() + 1);
   else
-    return (int)charsets[parent[0]]->collations().count();
+    return charsets[parent[0]]->collations().count();
 }
 
 
-bool CharsetList::get_field(const NodeId &node, int column, std::string &value)
+bool CharsetList::get_field(const NodeId &node, ColumnId column, std::string &value)
 {
   grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(_grt->get(_charset_list_path));
 
@@ -69,24 +62,28 @@ bool CharsetList::get_field(const NodeId &node, int column, std::string &value)
   case Name:
     if (node.depth() == 1)
     {
-      if (node[0] < (int)_recently_used.size())
+      if (node[0] < _recently_used.size())
       {
-        std::list<int>::const_iterator it= _recently_used.begin();
-        int i= node[0];
-        while (i > 0) { --it; --i; }
-        value= charsets[*it]->name();
+        std::list<size_t>::const_iterator it = _recently_used.begin();
+        size_t i = node[0];
+        while (i > 0)
+        {
+          --it;
+          --i;
+        }
+        value = charsets[*it]->name();
       }
-      else if (node[0] == (int)_recently_used.size())
-        value= "";
+      else if (node[0] == _recently_used.size())
+        value = "";
       else
-        value= charsets[node[0] - static_cast<unsigned int>(_recently_used.size()) - 1]->name();
+        value = charsets[node[0] - _recently_used.size() - 1]->name();
     }
     else
     {
-      if (node[0] < (int)_recently_used.size())
+      if (node[0] < _recently_used.size())
       {
-        std::list<int>::const_iterator it= _recently_used.begin();
-        int i= node[0];
+        std::list<size_t>::const_iterator it = _recently_used.begin();
+        size_t i= node[0];
         while (i > 0) { --it; --i; }
         value= charsets[*it]->collations()[node[1]];
       }
@@ -100,7 +97,7 @@ bool CharsetList::get_field(const NodeId &node, int column, std::string &value)
 }
 
 
-std::string CharsetList::get_field_description(const NodeId &node, int column)
+std::string CharsetList::get_field_description(const NodeId &node, ColumnId column)
 {
   grt::ListRef<db_CharacterSet> charsets= grt::ListRef<db_CharacterSet>::cast_from(_grt->get(_charset_list_path));
 
@@ -109,15 +106,15 @@ std::string CharsetList::get_field_description(const NodeId &node, int column)
   case Name:
     if (node.depth() == 1)
     {
-      if (node[0] < (int)_recently_used.size())
+      if (node[0] < _recently_used.size())
       {
-        std::list<int>::const_iterator it= _recently_used.begin();
-        int i= node[0];
+        std::list<size_t>::const_iterator it = _recently_used.begin();
+        size_t i= node[0];
         while (i > 0) { --it; --i; }
         return charsets[*it]->description();
       }
       else
-        return charsets[node[0] - static_cast<unsigned int>(_recently_used.size()) - 1]->description();
+        return charsets[node[0] - _recently_used.size() - 1]->description();
     }
   }
   return "";

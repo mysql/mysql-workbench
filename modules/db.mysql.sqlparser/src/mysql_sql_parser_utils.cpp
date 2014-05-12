@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -275,7 +275,7 @@ std::string strip_sql_statement(const std::string &text, bool confirmation)
       break;
   }
 
-  int npos= text.length() - start_idx;
+  int npos= (int)text.length() - start_idx;
   for(std::string::const_reverse_iterator e= text.rend(), it= text.rbegin(); it != e; it++, npos--)
   {
     char c= *it;

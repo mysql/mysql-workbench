@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <boost/signals2/signal.hpp>
 #include <pcrecpp.h>
 
@@ -511,7 +509,7 @@ bool QuerySidePalette::find_context_help(Sql_editor *editor)
   }
 
   // Caret position as <column, row>.
-  std::pair<int, int> caret = editor->cursor_pos_row_column(true);
+  std::pair<size_t, size_t> caret = editor->cursor_pos_row_column(true);
 
   _help_task->exec(false, boost::bind(&QuerySidePalette::get_help_topic_threaded, this, _1, 
     editor->current_statement(), caret));
@@ -527,7 +525,7 @@ bool QuerySidePalette::find_context_help(Sql_editor *editor)
  * to get the actual help text from it.
  */
 grt::StringRef QuerySidePalette::get_help_topic_threaded(grt::GRT *, const std::string &query,
-  std::pair<int, int> caret)
+  std::pair<ssize_t, ssize_t> caret)
 {
   SqlEditorForm::Ref form = _owner.lock();
   if (!form)
