@@ -498,3 +498,31 @@ int SqlEditorForm::sql_script_stats(long, long)
   return 0;
 }
 
+
+void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_index)
+{
+  if (action == "new_tab")
+    new_sql_script_file();
+  else if (action == "save_tab")
+  {
+    SqlEditorPanel *editor = sql_editor_panel(tab_index);
+    if (editor)
+      editor->save();
+  }
+  else if (action == "copy_path")
+  {
+    SqlEditorPanel *editor = sql_editor_panel(tab_index);
+    if (editor)
+      mforms::Utilities::set_clipboard_text(editor->filename());
+  }
+  else if (action == "close_tab")
+    _tabdock->close_view(_tabdock->view_at_index(tab_index));
+  else if (action == "close_other_tabs")
+  {
+    for (int i = _tabdock->view_count()-1; i >= 0; --i)
+    {
+      if (i != tab_index)
+        _tabdock->close_view(_tabdock->view_at_index(i));
+    }
+  }
+}

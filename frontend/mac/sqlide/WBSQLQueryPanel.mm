@@ -393,14 +393,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     [editor performSelector: @selector(didShow)];
 }
 
-
-- (void)closeActiveEditorTab
-{
-  NSTabViewItem *item = [mUpperTabView selectedTabViewItem];
-  if (item)
-    [mUpperTabSwitcher closeTabViewItem: item];
-}
-
 #pragma mark Output
 
 - (IBAction)activateCollectionItem:(id)sender
@@ -812,30 +804,21 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 
 - (IBAction)handleMenuAction:(id)sender
 {
+  int clicked_tab = [mUpperTabView indexOfTabViewItem: [mUpperTabSwitcher clickedItem]];
+
   switch ([sender tag])
   {
     case 50: // new tab
-      mBackEnd->new_sql_script_file();
+      mBackEnd->handle_tab_menu_action("new_tab", clicked_tab);
       break;
     case 51: // save tab
     {
-      NSTabViewItem *item = [mUpperTabSwitcher clickedItem];
-      SqlEditorPanel *panel = mBackEnd->sql_editor_panel([mUpperTabView indexOfTabViewItem: item]);
-      if (panel)
-        panel->save();
+      mBackEnd->handle_tab_menu_action("save_tab", clicked_tab);
       break;
     }
     case 60: // copy path to clipboard
     {
-      NSTabViewItem *item = [mUpperTabSwitcher clickedItem];
-      SqlEditorPanel *panel = mBackEnd->sql_editor_panel([mUpperTabView indexOfTabViewItem: item]);
-      if (panel)
-      {
-        NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
-        [pasteBoard declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner:nil];
-        [pasteBoard setString: [NSString stringWithUTF8String: panel->filename().c_str()]
-                      forType: NSStringPboardType];
-      }
+      mBackEnd->handle_tab_menu_action("copy_path", clicked_tab);
       break;
     }
   }
