@@ -435,7 +435,7 @@ void ResultFormView::open_field_editor(int column)
 }
 
 ResultFormView::ResultFormView(bool editable)
-: mforms::Box(false), _spanel(mforms::ScrollPanelDrawBackground), _tbar(mforms::SecondaryToolBar),
+: mforms::AppView(false, "ResultFormView", false), _spanel(mforms::ScrollPanelDrawBackground), _tbar(mforms::SecondaryToolBar),
 _editable(editable)
 {
   mforms::ToolBarItem *item;

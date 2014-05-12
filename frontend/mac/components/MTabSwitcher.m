@@ -1364,7 +1364,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
   if (mHoverItem)
   {
     NSPoint clickPos = [self convertPoint: [theEvent locationInWindow] fromView: nil];
-    if (!(mDraggingTab || fabs(clickPos.x - mTabDragPosition.x > 3) || fabs(clickPos.y - mTabDragPosition.y) > 3))
+    if (!(mDraggingTab || fabs(clickPos.x - mTabDragPosition.x) > 3 || fabs(clickPos.y - mTabDragPosition.y) > 3))
       return;
     NSTabViewItem *item = [self tabViewItemAtPoint: NSMakePoint(clickPos.x, mClickTabOffset.y)];
     

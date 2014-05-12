@@ -1093,14 +1093,14 @@ void WBContextSQLIDE::update_plugin_arguments_pool(bec::ArgumentPool &args)
       db_query_QueryEditorRef qeditor(editor->activeQueryEditor());
       if (qeditor.is_valid())
       {
-        db_query_ResultsetRef rset(qeditor->activeResultset());
+        db_query_ResultPanelRef rpanel(qeditor->activeResultPanel());
       
         args.add_entries_for_object("activeSQLEditor", editor);
         args.add_entries_for_object("activeQueryBuffer", qeditor);
         args.add_entries_for_object("activeQueryEditor", qeditor);
         args.add_entries_for_object("", qeditor);
-        if (rset.is_valid())
-          args.add_entries_for_object("activeResultset", rset, "db.query.Resultset");
+        if (rpanel.is_valid() && rpanel->resultset().is_valid())
+          args.add_entries_for_object("activeResultset", rpanel->resultset(), "db.query.Resultset");
       }
       else
         args.add_entries_for_object("activeSQLEditor", editor);

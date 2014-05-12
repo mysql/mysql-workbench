@@ -70,6 +70,7 @@ namespace mforms
     boost::signals2::signal<void ()> _signal_tab_changed;
     boost::signals2::signal<void (int, int)> _signal_tab_reordered;
     boost::signals2::signal<bool (int)> _signal_tab_closing;
+    boost::signals2::signal<void (int, View*)> _signal_tab_closed;
 
   public:
     /** Constructor.
@@ -129,6 +130,8 @@ namespace mforms
     
     /** Callback called when a tab is about to close. Returning false will prevent the closure. */
     boost::signals2::signal<bool (int)>* signal_tab_closing() { return &_signal_tab_closing; }
+
+    boost::signals2::signal<void (int, View*)>* signal_tab_closed() { return &_signal_tab_closed; }
 #endif
   };
 };

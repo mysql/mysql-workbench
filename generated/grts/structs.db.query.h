@@ -27,6 +27,8 @@ class db_query_Resultset;
 typedef grt::Ref<db_query_Resultset> db_query_ResultsetRef;
 class db_query_EditableResultset;
 typedef grt::Ref<db_query_EditableResultset> db_query_EditableResultsetRef;
+class db_query_ResultPanel;
+typedef grt::Ref<db_query_ResultPanel> db_query_ResultPanelRef;
 class db_query_QueryBuffer;
 typedef grt::Ref<db_query_QueryBuffer> db_query_QueryBufferRef;
 class db_query_QueryEditor;
@@ -188,7 +190,7 @@ public:
 };
 
 
-  /** a database resultset. This object does not allow changes to the resultset, if you need to edit the resultset, see \ref db_query_EditableResultset */
+  /** a query resultset. This object does not allow changes to the resultset, if you need to edit the resultset, see \ref db_query_EditableResultset */
 class GRT_STRUCTS_DB_QUERY_PUBLIC db_query_Resultset : public GrtObject
 {
   typedef GrtObject super;
@@ -626,6 +628,92 @@ public:
 };
 
 
+  /** the GUI object that holds a query resultset and other related things */
+class  db_query_ResultPanel : public GrtObject
+{
+  typedef GrtObject super;
+public:
+  class ImplData;
+  friend class ImplData;
+  db_query_ResultPanel(grt::GRT *grt, grt::MetaClass *meta=0)
+  : GrtObject(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.query.ResultPanel"; }
+
+  /** Getter for attribute dockingPoint
+   
+    docking point for plugins to insert new tabs. The string argument of dock_view must point to an icon file.
+   \par In Python:
+value = obj.dockingPoint
+   */
+  grt::Ref<mforms_ObjectReference> dockingPoint() const { return _dockingPoint; }
+  /** Setter for attribute dockingPoint
+   
+    docking point for plugins to insert new tabs. The string argument of dock_view must point to an icon file.
+    \par In Python:
+obj.dockingPoint = value
+   */
+  virtual void dockingPoint(const grt::Ref<mforms_ObjectReference> &value)
+  {
+    grt::ValueRef ovalue(_dockingPoint);
+   _dockingPoint= value;
+    member_changed("dockingPoint", ovalue, value);
+  }
+
+  /** Getter for attribute resultset
+   
+    the resultset grid. May be NULL
+   \par In Python:
+value = obj.resultset
+   */
+  grt::Ref<db_query_Resultset> resultset() const { return _resultset; }
+  /** Setter for attribute resultset
+   
+    the resultset grid. May be NULL
+    \par In Python:
+obj.resultset = value
+   */
+  virtual void resultset(const grt::Ref<db_query_Resultset> &value)
+  {
+    grt::ValueRef ovalue(_resultset);
+   _resultset= value;
+    member_changed("resultset", ovalue, value);
+  }
+
+protected:
+
+  grt::Ref<mforms_ObjectReference> _dockingPoint;
+  grt::Ref<db_query_Resultset> _resultset;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_query_ResultPanel(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_query_ResultPanel::create);
+    {
+      void (db_query_ResultPanel::*setter)(const grt::Ref<mforms_ObjectReference> &)= &db_query_ResultPanel::dockingPoint;
+      grt::Ref<mforms_ObjectReference> (db_query_ResultPanel::*getter)() const= &db_query_ResultPanel::dockingPoint;
+      meta->bind_member("dockingPoint", new grt::MetaClass::Property<db_query_ResultPanel,grt::Ref<mforms_ObjectReference> >(getter,setter));
+    }
+    {
+      void (db_query_ResultPanel::*setter)(const grt::Ref<db_query_Resultset> &)= &db_query_ResultPanel::resultset;
+      grt::Ref<db_query_Resultset> (db_query_ResultPanel::*getter)() const= &db_query_ResultPanel::resultset;
+      meta->bind_member("resultset", new grt::MetaClass::Property<db_query_ResultPanel,grt::Ref<db_query_Resultset> >(getter,setter));
+    }
+  }
+};
+
+
   /** a proxy to a SQL script editor buffer.\n This object cannot be instantiated directly. */
 class GRT_STRUCTS_DB_QUERY_PUBLIC db_query_QueryBuffer : public GrtObject
 {
@@ -725,14 +813,18 @@ obj.selectionStart = value
 
    */
   virtual grt::IntegerRef replaceContents(const std::string &text);
+  /** Method. replace the statement text under the cursor with the provided one, also selecting it
+  \param text 
+  \return 
+
+   */
+  virtual grt::IntegerRef replaceCurrentStatement(const std::string &text);
   /** Method. replace the currently selected text with the provided one, also selecting it
   \param text 
   \return 
 
    */
   virtual grt::IntegerRef replaceSelection(const std::string &text);
-
-  virtual grt::IntegerRef replaceCurrentStatement(const std::string &text);
 
   ImplData *get_data() const { return _data; }
 
@@ -752,9 +844,10 @@ private: // wrapper methods for use by grt
 
   static grt::ValueRef call_replaceContents(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_QueryBuffer*>(self)->replaceContents(grt::StringRef::cast_from(args[0])); }
 
+  static grt::ValueRef call_replaceCurrentStatement(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_QueryBuffer*>(self)->replaceCurrentStatement(grt::StringRef::cast_from(args[0])); }
+
   static grt::ValueRef call_replaceSelection(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_QueryBuffer*>(self)->replaceSelection(grt::StringRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_replaceCurrentStatement(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_QueryBuffer*>(self)->replaceCurrentStatement(grt::StringRef::cast_from(args[0])); }
 
 public:
   static void grt_register(grt::GRT *grt)
@@ -781,8 +874,8 @@ public:
       meta->bind_member("selectionStart", new grt::MetaClass::Property<db_query_QueryBuffer,grt::IntegerRef >(getter, setter));
     }
     meta->bind_method("replaceContents", &db_query_QueryBuffer::call_replaceContents);
-    meta->bind_method("replaceSelection", &db_query_QueryBuffer::call_replaceSelection);
     meta->bind_method("replaceCurrentStatement", &db_query_QueryBuffer::call_replaceCurrentStatement);
+    meta->bind_method("replaceSelection", &db_query_QueryBuffer::call_replaceSelection);
   }
 };
 
@@ -795,31 +888,31 @@ public:
   friend class ImplData;
   db_query_QueryEditor(grt::GRT *grt, grt::MetaClass *meta=0)
   : db_query_QueryBuffer(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-    _resultsets(grt, this, false)
+    _resultPanels(grt, this, false)
 
   {
   }
 
   static std::string static_class_name() { return "db.query.QueryEditor"; }
 
-  /** Getter for attribute activeResultset
+  /** Getter for attribute activeResultPanel
    
-    resultset that is currently selected in UI
+    result panel that is currently selected in UI
    \par In Python:
-value = obj.activeResultset
+value = obj.activeResultPanel
    */
-  grt::Ref<db_query_Resultset> activeResultset() const { return _activeResultset; }
-  /** Setter for attribute activeResultset
+  grt::Ref<db_query_ResultPanel> activeResultPanel() const { return _activeResultPanel; }
+  /** Setter for attribute activeResultPanel
    
-    resultset that is currently selected in UI
+    result panel that is currently selected in UI
     \par In Python:
-obj.activeResultset = value
+obj.activeResultPanel = value
    */
-  virtual void activeResultset(const grt::Ref<db_query_Resultset> &value)
+  virtual void activeResultPanel(const grt::Ref<db_query_ResultPanel> &value)
   {
-    grt::ValueRef ovalue(_activeResultset);
-   _activeResultset= value;
-    member_changed("activeResultset", ovalue, value);
+    grt::ValueRef ovalue(_activeResultPanel);
+   _activeResultPanel= value;
+    member_changed("activeResultPanel", ovalue, value);
   }
 
   /** Getter for attribute resultDockingPoint
@@ -842,29 +935,29 @@ obj.resultDockingPoint = value
     member_changed("resultDockingPoint", ovalue, value);
   }
 
-  // resultsets is owned by db_query_QueryEditor
-  /** Getter for attribute resultsets (read-only)
+  // resultPanels is owned by db_query_QueryEditor
+  /** Getter for attribute resultPanels (read-only)
    
-    list of open resultsets. This list cannot be modified
+    list of open query result panels. Result panels contain the resultset grid and other views
    \par In Python:
-value = obj.resultsets
+value = obj.resultPanels
    */
-  grt::ListRef<db_query_Resultset> resultsets() const { return _resultsets; }
+  grt::ListRef<db_query_ResultPanel> resultPanels() const { return _resultPanels; }
 private: // the next attribute is read-only
-  virtual void resultsets(const grt::ListRef<db_query_Resultset> &value)
+  virtual void resultPanels(const grt::ListRef<db_query_ResultPanel> &value)
   {
-    grt::ValueRef ovalue(_resultsets);
+    grt::ValueRef ovalue(_resultPanels);
 
-    _resultsets= value;
-    owned_member_changed("resultsets", ovalue, value);
+    _resultPanels= value;
+    owned_member_changed("resultPanels", ovalue, value);
   }
 public:
 
 protected:
 
-  grt::Ref<db_query_Resultset> _activeResultset;
+  grt::Ref<db_query_ResultPanel> _activeResultPanel;
   grt::Ref<mforms_ObjectReference> _resultDockingPoint;
-  grt::ListRef<db_query_Resultset> _resultsets;// owned
+  grt::ListRef<db_query_ResultPanel> _resultPanels;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -879,9 +972,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_QueryEditor::create);
     {
-      void (db_query_QueryEditor::*setter)(const grt::Ref<db_query_Resultset> &)= &db_query_QueryEditor::activeResultset;
-      grt::Ref<db_query_Resultset> (db_query_QueryEditor::*getter)() const= &db_query_QueryEditor::activeResultset;
-      meta->bind_member("activeResultset", new grt::MetaClass::Property<db_query_QueryEditor,grt::Ref<db_query_Resultset> >(getter,setter));
+      void (db_query_QueryEditor::*setter)(const grt::Ref<db_query_ResultPanel> &)= &db_query_QueryEditor::activeResultPanel;
+      grt::Ref<db_query_ResultPanel> (db_query_QueryEditor::*getter)() const= &db_query_QueryEditor::activeResultPanel;
+      meta->bind_member("activeResultPanel", new grt::MetaClass::Property<db_query_QueryEditor,grt::Ref<db_query_ResultPanel> >(getter,setter));
     }
     {
       void (db_query_QueryEditor::*setter)(const grt::Ref<mforms_ObjectReference> &)= &db_query_QueryEditor::resultDockingPoint;
@@ -889,9 +982,9 @@ public:
       meta->bind_member("resultDockingPoint", new grt::MetaClass::Property<db_query_QueryEditor,grt::Ref<mforms_ObjectReference> >(getter,setter));
     }
     {
-      void (db_query_QueryEditor::*setter)(const grt::ListRef<db_query_Resultset> &)= &db_query_QueryEditor::resultsets;
-      grt::ListRef<db_query_Resultset> (db_query_QueryEditor::*getter)() const= &db_query_QueryEditor::resultsets;
-      meta->bind_member("resultsets", new grt::MetaClass::Property<db_query_QueryEditor,grt::ListRef<db_query_Resultset> >(getter,setter));
+      void (db_query_QueryEditor::*setter)(const grt::ListRef<db_query_ResultPanel> &)= &db_query_QueryEditor::resultPanels;
+      grt::ListRef<db_query_ResultPanel> (db_query_QueryEditor::*getter)() const= &db_query_QueryEditor::resultPanels;
+      meta->bind_member("resultPanels", new grt::MetaClass::Property<db_query_QueryEditor,grt::ListRef<db_query_ResultPanel> >(getter,setter));
     }
   }
 };
@@ -1262,6 +1355,7 @@ inline void register_structs_db_query_xml()
   grt::internal::ClassRegistry::register_class<db_query_ResultsetColumn>();
   grt::internal::ClassRegistry::register_class<db_query_Resultset>();
   grt::internal::ClassRegistry::register_class<db_query_EditableResultset>();
+  grt::internal::ClassRegistry::register_class<db_query_ResultPanel>();
   grt::internal::ClassRegistry::register_class<db_query_QueryBuffer>();
   grt::internal::ClassRegistry::register_class<db_query_QueryEditor>();
   grt::internal::ClassRegistry::register_class<db_query_Editor>();

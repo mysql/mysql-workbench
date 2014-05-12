@@ -68,8 +68,12 @@ int TabView::add_page(View *page, const std::string& caption)
 
 void TabView::remove_page(View *page)
 {
+  page->retain();
+  int i = get_page_index(page);
   _tabview_impl->remove_page(this, page);
   remove_from_cache(page);
+  _signal_tab_closed(i, page);
+  page->release();
 }
 
 //--------------------------------------------------------------------------------------------------

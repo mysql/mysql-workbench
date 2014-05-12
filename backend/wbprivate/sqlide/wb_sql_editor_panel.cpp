@@ -40,9 +40,7 @@
 #include "base/boost_smart_ptr_helpers.h"
 
 #include "objimpl/ui/mforms_ObjectReference_impl.h"
-
 #include "objimpl/db.query/db_query_Resultset.h"
-#include "objimpl/db.query/db_query_EditableResultset.h"
 
 #include "grtui/file_charset_dialog.h"
 
@@ -68,8 +66,6 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   db_query_QueryEditorRef grtobj(grtm->get_grt());
 
   grtobj->resultDockingPoint(mforms_to_grt(grtm->get_grt(), &_lower_dock));
-
-//  mforms_editor->signal_changed()->connect(boost::bind(text_changed, _1, _2, self));
 
   _editor= Sql_editor::create(owner->rdbms(), owner->wbsql()->get_grt_editor_object(owner)->serverVersion(), grtobj);
   _editor->sql_check_progress_msg_throttle(grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
@@ -118,6 +114,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _lower_tabview.signal_tab_reordered()->connect(boost::bind(&SqlEditorPanel::lower_tab_reordered, this, _1, _2));
   _lower_tabview.signal_tab_changed()->connect(boost::bind(&SqlEditorPanel::lower_tab_switched, this));
   _lower_tabview.signal_tab_closing()->connect(boost::bind(&SqlEditorPanel::lower_tab_closing, this, _1));
+  _lower_tabview.signal_tab_closed()->connect(boost::bind(&SqlEditorPanel::lower_tab_closed, this, _1, _2));
   _lower_tabview.set_tab_menu(&_lower_tab_menu);
 
   set_on_close(boost::bind(&SqlEditorPanel::on_close_by_user, this));
@@ -942,22 +939,21 @@ void SqlEditorPanel::lower_tab_switched()
 
   db_query_QueryEditorRef qeditor(grtobj());
   SqlEditorResult *result = active_result_panel();
-  if (result && result->recordset())
+  Recordset::Ref rset;
+  if (result && (rset = result->recordset()))
   {
-    Recordset::Ref rset(result->recordset());
-
     bool found = false;
-    for (size_t c = qeditor->resultsets().count(), i = 0; i < c; i++)
+    for (size_t c = qeditor->resultPanels().count(), i = 0; i < c; i++)
     {
-      if (dynamic_cast<WBRecordsetResultset*>(qeditor->resultsets()[i]->get_data())->recordset == rset)
+      if (mforms_from_grt(qeditor->resultPanels()[i]->dockingPoint()) == result->dock())
       {
         found = true;
-        qeditor->activeResultset(qeditor->resultsets()[i]);
+        qeditor->activeResultPanel(qeditor->resultPanels()[i]);
         break;
       }
     }
     if (!found)
-      qeditor->activeResultset(db_query_ResultsetRef());
+      qeditor->activeResultPanel(db_query_ResultPanelRef());
 
     bool readonly = rset->is_readonly();
     _tab_action_apply.show(!readonly);
@@ -975,7 +971,7 @@ void SqlEditorPanel::lower_tab_switched()
   }
   else
   {
-    qeditor->activeResultset(db_query_ResultsetRef());
+    qeditor->activeResultPanel(db_query_ResultPanelRef());
 
     _tab_action_apply.show(true);
     _tab_action_revert.show(true);
@@ -997,7 +993,7 @@ void SqlEditorPanel::lower_tab_switched()
   }
 
   // if a lower tab view selection has changed, we make sure it's visible
-  if (!_busy) // if we're running a query, then let dock_result handle this
+  if (!_busy && _lower_tabview.page_count() > 0) // if we're running a query, then let dock_result handle this
   {
     int position = _form->grt_manager()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
     if (position > _splitter.get_height()-100)
@@ -1027,11 +1023,13 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
     if (qbuffer.is_valid() && db_query_QueryEditorRef::can_wrap(qbuffer))
     {
       db_query_QueryEditorRef qeditor(db_query_QueryEditorRef::cast_from(qbuffer));
-      for (size_t c = qeditor->resultsets().count(), i = 0; i < c; i++)
+      for (size_t c = qeditor->resultPanels().count(), i = 0; i < c; i++)
       {
-        if (dynamic_cast<WBRecordsetResultset*>(qeditor->resultsets()[i]->get_data())->recordset == rs)
+        db_query_ResultsetRef rset(qeditor->resultPanels()[i]->resultset());
+
+        if (rset.is_valid() && dynamic_cast<WBRecordsetResultset*>(rset->get_data())->recordset == rs)
         {
-          grt::GRTNotificationCenter::get()->send_grt("GRNSQLResultsetMenuWillShow", qeditor->resultsets()[i], info);
+          grt::GRTNotificationCenter::get()->send_grt("GRNSQLResultsetMenuWillShow", rset, info);
           break;
         }
       }
@@ -1060,7 +1058,6 @@ SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
   rset->caption(strfmt("%s %i",
                        (storage->table_name().empty() ? _("Result") : storage->table_name().c_str()),
                        ++_rs_sequence));
-  rset->on_close.connect(boost::bind(&SqlEditorPanel::dispose_recordset, this, _1));
 
   bec::UIForm::scoped_connect(rset->get_context_menu()->signal_will_show(),
                  boost::bind(&SqlEditorPanel::on_recordset_context_menu_show, this, Recordset::Ptr(rset)));
@@ -1069,21 +1066,20 @@ SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
 
   rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, this));
 
-  // update grt object
-  if (!rset->is_readonly())
-    grtobj()->resultsets().insert(grtwrap_editablerecordset(grtobj(), rset));
-  else
-    grtobj()->resultsets().insert(grtwrap_recordset(grtobj(), rset));
-
   return result;
 }
 
 
 void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
 {
+  result->grtobj()->owner(grtobj());
+  grtobj()->resultPanels().insert(result->grtobj());
+
+  if (Recordset::Ref rset = result->recordset())
+    result->set_title(rset->caption());
+
   _lower_dock.dock_view(result);
   _lower_dock.select_view(result);
-  result->set_title(result->recordset()->caption());
   if (_was_empty)
   {
     int position = _form->grt_manager()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
@@ -1094,35 +1090,56 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
 }
 
 
-// called after recordset object is closed
-void SqlEditorPanel::dispose_recordset(Recordset::Ptr rs_ptr)
+void SqlEditorPanel::lower_tab_reordered(int from, int to)
 {
-  if (!mforms::Utilities::in_main_thread())
-    log_fatal("close_results must only be called from main thread\n");
+  // not all tabs will have a SqlEditorResult
+  // so the reordering gets more complicated, because actual reordering only happens if the relative
+  // position between the result objects changes...
+  // relative result object order changes always mean that a tab was reordered, but the other way around is
+  // not always true
+  SqlEditorResult *from_panel = result_panel(from);
+  SqlEditorResult *to_panel = result_panel(to);
 
-  db_query_QueryEditorRef editor(grtobj());
-  RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, rs_ptr, rs)
+  if (!from_panel)
+    return;
+  int relative_from = grtobj()->resultPanels().get_index(from_panel->grtobj());
+  int relative_to = -1;
+
+  if (to_panel)
+    relative_to = grtobj()->resultPanels().get_index(to_panel->grtobj());
+  else
   {
-    for (size_t c= editor->resultsets().count(), i= 0; i < c; i++)
+    if (from < to)
     {
-      db_query_ResultsetRef rsobj(editor->resultsets()[i]);
-
-      if (dynamic_cast<WBRecordsetResultset*>(rsobj->get_data())->recordset.get() == rs)
+      for (int i = to-1; i > from; i--)
       {
-        editor->resultsets().remove(i);
-        rsobj->reset_references();
-        if (editor->activeResultset() == rsobj && editor->resultsets().count() == 0)
-          editor->activeResultset(db_query_ResultsetRef());
-        break;
+        to_panel = result_panel(i);
+        if (to_panel)
+        {
+          relative_to = grtobj()->resultPanels().get_index(to_panel->grtobj());
+          break;
+        }
+      }
+    }
+    else
+    {
+      for (int i = to+1; i < from; i++)
+      {
+        to_panel = result_panel(i);
+        if (to_panel)
+        {
+          relative_to = grtobj()->resultPanels().get_index(to_panel->grtobj());
+          break;
+        }
       }
     }
   }
-}
 
+  if (relative_to < 0)
+    return;
 
-void SqlEditorPanel::lower_tab_reordered(int from, int to)
-{
-  grtobj()->resultsets().reorder(from, to);
+  if (relative_from != relative_to)
+    grtobj()->resultPanels().reorder(relative_from, relative_to);
 }
 
 
@@ -1139,6 +1156,20 @@ bool SqlEditorPanel::lower_tab_closing(int tab)
     return false;
   }
   return true;
+}
+
+
+void SqlEditorPanel::lower_tab_closed(int tab, mforms::View *page)
+{
+  SqlEditorResult* rpage = dynamic_cast<SqlEditorResult*>(page);
+  if (rpage)
+  {
+    db_query_ResultPanelRef closed_panel(rpage->grtobj());
+    grtobj()->resultPanels().remove_value(closed_panel);
+    if (closed_panel->resultset().is_valid())
+      closed_panel->resultset()->reset_references();
+    closed_panel->reset_references();
+  }
 }
 
 
