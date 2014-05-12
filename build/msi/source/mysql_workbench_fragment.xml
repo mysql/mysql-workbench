@@ -7,6 +7,14 @@
   <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN) Debug"?>
   <?endif ?>
 
+  <?if $(sys.BUILDARCH)="x86"?>
+      <?define Program_Files="ProgramFilesFolder"?>
+  <?elseif $(sys.BUILDARCH)="x64"?>
+      <?define Program_Files="ProgramFiles64Folder"?>
+  <?else?>
+      <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
+  <?endif?>
+  
   <Fragment>
 
     <!-- *****************************************************************************************
@@ -22,7 +30,7 @@
     -->
 
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory FileSource="." Id="ProgramFilesFolder" Name=".">
+      <Directory FileSource="." Id="$(var.Program_Files)" Name=".">
         <Directory Id="MYSQL" Name="MySQL">
           <Directory FileSource=".\" Id="Mysql_WB_Dir" Name="$(var.PRODUCT_NAME)">
             <Directory Id="INSTALLDIR" Name=".">
@@ -34,20 +42,20 @@
               <Component DiskId="1" Guid="4E9CC25E-CB45-47e5-931E-DB57AC74991D" Id="Various" Location="either">
                 <File Id="README" Name="README"/>
                 <?if $(var.LICENSE_TYPE) = "community"?>
-                <File Id="COPYING" Name="COPYING"/>
+                  <File Id="COPYING" Name="COPYING"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
-                <File Id="LICENSE.mysql" Name="LICENSE.mysql"/>
+                  <File Id="LICENSE.mysql" Name="LICENSE.mysql"/>
                 <?endif ?>
                 <RemoveFolder Directory="Mysql_WB_Dir" Id="RemoveWbDirFolder" On="uninstall"/>
                 <RemoveFolder Directory="MysqlProgramMenuFolder" Id="RemoveProgramMenuFolder" On="uninstall"/>
               </Component>
 
               <Component DiskId="1" Guid="F7B89C4E-BAA9-44e6-9FB1-F6DB8148790F" Id="Third_Party_Libraries" Location="either">
-                <File Id="file1023" Name="iconv.dll"/>
-                <File Id="file1085" Name="intl.dll"/>
+                <File Id="file1023" Name="libiconv.dll"/>
+                <File Id="file1085" Name="libintl-8.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
                 <File Id="file1034" Name="libmysql.dll"/>
-                <File Id="file1035" Name="libpng12-0.dll"/>
+                <File Id="file1035" Name="libpng.dll"/>
                 <File Id="file1036" Name="libxml2.dll"/>
                 <File Id="file1037" Name="lua.dll"/>
                 <File Id="file1030" Name="libglib-2.0-0.dll"/>
@@ -56,14 +64,13 @@
                 <File Id="file1033" Name="libgthread-2.0-0.dll"/>
                 <File Id="file1050" Name="Aga.Controls.dll"/>
                 <File Id="file1064" Name="libctemplate.dll"/>
-                <File Id="file1083" Name="zlib1.dll"/>
+                <File Id="file1065" Name="libzip.dll"/>
+                <File Id="file1083" Name="zlib.dll"/>
                 <File Id="file1087" Name="wb.py"/>
                 <File Id="file1088" Name="wb_library.lua"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
-                <File Id="pythond_exe" Name="python_d.exe"/>
                 <File Id="file1099d" Name="python27_d.dll"/>
                 <?else ?>
-                <File Id="python_exe" Name="python.exe"/>
                 <File Id="file1099" Name="python27.dll"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
@@ -79,8 +86,8 @@
               <Directory Id="lgpl_sources_dir" Name="lgpl_sources">
                 <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD612" Id="LGPLSrcPackages" Location="either">
                   <File Id="file999001" Name="glib-2.12.12.tar.bz2"/>
-                  <File Id="file999002" Name="libiconv-1.13.1.tar.gz"/>
-                  <File Id="file999004" Name="pango-1.0.5.tar.bz2"/>
+                  <File Id="file999002" Name="libiconv-1.14.tar.gz"/>
+                  <File Id="file999003" Name="libxml2-2.9.1.tar.gz"/>
                   <File Id="file999005" Name="paramiko-1.7.7.1.zip"/>
                 </Component>
               </Directory>
@@ -145,7 +152,7 @@
                 <File Id="file1112" Name="mforms.wr.dll"/>
                 <File Id="file1113" Name="wb.model.snippets.wbp.dll"/>
                 <File Id="file1114" Name="HTMLRenderer.dll"/>
-                <File Id="file1115" Name="mysql-parser.dll"/>
+                <File Id="file1115" Name="mysql.parser.dll"/>
                 <File Id="wbcopytables.exe" Name="wbcopytables.exe"/>
                 <?if $(var.SETUP_TYPE) = "commercial" ?>
                 <File Id="file1117" Name="wb.model.advfind.wbp.dll"/>
@@ -884,23 +891,50 @@
               <Directory Id="python" Name="python">
                 <Directory Id="python_dlls" Name="DLLs">
                   <Component DiskId="1" Guid="e9a008a8-605a-11e0-a9ed-34159e1d64e6" Id="python_dlls" Location="either">
-                    <File Id="file68001" Name="_bsddb.pyd"/>
-                    <File Id="file68002" Name="_ctypes.pyd"/>
-                    <File Id="file68003" Name="_ctypes_test.pyd"/>
-                    <File Id="file68004" Name="_elementtree.pyd"/>
-                    <File Id="file68005" Name="_hashlib.pyd"/>
-                    <File Id="file68006" Name="_msi.pyd"/>
-                    <File Id="file68007" Name="_multiprocessing.pyd"/>
-                    <File Id="file68008" Name="_socket.pyd"/>
-                    <File Id="file68009" Name="_sqlite3.pyd"/>
-                    <File Id="file68010" Name="_ssl.pyd"/>
-                    <File Id="file68011" Name="_testcapi.pyd"/>
-                    <File Id="file68012" Name="bz2.pyd"/>
-                    <File Id="file68013" Name="pyexpat.pyd"/>
-                    <File Id="file68014" Name="select.pyd"/>
-                    <File Id="file68015" Name="unicodedata.pyd"/>
-                    <File Id="file68016" Name="winsound.pyd"/>
-                    <File Id="file68288" Name="sqlite3.dll"/>
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68002" Name="_ctypes_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68002" Name="_ctypes.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68004" Name="_elementtree_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68004" Name="_elementtree.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68007" Name="_multiprocessing_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68007" Name="_multiprocessing.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68008" Name="_socket_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68008" Name="_socket.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68009" Name="_sqlite3_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68009" Name="_sqlite3.pyd"/>
+                    <?endif ?>
+<!--                    <File Id="file68010" Name="_ssl.pyd"/> -->
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68013" Name="pyexpat_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68013" Name="pyexpat.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68014" Name="select_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68014" Name="select.pyd"/>
+                    <?endif ?>
+
+<!--                    <File Id="file68015" Name="unicodedata.pyd"/> -->
                   </Component>
                 </Directory>
                 <Directory Id="python_lib" Name="lib">
@@ -1298,40 +1332,6 @@
                     </Component>
                   </Directory>
                   
-                  <Directory Id="python_lib_unittest" Name="unittest">
-                    <Component DiskId="1" Guid="36fb070f-7a3d-4182-ab23-2b2759046e92" Id="python_lib_unittest" Location="either">
-                      <File Id="file69000" Name="__init__.py"/>
-                      <File Id="file69001" Name="__main__.py"/>
-                      <File Id="file69002" Name="case.py"/>
-                      <File Id="file69003" Name="loader.py"/>
-                      <File Id="file69004" Name="main.py"/>
-                      <File Id="file69005" Name="result.py"/>
-                      <File Id="file69006" Name="runner.py"/>
-                      <File Id="file69007" Name="signals.py"/>
-                      <File Id="file69008" Name="suite.py"/>
-                      <File Id="file69009" Name="util.py"/>
-                    </Component>
-                    <Directory Id="python_lib_unittest_test" Name="test">
-                        <Component DiskId="1" Guid="35dfe170-a1da-4a4e-b369-3b1c80db848b" Id="python_lib_unittest_test" Location="either">
-                        <File Id="file69010" Name="__init__.py"/>
-                        <File Id="file69011" Name="dummy.py"/>
-                        <File Id="file69012" Name="support.py"/>
-                        <File Id="file69013" Name="test_assertions.py"/>
-                        <File Id="file69014" Name="test_break.py"/>
-                        <File Id="file69015" Name="test_case.py"/>
-                        <File Id="file69016" Name="test_discovery.py"/>
-                        <File Id="file69017" Name="test_functiontestcase.py"/>
-                        <File Id="file69018" Name="test_loader.py"/>
-                        <File Id="file69019" Name="test_program.py"/>
-                        <File Id="file69020" Name="test_result.py"/>
-                        <File Id="file69021" Name="test_runner.py"/>
-                        <File Id="file69022" Name="test_setups.py"/>
-                        <File Id="file69023" Name="test_skipping.py"/>
-                        <File Id="file69024" Name="test_suite.py"/>
-                        </Component>
-                    </Directory>
-                  </Directory>
-
                   <Directory Id="python_lib_xml" Name="xml">
                     <Component DiskId="1" Guid="e0a72eda-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml" Location="either">
                       <File Id="file70000" Name="__init__.py"/>
@@ -1374,39 +1374,16 @@
                       </Component>
                     </Directory>
                   </Directory>
+                </Directory>
 
-                </Directory>
-                <Directory Id="python_libs" Name="libs">
-                  <Component DiskId="1" Guid="e9a2d984-605a-11e0-a9ed-34159e1d64e6" Id="python_libs" Location="either">
-                    <File Id="file68483" Name="_bsddb.lib"/>
-                    <File Id="file68484" Name="_ctypes.lib"/>
-                    <File Id="file68485" Name="_ctypes_test.lib"/>
-                    <File Id="file68486" Name="_elementtree.lib"/>
-                    <File Id="file68487" Name="_hashlib.lib"/>
-                    <File Id="file68488" Name="_msi.lib"/>
-                    <File Id="file68489" Name="_multiprocessing.lib"/>
-                    <File Id="file68490" Name="_socket.lib"/>
-                    <File Id="file68491" Name="_sqlite3.lib"/>
-                    <File Id="file68492" Name="_ssl.lib"/>
-                    <File Id="file68493" Name="_testcapi.lib"/>
-                    <File Id="file68494" Name="_tkinter.lib"/>
-                    <File Id="file68495" Name="bz2.lib"/>
-                    <File Id="file68496" Name="pyexpat.lib"/>
-                    <File Id="file68497" Name="python27.lib"/>
-                    <File Id="file68499" Name="select.lib"/>
-                    <File Id="file68500" Name="sqlite3.lib"/>
-                    <File Id="file68501" Name="unicodedata.lib"/>
-                    <File Id="file68502" Name="winsound.lib"/>
-                  </Component>
-                </Directory>
                 <Directory Id="python_site_packages" Name="site-packages">
-                      <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
-                        <?if $(var.SETUP_TYPE) = "debug" ?>
-                        <File Id="file68021d" Name="pyodbc_d.pyd"/>
-                        <?else ?>
-                        <File Id="file68021" Name="pyodbc.pyd"/>
-                        <?endif ?>
-                      </Component>
+                  <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                      <File Id="file68021d" Name="pyodbc_d.pyd"/>
+                    <?else ?>
+                      <File Id="file68021" Name="pyodbc.pyd"/>
+                    <?endif ?>
+                  </Component>
                   <Directory Id="python_site_packages_crypto" Name="Crypto">
                     <Component DiskId="1" Guid="e9a2f630-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto" Location="either">
                       <File Id="file68503" Name="__init__.py"/>
@@ -1536,103 +1513,6 @@
                         <File Id="file685832" Name="PKCS1_v1_5.py"/>
                       </Component>
                     </Directory>
-                    <Directory Id="python_site_packages_crypto_selftest" Name="SelfTest">
-                      <Component DiskId="1" Guid="e9a35ee0-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest" Location="either">
-                        <File Id="file68585" Name="__init__.py"/>
-                        <File Id="file68586" Name="st_common.py"/>
-                      </Component>
-                      <Directory Id="python_site_packages_crypto_selftest_cipher" Name="Cipher">
-                        <Component DiskId="1" Guid="e9a36570-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest_cipher" Location="either">
-                          <File Id="file68587" Name="__init__.py"/>
-                          <File Id="file68588" Name="common.py"/>
-                          <File Id="file68589" Name="test_AES.py"/>
-                          <File Id="file68590" Name="test_ARC2.py"/>
-                          <File Id="file68591" Name="test_ARC4.py"/>
-                          <File Id="file68592" Name="test_Blowfish.py"/>
-                          <File Id="file68593" Name="test_CAST.py"/>
-                          <File Id="file68594" Name="test_DES.py"/>
-                          <File Id="file68595" Name="test_DES3.py"/>
-                          <File Id="file68596" Name="test_XOR.py"/>
-                          <File Id="file685961" Name="test_pkcs1_15.py"/>
-                          <File Id="file685962" Name="test_pkcs1_oaep.py"/>
-                        </Component>
-                      </Directory>
-                      <Directory Id="python_site_packages_crypto_selftest_hash" Name="Hash">
-                        <Component DiskId="1" Guid="e9a37984-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest_hash" Location="either">
-                          <File Id="file68597" Name="__init__.py"/>
-                          <File Id="file68598" Name="common.py"/>
-                          <File Id="file68599" Name="test_HMAC.py"/>
-                          <File Id="file68600" Name="test_MD2.py"/>
-                          <File Id="file68601" Name="test_MD4.py"/>
-                          <File Id="file68602" Name="test_MD5.py"/>
-                          <File Id="file68603" Name="test_RIPEMD.py"/>
-                          <File Id="file68604" Name="test_SHA.py"/>
-                          <File Id="file68605" Name="test_SHA256.py"/>
-                          <File Id="file686051" Name="test_SHA224.py"/>
-                          <File Id="file686052" Name="test_SHA384.py"/>
-                          <File Id="file686053" Name="test_SHA512.py"/>
-                        </Component>
-                      </Directory>
-                      <Directory Id="python_site_packages_crypto_selftest_protocol" Name="Protocol">
-                        <Component DiskId="1" Guid="e9a38078-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest_protocol" Location="either">
-                          <File Id="file68606" Name="__init__.py"/>
-                          <File Id="file68607" Name="test_chaffing.py"/>
-                          <File Id="file68608" Name="test_rfc1751.py"/>
-                        </Component>
-                      </Directory>
-                      <Directory Id="python_site_packages_crypto_selftest_publickey" Name="PublicKey">
-                        <Component DiskId="1" Guid="e9a38500-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest_publickey" Location="either">
-                          <File Id="file68609" Name="__init__.py"/>
-                          <File Id="file68610" Name="test_DSA.py"/>
-                          <File Id="file686101" Name="test_ElGamal.py"/>
-                          <File Id="file68611" Name="test_importKey.py"/>
-                          <File Id="file68612" Name="test_RSA.py"/>
-                        </Component>
-                      </Directory>
-                      <Directory Id="python_site_packages_crypto_selftest_random" Name="Random">
-                        <Component DiskId="1" Guid="e9a389ce-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest_random" Location="either">
-                          <File Id="file68613" Name="__init__.py"/>
-                          <File Id="file68614" Name="test_random.py"/>
-                          <File Id="file68615" Name="test_rpoolcompat.py"/>
-                        </Component>
-                        <Directory Id="python_site_packages_crypto_selftest_random_fortuna" Name="Fortuna">
-                          <Component DiskId="1" Guid="e9a38ece-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest_random_fortuna" Location="either">
-                            <File Id="file68616" Name="__init__.py"/>
-                            <File Id="file68617" Name="test_FortunaAccumulator.py"/>
-                            <File Id="file68618" Name="test_FortunaGenerator.py"/>
-                            <File Id="file68619" Name="test_SHAd256.py"/>
-                          </Component>
-                        </Directory>
-                        <Directory Id="python_site_packages_crypto_selftest_random_osrng" Name="OSRNG">
-                          <Component DiskId="1" Guid="e9a690ec-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest_random_osrng" Location="either">
-                            <File Id="file68620" Name="__init__.py"/>
-                            <File Id="file68621" Name="test_fallback.py"/>
-                            <File Id="file68622" Name="test_generic.py"/>
-                            <File Id="file68623" Name="test_nt.py"/>
-                            <File Id="file68624" Name="test_posix.py"/>
-                            <File Id="file68625" Name="test_winrandom.py"/>
-                          </Component>
-                        </Directory>
-                      </Directory>
-
-                      <Directory Id="python_site_packages_crypto_selftest_signature" Name="Signature">
-                        <Component DiskId="1" Guid="594a1d8c-0eb6-46d3-8c67-a041bdeb21bf" Id="python_site_packages_crypto_selftest_signature" Location="either">
-                          <File Id="file686251" Name="__init__.py"/>
-                          <File Id="file686252" Name="test_pkcs1_15.py"/>
-                          <File Id="file686253" Name="test_pkcs1_pss.py"/>
-                        </Component>
-                      </Directory>
-
-                      <Directory Id="python_site_packages_crypto_selftest_util" Name="Util">
-                        <Component DiskId="1" Guid="e9a69970-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_selftest_util" Location="either">
-                          <File Id="file68626" Name="__init__.py"/>
-                          <File Id="file68627" Name="test_asn1.py"/>
-                          <File Id="file68628" Name="test_Counter.py"/>
-                          <File Id="file68629" Name="test_number.py"/>
-                          <File Id="file68630" Name="test_winrandom.py"/>
-                        </Component>
-                      </Directory>
-                    </Directory>
                     <Directory Id="python_site_packages_crypto_util" Name="Util">
                       <Component DiskId="1" Guid="e9a69ef2-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_util" Location="either">
                         <File Id="file68631" Name="__init__.py"/>
@@ -1710,25 +1590,6 @@
                             <File Id="file68804" Name="_sqlite.pyd"/>
                         <?endif ?>
                     </Component>
-                    <Directory Id="python_site_packages_pysqlite2_test" Name="test">
-                      <Component DiskId="1" Guid="7ed1eddd-e0C5-456f-a32c-070daab2062a" Id="python_site_packages_pysqlite2_test" Location="either">
-                        <File Id="file68805" Name="__init__.py"/>
-                        <File Id="file68806" Name="dbapi.py"/>
-                        <File Id="file68807" Name="dump.py"/>
-                        <File Id="file68808" Name="factory.py"/>
-                        <File Id="file68809" Name="hooks.py"/>
-                        <File Id="file68810" Name="regression.py"/>
-                        <File Id="file68811" Name="transactions.py"/>
-                        <File Id="file68812" Name="types.py"/>
-                        <File Id="file68813" Name="userfunctions.py"/>
-                      </Component>
-                      <Directory Id="python_site_packages_pysqlite2_test_py25" Name="py25">
-                        <Component DiskId="1" Guid="1c07c1dd-9ac4-45a4-a9e4-65c4f22a0961" Id="python_site_packages_pysqlite2_test_py25" Location="either">
-                          <File Id="file68814" Name="__init__.py"/>
-                          <File Id="file68815" Name="py25tests.py"/>
-                        </Component>
-                      </Directory>
-                    </Directory>
                   </Directory>
                   <?endif ?>
                 </Directory>

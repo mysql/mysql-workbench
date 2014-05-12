@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,11 +88,5 @@ private:
   template <typename Slots, typename Context1, typename Context2>
   bool trigger_action_(const std::string &name, Slots &slots, const Context1 &context1, const Context2 &context2);
 };
-
-
-#ifdef _WIN32
-#pragma make_public(::ActionList)
-#endif
-
 
 #endif /* _ACTION_LIST_H_ */

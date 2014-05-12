@@ -84,14 +84,15 @@ typedef grt::Ref<db_View> db_ViewRef;
 
 
 class db_query_EditableResultset;
+typedef grt::Ref<db_query_EditableResultset> db_query_EditableResultsetRef;
 
 
 namespace mforms { 
-	class Object;
+  class Object;
 }; 
 
 namespace grt { 
-	class AutoPyObject;
+  class AutoPyObject;
 }; 
 
   /** an object used for object changes */
@@ -175,14 +176,14 @@ public:
    \par In Python:
 value = obj.dbObject
    */
-  grt::Ref<GrtNamedObject> dbObject() const { return _dbObject; }
+  GrtNamedObjectRef dbObject() const { return _dbObject; }
   /** Setter for attribute dbObject
    
     reference to the database object, empty if this is a new object in the model
     \par In Python:
 obj.dbObject = value
    */
-  virtual void dbObject(const grt::Ref<GrtNamedObject> &value)
+  virtual void dbObject(const GrtNamedObjectRef &value)
   {
     grt::ValueRef ovalue(_dbObject);
    _dbObject= value;
@@ -195,14 +196,14 @@ obj.dbObject = value
    \par In Python:
 value = obj.modelObject
    */
-  grt::Ref<GrtNamedObject> modelObject() const { return _modelObject; }
+  GrtNamedObjectRef modelObject() const { return _modelObject; }
   /** Setter for attribute modelObject
    
     reference to the model object, empty if this is a new object in the database
     \par In Python:
 obj.modelObject = value
    */
-  virtual void modelObject(const grt::Ref<GrtNamedObject> &value)
+  virtual void modelObject(const GrtNamedObjectRef &value)
   {
     grt::ValueRef ovalue(_modelObject);
    _modelObject= value;
@@ -232,8 +233,8 @@ protected:
   grt::IntegerRef _alterDirection;
   grt::IntegerRef _changed;
   grt::ListRef<db_DatabaseSyncObject> _children;// owned
-  grt::Ref<GrtNamedObject> _dbObject;
-  grt::Ref<GrtNamedObject> _modelObject;
+  GrtNamedObjectRef _dbObject;
+  GrtNamedObjectRef _modelObject;
   grt::ListRef<GrtLogObject> _syncLog;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -264,14 +265,14 @@ public:
       meta->bind_member("children", new grt::MetaClass::Property<db_DatabaseSyncObject,grt::ListRef<db_DatabaseSyncObject> >(getter,setter));
     }
     {
-      void (db_DatabaseSyncObject::*setter)(const grt::Ref<GrtNamedObject> &)= &db_DatabaseSyncObject::dbObject;
-      grt::Ref<GrtNamedObject> (db_DatabaseSyncObject::*getter)() const= &db_DatabaseSyncObject::dbObject;
-      meta->bind_member("dbObject", new grt::MetaClass::Property<db_DatabaseSyncObject,grt::Ref<GrtNamedObject> >(getter,setter));
+      void (db_DatabaseSyncObject::*setter)(const GrtNamedObjectRef &)= &db_DatabaseSyncObject::dbObject;
+      GrtNamedObjectRef (db_DatabaseSyncObject::*getter)() const= &db_DatabaseSyncObject::dbObject;
+      meta->bind_member("dbObject", new grt::MetaClass::Property<db_DatabaseSyncObject,GrtNamedObjectRef >(getter,setter));
     }
     {
-      void (db_DatabaseSyncObject::*setter)(const grt::Ref<GrtNamedObject> &)= &db_DatabaseSyncObject::modelObject;
-      grt::Ref<GrtNamedObject> (db_DatabaseSyncObject::*getter)() const= &db_DatabaseSyncObject::modelObject;
-      meta->bind_member("modelObject", new grt::MetaClass::Property<db_DatabaseSyncObject,grt::Ref<GrtNamedObject> >(getter,setter));
+      void (db_DatabaseSyncObject::*setter)(const GrtNamedObjectRef &)= &db_DatabaseSyncObject::modelObject;
+      GrtNamedObjectRef (db_DatabaseSyncObject::*getter)() const= &db_DatabaseSyncObject::modelObject;
+      meta->bind_member("modelObject", new grt::MetaClass::Property<db_DatabaseSyncObject,GrtNamedObjectRef >(getter,setter));
     }
     {
       void (db_DatabaseSyncObject::*setter)(const grt::ListRef<GrtLogObject> &)= &db_DatabaseSyncObject::syncLog;
@@ -302,14 +303,14 @@ public:
    \par In Python:
 value = obj.changeTree
    */
-  grt::Ref<db_DatabaseSyncObject> changeTree() const { return _changeTree; }
+  db_DatabaseSyncObjectRef changeTree() const { return _changeTree; }
   /** Setter for attribute changeTree
    
     the tree of changes to apply
     \par In Python:
 obj.changeTree = value
    */
-  virtual void changeTree(const grt::Ref<db_DatabaseSyncObject> &value)
+  virtual void changeTree(const db_DatabaseSyncObjectRef &value)
   {
     grt::ValueRef ovalue(_changeTree);
 
@@ -324,14 +325,14 @@ obj.changeTree = value
    \par In Python:
 value = obj.dbCatalog
    */
-  grt::Ref<db_Catalog> dbCatalog() const { return _dbCatalog; }
+  db_CatalogRef dbCatalog() const { return _dbCatalog; }
   /** Setter for attribute dbCatalog
    
     the database's catalog
     \par In Python:
 obj.dbCatalog = value
    */
-  virtual void dbCatalog(const grt::Ref<db_Catalog> &value)
+  virtual void dbCatalog(const db_CatalogRef &value)
   {
     grt::ValueRef ovalue(_dbCatalog);
 
@@ -341,8 +342,8 @@ obj.dbCatalog = value
 
 protected:
 
-  grt::Ref<db_DatabaseSyncObject> _changeTree;// owned
-  grt::Ref<db_Catalog> _dbCatalog;// owned
+  db_DatabaseSyncObjectRef _changeTree;// owned
+  db_CatalogRef _dbCatalog;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -357,14 +358,14 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_DatabaseSync::create);
     {
-      void (db_DatabaseSync::*setter)(const grt::Ref<db_DatabaseSyncObject> &)= &db_DatabaseSync::changeTree;
-      grt::Ref<db_DatabaseSyncObject> (db_DatabaseSync::*getter)() const= &db_DatabaseSync::changeTree;
-      meta->bind_member("changeTree", new grt::MetaClass::Property<db_DatabaseSync,grt::Ref<db_DatabaseSyncObject> >(getter,setter));
+      void (db_DatabaseSync::*setter)(const db_DatabaseSyncObjectRef &)= &db_DatabaseSync::changeTree;
+      db_DatabaseSyncObjectRef (db_DatabaseSync::*getter)() const= &db_DatabaseSync::changeTree;
+      meta->bind_member("changeTree", new grt::MetaClass::Property<db_DatabaseSync,db_DatabaseSyncObjectRef >(getter,setter));
     }
     {
-      void (db_DatabaseSync::*setter)(const grt::Ref<db_Catalog> &)= &db_DatabaseSync::dbCatalog;
-      grt::Ref<db_Catalog> (db_DatabaseSync::*getter)() const= &db_DatabaseSync::dbCatalog;
-      meta->bind_member("dbCatalog", new grt::MetaClass::Property<db_DatabaseSync,grt::Ref<db_Catalog> >(getter,setter));
+      void (db_DatabaseSync::*setter)(const db_CatalogRef &)= &db_DatabaseSync::dbCatalog;
+      db_CatalogRef (db_DatabaseSync::*getter)() const= &db_DatabaseSync::dbCatalog;
+      meta->bind_member("dbCatalog", new grt::MetaClass::Property<db_DatabaseSync,db_CatalogRef >(getter,setter));
     }
   }
 };
@@ -612,14 +613,14 @@ obj.deleteRule = value
    \par In Python:
 value = obj.index
    */
-  grt::Ref<db_Index> index() const { return _index; }
+  db_IndexRef index() const { return _index; }
   /** Setter for attribute index
    
     Index that was created for this Foreign Key. This should only be set when a index is created for the FK, in other cases (like on reverse engieer) it should be left unset. For that reason this should not be used to find the matching index for the FK.
     \par In Python:
 obj.index = value
    */
-  virtual void index(const grt::Ref<db_Index> &value)
+  virtual void index(const db_IndexRef &value)
   {
     grt::ValueRef ovalue(_index);
    _index= value;
@@ -692,14 +693,14 @@ obj.modelOnly = value
    \par In Python:
 value = obj.owner
    */
-  grt::Ref<db_Table> owner() const { return grt::Ref<db_Table>::cast_from(_owner); }
+  db_TableRef owner() const { return db_TableRef::cast_from(_owner); }
   /** Setter for attribute owner
    
     
     \par In Python:
 obj.owner = value
    */
-  virtual void owner(const grt::Ref<db_Table> &value);
+  virtual void owner(const db_TableRef &value);
 
   /** Getter for attribute referencedColumns (read-only)
    
@@ -743,14 +744,14 @@ obj.referencedMandatory = value
    \par In Python:
 value = obj.referencedTable
    */
-  grt::Ref<db_Table> referencedTable() const { return _referencedTable; }
+  db_TableRef referencedTable() const { return _referencedTable; }
   /** Setter for attribute referencedTable
    
     
     \par In Python:
 obj.referencedTable = value
    */
-  virtual void referencedTable(const grt::Ref<db_Table> &value);
+  virtual void referencedTable(const db_TableRef &value);
 
   /** Getter for attribute updateRule
    
@@ -777,7 +778,7 @@ obj.updateRule = value
 
    */
   virtual grt::IntegerRef checkCompleteness();
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -788,13 +789,13 @@ protected:
   grt::DictRef _customData;
   grt::IntegerRef _deferability;
   grt::StringRef _deleteRule;
-  grt::Ref<db_Index> _index;
+  db_IndexRef _index;
   grt::IntegerRef _mandatory;
   grt::IntegerRef _many;
   grt::IntegerRef _modelOnly;
   grt::ListRef<db_Column> _referencedColumns;
   grt::IntegerRef _referencedMandatory;
-  grt::Ref<db_Table> _referencedTable;
+  db_TableRef _referencedTable;
   grt::StringRef _updateRule;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -832,9 +833,9 @@ public:
       meta->bind_member("deleteRule", new grt::MetaClass::Property<db_ForeignKey,grt::StringRef >(getter,setter));
     }
     {
-      void (db_ForeignKey::*setter)(const grt::Ref<db_Index> &)= &db_ForeignKey::index;
-      grt::Ref<db_Index> (db_ForeignKey::*getter)() const= &db_ForeignKey::index;
-      meta->bind_member("index", new grt::MetaClass::Property<db_ForeignKey,grt::Ref<db_Index> >(getter,setter));
+      void (db_ForeignKey::*setter)(const db_IndexRef &)= &db_ForeignKey::index;
+      db_IndexRef (db_ForeignKey::*getter)() const= &db_ForeignKey::index;
+      meta->bind_member("index", new grt::MetaClass::Property<db_ForeignKey,db_IndexRef >(getter,setter));
     }
     {
       void (db_ForeignKey::*setter)(const grt::IntegerRef &)= &db_ForeignKey::mandatory;
@@ -852,9 +853,9 @@ public:
       meta->bind_member("modelOnly", new grt::MetaClass::Property<db_ForeignKey,grt::IntegerRef >(getter,setter));
     }
     {
-      void (db_ForeignKey::*setter)(const grt::Ref<db_Table> &)= &db_ForeignKey::owner;
-      grt::Ref<db_Table> (db_ForeignKey::*getter)() const= 0;
-      meta->bind_member("owner", new grt::MetaClass::Property<db_ForeignKey,grt::Ref<db_Table> >(getter,setter));
+      void (db_ForeignKey::*setter)(const db_TableRef &)= &db_ForeignKey::owner;
+      db_TableRef (db_ForeignKey::*getter)() const= 0;
+      meta->bind_member("owner", new grt::MetaClass::Property<db_ForeignKey,db_TableRef >(getter,setter));
     }
     {
       void (db_ForeignKey::*setter)(const grt::ListRef<db_Column> &)= &db_ForeignKey::referencedColumns;
@@ -867,9 +868,9 @@ public:
       meta->bind_member("referencedMandatory", new grt::MetaClass::Property<db_ForeignKey,grt::IntegerRef >(getter,setter));
     }
     {
-      void (db_ForeignKey::*setter)(const grt::Ref<db_Table> &)= &db_ForeignKey::referencedTable;
-      grt::Ref<db_Table> (db_ForeignKey::*getter)() const= &db_ForeignKey::referencedTable;
-      meta->bind_member("referencedTable", new grt::MetaClass::Property<db_ForeignKey,grt::Ref<db_Table> >(getter,setter));
+      void (db_ForeignKey::*setter)(const db_TableRef &)= &db_ForeignKey::referencedTable;
+      db_TableRef (db_ForeignKey::*getter)() const= &db_ForeignKey::referencedTable;
+      meta->bind_member("referencedTable", new grt::MetaClass::Property<db_ForeignKey,db_TableRef >(getter,setter));
     }
     {
       void (db_ForeignKey::*setter)(const grt::StringRef &)= &db_ForeignKey::updateRule;
@@ -962,14 +963,14 @@ obj.descend = value
    \par In Python:
 value = obj.referencedColumn
    */
-  grt::Ref<db_Column> referencedColumn() const { return _referencedColumn; }
+  db_ColumnRef referencedColumn() const { return _referencedColumn; }
   /** Setter for attribute referencedColumn
    
     
     \par In Python:
 obj.referencedColumn = value
    */
-  virtual void referencedColumn(const grt::Ref<db_Column> &value)
+  virtual void referencedColumn(const db_ColumnRef &value)
   {
     grt::ValueRef ovalue(_referencedColumn);
    _referencedColumn= value;
@@ -981,7 +982,7 @@ protected:
   grt::IntegerRef _columnLength;
   grt::StringRef _comment;
   grt::IntegerRef _descend;
-  grt::Ref<db_Column> _referencedColumn;
+  db_ColumnRef _referencedColumn;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -1011,9 +1012,9 @@ public:
       meta->bind_member("descend", new grt::MetaClass::Property<db_IndexColumn,grt::IntegerRef >(getter,setter));
     }
     {
-      void (db_IndexColumn::*setter)(const grt::Ref<db_Column> &)= &db_IndexColumn::referencedColumn;
-      grt::Ref<db_Column> (db_IndexColumn::*getter)() const= &db_IndexColumn::referencedColumn;
-      meta->bind_member("referencedColumn", new grt::MetaClass::Property<db_IndexColumn,grt::Ref<db_Column> >(getter,setter));
+      void (db_IndexColumn::*setter)(const db_ColumnRef &)= &db_IndexColumn::referencedColumn;
+      db_ColumnRef (db_IndexColumn::*getter)() const= &db_IndexColumn::referencedColumn;
+      meta->bind_member("referencedColumn", new grt::MetaClass::Property<db_IndexColumn,db_ColumnRef >(getter,setter));
     }
   }
 };
@@ -1164,7 +1165,7 @@ obj.unique = value
     member_changed("unique", ovalue, value);
   }
 
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -1304,14 +1305,14 @@ public:
    \par In Python:
 value = obj.actualType
    */
-  grt::Ref<db_SimpleDatatype> actualType() const { return _actualType; }
+  db_SimpleDatatypeRef actualType() const { return _actualType; }
   /** Setter for attribute actualType
    
     
     \par In Python:
 obj.actualType = value
    */
-  virtual void actualType(const grt::Ref<db_SimpleDatatype> &value)
+  virtual void actualType(const db_SimpleDatatypeRef &value)
   {
     grt::ValueRef ovalue(_actualType);
    _actualType= value;
@@ -1360,7 +1361,7 @@ obj.sqlDefinition = value
 
 protected:
 
-  grt::Ref<db_SimpleDatatype> _actualType;
+  db_SimpleDatatypeRef _actualType;
   grt::StringRef _flags;
   grt::StringRef _sqlDefinition;
 private: // wrapper methods for use by grt
@@ -1377,9 +1378,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_UserDatatype::create);
     {
-      void (db_UserDatatype::*setter)(const grt::Ref<db_SimpleDatatype> &)= &db_UserDatatype::actualType;
-      grt::Ref<db_SimpleDatatype> (db_UserDatatype::*getter)() const= &db_UserDatatype::actualType;
-      meta->bind_member("actualType", new grt::MetaClass::Property<db_UserDatatype,grt::Ref<db_SimpleDatatype> >(getter,setter));
+      void (db_UserDatatype::*setter)(const db_SimpleDatatypeRef &)= &db_UserDatatype::actualType;
+      db_SimpleDatatypeRef (db_UserDatatype::*getter)() const= &db_UserDatatype::actualType;
+      meta->bind_member("actualType", new grt::MetaClass::Property<db_UserDatatype,db_SimpleDatatypeRef >(getter,setter));
     }
     {
       void (db_UserDatatype::*setter)(const grt::StringRef &)= &db_UserDatatype::flags;
@@ -1500,14 +1501,14 @@ public:
    \par In Python:
 value = obj.group
    */
-  grt::Ref<db_DatatypeGroup> group() const { return _group; }
+  db_DatatypeGroupRef group() const { return _group; }
   /** Setter for attribute group
    
     the datatype group this datatype belongs to
     \par In Python:
 obj.group = value
    */
-  virtual void group(const grt::Ref<db_DatatypeGroup> &value)
+  virtual void group(const db_DatatypeGroupRef &value)
   {
     grt::ValueRef ovalue(_group);
    _group= value;
@@ -1656,7 +1657,7 @@ protected:
   grt::IntegerRef _characterOctetLength;
   grt::IntegerRef _dateTimePrecision;
   grt::StringListRef _flags;
-  grt::Ref<db_DatatypeGroup> _group;
+  db_DatatypeGroupRef _group;
   grt::IntegerRef _needsQuotes;
   grt::IntegerRef _numericPrecision;
   grt::IntegerRef _numericPrecisionRadix;
@@ -1698,9 +1699,9 @@ public:
       meta->bind_member("flags", new grt::MetaClass::Property<db_SimpleDatatype,grt::StringListRef >(getter,setter));
     }
     {
-      void (db_SimpleDatatype::*setter)(const grt::Ref<db_DatatypeGroup> &)= &db_SimpleDatatype::group;
-      grt::Ref<db_DatatypeGroup> (db_SimpleDatatype::*getter)() const= &db_SimpleDatatype::group;
-      meta->bind_member("group", new grt::MetaClass::Property<db_SimpleDatatype,grt::Ref<db_DatatypeGroup> >(getter,setter));
+      void (db_SimpleDatatype::*setter)(const db_DatatypeGroupRef &)= &db_SimpleDatatype::group;
+      db_DatatypeGroupRef (db_SimpleDatatype::*getter)() const= &db_SimpleDatatype::group;
+      meta->bind_member("group", new grt::MetaClass::Property<db_SimpleDatatype,db_DatatypeGroupRef >(getter,setter));
     }
     {
       void (db_SimpleDatatype::*setter)(const grt::IntegerRef &)= &db_SimpleDatatype::needsQuotes;
@@ -2096,14 +2097,14 @@ obj.scale = value
    \par In Python:
 value = obj.simpleType
    */
-  grt::Ref<db_SimpleDatatype> simpleType() const { return _simpleType; }
+  db_SimpleDatatypeRef simpleType() const { return _simpleType; }
   /** Setter for attribute simpleType
    
     
     \par In Python:
 obj.simpleType = value
    */
-  virtual void simpleType(const grt::Ref<db_SimpleDatatype> &value)
+  virtual void simpleType(const db_SimpleDatatypeRef &value)
   {
     grt::ValueRef ovalue(_simpleType);
    _simpleType= value;
@@ -2116,14 +2117,14 @@ obj.simpleType = value
    \par In Python:
 value = obj.structuredType
    */
-  grt::Ref<db_StructuredDatatype> structuredType() const { return _structuredType; }
+  db_StructuredDatatypeRef structuredType() const { return _structuredType; }
   /** Setter for attribute structuredType
    
     
     \par In Python:
 obj.structuredType = value
    */
-  virtual void structuredType(const grt::Ref<db_StructuredDatatype> &value)
+  virtual void structuredType(const db_StructuredDatatypeRef &value)
   {
     grt::ValueRef ovalue(_structuredType);
    _structuredType= value;
@@ -2136,14 +2137,14 @@ obj.structuredType = value
    \par In Python:
 value = obj.userType
    */
-  grt::Ref<db_UserDatatype> userType() const { return _userType; }
+  db_UserDatatypeRef userType() const { return _userType; }
   /** Setter for attribute userType
    
     
     \par In Python:
 obj.userType = value
    */
-  virtual void userType(const grt::Ref<db_UserDatatype> &value)
+  virtual void userType(const db_UserDatatypeRef &value)
   {
     grt::ValueRef ovalue(_userType);
    _userType= value;
@@ -2157,7 +2158,7 @@ obj.userType = value
 
    */
   virtual grt::IntegerRef setParseType(const std::string &type, const grt::ListRef<db_SimpleDatatype> &typeList);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -2173,9 +2174,9 @@ protected:
   grt::IntegerRef _length;
   grt::IntegerRef _precision;
   grt::IntegerRef _scale;
-  grt::Ref<db_SimpleDatatype> _simpleType;
-  grt::Ref<db_StructuredDatatype> _structuredType;
-  grt::Ref<db_UserDatatype> _userType;
+  db_SimpleDatatypeRef _simpleType;
+  db_StructuredDatatypeRef _structuredType;
+  db_UserDatatypeRef _userType;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -2253,19 +2254,19 @@ public:
       meta->bind_member("scale", new grt::MetaClass::Property<db_Column,grt::IntegerRef >(getter,setter));
     }
     {
-      void (db_Column::*setter)(const grt::Ref<db_SimpleDatatype> &)= &db_Column::simpleType;
-      grt::Ref<db_SimpleDatatype> (db_Column::*getter)() const= &db_Column::simpleType;
-      meta->bind_member("simpleType", new grt::MetaClass::Property<db_Column,grt::Ref<db_SimpleDatatype> >(getter,setter));
+      void (db_Column::*setter)(const db_SimpleDatatypeRef &)= &db_Column::simpleType;
+      db_SimpleDatatypeRef (db_Column::*getter)() const= &db_Column::simpleType;
+      meta->bind_member("simpleType", new grt::MetaClass::Property<db_Column,db_SimpleDatatypeRef >(getter,setter));
     }
     {
-      void (db_Column::*setter)(const grt::Ref<db_StructuredDatatype> &)= &db_Column::structuredType;
-      grt::Ref<db_StructuredDatatype> (db_Column::*getter)() const= &db_Column::structuredType;
-      meta->bind_member("structuredType", new grt::MetaClass::Property<db_Column,grt::Ref<db_StructuredDatatype> >(getter,setter));
+      void (db_Column::*setter)(const db_StructuredDatatypeRef &)= &db_Column::structuredType;
+      db_StructuredDatatypeRef (db_Column::*getter)() const= &db_Column::structuredType;
+      meta->bind_member("structuredType", new grt::MetaClass::Property<db_Column,db_StructuredDatatypeRef >(getter,setter));
     }
     {
-      void (db_Column::*setter)(const grt::Ref<db_UserDatatype> &)= &db_Column::userType;
-      grt::Ref<db_UserDatatype> (db_Column::*getter)() const= &db_Column::userType;
-      meta->bind_member("userType", new grt::MetaClass::Property<db_Column,grt::Ref<db_UserDatatype> >(getter,setter));
+      void (db_Column::*setter)(const db_UserDatatypeRef &)= &db_Column::userType;
+      db_UserDatatypeRef (db_Column::*getter)() const= &db_Column::userType;
+      meta->bind_member("userType", new grt::MetaClass::Property<db_Column,db_UserDatatypeRef >(getter,setter));
     }
     meta->bind_method("setParseType", &db_Column::call_setParseType);
   }
@@ -2354,14 +2355,14 @@ obj.initialSize = value
    \par In Python:
 value = obj.logFileGroup
    */
-  grt::Ref<db_LogFileGroup> logFileGroup() const { return _logFileGroup; }
+  db_LogFileGroupRef logFileGroup() const { return _logFileGroup; }
   /** Setter for attribute logFileGroup
    
     the log file group that is used for this tablespace
     \par In Python:
 obj.logFileGroup = value
    */
-  virtual void logFileGroup(const grt::Ref<db_LogFileGroup> &value)
+  virtual void logFileGroup(const db_LogFileGroupRef &value)
   {
     grt::ValueRef ovalue(_logFileGroup);
 
@@ -2374,7 +2375,7 @@ protected:
   grt::StringRef _dataFile;
   grt::IntegerRef _extendSize;
   grt::IntegerRef _initialSize;
-  grt::Ref<db_LogFileGroup> _logFileGroup;// owned
+  db_LogFileGroupRef _logFileGroup;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -2404,9 +2405,9 @@ public:
       meta->bind_member("initialSize", new grt::MetaClass::Property<db_Tablespace,grt::IntegerRef >(getter,setter));
     }
     {
-      void (db_Tablespace::*setter)(const grt::Ref<db_LogFileGroup> &)= &db_Tablespace::logFileGroup;
-      grt::Ref<db_LogFileGroup> (db_Tablespace::*getter)() const= &db_Tablespace::logFileGroup;
-      meta->bind_member("logFileGroup", new grt::MetaClass::Property<db_Tablespace,grt::Ref<db_LogFileGroup> >(getter,setter));
+      void (db_Tablespace::*setter)(const db_LogFileGroupRef &)= &db_Tablespace::logFileGroup;
+      db_LogFileGroupRef (db_Tablespace::*getter)() const= &db_Tablespace::logFileGroup;
+      meta->bind_member("logFileGroup", new grt::MetaClass::Property<db_Tablespace,db_LogFileGroupRef >(getter,setter));
     }
   }
 };
@@ -2545,14 +2546,14 @@ public:
    \par In Python:
 value = obj.databaseObject
    */
-  grt::Ref<db_DatabaseObject> databaseObject() const { return _databaseObject; }
+  db_DatabaseObjectRef databaseObject() const { return _databaseObject; }
   /** Setter for attribute databaseObject
    
     the database object this privilege is assigned to
     \par In Python:
 obj.databaseObject = value
    */
-  virtual void databaseObject(const grt::Ref<db_DatabaseObject> &value)
+  virtual void databaseObject(const db_DatabaseObjectRef &value)
   {
     grt::ValueRef ovalue(_databaseObject);
    _databaseObject= value;
@@ -2617,7 +2618,7 @@ public:
 
 protected:
 
-  grt::Ref<db_DatabaseObject> _databaseObject;
+  db_DatabaseObjectRef _databaseObject;
   grt::StringRef _databaseObjectName;
   grt::StringRef _databaseObjectType;
   grt::StringListRef _privileges;
@@ -2635,9 +2636,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_RolePrivilege::create);
     {
-      void (db_RolePrivilege::*setter)(const grt::Ref<db_DatabaseObject> &)= &db_RolePrivilege::databaseObject;
-      grt::Ref<db_DatabaseObject> (db_RolePrivilege::*getter)() const= &db_RolePrivilege::databaseObject;
-      meta->bind_member("databaseObject", new grt::MetaClass::Property<db_RolePrivilege,grt::Ref<db_DatabaseObject> >(getter,setter));
+      void (db_RolePrivilege::*setter)(const db_DatabaseObjectRef &)= &db_RolePrivilege::databaseObject;
+      db_DatabaseObjectRef (db_RolePrivilege::*getter)() const= &db_RolePrivilege::databaseObject;
+      meta->bind_member("databaseObject", new grt::MetaClass::Property<db_RolePrivilege,db_DatabaseObjectRef >(getter,setter));
     }
     {
       void (db_RolePrivilege::*setter)(const grt::StringRef &)= &db_RolePrivilege::databaseObjectName;
@@ -2760,14 +2761,14 @@ obj.defaultCollationName = value
    \par In Python:
 value = obj.defaultSchema
    */
-  grt::Ref<db_Schema> defaultSchema() const { return _defaultSchema; }
+  db_SchemaRef defaultSchema() const { return _defaultSchema; }
   /** Setter for attribute defaultSchema
    
     currently selected schema
     \par In Python:
 obj.defaultSchema = value
    */
-  virtual void defaultSchema(const grt::Ref<db_Schema> &value)
+  virtual void defaultSchema(const db_SchemaRef &value)
   {
     grt::ValueRef ovalue(_defaultSchema);
    _defaultSchema= value;
@@ -2923,14 +2924,14 @@ public:
    \par In Python:
 value = obj.version
    */
-  grt::Ref<GrtVersion> version() const { return _version; }
+  GrtVersionRef version() const { return _version; }
   /** Setter for attribute version
    
     version of the catalog's database
     \par In Python:
 obj.version = value
    */
-  virtual void version(const grt::Ref<GrtVersion> &value)
+  virtual void version(const GrtVersionRef &value)
   {
     grt::ValueRef ovalue(_version);
 
@@ -2944,7 +2945,7 @@ protected:
   grt::DictRef _customData;
   grt::StringRef _defaultCharacterSetName;
   grt::StringRef _defaultCollationName;
-  grt::Ref<db_Schema> _defaultSchema;
+  db_SchemaRef _defaultSchema;
   grt::ListRef<db_LogFileGroup> _logFileGroups;// owned
   grt::ListRef<db_Role> _roles;// owned
   grt::ListRef<db_Schema> _schemata;// owned
@@ -2953,7 +2954,7 @@ protected:
   grt::ListRef<db_Tablespace> _tablespaces;// owned
   grt::ListRef<db_UserDatatype> _userDatatypes;// owned
   grt::ListRef<db_User> _users;// owned
-  grt::Ref<GrtVersion> _version;// owned
+  GrtVersionRef _version;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -2988,9 +2989,9 @@ public:
       meta->bind_member("defaultCollationName", new grt::MetaClass::Property<db_Catalog,grt::StringRef >(getter,setter));
     }
     {
-      void (db_Catalog::*setter)(const grt::Ref<db_Schema> &)= &db_Catalog::defaultSchema;
-      grt::Ref<db_Schema> (db_Catalog::*getter)() const= &db_Catalog::defaultSchema;
-      meta->bind_member("defaultSchema", new grt::MetaClass::Property<db_Catalog,grt::Ref<db_Schema> >(getter,setter));
+      void (db_Catalog::*setter)(const db_SchemaRef &)= &db_Catalog::defaultSchema;
+      db_SchemaRef (db_Catalog::*getter)() const= &db_Catalog::defaultSchema;
+      meta->bind_member("defaultSchema", new grt::MetaClass::Property<db_Catalog,db_SchemaRef >(getter,setter));
     }
     {
       void (db_Catalog::*setter)(const grt::ListRef<db_LogFileGroup> &)= &db_Catalog::logFileGroups;
@@ -3033,9 +3034,9 @@ public:
       meta->bind_member("users", new grt::MetaClass::Property<db_Catalog,grt::ListRef<db_User> >(getter,setter));
     }
     {
-      void (db_Catalog::*setter)(const grt::Ref<GrtVersion> &)= &db_Catalog::version;
-      grt::Ref<GrtVersion> (db_Catalog::*getter)() const= &db_Catalog::version;
-      meta->bind_member("version", new grt::MetaClass::Property<db_Catalog,grt::Ref<GrtVersion> >(getter,setter));
+      void (db_Catalog::*setter)(const GrtVersionRef &)= &db_Catalog::version;
+      GrtVersionRef (db_Catalog::*getter)() const= &db_Catalog::version;
+      meta->bind_member("version", new grt::MetaClass::Property<db_Catalog,GrtVersionRef >(getter,setter));
     }
   }
 };
@@ -3173,14 +3174,14 @@ obj.name = value
    \par In Python:
 value = obj.owner
    */
-  grt::Ref<GrtNamedObject> owner() const { return grt::Ref<GrtNamedObject>::cast_from(_owner); }
+  GrtNamedObjectRef owner() const { return GrtNamedObjectRef::cast_from(_owner); }
   /** Setter for attribute owner
    
     
     \par In Python:
 obj.owner = value
    */
-  virtual void owner(const grt::Ref<GrtNamedObject> &value);
+  virtual void owner(const GrtNamedObjectRef &value);
 
   /** Getter for attribute temp_sql
    
@@ -3202,7 +3203,7 @@ obj.temp_sql = value
     member_changed("temp_sql", ovalue, value);
   }
 
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -3257,9 +3258,9 @@ public:
       meta->bind_member("name", new grt::MetaClass::Property<db_DatabaseObject,grt::StringRef >(getter,setter));
     }
     {
-      void (db_DatabaseObject::*setter)(const grt::Ref<GrtNamedObject> &)= &db_DatabaseObject::owner;
-      grt::Ref<GrtNamedObject> (db_DatabaseObject::*getter)() const= 0;
-      meta->bind_member("owner", new grt::MetaClass::Property<db_DatabaseObject,grt::Ref<GrtNamedObject> >(getter,setter));
+      void (db_DatabaseObject::*setter)(const GrtNamedObjectRef &)= &db_DatabaseObject::owner;
+      GrtNamedObjectRef (db_DatabaseObject::*getter)() const= 0;
+      meta->bind_member("owner", new grt::MetaClass::Property<db_DatabaseObject,GrtNamedObjectRef >(getter,setter));
     }
     {
       void (db_DatabaseObject::*setter)(const grt::StringRef &)= &db_DatabaseObject::temp_sql;
@@ -3559,14 +3560,14 @@ obj.isPublic = value
    \par In Python:
 value = obj.referencedObject
    */
-  grt::Ref<db_DatabaseObject> referencedObject() const { return _referencedObject; }
+  db_DatabaseObjectRef referencedObject() const { return _referencedObject; }
   /** Setter for attribute referencedObject
    
     
     \par In Python:
 obj.referencedObject = value
    */
-  virtual void referencedObject(const grt::Ref<db_DatabaseObject> &value)
+  virtual void referencedObject(const db_DatabaseObjectRef &value)
   {
     grt::ValueRef ovalue(_referencedObject);
    _referencedObject= value;
@@ -3616,7 +3617,7 @@ obj.referencedSchemaName = value
 protected:
 
   grt::IntegerRef _isPublic;
-  grt::Ref<db_DatabaseObject> _referencedObject;
+  db_DatabaseObjectRef _referencedObject;
   grt::StringRef _referencedObjectName;
   grt::StringRef _referencedSchemaName;
 private: // wrapper methods for use by grt
@@ -3638,9 +3639,9 @@ public:
       meta->bind_member("isPublic", new grt::MetaClass::Property<db_Synonym,grt::IntegerRef >(getter,setter));
     }
     {
-      void (db_Synonym::*setter)(const grt::Ref<db_DatabaseObject> &)= &db_Synonym::referencedObject;
-      grt::Ref<db_DatabaseObject> (db_Synonym::*getter)() const= &db_Synonym::referencedObject;
-      meta->bind_member("referencedObject", new grt::MetaClass::Property<db_Synonym,grt::Ref<db_DatabaseObject> >(getter,setter));
+      void (db_Synonym::*setter)(const db_DatabaseObjectRef &)= &db_Synonym::referencedObject;
+      db_DatabaseObjectRef (db_Synonym::*getter)() const= &db_Synonym::referencedObject;
+      meta->bind_member("referencedObject", new grt::MetaClass::Property<db_Synonym,db_DatabaseObjectRef >(getter,setter));
     }
     {
       void (db_Synonym::*setter)(const grt::StringRef &)= &db_Synonym::referencedObjectName;
@@ -3726,7 +3727,7 @@ private: // the next attribute is read-only
   }
 public:
 
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -3804,14 +3805,14 @@ public:
    \par In Python:
 value = obj.parentType
    */
-  grt::Ref<db_StructuredDatatype> parentType() const { return _parentType; }
+  db_StructuredDatatypeRef parentType() const { return _parentType; }
   /** Setter for attribute parentType
    
     
     \par In Python:
 obj.parentType = value
    */
-  virtual void parentType(const grt::Ref<db_StructuredDatatype> &value)
+  virtual void parentType(const db_StructuredDatatypeRef &value)
   {
     grt::ValueRef ovalue(_parentType);
    _parentType= value;
@@ -3821,7 +3822,7 @@ obj.parentType = value
 protected:
 
   grt::ListRef<db_Column> _distinctTypes;// owned
-  grt::Ref<db_StructuredDatatype> _parentType;
+  db_StructuredDatatypeRef _parentType;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -3841,9 +3842,9 @@ public:
       meta->bind_member("distinctTypes", new grt::MetaClass::Property<db_StructuredDatatype,grt::ListRef<db_Column> >(getter,setter));
     }
     {
-      void (db_StructuredDatatype::*setter)(const grt::Ref<db_StructuredDatatype> &)= &db_StructuredDatatype::parentType;
-      grt::Ref<db_StructuredDatatype> (db_StructuredDatatype::*getter)() const= &db_StructuredDatatype::parentType;
-      meta->bind_member("parentType", new grt::MetaClass::Property<db_StructuredDatatype,grt::Ref<db_StructuredDatatype> >(getter,setter));
+      void (db_StructuredDatatype::*setter)(const db_StructuredDatatypeRef &)= &db_StructuredDatatype::parentType;
+      db_StructuredDatatypeRef (db_StructuredDatatype::*getter)() const= &db_StructuredDatatype::parentType;
+      meta->bind_member("parentType", new grt::MetaClass::Property<db_StructuredDatatype,db_StructuredDatatypeRef >(getter,setter));
     }
   }
 };
@@ -3875,7 +3876,7 @@ public:
   // args: 
   boost::signals2::signal<void (std::string) >* signal_refreshDisplay() { return &_signal_refreshDisplay; }
   // args: 
-  boost::signals2::signal<void (grt::Ref<db_ForeignKey>) >* signal_foreignKeyChanged() { return &_signal_foreignKeyChanged; }
+  boost::signals2::signal<void (db_ForeignKeyRef) >* signal_foreignKeyChanged() { return &_signal_foreignKeyChanged; }
   // columns is owned by db_Table
   /** Getter for attribute columns (read-only)
    
@@ -3996,14 +3997,14 @@ obj.isTemporary = value
    \par In Python:
 value = obj.primaryKey
    */
-  grt::Ref<db_Index> primaryKey() const { return _primaryKey; }
+  db_IndexRef primaryKey() const { return _primaryKey; }
   /** Setter for attribute primaryKey
    
     
     \par In Python:
 obj.primaryKey = value
    */
-  virtual void primaryKey(const grt::Ref<db_Index> &value)
+  virtual void primaryKey(const db_IndexRef &value)
   {
     grt::ValueRef ovalue(_primaryKey);
    _primaryKey= value;
@@ -4053,30 +4054,30 @@ public:
   \return 
 
    */
-  virtual void addColumn(const grt::Ref<db_Column> &column);
+  virtual void addColumn(const db_ColumnRef &column);
   /** Method. 
   \param index 
   \return 
 
    */
-  virtual void addIndex(const grt::Ref<db_Index> &index);
+  virtual void addIndex(const db_IndexRef &index);
   /** Method. 
   \param column 
   \return 
 
    */
-  virtual void addPrimaryKeyColumn(const grt::Ref<db_Column> &column);
+  virtual void addPrimaryKeyColumn(const db_ColumnRef &column);
   /** Method. 
   \param name 
   \return 
 
    */
-  virtual grt::Ref<db_ForeignKey> createForeignKey(const std::string &name);
+  virtual db_ForeignKeyRef createForeignKey(const std::string &name);
   /** Method. creates a grid object representing the inserts data, suitable for browsing and editing its contents
   \return 
 
    */
-  virtual grt::Ref<db_query_EditableResultset> createInsertsEditor();
+  virtual db_query_EditableResultsetRef createInsertsEditor();
   /** Method. 
   \return 
 
@@ -4092,44 +4093,44 @@ public:
   \return 
 
    */
-  virtual grt::IntegerRef isForeignKeyColumn(const grt::Ref<db_Column> &column);
+  virtual grt::IntegerRef isForeignKeyColumn(const db_ColumnRef &column);
   /** Method. 
   \param column 
   \return 
 
    */
-  virtual grt::IntegerRef isPrimaryKeyColumn(const grt::Ref<db_Column> &column);
+  virtual grt::IntegerRef isPrimaryKeyColumn(const db_ColumnRef &column);
   /** Method. 
   \param column 
   \return 
 
    */
-  virtual void removeColumn(const grt::Ref<db_Column> &column);
+  virtual void removeColumn(const db_ColumnRef &column);
   /** Method. 
   \param fk 
   \param removeColumns 
   \return 
 
    */
-  virtual void removeForeignKey(const grt::Ref<db_ForeignKey> &fk, long removeColumns);
+  virtual void removeForeignKey(const db_ForeignKeyRef &fk, ssize_t removeColumns);
   /** Method. 
   \param index 
   \return 
 
    */
-  virtual void removeIndex(const grt::Ref<db_Index> &index);
+  virtual void removeIndex(const db_IndexRef &index);
   /** Method. 
   \param column 
   \return 
 
    */
-  virtual void removePrimaryKeyColumn(const grt::Ref<db_Column> &column);
-  // default initialization function. auto-called by Ref<Object> constructor
+  virtual void removePrimaryKeyColumn(const db_ColumnRef &column);
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
   boost::signals2::signal<void (std::string) > _signal_refreshDisplay;
-  boost::signals2::signal<void (grt::Ref<db_ForeignKey>) > _signal_foreignKeyChanged;
+  boost::signals2::signal<void (db_ForeignKeyRef) > _signal_foreignKeyChanged;
 
   grt::ListRef<db_Column> _columns;// owned
   grt::ListRef<db_ForeignKey> _foreignKeys;// owned
@@ -4137,7 +4138,7 @@ protected:
   grt::IntegerRef _isStub;
   grt::IntegerRef _isSystem;
   grt::IntegerRef _isTemporary;
-  grt::Ref<db_Index> _primaryKey;
+  db_IndexRef _primaryKey;
   grt::StringRef _temporaryScope;
   grt::ListRef<db_Trigger> _triggers;// owned
 private: // wrapper methods for use by grt
@@ -4146,11 +4147,11 @@ private: // wrapper methods for use by grt
     return grt::ObjectRef(new db_Table(grt));
   }
 
-  static grt::ValueRef call_addColumn(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->addColumn(grt::Ref<db_Column>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_addColumn(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->addColumn(db_ColumnRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_addIndex(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->addIndex(grt::Ref<db_Index>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_addIndex(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->addIndex(db_IndexRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_addPrimaryKeyColumn(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->addPrimaryKeyColumn(grt::Ref<db_Column>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_addPrimaryKeyColumn(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->addPrimaryKeyColumn(db_ColumnRef::cast_from(args[0])); return grt::ValueRef(); }
 
   static grt::ValueRef call_createForeignKey(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Table*>(self)->createForeignKey(grt::StringRef::cast_from(args[0])); }
 
@@ -4160,17 +4161,17 @@ private: // wrapper methods for use by grt
 
   static grt::ValueRef call_isDependantTable(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Table*>(self)->isDependantTable(); }
 
-  static grt::ValueRef call_isForeignKeyColumn(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Table*>(self)->isForeignKeyColumn(grt::Ref<db_Column>::cast_from(args[0])); }
+  static grt::ValueRef call_isForeignKeyColumn(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Table*>(self)->isForeignKeyColumn(db_ColumnRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_isPrimaryKeyColumn(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Table*>(self)->isPrimaryKeyColumn(grt::Ref<db_Column>::cast_from(args[0])); }
+  static grt::ValueRef call_isPrimaryKeyColumn(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Table*>(self)->isPrimaryKeyColumn(db_ColumnRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_removeColumn(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->removeColumn(grt::Ref<db_Column>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_removeColumn(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->removeColumn(db_ColumnRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_removeForeignKey(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->removeForeignKey(grt::Ref<db_ForeignKey>::cast_from(args[0]), grt::IntegerRef::cast_from(args[1])); return grt::ValueRef(); }
+  static grt::ValueRef call_removeForeignKey(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->removeForeignKey(db_ForeignKeyRef::cast_from(args[0]), grt::IntegerRef::cast_from(args[1])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_removeIndex(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->removeIndex(grt::Ref<db_Index>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_removeIndex(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->removeIndex(db_IndexRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_removePrimaryKeyColumn(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->removePrimaryKeyColumn(grt::Ref<db_Column>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_removePrimaryKeyColumn(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Table*>(self)->removePrimaryKeyColumn(db_ColumnRef::cast_from(args[0])); return grt::ValueRef(); }
 
 
 public:
@@ -4210,9 +4211,9 @@ public:
       meta->bind_member("isTemporary", new grt::MetaClass::Property<db_Table,grt::IntegerRef >(getter,setter));
     }
     {
-      void (db_Table::*setter)(const grt::Ref<db_Index> &)= &db_Table::primaryKey;
-      grt::Ref<db_Index> (db_Table::*getter)() const= &db_Table::primaryKey;
-      meta->bind_member("primaryKey", new grt::MetaClass::Property<db_Table,grt::Ref<db_Index> >(getter,setter));
+      void (db_Table::*setter)(const db_IndexRef &)= &db_Table::primaryKey;
+      db_IndexRef (db_Table::*getter)() const= &db_Table::primaryKey;
+      meta->bind_member("primaryKey", new grt::MetaClass::Property<db_Table,db_IndexRef >(getter,setter));
     }
     {
       void (db_Table::*setter)(const grt::StringRef &)= &db_Table::temporaryScope;
@@ -4512,7 +4513,7 @@ public:
   static std::string static_class_name() { return "db.Schema"; }
 
   // args: 
-  boost::signals2::signal<void (grt::Ref<db_DatabaseObject>) >* signal_refreshDisplay() { return &_signal_refreshDisplay; }
+  boost::signals2::signal<void (db_DatabaseObjectRef) >* signal_refreshDisplay() { return &_signal_refreshDisplay; }
   /** Getter for attribute defaultCharacterSetName
    
     
@@ -4684,42 +4685,42 @@ public:
   \return 
 
    */
-  virtual grt::Ref<db_Routine> addNewRoutine(const std::string &dbpackage);
+  virtual db_RoutineRef addNewRoutine(const std::string &dbpackage);
   /** Method. 
   \param dbpackage 
   \return 
 
    */
-  virtual grt::Ref<db_RoutineGroup> addNewRoutineGroup(const std::string &dbpackage);
+  virtual db_RoutineGroupRef addNewRoutineGroup(const std::string &dbpackage);
   /** Method. create and add a new table to the schema. For MySQL tables, pass db.mysql as the dbpackage argument
   \param dbpackage 
   \return 
 
    */
-  virtual grt::Ref<db_Table> addNewTable(const std::string &dbpackage);
+  virtual db_TableRef addNewTable(const std::string &dbpackage);
   /** Method. 
   \param dbpackage 
   \return 
 
    */
-  virtual grt::Ref<db_View> addNewView(const std::string &dbpackage);
+  virtual db_ViewRef addNewView(const std::string &dbpackage);
   /** Method. 
   \param table 
   \return 
 
    */
-  virtual grt::ListRef<db_ForeignKey> getForeignKeysReferencingTable(const grt::Ref<db_Table> &table);
+  virtual grt::ListRef<db_ForeignKey> getForeignKeysReferencingTable(const db_TableRef &table);
   /** Method. 
   \param table 
   \return 
 
    */
-  virtual void removeTable(const grt::Ref<db_Table> &table);
-  // default initialization function. auto-called by Ref<Object> constructor
+  virtual void removeTable(const db_TableRef &table);
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
-  boost::signals2::signal<void (grt::Ref<db_DatabaseObject>) > _signal_refreshDisplay;
+  boost::signals2::signal<void (db_DatabaseObjectRef) > _signal_refreshDisplay;
 
   grt::StringRef _defaultCharacterSetName;
   grt::StringRef _defaultCollationName;
@@ -4744,9 +4745,9 @@ private: // wrapper methods for use by grt
 
   static grt::ValueRef call_addNewView(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Schema*>(self)->addNewView(grt::StringRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_getForeignKeysReferencingTable(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Schema*>(self)->getForeignKeysReferencingTable(grt::Ref<db_Table>::cast_from(args[0])); }
+  static grt::ValueRef call_getForeignKeysReferencingTable(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_Schema*>(self)->getForeignKeysReferencingTable(db_TableRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_removeTable(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Schema*>(self)->removeTable(grt::Ref<db_Table>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_removeTable(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_Schema*>(self)->removeTable(db_TableRef::cast_from(args[0])); return grt::ValueRef(); }
 
 
 public:
@@ -4927,14 +4928,14 @@ public:
    \par In Python:
 value = obj.parentRole
    */
-  grt::Ref<db_Role> parentRole() const { return _parentRole; }
+  db_RoleRef parentRole() const { return _parentRole; }
   /** Setter for attribute parentRole
    
     role that this role derives from or empty if there is no parent role. All privileges which has parent present for current Role
     \par In Python:
 obj.parentRole = value
    */
-  virtual void parentRole(const grt::Ref<db_Role> &value)
+  virtual void parentRole(const db_RoleRef &value)
   {
     grt::ValueRef ovalue(_parentRole);
    _parentRole= value;
@@ -4962,7 +4963,7 @@ public:
 protected:
 
   grt::ListRef<db_Role> _childRoles;
-  grt::Ref<db_Role> _parentRole;
+  db_RoleRef _parentRole;
   grt::ListRef<db_RolePrivilege> _privileges;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -4983,9 +4984,9 @@ public:
       meta->bind_member("childRoles", new grt::MetaClass::Property<db_Role,grt::ListRef<db_Role> >(getter,setter));
     }
     {
-      void (db_Role::*setter)(const grt::Ref<db_Role> &)= &db_Role::parentRole;
-      grt::Ref<db_Role> (db_Role::*getter)() const= &db_Role::parentRole;
-      meta->bind_member("parentRole", new grt::MetaClass::Property<db_Role,grt::Ref<db_Role> >(getter,setter));
+      void (db_Role::*setter)(const db_RoleRef &)= &db_Role::parentRole;
+      db_RoleRef (db_Role::*getter)() const= &db_Role::parentRole;
+      meta->bind_member("parentRole", new grt::MetaClass::Property<db_Role,db_RoleRef >(getter,setter));
     }
     {
       void (db_Role::*setter)(const grt::ListRef<db_RolePrivilege> &)= &db_Role::privileges;
@@ -5358,7 +5359,7 @@ obj.timing = value
    */
   virtual void timing(const grt::StringRef &value);
 
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:

@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/sqlstring.h"
 #include "base/log.h"
 #include "base/threading.h"
@@ -493,7 +491,7 @@ bool DbSqlEditorContextHelp::get_help_text(const SqlEditorForm::Ref &form, const
  * Determines a help topic from the given query at the given position.
  */
 std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEditorForm::Ref &form,
-  const std::string &query, std::pair<int, int> caret)
+  const std::string &query, std::pair<ssize_t, ssize_t> caret)
 {
   log_debug2("Finding help topic\n");
   
@@ -516,7 +514,7 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
   MySQLRecognizer recognizer(query.c_str(), query.length(), true, form->server_version(),
     form->sql_mode(), form->valid_charsets());
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
-  bool found_token = walker.advance_to_position(caret.second, caret.first);
+  bool found_token = walker.advance_to_position((int)caret.second, (int)caret.first);
   if (found_token && recognizer.has_errors())
   {
     // We can only assume success if the first error is after our position. Otherwise
@@ -661,7 +659,7 @@ bool is_token_without_topic(unsigned type)
  * This includes all single word topics, so they don't need to be covered later again.
  */
 std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref &form,
-  const std::string &query, std::pair<int, int> caret)
+  const std::string &query, std::pair<ssize_t, ssize_t> caret)
 {
   // Don't log the entire query. That can really take a moment with large queries.
   log_debug2("Trying to get help topic from a position\n");

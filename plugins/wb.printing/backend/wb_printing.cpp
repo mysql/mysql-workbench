@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtpp.h"
 
 #include "wb_printing.h"

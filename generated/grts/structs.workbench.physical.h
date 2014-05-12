@@ -37,6 +37,14 @@ class workbench_physical_Model;
 typedef grt::Ref<workbench_physical_Model> workbench_physical_ModelRef;
 
 
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
+
 class  workbench_physical_Layer : public model_Layer
 {
   typedef model_Layer super;
@@ -286,14 +294,14 @@ obj.extraCaptionYOffs = value
    \par In Python:
 value = obj.foreignKey
    */
-  grt::Ref<db_ForeignKey> foreignKey() const { return _foreignKey; }
+  db_ForeignKeyRef foreignKey() const { return _foreignKey; }
   /** Setter for attribute foreignKey
    
     the foreign key this corresponds to
     \par In Python:
 obj.foreignKey = value
    */
-  virtual void foreignKey(const grt::Ref<db_ForeignKey> &value);
+  virtual void foreignKey(const db_ForeignKeyRef &value);
 
   /** Getter for attribute middleSegmentOffset
    
@@ -359,7 +367,7 @@ obj.startCaptionYOffs = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -373,7 +381,7 @@ protected:
   grt::StringRef _extraCaption;
   grt::DoubleRef _extraCaptionXOffs;
   grt::DoubleRef _extraCaptionYOffs;
-  grt::Ref<db_ForeignKey> _foreignKey;
+  db_ForeignKeyRef _foreignKey;
   grt::DoubleRef _middleSegmentOffset;
   grt::DoubleRef _startCaptionXOffs;
   grt::DoubleRef _startCaptionYOffs;
@@ -438,9 +446,9 @@ public:
       meta->bind_member("extraCaptionYOffs", new grt::MetaClass::Property<workbench_physical_Connection,grt::DoubleRef >(getter,setter));
     }
     {
-      void (workbench_physical_Connection::*setter)(const grt::Ref<db_ForeignKey> &)= &workbench_physical_Connection::foreignKey;
-      grt::Ref<db_ForeignKey> (workbench_physical_Connection::*getter)() const= &workbench_physical_Connection::foreignKey;
-      meta->bind_member("foreignKey", new grt::MetaClass::Property<workbench_physical_Connection,grt::Ref<db_ForeignKey> >(getter,setter));
+      void (workbench_physical_Connection::*setter)(const db_ForeignKeyRef &)= &workbench_physical_Connection::foreignKey;
+      db_ForeignKeyRef (workbench_physical_Connection::*getter)() const= &workbench_physical_Connection::foreignKey;
+      meta->bind_member("foreignKey", new grt::MetaClass::Property<workbench_physical_Connection,db_ForeignKeyRef >(getter,setter));
     }
     {
       void (workbench_physical_Connection::*setter)(const grt::DoubleRef &)= &workbench_physical_Connection::middleSegmentOffset;
@@ -485,25 +493,25 @@ public:
    \par In Python:
 value = obj.routineGroup
    */
-  grt::Ref<db_RoutineGroup> routineGroup() const { return _routineGroup; }
+  db_RoutineGroupRef routineGroup() const { return _routineGroup; }
   /** Setter for attribute routineGroup
    
     the routine group this figure represents
     \par In Python:
 obj.routineGroup = value
    */
-  virtual void routineGroup(const grt::Ref<db_RoutineGroup> &value);
+  virtual void routineGroup(const db_RoutineGroupRef &value);
 
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
 
-  grt::Ref<db_RoutineGroup> _routineGroup;
+  db_RoutineGroupRef _routineGroup;
 private: // wrapper methods for use by grt
   ImplData *_data;
 
@@ -520,9 +528,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_RoutineGroupFigure::create);
     {
-      void (workbench_physical_RoutineGroupFigure::*setter)(const grt::Ref<db_RoutineGroup> &)= &workbench_physical_RoutineGroupFigure::routineGroup;
-      grt::Ref<db_RoutineGroup> (workbench_physical_RoutineGroupFigure::*getter)() const= &workbench_physical_RoutineGroupFigure::routineGroup;
-      meta->bind_member("routineGroup", new grt::MetaClass::Property<workbench_physical_RoutineGroupFigure,grt::Ref<db_RoutineGroup> >(getter,setter));
+      void (workbench_physical_RoutineGroupFigure::*setter)(const db_RoutineGroupRef &)= &workbench_physical_RoutineGroupFigure::routineGroup;
+      db_RoutineGroupRef (workbench_physical_RoutineGroupFigure::*getter)() const= &workbench_physical_RoutineGroupFigure::routineGroup;
+      meta->bind_member("routineGroup", new grt::MetaClass::Property<workbench_physical_RoutineGroupFigure,db_RoutineGroupRef >(getter,setter));
     }
   }
 };
@@ -552,25 +560,25 @@ public:
    \par In Python:
 value = obj.view
    */
-  grt::Ref<db_View> view() const { return _view; }
+  db_ViewRef view() const { return _view; }
   /** Setter for attribute view
    
     the view this figure represents
     \par In Python:
 obj.view = value
    */
-  virtual void view(const grt::Ref<db_View> &value);
+  virtual void view(const db_ViewRef &value);
 
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
 
-  grt::Ref<db_View> _view;
+  db_ViewRef _view;
 private: // wrapper methods for use by grt
   ImplData *_data;
 
@@ -587,9 +595,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_ViewFigure::create);
     {
-      void (workbench_physical_ViewFigure::*setter)(const grt::Ref<db_View> &)= &workbench_physical_ViewFigure::view;
-      grt::Ref<db_View> (workbench_physical_ViewFigure::*getter)() const= &workbench_physical_ViewFigure::view;
-      meta->bind_member("view", new grt::MetaClass::Property<workbench_physical_ViewFigure,grt::Ref<db_View> >(getter,setter));
+      void (workbench_physical_ViewFigure::*setter)(const db_ViewRef &)= &workbench_physical_ViewFigure::view;
+      db_ViewRef (workbench_physical_ViewFigure::*getter)() const= &workbench_physical_ViewFigure::view;
+      meta->bind_member("view", new grt::MetaClass::Property<workbench_physical_ViewFigure,db_ViewRef >(getter,setter));
     }
   }
 };
@@ -704,14 +712,14 @@ obj.summarizeDisplay = value
    \par In Python:
 value = obj.table
    */
-  grt::Ref<db_Table> table() const { return _table; }
+  db_TableRef table() const { return _table; }
   /** Setter for attribute table
    
     the table this figure represents
     \par In Python:
 obj.table = value
    */
-  virtual void table(const grt::Ref<db_Table> &value);
+  virtual void table(const db_TableRef &value);
 
   /** Getter for attribute triggersExpanded
    
@@ -737,7 +745,7 @@ obj.triggersExpanded = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -746,7 +754,7 @@ protected:
   grt::IntegerRef _foreignKeysExpanded;
   grt::IntegerRef _indicesExpanded;
   grt::IntegerRef _summarizeDisplay;
-  grt::Ref<db_Table> _table;
+  db_TableRef _table;
   grt::IntegerRef _triggersExpanded;
 private: // wrapper methods for use by grt
   ImplData *_data;
@@ -784,9 +792,9 @@ public:
       meta->bind_member("summarizeDisplay", new grt::MetaClass::Property<workbench_physical_TableFigure,grt::IntegerRef >(getter,setter));
     }
     {
-      void (workbench_physical_TableFigure::*setter)(const grt::Ref<db_Table> &)= &workbench_physical_TableFigure::table;
-      grt::Ref<db_Table> (workbench_physical_TableFigure::*getter)() const= &workbench_physical_TableFigure::table;
-      meta->bind_member("table", new grt::MetaClass::Property<workbench_physical_TableFigure,grt::Ref<db_Table> >(getter,setter));
+      void (workbench_physical_TableFigure::*setter)(const db_TableRef &)= &workbench_physical_TableFigure::table;
+      db_TableRef (workbench_physical_TableFigure::*getter)() const= &workbench_physical_TableFigure::table;
+      meta->bind_member("table", new grt::MetaClass::Property<workbench_physical_TableFigure,db_TableRef >(getter,setter));
     }
     {
       void (workbench_physical_TableFigure::*setter)(const grt::IntegerRef &)= &workbench_physical_TableFigure::triggersExpanded;
@@ -826,31 +834,31 @@ public:
   \return 
 
    */
-  virtual grt::Ref<workbench_physical_Connection> createConnectionForForeignKey(const grt::Ref<db_ForeignKey> &fk);
+  virtual workbench_physical_ConnectionRef createConnectionForForeignKey(const db_ForeignKeyRef &fk);
   /** Method. 
   \param table 
   \return 
 
    */
-  virtual grt::IntegerRef createConnectionsForTable(const grt::Ref<db_Table> &table);
+  virtual grt::IntegerRef createConnectionsForTable(const db_TableRef &table);
   /** Method. 
   \param table 
   \return 
 
    */
-  virtual void deleteConnectionsForTable(const grt::Ref<db_Table> &table);
+  virtual void deleteConnectionsForTable(const db_TableRef &table);
   /** Method. 
   \param fk 
   \return 
 
    */
-  virtual grt::Ref<workbench_physical_Connection> getConnectionForForeignKey(const grt::Ref<db_ForeignKey> &fk);
+  virtual workbench_physical_ConnectionRef getConnectionForForeignKey(const db_ForeignKeyRef &fk);
   /** Method. 
   \param object 
   \return 
 
    */
-  virtual grt::Ref<model_Figure> getFigureForDBObject(const grt::Ref<db_DatabaseObject> &object);
+  virtual model_FigureRef getFigureForDBObject(const db_DatabaseObjectRef &object);
   /** Method. 
   \param x 
   \param y 
@@ -860,7 +868,7 @@ public:
   \return 
 
    */
-  virtual grt::Ref<model_Layer> placeNewLayer(double x, double y, double width, double height, const std::string &name);
+  virtual model_LayerRef placeNewLayer(double x, double y, double width, double height, const std::string &name);
   /** Method. 
   \param routineGroup 
   \param x 
@@ -868,7 +876,7 @@ public:
   \return 
 
    */
-  virtual grt::Ref<workbench_physical_RoutineGroupFigure> placeRoutineGroup(const grt::Ref<db_RoutineGroup> &routineGroup, double x, double y);
+  virtual workbench_physical_RoutineGroupFigureRef placeRoutineGroup(const db_RoutineGroupRef &routineGroup, double x, double y);
   /** Method. 
   \param table 
   \param x 
@@ -876,7 +884,7 @@ public:
   \return 
 
    */
-  virtual grt::Ref<workbench_physical_TableFigure> placeTable(const grt::Ref<db_Table> &table, double x, double y);
+  virtual workbench_physical_TableFigureRef placeTable(const db_TableRef &table, double x, double y);
   /** Method. 
   \param view 
   \param x 
@@ -884,12 +892,12 @@ public:
   \return 
 
    */
-  virtual grt::Ref<workbench_physical_ViewFigure> placeView(const grt::Ref<db_View> &view, double x, double y);
+  virtual workbench_physical_ViewFigureRef placeView(const db_ViewRef &view, double x, double y);
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -904,23 +912,23 @@ private: // wrapper methods for use by grt
 
   static grt::ValueRef call_autoPlaceDBObjects(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<workbench_physical_Diagram*>(self)->autoPlaceDBObjects(grt::ListRef<db_DatabaseObject>::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_createConnectionForForeignKey(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->createConnectionForForeignKey(grt::Ref<db_ForeignKey>::cast_from(args[0])); }
+  static grt::ValueRef call_createConnectionForForeignKey(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->createConnectionForForeignKey(db_ForeignKeyRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_createConnectionsForTable(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->createConnectionsForTable(grt::Ref<db_Table>::cast_from(args[0])); }
+  static grt::ValueRef call_createConnectionsForTable(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->createConnectionsForTable(db_TableRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_deleteConnectionsForTable(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<workbench_physical_Diagram*>(self)->deleteConnectionsForTable(grt::Ref<db_Table>::cast_from(args[0])); return grt::ValueRef(); }
+  static grt::ValueRef call_deleteConnectionsForTable(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<workbench_physical_Diagram*>(self)->deleteConnectionsForTable(db_TableRef::cast_from(args[0])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_getConnectionForForeignKey(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->getConnectionForForeignKey(grt::Ref<db_ForeignKey>::cast_from(args[0])); }
+  static grt::ValueRef call_getConnectionForForeignKey(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->getConnectionForForeignKey(db_ForeignKeyRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_getFigureForDBObject(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->getFigureForDBObject(grt::Ref<db_DatabaseObject>::cast_from(args[0])); }
+  static grt::ValueRef call_getFigureForDBObject(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->getFigureForDBObject(db_DatabaseObjectRef::cast_from(args[0])); }
 
   static grt::ValueRef call_placeNewLayer(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->placeNewLayer(grt::DoubleRef::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2]), grt::DoubleRef::cast_from(args[3]), grt::StringRef::cast_from(args[4])); }
 
-  static grt::ValueRef call_placeRoutineGroup(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->placeRoutineGroup(grt::Ref<db_RoutineGroup>::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2])); }
+  static grt::ValueRef call_placeRoutineGroup(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->placeRoutineGroup(db_RoutineGroupRef::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2])); }
 
-  static grt::ValueRef call_placeTable(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->placeTable(grt::Ref<db_Table>::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2])); }
+  static grt::ValueRef call_placeTable(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->placeTable(db_TableRef::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2])); }
 
-  static grt::ValueRef call_placeView(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->placeView(grt::Ref<db_View>::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2])); }
+  static grt::ValueRef call_placeView(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<workbench_physical_Diagram*>(self)->placeView(db_ViewRef::cast_from(args[0]), grt::DoubleRef::cast_from(args[1]), grt::DoubleRef::cast_from(args[2])); }
 
 
 public:
@@ -977,14 +985,14 @@ public:
    \par In Python:
 value = obj.catalog
    */
-  grt::Ref<db_Catalog> catalog() const { return _catalog; }
+  db_CatalogRef catalog() const { return _catalog; }
   /** Setter for attribute catalog
    
     
     \par In Python:
 obj.catalog = value
    */
-  virtual void catalog(const grt::Ref<db_Catalog> &value)
+  virtual void catalog(const db_CatalogRef &value)
   {
     grt::ValueRef ovalue(_catalog);
 
@@ -1036,14 +1044,14 @@ public:
    \par In Python:
 value = obj.currentConnection
    */
-  grt::Ref<db_mgmt_Connection> currentConnection() const { return _currentConnection; }
+  db_mgmt_ConnectionRef currentConnection() const { return _currentConnection; }
   /** Setter for attribute currentConnection
    
     the connection used for reverse engineering and synchronisation
     \par In Python:
 obj.currentConnection = value
    */
-  virtual void currentConnection(const grt::Ref<db_mgmt_Connection> &value)
+  virtual void currentConnection(const db_mgmt_ConnectionRef &value)
   {
     grt::ValueRef ovalue(_currentConnection);
    _currentConnection= value;
@@ -1105,14 +1113,14 @@ public:
    \par In Python:
 value = obj.rdbms
    */
-  grt::Ref<db_mgmt_Rdbms> rdbms() const { return _rdbms; }
+  db_mgmt_RdbmsRef rdbms() const { return _rdbms; }
   /** Setter for attribute rdbms
    
     the rdbms used for the document
     \par In Python:
 obj.rdbms = value
    */
-  virtual void rdbms(const grt::Ref<db_mgmt_Rdbms> &value)
+  virtual void rdbms(const db_mgmt_RdbmsRef &value)
   {
     grt::ValueRef ovalue(_rdbms);
    _rdbms= value;
@@ -1153,6 +1161,7 @@ private: // the next attribute is read-only
   }
 public:
 
+  // tagCategories is owned by workbench_physical_Model
   /** Getter for attribute tagCategories (read-only)
    
     
@@ -1164,8 +1173,9 @@ private: // the next attribute is read-only
   virtual void tagCategories(const grt::ListRef<GrtObject> &value)
   {
     grt::ValueRef ovalue(_tagCategories);
-   _tagCategories= value;
-    member_changed("tagCategories", ovalue, value);
+
+    _tagCategories= value;
+    owned_member_changed("tagCategories", ovalue, value);
   }
 public:
 
@@ -1192,26 +1202,26 @@ public:
   \return 
 
    */
-  virtual grt::Ref<model_Diagram> addNewDiagram(long deferRealize);
+  virtual model_DiagramRef addNewDiagram(ssize_t deferRealize);
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
 
-  grt::Ref<db_Catalog> _catalog;// owned
+  db_CatalogRef _catalog;// owned
   grt::StringRef _connectionNotation;
   grt::ListRef<db_mgmt_Connection> _connections;// owned
-  grt::Ref<db_mgmt_Connection> _currentConnection;
+  db_mgmt_ConnectionRef _currentConnection;
   grt::StringRef _figureNotation;
   grt::ListRef<GrtStoredNote> _notes;// owned
-  grt::Ref<db_mgmt_Rdbms> _rdbms;
+  db_mgmt_RdbmsRef _rdbms;
   grt::ListRef<db_Script> _scripts;// owned
   grt::DictRef _syncProfiles;
-  grt::ListRef<GrtObject> _tagCategories;
+  grt::ListRef<GrtObject> _tagCategories;// owned
   grt::ListRef<meta_Tag> _tags;// owned
 private: // wrapper methods for use by grt
   ImplData *_data;
@@ -1231,9 +1241,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_physical_Model::create);
     {
-      void (workbench_physical_Model::*setter)(const grt::Ref<db_Catalog> &)= &workbench_physical_Model::catalog;
-      grt::Ref<db_Catalog> (workbench_physical_Model::*getter)() const= &workbench_physical_Model::catalog;
-      meta->bind_member("catalog", new grt::MetaClass::Property<workbench_physical_Model,grt::Ref<db_Catalog> >(getter,setter));
+      void (workbench_physical_Model::*setter)(const db_CatalogRef &)= &workbench_physical_Model::catalog;
+      db_CatalogRef (workbench_physical_Model::*getter)() const= &workbench_physical_Model::catalog;
+      meta->bind_member("catalog", new grt::MetaClass::Property<workbench_physical_Model,db_CatalogRef >(getter,setter));
     }
     {
       void (workbench_physical_Model::*setter)(const grt::StringRef &)= &workbench_physical_Model::connectionNotation;
@@ -1246,9 +1256,9 @@ public:
       meta->bind_member("connections", new grt::MetaClass::Property<workbench_physical_Model,grt::ListRef<db_mgmt_Connection> >(getter,setter));
     }
     {
-      void (workbench_physical_Model::*setter)(const grt::Ref<db_mgmt_Connection> &)= &workbench_physical_Model::currentConnection;
-      grt::Ref<db_mgmt_Connection> (workbench_physical_Model::*getter)() const= &workbench_physical_Model::currentConnection;
-      meta->bind_member("currentConnection", new grt::MetaClass::Property<workbench_physical_Model,grt::Ref<db_mgmt_Connection> >(getter,setter));
+      void (workbench_physical_Model::*setter)(const db_mgmt_ConnectionRef &)= &workbench_physical_Model::currentConnection;
+      db_mgmt_ConnectionRef (workbench_physical_Model::*getter)() const= &workbench_physical_Model::currentConnection;
+      meta->bind_member("currentConnection", new grt::MetaClass::Property<workbench_physical_Model,db_mgmt_ConnectionRef >(getter,setter));
     }
     {
       void (workbench_physical_Model::*setter)(const grt::ListRef<workbench_physical_Diagram> &)= 0;
@@ -1266,9 +1276,9 @@ public:
       meta->bind_member("notes", new grt::MetaClass::Property<workbench_physical_Model,grt::ListRef<GrtStoredNote> >(getter,setter));
     }
     {
-      void (workbench_physical_Model::*setter)(const grt::Ref<db_mgmt_Rdbms> &)= &workbench_physical_Model::rdbms;
-      grt::Ref<db_mgmt_Rdbms> (workbench_physical_Model::*getter)() const= &workbench_physical_Model::rdbms;
-      meta->bind_member("rdbms", new grt::MetaClass::Property<workbench_physical_Model,grt::Ref<db_mgmt_Rdbms> >(getter,setter));
+      void (workbench_physical_Model::*setter)(const db_mgmt_RdbmsRef &)= &workbench_physical_Model::rdbms;
+      db_mgmt_RdbmsRef (workbench_physical_Model::*getter)() const= &workbench_physical_Model::rdbms;
+      meta->bind_member("rdbms", new grt::MetaClass::Property<workbench_physical_Model,db_mgmt_RdbmsRef >(getter,setter));
     }
     {
       void (workbench_physical_Model::*setter)(const grt::ListRef<db_Script> &)= &workbench_physical_Model::scripts;

@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "wb_physical_model_diagram_features.h"
 #include "wbcanvas/model_diagram_impl.h"
 #include "wbcanvas/workbench_physical_connection_impl.h"
@@ -304,7 +303,7 @@ void PhysicalModelDiagramFeatures::highlight_table_index(const workbench_physica
     {
       wbfig::Table::ItemList::iterator iter;
       iter= indexes->begin();
-      int i= index_i;
+      ssize_t i = index_i;
       while (iter != indexes->end() && --i >= 0) ++iter;
       if (iter != indexes->end())
       {

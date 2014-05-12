@@ -31,12 +31,12 @@
 
 #include "Scintilla.h"
 #include "ILexer.h"
-#include "LexerModule.h"
-#include "WordList.h"
-#include "Catalogue.h"
-#include "PropSetSimple.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
+#include "../lexlib/LexerModule.h"
+#include "../lexlib/WordList.h"
+#include "../src/Catalogue.h"
+#include "../lexlib/PropSetSimple.h"
+#include "../lexlib/LexAccessor.h"
+#include "../lexlib/Accessor.h"
 
 #pragma warning (disable: 4275) // Use of dll-interface for a class derived from one without dll-interface.
 

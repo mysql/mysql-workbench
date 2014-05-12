@@ -66,11 +66,11 @@ typedef grt::Ref<app_Application> app_ApplicationRef;
 
 
 namespace mforms { 
-	class Object;
+  class Object;
 }; 
 
 namespace grt { 
-	class AutoPyObject;
+  class AutoPyObject;
 }; 
 
 class  app_PluginInputDefinition : public GrtObject
@@ -1593,14 +1593,14 @@ obj.orientation = value
    \par In Python:
 value = obj.paperType
    */
-  grt::Ref<app_PaperType> paperType() const { return _paperType; }
+  app_PaperTypeRef paperType() const { return _paperType; }
   /** Setter for attribute paperType
    
     type of paper size (A4, letter etc)
     \par In Python:
 obj.paperType = value
    */
-  virtual void paperType(const grt::Ref<app_PaperType> &value)
+  virtual void paperType(const app_PaperTypeRef &value)
   {
     grt::ValueRef ovalue(_paperType);
    _paperType= value;
@@ -1634,7 +1634,7 @@ protected:
   grt::DoubleRef _marginRight;
   grt::DoubleRef _marginTop;
   grt::StringRef _orientation;
-  grt::Ref<app_PaperType> _paperType;
+  app_PaperTypeRef _paperType;
   grt::DoubleRef _scale;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -1675,9 +1675,9 @@ public:
       meta->bind_member("orientation", new grt::MetaClass::Property<app_PageSettings,grt::StringRef >(getter,setter));
     }
     {
-      void (app_PageSettings::*setter)(const grt::Ref<app_PaperType> &)= &app_PageSettings::paperType;
-      grt::Ref<app_PaperType> (app_PageSettings::*getter)() const= &app_PageSettings::paperType;
-      meta->bind_member("paperType", new grt::MetaClass::Property<app_PageSettings,grt::Ref<app_PaperType> >(getter,setter));
+      void (app_PageSettings::*setter)(const app_PaperTypeRef &)= &app_PageSettings::paperType;
+      app_PaperTypeRef (app_PageSettings::*getter)() const= &app_PageSettings::paperType;
+      meta->bind_member("paperType", new grt::MetaClass::Property<app_PageSettings,app_PaperTypeRef >(getter,setter));
     }
     {
       void (app_PageSettings::*setter)(const grt::DoubleRef &)= &app_PageSettings::scale;
@@ -2997,14 +2997,14 @@ obj.license = value
    \par In Python:
 value = obj.version
    */
-  grt::Ref<GrtVersion> version() const { return _version; }
+  GrtVersionRef version() const { return _version; }
   /** Setter for attribute version
    
     the version of the application
     \par In Python:
 obj.version = value
    */
-  virtual void version(const grt::Ref<GrtVersion> &value)
+  virtual void version(const GrtVersionRef &value)
   {
     grt::ValueRef ovalue(_version);
 
@@ -3019,7 +3019,7 @@ protected:
   grt::StringRef _description;
   grt::StringRef _edition;
   grt::StringRef _license;
-  grt::Ref<GrtVersion> _version;// owned
+  GrtVersionRef _version;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -3059,9 +3059,9 @@ public:
       meta->bind_member("license", new grt::MetaClass::Property<app_Info,grt::StringRef >(getter,setter));
     }
     {
-      void (app_Info::*setter)(const grt::Ref<GrtVersion> &)= &app_Info::version;
-      grt::Ref<GrtVersion> (app_Info::*getter)() const= &app_Info::version;
-      meta->bind_member("version", new grt::MetaClass::Property<app_Info,grt::Ref<GrtVersion> >(getter,setter));
+      void (app_Info::*setter)(const GrtVersionRef &)= &app_Info::version;
+      GrtVersionRef (app_Info::*getter)() const= &app_Info::version;
+      meta->bind_member("version", new grt::MetaClass::Property<app_Info,GrtVersionRef >(getter,setter));
     }
   }
 };
@@ -3104,14 +3104,14 @@ public:
    \par In Python:
 value = obj.info
    */
-  grt::Ref<app_DocumentInfo> info() const { return _info; }
+  app_DocumentInfoRef info() const { return _info; }
   /** Setter for attribute info
    
     user supplied info about the document
     \par In Python:
 obj.info = value
    */
-  virtual void info(const grt::Ref<app_DocumentInfo> &value)
+  virtual void info(const app_DocumentInfoRef &value)
   {
     grt::ValueRef ovalue(_info);
 
@@ -3126,14 +3126,14 @@ obj.info = value
    \par In Python:
 value = obj.pageSettings
    */
-  grt::Ref<app_PageSettings> pageSettings() const { return _pageSettings; }
+  app_PageSettingsRef pageSettings() const { return _pageSettings; }
   /** Setter for attribute pageSettings
    
     
     \par In Python:
 obj.pageSettings = value
    */
-  virtual void pageSettings(const grt::Ref<app_PageSettings> &value)
+  virtual void pageSettings(const app_PageSettingsRef &value)
   {
     grt::ValueRef ovalue(_pageSettings);
 
@@ -3144,8 +3144,8 @@ obj.pageSettings = value
 protected:
 
   grt::DictRef _customData;
-  grt::Ref<app_DocumentInfo> _info;// owned
-  grt::Ref<app_PageSettings> _pageSettings;// owned
+  app_DocumentInfoRef _info;// owned
+  app_PageSettingsRef _pageSettings;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -3165,14 +3165,14 @@ public:
       meta->bind_member("customData", new grt::MetaClass::Property<app_Document,grt::DictRef >(getter,setter));
     }
     {
-      void (app_Document::*setter)(const grt::Ref<app_DocumentInfo> &)= &app_Document::info;
-      grt::Ref<app_DocumentInfo> (app_Document::*getter)() const= &app_Document::info;
-      meta->bind_member("info", new grt::MetaClass::Property<app_Document,grt::Ref<app_DocumentInfo> >(getter,setter));
+      void (app_Document::*setter)(const app_DocumentInfoRef &)= &app_Document::info;
+      app_DocumentInfoRef (app_Document::*getter)() const= &app_Document::info;
+      meta->bind_member("info", new grt::MetaClass::Property<app_Document,app_DocumentInfoRef >(getter,setter));
     }
     {
-      void (app_Document::*setter)(const grt::Ref<app_PageSettings> &)= &app_Document::pageSettings;
-      grt::Ref<app_PageSettings> (app_Document::*getter)() const= &app_Document::pageSettings;
-      meta->bind_member("pageSettings", new grt::MetaClass::Property<app_Document,grt::Ref<app_PageSettings> >(getter,setter));
+      void (app_Document::*setter)(const app_PageSettingsRef &)= &app_Document::pageSettings;
+      app_PageSettingsRef (app_Document::*getter)() const= &app_Document::pageSettings;
+      meta->bind_member("pageSettings", new grt::MetaClass::Property<app_Document,app_PageSettingsRef >(getter,setter));
     }
   }
 };
@@ -3216,14 +3216,14 @@ public:
    \par In Python:
 value = obj.doc
    */
-  grt::Ref<app_Document> doc() const { return _doc; }
+  app_DocumentRef doc() const { return _doc; }
   /** Setter for attribute doc
    
     the document the application is working with
     \par In Python:
 obj.doc = value
    */
-  virtual void doc(const grt::Ref<app_Document> &value)
+  virtual void doc(const app_DocumentRef &value)
   {
     grt::ValueRef ovalue(_doc);
 
@@ -3237,14 +3237,14 @@ obj.doc = value
    \par In Python:
 value = obj.info
    */
-  grt::Ref<app_Info> info() const { return _info; }
+  app_InfoRef info() const { return _info; }
   /** Setter for attribute info
    
     information about the application
     \par In Python:
 obj.info = value
    */
-  virtual void info(const grt::Ref<app_Info> &value)
+  virtual void info(const app_InfoRef &value)
   {
     grt::ValueRef ovalue(_info);
    _info= value;
@@ -3257,14 +3257,14 @@ obj.info = value
    \par In Python:
 value = obj.options
    */
-  grt::Ref<app_Options> options() const { return _options; }
+  app_OptionsRef options() const { return _options; }
   /** Setter for attribute options
    
     application options
     \par In Python:
 obj.options = value
    */
-  virtual void options(const grt::Ref<app_Options> &value)
+  virtual void options(const app_OptionsRef &value)
   {
     grt::ValueRef ovalue(_options);
    _options= value;
@@ -3277,14 +3277,14 @@ obj.options = value
    \par In Python:
 value = obj.registry
    */
-  grt::Ref<app_Registry> registry() const { return _registry; }
+  app_RegistryRef registry() const { return _registry; }
   /** Setter for attribute registry
    
     information about the application
     \par In Python:
 obj.registry = value
    */
-  virtual void registry(const grt::Ref<app_Registry> &value)
+  virtual void registry(const app_RegistryRef &value)
   {
     grt::ValueRef ovalue(_registry);
    _registry= value;
@@ -3297,14 +3297,14 @@ obj.registry = value
    \par In Python:
 value = obj.starters
    */
-  grt::Ref<app_Starters> starters() const { return _starters; }
+  app_StartersRef starters() const { return _starters; }
   /** Setter for attribute starters
    
     Application starters
     \par In Python:
 obj.starters = value
    */
-  virtual void starters(const grt::Ref<app_Starters> &value)
+  virtual void starters(const app_StartersRef &value)
   {
     grt::ValueRef ovalue(_starters);
    _starters= value;
@@ -3330,11 +3330,11 @@ public:
 protected:
 
   grt::DictRef _customData;
-  grt::Ref<app_Document> _doc;// owned
-  grt::Ref<app_Info> _info;
-  grt::Ref<app_Options> _options;
-  grt::Ref<app_Registry> _registry;
-  grt::Ref<app_Starters> _starters;
+  app_DocumentRef _doc;// owned
+  app_InfoRef _info;
+  app_OptionsRef _options;
+  app_RegistryRef _registry;
+  app_StartersRef _starters;
   grt::DictRef _state;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -3355,29 +3355,29 @@ public:
       meta->bind_member("customData", new grt::MetaClass::Property<app_Application,grt::DictRef >(getter,setter));
     }
     {
-      void (app_Application::*setter)(const grt::Ref<app_Document> &)= &app_Application::doc;
-      grt::Ref<app_Document> (app_Application::*getter)() const= &app_Application::doc;
-      meta->bind_member("doc", new grt::MetaClass::Property<app_Application,grt::Ref<app_Document> >(getter,setter));
+      void (app_Application::*setter)(const app_DocumentRef &)= &app_Application::doc;
+      app_DocumentRef (app_Application::*getter)() const= &app_Application::doc;
+      meta->bind_member("doc", new grt::MetaClass::Property<app_Application,app_DocumentRef >(getter,setter));
     }
     {
-      void (app_Application::*setter)(const grt::Ref<app_Info> &)= &app_Application::info;
-      grt::Ref<app_Info> (app_Application::*getter)() const= &app_Application::info;
-      meta->bind_member("info", new grt::MetaClass::Property<app_Application,grt::Ref<app_Info> >(getter,setter));
+      void (app_Application::*setter)(const app_InfoRef &)= &app_Application::info;
+      app_InfoRef (app_Application::*getter)() const= &app_Application::info;
+      meta->bind_member("info", new grt::MetaClass::Property<app_Application,app_InfoRef >(getter,setter));
     }
     {
-      void (app_Application::*setter)(const grt::Ref<app_Options> &)= &app_Application::options;
-      grt::Ref<app_Options> (app_Application::*getter)() const= &app_Application::options;
-      meta->bind_member("options", new grt::MetaClass::Property<app_Application,grt::Ref<app_Options> >(getter,setter));
+      void (app_Application::*setter)(const app_OptionsRef &)= &app_Application::options;
+      app_OptionsRef (app_Application::*getter)() const= &app_Application::options;
+      meta->bind_member("options", new grt::MetaClass::Property<app_Application,app_OptionsRef >(getter,setter));
     }
     {
-      void (app_Application::*setter)(const grt::Ref<app_Registry> &)= &app_Application::registry;
-      grt::Ref<app_Registry> (app_Application::*getter)() const= &app_Application::registry;
-      meta->bind_member("registry", new grt::MetaClass::Property<app_Application,grt::Ref<app_Registry> >(getter,setter));
+      void (app_Application::*setter)(const app_RegistryRef &)= &app_Application::registry;
+      app_RegistryRef (app_Application::*getter)() const= &app_Application::registry;
+      meta->bind_member("registry", new grt::MetaClass::Property<app_Application,app_RegistryRef >(getter,setter));
     }
     {
-      void (app_Application::*setter)(const grt::Ref<app_Starters> &)= &app_Application::starters;
-      grt::Ref<app_Starters> (app_Application::*getter)() const= &app_Application::starters;
-      meta->bind_member("starters", new grt::MetaClass::Property<app_Application,grt::Ref<app_Starters> >(getter,setter));
+      void (app_Application::*setter)(const app_StartersRef &)= &app_Application::starters;
+      app_StartersRef (app_Application::*getter)() const= &app_Application::starters;
+      meta->bind_member("starters", new grt::MetaClass::Property<app_Application,app_StartersRef >(getter,setter));
     }
     {
       void (app_Application::*setter)(const grt::DictRef &)= &app_Application::state;

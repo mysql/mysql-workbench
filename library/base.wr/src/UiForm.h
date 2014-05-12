@@ -19,10 +19,6 @@
 
 #pragma once
 
-#pragma make_public(bec::UIForm)
-#pragma make_public(bec::MenuItem)
-#pragma make_public(bec::ToolbarItem)
-
 namespace MySQL {
 namespace Base {
 

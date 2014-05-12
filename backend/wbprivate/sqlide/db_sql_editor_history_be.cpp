@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include <fstream>
 #include <glib/gstdio.h>
@@ -80,7 +78,7 @@ void DbSqlEditorHistory::load()
 
 void DbSqlEditorHistory::add_entry(const std::list<std::string> &statements)
 {
-  int old_date_count = _details_model->count();
+  size_t old_date_count = _details_model->count();
   _entries_model->add_statements(statements);
 
   if (_entries_model->get_ui_usage())
@@ -217,7 +215,7 @@ void DbSqlEditorHistory::EntriesModel::add_statements(const std::list<std::strin
   if (new_date)
   {
     refresh_ui();
-    _owner->current_entry(_row_count-1);
+    _owner->current_entry((int)_row_count - 1);
   }
 
   if(_ui_usage)
@@ -268,7 +266,7 @@ bool DbSqlEditorHistory::EntriesModel::activate_popup_item_for_nodes(const std::
 {
   if (action == "delete_selection")
   {
-    std::vector<int> rows;
+    std::vector<size_t> rows;
     rows.reserve(orig_nodes.size());
     BOOST_FOREACH (const bec::NodeId &node, orig_nodes)
       rows.push_back(node[0]);
@@ -293,21 +291,21 @@ void DbSqlEditorHistory::EntriesModel::delete_all_entries()
                                       "Delete All", "Cancel", "") == mforms::ResultCancel)
     return;
   
-  std::vector<int> rows;
+  std::vector<size_t> rows;
   rows.reserve(_row_count);
   for (RowId row= 0; row < _row_count; ++row)
     rows.push_back(row);
   delete_entries(rows);  
 }
 
-void DbSqlEditorHistory::EntriesModel::delete_entries(const std::vector<int> &rows)
+void DbSqlEditorHistory::EntriesModel::delete_entries(const std::vector<size_t> &rows)
 {
   if (rows.empty())
     return;
   {
-    std::vector<int> sorted_rows= rows;
+    std::vector<size_t> sorted_rows = rows;
     std::sort(sorted_rows.begin(), sorted_rows.end());
-    BOOST_REVERSE_FOREACH (int row, sorted_rows)
+    BOOST_REVERSE_FOREACH (size_t row, sorted_rows)
     {
       try
       {
@@ -326,7 +324,7 @@ void DbSqlEditorHistory::EntriesModel::delete_entries(const std::vector<int> &ro
   _owner->current_entry(-1);
 }
 
-std::string DbSqlEditorHistory::EntriesModel::entry_path(int index)
+std::string DbSqlEditorHistory::EntriesModel::entry_path(size_t index)
 {
   std::string name;
   get_field(index, 0, name);
@@ -335,16 +333,16 @@ std::string DbSqlEditorHistory::EntriesModel::entry_path(int index)
   return storage_file_path;
 }
 
-std::tm DbSqlEditorHistory::EntriesModel::entry_date(int index)
+std::tm DbSqlEditorHistory::EntriesModel::entry_date(size_t index)
 {
   tm t;
   std::string name;
   get_field(index, 0, name);
 
   memset(&t, 0, sizeof(t));
-  t.tm_year= atoi(&name[0])-1900;
-  t.tm_mon= atoi(&name[5])-1;
-  t.tm_mday= atoi(&name[8]);
+  t.tm_year = atoi(&name[0]) - 1900;
+  t.tm_mon = atoi(&name[5]) - 1;
+  t.tm_mday = atoi(&name[8]);
 
   return t;
 }
@@ -420,7 +418,8 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
         std::getline(history_xml, line);
 
         // executes the regexp against the new line
-        int rc = pcre_exec(patre, NULL, line.c_str(), line.length(), 0, 0, patres, sizeof(patres)/sizeof(int));
+        int rc = pcre_exec(patre, NULL, line.c_str(), (int)line.length(), 0, 0, patres,
+          sizeof(patres) / sizeof(int));
 
         if ( rc > 0 )
         {
@@ -463,7 +462,7 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
 
       _data_frame_end= _row_count;
 
-      _last_loaded_row= _row_count-1;
+      _last_loaded_row = (int)_row_count - 1;
     }
     else
       log_error("Can't open SQL history file %s\n", storage_file_path.c_str());
@@ -508,11 +507,11 @@ void DbSqlEditorHistory::DetailsModel::save()
     get_field(NodeId(_last_loaded_row), 0, last_saved_timestamp);
     get_field(NodeId(_last_loaded_row), 1, last_saved_statement);
 
-    for (RowId row= _last_loaded_row+1; row < _row_count; ++row)
+    for (RowId row = _last_loaded_row+1; row < _row_count; ++row)
     {
       std::string time, sql;
-      get_field(NodeId(row), 0, time);
-      get_field(NodeId(row), 1, sql);
+      get_field(NodeId((int)row), 0, time);
+      get_field(NodeId((int)row), 1, sql);
 
       if (time == last_saved_timestamp)
         time = "~";
@@ -529,7 +528,7 @@ void DbSqlEditorHistory::DetailsModel::save()
       TiXmlBase::EncodeString(sql, &xml_sql); 
       ofs << "<ENTRY timestamp=\'" << xml_time << "\'>" << xml_sql << "</ENTRY>\n";
     }
-    _last_loaded_row= _row_count - 1;
+    _last_loaded_row = (int)_row_count - 1;
   }
   ofs.flush();
 }

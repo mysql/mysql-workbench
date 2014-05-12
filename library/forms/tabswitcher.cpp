@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "mforms/mforms.h"
 
 #define SIDE_PADDING 12
@@ -162,9 +160,9 @@ public:
     _items.push_back(item);
     
     if (_selected == -1)
-      set_selected(_items.size() - 1);
+      set_selected((int)_items.size() - 1);
 
-    return _items.size() - 1;
+    return (int)_items.size() - 1;
   }
   
   
@@ -263,7 +261,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
       
       if (_first_visible + items_that_fit > (int)_items.size())
       {
-        _first_visible = _items.size() - items_that_fit;
+        _first_visible = (int)_items.size() - items_that_fit;
         if (_first_visible < 0)
           _first_visible = 0;
       }
@@ -400,7 +398,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
     for (size_t i = 0; i < _items.size(); i++)
     {
       if (y < (int)(i+1) * VERTICAL_STYLE_HEIGHT)
-        return i + _first_visible;
+        return (int)i + _first_visible;
     }
     return -1;
   }

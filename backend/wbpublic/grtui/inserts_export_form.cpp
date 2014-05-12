@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "inserts_export_form.h"
 #include "sqlide/recordset_text_storage.h"
 #include "sqlide/recordset_sql_storage.h"
@@ -41,7 +39,7 @@ InsertsExportForm::InsertsExportForm(mforms::Form *owner, Recordset::Ref rset, c
   {
     extlist.append("|").append(_storage_types[i].description);
     extlist.append("|").append(_storage_types[i].extension);
-    _storage_type_index[_storage_types[i].description] = i;
+    _storage_type_index[_storage_types[i].description] = (int)i;
   }
   
   if (extlist.empty())

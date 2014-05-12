@@ -16,11 +16,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#define NOMINMAX
+
 #include "base/string_utilities.h"
 #include "base/file_functions.h"
 #include "base/log.h"
 
+#ifndef _WIN32
 #include <stdexcept>
 #include <functional>
 #include <locale>
@@ -30,6 +31,7 @@
 #include <string.h>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#endif
 
 DEFAULT_LOG_DOMAIN(DOMAIN_BASE);
 
@@ -332,6 +334,8 @@ std::string path_from_utf8(const std::string &s)
 
 std::string string_to_path_for_open(const std::string &s)
 {
+  // XXX: convert from utf-8 to wide string and then back to utf-8?
+  //      How can this help in any way here?
 #ifdef _WIN32
   std::wstring ws = string_to_wstring(s);
   int buflen = GetShortPathNameW(ws.c_str(), NULL, 0);
@@ -442,7 +446,7 @@ std::string trim(const std::string& s, const std::string& t)
  */
 std::string tolower(const std::string& s)
 {
-  char *str_down = g_utf8_strdown(s.c_str(), s.length());
+  char *str_down = g_utf8_strdown(s.c_str(), (gsize)s.length());
   std::string result(str_down);
   g_free(str_down);
   return result;
@@ -452,7 +456,7 @@ std::string tolower(const std::string& s)
 
 std::string toupper(const std::string& s)
 {
-  char *str_up= g_utf8_strup(s.c_str(), s.length());
+  char *str_up= g_utf8_strup(s.c_str(), (gsize)s.length());
   std::string result(str_up);
   g_free(str_up);
   return result;
@@ -481,7 +485,7 @@ std::string truncate_text(const std::string& s, int max_length)
 std::string sanitize_utf8(const std::string& s)
 {
   const char *end = 0;
-  if (!g_utf8_validate(s.data(), s.size(), &end))
+  if (!g_utf8_validate(s.data(), (gsize)s.size(), &end))
     return std::string(s.data(), end);
   return s;
 }
@@ -685,7 +689,7 @@ int index_of(const std::vector<std::string> &list, const std::string &s)
   std::vector<std::string>::const_iterator location = std::find(list.begin(), list.end(), s);
   if (location == list.end())
     return -1;
-  return location - list.begin();
+  return (int)(location - list.begin());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -960,7 +964,7 @@ std::string normalize_path(const std::string path)
   // Construct result backwards while examining the path parts.
   result= "";
   int pending_count= 0;
-  for (int i= parts.size() - 1; i >= 0; i--)
+  for (ssize_t i= parts.size() - 1; i >= 0; i--)
   {
     if (parts[i].compare(".") == 0)
       // References to the current directory can be removed without further change.
@@ -1061,7 +1065,7 @@ bool starts_with(const std::string& s, const std::string& part)
  */
 bool ends_with(const std::string& s, const std::string& part)
 {
-  int start_at = s.length() - part.length();
+  int start_at = (int)s.length() - (int)part.length();
   
   // If start_at < 0 then the search string is bigger then the source, so the results is false.
   // On the other hand, if it starts after the end, something went wrong...
@@ -1406,7 +1410,7 @@ bool parse_font_description(const std::string &fontspec, std::string &font, floa
 std::string unquote_identifier(const std::string& identifier)
 {
   int start = 0;
-  int size = identifier.size();
+  int size = (int)identifier.size();
 
   if (size == 0)
     return "";
@@ -1612,7 +1616,7 @@ int EolHelpers::count_lines(const std::string &text)
 {
   Eol_format eol_format= detect(text);
   char eol_sym= (eol_cr == eol_format) ? '\r' : '\n';
-  return std::count(text.begin(), text.end(), eol_sym);
+  return (int)std::count(text.begin(), text.end(), eol_sym);
 }
 
 bool EolHelpers::check(const std::string &text)
@@ -1691,9 +1695,9 @@ void EolHelpers::fix(const std::string &src_text, std::string &dest_text, Eol_fo
   dest_text.clear();
   if (eol_crlf == eol_format)
   {
-    int cr_count= std::count(src_text.begin(), src_text.end(), '\r');
-    int lf_count= std::count(src_text.begin(), src_text.end(), '\n');
-    int crlf_count= 0;
+    int cr_count = (int)std::count(src_text.begin(), src_text.end(), '\r');
+    int lf_count = (int)std::count(src_text.begin(), src_text.end(), '\n');
+    int crlf_count = 0;
     {
       std::string::size_type pos= 0;
       while ((pos= src_text.find(dest_eol, pos)) != std::string::npos)
@@ -1733,7 +1737,7 @@ std::string reflow_text(const std::string &text, unsigned int line_length, const
 
   //  Only use left_fill when it's small enough to fit in the line and make the function able
   //  to do what it has to do
-  const unsigned int left_fill_length = left_fill.size();
+  const unsigned int left_fill_length = (unsigned)left_fill.size();
   
   if (left_fill_length + minimum_text_length >= line_length)
     use_fill = false;
@@ -1745,7 +1749,7 @@ std::string reflow_text(const std::string &text, unsigned int line_length, const
   //  Check if it's a valid utf8 string
   const char *invalid_data_ptr = NULL;
 
-  if (g_utf8_validate(text.c_str(), text.size(), &invalid_data_ptr) != TRUE)
+  if (g_utf8_validate(text.c_str(), (gsize)text.size(), &invalid_data_ptr) != TRUE)
     throw std::invalid_argument(std::string("base::reflow_text received an invalid string: ") + text);
   
   const std::string initial = (indent_first && use_fill) ? left_fill : "";
@@ -1773,7 +1777,7 @@ std::string reflow_text(const std::string &text, unsigned int line_length, const
 
     if (g_unichar_isspace(*iter) && line_char_counter > left_fill_length)
     {
-        space_position_source = iter - char_string + 1;
+        space_position_source = (unsigned)(iter - char_string + 1);
         char_count_after_space = 0;
     }
 
@@ -1790,7 +1794,7 @@ std::string reflow_text(const std::string &text, unsigned int line_length, const
       else
       {
         //  Find last space character position in the result string
-        unsigned int break_position = space_position_source + line_counter * new_line.size() + initial.size();
+        unsigned int break_position = space_position_source + line_counter * (unsigned)new_line.size() + (unsigned)initial.size();
 
         //  Insert a \n in the right position, right after the space char(or at the end of the string)
         result.size() == break_position ? result += new_line : result.insert(break_position, new_line);

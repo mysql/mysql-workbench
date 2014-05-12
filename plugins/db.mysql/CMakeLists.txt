@@ -5,7 +5,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/base
     ${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
-    ${PROJECT_SOURCE_DIR}/library/dbc/src
+    ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/modules/interfaces
     ${PROJECT_SOURCE_DIR}/modules/

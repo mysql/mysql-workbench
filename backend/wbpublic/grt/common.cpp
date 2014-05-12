@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #include "base/string_utilities.h"
 #include "base/threading.h"
@@ -162,14 +161,14 @@ namespace bec {
         }
         else if (filter.compare("lower") == 0)
         {
-          gchar *l= g_utf8_strdown(value.data(), value.size());
+          gchar *l= g_utf8_strdown(value.data(), (gssize)value.size());
           if (l)
             filtered_value= l;
           g_free(l);
         }
         else if (filter.compare("upper") == 0)
         {
-          gchar *l= g_utf8_strup(value.data(), value.size());
+          gchar *l= g_utf8_strup(value.data(), (gssize)value.size());
           if (l)
             filtered_value= l;
           g_free(l);

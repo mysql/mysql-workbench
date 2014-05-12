@@ -91,7 +91,7 @@ namespace MySQL.Controls
       base.Dispose(disposing);
     }
 
-    public GridView(GridModel model)
+    public GridView(GridModelWrapper model)
     {
       fieldNullBitmap = Resources.field_overlay_null;
       fieldBlobBitmap = Resources.field_overlay_blob;
@@ -116,7 +116,7 @@ namespace MySQL.Controls
 			GridColor = gridColor;
     }
 
-    public GridModel Model { get; set; }
+    public GridModelWrapper Model { get; set; }
 
     public void ProcessModelChange()
     {
@@ -128,7 +128,7 @@ namespace MySQL.Controls
       ReadOnly = Model.is_readonly();
 
       CustomDataGridViewTextBoxColumn[] columns = new CustomDataGridViewTextBoxColumn[Model.get_column_count()];
-      for (int i= 0; i < Model.get_column_count(); i++)
+      for (int i = 0; i < Model.get_column_count(); i++)
       {
         CustomDataGridViewTextBoxColumn column= new CustomDataGridViewTextBoxColumn();
         column.AdditionalColumnWidth = AdditionalColumnWidth;
@@ -136,15 +136,15 @@ namespace MySQL.Controls
         Type columnValueType;
         switch (Model.get_column_type(i))
         {
-          case GridModel.ColumnType.DatetimeType:
+          case GridModelWrapper.ColumnType.DatetimeType:
             columnValueType = typeof(DateTime);//! needs corresponding set_field or conversion to string. see PushValue
             column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopLeft;
             break;
-          case GridModel.ColumnType.NumericType:
+          case GridModelWrapper.ColumnType.NumericType:
             columnValueType = typeof(long);
             column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopRight;
             break;
-          case GridModel.ColumnType.FloatType:
+          case GridModelWrapper.ColumnType.FloatType:
             columnValueType = typeof(double);
             column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopRight;
             break;
@@ -287,7 +287,7 @@ namespace MySQL.Controls
       if (e.ColumnIndex < 0 || e.RowIndex < 0)
         return;
 
-      NodeId nodeId = new NodeId(e.RowIndex);
+      NodeIdWrapper NodeIdWrapper = new NodeIdWrapper(e.RowIndex);
       Bitmap icon = null;
       Rectangle rect = e.CellBounds;
 
@@ -295,7 +295,7 @@ namespace MySQL.Controls
       {
         // Check if we have to draw a busy indicator.
         int type;
-        Model.get_field(nodeId, 0, out type);
+        Model.get_field(NodeIdWrapper, 0, out type);
         if ((MessageType) type == MessageType.BusyMsg)
         {
           icon = (e.RowIndex % 2 == 1) ? Resources.busy_indicator_lightblue : Resources.busy_indicator_white;
@@ -308,8 +308,8 @@ namespace MySQL.Controls
 
       if (icon == null)
       {
-        int iconId = Model.get_field_icon(nodeId, e.ColumnIndex, IconSize.Icon16);
-        icon = GrtIconManager.get_instance().get_icon(iconId);
+        int iconId = Model.get_field_icon(NodeIdWrapper, e.ColumnIndex, IconSize.Icon16);
+        icon = IconManagerWrapper.get_instance().get_icon(iconId);
         if (icon != null)
         {
           rect.Size = icon.Size;
@@ -379,7 +379,7 @@ namespace MySQL.Controls
       if (refreshing || Model == null)
         return;
       for (int i = 0; i < e.RowCount; i++)
-        Model.delete_node(new NodeId(e.RowIndex));
+        Model.delete_node(new NodeIdWrapper(e.RowIndex));
     }
 
     protected override void OnNewRowNeeded(DataGridViewRowEventArgs e)
@@ -409,7 +409,7 @@ namespace MySQL.Controls
 
       switch (Model.get_column_type(e.ColumnIndex))
       {
-        case GridModel.ColumnType.BlobType:
+        case GridModelWrapper.ColumnType.BlobType:
           e.Cancel = true;
           break;
       }
@@ -442,7 +442,7 @@ namespace MySQL.Controls
       {
         if (typeof(string) != Columns[e.ColumnIndex].ValueType)
         {
-          Model.set_field_null(new NodeId(e.RowIndex), e.ColumnIndex);
+          Model.set_field_null(new NodeIdWrapper(e.RowIndex), e.ColumnIndex);
         }
         else
           e.Value = "";
@@ -452,13 +452,13 @@ namespace MySQL.Controls
       {
         Type t = e.Value.GetType();
         if (typeof(string) == t)
-          Model.set_field(new NodeId(e.RowIndex), e.ColumnIndex, (string)e.Value);
+          Model.set_field(new NodeIdWrapper(e.RowIndex), e.ColumnIndex, (string)e.Value);
         else if (typeof(double) == t)
-          Model.set_field(new NodeId(e.RowIndex), e.ColumnIndex, (double)e.Value);
+          Model.set_field(new NodeIdWrapper(e.RowIndex), e.ColumnIndex, (double)e.Value);
         else if (typeof(int) == t)
-          Model.set_field(new NodeId(e.RowIndex), e.ColumnIndex, (int)e.Value);
+          Model.set_field(new NodeIdWrapper(e.RowIndex), e.ColumnIndex, (int)e.Value);
         else if (typeof(long) == t)
-          Model.set_field(new NodeId(e.RowIndex), e.ColumnIndex, (long)e.Value);
+          Model.set_field(new NodeIdWrapper(e.RowIndex), e.ColumnIndex, (long)e.Value);
       }
     }
 
@@ -470,7 +470,7 @@ namespace MySQL.Controls
         return;
 
       String value;
-      Model.get_field_repr(new NodeId(e.RowIndex), e.ColumnIndex, out value);
+      Model.get_field_repr(new NodeIdWrapper(e.RowIndex), e.ColumnIndex, out value);
       e.Value = value.Replace('\n', ' ');
     }
 
@@ -482,7 +482,7 @@ namespace MySQL.Controls
         return;
 
       String value;
-      Model.get_field_repr(new NodeId(e.RowIndex), e.ColumnIndex, out value);
+      Model.get_field_repr(new NodeIdWrapper(e.RowIndex), e.ColumnIndex, out value);
 
       DataGridViewCell cell = Rows[e.RowIndex].Cells[e.ColumnIndex];
       if ((cell.Size.Width < cell.PreferredSize.Width)
@@ -589,12 +589,12 @@ namespace MySQL.Controls
 
     #endregion
 
-    public List<NodeId> SelectedNodes()
+    public List<NodeIdWrapper> SelectedNodes()
     {
       List<DataGridViewRow> selectedRows = GetSelectedRows();
-      List<NodeId> nodes = new List<NodeId>(selectedRows.Count);
+      List<NodeIdWrapper> nodes = new List<NodeIdWrapper>(selectedRows.Count);
       foreach (DataGridViewRow row in selectedRows)
-        nodes.Add(new NodeId(row.Index));
+        nodes.Add(new NodeIdWrapper(row.Index));
       return nodes;
     }
 

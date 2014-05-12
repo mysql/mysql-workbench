@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,11 +34,11 @@ class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorContextHelp // Made public for tests
 public:
   static bool get_help_text(const SqlEditorForm::Ref &form, const std::string &topic, std::string &title, std::string &text);
   static std::string find_help_topic_from_position(const SqlEditorForm::Ref &form,
-    const std::string &query, std::pair<int, int> caret);
+    const std::string &query, std::pair<ssize_t, ssize_t> caret);
 
 protected:
   static std::string lookup_topic_for_string(const SqlEditorForm::Ref &form, std::string topic);
-  static std::string topic_from_position(const SqlEditorForm::Ref &form, const std::string &query, std::pair<int, int> caret);
+  static std::string topic_from_position(const SqlEditorForm::Ref &form, const std::string &query, std::pair<ssize_t, ssize_t> caret);
 
   static std::string topic_with_single_topic_equivalent(MySQLToken token, MySQLScanner &scanner,
     std::vector<MySQLToken> &tokens, size_t &index);

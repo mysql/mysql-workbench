@@ -1,5 +1,5 @@
-#ifndef __plugin_h_
-#define __plugin_h_
+#ifndef __plugin_h__
+#define __plugin_h__
 // Automatically generated GRT module wrapper. Do not edit.
 
 using namespace grt;

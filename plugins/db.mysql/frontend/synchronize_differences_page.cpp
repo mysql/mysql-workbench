@@ -17,8 +17,6 @@
 * 02110-1301  USA
 */
 
-#include "stdafx.h"
-
 #include "synchronize_differences_page.h"
 #include "base/log.h"
 DEFAULT_LOG_DOMAIN("Synchronize")
@@ -355,11 +353,11 @@ bool SynchronizeDifferencesPage::pre_load()
   if (_tree.count() > 0)
   {
     // Expand all nodes that have modified children.
-    for (int i = 0; i < _diff_tree->count(); ++i)
+    for (size_t i = 0; i < _diff_tree->count(); ++i)
     {
       bec::NodeId schema(i);
       mforms::TreeNodeRef schema_node = root->get_child(i);
-      for (int j = 0; j  < _diff_tree->count_children(schema); ++j)
+      for (size_t j = 0; j  < _diff_tree->count_children(schema); ++j)
       {
         bec::NodeId object(_diff_tree->get_child(schema, j));
 
@@ -368,7 +366,7 @@ bool SynchronizeDifferencesPage::pre_load()
 
         // Expand the object node if it contains sub nodes with changes.
         mforms::TreeNodeRef object_node = schema_node->get_child(j);
-        for (int k = 0; k < _diff_tree->count_children(object); ++k)
+        for (size_t k = 0; k < _diff_tree->count_children(object); ++k)
         {
           if (_diff_tree->get_apply_direction(_diff_tree->get_child(object, k)) != DiffNode::CantApply)
           {

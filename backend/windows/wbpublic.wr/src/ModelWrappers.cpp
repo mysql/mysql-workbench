@@ -17,13 +17,10 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "ConvUtils.h"
 #include "Grt.h"
 #include "GrtTemplates.h"
 #include "DelegateWrapper.h"
-#include "ModelWrappers.h"
 
 #include "ModelWrappers.h"
 
@@ -32,126 +29,127 @@ using namespace MySQL::Workbench;
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId::NodeId(const ::bec::NodeId *inn)
-  : inner(new ::bec::NodeId(*inn))
+NodeIdWrapper::NodeIdWrapper(const bec::NodeId *inn)
+  : inner(new bec::NodeId(*inn))
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId::NodeId()
+NodeIdWrapper::NodeIdWrapper()
   : inner(new ::bec::NodeId()) 
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId::NodeId(int index)
+NodeIdWrapper::NodeIdWrapper(int index)
   : inner(new ::bec::NodeId(index))
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId::NodeId(String ^str)
+NodeIdWrapper::NodeIdWrapper(String ^str)
   : inner(new ::bec::NodeId(NativeToCppString(str)))
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId::~NodeId()
+NodeIdWrapper::~NodeIdWrapper()
 {
   delete inner;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-::bec::NodeId* NodeId::get_unmanaged_object()
+::bec::NodeId* NodeIdWrapper::get_unmanaged_object()
 {
   return inner;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool NodeId::operator == (NodeId^ node)
+bool NodeIdWrapper::operator == (NodeIdWrapper ^node)
 {
   return inner->operator == (*node->inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool NodeId::equals(NodeId^ node)
+bool NodeIdWrapper::equals(NodeIdWrapper ^node)
 {
   return inner->operator == (*node->inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int NodeId::operator[] (int i)
+int NodeIdWrapper::operator[] (int i)
 {
-  return inner->operator[](i);
+  return (int)inner->operator[](i);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int NodeId::get_by_index (int i)
+int NodeIdWrapper::get_by_index(int i)
 {
-  return inner->operator[](i);
+  return (int)inner->operator[](i);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int NodeId::depth()
+int NodeIdWrapper::depth()
 {
-  return inner->depth();
+  return (int)inner->depth();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int NodeId::end()
+int NodeIdWrapper::end()
 {
-  return inner->end();
+  return (int)inner->end();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool NodeId::previous()
+bool NodeIdWrapper::previous()
 {
   return inner->previous();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool NodeId::next()
+bool NodeIdWrapper::next()
 {
   return inner->next();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId^ NodeId::append(int i)
+NodeIdWrapper^ NodeIdWrapper::append(int i)
 {
-  inner->append(i); return this;
+  inner->append(i);
+  return this;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool NodeId::is_valid()
+bool NodeIdWrapper::is_valid()
 {
   return inner->is_valid();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ NodeId::repr()
+String^ NodeIdWrapper::repr()
 {
   return CppStringToNative(inner->repr());
 }
 
 //----------------- ListModel ----------------------------------------------------------------------
 
-ListModel::ListModel(::bec::ListModel *inn)
+ListModelWrapper::ListModelWrapper(bec::ListModel *inn)
   : inner(inn)
 {
   native_connections = new std::vector<boost::signals2::connection>();
@@ -159,7 +157,7 @@ ListModel::ListModel(::bec::ListModel *inn)
 
 //--------------------------------------------------------------------------------------------------
 
-ListModel::~ListModel()
+ListModelWrapper::~ListModelWrapper()
 {
   if (!native_connections)
     return;
@@ -174,40 +172,40 @@ ListModel::~ListModel()
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::is_valid()
+bool ListModelWrapper::is_valid()
 {
   return inner != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::equals(ListModel^ other)
+bool ListModelWrapper::equals(ListModelWrapper ^other)
 {
   return (inner == other->inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int ListModel::count()
+int ListModelWrapper::count()
 {
-  return inner->count();
+  return (int)inner->count();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId^ ListModel::get_node(int index)
+NodeIdWrapper^ ListModelWrapper::get_node(int index)
 {
-  return gcnew NodeId(&inner->get_node(index));
+  return gcnew NodeIdWrapper(&inner->get_node(index));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::get_field(NodeId^ node, int column, [Out] String^ %value)
+bool ListModelWrapper::get_field(NodeIdWrapper^ node, int column, [Out] String^ %value)
 {
   std::string str;
   bool retval= inner->get_field(*node->get_unmanaged_object(), column, str);
   if (retval && str.length() > 0)
-    value= CppStringToNative(str);
+    value = CppStringToNative(str);
   else
     value = "";
   return retval;
@@ -215,62 +213,62 @@ bool ListModel::get_field(NodeId^ node, int column, [Out] String^ %value)
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::get_field(NodeId^ node, int column, [Out] int %value)      
+bool ListModelWrapper::get_field(NodeIdWrapper^ node, int column, [Out] int %value)
 {
-  int v;
+  ssize_t v;
   bool retval= inner->get_field(*node->get_unmanaged_object(), column, v);
-  value= v;
+  value = (int)v;
   return retval;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::get_field(NodeId^ node, int column, [Out] double %value)
+bool ListModelWrapper::get_field(NodeIdWrapper^ node, int column, [Out] double %value)
 {
   double v;
   bool retval= inner->get_field(*node->get_unmanaged_object(), column, v);
-  value= v;
+  value = v;
   return retval;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ ListModel::get_field_description(NodeId^ node, int column)
+String^ ListModelWrapper::get_field_description(NodeIdWrapper^ node, int column)
 {
   return CppStringToNative(inner->get_field_description(*node->get_unmanaged_object(), column));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-IconId ListModel::get_field_icon(NodeId^ node, int column, IconSize size)
+IconId ListModelWrapper::get_field_icon(NodeIdWrapper^ node, int column, IconSize size)
 {
-  return inner->get_field_icon(*node->get_unmanaged_object(), column, (bec::IconSize) size);
+  return (int)inner->get_field_icon(*node->get_unmanaged_object(), column, (bec::IconSize)size);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-GrtValue^ ListModel::get_grt_value(NodeId^ node, int column)
+GrtValue^ ListModelWrapper::get_grt_value(NodeIdWrapper^ node, int column)
 {
   return gcnew GrtValue(inner->get_grt_value(*node->get_unmanaged_object(), column));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListModel::refresh()
+void ListModelWrapper::refresh()
 {
   inner->refresh();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListModel::reset()
+void ListModelWrapper::reset()
 {
   inner->reset();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-GrtValueType^ ListModel::get_field_type(NodeId^ node, int column)
+GrtValueType^ ListModelWrapper::get_field_type(NodeIdWrapper^ node, int column)
 {
   return static_cast<GrtValueType>(inner->get_field_type(*node->get_unmanaged_object(), column));
 }
@@ -278,49 +276,49 @@ GrtValueType^ ListModel::get_field_type(NodeId^ node, int column)
 //--------------------------------------------------------------------------------------------------
 
 // For editable lists only.
-bool ListModel::set_field(NodeId^ node, int column, String^ value)
+bool ListModelWrapper::set_field(NodeIdWrapper^ node, int column, String^ value)
 {
   return inner->set_field(*node->get_unmanaged_object(), column, NativeToCppString(value));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::set_field(NodeId^ node, int column, double value)
+bool ListModelWrapper::set_field(NodeIdWrapper^ node, int column, double value)
 {
   return inner->set_field(*node->get_unmanaged_object(), column, value);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::set_field(NodeId^ node, int column, int value)
+bool ListModelWrapper::set_field(NodeIdWrapper^ node, int column, int value)
 {
-  return inner->set_field(*node->get_unmanaged_object(), column, value);
+  return inner->set_field(*node->get_unmanaged_object(), column, (ssize_t)value);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::set_convert_field(NodeId^ node, int column, String^ value)
+bool ListModelWrapper::set_convert_field(NodeIdWrapper^ node, int column, String^ value)
 {
   return inner->set_convert_field(*node->get_unmanaged_object(), column, NativeToCppString(value));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::activate_node(NodeId^ node)
+bool ListModelWrapper::activate_node(NodeIdWrapper^ node)
 {
   return inner->activate_node(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<bec::NodeId> ListModel::convert_node_list(List<NodeId^> ^nodes)
+std::vector<bec::NodeId> ListModelWrapper::convert_node_list(List<NodeIdWrapper^> ^nodes)
 {
-  return ObjectListToCppVector<NodeId, bec::NodeId>(nodes);
+  return ObjectListToCppVector<NodeIdWrapper, bec::NodeId>(nodes);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-List<MySQL::Base::MenuItem^>^ ListModel::get_popup_items_for_nodes(List<NodeId^> ^nodes)
+List<MySQL::Base::MenuItem^>^ ListModelWrapper::get_popup_items_for_nodes(List<NodeIdWrapper^> ^nodes)
 {
   bec::MenuItemList item_list= inner->get_popup_items_for_nodes(convert_node_list(nodes));
   List<MySQL::Base::MenuItem^> ^items= gcnew List<MySQL::Base::MenuItem^>();
@@ -333,7 +331,7 @@ List<MySQL::Base::MenuItem^>^ ListModel::get_popup_items_for_nodes(List<NodeId^>
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::activate_popup_item_for_nodes(String ^name, List<NodeId^> ^nodes)
+bool ListModelWrapper::activate_popup_item_for_nodes(String ^name, List<NodeIdWrapper^> ^nodes)
 {
   try
   {
@@ -348,42 +346,42 @@ bool ListModel::activate_popup_item_for_nodes(String ^name, List<NodeId^> ^nodes
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::delete_node(NodeId^ node) 
+bool ListModelWrapper::delete_node(NodeIdWrapper^ node) 
 {
   return inner->delete_node(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListModel::reorder(NodeId^ node, int index)
+void ListModelWrapper::reorder(NodeIdWrapper^ node, int index)
 {
   inner->reorder(*node->get_unmanaged_object(), index);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListModel::reorder_up(NodeId^ node)
+void ListModelWrapper::reorder_up(NodeIdWrapper^ node)
 {
   inner->reorder_up(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListModel::reorder_down(NodeId^ node)
+void ListModelWrapper::reorder_down(NodeIdWrapper^ node)
 {
   inner->reorder_down(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool ListModel::is_editable(NodeId^ node)
+bool ListModelWrapper::is_editable(NodeIdWrapper^ node)
 {
   return inner->is_editable(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListModel::add_tree_refresh_handler(TreeRefreshSlot::ManagedDelegate^ slot)
+void ListModelWrapper::add_tree_refresh_handler(TreeRefreshSlot::ManagedDelegate^ slot)
 {
   TreeRefreshSlot ^tree_refresh_handler= gcnew TreeRefreshSlot(slot);
   boost::signals2::connection connection = inner->tree_changed_signal()->connect(tree_refresh_handler->get_slot());
@@ -393,7 +391,7 @@ void ListModel::add_tree_refresh_handler(TreeRefreshSlot::ManagedDelegate^ slot)
 
 //--------------------------------------------------------------------------------------------------
 
-void ListModel::remove_tree_refresh_handler(TreeRefreshSlot::ManagedDelegate^ slot)
+void ListModelWrapper::remove_tree_refresh_handler(TreeRefreshSlot::ManagedDelegate^ slot)
 {
   int i = 0;
   for each (TreeRefreshSlot^ handler in tree_refresh_handlers)
@@ -413,164 +411,164 @@ void ListModel::remove_tree_refresh_handler(TreeRefreshSlot::ManagedDelegate^ sl
 
 //--------------------------------------------------------------------------------------------------
 
-TreeModel::TreeModel(::bec::TreeModel *inn)
-  : ListModel(inn)
+TreeModelWrapper::TreeModelWrapper(::bec::TreeModel *inn)
+  : ListModelWrapper(inn)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-::bec::TreeModel* TreeModel::get_unmanaged_object()
+::bec::TreeModel* TreeModelWrapper::get_unmanaged_object()
 {
   return static_cast<::bec::TreeModel *>(inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId^ TreeModel::get_root()
+NodeIdWrapper^ TreeModelWrapper::get_root()
 {
-  return gcnew NodeId(&get_unmanaged_object()->get_root());
+  return gcnew NodeIdWrapper(&get_unmanaged_object()->get_root());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int TreeModel::get_node_depth(NodeId^ node)
+int TreeModelWrapper::get_node_depth(NodeIdWrapper^ node)
 {
-  return get_unmanaged_object()->get_node_depth(*node->get_unmanaged_object());
+  return (int)get_unmanaged_object()->get_node_depth(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId^ TreeModel::get_parent(NodeId^ node)
+NodeIdWrapper^ TreeModelWrapper::get_parent(NodeIdWrapper^ node)
 {
-  return gcnew NodeId(&get_unmanaged_object()->get_parent(*node->get_unmanaged_object()));
+  return gcnew NodeIdWrapper(&get_unmanaged_object()->get_parent(*node->get_unmanaged_object()));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int TreeModel::count_children(NodeId^ parent)
+int TreeModelWrapper::count_children(NodeIdWrapper ^parent)
 {
-  return get_unmanaged_object()->count_children(*parent->get_unmanaged_object());
+  return (int)get_unmanaged_object()->count_children(*parent->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-NodeId^ TreeModel::get_child(NodeId^ parent, int index)
+NodeIdWrapper^ TreeModelWrapper::get_child(NodeIdWrapper ^parent, int index)
 {
-  return gcnew NodeId(&get_unmanaged_object()->get_child(*parent->get_unmanaged_object(), index));
+  return gcnew NodeIdWrapper(&get_unmanaged_object()->get_child(*parent->get_unmanaged_object(), index));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool TreeModel::expand_node(NodeId^ node)
+bool TreeModelWrapper::expand_node(NodeIdWrapper ^node)
 {
   return get_unmanaged_object()->expand_node(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeModel::collapse_node(NodeId^ node)
+void TreeModelWrapper::collapse_node(NodeIdWrapper ^node)
 {
   return get_unmanaged_object()->collapse_node(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool TreeModel::is_expandable(NodeId^ node)
+bool TreeModelWrapper::is_expandable(NodeIdWrapper ^node)
 {
   return get_unmanaged_object()->is_expandable(*node->get_unmanaged_object());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-GridModel::GridModel(::bec::GridModel *inn)
-  : ListModel(inn)
+GridModelWrapper::GridModelWrapper(::bec::GridModel *inn)
+  : ListModelWrapper(inn)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-::bec::GridModel* GridModel::get_unmanaged_object()
+::bec::GridModel* GridModelWrapper::get_unmanaged_object()
 {
   return static_cast<::bec::GridModel *>(inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int GridModel::get_column_count()
+int GridModelWrapper::get_column_count()
 {
-  return get_unmanaged_object()->get_column_count();
+  return (int)get_unmanaged_object()->get_column_count();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ GridModel::get_column_caption(int column)
+String^ GridModelWrapper::get_column_caption(int column)
 {
   return CppStringToNative(get_unmanaged_object()->get_column_caption(column));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-GridModel::ColumnType GridModel::get_column_type(int column) 
+GridModelWrapper::ColumnType GridModelWrapper::get_column_type(int column)
 {
-  return (GridModel::ColumnType)get_unmanaged_object()->get_column_type(column);
+  return (GridModelWrapper::ColumnType)get_unmanaged_object()->get_column_type(column);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool GridModel::is_readonly()
+bool GridModelWrapper::is_readonly()
 {
   return get_unmanaged_object()->is_readonly();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ GridModel::readonly_reason()
+String^ GridModelWrapper::readonly_reason()
 {
   return CppStringToNative(get_unmanaged_object()->readonly_reason());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool GridModel::is_field_null(NodeId^ node, int column)
+bool GridModelWrapper::is_field_null(NodeIdWrapper^ node, int column)
 {
   return get_unmanaged_object()->is_field_null(*node->get_unmanaged_object(), column);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool GridModel::set_field_null(NodeId^ node, int column)
+bool GridModelWrapper::set_field_null(NodeIdWrapper^ node, int column)
 {
   return get_unmanaged_object()->set_field_null(*node->get_unmanaged_object(), column);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool GridModel::get_field_repr(NodeId^ node, int column, [Out] String^ %value)
+bool GridModelWrapper::get_field_repr(NodeIdWrapper^ node, int column, [Out] String^ %value)
 {
   std::string str;
   bool retval= get_unmanaged_object()->get_field_repr(*node->get_unmanaged_object(), column, str);
-  value= CppStringToNative(str);
+  value = CppStringToNative(str);
   return retval;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void GridModel::set_edited_field(int row_index, int col_index)
+void GridModelWrapper::set_edited_field(int row_index, int col_index)
 {
   get_unmanaged_object()->set_edited_field(row_index, col_index);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void GridModel::sort_columns([Out] List<int>^ %indexes, [Out] List<int>^ %orders)
+void GridModelWrapper::sort_columns([Out] List<int>^ %indexes, [Out] List<int>^ %orders)
 {
   indexes= gcnew List<int>();
   orders= gcnew List<int>();
-  ::bec::GridModel::SortColumns sort_columns= get_unmanaged_object()->sort_columns();
+  bec::GridModel::SortColumns sort_columns= get_unmanaged_object()->sort_columns();
   for (::bec::GridModel::SortColumns::const_iterator i= sort_columns.begin(), i_end= sort_columns.end(); i != i_end; ++i)
   {
-    indexes->Add(i->first);
+    indexes->Add((int)i->first);
     orders->Add(i->second);
   }
 }

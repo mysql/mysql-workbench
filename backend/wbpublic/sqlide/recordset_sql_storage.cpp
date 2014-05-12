@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "recordset_sql_storage.h"
 #include "recordset_be.h"
 #include "grtsqlparser/sql_facade.h"
@@ -60,7 +57,7 @@ std::string PrimaryKeyPredicate::operator()(std::vector<boost::shared_ptr<sqlite
     ColumnId partition_column= Recordset::translate_data_swap_db_column(col, &partition);
     boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
     
-    v = data_row_rs->get_variant(partition_column);
+    v = data_row_rs->get_variant((int)partition_column);
     predicate+= "`" + (*_column_names)[col] + "`=" + boost::apply_visitor(*_qv, (*_column_types)[col], v) + " and";
   }
   if (!predicate.empty())
@@ -157,9 +154,9 @@ void Recordset_sql_storage::do_unserialize(Recordset *recordset, sqlite::connect
         Var_vector row_values(column_names.size());
         std::list<boost::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
         Var_list::iterator var_list_iter= var_list.begin();
-        for (int n= 0, count= var_list.size() / column_names.size(); n < count; ++n)
+        for (size_t n= 0, count= var_list.size() / column_names.size(); n < count; ++n)
         {
-          for (int l= 0, count= column_names.size(); l < count; ++l)
+          for (size_t l = 0, count= column_names.size(); l < count; ++l)
             row_values[l]= *var_list_iter++;
           add_data_swap_record(insert_commands, row_values);
         }
@@ -208,7 +205,7 @@ void Recordset_sql_storage::load_insert_statement(
   {
     *column_names= _affective_columns.empty() ? fields_names : _affective_columns;
     BOOST_FOREACH (const std::string &fn, *column_names)
-      _fields_order.insert(std::make_pair(fn, _fields_order.size()));
+      _fields_order.insert(std::make_pair(fn, (int)_fields_order.size()));
   }
 
   // check fields names & determine fields order
@@ -217,13 +214,13 @@ void Recordset_sql_storage::load_insert_statement(
   {
     Fields_order::const_iterator i= _fields_order.find(fields_names[n]);
     if (_fields_order.end() != i)
-      col_index_map[i->second]= n;
+      col_index_map[i->second]= (int)n;
   }
 
   // insert row
   for (ColumnId n= 0, count= _fields_order.size(); n < count; ++n)
   {
-    std::map<int, int>::const_iterator i= col_index_map.find(n);
+    std::map<int, int>::const_iterator i = col_index_map.find((int)n);
     if ((col_index_map.end() != i) && !null_fields[i->second])
       var_list->push_back(fields_values[i->second]);
     else
@@ -467,7 +464,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
                 ColumnId partition_column= Recordset::translate_data_swap_db_column(column, &partition);
                 boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
 
-                v = data_row_rs->get_variant(partition_column);
+                v = data_row_rs->get_variant((int)partition_column);
 
                 values+= strfmt("%s, ",
                     boost::apply_visitor(qv, column_types[column], v).c_str());
@@ -510,7 +507,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
                 ColumnId partition_column= Recordset::translate_data_swap_db_column(column, &partition);
                 boost::shared_ptr<sqlite::result> &data_row_rs= data_row_results[partition];
 
-                v = data_row_rs->get_variant(partition_column);
+                v = data_row_rs->get_variant((int)partition_column);
                 values+= strfmt("`%s`=%s, ",
                   column_names[column].c_str(),
                   boost::apply_visitor(qv, column_types[column], v).c_str());
@@ -557,7 +554,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
             col_end= std::min<ColumnId>(editable_col_count, (partition + 1) * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
           {
             ColumnId partition_column= col - col_begin;
-            v = data_rs->get_variant(partition_column);
+            v = data_rs->get_variant((int)partition_column);
             values+= strfmt("%s, ",
                   column_quoting[partition_column] || sqlide::is_var_null(v)?
                   boost::apply_visitor(qv, column_types[partition_column], v).c_str():
@@ -631,7 +628,7 @@ void Recordset_sql_storage::generate_inserts(const Recordset *recordset, sqlite:
           col_end= std::min<ColumnId>(editable_col_count, (partition + 1) * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
         {
           ColumnId partition_column= col - col_begin;
-          v = data_rs->get_variant(partition_column);
+          v = data_rs->get_variant((int)partition_column);
           sqlide::VarToStr var_to_str;
 
           std::string value;

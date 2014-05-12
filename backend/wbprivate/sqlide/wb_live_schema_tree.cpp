@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wb_live_schema_tree.h"
 #include "grtdb/charset_utils.h"
 #include "grt/icon_manager.h"
@@ -932,7 +930,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, std::list<
                 // Start is reset to the iterator position
                 start = it;
 
-                last_position = position == -1 ? position : position + _node_collections[type].captions.size();
+                last_position = position == -1 ? position : position + (int)_node_collections[type].captions.size();
 
                 // Shortcut to quit once an item has been found to be located
                 // At the end of the list
@@ -1221,7 +1219,7 @@ void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
           {
               for (size_t index = 0; index < (size_t)tables_node->count(); index++)
               {
-                  mforms::TreeNodeRef pnode = tables_node->get_child(index);
+                mforms::TreeNodeRef pnode = tables_node->get_child((int)index);
                   reload_object_data(pnode);
               }
           }
@@ -1232,7 +1230,7 @@ void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
           {
               for (size_t index = 0; index < (size_t)views_node->count(); index++)
               {
-                  mforms::TreeNodeRef pnode = views_node->get_child(index);
+                mforms::TreeNodeRef pnode = views_node->get_child((int)index);
                   reload_object_data(pnode);
               }
           }
@@ -1515,6 +1513,7 @@ grt::BaseListRef LiveSchemaTree::get_selected_objects()
       switch (current_type)
       {
         case Any:
+        case None:
           break;
         case Schema:
           obj->type("db.Schema");
@@ -1685,11 +1684,11 @@ bec::MenuItemList LiveSchemaTree::get_popup_items_for_nodes(const std::list<mfor
         {
           DictRef options= DictRef::cast_from(_grt->get("/wb/options/options"));
           bool limit_rows= (0 != options.get_int("SqlEditor:LimitRows"));
-          int limit_rows_count= options.get_int("SqlEditor:LimitRowsCount");
+          ssize_t limit_rows_count= options.get_int("SqlEditor:LimitRowsCount");
           if (limit_rows && (limit_rows_count <= 0))
             limit_rows= false;
           if (limit_rows)
-            caption += strfmt(_(" - Limit %i"), limit_rows_count);
+            caption += strfmt(_(" - Limit %zd"), limit_rows_count);
         }
         view_item.caption= caption;
       }

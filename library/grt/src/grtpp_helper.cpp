@@ -17,15 +17,11 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "grtpp_helper.h"
 #include "grtpp_util.h"
 
 #include "base/file_functions.h"
 #include "base/file_utilities.h"
-#include "base/util_functions.h"
 #include "base/string_utilities.h"
 
 #include <stdio.h>
@@ -35,6 +31,7 @@
 
 using namespace grt;
 
+//--------------------------------------------------------------------------------------------------
 
 static std::string cppize_class_name(std::string name)
 {
@@ -44,35 +41,52 @@ static std::string cppize_class_name(std::string name)
   return name;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-static std::string format_type_cpp(const TypeSpec &type, bool unknown_as_void= false)
+static std::string format_type_cpp(const TypeSpec &type, bool unknown_as_void = false)
 {
   std::string s;
   
   switch (type.base.type)
   {
-  case IntegerType: return "grt::IntegerRef";
-  case DoubleType: return "grt::DoubleRef";
-  case StringType: return "grt::StringRef";
+  case IntegerType:
+    return "grt::IntegerRef";
+  case DoubleType:
+    return "grt::DoubleRef";
+  case StringType:
+    return "grt::StringRef";
   case ListType:
     switch (type.content.type)
     {
-    case IntegerType: return "grt::IntegerListRef";
-    case DoubleType: return "grt::DoubleListRef";
-    case StringType: return "grt::StringListRef";
-    case ListType: return "???? invalid ???";
-    case DictType: return "???? invalid ???";
-    case ObjectType: return "grt::ListRef<"+cppize_class_name(type.content.object_class)+">";
-    default: return "??? invalid ???";
+    case IntegerType:
+      return "grt::IntegerListRef";
+    case DoubleType:
+      return "grt::DoubleListRef";
+    case StringType:
+      return "grt::StringListRef";
+    case ListType:
+      return "???? invalid ???";
+    case DictType:
+      return "???? invalid ???";
+    case ObjectType:
+      return "grt::ListRef<"+cppize_class_name(type.content.object_class)+">";
+    default:
+      return "??? invalid ???";
     }
-  case DictType: return "grt::DictRef";
-  case ObjectType: return "grt::Ref<"+cppize_class_name(type.base.object_class)+">";
-  case UnknownType: if (unknown_as_void) return "void";
-  default: return "??? invalid ???";
+  case DictType:
+    return "grt::DictRef";
+  case ObjectType:
+    return cppize_class_name(type.base.object_class) + "Ref";
+  case UnknownType:
+    if (unknown_as_void)
+      return "void";
+  default:
+    return "??? invalid ???";
   }
   return s;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 static std::string format_arg_list(const std::vector<ArgSpec> &args)
 {
@@ -89,7 +103,7 @@ static std::string format_arg_list(const std::vector<ArgSpec> &args)
       switch (iter->type.base.type)
       {
         case IntegerType:
-          s.append("long ");
+          s.append("ssize_t ");
           break;
         case DoubleType:
           s.append("double ");
@@ -108,6 +122,7 @@ static std::string format_arg_list(const std::vector<ArgSpec> &args)
   return s;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 static std::string format_signal_args(const std::vector<MetaClass::SignalArg> &args)
 {
@@ -119,16 +134,27 @@ static std::string format_signal_args(const std::vector<MetaClass::SignalArg> &a
     
     switch (iter->type)
     {
-    case MetaClass::BoolSArg: s.append("bool"); break;
-    case MetaClass::IntSArg: s.append("int"); break;
-    case MetaClass::DoubleSArg: s.append("double"); break;
-    case MetaClass::StringSArg: s.append("std::string"); break;
-    case MetaClass::ObjectSArg: s.append("grt::Ref<").append(cppize_class_name(iter->object_class)).append(">"); break;
+    case MetaClass::BoolSArg:
+      s.append("bool");
+      break;
+    case MetaClass::IntSArg:
+      s.append("ssize_t");
+      break;
+    case MetaClass::DoubleSArg:
+      s.append("double");
+      break;
+    case MetaClass::StringSArg:
+      s.append("std::string");
+      break;
+    case MetaClass::ObjectSArg:
+      s.append(cppize_class_name(iter->object_class) + "Ref");
+      break;
     }
   }
   return s;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 static std::string format_signal_names(const std::vector<MetaClass::SignalArg> &args)
 {
@@ -142,20 +168,6 @@ static std::string format_signal_names(const std::vector<MetaClass::SignalArg> &
   }
   return s;
 }
-
-
-//static std::string format_argname_list(const std::vector<ArgSpec> &args)
-//{
-//  std::string s;
-//  for (std::vector<ArgSpec>::const_iterator iter= args.begin();
-//       iter != args.end(); ++iter)
-//  {
-//    if (!s.empty())
-//      s.append(", ");
-//    s.append(iter->name);
-//  }
-//  return s;  
-//}
 
 static std::string format_wraparg_list(const std::vector<ArgSpec> &args)
 {
@@ -173,11 +185,9 @@ static std::string format_wraparg_list(const std::vector<ArgSpec> &args)
   return s;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------
 // Object Class Generator
-
-
 struct ClassImplGenerator 
 {
   MetaClass *gstruct;
@@ -544,14 +554,14 @@ struct ClassImplGenerator
           fprintf(f, "    if (_data == data) return;\n");
           fprintf(f, "    if (_data && _release_data) _release_data(_data);\n");
           fprintf(f, "    _data= data;\n");
-          fprintf(f, "    _release_data= release;\n");
+          fprintf(f, "    _release_data = release;\n");
           fprintf(f, "  }\n");
           needs_init = false;
         }
       }
       if (needs_init)
       {
-        fprintf(f, "  // default initialization function. auto-called by Ref<Object> constructor\n");
+        fprintf(f, "  // default initialization function. auto-called by ObjectRef constructor\n");
         fprintf(f, "  virtual void init();\n\n");
       }
     }
@@ -838,7 +848,9 @@ struct ClassImplGenerator
   }
 };
 
+//--------------------------------------------------------------------------------------------------
 
+// XXX: use base::basename instead.
 static std::string basename(std::string s)
 {
   if (s.find('/')!=std::string::npos)
@@ -850,6 +862,8 @@ static std::string basename(std::string s)
   return s;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 static std::string pkgname(std::string s)
 {
   std::string source(basename(s));
@@ -858,6 +872,8 @@ static std::string pkgname(std::string s)
     return source.substr(0, source.rfind('.'));
   return source;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 static std::string generate_dll_export_name(const std::string &fname)
 {
@@ -872,6 +888,8 @@ static std::string generate_dll_export_name(const std::string &fname)
    return "GRT_"+name;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 static std::string used_class_name(const TypeSpec &type)
 {
   if (type.base.type == ObjectType)
@@ -880,6 +898,8 @@ static std::string used_class_name(const TypeSpec &type)
     return type.content.object_class;
   return std::string();
 }
+
+//--------------------------------------------------------------------------------------------------
 
 static bool is_header_included_somehow(const std::string &xml_for_header, const std::string &in_xml_for_header,
                                        const std::multimap<std::string,std::string> &requires)
@@ -895,6 +915,8 @@ static bool is_header_included_somehow(const std::string &xml_for_header, const 
     }
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
                                        const std::string &outpath, const std::string &imploutpath,
@@ -984,7 +1006,7 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
 
       path= g_build_path("/", outpath.c_str(), outfile.c_str(), NULL);
 
-      fhdr= base_fopen(path, "w+");
+      fhdr= base_fopen(path, "wb+");
       if (!fhdr)
         throw grt::os_error(path, errno);
       g_print("create file %s\n", path);
@@ -1019,13 +1041,10 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
       {
         if ((*jter)->source() == (*iter)->source())
         {
-          std::string cname= cppize_class_name((*jter)->name());
+          std::string cname = cppize_class_name((*jter)->name());
           
-          fprintf(fhdr, "class %s;\n", 
-                  cname.c_str());
-
-          fprintf(fhdr, "typedef grt::Ref<%s> %sRef;\n", 
-                  cname.c_str(), cname.c_str());
+          fprintf(fhdr, "class %s;\n", cname.c_str());
+          fprintf(fhdr, "typedef grt::Ref<%s> %sRef;\n", cname.c_str(), cname.c_str());
         }
       }
       fprintf(fhdr, "\n\n");
@@ -1036,7 +1055,10 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
          for (std::set<std::string>::const_iterator i= classes.begin(); i != classes.end(); ++i)
          {
              g_message("Class %s is not included in %s, forward declaring explicitly", i->c_str(), (*iter)->source().c_str());
-             fprintf(fhdr, "class %s;\n", cppize_class_name(*i).c_str());
+
+             std::string cname = cppize_class_name(*i);
+             fprintf(fhdr, "class %s;\n", cname.c_str());
+             fprintf(fhdr, "typedef grt::Ref<%s> %sRef;\n", cname.c_str(), cname.c_str());
          }
          fprintf(fhdr, "\n\n");
       }
@@ -1054,7 +1076,7 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
           {
             fprintf(fhdr, "namespace %s { ", parts[i].c_str());
           }
-          fprintf(fhdr, "\n\tclass %s;\n", parts.back().c_str());
+          fprintf(fhdr, "\n  class %s;\n", parts.back().c_str());
           for (size_t i = 0; i < parts.size()-1; i++)
           {
             fprintf(fhdr, "}; ");
@@ -1089,7 +1111,7 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
 
       body_file.append(gen.cname).append(".cpp.new");
       g_message("CREATE %s", body_file.c_str());
-      FILE *f= base_fopen(body_file.c_str(), "w+");
+      FILE *f= base_fopen(body_file.c_str(), "wb+");
 
       fprintf(f, "\n#include <grts/%s.h>\n", header_file.c_str());
       fprintf(f, "\n#include <grtpp_util.h>\n");
@@ -1138,20 +1160,13 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-
-
-
-
-//--------------------------------------------------------------------------------
 // Module Wrapper Generator
-
-
 
 static const char *module_wrapper_head=
   "// Automatically generated GRT module wrapper. Do not edit.\n\n"
   "using namespace grt;\n\n";
-
 
 static const char *module_base_template_h=
   "class %module_class_name% : public %parent_module_class_name% {\n"
@@ -1163,10 +1178,8 @@ static const char *module_base_template_h=
   "public:\n"
   "  static const char *static_get_name() { return \"%module_name%\"; }\n";
 
-
 static const char *module_base_template_f=
   "};\n";
-
 
 static const char *module_function_template_void=
   "  void %function_name%(%args%)\n"
@@ -1178,7 +1191,7 @@ static const char *module_function_template_void=
 
 
 static const char *module_function_template_int=
-  "  int %function_name%(%args%)\n"
+  "  ssize_t %function_name%(%args%)\n"
   "  {\n"
   "    grt::BaseListRef args(get_grt(), AnyType);\n"
   "%make_args%\n"
@@ -1222,7 +1235,6 @@ static const char *module_function_template_string=
   "    return (std::string)StringRef::cast_from(ret);\n"
   "  }\n";
 
-
 static const char *module_function_template=
   "  %return_type% %function_name%(%args%)\n"
   "  {\n"
@@ -1238,12 +1250,12 @@ static const char *module_function_template=
   "    return %return_type%::cast_from(ret);\n"
   "  }\n";
 
-
+//--------------------------------------------------------------------------------------------------
 
 static void export_module_function(FILE *f, const Module::Function &function)
 {
   unsigned int i;
-  const char *func_template= module_function_template;
+  std::string func_template = module_function_template;
   std::string return_type;
   std::string args;
   std::string make_args;
@@ -1252,13 +1264,23 @@ static void export_module_function(FILE *f, const Module::Function &function)
   
   switch (function.ret_type.base.type)
   {
-  case IntegerType: func_template= module_function_template_int; break;
-  case DoubleType: func_template= module_function_template_double; break;
-  case StringType: func_template= module_function_template_string; break;
+  case IntegerType:
+    func_template = module_function_template_int;
+    break;
+  case DoubleType:
+    func_template = module_function_template_double;
+    break;
+  case StringType:
+    func_template = module_function_template_string;
+    break;
   case ListType:
   case DictType:
-  case ObjectType: func_template= module_function_template; break;
-  default: func_template= module_function_template_void; break;
+  case ObjectType:
+    func_template = module_function_template;
+    break;
+  default:
+    func_template = module_function_template_void;
+    break;
   }
 
   i= 0;
@@ -1272,7 +1294,7 @@ static void export_module_function(FILE *f, const Module::Function &function)
     
     switch (param->type.base.type)
     {
-    case IntegerType: proto_arg_type= "int"; break;
+    case IntegerType: proto_arg_type= "ssize_t"; break;
     case DoubleType: proto_arg_type= "double"; break;
     case StringType: proto_arg_type= "const std::string &"; break;
     case ListType:
@@ -1310,59 +1332,46 @@ static void export_module_function(FILE *f, const Module::Function &function)
   }
 
   {
-    char *code;
-    code= str_g_subst(func_template, "%return_type%", return_type.c_str());
-    code= str_g_replace(code, "%function_name%", function.name.c_str());
-    code= str_g_replace(code, "%args%", args.c_str());
-    code= str_g_replace(code, "%make_args%", make_args.c_str());
+    std::string code = func_template;
+    base::replace(code, "%return_type%", return_type);
+    base::replace(code, "%function_name%", function.name);
+    base::replace(code, "%args%", args);
+    base::replace(code, "%make_args%", make_args);
 
-    fprintf(f, "%s", code);
-
-    g_free(code);
+    fprintf(f, "%s", code.c_str());
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void grt::helper::generate_module_wrappers(GRT *grt, const std::string &outpath,
                                            const std::vector<Module*> &modules)
 {
-  std::string path = base::basename(outpath);
-  FILE *f= base_fopen(outpath.c_str(), "w+");
-  char *header_name;
-
+  FILE *f = base_fopen(outpath.c_str(), "wb+");
   if (!f)
     throw grt::os_error(errno);
 
-  header_name= str_g_subst(path.c_str(), ".", "_");
+  std::string header_name = base::basename(outpath);
+  base::replace(header_name, ".", "_");
 
-  fprintf(f, "#ifndef __%s_\n", header_name);
-  fprintf(f, "#define __%s_\n", header_name);
-  g_free(header_name);
+  fprintf(f, "#ifndef __%s__\n", header_name.c_str());
+  fprintf(f, "#define __%s__\n", header_name.c_str());
   fprintf(f, "%s", module_wrapper_head);
   
   for (std::vector<Module*>::const_iterator module= modules.begin();
        module != modules.end(); ++module)
   {
-    char *code;
-    char *tmp;
+    std::string code = module_base_template_h;
+    base::replace(code, "%module_name%", (*module)->name());
 
-    code= str_g_subst(module_base_template_h, "%module_name%", (*module)->name().c_str());
-
-    tmp= g_strdup_printf("%sWrapper", (*module)->name().c_str());
-    code= str_g_replace(code, "%module_class_name%", tmp);
-    g_free(tmp);
+    base::replace(code, "%module_class_name%", base::strfmt("%sWrapper", (*module)->name().c_str()));
 
     if (!(*module)->extends().empty())
-    {
-      tmp= g_strdup_printf("%sWrapper", (*module)->extends().c_str());
-      code= str_g_replace(code, "%parent_module_class_name%", tmp);
-      g_free(tmp);
-    }
+      base::replace(code, "%parent_module_class_name%", base::strfmt("%sWrapper", (*module)->extends().c_str()));
     else
-      code= str_g_replace(code, "%parent_module_class_name%", "grt::ModuleWrapper");
+      base::replace(code, "%parent_module_class_name%", "grt::ModuleWrapper");
 
-    fprintf(f, "%s", code);
-
+    fprintf(f, "%s", code.c_str());
 
     for (std::vector<Module::Function>::const_iterator func= (*module)->get_functions().begin();
          func != (*module)->get_functions().end(); ++func)
@@ -1376,3 +1385,4 @@ void grt::helper::generate_module_wrappers(GRT *grt, const std::string &outpath,
   fprintf(f, "#endif\n");
 }
 
+//--------------------------------------------------------------------------------------------------

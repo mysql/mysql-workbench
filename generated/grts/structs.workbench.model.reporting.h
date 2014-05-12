@@ -23,6 +23,14 @@ class workbench_model_reporting_TemplateInfo;
 typedef grt::Ref<workbench_model_reporting_TemplateInfo> workbench_model_reporting_TemplateInfoRef;
 
 
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
+
   /** information about a model reporting template */
 class  workbench_model_reporting_TemplateStyleInfo : public GrtObject
 {

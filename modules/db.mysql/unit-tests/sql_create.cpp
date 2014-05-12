@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2012,Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "testgrt.h"
 #include "grt_test_utility.h"
 #include "grt/grt_manager.h"
@@ -27,9 +25,9 @@
 #include "grtdb/diff_dbobjectmatch.h"
 #include "interfaces/sqlgenerator.h"
 #include "wb_mysql_import.h"
-#include "plugins/db.mysql/backend/db_mysql_sql_export.h"
+#include "backend/db_mysql_sql_export.h"
 
-#include "modules/db.mysql/src/db_mysql_diffsqlgen.h"
+#include "db_mysql_diffsqlgen.h"
 
 BEGIN_TEST_DATA_CLASS(sql_create)
 protected:

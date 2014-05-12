@@ -32,6 +32,14 @@ class workbench_Workbench;
 typedef grt::Ref<workbench_Workbench> workbench_WorkbenchRef;
 
 
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
+
 class  workbench_OverviewPanel : public GrtObject
 {
   typedef GrtObject super;
@@ -458,14 +466,14 @@ public:
    \par In Python:
 value = obj.logicalModel
    */
-  grt::Ref<workbench_logical_Model> logicalModel() const { return _logicalModel; }
+  workbench_logical_ModelRef logicalModel() const { return _logicalModel; }
   /** Setter for attribute logicalModel
    
     the logical model
     \par In Python:
 obj.logicalModel = value
    */
-  virtual void logicalModel(const grt::Ref<workbench_logical_Model> &value)
+  virtual void logicalModel(const workbench_logical_ModelRef &value)
   {
     grt::ValueRef ovalue(_logicalModel);
 
@@ -479,14 +487,14 @@ obj.logicalModel = value
    \par In Python:
 value = obj.overviewCurrentModelType
    */
-  grt::Ref<model_Model> overviewCurrentModelType() const { return _overviewCurrentModelType; }
+  model_ModelRef overviewCurrentModelType() const { return _overviewCurrentModelType; }
   /** Setter for attribute overviewCurrentModelType
    
     specifies if the panel is currently selected
     \par In Python:
 obj.overviewCurrentModelType = value
    */
-  virtual void overviewCurrentModelType(const grt::Ref<model_Model> &value)
+  virtual void overviewCurrentModelType(const model_ModelRef &value)
   {
     grt::ValueRef ovalue(_overviewCurrentModelType);
    _overviewCurrentModelType= value;
@@ -531,8 +539,8 @@ public:
 
 protected:
 
-  grt::Ref<workbench_logical_Model> _logicalModel;// owned
-  grt::Ref<model_Model> _overviewCurrentModelType;
+  workbench_logical_ModelRef _logicalModel;// owned
+  model_ModelRef _overviewCurrentModelType;
   grt::ListRef<workbench_OverviewPanel> _overviewPanels;// owned
   grt::ListRef<workbench_physical_Model> _physicalModels;// owned
 private: // wrapper methods for use by grt
@@ -549,14 +557,14 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_Document::create);
     {
-      void (workbench_Document::*setter)(const grt::Ref<workbench_logical_Model> &)= &workbench_Document::logicalModel;
-      grt::Ref<workbench_logical_Model> (workbench_Document::*getter)() const= &workbench_Document::logicalModel;
-      meta->bind_member("logicalModel", new grt::MetaClass::Property<workbench_Document,grt::Ref<workbench_logical_Model> >(getter,setter));
+      void (workbench_Document::*setter)(const workbench_logical_ModelRef &)= &workbench_Document::logicalModel;
+      workbench_logical_ModelRef (workbench_Document::*getter)() const= &workbench_Document::logicalModel;
+      meta->bind_member("logicalModel", new grt::MetaClass::Property<workbench_Document,workbench_logical_ModelRef >(getter,setter));
     }
     {
-      void (workbench_Document::*setter)(const grt::Ref<model_Model> &)= &workbench_Document::overviewCurrentModelType;
-      grt::Ref<model_Model> (workbench_Document::*getter)() const= &workbench_Document::overviewCurrentModelType;
-      meta->bind_member("overviewCurrentModelType", new grt::MetaClass::Property<workbench_Document,grt::Ref<model_Model> >(getter,setter));
+      void (workbench_Document::*setter)(const model_ModelRef &)= &workbench_Document::overviewCurrentModelType;
+      model_ModelRef (workbench_Document::*getter)() const= &workbench_Document::overviewCurrentModelType;
+      meta->bind_member("overviewCurrentModelType", new grt::MetaClass::Property<workbench_Document,model_ModelRef >(getter,setter));
     }
     {
       void (workbench_Document::*setter)(const grt::ListRef<workbench_OverviewPanel> &)= &workbench_Document::overviewPanels;
@@ -594,14 +602,14 @@ public:
    \par In Python:
 value = obj.doc
    */
-  grt::Ref<workbench_Document> doc() const { return grt::Ref<workbench_Document>::cast_from(_doc); }
+  workbench_DocumentRef doc() const { return workbench_DocumentRef::cast_from(_doc); }
   /** Setter for attribute doc
    
     the Workbench document
     \par In Python:
 obj.doc = value
    */
-  virtual void doc(const grt::Ref<workbench_Document> &value) { super::doc(value); }
+  virtual void doc(const workbench_DocumentRef &value) { super::doc(value); }
 
   /** Getter for attribute docPath
    
@@ -630,14 +638,14 @@ obj.docPath = value
    \par In Python:
 value = obj.migration
    */
-  grt::Ref<db_migration_Migration> migration() const { return _migration; }
+  db_migration_MigrationRef migration() const { return _migration; }
   /** Setter for attribute migration
    
     data for Migration Plugin
     \par In Python:
 obj.migration = value
    */
-  virtual void migration(const grt::Ref<db_migration_Migration> &value)
+  virtual void migration(const db_migration_MigrationRef &value)
   {
     grt::ValueRef ovalue(_migration);
 
@@ -652,14 +660,14 @@ obj.migration = value
    \par In Python:
 value = obj.rdbmsMgmt
    */
-  grt::Ref<db_mgmt_Management> rdbmsMgmt() const { return _rdbmsMgmt; }
+  db_mgmt_ManagementRef rdbmsMgmt() const { return _rdbmsMgmt; }
   /** Setter for attribute rdbmsMgmt
    
     the RDBMS management information
     \par In Python:
 obj.rdbmsMgmt = value
    */
-  virtual void rdbmsMgmt(const grt::Ref<db_mgmt_Management> &value)
+  virtual void rdbmsMgmt(const db_mgmt_ManagementRef &value)
   {
     grt::ValueRef ovalue(_rdbmsMgmt);
 
@@ -688,8 +696,8 @@ public:
 protected:
 
   grt::StringRef _docPath;
-  grt::Ref<db_migration_Migration> _migration;// owned
-  grt::Ref<db_mgmt_Management> _rdbmsMgmt;// owned
+  db_migration_MigrationRef _migration;// owned
+  db_mgmt_ManagementRef _rdbmsMgmt;// owned
   grt::ListRef<db_query_Editor> _sqlEditors;// owned
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -705,9 +713,9 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&workbench_Workbench::create);
     {
-      void (workbench_Workbench::*setter)(const grt::Ref<workbench_Document> &)= 0;
-      grt::Ref<workbench_Document> (workbench_Workbench::*getter)() const= 0;
-      meta->bind_member("doc", new grt::MetaClass::Property<workbench_Workbench,grt::Ref<workbench_Document> >(getter,setter));
+      void (workbench_Workbench::*setter)(const workbench_DocumentRef &)= 0;
+      workbench_DocumentRef (workbench_Workbench::*getter)() const= 0;
+      meta->bind_member("doc", new grt::MetaClass::Property<workbench_Workbench,workbench_DocumentRef >(getter,setter));
     }
     {
       void (workbench_Workbench::*setter)(const grt::StringRef &)= &workbench_Workbench::docPath;
@@ -715,14 +723,14 @@ public:
       meta->bind_member("docPath", new grt::MetaClass::Property<workbench_Workbench,grt::StringRef >(getter,setter));
     }
     {
-      void (workbench_Workbench::*setter)(const grt::Ref<db_migration_Migration> &)= &workbench_Workbench::migration;
-      grt::Ref<db_migration_Migration> (workbench_Workbench::*getter)() const= &workbench_Workbench::migration;
-      meta->bind_member("migration", new grt::MetaClass::Property<workbench_Workbench,grt::Ref<db_migration_Migration> >(getter,setter));
+      void (workbench_Workbench::*setter)(const db_migration_MigrationRef &)= &workbench_Workbench::migration;
+      db_migration_MigrationRef (workbench_Workbench::*getter)() const= &workbench_Workbench::migration;
+      meta->bind_member("migration", new grt::MetaClass::Property<workbench_Workbench,db_migration_MigrationRef >(getter,setter));
     }
     {
-      void (workbench_Workbench::*setter)(const grt::Ref<db_mgmt_Management> &)= &workbench_Workbench::rdbmsMgmt;
-      grt::Ref<db_mgmt_Management> (workbench_Workbench::*getter)() const= &workbench_Workbench::rdbmsMgmt;
-      meta->bind_member("rdbmsMgmt", new grt::MetaClass::Property<workbench_Workbench,grt::Ref<db_mgmt_Management> >(getter,setter));
+      void (workbench_Workbench::*setter)(const db_mgmt_ManagementRef &)= &workbench_Workbench::rdbmsMgmt;
+      db_mgmt_ManagementRef (workbench_Workbench::*getter)() const= &workbench_Workbench::rdbmsMgmt;
+      meta->bind_member("rdbmsMgmt", new grt::MetaClass::Property<workbench_Workbench,db_mgmt_ManagementRef >(getter,setter));
     }
     {
       void (workbench_Workbench::*setter)(const grt::ListRef<db_query_Editor> &)= &workbench_Workbench::sqlEditors;

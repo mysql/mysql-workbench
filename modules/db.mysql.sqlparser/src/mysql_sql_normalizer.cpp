@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -125,7 +125,7 @@ void Mysql_sql_normalizer::qualify_obj_ident(const SqlAstNode *sp_name)
       stmt_eoffset - stmt_boffset,
       qual_obj_name);
 
-    _cut_sym_count+= stmt_eoffset - stmt_boffset - qual_obj_name.size();
+    _cut_sym_count+= stmt_eoffset - stmt_boffset - (int)qual_obj_name.size();
   }
 }
 

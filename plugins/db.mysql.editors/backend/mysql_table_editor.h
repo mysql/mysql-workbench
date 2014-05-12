@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,8 +42,8 @@ public:
     IsAutoIncrementable,
   };
 
-  virtual bool set_field(const ::bec::NodeId &node, int column, const std::string &value);
-  virtual bool set_field(const ::bec::NodeId &node, int column, int value);
+  virtual bool set_field(const ::bec::NodeId &node, ColumnId column, const std::string &value);
+  virtual bool set_field(const ::bec::NodeId &node, ColumnId column, ssize_t value);
 
   MySQLTableColumnsListBE(MySQLTableEditorBE *owner);
   
@@ -51,7 +51,7 @@ public:
   virtual bec::MenuItemList get_popup_items_for_nodes(const std::vector<bec::NodeId> &nodes);
 protected:
   // for internal use only
-  virtual bool get_field_grt(const ::bec::NodeId &node, int column, ::grt::ValueRef &value);
+  virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, ::grt::ValueRef &value);
 };
 
 
@@ -67,10 +67,10 @@ public:
 
   MySQLTableIndexListBE(MySQLTableEditorBE *owner);
 
-  virtual bool set_field(const ::bec::NodeId &node, int column, const std::string &value);
+  virtual bool set_field(const ::bec::NodeId &node, ColumnId column, const std::string &value);
 
 protected:
-  virtual bool get_field_grt(const ::bec::NodeId &node, int column, grt::ValueRef &value);
+  virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, grt::ValueRef &value);
 };
 
 
@@ -95,14 +95,14 @@ public:
 
   virtual void refresh() {};
 
-  virtual int count_children(const ::bec::NodeId &parent);
-  virtual ::bec::NodeId get_child(const ::bec::NodeId &parent, int index);
+  virtual size_t count_children(const ::bec::NodeId &parent);
+  virtual ::bec::NodeId get_child(const ::bec::NodeId &parent, size_t index);
 
-  virtual bool set_field(const ::bec::NodeId &node, int column, const std::string &value);
+  virtual bool set_field(const ::bec::NodeId &node, ColumnId column, const std::string &value);
 
 protected:
-  virtual bool get_field_grt(const ::bec::NodeId &node, int column, grt::ValueRef &value);
-  virtual grt::Type get_field_type(const ::bec::NodeId &node, int column);
+  virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, grt::ValueRef &value);
+  virtual grt::Type get_field_type(const ::bec::NodeId &node, ColumnId column);
 
   db_mysql_PartitionDefinitionRef get_definition(const ::bec::NodeId &node);
 };
@@ -169,8 +169,8 @@ public:
 
   MySQLTablePartitionTreeBE *get_partitions() { return &_partitions; }
 
-  // whether partitions and subpartitions will be defined by the user or not 
-  // if false, only count is needed otherwise the partitionslist must be defined
+  // whether partitions and sub partitions will be defined by the user or not 
+  // if false, only count is needed otherwise the partitions list must be defined
   void set_explicit_partitions(bool flag);
   bool get_explicit_partitions();
   void set_explicit_subpartitions(bool flag);

@@ -636,7 +636,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       if (columnsTreeView.SelectedNode != null)
       {
-        NodeId nodeId = (columnsTreeView.SelectedNode.Tag as GrtListNode).NodeId;
+        NodeIdWrapper nodeId = (columnsTreeView.SelectedNode.Tag as GrtListNode).NodeId;
 
         string stringValue;
         if (columnsListModel.GrtList.get_field(nodeId,
@@ -836,7 +836,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // set charset/collation
       if (columnsTreeView.SelectedNode != null)
       {
-        NodeId nodeId = new NodeId(columnsTreeView.SelectedNode.Index);
+        NodeIdWrapper nodeId = new NodeIdWrapper(columnsTreeView.SelectedNode.Index);
         if (columnCollationComboBox.SelectedIndex == 0)
         {
           columnsListModel.GrtList.set_field(nodeId,
@@ -858,7 +858,7 @@ namespace MySQL.GUI.Workbench.Plugins
         // Change an attribute triggers a whole chain of events which ultimately cause the
         // table editor to refresh completely (including all nodes in the columns tree etc.).
         // So we have to take measure to restore what was active when the user changed the value.
-        NodeId nodeId = new NodeId(columnsTreeView.SelectedNode.Index);
+        NodeIdWrapper nodeId = new NodeIdWrapper(columnsTreeView.SelectedNode.Index);
         if (!columnsListModel.GrtList.set_field(nodeId, (int)column, box.Text))
         {
           CustomMessageBox.Show(MessageType.MessageError, "Could not set new value",
@@ -910,7 +910,7 @@ namespace MySQL.GUI.Workbench.Plugins
       if (columnsTreeView.SelectedNode == null)
         return;
 
-      NodeId nodeId = new NodeId(columnsTreeView.SelectedNode.Index);
+      NodeIdWrapper nodeId = new NodeIdWrapper(columnsTreeView.SelectedNode.Index);
       CheckBox box = sender as CheckBox;
       int value = box.Checked ? 1 : 0;
       MySQLTableColumnsListWrapper.MySQLColumnListColumns columnValue = MySQLTableColumnsListWrapper.MySQLColumnListColumns.Name;
@@ -1124,7 +1124,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // Loop over all selected Nodes and delete them
       if (indicesTreeView.SelectedNodes.Count > 0)
       {
-        List<NodeId> nodes = new List<NodeId>();
+        List<NodeIdWrapper> nodes = new List<NodeIdWrapper>();
 
         foreach (TreeNodeAdv node in indicesTreeView.SelectedNodes)
         {
@@ -1133,7 +1133,7 @@ namespace MySQL.GUI.Workbench.Plugins
         }
         nodes.Reverse();
 
-        foreach (NodeId node in nodes)
+        foreach (NodeIdWrapper node in nodes)
           tableEditorBE.remove_index(node);
 
         indicesListModel.RefreshModel();
@@ -1581,7 +1581,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // Loop over all selected Nodes and delete them
       if (fkTreeView.SelectedNodes.Count > 0)
       {
-        List<NodeId> nodes = new List<NodeId>();
+        List<NodeIdWrapper> nodes = new List<NodeIdWrapper>();
 
         foreach (TreeNodeAdv node in fkTreeView.SelectedNodes)
         {
@@ -1590,7 +1590,7 @@ namespace MySQL.GUI.Workbench.Plugins
         }
         nodes.Reverse();
 
-        foreach (NodeId node in nodes)
+        foreach (NodeIdWrapper node in nodes)
           tableEditorBE.remove_fk(node);
 
         fkListModel.RefreshModel();

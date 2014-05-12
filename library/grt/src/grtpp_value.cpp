@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "base/string_utilities.h"
 #include "base/threading.h"
@@ -110,8 +108,10 @@ Integer* Integer::get(storage_type value)
   static Integer* one= (Integer*)((new Integer(1))->retain());
   static Integer* zero= (Integer*)((new Integer(0))->retain());
 
-  if (value == 1) return one;
-  if (value == 0) return zero;
+  if (value == 1)
+    return one;
+  if (value == 0)
+    return zero;
 
   return new Integer(value);
 }
@@ -464,7 +464,7 @@ void List::unmark_global() const
 
 void List::reset_references()
 {
-  const int max_index = count();
+  const int max_index = (int)count();
   grt::ValueRef value;
   for ( int i = 0; i < max_index; ++i )
   {

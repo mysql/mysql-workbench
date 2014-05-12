@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wb_sql_editor_form.h"
 
 #include "grtdb/db_helpers.h"
@@ -697,14 +695,14 @@ void SqlEditorForm::reset()
 }
 
 
-RowId SqlEditorForm::add_log_message(int msg_type, const std::string &msg, const std::string &context, const std::string &duration)
+int SqlEditorForm::add_log_message(int msg_type, const std::string &msg, const std::string &context, const std::string &duration)
 {
   RowId new_log_message_index= _log->add_message(msg_type, context, msg, duration);
   _has_pending_log_messages= true;
   refresh_log_messages(false);
   if (msg_type == DbSqlEditorLog::ErrorMsg || msg_type == DbSqlEditorLog::WarningMsg)
     _exec_sql_error_count++;
-  return new_log_message_index;
+  return (int)new_log_message_index;
 }
 
 
@@ -745,7 +743,7 @@ void SqlEditorForm::refresh_log_messages(bool ignore_last_message_timestamp)
 int SqlEditorForm::recordset_count(int editor)
 {
   if (editor >= 0 && editor < (int)_sql_editors.size())
-    return sql_editor_recordsets(editor)->size();
+    return (int)sql_editor_recordsets(editor)->size();
   return 0;
 }
 
@@ -863,7 +861,7 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
 
   sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
 
-  db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(CopyContext(db_mgmt_conn.get_grt()).copy(db_mgmt_conn));
+  db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(grt::CopyContext(db_mgmt_conn.get_grt()).copy(db_mgmt_conn));
 
   int read_timeout = _grtm->get_app_option_int("DbSqlEditor:ReadTimeOut");
   if (read_timeout > 0)
@@ -1437,7 +1435,7 @@ void SqlEditorForm::rollback()
 
 void SqlEditorForm::explain_sql()
 {
-  int start, end;
+  size_t start, end;
   Sql_editor::Ref sql_editor_= active_sql_editor();
   if (sql_editor_)
   {
@@ -1659,7 +1657,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
             
         RecordsetsRef recordsets(new Recordsets());
         recordsets->reserve(result_list->size());
-        int index = result_list->size();
+        ssize_t index = result_list->size();
         while (--index >= 0)
         {
           if (!(*result_list)[index]->can_close(false))
@@ -1735,7 +1733,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
-      int multiple_statement_count= sub_statements.size();
+      size_t multiple_statement_count = sub_statements.size();
       bool is_multiple_statement = (1 < multiple_statement_count);
 
       {
@@ -1893,7 +1891,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           bool reuse_log_msg= false;
           if ((updated_rows_count < 0) || is_multiple_statement)
           {
-            for (int processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
+            for (size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
             {
               do
               {
@@ -2002,7 +2000,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                       int editor_index = sql_editor_index(editor);
                       if (editor_index >= 0)
                         recordset_list_changed(editor_index, rs, true);
-                      std::string statement_res_msg= strfmt(_("%i row(s) returned"), rs->row_count());
+                      std::string statement_res_msg= strfmt(_("%zi row(s) returned"), rs->row_count());
                       if (!last_statement_info->empty())
                         statement_res_msg.append("\n").append(last_statement_info);
                       std::string exec_and_fetch_durations=
@@ -2113,6 +2111,25 @@ void SqlEditorForm::exec_main_sql(const std::string &sql, bool log)
   }
 }
 
+static wb::LiveSchemaTree::ObjectType str_to_object_type(const std::string &object_type)
+{
+  if (object_type == "db.Table")
+    return LiveSchemaTree::Table;
+  else if (object_type == "db.View")
+    return LiveSchemaTree::View;
+  else if (object_type == "db.StoredProcedure")
+    return LiveSchemaTree::Procedure;
+  else if (object_type == "db.Function")
+    return LiveSchemaTree::Function;
+  else if (object_type == "db.Index")
+    return LiveSchemaTree::Index;
+  else if (object_type == "db.Trigger")
+    return LiveSchemaTree::Trigger;
+  else if (object_type == "db.Schema")
+    return LiveSchemaTree::Schema;
+
+  return LiveSchemaTree::None;
+}
 
 void SqlEditorForm::handle_command_side_effects(const std::string &sql)
 {
@@ -2125,49 +2142,32 @@ void SqlEditorForm::handle_command_side_effects(const std::string &sql)
   // special hack, check for some special commands and update UI accordingly
   if (sql_facade->parseDropStatement(sql, object_type, object_names) && !object_names.empty())
   {
-    if (object_type == "db.Table")
+
+    wb::LiveSchemaTree::ObjectType obj = str_to_object_type(object_type);
+    if (obj != wb::LiveSchemaTree::None)
     {
-      for (int i = object_names.size()-1; i >= 0; --i)
-        _live_tree->refresh_live_object_in_overview(LiveSchemaTree::Table, object_names[i].first.empty() ? schema_name : object_names[i].first, object_names[i].second, "");
-    }
-    else if (object_type == "db.View")
-    {
-      for (int i = object_names.size()-1; i >= 0; --i)
-        _live_tree->refresh_live_object_in_overview(LiveSchemaTree::View, object_names[i].first.empty() ? schema_name : object_names[i].first, object_names[i].second, "");
-    }
-    else if (object_type == "db.StoredProcedure")
-    {
-      for (int i = object_names.size()-1; i >= 0; --i)
-        _live_tree->refresh_live_object_in_overview(LiveSchemaTree::Procedure, object_names[i].first.empty() ? schema_name : object_names[i].first, object_names[i].second, "");
-    }
-    else if (object_type == "db.Function")
-    {
-      for (int i = object_names.size()-1; i >= 0; --i)
-        _live_tree->refresh_live_object_in_overview(LiveSchemaTree::Function, object_names[i].first.empty() ? schema_name : object_names[i].first, object_names[i].second, "");
-    }
-    else if (object_type == "db.Index")
-    {
-      for (int i = object_names.size()-1; i >= 0; --i)
-        _live_tree->refresh_live_object_in_overview(LiveSchemaTree::Index, object_names[i].first.empty() ? schema_name : object_names[i].first, object_names[i].second, "");
-    }
-    else if (object_type == "db.Trigger")
-    {
-      for (int i = object_names.size()-1; i >= 0; --i)
-        _live_tree->refresh_live_object_in_overview(LiveSchemaTree::Trigger, object_names[i].first.empty() ? schema_name : object_names[i].first, object_names[i].second, "");
-    }
-    else if (object_type == "db.Schema")
-    {
-      for (int i = object_names.size()-1; i >= 0; --i)
+      std::vector<std::pair<std::string, std::string> >::reverse_iterator rit;
+
+      if (obj == wb::LiveSchemaTree::Schema)
       {
-        _live_tree->refresh_live_object_in_overview(LiveSchemaTree::Schema, object_names[i].first, object_names[i].first, "");
-        schema_name = object_names[i].first;
+        for (rit = object_names.rbegin(); rit != object_names.rend(); ++rit)
+          _live_tree->refresh_live_object_in_overview(obj, (*rit).first, (*rit).first, "");
+
+        if (!object_names.empty())
+          schema_name = object_names.back().first;
+
+        if ((schema_name.size() > 0) && (active_schema() == schema_name) && connection_descriptor().is_valid())
+        {
+          std::string default_schema= connection_descriptor()->parameterValues().get_string("schema", "");
+          if (schema_name == default_schema)
+            default_schema = "";
+          _grtm->run_once_when_idle(this, boost::bind(&set_active_schema, shared_from_this(), default_schema));
+        }
       }
-      if ((schema_name.size() > 0) && (active_schema() == schema_name) && connection_descriptor().is_valid())
+      else
       {
-        std::string default_schema= connection_descriptor()->parameterValues().get_string("schema", "");
-        if (schema_name == default_schema)
-          default_schema = "";
-        _grtm->run_once_when_idle(this, boost::bind(&set_active_schema, shared_from_this(), default_schema));
+        for (rit = object_names.rbegin(); rit != object_names.rend(); ++rit)
+          _live_tree->refresh_live_object_in_overview(obj, (*rit).first.empty() ? schema_name : (*rit).first, (*rit).second, "");
       }
     }
   }
@@ -2808,7 +2808,7 @@ int SqlEditorForm::server_version()
 
   // Create a server version of the form "Mmmrr" as long int for quick comparisons.
   if (version.is_valid())
-    return version->majorNumber() * 10000 + version->minorNumber() * 100 + version->releaseNumber();
+    return (int)(version->majorNumber() * 10000 + version->minorNumber() * 100 + version->releaseNumber());
   else
     return 50503;
 }
@@ -2846,7 +2846,7 @@ bool SqlEditorForm::save_snippet()
   if (!editor)
     return false;
   std::string text;
-  int start, end;
+  size_t start, end;
   if (editor->selected_range(start, end))
     text = editor->selected_text();
   else

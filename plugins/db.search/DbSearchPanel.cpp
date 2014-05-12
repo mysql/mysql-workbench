@@ -17,7 +17,6 @@
 * 02110-1301  USA
 */
 
-#include "stdafx.h"
 #include "DbSearchPanel.h"
 #include <sstream>
 #include <boost/assign/list_of.hpp>
@@ -278,7 +277,7 @@ void DBSearch::count_data(const std::string& schema_name, const std::string& tab
     boost::scoped_ptr<sql::Statement> stmt(_db_conn->createStatement());
     boost::scoped_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
     if (_limit_counter > 0)
-        _limit_counter -= rs->rowsCount();
+      _limit_counter -= (int)rs->rowsCount();
     SearchResultEntry result;
     result.schema = schema_name;
     result.table = table_name;
@@ -304,7 +303,7 @@ void DBSearch::select_data(const std::string& schema_name, const std::string& ta
     boost::scoped_ptr<sql::Statement> stmt(_db_conn->createStatement());
     boost::scoped_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
     if (_limit_counter > 0)
-        _limit_counter -= rs->rowsCount();
+      _limit_counter -= (int)rs->rowsCount();
     SearchResultEntry result;
     result.schema = schema_name;
     result.table = table_name;
@@ -316,11 +315,11 @@ void DBSearch::select_data(const std::string& schema_name, const std::string& ta
         std::vector<std::pair<std::string, std::string> > data;
         data.reserve(select_columns.size());
         for (std::list<std::string>::const_iterator It = select_columns.begin(); It != select_columns.end(); ++It)
-           data.push_back(std::pair<std::string, std::string>(*It, rs->getString(col_idx++)));
+           data.push_back(std::pair<std::string, std::string>(*It, rs->getString((int)col_idx++)));
         if (!data.empty())
             result.data.push_back(data);
     }
-    _matched_rows += result.data.size();
+    _matched_rows += (int)result.data.size();
     if (!result.data.empty())
     {
         base::MutexLock lock(_search_result_mutex);
@@ -527,7 +526,7 @@ void DBSearch::run(select_func_t select_func)
             std::string limit_clause("");
             if (_limit_counter > 0)
             {
-                int limit = std::min(_limit_counter, _limt_per_table);
+                size_t limit = std::min(_limit_counter, _limt_per_table);
                 std::stringstream sout;
                 sout <<"LIMIT "<< limit;
                 limit_clause = sout.str();
@@ -679,7 +678,7 @@ void DBSearchPanel::activate_menu_item(const std::string &action)
 
     for (size_t c = selection.front()->count(), i = 0; i < c; i++)
     {
-      mforms::TreeNodeRef child = selection.front()->get_child(i);
+      mforms::TreeNodeRef child = selection.front()->get_child((int)i);
       if (!pks.empty())
         pks.append(",");
       pks.append(child->get_string(2));
@@ -703,7 +702,7 @@ void DBSearchPanel::activate_menu_item(const std::string &action)
     std::string pks;
     for (size_t c = selection.front()->count(), i = 0; i < c; i++)
     {
-      mforms::TreeNodeRef child = selection.front()->get_child(i);
+      mforms::TreeNodeRef child = selection.front()->get_child((int)i);
       if (!pks.empty())
         pks.append(",");
       pks.append(child->get_string(2));

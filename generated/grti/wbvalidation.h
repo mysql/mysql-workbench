@@ -1,5 +1,5 @@
-#ifndef __wbvalidation_h_
-#define __wbvalidation_h_
+#ifndef __wbvalidation_h__
+#define __wbvalidation_h__
 // Automatically generated GRT module wrapper. Do not edit.
 
 using namespace grt;
@@ -12,7 +12,7 @@ protected:
 
 public:
   static const char *static_get_name() { return "WbValidationInterface"; }
-  int validate(const std::string & param0, const ObjectRef& param1)
+  ssize_t validate(const std::string & param0, const ObjectRef& param1)
   {
     grt::BaseListRef args(get_grt(), AnyType);
     args.ginsert(grt::StringRef(param0));

@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "base/file_utilities.h"
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
@@ -146,7 +143,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC db_query_EditorConcreteImplData : public db_que
         db_query_QueryBufferRef e(_self->queryEditors()[i]);
         if (e == editor->grtobj())
         {
-          ref->active_sql_editor_index(i);
+          ref->active_sql_editor_index((int)i);
           break;
         }
       }
@@ -161,7 +158,7 @@ public:
   {
     for (size_t i= 0; i < (size_t) editor->sql_editor_count(); i++)
     {
-      db_query_QueryEditorRef qb(db_query_QueryEditorRef::cast_from(editor->sql_editor(i)->grtobj()));
+      db_query_QueryEditorRef qb(db_query_QueryEditorRef::cast_from(editor->sql_editor((int)i)->grtobj()));
       qb->owner(self);
       _self->queryEditors().insert(qb);
     }
@@ -672,7 +669,7 @@ void WBContextSQLIDE::option_changed(grt::internal::OwnedDict*dict, bool, const 
 bool WBContextSQLIDE::auto_save_workspaces()
 {
   WBContext *wb= _wbui->get_wb();
-  int interval= wb->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
+  ssize_t interval= wb->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
   if (interval <= 0 || !_auto_save_active)
     return false;
 
@@ -696,7 +693,7 @@ bool WBContextSQLIDE::auto_save_workspaces()
   if (interval != _auto_save_interval)
   {
     // schedule new interval
-    wb->get_grt_manager()->run_every(boost::bind(&WBContextSQLIDE::auto_save_workspaces, this), interval);
+    wb->get_grt_manager()->run_every(boost::bind(&WBContextSQLIDE::auto_save_workspaces, this), (double)interval);
     return false;
   }
   
@@ -954,8 +951,8 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
     {
       grt::BaseListRef args(conn->get_grt(), grt::AnyType);
       args.ginsert(conn);
-      int result = *grt::IntegerRef::cast_from(conn->get_grt()->call_module_function("WbAdmin", "handleExpiredPassword", args));
-      if (result)
+      ssize_t result = *grt::IntegerRef::cast_from(conn->get_grt()->call_module_function("WbAdmin", "handleExpiredPassword", args));
+      if (result != 0)
         return create_connected_editor(conn);
       throw grt::user_cancelled("password reset cancelled by user");
     }
@@ -992,9 +989,9 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
   if (!_auto_save_active)
   {
     _auto_save_active= true;
-    int interval = _wbui->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
+    ssize_t interval = _wbui->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
     if (interval > 0)
-      _wbui->get_wb()->get_grt_manager()->run_every(boost::bind(&WBContextSQLIDE::auto_save_workspaces, this), interval);
+      _wbui->get_wb()->get_grt_manager()->run_every(boost::bind(&WBContextSQLIDE::auto_save_workspaces, this), (double)interval);
     _auto_save_interval = interval;
 
     if (!_option_change_signal_connected)

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "Win32API.h"
 #include "base/file_functions.h"
@@ -42,7 +40,7 @@ void Win32Api::Undo(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  int res = SendMessage((HWND) box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
+  LRESULT res = SendMessage((HWND) box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_UNDO, 0, 0);
 }
@@ -56,7 +54,7 @@ void Win32Api::Cut(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  int res = SendMessage((HWND) box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_CUT, 0, 0);
 }
@@ -70,7 +68,7 @@ void Win32Api::Copy(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  int res = SendMessage((HWND) box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_COPY, 0, 0);
 }
@@ -84,7 +82,7 @@ void Win32Api::Paste(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  int res = SendMessage((HWND) box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     SendMessage(info.hwndItem, WM_PASTE, 0, 0);
 }
@@ -98,7 +96,7 @@ bool Win32Api::CanUndo(ComboBox^ box)
 
   COMBOBOXINFO info;
   info.cbSize = sizeof(info);
-  int res = SendMessage((HWND) box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info);
+  LRESULT res = SendMessage((HWND)box->Handle.ToInt32(), CB_GETCOMBOBOXINFO, 0, (LPARAM)&info);
   if (res != 0)
     return SendMessage(info.hwndItem, EM_CANUNDO, 0, 0) != 0;
 

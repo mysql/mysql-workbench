@@ -74,7 +74,7 @@ private:
   void show_help_hint_or_update();
 
   bool find_context_help(Sql_editor *editor);
-  grt::StringRef get_help_topic_threaded(grt::GRT *, const std::string &query, std::pair<int, int> caret);
+  grt::StringRef get_help_topic_threaded(grt::GRT *, const std::string &query, std::pair<ssize_t, ssize_t> caret);
   void process_help_topic(const std::string &topic);
   void update_help_history(const std::string &topic);
 

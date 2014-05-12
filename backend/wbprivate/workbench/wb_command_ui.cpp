@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <string>
 
 #include "base/file_utilities.h"
@@ -496,7 +494,7 @@ void CommandUI::add_recent_menu(mforms::MenuItem *parent)
     
     item = mforms::manage(new mforms::MenuItem(caption));
     item->set_name(strfmt("wb.file.openRecentModel:%li", i+1));
-    scoped_connect(item->signal_clicked(),boost::bind(&WBContext::open_recent_document, _wb, i+1));
+    scoped_connect(item->signal_clicked(), boost::bind(&WBContext::open_recent_document, _wb, (int)i + 1));
     parent->add_item(item);
   }
 }

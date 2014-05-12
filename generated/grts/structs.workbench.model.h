@@ -25,7 +25,11 @@ typedef grt::Ref<workbench_model_NoteFigure> workbench_model_NoteFigureRef;
 
 
 namespace mforms { 
-	class Object;
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
 }; 
 
   /** a model figure representing an image */
@@ -93,7 +97,7 @@ obj.keepAspectRatio = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -170,7 +174,7 @@ obj.text = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:

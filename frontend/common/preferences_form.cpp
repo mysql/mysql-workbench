@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/ui_form.h"
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
@@ -516,7 +514,7 @@ void PreferencesForm::show_selector_option(const std::string &option_name, mform
 {
   std::string value;
   _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
-  selector->set_selected(std::find(choices.begin(), choices.end(), value) - choices.begin());
+  selector->set_selected((int)(std::find(choices.begin(), choices.end(), value) - choices.begin()));
 }
 
 
@@ -1623,7 +1621,7 @@ void PreferencesForm::change_font_option(const std::string &option, const std::s
   std::vector<std::string>::const_iterator it;
   if ((it = std::find(_font_options.begin(), _font_options.end(), option)) != _font_options.end())
   {
-    int i = it - _font_options.begin();
+    int i = (int)(it - _font_options.begin());
     _font_list.node_at_row(i)->set_string(1, value);
   }
 }

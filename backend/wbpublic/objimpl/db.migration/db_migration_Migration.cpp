@@ -1,5 +1,22 @@
+/*
+* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License as
+* published by the Free Software Foundation; version 2 of the
+* License.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+* 02110-1301  USA
+*/
 
-#include "stdafx.h"
 #include <grts/structs.db.migration.h>
 
 #include <grtpp_util.h>
@@ -48,7 +65,7 @@ db_migration_Migration::~db_migration_Migration()
 }
 
 
-grt::Ref<GrtLogObject> db_migration_Migration::addMigrationLogEntry(long type, const grt::Ref<GrtObject> &sourceObject, const grt::Ref<GrtObject> &targetObject, const std::string &message)
+grt::Ref<GrtLogObject> db_migration_Migration::addMigrationLogEntry(ssize_t type, const grt::Ref<GrtObject> &sourceObject, const grt::Ref<GrtObject> &targetObject, const std::string &message)
 {
   GrtLogObjectRef log = findMigrationLogEntry(sourceObject, targetObject);
   if (!log.is_valid())

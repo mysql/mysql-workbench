@@ -28,7 +28,9 @@
 #include "grts/structs.workbench.h"
 #include "base/trackable.h"
 
+#ifndef _WIN32
 #include <cairo.h>
+#endif
 
 #define MAIN_DOCUMENT_NAME "document.mwb.xml"
 #define MAIN_DOCUMENT_AUTOSAVE_NAME "document-autosave.mwb.xml"

@@ -1,11 +1,29 @@
+/* 
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
+
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
-using MySQL.Grt;
 
 namespace MySQL.Grt
 {
@@ -22,7 +40,7 @@ namespace MySQL.Grt
 		/// <summary>
 		/// The GRT tree this model is representing
 		/// </summary>
-		protected MySQL.Grt.TreeModel model;
+		protected MySQL.Grt.TreeModelWrapper model;
 
 		/// <summary>
 		/// The top node if any, otherwise null
@@ -47,7 +65,7 @@ namespace MySQL.Grt
 		/// <param name="TreeView">The TreeViewAdv control this model is used for</param>
 		/// <param name="GrtTree">The GRT tree this model is representing</param>
     /// <param name="DynamicContextMenu">Use context menu definition provided by backend</param>
-		protected GrtTreeModel(TreeViewAdv TreeView, MySQL.Grt.TreeModel GrtTree, bool DynamicContextMenu)
+		protected GrtTreeModel(TreeViewAdv TreeView, MySQL.Grt.TreeModelWrapper GrtTree, bool DynamicContextMenu)
 			: this()
 		{
 			model = GrtTree;
@@ -70,7 +88,7 @@ namespace MySQL.Grt
 		/// <param name="GrtTree">The GRT tree this model is representing</param>
 		/// <param name="StateIcon">The NodeStateIcon Node Control that displays the icon</param>
     /// <param name="DynamicContextMenu">Use context menu definition provided by backend</param>
-		protected GrtTreeModel(TreeViewAdv TreeView, MySQL.Grt.TreeModel GrtTree, Aga.Controls.Tree.NodeControls.NodeStateIcon NodeStateIcon, bool DynamicContextMenu)
+		protected GrtTreeModel(TreeViewAdv TreeView, MySQL.Grt.TreeModelWrapper GrtTree, Aga.Controls.Tree.NodeControls.NodeStateIcon NodeStateIcon, bool DynamicContextMenu)
 			: this(TreeView, GrtTree, DynamicContextMenu)
 		{
 			nodeStateIcon = NodeStateIcon;
@@ -155,7 +173,7 @@ namespace MySQL.Grt
       // repopulate the context menu with stuff provided by the backend
       menu.Items.Clear();
 
-      List<NodeId> selection = new List<NodeId>();
+      List<NodeIdWrapper> selection = new List<NodeIdWrapper>();
 
       foreach (TreeNodeAdv node in treeControl.SelectedNodes)
       {
@@ -205,7 +223,7 @@ namespace MySQL.Grt
     {
       System.Windows.Forms.ToolStripMenuItem mitem = sender as System.Windows.Forms.ToolStripMenuItem;
 
-      List<NodeId> selection = new List<NodeId>();
+      List<NodeIdWrapper> selection = new List<NodeIdWrapper>();
 
       foreach (TreeNodeAdv node in treeControl.SelectedNodes)
       {
@@ -272,7 +290,7 @@ namespace MySQL.Grt
 		#endregion
 
 		#region Properties
-		public MySQL.Grt.TreeModel GrtTree
+		public MySQL.Grt.TreeModelWrapper GrtTree
 		{
 			get { return model; }
 		}
@@ -332,7 +350,7 @@ namespace MySQL.Grt
 				if (node != null)
 				{
 					int iconId = GrtTree.get_field_icon(node.NodeId, 0, IconSize.Icon16);
-					Image icon = GrtIconManager.get_instance().get_icon(iconId);
+					Image icon = IconManagerWrapper.get_instance().get_icon(iconId);
 
 					if (icon != null)
 						e.Value = icon;

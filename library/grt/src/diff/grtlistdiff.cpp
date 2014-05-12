@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <memory>
 #include "grtlistdiff.h"
 #include "grtpp.h"
@@ -26,8 +24,6 @@
 #include "changelistobjects.h"
 #include "grtdiff.h"
 #include "base/log.h"
-
-//DEFAULT_LOG_DOMAIN("diff")
 
 #include <memory>
 #include <algorithm>

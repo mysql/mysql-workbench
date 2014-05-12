@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "db_sql_editor_log.h"
 #include "sqlide/recordset_data_storage.h"
@@ -236,7 +234,7 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-IconId DbSqlEditorLog::get_field_icon(const NodeId &node, int column, IconSize size)
+IconId DbSqlEditorLog::get_field_icon(const NodeId &node, ColumnId column, IconSize size)
 {
   IconId icon= 0;
 
@@ -273,7 +271,7 @@ static std::string sanitize_text(const std::string &text)
 
 //--------------------------------------------------------------------------------------------------
 
-bool DbSqlEditorLog::get_field(const bec::NodeId &node, int column, std::string &value)
+bool DbSqlEditorLog::get_field(const bec::NodeId &node, ColumnId column, std::string &value)
 {
   if (VarGridModel::get_field(node, column, value))
   {
@@ -288,7 +286,7 @@ bool DbSqlEditorLog::get_field(const bec::NodeId &node, int column, std::string 
 
 //--------------------------------------------------------------------------------------------------
 
-bool DbSqlEditorLog::get_field_description(const bec::NodeId &node, int column, std::string &value)
+bool DbSqlEditorLog::get_field_description(const bec::NodeId &node, ColumnId column, std::string &value)
 {
   return VarGridModel::get_field(node, column, value);
 }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,23 +41,23 @@ namespace MySQL {
       Icon64 = 64
     };
 
-    public ref class GrtIconManager 
+    public ref class IconManagerWrapper 
     {
     private:
-      static GrtIconManager^ _grtIconManager = nullptr;
+      static IconManagerWrapper^ _grtIconManager = nullptr;
 
       ImageList^ imageList16;
       ImageList^ imageList24;
       ImageList^ imageList32;
       ImageList^ imageList48;
 
-      Dictionary<int, Bitmap^>^ icon_cache;
+      Dictionary<IconId, Bitmap^>^ icon_cache;
 
       // Hide constructor
-      GrtIconManager()
+      IconManagerWrapper()
       {
-        icon_cache = gcnew Dictionary<int, Bitmap^>();
-        inner = ::bec::IconManager::get_instance();
+        icon_cache = gcnew Dictionary<IconId, Bitmap^>();
+        inner = bec::IconManager::get_instance();
 
         imageList16 = gcnew ImageList();
         imageList16->ColorDepth = ColorDepth::Depth32Bit;
@@ -74,25 +74,24 @@ namespace MySQL {
       }
 
     protected:
-
-      // Inner class
-      ::bec::IconManager *inner;
+      bec::IconManager *inner;
 
     public:
-      inline ::bec::IconManager *get_unmanaged_object()
-      { return inner; }
+      inline bec::IconManager *get_unmanaged_object() { return inner; }
 
       // Singleton class.
-      static GrtIconManager^ get_instance()
+      static IconManagerWrapper^ get_instance()
       {
         if (_grtIconManager == nullptr)
-          _grtIconManager = gcnew GrtIconManager();
+          _grtIconManager = gcnew IconManagerWrapper();
 
         return _grtIconManager;
       }
 
       IconId get_icon_id(String^ icon_file)
-      { return inner->get_icon_id(NativeToCppString(icon_file)); }
+      {
+        return (int)inner->get_icon_id(NativeToCppString(icon_file));
+      }
 
       String^ get_icon_file(IconId icon)
       { return CppStringToNative(inner->get_icon_file(icon)); }

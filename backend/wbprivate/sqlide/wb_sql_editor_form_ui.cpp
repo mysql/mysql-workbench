@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014444, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_form_ui.h"

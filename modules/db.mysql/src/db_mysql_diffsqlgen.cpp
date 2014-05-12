@@ -17,14 +17,12 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "db_mysql_diffsqlgen.h"
 
-#include "diffchange.h"
-#include "grtdiff.h"
-#include "changeobjects.h"
-#include "changelistobjects.h"
+#include "diff/diffchange.h"
+#include "diff/grtdiff.h"
+#include "diff/changeobjects.h"
+#include "diff/changelistobjects.h"
 
 #include "db_mysql_diffsqlgen_grant.h"
 
@@ -98,7 +96,7 @@ void DiffSQLGeneratorBE::generate_set_partitioning(db_mysql_TableRef table,
     part_count_set= false, part_defs_set= false;
   std::string part_type, part_expr, subpart_type, subpart_expr;
   grt::ListRef<db_mysql_PartitionDefinition> part_defs(table->get_grt());
-  int part_count= 0;
+  ssize_t part_count = 0;
 
   // gather all relevant attributes from change object
   const grt::ChangeSet *cs= table_diffchange->subchanges();
@@ -195,7 +193,7 @@ void DiffSQLGeneratorBE::generate_set_partitioning(db_mysql_TableRef table,
   if(!part_defs_set)
     part_defs= table->partitionDefinitions();
 
-  callback->alter_table_generate_partitioning(table, part_type, part_expr, part_count, 
+  callback->alter_table_generate_partitioning(table, part_type, part_expr, (int)part_count,
                         subpart_type, subpart_expr, part_defs);
 }
 
@@ -204,7 +202,7 @@ void DiffSQLGeneratorBE::generate_create_partitioning(db_mysql_TableRef table)
   callback->alter_table_generate_partitioning(table, 
     std::string(table->partitionType().is_valid() ? table->partitionType().c_str() : ""),
     std::string(table->partitionExpression().is_valid() ? table->partitionExpression().c_str() : ""),
-    table->partitionCount(),
+    (int)table->partitionCount(),
     std::string(table->subpartitionType().is_valid() ? table->subpartitionType().c_str() : ""),
     std::string(table->subpartitionExpression().is_valid() ? table->subpartitionExpression().c_str() : ""),
     table->partitionDefinitions()
@@ -263,8 +261,8 @@ void DiffSQLGeneratorBE::generate_create_stmt(db_mysql_TableRef table)
         callback->create_table_index(index, false);
         continue;      
       }
-      
-      if (_skip_fk_indexes && (stricmp(index->indexType().c_str(), "FOREIGN") == 0
+
+      if (_skip_fk_indexes && (strcasecmp(index->indexType().c_str(), "FOREIGN") == 0
                                  || fk_indexes.find(index) != fk_indexes.end()))
         continue;
 

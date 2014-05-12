@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wf_base.h"
 #include "wf_view.h"
 #include "wf_selector.h"
@@ -247,7 +245,7 @@ void SelectorWrapper::add_items(mforms::Selector *backend, const std::list<std::
 {
   ComboBox ^combobox = SelectorWrapper::GetManagedObject<ComboBox>(backend);
 
-  cli::array<Object ^> ^strings = gcnew cli::array<Object^>(items.size());
+  cli::array<Object ^> ^strings = gcnew cli::array<Object^>((int)items.size());
   int i = 0;
 
   for (std::list<std::string>::const_iterator iter = items.begin(); iter != items.end(); ++iter)

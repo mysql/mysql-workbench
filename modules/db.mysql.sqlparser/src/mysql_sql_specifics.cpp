@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -276,7 +276,7 @@ sqlide::QuoteVar::Escape_sql_string Mysql_sql_specifics::escape_sql_string()
 std::string blob_to_string_(const unsigned char *data, size_t size)
 {
   boost::scoped_array<char> out(new char[size*2+1]);
-  Mysql_sql_parser_fe::escape_string(out.get(), 0, (const char*)data, size);
+  Mysql_sql_parser_fe::escape_string(out.get(), 0, (const char*)data, (unsigned long)size);
   return std::string(out.get());
 }
 

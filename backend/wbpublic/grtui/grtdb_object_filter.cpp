@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtdb_object_filter.h"
 #include "grt/grt_string_list_model.h"
 #include "text_input_dialog.h"
@@ -35,7 +33,7 @@ static void refill_list(mforms::ListBox &list, bec::GrtStringListModel *model)
   for (size_t c= model->count(), i= 0; i < c; i++)
   {
     std::string item;
-    model->get_field(i, 0, item);
+    model->get_field((int)i, 0, item);
     list.add_item(item);
   }
 }
@@ -191,7 +189,7 @@ void DBObjectFilterFrame::refresh()
   refill_list(_object_list, _model);
   refill_list(_mask_list, _exclude_model);
 
-  _summary_label.set_text(strfmt(_("%i Total Objects, %i Selected"), 
+  _summary_label.set_text(strfmt(_("%zi Total Objects, %zi Selected"),
                                  _model->total_items_count(), _model->active_items_count()));
 
   update_button_enabled();
@@ -269,11 +267,11 @@ void DBObjectFilterFrame::add_clicked(bool all)
 {
   _filter_combo.set_selected(-1);
 
-  std::vector<int> indices;
-  int new_selection = -1;
+  std::vector<size_t> indices;
+  ssize_t new_selection = -1;
   if (all)
   {
-    for (int i = 0; i < _model->count(); ++i)
+    for (size_t i = 0; i < _model->count(); ++i)
       indices.push_back(i);
   }
   else
@@ -297,11 +295,11 @@ void DBObjectFilterFrame::del_clicked(bool all)
 {
   _filter_combo.set_selected(-1);
 
-  std::vector<int> indices;
-  int new_selection = -1;
+  std::vector<size_t> indices;
+  ssize_t new_selection = -1;
   if (all)
   {
-    for (int c= _exclude_model->count(), i= 0; i < c; i++)
+    for (size_t c = _exclude_model->count(), i = 0; i < c; i++)
       indices.push_back(i);
   }
   else

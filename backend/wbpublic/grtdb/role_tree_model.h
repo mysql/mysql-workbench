@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,6 @@
 #include "grts/structs.db.h"
 
 #include "wbpublic_public_interface.h"
-
-
 
 namespace bec {
   
@@ -139,9 +137,9 @@ namespace bec {
     Node *_root;
     std::string _object_id;
 
-    virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
-    virtual grt::Type get_field_type(const NodeId &node, int column);
-    virtual bool set_field(const NodeId &node, int column, const std::string &value);
+    virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
+    virtual grt::Type get_field_type(const NodeId &node, ColumnId column);
+    virtual bool set_field(const NodeId &node, ColumnId column, const std::string &value);
 
     Node *get_node_with_id(const NodeId &node);
     bool find_role(const RoleTreeBE::Node *node, const db_RoleRef &role, bec::NodeId &path);
@@ -157,8 +155,8 @@ namespace bec {
     virtual ~RoleTreeBE();
 
     virtual void refresh();
-    virtual int count_children(const NodeId &parent);
-    virtual NodeId get_child(const NodeId &parent, int index);
+    virtual size_t count_children(const NodeId &parent);
+    virtual NodeId get_child(const NodeId &parent, size_t index);
 
     db_RoleRef get_role_with_id(const NodeId &node)
     {

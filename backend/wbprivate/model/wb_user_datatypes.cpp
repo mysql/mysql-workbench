@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "workbench/wb_context.h"
 #include "wb_context_model.h"
@@ -84,7 +82,7 @@ void UserDatatypeList::refresh()
 
   std::string deficon = bec::IconManager::get_instance()->get_icon_path("db.DatatypeGroup.userdefined.16x16.png");
 
-  for (int c = _catalog->userDatatypes().count(), i = 0; i < c; i++)
+  for (size_t c = _catalog->userDatatypes().count(), i = 0; i < c; i++)
   {
     db_UserDatatypeRef type(_catalog->userDatatypes()[i]);
     mforms::TreeNodeRef node = add_node();

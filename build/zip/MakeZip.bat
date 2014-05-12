@@ -2,14 +2,18 @@
 
 if "%1"=="" goto printUsage
 if "%2"=="" goto printUsage
+if "%3"=="" goto printUsage
+
+if "%3"=="win32" set ARCH=x86
+if "%3"=="win64" set ARCH=x64
 
 rem Set edition specific variables
-if "%1"=="commercial" set BIN_DIR=..\..\bin\Release
+if "%1"=="commercial" set BIN_DIR=..\..\bin\%ARCH%\Release
 if "%1"=="commercial" set LICENSE_TYPE=commercial
 if "%1"=="commercial" set SETUP_TYPE=commercial
 if "%1"=="commercial" set SETUP_TYPE_UC=
 
-if "%1"=="community" set BIN_DIR=..\..\bin\Release_OSS
+if "%1"=="community" set BIN_DIR=..\..\bin\%ARCH%\Release_OSS
 if "%1"=="community" set LICENSE_TYPE=community
 if "%1"=="community" set SETUP_TYPE=community
 if "%1"=="community" set SETUP_TYPE_UC= CE
@@ -20,10 +24,10 @@ for %%A in ("%VERSION_DETAIL%") do set VERSION_MAIN=%%~nA
 
 rem Set other variables
 set DIST_DIR=.\distribution
-set UTIL_PATH=..\..\..\mysql-gui-win-res\bin
-set PYTHON_EXE_PATH=..\..\..\..\mysql-gui-win-res\python27\python.exe
-set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-win32-noinstall.zip
-set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC%"
+set UTIL_PATH=..\..\..\mysql-win-res\bin
+set PYTHON_EXE_PATH=..\..\..\..\mysql-win-res\python27\python.exe
+set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%3-noinstall.zip
+set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%3)"
 set TMP_DIR=.\temp
 
 if not exist %BIN_DIR% goto ERROR1
@@ -96,7 +100,7 @@ EXIT /B 0
 
 
 :ERROR1
-echo Error: You have to provide a build in the %BIN_DIR% directory
+echo Error: %BIN_DIR% folder not found. Check the path and make sure it contains a valid build.
 EXIT /B 1
 
 :ERROR2
@@ -115,11 +119,12 @@ EXIT /B 1
 echo MakeZip Version 2.0.0
 echo Usage:
 echo .
-echo %0 EDITION VERSION
+echo %0 EDITION VERSION ARCH
 echo .
 echo   EDITION can be commercial or community
 echo   VERSION has to be a 3 number version code
+echo   ARCH is either win32 or win64
 echo .
 echo   Examples:
-echo   %0 community 6.0.8
+echo   %0 community 6.1.4 win64
 EXIT /B 1

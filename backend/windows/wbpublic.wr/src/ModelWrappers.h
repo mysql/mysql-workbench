@@ -20,8 +20,6 @@
 #ifndef _TREE_MODEL_WRAPPER_H_
 #define _TREE_MODEL_WRAPPER_H_
 
-#pragma make_public(::bec::ListModel)
-
 #include "ConvUtils.h"
 #include "GrtTemplates.h"
 #include "DelegateWrapper.h"
@@ -37,54 +35,52 @@ namespace MySQL {
     /**
      * Wraps a native NodeId to make it available to managed code.
      */
-    public ref class NodeId
+    public ref class NodeIdWrapper
     {
     protected:
       ::bec::NodeId *inner;
 
     public:
-      NodeId(const ::bec::NodeId *inn);
-      NodeId();
-      NodeId(int index);
-      NodeId(String ^str);
-      ~NodeId();
+      NodeIdWrapper(const bec::NodeId *inn);
+      NodeIdWrapper();
+      NodeIdWrapper(int index);
+      NodeIdWrapper(String ^str);
+      ~NodeIdWrapper();
 
-      ::bec::NodeId *get_unmanaged_object();
-      bool operator == (NodeId^ node);
-      bool equals(NodeId^ node);
+      bec::NodeId *get_unmanaged_object();
+      bool operator == (NodeIdWrapper^ node);
+      bool equals(NodeIdWrapper^ node);
       int operator[] (int i);
-      int get_by_index (int i);
+      int get_by_index(int i);
       int depth();
       int end();
       bool previous();
       bool next();
-      NodeId^ append(int i);
+      NodeIdWrapper^ append(int i);
       bool is_valid();
       String^ repr();
     };
-
 
     //----------------------------------------------------------------------------------------------
 
     /**
      * Helper methods.
      */
-    inline NodeId^ nativeToManaged(const bec::NodeId &input)
+    inline NodeIdWrapper^ nativeToManaged(const bec::NodeId &input)
     {
-      return gcnew NodeId(&input);
+      return gcnew NodeIdWrapper(&input);
     }
 
-    inline List<NodeId^>^ nativeToManaged(const std::vector<bec::NodeId> &input)
+    inline List<NodeIdWrapper^>^ nativeToManaged(const std::vector<bec::NodeId> &input)
     {
-      //return CppVectorToObjectList<bec::NodeId, NodeId>(input);
       typedef const std::vector<bec::NodeId> SourceContainerType;
-      typedef List<NodeId^> TargetContainerType;
+      typedef List<NodeIdWrapper^> TargetContainerType;
 
       TargetContainerType^ result= gcnew TargetContainerType(static_cast<int>(input.size()));
       SourceContainerType::const_iterator e= input.end();
 
       for (SourceContainerType::const_iterator i= input.begin(); i != e; i++)
-        result->Add(gcnew NodeId(&(*i)));
+        result->Add(gcnew NodeIdWrapper(&(*i)));
 
       return result;
     }
@@ -95,45 +91,45 @@ namespace MySQL {
      * Wraps a native ListModel to make it available to managed code. This wrapper also
      * takes care for callbacks from unmanaged to managed code.
      */
-    typedef DelegateSlot2<void, void, bec::NodeId, NodeId^, int, int> TreeRefreshSlot;
+    typedef DelegateSlot2<void, void, bec::NodeId, NodeIdWrapper^, int, int> TreeRefreshSlot;
 
-    public ref class ListModel
+    public ref class ListModelWrapper
     {
     protected:
-      ::bec::ListModel *inner;
+      bec::ListModel *inner;
       List<TreeRefreshSlot^> tree_refresh_handlers;
       std::vector<boost::signals2::connection>* native_connections;
 
     public:
-      ListModel(::bec::ListModel *inn);
-      ~ListModel() ;
+      ListModelWrapper(::bec::ListModel *inn);
+      ~ListModelWrapper() ;
 
       bool is_valid();
-      bool equals(ListModel^ other);
+      bool equals(ListModelWrapper^ other);
       virtual int count();
-      virtual NodeId^ get_node(int index);
-      virtual bool get_field(NodeId^ node, int column, [Out] String^ %value);
-      virtual bool get_field(NodeId^ node, int column, [Out] int %value);
-      virtual bool get_field(NodeId^ node, int column, [Out] double %value);
-      virtual String^ get_field_description(NodeId^ node, int column);
-      virtual IconId get_field_icon(NodeId^ node, int column, IconSize size);
-      virtual GrtValue^ get_grt_value(NodeId^ node, int column);
+      virtual NodeIdWrapper^ get_node(int index);
+      virtual bool get_field(NodeIdWrapper^ node, int column, [Out] String^ %value);
+      virtual bool get_field(NodeIdWrapper^ node, int column, [Out] int %value);
+      virtual bool get_field(NodeIdWrapper^ node, int column, [Out] double %value);
+      virtual String^ get_field_description(NodeIdWrapper^ node, int column);
+      virtual IconId get_field_icon(NodeIdWrapper^ node, int column, IconSize size);
+      virtual GrtValue^ get_grt_value(NodeIdWrapper^ node, int column);
       virtual void refresh();
       virtual void reset();
-      virtual GrtValueType^ get_field_type(NodeId^ node, int column);
-      virtual bool set_field(NodeId^ node, int column, String^ value);
-      virtual bool set_field(NodeId^ node, int column, double value);
-      virtual bool set_field(NodeId^ node, int column, int value);
-      virtual bool set_convert_field(NodeId^ node, int column, String^ value);
-      virtual bool activate_node(NodeId^ node);
-      std::vector<bec::NodeId> convert_node_list(List<NodeId^> ^nodes);
-      virtual List<MySQL::Base::MenuItem^> ^get_popup_items_for_nodes(List<NodeId^> ^nodes);
-      virtual bool activate_popup_item_for_nodes(String ^name, List<NodeId^> ^nodes);
-      virtual bool delete_node(NodeId^ node);
-      void reorder(NodeId^ node, int index);
-      void reorder_up(NodeId^ node);
-      void reorder_down(NodeId^ node);
-      bool is_editable(NodeId^ node);
+      virtual GrtValueType^ get_field_type(NodeIdWrapper^ node, int column);
+      virtual bool set_field(NodeIdWrapper^ node, int column, String^ value);
+      virtual bool set_field(NodeIdWrapper^ node, int column, double value);
+      virtual bool set_field(NodeIdWrapper^ node, int column, int value);
+      virtual bool set_convert_field(NodeIdWrapper^ node, int column, String^ value);
+      virtual bool activate_node(NodeIdWrapper^ node);
+      std::vector<bec::NodeId> convert_node_list(List<NodeIdWrapper^> ^nodes);
+      virtual List<MySQL::Base::MenuItem^> ^get_popup_items_for_nodes(List<NodeIdWrapper^> ^nodes);
+      virtual bool activate_popup_item_for_nodes(String ^name, List<NodeIdWrapper^> ^nodes);
+      virtual bool delete_node(NodeIdWrapper^ node);
+      void reorder(NodeIdWrapper^ node, int index);
+      void reorder_up(NodeIdWrapper^ node);
+      void reorder_down(NodeIdWrapper^ node);
+      bool is_editable(NodeIdWrapper^ node);
       void add_tree_refresh_handler(TreeRefreshSlot::ManagedDelegate^ slot);
       void remove_tree_refresh_handler(TreeRefreshSlot::ManagedDelegate^ slot);
     };
@@ -143,20 +139,20 @@ namespace MySQL {
     /**
      * Wraps a native TreeModel to make it available to managed code.
      */
-    public ref class TreeModel : public ListModel
+    public ref class TreeModelWrapper : public ListModelWrapper
     {
     public:
-      TreeModel(::bec::TreeModel *inn);
+      TreeModelWrapper(bec::TreeModel *inn);
 
-      ::bec::TreeModel *get_unmanaged_object();
-      virtual NodeId^ get_root();
-      virtual int get_node_depth(NodeId^ node);
-      virtual NodeId^ get_parent(NodeId^ node);
-      virtual int count_children(NodeId^ parent);
-      virtual NodeId^ get_child(NodeId^ parent, int index);
-      virtual bool expand_node(NodeId^ node);
-      virtual void collapse_node(NodeId^ node);
-      virtual bool is_expandable(NodeId^ node);
+      bec::TreeModel *get_unmanaged_object();
+      virtual NodeIdWrapper^ get_root();
+      virtual int get_node_depth(NodeIdWrapper^ node);
+      virtual NodeIdWrapper^ get_parent(NodeIdWrapper^ node);
+      virtual int count_children(NodeIdWrapper^ parent);
+      virtual NodeIdWrapper^ get_child(NodeIdWrapper^ parent, int index);
+      virtual bool expand_node(NodeIdWrapper^ node);
+      virtual void collapse_node(NodeIdWrapper^ node);
+      virtual bool is_expandable(NodeIdWrapper^ node);
     };
 
     //----------------------------------------------------------------------------------------------
@@ -164,29 +160,29 @@ namespace MySQL {
     /**
      * Wraps a native GridModel to make it available to managed code.
      */
-    public ref class GridModel : public ListModel
+    public ref class GridModelWrapper : public ListModelWrapper
     {
     public:
       enum class ColumnType
       {
-        StringType = ::bec::GridModel::StringType,
-        NumericType = ::bec::GridModel::NumericType,
-        FloatType = ::bec::GridModel::FloatType,
-        DatetimeType = ::bec::GridModel::DatetimeType,
-        BlobType = ::bec::GridModel::BlobType
+        StringType   = bec::GridModel::StringType,
+        NumericType  = bec::GridModel::NumericType,
+        FloatType    = bec::GridModel::FloatType,
+        DatetimeType = bec::GridModel::DatetimeType,
+        BlobType     = bec::GridModel::BlobType
       };
 
-      GridModel(::bec::GridModel *inn);
+      GridModelWrapper(bec::GridModel *inn);
 
-      ::bec::GridModel *get_unmanaged_object();
+      bec::GridModel *get_unmanaged_object();
       virtual int get_column_count() ;
       virtual String^ get_column_caption(int column);
       virtual ColumnType get_column_type(int column);
       virtual bool is_readonly();
       virtual String^ readonly_reason();
-      virtual bool is_field_null(NodeId^ node, int column);
-      virtual bool set_field_null(NodeId^ node, int column);
-      virtual bool get_field_repr(NodeId^ node, int column, [Out] String^ %value);
+      virtual bool is_field_null(NodeIdWrapper^ node, int column);
+      virtual bool set_field_null(NodeIdWrapper^ node, int column);
+      virtual bool get_field_repr(NodeIdWrapper^ node, int column, [Out] String^ %value);
       virtual void set_edited_field(int row_index, int col_index);
       virtual void sort_columns([Out] List<int>^ %indexes, [Out] List<int>^ %orders);
     };

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,15 +25,11 @@
 #include "GrtTemplates.h"
 #include "grtdb/editor_user_role.h"
 
-#pragma make_public(::bec::RoleEditorBE)
-#pragma make_public(::bec::RolePrivilegeListBE)
-#pragma make_public(::bec::RoleObjectListBE)
-
 namespace MySQL {
 namespace Grt {
 namespace Db {
 
-public ref class RolePrivilegeListWrapper : public MySQL::Grt::ListModel
+public ref class RolePrivilegeListWrapper : public MySQL::Grt::ListModelWrapper
 {
 public:
   enum class Columns {
@@ -46,7 +42,7 @@ public:
   ::bec::RolePrivilegeListBE *get_unmanaged_object();
 };
 
-public ref class RoleObjectListWrapper : public MySQL::Grt::ListModel
+public ref class RoleObjectListWrapper : public MySQL::Grt::ListModelWrapper
 {
 public:
   enum class Columns {
@@ -56,7 +52,7 @@ public:
   RoleObjectListWrapper(::bec::RoleObjectListBE *inn);
 
   ::bec::RoleObjectListBE *get_unmanaged_object();
-  void set_selected_node(NodeId ^node);
+  void set_selected_node(NodeIdWrapper ^node);
 };
 
 
@@ -77,7 +73,7 @@ public:
   RolePrivilegeListWrapper^ get_privilege_list();
   RoleObjectListWrapper^ get_object_list();
   void add_object(GrtValue ^object);
-  void remove_object(NodeId^ node);
+  void remove_object(NodeIdWrapper^ node);
 };
 
 

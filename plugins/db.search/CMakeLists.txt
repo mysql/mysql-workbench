@@ -8,7 +8,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules/
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff
     ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/dbc/src
+    ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}

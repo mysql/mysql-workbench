@@ -193,7 +193,7 @@ public:
 
   virtual Gtk::Widget *get_outer() const { return _container; }
 
-  int perform_action(FindPanelAction action)
+  size_t perform_action(FindPanelAction action)
   {
     std::string find_text = _find_entry->get_text();
     std::string repl_text = _replace_entry->get_text();
@@ -286,7 +286,7 @@ public:
     return new FindPanelImpl(fp) != 0;
   }
 
-  static int perform_action(FindPanel *fp, FindPanelAction action)
+  static size_t perform_action(FindPanel *fp, FindPanelAction action)
   {
     FindPanelImpl *self = fp->get_data<FindPanelImpl>();
     return self->perform_action(action);

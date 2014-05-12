@@ -80,20 +80,20 @@ namespace wb {
     
     virtual bool is_main_form() { return true; }
 
-    virtual bec::NodeId get_child(const bec::NodeId &parent, int index);
-    virtual int count_children(const bec::NodeId &parent);
+    virtual bec::NodeId get_child(const bec::NodeId &parent, size_t index);
+    virtual size_t count_children(const bec::NodeId &parent);
 
-    virtual grt::ValueRef get_grt_value(const bec::NodeId &node, int column);
-    virtual bool get_field(const bec::NodeId &node, int column, std::string &value);
-    virtual bool get_field(const bec::NodeId &node, int column, int &value);
+    virtual grt::ValueRef get_grt_value(const bec::NodeId &node, ColumnId column);
+    virtual bool get_field(const bec::NodeId &node, ColumnId column, std::string &value);
+    virtual bool get_field(const bec::NodeId &node, ColumnId column, ssize_t &value);
 
     int get_details_field_count(const bec::NodeId &node);
 
-    std::string get_field_name(const bec::NodeId &node, int column);
-    virtual std::string get_field_description(const bec::NodeId &node, int column);
-    virtual bec::IconId get_field_icon(const bec::NodeId &node, int column, bec::IconSize size);
+    std::string get_field_name(const bec::NodeId &node, ColumnId column);
+    virtual std::string get_field_description(const bec::NodeId &node, ColumnId column);
+    virtual bec::IconId get_field_icon(const bec::NodeId &node, ColumnId column, bec::IconSize size);
 
-    virtual bool set_field(const bec::NodeId &node, int column, const std::string &value);
+    virtual bool set_field(const bec::NodeId &node, ColumnId column, const std::string &value);
 
     // only leaf nodes can be selected (for now)
     void begin_selection_marking();

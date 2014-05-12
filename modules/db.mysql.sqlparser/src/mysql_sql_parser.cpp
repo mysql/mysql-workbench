@@ -178,7 +178,7 @@ int Mysql_sql_parser::parse_sql_script(db_CatalogRef &catalog, const std::string
   db_mysql_SchemaRef default_schema;
   int initial_schemata_count= -1;
 
-  initial_schemata_count= _catalog->schemata().count();
+  initial_schemata_count = (int)_catalog->schemata().count();
   if (0 == initial_schemata_count)
     default_schema= set_active_schema("default_schema"); // this will add schema to schemata if necessary
   else
@@ -1906,7 +1906,7 @@ Mysql_sql_parser::process_create_routine_statement(const SqlAstNode *tree)
       ListRef<db_mysql_RoutineParam> params= obj->params();
       
       if (_reusing_existing_obj)
-        for (int n= params.count(); n > 0; --n)
+        for (ssize_t n= params.count(); n > 0; --n)
           params.remove_value(params[n-1]);
 
       if (param_list_item)

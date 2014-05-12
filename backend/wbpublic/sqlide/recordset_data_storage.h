@@ -99,11 +99,11 @@ public:
   bool limit_rows() { return _limit_rows; }
   void limit_rows(bool value) { _limit_rows= value; }
   int limit_rows_count() { return _limit_rows_count; }
-  void limit_rows_count(RowId value) { _limit_rows_count= value; }
+  void limit_rows_count(RowId value) { _limit_rows_count = (int)value; }
   bool limit_rows_applicable() { return _limit_rows_applicable; }
   void limit_rows_applicable(bool val) { _limit_rows_applicable= val; }
   int limit_rows_offset() { return _limit_rows_offset; }
-  void scroll_rows_frame_forward() { _limit_rows_offset+= _limit_rows_count; }
+  void scroll_rows_frame_forward() { _limit_rows_offset += _limit_rows_count; }
   void scroll_rows_frame_backward() { _limit_rows_offset= std::max<int>(0, (_limit_rows_offset - _limit_rows_count)); }
 protected:
   bool _limit_rows;

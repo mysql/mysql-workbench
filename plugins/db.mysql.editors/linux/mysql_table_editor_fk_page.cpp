@@ -174,7 +174,7 @@ void DbMySQLTableEditorFKPage::update_fk_details()
     text = "";
   label->set_text(text);
 
-  int model_only= 0;
+  ssize_t model_only= 0;
   if (_fk_node.is_valid())
     fk_be->get_field(_fk_node, ::bec::FKConstraintListBE::ModelOnly, model_only);
   _fk_model_only->set_active(model_only!=0);

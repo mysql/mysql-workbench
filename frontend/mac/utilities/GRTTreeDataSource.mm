@@ -1,10 +1,21 @@
-//
-//  GRTTreeDataSource.mm
-//  MySQLWorkbench
-//
-//  Created by Alfredo Kojima on 29/Sep/08.
-//  Copyright 2008 Sun Microsystems Inc. All rights reserved.
-//
+/*
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
 
 #import "GRTTreeDataSource.h"
 #import "GRTIconCache.h"
@@ -168,7 +179,7 @@
   if ([object respondsToSelector:@selector(UTF8String)])
     _tree->set_field([self nodeIdForItem:item], column, [object UTF8String]);
   else if ([object respondsToSelector:@selector(integerValue)])
-    _tree->set_field([self nodeIdForItem:item], column, (int)[object integerValue]);
+    _tree->set_field([self nodeIdForItem:item], column, (ssize_t)[object integerValue]);
 }
 
 

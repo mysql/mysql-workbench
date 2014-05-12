@@ -17,6 +17,8 @@
  * 02110-1301  USA
  */
 
+#include "copytable.h"
+
 #include "converter.h"
 #include "base/log.h"
 

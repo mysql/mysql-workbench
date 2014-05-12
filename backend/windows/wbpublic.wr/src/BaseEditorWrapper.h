@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,12 +21,7 @@
 
 #include "grt/editor_base.h"
 
-using namespace System;
-using namespace System::Collections::Generic;
-
 using namespace MySQL::Base;
-
-#pragma make_public(bec::BaseEditor)
 
 namespace MySQL {
 namespace Grt {

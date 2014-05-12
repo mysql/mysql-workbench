@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <string>
 
 #include "base/ui_form.h"
@@ -896,7 +894,7 @@ bool WBContextUI::get_wb_options_value(const std::string &model, const std::stri
   if (!model.empty())
   {
     grt::DictRef model_options(get_model_options(model));
-    int use_global= model_options.get_int("useglobal", 1);
+    bool use_global = model_options.get_int("useglobal", 1) != 0;
 
     if (key == "useglobal")
     {

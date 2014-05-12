@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include <glib.h>
 #include "file_charset_dialog.h"
@@ -97,7 +95,7 @@ bool FileCharsetDialog::ensure_filedata_utf8(const char *data, size_t length,
   bool retrying = false;
 retry:
   
-  if (!g_utf8_validate(data, length, &end))
+  if (!g_utf8_validate(data, (gssize)length, &end))
   {
     std::string default_encoding = "LATIN1";
 
@@ -144,7 +142,7 @@ retry:
       retrying = true; // in case we fail..
     }
 
-    converted = g_convert(data, length, "UTF-8", charset.c_str(),
+    converted = g_convert(data, (gssize)length, "UTF-8", charset.c_str(),
                           &bytes_read, &bytes_written,
                           &error);
     if (!converted)

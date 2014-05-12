@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -284,7 +284,7 @@ using namespace mforms;
       break;      
     case Replace:
     {
-      int start, length;
+      size_t start, length;
       mOwner->get_editor()->get_selection(start, length);
       if (length > 0)
         mOwner->get_editor()->replace_selected_text([[mReplaceText stringValue] UTF8String]);
@@ -340,7 +340,7 @@ static bool find_create(FindPanel *fp)
   return true;  
 }
 
-static int find_perform_action(FindPanel *fp, FindPanelAction action)
+static size_t find_perform_action(FindPanel *fp, FindPanelAction action)
 {
   MFFindPanel *self = fp->get_data();
   

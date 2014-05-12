@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "role_tree_model.h"
 #include "base/string_utilities.h"
@@ -132,7 +130,7 @@ void RoleTreeBE::refresh()
 }
 
 
-int RoleTreeBE::count_children(const NodeId &parent)
+size_t RoleTreeBE::count_children(const NodeId &parent)
 {
   Node *node= get_node_with_id(parent);
 
@@ -143,10 +141,10 @@ int RoleTreeBE::count_children(const NodeId &parent)
 }
 
 
-NodeId RoleTreeBE::get_child(const NodeId &parent, int index)
+NodeId RoleTreeBE::get_child(const NodeId &parent, size_t index)
 {
   Node *n= get_node_with_id(parent);
-  if (n && index < (int)n->children.size())
+  if (n && index < n->children.size())
     return NodeId(parent).append(index);
   if (n)
     throw std::logic_error("invalid index");
@@ -155,7 +153,7 @@ NodeId RoleTreeBE::get_child(const NodeId &parent, int index)
 }
 
 
-bool RoleTreeBE::set_field(const NodeId &node, int column, const std::string &value)
+bool RoleTreeBE::set_field(const NodeId &node, ColumnId column, const std::string &value)
 {
   Node *n;
 
@@ -184,7 +182,7 @@ bool RoleTreeBE::set_field(const NodeId &node, int column, const std::string &va
 }
 
 
-grt::Type RoleTreeBE::get_field_type(const NodeId &node, int column)
+grt::Type RoleTreeBE::get_field_type(const NodeId &node, ColumnId column)
 {
   switch ((Columns)column)
   {
@@ -197,7 +195,7 @@ grt::Type RoleTreeBE::get_field_type(const NodeId &node, int column)
 }
 
 
-bool RoleTreeBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool RoleTreeBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   Node *n;
 
@@ -248,7 +246,6 @@ bool RoleTreeBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &va
 RoleTreeBE::Node *RoleTreeBE::get_node_with_id(const NodeId &node)
 {
   Node *n= _root;
-  int i;
 
   if (!n)
     return 0;
@@ -256,9 +253,9 @@ RoleTreeBE::Node *RoleTreeBE::get_node_with_id(const NodeId &node)
   if (node.depth() == 0)
     return n;
 
-  for (i= 0; i < node.depth(); i++)
+  for (size_t i= 0; i < node.depth(); i++)
   {
-    if (node[i] >= (int)n->children.size())
+    if (node[i] >= n->children.size())
       throw std::logic_error("Invalid node id");
 
     n= n->children[node[i]];

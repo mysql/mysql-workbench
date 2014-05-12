@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,13 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "grtpp.h"
 
 #include "grtdb/editor_table.h"
 #include "grtdb/db_object_helpers.h"
 #include "base/string_utilities.h"
 #include "sqlide/recordset_be.h"
+#include "wb_helpers.h"
 
 using namespace grt;
 using namespace bec;
@@ -203,7 +202,7 @@ TEST_FUNCTION(3)
   NodeId node;
   std::string name;
   std::string type;
-  int ispk;
+  ssize_t ispk;
   bool notnull;
   std::string flags;
   std::string defvalue;
@@ -578,19 +577,19 @@ TEST_FUNCTION(10)
   for (size_t i= 0; i < table->columns().count(); i++)
   {
     flag= icolumns->get_field(i, IndexColumnsListBE::Name, name);
-    ensure(strfmt("index column[%i] name",i), flag);
-    ensure_equals(strfmt("index column[%i] name",i), name, *table->columns()[i]->name());
+    ensure(strfmt("index column[%lu] name",i), flag);
+    ensure_equals(strfmt("index column[%lu] name",i), name, *table->columns()[i]->name());
     flag= icolumns->get_field(i, IndexColumnsListBE::Descending, buf);
-    ensure(strfmt("index column[%i] desc",i), flag);
-    ensure_equals(strfmt("index column[%i] desc",i), buf, "0");
+    ensure(strfmt("index column[%lu] desc",i), flag);
+    ensure_equals(strfmt("index column[%lu] desc",i), buf, "0");
     flag= icolumns->get_field(i, IndexColumnsListBE::Length, buf);
-    ensure(strfmt("index column[%i] length",i), flag);
-    ensure_equals(strfmt("index column[%i] length",i), buf, "0");
+    ensure(strfmt("index column[%lu] length",i), flag);
+    ensure_equals(strfmt("index column[%lu] length",i), buf, "0");
     flag= icolumns->get_column_enabled(i);
     if (name == "id")
-      ensure_equals(strfmt("index column[%i] enabled",i), flag, true);
+      ensure_equals(strfmt("index column[%lu] enabled",i), flag, true);
     else
-      ensure_equals(strfmt("index column[%i] enabled",i), flag, false);
+      ensure_equals(strfmt("index column[%lu] enabled",i), flag, false);
   }
 
   // ** the idx we added
@@ -609,29 +608,29 @@ TEST_FUNCTION(10)
   for (size_t i= 0; i < table->columns().count(); i++)
   {
     flag= icolumns->get_field(i, IndexColumnsListBE::Name, name);
-    ensure(strfmt("index column[%i] name",i), flag);
-    ensure_equals(strfmt("index column[%i] name",i), name, *table->columns()[i]->name());
+    ensure(strfmt("index column[%lu] name",i), flag);
+    ensure_equals(strfmt("index column[%lu] name",i), name, *table->columns()[i]->name());
     if (name == "name")
     {
       flag= icolumns->get_field(i, IndexColumnsListBE::Descending, buf);
-      ensure(strfmt("index column[%i] desc",i), flag);
-      ensure_equals(strfmt("index column[%i] desc",i), buf, "1");
+      ensure(strfmt("index column[%lu] desc",i), flag);
+      ensure_equals(strfmt("index column[%lu] desc",i), buf, "1");
       flag= icolumns->get_field(i, IndexColumnsListBE::Length, buf);
-      ensure(strfmt("index column[%i] length",i), flag);
-      ensure_equals(strfmt("index column[%i] length",i), buf, "20");
+      ensure(strfmt("index column[%lu] length",i), flag);
+      ensure_equals(strfmt("index column[%lu] length",i), buf, "20");
       flag= icolumns->get_column_enabled(i);
-      ensure_equals(strfmt("index column[%i] enabled",i), flag, true);
+      ensure_equals(strfmt("index column[%lu] enabled",i), flag, true);
     }
     else
     {
       flag= icolumns->get_field(i, IndexColumnsListBE::Descending, buf);
-      ensure(strfmt("index column[%i] desc",i), flag);
-      ensure_equals(strfmt("index column[%i] desc",i), buf, "0");
+      ensure(strfmt("index column[%lu] desc",i), flag);
+      ensure_equals(strfmt("index column[%lu] desc",i), buf, "0");
       flag= icolumns->get_field(i, IndexColumnsListBE::Length, buf);
-      ensure(strfmt("index column[%i] length",i), flag);
-      ensure_equals(strfmt("index column[%i] length",i), buf, "0");
+      ensure(strfmt("index column[%lu] length",i), flag);
+      ensure_equals(strfmt("index column[%lu] length",i), buf, "0");
       flag= icolumns->get_column_enabled(i);
-      ensure_equals(strfmt("index column[%i] enabled",i), flag, false);
+      ensure_equals(strfmt("index column[%lu] enabled",i), flag, false);
     }
   }
 
@@ -669,24 +668,24 @@ TEST_FUNCTION(10)
   for (size_t i= 0; i < (size_t)icolumns->count(); i++)
   {
     flag= icolumns->get_field(i, IndexColumnsListBE::Name, name);
-    ensure(strfmt("index column[%i] name",i), flag);
-    ensure_equals(strfmt("index column[%i] name",i), name, *table->columns()[i]->name());
+    ensure(strfmt("index column[%lu] name",i), flag);
+    ensure_equals(strfmt("index column[%lu] name",i), name, *table->columns()[i]->name());
     flag= icolumns->get_field(i, IndexColumnsListBE::Descending, buf);
-    ensure(strfmt("index column[%i] desc",i), flag);
-    ensure_equals(strfmt("index column[%i] desc",i), buf, "0");
+    ensure(strfmt("index column[%lu] desc",i), flag);
+    ensure_equals(strfmt("index column[%lu] desc",i), buf, "0");
     flag= icolumns->get_field(i, IndexColumnsListBE::Length, buf);
-    ensure(strfmt("index column[%i] length",i), flag);
-    ensure_equals(strfmt("index column[%i] length",i), buf, "0");
+    ensure(strfmt("index column[%lu] length",i), flag);
+    ensure_equals(strfmt("index column[%lu] length",i), buf, "0");
 
     if (name == "name" || name == "email")
     {
       flag= icolumns->get_column_enabled(i);
-      ensure_equals(strfmt("index column[%i] enabled",i), flag, true);
+      ensure_equals(strfmt("index column[%lu] enabled",i), flag, true);
     }
     else
     {
       flag= icolumns->get_column_enabled(i);
-      ensure_equals(strfmt("index column[%i] enabled",i), flag, false);
+      ensure_equals(strfmt("index column[%lu] enabled",i), flag, false);
     }
   }
 }

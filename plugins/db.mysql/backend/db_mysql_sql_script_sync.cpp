@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <algorithm>
 #include "grtpp_undo_manager.h"
 
@@ -469,8 +467,8 @@ grt::StringRef DbMySQLScriptSync::generate_alter(db_mysql_CatalogRef org_cat, db
 
   diffsql_module->generateSQL(org_cat, options, alter_change);
 
-  int res= diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
-  if (res)
+  ssize_t res = diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
+  if (res != 0)
     throw std::runtime_error("SQL Script Export Module Returned Error");
 
   return grt::StringRef::cast_from(options.get("OutputScript"));
@@ -723,8 +721,8 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
     diffsql_module->generateSQL(_org_cat, options, _alter_change);
   }
 
-  int res= diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
-  if (res)
+  ssize_t res = diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
+  if (res != 0)
     return "";
 
   grt::StringRef script= grt::StringRef::cast_from(options.get("OutputScript"));
@@ -1273,7 +1271,7 @@ void DbMySQLScriptSync::apply_changes_to_model()
 
   ChangesApplier applier(_manager->get_grt());
 
-  applier.set_case_sensitive(get_db_options().get_int("CaseSensitive", 1));
+  applier.set_case_sensitive(get_db_options().get_int("CaseSensitive", 1) != 1);
 
   applier.build_obj_mapping(diff_mod_cat, mod_cat);
   if(diff_db_cat.is_valid())

@@ -81,7 +81,7 @@ namespace MySQL.Grt.Db
       // cache icon used for marking columns with applied filters
       {
         int iconId = recordset.column_filter_icon_id();
-        columnHeaderFilterImage = GrtIconManager.get_instance().get_icon(iconId);
+        columnHeaderFilterImage = IconManagerWrapper.get_instance().get_icon(iconId);
       }
 
       Model = recordset;
@@ -145,7 +145,7 @@ namespace MySQL.Grt.Db
             if (gridView.SelectedCells.Count == 1 && !gridView.ReadOnly)
             {
               DataGridViewCell cell = gridView.SelectedCells[0];
-              model.set_field_null(new NodeId(cell.RowIndex), cell.ColumnIndex);
+              model.set_field_null(new NodeIdWrapper(cell.RowIndex), cell.ColumnIndex);
               gridView.InvalidateCell(cell);
             }
 
@@ -405,11 +405,11 @@ namespace MySQL.Grt.Db
         return;
 
       List<DataGridViewRow> selectedRows = gridView.GetSelectedRows();
-      List<NodeId> nodes = new List<NodeId>(selectedRows.Count);
+      List<NodeIdWrapper> nodes = new List<NodeIdWrapper>(selectedRows.Count);
       foreach (DataGridViewRow row in selectedRows)
-        nodes.Add(new NodeId(row.Index));
+        nodes.Add(new NodeIdWrapper(row.Index));
       if (nodes.Count == 0 && gridView.IsCurrentCellInEditMode)
-        nodes.Add(new NodeId(gridView.CurrentCellAddress.Y));
+        nodes.Add(new NodeIdWrapper(gridView.CurrentCellAddress.Y));
       gridView.CancelEdit();
       model.delete_nodes(nodes);
       gridView.ProcessModelRowsChange();

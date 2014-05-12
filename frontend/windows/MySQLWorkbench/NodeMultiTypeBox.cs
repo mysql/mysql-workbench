@@ -1,19 +1,36 @@
+/* 
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
+
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
+
 using MySQL.Grt;
-using MySQL.GUI.Workbench;
-using Microsoft.VisualBasic;
 
 namespace MySQL.GUI.Workbench
 {
   public class NodeMultiTypeBox : NodeCustomBox
   {
-    private MySQL.Grt.TreeModel _grtTree;
+    private MySQL.Grt.TreeModelWrapper _grtTree;
     private int _valueColumn;
     private int _isReadonlyColumn;
     private int _editMethodColumn;
@@ -24,7 +41,7 @@ namespace MySQL.GUI.Workbench
     }
 
 
-    public MySQL.Grt.TreeModel GrtTreeModel
+    public MySQL.Grt.TreeModelWrapper GrtTreeModel
     {
       get { return _grtTree; }
       set
@@ -394,8 +411,7 @@ namespace MySQL.GUI.Workbench
           byte[] rgb = new byte[3] { color.R, color.G, color.B };
           for (int n = 0; 3 > n; ++n)
           {
-            //value.PadRight(2 * (n + 1), '0'); // doesn't work because MS has buggy implementation of PadRight
-            string s = Conversion.Hex(rgb[n]);
+            string s = String.Format("%X", rgb[n]);
             for (int k = 0; k < 2 - s.Length; ++k)
               s += '0';
             value += s;
@@ -456,7 +472,7 @@ namespace MySQL.GUI.Workbench
   public class TreeModelTooltipProvider : IToolTipProvider
   {
     public int TooltipColumn;
-    public MySQL.Grt.TreeModel Model;
+    public MySQL.Grt.TreeModelWrapper Model;
 
     public string GetToolTip(TreeNodeAdv node, NodeControl nodeControl)
     {

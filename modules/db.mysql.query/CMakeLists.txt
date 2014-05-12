@@ -7,9 +7,9 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/generated
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/dbc/src
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
+    ${PROJECT_SOURCE_DIR}/library/cdbc/src
 )
 
 add_library(db.mysql.query.grt

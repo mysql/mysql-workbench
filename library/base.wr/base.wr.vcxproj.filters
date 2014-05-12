@@ -7,7 +7,7 @@
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -18,39 +18,41 @@
     <ClInclude Include="src\Conversions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ConvUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Win32API.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ManagedNotifications.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\LogWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="src\ManagedNotifications.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\UiForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Win32API.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="MySQLAssembly.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AssemblyInfo.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Conversions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Win32API.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\LogWrapper.cpp">
@@ -62,15 +64,9 @@
     <ClCompile Include="src\UIForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="app.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
+    <ClCompile Include="src\Win32API.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stdafx.cpp" />
   </ItemGroup>
 </Project>

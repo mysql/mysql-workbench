@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,11 +17,10 @@
  * 02110-1301  USA
  */
 
-#ifndef _MODEL_MODEL_IMPL_H_
-#define _MODEL_MODEL_IMPL_H_
+#pragma once
 
-#include <mdc.h>
-#include <grtpp.h>
+#include "mdc.h"
+#include "grtpp.h"
 
 #include "grts/structs.model.h"
 
@@ -98,5 +97,3 @@ public:
   boost::signals2::signal<void (std::string)>* signal_options_changed() { return &_options_changed_signal; }
 };
 
-
-#endif // _MODEL_MODEL_H_

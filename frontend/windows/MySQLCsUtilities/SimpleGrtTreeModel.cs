@@ -1,11 +1,30 @@
+/* 
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
+
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
-using MySQL.Grt;
+
 using MySQL.Utilities;
 
 namespace MySQL.Grt
@@ -31,7 +50,7 @@ namespace MySQL.Grt
     /// </summary>
     /// <param name="TreeView">The TreeViewAdv control this model is used for</param>
     /// <param name="GrtList">The GRT list this model is representing</param>
-    public SimpleGrtTreeModel(TreeViewAdv TreeView, MySQL.Grt.TreeModel GrtTree, bool DynamicContextMenu)
+    public SimpleGrtTreeModel(TreeViewAdv TreeView, MySQL.Grt.TreeModelWrapper GrtTree, bool DynamicContextMenu)
       : base(TreeView, GrtTree, DynamicContextMenu)
     {
       model = GrtTree;
@@ -39,7 +58,7 @@ namespace MySQL.Grt
     }
 
 
-    public SimpleGrtTreeModel(TreeViewAdv TreeView, MySQL.Grt.TreeModel GrtTree, NodeStateIcon nodeIcon, bool DynamicContextMenu)
+    public SimpleGrtTreeModel(TreeViewAdv TreeView, MySQL.Grt.TreeModelWrapper GrtTree, NodeStateIcon nodeIcon, bool DynamicContextMenu)
       : base(TreeView, GrtTree, nodeIcon, DynamicContextMenu)
     {
       model = GrtTree;
@@ -149,8 +168,7 @@ namespace MySQL.Grt
     /// <returns>The list of child nodes for the given parent path node</returns>
     public override System.Collections.IEnumerable GetChildren(TreePath treePath)
     {
-      //List<GrtTreeNode> items = null;
-      NodeId parentNodeId;
+      NodeIdWrapper parentNodeId;
       bool settingTopNode = false;
 
       if (treePath.IsEmpty())
@@ -181,7 +199,7 @@ namespace MySQL.Grt
 
         for (int i = 0; i < childCount; i++)
         {
-          NodeId nodeId = model.get_child(parentNodeId, i);
+          NodeIdWrapper nodeId = model.get_child(parentNodeId, i);
           GrtTreeNode node;
           string caption;
 
@@ -311,7 +329,7 @@ namespace MySQL.Grt
           if (index > -1)
           {
             int iconId = GrtTree.get_field_icon(node.NodeId, index, IconSize.Icon16);
-            Image icon = GrtIconManager.get_instance().get_icon(iconId);
+            Image icon = IconManagerWrapper.get_instance().get_icon(iconId);
 
             if (icon != null)
               e.Value = icon;
@@ -411,7 +429,8 @@ namespace MySQL.Grt
     /// <param name="TreeView">The TreeViewAdv control this model is used for</param>
     /// <param name="DisabledNames">the list of the nodes that shouldn't be shown</param>
     /// <param name="GrtList">The GRT list this model is representing</param>
-    public DifferenceByNameGrtTreeModel(TreeViewAdv TreeView, List<String> DisabledNames, MySQL.Grt.TreeModel GrtTree, bool DynamicContextMenu)
+    public DifferenceByNameGrtTreeModel(TreeViewAdv TreeView, List<String> DisabledNames,
+      MySQL.Grt.TreeModelWrapper GrtTree, bool DynamicContextMenu)
       : base(TreeView, GrtTree, DynamicContextMenu)
     {
       model = GrtTree;
@@ -432,7 +451,7 @@ namespace MySQL.Grt
     public override System.Collections.IEnumerable GetChildren(TreePath treePath)
     {
       List<GrtTreeNode> items = null;
-      NodeId parentNodeId;
+      NodeIdWrapper parentNodeId;
       bool settingTopNode = false;
 
       if (treePath.IsEmpty())
@@ -457,7 +476,7 @@ namespace MySQL.Grt
 
         for (int i = 0; i < childCount; i++)
         {
-          NodeId nodeId = model.get_child(parentNodeId, i);
+          NodeIdWrapper nodeId = model.get_child(parentNodeId, i);
           GrtTreeNode node;
           string caption;
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,15 +19,13 @@
 
 #include "base/common.h"
 
-#if !(defined(__WIN__) || defined(_WIN32) || defined(_WIN64))
+#ifndef _WIN32
 #include <errno.h>
-#else
-#include <wchar.h>
 #endif
 
-#include <glib/gstdio.h>
-
 #include "base/file_functions.h"
+
+#include <glib/gstdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 /** @brief Wrapper around fopen that expects a filename in UTF-8 encoding
@@ -56,16 +54,18 @@ FILE* base_fopen(const char *filename, const char *mode)
   converted= g_new0(WCHAR, required);
   MultiByteToWideChar(CP_UTF8, 0, filename, -1, converted, required);
 
-  converted_mode= g_new0(WCHAR, strlen(mode) + 1);
+  converted_mode= g_new0(WCHAR, (gsize)strlen(mode) + 1);
   in= converted_mode;
   out= (char*) mode;
   while (*out)
     *in++ = (WCHAR) (*out++);
 
-  result= _wfopen(converted, converted_mode);
+  errno_t error = _wfopen_s(&result, converted, converted_mode);
   g_free(converted);
   g_free(converted_mode);
 
+  if (error != 0)
+    return NULL;
   return result;
 
 #else

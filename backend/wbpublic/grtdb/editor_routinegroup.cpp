@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #include "grt/grt_dispatcher.h"
 #include "editor_routinegroup.h"
@@ -42,7 +41,7 @@ std::string RoutineGroupEditorBE::set_routine_newlines(const std::string &routin
     // This logic ensures at least a blank line ( two new lines ) separate the next routine
     // from the sql so far
     std::string final_routine="";
-    int routine_size = routine.length();
+    size_t routine_size = routine.length();
     
     if (routine_size >= 1 && routine[0]!='\n')
       final_routine.append("\n");
@@ -68,7 +67,7 @@ std::string RoutineGroupEditorBE::get_routines_sql()
   sql.append(strfmt("DELIMITER %s", _non_std_sql_delimiter.c_str()));
 
   size_t count= routines.count();
-  typedef std::map<int, db_RoutineRef> OrderedRoutines;
+  typedef std::map<size_t, db_RoutineRef> OrderedRoutines;
   typedef std::list<db_RoutineRef> UnorderedRoutines;
   OrderedRoutines ordered_routines;
   UnorderedRoutines unordered_routines; // routines with duplicated sequence number. to upgrade old models smoothly, where sequence numbers are 0.
@@ -76,7 +75,7 @@ std::string RoutineGroupEditorBE::get_routines_sql()
   for(size_t i= 0; i < count; i++)
   {
     db_RoutineRef routine= routines.get(i);
-    int sequenceNumber= routine->sequenceNumber();
+    size_t sequenceNumber= routine->sequenceNumber();
     if (ordered_routines.find(sequenceNumber) == ordered_routines.end())
       ordered_routines[sequenceNumber]= routine;
     else

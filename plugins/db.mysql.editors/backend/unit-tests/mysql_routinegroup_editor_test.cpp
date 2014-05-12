@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "tut_stdafx.h"
 
 #include "grtpp.h"
 #include "../../plugins/db.mysql.editors/backend/mysql_routinegroup_editor.h"
@@ -63,7 +61,7 @@ const char* routine_sql=
   "\n\n-- --------------------------------\n";
 
   SynteticMySQLModel model(grt);
-  int count= model.routineGroup->routines().count();
+  size_t count= model.routineGroup->routines().count();
   ensure("Invalid number of routines", count == 1);
 
   model.schema->name("test_schema");
@@ -151,7 +149,7 @@ const char* routine_sql=
 
   rg.parse_sql(grt, processed_sql);
 
-  int routines_count= model.routineGroup->routines().count();
+  size_t routines_count= model.routineGroup->routines().count();
 
   assure_equal(routines_count, sizeof(names) / sizeof(names[0]));
   for (size_t i= 0, size= model.routineGroup->routines().count(); i < size; i++)
@@ -245,7 +243,7 @@ const char* routine_sql=
 
   rg.parse_sql(grt, processed_sql);
 
-  int routines_count= model.routineGroup->routines().count();
+  size_t routines_count= model.routineGroup->routines().count();
 
   assure_equal(routines_count, sizeof(names)/sizeof(names[0]));
   for (size_t i= 0, size= model.routineGroup->routines().count(); i < size; i++)

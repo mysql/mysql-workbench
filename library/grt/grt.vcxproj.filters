@@ -3,24 +3,105 @@
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Source Files\diff">
-      <UniqueIdentifier>{a0316e6c-234e-4575-904a-65fd5cf5d76c}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files\diff">
+      <UniqueIdentifier>{356b3790-c776-478d-8e91-8961b423236e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\diff">
-      <UniqueIdentifier>{c488d7c2-299a-4adf-a28d-01a45374b3d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+      <UniqueIdentifier>{f6d0c1e7-cf1e-4e28-a3df-9b68230c7d12}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="src\grtpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_module_cpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_module_lua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_module_python.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_notifications.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_shell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_shell_lua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_shell_python.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_shell_python_help.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_undo_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grtpp_value.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\python_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\python_grtdict.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\python_grtlist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\python_grtobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\python_module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\serializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unserializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\diff\changefactory.h">
+      <Filter>Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="src\diff\changelistobjects.h">
+      <Filter>Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="src\diff\changeobjects.h">
+      <Filter>Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="src\diff\diffchange.h">
+      <Filter>Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="src\diff\grtdiff.h">
+      <Filter>Header Files\diff</Filter>
+    </ClInclude>
+    <ClInclude Include="src\diff\grtlistdiff.h">
+      <Filter>Header Files\diff</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="src\grtpp_grt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,6 +121,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\grtpp_module_python.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\grtpp_notifications.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\grtpp_shell.cpp">
@@ -87,9 +171,6 @@
     <ClCompile Include="src\serializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\unserializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -108,105 +189,5 @@
     <ClCompile Include="src\diff\grtlistdiff.cpp">
       <Filter>Source Files\diff</Filter>
     </ClCompile>
-    <ClCompile Include="src\grtpp_notifications.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\grtpp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_helper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_module_cpp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_module_lua.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_module_python.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_shell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_shell_lua.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_shell_python.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_shell_python_help.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_undo_manager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_value.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\lua_context.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\python_context.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\python_grtdict.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\python_grtlist.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\python_grtobject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\python_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\serializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\unserializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\diff\changefactory.h">
-      <Filter>Header Files\diff</Filter>
-    </ClInclude>
-    <ClInclude Include="src\diff\changelistobjects.h">
-      <Filter>Header Files\diff</Filter>
-    </ClInclude>
-    <ClInclude Include="src\diff\changeobjects.h">
-      <Filter>Header Files\diff</Filter>
-    </ClInclude>
-    <ClInclude Include="src\diff\diffchange.h">
-      <Filter>Header Files\diff</Filter>
-    </ClInclude>
-    <ClInclude Include="src\diff\grtdiff.h">
-      <Filter>Header Files\diff</Filter>
-    </ClInclude>
-    <ClInclude Include="src\diff\grtlistdiff.h">
-      <Filter>Header Files\diff</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_notifications.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_references.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\res\scripts\python\db_utils.py">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\..\res\scripts\python\wb.py">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

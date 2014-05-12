@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -191,7 +191,7 @@ static void listbox_add_items(::mforms::ListBox *self, const std::list<std::stri
 }
 
 
-static int listbox_add_item(::mforms::ListBox *self, const std::string &item)
+static size_t listbox_add_item(::mforms::ListBox *self, const std::string &item)
 {
   if ( self )
   {
@@ -208,7 +208,7 @@ static int listbox_add_item(::mforms::ListBox *self, const std::string &item)
 }
 
 
-static void listbox_remove_indices(mforms::ListBox *self, const std::vector<int> &indices)
+static void listbox_remove_indices(mforms::ListBox *self, const std::vector<size_t> &indices)
 {
   if (self != nil)
   {
@@ -216,7 +216,7 @@ static void listbox_remove_indices(mforms::ListBox *self, const std::vector<int>
 
     if (listbox != nil)
     {
-      for (std::vector<int>::const_reverse_iterator iterator = indices.rbegin(); iterator != indices.rend();
+      for (std::vector<size_t>::const_reverse_iterator iterator = indices.rbegin(); iterator != indices.rend();
            ++iterator)
         [listbox->mContents removeObjectAtIndex: *iterator];
       [listbox->mTable reloadData];
@@ -225,7 +225,7 @@ static void listbox_remove_indices(mforms::ListBox *self, const std::vector<int>
 }
 
 
-static void listbox_remove_index(::mforms::ListBox *self, int index)
+static void listbox_remove_index(::mforms::ListBox *self, size_t index)
 {
   if (self != nil)
   {
@@ -256,7 +256,7 @@ static std::string listbox_get_text(::mforms::ListBox *self)
 }
 
 
-static void listbox_set_index(::mforms::ListBox *self, int index)
+static void listbox_set_index(::mforms::ListBox *self, ssize_t index)
 {
   if ( self )
   {
@@ -273,7 +273,7 @@ static void listbox_set_index(::mforms::ListBox *self, int index)
 }
 
 
-static int listbox_get_index(::mforms::ListBox *self)
+static ssize_t listbox_get_index(::mforms::ListBox *self)
 {
   if ( self )
   {
@@ -288,9 +288,9 @@ static int listbox_get_index(::mforms::ListBox *self)
 }
 
 
-static std::vector<int> listbox_get_selected_indices(::mforms::ListBox *self)
+static std::vector<size_t> listbox_get_selected_indices(::mforms::ListBox *self)
 {
-  std::vector<int> result;
+  std::vector<size_t> result;
   
   if (self)
   {

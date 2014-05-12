@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "recordset_cdbc_storage.h"
 #include "recordset_be.h"
 #include "sqlide_generics_private.h"
@@ -256,7 +253,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
 
   if (_gather_field_info)
   {
-    for (ColumnId i = 0; i < editable_col_count; ++i)
+    for (unsigned int i = 0; i < (unsigned int)editable_col_count; ++i)
     {
       FieldInfo info;
       info.catalog = rs_meta->getCatalogName(i+1);
@@ -264,7 +261,6 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
       info.table = rs_meta->getTableName(i+1);
       info.field = rs_meta->getColumnLabel(i+1);
       info.type = rs_meta->getColumnTypeName(i+1);
-//      ss << "Collation:" << "\n";
       info.display_size = rs_meta->getColumnDisplaySize(i+1);
       info.precision = rs_meta->getPrecision(i+1);
       info.scale = rs_meta->getScale(i+1);
@@ -278,7 +274,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
 
   column_types.reserve(editable_col_count);
   // some column types might be defined in derived class. don't redefine types for those columns.
-  for (ColumnId n= column_types.size(); editable_col_count > n; ++n)
+  for (unsigned int n = (unsigned int)column_types.size(); (unsigned int)editable_col_count > n; ++n)
   {
     std::string type_name= rs_meta->getColumnTypeName(n+1);
     type_name = base::toupper(type_name);
@@ -292,7 +288,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   // column names
   column_names.reserve(editable_col_count);
   // some column names might be defined in derived class. don't redefine names for those columns.
-  for (ColumnId n= column_names.size(); editable_col_count > n; ++n)
+  for (unsigned int n = (unsigned int)column_names.size(); (unsigned int)editable_col_count > n; ++n)
     column_names.push_back(rs_meta->getColumnLabel(n+1));
 
   // determine pkey or unique identifier columns
@@ -358,7 +354,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
     {
       for (ColumnId n= 0; editable_col_count > n; ++n)
       {
-        if (rs->isNull(n+1) || null_value_columns[n])
+        if (rs->isNull((int)n + 1) || null_value_columns[n])
         {
           row_values[n]= sqlite::null_t();
         }

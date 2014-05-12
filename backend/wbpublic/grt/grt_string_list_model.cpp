@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,11 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grt_string_list_model.h"
 #include <pcre.h>
 #include "grtpp_util.h"
 
 using namespace bec;
-
 
 GrtStringListModel::GrtStringListModel()
   : _items_val_masks(NULL),
@@ -49,7 +46,7 @@ void GrtStringListModel::reset(const std::list<std::string> &items)
   _items.resize(items.size());
   std::list<std::string>::const_iterator i= items.begin();
   for (size_t n= 0, count= items.size(); n < count; ++n, ++i)
-    _items[n]= Item_handler(std::string(*i), (int)n);
+    _items[n]= Item_handler(std::string(*i), n);
   std::sort(_items.begin(), _items.end());
   _visible_items.clear();
   invalidate(); // consequent call of refresh() is expected to process _visible_mask & update _visible_items
@@ -96,31 +93,31 @@ void GrtStringListModel::items_val_masks(GrtStringListModel *items_val_masks)
 }
 
 
-int GrtStringListModel::count()
+size_t GrtStringListModel::count()
 {
-  return (int)_visible_items.size();
+  return _visible_items.size();
 }
 
 
-int GrtStringListModel::active_items_count() const
+size_t GrtStringListModel::active_items_count() const
 {
   return _active_items_count;
 }
 
 
-int GrtStringListModel::total_items_count() const
+size_t GrtStringListModel::total_items_count() const
 {
-  return (int)_items.size();
+  return _items.size();
 }
 
 
-int GrtStringListModel::get_item_id(size_t item_index)
+size_t GrtStringListModel::get_item_id(size_t item_index)
 {
   return _items[_visible_items[item_index]].iid;
 }
 
 
-bool GrtStringListModel::get_field(const NodeId &node, int column, std::string &value)
+bool GrtStringListModel::get_field(const NodeId &node, ColumnId column, std::string &value)
 {
   switch ((Columns)column)
   {
@@ -138,13 +135,13 @@ void GrtStringListModel::icon_id(IconId icon_id)
 }
 
 
-IconId GrtStringListModel::get_field_icon(const NodeId &node, int column, IconSize size)
+IconId GrtStringListModel::get_field_icon(const NodeId &node, ColumnId column, IconSize size)
 {
   return _icon_id;
 }
 
 
-void GrtStringListModel::add_item(const grt::StringRef &item, int id)
+void GrtStringListModel::add_item(const grt::StringRef &item, size_t id)
 {
   _items.push_back(Item_handler(*item, id));
   std::nth_element(_items.begin(), _items.end()-1, _items.end());
@@ -153,7 +150,7 @@ void GrtStringListModel::add_item(const grt::StringRef &item, int id)
 }
 
 
-void GrtStringListModel::remove_item(int index)
+void GrtStringListModel::remove_item(size_t index)
 {
   std::vector<size_t>::iterator i= _visible_items.begin() + (size_t)index;
   _items.erase(_items.begin() + *i);
@@ -162,21 +159,21 @@ void GrtStringListModel::remove_item(int index)
 }
 
 
-void GrtStringListModel::remove_items(std::vector<int> &item_indexes)
+void GrtStringListModel::remove_items(std::vector<size_t> &item_indexes)
 {
   std::sort(item_indexes.begin(), item_indexes.end());
-  for (std::vector<int>::reverse_iterator i= item_indexes.rbegin(); i != item_indexes.rend(); ++i)
+  for (std::vector<size_t>::reverse_iterator i = item_indexes.rbegin(); i != item_indexes.rend(); ++i)
     remove_item(*i);
 }
 
 
-void GrtStringListModel::copy_items_to_val_masks_list(std::vector<int> &item_indexes)
+void GrtStringListModel::copy_items_to_val_masks_list(std::vector<size_t> &item_indexes)
 {
   if (!_items_val_masks)
     return;
   
   std::sort(item_indexes.begin(), item_indexes.end());
-  for (std::vector<int>::iterator i= item_indexes.begin(); i != item_indexes.end(); ++i)
+  for (std::vector<size_t>::iterator i = item_indexes.begin(); i != item_indexes.end(); ++i)
   {
     Item_handler &item_handler= _items[_visible_items[(size_t)*i]];
     _items_val_masks->add_item(terminate_wildcard_symbols(item_handler.val), -1);
@@ -226,7 +223,7 @@ GrtStringListModel::Items_ids GrtStringListModel::items_ids() const
   }
 
   // determine active items
-  std::vector<int> res;
+  std::vector<size_t> res;
   res.reserve(items.size());
   size_t n= 0;
   for (std::vector<bool>::const_iterator i= items.begin(); i != items.end(); ++i, ++n)

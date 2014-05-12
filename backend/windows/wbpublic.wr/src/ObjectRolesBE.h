@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,16 +24,13 @@
 #include "GrtTemplates.h"
 #include "grtdb/dbobject_roles.h"
 
-#pragma make_public(::bec::ObjectRoleListBE)
-#pragma make_public(::bec::ObjectPrivilegeListBE)
-
 namespace MySQL {
 namespace Grt {
 namespace Db {
 
 ref class ObjectPrivilegeListBE;
 
-public ref class ObjectRoleListBE : public MySQL::Grt::ListModel
+public ref class ObjectRoleListBE : public MySQL::Grt::ListModelWrapper
 {
 public:
   enum class Columns {
@@ -42,7 +39,7 @@ public:
 
 public:
   ObjectRoleListBE(DBObjectEditorBE^ editor)
-    : MySQL::Grt::ListModel(new ::bec::ObjectRoleListBE(editor->get_unmanaged_object()))
+    : MySQL::Grt::ListModelWrapper(new ::bec::ObjectRoleListBE(editor->get_unmanaged_object()))
   {}
 
   ~ObjectRoleListBE()
@@ -67,7 +64,7 @@ public:
 
   ObjectPrivilegeListBE^ get_privilege_list();
 
-  void set_selected(NodeId^ node)
+  void set_selected(NodeIdWrapper^ node)
   {
     get_unmanaged_object()->select_role(*node->get_unmanaged_object());
   }
@@ -75,7 +72,7 @@ public:
 
 
 
-public ref class ObjectPrivilegeListBE : public MySQL::Grt::ListModel
+public ref class ObjectPrivilegeListBE : public MySQL::Grt::ListModelWrapper
 {
 public:
   enum class Columns {
@@ -85,7 +82,7 @@ public:
 
 public:
   ObjectPrivilegeListBE(::bec::ObjectPrivilegeListBE *inn)
-    : MySQL::Grt::ListModel(inn)
+    : MySQL::Grt::ListModelWrapper(inn)
   {}
 
   ::bec::ObjectPrivilegeListBE *get_unmanaged_object()

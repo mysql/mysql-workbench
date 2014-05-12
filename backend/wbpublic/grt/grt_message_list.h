@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,7 +54,6 @@ namespace bec {
      
     void handle_message(const grt::Message &msg);
     void set_output_handler(const boost::function<void (std::string)> &handler);
-//    std::vector<MessageEntry*> get_messages_from_source(const std::string &source);
     
   private:
     friend class MessageListBE;
@@ -82,12 +81,12 @@ namespace bec {
     };
 
     void clear();
-    virtual int count_children(const NodeId &parent);
-    virtual bool get_field(const NodeId &node, int column, std::string &value);
+    virtual size_t count_children(const NodeId &parent);
+    virtual bool get_field(const NodeId &node, ColumnId column, std::string &value);
     virtual void refresh() {}
-    virtual IconId get_field_icon(const NodeId &node, int column, IconSize size);
+    virtual IconId get_field_icon(const NodeId &node, ColumnId column, IconSize size);
     virtual grt::MessageType get_message_type(const NodeId &node);
-    virtual int count();
+    virtual size_t count();
     virtual MenuItemList get_popup_items_for_nodes(const std::vector<NodeId> &nodes);
     virtual bool activate_popup_item_for_nodes(const std::string &name, const std::vector<NodeId> &nodes);
     

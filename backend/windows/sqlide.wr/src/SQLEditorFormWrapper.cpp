@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "workbench/wb_overview.h"
 #include "GrtTemplates.h"
 #include "DelegateWrapper.h"

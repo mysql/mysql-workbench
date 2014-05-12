@@ -58,9 +58,9 @@ public:
   void select_category(const std::string &category);
   std::string selected_category();
 
-  virtual int count();
-  virtual bool get_field(const bec::NodeId &node, int column, std::string &value);
-  virtual bool set_field(const bec::NodeId &node, int column, const std::string &value);
+  virtual size_t count();
+  virtual bool get_field(const bec::NodeId &node, ColumnId column, std::string &value);
+  virtual bool set_field(const bec::NodeId &node, ColumnId column, const std::string &value);
   virtual void refresh() {}
   
  // virtual bool activate_node(const bec::NodeId &node);

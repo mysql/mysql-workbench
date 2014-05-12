@@ -4,6 +4,7 @@ rem ----------------------------------------------------------------------------
 rem Check parameter
 if [%1] == [] goto Usage
 if [%2] == [] goto Usage
+if [%3] == [] goto Usage
 
 rem -------------------------------------------------------------------------------
 rem Script start
@@ -14,7 +15,7 @@ rem Set directory variables
 set MODULES_DIR=%1modules
 echo External libraries directory: %MODULES_DIR%
 
-set TARGET_DIR=%1\bin\%2
+set TARGET_DIR=%1\bin\%3\%2
 echo Target directory: %TARGET_DIR%
 
 rem -------------------------------------------------------------------------------
@@ -108,10 +109,10 @@ echo all directories and files as in the final distribution. The script takes 2 
 echo SolutionDirectory and the ConfigurationName
 echo .
 echo Usage: 
-echo   %0 SolutionDirectory ConfigurationName
+echo   %0 SolutionDirectory ConfigurationName Architecture
 echo .
 echo Example:
-echo   %0 "C:\Documents and Settings\mysqldev\My Documents\work\mysql-workbench-pro" Debug
+echo   %0 "C:\Documents and Settings\mysqldev\My Documents\work\mysql-workbench" Debug x64
 echo .
 
 :EndOfScript

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -26,24 +26,8 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="converter.cpp" />
-    <ClCompile Include="copytable.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="python_copy_data_source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="converter.h" />
-    <ClInclude Include="copytable.h" />
-    <ClInclude Include="python_copy_data_source.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\library\base\base.vcxproj">
-      <Project>{142530c4-b184-4833-9a1a-f268b6e336a7}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4CC6C065-2E6B-45DF-B42F-A804418BD5B9}</ProjectGuid>
+    <ProjectGuid>{BFE4D804-7156-4507-BE83-AD8DA5D902DE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>wbmigrationcopytable</RootNamespace>
   </PropertyGroup>
@@ -51,36 +35,42 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -106,155 +96,176 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>wbcopytables</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>wbcopytables</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>wbcopytables</TargetName>
-    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>wbcopytables</TargetName>
-    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>wbcopytables</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>wbcopytables</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\library\base;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\python27\include;$(SolutionDir)\backend\wbprivate\workbench</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\mysql;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\library\base;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\backend\wbprivate\workbench</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\mysql;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\bin\$(Configuration)\base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\library\base;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\python;$(SolutionDir)\backend\wbprivate\workbench</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\mysql;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\library\base;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\backend\wbprivate\workbench</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\mysql;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\bin\$(Configuration)\base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\library\base;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\python;$(SolutionDir)\backend\wbprivate\workbench</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\mysql;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\python\$(Configuration)\python27.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\library\base;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\mysql;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\backend\wbprivate\workbench</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\mysql;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\bin\$(Configuration)\base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysql\$(Configuration)\libmysql.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="converter.cpp" />
+    <ClCompile Include="copytable.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="python_copy_data_source.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="converter.h" />
+    <ClInclude Include="copytable.h" />
+    <ClInclude Include="python_copy_data_source.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\library\base\base.vcxproj">
+      <Project>{c3b85913-b106-40c6-8dde-a7cf52a4ec80}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

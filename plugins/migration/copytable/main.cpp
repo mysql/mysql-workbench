@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,13 @@
  * 02110-1301  USA
  */
 
+#ifdef _WIN32
+#define HAVE_ROUND
+#endif
+
 #include "python_copy_data_source.h" // python stuff need to be 1st #include
+#include "copytable.h"
+
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
@@ -29,14 +35,13 @@
 
 #include "boost/scoped_ptr.hpp"
 
-#include "copytable.h"
 #undef tolower
 #undef toupper
 
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 
-#include "wb_version.h"
+#include "workbench/wb_version.h"
 
 #if defined(WIN32)
 #define atoll _atoi64
@@ -665,7 +670,7 @@ int main(int argc, char **argv)
         ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name);
 
         psource->set_max_blob_chunk_size(ptarget->get_max_allowed_packet());
-        psource->set_max_parameter_size(ptarget->get_max_long_data_size());
+        psource->set_max_parameter_size((unsigned long)ptarget->get_max_long_data_size());
         psource->set_abort_on_oversized_blobs(abort_on_oversized_blobs);
         ptarget->set_truncate(truncate_target);
         ptarget->set_bulk_insert_batch_size(bulk_insert_batch);

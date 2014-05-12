@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "tut_stdafx.h"
 
 #include "testgrt.h"
 #include "grt_test_utility.h"
@@ -112,12 +110,12 @@ TEST_FUNCTION(2)
   obj->set_member("publisher", publisher);
 
   //ObjectRef authors_arr[AUTHORS_COUNT];
+  std::stringstream ss;
   for (size_t n= 0; n<AUTHORS_COUNT; n++)
   {
     test_AuthorRef author(&grt);
-    char buf[8];
-    sprintf(buf, "%i", n);
-    author->set_member("name", StringRef(std::string("Author") + buf));
+    ss << n;
+    author->set_member("name", StringRef(std::string("Author") + ss.str().c_str()));
     obj->authors().insert(author);
   }
 

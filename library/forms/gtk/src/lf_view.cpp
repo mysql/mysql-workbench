@@ -427,12 +427,10 @@ std::string ViewImpl::get_front_color(::mforms::View *self)
 std::string ViewImpl::get_back_color(::mforms::View *self)
 {
   ViewImpl *view= self->get_data<ViewImpl>();
-  double *color = (double*)g_object_get_data(G_OBJECT(view->get_inner()->gobj()), "bg");
+  base::Color *color = (base::Color*)g_object_get_data(G_OBJECT(view->get_inner()->gobj()), "bg");
   if (color)
   {
-    char buffer[32];
-    sprintf(buffer, "#%02x%02x%02x", (int)(color[0]*255), (int)(color[1]*255), (int)(color[2]*255));
-    return buffer;
+    return color->to_html();
   }
   return "";
 }
@@ -898,7 +896,7 @@ DragOperation ViewImpl::drag_data(::mforms::DragDetails details, void *data,cons
 bool expose_event_slot(GdkEventExpose* event, Gtk::Widget* widget)
 {
   GdkWindow* wnd = event->window;
-  double *color = (double*)g_object_get_data(G_OBJECT(widget->gobj()), "bg");
+  base::Color *color = (base::Color*)g_object_get_data(G_OBJECT(widget->gobj()), "bg");
 
   //log_debug3("expose event, obj %p, color %p", obj, color);
 
@@ -906,7 +904,7 @@ bool expose_event_slot(GdkEventExpose* event, Gtk::Widget* widget)
   {
     cairo_t *cr = gdk_cairo_create(wnd);
 
-    cairo_set_source_rgb(cr, *color, *(color + 1), *(color + 2));
+    cairo_set_source_rgb(cr, color->red, color->green, color->blue);
     cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
 
     gdk_cairo_region(cr, event->region);
@@ -918,25 +916,19 @@ bool expose_event_slot(GdkEventExpose* event, Gtk::Widget* widget)
   return false;
 }
 
+static void destroy_color(base::Color *col)
+{
+  if (col)
+    delete col;
+}
+
 void set_bgcolor(Gtk::Widget* w, const std::string& strcolor)
 {
-  bool allocated = false;
-  double *color = 0;
-  color = (double*)w->get_data("bg");
-  if (!color)
+  if (!strcolor.empty())
   {
-    color = (double*)malloc(3 * sizeof(double));
-    allocated = true;
-  }
-
-  if (html_color_to_triplet(strcolor.c_str(), color, color + 1, color + 2))
-  {
-    if (allocated)
-    {
-      g_object_set_data_full(G_OBJECT(w->gobj()), "bg", color, free);
-      //GObject *obj = G_OBJECT(w->gobj());
-      //log_debug3("set_bgcolor, obj %p, color %p", obj, color);
-    }
+    base::Color *col = new base::Color(strcolor);
+    if (col->is_valid())
+      g_object_set_data_full(G_OBJECT(w->gobj()), "bg", (void*)col, (GDestroyNotify)destroy_color);
   }
 }
 

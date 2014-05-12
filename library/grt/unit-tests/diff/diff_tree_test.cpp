@@ -17,20 +17,18 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "grt_test_utility.h"
 #include "testgrt.h"
-#include "grtdiff.h"
+#include "diff/grtdiff.h"
 #include "grtpp.h"
-#include "diffchange.h"
-#include "changeobjects.h"
-#include "changelistobjects.h"
+#include "diff/diffchange.h"
+#include "diff/changeobjects.h"
+#include "diff/changelistobjects.h"
 #include "grtdb/diff_dbobjectmatch.h"
 #include "wb_helpers.h"
 #include "synthetic_mysql_model.h"
 #include "module_db_mysql.h"
-#include "plugins/db.mysql/backend/diff_tree.h"
+#include "backend/diff_tree.h"
 
 using namespace grt;
 
@@ -86,7 +84,7 @@ TEST_FUNCTION(1)
   bool foundTableDiff = false;
   for (std::size_t c = diff_tree->count(), i = 0; i < c; i++)
   {
-    bec::NodeId schema(i);
+    bec::NodeId schema((int)i);
     for (int j = 0; j  < diff_tree->count_children(schema); j++)
     {
       bec::NodeId object(diff_tree->get_child(schema, j));

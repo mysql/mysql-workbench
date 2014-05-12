@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,18 +45,18 @@ private:
   Dictionary<String^, ActionCallback^>^ _actions;
 
 public:
-  typedef DelegateSlot1<void, void, bec::NodeId, NodeId^> NodeActionCallback;
+  typedef DelegateSlot1<void, void, bec::NodeId, NodeIdWrapper^> NodeActionCallback;
   void register_node_action(String ^name, NodeActionCallback::ManagedDelegate ^cb);
   void unregister_node_action(String ^name);
-  bool trigger_action(String ^name, NodeId ^node);
+  bool trigger_action(String ^name, NodeIdWrapper ^node);
 private:
   Dictionary<String^, NodeActionCallback^>^ _node_actions;
 
 public:
-  typedef DelegateSlot1<void, void, std::vector<bec::NodeId>, List<NodeId^>^> NodesActionCallback;
+  typedef DelegateSlot1<void, void, std::vector<bec::NodeId>, List<NodeIdWrapper^>^> NodesActionCallback;
   void register_nodes_action(String ^name, NodesActionCallback::ManagedDelegate ^cb);
   void unregister_nodes_action(String ^name);
-  bool trigger_action(String ^name, List<NodeId^>^ node);
+  bool trigger_action(String ^name, List<NodeIdWrapper^>^ node);
 private:
   Dictionary<String^, NodesActionCallback^>^ _nodes_actions;
 

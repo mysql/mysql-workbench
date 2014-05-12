@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,3 +26,7 @@
 #pragma warning(disable: 4793)  // 'vararg' causes native code generation
 
 #include <algorithm>
+
+#include "grts/structs.model.h"
+#include "grts/structs.db.query.h"
+#include "grts/structs.workbench.physical.h"

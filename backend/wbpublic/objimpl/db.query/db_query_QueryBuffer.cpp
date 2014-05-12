@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <grts/structs.db.query.h>
 
 #include <grtpp_util.h>
@@ -118,7 +116,7 @@ void db_query_QueryBuffer::selectionEnd(const grt::IntegerRef &value)
     Sql_editor::Ref editor(_data->editor.lock());
     
     // Read the old start value, as we pass an entire range to the editor.
-    int start = 0, end = 0;
+    size_t start = 0, end = 0;
     editor->selected_range(start, end);
     editor->set_selected_range(start, *value);
   }
@@ -131,7 +129,7 @@ void db_query_QueryBuffer::selectionStart(const grt::IntegerRef &value)
     Sql_editor::Ref editor(_data->editor.lock());
 
     // Read the old end value, as we pass an entire range to the editor.
-    int start = 0, end = 0;
+    size_t start = 0, end = 0;
     editor->selected_range(start, end);
     editor->set_selected_range(*value, end);
   }
@@ -142,7 +140,7 @@ grt::IntegerRef db_query_QueryBuffer::selectionEnd() const
   if (_data)
   {
     Sql_editor::Ref editor(_data->editor.lock());
-    int start, end;
+    size_t start, end;
     if (editor->selected_range(start, end))
       return grt::IntegerRef(end);
   }
@@ -154,7 +152,7 @@ grt::IntegerRef db_query_QueryBuffer::selectionStart() const
   if (_data)
   {
     Sql_editor::Ref editor(_data->editor.lock());
-    int start, end;
+    size_t start, end;
     if (editor->selected_range(start, end))
       return grt::IntegerRef(start);
   }
@@ -192,7 +190,7 @@ grt::IntegerRef db_query_QueryBuffer::replaceCurrentStatement(const std::string 
   if (_data)
   {
     Sql_editor::Ref editor(_data->editor.lock());
-    int start, end;
+    size_t start, end;
 
     if (editor->get_current_statement_range(start, end))
     {

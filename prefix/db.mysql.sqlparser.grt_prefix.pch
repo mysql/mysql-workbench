@@ -1,0 +1,5 @@
+// Prefix header for a target.
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif

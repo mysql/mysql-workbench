@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,16 +17,13 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <map>
+#include <memory>
+
 #include "grtpp_module_cpp.h"
 #include "cppdbc.h"
 
 #include "grts/structs.db.mgmt.h"
-
-#include <cppdbc.h>
-#include <memory>
 
 #define DOC_DbMySQLQueryImpl \
 "Query execution and utility routines for  MySQL servers.\n"\
@@ -172,7 +169,7 @@ public:
   
   int lastConnectionErrorCode(int conn);
   std::string lastConnectionError(int conn);
-  long lastUpdateCount(int conn);
+  uint64_t lastUpdateCount(int conn);
 
   // returns 1/0 for ok, -1 for error
   int execute(int conn, const std::string &query);
@@ -180,7 +177,7 @@ public:
   // returns result-id or -1 for error
   int executeQuery(int conn, const std::string &query);
 
-  long resultNumRows(int result);
+  size_t resultNumRows(int result);
   int resultNumFields(int result);
   std::string resultFieldType(int result, int field);
   std::string resultFieldName(int result, int field);
@@ -234,7 +231,7 @@ private:
     sql::ConnectionWrapper conn;
     std::string last_error;
     int last_error_code;
-    long long last_update_count;
+    uint64_t last_update_count;
   };
 
   base::Mutex _mutex;
@@ -422,12 +419,12 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
 }
 
 
-long DbMySQLQueryImpl::lastUpdateCount(int conn)
+uint64_t DbMySQLQueryImpl::lastUpdateCount(int conn)
 {
   base::MutexLock lock(_mutex);
   if (_connections.find(conn) == _connections.end())
     throw std::invalid_argument("Invalid connection");
-  return (long)_connections[conn]->last_update_count;
+  return _connections[conn]->last_update_count;
 }
 
 
@@ -449,7 +446,7 @@ std::string DbMySQLQueryImpl::lastConnectionError(int conn)
 }
 
 
-long DbMySQLQueryImpl::resultNumRows(int result)
+size_t DbMySQLQueryImpl::resultNumRows(int result)
 {
   base::MutexLock lock(_mutex);
   if (_resultsets.find(result) == _resultsets.end())

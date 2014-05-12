@@ -461,7 +461,8 @@ protected:
   DbSqlEditorHistory::Ref _history;
 
 public:
-  RowId add_log_message(int msg_type, const std::string &msg, const std::string &context, const std::string &duration);
+  // Result should be RowId but that requires to change the task callback type (at least for 64bit builds).
+  int add_log_message(int msg_type, const std::string &msg, const std::string &context, const std::string &duration);
   void set_log_message(RowId log_message_index, int msg_type, const std::string &msg, const std::string &context, const std::string &duration);
   void refresh_log_messages(bool ignore_last_message_timestamp);
 private:

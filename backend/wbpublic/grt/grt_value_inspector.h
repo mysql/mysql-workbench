@@ -53,16 +53,16 @@ public:
   virtual bool add_item(NodeId &new_node)= 0;
   virtual bool delete_item(const NodeId &node)= 0;
 
-  //virtual MYX_GRT_VALUE_TYPE get_field_type(const NodeId &node, int column)= 0;
+  //virtual MYX_GRT_VALUE_TYPE get_field_type(const NodeId &node, ColumnId column)= 0;
 
-  virtual grt::ValueRef get_grt_value(const NodeId &node, int column);
+  virtual grt::ValueRef get_grt_value(const NodeId &node, ColumnId column);
 
-  virtual bool set_convert_field(const NodeId &node, int column, const std::string &value);
-  virtual bool set_field(const NodeId &node, int column, const std::string &value);
-  virtual bool set_field(const NodeId &node, int column, double value);
-  virtual bool set_field(const NodeId &node, int column, int value);
+  virtual bool set_convert_field(const NodeId &node, ColumnId column, const std::string &value);
+  virtual bool set_field(const NodeId &node, ColumnId column, const std::string &value);
+  virtual bool set_field(const NodeId &node, ColumnId column, double value);
+  virtual bool set_field(const NodeId &node, ColumnId column, ssize_t value);
 
-  virtual IconId get_field_icon(const NodeId &node, int column, IconSize size);
+  virtual IconId get_field_icon(const NodeId &node, ColumnId column, IconSize size);
 
 public: // Responder methods
   
