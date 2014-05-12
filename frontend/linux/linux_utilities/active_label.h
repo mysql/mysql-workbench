@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #include <gtkmm/label.h>
 #include <gtkmm/eventbox.h>
 #include "mforms/menu.h"
-#if GTK_VERSION_GE(2,20)
+#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
 #include <gtkmm/spinner.h>
 #endif
 
@@ -59,7 +59,7 @@ class ActiveLabel : public Gtk::HBox
     Gtk::EventBox                      _text_label_eventbox;
     Gtk::Label                         _text_label;
     mforms::Menu                       *_menu;
-    #if GTK_VERSION_GE(2,20)
+    #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
     Gtk::Spinner                       _spinner;
     #endif
     bool                               _delete_menu;
