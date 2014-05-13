@@ -543,16 +543,66 @@ void SqlEditorForm::sql_editor_panel_switched()
 }
 
 
-bool SqlEditorForm::sql_editor_reorder(int old_index, int new_index)
+void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
 {
-  SqlEditorPanel *panel = sql_editor_panel(old_index);
-  if (!panel || old_index < 0 || old_index == new_index || new_index < 0)
-    return false;
+  int from = panel->autosave_index();
+  if (!panel || to < 0 || from < 0)
+    return;
 
-  panel->rename_auto_save(-1); // temporary name
-  if (old_index > new_index)
+  /// Reorder the GRT lists
+  int from_index = grtobj()->queryEditors().get_index(panel->grtobj());
+  if (from_index < 0)
+    should_never_happen("Could not find reordered editor in GRT object list\n");
+
+  // first build an array of result panel objects, in the same order as the tabview
+  std::vector<std::pair<db_query_QueryEditorRef, int> > panels;
+  for (int panel_order = 0, i = 0; i < sql_editor_count(); i++)
   {
-    for (int i = old_index - 1; i >= new_index; i--)
+    SqlEditorPanel *p = sql_editor_panel(i);
+    if (p)
+      panels.push_back(std::make_pair(p->grtobj(), panel_order++));
+    else
+      panels.push_back(std::make_pair(db_query_QueryEditorRef(), 0));
+  }
+
+  int to_index = -1;
+  // now find out where we have to move to
+  if (from < to)
+  {
+    for (int i = to; i > from; i--)
+    {
+      if (panels[i].first.is_valid())
+      {
+        to_index = panels[i].second;
+        break;
+      }
+    }
+  }
+  else
+  {
+    for (int i = to; i < from; i++)
+    {
+      if (panels[i].first.is_valid())
+      {
+        to_index = panels[i].second;
+        break;
+      }
+    }
+  }
+  if (to_index < 0)
+  {
+    should_never_happen("Unable to find suitable target index for reorder\n");
+    return;
+  }
+
+  grtobj()->queryEditors()->reorder(from_index, to_index);
+
+
+  /// Rename autosave files to keep the order
+  panel->rename_auto_save(-1); // temporary name
+  if (from > to)
+  {
+    for (int i = from - 1; i >= to; i--)
     {
       SqlEditorPanel *p = sql_editor_panel(i);
       if (p)
@@ -561,16 +611,14 @@ bool SqlEditorForm::sql_editor_reorder(int old_index, int new_index)
   }
   else
   {
-    for (int i = old_index + 1; i <= new_index; i++)
+    for (int i = from + 1; i <= to; i++)
     {
       SqlEditorPanel *p = sql_editor_panel(i);
       if (p)
         p->rename_auto_save(i-1);
     }
   }
-  panel->rename_auto_save(new_index);
-
-  return true;
+  panel->rename_auto_save(to);
 }
 
 //--------------------------------------------------------------------------------------------------

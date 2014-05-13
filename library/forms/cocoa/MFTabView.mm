@@ -20,7 +20,6 @@
 #import "MFTabView.h"
 #import "MFMForms.h"
 
-// XXX: move to mforms
 @implementation MFTabViewItemView
 
 - (NSView*)superview
@@ -237,10 +236,10 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
 }
 
 
-- (BOOL)tabView:(NSTabView*)tabView willReorderTabViewItem:(NSTabViewItem *)tabViewItem toIndex:(NSInteger)index
+- (void)tabView:(NSTabView*)tabView didReorderTabViewItem:(NSTabViewItem *)tabViewItem toIndex:(NSInteger)index
 {
-  (*mOwner->signal_tab_reordered())([tabView indexOfTabViewItem: tabViewItem], index);
-  return YES;
+  MFTabViewItemView *itemView = [tabViewItem view];
+  mOwner->reordered(itemView->mOwner, index);
 }
 
 
@@ -328,7 +327,8 @@ static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const st
     {
       NSTabViewItem *item= [[[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat:@"%p", tab]] autorelease];
       MFTabViewItemView *view= [[MFTabViewItemView alloc] init];
-      
+
+      view->mOwner = tab;
       view->mTabView= tabView->mTabView;
       
       [item setLabel: wrap_nsstring(label)];

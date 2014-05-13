@@ -40,5 +40,6 @@
 {
 @public
   NSTabView *mTabView;
+  mforms::View *mOwner;
 }
 @end

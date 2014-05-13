@@ -28,8 +28,10 @@
 #if defined(DEBUG) || defined(_DEBUG)
 // same as log_error, but throws exception in debug builds
 #define log_fatal(...) base::Logger::log_throw(base::Logger::LogError, default_log_domain, __VA_ARGS__)
+#define should_never_happen(...) base::Logger::log_throw(base::Logger::LogError, default_log_domain, __VA_ARGS__)
 #else
 #define log_fatal(...) base::Logger::log(base::Logger::LogError, default_log_domain, __VA_ARGS__)
+#define should_never_happen(...) base::Logger::log(base::Logger::LogError, default_log_domain, __VA_ARGS__)
 #endif
 #define log_error(...) base::Logger::log(base::Logger::LogError, default_log_domain, __VA_ARGS__)
 #define log_exception(msg, exc) base::Logger::log_exc(base::Logger::LogError, default_log_domain, msg, exc)
