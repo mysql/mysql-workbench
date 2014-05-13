@@ -87,10 +87,20 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
     if (walker.token_type() == DEFINER_SYMBOL)
     {
       walker.next(2); // Skip DEFINER + equal sign.
-      trigger->definer(walker.token_text());
+      std::string definer = walker.token_text();
       walker.next();
-      if (walker.token_type() == OPEN_PAR_SYMBOL) // Optional parentheses.
-        walker.next(2);
+      switch (walker.token_type())
+      {
+        case OPEN_PAR_SYMBOL: // Optional parentheses.
+          walker.next(2);
+          break;
+        case AT_SIGN_SYMBOL: // A user@host entry.
+          walker.next();
+          definer += '@' + walker.token_text();
+          walker.next();
+          break;
+      }
+      trigger->definer(definer);
     }
     walker.next(); // skip TRIGGER
     std::string name = walker.token_text();

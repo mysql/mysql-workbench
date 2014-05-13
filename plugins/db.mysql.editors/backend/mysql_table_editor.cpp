@@ -18,7 +18,6 @@
  */
 
 #include "mysql_table_editor.h"
-#include "grt/grt_dispatcher.h"
 #include "grtdb/db_object_helpers.h"
 #include "db.mysql/src/module_db_mysql.h"
 #include "grt/validation_manager.h"
@@ -463,7 +462,6 @@ public:
       t.append(" ").append((*trig)->event());
       trigmap.insert(std::make_pair(t, *trig));
     }
-//    std::sort(trigvec.begin(), trigvec.end(), &MySQLTriggerPanel::compare_order);
 
     mforms::TreeNodeRef node;
     std::map<std::string, db_TriggerRef>::iterator it;
@@ -794,7 +792,6 @@ static struct TableOption
 
 void MySQLTableEditorBE::set_table_option_by_name(const std::string& name, const std::string& value)
 {
-  //g_message("%s('%s','%s')", __FUNCTION__, name.c_str(), value.c_str());
   bool found= false;
 
   for (size_t i= 0; table_options[i].option_name; i++)
