@@ -163,7 +163,7 @@ public:
 public:
   SqlEditorPanel* active_sql_editor_panel();
 
-  bool sql_editor_reorder(int old_index, int new_index);
+  void sql_editor_reordered(SqlEditorPanel *editor, int new_index);
 
 private:
   int _sql_editors_serial;

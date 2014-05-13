@@ -68,9 +68,9 @@ namespace mforms
     ContextMenu *_tab_menu;
 
     boost::signals2::signal<void ()> _signal_tab_changed;
-    boost::signals2::signal<void (int, int)> _signal_tab_reordered;
+    boost::signals2::signal<void (View*, int, int)> _signal_tab_reordered;
     boost::signals2::signal<bool (int)> _signal_tab_closing;
-    boost::signals2::signal<void (int, View*)> _signal_tab_closed;
+    boost::signals2::signal<void (View*, int)> _signal_tab_closed;
 
   public:
     /** Constructor.
@@ -120,18 +120,20 @@ namespace mforms
 #ifndef SWIG
     void set_menu_tab(int tab);
 
+    void reordered(View *view, int index); //XXX Linux, windows
+
     /** Signal emitted when the tab is switched by user.
      
      In Python use add_tab_changed_callback()
      */
     boost::signals2::signal<void ()>* signal_tab_changed() { return &_signal_tab_changed; }
 
-    boost::signals2::signal<void (int, int)>* signal_tab_reordered() { return &_signal_tab_reordered; }
+    boost::signals2::signal<void (View*, int, int)>* signal_tab_reordered() { return &_signal_tab_reordered; }
     
     /** Callback called when a tab is about to close. Returning false will prevent the closure. */
     boost::signals2::signal<bool (int)>* signal_tab_closing() { return &_signal_tab_closing; }
 
-    boost::signals2::signal<void (int, View*)>* signal_tab_closed() { return &_signal_tab_closed; }
+    boost::signals2::signal<void (View*, int)>* signal_tab_closed() { return &_signal_tab_closed; }
 #endif
   };
 };

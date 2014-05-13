@@ -1446,10 +1446,6 @@ void SqlEditorForm::do_explain_sql(const std::string &sql)
   exec_sql_retaining_editor_contents(sql_script, active_sql_editor_panel(), false);
 }
 
-static void dummy()
-{
-}
-
 // Should actually be called _retaining_old_recordsets
 void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_script, SqlEditorPanel* editor, bool sync, bool dont_add_limit_clause)
 {
@@ -1461,13 +1457,8 @@ void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_sc
   if (editor)
   {
     editor->query_started(true);
-    exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor));
-    exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1));
-  }
-  else
-  {
-    exec_sql_task->finish_cb(boost::bind(dummy));
-    exec_sql_task->fail_cb(boost::bind(dummy));
+    exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor), true);
+    exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1), true);
   }
 
   exec_sql_task->exec(sync,
@@ -1549,8 +1540,8 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
   auto_save();
 
   editor->query_started(false);
-  exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor));
-  exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1));
+  exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor), true);
+  exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1), true);
 
   exec_sql_task->exec(
     sync,

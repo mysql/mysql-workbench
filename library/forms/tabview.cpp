@@ -72,8 +72,17 @@ void TabView::remove_page(View *page)
   int i = get_page_index(page);
   _tabview_impl->remove_page(this, page);
   remove_from_cache(page);
-  _signal_tab_closed(i, page);
+  _signal_tab_closed(page, i);
   page->release();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TabView::reordered(View *view, int index)
+{
+  int old_index = get_subview_index(view);
+  reorder_cache(view, index);
+  _signal_tab_reordered(view, old_index, index);
 }
 
 //--------------------------------------------------------------------------------------------------

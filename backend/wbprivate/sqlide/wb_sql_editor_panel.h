@@ -96,8 +96,8 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
 
   void lower_tab_switched();
   bool lower_tab_closing(int tab);
-  void lower_tab_closed(int tab, mforms::View *page);
-  void lower_tab_reordered(int,int);
+  void lower_tab_closed(mforms::View *page, int tab);
+  void lower_tab_reordered(mforms::View*, int, int);
 
   void result_removed();
 
@@ -139,6 +139,7 @@ public:
   void auto_save(const std::string &directory, int order);
   void delete_auto_save();
   void rename_auto_save(int to_order);
+  int autosave_index();
 
   void set_filename(const std::string &f);
   std::string filename() const { return _filename; }

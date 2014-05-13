@@ -111,7 +111,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_revert.signal_clicked()->connect(boost::bind(&SqlEditorPanel::revert_clicked, this));
 
   _lower_tabview.set_allows_reordering(true);
-  _lower_tabview.signal_tab_reordered()->connect(boost::bind(&SqlEditorPanel::lower_tab_reordered, this, _1, _2));
+  _lower_tabview.signal_tab_reordered()->connect(boost::bind(&SqlEditorPanel::lower_tab_reordered, this, _1, _2, _3));
   _lower_tabview.signal_tab_changed()->connect(boost::bind(&SqlEditorPanel::lower_tab_switched, this));
   _lower_tabview.signal_tab_closing()->connect(boost::bind(&SqlEditorPanel::lower_tab_closing, this, _1));
   _lower_tabview.signal_tab_closed()->connect(boost::bind(&SqlEditorPanel::lower_tab_closed, this, _1, _2));
@@ -479,6 +479,14 @@ void SqlEditorPanel::revert_to_saved()
 }
 
 
+int SqlEditorPanel::autosave_index()
+{
+  if (_autosave_file_path.empty())
+    return -1;
+  return atoi(strip_extension(basename(_autosave_file_path)).c_str());
+}
+
+
 void SqlEditorPanel::rename_auto_save(int to)
 {
   if (!_autosave_file_path.empty())
@@ -487,36 +495,39 @@ void SqlEditorPanel::rename_auto_save(int to)
     std::string prefix = strip_extension(_autosave_file_path);
     std::string new_prefix = make_path(dir, strfmt("%i", to));
 
-    try
+    if (prefix != new_prefix)
     {
-      if (file_exists(prefix + ".autosave"))
+      try
       {
-        rename(prefix + ".autosave", new_prefix + ".autosave");
-        _autosave_file_path = new_prefix + ".autosave";
-      }
-      else
-      {
-        if (file_exists(prefix + ".scratch"))
+        if (file_exists(prefix + ".autosave"))
         {
-          rename(prefix + ".scratch", new_prefix + ".scratch");
-          _autosave_file_path = new_prefix + ".scratch";
+          rename(prefix + ".autosave", new_prefix + ".autosave");
+          _autosave_file_path = new_prefix + ".autosave";
+        }
+        else
+        {
+          if (file_exists(prefix + ".scratch"))
+          {
+            rename(prefix + ".scratch", new_prefix + ".scratch");
+            _autosave_file_path = new_prefix + ".scratch";
+          }
         }
       }
-    }
-    catch (std::exception &exc)
-    {
-      log_warning("Could not rename temporary auto-save file: %s\n", exc.what());
-    }
+      catch (std::exception &exc)
+      {
+        log_warning("Could not rename temporary auto-save file: %s\n", exc.what());
+      }
 
-    try
-    {
-      if (file_exists(prefix + ".filename"))
-        rename(prefix + ".filename", new_prefix + ".filename");
-    }
-    catch (std::exception &exc)
-    {
-      log_warning("Could not rename auto-save file %s: %s\n", (prefix + ".filename").c_str(),
-                  exc.what());
+      try
+      {
+        if (file_exists(prefix + ".filename"))
+          rename(prefix + ".filename", new_prefix + ".filename");
+      }
+      catch (std::exception &exc)
+      {
+        log_warning("Could not rename auto-save file %s: %s\n", (prefix + ".filename").c_str(),
+                    exc.what());
+      }
     }
   }
 }
@@ -831,6 +842,7 @@ std::pair<const char*, size_t> SqlEditorPanel::text_data() const
 void SqlEditorPanel::set_title(const std::string &title)
 {
   _title = title;
+  grtobj()->name(_title);
   mforms::AppView::set_title(title);
 }
 
@@ -1090,56 +1102,66 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
 }
 
 
-void SqlEditorPanel::lower_tab_reordered(int from, int to)
+void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
 {
+  if (from == to || dynamic_cast<SqlEditorResult*>(view) == NULL)
+    return;
+
   // not all tabs will have a SqlEditorResult
   // so the reordering gets more complicated, because actual reordering only happens if the relative
   // position between the result objects changes...
   // relative result object order changes always mean that a tab was reordered, but the other way around is
   // not always true
-  SqlEditorResult *from_panel = result_panel(from);
-  SqlEditorResult *to_panel = result_panel(to);
 
-  if (!from_panel)
-    return;
-  int relative_from = grtobj()->resultPanels().get_index(from_panel->grtobj());
-  int relative_to = -1;
-
-  if (to_panel)
-    relative_to = grtobj()->resultPanels().get_index(to_panel->grtobj());
-  else
+  int from_index = grtobj()->resultPanels().get_index(dynamic_cast<SqlEditorResult*>(view)->grtobj());
+  if (from_index < 0)
   {
-    if (from < to)
-    {
-      for (int i = to-1; i > from; i--)
-      {
-        to_panel = result_panel(i);
-        if (to_panel)
-        {
-          relative_to = grtobj()->resultPanels().get_index(to_panel->grtobj());
-          break;
-        }
-      }
-    }
+    should_never_happen("Result panel is not in resultPanels() list\n");
+    return;
+  }
+
+  // first build an array of result panel objects, in the same order as the tabview
+  std::vector<std::pair<db_query_ResultPanelRef, int> > panels;
+  for (int result_order = 0, i = 0; i < _lower_tabview.page_count(); i++)
+  {
+    SqlEditorResult *p = result_panel(i);
+    if (p)
+      panels.push_back(std::make_pair(p->grtobj(), result_order++));
     else
+      panels.push_back(std::make_pair(db_query_ResultPanelRef(), 0));
+  }
+
+  int to_index = -1;
+  // now find out where we have to move to
+  if (from < to)
+  {
+    for (int i = to; i > from; i--)
     {
-      for (int i = to+1; i < from; i++)
+      if (panels[i].first.is_valid())
       {
-        to_panel = result_panel(i);
-        if (to_panel)
-        {
-          relative_to = grtobj()->resultPanels().get_index(to_panel->grtobj());
-          break;
-        }
+        to_index = panels[i].second;
+        break;
       }
     }
   }
-
-  if (relative_to < 0)
+  else
+  {
+    for (int i = to; i < from; i++)
+    {
+      if (panels[i].first.is_valid())
+      {
+        to_index = panels[i].second;
+        break;
+      }
+    }
+  }
+  if (to_index < 0)
+  {
+    should_never_happen("Unable to find suitable target index for reorder\n");
     return;
+  }
 
-  if (relative_from != relative_to)
-    grtobj()->resultPanels().reorder(relative_from, relative_to);
+  grtobj()->resultPanels()->reorder(from_index, to_index);
 }
 
 
@@ -1159,7 +1181,7 @@ bool SqlEditorPanel::lower_tab_closing(int tab)
 }
 
 
-void SqlEditorPanel::lower_tab_closed(int tab, mforms::View *page)
+void SqlEditorPanel::lower_tab_closed(mforms::View *page, int tab)
 {
   SqlEditorResult* rpage = dynamic_cast<SqlEditorResult*>(page);
   if (rpage)

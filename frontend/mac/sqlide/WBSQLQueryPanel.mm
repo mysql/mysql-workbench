@@ -702,16 +702,14 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 }
 
 
-- (BOOL)tabView:(NSTabView *)tabView willReorderTabViewItem:(NSTabViewItem *)item toIndex:(NSInteger)index
+- (void)tabView:(NSTabView *)tabView didReorderTabViewItem:(NSTabViewItem *)item toIndex:(NSInteger)index
 {
   if (tabView == mUpperTabView)
   {
-    NSInteger oindex = [tabView indexOfTabViewItem:item];
-    SqlEditorPanel *editor = mBackEnd->sql_editor_panel(oindex);
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
     if (editor)
-      mBackEnd->sql_editor_reorder(oindex, index);
+      mBackEnd->sql_editor_reordered(editor, index);
   }
-  return YES;
 }
 
 

@@ -105,6 +105,19 @@ void View::cache_view(View *sv)
 
 //--------------------------------------------------------------------------------------------------
 
+void View::reorder_cache(View *sv, int position)
+{
+  int old = get_subview_index(sv);
+  if (old < 0)
+    throw std::invalid_argument("mforms: invalid subview");
+
+  std::pair<View*, bool> value = _subviews[old];
+  _subviews.erase(_subviews.begin() + old);
+  _subviews.insert(_subviews.begin() + position, value);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void View::remove_from_cache(View *sv)
 {
   sv->_parent = NULL;

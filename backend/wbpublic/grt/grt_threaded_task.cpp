@@ -28,7 +28,9 @@ GrtThreadedTask::GrtThreadedTask()
 :
 _grtm(NULL),
 _task(NULL),
-_send_task_res_msg(true)
+_send_task_res_msg(true),
+_onetime_finish_cb(false),
+_onetime_fail_cb(false)
 {
 }
 
@@ -37,7 +39,9 @@ GrtThreadedTask::GrtThreadedTask(bec::GRTManager *grtm)
 :
 _grtm(grtm),
 _task(NULL),
-_send_task_res_msg(true)
+_send_task_res_msg(true),
+_onetime_finish_cb(false),
+_onetime_fail_cb(false)
 {
 }
 
@@ -46,7 +50,9 @@ GrtThreadedTask::GrtThreadedTask(const GrtThreadedTask::Ref &parent_task)
 :
 _grtm(parent_task->grtm()),
 _task(NULL),
-_send_task_res_msg(true)
+_send_task_res_msg(true),
+_onetime_finish_cb(false),
+_onetime_fail_cb(false)
 {
   this->parent_task(parent_task);
 }
@@ -95,7 +101,9 @@ void GrtThreadedTask::parent_task(const GrtThreadedTask::Ref &val)
     _msg_cb = _parent_task->_msg_cb;
     _progress_cb = _parent_task->_progress_cb;
     _finish_cb = _parent_task->_finish_cb;
+    _onetime_finish_cb = _parent_task->_onetime_finish_cb;
     _fail_cb = _parent_task->_fail_cb;
+    _onetime_fail_cb = _parent_task->_onetime_fail_cb;
     _proc_cb = _parent_task->_proc_cb;
   }
 }
@@ -193,7 +201,11 @@ void GrtThreadedTask::process_msg(const grt::Message &msg, bec::GRTTask *task)
 void GrtThreadedTask::process_fail(const std::exception &error, bec::GRTTask *task)
 {
   if(_fail_cb)
-      _fail_cb(error.what());
+  {
+    _fail_cb(error.what());
+    if (_onetime_fail_cb)
+      _fail_cb = Fail_cb();
+  }
 }
 
 
@@ -206,7 +218,11 @@ void GrtThreadedTask::process_finish(grt::ValueRef res, bec::GRTTask *task)
       _grtm->get_grt()->send_info(grt::StringRef::cast_from(res), "", task);
   }
   if (_finish_cb)
+  {
     _finish_cb();
+    if (_onetime_finish_cb)
+      _finish_cb = Finish_cb();
+  }
 }
 
 

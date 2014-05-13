@@ -1398,12 +1398,11 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
         if (item)
         {
           int idx = [mTabView indexOfTabViewItem: item];
-          if (![mDelegate respondsToSelector: @selector(tabView:willReorderTabViewItem:toIndex:)] ||
-              [mDelegate tabView: mTabView willReorderTabViewItem: draggedItem toIndex: idx])
-          {
-            [mTabView removeTabViewItem: draggedItem];
-            [mTabView insertTabViewItem: draggedItem atIndex: idx];
-          }
+          [mTabView removeTabViewItem: draggedItem];
+          [mTabView insertTabViewItem: draggedItem atIndex: idx];
+
+          if ([mDelegate respondsToSelector: @selector(tabView:didReorderTabViewItem:toIndex:)])
+            [mDelegate tabView: mTabView didReorderTabViewItem: draggedItem toIndex: idx];
         }
         else
         {
@@ -1412,15 +1411,13 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
             idx = 0;
           else
             idx = [mTabView numberOfTabViewItems];
-          if (![mDelegate respondsToSelector: @selector(tabView:willReorderTabViewItem:toIndex:)] ||
-              [mDelegate tabView: mTabView willReorderTabViewItem: draggedItem toIndex: idx])
-          {
-            [mTabView removeTabViewItem: draggedItem];
-            if (idx == 0)
-              [mTabView insertTabViewItem: draggedItem atIndex: 0];
-            else
-              [mTabView addTabViewItem: draggedItem];
-          }
+          [mTabView removeTabViewItem: draggedItem];
+          if (idx == 0)
+            [mTabView insertTabViewItem: draggedItem atIndex: 0];
+          else
+            [mTabView addTabViewItem: draggedItem];
+          if ([mDelegate respondsToSelector: @selector(tabView:didReorderTabViewItem:toIndex:)])
+            [mDelegate tabView: mTabView didReorderTabViewItem: draggedItem toIndex: idx];
         }
         [mTabView selectTabViewItem: draggedItem]; // reselect the tab since it gets unselected when removed
         mReorderingTab = NO;
