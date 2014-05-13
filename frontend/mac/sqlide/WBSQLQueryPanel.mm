@@ -393,6 +393,14 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     [editor performSelector: @selector(didShow)];
 }
 
+
+- (void)closeActiveEditorTab
+{
+  NSTabViewItem *item = [mUpperTabView selectedTabViewItem];
+  if (item)
+    [mUpperTabSwitcher closeTabViewItem: item];
+}
+
 #pragma mark Output
 
 - (IBAction)activateCollectionItem:(id)sender
