@@ -77,6 +77,11 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
     lexer = "SCLEX_MYSQL";
     break;
       
+  case mforms::LanguageMySQL57:
+    override_lexer = "SCLEX_MYSQL_57";
+    lexer = "SCLEX_MYSQL";
+    break;
+      
   case mforms::LanguageHtml:
     lexer = "SCLEX_HTML";
     break;
@@ -642,6 +647,7 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language)
   case mforms::LanguageMySQL51:
   case mforms::LanguageMySQL55:
   case mforms::LanguageMySQL56:
+  case mforms::LanguageMySQL57:
     _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_MYSQL, 0);
     break;
 
