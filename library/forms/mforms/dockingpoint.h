@@ -129,7 +129,7 @@ namespace mforms {
 
     boost::signals2::signal<void ()>* signal_view_switched() { return &_view_switched; }
 
-    //XXX Linux, Windows: need to call this whenever a tab is switched (main tabs and connection tabs)
+    //XXX Windows: need to call this whenever a tab is switched (main tabs and connection tabs)
     void view_switched();
 #endif
   protected:

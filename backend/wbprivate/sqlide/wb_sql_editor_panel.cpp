@@ -100,7 +100,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_box.add_end(&_tab_action_icon, false, false);
   _tab_action_box.add_end(&_tab_action_revert, false, true);
   _tab_action_box.add_end(&_tab_action_apply, false, true);
-  _tab_action_icon.set_image(mforms::App::get()->get_resource_path("record_edit.png"));
+  _tab_action_icon.set_image(mforms::App::get()->get_resource_path("mini_notice.png"));
   _tab_action_icon.show(false);
   _tab_action_info.show(false);
   _tab_action_apply.enable_internal_padding(true);
@@ -1198,9 +1198,7 @@ void SqlEditorPanel::lower_tab_closed(mforms::View *page, int tab)
 void SqlEditorPanel::result_removed()
 {
   if (_lower_tabview.page_count() == 0)
-  {
     _splitter.set_position(_splitter.get_height());
-  }
   lower_tab_switched();
 }
 

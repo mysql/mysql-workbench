@@ -22,6 +22,7 @@ add_library(sqlide
     grid_view_model.cpp
     grid_view.cpp
     recordset_view.cpp
+    ../mforms/record_grid_view.cpp
 )
 
 target_link_libraries(sqlide ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
