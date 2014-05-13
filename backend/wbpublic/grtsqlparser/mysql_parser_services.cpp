@@ -80,8 +80,15 @@ void ParserContext::use_server_version(GrtVersionRef version)
   
   long server_version;
   if (version.is_valid())
-    server_version = version->majorNumber() * 10000 + version->minorNumber() * 100 +
-      version->releaseNumber();
+  {
+    server_version = version->majorNumber() * 10000;
+    if (version->minorNumber() > -1)
+      server_version += version->minorNumber() * 100;
+    else
+      server_version += 500;
+    if (version->releaseNumber() > -1)
+      server_version += version->releaseNumber();
+  }
   else
     server_version = 50501; // Assume some reasonable default (5.5.1).
   _recognizer->set_server_version(server_version);

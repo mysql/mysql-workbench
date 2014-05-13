@@ -423,7 +423,6 @@ public:
     _rtable.add(editor->get_sql_editor()->get_container(), 0, 5, 1, 2,
                 mforms::HExpandFlag|mforms::VExpandFlag|mforms::HFillFlag|mforms::VFillFlag);
     editor->get_sql_editor()->set_sql_check_enabled(true);
-    editor->get_sql_editor()->get_editor_control()->set_language(mforms::LanguageMySQL);
     
     _button.signal_clicked()->connect(boost::bind(&MySQLTriggerPanel::clicked, this));
     _code_editor = _editor->get_sql_editor()->get_editor_control();

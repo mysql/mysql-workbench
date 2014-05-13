@@ -182,22 +182,9 @@ MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref context)
   _code_editor->set_features(mforms::FeatureUsePopup, false);
   _code_editor->set_features(mforms::FeatureConvertEolOnPaste, true);
 
-  mforms::SyntaxHighlighterLanguage lang = mforms::LanguageMySQL;
-
   GrtVersionRef version = context->get_server_version();
-  if (version->majorNumber() == 5)
-  {
-    switch (version->minorNumber())
-    {
-      case 0: lang = mforms::LanguageMySQL50; break;
-      case 1: lang = mforms::LanguageMySQL51; break;
-      case 5: lang = mforms::LanguageMySQL55; break;
-      case 6: lang = mforms::LanguageMySQL56; break;
-      case 7: lang = mforms::LanguageMySQL57; break;
-    }
-  }
-  _editor_config = new mforms::CodeEditorConfig(lang);
-  _code_editor->set_language(lang);
+  _editor_config = NULL;
+  create_editor_config_for_version(version);
 
   scoped_connect(_code_editor->signal_changed(), boost::bind(&MySQLEditor::text_changed, this, _1, _2, _3, _4));
   scoped_connect(_code_editor->signal_char_added(), boost::bind(&MySQLEditor::char_added, this, _1));
@@ -641,6 +628,8 @@ void MySQLEditor::set_sql_mode(const std::string &value)
 void MySQLEditor::set_server_version(GrtVersionRef version)
 {
   d->_parser_context->use_server_version(version);
+  create_editor_config_for_version(version);
+  start_sql_processing();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1178,6 +1167,28 @@ void MySQLEditor::activate_context_menu_item(const std::string &name)
       log_warning("Unhandled context menu item %s", name.c_str());
     }
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLEditor::create_editor_config_for_version(GrtVersionRef version)
+{
+  delete _editor_config;
+
+  mforms::SyntaxHighlighterLanguage lang = mforms::LanguageMySQL;
+  if (version->majorNumber() == 5)
+  {
+    switch (version->minorNumber())
+    {
+      case 0: lang = mforms::LanguageMySQL50; break;
+      case 1: lang = mforms::LanguageMySQL51; break;
+      case 5: lang = mforms::LanguageMySQL55; break;
+      case 6: lang = mforms::LanguageMySQL56; break;
+      case 7: lang = mforms::LanguageMySQL57; break;
+    }
+  }
+  _editor_config = new mforms::CodeEditorConfig(lang);
+  _code_editor->set_language(lang);
 }
 
 //--------------------------------------------------------------------------------------------------

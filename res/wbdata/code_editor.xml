@@ -8,7 +8,9 @@
   -->
 
   <language name="SCLEX_MYSQL">
-
+    <!-- This is the base language setting. It's usually not directly used, but provides values shared by
+         more specialized MySQL versions. -->
+    
     <!-- Lexer properties -->
     <property name="fold" value="1" />
     <property name="fold.compact" value="0" />
@@ -20,60 +22,11 @@
     <setting name="indentation" value="4" />
 
     <!-- Keep in mind to use the same list names as defined in the lexers (e.g. LexMySQL.cpp). -->
-    <keywords name="Major Keywords"> <!-- Keywords that can start a statement. -->
-      analyze alter
-      backup
-      call change check create
-      delete desc describe drop
-      explain
-      flush
-      grant
-      handler help
-      insert
-      kill
-      load lock
-      optimize
-      purge
-      rename replace restore revoke
-      select set show
-      truncate
-      unlock update use
+    <keywords name="Major Keywords">
+      <!-- Keywords that can start a statement. Dont't include those in the standard keywords list. -->
     </keywords>
 
     <keywords name="Keywords">
-      accessible add all and as asc asensitive
-      before between bigint binary blob both by
-      cascade case char character collate column condition connection constraint
-      continue convert cross current_date current_time current_timestamp current_user cursor
-      database databases day_hour day_microsecond day_minute day_second dec decimal declare default
-      delayed deterministic distinct distinctrow div double dual
-      each else elseif enclosed escaped exists exit
-      false fetch float float4 float8 for force foreign frac_second from fulltext
-      goto group
-      having high_priority hour_microsecond hour_minute hour_second
-      if ignore in index infile inner inout insensitive int int1 int2 int3 int4 int8 integer
-      interval into is iterate
-      join
-      key keys
-      label leading leave left like limit linear lines localtime localtimestamp long
-      longblob longtext loop low_priority
-      master_ssl_verify_server_cert match mediumblob mediumint mediumtext middleint minute_microsecond
-      minute_second mod modifies
-      natural not no_write_to_binlog null numeric
-      on option optionally or order out outer outfile
-      precision primary procedure
-      range read reads read_only read_write real references regexp repeat
-      require restrict return right rlike
-      schema schemas second_microsecond sensitive separator smallint spatial specific
-      sql sqlexception sqlstate sqlwarning sql_big_result sql_calc_found_rows sql_small_result ssl
-      starting straight_join
-      table terminated then tinyblob tinyint tinytext to trailing trigger true
-      undo union unique unsigned until upgrade usage using utc_date utc_time utc_timestamp
-      values varbinary varchar varcharacter varying
-      when where while with write
-      xor
-      year_month
-      zerofill
     </keywords>
 
     <keywords name="Functions">
@@ -199,24 +152,37 @@
     <keywords name="Keywords">
       all asensitive action auto_increment avg after asc and any against aggregate add avg_row_length as algorithm
       berkeleydb btree bdb boolean before byte between both bigint binary blob bit by block bool
-      code chain compact compressed changed contains charset current_time cascade committed condition collate collation consistent current_date columns cube close connection context case cursor cross client current_timestamp character continue constraint column cipher cascaded char concurrent cpu
-      dynamic delay_key_write deterministic div distinct duplicate dec disable date data day decimal dumpfile declare day_microsecond databases datetime double dual distinctrow des_key_file database discard day_second delayed default day_minute day_hour definer directory
+      code chain compact compressed changed contains charset current_time cascade committed condition collate collation consistent
+        current_date columns cube close connection context case cursor cross client current_timestamp character continue constraint
+        column cipher cascaded char concurrent cpu
+      dynamic delay_key_write deterministic div distinct duplicate dec disable date data day decimal dumpfile declare day_microsecond
+        databases datetime double dual distinctrow des_key_file database discard day_second delayed default day_minute day_hour definer directory
       enclosed errors escaped each elseif exists engines engine enable else events extended escape exit enum expansion
       force full from fulltext fetch faults float found first false float4 fields fixed float8 foreign for fast function file frac_second
       global group geometry get_format geometrycollection grants
       hour_minute hour_second hash hour high_priority hour_microsecond hosts having
-      issuer index ipc io identified innodb isolation indexes iterate inout invoker import insert_method io_thread innobase is in insensitive if integer ignore infile into inner int4 int1 int3 int2 int8 int interval
+      issuer index ipc io identified innodb isolation indexes iterate inout invoker import insert_method io_thread innobase is in
+        insensitive if integer ignore infile into inner int4 int1 int3 int2 int8 int interval
       join
       key keys
       localtime level leave leaves loop longtext locks lines longblob logs language long leading linestring localtimestamp local last left low_priority like limit
-      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode master_host max_queries_per_hour mediumtext max_user_connections master master_port master_ssl_key microsecond multipoint mediumblob multilinestring multipolygon mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second master_ssl match max_updates_per_hour master_connect_retry master_log_file master_user minute_microsecond master_password medium master_ssl_cert master_server_id
+      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode
+        master_host max_queries_per_hour mediumtext max_user_connections master master_port master_ssl_key microsecond multipoint mediumblob
+        multilinestring multipolygon mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second master_ssl match
+        max_updates_per_hour master_connect_retry master_log_file master_user minute_microsecond master_password medium master_ssl_cert master_server_id
       no_write_to_binlog new names none nvarchar natural not name numeric ndbcluster national nchar null ndb next no
       order one_shot out one open option outfile outer offset on or optionally
       partial prev process profile primary phase pack_keys processlist point precision profiles procedure privileges password page polygon
       query quick
-      raid_type replication rollup relay_thread row rtree relay_log_pos raid0 redundant return resume restrict returns raid_chunksize repeatable require recover routine reload rlike row_format reads raid_chunks restore real read regexp right references rows relay_log_file
-      switches sql_tsi_week string sqlwarning second sql_no_cache sql_tsi_day share serial schemas soname sql_buffer_result straight_join sql_cache smallint sqlexception sql_thread slave sql_tsi_minute separator suspend sounds schema serializable snapshot sql_tsi_hour second_microsecond session sql_tsi_second ssl striped subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source sql_tsi_frac_second security sql_tsi_quarter some specific swaps sqlstate super sql_big_result sql_tsi_month signed spatial sql starting
-      to tablespace type types then timestamp timestampadd temptable text true triggers table trigger temporary transaction tables timestampdiff tinytext terminated trailing tinyint time tinyblob
+      raid_type replication rollup relay_thread row rtree relay_log_pos raid0 redundant return resume restrict returns raid_chunksize repeatable
+        require recover routine reload rlike row_format reads raid_chunks restore real read regexp right references rows relay_log_file
+      switches sql_tsi_week string sqlwarning second sql_no_cache sql_tsi_day share serial schemas soname sql_buffer_result straight_join
+        sql_cache smallint sqlexception sql_thread slave sql_tsi_minute separator suspend sounds schema serializable snapshot sql_tsi_hour
+        second_microsecond session sql_tsi_second ssl striped subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status
+        sql_small_result storage source sql_tsi_frac_second security sql_tsi_quarter some specific swaps sqlstate super sql_big_result
+        sql_tsi_month signed spatial sql starting
+      to tablespace type types then timestamp timestampadd temptable text true triggers table trigger temporary transaction tables timestampdiff
+        tinytext terminated trailing tinyint time tinyblob
       utc_date utc_timestamp until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage using unique use_frm
       varying values value varbinary variables view varcharacter varchar
       work write warnings where while with when
@@ -251,25 +217,43 @@
     <keywords name="Keywords">
       all asensitive action auto_increment avg after asc authors and any against aggregate add avg_row_length accessible as at algorithm autoextend_size
       btree boolean binary before byte between both bigint blob bit by block bool
-      code chain compact compressed changed contains charset cascade committed condition collate collation consistent current_date completion columns cube close connection context case cursor current_time cross client current_timestamp character continue constraint column cipher cascaded contributors char concurrent cpu
-      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double declare day_microsecond databases datetime datafile distinctrow des_key_file database discard day_second day_hour delayed default day_minute definer directory
+      code chain compact compressed changed contains charset cascade committed condition collate collation consistent current_date completion
+        columns cube close connection context case cursor current_time cross client current_timestamp character continue constraint column
+        cipher cascaded contributors char concurrent cpu
+      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double declare
+        day_microsecond databases datetime datafile distinctrow des_key_file database discard day_second day_hour delayed default day_minute definer directory
       every enclosed errors escaped each event elseif exists ends engines engine enable else events extended extent_size escape exit enum expansion
       force full from fulltext fetch faults float found first false float4 fields fixed float8 foreign for fast function file frac_second
       global group get_format geometry geometrycollection grants
       hour_minute hour_second hash hour high_priority hour_microsecond hosts host having
-      issuer index ipc identified innodb indexes iterate inout isolation invoker import insert_method io_thread innobase is io in insensitive if integer initial_size ignore infile into inner int4 int1 int3 int2 int8 int interval
+      issuer index ipc identified innodb indexes iterate inout isolation invoker import insert_method io_thread innobase is io in insensitive
+        if integer initial_size ignore infile into inner int4 int1 int3 int2 int8 int interval
       join
       key_block_size key keys
-      localtime longtext list leave leaves loop locks lines logs linear language long leading linestring longblob localtimestamp local logfile last left less low_priority like level limit
-      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode master_host max_queries_per_hour mediumtext master_ssl_verify_server_cert max_user_connections master master_ssl_key microsecond multipoint mediumblob multilinestring multipolygon master_port mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second master_ssl max_size match max_updates_per_hour master_connect_retry master_log_file master_user minute_microsecond master_password medium master_ssl_cert master_server_id maxvalue
+      localtime longtext list leave leaves loop locks lines logs linear language long leading linestring longblob localtimestamp local
+        logfile last left less low_priority like level limit
+      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode
+        master_host max_queries_per_hour mediumtext master_ssl_verify_server_cert max_user_connections master master_ssl_key microsecond
+        multipoint mediumblob multilinestring multipolygon master_port mutex modify mediumint migrate master_log_pos master_ssl_cipher
+        minute_second master_ssl max_size match max_updates_per_hour master_connect_retry master_log_file master_user minute_microsecond
+        master_password medium master_ssl_cert master_server_id maxvalue
       no_write_to_binlog no_wait new nodegroup names none nvarchar natural not name numeric ndbcluster null national nchar ndb next no
       options or order one_shot out one owner open option outfile outer offset on optionally
-      partial partitions plugins port prev profiles process profile primary phase pack_keys processlist preserve plugin point precision procedure privileges password page partitioning parser polygon
+      partial partitions plugins port prev profiles process profile primary phase pack_keys processlist preserve plugin point precision
+        procedure privileges password page partitioning parser polygon
       query quick
-      replication rollup relay_thread row relay_log_pos read_only redundant return resume restrict returns repeatable require reorganize rtree routine remove reload rlike row_format redofile redo_buffer_size read_write reads recover restore real read regexp range rebuild right references rows relay_log_file
-      switches sql_tsi_week string sqlwarning second sql_no_cache subpartition sql_tsi_day share serial schemas soname sql_buffer_result straight_join sql_cache smallint sqlexception sql_thread slave sql_tsi_minute starts separator suspend sounds schema snapshot sql_tsi_hour second_microsecond session serializable sql_tsi_second ssl subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source sql_tsi_frac_second server security sql_tsi_quarter some specific swaps sqlstate schedule super socket sql_big_result sql_tsi_month signed subpartitions spatial sql starting
-      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers temporary transaction tables timestampdiff tinytext terminated trailing tinyint time tinyblob
-      utc_date utc_timestamp until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage using unique undofile undo_buffer_size use_frm
+      replication rollup relay_thread row relay_log_pos read_only redundant return resume restrict returns repeatable require reorganize
+        rtree routine remove reload rlike row_format redofile redo_buffer_size read_write reads recover restore real read regexp range
+        rebuild right references rows relay_log_file
+      switches sql_tsi_week string sqlwarning second sql_no_cache subpartition sql_tsi_day share serial schemas soname sql_buffer_result
+        straight_join sql_cache smallint sqlexception sql_thread slave sql_tsi_minute starts separator suspend sounds schema snapshot
+        sql_tsi_hour second_microsecond session serializable sql_tsi_second ssl subject sql_calc_found_rows sensitive simple shutdown
+        sql_tsi_year status sql_small_result storage source sql_tsi_frac_second server security sql_tsi_quarter some specific swaps
+        sqlstate schedule super socket sql_big_result sql_tsi_month signed subpartitions spatial sql starting
+      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers temporary
+        transaction tables timestampdiff tinytext terminated trailing tinyint time tinyblob
+      utc_date utc_timestamp until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage
+        using unique undofile undo_buffer_size use_frm
       varying values varbinary variables view value varcharacter varchar
       wait work write wrapper warnings where while with when
       xor x509
@@ -301,27 +285,50 @@
     </keywords>
 
     <keywords name="Keywords">
-      all asensitive action auto_increment after asc authors and any against avg aggregate add avg_row_length accessible as at algorithm autoextend_size
+      all asensitive action auto_increment after asc authors and any against avg aggregate add avg_row_length accessible as at
+        algorithm autoextend_size
       before between binary bigint bit blob block bool boolean both btree by byte
-      code chain compact compressed cursor_name changed class_origin contains completion constraint_name charset cascade committed condition constraint_schema collate collation consistent current_date columns cube catalog_name close connection context case cursor current_time cross client current_timestamp character column_name continue constraint column cipher cascaded constraint_catalog contributors char concurrent cpu
-      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double declare day_microsecond databases datetime datafile day_minute distinctrow des_key_file database discard day_second day_hour delayed default definer directory
-      every enclosed errors escaped each event elseif exists ends engines engine enable else error events extended extent_size escape exit enum expansion
+      code chain compact compressed cursor_name changed class_origin contains completion constraint_name charset cascade committed
+        condition constraint_schema collate collation consistent current_date columns cube catalog_name close connection context case
+        cursor current_time cross client current_timestamp character column_name continue constraint column cipher cascaded
+        constraint_catalog contributors char concurrent cpu
+      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double
+        declare day_microsecond databases datetime datafile day_minute distinctrow des_key_file database discard day_second day_hour
+        delayed default definer directory
+      every enclosed errors escaped each event elseif exists ends engines engine enable else error events extended extent_size
+        escape exit enum expansion
       force full from fulltext fetch faults float found first function false float4 fields fixed float8 foreign for fast file format
       general geometry geometrycollection get_format global grants group
       hour_minute hour_second hash hour high_priority hour_microsecond hosts host having
-      issuer index ipc identified indexes iterate inout isolation invoker import insert_method io_thread is io in insensitive if integer initial_size ignore infile into inner ignore_server_ids int4 int1 int3 int2 int8 int interval
+      issuer index ipc identified indexes iterate inout isolation invoker import insert_method io_thread is io in insensitive
+        if integer initial_size ignore infile into inner ignore_server_ids int4 int1 int3 int2 int8 int interval
       join
       key_block_size key keys
-      localtime longtext list leave leaves loop locks lines logs linear language long leading linestring longblob localtimestamp local logfile last left less low_priority like limit level
-      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode master_host max_queries_per_hour master_heartbeat_period mediumtext master_ssl_verify_server_cert max_user_connections master master_ssl_key microsecond message_text multipoint mediumblob multilinestring multipolygon master_port mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second mysql_errno master_ssl max_size match max_updates_per_hour master_connect_retry master_log_file master_user minute_microsecond master_password medium master_ssl_cert master_server_id maxvalue
+      localtime longtext list leave leaves loop locks lines logs linear language long leading linestring longblob localtimestamp
+        local logfile last left less low_priority like limit level
+      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode
+        master_host max_queries_per_hour master_heartbeat_period mediumtext master_ssl_verify_server_cert max_user_connections
+        master master_ssl_key microsecond message_text multipoint mediumblob multilinestring multipolygon master_port mutex modify
+        mediumint migrate master_log_pos master_ssl_cipher minute_second mysql_errno master_ssl max_size match max_updates_per_hour
+        master_connect_retry master_log_file master_user minute_microsecond master_password medium master_ssl_cert master_server_id maxvalue
       no_write_to_binlog no_wait new nodegroup names none nvarchar natural not name numeric ndbcluster null national nchar ndb next no
       options or order one_shot out one owner open option outfile outer offset on optionally
-      partial partitions plugins port prev profiles process profile proxy primary phase pack_keys processlist preserve plugin point precision procedure privileges password page partitioning parser polygon
+      partial partitions plugins port prev profiles process profile proxy primary phase pack_keys processlist preserve plugin
+        point precision procedure privileges password page partitioning parser polygon
       query quick
-      replication rollup relay_thread row relay_log_pos relay read_only redundant return resume relaylog restrict returns repeatable require resignal reorganize rtree routine remove reload rlike row_format redofile rebuild redo_buffer_size read_write reads recover real read regexp range right references rows relay_log_file
-      switches sql_tsi_week string sqlwarning second slow subclass_origin sql_no_cache subpartition sql_tsi_day share serial schemas soname sql_buffer_result straight_join schema_name sql_cache smallint sqlexception sql_thread slave sql_tsi_minute starts separator suspend sounds schema snapshot sql_tsi_hour second_microsecond session serializable sql_tsi_second ssl subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source signal server security sql_tsi_quarter some specific swaps sqlstate schedule super socket sql_big_result sql_tsi_month signed subpartitions spatial sql starting
-      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers temporary transaction tables timestampdiff tinytext terminated table_name trailing tinyint time tinyblob
-      utc_date utc_timestamp until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage using unique undofile undo_buffer_size use_frm
+      replication rollup relay_thread row relay_log_pos relay read_only redundant return resume relaylog restrict returns repeatable
+        require resignal reorganize rtree routine remove reload rlike row_format redofile rebuild redo_buffer_size read_write
+        reads recover real read regexp range right references rows relay_log_file
+      switches sql_tsi_week string sqlwarning second slow subclass_origin sql_no_cache subpartition sql_tsi_day share serial
+        schemas soname sql_buffer_result straight_join schema_name sql_cache smallint sqlexception sql_thread slave sql_tsi_minute
+        starts separator suspend sounds schema snapshot sql_tsi_hour second_microsecond session serializable sql_tsi_second ssl
+        subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source signal server
+        security sql_tsi_quarter some specific swaps sqlstate schedule super socket sql_big_result sql_tsi_month signed subpartitions
+        spatial sql starting
+      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers temporary
+        transaction tables timestampdiff tinytext terminated table_name trailing tinyint time tinyblob
+      utc_date utc_timestamp until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage
+        using unique undofile undo_buffer_size use_frm
       varying values varbinary variables view value varcharacter varchar
       wait work write wrapper warnings where while with when
       xor x509 xml
@@ -345,7 +352,7 @@
       load lock
       optimize
       partition prepare purge
-      release remove rename repair replace reset revoke rollback
+      release rename repair replace reset revoke rollback
       savepoint select set show start stop
       truncate
       uninstall unlock update use
@@ -353,31 +360,140 @@
     </keywords>
 
     <keywords name="Keywords">
-      all asensitive action auto_increment after asc and any authors against add avg aggregate avg_row_length accessible as at algorithm autoextend_size
+      all asensitive action auto_increment after asc and any authors against add avg aggregate avg_row_length accessible as at
+        algorithm autoextend_size
       btree boolean binary before by byte between both bigint blob bit block bool
-      code chain compact current compressed cursor_name changed class_origin contains completion constraint_name charset cascade committed condition constraint_schema collate collation consistent current_date cipher columns cube catalog_name close connection context case cursor current_time cross client current_timestamp character column_name continue constraint column cascaded constraint_catalog contributors char concurrent cpu
-      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double declare day_microsecond diagnostics datetime datafile day_minute distinctrow des_key_file database discard default_auth day_second day_hour delayed default definer databases directory
-      every enclosed errors exchange escaped each event elseif exists ends engines engine enable else error events extended extent_size escape exit enum expansion
+      code chain compact current compressed cursor_name changed class_origin contains completion constraint_name charset cascade
+        committed condition constraint_schema collate collation consistent current_date cipher columns cube catalog_name close
+          connection context case cursor current_time cross client current_timestamp character column_name continue constraint
+          column cascaded constraint_catalog contributors char concurrent cpu
+      dynamic delay_key_write disk deterministic div distinct duplicate dec dual disable date data day decimal dumpfile double
+        declare day_microsecond diagnostics datetime datafile day_minute distinctrow des_key_file database discard default_auth
+        day_second day_hour delayed default definer databases directory
+      every enclosed errors exchange escaped each event elseif exists ends engines engine enable else error events extended
+        extent_size escape exit enum expansion
       force full from fulltext fetch faults float found first function false float4 fields fixed float8 foreign for fast file format
       global group geometry get_format geometrycollection get grants general
       hour_minute hour_second hash hour high_priority hour_microsecond hosts host having
-      issuer index ipc identified indexes iterate inout isolation io_after_gtids invoker import insert_method io_thread is io in insensitive if integer initial_size ignore infile into inner ignore_server_ids int4 int1 int3 int2 int8 int interval io_before_gtids
+      issuer index ipc identified indexes iterate inout isolation io_after_gtids invoker import insert_method io_thread is io
+        in insensitive if integer initial_size ignore infile into inner ignore_server_ids int4 int1 int3 int2 int8 int interval io_before_gtids
       join
       key_block_size key keys
-      localtime longtext list leave leaves loop locks lines logs linear language long leading longblob localtimestamp local logfile linestring last left less low_priority like limit level
-      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows mode master_ssl_crlpath master_host master_ssl_crl max_queries_per_hour master_heartbeat_period mediumtext master_ssl_verify_server_cert max_user_connections master master_delay master_retry_count master_ssl_key message_text multipoint mediumblob multilinestring multipolygon master_port mutex modify mediumint migrate master_log_pos master_ssl_cipher minute_second mysql_errno master_ssl max_size match max_updates_per_hour maxvalue master_connect_retry master_log_file master_auto_position master_user microsecond minute_microsecond master_password medium master_ssl_cert master_bind master_server_id
+      localtime longtext list leave leaves loop locks lines logs linear language long leading longblob localtimestamp local
+        logfile linestring last left less low_priority like limit level
+      master_ssl_ca month min_rows minute master_ssl_capath max_connections_per_hour memory modifies middleint merge max_rows
+        mode master_ssl_crlpath master_host master_ssl_crl max_queries_per_hour master_heartbeat_period mediumtext
+        master_ssl_verify_server_cert max_user_connections master master_delay master_retry_count master_ssl_key message_text
+        multipoint mediumblob multilinestring multipolygon master_port mutex modify mediumint migrate master_log_pos master_ssl_cipher
+        minute_second mysql_errno master_ssl max_size match max_updates_per_hour maxvalue master_connect_retry master_log_file
+        master_auto_position master_user microsecond minute_microsecond master_password medium master_ssl_cert master_bind master_server_id
       no_write_to_binlog no_wait new nodegroup names next none nvarchar natural not name numeric ndbcluster number null national nchar ndb no
       options or order owner out one open option only outfile outer offset on optionally
-      partial partitions plugins port prev profiles process profile primary proxy phase pack_keys processlist preserve plugin point precision procedure privileges password page partitioning plugin_dir parser polygon
+      partial partitions plugins port prev profiles process profile primary proxy phase pack_keys processlist preserve plugin
+        point precision procedure privileges password page partitioning plugin_dir parser polygon
       query quick
-      replication rollup relay_thread row relay_log_pos relay read_only redundant return resume relaylog restrict returns repeatable require resignal reorganize rtree row_count routine remove reload rlike row_format redofile rebuild redo_buffer_size read_write reads recover real read right regexp range returned_sqlstate references rows relay_log_file
-      switches sql_tsi_week string sqlwarning second slow subclass_origin sql_no_cache subpartition sql_tsi_day share serial schemas soname sql_buffer_result straight_join schema_name sql_cache smallint sqlexception sql_thread slave sql_tsi_minute sql_after_gtids starts separator suspend sounds schema second_microsecond snapshot sql_tsi_hour session serializable sql_tsi_second ssl subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage source sql_before_gtids signal server security some specific swaps sqlstate schedule super socket sql_big_result sql_tsi_quarter sql_tsi_month signed subpartitions spatial sql starting
-      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers temporary transaction tables timestampdiff tinytext terminated table_name trailing tinyint time tinyblob
-      utc_date utc_timestamp use until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode unsigned usage using unique undofile undo_buffer_size use_frm
+      replication rollup relay_thread row relay_log_pos relay read_only redundant return resume relaylog restrict returns
+        repeatable require resignal reorganize rtree row_count routine remove reload rlike row_format redofile rebuild
+        redo_buffer_size read_write reads recover real read right regexp range returned_sqlstate references rows relay_log_file
+      switches sql_tsi_week string sqlwarning second slow subclass_origin sql_no_cache subpartition sql_tsi_day share serial
+        schemas soname sql_buffer_result straight_join schema_name sql_cache smallint sqlexception sql_thread slave sql_tsi_minute
+        sql_after_gtids starts separator suspend sounds schema second_microsecond snapshot sql_tsi_hour session serializable
+        sql_tsi_second ssl subject sql_calc_found_rows sensitive simple shutdown sql_tsi_year status sql_small_result storage
+        source sql_before_gtids signal server security some specific swaps sqlstate schedule super socket sql_big_result
+        sql_tsi_quarter sql_tsi_month signed subpartitions spatial sql starting
+      to type types tablespace then timestamp table_checksum timestampadd than temptable text true table trigger triggers
+        temporary transaction tables timestampdiff tinytext terminated table_name trailing tinyint time tinyblob
+      utc_date utc_timestamp use until undo unknown user_resources uncommitted upgrade union undefined utc_time unicode
+        unsigned usage using unique undofile undo_buffer_size use_frm
       varying values varbinary variables view value varcharacter varchar
       wait work write wrapper warnings weight_string where while with when
       xor x509 xml
       year year_month
+      zerofill
+    </keywords>
+  </language> <!-- SCLEX_MYSQL_56 -->
+
+  <language name="SCLEX_MYSQL_57">
+    <keywords name="Major Keywords">
+      alter analyze
+      begin binlog
+      cache call change check checksum commit create
+      deallocate delete desc describe do drop
+      execute
+      flush
+      grant
+      handler help
+      insert install
+      kill
+      load lock
+      optimize
+      partition prepare purge
+      release rename repair replace reset revoke rollback
+      savepoint select set show start stop
+      truncate
+      uninstall unlock update use
+      xa
+    </keywords>
+
+    <keywords name="Keywords">
+      accessible action add adddate after against aggregate algorithm all analyse and any as asc ascii asensitive at
+        authors autoextend_size auto_increment avg_row_length avg
+      backup before between bigint binary bin_num bit_and bit_or bit bit_xor blob block boolean bool both btree by byte
+      cascade cascaded case cast catalog_name chain changed charset character char cipher class_origin client close
+        coalesce code collate collation columns column column_name column_format comment committed compact completion
+        compressed concurrent condition connection consistent constraint constraint_catalog constraint_name constraint_schema
+        contains context continue contributors convert count cpu cross cube curdate current current_timestamp current_user
+        cursor cursor_name curtime 
+      database databases datafile data datetime date_add date_add_interval date_sub date_sub_interval date dayofmonth day_hour
+        day_microsecond day_minute day_second day dec decimal_num decimal declare default default_auth definer delayed
+        delay_key_write des_key_file deterministic diagnostics directory disable discard disk distinct distinctrow div
+        double dual dumpfile duplicate dynamic
+      each else elseif enable enclosed end ends end_of_input engines engine enum error errors escaped escape events event
+        every exchange exists exit expansion expire explain export extended extent_size extract
+      false fast faults fetch fields file filter first fixed float4 float8 float follows force foreign for format found
+        frac_second from full fulltext function
+      get general geometrycollection geometry get_format global grants group group_concat
+      hash having high_priority host hosts hour_microsecond hour_minute hour_second hour
+      identified if ignore ignore_server_ids import indexes index infile initial_size inner innodb inout insensitive
+        insert_method integer interval into int int1 int2 int3 int4 int8 invoker in io_after_gtids io_before_gtids io_thread io ipc is isolation issuer iterate
+      join
+      keys key_block_size key
+      language last leading leaves leave left less level like limit linear lines linestring list localtime localtimestamp
+        local locator locks logfile logs longblob longtext long_num long loop low_priority
+      master_auto_position master_bind master_connect_retry master_delay master_host master_log_file master_log_pos
+        master_password master_port master_retry_count master_server_id master_ssl_capath master_ssl_ca master_ssl_cert
+        master_ssl_cipher master_ssl_crl master_ssl_crlpath master_ssl_key master_ssl master_ssl_verify_server_cert master
+        master_user master_heartbeat_period match max_connections_per_hour max_queries_per_hour max_rows max_size max
+        max_updates_per_hour max_user_connections maxvalue mediumblob mediumint mediumtext medium memory merge message_text
+        microsecond mid middleint migrate minute_microsecond minute_second minute min_rows min mode modifies modify mod month
+        multilinestring multipoint multipolygon mutex mysql_errno
+      names name national natural nchar_string nchar ndb ndbcluster neg new next nodegroup none nonblocking not now no no_wait
+        no_write_to_binlog null number numeric num nvarchar
+      offline offset old_password on one_shot one online only open options option optionally order or outer outfile out owner
+      pack_keys page param_marker parser partial partitioning partitions password phase plugins plugin_dir plugin point
+        polygon port position precedes precision preserve prev primary privileges procedure process processlist profile profiles proxy
+      quarter query quick
+      range reads read_only read read_write real rebuild recover redofile redo_buffer_size redundant references regexp relay
+        relaylog relay_log_file relay_log_pos relay_thread reload remove reorganize repeatable repeat replication replicate_do_db
+        replicate_ignore_db replicate_do_table replicate_ignore_table replicate_wild_do_table replicate_wild_ignore_table
+        replicate_rewrite_db require resignal restore restrict resume returned_sqlstate returns return reverse right rlike rollup
+        routine rows row_count row_format row rtree
+      schedule schema schema_name schemas second_microsecond second security sensitive separator serializable serial session
+        server server_options session_user set_var share shutdown signal signed simple slave slow smallint snapshot socket
+        soname sounds source spatial specific sqlexception sqlstate sqlwarning sql_after_gtids sql_after_mts_gaps
+        sql_before_gtids sql_big_result sql_buffer_result sql_cache sql_calc_found_rows sql_no_cache sql_small_result
+        sql sql_thread sql_tsi_frac_second sql_tsi_second sql_tsi_minute sql_tsi_hour sql_tsi_day sql_tsi_week sql_tsi_month
+        sql_tsi_quarter sql_tsi_year ssl stacked starting starts stats_auto_recalc stats_persistent stats_sample_pages status
+        stddev_samp stddev stddev_pop std storage straight_join string subclass_origin subdate subject subpartitions subpartition
+        substr substring sum super suspend swaps switches sysdate system_user
+      tables tablespace table_ref_priority table table_checksum table_name temporary temptable terminated text than then timestamp
+        timestamp_add timestamp_diff time tinyblob tinyint tinytext to trailing transaction triggers trigger trim true types type
+      udf_returns ulonglong_num uncommitted undefined undofile undo_buffer_size undo unicode union unique unknown unsigned until
+        upgrade usage user_resources user use_frm using utc_date utc_timestamp utc_time
+      values value varbinary varchar varcharacter variables variance varying var_pop var_samp view
+      wait warnings week weight_string when where while with with_cube with_rollup work wrapper write
+      x509 xml xor
+      year_month year
       zerofill
     </keywords>
   </language> <!-- SCLEX_MYSQL_56 -->

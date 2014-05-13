@@ -94,7 +94,9 @@ void DBObjectEditorBE::handle_grt_notification(const std::string &name, grt::Obj
     if (name == "GRNPreferencesDidClose")
     {
       // We want to see changes for the server version.
-      _parser_context->use_server_version(get_catalog()->version());
+      GrtVersionRef version = get_catalog()->version();
+      _parser_context->use_server_version(version);
+      get_sql_editor()->set_server_version(version);
     }
   }
 }

@@ -271,6 +271,7 @@ private:
   void setup_editor_menu();
   void editor_menu_opening();
   void activate_context_menu_item(const std::string &name);
+  void create_editor_config_for_version(GrtVersionRef version);
 
   bool start_sql_processing();
   bool do_statement_split_and_check(int id); // Run in worker thread.

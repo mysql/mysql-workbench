@@ -3793,7 +3793,7 @@ LEAVE_SYMBOL:							'LEAVE';
 LEFT_SYMBOL:							'LEFT';								// SQL-2003-R
 LESS_SYMBOL:							'LESS';
 LEVEL_SYMBOL:							'LEVEL';
-LEX_HOSTNAME_SYMBOL:					'LEX_HOSTNAME';
+//LEX_HOSTNAME_SYMBOL:					'LEX_HOSTNAME'; // used internally
 LIKE_SYMBOL:							'LIKE';								// SQL-2003-R
 LIMIT_SYMBOL:							'LIMIT';
 LINEAR_SYMBOL:							'LINEAR'							{ $type = TYPE_FROM_VERSION(50100, $type); };
