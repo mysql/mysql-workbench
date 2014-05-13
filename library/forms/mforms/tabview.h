@@ -52,8 +52,8 @@ namespace mforms
     int (*get_active_tab)(TabView*);
     int (*add_page)(TabView*,View*,const std::string&);
     void (*remove_page)(TabView*,View*);
-    void (*set_aux_view)(TabView*,View*);     /** XXX TODO Linux, Windows */
-    void (*set_allows_reordering)(TabView*,bool);     /** XXX TODO Linux, Windows */
+    void (*set_aux_view)(TabView*,View*);     /** XXX TODO Windows */
+    void (*set_allows_reordering)(TabView*,bool);     /** XXX TODO Windows */
   };
 #endif
 #endif
@@ -108,7 +108,7 @@ namespace mforms
      void set_allows_reordering(bool flag);
 
     /** Sets a menu to be shown when right clicking on a tab (supported by select tabview types) */
-    void set_tab_menu(ContextMenu *menu); //XXX Linux, Windows
+    void set_tab_menu(ContextMenu *menu); //XXX Windows
     ContextMenu *get_tab_menu() { return _tab_menu; }
 
     /** Returns the index of the tab for which the context menu is being shown */
@@ -120,7 +120,7 @@ namespace mforms
 #ifndef SWIG
     void set_menu_tab(int tab);
 
-    void reordered(View *view, int index); //XXX Linux, windows
+    void reordered(View *view, int index); //XXX windows
 
     /** Signal emitted when the tab is switched by user.
      

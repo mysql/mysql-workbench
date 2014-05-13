@@ -39,6 +39,8 @@ inline void init_gdk_thread_callbacks()
 
 //==============================================================================
 
+extern  void lf_record_grid_init();
+
 int main(int argc, char **argv)
 {
 
@@ -91,6 +93,9 @@ int main(int argc, char **argv)
 
   mforms::gtk::init(getenv("WB_FORCE_SYSTEM_COLORS") != NULL);
   mforms::gtk::WizardImpl::set_icon_path(wboptions.basedir+"/images");
+  {
+    lf_record_grid_init();
+  }
 
   Gtk::RC::add_default_file(wboptions.basedir+"/workbench.rc");
 
