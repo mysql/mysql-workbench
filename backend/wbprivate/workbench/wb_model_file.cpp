@@ -216,16 +216,6 @@ void ModelFile::copy_file_to(const std::string &file, const std::string &dest)
   copy_file(get_path_for(file), dest);
 }
 
-time_t get_file_timestamp(const std::string &file)
-{
-  GStatBuf stbuf;
-
-  if (g_stat(file.c_str(), &stbuf) < 0)
-    return 0;
-  
-  return stbuf.st_mtime;
-}
-
 void ModelFile::open(const std::string &path, GRTManager *grtm)
 {
   bool file_is_zip;
@@ -321,10 +311,12 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
       return;
     }
 
-    time_t file_ts = get_file_timestamp(path);
-    time_t autosave_ts = get_file_timestamp(bec::make_path(auto_save_dir, MAIN_DOCUMENT_NAME));
+    time_t file_ts;
+    base::file_mtime(path, file_ts);
+    time_t autosave_ts;
+    base::file_mtime(bec::make_path(auto_save_dir, MAIN_DOCUMENT_NAME), autosave_ts);
     if (autosave_ts == 0)
-      autosave_ts = get_file_timestamp(auto_save_dir);
+      base::file_mtime(auto_save_dir, autosave_ts);
     
     // document dir already exists, ask if it should be recovered or deleted
     g_warning("Temporary document folder found: %s (ts=%lu, saved=%lu)", auto_save_dir.c_str(),

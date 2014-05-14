@@ -169,7 +169,12 @@ public:
   
   int lastConnectionErrorCode(int conn);
   std::string lastConnectionError(int conn);
-  uint64_t lastUpdateCount(int conn);
+//  #ifdef DEFINE_INT_FUNCTIONS
+  long lastUpdateCount(int conn);
+//  #else
+//  uint64_t lastUpdateCount(int conn);
+//  #endif
+  
 
   // returns 1/0 for ok, -1 for error
   int execute(int conn, const std::string &query);
@@ -231,7 +236,11 @@ private:
     sql::ConnectionWrapper conn;
     std::string last_error;
     int last_error_code;
-    uint64_t last_update_count;
+//    #ifdef DEFINE_INT_FUNCTIONS
+    long last_update_count;
+//    #else
+//    uint64_t last_update_count;
+//    #endif
   };
 
   base::Mutex _mutex;
@@ -419,6 +428,15 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
 }
 
 
+//#ifdef DEFINE_INT_FUNCTIONS
+long DbMySQLQueryImpl::lastUpdateCount(int conn)
+{
+  base::MutexLock lock(_mutex);
+  if (_connections.find(conn) == _connections.end())
+    throw std::invalid_argument("Invalid connection");
+  return _connections[conn]->last_update_count;
+}
+/*#else
 uint64_t DbMySQLQueryImpl::lastUpdateCount(int conn)
 {
   base::MutexLock lock(_mutex);
@@ -426,6 +444,7 @@ uint64_t DbMySQLQueryImpl::lastUpdateCount(int conn)
     throw std::invalid_argument("Invalid connection");
   return _connections[conn]->last_update_count;
 }
+#endif*/
 
 
 int DbMySQLQueryImpl::lastConnectionErrorCode(int conn)
