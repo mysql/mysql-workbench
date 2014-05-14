@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #include "snippet_list.h"
 #include "snippet_popover.h"
@@ -342,7 +341,7 @@ int BaseSnippetList::find_selected_index()
 {
   // Rather unlikely the selected link is not in the vector (since we got it from there) but...
   std::vector<Snippet*>::iterator location = std::find(_snippets.begin(), _snippets.end(), _selected_snippet);
-  return (location == _snippets.end()) ? -1 : location - _snippets.begin();
+  return (location == _snippets.end()) ? -1 : (int)(location - _snippets.begin());
 }
 
 //------------------------------------------------------------------------------------------------
@@ -394,7 +393,7 @@ void BaseSnippetList::clear()
 void BaseSnippetList::refresh_snippets()
 {
   clear();
-  for (int i = 0; i < _model->count(); i++)
+  for (size_t i = 0; i < _model->count(); i++)
   {
     std::string caption;
     _model->get_field(bec::NodeId(i), 0, caption);
@@ -442,7 +441,7 @@ void BaseSnippetList::layout()
     _layout_width = _left_spacing + _right_spacing;
 
     if (_snippets.size() > 0)
-      _layout_height += _snippets.size() * SNIPPET_HEIGHT + (_snippets.size() - 1) * SNIPPET_SPACING;
+      _layout_height += (int)_snippets.size() * SNIPPET_HEIGHT + ((int)_snippets.size() - 1) * SNIPPET_SPACING;
 
     if (_image != NULL)
     {

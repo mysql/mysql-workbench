@@ -32,6 +32,14 @@ class GrtStoredNote;
 typedef grt::Ref<GrtStoredNote> GrtStoredNoteRef;
 
 
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
+
   /** the parent of all other objects */
 class  GrtObject : public grt::internal::Object
 {
@@ -72,14 +80,14 @@ obj.name = value
    \par In Python:
 value = obj.owner
    */
-  grt::Ref<GrtObject> owner() const { return _owner; }
+  GrtObjectRef owner() const { return _owner; }
   /** Setter for attribute owner
    
     the object that owns this object
     \par In Python:
 obj.owner = value
    */
-  virtual void owner(const grt::Ref<GrtObject> &value)
+  virtual void owner(const GrtObjectRef &value)
   {
     grt::ValueRef ovalue(_owner);
    _owner= value;
@@ -89,7 +97,7 @@ obj.owner = value
 protected:
 
   grt::StringRef _name;
-  grt::Ref<GrtObject> _owner;
+  GrtObjectRef _owner;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -109,9 +117,9 @@ public:
       meta->bind_member("name", new grt::MetaClass::Property<GrtObject,grt::StringRef >(getter,setter));
     }
     {
-      void (GrtObject::*setter)(const grt::Ref<GrtObject> &)= &GrtObject::owner;
-      grt::Ref<GrtObject> (GrtObject::*getter)() const= &GrtObject::owner;
-      meta->bind_member("owner", new grt::MetaClass::Property<GrtObject,grt::Ref<GrtObject> >(getter,setter));
+      void (GrtObject::*setter)(const GrtObjectRef &)= &GrtObject::owner;
+      GrtObjectRef (GrtObject::*getter)() const= &GrtObject::owner;
+      meta->bind_member("owner", new grt::MetaClass::Property<GrtObject,GrtObjectRef >(getter,setter));
     }
   }
 };
@@ -549,14 +557,14 @@ public:
    \par In Python:
 value = obj.logObject
    */
-  grt::Ref<GrtObject> logObject() const { return _logObject; }
+  GrtObjectRef logObject() const { return _logObject; }
   /** Setter for attribute logObject
    
     a link to the object
     \par In Python:
 obj.logObject = value
    */
-  virtual void logObject(const grt::Ref<GrtObject> &value)
+  virtual void logObject(const GrtObjectRef &value)
   {
     grt::ValueRef ovalue(_logObject);
    _logObject= value;
@@ -569,14 +577,14 @@ obj.logObject = value
    \par In Python:
 value = obj.refObject
    */
-  grt::Ref<GrtObject> refObject() const { return _refObject; }
+  GrtObjectRef refObject() const { return _refObject; }
   /** Setter for attribute refObject
    
     an optional link to a referenced object
     \par In Python:
 obj.refObject = value
    */
-  virtual void refObject(const grt::Ref<GrtObject> &value)
+  virtual void refObject(const GrtObjectRef &value)
   {
     grt::ValueRef ovalue(_refObject);
    _refObject= value;
@@ -586,8 +594,8 @@ obj.refObject = value
 protected:
 
   grt::ListRef<GrtLogEntry> _entries;// owned
-  grt::Ref<GrtObject> _logObject;
-  grt::Ref<GrtObject> _refObject;
+  GrtObjectRef _logObject;
+  GrtObjectRef _refObject;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -607,14 +615,14 @@ public:
       meta->bind_member("entries", new grt::MetaClass::Property<GrtLogObject,grt::ListRef<GrtLogEntry> >(getter,setter));
     }
     {
-      void (GrtLogObject::*setter)(const grt::Ref<GrtObject> &)= &GrtLogObject::logObject;
-      grt::Ref<GrtObject> (GrtLogObject::*getter)() const= &GrtLogObject::logObject;
-      meta->bind_member("logObject", new grt::MetaClass::Property<GrtLogObject,grt::Ref<GrtObject> >(getter,setter));
+      void (GrtLogObject::*setter)(const GrtObjectRef &)= &GrtLogObject::logObject;
+      GrtObjectRef (GrtLogObject::*getter)() const= &GrtLogObject::logObject;
+      meta->bind_member("logObject", new grt::MetaClass::Property<GrtLogObject,GrtObjectRef >(getter,setter));
     }
     {
-      void (GrtLogObject::*setter)(const grt::Ref<GrtObject> &)= &GrtLogObject::refObject;
-      grt::Ref<GrtObject> (GrtLogObject::*getter)() const= &GrtLogObject::refObject;
-      meta->bind_member("refObject", new grt::MetaClass::Property<GrtLogObject,grt::Ref<GrtObject> >(getter,setter));
+      void (GrtLogObject::*setter)(const GrtObjectRef &)= &GrtLogObject::refObject;
+      GrtObjectRef (GrtLogObject::*getter)() const= &GrtLogObject::refObject;
+      meta->bind_member("refObject", new grt::MetaClass::Property<GrtLogObject,GrtObjectRef >(getter,setter));
     }
   }
 };

@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "figure_common.h"
 #include "base/string_utilities.h"
 
@@ -722,12 +720,12 @@ void ShrinkableBox::resize_to(const Size &size)
       number_of_items_that_fit= (int) floor((size.height - 2 * _ypadding + _spacing) / (min_item_size.height + _spacing));
     }
         
-    _hidden_item_count= _children.size() - number_of_items_that_fit;
+    _hidden_item_count = (int)_children.size() - number_of_items_that_fit;
     if (_hidden_item_count > 0)
     {  
       // add space needed by "X items more..." label
       number_of_items_that_fit= (int) floor((size.height - EXTRA_LABEL_SIZE + _spacing) / (min_item_size.height + _spacing));
-      _hidden_item_count= _children.size() - number_of_items_that_fit;      
+      _hidden_item_count = (int)_children.size() - number_of_items_that_fit;
     }
     
     if (number_of_items_that_fit > 0)

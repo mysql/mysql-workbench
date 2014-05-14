@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #include <glib/gstdio.h>
 
@@ -476,7 +475,7 @@ void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
   grt::ListRef<db_mgmt_ServerInstance> instances = _wb->get_root()->rdbmsMgmt()->storedInstances();
 
   // Remove all associated server instances.
-  for (int i = instances.count()-1; i >= 0; --i)
+  for (ssize_t i = instances.count() - 1; i >= 0; --i)
   {
     db_mgmt_ServerInstanceRef instance(instances[i]);
     if (instance->connection() == connection)
@@ -590,12 +589,12 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     if (answer == mforms::ResultOk)
     {
       group += "/";
-      int group_length = group.length();
+      size_t group_length = group.length();
 
       std::vector<db_mgmt_ConnectionRef> candidates;
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
-      int index = connections.count() - 1;
+      ssize_t index = connections.count() - 1;
       while (index >= 0)
       {
         std::string name = connections[index]->name();
@@ -688,7 +687,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     if (answer == mforms::ResultOk)
     {
       grt::StringListRef file_names(_wb->get_root()->options()->recentFiles());
-      for (int index= file_names->count() - 1; index >= 0; index--)
+      for (ssize_t index = file_names->count() - 1; index >= 0; index--)
       {
         if (g_str_has_suffix(file_names[index].c_str(), ".mwb"))
           file_names->remove(index);
@@ -835,7 +834,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
       grt::DictRef dict = grt::DictRef::cast_from(object);
-      int to = grt::IntegerRef::cast_from(dict["to"]);
+      ssize_t to = grt::IntegerRef::cast_from(dict["to"]);
       if (db_mgmt_ConnectionRef::can_wrap(dict["object"]))
       {
         db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(dict["object"]);

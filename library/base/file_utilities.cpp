@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -152,10 +152,10 @@ namespace base {
     }
 
     char buffer[32];
-    sprintf(buffer, "%i", GetCurrentProcessId());
+    sprintf_s(buffer, "%i", GetCurrentProcessId());
     DWORD bytes_written;
 
-    if (!WriteFile(handle, buffer, strlen(buffer), &bytes_written, NULL) || bytes_written != strlen(buffer))
+    if (!WriteFile(handle, buffer, (DWORD)strlen(buffer), &bytes_written, NULL) || bytes_written != strlen(buffer))
     {
       CloseHandle(handle);
       DeleteFileW(wpath.c_str());
@@ -540,10 +540,13 @@ namespace base {
     while (*out)
       *in++ = (WCHAR) (*out++);
     
-    result= _wfopen(converted, converted_mode);
+    errno_t error = _wfopen_s(&result, converted, converted_mode);
     delete[] converted;
     delete[] converted_mode;
     
+    if (error != 0)
+      return NULL;
+
     return result;
     
 #else

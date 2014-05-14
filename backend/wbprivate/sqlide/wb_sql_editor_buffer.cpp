@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_buffer.h"
 
@@ -104,8 +103,8 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   
   // save the real id of the connection
   if (_connection.is_valid())
-    g_file_set_contents(make_path(path, "connection_id").c_str(), 
-                        _connection->id().c_str(), _connection->id().size(), NULL);
+    g_file_set_contents(make_path(path, "connection_id").c_str(), _connection->id().c_str(),
+      (gssize)_connection->id().size(), NULL);
 
   for (int c = _tabdock->view_count(), i = 0; i < c; i++)
   {

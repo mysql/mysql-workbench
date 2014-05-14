@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("-")]
 [assembly: AssemblyProduct("WBPluginPrinting")]
-[assembly: AssemblyCopyright("Copyright © - 2007")]
+[assembly: AssemblyCopyright("Copyright © 2007, 2014, Oracle")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

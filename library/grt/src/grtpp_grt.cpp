@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,14 +16,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
-
+#include "grtpp_shell_python.h"
 #include "base/string_utilities.h"
 #include "base/threading.h"
 #include "base/log.h"
 
-#include "grtpp_shell_python.h"
 #include "grtpp.h"
 #include "grtpp_util.h"
 #include "grtpp_shell.h"
@@ -381,7 +378,7 @@ int GRT::scan_metaclasses_in(const std::string &directory, std::multimap<std::st
   
   g_dir_close(dir);
   
-  return _metaclasses.size() - old_count;
+  return (int)(_metaclasses.size() - old_count);
 }
 
 
@@ -1170,10 +1167,9 @@ void GRT::send_progress(float percentage, const std::string &message, const std:
   // calculate the actual progress percentage
   if (!_progress_step_stack.empty())
   {
-    for (int i = _progress_step_stack.size()-1; i >= 0; --i)
-    {
-      percentage = _progress_step_stack[i].first + (_progress_step_stack[i].second - _progress_step_stack[i].first) * percentage;
-    } 
+    std::vector<std::pair<float,float> >::reverse_iterator rit;
+    for (rit = _progress_step_stack.rbegin(); rit != _progress_step_stack.rend(); ++rit)
+      percentage = (*rit).first + ((*rit).second - (*rit).first) * percentage;
   }
   msg.progress= percentage;
   handle_message(msg, sender);

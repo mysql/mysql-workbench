@@ -34,10 +34,6 @@
 #include "plugin_manager.h"
 #include <boost/signals2/connection.hpp>
 
-#ifdef _MSC_VER
-#pragma make_public(::bec::GRTManager)
-#endif
-
 namespace bec {
 
   class Clipboard;

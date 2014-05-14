@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "grtpp.h"
 
 #include "sqlide/recordset_table_inserts_storage.h"
@@ -26,6 +24,7 @@
 #include "grtdb/db_object_helpers.h"
 #include "base/string_utilities.h"
 #include "sqlide/recordset_be.h"
+#include "wb_helpers.h"
 
 using namespace grt;
 using namespace bec;

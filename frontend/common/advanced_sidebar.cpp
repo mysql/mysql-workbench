@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <cmath>
 
 #include "grts/structs.db.mgmt.h"
@@ -474,7 +472,7 @@ int SidebarSection::find_entry(const std::string& name)
   for (size_t i = 0; i < _entries.size(); i++)
   {
     if (_entries[i]->name() == name)
-      return i;
+      return (int)i;
   }
 
   return -1;
@@ -515,7 +513,7 @@ int SidebarSection::add_entry(const std::string& name, const std::string& title,
   _entries.push_back(entry);
   set_layout_dirty(true);
 
-  return _entries.size() -1 ;
+  return (int)_entries.size() - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -986,8 +984,8 @@ void SidebarSection::get_layout_size(int* w, int* h)
     layout(_layout_context);
   }
 
-  *w= _layout_width;
-  *h= _layout_height;
+  *w = (int)_layout_width;
+  *h = (int)_layout_height;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,7 +1056,7 @@ int SimpleSidebar::find_section(const std::string& name)
   for (size_t i = 0; i < _sections.size(); i++)
   {
     if (_sections[i]->name() == name)
-      return i;
+      return (int)i;
   }
 
   return -1;
@@ -1077,7 +1075,7 @@ int SimpleSidebar::add_section(const std::string &name, const string& title, mfo
   _sections.push_back(box);
   add(box, false, true);
 
-  return _sections.size() - 1;
+  return (int)_sections.size() - 1;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,8 +33,8 @@ class WBPUBLICBACKEND_PUBLIC_FUNC RefreshUI
     RefreshUI() {unblock_auto_refresh();}
     virtual ~RefreshUI() {}
     
-    typedef boost::function<void ()>              RefreshSlot;
-    typedef boost::function<void (const int)>    PartialRefreshSlot;
+    typedef boost::function<void ()>          RefreshSlot;
+    typedef boost::function<void (const int)> PartialRefreshSlot;
 
     void set_refresh_ui_slot(const RefreshSlot &slot);
 
@@ -58,14 +58,10 @@ class WBPUBLICBACKEND_PUBLIC_FUNC RefreshUI
   private:
 
     bool _partial_refresh_blocked;
-    boost::function<void ()>      _refresh_ui;
-    PartialRefreshSlot    _partial_refresh_ui;
+    RefreshSlot        _refresh_ui;
+    PartialRefreshSlot _partial_refresh_ui;
 };
 
 }
-
-#ifdef _MSC_VER
-#pragma make_public(::bec::RefreshUI)
-#endif
 
 #endif

@@ -34,13 +34,13 @@ namespace mforms {
     void (*clear)(ListBox *self);
     void (*set_heading)(ListBox *self, const std::string &text);
     void (*add_items)(ListBox *self, const std::list<std::string> &items);
-    int (*add_item)(ListBox *self, const std::string &item);
-    void (*remove_indexes)(ListBox *self, const std::vector<int> &indexes);
-    void (*remove_index)(ListBox *self, int index);
+    size_t(*add_item)(ListBox *self, const std::string &item);
+    void(*remove_indexes)(ListBox *self, const std::vector<size_t> &indexes);
+    void(*remove_index)(ListBox *self, size_t index);
     std::string (*get_text)(ListBox *self);
-    void (*set_index)(ListBox *self, int index);
-    int (*get_index)(ListBox *self);
-    std::vector<int> (*get_selected_indices)(ListBox* self);
+    void(*set_index)(ListBox *self, ssize_t index);
+    ssize_t(*get_index)(ListBox *self);
+    std::vector<size_t>(*get_selected_indices)(ListBox* self);
   };
 #endif
 #endif
@@ -61,29 +61,29 @@ namespace mforms {
     void set_heading(const std::string &text);
     
     /** Add an item in a new row to the list. */
-    int add_item(const std::string &item);
+    size_t add_item(const std::string &item);
     
     /** Quickly add multiple items to the list. */
     void add_items(const std::list<std::string> &items);
 
     /** Remove the item at the given index. */
-    void remove_index(int index);
+    void remove_index(size_t index);
 
     /** Quickly remove multiple items from the list.
      *  Note: it is assumed that the indices are sorted in increasing order! */
-    void remove_indexes(const std::vector<int> &indexes);
+    void remove_indexes(const std::vector<size_t> &indexes);
 
     /** Sets the selected row in the list. */
-    void set_selected(int index);
+    void set_selected(ssize_t index);
 
     /** Gets the text of the selected row in the list. */
     virtual std::string get_string_value();
     
     /** Gets the index of the selected row in the list */
-    int get_selected_index();
+    ssize_t get_selected_index();
     
     /** Gets the list of selected indexes in the list */
-    std::vector<int> get_selected_indices(); // For multi selection lists.
+    std::vector<size_t> get_selected_indices(); // For multi selection lists.
 
 #ifndef SWIG
     /** Signal emitted when the selection changes. 

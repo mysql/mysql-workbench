@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtpp_util.h"
 #include "wb_sql_editor_tree_controller.h"
 #include "wb_sql_editor_form.h"
@@ -939,7 +937,8 @@ void SqlEditorTreeController::fetch_foreign_key_data(const std::string& schema_n
 
       for(size_t index = 0; index < def_lines.size(); index++)
       {
-        int rc = pcre_exec(patre, NULL, def_lines[index].c_str(), def_lines[index].length(), 0, 0, patres, sizeof(patres)/sizeof(int));
+        int rc = pcre_exec(patre, NULL, def_lines[index].c_str(), (int)def_lines[index].length(),
+          0, 0, patres, sizeof(patres) / sizeof(int));
 
         if ( rc > 0 )
         {
@@ -981,10 +980,10 @@ void SqlEditorTreeController::fetch_foreign_key_data(const std::string& schema_n
 
           // A rule has at least 3 tokens so the number of tokens could be
           // 3 or 4 for 1 rule and 6,7,8 for two rules, so we get the number with this
-          int rule_count = fk_rule_tokens.size() / 3;
+          size_t rule_count = fk_rule_tokens.size() / 3;
 
           int token_offset = 0;
-          for (int index = 0; index < rule_count; index++)
+          for (size_t index = 0; index < rule_count; index++)
           {
             // Skips the ON token
             token_offset++;

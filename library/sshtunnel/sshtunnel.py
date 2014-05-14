@@ -133,24 +133,26 @@ class Tunnel(threading.Thread):
                     self.notify_exception_error('ERROR',"Error initializing server end of tunnel", sys.exc_info())
                     raise exc
                 finally:
-                    self.port_is_set.set()
+                    with self.lock:
+                        self.connecting = True
 
-        with self.lock:
-            self.connecting = True
+                    self.port_is_set.set()
 
         if self._keyfile:
             self.notify('INFO', 'Connecting to SSH server at %s:%s using key %s...' % (self._server[0], self._server[1], self._keyfile) )
         else:
             self.notify('INFO', 'Connecting to SSH server at %s:%s...' % (self._server[0], self._server[1]) )
 
-        if not self._connect_ssh():
+        connected = self._connect_ssh()
+        if not connected:
             self._listen_sock.close()
             self._shutdown = True
-        else:
-            self.notify('INFO', 'Connection opened')
 
         with self.lock:
             self.connecting = False
+            
+        if connected:
+            self.notify('INFO', 'Connection opened')
 
         del self._password
         last_activity = time.time()
@@ -403,6 +405,7 @@ class TunnelManager:
         if not tunnel:
             return 'Could not find a tunnel for port %d' % port
         error = None
+        tunnel.port_is_set.wait()
         if tunnel.isAlive():
             while True:
                 # Process any message in queue. Every retrieved message is printed.
@@ -410,7 +413,7 @@ class TunnelManager:
                 try:
                     msg_type, msg = tunnel.q.get_nowait()
                 except Queue.Empty:
-                    pass
+                    continue
                 else:
                     if msg_type == 'KEY_ERROR':
                         if mforms.Utilities.show_message("SSH Server Fingerprint Missing", msg['msg'], "Continue", "Cancel", "") == mforms.ResultOk:

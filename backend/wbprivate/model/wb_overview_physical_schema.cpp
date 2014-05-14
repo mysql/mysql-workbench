@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "wb_overview_physical_schema.h"
 
@@ -264,7 +262,7 @@ public:
 
   virtual int count_detail_fields() 
   {
-    return _fields.size();
+    return (int)_fields.size();
   }
 
   virtual std::string get_detail_name(int field) 

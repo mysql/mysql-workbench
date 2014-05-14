@@ -100,7 +100,7 @@ Logger::Logger(const bool stderr_log, const std::string& target_file)
   {
     _impl->_filename = target_file;
 
-    FILE_scope_ptr fp = fopen(_impl->_filename.c_str(), "w");
+    FILE_scope_ptr fp = base_fopen(_impl->_filename.c_str(), "w");
   }
 }
 
@@ -151,7 +151,7 @@ Logger::Logger(const std::string& dir, const bool stderr_log, const std::string&
       }
     }
     // truncate log file we do not need gigabytes of logs
-    FILE_scope_ptr fp = fopen(_impl->_filename.c_str(), "w");
+    FILE_scope_ptr fp = base_fopen(_impl->_filename.c_str(), "w");
   }
 }
 
@@ -221,7 +221,7 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
   if (_impl->_std_err_log)
   {
 # if defined(_WIN32)
-    HANDLE  hConsole;
+    HANDLE  hConsole = 0;
     WORD wOldColorAttrs;
     CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
     if ((level == LogError) || (level == LogWarning))

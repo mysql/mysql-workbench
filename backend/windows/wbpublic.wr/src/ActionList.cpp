@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "ConvUtils.h"
 #include "Grt.h"
@@ -104,7 +102,7 @@ void ActionList::unregister_node_action(String ^name)
   return _inner->unregister_node_action(NativeToCppString(name));
 }
 
-bool ActionList::trigger_action(String ^name, NodeId ^node)
+bool ActionList::trigger_action(String ^name, NodeIdWrapper ^node)
 {
   return _inner->trigger_action(NativeToCppString(name), *node->get_unmanaged_object());
 }
@@ -121,9 +119,9 @@ void ActionList::unregister_nodes_action(String ^name)
   return _inner->unregister_nodes_action(NativeToCppString(name));
 }
 
-bool ActionList::trigger_action(String ^name, List<NodeId^> ^nodes)
+bool ActionList::trigger_action(String ^name, List<NodeIdWrapper^> ^nodes)
 {
-  return _inner->trigger_action(NativeToCppString(name), ObjectListToCppVector<NodeId, bec::NodeId>(nodes));
+  return _inner->trigger_action(NativeToCppString(name), ObjectListToCppVector<NodeIdWrapper, bec::NodeId>(nodes));
 }
 
 void ActionList::register_rows_col_action(String ^name, RowsColActionCallback::ManagedDelegate ^cb)

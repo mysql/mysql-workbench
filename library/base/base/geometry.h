@@ -157,14 +157,14 @@ namespace base {
   /** A struct describing a range in a container. */
   struct BASELIBRARY_PUBLIC_FUNC Range
   {
-    int position;
-    int size;
+    size_t position;
+    size_t size;
 
     Range();
-    Range(int position, int size);
+    Range(size_t position, size_t size);
 
-    int end();
-    bool contains_point(int point);
+    size_t end();
+    bool contains_point(size_t point);
   };
 
 } // namespace base

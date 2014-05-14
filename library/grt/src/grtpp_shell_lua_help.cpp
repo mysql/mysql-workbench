@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "grtpp.h"
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
@@ -1927,7 +1924,7 @@ static void myx_grt_shell_show_command_help_print(grt::GRT *grt, const char *gro
         char ul[80];
         int k;
 
-        const int max_len = min(strlen(help_group.group_caption) + strlen(help_group.group_name) + 3, 79U);
+        const int max_len = (int)min(strlen(help_group.group_caption) + strlen(help_group.group_name) + 3, 79U);
         for (k= 0; k < max_len; k++)
           ul[k]= '-';
         ul[k]= 0;
@@ -1974,7 +1971,7 @@ static void myx_grt_shell_show_command_help_print(grt::GRT *grt, const char *gro
             char ul[80];
             unsigned int k, c;
 
-            c= min(strlen(help_group.group_caption) + strlen(help_group.group_name) + strlen(help_text.cmd) + 4, 79U);
+            c= (int)min(strlen(help_group.group_caption) + strlen(help_group.group_name) + strlen(help_text.cmd) + 4, 79U);
             for (k= 0; k < c; k++)
               ul[k]= '-';
             ul[k]= 0;

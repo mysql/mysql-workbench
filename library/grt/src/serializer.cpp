@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "serializer.h"
 
@@ -175,14 +173,14 @@ static void format_real_value(char buffer[], size_t buffer_size, double pvalue)
   char val_format[8];
   char* symbol= NULL;
   char* e_part= NULL;
-  unsigned int e_part_len= 0;
-  unsigned int n= 0;
+  size_t e_part_len= 0;
+  size_t n= 0;
   
   if (buffer_size > DBL_MAX_PRECISION*sizeof(char)+strlen("1.e+000\n"))
   {
     char *c;
     g_snprintf(val_format, sizeof(val_format), "%%.%ie", DBL_MAX_PRECISION);
-    g_snprintf(buffer, buffer_size, val_format, pvalue);
+    g_snprintf(buffer, (gulong)buffer_size, val_format, pvalue);
     symbol= buffer+strlen(buffer);
     while ('e' != *--symbol);
     e_part= symbol--;
@@ -222,7 +220,7 @@ xmlNodePtr internal::Serializer::serialize_value(const ValueRef &value, xmlNodeP
   switch (value.type())
   {
     case IntegerType:
-      node= new_int_node(parent, "value", *IntegerRef::cast_from(value));
+      node= new_int_node(parent, "value", (int)*IntegerRef::cast_from(value));
       
       set_prop(node, "type", "int");
       break;

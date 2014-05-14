@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@ namespace MySQL.Grt
 {
 	public class GrtListNode : Node
 	{
-		public GrtListNode(string caption, NodeId nodeId, GrtTreeNode parent, GrtListModel model)
+		public GrtListNode(string caption, NodeIdWrapper nodeId, GrtTreeNode parent, GrtListModel model)
 			: base(caption)
 		{
 			NodeId = nodeId;
@@ -31,23 +31,13 @@ namespace MySQL.Grt
 			Model = model;
 		}
 
-		private GrtListModel model;
-		public GrtListModel Model
-		{
-			get { return model; }
-			set { model = value; }
-		}
+		public GrtListModel Model { get; set; }
 
-		private NodeId nodeId = null;
-		public NodeId NodeId
-		{
-			get { return nodeId; }
-			set { nodeId = value; }
-		}
+		public NodeIdWrapper NodeId { get; set; }
 
     public bool IsValid
     {
-      get { return nodeId.is_valid();  }
+      get { return NodeId.is_valid(); }
     }
 	}
 }

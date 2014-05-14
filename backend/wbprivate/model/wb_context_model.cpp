@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "base/file_utilities.h"
 #include "base/file_functions.h"
@@ -105,8 +103,8 @@ WBContextModel::WBContextModel(WBContextUI *wbui)
   
   base::NotificationCenter::get()->add_observer(this, "GNMainFormChanged");
 
-  // setup auto-save for model
-  int interval = _wbui->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveModelInterval", 60);
+  // Setup auto-save for model, only full seconds.
+  int interval = (int)_wbui->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveModelInterval", 60);
   if (interval > 0)
     _auto_save_timer = _wbui->get_wb()->get_grt_manager()->run_every(boost::bind(&WBContextModel::auto_save_document, this), interval);
   _auto_save_interval = interval;
@@ -223,7 +221,7 @@ void WBContextModel::option_changed(grt::internal::OwnedDict*dict, bool, const s
 bool WBContextModel::auto_save_document()
 {
   WBContext *wb= _wbui->get_wb();
-  int interval= wb->get_root()->options()->options().get_int("workbench:AutoSaveModelInterval", 60);
+  ssize_t interval= wb->get_root()->options()->options().get_int("workbench:AutoSaveModelInterval", 60);
   if (interval <= 0)
     return false;
   
@@ -254,7 +252,7 @@ bool WBContextModel::auto_save_document()
     if (_auto_save_timer)
         wb->get_grt_manager()->cancel_timer(_auto_save_timer);
     // schedule new interval
-    _auto_save_timer = wb->get_grt_manager()->run_every(boost::bind(&WBContextModel::auto_save_document, this), interval);
+    _auto_save_timer = wb->get_grt_manager()->run_every(boost::bind(&WBContextModel::auto_save_document, this), (double)interval);
     return false;
   }
   
@@ -608,7 +606,7 @@ mdc::CanvasView *WBContextModel::create_diagram_main(const model_DiagramRef &dia
 
 
 
-void WBContextModel::activate_canvas_object(const model_ObjectRef &object, int flags)
+void WBContextModel::activate_canvas_object(const model_ObjectRef &object, ssize_t flags)
 {
   bool newwindow= flags & 1;
   
@@ -806,15 +804,14 @@ GrtObjectRef WBContextModel::duplicate_object(const db_DatabaseObjectRef &object
     copy_context.update_references();
     
     // post-processing
-    // - uniquefy foreign key names
-    int max_fk_len = workbench_physical_ModelRef::cast_from(dbtable->owner()->owner()->owner())->rdbms()->maximumIdentifierLength();
+    // - Make foreign key names unique.
+    ssize_t max_fk_len = workbench_physical_ModelRef::cast_from(dbtable->owner()->owner()->owner())->rdbms()->maximumIdentifierLength();
     grt::ListRef<db_ForeignKey> fks(dbtable->foreignKeys());
     std::set<std::string> used_fk_names = bec::SchemaHelper::get_foreign_key_names(db_SchemaRef::cast_from(dbtable->owner()));
     for (size_t c= fks.count(), i = 0; i < c; i++)
     {
       db_ForeignKeyRef fk(fks[i]);
-      
-      fk->name(bec::SchemaHelper::get_unique_foreign_key_name(used_fk_names, fk->name(), max_fk_len));
+      fk->name(bec::SchemaHelper::get_unique_foreign_key_name(used_fk_names, fk->name(), (int)max_fk_len));
     }
     
     if (grt::find_named_object_in_list(db_SchemaRef::cast_from(dbtable->owner())->tables(), dbtable->name()).is_valid())

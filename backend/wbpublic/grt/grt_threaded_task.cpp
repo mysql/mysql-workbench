@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "base/wb_memory.h"
 #include "grt/grt_threaded_task.h"
 

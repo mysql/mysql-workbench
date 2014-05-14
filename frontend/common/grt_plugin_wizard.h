@@ -450,14 +450,14 @@ private:
     }
     else if (entry == &_module_name)
     {
-      char *tmp= g_utf8_strdown(name.data(), name.length());
+      char *tmp = g_utf8_strdown(name.data(), (int)name.length());
       filename.append(tmp).append("_grt.py");
       g_free(tmp);
       _module_file.set_value(filename);
     }
     else if (entry == &_plugin_name)
     {
-      char *tmp= g_utf8_strdown(name.data(), name.length());
+      char *tmp = g_utf8_strdown(name.data(), (int)name.length());
       filename.append(name).append("_grt.py");
       g_free(tmp);
       _plugin_file.set_value(filename);

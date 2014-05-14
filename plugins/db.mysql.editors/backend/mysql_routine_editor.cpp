@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grt/grt_dispatcher.h"
 #include "mysql_routine_editor.h"
 #include "grtsqlparser/sql_facade.h"

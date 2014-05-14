@@ -1,1 +1,0 @@
-java -Xmx1024m -jar ..\..\..\..\mysql-gui-win-res\bin\antlr-3.4-complete.jar  -make MySQL.g -o .. -Xmaxswitchcaselabels 30

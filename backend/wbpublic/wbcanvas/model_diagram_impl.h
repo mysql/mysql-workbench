@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,11 +16,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MODEL_DIAGRAM_IMPL__H_
-#define _MODEL_DIAGRAM_IMPL__H_
 
-#include <mdc.h>
-#include <grtpp.h>
+#pragma once
+
+#include "mdc.h"
+#include "grtpp.h"
 
 #include "grts/structs.model.h"
 #include "grts/structs.meta.h"
@@ -145,5 +145,3 @@ public:
 private:
   model_Diagram *self() const { return _self; }
 };
-
-#endif // _MODEL_DIAGRAM_IMPL__H_

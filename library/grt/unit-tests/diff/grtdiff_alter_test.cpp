@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,14 +17,13 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "testgrt.h"
-#include "db_rev_eng_be.h"
+#include "backend/db_rev_eng_be.h"
 #include "module_db_mysql.h"
 
-#include "changelistobjects.h"
+#include "diff/changelistobjects.h"
 #include "grtdb/db_helpers.h"
+#include "wb_helpers.h"
 
 using namespace std;
 using namespace tut;
@@ -1261,7 +1260,7 @@ TEST_FUNCTION(6)
     bec::CatalogHelper::apply_defaults(org_cat, default_engine_name);
 
     alter_change= diff_make(org_cat, mod_cat, &omf);
-    ensure("Empty alter:",alter_change);
+    ensure("Empty alter:", (bool)alter_change);
 
 #if VERBOSE_TESTING
     alter_change->dump_log(0);
@@ -1424,7 +1423,7 @@ TEST_FUNCTION(7)
 
 
     alter_change= diff_make(org_cat, mod_cat, &omf);
-    ensure("Empty alter:",alter_change);
+    ensure("Empty alter:", (bool)alter_change);
 
 #if VERBOSE_TESTING
     alter_change->dump_log(0);

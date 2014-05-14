@@ -32,7 +32,7 @@ ref class TableEditorWrapper;
 ref class IndexListWrapper;
 ref class FKConstraintListWrapper;
 
-public ref class TableColumnsListWrapper : public MySQL::Grt::ListModel
+public ref class TableColumnsListWrapper : public MySQL::Grt::ListModelWrapper
 {
 public:
   enum class ColumnListColumns {
@@ -64,7 +64,7 @@ public:
   inline bec::TableColumnsListBE *get_unmanaged_object()
   { return static_cast<bec::TableColumnsListBE *>(inner); }
 
-  bool get_row(NodeId^ node,
+  bool get_row(NodeIdWrapper^ node,
                [Out] String^ %name,
                [Out] String^ %type,
                [Out] bool^ %ispk,
@@ -82,7 +82,7 @@ public:
   void reorder_many(List<int> ^rows, int nindex);
 };
 
-public ref class IndexColumnsListWrapper : public ListModel
+public ref class IndexColumnsListWrapper : public ListModelWrapper
 {
 public:
   enum class IndexColumnsListColumns {
@@ -99,13 +99,13 @@ public:
   inline bec::IndexColumnsListBE *get_unmanaged_object()
   { return static_cast<bec::IndexColumnsListBE *>(inner); }
 
-  void set_column_enabled(NodeId^ node, bool flag);
-  bool get_column_enabled(NodeId^ node);
+  void set_column_enabled(NodeIdWrapper^ node, bool flag);
+  bool get_column_enabled(NodeIdWrapper^ node);
 
   int get_max_order_index();
 };
 
-public ref class IndexListWrapper : public ListModel
+public ref class IndexListWrapper : public ListModelWrapper
 { 
 public:
   enum class IndexListColumns {
@@ -124,13 +124,13 @@ public:
   IndexColumnsListWrapper^ get_columns();
   
   //db_Index get_selected_index();
-  void select_index(NodeId^ node);
+  void select_index(NodeIdWrapper^ node);
 
   // cannot create a wrapper instance here
   //TableEditorWrapper *get_owner() { return _owner; }
 };
 
-public ref class FKConstraintColumnsListWrapper : public ListModel
+public ref class FKConstraintColumnsListWrapper : public ListModelWrapper
 {
 public:
   enum class FKConstraintColumnsListColumns {
@@ -146,13 +146,13 @@ public:
   inline bec::FKConstraintColumnsListBE *get_unmanaged_object()
   { return static_cast<bec::FKConstraintColumnsListBE *>(inner); }
 
-  List<String^>^ get_ref_columns_list(NodeId ^node, bool filtered);
+  List<String^>^ get_ref_columns_list(NodeIdWrapper ^node, bool filtered);
 
-  bool set_column_is_fk(NodeId^ node, bool flag);
-  bool get_column_is_fk(NodeId^ node);
+  bool set_column_is_fk(NodeIdWrapper^ node, bool flag);
+  bool get_column_is_fk(NodeIdWrapper^ node);
 };
 
-public ref class FKConstraintListWrapper : public ListModel
+public ref class FKConstraintListWrapper : public ListModelWrapper
 {
 public:
   enum class FKConstraintListColumns {
@@ -172,7 +172,7 @@ public:
   inline bec::FKConstraintListBE *get_unmanaged_object()
   { return static_cast<bec::FKConstraintListBE *>(inner); }
   
-  void select_fk(NodeId^ node);
+  void select_fk(NodeIdWrapper^ node);
 
   FKConstraintColumnsListWrapper^ get_columns();
 };
@@ -213,25 +213,25 @@ public:
   //...
 
   // column editing
-  NodeId^ add_column(String^ name);
+  NodeIdWrapper^ add_column(String^ name);
 
-  void remove_column(NodeId^ column);
+  void remove_column(NodeIdWrapper^ column);
 
   //db_Column get_column_with_name(const std::string &name);
 
   // fk editing
-  NodeId^ add_fk(String^ name);
+  NodeIdWrapper^ add_fk(String^ name);
 
-  void remove_fk(NodeId^ fk);
+  void remove_fk(NodeIdWrapper^ fk);
 
-  NodeId^ add_fk_with_columns(List<NodeId ^> ^columns);
+  NodeIdWrapper^ add_fk_with_columns(List<NodeIdWrapper ^> ^columns);
 
   // index editing
-  NodeId^ add_index(String^ name);
+  NodeIdWrapper^ add_index(String^ name);
 
-  void remove_index(NodeId^ index);
+  void remove_index(NodeIdWrapper^ index);
 
-  NodeId^ add_index_with_columns(List<NodeId ^> ^columns);
+  NodeIdWrapper^ add_index_with_columns(List<NodeIdWrapper ^> ^columns);
 
   List<String^>^ get_index_types();
 };

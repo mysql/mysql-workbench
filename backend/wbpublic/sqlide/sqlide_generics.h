@@ -94,7 +94,7 @@ public:
 
   result_type operator()(const std::string &v) const
   {
-    return (is_truncation_enabled && (truncation_threshold < v.size())) ? base::truncate_text(v, truncation_threshold) : v;
+    return (is_truncation_enabled && (truncation_threshold < v.size())) ? base::truncate_text(v, (int)truncation_threshold) : v;
   }
 
   template<typename T>

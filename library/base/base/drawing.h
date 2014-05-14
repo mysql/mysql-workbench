@@ -79,13 +79,15 @@ namespace base {
 
   struct HSVColor;
 
-  struct BASELIBRARY_PUBLIC_FUNC Color
+  class BASELIBRARY_PUBLIC_FUNC Color
   {
+  public:
     double red, green, blue, alpha;
 
     Color();
     Color(double ar, double ag, double ab, double aa = 1.0);
     Color(const HSVColor &hsv);
+    Color(const std::string &color);
 
     bool operator !=(const Color &other);
     std::string to_html() const;

@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtpp_util.h"
 #include "wb_model_file.h"
 #include "upgrade_helper.h"

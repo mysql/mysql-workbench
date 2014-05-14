@@ -93,7 +93,6 @@ class DiffNodeController;
 
 class DiffNode
 {
-  //friend DiffNodeController;
 public:
   enum ApplicationDirection
   {
@@ -152,10 +151,9 @@ public:
   void append(DiffNode *child) { children.push_back(child); }
 
   size_t get_children_size() const { return children.size(); }
-  DiffNode *get_child(int idx) { return children[idx]; }
+  DiffNode *get_child(size_t idx) { return children[idx]; }
   DiffNode *find_node_for_object(const grt::ObjectRef obj);
   DiffNode *find_child_by_db_part_name(const std::string& name);
-  //DiffNode *find_child_by_model_part_name(const std::string& name);
 
   DiffNodeVector::const_iterator get_children_begin() const { return children.begin(); }
   DiffNodeVector::const_iterator get_children_end() const { return children.end(); }
@@ -173,7 +171,6 @@ public:
 
   void get_object_list_for_script(std::vector<grt::ValueRef>& vec) const;
   void get_object_list_to_apply_to_model(std::vector<grt::ValueRef>& vec, std::vector<grt::ValueRef>& removal_vec) const;
-  //void sync_old_name();
 
 };
 
@@ -235,10 +232,10 @@ private:
              boost::shared_ptr<DiffChange> diffchange, DiffNodeController controller = DiffNodeController());
   virtual ~DiffTreeBE() {delete _root; };
 
-  virtual int count_children(const bec::NodeId &);
-  virtual bec::NodeId get_child(const bec::NodeId &, int);
-  virtual bool get_field(const bec::NodeId &node_id, int column, std::string &value);
-  virtual bec::IconId get_field_icon(const bec::NodeId &node, int column, bec::IconSize size);
+  virtual size_t count_children(const bec::NodeId &);
+  virtual bec::NodeId get_child(const bec::NodeId &, size_t);
+  virtual bool get_field(const bec::NodeId &node_id, ColumnId column, std::string &value);
+  virtual bec::IconId get_field_icon(const bec::NodeId &node, ColumnId column, bec::IconSize size);
   virtual void refresh() {}
   
   void set_next_apply_direction(const bec::NodeId &node_id);
@@ -247,7 +244,6 @@ private:
   
   void get_object_list_for_script(std::vector<grt::ValueRef>& vec) const;
   void get_object_list_to_apply_to_model(std::vector<grt::ValueRef>& vec, std::vector<grt::ValueRef>& removal_vec) const;
-  //void sync_old_name();
 };
 
 #endif  // _DB_MYSQL_SQL_EXPORT_DIFF_TREE_H_

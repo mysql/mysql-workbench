@@ -251,7 +251,7 @@ bool TreeModelWrapper::iter_nth_root_child_vfunc(int n, iterator& iter) const
   //index is 0.  If @a n is too big, or if there are no children, @a iter is set 
   //to an invalid iterator and false is returned.
   //See also iter_nth_child_vfunc().
-  if ( tm() && n >= 0 && n < tm()->count_children(root_node) )
+  if ( tm() && n >= 0 && n < (int)tm()->count_children(root_node) )
   {
     bec::NodeId node = tm()->get_child(root_node, n);
     init_gtktreeiter(iter.gobj(), node);

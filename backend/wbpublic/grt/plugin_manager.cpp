@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "plugin_manager.h"
 #include "editor_base.h"
@@ -147,7 +145,7 @@ void PluginManagerImpl::set_plugin_enabled(const app_PluginRef &plugin, bool fla
     disabled_list.insert(plugin->name());
     // remove the plugin from all groups
     grt::ListRef<app_PluginGroup> groups(get_plugin_groups());
-    for (unsigned int c= groups.count(), i= 0; i < c; i++)
+    for (size_t c = groups.count(), i = 0; i < c; i++)
       groups[i]->plugins().remove_value(plugin);
   }
 }
@@ -211,7 +209,7 @@ void PluginManagerImpl::rescan_plugins()
     app_PluginGroupRef group;
   
     groups= get_plugin_groups();
-    for (unsigned int c= groups.count(), i= 0; i < c; i++)
+    for (size_t c = groups.count(), i = 0; i < c; i++)
     {
       group= groups[i];
       while (group->plugins().count() > 0)
@@ -291,8 +289,7 @@ void PluginManagerImpl::rescan_plugins()
   }
 }
 
-
-
+//--------------------------------------------------------------------------------------------------
 
 app_PluginGroupRef PluginManagerImpl::get_group(const std::string &group_name)
 {
@@ -301,7 +298,7 @@ app_PluginGroupRef PluginManagerImpl::get_group(const std::string &group_name)
 
   groups= get_plugin_groups();
 
-  for (unsigned int c= groups.count(), i= 0; i < c; i++)
+  for (size_t c = groups.count(), i = 0; i < c; i++)
   {
     if (groups[i]->name() == group_name)
     {
@@ -361,7 +358,7 @@ void PluginManagerImpl::register_plugins(grt::ListRef<app_Plugin> plugins)
 {
   grt::ListRef<app_Plugin> list= get_plugin_list();
   
-  for (unsigned int c= plugins.count(), i= 0; i < c; i++)
+  for (size_t c= plugins.count(), i= 0; i < c; i++)
     list.insert(plugins[i]);
 }
 
@@ -551,7 +548,7 @@ app_PluginRef PluginManagerImpl::select_plugin_for_input(const std::string &grou
 {
   ListRef<app_Plugin> plugins= get_plugin_list(group);
   app_PluginRef best_match;
-  int rating= -1;
+  ssize_t rating= -1;
 
   for (size_t c= plugins.count(), i= 0; i < c; i++)
   {

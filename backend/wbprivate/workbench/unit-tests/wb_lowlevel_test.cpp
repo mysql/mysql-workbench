@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 // High-level testing for Workbench.
 // This tests WBContext, which will test the integration of all components.
 
@@ -32,7 +30,7 @@
 #include "grt_test_utility.h"
 #include "wbcanvas/table_figure.h"
 
-#include "internal/wb.model.advfind/wb_find_dialog.h"
+#include "wb.model.advfind/wb_find_dialog.h"
 
 using namespace wb;
 

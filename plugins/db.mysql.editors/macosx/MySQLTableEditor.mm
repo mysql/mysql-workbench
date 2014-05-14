@@ -166,7 +166,7 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
     if (mBackEnd->is_editing_live_object())
     {
       NSArray *flags = MArrayFromStringVector(mBackEnd->get_columns()->get_datatype_flags(rowIndex, true));
-      int flag;
+      ssize_t flag;
       mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsPK, flag);
       [mColumnsFlagPK setState: flag ? NSOnState : NSOffState];
       mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsNotNull, flag);

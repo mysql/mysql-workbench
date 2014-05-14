@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "grt_python_debugger.h"
 #include "base/string_utilities.h"
 #include "grt_shell_window.h"

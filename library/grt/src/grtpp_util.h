@@ -19,9 +19,7 @@
 
 #ifndef _GRTPP_UTIL_H_
 #define _GRTPP_UTIL_H_
-//#ifdef max
-//#undef max
-//#endif
+
 #include <boost/function.hpp>
 #include "grtpp.h"
 

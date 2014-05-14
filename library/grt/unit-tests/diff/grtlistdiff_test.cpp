@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +17,13 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "grt_test_utility.h"
 #include "testgrt.h"
-#include "grtdiff.h"
+#include "diff/grtdiff.h"
 #include "grtpp.h"
-#include "diffchange.h"
-#include "changeobjects.h"
-#include "changelistobjects.h"
+#include "diff/diffchange.h"
+#include "diff/changeobjects.h"
+#include "diff/changelistobjects.h"
 #include "grtdb/diff_dbobjectmatch.h"
 
 using namespace grt;

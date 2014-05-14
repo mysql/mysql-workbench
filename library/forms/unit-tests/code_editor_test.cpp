@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,11 +17,9 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "test.h"
 #include "mforms/code_editor.h"
-#include "forms/stub/stub_mforms.h"
+#include "stub/stub_mforms.h"
 
 using namespace mforms;
 

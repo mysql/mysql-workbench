@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtdiff.h"
 #include <assert.h>
 #include <algorithm>
@@ -33,7 +31,6 @@
 
 namespace grt
 {
-//DEFAULT_LOG_DOMAIN("Diff module")
 
 time_t timestamp()
 {

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,14 +47,14 @@ namespace MySQL.Grt
     /// </summary>
     /// <param name="TreeView">The TreeViewAdv control this model is used for</param>
     /// <param name="GrtList">The GRT list this model is representing</param>
-    public SimpleGrtListModel(TreeViewAdv tree, MySQL.Grt.ListModel grtList, bool dynamicContextMenu)
+    public SimpleGrtListModel(TreeViewAdv tree, MySQL.Grt.ListModelWrapper grtList, bool dynamicContextMenu)
       : base(tree, grtList, dynamicContextMenu)
     {
       this.grtList = grtList;
       treeView = tree;
     }
 
-    public SimpleGrtListModel(TreeViewAdv tree, MySQL.Grt.ListModel grtList, NodeIcon nodeIcon, bool dynamicContextMenu)
+    public SimpleGrtListModel(TreeViewAdv tree, MySQL.Grt.ListModelWrapper grtList, NodeIcon nodeIcon, bool dynamicContextMenu)
       : base(tree, grtList, nodeIcon, dynamicContextMenu)
     {
       this.grtList = grtList;
@@ -122,7 +122,7 @@ namespace MySQL.Grt
       int count = grtList.count();
       for (int i = 0; i < count; i++)
       {
-        NodeId nodeId = grtList.get_node(i);
+        NodeIdWrapper nodeId = grtList.get_node(i);
         GrtListNode node;
         string caption;
 

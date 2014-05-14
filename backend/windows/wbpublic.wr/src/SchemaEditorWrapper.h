@@ -23,8 +23,6 @@
 #include "grtdb/editor_schema.h"
 #include "DBObjectEditorBE.h"
 
-#pragma make_public(::bec::SchemaEditorBE)
-
 namespace MySQL {
 namespace Grt {
 namespace Db {

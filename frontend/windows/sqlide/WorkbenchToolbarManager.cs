@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,12 +35,12 @@ namespace MySQL.GUI.Workbench
     {
       public MySQL.Grt.ActionList ActionList;
 
-      public delegate List<NodeId> GetSelectedNodes_Delegate();
+      public delegate List<NodeIdWrapper> GetSelectedNodes_Delegate();
       public GetSelectedNodes_Delegate GetSelectedNodes;
-      public List<NodeId> nodes;
-      public delegate List<MySQL.Base.MenuItem> GetNodesMenuItems_Delegate(List<NodeId> nodes);
+      public List<NodeIdWrapper> nodes;
+      public delegate List<MySQL.Base.MenuItem> GetNodesMenuItems_Delegate(List<NodeIdWrapper> nodes);
       public GetNodesMenuItems_Delegate GetNodesMenuItems;
-      public delegate bool TriggerNodesAction_Delegate(String action, List<NodeId> nodes);
+      public delegate bool TriggerNodesAction_Delegate(String action, List<NodeIdWrapper> nodes);
       public TriggerNodesAction_Delegate TriggerNodesAction;
 
       public delegate List<int> GetSelectedRowsCol_Delegate(ref int column);
@@ -73,7 +73,7 @@ namespace MySQL.GUI.Workbench
       {
         menuContext.nodes = menuContext.GetSelectedNodes();
         if (null == menuContext.nodes)
-          menuContext.nodes = new List<NodeId>();
+          menuContext.nodes = new List<NodeIdWrapper>();
         itemsBE = menuContext.GetNodesMenuItems(menuContext.nodes);
       }
       else if (null != menuContext.GetSelectedRowsCol)

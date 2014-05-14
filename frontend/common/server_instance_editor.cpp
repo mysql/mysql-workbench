@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/log.h"
 
 #include "server_instance_editor.h"
@@ -130,7 +128,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 
   {
     // do a quick validation, removing any instance objects that don't have a matching connection
-    for (int i = _instances.count()-1; i >= 0; --i)
+    for (ssize_t i = _instances.count() - 1; i >= 0; --i)
     {
       if (!_instances[i]->connection().is_valid())
       {
@@ -534,11 +532,11 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::run(db_mgmt_ConnectionRef select
 
   int i = -1;
   if (select_connection.is_valid())
-    i = _connections.get_index(select_connection);
+    i = (int)_connections.get_index(select_connection);
 
-  if (i < 0 || i >= _stored_connection_list.count())
+  if (i >= _stored_connection_list.count())
       i = 0;
-  _stored_connection_list.select_node(_stored_connection_list.node_at_row(i));
+  _stored_connection_list.select_node(_stored_connection_list.node_at_row((int)i));
   show_connection();
 
   if (show_admin)
@@ -857,12 +855,10 @@ void ServerInstanceEditor::delete_instance()
     if (row >= 0 && row < (int)_connections.count())
     {
       db_mgmt_ConnectionRef conn(_connections[row]);
-      for (int i = _instances.count()-1; i >= 0; --i)
+      for (ssize_t i = _instances.count() - 1; i >= 0; --i)
       {
         if (_instances[i]->connection() == conn)
-        {
           _instances.remove(i);
-        }
       }
 
       _connections.remove(row);

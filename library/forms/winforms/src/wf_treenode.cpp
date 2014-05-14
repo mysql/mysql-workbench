@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wf_base.h"
 #include "wf_view.h"
 #include "wf_treenodeview.h"
@@ -478,7 +476,7 @@ std::vector<mforms::TreeNodeRef> TreeNodeWrapper::add_node_collection(const mfor
       icon = get_cached_icon(nodes.icon);
 
     // Creates an array with all the nodes in the collection
-    array<MySQL::Forms::TreeViewNode^>^ added_nodes= gcnew array<MySQL::Forms::TreeViewNode^>(nodes.captions.size());
+    array<MySQL::Forms::TreeViewNode^>^ added_nodes= gcnew array<MySQL::Forms::TreeViewNode^>((int)nodes.captions.size());
     for(int index=0; index < added_nodes->Length; index++)
       added_nodes[index] = gcnew MySQL::Forms::TreeViewNode();
 

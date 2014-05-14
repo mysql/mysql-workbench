@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,17 +19,12 @@
 #ifndef _ICON_MANAGER_H_
 #define _ICON_MANAGER_H_
 
-//#include <string>
-//#include <map>
-//#include <vector>
-
-#include <grtpp.h>
+#include "grtpp.h"
 
 #include "wbpublic_public_interface.h"
 
-
 namespace bec {
-  typedef int IconId;
+  typedef ssize_t IconId;
   
   enum IconSize
   {

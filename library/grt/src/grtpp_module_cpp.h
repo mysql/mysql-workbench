@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,10 +46,16 @@ namespace grt {
   template<class T> struct grt_content_class_name <Ref<T> > { typedef T value; };
   template<class T> struct grt_content_class_name <ListRef<T> > { typedef T value; };
 
-
   template<class T> struct grt_type_for_native { typedef T Type; };
   template<> struct grt_type_for_native<int> { typedef IntegerRef Type; };
-  template<> struct grt_type_for_native<long> { typedef IntegerRef Type; };
+
+#ifdef DEFINE_UINT64_T_FUNCTIONS
+  template<> struct grt_type_for_native<uint64_t> { typedef IntegerRef Type; };
+#endif
+  template<> struct grt_type_for_native<size_t> { typedef IntegerRef Type; };
+#ifdef DEFINE_SSIZE_T_FUNCTIONS
+  template<> struct grt_type_for_native<ssize_t> { typedef IntegerRef Type; };
+#endif
   template<> struct grt_type_for_native<double> { typedef DoubleRef Type; };
   template<> struct grt_type_for_native<const std::string&> { typedef StringRef Type; };
   template<> struct grt_type_for_native<std::string> { typedef StringRef Type; };
@@ -108,7 +114,7 @@ namespace grt {
     static std::string get() { return T::static_class_name(); }
   };
   
-  // This template checks if B is castable to A
+  // This template checks if B is cast-able to A
   // boolean value Is_super_subclass<A, B>::value 
   // is available during compile time and can be used with other templates
   template<class A, class B> class Is_super_subclass
@@ -125,7 +131,7 @@ namespace grt {
   };
   
 
-  // Allows implementation of modules in C++ by subclassing
+  // Allows implementation of modules in C++ by sub classing
 
   //----------------------------------------------------------------------
   // Basic definitions for modules and interfaces
@@ -415,11 +421,25 @@ inline ValueRef grt_value_for_type(int t)
 {
   return IntegerRef(t);
 }
-  
-inline ValueRef grt_value_for_type(long t)
+
+#ifdef DEFINE_UINT64_T_FUNCTIONS
+inline ValueRef grt_value_for_type(uint64_t t)
+{
+  return IntegerRef((size_t)t);
+}
+#endif
+
+inline ValueRef grt_value_for_type(size_t t)
 {
   return IntegerRef(t);
 }
+
+#ifdef DEFINE_SSIZE_T_FUNCTIONS
+inline ValueRef grt_value_for_type(ssize_t t)
+{
+  return IntegerRef(t);
+}
+#endif
 
 inline ValueRef grt_value_for_type(double t)
 {
@@ -448,18 +468,9 @@ template<typename T> struct native_value_for_grt_type
 template<> 
 struct native_value_for_grt_type<IntegerRef>
 {
-  static long convert(const ValueRef& t)
+  static ssize_t convert(const ValueRef& t)
   {
-    return IntegerRef::cast_from(t).operator long();
-  }
-};
-
-template<> 
-struct native_value_for_grt_type<long>
-{
-  static long convert(const ValueRef& t)
-  {
-    return IntegerRef::cast_from(t).operator long();
+    return IntegerRef::cast_from(t).operator IntegerRef::storage_type();
   }
 };
 
@@ -468,7 +479,7 @@ struct native_value_for_grt_type<int>
 {
   static int convert(const ValueRef& t)
   {
-    return (int)IntegerRef::cast_from(t).operator long();
+    return (int)IntegerRef::cast_from(t).operator IntegerRef::storage_type();
   }
 };
   
@@ -477,11 +488,22 @@ struct native_value_for_grt_type<bool>
 {
   static bool convert(const ValueRef& t)
   {
-    return IntegerRef::cast_from(t).operator long() != 0;
+    return IntegerRef::cast_from(t).operator IntegerRef::storage_type() != 0;
   }
 };
 
-template<> 
+#ifdef _WIN64
+template<>
+struct native_value_for_grt_type<ssize_t>
+{
+  static ssize_t convert(const ValueRef& t)
+  {
+    return IntegerRef::cast_from(t).operator IntegerRef::storage_type();
+  }
+};
+#endif
+
+template<>
 struct native_value_for_grt_type<DoubleRef>
 {
   static double convert(const ValueRef& t)

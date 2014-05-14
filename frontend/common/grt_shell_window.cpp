@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "grt_python_debugger.h"
 #include "grt_shell_window.h"
 #include "base/file_functions.h"
@@ -32,6 +31,7 @@ DEFAULT_LOG_DOMAIN("grtshell")
 #include "grt/common.h"
 #include "grt_code_editor.h"
 #include "grt_plugin_wizard.h"
+
 
 #include "workbench/wb_context.h"
 #include "mforms/app.h"
@@ -1188,7 +1188,7 @@ GRTCodeEditor *GRTShellWindow::show_file_at_line(const std::string &path, int li
     add_output(base::strfmt("Cannot open file %s", path.c_str()));
   else
   {
-    int start, length;
+    ssize_t start, length;
     editor->get_editor()->get_range_of_line(line, start, length);
     editor->get_editor()->set_selection(start, 0);
   }
@@ -1513,7 +1513,7 @@ GRTCodeEditor* GRTShellWindow::get_editor_for(const std::string& path, bool sele
     if (g_utf8_collate(path1, path2) == 0)
     {
       if (select_tab)
-        _main_tab.set_active_tab(editor - _editors.begin() + EDITOR_TAB_OFFSET);
+        _main_tab.set_active_tab((int)(editor - _editors.begin() + EDITOR_TAB_OFFSET));
 
       g_free(path2);
       return *editor;
@@ -1991,16 +1991,15 @@ static void globals_rescan_list(mforms::TreeNodeRef &node,
                                 const std::string &path,
                                 const grt::BaseListRef &value)
 {
-  int c= value.count();
   char buffer[30];
   
   node->remove_children();
-  for (int i= 0; i < c; i++)
+  for (size_t i = 0; i < value.count(); i++)
   {
     grt::ValueRef v= value.get(i);
     std::string label;
     
-    sprintf(buffer, "%i", i);
+    sprintf(buffer, "%lu", i);
     
     if (v.is_valid() && !grt::is_simple_type(v.type()))
     {
@@ -2212,7 +2211,7 @@ void GRTShellWindow::refresh_global_list()
   _global_list.clear();
   if (_inspector)
   {
-    for (int c = _inspector->count(), i = 0; i < c; i++)
+    for (size_t c = _inspector->count(), i = 0; i < c; i++)
     {
       mforms::TreeNodeRef node = _global_list.add_node();
       std::string value;

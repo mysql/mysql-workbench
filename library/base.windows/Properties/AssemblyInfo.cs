@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
 [assembly: AssemblyProduct("base-windows")]
-[assembly: AssemblyCopyright("Copyright (c) Oracle 2010, 213")]
+[assembly: AssemblyCopyright("Copyright (c) Oracle 2010, 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

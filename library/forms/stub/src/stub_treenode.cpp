@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "tut_stdafx.h"
 
 #include "../stub_treenode.h"
 
@@ -97,7 +96,7 @@ double TreeNodeWrapper::get_float(int column) const
 
 int TreeNodeWrapper::count() const
 {
-  return _children.size();
+  return (int)_children.size();
 }
 
 std::vector<mforms::TreeNodeRef> TreeNodeWrapper::add_node_collection(const mforms::TreeNodeCollectionSkeleton &nodes, int position)

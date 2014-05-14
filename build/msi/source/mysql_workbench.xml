@@ -22,7 +22,7 @@
       UpgradeCode="$(var.UPGRADE_CODE)" Version="$(var.VERSION_DETAIL)">
 
         <Package Compressed="yes" Description="MySQL Workbench" InstallerVersion="200" Keywords="Installer,MSI,Database" 
-          Languages="1033" Manufacturer="Oracle Corporation" Platform="x86" />
+          Languages="1033" Manufacturer="Oracle Corporation" Platform="$(sys.BUILDARCH)" />
 
         <MajorUpgrade
           Schedule="afterInstallValidate"
@@ -115,11 +115,9 @@
             <RegistryValue Id="Location" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
                       Name="Location" Type="string" 
                       Value="[INSTALLDIR]"/>
-            <?if $(var.SETUP_TYPE) = "commercial" ?>
-			<RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
-			<RemoveFile Id="pyc_cleanup23" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2_test" />
-			<RemoveFile Id="pyc_cleanup24" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2_test_py25" />
-            <?endif?>
+      <?if $(var.SETUP_TYPE) = "commercial" ?>
+        <RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
+      <?endif?>
 			<RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />			
 			<RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />			
 			<RemoveFile Id="pyc_cleanup27" Name="pyodbc*.pyd" On="both" Directory="python_site_packages" />
@@ -170,14 +168,12 @@
 			<ComponentRef Id="python_lib_multiprocessing" />
 			<ComponentRef Id="python_lib_multiprocessing_dummy" />
       <ComponentRef Id="python_lib_sqlite3" />
-      <ComponentRef Id="python_lib_unittest" />
-      <ComponentRef Id="python_lib_unittest_test" />
 			<ComponentRef Id="python_lib_xml" />
 			<ComponentRef Id="python_lib_xml_dom" />
 			<ComponentRef Id="python_lib_xml_sax" />
 			<ComponentRef Id="python_lib_xml_parsers" />
 			<ComponentRef Id="python_lib_xml_etree" />
-			<ComponentRef Id="python_libs" />
+<!--			<ComponentRef Id="python_libs" /> -->
 			<ComponentRef Id="python_site_packages_pyodbc" />
 			<ComponentRef Id="python_site_packages_crypto" />
 			<ComponentRef Id="python_site_packages_crypto_cipher" />
@@ -187,29 +183,17 @@
 			<ComponentRef Id="python_site_packages_crypto_random" />
 			<ComponentRef Id="python_site_packages_crypto_random_fortuna" />
 			<ComponentRef Id="python_site_packages_crypto_random_osrng" />
-			<ComponentRef Id="python_site_packages_crypto_selftest" />
-			<ComponentRef Id="python_site_packages_crypto_selftest_cipher" />
-			<ComponentRef Id="python_site_packages_crypto_selftest_hash" />
-			<ComponentRef Id="python_site_packages_crypto_selftest_protocol" />
-			<ComponentRef Id="python_site_packages_crypto_selftest_publickey" />
-			<ComponentRef Id="python_site_packages_crypto_selftest_random" />
-			<ComponentRef Id="python_site_packages_crypto_selftest_random_fortuna" />
-			<ComponentRef Id="python_site_packages_crypto_selftest_random_osrng" />
-            <ComponentRef Id="python_site_packages_crypto_selftest_signature" />
-			<ComponentRef Id="python_site_packages_crypto_selftest_util" />
 			<ComponentRef Id="python_site_packages_crypto_signature" />
 			<ComponentRef Id="python_site_packages_crypto_util" />
 			<ComponentRef Id="python_site_packages_paramiko" />
-            <?if $(var.SETUP_TYPE) = "commercial" ?>
-			<ComponentRef Id="python_site_packages_pysqlite2" />
-			<ComponentRef Id="python_site_packages_pysqlite2_test" />
-			<ComponentRef Id="python_site_packages_pysqlite2_test_py25" />
-            <ComponentRef Id="reporting_HTML_Basic_Frames" />
-            <ComponentRef Id="reporting_HTML_Basic_Single_Page" />
+      <?if $(var.SETUP_TYPE) = "commercial" ?>
+        <ComponentRef Id="python_site_packages_pysqlite2" />
+        <ComponentRef Id="reporting_HTML_Basic_Frames" />
+        <ComponentRef Id="reporting_HTML_Basic_Single_Page" />
 		    <ComponentRef Id="reporting_HTML_Detailed_Frames" />
 		    <ComponentRef Id="reporting_HTML_Detailed_Frames_images" />
-            <ComponentRef Id="reporting_Text_Basic" />
-            <?endif?>
+        <ComponentRef Id="reporting_Text_Basic" />
+      <?endif?>
 			<ComponentRef Id="catalog_reporting_TEXT_Basic" />
             <ComponentRef Id="mysql_canvas" />
             <ComponentRef Id="structs" />
@@ -222,14 +206,8 @@
             <ComponentRef Id="sys_views_i_s" />
             <ComponentRef Id="sys_views_p_s" />
             <ComponentRef Id="extras" />
-<!--            <ComponentRef Id="MySQLWorkbench.chm" /> -->
             <ComponentRef Id="RegKeys" />
         </Feature>
-<!--
-        <Feature Id="MysqlGrtShell" ConfigurableDirectory="INSTALLDIR" Description="A standalone GRT Shell for the Windows command line" Level="1" Title="MySQL GRT Shell">
-            <ComponentRef Id="GRT_Shell_DOS" />
-        </Feature>
--->
 		<?if $(var.SETUP_TYPE) = "commercial" ?>
         <Feature Id="WorkbenchLGPLSources" Absent="allow" TypicalDefault="advertise" Level="1" ConfigurableDirectory="INSTALLDIR" Description="Sourcecode Packages of LGPL components used for compiling MySQL Workbench" Title="MySQL Workbench LGPL Source Packages">
             <ComponentRef Id="LGPLSrcPackages" />

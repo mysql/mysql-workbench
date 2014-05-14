@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/drawing.h"
@@ -291,7 +289,7 @@ public:
             else
             {
               // Forward unknown data only if we at least know it is from us.
-              DataWrapper ^wrapper = dynamic_cast<DataWrapper^>(e->Data->GetData(e->Data->GetFormats()[i], false));
+              DataWrapper ^wrapper = dynamic_cast<DataWrapper^>(e->Data->GetData(e->Data->GetFormats()[(int)i], false));
               if (wrapper != nullptr)
               {
                 operation = drop_delegate->data_dropped(view, base::Point(point.X, point.Y), wrapper->GetData(), formats[i]);

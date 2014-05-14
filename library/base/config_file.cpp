@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,10 +71,10 @@ typedef SectionList::iterator SectionListIterator;
  */
 std::string extract_next_word(std::string& line)
 {
-  int position = line.find_first_of(EqualIndicators);
+  size_t position = line.find_first_of(EqualIndicators);
   std::string word = std::string("");
   
-  if (position > -1)
+  if (position != std::string::npos)
   {
     word = line.substr(0, position);
     line.erase(0, position + 1);
@@ -404,7 +404,7 @@ bool ConfigurationFile::Private::create_section(std::string section_name, std::s
  */
 int ConfigurationFile::Private::section_count()
 { 
-  return _sections.size(); 
+  return (int)_sections.size(); 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -417,7 +417,7 @@ int ConfigurationFile::Private::key_count()
   int result = 0;
   
   for (SectionListIterator iterator = _sections.begin(); iterator != _sections.end(); iterator++)
-    result += iterator->keys.size();
+    result += (int)iterator->keys.size();
   
   return result;
 }
@@ -431,7 +431,7 @@ int ConfigurationFile::Private::key_count_for_section(const std::string &section
 {
   ConfigSection *section = get_section(section_name, false);
   if (section != NULL)
-    return section->keys.size();
+    return (int)section->keys.size();
   
   return 0;
 }

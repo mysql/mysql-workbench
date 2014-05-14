@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "tut_stdafx.h"
 
 #include "wb_helpers.h"
 
@@ -101,7 +99,7 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
     }
     std::pair<int, int> caret(entries[i].offset, entries[i].line); // column, row
 
-    std::string message = base::strfmt("Step %i (line: %i), topics differ", i, entries[i].test_line_number);
+    std::string message = base::strfmt("Step %lu (line: %u), topics differ", i, entries[i].test_line_number);
     std::string topic = DbSqlEditorContextHelp::find_help_topic_from_position(editor_form, statement, caret);
 #if VERBOSE_TESTING
     std::cout << "Iteration     : " << i << std::endl
@@ -144,7 +142,7 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test)
   ensure("Server version is invalid", grt_version.is_valid());
 
   tester.get_rdbms()->version(grt_version);
-  version = grt_version->majorNumber() * 10000 + grt_version->minorNumber() * 100 + grt_version->releaseNumber();
+  version = (int)(grt_version->majorNumber() * 10000 + grt_version->minorNumber() * 100 + grt_version->releaseNumber());
 }
 
 END_TEST_DATA_CLASS;

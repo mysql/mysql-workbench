@@ -25,9 +25,6 @@
 #include <grtpp_undo_manager.h>
 #include "base/string_utilities.h"
 #include "base/wb_iterators.h"
-#include <math.h>
-#include <algorithm>
-#include <stdlib.h>
 
 #ifndef M_PI
 # define M_PI   3.14159265358979323846
@@ -317,9 +314,9 @@ class Layouter
 
     bool shuffle();
     double calc_energy();
-    double calc_node_energy(const int i, const Node& n);
-    long distance_to_node(const int n1, const int n2, bool *is_horiz = 0);
-    double calc_node_pair(const int i1, const int i2);
+    double calc_node_energy(const size_t i, const Node& n);
+    long distance_to_node(const size_t n1, const size_t n2, bool *is_horiz = false);
+    double calc_node_pair(const size_t i1, const size_t i2);
     void prepare_layout_stages();
 
     const double _w;
@@ -330,7 +327,7 @@ class Layouter
       Node(const model_FigureRef& figure);
       void move_by(const long dx, const long dy);
       void move(const long x, const long y);
-      bool is_linked_to(const int node) const;
+      bool is_linked_to(const ssize_t node) const;
 
       long                  w;
       long                  h;
@@ -339,7 +336,7 @@ class Layouter
       long                  x2;
       long                  y2;
       model_FigureRef       fig;
-      std::vector<int>      linked;
+      std::vector<ssize_t>   linked;
     };
     typedef std::vector<Node> NodesList;
     NodesList       _all_figures;
@@ -381,11 +378,11 @@ void Layouter::Node::move_by(const long dx, const long dy)
 }
 
 //------------------------------------------------------------------------------
-bool Layouter::Node::is_linked_to(const int node) const
+bool Layouter::Node::is_linked_to(const ssize_t node) const
 {
   bool found = false;
 
-  for (int i = linked.size() - 1; i >= 0; --i)
+  for (ssize_t i = linked.size() - 1; i >= 0; --i)
   {
     if (linked[i] == node)
     {
@@ -407,9 +404,8 @@ Layouter::Layouter(const model_LayerRef &layer)
          , _layer(layer)
 {
   const ListRef<model_Figure> figures = layer->figures();
-  const int size = figures->count();
 
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < figures->count(); ++i)
     _all_figures.push_back(figures[i]);
 }
 
@@ -417,8 +413,7 @@ Layouter::Layouter(const model_LayerRef &layer)
 //------------------------------------------------------------------------------
 void Layouter::add_figure_to_layout(const model_FigureRef& figure)
 {
-  const int size = _all_figures.size();
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < _all_figures.size(); ++i)
   {
     if (_all_figures[i].fig == figure)
     {
@@ -430,11 +425,10 @@ void Layouter::add_figure_to_layout(const model_FigureRef& figure)
 //------------------------------------------------------------------------------
 void Layouter::connect(const model_FigureRef& f1, const model_FigureRef& f2)
 {
-  int n1 = -1;
-  int n2 = -1;
+  ssize_t n1 = -1;
+  ssize_t n2 = -1;
 
-  const int size = _figures.size();
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < _figures.size(); ++i)
   {
     Node& n = _figures[i];
     if (n1 == -1 && n.fig == f1)
@@ -455,7 +449,7 @@ void Layouter::connect(const model_FigureRef& f1, const model_FigureRef& f2)
 }
 
 //------------------------------------------------------------------------------
-long Layouter::distance_to_node(const int i1, const int i2, bool* is_horiz)
+long Layouter::distance_to_node(const size_t i1, const size_t i2, bool* is_horiz)
 {
   const Node& n1 = _figures[i1];
   const Node& n2 = _figures[i2];
@@ -533,7 +527,7 @@ inline double line_len2(long x1, long y1, long x2, long y2)
 }
 
 //------------------------------------------------------------------------------
-double Layouter::calc_node_pair(const int i1, const int i2)
+double Layouter::calc_node_pair(const size_t i1, const size_t i2)
 {
   const Node* n1 = &(_figures[i1]);
   const Node* n2 = &(_figures[i2]);
@@ -622,16 +616,16 @@ double Layouter::calc_node_pair(const int i1, const int i2)
 //------------------------------------------------------------------------------
 double Layouter::calc_energy()
 {
-  const int size = _figures.size();
   double e = 0.0;
 
-  for (int i = 0; i < size; ++i)
+  size_t size = _figures.size();
+  for (size_t i = 0; i < size; ++i)
   {
     const Node& node = _figures[i];
     if ((node.x1 < 0) || (node.y1 < 0) || (node.x2 + 20 > _w) || (node.y2 + 20 > _h))
       e += 1000000000000.0;
 
-    for (int j = i + 1; j < size; ++j)
+    for (size_t j = i + 1; j < size; ++j)
     {
       if (j >= size)
         break;
@@ -643,15 +637,14 @@ double Layouter::calc_energy()
 }
 
 //------------------------------------------------------------------------------
-double Layouter::calc_node_energy(const int node_i, const Node& node)
+double Layouter::calc_node_energy(const size_t node_i, const Node& node)
 {
-  const int size = _figures.size();
   double e = 0.0;
 
   if ((node.x1 < 0) || (node.y1 < 0) || (node.x2 + 20 > _w) || (node.y2 + 20 > _h))
     e += 1000000000000.0;
 
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < _figures.size(); ++i)
   {
     if (node_i != i)
       e += calc_node_pair(node_i, i);
@@ -666,8 +659,7 @@ bool Layouter::shuffle()
   bool found_smaller_energy = false;
   const int step = (rand() % 5) + 1;
 
-  const int size = _figures.size();
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < _figures.size(); ++i)
   {
     Node& n = _figures[i];
     const int wstep = _cell_w * step;
@@ -708,10 +700,9 @@ void Layouter::prepare_layout_stages()
   double total_w = 0;
   double total_h = 0;
   std::sort(_figures.begin(), _figures.end(), compare_node_links);
-  const int size = _figures.size();
 
   // reset layout
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < _figures.size(); ++i)
   {
     Node& n = _figures[i];
     // place all tables in some initial position
@@ -757,8 +748,7 @@ int Layouter::do_layout()
   }
 
   // update actual figures with new coords
-  const int size = _figures.size();
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < _figures.size(); ++i)
   {
     Node& n = _figures[i];
     model_FigureRef& f = n.fig;
@@ -775,8 +765,7 @@ int WbModelImpl::do_autolayout(const model_LayerRef &layer, ListRef<model_Object
   Layouter  layout(layer);
   if (selection.count() > 0)
   {
-    const int size = selection->count();
-    for (int i = 0; i < size; ++i)
+    for (size_t i = 0; i < selection->count(); ++i)
     {
       const model_ObjectRef figure = selection[i];
       if (workbench_physical_TableFigureRef::can_wrap(figure) || workbench_physical_ViewFigureRef::can_wrap(figure))
@@ -786,8 +775,7 @@ int WbModelImpl::do_autolayout(const model_LayerRef &layer, ListRef<model_Object
   else
   {
     const ListRef<model_Figure> figures = layer->figures();
-    const int size = figures->count();
-    for (int i = 0; i < size; ++i)
+    for (size_t i = 0; i < figures->count(); ++i)
     {
       const model_ObjectRef figure = figures[i];
       if (workbench_physical_TableFigureRef::can_wrap(figure) || workbench_physical_ViewFigureRef::can_wrap(figure))
@@ -796,8 +784,7 @@ int WbModelImpl::do_autolayout(const model_LayerRef &layer, ListRef<model_Object
   }
 
   ListRef<model_Connection> connections = layer->owner()->connections();
-  const int size = connections->count();
-  for (int i = 0; i < size; ++i)
+  for (size_t i = 0; i < connections->count(); ++i)
   {
     const model_ConnectionRef conn = connections[i];
     layout.connect(conn->startFigure(), conn->endFigure());
@@ -1050,12 +1037,12 @@ static workbench_physical_DiagramRef create_view_for_object_count(workbench_phys
 
 int WbModelImpl::createDiagramWithObjects(workbench_physical_ModelRef model, grt::ListRef<GrtObject> objects)
 {
-  int object_count= objects.count();
+  size_t object_count= objects.count();
 
   if (object_count > 0)
   {
     begin_undo_group();
-    workbench_physical_DiagramRef view= create_view_for_object_count(model, object_count);
+    workbench_physical_DiagramRef view = create_view_for_object_count(model, (int)object_count);
 
     do_autoplace_any_list(view, objects);
     ListRef<db_Table> tables(get_grt());
@@ -1081,14 +1068,14 @@ int WbModelImpl::createDiagramWithObjects(workbench_physical_ModelRef model, grt
 
 int WbModelImpl::createDiagramWithCatalog(workbench_physical_ModelRef model, db_CatalogRef catalog)
 {
-  int object_count= 0;
-  ListRef<db_Schema> schemata= catalog->schemata();
-  for (size_t n= 0, count= schemata.count(); n < count; ++n)
+  size_t object_count = 0;
+  ListRef<db_Schema> schemata = catalog->schemata();
+  for (size_t n = 0, count = schemata.count(); n < count; ++n)
   {
-    db_SchemaRef schema= schemata[n];
-    object_count+= schema->tables().count();
-    object_count+= schema->views().count()/3; // views and routine groups
-    object_count+= schema->routineGroups().count()/2; // take less space
+    db_SchemaRef schema = schemata[n];
+    object_count += schema->tables().count();
+    object_count += schema->views().count()/3; // views and routine groups
+    object_count += schema->routineGroups().count()/2; // take less space
   }
   if (object_count > 250)
     throw logic_error("Cannot create diagram: too many objects to place.\nTry dividing your model into several sub-diagrams with less than 200 objects each.");
@@ -1096,7 +1083,7 @@ int WbModelImpl::createDiagramWithCatalog(workbench_physical_ModelRef model, db_
   DictRef wb_options= DictRef::cast_from(get_grt()->get("/wb/options/options"));
   
   begin_undo_group();
-  workbench_physical_DiagramRef diagram= create_view_for_object_count(model, object_count);
+  workbench_physical_DiagramRef diagram = create_view_for_object_count(model, (int)object_count);
 
   for (size_t n= 0, count= schemata.count(); n < count; ++n)
   {
@@ -1378,7 +1365,7 @@ int WbModelImpl::fitObjectsToContents(const grt::ListRef<model_Object> &selectio
     if (selection[i].is_instance<model_Figure>())
     {
       model_FigureRef figure(model_FigureRef::cast_from(selection[i]));
-      int o= *figure->manualSizing();
+      ssize_t o = *figure->manualSizing();
       if (o != 0)
       {
         figure->manualSizing(0);

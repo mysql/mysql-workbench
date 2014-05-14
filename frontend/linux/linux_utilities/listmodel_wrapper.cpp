@@ -967,7 +967,7 @@ void ListModelWrapper::get_value_vfunc(const iterator& iter, int column, Glib::V
       case G_TYPE_INT:
       case G_TYPE_UINT:
         {
-          int iv = 0;
+          ssize_t iv = 0;
           (*_tm)->get_field(node, column, iv);
           set_glib_int(value, iv);
           lmwdprint("LMW::get_value_vfunc: %s: node %s, col %i: value: %i\n", _name.c_str(), node.repr().c_str(), column, iv);
@@ -1044,13 +1044,13 @@ void ListModelWrapper::set_value_impl(const iterator& row, int column, const Gli
           Glib::Value<bool>   v;
           v.init(value.gobj());
           lmwdprint("LMW::set_value_impl:%s node %s, column %i, value %i\n", _name.c_str(), node.repr().c_str(), column, v.get());
-          (*_tm)->set_field(node, column, v.get());
+          (*_tm)->set_field(node, column, (ssize_t)v.get());
           break;
         }
       case G_TYPE_INT:
       case G_TYPE_UINT:
         {
-          Glib::Value<int>   v;
+          Glib::Value<ssize_t>   v;
           v.init(value.gobj());
           lmwdprint("LMW::set_value_impl: node %s, column %i, value %i\n", node.repr().c_str(), column, v.get());
           (*_tm)->set_field(node, column, v.get());

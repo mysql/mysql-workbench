@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,6 @@
 #include <grtpp.h>
 #include "grt/tree_model.h"
 
-
 namespace bec {
   
   class CharsetList : public ListModel {
@@ -33,24 +32,18 @@ namespace bec {
       Name
     };
 
-    virtual int count_children(const NodeId &parent);
-
-    virtual bool get_field(const NodeId &node, int column, std::string &value);
-
-    virtual std::string get_field_description(const NodeId &node, int column);
-
+    virtual size_t count_children(const NodeId &parent);
+    virtual bool get_field(const NodeId &node, ColumnId column, std::string &value);
+    virtual std::string get_field_description(const NodeId &node, ColumnId column);
     void picked_charset(const NodeId &node);
 
   protected:
     grt::GRT *_grt;
     
-    std::list<int> _recently_used;
-
+    std::list<size_t> _recently_used;
     std::string _charset_list_path;
-
   };
   
 };
-
 
 #endif /* _CHARSET_LIST_H_ */

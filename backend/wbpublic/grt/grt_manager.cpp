@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include <grtpp_module_python.h>
 #include <grtpp_module_cpp.h>
 #include <grtpp_module_lua.h>
@@ -898,7 +895,7 @@ long GRTManager::get_app_option_int(const std::string &name, long default_)
 {
   grt::ValueRef value(get_app_option(name));
   if (value.is_valid() && grt::IntegerRef::can_wrap(value))
-    return *grt::IntegerRef::cast_from(value);
+    return (long)*grt::IntegerRef::cast_from(value);
   return default_;
 }
 

@@ -2,33 +2,45 @@
 
 if "%1"=="" goto printUsage
 if "%2"=="" goto printUsage
+if "%3"=="" goto printUsage
+
+if "%3"=="win32" set RELEASE_ARCH=x86
+if "%3"=="win64" set RELEASE_ARCH=x64
+
+if "%RELEASE_ARCH%" == "" goto arch_error
 
 rem Set edition specific variables
-if "%1"=="commercial" set BIN_DIR=..\..\bin\Release
-if "%1"=="commercial" set LICENSE_TYPE=commercial
-if "%1"=="commercial" set SETUP_TYPE=commercial
+if "%1"=="commercial" (
+  set BIN_DIR=..\..\bin\%RELEASE_ARCH%\Release
+  set LICENSE_TYPE=commercial
+  set SETUP_TYPE=commercial
+)
 
-if "%1"=="community" set BIN_DIR=..\..\bin\Release_OSS
-if "%1"=="community" set LICENSE_TYPE=community
-if "%1"=="community" set SETUP_TYPE=community
+if "%1"=="community" (
+  set BIN_DIR=..\..\bin\%RELEASE_ARCH%\Release_OSS
+  set LICENSE_TYPE=community
+  set SETUP_TYPE=community
+)
 
-if "%1"=="debug" set BIN_DIR=..\..\bin\Debug
-if "%1"=="debug" set LICENSE_TYPE=debug
-if "%1"=="debug" set SETUP_TYPE=debug
+if "%1"=="debug" (
+  set BIN_DIR=..\..\bin\%RELEASE_ARCH%\Debug
+  set LICENSE_TYPE=debug
+  set SETUP_TYPE=debug
+)
 
 rem Set version variables
 set VERSION_DETAIL=%2
 for %%A in ("%VERSION_DETAIL%") do set VERSION_MAIN=%%~nA
 
-if "%3"=="" goto no_sign
+if "%4"=="" goto no_sign
 set BUILD_SIGNED=1
 :no_sign
 
 rem Set other variables
 set DIST_DIR=.\distribution
-set UTIL_PATH=..\..\..\mysql-gui-win-res\bin
-set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-win32.msi
-set OUTPUT_FILENAME_UNSIGNED=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-win32-unsigned.msi
+set UTIL_PATH=..\..\..\mysql-win-res\bin
+set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%3.msi
+set OUTPUT_FILENAME_UNSIGNED=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%3-unsigned.msi
 
 if not exist %BIN_DIR% goto ERROR
 if not exist %DIST_DIR% mkdir %DIST_DIR%
@@ -58,7 +70,7 @@ echo .
 
 
 echo Build MSI file...
-nmake /NOLOGO -f Makefile.mak LICENSE_TYPE=%LICENSE_TYPE% SETUP_TYPE=%SETUP_TYPE% all VERSION_MAIN=%VERSION_MAIN% VERSION_DETAIL=%VERSION_DETAIL%
+nmake /NOLOGO -f Makefile.mak LICENSE_TYPE=%LICENSE_TYPE% SETUP_TYPE=%SETUP_TYPE% ARCHITECTURE=%RELEASE_ARCH% all VERSION_MAIN=%VERSION_MAIN% VERSION_DETAIL=%VERSION_DETAIL%
 if errorlevel 1 goto ERROR4
 echo .
 echo MSI file build successfully.
@@ -69,7 +81,7 @@ if "%BUILD_SIGNED%"=="" goto no_sign
 rename mysql_workbench.msi %OUTPUT_FILENAME%
 if exist %DIST_DIR%\%OUTPUT_FILENAME% del %DIST_DIR%\%OUTPUT_FILENAME% 1> nul 2> nul
 copy /y %OUTPUT_FILENAME% %DIST_DIR%\%OUTPUT_FILENAME_UNSIGNED%
-java -Xmx1024m -jar %UTIL_PATH%\Client.jar -user %3 -pass %4 -file_to_sign %OUTPUT_FILENAME% -signed_location %DIST_DIR%
+java -Xmx1024m -jar %UTIL_PATH%\Client.jar -user %4 -pass %5 -file_to_sign %OUTPUT_FILENAME% -signed_location %DIST_DIR%
 if not exist %DIST_DIR%\%OUTPUT_FILENAME% goto sign_error
 goto make_md5
 :no_sign
@@ -93,7 +105,7 @@ EXIT /B 0
 
 
 :ERROR
-echo Error: You have to provide a build in the %BIN_DIR% directory
+echo Error: %BIN_DIR% folder not found. Check the path and make sure it contains a valid build.
 EXIT /B 1
 
 :ERROR2
@@ -112,18 +124,23 @@ EXIT /B 1
 echo Error: Signig the setup-files failed. Error messages should have been provided above.
 EXIT /B 1
 
+:arch_error
+echo Error: the given architecture (%3) is not valid. It must either be win32 or win64.
+EXIT /B 1
+
 :printUsage
-echo MakeSetup Version 2.0.0
+echo MakeSetup Version 2.1
 echo Usage:
 echo .
-echo %0 EDITION VERSION [SIGN_USER SIGN_PASS]
+echo %0 EDITION VERSION ARCHITECTURE [SIGN_USER SIGN_PASS]
 echo .
 echo   EDITION can be commercial, community or debug (commercial only)
 echo   VERSION has to be a 3 number version code
+echo   ARCHITECTURE has to be either win32 or win64
 echo .
 echo   Examples:
-echo   %0 community 6.0.8
-echo   %0 commercial 6.0.8 no
+echo   %0 community 6.2.0 win64 
+echo   %0 commercial 6.2.0 win32 user pass
 echo .
 echo To sign msi provide login and password for Oracle Corporate Code Signing tool
 

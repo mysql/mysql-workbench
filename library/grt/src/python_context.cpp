@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
- 
-#include "stdafx.h"
-
 #include "python_context.h"
 #include "grtpp.h"
 #include "grtpp_util.h"
@@ -32,8 +29,8 @@
 
 // python internals
 #include <node.h>
-#include <grammar.h>
-#include <parsetok.h>
+//#include <grammar.h>
+//#include <parsetok.h>
 #include <errcode.h>
 #include <token.h>
 
@@ -42,6 +39,7 @@
 #include "python_grtdict.h"
 
 #include "base/log.h"
+
 DEFAULT_LOG_DOMAIN("python context")
 
 using namespace grt;
@@ -64,11 +62,11 @@ static std::string flatten_class_name(std::string name)
   return name;
 }
 
-PythonContext::PythonContext(GRT *grt, const std::string &module_path)
-: _grt(grt)
+//--------------------------------------------------------------------------------------------------
+
+PythonContextHelper::PythonContextHelper(const std::string &module_path)
 {
-  PyObject *main;
-  static const char *argv[2]= { "/dev/null" , NULL };
+  static const char *argv[2] = { "/dev/null", NULL };
 
   if (getenv("PYTHON_DEBUG"))
     Py_VerboseFlag = 5;
@@ -97,7 +95,7 @@ PythonContext::PythonContext(GRT *grt, const std::string &module_path)
   }
 
   putenv(g_strdup_printf("PYTHONHOME=%s\\Python", module_path.c_str()));
-  putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip", 
+  putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip",
     module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str()));
   //putenv("PYTHONHOME=C:\\nowhere");
 #endif
@@ -105,11 +103,28 @@ PythonContext::PythonContext(GRT *grt, const std::string &module_path)
 
   // Stores the main thread state
   _main_thread_state = PyThreadState_Get();
- 
+
   PySys_SetArgv(1, (char**)argv);
 
   PyEval_InitThreads();
+}
 
+//--------------------------------------------------------------------------------------------------
+
+PythonContextHelper::~PythonContextHelper()
+{
+  PyEval_RestoreThread(_main_thread_state);
+  _main_thread_state = NULL;
+
+  Py_Finalize();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+PythonContext::PythonContext(GRT *grt, const std::string &module_path)
+: PythonContextHelper(module_path)
+{
+  _grt = grt;
   _grt_list_class= 0;
   _grt_dict_class= 0;
   _grt_object_class= 0;
@@ -117,7 +132,7 @@ PythonContext::PythonContext(GRT *grt, const std::string &module_path)
   
   register_grt_module();
   
-  main= PyImport_AddModule("__main__");
+  PyObject *main = PyImport_AddModule("__main__");
   PyDict_SetItemString(PyModule_GetDict(main),
                        "grt", PyImport_ImportModule("grt"));
 
@@ -152,15 +167,6 @@ PythonContext::~PythonContext()
 {
   GRTNotificationCenter::get()->remove_grt_observer(this);
   NotificationCenter::get()->remove_observer(this);
-
-  PyEval_RestoreThread(_main_thread_state);
-  _main_thread_state = NULL;
-
-  // This causes deadlocks in Windows during shutdown, probably because some thread is not
-  // closed correctly.. remove the ifdefs once it's fixed
-#if !defined(_WIN32) || defined(_DEBUG)
-  Py_Finalize();
-#endif
 }
 
 
@@ -1387,11 +1393,14 @@ PyObject *PythonContext::from_grt(const ValueRef &value)
     {
       case IntegerType:
       {
+        /*
         long l = *IntegerRef::cast_from(value);
         if ((long)(int)l == l)
           return PyInt_FromLong(l);
         else
           return PyLong_FromLong(l);
+          */
+        return PyInt_FromSsize_t(*IntegerRef::cast_from(value));
       }
 
       case DoubleType:

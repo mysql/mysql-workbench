@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include <stack>
 
@@ -99,16 +97,16 @@ std::string OverviewBE::get_title()
 }
 
 
-NodeId OverviewBE::get_child(const NodeId &parent, int index)
+NodeId OverviewBE::get_child(const NodeId &parent, size_t index)
 {
-  if (!parent.is_valid() && index >= 0 && index < count_children(parent))
+  if (!parent.is_valid() && index < count_children(parent))
     return index;
 
   return NodeId(parent).append(index);
 }
 
 
-int OverviewBE::count_children(const NodeId &parent)
+size_t OverviewBE::count_children(const NodeId &parent)
 {
   if (!_root_node)
     return 0;
@@ -139,13 +137,13 @@ bec::NodeId OverviewBE::get_node_child_for_object(const bec::NodeId &node, const
   {
     Node *ch= n->get_child(i);
     if (ch && ch->object == object)
-      return get_child(node, i);
+      return get_child(node, (int)i);
   }
   return NodeId();
 }
 
 
-bool OverviewBE::get_field(const NodeId &node, int column, std::string &value)
+bool OverviewBE::get_field(const NodeId &node, ColumnId column, std::string &value)
 {
   Node *n= get_node(node);
   if (!n)
@@ -166,7 +164,7 @@ bool OverviewBE::get_field(const NodeId &node, int column, std::string &value)
   default:
     if (column >= FirstDetailField)
     {
-      value= n->get_detail(column-FirstDetailField);
+      value= n->get_detail((int)column-FirstDetailField);
       return true;
     }
   }
@@ -174,7 +172,7 @@ bool OverviewBE::get_field(const NodeId &node, int column, std::string &value)
 }
 
 
-grt::ValueRef OverviewBE::get_grt_value(const NodeId &node, int column)
+grt::ValueRef OverviewBE::get_grt_value(const NodeId &node, ColumnId column)
 {
   Node *n= get_node(node);
   if (n)
@@ -183,9 +181,9 @@ grt::ValueRef OverviewBE::get_grt_value(const NodeId &node, int column)
 }
 
 
-bool OverviewBE::get_field(const NodeId &node, int column, int &value)
+bool OverviewBE::get_field(const NodeId &node, ColumnId column, ssize_t &value)
 {
-  Node *n= get_node(node);
+  Node *n = get_node(node);
   if (!n)
     return false;
 
@@ -202,12 +200,12 @@ bool OverviewBE::get_field(const NodeId &node, int column, int &value)
     }
     else
     {
-      value= -1;
+      value = -1;
       return false;
     }
 
   case NodeType:
-    value= (int)n->type;
+    value = (ssize_t)n->type;
     return true;
 
   case Expanded:
@@ -219,7 +217,7 @@ bool OverviewBE::get_field(const NodeId &node, int column, int &value)
     return false;
 
   case DisplayMode:
-    value= (int)n->display_mode;
+    value = (ssize_t)n->display_mode;
     return true;
 
   default:
@@ -239,17 +237,17 @@ int OverviewBE::get_details_field_count(const bec::NodeId &node)
 }
 
 
-std::string OverviewBE::get_field_name(const bec::NodeId &node, int column)
+std::string OverviewBE::get_field_name(const bec::NodeId &node, ColumnId column)
 {
   ContainerNode *n= dynamic_cast<ContainerNode*>(get_node(node));
   if (!n)
     return "";
 
-  return n->get_detail_name(column-FirstDetailField);
+  return n->get_detail_name((int)column-FirstDetailField);
 }
 
 
-bool OverviewBE::set_field(const NodeId &node, int column, const std::string &value)
+bool OverviewBE::set_field(const NodeId &node, ColumnId column, const std::string &value)
 {
   Node *n= get_node(node);
   if (!n)
@@ -281,7 +279,7 @@ bool OverviewBE::set_field(const NodeId &node, int column, const std::string &va
 }
 
   
-std::string OverviewBE::get_field_description(const NodeId &node, int column)
+std::string OverviewBE::get_field_description(const NodeId &node, ColumnId column)
 {
   Node *n= get_node(node);
   if (!n)
@@ -291,7 +289,7 @@ std::string OverviewBE::get_field_description(const NodeId &node, int column)
 }
 
 
-IconId OverviewBE::get_field_icon(const NodeId &node, int column, bec::IconSize size)
+IconId OverviewBE::get_field_icon(const NodeId &node, ColumnId column, bec::IconSize size)
 {
   Node *n= get_node(node);
   if (!n)
@@ -308,18 +306,17 @@ IconId OverviewBE::get_field_icon(const NodeId &node, int column, bec::IconSize 
 OverviewBE::Node *OverviewBE::do_get_node(const NodeId &node) const
 {
   Node *n= 0;
-  int i;
-
+  size_t i;
   if (!node.is_valid())
     return _root_node;
 
-  if (!_root_node || node[0] >= (int)_root_node->children.size())
+  if (!_root_node || node[0] >= _root_node->children.size())
     return 0;
 
-  for (i= 1, n= _root_node->children[node[0]]; i < node.depth(); i++)
+  for (i= 1, n = _root_node->children[node[0]]; i < node.depth(); i++)
   {
     if (n)
-      n= n->get_child(node[i]);
+      n = n->get_child(node[i]);
     else
     {
       g_warning("OverviewBE::get_node: invalid node %s", node.repr().c_str());
@@ -355,16 +352,16 @@ bec::NodeId OverviewBE::search_child_item_node_matching(const bec::NodeId &node,
 {
   bec::NodeId start_node= node;
   bec::NodeId parent;
-  int start;
-  gchar *tmp= g_utf8_strdown(text.c_str(), text.size());
+  size_t start;
+  gchar *tmp= g_utf8_strdown(text.c_str(), (gssize)text.size());
   std::string lower_text= tmp;
   g_free(tmp);
   
   if (starting_node.is_valid())
   {
-    start_node= starting_node;
-    start= start_node.end()+1;
-    parent= get_parent(start_node);
+    start_node = starting_node;
+    start = start_node.end() + 1;
+    parent = get_parent(start_node);
   }
   else
   {
@@ -374,11 +371,11 @@ bec::NodeId OverviewBE::search_child_item_node_matching(const bec::NodeId &node,
   
   do
   {
-    for (int i= start; i < count_children(parent); i++)
+    for (size_t i = start; i < count_children(parent); i++)
     {
       std::string label;
       bec::NodeId child(get_child(parent, i));
-      int type;
+      ssize_t type;
       
       get_field(child, NodeType, type);
       
@@ -386,7 +383,7 @@ bec::NodeId OverviewBE::search_child_item_node_matching(const bec::NodeId &node,
       {
         get_field(child, Label, label);
         
-        tmp= g_utf8_strdown(label.c_str(), label.size());
+        tmp= g_utf8_strdown(label.c_str(), (gssize)label.size());
         if (strstr(tmp, lower_text.c_str()))
         {
           g_free(tmp);
@@ -407,8 +404,8 @@ bec::NodeId OverviewBE::search_child_item_node_matching(const bec::NodeId &node,
     
     if (parent.is_valid())
     {
-      start= parent.end()+1;
-      parent= get_parent(parent);
+      start = parent.end() + 1;
+      parent = get_parent(parent);
     }
     else
       break;
@@ -595,10 +592,11 @@ bec::NodeId OverviewBE::get_focused_child(const bec::NodeId &node)
   ContainerNode *parent= dynamic_cast<ContainerNode*>(get_node(node));
   if (parent && parent->focused)
   {
-    int i= std::find(parent->children.begin(), parent->children.end(), parent->focused) - parent->children.begin();
+    size_t i = std::find(parent->children.begin(), parent->children.end(), parent->focused) - parent->children.begin();
 
-    if (i >= 0)
-      return NodeId(node).append(i);
+    // std::find returns .end() if nothing is found, hence the difference would be the list size in that case.
+    if (i < parent->children.size())
+      return NodeId(node).append((int)i);
   }
   return bec::NodeId();
 }

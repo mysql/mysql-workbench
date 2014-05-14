@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include <grts/structs.workbench.physical.h>
 #include <grts/structs.workbench.h>
@@ -52,7 +50,7 @@ workbench_physical_Model::~workbench_physical_Model()
 }
 
 
-model_DiagramRef workbench_physical_Model::addNewDiagram(long int defer_realize)
+model_DiagramRef workbench_physical_Model::addNewDiagram(ssize_t defer_realize)
 {  
   grt::AutoUndo undo(get_grt(), !is_global());
 

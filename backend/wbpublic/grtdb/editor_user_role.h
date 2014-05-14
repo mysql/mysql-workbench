@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
+
 #ifndef _EDITOR_USER_ROLE_H_
 #define _EDITOR_USER_ROLE_H_
 
@@ -25,9 +26,6 @@
 #include "grts/structs.db.h"
 
 #include "wbpublic_public_interface.h"
-
-#define UserRoleEditorBE_VERSION 1
-
 
 namespace bec {
 
@@ -45,18 +43,18 @@ namespace bec {
 
     virtual void refresh();
 
-    virtual int count();
+    virtual size_t count();
 
     void remove_all();
 
-    virtual bool set_field(const NodeId &node, int column, int value);
+    virtual bool set_field(const NodeId &node, ColumnId column, ssize_t value);
 
   protected:
     RoleEditorBE *_owner;
     db_RolePrivilegeRef _role_privilege;
     grt::StringListRef _privileges;
 
-    virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
+    virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
   };
 
   //!
@@ -75,7 +73,7 @@ namespace bec {
     void set_selected_node(const NodeId &node);
     db_RolePrivilegeRef get_selected_object_info();
 
-    virtual int count();
+    virtual size_t count();
     virtual void refresh() {};
 
     virtual MenuItemList get_popup_items_for_nodes(const std::vector<NodeId> &nodes);
@@ -85,8 +83,8 @@ namespace bec {
     RoleEditorBE *_owner;
     NodeId _selection;
 
-    virtual IconId get_field_icon(const NodeId &node, int column, IconSize size);
-    virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
+    virtual IconId get_field_icon(const NodeId &node, ColumnId column, IconSize size);
+    virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
   };
   
   //!

@@ -43,11 +43,11 @@
 
   #ifndef strcasecmp
     #define strcasecmp _stricmp
-    #define strncasecmp strnicmp
+    #define strncasecmp _strnicmp
   #endif
 
   #ifndef snprintf
-    #define HAVE_SNPRINTF // For python libs.
+    #define HAVE_SNPRINTF 1 // For python libs.
     #define snprintf _snprintf_s
   #endif
 

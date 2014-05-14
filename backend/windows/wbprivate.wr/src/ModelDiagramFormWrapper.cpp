@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "mforms/treenodeview.h"
 
 #include "workbench/wb_context.h"
@@ -223,7 +221,7 @@ bool ModelDiagramFormWrapper::is_closed()
 
 void ModelDiagramFormWrapper::setup_mini_view(BaseWindowsCanvasView^ view)
 {
-  // Ownership of the given view remains with the caller, which is reponsible for freeing it.
+  // Ownership of the given view remains with the caller, which is responsible for freeing it.
   mini_view= view;
   get_unmanaged_object()->setup_mini_view(mini_view->get_unmanaged_object());
 }

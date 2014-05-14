@@ -1,4 +1,22 @@
-#include "stdafx.h"
+/*
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License as
+* published by the Free Software Foundation; version 2 of the
+* License.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+* 02110-1301  USA
+*/
+
 #include "db_mysql_params.h"
 #include "grtpp_util.h"
 #include "grt/grt_manager.h"
@@ -34,7 +52,7 @@ EngineId engine_id_by_name(const char* name)
   EngineIdByNameMap::iterator iter= get_map().begin();
   for (; iter != get_map().end(); ++iter) 
   {
-    if (!stricmp(name, iter->second.c_str()))
+    if (!strcasecmp(name, iter->second.c_str()))
       return iter->first;
   }
 
@@ -57,10 +75,10 @@ db_mysql_StorageEngineRef engine_by_name(const char* engineName, grt::GRT* grt)
   {
     grt::ListRef<db_mysql_StorageEngine> engines= get_known_engines(grt);
 
-    for (unsigned int i= 0, count= engines.count(); i < count; i++)
+    for (size_t i = 0, count= engines.count(); i < count; i++)
     {
       db_mysql_StorageEngineRef engine= engines.get(i);
-      if (!stricmp(engine->name().c_str(), engineName))
+      if (!strcasecmp(engine->name().c_str(), engineName))
         return engine;
     }
 
@@ -88,22 +106,21 @@ bool is_word_reserved(const char* str, grt::GRT* grt)
 {
   bool ret = false;
   static grt::StringListRef reserved_words;
-  static std::vector<int> lengths;
+  static std::vector<size_t> lengths;
   if (!reserved_words.is_valid())
   {
     reserved_words= grt::StringListRef::cast_from(grt->unserialize(bec::make_path(bec::GRTManager::get_instance_for(grt)->get_basedir(), "modules/data/mysql_reserved.xml")));
-    for (unsigned int i= 0, count= reserved_words.count(); i < count; i++)
+    for (size_t i= 0, count= reserved_words.count(); i < count; i++)
       lengths.push_back(strlen(reserved_words.get(i).c_str()));
   }
 
   if ( str )
   {
-    const int str_len = strlen(str);
-    static const int count = reserved_words.count();
-    for (int i = 0; i < count; i++)
+    size_t str_len = strlen(str);
+    for (size_t i = 0; i < reserved_words.count(); i++)
     {
       // TODO create and use hash here
-      if (!stricmp(reserved_words.get(i).c_str(), str))
+      if (!strcasecmp(reserved_words.get(i).c_str(), str))
       {
         if ( str_len == lengths[i] ) 
           ret = true;

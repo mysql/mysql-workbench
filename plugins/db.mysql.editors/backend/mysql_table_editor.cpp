@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "mysql_table_editor.h"
 #include "grt/grt_dispatcher.h"
 #include "grtdb/db_object_helpers.h"
@@ -37,7 +35,7 @@ MySQLTableColumnsListBE::MySQLTableColumnsListBE(MySQLTableEditorBE *owner)
 {
 }
 
-bool MySQLTableColumnsListBE::set_field(const NodeId &node, int column, const std::string &value)
+bool MySQLTableColumnsListBE::set_field(const NodeId &node, ColumnId column, const std::string &value)
 {
   db_mysql_ColumnRef col;
 
@@ -78,7 +76,7 @@ bool MySQLTableColumnsListBE::set_field(const NodeId &node, int column, const st
   return TableColumnsListBE::set_field(node, column, value);
 }
 
-bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, int column, int value)
+bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, ColumnId column, ssize_t value)
 {
   db_mysql_ColumnRef col;
   
@@ -167,7 +165,7 @@ bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, int column, i
   return TableColumnsListBE::set_field(node, column, value);
 }
 
-bool MySQLTableColumnsListBE::get_field_grt(const ::bec::NodeId &node, int column, grt::ValueRef &value)
+bool MySQLTableColumnsListBE::get_field_grt(const ::bec::NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   db_mysql_ColumnRef col;
   
@@ -984,7 +982,7 @@ std::string MySQLTableEditorBE::get_all_triggers_sql() const
 
   grt::ListRef<db_mysql_Trigger> triggers= _table->triggers();
   size_t triggers_count= triggers.count();
-  typedef std::map<int, db_mysql_TriggerRef> OrderedTriggers;
+  typedef std::map<ssize_t, db_mysql_TriggerRef> OrderedTriggers;
   typedef std::list<db_mysql_TriggerRef> UnorderedTriggers;
   OrderedTriggers ordered_triggers;
   UnorderedTriggers unordered_triggers; // triggers with duplicated sequence number. to upgrade old models smoothly, where sequence numbers are 0.
@@ -992,7 +990,7 @@ std::string MySQLTableEditorBE::get_all_triggers_sql() const
   for (size_t i= 0; i < triggers_count; ++i)
   {
     db_mysql_TriggerRef trigger= triggers.get(i);
-    int sequenceNumber= trigger->sequenceNumber();
+    ssize_t sequenceNumber= trigger->sequenceNumber();
     if (ordered_triggers.find(sequenceNumber) == ordered_triggers.end())
       ordered_triggers[sequenceNumber]= trigger;
     else
@@ -1062,8 +1060,8 @@ bool MySQLTableEditorBE::set_partition_type(const std::string &type)
       if (table()->partitionCount() == 0)
         table()->partitionCount(1);
       if (get_explicit_partitions())
-        reset_partition_definitions(table()->partitionCount(), 
-          get_explicit_subpartitions() ? *table()->subpartitionCount() : 0);
+        reset_partition_definitions((int)table()->partitionCount(), 
+        get_explicit_subpartitions() ? (int)*table()->subpartitionCount() : 0);
       update_change_date();
       undo.end(strfmt(_("Change Partition Type for '%s'"), get_name().c_str()));
       return true;
@@ -1079,7 +1077,7 @@ bool MySQLTableEditorBE::set_partition_type(const std::string &type)
       table()->subpartitionExpression("");
       table()->subpartitionType("");
       if (get_explicit_partitions())
-        reset_partition_definitions(table()->partitionCount(), 0);
+        reset_partition_definitions((int)table()->partitionCount(), 0);
       update_change_date();
       undo.end(strfmt(_("Change Partition Type for '%s'"), get_name().c_str()));
       return true;
@@ -1120,8 +1118,8 @@ void MySQLTableEditorBE::set_partition_count(int count)
   else
     table()->partitionCount(1);
   if (get_explicit_partitions())
-    reset_partition_definitions(table()->partitionCount(), 
-                              get_explicit_partitions() ? *table()->subpartitionCount() : 0);
+    reset_partition_definitions((int)table()->partitionCount(),
+    get_explicit_partitions() ? (int)*table()->subpartitionCount() : 0);
   update_change_date();
   undo.end(strfmt(_("Set Partition Count for '%s'"), get_name().c_str()));
 }
@@ -1129,7 +1127,7 @@ void MySQLTableEditorBE::set_partition_count(int count)
 
 int MySQLTableEditorBE::get_partition_count()
 {
-  return *table()->partitionCount();
+  return (int)*table()->partitionCount();
 }
 
 
@@ -1189,7 +1187,7 @@ void MySQLTableEditorBE::set_subpartition_count(int count)
     AutoUndoEdit undo(this);
     table()->subpartitionCount(count);
     if (get_explicit_subpartitions())
-      reset_partition_definitions(table()->partitionCount(), table()->subpartitionCount());
+      reset_partition_definitions((int)table()->partitionCount(), (int)table()->subpartitionCount());
     update_change_date();
     undo.end(strfmt(_("Set Subpartition Count for '%s'"), get_name().c_str()));
   }
@@ -1198,7 +1196,7 @@ void MySQLTableEditorBE::set_subpartition_count(int count)
 
 int MySQLTableEditorBE::get_subpartition_count()
 {
-  return *table()->subpartitionCount();
+  return (int)*table()->subpartitionCount();
 }
 
 
@@ -1213,7 +1211,7 @@ void MySQLTableEditorBE::set_explicit_partitions(bool flag)
       {
         table()->partitionCount(2);
       }
-      reset_partition_definitions(table()->partitionCount(), table()->subpartitionCount());
+      reset_partition_definitions((int)table()->partitionCount(), (int)table()->subpartitionCount());
     }
     else
       reset_partition_definitions(0, 0);
@@ -1238,10 +1236,10 @@ void MySQLTableEditorBE::set_explicit_subpartitions(bool flag)
         {
           table()->subpartitionCount(2);
         }
-        reset_partition_definitions(table()->partitionCount(), table()->subpartitionCount());
+        reset_partition_definitions((int)table()->partitionCount(), (int)table()->subpartitionCount());
       }
       else
-        reset_partition_definitions(table()->partitionCount(), 0);
+        reset_partition_definitions((int)table()->partitionCount(), 0);
       update_change_date();
       undo.end(flag ? 
         strfmt(_("Manually Define SubPartitions for '%s'"), get_name().c_str()) :
@@ -1391,7 +1389,7 @@ MySQLTablePartitionTreeBE::MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner)
 }
 
 
-bool MySQLTablePartitionTreeBE::set_field(const NodeId &node, int column, const std::string &value)
+bool MySQLTablePartitionTreeBE::set_field(const NodeId &node, ColumnId column, const std::string &value)
 {
   db_mysql_PartitionDefinitionRef pdef(get_definition(node));
 
@@ -1489,7 +1487,7 @@ bool MySQLTablePartitionTreeBE::set_field(const NodeId &node, int column, const 
 }
 
 
-bool MySQLTablePartitionTreeBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool MySQLTablePartitionTreeBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   db_mysql_PartitionDefinitionRef pdef(get_definition(node));
 
@@ -1531,7 +1529,7 @@ bool MySQLTablePartitionTreeBE::get_field_grt(const NodeId &node, int column, gr
 }
 
 
-grt::Type MySQLTablePartitionTreeBE::get_field_type(const NodeId &node, int column)
+grt::Type MySQLTablePartitionTreeBE::get_field_type(const NodeId &node, ColumnId column)
 {
   return grt::StringType;
 }
@@ -1541,16 +1539,16 @@ db_mysql_PartitionDefinitionRef MySQLTablePartitionTreeBE::get_definition(const 
 {
   if (node.depth() == 1)
   {
-    if (node[0] < (int)_owner->table()->partitionDefinitions().count())
+    if (node[0] < _owner->table()->partitionDefinitions().count())
       return _owner->table()->partitionDefinitions()[node[0]];
   }
   else if (node.depth() == 2)
   {
-    if (node[0] < (int)_owner->table()->partitionDefinitions().count())
+    if (node[0] < _owner->table()->partitionDefinitions().count())
     {
       db_mysql_PartitionDefinitionRef def(_owner->table()->partitionDefinitions()[node[0]]);
 
-      if (node[1] < (int)def->subpartitionDefinitions().count())
+      if (node[1] < def->subpartitionDefinitions().count())
         return def->subpartitionDefinitions()[node[1]];
     }
   }
@@ -1559,7 +1557,7 @@ db_mysql_PartitionDefinitionRef MySQLTablePartitionTreeBE::get_definition(const 
 
 
 
-int MySQLTablePartitionTreeBE::count_children(const NodeId &parent)
+size_t MySQLTablePartitionTreeBE::count_children(const NodeId &parent)
 {
   if (parent.depth() == 1)
   {
@@ -1569,13 +1567,13 @@ int MySQLTablePartitionTreeBE::count_children(const NodeId &parent)
       return (int)def->subpartitionDefinitions().count();
   }
   else if (parent.depth() == 0)
-    return _owner->table()->partitionDefinitions().count();
+    return (int)_owner->table()->partitionDefinitions().count();
 
   return 0;
 }
 
 
-NodeId MySQLTablePartitionTreeBE::get_child(const NodeId &parent, int index)
+NodeId MySQLTablePartitionTreeBE::get_child(const NodeId &parent, size_t index)
 {
   if (count_children(parent) > index)
     return NodeId(parent).append(index);
@@ -1592,7 +1590,7 @@ MySQLTableIndexListBE::MySQLTableIndexListBE(MySQLTableEditorBE *owner)
 }
 
 
-bool MySQLTableIndexListBE::set_field(const NodeId &node, int column, const std::string &value)
+bool MySQLTableIndexListBE::set_field(const NodeId &node, ColumnId column, const std::string &value)
 {
   if (!index_editable(get_selected_index()))
     return IndexListBE::set_field(node, column, value);
@@ -1634,7 +1632,7 @@ bool MySQLTableIndexListBE::set_field(const NodeId &node, int column, const std:
 }
 
 
-bool MySQLTableIndexListBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool MySQLTableIndexListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   if ( node.is_valid() )
   {

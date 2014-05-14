@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "tut_stdafx.h"
 
 #include "wb_helpers.h"
 #include "model/wb_history_tree.h"
@@ -121,7 +119,7 @@ TEST_FUNCTION(3) // Table (general)
   std::vector<std::string> collations(be->get_charset_collation_list());
   if ( collations.size() > 2 )
   {
-    int new_coll_idx = collations.size() / 2;
+    size_t new_coll_idx = collations.size() / 2;
     if ( collations[new_coll_idx] != old_value )
     {
       be->set_table_option_by_name("CHARACTER SET - COLLATE", collations[new_coll_idx]);
@@ -141,7 +139,7 @@ TEST_FUNCTION(3) // Table (general)
   std::vector<std::string> engines(be->get_engines_list());
   if ( engines.size() > 2 )
   {
-    int new_eng_idx = engines.size() / 2;
+    size_t new_eng_idx = engines.size() / 2;
     if ( engines[new_eng_idx] != old_value )
     {
       be->set_table_option_by_name("ENGINE", engines[new_eng_idx]);
@@ -250,13 +248,13 @@ TEST_FUNCTION(8) // Table (column NN change)
   bec::TableColumnsListBE* cols = be->get_columns();
 
   // Change NN, get original flag and revert it
-  int nn = -1;
+  ssize_t nn = -1;
   cols->get_field(bec::NodeId(0), MySQLTableColumnsListBE::IsNotNull, nn);
   cols->set_field(bec::NodeId(0), MySQLTableColumnsListBE::IsNotNull, !nn);
   check_only_one_undo_added();
   
   // get value and check that it was changed, they should match
-  int nn2 = -1;  
+  ssize_t nn2 = -1;  
   cols->get_field(bec::NodeId(0), MySQLTableColumnsListBE::IsNotNull, nn2);
   ensure("NN was not set", nn2 == !nn);
 
@@ -332,7 +330,7 @@ TEST_FUNCTION(12) // Table (index rename)
   
   // Rename
   MySQLTableIndexListBE* indices = be->get_indexes();
-  indices->set_field(bec::NodeId(nidx), bec::IndexListBE::Name, "idx_new");
+  indices->set_field(bec::NodeId((int)nidx), bec::IndexListBE::Name, "idx_new");
   check_only_one_undo_added();
   check_undo();
   ensure("Index rename undo failed", table->indices()[nidx]->name() == "idx");
@@ -351,7 +349,7 @@ TEST_FUNCTION(13) // Table (index remove)
   check_only_one_undo_added();
 
   // Remove
-  be->remove_index(bec::NodeId(nidx), false);
+  be->remove_index(bec::NodeId((int)nidx), false);
   check_only_one_undo_added();
   check_undo();
   ensure("Index removal undo failed", table->indices().count() == nidx+1);
@@ -374,9 +372,9 @@ TEST_FUNCTION(14) // Table (index type change)
   
   MySQLTableIndexListBE *indices = be->get_indexes();
   
-  indices->select_index(bec::NodeId(nidx));
+  indices->select_index(bec::NodeId((int)nidx));
 
-  indices->set_field(bec::NodeId(nidx), bec::IndexListBE::Type, "FULLTEXT");
+  indices->set_field(bec::NodeId((int)nidx), bec::IndexListBE::Type, "FULLTEXT");
   check_only_one_undo_added();
   check_undo();
   ensure("Index type change undo failed", table->indices()[nidx]->indexType() == "INDEX");
@@ -396,10 +394,10 @@ TEST_FUNCTION(15) // Table (index storage change)
   
   MySQLTableIndexListBE *indices = be->get_indexes();
   
-  indices->select_index(bec::NodeId(nidx));
+  indices->select_index(bec::NodeId((int)nidx));
 
   // Change Storage Type
-  indices->set_field(bec::NodeId(nidx), MySQLTableIndexListBE::StorageType, "RTREE");
+  indices->set_field(bec::NodeId((int)nidx), MySQLTableIndexListBE::StorageType, "RTREE");
   check_only_one_undo_added();
   check_undo();
   ensure("Index storage type change undo failed", table->indices()[nidx]->indexKind() == "");
@@ -418,13 +416,13 @@ TEST_FUNCTION(16) // Table (index column add)
   check_only_one_undo_added();
   
   MySQLTableIndexListBE *indices = be->get_indexes();
-  indices->select_index(bec::NodeId(nidx));
+  indices->select_index(bec::NodeId((int)nidx));
 
   bec::IndexColumnsListBE *icols = indices->get_columns();
   icols->set_column_enabled(bec::NodeId(icols->count() - 1), true);
   check_only_one_undo_added();
   check_undo();
-  ensure("Undo adding column to index failed", 0 == icols->get_column_enabled(bec::NodeId(bec::NodeId(table->columns().count() - 1))));
+  ensure("Undo adding column to index failed", 0 == icols->get_column_enabled(bec::NodeId(bec::NodeId((int)table->columns().count() - 1))));
   check_redo();
   check_undo();
 
@@ -462,7 +460,7 @@ TEST_FUNCTION(18) // Table (fk remove)
   be->add_fk("fk1");
   check_only_one_undo_added();
   ensure_equals("FK was added", nfks+1, table->foreignKeys().count());
-  be->remove_fk(bec::NodeId(nfks));
+  be->remove_fk(bec::NodeId((int)nfks));
   check_only_one_undo_added();
   ensure_equals("FK was removed", nfks, table->foreignKeys().count());
   check_undo();  
@@ -482,7 +480,7 @@ TEST_FUNCTION(19) // Table (fk rename)
   be->add_fk("fk1");
   check_only_one_undo_added();
   
-  fks->set_field(bec::NodeId(nfks), bec::FKConstraintListBE::Name, "fk_new");
+  fks->set_field(bec::NodeId((int)nfks), bec::FKConstraintListBE::Name, "fk_new");
   check_only_one_undo_added();
   check_undo();
   ensure("Index rename undo failed", table->foreignKeys()[nfks]->name() == "fk1");
@@ -503,9 +501,9 @@ TEST_FUNCTION(20) // Table (fk set ref table)
 
   be->add_fk("fk1");
   check_only_one_undo_added();
-  fks->select_fk(bec::NodeId(nfks));
+  fks->select_fk(bec::NodeId((int)nfks));
   
-  fks->set_field(bec::NodeId(nfks), bec::FKConstraintListBE::RefTable, "table2");
+  fks->set_field(bec::NodeId((int)nfks), bec::FKConstraintListBE::RefTable, "table2");
   check_only_one_undo_added();
   ensure("FK ref table was not set",  fks->get_selected_fk()->referencedTable()->name() == "table2");
   check_undo();
@@ -524,9 +522,9 @@ TEST_FUNCTION(21) // Table (fk set ref column)
 
   be->add_fk("fk1");
   check_only_one_undo_added();
-  fks->select_fk(bec::NodeId(nfks));
+  fks->select_fk(bec::NodeId((int)nfks));
   
-  fks->set_field(bec::NodeId(nfks), bec::FKConstraintListBE::RefTable, "table2");
+  fks->set_field(bec::NodeId((int)nfks), bec::FKConstraintListBE::RefTable, "table2");
   check_only_one_undo_added();
   ensure("FK ref table was not set",  fks->get_selected_fk()->referencedTable()->name() == "table2");
 

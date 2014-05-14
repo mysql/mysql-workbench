@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "mforms/mforms.h"
 
@@ -51,7 +49,7 @@ void ListBox::set_heading(const std::string &text)
 
 //--------------------------------------------------------------------------------------------------
 
-int ListBox::add_item(const std::string &item)
+size_t ListBox::add_item(const std::string &item)
 {
   return _listbox_impl->add_item(this, item);
 }
@@ -65,21 +63,21 @@ void ListBox::add_items(const std::list<std::string> &items)
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::remove_index(int index)
+void ListBox::remove_index(size_t index)
 {
   _listbox_impl->remove_index(this, index);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::remove_indexes(const std::vector<int> &indexes)
+void ListBox::remove_indexes(const std::vector<size_t> &indexes)
 {
   _listbox_impl->remove_indexes(this, indexes);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBox::set_selected(int index)
+void ListBox::set_selected(ssize_t index)
 {
   _updating= true;
   _listbox_impl->set_index(this, index);
@@ -95,14 +93,14 @@ std::string ListBox::get_string_value()
 
 //--------------------------------------------------------------------------------------------------
 
-int ListBox::get_selected_index()
+ssize_t ListBox::get_selected_index()
 {
   return _listbox_impl->get_index(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<int> ListBox::get_selected_indices()
+std::vector<size_t> ListBox::get_selected_indices()
 {
   return _listbox_impl->get_selected_indices(this);
 }

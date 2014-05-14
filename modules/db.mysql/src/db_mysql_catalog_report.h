@@ -16,8 +16,8 @@
 #include "grt/common.h"
 
 #include "module_db_mysql.h"
-#include "diffchange.h"
-#include "grtdiff.h"
+#include "diff/diffchange.h"
+#include "diff/grtdiff.h"
 #include "grtdb/diff_dbobjectmatch.h"
 #include "db_mysql_diffsqlgen.h"
 #include "db_mysql_params.h"

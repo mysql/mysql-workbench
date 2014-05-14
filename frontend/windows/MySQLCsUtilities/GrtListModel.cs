@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ namespace MySQL.Grt
 		/// <summary>
 		/// The GRT tree this model is representing
 		/// </summary>
-		protected MySQL.Grt.ListModel grtList;
+		protected MySQL.Grt.ListModelWrapper grtList;
 
 		/// <summary>
 		/// The top node if any, otherwise null
@@ -64,7 +64,7 @@ namespace MySQL.Grt
 		/// <param name="TreeView">The TreeViewAdv control this model is used for</param>
 		/// <param name="GrtList">The GRT list this model is representing</param>
     /// <param name="DynamicContextMenu">Use context menu definition provided by backend</param>
-    protected GrtListModel(TreeViewAdv tree, MySQL.Grt.ListModel GrtList, bool DynamicContextMenu)
+    protected GrtListModel(TreeViewAdv tree, MySQL.Grt.ListModelWrapper GrtList, bool DynamicContextMenu)
 			: this()
 		{
 			grtList = GrtList;
@@ -77,7 +77,7 @@ namespace MySQL.Grt
       }
 		}
 
-		protected GrtListModel(TreeViewAdv ListView, MySQL.Grt.ListModel GrtList, NodeIcon NodeIcon,
+		protected GrtListModel(TreeViewAdv ListView, MySQL.Grt.ListModelWrapper GrtList, NodeIcon NodeIcon,
                           bool DynamicContextMenu)
 			: this(ListView, GrtList, DynamicContextMenu)
 		{
@@ -101,7 +101,7 @@ namespace MySQL.Grt
       // repopulate the context menu with stuff provided by the backend
       menu.Items.Clear();
 
-      List<NodeId> selection = new List<NodeId>();
+      List<NodeIdWrapper> selection = new List<NodeIdWrapper>();
 
       foreach (TreeNodeAdv node in treeView.SelectedNodes)
       {
@@ -136,7 +136,7 @@ namespace MySQL.Grt
     {
       System.Windows.Forms.ToolStripMenuItem mitem = sender as System.Windows.Forms.ToolStripMenuItem;
 
-      List<NodeId> selection = new List<NodeId>();
+      List<NodeIdWrapper> selection = new List<NodeIdWrapper>();
 
       foreach (TreeNodeAdv node in treeView.SelectedNodes)
       {
@@ -206,7 +206,7 @@ namespace MySQL.Grt
 		#endregion
 
 		#region Properties
-		public MySQL.Grt.ListModel GrtList
+		public MySQL.Grt.ListModelWrapper GrtList
 		{
 			get { return grtList; }
 		}
@@ -262,7 +262,7 @@ namespace MySQL.Grt
 				if (node != null)
 				{
 					int iconId = GrtList.get_field_icon(node.NodeId, 0, IconSize.Icon16);
-					Image icon = GrtIconManager.get_instance().get_icon(iconId);
+					Image icon = IconManagerWrapper.get_instance().get_icon(iconId);
 
 					if (icon != null)
 						e.Value = icon;

@@ -7,65 +7,61 @@
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    <Filter Include="Header Files SQL IDE">
+      <UniqueIdentifier>{7cb6c796-d702-444c-8b80-afc7b075e7ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sqlide Header Files">
-      <UniqueIdentifier>{b698da5f-9477-4575-9b0c-fe97426c781e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sqlide Source Files">
-      <UniqueIdentifier>{4d7d2b9a-d5de-417c-b4df-04b0dd73c40c}</UniqueIdentifier>
+    <Filter Include="Source Files SQL IDE">
+      <UniqueIdentifier>{6409d325-caf4-4a0f-9ecd-56fd1479ec62}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ModelDiagramFormWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\Overview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Wb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\sqlide.wr\src\SQLEditorFormWrapper.cpp">
-      <Filter>sqlide Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\sqlide.wr\src\db_sql_editor_history_wr.cpp">
-      <Filter>sqlide Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\stdafx.cpp" />
-    <ClCompile Include="src\ModelDiagramFormWrapper.cpp">
+    <ClCompile Include="src\WbCallbacks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\sqlide.wr\src\SQLEditorWrapper.cpp">
-      <Filter>sqlide Source Files</Filter>
+    <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="..\sqlide.wr\src\db_sql_editor_history_wr.cpp">
+      <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
-    <ClCompile Include="src\WbCallbacks.cpp">
-      <Filter>sqlide Header Files</Filter>
+    <ClCompile Include="..\sqlide.wr\src\SQLEditorFormWrapper.cpp">
+      <Filter>Source Files SQL IDE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sqlide.wr\src\SQLEditorWrapper.cpp">
+      <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ModelDiagramFormWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\Overview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Wb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\sqlide.wr\src\db_sql_editor_history_wr.h">
-      <Filter>sqlide Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\sqlide.wr\src\SQLEditorFormWrapper.h">
-      <Filter>sqlide Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="src\ModelDiagramFormWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\sqlide.wr\src\SQLEditorWrapper.h">
-      <Filter>sqlide Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\WbCallbacks.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="..\sqlide.wr\src\db_sql_editor_history_wr.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlide.wr\src\SQLEditorFormWrapper.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sqlide.wr\src\SQLEditorWrapper.h">
+      <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <boost/foreach.hpp>
 
 #include "sql_editor_be.h"
@@ -61,8 +59,6 @@ public:
 
   db_mgmt_RdbmsRef _rdbms;
   bec::GRTManager *_grtm;
-
-  long _server_version;
 
   mforms::Box* _container;
   mforms::Menu* _editor_context_menu;
@@ -211,7 +207,7 @@ Sql_editor::Sql_editor(db_mgmt_RdbmsRef rdbms, GrtVersionRef version)
 
   // Create a server version of the form "Mmmrr" as long int for quick comparisons.
   if (version.is_valid())
-    _server_version = version->majorNumber() * 10000 + version->minorNumber() * 100 + version->releaseNumber();
+    _server_version = (unsigned)(version->majorNumber() * 10000 + version->minorNumber() * 100 + version->releaseNumber());
   else
     _server_version = 50501; // Assume some reasonable default (5.5.1).
 
@@ -364,7 +360,7 @@ static void save_file(Sql_editor *sql_editor)
     mforms::CodeEditor* code_editor = sql_editor->get_editor_control();
     std::pair<const char*, size_t> data = code_editor->get_text_ptr();
 
-    if (!g_file_set_contents(file.c_str(), data.first, data.second, &error) && error)
+    if (!g_file_set_contents(file.c_str(), data.first, (gssize)data.second, &error) && error)
     {
       mforms::Utilities::show_error("Save File", base::strfmt("Could not save to file %s:\n%s", file.c_str(), error->message),
                                     "OK");
@@ -590,7 +586,7 @@ void Sql_editor::sql(const char *sql)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int Sql_editor::cursor_pos()
+size_t Sql_editor::cursor_pos()
 {
   return _code_editor->get_caret_pos();
 }
@@ -602,46 +598,45 @@ int Sql_editor::cursor_pos()
  * the actual character index as displayed in the editor, not the byte index in a std::string.
  * If @local is true then the line position is relative to the statement, otherwise that in the entire editor.
  */
-std::pair<int, int> Sql_editor::cursor_pos_row_column(bool local)
+std::pair<size_t, size_t> Sql_editor::cursor_pos_row_column(bool local)
 {
-  int position = _code_editor->get_caret_pos();
-  int line = _code_editor->line_from_position(position);
-  int line_start, line_end;
+  size_t position = _code_editor->get_caret_pos();
+  ssize_t line = _code_editor->line_from_position(position);
+  ssize_t line_start, line_end;
   _code_editor->get_range_of_line(line, line_start, line_end);
 
-  int offset = position - line_start; // This is a byte offset.
+  ssize_t offset = position - line_start; // This is a byte offset.
   std::string line_text = _code_editor->get_text_in_range(line_start, line_end);
   offset = g_utf8_pointer_to_offset(line_text.c_str(), line_text.c_str() + offset);
 
   if (local)
   {
-    int min = -1;
-    int max = -1;
+    size_t min, max;
     if (get_current_statement_range(min, max))
       line -= _code_editor->line_from_position(min);
   }
   
-  return std::make_pair<int, int>(offset, line);
+  return std::make_pair(offset, line);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Sql_editor::set_cursor_pos(int position)
+void Sql_editor::set_cursor_pos(size_t position)
 {
   _code_editor->set_caret_pos(position);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool Sql_editor::selected_range(int& start, int& end)
+bool Sql_editor::selected_range(size_t &start, size_t &end)
 {
-  int length;
+  size_t length;
   _code_editor->get_selection(start, length);
   end = start + length;
   return length > 0;
 }
 
-void Sql_editor::set_selected_range(int start, int end)
+void Sql_editor::set_selected_range(size_t start, size_t end)
 {
   _code_editor->set_selection(start, end - start);
 }
@@ -675,7 +670,7 @@ void Sql_editor::text_changed(int position, int length, int lines_changed, bool 
   d->_sql_checker->stop();
   d->_sql_facade->stop_processing();
 
-  int size = _code_editor->text_length();
+  size_t size = _code_editor->text_length();
   if ((size > LARGE_CONTENT_SIZE) != d->_large_content)
   {
     // Size just changed from large to not large or vice versa.
@@ -878,7 +873,7 @@ int Sql_editor::on_sql_check_progress(float progress, const std::string &msg, in
       for (std::vector<std::pair<size_t, size_t> >::const_iterator iterator = d->_statement_ranges.begin();
         iterator != d->_statement_ranges.end(); ++iterator)
       {
-        int line = _code_editor->line_from_position(iterator->first);
+        size_t line = _code_editor->line_from_position(iterator->first);
         _code_editor->show_markup(mforms::LineMarkupStatement, line);
       }
     }
@@ -908,7 +903,7 @@ int Sql_editor::on_sql_check_progress(float progress, const std::string &msg, in
     BOOST_FOREACH (const Private::SqlError &sql_error, sql_errors)
       if (sql_error.tag == d->_sql_checker_tag)
       {
-        int line_position = sql_error.tok_line_pos + _code_editor->position_from_line(sql_error.tok_lineno - 1);
+        size_t line_position = sql_error.tok_line_pos + _code_editor->position_from_line(sql_error.tok_lineno - 1);
 
         _code_editor->show_indicator(mforms::RangeIndicatorError, line_position, sql_error.tok_len);
         _code_editor->show_markup(mforms::LineMarkupError, sql_error.tok_lineno - 1);
@@ -968,8 +963,7 @@ void Sql_editor::insert_text(const std::string &new_text)
  */
 std::string Sql_editor::current_statement()
 {
-  int min = -1;
-  int max = -1;
+  size_t min, max;
   if (get_current_statement_range(min, max))
     return _code_editor->get_text_in_range(min, max);
   return "";
@@ -1189,7 +1183,7 @@ bool Sql_editor::make_keywords_uppercase()
  * where the caret is in. For effective search in a large set binary search is used.
  * Returns true if a statement could be found at the caret position, otherwise false.
  */
-bool Sql_editor::get_current_statement_range(int &start, int &end)
+bool Sql_editor::get_current_statement_range(size_t &start, size_t &end)
 {
   // In case the splitter is right now processing the text we wait here until its done.
   // If the splitter wasn't triggered yet (e.g. when typing fast and then immediately running a statement)

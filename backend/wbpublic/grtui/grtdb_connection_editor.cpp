@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #include "grtdb_connection_editor.h"
 
@@ -145,7 +144,7 @@ db_mgmt_ConnectionRef grtui::DbConnectionEditor::run(const db_mgmt_ConnectionRef
   if ((index = _connection_list.get_index(connection)) != grt::BaseListRef::npos)
   {
     reset_stored_conn_list();
-    _stored_connection_list.select_node(_stored_connection_list.node_at_row(index));
+    _stored_connection_list.select_node(_stored_connection_list.node_at_row((int)index));
     change_active_stored_conn();
   }
   else
@@ -212,7 +211,7 @@ void grtui::DbConnectionEditor::reset_stored_conn_list()
 void grtui::DbConnectionEditor::add_stored_conn(bool copy)
 {
   grt::ListRef<db_mgmt_Connection> list(_connection_list);
-  const int length = (std::string("New connection 1")).length() - 1;
+  size_t length = std::string("New connection 1").length() - 1;
   int max_conn_nr = 0;
   for (size_t i = 0; i < list.count(); ++i)
   {
@@ -240,7 +239,7 @@ void grtui::DbConnectionEditor::add_stored_conn(bool copy)
   else
     _panel.set_connection(new_connection);
   reset_stored_conn_list();
-  _stored_connection_list.select_node(_stored_connection_list.node_at_row(list.count()-1));
+  _stored_connection_list.select_node(_stored_connection_list.node_at_row((int)list.count() - 1));
   change_active_stored_conn();
 }
 

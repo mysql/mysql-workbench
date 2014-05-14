@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,11 +17,8 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
-// tests ValueInspectorBE
-
 #include "grt/grt_value_inspector.h"
+#include "wb_helpers.h"
 
 using namespace grt;
 using namespace bec;
@@ -60,14 +57,14 @@ TEST_FUNCTION(1)
   ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, list, false, false);
 
   // test listing
-  int c= vinsp->count();
+  size_t c = vinsp->count();
   ensure_equals("begin listing", c, 10);
 
   std::string name, value;
   Type type;
   NodeId node;
   
-  std::vector<int> columns;
+  std::vector<ssize_t> columns;
   columns.push_back(ValueInspectorBE::Name);
   columns.push_back(ValueInspectorBE::Value);
   dump_tree_model("output/grt_inspector_value_test1.txt", vinsp, columns, true);
@@ -96,6 +93,9 @@ TEST_FUNCTION(1)
   ensure_equals("7) value", value, "{item1 = 1, item2 = 2.2, item3 = test}");
   ensure_equals("7) type", type, DictType);
 
+  NodeId nd;
+  ensure("bad get", !nd.is_valid());
+
   node= vinsp->get_node(-1);
   ensure("bad get", !node.is_valid());
 
@@ -103,7 +103,7 @@ TEST_FUNCTION(1)
   ensure("bad get", !node.is_valid());
 
   // test change int value
-  flag= vinsp->set_field(0, ValueInspectorBE::Value, 112211);
+  flag= vinsp->set_field(0, ValueInspectorBE::Value, (ssize_t)112211);
   ensure("set 1", flag);
 
   flag= vinsp->get_field(0, ValueInspectorBE::Value, value);
@@ -112,7 +112,7 @@ TEST_FUNCTION(1)
   type= vinsp->get_field_type(0, ValueInspectorBE::Value);
   ensure_equals("get/set 1", type, IntegerType);
 
-  flag= vinsp->set_field(9, ValueInspectorBE::Value, 8888);
+  flag = vinsp->set_field(9, ValueInspectorBE::Value, (ssize_t)8888);
   ensure("set 9", flag);
 
   // test change string value
@@ -169,7 +169,7 @@ TEST_FUNCTION(1)
 TEST_FUNCTION(2)
 {
   bool flag;
-  std::vector<int> columns;
+  std::vector<ssize_t> columns;
   columns.push_back(ValueInspectorBE::Name);
   columns.push_back(ValueInspectorBE::Value);
 
@@ -185,7 +185,7 @@ TEST_FUNCTION(2)
   ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, list, false, false);
 
   // test listing
-  int c= vinsp->count();
+  size_t c = vinsp->count();
   ensure_equals("begin listing", c, 10);
 
   dump_tree_model("output/grt_inspector_value_test2.txt", vinsp, columns, true);
@@ -204,7 +204,7 @@ TEST_FUNCTION(2)
   ensure("bad get", !flag);
 
   // test change int value
-  flag= vinsp->set_field(0, ValueInspectorBE::Value, 112211);
+  flag = vinsp->set_field(0, ValueInspectorBE::Value, (ssize_t)112211);
   ensure("set 1", !flag);
 
   // test change string value
@@ -235,7 +235,7 @@ TEST_FUNCTION(2)
 TEST_FUNCTION(3)
 {
   bool flag;
-  std::vector<int> columns;
+  std::vector<ssize_t> columns;
   columns.push_back(ValueInspectorBE::Name);
   columns.push_back(ValueInspectorBE::Value);
   
@@ -251,7 +251,7 @@ TEST_FUNCTION(3)
   ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, list, false, false);
 
   // test listing
-  int c= vinsp->count();
+  size_t c = vinsp->count();
   ensure_equals("begin listing", c, 10);
 
   std::string name, value;
@@ -275,11 +275,11 @@ TEST_FUNCTION(3)
   //node= vinsp->get_child(1, 1);
   //ensure("bad get", !node.is_valid());
 
-  flag= vinsp->set_field(0, ValueInspectorBE::Name, 123);
+  flag = vinsp->set_field(0, ValueInspectorBE::Name, (ssize_t)123);
   ensure("bad set", !flag);
 
   // test change int value
-  flag= vinsp->set_field(0, ValueInspectorBE::Value, 112211);
+  flag = vinsp->set_field(0, ValueInspectorBE::Value, (ssize_t)112211);
   ensure("set 1", flag);
 
   // test change string value
@@ -309,7 +309,7 @@ TEST_FUNCTION(3)
 TEST_FUNCTION(10)
 {
   bool flag;
-  std::vector<int> columns;
+  std::vector<ssize_t> columns;
   columns.push_back(ValueInspectorBE::Name);
   columns.push_back(ValueInspectorBE::Value);
   
@@ -324,7 +324,7 @@ TEST_FUNCTION(10)
   ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, dict, false, false);
 
   // test listing
-  int c= vinsp->count();
+  size_t c = vinsp->count();
   ensure_equals("begin listing", c, 6);
 
   std::string name, value;
@@ -340,11 +340,11 @@ TEST_FUNCTION(10)
 //  ensure("bad get", !node.is_valid());
 
   // test change int value
-  flag= vinsp->set_field(0, ValueInspectorBE::Value, 112211);
+  flag = vinsp->set_field(0, ValueInspectorBE::Value, (ssize_t)112211);
   ensure("set 1", flag);
 
 
-  flag= vinsp->set_field(4, ValueInspectorBE::Value, 8888);
+  flag = vinsp->set_field(4, ValueInspectorBE::Value, (ssize_t)8888);
   ensure("set k5", flag);
 
   // test change string value
@@ -406,7 +406,7 @@ TEST_FUNCTION(10)
 TEST_FUNCTION(11)
 {
   bool flag;
-  std::vector<int> columns;
+  std::vector<ssize_t> columns;
   columns.push_back(ValueInspectorBE::Name);
   columns.push_back(ValueInspectorBE::Value);
   
@@ -425,7 +425,7 @@ TEST_FUNCTION(11)
   ensure_files_equal("object check", "output/grt_inspector_value_test11.txt", "data/be/grt_inspector_value_test11.txt");
   
   // test listing
-  int c= vinsp->count();
+  size_t c = vinsp->count();
   ensure_equals("begin listing", c, 9);
 
   std::string name, value;
@@ -439,10 +439,10 @@ TEST_FUNCTION(11)
   ensure("bad get", !node.is_valid());
 
   // test change int value
-  flag= vinsp->set_field(0, ValueInspectorBE::Value, 112211);
+  flag = vinsp->set_field(0, ValueInspectorBE::Value, (ssize_t)112211);
   ensure("set 1", flag);
 
-  flag= vinsp->set_field(4, ValueInspectorBE::Value, 8888);
+  flag = vinsp->set_field(4, ValueInspectorBE::Value, (ssize_t)8888);
   ensure("set k5", flag);
 
   // test change string value
@@ -480,7 +480,7 @@ TEST_FUNCTION(11)
   flag= vinsp->set_field(nkey, ValueInspectorBE::Name, "anewk");
   ensure("set item", flag);
 
-  flag= vinsp->set_field(nkey, ValueInspectorBE::Value, 1234);
+  flag = vinsp->set_field(nkey, ValueInspectorBE::Value, (ssize_t)1234);
   ensure("set item", flag);
 
   ensure_equals("new count", (int)dict.count(), 10);
@@ -537,7 +537,7 @@ TEST_FUNCTION(11)
 
 TEST_FUNCTION(20)
 {
-  std::vector<int> columns;
+  std::vector<ssize_t> columns;
   columns.push_back(ValueInspectorBE::Name);
   columns.push_back(ValueInspectorBE::Value);
 
@@ -554,10 +554,9 @@ TEST_FUNCTION(20)
 
   ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, book, false, false);
   bool flag;
-  int c;
 
   // test listing
-  c= vinsp->count();
+  size_t c= vinsp->count();
   ensure_equals("begin listing", c, 6);
   
   std::string name, value;
@@ -573,7 +572,7 @@ TEST_FUNCTION(20)
   ensure("bad get", !node.is_valid());
 
   // test bad change int value
-  flag= vinsp->set_field(5, ValueInspectorBE::Value, 112211);
+  flag = vinsp->set_field(5, ValueInspectorBE::Value, (ssize_t)112211);
   ensure("set invalid 1", !flag);
 
   flag= vinsp->set_field(5, ValueInspectorBE::Value, "The Illiad");
@@ -584,7 +583,7 @@ TEST_FUNCTION(20)
   ensure_equals("get/set title", value, "The Illiad");
 
   // test change int value
-  flag= vinsp->set_field(2, ValueInspectorBE::Value, 123);
+  flag = vinsp->set_field(2, ValueInspectorBE::Value, (ssize_t)123);
   ensure("set pages", flag);
 
   // test change double value
@@ -622,7 +621,7 @@ TEST_FUNCTION(20)
 
 TEST_FUNCTION(21)
 {
-  std::vector<int> columns;
+  std::vector<ssize_t> columns;
   columns.push_back(ValueInspectorBE::Name);
   columns.push_back(ValueInspectorBE::Value);
 
@@ -634,7 +633,7 @@ TEST_FUNCTION(21)
   ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, book, true, true);
 
   // test listing
-  int c= vinsp->count();
+  size_t c = vinsp->count();
   ensure_equals("top listing", c, 3);
 
   std::string name, value;
@@ -655,7 +654,7 @@ TEST_FUNCTION(21)
   }
 
   // test bad change int value
-  flag= vinsp->set_field(0, ValueInspectorBE::Value, 112211);
+  flag = vinsp->set_field(0, ValueInspectorBE::Value, (ssize_t)112211);
   ensure("set invalid 1", !flag);
 
   node= vinsp->get_child(0, 0);
@@ -665,7 +664,7 @@ TEST_FUNCTION(21)
 
   // test change int value
   node= vinsp->get_child(1, 1);
-  flag= vinsp->set_field(node, ValueInspectorBE::Value, 123);
+  flag = vinsp->set_field(node, ValueInspectorBE::Value, (ssize_t)123);
   ensure("set pages", flag);
 
   // test change double value

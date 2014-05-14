@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,21 +17,18 @@
  * 02110-1301  USA
  */
 
-#ifndef _STDAFX_H_
-#define _STDAFX_H_
+#pragma once
 
 #pragma warning(disable: 4793)  // 'vararg' causes native code generation
 
 using namespace System;
 
-#ifdef _WIN32
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
 #include "WinCrypt.h"
 #include <vcclr.h>
 #include <msclr\lock.h>
-#endif
 
 #include <list>
 #include <vector>
@@ -43,11 +40,6 @@ using namespace System;
 #include <algorithm>
 #include <typeinfo>
 #include <stdint.h> // Must be included before boost to avoid macro redefinition.
-
-#ifdef __APPLE__
-#undef nil
-#define nil empty
-#endif
 #include <stdio.h>
 
 #define _USE_MATH_DEFINES
@@ -56,20 +48,10 @@ using namespace System;
 #include <cairo/cairo.h>
 #include <cairo/cairo-pdf.h>
 
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#elif defined(_WIN32)
-#define snprintf _snprintf
 #include <gl/gl.h>
 #include <float.h>
-#define INFINITY FLT_MAX
-#else
-#include <GL/gl.h>
-#endif
 
-#include <gl/glu.h>
-
-#include <glib/gthread.h>
+#include <glib/glib.h>
 
 #ifndef _WIN32
 #include <sys/time.h>
@@ -81,4 +63,8 @@ using namespace System;
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
-#endif // _STDAFX_H_
+#include "grts/structs.model.h"
+#include "grts/structs.db.query.h"
+#include "grts/structs.workbench.physical.h"
+#include "grts/structs.workbench.logical.h"
+#include "grts/structs.db.migration.h"

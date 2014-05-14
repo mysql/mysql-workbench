@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "wf_base.h"
 #include "wf_view.h"
@@ -42,7 +40,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  int DoFindReplace(mforms::FindPanelAction action)
+  size_t DoFindReplace(mforms::FindPanelAction action)
   {
     mforms::CodeEditor *editor = panel->get_editor();
 
@@ -72,7 +70,7 @@ public:
       break;
     case mforms::Replace:
       {
-        int start, length;
+        size_t start, length;
         editor->get_selection(start, length);
         if (length > 0)
           editor->replace_selected_text(replace_text);
@@ -104,7 +102,7 @@ public:
 
   virtual int FindReplaceAction(MySQL::Utilities::FindPanelAction action)
   {
-    return DoFindReplace((mforms::FindPanelAction)action);
+    return (int)DoFindReplace((mforms::FindPanelAction)action);
   }
 
   //-----------------------------------------------------------------------------------------------
@@ -132,7 +130,7 @@ bool FindPanelWrapper::create(mforms::FindPanel *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-int FindPanelWrapper::perform_action(mforms::FindPanel *backend, mforms::FindPanelAction action)
+size_t FindPanelWrapper::perform_action(mforms::FindPanel *backend, mforms::FindPanelAction action)
 {
   MformsFindPanel ^findPanel = FindPanelWrapper::GetManagedObject<MformsFindPanel>(backend);
   return findPanel->DoFindReplace(action);

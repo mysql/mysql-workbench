@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "grt_value_tree.h"
 
@@ -39,12 +37,14 @@ using namespace bec;
  * 
  */
 
+//--------------------------------------------------------------------------------------------------
 
 inline bool is_null_node(const NodeId &id)
 {
   return id.depth() == 0;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 static bool count_simple_members(const MetaClass::Member *member, int *c)
 {
@@ -53,6 +53,7 @@ static bool count_simple_members(const MetaClass::Member *member, int *c)
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 static int count_container_nodes(const ValueRef &value)
 {
@@ -101,7 +102,7 @@ static int count_container_nodes(const ValueRef &value)
   return count;
 }
 
-
+//--------------------------------------------------------------------------------------------------
 
 ValueTreeBE::ValueTreeBE(GRT *grt)
   : _grt(grt)
@@ -110,18 +111,21 @@ ValueTreeBE::ValueTreeBE(GRT *grt)
   _is_global_path= false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 ValueTreeBE::~ValueTreeBE()
 {
   _root.reset_children();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ValueTreeBE::show_captions(bool flag)
 {
   _show_captions= true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ValueTreeBE::set_displayed_global_value(const std::string &path, bool show_root)
 {
@@ -150,6 +154,7 @@ void ValueTreeBE::set_displayed_global_value(const std::string &path, bool show_
   refresh();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ValueTreeBE::set_displayed_value(const ValueRef &value, const std::string &name)
 {
@@ -176,12 +181,14 @@ void ValueTreeBE::set_displayed_value(const ValueRef &value, const std::string &
   refresh();
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void ValueTreeBE::set_node_filter(const boost::function<bool (NodeId, std::string, ValueRef, std::string&, IconId&)> &filter)
+void ValueTreeBE::set_node_filter(const boost::function<bool(NodeId, std::string, ValueRef, std::string&, IconId&)> &filter)
 {
   _node_filter= filter;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 NodeId ValueTreeBE::get_root() const
 {
@@ -191,33 +198,38 @@ NodeId ValueTreeBE::get_root() const
   return NodeId(0);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-int ValueTreeBE::count_children(const NodeId &node_id)
+size_t ValueTreeBE::count_children(const NodeId &node_id)
 {
-  Node *n;
-
   if (is_null_node(node_id))
     return 1; // root node
 
-  if (!(n= get_node_for_id(node_id)))
+  Node *node = get_node_for_id(node_id);
+
+  if (node == NULL)
     return 0;
 
-  return n->subnodes.size();
+  return node->subnodes.size();
 }
 
+//--------------------------------------------------------------------------------------------------
 
-Type ValueTreeBE::get_field_type(const NodeId &node_id, int column)
+Type ValueTreeBE::get_field_type(const NodeId &node_id, ColumnId column)
 {
   switch (column)
   {
-  case Name: return StringType;
-  case Type: return IntegerType;
+  case Name:
+    return StringType;
+  case Type:
+    return IntegerType;
   }
   return AnyType;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-NodeId ValueTreeBE::get_child(const NodeId &parent_id, int index)
+NodeId ValueTreeBE::get_child(const NodeId &parent_id, size_t index)
 {
   Node *node;
 
@@ -229,12 +241,13 @@ NodeId ValueTreeBE::get_child(const NodeId &parent_id, int index)
     throw std::out_of_range("Invalid parent node");
   }
 
-  if (index < (int)node->subnodes.size())
+  if (index < node->subnodes.size())
     return NodeId(parent_id).append(index);
 
   throw std::out_of_range("Attempt to access invalid child");
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool ValueTreeBE::is_expandable(const NodeId &node_id)
 {
@@ -271,11 +284,11 @@ bool ValueTreeBE::get_row(const NodeId &node_id,
 
   name= info->name;
   type= info->type;
-//  icon= info->icon;
 
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 ValueRef ValueTreeBE::get_node_value(const NodeId &node_id)
 {
@@ -291,8 +304,9 @@ ValueRef ValueTreeBE::get_node_value(const NodeId &node_id)
   return get_value_by_path(_root_value, path);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-bool ValueTreeBE::get_field_grt(const NodeId &node, int column, ValueRef &value)
+bool ValueTreeBE::get_field_grt(const NodeId &node, ColumnId column, ValueRef &value)
 {
   Node *info= get_node_for_id(node);
   
@@ -312,9 +326,9 @@ bool ValueTreeBE::get_field_grt(const NodeId &node, int column, ValueRef &value)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-
-IconId ValueTreeBE::get_field_icon(const NodeId &node_id, int column, IconSize size)
+IconId ValueTreeBE::get_field_icon(const NodeId &node_id, ColumnId column, IconSize size)
 {
   if ((ValueTreeColumns)column == Name)
   {
@@ -330,8 +344,9 @@ IconId ValueTreeBE::get_field_icon(const NodeId &node_id, int column, IconSize s
   return 0;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-bool ValueTreeBE::get_field(const NodeId &node_id, int column, std::string &value)
+bool ValueTreeBE::get_field(const NodeId &node_id, ColumnId column, std::string &value)
 {
   Node *info;
   
@@ -350,6 +365,7 @@ bool ValueTreeBE::get_field(const NodeId &node_id, int column, std::string &valu
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ValueTreeBE::fill_node_info(const ValueRef &value,
                                  Node *info)
@@ -437,22 +453,22 @@ void ValueTreeBE::fill_node_info(const ValueRef &value,
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node,
                               const std::string &path,
                               const BaseListRef &value)
 {
-  int c= value.count();
   char buffer[30];
 
   node->reset_children();
-  for (int i= 0; i < c; i++)
+  for (size_t i= 0; i < value->count(); i++)
   {
     ValueRef v= value.get(i);
     std::string label;
     IconId icon= 0;
 
-    sprintf(buffer, "%i", i);
+    sprintf(buffer, "%zi", i);
 
     if (v.is_valid() && !is_simple_type(v.type()) &&
         (!_node_filter || _node_filter(node_id, buffer, v, label, icon)))
@@ -477,8 +493,9 @@ void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node,
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node, 
+void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node,
                               const std::string &path,
                               const DictRef &value)
 {
@@ -513,6 +530,7 @@ void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node,
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool ValueTreeBE::rescan_member(const MetaClass::Member *mem, const NodeId &node_id, Node *node, const ObjectRef &value)
 {
@@ -537,6 +555,8 @@ bool ValueTreeBE::rescan_member(const MetaClass::Member *mem, const NodeId &node
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node,
                               const std::string &path,
                               const ObjectRef &value)
@@ -547,6 +567,7 @@ void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node,
   meta->foreach_member(boost::bind(&ValueTreeBE::rescan_member, this, _1, node_id, node, value));
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool ValueTreeBE::expand_node(const NodeId &node_id)
 {
@@ -581,6 +602,7 @@ bool ValueTreeBE::expand_node(const NodeId &node_id)
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ValueTreeBE::collapse_node(const NodeId &node_id)
 {
@@ -593,12 +615,14 @@ void ValueTreeBE::collapse_node(const NodeId &node_id)
   node->reset_children();
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void ValueTreeBE::set_activate_callback(const boost::function<void (ValueRef)> &activate_callback)
+void ValueTreeBE::set_activate_callback(const boost::function<void(ValueRef)> &activate_callback)
 {
   _activate_callback= activate_callback;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool ValueTreeBE::activate_node(const NodeId &node_id)
 {
@@ -611,6 +635,7 @@ bool ValueTreeBE::activate_node(const NodeId &node_id)
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 ValueTreeBE::Node* ValueTreeBE::get_node_for_id(const NodeId &id)
 {
@@ -618,9 +643,9 @@ ValueTreeBE::Node* ValueTreeBE::get_node_for_id(const NodeId &id)
     return 0;
 
   Node *node= &_root;
-  for (int c= get_node_depth(id), i= 1; i < c; i++)
+  for (size_t c = get_node_depth(id), i = 1; i < c; i++)
   {
-    if ((int)node->subnodes.size() <= id[i])
+    if (node->subnodes.size() <= id[i])
       return 0;
 
     node= node->subnodes[id[i]];
@@ -628,6 +653,7 @@ ValueTreeBE::Node* ValueTreeBE::get_node_for_id(const NodeId &id)
   return node;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 std::string ValueTreeBE::get_path_for_node(const NodeId &id, bool full)
 {
@@ -641,9 +667,9 @@ std::string ValueTreeBE::get_path_for_node(const NodeId &id, bool full)
     path= node->path;
   else
     path= "";
-  for (int i= 1; i < get_node_depth(id); i++)
+  for (size_t i= 1; i < get_node_depth(id); i++)
   {
-    if ((int)node->subnodes.size() <= id[i])
+    if (node->subnodes.size() <= id[i])
       return "";
 
     node= node->subnodes[id[i]];

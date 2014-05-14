@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
 [assembly: AssemblyProduct("MySQLUtilities")]
-[assembly: AssemblyCopyright("Copyright © Oracle 2007,2013")]
+[assembly: AssemblyCopyright("Copyright © Oracle 2007, 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

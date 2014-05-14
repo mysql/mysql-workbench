@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #include "stdafx.h"
 
 #include "mysql_sql_facade.h"
@@ -933,7 +932,7 @@ static grt::BaseListRef children_from_node(grt::ValueRef node)
 
 static bool extract_schema_object_idents(grt::BaseListRef node, std::string &schema_name, std::string &object_name, int offset = 0)
 {
-  int c = node.count();
+  int c = (int)node.count();
   if (c > offset+0 && symbol_from_node(node[offset+0]) == "ident")
   {
     if (c > offset+2 && symbol_from_node(node[offset+1]) == "46" && symbol_from_node(node[offset+2]) == "ident")

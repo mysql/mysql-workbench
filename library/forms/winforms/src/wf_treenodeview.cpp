@@ -17,13 +17,6 @@
  * 02110-1301  USA
  */
  
-/**
- * Implementation of the treeview wrapper for the mforms library. We use a third-party tree view control
- * here (TreeViewAdv) which supports columns.
- */
-
-#include "stdafx.h"
-
 #include "base/log.h"
 
 #include "wf_base.h"

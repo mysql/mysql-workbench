@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "editor_user_role.h"
 #include "db_object_helpers.h"
 #include "base/string_utilities.h"
@@ -33,10 +31,10 @@ RolePrivilegeListBE::RolePrivilegeListBE(RoleEditorBE *owner)
 }
 
 
-int RolePrivilegeListBE::count()
+size_t RolePrivilegeListBE::count()
 {
   if (_privileges.is_valid())
-    return (int)_privileges.count();
+    return _privileges.count();
   return 0;
 }
 
@@ -85,7 +83,7 @@ void RolePrivilegeListBE::refresh()
 }
 
 
-bool RolePrivilegeListBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool RolePrivilegeListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   if (node[0] >= count() || !_role_privilege.is_valid())
     return false;
@@ -106,7 +104,7 @@ bool RolePrivilegeListBE::get_field_grt(const NodeId &node, int column, grt::Val
 }
 
 
-bool RolePrivilegeListBE::set_field(const NodeId &node, int column, int value)
+bool RolePrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize_t value)
 {
   size_t index;
 
@@ -190,10 +188,10 @@ db_RolePrivilegeRef RoleObjectListBE::get_selected_object_info()
 }
 
 
-int RoleObjectListBE::count()
+size_t RoleObjectListBE::count()
 {
   if (_owner->get_role().is_valid())
-    return (int)_owner->get_role()->privileges().count();
+    return _owner->get_role()->privileges().count();
   return 0;
 }
 
@@ -255,7 +253,7 @@ bool RoleObjectListBE::activate_popup_item_for_nodes(const std::string &name, co
 }
 
 
-bool RoleObjectListBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool RoleObjectListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   if (node[0] >= count())
     return false;
@@ -274,7 +272,7 @@ bool RoleObjectListBE::get_field_grt(const NodeId &node, int column, grt::ValueR
 }
 
 
-IconId RoleObjectListBE::get_field_icon(const NodeId &node, int column, IconSize size)
+IconId RoleObjectListBE::get_field_icon(const NodeId &node, ColumnId column, IconSize size)
 {
   db_RolePrivilegeRef priv(_owner->get_role()->privileges().get(node[0]));
   if (priv.is_valid())

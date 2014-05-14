@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "ManagedNotifications.h"
 #include "LogWrapper.h"
 #include "ConvUtils.h"

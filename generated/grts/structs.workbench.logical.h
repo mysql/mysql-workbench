@@ -31,6 +31,14 @@ class workbench_logical_Model;
 typedef grt::Ref<workbench_logical_Model> workbench_logical_ModelRef;
 
 
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
+
   /** a model connection */
 class  workbench_logical_Connection : public model_Connection
 {
@@ -304,9 +312,9 @@ public:
       meta->bind_member("endCaptionYOffs", new grt::MetaClass::Property<workbench_logical_Connection,grt::DoubleRef >(getter,setter));
     }
     {
-      void (workbench_logical_Connection::*setter)(const grt::Ref<model_Figure> &)= 0;
-      grt::Ref<model_Figure> (workbench_logical_Connection::*getter)() const= 0;
-      meta->bind_member("endFigure", new grt::MetaClass::Property<workbench_logical_Connection,grt::Ref<model_Figure> >(getter,setter));
+      void (workbench_logical_Connection::*setter)(const model_FigureRef &)= 0;
+      model_FigureRef (workbench_logical_Connection::*getter)() const= 0;
+      meta->bind_member("endFigure", new grt::MetaClass::Property<workbench_logical_Connection,model_FigureRef >(getter,setter));
     }
     {
       void (workbench_logical_Connection::*setter)(const grt::IntegerRef &)= &workbench_logical_Connection::endMany;
@@ -329,9 +337,9 @@ public:
       meta->bind_member("startCaptionYOffs", new grt::MetaClass::Property<workbench_logical_Connection,grt::DoubleRef >(getter,setter));
     }
     {
-      void (workbench_logical_Connection::*setter)(const grt::Ref<model_Figure> &)= 0;
-      grt::Ref<model_Figure> (workbench_logical_Connection::*getter)() const= 0;
-      meta->bind_member("startFigure", new grt::MetaClass::Property<workbench_logical_Connection,grt::Ref<model_Figure> >(getter,setter));
+      void (workbench_logical_Connection::*setter)(const model_FigureRef &)= 0;
+      model_FigureRef (workbench_logical_Connection::*getter)() const= 0;
+      meta->bind_member("startFigure", new grt::MetaClass::Property<workbench_logical_Connection,model_FigureRef >(getter,setter));
     }
     {
       void (workbench_logical_Connection::*setter)(const grt::IntegerRef &)= &workbench_logical_Connection::startMany;
@@ -382,14 +390,14 @@ obj.attributesExpanded = value
    \par In Python:
 value = obj.relationship
    */
-  grt::Ref<eer_Relationship> relationship() const { return _relationship; }
+  eer_RelationshipRef relationship() const { return _relationship; }
   /** Setter for attribute relationship
    
     the relationship that is represented
     \par In Python:
 obj.relationship = value
    */
-  virtual void relationship(const grt::Ref<eer_Relationship> &value)
+  virtual void relationship(const eer_RelationshipRef &value)
   {
     grt::ValueRef ovalue(_relationship);
    _relationship= value;
@@ -399,7 +407,7 @@ obj.relationship = value
 protected:
 
   grt::IntegerRef _attributesExpanded;
-  grt::Ref<eer_Relationship> _relationship;
+  eer_RelationshipRef _relationship;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -419,9 +427,9 @@ public:
       meta->bind_member("attributesExpanded", new grt::MetaClass::Property<workbench_logical_Relationship,grt::IntegerRef >(getter,setter));
     }
     {
-      void (workbench_logical_Relationship::*setter)(const grt::Ref<eer_Relationship> &)= &workbench_logical_Relationship::relationship;
-      grt::Ref<eer_Relationship> (workbench_logical_Relationship::*getter)() const= &workbench_logical_Relationship::relationship;
-      meta->bind_member("relationship", new grt::MetaClass::Property<workbench_logical_Relationship,grt::Ref<eer_Relationship> >(getter,setter));
+      void (workbench_logical_Relationship::*setter)(const eer_RelationshipRef &)= &workbench_logical_Relationship::relationship;
+      eer_RelationshipRef (workbench_logical_Relationship::*getter)() const= &workbench_logical_Relationship::relationship;
+      meta->bind_member("relationship", new grt::MetaClass::Property<workbench_logical_Relationship,eer_RelationshipRef >(getter,setter));
     }
   }
 };
@@ -467,14 +475,14 @@ obj.attributesExpanded = value
    \par In Python:
 value = obj.entity
    */
-  grt::Ref<eer_Entity> entity() const { return _entity; }
+  eer_EntityRef entity() const { return _entity; }
   /** Setter for attribute entity
    
     the entity this figure represents
     \par In Python:
 obj.entity = value
    */
-  virtual void entity(const grt::Ref<eer_Entity> &value)
+  virtual void entity(const eer_EntityRef &value)
   {
     grt::ValueRef ovalue(_entity);
    _entity= value;
@@ -484,7 +492,7 @@ obj.entity = value
 protected:
 
   grt::IntegerRef _attributesExpanded;
-  grt::Ref<eer_Entity> _entity;
+  eer_EntityRef _entity;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -504,9 +512,9 @@ public:
       meta->bind_member("attributesExpanded", new grt::MetaClass::Property<workbench_logical_Entity,grt::IntegerRef >(getter,setter));
     }
     {
-      void (workbench_logical_Entity::*setter)(const grt::Ref<eer_Entity> &)= &workbench_logical_Entity::entity;
-      grt::Ref<eer_Entity> (workbench_logical_Entity::*getter)() const= &workbench_logical_Entity::entity;
-      meta->bind_member("entity", new grt::MetaClass::Property<workbench_logical_Entity,grt::Ref<eer_Entity> >(getter,setter));
+      void (workbench_logical_Entity::*setter)(const eer_EntityRef &)= &workbench_logical_Entity::entity;
+      eer_EntityRef (workbench_logical_Entity::*getter)() const= &workbench_logical_Entity::entity;
+      meta->bind_member("entity", new grt::MetaClass::Property<workbench_logical_Entity,eer_EntityRef >(getter,setter));
     }
   }
 };
@@ -539,12 +547,12 @@ public:
   \return 
 
    */
-  virtual grt::Ref<model_Layer> placeNewLayer(double x, double y, double width, double height, const std::string &name);
+  virtual model_LayerRef placeNewLayer(double x, double y, double width, double height, const std::string &name);
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -606,12 +614,12 @@ public:
   \return 
 
    */
-  virtual grt::Ref<model_Diagram> addNewDiagram(long deferRealize);
+  virtual model_DiagramRef addNewDiagram(ssize_t deferRealize);
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:

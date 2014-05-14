@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,17 +17,18 @@
  * 02110-1301  USA
  */
 
-#ifndef _STDAFX_H_
-#define _STDAFX_H_
+#pragma once
 
-#ifdef _WIN32
 #pragma warning(disable: 4996) // 'std::_Uninitialized_copy0': Function call with parameters that may be unsafe
                                // A warning caused by the usage of boost in this context.
-#endif
 
 #include <set>
 
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 
-#endif // _STDAFX_H_
+#include "grts/structs.model.h"
+#include "grts/structs.db.query.h"
+#include "grts/structs.workbench.physical.h"
+#include "grts/structs.workbench.logical.h"
+#include "grts/structs.db.migration.h"

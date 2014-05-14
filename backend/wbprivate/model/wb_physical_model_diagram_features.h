@@ -17,20 +17,13 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_PHYSICAL_MODEL_DIAGRAM_FEATURES_H_
-#define _WB_PHYSICAL_MODEL_DIAGRAM_FEATURES_H_
+#pragma once
 
-#include <mdc.h>
-#include <grts/structs.model.h>
-#include <grts/structs.workbench.physical.h>
+#include "mdc.h"
+#include "grts/structs.model.h"
+#include "grts/structs.workbench.physical.h"
 
 #include "grt/grt_manager.h"
-
-namespace MySQL {
-  namespace Geometry {
-    struct Point;
-  };
-};
 
 namespace wb {
   
@@ -89,4 +82,3 @@ namespace wb {
   
 };
 
-#endif

@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "table_inserts_loader_be.h"
 #include "recordset_table_inserts_storage.h"
 #include "recordset_be.h"

@@ -46,8 +46,4 @@ namespace bec {
 
 };
 
-#ifdef _WIN32
-#pragma make_public(bec::ViewEditorBE)
-#endif
-
 #endif /* _EDITOR_VIEW_H_ */

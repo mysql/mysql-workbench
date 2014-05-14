@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #include <mysql_connection.h>
 #include <cppconn/metadata.h>
@@ -465,8 +464,8 @@ bool sql_definition_compare(const ValueRef obj1, const ValueRef obj2, const std:
         return false;
     db_DatabaseDdlObjectRef dbobj1 = db_DatabaseDdlObjectRef::cast_from(obj1);
     db_DatabaseDdlObjectRef dbobj2 = db_DatabaseDdlObjectRef::cast_from(obj2);
-    int alg1 = dbobj1.has_member("algorithm")?dbobj1.get_integer_member("algorithm"):0;
-    int alg2 = dbobj2.has_member("algorithm")?dbobj2.get_integer_member("algorithm"):0;
+    size_t alg1 = dbobj1.has_member("algorithm") ? dbobj1.get_integer_member("algorithm"):0;
+    size_t alg2 = dbobj2.has_member("algorithm") ? dbobj2.get_integer_member("algorithm"):0;
     return sqlBody_compare(obj1, obj2, "sqlBody", grt) && (alg1 == alg2) && (caseless_compare (obj1 , obj2, "definer","ROOT`@`LOCALHOST"));
   }
 }
@@ -559,9 +558,9 @@ grt::NormalizedComparer::NormalizedComparer(grt::GRT* grt, const grt::DictRef op
   if (options.is_valid())
   {
     _case_sensitive = options.get_int("CaseSensitive") != 0;
-    _maxTableCommentLength = options.get_int("maxTableCommentLength");
-    _maxIndexCommentLength = options.get_int("maxIndexCommentLength");
-    _maxColumnCommentLength = options.get_int("maxColumnCommentLength");
+    _maxTableCommentLength = (int)options.get_int("maxTableCommentLength");
+    _maxIndexCommentLength = (int)options.get_int("maxIndexCommentLength");
+    _maxColumnCommentLength = (int)options.get_int("maxColumnCommentLength");
     load_rules();
 
   }else
@@ -623,8 +622,8 @@ bool autoincrement_compare(const ValueRef obj1, const ValueRef obj2, const std::
 
 bool default_int_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name)
 {
-    int i1 = ObjectRef::cast_from(obj1).get_integer_member(name);
-    int i2 = ObjectRef::cast_from(obj2).get_integer_member(name);
+    ssize_t i1 = ObjectRef::cast_from(obj1).get_integer_member(name);
+    ssize_t i2 = ObjectRef::cast_from(obj2).get_integer_member(name);
     return (i1 == -1) || (i2 == -1);
 }
 

@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <glib.h>
 #include "file_charset_dialog.h"
 #include "grt/common.h"
@@ -97,7 +95,7 @@ bool FileCharsetDialog::ensure_filedata_utf8(const char *data, size_t length,
   const gchar *end = NULL;
   bool retrying = false;
 retry:
-  if (!g_utf8_validate(data, length, &end))
+  if (!g_utf8_validate(data, (gssize)length, &end))
   {
     std::string default_encoding = "LATIN1";
 
@@ -144,7 +142,7 @@ retry:
       retrying = true; // in case we fail..
     }
 
-    converted = g_convert(data, length, "UTF-8", charset.c_str(),
+    converted = g_convert(data, (gssize)length, "UTF-8", charset.c_str(),
                           &bytes_read, &bytes_written,
                           &error);
     if (!converted)

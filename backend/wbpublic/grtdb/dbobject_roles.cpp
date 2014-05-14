@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "dbobject_roles.h"
 #include "base/string_utilities.h"
@@ -55,13 +53,13 @@ void ObjectRoleListBE::refresh()
 }
 
 
-int ObjectRoleListBE::count()
+size_t ObjectRoleListBE::count()
 {
-  return (int)_role_privs.size();
+  return _role_privs.size();
 }
 
 
-bool ObjectRoleListBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool ObjectRoleListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   switch ((Columns)column)
   {
@@ -186,10 +184,10 @@ ObjectPrivilegeListBE::ObjectPrivilegeListBE(const db_mgmt_RdbmsRef &rdbms)
 }
 
 
-int ObjectPrivilegeListBE::count()
+size_t ObjectPrivilegeListBE::count()
 {
   if (_privileges.is_valid())
-    return (int)_privileges.count();
+    return _privileges.count();
   return 0;
 }
 
@@ -216,7 +214,7 @@ void ObjectPrivilegeListBE::refresh()
 }
 
 
-bool ObjectPrivilegeListBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool ObjectPrivilegeListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   if (node[0] >= count())
     return false;
@@ -242,7 +240,7 @@ bool ObjectPrivilegeListBE::get_field_grt(const NodeId &node, int column, grt::V
 }
 
 
-bool ObjectPrivilegeListBE::set_field(const NodeId &node, int column, int value)
+bool ObjectPrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize_t value)
 {
   db_RolePrivilegeRef role_privilege(_owner->get_selected());
   size_t index;

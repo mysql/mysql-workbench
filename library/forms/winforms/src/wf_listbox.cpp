@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "wf_base.h"
 #include "wf_view.h"
@@ -97,23 +95,23 @@ void ListBoxWrapper::add_items(mforms::ListBox *backend, const std::list<std::st
 
 //--------------------------------------------------------------------------------------------------
 
-int ListBoxWrapper::add_item(mforms::ListBox *backend, const std::string &item)
+size_t ListBoxWrapper::add_item(mforms::ListBox *backend, const std::string &item)
 {
   return ListBoxWrapper::GetManagedObject<ListBox>(backend)->Items->Add(CppStringToNative(item));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBoxWrapper::remove_indices(mforms::ListBox *backend, const std::vector<int> &indices)
+void ListBoxWrapper::remove_indices(mforms::ListBox *backend, const std::vector<size_t> &indices)
 {
   ListBox ^listbox = ListBoxWrapper::GetManagedObject<ListBox>(backend);
   listbox->BeginUpdate();
   try
   {
-    for (std::vector<int>::const_reverse_iterator iterator = indices.rbegin(); iterator != indices.rend();
+    for (std::vector<size_t>::const_reverse_iterator iterator = indices.rbegin(); iterator != indices.rend();
       ++iterator)
     {
-      listbox->Items->RemoveAt(*iterator);
+      listbox->Items->RemoveAt((int)*iterator);
     }
   }
   finally
@@ -124,9 +122,9 @@ void ListBoxWrapper::remove_indices(mforms::ListBox *backend, const std::vector<
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBoxWrapper::remove_index(mforms::ListBox *backend, int index)
+void ListBoxWrapper::remove_index(mforms::ListBox *backend, size_t index)
 {
-  return ListBoxWrapper::GetManagedObject<ListBox>(backend)->Items->RemoveAt(index);
+  return ListBoxWrapper::GetManagedObject<ListBox>(backend)->Items->RemoveAt((int)index);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,25 +141,25 @@ std::string ListBoxWrapper::get_text(mforms::ListBox *backend)
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBoxWrapper::set_index(mforms::ListBox *backend, int index)
+void ListBoxWrapper::set_index(mforms::ListBox *backend, ssize_t index)
 {
-  ListBoxWrapper::GetManagedObject<ListBox>(backend)->SelectedIndex = index;
+  ListBoxWrapper::GetManagedObject<ListBox>(backend)->SelectedIndex = (int)index;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int ListBoxWrapper::get_index(mforms::ListBox *backend)
+ssize_t ListBoxWrapper::get_index(mforms::ListBox *backend)
 {
   return ListBoxWrapper::GetManagedObject<ListBox>(backend)->SelectedIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<int> ListBoxWrapper::get_selected_indices(mforms::ListBox *backend)
+std::vector<size_t> ListBoxWrapper::get_selected_indices(mforms::ListBox *backend)
 {
-  std::vector<int> result;
+  std::vector<size_t> result;
   ListBox ^listbox = ListBoxWrapper::GetManagedObject<ListBox>(backend);
-  for each (int index in listbox->SelectedIndices)
+  for each (size_t index in listbox->SelectedIndices)
     result.push_back(index);
   return result;
 }

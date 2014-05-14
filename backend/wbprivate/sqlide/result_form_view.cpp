@@ -537,7 +537,7 @@ int ResultFormView::display_record()
       (*i)->set_value(value, rset->is_field_null(rset->edited_field_row(), c));
     }
 
-    _label_item->set_text(base::strfmt("%i / %i", rset->edited_field_row()+1, rset->count()));
+    _label_item->set_text(base::strfmt("%zi / %zi", rset->edited_field_row()+1, rset->count()));
     _tbar.find_item("first")->set_enabled(rset->edited_field_row() > 0);
     _tbar.find_item("back")->set_enabled(rset->edited_field_row() > 0);
 
@@ -584,7 +584,7 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
     int cols = rset->get_column_count();
     _table.set_row_count(cols);
 
-    if (rset->edited_field_row() < 0 && rset->count() > 0)
+    if (rset->edited_field_row() == (RowId)-1 && rset->count() > 0)
     {
       rset->set_edited_field(0, 0);
       if (rset->update_edited_field)

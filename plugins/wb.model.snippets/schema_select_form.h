@@ -44,13 +44,13 @@ public:
             _schema_list.add_item(_schemas[i]->name());
             if (default_schema->name() == _schemas[i]->name())
             {
-                _schema_list.set_selected(i);            
+                _schema_list.set_selected((int)i);            
             };
         };
         if (_schema_list.get_selected_index() < 0)
         {
             _schema_list.add_item("Add new schema");
-            _schema_list.set_selected(_schemas.count());
+            _schema_list.set_selected((int)_schemas.count());
         };
         _box.add(&_schema_list,true,true);
         _button_box.set_spacing(8);

@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 
@@ -470,8 +468,8 @@ public:
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     print_info_line(cr, line_bounds, _("Network Address"), parameter_values.get_string("hostName"));
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    int port = parameter_values.get_int("port");
-    print_info_line(cr, line_bounds, _("TCP/IP Port"), base::strfmt("%i", port));
+    ssize_t port = parameter_values.get_int("port");
+    print_info_line(cr, line_bounds, _("TCP/IP Port"), base::strfmt("%zd", port));
 
     // Instance info next.
     line_bounds = bounds;
@@ -723,10 +721,10 @@ private:
   base::Color _folder_tile_bk_color_hl;
   base::Color _back_tile_bk_color_hl;
 
-  int _page_start;        // Index into the list where root display starts.
-  int _page_start_backup; // Copy of the current page start when we go into a folder (for restauration).
-  int _active_folder;     // The index of the folder entry that is currently active.
-  int _tiles_per_page;
+  ssize_t _page_start;        // Index into the list where root display starts.
+  ssize_t _page_start_backup; // Copy of the current page start when we go into a folder (for restauration).
+  ssize_t _active_folder;     // The index of the folder entry that is currently active.
+  ssize_t _tiles_per_page;
 
   typedef std::vector<ConnectionEntry> ConnectionVector;
   typedef ConnectionVector::iterator ConnectionIterator;
@@ -738,12 +736,12 @@ private:
   mforms::Menu *_folder_context_menu;
   mforms::Menu *_generic_context_menu;
 
-  int _hot_entry;      // The index of the connection entry under the mouse.
-  int _entry_for_menu; // The index that was hot when the context menu was opened.
-  bool _show_details;  // If there's a hot connection this indicates if we just show the hot state or the connection details.
+  ssize_t _hot_entry;      // The index of the connection entry under the mouse.
+  ssize_t _entry_for_menu; // The index that was hot when the context menu was opened.
+  bool _show_details;      // If there's a hot connection this indicates if we just show the hot state or the connection details.
 
-  int _drag_index;     // The index of the entry that is being dragged.
-  int _drop_index;     // The index of the entry that is currently the drop target.
+  ssize_t _drag_index;     // The index of the entry that is being dragged.
+  ssize_t _drop_index;     // The index of the entry that is currently the drop target.
   DropPosition _drop_position;
 
   HomeAccessibleButton _add_button;
@@ -983,7 +981,7 @@ public:
             {
               if (_connections[i].title == _filtered_connections[0].title)
               {
-                _active_folder = i;
+                _active_folder = (int)i;
                 break;
               }
             }
@@ -1004,7 +1002,7 @@ public:
    * Computes the index for the given position, regardless if that is actually backed by an existing
    * entry or not.
    */
-  int calculate_index_from_point(int x, int y)
+  ssize_t calculate_index_from_point(int x, int y)
   {
     int width = get_width();
     if (x < CONNECTIONS_LEFT_PADDING || x > (width - CONNECTIONS_RIGHT_PADDING) ||
@@ -1037,12 +1035,12 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  int entry_from_point(int x, int y, bool &in_details_area)
+  ssize_t entry_from_point(int x, int y, bool &in_details_area)
   {
     in_details_area = false;
 
-    size_t index = calculate_index_from_point(x, y);
-    size_t count = _connections.size();
+    ssize_t index = calculate_index_from_point(x, y);
+    ssize_t count = _connections.size();
     if (_filtered)
       count = _filtered_connections.size(); // For both, main list or folder.
     else
@@ -1080,7 +1078,7 @@ public:
    * describes a folder or back tile.
    * Properly takes into account if we are in a folder or not and if we have filtered entries currently.
    */
-  db_mgmt_ConnectionRef connection_from_index(int index)
+  db_mgmt_ConnectionRef connection_from_index(ssize_t index)
   {
     if (index < 0 || (_active_folder > -1 && index == 0))
       return db_mgmt_ConnectionRef();
@@ -1343,7 +1341,7 @@ public:
       cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);
 #endif
       
-      std::string info = base::strfmt(_("%ld Connections"), (long)entry.children.size() - 1);
+      std::string info = base::strfmt(_("%zd Connections"), entry.children.size() - 1);
       y = bounds.top() + 55;
       cairo_move_to(cr, x, y);
       cairo_show_text(cr, info.c_str());
@@ -1890,7 +1888,7 @@ public:
   virtual bool mouse_move(mforms::MouseButton button, int x, int y)
   {
     bool in_details_area;
-    int entry = entry_from_point(x, y, in_details_area);
+    ssize_t entry = entry_from_point(x, y, in_details_area);
 
     if (entry > -1 && !_mouse_down_position.empty() && (!_mouse_down_position.contains(x, y)))
     {
@@ -1903,7 +1901,7 @@ public:
       if (button == mforms::MouseButtonNone) // Cancel drag if the mouse button was released.
         return true;
 
-      return do_tile_drag(entry, x, y);
+      return do_tile_drag((int)entry, x, y);
     }
     else
     {
@@ -2031,8 +2029,8 @@ public:
 
   void menu_open()
   {
-    int first_index = _active_folder > -1 ? 1 : 0;
-    int last_index;
+    ssize_t first_index = _active_folder > -1 ? 1 : 0;
+    ssize_t last_index;
 
     if (_filtered)
       last_index = _filtered_connections.size() - 1;
@@ -2070,11 +2068,11 @@ public:
     width -= CONNECTIONS_LEFT_PADDING + CONNECTIONS_RIGHT_PADDING;
     int tiles_per_row = width / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
 
-    int top_entry = _hot_entry - _page_start;
-    int row = top_entry / tiles_per_row;
-    int column = top_entry % tiles_per_row;
-    pos.first = CONNECTIONS_LEFT_PADDING + column * (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
-    pos.second = CONNECTIONS_TOP_PADDING + row * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING);
+    size_t top_entry = _hot_entry - _page_start;
+    size_t row = top_entry / tiles_per_row;
+    size_t column = top_entry % tiles_per_row;
+    pos.first = (int)(CONNECTIONS_LEFT_PADDING + column * (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING));
+    pos.second = (int)(CONNECTIONS_TOP_PADDING + row * (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING));
     base::Rect item_bounds = base::Rect(pos.first, pos.second, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
     db_mgmt_ConnectionRef connection;
 
@@ -2186,7 +2184,7 @@ public:
             if (index < (int)_filtered_connections.size())
               accessible = &_filtered_connections[index];
             else
-              index -= _filtered_connections.size();
+              index -= (int)_filtered_connections.size();
           }
           else
           {
@@ -2195,14 +2193,14 @@ public:
               if (index < (int)_connections.size())
                 accessible = &_connections[index];
               else
-                index -= _connections.size();
+                index -= (int)_connections.size();
             }
             else
             {
               if (index < (int)_connections[_active_folder].children.size())
                 accessible = &_connections[_active_folder].children[index];
               else
-                index -= _connections[_active_folder].children.size();
+                index -= (int)_connections[_active_folder].children.size();
             }
           }
 
@@ -2247,7 +2245,7 @@ public:
     else
     {
       bool in_details_area = false;
-      int entry = entry_from_point(x, y, in_details_area);
+      ssize_t entry = entry_from_point(x, y, in_details_area);
     
       if (entry != -1)
       {
@@ -2319,7 +2317,7 @@ public:
     {
       // Indicate we can accept files if one of the connection tiles is hit.
       bool in_details_area;
-      int entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
+      ssize_t entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
 
       if (entry == -1)
         return mforms::DragOperationNone;
@@ -2432,7 +2430,7 @@ public:
       if (index == _drag_index ||
           (index + 1 == _drag_index && position == DropAfter) ||
           (index - 1 == _drag_index && position == DropBefore) ||
-          (position == DropOn && is_group(_drag_index) && is_group(index)))
+          (position == DropOn && is_group((int)_drag_index) && is_group(index)))
       {
         index = -1;
       }
@@ -2458,7 +2456,7 @@ public:
   mforms::DragOperation files_dropped(View *sender, base::Point p, const std::vector<std::string> &file_names)
   {
     bool in_details_area;
-    int entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
+    ssize_t entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
     if (entry == -1)
       return mforms::DragOperationNone;
 
@@ -2534,9 +2532,9 @@ public:
 
       // Because the connection changes will reload the entire list we try to restore
       // the last active folder and page position.
-      int last_group = _active_folder;
-      int last_page_start = _page_start;
-      int last_page_start_backup = _page_start_backup;
+      ssize_t last_group = _active_folder;
+      size_t last_page_start = _page_start;
+      size_t last_page_start_backup = _page_start_backup;
       if (_drop_position == DropOn)
       {
         // Drop on a group (or back tile).
@@ -2549,13 +2547,13 @@ public:
       else
       {
         // Drag from one position to another within a group (root or active group).
-        int to = _drop_index;
+        size_t to = _drop_index;
         if (_active_folder > - 1)
           to--; // The back tile has no representation in the global list.
         if (_drop_position == DropAfter)
           to++;
 
-        details.set("to", grt::IntegerRef(to));
+        details.set("to", grt::IntegerRef((int)to));
         _owner->trigger_callback(ActionMoveConnection, details);
       }
       result = mforms::DragOperationMove;
@@ -2629,9 +2627,9 @@ private:
   cairo_surface_t* _open_icon;
   cairo_surface_t* _action_icon;
 
-  int _page_start;
-  int _entries_per_page;
-  int _entries_per_row;
+  ssize_t _page_start;
+  ssize_t _entries_per_page;
+  ssize_t _entries_per_row;
 
   bool _show_selection_message; // Additional info to let the user a connection (when opening a script).
   base::Rect _message_close_button_rect;
@@ -2643,8 +2641,8 @@ private:
   mforms::Menu *_model_context_menu;
   mforms::Menu *_model_action_menu;
 
-  int _hot_entry;
-  int _active_entry;
+  ssize_t _hot_entry;
+  ssize_t _active_entry;
   enum DisplayMode {Nothing, ModelsOnly, ScriptsOnly, Mixed} _display_mode;
 
   boost::function <bool (int, int)> _accessible_click_handler;
@@ -2745,7 +2743,7 @@ public:
 #define DOCUMENTS_HEADING_SPACING  10 // Spacing between a heading part and a separator.
 #define DOCUMENTS_TOP_BASELINE     40 // Vertical space from top border to title base line.
 
-  int entry_from_point(int x, int y)
+  size_t entry_from_point(int x, int y)
   {
     int width = get_width();
     if (x < DOCUMENTS_LEFT_PADDING || x > (width - DOCUMENTS_RIGHT_PADDING) ||
@@ -2964,8 +2962,8 @@ public:
   {
     // Attach the message to the current active entry as this is what is used when
     // a connection is opened.
-    int column = (_active_entry - _page_start) % _entries_per_row;
-    int row = (_active_entry - _page_start) / _entries_per_row;
+    ssize_t column = (_active_entry - _page_start) % _entries_per_row;
+    ssize_t row = (_active_entry - _page_start) / _entries_per_row;
     int hotspot_x = (int)(DOCUMENTS_LEFT_PADDING + (column + 0.5) * DOCUMENTS_ENTRY_WIDTH);
     int hotspot_y = (int)(DOCUMENTS_TOP_PADDING + (row + 1) * DOCUMENTS_ENTRY_HEIGHT);
     base::Rect message_rect = base::Rect(hotspot_x - MESSAGE_WIDTH / 2, hotspot_y + POPUP_TIP_HEIGHT,
@@ -3097,13 +3095,13 @@ public:
         if (iterator->folder_shorted.empty() && !iterator->folder.empty())
         {
           // shorten the string while reversed, so that we truncate the beginning of the string instead of the end
-          gchar *rev = g_utf8_strreverse(iterator->folder.data(), iterator->folder.size());
+          gchar *rev = g_utf8_strreverse(iterator->folder.data(), (gssize)iterator->folder.size());
           iterator->folder_shorted = mforms::Utilities::shorten_string(cr, rev, details_width);
           if (iterator->folder_shorted.compare(rev) != 0) // string was shortened
           {
             g_free(rev);
             iterator->folder_shorted = iterator->folder_shorted.substr(0, iterator->folder_shorted.size()-3); // strip the ...
-            rev = g_utf8_strreverse(iterator->folder_shorted.data(), iterator->folder_shorted.size());
+            rev = g_utf8_strreverse(iterator->folder_shorted.data(), (gssize)iterator->folder_shorted.size());
             iterator->folder_shorted = std::string("...") + rev;
             g_free(rev);
           }
@@ -3616,7 +3614,7 @@ public:
   virtual bool mouse_move(mforms::MouseButton button, int x, int y)
   {
     bool result = false;
-    int entry = entry_from_point(x, y);
+    ssize_t entry = entry_from_point(x, y);
     if (entry != _hot_entry)
     {
       _hot_entry = entry;
@@ -3753,7 +3751,7 @@ public:
             accessible = &_filtered_documents[index];
           else
           {
-            index -= _filtered_documents.size();
+            index -= (int)_filtered_documents.size();
             accessible = index ? &_page_down_button : &_page_up_button;
           }
         }
@@ -3787,7 +3785,7 @@ public:
       accessible = &_page_down_button;
     else
     {
-      int entry = entry_from_point(x, y);
+      ssize_t entry = entry_from_point(x, y);
     
       if (entry != -1)
         accessible = &_filtered_documents[entry];
@@ -3833,8 +3831,8 @@ private:
   HomeAccessibleButton _page_up_button;
   HomeAccessibleButton _page_down_button;
 
-  int _page_start;
-  int _shortcuts_per_page;
+  ssize_t _page_start;
+  ssize_t _shortcuts_per_page;
   cairo_surface_t *_page_down_icon;
   cairo_surface_t *_page_up_icon;
 
@@ -4045,15 +4043,15 @@ public:
       return -1; // In the spacing between entries.
 
     size_t row = y / (SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING);
-    int height = get_height() - SHORTCUTS_TOP_PADDING;
-    int row_bottom = row * (SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING) + SHORTCUTS_ROW_HEIGHT;
+    size_t height = get_height() - SHORTCUTS_TOP_PADDING;
+    size_t row_bottom = row * (SHORTCUTS_ROW_HEIGHT + SHORTCUTS_SPACING) + SHORTCUTS_ROW_HEIGHT;
     if (row_bottom > height)
       return -1; // The last shortcut is dimmed if it goes over the bottom border.
                                // Take it out from the hit test too.
 
     row += _page_start;
     if (row < _shortcuts.size())
-      return row;
+      return (int)row;
 
     return -1;
   }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,3 +32,19 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
+
+namespace base {
+  class Color;
+}
+
+#pragma make_public(base::Color)
+
+namespace bec {
+  class UIForm;
+  struct MenuItem;
+  struct ToolbarItem;
+}
+
+#pragma make_public(bec::UIForm)
+#pragma make_public(bec::MenuItem)
+#pragma make_public(bec::ToolbarItem)

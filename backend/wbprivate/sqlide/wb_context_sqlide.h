@@ -44,7 +44,7 @@ namespace wb
     std::list<boost::weak_ptr<SqlEditorForm> > _open_editors;
     app_ToolbarRef _toolbar;
 
-    int _auto_save_interval;
+    ssize_t _auto_save_interval;
     bool _auto_save_active;
     bool _option_change_signal_connected;
     

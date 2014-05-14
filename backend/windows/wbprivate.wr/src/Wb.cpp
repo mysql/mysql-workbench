@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "sqlide/wb_sql_editor_form.h"
 
 #include "base/string_utilities.h"

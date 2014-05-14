@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <grts/structs.db.query.h>
 
 #include "db_query_Editor.h"
@@ -97,14 +95,14 @@ db_query_QueryEditorRef db_query_Editor::addQueryEditor()
 }
 
 
-grt::IntegerRef db_query_Editor::addToOutput(const std::string &text, long bringToFront)
+grt::IntegerRef db_query_Editor::addToOutput(const std::string &text, ssize_t bringToFront)
 {
   if (_data)
-    return _data->addToOutput(text, bringToFront);
+    return _data->addToOutput(text, (long)bringToFront);
   return grt::IntegerRef(0);
 }
 
-db_query_EditableResultsetRef db_query_Editor::createTableEditResultset(const std::string &schema, const std::string &table, const std::string &where, long showGrid)
+db_query_EditableResultsetRef db_query_Editor::createTableEditResultset(const std::string &schema, const std::string &table, const std::string &where, ssize_t showGrid)
 {
   if (_data)
     return _data->createTableEditResultset(schema, table, where, showGrid != 0);
@@ -139,7 +137,7 @@ grt::IntegerRef db_query_Editor::executeScriptAndOutputToGrid(const std::string 
 }
 
 
-db_query_ResultsetRef db_query_Editor::executeManagementQuery(const std::string &sql, long log)
+db_query_ResultsetRef db_query_Editor::executeManagementQuery(const std::string &sql, ssize_t log)
 {
   if (_data)
     return _data->executeManagementQuery(sql, log != 0);
@@ -147,14 +145,14 @@ db_query_ResultsetRef db_query_Editor::executeManagementQuery(const std::string 
 }
 
 
-void db_query_Editor::executeManagementCommand(const std::string &sql, long log)
+void db_query_Editor::executeManagementCommand(const std::string &sql, ssize_t log)
 {
   if (_data)
      _data->executeManagementCommand(sql, log != 0);
 }
 
 
-db_query_ResultsetRef db_query_Editor::executeQuery(const std::string &sql, long log)
+db_query_ResultsetRef db_query_Editor::executeQuery(const std::string &sql, ssize_t log)
 {
   if (_data)
   return _data->executeQuery(sql, log != 0);
@@ -162,7 +160,7 @@ db_query_ResultsetRef db_query_Editor::executeQuery(const std::string &sql, long
 }
 
 
-void db_query_Editor::executeCommand(const std::string &sql, long log, long background)
+void db_query_Editor::executeCommand(const std::string &sql, ssize_t log, ssize_t background)
 {
   if (_data)
   _data->executeCommand(sql, log != 0, background != 0);

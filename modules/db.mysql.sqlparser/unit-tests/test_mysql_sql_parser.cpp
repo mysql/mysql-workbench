@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #ifndef _WIN32
 #include <sstream>
 #endif
@@ -30,7 +28,7 @@
 #include "testgrt.h"
 #include "grtsqlparser/sql_facade.h"
 #include "wb_helpers.h"
-#include "plugins/db.mysql/backend/db_mysql_sql_export.h"
+#include "backend/db_mysql_sql_export.h"
 
 BEGIN_TEST_DATA_CLASS(mysql_sql_parser)
 public:

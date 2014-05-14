@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wb_component_physical.h"
 #include "model/wb_model_diagram_form.h"
 #include "relationship_canvas_floater.h"
@@ -157,9 +155,9 @@ bool WBComponentPhysical::RelationshipToolContext::add_column(const db_ColumnRef
   columns.push_back(column);
   
   std::string name= column->formattedType();
-  if (g_utf8_strlen(name.data(), name.size()) > 20)
+  if (g_utf8_strlen(name.data(), (gssize)name.size()) > 20)
   {
-    gchar *buf= (gchar*)g_malloc(name.size()+1);
+    gchar *buf = (gchar*)g_malloc((gssize)name.size() + 1);
     g_utf8_strncpy(buf, name.data(), 20);
     name = buf;
     g_free(buf);

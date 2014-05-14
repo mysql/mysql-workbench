@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <grts/structs.db.query.h>
 #include <grtpp_util.h>
 #include "sqlide/recordset_be.h"
@@ -42,8 +40,8 @@ db_query_Resultset::ImplData::~ImplData()
 WBRecordsetResultset::WBRecordsetResultset(db_query_ResultsetRef aself, boost::shared_ptr<Recordset> rset)
 : db_query_Resultset::ImplData(aself), cursor(0), recordset(rset)
 {
-  const int last_column= recordset->get_column_count();
-  for (int i = 0; i < last_column; i++)
+  const size_t last_column = recordset->get_column_count();
+  for (size_t i = 0; i < last_column; i++)
   {
     column_by_name[recordset->get_column_caption(i)]= i;
     
@@ -83,11 +81,11 @@ grt::IntegerRef WBRecordsetResultset::rowCount() const
   return grt::IntegerRef(recordset->count());
 }
 
-grt::DoubleRef WBRecordsetResultset::floatFieldValue(long column)
+grt::DoubleRef WBRecordsetResultset::floatFieldValue(ssize_t column)
 {
   double value;
-  if (column >= 0 && column < recordset->get_column_count() &&
-      recordset->get_field(cursor, column, value))
+  if (column >= 0 && (size_t)column < recordset->get_column_count() &&
+    recordset->get_field(cursor, column, value))
     return grt::DoubleRef(value);
   throw std::invalid_argument(base::strfmt("invalid column %li for resultset", column).c_str());
   return grt::DoubleRef(0.0);
@@ -110,7 +108,7 @@ grt::DoubleRef WBRecordsetResultset::floatFieldValueByName(const std::string &co
 grt::IntegerRef WBRecordsetResultset::goToFirstRow()
 {
   cursor= 0;
-  return grt::IntegerRef((int) cursor < recordset->count());
+  return grt::IntegerRef( cursor < recordset->count());
 }
 
 
@@ -125,9 +123,9 @@ grt::IntegerRef WBRecordsetResultset::goToLastRow()
 }
 
 
-grt::IntegerRef WBRecordsetResultset::goToRow(long row)
+grt::IntegerRef WBRecordsetResultset::goToRow(ssize_t row)
 {
-  if (row >= 0 && row < recordset->count())
+  if (row >= 0 && (size_t)row < recordset->count())
   {
     cursor= row;
     return grt::IntegerRef(1);
@@ -136,12 +134,12 @@ grt::IntegerRef WBRecordsetResultset::goToRow(long row)
 }
 
 
-grt::IntegerRef WBRecordsetResultset::intFieldValue(long column)
+grt::IntegerRef WBRecordsetResultset::intFieldValue(ssize_t column)
 {
-  long long value;
-  if (column >= 0 && column < recordset->get_column_count() &&
-      recordset->get_field(bec::NodeId(cursor), (int)column, value))
-    return grt::IntegerRef((grt::IntegerRef::storage_type)value);
+  ssize_t value;
+  if (column >= 0 && (size_t)column < recordset->get_column_count() &&
+    recordset->get_field(bec::NodeId(cursor), column, value))
+    return grt::IntegerRef(value);
   throw std::invalid_argument(base::strfmt("invalid column %li for resultset", column).c_str());
   return grt::IntegerRef(0);
 }
@@ -149,11 +147,11 @@ grt::IntegerRef WBRecordsetResultset::intFieldValue(long column)
 
 grt::IntegerRef WBRecordsetResultset::intFieldValueByName(const std::string &column)
 {
-  long long value;
+  ssize_t value;
   if (column_by_name.find(column) != column_by_name.end())
   {
     if (recordset->get_field(bec::NodeId(cursor), column_by_name[column], value))
-      return grt::IntegerRef((grt::IntegerRef::storage_type)value);
+      return grt::IntegerRef(value);
   }
   throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
   return grt::IntegerRef(0);
@@ -162,7 +160,7 @@ grt::IntegerRef WBRecordsetResultset::intFieldValueByName(const std::string &col
 
 grt::IntegerRef WBRecordsetResultset::nextRow()
 {
-  if ((int) cursor < recordset->row_count() - 1)
+  if ( cursor < recordset->count() - 1)
   {
     ++cursor;
     return grt::IntegerRef(1);
@@ -188,11 +186,11 @@ void WBRecordsetResultset::refresh()
 }
 
 
-grt::StringRef WBRecordsetResultset::stringFieldValue(long column)
+grt::StringRef WBRecordsetResultset::stringFieldValue(ssize_t column)
 {
   std::string value;
-  if (column >= 0 && column < recordset->get_column_count() &&
-      recordset->get_field_repr_no_truncate(bec::NodeId(cursor), (int)column, value))
+  if (column >= 0 && (size_t)column < recordset->get_column_count() &&
+    recordset->get_field_repr_no_truncate(bec::NodeId(cursor), column, value))
     return grt::StringRef(value);
   throw std::invalid_argument(base::strfmt("invalid column %li for resultset", column).c_str());
   return grt::StringRef(); // NULL
@@ -211,11 +209,11 @@ grt::StringRef WBRecordsetResultset::stringFieldValueByName(const std::string &c
   return grt::StringRef(); // NULL
 }
 
-grt::IntegerRef WBRecordsetResultset::saveFieldValueToFile(long column, const std::string &file)
+grt::IntegerRef WBRecordsetResultset::saveFieldValueToFile(ssize_t column, const std::string &file)
 {
-  if (column >= 0 && column < recordset->get_column_count())
+  if (column >= 0 && (size_t)column < recordset->get_column_count())
   {
-    recordset->save_to_file(bec::NodeId(cursor), (int)column, file);
+    recordset->save_to_file(bec::NodeId(cursor), column, file);
     return grt::IntegerRef(1);
   }
   return grt::IntegerRef(0);
@@ -320,13 +318,13 @@ public:
 
   virtual grt::IntegerRef rowCount() const
   {
-    return grt::IntegerRef((long)recordset->rowsCount());
+    return grt::IntegerRef(recordset->rowsCount());
   }
 
-  virtual grt::DoubleRef floatFieldValue(long column)
+  virtual grt::DoubleRef floatFieldValue(ssize_t column)
   {
-    if (column >= 0 && column < (long)column_by_name.size())
-      return grt::DoubleRef(recordset->getDouble(column+1));
+    if (column >= 0 && column < (ssize_t)column_by_name.size())
+      return grt::DoubleRef(recordset->getDouble((uint32_t)column + 1)); // Hard coded to 32bit, <sigh>.
     throw std::invalid_argument(base::strfmt("invalid column %li for resultset", column).c_str());
     return grt::DoubleRef(0.0);
   }
@@ -336,7 +334,7 @@ public:
   {
     if (column_by_name.find(column) != column_by_name.end())
     {
-      return grt::DoubleRef(recordset->getDouble(column_by_name[column]));
+      return grt::DoubleRef(recordset->getDouble((long)column_by_name[column]));
     }
     throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
     return grt::DoubleRef(0.0);
@@ -345,26 +343,26 @@ public:
 
   virtual grt::IntegerRef goToFirstRow()
   {
-    return grt::IntegerRef((int)recordset->first());
+    return grt::IntegerRef(recordset->first());
   }
 
 
   virtual grt::IntegerRef goToLastRow()
   {
-    return grt::IntegerRef((int)recordset->last());
+    return grt::IntegerRef(recordset->last());
   }
 
 
-  virtual grt::IntegerRef goToRow(long row)
+  virtual grt::IntegerRef goToRow(ssize_t row)
   {
-    return grt::IntegerRef((int)recordset->absolute(row));
+    return grt::IntegerRef(recordset->absolute((int)row));
   }
 
 
-  virtual grt::IntegerRef intFieldValue(long column)
+  virtual grt::IntegerRef intFieldValue(ssize_t column)
   {
     if (column >= 0 && column < (long)column_by_name.size())
-      return grt::IntegerRef(recordset->getInt(column+1));
+      return grt::IntegerRef(recordset->getInt((uint32_t)column + 1));
     throw std::invalid_argument(base::strfmt("invalid column %li for resultset", column).c_str());
     return grt::IntegerRef(0);
   }
@@ -374,7 +372,7 @@ public:
   {
     if (column_by_name.find(column) != column_by_name.end())
     {
-      return grt::IntegerRef(recordset->getInt(column_by_name[column]));
+      return grt::IntegerRef(recordset->getInt((uint32_t)column_by_name[column]));
     }
     throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
     return grt::IntegerRef(0);
@@ -383,13 +381,13 @@ public:
 
   virtual grt::IntegerRef nextRow()
   {
-    return grt::IntegerRef((int)recordset->next());
+    return grt::IntegerRef(recordset->next());
   }
 
 
   virtual grt::IntegerRef previousRow()
   {
-    return grt::IntegerRef((int)recordset->previous());
+    return grt::IntegerRef(recordset->previous());
   }
 
 
@@ -398,10 +396,10 @@ public:
   }
 
 
-  virtual grt::StringRef stringFieldValue(long column)
+  virtual grt::StringRef stringFieldValue(ssize_t column)
   {
     if (column >= 0 && column < (long)column_by_name.size())
-      return grt::StringRef(recordset->getString(column+1));
+      return grt::StringRef(recordset->getString((uint32_t)column + 1));
     throw std::invalid_argument(base::strfmt("invalid column %li for resultset", column).c_str());
     return grt::StringRef(); // NULL
   }
@@ -411,13 +409,13 @@ public:
   {
     if (column_by_name.find(column) != column_by_name.end())
     {
-      return grt::StringRef(recordset->getString(column_by_name[column]));
+      return grt::StringRef(recordset->getString((uint32_t)column_by_name[column]));
     }
     throw std::invalid_argument(base::strfmt("invalid column %s for resultset", column.c_str()).c_str());
     return grt::StringRef(); // NULL
   }
   
-  virtual grt::IntegerRef saveFieldValueToFile(long column, const std::string &file)
+  virtual grt::IntegerRef saveFieldValueToFile(ssize_t column, const std::string &file)
   {
     return grt::IntegerRef(0);
   }
@@ -488,7 +486,7 @@ grt::IntegerRef db_query_Resultset::rowCount() const
   return _data ? _data->rowCount() : grt::IntegerRef(0);
 }
 
-grt::DoubleRef db_query_Resultset::floatFieldValue(long column)
+grt::DoubleRef db_query_Resultset::floatFieldValue(ssize_t column)
 {
   return _data ? _data->floatFieldValue(column) : grt::DoubleRef(0.0);
 }
@@ -512,13 +510,13 @@ grt::IntegerRef db_query_Resultset::goToLastRow()
 }
 
 
-grt::IntegerRef db_query_Resultset::goToRow(long row)
+grt::IntegerRef db_query_Resultset::goToRow(ssize_t row)
 {
   return _data ? _data->goToRow(row) : grt::IntegerRef(0);
 }
 
 
-grt::IntegerRef db_query_Resultset::intFieldValue(long column)
+grt::IntegerRef db_query_Resultset::intFieldValue(ssize_t column)
 {
   return _data ? _data->intFieldValue(column) : grt::IntegerRef(0);
 }
@@ -551,7 +549,7 @@ grt::IntegerRef db_query_Resultset::refresh()
 }
 
 
-grt::StringRef db_query_Resultset::stringFieldValue(long column)
+grt::StringRef db_query_Resultset::stringFieldValue(ssize_t column)
 {
   return _data ? _data->stringFieldValue(column) : grt::StringRef(); // NULL
 }
@@ -563,7 +561,7 @@ grt::StringRef db_query_Resultset::stringFieldValueByName(const std::string &col
 }
 
 
-grt::IntegerRef db_query_Resultset::saveFieldValueToFile(long column, const std::string &file)
+grt::IntegerRef db_query_Resultset::saveFieldValueToFile(ssize_t column, const std::string &file)
 {
   return _data ? _data->saveFieldValueToFile(column, file) : grt::IntegerRef(0);
 }

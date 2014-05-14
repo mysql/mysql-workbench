@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "workbench/wb_context.h"
 #include "output_view.h"
@@ -126,7 +124,7 @@ void OutputView::row_added()
   mforms::TreeNodeRef node;
   if (_message_list.root_node())
   {
-    for (int c = _messages->count(), i = _message_list.root_node()->count(); i < c; i++)
+    for (size_t c = _messages->count(), i = _message_list.root_node()->count(); i < c; i++)
     {
       std::string s;
       bec::IconId icon = _messages->get_field_icon(i, 0, bec::Icon16);
