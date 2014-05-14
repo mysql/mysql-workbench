@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #ifndef _WIN32
 #include <stdarg.h>
@@ -416,7 +414,7 @@ void ShellBE::set_snippet_data(const std::string &data)
   // Make sure path exists, if not create it with privileges 755
   g_mkdir_with_parents(_savedata_dir.c_str(), 0755);
 
-  if (!g_file_set_contents(path.c_str(), data.c_str(), data.size(), NULL))
+  if (!g_file_set_contents(path.c_str(), data.c_str(), (gssize)data.size(), NULL))
   {
     throw std::runtime_error("Could not save file "+path);
   }

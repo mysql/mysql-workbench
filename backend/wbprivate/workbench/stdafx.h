@@ -17,31 +17,26 @@
  * 02110-1301  USA
  */
 
-#ifndef _STDAFX_H_
-#define _STDAFX_H_
+#pragma once
 
-#ifdef _WIN32
-
-#ifdef _WIN64
-  typedef __int64 ssize_t;
-#else
-  typedef int ssize_t;
-#endif
+#define HAVE_ROUND
+#include <Python/Python.h>
 
 #include <stack>
 #include <pcre.h>
 #include <ctime>
 
-#define snprintf _snprintf
+//#define snprintf _snprintf
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <float.h>
-#define INFINITY FLT_MAX
 
 #include <list>
 #include <vector>
+#include <hash_set>
 
+#include <stdio.h>
+#include <float.h>
 #include <string>
 #include <map>
 #include <set>
@@ -51,15 +46,12 @@
 #include <typeinfo>
 #include <fstream>
 #include <stdint.h>
-#include <hash_set>
-
-#include <boost/function.hpp>
-#include <boost/signals2.hpp>
-
-#include <stdio.h>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 #include <cairo/cairo.h>
 #include <cairo/cairo-pdf.h>
@@ -68,8 +60,11 @@
 #include <gl/glu.h>
 
 #include <glib.h>
-#include <glib/gthread.h>
+#include <glib/gstdio.h>
 
-#endif // _WIN32
-
-#endif // _STDAFX_H_
+#include "grts/structs.model.h"
+#include "grts/structs.workbench.physical.h"
+#include "grts/structs.db.query.h"
+#include "grts/structs.workbench.physical.h"
+#include "grts/structs.workbench.logical.h"
+#include "grts/structs.db.migration.h"

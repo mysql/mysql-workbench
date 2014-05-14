@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <glib.h>
 #include <glib/gstdio.h>
 
@@ -83,7 +81,7 @@ bool DbSqlEditorSnippets::activate_toolbar_item(const bec::NodeId &selected, con
     return true;
   }
   
-  if (name == "del_snippet" && selected.is_valid() && selected[0] >= 0 && selected[0] < (int) _entries.size())
+  if (name == "del_snippet" && selected.is_valid() && selected[0] <  _entries.size())
   {
     delete_node(selected);
     return true;
@@ -100,7 +98,7 @@ bool DbSqlEditorSnippets::activate_toolbar_item(const bec::NodeId &selected, con
       editor_form->run_sql_in_scratch_tab(script, true, false);
     }
   } else if ((name == "replace_text" || name == "insert_text" || name == "copy_to_clipboard") &&
-    selected.is_valid() && selected[0] >= 0 && selected[0] < (int) _entries.size())
+    selected.is_valid() && selected[0] <  _entries.size())
   {
     std::string script = _entries[selected[0]].code;
 
@@ -484,15 +482,15 @@ void DbSqlEditorSnippets::add_snippet(const std::string &name, const std::string
 
 
 
-int DbSqlEditorSnippets::count()
+size_t DbSqlEditorSnippets::count()
 {
-  return (int)_entries.size();
+  return _entries.size();
 }
 
 
-bool DbSqlEditorSnippets::get_field(const bec::NodeId &node, int column, std::string &value)
+bool DbSqlEditorSnippets::get_field(const bec::NodeId &node, ColumnId column, std::string &value)
 {
-  if (node.is_valid() && node[0] >= 0 && node[0] < (int)_entries.size())
+  if (node.is_valid() && node[0] < _entries.size())
   {
     switch ((Column)column)
     {
@@ -508,9 +506,9 @@ bool DbSqlEditorSnippets::get_field(const bec::NodeId &node, int column, std::st
   return false;
 }
 
-bool DbSqlEditorSnippets::set_field(const bec::NodeId &node, int column, const std::string &value)
+bool DbSqlEditorSnippets::set_field(const bec::NodeId &node, ColumnId column, const std::string &value)
 {
-  if (node.is_valid() && node[0] >= 0 && node[0] < (int)_entries.size())
+  if (node.is_valid() && node[0] < _entries.size())
   {
     switch ((Column)column)
     {
@@ -556,13 +554,13 @@ bool DbSqlEditorSnippets::set_field(const bec::NodeId &node, int column, const s
 
 bool DbSqlEditorSnippets::can_delete_node(const bec::NodeId &node)
 {
-  return node.is_valid() && node[0] < (int)_entries.size();
+  return node.is_valid() && node[0] < _entries.size();
 }
 
 
 bool DbSqlEditorSnippets::delete_node(const bec::NodeId &node)
 {
-  if (node.is_valid() && node[0] >= 0 && node[0] < (int)_entries.size())
+  if (node.is_valid() && node[0] < _entries.size())
   {
     int entry_id = _entries[node[0]].db_snippet_id;
 

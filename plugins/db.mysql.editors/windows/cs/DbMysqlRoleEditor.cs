@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -112,7 +112,7 @@ namespace MySQL.GUI.Workbench.Plugins
       TreeNodeAdv dropNode = rolesTreeView.DropPosition.Node;
       if (dropNode == null) return;
 
-      NodeId dropNodeId = ((GrtTreeNode)dropNode.Tag).NodeId;
+      NodeIdWrapper dropNodeId = ((GrtTreeNode)dropNode.Tag).NodeId;
 
       if (rolesTreeView.DropPosition.Position == NodePosition.Inside)
       {
@@ -121,7 +121,7 @@ namespace MySQL.GUI.Workbench.Plugins
           if (node.Equals(dropNode))
             continue;
 
-          NodeId next_id = ((GrtTreeNode)node.Tag).NodeId;
+          NodeIdWrapper next_id = ((GrtTreeNode)node.Tag).NodeId;
           roleTreeBE.append_child(dropNodeId, next_id);
         }
 
@@ -136,7 +136,7 @@ namespace MySQL.GUI.Workbench.Plugins
       {
         foreach (TreeNodeAdv node in nodes)
         {
-          NodeId next_id = ((GrtTreeNode)(node.Tag)).NodeId;
+          NodeIdWrapper next_id = ((GrtTreeNode)(node.Tag)).NodeId;
           roleTreeBE.move_to_top_level(next_id);
         }
 
@@ -157,7 +157,7 @@ namespace MySQL.GUI.Workbench.Plugins
       }
       else if (rolesTreeView.DropPosition.Node != null)
       {
-        NodeId nid = roleTreeBE.get_parent(((GrtTreeNode)rolesTreeView.DropPosition.Node.Tag).NodeId);
+        NodeIdWrapper nid = roleTreeBE.get_parent(((GrtTreeNode)rolesTreeView.DropPosition.Node.Tag).NodeId);
         bool is_root = !nid.is_valid();
         if (is_root)
         {
@@ -167,7 +167,7 @@ namespace MySQL.GUI.Workbench.Plugins
           {
             foreach (TreeNodeAdv node in nodes)
             {
-              NodeId next_id = ((GrtTreeNode)node.Tag).NodeId;
+              NodeIdWrapper next_id = ((GrtTreeNode)node.Tag).NodeId;
               dragging_non_root = roleTreeBE.get_parent(next_id).is_valid();
               if (dragging_non_root)
               {
@@ -205,8 +205,8 @@ namespace MySQL.GUI.Workbench.Plugins
 
       for (int i= 0; i < count; i++)
       {
-        rolePrivilegeListWrapper.get_field(new NodeId(i), (int)RolePrivilegeListWrapper.Columns.Name, out caption);
-        rolePrivilegeListWrapper.get_field(new NodeId(i), (int)RolePrivilegeListWrapper.Columns.Enabled, out enabled);
+        rolePrivilegeListWrapper.get_field(new NodeIdWrapper(i), (int)RolePrivilegeListWrapper.Columns.Name, out caption);
+        rolePrivilegeListWrapper.get_field(new NodeIdWrapper(i), (int)RolePrivilegeListWrapper.Columns.Enabled, out enabled);
         privCheckedListBox.Items.Add(caption, enabled != 0);
       }
     }
@@ -215,20 +215,20 @@ namespace MySQL.GUI.Workbench.Plugins
     {
       if (roleObjectsTreeView.SelectedNode != null)
       {
-        NodeId nodeId = new NodeId(roleObjectsTreeView.SelectedNode.Index);
+        NodeIdWrapper nodeId = new NodeIdWrapper(roleObjectsTreeView.SelectedNode.Index);
         roleObjectListWrapper.set_selected_node(nodeId);
         RefreshPrivilegesList();
       }
       else
       {
-        roleObjectListWrapper.set_selected_node(new NodeId());
+        roleObjectListWrapper.set_selected_node(new NodeIdWrapper());
         RefreshPrivilegesList();
       }
     }
 
     private void privCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
     {
-      rolePrivilegeListWrapper.set_field(new NodeId(e.Index), (int)RolePrivilegeListWrapper.Columns.Enabled,
+      rolePrivilegeListWrapper.set_field(new NodeIdWrapper(e.Index), (int)RolePrivilegeListWrapper.Columns.Enabled,
         e.NewValue==CheckState.Checked ? 1: 0);
     }
 
@@ -293,9 +293,9 @@ namespace MySQL.GUI.Workbench.Plugins
     {
       e.Cancel = false;
 
-      List<NodeId> nodes = new List<NodeId>();
+      List<NodeIdWrapper> nodes = new List<NodeIdWrapper>();
       foreach (TreeNodeAdv node in roleObjectsTreeView.SelectedNodes)
-        nodes.Add(new NodeId(node.Index));
+        nodes.Add(new NodeIdWrapper(node.Index));
 
       List<MySQL.Base.MenuItem> items = roleObjectListWrapper.get_popup_items_for_nodes(nodes);
       MySQL.Utilities.MenuManager manager = new MySQL.Utilities.MenuManager();
@@ -306,9 +306,9 @@ namespace MySQL.GUI.Workbench.Plugins
 
     private void objectsContextMenu_Click(object sender, EventArgs e)
     {
-      List<NodeId> nodes = new List<NodeId>();
+      List<NodeIdWrapper> nodes = new List<NodeIdWrapper>();
       foreach (TreeNodeAdv node in roleObjectsTreeView.SelectedNodes)
-        nodes.Add(new NodeId(node.Index));
+        nodes.Add(new NodeIdWrapper(node.Index));
 
       roleObjectListWrapper.activate_popup_item_for_nodes((sender as ToolStripItem).Name, nodes);
       roleObjectListModel.RefreshModel();

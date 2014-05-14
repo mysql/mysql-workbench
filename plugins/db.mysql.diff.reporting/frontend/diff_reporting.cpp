@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,11 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtui/grt_wizard_plugin.h"
 #include "grtui/wizard_view_text_page.h"
 
 #include "db_mysql_diff_reporting.h"
-#include "db.mysql/backend/db_plugin_be.h"
+#include "backend/db_plugin_be.h"
 #include "base/string_utilities.h"
 #include "mforms/treenodeview.h"
 
@@ -32,9 +30,9 @@ using namespace mforms;
 using namespace base;
 
 #include "grtui/connection_page.h"
-#include "db.mysql/frontend/multi_source_selector_page.h"
-#include "db.mysql/frontend/fetch_schema_names_multi_page.h"
-#include "db.mysql/frontend/fetch_schema_contents_multi_page.h"
+#include "frontend/multi_source_selector_page.h"
+#include "frontend/fetch_schema_names_multi_page.h"
+#include "frontend/fetch_schema_contents_multi_page.h"
 
 
 class MultiSchemaSelectionPage : public WizardPage

@@ -1,11 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{DC4A311E-DBC3-4FB6-88D9-58ED6EACCD1E}</ProjectGuid>
+    <ProjectGuid>{35C9B1F0-96F0-40FE-B7F7-5A9BA3628DB2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MySQL.Controls</RootNamespace>
@@ -14,106 +13,99 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>MySQLAssembly.ico</ApplicationIcon>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;EDITION_SE COMMERCIAL_CODE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Debug\WBControls.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>..\..\..\bin\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|AnyCPU'">
+    <OutputPath>bin\Release_OSS\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Release\WBControls.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>..\..\..\bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EDITION_SE COMMERCIAL_CODE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Debug\WBControls.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\..\..\bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;EDITION_SE COMMERCIAL_CODE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Release\WBControls.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x64'">
+    <OutputPath>..\..\..\bin\x64\Release_OSS\</OutputPath>
+    <DefineConstants>TRACE;EDITION_OSS</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EDITION_SE COMMERCIAL_CODE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>..\..\..\bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;EDITION_SE COMMERCIAL_CODE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x86'">
-    <OutputPath>..\..\..\bin\Release_OSS\</OutputPath>
+    <OutputPath>..\..\..\bin\x86\Release_OSS\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Release\WBControls.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_OSS|x64'">
-    <OutputPath>bin\x64\Release_OSS\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Release\WBControls.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Accessibility">
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </Reference>
+    <Reference Include="Accessibility" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
@@ -169,11 +161,6 @@
       <DependentUpon>MySQLTaskStatusLabel.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <DependentUpon>Resources.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="StringInputForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -181,189 +168,61 @@
       <DependentUpon>StringInputForm.cs</DependentUpon>
     </Compile>
     <Compile Include="WbToolStripRenderers.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="FindPanel.resx">
       <DependentUpon>FindPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FlatTabControl.resx">
       <DependentUpon>FlatTabControl.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="HUDForm.resx">
       <DependentUpon>HUDForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="MySQLAdvTextBox.resx">
       <DependentUpon>MySQLAdvTextBox.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="MySQLTaskStatusLabel.resx">
       <DependentUpon>MySQLTaskStatusLabel.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <EmbeddedResource Include="StringInputForm.resx">
       <DependentUpon>StringInputForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Back.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\busy-indicator-lightblue.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\busy-indicator-white.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_bg.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_grid_bg.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_grid_details.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_grid_large_icons.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_grid_small_icons.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_bg.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_bg_flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_shadow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_add.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_del.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_left.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_left_flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_middle.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_middle_flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_right.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_right_flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_separator.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_header_tab_separator_flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_minus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_minus_flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_plus_flat.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_tab_left.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_tab_middle.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\collapsing_panel_tab_right.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\dialog_input.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\DockPaneCaption_Options1.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\field_overlay_blob.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\field_overlay_null.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\group_header_bg.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\group_header_minus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\group_header_plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\menu_se.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Next.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\search_clear.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\search_doc_action.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\search_dropdown.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\search_icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\task_checked.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\task_disabled.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\task_error.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\task_unchecked.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wait_panel_cancel_button.png" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="MySQLAssembly.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\ext\Aga.Controls\Aga.Controls.csproj">
-      <Project>{E73BB233-D88B-44A7-A98F-D71EE158381D}</Project>
+      <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
       <Name>Aga.Controls</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\library\base.windows\base.windows.csproj">
-      <Project>{CFEF6684-F44D-4FD7-943E-61F2E0057F4E}</Project>
+      <Project>{09e3ad36-deb1-4302-8e7f-4a970b2ec84b}</Project>
       <Name>base.windows</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\library\base.wr\base.wr.vcxproj">
-      <Project>{2E5416C9-DD1E-48E4-8BF2-9706BDFC5CBB}</Project>
+      <Project>{456d822c-724a-412c-b0eb-9ec88378decb}</Project>
       <Name>base.wr</Name>
     </ProjectReference>
   </ItemGroup>

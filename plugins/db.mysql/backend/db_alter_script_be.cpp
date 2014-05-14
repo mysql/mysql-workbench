@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "db_alter_script_be.h"
 
 #include "grtdb/db_object_helpers.h"
@@ -180,8 +179,8 @@ std::string DbMySQLDiffAlter::generate_alter()
     diffsql_module->generateSQL(_left_cat_copy, options, _alter_change);
   }
 
-  int res= diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
-  if (res)
+  ssize_t res = diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
+  if (res != 0)
     return "";
 
   grt::StringRef script= grt::StringRef::cast_from(options.get("OutputScript"));

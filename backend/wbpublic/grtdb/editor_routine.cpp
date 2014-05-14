@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "grt/grt_dispatcher.h"
 #include "editor_routine.h"
@@ -99,7 +97,7 @@ std::string RoutineEditorBE::get_sql_template(const std::string &template_name, 
 
   pos= sql.find("BEGIN");
   if (pos != std::string::npos)
-    cursor_pos= pos + 6;
+    cursor_pos = (int)(pos + 6);
 
   return sql;
 }
@@ -116,7 +114,7 @@ std::string RoutineEditorBE::get_formatted_sql_for_editing(int &cursor_pos)
   if (code.empty())
   {
     code= get_sql_template("", cursor_pos);
-    cursor_pos+= sql.length();
+    cursor_pos += (int)sql.length();
     sql.append(code);
   }
   else

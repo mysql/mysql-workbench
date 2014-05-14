@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-
-#include "stdafx.h"
 
 #include "grtpp_module_python.h"
 
@@ -104,7 +101,7 @@ std::string grt::fmt_simple_type_spec(const SimpleTypeSpec &type)
 {
   switch (type.type)
   {
-    case IntegerType: return "int";
+    case IntegerType: return "ssize_t";
     case DoubleType: return "double";
     case StringType: return "string";
     case ListType: return "list";
@@ -119,7 +116,7 @@ std::string grt::fmt_type_spec(const TypeSpec &type)
 {
   switch (type.base.type)
   {
-    case IntegerType: return "int";
+    case IntegerType: return "ssize_t";
     case DoubleType: return "double";
     case StringType: return "string";
     case ListType:
@@ -827,7 +824,7 @@ void grt::merge_contents_by_name(ObjectListRef target, ObjectListRef source,
   std::map<std::string, int> known_names;
 
   for (size_t c= target.count(), i= 0; i < c; i++)
-    known_names[StringRef::cast_from(target[i].get_member("name"))]= i;
+    known_names[StringRef::cast_from(target[i].get_member("name"))]= (int)i;
 
   for (size_t c= source.count(), i= 0; i < c; i++)
   {

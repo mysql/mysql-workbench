@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +19,6 @@
 
 // mysql-backup.cpp : Defines the entry point for the console application.
 
-#include "stdafx.h"
-
 //--------------------------------------------------------------------------------------------------
 
 static void setup_python(int argc, char **argv)
@@ -28,7 +26,7 @@ static void setup_python(int argc, char **argv)
   char *pathlist = NULL;
   TCHAR szPath[MAX_PATH];
   std::string module_path;
-  if( GetModuleFileName( NULL, szPath, MAX_PATH ) )
+  if (GetModuleFileName(NULL, szPath, MAX_PATH))
   {
     CHAR char_path[MAX_PATH]= {0};
     WideCharToMultiByte(CP_UTF8, 0, szPath, -1, char_path, MAX_PATH, NULL, NULL);

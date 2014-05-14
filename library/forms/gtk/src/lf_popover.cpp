@@ -377,18 +377,27 @@ void PopoverWidget::adjust_child_position()
 void PopoverWidget::show_popover(const int rx, const int ry, const mforms::StartPosition pos)
 {
 
-  int xx;
-  int yy;
-  Gdk::ModifierType mask;
-  this->get_window()->get_pointer(xx, yy, mask);
-  if (mask & Gdk::BUTTON1_MASK || mask & Gdk::BUTTON2_MASK || mask & Gdk::BUTTON3_MASK)
-    return;
+  if (_style == mforms::PopoverStyleTooltip)
+  {
+    Glib::RefPtr<Gdk::Window> wnd = this->get_window();
+    if (wnd != 0)
+    {
+      int xx;
+      int yy;
+      Gdk::ModifierType mask;
+      wnd->get_pointer(xx, yy, mask);
+      if (mask & Gdk::BUTTON1_MASK || mask & Gdk::BUTTON2_MASK || mask & Gdk::BUTTON3_MASK)
+        return;
+    }
+  }
 
   int x = rx, y = ry;
   if (x < 0 && y < 0)
   {
     Gdk::ModifierType mask;
-    Gdk::Display::get_default()->get_pointer(x, y, mask);
+    Glib::RefPtr<Gdk::Display> dsp = Gdk::Display::get_default();
+    if (dsp != 0)
+      dsp->get_pointer(x, y, mask);
   }
 
   _content_pos = pos;

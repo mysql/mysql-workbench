@@ -1,4 +1,21 @@
-#include "stdafx.h"
+/*
+* Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License as
+* published by the Free Software Foundation; version 2 of the
+* License.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+* 02110-1301  USA
+*/
 
 #include <grts/structs.model.h>
 
@@ -68,7 +85,7 @@ void model_Diagram::removeFigure(const model_FigureRef &figure)
 }
 
 
-void model_Diagram::blockUpdates(long flag)
+void model_Diagram::blockUpdates(ssize_t flag)
 {
   _data->block_updates(flag != 0);
 }
@@ -80,9 +97,9 @@ void model_Diagram::selectObject(const model_ObjectRef &object)
 }
 
 
-void model_Diagram::setPageCounts(long xpages, long ypages)
+void model_Diagram::setPageCounts(ssize_t xpages, ssize_t ypages)
 {
-  _data->set_page_counts(xpages, ypages);
+  _data->set_page_counts((int)xpages, (int)ypages);
 }
 
 
@@ -96,4 +113,8 @@ void model_Diagram::unselectObject(const model_ObjectRef &object)
 {
   _data->unselect_object(object);
 }
+
+
+
+
 

@@ -17,10 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h" // needs to come 1st because Vs needs this file but can make problems on Linux
-                    // if it include Python.h indirectly
-
-#include "wb_tunnel.h" // this header include Python.h indirectly
+#include "wb_tunnel.h" // needs to come 1st because this header include Python.h indirectly
 
 #include <errno.h>
 #include <glib.h>
@@ -206,7 +203,7 @@ WBOptions::WBOptions()
   : force_sw_rendering(false), force_opengl_rendering(false), verbose(false), quit_when_done(false),
   testing(false), init_python(true)
 {
-//  log_debug("Creating WBOptions\n");
+  log_debug("Creating WBOptions\n");
 }
 
 
@@ -1033,7 +1030,6 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   // init major parts of the app
   get_sqlide_context()->init();
   
-
   show_status_text(_("Initializing GRT..."));
   // Initialize GRT Manager.
   _manager->initialize(options->init_python, loader_module_path);
@@ -1063,9 +1059,10 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
   if (res.is_valid() && *grt::IntegerRef::cast_from(res) != 1)
     show_error(_("Initialization Error"), _("There was an error during initialization of Workbench, some functionality may not work."));
 
+  log_info("System info:\n %s\n", _workbench->getSystemInfo(true).c_str());
+
   // The GRT shell is now created on demand. No need to do this in advance (which might get us into
   // trouble on Windows, because the main window doesn't exist yet).
-
   try
   {
     _manager->initialize_shell(get_root()->options()->options().get_string("grtshell:ShellLanguage", "python"));
@@ -1079,8 +1076,6 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options)
     connect(boost::bind(&WBContext::option_dict_changed, this, _1, _2, _3));
 
   _send_messages_to_shell= false;
-
-  log_info("System info:\n %s\n",  _workbench->getSystemInfo(true).c_str());
 
   return true;
 }
@@ -1343,22 +1338,6 @@ void WBContext::handle_grt_message(MessageListStorage::MessageEntryRef message)
 
 //--------------------------------------------------------------------------------------------------
 
-#if 0
-#include "myx_grt_private.h"
-
-static void EXPORT_MODULES_HACK(MYX_GRT *grt)
-{
-  for (int i= 0; i < grt->modules_num; i++)
-  {
-    std::string path= strfmt("..\\..\\generated\\grtm\\%s.h", grt->modules[i]->name);
-
-    myx_grt_modules_export_wrapper(grt->modules+i, 1, path.c_str());
-  }
-}
-#else
-#define EXPORT_MODULES_HACK(xx) do {} while(0)
-#endif
-
 void WBContext::init_rdbms_modules(grt::GRT *grt)
 {
   log_debug("Initializing rdbms modules\n");
@@ -1369,7 +1348,8 @@ void WBContext::init_rdbms_modules(grt::GRT *grt)
     throw std::logic_error("DbMySQL module not found");
   grt::BaseListRef args(grt);
   module->call_function("initializeDBMSInfo", args);
-  //Will done prior to Migration init, to speed up app startup
+
+  // Will done prior to Migration init, to speed up app startup.
   //grt->initializeOtherRDBMS();
 }
 
@@ -1394,18 +1374,16 @@ grt::ValueRef WBContext::setup_context_grt(grt::GRT *grt, WBOptions *options)
 
   init_plugins_grt(grt, options);
 
-  // initialize RDBMS specific modules. must happen before connections are loaded
+  // Initialize RDBMS specific modules. must happen before connections are loaded.
   init_rdbms_modules(grt); 
 
   FOREACH_COMPONENT(_components, iter)
     (*iter)->setup_context_grt(grt, options);
 
-  // app options must be loaded after everything else is initialized
+  // App options must be loaded after everything else is initialized.
   load_app_options(false);
 
-  EXPORT_MODULES_HACK(grt->grt());
-
-  // rescan plugins so that list of disabled plugins is applied
+  // Rescan plugins so that list of disabled plugins is applied.
   _plugin_manager->rescan_plugins();
   
   return grt::IntegerRef(1);
@@ -2009,7 +1987,7 @@ void WBContext::load_other_connections()
     try
     {
       grt::ListRef<db_mgmt_Connection> list(grt::ListRef<db_mgmt_Connection>::cast_from(get_grt()->unserialize(conn_list_xml)));
-      total_connections = list->count();
+      total_connections = (int)list->count();
       if (list.is_valid())
       {
         replace_contents(mgmt->otherStoredConns(), list);
@@ -2386,7 +2364,7 @@ void WBContext::option_dict_changed(grt::internal::OwnedDict *options, bool, con
 {
   if (get_wb_options() == grt::DictRef(options))
   {
-    int undo_size= get_wb_options().get_int("workbench:UndoEntries", DEFAULT_UNDO_STACK_SIZE);
+    ssize_t undo_size = get_wb_options().get_int("workbench:UndoEntries", DEFAULT_UNDO_STACK_SIZE);
 
     if (undo_size == 0)
       undo_size= 1;
@@ -3920,7 +3898,7 @@ int WBContext::read_state(const std::string &name, const std::string &domain, co
 {
   grt::DictRef dict= get_root()->state();
 
-  return dict.get_int(domain+":"+name, default_value);
+  return (int)dict.get_int(domain + ":" + name, default_value);
 }
 
 /**

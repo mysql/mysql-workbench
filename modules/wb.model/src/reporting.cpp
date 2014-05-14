@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include <glib/gstdio.h>
-
 #include "wb_model.h"
 #include "reporting.h"
 
@@ -36,7 +34,7 @@
 
 // Support for syntax highlighting in SQL output.
 #ifdef _WIN32
-  #include "ScintillaWR.h"
+  #include "win32/ScintillaWR.h"
   #define SCI_WRAPPER_NS ScintillaWrapper::
 #else
   #include "Scintilla.h"
@@ -66,7 +64,7 @@ LexerDocument::LexerDocument(const std::string& text)
 
   // Split the text into lines and store start and length of each.
   std::vector<std::string> lines = base::split(text, "\n");
-  int start = 0;
+  size_t start = 0;
   for (size_t i = 0; i < lines.size(); ++i)
   {
     _lines.push_back(std::make_pair(start, lines[i].size() + 1));
@@ -102,7 +100,7 @@ void LexerDocument::SetErrorStatus(int status)
 
 int LexerDocument::Length() const
 {
-  return _text.size();
+  return (int)_text.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,14 +124,14 @@ int LexerDocument::LineFromPosition(int position) const
   size_t i = 0;
   while (i < _lines.size())
   {
-    if (position < _lines[i].first + _lines[i].second)
+    if ((size_t)position < _lines[i].first + _lines[i].second)
       break;
     ++i;
   }
 
   if (i < _lines.size())
-    return i;
-  return _lines.size();
+    return (int)i;
+  return (int)_lines.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,8 +139,8 @@ int LexerDocument::LineFromPosition(int position) const
 int LexerDocument::LineStart(int line) const
 {
   if (line >= (int)_lines.size())
-    return _lines.back().first + _lines.back().second; // A position after the last one.
-  return _lines[line].first;
+    return (int)(_lines.back().first + _lines.back().second); // A position after the last one.
+  return (int)_lines[line].first;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,11 +161,11 @@ int LexerDocument::SetLevel(int line, int level)
     // Check if we need to make more room in our cache.
     if (line >= (int) _level_cache.size())
     {
-      int last_size= _level_cache.size();
+      size_t last_size = _level_cache.size();
       _level_cache.resize(line + 1);
       
       // Initialize newly added entries.
-      for (int i= last_size - 1; i < (int) _level_cache.size() - 1; i++)
+      for (size_t i= last_size - 1; i < _level_cache.size() - 1; i++)
         _level_cache[i]= SC_FOLDLEVELBASE;
     }
     _level_cache[line]= level;
@@ -314,7 +312,7 @@ void WbModelImpl::initializeReporting()
  * @param templates - a GRT List the available templates will be added to
  * @return 1 on success, 0 on error
  */
-int WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates)
+ssize_t WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates)
 {
   // get pointer to the GRT
   grt::GRT *grt= get_grt();
@@ -660,8 +658,8 @@ void fillRoutineDict(const db_mysql_RoutineRef& routine, TemplateDictionary *rou
   assignValueOrNA(routine_dict, REPORT_ROUTINE_RETURN_TYPE, routine->returnDatatype());
   assignValueOrNA(routine_dict, REPORT_ROUTINE_SECURITY, value= routine->security());
 
-  routine_dict->SetIntValue(REPORT_ROUTINE_PARAMETER_COUNT, routine->params().count());
-  for (int j= 0; j < (int)routine->params().count(); j++)
+  routine_dict->SetIntValue(REPORT_ROUTINE_PARAMETER_COUNT, (long)routine->params().count());
+  for (size_t j = 0; j < routine->params().count(); j++)
   {
     db_mysql_RoutineParamRef parameter= routine->params().get(j);
     
@@ -815,7 +813,7 @@ void set_ddl(TemplateDictionary *target, SQLGeneratorInterfaceImpl* sqlgenModule
       SCI_WRAPPER_NS PropSetSimple property_set;
       SCI_WRAPPER_NS Accessor* accessor= new SCI_WRAPPER_NS Accessor(document, &property_set);
       
-      lexer->Lex(0, sql.size(), 0, keywordLists, *accessor);
+      lexer->Lex(0, (int)sql.size(), 0, keywordLists, *accessor);
       
       int currentStyle= SCE_MYSQL_DEFAULT;
       int tokenStart= 0;
@@ -884,7 +882,7 @@ static int count_template_files(const string template_dir)
  * @param options - various options that customize the output, including output template, output path etc.
  * @return 1 on success, 0 on error
  */
-int WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::DictRef& options)
+ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::DictRef& options)
 {
   // get pointer to the GRT
   grt::GRT *grt= model.get_grt();
@@ -1084,12 +1082,12 @@ int WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::Di
 
       if (columns_show)
       {
-        TemplateDictionary *columns_list_dict;
-        schema_dict->SetIntValue(REPORT_COLUMN_COUNT, table->columns().count());
+        TemplateDictionary *columns_list_dict = NULL;
+        schema_dict->SetIntValue(REPORT_COLUMN_COUNT, (long)table->columns().count());
 
         for (int k= 0; k < (int)table->columns().count(); k++)
         {
-          // Create the dict for the outer section (inluding header)
+          // Create the dict for the outer section (including header)
           if (k == 0)
             columns_list_dict= table_dict->AddSectionDictionary(REPORT_COLUMNS_LISTING);
 
@@ -1110,18 +1108,18 @@ int WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::Di
 
       if (indices_show)
       {
-        TemplateDictionary *idx_list_dict;
-        schema_dict->SetIntValue(REPORT_INDEX_COUNT, table->indices().count());
+        TemplateDictionary *idx_list_dict = NULL;
+        schema_dict->SetIntValue(REPORT_INDEX_COUNT, (long)table->indices().count());
 
         for (int k= 0; k < (int)table->indices().count(); k++)
         {
-          // Create the dict for the outer section (inluding header)
+          // Create the dict for the outer section (including header)
           if (k == 0)
             idx_list_dict= table_dict->AddSectionDictionary(REPORT_INDICES_LISTING);
 
           db_mysql_IndexRef idx= table->indices().get(k);
 
-          TemplateDictionary *idx_dict= idx_list_dict->AddSectionDictionary(REPORT_INDICES);
+          TemplateDictionary *idx_dict = idx_list_dict->AddSectionDictionary(REPORT_INDICES);
           fillIndexDict(idx, table, idx_dict, false);
 
           idx_dict= schema_dict->AddSectionDictionary(REPORT_INDICES);
@@ -1135,7 +1133,7 @@ int WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::Di
       if (fks_show)
       {
         TemplateDictionary *fk_list_dict= NULL;
-        schema_dict->SetIntValue(REPORT_FOREIGN_KEY_COUNT, table->foreignKeys().count());
+        schema_dict->SetIntValue(REPORT_FOREIGN_KEY_COUNT, (long)table->foreignKeys().count());
 
         for (int k= 0; k < (int)table->foreignKeys().count(); k++)
         {
@@ -1181,7 +1179,7 @@ int WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::Di
         }
         
         // Triggers.
-        schema_dict->SetIntValue(REPORT_TRIGGER_COUNT, table->triggers().count());
+        schema_dict->SetIntValue(REPORT_TRIGGER_COUNT, (long)table->triggers().count());
 
         for (int k= 0; k < (int)table->triggers().count(); k++)
         {
@@ -1198,7 +1196,7 @@ int WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::Di
     }
     
     // View section.
-    schema_dict->SetIntValue(REPORT_VIEW_COUNT, schema->views().count());
+    schema_dict->SetIntValue(REPORT_VIEW_COUNT, (long)schema->views().count());
     for (int j= 0; j < (int)schema->views().count(); j++)
     {
       db_mysql_ViewRef view= schema->views().get(j);
@@ -1212,7 +1210,7 @@ int WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt::Di
     }
 
     // Routine section.
-    schema_dict->SetIntValue(REPORT_ROUTINE_COUNT, schema->routines().count());
+    schema_dict->SetIntValue(REPORT_ROUTINE_COUNT, (long)schema->routines().count());
     for (int j= 0; j < (int)schema->routines().count(); j++)
     {
       db_mysql_RoutineRef routine= schema->routines().get(j);

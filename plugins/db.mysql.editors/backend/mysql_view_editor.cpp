@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grt/tree_model.h"
 #include "mysql_view_editor.h"
 

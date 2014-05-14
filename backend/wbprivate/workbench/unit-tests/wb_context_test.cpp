@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,8 +20,6 @@
 
 // High-level testing for Workbench
 // This tests WBContext, which will test the integration of all components.
-
-#include "tut_stdafx.h"
 
 #include "wb_helpers.h"
 #include "grtdb/db_helpers.h"
@@ -515,7 +513,7 @@ TEST_FUNCTION(45)
   ph->add_new_db_routine(srcschema);
   ph->add_new_db_routine_group(srcschema);
 
-  CopyContext context(tester.grt);
+  grt::CopyContext context(tester.grt);
   ph->clone_db_object_to_schema(tarschema, srcschema->tables()[0], context);
   ph->clone_db_object_to_schema(tarschema, srcschema->views()[0], context);
   ph->clone_db_object_to_schema(tarschema, srcschema->routines()[0], context);

@@ -116,7 +116,7 @@ willDisplayCell:(id)cell
   {
     if ([[tableColumn identifier] isEqual:@"0"])
     {
-      int msgtype;
+      ssize_t msgtype;
       mBackEnd->log()->get_field(row, 0, msgtype);
       if (msgtype == DbSqlEditorLog::BusyMsg)
       {
@@ -142,7 +142,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     
     if ([[aTableColumn identifier] isEqual:@"0"])
     {
-      int msgtype;
+      ssize_t msgtype;
       mBackEnd->log()->get_field(rowIndex, 0, msgtype);
       if (msgtype != DbSqlEditorLog::BusyMsg)
       {
@@ -451,7 +451,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   }
   else
   {
-    std::vector<int> sel;
+    std::vector<size_t> sel;
     if ([mHistoryTable selectedRow] >= 0)
     {
       sel.push_back([mHistoryTable selectedRow]);

@@ -17,8 +17,6 @@
 * 02110-1301  USA
 */
 
-#include "stdafx.h"
-
 #include "mforms/menubar.h"
 #include "grtpp.h"
 #include "grtpp_notifications.h"
@@ -40,9 +38,6 @@
 #include <sstream>
 #include <boost/assign/list_of.hpp>
 #include <boost/lambda/bind.hpp>
-
-DEFAULT_LOG_DOMAIN("DBSearch");
-
 
 class DBSearchView : public mforms::AppView, public grt::GRTObserver
 {

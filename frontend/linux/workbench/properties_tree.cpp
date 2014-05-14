@@ -24,6 +24,7 @@
 #include "properties_tree.h"
 #include "grtpp_util.h"
 #include "grt/grt_value_inspector.h"
+#include <boost/lexical_cast.hpp>
 
 //------------------------------------------------------------------------------
 PropertyValue::PropertyValue(PropertyInspector* owner, const bec::NodeId& node)
@@ -522,14 +523,24 @@ void PropertiesTree::set_value(const bec::NodeId& node, const std::string& value
     {
       case grt::IntegerType:
       {
-        const int iv = atoi(value.c_str());
-        _inspector->set_field(node, ::bec::ValueInspectorBE::Value, iv);
+        try
+        {
+          _inspector->set_field(node, ::bec::ValueInspectorBE::Value, boost::lexical_cast<ssize_t>(value));
+        } catch(...)
+        {
+          g_message("PropertiesTree::set_value: can't convert value %s to ssize_t", value.c_str());
+        }
         break;
       }
       case grt::DoubleType:
       {
-        const int dv = atof(value.c_str());
-        _inspector->set_field(node, ::bec::ValueInspectorBE::Value, dv);
+        try
+        {
+          _inspector->set_field(node, ::bec::ValueInspectorBE::Value, boost::lexical_cast<double>(value));
+        } catch(...)
+        {
+          g_message("PropertiesTree::set_value: can't convert value %s to double", value.c_str());
+        }
         break;
       }
       case grt::StringType:

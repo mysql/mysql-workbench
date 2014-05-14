@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,12 +26,19 @@
 
 // Helper class to allow setting a data change break point in specific scope (function, block etc.).
 
+#ifdef _WIN64
+  typedef DWORD64 REGISTER_TYPE;
+#else
+  typedef DWORD REGISTER_TYPE;
+#endif
+
 class BASELIBRARY_PUBLIC_FUNC DataBreakpoint
 {
 private:
-  int _register_index; // One of the 4 hardware registers that are needed for hw watch points.
+  // One of the 4 hardware registers that are needed for hw watch points.
+  REGISTER_TYPE _register_index;
 
-  void SetBits(unsigned long& target, int offset, int bits, int value);
+  void SetBits(REGISTER_TYPE& target, REGISTER_TYPE offset, REGISTER_TYPE bits, REGISTER_TYPE value);
 public:
   DataBreakpoint();
   ~DataBreakpoint();

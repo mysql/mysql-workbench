@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "base/string_utilities.h"
 #include "base/ui_form.h"
@@ -137,7 +135,7 @@ DocumentPropertiesForm::~DocumentPropertiesForm()
 void DocumentPropertiesForm::add_control(const std::string &caption, mforms::View *control, bool expand)
 {
   mforms::Label *label;
-  int row= _widgets.size();
+  int row = (int)_widgets.size();
   label= new mforms::Label();
 
   label->set_text(caption);

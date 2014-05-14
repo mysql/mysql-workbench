@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/string_utilities.h"
 #include "base/log.h"
 #include "mforms/mforms.h"

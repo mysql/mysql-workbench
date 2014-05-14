@@ -29,11 +29,11 @@ typedef grt::Ref<db_migration_Migration> db_migration_MigrationRef;
 
 
 namespace mforms { 
-	class Object;
+  class Object;
 }; 
 
 namespace grt { 
-	class AutoPyObject;
+  class AutoPyObject;
 }; 
 
 class  db_migration_MigrationParameter : public GrtObject
@@ -619,14 +619,14 @@ public:
    \par In Python:
 value = obj.sourceRdbms
    */
-  grt::Ref<db_mgmt_Rdbms> sourceRdbms() const { return _sourceRdbms; }
+  db_mgmt_RdbmsRef sourceRdbms() const { return _sourceRdbms; }
   /** Setter for attribute sourceRdbms
    
     
     \par In Python:
 obj.sourceRdbms = value
    */
-  virtual void sourceRdbms(const grt::Ref<db_mgmt_Rdbms> &value)
+  virtual void sourceRdbms(const db_mgmt_RdbmsRef &value)
   {
     grt::ValueRef ovalue(_sourceRdbms);
    _sourceRdbms= value;
@@ -639,7 +639,7 @@ protected:
   grt::ListRef<db_migration_DatatypeMapping> _datatypeMapping;// owned
   grt::DictRef _defaultValueMapping;
   grt::DictRef _options;
-  grt::Ref<db_mgmt_Rdbms> _sourceRdbms;
+  db_mgmt_RdbmsRef _sourceRdbms;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -674,9 +674,9 @@ public:
       meta->bind_member("options", new grt::MetaClass::Property<db_migration_DBPreferences,grt::DictRef >(getter,setter));
     }
     {
-      void (db_migration_DBPreferences::*setter)(const grt::Ref<db_mgmt_Rdbms> &)= &db_migration_DBPreferences::sourceRdbms;
-      grt::Ref<db_mgmt_Rdbms> (db_migration_DBPreferences::*getter)() const= &db_migration_DBPreferences::sourceRdbms;
-      meta->bind_member("sourceRdbms", new grt::MetaClass::Property<db_migration_DBPreferences,grt::Ref<db_mgmt_Rdbms> >(getter,setter));
+      void (db_migration_DBPreferences::*setter)(const db_mgmt_RdbmsRef &)= &db_migration_DBPreferences::sourceRdbms;
+      db_mgmt_RdbmsRef (db_migration_DBPreferences::*getter)() const= &db_migration_DBPreferences::sourceRdbms;
+      meta->bind_member("sourceRdbms", new grt::MetaClass::Property<db_migration_DBPreferences,db_mgmt_RdbmsRef >(getter,setter));
     }
   }
 };
@@ -904,14 +904,14 @@ public:
    \par In Python:
 value = obj.sourceCatalog
    */
-  grt::Ref<db_Catalog> sourceCatalog() const { return _sourceCatalog; }
+  db_CatalogRef sourceCatalog() const { return _sourceCatalog; }
   /** Setter for attribute sourceCatalog
    
     a catalog object reflecting the reverse engineered assets from the source database
     \par In Python:
 obj.sourceCatalog = value
    */
-  virtual void sourceCatalog(const grt::Ref<db_Catalog> &value)
+  virtual void sourceCatalog(const db_CatalogRef &value)
   {
     grt::ValueRef ovalue(_sourceCatalog);
 
@@ -926,14 +926,14 @@ obj.sourceCatalog = value
    \par In Python:
 value = obj.sourceConnection
    */
-  grt::Ref<db_mgmt_Connection> sourceConnection() const { return _sourceConnection; }
+  db_mgmt_ConnectionRef sourceConnection() const { return _sourceConnection; }
   /** Setter for attribute sourceConnection
    
     connection used for the source database
     \par In Python:
 obj.sourceConnection = value
    */
-  virtual void sourceConnection(const grt::Ref<db_mgmt_Connection> &value)
+  virtual void sourceConnection(const db_mgmt_ConnectionRef &value)
   {
     grt::ValueRef ovalue(_sourceConnection);
 
@@ -948,14 +948,14 @@ obj.sourceConnection = value
    \par In Python:
 value = obj.sourceDBVersion
    */
-  grt::Ref<GrtVersion> sourceDBVersion() const { return _sourceDBVersion; }
+  GrtVersionRef sourceDBVersion() const { return _sourceDBVersion; }
   /** Setter for attribute sourceDBVersion
    
     
     \par In Python:
 obj.sourceDBVersion = value
    */
-  virtual void sourceDBVersion(const grt::Ref<GrtVersion> &value)
+  virtual void sourceDBVersion(const GrtVersionRef &value)
   {
     grt::ValueRef ovalue(_sourceDBVersion);
 
@@ -1004,14 +1004,14 @@ public:
    \par In Python:
 value = obj.targetCatalog
    */
-  grt::Ref<db_Catalog> targetCatalog() const { return _targetCatalog; }
+  db_CatalogRef targetCatalog() const { return _targetCatalog; }
   /** Setter for attribute targetCatalog
    
     the migrated target catalog
     \par In Python:
 obj.targetCatalog = value
    */
-  virtual void targetCatalog(const grt::Ref<db_Catalog> &value)
+  virtual void targetCatalog(const db_CatalogRef &value)
   {
     grt::ValueRef ovalue(_targetCatalog);
 
@@ -1026,14 +1026,14 @@ obj.targetCatalog = value
    \par In Python:
 value = obj.targetConnection
    */
-  grt::Ref<db_mgmt_Connection> targetConnection() const { return _targetConnection; }
+  db_mgmt_ConnectionRef targetConnection() const { return _targetConnection; }
   /** Setter for attribute targetConnection
    
     connection used for the target database
     \par In Python:
 obj.targetConnection = value
    */
-  virtual void targetConnection(const grt::Ref<db_mgmt_Connection> &value)
+  virtual void targetConnection(const db_mgmt_ConnectionRef &value)
   {
     grt::ValueRef ovalue(_targetConnection);
 
@@ -1048,14 +1048,14 @@ obj.targetConnection = value
    \par In Python:
 value = obj.targetDBVersion
    */
-  grt::Ref<GrtVersion> targetDBVersion() const { return _targetDBVersion; }
+  GrtVersionRef targetDBVersion() const { return _targetDBVersion; }
   /** Setter for attribute targetDBVersion
    
     
     \par In Python:
 obj.targetDBVersion = value
    */
-  virtual void targetDBVersion(const grt::Ref<GrtVersion> &value)
+  virtual void targetDBVersion(const GrtVersionRef &value)
   {
     grt::ValueRef ovalue(_targetDBVersion);
 
@@ -1070,14 +1070,14 @@ obj.targetDBVersion = value
    \par In Python:
 value = obj.targetVersion
    */
-  grt::Ref<GrtVersion> targetVersion() const { return _targetVersion; }
+  GrtVersionRef targetVersion() const { return _targetVersion; }
   /** Setter for attribute targetVersion
    
     the version that the target catalog should have
     \par In Python:
 obj.targetVersion = value
    */
-  virtual void targetVersion(const grt::Ref<GrtVersion> &value)
+  virtual void targetVersion(const GrtVersionRef &value)
   {
     grt::ValueRef ovalue(_targetVersion);
 
@@ -1093,31 +1093,31 @@ obj.targetVersion = value
   \return 
 
    */
-  virtual grt::Ref<GrtLogObject> addMigrationLogEntry(long type, const grt::Ref<GrtObject> &sourceObject, const grt::Ref<GrtObject> &targetObject, const std::string &message);
+  virtual GrtLogObjectRef addMigrationLogEntry(ssize_t type, const GrtObjectRef &sourceObject, const GrtObjectRef &targetObject, const std::string &message);
   /** Method. 
   \param sourceObject 
   \param targetObject 
   \return 
 
    */
-  virtual grt::Ref<GrtLogObject> findMigrationLogEntry(const grt::Ref<GrtObject> &sourceObject, const grt::Ref<GrtObject> &targetObject);
+  virtual GrtLogObjectRef findMigrationLogEntry(const GrtObjectRef &sourceObject, const GrtObjectRef &targetObject);
   /** Method. 
   \param sourceObject 
   \return 
 
    */
-  virtual grt::Ref<GrtObject> lookupMigratedObject(const grt::Ref<GrtObject> &sourceObject);
+  virtual GrtObjectRef lookupMigratedObject(const GrtObjectRef &sourceObject);
   /** Method. 
   \param targetObject 
   \return 
 
    */
-  virtual grt::Ref<GrtObject> lookupSourceObject(const grt::Ref<GrtObject> &targetObject);
+  virtual GrtObjectRef lookupSourceObject(const GrtObjectRef &targetObject);
 
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -1133,15 +1133,15 @@ protected:
   grt::DictRef _objectCreationParams;
   grt::DictRef _objectMigrationParams;
   grt::StringListRef _selectedSchemataNames;
-  grt::Ref<db_Catalog> _sourceCatalog;// owned
-  grt::Ref<db_mgmt_Connection> _sourceConnection;// owned
-  grt::Ref<GrtVersion> _sourceDBVersion;// owned
+  db_CatalogRef _sourceCatalog;// owned
+  db_mgmt_ConnectionRef _sourceConnection;// owned
+  GrtVersionRef _sourceDBVersion;// owned
   grt::ListRef<GrtObject> _sourceObjects;// owned
   grt::StringListRef _sourceSchemataNames;
-  grt::Ref<db_Catalog> _targetCatalog;// owned
-  grt::Ref<db_mgmt_Connection> _targetConnection;// owned
-  grt::Ref<GrtVersion> _targetDBVersion;// owned
-  grt::Ref<GrtVersion> _targetVersion;// owned
+  db_CatalogRef _targetCatalog;// owned
+  db_mgmt_ConnectionRef _targetConnection;// owned
+  GrtVersionRef _targetDBVersion;// owned
+  GrtVersionRef _targetVersion;// owned
 private: // wrapper methods for use by grt
   ImplData *_data;
 
@@ -1150,13 +1150,13 @@ private: // wrapper methods for use by grt
     return grt::ObjectRef(new db_migration_Migration(grt));
   }
 
-  static grt::ValueRef call_addMigrationLogEntry(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_migration_Migration*>(self)->addMigrationLogEntry(grt::IntegerRef::cast_from(args[0]), grt::Ref<GrtObject>::cast_from(args[1]), grt::Ref<GrtObject>::cast_from(args[2]), grt::StringRef::cast_from(args[3])); }
+  static grt::ValueRef call_addMigrationLogEntry(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_migration_Migration*>(self)->addMigrationLogEntry(grt::IntegerRef::cast_from(args[0]), GrtObjectRef::cast_from(args[1]), GrtObjectRef::cast_from(args[2]), grt::StringRef::cast_from(args[3])); }
 
-  static grt::ValueRef call_findMigrationLogEntry(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_migration_Migration*>(self)->findMigrationLogEntry(grt::Ref<GrtObject>::cast_from(args[0]), grt::Ref<GrtObject>::cast_from(args[1])); }
+  static grt::ValueRef call_findMigrationLogEntry(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_migration_Migration*>(self)->findMigrationLogEntry(GrtObjectRef::cast_from(args[0]), GrtObjectRef::cast_from(args[1])); }
 
-  static grt::ValueRef call_lookupMigratedObject(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_migration_Migration*>(self)->lookupMigratedObject(grt::Ref<GrtObject>::cast_from(args[0])); }
+  static grt::ValueRef call_lookupMigratedObject(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_migration_Migration*>(self)->lookupMigratedObject(GrtObjectRef::cast_from(args[0])); }
 
-  static grt::ValueRef call_lookupSourceObject(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_migration_Migration*>(self)->lookupSourceObject(grt::Ref<GrtObject>::cast_from(args[0])); }
+  static grt::ValueRef call_lookupSourceObject(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_migration_Migration*>(self)->lookupSourceObject(GrtObjectRef::cast_from(args[0])); }
 
 
 public:
@@ -1221,19 +1221,19 @@ public:
       meta->bind_member("selectedSchemataNames", new grt::MetaClass::Property<db_migration_Migration,grt::StringListRef >(getter,setter));
     }
     {
-      void (db_migration_Migration::*setter)(const grt::Ref<db_Catalog> &)= &db_migration_Migration::sourceCatalog;
-      grt::Ref<db_Catalog> (db_migration_Migration::*getter)() const= &db_migration_Migration::sourceCatalog;
-      meta->bind_member("sourceCatalog", new grt::MetaClass::Property<db_migration_Migration,grt::Ref<db_Catalog> >(getter,setter));
+      void (db_migration_Migration::*setter)(const db_CatalogRef &)= &db_migration_Migration::sourceCatalog;
+      db_CatalogRef (db_migration_Migration::*getter)() const= &db_migration_Migration::sourceCatalog;
+      meta->bind_member("sourceCatalog", new grt::MetaClass::Property<db_migration_Migration,db_CatalogRef >(getter,setter));
     }
     {
-      void (db_migration_Migration::*setter)(const grt::Ref<db_mgmt_Connection> &)= &db_migration_Migration::sourceConnection;
-      grt::Ref<db_mgmt_Connection> (db_migration_Migration::*getter)() const= &db_migration_Migration::sourceConnection;
-      meta->bind_member("sourceConnection", new grt::MetaClass::Property<db_migration_Migration,grt::Ref<db_mgmt_Connection> >(getter,setter));
+      void (db_migration_Migration::*setter)(const db_mgmt_ConnectionRef &)= &db_migration_Migration::sourceConnection;
+      db_mgmt_ConnectionRef (db_migration_Migration::*getter)() const= &db_migration_Migration::sourceConnection;
+      meta->bind_member("sourceConnection", new grt::MetaClass::Property<db_migration_Migration,db_mgmt_ConnectionRef >(getter,setter));
     }
     {
-      void (db_migration_Migration::*setter)(const grt::Ref<GrtVersion> &)= &db_migration_Migration::sourceDBVersion;
-      grt::Ref<GrtVersion> (db_migration_Migration::*getter)() const= &db_migration_Migration::sourceDBVersion;
-      meta->bind_member("sourceDBVersion", new grt::MetaClass::Property<db_migration_Migration,grt::Ref<GrtVersion> >(getter,setter));
+      void (db_migration_Migration::*setter)(const GrtVersionRef &)= &db_migration_Migration::sourceDBVersion;
+      GrtVersionRef (db_migration_Migration::*getter)() const= &db_migration_Migration::sourceDBVersion;
+      meta->bind_member("sourceDBVersion", new grt::MetaClass::Property<db_migration_Migration,GrtVersionRef >(getter,setter));
     }
     {
       void (db_migration_Migration::*setter)(const grt::ListRef<GrtObject> &)= &db_migration_Migration::sourceObjects;
@@ -1246,24 +1246,24 @@ public:
       meta->bind_member("sourceSchemataNames", new grt::MetaClass::Property<db_migration_Migration,grt::StringListRef >(getter,setter));
     }
     {
-      void (db_migration_Migration::*setter)(const grt::Ref<db_Catalog> &)= &db_migration_Migration::targetCatalog;
-      grt::Ref<db_Catalog> (db_migration_Migration::*getter)() const= &db_migration_Migration::targetCatalog;
-      meta->bind_member("targetCatalog", new grt::MetaClass::Property<db_migration_Migration,grt::Ref<db_Catalog> >(getter,setter));
+      void (db_migration_Migration::*setter)(const db_CatalogRef &)= &db_migration_Migration::targetCatalog;
+      db_CatalogRef (db_migration_Migration::*getter)() const= &db_migration_Migration::targetCatalog;
+      meta->bind_member("targetCatalog", new grt::MetaClass::Property<db_migration_Migration,db_CatalogRef >(getter,setter));
     }
     {
-      void (db_migration_Migration::*setter)(const grt::Ref<db_mgmt_Connection> &)= &db_migration_Migration::targetConnection;
-      grt::Ref<db_mgmt_Connection> (db_migration_Migration::*getter)() const= &db_migration_Migration::targetConnection;
-      meta->bind_member("targetConnection", new grt::MetaClass::Property<db_migration_Migration,grt::Ref<db_mgmt_Connection> >(getter,setter));
+      void (db_migration_Migration::*setter)(const db_mgmt_ConnectionRef &)= &db_migration_Migration::targetConnection;
+      db_mgmt_ConnectionRef (db_migration_Migration::*getter)() const= &db_migration_Migration::targetConnection;
+      meta->bind_member("targetConnection", new grt::MetaClass::Property<db_migration_Migration,db_mgmt_ConnectionRef >(getter,setter));
     }
     {
-      void (db_migration_Migration::*setter)(const grt::Ref<GrtVersion> &)= &db_migration_Migration::targetDBVersion;
-      grt::Ref<GrtVersion> (db_migration_Migration::*getter)() const= &db_migration_Migration::targetDBVersion;
-      meta->bind_member("targetDBVersion", new grt::MetaClass::Property<db_migration_Migration,grt::Ref<GrtVersion> >(getter,setter));
+      void (db_migration_Migration::*setter)(const GrtVersionRef &)= &db_migration_Migration::targetDBVersion;
+      GrtVersionRef (db_migration_Migration::*getter)() const= &db_migration_Migration::targetDBVersion;
+      meta->bind_member("targetDBVersion", new grt::MetaClass::Property<db_migration_Migration,GrtVersionRef >(getter,setter));
     }
     {
-      void (db_migration_Migration::*setter)(const grt::Ref<GrtVersion> &)= &db_migration_Migration::targetVersion;
-      grt::Ref<GrtVersion> (db_migration_Migration::*getter)() const= &db_migration_Migration::targetVersion;
-      meta->bind_member("targetVersion", new grt::MetaClass::Property<db_migration_Migration,grt::Ref<GrtVersion> >(getter,setter));
+      void (db_migration_Migration::*setter)(const GrtVersionRef &)= &db_migration_Migration::targetVersion;
+      GrtVersionRef (db_migration_Migration::*getter)() const= &db_migration_Migration::targetVersion;
+      meta->bind_member("targetVersion", new grt::MetaClass::Property<db_migration_Migration,GrtVersionRef >(getter,setter));
     }
     meta->bind_method("addMigrationLogEntry", &db_migration_Migration::call_addMigrationLogEntry);
     meta->bind_method("findMigrationLogEntry", &db_migration_Migration::call_findMigrationLogEntry);

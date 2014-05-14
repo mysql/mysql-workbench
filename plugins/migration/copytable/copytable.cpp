@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <my_config.h>
+
 #include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
@@ -32,7 +34,6 @@
 #include "converter.h"
 
 #include <boost/bind.hpp>
-#include <my_config.h>
 
 DEFAULT_LOG_DOMAIN("copytable");
 #define TMP_TRIGGER_TABLE "wb_tmp_triggers"
@@ -652,7 +653,7 @@ SQLRETURN ODBCCopyDataSource::get_wchar_buffer_data(RowBuffer &rowbuffer, int co
         log_warning("%li characters could not be converted to UTF-8 from column %s during copy\n",
                     (long)inbuf_len, (*_columns)[column-1].source_name.c_str());
 
-      *out_length = out_buffer_len - outbuf_len;
+      *out_length = (unsigned long)(out_buffer_len - outbuf_len);
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
@@ -701,7 +702,7 @@ SQLRETURN ODBCCopyDataSource::get_char_buffer_data(RowBuffer &rowbuffer, int col
   if (SQL_SUCCEEDED(ret))
   {
     if (len_or_indicator != SQL_NULL_DATA)
-      *out_length = len_or_indicator;
+      *out_length = (unsigned long)len_or_indicator;
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
   return ret;
@@ -760,7 +761,7 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
         log_warning("%lu characters could not be converted to UTF-8 from column %s during copy\n",
                     (unsigned long)inbuf_len, (*_columns)[column-1].source_name.c_str());
 
-      *out_length = out_buffer_len - outbuf_len;
+      *out_length = (unsigned long)(out_buffer_len - outbuf_len);
     }
     rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
   }
@@ -1041,8 +1042,8 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
                 if (rowbuffer[i-1].buffer_length)
                   free(rowbuffer[i-1].buffer);
 
-                *rowbuffer[i-1].length = final_length;
-                rowbuffer[i-1].buffer_length = final_length;
+                *rowbuffer[i - 1].length = (unsigned long)final_length;
+                rowbuffer[i - 1].buffer_length = (unsigned long)final_length;
                 rowbuffer[i-1].buffer = malloc(final_length);
 
                 memcpy(rowbuffer[i-1].buffer, final_data, final_length);
@@ -1247,7 +1248,7 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
   log_info("Connection to MySQL opened\n");
 
   std::string q = "SET NAMES 'utf8'";
-  if (mysql_real_query(&_mysql, q.data(), q.length()) != 0)
+  if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
     throw ConnectionError(q, &_mysql);
 }
 
@@ -1341,7 +1342,7 @@ boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_ta
   MYSQL_STMT *stmt = mysql_stmt_init(&_mysql);
   if (stmt)
   {
-    if (mysql_stmt_prepare(stmt, q.data(), q.length()) == 0)
+    if (mysql_stmt_prepare(stmt, q.data(), (unsigned long)q.length()) == 0)
     {
       _select_stmt = stmt;
 
@@ -1449,7 +1450,7 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             {
               rowbuffer[index].buffer = malloc(rowbuffer[index].buffer_length);
 
-              mysql_stmt_fetch_column(_select_stmt, &rowbuffer[index], index, 0);
+              mysql_stmt_fetch_column(_select_stmt, &rowbuffer[index], (unsigned int)index, 0);
             }
           }
           else
@@ -1513,11 +1514,11 @@ void MySQLCopyDataTarget::init()
      _max_long_data_size = _max_allowed_packet;
 
   std::string q = "SET NAMES 'utf8'";
-  if (mysql_real_query(&_mysql, q.data(), q.length()) != 0)
+  if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
     throw ConnectionError(q, &_mysql);
 
   q = "SET FOREIGN_KEY_CHECKS=0";
-  if (mysql_real_query(&_mysql, q.data(), q.length()) != 0)
+  if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
     throw ConnectionError(q, &_mysql);
 }
 
@@ -1525,7 +1526,7 @@ void MySQLCopyDataTarget::init()
 MYSQL_RES * MySQLCopyDataTarget::get_server_value(const std::string& variable)
 {
   std::string q = "SHOW VARIABLES LIKE '" + variable + "'";
-  if (mysql_real_query(&_mysql, q.data(), q.length()) < 0)
+  if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) < 0)
     throw ConnectionError(q, &_mysql);
 
   MYSQL_RES *result;
@@ -1783,7 +1784,7 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
   MYSQL_STMT *stmt = mysql_stmt_init(&_mysql);
   if (stmt)
   {
-    if (mysql_stmt_prepare(stmt, q.data(), q.length()) == 0)
+    if (mysql_stmt_prepare(stmt, q.data(), (unsigned long)q.length()) == 0)
     {
       MYSQL_RES *meta = mysql_stmt_result_metadata(stmt);
       if (meta)
@@ -1851,7 +1852,7 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
 
 void MySQLCopyDataTarget::send_long_data(int column, const char *data, size_t length)
 {
-  if (mysql_stmt_send_long_data(_insert_stmt, column, data, length))
+  if (mysql_stmt_send_long_data(_insert_stmt, column, data, (unsigned long)length))
   {
     std::string error = base::strfmt("Error sending long data: %s", mysql_stmt_error(_insert_stmt));
     throw std::logic_error(error);
@@ -1881,7 +1882,7 @@ void MySQLCopyDataTarget::begin_inserts()
     if (!stmt)
       throw ConnectionError("mysql_stmt_init", &_mysql);
 
-    if (mysql_stmt_prepare(stmt, _bulk_insert_query.data(), _bulk_insert_query.length()) != 0)
+    if (mysql_stmt_prepare(stmt, _bulk_insert_query.data(), (unsigned long)_bulk_insert_query.length()) != 0)
     {
       mysql_stmt_close(stmt);
       throw ConnectionError("mysql_stmt_prepare", stmt);
@@ -1986,7 +1987,7 @@ int MySQLCopyDataTarget::do_insert(bool final)
     {
       ret_val = _bulk_record_count;
       _init_bulk_insert = true;
-      if (mysql_real_query(&_mysql, _bulk_insert_buffer.buffer, _bulk_insert_buffer.length) != 0)
+      if (mysql_real_query(&_mysql, _bulk_insert_buffer.buffer, (unsigned long)_bulk_insert_buffer.length) != 0)
         throw ConnectionError("Inserting Batch", &_mysql);
 
       _bulk_insert_buffer.reset(_max_allowed_packet);
@@ -2634,7 +2635,7 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
   // This function is used to create a legal SQL string that you can use in an SQL statement
   // This is needed because the escaping depends on the character set in use by the server
-  length += mysql_real_escape_string(_mysql, buffer + length, data, dlength);
+  length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
 
   return true;
 }

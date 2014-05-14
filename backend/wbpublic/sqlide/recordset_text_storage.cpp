@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "recordset_text_storage.h"
 #include "recordset_be.h"
 #include "base/string_utilities.h"
@@ -276,7 +274,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
       if (out_col_type == "String")
       {
         TemplateDictionary* col_index_dict = dict->AddSectionDictionary("STRING_COLUMN");
-        col_index_dict->SetIntValue("STRING_COLUMN_INDEX", col+1);
+        col_index_dict->SetIntValue("STRING_COLUMN_INDEX", (long)col + 1);
       }
     }
   }
@@ -329,7 +327,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
               TemplateDictionary* field_dict;
               ColumnId partition_column= col - col_begin;
               bool is_null;
-              v = data_rs->get_variant(partition_column);
+              v = data_rs->get_variant((int)partition_column);
 
               is_null = sqlide::is_var_null(v); // for some reason, the apply_visitor stuff isnt handling NULL
 
@@ -411,7 +409,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
                  col_end= std::min<ColumnId>(visible_col_count, (partition + 1) * Recordset::DATA_SWAP_DB_TABLE_MAX_COL_COUNT); col < col_end; ++col)
             {
               ColumnId partition_column= col - col_begin;
-              v = data_rs->get_variant(partition_column);
+              v = data_rs->get_variant((int)partition_column);
               TemplateDictionary* field_dict = row_dict->AddSectionDictionary("FIELD");
               field_dict->SetValueWithoutCopy("FIELD_NAME", (*column_names)[col]);
               std::string field_value;
@@ -440,7 +438,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
       GError *error = 0;
       
       // use g_file_set because it can handle utf8 filenames
-      if (!g_file_set_contents(_file_path.c_str(), result_text.data(), result_text.size(), &error))
+      if (!g_file_set_contents(_file_path.c_str(), result_text.data(), (gssize)result_text.size(), &error))
       {
         std::string message = error->message;
         g_free(error);

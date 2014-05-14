@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "wb_editor_storednote.h"
 #include "grts/structs.workbench.physical.h"
@@ -92,7 +90,7 @@ grt::StringRef StoredNoteEditorBE::get_text(bool &isutf8)
 
   grt::StringRef value(grt::StringRef::cast_from(module->call_function("getAttachedFileContents", args)));
 
-  if (!g_utf8_validate(value.c_str(), strlen(value.c_str()), NULL))
+  if (!g_utf8_validate(value.c_str(), (gssize)strlen(value.c_str()), NULL))
   {
     isutf8= false;
     return "";

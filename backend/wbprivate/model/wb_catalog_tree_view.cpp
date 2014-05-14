@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "mforms/menubar.h"
 
@@ -106,7 +104,7 @@ void CatalogTreeView::context_menu_will_show(mforms::MenuItem *parent_item)
  */
 void CatalogTreeView::fill_node(mforms::TreeNodeRef parent_node, bec::NodeId parent_id)
 {
-  for (int count = _model->count_children(parent_id), i = 0; i < count; ++i)
+  for (size_t count = _model->count_children(parent_id), i = 0; i < count; ++i)
   {
     bec::NodeId child = _model->get_child(parent_id, i);
 
@@ -153,12 +151,12 @@ void CatalogTreeView::model_changed(bec::NodeId id, int old_child_count)
  */
 void CatalogTreeView::update_parent_node(mforms::TreeNodeRef parent_node, bec::NodeId parent_id)
 {
-  for (int count = _model->count_children(parent_id), i = 0; i < count; ++i)
+  for (size_t count = _model->count_children(parent_id), i = 0; i < count; ++i)
   {
     bec::NodeId child = _model->get_child(parent_id, i);
     mforms::TreeNodeRef node;
-    if (i < parent_node->count())
-      node = parent_node->get_child(i);
+    if ((int)i < parent_node->count())
+      node = parent_node->get_child((int)i);
     if (node.is_valid())
     {
       std::string value;

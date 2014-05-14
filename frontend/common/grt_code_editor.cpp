@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grt_python_debugger.h"
 #include "grt_code_editor.h"
 #include "base/file_utilities.h"
@@ -155,7 +153,7 @@ bool GRTCodeEditor::save(bool choose_file)
   
   std::string data = _text.get_string_value();
   GError *error = 0;
-  if (!g_file_set_contents(_filename.c_str(), data.c_str(), data.size(), &error))
+  if (!g_file_set_contents(_filename.c_str(), data.c_str(), (gssize)data.size(), &error))
   {
     Utilities::show_error("Error Saving File",
                           base::strfmt("Could not save to %s:\n%s", 

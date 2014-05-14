@@ -17,13 +17,13 @@ public:
                              DECLARE_INTERFACE_FUNCTION(WbModelReportingInterfaceImpl::getReportingTemplateInfo),
                              DECLARE_INTERFACE_FUNCTION(WbModelReportingInterfaceImpl::generateReport));
 
-  virtual int getAvailableReportingTemplates(grt::StringListRef templates)= 0;
+  virtual ssize_t getAvailableReportingTemplates(grt::StringListRef templates)= 0;
 
   virtual std::string getTemplateDirFromName(const std::string &template_name)= 0;
 
   virtual grt::Ref<workbench_model_reporting_TemplateInfo> getReportingTemplateInfo(const std::string& template_name)= 0;
 
-  virtual int generateReport(grt::Ref<workbench_physical_Model> model, const grt::DictRef& options)= 0;
+  virtual ssize_t generateReport(grt::Ref<workbench_physical_Model> model, const grt::DictRef& options)= 0;
 };
 
 

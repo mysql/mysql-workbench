@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "grt_wizard_form.h"
 #include "grtpp_util.h"
@@ -125,7 +123,7 @@ void ViewTextPage::save_text_to(const std::string &path)
   std::string text= get_text();
   GError *error= NULL;
 
-  if (!g_file_set_contents(filename, text.data(), text.size(), &error))
+  if (!g_file_set_contents(filename, text.data(), (gssize)text.size(), &error))
   {
     g_free(filename);
     std::string msg= strfmt(_("Could not save to file '%s': %s"), path.c_str(),

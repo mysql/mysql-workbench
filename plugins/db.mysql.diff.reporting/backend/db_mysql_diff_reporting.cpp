@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "db_mysql_diff_reporting.h"
 
 #include "grtdb/db_object_helpers.h"
@@ -36,7 +35,7 @@ using namespace grt;
 
 #include "grtsqlparser/sql_facade.h"
 #include "interfaces/sqlgenerator.h"
-#include "db.mysql/backend/db_mysql_public_interface.h"
+#include "backend/db_mysql_public_interface.h"
 
 #include "grtdb/charset_utils.h"
 #include "grtdb/db_object_helpers.h"

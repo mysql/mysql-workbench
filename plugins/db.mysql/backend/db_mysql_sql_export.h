@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,6 +93,7 @@ public:
   void set_option(const std::string& name, bool value);
   void set_option(const std::string& name, const std::string& value);
   void set_db_options_for_version(const GrtVersionRef &version);
+  void set_db_options(grt::DictRef &db_options);
 
   void start_export(bool wait_finish);
   //void run_validation();

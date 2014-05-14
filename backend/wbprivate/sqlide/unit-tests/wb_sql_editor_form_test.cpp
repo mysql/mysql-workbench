@@ -87,7 +87,7 @@ public:
   {
     _form->get_live_tree()->fetch_schema_contents(schema_name, schema_content_arrived_slot);
 
-    sleep(1);
+    g_usleep(1000000); // 1 second
 
     _form->grt_manager()->perform_idle_tasks();
   }

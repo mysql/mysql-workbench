@@ -52,7 +52,11 @@ typedef grt::Ref<db_sybase_Catalog> db_sybase_CatalogRef;
 
 
 namespace mforms { 
-	class Object;
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
 }; 
 
   /** a Sybase database sequence object */

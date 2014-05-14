@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #ifndef _WIN32
 #include <pcre.h>
 #include <stdio.h>
@@ -30,8 +28,8 @@
 #include "grt/grt_manager.h"
 
 #include "module_db_mysql.h"
-#include "diffchange.h"
-#include "grtdiff.h"
+#include "diff/diffchange.h"
+#include "diff/grtdiff.h"
 #include "grtdb/diff_dbobjectmatch.h"
 #include "db_mysql_diffsqlgen.h"
 #include "db_mysql_params.h"
@@ -61,7 +59,6 @@ inline std::string get_name(const GrtNamedObjectRef object, const bool use_short
   return use_short_names?
     std::string("`").append(object->name().c_str()).append("`"):
     get_qualified_schema_object_name(object);
-  
 };
 
 
@@ -280,7 +277,6 @@ class ActionGenerateSQL : public DiffSQLGeneratorBEActionInterface
   std::string sql;
   std::string comma;
   std::string table_q_name;
-  char itoa_buf[32];
   size_t empty_length;
   bool first_column, first_index,
   first_change, first_fk_create, first_fk_drop;
@@ -442,9 +438,9 @@ ActionGenerateSQL::ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamed
   : padding(2), _use_oids_as_dict_key(use_oids_as_key),disable_object_list(false)
 {
   _case_sensitive = options.get_int("CaseSensitive") != 0;
-  _maxTableCommentLength = options.get_int("maxTableCommentLength");
-  _maxIndexCommentLength = options.get_int("maxIndexCommentLength");
-  _maxColumnCommentLength = options.get_int("maxColumnCommentLength");
+  _maxTableCommentLength = (int)options.get_int("maxTableCommentLength");
+  _maxIndexCommentLength = (int)options.get_int("maxIndexCommentLength");
+  _maxColumnCommentLength = (int)options.get_int("maxColumnCommentLength");
   _algorithm_type = options.get_string("AlterAlgorithm");
   _lock_type = options.get_string("AlterLock");
 
@@ -618,9 +614,8 @@ void ActionGenerateSQL::create_table_indexes_end(db_mysql_TableRef)
 
 std::string ActionGenerateSQL::generate_create(db_mysql_IndexRef index, std::string table_q_name, bool separate_index)
 {
-  std::string index_sql;
+  std::string index_sql; // XXX: the construction should be rewritten using a string stream.
   bool pk= (index->isPrimary() != 0);
-  char itoa_buf[32];
 
   separate_index= (!pk && separate_index);  // pk cannot be added via CREATE INDEX
 
@@ -634,15 +629,15 @@ std::string ActionGenerateSQL::generate_create(db_mysql_IndexRef index, std::str
   }
   else if(strlen(index->indexType().c_str()) > 0)
   {
-    if(stricmp(index->indexType().c_str(), "PRIMARY") == 0)
+    if(strcasecmp(index->indexType().c_str(), "PRIMARY") == 0)
       index_sql.append("PRIMARY KEY ");
-    if (stricmp(index->indexType().c_str(), "FOREIGN") == 0)
+    if (strcasecmp(index->indexType().c_str(), "FOREIGN") == 0)
       index_sql.append("INDEX ");
     else
     {
       index_sql.append(index->indexType().c_str()).append(" ");
 
-      if(stricmp(index->indexType().c_str(), "INDEX") != 0)
+      if(strcasecmp(index->indexType().c_str(), "INDEX") != 0)
         index_sql.append("INDEX ");
     }
   }
@@ -675,7 +670,7 @@ std::string ActionGenerateSQL::generate_create(db_mysql_IndexRef index, std::str
       index_sql.append("`").append(col->name().c_str()).append("`");
     
     if(ind_column->columnLength() > 0)
-      index_sql.append("(").append(itoa(ind_column->columnLength(), itoa_buf, 10)).append(")");
+      index_sql.append("(").append(ind_column->columnLength().repr()).append(")");
     
     if(!pk)
       index_sql.append((ind_column->descend() == 0 ? " ASC" : " DESC"));
@@ -683,7 +678,7 @@ std::string ActionGenerateSQL::generate_create(db_mysql_IndexRef index, std::str
   index_sql.append(") ");
 
   if (index->keyBlockSize())
-    index_sql.append(" KEY_BLOCK_SIZE=").append(itoa(index->keyBlockSize(), itoa_buf, 10));
+    index_sql.append(" KEY_BLOCK_SIZE=").append(index->keyBlockSize().repr());
 
   if (index->withParser().is_valid() && *index->withParser().c_str())
     index_sql.append(" WITH PARSER ").append(index->withParser());
@@ -734,7 +729,7 @@ void ActionGenerateSQL::create_table_password(grt::StringRef value)
 
 void ActionGenerateSQL::create_table_delay_key_write(grt::IntegerRef value)
 {
-  sql.append("\nDELAY_KEY_WRITE = ").append(itoa(value, itoa_buf, 10));
+  sql.append("\nDELAY_KEY_WRITE = ").append(value.repr());
 }
 
 void ActionGenerateSQL::create_table_charset(grt::StringRef value)
@@ -768,7 +763,7 @@ void ActionGenerateSQL::create_table_pack_keys(grt::StringRef value)
 
 void ActionGenerateSQL::create_table_checksum(grt::IntegerRef value)
 {
-  sql.append("\nCHECKSUM = ").append(itoa(value, itoa_buf, 10));
+  sql.append("\nCHECKSUM = ").append(value.repr());
 }
 
 void ActionGenerateSQL::create_table_row_format(grt::StringRef value)
@@ -939,17 +934,17 @@ void ActionGenerateSQL::alter_table_password(db_mysql_TableRef table, grt::Strin
 
 void ActionGenerateSQL::alter_table_delay_key_write(db_mysql_TableRef table, grt::IntegerRef n)
 {
-  alter_table_property(sql, "DELAY_KEY_WRITE  = ", itoa(n, itoa_buf, 10));
+  alter_table_property(sql, "DELAY_KEY_WRITE  = ", n.repr());
 }
 
 void ActionGenerateSQL::alter_table_charset(db_mysql_TableRef table, grt::StringRef str)
 {
-  alter_table_property(sql, "CHARACTER SET = ", str.empty()?"DEFAULT":str.c_str());
+  alter_table_property(sql, "CHARACTER SET = ", str.empty() ? "DEFAULT" : str.c_str());
 }
 
 void ActionGenerateSQL::alter_table_collate(db_mysql_TableRef table, grt::StringRef str)
 {
-  alter_table_property(sql, "COLLATE = ", str.empty() ? "DEFAULT":str.c_str());
+  alter_table_property(sql, "COLLATE = ", str.empty() ? "DEFAULT" : str.c_str());
 }
 
 void ActionGenerateSQL::alter_table_comment(db_mysql_TableRef table, grt::StringRef str)
@@ -981,7 +976,7 @@ void ActionGenerateSQL::alter_table_pack_keys(db_mysql_TableRef table, grt::Stri
 
 void ActionGenerateSQL::alter_table_checksum(db_mysql_TableRef table, grt::IntegerRef n)
 {
-  alter_table_property(sql, "CHECKSUM = ", itoa(n, itoa_buf, 10));
+  alter_table_property(sql, "CHECKSUM = ", n.repr());
 }
 
 void ActionGenerateSQL::alter_table_row_format(db_mysql_TableRef table, grt::StringRef str)
@@ -1032,19 +1027,21 @@ void ActionGenerateSQL::alter_table_generate_partitioning(
   }
   bool is_range= (part_type.compare("RANGE") == 0);
   bool is_list= false;
-  char itoa_buf[32];
+
 
   if(!is_range)
     is_list= (part_type.compare("LIST") == 0);
 
   std::string partition_sql(" PARTITION BY ");
 
+  std::stringstream ss;
+  ss << part_count;
   partition_sql
     .append(part_type)
     .append("(")
     .append(part_expr)
     .append(") PARTITIONS ")
-    .append(itoa(part_count, itoa_buf, 10));
+    .append(ss.str());
 
   if(is_range || is_list)
   {
@@ -1111,9 +1108,7 @@ void ActionGenerateSQL::alter_table_partition_count(db_mysql_TableRef table, grt
 {
   // we get here only if partitionType was not changed, so we can rely on old type setting
 
-  char buf[32];
-
-  int newcount= table->partitionCount();
+  ssize_t newcount = table->partitionCount();
   std::string part_type(table->partitionType().c_str());
 
   // for range/list partitions we use add/drop/reorganize partitions
@@ -1124,9 +1119,9 @@ void ActionGenerateSQL::alter_table_partition_count(db_mysql_TableRef table, grt
   std::string part_count_sql;
 
   if(oldcount > newcount) // merge
-    part_count_sql.append(" COALESCE PARTITION ").append(itoa((oldcount - newcount), buf, 10));
+    part_count_sql.append(" COALESCE PARTITION ").append(IntegerRef(oldcount - newcount).repr());
   else  // split
-    part_count_sql.append(" ADD PARTITION PARTITIONS ").append(itoa((newcount - oldcount), buf, 10));
+    part_count_sql.append(" ADD PARTITION PARTITIONS ").append(IntegerRef(newcount - oldcount).repr());
 
   // partition count alone can be changed only for HASH/KEY partitions
   // generate_change_partition_count() will return empty string otherwise
@@ -1450,7 +1445,8 @@ void ActionGenerateSQL::create_view(db_mysql_ViewRef view)
   view_def.append(view->sqlDefinition().c_str()); 
 
   pcre *patre= pcre_compile("^\\s*CREATE\\s+OR\\s+REPLACE\\s+", PCRE_CASELESS | PCRE_MULTILINE, &errptr, &erroffs, NULL);
-  if (patre && (pcre_exec(patre, NULL, view_def.c_str(), view_def.length(), 0, 0, patres, sizeof(patres)/sizeof(int)) > 0))
+  if (patre && (pcre_exec(patre, NULL, view_def.c_str(), (int)view_def.length(), 0, 0, patres,
+    sizeof(patres) / sizeof(int)) > 0))
   {
     or_replace_present= true;
   }
@@ -1461,7 +1457,8 @@ void ActionGenerateSQL::create_view(db_mysql_ViewRef view)
   if (!or_replace_present)
   {
     patre= pcre_compile("^\\s*CREATE\\s+", PCRE_CASELESS | PCRE_MULTILINE , &errptr, &erroffs, NULL);
-    if (patre && (pcre_exec(patre, NULL, view_def.c_str(), view_def.length(), 0, 0, patres, sizeof(patres)/sizeof(int)) > 0))
+    if (patre && (pcre_exec(patre, NULL, view_def.c_str(), (int)view_def.length(), 0, 0, patres,
+      sizeof(patres) / sizeof(int)) > 0))
       view_def.insert(patres[1], " OR REPLACE ");
 
     if (patre)
@@ -1640,9 +1637,9 @@ DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr), 
     _default_traits.set("maxColumnCommentLength", grt::IntegerRef(255));
 }
 
-int DbMySQLImpl::generateSQL(GrtNamedObjectRef org_object, 
-                             const grt::DictRef& options, 
-                             boost::shared_ptr<DiffChange> changes)
+ssize_t DbMySQLImpl::generateSQL(GrtNamedObjectRef org_object,
+                                 const grt::DictRef& options, 
+                                  boost::shared_ptr<DiffChange> changes)
 {
   grt::ValueRef result= options.get("OutputContainer");
   grt::ListRef<GrtNamedObject> obj_list;
@@ -1693,7 +1690,7 @@ grt::StringRef DbMySQLImpl::generateReportForDifferences(GrtNamedObjectRef org_o
                                                          const grt::DictRef& options)
 {
   grt::DbObjectMatchAlterOmf omf;
-  omf.dontdiff_mask = options.get_int("OMFDontDiffMask", omf.dontdiff_mask);
+  omf.dontdiff_mask = (unsigned int)options.get_int("OMFDontDiffMask", omf.dontdiff_mask);
   grt::NormalizedComparer normalizer(get_grt());
   normalizer.init_omf(&omf);
   boost::shared_ptr<DiffChange> alter_change= diff_make(org_object, oth_object, &omf);
@@ -1822,7 +1819,7 @@ protected:
         }
         if (!_decomposer_options.is_valid())
         {
-          int case_sensitive_opt = options.get_int("CaseSensitive", -1);
+          ssize_t case_sensitive_opt = options.get_int("CaseSensitive", -1);
           if (case_sensitive_opt != -1)
           {
             _decomposer_options = grt::DictRef(grt);
@@ -2329,7 +2326,7 @@ public:
     }
 };
 
-int DbMySQLImpl::makeSQLExportScript(GrtNamedObjectRef dbobject, grt::DictRef options, 
+ssize_t DbMySQLImpl::makeSQLExportScript(GrtNamedObjectRef dbobject, grt::DictRef options, 
     const grt::DictRef& createSQL, const grt::DictRef& dropSQL)
 {
     // now only catalog supported
@@ -2378,7 +2375,7 @@ public:
                 std::string view_ddl(sql_list[i]);
                 if(view_ddl.empty())
                     continue;
-                views_indices.push_back(i);
+                views_indices.push_back((int)i);
                 db_mysql_ViewRef view= db_mysql_ViewRef::cast_from(obj);
                 view_placeholders.append(generate_view_placeholder(view));
             }
@@ -2413,8 +2410,8 @@ public:
     };
 };
 
-int DbMySQLImpl::makeSQLSyncScript(grt::DictRef options, const grt::StringListRef& sql_list,
-                                   const grt::ListRef<GrtNamedObject>& obj_list)
+ssize_t DbMySQLImpl::makeSQLSyncScript(grt::DictRef options, const grt::StringListRef& sql_list,
+  const grt::ListRef<GrtNamedObject>& obj_list)
 {
   SQLSyncComposer composer(options, get_grt());
   options.set("OutputScript", grt::StringRef(composer.get_sync_sql(sql_list, obj_list)));
@@ -2442,8 +2439,8 @@ std::string DbMySQLImpl::makeAlterScript(GrtNamedObjectRef source, GrtNamedObjec
 
   generateSQL(source, options, diff);
 
-  int res= makeSQLSyncScript(options, alter_list, alter_object_list);
-  if (res)
+  ssize_t res = makeSQLSyncScript(options, alter_list, alter_object_list);
+  if (res != 0)
     return "";
 
   grt::StringRef script= grt::StringRef::cast_from(options.get("OutputScript"));

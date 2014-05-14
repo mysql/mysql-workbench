@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "mforms/tabview_dock.h"
 #include "mforms/appview.h"
 

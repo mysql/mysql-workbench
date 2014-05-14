@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,10 +39,9 @@ namespace bec {
     ObjectPrivilegeListBE(const db_mgmt_RdbmsRef &rdbms);
 
     virtual void refresh();
+    virtual size_t count();
 
-    virtual int count();
-
-    virtual bool set_field(const NodeId &node, int column, int value);
+    virtual bool set_field(const NodeId &node, ColumnId column, ssize_t value);
     void set_owner(ObjectRoleListBE* owner) { _owner= owner; };
 
   protected:
@@ -50,9 +49,8 @@ namespace bec {
     db_mgmt_RdbmsRef _rdbms;
     grt::StringListRef _privileges;
 
-    virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
+    virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
   };
-
 
   
   class WBPUBLICBACKEND_PUBLIC_FUNC ObjectRoleListBE : public ListModel
@@ -64,7 +62,7 @@ namespace bec {
 
     ObjectRoleListBE(DBObjectEditorBE *owner);
 
-    virtual int count();
+    virtual size_t count();
     virtual void refresh();
 
     void select_role(const NodeId &node);
@@ -73,9 +71,7 @@ namespace bec {
     void remove_role_from_privileges(const db_RoleRef &role);
 
     ObjectPrivilegeListBE *get_privilege_list() { return &_privilege_list; }
-
     db_RolePrivilegeRef get_selected();
-
     DBObjectEditorBE *get_owner() { return _owner; }
 
   protected:
@@ -86,7 +82,7 @@ namespace bec {
 
     NodeId _selected_node;
     
-    virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
+    virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
   };
 };
 

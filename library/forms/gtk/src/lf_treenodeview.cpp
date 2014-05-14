@@ -1158,6 +1158,12 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
   {
     if (w->drag_check_threshold(_drag_start_x, _drag_start_y, ev->x, ev->y))
     {
+      if (_org_event != 0)
+      {
+        delete _org_event;
+        _org_event = 0;
+      }
+
       {
         //Because of problems when Treeview has been set to multiselect,
         //there are some DnD problems, below code is fixing those.
@@ -1262,7 +1268,7 @@ bool TreeNodeViewImpl::on_button_release(GdkEventButton* ev)
   //we need this to emit press event again cause we're changing default behavior of it
   if (_org_event != 0)
   {
-    g_signal_emit_by_name(_tree.gobj(), "button-press-event", _org_event);
+    gtk_propagate_event((GtkWidget*)_tree.gobj(), (GdkEvent*)_org_event);
     delete _org_event;
     _org_event = 0;
   }

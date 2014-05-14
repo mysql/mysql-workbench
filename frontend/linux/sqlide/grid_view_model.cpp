@@ -204,7 +204,7 @@ void GridViewModel::get_cell_value(const iterator& iter, int column, GType type,
     else
     {
       std::ostringstream oss;
-      int row= node[0]+1;
+      size_t row= node[0]+1;
       if (_model->is_readonly() || (row < _model->count()))
         oss << row;
       else

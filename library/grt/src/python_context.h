@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #ifndef _GRT_PYTHON_CONTEXT_H_
 #define _GRT_PYTHON_CONTEXT_H_
 #include "base/python_utils.h"
@@ -30,38 +29,58 @@ namespace grt {
   
   class AutoPyObject
   {
+  private:
     PyObject *object;
+    bool autorelease;
   public: 
     AutoPyObject()
-      : object(0)
+      : object(0), autorelease(false)
     {
     }
 
+    // Assigning another auto object always makes this one ref-counting as they share
+    // now the same object. Same for the assignment operator.
     AutoPyObject(const AutoPyObject &other)
-    : object(other.object)
+      : object(other.object), autorelease(true)
     {
       Py_XINCREF(object);
     }
     
-    AutoPyObject(PyObject *py, bool retain=true)
+    AutoPyObject(PyObject *py, bool retain = true)
     : object(py)
     {
-      if (retain)
+      autorelease = retain;
+      if (autorelease)
       {
+        // Leave the braces in place, even though this is a one liner. They will silence LLVM.
         Py_XINCREF(object);
       }
     }
     
     ~AutoPyObject()
     {
-      Py_XDECREF(object);
+      if (autorelease)
+      {
+        Py_XDECREF(object);
+      }
     }
 
     AutoPyObject &operator= (PyObject *other)
     {
-      Py_XINCREF(other);
-      Py_XDECREF(object);
-      object= other;
+      if (object == other) // Ignore assignments of the same object.
+        return *this;
+
+      // Auto release only if we actually have increased its ref count.
+      // Always make this auto object auto-releasing after that as we get an object that might
+      // be shared by another instance.
+      if (autorelease)
+      {
+        Py_XDECREF(object);
+      }
+
+      object = other;
+      autorelease = true;
+      Py_XINCREF(object);
 
       return *this;
     }
@@ -82,11 +101,22 @@ namespace grt {
     }
   };
   
-  class MYSQLGRT_PUBLIC PythonContext : public GRTObserver
+  // Helper class to allow cleaning up the python context after its instance vars are finished.
+  class PythonContextHelper
+  {
+  private:
+    PyThreadState*  _main_thread_state;
+
+  protected:
+    PythonContextHelper(const std::string &module_path);
+    virtual ~PythonContextHelper();
+  };
+
+  class MYSQLGRT_PUBLIC PythonContext : private PythonContextHelper, public GRTObserver
   {
   public:
     PythonContext(GRT *grt, const std::string &module_path);
-    ~PythonContext();
+    virtual ~PythonContext();
 
     static PythonContext *get();
     static PythonContext *get_and_check();
@@ -191,8 +221,6 @@ namespace grt {
     virtual void handle_grt_notification(const std::string &name, ObjectRef sender, DictRef info);
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
     
-    PyThreadState*  _main_thread_state;
-
   };
   
 };

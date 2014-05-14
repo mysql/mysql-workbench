@@ -1431,7 +1431,7 @@ namespace MySQL.Utilities
               uint rawSize = Win32.SendMessage(listView.Handle, (int)Win32.LVM_APPROXIMATEVIEWRECT,
                 unchecked((uint) -1), Win32.MakeLParam(ushort.MaxValue, ushort.MaxValue));
 
-              ushort singleSize = Win32.HiWord(rawSize);
+              int singleSize = Win32.HiWord(rawSize);
 
               // Nothing is perfect and neither is Listview's space computation. There is too much room in
               // large icon mode and a bit too few in tile mode. Correct that.
@@ -1439,15 +1439,17 @@ namespace MySQL.Utilities
               {
                 case View.LargeIcon:
                   singleSize -= 20;
+                  if (singleSize < 0)
+                    singleSize = 0;
                   break;
                 case View.Tile:
                   singleSize += 5;
                   break;
               }
               if (listView.Groups.Count == 0)
-                c.Height = (int) singleSize;
+                c.Height = singleSize;
               else
-                c.Height = listView.Groups.Count * (int) singleSize;
+                c.Height = listView.Groups.Count * singleSize;
             }
             else
             {

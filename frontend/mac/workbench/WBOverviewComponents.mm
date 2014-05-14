@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -399,7 +399,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (void)buildChildren
 {
   // build the child items
-  int child_type;
+  ssize_t child_type;
   _be->get_field(*_nodeId, wb::OverviewBE::ChildNodeType, child_type);
   
   NSAssert(child_type == wb::OverviewBE::OSection, @"unexpected child type for group");
@@ -540,7 +540,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
         _contextMenu= (NSMenu*)object;
     }
     
-    int displayMode= wb::OverviewBE::MSmallIcon;
+    ssize_t displayMode= wb::OverviewBE::MSmallIcon;
     if (_be->get_field(node, wb::OverviewBE::DisplayMode, displayMode) &&
         displayMode == wb::OverviewBE::MLargeIcon)
     {

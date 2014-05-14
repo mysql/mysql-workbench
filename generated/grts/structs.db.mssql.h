@@ -17,38 +17,268 @@
 #include <grts/structs.db.h>
 
 
-class db_mssql_IndexColumn;
-typedef grt::Ref<db_mssql_IndexColumn> db_mssql_IndexColumnRef;
-class db_mssql_UserDatatype;
-typedef grt::Ref<db_mssql_UserDatatype> db_mssql_UserDatatypeRef;
-class db_mssql_SimpleDatatype;
-typedef grt::Ref<db_mssql_SimpleDatatype> db_mssql_SimpleDatatypeRef;
-class db_mssql_ForeignKey;
-typedef grt::Ref<db_mssql_ForeignKey> db_mssql_ForeignKeyRef;
-class db_mssql_Index;
-typedef grt::Ref<db_mssql_Index> db_mssql_IndexRef;
-class db_mssql_Column;
-typedef grt::Ref<db_mssql_Column> db_mssql_ColumnRef;
-class db_mssql_Catalog;
-typedef grt::Ref<db_mssql_Catalog> db_mssql_CatalogRef;
 class db_mssql_Sequence;
 typedef grt::Ref<db_mssql_Sequence> db_mssql_SequenceRef;
 class db_mssql_Synonym;
 typedef grt::Ref<db_mssql_Synonym> db_mssql_SynonymRef;
+class db_mssql_Routine;
+typedef grt::Ref<db_mssql_Routine> db_mssql_RoutineRef;
 class db_mssql_RoutineGroup;
 typedef grt::Ref<db_mssql_RoutineGroup> db_mssql_RoutineGroupRef;
+class db_mssql_View;
+typedef grt::Ref<db_mssql_View> db_mssql_ViewRef;
+class db_mssql_Trigger;
+typedef grt::Ref<db_mssql_Trigger> db_mssql_TriggerRef;
+class db_mssql_ForeignKey;
+typedef grt::Ref<db_mssql_ForeignKey> db_mssql_ForeignKeyRef;
+class db_mssql_IndexColumn;
+typedef grt::Ref<db_mssql_IndexColumn> db_mssql_IndexColumnRef;
+class db_mssql_Index;
+typedef grt::Ref<db_mssql_Index> db_mssql_IndexRef;
 class db_mssql_StructuredDatatype;
 typedef grt::Ref<db_mssql_StructuredDatatype> db_mssql_StructuredDatatypeRef;
+class db_mssql_UserDatatype;
+typedef grt::Ref<db_mssql_UserDatatype> db_mssql_UserDatatypeRef;
+class db_mssql_SimpleDatatype;
+typedef grt::Ref<db_mssql_SimpleDatatype> db_mssql_SimpleDatatypeRef;
+class db_mssql_Column;
+typedef grt::Ref<db_mssql_Column> db_mssql_ColumnRef;
 class db_mssql_Table;
 typedef grt::Ref<db_mssql_Table> db_mssql_TableRef;
 class db_mssql_Schema;
 typedef grt::Ref<db_mssql_Schema> db_mssql_SchemaRef;
-class db_mssql_Trigger;
-typedef grt::Ref<db_mssql_Trigger> db_mssql_TriggerRef;
-class db_mssql_Routine;
-typedef grt::Ref<db_mssql_Routine> db_mssql_RoutineRef;
-class db_mssql_View;
-typedef grt::Ref<db_mssql_View> db_mssql_ViewRef;
+class db_mssql_Catalog;
+typedef grt::Ref<db_mssql_Catalog> db_mssql_CatalogRef;
+
+
+namespace mforms { 
+  class Object;
+}; 
+
+namespace grt { 
+  class AutoPyObject;
+}; 
+
+  /** a MSSQL database sequence object */
+class  db_mssql_Sequence : public db_Sequence
+{
+  typedef db_Sequence super;
+public:
+  db_mssql_Sequence(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Sequence(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.Sequence"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_Sequence(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_Sequence::create);
+  }
+};
+
+
+  /** a MSSQL synonym object */
+class  db_mssql_Synonym : public db_Synonym
+{
+  typedef db_Synonym super;
+public:
+  db_mssql_Synonym(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Synonym(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.Synonym"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_Synonym(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_Synonym::create);
+  }
+};
+
+
+  /** a MSSQL database routine object */
+class  db_mssql_Routine : public db_Routine
+{
+  typedef db_Routine super;
+public:
+  db_mssql_Routine(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.Routine"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_Routine(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_Routine::create);
+  }
+};
+
+
+  /** a MSSQL database routine group */
+class  db_mssql_RoutineGroup : public db_RoutineGroup
+{
+  typedef db_RoutineGroup super;
+public:
+  db_mssql_RoutineGroup(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_RoutineGroup(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.RoutineGroup"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_RoutineGroup(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_RoutineGroup::create);
+  }
+};
+
+
+  /** a MSSQL database view object */
+class  db_mssql_View : public db_View
+{
+  typedef db_View super;
+public:
+  db_mssql_View(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_View(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.View"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_View(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_View::create);
+  }
+};
+
+
+class  db_mssql_Trigger : public db_Trigger
+{
+  typedef db_Trigger super;
+public:
+  db_mssql_Trigger(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Trigger(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.Trigger"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_Trigger(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_Trigger::create);
+  }
+};
+
+
+class  db_mssql_ForeignKey : public db_ForeignKey
+{
+  typedef db_ForeignKey super;
+public:
+  db_mssql_ForeignKey(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_ForeignKey(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.ForeignKey"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_ForeignKey(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_ForeignKey::create);
+  }
+};
 
 
 class  db_mssql_IndexColumn : public db_IndexColumn
@@ -78,6 +308,177 @@ public:
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_mssql_IndexColumn::create);
+  }
+};
+
+
+class  db_mssql_Index : public db_Index
+{
+  typedef db_Index super;
+public:
+  db_mssql_Index(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Index(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _clustered(0),
+     _filterDefinition(""),
+     _hasFilter(0),
+     _ignoreDuplicateRows(0)
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.Index"; }
+
+  /** Getter for attribute clustered
+   
+    
+   \par In Python:
+value = obj.clustered
+   */
+  grt::IntegerRef clustered() const { return _clustered; }
+  /** Setter for attribute clustered
+   
+    
+    \par In Python:
+obj.clustered = value
+   */
+  virtual void clustered(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_clustered);
+   _clustered= value;
+    member_changed("clustered", ovalue, value);
+  }
+
+  /** Getter for attribute filterDefinition
+   
+    the definition of the filter associated to the index (expression for the subset of rows included in the filtered index)
+   \par In Python:
+value = obj.filterDefinition
+   */
+  grt::StringRef filterDefinition() const { return _filterDefinition; }
+  /** Setter for attribute filterDefinition
+   
+    the definition of the filter associated to the index (expression for the subset of rows included in the filtered index)
+    \par In Python:
+obj.filterDefinition = value
+   */
+  virtual void filterDefinition(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_filterDefinition);
+   _filterDefinition= value;
+    member_changed("filterDefinition", ovalue, value);
+  }
+
+  /** Getter for attribute hasFilter
+   
+    whether there is a filter associated to the index
+   \par In Python:
+value = obj.hasFilter
+   */
+  grt::IntegerRef hasFilter() const { return _hasFilter; }
+  /** Setter for attribute hasFilter
+   
+    whether there is a filter associated to the index
+    \par In Python:
+obj.hasFilter = value
+   */
+  virtual void hasFilter(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_hasFilter);
+   _hasFilter= value;
+    member_changed("hasFilter", ovalue, value);
+  }
+
+  /** Getter for attribute ignoreDuplicateRows
+   
+    
+   \par In Python:
+value = obj.ignoreDuplicateRows
+   */
+  grt::IntegerRef ignoreDuplicateRows() const { return _ignoreDuplicateRows; }
+  /** Setter for attribute ignoreDuplicateRows
+   
+    
+    \par In Python:
+obj.ignoreDuplicateRows = value
+   */
+  virtual void ignoreDuplicateRows(const grt::IntegerRef &value)
+  {
+    grt::ValueRef ovalue(_ignoreDuplicateRows);
+   _ignoreDuplicateRows= value;
+    member_changed("ignoreDuplicateRows", ovalue, value);
+  }
+
+protected:
+
+  grt::IntegerRef _clustered;
+  grt::StringRef _filterDefinition;
+  grt::IntegerRef _hasFilter;
+  grt::IntegerRef _ignoreDuplicateRows;
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_Index(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_Index::create);
+    {
+      void (db_mssql_Index::*setter)(const grt::IntegerRef &)= &db_mssql_Index::clustered;
+      grt::IntegerRef (db_mssql_Index::*getter)() const= &db_mssql_Index::clustered;
+      meta->bind_member("clustered", new grt::MetaClass::Property<db_mssql_Index,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_mssql_Index::*setter)(const grt::StringRef &)= &db_mssql_Index::filterDefinition;
+      grt::StringRef (db_mssql_Index::*getter)() const= &db_mssql_Index::filterDefinition;
+      meta->bind_member("filterDefinition", new grt::MetaClass::Property<db_mssql_Index,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_mssql_Index::*setter)(const grt::IntegerRef &)= &db_mssql_Index::hasFilter;
+      grt::IntegerRef (db_mssql_Index::*getter)() const= &db_mssql_Index::hasFilter;
+      meta->bind_member("hasFilter", new grt::MetaClass::Property<db_mssql_Index,grt::IntegerRef >(getter,setter));
+    }
+    {
+      void (db_mssql_Index::*setter)(const grt::IntegerRef &)= &db_mssql_Index::ignoreDuplicateRows;
+      grt::IntegerRef (db_mssql_Index::*getter)() const= &db_mssql_Index::ignoreDuplicateRows;
+      meta->bind_member("ignoreDuplicateRows", new grt::MetaClass::Property<db_mssql_Index,grt::IntegerRef >(getter,setter));
+    }
+  }
+};
+
+
+  /** a MSSQL structured datatype object */
+class  db_mssql_StructuredDatatype : public db_StructuredDatatype
+{
+  typedef db_StructuredDatatype super;
+public:
+  db_mssql_StructuredDatatype(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_StructuredDatatype(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "db.mssql.StructuredDatatype"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new db_mssql_StructuredDatatype(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mssql_StructuredDatatype::create);
   }
 };
 
@@ -252,176 +653,6 @@ public:
 };
 
 
-class  db_mssql_ForeignKey : public db_ForeignKey
-{
-  typedef db_ForeignKey super;
-public:
-  db_mssql_ForeignKey(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_ForeignKey(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mssql.ForeignKey"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_ForeignKey(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_ForeignKey::create);
-  }
-};
-
-
-class  db_mssql_Index : public db_Index
-{
-  typedef db_Index super;
-public:
-  db_mssql_Index(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Index(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _clustered(0),
-     _filterDefinition(""),
-     _hasFilter(0),
-     _ignoreDuplicateRows(0)
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mssql.Index"; }
-
-  /** Getter for attribute clustered
-   
-    
-   \par In Python:
-value = obj.clustered
-   */
-  grt::IntegerRef clustered() const { return _clustered; }
-  /** Setter for attribute clustered
-   
-    
-    \par In Python:
-obj.clustered = value
-   */
-  virtual void clustered(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_clustered);
-   _clustered= value;
-    member_changed("clustered", ovalue, value);
-  }
-
-  /** Getter for attribute filterDefinition
-   
-    the definition of the filter associated to the index (expression for the subset of rows included in the filtered index)
-   \par In Python:
-value = obj.filterDefinition
-   */
-  grt::StringRef filterDefinition() const { return _filterDefinition; }
-  /** Setter for attribute filterDefinition
-   
-    the definition of the filter associated to the index (expression for the subset of rows included in the filtered index)
-    \par In Python:
-obj.filterDefinition = value
-   */
-  virtual void filterDefinition(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_filterDefinition);
-   _filterDefinition= value;
-    member_changed("filterDefinition", ovalue, value);
-  }
-
-  /** Getter for attribute hasFilter
-   
-    whether there is a filter associated to the index
-   \par In Python:
-value = obj.hasFilter
-   */
-  grt::IntegerRef hasFilter() const { return _hasFilter; }
-  /** Setter for attribute hasFilter
-   
-    whether there is a filter associated to the index
-    \par In Python:
-obj.hasFilter = value
-   */
-  virtual void hasFilter(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_hasFilter);
-   _hasFilter= value;
-    member_changed("hasFilter", ovalue, value);
-  }
-
-  /** Getter for attribute ignoreDuplicateRows
-   
-    
-   \par In Python:
-value = obj.ignoreDuplicateRows
-   */
-  grt::IntegerRef ignoreDuplicateRows() const { return _ignoreDuplicateRows; }
-  /** Setter for attribute ignoreDuplicateRows
-   
-    
-    \par In Python:
-obj.ignoreDuplicateRows = value
-   */
-  virtual void ignoreDuplicateRows(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_ignoreDuplicateRows);
-   _ignoreDuplicateRows= value;
-    member_changed("ignoreDuplicateRows", ovalue, value);
-  }
-
-protected:
-
-  grt::IntegerRef _clustered;
-  grt::StringRef _filterDefinition;
-  grt::IntegerRef _hasFilter;
-  grt::IntegerRef _ignoreDuplicateRows;
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_Index(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_Index::create);
-    {
-      void (db_mssql_Index::*setter)(const grt::IntegerRef &)= &db_mssql_Index::clustered;
-      grt::IntegerRef (db_mssql_Index::*getter)() const= &db_mssql_Index::clustered;
-      meta->bind_member("clustered", new grt::MetaClass::Property<db_mssql_Index,grt::IntegerRef >(getter,setter));
-    }
-    {
-      void (db_mssql_Index::*setter)(const grt::StringRef &)= &db_mssql_Index::filterDefinition;
-      grt::StringRef (db_mssql_Index::*getter)() const= &db_mssql_Index::filterDefinition;
-      meta->bind_member("filterDefinition", new grt::MetaClass::Property<db_mssql_Index,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_mssql_Index::*setter)(const grt::IntegerRef &)= &db_mssql_Index::hasFilter;
-      grt::IntegerRef (db_mssql_Index::*getter)() const= &db_mssql_Index::hasFilter;
-      meta->bind_member("hasFilter", new grt::MetaClass::Property<db_mssql_Index,grt::IntegerRef >(getter,setter));
-    }
-    {
-      void (db_mssql_Index::*setter)(const grt::IntegerRef &)= &db_mssql_Index::ignoreDuplicateRows;
-      grt::IntegerRef (db_mssql_Index::*getter)() const= &db_mssql_Index::ignoreDuplicateRows;
-      meta->bind_member("ignoreDuplicateRows", new grt::MetaClass::Property<db_mssql_Index,grt::IntegerRef >(getter,setter));
-    }
-  }
-};
-
-
 class  db_mssql_Column : public db_Column
 {
   typedef db_Column super;
@@ -503,182 +734,6 @@ public:
       grt::IntegerRef (db_mssql_Column::*getter)() const= &db_mssql_Column::identity;
       meta->bind_member("identity", new grt::MetaClass::Property<db_mssql_Column,grt::IntegerRef >(getter,setter));
     }
-  }
-};
-
-
-class  db_mssql_Catalog : public db_Catalog
-{
-  typedef db_Catalog super;
-public:
-  db_mssql_Catalog(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Catalog(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-    _schemata.content().__retype(grt::ObjectType, "db.mssql.Schema");
-  }
-
-  static std::string static_class_name() { return "db.mssql.Catalog"; }
-
-  // schemata is owned by db_mssql_Catalog
-  /** Getter for attribute schemata (read-only)
-   
-    
-   \par In Python:
-value = obj.schemata
-   */
-  grt::ListRef<db_mssql_Schema> schemata() const { return grt::ListRef<db_mssql_Schema>::cast_from(_schemata); }
-private: // the next attribute is read-only
-public:
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_Catalog(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_Catalog::create);
-    {
-      void (db_mssql_Catalog::*setter)(const grt::ListRef<db_mssql_Schema> &)= 0;
-      grt::ListRef<db_mssql_Schema> (db_mssql_Catalog::*getter)() const= 0;
-      meta->bind_member("schemata", new grt::MetaClass::Property<db_mssql_Catalog,grt::ListRef<db_mssql_Schema> >(getter,setter));
-    }
-  }
-};
-
-
-  /** a MSSQL database sequence object */
-class  db_mssql_Sequence : public db_Sequence
-{
-  typedef db_Sequence super;
-public:
-  db_mssql_Sequence(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Sequence(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mssql.Sequence"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_Sequence(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_Sequence::create);
-  }
-};
-
-
-  /** a MSSQL synonym object */
-class  db_mssql_Synonym : public db_Synonym
-{
-  typedef db_Synonym super;
-public:
-  db_mssql_Synonym(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Synonym(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mssql.Synonym"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_Synonym(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_Synonym::create);
-  }
-};
-
-
-  /** a MSSQL database routine group */
-class  db_mssql_RoutineGroup : public db_RoutineGroup
-{
-  typedef db_RoutineGroup super;
-public:
-  db_mssql_RoutineGroup(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_RoutineGroup(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mssql.RoutineGroup"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_RoutineGroup(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_RoutineGroup::create);
-  }
-};
-
-
-  /** a MSSQL structured datatype object */
-class  db_mssql_StructuredDatatype : public db_StructuredDatatype
-{
-  typedef db_StructuredDatatype super;
-public:
-  db_mssql_StructuredDatatype(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_StructuredDatatype(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mssql.StructuredDatatype"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_StructuredDatatype(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_StructuredDatatype::create);
   }
 };
 
@@ -892,24 +947,36 @@ public:
 };
 
 
-class  db_mssql_Trigger : public db_Trigger
+class  db_mssql_Catalog : public db_Catalog
 {
-  typedef db_Trigger super;
+  typedef db_Catalog super;
 public:
-  db_mssql_Trigger(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Trigger(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  db_mssql_Catalog(grt::GRT *grt, grt::MetaClass *meta=0)
+  : db_Catalog(grt, meta ? meta : grt->get_metaclass(static_class_name()))
 
   {
+    _schemata.content().__retype(grt::ObjectType, "db.mssql.Schema");
   }
 
-  static std::string static_class_name() { return "db.mssql.Trigger"; }
+  static std::string static_class_name() { return "db.mssql.Catalog"; }
+
+  // schemata is owned by db_mssql_Catalog
+  /** Getter for attribute schemata (read-only)
+   
+    
+   \par In Python:
+value = obj.schemata
+   */
+  grt::ListRef<db_mssql_Schema> schemata() const { return grt::ListRef<db_mssql_Schema>::cast_from(_schemata); }
+private: // the next attribute is read-only
+public:
 
 protected:
 
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
-    return grt::ObjectRef(new db_mssql_Trigger(grt));
+    return grt::ObjectRef(new db_mssql_Catalog(grt));
   }
 
 
@@ -918,71 +985,12 @@ public:
   {
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_Trigger::create);
-  }
-};
-
-
-  /** a MSSQL database routine object */
-class  db_mssql_Routine : public db_Routine
-{
-  typedef db_Routine super;
-public:
-  db_mssql_Routine(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_Routine(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mssql.Routine"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_Routine(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_Routine::create);
-  }
-};
-
-
-  /** a MSSQL database view object */
-class  db_mssql_View : public db_View
-{
-  typedef db_View super;
-public:
-  db_mssql_View(grt::GRT *grt, grt::MetaClass *meta=0)
-  : db_View(grt, meta ? meta : grt->get_metaclass(static_class_name()))
-
-  {
-  }
-
-  static std::string static_class_name() { return "db.mssql.View"; }
-
-protected:
-
-private: // wrapper methods for use by grt
-  static grt::ObjectRef create(grt::GRT *grt)
-  {
-    return grt::ObjectRef(new db_mssql_View(grt));
-  }
-
-
-public:
-  static void grt_register(grt::GRT *grt)
-  {
-    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
-    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
-    meta->bind_allocator(&db_mssql_View::create);
+    meta->bind_allocator(&db_mssql_Catalog::create);
+    {
+      void (db_mssql_Catalog::*setter)(const grt::ListRef<db_mssql_Schema> &)= 0;
+      grt::ListRef<db_mssql_Schema> (db_mssql_Catalog::*getter)() const= 0;
+      meta->bind_member("schemata", new grt::MetaClass::Property<db_mssql_Catalog,grt::ListRef<db_mssql_Schema> >(getter,setter));
+    }
   }
 };
 
@@ -991,22 +999,22 @@ public:
 
 inline void register_structs_db_mssql_xml()
 {
-  grt::internal::ClassRegistry::register_class<db_mssql_IndexColumn>();
-  grt::internal::ClassRegistry::register_class<db_mssql_UserDatatype>();
-  grt::internal::ClassRegistry::register_class<db_mssql_SimpleDatatype>();
-  grt::internal::ClassRegistry::register_class<db_mssql_ForeignKey>();
-  grt::internal::ClassRegistry::register_class<db_mssql_Index>();
-  grt::internal::ClassRegistry::register_class<db_mssql_Column>();
-  grt::internal::ClassRegistry::register_class<db_mssql_Catalog>();
   grt::internal::ClassRegistry::register_class<db_mssql_Sequence>();
   grt::internal::ClassRegistry::register_class<db_mssql_Synonym>();
+  grt::internal::ClassRegistry::register_class<db_mssql_Routine>();
   grt::internal::ClassRegistry::register_class<db_mssql_RoutineGroup>();
+  grt::internal::ClassRegistry::register_class<db_mssql_View>();
+  grt::internal::ClassRegistry::register_class<db_mssql_Trigger>();
+  grt::internal::ClassRegistry::register_class<db_mssql_ForeignKey>();
+  grt::internal::ClassRegistry::register_class<db_mssql_IndexColumn>();
+  grt::internal::ClassRegistry::register_class<db_mssql_Index>();
   grt::internal::ClassRegistry::register_class<db_mssql_StructuredDatatype>();
+  grt::internal::ClassRegistry::register_class<db_mssql_UserDatatype>();
+  grt::internal::ClassRegistry::register_class<db_mssql_SimpleDatatype>();
+  grt::internal::ClassRegistry::register_class<db_mssql_Column>();
   grt::internal::ClassRegistry::register_class<db_mssql_Table>();
   grt::internal::ClassRegistry::register_class<db_mssql_Schema>();
-  grt::internal::ClassRegistry::register_class<db_mssql_Trigger>();
-  grt::internal::ClassRegistry::register_class<db_mssql_Routine>();
-  grt::internal::ClassRegistry::register_class<db_mssql_View>();
+  grt::internal::ClassRegistry::register_class<db_mssql_Catalog>();
 }
 
 #ifdef AUTO_REGISTER_GRT_CLASSES

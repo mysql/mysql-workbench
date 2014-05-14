@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,12 +23,10 @@
 #include "grt/grt_value_inspector.h"
 #include "ModelWrappers.h"
 
-#pragma make_public(::bec::ValueInspectorBE)
-
 namespace MySQL {
   namespace Grt {
 
-    public ref class GrtValueInspector : TreeModel
+    public ref class GrtValueInspector : TreeModelWrapper
     {
       bool free_inner;
 
@@ -45,7 +43,7 @@ namespace MySQL {
       { return gcnew GrtValueInspector(::bec::ValueInspectorBE::create(grt->get_unmanaged_object(), value->get_unmanaged_object(), grouped, process_editas_flag), true); }
 
       GrtValueInspector(::bec::ValueInspectorBE *inn, bool free)
-        : TreeModel(inn), free_inner(free)
+        : TreeModelWrapper(inn), free_inner(free)
       {}
 
       ~GrtValueInspector()
@@ -57,20 +55,20 @@ namespace MySQL {
       inline ::bec::ValueInspectorBE *get_unmanaged_object()
       { return static_cast<::bec::ValueInspectorBE *>(inner); }
 
-      virtual bool add_item([Out] NodeId^ %new_node)
+      virtual bool add_item([Out] NodeIdWrapper^ %new_node)
       {
         ::bec::NodeId node;
         bool retval= get_unmanaged_object()->add_item(node);
-        new_node= gcnew NodeId(new ::bec::NodeId(node));
+        new_node= gcnew NodeIdWrapper(new ::bec::NodeId(node));
         return retval;
       }
 
-      virtual bool delete_item(NodeId^ node)
+      virtual bool delete_item(NodeIdWrapper^ node)
       { return get_unmanaged_object()->delete_item(*node->get_unmanaged_object()); }
 
       //virtual _clr_MYX_GRT_VALUE_TYPE get_value_type(NodeId^ node)
       //  { return static_cast<_clr_MYX_GRT_VALUE_TYPE>(get_unmanaged_object()->get_value_type(*node->get_unmanaged_object())); }
-      virtual GrtValueType get_field_type(NodeId^ node, 
+      virtual GrtValueType get_field_type(NodeIdWrapper^ node, 
         GrtValueInspector::Columns column)
       { 
         return static_cast<GrtValueType>(

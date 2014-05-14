@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,13 +22,6 @@
 
 #include "grtdb/db_object_master_filter.h"
 #include "DBObjectFilterBE.h"
-
-#ifdef _MSC_VER
-using namespace System;
-using namespace System::Collections::Generic;
-#endif
-
-#pragma make_public(::bec::DBObjectMasterFilterBE)
 
 namespace MySQL {
 namespace Grt {

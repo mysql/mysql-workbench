@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "tut_stdafx.h"
 
 #include "../stub_listbox.h"
 
@@ -51,7 +50,7 @@ void ListBoxWrapper::clear(mforms::ListBox *self)
 
 //--------------------------------------------------------------------------------------------------
 
-int ListBoxWrapper::add_item(mforms::ListBox *self, const std::string &item)
+size_t ListBoxWrapper::add_item(mforms::ListBox *self, const std::string &item)
 {
   return 0;
 }
@@ -64,13 +63,13 @@ void ListBoxWrapper::add_items(mforms::ListBox *self, const std::list<std::strin
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBoxWrapper::remove_index(mforms::ListBox *self, int index)
+void ListBoxWrapper::remove_index(mforms::ListBox *self, size_t index)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBoxWrapper::remove_indexes(mforms::ListBox *self, const std::vector<int> &items)
+void ListBoxWrapper::remove_indexes(mforms::ListBox *self, const std::vector<size_t> &items)
 {
 }
 
@@ -83,13 +82,13 @@ std::string ListBoxWrapper::get_text(mforms::ListBox *self)
 
 //--------------------------------------------------------------------------------------------------
 
-void ListBoxWrapper::set_index(mforms::ListBox *self, int index)
+void ListBoxWrapper::set_index(mforms::ListBox *self, ssize_t index)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int ListBoxWrapper::get_index(mforms::ListBox *self)
+ssize_t ListBoxWrapper::get_index(mforms::ListBox *self)
 {
   return -1;
 }
@@ -102,9 +101,9 @@ void ListBoxWrapper::set_heading(ListBox *self, const std::string &text)
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<int> ListBoxWrapper::get_selected_indices(ListBox *self)
+std::vector<size_t> ListBoxWrapper::get_selected_indices(ListBox *self)
 {
-  std::vector<int> res;
+  std::vector<size_t> res;
   return res;
 }
 

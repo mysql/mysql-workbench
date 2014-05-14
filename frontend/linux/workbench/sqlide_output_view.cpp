@@ -326,7 +326,7 @@ void QueryOutputView::handle_history_context_menu(const std::string& action)
       if (action == "clear")
       {
         {
-          std::vector<int> e(1, selected_entry);
+          std::vector<size_t> e(1, selected_entry);
           entries_model->delete_entries(e);
           _entries_grid.refresh(false);
         }

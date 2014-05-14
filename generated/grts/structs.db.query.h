@@ -38,11 +38,11 @@ typedef grt::Ref<db_query_Editor> db_query_EditorRef;
 
 
 namespace mforms { 
-	class Object;
+  class Object;
 }; 
 
 namespace grt { 
-	class AutoPyObject;
+  class AutoPyObject;
 }; 
 
   /** object name from a live database */
@@ -262,7 +262,7 @@ public:
   \return value stored in cell (can be null)
 
    */
-  virtual grt::DoubleRef floatFieldValue(long column);
+  virtual grt::DoubleRef floatFieldValue(ssize_t column);
   /** Method. returns the float contents of the field at the given column name and current row
   \param column 
   \return value stored in cell (can be null)
@@ -284,13 +284,13 @@ public:
   \return (boolean) 1 on success or 0 if the row number is out of bounds
 
    */
-  virtual grt::IntegerRef goToRow(long row);
+  virtual grt::IntegerRef goToRow(ssize_t row);
   /** Method. returns the integer contents of the field at the given column index and current row
   \param column 
   \return value stored in cell (can be null)
 
    */
-  virtual grt::IntegerRef intFieldValue(long column);
+  virtual grt::IntegerRef intFieldValue(ssize_t column);
   /** Method. returns the integer contents of the field at the given column name and current row
   \param column 
   \return value stored in cell (can be null)
@@ -318,13 +318,13 @@ public:
   \return (boolean)
 
    */
-  virtual grt::IntegerRef saveFieldValueToFile(long column, const std::string &file);
+  virtual grt::IntegerRef saveFieldValueToFile(ssize_t column, const std::string &file);
   /** Method. returns the contents of the field at the given column index and current row as a string. If the column type is not string, it will be converted
   \param column 
   \return value stored in cell (can be null)
 
    */
-  virtual grt::StringRef stringFieldValue(long column);
+  virtual grt::StringRef stringFieldValue(ssize_t column);
   /** Method. returns the contents of the field at the given column name and current row as a string. If the column type is not string, it will be converted
   \param column 
   \return value stored in cell (can be null)
@@ -335,7 +335,7 @@ public:
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -482,14 +482,14 @@ obj.table = value
   \return 
 
    */
-  virtual grt::IntegerRef deleteRow(long column);
+  virtual grt::IntegerRef deleteRow(ssize_t column);
   /** Method. loads the contents of an external file into the current row at the given column index
   \param column 
   \param file 
   \return 
 
    */
-  virtual grt::IntegerRef loadFieldValueFromFile(long column, const std::string &file);
+  virtual grt::IntegerRef loadFieldValueFromFile(ssize_t column, const std::string &file);
   /** Method. discards all changes made to the resultset
   \return 
 
@@ -500,7 +500,7 @@ obj.table = value
   \return 
 
    */
-  virtual grt::IntegerRef setFieldNull(long column);
+  virtual grt::IntegerRef setFieldNull(ssize_t column);
   /** Method. sets the contents of the current row at the given column name to NULL
   \param column 
   \return 
@@ -513,7 +513,7 @@ obj.table = value
   \return 
 
    */
-  virtual grt::IntegerRef setFloatFieldValue(long column, double value);
+  virtual grt::IntegerRef setFloatFieldValue(ssize_t column, double value);
   /** Method. sets the contents of the current row at the given column name
   \param column 
   \param value 
@@ -527,21 +527,21 @@ obj.table = value
   \return 
 
    */
-  virtual grt::IntegerRef setIntFieldValue(long column, long value);
+  virtual grt::IntegerRef setIntFieldValue(ssize_t column, ssize_t value);
   /** Method. sets the contents of the current row at the given column name
   \param column 
   \param value 
   \return 
 
    */
-  virtual grt::IntegerRef setIntFieldValueByName(const std::string &column, long value);
+  virtual grt::IntegerRef setIntFieldValueByName(const std::string &column, ssize_t value);
   /** Method. sets the contents of the current row at the given column index
   \param column 
   \param value 
   \return 
 
    */
-  virtual grt::IntegerRef setStringFieldValue(long column, const std::string &value);
+  virtual grt::IntegerRef setStringFieldValue(ssize_t column, const std::string &value);
   /** Method. sets the contents of the current row at the given column name
   \param column 
   \param value 
@@ -553,7 +553,7 @@ obj.table = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -829,7 +829,7 @@ obj.selectionStart = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
@@ -903,7 +903,6 @@ value = obj.activeResultPanel
    */
   grt::Ref<db_query_ResultPanel> activeResultPanel() const { return _activeResultPanel; }
   /** Setter for attribute activeResultPanel
-   
     result panel that is currently selected in UI
     \par In Python:
 obj.activeResultPanel = value
@@ -921,14 +920,14 @@ obj.activeResultPanel = value
    \par In Python:
 value = obj.resultDockingPoint
    */
-  grt::Ref<mforms_ObjectReference> resultDockingPoint() const { return _resultDockingPoint; }
+  mforms_ObjectReferenceRef resultDockingPoint() const { return _resultDockingPoint; }
   /** Setter for attribute resultDockingPoint
    
     
     \par In Python:
 obj.resultDockingPoint = value
    */
-  virtual void resultDockingPoint(const grt::Ref<mforms_ObjectReference> &value)
+  virtual void resultDockingPoint(const mforms_ObjectReferenceRef &value)
   {
     grt::ValueRef ovalue(_resultDockingPoint);
    _resultDockingPoint= value;
@@ -977,9 +976,9 @@ public:
       meta->bind_member("activeResultPanel", new grt::MetaClass::Property<db_query_QueryEditor,grt::Ref<db_query_ResultPanel> >(getter,setter));
     }
     {
-      void (db_query_QueryEditor::*setter)(const grt::Ref<mforms_ObjectReference> &)= &db_query_QueryEditor::resultDockingPoint;
-      grt::Ref<mforms_ObjectReference> (db_query_QueryEditor::*getter)() const= &db_query_QueryEditor::resultDockingPoint;
-      meta->bind_member("resultDockingPoint", new grt::MetaClass::Property<db_query_QueryEditor,grt::Ref<mforms_ObjectReference> >(getter,setter));
+      void (db_query_QueryEditor::*setter)(const mforms_ObjectReferenceRef &)= &db_query_QueryEditor::resultDockingPoint;
+      mforms_ObjectReferenceRef (db_query_QueryEditor::*getter)() const= &db_query_QueryEditor::resultDockingPoint;
+      meta->bind_member("resultDockingPoint", new grt::MetaClass::Property<db_query_QueryEditor,mforms_ObjectReferenceRef >(getter,setter));
     }
     {
       void (db_query_QueryEditor::*setter)(const grt::ListRef<db_query_ResultPanel> &)= &db_query_QueryEditor::resultPanels;
@@ -1016,9 +1015,9 @@ public:
    \par In Python:
 value = obj.activeQueryEditor
    */
-  grt::Ref<db_query_QueryEditor> activeQueryEditor() const;
+  db_query_QueryEditorRef activeQueryEditor() const;
 private: // the next attribute is read-only
-  virtual void activeQueryEditor(const grt::Ref<db_query_QueryEditor> &value)
+  virtual void activeQueryEditor(const db_query_QueryEditorRef &value)
   {
     grt::ValueRef ovalue(_activeQueryEditor);
    _activeQueryEditor= value;
@@ -1032,7 +1031,7 @@ public:
    \par In Python:
 value = obj.connection
    */
-  grt::Ref<db_mgmt_Connection> connection() const;
+  db_mgmt_ConnectionRef connection() const;
 private: // the next attribute is read-only
 public:
 
@@ -1073,14 +1072,14 @@ obj.defaultSchema = value
    \par In Python:
 value = obj.dockingPoint
    */
-  grt::Ref<mforms_ObjectReference> dockingPoint() const { return _dockingPoint; }
+  mforms_ObjectReferenceRef dockingPoint() const { return _dockingPoint; }
   /** Setter for attribute dockingPoint
    
     
     \par In Python:
 obj.dockingPoint = value
    */
-  virtual void dockingPoint(const grt::Ref<mforms_ObjectReference> &value)
+  virtual void dockingPoint(const mforms_ObjectReferenceRef &value)
   {
     grt::ValueRef ovalue(_dockingPoint);
    _dockingPoint= value;
@@ -1131,14 +1130,14 @@ public:
    \par In Python:
 value = obj.serverVersion
    */
-  grt::Ref<GrtVersion> serverVersion() const { return _serverVersion; }
+  GrtVersionRef serverVersion() const { return _serverVersion; }
   /** Setter for attribute serverVersion
    
     
     \par In Python:
 obj.serverVersion = value
    */
-  virtual void serverVersion(const grt::Ref<GrtVersion> &value)
+  virtual void serverVersion(const GrtVersionRef &value)
   {
     grt::ValueRef ovalue(_serverVersion);
    _serverVersion= value;
@@ -1151,14 +1150,14 @@ obj.serverVersion = value
    \par In Python:
 value = obj.sidebar
    */
-  grt::Ref<mforms_ObjectReference> sidebar() const { return _sidebar; }
+  mforms_ObjectReferenceRef sidebar() const { return _sidebar; }
   /** Setter for attribute sidebar
    
     
     \par In Python:
 obj.sidebar = value
    */
-  virtual void sidebar(const grt::Ref<mforms_ObjectReference> &value)
+  virtual void sidebar(const mforms_ObjectReferenceRef &value)
   {
     grt::ValueRef ovalue(_sidebar);
    _sidebar= value;
@@ -1169,14 +1168,14 @@ obj.sidebar = value
   \return the newly created query buffer proxy object
 
    */
-  virtual grt::Ref<db_query_QueryEditor> addQueryEditor();
+  virtual db_query_QueryEditorRef addQueryEditor();
   /** Method. write a line of text into the SQL Editor output area
   \param text 
   \param bringToFront 
   \return 
 
    */
-  virtual grt::IntegerRef addToOutput(const std::string &text, long bringToFront);
+  virtual grt::IntegerRef addToOutput(const std::string &text, ssize_t bringToFront);
   /** Method. Opens the object editor for the named DB object
   \param type 
   \param schemaName 
@@ -1193,14 +1192,14 @@ obj.sidebar = value
   \return an editable resultset that can be used to modify the table contents
 
    */
-  virtual grt::Ref<db_query_EditableResultset> createTableEditResultset(const std::string &schema, const std::string &table, const std::string &where, long showGrid);
+  virtual db_query_EditableResultsetRef createTableEditResultset(const std::string &schema, const std::string &table, const std::string &where, ssize_t showGrid);
   /** Method. Opens the object editor for the given DB object
   \param object 
   \param originalCatalog 
   \return 
 
    */
-  virtual void editLiveObject(const grt::Ref<db_DatabaseObject> &object, const grt::Ref<db_Catalog> &originalCatalog);
+  virtual void editLiveObject(const db_DatabaseObjectRef &object, const db_CatalogRef &originalCatalog);
   /** Method. Executes a statement on the main connection, optionally logging the query in the action log
   \param statement 
   \param log 
@@ -1208,28 +1207,28 @@ obj.sidebar = value
   \return 
 
    */
-  virtual void executeCommand(const std::string &statement, long log, long background);
+  virtual void executeCommand(const std::string &statement, ssize_t log, ssize_t background);
   /** Method. Executes a statement on the aux connection, optionally logging the query in the action log
   \param statement 
   \param log 
   \return 
 
    */
-  virtual void executeManagementCommand(const std::string &statement, long log);
+  virtual void executeManagementCommand(const std::string &statement, ssize_t log);
   /** Method. Executes a query on the aux connection and return a plain resultset, optionally logging the query in the action log
   \param query 
   \param log 
   \return 
 
    */
-  virtual grt::Ref<db_query_Resultset> executeManagementQuery(const std::string &query, long log);
+  virtual db_query_ResultsetRef executeManagementQuery(const std::string &query, ssize_t log);
   /** Method. Executes a query on the main connection and return a plain resultset, optionally logging the query in the action log
   \param query 
   \param log 
   \return 
 
    */
-  virtual grt::Ref<db_query_Resultset> executeQuery(const std::string &query, long log);
+  virtual db_query_ResultsetRef executeQuery(const std::string &query, ssize_t log);
   /** Method. execute the script passed as argument
   \param sql 
   \return the list of resultsets sent back by the server
@@ -1246,17 +1245,17 @@ obj.sidebar = value
   ImplData *get_data() const { return _data; }
 
   void set_data(ImplData *data);
-  // default initialization function. auto-called by Ref<Object> constructor
+  // default initialization function. auto-called by ObjectRef constructor
   virtual void init();
 
 protected:
 
-  grt::Ref<db_query_QueryEditor> _activeQueryEditor;
+  db_query_QueryEditorRef _activeQueryEditor;
   grt::DictRef _customData;
-  grt::Ref<mforms_ObjectReference> _dockingPoint;
+  mforms_ObjectReferenceRef _dockingPoint;
   grt::ListRef<db_query_QueryEditor> _queryEditors;// owned
-  grt::Ref<GrtVersion> _serverVersion;
-  grt::Ref<mforms_ObjectReference> _sidebar;
+  GrtVersionRef _serverVersion;
+  mforms_ObjectReferenceRef _sidebar;
 private: // wrapper methods for use by grt
   ImplData *_data;
 
@@ -1273,7 +1272,7 @@ private: // wrapper methods for use by grt
 
   static grt::ValueRef call_createTableEditResultset(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Editor*>(self)->createTableEditResultset(grt::StringRef::cast_from(args[0]), grt::StringRef::cast_from(args[1]), grt::StringRef::cast_from(args[2]), grt::IntegerRef::cast_from(args[3])); }
 
-  static grt::ValueRef call_editLiveObject(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_query_Editor*>(self)->editLiveObject(grt::Ref<db_DatabaseObject>::cast_from(args[0]), grt::Ref<db_Catalog>::cast_from(args[1])); return grt::ValueRef(); }
+  static grt::ValueRef call_editLiveObject(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_query_Editor*>(self)->editLiveObject(db_DatabaseObjectRef::cast_from(args[0]), db_CatalogRef::cast_from(args[1])); return grt::ValueRef(); }
 
   static grt::ValueRef call_executeCommand(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_query_Editor*>(self)->executeCommand(grt::StringRef::cast_from(args[0]), grt::IntegerRef::cast_from(args[1]), grt::IntegerRef::cast_from(args[2])); return grt::ValueRef(); }
 
@@ -1295,11 +1294,11 @@ public:
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_query_Editor::create);
     {
-      void (db_query_Editor::*setter)(const grt::Ref<db_query_QueryEditor> &)= &db_query_Editor::activeQueryEditor;
-      grt::Ref<db_query_QueryEditor> (db_query_Editor::*getter)() const= &db_query_Editor::activeQueryEditor;
-      meta->bind_member("activeQueryEditor", new grt::MetaClass::Property<db_query_Editor,grt::Ref<db_query_QueryEditor> >(getter,setter));
+      void (db_query_Editor::*setter)(const db_query_QueryEditorRef &)= &db_query_Editor::activeQueryEditor;
+      db_query_QueryEditorRef (db_query_Editor::*getter)() const= &db_query_Editor::activeQueryEditor;
+      meta->bind_member("activeQueryEditor", new grt::MetaClass::Property<db_query_Editor,db_query_QueryEditorRef >(getter,setter));
     }
-    meta->bind_member("connection", new grt::MetaClass::Property<db_query_Editor,grt::Ref<db_mgmt_Connection> >(&db_query_Editor::connection));
+    meta->bind_member("connection", new grt::MetaClass::Property<db_query_Editor,db_mgmt_ConnectionRef >(&db_query_Editor::connection));
     {
       void (db_query_Editor::*setter)(const grt::DictRef &)= &db_query_Editor::customData;
       grt::DictRef (db_query_Editor::*getter)() const= &db_query_Editor::customData;
@@ -1311,9 +1310,9 @@ public:
       meta->bind_member("defaultSchema", new grt::MetaClass::Property<db_query_Editor,grt::StringRef >(getter, setter));
     }
     {
-      void (db_query_Editor::*setter)(const grt::Ref<mforms_ObjectReference> &)= &db_query_Editor::dockingPoint;
-      grt::Ref<mforms_ObjectReference> (db_query_Editor::*getter)() const= &db_query_Editor::dockingPoint;
-      meta->bind_member("dockingPoint", new grt::MetaClass::Property<db_query_Editor,grt::Ref<mforms_ObjectReference> >(getter,setter));
+      void (db_query_Editor::*setter)(const mforms_ObjectReferenceRef &)= &db_query_Editor::dockingPoint;
+      mforms_ObjectReferenceRef (db_query_Editor::*getter)() const= &db_query_Editor::dockingPoint;
+      meta->bind_member("dockingPoint", new grt::MetaClass::Property<db_query_Editor,mforms_ObjectReferenceRef >(getter,setter));
     }
     meta->bind_member("isConnected", new grt::MetaClass::Property<db_query_Editor,grt::IntegerRef >(&db_query_Editor::isConnected));
     {
@@ -1323,14 +1322,14 @@ public:
     }
     meta->bind_member("schemaTreeSelection", new grt::MetaClass::Property<db_query_Editor,grt::ListRef<db_query_LiveDBObject> >(&db_query_Editor::schemaTreeSelection));
     {
-      void (db_query_Editor::*setter)(const grt::Ref<GrtVersion> &)= &db_query_Editor::serverVersion;
-      grt::Ref<GrtVersion> (db_query_Editor::*getter)() const= &db_query_Editor::serverVersion;
-      meta->bind_member("serverVersion", new grt::MetaClass::Property<db_query_Editor,grt::Ref<GrtVersion> >(getter,setter));
+      void (db_query_Editor::*setter)(const GrtVersionRef &)= &db_query_Editor::serverVersion;
+      GrtVersionRef (db_query_Editor::*getter)() const= &db_query_Editor::serverVersion;
+      meta->bind_member("serverVersion", new grt::MetaClass::Property<db_query_Editor,GrtVersionRef >(getter,setter));
     }
     {
-      void (db_query_Editor::*setter)(const grt::Ref<mforms_ObjectReference> &)= &db_query_Editor::sidebar;
-      grt::Ref<mforms_ObjectReference> (db_query_Editor::*getter)() const= &db_query_Editor::sidebar;
-      meta->bind_member("sidebar", new grt::MetaClass::Property<db_query_Editor,grt::Ref<mforms_ObjectReference> >(getter,setter));
+      void (db_query_Editor::*setter)(const mforms_ObjectReferenceRef &)= &db_query_Editor::sidebar;
+      mforms_ObjectReferenceRef (db_query_Editor::*getter)() const= &db_query_Editor::sidebar;
+      meta->bind_member("sidebar", new grt::MetaClass::Property<db_query_Editor,mforms_ObjectReferenceRef >(getter,setter));
     }
     meta->bind_method("addQueryEditor", &db_query_Editor::call_addQueryEditor);
     meta->bind_method("addToOutput", &db_query_Editor::call_addToOutput);

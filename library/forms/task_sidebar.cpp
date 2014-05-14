@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 /**
  * mforms interface to the advanced sidebar, which implements an iTunes like interface.
  */
-#include "stdafx.h"
 
 #include "mforms/task_sidebar.h"
 

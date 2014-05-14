@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "mforms/mforms.h"
 
@@ -97,7 +95,7 @@ void ToolBar::insert_item(int index, ToolBarItem *item)
   assert(item->is_managed());
 
   if (index < 0 || index > (int) _items.size())
-    index = _items.size();
+    index = (int)_items.size();
   _impl->insert_item(this, index, item);
 
   if (!item->_release_on_add) // Means: don't increase the ref count, the caller retained already, but won't release.

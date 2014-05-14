@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtdb/db_object_helpers.h"
 
 #include "grts/structs.h"
@@ -128,7 +126,12 @@ void DbMySQLSQLExport::set_db_options_for_version(const GrtVersionRef &version)
 {
   SQLGeneratorInterfaceImpl *diffsql_module= dynamic_cast<SQLGeneratorInterfaceImpl*>(version.get_grt()->get_module("DbMySQL"));
   if (diffsql_module != NULL)
-    _db_options = diffsql_module->getTraitsForServerVersion(version->majorNumber(), version->minorNumber(), version->releaseNumber());
+    _db_options = diffsql_module->getTraitsForServerVersion((int)version->majorNumber(), (int)version->minorNumber(), (int)version->releaseNumber());
+}
+
+void DbMySQLSQLExport::set_db_options(grt::DictRef &db_options)
+{
+    _db_options = db_options;
 }
 
 grt::StringListRef convert_string_vector_to_grt_list(grt::GRT *grt, const std::vector<std::string>& v)
@@ -298,7 +301,7 @@ ValueRef DbMySQLSQLExport::export_task(grt::GRT* grt, grt::StringRef)
     grt::StringListRef strlist= grt::StringListRef::cast_from(options.get("ViewFilterList"));
 
     // generateSQLForDifferences() will set DiffCaseSensitiveness to the used value
-    _case_sensitive = options.get_int("DiffCaseSensitiveness", _case_sensitive);
+    _case_sensitive = options.get_int("DiffCaseSensitiveness", _case_sensitive) != 0;
     options.set("CaseSensitive", grt::IntegerRef(_case_sensitive));
     if (_db_options.is_valid())
       _db_options.set("CaseSensitive", grt::IntegerRef(_case_sensitive));

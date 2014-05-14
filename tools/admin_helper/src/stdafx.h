@@ -19,6 +19,8 @@
 
 #pragma once
 
+#define HAVE_ROUND
+
 #include "targetver.h"
 
 #include <stdio.h>

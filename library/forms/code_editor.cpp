@@ -17,16 +17,12 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-#include <map>
-#include <string>
-#include "SciLexer.h"
-#include "tinyxml.h"
 #include "base/log.h"
 #include "base/drawing.h"
 #include "base/string_utilities.h"
 #include "base/notifications.h"
-
+#include "tinyxml.h"
+#include "SciLexer.h"
 #include "mforms/mforms.h"
 
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
@@ -300,7 +296,7 @@ void CodeEditor::setup()
 #else
   _code_editor_impl->send_editor(this, SCI_STYLESETSIZE, STYLE_LINENUMBER, (sptr_t)8);
 #endif
-  int lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (long)"_999999");
+  sptr_t lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t)"_999999");
   _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 0, lineNumberStyleWidth);
   _code_editor_impl->send_editor(this, SCI_SETMARGINSENSITIVEN, 0, 0);
 
@@ -393,10 +389,10 @@ void CodeEditor::set_value(const std::string &value)
 
 void CodeEditor::set_text_keeping_state(const char* text)
 {
-  int caret_position = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
-  int selection_start = _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
-  int selection_end = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0);
-  int first_line = _code_editor_impl->send_editor(this, SCI_GETFIRSTVISIBLELINE, 0, 0);
+  sptr_t caret_position = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
+  sptr_t selection_start = _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
+  sptr_t selection_end = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0);
+  sptr_t first_line = _code_editor_impl->send_editor(this, SCI_GETFIRSTVISIBLELINE, 0, 0);
 
   _code_editor_impl->send_editor(this, SCI_SETTEXT, 0, (sptr_t)text);
 
@@ -408,7 +404,7 @@ void CodeEditor::set_text_keeping_state(const char* text)
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::append_text(const char* text, int length)
+void CodeEditor::append_text(const char* text, size_t length)
 {
   _code_editor_impl->send_editor(this, SCI_APPENDTEXT, length, (sptr_t)text);
 }
@@ -417,7 +413,7 @@ void CodeEditor::append_text(const char* text, int length)
 
 void CodeEditor::replace_selected_text(const std::string& text)
 {
-  int start, length;
+  size_t start, length;
   get_selection(start, length);
   _code_editor_impl->send_editor(this, SCI_REPLACESEL, 0, (sptr_t)text.c_str());
 
@@ -430,7 +426,7 @@ void CodeEditor::replace_selected_text(const std::string& text)
 const std::string CodeEditor::get_text(bool selection_only)
 {
   char* text;
-  int length;
+  sptr_t length;
   if (selection_only)
   {
     length =_code_editor_impl->send_editor(this, SCI_GETSELTEXT, 0, 0);
@@ -457,15 +453,14 @@ const std::string CodeEditor::get_text(bool selection_only)
 
 //--------------------------------------------------------------------------------------------------
 
-const std::string CodeEditor::get_text_in_range(int start, int end)
+const std::string CodeEditor::get_text_in_range(size_t start, size_t end)
 {
   Scintilla::Sci_TextRange range;
 
-  // Ensure we are in a valid range or Scintilla will throw an assertion error.
-  range.chrg.cpMin = start < 0 ? 0 : start;
+  range.chrg.cpMin = (long)start;
 
-  int length = _code_editor_impl->send_editor(this, SCI_GETTEXTLENGTH, 0, 0);
-  range.chrg.cpMax = end > start + length ? length - start : end;
+  sptr_t length = _code_editor_impl->send_editor(this, SCI_GETTEXTLENGTH, 0, 0);
+  range.chrg.cpMax = (long)(end > start + length ? length - start : end);
 
   range.lpstrText = (char*)malloc(end - start + 1); // Don't forget the 0 terminator.
   _code_editor_impl->send_editor(this, SCI_GETTEXTRANGE, 0, (sptr_t)&range);
@@ -492,7 +487,7 @@ std::pair<const char*, size_t> CodeEditor::get_text_ptr()
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::set_selection(int start, int length)
+void CodeEditor::set_selection(size_t start, size_t length)
 {
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONSTART, start, 0);
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONEND, start + length, 0);
@@ -502,13 +497,13 @@ void CodeEditor::set_selection(int start, int length)
 
 void CodeEditor::clear_selection()
 {
-  int current_pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
+  sptr_t current_pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
   _code_editor_impl->send_editor(this, SCI_SETEMPTYSELECTION, current_pos, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::get_selection(int &start, int &length)
+void CodeEditor::get_selection(size_t &start, size_t &length)
 {
   start = _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
   length = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0) - start;
@@ -516,7 +511,7 @@ void CodeEditor::get_selection(int &start, int &length)
 
 //--------------------------------------------------------------------------------------------------
 
-bool CodeEditor::get_range_of_line(int line, int &start, int &end)
+bool CodeEditor::get_range_of_line(ssize_t line, ssize_t &start, ssize_t &end)
 {
   start = _code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, line, 0);
   end = _code_editor_impl->send_editor(this, SCI_GETLINEENDPOSITION, line, 0);
@@ -530,11 +525,10 @@ void CodeEditor::setup_marker(int marker, const std::string& name)
 {
   std::string path = App::get()->get_resource_path(name + ".xpm");
 
-  gchar* content;
-  gsize length;
-  if (g_file_get_contents(path.c_str(), &content, &length, NULL))
+  gchar *content = NULL;
+  if (g_file_get_contents(path.c_str(), &content, NULL, NULL))
   {
-    _code_editor_impl->send_editor(this, SCI_MARKERDEFINEPIXMAP, marker, (long)content);
+    _code_editor_impl->send_editor(this, SCI_MARKERDEFINEPIXMAP, marker, (sptr_t)content);
     g_free(content);
   }
   _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, marker, 0xD01921);
@@ -550,10 +544,10 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language)
   std::map<std::string, std::string> keywords = config.get_keywords();
 
   // Key word list sets are from currently active lexer, so that must be set before calling here.
-  int length = _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, 0);
+  sptr_t length = _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, 0);
 
   char* keyword_sets = (char*)malloc(length + 1);
-  _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, (long)keyword_sets);
+  _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, (sptr_t)keyword_sets);
   std::vector<std::string> keyword_list_names = base::split(keyword_sets, "\n");
   free(keyword_sets);
 
@@ -563,7 +557,7 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language)
     std::string list_name = iterator->first;
     int list_index = base::index_of(keyword_list_names, list_name);
     if (list_index > -1)
-      _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, list_index, (long)iterator->second.c_str());
+      _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, list_index, (sptr_t)iterator->second.c_str());
   }
 
   // Properties.
@@ -571,7 +565,7 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language)
   for (std::map<std::string, std::string>::const_iterator iterator = properties.begin();
     iterator != properties.end(); ++iterator)
   {
-    _code_editor_impl->send_editor(this, SCI_SETPROPERTY, (long)iterator->first.c_str(), (long)iterator->second.c_str());
+    _code_editor_impl->send_editor(this, SCI_SETPROPERTY, (uptr_t)iterator->first.c_str(), (sptr_t)iterator->second.c_str());
   }
 
   // Settings.
@@ -682,38 +676,38 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language)
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::show_markup(LineMarkup markup, int line)
+void CodeEditor::show_markup(LineMarkup markup, size_t line)
 {
   // The marker mask contains one bit for each set marker (0..31).
-  unsigned int marker_mask = _code_editor_impl->send_editor(this, SCI_MARKERGET, line, 0);
-  unsigned int new_marker_mask = 0;
+  sptr_t marker_mask = _code_editor_impl->send_editor(this, SCI_MARKERGET, line, 0);
+  sptr_t new_marker_mask = 0;
   if ((markup & mforms::LineMarkupStatement) != 0)
   {
-    unsigned int mask = 1 << CE_STATEMENT_MARKER;
+    sptr_t mask = 1 << CE_STATEMENT_MARKER;
     if ((marker_mask & mask) != mask)
       new_marker_mask |= mask;
   }
   if ((markup & mforms::LineMarkupError) != 0)
   {
-    unsigned int mask = 1 << CE_ERROR_MARKER;
+    sptr_t mask = 1 << CE_ERROR_MARKER;
     if ((marker_mask & mask) != mask)
       new_marker_mask |= mask;
   }
   if ((markup & mforms::LineMarkupBreakpoint) != 0)
   {
-    unsigned int mask = 1 << CE_BREAKPOINT_MARKER;
+    sptr_t mask = 1 << CE_BREAKPOINT_MARKER;
     if ((marker_mask & mask) != mask)
       new_marker_mask |= mask;
   }
   if ((markup & mforms::LineMarkupBreakpointHit) != 0)
   {
-    unsigned int mask = 1 << CE_BREAKPOINT_HIT_MARKER;
+    sptr_t mask = 1 << CE_BREAKPOINT_HIT_MARKER;
     if ((marker_mask & mask) != mask)
       new_marker_mask |= mask;
   }
   if ((markup & mforms::LineMarkupCurrent) != 0)
   {
-    unsigned int mask = 1 << CE_CURRENT_LINE_MARKER;
+    sptr_t mask = 1 << CE_CURRENT_LINE_MARKER;
     if ((marker_mask & mask) != mask)
       new_marker_mask |= mask;
   }
@@ -723,7 +717,7 @@ void CodeEditor::show_markup(LineMarkup markup, int line)
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::remove_markup(LineMarkup markup, int line)
+void CodeEditor::remove_markup(LineMarkup markup, ssize_t line)
 {
   if (markup == mforms::LineMarkupAll || line < 0)
   {
@@ -749,7 +743,7 @@ void CodeEditor::remove_markup(LineMarkup markup, int line)
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::show_indicator(RangeIndicator indicator, int start, int length)
+void CodeEditor::show_indicator(RangeIndicator indicator, size_t start, size_t length)
 {
   // Scintilla supports a model that not only sets an indicator in a given range but additionally
   // assigns a value to this indicator. This is to allow drawing an indicator with different styles.
@@ -772,9 +766,9 @@ void CodeEditor::show_indicator(RangeIndicator indicator, int start, int length)
 
 //--------------------------------------------------------------------------------------------------
 
-RangeIndicator CodeEditor::indicator_at(int position)
+RangeIndicator CodeEditor::indicator_at(size_t position)
 {
-  int result = _code_editor_impl->send_editor(this, SCI_INDICATORVALUEAT, ERROR_INDICATOR, position);
+  sptr_t result = _code_editor_impl->send_editor(this, SCI_INDICATORVALUEAT, ERROR_INDICATOR, position);
   if (result == ERROR_INDICATOR_VALUE)
     return mforms::RangeIndicatorError;
 
@@ -783,7 +777,7 @@ RangeIndicator CodeEditor::indicator_at(int position)
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::remove_indicator(RangeIndicator indicator, int start, int length)
+void CodeEditor::remove_indicator(RangeIndicator indicator, size_t start, size_t length)
 {
   switch (indicator)
   {
@@ -799,28 +793,28 @@ void CodeEditor::remove_indicator(RangeIndicator indicator, int start, int lengt
 
 //--------------------------------------------------------------------------------------------------
 
-int mforms::CodeEditor::line_count()
+size_t mforms::CodeEditor::line_count()
 {
    return _code_editor_impl->send_editor(this, SCI_GETLINECOUNT, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int CodeEditor::text_length()
+size_t CodeEditor::text_length()
 {
   return _code_editor_impl->send_editor(this, SCI_GETLENGTH, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int CodeEditor::position_from_line(int line_number)
+size_t CodeEditor::position_from_line(size_t line_number)
 {
   return _code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, line_number, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int CodeEditor::line_from_position(int position)
+size_t CodeEditor::line_from_position(size_t position)
 {
   return _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
 }
@@ -860,10 +854,10 @@ void CodeEditor::set_font(const std::string& fontDescription)
   }
 
   // Recompute the line number margin width if it is visible.
-  int lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 0, 0);
+  sptr_t lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 0, 0);
   if (lineNumberStyleWidth > 0)
   {
-    lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (long)"_999999");
+    lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t)"_999999");
     _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 0, lineNumberStyleWidth);
   }
 }
@@ -893,39 +887,45 @@ void CodeEditor::on_notify(SCNotification* notification)
   switch (notification->nmhdr.code)
   {
   case SCN_MARGINCLICK:
+  {
+    sptr_t line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, notification->position, 0);
+    if (notification->margin == 2)
     {
-      long line =  _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, notification->position, 0);
-      if (notification->margin == 2)
-      {
-        // A click on the folder margin. Toggle the current line if possible.
-        _code_editor_impl->send_editor(this, SCI_TOGGLEFOLD, line, 0);
-      }
-
-      mforms::ModifierKey modifiers = getModifiers(notification->modifiers);
-      _gutter_clicked_event(notification->margin, line, modifiers);
-      break;
-    };
-  case SCN_MODIFIED:
-    {
-      // Decide depending on the modification type what to do.
-      // There can be more than one modification carried by one notification.
-      if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
-        _change_event(notification->position, notification->length, notification->linesAdded,
-          (notification->modificationType & SC_MOD_INSERTTEXT) != 0);
-      break;
+      // A click on the folder margin. Toggle the current line if possible.
+      _code_editor_impl->send_editor(this, SCI_TOGGLEFOLD, line, 0);
     }
+    
+    mforms::ModifierKey modifiers = getModifiers(notification->modifiers);
+    _gutter_clicked_event(notification->margin, (int)line, modifiers);
+    break;
+  };
+  
+  case SCN_MODIFIED:
+  {
+    // Decide depending on the modification type what to do.
+    // There can be more than one modification carried by one notification.
+    if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
+      _change_event(notification->position, notification->length, notification->linesAdded,
+        (notification->modificationType & SC_MOD_INSERTTEXT) != 0);
+    break;
+  }
+
   case SCN_AUTOCSELECTION:
     _auto_completion_event(mforms::AutoCompletionSelection, notification->position, notification->text);
     break;
+
   case SCN_AUTOCCANCELLED:
     _auto_completion_event(mforms::AutoCompletionCancelled, 0, "");
     break;
+
   case SCN_AUTOCCHARDELETED:
     _auto_completion_event(mforms::AutoCompletionCharDeleted, 0, "");
     break;
+
   case SCN_DWELLSTART:
     _dwell_event(true, notification->position, notification->x, notification->y);
     break;
+
   case SCN_DWELLEND:
     _dwell_event(false, 0, 0, 0);
     break;
@@ -976,7 +976,7 @@ void CodeEditor::set_features(CodeEditorFeature features, bool flag)
   {
     if (flag)
     {
-      int width = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t)"_999999");
+      sptr_t width = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t)"_999999");
 
       _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 0, width); // line numbers
       _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 1, 16); // markers
@@ -1076,21 +1076,21 @@ bool CodeEditor::is_dirty()
 
 //--------------------------------------------------------------------------------------------------
 
-int CodeEditor::get_caret_pos()
+size_t CodeEditor::get_caret_pos()
 {
   return _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::set_caret_pos(int position)
+void CodeEditor::set_caret_pos(size_t position)
 {
   _code_editor_impl->send_editor(this, SCI_GOTOPOS, position, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::get_line_column_pos(int position, int &line, int &column)
+void CodeEditor::get_line_column_pos(size_t position, size_t &line, size_t &column)
 {
   line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
   column = _code_editor_impl->send_editor(this, SCI_GETCOLUMN, position, 0);;
@@ -1142,7 +1142,7 @@ void CodeEditor::cut()
 
 bool CodeEditor::can_copy()
 {
-  int length = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0) -
+  sptr_t length = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0) -
     _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
   return length > 0;
 }
@@ -1247,8 +1247,8 @@ bool CodeEditor::find_and_highlight_text(const std::string& search_text, FindFla
   if (flags & FindRegex)
     search_flags |= SCFIND_REGEXP;
 
-  int selection_start = _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
-  int selection_end = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0);
+  sptr_t selection_start = _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
+  sptr_t selection_end = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0);
 
   // Sets the start point for the upcoming search to the begin of the current selection.
   // For forward searches we have therefore to set the selection start to the current selection end
@@ -1307,7 +1307,7 @@ bool CodeEditor::find_and_highlight_text(const std::string& search_text, FindFla
 /**
  * Searches the given text and replaces it by new_text. Returns the number of replacements performed.
  */
-int CodeEditor::find_and_replace_text(const std::string& search_text, const std::string& new_text,
+size_t CodeEditor::find_and_replace_text(const std::string& search_text, const std::string& new_text,
   FindFlags flags, bool do_all)
 {
   if (search_text.size() == 0)
@@ -1315,12 +1315,12 @@ int CodeEditor::find_and_replace_text(const std::string& search_text, const std:
 
   // The current position is where we start searching for single occurrences. Otherwise we start at
   // the beginning of the document.
-  int start_position;
+  sptr_t start_position;
   if (do_all)
     start_position = 0;
   else
     start_position = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
-  int endPosition = _code_editor_impl->send_editor(this, SCI_GETTEXTLENGTH, 0, 0);
+  sptr_t endPosition = _code_editor_impl->send_editor(this, SCI_GETTEXTLENGTH, 0, 0);
 
   int search_flags= 0;
   if (flags & FindMatchCase)
@@ -1335,7 +1335,7 @@ int CodeEditor::find_and_replace_text(const std::string& search_text, const std:
 
   sptr_t result;
 
-  int replace_count = 0;
+  size_t replace_count = 0;
   if (do_all)
   {
     while (true)
@@ -1380,20 +1380,20 @@ int CodeEditor::find_and_replace_text(const std::string& search_text, const std:
 
 void CodeEditor::jump_to_next_placeholder()
 {
-  int current_pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
-  int text_size = _code_editor_impl->send_editor(this, SCI_GETLENGTH, 0, 0);
+  sptr_t current_pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
+  sptr_t text_size = _code_editor_impl->send_editor(this, SCI_GETLENGTH, 0, 0);
   Sci_TextToFind what;
   
   what.lpstrText = (char*)"<{";
-  what.chrg.cpMin = current_pos;
-  what.chrg.cpMax = text_size;
-  int result = _code_editor_impl->send_editor(this, SCI_FINDTEXT, 0, (sptr_t) &what);
+  what.chrg.cpMin = (long)current_pos;
+  what.chrg.cpMax = (long)text_size;
+  sptr_t result = _code_editor_impl->send_editor(this, SCI_FINDTEXT, 0, (sptr_t)&what);
   bool found = false;
   if (result >= 0)
   {
     static const int max_placeholder_length = 256;
     what.lpstrText = (char*)"}>";
-    what.chrg.cpMin = result;
+    what.chrg.cpMin = (long)result;
     what.chrg.cpMax = what.chrg.cpMin + max_placeholder_length; // arbitrary max size for placeholder text
     result = _code_editor_impl->send_editor(this, SCI_FINDTEXT, 0, (sptr_t) &what);
     if (result >= 0)
@@ -1401,7 +1401,7 @@ void CodeEditor::jump_to_next_placeholder()
       char buffer[max_placeholder_length];
       TextRange tr;
       tr.chrg.cpMin = what.chrg.cpMin;
-      tr.chrg.cpMax = result+2;
+      tr.chrg.cpMax = (long)result + 2;
       tr.lpstrText= buffer;
       _code_editor_impl->send_editor(this, SCI_GETTEXTRANGE, 0, (sptr_t)&tr);
       
@@ -1425,7 +1425,7 @@ void CodeEditor::jump_to_next_placeholder()
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::auto_completion_show(int chars_entered, const std::vector<std::pair<int, std::string> >& entries)
+void CodeEditor::auto_completion_show(size_t chars_entered, const std::vector<std::pair<int, std::string> >& entries)
 {
   if (entries.size() == 0)
     return;
@@ -1444,7 +1444,7 @@ void CodeEditor::auto_completion_show(int chars_entered, const std::vector<std::
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::auto_completion_show(int chars_entered, const std::vector<std::string>& entries)
+void CodeEditor::auto_completion_show(size_t chars_entered, const std::vector<std::string>& entries)
 {
   std::stringstream list;
   for (size_t i = 0; i < entries.size(); ++i)
@@ -1572,7 +1572,7 @@ void CodeEditor::auto_completion_fillups(const std::string& fillups)
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::show_calltip(bool show, int position, const std::string& value)
+void CodeEditor::show_calltip(bool show, size_t position, const std::string& value)
 {
   if (show)
     _code_editor_impl->send_editor(this, SCI_CALLTIPSHOW, position, (sptr_t)value.c_str());

@@ -17,9 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
-
 #include "grt/grt_manager.h"
 #include "binary_data_editor.h"
 #include "base/string_utilities.h"
@@ -142,15 +139,15 @@ public:
     unsigned char *ptr = (unsigned char*)_owner->data() + _offset;
     _tree.clear();
     size_t offs;
-    size_t length = std::min<int>(_offset + _block_size, _owner->length());
+    size_t length = std::min<size_t>(_offset + _block_size, _owner->length());
     for (offs = _offset; offs < length; offs += 16)
     {
       mforms::TreeNodeRef row = _tree.add_node();
       row->set_string(0, base::strfmt("0x%08x", (unsigned int) offs));
 
-      for (int i= offs, min= std::min<int>(offs+16, length); i < min; ++i)
+      for (size_t i= offs, min= std::min<size_t>(offs + 16, length); i < min; ++i)
       {
-        row->set_string(i+1-offs, base::strfmt("%02x", *ptr));
+        row->set_string((int)(i + 1 - offs), base::strfmt("%02x", *ptr));
         ptr++;
       }
     }
@@ -237,7 +234,8 @@ public:
     gchar *converted= NULL;
     gsize bread, bwritten;
     if (!_owner->data() || 
-        !(converted = g_convert(_owner->data(), _owner->length(), "UTF-8", _encoding.c_str(), &bread, &bwritten, &error)) ||
+        !(converted = g_convert(_owner->data(), (gssize)_owner->length(), "UTF-8", _encoding.c_str(),
+            &bread, &bwritten, &error)) ||
         _owner->length() != bread)
     {
       std::string message = "Data could not be converted to UTF-8 text";
@@ -285,7 +283,8 @@ private:
     
     if (_encoding != "utf8" && _encoding != "UTF8" && _encoding != "utf-8" && _encoding != "UTF-8")
     {
-      converted = g_convert(data.data(), data.length(), _encoding.c_str(), "UTF-8", &bread, &bwritten, &error);
+      converted = g_convert(data.data(), (gssize)data.length(), _encoding.c_str(), "UTF-8", &bread,
+        &bwritten, &error);
       if (converted == NULL || data.length() != bread)
       {
         std::string message = base::strfmt("Data could not be converted back to %s", _encoding.c_str());
@@ -332,7 +331,7 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   add_viewer(new ImageDataViewer(this, read_only), "Image");
     
   if (tab.is_valid())
-    _tab_view.set_active_tab(*tab);
+    _tab_view.set_active_tab((int)*tab);
   tab_changed();
 }
 
@@ -353,7 +352,7 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   add_viewer(new ImageDataViewer(this, read_only), "Image");
   
   if (tab.is_valid())
-    _tab_view.set_active_tab(*tab);  
+    _tab_view.set_active_tab((int)*tab);  
   tab_changed();
 }
 
@@ -408,7 +407,7 @@ void BinaryDataEditor::assign_data(const char *data, size_t length)
   if (data != _data)
   {
     g_free(_data);
-    _data = (char*)g_memdup(data, length);
+    _data = (char*)g_memdup(data, (guint)length);
   }
   _length = length;
 
@@ -478,7 +477,7 @@ void BinaryDataEditor::export_value()
     std::string path = chooser.get_path();
     GError *error = 0;
     
-    if (!g_file_set_contents(path.c_str(), _data, _length, &error))
+    if (!g_file_set_contents(path.c_str(), _data, (gssize)_length, &error))
     {
       mforms::Utilities::show_error(base::strfmt("Could not export data to %s", path.c_str()),
                                     error->message, "OK");

@@ -21,8 +21,6 @@
  * Implementation of the mforms view, which is the base for most of the visual controls in mforms.
  */
 
-#include "stdafx.h"
-
 #include "mforms/mforms.h"
 
 #include "base/log.h"

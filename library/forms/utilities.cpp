@@ -17,12 +17,9 @@
  * 02110-1301  USA
  */
 
-
 /**
  * Utilities is a support class to trigger message boxes and the like in the front end.
  */
-
-#include "stdafx.h"
 
 #include "base/string_utilities.h"
 #include "base/file_functions.h"
@@ -749,8 +746,8 @@ cairo_surface_t* Utilities::load_icon(const std::string& name)
 std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, double width)
 {
   int ellipsis_width= 0;
-  int length;
-  int l, h, n, w;
+  size_t length;
+  size_t l, h, n, w;
   cairo_text_extents_t extents;
   
   // If the text fits already, return the input.
@@ -782,9 +779,9 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
       // Skip to the nth position, which needs the following loop as we don't have direct
       // access to a char in an utf-8 buffer (one of the limitations of that transformation format).
       const gchar* tail= head;
-      for (int i= 0; i < n; i++)
+      for (size_t i= 0; i < n; i++)
         tail= g_utf8_next_char(tail);
-      gchar* part= g_strndup(head, tail - head);
+      gchar* part= g_strndup(head, (gsize)(tail - head));
       cairo_text_extents(cr, part, &extents);
       g_free(part);
       w= (int) ceil(extents.width) + ellipsis_width;

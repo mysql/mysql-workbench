@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "mforms/menu.h"
 #include "mforms/toolbar.h"
 #include "mforms/scrollpanel.h"
@@ -35,17 +33,15 @@ using namespace mforms;
 using namespace base;
 
 
-
-int TableTemplateList::count()
+size_t TableTemplateList::count()
 {
-  return grt::BaseListRef::cast_from(_grt->get("/wb/options/options/TableTemplates")).count();
+  return (int)grt::BaseListRef::cast_from(_grt->get("/wb/options/options/TableTemplates")).count();
 }
 
-
-bool TableTemplateList::get_field(const bec::NodeId &node, int column, std::string &value)
+bool TableTemplateList::get_field(const bec::NodeId &node, ColumnId column, std::string &value)
 {
   grt::BaseListRef templates(grt::BaseListRef::cast_from(_grt->get("/wb/options/options/TableTemplates")));
-  if (node[0] >= 0 && node[0] < (int)templates.count())
+  if (node[0] < templates.count())
   {
     db_TableRef table = db_TableRef::cast_from(templates[node[0]]);
 

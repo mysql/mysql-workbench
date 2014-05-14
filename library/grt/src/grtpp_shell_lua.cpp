@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,15 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-/**
- * @file  myx_grt_lua_shell.c
- * @brief Lua Shell Frontend
- * 
- * See also: <a href="../grt.html#LuaShell">GRT Lua Shell</a>
- */
-
-#include "stdafx.h"
 
 #ifdef ENABLE_LUA_MODULES
 

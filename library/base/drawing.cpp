@@ -261,7 +261,23 @@ Color::Color(const HSVColor &hsv)
     break;
   }
 }
-
+//--------------------------------------------------------------------------------------------------
+Color::Color(const std::string &color) : alpha(1)
+{
+  Color col = Color::parse(color);
+  if (col.is_valid())
+  {
+    red = col.red;
+    green = col.green;
+    blue = col.blue;
+  }
+  else
+  {
+    red = 0;
+    green = 0;
+    blue = 0;
+  }
+}
 //--------------------------------------------------------------------------------------------------
 
 bool Color::operator !=(const Color &other)
@@ -521,13 +537,7 @@ void Color::set_active_scheme(ColorScheme scheme)
   if (scheme == ColorSchemeStandard)
   {
 #if defined(_WIN32)
-    OSVERSIONINFOEX	info;
-    memset(&info, 0, sizeof info);
-    info.dwOSVersionInfoSize = sizeof info;
-    GetVersionEx((LPOSVERSIONINFO)&info);
-
-    // Windows 8 and Windows server 2012.
-    if (info.dwMajorVersion == 6 && info.dwMinorVersion == 2)
+    if (IsWindows8OrGreater())
       active_scheme = ColorSchemeStandardWin8;
     else
       active_scheme = ColorSchemeStandardWin7;

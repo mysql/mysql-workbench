@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,10 +49,10 @@ class WBPUBLICBACKEND_PUBLIC_FUNC ValidationMessagesBE : public ListModel, publi
     ValidationMessagesBE();
 
     void clear();
-    virtual bool get_field(const NodeId &node, int column, std::string &value);
-    virtual IconId get_field_icon(const NodeId &node, int column, IconSize size);
+    virtual bool get_field(const NodeId &node, ColumnId column, std::string &value);
+    virtual IconId get_field_icon(const NodeId &node, ColumnId column, IconSize size);
     virtual void refresh() {}
-    virtual int count();
+    virtual size_t count();
 
     virtual int get_node_popup_items(const NodeId& node, MenuItemList& menu);
     virtual void activate_node_popup_item(const NodeId &node, const std::string &name);

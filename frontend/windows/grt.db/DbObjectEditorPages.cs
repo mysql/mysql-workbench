@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,8 +82,8 @@ namespace MySQL.GUI.Workbench.Plugins
 
       for (short i = 0; i < count; i++)
       {
-        objectPrivsListBE.get_field(new NodeId(i), (int)ObjectPrivilegeListBE.Columns.Name, out caption);
-        objectPrivsListBE.get_field(new NodeId(i), (int)ObjectPrivilegeListBE.Columns.Enabled, out enabled);
+        objectPrivsListBE.get_field(new NodeIdWrapper(i), (int)ObjectPrivilegeListBE.Columns.Name, out caption);
+        objectPrivsListBE.get_field(new NodeIdWrapper(i), (int)ObjectPrivilegeListBE.Columns.Enabled, out enabled);
         privCheckedListBox.Items.Add(caption, enabled != 0);
       }
     }
@@ -113,7 +113,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
     private void privCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
     {
-      objectPrivsListBE.set_field(new NodeId((short)e.Index), (int)ObjectPrivilegeListBE.Columns.Enabled,
+      objectPrivsListBE.set_field(new NodeIdWrapper((short)e.Index), (int)ObjectPrivilegeListBE.Columns.Enabled,
         e.NewValue == CheckState.Checked ? 1 : 0);
     }
 
@@ -130,7 +130,7 @@ namespace MySQL.GUI.Workbench.Plugins
       if (rolesTreeView.SelectedNode == null)
       {
         roleRemoveButton.Enabled = false;
-        objectRoleListBE.set_selected(new NodeId());
+        objectRoleListBE.set_selected(new NodeIdWrapper());
       }
       else
       {

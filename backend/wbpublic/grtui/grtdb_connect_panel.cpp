@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtdb_connect_panel.h"
 #include "grtdb_connection_editor.h"
 #include "mforms/fs_object_selector.h"
@@ -668,15 +666,15 @@ void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
   // check if the rdbms of the connection is not the selected one (usually should be)
   if (rdbms.is_valid() && selected_rdbms() != rdbms)
   {
-    int rdbms_index = find_object_index_in_list(_allowed_rdbms, rdbms->id());
-    _rdbms_sel.set_selected(rdbms_index);
+    size_t rdbms_index = find_object_index_in_list(_allowed_rdbms, rdbms->id());
+    _rdbms_sel.set_selected((int)rdbms_index);
     change_active_rdbms();
   }
   
   // ensure the correct driver is selected in the selector
-  int driver_index = find_object_index_in_list(rdbms->drivers(), driver->id());
+  ssize_t driver_index = find_object_index_in_list(rdbms->drivers(), driver->id());
   if (driver_index >= 0 && driver_index < _driver_sel.get_item_count())
-    _driver_sel.set_selected(driver_index);
+    _driver_sel.set_selected((int)driver_index);
 
   // mark this connection as the active one for this rdbms type
   if (!_dont_set_default_connection)
@@ -889,7 +887,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
   {
     is_new_line= true;
 
-    table->set_row_count(rows->size() + 1);
+    table->set_row_count((int)rows->size() + 1);
     if (ctrl_type == ::ctCheckBox && table != _params_table)
     {
       rows->push_back(box= mforms::manage(new Box(false)));
@@ -1081,7 +1079,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
         ctrl->add_item(options[i].second);
         option_ids.push_back(options[i].first);
         if (value == options[i].first)
-          idx = i;
+          idx = (int)i;
       }
       if (idx >= 0)
         ctrl->set_selected(idx);

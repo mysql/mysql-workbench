@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,27 +30,27 @@ namespace bec {
     enum Columns {
       Name
     };
-    typedef std::vector<int> Items_ids;
+    typedef std::vector<size_t> Items_ids;
     
     GrtStringListModel();
     void icon_id(IconId icon_id);
     void reset();
     void reset(const std::list<std::string> &items);
 
-    virtual int count();
-    int active_items_count() const;
-    int total_items_count() const;
+    virtual size_t count();
+    size_t active_items_count() const;
+    size_t total_items_count() const;
     virtual void refresh();
-    virtual IconId get_field_icon(const NodeId &node, int column, IconSize size);
+    virtual IconId get_field_icon(const NodeId &node, ColumnId column, IconSize size);
 
-    void add_item(const grt::StringRef &item, int ident);
-    void remove_item(int index);
-    void remove_items(std::vector<int> &item_indexes);
-    void copy_items_to_val_masks_list(std::vector<int> &item_indexes);
+    void add_item(const grt::StringRef &item, size_t ident);
+    void remove_item(size_t index);
+    void remove_items(std::vector<size_t> &item_indexes);
+    void copy_items_to_val_masks_list(std::vector<size_t> &item_indexes);
 
     void invalidate();
 
-    int get_item_id(size_t item_index);
+    size_t get_item_id(size_t item_index);
     std::vector<std::string> items() const;
     Items_ids items_ids() const;
 
@@ -59,14 +59,14 @@ namespace bec {
     void items_val_masks(GrtStringListModel *items_val_masks);
     GrtStringListModel * items_val_masks() const;
 
-    virtual bool get_field(const NodeId &node, int column, std::string &value);
+    virtual bool get_field(const NodeId &node, ColumnId column, std::string &value);
   protected:
     struct Item_handler
     {
       Item_handler() {}
-      Item_handler(const std::string &val_, int id_) : val(val_), iid(id_) {}
+      Item_handler(const std::string &val_, size_t id_) : val(val_), iid(id_) {}
       std::string val;
-      int iid; // initial sequence number of the item
+      size_t iid; // initial sequence number of the item
       bool operator<(const Item_handler &item2) const { return (val < item2.val); }
     };
 

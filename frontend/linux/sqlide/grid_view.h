@@ -95,7 +95,7 @@ class GridView : public Gtk::TreeView
 
     bec::GridModel::Ref _model;
     GridViewModel::Ref  _view_model;
-    int _row_count;
+    size_t _row_count;
 
     Gtk::TreePath          _path_edited;
     Gtk::TreeViewColumn   *_column_edited;

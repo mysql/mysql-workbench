@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #include <iostream>
 #include <assert.h>
 #include "diffchange.h"
-#include "grtpp_util.h"
+#include "../grtpp_util.h"
 
 namespace grt
 {

@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <algorithm>
 
 #include <zip.h>
@@ -28,7 +26,6 @@
 #include <set>
 #include <stdexcept>
 #include <errno.h>
-#include <glib/gstdio.h>
 
 #include "grtpp.h"
 #include "base/string_utilities.h"
@@ -40,7 +37,7 @@
 #include "grt/grt_manager.h"
 
 #include "grts/structs.workbench.h"
-
+#include <glib/gstdio.h>
 
 #define DOCUMENT_FORMAT "MySQL Workbench Model"
 // version history:
@@ -221,7 +218,7 @@ void ModelFile::copy_file_to(const std::string &file, const std::string &dest)
 
 time_t get_file_timestamp(const std::string &file)
 {
-  struct stat stbuf;
+  GStatBuf stbuf;
 
   if (g_stat(file.c_str(), &stbuf) < 0)
     return 0;
@@ -549,7 +546,11 @@ std::list<std::string> ModelFile::unpack_zip(const std::string &zipfile, const s
     throw std::runtime_error(strfmt(_("Cannot open document file: %s"), msg.c_str()));
   }
 
-  int count= zip_get_num_files(z);
+#ifdef zip_int64_t
+  zip_int64_t count = zip_get_num_entries(z, 0);
+#else
+  int count = zip_get_num_files(z);
+#endif
   for (int i= 0; i < count; i++)
   {
     zip_file *file= zip_fopen_index(z, i, 0);
@@ -603,10 +604,10 @@ std::list<std::string> ModelFile::unpack_zip(const std::string &zipfile, const s
     unpacked_files.push_back(outpath);
 
     char buffer[4098];
-    int c;
-    while ((c= zip_fread(file, buffer, sizeof(buffer))) > 0)
+    ssize_t c;
+    while ((c = (size_t)zip_fread(file, buffer, sizeof(buffer))) > 0)
     {
-      if (fwrite(buffer, 1, c, outfile) < (size_t)c)
+      if ((ssize_t)fwrite(buffer, 1, c, outfile) < c)
       {
         int err= ferror(outfile);
         fclose(outfile);
@@ -665,7 +666,6 @@ static void zip_dir_contents(zip *z, const std::string &destdir, const std::stri
         {
           try
           {
-            //not needed zip_add_dir(z, partial.c_str());
             zip_dir_contents(z, destdir.empty() ? entry : destdir+G_DIR_SEPARATOR+entry, tmp);
           }
           catch (...)
@@ -680,12 +680,21 @@ static void zip_dir_contents(zip *z, const std::string &destdir, const std::stri
         if (!add_directories)
         {
           zip_source *src= zip_source_file(z, tmp.c_str(), 0, 0);
+#ifdef zip_file_add
+          if (!src || zip_file_add(z, tmp.c_str(), src, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8) < 0)
+          {
+            zip_source_free(src);
+            g_dir_close(dir);
+            throw std::runtime_error(zip_strerror(z));
+          }
+#else
           if (!src || zip_add(z, tmp.c_str(), src) < 0)
           {
             zip_source_free(src);
             g_dir_close(dir);
             throw std::runtime_error(zip_strerror(z));
           }
+#endif
         }
       }
     }
@@ -732,7 +741,11 @@ void ModelFile::pack_zip(const std::string &zipfile, const std::string &destdir,
     zip_comment += comment;
   }
 
+#if defined(zip_uint16_t) || defined(_WIN32)
+  zip_set_archive_comment(z, zip_comment.c_str(), (zip_uint16_t)zip_comment.size());
+#else
   zip_set_archive_comment(z, zip_comment.c_str(), zip_comment.size());
+#endif
 
   try
   {
@@ -1021,7 +1034,7 @@ void ModelFile::set_file_contents(const std::string &path, const char *data, siz
   std::string fpath= get_path_for(path);
 
   GError *error= NULL;
-  g_file_set_contents(fpath.c_str(), data, size, &error);
+  g_file_set_contents(fpath.c_str(), data, (gssize)size, &error);
   if (error != NULL)
     throw std::runtime_error(std::string("Error while setting file contents: ") + error->message);
 }

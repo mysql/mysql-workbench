@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "tut_stdafx.h"
 
 #include "workbench/wb_context.h"
 

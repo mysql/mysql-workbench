@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -265,7 +265,7 @@ end: ;
 
     if (effective_sql.empty())
     {
-      *first_versioning_comment_pos= start_start - begin;
+      *first_versioning_comment_pos= (int)(start_start - begin);
       effective_sql= sql;
     }
 
@@ -387,7 +387,7 @@ int Mysql_sql_parser_fe::parse_sql_script_file(const std::string &filename, fe_p
 int Mysql_sql_parser_fe::escape_string(const std::string &in_text, std::string &out_text)
 {
   boost::scoped_array<char> out(new char[in_text.size()*2+1]);
-  int res= escape_string(out.get(), 0, in_text.c_str(), in_text.size());
+  int res= escape_string(out.get(), 0, in_text.c_str(), (unsigned long)in_text.size());
   out_text= out.get();
   return res;
 }

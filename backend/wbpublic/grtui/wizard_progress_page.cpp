@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#include "stdafx.h"
 
 #include "wizard_progress_page.h"
 #include "grt/common.h"
@@ -191,9 +190,9 @@ WizardProgressPage::TaskRow *WizardProgressPage::add_task(bool async,
 
   row->label.set_text(caption);
 
-  _task_table.set_row_count(_tasks.size()+1);
-  _task_table.add(&row->icon, 0, 1, _tasks.size(), _tasks.size()+1, 0);
-  _task_table.add(&row->label, 1, 2, _tasks.size(), _tasks.size()+1, mforms::HFillFlag);
+  _task_table.set_row_count((int)_tasks.size() + 1);
+  _task_table.add(&row->icon, 0, 1, (int)_tasks.size(), (int)_tasks.size() + 1, 0);
+  _task_table.add(&row->label, 1, 2, (int)_tasks.size(), (int)_tasks.size() + 1, mforms::HFillFlag);
 
   row->execute= execute;
   row->status_text= status_text;

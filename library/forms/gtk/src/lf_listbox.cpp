@@ -65,10 +65,9 @@ void ListBoxImpl::clear(::mforms::ListBox *self)
 }
 
 //------------------------------------------------------------------------------
-int ListBoxImpl::add_item(::mforms::ListBox *self, const std::string &item)
+size_t ListBoxImpl::add_item(::mforms::ListBox *self, const std::string &item)
 {
   ListBoxImpl* sel= self->get_data<ListBoxImpl>();
-  int ret = 0;
   
   Gtk::TreeModel::iterator it = sel->_store->append();
   if ( it )
@@ -77,7 +76,7 @@ int ListBoxImpl::add_item(::mforms::ListBox *self, const std::string &item)
     if ( row )
       row[sel->_ccol._item] = item;
   }
-  return ret;
+  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -92,7 +91,7 @@ void ListBoxImpl::add_items(::mforms::ListBox *self, const std::list<std::string
   }
 }
 //------------------------------------------------------------------------------
-void ListBoxImpl::remove_indices(mforms::ListBox *self, const std::vector<int> &indices)
+void ListBoxImpl::remove_indices(mforms::ListBox *self, const std::vector<size_t> &indices)
 {
   ListBoxImpl* sel= self->get_data<ListBoxImpl>();
 
@@ -118,7 +117,7 @@ void ListBoxImpl::remove_indices(mforms::ListBox *self, const std::vector<int> &
 
 }
 //------------------------------------------------------------------------------
-void ListBoxImpl::remove_index(mforms::ListBox *self, int index)
+void ListBoxImpl::remove_index(mforms::ListBox *self, size_t index)
 {
   ListBoxImpl* sel= self->get_data<ListBoxImpl>();
 
@@ -126,7 +125,7 @@ void ListBoxImpl::remove_index(mforms::ListBox *self, int index)
   {
     typedef Gtk::TreeModel::Children type_children;
     type_children children = sel->_store->children();
-    int row_num = 0;
+    size_t row_num = 0;
     for (Gtk::TreeModel::iterator it = children.begin(); it <= children.end(); ++it)
     {
       if (row_num == index)
@@ -158,7 +157,7 @@ std::string ListBoxImpl::get_text(::mforms::ListBox *self)
 }
 
 //------------------------------------------------------------------------------
-void ListBoxImpl::set_index(::mforms::ListBox *self, int index)
+void ListBoxImpl::set_index(::mforms::ListBox *self, ssize_t index)
 {
   ListBoxImpl* sel= self->get_data<ListBoxImpl>();
 
@@ -176,10 +175,10 @@ void ListBoxImpl::set_index(::mforms::ListBox *self, int index)
 }
 
 //------------------------------------------------------------------------------
-int ListBoxImpl::get_index(::mforms::ListBox *self)
+ssize_t ListBoxImpl::get_index(::mforms::ListBox *self)
 {
   ListBoxImpl* sel= self->get_data<ListBoxImpl>();
-  int ret = -1;
+  ssize_t ret = -1;
   
   if ( sel )
   {
@@ -200,16 +199,16 @@ void ListBoxImpl::set_heading(ListBox *self, const std::string &text)
   log_warning("mforms::ListBoxImpl::set_heading('%s') not implemented", text.c_str());
 }
 
-static void get_selected_indices_walk_selected(const Gtk::TreeModel::Path& path, std::vector<int> *res)
+static void get_selected_indices_walk_selected(const Gtk::TreeModel::Path& path, std::vector<size_t> *res)
 {
   res->push_back(path.back());
 }
 
 //------------------------------------------------------------------------------
-std::vector<int> ListBoxImpl::get_selected_indices(ListBox *self)
+std::vector<size_t> ListBoxImpl::get_selected_indices(ListBox *self)
 {
   ListBoxImpl* lbi= self->get_data<ListBoxImpl>();
-  std::vector<int> res;
+  std::vector<size_t> res;
   // Walk selected items and add each to the res list
   lbi->_lbox.get_selection()->selected_foreach_path(sigc::bind(sigc::ptr_fun(get_selected_indices_walk_selected), &res));
   return res;

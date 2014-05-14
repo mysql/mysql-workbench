@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 using namespace System;
 using namespace System::Collections::Generic;
 
@@ -35,7 +33,7 @@ using namespace MySQL::Grt;
 //--------------------------------------------------------------------------------------------------
 
 VarGridModelWrapper::VarGridModelWrapper(Ref ref)
-  : GridModel((&ref).get()), //! temporary solution, update base classes to accept Ref in constructor
+  : GridModelWrapper((&ref).get()), //! temporary solution, update base classes to accept Ref in constructor
   _ref(ref)
 {
 }
@@ -43,7 +41,7 @@ VarGridModelWrapper::VarGridModelWrapper(Ref ref)
 //--------------------------------------------------------------------------------------------------
 
 VarGridModelWrapper::VarGridModelWrapper(IntPtr nref_ptr)
-  : GridModel(((::VarGridModel::Ref*)(void*)(nref_ptr))->get()), //! temporary solution, update base classes to accept Ref in constructor
+  : GridModelWrapper(((::VarGridModel::Ref*)(void*)(nref_ptr))->get()), //! temporary solution, update base classes to accept Ref in constructor
   _ref(gcnew ManagedRef<::VarGridModel>(nref_ptr))
 {
 }
@@ -115,14 +113,14 @@ void VarGridModelWrapper::set_rows_changed(DelegateSlot0<void, void>::ManagedDel
 
 int VarGridModelWrapper::edited_field_row()
 {
-  return _ref->edited_field_row();
+  return (int)_ref->edited_field_row();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 int VarGridModelWrapper::edited_field_column()
 {
-  return _ref->edited_field_column();
+  return (int)_ref->edited_field_column();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "wb_history_tree.h"
 #include "workbench/wb_context.h"
 #include "base/string_utilities.h"
@@ -50,7 +49,7 @@ void HistoryTree::refresh()
 
   _refresh_pending = false;
 
-  int new_count = undostack.size() + redostack.size();
+  int new_count = (int)(undostack.size() + redostack.size());
   while (count() < new_count)
     add_node();
   while (count() > new_count)

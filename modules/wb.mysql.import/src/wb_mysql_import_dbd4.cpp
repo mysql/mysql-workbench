@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #ifndef _WIN32
 #include <cctype>
@@ -77,7 +75,7 @@ static std::string dbd_string_to_utf8(const char *str)
     return "";
 
   std::string res;
-  gchar *tmp= (gchar*)g_malloc(strlen(str)*4+1);
+  gchar *tmp= (gchar*)g_malloc((int)strlen(str)*4+1);
   const char *ptr;
   gchar *tmpstr;
 
@@ -135,7 +133,7 @@ static std::string dbd_string_to_utf8(const char *str)
   }
   *tmpstr= 0;
 
-  tmpstr= g_convert(tmp, strlen(tmp), "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
+  tmpstr= g_convert(tmp, (gssize)strlen(tmp), "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
   g_free(tmp);
   if (!tmpstr)
     return str;
@@ -461,7 +459,7 @@ int Wb_mysql_import_DBD4::import_DBD4(workbench_physical_ModelRef model, const c
             std::string schema_name= dbd_string_to_utf8(table_prefix_el->Attribute("Name"));
             log_info("...%s\n", schema_name.c_str());
 
-            ensure_schema_created(_schemata.size(), schema_name.c_str());
+            ensure_schema_created((int)_schemata.size(), schema_name.c_str());
 
             table_prefix_el= table_prefix_el->NextSiblingElement();
           }

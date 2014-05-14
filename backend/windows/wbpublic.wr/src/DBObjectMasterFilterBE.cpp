@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "Grt.h"
 #include "GrtManager.h"
 #include "GrtStringListModel.h"

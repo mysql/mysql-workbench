@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ protected:
 
   db_query_Resultset *self;
 public:
-  std::map<std::string, int> column_by_name;
+  std::map<std::string, ssize_t> column_by_name;
 
   virtual ~ImplData();
 
@@ -43,17 +43,17 @@ public:
   virtual grt::StringRef sql() const = 0;
   virtual grt::IntegerRef currentRow() const = 0;
   virtual grt::IntegerRef rowCount() const = 0;
-  virtual grt::DoubleRef floatFieldValue(long column) = 0;
+  virtual grt::DoubleRef floatFieldValue(ssize_t column) = 0;
   virtual grt::DoubleRef floatFieldValueByName(const std::string &column) = 0;
   virtual grt::IntegerRef goToFirstRow() = 0;
   virtual grt::IntegerRef goToLastRow() = 0;
-  virtual grt::IntegerRef goToRow(long row) = 0;
-  virtual grt::IntegerRef intFieldValue(long column) = 0;
+  virtual grt::IntegerRef goToRow(ssize_t row) = 0;
+  virtual grt::IntegerRef intFieldValue(ssize_t column) = 0;
   virtual grt::IntegerRef intFieldValueByName(const std::string &column) = 0;
   virtual grt::IntegerRef nextRow() = 0;
   virtual grt::IntegerRef previousRow() = 0;
-  virtual grt::IntegerRef saveFieldValueToFile(long column, const std::string &file) = 0;
-  virtual grt::StringRef stringFieldValue(long column) = 0;
+  virtual grt::IntegerRef saveFieldValueToFile(ssize_t column, const std::string &file) = 0;
+  virtual grt::StringRef stringFieldValue(ssize_t column) = 0;
   virtual grt::StringRef stringFieldValueByName(const std::string &column) = 0;
 };
 
@@ -68,19 +68,19 @@ public:
   virtual grt::StringRef sql() const;
   virtual grt::IntegerRef currentRow() const;
   virtual grt::IntegerRef rowCount() const;
-  virtual grt::DoubleRef floatFieldValue(long column);
+  virtual grt::DoubleRef floatFieldValue(ssize_t column);
   virtual grt::DoubleRef floatFieldValueByName(const std::string &column);
   virtual grt::IntegerRef goToFirstRow();
   virtual grt::IntegerRef goToLastRow();
-  virtual grt::IntegerRef goToRow(long row);
-  virtual grt::IntegerRef intFieldValue(long column);
+  virtual grt::IntegerRef goToRow(ssize_t row);
+  virtual grt::IntegerRef intFieldValue(ssize_t column);
   virtual grt::IntegerRef intFieldValueByName(const std::string &column);
   virtual grt::IntegerRef nextRow();
   virtual grt::IntegerRef previousRow();
 
   virtual void refresh();
-  virtual grt::StringRef stringFieldValue(long column);
+  virtual grt::StringRef stringFieldValue(ssize_t column);
   virtual grt::StringRef stringFieldValueByName(const std::string &column);
-  virtual grt::IntegerRef saveFieldValueToFile(long column, const std::string &file);
+  virtual grt::IntegerRef saveFieldValueToFile(ssize_t column, const std::string &file);
 };
 #endif

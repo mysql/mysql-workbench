@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-
-#include "stdafx.h"
 
 #include "grtui/grt_wizard_plugin.h"
 #include "grtui/wizard_progress_page.h"
@@ -121,7 +119,7 @@ public:
   
   virtual void enter(bool advancing)
   {
-    bool place= values().get_int("import.place_figures", 0);
+    bool place = values().get_int("import.place_figures", 0) != 0;
 
     _place_task->set_enabled(place);
     
@@ -376,7 +374,7 @@ WbPluginDbImport::WbPluginDbImport(grt::Module *module)
 
     if (_autoplace_check.get_active())
     {
-      int total_placable_object_count= plugin->db_objects_selection_model(Db_plugin::dbotTable)->active_items_count() +
+      size_t total_placable_object_count = plugin->db_objects_selection_model(Db_plugin::dbotTable)->active_items_count() +
         plugin->db_objects_selection_model(Db_plugin::dbotView)->active_items_count() +
         plugin->db_objects_selection_model(Db_plugin::dbotRoutine)->active_items_count();
       if (total_placable_object_count > 250)

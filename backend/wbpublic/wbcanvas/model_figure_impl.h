@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,11 +17,10 @@
  * 02110-1301  USA
  */
 
-#ifndef _MODEL_FIGURE_IMPL_H_
-#define _MODEL_FIGURE_IMPL_H_
+#pragma once
 
-#include <mdc.h>
-#include <grtpp.h>
+#include "mdc.h"
+#include "grtpp.h"
 
 #include "grts/structs.model.h"
 
@@ -86,6 +85,3 @@ public:
 private:
   model_Figure *self() const { return (model_Figure*)_self; }
 };
-
-
-#endif // _MODEl_FIGURE_IMPL_H_

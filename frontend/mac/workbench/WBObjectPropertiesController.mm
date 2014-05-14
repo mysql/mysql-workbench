@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -133,8 +133,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
   if (pt == PROPERTY_TYPE_COLOR) {
   }
   else if (pt == PROPERTY_TYPE_BOOL) {
-    ;
-    int yn = ([anObject boolValue] ? 1 : 0);
+    ssize_t yn = ([anObject boolValue] ? 1 : 0);
     mValueInspector->set_field(node, ::bec::ValueInspectorBE::Value, yn);
   }
   else {

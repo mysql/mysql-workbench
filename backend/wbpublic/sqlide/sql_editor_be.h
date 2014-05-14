@@ -124,15 +124,15 @@ public:
     std::string column;
 
     // Position + other info of the token at the caret.
-    unsigned int token_line;
-    unsigned int token_start;
-    unsigned int token_length;
+    size_t token_line;
+    size_t token_start;
+    size_t token_length;
     unsigned int token_type;
     std::string token;
 
     // Current caret position, statement to parse and input typed by the user.
-    unsigned int line;
-    unsigned int offset;
+    size_t line;
+    size_t offset;
     std::string statement;
     std::string typed_part;
 
@@ -193,14 +193,14 @@ public:
   void append_text(const std::string &text);
 
   std::string current_statement();
-  bool get_current_statement_range(int &start, int &end);
+  bool get_current_statement_range(size_t &start, size_t &end);
 
-  int cursor_pos();
-  std::pair<int, int> cursor_pos_row_column(bool local);
-  void set_cursor_pos(int position);
+  size_t cursor_pos();
+  std::pair<size_t, size_t> cursor_pos_row_column(bool local);
+  void set_cursor_pos(size_t position);
 
-  bool selected_range(int& start, int& end);
-  void set_selected_range(int start, int end);
+  bool selected_range(size_t &start, size_t &end);
+  void set_selected_range(size_t start, size_t end);
 
   bool is_refresh_enabled() const;
   void set_refresh_enabled(bool val);
@@ -244,7 +244,7 @@ private:
   void set_grtobj(db_query_QueryBufferRef grtobj);
 
   void setup_auto_completion();
-  std::string get_written_part(int position);
+  std::string get_written_part(size_t position);
   virtual bool fill_auto_completion_keywords(std::vector<std::pair<int, std::string> > &entries,
     AutoCompletionWantedParts parts, bool upcase_keywords);
 

@@ -30,7 +30,9 @@ Note about swig:
 
 Note about antlr:
 - Antlr 3.4 is needed, but the current release has many bugs. You will need it patched with https://github.com/antlr/antlr3/pull/43 if you don't want to use the bundled version.
-
+  Then you'll need to 
+      
+      export ANTLR_JAR_PATH=<path_to_your_antlr_complete_file>
 
 Building on Windows
 -------------------

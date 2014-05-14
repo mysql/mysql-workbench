@@ -17,8 +17,6 @@
 * 02110-1301  USA
 */
 
-#include "stdafx.h"
-
 #include "db_alter_script_be.h"
 
 #include "grtui/grt_wizard_plugin.h"
@@ -61,7 +59,7 @@ public:
                                "and the source is left untouched.");
     add(&_description_text,false,true);
     _show_description_check.set_text("Always show this page");
-    _show_description_check.set_active(wizard()->grtm()->get_app_option_int("db.mysql.synchronizeAny:show_sync_help_page", 1));
+    _show_description_check.set_active(wizard()->grtm()->get_app_option_int("db.mysql.synchronizeAny:show_sync_help_page", 1) != 0);
     add_end(&_show_description_check,false, true);
   }
 

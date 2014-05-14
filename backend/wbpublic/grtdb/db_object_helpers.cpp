@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #ifndef _WIN32
 #include <pcre.h>
 #include <stdio.h>
@@ -595,7 +593,7 @@ void TableHelper::update_foreign_key_index(const db_ForeignKeyRef &fk)
     // make sure that the columns in the index match the ones in the FK
 
     // remove columns that are gone from the FK
-    for (int i = index->columns().count()-1; i >= 0; --i)
+    for (ssize_t i = index->columns().count() - 1; i >= 0; --i)
     {
       if (fk->columns().get_index(index->columns()[i]) == grt::BaseListRef::npos)
         index->columns().remove(i);
@@ -694,7 +692,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   std::string column_name_format;
   std::string scolumn_name;
   std::string dcolumn_name;
-  int max_identifier_length= rdbms->maximumIdentifierLength();
+  size_t max_identifier_length= rdbms->maximumIdentifierLength();
 
   // check if there is a PK
   if (!pk.is_valid() || pk->columns().count() == 0)
@@ -759,7 +757,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   
   new_fk->name(SchemaHelper::get_unique_foreign_key_name(db_SchemaRef::cast_from(table->owner()), 
                                                          name_format, 
-                                                         max_identifier_length));
+                                                         (int)max_identifier_length));
   new_fk->oldName(new_fk->name());
   
   new_fk->owner(table); // set the owner last
@@ -802,7 +800,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   std::string name_format;
   std::string scolumn_name;
   std::string dcolumn_name;
-  int max_identifier_length= rdbms->maximumIdentifierLength();
+  size_t max_identifier_length= rdbms->maximumIdentifierLength();
   bool ref_mandatory;
 
   grt::AutoUndo undo(grt, table->is_global());
@@ -848,7 +846,7 @@ db_ForeignKeyRef TableHelper::create_foreign_key_to_table(const db_TableRef &tab
   
   new_fk->name(SchemaHelper::get_unique_foreign_key_name(db_SchemaRef::cast_from(table->owner()), 
                                                          name_format,
-                                                         max_identifier_length));
+                                                         (int)max_identifier_length));
   new_fk->oldName(new_fk->name());
   
   new_fk->referencedMandatory(ref_mandatory?1:0);
@@ -951,7 +949,7 @@ static void split_comment(const std::string &comment, size_t db_comment_len,
 {
   size_t res;
   // XXX: check for Unicode line breaks! especially asian languages don't use the ANSI new line.
-  gchar* pointer_to_linebreak = g_utf8_strchr(comment.c_str(), comment.size(), '\n');
+  gchar* pointer_to_linebreak = g_utf8_strchr(comment.c_str(), (gssize)comment.size(), '\n');
 
   // We need the number of characters which the string part includes, so convert to a char count.
   if (pointer_to_linebreak != NULL)
@@ -962,7 +960,7 @@ static void split_comment(const std::string &comment, size_t db_comment_len,
   // don't break in the middle of a utf8 sequence
   if (res > db_comment_len)
   {
-    if (g_utf8_get_char_validated(comment.c_str() + db_comment_len, res - db_comment_len) == (gunichar)-1)
+    if (g_utf8_get_char_validated(comment.c_str() + db_comment_len, (gssize)(res - db_comment_len)) == (gunichar)-1)
       res = g_utf8_pointer_to_offset(comment.c_str(), g_utf8_find_prev_char(comment.c_str(), comment.c_str() + db_comment_len));
     else
       res = db_comment_len;
@@ -1244,7 +1242,7 @@ static int pcre_compile_exec(const char *pattern, const char *str, int *patres, 
   if (!patre)
     throw std::logic_error("error compiling regex "+std::string(errptr));
 
-  c= pcre_exec(patre, NULL, str, strlen(str), 0, 0, patres, patresnum);
+  c= pcre_exec(patre, NULL, str, (int)strlen(str), 0, 0, patres, patresnum);
   pcre_free(patre);
 
   return c;

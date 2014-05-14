@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "grtui/grt_wizard_plugin.h"
 #include "grtui/wizard_progress_page.h"
 #include "grtui/wizard_finished_page.h"
@@ -110,17 +108,17 @@ public:
 
     add(&_options, false, false);
     
-    _generate_drop_check.set_active(form->module()->document_int_data("generate_drop", false));
-    _generate_drop_schema_check.set_active(form->module()->document_int_data("generate_schema_drop", 0));
-    _skip_foreign_keys_check.set_active(form->module()->document_int_data("skip_foreign_keys", false));
-    _skip_FK_indexes_check.set_active(form->module()->document_int_data("SkipFKIndexes", false));
-    _omit_schema_qualifier_check.set_active(form->module()->document_int_data("omit_schema_qualifier", false));
-    _generate_create_index_check.set_active(form->module()->document_int_data("generate_create_index", false));
-    _generate_show_warnings_check.set_active(form->module()->document_int_data("generate_show_warnings", false));
-    _skip_users_check.set_active(form->module()->document_int_data("skip_users", false));
-    _no_view_placeholders.set_active(form->module()->document_int_data("no_vew_placeholders", false));
-    _generate_insert_check.set_active(form->module()->document_int_data("generate_insert", false));
-    _generate_use_check.set_active(form->module()->document_int_data("generate_use", false));
+    _generate_drop_check.set_active(form->module()->document_int_data("generate_drop", false) != 0);
+    _generate_drop_schema_check.set_active(form->module()->document_int_data("generate_schema_drop", 0) != 0);
+    _skip_foreign_keys_check.set_active(form->module()->document_int_data("skip_foreign_keys", false) != 0);
+    _skip_FK_indexes_check.set_active(form->module()->document_int_data("SkipFKIndexes", false) != 0);
+    _omit_schema_qualifier_check.set_active(form->module()->document_int_data("omit_schema_qualifier", false) != 0);
+    _generate_create_index_check.set_active(form->module()->document_int_data("generate_create_index", false) != 0);
+    _generate_show_warnings_check.set_active(form->module()->document_int_data("generate_show_warnings", false) != 0);
+    _skip_users_check.set_active(form->module()->document_int_data("skip_users", false) != 0);
+    _no_view_placeholders.set_active(form->module()->document_int_data("no_vew_placeholders", false) != 0);
+    _generate_insert_check.set_active(form->module()->document_int_data("generate_insert", false) != 0);
+    _generate_use_check.set_active(form->module()->document_int_data("generate_use", false) != 0);
     _generate_use_check.set_enabled(_omit_schema_qualifier_check.get_active());
     _skip_FK_indexes_check.set_enabled(_skip_foreign_keys_check.get_active());
   }
@@ -318,19 +316,19 @@ protected:
     }
 
     _export_be->set_option("OutputFileName", values().get_string("OutputFileName"));
-    _export_be->set_option("GenerateDrops", values().get_int("GenerateDrops"));
-    _export_be->set_option("GenerateSchemaDrops", values().get_int("GenerateSchemaDrops"));
-    _export_be->set_option("SkipForeignKeys", values().get_int("SkipForeignKeys"));
-    _export_be->set_option("SkipFKIndexes", values().get_int("SkipFKIndexes"));
-    _export_be->set_option("GenerateWarnings", values().get_int("GenerateWarnings"));
-    _export_be->set_option("GenerateCreateIndex", values().get_int("GenerateCreateIndex"));
-    _export_be->set_option("NoUsersJustPrivileges", values().get_int("NoUsersJustPrivileges"));
-    _export_be->set_option("NoViewPlaceholders", values().get_int("NoViewPlaceholders"));
-    _export_be->set_option("GenerateInserts", values().get_int("GenerateInserts"));
-    _export_be->set_option("NoFKForInserts", values().get_int("NoFKForInserts"));
-    _export_be->set_option("TriggersAfterInserts", values().get_int("TriggersAfterInserts"));
-    _export_be->set_option("OmitSchemata", values().get_int("OmitSchemata"));
-    _export_be->set_option("GenerateUse", values().get_int("GenerateUse"));
+    _export_be->set_option("GenerateDrops", values().get_int("GenerateDrops") != 0);
+    _export_be->set_option("GenerateSchemaDrops", values().get_int("GenerateSchemaDrops") != 0);
+    _export_be->set_option("SkipForeignKeys", values().get_int("SkipForeignKeys") != 0);
+    _export_be->set_option("SkipFKIndexes", values().get_int("SkipFKIndexes") != 0);
+    _export_be->set_option("GenerateWarnings", values().get_int("GenerateWarnings") != 0);
+    _export_be->set_option("GenerateCreateIndex", values().get_int("GenerateCreateIndex") != 0);
+    _export_be->set_option("NoUsersJustPrivileges", values().get_int("NoUsersJustPrivileges") != 0);
+    _export_be->set_option("NoViewPlaceholders", values().get_int("NoViewPlaceholders") != 0);
+    _export_be->set_option("GenerateInserts", values().get_int("GenerateInserts") != 0);
+    _export_be->set_option("NoFKForInserts", values().get_int("NoFKForInserts") != 0);
+    _export_be->set_option("TriggersAfterInserts", values().get_int("TriggersAfterInserts") != 0);
+    _export_be->set_option("OmitSchemata", values().get_int("OmitSchemata") != 0);
+    _export_be->set_option("GenerateUse", values().get_int("GenerateUse") != 0);
 
     _export_be->set_option("TablesAreSelected", _table_filter->get_active());
     _export_be->set_option("TriggersAreSelected", _trigger_filter->get_active());

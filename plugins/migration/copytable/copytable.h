@@ -21,8 +21,11 @@
 #define _COPYTABLE_H_
 
 #ifdef _WIN32
+
+#define NOMINMAX
 #include <Windows.h>
 #endif
+
 #include <sql.h>
 #include <sqlext.h>
 

@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/log.h"
 #include "base/string_utilities.h"
 
@@ -113,7 +111,7 @@ bool ScintillaControl::CanRedo::get()
 
 bool ScintillaControl::CanCopy::get()
 {
-  int length = direct_call(SCI_GETSELECTIONEND, 0, 0) - direct_call(SCI_GETSELECTIONSTART, 0, 0);
+  sptr_t length = direct_call(SCI_GETSELECTIONEND, 0, 0) - direct_call(SCI_GETSELECTIONSTART, 0, 0);
   return length > 0;
 }
 
@@ -247,7 +245,7 @@ void ScintillaControl::WndProc(Windows::Forms::Message %m)
       HDROP hdrop = (HDROP)m.WParam.ToPointer();
       unsigned count = DragQueryFile(hdrop, 0xFFFFFFFF, NULL, 0);
       std::vector<std::string> file_names;
-      for (size_t i = 0; i < count; ++i)
+      for (UINT i = 0; i < count; ++i)
       {
         unsigned size = DragQueryFile(hdrop, i, NULL, 0); // Size not including terminator.
         if (size == 0)

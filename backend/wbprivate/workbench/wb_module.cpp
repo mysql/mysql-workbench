@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include <sstream>
 
 #include "base/config_file.h"
@@ -90,19 +88,26 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
 {
   #ifdef _WIN32
     #define PLATFORM_NAME "Windows"
+      #ifdef _WIN64
+        #define ARCHITECTURE "64 bit"
+      #else
+        #define ARCHITECTURE "32 bit"
+      #endif
   #elif defined(__APPLE__)
     #define PLATFORM_NAME "Mac OS X"
+    #define ARCHITECTURE "32 bit"
   #else
     #define PLATFORM_NAME "Linux/Unix"
+    #define ARCHITECTURE "64 bit"
   #endif
 
 
   app_InfoRef info(app_InfoRef::cast_from(_wb->get_grt()->get("/wb/info")));
 
   const char* tab = indent ? "\t" : "";
-  std::string result = strfmt("%s%s %s (%s) for "PLATFORM_NAME" version %i.%i.%i %s revision %i build %i\n",
+  std::string result = strfmt("%s%s %s (%s) for "PLATFORM_NAME" version %i.%i.%i %s revision %i build %i (%s)\n",
     tab, info->name().c_str(), APP_EDITION_NAME, APP_LICENSE_TYPE, APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER,
-                              APP_RELEASE_TYPE, APP_REVISION_NUMBER, APP_BUILD_NUMBER);
+                              APP_RELEASE_TYPE, APP_REVISION_NUMBER, APP_BUILD_NUMBER, ARCHITECTURE);
   result += strfmt("%sConfiguration Directory: %s\n", tab, _wb->get_grt_manager()->get_user_datadir().c_str());
   result += strfmt("%sData Directory: %s\n", tab, _wb->get_grt_manager()->get_basedir().c_str());
 
@@ -121,10 +126,10 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
     TCHAR* buffer = new TCHAR[locale_buffer_size];
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SLANGUAGE, buffer, locale_buffer_size);
 
-    CW2A converted_buffer(buffer, CP_UTF8);
+    std::string converted = base::wstring_to_string(buffer);
     delete [] buffer;
 
-    result += strfmt("%sCurrent user language: %s\n", tab, converted_buffer.m_psz);
+    result += strfmt("%sCurrent user language: %s\n", tab, converted.c_str());
   }
   else
   {
@@ -463,7 +468,7 @@ int WorkbenchImpl::newDocumentFromDB()
   args.ginsert(_wb->get_document()->physicalModels()[0]->catalog());
   grt::IntegerRef resultRef = grt::IntegerRef::cast_from(module->call_function("runDbImportWizard", args));
 
-  return *resultRef;
+  return (int)*resultRef;
 }
 
 
@@ -1843,7 +1848,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
     
 #endif
 
-  log_debug("Found %ld installed MySQL servers\n", entries.is_valid() ? (long)entries.count() : -1);
+  log_debug("Found %zd installed MySQL servers\n", entries.is_valid() ? entries.count() : -1);
 
   return entries;
 }
@@ -1935,7 +1940,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       std::string socket_or_pipe_name = base::extract_option_from_command_line("--socket", path);
       std::string str_port = base::extract_option_from_command_line("--port", path);
     
-      int port = INT_MIN;
+      ssize_t port = INT_MIN;
       if (str_port.length())
         port = atoi(str_port.c_str());
       
@@ -2004,9 +2009,8 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       
       // If the display name is invalid will create one using the port
       if (display_name=="invalid")
-        display_name = base::strfmt("%d", port);
+        display_name = base::strfmt("%zd", port);
 
-      
       instance->name("Local " + display_name);
 
       instance->serverInfo().gset("sys.preset", "Custom");
@@ -2035,7 +2039,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
 
         if (can_use_networking)
         {
-          int other_port = parameters.get_int("port");
+          ssize_t other_port = parameters.get_int("port");
           if (other_port != port)
             continue;
 
@@ -2066,7 +2070,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       // If we did not find a connection for this instance then create a new one.
       if (!connection.is_valid())
         connection = create_connection("localhost", "root", socket_or_pipe_name, can_use_networking,
-        can_use_socket_or_pipe, port, _("Local instance ") + display_name);
+        can_use_socket_or_pipe, (int)port, _("Local instance ") + display_name);
 
       instance->connection(connection);
       instances.insert(instance);

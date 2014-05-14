@@ -8,7 +8,7 @@
 
 #include "grts/structs.model.h"
 
-#include "library/base/base/trackable.h"
+#include "base/trackable.h"
 
 namespace wb 
 {

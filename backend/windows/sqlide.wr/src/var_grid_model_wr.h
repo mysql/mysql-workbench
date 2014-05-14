@@ -22,7 +22,7 @@
 namespace MySQL {
 namespace Grt {
 
-public ref class VarGridModelWrapper : public MySQL::Grt::GridModel
+public ref class VarGridModelWrapper : public MySQL::Grt::GridModelWrapper
 {
   typedef ManagedRef<::VarGridModel> ^ Ref;
 

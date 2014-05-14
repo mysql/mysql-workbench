@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,11 +21,7 @@
  * Contains the implementation of the .NET wrapper for the mforms application class.
  */
 
-#include "stdafx.h"
-
 #include "base/log.h"
-
-#include "mforms/dockingpoint.h"
 
 #include "wf_base.h"
 #include "wf_utilities.h"

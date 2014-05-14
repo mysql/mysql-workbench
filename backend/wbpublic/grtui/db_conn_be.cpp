@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "base/geometry.h"
 
 using namespace base;
@@ -388,7 +386,7 @@ void DbDriverParams::init(
           rows.push_back(row);
           y_offset+= row.max_height() + vmargin;
         }
-        row = LayoutRow(param->layoutRow(), hmargin);
+        row = LayoutRow((int)param->layoutRow(), hmargin);
       }
 
       if (layout_type == param->layoutAdvanced())
@@ -415,7 +413,7 @@ void DbDriverParams::init(
           LayoutControl ctrl(row.offset());
           ctrl.param_handle= param_handle;
           ctrl.type= param_handle->get_control_type();
-          ctrl.bounds.width= param->layoutWidth();
+          ctrl.bounds.width= (int)param->layoutWidth();
           ctrl.bounds.top = y_offset;
           if (param_handle->get_control_type() == ctCheckBox)
             ctrl.caption= param->caption();

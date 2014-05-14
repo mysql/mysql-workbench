@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,23 +17,17 @@
  * 02110-1301  USA
  */
 
-#ifndef _STDAFX_H_
-#define _STDAFX_H_
+#pragma once
 
-#if defined(_WIN32)
-# include <Python/Python.h>
-#else
-# include <Python.h>
-#endif
+#define HAVE_ROUND
+#include <Python/Python.h>
 
-#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#endif
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
 #include <glib.h>
 
-#endif // _STDAFX_H_
+#include "grts/structs.h"

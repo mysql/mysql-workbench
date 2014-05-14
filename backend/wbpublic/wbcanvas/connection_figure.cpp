@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "connection_figure.h"
 #include "table_figure.h"
 #include "mdc_box_side_magnet.h"

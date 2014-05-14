@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,11 +17,10 @@
  * 02110-1301  USA
  */
 
-#include "tut_stdafx.h"
-
 #include "stub/stub_mforms.h"
 #include "sqlide/wb_live_schema_tree.h"
 #include "grtpp.h"
+#include "test.h"
 
 
 using namespace grt;
@@ -219,7 +218,7 @@ public:
 
       for(size_t index = 0; index < _mock_column_list.size(); index++)
       {
-        column = parent->get_child(index);
+        column = parent->get_child((int)index);
         pdata = dynamic_cast<LiveSchemaTree::ColumnData*>(column->get_data());
         pdata->details = "MOCK LOADED Column : " + column->get_string(0);
       }
@@ -243,7 +242,7 @@ public:
 
         for(size_t index = 0; index < _mock_index_list.size(); index++)
         {
-          index_node = parent->get_child(index);
+          index_node = parent->get_child((int)index);
           pdata = dynamic_cast<LiveSchemaTree::IndexData*>(index_node->get_data());
           pdata->details = "MOCK LOADED Index : " + index_node->get_string(0);
         }
@@ -265,7 +264,7 @@ public:
 
         for(size_t index = 0; index < _mock_fk_list.size(); index++)
         {
-          fk_node = parent->get_child(index);
+          fk_node = parent->get_child((int)index);
           pdata = dynamic_cast<LiveSchemaTree::FKData*>(fk_node->get_data());
           pdata->details = "MOCK LOADED Foreign Key : " + fk_node->get_string(0);
         }
@@ -287,7 +286,7 @@ public:
 
         for(size_t index = 0; index < _mock_trigger_list.size(); index++)
         {
-          trigger_node = parent->get_child(index);
+          trigger_node = parent->get_child((int)index);
           pdata = dynamic_cast<LiveSchemaTree::TriggerData*>(trigger_node->get_data());
           pdata->details = "MOCK LOADED Trigger : " + trigger_node->get_string(0);
         }
@@ -1581,7 +1580,7 @@ TEST_FUNCTION(6)
   {
     tables.push_back(child01->add_child());
     _lst.setup_node(tables[index], LiveSchemaTree::Table);
-    tables[index]->set_string(0, base::strfmt("Table%02d", index + 1));
+    tables[index]->set_string(0, base::strfmt("Table%02d", (int)(index + 1)));
   }
 
   {
@@ -1622,7 +1621,7 @@ TEST_FUNCTION(6)
   {
     procedures.push_back(child02->add_child());
     _lst.setup_node(procedures[index], LiveSchemaTree::Procedure);
-    procedures[index]->set_string(0, base::strfmt("Procedure%02d", index + 1));
+    procedures[index]->set_string(0, base::strfmt("Procedure%02d", (int)(index + 1)));
   }
 
   {
@@ -1662,7 +1661,7 @@ TEST_FUNCTION(6)
   {
     functions.push_back(child03->add_child());
     _lst.setup_node(functions[index], LiveSchemaTree::Function);
-    functions[index]->set_string(0, base::strfmt("Function%02d", index + 1));
+    functions[index]->set_string(0, base::strfmt("Function%02d", (int)(index + 1)));
   }
 
   {
@@ -2868,7 +2867,7 @@ void check_node_paths_recursive(LiveSchemaTree* lst,  mforms::TreeNodeRef root)
   std::vector<std::string> path = lst->get_node_path(root);
   mforms::TreeNodeRef other_node = lst->get_node_from_path(path);
 
-  ensure(base::strfmt("TF024CHK001: Unable to find node from path : %s", path.data()), root.ptr() == other_node.ptr());
+  ensure(base::strfmt("TF024CHK001: Unable to find node from path : %s", ((std::string*)path.data())->c_str()), root.ptr() == other_node.ptr());
 
   for(int index = 0; index < root->count(); index++)
   {
