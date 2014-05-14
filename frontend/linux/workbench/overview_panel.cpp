@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -825,7 +825,7 @@ public:
 private:
   void page_switched(GtkNotebookPage *page, guint num)
   {
-    if ((int)num < _overview->count_children(_node))
+    if ((size_t)num < _overview->count_children(_node))
       _overview->focus_node(_overview->get_child(_node, num));
     _current_page_index= num;
   }
