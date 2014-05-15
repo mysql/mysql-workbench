@@ -534,7 +534,8 @@ int SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed)
   // In opposition to the object editors, each individual sql editor gets an own parser context
   // (and hence an own parser), to allow concurrent and multi threaded work.
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt_manager()->get_grt());
-  parser::ParserContext::Ref context = services->createParserContext(rdbms()->characterSets(), wbsql()->get_grt_editor_object(this)->serverVersion());
+  parser::ParserContext::Ref context = services->createParserContext(rdbms()->characterSets(),
+    wbsql()->get_grt_editor_object(this)->serverVersion(), _lower_case_table_names != 0);
   MySQLEditor::Ref sql_editor = MySQLEditor::create(grt_manager()->get_grt(), context, grtobj);
 
   sql_editor->sql_check_progress_msg_throttle(_progress_status_update_interval);
@@ -586,7 +587,7 @@ mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::P
   const std::vector<std::string> &file_names)
 {
 #if _WIN32
-  bool case_sensitive = false;
+  bool case_sensitive = false; // TODO: on Mac case sensitivity depends on the file system.
 #else
   bool case_sensitive = true;
 #endif

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,6 @@ namespace bec {
   {
   protected: 
     db_RoutineGroupRef _group;
-    bool _has_syntax_error;
 
   public:
     RoutineGroupEditorBE(GRTManager *grtm, const db_RoutineGroupRef &group, const db_mgmt_RdbmsRef &rdbms);
@@ -41,12 +40,10 @@ namespace bec {
     virtual db_RoutineGroupRef get_routine_group() { return _group; }
 
     virtual std::string get_routines_sql();
-    //virtual std::string RoutineGroupEditorBE::get_routine_name(const std::string& id);
     virtual std::string get_routine_name(const std::string& id);
     virtual std::vector<std::string> get_routines_names();
     virtual void set_routines_sql(const std::string &sql, bool sync);
     grt::ValueRef parse_sql(grt::GRT*, grt::StringRef sql);
-    bool has_syntax_error() { return _has_syntax_error; }
 
     virtual MySQLEditor::Ref get_sql_editor();
     

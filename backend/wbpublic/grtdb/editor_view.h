@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _EDITOR_VIEW_H_
-#define _EDITOR_VIEW_H_
+
+#pragma once
 
 #include "grtdb/editor_dbobject.h"
 #include "wbpublic_public_interface.h"
@@ -26,24 +26,14 @@ namespace bec {
 
   class WBPUBLICBACKEND_PUBLIC_FUNC ViewEditorBE : public DBObjectEditorBE
   {
-  protected:
-    db_ViewRef _view;
-    bool _has_syntax_error;
-
   public:
+    ViewEditorBE(GRTManager *grtm, const db_ViewRef &view, const db_mgmt_RdbmsRef &rdbms);
+
     virtual std::string get_title();
 
-    virtual db_DatabaseObjectRef get_dbobject() { return get_view(); }
-    virtual db_ViewRef& get_view() { return _view; }
+    db_ViewRef get_view() { return db_ViewRef::cast_from(get_object()); };
 
-    virtual std::string get_query();
-    virtual void set_query(const std::string &sql, bool sync);
-    grt::ValueRef parse_sql(grt::GRT*, grt::StringRef sql);
-    bool has_syntax_error() { return _has_syntax_error; }
-
-    ViewEditorBE(GRTManager *grtm, const db_ViewRef &view, const db_mgmt_RdbmsRef &rdbms);
+    virtual std::string get_sql();
   };
 
 };
-
-#endif /* _EDITOR_VIEW_H_ */

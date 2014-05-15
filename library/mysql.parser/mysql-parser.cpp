@@ -335,7 +335,10 @@ MySQLRecognizerTreeWalker::MySQLRecognizerTreeWalker(MySQLRecognizer *recognizer
 {
   _recognizer = recognizer;
   _tree = tree;
-  _origin = tree;
+  if (token_type() == 0) // If there's a null root node skip over that.
+    next();
+
+  _origin = _tree;
 
   // Fill the list of tokens for quick lookup by type or position in the correct order.
   pANTLR3_BASE_TREE run = _tree;
@@ -774,6 +777,17 @@ bool MySQLRecognizerTreeWalker::skip_token_sequence(unsigned int start_token, ..
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * Advance to the nth next token if the current one is that given by @token.
+ */
+void MySQLRecognizerTreeWalker::skip_if(unsigned int token, size_t count)
+{
+  if (token_type() == token)
+    next(count);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Returns the type of the next sibling (if recursive is false) or the next token (including child
  * nodes) without changing the internal state.
  */
@@ -985,6 +999,17 @@ unsigned int MySQLRecognizerTreeWalker::token_line()
 unsigned int MySQLRecognizerTreeWalker::token_start()
 {
   return _tree->getCharPositionInLine(_tree);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the offset of the token in its source string.
+ */
+size_t MySQLRecognizerTreeWalker::token_offset()
+{
+  pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
+  return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->input_start());
 }
 
 //--------------------------------------------------------------------------------------------------

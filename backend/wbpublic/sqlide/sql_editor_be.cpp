@@ -536,7 +536,7 @@ void MySQLEditor::append_text(const std::string &text)
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Used to the set the content of the editor from outside (usually when loading a file).
+ * Used to the set the content of the editor from outside (e.g. when loading a file or for tests).
  */
 void MySQLEditor::sql(const char *sql)
 {

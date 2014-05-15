@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_VIEW_EDITOR_H_
-#define _MYSQL_VIEW_EDITOR_H_
+#pragma once
 
 #include "grtdb/editor_view.h"
 #include "grts/structs.workbench.physical.h"
@@ -30,11 +29,13 @@
 class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLViewEditorBE : public bec::ViewEditorBE
 {
 public:
-  MySQLViewEditorBE(bec::GRTManager *grtm, const db_ViewRef &view, const db_mgmt_RdbmsRef &rdbms);
-  
+  MySQLViewEditorBE(bec::GRTManager *grtm, const db_mysql_ViewRef &view, const db_mgmt_RdbmsRef &rdbms);
+
+  virtual db_ViewRef get_view() { return _view; };
+
   void load_view_sql();
   virtual void commit_changes();
   virtual bool can_close();
+private:
+  db_mysql_ViewRef _view;
 };
-
-#endif /* _MYSQL_VIEW_EDITOR_H_ */

@@ -51,7 +51,7 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
   {
     workbench_physical_ModelRef model(workbench_physical_ModelRef::cast_from(_note->owner()));
     MySQLParserServices::Ref services = MySQLParserServices::get(get_grt());
-    ParserContext::Ref context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version());
+    ParserContext::Ref context = services->createParserContext(model->catalog()->characterSets(), model->catalog()->version(), false);
     _sql_editor = MySQLEditor::create(get_grt(), context);
 
     scoped_connect(_sql_editor->text_change_signal(),

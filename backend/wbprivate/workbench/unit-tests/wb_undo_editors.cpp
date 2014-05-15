@@ -553,7 +553,7 @@ TEST_FUNCTION(22) // Table (Triggers)
   std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(tester.wb->get_grt_manager(), table, _rdbms));
 
   const std::string trig_sql = be->get_all_triggers_sql();
-  be->set_triggers_sql("create trigger tr1 before insert on table1 for each row set new.idtable1 = 1", true);
+  be->set_sql("create trigger tr1 before insert on table1 for each row set new.idtable1 = 1", true);
   check_only_one_undo_added();
   std::string expected = "-- Full Trigger DDL Statements\n-- Note: Only CREATE TRIGGER statements are allowed\n"
     "DELIMITER $$\n\nUSE `mydb`$$\n\ncreate trigger tr1 before insert on table1 for each row set new.idtable1 = 1$$\n\n";

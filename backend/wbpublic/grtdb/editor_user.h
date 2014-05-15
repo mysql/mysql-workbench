@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _EDITOR_USER_H_
-#define _EDITOR_USER_H_
+
+#pragma once
 
 #include "grtdb/editor_dbobject.h"
 #include "grt/tree_model.h"
@@ -27,9 +27,6 @@
 #include "role_tree_model.h"
 
 #include "wbpublic_public_interface.h"
-
-#define UserEditorBE_VERSION 1
-
 
 namespace bec {
 
@@ -65,5 +62,3 @@ namespace bec {
   };
 };
 
-
-#endif /* _EDITOR_USER_H_ */

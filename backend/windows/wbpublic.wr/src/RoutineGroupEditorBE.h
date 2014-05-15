@@ -46,7 +46,6 @@ public:
   void set_name(String ^query);
   String^ get_comment();
   void set_comment(String ^query);
-  bool has_syntax_error();
   void open_editor_for_routine_at_index(size_t index);
 };
 

@@ -19,12 +19,17 @@
 
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
+#include "base/log.h"
 
 #include "mysql_parser_module.h"
 #include "MySQLLexer.h"
 
+#include "grts/structs.db.mysql.h"
+
 using namespace grt;
 using namespace parser;
+
+DEFAULT_LOG_DOMAIN("parser")
 
 GRT_MODULE_ENTRY_POINT(MySQLParserServicesImpl);
 
@@ -66,9 +71,11 @@ int MySQLParserServicesImpl::stopProcessing()
  * If there's an error nothing is changed.
  * Returns the number of errors.
  */
-int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db_TriggerRef trigger,
+int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db_mysql_TriggerRef trigger,
                                           const std::string &sql)
 {
+  log_debug("Parse trigger");
+
   trigger->sqlDefinition(sql);
   trigger->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
@@ -82,7 +89,7 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
     trigger->enabled(1);
 
     MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
-    walker.next(2); // Skip root + CREATE.
+    walker.next(); // Skip CREATE.
 
     if (walker.token_type() == DEFINER_SYMBOL)
     {
@@ -102,7 +109,7 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
       }
       trigger->definer(definer);
     }
-    walker.next(); // skip TRIGGER
+    walker.next(2); // skip TRIGGER + TRIGGER_NAME_TOKEN
     std::string name = walker.token_text();
     walker.next();
     if (walker.token_type() == DOT_SYMBOL)
@@ -120,7 +127,7 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
 
     // The referenced table is not stored in the trigger object as that is defined by it's position
     // in the grt tree.
-    walker.skip_token_sequence(ON_SYMBOL, TABLE_REF_ID_TOKEN, IDENTIFIER, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
+    walker.skip_token_sequence(ON_SYMBOL, TABLE_NAME_TOKEN, IDENTIFIER, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
     ANTLR3_UINT32 type = walker.token_type();
     if (type == FOLLOWS_SYMBOL || type == PRECEDES_SYMBOL)
     {
@@ -138,7 +145,7 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
 
     // Finished with errors. See if we can get at least the trigger name out.
     MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
-    if (walker.advance_to_type(TRIGGER_SYMBOL, true))
+    if (walker.advance_to_type(TRIGGER_NAME_TOKEN, true))
     {
       walker.next();
       std::string name = walker.token_text();
@@ -166,6 +173,117 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * Parses the given sql as create view script and fills all found details in the given view ref.
+ * If there's an error nothing changes. If the sql contains a schema reference other than that the
+ * the view is in the view's name will be changed (adds _WRONG_SCHEMA) to indicate that.
+ */
+int MySQLParserServicesImpl::parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql)
+{
+  log_debug("Parse View");
+
+  view->sqlDefinition(sql);
+  view->lastChangeDate(base::fmttime(0, DATETIME_FMT));
+
+  context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateView);
+  int error_count = (int)context->recognizer()->error_info().size();
+  if (error_count == 0)
+  {
+    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+    walker.next(); // Skip CREATE.
+    walker.skip_if(OR_SYMBOL, 2);
+
+    if (walker.token_type() == ALGORITHM_SYMBOL)
+    {
+      walker.next(2); // ALGORITHM and EQUAL.
+      switch (walker.token_type())
+      {
+        case MERGE_SYMBOL:
+          view->algorithm(1);
+          break;
+        case TEMPTABLE_SYMBOL:
+          view->algorithm(2);
+          break;
+        default:
+          view->algorithm(0);
+          break;
+      }
+      walker.next();
+    }
+    else
+      view->algorithm(0);
+
+    if (walker.token_type() == DEFINER_SYMBOL)
+    {
+      walker.next(2); // Skip DEFINER + equal sign.
+      std::string definer = walker.token_text();
+      walker.next();
+      switch (walker.token_type())
+      {
+        case OPEN_PAR_SYMBOL: // Optional parentheses.
+          walker.next(2);
+          break;
+        case AT_SIGN_SYMBOL: // A user@host entry.
+          walker.next();
+          definer += '@' + walker.token_text();
+          walker.next();
+          break;
+      }
+      view->definer(definer);
+    }
+
+    walker.skip_if(SQL_SYMBOL, 3); // SQL SECURITY (DEFINER | INVOKER)
+
+    walker.next(2); // skip VIEW + VIEW_NAME_TOKEN
+    std::string name = walker.token_text();
+    walker.next();
+    if (walker.token_type() == DOT_SYMBOL)
+    {
+      // A qualified name. Check schema part.
+      walker.next();
+      db_SchemaRef schema = db_SchemaRef::cast_from(view->owner());
+      if (!base::same_string(schema->name(), name, context->case_sensitive()))
+        name = walker.token_text() + "_WRONG_SCHEMA";
+      else
+        name = walker.token_text();
+
+      walker.next();
+    }
+    view->name(name);
+    view->modelOnly(0);
+
+    walker.next(2); // AS + SELECT subtree.
+    if (walker.token_type() == WITH_SYMBOL)
+      view->withCheckCondition(1);
+    else
+      view->withCheckCondition(0); // WITH_SYMBOL (CASCADED_SYMBOL | LOCAL_SYMBOL)? CHECK_SYMBOL OPTION_SYMBOL
+  }
+  else
+  {
+    // Finished with errors. See if we can get at least the view name out.
+    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+    if (walker.advance_to_type(VIEW_NAME_TOKEN, true))
+    {
+      walker.next();
+      std::string name = walker.token_text();
+      walker.next();
+      if (walker.token_type() == DOT_SYMBOL)
+      {
+        // A qualified name. Ignore the schema part.
+        walker.next();
+        name = walker.token_text();
+        walker.next();
+      }
+      view->name(name);
+    }
+    view->modelOnly(1);
+  }
+
+  return error_count;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Parses the given text as a specific query type (see parser for supported types).
  * Returns the error count.
  */
@@ -174,6 +292,149 @@ int MySQLParserServicesImpl::checkSqlSyntax(ParserContext::Ref context, const ch
 {
   context->recognizer()->parse(sql, length, true, type);
   return (int)context->recognizer()->error_info().size();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Helper to collect text positions to references of the given schema.
+ * We only come here if there was no syntax error.
+ */
+void collect_schema_name_offsets(ParserContext::Ref context, std::list<int> &offsets, const std::string schema_name)
+{
+  // Don't try to optimize the creation of the walker. There must be a new instance for each parse run
+  // as it stores references to results in the parser.
+  MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+  bool case_sensitive = context->case_sensitive();
+  while (walker.next()) {
+    switch (walker.token_type())
+    {
+      case SCHEMA_NAME_TOKEN:
+        if (base::same_string(walker.token_text(), schema_name, case_sensitive))
+          offsets.push_back(walker.token_offset());
+        break;
+
+      case TABLE_NAME_TOKEN:
+      {
+        walker.next();
+        if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(DOT_SYMBOL))
+        {
+           // A table ref not with leading dot but a qualified identifier.
+          if (base::same_string(walker.token_text(), schema_name, case_sensitive))
+            offsets.push_back(walker.token_offset());
+        }
+        break;
+      }
+
+      case FIELD_NAME_TOKEN: // Field names only if they are fully qualified (schema.table.field/*).
+        walker.next();
+        if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(DOT_SYMBOL))
+        {
+          // A leading dot means no schema.
+          std::string name = walker.token_text();
+          unsigned pos = walker.token_offset();
+          walker.next(2);
+          if (walker.look_ahead(DOT_SYMBOL)) // Fully qualified.
+          {
+            if (base::same_string(name, schema_name, case_sensitive))
+              offsets.push_back(pos);
+          }
+        }
+        break;
+
+        // All those can have schema.id or only id.
+      case VIEW_NAME_TOKEN:
+      case TRIGGER_NAME_TOKEN:
+      case PROCEDURE_NAME_TOKEN:
+      case FUNCTION_NAME_TOKEN:
+        walker.next();
+        if (walker.look_ahead(DOT_SYMBOL))
+        {
+          if (base::same_string(walker.token_text(), schema_name, case_sensitive))
+            offsets.push_back(walker.token_offset());
+        }
+        break;
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Replace all occurrences of the old by the new name according to the offsets list.
+ */
+void replace_schema_names(std::string &sql, const std::list<int> &offsets, size_t length,
+                          const std::string new_name)
+{
+  bool remove_schema = new_name.empty();
+  for (std::list<int>::const_reverse_iterator iterator = offsets.rbegin(); iterator != offsets.rend(); ++iterator)
+  {
+    std::string::size_type start = *iterator;
+    std::string::size_type replace_length = length;
+    if (remove_schema)
+    {
+      // Make sure we also remove quotes and the dot.
+      if (start > 0 && sql[start - 1] == '`' || sql[start - 1] == '"')
+      {
+        --start;
+        ++replace_length;
+      }
+      ++replace_length;
+    }
+    sql.replace(start, replace_length, new_name);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, ParserContext::Ref context, MySQLQueryType type,
+                    const std::string old_name, const std::string new_name)
+{
+  for (size_t i = 0; i < list.count(); ++i)
+  {
+    std::string sql = list[i]->sqlDefinition();
+    context->recognizer()->parse(sql.c_str(), sql.size(), true, type);
+    size_t error_count = (int)context->recognizer()->error_info().size();
+    if (error_count == 0)
+    {
+      MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+
+      std::list<int> offsets;
+      collect_schema_name_offsets(context, offsets, old_name);
+      if (!offsets.empty())
+      {
+        replace_schema_names(sql, offsets, old_name.size(), new_name);
+        list[i]->sqlDefinition(sql);
+      }
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Goes through all schemas in the catalog and changes all db objects to refer to the new name if they
+ * currently refer to the old name. We also iterate non-related schemas in order to have some
+ * consolidation/sanitzing in effect where wrong schema references were used.
+ */
+int MySQLParserServicesImpl::renameSchemaReferences(ParserContext::Ref context, db_mysql_CatalogRef catalog,
+                                                    const std::string old_name, const std::string new_name)
+{
+  log_debug("Rename schema references");
+
+  ListRef<db_mysql_Schema> schemas = catalog->schemata();
+  for (size_t i = 0; i < schemas.count(); ++i)
+  {
+    db_mysql_SchemaRef schema = schemas[i];
+    rename_in_list(schema->views(), context, QtCreateView, old_name, new_name);
+    rename_in_list(schema->routines(), context, QtCreateRoutine, old_name, new_name);
+
+    grt::ListRef<db_mysql_Table> tables = schemas[i]->tables();
+    for (grt::ListRef<db_mysql_Table>::const_iterator iterator = tables.begin(); iterator != tables.end(); ++iterator)
+      rename_in_list((*iterator)->triggers(), context, QtCreateTrigger, old_name, new_name);
+  }
+  
+  return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

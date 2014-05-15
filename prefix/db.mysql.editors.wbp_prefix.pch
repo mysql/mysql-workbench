@@ -5,3 +5,9 @@
 #endif
 
 #include <antlr3.h>
+
+#ifdef __cplusplus
+
+#include "grts/structs.db.mysql.h"
+
+#endif

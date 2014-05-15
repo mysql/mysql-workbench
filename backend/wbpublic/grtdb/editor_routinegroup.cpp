@@ -27,7 +27,7 @@ using namespace bec;
 using namespace base;
 
 RoutineGroupEditorBE::RoutineGroupEditorBE(GRTManager *grtm, const db_RoutineGroupRef &group, const db_mgmt_RdbmsRef &rdbms)
-  : DBObjectEditorBE(grtm, group, rdbms), _group(group), _has_syntax_error(false)
+  : DBObjectEditorBE(grtm, group, rdbms), _group(group)
 {
 }
 
@@ -237,22 +237,16 @@ void RoutineGroupEditorBE::set_routines_sql(const std::string &sql, bool sync)
   if (get_sql() != sql)
   {
     set_sql_parser_task_cb(boost::bind(&RoutineGroupEditorBE::parse_sql, this, _1, _2));
-    set_sql(sql, sync, _group);
+    //set_sql(sql, sync, _group);
   }
 }
 
 
 grt::ValueRef RoutineGroupEditorBE::parse_sql(grt::GRT* grt, grt::StringRef sql)
 {
-  //grt::AutoUndo undo(grt);
   AutoUndoEdit undo(this);
 
-  // QQQ
-  //_group->routines().remove_all();
-//  get_grt_manager()->get_messages_list()->signal_changed().block();
   int err_count= _sql_parser->parse_routines(_group, sql.c_str());
-//  get_grt_manager()->get_messages_list()->signal_changed().unblock();
-  _has_syntax_error= 0 < err_count;
 
   undo.end(strfmt(_("Edit routine group `%s`.`%s`"), get_schema_name().c_str(), get_name().c_str()));
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,13 +93,6 @@ String^ RoutineEditorBE::get_formatted_sql_for_editing([Out] int %cursor_pos)
   String ^res= CppStringToNative(get_unmanaged_object()->get_formatted_sql_for_editing(cpos)); 
   cursor_pos= cpos;
   return res;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-bool RoutineEditorBE::has_syntax_error()
-{
-  return get_unmanaged_object()->has_syntax_error();
 }
 
 //--------------------------------------------------------------------------------------------------

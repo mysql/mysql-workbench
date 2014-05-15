@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -118,13 +118,6 @@ String^ RoutineGroupEditorBE::get_comment()
 void RoutineGroupEditorBE::set_comment(String ^query)
 {
   get_unmanaged_object()->set_comment(NativeToCppString(query));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-bool RoutineGroupEditorBE::has_syntax_error()
-{
-  return get_unmanaged_object()->has_syntax_error();
 }
 
 //--------------------------------------------------------------------------------------------------

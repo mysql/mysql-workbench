@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _EDITOR_TABLE_H_
-#define _EDITOR_TABLE_H_
+#pragma once
 
 #include "grtdb/editor_dbobject.h"
 #include "grt/tree_model.h"
@@ -60,22 +59,22 @@ namespace bec {
   public:
     enum ColumnListColumns {
       Name,
-        Type,
-        IsPK,
-        IsNotNull,
-        IsUnique,
-        IsBinary,
-        IsUnsigned,
-        IsZerofill,
-        Flags,
-        Default,
-        CharsetCollation,
-        Charset,
-        Collation,
-        Comment,
-        HasCharset,
-      
-        LastColumn
+      Type,
+      IsPK,
+      IsNotNull,
+      IsUnique,
+      IsBinary,
+      IsUnsigned,
+      IsZerofill,
+      Flags,
+      Default,
+      CharsetCollation,
+      Charset,
+      Collation,
+      Comment,
+      HasCharset,
+
+      LastColumn
     };
 
     TableColumnsListBE(TableEditorBE *owner);
@@ -283,12 +282,12 @@ namespace bec {
   public:
     enum FKConstraintListColumns {
       Name,
-        OnDelete,
-        OnUpdate,
-        RefTable,
-        Comment,
-        Index,
-        ModelOnly
+      OnDelete,
+      OnUpdate,
+      RefTable,
+      Comment,
+      Index,
+      ModelOnly
     };
     FKConstraintListBE(TableEditorBE *owner);
 
@@ -338,10 +337,12 @@ namespace bec {
       RefreshColumnList,
       RefreshColumnCollation
     };
+
+    TableEditorBE(GRTManager *grtm, const db_TableRef &table, const db_mgmt_RdbmsRef &rdbms);
+
     virtual std::string get_title();
 
-    virtual db_DatabaseObjectRef get_dbobject() { return get_table(); }
-    virtual db_TableRef get_table()= 0;
+    db_TableRef get_table() { return db_TableRef::cast_from(get_object()); };
 
     virtual TableColumnsListBE *get_columns()= 0;
     virtual IndexListBE *get_indexes()= 0;
@@ -381,9 +382,6 @@ namespace bec {
 
     virtual std::vector<std::string> get_index_types()= 0;
 
-    virtual void set_triggers_sql(const std::string &sql, bool sync);
-    grt::ValueRef parse_triggers_sql(grt::GRT*, grt::StringRef sql);
-
     void show_export_wizard(mforms::Form *owner);
     void show_import_wizard();
     
@@ -392,12 +390,7 @@ namespace bec {
     virtual db_TableRef create_stub_table(const std::string &schema, const std::string &table) = 0;
 
     protected:
-    db_TableRef _table;
     FKConstraintListBE _fk_list;
-
-    TableEditorBE(GRTManager *grtm,
-                  const db_TableRef &table,
-                  const db_mgmt_RdbmsRef &rdbms);
 
     void undo_called(grt::UndoAction *action, grt::UndoAction *expected);
 
@@ -408,5 +401,3 @@ namespace bec {
   };
 
 };
-
-#endif /* _EDITOR_TABLE_H_ */

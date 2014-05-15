@@ -49,6 +49,8 @@ namespace bec {
     virtual void set_comment(const std::string &descr);
 
     virtual std::string get_sql();
+    virtual void set_sql(const std::string &sql);
+
     virtual bool is_sql_commented();
     virtual void set_sql_commented(bool flag);
 
@@ -96,7 +98,6 @@ namespace bec {
 
     void set_sql_parser_log_cb(const Sql_parser_log_cb &cb);
     void set_sql_parser_err_cb(const Sql_parser_err_cb &cb);
-    void set_sql(const std::string &sql, bool sync, const db_DatabaseObjectRef &template_obj, const std::string &comment= "");
 
   protected:
     typedef boost::function<grt::ValueRef (grt::GRT*, grt::StringRef)> Sql_parser_task_cb;
