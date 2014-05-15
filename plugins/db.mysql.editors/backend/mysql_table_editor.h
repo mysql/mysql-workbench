@@ -45,13 +45,16 @@ public:
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, const std::string &value);
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, ssize_t value);
 
-  MySQLTableColumnsListBE(MySQLTableEditorBE *owner);
+  MySQLTableColumnsListBE(MySQLTableEditorBE *owner, db_mysql_TableRef table);
   
   virtual bool activate_popup_item_for_nodes(const std::string &name, const std::vector<bec::NodeId> &orig_nodes);
   virtual bec::MenuItemList get_popup_items_for_nodes(const std::vector<bec::NodeId> &nodes);
 protected:
   // for internal use only
   virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, ::grt::ValueRef &value);
+
+protected:
+  db_mysql_TableRef _table;
 };
 
 
@@ -91,7 +94,7 @@ public:
     Comment
   };
 
-  MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner);
+  MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner, const db_mysql_TableRef &table);
 
   virtual void refresh() {};
 
@@ -105,6 +108,9 @@ protected:
   virtual grt::Type get_field_type(const ::bec::NodeId &node, ColumnId column);
 
   db_mysql_PartitionDefinitionRef get_definition(const ::bec::NodeId &node);
+
+private:
+  db_mysql_TableRef _table;
 };
 
 
@@ -117,12 +123,10 @@ public:
   MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table, const db_mgmt_RdbmsRef &rdbms);
   virtual ~MySQLTableEditorBE();
 
+  virtual void commit_changes();
+
   virtual MySQLTableColumnsListBE *get_columns() { return &_columns; }
   virtual MySQLTableIndexListBE *get_indexes() { return &_indexes; }
-
-  virtual db_TableRef get_table() { return table(); }
-
-  db_mysql_TableRef table() { return _table; }
 
   virtual std::vector<std::string> get_index_types();
   virtual std::vector<std::string> get_index_storage_types();

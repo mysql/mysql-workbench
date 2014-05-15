@@ -32,6 +32,10 @@
 #include "grtpp_module_cpp.h"
 #include "grtsqlparser/mysql_parser_services.h"
 
+#ifdef __linux__
+  #include "grts/structs.db.mysql.h"
+#endif
+
 #define DOC_MYSQLPARSERSERVICESIMPL \
   "Parsing services for MySQL.\n"\
   "\n"\
@@ -71,10 +75,13 @@ public:
 
   virtual int stopProcessing();
 
-  virtual int parseTrigger(parser::ParserContext::Ref context, db_TriggerRef trigger, const std::string &sql);
+  virtual int parseTrigger(parser::ParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql);
+  virtual int parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql);
 
   virtual int checkSqlSyntax(parser::ParserContext::Ref context, const char *sql, size_t length,
     MySQLQueryType type);
+  virtual int renameSchemaReferences(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
+    const std::string old_name, const std::string new_name);
 
   virtual int determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
     std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n");

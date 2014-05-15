@@ -20,8 +20,11 @@
 #include "grt/tree_model.h"
 
 #include "mysql_view_editor.h"
+#include "editor_base.h"
 
 #include "mforms/code_editor.h"
+
+using namespace bec;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -32,9 +35,12 @@ static void commit_changes_to_be(MySQLViewEditorBE *be)
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLViewEditorBE::MySQLViewEditorBE(bec::GRTManager *grtm, const db_ViewRef &view, const db_mgmt_RdbmsRef &rdbms)
+MySQLViewEditorBE::MySQLViewEditorBE(bec::GRTManager *grtm, const db_mysql_ViewRef &view,
+                                     const db_mgmt_RdbmsRef &rdbms)
   : bec::ViewEditorBE(grtm, view, rdbms)
 {
+  _view = view;
+  
   // In modeling we apply the text on focus change. For live editing however we don't.
   // The user has to explicitly commit his changes.
   if (!is_editing_live_object())
@@ -50,8 +56,6 @@ void MySQLViewEditorBE::load_view_sql()
 {
   mforms::CodeEditor* editor = get_sql_editor()->get_editor_control();
   std::string sql = get_sql();
-  if (sql.empty())
-    sql = get_query();
   editor->set_text_keeping_state(sql.c_str());
 }
 
@@ -63,9 +67,17 @@ void MySQLViewEditorBE::commit_changes()
   if (editor->is_dirty())
   {
     const std::string sql = editor->get_text(false);
-    set_query(sql, true);
+    if (sql != get_sql())
+    {
+      AutoUndoEdit undo(this, _view, "sql");
+      _parser_services->parseView(_parser_context, _view, sql);
+
+      undo.end(base::strfmt(_("Edit view `%s` of `%s`.`%s`"), _view->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+    }
   }
 }
+
+//--------------------------------------------------------------------------------------------------
 
 bool MySQLViewEditorBE::can_close()
 {

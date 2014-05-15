@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_SCHEMA_EDITOR_H_
-#define _MYSQL_SCHEMA_EDITOR_H_
+#pragma once
 
 #include "grtdb/editor_schema.h"
 #include "grts/structs.workbench.physical.h"
@@ -32,12 +31,11 @@ class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLSchemaEditorBE : public bec::S
 private:
   std::string _initial_name;
   SqlFacade::Ref _sql_facade;
+
 public:
+  MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_SchemaRef &schema, const db_mgmt_RdbmsRef &rdbms);
+
   void refactor_catalog_upon_schema_rename(const std::string &old_name, const std::string &new_name);
   bool refactor_possible();
   void refactor_catalog();
-
-  MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_SchemaRef &schema, const db_mgmt_RdbmsRef &rdbms);
 };
-
-#endif /* _MYSQL_SCHEMA_EDITOR_H_ */

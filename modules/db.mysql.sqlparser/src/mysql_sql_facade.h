@@ -81,10 +81,12 @@ public:
                                 "filename the SQL script file to be parsed\n"
                                 "options a dictionary containing various options for the parser routine"),
     DECLARE_MODULE_FUNCTION(MysqlSqlFacadeImpl::parseInserts),
+                         /*
     DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::parseTrigger,
                                 "Parses a trigger from the SQL script and applies it to the given view object.",
                                 "trigger an instantiated trigger object to fill\n"
                                 "sql the SQL script to be parsed"),
+                          */
     DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::parseRoutine,
                                 "Parses a stored procedure or function from the SQL script and applies it to the given routine object.",
                                 "routine an instantiated routine object to fill\n"
@@ -133,7 +135,7 @@ public:
 
   Invalid_sql_parser::Ref invalidSqlParser();
   int parseInserts(db_TableRef table, const std::string &sql);
-  int parseTrigger(db_TriggerRef trigger, const std::string &sql);
+  //int parseTrigger(db_TriggerRef trigger, const std::string &sql);
   int parseRoutine(db_RoutineRef routine, const std::string &sql);
   int parseRoutines(db_RoutineGroupRef routineGroup, const std::string &sql);
   int parseView(db_ViewRef view, const std::string &sql);

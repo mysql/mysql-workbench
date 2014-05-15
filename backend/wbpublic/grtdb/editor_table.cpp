@@ -2886,10 +2886,7 @@ bool FKConstraintListBE::activate_popup_item_for_nodes(const std::string &name, 
                               // that's ok as we just store pointer for later use
 #endif
 TableEditorBE::TableEditorBE(GRTManager *grtm, const db_TableRef &table, const db_mgmt_RdbmsRef &rdbms)
-:
-DBObjectEditorBE(grtm, table, rdbms),
-_table(table),
-_fk_list(this)
+  : DBObjectEditorBE(grtm, table, rdbms), _fk_list(this)
 {
   _inserts_panel = NULL;
 
@@ -2909,9 +2906,8 @@ void TableEditorBE::set_name(const std::string &name)
     RefreshUI::Blocker __centry(*this);
 
     AutoUndoEdit undo(this, get_object(), "name");
-    bec::ValidationManager::validate_instance(_table, CHECK_NAME);
+    bec::ValidationManager::validate_instance(get_table(), CHECK_NAME);
     std::string name_= base::trim_right(name);
-    //DBObjectEditorBE::set_name(name_);
     get_dbobject()->name(name_);
     update_change_date();
     undo.end(strfmt(_("Rename Table to '%s'"), name_.c_str()));
@@ -2940,7 +2936,7 @@ NodeId TableEditorBE::add_column(const std::string &name)
   get_columns()->refresh();
 
   bec::ValidationManager::validate_instance(column, CHECK_NAME);
-  bec::ValidationManager::validate_instance(_table, "columns-count");
+  bec::ValidationManager::validate_instance(get_table(), "columns-count");
   return NodeId(get_table()->columns().count()-1);
 }
 
@@ -2966,7 +2962,7 @@ NodeId TableEditorBE::duplicate_column(const db_ColumnRef &column, ssize_t inser
     get_table()->columns()->reorder(get_table()->columns()->get_index(new_column), insert_after);
 
   bec::ValidationManager::validate_instance(new_column, CHECK_NAME);
-  bec::ValidationManager::validate_instance(_table, "columns-count");
+  bec::ValidationManager::validate_instance(get_table(), "columns-count");
   
   return NodeId(get_table()->columns().count() - 1);
 }
@@ -3007,7 +3003,7 @@ void TableEditorBE::remove_column(const NodeId &node)
   undo.end(strfmt(_("Remove '%s.%s'"), get_name().c_str(), column->name().c_str()));
 
   get_columns()->refresh();
-  bec::ValidationManager::validate_instance(_table, "columns-count");
+  bec::ValidationManager::validate_instance(get_table(), "columns-count");
 }
 
 
@@ -3065,7 +3061,7 @@ bool TableEditorBE::remove_fk(const NodeId &fk)
   // There might be no referenced table yet.
   if (ref_table.is_valid())
     bec::ValidationManager::validate_instance(ref_table, "chk_fk_lgc");
-  bec::ValidationManager::validate_instance(_table, "chk_fk_lgc");
+  bec::ValidationManager::validate_instance(get_table(), "chk_fk_lgc");
 
   return true;
 }
@@ -3103,7 +3099,7 @@ NodeId TableEditorBE::add_index(const std::string &name)
   get_indexes()->refresh();
 
   bec::ValidationManager::validate_instance(index, CHECK_NAME);
-  bec::ValidationManager::validate_instance(_table, CHECK_EFFICIENCY);
+  bec::ValidationManager::validate_instance(get_table(), CHECK_EFFICIENCY);
 
   return NodeId(indices.count() - 1);
 }
@@ -3130,7 +3126,7 @@ bool TableEditorBE::remove_index(const NodeId &index, bool delete_even_if_foreig
   update_change_date();
   undo.end(strfmt(_("Remove Index '%s'.'%s'"), indexobj->name().c_str(), get_name().c_str()));
 
-  bec::ValidationManager::validate_instance(_table, CHECK_EFFICIENCY);
+  bec::ValidationManager::validate_instance(get_table(), CHECK_EFFICIENCY);
 
   return true;
 }
@@ -3199,7 +3195,6 @@ bool TableEditorBE::parse_column_type(const std::string &str, db_ColumnRef &colu
 {
   db_CatalogRef catalog(get_catalog());
 
-  //bool flag= ColumnHelper::parse_column_type(get_rdbms(), catalog.is_valid() ? catalog->userDatatypes() : grt::ListRef<db_UserDatatype>(), str, column);
   bool flag= column->setParseType(str, catalog->simpleDatatypes()) == 1;
   if (flag)
   {
@@ -3218,43 +3213,17 @@ std::string TableEditorBE::format_column_type(db_ColumnRef &column)
   return column->formattedRawType();
 }
 
-
-// TODO: probably obsolete, as we no longer set sql for multiple triggers at once.
-void TableEditorBE::set_triggers_sql(const std::string &sql, bool sync)
-{
-  set_sql_parser_task_cb(boost::bind(&TableEditorBE::parse_triggers_sql, this, _1, _2));
-  DBObjectEditorBE::set_sql(sql, sync, _table, "triggers");
-}
-
-
-grt::ValueRef TableEditorBE::parse_triggers_sql(grt::GRT* grt, grt::StringRef sql)
-{
-  AutoUndoEdit undo(this);
-
-  if (!_sql_parser.get())
-    throw std::logic_error("SQL parser is not initialzed");
-
-  _table->customData().set("triggerInvalid", grt::IntegerRef(0));
-  grt::IntegerRef res= _sql_parser->parse_triggers(_table, sql.c_str());
-
-  undo.end(strfmt(_("Edit triggers of table `%s`.`%s`"), get_schema_name().c_str(), get_name().c_str()));
-
-  check_sql();
-
-  return res;
-}
-
 //--------------------------------------------------------------------------------------------------
 
 Recordset::Ref TableEditorBE::get_inserts_model()
 {
   if (!_inserts_model)
   {
-    if (_table.class_name() == "db.Table")
+    if (get_table().class_name() == "db.Table")
       throw std::logic_error("table object is abstract");
 
     _inserts_storage= Recordset_table_inserts_storage::create(_grtm);
-    _inserts_storage->table(_table);
+    _inserts_storage->table(get_table());
 
     _inserts_model= Recordset::create(_grtm);
     _inserts_model->set_inserts_editor(true);
@@ -3264,6 +3233,7 @@ Recordset::Ref TableEditorBE::get_inserts_model()
   return _inserts_model;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 mforms::View *TableEditorBE::create_inserts_panel(mforms::View *grid)
 {
@@ -3354,10 +3324,7 @@ MySQLEditor::Ref TableEditorBE::get_sql_editor()
 {
   MySQLEditor::Ref sql_editor= DBObjectEditorBE::get_sql_editor();
   if (sql_editor)
-  {
     sql_editor->restrict_content_to(MySQLEditor::ContentTypeTrigger);
-    //sql_editor->sql_checker()->context_object(_table); TODO:: still needed?
-  }
   return sql_editor;
 }
 

@@ -217,7 +217,7 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case EQUAL_OPERATOR:
   case ESCAPE_OPERATOR:
   case EXPRESSION_TOKEN:
-  case FIELD_REF_ID_TOKEN:
+  case FIELD_NAME_TOKEN:
   case FLOAT:
   case FUNCTION_CALL_TOKEN:
   case GREATER_OR_EQUAL_OPERATOR:
@@ -257,7 +257,7 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case SINGLE_QUOTED_TEXT:
   case STRING_TOKEN:
   case SUBQUERY_TOKEN:
-  case TABLE_REF_ID_TOKEN:
+  case TABLE_NAME_TOKEN:
   case UNDERLINE_SYMBOL:
   case UNDERSCORE_CHARSET:
   case VERSION_COMMENT:

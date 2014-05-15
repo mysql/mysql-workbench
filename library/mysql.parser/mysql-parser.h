@@ -221,6 +221,7 @@ public:
   bool advance_to_type(unsigned int type, bool recurse);
   void go_to_subquery_start();
   bool skip_token_sequence(unsigned int start_token, ...);
+  void skip_if(unsigned int token, size_t count = 1);
   unsigned int look_ahead(bool recursive);
   unsigned int parent_type();
   unsigned int previous_type();
@@ -244,6 +245,7 @@ public:
   unsigned int token_type();
   unsigned int token_line();
   unsigned int token_start();
+  size_t token_offset();
   int token_length();
   
   MySQLQueryType get_current_query_type();
@@ -266,6 +268,7 @@ private:
 
 class MYSQL_PARSER_PUBLIC_FUNC MySQLRecognizer : public MySQLRecognitionBase
 {
+  friend class MySQLRecognizerTreeWalker;
 public:
   MySQLRecognizer(long server_version, const std::string &sql_mode, const std::set<std::string> &charsets);
   virtual ~MySQLRecognizer();

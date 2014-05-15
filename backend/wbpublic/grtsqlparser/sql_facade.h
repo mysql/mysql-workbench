@@ -65,7 +65,7 @@ public:
 
   virtual Invalid_sql_parser::Ref invalidSqlParser()= 0;
   virtual int parseInserts(db_TableRef table, const std::string &sql) = 0;
-  virtual int parseTrigger(db_TriggerRef trigger, const std::string &sql) = 0;
+  //virtual int parseTrigger(db_TriggerRef trigger, const std::string &sql) = 0;
   virtual int parseRoutine(db_RoutineRef routine, const std::string &sql) = 0;
   virtual int parseRoutines(db_RoutineGroupRef routineGroup, const std::string &sql) = 0;
   virtual int parseView(db_ViewRef view, const std::string &sql) = 0;

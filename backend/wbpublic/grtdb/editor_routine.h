@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,6 @@ class WBPUBLICBACKEND_PUBLIC_FUNC RoutineEditorBE : public DBObjectEditorBE
 {
 protected:
   db_RoutineRef _routine;
-  bool _has_syntax_error;
 
 public:
   RoutineEditorBE(GRTManager *grtm, const db_RoutineRef &routine, const db_mgmt_RdbmsRef &rdbms); 
@@ -47,7 +46,6 @@ public:
   std::string get_formatted_sql_for_editing(int &cursor_pos);
   
   grt::ValueRef parse_sql(grt::GRT*, grt::StringRef sql);
-  bool has_syntax_error() { return _has_syntax_error; }
 
 protected:
   virtual std::string get_object_type();

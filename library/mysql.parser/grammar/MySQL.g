@@ -73,11 +73,18 @@ tokens {
 	SUBQUERY_TOKEN;
 	JOIN_EXPR_TOKEN;
 	INDEX_HINT_LIST_TOKEN;
-	SCHEMA_REF_ID_TOKEN;
-	TABLE_REF_ID_TOKEN;
-	FIELD_REF_ID_TOKEN;
 	VERSION_COMMENT_START_TOKEN;
 	STRING_TOKEN; // Several consecutive single or double quoted text tokens (can even be mixed).
+
+	SCHEMA_NAME_TOKEN;
+	TABLE_NAME_TOKEN;
+	FIELD_NAME_TOKEN;
+	VIEW_NAME_TOKEN;
+	TRIGGER_NAME_TOKEN;
+	PROCEDURE_NAME_TOKEN;
+	FUNCTION_NAME_TOKEN;
+	TABLESPACE_NAME_TOKEN;
+	LOGFILE_GROUP_NAME_TOKEN;
 	XA_ID_TOKEN;
 	
 	// Subparts of more complex statements.
@@ -514,8 +521,8 @@ create_statement:
 	)
 ;
 
-create_database: // For external use only.
-	CREATE_SYMBOL^ create_database_tail EOF
+create_database: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_database_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_database_tail:
@@ -526,8 +533,8 @@ create_with_definer:
 	CREATE_SYMBOL^ definer_clause?
 ;
 
-create_event: // For external use only.
-	create_with_definer create_event_tail EOF
+create_event: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer create_event_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_event_tail:
@@ -538,16 +545,16 @@ create_event_tail:
 		DO_SYMBOL compound_statement
 ;
 
-create_routine: // For external use only.
-	create_with_definer create_routine_or_udf EOF
+create_routine: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer create_routine_or_udf SEMICOLON_SYMBOL? EOF
 ;
 
-create_procedure: // For external use only.
-	create_with_definer procedure_body EOF
+create_procedure: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer procedure_body SEMICOLON_SYMBOL? EOF
 ;
 
-create_function: // For external use only.
-	create_with_definer function_body EOF
+create_function: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer function_body SEMICOLON_SYMBOL? EOF
 ;
 
 create_routine_or_udf:
@@ -589,8 +596,8 @@ routine_option:
 	| SQL_SYMBOL SECURITY_SYMBOL (DEFINER_SYMBOL | INVOKER_SYMBOL)
 ;
 
-create_index: // For external use only.
-	CREATE_SYMBOL^ create_index_tail EOF
+create_index: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_index_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_index_tail:
@@ -606,8 +613,8 @@ create_index_target:
 	ON_SYMBOL^ table_identifier index_columns
 ;
 
-create_logfile_group: // For external use only.
-	CREATE_SYMBOL^ create_logfile_group_tail EOF
+create_logfile_group: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_logfile_group_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_logfile_group_tail:
@@ -629,8 +636,8 @@ logfile_group_option:
 	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? text_or_identifier
 ;
 	
-create_server: // For external use only.
-	CREATE_SYMBOL^ create_server_tail EOF
+create_server: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_server_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_server_tail:
@@ -653,8 +660,8 @@ server_option:
 	| PORT_SYMBOL INTEGER
 ;
 
-create_table: // For external use only.
-	CREATE_SYMBOL^ create_table_tail EOF
+create_table: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_table_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_table_tail:
@@ -697,8 +704,8 @@ create_select:
 	SELECT_SYMBOL ( options { greedy = true; }: select_option)* select_item_list select_source_and_options? select_lock_type?
 ;
 
-create_tablespace: // For external use only.
-	CREATE_SYMBOL^ create_tablespace_tail EOF
+create_tablespace: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_tablespace_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_tablespace_tail:
@@ -717,8 +724,8 @@ create_tablespace_option:
 	| COMMENT_SYMBOL EQUAL_OPERATOR? string_literal
 ;
 
-create_trigger: // For external use only.
-	create_with_definer create_trigger_tail EOF
+create_trigger: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer create_trigger_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_trigger_tail:
@@ -730,8 +737,8 @@ trigger_follows_precedes_clause:
 	{SERVER_VERSION >= 50700}? => (FOLLOWS_SYMBOL | PRECEDES_SYMBOL) text_or_identifier // not a trigger reference!
 ;
 	
-create_view: // For external use only.
-	CREATE_SYMBOL^ (OR_SYMBOL REPLACE_SYMBOL view_algorithm? | view_algorithm)?  definer_clause? create_view_tail EOF
+create_view: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ (OR_SYMBOL REPLACE_SYMBOL)? view_algorithm?  definer_clause? create_view_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_view_tail:
@@ -862,7 +869,7 @@ fields:
 ;
 
 insert_identifier:
-	insert_identifier_ref -> ^(FIELD_REF_ID_TOKEN insert_identifier_ref)
+	insert_identifier_ref -> ^(FIELD_NAME_TOKEN insert_identifier_ref)
 ;
 
 // Extra rule to simplify AST rewriting in insert_identifier.
@@ -977,7 +984,7 @@ select_item_list:
 ;
 
 select_item:
-	(qualified_identifier_with_wildcard) => qualified_identifier_with_wildcard -> ^(SELECT_EXPR_TOKEN qualified_identifier_with_wildcard)
+	(qualified_identifier_with_wildcard) => qualified_identifier_with_wildcard -> ^(FIELD_NAME_TOKEN qualified_identifier_with_wildcard)
 	| expression select_alias? -> ^(SELECT_EXPR_TOKEN expression select_alias?)
 ;
 
@@ -2745,15 +2752,15 @@ schema_identifier_pair:
 ;
 
 schema_name:
-	identifier -> ^(SCHEMA_REF_ID_TOKEN identifier)
+	identifier -> ^(SCHEMA_NAME_TOKEN identifier)
 ;
 
 qualified_table_identifier: // Always qualified.
-	identifier DOT_SYMBOL identifier -> ^(TABLE_REF_ID_TOKEN identifier DOT_SYMBOL identifier)
+	identifier DOT_SYMBOL identifier -> ^(TABLE_NAME_TOKEN identifier DOT_SYMBOL identifier)
 ;
 
 table_identifier:
-	table_identifier_variants -> ^(TABLE_REF_ID_TOKEN table_identifier_variants)
+	table_identifier_variants -> ^(TABLE_NAME_TOKEN table_identifier_variants)
 ;
 
 table_identifier_variants:
@@ -2768,27 +2775,27 @@ table_identifier_list:
 ;       
 
 procedure_identifier:
-	qualified_identifier
+	qualified_identifier -> ^(PROCEDURE_NAME_TOKEN qualified_identifier)
 ;
 
 function_identifier:
-	qualified_identifier
+	qualified_identifier -> ^(FUNCTION_NAME_TOKEN qualified_identifier)
 ;
 
 trigger_identifier:
-	qualified_identifier
+	qualified_identifier -> ^(TRIGGER_NAME_TOKEN qualified_identifier)
 ;
 
 view_identifier:
-	qualified_identifier
+	qualified_identifier -> ^(VIEW_NAME_TOKEN qualified_identifier)
 ;
 
 tablespace_name:
-	identifier
+	identifier -> ^(TABLESPACE_NAME_TOKEN identifier)
 ;
 
 log_file_group_name:
-	identifier
+	identifier -> ^(LOGFILE_GROUP_NAME_TOKEN identifier)
 ;
 
 qualified_identifier_list:
@@ -2806,11 +2813,11 @@ qualified_identifier_with_wildcard:
 // There are two table name rules: target_table and table_identifer. The latter allows a leading dot.
 // So this separation is by intention.
 target_table:
-	qualified_identifier -> ^(TABLE_REF_ID_TOKEN qualified_identifier)
+	qualified_identifier -> ^(TABLE_NAME_TOKEN qualified_identifier)
 ;
 	
 target_table_with_optional_wildcard:
-	qualified_identifier (DOT_SYMBOL MULT_OPERATOR)? -> ^(TABLE_REF_ID_TOKEN qualified_identifier (DOT_SYMBOL MULT_OPERATOR)?)
+	qualified_identifier (DOT_SYMBOL MULT_OPERATOR)? -> ^(TABLE_NAME_TOKEN qualified_identifier (DOT_SYMBOL MULT_OPERATOR)?)
 ;
 	
 column_assignment:
@@ -2822,7 +2829,7 @@ field_name_list:
 ;
 
 field_name:
-	field_name_entry -> ^(FIELD_REF_ID_TOKEN field_name_entry)
+	field_name_entry -> ^(FIELD_NAME_TOKEN field_name_entry)
 ;
 
 // In a separate rule because otherwise it would mess up the AST (repeating the first identifier 3 times).

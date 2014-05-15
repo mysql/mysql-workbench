@@ -25,6 +25,10 @@
 
 #include "db_helpers.h"
 
+#ifdef __linux__
+  #include "grts/structs.db.mysql.h"
+#endif
+
 namespace parser {
 
 typedef struct
@@ -40,11 +44,12 @@ class WBPUBLICBACKEND_PUBLIC_FUNC ParserContext {
 private:
   MySQLRecognizer *_recognizer;
   GrtVersionRef _version;
+  bool _case_sensitive;
 
 public:
   typedef boost::shared_ptr<ParserContext> Ref;
 
-  ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version);
+  ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive);
   ~ParserContext();
 
   MySQLRecognizer *recognizer() { return _recognizer; };
@@ -52,6 +57,8 @@ public:
   void use_sql_mode(const std::string &mode);
   void use_server_version(GrtVersionRef version);
   GrtVersionRef get_server_version() { return _version; };
+
+  bool case_sensitive() { return _case_sensitive; };
   
   std::vector<ParserErrorEntry> get_errors_with_offset(size_t offset);
 };
@@ -65,16 +72,20 @@ class WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserServices
 public:
   typedef MySQLParserServices *Ref; // We only have a singleton, so define Ref only to keep the pattern.
 
-  static ParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version);
+  static ParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive);
   static MySQLParserServices::Ref get(grt::GRT *grt);
 
   virtual int stopProcessing() = 0;
-  virtual int determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter, 
-    std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
 
-  virtual int parseTrigger(ParserContext::Ref context, db_TriggerRef trigger, const std::string &sql) = 0;
+  virtual int parseTrigger(ParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql) = 0;
+  virtual int parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql) = 0;
 
   virtual int checkSqlSyntax(ParserContext::Ref context, const char *sql, size_t length, MySQLQueryType type) = 0;
+  virtual int renameSchemaReferences(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
+    const std::string old_name, const std::string new_name) = 0;
+
+  virtual int determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
+                                       std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
 };
 
 } // namespace parser

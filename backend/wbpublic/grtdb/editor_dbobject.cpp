@@ -53,7 +53,10 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm,
   if (_rdbms.is_valid())
   {
     _parser_services = MySQLParserServices::get(grtm->get_grt());
-    _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), get_catalog()->version());
+    bool case_sensitive = true;
+    if (object->customData().get_int("CaseSensitive", 1) == 0)
+      case_sensitive = false;
+    _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), get_catalog()->version(), case_sensitive);
 
     SqlFacade::Ref facade = SqlFacade::instance_for_rdbms(_rdbms);
     _sql_parser= facade->invalidSqlParser();
@@ -198,28 +201,14 @@ std::string DBObjectEditorBE::get_object_type()
 
 GrtVersionRef DBObjectEditorBE::get_rdbms_target_version()
 {
-  if (is_editing_live_object())
-    return get_catalog()->version();
-  else
-  {
-    if (get_catalog()->version().is_valid())
-      return get_catalog()->version();
-    
-    std::string target_version = get_grt_manager()->get_app_option_string("DefaultTargetMySQLVersion");
-    if (target_version.empty())
-      target_version = "5.6";
-    
-    GrtVersionRef version = bec::parse_version(get_grt_manager()->get_grt(), target_version);
-
-    return version;
-  }
+  return get_catalog()->version();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool DBObjectEditorBE::is_server_version_at_least(int major, int minor)
 {
-  GrtVersionRef version = get_rdbms_target_version();
+  GrtVersionRef version = get_catalog()->version();
 
   if (version.is_valid())
     return bec::is_supported_mysql_version_at_least(version, major, minor);
@@ -264,8 +253,7 @@ void DBObjectEditorBE::set_comment(const std::string &descr)
 {
   if (get_dbobject()->comment() != descr)
   {
-    RefreshUI::Blocker __centry(*this);
-//    grt::AutoUndo undo(get_grt(), new UndoObjectChangeGroup(get_dbobject().id(), "comment"));
+    RefreshUI::Blocker blocker(*this);
     AutoUndoEdit undo(this, get_dbobject(), "comment");
 
     get_dbobject()->comment(descr);
@@ -279,8 +267,24 @@ void DBObjectEditorBE::set_comment(const std::string &descr)
 
 std::string DBObjectEditorBE::get_sql()
 {
-  // we should return specific sql here e.g. sqlDefinition
-  return "";// get_dbobject().sql();
+  if (db_DatabaseDdlObjectRef::can_wrap(get_object()))
+  {
+    db_DatabaseDdlObjectRef object = db_DatabaseDdlObjectRef::cast_from(get_object());
+    return object->sqlDefinition();
+  }
+
+  return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Called from outside to set new sql text in our editor.
+ */
+void DBObjectEditorBE::set_sql(const std::string &sql)
+{
+  get_sql_editor()->sql(sql.c_str());
+  commit_changes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,9 +298,8 @@ bool DBObjectEditorBE::is_sql_commented()
 
 void DBObjectEditorBE::set_sql_commented(bool flag)
 {
-  RefreshUI::Blocker __centry(*this);
+  RefreshUI::Blocker blocker(*this);
 
-  //grt::AutoUndo undo(get_grt(), new UndoObjectChangeGroup(get_dbobject().id(), "commentedOut"));
   AutoUndoEdit undo(this, get_dbobject(), "commentedOut");
 
   get_dbobject()->commentedOut(flag ? 1: 0);
@@ -565,31 +568,6 @@ MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 void bec::DBObjectEditorBE::reset_editor_undo_stack()
 {
   get_sql_editor()->get_editor_control()->reset_dirty();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-// XXX: this function should go.
-//      It doesn't actually set any sql but parses the text for errors (which is normally done by the code editor).
-void DBObjectEditorBE::set_sql(const std::string &sql, bool sync, const db_DatabaseObjectRef &template_obj, const std::string &comment)
-{
-  _sql_parser_log.clear();
-
-  std::string task_desc= "Parse " + template_obj->get_metaclass()->get_attribute("caption") +
-    (comment.empty() ? std::string("") : " - " + comment);
-
-  bec::GRTTask *task= new bec::GRTTask(task_desc,
-    _grtm->get_dispatcher(),
-    boost::bind(_sql_parser_task_cb, _1, grt::StringRef(sql)));
-
-  scoped_connect(task->signal_message(),boost::bind(&DBObjectEditorBE::sql_parser_msg_cb, this, _1));
-  scoped_connect(task->signal_finished(),boost::bind(&DBObjectEditorBE::sql_parser_task_finished_cb, this, _1));
-
-  GRTDispatcher *dispatcher= _grtm->get_dispatcher();
-  if (sync)
-    dispatcher->add_task_and_wait(task);
-  else
-    dispatcher->add_task(task);
 }
 
 //--------------------------------------------------------------------------------------------------

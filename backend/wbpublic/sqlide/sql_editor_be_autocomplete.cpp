@@ -508,7 +508,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoC
     switch (type)
     {
     case 0: // If this is a top level node then we are probably within a chain of identifiers and keywords.
-    case TABLE_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
       {
         MySQLQueryType type = walker.get_current_query_type();
         switch (type)
@@ -530,7 +530,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoC
       context.wanted_parts = MySQLEditor::CompletionWantKeywords; 
       break;
 
-    case FIELD_REF_ID_TOKEN:
+    case FIELD_NAME_TOKEN:
       // If we are in a function call or par expression then nothing can be shown, as only
       // identifiers or operators are valid.
       // Otherwise however we might just enter the next query part, so we show keywords.
@@ -663,12 +663,12 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoC
         break;
       }
 
-    case TABLE_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
       want_only_table_references(context);
       context.check_identifier = true;
       break;
 
-    case FIELD_REF_ID_TOKEN:
+    case FIELD_NAME_TOKEN:
       // Walk up the parent chain jumping over all math subtrees.
       while (walker.up() && walker.is_relation())
         ;
@@ -738,8 +738,8 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoC
     case DOT_SYMBOL:
       switch (walker.parent_type())
       {
-      case TABLE_REF_ID_TOKEN:
-      case FIELD_REF_ID_TOKEN:
+      case TABLE_NAME_TOKEN:
+      case FIELD_NAME_TOKEN:
         context.check_identifier = true;
         want_only_field_references(context);
         break;
@@ -881,8 +881,8 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCom
     case DOT_SYMBOL:
       switch (walker.parent_type())
       {
-      case TABLE_REF_ID_TOKEN:
-      case FIELD_REF_ID_TOKEN:
+      case TABLE_NAME_TOKEN:
+      case FIELD_NAME_TOKEN:
         context.check_identifier = true;
         want_only_field_references(context);
         break;
@@ -987,12 +987,12 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCom
       }
       break;
 
-    case TABLE_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
       want_only_table_references(context);
       context.check_identifier = true;
       break;
 
-    case FIELD_REF_ID_TOKEN:
+    case FIELD_NAME_TOKEN:
       // At the start of a reference. This can also mean we are in an expression or an assignment list.
       if (walker.parent_type() == COLUMN_ASSIGNMENT_LIST_TOKEN)
       {
@@ -1121,12 +1121,12 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCom
           want_only_functions_schemas_tables_columns(context);
           break;
 
-        case TABLE_REF_ID_TOKEN:
+        case TABLE_NAME_TOKEN:
           want_only_table_references(context);
           context.check_identifier = true;
           break;
 
-        case FIELD_REF_ID_TOKEN:
+        case FIELD_NAME_TOKEN:
           context.wanted_parts = MySQLEditor::CompletionWantNothing;
           context.check_identifier = true;
           break;
@@ -1176,8 +1176,8 @@ void check_general_context(MySQLEditor::AutoCompletionContext &context, MySQLRec
     bool check_parent_type = false;
     switch (walker.token_type())
     {
-    case TABLE_REF_ID_TOKEN:
-    case FIELD_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
+    case FIELD_NAME_TOKEN:
       walker.remove_tos();
       check_parent_type = true;
       break;
@@ -1239,7 +1239,7 @@ void check_reference(MySQLEditor::AutoCompletionContext &context, MySQLRecognize
   
   // Walk the parent chain to see if we are in a table reference, but do not go higher than
   // the current (sub) statement (to avoid wrong info when we are in a sub select).
-  bool done = walker.token_type() == TABLE_REF_ID_TOKEN;
+  bool done = walker.token_type() == TABLE_NAME_TOKEN;
   if (done)
   {
     // We arrive here if the walker was moved one token backwards from a real token
@@ -1262,7 +1262,7 @@ void check_reference(MySQLEditor::AutoCompletionContext &context, MySQLRecognize
     unsigned int type = walker.token_type();
     switch (type)
     {
-      case TABLE_REF_ID_TOKEN:
+      case TABLE_NAME_TOKEN:
         EXCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
         EXCLUDE_PART(MySQLEditor::CompletionWantKeywords);
         in_table_ref = true;
@@ -1411,7 +1411,7 @@ void check_reference(MySQLEditor::AutoCompletionContext &context, MySQLRecognize
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Reads a single TABLE_REF_ID_TOKEN subtree and checks for a following alias.
+ * Reads a single TABLE_NAME_TOKEN subtree and checks for a following alias.
  */
 void read_table_ref_id(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
 {
@@ -1457,7 +1457,7 @@ void scan_sub_tree(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerT
   while (has_more)
   {
     walker.push();
-    if (walker.token_type() == TABLE_REF_ID_TOKEN)
+    if (walker.token_type() == TABLE_NAME_TOKEN)
       read_table_ref_id(context, walker);
     else
     {
@@ -1491,7 +1491,7 @@ void collect_table_references(MySQLEditor::AutoCompletionContext &context, MySQL
       done = true;
       break;
 
-    case TABLE_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
       context.in_table_reference = true;
       break;
     }
@@ -1526,15 +1526,8 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
     recognizer.parse(context.statement.c_str(), context.statement.length(), true, QtUnknown);
     MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
 
-    //log_debug3("Parse tree:\n%s\n", recognizer.dump_tree().c_str());
-
     found_errors = recognizer.has_errors();
 
-    /*
-    for (std::vector<MySQLParserErrorInfo>::const_iterator iter = recognizer.error_info().begin(); iter != recognizer.error_info().end(); iter++)
-      log_debug3("===[PARSE TREE ERROR]===\nQuery: %s\nError [%d]: %s\n\tLine: %d\n\tOffset: %d\n\tLength: %d\n", 
-        context.statement.c_str(), iter->error, iter->message.c_str(), iter->line, iter->offset, iter->length);
-        */
     bool found_token = walker.advance_to_position((int)context.line, (int)context.offset);
 
     if (!found_token)

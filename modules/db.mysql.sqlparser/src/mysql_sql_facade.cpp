@@ -336,14 +336,12 @@ int MysqlSqlFacadeImpl::parseInserts(db_TableRef table, const std::string &sql)
 }
 
 //--------------------------------------------------------------------------------------------------
-
+/*
 int MysqlSqlFacadeImpl::parseTrigger(db_TriggerRef trigger, const std::string &sql)
 {
-  // The given trigger must already be part of a valid db structure (i.e. in a table, schema, catalog with rdbms).
-  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(trigger->owner()->owner()->owner()->get_member("rdbms"));
-  //MySQLRecognizer recognizer = new
   return Mysql_invalid_sql_parser::create(get_grt())->parse_trigger(trigger, sql);
 }
+*/
 
 //--------------------------------------------------------------------------------------------------
 
@@ -1224,9 +1222,6 @@ grt::DictRef MysqlSqlFacadeImpl::parseGrantStatement(MySQLRecognizer &recognizer
   terminators.insert(PRIVILEGE_TARGET_TOKEN);
 
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
-
-  // Starts the tree navigation
-  walker.next();
 
   // Skips the GRANT token
   walker.next();

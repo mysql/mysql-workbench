@@ -30,8 +30,6 @@ UserEditorBE::UserEditorBE(GRTManager *grtm, const db_UserRef &user)
 {
 }
 
-
-
 void UserEditorBE::set_password(const std::string &pass)
 {
   if (get_password() != pass)
