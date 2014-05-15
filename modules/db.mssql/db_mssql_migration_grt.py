@@ -390,7 +390,7 @@ class MSSQLMigration(GenericMigration):
                         elif source_datatype == 'SQL_VARIANT':
                             type_cast_expression = "CAST(? as NVARCHAR(max))"
                         elif source_datatype in ['TIMESTAMP', 'ROWVERSION']:
-                            type_cast_expression = 'CAST(? as %s)' % 'BINARY' if source_column.isNotNull else 'VARBINARY'
+                            type_cast_expression = 'CAST(? as %s)' % ('BINARY' if source_column.isNotNull else 'VARBINARY')
 
                         if type_cast_expression:
                             target_column.owner.customData["columnTypeCastExpression:%s" % target_column.name] = "%s as ?" % type_cast_expression
