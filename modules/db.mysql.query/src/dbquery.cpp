@@ -170,7 +170,7 @@ public:
   int lastConnectionErrorCode(int conn);
   std::string lastConnectionError(int conn);
 //  #ifdef DEFINE_INT_FUNCTIONS
-  long lastUpdateCount(int conn);
+  size_t lastUpdateCount(int conn);
 //  #else
 //  uint64_t lastUpdateCount(int conn);
 //  #endif
@@ -237,7 +237,9 @@ private:
     std::string last_error;
     int last_error_code;
 //    #ifdef DEFINE_INT_FUNCTIONS
-    long last_update_count;
+	// size_t only for the time being, will be changed to uint64_t once we have big integer support
+	// for 32bit also.
+    size_t last_update_count;
 //    #else
 //    uint64_t last_update_count;
 //    #endif
@@ -363,7 +365,7 @@ int DbMySQLQueryImpl::execute(int conn, const std::string &query)
   {
     std::auto_ptr<sql::Statement> pstmt(con->createStatement());
     int r = pstmt->execute(query) ? 1 : 0;
-    cinfo->last_update_count = pstmt->getUpdateCount();
+    cinfo->last_update_count = (size_t)pstmt->getUpdateCount();
     return r;
   }
   catch (sql::SQLException &exc)
@@ -406,7 +408,7 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
 
     ++_resultset_id;
 
-    cinfo->last_update_count = pstmt->getUpdateCount();
+    cinfo->last_update_count = (size_t)pstmt->getUpdateCount();
     _resultsets[_resultset_id] = res;
   }
   catch (sql::SQLException &exc)
@@ -429,7 +431,7 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
 
 
 //#ifdef DEFINE_INT_FUNCTIONS
-long DbMySQLQueryImpl::lastUpdateCount(int conn)
+size_t DbMySQLQueryImpl::lastUpdateCount(int conn)
 {
   base::MutexLock lock(_mutex);
   if (_connections.find(conn) == _connections.end())
