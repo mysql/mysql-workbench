@@ -69,7 +69,7 @@ void MySQLRoutineEditorBE::commit_changes()
 
       freeze_refresh_on_object_change();
       _parser_services->parseRoutine(_parser_context, _routine, sql);
-      freeze_refresh_on_object_change();
+      thaw_refresh_on_object_change();
 
       undo.end(base::strfmt(_("Edit routine `%s` of `%s`.`%s`"), _routine->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
     }
