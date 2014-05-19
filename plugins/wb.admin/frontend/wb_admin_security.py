@@ -254,8 +254,12 @@ class AddSchemaPrivilegeForm(mforms.Form):
         self.schema3 = newRadioButton(self.schema1.group_id())
         self.schema3.add_clicked_callback(self.schema_radio_changed)
         self.schema3.set_text("Selected schema:")
-        table.add(self.schema3, 0, 1, 2, 3, mforms.HFillFlag)
-        table.add(dLabel("Select a specific schema name for the rule to apply to."), 2, 3, 2, 3, mforms.HFillFlag)
+        alignbox = mforms.newBox(False)
+        alignbox.add(self.schema3, False, False)
+        table.add(alignbox, 0, 1, 2, 3, mforms.HFillFlag)
+        label = dLabel("Select a specific schema name for the rule to apply to.")
+        label.set_text_align(mforms.TopLeft)
+        table.add(label, 2, 3, 2, 3, mforms.HFillFlag)
 
         self.schema3sel = newListBox(False)
         table.add(self.schema3sel, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag|mforms.VFillFlag|mforms.VExpandFlag)
@@ -485,6 +489,10 @@ class SecuritySchemaPrivileges(mforms.Box):
         sel.remove_from_parent()
         self.schema_priv_selected()
         self._owner.set_dirty()
+        
+        self.add_button.set_enabled(True)
+        self.del_button.set_enabled(True)
+        self.refresh_button.set_enabled(True)
 
 
     def schema_priv_selected(self):
@@ -620,7 +628,7 @@ class SecurityAccount(mforms.Box):
         self.refresh_button = newButton()
         self.refresh_button.set_text("Refresh")
         self.refresh_button.add_clicked_callback(self.owner.refresh)
-        bottom_box.add_end(self.refresh_button, False, True)
+        bottom_box.add(self.refresh_button, False, True)
 
         self.save_button = newButton()
         self.save_button.set_text("Apply")
@@ -1122,6 +1130,9 @@ class SecurityAccount(mforms.Box):
             self.user_list.select_node(self.user_list.node_at_row(pos))
         self.user_selected()
         self.set_dirty()
+        self.add_button.set_enabled(False)
+        self.del_button.set_enabled(False)
+        self.refresh_button.set_enabled(False)
         
     def upgrade_account(self):
         def generate_password(length = 8):    
@@ -1195,6 +1206,10 @@ class SecurityAccount(mforms.Box):
                 username, host = eval(user.get_tag())
                 self.owner.secman.wipe_zombie(username, host)
                 user.remove_from_parent()
+
+        self.add_button.set_enabled(True)
+        self.del_button.set_enabled(True)
+        self.refresh_button.set_enabled(True)
 
 
     def refresh(self):
@@ -1320,6 +1335,9 @@ class SecurityAccount(mforms.Box):
         if not self.user_list.get_selected_node():
             self.user_selected()
 
+        self.add_button.set_enabled(True)
+        self.del_button.set_enabled(True)
+        self.refresh_button.set_enabled(True)
 
     def commit(self):
         if self._selected_user:
@@ -1421,6 +1439,9 @@ class SecurityAccount(mforms.Box):
 
             self.reload_user(is_new_user)
 
+        self.add_button.set_enabled(True)
+        self.del_button.set_enabled(True)
+        self.refresh_button.set_enabled(True)
 
 
     def update(self):

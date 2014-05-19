@@ -1790,6 +1790,16 @@ namespace MySQL.GUI.Workbench
     }
 
 
+    void MainForm_Activated(object sender, System.EventArgs e)
+    {
+      wbContext.mainform_activated();
+    }
+
+    void MainForm_Deactivated(object sender, System.EventArgs e)
+    {
+      wbContext.mainform_deactivated();
+    }
+
     public void UpdateTimer()
     {
       int interval = (int)(1000 * wbContext.delay_for_next_timer());

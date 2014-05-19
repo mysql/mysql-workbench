@@ -764,6 +764,9 @@ mdc::CanvasItem *ModelDiagramForm::get_leaf_item_at(const Point &pos)
 
 void ModelDiagramForm::handle_mouse_button(mdc::MouseButton button, bool press, int x, int y, mdc::EventState state)
 {
+  if (_features)
+    _features->tooltip_cancel();
+
   stop_editing();
   
   Point pos(_view->window_to_canvas(x, y));
@@ -882,7 +885,11 @@ void ModelDiagramForm::handle_mouse_move(int x, int y, mdc::EventState state)
 bool ModelDiagramForm::handle_key(const mdc::KeyInfo &key, bool press, mdc::EventState state)
 {
   if (press)
-  {    
+  {
+    // cancel tooltip on keypress
+    if (_features)
+      _features->tooltip_cancel();
+
     for (std::vector<WBShortcut>::const_iterator iter= _shortcuts.begin();
       iter != _shortcuts.end(); ++iter)
     {

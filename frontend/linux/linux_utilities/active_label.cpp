@@ -43,7 +43,7 @@ ActiveLabel::ActiveLabel(const Glib::ustring& text, const sigc::slot<void> &clos
 
   signal_button_press_event().connect(sigc::mem_fun(this, &ActiveLabel::button_press_slot));
 
-  #if GTK_VERSION_GE(2,20)
+  #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
   _spinner.hide();
   #endif
 }
@@ -102,7 +102,7 @@ bool ActiveLabel::button_press_slot(GdkEventButton* evb)
 //--------------------------------------------------------------------------------
 void ActiveLabel::start_busy()
 {
-#if GTK_VERSION_GE(2,20)
+#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
   _label.hide();
   _evbox.remove();
   _spinner.show();
@@ -114,7 +114,7 @@ void ActiveLabel::start_busy()
 //--------------------------------------------------------------------------------
 void ActiveLabel::stop_busy()
 {
-#if GTK_VERSION_GE(2,20)
+#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
   _spinner.hide();
   _evbox.remove();
   _label.show();

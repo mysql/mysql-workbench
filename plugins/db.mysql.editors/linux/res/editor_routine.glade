@@ -89,18 +89,6 @@ statement. The DDL is parsed automatically while you type.&lt;/small&gt;</proper
                         <property name="position">1</property>
                       </packing>
                     </child>
-                    <child>
-                      <object class="GtkImage" id="image2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="stock">gtk-missing-image</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>

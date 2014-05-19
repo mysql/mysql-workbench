@@ -47,8 +47,16 @@ namespace grt {
   template<class T> struct grt_content_class_name <ListRef<T> > { typedef T value; };
 
   template<class T> struct grt_type_for_native { typedef T Type; };
+
+#ifdef DEFINE_INT_FUNCTIONS
   template<> struct grt_type_for_native<int> { typedef IntegerRef Type; };
-#ifdef __APPLE__
+#endif
+
+#ifndef DEFINE_INT_FUNCTIONS
+  template<> struct grt_type_for_native<long int> {typedef IntegerRef Type; };
+#endif
+
+#ifdef DEFINE_UINT64_T_FUNCTIONS
   template<> struct grt_type_for_native<uint64_t> { typedef IntegerRef Type; };
 #endif
   template<> struct grt_type_for_native<size_t> { typedef IntegerRef Type; };
@@ -416,12 +424,21 @@ inline ValueRef grt_value_for_type(bool t)
   return IntegerRef(t);
 }
 
+#ifdef DEFINE_INT_FUNCTIONS
 inline ValueRef grt_value_for_type(int t)
 {
   return IntegerRef(t);
 }
+#endif
 
-#ifdef __APPLE__
+#ifndef DEFINE_INT_FUNCTIONS
+inline ValueRef grt_value_for_type(long int t)
+{
+  return IntegerRef(t);
+}
+#endif
+
+#ifdef DEFINE_UINT64_T_FUNCTIONS
 inline ValueRef grt_value_for_type(uint64_t t)
 {
   return IntegerRef((size_t)t);

@@ -171,6 +171,12 @@ class WbAdminBaseTab(mforms.Box):
               self.resume_layout()
               self.ui_created = True
 
+    def get_select_int_result(self, query, column=0):
+        res = self.main_view.editor.executeManagementQuery(query, 0)
+        if res and res.goToFirstRow():
+            return res.intFieldValue(column)
+        return None
+
 
 class MessageButtonPanel(mforms.Table):
     def __init__(self, icon, title, text, button1, button2=None):

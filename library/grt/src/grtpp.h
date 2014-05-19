@@ -540,12 +540,28 @@ namespace grt {
 
   // In Win32 ssize_t and int are the same, so we get a compiler error if we compile functions/c-tors with
   // those types (redefinition error). Hence we need a check when to exclude them.
+  // A similar problem exists for uint64_t and size_t in Win64.
 #ifdef _WIN32
+  #define DEFINE_INT_FUNCTIONS
+
   #ifdef _WIN64
     #define DEFINE_SSIZE_T_FUNCTIONS
+  #else
+    #define DEFINE_UINT64_T_FUNCTIONS
   #endif
 #else
   #define DEFINE_SSIZE_T_FUNCTIONS
+
+  #ifdef __x86_64__
+  #define DEFINE_INT_FUNCTIONS
+  #endif
+
+  #ifdef __APPLE__
+    // Probably also depending on 32bit vs 64bit, but for now we compile only 32bit on Mac.
+    #define DEFINE_UINT64_T_FUNCTIONS
+    #define DEFINE_INT_FUNCTIONS
+
+  #endif
 #endif
 
   /** Reference object class for integer GRT values (32 or 64bit, depending on compiler architecture).
@@ -602,10 +618,19 @@ namespace grt {
     {
     }
 
+#ifdef DEFINE_INT_FUNCTIONS
     Ref(int value)
        : ValueRef(internal::Integer::get(value))
     {
     }
+#endif
+
+#ifndef DEFINE_INT_FUNCTIONS
+    Ref(long int value)
+       : ValueRef(internal::Integer::get(value))
+    {
+    }
+#endif
 
 #ifdef DEFINE_SSIZE_T_FUNCTIONS
     Ref(ssize_t value)
@@ -628,11 +653,19 @@ namespace grt {
     {
       return _value == o._value || (_value && o._value && *content() == *o);
     }
-
+#ifdef DEFINE_INT_FUNCTIONS
     inline bool operator==(int v) const
     {
       return _value && (*content() == v);
     }
+#endif
+
+#ifndef DEFINE_INT_FUNCTIONS
+    inline bool operator==(long int v) const
+    {
+      return _value && (*content() == v);
+    }
+#endif
 
 #ifdef DEFINE_SSIZE_T_FUNCTIONS
     inline bool operator==(ssize_t v) const
@@ -645,11 +678,20 @@ namespace grt {
     {
       return !(operator ==(o));
     }
-
+#ifdef DEFINE_INT_FUNCTIONS
     inline bool operator!=(int v) const
     {
       return _value && (*content() != v);
     }
+#endif
+
+#ifndef DEFINE_INT_FUNCTIONS
+    inline bool operator!=(long int v) const
+    {
+      return _value && (*content() != v);
+    }
+#endif
+
 
 #ifdef DEFINE_SSIZE_T_FUNCTIONS
     inline bool operator!=(ssize_t v) const

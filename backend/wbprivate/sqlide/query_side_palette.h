@@ -28,7 +28,7 @@ namespace mforms {
 #include "base/notifications.h"
 #include "mforms/tabview.h"
 
-class SnippetList;
+class SnippetListView;
 class GrtThreadedTask;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC QuerySidePalette : public mforms::TabView, base::Observer
@@ -44,11 +44,12 @@ private:
   
   mforms::ScrollPanel* _snippet_box;
   mforms::ToolBar* _snippet_toolbar;
-  SnippetList* _snippet_list;
+  SnippetListView* _snippet_list;
 
   bool _no_help;           // True if currently no help topic is visible.
   bool _automatic_help;    // Automatically show help after moving the caret.
   bool _switching_help;    // Recursion stopper when switching to new topic and setting drop down.
+  bool _pending_snippets_refresh;
   std::string _last_topic;
 
   // Contains patterns for syntactic elements and their associated colors. Initialized on the fly
@@ -70,11 +71,12 @@ private:
   void show_help_text_for_topic(const std::string &topic);
   grt::StringRef get_help_text_threaded(grt::GRT *);
   void update_help_ui();
+  void show_help_hint_or_update();
 
   bool find_context_help(MySQLEditor *editor);
   grt::StringRef get_help_topic_threaded(grt::GRT *, const std::string &query, std::pair<ssize_t, ssize_t> caret);
   void process_help_topic(const std::string &topic);
-  bool update_help_history(const std::string &topic);
+  void update_help_history(const std::string &topic);
 
   void click_link(const std::string &link);
   mforms::ToolBar* prepare_snippet_toolbar();
@@ -84,12 +86,14 @@ private:
 
   void check_format_structures(MySQLEditor *editor);
   std::string format_help_as_html(const std::string &text);
-  
+
   void snippet_selection_changed();
 public:
   QuerySidePalette(const SqlEditorForm::Ref &owner);
   ~QuerySidePalette();
   void cancel_timer();
   void close_popover();
+
+  void refresh_snippets();
 };
 

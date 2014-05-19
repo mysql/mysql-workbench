@@ -495,6 +495,9 @@ public:
     return CppStringToNative(inner->get_wb()->get_filename());
   }  
 
+  void mainform_activated() { mforms::Form::main_form()->activated(); }
+  void mainform_deactivated() { mforms::Form::main_form()->deactivated(); }
+  bool mainform_active() { return mforms::Form::main_form()->is_active(); }
 };
 
 

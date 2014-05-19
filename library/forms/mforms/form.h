@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,10 +75,14 @@ namespace mforms {
     View *_content;
     bool _fixed_size;
     bool _release_on_close;
+    bool _active;
 
     boost::signals2::signal<void ()> _closed_signal;
+    boost::signals2::signal<void ()> _activated_signal;
+    boost::signals2::signal<void ()> _deactivated_signal;
   protected:
     Form();
+
   public:
     /** Constructor.
      
@@ -143,7 +147,17 @@ namespace mforms {
      In Python use add_closed_callback()
      */
     boost::signals2::signal<void ()>* signal_closed() { return &_closed_signal; }
+
+    /** Signal sent when the window becomes the active window.
+     */
+    boost::signals2::signal<void ()>* signal_activated() { return &_activated_signal; }
+    boost::signals2::signal<void ()>* signal_deactivated() { return &_deactivated_signal; }
+
+    void activated();
+    void deactivated();
 #endif
+
+    bool is_active();
 
     void was_closed()
     {

@@ -23,12 +23,17 @@
 #include "base/string_utilities.h"
 #include "base/file_functions.h"
 #include "base/util_functions.h"
+#include "base/sqlstring.h"
+#include "base/log.h"
 
 #include "wb_sql_editor_snippets.h"
 #include "sqlide/wb_sql_editor_form.h"
+#include "workbench/wb_db_schema.h"
 
 #include "mforms/utilities.h"
 #include "mforms/filechooser.h"
+
+DEFAULT_LOG_DOMAIN("SQLSnippets")
 
 using namespace mforms;
 
@@ -70,15 +75,8 @@ bool DbSqlEditorSnippets::activate_toolbar_item(const bec::NodeId &selected, con
   if (name == "add_snippet")
   {
     SqlEditorForm *editor_form = _sqlide->get_active_sql_editor();
-    if (editor_form != NULL && editor_form->active_sql_editor() != NULL)
-    {
-      size_t start, end;
-      std::string text = editor_form->active_sql_editor()->sql();
-      if (editor_form->active_sql_editor()->selected_range(start, end))
-        text = text.substr(start, end - start);
-      if (editor_form->save_snippet(text))
-        _sqlide->get_grt_manager()->replace_status_text("SQL saved to snippets list.");
-    }
+    if (editor_form)
+      editor_form->save_snippet();
     return true;
   }
   
@@ -93,7 +91,7 @@ bool DbSqlEditorSnippets::activate_toolbar_item(const bec::NodeId &selected, con
     SqlEditorForm *editor_form = _sqlide->get_active_sql_editor();
     std::string script;
     
-    script = _entries[selected[0]].second;
+    script = _entries[selected[0]].code;
     if (!script.empty())
     {
       editor_form->run_sql_in_scratch_tab(script, true, false);
@@ -101,7 +99,7 @@ bool DbSqlEditorSnippets::activate_toolbar_item(const bec::NodeId &selected, con
   } else if ((name == "replace_text" || name == "insert_text" || name == "copy_to_clipboard") &&
     selected.is_valid() && selected[0] <  _entries.size())
   {
-    std::string script = _entries[selected[0]].second;
+    std::string script = _entries[selected[0]].code;
 
     if (name == "copy_to_clipboard")
       mforms::Utilities::set_clipboard_text(script);
@@ -139,12 +137,14 @@ static struct SnippetNameMapping {
   {"DB Management", "DB Mgmt"},
   {"SQL DDL Statements", "SQL DDL"},
   {"SQL DML Statements", "SQL DML"},
-  {"User Snippets", "My Snippets"},
+  {"User Snippets", USER_SNIPPETS},
+  {"", SHARED_SNIPPETS},
 #else
   {"DB_Management", "DB Mgmt"},
   {"SQL_DDL_Statements", "SQL DDL"},
   {"SQL_DML_Statements", "SQL DML"},
-  {"User_Snippets", "My Snippets"},
+  {"User_Snippets", USER_SNIPPETS},
+  {"", SHARED_SNIPPETS},
 #endif
   {NULL, NULL}
 };
@@ -188,9 +188,12 @@ std::vector<std::string> DbSqlEditorSnippets::get_category_list()
 
   // Move up User Snippets to 1st entry.
   std::vector<std::string>::iterator iter;
-  if ((iter = std::find(categories.begin(), categories.end(), "My Snippets")) != categories.end())
+  if ((iter = std::find(categories.begin(), categories.end(), USER_SNIPPETS)) != categories.end())
     categories.erase(iter);
-  categories.insert(categories.begin(), "My Snippets");
+  categories.insert(categories.begin(), USER_SNIPPETS);
+
+  // DB stored snippets
+  categories.push_back(SHARED_SNIPPETS);
 
   return categories;
 }
@@ -198,13 +201,136 @@ std::vector<std::string> DbSqlEditorSnippets::get_category_list()
 void DbSqlEditorSnippets::select_category(const std::string &category)
 {
   _selected_category = category_name_to_file(category);
-  load();
+  if (_selected_category.empty())
+    load_from_db();
+  else
+    load();
 }
 
 std::string DbSqlEditorSnippets::selected_category()
 { 
   return category_file_to_name(_selected_category); 
 }
+
+bool DbSqlEditorSnippets::shared_snippets_usable()
+{
+  return _sqlide->get_active_sql_editor() != NULL && _sqlide->get_active_sql_editor()->connected();
+}
+
+void DbSqlEditorSnippets::load_from_db(SqlEditorForm *editor)
+{
+  if (!editor)
+    editor = _sqlide->get_active_sql_editor();
+
+  _shared_snippets_enabled = false;
+  _entries.clear();
+
+  if (editor)
+  {
+    if (_snippet_db.empty())
+      _snippet_db = _sqlide->get_grt_manager()->get_app_option_string("workbench:InternalSchema");
+
+    sql::Dbc_connection_handler::Ref conn;
+
+    base::RecMutexLock aux_dbc_conn_mutex(editor->ensure_valid_aux_connection(conn));
+
+    wb::InternalSchema internal_schema(_snippet_db, conn);
+
+    if (!internal_schema.check_snippets_table_exist())
+    {
+      // shared snippets are not enabled. They'll get prompted whether to enable it when they try to add a snippet
+      return;
+    }
+
+    try
+    {
+      std::string s = base::sqlstring("SELECT id, title, code FROM !.snippet", 0) << _snippet_db;
+      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(s));
+
+      while (result->next())
+      {
+        Snippet snippet;
+        snippet.db_snippet_id = result->getInt(1);
+        snippet.title = result->getString(2);
+        snippet.code = result->getString(3);
+        _entries.push_back(snippet);
+      }
+
+      _shared_snippets_enabled = true;
+    }
+    catch (std::exception &e)
+    {
+      log_error("Error querying snippets table: %s\n", e.what());
+      mforms::Utilities::show_error("Shared Snippets",
+                                    base::strfmt("Unable to load server stored snippets.\n%s", e.what()),
+                                    "OK");
+    }
+  }
+}
+
+int DbSqlEditorSnippets::add_db_snippet(const std::string &name, const std::string &code)
+{
+  if (_sqlide->get_active_sql_editor())
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    base::RecMutexLock aux_dbc_conn_mutex(_sqlide->get_active_sql_editor()->ensure_valid_aux_connection(conn));
+    wb::InternalSchema internal_schema(_snippet_db, conn);
+
+    if (!internal_schema.check_snippets_table_exist())
+    {
+      if (mforms::Utilities::show_message("Shared Snippets",
+                                          base::strfmt("To enable shared snippets stored in the MySQL server, a new schema called `%s` must be created in the connected server.",
+                                                       internal_schema.schema_name().c_str()),
+                                          "Create", "Cancel") != mforms::ResultOk)
+        return 0;
+
+      std::string error = internal_schema.create_snippets_table_exist();
+      if (!error.empty())
+      {
+        log_warning("Could not create table %s.snippet: %s\n", _snippet_db.c_str(), error.c_str());
+        mforms::Utilities::show_error("Shared Snippets", "Unable to setup server stored snippets.\n"+error, "OK");
+        return 0;
+      }
+    }
+
+    try
+    {
+      return internal_schema.insert_snippet(name, code);
+    }
+    catch (std::exception &exc)
+    {
+      log_error("Error saving snippet: %s\n", exc.what());
+      mforms::Utilities::show_error("Shared Snippets",
+                                    base::strfmt("Error adding new snippet: %s", exc.what()),
+                                    "OK");
+    }
+  }
+  return 0;
+}
+
+
+void DbSqlEditorSnippets::delete_db_snippet(int snippet_id)
+{
+  if (_sqlide->get_active_sql_editor())
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    base::RecMutexLock aux_dbc_conn_mutex(_sqlide->get_active_sql_editor()->ensure_valid_aux_connection(conn));
+    wb::InternalSchema internal_schema(_snippet_db, conn);
+    try
+    {
+      internal_schema.delete_snippet(snippet_id);
+    }
+    catch (std::exception &exc)
+    {
+      log_error("Error saving snippet: %s\n", exc.what());
+      mforms::Utilities::show_error("Shared Snippets",
+                                    base::strfmt("Error deleting snippet: %s", exc.what()),
+                                    "OK");
+    }
+  }
+}
+
 
 void DbSqlEditorSnippets::load()
 {
@@ -242,7 +368,12 @@ void DbSqlEditorSnippets::load()
       // Remove the last line break, we added that, not the user.
       if (script.size() > 0)
         script.erase(script.size() - 1, 1);
-      _entries.push_back(std::make_pair(name, script));
+
+      Snippet snippet;
+      snippet.db_snippet_id = 0;
+      snippet.title = name;
+      snippet.code = script;
+      _entries.push_back(snippet);
     }
     
     fclose(f);
@@ -252,21 +383,28 @@ void DbSqlEditorSnippets::load()
 
 void DbSqlEditorSnippets::save()
 {
-  FILE *f = base_fopen(base::strfmt("%s/%s.txt", _path.c_str(), _selected_category.c_str()).c_str(), "w+");
-  if (f)
+  if (_selected_category.empty())
   {
-    for (std::vector<std::pair<std::string, std::string> >::const_iterator i = _entries.begin();
-         i != _entries.end(); ++i)
+    // nothing to do here
+  }
+  else
+  {
+    FILE *f = base_fopen(base::strfmt("%s/%s.txt", _path.c_str(), _selected_category.c_str()).c_str(), "w+");
+    if (f)
     {
-      std::vector<std::string> lines = base::split(i->second, "\n");
-      
-      fprintf(f, "%s\n", i->first.c_str());
-      for (std::vector<std::string>::const_iterator l = lines.begin(); l != lines.end(); ++l)
-        fprintf(f, " %s\n", l->c_str());
-      fprintf(f, "\n");
+      for (std::vector<Snippet>::const_iterator i = _entries.begin();
+           i != _entries.end(); ++i)
+      {
+        std::vector<std::string> lines = base::split(i->code, "\n");
+
+        fprintf(f, "%s\n", i->title.c_str());
+        for (std::vector<std::string>::const_iterator l = lines.begin(); l != lines.end(); ++l)
+          fprintf(f, " %s\n", l->c_str());
+        fprintf(f, "\n");
+      }
+      fclose(f);
     }
-    fclose(f);
-  }  
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,6 +412,8 @@ void DbSqlEditorSnippets::save()
 DbSqlEditorSnippets::DbSqlEditorSnippets(wb::WBContextSQLIDE *sqlide, const std::string &path)
 : _sqlide(sqlide), _path(path)
 {
+  _shared_snippets_enabled = false;
+
   // check if the old snippets file exist and move it to the new location
   if (g_file_test(std::string(_path+"/../sql_snippets.txt").c_str(), G_FILE_TEST_EXISTS))
   {
@@ -318,10 +458,24 @@ void DbSqlEditorSnippets::copy_original_file(const std::string& name, bool overw
 
 //--------------------------------------------------------------------------------------------------
 
-void DbSqlEditorSnippets::add_snippet(const std::string &name, const std::string &snippet, bool edit)
+void DbSqlEditorSnippets::add_snippet(const std::string &name, const std::string &code, bool edit)
 {
-  _entries.push_back(std::make_pair(base::trim_left(name), snippet));
-  save();
+  Snippet snippet;
+  snippet.db_snippet_id = 0;
+  snippet.title = base::trim_left(name);
+  snippet.code = code;
+
+  if (_selected_category.empty())
+  {
+    snippet.db_snippet_id = add_db_snippet(name, code);
+    if (snippet.db_snippet_id != 0)
+      _entries.push_back(snippet);
+  }
+  else
+  {
+    _entries.push_back(snippet);
+    save();
+  }
 }
 
 
@@ -339,10 +493,10 @@ bool DbSqlEditorSnippets::get_field(const bec::NodeId &node, ColumnId column, st
     switch ((Column)column)
     {
       case Description:
-        value = _entries[node[0]].first;
+        value = _entries[node[0]].title;
         break;
       case Script:
-        value = _entries[node[0]].second;
+        value = _entries[node[0]].code;
         break;
     }
     return true;
@@ -356,13 +510,40 @@ bool DbSqlEditorSnippets::set_field(const bec::NodeId &node, ColumnId column, co
   {
     switch ((Column)column)
     {
-    case Description:
-      _entries[node[0]].first = value;
-      break;
-    case Script:
-      _entries[node[0]].second = value;
-      break;
+      case Description:
+        _entries[node[0]].title = value;
+        break;
+      case Script:
+        _entries[node[0]].code = value;
+        break;
     }
+    if (_selected_category.empty() && _shared_snippets_enabled && _sqlide->get_active_sql_editor())
+    {
+      sql::Dbc_connection_handler::Ref conn;
+      base::RecMutexLock aux_dbc_conn_mutex(_sqlide->get_active_sql_editor()->ensure_valid_aux_connection(conn));
+      wb::InternalSchema internal_schema(_snippet_db, conn);
+      try
+      {
+        switch ((Column)column)
+        {
+          case Description:
+            internal_schema.set_snippet_title(_entries[node[0]].db_snippet_id, value);
+            break;
+          case Script:
+            internal_schema.set_snippet_code(_entries[node[0]].db_snippet_id, value);
+            break;
+        }
+      }
+      catch (std::exception &exc)
+      {
+        log_error("Error saving snippet: %s\n", exc.what());
+        mforms::Utilities::show_error("Shared Snippets",
+                                      base::strfmt("Error deleting snippet: %s", exc.what()),
+                                      "OK");
+      }
+    }
+    else
+      save();
     return true;
   }
 
@@ -379,8 +560,19 @@ bool DbSqlEditorSnippets::delete_node(const bec::NodeId &node)
 {
   if (node.is_valid() && node[0] < _entries.size())
   {
+    int entry_id = _entries[node[0]].db_snippet_id;
+
     _entries.erase(_entries.begin() + node[0]);
-    save();
+
+    if (_selected_category.empty())
+    {
+      if (_shared_snippets_enabled && entry_id > 0)
+      {
+        delete_db_snippet(entry_id);
+      }
+    }
+    else
+      save();
     return true;
   }
   return false;

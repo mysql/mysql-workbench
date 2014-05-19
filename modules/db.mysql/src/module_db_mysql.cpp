@@ -1791,6 +1791,7 @@ protected:
     grt::GRT *grt;
     bool show_warnings;
     bool use_short_names;
+    bool no_view_placeholder;
     bool _case_sensitive;
     grt::DictRef _decomposer_options;
     typedef std::map<std::string, std::vector<std::pair<std::string,std::string> > > alias_map_t;
@@ -1804,6 +1805,7 @@ protected:
         non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
         show_warnings= options.get_int("GenerateWarnings") != 0;
         use_short_names= options.get_int("UseShortNames") != 0;
+        no_view_placeholder = options.get_int("NoViewPlaceholders") !=0;
 
         grt::ValueRef dboptsval = options.get("DBSettings");
         if (dboptsval.is_valid() && grt::DictRef::can_wrap(dboptsval))
@@ -1925,9 +1927,12 @@ protected:
         if(!drop_view.empty())
             sql.append(drop_view).append(";\n").append(show_warnings_sql());
 
-        // remove placehoder
-        sql.append("DROP TABLE IF EXISTS ").append(view_q_name).append(";\n");
-        sql.append(show_warnings_sql());
+        if (!no_view_placeholder)
+        {
+          // remove placehoder
+          sql.append("DROP TABLE IF EXISTS ").append(view_q_name).append(";\n");
+          sql.append(show_warnings_sql());
+        }
 
         // view DDL
         if(!create_view.empty())
@@ -2278,7 +2283,7 @@ public:
             for(size_t c2= views.count(), j= 0; j < c2; j++)
                 objects_sql.append(view_sql(views.get(j)));
 
-            if (!objects_sql.empty() && create_map.has_key(get_old_object_name_for_key(schema, case_sensitive)))
+            if (!objects_sql.empty() && create_map.has_key(get_full_object_name_for_key(schema, case_sensitive)))
             {
               if (!use_short_names || gen_use)
                 out_sql.append("USE `").append(schema->name().c_str()).append("` ;\n");

@@ -1,6 +1,6 @@
 #include "notebooks.h"
 
-#if GTK_VERSION_LT(2,20)
+#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION < 20
 
 //------------------------------------------------------------------------------
 ActionAreaNotebook::ActionAreaNotebook()

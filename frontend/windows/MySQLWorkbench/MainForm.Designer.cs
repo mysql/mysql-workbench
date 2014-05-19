@@ -158,6 +158,8 @@ namespace MySQL.GUI.Workbench
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
       this.Load += new System.EventHandler(this.MainForm_Load);
       this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
+      this.Activated += new System.EventHandler(MainForm_Activated);
+      this.Deactivate +=new System.EventHandler(MainForm_Deactivated);
       this.mainStatusStrip.ResumeLayout(false);
       this.mainStatusStrip.PerformLayout();
       this.tabsContextMenuStrip.ResumeLayout(false);
@@ -165,7 +167,7 @@ namespace MySQL.GUI.Workbench
 
 		}
 
-		#endregion
+    #endregion
 
 		private System.Windows.Forms.StatusStrip mainStatusStrip;
     private MySQL.Controls.FlatTabControl contentTabControl;

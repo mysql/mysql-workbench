@@ -484,6 +484,62 @@ TEST_FUNCTION(14)
     }
 }
 
+//Test forward engineer after renaming schema if it generate proper sql
+TEST_FUNCTION(15)
+{
+  grt::ValueRef e;
+  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  NormalizedComparer cmp(tester.grt);
+  grt::DbObjectMatchAlterOmf omf;
 
+  std::string modelfile = "data/forward_engineer/sakila_full.mwb";
+  tester.wb->open_document(modelfile);
+  db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester.wb->get_document()->physicalModels().get(0)->catalog());
+
+
+  catalog->schemata()[0]->name("sakila_test");
+  SqlFacade::instance_for_db_obj(catalog->schemata()[0])->renameSchemaReferences(catalog, "sakila", "sakila_test");
+
+  cmp.init_omf(&omf);
+
+  boost::shared_ptr<DiffChange> create_change= diff_make(e, catalog, &omf);
+  boost::shared_ptr<DiffChange> drop_change= diff_make(catalog, e, &omf);
+
+  DictRef create_map(tester.grt);
+  DictRef drop_map(tester.grt);
+
+  grt::DictRef options = DictRef::cast_from(tester.grt->unserialize("data/forward_engineer/rename_opts.dict"));
+
+  create_map = diffsql_module->generateSQLForDifferences(GrtNamedObjectRef(), catalog, options);
+
+  diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
+
+  std::string export_sql_script= options.get_string("OutputScriptHeader") + options.get_string("OutputScript");
+
+  std::string expected_sql = "data/forward_engineer/sakila_name_changed.expected.sql";
+
+  std::ifstream ref(expected_sql.c_str());
+  std::stringstream ss(export_sql_script);
+
+  std::string line, refline;
+
+  tut::ensure(expected_sql, ref.is_open());
+
+  std::string error_msg("Forward engineer of:");
+  error_msg += modelfile;
+  error_msg += " and ";
+  error_msg += expected_sql;
+  error_msg += " failed";
+
+  while (ref.good() && ss.good())
+  {
+   getline(ref, refline);
+   getline(ss, line);
+   tut::ensure_equals(error_msg, line, refline);
+  }
+
+  tester.wb->close_document();
+  tester.wb->close_document_finish();
+}
 
 END_TESTS

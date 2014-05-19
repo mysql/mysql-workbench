@@ -481,18 +481,6 @@ static bool validate_revert(wb::WBContextSQLIDE *sqlide)
 }
 
 
-static void call_save_snippet(wb::WBContextSQLIDE *sqlide)
-{
-  SqlEditorForm *form = sqlide->get_active_sql_editor();
-  if (form)
-  {
-    std::string text = form->active_sql_editor()->selected_text();
-    if (form->save_snippet(text))
-      sqlide->get_grt_manager()->replace_status_text("SQL saved to snippets list.");
-  }
-}
-
-
 static void call_continue_on_error(wb::WBContextSQLIDE *sqlide)
 {
   SqlEditorForm *form = sqlide->get_active_sql_editor();
@@ -802,8 +790,7 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.new_view", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_view"));
   cmdui->add_builtin_command("query.new_routine", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_routine"));
   cmdui->add_builtin_command("query.new_function", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_function"));
-  
-  cmdui->add_builtin_command("query.savesnippet", boost::bind(call_save_snippet, this));
+
   cmdui->add_builtin_command("query.new_connection", boost::bind(call_new_connection, this));
   
   cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor_bool, this, &SqlEditorForm::new_sql_scratch_area, false));

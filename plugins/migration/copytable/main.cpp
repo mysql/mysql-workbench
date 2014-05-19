@@ -170,7 +170,7 @@ static void show_help()
   printf("<source schema><TAB><source table><TAB><target schema><TAB><target table><TAB>*|<select expression>\n");
   printf("Table Specification from command line:\n");
   printf("--table <source schema> <source table> <target schema> <target table> *|<select expression>\n");
-  printf("--table-range <source schema> <source table> <target schema> <target table> <source key> <start>|-1 <end>|-1\n");
+  printf("--table-range <source schema> <source table> <target schema> <target table> <select expression> <source key> <start>|-1 <end>|-1\n");
   printf("\n");
   printf("--log-file=<file_path>\n");
   printf("--log-level=<level>\n");
@@ -278,6 +278,7 @@ int main(int argc, char **argv)
   std::string table_file;
 
   std::set<std::string> trigger_schemas;
+  std::string source_rdbms_type = "unknown";
 
   bool log_level_set = false;
   int i = 1;
@@ -417,7 +418,7 @@ int main(int argc, char **argv)
     {
       TableParam param;
 
-      if ((!count_only && i + 7 >= argc) || (count_only && i + 5 >= argc))
+      if ((!count_only && i + 8 >= argc) || (count_only && i + 5 >= argc))
       {
         fprintf(stderr, "%s: Missing value for table copy specification\n", argv[0]);
         exit(1);
@@ -428,6 +429,7 @@ int main(int argc, char **argv)
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
+        param.select_expression = argv[++i];
 
         trigger_schemas.insert(param.target_schema);
       }
@@ -459,6 +461,8 @@ int main(int argc, char **argv)
 
       tables.add_task(param);
     }
+    else if (check_arg_with_value(argv, i, "--source-rdbms-type", argval, false))
+    	source_rdbms_type = argval;
     else
     {
       fprintf(stderr, "%s: Invalid option %s\n", argv[0], argv[i]);
@@ -614,7 +618,7 @@ int main(int argc, char **argv)
         SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &odbc_env);
         SQLSetEnvAttr(odbc_env, SQL_ATTR_ODBC_VERSION, (void *) SQL_OV_ODBC3, 0);
 
-        psource.reset(new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8));
+        psource.reset(new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type));
       }
       else if (source_type == ST_MYSQL)
         psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket));
@@ -656,7 +660,7 @@ int main(int argc, char **argv)
           SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &odbc_env);
           SQLSetEnvAttr(odbc_env, SQL_ATTR_ODBC_VERSION, (void *) SQL_OV_ODBC3, 0);
 
-          psource = new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8);
+          psource = new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type);
         }
         else if (source_type == ST_MYSQL)
           psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket);

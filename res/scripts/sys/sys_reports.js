@@ -41,13 +41,13 @@
                 ["Min Time (ms)", "min_latency", "LongInteger:ms", 80],
                 ["Avg Time (ms)", "avg_latency", "LongInteger:ms", 80],
                 ["Max Time (ms)", "max_latency", "LongInteger:ms", 80],
-                ["Reads (#)", "count_read", "String", 80],
-                ["Total Read (bytes)", "total_read", "Float", 80],
-                ["Avg Read (bytes)", "avg_read", "String", 80],
+                ["Reads (#)", "count_read", "LongInteger", 80],
+                ["Total Read (bytes)", "total_read", "LongInteger", 80],
+                ["Avg Read (bytes)", "avg_read", "Float", 80],
                 ["Writes (#)", "count_write", "LongInteger", 80],
-                ["Total Written (bytes)", "total_written", "String", 80],
-                ["Avg Written (bytes)", "avg_written", "String", 80],
-                ["Total Requested (bytes)", "total_requested", "String", 80]]
+                ["Total Written (bytes)", "total_written", "LongInteger", 80],
+                ["Avg Written (bytes)", "avg_written", "Float", 80],
+                ["Total Requested (bytes)", "total_requested", "LongInteger", 80]]
   },
 
   {"category" : "io",
@@ -62,11 +62,11 @@
                 ["Read Time (ms)", "read_latency", "LongInteger:ms", 80],
                 ["Write Time (ms)", "write_latency", "LongInteger:ms", 80],
                 ["Misc Time (ms)", "misc_latency", "LongInteger:ms", 80],
-                ["Reads (bytes)", "count_read", "String", 80],
-                ["Avg Read (bytes)", "total_read", "String", 80],
+                ["Reads (bytes)", "count_read", "LongInteger", 80],
+                ["Avg Read (bytes)", "total_read", "Float", 80],
                 ["Writes (bytes)", "count_write", "LongInteger", 80],
-                ["Total Written (bytes)", "total_written", "String", 80],
-                ["Avg Written (bytes)", "avg_written", "String", 80]]
+                ["Total Written (bytes)", "total_written", "LongInteger", 80],
+                ["Avg Written (bytes)", "avg_written", "Float", 80]]
   },
 
   { "category" : "io",
@@ -96,9 +96,9 @@
                  ["Max Time (ms)", "max_latency", "LongInteger:ms", 80],
                  ["Avg Time (ms)", "avg_latency", "LongInteger:ms", 80],
                  ["Rows Sent (#)", "rows_sent", "LongInteger", 80],
-                 ["Avg. Rows Sent (#)", "rows_sent_avg", "LongInteger", 80],
+                 ["Avg. Rows Sent (#)", "rows_sent_avg", "Float", 80],
                  ["Rows Scanned (#)", "rows_examined", "LongInteger", 80],
-                 ["Avg. Rows Scanned (#)", "rows_examined_avg", "LongInteger", 80],
+                 ["Avg. Rows Scanned (#)", "rows_examined_avg", "Float", 80],
                  ["Temp. Tables (#)", "tmp_tables", "LongInteger", 80],
                  ["Temp. Disk Tables (#)", "tmp_disk_tables", "LongInteger", 80],
                  ["Rows Sorted (#)", "rows_sorted", "LongInteger", 80],
@@ -148,11 +148,11 @@
     "columns" : [["Query", "query", "String", 500],
                  ["Executed (#)", "exec_count", "LongInteger", 80],
                  ["Sort Merge Passes (#)", "sort_merge_passes", "LongInteger", 80],
-                 ["Avg Sort Merges (#)", "avg_sort_merges", "LongInteger", 80],
+                 ["Avg Sort Merges (#)", "avg_sort_merges", "Float", 80],
                  ["Sorts Using Scans (#)", "sorts_using_scans", "LongInteger", 80],
                  ["Sorts Using Range (#)", "sort_using_range", "LongInteger", 80],
                  ["Rows Sorted (#)", "rows_sorted", "LongInteger", 80],
-                 ["Avg Rows Sorted (#)", "avg_rows_sorted", "LongInteger", 80],
+                 ["Avg Rows Sorted (#)", "avg_rows_sorted", "Float", 80],
                  ["Digest", "digest", "String", 100]
                  ]
   },
@@ -165,7 +165,7 @@
                  ["Executed (#)", "exec_count", "LongInteger", 80],
                  ["No Index Used", "no_index_used_count", "LongInteger", 80],
                  ["No Good Index Used", "no_good_index_used_count", "LongInteger", 80],
-                 ["No Index Used %", "no_index_used_pct", "String", 80],
+                 ["No Index Used %", "no_index_used_pct", "Float", 80],
                  ["Digest", "digest", "String", 100]
                  ]
   },
@@ -177,7 +177,7 @@
     "columns" : [["Query", "query", "String", 300],
                  ["Executed (#)", "exec_count", "LongInteger", 80],
                  ["Errors (#)", "errors", "LongInteger", 80],
-                 ["Error (%)", "error_pct", "String", 50],
+                 ["Error (%)", "error_pct", "Float", 50],
                  ["Warnings (#)", "warnings", "LongInteger", 80],
                  ["Warnings (%)", "warning_pct", "Float", 50],
                  ["Digest", "digest", "String", 100]
@@ -228,10 +228,10 @@
                  ["Rows Deleted (#)", "rows_deleted", "LongInteger", 80],
                  ["Delete Time (ms)", "delete_latency", "LongInteger:ms", 80],
                  ["I/O Read Reqs (#)", "io_read_requests", "LongInteger", 80],
-                 ["I/O Read (#)", "io_read", "String", 80],
+                 ["I/O Read (#)", "io_read", "LongInteger", 80],
                  ["I/O Read Time (ms)", "io_read_latency", "LongInteger:ms", 80],
                  ["I/O Write Reqs (#)", "io_write_requests", "LongInteger", 80],
-                 ["I/O Write (#)", "io_write", "String", 80],
+                 ["I/O Write (#)", "io_write", "LongInteger", 80],
                  ["I/O Write Time (ms)", "io_write_latency", "LongInteger:ms", 80],
                  ["I/O Misc. Reqs (#)", "io_misc_requests", "LongInteger", 80],
                  ["I/O Misc. Time (ms)", "io_misc_latency", "LongInteger:ms", 80]
@@ -253,15 +253,15 @@
                  ["Rows Deleted (#)", "rows_deleted", "LongInteger", 80],
                  ["Delete Time (ms)", "delete_latency", "LongInteger:ms", 80],
                  ["I/O Read Reqs (#)", "io_read_requests", "LongInteger", 80],
-                 ["I/O Read (#)", "io_read", "String", 80],
+                 ["I/O Read (#)", "io_read", "LongInteger", 80],
                  ["I/O Read Time (ms)", "io_read_latency", "LongInteger:ms", 80],
                  ["I/O Write Reqs (#)", "io_write_requests", "LongInteger", 80],
-                 ["I/O Write", "io_write", "String", 80],
+                 ["I/O Write (#)", "io_write", "LongInteger", 80],
                  ["I/O Write Time (ms)", "io_write_latency", "LongInteger:ms", 80],
                  ["I/O Misc. Reqs (#)", "io_misc_requests", "LongInteger", 80],
                  ["I/O Misc. Time (ms)", "io_misc_latency", "LongInteger:ms", 80],
-                 ["Buffer Allocated", "innodb_buffer_allocated", "String", 80],
-                 ["Buffer Data", "innodb_buffer_data", "String", 80],
+                 ["Buffer Allocated", "innodb_buffer_allocated", "LongInteger", 80],
+                 ["Buffer Data", "innodb_buffer_data", "LongInteger", 80],
                  ["Buffer Pages", "innodb_buffer_pages", "LongInteger", 80],
                  ["Buffer Pages Hashed", "innodb_buffer_pages_hashed", "LongInteger", 80],
                  ["Buffer Pages Old", "innodb_buffer_pages_old", "LongInteger", 80],
@@ -337,12 +337,12 @@
   "description" : "Summarizes the output of the INFORMATION_SCHEMA.INNODB_BUFFER_PAGE table, aggregating by schema",
   "caption" : "InnoDB Buffer Stats by Schema",
   "columns" : [["Schema", "object_schema", "String", 200],
-              ["Allocated", "allocated", "String", 80],
-              ["Data", "data", "String", 80],
+              ["Allocated", "allocated", "LongInteger", 80],
+              ["Data", "data", "LongInteger", 80],
               ["Pages", "pages", "LongInteger", 80],
               ["Pages Hashed", "pages_hashed", "LongInteger", 80],
               ["Pages Old", "pages_old", "LongInteger", 80],
-              ["Rows Cached", "rows_cached", "String", 80]
+              ["Rows Cached", "rows_cached", "LongInteger", 80]
               ]
   },
                
@@ -352,12 +352,12 @@
   "caption" : "InnoDB Buffer Stats by Table",
   "columns" : [["Schema", "object_schema", "String", 200],
               ["Table", "object_name", "String", 200],
-              ["Allocated", "allocated", "String", 80],
-              ["Data", "data", "String", 80],
+              ["Allocated", "allocated", "LongInteger", 80],
+              ["Data", "data", "LongInteger", 80],
               ["Pages", "pages", "LongInteger", 80],
               ["Pages Hashed", "pages_hashed", "LongInteger", 80],
               ["Pages Old", "pages_old", "LongInteger", 80],
-              ["Rows Cached", "rows_cached", "String", 80]
+              ["Rows Cached", "rows_cached", "LongInteger", 80]
               ]
   }
 ]

@@ -5,7 +5,7 @@
 #include <gtkmm/notebook.h>
 #include <gtkmm/alignment.h>
 
-#if GTK_VERSION_GE(2,20)
+#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
 typedef Gtk::Notebook   ActionAreaNotebook;
 #else
 //==============================================================================
@@ -99,7 +99,7 @@ class ActionAreaNotebook : public Gtk::VBox
     Gtk::Notebook   book_tab;
     Gtk::Notebook   book_cont;
 };
-#endif //#if GTK_VERSION_GE(2,20)
+#endif //#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
 
 #endif
 

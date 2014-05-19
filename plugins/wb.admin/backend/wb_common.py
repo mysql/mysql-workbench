@@ -101,6 +101,18 @@ class ServerIOError(RuntimeError):
 class NoDriverInConnection(RuntimeError):
     pass
 
+class SSHFingerprintNewError(Exception):
+      def __init__(self, message, client, hostname, key):
+          self.message = message
+          self.key = key
+          self.hostname = hostname
+          self.client = client
+          import binascii
+          self.fingerprint = binascii.hexlify(self.key.get_fingerprint())
+      def __str__(self):
+         return self.message
+
+
 # Decorator to log an exception
 def log_error_decorator(method):
     def wrapper(self, error):

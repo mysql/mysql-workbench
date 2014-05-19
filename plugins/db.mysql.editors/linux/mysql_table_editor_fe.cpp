@@ -117,7 +117,7 @@ DbMySQLTableEditor::~DbMySQLTableEditor()
   delete _triggers_page;
   delete _part_page;
   delete _opts_page;
-  //delete _inserts_page;
+  delete _inserts_panel;
   delete _privs_page;
   delete _be;
 }

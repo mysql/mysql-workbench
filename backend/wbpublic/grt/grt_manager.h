@@ -153,7 +153,7 @@ namespace bec {
     void set_app_option(const std::string &name, const grt::ValueRef &value);
     
     boost::signals2::connection run_once_when_idle(const boost::function<void ()> &func);
-    void run_once_when_idle(base::trackable *owner, const boost::function<void ()> &func);
+    boost::signals2::connection run_once_when_idle(base::trackable *owner, const boost::function<void ()> &func);
 
     void block_idle_tasks();
     void unblock_idle_tasks();

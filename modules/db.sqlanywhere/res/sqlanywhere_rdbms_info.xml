@@ -25,7 +25,7 @@
         <value type="string" key="caption">ODBC (manually entered parameters)</value>
         <value type="string" key="description">Pyodbc ODBC Driver</value>
         <value type="string" key="driverLibraryName">pyodbc</value>
-        <value type="string" key="connectionStringTemplate">DRIVER=%driver%;HOST=%hostName%:%port%;DATABASEFILE=%schema%;UID=%userName%</value>
+        <value type="string" key="connectionStringTemplate">DRIVER=%driver%;HOST=%hostName%:%port%;DATABASEFILE=%schema%;UID=%userName%;%extras%</value>
 
         <value  type="list" content-type="string" key="files">
           <!--value type="string">libmysql.dll</value-->
@@ -126,6 +126,22 @@
             <value type="string" key="paramType">file</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc.param7">
+            <value type="string" key="caption">Additional arguments</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">; separated list of extra arguments to use in the
+ODBC connection string.</value>
+            <value type="int" key="layoutAdvanced">1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">extras</value>
+            <link type="object" key="owner">com.mysql.rdbms.sqlanywhere.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
           </value>
         </value>
       </value>

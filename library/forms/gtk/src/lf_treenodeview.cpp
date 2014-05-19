@@ -1158,6 +1158,12 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
   {
     if (w->drag_check_threshold(_drag_start_x, _drag_start_y, ev->x, ev->y))
     {
+      if (_org_event != 0)
+      {
+        delete _org_event;
+        _org_event = 0;
+      }
+
       {
         //Because of problems when Treeview has been set to multiselect,
         //there are some DnD problems, below code is fixing those.
@@ -1262,7 +1268,7 @@ bool TreeNodeViewImpl::on_button_release(GdkEventButton* ev)
   //we need this to emit press event again cause we're changing default behavior of it
   if (_org_event != 0)
   {
-    g_signal_emit_by_name(_tree.gobj(), "button-press-event", _org_event);
+    gtk_propagate_event((GtkWidget*)_tree.gobj(), (GdkEvent*)_org_event);
     delete _org_event;
     _org_event = 0;
   }
@@ -1597,23 +1603,59 @@ void TreeNodeViewImpl::set_selected(TreeNodeView* self, TreeNodeRef node, bool f
   tree->_conn.unblock();
 }
 
-static int str_number_cmp(const Gtk::TreeModel::iterator& it1, const Gtk::TreeModel::iterator& it2, Gtk::TreeModelColumn< Glib::ustring> *col)
+template<typename T>
+int column_value_compare(const T &val1, const T &val2)
 {
-  double v1 = mforms::TreeNodeView::parse_string_with_unit((*it1).get_value(*col).c_str());
-  double v2 = mforms::TreeNodeView::parse_string_with_unit((*it2).get_value(*col).c_str());
-
-  return (int)(v2-v1);
+  int result = 0;
+  if (val2 < val1) result = -1;
+  else if (val2 > val1) result = 1;
+  return result;
 }
 
-static int str_cmp(const Gtk::TreeModel::iterator& it1, const Gtk::TreeModel::iterator& it2, Gtk::TreeModelColumn< Glib::ustring> *col)
+template<typename T>
+int column_numeric_compare(const Gtk::TreeModel::iterator& it1, const Gtk::TreeModel::iterator& it2, Gtk::TreeModelColumn<T> *col)
 {
-  const Glib::ustring s1 = (*it1).get_value(*col);
-  const Glib::ustring s2 = (*it2).get_value(*col);
+  return column_value_compare((*it1).get_value(*col), (*it2).get_value(*col));
+}
 
-  if (s1.is_ascii() && s2.is_ascii())
-    return strcmp(s1.c_str(), s2.c_str());
-  else
-    return s1.compare(s2);
+int column_string_compare(const Gtk::TreeModel::iterator& it1, const Gtk::TreeModel::iterator& it2, Gtk::TreeModelColumn<Glib::ustring> *col, int type)
+{
+  int result = 0;
+  
+  switch (type)
+  {
+    case StringColumnType:
+    case StringLTColumnType:
+    case IconColumnType:
+    {
+      std::string val1 = (*it1).get_value(*col).c_str();
+      std::string val2 = (*it2).get_value(*col).c_str();
+      result = base::string_compare(val2, val1, false);
+      break;
+    }
+    case IntegerColumnType:
+    case LongIntegerColumnType:
+    {
+      std::istringstream ss_val1((*it1).get_value(*col).c_str());
+      std::istringstream ss_val2((*it2).get_value(*col).c_str());
+      int64_t val1 = 0;
+      int64_t val2 = 0;
+      ss_val1 >> val1;
+      ss_val2 >> val2;
+      result = column_value_compare(val1, val2);
+      break;
+    }
+    case FloatColumnType:
+    case NumberWithUnitColumnType:
+    {
+      double val1 = mforms::TreeNodeView::parse_string_with_unit((*it1).get_value(*col).c_str());
+      double val2 = mforms::TreeNodeView::parse_string_with_unit((*it2).get_value(*col).c_str());
+      result = column_value_compare(val1, val2);
+      break;
+    }
+  }
+  
+  return result;
 }
 
 void TreeNodeViewImpl::set_allow_sorting(TreeNodeView* self, bool flag)
@@ -1626,39 +1668,91 @@ void TreeNodeViewImpl::set_allow_sorting(bool flag)
 {
   if (_tree.get_headers_visible())
     _tree.set_headers_clickable(flag);
-  if (flag && _tree_store)
+  
+  if (flag == false || !_tree_store)
+    return;
+    
+  if (!_sort_model)
+    _sort_model = Gtk::TreeModelSort::create(_tree_store);
+
+  for (std::size_t i = 0; i < _tree.get_columns().size(); ++i)
   {
-    if (!_sort_model)
-      _sort_model = Gtk::TreeModelSort::create(_tree_store);
-
-    const int ncols = _tree.get_columns().size();
-    for (int i = 0; i < ncols; ++i)
+    Gtk::TreeViewColumn* col = _tree.get_column(i);
+    Gtk::TreeModelColumnBase *mcol = _columns.columns[index_for_column(i)];
+    
+    if (col == NULL || mcol == NULL)
     {
-
-      Gtk::TreeViewColumn* col = _tree.get_column(i);
-      Gtk::TreeModelColumnBase *mcol = _columns.columns[index_for_column(i)];
-      if (get_owner()->get_column_type(i) == NumberWithUnitColumnType)
-      {
-        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(str_number_cmp), (Gtk::TreeModelColumn< Glib::ustring>*)mcol));
-      }
-      else if (mcol->type() == G_TYPE_STRING)
-      {
-        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(str_cmp), (Gtk::TreeModelColumn< Glib::ustring>*)mcol));
-      }
-
-
-
-      if (mcol && col)
-      {
-        col->signal_clicked().connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::header_clicked),mcol,col));
-      }
+      log_warning("Invalid column pointer[col:%s][mcol:%s]\n", col == NULL ? "NULL" : "NOT NULL", mcol == NULL ? "NULL" : "NOT NULL");
+      continue;
     }
 
-    // temporarily disable selection change signal, gtk emits it when setting model
-    _conn.disconnect();
-    _tree.set_model(_sort_model);
-    _conn = _tree.get_selection()->signal_changed().connect(sigc::mem_fun(dynamic_cast<TreeNodeView*>(owner), &TreeNodeView::changed));
+    col->signal_clicked().connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::header_clicked),mcol,col));
+    
+    //  Align columns text depending on the visualization type
+    float align = 0.0f;
+    
+    switch(get_owner()->get_column_type(i))
+    {
+      case StringColumnType:
+      case StringLTColumnType:
+      case IconColumnType:
+        align = 0.0f;
+        break;
+      case IntegerColumnType:
+      case LongIntegerColumnType:
+      case FloatColumnType:
+      case NumberWithUnitColumnType:
+        align = 1.0f;
+        break;
+      case CheckColumnType:
+      case TriCheckColumnType:
+        align = 0.5f;
+        break;
+    }      
+    
+    Glib::ListHandle<Gtk::CellRenderer*> renderers = col->get_cell_renderers();
+    
+    for (Glib::ListHandle<Gtk::CellRenderer*>::const_iterator iter = renderers.begin(); iter != renderers.end(); ++iter)
+      (*iter)->set_alignment(align, 0);
+    
+    //  Set the proper compare method to the sorting functions depending on the storage type
+    switch (mcol->type())
+    {
+      case G_TYPE_INT:
+        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_numeric_compare<int>), (Gtk::TreeModelColumn<int>*)mcol));
+        break;
+      case G_TYPE_LONG:
+        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_numeric_compare<long>), (Gtk::TreeModelColumn<long>*)mcol));
+        break;
+      case G_TYPE_INT64:
+        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_numeric_compare<int64_t>), (Gtk::TreeModelColumn<int64_t>*)mcol));
+        break;
+      case G_TYPE_UINT:
+        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_numeric_compare<unsigned int>), (Gtk::TreeModelColumn<unsigned int>*)mcol));
+        break;
+      case G_TYPE_ULONG:
+        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_numeric_compare<unsigned long>), (Gtk::TreeModelColumn<unsigned long>*)mcol));
+        break;
+      case G_TYPE_UINT64:
+        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_numeric_compare<uint64_t>), (Gtk::TreeModelColumn<uint64_t>*)mcol));
+        break;
+      case G_TYPE_FLOAT:
+      case G_TYPE_DOUBLE:
+        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_numeric_compare<double>), (Gtk::TreeModelColumn<double>*)mcol));
+        break;
+      case G_TYPE_STRING:
+        _sort_model->set_sort_func(*mcol, sigc::bind(sigc::ptr_fun(column_string_compare), (Gtk::TreeModelColumn<Glib::ustring>*)mcol, get_owner()->get_column_type(i)));
+        break;
+      default:
+        log_warning("Unknown column storage type");
+        break;
+    }
   }
+
+  // temporarily disable selection change signal, gtk emits it when setting model
+  _conn.disconnect();
+  _tree.set_model(_sort_model);
+  _conn = _tree.get_selection()->signal_changed().connect(sigc::mem_fun(dynamic_cast<TreeNodeView*>(owner), &TreeNodeView::changed));
 }
 
 void TreeNodeViewImpl::freeze_refresh(TreeNodeView* self, bool flag)
