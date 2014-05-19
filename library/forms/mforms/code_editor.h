@@ -85,16 +85,17 @@ namespace mforms {
   };
 
   enum CodeEditorFeature {
-    FeatureNone              = 0,
-    FeatureWrapText          = 1 << 0, // Enables word wrapping.
-    FeatureGutter            = 1 << 1, // Show/Hide gutter.
-    FeatureReadOnly          = 1 << 2,
-    FeatureShowSpecial       = 1 << 3, // Show white spaces and line ends with special chars.
-    FeatureUsePopup          = 1 << 4, // Use built-in context menu.
-    FeatureConvertEolOnPaste = 1 << 5, // Convert line endings to the current value in the editor
-                                       // when pasting text.
+    FeatureNone               = 0,
+    FeatureWrapText           = 1 << 0, // Enables word wrapping.
+    FeatureGutter             = 1 << 1, // Show/Hide gutter.
+    FeatureReadOnly           = 1 << 2,
+    FeatureShowSpecial        = 1 << 3, // Show white spaces and line ends with special chars.
+    FeatureUsePopup           = 1 << 4, // Use built-in context menu.
+    FeatureConvertEolOnPaste  = 1 << 5, // Convert line endings to the current value in the editor
+                                        // when pasting text.
     FeatureScrollOnResize     = 1 << 6, // Scroll caret into view if it would be hidden by a resize action.
     FeatureFolding            = 1 << 7, // Enable code folding.
+    FeatureAutoIndent         = 1 << 8, // Auto indent the new line on pressing enter.
 
     FeatureAll               = 0xFFFF,
   };
@@ -264,6 +265,12 @@ public:
      *  However, it is not possible to remove a specific marker from all lines.
      */
     void remove_markup(LineMarkup markup, ssize_t line);
+
+    /**
+     * Determines if the given line contains the given markup.
+     * Returns true if at least one of the given markup types was found.
+     */
+    bool has_markup(LineMarkup markup, size_t line);
 
     /** Adds the given indicator styling to a range of characters. */
     void show_indicator(RangeIndicator indicator, size_t start, size_t length);
@@ -470,6 +477,12 @@ public:
      */
     boost::signals2::signal<void (int)>* signal_char_added() { return &_char_added_event; }
 
+    /** Signal emitted when the Scintilla backend removes a set marker (e.g. on editing, pasting, manual marker setting).
+     *  Parameter is:
+     *    The changed line.
+     */
+    boost::signals2::signal<void (int)>* signal_marker_changed() { return &_marker_changed_event; }
+
     /** Emited when editing ends (control loses focus)
      */
     boost::signals2::signal<void ()>* signal_lost_focus() { return &_signal_lost_focus; }
@@ -492,6 +505,7 @@ public:
     std::map<int, void*> _images; // Registered RGBA images.
     void *_host;
     bool _scroll_on_resize;
+    bool _auto_indent;
 
     void setup_marker(int marker, const std::string& name);
     void load_configuration(SyntaxHighlighterLanguage language);
@@ -502,6 +516,7 @@ public:
     boost::signals2::signal<void (bool, size_t, int, int)> _dwell_event;
     boost::signals2::signal<void (int)> _char_added_event;
     boost::signals2::signal<void ()> _signal_lost_focus;
+    boost::signals2::signal<void (int)> _marker_changed_event;
 
     boost::function<void (CodeEditor*, bool)> _show_find_panel;
   };

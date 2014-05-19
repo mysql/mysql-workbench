@@ -267,6 +267,7 @@ private:
   void text_changed(int position, int length, int lines_changed, bool added);
   void char_added(int char_code);
   void dwell_event(bool started, size_t position, int x, int y);
+  void marker_changed(int line);
 
   void setup_editor_menu();
   void editor_menu_opening();

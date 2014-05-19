@@ -20,9 +20,6 @@
 #pragma once
 
 #include "grtdb/editor_view.h"
-#include "grts/structs.workbench.physical.h"
-#include "grts/structs.db.mysql.h"
-#include "grt/grt_manager.h"
 
 #include "mysql_support_backend_public_interface.h"
 

@@ -247,7 +247,9 @@ public:
   unsigned int token_start();
   size_t token_offset();
   int token_length();
-  
+
+  std::string text_for_tree();
+
   MySQLQueryType get_current_query_type();
   MySQLQueryType get_main_query_type();
 
@@ -286,6 +288,8 @@ public:
   std::string token_text(pANTLR3_BASE_TREE node);
   MySQLQueryType query_type();
   MySQLQueryType query_type(pANTLR3_BASE_TREE node);
+
+  std::string text_for_tree(pANTLR3_BASE_TREE node);
 
   // Internal routine, called from the error callback.
   void add_error(const std::string &text, ANTLR3_UINT32 error, ANTLR3_UINT32 token, ANTLR3_UINT32 line,

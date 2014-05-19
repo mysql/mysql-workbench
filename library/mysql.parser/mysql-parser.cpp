@@ -1029,6 +1029,13 @@ int MySQLRecognizerTreeWalker::token_length()
 
 //--------------------------------------------------------------------------------------------------
 
+std::string MySQLRecognizerTreeWalker::text_for_tree()
+{
+  return _recognizer->text_for_tree(_tree);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Returns the query type of the (sub)query the waker is in currently.
  */
@@ -1187,6 +1194,7 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 {
   // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
   // (everything requiring only one byte per char as Latin1, ASCII and similar).
+  // TODO: handle the (bad) case that the input encoding changes between parse runs.
   d->_input_encoding = is_utf8 ? ANTLR3_ENC_UTF8 : ANTLR3_ENC_8BIT;
 
   d->_text = text;
@@ -2090,6 +2098,38 @@ MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
   }
   
   return QtUnknown;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * If the given node is a subtree this function collects the original text for all tokens in this tree,
+ * including all tokens on the hidden channel (whitespaces).
+ */
+std::string MySQLRecognizer::text_for_tree(pANTLR3_BASE_TREE node)
+{
+  if (node->getChildCount(node) == 0)
+    return "";
+
+  std::string result;
+
+  pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)node->getChild(node, 0);
+  pANTLR3_COMMON_TOKEN token = child->getToken(child);
+  ANTLR3_MARKER start = token->start;
+
+  child = (pANTLR3_BASE_TREE)node->getChild(node, node->getChildCount(node) - 1);
+  token = child->getToken(child);
+  ANTLR3_MARKER stop = token->stop;
+/*
+  pANTLR3_TOKEN_STREAM token_stream = d->_tokens->tstream;
+  for (ANTLR3_MARKER i = start; i <= stop; ++i)
+  {
+    pANTLR3_COMMON_TOKEN token = token_stream->get(token_stream, i);
+    pANTLR3_STRING text = token->getText(token);
+    result += (char*)text->chars;
+  }
+*/
+  return std::string((char*)start, stop - start + 1);
 }
 
 //--------------------------------------------------------------------------------------------------

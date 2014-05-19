@@ -490,7 +490,9 @@ public:
       if (_code_editor->is_dirty() && _selected_trigger->sqlDefinition() != _code_editor->get_string_value())
       {
         AutoUndoEdit undo(_editor, _selected_trigger, "sql");
+        _editor->freeze_refresh_on_object_change();
         _editor->_parser_services->parseTrigger(_editor->_parser_context, _selected_trigger, _code_editor->get_string_value());
+        _editor->thaw_refresh_on_object_change();
 
         _name.set_value(_selected_trigger->name());
         _definer.set_value(_selected_trigger->definer());

@@ -67,6 +67,35 @@ int MySQLParserServicesImpl::stopProcessing()
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * If the current token is a definer clause collect the details and return it as string.
+ */
+std::string get_definer(MySQLRecognizerTreeWalker &walker)
+{
+  std::string definer;
+  if (walker.token_type() == DEFINER_SYMBOL)
+  {
+    walker.next(2); // Skip DEFINER + equal sign.
+    definer = walker.token_text();
+    walker.next();
+    switch (walker.token_type())
+    {
+      case OPEN_PAR_SYMBOL: // Optional parentheses.
+        walker.next(2);
+        break;
+      case AT_SIGN_SYMBOL: // A user@host entry.
+        walker.next();
+        definer += '@' + walker.token_text();
+        walker.next();
+        break;
+    }
+  }
+
+  return definer;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Parses the given sql as trigger create script and fills all found details in the given trigger ref.
  * If there's an error nothing is changed.
  * Returns the number of errors.
@@ -91,24 +120,8 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
     MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
     walker.next(); // Skip CREATE.
 
-    if (walker.token_type() == DEFINER_SYMBOL)
-    {
-      walker.next(2); // Skip DEFINER + equal sign.
-      std::string definer = walker.token_text();
-      walker.next();
-      switch (walker.token_type())
-      {
-        case OPEN_PAR_SYMBOL: // Optional parentheses.
-          walker.next(2);
-          break;
-        case AT_SIGN_SYMBOL: // A user@host entry.
-          walker.next();
-          definer += '@' + walker.token_text();
-          walker.next();
-          break;
-      }
-      trigger->definer(definer);
-    }
+    trigger->definer(get_definer(walker));
+
     walker.next(2); // skip TRIGGER + TRIGGER_NAME_TOKEN
     std::string name = walker.token_text();
     walker.next();
@@ -173,7 +186,7 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Parses the given sql as create view script and fills all found details in the given view ref.
+ * Parses the given sql as a create view script and fills all found details in the given view ref.
  * If there's an error nothing changes. If the sql contains a schema reference other than that the
  * the view is in the view's name will be changed (adds _WRONG_SCHEMA) to indicate that.
  */
@@ -212,24 +225,7 @@ int MySQLParserServicesImpl::parseView(parser::ParserContext::Ref context, db_my
     else
       view->algorithm(0);
 
-    if (walker.token_type() == DEFINER_SYMBOL)
-    {
-      walker.next(2); // Skip DEFINER + equal sign.
-      std::string definer = walker.token_text();
-      walker.next();
-      switch (walker.token_type())
-      {
-        case OPEN_PAR_SYMBOL: // Optional parentheses.
-          walker.next(2);
-          break;
-        case AT_SIGN_SYMBOL: // A user@host entry.
-          walker.next();
-          definer += '@' + walker.token_text();
-          walker.next();
-          break;
-      }
-      view->definer(definer);
-    }
+    view->definer(get_definer(walker));
 
     walker.skip_if(SQL_SYMBOL, 3); // SQL SECURITY (DEFINER | INVOKER)
 
@@ -249,13 +245,14 @@ int MySQLParserServicesImpl::parseView(parser::ParserContext::Ref context, db_my
       walker.next();
     }
     view->name(name);
-    view->modelOnly(0);
 
     walker.next(2); // AS + SELECT subtree.
     if (walker.token_type() == WITH_SYMBOL)
       view->withCheckCondition(1);
     else
       view->withCheckCondition(0); // WITH_SYMBOL (CASCADED_SYMBOL | LOCAL_SYMBOL)? CHECK_SYMBOL OPTION_SYMBOL
+
+    view->modelOnly(0);
   }
   else
   {
@@ -276,6 +273,156 @@ int MySQLParserServicesImpl::parseView(parser::ParserContext::Ref context, db_my
       view->name(name);
     }
     view->modelOnly(1);
+  }
+
+  return error_count;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Parses the given sql as a create function/procedure script and fills all found details in the given routine ref.
+ * If there's an error nothing changes. If the sql contains a schema reference other than that the
+ * the routine is in the routine's name will be changed (adds _WRONG_SCHEMA) to indicate that.
+ */
+int MySQLParserServicesImpl::parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine,
+                                          const std::string &sql)
+{
+  log_debug("Parse View");
+
+  routine->sqlDefinition(sql);
+  routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
+
+  context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateRoutine);
+  int error_count = (int)context->recognizer()->error_info().size();
+  if (error_count == 0)
+  {
+    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+    walker.next(); // Skip CREATE.
+    routine->definer(get_definer(walker));
+
+    // A UDF is also a function and will be handled as such here.
+    walker.skip_if(AGGREGATE_SYMBOL);
+    bool is_function = false;
+    if (walker.token_type() == FUNCTION_SYMBOL)
+      is_function = true;
+    if (is_function)
+      routine->routineType("function");
+    else
+      routine->routineType("procedure");
+
+    walker.next(2); // skip FUNCTION/PROCEDURE + *_NAME_TOKEN
+    std::string name = walker.token_text();
+    walker.next();
+    if (walker.token_type() == DOT_SYMBOL)
+    {
+      // A qualified name. Check schema part.
+      walker.next();
+      db_SchemaRef schema = db_SchemaRef::cast_from(routine->owner());
+      if (!base::same_string(schema->name(), name, context->case_sensitive()))
+        name = walker.token_text() + "_WRONG_SCHEMA";
+      else
+        name = walker.token_text();
+
+      walker.next();
+    }
+    routine->name(name);
+
+    if (walker.token_type() == RETURNS_SYMBOL)
+    {
+      // UDF.
+      routine->routineType("udf");
+      walker.next();
+      routine->returnDatatype(walker.token_text());
+    }
+    else
+    {
+      // Parameters.
+      ListRef<db_mysql_RoutineParam> params = routine->params();
+      params.remove_all();
+      walker.next(); // Open par.
+
+      while (true)
+      {
+        db_mysql_RoutineParamRef param(routine->get_grt());
+        param->owner(routine);
+
+        switch (walker.token_type())
+        {
+          case IN_SYMBOL:
+          case OUT_SYMBOL:
+          case INOUT_SYMBOL:
+            param->paramType(walker.token_text());
+            walker.next();
+            break;
+        }
+
+        param->name(walker.token_text());
+        walker.next();
+
+        // DATA_TYPE_TOKEN.
+        param->datatype(walker.text_for_tree());
+        params.insert(param);
+
+        walker.next_sibling();
+        if (walker.token_type() != COMMA_SYMBOL)
+            break;
+        walker.next();
+      }
+      walker.next(); // Closing par.
+
+      if (walker.token_type() == RETURNS_SYMBOL)
+      {
+        walker.next();
+
+        // DATA_TYPE_TOKEN.
+        routine->returnDatatype(walker.text_for_tree());
+        walker.next();
+      }
+
+      if (walker.token_type() == ROUTINE_CREATE_OPTIONS)
+      {
+        // For now we only store comments and security settings.
+        walker.next();
+        do
+        {
+          switch (walker.token_type())
+          {
+            case SQL_SYMBOL:
+              walker.next(2); // SQL + SECURITY (both are siblings)
+              routine->security(walker.token_text());
+              break;
+
+            case COMMENT_SYMBOL:
+              walker.next();
+              routine->comment(walker.token_text());
+              break;
+          }
+        } while (walker.next_sibling());
+      }
+    }
+
+    routine->modelOnly(0);
+  }
+  else
+  {
+    // Finished with errors. See if we can get at least the routine name out.
+    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+    if (walker.advance_to_type(VIEW_NAME_TOKEN, true))
+    {
+      walker.next();
+      std::string name = walker.token_text();
+      walker.next();
+      if (walker.token_type() == DOT_SYMBOL)
+      {
+        // A qualified name. Ignore the schema part.
+        walker.next();
+        name = walker.token_text();
+        walker.next();
+      }
+      routine->name(name);
+    }
+    routine->modelOnly(1);
   }
 
   return error_count;
