@@ -158,26 +158,6 @@
 		2754DF60142CAA9800D1D419 /* snippet_clipboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */; };
 		27597A0114192ED100641E30 /* container.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27597A0014192ED100641E30 /* container.cpp */; };
 		27597A0314192EE900641E30 /* container.h in Headers */ = {isa = PBXBuildFile; fileRef = 27597A0214192EE900641E30 /* container.h */; };
-		275A3327121546B90092A585 /* Fedora_Linux_(MySQL_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32D41215428D0092A585 /* Fedora_Linux_(MySQL_Package).xml */; };
-		275A3328121546B90092A585 /* Fedora_Linux_(Vendor_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32D51215428D0092A585 /* Fedora_Linux_(Vendor_Package).xml */; };
-		275A3329121546B90092A585 /* FreeBSD_(MySQL_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32D61215428D0092A585 /* FreeBSD_(MySQL_Package).xml */; };
-		275A332A121546B90092A585 /* Generic_Linux_(MySQL_tar_package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32D71215428D0092A585 /* Generic_Linux_(MySQL_tar_package).xml */; };
-		275A332B121546B90092A585 /* Linux_(Custom).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32D81215428D0092A585 /* Linux_(Custom).xml */; };
-		275A332C121546B90092A585 /* MacOS_X_(MySQL_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32D91215428D0092A585 /* MacOS_X_(MySQL_Package).xml */; };
-		275A332D121546B90092A585 /* OpenSolaris_(MySQL_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32DA1215428D0092A585 /* OpenSolaris_(MySQL_Package).xml */; };
-		275A332E121546B90092A585 /* RHEL_(MySQL_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32DB1215428D0092A585 /* RHEL_(MySQL_Package).xml */; };
-		275A332F121546B90092A585 /* SLES_(MySQL_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32DC1215428D0092A585 /* SLES_(MySQL_Package).xml */; };
-		275A3330121546B90092A585 /* Ubuntu_Linux_(MySQL_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32DD1215428D0092A585 /* Ubuntu_Linux_(MySQL_Package).xml */; };
-		275A3331121546B90092A585 /* Ubuntu_Linux_(Vendor_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32DE1215428D0092A585 /* Ubuntu_Linux_(Vendor_Package).xml */; };
-		275A3332121546B90092A585 /* Windows_(MySQL_5.0_x64_Installer_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32DF1215428D0092A585 /* Windows_(MySQL_5.0_x64_Installer_Package).xml */; };
-		275A3333121546B90092A585 /* Windows_(MySQL_5.0_x86_Installer_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32E01215428D0092A585 /* Windows_(MySQL_5.0_x86_Installer_Package).xml */; };
-		275A3334121546B90092A585 /* Windows_(MySQL_5.1_x64_Installer_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32E11215428D0092A585 /* Windows_(MySQL_5.1_x64_Installer_Package).xml */; };
-		275A3335121546B90092A585 /* Windows_(MySQL_5.1_x86_Installer_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32E21215428D0092A585 /* Windows_(MySQL_5.1_x86_Installer_Package).xml */; };
-		275A3338121546B90092A585 /* Windows_(MySQL_x64_zip_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32E51215428D0092A585 /* Windows_(MySQL_x64_zip_Package).xml */; };
-		275A3339121546B90092A585 /* Windows_(MySQL_x86_zip_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32E61215428D0092A585 /* Windows_(MySQL_x86_zip_Package).xml */; };
-		275A333A121546B90092A585 /* Windows_x64_(MySQL_5.0_x86_Installer_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32E71215428D0092A585 /* Windows_x64_(MySQL_5.0_x86_Installer_Package).xml */; };
-		275A333B121546B90092A585 /* Windows_x64_(MySQL_5.1_x86_Installer_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32E81215428D0092A585 /* Windows_x64_(MySQL_5.1_x86_Installer_Package).xml */; };
-		275A333D121546B90092A585 /* Windows_x64_(MySQL_x86_zip_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 275A32EA1215428D0092A585 /* Windows_x64_(MySQL_x86_zip_Package).xml */; };
 		275E55CE11AD35F100B3886E /* popup.h in Headers */ = {isa = PBXBuildFile; fileRef = 275E55CD11AD35F100B3886E /* popup.h */; };
 		275E55D011AD35FE00B3886E /* popup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 275E55CF11AD35FE00B3886E /* popup.cpp */; };
 		275E560911AD41C400B3886E /* MFPopup.h in Headers */ = {isa = PBXBuildFile; fileRef = 275E560711AD41C300B3886E /* MFPopup.h */; };
@@ -632,8 +612,6 @@
 		2B1CA4260F965CB1001443CA /* MQResultSetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1CA4220F965CB1001443CA /* MQResultSetCell.m */; };
 		2B1CF3AA11931D2B00D1410D /* wb_doclib_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B1CF3A911931D2B00D1410D /* wb_doclib_grt.py */; };
 		2B1CF45411939DDF00D1410D /* DB Management.txt in Copy Files (snippets) */ = {isa = PBXBuildFile; fileRef = 2B1CF45311939DDE00D1410D /* DB Management.txt */; };
-		2B1D6C9E1777D1230073C062 /* Windows_(MySQL_5.5_Installer_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 2B1D6C9C1777D1130073C062 /* Windows_(MySQL_5.5_Installer_Package).xml */; };
-		2B1D6C9F1777D1230073C062 /* Windows_(MySQL_5.6_Installer_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 2B1D6C9D1777D1130073C062 /* Windows_(MySQL_5.6_Installer_Package).xml */; };
 		2B1D6CAC177C6BDD0073C062 /* maintab_home_background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6CA3177C6BDD0073C062 /* maintab_home_background@2x.png */; };
 		2B1D6CAD177C6BDD0073C062 /* maintab_home_home.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6CA4177C6BDD0073C062 /* maintab_home_home.png */; };
 		2B1D6CAE177C6BDD0073C062 /* maintab_home_home@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6CA5177C6BDD0073C062 /* maintab_home_home@2x.png */; };
@@ -1268,8 +1246,6 @@
 		2B4D18BD123F19BF004E6309 /* clear_output.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B4D18BC123F19BF004E6309 /* clear_output.png */; };
 		2B4D197A124030D8004E6309 /* wb_context_ui_home.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4D1978124030D8004E6309 /* wb_context_ui_home.h */; };
 		2B4D197B124030D9004E6309 /* wb_context_ui_home.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4D1979124030D8004E6309 /* wb_context_ui_home.cpp */; };
-		2B4D27121254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_MySQL_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 2B4D27101254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_MySQL_Package).xml */; };
-		2B4D27131254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_Vendor_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 2B4D27111254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_Vendor_Package).xml */; };
 		2B4E0E9A103D715C00FA5E2E /* drawbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4E0E99103D715C00FA5E2E /* drawbox.cpp */; };
 		2B52840B0F1A5744005FBF7C /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2B52840D0F1A57C3005FBF7C /* graph_renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5283FD0F1A5718005FBF7C /* graph_renderer.cpp */; };
@@ -1340,7 +1316,6 @@
 		2B5FE4DC187F39DC00AEC55C /* dashboard_separator.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5FE4DB187F39DC00AEC55C /* dashboard_separator.png */; };
 		2B60B9C515114CAE00636FE2 /* autocomplete_object_name_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B60B9C315114CAD00636FE2 /* autocomplete_object_name_cache.cpp */; };
 		2B60B9C615114CAE00636FE2 /* autocomplete_object_name_cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B60B9C415114CAE00636FE2 /* autocomplete_object_name_cache.h */; };
-		2B60BD5B1513DE3C00636FE2 /* Fedora_Linux_15_(Vendor_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 2B60BD5A1513DE3C00636FE2 /* Fedora_Linux_15_(Vendor_Package).xml */; };
 		2B60D7E8129C6B83000D5760 /* config_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B60D7E7129C6B83000D5760 /* config_file.cpp */; };
 		2B6483DD122725ED00207149 /* grt_code_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6483DB122725ED00207149 /* grt_code_editor.cpp */; };
 		2B6483DE122725ED00207149 /* grt_code_editor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6483DC122725ED00207149 /* grt_code_editor.h */; };
@@ -1364,6 +1339,10 @@
 		2B6BBEDF16BACA7C00F8A39E /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2B6BBEE016BACA8900F8A39E /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2B6BBEE116BACAD000F8A39E /* db.search.wbp.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6BBECF16BAC53300F8A39E /* db.search.wbp.dylib */; };
+		2B6C4FBA18DDD88F00869EBE /* python_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6C4FB818DDD88F00869EBE /* python_utils.cpp */; };
+		2B6C4FBD18DDD8C500869EBE /* python_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6C4FBC18DDD8C500869EBE /* python_utils.h */; };
+		2B6C4FBF18DDE7AB00869EBE /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		2B6C4FC318DE372D00869EBE /* mysql.profiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B6C4FC218DE372D00869EBE /* mysql.profiles */; };
 		2B6C6FBF16C0BE7A00C4CC98 /* sqlide_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */; };
 		2B6C6FC016C0BE7B00C4CC98 /* sqlide_resultset_ext.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBD16C0BE4B00C4CC98 /* sqlide_resultset_ext.py */; };
 		2B6C6FC116C0BE7B00C4CC98 /* sqlide_schematree_ext.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBE16C0BE4B00C4CC98 /* sqlide_schematree_ext.py */; };
@@ -1806,7 +1785,6 @@
 		2B9BA9E913F436420090DBA9 /* db.Trigger.many.side.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B9BA9E013F436420090DBA9 /* db.Trigger.many.side.16x16.png */; };
 		2B9BA9EA13F436420090DBA9 /* db.Trigger.side.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B9BA9E113F436420090DBA9 /* db.Trigger.side.16x16.png */; };
 		2B9BF3B3111B8ACF0039E901 /* CSV_semicolon.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2B9BF3B1111B8A950039E901 /* CSV_semicolon.tpl */; };
-		2B9EC66815DD968200570C95 /* Fedora_Linux_16_(Vendor_Package).xml in Copy Files (server profiles) */ = {isa = PBXBuildFile; fileRef = 2B9EC66715DD960200570C95 /* Fedora_Linux_16_(Vendor_Package).xml */; };
 		2B9EC6AA15DF5BD700570C95 /* MySQLTableEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9EC6A915DF5BD700570C95 /* MySQLTableEditor.mm */; };
 		2B9EC6AB15E02B7600570C95 /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		2BA2B5EA1794ACFF00673E8D /* maintab_home_background.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BA2B5E81794ACCB00673E8D /* maintab_home_background.png */; };
@@ -3422,42 +3400,6 @@
 			name = "Copy Files (grt)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2B3386F20F9E504E00EF463C /* Copy Files (server profiles) */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = mysql.profiles;
-			dstSubfolderSpec = 7;
-			files = (
-				2B1D6C9E1777D1230073C062 /* Windows_(MySQL_5.5_Installer_Package).xml in Copy Files (server profiles) */,
-				2B1D6C9F1777D1230073C062 /* Windows_(MySQL_5.6_Installer_Package).xml in Copy Files (server profiles) */,
-				2B60BD5B1513DE3C00636FE2 /* Fedora_Linux_15_(Vendor_Package).xml in Copy Files (server profiles) */,
-				2B9EC66815DD968200570C95 /* Fedora_Linux_16_(Vendor_Package).xml in Copy Files (server profiles) */,
-				2B4D27121254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_MySQL_Package).xml in Copy Files (server profiles) */,
-				2B4D27131254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_Vendor_Package).xml in Copy Files (server profiles) */,
-				275A3327121546B90092A585 /* Fedora_Linux_(MySQL_Package).xml in Copy Files (server profiles) */,
-				275A3328121546B90092A585 /* Fedora_Linux_(Vendor_Package).xml in Copy Files (server profiles) */,
-				275A3329121546B90092A585 /* FreeBSD_(MySQL_Package).xml in Copy Files (server profiles) */,
-				275A332A121546B90092A585 /* Generic_Linux_(MySQL_tar_package).xml in Copy Files (server profiles) */,
-				275A332B121546B90092A585 /* Linux_(Custom).xml in Copy Files (server profiles) */,
-				275A332C121546B90092A585 /* MacOS_X_(MySQL_Package).xml in Copy Files (server profiles) */,
-				275A332E121546B90092A585 /* RHEL_(MySQL_Package).xml in Copy Files (server profiles) */,
-				275A332F121546B90092A585 /* SLES_(MySQL_Package).xml in Copy Files (server profiles) */,
-				275A3330121546B90092A585 /* Ubuntu_Linux_(MySQL_Package).xml in Copy Files (server profiles) */,
-				275A3331121546B90092A585 /* Ubuntu_Linux_(Vendor_Package).xml in Copy Files (server profiles) */,
-				275A3332121546B90092A585 /* Windows_(MySQL_5.0_x64_Installer_Package).xml in Copy Files (server profiles) */,
-				275A3333121546B90092A585 /* Windows_(MySQL_5.0_x86_Installer_Package).xml in Copy Files (server profiles) */,
-				275A3334121546B90092A585 /* Windows_(MySQL_5.1_x64_Installer_Package).xml in Copy Files (server profiles) */,
-				275A3335121546B90092A585 /* Windows_(MySQL_5.1_x86_Installer_Package).xml in Copy Files (server profiles) */,
-				275A3338121546B90092A585 /* Windows_(MySQL_x64_zip_Package).xml in Copy Files (server profiles) */,
-				275A3339121546B90092A585 /* Windows_(MySQL_x86_zip_Package).xml in Copy Files (server profiles) */,
-				275A333A121546B90092A585 /* Windows_x64_(MySQL_5.0_x86_Installer_Package).xml in Copy Files (server profiles) */,
-				275A332D121546B90092A585 /* OpenSolaris_(MySQL_Package).xml in Copy Files (server profiles) */,
-				275A333B121546B90092A585 /* Windows_x64_(MySQL_5.1_x86_Installer_Package).xml in Copy Files (server profiles) */,
-				275A333D121546B90092A585 /* Windows_x64_(MySQL_x86_zip_Package).xml in Copy Files (server profiles) */,
-			);
-			name = "Copy Files (server profiles)";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2B5284690F1A89B7005FBF7C /* Copy Library */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3926,26 +3868,6 @@
 		2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_clipboard.png; path = images/toolbar/snippet_clipboard.png; sourceTree = "<group>"; };
 		27597A0014192ED100641E30 /* container.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = container.cpp; path = library/forms/container.cpp; sourceTree = "<group>"; };
 		27597A0214192EE900641E30 /* container.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = container.h; path = library/forms/mforms/container.h; sourceTree = "<group>"; };
-		275A32D41215428D0092A585 /* Fedora_Linux_(MySQL_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Fedora_Linux_(MySQL_Package).xml"; path = "res/mysql.profiles/Fedora_Linux_(MySQL_Package).xml"; sourceTree = "<group>"; };
-		275A32D51215428D0092A585 /* Fedora_Linux_(Vendor_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Fedora_Linux_(Vendor_Package).xml"; path = "res/mysql.profiles/Fedora_Linux_(Vendor_Package).xml"; sourceTree = "<group>"; };
-		275A32D61215428D0092A585 /* FreeBSD_(MySQL_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "FreeBSD_(MySQL_Package).xml"; path = "res/mysql.profiles/FreeBSD_(MySQL_Package).xml"; sourceTree = "<group>"; };
-		275A32D71215428D0092A585 /* Generic_Linux_(MySQL_tar_package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Generic_Linux_(MySQL_tar_package).xml"; path = "res/mysql.profiles/Generic_Linux_(MySQL_tar_package).xml"; sourceTree = "<group>"; };
-		275A32D81215428D0092A585 /* Linux_(Custom).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Linux_(Custom).xml"; path = "res/mysql.profiles/Linux_(Custom).xml"; sourceTree = "<group>"; };
-		275A32D91215428D0092A585 /* MacOS_X_(MySQL_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "MacOS_X_(MySQL_Package).xml"; path = "res/mysql.profiles/MacOS_X_(MySQL_Package).xml"; sourceTree = "<group>"; };
-		275A32DA1215428D0092A585 /* OpenSolaris_(MySQL_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "OpenSolaris_(MySQL_Package).xml"; path = "res/mysql.profiles/OpenSolaris_(MySQL_Package).xml"; sourceTree = "<group>"; };
-		275A32DB1215428D0092A585 /* RHEL_(MySQL_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "RHEL_(MySQL_Package).xml"; path = "res/mysql.profiles/RHEL_(MySQL_Package).xml"; sourceTree = "<group>"; };
-		275A32DC1215428D0092A585 /* SLES_(MySQL_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "SLES_(MySQL_Package).xml"; path = "res/mysql.profiles/SLES_(MySQL_Package).xml"; sourceTree = "<group>"; };
-		275A32DD1215428D0092A585 /* Ubuntu_Linux_(MySQL_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Ubuntu_Linux_(MySQL_Package).xml"; path = "res/mysql.profiles/Ubuntu_Linux_(MySQL_Package).xml"; sourceTree = "<group>"; };
-		275A32DE1215428D0092A585 /* Ubuntu_Linux_(Vendor_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Ubuntu_Linux_(Vendor_Package).xml"; path = "res/mysql.profiles/Ubuntu_Linux_(Vendor_Package).xml"; sourceTree = "<group>"; };
-		275A32DF1215428D0092A585 /* Windows_(MySQL_5.0_x64_Installer_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_(MySQL_5.0_x64_Installer_Package).xml"; path = "res/mysql.profiles/Windows_(MySQL_5.0_x64_Installer_Package).xml"; sourceTree = "<group>"; };
-		275A32E01215428D0092A585 /* Windows_(MySQL_5.0_x86_Installer_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_(MySQL_5.0_x86_Installer_Package).xml"; path = "res/mysql.profiles/Windows_(MySQL_5.0_x86_Installer_Package).xml"; sourceTree = "<group>"; };
-		275A32E11215428D0092A585 /* Windows_(MySQL_5.1_x64_Installer_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_(MySQL_5.1_x64_Installer_Package).xml"; path = "res/mysql.profiles/Windows_(MySQL_5.1_x64_Installer_Package).xml"; sourceTree = "<group>"; };
-		275A32E21215428D0092A585 /* Windows_(MySQL_5.1_x86_Installer_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_(MySQL_5.1_x86_Installer_Package).xml"; path = "res/mysql.profiles/Windows_(MySQL_5.1_x86_Installer_Package).xml"; sourceTree = "<group>"; };
-		275A32E51215428D0092A585 /* Windows_(MySQL_x64_zip_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_(MySQL_x64_zip_Package).xml"; path = "res/mysql.profiles/Windows_(MySQL_x64_zip_Package).xml"; sourceTree = "<group>"; };
-		275A32E61215428D0092A585 /* Windows_(MySQL_x86_zip_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_(MySQL_x86_zip_Package).xml"; path = "res/mysql.profiles/Windows_(MySQL_x86_zip_Package).xml"; sourceTree = "<group>"; };
-		275A32E71215428D0092A585 /* Windows_x64_(MySQL_5.0_x86_Installer_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_x64_(MySQL_5.0_x86_Installer_Package).xml"; path = "res/mysql.profiles/Windows_x64_(MySQL_5.0_x86_Installer_Package).xml"; sourceTree = "<group>"; };
-		275A32E81215428D0092A585 /* Windows_x64_(MySQL_5.1_x86_Installer_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_x64_(MySQL_5.1_x86_Installer_Package).xml"; path = "res/mysql.profiles/Windows_x64_(MySQL_5.1_x86_Installer_Package).xml"; sourceTree = "<group>"; };
-		275A32EA1215428D0092A585 /* Windows_x64_(MySQL_x86_zip_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Windows_x64_(MySQL_x86_zip_Package).xml"; path = "res/mysql.profiles/Windows_x64_(MySQL_x86_zip_Package).xml"; sourceTree = "<group>"; };
 		275E55CD11AD35F100B3886E /* popup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = popup.h; path = library/forms/mforms/popup.h; sourceTree = "<group>"; };
 		275E55CF11AD35FE00B3886E /* popup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = popup.cpp; path = library/forms/popup.cpp; sourceTree = "<group>"; };
 		275E560711AD41C300B3886E /* MFPopup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFPopup.h; path = library/forms/cocoa/MFPopup.h; sourceTree = "<group>"; };
@@ -4415,9 +4337,6 @@
 		2B1CA7350F96C0C2001443CA /* com.mysql.rdbms.mysql.sql.editor.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = com.mysql.rdbms.mysql.sql.editor.xml; path = modules/db.mysql.sqlide/res/com.mysql.rdbms.mysql.sql.editor.xml; sourceTree = "<group>"; };
 		2B1CF3A911931D2B00D1410D /* wb_doclib_grt.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_doclib_grt.py; path = plugins/wb.doclib/wb_doclib_grt.py; sourceTree = "<group>"; };
 		2B1CF45311939DDE00D1410D /* DB Management.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "DB Management.txt"; path = "res/snippets/DB Management.txt"; sourceTree = "<group>"; };
-		2B1D6C9C1777D1130073C062 /* Windows_(MySQL_5.5_Installer_Package).xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Windows_(MySQL_5.5_Installer_Package).xml"; path = "res/mysql.profiles/Windows_(MySQL_5.5_Installer_Package).xml"; sourceTree = "<group>"; };
-		2B1D6C9D1777D1130073C062 /* Windows_(MySQL_5.6_Installer_Package).xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Windows_(MySQL_5.6_Installer_Package).xml"; path = "res/mysql.profiles/Windows_(MySQL_5.6_Installer_Package).xml"; sourceTree = "<group>"; };
-		2B1D6CA01777D1970073C062 /* Oracle_Linux_6_(MySQL_Package).xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Oracle_Linux_6_(MySQL_Package).xml"; path = "res/mysql.profiles/Oracle_Linux_6_(MySQL_Package).xml"; sourceTree = "<group>"; };
 		2B1D6CA3177C6BDD0073C062 /* maintab_home_background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "maintab_home_background@2x.png"; path = "images/ui/mac/maintab_home_background@2x.png"; sourceTree = "<group>"; };
 		2B1D6CA4177C6BDD0073C062 /* maintab_home_home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = maintab_home_home.png; path = images/ui/mac/maintab_home_home.png; sourceTree = "<group>"; };
 		2B1D6CA5177C6BDD0073C062 /* maintab_home_home@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "maintab_home_home@2x.png"; path = "images/ui/mac/maintab_home_home@2x.png"; sourceTree = "<group>"; };
@@ -5037,8 +4956,6 @@
 		2B4D18BC123F19BF004E6309 /* clear_output.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = clear_output.png; path = images/toolbar/clear_output.png; sourceTree = "<group>"; };
 		2B4D1978124030D8004E6309 /* wb_context_ui_home.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wb_context_ui_home.h; sourceTree = "<group>"; };
 		2B4D1979124030D8004E6309 /* wb_context_ui_home.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wb_context_ui_home.cpp; sourceTree = "<group>"; wrapsLines = 0; };
-		2B4D27101254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_MySQL_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Ubuntu_Linux_(sysvinit,_MySQL_Package).xml"; path = "res/mysql.profiles/Ubuntu_Linux_(sysvinit,_MySQL_Package).xml"; sourceTree = "<group>"; };
-		2B4D27111254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_Vendor_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Ubuntu_Linux_(sysvinit,_Vendor_Package).xml"; path = "res/mysql.profiles/Ubuntu_Linux_(sysvinit,_Vendor_Package).xml"; sourceTree = "<group>"; };
 		2B4E0E99103D715C00FA5E2E /* drawbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = drawbox.cpp; path = library/forms/drawbox.cpp; sourceTree = "<group>"; };
 		2B5283FD0F1A5718005FBF7C /* graph_renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graph_renderer.cpp; path = modules/wb.model/src/graph_renderer.cpp; sourceTree = "<group>"; };
 		2B5283FE0F1A5718005FBF7C /* reporting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = reporting.cpp; path = modules/wb.model/src/reporting.cpp; sourceTree = "<group>"; };
@@ -5117,7 +5034,6 @@
 		2B5FE4DB187F39DC00AEC55C /* dashboard_separator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dashboard_separator.png; path = images/admin/dashboard_separator.png; sourceTree = "<group>"; };
 		2B60B9C315114CAD00636FE2 /* autocomplete_object_name_cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = autocomplete_object_name_cache.cpp; path = backend/wbpublic/sqlide/autocomplete_object_name_cache.cpp; sourceTree = "<group>"; };
 		2B60B9C415114CAE00636FE2 /* autocomplete_object_name_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = autocomplete_object_name_cache.h; path = backend/wbpublic/sqlide/autocomplete_object_name_cache.h; sourceTree = "<group>"; };
-		2B60BD5A1513DE3C00636FE2 /* Fedora_Linux_15_(Vendor_Package).xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Fedora_Linux_15_(Vendor_Package).xml"; path = "res/mysql.profiles/Fedora_Linux_15_(Vendor_Package).xml"; sourceTree = "<group>"; };
 		2B60D7E7129C6B83000D5760 /* config_file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = config_file.cpp; path = library/base/config_file.cpp; sourceTree = "<group>"; };
 		2B6483DB122725ED00207149 /* grt_code_editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_code_editor.cpp; path = frontend/common/grt_code_editor.cpp; sourceTree = "<group>"; };
 		2B6483DC122725ED00207149 /* grt_code_editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grt_code_editor.h; path = frontend/common/grt_code_editor.h; sourceTree = "<group>"; };
@@ -5144,6 +5060,9 @@
 		2B6BBED516BAC5ED00F8A39E /* DbSearchPanel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DbSearchPanel.cpp; path = plugins/db.search/DbSearchPanel.cpp; sourceTree = "<group>"; };
 		2B6BBED616BAC5ED00F8A39E /* DbSearchPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DbSearchPanel.h; path = plugins/db.search/DbSearchPanel.h; sourceTree = "<group>"; };
 		2B6BBED716BAC5ED00F8A39E /* register_plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = register_plugin.cpp; path = plugins/db.search/register_plugin.cpp; sourceTree = "<group>"; };
+		2B6C4FB818DDD88F00869EBE /* python_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_utils.cpp; path = library/base/python_utils.cpp; sourceTree = "<group>"; };
+		2B6C4FBC18DDD8C500869EBE /* python_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_utils.h; path = library/base/base/python_utils.h; sourceTree = "<group>"; };
+		2B6C4FC218DE372D00869EBE /* mysql.profiles */ = {isa = PBXFileReference; lastKnownFileType = folder; name = mysql.profiles; path = res/mysql.profiles; sourceTree = "<group>"; };
 		2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = sqlide_grt.py; path = plugins/wb.sqlide/sqlide_grt.py; sourceTree = "<group>"; };
 		2B6C6FBD16C0BE4B00C4CC98 /* sqlide_resultset_ext.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = sqlide_resultset_ext.py; path = plugins/wb.sqlide/sqlide_resultset_ext.py; sourceTree = "<group>"; };
 		2B6C6FBE16C0BE4B00C4CC98 /* sqlide_schematree_ext.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = sqlide_schematree_ext.py; path = plugins/wb.sqlide/sqlide_schematree_ext.py; sourceTree = "<group>"; };
@@ -5683,7 +5602,6 @@
 		2B9BA9E113F436420090DBA9 /* db.Trigger.side.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.Trigger.side.16x16.png; path = structs/db.Trigger.side.16x16.png; sourceTree = "<group>"; };
 		2B9BF3B1111B8A950039E901 /* CSV_semicolon.tpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CSV_semicolon.tpl; path = res/sqlidedata/templates/CSV_semicolon.tpl; sourceTree = "<group>"; };
 		2B9E86C416A28EEF00E5E0E5 /* mforms.i */ = {isa = PBXFileReference; explicitFileType = sourcecode.c; name = mforms.i; path = library/forms/swig/mforms.i; sourceTree = "<group>"; };
-		2B9EC66715DD960200570C95 /* Fedora_Linux_16_(Vendor_Package).xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Fedora_Linux_16_(Vendor_Package).xml"; path = "res/mysql.profiles/Fedora_Linux_16_(Vendor_Package).xml"; sourceTree = "<group>"; };
 		2B9EC6A815DF5B9500570C95 /* MySQLTableEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLTableEditor.h; path = plugins/db.mysql.editors/macosx/MySQLTableEditor.h; sourceTree = "<group>"; };
 		2B9EC6A915DF5BD700570C95 /* MySQLTableEditor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MySQLTableEditor.mm; path = plugins/db.mysql.editors/macosx/MySQLTableEditor.mm; sourceTree = "<group>"; };
 		2BA2B5E81794ACCB00673E8D /* maintab_home_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = maintab_home_background.png; path = images/ui/mac/maintab_home_background.png; sourceTree = "<group>"; };
@@ -6461,6 +6379,7 @@
 				2B774FA915CEC39D00923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FAA15CEC3B000923448 /* libgthread-2.0.0.dylib in Frameworks */,
 				2717A6871192E30F00FED3E5 /* libcairo.2.dylib in Frameworks */,
+				2B6C4FBF18DDE7AB00869EBE /* Python in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7384,40 +7303,6 @@
 			name = "Resultset Viewer";
 			sourceTree = "<group>";
 		};
-		2B0C4A771043839800036786 /* Admin Profiles */ = {
-			isa = PBXGroup;
-			children = (
-				275A32D41215428D0092A585 /* Fedora_Linux_(MySQL_Package).xml */,
-				275A32D51215428D0092A585 /* Fedora_Linux_(Vendor_Package).xml */,
-				2B60BD5A1513DE3C00636FE2 /* Fedora_Linux_15_(Vendor_Package).xml */,
-				2B9EC66715DD960200570C95 /* Fedora_Linux_16_(Vendor_Package).xml */,
-				275A32D61215428D0092A585 /* FreeBSD_(MySQL_Package).xml */,
-				275A32D71215428D0092A585 /* Generic_Linux_(MySQL_tar_package).xml */,
-				275A32D81215428D0092A585 /* Linux_(Custom).xml */,
-				275A32D91215428D0092A585 /* MacOS_X_(MySQL_Package).xml */,
-				275A32DA1215428D0092A585 /* OpenSolaris_(MySQL_Package).xml */,
-				2B1D6CA01777D1970073C062 /* Oracle_Linux_6_(MySQL_Package).xml */,
-				275A32DB1215428D0092A585 /* RHEL_(MySQL_Package).xml */,
-				275A32DC1215428D0092A585 /* SLES_(MySQL_Package).xml */,
-				275A32DD1215428D0092A585 /* Ubuntu_Linux_(MySQL_Package).xml */,
-				2B4D27101254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_MySQL_Package).xml */,
-				2B4D27111254F00A00AEE97D /* Ubuntu_Linux_(sysvinit,_Vendor_Package).xml */,
-				275A32DE1215428D0092A585 /* Ubuntu_Linux_(Vendor_Package).xml */,
-				275A32DF1215428D0092A585 /* Windows_(MySQL_5.0_x64_Installer_Package).xml */,
-				275A32E01215428D0092A585 /* Windows_(MySQL_5.0_x86_Installer_Package).xml */,
-				275A32E11215428D0092A585 /* Windows_(MySQL_5.1_x64_Installer_Package).xml */,
-				275A32E21215428D0092A585 /* Windows_(MySQL_5.1_x86_Installer_Package).xml */,
-				2B1D6C9C1777D1130073C062 /* Windows_(MySQL_5.5_Installer_Package).xml */,
-				2B1D6C9D1777D1130073C062 /* Windows_(MySQL_5.6_Installer_Package).xml */,
-				275A32E51215428D0092A585 /* Windows_(MySQL_x64_zip_Package).xml */,
-				275A32E61215428D0092A585 /* Windows_(MySQL_x86_zip_Package).xml */,
-				275A32E71215428D0092A585 /* Windows_x64_(MySQL_5.0_x86_Installer_Package).xml */,
-				275A32E81215428D0092A585 /* Windows_x64_(MySQL_5.1_x86_Installer_Package).xml */,
-				275A32EA1215428D0092A585 /* Windows_x64_(MySQL_x86_zip_Package).xml */,
-			);
-			name = "Admin Profiles";
-			sourceTree = "<group>";
-		};
 		2B0DE77111E916B700989395 /* db.query */ = {
 			isa = PBXGroup;
 			children = (
@@ -7737,7 +7622,7 @@
 				279EF96A10D6B02A00C1ED1B /* Scripts */,
 				27F77A9E1096EE020060EBBF /* Home Screen Icons */,
 				2B2DEFDD1056069F00F267F9 /* Admin Icons */,
-				2B0C4A771043839800036786 /* Admin Profiles */,
+				2B6C4FC218DE372D00869EBE /* mysql.profiles */,
 				2BE680370F8E45DC00E00A97 /* SQLIDE Data */,
 				2BF510B912E8BBC500A6CCC3 /* SQLIDE Icons */,
 				2B7A74C015743D13003D8549 /* Migration Icons */,
@@ -9167,6 +9052,8 @@
 				2B825D370E0B59EE00BE52DF /* entities.h */,
 				2B129A671443E39D00BC78DF /* util_functions.cpp */,
 				2B825D3A0E0B59EE00BE52DF /* util_functions.h */,
+				2B6C4FB818DDD88F00869EBE /* python_utils.cpp */,
+				2B6C4FBC18DDD8C500869EBE /* python_utils.h */,
 			);
 			name = base;
 			sourceTree = "<group>";
@@ -10991,6 +10878,7 @@
 				2B299C4C12CF8C3D008B57C9 /* config_file.h in Headers */,
 				2B299C4D12CF8C3D008B57C9 /* debugging.h in Headers */,
 				2B299C4E12CF8C3D008B57C9 /* wb_iterators.h in Headers */,
+				2B6C4FBD18DDD8C500869EBE /* python_utils.h in Headers */,
 				2B299C4F12CF8C3D008B57C9 /* wb_memory.h in Headers */,
 				27B3E26012E05FC700FFF572 /* log.h in Headers */,
 				274E897F1313BFC1000459A0 /* drawing.h in Headers */,
@@ -12110,7 +11998,6 @@
 				2B8763180F48D460000B6DE1 /* Copy Files (grt libraries) */,
 				2BCAD0721006D30100D1772C /* Copy Files (python modules) */,
 				2BB58A730F45AEF100089423 /* Copy Module Data Files */,
-				2B3386F20F9E504E00EF463C /* Copy Files (server profiles) */,
 				270C50111732ACD700CD33BB /* Copy Files (executables) */,
 				2B7F77E00F01339B00C3C53E /* Copy Files (dylibs) */,
 				2B5284E10F1AEA60005FBF7C /* Copy Files (plugins) */,
@@ -12622,6 +12509,7 @@
 				2B02FEF2183E771B00770CC0 /* rel1n.png in Resources */,
 				2B7FC4BB112D9C2B008C07BF /* tiny_commit_disabled.png in Resources */,
 				2B7FC4BD112D9C2B008C07BF /* tiny_execute.png in Resources */,
+				2B6C4FC318DE372D00869EBE /* mysql.profiles in Resources */,
 				2B7FC4BE112D9C2B008C07BF /* tiny_execute_current.png in Resources */,
 				2B7FC4BF112D9C2B008C07BF /* tiny_execute_current_mac.png in Resources */,
 				2B7FC4C0112D9C2B008C07BF /* tiny_execute_disabled.png in Resources */,
@@ -13766,6 +13654,7 @@
 				274E89811313BFCF000459A0 /* drawing.cpp in Sources */,
 				2B497E5F13D0DD4600F6AF47 /* sqlstring.cpp in Sources */,
 				2B129A681443E39D00BC78DF /* util_functions.cpp in Sources */,
+				2B6C4FBA18DDD88F00869EBE /* python_utils.cpp in Sources */,
 				2B22CAC1146DF8C000625F5C /* notifications.cpp in Sources */,
 				2BAD7A73156C8A6E0025F13F /* threading.cpp in Sources */,
 			);
@@ -16389,6 +16278,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
 				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -16410,6 +16300,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
 				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;

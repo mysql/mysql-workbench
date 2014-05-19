@@ -279,6 +279,8 @@ class AdministratorContext:
         dp.select_view(self.admin_tab)
         self.admin_tab.set_title("Administrator")
 
+        return self.admin_tab
+
 
     def become_active_tab(self):
         dp = mforms.fromgrt(self.editor.dockingPoint)
@@ -299,7 +301,8 @@ class AdministratorContext:
 
         # if this is the 1st time opening the WBA, init the main tab and dock it
         if self.admin_tab is None:
-            self._dock_admin_tab()
+            if not self._dock_admin_tab():
+                return
 
         page = self.page_instances.get(entry_id)
         if not page:

@@ -117,9 +117,11 @@ MainForm::MainForm(wb::WBContextUI* ctx)
   get_mainwindow()->signal_configure_event().connect_notify(sigc::mem_fun(this, &MainForm::on_configure_window));
   get_mainwindow()->signal_window_state_event().connect_notify(sigc::mem_fun(this, &MainForm::on_window_state));
   get_mainwindow()->property_is_active().signal_changed().connect(sigc::mem_fun(this, &MainForm::is_active_changed));
-
+  get_mainwindow()->set_events(Gdk::FOCUS_CHANGE_MASK);
+  get_mainwindow()->signal_focus_in_event().connect(sigc::bind_return(sigc::hide(sigc::mem_fun(mforms::Form::main_form(), &mforms::Form::activated)), false));
+  get_mainwindow()->signal_focus_out_event().connect(sigc::bind_return(sigc::hide(sigc::mem_fun(mforms::Form::main_form(), &mforms::Form::deactivated)), false));
   get_mainwindow()->set_title("MySQL Workbench");
-  
+
   //_accel_group= Gtk::AccelGroup::create();
   //get_mainwindow()->add_accel_group(_accel_group);
 

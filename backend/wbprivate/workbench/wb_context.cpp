@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "wb_tunnel.h" // needs to come 1st because it includes Python.h indirectly
+#include "wb_tunnel.h" // needs to come 1st because this header include Python.h indirectly
 
 #include <errno.h>
 #include <glib.h>
@@ -787,17 +787,21 @@ bool WBContext::show_error(const std::string& title, const std::string& message)
 
 //--------------------------------------------------------------------------------------------------
 
-void *WBContext::do_request_password(const std::string &title, const std::string &service, std::string &account, 
-                                    bool force_asking, std::string* ret_password)
+/**
+ * Actually triggers the password find or user querying process for the given service. The given account
+ * can be empty if the connection has no user set so we must be able to return it like the password.
+ * Both, account as well as password must be allocated by the caller and passed on via references as
+ * this function is called via the dispatcher.
+ * For the same reason is the return value passed back as pointer, even though it's a bool.
+ */
+void* WBContext::do_request_password(const std::string &title, const std::string &service, 
+  bool force_asking, std::string *account, std::string *password)
 {
   bool ret = false;
 
-  // ret_password must be passed as a pointer, because passing by reference
-  // will not work through the dispatcher
-  
   try
   {
-    ret = mforms::Utilities::find_or_ask_for_password(title, service, account, force_asking, *ret_password);
+    ret = mforms::Utilities::credentials_for_service(title, service, *account, force_asking, *password);
   }
   catch (const std::exception &e)
   {
@@ -848,22 +852,16 @@ std::string WBContext::request_connection_password(const db_mgmt_ConnectionRef &
 {
   std::string password_tmp;
   std::string user_tmp = conn->parameterValues().get_string("userName");
-  /*
-  ret = execute_in_main_thread<bool>("request connection password",
-                                     boost::bind(&WBContext::do_request_password, this,
-                                                _("Connect to MySQL Server"),
-                                                conn->hostIdentifier(),
-                                                user_tmp,
-                                                reset_password,
-                                                &password_tmp));
-                                                */
+  bool need_user_name = user_tmp.empty();
   void *ret = mforms::Utilities::perform_from_main_thread(
                       boost::bind(&WBContext::do_request_password, this,
                                   _("Connect to MySQL Server"),
                                   conn->hostIdentifier(),
-                                  user_tmp,
                                   reset_password,
+                                  &user_tmp,
                                   &password_tmp));
+  if (need_user_name && !user_tmp.empty())
+    conn->parameterValues().gset("userName", user_tmp);
   if (ret)
     return password_tmp;
   throw grt::user_cancelled("Canceled by user");

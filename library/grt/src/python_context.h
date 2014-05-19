@@ -19,12 +19,7 @@
 
 #ifndef _GRT_PYTHON_CONTEXT_H_
 #define _GRT_PYTHON_CONTEXT_H_
-
-#include <Python.h>
-
-// Undef junk #defined by Python headers
-#undef tolower
-#undef toupper
+#include "base/python_utils.h"
 
 #include "grtpp.h"
 #include "grtpp_notifications.h"
@@ -228,40 +223,6 @@ namespace grt {
     
   };
   
-  // Must be placed when Python code will be called
-  struct WillEnterPython
-  {
-    PyGILState_STATE state;
-    
-    WillEnterPython()
-    : state(PyGILState_Ensure())
-    {
-     // PyEval_AcquireLock();
-    }
-
-    ~WillEnterPython()
-    {
-      //PyEval_ReleaseLock();
-      PyGILState_Release(state);
-    }
-  };
-  
-  
-  // Must be placed when non-python code will be called from a Python handler/callback
-  struct WillLeavePython
-  {
-    PyThreadState *save;
-    
-    WillLeavePython()
-    : save(PyEval_SaveThread())
-    {
-    }
-    
-    ~WillLeavePython()
-    {
-      PyEval_RestoreThread(save);
-    }
-  };
 };
 
 #endif

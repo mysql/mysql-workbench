@@ -53,23 +53,6 @@
 DEFAULT_LOG_DOMAIN("pymforms")
 
 /// begin python specific stuff
-struct WillEnterPython
-{
-    PyGILState_STATE state;
-
-    WillEnterPython()
-    : state(PyGILState_Ensure())
-    {
-        // PyEval_AcquireLock();
-    }
-
-    ~WillEnterPython()
-    {
-        //PyEval_ReleaseLock();
-        PyGILState_Release(state);
-    }
-};
-
     
 struct PyObjectRef 
 {
@@ -111,7 +94,6 @@ struct PyObjectRef
     return *this;
   }
 };
-
 
 
 static void show_python_exception()
@@ -480,7 +462,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 
 // Macros to define methods for adding Python callbacks as signal handlers
 #define SWIG_ADD_SIGNAL_VOID_CALLBACK(method, signal)\
-	void add_##method(PyObject *callback) { signal->connect(pycall_void_fun(callback)); }\
+	signal_connection_wrapper add_##method(PyObject *callback) { return signal_connection_wrapper(signal->connect(pycall_void_fun(callback))); }\
 	void call_##method() { (*signal)(); }
 
 #define SWIG_ADD_SIGNAL_VOID_STRING_CALLBACK(method, signal)\
@@ -534,6 +516,18 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
   init_mforms_bindings();
 %}
 #endif
+
+%exception {
+  try {
+    $action
+  }
+  catch (std::exception &exc)
+  {
+    log_error("exception calling mforms method $name: %s\n", exc.what());
+    PyErr_Format(PyExc_SystemError, "Exception calling mforms method '$name': %s", exc.what());
+    SWIG_fail;
+  }
+}
 
 %feature("ref") Object "$this->retain();"
 %feature("unref") Object "$this->release();"
@@ -1026,7 +1020,9 @@ def newToolBarItem(*args):
 
 %include "mforms_grt.h"
 %include "mforms_drawbox.h"
- 
+
+%warnfilter(362) signal_connection_wrapper;
+
 // Extend classes to include callback support
 
 %extend mforms::Button {
@@ -1063,6 +1059,8 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 
 %extend mforms::Form {
 SWIG_ADD_SIGNAL_VOID_CALLBACK(closed_callback, self->signal_closed());
+SWIG_ADD_SIGNAL_VOID_CALLBACK(activated_callback, self->signal_activated());
+SWIG_ADD_SIGNAL_VOID_CALLBACK(deactivated_callback, self->signal_deactivated());
 }
 
 %extend mforms::TextBox {
@@ -1097,7 +1095,9 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 %extend mforms::Utilities {
 static mforms::TimeoutHandle add_timeout(float interval, PyObject *callback) { return mforms::Utilities::add_timeout(interval, (pycall_bool_fun(callback))); }
 
-static void perform_from_main_thread(PyObject *callable, bool wait) { mforms::Utilities::perform_from_main_thread(pycall_ignoreret_voidptr_fun(callable), wait); }
+static void perform_from_main_thread(PyObject *callable, bool wait) { 
+  WillLeavePython gil;
+  mforms::Utilities::perform_from_main_thread(pycall_ignoreret_voidptr_fun(callable), wait); }
 }
 
 %extend mforms::WebBrowser {

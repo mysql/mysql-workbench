@@ -274,7 +274,7 @@ PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
 
 void PythonDebugger::init_pdb()
 {
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
   
   grt::PythonContext *pyc = grt::PythonContext::get();
   
@@ -346,7 +346,7 @@ void PythonDebugger::line_gutter_clicked(int margin, int line, mforms::ModifierK
 {  
   if (margin == 1 || margin == 0) // click line numbers or on the markers
   {
-    grt::WillEnterPython lock;
+    WillEnterPython lock;
  
     if (toggle_breakpoint(editor->get_path().c_str(), line+1)) // line numbers from editor are 0 based
       editor->get_editor()->show_markup(LineMarkupBreakpoint, line);
@@ -360,7 +360,7 @@ void PythonDebugger::editor_text_changed(int line, int linesAdded, GRTCodeEditor
 {
   if (linesAdded != 0)
   {
-    grt::WillEnterPython lock;
+    WillEnterPython lock;
     
     std::string path = editor->get_path();
     
@@ -381,7 +381,7 @@ void PythonDebugger::edit_breakpoint(mforms::TreeNodeRef node, int column, std::
   int row = _breakpoint_list->row_for_node(node);
   if (column == 2 && row >= 0) // edit bp condition
   {
-    grt::WillEnterPython lock;
+    WillEnterPython lock;
     grt::AutoPyObject r(PyObject_CallMethod(_pdb, (char*)"wdb_set_bp_condition", (char*)"(is)", row, value.c_str()), 
                         false);
     if (!r)
@@ -403,7 +403,7 @@ void PythonDebugger::edit_breakpoint(mforms::TreeNodeRef node, int column, std::
 
 void PythonDebugger::refresh_file(const std::string &file)
 {
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
   grt::AutoPyObject r(PyObject_CallMethod(_pdb, (char*)"wdb_reload_module_for_file", (char*)"(s)", file.c_str()), 
                       false);
 }
@@ -414,7 +414,7 @@ void PythonDebugger::run(GRTCodeEditor *editor, bool stepping)
   if (editor->is_dirty() && !ensure_code_saved())
     return;
 
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
 
 //  debug_print(base::strfmt("Running script %s...\n", _shell->get_path().c_str()));
 
@@ -737,7 +737,7 @@ void PythonDebugger::stack_selected()
     show_frame = -1*(_stack_list->row_for_node(node)+1);
   }
   
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
   
   grt::AutoPyObject r(PyObject_CallMethod(_pdb, (char*)"wdb_refresh_variables", (char*)"(i)", 
                                           show_frame),
@@ -752,7 +752,7 @@ void PythonDebugger::stack_selected()
 
 bool PythonDebugger::toggle_breakpoint(const char *file, int line)
 {
-  grt::WillEnterPython lock;
+  WillEnterPython lock;
   
   grt::AutoPyObject r(PyObject_CallMethod(_pdb, (char*)"wdb_toggle_breakpoint", (char*)"(si)", 
                                           file, line),

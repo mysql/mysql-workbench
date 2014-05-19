@@ -48,7 +48,7 @@ namespace MySQL.Grt.Db
     //  dataSearchTimer.Tick += new EventHandler(OnDataSearchApply);
     }
 
-    public void SetupRecordset(RecordsetWrapper recordset, bool override_apply)
+    public void SetupRecordset(RecordsetWrapper recordset)
     {
       gridView = new GridView(recordset);
    //   gridView.Dock = DockStyle.Fill;
@@ -65,8 +65,8 @@ namespace MySQL.Grt.Db
       actionList.register_action("record_add", AddNewRecord);
       actionList.register_action("record_edit", EditCurrentRecord);
 
-      if (override_apply)
-        recordset.set_apply_changes(SaveChanges);
+      recordset.set_flush_ui_changes_cb(FlushUIChanges);
+
       recordset.set_update_selection_delegate(UpdateSelection);
 
       gridView.KeyDown += gridView_KeyDown;
@@ -203,10 +203,28 @@ namespace MySQL.Grt.Db
     {
       if (MouseButtons.Left == e.Button)
       {
-        int direction = (gridView.Columns[e.ColumnIndex].HeaderCell.SortGlyphDirection == SortOrder.Ascending ? -1 : 1);
-        direction = (ModifierKeys & Keys.Alt) != 0 ? 0 : direction;
-        bool retaining = (0 == direction) || (ModifierKeys & Keys.Shift) != 0;
-        SortByColumn(e.ColumnIndex, direction, retaining);
+        SortOrder newSortOrder;
+
+        // By holding the (left) Alt key we remove any sorting.
+        if ((ModifierKeys & Keys.Alt) != 0)
+          newSortOrder = SortOrder.None;
+        else
+        {
+          switch (gridView.Columns[e.ColumnIndex].HeaderCell.SortGlyphDirection)
+          {
+            case SortOrder.Ascending:
+              newSortOrder = SortOrder.Descending;
+              break;
+            case SortOrder.Descending:
+              newSortOrder = SortOrder.None;
+              break;
+            default:
+              newSortOrder = SortOrder.Ascending;
+              break;
+          }
+        }
+        bool retaining = (newSortOrder == SortOrder.None) || (ModifierKeys & Keys.Shift) != 0;
+        SortByColumn(e.ColumnIndex, newSortOrder, retaining);
       }
     }
 
@@ -232,17 +250,27 @@ namespace MySQL.Grt.Db
       model.reset_column_filters();
     }
 
-    private void SortByColumn(int columnIndex, int direction, bool retaining)
+    /// <summary>
+    /// Resorts the recordset for the given column and direction.
+    /// </summary>
+    /// <param name="columnIndex">The index of the column to sort.</param>
+    /// <param name="direction">The sort direction.</param>
+    /// <param name="retaining">Indicates if existing sorts for other columns should be kept or removed.</param>
+    private void SortByColumn(int columnIndex, SortOrder direction, bool retaining)
     {
-      SortOrder sortOrder;
+      gridView.Columns[columnIndex].HeaderCell.SortGlyphDirection = direction;
       switch (direction)
       {
-        case -1: sortOrder = SortOrder.Ascending; break;
-        case 1: sortOrder = SortOrder.Descending; break;
-        case 0: default: sortOrder = SortOrder.None; break;
+        case SortOrder.Ascending:
+          model.sort_by(columnIndex, 1, retaining);
+          break;
+        case SortOrder.Descending:
+          model.sort_by(columnIndex, -1, retaining);
+          break;
+        default:
+          model.sort_by(columnIndex, 0, retaining);
+        break;
       }
-      gridView.Columns[columnIndex].HeaderCell.SortGlyphDirection = sortOrder;
-      model.sort_by(columnIndex, direction, retaining);
     }
 
     void gridView_CellStateChanged(object sender, DataGridViewCellStateChangedEventArgs e)
@@ -321,10 +349,14 @@ namespace MySQL.Grt.Db
       model.rollback();
     }
 
+    public void FlushUIChanges()
+    {
+        // Apply any pending changes in the grid before writing them to model.
+        gridView.EndEdit();
+    }
+
     public void SaveChanges()
     {
-      // Apply any pending changes in the grid before writing them to model.
-      gridView.EndEdit();
       model.apply_changes();
     }
 
@@ -388,16 +420,14 @@ namespace MySQL.Grt.Db
     {
       if (contextColumnIndex == -1)
         return;
-      int direction = (gridView.Columns[contextColumnIndex].HeaderCell.SortGlyphDirection == SortOrder.Ascending ? 0 : 1);
-      SortByColumn(contextColumnIndex, direction, true);
+      SortByColumn(contextColumnIndex, SortOrder.Ascending, true);
     }
 
     public void SortDescending()
     {
       if (contextColumnIndex == -1)
         return;
-      int direction = (gridView.Columns[contextColumnIndex].HeaderCell.SortGlyphDirection == SortOrder.Descending ? 0 : -1);
-      SortByColumn(contextColumnIndex, direction, true);
+      SortByColumn(contextColumnIndex, SortOrder.Descending, true);
     }
 
     #endregion

@@ -466,12 +466,14 @@ boost::signals2::connection GRTManager::run_once_when_idle(const boost::function
 }
 
 
-void GRTManager::run_once_when_idle(base::trackable *owner, const boost::function<void ()> &slot)
+boost::signals2::connection GRTManager::run_once_when_idle(base::trackable *owner, const boost::function<void ()> &slot)
 {
   if (!slot)
     throw std::invalid_argument("Adding null slot for idle");
   MutexLock lock(_idle_mutex);
-  owner->track_connection(_idle_signals[_current_idle_signal].connect(slot));
+  boost::signals2::connection tmp(_idle_signals[_current_idle_signal].connect(slot));
+  owner->track_connection(tmp);
+  return tmp;
 }
 
 

@@ -484,7 +484,8 @@ namespace wb {
   private:
     bool find_connection_password(const db_mgmt_ConnectionRef &conn, std::string &password);
 
-    void *do_request_password(const std::string &title, const std::string &service, std::string &account, bool reset_password, std::string *ret_password);
+    void *do_request_password(const std::string &title, const std::string &service, bool reset_password,
+      std::string *account, std::string *ret_password);
     void *do_find_connection_password(const std::string &hostId, const std::string &username, std::string *ret_password);
 
     void load_other_connections();

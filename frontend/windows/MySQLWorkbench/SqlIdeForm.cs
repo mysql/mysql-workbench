@@ -849,7 +849,7 @@ namespace MySQL.GUI.Workbench
       TabPage page = new TabPage(rs.caption());
 
       RecordsetView recordsetView = new RecordsetView();
-      recordsetView.SetupRecordset(rs, false);
+      recordsetView.SetupRecordset(rs);
       page.Tag = recordsetView;
 
       // recordset view is embedded in the result panel and the result panel is added to the resultTabControl

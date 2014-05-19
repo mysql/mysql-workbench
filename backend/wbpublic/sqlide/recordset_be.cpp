@@ -89,7 +89,7 @@ Recordset::Recordset(GRTManager *grtm)
   g_atomic_int_inc(&next_id);
 
   task->send_task_res_msg(false);
-  apply_changes= boost::bind(&Recordset::apply_changes_, this);
+  apply_changes_cb= boost::bind(&Recordset::apply_changes_, this);
   register_default_actions();
   reset();
 }
@@ -105,7 +105,7 @@ Recordset::Recordset(GrtThreadedTask::Ref parent_task)
   g_atomic_int_inc(&next_id);
 
   task->send_task_res_msg(false);
-  apply_changes= boost::bind(&Recordset::apply_changes_, this);
+  apply_changes_cb= boost::bind(&Recordset::apply_changes_, this);
   register_default_actions();
   reset();
 }
@@ -1551,7 +1551,7 @@ void Recordset::rebuild_toolbar()
       _toolbar->add_separator_item();
       add_toolbar_label_item(_toolbar, "Apply changes:");
       item = add_toolbar_action_item(_toolbar, im, "record_save", "Apply changes to data");
-      item->signal_activated()->connect(boost::bind(&Recordset::call_apply_changes, this));
+      item->signal_activated()->connect(boost::bind(&Recordset::apply_changes, this));
       item = add_toolbar_action_item(_toolbar, im, "record_discard", "Discard changes to data");
       item->signal_activated()->connect(boost::bind(&Recordset::rollback, this));
     }
@@ -1570,9 +1570,12 @@ mforms::ToolBar *Recordset::get_toolbar()
 }
 
 
-void Recordset::call_apply_changes()
+void Recordset::apply_changes()
 {
-  apply_changes();
+  if (!flush_ui_changes_cb.empty())
+    flush_ui_changes_cb();
+
+  apply_changes_cb();
 }
 
 ActionList & Recordset::action_list()

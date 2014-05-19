@@ -16,7 +16,7 @@
 # 02110-1301  USA
 
 from __future__ import with_statement
-
+import platform
 import threading
 import random
 import Queue
@@ -25,11 +25,13 @@ import socket
 import select
 import sys
 import time
+import os
 
 import mforms
 
 import paramiko
 from workbench.log import log_warning, log_error, log_debug, log_debug2
+from wb_common import SSHFingerprintNewError
 
 SSH_PORT = 22
 REMOTE_PORT = 3306
@@ -45,6 +47,10 @@ else:
         def missing_host_key(self, client, hostname, key):
             import binascii
             log_warning('WARNING: Unknown %s host key for %s: %s\n' % (key.get_name(), hostname, binascii.hexlify(key.get_fingerprint())))
+
+class StoreIfConfirmedPolicy(paramiko.MissingHostKeyPolicy):
+    def missing_host_key(self, client, hostname, key):
+        raise SSHFingerprintNewError("Key mismatched", client, hostname, key)
 
 tunnel_serial=0
 class Tunnel(threading.Thread):
@@ -127,24 +133,26 @@ class Tunnel(threading.Thread):
                     self.notify_exception_error('ERROR',"Error initializing server end of tunnel", sys.exc_info())
                     raise exc
                 finally:
-                    self.port_is_set.set()
+                    with self.lock:
+                        self.connecting = True
 
-        with self.lock:
-            self.connecting = True
+                    self.port_is_set.set()
 
         if self._keyfile:
             self.notify('INFO', 'Connecting to SSH server at %s:%s using key %s...' % (self._server[0], self._server[1], self._keyfile) )
         else:
             self.notify('INFO', 'Connecting to SSH server at %s:%s...' % (self._server[0], self._server[1]) )
 
-        if not self._connect_ssh():
+        connected = self._connect_ssh()
+        if not connected:
             self._listen_sock.close()
             self._shutdown = True
-        else:
-            self.notify('INFO', 'Connection opened')
 
         with self.lock:
             self.connecting = False
+            
+        if connected:
+            self.notify('INFO', 'Connection opened')
 
         del self._password
         last_activity = time.time()
@@ -239,17 +247,27 @@ class Tunnel(threading.Thread):
                                                this is a subclass of paramiko.AuthenticationException
         """
         try:
-            self._client.load_system_host_keys()
-            self._client.set_missing_host_key_policy(WarningPolicy())
+            self._client.get_host_keys().clear()
+            ssh_known_hosts_file = '~/.ssh/known_hosts'
+            
+            if platform.system().lower() == "windows":
+                ssh_known_hosts_file = '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder()
+
+            try:
+                self._client.load_host_keys(os.path.expanduser(ssh_known_hosts_file))
+            except IOError, e:
+                log_warning("IOError, probably caused by file %s not found, the message was: %s\n" % (ssh_known_hosts_file, e))
+
+            self._client.set_missing_host_key_policy(StoreIfConfirmedPolicy())
             has_key = bool(self._keyfile)
             self._client.connect(self._server[0], self._server[1], username=self._username,
                                  key_filename=self._keyfile, password=self._password,
                                  look_for_keys=has_key, allow_agent=has_key)
         except paramiko.BadHostKeyException, exc:
-            if sys.platform == "win32":
-                self.notify_exception_error('ERROR', "Delete entries for the host from the SSH known hosts file", sys.exc_info())
+            if platform.system().lower() == "windows":
+                self.notify_exception_error('ERROR', "%s\nDelete entries for the host from the %s file" % (str(exc), '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder()))
             else:
-                self.notify_exception_error('ERROR', "Delete entries for the host from the ~/.ssh/known_hosts file", sys.exc_info())
+                self.notify_exception_error('ERROR', "%s\nDelete entries for the host from the ~/.ssh/known_hosts file" % str(exc))
             return False
         except paramiko.BadAuthenticationType, exc:
             self.notify_exception_error('ERROR', "Bad authentication type, the server is not accepting this type of authentication.\nAllowed ones are:\n %s" % exc.allowed_types, sys.exc_info());
@@ -263,6 +281,14 @@ class Tunnel(threading.Thread):
         except paramiko.ChannelException, exc:
             self.notify_exception_error('ERROR', "Error connecting SSH channel.\nPlease refer to logs for details: %s" % str(exc), sys.exc_info())
             return False
+        except SSHFingerprintNewError, exc:
+            self.notify_exception_error('KEY_ERROR', { 'msg': "The authenticity of host '%(0)s (%(0)s)' can't be established.\nECDSA key fingerprint is %(1)s\nAre you sure you want to continue connecting?"  % {'0': "%s:%s" % (self._server[0], self._server[1]), '1': exc.fingerprint}, 'obj': exc})
+            return False
+        except IOError, exc:
+            #Io should be report to the user, so maybe he will be able to fix this issue
+            self.notify_exception_error('IO_ERROR', "IO Error: %s.\n Please refer to logs for details." % str(exc), sys.exc_info())
+            return False
+
         except Exception, exc:
             self.notify_exception_error('ERROR', "Authentication error, unhandled exception caught in tunnel manager, please refer to logs for details", sys.exc_info())
             return False
@@ -379,6 +405,7 @@ class TunnelManager:
         if not tunnel:
             return 'Could not find a tunnel for port %d' % port
         error = None
+        tunnel.port_is_set.wait()
         if tunnel.isAlive():
             while True:
                 # Process any message in queue. Every retrieved message is printed.
@@ -386,8 +413,32 @@ class TunnelManager:
                 try:
                     msg_type, msg = tunnel.q.get_nowait()
                 except Queue.Empty:
-                    pass
+                    continue
                 else:
+                    if msg_type == 'KEY_ERROR':
+                        if mforms.Utilities.show_message("SSH Server Fingerprint Missing", msg['msg'], "Continue", "Cancel", "") == mforms.ResultOk:
+                            msg['obj'].client._host_keys.add(msg['obj'].hostname, msg['obj'].key.get_name(), msg['obj'].key)
+                            if msg['obj'].client._host_keys_filename is not None:
+                                try:
+                                    if os.path.isdir(os.path.dirname(msg['obj'].client._host_keys_filename)) == False:
+                                        log_warning("Host_keys directory is missing, recreating it\n")
+                                        os.makedirs(os.path.dirname(msg['obj'].client._host_keys_filename))
+                                    if os.path.exists(msg['obj'].client._host_keys_filename) == False:
+                                        log_warning("Host_keys file is missing, recreating it\n")
+                                        open(msg['obj'].client._host_keys_filename, 'a').close()
+                                    msg['obj'].client.save_host_keys(msg['obj'].client._host_keys_filename)
+                                    log_warning("Successfully saved host_keys file.\n")
+                                except IOError, e:
+                                    error = str(e)
+                                    break;
+                            error = "Server key has been stored"
+                        else:
+                            error = "User cancelled"
+                        break # Exit returning the error message
+                    elif msg_type == 'IO_ERROR':
+                        error = msg
+                        break # Exit returning the error message
+
                     _msg = msg
                     if type(msg) is tuple:
                         msg = '\n' + ''.join(traceback.format_exception(*msg))

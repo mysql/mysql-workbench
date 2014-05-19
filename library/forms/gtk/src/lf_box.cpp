@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -94,14 +94,6 @@ mforms::gtk::BoxImpl::~BoxImpl()
   delete _box;
   delete _alignment;
 }
-
-//------------------------------------------------------------------------------
-void mforms::gtk::BoxImpl::set_back_color(const std::string& s)
-{
-  mforms::gtk::set_bgcolor(_box, s);
-}
-
-
 //------------------------------------------------------------------------------
 void mforms::gtk::BoxImpl::init()
 {

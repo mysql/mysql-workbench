@@ -219,10 +219,8 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
         break;
       case MYSQL_TYPE_BLOB:
       case MYSQL_TYPE_GEOMETRY:
-        // always use long data
+        bind.buffer_length = (unsigned)col->source_length+1;
         bind.length = (unsigned long*)malloc(sizeof(unsigned long));
-        bind.buffer_length = sizeof(unsigned long);
-
         break;
       case MYSQL_TYPE_NULL:
         bind.buffer_length = 0;
@@ -376,6 +374,18 @@ void RowBuffer::prepare_add_time(char* &buffer, size_t &buffer_len)
   buffer_len = bind.buffer_length;
 }
 
+void RowBuffer::prepare_add_geometry(char* &buffer, size_t &buffer_len, unsigned long *&length)
+{
+  MYSQL_BIND &bind(at(_current_field));
+  if (bind.buffer_type != MYSQL_TYPE_GEOMETRY)
+    throw std::logic_error(base::strfmt("Type mismatch fetching field %i (should be geometry, was %s)",
+                                        _current_field+1, mysql_field_type_to_name(bind.buffer_type)));
+
+  buffer = (char*)bind.buffer;
+  buffer_len = bind.buffer_length;
+  length = bind.length;
+}
+
 void RowBuffer::finish_field(bool was_null)
 {
   *at(_current_field).is_null = was_null;
@@ -495,8 +505,9 @@ SQLSMALLINT ODBCCopyDataSource::odbc_type_to_c_type(SQLSMALLINT type, bool is_un
 ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
                                        const std::string &connstring,
                                        const std::string &password,
-                                       bool force_utf8_input)
-: _connstring(connstring), _stmt_ok(false)
+                                       bool force_utf8_input,
+                                       const std::string &source_rdbms_type)
+: _connstring(connstring), _stmt_ok(false), _source_rdbms_type(source_rdbms_type)
 {
   _blob_buffer = NULL;
   _utf8_blob_buffer = NULL;
@@ -514,7 +525,7 @@ ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env,
   bool has_pwd = _connstring.find("PWD=") != std::string::npos;
   if (!has_pwd)
     _connstring.append(";PWD=");
-  log_info("Opening ODBC connection to '%s'\n", (_connstring + (has_pwd ? "" : "XXX")).c_str());
+  log_info("Opening ODBC connection to [%s] '%s'\n", _source_rdbms_type.c_str(), (_connstring + (has_pwd ? "" : "XXX")).c_str());
   //log_debug3("connstring %s%s\n", _connstring.c_str(), password.c_str());
   SQLRETURN ret = SQLDriverConnect(_dbc, NULL,
                                    (SQLCHAR*)(_connstring + (has_pwd ? "" : password)).c_str(), SQL_NTS,
@@ -698,6 +709,66 @@ SQLRETURN ODBCCopyDataSource::get_char_buffer_data(RowBuffer &rowbuffer, int col
 }
 
 
+SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int column)
+{
+  unsigned long *out_length;
+  SQLRETURN ret;
+  SQLLEN len_or_indicator;
+  char* out_buffer;
+  size_t out_buffer_len;
+  SQLWCHAR tmpbuf[64*1024];
+  ret = SQLGetData(_stmt, column, SQL_C_WCHAR, tmpbuf, sizeof(tmpbuf), &len_or_indicator);
+
+  rowbuffer.prepare_add_geometry(out_buffer, out_buffer_len, out_length);
+  if (SQL_SUCCEEDED(ret))
+  {
+    if (len_or_indicator == SQL_NO_TOTAL)
+      throw std::runtime_error(base::strfmt("Got SQL_NO_TOTAL for string size during copy of column %i", column));
+
+    if (len_or_indicator != SQL_NULL_DATA)
+    {
+      char *inbuf = (char*)tmpbuf;
+      size_t inbuf_len = len_or_indicator;
+      char *outbuf = out_buffer;
+      size_t outbuf_len = out_buffer_len;
+      size_t converted;
+
+      if (sizeof(SQLWCHAR) > sizeof(unsigned short))
+      {
+        SQLWCHAR *in = (SQLWCHAR*)inbuf;
+        unsigned short *out = (unsigned short*)inbuf;
+        for (size_t i = 0; i < inbuf_len/sizeof(SQLWCHAR); i++)
+          out[i] = in[i];
+        inbuf_len = (inbuf_len/sizeof(SQLWCHAR)) * sizeof(unsigned short);
+      }
+      else if (sizeof(SQLWCHAR) < sizeof(unsigned short))
+        throw std::logic_error("Unexpected architecture. sizeof(SQLWCHAR) < sizeof(unsigned short)!");
+
+      // convert data from UCS-2 to utf-8
+#ifdef _WIN32
+      converted = iconv(_iconv,
+                        (const char**)&inbuf, &inbuf_len,
+                        (char**)&outbuf, &outbuf_len);
+#else
+      converted = iconv(_iconv,
+                        (char**)&inbuf, &inbuf_len,
+                        (char**)&outbuf, &outbuf_len);
+#endif
+      if (converted == (size_t)-1)
+        throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
+
+      if (inbuf_len > 0)
+        log_warning("%lu characters could not be converted to UTF-8 from column %s during copy\n",
+                    inbuf_len, (*_columns)[column-1].source_name.c_str());
+
+      *out_length = (unsigned long)(out_buffer_len - outbuf_len);
+    }
+    rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
+  }
+  return ret;
+}
+
+
 size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::string &table,
                                       const CopySpec &spec)
 {
@@ -733,6 +804,7 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
       break;
     }
   }
+  log_debug("Executing query: %s\n", q.c_str());
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
     throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, stmt);
 
@@ -780,6 +852,7 @@ boost::shared_ptr<std::vector<ColumnInfo> > ODBCCopyDataSource::begin_select_tab
                        schema.c_str(), table.c_str(), start_expr.c_str());
   }
 
+  log_debug("Executing query: %s\n", q.c_str());
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(_stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
     throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, _stmt);
 
@@ -1089,8 +1162,8 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             ret = get_date_time_data(rowbuffer, i, rowbuffer[i-1].buffer_type);
             break;
           case MYSQL_TYPE_GEOMETRY:
-        	rowbuffer.finish_field(true);
-        	break;
+            ret = get_geometry_buffer_data(rowbuffer, i);
+            break;
           default:
             if (_column_types[i-1] == SQL_C_WCHAR)
               ret = get_wchar_buffer_data(rowbuffer, i);
@@ -1350,7 +1423,8 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             rowbuffer[index].buffer_type == MYSQL_TYPE_MEDIUM_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_LONG_BLOB ||
             rowbuffer[index].buffer_type == MYSQL_TYPE_BLOB ||
-            rowbuffer[index].buffer_type == MYSQL_TYPE_STRING)
+            rowbuffer[index].buffer_type == MYSQL_TYPE_STRING ||
+            rowbuffer[index].buffer_type == MYSQL_TYPE_GEOMETRY)
           {
             if (rowbuffer[index].buffer_length)
               free(rowbuffer[index].buffer);

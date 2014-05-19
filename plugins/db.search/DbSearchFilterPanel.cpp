@@ -35,14 +35,12 @@ DBSearchFilterPanel::DBSearchFilterPanel(): Box(false), _search_box(true), _filt
 
   _search_box.set_spacing(8);
 
-  _search_text_label.set_text("Search for Text:");
-  _search_box.add(&_search_text_label, false, true);
-  _search_box.add(&_search_text, true, true);
-  _search_button.set_text("Start Search");
-  _search_button.set_size(120, -1);
-  _search_box.add(&_search_button, false, true);
-  add(&_search_box, false, true);
 
+
+  _search_text_label.set_text("Search for table fields that");
+  _search_box.add(&_search_text_label, false, true);
+
+  _filter_selector.add_item("CONTAINS");
   _filter_selector.add_item("Search using =");
   _filter_selector.add_item("Search using LIKE");
   _filter_selector.add_item("Search using REGEXP");
@@ -52,7 +50,13 @@ DBSearchFilterPanel::DBSearchFilterPanel(): Box(false), _search_box(true), _filt
 #endif
 
   _filter_selector.set_selected(0);
-  _limits_box.add(&_filter_selector, false, true);
+  _search_box.add(&_filter_selector, false, true);
+
+
+  _search_box.add(&_search_text, true, true);
+  add(&_search_box, false, true);
+
+
 
   _limits_box.set_spacing(4);
   _limit_table_hint.set_text("Max. matches per table");
@@ -70,10 +74,17 @@ DBSearchFilterPanel::DBSearchFilterPanel(): Box(false), _search_box(true), _filt
   _limit_total.signal_changed()->connect(boost::bind(update_numeric, boost::ref(_limit_total)));
   _limit_total.set_value("100000");
 
-  add(&_limits_box, false, true);
+
+
   _search_all_type_check.set_text("Search columns of all types");
   _search_all_type_check.set_tooltip("If checked, non-text type columns will be casted to CHAR to match. Otherwise, only text type (CHAR, VARCHAR, TEXT) will be searched.");
-  add(&_search_all_type_check, false, true);
+  _limits_box.add(&_search_all_type_check, false, true);
+
+  _search_button.set_text("Start Search");
+  _search_button.set_size(120, -1);
+  _limits_box.add(&_search_button, false, true);
+  add(&_limits_box, false, true);
+//  add(&_search_all_type_check, false, true);
 //  _exclude_check.set_text("Invert table selection (search all tables except selected)");
 //  add(&_exclude_check, false, true);
 
@@ -84,6 +95,8 @@ DBSearchFilterPanel::DBSearchFilterPanel(): Box(false), _search_box(true), _filt
   _filter_tree.add_node()->set_string(0, "Schema.Table.Column");
   _hint_label.set_text("Place list of patterns in the form of schema.table.[column].\nYou can use % or _ as wildcarts.");
 //  _table.add(&_filter_tree, 1, 2, 3, 4, mforms::FillAndExpand);
+
+
 }
 
 

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -153,11 +153,6 @@ void mforms::gtk::LabelImpl::set_color(::mforms::Label *self, const std::string 
     ((Gtk::Label*)label->_label)->get_colormap()->alloc_color(color);
     ((Gtk::Label*)label->_label)->modify_fg(Gtk::STATE_NORMAL, color);
   }
-}
-
-void mforms::gtk::LabelImpl::set_back_color(const std::string& s)
-{
-  mforms::gtk::set_bgcolor(_label, s);
 }
 
 void mforms::gtk::LabelImpl::set_wrap_text(::mforms::Label *self, bool flag)

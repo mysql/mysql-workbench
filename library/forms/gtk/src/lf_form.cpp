@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -251,7 +251,22 @@ FormImpl::FormImpl(::mforms::Form *form, ::mforms::Form *owner, mforms::FormFlag
   if (form_flag & mforms::FormMinimizable)
     flags |= Gdk::DECOR_MINIMIZE;
 
-  _window->signal_realize().connect(sigc::bind(sigc::mem_fun(this, &FormImpl::realized), form, flags)); 
+  _window->set_events(Gdk::FOCUS_CHANGE_MASK);
+  _window->signal_realize().connect(sigc::bind(sigc::mem_fun(this, &FormImpl::realized), form, flags));
+
+
+  _window->signal_focus_in_event().connect(sigc::bind< ::mforms::Form *>(sigc::mem_fun(this, &FormImpl::on_focus_event), form));
+  _window->signal_focus_out_event().connect(sigc::bind< ::mforms::Form *>(sigc::mem_fun(this, &FormImpl::on_focus_event), form));
+}
+
+
+bool FormImpl::on_focus_event(GdkEventFocus* ev, ::mforms::Form *form)
+{
+  if (ev->in)
+    form->activated();
+  else
+    form->deactivated();
+  return false;
 }
 
 void FormImpl::realized(mforms::Form *owner, Gdk::WMDecoration flags)

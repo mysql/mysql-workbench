@@ -52,7 +52,7 @@ except:
 
 def normalize_windows_path_for_ftp(path):
     idx = -1
-    if sys.platform != 'win32':
+    if platform.system().lower() != 'windows':
         idx = path.find(':')
 
     # Gets rid of the unit from the path
@@ -67,7 +67,7 @@ def normalize_windows_path_for_ftp(path):
 
 if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
     from paramiko.message import Message
-    from paramiko.common import sys, MSG_CHANNEL_OPEN
+    from paramiko.common import MSG_CHANNEL_OPEN
     from paramiko.channel import Channel
     from paramiko.ssh_exception import SSHException 
     import threading

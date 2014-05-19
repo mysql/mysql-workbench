@@ -30,6 +30,11 @@
 namespace wb {
   class WBContextSQLIDE;
 };
+class SqlEditorForm;
+
+
+#define USER_SNIPPETS "My Snippets"
+#define SHARED_SNIPPETS "Shared"
 
 class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorSnippets : public bec::ListModel
 {
@@ -45,7 +50,10 @@ public:
 
   void load();
   void save();
+  void load_from_db(SqlEditorForm *editor=0);
 
+  bool shared_snippets_usable();
+  
   std::vector<std::string> get_category_list();
   void select_category(const std::string &category);
   std::string selected_category();
@@ -69,14 +77,26 @@ protected:
   DbSqlEditorSnippets(wb::WBContextSQLIDE *sqlide, const std::string &path);
   wb::WBContextSQLIDE *_sqlide;
   std::string _path;
+  std::string _snippet_db;
   std::string _selected_category;
+  bool _shared_snippets_enabled;
 
-  std::vector<std::pair<std::string, std::string> > _entries;
+  struct Snippet {
+    std::string title;
+    std::string code;
+    int db_snippet_id; // only if it comes from the DB
+  };
+
+  std::vector<Snippet> _entries;
 
   void toolbar_item_activated(const std::string& name);
   void copy_original_file(const std::string& name, bool overwrite);
+
+  int add_db_snippet(const std::string &name, const std::string &code);
+  void delete_db_snippet(int snippet_id);
+
 public:
-  void add_snippet(const std::string &name, const std::string &snippet, bool edit);
+  void add_snippet(const std::string &name, const std::string &code, bool edit);
 };
 
 

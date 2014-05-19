@@ -270,6 +270,22 @@ class Figure(Element):
     def frame(self):
         return self.x, self.y, self.width, self.height
 
+    @property
+    def padding_top(self):
+        return self._padding[0]
+
+    @property
+    def padding_left(self):
+        return self._padding[1]
+
+    @property
+    def padding_bottom(self):
+        return self._padding[2]
+
+    @property
+    def padding_right(self):
+        return self._padding[3]
+
     def move(self, x, y):
         if self.canvas:
             self.canvas.invalidate(*self.frame)

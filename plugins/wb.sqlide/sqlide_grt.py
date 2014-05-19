@@ -119,8 +119,8 @@ def executeQueryAsText(qbuffer):
 
         dock = mforms.fromgrt(qbuffer.resultDockingPoint)
         dock.dock_view(view, "", 0)
+        view.set_title("Query Output")
         dock.select_view(view)
-        dock.set_view_title(view, "Query Output")
 
         for result in resultsets:
             output = ["Execute:"]

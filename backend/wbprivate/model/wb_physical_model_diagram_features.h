@@ -34,6 +34,8 @@ namespace wb {
    */
   class PhysicalModelDiagramFeatures : public base::trackable
   {
+    friend class ModelDiagramForm;
+
     ModelDiagramForm *_diagram;
     base::Point _last_click_pos;
 
