@@ -85,6 +85,7 @@ tokens {
 	FUNCTION_NAME_TOKEN;
 	TABLESPACE_NAME_TOKEN;
 	LOGFILE_GROUP_NAME_TOKEN;
+	UDF_NAME_TOKEN;
 	XA_ID_TOKEN;
 	
 	// Subparts of more complex statements.
@@ -103,6 +104,10 @@ tokens {
 	EXPRESSION_TOKEN;
 	PAR_EXPRESSION_TOKEN;
 	FUNCTION_CALL_TOKEN;
+	
+	// Tokens for complexer optional subparts.
+	ROUTINE_CREATE_OPTIONS;
+	ROUTINE_ALTER_OPTIONS;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -314,8 +319,8 @@ alter_statement:
   (
 	alter_database
 	| alter_log_file_group
-	| FUNCTION_SYMBOL alter_routine
-	| PROCEDURE_SYMBOL alter_routine
+	| FUNCTION_SYMBOL function_identifier routine_alter_options?
+	| PROCEDURE_SYMBOL procedure_identifier routine_alter_options?
 	| alter_server
 	| alter_table
 	| alter_tablespace
@@ -346,10 +351,6 @@ alter_event:
 alter_log_file_group:
 	LOGFILE_SYMBOL GROUP_SYMBOL identifier ADD_SYMBOL UNDOFILE_SYMBOL string_literal
 		(INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)? WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? IDENTIFIER
-;
-
-alter_routine:
-	identifier routine_option*
 ;
 
 alter_server:
@@ -563,29 +564,37 @@ create_routine_or_udf:
 ;
 
 procedure_body:
-	PROCEDURE_SYMBOL qualified_identifier OPEN_PAR_SYMBOL (procedure_parameter (COMMA_SYMBOL procedure_parameter)*)? CLOSE_PAR_SYMBOL
-		routine_create_option* compound_statement
+	PROCEDURE_SYMBOL procedure_identifier OPEN_PAR_SYMBOL (procedure_parameter (COMMA_SYMBOL procedure_parameter)*)? CLOSE_PAR_SYMBOL
+		routine_create_options? compound_statement
 ;
 
 function_body: // Both built-in functions and UDFs.
 	FUNCTION_SYMBOL
 	(
-		qualified_identifier OPEN_PAR_SYMBOL (function_parameter (COMMA_SYMBOL function_parameter)*)? CLOSE_PAR_SYMBOL RETURNS_SYMBOL
-			data_type routine_create_option* compound_statement
+		function_identifier OPEN_PAR_SYMBOL (function_parameter (COMMA_SYMBOL function_parameter)*)? CLOSE_PAR_SYMBOL RETURNS_SYMBOL
+			data_type routine_create_options? compound_statement
 		| udf_tail
 	)
 	| AGGREGATE_SYMBOL FUNCTION_SYMBOL udf_tail // AGGREGATE is optional and in order to avoid ambiquities we have two udf paths.
 ;
 
 udf_tail:
-	identifier RETURNS_SYMBOL (STRING_SYMBOL | INTEGER_SYMBOL | REAL_SYMBOL | DECIMAL_SYMBOL) SONAME_SYMBOL string_literal
+	udf_name RETURNS_SYMBOL (STRING_SYMBOL | INTEGER_SYMBOL | REAL_SYMBOL | DECIMAL_SYMBOL) SONAME_SYMBOL string_literal
 ;
 
+routine_create_options:
+	routine_create_option+ -> ^(ROUTINE_CREATE_OPTIONS routine_create_option+)
+;
+	
 routine_create_option:
 	routine_option
 	| NOT_SYMBOL? DETERMINISTIC_SYMBOL
 ;
 
+routine_alter_options:
+	routine_create_option+ -> ^(ROUTINE_ALTER_OPTIONS routine_create_option+)
+;
+	
 routine_option:
 	COMMENT_SYMBOL string_literal
 	| LANGUAGE_SYMBOL SQL_SYMBOL
@@ -2796,6 +2805,10 @@ tablespace_name:
 
 log_file_group_name:
 	identifier -> ^(LOGFILE_GROUP_NAME_TOKEN identifier)
+;
+
+udf_name:
+	identifier -> ^(UDF_NAME_TOKEN identifier)
 ;
 
 qualified_identifier_list:

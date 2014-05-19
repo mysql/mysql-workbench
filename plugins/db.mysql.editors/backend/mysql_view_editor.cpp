@@ -70,7 +70,10 @@ void MySQLViewEditorBE::commit_changes()
     if (sql != get_sql())
     {
       AutoUndoEdit undo(this, _view, "sql");
+
+      freeze_refresh_on_object_change();
       _parser_services->parseView(_parser_context, _view, sql);
+      thaw_refresh_on_object_change();
 
       undo.end(base::strfmt(_("Edit view `%s` of `%s`.`%s`"), _view->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
     }

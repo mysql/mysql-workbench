@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _EDITOR_ROUTINE_H_
-#define _EDITOR_ROUTINE_H_
+#pragma once
 
 #include "grtdb/editor_dbobject.h"
 
@@ -26,31 +25,12 @@ namespace bec {
 
 class WBPUBLICBACKEND_PUBLIC_FUNC RoutineEditorBE : public DBObjectEditorBE
 {
-protected:
-  db_RoutineRef _routine;
-
 public:
   RoutineEditorBE(GRTManager *grtm, const db_RoutineRef &routine, const db_mgmt_RdbmsRef &rdbms); 
 
   virtual std::string get_title();
-
-  virtual db_DatabaseObjectRef get_dbobject() { return get_routine(); }
-  virtual db_RoutineRef get_routine() { return _routine; }
-
+  virtual db_RoutineRef get_routine() = 0;
   virtual std::string get_sql();
-  virtual void set_sql(const std::string &sql, bool sync);
-  
-  std::string get_sql_definition_header();
-  virtual std::string get_sql_template(const std::string &template_name, int &cursor_pos);
-  
-  std::string get_formatted_sql_for_editing(int &cursor_pos);
-  
-  grt::ValueRef parse_sql(grt::GRT*, grt::StringRef sql);
-
-protected:
-  virtual std::string get_object_type();
 };
 
 } // namespace bec 
-
-#endif /* _EDITOR_ROUTINE_H_ */

@@ -77,6 +77,7 @@ public:
 
   virtual int stopProcessing() = 0;
 
+  virtual int parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine, const std::string &sql) = 0;
   virtual int parseTrigger(ParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql) = 0;
   virtual int parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql) = 0;
 

@@ -336,12 +336,11 @@ int MysqlSqlFacadeImpl::parseInserts(db_TableRef table, const std::string &sql)
 }
 
 //--------------------------------------------------------------------------------------------------
-/*
+
 int MysqlSqlFacadeImpl::parseTrigger(db_TriggerRef trigger, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_trigger(trigger, sql);
 }
-*/
 
 //--------------------------------------------------------------------------------------------------
 

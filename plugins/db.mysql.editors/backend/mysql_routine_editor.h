@@ -17,14 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_ROUTINE_EDITOR_H_
-#define _MYSQL_ROUTINE_EDITOR_H_
+#pragma once
 
 #include "grtdb/editor_routine.h"
-#include "grt/tree_model.h"
-#include "grts/structs.db.h"
-#include "grts/structs.db.mysql.h"
-#include "grts/structs.workbench.physical.h"
 
 #include "mysql_support_backend_public_interface.h"
 
@@ -32,13 +27,13 @@ class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLRoutineEditorBE : public bec::
 {
 public:
   MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine, const db_mgmt_RdbmsRef &rdbms); 
-  
-  std::string get_sql_definition_header();
+
+  virtual db_RoutineRef get_routine() { return _routine; }
   
   void load_routine_sql();
   virtual void commit_changes();
   virtual bool can_close();
 
+private:
+  db_mysql_RoutineRef _routine;
 };
-
-#endif /* _MYSQL_ROUTINE_EDITOR_H_ */

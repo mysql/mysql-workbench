@@ -92,7 +92,8 @@ public:
   std::vector<size_t> _error_marker_lines;
 
   bool _splitting_required;
-  std::vector<size_t> _statement_marker_lines;
+  bool _updating_statement_markers;
+  std::set<size_t> _statement_marker_lines;
   base::RecMutex _sql_statement_borders_mutex;
 
   // Each entry is a pair of statement position (byte position) and statement length (also bytes).
@@ -127,6 +128,7 @@ public:
     _editor_context_menu = NULL;
     _toolbar = NULL;
     _last_typed_char = 0;
+    _updating_statement_markers = false;
   }
 
   /**
@@ -180,7 +182,7 @@ MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref context)
   _code_editor = new mforms::CodeEditor(this);
   _code_editor->set_font(d->_grtm->get_app_option_string("workbench.general.Editor:Font"));
   _code_editor->set_features(mforms::FeatureUsePopup, false);
-  _code_editor->set_features(mforms::FeatureConvertEolOnPaste, true);
+  _code_editor->set_features(mforms::FeatureConvertEolOnPaste | mforms::FeatureAutoIndent, true);
 
   GrtVersionRef version = context->get_server_version();
   _editor_config = NULL;
@@ -189,6 +191,7 @@ MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref context)
   scoped_connect(_code_editor->signal_changed(), boost::bind(&MySQLEditor::text_changed, this, _1, _2, _3, _4));
   scoped_connect(_code_editor->signal_char_added(), boost::bind(&MySQLEditor::char_added, this, _1));
   scoped_connect(_code_editor->signal_dwell(), boost::bind(&MySQLEditor::dwell_event, this, _1, _2, _3, _4));
+  scoped_connect(_code_editor->signal_marker_changed(), boost::bind(&MySQLEditor::marker_changed, this, _1));
 
   setup_auto_completion();
 
@@ -825,6 +828,23 @@ void MySQLEditor::dwell_event(bool started, size_t position, int x, int y)
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * One or more markers on that line where changed. We have to stay in sync with our statement markers list
+ * to make the optimized add/remove algorithm working.
+ */
+void MySQLEditor::marker_changed(int line)
+{
+  if (d->_updating_statement_markers)
+    return;
+
+  // We only keep track of statement marker removal, as this can happen automatically (e.g. on paste of text),
+  // while adding markers is exclusively done by us.
+  if (d->_statement_marker_lines.count(line) > 0 && !_code_editor->has_markup(mforms::LineMarkupStatement, line))
+    d->_statement_marker_lines.erase(line);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Prepares and triggers an sql check run. Runs in the context of the main thread.
  */
 bool MySQLEditor::start_sql_processing()
@@ -918,8 +938,9 @@ void* MySQLEditor::splitting_done()
   std::set_difference(d->_statement_marker_lines.begin(), d->_statement_marker_lines.end(), lines.begin(), lines.end(),
     inserter(removal_candidates, removal_candidates.begin()));
 
-  d->_statement_marker_lines.assign(lines.begin(), lines.end());
+  d->_statement_marker_lines.swap(lines);
 
+  d->_updating_statement_markers = true;
   for (std::set<size_t>::const_iterator iterator = removal_candidates.begin();
     iterator != removal_candidates.end(); ++iterator)
     _code_editor->remove_markup(mforms::LineMarkupStatement, *iterator);
@@ -927,6 +948,7 @@ void* MySQLEditor::splitting_done()
   for (std::set<size_t>::const_iterator iterator = insert_candidates.begin();
     iterator != insert_candidates.end(); ++iterator)
     _code_editor->show_markup(mforms::LineMarkupStatement, *iterator);
+  d->_updating_statement_markers = false;
 
   // Trigger auto completion for alphanumeric chars, space or dot (if enabled).
   // This has to be done after our statement  splitter has completed (which is the case when we appear here).
