@@ -1335,20 +1335,6 @@ void SqlEditorForm::toggle_autocommit()
 }
 
 
-void SqlEditorForm::toggle_collect_field_info()
-{
-  if (_connection.is_valid())
-    _connection->parameterValues().set("CollectFieldMetadata", grt::IntegerRef(collect_field_info() ? 0 : 1));
-  update_menu_and_toolbar();
-}
-
-bool SqlEditorForm::collect_field_info() const
-{
-  if (_connection.is_valid())
-    return _connection->parameterValues().get_int("CollectFieldMetadata", 1) != 0;
-  return false;
-}
-
 void SqlEditorForm::toggle_collect_ps_statement_events()
 {
   if (_connection.is_valid())
@@ -1605,7 +1591,6 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;
   bool dont_add_limit_clause = (flags & DontAddLimitClause) != 0;
   std::map<std::string, boost::int64_t> ps_stats;
-  bool fetch_field_info = collect_field_info();
   bool query_ps_stats = collect_ps_statement_events();
   std::string query_ps_statement_events_error;
   std::string statement;
@@ -1761,7 +1746,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
         if (!is_multiple_statement && (Sql_syntax_check::sql_select == statement_type))
         {
           data_storage= Recordset_cdbc_storage::create(_grtm);
-          data_storage->set_gather_field_info(fetch_field_info);
+          data_storage->set_gather_field_info(true);
           data_storage->rdbms(rdbms());
           data_storage->dbms_conn(_usr_dbc_conn);
           data_storage->aux_dbms_conn(_aux_dbc_conn);
@@ -1944,7 +1929,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     if (!data_storage)
                     {
                       data_storage= Recordset_cdbc_storage::create(_grtm);
-                      data_storage->set_gather_field_info(fetch_field_info);
+                      data_storage->set_gather_field_info(true);
                       data_storage->rdbms(rdbms());
                       data_storage->dbms_conn(_usr_dbc_conn);
                       data_storage->aux_dbms_conn(_aux_dbc_conn);

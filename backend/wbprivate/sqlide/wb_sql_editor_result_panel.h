@@ -41,6 +41,7 @@ namespace mforms
 class SqlEditorForm;
 
 class ResultFormView;
+class SpatialDataView;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorResult : public mforms::Box
 {
@@ -69,11 +70,13 @@ private:
   int _query_stats_tab;
   int _form_result_tab;
   int _result_grid_tab;
+  int _spatial_result_tab;
   mforms::TabView *_tabview;
   mforms::TabSwitcher *_switcher;
   mforms::Box *_column_info_box;
   mforms::Box  *_query_stats_box;
   ResultFormView *_form_result_view;
+  SpatialDataView *_spatial_result_view;
   mforms::ContextMenu *_column_info_menu;
   std::list<mforms::ToolBar*> _toolbars;
   mforms::View *_result_grid;
@@ -90,6 +93,7 @@ private:
   
   void create_query_stats_panel();
   void create_column_info_panel();
+  void create_spatial_view_panel_if_needed();
 
   void add_switch_toggle_toolbar_item(mforms::ToolBar *tbar);
 

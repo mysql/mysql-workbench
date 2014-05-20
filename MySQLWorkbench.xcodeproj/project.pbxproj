@@ -1897,6 +1897,16 @@
 		2BAE1B250F36984500BE725E /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2BAE1B320F3698C200BE725E /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2BAE1B360F3698D800BE725E /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
+		2BAE2EB4192BE4E5000887F9 /* spatial_data_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EB2192BE4E4000887F9 /* spatial_data_view.cpp */; };
+		2BAE2EB5192BE4E5000887F9 /* spatial_data_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAE2EB3192BE4E5000887F9 /* spatial_data_view.h */; };
+		2BAE2EB7192BF915000887F9 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EB6192BF915000887F9 /* canvas.cpp */; };
+		2BAE2EB9192BF923000887F9 /* canvas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAE2EB8192BF923000887F9 /* canvas.h */; };
+		2BAE2EC0192C0053000887F9 /* Canvas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EBF192C0053000887F9 /* Canvas.mm */; };
+		2BAE2EC3192C1A7E000887F9 /* spatial_canvas_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EC1192C1A7E000887F9 /* spatial_canvas_layer.cpp */; };
+		2BAE2EC4192C1A7E000887F9 /* spatial_canvas_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EC1192C1A7E000887F9 /* spatial_canvas_layer.cpp */; };
+		2BAE2EC5192C1A7E000887F9 /* spatial_canvas_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAE2EC2192C1A7E000887F9 /* spatial_canvas_layer.h */; };
+		2BAE2EC6192C1A7E000887F9 /* spatial_canvas_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAE2EC2192C1A7E000887F9 /* spatial_canvas_layer.h */; };
+		2BAE2EC7192C1C6E000887F9 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
 		2BAE51D51342444400076130 /* MySQLPlugin-16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BAE51CE1342444400076130 /* MySQLPlugin-16.png */; };
 		2BAE51D61342444400076130 /* MySQLPlugin-24.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BAE51CF1342444400076130 /* MySQLPlugin-24.png */; };
 		2BAE51D71342444400076130 /* MySQLPlugin-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BAE51D01342444400076130 /* MySQLPlugin-32.png */; };
@@ -5670,6 +5680,13 @@
 		2BAE1A7E0F368EB200BE725E /* db_ForeignKey.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = db_ForeignKey.cpp; sourceTree = "<group>"; };
 		2BAE1A7F0F368EB200BE725E /* db_Schema.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = db_Schema.cpp; sourceTree = "<group>"; };
 		2BAE1A800F368EB200BE725E /* db_Table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = db_Table.cpp; sourceTree = "<group>"; };
+		2BAE2EB2192BE4E4000887F9 /* spatial_data_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_data_view.cpp; path = backend/wbprivate/sqlide/spatial_data_view.cpp; sourceTree = "<group>"; };
+		2BAE2EB3192BE4E5000887F9 /* spatial_data_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_data_view.h; path = backend/wbprivate/sqlide/spatial_data_view.h; sourceTree = "<group>"; };
+		2BAE2EB6192BF915000887F9 /* canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = canvas.cpp; path = library/forms/canvas.cpp; sourceTree = "<group>"; };
+		2BAE2EB8192BF923000887F9 /* canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = canvas.h; path = library/forms/mforms/canvas.h; sourceTree = "<group>"; };
+		2BAE2EBF192C0053000887F9 /* Canvas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Canvas.mm; path = frontend/mac/canvas/Canvas.mm; sourceTree = "<group>"; };
+		2BAE2EC1192C1A7E000887F9 /* spatial_canvas_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_canvas_layer.cpp; path = backend/wbprivate/sqlide/spatial_canvas_layer.cpp; sourceTree = "<group>"; };
+		2BAE2EC2192C1A7E000887F9 /* spatial_canvas_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_canvas_layer.h; path = backend/wbprivate/sqlide/spatial_canvas_layer.h; sourceTree = "<group>"; };
 		2BAE51CE1342444400076130 /* MySQLPlugin-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "MySQLPlugin-16.png"; path = "images/icons/MySQLPlugin-16.png"; sourceTree = "<group>"; };
 		2BAE51CF1342444400076130 /* MySQLPlugin-24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "MySQLPlugin-24.png"; path = "images/icons/MySQLPlugin-24.png"; sourceTree = "<group>"; };
 		2BAE51D01342444400076130 /* MySQLPlugin-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "MySQLPlugin-32.png"; path = "images/icons/MySQLPlugin-32.png"; sourceTree = "<group>"; };
@@ -6503,6 +6520,7 @@
 				2BD1FBD30F33D51800FFC762 /* ExceptionHandling.framework in Frameworks */,
 				2BD1FB7B0F33D41700FFC762 /* QuartzCore.framework in Frameworks */,
 				2BD1FBBD0F33D4BC00FFC762 /* libmysql.canvas.dylib in Frameworks */,
+				2BAE2EC7192C1C6E000887F9 /* libcairo.2.dylib in Frameworks */,
 				2BD1FBBE0F33D4C100FFC762 /* libgrt.dylib in Frameworks */,
 				2BAE1B360F3698D800BE725E /* libwbpublic.be.dylib in Frameworks */,
 				2B83660F1230071A00A73961 /* libmforms.dylib in Frameworks */,
@@ -7012,6 +7030,7 @@
 				2B9616570F275B0A00F0B599 /* base.h */,
 				2B9616580F275B0A00F0B599 /* box.h */,
 				2B9616590F275B0A00F0B599 /* button.h */,
+				2BAE2EB8192BF923000887F9 /* canvas.h */,
 				2B96165A0F275B0A00F0B599 /* checkbox.h */,
 				27597A0214192EE900641E30 /* container.h */,
 				2B2396CF103B502800D9023B /* drawbox.h */,
@@ -7054,6 +7073,7 @@
 				276948B215B5BC4D0011172A /* base.cpp */,
 				2B9616290F275AF200F0B599 /* box.cpp */,
 				2B96162A0F275AF200F0B599 /* button.cpp */,
+				2BAE2EB6192BF915000887F9 /* canvas.cpp */,
 				2B96162B0F275AF200F0B599 /* checkbox.cpp */,
 				27512ED01240F4F600EF37DD /* code_editor.cpp */,
 				27597A0014192ED100641E30 /* container.cpp */,
@@ -7418,6 +7438,7 @@
 		2B1CA5210EA3E8780062C916 /* Canvas Viewer */ = {
 			isa = PBXGroup;
 			children = (
+				2BAE2EBF192C0053000887F9 /* Canvas.mm */,
 				2B1CA5260EA3E8A20062C916 /* MCanvasViewer.h */,
 				2B1CA5270EA3E8A20062C916 /* MCanvasViewer.mm */,
 				2B1CA6860EA428120062C916 /* MCanvasScrollView.h */,
@@ -10403,6 +10424,10 @@
 				2B1FB7FD142C00070017A064 /* wb_sql_editor_form_ui.cpp */,
 				2BE0A25B184D66620056AE11 /* wb_sql_editor_result_panel.cpp */,
 				2BE0A25C184D66620056AE11 /* wb_sql_editor_result_panel.h */,
+				2BAE2EC1192C1A7E000887F9 /* spatial_canvas_layer.cpp */,
+				2BAE2EC2192C1A7E000887F9 /* spatial_canvas_layer.h */,
+				2BAE2EB2192BE4E4000887F9 /* spatial_data_view.cpp */,
+				2BAE2EB3192BE4E5000887F9 /* spatial_data_view.h */,
 				2BE0A259184CCF120056AE11 /* Output Area */,
 				2BE0A25A184CCF1A0056AE11 /* Main Sidebar */,
 				2BE0A258184CCCE00056AE11 /* Secondary Sidebar */,
@@ -11001,6 +11026,7 @@
 				27B7FB7911B6A07A00F58910 /* MFMenu.h in Headers */,
 				27512ED31240F50200EF37DD /* code_editor.h in Headers */,
 				2B15AF1A12D78281006567D6 /* menubar.h in Headers */,
+				2BAE2EB9192BF923000887F9 /* canvas.h in Headers */,
 				2B15AF2212D7B3FC006567D6 /* MFMenuBar.h in Headers */,
 				2B15B0A612D8BEC4006567D6 /* toolbar.h in Headers */,
 				2B15B35212DA288E006567D6 /* MFToolBar.h in Headers */,
@@ -11053,6 +11079,7 @@
 				2B5B77060F781D6C007E54CF /* user_defined_type_editor.h in Headers */,
 				2B5B77080F781D6C007E54CF /* document_properties_form.h in Headers */,
 				2B5B770A0F781D6C007E54CF /* preferences_form.h in Headers */,
+				2BAE2EB5192BE4E5000887F9 /* spatial_data_view.h in Headers */,
 				2BF879C50FA7BE730012EADA /* db_sql_editor_history_be.h in Headers */,
 				2BF879C70FA7BE730012EADA /* db_sql_editor_log.h in Headers */,
 				2BF879C80FA7BE730012EADA /* wb_live_schema_tree.h in Headers */,
@@ -11065,6 +11092,7 @@
 				2BF87A5B0FA7CEFB0012EADA /* wb_component_basic.h in Headers */,
 				2BF87A5D0FA7CEFB0012EADA /* wb_component_logical.h in Headers */,
 				2BF87A5F0FA7CEFB0012EADA /* wb_component_physical.h in Headers */,
+				2BAE2EC5192C1A7E000887F9 /* spatial_canvas_layer.h in Headers */,
 				2BF87A620FA7CEFB0012EADA /* wb_diagram_options.h in Headers */,
 				2BF87A640FA7CEFB0012EADA /* wb_layer_tree.h in Headers */,
 				2BF87A660FA7CEFB0012EADA /* wb_model_diagram_form.h in Headers */,
@@ -11141,6 +11169,7 @@
 				2BD1FB610F33D2F200FFC762 /* MCPPUtilities.h in Headers */,
 				2BD1FB630F33D2F200FFC762 /* GRTIconCache.h in Headers */,
 				2B3D489A0F3E3A4A009238A7 /* NSString_extras.h in Headers */,
+				2BAE2EC6192C1A7E000887F9 /* spatial_canvas_layer.h in Headers */,
 				2B0748300F93EC1100D7E4E3 /* MResultsetViewer.h in Headers */,
 				2B1CA4230F965CB1001443CA /* MQIndicatorCell.h in Headers */,
 				2B1CA4250F965CB1001443CA /* MQResultSetCell.h in Headers */,
@@ -13745,6 +13774,7 @@
 				2B3D4E300F3FA70B009238A7 /* MFFileChooser.mm in Sources */,
 				2B3D500A0F40CCAA009238A7 /* MFScrollPanel.mm in Sources */,
 				2B3D500E0F40CCB5009238A7 /* MFListBox.mm in Sources */,
+				2BAE2EB7192BF915000887F9 /* canvas.cpp in Sources */,
 				2B3D54FF0F420B45009238A7 /* MFContainerBase.mm in Sources */,
 				2B7395810F6048780084CA96 /* utilities.cpp in Sources */,
 				2B7395850F60488F0084CA96 /* MFUtilities.mm in Sources */,
@@ -13828,6 +13858,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BAE2EC3192C1A7E000887F9 /* spatial_canvas_layer.cpp in Sources */,
 				27ED97B81802AE2D00F15650 /* wb_catalog_tree_view.cpp in Sources */,
 				2BCB315B0E884601005C8ED2 /* metaclasses.cpp in Sources */,
 				2BCB31600E884601005C8ED2 /* upgrade_helper.cpp in Sources */,
@@ -13893,6 +13924,7 @@
 				2BC92999170BC99700D5BCAD /* wb_template_list.cpp in Sources */,
 				27751DDF17422A060025DEAE /* about_box.cpp in Sources */,
 				2BE0A25D184D66630056AE11 /* wb_sql_editor_result_panel.cpp in Sources */,
+				2BAE2EB4192BE4E5000887F9 /* spatial_data_view.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -13915,6 +13947,7 @@
 				2BD1FB430F33D2F200FFC762 /* ResponderLayer.m in Sources */,
 				2BD1FB450F33D2F200FFC762 /* WBSchemaTabItem.m in Sources */,
 				2BD1FB470F33D2F200FFC762 /* WBSchemaTabView.m in Sources */,
+				2BAE2EC0192C0053000887F9 /* Canvas.mm in Sources */,
 				2BD1FB4D0F33D2F200FFC762 /* WBTabItem.m in Sources */,
 				2BD1FB4F0F33D2F200FFC762 /* WBTabView.m in Sources */,
 				2BD1FB530F33D2F200FFC762 /* MTogglePane.m in Sources */,
@@ -13937,6 +13970,7 @@
 				2B5DE77D0FFEBE5500701821 /* MOutlineView.mm in Sources */,
 				2B5DE77F0FFEBE5500701821 /* MTableView.mm in Sources */,
 				2B5DE7950FFEBF6900701821 /* WBPluginWindowBase.mm in Sources */,
+				2BAE2EC4192C1A7E000887F9 /* spatial_canvas_layer.cpp in Sources */,
 				2B29F9151140B1CD009DA9B0 /* WBSplitPanel.mm in Sources */,
 				2B29F9191140B20D009DA9B0 /* WBBasePanel.mm in Sources */,
 				2B1E28191163D5B100A22E91 /* NSArray_extras.mm in Sources */,
@@ -16868,6 +16902,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -16921,6 +16956,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",

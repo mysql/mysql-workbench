@@ -1003,7 +1003,8 @@ extern "C" {
 static void init_mforms()
 {
   log_debug("Initializing mforms\n");
-  
+
+  extern void cf_canvas_init();
   extern void cf_tabview_init();
   static BOOL inited= NO;
   
@@ -1013,6 +1014,7 @@ static void init_mforms()
   
     mforms_cocoa_init();
     cf_tabview_init();
+    cf_canvas_init();
   }
 }
 
