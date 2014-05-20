@@ -91,7 +91,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _splitter.add(&_editor_box);
   _splitter.add(&_lower_tabview);
-  _splitter.set_position(mforms::Form::main_form()->get_height());
+  _splitter.set_position(mforms::App::get()->get_application_bounds().height());
   UIForm::scoped_connect(_splitter.signal_position_changed(), boost::bind(&SqlEditorPanel::splitter_resized, this));
 
   _lower_tabview.set_aux_view(&_tab_action_box);
@@ -925,6 +925,8 @@ void SqlEditorPanel::query_finished()
 
   _form->set_busy_tab(-1);
   _lower_tabview.set_allows_reordering(true);
+
+  _form->post_query_slot();
 }
 
 
@@ -935,6 +937,8 @@ void SqlEditorPanel::query_failed(const std::string &message)
 
   _form->set_busy_tab(-1);
   _lower_tabview.set_allows_reordering(true);
+
+  _form->post_query_slot();
 }
 
 //----- Resulset management
@@ -1057,10 +1061,21 @@ SqlEditorResult *SqlEditorPanel::result_panel(int i)
   return NULL;
 }
 
-/** 
- 
- To be called from a worker thread.
- */
+
+void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
+{
+  if (_form->grt_manager()->in_main_thread())
+  {
+    SqlEditorForm::RecordsetData *rdata = dynamic_cast<SqlEditorForm::RecordsetData*>(rset->client_data());
+    
+    rdata->result_panel = add_panel_for_recordset(rset);
+  }
+  else
+    _form->grt_manager()->run_once_when_idle(dynamic_cast<bec::UIForm*>(this), 
+      boost::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
+}
+
+
 SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
 {
   Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
@@ -1074,7 +1089,7 @@ SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
   bec::UIForm::scoped_connect(rset->get_context_menu()->signal_will_show(),
                  boost::bind(&SqlEditorPanel::on_recordset_context_menu_show, this, Recordset::Ptr(rset)));
 
-  _form->grt_manager()->run_once_when_idle(dynamic_cast<bec::UIForm*>(result), boost::bind(&SqlEditorPanel::dock_result_panel, this, result));
+  dock_result_panel(result);
 
   rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, this));
 

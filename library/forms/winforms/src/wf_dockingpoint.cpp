@@ -75,6 +75,27 @@ public:
     Drawing::Size size = _managed_delegate->get_size(_represented_object);
     return std::make_pair(size.Width, size.Height);
   }
+
+  virtual int view_count()
+  {
+    return _managed_delegate->view_count();
+  }
+
+  virtual mforms::AppView *view_at_index(int i)
+  {
+    AppViewDockContent ^appview = _managed_delegate->view_at_index(i);
+    if (appview == nullptr)
+      return NULL;
+    return appview->GetBackend();
+  }
+
+  virtual mforms::AppView *selected_view()
+  {
+    AppViewDockContent ^appview = _managed_delegate->selected_view();
+    if (appview == nullptr)
+      return NULL;
+    return appview->GetBackend();
+  }
 };
 
 //----------------- ManagedDockDelegate ------------------------------------------------------------

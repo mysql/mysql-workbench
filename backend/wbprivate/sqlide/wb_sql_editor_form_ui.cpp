@@ -525,3 +525,24 @@ void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_in
     }
   }
 }
+
+
+void SqlEditorForm::handle_history_action(const std::string &action, const std::string &sql)
+{
+  if (action == "copy")
+    mforms::Utilities::set_clipboard_text(sql);
+  else if (action == "append")
+  {
+    SqlEditorPanel *panel = active_sql_editor_panel();
+    if (panel)
+      panel->editor_be()->append_text(sql);
+  }
+  else if (action == "replace")
+  {
+    SqlEditorPanel *panel = active_sql_editor_panel();
+    if (panel)
+      panel->editor_be()->sql(sql.c_str());
+  }
+  else
+   throw std::invalid_argument("invalid history action " + action);
+}

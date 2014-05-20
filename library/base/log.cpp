@@ -227,8 +227,8 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
     if ((level == LogError) || (level == LogWarning))
     {
       hConsole = GetStdHandle(STD_ERROR_HANDLE);
-      GetConsoleScreenBufferInfo(hConsole , &csbiInfo);
-      wOldColorAttrs = csbiInfo.wAttributes; 
+      GetConsoleScreenBufferInfo(hConsole, &csbiInfo);
+      wOldColorAttrs = csbiInfo.wAttributes;
       SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
       if (level == LogError)
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
@@ -242,11 +242,22 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
       fprintf(stderr, "\e[1m");
 # endif
 
+#ifdef _WIN32
+    if (_impl->_new_line_pending)
+    {
+      char *tmp = g_strdup_printf("%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec, LevelText[level], domain);
+      OutputDebugStringA(tmp);
+      g_free(tmp);
+    }
+    // if you want the program to stop when a specific log msg is printed, put a bp in the next line and set condition to log_msg_serial==#
+    OutputDebugStringA(buffer.get());
+#else
     if (_impl->_new_line_pending)
       fprintf(stderr, "%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec, LevelText[level], domain);
       
     // if you want the program to stop when a specific log msg is printed, put a bp in the next line and set condition to log_msg_serial==#
     fprintf(stderr, "%s", buffer.get());
+#endif
 
 # if defined(_WIN32)
     if ((level == LogError) || (level == LogWarning))
