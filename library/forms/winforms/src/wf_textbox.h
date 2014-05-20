@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,6 +51,7 @@ namespace MySQL {
       static void set_monospaced(mforms::TextBox *backend, bool flag);
       static void get_selected_range(mforms::TextBox *backend, int &start, int &end);
       static void clear(mforms::TextBox *backend);
+      virtual void set_front_color(String ^color);
     public:
       static void init();
     };

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -185,6 +185,12 @@ void TextBoxImpl::clear(::mforms::TextBox *self)
   TextBoxImpl* cb = self->get_data<TextBoxImpl>();
   if (cb && cb->_text)
     cb->_text->get_buffer()->set_text("");
+}
+
+void TextBoxImpl::set_front_color(const std::string &color)
+{
+  Gdk::Color clr(color);
+  this->_text->modify_text(Gtk::STATE_NORMAL, clr);
 }
 
 TextBoxImpl::TextBoxImpl(::mforms::TextBox *self, mforms::ScrollBars scroll_type)

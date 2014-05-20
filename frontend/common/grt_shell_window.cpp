@@ -314,7 +314,7 @@ _lower_tab(mforms::TabViewDocument),
   _shell_box.add(&_shell_text, true, true);
   _shell_text.set_monospaced(true);
   _shell_text.set_read_only(true);
-  _shell_text.set_front_color("#E0E0E0");
+  _shell_text.set_front_color("#FFFFFF");
   _shell_text.set_back_color("#000000");
   _shell_text.set_padding(2);
   _shell_box.add(&_shell_hbox, false, true);
