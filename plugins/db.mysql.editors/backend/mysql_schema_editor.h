@@ -20,9 +20,6 @@
 #pragma once
 
 #include "grtdb/editor_schema.h"
-#include "grts/structs.workbench.physical.h"
-#include "grts/structs.db.mysql.h"
-#include "grt/grt_manager.h"
 
 #include "mysql_support_backend_public_interface.h"
 
@@ -30,10 +27,12 @@ class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLSchemaEditorBE : public bec::S
 {
 private:
   std::string _initial_name;
-  SqlFacade::Ref _sql_facade;
+  db_mysql_SchemaRef _schema;
 
 public:
-  MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_SchemaRef &schema, const db_mgmt_RdbmsRef &rdbms);
+  MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_mysql_SchemaRef &schema);
+
+  virtual db_SchemaRef get_schema() { return _schema; }
 
   void refactor_catalog_upon_schema_rename(const std::string &old_name, const std::string &new_name);
   bool refactor_possible();

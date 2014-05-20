@@ -120,7 +120,7 @@ class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableEditorBE : public ::bec::
 {
   friend class MySQLTriggerPanel;
 public:
-  MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table, const db_mgmt_RdbmsRef &rdbms);
+  MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table);
   virtual ~MySQLTableEditorBE();
 
   virtual void commit_changes();

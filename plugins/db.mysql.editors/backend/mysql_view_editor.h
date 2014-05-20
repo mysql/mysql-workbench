@@ -26,7 +26,7 @@
 class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLViewEditorBE : public bec::ViewEditorBE
 {
 public:
-  MySQLViewEditorBE(bec::GRTManager *grtm, const db_mysql_ViewRef &view, const db_mgmt_RdbmsRef &rdbms);
+  MySQLViewEditorBE(bec::GRTManager *grtm, const db_mysql_ViewRef &view);
 
   virtual db_ViewRef get_view() { return _view; };
 

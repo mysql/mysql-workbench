@@ -25,6 +25,8 @@
 #import "GRTListDataSource.h"
 #import "GRTTreeDataSource.h"
 
+#include "grtdb/db_object_helpers.h"
+
 @implementation DbPrivilegeEditorTab
 
 - (id)initWithObjectEditor:(bec::DBObjectEditorBE*)be
@@ -36,7 +38,7 @@
     
     [NSBundle loadNibNamed:@"PrivilegesTab" owner:self];
     
-    _rolesListBE= new bec::ObjectRoleListBE(be);
+    _rolesListBE= new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
     _roleTreeBE= new bec::RoleTreeBE(be->get_catalog());
     _privilegeListBE= _rolesListBE->get_privilege_list();
     

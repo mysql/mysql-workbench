@@ -100,7 +100,7 @@ std::vector<std::string> TableColumnsListBE::get_datatype_names()
   types.push_back("DATETIME");       
   types.push_back("BLOB");
   
-  GrtVersionRef target_version(_owner->get_rdbms_target_version());
+  GrtVersionRef target_version(_owner->get_catalog()->version());
   std::vector<db_SimpleDatatypeRef> sorted_types;
   grt::ListRef<db_SimpleDatatype> stypes(_owner->get_catalog()->simpleDatatypes());
   for (grt::ListRef<db_SimpleDatatype>::const_iterator iter= stypes.begin(); iter != stypes.end(); ++iter)
@@ -2880,13 +2880,14 @@ bool FKConstraintListBE::activate_popup_item_for_nodes(const std::string &name, 
 
 //----------------------------------------------------------------------
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #pragma warning(push)
 #pragma warning(disable:4355) // 'this' : used in base member initializer list
                               // that's ok as we just store pointer for later use
 #endif
-TableEditorBE::TableEditorBE(GRTManager *grtm, const db_TableRef &table, const db_mgmt_RdbmsRef &rdbms)
-  : DBObjectEditorBE(grtm, table, rdbms), _fk_list(this)
+
+TableEditorBE::TableEditorBE(GRTManager *grtm, const db_TableRef &table)
+  : DBObjectEditorBE(grtm, table), _fk_list(this)
 {
   _inserts_panel = NULL;
 
@@ -2894,7 +2895,8 @@ TableEditorBE::TableEditorBE(GRTManager *grtm, const db_TableRef &table, const d
   
   scoped_connect(table->signal_refreshDisplay(),(boost::bind(&BaseEditor::on_object_changed, this)));
 }
-#ifdef _MSC_VER
+
+#ifdef _WIN32
 #pragma warning(pop)
 #endif
 

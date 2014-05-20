@@ -26,8 +26,8 @@ using namespace base;
 
 //--------------------------------------------------------------------------------------------------
 
-ViewEditorBE::ViewEditorBE(GRTManager *grtm, const db_ViewRef &view, const db_mgmt_RdbmsRef &rdbms)
-  : DBObjectEditorBE(grtm, view, rdbms)
+ViewEditorBE::ViewEditorBE(GRTManager *grtm, const db_ViewRef &view)
+  : DBObjectEditorBE(grtm, view)
 {
   MySQLEditor::Ref sql_editor = get_sql_editor();
   if (sql_editor)

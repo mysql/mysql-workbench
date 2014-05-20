@@ -29,12 +29,11 @@ DEFAULT_LOG_DOMAIN("SchemaEditor");
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLSchemaEditorBE::MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_SchemaRef &schema,
-                                         const db_mgmt_RdbmsRef &rdbms)
-  : bec::SchemaEditorBE(grtm, schema, rdbms)
+MySQLSchemaEditorBE::MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_mysql_SchemaRef &schema)
+  : bec::SchemaEditorBE(grtm, schema)
 {
-  _sql_facade = SqlFacade::instance_for_rdbms(rdbms);
   _initial_name = schema->name();
+  _schema = schema;
 }
 
 //--------------------------------------------------------------------------------------------------

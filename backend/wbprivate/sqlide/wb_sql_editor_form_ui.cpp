@@ -583,7 +583,7 @@ bool SqlEditorForm::run_live_object_alteration_wizard(const std::string &alter_s
   
   SqlScriptRunWizard wizard(_grtm, rdbms_version(), algorithm, lock);
   if (obj_editor)
-    wizard.regenerate_script = boost::bind(&SqlEditorTreeController::generate_alter_script, get_live_tree(), obj_editor->get_rdbms(),
+    wizard.regenerate_script = boost::bind(&SqlEditorTreeController::generate_alter_script, get_live_tree(), rdbms(),
                                            obj_editor->get_dbobject(), _1, _2);
   scoped_connection c1(on_sql_script_run_error.connect(boost::bind(&SqlScriptApplyPage::on_error, wizard.apply_page, _1, _2, _3)));
   scoped_connection c2(on_sql_script_run_progress.connect(boost::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, _1)));

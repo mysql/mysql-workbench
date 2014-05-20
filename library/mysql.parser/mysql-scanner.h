@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_LEXER_H_
-#define _MYSQL_LEXER_H_
+#pragma once
 
 #include "mysql-parser-common.h"
 
@@ -61,5 +60,3 @@ private:
   class Private;
   Private *d;
 };
-
-#endif // _MYSQL_LEXER_H_

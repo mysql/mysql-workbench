@@ -26,7 +26,7 @@ namespace bec {
 class WBPUBLICBACKEND_PUBLIC_FUNC RoutineEditorBE : public DBObjectEditorBE
 {
 public:
-  RoutineEditorBE(GRTManager *grtm, const db_RoutineRef &routine, const db_mgmt_RdbmsRef &rdbms); 
+  RoutineEditorBE(GRTManager *grtm, const db_RoutineRef &routine); 
 
   virtual std::string get_title();
   virtual db_RoutineRef get_routine() = 0;

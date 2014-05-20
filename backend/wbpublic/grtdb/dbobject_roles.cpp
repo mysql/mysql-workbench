@@ -24,14 +24,15 @@
 using namespace bec;
 using namespace grt;
 
+//--------------------------------------------------------------------------------------------------
 
-ObjectRoleListBE::ObjectRoleListBE(DBObjectEditorBE *owner)
-: _owner(owner), _privilege_list(owner->get_rdbms())
+ObjectRoleListBE::ObjectRoleListBE(DBObjectEditorBE *owner, const db_mgmt_RdbmsRef &rdbms)
+: _owner(owner), _privilege_list(this, rdbms)
 {
-  _privilege_list.set_owner(this);
   refresh();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ObjectRoleListBE::refresh()
 {
@@ -53,12 +54,14 @@ void ObjectRoleListBE::refresh()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 size_t ObjectRoleListBE::count()
 {
   return _role_privs.size();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool ObjectRoleListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
@@ -69,7 +72,7 @@ bool ObjectRoleListBE::get_field_grt(const NodeId &node, ColumnId column, grt::V
       db_RolePrivilegeRef role_privs(_role_privs[node[0]]);
       std::string name;
       
-      grt::ListRef<db_mgmt_PrivilegeMapping> mappings(_owner->get_rdbms()->privilegeNames());
+      grt::ListRef<db_mgmt_PrivilegeMapping> mappings(_rdbms->privilegeNames());
       grt::StringListRef privileges;
       
       for (size_t c= mappings.count(), i= 0; i < c; i++)
@@ -107,6 +110,7 @@ bool ObjectRoleListBE::get_field_grt(const NodeId &node, ColumnId column, grt::V
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ObjectRoleListBE::add_role_for_privileges(const db_RoleRef &role)
 {
@@ -124,7 +128,6 @@ void ObjectRoleListBE::add_role_for_privileges(const db_RoleRef &role)
   role_priv->owner(role);
   role_priv->databaseObject(_owner->get_dbobject());
 
-  //grt::AutoUndo undo(_owner->get_grt());
   AutoUndoEdit undo(_owner);
   
   role->privileges().insert(role_priv);
@@ -134,6 +137,7 @@ void ObjectRoleListBE::add_role_for_privileges(const db_RoleRef &role)
   refresh();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ObjectRoleListBE::remove_role_from_privileges(const db_RoleRef &role)
 {
@@ -155,7 +159,7 @@ void ObjectRoleListBE::remove_role_from_privileges(const db_RoleRef &role)
   refresh();
 }
 
-
+//--------------------------------------------------------------------------------------------------
 
 void ObjectRoleListBE::select_role(const NodeId &node)
 {
@@ -164,6 +168,7 @@ void ObjectRoleListBE::select_role(const NodeId &node)
   _privilege_list.refresh();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 db_RolePrivilegeRef ObjectRoleListBE::get_selected()
 {
@@ -175,15 +180,14 @@ db_RolePrivilegeRef ObjectRoleListBE::get_selected()
   return db_RolePrivilegeRef();
 }
 
+//--------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
-
-
-ObjectPrivilegeListBE::ObjectPrivilegeListBE(const db_mgmt_RdbmsRef &rdbms)
-: _rdbms(rdbms)
+ObjectPrivilegeListBE::ObjectPrivilegeListBE(ObjectRoleListBE* owner, const db_mgmt_RdbmsRef &rdbms)
+  : _owner(owner), _rdbms(rdbms)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
 size_t ObjectPrivilegeListBE::count()
 {
@@ -192,6 +196,7 @@ size_t ObjectPrivilegeListBE::count()
   return 0;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void ObjectPrivilegeListBE::refresh()
 {
@@ -214,6 +219,7 @@ void ObjectPrivilegeListBE::refresh()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool ObjectPrivilegeListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
@@ -240,6 +246,7 @@ bool ObjectPrivilegeListBE::get_field_grt(const NodeId &node, ColumnId column, g
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool ObjectPrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize_t value)
 {
@@ -256,7 +263,6 @@ bool ObjectPrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize
     {
       if (value)
       {
-        //grt::AutoUndo undo(_owner->get_owner()->get_grt());
         AutoUndoEdit undo(_owner->get_owner());
         role_privilege->privileges().insert(_privileges.get(node[0]));
         undo.end(_("Add object privilege to role"));
@@ -266,7 +272,6 @@ bool ObjectPrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize
     {
       if (!value)
       {
-        //grt::AutoUndo undo(_owner->get_owner()->get_grt());
         AutoUndoEdit undo(_owner->get_owner());
         role_privilege->privileges().remove(index);
         undo.end(_("Remove object privilege from role"));
@@ -280,3 +285,4 @@ bool ObjectPrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------

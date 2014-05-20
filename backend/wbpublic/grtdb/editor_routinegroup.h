@@ -16,51 +16,35 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _EDITOR_ROUTINE_GROUP_H_
-#define _EDITOR_ROUTINE_GROUP_H_
+
+#pragma once
 
 #include "grtdb/editor_dbobject.h"
-#include "grt/tree_model.h"
-#include "grts/structs.workbench.physical.h"
-#include "wbpublic_public_interface.h"
 
 namespace bec {
 
   class WBPUBLICBACKEND_PUBLIC_FUNC RoutineGroupEditorBE : public DBObjectEditorBE
   {
-  protected: 
-    db_RoutineGroupRef _group;
-
   public:
-    RoutineGroupEditorBE(GRTManager *grtm, const db_RoutineGroupRef &group, const db_mgmt_RdbmsRef &rdbms);
+    RoutineGroupEditorBE(GRTManager *grtm, const db_RoutineGroupRef &group);
 
     virtual std::string get_title();
 
-    virtual db_DatabaseObjectRef get_dbobject() { return get_routine_group(); }
-    virtual db_RoutineGroupRef get_routine_group() { return _group; }
+    virtual db_RoutineGroupRef get_routine_group() = 0;
 
-    virtual std::string get_routines_sql();
-    virtual std::string get_routine_name(const std::string& id);
+    virtual std::string get_sql();
+    std::string get_routine_sql(db_RoutineRef routine);
+
     virtual std::vector<std::string> get_routines_names();
-    virtual void set_routines_sql(const std::string &sql, bool sync);
-    grt::ValueRef parse_sql(grt::GRT*, grt::StringRef sql);
 
-    virtual MySQLEditor::Ref get_sql_editor();
+    void delete_routine_with_name(const std::string &str);
+    void remove_routine_by_index(size_t index);
+    void append_routine_with_id(const std::string &id);
     
-    virtual std::string get_routine_sql(db_RoutineRef routine);
-
-    virtual void delete_routine_with_name(const std::string& str);
-    virtual void remove_routine_by_index(size_t index);
-    virtual void append_routine_with_id(const std::string& id);
     void open_editor_for_routine_at_index(size_t index);
   
   private:
     std::string set_routine_newlines(const std::string &routine);
-
-  protected:
-    virtual std::string get_object_type();
 };
 
 } // namespace bec
-
-#endif /* _EDITOR_ROUTINE_GROUP_H_ */

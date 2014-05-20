@@ -234,7 +234,7 @@ bec::MenuItemList MySQLTableColumnsListBE::get_popup_items_for_nodes(const std::
     {
       std::string type = col->simpleType()->name();
       bool improved_timestamp_support = false;
-      GrtVersionRef target_version = _owner->get_rdbms_target_version();
+      GrtVersionRef target_version = _owner->get_catalog()->version();
       // in MySQL 5.6, CURRENT_TIMESTAMP works for TIMESTAMP and DATETIME
       // and for any number of colums
       if (target_version.is_valid() &&
@@ -399,12 +399,8 @@ public:
     
     _name.set_name("trigger name");
     _name.set_read_only(true);
-    //TODO: Check if we can make this code usable again
-//    _name.signal_changed()->connect(boost::bind(&MySQLTriggerPanel::name_changed, this));
     _definer.set_name("trigger definer");
     _definer.set_read_only(true);
-    //TODO: Check if we can make this code usable again
-//    _definer.signal_changed()->connect(boost::bind(&MySQLTriggerPanel::definer_changed, this));
 
     _namel.set_style(mforms::SmallStyle);
     _definerl.set_style(mforms::SmallStyle);
@@ -516,8 +512,9 @@ public:
         AutoUndoEdit undo(_editor, _selected_trigger, "sql");
         
         _editor->freeze_refresh_on_object_change();
-        _editor->_sql_parser->parse_trigger(_selected_trigger, _code_editor->get_string_value().c_str());
-        _editor->thaw_refresh_on_object_change(true);
+        
+        _editor->_parser_services->parseTrigger(_editor->_parser_context, _selected_trigger, _code_editor->get_string_value());
+        _editor->thaw_refresh_on_object_change();
 
         _name.set_value(_selected_trigger->name());
         _definer.set_value(_selected_trigger->definer());
@@ -683,8 +680,8 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLTableEditorBE::MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table, const db_mgmt_RdbmsRef &rdbms)
-  : TableEditorBE(grtm, table, rdbms), _table(table), _columns(this, table), _partitions(this, table),
+MySQLTableEditorBE::MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table)
+  : TableEditorBE(grtm, table), _table(table), _columns(this, table), _partitions(this, table),
     _indexes(this), _trigger_panel(0)
 {
   _updating_triggers = false;
@@ -723,11 +720,12 @@ mforms::View *MySQLTableEditorBE::get_trigger_panel()
 std::vector<std::string> MySQLTableEditorBE::get_index_types()
 {
   std::vector<std::string> index_types;
+  GrtVersionRef version = get_catalog()->version();
 
   index_types.push_back("INDEX");
   index_types.push_back("UNIQUE");
   // FULLTEXT exists only in MyISAM prior to 5.6. in 5.6+ InnoDB also supports it
-  if (_table->tableEngine() == "MyISAM" || (_table->tableEngine() == "InnoDB" && is_server_version_at_least(5, 6)))
+  if (_table->tableEngine() == "MyISAM" || (_table->tableEngine() == "InnoDB" && bec::is_supported_mysql_version_at_least(version, 5, 6)))
     index_types.push_back("FULLTEXT");
   // SPATIAL is not supported by InnoDB
   if (_table->tableEngine() == "MyISAM")

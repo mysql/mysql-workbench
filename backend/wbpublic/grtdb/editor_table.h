@@ -338,7 +338,7 @@ namespace bec {
       RefreshColumnCollation
     };
 
-    TableEditorBE(GRTManager *grtm, const db_TableRef &table, const db_mgmt_RdbmsRef &rdbms);
+    TableEditorBE(GRTManager *grtm, const db_TableRef &table);
 
     virtual std::string get_title();
 

@@ -58,7 +58,7 @@ grt::BaseListRef MySQLParserServicesImpl::getSqlStatementRanges(const std::strin
  * Signals any ongoing process to stop. This must be called from a different thread than from where
  * the processing was started to make it work.
  */
-int MySQLParserServicesImpl::stopProcessing()
+size_t MySQLParserServicesImpl::stopProcessing()
 {
   _stop = true;
   return 0;
@@ -100,16 +100,16 @@ std::string get_definer(MySQLRecognizerTreeWalker &walker)
  * If there's an error nothing is changed.
  * Returns the number of errors.
  */
-int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db_mysql_TriggerRef trigger,
-                                          const std::string &sql)
+size_t MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db_mysql_TriggerRef trigger,
+                                             const std::string &sql)
 {
-  log_debug("Parse trigger");
+  log_debug2("Parse trigger\n");
 
   trigger->sqlDefinition(sql);
   trigger->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateTrigger);
-  int error_count = (int)context->recognizer()->error_info().size();
+  size_t error_count = context->recognizer()->error_info().size();
   int result_flag = 0;
   if (error_count == 0)
   {
@@ -190,15 +190,15 @@ int MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db
  * If there's an error nothing changes. If the sql contains a schema reference other than that the
  * the view is in the view's name will be changed (adds _WRONG_SCHEMA) to indicate that.
  */
-int MySQLParserServicesImpl::parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql)
+size_t MySQLParserServicesImpl::parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql)
 {
-  log_debug("Parse View");
+  log_debug2("Parse view\n");
 
   view->sqlDefinition(sql);
   view->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateView);
-  int error_count = (int)context->recognizer()->error_info().size();
+  size_t error_count = context->recognizer()->error_info().size();
   if (error_count == 0)
   {
     MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
@@ -280,149 +280,317 @@ int MySQLParserServicesImpl::parseView(parser::ParserContext::Ref context, db_my
 
 //--------------------------------------------------------------------------------------------------
 
+void fill_routine_details(MySQLRecognizerTreeWalker &walker, db_mysql_RoutineRef routine)
+{
+  walker.next(); // Skip CREATE.
+  routine->definer(get_definer(walker));
+
+  // A UDF is also a function and will be handled as such here.
+  walker.skip_if(AGGREGATE_SYMBOL);
+  bool is_function = false;
+  if (walker.token_type() == FUNCTION_SYMBOL)
+    is_function = true;
+  if (is_function)
+    routine->routineType("function");
+  else
+    routine->routineType("procedure");
+
+  walker.next(2); // skip FUNCTION/PROCEDURE + *_NAME_TOKEN
+  std::string name = walker.token_text();
+  walker.next();
+  if (walker.token_type() == DOT_SYMBOL)
+  {
+    // A qualified name. Check schema part.
+    walker.next();
+    db_SchemaRef schema = db_SchemaRef::cast_from(routine->owner());
+    if (!base::same_string(schema->name(), name, false)) // Routine names are never case sensitive.
+      name = walker.token_text() + "_WRONG_SCHEMA";
+    else
+      name = walker.token_text();
+
+    walker.next();
+  }
+  routine->name(name);
+
+  if (walker.token_type() == RETURNS_SYMBOL)
+  {
+    // UDF.
+    routine->routineType("udf");
+    walker.next();
+    routine->returnDatatype(walker.token_text());
+  }
+  else
+  {
+    // Parameters.
+    ListRef<db_mysql_RoutineParam> params = routine->params();
+    params.remove_all();
+    walker.next(); // Open par.
+
+    while (true)
+    {
+      db_mysql_RoutineParamRef param(routine->get_grt());
+      param->owner(routine);
+
+      switch (walker.token_type())
+      {
+        case IN_SYMBOL:
+        case OUT_SYMBOL:
+        case INOUT_SYMBOL:
+          param->paramType(walker.token_text());
+          walker.next();
+          break;
+      }
+
+      param->name(walker.token_text());
+      walker.next();
+
+      // DATA_TYPE_TOKEN.
+      param->datatype(walker.text_for_tree());
+      params.insert(param);
+
+      walker.next_sibling();
+      if (walker.token_type() != COMMA_SYMBOL)
+        break;
+      walker.next();
+    }
+    walker.next(); // Closing par.
+
+    if (walker.token_type() == RETURNS_SYMBOL)
+    {
+      walker.next();
+
+      // DATA_TYPE_TOKEN.
+      routine->returnDatatype(walker.text_for_tree());
+      walker.next();
+    }
+
+    if (walker.token_type() == ROUTINE_CREATE_OPTIONS)
+    {
+      // For now we only store comments and security settings.
+      walker.next();
+      do
+      {
+        switch (walker.token_type())
+        {
+          case SQL_SYMBOL:
+            walker.next(2); // SQL + SECURITY (both are siblings)
+            routine->security(walker.token_text());
+            break;
+
+          case COMMENT_SYMBOL:
+            walker.next();
+            routine->comment(walker.token_text());
+            break;
+        }
+      } while (walker.next_sibling());
+    }
+  }
+
+  routine->modelOnly(0);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string read_routine_name_nfqn(MySQLRecognizerTreeWalker &walker)
+{
+  // On enter the walker must be on a *_NAME_TOKEN subtree.
+  walker.next();
+  std::string name = walker.token_text();
+  walker.next();
+  if (walker.token_type() == DOT_SYMBOL)
+  {
+    // A qualified name. Ignore the schema part.
+    walker.next();
+    name = walker.token_text();
+    walker.next();
+  }
+  return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Tries to find the name of a routine from the parse tree by examining the possible subtrees.
+ * Returns a tuple with name and the found routine type. Both can be empty.
+ */
+std::pair<std::string, std::string> get_routine_name_and_type(MySQLRecognizerTreeWalker &walker)
+{
+  std::pair<std::string, std::string> result;
+
+  if (walker.advance_to_type(PROCEDURE_NAME_TOKEN, true))
+  {
+    result.second = "procedure";
+    result.first = read_routine_name_nfqn(walker);
+  }
+  else
+  {
+    walker.reset();
+    if (walker.advance_to_type(FUNCTION_NAME_TOKEN, true))
+    {
+      result.second = "function";
+      result.first = read_routine_name_nfqn(walker);
+    }
+    else
+    {
+      walker.reset();
+      if (walker.advance_to_type(UDF_NAME_TOKEN, true))
+      {
+        result.second = "udf";
+        result.first = read_routine_name_nfqn(walker);
+      }
+    }
+  }
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Parses the given sql as a create function/procedure script and fills all found details in the given routine ref.
  * If there's an error nothing changes. If the sql contains a schema reference other than that the
  * the routine is in the routine's name will be changed (adds _WRONG_SCHEMA) to indicate that.
  */
-int MySQLParserServicesImpl::parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine,
-                                          const std::string &sql)
+size_t MySQLParserServicesImpl::parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine,
+                                             const std::string &sql)
 {
-  log_debug("Parse View");
+  log_debug2("Parse routine\n");
 
   routine->sqlDefinition(sql);
   routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateRoutine);
-  int error_count = (int)context->recognizer()->error_info().size();
+  MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+  size_t error_count = context->recognizer()->error_info().size();
   if (error_count == 0)
-  {
-    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
-    walker.next(); // Skip CREATE.
-    routine->definer(get_definer(walker));
-
-    // A UDF is also a function and will be handled as such here.
-    walker.skip_if(AGGREGATE_SYMBOL);
-    bool is_function = false;
-    if (walker.token_type() == FUNCTION_SYMBOL)
-      is_function = true;
-    if (is_function)
-      routine->routineType("function");
-    else
-      routine->routineType("procedure");
-
-    walker.next(2); // skip FUNCTION/PROCEDURE + *_NAME_TOKEN
-    std::string name = walker.token_text();
-    walker.next();
-    if (walker.token_type() == DOT_SYMBOL)
-    {
-      // A qualified name. Check schema part.
-      walker.next();
-      db_SchemaRef schema = db_SchemaRef::cast_from(routine->owner());
-      if (!base::same_string(schema->name(), name, context->case_sensitive()))
-        name = walker.token_text() + "_WRONG_SCHEMA";
-      else
-        name = walker.token_text();
-
-      walker.next();
-    }
-    routine->name(name);
-
-    if (walker.token_type() == RETURNS_SYMBOL)
-    {
-      // UDF.
-      routine->routineType("udf");
-      walker.next();
-      routine->returnDatatype(walker.token_text());
-    }
-    else
-    {
-      // Parameters.
-      ListRef<db_mysql_RoutineParam> params = routine->params();
-      params.remove_all();
-      walker.next(); // Open par.
-
-      while (true)
-      {
-        db_mysql_RoutineParamRef param(routine->get_grt());
-        param->owner(routine);
-
-        switch (walker.token_type())
-        {
-          case IN_SYMBOL:
-          case OUT_SYMBOL:
-          case INOUT_SYMBOL:
-            param->paramType(walker.token_text());
-            walker.next();
-            break;
-        }
-
-        param->name(walker.token_text());
-        walker.next();
-
-        // DATA_TYPE_TOKEN.
-        param->datatype(walker.text_for_tree());
-        params.insert(param);
-
-        walker.next_sibling();
-        if (walker.token_type() != COMMA_SYMBOL)
-            break;
-        walker.next();
-      }
-      walker.next(); // Closing par.
-
-      if (walker.token_type() == RETURNS_SYMBOL)
-      {
-        walker.next();
-
-        // DATA_TYPE_TOKEN.
-        routine->returnDatatype(walker.text_for_tree());
-        walker.next();
-      }
-
-      if (walker.token_type() == ROUTINE_CREATE_OPTIONS)
-      {
-        // For now we only store comments and security settings.
-        walker.next();
-        do
-        {
-          switch (walker.token_type())
-          {
-            case SQL_SYMBOL:
-              walker.next(2); // SQL + SECURITY (both are siblings)
-              routine->security(walker.token_text());
-              break;
-
-            case COMMENT_SYMBOL:
-              walker.next();
-              routine->comment(walker.token_text());
-              break;
-          }
-        } while (walker.next_sibling());
-      }
-    }
-
-    routine->modelOnly(0);
-  }
+    fill_routine_details(walker, routine);
   else
   {
     // Finished with errors. See if we can get at least the routine name out.
-    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
-    if (walker.advance_to_type(VIEW_NAME_TOKEN, true))
-    {
-      walker.next();
-      std::string name = walker.token_text();
-      walker.next();
-      if (walker.token_type() == DOT_SYMBOL)
-      {
-        // A qualified name. Ignore the schema part.
-        walker.next();
-        name = walker.token_text();
-        walker.next();
-      }
-      routine->name(name);
-    }
+    std::pair<std::string, std::string> values = get_routine_name_and_type(walker);
+    routine->name(values.first + "_SYNTAX_ERROR");
+    routine->routineType(values.second);
+
     routine->modelOnly(1);
+  }
+
+  return error_count;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool consider_as_same_type(std::string type1, std::string type2)
+{
+  if (type1 == type2)
+    return true;
+
+  if (type1 == "function" && type2 == "udf")
+    return true;
+
+  if (type2 == "function" && type1 == "udf")
+    return true;
+
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Parses the given sql as a list of create function/procedure statements.
+ * In case of an error handling depends on the error position. We try to get most of the routines out
+ * of the script.
+ *
+ * This process has two parts attached:
+ *   - Update the sql text + properties for any routine that is in the script in the owning schema.
+ *   - Update the list of routines in the given routine group to what is in the script.
+ */
+size_t MySQLParserServicesImpl::parseRoutines(parser::ParserContext::Ref context, db_mysql_RoutineGroupRef group,
+                                           const std::string &sql)
+{
+  log_debug2("Parse routine group\n");
+
+  size_t error_count = 0;
+
+  std::vector<std::pair<size_t, size_t> > ranges;
+  determineStatementRanges(sql.c_str(), sql.size(), ";", ranges, "\n");
+
+  grt::ListRef<db_Routine> routines = group->routines();
+  routines.remove_all();
+
+  db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(group->owner());
+  grt::ListRef<db_Routine> schema_routines = schema->routines();
+
+  int sequence_number = 0;
+  for (std::vector<std::pair<size_t, size_t> >::iterator iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
+  {
+    std::string routine_sql = sql.substr(iterator->first, iterator->second);
+    context->recognizer()->parse(routine_sql.c_str(), routine_sql.length(), true, QtCreateRoutine);
+    size_t local_error_count = context->recognizer()->error_info().size();
+    error_count += local_error_count;
+
+    // Before filling a routine we need to know if there's already one with that name in the schema.
+    // Hence we first extract the name and act based on that.
+    MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+    std::pair<std::string, std::string> values = get_routine_name_and_type(walker);
+    if (!values.first.empty())
+    {
+      db_mysql_RoutineRef routine;
+      for (size_t i = 0; i < schema_routines.count(); ++i)
+      {
+        // Stored functions and UDFs share the same namespace.
+        // Stored routine names are not case sensitive.
+        db_RoutineRef candidate = schema_routines[i];
+        std::string name = candidate->name();
+
+        // Remove automatically added appendixes before comparing names.
+        if (base::ends_with(name, "_WRONG_SCHEMA"))
+          name.resize(name.size() - 13);
+        if (base::ends_with(name, "_SYNTAX_ERROR"))
+          name.resize(name.size() - 13);
+
+        if (base::same_string(values.first, name, false) && consider_as_same_type(values.second, candidate->routineType()))
+        {
+          routine = db_mysql_RoutineRef::cast_from(candidate);
+          break;
+        }
+      }
+
+      walker.reset();
+      if (!routine.is_valid())
+      {
+        // Create a new routine instance.
+        routine = db_mysql_RoutineRef(group->get_grt());
+        routine->createDate(base::fmttime(0, DATETIME_FMT));
+        routine->owner(schema);
+        schema_routines.insert(routine);
+      }
+
+      if (local_error_count == 0)
+        fill_routine_details(walker, routine);
+      else
+      {
+        routine->name(values.first + "_SYNTAX_ERROR");
+        routine->routineType(values.second);
+
+        routine->modelOnly(1);
+      }
+
+      routine->sqlDefinition(routine_sql);
+      routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
+
+      // Finally add the routine to the group if it isn't already there.
+      bool found = false;
+      for (size_t i = 0; i < routines.count(); ++i)
+      {
+        if (base::same_string(routine->name(), routines[i]->name(), false))
+        {
+          found = true;
+          break;
+        }
+      }
+      if (!found)
+        routines.insert(routine);
+    }
+
   }
 
   return error_count;
@@ -434,11 +602,11 @@ int MySQLParserServicesImpl::parseRoutine(parser::ParserContext::Ref context, db
  * Parses the given text as a specific query type (see parser for supported types).
  * Returns the error count.
  */
-int MySQLParserServicesImpl::checkSqlSyntax(ParserContext::Ref context, const char *sql,
-                                            size_t length, MySQLQueryType type)
+size_t MySQLParserServicesImpl::checkSqlSyntax(ParserContext::Ref context, const char *sql,
+                                               size_t length, MySQLQueryType type)
 {
   context->recognizer()->parse(sql, length, true, type);
-  return (int)context->recognizer()->error_info().size();
+  return context->recognizer()->error_info().size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -541,7 +709,7 @@ void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, ParserContext::Ref 
   {
     std::string sql = list[i]->sqlDefinition();
     context->recognizer()->parse(sql.c_str(), sql.size(), true, type);
-    size_t error_count = (int)context->recognizer()->error_info().size();
+    size_t error_count = context->recognizer()->error_info().size();
     if (error_count == 0)
     {
       MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
@@ -564,10 +732,10 @@ void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, ParserContext::Ref 
  * currently refer to the old name. We also iterate non-related schemas in order to have some
  * consolidation/sanitzing in effect where wrong schema references were used.
  */
-int MySQLParserServicesImpl::renameSchemaReferences(ParserContext::Ref context, db_mysql_CatalogRef catalog,
-                                                    const std::string old_name, const std::string new_name)
+size_t MySQLParserServicesImpl::renameSchemaReferences(ParserContext::Ref context, db_mysql_CatalogRef catalog,
+                                                       const std::string old_name, const std::string new_name)
 {
-  log_debug("Rename schema references");
+  log_debug("Rename schema references\n");
 
   ListRef<db_mysql_Schema> schemas = catalog->schemata();
   for (size_t i = 0; i < schemas.count(); ++i)
@@ -614,10 +782,10 @@ bool is_line_break(const unsigned char *head, const unsigned char *line_break)
  * A statement splitter to take a list of sql statements and split them into individual statements,
  * return their position and length in the original string (instead the copied strings).
  */
-int MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t length,
-                                                      const std::string &initial_delimiter,
-                                                      std::vector<std::pair<size_t, size_t> > &ranges,
-                                                      const std::string &line_break)
+size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t length,
+                                                         const std::string &initial_delimiter,
+                                                         std::vector<std::pair<size_t, size_t> > &ranges,
+                                                         const std::string &line_break)
 {
   _stop = false;
   std::string delimiter = initial_delimiter.empty() ? ";" : initial_delimiter;

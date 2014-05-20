@@ -1867,7 +1867,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
       }
       CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get 'sql_mode' session variable"));
 
-      parse_ddl_into_catalog(obj_editor->get_rdbms(), client_state_catalog,
+      parse_ddl_into_catalog(_owner->rdbms(), client_state_catalog,
                              strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
                              ddl_script, sql_mode);
     }
@@ -2150,7 +2150,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
     grt::ListRef<db_Table> tables;
     db_TableRef table;
 
-    std::string database_package= *table_editor->get_rdbms()->databaseObjectPackage();
+    std::string database_package= *_owner->rdbms()->databaseObjectPackage();
     std::string schema_typename= database_package + ".Schema";
     std::string table_typename= database_package + ".Table";
     grt::GRT *grt= _grtm->get_grt();
@@ -2219,7 +2219,7 @@ bool SqlEditorTreeController::expand_live_table_stub(bec::DBObjectEditorBE *tabl
     return false;
 
   {
-    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(table_editor->get_rdbms());
+    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_owner->rdbms());
     Sql_parser::Ref sql_parser= sql_facade->sqlParser();
     sql_parser->messages_enabled(false);
     grt::DictRef options(_grtm->get_grt());
