@@ -2091,14 +2091,6 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="itemType">check</value>
         </value>
 
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.gather_field_info">
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
-          <value type="string" key="name">query.gatherFieldInfo</value>
-          <value type="string" key="caption">Collect Resultset Field Metadata</value>
-          <value type="string" key="command">builtin:query.gatherFieldInfo</value>
-          <value type="string" key="itemType">check</value>
-        </value>
-
     	<value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.query.tx">
           <value type="string" key="itemType">separator</value>
         </value>

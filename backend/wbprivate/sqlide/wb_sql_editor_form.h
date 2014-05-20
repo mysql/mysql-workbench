@@ -263,9 +263,7 @@ public:
   bool auto_commit();
   void auto_commit(bool value);
   void toggle_autocommit();
-  void toggle_collect_field_info();
   void toggle_collect_ps_statement_events();
-  bool collect_field_info() const;
   bool collect_ps_statement_events() const;
   
   void run_editor_contents(bool current_statement_only);
