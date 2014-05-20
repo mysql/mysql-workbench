@@ -27,17 +27,6 @@ using namespace MySQL::Forms;
 
 //--------------------------------------------------------------------------------------------------
 
-public class NativeWrapper : public ViewWrapper
-{
-protected:
-  NativeWrapper(mforms::NativeContainer *native);
-
-public:
-  static mforms::NativeContainer *from_control(Windows::Forms::Control ^control);
-};
-
-//--------------------------------------------------------------------------------------------------
-
 NativeWrapper::NativeWrapper(mforms::NativeContainer *native)
   : ViewWrapper(native)
 {

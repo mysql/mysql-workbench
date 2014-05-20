@@ -135,6 +135,7 @@ public:
   void validate_menubar();
 
   void handle_tab_menu_action(const std::string &action, int tab_index);
+  void handle_history_action(const std::string &action, const std::string &sql);
 private:
   wb::WBContextSQLIDE *_wbsql;
   GrtVersionRef _version;
@@ -317,6 +318,8 @@ private:
   void handle_command_side_effects(const std::string &sql);
 public:
   GrtThreadedTask::Ref exec_sql_task;
+
+  boost::function<void()> post_query_slot; // called after a query is executed
 private:
   int on_exec_sql_finished();
   bool _is_running_query;

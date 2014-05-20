@@ -163,6 +163,7 @@ public:
   SqlEditorResult *result_panel(int i);
 
   SqlEditorResult* add_panel_for_recordset(Recordset::Ref rset);
+  void add_panel_for_recordset_from_main(Recordset::Ref rset);
 
   std::list<SqlEditorResult*> dirty_result_panels();
 };

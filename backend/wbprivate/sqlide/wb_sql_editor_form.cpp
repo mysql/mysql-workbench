@@ -37,6 +37,7 @@
 #include "sqlide/autocomplete_object_name_cache.h"
 
 #include "objimpl/db.query/db_query_Resultset.h"
+#include "objimpl/ui/mforms_ObjectReference_impl.h"
 
 #include "base/string_utilities.h"
 #include "base/notifications.h"
@@ -169,7 +170,7 @@ SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mg
 void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp)
 {
   _tabdock = dp;
-
+  grtobj()->dockingPoint(mforms_to_grt(_grtm->get_grt(), dp));
   scoped_connect(_tabdock->signal_view_switched(), boost::bind(&SqlEditorForm::sql_editor_panel_switched, this));
 }
 
@@ -1875,7 +1876,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                         result_list->push_back(rs);
 
                       if (editor)
-                        rdata->result_panel = editor->add_panel_for_recordset(rs);
+                        editor->add_panel_for_recordset_from_main(rs);
 
                       std::string statement_res_msg= strfmt(_("%zi row(s) returned"), rs->row_count());
                       if (!last_statement_info->empty())
