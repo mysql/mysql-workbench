@@ -126,7 +126,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   show_all();
 
   // Connect signals
-  _be->exec_sql_task->finish_cb(sigc::mem_fun(this, &DbSqlEditorView::on_exec_sql_done));
+  _be->post_query_slot = sigc::mem_fun(this, &DbSqlEditorView::on_exec_sql_done);
   _be->output_text_slot= sigc::mem_fun(this, &DbSqlEditorView::output_text);
 
   _editor_note->signal_switch_page().connect(sigc::mem_fun(this, &DbSqlEditorView::editor_page_switched));
@@ -418,14 +418,12 @@ bool DbSqlEditorView::on_close()
 }
 
 //------------------------------------------------------------------------------
-int DbSqlEditorView::on_exec_sql_done()
+void DbSqlEditorView::on_exec_sql_done()
 {
   _output.refresh();
 
   if (_be->exec_sql_error_count() > 0)
     _be->show_output_area();
-
-  return 0;
 }
 
 //------------------------------------------------------------------------------

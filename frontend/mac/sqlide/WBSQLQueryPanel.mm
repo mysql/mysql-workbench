@@ -33,8 +33,6 @@
 #import "GRTListDataSource.h"
 #import "TabViewDockingDelegate.h"
 
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
-
 #import "WBPluginPanel.h"
 #import "WBPluginEditorBase.h"
 #import "MSpinProgressCell.h"
@@ -295,7 +293,7 @@ static void set_busy_tab(int tab, WBSQLQueryPanel *self)
     [self->mUpperTabSwitcher setBusyTab: [self->mUpperTabView tabViewItemAtIndex: tab]];
 }
 
-static int processTaskFinish(WBSQLQueryPanel *self)
+static void processTaskFinish(WBSQLQueryPanel *self)
 {
   [self->mMessagesTable reloadData];
   [self->mMessagesTable scrollRowToVisible: [self->mMessagesTable numberOfRows]-1];
@@ -306,13 +304,6 @@ static int processTaskFinish(WBSQLQueryPanel *self)
     [self->mOutputSelector selectItemAtIndex: 0];
     self->mBackEnd->show_output_area();
   }
-  else
-  {
-    // re-select the top editor to force re-selection of its resultset tab
-    [self->mUpperTabView selectTabViewItemWithIdentifier: [[self->mUpperTabView selectedTabViewItem] identifier]];
-  }
-  
-  return 0;
 }
 
 - (void)refreshTable:(NSTableView*)table
@@ -853,9 +844,6 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
     // setup docking point for mUpperTabView
     {
       mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(mUpperTabView, MAIN_DOCKING_POINT), true));
-      db_query_EditorRef qeditor(be->wbsql()->get_grt_editor_object(be.get()));
-
-      qeditor->dockingPoint(mforms_to_grt(qeditor.get_grt(), mDockingPoint));
       be->set_tab_dock(mDockingPoint);
     }
 
@@ -865,9 +853,9 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
     mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryTable, self));
     mBackEnd->history()->details_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryDetailsTable, self));
 
-    mBackEnd->output_text_slot= boost::bind(addTextToOutput, _1, _2, self);
+    mBackEnd->output_text_slot= boost::bind(addTextToOutput, _1, _2, self);//XXX
     
-    mBackEnd->exec_sql_task->finish_cb(boost::bind(processTaskFinish, self));
+    mBackEnd->post_query_slot = boost::bind(processTaskFinish, self);
 
     mBackEnd->set_busy_tab = boost::bind(set_busy_tab, _1, self);
 
