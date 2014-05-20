@@ -75,18 +75,19 @@ public:
   static ParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive);
   static MySQLParserServices::Ref get(grt::GRT *grt);
 
-  virtual int stopProcessing() = 0;
+  virtual size_t stopProcessing() = 0;
 
-  virtual int parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine, const std::string &sql) = 0;
-  virtual int parseTrigger(ParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql) = 0;
-  virtual int parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql) = 0;
+  virtual size_t parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine, const std::string &sql) = 0;
+  virtual size_t parseRoutines(parser::ParserContext::Ref context, db_mysql_RoutineGroupRef group, const std::string &sql) = 0;
+  virtual size_t parseTrigger(ParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql) = 0;
+  virtual size_t parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql) = 0;
 
-  virtual int checkSqlSyntax(ParserContext::Ref context, const char *sql, size_t length, MySQLQueryType type) = 0;
-  virtual int renameSchemaReferences(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
+  virtual size_t checkSqlSyntax(ParserContext::Ref context, const char *sql, size_t length, MySQLQueryType type) = 0;
+  virtual size_t renameSchemaReferences(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
     const std::string old_name, const std::string new_name) = 0;
 
-  virtual int determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
-                                       std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
+  virtual size_t determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
+                                          std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
 };
 
 } // namespace parser

@@ -25,8 +25,8 @@ using namespace bec;
 
 //--------------------------------------------------------------------------------------------------
 
-RoutineEditorBE::RoutineEditorBE(GRTManager *grtm, const db_RoutineRef &routine, const db_mgmt_RdbmsRef &rdbms)
-  : DBObjectEditorBE(grtm, routine, rdbms)
+RoutineEditorBE::RoutineEditorBE(GRTManager *grtm, const db_RoutineRef &routine)
+  : DBObjectEditorBE(grtm, routine)
 {
   MySQLEditor::Ref sql_editor = get_sql_editor();
   if (sql_editor)

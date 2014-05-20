@@ -252,9 +252,14 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
           error << "missing '" << get_token_name(tokenNames, exception->expecting) << "'";
       }
 
-      // A missing token has by nature no position information, so we advance to the next token
-      // to have something to show the error markup for.
-      error_token = parser->tstream->_LT(parser->tstream, 1);
+      // The error token for a missing token does not contain much information to display.
+      // If we reach this error case then the token after the missing token has been consumed already
+      // (which is how the parser found out about the missing one), so by going back to that token
+      // we can get good start and length information (showing so the error at this following token instead).
+      error_token = parser->tstream->_LT(parser->tstream, -1);
+      if (error_token == NULL)
+        return false;
+
       start = error_token->start;
       break;
     }

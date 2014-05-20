@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_PARSER_COMMON_H_
-#define _MYSQL_PARSER_COMMON_H_
+#pragma once
 
 #ifdef _WIN32
   #ifdef MYSQL_PARSER_EXPORTS
@@ -54,7 +53,7 @@ public:
   virtual ~MySQLRecognitionBase() {};
 
   // Internal function called by static callback.
-  void add_error(const std::string &text, ANTLR3_UINT32 token, ANTLR3_MARKER characterIndex,
+  void add_error(const std::string &text, ANTLR3_UINT32 token, ANTLR3_MARKER token_start,
     ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length);
 
   const std::vector<MySQLParserErrorInfo> &error_info();
@@ -81,5 +80,3 @@ private:
   class Private;
   Private *d;
 };
-
-#endif // _MYSQL_PARSER_COMMON_H_

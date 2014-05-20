@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,8 +55,6 @@ namespace bec {
 
     void set_password(const std::string &pass);
     std::string get_password();
-
-    virtual std::string get_object_type() { return "user"; }
 
     virtual bool can_close();
   };

@@ -30,31 +30,6 @@
     </keywords>
 
     <keywords name="Functions">
-      abs acos adddate aes_encrypt aes_decrypt ascii asin atan atan2
-      benchmark bin bit_count bit_or bit_and bit_length
-      cast ceil ceiling current_user char_length character_length coalesce concat concat_ws
-      connection_id conv convert count cos cot curdate curtime
-      date_add date_format date_sub dayname dayofmonth dayofweek dayofyear decode degrees
-      des_encrypt des_decrypt
-      elt encode encrypt extract exp export_set
-      field find_in_set floor format found_rows from_days from_unixtime
-      get_lock greatest group_concat group_unique_users
-      hex
-      ifnull inet_aton inet_ntoa instr isnull is_free_lock
-      last_insert_id lcase least length ln load_file locate log log2 log10 lower lpad ltrim
-      make_set master_pos_wait max md5 mid min mod monthname
-      now nullif
-      octet_length oct old_password ord
-      period_add period_diff pi position pow power
-      quarter quote
-      radians rand release_lock repeat reverse round rpad rtrim sec_to_time
-      session_user subdate sign sin sha sha1 soundex space sqrt std stddev strcmp substring
-      substring_index sum sysdate system_user
-      tan time_format time_to_sec to_days trim
-      ucase unique_users unix_timestamp upper user
-      version
-      week weekday
-      yearweek
     </keywords>
 
     <keywords name="Procedure keywords">
@@ -190,6 +165,41 @@
       year year_month
       zerofill
     </keywords>
+
+	<keywords name="Functions">
+		abs acos adddate addtime aes_decrypt aes_encrypt area asbinary ascii asin astext atan atan2 atan avg
+		benchmark bin bit_and bit_count bit_length bit_or bit_xor boundary
+		cast ceil ceiling char_length char character_length charset coalesce coercibility collation compress concat_ws concat connection_id
+			contains conv convert_tz convert cos cot count(distinct) count crc32 crosses curdate current_date current_time current_timestamp
+			current_user curtime
+		database date_add date_format date_sub date datediff day dayname dayofmonth dayofweek dayofyear decode default degrees des_decrypt
+			des_encrypt dimension disjoint
+		elt encode encrypt endpoint envelope equals exp export_set exteriorring extract
+		field find_in_set floor format found_rows from_days from_unixtime
+		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
+			greatest group_concat
+		hex hour
+		if ifnull in inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
+			issimple
+		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
+			log2 log lower lpad ltrim make_set
+		makedate maketime master_pos_wait max mbrcontains mbrdisjoint mbrequal mbrintersects mbroverlaps mbrtouches mbrwithin md5
+			microsecond mid min minute mlinefromtext mlinefromwkb mod month monthname mpointfromtext mpointfromwkb mpolyfromtext
+			mpolyfromwkb multilinestring multipoint multipolygon
+		name_const now nullif numgeometries numinteriorrings numpoints
+		oct octet_length old_password ord overlaps password
+		period_add period_diff pi point pointfromtext pointfromwkb pointn polyfromtext polyfromwkb polygon position pow power
+		quarter quote
+		radians rand release_lock repeat replace reverse right round row_count rpad rtrim
+		schema sec_to_time second session_user sha sha1 sign sin sleep soundex space sqrt srid startpoint std stddev_pop stddev_samp
+			stddev str_to_date strcmp subdate substr substring_index substring subtime sum sysdate system_user
+		tan time_format time_to_sec time timediff timestamp timestampadd timestampdiff to_days touches trim truncate
+		ucase uncompress uncompressed_length unhex unix_timestamp upper user utc_date utc_time utc_timestamp uuid
+		values var_pop var_samp variance version
+		week weekday weekofyear within
+		x
+		y year yearweek
+	</keywords>
   </language>
 
   <language name="SCLEX_MYSQL_51">
@@ -260,7 +270,42 @@
       year year_month
       zerofill
     </keywords>
-  </language>
+
+	<keywords name="Functions">
+		abs acos adddate addtime aes_decrypt aes_encrypt area asbinary ascii asin astext atan atan2 atan avg
+		benchmark bin bit_and bit_count bit_length bit_or bit_xor boundary
+		cast ceil ceiling char_length char character_length charset coalesce coercibility collation compress concat_ws concat connection_id
+			contains conv convert_tz convert cos cot count(distinct) count crc32 crosses curdate current_date current_time current_timestamp
+			current_user curtime
+		database date_add date_format date_sub date datediff day dayname dayofmonth dayofweek dayofyear decode default degrees des_decrypt
+			des_encrypt dimension disjoint
+		elt encode encrypt endpoint envelope equals exp export_set exteriorring extract extractvalue
+		field find_in_set floor format found_rows from_days from_unixtime
+		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
+			greatest group_concat
+		hex hour
+		if ifnull in inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
+			issimple
+		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
+			log2 log lower lpad ltrim make_set
+		makedate maketime master_pos_wait max mbrcontains mbrdisjoint mbrequal mbrintersects mbroverlaps mbrtouches mbrwithin md5
+			microsecond mid min minute mlinefromtext mlinefromwkb mod month monthname mpointfromtext mpointfromwkb mpolyfromtext
+			mpolyfromwkb multilinestring multipoint multipolygon
+		name_const now nullif numgeometries numinteriorrings numpoints
+		oct octet_length old_password ord overlaps password
+		period_add period_diff pi point pointfromtext pointfromwkb pointn polyfromtext polyfromwkb polygon position pow power
+		quarter quote
+		radians rand release_lock repeat replace reverse right round row_count rpad rtrim
+		schema sec_to_time second session_user sha sha1 sign sin sleep soundex space sqrt srid startpoint std stddev_pop stddev_samp
+			stddev str_to_date strcmp subdate substr substring_index substring subtime sum sysdate system_user
+		tan time_format time_to_sec time timediff timestamp timestampadd timestampdiff to_days touches trim truncate
+		ucase uncompress uncompressed_length unhex unix_timestamp upper user utc_date utc_time utc_timestamp updatexml uuid uuid_short
+		values var_pop var_samp variance version
+		week weekday weekofyear within
+		x
+		y year yearweek
+	</keywords>
+  </language> <!-- SCLEX_MYSQL_51 -->
 
   <language name="SCLEX_MYSQL_55">
     <keywords name="Major Keywords">
@@ -335,7 +380,42 @@
       year year_month
       zerofill
     </keywords>
-  </language>
+
+	<keywords name="Functions">
+		abs acos adddate addtime aes_decrypt aes_encrypt area asbinary ascii asin astext atan atan2 atan avg
+		benchmark bin bit_and bit_count bit_length bit_or bit_xor boundary
+		cast ceil ceiling char_length char character_length charset coalesce coercibility collation compress concat_ws concat connection_id
+			contains conv convert_tz convert cos cot count(distinct) count crc32 crosses curdate current_date current_time current_timestamp
+			current_user curtime
+		database date_add date_format date_sub date datediff day dayname dayofmonth dayofweek dayofyear decode default degrees des_decrypt
+			des_encrypt dimension disjoint
+		elt encode encrypt endpoint envelope equals exp export_set exteriorring extract extractvalue
+		field find_in_set floor format found_rows from_days from_unixtime
+		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
+			greatest group_concat
+		hex hour
+		if ifnull in inet_aton inet_ntoa insert instr interiorringn intersects interval is_free_lock is_used_lock isclosed isempty isnull
+			issimple
+		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
+			log2 log lower lpad ltrim make_set
+		makedate maketime master_pos_wait max mbrcontains mbrdisjoint mbrequal mbrintersects mbroverlaps mbrtouches mbrwithin md5
+			microsecond mid min minute mlinefromtext mlinefromwkb mod month monthname mpointfromtext mpointfromwkb mpolyfromtext
+			mpolyfromwkb multilinestring multipoint multipolygon
+		name_const now nullif numgeometries numinteriorrings numpoints
+		oct octet_length old_password ord overlaps password
+		period_add period_diff pi point pointfromtext pointfromwkb pointn polyfromtext polyfromwkb polygon position pow power
+		quarter quote
+		radians rand release_lock repeat replace reverse right round row_count rpad rtrim
+		schema sec_to_time second session_user sha sha1 sha2 sign sin sleep soundex space sqrt srid startpoint std stddev_pop stddev_samp
+			stddev str_to_date strcmp subdate substr substring_index substring subtime sum sysdate system_user
+		tan time_format time_to_sec time timediff timestamp timestampadd timestampdiff to_days to_seconds touches trim truncate
+		ucase uncompress uncompressed_length unhex unix_timestamp upper user utc_date utc_time utc_timestamp updatexml uuid uuid_short
+		values var_pop var_samp variance version
+		week weekday weekofyear within
+		x
+		y year yearweek
+	</keywords>
+  </language> <!-- SCLEX_MYSQL_55 -->
 
   <language name="SCLEX_MYSQL_56">
     <keywords name="Major Keywords">
@@ -411,6 +491,42 @@
       year year_month
       zerofill
     </keywords>
+
+	<keywords name="Functions">
+		abs acos adddate addtime aes_decrypt aes_encrypt area asbinary ascii asin astext atan atan2 atan avg
+		benchmark bin bit_and bit_count bit_length bit_or bit_xor boundary buffer
+		cast ceil ceiling char_length char character_length charset coalesce coercibility collation compress concat_ws concat connection_id
+			contains conv convert_tz convert cos cot count(distinct) count crc32 crosses curdate current_date current_time current_timestamp
+			current_user curtime
+		database date_add date_format date_sub date datediff day dayname dayofmonth dayofweek dayofyear decode default degrees des_decrypt
+			des_encrypt dimension disjoint
+		elt encode encrypt endpoint envelope equals exp export_set exteriorring extract extractvalue
+		field find_in_set floor format found_rows from_base64 from_days from_unixtime
+		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
+			greatest group_concat gtid_subset gtid_subtract
+		hex hour
+		if ifnull in inet_aton inet_ntoa inet6_aton inet6_ntoa insert instr interiorringn intersects interval is_free_lock is_ipv4_compat
+			is_ipv4_mapped is_ipv4 is_ipv6 is_used_lock isclosed isempty isnull issimple
+		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
+			log2 log lower lpad ltrim make_set
+		makedate maketime master_pos_wait max mbrcontains mbrdisjoint mbrequal mbrintersects mbroverlaps mbrtouches mbrwithin md5
+			microsecond mid min minute mlinefromtext mlinefromwkb mod month monthname mpointfromtext mpointfromwkb mpolyfromtext
+			mpolyfromwkb multilinestring multipoint multipolygon
+		name_const now nullif numgeometries numinteriorrings numpoints
+		oct octet_length old_password ord overlaps password
+		period_add period_diff pi point pointfromtext pointfromwkb pointn polyfromtext polyfromwkb polygon position pow power
+		quarter quote
+		radians rand random_bytes release_lock repeat replace reverse right round row_count rpad rtrim
+		schema sec_to_time second session_user sha sha1 sha2 sign sin sleep soundex space sql_thread_wait_after_gtids sqrt srid st_contains
+			st_crosses st_disjoint st_equals st_intersects st_overlaps st_touches st_within startpoint std stddev_pop stddev_samp
+			stddev str_to_date strcmp subdate substr substring_index substring subtime sum sysdate system_user
+		tan time_format time_to_sec time timediff timestamp timestampadd timestampdiff to_base64 to_days to_seconds touches trim truncate
+		ucase uncompress uncompressed_length unhex unix_timestamp upper user utc_date utc_time utc_timestamp updatexml uuid uuid_short
+		validate_password_strength values var_pop var_samp variance version wait_until_sql_thread_after_gtids
+		week weekday weekofyear weight_string within
+		x
+		y year yearweek
+	</keywords>
   </language> <!-- SCLEX_MYSQL_56 -->
 
   <language name="SCLEX_MYSQL_57">
@@ -496,7 +612,43 @@
       year_month year
       zerofill
     </keywords>
-  </language> <!-- SCLEX_MYSQL_56 -->
+
+	<keywords name="Functions">
+		abs acos adddate addtime aes_decrypt aes_encrypt area asbinary ascii asin astext atan atan2 atan avg
+		benchmark bin bit_and bit_count bit_length bit_or bit_xor boundary buffer
+		cast ceil ceiling char_length char character_length charset coalesce coercibility collation compress concat_ws concat connection_id
+			contains conv convert_tz convert cos cot count(distinct) count crc32 crosses curdate current_date current_time current_timestamp
+			current_user curtime
+		database date_add date_format date_sub date datediff day dayname dayofmonth dayofweek dayofyear decode default degrees des_decrypt
+			des_encrypt dimension disjoint
+		elt encode encrypt endpoint envelope equals exp export_set exteriorring extract extractvalue
+		field find_in_set floor format found_rows from_base64 from_days from_unixtime
+		geomcollfromtext geomcollfromwkb geometrycollection geometryn geometrytype geomfromtext geomfromwkb get_format get_lock glength
+			greatest group_concat gtid_subset gtid_subtract
+		hex hour
+		if ifnull in inet_aton inet_ntoa inet6_aton inet6_ntoa insert instr interiorringn intersects interval is_free_lock is_ipv4_compat
+			is_ipv4_mapped is_ipv4 is_ipv6 is_used_lock isclosed isempty isnull issimple
+		last_insert_id lcase least left length linefromtext linefromwkb linestring ln load_file localtime, localtimestamp locate log10
+			log2 log lower lpad ltrim make_set
+		makedate maketime master_pos_wait max mbrcontains mbrdisjoint mbrequal mbrintersects mbroverlaps mbrtouches mbrwithin md5
+			microsecond mid min minute mlinefromtext mlinefromwkb mod month monthname mpointfromtext mpointfromwkb mpolyfromtext
+			mpolyfromwkb multilinestring multipoint multipolygon
+		name_const now nullif numgeometries numinteriorrings numpoints
+		oct octet_length old_password ord overlaps password
+		period_add period_diff pi point pointfromtext pointfromwkb pointn polyfromtext polyfromwkb polygon position pow power
+		quarter quote
+		radians rand random_bytes release_lock repeat replace reverse right round row_count rpad rtrim
+		schema sec_to_time second session_user sha sha1 sha2 sign sin sleep soundex space sqrt srid st_contains
+			st_crosses st_disjoint st_equals st_intersects st_overlaps st_touches st_within startpoint std stddev_pop stddev_samp
+			stddev str_to_date strcmp subdate substr substring_index substring subtime sum sysdate system_user
+		tan time_format time_to_sec time timediff timestamp timestampadd timestampdiff to_base64 to_days to_seconds touches trim truncate
+		ucase uncompress uncompressed_length unhex unix_timestamp upper user utc_date utc_time utc_timestamp updatexml uuid uuid_short
+		validate_password_strength values var_pop var_samp variance version wait_until_sql_thread_after_gtids
+		week weekday weekofyear weight_string within
+		x
+		y year yearweek
+	</keywords>
+  </language> <!-- SCLEX_MYSQL_57 -->
 
   <language name="SCLEX_LUA">
 
@@ -720,6 +872,6 @@
     <style id="23" fore-color="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENT -->
     <style id="24" fore-color="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENTDOC -->
 
-    </language>
+  </language>
 
 </languages>

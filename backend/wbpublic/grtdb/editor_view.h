@@ -27,7 +27,7 @@ namespace bec {
   class WBPUBLICBACKEND_PUBLIC_FUNC ViewEditorBE : public DBObjectEditorBE
   {
   public:
-    ViewEditorBE(GRTManager *grtm, const db_ViewRef &view, const db_mgmt_RdbmsRef &rdbms);
+    ViewEditorBE(GRTManager *grtm, const db_ViewRef &view);
 
     virtual std::string get_title();
 

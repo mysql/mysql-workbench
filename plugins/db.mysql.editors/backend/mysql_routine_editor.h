@@ -26,7 +26,7 @@
 class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLRoutineEditorBE : public bec::RoutineEditorBE
 {
 public:
-  MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine, const db_mgmt_RdbmsRef &rdbms); 
+  MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine); 
 
   virtual db_RoutineRef get_routine() { return _routine; }
   

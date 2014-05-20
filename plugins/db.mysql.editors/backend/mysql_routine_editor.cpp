@@ -26,21 +26,15 @@ using namespace bec;
 
 //--------------------------------------------------------------------------------------------------
 
-static void commit_changes_to_be(MySQLRoutineEditorBE *be) {
-  be->commit_changes();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-MySQLRoutineEditorBE::MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine, const db_mgmt_RdbmsRef &rdbms)
-  : RoutineEditorBE(grtm, routine, rdbms)
+MySQLRoutineEditorBE::MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine)
+  : RoutineEditorBE(grtm, routine)
 {
   _routine = routine;
   
   // In modeling we apply the text on focus change. For live editing however we don't.
   // The user has to explicitly commit his changes.
   if (!is_editing_live_object())
-    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(),boost::bind(&commit_changes_to_be,this));
+    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), boost::bind(&MySQLRoutineEditorBE::commit_changes, this));
 }
 
 //--------------------------------------------------------------------------------------------------

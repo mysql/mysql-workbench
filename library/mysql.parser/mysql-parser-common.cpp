@@ -91,10 +91,10 @@ MySQLRecognitionBase::MySQLRecognitionBase(const std::set<std::string> &charsets
 //--------------------------------------------------------------------------------------------------
 
 void MySQLRecognitionBase::add_error(const std::string &text, ANTLR3_UINT32 token,
-  ANTLR3_MARKER characterIndex, ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length)
+  ANTLR3_MARKER token_start, ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length)
 {
-  MySQLParserErrorInfo info = { text, token, static_cast<size_t>(characterIndex - (ANTLR3_MARKER)input_start()), line,
-    offset_in_line, (size_t)length};
+  MySQLParserErrorInfo info = { text, token, (size_t)(token_start - (ANTLR3_MARKER)input_start()),
+    line, offset_in_line, (size_t)length};
   d->_error_info.push_back(info);
 };
 

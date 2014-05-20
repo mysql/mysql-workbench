@@ -20,26 +20,23 @@
 #pragma once
 
 #include "grtdb/editor_dbobject.h"
-#include "wbpublic_public_interface.h"
 
 namespace bec {
 
   class WBPUBLICBACKEND_PUBLIC_FUNC SchemaEditorBE : public DBObjectEditorBE
   {
-  protected:
-    db_SchemaRef _schema;
   public:
+    SchemaEditorBE(GRTManager *grtm, const db_SchemaRef &schema);
+
     virtual std::string get_title();
 
-    virtual db_SchemaRef& get_schema() { return _schema; }
+    virtual db_SchemaRef get_schema() = 0;
 
     virtual void set_name(const std::string &name);
 
     // table options
     virtual void set_schema_option_by_name(const std::string& name, const std::string& value);
     virtual std::string get_schema_option_by_name(const std::string& name);
-
-    SchemaEditorBE(GRTManager *grtm, const db_SchemaRef &schema, const db_mgmt_RdbmsRef &rdbms);
   };
 
 };

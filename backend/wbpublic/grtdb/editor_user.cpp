@@ -26,9 +26,11 @@ using namespace grt;
 using namespace base;
 
 UserEditorBE::UserEditorBE(GRTManager *grtm, const db_UserRef &user)
-: DBObjectEditorBE(grtm, user, db_mgmt_RdbmsRef()), _user(user), _role_tree(db_CatalogRef::cast_from(user->owner()))
+  : DBObjectEditorBE(grtm, user), _user(user), _role_tree(db_CatalogRef::cast_from(user->owner()))
 {
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void UserEditorBE::set_password(const std::string &pass)
 {
@@ -43,19 +45,21 @@ void UserEditorBE::set_password(const std::string &pass)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 std::string UserEditorBE::get_password()
 {
   return get_user()->password();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 RoleTreeBE *UserEditorBE::get_role_tree()
 {
   return &_role_tree;
 }
 
-#include <iostream>
+//--------------------------------------------------------------------------------------------------
 
 void UserEditorBE::add_role(const std::string &role_name)
 {
@@ -70,6 +74,7 @@ void UserEditorBE::add_role(const std::string &role_name)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void UserEditorBE::remove_role(const std::string &role_name)
 {
@@ -88,6 +93,7 @@ void UserEditorBE::remove_role(const std::string &role_name)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> UserEditorBE::get_roles()
 {
@@ -99,12 +105,18 @@ std::vector<std::string> UserEditorBE::get_roles()
   return roles;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 std::string UserEditorBE::get_title()
 {
   return base::strfmt("%s - User", get_name().c_str()); 
 }
 
+//--------------------------------------------------------------------------------------------------
+
 bool UserEditorBE::can_close()
 {
   return true; // There's nothing that can prevent closing the editor.
 }
+
+//--------------------------------------------------------------------------------------------------

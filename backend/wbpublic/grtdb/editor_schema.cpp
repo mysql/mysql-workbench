@@ -26,8 +26,8 @@ using namespace base;
 
 //--------------------------------------------------------------------------------------------------
 
-SchemaEditorBE::SchemaEditorBE(GRTManager *grtm, const db_SchemaRef &schema, const db_mgmt_RdbmsRef &rdbms)
-  : DBObjectEditorBE(grtm, schema, rdbms), _schema(schema)
+SchemaEditorBE::SchemaEditorBE(GRTManager *grtm, const db_SchemaRef &schema)
+  : DBObjectEditorBE(grtm, schema)
 {
 }
 
@@ -51,14 +51,14 @@ void SchemaEditorBE::set_schema_option_by_name(const std::string& name, const st
     {
       std::string charset, collation;
       parse_charset_collation(value, charset, collation);
-      if (charset != *_schema->defaultCharacterSetName() || collation != *_schema->defaultCollationName())
+      if (charset != *get_schema()->defaultCharacterSetName() || collation != *get_schema()->defaultCollationName())
       {
         RefreshUI::Blocker block(*this);
         AutoUndoEdit undo(this);
         get_schema()->defaultCharacterSetName(charset);
         get_schema()->defaultCollationName(collation);
         update_change_date();
-        undo.end(strfmt(_("Change Charset/Collation for '%s'"), _schema->name().c_str()));
+        undo.end(strfmt(_("Change Charset/Collation for '%s'"), get_schema()->name().c_str()));
       }
     }
   }

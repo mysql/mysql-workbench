@@ -80,7 +80,6 @@ DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, co
     if (cbox)
     {
       setup_combo_for_string_list(cbox);
-      //fill_combo_from_string_list(cbox, _be->get_all_schema_names());
     }
   }
   

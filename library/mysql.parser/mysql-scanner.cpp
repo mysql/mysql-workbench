@@ -123,6 +123,7 @@ void MySQLScanner::setup()
 }
 
 //--------------------------------------------------------------------------------------------------
+
 void* MySQLScanner::input_start()
 {
   return (void *)d->_text;
