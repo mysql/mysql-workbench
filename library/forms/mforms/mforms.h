@@ -136,6 +136,7 @@ namespace mforms
     ToolBarImplPtrs _tool_bar_impl;
     HyperTextImplPtrs _hypertext_impl;
     PopoverImplPtrs _popover_impl;
+    CanvasImplPtrs _canvas_impl;
 
     AppImplPtrs _app_impl;
     AppViewImplPtrs _app_view_impl;

@@ -85,6 +85,7 @@ ControlFactory::ControlFactory()
   memset(&_findpanel_impl, 0, sizeof(_findpanel_impl));
   memset(&_webbrowser_impl, 0, sizeof(_webbrowser_impl));
   memset(&_popup_impl, 0, sizeof(_popup_impl));
+  memset(&_canvas_impl, 0, sizeof(_canvas_impl));
 }
 
 // perform a check on the function pointer table to see if there's any NULL ptrs
@@ -134,6 +135,7 @@ void ControlFactory::check_impl()
   CHECKPTRS(_hypertext_impl);
   CHECKPTRS(_popover_impl);
   CHECKPTRS(_findpanel_impl);
+  CHECKPTRS(_canvas_impl);
 #endif
 }
 

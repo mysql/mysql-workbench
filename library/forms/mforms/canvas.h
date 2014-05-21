@@ -20,25 +20,32 @@
 #ifndef _MFORMS_CANVAS_H_
 #define _MFORMS_CANVAS_H_
 
-#include <mforms/native.h>
+#include <mforms/view.h>
 
 namespace mdc {
   class CanvasView;
 };
 
 namespace mforms {
-  class Canvas : public NativeContainer
-  {
-  protected:
-    Canvas() {}
-  public:
+  class Canvas;
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
-    static Canvas* create();
-
-    static void register_factory(Canvas* (*create)());
+  struct CanvasImplPtrs
+  {
+    bool (*create)(Canvas *self);
+    mdc::CanvasView *(*canvas)(Canvas *self);
+  };
+#endif
 #endif
 
-    virtual mdc::CanvasView *canvas() = 0;
+  class Canvas : public View
+  {
+  protected:
+    CanvasImplPtrs *_canvas_impl;
+
+  public:
+    Canvas();
+    mdc::CanvasView *canvas();
   };
 
 };

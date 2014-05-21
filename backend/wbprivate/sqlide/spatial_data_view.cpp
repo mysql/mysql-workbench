@@ -78,7 +78,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   add(_toolbar, false, true);
 
   _main_box = mforms::manage(new mforms::Box(true));
-  _viewer = mforms::manage(mforms::Canvas::create());
+  _viewer = mforms::manage(new mforms::Canvas());
   _main_box->add(_viewer, true, true);
 
   _option_box = mforms::manage(new mforms::Box(false));
