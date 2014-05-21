@@ -1901,7 +1901,6 @@
 		2BAE2EB5192BE4E5000887F9 /* spatial_data_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAE2EB3192BE4E5000887F9 /* spatial_data_view.h */; };
 		2BAE2EB7192BF915000887F9 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EB6192BF915000887F9 /* canvas.cpp */; };
 		2BAE2EB9192BF923000887F9 /* canvas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAE2EB8192BF923000887F9 /* canvas.h */; };
-		2BAE2EC0192C0053000887F9 /* Canvas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EBF192C0053000887F9 /* Canvas.mm */; };
 		2BAE2EC3192C1A7E000887F9 /* spatial_canvas_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EC1192C1A7E000887F9 /* spatial_canvas_layer.cpp */; };
 		2BAE2EC4192C1A7E000887F9 /* spatial_canvas_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE2EC1192C1A7E000887F9 /* spatial_canvas_layer.cpp */; };
 		2BAE2EC5192C1A7E000887F9 /* spatial_canvas_layer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAE2EC2192C1A7E000887F9 /* spatial_canvas_layer.h */; };
@@ -2066,10 +2065,6 @@
 		2BD1FB200F33D2EA00FFC762 /* WBPluginEditorBase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD1FADE0F33C74D00FFC762 /* WBPluginEditorBase.mm */; };
 		2BD1FB210F33D2F200FFC762 /* WBColorCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 16F7A3B80F1F0D2E0084C11D /* WBColorCell.h */; };
 		2BD1FB220F33D2F200FFC762 /* WBColorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 16F7A3B90F1F0D2E0084C11D /* WBColorCell.m */; };
-		2BD1FB250F33D2F200FFC762 /* MCanvasViewer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1CA5260EA3E8A20062C916 /* MCanvasViewer.h */; };
-		2BD1FB260F33D2F200FFC762 /* MCanvasViewer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B1CA5270EA3E8A20062C916 /* MCanvasViewer.mm */; };
-		2BD1FB270F33D2F200FFC762 /* MCanvasScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1CA6860EA428120062C916 /* MCanvasScrollView.h */; };
-		2BD1FB280F33D2F200FFC762 /* MCanvasScrollView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B1CA6870EA428120062C916 /* MCanvasScrollView.mm */; };
 		2BD1FB290F33D2F200FFC762 /* WBSplitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 169CCB3B0EFFCD61005152CD /* WBSplitView.h */; };
 		2BD1FB2A0F33D2F200FFC762 /* WBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 169CCB3C0EFFCD61005152CD /* WBSplitView.m */; };
 		2BD1FB2B0F33D2F200FFC762 /* SchemaTabIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E60B40EF115EA00D821E7 /* SchemaTabIcon.png */; };
@@ -2412,6 +2407,14 @@
 		2BFBF09E0F51BEB10016F9D1 /* MySQLViewEditor.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BFBF09D0F51BEB10016F9D1 /* MySQLViewEditor.xib */; };
 		2BFBF0A10F51BF2D0016F9D1 /* MySQLViewEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */; };
 		2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
+		2BFF4365192D0ACD00050E27 /* MCanvasScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BFF4360192D0ACD00050E27 /* MCanvasScrollView.h */; };
+		2BFF4366192D0ACD00050E27 /* MCanvasScrollView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF4361192D0ACD00050E27 /* MCanvasScrollView.mm */; };
+		2BFF4367192D0ACD00050E27 /* MCanvasViewer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BFF4362192D0ACD00050E27 /* MCanvasViewer.h */; };
+		2BFF4368192D0ACD00050E27 /* MCanvasViewer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF4363192D0ACD00050E27 /* MCanvasViewer.mm */; };
+		2BFF436A192D0B5700050E27 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFF4369192D0B5700050E27 /* Cocoa.framework */; };
+		2BFF436E192D0DC400050E27 /* MFCanvas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BFF436C192D0DC400050E27 /* MFCanvas.h */; };
+		2BFF436F192D0DC400050E27 /* MFCanvas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF436D192D0DC400050E27 /* MFCanvas.mm */; };
+		2BFF4370192D129400050E27 /* libmysql.canvas.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825E220E0B662200BE52DF /* libmysql.canvas.dylib */; };
 		7508827612F724F600216C47 /* wb_admin_ui_profile.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 7508826212F7240E00216C47 /* wb_admin_ui_profile.py */; };
 		75522B9010877DEF0077082A /* wb_admin_ssh.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 75522B8D10877DD30077082A /* wb_admin_ssh.py */; };
 		75C847F51067E9C70067947D /* opts.py in Resources */ = {isa = PBXBuildFile; fileRef = 75C847F21067E9C70067947D /* opts.py */; };
@@ -4324,10 +4327,6 @@
 		2B1CA4200F965CB1001443CA /* MQIndicatorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MQIndicatorCell.m; path = frontend/mac/resultset/MQIndicatorCell.m; sourceTree = "<group>"; };
 		2B1CA4210F965CB1001443CA /* MQResultSetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MQResultSetCell.h; path = frontend/mac/resultset/MQResultSetCell.h; sourceTree = "<group>"; };
 		2B1CA4220F965CB1001443CA /* MQResultSetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MQResultSetCell.m; path = frontend/mac/resultset/MQResultSetCell.m; sourceTree = "<group>"; };
-		2B1CA5260EA3E8A20062C916 /* MCanvasViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MCanvasViewer.h; path = frontend/mac/canvas/MCanvasViewer.h; sourceTree = "<group>"; };
-		2B1CA5270EA3E8A20062C916 /* MCanvasViewer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MCanvasViewer.mm; path = frontend/mac/canvas/MCanvasViewer.mm; sourceTree = "<group>"; wrapsLines = 0; };
-		2B1CA6860EA428120062C916 /* MCanvasScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MCanvasScrollView.h; path = frontend/mac/canvas/MCanvasScrollView.h; sourceTree = "<group>"; };
-		2B1CA6870EA428120062C916 /* MCanvasScrollView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MCanvasScrollView.mm; path = frontend/mac/canvas/MCanvasScrollView.mm; sourceTree = "<group>"; };
 		2B1CA71F0F96BF25001443CA /* db.mysql.sqlide.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = db.mysql.sqlide.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B1CA72C0F96C033001443CA /* db.mysql.sqlide.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = db.mysql.sqlide.cpp; path = modules/db.mysql.sqlide/src/db.mysql.sqlide.cpp; sourceTree = "<group>"; };
 		2B1CA72D0F96C033001443CA /* db.mysql.sqlide.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.sqlide.h; path = modules/db.mysql.sqlide/src/db.mysql.sqlide.h; sourceTree = "<group>"; };
@@ -5684,7 +5683,6 @@
 		2BAE2EB3192BE4E5000887F9 /* spatial_data_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_data_view.h; path = backend/wbprivate/sqlide/spatial_data_view.h; sourceTree = "<group>"; };
 		2BAE2EB6192BF915000887F9 /* canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = canvas.cpp; path = library/forms/canvas.cpp; sourceTree = "<group>"; };
 		2BAE2EB8192BF923000887F9 /* canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = canvas.h; path = library/forms/mforms/canvas.h; sourceTree = "<group>"; };
-		2BAE2EBF192C0053000887F9 /* Canvas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Canvas.mm; path = frontend/mac/canvas/Canvas.mm; sourceTree = "<group>"; };
 		2BAE2EC1192C1A7E000887F9 /* spatial_canvas_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_canvas_layer.cpp; path = backend/wbprivate/sqlide/spatial_canvas_layer.cpp; sourceTree = "<group>"; };
 		2BAE2EC2192C1A7E000887F9 /* spatial_canvas_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_canvas_layer.h; path = backend/wbprivate/sqlide/spatial_canvas_layer.h; sourceTree = "<group>"; };
 		2BAE51CE1342444400076130 /* MySQLPlugin-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "MySQLPlugin-16.png"; path = "images/icons/MySQLPlugin-16.png"; sourceTree = "<group>"; };
@@ -6101,6 +6099,13 @@
 		2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MySQLViewEditor.mm; path = plugins/db.mysql.editors/macosx/MySQLViewEditor.mm; sourceTree = "<group>"; wrapsLines = 0; };
 		2BFC2E9916D3C6A500C73F61 /* wba_audit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wba_audit; path = plugins/wb.admin/internal/wba_audit; sourceTree = "<group>"; };
 		2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.0.dylib; path = "../mysql-mac-res/lib/libvsqlitepp.0.dylib"; sourceTree = "<group>"; };
+		2BFF4360192D0ACD00050E27 /* MCanvasScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MCanvasScrollView.h; path = library/mysql.canvas/src/cocoa/MCanvasScrollView.h; sourceTree = "<group>"; };
+		2BFF4361192D0ACD00050E27 /* MCanvasScrollView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MCanvasScrollView.mm; path = library/mysql.canvas/src/cocoa/MCanvasScrollView.mm; sourceTree = "<group>"; };
+		2BFF4362192D0ACD00050E27 /* MCanvasViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MCanvasViewer.h; path = library/mysql.canvas/src/cocoa/MCanvasViewer.h; sourceTree = "<group>"; };
+		2BFF4363192D0ACD00050E27 /* MCanvasViewer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MCanvasViewer.mm; path = library/mysql.canvas/src/cocoa/MCanvasViewer.mm; sourceTree = "<group>"; };
+		2BFF4369192D0B5700050E27 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		2BFF436C192D0DC400050E27 /* MFCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFCanvas.h; path = library/forms/cocoa/MFCanvas.h; sourceTree = "<group>"; };
+		2BFF436D192D0DC400050E27 /* MFCanvas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFCanvas.mm; path = library/forms/cocoa/MFCanvas.mm; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* MySQLWorkbench_Prefix.pch */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = MySQLWorkbench_Prefix.pch; sourceTree = "<group>"; };
 		7508826212F7240E00216C47 /* wb_admin_ui_profile.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_ui_profile.py; path = plugins/wb.admin/frontend/wb_admin_ui_profile.py; sourceTree = "<group>"; };
 		75522B8D10877DD30077082A /* wb_admin_ssh.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_ssh.py; path = plugins/wb.admin/backend/wb_admin_ssh.py; sourceTree = "<group>"; };
@@ -6410,6 +6415,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BFF436A192D0B5700050E27 /* Cocoa.framework in Frameworks */,
 				2BC642410EFBD5CD00F02554 /* OpenGL.framework in Frameworks */,
 				2BCC405B0EFFC06E008A66D4 /* libcairo.2.dylib in Frameworks */,
 				2BDAE46111139AA500AC1D7A /* libwbbase.dylib in Frameworks */,
@@ -6422,6 +6428,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BFF4370192D129400050E27 /* libmysql.canvas.dylib in Frameworks */,
 				2B2397B7103B6DF200D9023B /* libcairo.2.dylib in Frameworks */,
 				2760C4E3107499F800FD1366 /* libwbbase.dylib in Frameworks */,
 				2BB37A121108026800DA4577 /* Security.framework in Frameworks */,
@@ -7239,6 +7246,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2BFF4369192D0B5700050E27 /* Cocoa.framework */,
 				2B750F9E0E8796310003120A /* Libraries */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
@@ -7433,18 +7441,6 @@
 				2B17B44F0F4E4FBC0087ED42 /* MySQLRelationshipEditor.mm */,
 			);
 			name = "MySQL Relationship Editor";
-			sourceTree = "<group>";
-		};
-		2B1CA5210EA3E8780062C916 /* Canvas Viewer */ = {
-			isa = PBXGroup;
-			children = (
-				2BAE2EBF192C0053000887F9 /* Canvas.mm */,
-				2B1CA5260EA3E8A20062C916 /* MCanvasViewer.h */,
-				2B1CA5270EA3E8A20062C916 /* MCanvasViewer.mm */,
-				2B1CA6860EA428120062C916 /* MCanvasScrollView.h */,
-				2B1CA6870EA428120062C916 /* MCanvasScrollView.mm */,
-			);
-			name = "Canvas Viewer";
 			sourceTree = "<group>";
 		};
 		2B1CA7160F96BEF8001443CA /* db.mysql.sqlide */ = {
@@ -9099,6 +9095,7 @@
 		2B825E250E0B662E00BE52DF /* mysql.canvas */ = {
 			isa = PBXGroup;
 			children = (
+				2BFF435E192D0AB400050E27 /* cocoa */,
 				2BE5B31C0EA52D8400194EB2 /* Headers */,
 				2B825E280E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp */,
 				2BB37B421109507800DA4577 /* mdc_canvas_view_printing.cpp */,
@@ -9319,6 +9316,8 @@
 				2B3D48FA0F3E3FCA009238A7 /* MFBox.mm */,
 				2B3D48FB0F3E3FCA009238A7 /* MFButton.h */,
 				2B3D48FC0F3E3FCA009238A7 /* MFButton.mm */,
+				2BFF436C192D0DC400050E27 /* MFCanvas.h */,
+				2BFF436D192D0DC400050E27 /* MFCanvas.mm */,
 				2B3D48FD0F3E3FCA009238A7 /* MFCheckBox.h */,
 				2B3D48FE0F3E3FCA009238A7 /* MFCheckBox.mm */,
 				2BAD62C112732FD20080C832 /* MFCodeEditor.h */,
@@ -9843,7 +9842,6 @@
 				2B87B8C816B0CC87003C91C1 /* Docking */,
 				2BD1FAD60F33C6A200FFC762 /* Plugins */,
 				16F7A3BB0F1F0D3D0084C11D /* WBColorCell */,
-				2B1CA5210EA3E8780062C916 /* Canvas Viewer */,
 				2B07482A0F93EBAD00D7E4E3 /* Resultset Viewer */,
 				169CCB3A0EFFCD61005152CD /* WBSplitView */,
 				169E60B20EF115EA00D821E7 /* WBTabView */,
@@ -10565,6 +10563,17 @@
 			name = "Diagram Panel";
 			sourceTree = "<group>";
 		};
+		2BFF435E192D0AB400050E27 /* cocoa */ = {
+			isa = PBXGroup;
+			children = (
+				2BFF4360192D0ACD00050E27 /* MCanvasScrollView.h */,
+				2BFF4361192D0ACD00050E27 /* MCanvasScrollView.mm */,
+				2BFF4362192D0ACD00050E27 /* MCanvasViewer.h */,
+				2BFF4363192D0ACD00050E27 /* MCanvasViewer.mm */,
+			);
+			name = cocoa;
+			sourceTree = "<group>";
+		};
 		752740C2105FB82000E3E32F /* Backend */ = {
 			isa = PBXGroup;
 			children = (
@@ -10927,6 +10936,7 @@
 				2B825E880E0B664E00BE52DF /* mdc_box.h in Headers */,
 				2B825E8D0E0B664E00BE52DF /* mdc_algorithms.h in Headers */,
 				2B825E8F0E0B664E00BE52DF /* mdc_text.h in Headers */,
+				2BFF4365192D0ACD00050E27 /* MCanvasScrollView.h in Headers */,
 				2B825E930E0B664E00BE52DF /* mdc_area_group.h in Headers */,
 				2B825E950E0B664E00BE52DF /* mdc_polygon.h in Headers */,
 				2B825E960E0B664E00BE52DF /* mdc_grid.h in Headers */,
@@ -10946,6 +10956,7 @@
 				2B825EA90E0B664E00BE52DF /* mdc_canvas_view.h in Headers */,
 				2B825EAD0E0B664E00BE52DF /* mdc_straight_line_layouter.h in Headers */,
 				2B825EAF0E0B664E00BE52DF /* mdc_selection.h in Headers */,
+				2BFF4367192D0ACD00050E27 /* MCanvasViewer.h in Headers */,
 				2B825EB00E0B664E00BE52DF /* mdc_magnet.h in Headers */,
 				2B825EB30E0B664E00BE52DF /* mdc_events.h in Headers */,
 				2B825EB70E0B664E00BE52DF /* mdc_button.h in Headers */,
@@ -10984,6 +10995,7 @@
 				2B3D48F00F3E3F91009238A7 /* wizard.h in Headers */,
 				2B3D49180F3E3FCA009238A7 /* MFBase.h in Headers */,
 				2B3D491A0F3E3FCA009238A7 /* MFBox.h in Headers */,
+				2BFF436E192D0DC400050E27 /* MFCanvas.h in Headers */,
 				2B3D491C0F3E3FCA009238A7 /* MFButton.h in Headers */,
 				2B3D491E0F3E3FCA009238A7 /* MFCheckBox.h in Headers */,
 				2B3D49200F3E3FCA009238A7 /* MFForm.h in Headers */,
@@ -11144,8 +11156,6 @@
 			files = (
 				2BD1FB1F0F33D2E900FFC762 /* WBPluginEditorBase.h in Headers */,
 				2BD1FB210F33D2F200FFC762 /* WBColorCell.h in Headers */,
-				2BD1FB250F33D2F200FFC762 /* MCanvasViewer.h in Headers */,
-				2BD1FB270F33D2F200FFC762 /* MCanvasScrollView.h in Headers */,
 				2BD1FB290F33D2F200FFC762 /* WBSplitView.h in Headers */,
 				2BD1FB320F33D2F200FFC762 /* CGColorUtilities.h in Headers */,
 				2BD1FB340F33D2F200FFC762 /* WBEditorTabItem.h in Headers */,
@@ -13707,6 +13717,7 @@
 				2B825E8E0E0B664E00BE52DF /* mdc_image.cpp in Sources */,
 				2B825E900E0B664E00BE52DF /* mdc_group.cpp in Sources */,
 				2B825E920E0B664E00BE52DF /* mdc_orthogonal_line_layouter.cpp in Sources */,
+				2BFF4368192D0ACD00050E27 /* MCanvasViewer.mm in Sources */,
 				2B825E940E0B664E00BE52DF /* mdc_rectangle.cpp in Sources */,
 				2B825E990E0B664E00BE52DF /* mdc_connector.cpp in Sources */,
 				2B825E9A0E0B664E00BE52DF /* mdc_text.cpp in Sources */,
@@ -13724,6 +13735,7 @@
 				2B825EBA0E0B664E00BE52DF /* mdc_selection.cpp in Sources */,
 				2B00E5150EB40439006B9A7C /* mdc_canvas_view_opengl.cpp in Sources */,
 				2BB37B441109507800DA4577 /* mdc_canvas_view_printing.cpp in Sources */,
+				2BFF4366192D0ACD00050E27 /* MCanvasScrollView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -13807,6 +13819,7 @@
 				2B2C005318327DA900543D46 /* MTextImageCell.m in Sources */,
 				2B4971F713C93BEB00F6AF47 /* MFHyperTextView.mm in Sources */,
 				27597A0114192ED100641E30 /* container.cpp in Sources */,
+				2BFF436F192D0DC400050E27 /* MFCanvas.mm in Sources */,
 				2B83FCDD1419B6B300A2C82B /* popover.cpp in Sources */,
 				2B83FCE51419C64500A2C82B /* MFPopover.mm in Sources */,
 				2B064CE014D327F400B01887 /* treenodeview.cpp in Sources */,
@@ -13934,8 +13947,6 @@
 			files = (
 				2BD1FB200F33D2EA00FFC762 /* WBPluginEditorBase.mm in Sources */,
 				2BD1FB220F33D2F200FFC762 /* WBColorCell.m in Sources */,
-				2BD1FB260F33D2F200FFC762 /* MCanvasViewer.mm in Sources */,
-				2BD1FB280F33D2F200FFC762 /* MCanvasScrollView.mm in Sources */,
 				2BD1FB2A0F33D2F200FFC762 /* WBSplitView.m in Sources */,
 				2BD1FB330F33D2F200FFC762 /* CGColorUtilities.m in Sources */,
 				2BD1FB350F33D2F200FFC762 /* WBEditorTabItem.m in Sources */,
@@ -13947,7 +13958,6 @@
 				2BD1FB430F33D2F200FFC762 /* ResponderLayer.m in Sources */,
 				2BD1FB450F33D2F200FFC762 /* WBSchemaTabItem.m in Sources */,
 				2BD1FB470F33D2F200FFC762 /* WBSchemaTabView.m in Sources */,
-				2BAE2EC0192C0053000887F9 /* Canvas.mm in Sources */,
 				2BD1FB4D0F33D2F200FFC762 /* WBTabItem.m in Sources */,
 				2BD1FB4F0F33D2F200FFC762 /* WBTabView.m in Sources */,
 				2BD1FB530F33D2F200FFC762 /* MTogglePane.m in Sources */,
@@ -16415,6 +16425,7 @@
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/**",
+					"$(SRCROOT)/library/mysql.canvas/src",
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
@@ -16459,6 +16470,7 @@
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/ext/scintilla/**",
+					"$(SRCROOT)/library/mysql.canvas/src",
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";

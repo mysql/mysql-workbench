@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,27 +17,13 @@
  * 02110-1301  USA
  */
 
-//#include "base/log.h"
-#include "mforms/mforms.h"
+#import "cocoa/MCanvasScrollView.h"
 
-#include "mdc.h"
+@class MCanvasViewer;
 
-
-
-//DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
-
-
-using namespace mforms;
-
-
-Canvas::Canvas()
+@interface MFCanvasImpl : MCanvasScrollView
 {
-  _canvas_impl = &mforms::ControlFactory::get_instance()->_canvas_impl;
-  _canvas_impl->create(this);
+  mforms::Canvas *mOwner;
+  MCanvasViewer *mCanvas;
 }
-
-
-mdc::CanvasView *Canvas::canvas()
-{
-  return _canvas_impl->canvas(this);
-}
+@end

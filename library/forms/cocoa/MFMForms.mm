@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +53,7 @@ extern void cf_toolbar_init();
 extern void cf_hypertext_init();
 extern void cf_popover_init();
 extern void cf_findpanel_init();
+extern void cf_canvas_init();
 
 extern "C" {
 void mforms_cocoa_init()
@@ -92,6 +93,8 @@ void mforms_cocoa_init()
   
   cf_treenodeview_init();
   cf_findpanel_init();
+
+  cf_canvas_init();
 }
   
   
