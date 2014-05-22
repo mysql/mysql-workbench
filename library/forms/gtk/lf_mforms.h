@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,6 +61,7 @@
 #include "mforms/fs_object_selector.h"
 #include "mforms/simpleform.h"
 #include "mforms/find_panel.h"
+#include "mforms/canvas.h"
 
 #include "mforms/mforms.h"
 

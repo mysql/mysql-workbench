@@ -18,6 +18,7 @@
  */
 
 #include "stdafx.h"
+#include "base/log.h"
 #include "spatial_data_view.h"
 #include "spatial_canvas_layer.h"
 #include "wb_sql_editor_result_panel.h"
@@ -34,9 +35,10 @@
 #include "mforms/canvas.h"
 #include "mdc.h"
 
+DEFAULT_LOG_DOMAIN("sqlide");
 
 SpatialDataView::SpatialDataView(SqlEditorResult *owner)
-: mforms::Box(false), _owner(owner)
+: mforms::Box(false), _owner(owner), _layer(NULL)
 {
   _toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
   {
@@ -100,6 +102,22 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _main_box->add(_option_box, false, true);
 
   add(_main_box, true, true);
+}
+
+
+SpatialDataView::~SpatialDataView()
+{
+}
+
+
+void SpatialDataView::activate()
+{
+  if (_layer)
+    return;
+  // becasue of Gtk delayed realize bs, we have to delay creation of the canvas too which means
+  // we can't do anything with it until we know the cairo is on screen for sure
+  if (!_viewer->canvas())
+    throw std::logic_error("canvas not initialized");
 
   // configure the canvas
   _layer = new SpatialCanvasLayer(_viewer->canvas());

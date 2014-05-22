@@ -758,7 +758,7 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
       if (inbuf_len > 0)
-        log_warning("%lu characters could not be converted to UTF-8 from column %s during copy\n",
+        log_warning("%zi characters could not be converted to UTF-8 from column %s during copy\n",
                     inbuf_len, (*_columns)[column-1].source_name.c_str());
 
       *out_length = (unsigned long)(out_buffer_len - outbuf_len);
@@ -2365,7 +2365,7 @@ void MySQLCopyDataTarget::backup_triggers_for_schema(const std::string &schema)
       }
     }
 
-    log_info("Successfully backed up %lu triggers.\n", triggers.size());
+    log_info("Successfully backed up %zu triggers.\n", triggers.size());
   }
 }
 
@@ -2457,7 +2457,7 @@ void MySQLCopyDataTarget::restore_triggers(std::set<std::string> &schemas)
       // Drops the trigger backup table
       drop_trigger_backups(a_schema);
 
-      log_info("Trigger Restore: %d succeeded, %lu failed\n", restored, trigger_sql.size() - restored);
+      log_info("Trigger Restore: %d succeeded, %zu failed\n", restored, trigger_sql.size() - restored);
     }
   }
 }

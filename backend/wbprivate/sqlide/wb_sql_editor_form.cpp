@@ -1059,7 +1059,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     // connection info
     _connection_details["name"] = _connection->name();
     _connection_details["hostName"] = _connection->parameterValues().get_string("hostName");
-    _connection_details["port"] = strfmt("%li\n", _connection->parameterValues().get_int("port"));
+    _connection_details["port"] = strfmt("%zi\n", _connection->parameterValues().get_int("port"));
     _connection_details["socket"] = _connection->parameterValues().get_string("socket");
     _connection_details["driverName"] = _connection->driver()->name();
     _connection_details["userName"] = _connection->parameterValues().get_string("userName");
@@ -1706,7 +1706,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     else
     {
       std::list<std::string> warning;
-      warning.push_back(base::strfmt("Skipping history entries for %li statements, total %li bytes", statement_ranges.size(),
+      warning.push_back(base::strfmt("Skipping history entries for %zi statements, total %zi bytes", statement_ranges.size(),
                                      sql->size()));
       _history->add_entry(warning);
       logging_queries = false;

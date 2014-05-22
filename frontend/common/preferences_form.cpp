@@ -1347,10 +1347,10 @@ void PreferencesForm::create_model_page()
 static void show_target_version(const workbench_physical_ModelRef &model, mforms::TextEntry *entry)
 {
   if (*model->catalog()->version()->releaseNumber() < 0)
-    entry->set_value(base::strfmt("%li.%li", *model->catalog()->version()->majorNumber(),
+    entry->set_value(base::strfmt("%zi.%zi", *model->catalog()->version()->majorNumber(),
                                   *model->catalog()->version()->minorNumber()));
   else
-    entry->set_value(base::strfmt("%li.%li.%li", *model->catalog()->version()->majorNumber(),
+    entry->set_value(base::strfmt("%zi.%zi.%zi", *model->catalog()->version()->majorNumber(),
                    *model->catalog()->version()->minorNumber(), *model->catalog()->version()->releaseNumber()));
 }
 

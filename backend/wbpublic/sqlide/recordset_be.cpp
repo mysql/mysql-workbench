@@ -1067,7 +1067,7 @@ void Recordset::paste_rows_from_clipboard(ssize_t dest_row)
       if (parts.size() != get_column_count())
       {
         mforms::Utilities::show_error("Cannot Paste Row",
-                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%li vs %li).\n"
+                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%zi vs %zi).\n"
                                              "Data must be in the same format used by the Copy Row Content command.",
                                              parts.size(), get_column_count()),
                                       "OK");
