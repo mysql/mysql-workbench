@@ -285,6 +285,8 @@ public:
   virtual void set_sql_mode(const std::string &new_mode);
   virtual void set_server_version(long new_version);
 
+  long server_version();
+
   std::string token_text(pANTLR3_BASE_TREE node);
   MySQLQueryType query_type();
   MySQLQueryType query_type(pANTLR3_BASE_TREE node);

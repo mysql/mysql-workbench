@@ -1514,19 +1514,22 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
 {
   log_debug("Creating new code completion list\n");
 
+  parser::ParserContext::Ref parser_context = get_parser_context();
+
   std::set<std::pair<int, std::string>, CompareAcEntries> new_entries;
   _auto_completion_entries.clear();
-  context.version = 50501; //_server_version; TODO: switch to parser services
+  context.version = 50501; // Some default. Will be improved below.
 
   bool found_errors = false;
   if (!context.statement.empty())
   {
-    std::set<std::string> charsets; // TODO: switch to parser services.
-    MySQLRecognizer recognizer(50501 /* _server_version*/, _sql_mode, charsets);
-    recognizer.parse(context.statement.c_str(), context.statement.length(), true, QtUnknown);
-    MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
+    MySQLRecognizer *recognizer = parser_context->recognizer();
+    context.version = recognizer->server_version();
 
-    found_errors = recognizer.has_errors();
+    recognizer->parse(context.statement.c_str(), context.statement.length(), true, QtUnknown);
+    MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
+
+    found_errors = recognizer->has_errors();
 
     bool found_token = walker.advance_to_position((int)context.line, (int)context.offset);
 
@@ -1536,8 +1539,8 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
       context.wanted_parts = MySQLEditor::CompletionWantKeywords;
 
       // See if we can get a better result by examining the errors.
-      if (recognizer.error_info().size() > 0)
-        check_error_context(context, recognizer);
+      if (recognizer->error_info().size() > 0)
+        check_error_context(context, *recognizer);
     }
     else
     {
@@ -1545,17 +1548,17 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
 
       // If we are currently in a string then we don't show any auto completion.
       if ((context.token_type == SINGLE_QUOTED_TEXT) ||
-        ((recognizer.sql_mode() & SQL_MODE_ANSI_QUOTES) == 0) && (context.token_type == DOUBLE_QUOTED_TEXT))
+        ((recognizer->sql_mode() & SQL_MODE_ANSI_QUOTES) == 0) && (context.token_type == DOUBLE_QUOTED_TEXT))
       {
         context.wanted_parts = CompletionWantNothing;
-        return !recognizer.has_errors();
+        return !recognizer->has_errors();
       }
 
       // If there's a syntax error with a token between the one we found in advance_to_position and
       // before the current caret position then we switch to the last error token to take this into account.
-      if (recognizer.error_info().size() > 0)
+      if (recognizer->error_info().size() > 0)
       {
-        MySQLParserErrorInfo error = recognizer.error_info().back();
+        MySQLParserErrorInfo error = recognizer->error_info().back();
         if ((context.token_line < error.line || context.token_line == error.line && context.token_start < error.charOffset) &&
           (error.line < context.line|| error.line == context.line && error.charOffset < context.offset))
         {
@@ -1573,7 +1576,7 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
       // we replaced the token as we could be at a totally different position.
       if (context.check_identifier)
       {
-        if (recognizer.is_identifier(context.token_type)  || recognizer.is_keyword(context.token_type)
+        if (recognizer->is_identifier(context.token_type) || recognizer->is_keyword(context.token_type)
           || context.token_type == DOT_SYMBOL || context.token_type == MULT_OPERATOR)
         {
           // Found an id, dot or star. Can be either wildcard, schema, table or column. Check which it is.
@@ -1704,8 +1707,7 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
 
 void MySQLEditor::show_auto_completion(bool auto_choose_single)
 {
-  // With the new splitter we can probably leave auto completion enabled even for large files.
-  if (/*_have_large_content ||*/ !code_completion_enabled())
+  if (!code_completion_enabled())
     return;
 
   log_debug("Invoking code completion\n");

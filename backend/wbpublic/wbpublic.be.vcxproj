@@ -357,7 +357,6 @@
     <ClCompile Include="sqlide\recordset_sql_storage.cpp" />
     <ClCompile Include="sqlide\recordset_table_inserts_storage.cpp" />
     <ClCompile Include="sqlide\recordset_text_storage.cpp" />
-    <ClCompile Include="sqlide\sqlide.cpp" />
     <ClCompile Include="sqlide\sqlide_generics.cpp" />
     <ClCompile Include="sqlide\sql_editor_be.cpp" />
     <ClCompile Include="sqlide\sql_editor_be_autocomplete.cpp" />
@@ -510,7 +509,6 @@
     <ClInclude Include="sqlide\recordset_sql_storage.h" />
     <ClInclude Include="sqlide\recordset_table_inserts_storage.h" />
     <ClInclude Include="sqlide\recordset_text_storage.h" />
-    <ClInclude Include="sqlide\sqlide.h" />
     <ClInclude Include="sqlide\sqlide_generics.h" />
     <ClInclude Include="sqlide\sqlide_generics_private.h" />
     <ClInclude Include="sqlide\sql_editor_be.h" />

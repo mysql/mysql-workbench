@@ -149,8 +149,8 @@ public:
   String^ MySQLTableEditorWrapper::get_table_option_by_name(String^ name)
   { return CppStringToNative(get_unmanaged_object()->get_table_option_by_name(NativeToCppString(name))); }
 
-  void set_triggers_sql(String^ sql, bool sync)
-  { get_unmanaged_object()->set_triggers_sql(NativeToCppString(sql), sync); }
+  void set_sql(String^ sql)
+  { get_unmanaged_object()->set_sql(NativeToCppString(sql)); }
 
   Control ^get_trigger_panel();
   void commit_changes();

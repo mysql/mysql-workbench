@@ -19,4 +19,23 @@
 
 #include "grts/structs.workbench.physical.h"
 
-#include "MySQLRelationshipEditorBE.h"
+#include "MySQLRoutineEditorWrapper.h"
+
+using namespace MySQL::Grt::Db;
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQL::Grt::Db::MySQLRoutineEditorWrapper::load_routine_sql()
+{
+  get_unmanaged_object()->load_routine_sql();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQL::Grt::Db::MySQLRoutineEditorWrapper::commit_changes()
+{
+  get_unmanaged_object()->commit_changes();
+}
+
+//--------------------------------------------------------------------------------------------------
+

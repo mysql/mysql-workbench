@@ -377,9 +377,6 @@
     <ClInclude Include="sqlide\sql_script_run_wizard.h">
       <Filter>sqlide Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlide\sqlide.h">
-      <Filter>sqlide Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sqlide\sqlide_generics.h">
       <Filter>sqlide Header Files</Filter>
     </ClInclude>
@@ -804,9 +801,6 @@
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlide\sql_script_run_wizard.cpp">
-      <Filter>sqlide Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sqlide\sqlide.cpp">
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlide\sqlide_generics.cpp">

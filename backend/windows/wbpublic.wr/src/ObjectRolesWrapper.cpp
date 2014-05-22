@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,25 +17,32 @@
  * 02110-1301  USA
  */
 
-#include "grts/structs.workbench.physical.h"
+#include "Grt.h"
+#include "GrtManager.h"
 
-#include "MySQLViewEditorBE.h"
+#include "DelegateWrapper.h"
+#include "DBObjectEditorWrapper.h"
+
+#include "grtdb/dbobject_roles.h"
+#include "grtdb/db_object_helpers.h"
+
+#include "ObjectRolesWrapper.h"
 
 using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQL::Grt::Db::MySQLViewEditorBE::load_view_sql()
+ObjectRoleListWrapper::ObjectRoleListWrapper(DBObjectEditorWrapper^ editor)
+  : MySQL::Grt::ListModelWrapper(new ::bec::ObjectRoleListBE(editor->get_unmanaged_object(),
+  get_rdbms_for_db_object(editor->get_unmanaged_object()->get_dbobject())))
 {
-  get_unmanaged_object()->load_view_sql();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQL::Grt::Db::MySQLViewEditorBE::commit_changes()
+ObjectPrivilegeListBE^ ObjectRoleListWrapper::get_privilege_list()
 {
-  get_unmanaged_object()->commit_changes();
+  return gcnew ObjectPrivilegeListBE(get_unmanaged_object()->get_privilege_list());
 }
 
 //--------------------------------------------------------------------------------------------------
-

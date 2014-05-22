@@ -20,7 +20,6 @@
 #pragma once
 
 #include "DBObjectEditorWrapper.h"
-#include "GrtTemplates.h"
 
 namespace bec {
   class ViewEditorBE;
@@ -41,11 +40,6 @@ public:
   bec::ViewEditorBE *get_unmanaged_object()
   { return static_cast<bec::ViewEditorBE *>(inner); }
 
-  String^ get_query()
-  { return CppStringToNative(get_unmanaged_object()->get_query()); }
-
-  void set_query(String ^query, bool sync)
-  { get_unmanaged_object()->set_query(NativeToCppString(query), sync); }
 };
 
 } // namespace Db

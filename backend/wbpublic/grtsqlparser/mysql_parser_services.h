@@ -23,7 +23,7 @@
 
 #include "mysql-parser.h"
 
-#include "db_helpers.h"
+#include "grtdb/db_helpers.h"
 
 #ifdef __linux__
   #include "grts/structs.db.mysql.h"

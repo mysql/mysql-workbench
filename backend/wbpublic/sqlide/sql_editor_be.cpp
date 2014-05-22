@@ -174,6 +174,7 @@ MySQLEditor::Ref MySQLEditor::create(grt::GRT *grt, ParserContext::Ref context, 
   return sql_editor;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref context)
 {
@@ -227,6 +228,13 @@ MySQLEditor::~MySQLEditor()
   delete _code_editor;
 
   delete d;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+parser::ParserContext::Ref MySQLEditor::get_parser_context()
+{
+  return d->_parser_context;
 }
 
 //--------------------------------------------------------------------------------------------------

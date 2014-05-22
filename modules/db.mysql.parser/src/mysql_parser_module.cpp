@@ -615,7 +615,7 @@ size_t MySQLParserServicesImpl::checkSqlSyntax(ParserContext::Ref context, const
  * Helper to collect text positions to references of the given schema.
  * We only come here if there was no syntax error.
  */
-void collect_schema_name_offsets(ParserContext::Ref context, std::list<int> &offsets, const std::string schema_name)
+void collect_schema_name_offsets(ParserContext::Ref context, std::list<size_t> &offsets, const std::string schema_name)
 {
   // Don't try to optimize the creation of the walker. There must be a new instance for each parse run
   // as it stores references to results in the parser.
@@ -626,33 +626,48 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<int> &off
     {
       case SCHEMA_NAME_TOKEN:
         if (base::same_string(walker.token_text(), schema_name, case_sensitive))
-          offsets.push_back(walker.token_offset());
+        {
+          size_t pos = walker.token_offset();
+          if (walker.token_type() == BACK_TICK_QUOTED_ID || walker.token_type() == SINGLE_QUOTED_TEXT)
+            ++pos;
+          offsets.push_back(pos);
+        }
         break;
 
       case TABLE_NAME_TOKEN:
       {
         walker.next();
-        if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(DOT_SYMBOL))
+        if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(false) == DOT_SYMBOL)
         {
            // A table ref not with leading dot but a qualified identifier.
           if (base::same_string(walker.token_text(), schema_name, case_sensitive))
-            offsets.push_back(walker.token_offset());
+          {
+            size_t pos = walker.token_offset();
+            if (walker.token_type() == BACK_TICK_QUOTED_ID || walker.token_type() == SINGLE_QUOTED_TEXT)
+              ++pos;
+            offsets.push_back(pos);
+          }
         }
         break;
       }
 
       case FIELD_NAME_TOKEN: // Field names only if they are fully qualified (schema.table.field/*).
         walker.next();
-        if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(DOT_SYMBOL))
+        if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(false) == DOT_SYMBOL)
         {
           // A leading dot means no schema.
           std::string name = walker.token_text();
-          unsigned pos = walker.token_offset();
+          size_t pos = walker.token_offset();
           walker.next(2);
-          if (walker.look_ahead(DOT_SYMBOL)) // Fully qualified.
+          if (walker.look_ahead(false) == DOT_SYMBOL) // Fully qualified.
           {
             if (base::same_string(name, schema_name, case_sensitive))
+            {
+              size_t pos = walker.token_offset();
+              if (walker.token_type() == BACK_TICK_QUOTED_ID || walker.token_type() == SINGLE_QUOTED_TEXT)
+                ++pos;
               offsets.push_back(pos);
+            }
           }
         }
         break;
@@ -663,10 +678,15 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<int> &off
       case PROCEDURE_NAME_TOKEN:
       case FUNCTION_NAME_TOKEN:
         walker.next();
-        if (walker.look_ahead(DOT_SYMBOL))
+        if (walker.look_ahead(false) == DOT_SYMBOL)
         {
           if (base::same_string(walker.token_text(), schema_name, case_sensitive))
-            offsets.push_back(walker.token_offset());
+          {
+            size_t pos = walker.token_offset();
+            if (walker.token_type() == BACK_TICK_QUOTED_ID || walker.token_type() == SINGLE_QUOTED_TEXT)
+              ++pos;
+            offsets.push_back(pos);
+          }
         }
         break;
     }
@@ -678,11 +698,11 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<int> &off
 /**
  * Replace all occurrences of the old by the new name according to the offsets list.
  */
-void replace_schema_names(std::string &sql, const std::list<int> &offsets, size_t length,
+void replace_schema_names(std::string &sql, const std::list<size_t> &offsets, size_t length,
                           const std::string new_name)
 {
   bool remove_schema = new_name.empty();
-  for (std::list<int>::const_reverse_iterator iterator = offsets.rbegin(); iterator != offsets.rend(); ++iterator)
+  for (std::list<size_t>::const_reverse_iterator iterator = offsets.rbegin(); iterator != offsets.rend(); ++iterator)
   {
     std::string::size_type start = *iterator;
     std::string::size_type replace_length = length;
@@ -714,7 +734,7 @@ void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, ParserContext::Ref 
     {
       MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
 
-      std::list<int> offsets;
+      std::list<size_t> offsets;
       collect_schema_name_offsets(context, offsets, old_name);
       if (!offsets.empty())
       {

@@ -29,6 +29,8 @@
 
 #include "db_mysql_diffsqlgen.h"
 
+#include "grtsqlparser/mysql_parser_services.h"
+
 BEGIN_TEST_DATA_CLASS(sql_create)
 protected:
     WBTester tester;
@@ -494,11 +496,17 @@ TEST_FUNCTION(15)
 
   std::string modelfile = "data/forward_engineer/sakila_full.mwb";
   tester.wb->open_document(modelfile);
-  db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester.wb->get_document()->physicalModels().get(0)->catalog());
-
+  db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(tester.get_catalog());
 
   catalog->schemata()[0]->name("sakila_test");
-  SqlFacade::instance_for_db_obj(catalog->schemata()[0])->renameSchemaReferences(catalog, "sakila", "sakila_test");
+
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(tester.grt);
+  GrtVersionRef version = bec::parse_version(tester.grt, "5.6.0");
+  parser::ParserContext::Ref context = services->createParserContext(tester.get_rdbms()->characterSets(),
+    version, false);
+  services->renameSchemaReferences(context, catalog, "sakila", "sakila_test");
+
+  //SqlFacade::instance_for_rdbms_name(tester.grt, "Mysql")->renameSchemaReferences(catalog, "sakila", "sakila_test");
 
   cmp.init_omf(&omf);
 

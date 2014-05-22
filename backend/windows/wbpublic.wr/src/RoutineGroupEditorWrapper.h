@@ -17,31 +17,27 @@
  * 02110-1301  USA
  */
 
-#ifndef __ROUTINE_GROUP_EDITOR_H__
-#define __ROUTINE_GROUP_EDITOR_H__
+#pragma once
 
 #include "DBObjectEditorWrapper.h"
-#include "GrtTemplates.h"
-#include "grtdb/editor_routinegroup.h"
 
 namespace MySQL {
 namespace Grt {
 namespace Db {
 
-public ref class RoutineGroupEditorBE : public DBObjectEditorWrapper
+public ref class RoutineGroupEditorWrapper : public DBObjectEditorWrapper
 {
 protected:
-  RoutineGroupEditorBE(::bec::RoutineGroupEditorBE *inn);
+  RoutineGroupEditorWrapper(::bec::RoutineGroupEditorBE *inn);
 
 public:
   ::bec::RoutineGroupEditorBE *get_unmanaged_object();
-  String^ get_routines_sql();
+  String^ get_sql();
   String^ get_routine_sql(MySQL::Grt::GrtValue^ routine);
-  void set_routines_sql(String ^query, bool sync);
+  void set_sql(String ^query);
   List<String^>^ get_routines_names();
   void delete_routine_with_name(String^ name);
   void append_routine_with_id(String^ id);
-  String^ get_routine_name(String^ id);
   String^ get_name();
   void set_name(String ^query);
   String^ get_comment();
@@ -52,5 +48,3 @@ public:
 } // namespace Db
 } // namespace Grt
 } // namespace MySQL
-
-#endif // __ROUTINE_GROUP_EDITOR_H__
