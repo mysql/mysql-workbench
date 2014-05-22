@@ -735,10 +735,10 @@ class FileOpsNope(object):
     def __init__(self, process_ops, ssh = None, target_os = None):
         pass
 
-    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None):
+    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None, mode = None):
         pass
 
-    def save_file_content_and_backup(self, filename, content, backup_extension, as_user = Users.CURRENT, user_password = None):
+    def save_file_content_and_backup(self, filename, content, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
         pass
 
     def get_file_content(self, filename, as_user = Users.CURRENT, user_password = None, skip_lines=0):
@@ -992,7 +992,7 @@ class FileOpsLinuxBase(object):
     
         return file_list        
         
-    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None):        
+    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None, mode = None):        
         pass
         
     def _set_file_content(self, path, content):
@@ -1001,7 +1001,7 @@ class FileOpsLinuxBase(object):
     def _create_temp_file(self, content):
         pass
 
-    def save_file_content_and_backup(self, filename, content, backup_extension, as_user = Users.CURRENT, user_password = None):
+    def save_file_content_and_backup(self, filename, content, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
         log_debug('%s: Saving file "%s" with backup (sudo="%s")\n' % (self.__class__.__name__, filename, str(as_user)) )
         # Checks if the target folder is writable
         target_dir = posixpath.split(filename)[0]
@@ -1038,6 +1038,13 @@ class FileOpsLinuxBase(object):
             else:
                 log_debug('%s: Saving file...\n' % self.__class__.__name__)
                 self._create_file(filename, content)
+
+            if mode:
+                self.process_ops.exec_cmd("chmod %s %s" % (mode, quote_path(filename)),
+                                as_user   = Users.ADMIN,
+                                user_password = user_password,
+                                output_handler = None,
+                                options = {CmdOptions.CMD_WAIT_OUTPUT:CmdOutput.WAIT_IF_FAIL})
                     
         else:
             raise PermissionDeniedError("Cannot write to target folder: %s" % target_dir)
@@ -1080,8 +1087,8 @@ class FileOpsLocalUnix(FileOpsLinuxBase):
         raise Exception(custom_messages.get(None, message))
         
     # content must be a string
-    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None):
-        self.save_file_content_and_backup(filename, content, None, as_user, user_password)
+    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None, mode = None):
+        self.save_file_content_and_backup(filename, content, None, as_user, user_password, mode)
 
     def _create_file(self, path, content):
         try:
@@ -1288,11 +1295,11 @@ class FileOpsLocalWindows(object): # Used for remote as well, if not using sftp
         return ret_val
 
     # content must be a string
-    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None):
-        self.save_file_content_and_backup(filename, content, None, as_user, user_password)
+    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None, mode = None):
+        self.save_file_content_and_backup(filename, content, None, as_user, user_password, mode)
 
 
-    def save_file_content_and_backup(self, filename, content, backup_extension, as_user = Users.CURRENT, user_password = None):
+    def save_file_content_and_backup(self, filename, content, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
         log_debug('%s: Saving file "%s" with backup (sudo="%s")\n' % (self.__class__.__name__, filename, str(as_user)) )
 
         # First saves the content to a temporary file
@@ -1461,8 +1468,8 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
             FileOpsLinuxBase.delete_file(self, path, as_user, user_password)
     
     #-----------------------------------------------------------------------------
-    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None):
-        self.save_file_content_and_backup(filename, content, None, as_user, user_password)
+    def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None, mode = None):
+        self.save_file_content_and_backup(filename, content, None, as_user, user_password, mode)
 
     #-----------------------------------------------------------------------------
     
@@ -1620,7 +1627,7 @@ class FileOpsRemoteWindows(object):
             if ret != 0:
                 raise RuntimeError(out)
 
-    def save_file_content_and_backup(self, path, content, backup_extension, as_user = Users.CURRENT, user_password = None):
+    def save_file_content_and_backup(self, path, content, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
         # Check if dir, where config file will be stored is writable
         dirname, filename = ntpath.split(path)
 
@@ -1803,18 +1810,18 @@ class ServerManagementHelper(object):
         return self.file.get_file_content(path, as_user=as_user, user_password=user_password, skip_lines=skip_lines)
 
     #-----------------------------------------------------------------------------
-    def set_file_content(self, path, contents, as_user = Users.CURRENT, user_password = None):
-        return self.file.save_file_content(path, contents, as_user=as_user, user_password=user_password)
+    def set_file_content(self, path, contents, as_user = Users.CURRENT, user_password = None, mode = None):
+        return self.file.save_file_content(path, contents, as_user=as_user, user_password=user_password, mode = mode)
 
     #-----------------------------------------------------------------------------
     def listdir(self, path, as_user = Users.CURRENT, user_password = None, include_size=False):
         return self.file.listdir(path, as_user, user_password, include_size=include_size)
 
     #-----------------------------------------------------------------------------
-    def set_file_content_and_backup(self, path, contents, backup_extension, as_user = Users.CURRENT, user_password = None):
+    def set_file_content_and_backup(self, path, contents, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
         if type(contents) is unicode:
             contents = contents.encode("utf8")
-        return self.file.save_file_content_and_backup(path, contents, backup_extension, as_user=as_user, user_password=user_password)
+        return self.file.save_file_content_and_backup(path, contents, backup_extension, as_user=as_user, user_password=user_password, mode = mode)
 
     #-----------------------------------------------------------------------------
     # Returns Status Code
