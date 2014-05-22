@@ -1986,7 +1986,14 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                       boost::bind(&bec::RefreshUI::do_partial_ui_refresh, this, (int)RefreshRecordsetTitle));
 
                     rs->data_storage(data_storage);
-                    rs->reset(true);
+
+                    {
+                      //We need this mutex, because reset(bool) is using aux_connection
+                      //to query bestrowidentifier.
+                      RecMutexLock aux_mtx(ensure_valid_aux_connection(_aux_dbc_conn));
+                      rs->reset(true);
+                    }
+
                     if (data_storage->valid()) // query statement
                     {
                       if (result_list_mutex)
