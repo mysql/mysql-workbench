@@ -24,5 +24,4 @@
 #include "DelegateWrapper.h"
 #include "GrtManager.h"
 
-#include "DBObjectEditorWrapper.h"
 #include "ViewEditorWrapper.h"

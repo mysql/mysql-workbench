@@ -20,7 +20,7 @@
 #include "grt/tree_model.h"
 
 #include "mysql_view_editor.h"
-#include "editor_base.h"
+#include "grt/editor_base.h"
 
 #include "mforms/code_editor.h"
 

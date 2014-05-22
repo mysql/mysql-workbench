@@ -999,16 +999,16 @@ void CodeEditor::on_notify(SCNotification* notification)
     _char_added_event(notification->ch);
     if (_auto_indent && notification->ch == '\n')
     {
-      int pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
-      int line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, pos, 0);
+      sptr_t pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
+      sptr_t line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, pos, 0);
       if (line > 0)
       {
-        int indentation = _code_editor_impl->send_editor(this, SCI_GETLINEINDENTATION, line - 1, 0);
+		  sptr_t indentation = _code_editor_impl->send_editor(this, SCI_GETLINEINDENTATION, line - 1, 0);
         if (indentation > 0)
         {
           // Switch off tabs for a moment. We don't want a mix of tabs and spaces auto inserted
           // and tabs mess up the new indentation.
-          int use_tabs = _code_editor_impl->send_editor(this, SCI_GETUSETABS, 0, 0);
+          sptr_t use_tabs = _code_editor_impl->send_editor(this, SCI_GETUSETABS, 0, 0);
           _code_editor_impl->send_editor(this, SCI_SETUSETABS, 0, 0);
 
           _code_editor_impl->send_editor(this, SCI_SETLINEINDENTATION, line, indentation);

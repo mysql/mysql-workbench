@@ -28,7 +28,7 @@ namespace MySQL.GUI.Workbench.Plugins
   {
     #region Member Variables
 
-    private MySQLRoutineEditorBE routineEditorBE { get { return Backend as MySQLRoutineEditorBE; } } 
+    private MySQLRoutineEditorWrapper routineEditorBE { get { return Backend as MySQLRoutineEditorWrapper; } } 
     private DbObjectEditorPages dbObjectEditorPages;
 
     #endregion
@@ -57,7 +57,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLRoutineEditorBE(GrtManager, value);
+        Backend = new MySQLRoutineEditorWrapper(GrtManager, value);
         dbObjectEditorPages = new DbObjectEditorPages(GrtManager, routineEditorBE);
         SetupEditorOnHost(panel2, true);
         routineEditorBE.load_routine_sql();

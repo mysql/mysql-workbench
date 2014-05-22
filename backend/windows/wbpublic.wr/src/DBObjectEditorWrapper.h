@@ -110,7 +110,7 @@ public:
   }
 
 private:
-  typedef void (*DBObjectEditorWrapper::VOID_STRINGVECTOR_CB)(const std::vector<std::string>&);
+  //typedef void (*DBObjectEditorWrapper::VOID_STRINGVECTOR_CB)(const std::vector<std::string>&);
 };
 
 } // namespace Db

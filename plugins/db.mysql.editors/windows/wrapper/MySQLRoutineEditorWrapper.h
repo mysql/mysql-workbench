@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef __MYSQL_VIEW_EDITOR_H__
-#define __MYSQL_VIEW_EDITOR_H__
+#pragma once
 
-#include "mysql_view_editor.h"
+#include "mysql_routine_editor.h"
 #include "GrtTemplates.h"
 #include "grtdb/db_object_helpers.h"
 
@@ -31,34 +30,30 @@ namespace MySQL {
 namespace Grt {
 namespace Db {
 
-public ref class MySQLViewEditorBE : public ViewEditorWrapper
+public ref class MySQLRoutineEditorWrapper : public RoutineEditorWrapper
 {
 protected:
-  MySQLViewEditorBE(::MySQLViewEditorBE *inn)
-    : ViewEditorWrapper(inn)
+  MySQLRoutineEditorWrapper(::MySQLRoutineEditorBE *inn)
+    : RoutineEditorWrapper(inn)
   {}
 
 public:
-  MySQLViewEditorBE::MySQLViewEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
-  : ViewEditorWrapper(
-      new ::MySQLViewEditorBE(grtm->get_unmanaged_object(), 
-      db_mysql_ViewRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0)),
-      get_rdbms_for_db_object(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+  MySQLRoutineEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+  : RoutineEditorWrapper(
+      new ::MySQLRoutineEditorBE(grtm->get_unmanaged_object(), 
+      db_mysql_RoutineRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
         )
       )
   {
   }
 
-  ::MySQLViewEditorBE *get_unmanaged_object()
-  { return static_cast<::MySQLViewEditorBE *>(inner); }
-
-  void load_view_sql();
+  ::MySQLRoutineEditorBE *get_unmanaged_object()
+  { return static_cast<::MySQLRoutineEditorBE *>(inner); }
+  
+  void load_routine_sql();
   void commit_changes();
-
 };
 
 } // namespace Db
 } // namespace Grt
 } // namespace MySQL
-
-#endif // __MYSQL_VIEW_EDITOR_H__

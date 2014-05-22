@@ -479,6 +479,16 @@ public:
     _refreshing = false;
   }
   
+  void select_trigger(size_t index)
+  {
+    _list.select_node(_list.node_at_row((int)index));
+
+    db_mysql_TableRef table = db_mysql_TableRef::cast_from(_editor->get_table());
+    grt::ListRef<db_mysql_Trigger> triggers(table->triggers());
+    if (index < triggers->count())
+      _selected_trigger = triggers[index];
+  }
+
   void reload_selected_trigger()
   {
     mforms::TreeNodeRef node = _list.get_selected_node();
@@ -529,6 +539,44 @@ public:
       refresh();
   }
 
+  void add_trigger(const std::string &timing, const std::string &event)
+  {
+    _editor->freeze_refresh_on_object_change();
+    AutoUndoEdit undo(_editor);
+
+    db_mysql_TriggerRef trigger = db_mysql_TriggerRef(_editor->get_grt());
+    trigger->owner(_editor->get_table());
+    trigger->name(base::strfmt("%s_%c%s", _editor->get_name().c_str(),
+      timing[0], event.substr(0, 3).c_str()));
+    trigger->event(event);
+
+    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
+    trigger->timing(timing);
+    triggers.insert(trigger);
+
+    undo.end(base::strfmt("Added trigger to %s.%s", _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
+
+    mforms::TreeNodeRef node = _list.get_selected_node();
+    if (node.is_valid())
+      node->set_string(0, trigger->name());
+    _editor->thaw_refresh_on_object_change(true);
+  }
+
+  void delete_trigger(db_TriggerRef trigger)
+  {
+    _editor->freeze_refresh_on_object_change();
+    AutoUndoEdit undo(_editor);
+
+    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
+    triggers.remove_value(trigger);
+    undo.end(base::strfmt("Delete trigger %s", trigger->name().c_str()));
+
+    mforms::TreeNodeRef node = _list.get_selected_node();
+    if (node.is_valid())
+      node->set_string(0, "-");
+    _editor->thaw_refresh_on_object_change(true);
+  }
+
   void clicked()
   {
     std::string timing, event;
@@ -548,30 +596,10 @@ public:
       }
       
       if (trigger.is_valid())
-      {
-        _editor->freeze_refresh_on_object_change();
-        AutoUndoEdit undo(_editor);
-        triggers.remove_value(trigger);
-        undo.end(base::strfmt("Delete trigger %s", trigger->name().c_str()));
-        
-        node->set_string(0, "-");
-        _editor->thaw_refresh_on_object_change(true);
-      }
+        delete_trigger(trigger);
       else
-      {
-        _editor->freeze_refresh_on_object_change();
-        AutoUndoEdit undo(_editor);
-        trigger = db_mysql_TriggerRef(_editor->get_grt());
-        trigger->owner(_editor->get_table());
-        trigger->name(base::strfmt("%s_%c%s", _editor->get_name().c_str(),
-                                   timing[0], event.substr(0, 3).c_str()));
-        trigger->event(event);
-        trigger->timing(timing);
-        triggers.insert(trigger);
-        undo.end(base::strfmt("Added trigger to %s.%s", _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
-        node->set_string(0, trigger->name());
-        _editor->thaw_refresh_on_object_change(true);
-      }
+        add_trigger(event, timing);
+
       update_editor();
     }
   }
@@ -699,15 +727,21 @@ MySQLTableEditorBE::MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRe
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 MySQLTableEditorBE::~MySQLTableEditorBE()
 {
   delete _trigger_panel;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void MySQLTableEditorBE::commit_changes()
 {
   _trigger_panel->code_edited();
 }
+
+//--------------------------------------------------------------------------------------------------
 
 mforms::View *MySQLTableEditorBE::get_trigger_panel()
 {
@@ -716,6 +750,29 @@ mforms::View *MySQLTableEditorBE::get_trigger_panel()
   return _trigger_panel;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+/**
+* Programmatically add a new trigger (used for testing).
+*/
+void MySQLTableEditorBE::add_trigger(const std::string &timing, const std::string &event)
+{
+  get_trigger_panel();
+  _trigger_panel->add_trigger(timing, event);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Programmatically set the current trigger (used for testing).
+ */
+void MySQLTableEditorBE::select_trigger(size_t index)
+{
+  get_trigger_panel();
+  _trigger_panel->select_trigger(index);
+}
+
+//--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> MySQLTableEditorBE::get_index_types()
 {
@@ -952,7 +1009,6 @@ void MySQLTableEditorBE::load_trigger_sql()
     _updating_triggers = false;
   }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 

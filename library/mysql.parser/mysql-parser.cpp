@@ -593,8 +593,8 @@ bool MySQLRecognizerTreeWalker::advance_to_position(int line, int offset)
   if (_token_list.size() == 0)
     return false;
 
-  pANTLR3_BASE_TREE current = _tree;
-  for (size_t i = 0; i < _token_list.size(); i++)
+  size_t i = 0;
+  for (; i < _token_list.size(); i++)
   {
     pANTLR3_BASE_TREE run = _token_list[i];
     ANTLR3_UINT32 token_line = run->getLine(run);
@@ -621,10 +621,8 @@ bool MySQLRecognizerTreeWalker::advance_to_position(int line, int offset)
     }
   }
 
-  // If the loop didn't reach a token after the given position then we are
-  // within or after the last token.
-  if (current == _tree)
-    _tree = _token_list[_token_list.size() - 1];
+  if (i == _token_list.size())
+    _tree = _token_list[i - 1]; // Nothing found, take the last token instead.
 
   return true;
 }
@@ -1340,6 +1338,13 @@ void MySQLRecognizer::set_sql_mode(const std::string &new_mode)
 void MySQLRecognizer::set_server_version(long new_version)
 {
   d->_context.version = new_version;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+long MySQLRecognizer::server_version()
+{
+  return d->_context.version;
 }
 
 //--------------------------------------------------------------------------------------------------

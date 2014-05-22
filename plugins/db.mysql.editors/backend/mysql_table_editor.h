@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_TABLE_EDITOR_H_
-#define _MYSQL_TABLE_EDITOR_H_
+#pragma once
 
 #include "grtdb/editor_table.h"
 #include "grts/structs.workbench.physical.h"
@@ -140,11 +139,12 @@ public:
   
   virtual bool check_column_referenceable_by_fk(const db_ColumnRef &column1, const db_ColumnRef &column2);
 
-  // interactive functions
   void load_trigger_sql();
 
   // triggers
   mforms::View *get_trigger_panel();
+  void add_trigger(const std::string &timing, const std::string &event);
+  void select_trigger(size_t index);
 
   virtual bool can_close();
 
@@ -190,5 +190,3 @@ protected:
   
   void reset_partition_definitions(int parts, int subparts);
 };
-
-#endif /* _MYSQL_TABLE_EDITOR_H_ */

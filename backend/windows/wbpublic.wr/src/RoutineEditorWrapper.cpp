@@ -18,81 +18,71 @@
  */
 
 #include "Grt.h"
-#include "GrtTemplates.h"
-#include "DelegateWrapper.h"
 #include "GrtManager.h"
 
+#include "DelegateWrapper.h"
 #include "DBObjectEditorWrapper.h"
-#include "grts/structs.workbench.physical.h"
 
-#include "RoutineEditorBE.h"
+#include "RoutineEditorWrapper.h"
+
+#include "grtdb/editor_routine.h"
 
 using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-RoutineEditorBE::RoutineEditorBE(::bec::RoutineEditorBE *inn)
+RoutineEditorWrapper::RoutineEditorWrapper(::bec::RoutineEditorBE *inn)
   : DBObjectEditorWrapper(inn)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-::bec::RoutineEditorBE *RoutineEditorBE::get_unmanaged_object()
+::bec::RoutineEditorBE *RoutineEditorWrapper::get_unmanaged_object()
 {
   return static_cast<::bec::RoutineEditorBE *>(inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ RoutineEditorBE::get_sql()
+String^ RoutineEditorWrapper::get_sql()
 {
   return CppStringToNative(get_unmanaged_object()->get_sql());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void RoutineEditorBE::set_sql(String ^query, bool sync)
+void RoutineEditorWrapper::set_sql(String ^query)
 {
-  get_unmanaged_object()->set_sql(NativeToCppString(query), sync);
+  get_unmanaged_object()->set_sql(NativeToCppString(query));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ RoutineEditorBE::get_name()
+String^ RoutineEditorWrapper::get_name()
 {
   return CppStringToNative(get_unmanaged_object()->get_name());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void RoutineEditorBE::set_name(String ^name)
+void RoutineEditorWrapper::set_name(String ^name)
 {
   get_unmanaged_object()->set_name(NativeToCppString(name));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ RoutineEditorBE::get_comment()
+String^ RoutineEditorWrapper::get_comment()
 {
   return CppStringToNative(get_unmanaged_object()->get_comment());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void RoutineEditorBE::set_comment(String ^comment)
+void RoutineEditorWrapper::set_comment(String ^comment)
 {
   get_unmanaged_object()->set_comment(NativeToCppString(comment));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-String^ RoutineEditorBE::get_formatted_sql_for_editing([Out] int %cursor_pos)
-{ 
-  int cpos= cursor_pos; 
-  String ^res= CppStringToNative(get_unmanaged_object()->get_formatted_sql_for_editing(cpos)); 
-  cursor_pos= cpos;
-  return res;
 }
 
 //--------------------------------------------------------------------------------------------------

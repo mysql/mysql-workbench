@@ -19,25 +19,24 @@
 
 #include "grts/structs.workbench.physical.h"
 
-#include "MySQLRoutineGroupEditorBE.h"
+#include "MySQLRoutineGroupEditorWrapper.h"
 
 using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQL::Grt::Db::MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(::MySQLRoutineGroupEditorBE *inn)
-  : RoutineGroupEditorBE(inn)
+MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::MySQLRoutineGroupEditorWrapper(::MySQLRoutineGroupEditorBE *inn)
+  : RoutineGroupEditorWrapper(inn)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-MySQL::Grt::Db::MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
-  : RoutineGroupEditorBE
+MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::MySQLRoutineGroupEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+  : RoutineGroupEditorWrapper
     (
       new ::MySQLRoutineGroupEditorBE(grtm->get_unmanaged_object(), 
-        db_mysql_RoutineGroupRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0)), 
-        get_rdbms_for_db_object(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+        db_mysql_RoutineGroupRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {
@@ -45,35 +44,21 @@ MySQL::Grt::Db::MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(MySQL::Grt:
 
 //--------------------------------------------------------------------------------------------------
 
-::MySQLRoutineGroupEditorBE *MySQL::Grt::Db::MySQLRoutineGroupEditorBE::get_unmanaged_object()
+::MySQLRoutineGroupEditorBE *MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::get_unmanaged_object()
 {
   return static_cast<::MySQLRoutineGroupEditorBE *>(inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-String^ MySQL::Grt::Db::MySQLRoutineGroupEditorBE::get_procedure_body()
-{
-  return CppStringToNative(get_unmanaged_object()->get_procedure_body());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-String^ MySQL::Grt::Db::MySQLRoutineGroupEditorBE::get_function_body()
-{
-  return CppStringToNative(get_unmanaged_object()->get_function_body());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void MySQL::Grt::Db::MySQLRoutineGroupEditorBE::load_routines_sql()
+void MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::load_routines_sql()
 {
   get_unmanaged_object()->load_routines_sql();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQL::Grt::Db::MySQLRoutineGroupEditorBE::commit_changes()
+void MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::commit_changes()
 {
   get_unmanaged_object()->commit_changes();
 }

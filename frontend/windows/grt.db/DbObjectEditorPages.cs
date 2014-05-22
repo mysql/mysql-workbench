@@ -31,7 +31,7 @@ namespace MySQL.GUI.Workbench.Plugins
     private GrtManager grtManager;
     private DBObjectEditorWrapper dbObjectEditorBE;
 
-    private ObjectRoleListBE objectRoleListBE;
+    private ObjectRoleListWrapper objectRoleListBE;
     private SimpleGrtListModel objectRoleListModel;
 
     private ObjectPrivilegeListBE objectPrivsListBE;
@@ -56,9 +56,9 @@ namespace MySQL.GUI.Workbench.Plugins
       roleTreeModel.AddColumn(allRolesNameNodeControl, (int)RoleTreeBE.Columns.Name, false);
       allRolesTreeView.Model = roleTreeModel;
 
-      objectRoleListBE = new ObjectRoleListBE(dbObjectEditorBE);
+      objectRoleListBE = new ObjectRoleListWrapper(dbObjectEditorBE);
       objectRoleListModel = new SimpleGrtListModel(rolesTreeView, objectRoleListBE, false);
-      objectRoleListModel.AddColumn(roleNameNodeControl, (int)ObjectRoleListBE.Columns.Name, false);
+      objectRoleListModel.AddColumn(roleNameNodeControl, (int)ObjectRoleListWrapper.Columns.Name, false);
       rolesTreeView.Model = objectRoleListModel;
 
       objectPrivsListBE = objectRoleListBE.get_privilege_list();

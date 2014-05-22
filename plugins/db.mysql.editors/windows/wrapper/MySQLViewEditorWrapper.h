@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef __ROUTINE_EDITOR_H__
-#define __ROUTINE_EDITOR_H__
+#pragma once
 
-#include "mysql_routine_editor.h"
+#include "mysql_view_editor.h"
 #include "GrtTemplates.h"
 #include "grtdb/db_object_helpers.h"
 
@@ -31,36 +30,31 @@ namespace MySQL {
 namespace Grt {
 namespace Db {
 
-public ref class MySQLRoutineEditorBE : public RoutineEditorBE
+public ref class MySQLViewEditorWrapper : public ViewEditorWrapper
 {
 protected:
-  MySQLRoutineEditorBE(::MySQLRoutineEditorBE *inn)
-    : RoutineEditorBE(inn)
+  MySQLViewEditorWrapper(::MySQLViewEditorBE *inn)
+    : ViewEditorWrapper(inn)
   {}
 
 public:
-  MySQLRoutineEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
-  : RoutineEditorBE(
-      new ::MySQLRoutineEditorBE(grtm->get_unmanaged_object(), 
-      db_mysql_RoutineRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0)), 
-      get_rdbms_for_db_object(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+  MySQLViewEditorWrapper::MySQLViewEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+  : ViewEditorWrapper(
+      new ::MySQLViewEditorBE(grtm->get_unmanaged_object(), 
+      db_mysql_ViewRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
         )
       )
   {
   }
 
-  ::MySQLRoutineEditorBE *get_unmanaged_object()
-  { return static_cast<::MySQLRoutineEditorBE *>(inner); }
-  
-  String^ get_sql_definition_header()
-  { return CppStringToNative(get_unmanaged_object()->get_sql_definition_header()); }
+  ::MySQLViewEditorBE *get_unmanaged_object()
+  { return static_cast<::MySQLViewEditorBE *>(inner); }
 
-  void load_routine_sql();
+  void load_view_sql();
   void commit_changes();
+
 };
 
 } // namespace Db
 } // namespace Grt
 } // namespace MySQL
-
-#endif // __ROUTINE_EDITOR_H__

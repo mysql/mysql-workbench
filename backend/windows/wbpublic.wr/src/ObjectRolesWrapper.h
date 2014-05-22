@@ -17,20 +17,18 @@
  * 02110-1301  USA
  */
 
-#ifndef __OBJECT_ROLES_BE_H__
-#define __OBJECT_ROLES_BE_H__
+#pragma once
 
-#include "DBObjectEditorWrapper.h"
-#include "GrtTemplates.h"
-#include "grtdb/dbobject_roles.h"
+#include "ModelWrappers.h"
 
 namespace MySQL {
 namespace Grt {
 namespace Db {
 
 ref class ObjectPrivilegeListBE;
+ref class DBObjectEditorWrapper;
 
-public ref class ObjectRoleListBE : public MySQL::Grt::ListModelWrapper
+public ref class ObjectRoleListWrapper : public MySQL::Grt::ListModelWrapper
 {
 public:
   enum class Columns {
@@ -38,11 +36,9 @@ public:
   };
 
 public:
-  ObjectRoleListBE(DBObjectEditorWrapper^ editor)
-    : MySQL::Grt::ListModelWrapper(new ::bec::ObjectRoleListBE(editor->get_unmanaged_object()))
-  {}
+  ObjectRoleListWrapper(DBObjectEditorWrapper^ editor);
 
-  ~ObjectRoleListBE()
+  ~ObjectRoleListWrapper()
   {
     delete inner;
   }
@@ -91,5 +87,3 @@ public:
 } // namespace Db
 } // namespace Grt
 } // namespace MySQL
-
-#endif // __OBJECT_ROLES_BE_H__

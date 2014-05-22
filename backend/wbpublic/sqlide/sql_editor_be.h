@@ -38,7 +38,7 @@
 #endif
 
 #include "grtsqlparser/mysql_parser_services.h"
-#include "db_helpers.h"
+#include "grtdb/db_helpers.h"
 
 namespace bec {
   class GRTManager;
@@ -250,6 +250,8 @@ public:
 
 protected:
   MySQLEditor(grt::GRT *grt, parser::ParserContext::Ref context);
+
+  parser::ParserContext::Ref get_parser_context();
 
 private:
   class Private;

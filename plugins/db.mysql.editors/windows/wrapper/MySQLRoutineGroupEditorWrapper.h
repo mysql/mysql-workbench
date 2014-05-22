@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __MYSQL_ROUTINE_GROUP_EDITOR_H__
-#define __MYSQL_ROUTINE_GROUP_EDITOR_H__
+#pragma once
 
 #include "mysql_routinegroup_editor.h"
 #include "GrtTemplates.h"
@@ -31,17 +30,15 @@ namespace MySQL {
 namespace Grt {
 namespace Db {
 
-public ref class MySQLRoutineGroupEditorBE : public RoutineGroupEditorBE
+public ref class MySQLRoutineGroupEditorWrapper : public RoutineGroupEditorWrapper
 {
 protected:
-  MySQLRoutineGroupEditorBE(::MySQLRoutineGroupEditorBE *inn);
+  MySQLRoutineGroupEditorWrapper(::MySQLRoutineGroupEditorBE *inn);
 
 public:
-  MySQLRoutineGroupEditorBE(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  MySQLRoutineGroupEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
 
   ::MySQLRoutineGroupEditorBE *get_unmanaged_object();
-  String^ get_procedure_body();
-  String^ get_function_body();
   void load_routines_sql();
   void commit_changes();
 };
@@ -49,5 +46,3 @@ public:
 } // namespace Db
 } // namespace Grt
 } // namespace MySQL
-
-#endif // __MYSQL_ROUTINE_GROUP_EDITOR_H__

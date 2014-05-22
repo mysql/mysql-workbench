@@ -36,7 +36,7 @@ ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version
 
   // 3 character sets were added in version 5.5.3. Remove them from the list if the current version
   // is lower than that.
-  long server_version;
+  ssize_t server_version;
   if (version.is_valid())
   {
     server_version = version->majorNumber() * 10000;
@@ -56,7 +56,7 @@ ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version
     filtered_charsets.erase("utf32");
   }
   
-  _recognizer = new MySQLRecognizer(server_version, "", filtered_charsets);
+  _recognizer = new MySQLRecognizer((long)server_version, "", filtered_charsets);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ void ParserContext::use_server_version(GrtVersionRef version)
 {
   _version = version;
   
-  long server_version;
+  ssize_t server_version;
   if (version.is_valid())
   {
     server_version = version->majorNumber() * 10000;
@@ -92,7 +92,7 @@ void ParserContext::use_server_version(GrtVersionRef version)
   }
   else
     server_version = 50501; // Assume some reasonable default (5.5.1).
-  _recognizer->set_server_version(server_version);
+  _recognizer->set_server_version((long)server_version);
 }
 
 //--------------------------------------------------------------------------------------------------

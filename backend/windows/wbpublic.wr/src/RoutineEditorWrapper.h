@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,16 +17,27 @@
  * 02110-1301  USA
  */
 
-#include "Grt.h"
-#include "GrtTemplates.h"
-#include "DelegateWrapper.h"
-#include "GrtManager.h"
+#pragma once
 
-#include "ObjectRolesBE.h"
+namespace MySQL {
+namespace Grt {
+namespace Db {
 
-using namespace MySQL::Grt::Db;
-
-ObjectPrivilegeListBE^ ObjectRoleListBE::get_privilege_list()
+public ref class RoutineEditorWrapper : public DBObjectEditorWrapper
 {
-  return gcnew ObjectPrivilegeListBE(get_unmanaged_object()->get_privilege_list());
-}
+protected:
+  RoutineEditorWrapper(::bec::RoutineEditorBE *inn);
+
+public:
+  ::bec::RoutineEditorBE *get_unmanaged_object();
+  String^ get_sql();
+  void set_sql(String ^query);
+  String^ get_name();
+  void set_name(String ^name);
+  String^ get_comment();
+  void set_comment(String ^comment);
+};
+
+} // namespace Db
+} // namespace Grt
+} // namespace MySQL
