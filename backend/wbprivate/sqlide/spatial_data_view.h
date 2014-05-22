@@ -25,6 +25,7 @@
 #include "sqlide/recordset_be.h"
 
 #include "mforms/box.h"
+#include "mforms/utilities.h"
 
 namespace mforms
 {
@@ -70,10 +71,13 @@ private:
 
 public:
   SpatialDataView(SqlEditorResult *owner);
+  virtual ~SpatialDataView();
 
   mforms::ToolBar *get_toolbar() { return _toolbar; }
 
   void set_geometry_columns(const std::vector<SpatialDataSource> &columns);
+
+  void activate();
 };
 
 #endif /* defined(__MySQLWorkbench__spatial_data_view__) */

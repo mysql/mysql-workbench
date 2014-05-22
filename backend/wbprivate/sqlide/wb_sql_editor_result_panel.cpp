@@ -726,6 +726,10 @@ void SqlEditorResult::switch_tab()
   {
 
   }
+  else if (tab == _spatial_result_tab)
+  {
+    _spatial_result_view->activate();
+  }
 }
 
 
