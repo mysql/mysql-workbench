@@ -120,7 +120,7 @@ namespace mforms
 #ifndef SWIG
     void set_menu_tab(int tab);
 
-    void reordered(View *view, int index); //XXX windows
+    void reordered(View *view, int index);
 
     /** Signal emitted when the tab is switched by user.
      
