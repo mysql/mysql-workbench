@@ -31,6 +31,8 @@
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/file_functions.h"
+#include "base/util_functions.h"
+
 #include "mforms/utilities.h"
 
 #include "grt/common.h"
@@ -60,7 +62,7 @@
 #define DB_DIR "@db"
 #define DB_FILE "data.db"
 
-#define ZIP_FILE_COMMENT DOCUMENT_FORMAT" archive "ZIP_FILE_FORMAT
+#define ZIP_FILE_COMMENT DOCUMENT_FORMAT " archive " ZIP_FILE_FORMAT
 
 
 
@@ -326,7 +328,7 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
                                         base::strfmt(_("The document %s was not properly closed in a previous session on %s.\n"
                                                        "The file you're about to open was last saved %s.\n"
                                                        "Would you like to use the recovered model? Continuing without recovering will remove the auto-saved data."),
-                                                     path.c_str(), bec::fmttime(autosave_ts, DATETIME_FMT).c_str(), bec::fmttime(file_ts, DATETIME_FMT).c_str()),
+                                                     path.c_str(), base::fmttime(autosave_ts, DATETIME_FMT).c_str(), base::fmttime(file_ts, DATETIME_FMT).c_str()),
                                         _("Recover"), _("Continue"), "") == mforms::ResultOk)
     {
       g_message("Recovering %s...", path.c_str());

@@ -19,30 +19,22 @@
 
 #include "grt/grt_dispatcher.h"
 #include "mysql_routine_editor.h"
-#include "grtsqlparser/sql_facade.h"
 
 #include "mforms/code_editor.h"
 
-static void commit_changes_to_be(MySQLRoutineEditorBE *be) {
-  be->commit_changes();
-}
+using namespace bec;
 
-MySQLRoutineEditorBE::MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine, const db_mgmt_RdbmsRef &rdbms)
-  : RoutineEditorBE(grtm, routine, rdbms)
+//--------------------------------------------------------------------------------------------------
+
+MySQLRoutineEditorBE::MySQLRoutineEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineRef &routine)
+  : RoutineEditorBE(grtm, routine)
 {
+  _routine = routine;
+  
   // In modeling we apply the text on focus change. For live editing however we don't.
   // The user has to explicitly commit his changes.
   if (!is_editing_live_object())
-    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(),boost::bind(&commit_changes_to_be,this));
-}
-
-std::string MySQLRoutineEditorBE::get_sql_definition_header()
-{
-  return "-- --------------------------------------------------------------------------------\n"
-    "-- Routine DDL\n"
-    "-- Note: comments before and after the routine body will not be stored by the server\n"
-    "-- --------------------------------------------------------------------------------\n"
-    "DELIMITER " + _non_std_sql_delimiter + "\n\n";
+    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), boost::bind(&MySQLRoutineEditorBE::commit_changes, this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,13 +46,6 @@ void MySQLRoutineEditorBE::load_routine_sql()
 {
   mforms::CodeEditor* editor = get_sql_editor()->get_editor_control();
   std::string sql = get_sql();
-  if (sql.empty())
-  {
-    int cursor_pos;
-    sql = get_sql_template("", cursor_pos);
-  }
-  sql = get_sql_definition_header().append(sql);
-  
   editor->set_text_keeping_state(sql.c_str());
 }
 
@@ -72,14 +57,25 @@ void MySQLRoutineEditorBE::commit_changes()
   if (editor->is_dirty())
   {
     const std::string sql = editor->get_text(false);
-    set_sql(sql, true);
+    if (sql != get_sql())
+    {
+      AutoUndoEdit undo(this, _routine, "sql");
+
+      freeze_refresh_on_object_change();
+      _parser_services->parseRoutine(_parser_context, _routine, sql);
+      thaw_refresh_on_object_change();
+
+      undo.end(base::strfmt(_("Edit routine `%s` of `%s`.`%s`"), _routine->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+    }
   }
 }
 
 //--------------------------------------------------------------------------------------------------
+
 bool MySQLRoutineEditorBE::can_close()
 {
   commit_changes();
   return RoutineEditorBE::can_close();
 }
 
+//--------------------------------------------------------------------------------------------------

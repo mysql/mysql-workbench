@@ -356,7 +356,7 @@ bool SynchronizeDifferencesPage::pre_load()
     for (size_t i = 0; i < _diff_tree->count(); ++i)
     {
       bec::NodeId schema(i);
-      mforms::TreeNodeRef schema_node = root->get_child(i);
+      mforms::TreeNodeRef schema_node = root->get_child((int)i);
       for (size_t j = 0; j  < _diff_tree->count_children(schema); ++j)
       {
         bec::NodeId object(_diff_tree->get_child(schema, j));
@@ -365,7 +365,7 @@ bool SynchronizeDifferencesPage::pre_load()
           schema_node->expand();
 
         // Expand the object node if it contains sub nodes with changes.
-        mforms::TreeNodeRef object_node = schema_node->get_child(j);
+        mforms::TreeNodeRef object_node = schema_node->get_child((int)j);
         for (size_t k = 0; k < _diff_tree->count_children(object); ++k)
         {
           if (_diff_tree->get_apply_direction(_diff_tree->get_child(object, k)) != DiffNode::CantApply)

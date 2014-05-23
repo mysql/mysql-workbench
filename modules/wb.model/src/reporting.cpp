@@ -29,6 +29,7 @@
 #include "base/string_utilities.h"
 #include "base/geometry.h"
 #include "base/log.h"
+#include "base/util_functions.h"
 
 #include "mforms/code_editor.h"
 
@@ -609,20 +610,14 @@ void fillTriggerDict(const db_mysql_TriggerRef& trigger, const db_mysql_TableRef
 {
   trigger_dict->SetValue(REPORT_TRIGGER_NAME, *trigger->name());
   trigger_dict->SetValue(REPORT_TRIGGER_TIMING, *trigger->timing());
-  trigger_dict->SetValue(REPORT_TRIGGER_CONDITION, *trigger->condition());
   trigger_dict->SetValue(REPORT_TRIGGER_ENABLED, (trigger->enabled() == 1) ? "yes" : "no");
   
   trigger_dict->SetValue(REPORT_TABLE_NAME, table->name().c_str());
   trigger_dict->SetValue(REPORT_TRIGGER_DEFINER, *trigger->definer());
   trigger_dict->SetValue(REPORT_TRIGGER_EVENT, *trigger->event());
-  trigger_dict->SetIntValue(REPORT_TRIGGER_ORDER, *trigger->order());
-  trigger_dict->SetIntValue(REPORT_TRIGGER_CONDITION, *trigger->order());
+  trigger_dict->SetValue(REPORT_TRIGGER_ORDER, *trigger->ordering());
+  trigger_dict->SetValue(REPORT_TRIGGER_OTHER_TRIGGER, *trigger->otherTrigger());
   trigger_dict->SetValue(REPORT_TRIGGER_TIMING, *trigger->timing());
-  trigger_dict->SetValue(REPORT_TRIGGER_ORIENTATION, *trigger->orientation());
-  trigger_dict->SetValue(REPORT_TRIGGER_REFERENCE_NEW_ROW, *trigger->referenceNewRow());
-  trigger_dict->SetValue(REPORT_TRIGGER_REFERENCE_NEW_TABLE, *trigger->referenceNewTable());
-  trigger_dict->SetValue(REPORT_TRIGGER_REFERENCE_OLD_ROW, *trigger->referenceOldRow());
-  trigger_dict->SetValue(REPORT_TRIGGER_REFERENCE_OLD_TABLE, *trigger->referenceOldTable());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1000,7 +995,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   // Set some global project info.
   main_dict.SetValue(REPORT_TITLE, title);
 
-  string time= bec::fmttime(0, DATETIME_FMT);
+  string time= base::fmttime(0, DATETIME_FMT);
   main_dict.SetValue(REPORT_GENERATED, time);
 
   workbench_DocumentRef document= workbench_DocumentRef::cast_from(model->owner());

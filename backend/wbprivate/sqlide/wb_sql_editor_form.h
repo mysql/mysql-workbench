@@ -94,7 +94,7 @@ public:
   {
   public:
     boost::shared_ptr<SqlEditorResult> result_panel;
-    Sql_editor::Ptr editor;
+    MySQLEditor::Ptr editor;
     std::string generator_query;
 
     double duration;
@@ -162,16 +162,16 @@ public:
   
 public:
 
-  Sql_editor::Ref active_sql_editor();
-  Sql_editor::Ref sql_editor(int index);
-  int sql_editor_index(Sql_editor::Ref);
+  MySQLEditor::Ref active_sql_editor();
+  MySQLEditor::Ref sql_editor(int index);
+  int sql_editor_index(MySQLEditor::Ref);
   std::string sql_editor_path(int index) { return _sql_editors[index]->filename; }
   std::string sql_editor_caption(int index=-1);
   void sql_editor_caption(int new_index, std::string caption);
   bool sql_editor_is_scratch(int index) { return _sql_editors[index]->is_scratch; }
   bool sql_editor_start_collapsed(int index);
   bool sql_editor_will_close(int index);
-  bool sql_editor_reorder(Sql_editor::Ref, int new_index);
+  bool sql_editor_reorder(MySQLEditor::Ref, int new_index);
   void sql_editor_open_file(int index, const std::string &file_path, const std::string &encoding= "");
   boost::shared_ptr<mforms::ToolBar> sql_editor_toolbar(int index) { return _sql_editors[index]->toolbar; }
 
@@ -179,15 +179,15 @@ private:
   int sql_editor_index_for_recordset(long rset);
   RecordsetsRef sql_editor_recordsets(const int index);
 
-  struct Sql_editor_info {
-    typedef boost::shared_ptr<Sql_editor_info> Ref;
+  struct EditorInfo {
+    typedef boost::shared_ptr<EditorInfo> Ref;
     
     boost::shared_ptr<mforms::ToolBar> toolbar;
     std::string filename;
     std::string autosave_filename;
     std::string orig_encoding;
     std::string caption;
-    Sql_editor::Ref editor;
+    MySQLEditor::Ref editor;
     RecordsetsRef recordsets;
     boost::shared_ptr<SqlEditorResult> active_result;
     base::Mutex recordset_mutex;
@@ -197,21 +197,21 @@ private:
     bool start_collapsed;
     bool busy;
     
-    Sql_editor_info() : rs_sequence(0), is_scratch(false), start_collapsed(false), busy(false) { memset(&file_timestamp, 0, sizeof(file_timestamp)); }
+    EditorInfo() : rs_sequence(0), is_scratch(false), start_collapsed(false), busy(false) { memset(&file_timestamp, 0, sizeof(file_timestamp)); }
   };
-  typedef std::vector<Sql_editor_info::Ref> Sql_editors;
+  typedef std::vector<EditorInfo::Ref> Sql_editors;
   Sql_editors _sql_editors;
   int _sql_editors_serial;
   int _scratch_editors_serial;
   base::Mutex _sql_editors_mutex;
   
-  boost::shared_ptr<mforms::ToolBar> setup_editor_toolbar(Sql_editor::Ref editor);
+  boost::shared_ptr<mforms::ToolBar> setup_editor_toolbar(MySQLEditor::Ref editor);
   void set_editor_tool_items_enbled(const std::string &name, bool flag);
   void set_editor_tool_items_checked(const std::string &name, bool flag);
 public:
   void set_tool_item_checked(const std::string &name, bool flag);
 
-  boost::signals2::signal<void (Sql_editor::Ref, bool)> sql_editor_list_changed;
+  boost::signals2::signal<void (MySQLEditor::Ref, bool)> sql_editor_list_changed;
 
   int run_sql_in_scratch_tab(const std::string &sql, bool reuse_if_possible, bool start_collapsed);
   int add_sql_editor(bool scratch = false, bool start_collapsed = false); // returns index of the added sql_editor
@@ -220,7 +220,7 @@ public:
   int active_sql_editor_index() { return _active_sql_editor_index; }
   void active_sql_editor_index(int val);
   
-  Sql_editor::Ref active_sql_editor_or_new_scratch();
+  MySQLEditor::Ref active_sql_editor_or_new_scratch();
 
   virtual mforms::DragOperation drag_over(mforms::View *sender, base::Point p, const std::vector<std::string> &formats);
   virtual mforms::DragOperation files_dropped(mforms::View *sender, base::Point p, const std::vector<std::string> &file_names);
@@ -326,9 +326,9 @@ private:
   void on_cache_action(bool active);
 
 public:
-  bool exec_editor_sql(Sql_editor::Ref editor, bool sync, bool current_statement_only = false,
+  bool exec_editor_sql(MySQLEditor::Ref editor, bool sync, bool current_statement_only = false,
     bool wrap_with_non_std_delimiter = false, bool dont_add_limit_clause = false);
-  void exec_sql_retaining_editor_contents(const std::string &sql_script, Sql_editor::Ref editor, bool sync, bool dont_add_limit_clause= false);
+  void exec_sql_retaining_editor_contents(const std::string &sql_script, MySQLEditor::Ref editor, bool sync, bool dont_add_limit_clause= false);
 
   RecordsetsRef exec_sql_returning_results(const std::string &sql_script, bool dont_add_limit_clause);
 
@@ -351,7 +351,7 @@ private:
   void update_live_schema_tree(const std::string &sql);
 
   grt::StringRef do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::shared_ptr<std::string> sql,
-    Sql_editor::Ref editor, ExecFlags flags, RecordsetsRef result_list);
+    MySQLEditor::Ref editor, ExecFlags flags, RecordsetsRef result_list);
   void do_explain_sql(const std::string &sql);
 
   void handle_command_side_effects(const std::string &sql);
@@ -408,7 +408,7 @@ private:
   void recall_recordset_query(Recordset::Ptr rs_ptr);
   void update_editor_title_schema(const std::string& schema);
 
-  void on_recordset_context_menu_show(Recordset::Ptr rs_ptr, Sql_editor::Ptr editor_ptr);
+  void on_recordset_context_menu_show(Recordset::Ptr rs_ptr, MySQLEditor::Ptr editor_ptr);
 public:  
   bool can_close();
   bool can_close_(bool interactive);

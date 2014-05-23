@@ -176,7 +176,6 @@ reset	(pANTLR3_BASE_RECOGNIZER rec)
 {
     pANTLR3_LEXER   lexer;
 
-    // ml: cast added.
     lexer   = (pANTLR3_LEXER)rec->super;
 
     lexer->rec->state->token			    = NULL;
@@ -344,12 +343,12 @@ nextToken	    (pANTLR3_TOKEN_SOURCE toksource)
 	// stream we just consumed, otherwise we will return EOF
 	// on the reinstalled input stream, when in actual fact
 	// there might be more input streams to POP before the
-	// real EOF of the whole logical inptu stream. Hence we
-	// use a while loop here until we find somethign in the stream
+	// real EOF of the whole logical input stream. Hence we
+	// use a while loop here until we find something in the stream
 	// that isn't EOF or we reach the actual end of the last input
 	// stream on the stack.
 	//
-	while	(tok->type == ANTLR3_TOKEN_EOF)
+	while	((tok != NULL) && (tok->type == ANTLR3_TOKEN_EOF))
 	{
 		pANTLR3_LEXER   lexer;
 
@@ -650,6 +649,7 @@ emit	    (pANTLR3_LEXER lexer)
     * trying to emit a new token.
     */
     token   = lexer->rec->state->tokFactory->newToken(lexer->rec->state->tokFactory);
+	if (token == NULL) { return NULL; }
 
     /* Install the supplied information, and some other bits we already know
     * get added automatically, such as the input stream it is associated with

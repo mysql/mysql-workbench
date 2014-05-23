@@ -65,7 +65,7 @@ static	void                    factoryReset    (pANTLR3_TOKEN_FACTORY factory);
 
 /* Internal management functions
  */
-static	void			newPool		(pANTLR3_TOKEN_FACTORY factory);
+static	ANTLR3_BOOLEAN			newPool		(pANTLR3_TOKEN_FACTORY factory);
 static	pANTLR3_COMMON_TOKEN    newPoolToken	(pANTLR3_TOKEN_FACTORY factory);
 
 
@@ -148,30 +148,44 @@ setInputStream	(pANTLR3_TOKEN_FACTORY factory, pANTLR3_INPUT_STREAM input)
     }
 }
 
-static void
+static ANTLR3_BOOLEAN
 newPool(pANTLR3_TOKEN_FACTORY factory)
 {
     /* Increment factory count
      */
-    factory->thisPool++;
+    ++(factory->thisPool);
 
     // If we were reusing this token factory then we may already have a pool
-    // allocated. If we exceeded the max avaible then we must allocate a new
+    // allocated. If we exceeded the max available then we must allocate a new
     // one.
     if  (factory->thisPool > factory->maxPool)
     {
         /* Ensure we have enough pointers allocated
          */
-        factory->pools = (pANTLR3_COMMON_TOKEN *)
-		         ANTLR3_REALLOC(	(void *)factory->pools,	    /* Current pools pointer (starts at NULL)	*/
-					    (ANTLR3_UINT32)((factory->thisPool + 1) * sizeof(pANTLR3_COMMON_TOKEN *))	/* Memory for new pool pointers */
-					    );
+		pANTLR3_COMMON_TOKEN *newPools = (pANTLR3_COMMON_TOKEN *)
+			ANTLR3_REALLOC((void *)factory->pools,	    /* Current pools pointer (starts at NULL)	*/
+		                   (ANTLR3_UINT32)((factory->thisPool + 1) * sizeof(pANTLR3_COMMON_TOKEN *))	/* Memory for new pool pointers */
+			);
+		if (newPools == NULL)
+		{
+			// We are out of memory, but the old allocation is still valid for now
+			--(factory->thisPool);
+			return ANTLR3_FALSE;
+		}
+
+        factory->pools = newPools;
 
         /* Allocate a new pool for the factory
          */
         factory->pools[factory->thisPool]	=
 			        (pANTLR3_COMMON_TOKEN) 
 				    ANTLR3_CALLOC(1, (size_t)(sizeof(ANTLR3_COMMON_TOKEN) * ANTLR3_FACTORY_POOL_SIZE));
+		if (factory->pools[factory->thisPool] == NULL)
+		{
+			// Allocation failed
+			--(factory->thisPool);
+			return ANTLR3_FALSE;
+		}
 
         // We now have a new pool and can track it as the maximum we have created so far
         //
@@ -184,13 +198,15 @@ newPool(pANTLR3_TOKEN_FACTORY factory)
   
     /* Done
      */
-    return;
+    return ANTLR3_TRUE;
 }
 
 static pANTLR3_COMMON_TOKEN
 newPoolToken(pANTLR3_TOKEN_FACTORY factory)
 {
     pANTLR3_COMMON_TOKEN token;
+
+	if (factory == NULL) { return NULL; }
 
     /* See if we need a new token pool before allocating a new
      * one
@@ -199,8 +215,15 @@ newPoolToken(pANTLR3_TOKEN_FACTORY factory)
     {
         /* We ran out of tokens in the current pool, so we need a new pool
          */
-        newPool(factory);
+        if (!newPool(factory))
+		{
+			return NULL;
+		}
     }
+
+	// make sure the factory is sane
+	if (factory->pools == NULL) { return NULL; }
+	if (factory->pools[factory->thisPool] == NULL) { return NULL; }
 
     /* Assuming everything went well (we are trying for performance here so doing minimal
      * error checking. Then we can work out what the pointer is to the next token.

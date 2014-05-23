@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,26 +17,22 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_ROUTINE_GROUP_EDITOR_H_
-#define _MYSQL_ROUTINE_GROUP_EDITOR_H_
+#pragma once
 
 #include "grtdb/editor_routinegroup.h"
-#include "grts/structs.workbench.physical.h"
-#include "grts/structs.db.mysql.h"
 
 #include "mysql_support_backend_public_interface.h"
 
 class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLRoutineGroupEditorBE : public bec::RoutineGroupEditorBE
 {
 public:
-  MySQLRoutineGroupEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineGroupRef &group, const db_mgmt_RdbmsRef &rdbms);
+  MySQLRoutineGroupEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineGroupRef &group);
 
-  std::string get_procedure_body();
-  std::string get_function_body();
-  
-  void load_routines_sql();
+  virtual db_RoutineGroupRef get_routine_group() { return _routine_group; }
+
+  virtual void load_routines_sql();
   virtual void commit_changes();
 
+private:
+  db_mysql_RoutineGroupRef _routine_group;
 };
-
-#endif /* _MYSQL_ROUTINE_GROUP_EDITOR_H_ */

@@ -63,7 +63,7 @@ class DbMySQLRoutineGroupEditor : public PluginEditorBase
 //------------------------------------------------------------------------------
 DbMySQLRoutineGroupEditor::DbMySQLRoutineGroupEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
     : PluginEditorBase(m, grtm, args, "modules/data/editor_rg.glade")
-    , _be(new MySQLRoutineGroupEditorBE(grtm, db_mysql_RoutineGroupRef::cast_from(args[0]), get_rdbms_for_db_object(args[0])))
+    , _be(new MySQLRoutineGroupEditorBE(grtm, db_mysql_RoutineGroupRef::cast_from(args[0])))
     , _routines_model(model_from_string_list(std::vector<std::string>(), &_routines_columns))
 {
   xml()->get_widget("mysql_rg_editor_notebook", _editor_notebook);
@@ -126,7 +126,7 @@ bool DbMySQLRoutineGroupEditor::switch_edited_object(bec::GRTManager *grtm, cons
   xml()->get_widget("rg_code_holder", code_win);
   delete _be;
  
-  _be = new MySQLRoutineGroupEditorBE(grtm, db_mysql_RoutineGroupRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  _be = new MySQLRoutineGroupEditorBE(grtm, db_mysql_RoutineGroupRef::cast_from(args[0]));
   embed_code_editor(_be->get_sql_editor()->get_container(), code_win);
   _be->load_routines_sql();
   _be->set_refresh_ui_slot(sigc::mem_fun(this, &DbMySQLRoutineGroupEditor::refresh_form_data));
@@ -230,10 +230,7 @@ void DbMySQLRoutineGroupEditor::on_routine_drop(const Glib::RefPtr<Gdk::DragCont
       {
         db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(*obj);
         if ( routine.is_valid() )
-        {
           _be->append_routine_with_id(routine.id());
-          std::string routine_name = _be->get_routine_name(routine.id());
-        }
       }
     }
 

@@ -25,7 +25,7 @@
 
 #include "wbpublic_public_interface.h"
 
-class Sql_editor;
+class MySQLEditor;
 
 // Use an abstract class here because db_query_Editor.cpp is in wbpublic but
 // actual query editor object is in wbprivate. So wbprivate must subclass this
@@ -56,7 +56,7 @@ public:
   virtual db_query_ResultsetRef executeManagementQuery(const std::string &sql, bool log)= 0;
   virtual void executeManagementCommand(const std::string &sql, bool log)= 0;
 public:
-  virtual void refresh_editor(boost::shared_ptr<Sql_editor> editor)= 0;
+  virtual void refresh_editor(boost::shared_ptr<MySQLEditor> editor)= 0;
 };
 
 

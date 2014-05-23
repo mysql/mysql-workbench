@@ -22,7 +22,8 @@
 
 using namespace grt;
 
-
+//--------------------------------------------------------------------------------------------------
+/*
 SqlFacade::Ref SqlFacade::instance_for_db_obj(db_DatabaseObjectRef db_obj)
 {
   db_mgmt_RdbmsRef rdbms;
@@ -32,29 +33,24 @@ SqlFacade::Ref SqlFacade::instance_for_db_obj(db_DatabaseObjectRef db_obj)
     || db_obj.is_instance(db_Routine(db_obj.get_grt()).get_metaclass())
     || db_obj.is_instance(db_RoutineGroup(db_obj.get_grt()).get_metaclass()))
   {
-    rdbms= db_mgmt_RdbmsRef::cast_from(db_obj->owner()->owner()->owner()->get_member("rdbms"));
+    rdbms = db_mgmt_RdbmsRef::cast_from(db_obj->owner()->owner()->owner()->get_member("rdbms"));
   }
   else if (db_obj.is_instance(db_Schema(db_obj.get_grt()).get_metaclass()))
   {
-    rdbms= db_mgmt_RdbmsRef::cast_from(db_obj->owner()->owner()->get_member("rdbms"));
+    rdbms = db_mgmt_RdbmsRef::cast_from(db_obj->owner()->owner()->get_member("rdbms"));
   }
 
   return instance_for_rdbms(rdbms);
 }
-
+*/
+//--------------------------------------------------------------------------------------------------
 
 SqlFacade::Ref SqlFacade::instance_for_rdbms(db_mgmt_RdbmsRef rdbms)
 {
-  SqlFacade::Ref facadeRef = instance_for_rdbms_name(rdbms->get_grt(), rdbms->name());
-
-  // Caches the character sets from the rdbms
-  grt::ListRef<db_CharacterSet> list = rdbms->characterSets();
-  for (size_t i = 0; i < list->count(); i++)
-    facadeRef->add_char_set(base::tolower(*list[i]->name()));
-
-  return facadeRef;
+  return instance_for_rdbms_name(rdbms->get_grt(), rdbms->name());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 SqlFacade::Ref SqlFacade::instance_for_rdbms_name(GRT *grt, const std::string &name)
 {
@@ -66,9 +62,4 @@ SqlFacade::Ref SqlFacade::instance_for_rdbms_name(GRT *grt, const std::string &n
   return module;
 }
 
-
-void SqlFacade::add_char_set(const std::string& charset)
-{
-  _charsets.insert(charset);
-}
-
+//--------------------------------------------------------------------------------------------------

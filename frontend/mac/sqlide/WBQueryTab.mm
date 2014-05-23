@@ -96,7 +96,7 @@
   return [NSImage imageNamed: @"tab_icon_db.query.QueryBuffer"];
 }
 
-- (Sql_editor::Ref)editorController
+- (MySQLEditor::Ref)editorController
 {
   return mBackend;
 }
@@ -401,7 +401,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 #pragma mark init/dealloc
 
 - (id)initWithOwner: (WBSQLQueryPanel*)owner
-            backEnd: (Sql_editor::Ref)backend
+            backEnd: (MySQLEditor::Ref)backend
 {
   self = [super init];
   if (self)

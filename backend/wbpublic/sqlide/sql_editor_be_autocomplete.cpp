@@ -20,7 +20,6 @@
 #include <boost/assign/std/vector.hpp> // for 'operator += ..'
 
 #include "sql_editor_be.h"
-#include "sqlide.h"
 #include "grt/grt_manager.h"
 
 #include "base/log.h"
@@ -43,7 +42,7 @@ using namespace base;
 
 //--------------------------------------------------------------------------------------------------
 
-void Sql_editor::setup_auto_completion()
+void MySQLEditor::setup_auto_completion()
 {
   _code_editor->auto_completion_options(true, true, false, true, false);
   _code_editor->auto_completion_max_size(40, 15);
@@ -73,7 +72,7 @@ void Sql_editor::setup_auto_completion()
  * already typed. If auto completion is not yet active it becomes active here.
  * Returns the list sent to the editor for unit tests to validate them.
  */
-std::vector<std::pair<int, std::string> >  Sql_editor::update_auto_completion(const std::string &typed_part)
+std::vector<std::pair<int, std::string> >  MySQLEditor::update_auto_completion(const std::string &typed_part)
 {
   log_debug2("Updating auto completion popup in editor\n");
 
@@ -136,7 +135,7 @@ std::vector<std::pair<int, std::string> >  Sql_editor::update_auto_completion(co
  * If there's a back tick or double quote char then text until this quote char is returned. If there's
  * no quoting char but a space or dot char then everything up to (but not including) this is returned.
  */
-std::string Sql_editor::get_written_part(size_t position)
+std::string MySQLEditor::get_written_part(size_t position)
 {
   ssize_t line = _code_editor->line_from_position(position);
   ssize_t start, stop;
@@ -178,7 +177,6 @@ std::string Sql_editor::get_written_part(size_t position)
   
   // If we come here then we are outside any quoted text. Scan back for anything we consider
   // to be a word stopper (for now anything below '0', char code wise).
-  run = head + text.size();
   while (head < run--)
   {
     if (*run < '0')
@@ -200,12 +198,12 @@ struct CompareAcEntries
 //--------------------------------------------------------------------------------------------------
 
 #define INCLUDE_PART(part) \
-  context.wanted_parts = (Sql_editor::AutoCompletionWantedParts)(context.wanted_parts | part)
+  context.wanted_parts = (MySQLEditor::AutoCompletionWantedParts)(context.wanted_parts | part)
 #define EXCLUDE_PART(part) \
-  context.wanted_parts = (Sql_editor::AutoCompletionWantedParts)(context.wanted_parts & ~part)
+  context.wanted_parts = (MySQLEditor::AutoCompletionWantedParts)(context.wanted_parts & ~part)
 
 #define PART_IF(condition, part) \
-  context.wanted_parts = (Sql_editor::AutoCompletionWantedParts) ((condition) ? (context.wanted_parts | part) : (context.wanted_parts & ~part))
+  context.wanted_parts = (MySQLEditor::AutoCompletionWantedParts) ((condition) ? (context.wanted_parts | part) : (context.wanted_parts & ~part))
 
 #define IS_PART_INCLUDED(part) \
   ((context.wanted_parts & part) != 0)
@@ -215,7 +213,7 @@ struct CompareAcEntries
 /**
  * Updates the context structure's token info with the current token in the tree walker.
  */
-void get_current_token_info(Sql_editor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
+void get_current_token_info(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
 {
   context.token_type = walker.token_type();
   context.token_line = walker.token_line();
@@ -229,13 +227,13 @@ void get_current_token_info(Sql_editor::AutoCompletionContext &context, MySQLRec
 /**
  * Set markers for runtime function names as well as identifiers (schema, table and column names) exclusively.
  */
-void want_only_functions_schemas_tables_columns(Sql_editor::AutoCompletionContext &context)
+void want_only_functions_schemas_tables_columns(MySQLEditor::AutoCompletionContext &context)
 {
-  context.wanted_parts = Sql_editor::CompletionWantNothing;
-  INCLUDE_PART(Sql_editor::CompletionWantRuntimeFunctions);
-  INCLUDE_PART(Sql_editor::CompletionWantSchemas);
-  INCLUDE_PART(Sql_editor::CompletionWantTables);
-  INCLUDE_PART(Sql_editor::CompletionWantColumns);
+  context.wanted_parts = MySQLEditor::CompletionWantNothing;
+  INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
+  INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
+  INCLUDE_PART(MySQLEditor::CompletionWantTables);
+  INCLUDE_PART(MySQLEditor::CompletionWantColumns);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,12 +241,12 @@ void want_only_functions_schemas_tables_columns(Sql_editor::AutoCompletionContex
 /**
  * Set markers for field references (including schemas) exclusively.
  */
-void want_only_field_references(Sql_editor::AutoCompletionContext &context)
+void want_only_field_references(MySQLEditor::AutoCompletionContext &context)
 {
-  context.wanted_parts = Sql_editor::CompletionWantNothing;
-  INCLUDE_PART(Sql_editor::CompletionWantSchemas);
-  INCLUDE_PART(Sql_editor::CompletionWantTables);
-  INCLUDE_PART(Sql_editor::CompletionWantColumns);
+  context.wanted_parts = MySQLEditor::CompletionWantNothing;
+  INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
+  INCLUDE_PART(MySQLEditor::CompletionWantTables);
+  INCLUDE_PART(MySQLEditor::CompletionWantColumns);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -256,11 +254,11 @@ void want_only_field_references(Sql_editor::AutoCompletionContext &context)
 /**
  * Set markers for references (including schemas) exclusively.
  */
-void want_only_table_references(Sql_editor::AutoCompletionContext &context)
+void want_only_table_references(MySQLEditor::AutoCompletionContext &context)
 {
-  context.wanted_parts = Sql_editor::CompletionWantNothing;
-  INCLUDE_PART(Sql_editor::CompletionWantSchemas);
-  INCLUDE_PART(Sql_editor::CompletionWantTables);
+  context.wanted_parts = MySQLEditor::CompletionWantNothing;
+  INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
+  INCLUDE_PART(MySQLEditor::CompletionWantTables);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,12 +266,12 @@ void want_only_table_references(Sql_editor::AutoCompletionContext &context)
 /**
  * Set markers for function names as well as identifiers (schema, table and column names) inclusively.
  */
-void want_also_functions_schemas_tables_columns(Sql_editor::AutoCompletionContext &context)
+void want_also_functions_schemas_tables_columns(MySQLEditor::AutoCompletionContext &context)
 {
-  INCLUDE_PART(Sql_editor::CompletionWantRuntimeFunctions);
-  INCLUDE_PART(Sql_editor::CompletionWantSchemas);
-  INCLUDE_PART(Sql_editor::CompletionWantTables);
-  INCLUDE_PART(Sql_editor::CompletionWantColumns);
+  INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
+  INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
+  INCLUDE_PART(MySQLEditor::CompletionWantTables);
+  INCLUDE_PART(MySQLEditor::CompletionWantColumns);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,11 +279,11 @@ void want_also_functions_schemas_tables_columns(Sql_editor::AutoCompletionContex
 /**
  * Commonly used function to set markers for function normal and major keywords
  */
-void want_only_keywords(Sql_editor::AutoCompletionContext &context)
+void want_only_keywords(MySQLEditor::AutoCompletionContext &context)
 {
-  context.wanted_parts = Sql_editor::CompletionWantNothing;
-  INCLUDE_PART(Sql_editor::CompletionWantMajorKeywords);
-  INCLUDE_PART(Sql_editor::CompletionWantKeywords);
+  context.wanted_parts = MySQLEditor::CompletionWantNothing;
+  INCLUDE_PART(MySQLEditor::CompletionWantMajorKeywords);
+  INCLUDE_PART(MySQLEditor::CompletionWantKeywords);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,22 +291,22 @@ void want_only_keywords(Sql_editor::AutoCompletionContext &context)
 /**
  * Keywords and functions allowed when starting a new (sub)expression.
  */
-void want_also_expression_start(Sql_editor::AutoCompletionContext &context, bool withSelect) 
+void want_also_expression_start(MySQLEditor::AutoCompletionContext &context, bool withSelect) 
 {
-  INCLUDE_PART(Sql_editor::CompletionWantExprStartKeywords);
-  INCLUDE_PART(Sql_editor::CompletionWantRuntimeFunctions);
+  INCLUDE_PART(MySQLEditor::CompletionWantExprStartKeywords);
+  INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
   if (withSelect)
-    INCLUDE_PART(Sql_editor::CompletionWantSelect);
+    INCLUDE_PART(MySQLEditor::CompletionWantSelect);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void want_only_expression_start(Sql_editor::AutoCompletionContext &context, bool withSelect) 
+void want_only_expression_start(MySQLEditor::AutoCompletionContext &context, bool withSelect) 
 {
-  context.wanted_parts = Sql_editor::CompletionWantExprStartKeywords;
-  INCLUDE_PART(Sql_editor::CompletionWantRuntimeFunctions);
+  context.wanted_parts = MySQLEditor::CompletionWantExprStartKeywords;
+  INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
   if (withSelect)
-    INCLUDE_PART(Sql_editor::CompletionWantSelect);
+    INCLUDE_PART(MySQLEditor::CompletionWantSelect);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,15 +314,15 @@ void want_only_expression_start(Sql_editor::AutoCompletionContext &context, bool
 /**
  * Keywords that can only appear within an outer expression (e.g. "a > ALL (select ...)").
  */
-void want_only_expression_continuation(Sql_editor::AutoCompletionContext &context) 
+void want_only_expression_continuation(MySQLEditor::AutoCompletionContext &context) 
 {
-  context.wanted_parts = Sql_editor::CompletionWantExprInnerKeywords;
+  context.wanted_parts = MySQLEditor::CompletionWantExprInnerKeywords;
   want_also_functions_schemas_tables_columns(context);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void check_error_context(Sql_editor::AutoCompletionContext &context, MySQLRecognizer &recognizer)
+void check_error_context(MySQLEditor::AutoCompletionContext &context, MySQLRecognizer &recognizer)
 {
   log_debug2("Checking some error situations\n");
 
@@ -338,15 +336,15 @@ void check_error_context(Sql_editor::AutoCompletionContext &context, MySQLRecogn
       break;
 
     case MULT_OPERATOR:
-      context.wanted_parts = Sql_editor::CompletionWantColumns;
+      context.wanted_parts = MySQLEditor::CompletionWantColumns;
       // fall through.
     case FROM_SYMBOL:
-      INCLUDE_PART(Sql_editor::CompletionWantSchemas);
-      INCLUDE_PART(Sql_editor::CompletionWantTables);
+      INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
+      INCLUDE_PART(MySQLEditor::CompletionWantTables);
       break;
 
     case IDENTIFIER: // Probably starting a new query.
-      context.wanted_parts = Sql_editor::CompletionWantMajorKeywords;
+      context.wanted_parts = MySQLEditor::CompletionWantMajorKeywords;
       break;
   }
 }
@@ -358,36 +356,36 @@ void check_error_context(Sql_editor::AutoCompletionContext &context, MySQLRecogn
  * Use the query type to know which kind of identifier we need.
  * Returns true if the object type could be found.
  */
-bool check_by_query_type(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCompletionContext &context)
+bool check_by_query_type(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCompletionContext &context)
 {
   MySQLQueryType type = walker.get_current_query_type();
   switch (type)
   {
   case QtDropDatabase:
-    context.wanted_parts = Sql_editor::CompletionWantSchemas;
+    context.wanted_parts = MySQLEditor::CompletionWantSchemas;
     break;
   case QtDropEvent:
-    context.wanted_parts = Sql_editor::CompletionWantEvents;
+    context.wanted_parts = MySQLEditor::CompletionWantEvents;
     break;
   case QtDropFunction:
-    context.wanted_parts = Sql_editor::CompletionWantFunctions;
+    context.wanted_parts = MySQLEditor::CompletionWantFunctions;
     break;
   case QtDropProcedure:
-    context.wanted_parts = Sql_editor::CompletionWantProcedures;
+    context.wanted_parts = MySQLEditor::CompletionWantProcedures;
     break;
   case QtDropTable:
   case QtDropView:
-    context.wanted_parts = Sql_editor::CompletionWantTables;
+    context.wanted_parts = MySQLEditor::CompletionWantTables;
     break;
   case QtDropTrigger:
-    context.wanted_parts = Sql_editor::CompletionWantTriggers;
+    context.wanted_parts = MySQLEditor::CompletionWantTriggers;
     break;
   case QtDropIndex:
-    context.wanted_parts = Sql_editor::CompletionWantIndexes;
+    context.wanted_parts = MySQLEditor::CompletionWantIndexes;
     break;
 
   case QtCall:
-    context.wanted_parts = Sql_editor::CompletionWantProcedures;
+    context.wanted_parts = MySQLEditor::CompletionWantProcedures;
     break;
 
   default:
@@ -497,7 +495,7 @@ bool is_top_level(unsigned type, long version)
 /**
  * We are after a whitespace at the start of a new token.
  */
-void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCompletionContext &context)
+void check_new_token_start(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCompletionContext &context)
 {
   if (walker.is_identifier() && !walker.is_keyword()) // Certain keywords can be identifiers too.
   {
@@ -510,41 +508,41 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
     switch (type)
     {
     case 0: // If this is a top level node then we are probably within a chain of identifiers and keywords.
-    case TABLE_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
       {
         MySQLQueryType type = walker.get_current_query_type();
         switch (type)
         {
         case QtExplainStatement:
           // After a table ref in an explain statement can only be a column.
-          context.wanted_parts = Sql_editor::CompletionWantColumns;
+          context.wanted_parts = MySQLEditor::CompletionWantColumns;
           context.check_identifier = false;
           break;
 
         default:
-          context.wanted_parts = Sql_editor::CompletionWantKeywords; 
+          context.wanted_parts = MySQLEditor::CompletionWantKeywords; 
           break;
         }
         break;
       }
 
     case DEFINER_SYMBOL:
-      context.wanted_parts = Sql_editor::CompletionWantKeywords; 
+      context.wanted_parts = MySQLEditor::CompletionWantKeywords; 
       break;
 
-    case FIELD_REF_ID_TOKEN:
+    case FIELD_NAME_TOKEN:
       // If we are in a function call or par expression then nothing can be shown, as only
       // identifiers or operators are valid.
       // Otherwise however we might just enter the next query part, so we show keywords.
       if (walker.up())
       {
         if (walker.token_type() == SELECT_EXPR_TOKEN)
-          context.wanted_parts = Sql_editor::CompletionWantKeywords;
+          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
         else
-          context.wanted_parts = Sql_editor::CompletionWantNothing;
+          context.wanted_parts = MySQLEditor::CompletionWantNothing;
       }
       else
-        context.wanted_parts = Sql_editor::CompletionWantKeywords;
+        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
       break;
     }
   }
@@ -557,12 +555,12 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
       switch (walker.token_type())
       {
       case KEY_CACHE_LIST_TOKEN:
-        context.wanted_parts = Sql_editor::CompletionWantIndexes;
+        context.wanted_parts = MySQLEditor::CompletionWantIndexes;
         context.check_identifier = false;
         break;
 
       case UNION_SYMBOL:
-        context.wanted_parts = Sql_editor::CompletionWantSelect;
+        context.wanted_parts = MySQLEditor::CompletionWantSelect;
         context.check_identifier = false;
         break;
 
@@ -596,17 +594,17 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
             {
             case QtAnalyzeTable:
             case QtRepairTable:
-              context.wanted_parts = Sql_editor::CompletionWantTables;
+              context.wanted_parts = MySQLEditor::CompletionWantTables;
               context.check_identifier = false;
               break;
 
             case QtRenameUser:
-              context.wanted_parts = Sql_editor::CompletionWantUsers;
+              context.wanted_parts = MySQLEditor::CompletionWantUsers;
               context.check_identifier = false;
               break;
 
             case QtFlush:
-              context.wanted_parts = Sql_editor::CompletionWantKeywords;
+              context.wanted_parts = MySQLEditor::CompletionWantKeywords;
               context.check_identifier = false;
               break;
 
@@ -619,13 +617,13 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
           }
 
         case REFERENCES_SYMBOL: // Key definition.
-          context.wanted_parts = Sql_editor::CompletionWantColumns;
+          context.wanted_parts = MySQLEditor::CompletionWantColumns;
           context.check_identifier = false;
           break;
 
         case CHANGE_MASTER_OPTIONS_TOKEN:
         case SLAVE_THREAD_OPTIONS_TOKEN:
-          context.wanted_parts = Sql_editor::CompletionWantKeywords;
+          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
           context.check_identifier = false;
           break;
 
@@ -643,7 +641,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
       break;
 
     case CALL_SYMBOL:
-      context.wanted_parts = Sql_editor::CompletionWantProcedures;
+      context.wanted_parts = MySQLEditor::CompletionWantProcedures;
       context.check_identifier = true;
       break;
 
@@ -653,7 +651,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
         switch (type)
         {
         case QtRevoke:
-          context.wanted_parts = Sql_editor::CompletionWantUsers;
+          context.wanted_parts = MySQLEditor::CompletionWantUsers;
           context.check_identifier = false;
           break;
 
@@ -665,12 +663,12 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
         break;
       }
 
-    case TABLE_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
       want_only_table_references(context);
       context.check_identifier = true;
       break;
 
-    case FIELD_REF_ID_TOKEN:
+    case FIELD_NAME_TOKEN:
       // Walk up the parent chain jumping over all math subtrees.
       while (walker.up() && walker.is_relation())
         ;
@@ -696,8 +694,8 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
       break;
 
     case SET_SYMBOL:
-      context.wanted_parts = Sql_editor::CompletionWantTables;
-      INCLUDE_PART(Sql_editor::CompletionWantColumns);
+      context.wanted_parts = MySQLEditor::CompletionWantTables;
+      INCLUDE_PART(MySQLEditor::CompletionWantColumns);
       break;
 
     case FUNCTION_CALL_TOKEN:
@@ -712,7 +710,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
         {
         case WHERE_SYMBOL:
           want_only_functions_schemas_tables_columns(context);
-          INCLUDE_PART(Sql_editor::CompletionWantExprStartKeywords);
+          INCLUDE_PART(MySQLEditor::CompletionWantExprStartKeywords);
           break;
         }
       }
@@ -721,27 +719,27 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
     case CLOSE_PAR_SYMBOL:
       // Finishing a par expression or function call. Could be part of an expression (we don't show operators),
       // an alias could follow (nothing to show) or the next query part comes next, so we show keywords.
-      context.wanted_parts = Sql_editor::CompletionWantKeywords;
+      context.wanted_parts = MySQLEditor::CompletionWantKeywords;
       context.check_identifier = false;
       break;
 
     case GROUP_SYMBOL:
     case ORDER_SYMBOL:
     case IDENTIFIED_SYMBOL:
-      context.wanted_parts = Sql_editor::CompletionWantBy;
+      context.wanted_parts = MySQLEditor::CompletionWantBy;
       context.check_identifier = false;
       break;
 
     case DATABASE_SYMBOL:
-      context.wanted_parts = Sql_editor::CompletionWantSchemas;
+      context.wanted_parts = MySQLEditor::CompletionWantSchemas;
       context.check_identifier = false;
       break;
 
     case DOT_SYMBOL:
       switch (walker.parent_type())
       {
-      case TABLE_REF_ID_TOKEN:
-      case FIELD_REF_ID_TOKEN:
+      case TABLE_NAME_TOKEN:
+      case FIELD_NAME_TOKEN:
         context.check_identifier = true;
         want_only_field_references(context);
         break;
@@ -761,7 +759,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
     case OPEN_CURLY_SYMBOL: // At the start of an ODBC query.
     case SAVEPOINT_SYMBOL:  // After e.g. RELEASE SAVEPOINT.
       // Expecting any identifier (no reference).
-      context.wanted_parts = Sql_editor::CompletionWantNothing;
+      context.wanted_parts = MySQLEditor::CompletionWantNothing;
       context.check_identifier = false;
       break;
 
@@ -770,7 +768,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
     case FUNCTION_SYMBOL:
       if (walker.parent_type() == PRIVILEGE_TARGET_TOKEN)
       {
-        context.wanted_parts = Sql_editor::CompletionWantFunctions;
+        context.wanted_parts = MySQLEditor::CompletionWantFunctions;
         context.check_identifier = true;
       }
       break;
@@ -778,7 +776,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
     case PROCEDURE_SYMBOL:
       if (walker.parent_type() == PRIVILEGE_TARGET_TOKEN)
       {
-        context.wanted_parts = Sql_editor::CompletionWantProcedures;
+        context.wanted_parts = MySQLEditor::CompletionWantProcedures;
         context.check_identifier = true;
       }
       break;
@@ -787,7 +785,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
     case ON_SYMBOL:
       if (walker.parent_type() == PRIVILEGE_TARGET_TOKEN)
       {
-        context.wanted_parts = Sql_editor::CompletionWantTables;
+        context.wanted_parts = MySQLEditor::CompletionWantTables;
         context.check_identifier = true;
       }
       break;
@@ -798,7 +796,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
       case 0:
       case OPEN_PAR_SYMBOL:
         // On top level of a query, so it's a wildcard.
-        context.wanted_parts = Sql_editor::CompletionWantKeywords;
+        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
         context.check_identifier = false;
         break;
 
@@ -812,7 +810,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
       if (walker.is_keyword())
       {
         // After any of a keyword not handled above. Continuing with another keyword.
-        context.wanted_parts = Sql_editor::CompletionWantKeywords;
+        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
         context.check_identifier = false;
       }
       else
@@ -820,7 +818,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
         if (walker.is_number())
         {
           // Within an expression, probably starting a new rhs.
-          context.wanted_parts = Sql_editor::CompletionWantExprInnerKeywords;
+          context.wanted_parts = MySQLEditor::CompletionWantExprInnerKeywords;
           context.check_identifier = false;
         }
         else
@@ -838,7 +836,7 @@ void check_new_token_start(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCo
  * We are within a token (not at the first position though, but including the position directly after
  * the last char of the token).
  */
-void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoCompletionContext &context)
+void check_current_token(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCompletionContext &context)
 {
   bool look_at_previous = false;
   bool look_at_previous_sibling = false;
@@ -855,7 +853,7 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
   default:
     if (walker.is_relation())
     {
-      context.wanted_parts = Sql_editor::CompletionWantExprInnerKeywords;
+      context.wanted_parts = MySQLEditor::CompletionWantExprInnerKeywords;
       context.check_identifier = false;
       return;
     }
@@ -883,8 +881,8 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
     case DOT_SYMBOL:
       switch (walker.parent_type())
       {
-      case TABLE_REF_ID_TOKEN:
-      case FIELD_REF_ID_TOKEN:
+      case TABLE_NAME_TOKEN:
+      case FIELD_NAME_TOKEN:
         context.check_identifier = true;
         want_only_field_references(context);
         break;
@@ -907,8 +905,8 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
         {
         case FUNCTION_CALL_TOKEN:
           // Some functions allow keywords, like count(distinct ...).
-          context.wanted_parts = Sql_editor::CompletionWantKeywords;
-          INCLUDE_PART(Sql_editor::CompletionWantRuntimeFunctions);
+          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
+          INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
           context.check_identifier = true;
           break;
 
@@ -920,17 +918,17 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
 
           break;
         case SUBQUERY_TOKEN:
-          context.wanted_parts = Sql_editor::CompletionWantSelect;
+          context.wanted_parts = MySQLEditor::CompletionWantSelect;
           context.check_identifier = false;
           break;
 
         case ALTER_TABLE_ITEM_TOKEN:
-          context.wanted_parts = Sql_editor::CompletionWantColumns;
+          context.wanted_parts = MySQLEditor::CompletionWantColumns;
           context.check_identifier = false;
           break;
 
         case UNION_SYMBOL:
-          context.wanted_parts = Sql_editor::CompletionWantSelect;
+          context.wanted_parts = MySQLEditor::CompletionWantSelect;
           context.check_identifier = false;
           break;
         }
@@ -955,17 +953,17 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
       switch (walker.parent_type())
       {
       case OPTIONS_SYMBOL: // Server options (create/alter server). Nothing to show.
-        context.wanted_parts = Sql_editor::CompletionWantNothing;
+        context.wanted_parts = MySQLEditor::CompletionWantNothing;
         context.check_identifier = false;
         break;
 
       case ON_SYMBOL: // In column list of an index target table.
-        context.wanted_parts = Sql_editor::CompletionWantColumns;
+        context.wanted_parts = MySQLEditor::CompletionWantColumns;
         context.check_identifier = false;
         break;
 
       case LOGFILE_GROUP_OPTIONS_TOKEN:
-        context.wanted_parts = Sql_editor::CompletionWantKeywords;
+        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
         context.check_identifier = false;
         break;
 
@@ -982,19 +980,19 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
         switch (walker.token_type())
         {
         case ENGINE_SYMBOL:
-          context.wanted_parts = Sql_editor::CompletionWantEngines;
+          context.wanted_parts = MySQLEditor::CompletionWantEngines;
           context.check_identifier = false;
           break;
         }
       }
       break;
 
-    case TABLE_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
       want_only_table_references(context);
       context.check_identifier = true;
       break;
 
-    case FIELD_REF_ID_TOKEN:
+    case FIELD_NAME_TOKEN:
       // At the start of a reference. This can also mean we are in an expression or an assignment list.
       if (walker.parent_type() == COLUMN_ASSIGNMENT_LIST_TOKEN)
       {
@@ -1012,7 +1010,7 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
       // that is "physically" before the current one.
       walker.next();
 
-      context.wanted_parts = Sql_editor::CompletionWantNothing;
+      context.wanted_parts = MySQLEditor::CompletionWantNothing;
       context.check_identifier = true;
       if (walker.previous_by_index())
       {
@@ -1023,7 +1021,7 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
           switch (walker.token_type())
           {
           case SET_SYMBOL: // In an update list. We only need columns.
-            context.wanted_parts = Sql_editor::CompletionWantColumns;
+            context.wanted_parts = MySQLEditor::CompletionWantColumns;
             context.check_identifier = false;
             break;
 
@@ -1040,32 +1038,32 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
     case GROUP_SYMBOL:
     case ORDER_SYMBOL:
     case IDENTIFIED_SYMBOL:
-      context.wanted_parts = Sql_editor::CompletionWantBy;
+      context.wanted_parts = MySQLEditor::CompletionWantBy;
       context.check_identifier = false;
       break;
 
     case DATABASE_SYMBOL:
-      context.wanted_parts = Sql_editor::CompletionWantSchemas;
+      context.wanted_parts = MySQLEditor::CompletionWantSchemas;
       context.check_identifier = false;
       break;
 
     case COLUMN_SYMBOL: // Alter table items.
-      context.wanted_parts = Sql_editor::CompletionWantColumns;
+      context.wanted_parts = MySQLEditor::CompletionWantColumns;
       context.check_identifier = false;
       break;
 
     case DO_SYMBOL: // Starting compound statement in an event.
-      context.wanted_parts = Sql_editor::CompletionWantMajorKeywords;
+      context.wanted_parts = MySQLEditor::CompletionWantMajorKeywords;
       context.check_identifier = false;
       break;
 
     case AS_SYMBOL: // AS outside a field ref is used for view definitions.
-      context.wanted_parts = Sql_editor::CompletionWantSelect;
+      context.wanted_parts = MySQLEditor::CompletionWantSelect;
       context.check_identifier = false;
       break;
 
     case ON_SYMBOL: // CREATE TRIGGER ... ON
-      context.wanted_parts = Sql_editor::CompletionWantTables;
+      context.wanted_parts = MySQLEditor::CompletionWantTables;
       context.check_identifier = false;
       break;
 
@@ -1080,20 +1078,20 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
     case INDEX_SYMBOL:
       context.check_identifier = false;
         if (!check_by_query_type(walker, context))
-          context.wanted_parts = Sql_editor::CompletionWantKeywords;
+          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
         break;
 
     case FOR_SYMBOL:
       context.check_identifier = false;
       if (walker.get_current_query_type() == QtSetPassword)
-        context.wanted_parts = Sql_editor::CompletionWantUsers;
+        context.wanted_parts = MySQLEditor::CompletionWantUsers;
       else
-        context.wanted_parts = Sql_editor::CompletionWantKeywords;
+        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
 
       break;
 
     default:
-      context.wanted_parts = Sql_editor::CompletionWantKeywords;
+      context.wanted_parts = MySQLEditor::CompletionWantKeywords;
       context.check_identifier = false;
       break;
     }
@@ -1103,7 +1101,7 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
     if (walker.is_number())
     {
       // If the token is a number we are in an expression and have nothing to offer for completion.
-      context.wanted_parts = Sql_editor::CompletionWantNothing;
+      context.wanted_parts = MySQLEditor::CompletionWantNothing;
       context.check_identifier = false;
       return;
     }
@@ -1111,7 +1109,7 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
     if (walker.token_type() == CLOSE_PAR_SYMBOL)
       // Finishing a par expression or function call. Could be part of an expression (we don't show operators),
       // an alias could follow (nothing to show) or the next query part comes next, so we show keywords.
-      context.wanted_parts = Sql_editor::CompletionWantKeywords;
+      context.wanted_parts = MySQLEditor::CompletionWantKeywords;
     else
     {
       // Check if we are in a subtree.
@@ -1123,18 +1121,18 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
           want_only_functions_schemas_tables_columns(context);
           break;
 
-        case TABLE_REF_ID_TOKEN:
+        case TABLE_NAME_TOKEN:
           want_only_table_references(context);
           context.check_identifier = true;
           break;
 
-        case FIELD_REF_ID_TOKEN:
-          context.wanted_parts = Sql_editor::CompletionWantNothing;
+        case FIELD_NAME_TOKEN:
+          context.wanted_parts = MySQLEditor::CompletionWantNothing;
           context.check_identifier = true;
           break;
 
         default:
-          context.wanted_parts = Sql_editor::CompletionWantKeywords;
+          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
         }
       }
     }
@@ -1149,7 +1147,7 @@ void check_current_token(MySQLRecognizerTreeWalker &walker, Sql_editor::AutoComp
  *            in front of that character. This has consequences which token to consider, especially
  *            at the start of a token.
  */
-void check_general_context(Sql_editor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
+void check_general_context(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
 {
   log_debug2("Checking some general situations\n");
 
@@ -1178,8 +1176,8 @@ void check_general_context(Sql_editor::AutoCompletionContext &context, MySQLReco
     bool check_parent_type = false;
     switch (walker.token_type())
     {
-    case TABLE_REF_ID_TOKEN:
-    case FIELD_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
+    case FIELD_NAME_TOKEN:
       walker.remove_tos();
       check_parent_type = true;
       break;
@@ -1230,28 +1228,28 @@ void check_general_context(Sql_editor::AutoCompletionContext &context, MySQLReco
  * Parses a schema/table/column id, collecting all specified values. The current location
  * within the id is used to determine what to show.
  */
-void check_reference(Sql_editor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
+void check_reference(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
 {
   log_debug2("Checking table references\n");
 
-  EXCLUDE_PART(Sql_editor::CompletionWantMajorKeywords);
+  EXCLUDE_PART(MySQLEditor::CompletionWantMajorKeywords);
 
   bool in_table_ref = false;
   bool in_field_ref = false;
   
   // Walk the parent chain to see if we are in a table reference, but do not go higher than
   // the current (sub) statement (to avoid wrong info when we are in a sub select).
-  bool done = walker.token_type() == TABLE_REF_ID_TOKEN;
+  bool done = walker.token_type() == TABLE_NAME_TOKEN;
   if (done)
   {
     // We arrive here if the walker was moved one token backwards from a real token
     // (we can never be at a virtual token at the start).
     in_table_ref = true;
-    EXCLUDE_PART(Sql_editor::CompletionWantRuntimeFunctions);
+    EXCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
 
     // This could be wrong if the reference is actually complete.
     // We do another check below.
-    EXCLUDE_PART(Sql_editor::CompletionWantKeywords);
+    EXCLUDE_PART(MySQLEditor::CompletionWantKeywords);
   }
 
   walker.push();
@@ -1264,9 +1262,9 @@ void check_reference(Sql_editor::AutoCompletionContext &context, MySQLRecognizer
     unsigned int type = walker.token_type();
     switch (type)
     {
-      case TABLE_REF_ID_TOKEN:
-        EXCLUDE_PART(Sql_editor::CompletionWantRuntimeFunctions);
-        EXCLUDE_PART(Sql_editor::CompletionWantKeywords);
+      case TABLE_NAME_TOKEN:
+        EXCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
+        EXCLUDE_PART(MySQLEditor::CompletionWantKeywords);
         in_table_ref = true;
         done = true;
         break;
@@ -1354,18 +1352,18 @@ void check_reference(Sql_editor::AutoCompletionContext &context, MySQLRecognizer
       || (id1.empty() && id2.empty())
     )
   {
-    INCLUDE_PART(Sql_editor::CompletionWantSchemas);
+    INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
   }
   else
   {
-    EXCLUDE_PART(Sql_editor::CompletionWantSchemas);
+    EXCLUDE_PART(MySQLEditor::CompletionWantSchemas);
   }
 
   if (caret_position == inPos1
     || (id2.empty() && !id1.empty() && caret_position == inPos0)
     || (id2.empty() && id1.empty()))
   {
-    INCLUDE_PART(Sql_editor::CompletionWantTables);
+    INCLUDE_PART(MySQLEditor::CompletionWantTables);
     if (caret_position == inPos1)
       context.table_schema = id2; // Could be empty in which case we use the default schema.
     else
@@ -1374,14 +1372,14 @@ void check_reference(Sql_editor::AutoCompletionContext &context, MySQLRecognizer
   }
   else
   {
-    EXCLUDE_PART(Sql_editor::CompletionWantTables);
+    EXCLUDE_PART(MySQLEditor::CompletionWantTables);
   }
 
   if (!in_table_ref)
   {
     if (caret_position == inPos0)
     {
-      INCLUDE_PART(Sql_editor::CompletionWantColumns);
+      INCLUDE_PART(MySQLEditor::CompletionWantColumns);
       context.column_schema = id2;
       context.table = id1;
       context.column = (id0 == "*") ? "" : id0;
@@ -1389,16 +1387,16 @@ void check_reference(Sql_editor::AutoCompletionContext &context, MySQLRecognizer
   }
   else
   {
-    EXCLUDE_PART(Sql_editor::CompletionWantColumns);
+    EXCLUDE_PART(MySQLEditor::CompletionWantColumns);
   }
 
   // If we are in a table ref or an identifier with more than one part we know showing expression
   // start keywords and function names are meaningless. Hence take them out.
   if (in_table_ref || !id2.empty() || !id1.empty())
   {
-    EXCLUDE_PART(Sql_editor::CompletionWantRuntimeFunctions);
-    EXCLUDE_PART(Sql_editor::CompletionWantExprStartKeywords);
-    EXCLUDE_PART(Sql_editor::CompletionWantSelect);
+    EXCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
+    EXCLUDE_PART(MySQLEditor::CompletionWantExprStartKeywords);
+    EXCLUDE_PART(MySQLEditor::CompletionWantSelect);
   }
 
   // If the caret is in a part that has another part in front of it (so it is a qualified part)
@@ -1413,9 +1411,9 @@ void check_reference(Sql_editor::AutoCompletionContext &context, MySQLRecognizer
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Reads a single TABLE_REF_ID_TOKEN subtree and checks for a following alias.
+ * Reads a single TABLE_NAME_TOKEN subtree and checks for a following alias.
  */
-void read_table_ref_id(Sql_editor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
+void read_table_ref_id(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
 {
   walker.next();
   
@@ -1445,21 +1443,21 @@ void read_table_ref_id(Sql_editor::AutoCompletionContext &context, MySQLRecogniz
   
   if (!table.empty())
   {
-    Sql_editor::TableReference reference = {schema, table, alias};
+    MySQLEditor::TableReference reference = {schema, table, alias};
     context.references.push_back(reference);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void scan_sub_tree(Sql_editor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
+void scan_sub_tree(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
 {
   bool has_more = walker.next(); // Go to the first child node.
 
   while (has_more)
   {
     walker.push();
-    if (walker.token_type() == TABLE_REF_ID_TOKEN)
+    if (walker.token_type() == TABLE_NAME_TOKEN)
       read_table_ref_id(context, walker);
     else
     {
@@ -1477,7 +1475,7 @@ void scan_sub_tree(Sql_editor::AutoCompletionContext &context, MySQLRecognizerTr
  * Collects all table references (from, update etc.) in the current query.
  * The tree walker must be positioned at the caret location already.
  */
-void collect_table_references(Sql_editor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
+void collect_table_references(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
 {
   // Step up the tree to our owning select, update ... query.
   bool done = false;
@@ -1493,7 +1491,7 @@ void collect_table_references(Sql_editor::AutoCompletionContext &context, MySQLR
       done = true;
       break;
 
-    case TABLE_REF_ID_TOKEN:
+    case TABLE_NAME_TOKEN:
       context.in_table_reference = true;
       break;
     }
@@ -1512,39 +1510,37 @@ void collect_table_references(Sql_editor::AutoCompletionContext &context, MySQLR
  * 
  * Returns false if there was a syntax error, otherwise true.
  */
-bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
+bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
 {
   log_debug("Creating new code completion list\n");
 
+  parser::ParserContext::Ref parser_context = get_parser_context();
+
   std::set<std::pair<int, std::string>, CompareAcEntries> new_entries;
   _auto_completion_entries.clear();
-  context.version = _server_version;
+  context.version = 50501; // Some default. Will be improved below.
 
   bool found_errors = false;
   if (!context.statement.empty())
   {
-    MySQLRecognizer recognizer(context.statement.c_str(), context.statement.length(), true,
-      _server_version, _sql_mode, _charsets);
-    MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
+    MySQLRecognizer *recognizer = parser_context->recognizer();
+    context.version = recognizer->server_version();
 
-    log_debug3("Parse tree:\n%s\n", recognizer.dump_tree().c_str());
+    recognizer->parse(context.statement.c_str(), context.statement.length(), true, QtUnknown);
+    MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
 
-    found_errors = recognizer.has_errors();
-
-    for (std::vector<MySQLParserErrorInfo>::const_iterator iter = recognizer.error_info().begin(); iter != recognizer.error_info().end(); iter++)
-      log_debug3("===[PARSE TREE ERROR]===\nQuery: %s\nError [%d]: %s\n\tLine: %d\n\tOffset: %d\n\tLength: %d\n", 
-        context.statement.c_str(), iter->error, iter->message.c_str(), iter->line, iter->offset, iter->length);
+    found_errors = recognizer->has_errors();
 
     bool found_token = walker.advance_to_position((int)context.line, (int)context.offset);
 
     if (!found_token)
     {
       // No useful parse info found so we show at least show keywords.
-      context.wanted_parts = Sql_editor::CompletionWantKeywords;
+      context.wanted_parts = MySQLEditor::CompletionWantKeywords;
 
       // See if we can get a better result by examining the errors.
-      if (recognizer.error_info().size() > 0)
-        check_error_context(context, recognizer);
+      if (recognizer->error_info().size() > 0)
+        check_error_context(context, *recognizer);
     }
     else
     {
@@ -1552,23 +1548,23 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
 
       // If we are currently in a string then we don't show any auto completion.
       if ((context.token_type == SINGLE_QUOTED_TEXT) ||
-        ((recognizer.sql_mode() & SQL_MODE_ANSI_QUOTES) == 0) && (context.token_type == DOUBLE_QUOTED_TEXT))
+        ((recognizer->sql_mode() & SQL_MODE_ANSI_QUOTES) == 0) && (context.token_type == DOUBLE_QUOTED_TEXT))
       {
         context.wanted_parts = CompletionWantNothing;
-        return !recognizer.has_errors();
+        return !recognizer->has_errors();
       }
 
       // If there's a syntax error with a token between the one we found in advance_to_position and
       // before the current caret position then we switch to the last error token to take this into account.
-      if (recognizer.error_info().size() > 0)
+      if (recognizer->error_info().size() > 0)
       {
-        MySQLParserErrorInfo error = recognizer.error_info().back();
-        if ((context.token_line < error.line || context.token_line == error.line && context.token_start < error.offset) &&
-          (error.line < context.line|| error.line == context.line && error.offset < context.offset))
+        MySQLParserErrorInfo error = recognizer->error_info().back();
+        if ((context.token_line < error.line || context.token_line == error.line && context.token_start < error.charOffset) &&
+          (error.line < context.line|| error.line == context.line && error.charOffset < context.offset))
         {
           context.token_type = error.token_type;
           context.token_line = error.line;
-          context.token_start = error.offset;
+          context.token_start = error.charOffset;
           context.token_length = error.length;
         }
       }
@@ -1580,7 +1576,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
       // we replaced the token as we could be at a totally different position.
       if (context.check_identifier)
       {
-        if (recognizer.is_identifier(context.token_type)  || recognizer.is_keyword(context.token_type)
+        if (recognizer->is_identifier(context.token_type) || recognizer->is_keyword(context.token_type)
           || context.token_type == DOT_SYMBOL || context.token_type == MULT_OPERATOR)
         {
           // Found an id, dot or star. Can be either wildcard, schema, table or column. Check which it is.
@@ -1592,14 +1588,14 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
       }
     }
 
-    if (IS_PART_INCLUDED(Sql_editor::CompletionWantTables) || IS_PART_INCLUDED(Sql_editor::CompletionWantColumns))
+    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantTables) || IS_PART_INCLUDED(MySQLEditor::CompletionWantColumns))
       collect_table_references(context, walker);
   }
 
   // Let descendants fill their keywords, functions and engines into the list.
   if (IS_PART_INCLUDED(CompletionWantAKeyword) ||
-    IS_PART_INCLUDED(Sql_editor::CompletionWantRuntimeFunctions) ||
-    IS_PART_INCLUDED(Sql_editor::CompletionWantEngines))
+    IS_PART_INCLUDED(MySQLEditor::CompletionWantRuntimeFunctions) ||
+    IS_PART_INCLUDED(MySQLEditor::CompletionWantEngines))
   {
     std::vector<std::pair<int, std::string> > rdbms_specific;
     fill_auto_completion_keywords(rdbms_specific, context.wanted_parts, make_keywords_uppercase());
@@ -1620,7 +1616,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
     if (context.table == ".")
       context.table = "";
 
-    if (IS_PART_INCLUDED(Sql_editor::CompletionWantSchemas))
+    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantSchemas))
     {
       log_debug3("Adding schema names from cache\n");
 
@@ -1629,7 +1625,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
         new_entries.insert(std::make_pair(AC_SCHEMA_IMAGE, *iterator));
     }
     
-    if (IS_PART_INCLUDED(Sql_editor::CompletionWantTables))
+    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantTables))
     {
       log_debug3("Adding table names from cache\n");
 
@@ -1644,7 +1640,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
       // If we are in a qualified identifier then adding the tables doesn't make sense either.
       if (!context.qualified_identifier)
       {
-        for (std::vector<Sql_editor::TableReference>::const_iterator iterator = context.references.begin();
+        for (std::vector<MySQLEditor::TableReference>::const_iterator iterator = context.references.begin();
           iterator != context.references.end(); ++iterator)
         {
           if (iterator->schema.empty() || base::same_string(iterator->schema, context.table_schema, true))
@@ -1657,7 +1653,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
       }
     }
     
-    if (IS_PART_INCLUDED(Sql_editor::CompletionWantProcedures))
+    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantProcedures))
     {
       log_debug3("Adding procedure names from cache\n");
 
@@ -1666,7 +1662,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
         new_entries.insert(std::make_pair(AC_ROUTINE_IMAGE, *iterator));
     }
     
-    if (IS_PART_INCLUDED(Sql_editor::CompletionWantFunctions))
+    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantFunctions))
     {
       log_debug3("Adding function names from cache\n");
 
@@ -1675,7 +1671,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
         new_entries.insert(std::make_pair(AC_ROUTINE_IMAGE, *iterator));
     }
 
-    if (IS_PART_INCLUDED(Sql_editor::CompletionWantColumns))
+    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantColumns))
     {
       log_debug3("Adding column names from cache\n");
 
@@ -1685,7 +1681,7 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
       
       // Additionally, check the references list if the given table name is an alias. If so take columns from
       // the aliased table too.
-      for (std::vector<Sql_editor::TableReference>::const_iterator iterator = context.references.begin();
+      for (std::vector<MySQLEditor::TableReference>::const_iterator iterator = context.references.begin();
         iterator != context.references.end(); ++iterator)
       {
         if (base::same_string(iterator->alias, context.table, true) || base::same_string(iterator->table, context.table, true))
@@ -1709,10 +1705,9 @@ bool Sql_editor::create_auto_completion_list(AutoCompletionContext &context)
 
 //--------------------------------------------------------------------------------------------------
 
-void Sql_editor::show_auto_completion(bool auto_choose_single)
+void MySQLEditor::show_auto_completion(bool auto_choose_single)
 {
-  // With the new splitter we can probably leave auto completion enabled even for large files.
-  if (/*_have_large_content ||*/ !code_completion_enabled())
+  if (!code_completion_enabled())
     return;
 
   log_debug("Invoking code completion\n");
@@ -1759,7 +1754,7 @@ void Sql_editor::show_auto_completion(bool auto_choose_single)
 
 //--------------------------------------------------------------------------------------------------
 
-void Sql_editor::cancel_auto_completion()
+void MySQLEditor::cancel_auto_completion()
 {
   _code_editor->auto_completion_cancel();
 }
@@ -1770,7 +1765,7 @@ void Sql_editor::cancel_auto_completion()
  * The auto completion cache is connection dependent so it must be set by the owner of the editor
  * if there is a connection at all. Ownership of the cache remains with the owner of the editor.
  */
-void Sql_editor::set_auto_completion_cache(AutoCompleteCache *cache)
+void MySQLEditor::set_auto_completion_cache(AutoCompleteCache *cache)
 {
   log_debug2("Auto completion cache set to: %p\n", cache);
 
@@ -1778,14 +1773,3 @@ void Sql_editor::set_auto_completion_cache(AutoCompleteCache *cache)
 }
 
 //--------------------------------------------------------------------------------------------------
-
-bool Sql_editor::fill_auto_completion_keywords(std::vector<std::pair<int, std::string> > &entries,
-  AutoCompletionWantedParts parts, bool upcase_keywords)
-{
-  log_debug("Request for filling the keyword auto completion list with no specialized editor.\n");
-
-  return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-
