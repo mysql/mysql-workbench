@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -121,7 +121,7 @@ namespace MySQL.Utilities
     
   }
 
-	public class WindowsCanvasViewerPanel : Panel
+  public class WindowsCanvasViewerPanel : Panel, MySQL.Forms.ICanvasViewer
 	{
 		#region Member Variables
 
@@ -476,5 +476,10 @@ namespace MySQL.Utilities
 
 
     #endregion
+
+    public Control control()
+    {
+      return this;
+    }
   }
 }

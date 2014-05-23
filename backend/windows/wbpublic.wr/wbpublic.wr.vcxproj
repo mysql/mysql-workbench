@@ -241,7 +241,6 @@
     <ClCompile Include="..\sqlide.wr\src\var_grid_model_wr.cpp" />
     <ClCompile Include="src\ActionList.cpp" />
     <ClCompile Include="src\BaseEditorWrapper.cpp" />
-    <ClCompile Include="src\Canvas.cpp" />
     <ClCompile Include="src\DBObjectFilterBE.cpp" />
     <ClCompile Include="src\DBObjectMasterFilterBE.cpp" />
     <ClCompile Include="src\Grt.cpp" />
@@ -272,7 +271,6 @@
     <ClInclude Include="..\sqlide.wr\src\var_grid_model_wr.h" />
     <ClInclude Include="src\ActionList.h" />
     <ClInclude Include="src\BaseEditorWrapper.h" />
-    <ClInclude Include="src\Canvas.h" />
     <ClInclude Include="src\DBObjectEditorBE.h" />
     <ClInclude Include="src\DBObjectFilterBE.h" />
     <ClInclude Include="src\DBObjectMasterFilterBE.h" />
