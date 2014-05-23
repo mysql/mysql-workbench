@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +17,13 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRTPP_UTIL_H_
-#define _GRTPP_UTIL_H_
+#pragma once
 
-#include <boost/function.hpp>
 #include "grtpp.h"
 
 #include <set>
 
-#include <glib.h>
+#include "base/string_utilities.h"
 
 #define GRTLIST_FOREACH(type, list, iter) \
   for (grt::ListRef<type>::const_iterator iter##end= list.end(), iter= list.begin(); iter != iter##end; ++iter)
@@ -83,59 +81,19 @@ namespace grt
     return "";
   }
 
-/*
-  inline std::string format_message(const MYX_GRT_MSG &msg, bool withtype= false)
-  {
-    std::string text;
-    
-    if (withtype)
-    {
-      switch (msg.msg_type)
-      {
-      case MYX_MSG_INFO:  text= "Info: "; break;
-      case MYX_MSG_WARNING: text= "Warning: "; break;
-      case MYX_MSG_ERROR: text= "Error: "; break;
-      }
-    }
-    
-    text+= msg.msg;
-    
-    if (msg.msg_detail && msg.msg_detail->strings_num > 0 && *msg.msg_detail->strings[0])
-    {
-      text+= " ("+std::string(msg.msg_detail->strings[0])+")";
-    }
-    
-    return text;
-  }
-*/
 
   template<class O>
     inline Ref<O> find_named_object_in_list(const ListRef<O> &list, 
                                             const std::string &value,
-                                            bool case_sensitive= true,
-                                            const std::string &name= "name")
+                                            bool case_sensitive = true,
+                                            const std::string &name = "name")
     {
-      size_t i, c= list.count();
-      
-      if (case_sensitive)
+      for (size_t i = 0; i < list.count(); i++)
       {
-        for (i= 0; i < c; i++)
-        {
-          Ref<O> tmp= list[i];
-          
-          if (tmp.is_valid() && tmp->get_string_member(name) == value)
-            return tmp;
-        }
-      }
-      else
-      {
-        for (i= 0; i < c; i++)
-        {
-          Ref<O> tmp= list[i];
-          
-          if (tmp.is_valid() && g_ascii_strcasecmp(tmp->get_string_member(name).c_str(), value.c_str())==0)
-            return tmp;
-        }
+        Ref<O> tmp = list[i];
+
+        if (tmp.is_valid() && base::same_string(tmp->get_string_member(name), value, case_sensitive))
+          return tmp;
       }
       return Ref<O>();
     }
@@ -331,5 +289,3 @@ namespace grt
     boost::shared_ptr<DiffChange> diff_make(const ValueRef &source, const ValueRef &target, const Omf* omf, bool dont_clone_values = false);
   
 };
-
-#endif

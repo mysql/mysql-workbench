@@ -39,8 +39,11 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
+    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
+    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
+    ${PROJECT_SOURCE_DIR}/library/mysql.parser
     ${GTK2_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${LIBZIP_INCLUDE_DIRS}

@@ -19,6 +19,7 @@
 
 #include "editor_user_role.h"
 #include "db_object_helpers.h"
+
 #include "base/string_utilities.h"
 
 using namespace grt;

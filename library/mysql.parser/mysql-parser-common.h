@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_PARSER_COMMON_H_
-#define _MYSQL_PARSER_COMMON_H_
+#pragma once
 
 #ifdef _WIN32
   #ifdef MYSQL_PARSER_EXPORTS
@@ -29,8 +28,10 @@
 #else
   #define MYSQL_PARSER_PUBLIC_FUNC
 #endif
-
+#include <set>
 #include <antlr3.h>
+#include <string>
+#include <vector>
 
 extern "C" {
   ANTLR3_UINT32 check_charset(void *payload, pANTLR3_STRING text);
@@ -40,26 +41,27 @@ extern "C" {
 struct MySQLParserErrorInfo
 {
   std::string message;
-  ANTLR3_UINT32 error;
   ANTLR3_UINT32 token_type;
-  ANTLR3_UINT32 length;
-  ANTLR3_UINT32 line;
-  ANTLR3_UINT32 offset;
+  size_t charOffset;        // Offset (in bytes) from the beginning of the input to the error position.
+  size_t line;              // Error line.
+  ANTLR3_UINT32 offset;     // Byte offset in the error line to the error start position.
+  size_t length;
 };
 
-class MYSQL_PARSER_PUBLIC_FUNC MySQLParsingBase
+class MYSQL_PARSER_PUBLIC_FUNC MySQLRecognitionBase
 {
 public:
-  MySQLParsingBase(const std::set<std::string> &charsets);
-  virtual ~MySQLParsingBase() {};
+  MySQLRecognitionBase(const std::set<std::string> &charsets);
+  virtual ~MySQLRecognitionBase() {};
 
   // Internal function called by static callback.
-  void add_error(const std::string &text, ANTLR3_UINT32 error, ANTLR3_UINT32 token,
-    ANTLR3_UINT32 line, ANTLR3_UINT32 offset, ANTLR3_UINT32 length);
+  void add_error(const std::string &text, ANTLR3_UINT32 token, ANTLR3_MARKER token_start,
+    ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length);
 
   const std::vector<MySQLParserErrorInfo> &error_info();
   bool has_errors();
   unsigned sql_mode();
+  virtual void set_sql_mode(const std::string &sql_mode);
 
   bool is_charset(const std::string &s);
   bool is_identifier(ANTLR3_UINT32 type);
@@ -71,11 +73,12 @@ public:
   static bool is_subtree(struct ANTLR3_BASE_TREE_struct *tree);
 
 protected:
-  unsigned parse_sql_mode(const std::string &sql_mode);
+  // The start memory address of the input (needed for error position computation).
+  virtual void* input_start() = 0;
+
+  virtual void reset();
 
 private:
   class Private;
   Private *d;
 };
-
-#endif // _MYSQL_PARSER_COMMON_H_

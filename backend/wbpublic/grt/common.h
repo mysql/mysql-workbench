@@ -69,9 +69,6 @@ namespace bec {
 
   WBPUBLICBACKEND_PUBLIC_FUNC bool validate_tree_structure(const grt::ObjectRef &object);
 
-#define DATETIME_FMT "%Y-%m-%d %H:%M"
-  std::string WBPUBLICBACKEND_PUBLIC_FUNC fmttime(time_t t= 0, const char *fmt= "%b %d, %Y");
-
   std::string WBPUBLICBACKEND_PUBLIC_FUNC replace_string(const std::string &s,
                             const std::string &from,
                             const std::string &to);

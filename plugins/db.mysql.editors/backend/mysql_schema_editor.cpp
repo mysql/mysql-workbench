@@ -18,38 +18,47 @@
  */
 
 #include "grt/tree_model.h"
+
 #include "mysql_schema_editor.h"
-#include "grtsqlparser/sql_facade.h"
+
 #include "base/log.h"
+
 #include "mforms/utilities.h"
 
 DEFAULT_LOG_DOMAIN("SchemaEditor");
 
-using namespace base;
+//--------------------------------------------------------------------------------------------------
 
-MySQLSchemaEditorBE::MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_SchemaRef &schema, const db_mgmt_RdbmsRef &rdbms)
-  : bec::SchemaEditorBE(grtm, schema, rdbms)
+MySQLSchemaEditorBE::MySQLSchemaEditorBE(bec::GRTManager *grtm, const db_mysql_SchemaRef &schema)
+  : bec::SchemaEditorBE(grtm, schema)
 {
   _initial_name = schema->name();
+  _schema = schema;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void MySQLSchemaEditorBE::refactor_catalog_upon_schema_rename(const std::string &old_name, const std::string &new_name)
 {
   try
   {
-    //grt::AutoUndo undo(_grtm->get_grt());
     bec::AutoUndoEdit undo(this);
 
-    SqlFacade::instance_for_db_obj(_schema)->renameSchemaReferences(get_catalog(), old_name, new_name);
+    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(get_catalog());
+    _parser_services->renameSchemaReferences(_parser_context, catalog, old_name, new_name);
 
-    undo.end(strfmt(_("Update references to schema: `%s` -> `%s`"), old_name.c_str(), new_name.c_str()));
+    undo.end(base::strfmt(_("Update references to schema: `%s` -> `%s`"), old_name.c_str(), new_name.c_str()));
   }
   catch (std::exception &exc)
   {
-    g_warning("Caught exception trying to refactor schema rename: %s", exc.what());
+    log_error("Exception refactoring for schema rename: %s\n", exc.what());
+    mforms::Utilities::show_error("Refactor Schema",
+                                  base::strfmt("An error occurred while renaming objects from the schema.\n%s", exc.what()),
+                                  "OK", "", "");
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void MySQLSchemaEditorBE::refactor_catalog()
 {
@@ -61,14 +70,15 @@ void MySQLSchemaEditorBE::refactor_catalog()
     if (from_name.empty())
       from_name = _initial_name;
 
-    SqlFacade::instance_for_db_obj(_schema)->renameSchemaReferences(get_catalog(), from_name, to_name);
+    db_mysql_CatalogRef catalog = db_mysql_CatalogRef::cast_from(get_catalog());
+    _parser_services->renameSchemaReferences(_parser_context, catalog, from_name, to_name);
 
     get_schema()->customData().set("LastRefactoringTargetName", grt::StringRef(to_name));
 
-    undo.end(strfmt(_("Update references to schema: `%s` -> `%s`"), from_name.c_str(), to_name.c_str()));
+    undo.end(base::strfmt(_("Update references to schema: `%s` -> `%s`"), from_name.c_str(), to_name.c_str()));
 
     mforms::Utilities::show_message("Refactor Schema",
-                                    base::strfmt("Schema objects were updated to have references from `%s` changed to `%s`.",
+                                    base::strfmt("Schema objects references changed from `%s` changed to `%s`.",
                                                  from_name.c_str(), to_name.c_str()),
                                     "OK");
   }
@@ -76,11 +86,12 @@ void MySQLSchemaEditorBE::refactor_catalog()
   {
     log_error("Exception refactoring for schema rename: %s\n", exc.what());
     mforms::Utilities::show_error("Refactor Schema",
-                                  base::strfmt("An error occurred while renaming objects from the schema.\n%s", exc.what()),
+                                  base::strfmt("An error occurred while changing object references.\n%s", exc.what()),
                                   "OK", "", "");
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool MySQLSchemaEditorBE::refactor_possible()
 {
@@ -91,3 +102,5 @@ bool MySQLSchemaEditorBE::refactor_possible()
 
   return !is_editing_live_object() && from_name != to_name;
 }
+
+//--------------------------------------------------------------------------------------------------

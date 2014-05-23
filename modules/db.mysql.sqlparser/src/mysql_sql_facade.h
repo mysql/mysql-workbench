@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ namespace std {
 };
 #endif
 
-#define MysqlSqlFacade_VERSION "1.0"
+#define MysqlSqlFacade_VERSION "2.0"
  
 #define DOC_MysqlSqlFacadeImpl \
 "MySQL parser routines. Allows parsing SQL scripts into GRT objects, checking syntax etc."
@@ -81,21 +81,23 @@ public:
                                 "filename the SQL script file to be parsed\n"
                                 "options a dictionary containing various options for the parser routine"),
     DECLARE_MODULE_FUNCTION(MysqlSqlFacadeImpl::parseInserts),
-    DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::parseTriggers,
-                                "Parses triggers from the SQL script and adds them to the given table object.",
-                                "table an instantiated table object where the triggers should be added\n"
+
+    DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::parseTrigger,
+                                "Parses a trigger from the SQL script and applies it to the given view object.",
+                                "trigger an instantiated trigger object to fill\n"
                                 "sql the SQL script to be parsed"),
+
     DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::parseRoutine,
                                 "Parses a stored procedure or function from the SQL script and applies it to the given routine object.",
-                                "routine an instantiated routine object where to be initialized\n"
+                                "routine an instantiated routine object to fill\n"
                                 "sql the SQL script to be parsed"),
     DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::parseRoutines,
                                 "Parses a set of stored procedure or function from the SQL script and adds them to the given routine group object.",
-                                "routineGroup an instantiated routine group object to be filled\n"
+                                "routineGroup an instantiated routine group object to fill\n"
                                 "sql the SQL script to be parsed"),
     DECLARE_MODULE_FUNCTION_DOC(MysqlSqlFacadeImpl::parseView,
                                 "Parses a view from the SQL script and applies it to the given view object.",
-                                "view an instantiated view object where to be initialized\n"
+                                "view an instantiated view object to fill\n"
                                 "sql the SQL script to be parsed"),
     DECLARE_MODULE_FUNCTION(MysqlSqlFacadeImpl::checkSqlSyntax),
     DECLARE_MODULE_FUNCTION(MysqlSqlFacadeImpl::checkTriggerSyntax),
@@ -123,7 +125,7 @@ public:
 
   int splitSqlScript(const std::string &sql, std::list<std::string> &statements);
   int splitSqlScript(const char *sql, size_t length, const std::string &initial_delimiter,
-    std::vector<std::pair<size_t, size_t> > &ranges, const char *line_break = "\n");
+    std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n");
   
   Sql_parser::Ref sqlParser();
   int parseSqlScriptString(db_CatalogRef catalog, const std::string sql);
@@ -132,17 +134,17 @@ public:
   int parseSqlScriptFileEx(db_CatalogRef catalog, const std::string filename, const grt::DictRef options);
 
   Invalid_sql_parser::Ref invalidSqlParser();
-  int parseInserts(db_TableRef table, const std::string sql);
-  int parseTriggers(db_TableRef table, const std::string sql);
-  int parseRoutine(db_RoutineRef routine, const std::string sql);
-  int parseRoutines(db_RoutineGroupRef routineGroup, const std::string sql);
-  int parseView(db_ViewRef view, const std::string sql);
+  int parseInserts(db_TableRef table, const std::string &sql);
+  int parseTrigger(db_TriggerRef trigger, const std::string &sql);
+  int parseRoutine(db_RoutineRef routine, const std::string &sql);
+  int parseRoutines(db_RoutineGroupRef routineGroup, const std::string &sql);
+  int parseView(db_ViewRef view, const std::string &sql);
 
   Sql_syntax_check::Ref sqlSyntaxCheck();
-  int checkSqlSyntax(const std::string sql);
-  int checkTriggerSyntax(const std::string sql);
-  int checkViewSyntax(const std::string sql);
-  int checkRoutineSyntax(const std::string sql);
+  int checkSqlSyntax(const std::string &sql);
+  int checkTriggerSyntax(const std::string &sql);
+  int checkViewSyntax(const std::string &sql);
+  int checkRoutineSyntax(const std::string &sql);
 
   Sql_semantic_check::Ref sqlSemanticCheck();
 

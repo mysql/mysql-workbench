@@ -87,13 +87,28 @@ namespace MySQL {
       };
     };
 
+    private ref class SlotWrapper
+    {
+    public:
+      const boost::function<void* ()> *_slot;
+
+      SlotWrapper(const boost::function<void* ()> &slot)
+      {
+        // Make a copy of the slot or it will be invalid at the time we want to run it.
+        _slot = new boost::function<void* ()>(slot);
+      }
+
+      ~SlotWrapper()
+      {
+        delete _slot;
+      }
+    };
+
     private ref class DispatchControl : Windows::Forms::Control
     {
     private:
-      boost::function<void* ()> *_slot;
-      InvokationResult^ RunSlot();
+      InvokationResult^ RunSlot(SlotWrapper ^wrapper);
     public:
-      ~DispatchControl();
       void* RunOnMainThread(const boost::function<void* ()>& slot, bool wait);
     };
 

@@ -3,14 +3,17 @@
 //
 
 #ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
-#endif
 
-#if defined(__cplusplus) && defined(__OBJC__)
+#import <Cocoa/Cocoa.h>
+
+#ifdef __cplusplus
 #import "NSString_Extras.h"
 #endif
 
-#if defined(__cplusplus)
+#endif
+
+#ifdef __cplusplus
+
 #include <string>
 #include <list>
 #include <boost/signals2.hpp>
@@ -19,4 +22,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/foreach.hpp>
+
+#include "grts/structs.db.mysql.h"
+
 #endif

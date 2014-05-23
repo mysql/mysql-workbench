@@ -36,290 +36,290 @@
 
 DEFAULT_LOG_DOMAIN("MySQL parsing")
 
+//--------------------------------------------------------------------------------------------------
+
+std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token)
+{
+  // Transform a selection of tokens to nice strings. All others just take the token name.
+  switch (token)
+  {
+  case ANTLR3_TOKEN_EOF:
+    return "end of statement";
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+    return "<invalid token>";
+  case OPEN_PAR_SYMBOL:
+    return "opening parenthesis";
+  case CLOSE_PAR_SYMBOL:
+    return "closing parenthesis";
+  case OPEN_CURLY_SYMBOL:
+    return "opening curly brace";
+  case CLOSE_CURLY_SYMBOL:
+    return "closing curly brace";
+  case OPEN_BRACKET_SYMBOL:
+    return "opening bracket";
+  case CLOSE_BRACKET_SYMBOL:
+    return "closing bracket";
+  case NULL2_SYMBOL:
+    return "null escape sequence";
+  case PARAM_MARKER:
+    return "parameter placeholder";
+
+  default:
+    std::string result = base::tolower((char *)tokenNames[token]);
+    std::string::size_type position = result.find("_symbol");
+    if (position != std::string::npos)
+      result = result.substr(0, position);
+
+    base::replace(result, "_", " ");
+    return result;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool handle_lexer_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
+  ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
+{
+  pANTLR3_LEXER lexer = (pANTLR3_LEXER)(recognizer->super);
+  start = recognizer->state->tokenStartCharIndex;
+
+  // For debugging use the native error message that contains the grammar line.
+  // std::string native = (pANTLR3_UINT8)(exception->message);
+  length = ANTLR3_UINT32_CAST(((pANTLR3_UINT8)(lexer->input->data) + (lexer->input->size(lexer->input))) - (pANTLR3_UINT8)(exception->index));
+
+  if (length <= 0)
+  {
+    message = "unexpected end of input (unfinished string or quoted identifier)";
+    length = ANTLR3_UINT32_CAST(((pANTLR3_UINT8)(lexer->input->data) + (lexer->input->size(lexer->input))) - (pANTLR3_UINT8)(lexer->rec->state->tokenStartCharIndex));
+  }
+  else
+  {
+    switch (exception->type)
+    {
+    case ANTLR3_RECOGNITION_EXCEPTION:
+      // Invalid character. Can currently never appear because any input from the Unicode BMP
+      // is acceptable input for our parser. We cannot parse input beyond the BMP.
+      message += "'";
+      if (isprint(exception->c))
+        message += (char)exception->c;
+      else
+        message += (ANTLR3_UINT8)(exception->c);
+
+      message += "' is not valid input";
+      break;
+    }
+  }
+  return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION exception,
+  pANTLR3_UINT8 *tokenNames, ANTLR3_MARKER &start, ANTLR3_MARKER &length, std::string &message)
+{
+  std::ostringstream error;
+
+  pANTLR3_PARSER parser = (pANTLR3_PARSER) (recognizer->super);
+  pANTLR3_COMMON_TOKEN error_token = (pANTLR3_COMMON_TOKEN)(exception->token);
+
+  std::string token_text = (char *)error_token->getText(error_token)->chars;
+  if (token_text[0] != '"' && token_text[0] != '\'' && token_text[0] != '`')
+    token_text = "'" + token_text + "'";
+
+  std::string token_name;
+
+  bool eoi = error_token->type == ANTLR3_TOKEN_EOF;
+  if (eoi)
+  {
+    // We are at the end of the input. Seek back one token to have a meaningful error indicator.
+    // If we cannot get a previous token then the stream is messed up enough to not
+    // give us a useful error *here*. In that case we very likely have already a lexer error.
+    error_token = parser->tstream->_LT(parser->tstream, -1);
+    if (error_token == NULL)
+      return false;
+  }
+  else
+    token_name = get_token_name(tokenNames, error_token->type);
+
+  start = error_token->start;
+  switch (exception->type)
+  {
+  case ANTLR3_RECOGNITION_EXCEPTION:
+    // Unpredicted input.
+    error << token_text << " (" << token_name << ") is not valid input at this position";
+    break;
+
+  case ANTLR3_MISMATCHED_TOKEN_EXCEPTION:
+    // We were expecting to see one thing and got another. This is the
+    // most common error if we could not detect a missing or unwanted token.
+    if (exception->expecting == ANTLR3_TOKEN_EOF)
+      error << "expected end of statement but found " << token_text << " (" << token_name << ")";
+    else
+      error << "expected '" << tokenNames[exception->expecting] << "' but found " << token_text << " (" << token_name << ")";
+    break;
+
+  case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
+    // No alternative to choose from here.
+    if (eoi)
+      error << "unexpected end of statement";
+    else
+      error << "unexpected " << token_text << " (" << token_name << ")";
+
+    break;
+
+  case ANTLR3_MISMATCHED_SET_EXCEPTION:
+    {
+      // One out of a set of tokens was expected but hasn't been found.
+      pANTLR3_BITSET errBits = antlr3BitsetLoad(exception->expectingSet);
+      ANTLR3_UINT32 numbits = errBits->numBits(errBits);
+      ANTLR3_UINT32 size = errBits->size(errBits);
+
+      if (size == 0)
+      {
+        // No information about expected tokens available.
+        error << "unexpected " << token_text << " (" << token_name << ")";
+      }
+      else
+      {
+        // I'd expect only a few set members here, but this case is hard to test. So
+        // just to be sure not to show a huge list of expected tokens we limit the number here.
+        // TODO: find a query that triggers this error branch.
+        error << "wrong input, expected one of: ";
+        for (ANTLR3_UINT32 bit = 1; bit < numbits && bit <= 20 && bit < size; ++bit)
+        {
+          if  (errBits->isMember(errBits, bit))
+            error << (bit > 1 ? ", " : "") << get_token_name(tokenNames, bit);
+        }
+      }
+    }
+    break;
+
+  case ANTLR3_EARLY_EXIT_EXCEPTION:
+    // We entered a loop requiring a number of token sequences but found a token that ended that
+    // sequence earlier than we should have done.
+    // Unfortunately, there's no expecting set for this exception which would have made the message
+    // very useful.
+    error << "missing sub clause or other elements before " << token_text << " (" << token_name << ")";
+    break;
+
+  case ANTLR3_FAILED_PREDICATE_EXCEPTION:
+    // Probably something we can use to indicated an error that would not occur for other server
+    // versions (as that is what we mostly use predicates for), but to be sure we need a test case
+    // to trigger that error (which I haven't found yet).
+    // On the other hand a predicate is only to direct the parser. It shouldn't raise an error.
+    // TODO: find a query that triggers this error branch.
+    error << "failed predicate";
+    break;
+
+  case ANTLR3_MISMATCHED_TREE_NODE_EXCEPTION:
+    // This is very likely a tree parser error and hence not relevant here (no info in ANTLR docs).
+    error << "unexpected parser error type (" << exception->type << "), please file a bug report!";
+    break;
+
+  case ANTLR3_REWRITE_EARLY_EXCEPTION:
+    // ANTLR docs say: No elements within a (...)+ in a rewrite rule
+    // so this seems to be an error only raised if there was a grammar bug -> internal error.
+    error << "internal parser error type (" << exception->type << "), please file a bug report!";
+    break;
+
+  case ANTLR3_UNWANTED_TOKEN_EXCEPTION:
+    // Indicates that the recognizer was fed a token which seems to be spurious input. We can detect
+    // this when the token that follows this unwanted token would normally be part of the
+    // syntactically correct stream.
+    if	(exception->expecting == ANTLR3_TOKEN_EOF)
+      error << "extraneous input found - expected end of statement";
+    else
+      error << "extraneous input found - expected '" << get_token_name(tokenNames, exception->expecting) << "'";
+    break;
+
+  case ANTLR3_MISSING_TOKEN_EXCEPTION:
+    {
+      // Indicates that the recognizer detected that the token we just
+      // hit would be valid syntactically if preceded by a particular
+      // token. Perhaps a missing ';' at line end or a missing ',' in an
+      // expression list, and such like.
+      if (tokenNames == NULL)
+        error << "missing token " << exception->expecting; // Will very likely never occur.
+      else
+      {
+        if (exception->expecting == ANTLR3_TOKEN_EOF)
+          // Will probably not occur since ANTLR3_UNWANTED_TOKEN_EXCEPTION will kick in instead.
+          error << "expected end of statement";
+        else
+          error << "missing '" << get_token_name(tokenNames, exception->expecting) << "'";
+      }
+
+      // The error token for a missing token does not contain much information to display.
+      // If we reach this error case then the token after the missing token has been consumed already
+      // (which is how the parser found out about the missing one), so by going back to that token
+      // we can get good start and length information (showing so the error at this following token instead).
+      error_token = parser->tstream->_LT(parser->tstream, -1);
+      if (error_token == NULL)
+        return false;
+
+      start = error_token->start;
+      break;
+    }
+
+  default:
+    error << "unexpected parser error type (" << exception->type << "), please file a bug report!";
+    break;
+
+  }
+
+  if (length == 0)
+  {
+    if (error_token != NULL)
+      length = (int)error_token->stop - (int)error_token->start + 1;
+    else
+      length = 1;
+  }
+
+  message = error.str();
+  return true;
+}
+
+//-------------------------------------------------------------------------------------------------- 
+
 extern "C" {
 
   /**
    * Error report function which is set in the parser (see MySQL.g where this is done).
-   * This function handles all 3 recognizer types (lexer, parser and tree parser).
    */
-  void on_parse_error(struct ANTLR3_BASE_RECOGNIZER_struct *recognizer, pANTLR3_UINT8 *tokenNames)
+  void on_parse_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8 *tokenNames)
   {
-    std::ostringstream error;
+    pANTLR3_EXCEPTION exception = recognizer->state->exception;
 
-	  pANTLR3_LEXER lexer;
-	  pANTLR3_PARSER parser;
-	  pANTLR3_TREE_PARSER tparser;
-	  pANTLR3_INT_STREAM is;
-	  pANTLR3_STRING ttext;
-	  pANTLR3_STRING ftext;
-	  pANTLR3_EXCEPTION ex;
-	  pANTLR3_COMMON_TOKEN theToken = NULL;
-	  pANTLR3_BASE_TREE theBaseTree;
-	  pANTLR3_COMMON_TREE theCommonTree;
-
-    // TODO: the generated message can be simplified, now that we also return token info.
-
-	  // Retrieve some info for easy reading.
-	  ex = recognizer->state->exception;
-	  ttext = NULL;
-
-	  // See if there is a 'filename' we can use.
-	  if	(ex->streamName == NULL)
-	  {
-		  if	(((pANTLR3_COMMON_TOKEN)(ex->token))->type == ANTLR3_TOKEN_EOF)
-			  error << "-end of input-(";
-		  else
-			  error << "-unknown source-(";
-	  }
-	  else
-	  {
-		  ftext = ex->streamName->to8(ex->streamName);
-		  error << ftext->chars << "(";
-	  }
-
-	  // Next comes the line number.
-	  error << recognizer->state->exception->line << ") ";
-	  error << " : error " << recognizer->state->exception->type << " : " <<	(pANTLR3_UINT8)(recognizer->state->exception->message);
-
-	  // How we determine the next piece is dependent on which thing raised the error.
-	  switch	(recognizer->type)
-	  {
-      case ANTLR3_TYPE_LEXER:
+    while (exception != NULL)
+    {
+      // Token position and length for error marker.
+      ANTLR3_MARKER length = 0;
+      ANTLR3_MARKER start = 0;
+      std::string message;
+      switch (recognizer->type)
       {
-        lexer = (pANTLR3_LEXER)(recognizer->super);
-        parser = NULL;
-        tparser = NULL;
+      case ANTLR3_TYPE_LEXER:
+        if (!handle_lexer_error(recognizer, exception, start, length, message))
+          return;
+        break;
 
-        error << " : lexer error " << ex->type << " : " <<	(pANTLR3_UINT8)(ex->message);
-        error << ", at offset " << ex->charPositionInLine + 1;
-
-        {
-          ANTLR3_INT32	width;
-
-          width	= ANTLR3_UINT32_CAST(( reinterpret_cast<pANTLR3_UINT8>(lexer->input->data) + (lexer->input->size(lexer->input) )) - reinterpret_cast<pANTLR3_UINT8>(ex->index));
-
-          if	(width >= 1)
-          {
-            if	(isprint(ex->c))
-              error << " near '" << (char)ex->c << "' :\n";
-            else
-              error << " near char(" << (ANTLR3_UINT8)(ex->c) << ") :\n";
-          }
-          else
-          {
-            error << "(end of input).\n\t Probably an unfinished wrapped expression (e.g. \"string\", (..) etc.\n";
-            width = ANTLR3_UINT32_CAST((reinterpret_cast<pANTLR3_UINT8>(lexer->input->data) + (lexer->input->size(lexer->input))) - reinterpret_cast<pANTLR3_UINT8>(lexer->rec->state->tokenStartCharIndex));
-          }
-        }
-
+      case ANTLR3_TYPE_PARSER:
+        if (!handle_parser_error(recognizer, exception, tokenNames, start, length, message))
+          return;
         break;
       }
 
-      case	ANTLR3_TYPE_PARSER:
-        // Prepare the knowledge we know we have.
-        parser = (pANTLR3_PARSER) (recognizer->super);
-        tparser = NULL;
-        is = parser->tstream->istream;
-        theToken = (pANTLR3_COMMON_TOKEN)(recognizer->state->exception->token);
-        ttext = theToken->toString(theToken);
+      pANTLR3_COMMON_TOKEN error_token = (pANTLR3_COMMON_TOKEN)(exception->token);
+      MySQLRecognitionBase *our_recognizer = (MySQLRecognitionBase*)((RecognitionContext*)recognizer->state->userp)->payload;
+      our_recognizer->add_error("Syntax error: " + message,
+        (error_token == NULL) ? 0 : error_token->type, start,
+        exception->line, exception->charPositionInLine, length);
 
-        error << ", at offset " << recognizer->state->exception->charPositionInLine;
-        if  (theToken != NULL)
-        {
-          if (theToken->type == ANTLR3_TOKEN_EOF)
-            error << ", at <EOF>";
-          else
-            error << "\n    near " << (ttext == NULL ? (pANTLR3_UINT8)"<no text for the token>" : ttext->chars) << "\n    ";
-        }
-        break;
-
-      case	ANTLR3_TYPE_TREE_PARSER:
-        tparser		= (pANTLR3_TREE_PARSER) (recognizer->super);
-        parser		= NULL;
-        is			= tparser->ctnstream->tnstream->istream;
-        theBaseTree	= (pANTLR3_BASE_TREE)(recognizer->state->exception->token);
-        ttext		= theBaseTree->toStringTree(theBaseTree);
-
-        if  (theBaseTree != NULL)
-        {
-          theCommonTree	= (pANTLR3_COMMON_TREE)	    theBaseTree->super;
-
-          if	(theCommonTree != NULL)
-            theToken	= (pANTLR3_COMMON_TOKEN)theBaseTree->getToken(theBaseTree);
-          error << ", at offset " << theBaseTree->getCharPositionInLine(theBaseTree) << ", near " << ttext->chars;
-        }
-        break;
-
-      default:
-        error << "Internal error: unknown recognizer type appeared in error reporting.\n";
-        return;
-        break;
-	  }
-
-	  // Although this function should generally be provided by the implementation, this one
-	  // should be as helpful as possible for grammar developers and serve as an example
-	  // of what you can do with each exception type. In general, when you make up your
-	  // 'real' handler, you should debug the routine with all possible errors you expect
-	  // which will then let you be as specific as possible about all circumstances.
-	  //
-	  // Note that in the general case, errors thrown by tree parsers indicate a problem
-	  // with the output of the parser or with the tree grammar itself. The job of the parser
-	  // is to produce a perfect (in traversal terms) syntactically correct tree, so errors
-	  // at that stage should really be semantic errors that your own code determines and handles
-	  // in whatever way is appropriate.
-	  switch (ex->type)
-	  {
-      case ANTLR3_UNWANTED_TOKEN_EXCEPTION:
-
-        // Indicates that the recognizer was fed a token which seesm to be
-        // spurious input. We can detect this when the token that follows
-        // this unwanted token would normally be part of the syntactically
-        // correct stream. Then we can see that the token we are looking at
-        // is just something that should not be there and throw this exception.
-        if (tokenNames == NULL)
-          error << " : Extraneous input...";
-        else
-        {
-          if	(ex->expecting == ANTLR3_TOKEN_EOF)
-            error << " : Extraneous input - expected <EOF>\n";
-          else
-            error << " : Extraneous input - expected " << tokenNames[ex->expecting] <<  "...\n";
-        }
-        break;
-
-      case ANTLR3_MISSING_TOKEN_EXCEPTION:
-
-        // Indicates that the recognizer detected that the token we just
-        // hit would be valid syntactically if preceeded by a particular
-        // token. Perhaps a missing ';' at line end or a missing ',' in an
-        // expression list, and such like.
-        if	(tokenNames == NULL)
-        {
-          error << " : Missing token (" << ex->expecting << ")...\n";
-        }
-        else
-        {
-          if	(ex->expecting == ANTLR3_TOKEN_EOF)
-            error << " : Missing <EOF>\n";
-          else
-            error << " : Missing " << tokenNames[ex->expecting] << " \n";
-        }
-        break;
-
-      case	ANTLR3_RECOGNITION_EXCEPTION:
-
-        // Indicates that the recognizer received a token
-        // in the input that was not predicted. This is the basic exception type
-        // from which all others are derived. So we assume it was a syntax error.
-        // You may get this if there are not more tokens and more are needed
-        // to complete a parse for instance.
-        error << " : syntax error...\n";
-        break;
-
-      case    ANTLR3_MISMATCHED_TOKEN_EXCEPTION:
-
-        // We were expecting to see one thing and got another. This is the
-        // most common error if we coudl not detect a missing or unwanted token.
-        // Here you can spend your efforts to
-        // derive more useful error messages based on the expected
-        // token set and the last token and so on. The error following
-        // bitmaps do a good job of reducing the set that we were looking
-        // for down to something small. Knowing what you are parsing may be
-        // able to allow you to be even more specific about an error.
-        if	(tokenNames == NULL)
-          error << " : syntax error...\n";
-        else
-        {
-          if	(ex->expecting == ANTLR3_TOKEN_EOF)
-            error << " : expected <EOF>\n";
-          else
-            error << " : expected " << tokenNames[ex->expecting] << " ...\n";
-        }
-        break;
-
-      case	ANTLR3_NO_VIABLE_ALT_EXCEPTION:
-
-        // We could not pick any alt decision from the input given
-        // so god knows what happened - however when you examine your grammar,
-        // you should. It means that at the point where the current token occurred
-        // that the DFA indicates nowhere to go from here.
-        error << " : cannot match to any predicted input...\n";
-
-        break;
-
-      case	ANTLR3_MISMATCHED_SET_EXCEPTION:
-
-		  {
-			  ANTLR3_UINT32	  count;
-			  ANTLR3_UINT32	  bit;
-			  ANTLR3_UINT32	  size;
-			  ANTLR3_UINT32	  numbits;
-			  pANTLR3_BITSET	errBits;
-
-			  // This means we were able to deal with one of a set of
-			  // possible tokens at this point, but we did not see any
-			  // member of that set.
-			  error << " : unexpected input...\n  expected one of : ";
-
-			  // What tokens could we have accepted at this point in the parse?
-			  count   = 0;
-			  errBits = antlr3BitsetLoad(ex->expectingSet);
-			  numbits = errBits->numBits(errBits);
-			  size    = errBits->size(errBits);
-
-			  if  (size > 0)
-			  {
-				  // However many tokens we could have dealt with here, it is usually
-				  // not useful to print ALL of the set here. I arbitrarily chose 8
-				  // here, but you should do whatever makes sense for you of course.
-				  // No token number 0, so look for bit 1 and on.
-				  for	(bit = 1; bit < numbits && count < 8 && count < size; bit++)
-				  {
-					  // TODO: This doesn;t look right - should be asking if the bit is set!!
-					  if  (tokenNames[bit])
-					  {
-						  error << (count > 0 ? ", " : "") << tokenNames[bit];
-						  count++;
-					  }
-				  }
-				  error << "\n";
-			  }
-			  else
-			  {
-				  error << "Actually dude, we didn't seem to be expecting anything here, or at least\n";
-				  error << "I could not work out what I was expecting, like so many of us these days!\n";
-			  }
-		  }
-        break;
-
-      case	ANTLR3_EARLY_EXIT_EXCEPTION:
-
-        // We entered a loop requiring a number of token sequences
-        // but found a token that ended that sequence earlier than
-        // we should have done.
-        error << " : missing elements...\n";
-        break;
-
-      default:
-
-        // We don't handle any other exceptions here, but you can
-        // if you wish. If we get an exception that hits this point
-        // then we are just going to report what we know about the
-        // token.
-        error << " : syntax not recognized...\n";
-        break;
-	  }
-
-    int length = 0;
-    if (theToken != NULL)
-      length = (int)theToken->stop - (int)theToken->start + 1;
-
-    MySQLParsingBase *our_recognizer = (MySQLParsingBase*)((RecognitionContext*)recognizer->state->userp)->payload;
-    if (ex == NULL)
-      our_recognizer->add_error(error.str(), 0, 0, 0, 0, 0);
-    else
-      our_recognizer->add_error(error.str(), ex->type, (theToken == NULL) ? 0 : theToken->type,
-                                ex->line, ex->charPositionInLine, length);
+      exception = exception->nextException;
+    }
   }
 
 } // extern "C"
@@ -340,7 +340,10 @@ MySQLRecognizerTreeWalker::MySQLRecognizerTreeWalker(MySQLRecognizer *recognizer
 {
   _recognizer = recognizer;
   _tree = tree;
-  _origin = tree;
+  if (token_type() == 0) // If there's a null root node skip over that.
+    next();
+
+  _origin = _tree;
 
   // Fill the list of tokens for quick lookup by type or position in the correct order.
   pANTLR3_BASE_TREE run = _tree;
@@ -461,18 +464,23 @@ void MySQLRecognizerTreeWalker::print_token(pANTLR3_BASE_TREE tree)
  * otherwise the next sibling node is used. If there is no sibling node then the next sibling of
  * the parent is used, if there's one, and so on.
  *
- * @return True if there was a next node, false otherwise. No change in the state is performed if
- *         there was no next node.
+ * @param count Number of steps. Default is 1.
+ * @return True if there was count next nodes, false otherwise. If false then no state change is performed.
  */
-bool MySQLRecognizerTreeWalker::next()
+bool MySQLRecognizerTreeWalker::next(size_t count)
 {
-  pANTLR3_BASE_TREE node = get_next(_tree, true);
-  if (node != NULL)
+  pANTLR3_BASE_TREE node = _tree;
+  while (count > 0)
   {
-    _tree = node;
-    return true;
+    node = get_next(node, true);
+    if (node == NULL)
+      return false;
+
+    --count;
   }
-  return false;
+
+  _tree = node;
+  return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -585,8 +593,8 @@ bool MySQLRecognizerTreeWalker::advance_to_position(int line, int offset)
   if (_token_list.size() == 0)
     return false;
 
-  pANTLR3_BASE_TREE current = _tree;
-  for (size_t i = 0; i < _token_list.size(); i++)
+  size_t i = 0;
+  for (; i < _token_list.size(); i++)
   {
     pANTLR3_BASE_TREE run = _token_list[i];
     ANTLR3_UINT32 token_line = run->getLine(run);
@@ -613,10 +621,8 @@ bool MySQLRecognizerTreeWalker::advance_to_position(int line, int offset)
     }
   }
 
-  // If the loop didn't reach a token after the given position then we are
-  // within or after the last token.
-  if (current == _tree)
-    _tree = _token_list[_token_list.size() - 1];
+  if (i == _token_list.size())
+    _tree = _token_list[i - 1]; // Nothing found, take the last token instead.
 
   return true;
 }
@@ -627,7 +633,7 @@ bool MySQLRecognizerTreeWalker::advance_to_position(int line, int offset)
  * Advances to the next token with the given type. The parameter type can be any token id listed in
  * MySQLParser.h (search for "Symbolic definitions"). It can be either a simple lexical token
  * like DIV_OPERATOR or SELECT_SYMBOL, a more complex lexical token like IDENTIFIER or a parser token like
- * GROUP_BY or MISSING_ID. Tokens ending with _SYMBOL are text literals (e.g. "SELECT", "DIV" etc.)
+ * GROUP_BY or MISSING_ID.
  *
  * @param type The token type to search.
  * @param recurse If false search only siblings, otherwise any node in any tree level.
@@ -769,6 +775,17 @@ bool MySQLRecognizerTreeWalker::skip_token_sequence(unsigned int start_token, ..
   va_end(tokens);
 
   return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Advance to the nth next token if the current one is that given by @token.
+ */
+void MySQLRecognizerTreeWalker::skip_if(unsigned int token, size_t count)
+{
+  if (token_type() == token)
+    next(count);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -990,6 +1007,17 @@ unsigned int MySQLRecognizerTreeWalker::token_start()
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * Returns the offset of the token in its source string.
+ */
+size_t MySQLRecognizerTreeWalker::token_offset()
+{
+  pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
+  return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->input_start());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Returns the length of the token in bytes.
  */
 int MySQLRecognizerTreeWalker::token_length()
@@ -1000,6 +1028,13 @@ int MySQLRecognizerTreeWalker::token_length()
 
   // Start and stop are actually pointers into the input stream.
   return (int) token->stop - (int) token->start + 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string MySQLRecognizerTreeWalker::text_for_tree()
+{
+  return _recognizer->text_for_tree(_tree);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1113,36 +1148,107 @@ public:
   pMySQLLexer _lexer;
   pANTLR3_COMMON_TOKEN_STREAM _tokens;
   pMySQLParser _parser;
-  MySQLParser_query_return _ast;
+  pANTLR3_BASE_TREE _ast;
 };
 
-MySQLRecognizer::MySQLRecognizer(const char *text, size_t length, bool is_utf8, long server_version,
-                                 const std::string &sql_mode, const std::set<std::string> &charsets)
-: MySQLParsingBase(charsets)
+MySQLRecognizer::MySQLRecognizer(long server_version, const std::string &sql_mode, const std::set<std::string> &charsets)
+  : MySQLRecognitionBase(charsets)
 {
   d = new Private();
-  d->_text = text;
-  d->_text_length = length;
   d->_context.version = server_version;
   d->_context.payload = this;
-  d->_context.sql_mode = parse_sql_mode(sql_mode);
+  set_sql_mode(sql_mode);
 
-  // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
-  // (everything requiring only one byte per char as Latin1, ASCII and similar).
-  d->_input_encoding = is_utf8 ? ANTLR3_ENC_UTF8 : ANTLR3_ENC_8BIT;
-  parse();
+  d->_input = NULL;
+  d->_lexer = NULL;
+  d->_tokens = NULL;
+  d->_parser = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 MySQLRecognizer::~MySQLRecognizer()
 {
-  d->_parser->free(d->_parser);
-  d->_tokens ->free(d->_tokens);
-  d->_lexer->free(d->_lexer);
-  d->_input->close(d->_input);
+  if (d->_parser != NULL)
+    d->_parser->free(d->_parser);
+  if (d->_tokens != NULL)
+    d->_tokens ->free(d->_tokens);
+  if (d->_lexer != NULL)
+    d->_lexer->free(d->_lexer);
+  if (d->_input != NULL)
+    d->_input->close(d->_input);
 
   delete d;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Starts parsing with new input but keeps everything else in place. This is expected to be more
+ * efficient than creating a new parser over and over again for many statements (e.g. for error checking).
+ * 
+ * @param text The text to parse.
+ * @param length The length of the text.
+ * @param is_utf8 True if text is utf-8 encoded. If false we assume ASCII encoding.
+ * @param parse_unit used to restrict parsing to a particular query type. 
+ *                   Note: only a few types are supported, everything else is just parsed as a query.
+ */
+void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQLQueryType parse_unit)
+{
+  // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
+  // (everything requiring only one byte per char as Latin1, ASCII and similar).
+  // TODO: handle the (bad) case that the input encoding changes between parse runs.
+  d->_input_encoding = is_utf8 ? ANTLR3_ENC_UTF8 : ANTLR3_ENC_8BIT;
+
+  d->_text = text;
+  d->_text_length = length;
+
+  // Logging adds significant time to parsing which especially shows with large scripts
+  // (thousands of rather small queries to error check). And it adds not much benefit, so leave it off.
+  //log_debug3("Start parsing\n");
+
+  reset();
+
+  // Always recreate the parser struct as there's a mem leak in the reset() function.
+  if (d->_parser != NULL)
+    d->_parser->free(d->_parser);
+
+  if (d->_input == NULL)
+  {
+    // Input and depending structures are only created once. If there's no input stream yet we need the full setup.
+    d->_input = antlr3StringStreamNew((pANTLR3_UINT8)d->_text, d->_input_encoding, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
+    d->_input->setUcaseLA(d->_input, ANTLR3_TRUE); // Make input case-insensitive. String literals must all be upper case in the grammar!
+    d->_lexer = MySQLLexerNew(d->_input);
+    d->_lexer->pLexer->rec->state->userp = &d->_context;
+
+    d->_tokens = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(d->_lexer));
+  }
+  else
+  {
+    d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
+    d->_tokens->reset(d->_tokens);
+    d->_lexer->reset(d->_lexer);
+  }
+
+  d->_parser = MySQLParserNew(d->_tokens);
+  d->_parser->pParser->rec->state->userp = &d->_context;
+  
+  switch (parse_unit)
+  {
+  case QtCreateTrigger:
+    d->_ast = d->_parser->create_trigger(d->_parser).tree;
+    break;
+  case QtCreateView:
+    d->_ast = d->_parser->create_view(d->_parser).tree;
+    break;
+  case QtCreateRoutine:
+    d->_ast = d->_parser->create_routine(d->_parser).tree;
+    break;
+  case QtCreateEvent:
+    d->_ast = d->_parser->create_trigger(d->_parser).tree;
+  default:
+    d->_ast = d->_parser->query(d->_parser).tree;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1151,7 +1257,7 @@ std::string MySQLRecognizer::dump_tree()
 {
   log_debug2("Generating parse tree\n");
 
-  return dump_tree(d->_ast.tree, "");
+  return dump_tree(d->_ast, "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1204,26 +1310,9 @@ std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLRecognizer::parse()
+void* MySQLRecognizer::input_start()
 {
-  log_debug2("Start parsing\n");
-
-  d->_input = antlr3StringStreamNew((pANTLR3_UINT8)d->_text, d->_input_encoding, (ANTLR3_UINT32)d->_text_length,
-                                    (pANTLR3_UINT8)"mysql-script");
-  d->_input->setUcaseLA(d->_input, ANTLR3_TRUE); // Make input case-insensitive. String literals must all be upper case in the grammar!
-
-  d->_lexer = MySQLLexerNew(d->_input);
-  d->_lexer->pLexer->rec->state->userp = &d->_context;
-  d->_tokens = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(d->_lexer));
-  d->_parser = MySQLParserNew(d->_tokens);
-  d->_parser->pParser->rec->state->userp = &d->_context;
-
-  d->_ast = d->_parser->query(d->_parser);
-
-  ANTLR3_UINT32 error_count = d->_parser->pParser->rec->getNumberOfSyntaxErrors(d->_parser->pParser->rec);
-  if (error_count > 0)
-    log_debug3("%i errors found\n", error_count);
-  log_debug2("Parsing ended\n");
+  return (void *)d->_text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1233,14 +1322,29 @@ void MySQLRecognizer::parse()
  */
 MySQLRecognizerTreeWalker MySQLRecognizer::tree_walker()
 {
-  return MySQLRecognizerTreeWalker(this, d->_ast.tree);
+  return MySQLRecognizerTreeWalker(this, d->_ast);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-unsigned MySQLRecognizer::sql_mode()
+void MySQLRecognizer::set_sql_mode(const std::string &new_mode)
 {
-  return d->_context.sql_mode;
+  MySQLRecognitionBase::set_sql_mode(new_mode);
+  d->_context.sql_mode = sql_mode();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLRecognizer::set_server_version(long new_version)
+{
+  d->_context.version = new_version;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+long MySQLRecognizer::server_version()
+{
+  return d->_context.version;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1315,7 +1419,7 @@ std::string MySQLRecognizer::token_text(pANTLR3_BASE_TREE node)
 
 MySQLQueryType MySQLRecognizer::query_type()
 {
-  return query_type(d->_ast.tree);
+  return query_type(d->_ast);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2004,6 +2108,38 @@ MySQLQueryType MySQLRecognizer::query_type(pANTLR3_BASE_TREE node)
   }
   
   return QtUnknown;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * If the given node is a subtree this function collects the original text for all tokens in this tree,
+ * including all tokens on the hidden channel (whitespaces).
+ */
+std::string MySQLRecognizer::text_for_tree(pANTLR3_BASE_TREE node)
+{
+  if (node->getChildCount(node) == 0)
+    return "";
+
+  std::string result;
+
+  pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)node->getChild(node, 0);
+  pANTLR3_COMMON_TOKEN token = child->getToken(child);
+  ANTLR3_MARKER start = token->start;
+
+  child = (pANTLR3_BASE_TREE)node->getChild(node, node->getChildCount(node) - 1);
+  token = child->getToken(child);
+  ANTLR3_MARKER stop = token->stop;
+/*
+  pANTLR3_TOKEN_STREAM token_stream = d->_tokens->tstream;
+  for (ANTLR3_MARKER i = start; i <= stop; ++i)
+  {
+    pANTLR3_COMMON_TOKEN token = token_stream->get(token_stream, i);
+    pANTLR3_STRING text = token->getText(token);
+    result += (char*)text->chars;
+  }
+*/
+  return std::string((char*)start, stop - start + 1);
 }
 
 //--------------------------------------------------------------------------------------------------

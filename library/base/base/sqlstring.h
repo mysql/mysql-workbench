@@ -73,7 +73,7 @@ namespace base {
       if (esc != '?')
           throw std::invalid_argument("Error formatting SQL query: invalid escape for numeric argument");
 
-      const char *format = (sizeof(T) <= sizeof(int32_t) ? "%i" : "%"PRId64);
+      const char *format = (sizeof(T) <= sizeof(int32_t) ? "%i" : "%" PRId64);
       append(strfmt(format, value));
       append(consume_until_next_escape());
       return *this;  

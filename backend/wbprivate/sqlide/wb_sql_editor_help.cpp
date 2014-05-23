@@ -93,6 +93,7 @@ static std::string query_type_to_help_topic[] = {
   "create database",      // QtCreateDatabase
   "create event",         // QtCreateEvent
   "create view",          // QtCreateView
+  "create procedure",     // QtCreateRoutine
   "create procedure",     // QtCreateProcedure
   "create function",      // QtCreateFunction
   "create function udf",  // QtCreateUdf
@@ -511,8 +512,8 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
   // There are a few cases where we need a parser to decide. That might however fail due to
   // syntax errors. So we check first these special cases if we can solve them by
   // parsing. If not we continue with our normal strategy.
-  MySQLRecognizer recognizer(query.c_str(), query.length(), true, form->server_version(),
-    form->sql_mode(), form->valid_charsets());
+  MySQLRecognizer recognizer(form->server_version(), form->sql_mode(), form->valid_charsets());
+  recognizer.parse(query.c_str(), query.length(), true, QtUnknown);
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
   bool found_token = walker.advance_to_position((int)caret.second, (int)caret.first);
   if (found_token && recognizer.has_errors())
@@ -521,7 +522,7 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
     // we cannot predict what's in the syntax tree.
     MySQLParserErrorInfo error = recognizer.error_info().front();
     found_token = ((int)error.line > caret.second ||
-      (int)error.line == caret.second && (int)error.offset > caret.first);
+      (int)error.line == caret.second && (int)error.charOffset > caret.first);
   }
 
   if (found_token)
@@ -661,8 +662,8 @@ bool is_token_without_topic(unsigned type)
 std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref &form,
   const std::string &query, std::pair<ssize_t, ssize_t> caret)
 {
-  // Don't log the entire query. That can really take a moment with large queries.
-  log_debug2("Trying to get help topic from a position\n");
+  log_debug2("Trying to get help topic at position <%li, %li>, from query: %s...\n", caret. first,
+    caret.second, query.substr(0, 300).c_str());
   
   // First collect all tokens up to the caret position.
   MySQLScanner scanner(query.c_str(), query.length(), true, form->server_version(), form->sql_mode(),

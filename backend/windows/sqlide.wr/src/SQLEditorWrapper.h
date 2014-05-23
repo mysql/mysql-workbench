@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __SQL_EDITOR_WR_H__
-#define __SQL_EDITOR_WR_H__
+#pragma once
 
 #include "sqlide/sql_editor_be.h"
 
@@ -37,7 +36,7 @@ namespace Workbench {
 public ref class SqlEditorWrapper
 {
 public:
-  typedef MySQL::Grt::ManagedRef<::Sql_editor>^ Ref;
+  typedef MySQL::Grt::ManagedRef<MySQLEditor>^ Ref;
 
 private:
   Ref _ref;
@@ -73,6 +72,3 @@ public:
 };  // namespace Workbench
 };  // namespace GUI
 };  // namespace MySQL
-
-
-#endif // __SQL_EDITOR_WR_H__

@@ -49,7 +49,7 @@ TEST_FUNCTION(1)
 	for (int n= 0, count= rdbms_list.count(); n < count; ++n)
 	{
 		db_mgmt_RdbmsRef rdbms= rdbms_list[n];
-		Sql_editor::Ref sql_editor= Sql_editor::create(rdbms);
+		MySQLEditor::Ref sql_editor = MySQLEditor::create(rdbms);
 		ensure(("failed to get sql editor for " + rdbms->name().repr() + " RDBMS").c_str(), (NULL != sql_editor.get()));
 	}
 }

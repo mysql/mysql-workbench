@@ -3592,21 +3592,21 @@ grt::DictRef WBContext::get_wb_options()
   return get_root()->options()->options();
 }
 
-
+// XXX: we have mforms::Utilities::perform_from_main_thread.
 void WBContext::execute_in_main_thread(const std::string &name, 
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error)
 {
   _manager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
 }
 
-
+// XXX: not used anymore.
 grt::ValueRef WBContext::execute_in_grt_thread(const std::string &name, 
                                                    const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
 {
   return _manager->get_dispatcher()->execute_simple_function(name, function);
 }
 
-
+// XXX: not used anymore.
 void WBContext::execute_async_in_grt_thread(const std::string &name, 
                                             const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
 {

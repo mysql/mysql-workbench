@@ -70,23 +70,11 @@
     <ClCompile Include="src\DBObjectMasterFilterBE.cpp">
       <Filter>Source Files\grtdb</Filter>
     </ClCompile>
-    <ClCompile Include="src\RoutineEditorBE.cpp">
-      <Filter>Source Files\grtdb</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RoutineGroupEditorBE.cpp">
-      <Filter>Source Files\grtdb</Filter>
-    </ClCompile>
     <ClCompile Include="src\SchemaEditorWrapper.cpp">
       <Filter>Source Files\grtdb</Filter>
     </ClCompile>
     <ClCompile Include="src\TableEditorWrapper.cpp">
       <Filter>Source Files\grtdb</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ViewEditorBE.cpp">
-      <Filter>Source Files\grtdb</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ObjectRolesBE.cpp">
-      <Filter>Source Files\user and roles</Filter>
     </ClCompile>
     <ClCompile Include="src\RoleTreeBE.cpp">
       <Filter>Source Files\user and roles</Filter>
@@ -102,6 +90,18 @@
     </ClCompile>
     <ClCompile Include="..\sqlide.wr\src\var_grid_model_wr.cpp">
       <Filter>Source Files\sql ide</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ViewEditorWrapper.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RoutineEditorWrapper.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RoutineGroupEditorWrapper.cpp">
+      <Filter>Source Files\grtdb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectRolesWrapper.cpp">
+      <Filter>Source Files\user and roles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,16 +151,10 @@
     <ClInclude Include="src\RefreshUI.h">
       <Filter>Header Files\grt</Filter>
     </ClInclude>
-    <ClInclude Include="src\DBObjectEditorBE.h">
-      <Filter>Header Files\grtdb</Filter>
-    </ClInclude>
     <ClInclude Include="src\DBObjectFilterBE.h">
       <Filter>Header Files\grtdb</Filter>
     </ClInclude>
     <ClInclude Include="src\DBObjectMasterFilterBE.h">
-      <Filter>Header Files\grtdb</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RoutineEditorBE.h">
       <Filter>Header Files\grtdb</Filter>
     </ClInclude>
     <ClInclude Include="src\SchemaEditorWrapper.h">
@@ -168,15 +162,6 @@
     </ClInclude>
     <ClInclude Include="src\TableEditorWrapper.h">
       <Filter>Header Files\grtdb</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ViewEditorBE.h">
-      <Filter>Header Files\grtdb</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RoutineGroupEditorBE.h">
-      <Filter>Header Files\grtdb</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ObjectRolesBE.h">
-      <Filter>Header Files\user and roles</Filter>
     </ClInclude>
     <ClInclude Include="src\RoleTreeBE.h">
       <Filter>Header Files\user and roles</Filter>
@@ -192,6 +177,21 @@
     </ClInclude>
     <ClInclude Include="..\sqlide.wr\src\var_grid_model_wr.h">
       <Filter>Header Files\sql ide</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewEditorWrapper.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DBObjectEditorWrapper.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RoutineEditorWrapper.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RoutineGroupEditorWrapper.h">
+      <Filter>Header Files\grtdb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjectRolesWrapper.h">
+      <Filter>Header Files\user and roles</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

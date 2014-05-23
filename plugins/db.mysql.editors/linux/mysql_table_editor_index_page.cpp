@@ -79,7 +79,7 @@ void DbMySQLTableEditorIndexPage::update_gui_for_server() {
   _xml->get_widget("index_comment", text);
   if (_be->is_editing_live_object())
   {
-    if (!_be->is_server_version_at_least(5, 5))
+    if (!bec::is_supported_mysql_version_at_least(_be->get_catalog()->version(), 5, 5))
       text->set_sensitive(false);
   }
 }
