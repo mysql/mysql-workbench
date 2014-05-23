@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_TABLE_EDITOR_H_
-#define _MYSQL_TABLE_EDITOR_H_
+#pragma once
 
 #include "grtdb/editor_table.h"
 #include "grts/structs.workbench.physical.h"
@@ -45,13 +44,16 @@ public:
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, const std::string &value);
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, ssize_t value);
 
-  MySQLTableColumnsListBE(MySQLTableEditorBE *owner);
+  MySQLTableColumnsListBE(MySQLTableEditorBE *owner, db_mysql_TableRef table);
   
   virtual bool activate_popup_item_for_nodes(const std::string &name, const std::vector<bec::NodeId> &orig_nodes);
   virtual bec::MenuItemList get_popup_items_for_nodes(const std::vector<bec::NodeId> &nodes);
 protected:
   // for internal use only
   virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, ::grt::ValueRef &value);
+
+protected:
+  db_mysql_TableRef _table;
 };
 
 
@@ -91,7 +93,7 @@ public:
     Comment
   };
 
-  MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner);
+  MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner, const db_mysql_TableRef &table);
 
   virtual void refresh() {};
 
@@ -105,6 +107,9 @@ protected:
   virtual grt::Type get_field_type(const ::bec::NodeId &node, ColumnId column);
 
   db_mysql_PartitionDefinitionRef get_definition(const ::bec::NodeId &node);
+
+private:
+  db_mysql_TableRef _table;
 };
 
 
@@ -114,15 +119,13 @@ class MYSQLWBMYSQLSUPPORTBACKEND_PUBLIC_FUNC MySQLTableEditorBE : public ::bec::
 {
   friend class MySQLTriggerPanel;
 public:
-  MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table, const db_mgmt_RdbmsRef &rdbms);
+  MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table);
   virtual ~MySQLTableEditorBE();
+
+  virtual void commit_changes();
 
   virtual MySQLTableColumnsListBE *get_columns() { return &_columns; }
   virtual MySQLTableIndexListBE *get_indexes() { return &_indexes; }
-
-  virtual db_TableRef get_table() { return table(); }
-
-  db_mysql_TableRef table() { return _table; }
 
   virtual std::vector<std::string> get_index_types();
   virtual std::vector<std::string> get_index_storage_types();
@@ -136,15 +139,14 @@ public:
   
   virtual bool check_column_referenceable_by_fk(const db_ColumnRef &column1, const db_ColumnRef &column2);
 
-  // interactive functions
-  std::string get_all_triggers_sql() const; // TODO: only used internally and in tests, should be protected.
   void load_trigger_sql();
 
   // triggers
   mforms::View *get_trigger_panel();
+  void add_trigger(const std::string &timing, const std::string &event);
+  void select_trigger(size_t index);
 
   virtual bool can_close();
-  virtual void commit_changes();
 
   // partitioning
   bool set_partition_type(const std::string &type);
@@ -188,5 +190,3 @@ protected:
   
   void reset_partition_definitions(int parts, int subparts);
 };
-
-#endif /* _MYSQL_TABLE_EDITOR_H_ */

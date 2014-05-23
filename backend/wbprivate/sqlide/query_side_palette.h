@@ -73,7 +73,7 @@ private:
   void update_help_ui();
   void show_help_hint_or_update();
 
-  bool find_context_help(Sql_editor *editor);
+  bool find_context_help(MySQLEditor *editor);
   grt::StringRef get_help_topic_threaded(grt::GRT *, const std::string &query, std::pair<ssize_t, ssize_t> caret);
   void process_help_topic(const std::string &topic);
   void update_help_history(const std::string &topic);
@@ -84,7 +84,7 @@ private:
   void snippet_toolbar_item_activated(mforms::ToolBarItem *item);
   void help_toolbar_item_activated(mforms::ToolBarItem *item);
 
-  void check_format_structures(Sql_editor *editor);
+  void check_format_structures(MySQLEditor *editor);
   std::string format_help_as_html(const std::string &text);
 
   void snippet_selection_changed();

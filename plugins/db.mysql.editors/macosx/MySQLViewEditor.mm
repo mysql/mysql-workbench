@@ -23,7 +23,6 @@
 #import "MySQLViewEditor.h"
 #import "MCPPUtilities.h"
 #import "MVerticalLayoutView.h"
-#include "grtdb/db_object_helpers.h" // get_rdbms_for_db_object()
 
 #include "ScintillaView.h"
 
@@ -66,7 +65,7 @@ static void call_refresh(DbMysqlViewEditor *self)
   delete mBackEnd;
   
   // setup the editor backend with the schema object (args[0])
-  mBackEnd= new MySQLViewEditorBE(_grtm, db_mysql_ViewRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  mBackEnd= new MySQLViewEditorBE(_grtm, db_mysql_ViewRef::cast_from(args[0]));
   
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the

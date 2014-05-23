@@ -101,36 +101,6 @@ grt::ListRef<db_mysql_StorageEngine> get_known_engines(grt::GRT *grt)
     grt->unserialize(bec::make_path(bec::GRTManager::get_instance_for(grt)->get_basedir(), "modules/data/mysql_engines.xml")));
 }
 
-// TODO: remove this and convert callers to use mforms::CodeEditor static call.
-bool is_word_reserved(const char* str, grt::GRT* grt)
-{
-  bool ret = false;
-  static grt::StringListRef reserved_words;
-  static std::vector<size_t> lengths;
-  if (!reserved_words.is_valid())
-  {
-    reserved_words= grt::StringListRef::cast_from(grt->unserialize(bec::make_path(bec::GRTManager::get_instance_for(grt)->get_basedir(), "modules/data/mysql_reserved.xml")));
-    for (size_t i= 0, count= reserved_words.count(); i < count; i++)
-      lengths.push_back(strlen(reserved_words.get(i).c_str()));
-  }
-
-  if ( str )
-  {
-    size_t str_len = strlen(str);
-    for (size_t i = 0; i < reserved_words.count(); i++)
-    {
-      // TODO create and use hash here
-      if (!strcasecmp(reserved_words.get(i).c_str(), str))
-      {
-        if ( str_len == lengths[i] ) 
-          ret = true;
-      }
-    }
-  }
-  
-  return ret;
-}
-
 bool check_valid_characters(const char* str)
 {
   while (*str)

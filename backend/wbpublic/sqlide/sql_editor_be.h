@@ -17,27 +17,32 @@
  * 02110-1301  USA
  */
 
-#ifndef _SQL_EDITOR_BE_H_
-#define _SQL_EDITOR_BE_H_
+#pragma once
 
-// TODO: cleanup includes.
-#include <memory>
-#include "base/trackable.h"
 #include "wbpublic_public_interface.h"
-#include "grt/grt_threaded_task.h"
 
-#include "grtsqlparser/sql_semantic_check.h"
+#include "base/trackable.h"
 
-#include "grts/structs.db.mgmt.h"
-#include "grts/structs.db.query.h"
-#include "grt/grt_manager.h"
+#ifndef _WIN32
+#include <memory>
+#include <set>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 
-#include "base/geometry.h"
+#include "grts/structs.db.mgmt.h"
+#include "grts/structs.db.query.h"
+
+#endif
+
+#include "grtsqlparser/mysql_parser_services.h"
+#include "grtdb/db_helpers.h"
+
+namespace bec {
+  class GRTManager;
+}
 
 namespace mforms {
   class CodeEditor;
@@ -45,6 +50,7 @@ namespace mforms {
   class Menu;
   class View;
   class CodeEditorConfig;
+  class ToolBar;
   class DropDelegate;
 };
 
@@ -61,13 +67,22 @@ class AutoCompleteCache;
 #define AC_OPERATOR_IMAGE 8
 #define AC_ENGINE_IMAGE   9
 
-/** Base class for SQL Editor Backend classes.
- Subclassed by specific RDBMS support modules.
+/**
+ * The central MySQL editor class.
  */
 
-class WBPUBLICBACKEND_PUBLIC_FUNC Sql_editor : public boost::enable_shared_from_this<Sql_editor>, public base::trackable
+class WBPUBLICBACKEND_PUBLIC_FUNC MySQLEditor : public base::trackable
 {
 public:
+  enum ContentType
+  {
+    ContentTypeGeneral,
+    ContentTypeTrigger,
+    ContentTypeView,
+    ContentTypeRoutine,
+    ContentTypeEvent,
+  };
+
   struct TableReference
   {
     std::string schema;
@@ -157,12 +172,12 @@ public:
 
   };
 
-  typedef boost::shared_ptr<Sql_editor> Ref;
-  typedef boost::weak_ptr<Sql_editor> Ptr;
+  typedef boost::shared_ptr<MySQLEditor> Ref;
+  typedef boost::weak_ptr<MySQLEditor> Ptr;
 
-  static Ref create(db_mgmt_RdbmsRef rdbms, GrtVersionRef version, db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
+  static Ref create(grt::GRT *grt, parser::ParserContext::Ref context, db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
 
-  virtual ~Sql_editor();
+  virtual ~MySQLEditor();
 
   db_query_QueryBufferRef grtobj();
 
@@ -177,9 +192,7 @@ public:
   void show_special_chars(bool flag);
   void enable_word_wrap(bool flag);
 
-  db_mgmt_RdbmsRef rdbms();
   bec::GRTManager *grtm();
-  std::string sql_mode() { return _sql_mode; };
 
   int int_option(std::string name);
   std::string string_option(std::string name);
@@ -220,9 +233,12 @@ public:
 
   boost::signals2::signal<void ()>* text_change_signal();
 
-  void sql_mode(const std::string &value);
+  std::string sql_mode() { return _sql_mode; };
+  void set_sql_mode(const std::string &value);
+  void set_server_version(GrtVersionRef version);
 
-  Sql_semantic_check::Ref sql_checker();
+  void restrict_content_to(ContentType type);
+
   bool has_sql_errors() const;
 
   void sql_check_progress_msg_throttle(double val);
@@ -233,9 +249,9 @@ public:
   void register_file_drop_for(mforms::DropDelegate *target);
 
 protected:
-  Sql_editor(db_mgmt_RdbmsRef rdbms, GrtVersionRef version);
+  MySQLEditor(grt::GRT *grt, parser::ParserContext::Ref context);
 
-  mforms::CodeEditorConfig *_editor_config;  // Set by descendants.
+  parser::ParserContext::Ref get_parser_context();
 
 private:
   class Private;
@@ -244,27 +260,31 @@ private:
   void set_grtobj(db_query_QueryBufferRef grtobj);
 
   void setup_auto_completion();
+  void* run_code_completion();
+
   std::string get_written_part(size_t position);
-  virtual bool fill_auto_completion_keywords(std::vector<std::pair<int, std::string> > &entries,
+  bool fill_auto_completion_keywords(std::vector<std::pair<int, std::string> > &entries,
     AutoCompletionWantedParts parts, bool upcase_keywords);
 
   void text_changed(int position, int length, int lines_changed, bool added);
   void char_added(int char_code);
-  void dwell_event(bool started, int position, int x, int y);
+  void dwell_event(bool started, size_t position, int x, int y);
+  void marker_changed(int line);
 
   void setup_editor_menu();
   void editor_menu_opening();
   void activate_context_menu_item(const std::string &name);
+  void create_editor_config_for_version(GrtVersionRef version);
 
-  bool check_sql(bool sync);
-  grt::StringRef do_check_sql(grt::GRT *grt, Ptr self_ptr);
+  bool start_sql_processing();
+  bool do_statement_split_and_check(int id); // Run in worker thread.
 
   int on_report_sql_statement_border(int begin_lineno, int begin_line_pos, int end_lineno, int end_line_pos, int tag);
   int on_sql_error(int lineno, int tok_line_pos, int tok_len, const std::string &msg, int tag);
   int on_sql_check_progress(float progress, const std::string &msg, int tag);
-  int on_sql_check_finished();
-
-  void request_sql_check_results_refresh();
+  
+  void* splitting_done();
+  void* update_error_markers();
 
   bool code_completion_enabled();
   bool auto_start_code_completion();
@@ -278,14 +298,10 @@ private:
   AutoCompleteCache *_auto_completion_cache;
 
   mforms::CodeEditor* _code_editor;
+  mforms::CodeEditorConfig *_editor_config;
 
   std::string _current_schema;
   std::string _last_ac_statement; // The last statement we used for auto completion.
 
-  long _server_version;
   std::string _sql_mode;
-  std::set<std::string> _charsets; // For lookup needed by parsers to determine repertoires.
 };
-
-#endif /* _SQL_EDITOR_BE_H_ */
-

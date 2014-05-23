@@ -50,11 +50,13 @@ namespace mforms {
     TaskSectionShowConfigButton = 0x10,
   };
 
+#ifndef SWIG
   inline TaskSectionFlags operator | (TaskSectionFlags a, TaskSectionFlags b)
   {
     return (TaskSectionFlags)((int)a|(int)b);
   }
-  
+#endif
+
   enum TaskEntryType
   {
     TaskEntrySelectableItem,

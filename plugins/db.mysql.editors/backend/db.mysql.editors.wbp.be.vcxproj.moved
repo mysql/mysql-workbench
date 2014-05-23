@@ -1,0 +1,312 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_OSS|Win32">
+      <Configuration>Release_OSS</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_OSS|x64">
+      <Configuration>Release_OSS</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <ProjectGuid>{3F0E3735-E4E3-4561-A82B-B68362B46653}</ProjectGuid>
+    <RootNamespace>db.mysql.editors.wbp.be</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\..\backend\wbpublic;..\..\..\modules;..\..\..\modules\interfaces;..\..\..\modules\db\src;..\..\..\modules\db.mysql\src;..\..\..\generated;..\..\..\ext\scintilla\include;..\..\..\ext;..\..\..\library\grt;..\..\..\library\grt\src;..\..\..\library\forms;..\..\..\library\base;..\..\..\ext\vsqlite++\include;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gmodule-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gobject-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\libxml2.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\zlib\libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\..\backend\wbpublic;..\..\..\modules;..\..\..\modules\interfaces;..\..\..\modules\db\src;..\..\..\modules\db.mysql\src;..\..\..\generated;..\..\..\ext\scintilla\include;..\..\..\ext;..\..\..\library\grt;..\..\..\library\grt\src;..\..\..\library\forms;..\..\..\library\base;..\..\..\ext\vsqlite++\include;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\ext\libsigc++;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gmodule-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gobject-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\libxml2.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\libpcre.a;$(SolutionDir)\..\mysql-gui-win-res\lib\zlib\libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\backend\wbpublic;..\..\..\modules;..\..\..\modules\interfaces;..\..\..\modules\db\src;..\..\..\modules\db.mysql\src;..\..\..\generated;..\..\..\ext\scintilla\include;..\..\..\ext;..\..\..\library\grt;..\..\..\library\grt\src;..\..\..\library\forms;..\..\..\library\base;..\..\..\ext\vsqlite++\include;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gmodule-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gobject-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\libxml2.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\zlib\libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\backend\wbpublic;..\..\..\modules;..\..\..\modules\interfaces;..\..\..\modules\db\src;..\..\..\modules\db.mysql\src;..\..\..\generated;..\..\..\ext\scintilla\include;..\..\..\ext;..\..\..\library\grt;..\..\..\library\grt\src;..\..\..\library\forms;..\..\..\library\base;..\..\..\ext\vsqlite++\include;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\ext\libsigc++;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gmodule-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gobject-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\libxml2.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\libpcre.a;$(SolutionDir)\..\mysql-gui-win-res\lib\zlib\libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\backend\wbpublic;..\..\..\modules;..\..\..\modules\interfaces;..\..\..\modules\db\src;..\..\..\modules\db.mysql\src;..\..\..\generated;..\..\..\ext\scintilla\include;..\..\..\ext;..\..\..\library\grt;..\..\..\library\grt\src;..\..\..\library\forms;..\..\..\library\base;..\..\..\ext\vsqlite++\include;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1;$(SolutionDir);$(SolutionDir)\..\mysql-gui-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gmodule-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gobject-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\libxml2.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\zlib\libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\backend\wbpublic;..\..\..\modules;..\..\..\modules\interfaces;..\..\..\modules\db\src;..\..\..\modules\db.mysql\src;..\..\..\generated;..\..\..\ext\scintilla\include;..\..\..\ext;..\..\..\library\grt;..\..\..\library\grt\src;..\..\..\library\forms;..\..\..\library\base;..\..\..\ext\vsqlite++\include;$(SolutionDir)\..\mysql-gui-win-res\include;$(SolutionDir)\..\mysql-gui-win-res\include\libxml;$(SolutionDir)\ext\libsigc++;$(SolutionDir)\..\mysql-gui-win-res\include\glib-2.12;$(SolutionDir)\..\mysql-gui-win-res\include\lua-5.1.1;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(OutDir);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <PreprocessorDefinitions>MYSQLWBMYSQLSUPPORTBACKEND_EXPORTS;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\glib-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gmodule-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gobject-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\glib-2.12\gthread-2.0.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\libxml2.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\libxml\iconv.lib;$(SolutionDir)\..\mysql-gui-win-res\lib\pcre\libpcre.a;$(SolutionDir)\..\mysql-gui-win-res\lib\zlib\libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\library\canvas\mysql.canvas.vcxproj">
+      <Project>{a16d9c05-b6ae-45bf-8f1f-3053fba7444b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\library\forms\forms.vcxproj">
+      <Project>{f8a2dbad-8b45-4a4e-8811-c9b8a1b0f2b7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\library\grt\grt.vcxproj">
+      <Project>{7de910df-4057-447d-98c3-5b1ece715ed5}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\backend\wbpublic\wbpublic.be.vcxproj">
+      <Project>{0400edfc-838e-4192-acb9-bf9eff012fbf}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\library\base\base.vcxproj">
+      <Project>{142530c4-b184-4833-9a1a-f268b6e336a7}</Project>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\modules\db.mysql\db.mysql.grt.vcxproj">
+      <Project>{f838e5b8-fdc7-4e52-856a-397f1f98f623}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\modules\wb.mysql.import\wb.mysql.import.grt.vcxproj">
+      <Project>{59039955-05dc-456d-905a-d564387efb6f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mysql_relationship_editor.h" />
+    <ClInclude Include="mysql_routine_editor.h" />
+    <ClInclude Include="mysql_routinegroup_editor.h" />
+    <ClInclude Include="mysql_schema_editor.h" />
+    <ClInclude Include="mysql_support_backend_public_interface.h" />
+    <ClInclude Include="mysql_table_editor.h" />
+    <ClInclude Include="mysql_view_editor.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="mysql_relationship_editor.cpp" />
+    <ClCompile Include="mysql_routine_editor.cpp" />
+    <ClCompile Include="mysql_routinegroup_editor.cpp" />
+    <ClCompile Include="mysql_schema_editor.cpp" />
+    <ClCompile Include="mysql_table_editor.cpp" />
+    <ClCompile Include="mysql_view_editor.cpp" />
+    <ClCompile Include="register_plugin.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

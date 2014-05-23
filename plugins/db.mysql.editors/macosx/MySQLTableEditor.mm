@@ -1580,7 +1580,7 @@ objectValueForItemAtIndex: (NSInteger) index
   delete mBackEnd;
 
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(args[0]);
-  mBackEnd = new MySQLTableEditorBE(_grtm, table, get_rdbms_for_db_object(table));
+  mBackEnd = new MySQLTableEditorBE(_grtm, table);
 
   if (!isReinit)
   {
@@ -1597,7 +1597,8 @@ objectValueForItemAtIndex: (NSInteger) index
       mUnusedColumnsDetailsBox = mColumnsDetailsBox2;
       [mColumnsSplitter setVertical: NO];
 
-      [mIndicesComment setEditable: mBackEnd->is_server_version_at_least(5, 5)];
+      GrtVersionRef version = mBackEnd->get_catalog()->version();
+      [mIndicesComment setEditable: bec::is_supported_mysql_version_at_least(version, 5, 5)];
     }
     [mColumnsSplitter addSubview: mColumnsDetailsBox];
   }

@@ -135,14 +135,14 @@ void DbSqlEditorLog::handle_context_menu(const std::string &action)
   else if (action == "append_selected_items")
   {
     sql = get_selection_text(false, true, false, false);
-    Sql_editor::Ref editor(_owner->active_sql_editor());
+    MySQLEditor::Ref editor(_owner->active_sql_editor());
     if (editor)
       editor->append_text(sql);
   }
   else if (action == "replace_sql_script")
   {
     sql = get_selection_text(false, true, false, false);
-    Sql_editor::Ref editor(_owner->active_sql_editor());
+    MySQLEditor::Ref editor(_owner->active_sql_editor());
     if (editor)
       editor->sql(sql.c_str());
   }

@@ -447,7 +447,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
       continue;
 
     base::atomic_int_inc(&self->_busy);
-    DPRINT("%s", std::string("worker: got task '"+task->name()+"' handling...").c_str());
+    log_debug3("GRT dispatcher, running task %s", task->name().c_str());
 
     if (dynamic_cast<NULLTask*>(task) != 0) // a NULL task terminates the thread
     {

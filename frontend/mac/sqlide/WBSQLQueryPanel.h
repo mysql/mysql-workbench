@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,7 +89,7 @@ namespace mforms
 
 //- (void)executeQuery:(id)sender currentStatementOnly: (bool) currentStatementOnly;
 - (id)initWithBE:(const SqlEditorForm::Ref&)be;
-- (Sql_editor::Ref)activeEditor;
+- (MySQLEditor::Ref)activeEditor;
 - (WBQueryTab*)activeQueryTab;
 - (WBQueryTab*)queryTabForBackEndIndex:(int)index;
 - (void)addSQLEditorTabWithBackEndIndex:(int)index;

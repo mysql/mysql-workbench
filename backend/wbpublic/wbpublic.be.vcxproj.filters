@@ -377,9 +377,6 @@
     <ClInclude Include="sqlide\sql_script_run_wizard.h">
       <Filter>sqlide Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sqlide\sqlide.h">
-      <Filter>sqlide Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sqlide\sqlide_generics.h">
       <Filter>sqlide Header Files</Filter>
     </ClInclude>
@@ -472,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="wbcanvas\model_layer_impl.h">
       <Filter>wbcanvas Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtsqlparser\mysql_parser_services.h">
+      <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -803,9 +803,6 @@
     <ClCompile Include="sqlide\sql_script_run_wizard.cpp">
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlide\sqlide.cpp">
-      <Filter>sqlide Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sqlide\sqlide_generics.cpp">
       <Filter>sqlide Source Files</Filter>
     </ClCompile>
@@ -895,6 +892,9 @@
     </ClCompile>
     <ClCompile Include="wbcanvas\note_figure.cpp">
       <Filter>wbcanvas Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtsqlparser\mysql_parser_services.cpp">
+      <Filter>grtsqlparser Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

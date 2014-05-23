@@ -18,7 +18,10 @@
  */
 
 #include "role_tree_model.h"
+
 #include "base/string_utilities.h"
+
+#include "grtpp_undo_manager.h"
 
 using namespace bec;
 using namespace base;

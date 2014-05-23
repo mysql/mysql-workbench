@@ -25,24 +25,24 @@
 #include "base/threading.h"
 
 #include <list>
+#include <boost/function.hpp>
 
 // The callback type used for timer events. It gets the id of the task returned from add_task
 // and must return a boolean value which tells us if the task should continue to run or
 // immediately be stopped. For one-shot tasks the return value has no meaning.
-typedef bool (*timer_function) (int, void*);
+typedef boost::function<bool (int)> TimerFunction;
 
 #ifdef _WIN32
-  #pragma warning(disable:4251) // We don't want to DLL export TimerTask, and we don't need a warning for that.
+  #pragma warning(disable: 4251) // We don't want to DLL export TimerTask, and we don't need a warning for that.
 #endif
 
 struct TimerTask {
   int task_id;
   gdouble next_time;         // Precomputed target time when this task must be triggered again.
   gdouble wait_time;         // The time in seconds to wait until this task is executed again.
-  timer_function callback;   // The callback to trigger when the timer fires.
+  TimerFunction callback;    // The callback to trigger when the timer fires.
   bool stop;                 // Tells the scheduler to remove this task.
   bool single_shot;          // If true then this task will only run once.
-  void* user_data;           // Data to be passed to the callback.
   bool scheduled;            // True if the task has been scheduled currently (it is waiting in the pool to get executed).
 };
 
@@ -65,7 +65,7 @@ public:
   static ThreadedTimer* get();
   static void stop();
   
-  static int add_task(TimerUnit unit, double value, bool single_shot, timer_function callback_, void* user_data);
+  static int add_task(TimerUnit unit, double value, bool single_shot, TimerFunction callback);
   static void remove_task(int task_id);
 private:
   base::Mutex _timer_lock;  // Synchronize access to the timer class.

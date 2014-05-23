@@ -20,20 +20,18 @@
 #include "editor_schema.h"
 #include "base/string_utilities.h"
 
-/**
- * @file  editor_schema.cpp
- * @brief 
- */
-
 using namespace grt;
 using namespace bec;
 using namespace base;
 
-SchemaEditorBE::SchemaEditorBE(GRTManager *grtm, const db_SchemaRef &schema, const db_mgmt_RdbmsRef &rdbms)
-  : DBObjectEditorBE(grtm, schema, rdbms), _schema(schema)
+//--------------------------------------------------------------------------------------------------
+
+SchemaEditorBE::SchemaEditorBE(GRTManager *grtm, const db_SchemaRef &schema)
+  : DBObjectEditorBE(grtm, schema)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SchemaEditorBE::set_name(const std::string &name)
 {
@@ -42,32 +40,30 @@ void SchemaEditorBE::set_name(const std::string &name)
   DBObjectEditorBE::set_name(name);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SchemaEditorBE::set_schema_option_by_name(const std::string& name, const std::string& value)
 {
   if(name.compare("CHARACTER SET - COLLATE") == 0)
-  { // shortcut that sets both CHARACTER SET and COLLATE separated by a - 
+  {
+    // Shortcut that sets both CHARACTER SET and COLLATE separated by a dash.
     if (value != get_schema_option_by_name(name))
     {
       std::string charset, collation;
       parse_charset_collation(value, charset, collation);
-      if (charset != *_schema->defaultCharacterSetName() || collation != *_schema->defaultCollationName())
+      if (charset != *get_schema()->defaultCharacterSetName() || collation != *get_schema()->defaultCollationName())
       {
         RefreshUI::Blocker block(*this);
-        //grt::AutoUndo undo(get_grt());
         AutoUndoEdit undo(this);
         get_schema()->defaultCharacterSetName(charset);
         get_schema()->defaultCollationName(collation);
-        //set_schema_option_by_name("CHARACTER SET", charset);
-        //set_schema_option_by_name("COLLATE", collation);
         update_change_date();
-        undo.end(strfmt(_("Change Charset/Collation for '%s'"), _schema->name().c_str()));
+        undo.end(strfmt(_("Change Charset/Collation for '%s'"), get_schema()->name().c_str()));
       }
     }
   }
   else if(name.compare("CHARACTER SET") == 0)
   {
-    //grt::AutoUndo undo(get_grt());
     AutoUndoEdit undo(this);
 
     get_schema()->defaultCharacterSetName(value);
@@ -77,7 +73,6 @@ void SchemaEditorBE::set_schema_option_by_name(const std::string& name, const st
   }
   else if(name.compare("COLLATE") == 0)
   {
-    //grt::AutoUndo undo(get_grt());
     AutoUndoEdit undo(this);
 
     get_schema()->defaultCollationName(grt::StringRef(value));
@@ -86,6 +81,8 @@ void SchemaEditorBE::set_schema_option_by_name(const std::string& name, const st
     undo.end(strfmt(_("Set Default Collation for Schema '%s'"), get_name().c_str()));
   }
 }
+
+//--------------------------------------------------------------------------------------------------
 
 std::string SchemaEditorBE::get_schema_option_by_name(const std::string& name)
 {
@@ -100,8 +97,11 @@ std::string SchemaEditorBE::get_schema_option_by_name(const std::string& name)
   return std::string();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 std::string SchemaEditorBE::get_title()
 {
-  return base::strfmt("%s - Schema", get_name().c_str()); 
+  return get_name() + " - Schema";
 }
 
+//--------------------------------------------------------------------------------------------------
