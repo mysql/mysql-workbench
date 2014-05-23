@@ -46,7 +46,7 @@ class DbMySQLRoutineEditor : public PluginEditorBase
 
 DbMySQLRoutineEditor::DbMySQLRoutineEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
     : PluginEditorBase(m, grtm, args, "modules/data/editor_routine.glade")
-    , _be(new MySQLRoutineEditorBE(grtm, db_mysql_RoutineRef::cast_from(args[0]), get_rdbms_for_db_object(args[0])))
+    , _be(new MySQLRoutineEditorBE(grtm, db_mysql_RoutineRef::cast_from(args[0])))
 {
 
   xml()->get_widget("mysql_routine_editor_notebook", _editor_notebook);
@@ -114,7 +114,7 @@ bool DbMySQLRoutineEditor::switch_edited_object(bec::GRTManager *grtm, const grt
  
   delete _be;
 
-  _be = new MySQLRoutineEditorBE(grtm, db_mysql_RoutineRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  _be = new MySQLRoutineEditorBE(grtm, db_mysql_RoutineRef::cast_from(args[0]));
 
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_routine_sql();
