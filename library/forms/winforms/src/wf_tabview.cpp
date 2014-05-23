@@ -72,6 +72,19 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  virtual void OnTabMoved(TabMovedEventArgs ^args) override
+  {
+    __super::OnTabMoved(args);
+    mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
+    if (tabview != NULL && args->MovedPage->Controls->Count > 0)
+    {
+      mforms::View *view = ViewWrapper::GetBackend<mforms::View>(args->MovedPage->Controls[0]);
+      tabview->reordered(view, args->ToIndex);
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -278,9 +291,9 @@ void TabViewWrapper::set_aux_view(mforms::TabView *backend, mforms::View *aux)
 
 void TabViewWrapper::set_allows_reordering(mforms::TabView *backend, bool flag)
 {
-  TabControl ^tabControl = TabViewWrapper::GetManagedObject<TabControl>(backend);
- //XXX! if (tabControl != nullptr)
- //   tabControl->
+  FlatTabControl ^tabControl = TabViewWrapper::GetManagedObject<FlatTabControl>(backend);
+  if (tabControl != nullptr)
+    tabControl->CanReorderTabs = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
