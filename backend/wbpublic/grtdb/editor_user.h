@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _EDITOR_USER_H_
-#define _EDITOR_USER_H_
+
+#pragma once
 
 #include "grtdb/editor_dbobject.h"
 #include "grt/tree_model.h"
@@ -27,9 +27,6 @@
 #include "role_tree_model.h"
 
 #include "wbpublic_public_interface.h"
-
-#define UserEditorBE_VERSION 1
-
 
 namespace bec {
 
@@ -59,11 +56,7 @@ namespace bec {
     void set_password(const std::string &pass);
     std::string get_password();
 
-    virtual std::string get_object_type() { return "user"; }
-
     virtual bool can_close();
   };
 };
 
-
-#endif /* _EDITOR_USER_H_ */

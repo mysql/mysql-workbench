@@ -33,11 +33,17 @@ using namespace mforms;
 using namespace base;
 
 // Marker ID assignments. Markers with higher number overlay lower ones.
-#define CE_STATEMENT_MARKER 0
-#define CE_ERROR_MARKER 1
-#define CE_BREAKPOINT_MARKER 2
+#define CE_STATEMENT_MARKER      0
+#define CE_ERROR_MARKER          1
+#define CE_BREAKPOINT_MARKER     2
 #define CE_BREAKPOINT_HIT_MARKER 3
-#define CE_CURRENT_LINE_MARKER 4
+#define CE_CURRENT_LINE_MARKER   4
+
+#define CE_STATEMENT_MARKER_FLAG      1 << CE_STATEMENT_MARKER
+#define CE_ERROR_MARKER_FLAG          1 << CE_ERROR_MARKER
+#define CE_BREAKPOINT_MARKER_FLAG     1 << CE_BREAKPOINT_MARKER
+#define CE_BREAKPOINT_HIT_MARKER_FLAG 1 << CE_BREAKPOINT_HIT_MARKER
+#define CE_CURRENT_LINE_MARKER_FLAG   1 << CE_CURRENT_LINE_MARKER
 
 #define AC_LIST_SEPARATOR '\x19' // Unused codes as separators.
 #define AC_TYPE_SEPARATOR '\x18'
@@ -74,6 +80,11 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
       
   case mforms::LanguageMySQL56:
     override_lexer = "SCLEX_MYSQL_56";
+    lexer = "SCLEX_MYSQL";
+    break;
+      
+  case mforms::LanguageMySQL57:
+    override_lexer = "SCLEX_MYSQL_57";
     lexer = "SCLEX_MYSQL";
     break;
       
@@ -267,6 +278,7 @@ CodeEditor::CodeEditor(void *host)
   _context_menu = NULL;
   _find_panel = NULL;
   _scroll_on_resize = true;
+  _auto_indent = false;
 
   setup();
 }
@@ -644,6 +656,7 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language)
   case mforms::LanguageMySQL51:
   case mforms::LanguageMySQL55:
   case mforms::LanguageMySQL56:
+  case mforms::LanguageMySQL57:
     _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_MYSQL, 0);
     break;
 
@@ -683,36 +696,32 @@ void CodeEditor::show_markup(LineMarkup markup, size_t line)
   sptr_t new_marker_mask = 0;
   if ((markup & mforms::LineMarkupStatement) != 0)
   {
-    sptr_t mask = 1 << CE_STATEMENT_MARKER;
-    if ((marker_mask & mask) != mask)
-      new_marker_mask |= mask;
+    if ((marker_mask & CE_STATEMENT_MARKER_FLAG) == 0)
+      new_marker_mask |= CE_STATEMENT_MARKER_FLAG;
   }
   if ((markup & mforms::LineMarkupError) != 0)
   {
-    sptr_t mask = 1 << CE_ERROR_MARKER;
-    if ((marker_mask & mask) != mask)
-      new_marker_mask |= mask;
+    if ((marker_mask & CE_ERROR_MARKER_FLAG) == 0)
+      new_marker_mask |= CE_ERROR_MARKER_FLAG;
   }
   if ((markup & mforms::LineMarkupBreakpoint) != 0)
   {
-    sptr_t mask = 1 << CE_BREAKPOINT_MARKER;
-    if ((marker_mask & mask) != mask)
-      new_marker_mask |= mask;
+    if ((marker_mask & CE_BREAKPOINT_MARKER_FLAG) == 0)
+      new_marker_mask |= CE_BREAKPOINT_MARKER_FLAG;
   }
   if ((markup & mforms::LineMarkupBreakpointHit) != 0)
   {
-    sptr_t mask = 1 << CE_BREAKPOINT_HIT_MARKER;
-    if ((marker_mask & mask) != mask)
-      new_marker_mask |= mask;
+    if ((marker_mask & CE_BREAKPOINT_HIT_MARKER_FLAG) == 0)
+      new_marker_mask |= CE_BREAKPOINT_HIT_MARKER_FLAG;
   }
   if ((markup & mforms::LineMarkupCurrent) != 0)
   {
-    sptr_t mask = 1 << CE_CURRENT_LINE_MARKER;
-    if ((marker_mask & mask) != mask)
-      new_marker_mask |= mask;
+    if ((marker_mask & CE_CURRENT_LINE_MARKER_FLAG) == 0)
+      new_marker_mask |= CE_CURRENT_LINE_MARKER_FLAG;
   }
 
-  _code_editor_impl->send_editor(this, SCI_MARKERADDSET, line, new_marker_mask);
+  if (new_marker_mask != 0)
+    _code_editor_impl->send_editor(this, SCI_MARKERADDSET, line, new_marker_mask);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -739,6 +748,41 @@ void CodeEditor::remove_markup(LineMarkup markup, ssize_t line)
     if ((markup & mforms::LineMarkupCurrent) != 0)
       _code_editor_impl->send_editor(this, SCI_MARKERDELETE, line, CE_CURRENT_LINE_MARKER);
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool CodeEditor::has_markup(LineMarkup markup, size_t line)
+{
+  sptr_t marker_mask = _code_editor_impl->send_editor(this, SCI_MARKERGET, line, 0);
+
+  if ((markup & mforms::LineMarkupStatement) != 0)
+  {
+    if ((marker_mask & CE_STATEMENT_MARKER_FLAG) != 0)
+      return true;
+  }
+  if ((markup & mforms::LineMarkupError) != 0)
+  {
+    if ((marker_mask & CE_ERROR_MARKER_FLAG) != 0)
+      return true;
+  }
+  if ((markup & mforms::LineMarkupBreakpoint) != 0)
+  {
+    if ((marker_mask & CE_BREAKPOINT_MARKER_FLAG) != 0)
+      return true;
+  }
+  if ((markup & mforms::LineMarkupBreakpointHit) != 0)
+  {
+    if ((marker_mask & CE_BREAKPOINT_HIT_MARKER_FLAG) != 0)
+      return true;
+  }
+  if ((markup & mforms::LineMarkupCurrent) != 0)
+  {
+    if ((marker_mask & CE_CURRENT_LINE_MARKER_FLAG) != 0)
+      return true;
+  }
+
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -904,9 +948,15 @@ void CodeEditor::on_notify(SCNotification* notification)
   {
     // Decide depending on the modification type what to do.
     // There can be more than one modification carried by one notification.
-    if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
+    if ((notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) != 0)
       _change_event(notification->position, notification->length, notification->linesAdded,
         (notification->modificationType & SC_MOD_INSERTTEXT) != 0);
+
+    if ((notification->modificationType & SC_MOD_CHANGEMARKER) != 0)
+    {
+      // No information given if a marker was added, removed or changed or at least what marker was changed.
+      _marker_changed_event(notification->line);
+    }
     break;
   }
 
@@ -947,6 +997,28 @@ void CodeEditor::on_notify(SCNotification* notification)
 
   case SCN_CHARADDED:
     _char_added_event(notification->ch);
+    if (_auto_indent && notification->ch == '\n')
+    {
+      sptr_t pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
+      sptr_t line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, pos, 0);
+      if (line > 0)
+      {
+		  sptr_t indentation = _code_editor_impl->send_editor(this, SCI_GETLINEINDENTATION, line - 1, 0);
+        if (indentation > 0)
+        {
+          // Switch off tabs for a moment. We don't want a mix of tabs and spaces auto inserted
+          // and tabs mess up the new indentation.
+          sptr_t use_tabs = _code_editor_impl->send_editor(this, SCI_GETUSETABS, 0, 0);
+          _code_editor_impl->send_editor(this, SCI_SETUSETABS, 0, 0);
+
+          _code_editor_impl->send_editor(this, SCI_SETLINEINDENTATION, line, indentation);
+          _code_editor_impl->send_editor(this, SCI_GOTOPOS, pos + indentation, 0);
+
+          _code_editor_impl->send_editor(this, SCI_SETUSETABS, use_tabs, 0);
+        }
+      }
+
+    }
     break;
   case SCN_FOCUSOUT:
     _signal_lost_focus();
@@ -1013,6 +1085,9 @@ void CodeEditor::set_features(CodeEditorFeature features, bool flag)
 
   if ((features & mforms::FeatureFolding) != 0)
     _code_editor_impl->send_editor(this, SCI_SETPROPERTY, (uptr_t)"fold", flag ? (sptr_t)"1" : (sptr_t)"0");
+
+  if ((features & mforms::FeatureAutoIndent) != 0)
+    _auto_indent = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,6 +1133,9 @@ void CodeEditor::toggle_features(CodeEditorFeature features)
     bool folding_enabled = _code_editor_impl->send_editor(this, SCI_GETPROPERTYINT, (uptr_t)"fold", 0) != 0;
     _code_editor_impl->send_editor(this, SCI_SETPROPERTY, (uptr_t)"fold", folding_enabled ? (sptr_t)"0" : (sptr_t)"1");
   }
+
+  if ((features & mforms::FeatureAutoIndent) != 0)
+    _auto_indent = !_auto_indent;
 }
 
 //--------------------------------------------------------------------------------------------------

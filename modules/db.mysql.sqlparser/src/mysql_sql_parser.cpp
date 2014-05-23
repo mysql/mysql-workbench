@@ -20,6 +20,8 @@
 
 #include "stdafx.h"
 
+#include "base/util_functions.h"
+
 #include "mysql_sql_parser.h"
 #include "grtsqlparser/module_utils.h"
 #include "mysql_sql_parser_utils.h"
@@ -617,7 +619,7 @@ db_mysql_SchemaRef Mysql_sql_parser::ensure_schema_created(const std::string &sc
     schema= db_mysql_SchemaRef(_grt);
     schema->owner(_catalog);
 
-    std::string time= bec::fmttime(0, DATETIME_FMT);
+    std::string time= base::fmttime(0, DATETIME_FMT);
     schema->createDate(time);
     schema->lastChangeDate(time);
 
@@ -2338,9 +2340,11 @@ Mysql_sql_parser::process_create_trigger_statement(const SqlAstNode *tree)
   // event
   SET_STR_SI(obj->event, trigger_tail, sql::_trg_event)
 
+  /*
   // orientation
   if (trigger_tail->find_subseq(sql::_FOR_SYM, sql::_EACH_SYM, sql::_ROW_SYM))
     obj->orientation("ROW");
+    */
 
   // enabled
   obj->enabled(1);
@@ -2638,7 +2642,7 @@ void Mysql_sql_parser::blame_existing_obj(bool critical, const GrtNamedObjectRef
 template <typename T>
 grt::Ref<T> Mysql_sql_parser::create_or_find_named_obj(const grt::ListRef<T>& obj_list, const std::string &obj_name, bool case_sensitive, const GrtNamedObjectRef &container1, const GrtNamedObjectRef &container2)
 {
-  std::string time= bec::fmttime(0, DATETIME_FMT);
+  std::string time= base::fmttime(0, DATETIME_FMT);
 
   grt::Ref<T> obj;
   if (grt::Ref<T>::can_wrap(get_active_object()))
@@ -2671,7 +2675,7 @@ grt::Ref<T> Mysql_sql_parser::create_or_find_named_obj(const grt::ListRef<T>& ob
 template <typename T>
 grt::Ref<T> Mysql_sql_parser::create_or_find_named_routine(const grt::ListRef<T>& obj_list, const std::string &obj_name, bool case_sensitive, const std::string &routine_type, const GrtNamedObjectRef &container1, const GrtNamedObjectRef &container2)
 {
-  std::string time= bec::fmttime(0, DATETIME_FMT);
+  std::string time= base::fmttime(0, DATETIME_FMT);
   
   grt::Ref<T> obj;
   if (grt::Ref<T>::can_wrap(get_active_object()))

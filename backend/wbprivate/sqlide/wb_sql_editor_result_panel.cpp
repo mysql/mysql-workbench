@@ -800,7 +800,7 @@ void SqlEditorResult::show_import_recordset()
   try
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, _rset, rs)
-    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Sql_editor, dynamic_cast<SqlEditorForm::RecordsetData*>(rs->client_data())->editor, editor)
+    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(MySQLEditor, dynamic_cast<SqlEditorForm::RecordsetData*>(rs->client_data())->editor, editor)
     {
       grt::BaseListRef args(grtm->get_grt());
 

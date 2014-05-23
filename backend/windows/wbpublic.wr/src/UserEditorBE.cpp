@@ -22,8 +22,6 @@
 #include "DelegateWrapper.h"
 #include "GrtManager.h"
 
-#include "DBObjectEditorBE.h"
-
 #include "grts/structs.workbench.physical.h"
 
 #include "UserEditorBE.h"

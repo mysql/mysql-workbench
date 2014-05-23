@@ -187,7 +187,6 @@ addChild (pANTLR3_BASE_TREE tree, pANTLR3_BASE_TREE child)
                 for (i = 0; i < n; i++)
                 {
                     pANTLR3_BASE_TREE entry;
-                    // ml: cast added.
                     entry = (pANTLR3_BASE_TREE)child->children->get(child->children, i);
 
                     // ANTLR3 lists can be sparse, unlike Array Lists
@@ -195,7 +194,7 @@ addChild (pANTLR3_BASE_TREE tree, pANTLR3_BASE_TREE child)
                     if (entry != NULL)
                     {
                         ANTLR3_UINT32 count = tree->children->add(tree->children, entry, (void (ANTLR3_CDECL *) (void *))child->free);
-                        // ml: added proper child index + parent setting.
+
                         entry->setChildIndex(entry, count - 1);
                         entry->setParent(entry, tree);
                     }
@@ -215,7 +214,6 @@ addChild (pANTLR3_BASE_TREE tree, pANTLR3_BASE_TREE child)
 			tree->createChildrenList(tree);
 		}
 
-        // ml: added proper child index + parent setting.
 		ANTLR3_UINT32 count = tree->children->add(tree->children, child, (void (ANTLR3_CDECL *)(void *))child->free);
 		child->setChildIndex(child, count - 1);
 		child->setParent(child, tree);
@@ -266,7 +264,6 @@ dupTree		(pANTLR3_BASE_TREE tree)
 	ANTLR3_UINT32	i;
 	ANTLR3_UINT32	s;
 
-    // ml: cast added.
 	newTree = (pANTLR3_BASE_TREE)tree->dupNode	    (tree);
 
 	if	(tree->children != NULL)
@@ -282,7 +279,6 @@ dupTree		(pANTLR3_BASE_TREE tree)
 
 			if  (t!= NULL)
 			{
-			    // ml: cast added.
 				newNode	    = (pANTLR3_BASE_TREE)t->dupTree(t);
 				newTree->addChild(newTree, newNode);
 			}
@@ -488,7 +484,6 @@ freshenPACIndexes	(pANTLR3_BASE_TREE tree, ANTLR3_UINT32 offset)
 	{
 		pANTLR3_BASE_TREE	child;
 
-        // ml: cast added.
 		child = (pANTLR3_BASE_TREE)tree->getChild(tree, c);
 
 		child->setChildIndex(child, c);

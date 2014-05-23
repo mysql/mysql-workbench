@@ -64,8 +64,8 @@ public:
 
   GrtManager ^ grt_manager() { return gcnew GrtManager((*_ref)->grt_manager()); }
 
-  SqlEditorWrapper ^ sql_editor() { return Ref2Ptr_<::Sql_editor, SqlEditorWrapper>((*_ref)->active_sql_editor()); }
-  SqlEditorWrapper ^ sql_editor(Int32 index) { return Ref2Ptr_<::Sql_editor, SqlEditorWrapper>((*_ref)->sql_editor(index)); }
+  SqlEditorWrapper ^ sql_editor() { return Ref2Ptr_<MySQLEditor, SqlEditorWrapper>((*_ref)->active_sql_editor()); }
+  SqlEditorWrapper ^ sql_editor(Int32 index) { return Ref2Ptr_<MySQLEditor, SqlEditorWrapper>((*_ref)->sql_editor(index)); }
   Int32 sql_editor_count() { return (*_ref)->sql_editor_count(); }
   String ^ sql_editor_caption(Int32 index) { return CppStringToNative((*_ref)->sql_editor_caption(index)); }
   void sql_editor_caption(Int32 index, String^ caption) { ((*_ref)->sql_editor_caption(index, NativeToCppString(caption))); }
@@ -78,7 +78,7 @@ public:
   bool sql_editor_is_scratch(Int32 index) { return (*_ref)->sql_editor_is_scratch(index); }
   bool sql_editor_start_collapsed(Int32 index) { return (*_ref)->sql_editor_start_collapsed(index); }
   String^ sql_editor_path(Int32 index) { return CppStringToNative((*_ref)->sql_editor_path(index)); }
-  Int32 sql_editor_index(SqlEditorWrapper^ editor) { return (*_ref)->sql_editor_index(*(Sql_editor::Ref*)(void*)~editor->ref()); };
+  Int32 sql_editor_index(SqlEditorWrapper^ editor) { return (*_ref)->sql_editor_index(*(MySQLEditor::Ref*)(void*)~editor->ref()); };
 
   bool sql_editor_will_close(Int32 index) { return (*_ref)->sql_editor_will_close(index); }
 

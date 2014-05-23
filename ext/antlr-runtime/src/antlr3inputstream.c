@@ -263,7 +263,7 @@ antlr3InputReset(pANTLR3_INPUT_STREAM input)
 
     input->nextChar		= input->data;	/* Input at first character */
     input->line			= 1;		/* starts at line 1	    */
-  input->charPositionInLine	= 0; // ml: init with the real position, not a dummy value.
+    input->charPositionInLine	= 0;
     input->currentLine		= input->data;
     input->markDepth		= 0;		/* Reset markers	    */
     
@@ -451,27 +451,32 @@ antlr38BitMark	(pANTLR3_INT_STREAM is)
 
     /* New mark point 
      */
-    input->markDepth++;
+    ++input->markDepth;
 
     /* See if we are revisiting a mark as we can just reuse the vector
      * entry if we are, otherwise, we need a new one
      */
     if	(input->markDepth > input->markers->count)
     {	
-    // ml: cast added.
-	state	= (pANTLR3_LEX_STATE)ANTLR3_MALLOC(sizeof(ANTLR3_LEX_STATE));
+		state = (pANTLR3_LEX_STATE)ANTLR3_MALLOC(sizeof(ANTLR3_LEX_STATE));
+		if (state == NULL)
+		{
+			// malloc failed
+			--input->markDepth;
+			return 0;
+		}
 
-	/* Add it to the table
-	 */
-	input->markers->add(input->markers, state, ANTLR3_FREE_FUNC);	/* No special structure, just free() on delete */
+		/* Add it to the table
+		 */
+		input->markers->add(input->markers, state, ANTLR3_FREE_FUNC);	/* No special structure, just free() on delete */
     }
     else
     {
-	state	= (pANTLR3_LEX_STATE)input->markers->get(input->markers, input->markDepth - 1);
+		state	= (pANTLR3_LEX_STATE)input->markers->get(input->markers, input->markDepth - 1);
 
-	/* Assume no errors for speed, it will just blow up if the table failed
-	 * for some reasons, hence lots of unit tests on the tables ;-)
-	 */
+		/* Assume no errors for speed, it will just blow up if the table failed
+		 * for some reasons, hence lots of unit tests on the tables ;-)
+		 */
     }
 
     /* We have created or retrieved the state, so update it with the current
@@ -523,6 +528,7 @@ antlr38BitRewind	(pANTLR3_INT_STREAM is, ANTLR3_MARKER mark)
     /* Find the supplied mark state 
      */
     state   = (pANTLR3_LEX_STATE)input->markers->get(input->markers, (ANTLR3_UINT32)(mark - 1));
+	if (state == NULL) { return; }
 
     /* Seek input pointer to the requested point (note we supply the void *pointer
      * to whatever is implementing the int stream to seek).
@@ -573,7 +579,6 @@ antlr38BitSeek	(pANTLR3_INT_STREAM is, ANTLR3_MARKER seekPoint)
 	ANTLR3_INT32   count;
 	pANTLR3_INPUT_STREAM input;
 
-    // ml: cast added.
 	input   = (pANTLR3_INPUT_STREAM)ANTLR3_FUNC_PTR(((pANTLR3_INPUT_STREAM) is->super));
 
 	/* If the requested seek point is less than the current
@@ -867,7 +872,6 @@ antlr3UTF16LA(pANTLR3_INT_STREAM is, ANTLR3_INT32 la)
         // in the input stream
         //
 	input       = ((pANTLR3_INPUT_STREAM) (is->super));
-	    // ml: cast added.
         nextChar    = (UTF16*)input->nextChar;
 
         // If a positive offset then advance forward, else retreat
@@ -1148,7 +1152,6 @@ antlr3UTF16LALE(pANTLR3_INT_STREAM is, ANTLR3_INT32 la)
         // in the input stream
         //
 	input       = ((pANTLR3_INPUT_STREAM) (is->super));
-	    // ml: cast added.
         nextChar    = (pANTLR3_UCHAR)input->nextChar;
 
         // If a positive offset then advance forward, else retreat
@@ -1370,7 +1373,6 @@ antlr3UTF16LABE(pANTLR3_INT_STREAM is, ANTLR3_INT32 la)
         // in the input stream
         //
 	input       = ((pANTLR3_INPUT_STREAM) (is->super));
-	    // ml: cast added.
         nextChar    = (pANTLR3_UCHAR)input->nextChar;
 
         // If a positive offset then advance forward, else retreat
@@ -1815,7 +1817,6 @@ antlr3UTF8Consume(pANTLR3_INT_STREAM is)
 
     input   = ((pANTLR3_INPUT_STREAM) (is->super));
 
-    // ml: cast added.
     nextChar = (pANTLR3_UINT8)input->nextChar;
 
     if	(nextChar < (((pANTLR3_UINT8)input->data) + input->sizeBuf))
@@ -1882,7 +1883,6 @@ antlr3UTF8LA(pANTLR3_INT_STREAM is, ANTLR3_INT32 la)
 
     input   = ((pANTLR3_INPUT_STREAM) (is->super));
 
-    // ml: cast added.
     nextChar = (pANTLR3_UINT8)input->nextChar;
 
     // Do we need to traverse forwards or backwards?

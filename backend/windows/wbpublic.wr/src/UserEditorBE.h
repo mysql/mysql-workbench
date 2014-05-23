@@ -20,7 +20,7 @@
 #ifndef __USER_EDITOR_H__
 #define __USER_EDITOR_H__
 
-#include "DBObjectEditorBE.h"
+#include "DBObjectEditorWrapper.h"
 #include "RoleTreeBE.h"
 #include "GrtTemplates.h"
 #include "grtdb/editor_user.h"

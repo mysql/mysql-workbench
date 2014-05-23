@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,9 +18,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows.Forms;
 
 using MySQL.Grt;
 using MySQL.Grt.Db;
@@ -31,7 +28,7 @@ namespace MySQL.GUI.Workbench.Plugins
   {
     #region Member Variables
 
-    private MySQLViewEditorBE viewEditorBE { get { return Backend as MySQLViewEditorBE; } } 
+    private MySQLViewEditorWrapper viewEditorBE { get { return Backend as MySQLViewEditorWrapper; } } 
     private DbObjectEditorPages dbObjectEditorPages;
 
     #endregion
@@ -58,7 +55,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLViewEditorBE(GrtManager, value);
+        Backend = new MySQLViewEditorWrapper(GrtManager, value);
         SetupEditorOnHost(panel1, true);
         viewEditorBE.load_view_sql();
 

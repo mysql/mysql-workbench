@@ -503,7 +503,6 @@ fillBuffer(pANTLR3_COMMON_TREE_NODE_STREAM ctns, pANTLR3_BASE_TREE t)
 	//
 	for	(c = 0; c < nCount; c++)
 	{
-	    // ml: cast added.
 		fillBuffer(ctns, (pANTLR3_BASE_TREE)ctns->adaptor->getChild(ctns->adaptor, t, c));
 	}
 
@@ -561,7 +560,6 @@ LB(pANTLR3_TREE_NODE_STREAM tns, ANTLR3_INT32 k)
 		return	&(tns->ctns->INVALID_NODE.baseTree);
 	}
 
-    // ml: cast added.
 	return (pANTLR3_BASE_TREE)tns->ctns->nodes->get(tns->ctns->nodes, tns->ctns->p - k);
 }
 
@@ -599,7 +597,6 @@ _LT	    (pANTLR3_TREE_NODE_STREAM tns, ANTLR3_INT32 k)
 		return &(tns->ctns->EOF_NODE.baseTree);
 	}
 
-    // ml: cast added.
 	return	(pANTLR3_BASE_TREE)tns->ctns->nodes->get(tns->ctns->nodes, tns->ctns->p + k - 1);
 }
 
@@ -870,7 +867,6 @@ toStringWork	(pANTLR3_TREE_NODE_STREAM tns, pANTLR3_BASE_TREE p, pANTLR3_BASE_TR
 	{
 		pANTLR3_BASE_TREE   child;
 
-        // ml: cast added.
 		child = (pANTLR3_BASE_TREE)p->getChild(p, c);
 		tns->toStringWork(tns, child, stop, buf);
 	}
@@ -951,7 +947,6 @@ get							(pANTLR3_TREE_NODE_STREAM tns, ANTLR3_INT32 k)
 		fillBufferRoot(tns->ctns);
 	}
 
-    // ml: cast added.
 	return (pANTLR3_BASE_TREE)tns->ctns->nodes->get(tns->ctns->nodes, k);
 }
 

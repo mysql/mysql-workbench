@@ -51,19 +51,19 @@ namespace mforms
   int mLastResultTabViewCount;
   float mSplitterPosition;
   WBSQLQueryPanel *mOwner;
-  Sql_editor::Ref mBackend;
+  MySQLEditor::Ref mBackend;
   mforms::DockingPoint *mBottomDockingPoint;
   BOOL mSplitterUpdatePending;
   BOOL mQueryCollapsed;
 }
 
 - (id)initWithOwner:(WBSQLQueryPanel*)owner
-            backEnd: (Sql_editor::Ref)backend;
+            backEnd: (MySQLEditor::Ref)backend;
 
 - (void)setQueryCollapsed: (BOOL)flag;
 - (IBAction)activateQueryArea: (id)sender;
 
-- (Sql_editor::Ref)editorController;
+- (MySQLEditor::Ref)editorController;
 
 - (MResultsetViewer*)selectedResultset;
 

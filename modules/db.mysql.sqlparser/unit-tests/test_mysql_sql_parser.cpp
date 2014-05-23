@@ -288,25 +288,25 @@ TEST_FUNCTION(91)
   std::string expected_sql = "data/forward_engineer/ommit_schema_routine.expected.sql";
 
 
-  opts.insert(std::make_pair("GenerateDrops", 1));
-  opts.insert(std::make_pair("GenerateSchemaDrops", 0));
-  opts.insert(std::make_pair("SkipForeignKeys", 1));
-  opts.insert(std::make_pair("SkipFKIndexes", 0));
-  opts.insert(std::make_pair("GenerateWarnings", 0));
-  opts.insert(std::make_pair("GenerateCreateIndex", 0));
-  opts.insert(std::make_pair("NoUsersJustPrivileges", 0));
-  opts.insert(std::make_pair("NoViewPlaceholders", 0));
-  opts.insert(std::make_pair("GenerateInserts", 0));
-  opts.insert(std::make_pair("NoFKForInserts", 0));
-  opts.insert(std::make_pair("TriggersAfterInserts", 0));
-  opts.insert(std::make_pair("OmitSchemata", 1));
-  opts.insert(std::make_pair("GenerateUse", 0));
+  opts.insert(std::make_pair("GenerateDrops", true));
+  opts.insert(std::make_pair("GenerateSchemaDrops", false));
+  opts.insert(std::make_pair("SkipForeignKeys", true));
+  opts.insert(std::make_pair("SkipFKIndexes", false));
+  opts.insert(std::make_pair("GenerateWarnings", false));
+  opts.insert(std::make_pair("GenerateCreateIndex", false));
+  opts.insert(std::make_pair("NoUsersJustPrivileges", false));
+  opts.insert(std::make_pair("NoViewPlaceholders", false));
+  opts.insert(std::make_pair("GenerateInserts", false));
+  opts.insert(std::make_pair("NoFKForInserts", false));
+  opts.insert(std::make_pair("TriggersAfterInserts", false));
+  opts.insert(std::make_pair("OmitSchemata", true));
+  opts.insert(std::make_pair("GenerateUse", false));
 
-  opts.insert(std::make_pair("TablesAreSelected", 1));
-  opts.insert(std::make_pair("TriggersAreSelected", 0));
-  opts.insert(std::make_pair("RoutinesAreSelected", 1));
-  opts.insert(std::make_pair("ViewsAreSelected", 0));
-  opts.insert(std::make_pair("UsersAreSelected", 1));
+  opts.insert(std::make_pair("TablesAreSelected", true));
+  opts.insert(std::make_pair("TriggersAreSelected", false));
+  opts.insert(std::make_pair("RoutinesAreSelected", true));
+  opts.insert(std::make_pair("ViewsAreSelected", false));
+  opts.insert(std::make_pair("UsersAreSelected", true));
 
   check_fwd_engineer(wbt, modelfile, expected_sql, opts);
 
