@@ -48,7 +48,7 @@ class QueryView : public sigc::trackable
     void close();
     void focus();
 
-    Sql_editor::Ref be() { return _editor; }
+    MySQLEditor::Ref be() { return _editor; }
 
     void set_linked_label(ActiveLabel* lbl); // Label associated with the view in gtk::notebook
     int index();
@@ -85,7 +85,7 @@ class QueryView : public sigc::trackable
     void tab_menu_handler(const std::string& action, ActiveLabel* sender, RecordsetView* qv);
 
     DbSqlEditorView         *_owner;
-    Sql_editor::Ref          _editor;
+    MySQLEditor::Ref          _editor;
     Gtk::VBox                _editor_box;
     Gtk::VBox                _rs_box;
     Gtk::VPaned              _top_pane;

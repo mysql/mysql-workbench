@@ -108,7 +108,7 @@ void DbMySQLTableEditorColumnPage::refill_columns_tv()
   Glib::RefPtr<ListModelWrapper> model = ListModelWrapper::create(_be->get_columns(), _tv, "DbMySQLTableEditorColumnPage");
 
   model->model().append_string_column(MySQLTableColumnsListBE::Name, "Column Name", EDITABLE, WITH_ICON);
-  model->model().append_combo_column(MySQLTableColumnsListBE::Type, "Datatype", model->model().create_model(get_types_for_table(_be->table())), EDITABLE);
+  model->model().append_combo_column(MySQLTableColumnsListBE::Type, "Datatype", model->model().create_model(get_types_for_table(_be->get_table())), EDITABLE);
   model->model().append_check_column(MySQLTableColumnsListBE::IsPK, "PK", EDITABLE);
   model->model().append_check_column(MySQLTableColumnsListBE::IsNotNull, "NN", EDITABLE);
   model->model().append_check_column(MySQLTableColumnsListBE::IsUnique,  "UQ", EDITABLE);

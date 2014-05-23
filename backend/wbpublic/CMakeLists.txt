@@ -91,7 +91,6 @@ add_library(wbpublic
     sqlide/recordset_sqlite_storage.cpp
     sqlide/recordset_table_inserts_storage.cpp
     sqlide/recordset_text_storage.cpp
-    sqlide/sqlide.cpp
     sqlide/table_inserts_loader_be.cpp
     sqlide/autocomplete_object_name_cache.cpp
     sqlide/sql_script_run_wizard.cpp
