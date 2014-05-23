@@ -22,20 +22,14 @@
 
 #include "mdc_canvas_view_windows.h"
 #include "mdc_canvas_view_image.h"
-#include "model_diagram_impl.h"
-
-#include <glib.h>
-
-#include "Grt.h"
-#include "GrtTemplates.h"
-#include "Exceptions.h"
 
 using namespace System;
 using namespace System::Windows::Forms;
 using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 
-using namespace MySQL::Grt;
+#pragma make_public(mdc::KeyInfo)
+#pragma make_public(mdc::CanvasView)
 
 namespace MySQL {
 namespace GUI {
@@ -45,8 +39,6 @@ struct KeyCodeMapping {
   Keys key;
   mdc::KeyCode kcode;
 };
-
-
 
 public ref class BaseWindowsCanvasView
 {
@@ -58,7 +50,6 @@ public:
 protected:
 
   ::mdc::CanvasView *inner;
-  model_Diagram* owner;
 
 private:
   // needed for fixed pointer
@@ -131,13 +122,11 @@ public:
 };
 
 
-
 public ref class WindowsGLCanvasView : public BaseWindowsCanvasView
 {
 public:
   WindowsGLCanvasView(IntPtr window, IntPtr payload, int width, int height)
   {
-    owner = static_cast<model_Diagram*>(payload.ToPointer());
     inner= new ::mdc::WindowsGLCanvasView((HWND)window.ToPointer(), width, height);
 
     // get a fixed pointer to this object
@@ -155,8 +144,7 @@ public ref class WindowsGDICanvasView : public BaseWindowsCanvasView
 public:
   WindowsGDICanvasView(IntPtr window, IntPtr payload, int width, int height)
   {
-    owner = static_cast<model_Diagram*>(payload.ToPointer());
-    inner= new ::mdc::WindowsCanvasView(width, height);
+    inner = new ::mdc::WindowsCanvasView(width, height);
 
     // get a fixed pointer to this object
     IntPtr ip = this->GetFixedId();

@@ -109,6 +109,10 @@
       <Name>base.wr</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\library\forms\winforms\mforms.wr.vcxproj">
+      <Project>{1d67c943-0432-4ee0-8ab0-915540c9538f}</Project>
+      <Name>mforms.wr</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WBControls\WBControls.csproj">
       <Project>{35c9b1f0-96f0-40fe-b7f7-5a9ba3628db2}</Project>
       <Name>WBControls</Name>

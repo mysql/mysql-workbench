@@ -38,7 +38,7 @@ namespace mforms {
 #endif
 #endif
 
-  class Canvas : public View
+  class MFORMS_EXPORT Canvas : public View
   {
   protected:
     CanvasImplPtrs *_canvas_impl;
