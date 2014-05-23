@@ -534,8 +534,14 @@ int SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed)
   // In opposition to the object editors, each individual sql editor gets an own parser context
   // (and hence an own parser), to allow concurrent and multi threaded work.
   parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt_manager()->get_grt());
+
+  GrtVersionRef serverVer = wbsql()->get_grt_editor_object(this)->serverVersion();
+  if (!serverVer.is_valid())
+    serverVer = bec::parse_version(grt_manager()->get_grt(), "5.5.1");
+
   parser::ParserContext::Ref context = services->createParserContext(rdbms()->characterSets(),
-    wbsql()->get_grt_editor_object(this)->serverVersion(), _lower_case_table_names != 0);
+    serverVer, _lower_case_table_names != 0);
+
   MySQLEditor::Ref sql_editor = MySQLEditor::create(grt_manager()->get_grt(), context, grtobj);
 
   sql_editor->sql_check_progress_msg_throttle(_progress_status_update_interval);

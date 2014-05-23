@@ -30,6 +30,8 @@
 #endif
 #include <set>
 #include <antlr3.h>
+#include <string>
+#include <vector>
 
 extern "C" {
   ANTLR3_UINT32 check_charset(void *payload, pANTLR3_STRING text);

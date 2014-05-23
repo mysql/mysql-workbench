@@ -23,6 +23,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff
     ${PROJECT_SOURCE_DIR}/library/sql-parser/include
     ${PROJECT_SOURCE_DIR}/library/sql-parser/source
+    ${PROJECT_SOURCE_DIR}/library/mysql.parser
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/frontend/linux
@@ -30,6 +31,8 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
     ${PROJECT_SOURCE_DIR}/frontend/linux/sqlide
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
+    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime/include
+    ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     ${VSQLITE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     ${GTK2_INCLUDE_DIRS}
