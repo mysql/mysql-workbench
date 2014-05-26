@@ -26,19 +26,18 @@ import re
 import subprocess
 import logging
 import time
+import json
 from multiprocessing import Process
 
 
 
-def call_system(command, output_handler=None, output_timeout=15, options=None):
-    # wrap cmd
-
+def call_system(command, spawn):
     result = 0
 
     logging.info('Executing command: %s' % command)
-    child = subprocess.Popen(command, bufsize=0, close_fds=True, shell=True)
+    child = subprocess.Popen(command, bufsize=0, close_fds=True, shell=True, preexec_fn=os.setpgrp)
 
-    if options is None or not options.has_key('spawn'):
+    if not spawn:
         child.wait()
         result = result = child.returncode
 
@@ -167,7 +166,7 @@ class MEBBackup(MEBCommand):
     def read_params(self):
         ret_val = False
         param_count = len(sys.argv)
-
+        
         if param_count >= 8:
             self.profile_file = sys.argv[2]
             self.compress = self.read_bool_param(sys.argv[3])
@@ -175,9 +174,7 @@ class MEBBackup(MEBCommand):
             self.to_single_file = self.read_bool_param(sys.argv[5])
             self.report_progress = self.read_bool_param(sys.argv[6])
             self.bkcommand = sys.argv[7]
-
-            print self.to_single_file
-
+            
             if param_count > 8:
                 self.file_name = sys.argv[8]
 
@@ -200,6 +197,32 @@ class MEBBackup(MEBCommand):
         self.backup_dir = profile.read_value('mysqlbackup', 'backup_dir', True, "")
         self.inc_backup_dir = profile.read_value('mysqlbackup', 'incremental_backup_dir', True, "")
 
+    def set_backup_paths(self):
+        target_folder = ''
+
+        # Defines the target file/folder name for the backup
+        if self.file_name != '':
+            if self.to_single_file:
+                if self.file_name.lower()[-4:] != '.mbi':
+                    self.file_name += '.mbi'
+
+                # On an image backup the backup dir will be the one
+                # Received as a parameter
+                self.backup_dir = self.file_name[:-4]
+                self.log_path = self.file_name.replace('.mbi', '.log')
+            else:
+                # If a file name is passed it is used as the backup folder
+                target_folder = self.file_name
+        else:
+            # If no file name is passed, uses the timestamp to create one
+            target_folder = strftime(self.time_format)
+            
+        # The full path is the target folder under the backups home for
+        # the profile
+        if target_folder:
+            self.backup_dir = os.path.join(self.backup_dir, target_folder)
+            self.log_path = self.backup_dir + '.log'
+        
 
     def prepare_command(self):
         ret_val = True
@@ -210,10 +233,10 @@ class MEBBackup(MEBCommand):
             self.command_call += " --compress"
 
         # Get the right path parameter, path and running type 
-        path_param = " --backup_dir"
+        path_param = " --backup-dir"
 
         # If the backup is incremental
-        if self.incremental == "1":
+        if self.incremental:
             base_folder = self.get_incremental_base_folder()
 
             if base_folder:
@@ -223,38 +246,20 @@ class MEBBackup(MEBCommand):
             else:
                 print "ERROR: Unable to run incremental backup without a base folder."
                 ret_val = False
+                
+        # Sets the needed backup paths
+        self.set_backup_paths()
 
-        use_target_as = ''
-        log_file_name =''
-        running_info=''
-
-        # Defines the target file/folder name for the backup
-        if self.file_name != '':
-            if self.to_single_file:
-                if self.file_name.lower()[-4:] != '.mbi':
-                    self.file_name += '.mbi'
-
-                use_target_as = '--backup-image'
-
-                self.backup_dir = self.file_name[:-4]
-            else:
-                self.backup_dir = self.file_name
-        else:
-            self.backup_dir = os.path.join(self.backup_dir, strftime(self.time_format))
-
-        log_file_name = self.backup_dir + '.log'
-
-
+        # Adds the backup folder to the command
         self.command_call += ' %s="%s"' % (path_param, self.backup_dir)
 
-
-        if use_target_as:
-            self.command_call += ' %s="%s"' % (use_target_as, self.file_name)
-
+        if self.to_single_file:
+            self.command_call += ' --backup-image=%s' % self.file_name
+            
         if self.report_progress:
             self.command_call += ' --show-progress=stdout'
 
-        self.command_call += ' %s > "%s" 2>&1' % (self.bkcommand, log_file_name)
+        self.command_call += ' %s > "%s" 2>&1' % (self.bkcommand, self.log_path)
 
         return ret_val
 
@@ -265,11 +270,12 @@ class MEBBackup(MEBCommand):
             # explicitly on the command call
             self.read_profile_data()
 
-            self.prepare_command()
-
-            print "Command : %s" % self.command_call
-
-            ret_val = call_system(self.command_call, options={'spawn':''})
+            if self.prepare_command():
+                # Spawns the backup command execution
+                ret_val = call_system(self.command_call, True)
+                
+                # Prints the data to be returned back
+                print json.dumps({'LOG_PATH':self.log_path})
 
         else:
             self.print_usage()
@@ -314,20 +320,22 @@ class MEBBackup(MEBCommand):
         return lastest_time
 
 class MEBVersion(MEBCommand):
-    def execute(self):
-        print "1"
+    current = "1"
         
+    def execute(self):
+        print self.current
         return 0
     
 
-# Initializes the logging module
-log_file = '%s.log' % __file__[:-3]
-logging.basicConfig(filename=log_file, level=logging.DEBUG)
-logging.basicConfig(format='[%(asctime)s] %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
+if __name__ == "__main__":
+    # Initializes the logging module
+    log_file = '%s.log' % __file__[:-3]
+    logging.basicConfig(filename=log_file, level=logging.DEBUG)
+    logging.basicConfig(format='[%(asctime)s] %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
 
 
-processor = MEBCommandProcessor(sys.argv)
-sys.exit(processor.execute())
+    processor = MEBCommandProcessor(sys.argv)
+    sys.exit(processor.execute())
 
 
 
