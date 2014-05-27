@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,12 +17,27 @@
  * 02110-1301  USA
  */
 
-#include "Grt.h"
-#include "Exceptions.h"
+#pragma once
 
 namespace MySQL {
-namespace Grt {
+  namespace Forms {
+    public interface class ICanvasViewer
+    {
+      System::Windows::Forms::Control ^control();
+    };
 
 
-} // namespace Grt
-} // namespace MySQL
+    public class CanvasWrapper : public ViewWrapper
+    {
+    protected:
+      CanvasWrapper(mforms::Canvas *backend);
+
+      static bool create(mforms::Canvas *backend);
+      static mdc::CanvasView *canvas(mforms::Canvas *backend);
+
+    public:
+      static void init();
+    };
+
+  };
+};

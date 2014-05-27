@@ -605,11 +605,11 @@ void WbContext::flush_idle_tasks()
   }
   catch(std::exception *ex)
   {
- //XXX!   throw gcnew BackendException(ex);
+    throw gcnew MySQL::Grt::BackendException(ex);
   }
   catch(std::exception &ex)
   {
-  //XXX!  throw gcnew BackendException(&ex);
+    throw gcnew MySQL::Grt::BackendException(&ex);
   }
   catch(...)
   {

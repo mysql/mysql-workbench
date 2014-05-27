@@ -240,6 +240,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Canvas.h" />
+    <ClInclude Include="CanvasViewer.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\wf_app.h" />
     <ClInclude Include="src\wf_appview.h" />
@@ -288,6 +289,7 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="Canvas.cpp" />
+    <ClCompile Include="CanvasViewer.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

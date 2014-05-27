@@ -436,9 +436,9 @@ namespace MySQL.GUI.Workbench
     /// <summary>
     /// Creates a new diagram form with a given name and id. UI handling (e.g. docking) is done later.
     /// </summary>
-    public BaseWindowsCanvasView CreateNewDiagram(string viewId, string name, IntPtr payload)
+    public BaseWindowsCanvasView CreateNewDiagram(string viewId, string name)
     {
-      ModelDiagramForm modelDiagramForm = new ModelDiagramForm(wbContext, viewId, payload);
+      ModelDiagramForm modelDiagramForm = new ModelDiagramForm(wbContext, viewId);
 
       modelDiagramForm.Text = name;
       modelDiagramForm.TabText = name;

@@ -82,9 +82,6 @@
     </Compile>
     <Compile Include="SimpleGrtListModel.cs" />
     <Compile Include="SimpleGrtTreeModel.cs" />
-    <Compile Include="WindowsCanvasViewer.cs">
-      <SubType>Component</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\MySQLAssembly.ico" />

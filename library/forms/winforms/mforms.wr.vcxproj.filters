@@ -142,6 +142,9 @@
     <ClInclude Include="Canvas.h">
       <Filter>Canvas</Filter>
     </ClInclude>
+    <ClInclude Include="CanvasViewer.h">
+      <Filter>Canvas</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -274,6 +277,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Canvas.cpp">
+      <Filter>Canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="CanvasViewer.cpp">
       <Filter>Canvas</Filter>
     </ClCompile>
   </ItemGroup>
