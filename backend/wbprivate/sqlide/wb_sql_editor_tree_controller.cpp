@@ -1965,7 +1965,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
   }
   try
   {
-    if (!dry_run && obj_editor->get_sql_editor()->has_sql_errors())
+    if (!dry_run && obj_editor->has_editor() && obj_editor->get_sql_editor()->has_sql_errors())
     {
       int res= mforms::Utilities::show_warning(
                                                _("Apply Changes to Object"),
