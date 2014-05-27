@@ -548,9 +548,7 @@ class GenericMigration(object):
 
 
     def migrateTriggerToMySQL(self, state, source_trigger, target_table):
-        copy_members = ["name", "oldName", "definer", "event", "condition", "order", "orientation", "timing", 
-             "referenceNewTable", "referenceOldTable", "referenceNewRow", "referenceOldRow", "sequenceNumber", "enabled",
-             "sqlDefinition"]
+        copy_members = ["name", "oldName", "definer", "event", "timing", "enabled", "sqlDefinition"]
         target_trigger = grt.classes.db_mysql_Trigger()
         state.addMigrationLogEntry(0, source_trigger, target_trigger, "")
         target_trigger.owner = target_table
@@ -576,8 +574,7 @@ class GenericMigration(object):
 
 
     def migrateRoutineToMySQL(self, state, source_routine, target_schema):
-        copy_members = ["name", "oldName", "routineType", "sequenceNumber",
-             "sqlDefinition"]
+        copy_members = ["name", "oldName", "routineType", "sqlDefinition"]
         target_routine = grt.classes.db_mysql_Routine()
         target_routine.owner = target_schema
         state.addMigrationLogEntry(0, source_routine, target_routine, "")
