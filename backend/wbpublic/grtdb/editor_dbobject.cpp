@@ -56,7 +56,12 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef 
   bool case_sensitive = true;
   if (object->customData().get_int("CaseSensitive", 1) == 0)
     case_sensitive = false;
-  _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), get_catalog()->version(), case_sensitive);
+
+  // Assume a default version if the given catalog is incomplete.
+  GrtVersionRef version = get_catalog()->version();
+  if (!version.is_valid())
+    version = bec::parse_version(grtm->get_grt(), "5.5.1");
+  _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
 
   if (object->customData().has_key("sqlMode"))
     _parser_context->use_sql_mode(object->customData().get_string("sqlMode"));
@@ -497,6 +502,15 @@ bool DBObjectEditorBE::parse_charset_collation(const std::string &str, std::stri
 
 //--------------------------------------------------------------------------------------------------
 
+bool DBObjectEditorBE::has_editor()
+{
+  if (_sql_editor)
+    return true;
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 {
   if (!_sql_editor)
@@ -513,7 +527,9 @@ MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 
 void bec::DBObjectEditorBE::reset_editor_undo_stack()
 {
-  get_sql_editor()->get_editor_control()->reset_dirty();
+  // Don't create an editor control if we don't need one (e.g. for the schema editor).
+  if (_sql_editor)
+    _sql_editor->get_editor_control()->reset_dirty();
 }
 
 //--------------------------------------------------------------------------------------------------

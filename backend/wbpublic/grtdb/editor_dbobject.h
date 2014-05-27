@@ -49,6 +49,7 @@ namespace bec {
     virtual bool is_sql_commented();
     virtual void set_sql_commented(bool flag);
 
+    bool has_editor();
     virtual MySQLEditor::Ref get_sql_editor();
     virtual void reset_editor_undo_stack();
 
