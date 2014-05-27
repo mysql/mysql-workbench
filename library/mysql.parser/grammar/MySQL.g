@@ -20,7 +20,7 @@ grammar MySQL;
  */
 
 /*
- * MySQL grammar for ANTLR 3.4 with language features from MySQL 4.0 up to MySQL 5.6 (except for
+ * MySQL grammar for ANTLR 3.4 with language features from MySQL 4.0 up to MySQL 5.7 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
@@ -192,9 +192,6 @@ extern "C" {
   // Checks the given text if it is equal to "\N" (w/o quotes and in uppercase). We need this extra
   // check as our lexer is case insensitive.
   ANTLR3_UINT32 check_null(pANTLR3_STRING text);
-  
-  // Checks if the given text is a keyword that is allowed as stored procedure label too.
-  ANTLR3_BOOLEAN is_keyword_sp(pANTLR3_STRING text);
   
   // Checks if the given text is a keyword that is allowed as identifier too (includes sp label keywords).
   ANTLR3_BOOLEAN is_keyword(pANTLR3_STRING text);

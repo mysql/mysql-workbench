@@ -5,6 +5,7 @@ GENERATE_FILES=false
 BASE_DIRECTORY=../../../..
 LINUX_RES_JAR_PATH=$BASE_DIRECTORY/linux-res/bin/antlr-3.4-complete.jar
 SOURCE_FILE=MySQL.g
+SOURCE_FILE2=MySQLSimpleParser.g
 
 
 if [ ! -f "$TARGET_DIRECTORY/MySQLLexer.c" ]  || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLLexer.c" ];  then GENERATE_FILES=true; fi
@@ -27,5 +28,6 @@ if [ $GENERATE_FILES == true ]; then
   fi
 
   java -Xmx1024m -jar "$ANTLR_JAR_PATH" -make $SOURCE_FILE -o $TARGET_DIRECTORY -Xmaxswitchcaselabels 30
+  java -Xmx1024m -jar "$ANTLR_JAR_PATH" -make $SOURCE_FILE2 -o $TARGET_DIRECTORY -Xmaxswitchcaselabels 30
 fi
 

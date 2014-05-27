@@ -23,6 +23,8 @@
 
 #include "mysql_parser_module.h"
 #include "MySQLLexer.h"
+#include "mysql-parser.h"
+#include "mysql-syntax-check.h"
 
 #include "grts/structs.db.mysql.h"
 
@@ -605,8 +607,8 @@ size_t MySQLParserServicesImpl::parseRoutines(parser::ParserContext::Ref context
 size_t MySQLParserServicesImpl::checkSqlSyntax(ParserContext::Ref context, const char *sql,
                                                size_t length, MySQLQueryType type)
 {
-  context->recognizer()->parse(sql, length, true, type);
-  return context->recognizer()->error_info().size();
+  context->syntax_checker()->parse(sql, length, true, type);
+  return context->syntax_checker()->error_info().size();
 }
 
 //--------------------------------------------------------------------------------------------------

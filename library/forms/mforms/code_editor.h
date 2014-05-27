@@ -62,14 +62,23 @@ namespace mforms {
    */
   enum LineMarkup {
     LineMarkupNone          = 0,      // No markup for the given line.
-    LineMarkupBreakpoint    = 1 << 0, // Line has a marker set for a break point.
-    LineMarkupBreakpointHit = 1 << 1, // Line has a marker set for a break point which is currently hit.
-    LineMarkupError         = 1 << 2, // Line's background is drawn in red to mark an execution error.
-    LineMarkupStatement     = 1 << 3, // Marks a line as having a statement starting on it.
+    LineMarkupStatement     = 1 << 0, // Marks a line as having a statement starting on it.
+    LineMarkupError         = 1 << 1, // Line's background is drawn in red to mark an execution error.
+    LineMarkupBreakpoint    = 1 << 2, // Line has a marker set for a break point.
+    LineMarkupBreakpointHit = 1 << 3, // Line has a marker set for a break point which is currently hit.
     LineMarkupCurrent       = 1 << 4, // Current execution line.
 
     LineMarkupAll           = 0xFF,   // All markup, useful for remove_markup.
   };
+
+  // A collection of markup, attached to the original line and going to be removed
+  // or moved to a new line.
+  typedef struct {
+    int original_line;
+    int new_line;
+    LineMarkup markup;
+  } LineMarkupChangeEntry;
+  typedef std::vector<LineMarkupChangeEntry> LineMarkupChangeset;
 
 #ifndef SWIG
   inline LineMarkup operator| (LineMarkup a, LineMarkup b)
@@ -478,12 +487,13 @@ public:
     boost::signals2::signal<void (int)>* signal_char_added() { return &_char_added_event; }
 
     /** Signal emitted when the Scintilla backend removes a set marker (e.g. on editing, pasting, manual marker setting).
-     *  Parameter is:
-     *    The changed line.
+     *  Parameters are:
+     *    A vector of line + markup pairs.
+     *    A flag telling if those markers where deleted or only updated (moved).
      */
-    boost::signals2::signal<void (int)>* signal_marker_changed() { return &_marker_changed_event; }
+    boost::signals2::signal<void(const LineMarkupChangeset &changeset, bool deleted)>* signal_marker_changed() { return &_marker_changed_event; }
 
-    /** Emited when editing ends (control loses focus)
+    /** Signal emitted when the control loses input focus.
      */
     boost::signals2::signal<void ()>* signal_lost_focus() { return &_signal_lost_focus; }
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -508,6 +518,9 @@ public:
     bool _auto_indent;
 
     void setup_marker(int marker, const std::string& name);
+    void check_markers_removed(int position, int length);
+    void check_markers_moved(int position, int lines_added);
+
     void load_configuration(SyntaxHighlighterLanguage language);
 
     boost::signals2::signal<void (int, int, int, bool)> _change_event;
@@ -516,7 +529,7 @@ public:
     boost::signals2::signal<void (bool, size_t, int, int)> _dwell_event;
     boost::signals2::signal<void (int)> _char_added_event;
     boost::signals2::signal<void ()> _signal_lost_focus;
-    boost::signals2::signal<void (int)> _marker_changed_event;
+    boost::signals2::signal<void(const LineMarkupChangeset &changeset, bool deleted)> _marker_changed_event;
 
     boost::function<void (CodeEditor*, bool)> _show_find_panel;
   };

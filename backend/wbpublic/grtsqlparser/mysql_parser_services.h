@@ -21,13 +21,15 @@
 
 #include "wbpublic_public_interface.h"
 
-#include "mysql-parser.h"
-
+#include "mysql-parser-common.h"
 #include "grtdb/db_helpers.h"
 
 #ifdef __linux__
   #include "grts/structs.db.mysql.h"
 #endif
+
+class MySQLRecognizer;
+class MySQLSyntaxChecker;
 
 namespace parser {
 
@@ -43,7 +45,9 @@ class WBPUBLICBACKEND_PUBLIC_FUNC ParserContext {
 
 private:
   MySQLRecognizer *_recognizer;
+  MySQLSyntaxChecker *_syntax_checker;
   GrtVersionRef _version;
+
   bool _case_sensitive;
 
 public:
@@ -53,6 +57,7 @@ public:
   ~ParserContext();
 
   MySQLRecognizer *recognizer() { return _recognizer; };
+  MySQLSyntaxChecker *syntax_checker() { return _syntax_checker; };
 
   void use_sql_mode(const std::string &mode);
   void use_server_version(GrtVersionRef version);
@@ -60,7 +65,7 @@ public:
 
   bool case_sensitive() { return _case_sensitive; };
   
-  std::vector<ParserErrorEntry> get_errors_with_offset(size_t offset);
+  std::vector<ParserErrorEntry> get_errors_with_offset(size_t offset, bool for_syntax_check);
 };
 
 /**
