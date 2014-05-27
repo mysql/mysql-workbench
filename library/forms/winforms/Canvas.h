@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -125,7 +125,7 @@ public:
 public ref class WindowsGLCanvasView : public BaseWindowsCanvasView
 {
 public:
-  WindowsGLCanvasView(IntPtr window, IntPtr payload, int width, int height)
+  WindowsGLCanvasView(IntPtr window, int width, int height)
   {
     inner= new ::mdc::WindowsGLCanvasView((HWND)window.ToPointer(), width, height);
 
@@ -142,7 +142,7 @@ public:
 public ref class WindowsGDICanvasView : public BaseWindowsCanvasView
 {
 public:
-  WindowsGDICanvasView(IntPtr window, IntPtr payload, int width, int height)
+  WindowsGDICanvasView(IntPtr window, int width, int height)
   {
     inner = new ::mdc::WindowsCanvasView(width, height);
 

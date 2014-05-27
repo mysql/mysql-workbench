@@ -34,9 +34,11 @@ BaseWindowsCanvasView::BaseWindowsCanvasView() : inner(nullptr)
 
 BaseWindowsCanvasView::~BaseWindowsCanvasView()
 {
-  // Let the owner know we are going away.
+  //XXX TODO
+  // Let the owner know we are going away. 
  // if (owner != NULL && owner->get_data() != NULL)
- //XXX!   owner->get_data()->unrealize();
+ //   owner->get_data()->unrealize();
+ 
 
   delete inner;
   ReleaseHandle();

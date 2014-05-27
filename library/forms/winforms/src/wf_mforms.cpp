@@ -108,7 +108,7 @@ Manager::Manager()
   HyperTextWrapper::init();
   PopoverWrapper::init();
   TreeNodeViewWrapper::init();
-
+  CanvasWrapper::init();
 //  mforms::ControlFactory::get_instance()->check_impl();
 }
 
