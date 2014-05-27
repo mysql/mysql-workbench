@@ -1,10 +1,9 @@
-#ifndef __grts_structs_h__
-#define __grts_structs_h__
+#pragma once
 
 #include <grtpp.h>
 
 #ifdef _WIN32
-  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list
+  #pragma warning(disable: 4355) // 'this' : used in base member initializer list
   #ifdef GRT_STRUCTS_EXPORT
   #define GRT_STRUCTS_PUBLIC __declspec(dllexport)
 #else
@@ -30,6 +29,8 @@ class GrtNamedObject;
 typedef grt::Ref<GrtNamedObject> GrtNamedObjectRef;
 class GrtStoredNote;
 typedef grt::Ref<GrtStoredNote> GrtStoredNoteRef;
+class TransientObject;
+typedef grt::Ref<TransientObject> TransientObjectRef;
 
 
 namespace mforms { 
@@ -845,6 +846,38 @@ public:
 };
 
 
+  /** the parent of all transient (non persistent) objects */
+class  TransientObject : public grt::internal::Object
+{
+  typedef grt::internal::Object super;
+public:
+  TransientObject(grt::GRT *grt, grt::MetaClass *meta=0)
+  : grt::internal::Object(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+
+  {
+  }
+
+  static std::string static_class_name() { return "TransientObject"; }
+
+protected:
+
+private: // wrapper methods for use by grt
+  static grt::ObjectRef create(grt::GRT *grt)
+  {
+    return grt::ObjectRef(new TransientObject(grt));
+  }
+
+
+public:
+  static void grt_register(grt::GRT *grt)
+  {
+    grt::MetaClass *meta= grt->get_metaclass(static_class_name());
+    if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&TransientObject::create);
+  }
+};
+
+
 
 
 inline void register_structs_xml()
@@ -856,10 +889,10 @@ inline void register_structs_xml()
   grt::internal::ClassRegistry::register_class<GrtLogObject>();
   grt::internal::ClassRegistry::register_class<GrtNamedObject>();
   grt::internal::ClassRegistry::register_class<GrtStoredNote>();
+  grt::internal::ClassRegistry::register_class<TransientObject>();
 }
 
 #ifdef AUTO_REGISTER_GRT_CLASSES
 static struct _autoreg__structs_xml { _autoreg__structs_xml() { register_structs_xml(); } } __autoreg__structs_xml;
 #endif
 
-#endif

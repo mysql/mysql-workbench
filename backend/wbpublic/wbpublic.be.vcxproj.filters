@@ -113,12 +113,6 @@
     <ClInclude Include="objimpl\db.query\db_query_Resultset.h">
       <Filter>Generated Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="objimpl\ui\grt_PyObject_impl.h">
-      <Filter>Generated Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="objimpl\ui\mforms_ObjectReference_impl.h">
-      <Filter>Generated Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="objimpl\ui\ui_ObjectEditor_impl.h">
       <Filter>Generated Source Files</Filter>
     </ClInclude>
@@ -473,6 +467,18 @@
     <ClInclude Include="grtsqlparser\mysql_parser_services.h">
       <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.wrapper.h">
+      <Filter>Generated Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\wrapper\mforms_ObjectReference_impl.h">
+      <Filter>Generated Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\wrapper\grt_PyObject_impl.h">
+      <Filter>Generated Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\wrapper\parser_ContextReference_impl.h">
+      <Filter>Generated Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -531,12 +537,6 @@
       <Filter>Generated Source Files</Filter>
     </ClCompile>
     <ClCompile Include="objimpl\model\model_Object.cpp">
-      <Filter>Generated Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="objimpl\ui\grt_PyObject.cpp">
-      <Filter>Generated Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="objimpl\ui\mforms_ObjectReference.cpp">
       <Filter>Generated Source Files</Filter>
     </ClCompile>
     <ClCompile Include="objimpl\ui\ui_db_ConnectPanel.cpp">
@@ -895,6 +895,15 @@
     </ClCompile>
     <ClCompile Include="grtsqlparser\mysql_parser_services.cpp">
       <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\wrapper\mforms_ObjectReference.cpp">
+      <Filter>Generated Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\wrapper\parser_ContextReference.cpp">
+      <Filter>Generated Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\wrapper\grt_PyObject.cpp">
+      <Filter>Generated Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

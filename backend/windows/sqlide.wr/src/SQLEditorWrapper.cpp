@@ -21,7 +21,7 @@
 #include "SQLEditorWrapper.h"
 
 #include "grt/editor_base.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 #include "mforms/dockingpoint.h"
 #include "mforms/view.h"
