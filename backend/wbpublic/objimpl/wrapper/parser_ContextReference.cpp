@@ -76,6 +76,7 @@ parser_ContextReferenceRef parser_context_to_grt(grt::GRT *grt, const ParserCont
   {
     parser_ContextReferenceRef ref(grt);
     parser_ContextReference::ImplData *data = new parser_ContextReference::ImplData(context);
+    ref->set_data(data);
     return ref;
   }
   return parser_ContextReferenceRef();
