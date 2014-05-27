@@ -1209,10 +1209,6 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 
   reset();
 
-  // Always recreate the parser struct as there's a mem leak in the reset() function.
-  if (d->_parser != NULL)
-    d->_parser->free(d->_parser);
-
   if (d->_input == NULL)
   {
     // Input and depending structures are only created once. If there's no input stream yet we need the full setup.
@@ -1222,17 +1218,26 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
     d->_lexer->pLexer->rec->state->userp = &d->_context;
 
     d->_tokens = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(d->_lexer));
+
+    d->_parser = MySQLParserNew(d->_tokens);
+    d->_parser->pParser->rec->state->userp = &d->_context;
   }
   else
   {
     d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);
+    d->_parser->reset(d->_parser);
+
+    // Manually free adaptor and vector pool members. The parser reset() misses them and we cannot
+    // add this code to the parser (as it is generated). Without that these members grow endlessly.
+    d->_parser->vectors->close(d->_parser->vectors);
+    d->_parser->vectors = antlr3VectorFactoryNew(0);
+
+    d->_parser->adaptor->free(d->_parser->adaptor);
+    d->_parser->adaptor = ANTLR3_TREE_ADAPTORNew(d->_tokens->tstream->tokenSource->strFactory);
   }
 
-  d->_parser = MySQLParserNew(d->_tokens);
-  d->_parser->pParser->rec->state->userp = &d->_context;
-  
   switch (parse_unit)
   {
   case QtCreateTrigger:

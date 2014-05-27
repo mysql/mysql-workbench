@@ -33,17 +33,12 @@ using namespace mforms;
 using namespace base;
 
 // Marker ID assignments. Markers with higher number overlay lower ones.
+// Note: the order here matches the LineMarkup enum, so we can directly use the enum as marker flags.
 #define CE_STATEMENT_MARKER      0
 #define CE_ERROR_MARKER          1
 #define CE_BREAKPOINT_MARKER     2
 #define CE_BREAKPOINT_HIT_MARKER 3
 #define CE_CURRENT_LINE_MARKER   4
-
-#define CE_STATEMENT_MARKER_FLAG      1 << CE_STATEMENT_MARKER
-#define CE_ERROR_MARKER_FLAG          1 << CE_ERROR_MARKER
-#define CE_BREAKPOINT_MARKER_FLAG     1 << CE_BREAKPOINT_MARKER
-#define CE_BREAKPOINT_HIT_MARKER_FLAG 1 << CE_BREAKPOINT_HIT_MARKER
-#define CE_CURRENT_LINE_MARKER_FLAG   1 << CE_CURRENT_LINE_MARKER
 
 #define AC_LIST_SEPARATOR '\x19' // Unused codes as separators.
 #define AC_TYPE_SEPARATOR '\x18'
@@ -548,6 +543,59 @@ void CodeEditor::setup_marker(int marker, const std::string& name)
 
 //--------------------------------------------------------------------------------------------------
 
+void CodeEditor::check_markers_removed(int position, int length)
+{
+  if (length == 0)
+    return;
+
+  sptr_t current_line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
+  sptr_t end_line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position + length - 1, 0);
+
+  // Ignore the first line if it is only partially deleted (the markers would stay as they are then).
+  if (position > _code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, current_line, 0))
+    ++current_line;
+
+  current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line, LineMarkupAll);
+
+  LineMarkupChangeset changeset;
+  while (current_line > -1 && current_line <= end_line)
+  {
+    LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, current_line, LineMarkupAll);
+    changeset.push_back({ (int)current_line, 0, markup });
+
+    // MARKERNEXT effectively searches lines for the given markers, the docs say.
+    current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line + 1, LineMarkupAll);
+  }
+
+  if (changeset.size() > 0)
+    _marker_changed_event(changeset, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::check_markers_moved(int position, int lines_added)
+{
+  if (lines_added == 0)
+    return;
+
+  sptr_t current_line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
+
+  current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line, LineMarkupAll);
+  LineMarkupChangeset changeset;
+  while (current_line > -1)
+  {
+    LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, current_line, LineMarkupAll);
+    changeset.push_back({ (int)(current_line - lines_added), (int)current_line, markup });
+
+    current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line + 1, LineMarkupAll);
+  }
+
+  if (changeset.size() > 0)
+    _marker_changed_event(changeset, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void CodeEditor::load_configuration(SyntaxHighlighterLanguage language)
 {
   CodeEditorConfig config(language);
@@ -696,28 +744,28 @@ void CodeEditor::show_markup(LineMarkup markup, size_t line)
   sptr_t new_marker_mask = 0;
   if ((markup & mforms::LineMarkupStatement) != 0)
   {
-    if ((marker_mask & CE_STATEMENT_MARKER_FLAG) == 0)
-      new_marker_mask |= CE_STATEMENT_MARKER_FLAG;
+    if ((marker_mask & LineMarkupStatement) == 0)
+      new_marker_mask |= LineMarkupStatement;
   }
   if ((markup & mforms::LineMarkupError) != 0)
   {
-    if ((marker_mask & CE_ERROR_MARKER_FLAG) == 0)
-      new_marker_mask |= CE_ERROR_MARKER_FLAG;
+    if ((marker_mask & LineMarkupError) == 0)
+      new_marker_mask |= LineMarkupError;
   }
   if ((markup & mforms::LineMarkupBreakpoint) != 0)
   {
-    if ((marker_mask & CE_BREAKPOINT_MARKER_FLAG) == 0)
-      new_marker_mask |= CE_BREAKPOINT_MARKER_FLAG;
+    if ((marker_mask & LineMarkupBreakpoint) == 0)
+      new_marker_mask |= LineMarkupBreakpoint;
   }
   if ((markup & mforms::LineMarkupBreakpointHit) != 0)
   {
-    if ((marker_mask & CE_BREAKPOINT_HIT_MARKER_FLAG) == 0)
-      new_marker_mask |= CE_BREAKPOINT_HIT_MARKER_FLAG;
+    if ((marker_mask & LineMarkupBreakpointHit) == 0)
+      new_marker_mask |= LineMarkupBreakpointHit;
   }
   if ((markup & mforms::LineMarkupCurrent) != 0)
   {
-    if ((marker_mask & CE_CURRENT_LINE_MARKER_FLAG) == 0)
-      new_marker_mask |= CE_CURRENT_LINE_MARKER_FLAG;
+    if ((marker_mask & LineMarkupCurrent) == 0)
+      new_marker_mask |= LineMarkupCurrent;
   }
 
   if (new_marker_mask != 0)
@@ -754,33 +802,10 @@ void CodeEditor::remove_markup(LineMarkup markup, ssize_t line)
 
 bool CodeEditor::has_markup(LineMarkup markup, size_t line)
 {
-  sptr_t marker_mask = _code_editor_impl->send_editor(this, SCI_MARKERGET, line, 0);
+  sptr_t markers = _code_editor_impl->send_editor(this, SCI_MARKERGET, line, 0);
 
-  if ((markup & mforms::LineMarkupStatement) != 0)
-  {
-    if ((marker_mask & CE_STATEMENT_MARKER_FLAG) != 0)
-      return true;
-  }
-  if ((markup & mforms::LineMarkupError) != 0)
-  {
-    if ((marker_mask & CE_ERROR_MARKER_FLAG) != 0)
-      return true;
-  }
-  if ((markup & mforms::LineMarkupBreakpoint) != 0)
-  {
-    if ((marker_mask & CE_BREAKPOINT_MARKER_FLAG) != 0)
-      return true;
-  }
-  if ((markup & mforms::LineMarkupBreakpointHit) != 0)
-  {
-    if ((marker_mask & CE_BREAKPOINT_HIT_MARKER_FLAG) != 0)
-      return true;
-  }
-  if ((markup & mforms::LineMarkupCurrent) != 0)
-  {
-    if ((marker_mask & CE_CURRENT_LINE_MARKER_FLAG) != 0)
-      return true;
-  }
+  if ((markup & markers) != 0)
+    return true;
 
   return false;
 }
@@ -946,16 +971,18 @@ void CodeEditor::on_notify(SCNotification* notification)
   
   case SCN_MODIFIED:
   {
-    // Decide depending on the modification type what to do.
-    // There can be more than one modification carried by one notification.
+    // Check for markers that would get removed.
+    // Usually doesn't come with any of the other notification types.
+    if ((notification->modificationType & SC_MOD_BEFOREDELETE) != 0)
+      check_markers_removed(notification->position, notification->length);
+
+    // Text insertion or removal.
     if ((notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) != 0)
+    {
+      check_markers_moved(notification->position, notification->linesAdded);
+
       _change_event(notification->position, notification->length, notification->linesAdded,
         (notification->modificationType & SC_MOD_INSERTTEXT) != 0);
-
-    if ((notification->modificationType & SC_MOD_CHANGEMARKER) != 0)
-    {
-      // No information given if a marker was added, removed or changed or at least what marker was changed.
-      _marker_changed_event(notification->line);
     }
     break;
   }

@@ -21,6 +21,9 @@
 
 #include "base/string_utilities.h"
 
+#include "mysql-parser.h"
+#include "mysql-syntax-check.h"
+
 using namespace parser;
 
 //------------------ ParserContext -----------------------------------------------------------------
@@ -56,7 +59,11 @@ ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version
     filtered_charsets.erase("utf32");
   }
   
+  // Both, parser and syntax checker are only a few hundreds of bytes in size (except for any
+  // stored token strings or the AST), so we can always simply create both without serious memory
+  // concerns.
   _recognizer = new MySQLRecognizer((long)server_version, "", filtered_charsets);
+  _syntax_checker = new MySQLSyntaxChecker((long)server_version, "", filtered_charsets);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +71,7 @@ ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version
 ParserContext::~ParserContext()
 {
   delete _recognizer;
+  delete _syntax_checker;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,6 +79,7 @@ ParserContext::~ParserContext()
 void ParserContext::use_sql_mode(const std::string &mode)
 {
   _recognizer->set_sql_mode(mode);
+  _syntax_checker->set_sql_mode(mode);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,6 +102,7 @@ void ParserContext::use_server_version(GrtVersionRef version)
   else
     server_version = 50501; // Assume some reasonable default (5.5.1).
   _recognizer->set_server_version((long)server_version);
+  _syntax_checker->set_server_version((long)server_version);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,18 +111,21 @@ void ParserContext::use_server_version(GrtVersionRef version)
  * Returns a collection of errors from the last parser run. The start position is offset by the given
  * value (used to adjust error position in a larger context).
  */
-std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offset)
+std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offset, bool for_syntax_check)
 {
   std::vector<ParserErrorEntry> errors;
 
-  if (_recognizer->has_errors())
+  MySQLRecognitionBase *recognizer = _recognizer;
+  if (for_syntax_check)
+    recognizer = _syntax_checker;
+  if (recognizer->has_errors())
   {
-    const std::vector<MySQLParserErrorInfo> error_info = _recognizer->error_info();
+    const std::vector<MySQLParserErrorInfo> error_info = recognizer->error_info();
     for (std::vector<MySQLParserErrorInfo>::const_iterator error_iterator = error_info.begin();
-         error_iterator != error_info.end(); ++error_iterator)
+      error_iterator != error_info.end(); ++error_iterator)
     {
-      ParserErrorEntry entry = {error_iterator->message, error_iterator->charOffset + offset,
-        error_iterator->line, error_iterator->length};
+      ParserErrorEntry entry = { error_iterator->message, error_iterator->charOffset + offset,
+        error_iterator->line, error_iterator->length };
       errors.push_back(entry);
     }
   }
