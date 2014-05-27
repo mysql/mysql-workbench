@@ -53,7 +53,7 @@ private:
 public:
   typedef boost::shared_ptr<ParserContext> Ref;
 
-  ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive);
+  ParserContext(const GrtCharacterSetsRef &charsets, const GrtVersionRef &version, bool case_sensitive);
   ~ParserContext();
 
   MySQLRecognizer *recognizer() { return _recognizer; };
@@ -77,18 +77,19 @@ class WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserServices
 public:
   typedef MySQLParserServices *Ref; // We only have a singleton, so define Ref only to keep the pattern.
 
-  static ParserContext::Ref createParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive);
   static MySQLParserServices::Ref get(grt::GRT *grt);
+  static ParserContext::Ref createParserContext(const GrtCharacterSetsRef &charsets,
+    const GrtVersionRef &version, bool case_sensitive);
 
   virtual size_t stopProcessing() = 0;
 
-  virtual size_t parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine, const std::string &sql) = 0;
-  virtual size_t parseRoutines(parser::ParserContext::Ref context, db_mysql_RoutineGroupRef group, const std::string &sql) = 0;
-  virtual size_t parseTrigger(ParserContext::Ref context, db_mysql_TriggerRef trigger, const std::string &sql) = 0;
-  virtual size_t parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql) = 0;
+  virtual size_t parseRoutine(const parser::ParserContext::Ref &context, const db_mysql_RoutineRef &routine, const std::string &sql) = 0;
+  virtual size_t parseRoutines(const parser::ParserContext::Ref &context, const db_mysql_RoutineGroupRef &group, const std::string &sql) = 0;
+  virtual size_t parseTrigger(const ParserContext::Ref &context, const db_mysql_TriggerRef &trigger, const std::string &sql) = 0;
+  virtual size_t parseView(const parser::ParserContext::Ref &context, const db_mysql_ViewRef &view, const std::string &sql) = 0;
 
-  virtual size_t checkSqlSyntax(ParserContext::Ref context, const char *sql, size_t length, MySQLQueryType type) = 0;
-  virtual size_t renameSchemaReferences(parser::ParserContext::Ref context, db_mysql_CatalogRef catalog,
+  virtual size_t checkSqlSyntax(const ParserContext::Ref &context, const char *sql, size_t length, MySQLQueryType type) = 0;
+  virtual size_t renameSchemaReferences(const parser::ParserContext::Ref &context, const db_mysql_CatalogRef &catalog,
     const std::string old_name, const std::string new_name) = 0;
 
   virtual size_t determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,

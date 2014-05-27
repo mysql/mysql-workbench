@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
   <gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
 
+      <gstruct name="TransientObject" attr:caption="Object" attr:desc="the parent of all transient (non persistent) objects">
+      </gstruct>
+
       <gstruct name="GrtObject" attr:caption="Object" attr:desc="the parent of all other objects">
           <members>
               <member name="name" type="string" attr:desc="the object's name"/>

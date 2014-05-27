@@ -37,6 +37,7 @@
 #include "grts/structs.workbench.model.reporting.h"
 #include "grts/structs.workbench.physical.h"
 #include "grts/structs.ui.h"
+#include "grts/structs.wrapper.h"
 
 void register_all_metaclasses()
 {

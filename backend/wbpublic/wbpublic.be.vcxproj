@@ -128,7 +128,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_WRAPPER_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -147,7 +147,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_WRAPPER_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -168,7 +168,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_WRAPPER_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
@@ -190,7 +190,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_WRAPPER_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
@@ -212,7 +212,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_WRAPPER_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
@@ -234,7 +234,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WBPUBLICBACKEND_EXPORTS;GRT_STRUCTS_DB_EXPORT;GRT_STRUCTS_DB_MIGRATION_EXPORT;GRT_STRUCTS_DB_MGMT_EXPORT;GRT_STRUCTS_DB_QUERY_EXPORT;GRT_STRUCTS_MODEL_EXPORT;GRT_STRUCTS_META_EXPORT;GRT_STRUCTS_WORKBENCH_MODEL_EXPORT;GRT_STRUCTS_WORKBENCH_PHYSICAL_EXPORT;GRT_STRUCTS_WORKBENCH_LOGICAL_EXPORT;GRT_STRUCTS_UI_EXPORT;GRT_STRUCTS_WRAPPER_EXPORT;SCI_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
@@ -334,8 +334,8 @@
     <ClCompile Include="objimpl\model\model_Layer.cpp" />
     <ClCompile Include="objimpl\model\model_Model.cpp" />
     <ClCompile Include="objimpl\model\model_Object.cpp" />
-    <ClCompile Include="objimpl\ui\grt_PyObject.cpp" />
-    <ClCompile Include="objimpl\ui\mforms_ObjectReference.cpp" />
+    <ClCompile Include="objimpl\wrapper\grt_PyObject.cpp" />
+    <ClCompile Include="objimpl\wrapper\mforms_ObjectReference.cpp" />
     <ClCompile Include="objimpl\ui\ui_db_ConnectPanel.cpp" />
     <ClCompile Include="objimpl\ui\ui_ObjectEditor.cpp" />
     <ClCompile Include="objimpl\ui\ui_ObjectEditor_impl.cpp" />
@@ -349,6 +349,7 @@
     <ClCompile Include="objimpl\workbench.physical\workbench_physical_RoutineGroupFigure.cpp" />
     <ClCompile Include="objimpl\workbench.physical\workbench_physical_TableFigure.cpp" />
     <ClCompile Include="objimpl\workbench.physical\workbench_physical_ViewFigure.cpp" />
+    <ClCompile Include="objimpl\wrapper\parser_ContextReference.cpp" />
     <ClCompile Include="sqlide\autocomplete_object_name_cache.cpp" />
     <ClCompile Include="sqlide\recordset_be.cpp" />
     <ClCompile Include="sqlide\recordset_cdbc_storage.cpp" />
@@ -418,6 +419,7 @@
     <ClInclude Include="..\..\generated\grts\structs.workbench.model.h" />
     <ClInclude Include="..\..\generated\grts\structs.workbench.model.reporting.h" />
     <ClInclude Include="..\..\generated\grts\structs.workbench.physical.h" />
+    <ClInclude Include="..\..\generated\grts\structs.wrapper.h" />
     <ClInclude Include="grtdb\catalog_templates.h" />
     <ClInclude Include="grtdb\charset_list.h" />
     <ClInclude Include="grtdb\charset_utils.h" />
@@ -498,9 +500,10 @@
     <ClInclude Include="objimpl\db.query\db_query_Editor.h" />
     <ClInclude Include="objimpl\db.query\db_query_QueryBuffer.h" />
     <ClInclude Include="objimpl\db.query\db_query_Resultset.h" />
-    <ClInclude Include="objimpl\ui\grt_PyObject_impl.h" />
-    <ClInclude Include="objimpl\ui\mforms_ObjectReference_impl.h" />
+    <ClInclude Include="objimpl\wrapper\grt_PyObject_impl.h" />
+    <ClInclude Include="objimpl\wrapper\mforms_ObjectReference_impl.h" />
     <ClInclude Include="objimpl\ui\ui_ObjectEditor_impl.h" />
+    <ClInclude Include="objimpl\wrapper\parser_ContextReference_impl.h" />
     <ClInclude Include="sqlide\autocomplete_object_name_cache.h" />
     <ClInclude Include="sqlide\recordset_be.h" />
     <ClInclude Include="sqlide\recordset_cdbc_storage.h" />

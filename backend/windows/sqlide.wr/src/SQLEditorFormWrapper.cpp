@@ -23,7 +23,7 @@
 #include "sqlide/wb_sql_editor_result_panel.h"
 
 #include "SQLEditorFormWrapper.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "sqlide/wb_sql_editor_result_panel.h"
 
 #include "mforms/dockingpoint.h"

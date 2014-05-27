@@ -1,10 +1,9 @@
-#ifndef __grts_structs_db_query_h__
-#define __grts_structs_db_query_h__
+#pragma once
 
 #include <grtpp.h>
 
 #ifdef _WIN32
-  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list
+  #pragma warning(disable: 4355) // 'this' : used in base member initializer list
   #ifdef GRT_STRUCTS_DB_QUERY_EXPORT
   #define GRT_STRUCTS_DB_QUERY_PUBLIC __declspec(dllexport)
 #else
@@ -33,6 +32,10 @@ class db_query_QueryEditor;
 typedef grt::Ref<db_query_QueryEditor> db_query_QueryEditorRef;
 class db_query_Editor;
 typedef grt::Ref<db_query_Editor> db_query_EditorRef;
+
+
+class mforms_ObjectReference;
+typedef grt::Ref<mforms_ObjectReference> mforms_ObjectReferenceRef;
 
 
 namespace mforms { 
@@ -1276,4 +1279,3 @@ inline void register_structs_db_query_xml()
 static struct _autoreg__structs_db_query_xml { _autoreg__structs_db_query_xml() { register_structs_db_query_xml(); } } __autoreg__structs_db_query_xml;
 #endif
 
-#endif

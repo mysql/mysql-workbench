@@ -28,7 +28,8 @@ using namespace parser;
 
 //------------------ ParserContext -----------------------------------------------------------------
 
-ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive)
+ParserContext::ParserContext(const GrtCharacterSetsRef &charsets, const GrtVersionRef &version,
+  bool case_sensitive)
 {
   _version = version;
   _case_sensitive = case_sensitive;
@@ -135,8 +136,8 @@ std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offse
 
 //------------------ MySQLParserServices -----------------------------------------------------------
 
-ParserContext::Ref MySQLParserServices::createParserContext(GrtCharacterSetsRef charsets,
-                                                            GrtVersionRef version, bool case_sensitive)
+ParserContext::Ref MySQLParserServices::createParserContext(const GrtCharacterSetsRef &charsets,
+  const GrtVersionRef &version, bool case_sensitive)
 {
   boost::shared_ptr<ParserContext> result(new ParserContext(charsets, version, case_sensitive));
 

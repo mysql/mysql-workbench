@@ -44,7 +44,7 @@
 
 #include "workbench/wb_db_schema.h"
 
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 #include "advanced_sidebar.h"
 

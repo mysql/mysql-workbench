@@ -1011,12 +1011,11 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
         throw grt::os_error(path, errno);
       g_print("create file %s\n", path);
 
-      fprintf(fhdr, "#ifndef __grts_%s__\n", cppize_class_name(outfile).c_str());
-      fprintf(fhdr, "#define __grts_%s__\n", cppize_class_name(outfile).c_str());
+      fprintf(fhdr, "#pragma once\n");
       fprintf(fhdr, "\n#include <grtpp.h>\n\n");
 
       fprintf(fhdr, "#ifdef _WIN32\n");
-      fprintf(fhdr, "  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list\n");
+      fprintf(fhdr, "  #pragma warning(disable: 4355) // 'this' : used in base member initializer list\n");
       fprintf(fhdr, "  #ifdef %s_EXPORT\n", generate_dll_export_name(outfile).c_str());
       fprintf(fhdr, "  #define %s_PUBLIC __declspec(dllexport)\n", generate_dll_export_name(outfile).c_str());
       fprintf(fhdr, "#else\n");
@@ -1152,8 +1151,6 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
       fprintf(iter->second, "static struct _autoreg__%s { _autoreg__%s() { register_%s(); } } __autoreg__%s;\n",
               sname, sname, sname, sname);
       fprintf(iter->second, "#endif\n\n");
-
-      fprintf(iter->second, "#endif\n");
 
       fclose(iter->second);
     }

@@ -22,7 +22,7 @@
 #include "query_side_palette.h"
 #include "workbench/wb_context_names.h"
 #include "objimpl/db.query/db_query_Resultset.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 #include "grtsqlparser/sql_facade.h"
 #include "grtdb/editor_dbobject.h"

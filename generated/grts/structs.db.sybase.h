@@ -1,10 +1,9 @@
-#ifndef __grts_structs_db_sybase_h__
-#define __grts_structs_db_sybase_h__
+#pragma once
 
 #include <grtpp.h>
 
 #ifdef _WIN32
-  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list
+  #pragma warning(disable: 4355) // 'this' : used in base member initializer list
   #ifdef GRT_STRUCTS_DB_SYBASE_EXPORT
   #define GRT_STRUCTS_DB_SYBASE_PUBLIC __declspec(dllexport)
 #else
@@ -1021,4 +1020,3 @@ inline void register_structs_db_sybase_xml()
 static struct _autoreg__structs_db_sybase_xml { _autoreg__structs_db_sybase_xml() { register_structs_db_sybase_xml(); } } __autoreg__structs_db_sybase_xml;
 #endif
 
-#endif
