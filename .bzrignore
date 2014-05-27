@@ -204,3 +204,4 @@ build/msi/distribution/
 build/zip/distribution/
 *.wixpdb
 MySQL.tokens
+MySQLSimpleParser.tokens

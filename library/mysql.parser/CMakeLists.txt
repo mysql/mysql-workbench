@@ -11,10 +11,12 @@ add_subdirectory(grammar)
 
 add_library(mysqlparser
     MySQLLexer.c
+    MySQLSimpleParser.c
     MySQLParser.c
     mysql-parser-common.cpp
     mysql-parser.cpp
     mysql-scanner.cpp
+    mysql-syntax-check.cpp
 )
 
 add_dependencies(mysqlparser
