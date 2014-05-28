@@ -1,6 +1,6 @@
 top_srcdir = ..
 
-genobj = $(top_srcdir)/tools/genobj/genobj
+genobj = ../DerivedData/MySQLWorkbench/Build/Products/Debug/genobj
 
 genwrap = $(top_srcdir)/tools/genwrap/genwrap
 
@@ -27,7 +27,10 @@ genwrap = $(top_srcdir)/tools/genwrap/genwrap
 #  grti/wb_model_reporting.h\
 #  grti/wbvalidation.h
 
-all: grts/*.h grti/*.h modules
+all: grts/*.h grts/structs.h grti/*.h modules
+
+grts/structs.h: $(top_srcdir)/res/grt/structs.xml
+	$(genobj) $< $(top_srcdir)/res/grt grts ../backend/wbpublic/objimpl
 
 grts/%.h: $(top_srcdir)/res/grt/%.xml 
 	$(genobj) $< $(top_srcdir)/res/grt grts ../backend/wbpublic/objimpl/`basename $<|sed -e 's/structs.\(.*\).xml/\1/'`
@@ -56,8 +59,6 @@ grts/structs.db.sybase.h: $(top_srcdir)/res/grt/structs.db.sybase.xml
 grts/structs.db.query.h: $(top_srcdir)/res/grt/structs.db.query.xml
 
 grts/structs.eer.h: $(top_srcdir)/res/grt/structs.eer.xml
-
-grts/structs.h: $(top_srcdir)/res/grt/structs.xml
 
 grts/structs.ui.h: $(top_srcdir)/res/grt/structs.ui.xml
 

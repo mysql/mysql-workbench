@@ -54,53 +54,6 @@ DbMySQLDiffAlter::DbMySQLDiffAlter(bec::GRTManager *m)
 DbMySQLDiffAlter::~DbMySQLDiffAlter()
 {}
 
-// this function gets catalog from file or (if filename is empty) from the GRT tree
-db_mysql_CatalogRef DbMySQLDiffAlter::get_cat_from_file_or_tree(std::string filename, 
-                                                                 std::string& error_msg)
-{
-  db_mysql_CatalogRef ref_cat= get_model_catalog();
-
-  if(!ref_cat.is_valid())
-  {
-    error_msg.assign("Internal error. Catalog is invalid");
-    return db_mysql_CatalogRef();
-  }
-
-  if(filename.empty())
-  {
-    ref_cat->name("default");
-    ref_cat->oldName("default");
-    return ref_cat;
-  }
-
-  workbench_physical_ModelRef pm= workbench_physical_ModelRef::cast_from(ref_cat->owner());
-
-  db_mysql_CatalogRef cat(manager_->get_grt());
-  cat->version(pm->rdbms()->version());
-  grt::replace_contents(cat->simpleDatatypes(), pm->rdbms()->simpleDatatypes());
-
-  cat->name("default");
-  cat->oldName("default");
-
-  GError *file_error= NULL;
-  char *sql_input_script= NULL;
-  gsize sql_input_script_length= 0;
-  
-  if(!g_file_get_contents(filename.c_str(), &sql_input_script, &sql_input_script_length, &file_error))
-  {
-    std::string file_error_msg("Error reading input file: ");
-    file_error_msg.append(file_error->message);
-    error_msg.assign(file_error_msg.c_str());
-    return db_mysql_CatalogRef();
-  }
-
-  SqlFacade::Ref sql_parser= SqlFacade::instance_for_rdbms(pm->rdbms());
-  sql_parser->parseSqlScriptString(cat, sql_input_script);
-  g_free(sql_input_script);
-
-  return cat;
-}
-
 std::string DbMySQLDiffAlter::generate_alter()
 {
   SQLGeneratorInterfaceImpl *diffsql_module= 
@@ -179,7 +132,7 @@ std::string DbMySQLDiffAlter::generate_alter()
     diffsql_module->generateSQL(_left_cat_copy, options, _alter_change);
   }
 
-  ssize_t res = diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
+  ssize_t res= diffsql_module->makeSQLSyncScript(_left_cat_copy, options, alter_list, alter_object_list);
   if (res != 0)
     return "";
 
@@ -190,7 +143,7 @@ std::string DbMySQLDiffAlter::generate_alter()
 
 boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector<std::string>& schemata,
                                                                const grt::ValueRef &left, const grt::ValueRef &right,
-                                                               grt::StringListRef SchemaSkipList)
+                                                               grt::StringListRef SchemaSkipList, grt::DictRef options)
 {
   db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(manager_->get_grt()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
@@ -237,6 +190,46 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
     }
   }
 
+  for (size_t i= 0; i < _left_cat_copy->schemata().count(); i++)
+  {
+    db_SchemaRef schema(_left_cat_copy->schemata()[i]);
+
+    // remove excluded object types from the copy of the left catalog
+    if (options.get_int("SkipTriggers"))
+    {
+      log_info("Remove triggers from copy of model schema %s\n", schema->name().c_str());
+      for (size_t t = 0; t < schema->tables().count(); t++)
+      {
+        schema->tables()[t]->triggers().remove_all();
+      }
+    }
+    if (options.get_int("SkipRoutines"))
+    {
+      log_info("Remove routines from copy of model schema %s\n", schema->name().c_str());
+      schema->routines().remove_all();
+      schema->routineGroups().remove_all();
+    }
+  }
+  for (size_t i= 0; i < right_cat_copy->schemata().count(); i++)
+  {
+    db_SchemaRef schema(right_cat_copy->schemata()[i]);
+
+    // remove excluded object types from the copy of the right catalog
+    if (options.get_int("SkipTriggers"))
+    {
+      log_info("Remove triggers from copy of model schema %s\n", schema->name().c_str());
+      for (size_t t = 0; t < schema->tables().count(); t++)
+      {
+        schema->tables()[t]->triggers().remove_all();
+      }
+    }
+    if (options.get_int("SkipRoutines"))
+    {
+      log_info("Remove routines from copy of model schema %s\n", schema->name().c_str());
+      schema->routines().remove_all();
+      schema->routineGroups().remove_all();
+    }
+  }
 
   // 2. diff with model
 
@@ -250,15 +243,15 @@ boost::shared_ptr<DiffTreeBE> DbMySQLDiffAlter::init_diff_tree(const std::vector
   if (diffsql_module == NULL)
     throw DbMySQLDiffAlterException("error loading module DbMySQL");
 
-  grt::DictRef options(manager_->get_grt());
-  options.set("DBSettings", get_db_options());
-  options.set("OutputContainer", _alter_list);
-  options.set("OutputObjectContainer", _alter_object_list);
-  options.set("UseFilteredLists", grt::IntegerRef(0));
+  grt::DictRef genoptions(manager_->get_grt());
+  genoptions.set("DBSettings", get_db_options());
+  genoptions.set("OutputContainer", _alter_list);
+  genoptions.set("OutputObjectContainer", _alter_object_list);
+  genoptions.set("UseFilteredLists", grt::IntegerRef(0));
  
   if (_alter_change && diffsql_module)
   {
-    diffsql_module->generateSQL(_right_catalog, options, _alter_change);
+    diffsql_module->generateSQL(_right_catalog, genoptions, _alter_change);
   }
 
   // 3. build the tree
