@@ -586,7 +586,8 @@ void CodeEditor::check_markers_moved(int position, int lines_added)
   while (current_line > -1)
   {
     LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, current_line, LineMarkupAll);
-    changeset.push_back({ (int)(current_line - lines_added), (int)current_line, markup });
+    LineMarkupChangeEntry entry = { (int)(current_line - lines_added), (int)current_line, markup };
+    changeset.push_back(entry);
 
     current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line + 1, LineMarkupAll);
   }

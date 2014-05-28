@@ -28,7 +28,7 @@
 #include "mforms/../gtk/lf_native.h"
 #include "mforms/../gtk/lf_view.h"
 #include "mforms/../gtk/lf_toolbar.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include <glib.h>
 #include "grt/common.h"
 #include "sqlide/wb_sql_editor_result_panel.h"
