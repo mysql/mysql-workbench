@@ -63,6 +63,7 @@ add_library(wbpublic
     grtdb/editor_view.cpp
     grtdb/role_tree_model.cpp
     grtdb/sync_profile.cpp
+    objimpl/GrtStoredNote.cpp
     objimpl/db/db_DatabaseObject.cpp
     objimpl/db/db_Schema.cpp
     objimpl/db/db_Table.cpp

@@ -47,11 +47,9 @@ public:
 
   std::string generate_alter();
 
-    db_mysql_CatalogRef get_cat_from_file_or_tree(std::string filename, 
-                                             std::string& error_msg);
- 
   virtual boost::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const grt::ValueRef &ext_cat, 
-                                              const grt::ValueRef &cat2, grt::StringListRef SchemaSkipList);
+                                                       const grt::ValueRef &cat2, grt::StringListRef SchemaSkipList,
+                                                       grt::DictRef options);
 
   virtual std::string get_col_name(const size_t col_id);
 

@@ -24,7 +24,6 @@
 
 #include "base/sqlstring.h"
 
-#include "grt/common.h"
 #include "grt/grt_manager.h"
 
 #include "module_db_mysql.h"
@@ -38,6 +37,7 @@
 #include "db_mysql_catalog_report.h"
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
+#include "base/util_functions.h"
 
 #include "grtsqlparser/sql_specifics.h"
 #include "sqlide/recordset_table_inserts_storage.h"
@@ -1794,6 +1794,8 @@ protected:
     bool no_view_placeholder;
     bool _case_sensitive;
     grt::DictRef _decomposer_options;
+    bool include_scripts;
+    bool include_document_properties;
     typedef std::map<std::string, std::vector<std::pair<std::string,std::string> > > alias_map_t;
     alias_map_t alias_map;
 
@@ -1826,6 +1828,9 @@ protected:
             _decomposer_options.set("case_sensitive_identifiers", grt::IntegerRef(case_sensitive_opt ? 1 : 0));
           }
         }
+      g_message("==> %i\n", options.get_int("GenerateAttachedScripts"));
+        include_document_properties = options.get_int("GenerateDocumentProperties", 1) != 0;
+        include_scripts = options.get_int("GenerateAttachedScripts") != 0;
     };
 
     void send_output(const std::string& msg) const
@@ -1965,6 +1970,15 @@ protected:
         sql.append(show_warnings_sql());
         return sql;
     }
+
+    std::string user_script(const db_ScriptRef &script) const
+    {
+        std::string out_sql;
+        out_sql.append("-- begin attached script '").append(script->name()).append("'\n");
+        out_sql.append(script->getText()).append("\n");
+        out_sql.append("-- end attached script '").append(script->name()).append("'\n");
+        return out_sql;
+    }
 };
 
 class SQLExportComposer : public SQLComposer
@@ -1994,7 +2008,7 @@ public:
         gen_inserts= options.get_int("GenerateInserts") != 0;
         case_sensitive= options.get_int("CaseSensitive") != 0;
         no_FK_for_inserts = options.get_int("NoFKForInserts") != 0;
-        triggers_after_inserts = true;//options.get_int("TriggersAfterInserts") != 0;
+        triggers_after_inserts = options.get_int("TriggersAfterInserts") != 0;
     }
 
 protected:
@@ -2017,6 +2031,18 @@ protected:
             {
                 if (gen_schema_drops)
                     result.append("DROP SCHEMA IF EXISTS `").append(schema->name().c_str()).append("` ;\n");
+
+                std::string comment = schema->comment();
+                result.append("\n");
+                result.append("-- -----------------------------------------------------\n");
+                result.append("-- Schema ").append(schema->name()).append("\n");
+                if (!comment.empty())
+                {
+                  result.append("--\n");
+                  base::replace(comment, "\n", "\n-- ");
+                  result.append("-- ").append(comment).append("\n");
+                }
+                result.append("-- -----------------------------------------------------\n");
                 result.append(string_from_map(schema, create_map, case_sensitive)).append(";\n");
             }
             result.append(show_warnings_sql());
@@ -2186,20 +2212,59 @@ protected:
         result.append(string_from_map(user, create_map, case_sensitive)).append(show_warnings_sql());
         send_output(std::string("Processing User ").append(user->name()).append("\n"));
         return result;
-
     }
+
 public:
     std::string get_export_sql(const db_mysql_CatalogRef cat)
     {
         std::string out_sql;
-
         std::string inserts_sql; // separate from main sql script & append to it as a last step,
         // to separate creation of structures from data loading.
         std::string triggers_sql;//Triggers DDLs could be prioir or after INSERTs depending on settings
 
+        out_sql.append("-- MySQL Workbench Forward Engineering").append("\n");
+        out_sql.append("-- Generated: ").append(fmttime(0, DATETIME_FMT)).append("\n");
+        if (include_document_properties && cat->owner().is_valid() && cat->owner()->owner().is_valid())
+        {
+            workbench_DocumentRef doc(workbench_DocumentRef::cast_from(cat->owner()->owner()));
+            if (strlen(doc->info()->caption().c_str()))
+                out_sql.append("-- Model: ").append(doc->info()->caption()).append("\n");
+            if (strlen(doc->info()->version().c_str()))
+                out_sql.append("-- Version: ").append(doc->info()->version()).append("\n");
+            if (strlen(doc->info()->project().c_str()))
+                out_sql.append("-- Project: ").append(doc->info()->project()).append("\n");
+            if (strlen(doc->info()->author().c_str()))
+                out_sql.append("-- Author: ").append(doc->info()->author()).append("\n");
+            if (strlen(doc->info()->description().c_str()))
+            {
+                std::string description = doc->info()->description();
+                base::replace(description, "\n", "\n --");
+                out_sql.append("-- ").append(description).append("\n");
+            }
+        }
+        out_sql.append("\n");
+
+        if (include_scripts && cat->owner().is_valid())
+        {
+          GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+          {
+            if ((*script)->forwardEngineerScriptPosition() == "top_file")
+              out_sql.append(user_script(*script));
+          }
+        }
+
         send_output("Generating Script\n");
         out_sql.append(set_server_vars());
         TableSorterByFK sorter;
+
+        if (include_scripts && cat->owner().is_valid())
+        {
+            GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+            {
+                if ((*script)->forwardEngineerScriptPosition() == "before_ddl")
+                    out_sql.append(user_script(*script));
+            }
+        }
 
         // schemata
         grt::ListRef<db_mysql_Schema> schemata= cat->schemata();
@@ -2313,15 +2378,51 @@ public:
         if(!no_FK_for_inserts)
             out_sql.append(restore_server_vars());
 
-        if(gen_inserts)
-            out_sql.append(inserts_sql);
+        if (gen_inserts && !inserts_sql.empty())
+        {
+          if (include_scripts && cat->owner().is_valid())
+          {
+            GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+            {
+              if ((*script)->forwardEngineerScriptPosition() == "before_inserts")
+                out_sql.append(user_script(*script));
+            }
+          }
+
+          out_sql.append(inserts_sql);
+
+          if (include_scripts && cat->owner().is_valid())
+          {
+            GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+            {
+              if ((*script)->forwardEngineerScriptPosition() == "after_inserts")
+                out_sql.append(user_script(*script));
+            }
+          }
+        }
 
         if(triggers_after_inserts)
             out_sql.append(triggers_sql);
 
+        if (include_scripts && cat->owner().is_valid())
+        {
+            GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+            {
+                if ((*script)->forwardEngineerScriptPosition() == "after_ddl")
+                    out_sql.append(user_script(*script));
+            }
+        }
         if(no_FK_for_inserts)
             out_sql.append(restore_server_vars());
 
+        if (include_scripts && cat->owner().is_valid())
+        {
+            GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+            {
+                if ((*script)->forwardEngineerScriptPosition() == "bottom_file")
+                    out_sql.append(user_script(*script));
+            }
+        }
         return out_sql;
     }
 };
@@ -2344,21 +2445,63 @@ class SQLSyncComposer : public SQLComposer
 {
 
 public:
-    SQLSyncComposer(const grt::DictRef options, grt::GRT *pgrt):SQLComposer(options, pgrt)
-    {
+  SQLSyncComposer(const grt::DictRef options, grt::GRT *pgrt)
+  : SQLComposer(options, pgrt)
+  {
 
-    };
+  }
 
-    std::string get_sync_sql(const grt::StringListRef& sql_list, const grt::ListRef<GrtNamedObject>& obj_list)
+    std::string get_sync_sql(const db_CatalogRef &cat, const grt::StringListRef& sql_list, const grt::ListRef<GrtNamedObject>& obj_list)
     {
-        std::string sql;
+        std::string out_sql;
         std::list<int> views_indices;
         std::string view_placeholders;
         std::string views;
         std::string routines;
         std::string triggers;
 
-        sql.append(set_server_vars());
+        out_sql.append("-- MySQL Workbench Synchronization").append("\n");
+        out_sql.append("-- Generated: ").append(fmttime(0, DATETIME_FMT)).append("\n");
+        if (include_document_properties && cat.is_valid() && cat->owner().is_valid() && cat->owner()->owner().is_valid())
+        {
+            workbench_DocumentRef doc(workbench_DocumentRef::cast_from(cat->owner()->owner()));
+            if (strlen(doc->info()->caption().c_str()))
+                out_sql.append("-- Model: ").append(doc->info()->caption()).append("\n");
+            if (strlen(doc->info()->version().c_str()))
+                out_sql.append("-- Version: ").append(doc->info()->version()).append("\n");
+            if (strlen(doc->info()->project().c_str()))
+                out_sql.append("-- Project: ").append(doc->info()->project()).append("\n");
+            if (strlen(doc->info()->author().c_str()))
+                out_sql.append("-- Author: ").append(doc->info()->author()).append("\n");
+            if (strlen(doc->info()->description().c_str()))
+            {
+                std::string description = doc->info()->description();
+                base::replace(description, "\n", "\n --");
+                out_sql.append("-- ").append(description).append("\n");
+            }
+        }
+        out_sql.append("\n");
+
+        if (include_scripts && cat.is_valid() && cat->owner().is_valid())
+        {
+          GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+          {
+            if ((*script)->synchronizeScriptPosition() == "top_file")
+              out_sql.append(user_script(*script));
+          }
+        }
+
+        out_sql.append(set_server_vars());
+
+        if (include_scripts && cat.is_valid() && cat->owner().is_valid())
+        {
+          GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+          {
+            if ((*script)->synchronizeScriptPosition() == "before_ddl")
+              out_sql.append(user_script(*script));
+          }
+        }
+
         for(size_t sz= sql_list.count(), i= 0; i < sz; i++)
         {
             GrtNamedObjectRef obj= obj_list.get(i);
@@ -2381,7 +2524,7 @@ public:
             }
             else
             {
-                sql.append(sql_list.get(i)).append(";\n\n");
+                out_sql.append(sql_list.get(i)).append(";\n\n");
             }
         }
 
@@ -2396,25 +2539,46 @@ public:
             views.append(generate_view_ddl(view, view_ddl));
         }
 
-        sql.append(view_placeholders);
-        sql.append(views);
-        sql.append(routines);
+        out_sql.append(view_placeholders);
+        out_sql.append(views);
+        out_sql.append(routines);
         if (!triggers.empty())
         {
-          sql.append("\nDELIMITER ").append(non_std_sql_delimiter).append("\n\n");
-          sql.append(triggers);
-          sql.append("\nDELIMITER ;\n\n");
+          out_sql.append("\nDELIMITER ").append(non_std_sql_delimiter).append("\n\n");
+          out_sql.append(triggers);
+          out_sql.append("\nDELIMITER ;\n\n");
         }
-        sql.append(restore_server_vars());
-        return sql;
+
+        if (include_scripts && cat.is_valid() && cat->owner().is_valid())
+        {
+          GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+          {
+            if ((*script)->synchronizeScriptPosition() == "after_ddl")
+              out_sql.append(user_script(*script));
+          }
+        }
+
+        out_sql.append(restore_server_vars());
+
+        if (include_scripts && cat.is_valid() && cat->owner().is_valid())
+        {
+          GRTLIST_FOREACH(db_Script, workbench_physical_ModelRef::cast_from(cat->owner())->scripts(), script)
+          {
+            if ((*script)->synchronizeScriptPosition() == "bottom_file")
+              out_sql.append(user_script(*script));
+          }
+        }
+
+        return out_sql;
     };
 };
 
-ssize_t DbMySQLImpl::makeSQLSyncScript(grt::DictRef options, const grt::StringListRef& sql_list,
-  const grt::ListRef<GrtNamedObject>& obj_list)
+
+ssize_t DbMySQLImpl::makeSQLSyncScript(db_CatalogRef cat, grt::DictRef options, const grt::StringListRef& sql_list,
+                                   const grt::ListRef<GrtNamedObject>& obj_list)
 {
   SQLSyncComposer composer(options, get_grt());
-  options.set("OutputScript", grt::StringRef(composer.get_sync_sql(sql_list, obj_list)));
+  options.set("OutputScript", grt::StringRef(composer.get_sync_sql(cat, sql_list, obj_list)));
   return 0;
 }
 
@@ -2439,7 +2603,22 @@ std::string DbMySQLImpl::makeAlterScript(GrtNamedObjectRef source, GrtNamedObjec
 
   generateSQL(source, options, diff);
 
-  ssize_t res = makeSQLSyncScript(options, alter_list, alter_object_list);
+  db_CatalogRef cat;
+
+  {
+    GrtNamedObjectRef tmp(source);
+    while (tmp.is_valid())
+    {
+      if (db_CatalogRef::can_wrap(tmp))
+      {
+        cat = db_CatalogRef::cast_from(source);
+        break;
+      }
+      tmp = GrtNamedObjectRef::cast_from(tmp->owner());
+    }
+  }
+
+  ssize_t res= makeSQLSyncScript(cat, options, alter_list, alter_object_list);
   if (res != 0)
     return "";
 

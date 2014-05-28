@@ -69,48 +69,75 @@ class ExportInputPage : public WizardPage
 {
 public:
   ExportInputPage(WizardForm *form)
-  : WizardPage(form, "options"), _options(mforms::TitledBoxPanel), _options_box(false)
+  : WizardPage(form, "options"),
+    _options(mforms::TitledBoxPanel), _options_box(false),
+    _table_options(mforms::TitledBoxPanel), _table_options_box(false),
+    _other_options(mforms::TitledBoxPanel), _other_options_box(false)
   {
     set_title(_("Set Options for Database to be Created"));
     set_short_title(_("Options"));
 
-    _options.set_title(_("Options"));
+    _table_options.set_title(_("Tables"));
+    _table_options.add(&_table_options_box);
+    _table_options_box.set_padding(12);
+    _table_options_box.set_spacing(8);
 
+    _other_options.set_title(_("Other Objects"));
+    _other_options.add(&_other_options_box);
+    _other_options_box.set_padding(12);
+    _other_options_box.set_spacing(8);
+
+    _options.set_title(_("Code Generation"));
     _options.add(&_options_box);
     _options_box.set_padding(12);
     _options_box.set_spacing(8);
 
-    _generate_drop_check.set_text(_("DROP Objects Before Each CREATE Object"));
-    _options_box.add(&_generate_drop_check, false, false);
-    _generate_drop_schema_check.set_text(_("Generate DROP SCHEMA"));
-    _options_box.add(&_generate_drop_schema_check, false, false);
+
+    // tables
     _skip_foreign_keys_check.set_text(_("Skip creation of FOREIGN KEYS"));
-    _options_box.add(&_skip_foreign_keys_check, false, false);
+    _table_options_box.add(&_skip_foreign_keys_check, false, false);
     scoped_connect(_skip_foreign_keys_check.signal_clicked(),boost::bind(&ExportInputPage::SkipFKToggled, this));
     _skip_FK_indexes_check.set_text(_("Skip creation of FK Indexes as well"));
-    _options_box.add(&_skip_FK_indexes_check, false, false);
-    _omit_schema_qualifier_check.set_text(_("Omit Schema Qualifier in Object Names"));
+    _table_options_box.add(&_skip_FK_indexes_check, false, false);
+    _generate_create_index_check.set_text(_("Generate separate CREATE INDEX statements"));
+    _table_options_box.add(&_generate_create_index_check, false, false);
+    _generate_insert_check.set_text(_("Generate INSERT statements for tables"));
+    _table_options_box.add(&_generate_insert_check, false, false);
+    _no_FK_for_inserts.set_text(_("Disable FK checks for INSERTs"));
+    _table_options_box.add(&_no_FK_for_inserts, false, false);
+    //    _triggers_after_inserts.set_text(_("Create triggers after INSERTs"));
+    //   _options_box.add(&_triggers_after_inserts, false, false);
+    add(&_table_options, false, false);
+
+    // other objects
+    _no_view_placeholders.set_text(_("Don't create view placeholder tables"));
+    _other_options_box.add(&_no_view_placeholders, false, false);
+    _skip_users_check.set_text(_("Do not create users. Only create privileges (GRANTs)"));
+    _other_options_box.add(&_skip_users_check, false, false);
+
+    add(&_other_options, false, false);
+
+    // code generation
+    _generate_drop_check.set_text(_("DROP objects before each CREATE object"));
+    _options_box.add(&_generate_drop_check, false, false);
+
+    _generate_drop_schema_check.set_text(_("Generate DROP SCHEMA"));
+    _options_box.add(&_generate_drop_schema_check, false, false);
+
+    _omit_schema_qualifier_check.set_text(_("Omit schema qualifier in object names"));
     _options_box.add(&_omit_schema_qualifier_check, false, false);
     scoped_connect(_omit_schema_qualifier_check.signal_clicked(),boost::bind(&ExportInputPage::OmitSchemaToggled, this));
     _generate_use_check.set_text(_("Generate USE statements"));
     _options_box.add(&_generate_use_check, false, false);
-    _generate_create_index_check.set_text(_("Generate Separate CREATE INDEX Statements"));
-    _options_box.add(&_generate_create_index_check, false, false);
-    _generate_show_warnings_check.set_text(_("Add SHOW WARNINGS After Every DDL Statement"));
+    _generate_show_warnings_check.set_text(_("Add SHOW WARNINGS after every DDL statement"));
     _options_box.add(&_generate_show_warnings_check, false, false);
-    _no_view_placeholders.set_text(_("Don't create view placeholder tables."));
-    _options_box.add(&_no_view_placeholders, false, false);
-    _skip_users_check.set_text(_("Do Not Create Users. Only Create Privileges (GRANTs)"));
-    _options_box.add(&_skip_users_check, false, false);
-    _generate_insert_check.set_text(_("Generate INSERT Statements for Tables"));
-    _options_box.add(&_generate_insert_check, false, false);
-    _no_FK_for_inserts.set_text(_("Disable FK checks for INSERTs"));
-    _options_box.add(&_no_FK_for_inserts, false, false);
-//    _triggers_after_inserts.set_text(_("Create triggers after INSERTs"));
- //   _options_box.add(&_triggers_after_inserts, false, false);
+
+    _include_user_scripts.set_text(_("Include model attached scripts"));
+    _options_box.add(&_include_user_scripts, false, false);
 
     add(&_options, false, false);
-    
+
+
     scoped_connect(signal_leave(),boost::bind(&ExportInputPage::gather_options, this, _1));
     
     grt::Module *module= ((WizardPlugin*)_form)->module();
@@ -129,6 +156,7 @@ public:
     _generate_use_check.set_active(module->document_int_data("GenerateUse", 0) != 0);
     _generate_use_check.set_enabled(_omit_schema_qualifier_check.get_active());
     _skip_FK_indexes_check.set_enabled(_skip_foreign_keys_check.get_active());
+    _include_user_scripts.set_active(module->document_int_data("GenerateAttachedScripts", 1));
   }
 
   void SkipFKToggled()
@@ -155,6 +183,7 @@ public:
     values().gset("OmitSchemata", _omit_schema_qualifier_check.get_active());
     values().gset("GenerateUse", _generate_use_check.get_active());
     values().gset("NoFKForInserts", _no_FK_for_inserts.get_active());
+    values().gset("GenerateAttachedScripts", _include_user_scripts.get_active());
 //    values().gset("TriggersAfterInserts", _triggers_after_inserts.get_active());
 
     
@@ -171,12 +200,19 @@ public:
     module->set_document_data("OmitSchemata", _omit_schema_qualifier_check.get_active());
     module->set_document_data("GenerateUse", _generate_use_check.get_active());
     module->set_document_data("NoFKForInserts", _no_FK_for_inserts.get_active());
+    module->set_document_data("GenerateAttachedScripts", _include_user_scripts.get_active());
 //    module->set_document_data("TriggersAfterInserts", _triggers_after_inserts.get_active());
   }
 
 protected:
   Panel _options;
   Box _options_box;
+
+  Panel _table_options;
+  Box _table_options_box;
+
+  Panel _other_options;
+  Box _other_options_box;
 
   CheckBox _generate_drop_check;
   CheckBox _generate_drop_schema_check;
@@ -191,6 +227,8 @@ protected:
   CheckBox _no_FK_for_inserts;
 //  CheckBox _triggers_after_inserts;
   CheckBox _omit_schema_qualifier_check;
+
+  CheckBox _include_user_scripts;
 };
 
 //--------------------------------------------------------------------------------
@@ -291,6 +329,7 @@ protected:
 //    _export_be->set_option("TriggersAfterInserts", values().get_int("TriggersAfterInserts") != 0);
     _export_be->set_option("OmitSchemata", values().get_int("OmitSchemata") != 0);
     _export_be->set_option("GenerateUse", values().get_int("GenerateUse") != 0);
+    _export_be->set_option("GenerateAttachedScripts", values().get_int("GenerateAttachedScripts") != 0);
     
     _export_be->set_option("TablesAreSelected", _table_filter->get_active());
     _export_be->set_option("TriggersAreSelected", _trigger_filter->get_active());

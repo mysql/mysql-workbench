@@ -2307,6 +2307,7 @@
 		2BF049B51751A55100A7EA35 /* synchronize_differences_page.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF049B41751A55000A7EA35 /* synchronize_differences_page.cpp */; };
 		2BF249EB1404B07D003B3C0F /* wb_sql_editor_tree_controller.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF249E91404B07D003B3C0F /* wb_sql_editor_tree_controller.h */; };
 		2BF249EC1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF249EA1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp */; };
+		2BF2786D1869FBB40026215C /* GrtStoredNote.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */; };
 		2BF42B4416862D82007C030C /* wb_history_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF42B4216862D82007C030C /* wb_history_tree.cpp */; };
 		2BF42B4516862D82007C030C /* wb_history_tree.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF42B4316862D82007C030C /* wb_history_tree.h */; };
 		2BF43851108778F500F04A6C /* wb_admin_security.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF43850108778D600F04A6C /* wb_admin_security.py */; };
@@ -5994,6 +5995,7 @@
 		2BF049B41751A55000A7EA35 /* synchronize_differences_page.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = synchronize_differences_page.cpp; path = plugins/db.mysql/frontend/synchronize_differences_page.cpp; sourceTree = "<group>"; };
 		2BF249E91404B07D003B3C0F /* wb_sql_editor_tree_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_sql_editor_tree_controller.h; path = backend/wbprivate/sqlide/wb_sql_editor_tree_controller.h; sourceTree = "<group>"; };
 		2BF249EA1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_sql_editor_tree_controller.cpp; path = backend/wbprivate/sqlide/wb_sql_editor_tree_controller.cpp; sourceTree = "<group>"; wrapsLines = 0; };
+		2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrtStoredNote.cpp; path = backend/wbpublic/objimpl/GrtStoredNote.cpp; sourceTree = "<group>"; };
 		2BF42B4216862D82007C030C /* wb_history_tree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_history_tree.cpp; path = backend/wbprivate/model/wb_history_tree.cpp; sourceTree = "<group>"; };
 		2BF42B4316862D82007C030C /* wb_history_tree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_history_tree.h; path = backend/wbprivate/model/wb_history_tree.h; sourceTree = "<group>"; };
 		2BF4384F108778C300F04A6C /* wb_admin_security_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_security_be.py; path = plugins/wb.admin/backend/wb_admin_security_be.py; sourceTree = "<group>"; };
@@ -9554,6 +9556,7 @@
 		2BAE1A660F368E5A00BE725E /* objimpl */ = {
 			isa = PBXGroup;
 			children = (
+				2BF2786B1869FBAB0026215C /* GrtStoredNote.cpp */,
 				2BE9FD23151A692800CC0894 /* ui */,
 				2BAE1A670F368EB200BE725E /* workbench.physical */,
 				2BAE1A6E0F368EB200BE725E /* workbench.model */,
@@ -13496,6 +13499,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2BAE1AA90F368F1600BE725E /* charset_list.cpp in Sources */,
+				2BF2786D1869FBB40026215C /* GrtStoredNote.cpp in Sources */,
 				2BAE1AAA0F368F1600BE725E /* charset_utils.cpp in Sources */,
 				2BAE1AAB0F368F1600BE725E /* db_object_filter.cpp in Sources */,
 				2BAE1AAC0F368F1600BE725E /* db_object_helpers.cpp in Sources */,
