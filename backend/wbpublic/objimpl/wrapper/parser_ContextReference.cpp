@@ -61,10 +61,17 @@ grt::IntegerRef parser_ContextReference::valid() const
 
 //--------------------------------------------------------------------------------------------------
 
+void parser_ContextReference::set_data(ImplData *data)
+{
+  _data = data;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 ParserContext::Ref parser_context_from_grt(parser_ContextReferenceRef object)
 {
   if (!object.is_valid() || !*object->valid())
-    return 0;
+    return ParserContext::Ref();
   return object->get_data()->_ref;
 }
 
