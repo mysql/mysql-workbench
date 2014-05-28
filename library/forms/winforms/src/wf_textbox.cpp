@@ -258,11 +258,6 @@ void TextBoxWrapper::clear(mforms::TextBox *backend)
   textbox->Clear();
 }
 
-void TextBoxWrapper::set_front_color(String ^color)
-{
-  //TODO: implement change font color
-}
-
 //--------------------------------------------------------------------------------------------------
 
 void TextBoxWrapper::set_monospaced(mforms::TextBox *backend, bool flag)
