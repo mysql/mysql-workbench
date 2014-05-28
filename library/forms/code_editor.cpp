@@ -561,7 +561,8 @@ void CodeEditor::check_markers_removed(int position, int length)
   while (current_line > -1 && current_line <= end_line)
   {
     LineMarkup markup = (LineMarkup)_code_editor_impl->send_editor(this, SCI_MARKERGET, current_line, LineMarkupAll);
-    changeset.push_back({ (int)current_line, 0, markup });
+    LineMarkupChangeEntry entry = { (int)current_line, 0, markup };
+    changeset.push_back(entry);
 
     // MARKERNEXT effectively searches lines for the given markers, the docs say.
     current_line = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, current_line + 1, LineMarkupAll);
