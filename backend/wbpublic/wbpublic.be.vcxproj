@@ -328,6 +328,7 @@
     <ClCompile Include="objimpl\db\db_Schema.cpp" />
     <ClCompile Include="objimpl\db\db_Table.cpp" />
     <ClCompile Include="objimpl\db\db_Trigger.cpp" />
+    <ClCompile Include="objimpl\GrtStoredNote.cpp" />
     <ClCompile Include="objimpl\model\model_Connection.cpp" />
     <ClCompile Include="objimpl\model\model_Diagram.cpp" />
     <ClCompile Include="objimpl\model\model_Figure.cpp" />
