@@ -27,7 +27,7 @@
 #include "mforms/../gtk/lf_view.h"
 #include "mforms/../gtk/lf_menubar.h"
 #include "mforms/../gtk/lf_toolbar.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "sqlide/query_side_palette.h"
 #include "workbench/wb_context.h"
 #include <glib.h>
