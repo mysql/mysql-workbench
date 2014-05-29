@@ -27,6 +27,8 @@ import pipes
 import subprocess
 import time
 import inspect
+import random
+import string
 
 default_sudo_prefix       = '/usr/bin/sudo -S -p EnterPasswordHere'
 
@@ -107,10 +109,10 @@ class SSH(WbAdminSSH):
             self.mtx.release()
         return ret
 
-    def set_contents(self, filename, data):
+    def set_contents(self, filename, data, mode="w"):
         self.mtx.acquire()
         try:
-            ret = WbAdminSSH.set_contents(self, filename, data)
+            ret = WbAdminSSH.set_contents(self, filename, data, mode)
         finally:
             self.mtx.release()
         return ret
@@ -1483,26 +1485,40 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
             raise err
     
     def _create_temp_file(self, content):
+
         tmpfilename = ''
+
         if self.ssh is not None:
-            homedir, status = self.process_ops.get_cmd_output("echo ~")
-            if type(homedir) is unicode:
-                homedir = homedir.encode("utf8")
-            if type(homedir) is str:
-                homedir = homedir.strip(" \r\t\n")
-            else:
-                homedir = None
-            log_debug2('%s: Got home dir: "%s"\n' % (self.__class__.__name__, homedir) )
+            done = False
+            attempts = 0
+            while not done:
+                tmpfilename = '/tmp/' + ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
+                try:
+                    # This uses file open mode as wx to make sure the temporary has been created
+                    # on this open attempt to avoid writing to an existing file.
+                    self.ssh.set_contents(tmpfilename, content, "wx")
+                    log_debug2('Created temp file: "%s".\n' % tmpfilename)
+                    done = True
+                except IOError, exc:
+                    # This is the only hting reported on a failure due to an attempt to
+                    # create a file that already exists
+                    if exc.message == "Failure":
+                        log_warning('WARNING: Unable to create temp file: "%s", trying a different name.\n' % tmpfilename)
 
-            if not homedir:
-                raise Exception("Unable to get path for remote home directory")
-
-            tmpfilename = homedir + "/.wba.temp"
-            
-            self.ssh.set_contents(tmpfilename, content)
+                        if attempts < 10:
+                            attempts += 1
+                        else:
+                            log_warning('ERROR: Unable to create temp file max number of attempts reached.\n')
+                            raise IOError('Unable to create temp file max number of attempts reached.')
+                    else:
+                        log_warning('ERROR: Unable to create temp file: "%s" : %s.\n' % (tmpfilename, exc))
+                        raise exc
+                except Exception, exc:
+                    log_warning('ERROR: Unable to create temp file: "%s" : %s.\n' % (tmpfilename, exc))
+                    raise exc
         else:
             raise Exception("No SSH session active, cannot save file remotely")
-        
+
         return tmpfilename
         
 
