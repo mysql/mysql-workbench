@@ -97,26 +97,26 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
       tbar->add_item(item);
 
       item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-      item->set_text("Synchronization:");
+      item->set_text(_("Synchronization:"));
       tbar->add_item(item);
 
       item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
       item->set_selector_items(sync_choices);
       item->set_name("syncscript");
-      item->set_tooltip("Position to insert this in synchronization output scripts");
+      item->set_tooltip(_("Position to insert this in synchronization output scripts"));
       item->signal_activated()->connect(boost::bind(&StoredNoteEditorBE::changed_selector, this, item));
       item->set_text(syncvalue);
       tbar->add_item(item);
 
       item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-      item->set_text("Forward Engineering:");
+      item->set_text(_("Forward Engineering:"));
       tbar->add_item(item);
 
       item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
       item->set_selector_items(fw_choices);
       item->set_name("forwardscript");
       item->signal_activated()->connect(boost::bind(&StoredNoteEditorBE::changed_selector, this, item));
-      item->set_tooltip("Position to insert this in forward engineering output scripts");
+      item->set_tooltip(_("Position to insert this in forward engineering output scripts"));
       item->set_text(fwvalue);
       tbar->add_item(item);
     }
@@ -147,12 +147,12 @@ void StoredNoteEditorBE::changed_selector(mforms::ToolBarItem *item)
   if (item->get_name() == "syncscript")
   {
     db_ScriptRef::cast_from(_note)->synchronizeScriptPosition(s);
-    undo.end(base::strfmt("Change sync output position for %s", get_name().c_str()));
+    undo.end(base::strfmt(_("Change sync output position for %s"), get_name().c_str()));
   }
   else
   {
     db_ScriptRef::cast_from(_note)->forwardEngineerScriptPosition(s);
-    undo.end(base::strfmt("Change forward eng. output position for %s", get_name().c_str()));
+    undo.end(base::strfmt(_("Change forward eng. output position for %s"), get_name().c_str()));
   }
 }
 
