@@ -27,7 +27,6 @@ include_directories(.
 )
 
 add_library(wbpublic
-    GrtStoredNote.cpp
     grt/refresh_ui.cpp
     grt/editor_base.cpp
     grt/parse_utils.cpp
