@@ -25,7 +25,7 @@ for %%A in ("%VERSION_DETAIL%") do set VERSION_MAIN=%%~nA
 rem Set other variables
 set DIST_DIR=.\distribution
 set UTIL_PATH=..\..\..\mysql-win-res\bin
-set PYTHON_EXE_PATH=..\..\..\..\mysql-win-res\python27\python.exe
+set PYTHON_EXE_PATH=..\..\..\..\mysql-win-res\bin\python\python.exe
 set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%3-noinstall.zip
 set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%3)"
 set TMP_DIR=.\temp
