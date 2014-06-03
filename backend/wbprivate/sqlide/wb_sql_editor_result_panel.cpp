@@ -550,7 +550,9 @@ public:
         (*i)->set_value(value, rset->is_field_null(rset->edited_field_row(), c));
       }
 
-      _label_item->set_text(base::strfmt("%zi / %zi", rset->edited_field_row()+1, rset->count()));
+      std::stringstream out;
+      out << rset->edited_field_row() + 1 << " / " << rset->count();
+      _label_item->set_text(out.str());
       _tbar.find_item("first")->set_enabled(rset->edited_field_row() > 0);
       _tbar.find_item("back")->set_enabled(rset->edited_field_row() > 0);
 

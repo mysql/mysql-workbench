@@ -139,6 +139,13 @@ namespace base
     return s;
   }
 
+  template <typename T> std::string to_string(const T &value)
+  {
+    std::stringstream out;
+    out << value;
+    return out.str();
+  }
+
   // These functions will perform newline conversion depending on OS. In case of error an exception is thrown.
   BASELIBRARY_PUBLIC_FUNC void set_text_file_contents(const std::string &filename, const std::string &data);
   BASELIBRARY_PUBLIC_FUNC std::string get_text_file_contents(const std::string &filename);
@@ -153,6 +160,7 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC bool contains_string(const std::string &text, const std::string &candidate, bool case_sensitive = true);
 
   /**
+   * XXX: remove that, this is a totally wrong place (parser related and version dependent).
    * @brief Check if @word is a reserved word. 
    * 
    * It returns @a true if it is a reserved word and @a false otherwise.

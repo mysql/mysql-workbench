@@ -2007,7 +2007,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                       int editor_index = sql_editor_index(editor);
                       if (editor_index >= 0)
                         recordset_list_changed(editor_index, rs, true);
-                      std::string statement_res_msg= strfmt(_("%zi row(s) returned"), rs->row_count());
+                      std::string statement_res_msg = base::to_string(rs->row_count()) + _(" row(s) returned");
                       if (!last_statement_info->empty())
                         statement_res_msg.append("\n").append(last_statement_info);
                       std::string exec_and_fetch_durations=
