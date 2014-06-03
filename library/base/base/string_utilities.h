@@ -31,6 +31,7 @@
 #include "common.h"
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include <glib.h>
 
