@@ -27,7 +27,8 @@ configure-stamp:
 	# Add here commands to configure the package.
 	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
 		-DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
-	    -DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include
+	        -DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
+                -DIODBC_CONFIG_PATH="$(ODBC_HOME)/bin/iodbc-config"
 
 	touch configure-stamp
 

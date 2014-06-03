@@ -168,6 +168,7 @@ Windows, Linux and Mac OS X.
        -DMYSQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
+       -DIODBC_CONFIG_PATH=${odbc_home}/bin/iodbc-config \
 %if 0%{?commercial}
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
