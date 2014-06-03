@@ -1588,9 +1588,9 @@ bool IndexColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
     ssize_t i = get_index_column_index(dbcolumn);
 
       if (i < 0)
-        value= grt::StringRef("");
+        value = grt::StringRef("");
       else
-        value= grt::StringRef(strfmt("%zi", i+1));
+        value = grt::StringRef(base::to_string(i + 1));
       return true;
     }
   }
@@ -1840,7 +1840,7 @@ bool IndexListBE::set_field(const NodeId &node, ColumnId column, const std::stri
       return true;
     }
     else
-      _owner->add_index(strfmt("index%zi", count()).c_str());
+      _owner->add_index(("index" + base::to_string(count())).c_str());
   }
 
   index= _owner->get_table()->indices().get(node[0]);

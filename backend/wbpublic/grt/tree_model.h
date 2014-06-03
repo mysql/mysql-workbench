@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -148,73 +148,12 @@ namespace bec
       return _pool ? _pool : (_pool = new Pool<Index>);
     }
 
-    // NodeId will get index from the pool
-    NodeId()
-        : index(0)
-    {
-      index = pool()->get();
-    }
 
-    NodeId(const NodeId &copy)
-        : index(0)
-    {
-      index = pool()->get();
-      if (copy.index != NULL)
-        *index = *copy.index;
-    }
-
-    NodeId(size_t i)
-      : index(0)
-    {
-      index = pool()->get();
-      index->push_back(i);
-    }
-
-    NodeId(const std::string &str)
-      : index(0)
-    {
-      index = pool()->get();
-      try
-      {
-        const char* chr = str.c_str();
-        size_t size = str.length();
-        std::string num;
-        num.reserve(size);
-        
-        for (size_t i = 0; i < size; i++)
-        {
-          if (isdigit(chr[i]))
-            num.push_back(chr[i]);
-          else if ('.' == chr[i] || ':' == chr[i])
-          {
-            if (!num.empty())
-            {
-              index->push_back(atoi(num.c_str()));
-              num.clear();
-            }
-          }
-          else
-            throw std::runtime_error("Wrong format of NodeId");
-        }
-        
-        if (!num.empty())
-          index->push_back(atoi(num.c_str()));
-      }
-      catch (...)
-      {
-        index->clear();
-        pool()->put(index);
-        index = 0;
-        throw;
-      }
-    }
-
-    ~NodeId() 
-    {
-      index->clear();
-      pool()->put(index);
-      index = 0;
-    }
+    NodeId();
+    NodeId(const NodeId &copy);
+    NodeId(size_t i);
+    NodeId(const std::string &str);
+    ~NodeId();
 
     inline NodeId &operator = (const NodeId &node)
     {
@@ -223,143 +162,41 @@ namespace bec
       return *this;
     }
 
-    bool operator < (const NodeId &r) const
-    {
-      bool ret = true;
-      
-      if (index && r.index)
-      {
-        // Shorter node ids must go before longer. For example in a list ["0.1", "0.1.1"]
-        // longer nodeid is a subnode of the "0.1", so in case of deletion subnode deleted first
-        // (That's true only when traversing list from the end)
-        if (index->size() < r.index->size())
-          ret = true;
-        else if (index->size() > r.index->size())
-          ret = false;
-        else
-        {
-          // It is assumed that this node id is less than @r. Walk index vectors. If current value
-          // from this->index is less than or equal to the corresponding value from r.index the pair is skipped
-          // as it complies with assumption that this node is less than @r.
-          // Once current value becomes greater than @r's the assumption about current node's 
-          // less than @r becomes false, therefore this node is greater than @r.
-          for (size_t i = 0; i < index->size(); ++i)
-          {
-            if ((*index)[i] > (*r.index)[i])
-            {
-              ret = false;
-              break;
-            }
-          }
-        }
-      }
-      
-      return ret;
-    }
+    bool operator < (const NodeId &r) const;
 
     inline bool operator == (const NodeId &node) const
     {
       return equals(node);
     }
 
-    bool equals(const NodeId &node) const
-    {
-      // TODO: Check if we need to compare content of the index and node.index vectors
-      return index && node.index && *node.index == *index;
-    }
+    bool equals(const NodeId &node) const;
 
-    size_t depth() const
+    inline size_t depth() const
     {
       return index->size();
     }
 
-    inline size_t& operator[] (size_t i) const
-    {
-      if (i < index->size())
-        return const_cast<size_t&>((*index)[i]);
-      throw std::range_error("invalid index");
-    }
+    size_t& operator[] (size_t i) const;
 
-    inline size_t end() const
-    {
-      if (index->size() > 0)
-        return (*index)[index->size() - 1];
-      throw std::logic_error("invalid node id. NodeId::end applied to an empty NodeId instance.");
-    }
-    
+    size_t end() const;    
     inline size_t back() const
     {
       return end();
     }
     
-    // Set leaf to the previous index, e.g. for node with path "1.3.2" it will become "1.3.1".
-    inline bool previous() const
-    {
-      bool ret = false;
-      if (index->size() > 0)
-      {
-        --((*index)[index->size() - 1]);
-        ret = true;
-      }
-      return ret;
-    }
-    
-    // Set leaf to the next index, e.g. for node with path "1.3.2" it will become "1.3.3".
-    inline bool next() const
-    {
-      bool ret = false;
-      if (index->size() > 0)
-      {
-        ++((*index)[index->size() - 1]);
-        ret = true;
-      }
-      return ret;
-    }
+    bool previous() const;
+    bool next() const;
 
     inline bool is_valid() const
     {
       return index->size() != 0;
     }
     
-    inline NodeId parent() const
-    {
-      if (depth() < 2)
-        return NodeId();
-      NodeId copy(*this);
-      copy.index->pop_back();
-      return copy;
-    }
+    NodeId parent() const;
+    std::string repr(const char separator = '.') const;
 
-    inline std::string repr(const char separator = '.') const
-    {
-      std::string r = "";
-      for (size_t i= 0; i < index->size(); i++)
-      {
-        char buf[30];
-        g_snprintf(buf, sizeof(buf), "%zi", (*index)[i]);
-        if (i > 0)
-          r= r + separator + buf;
-        else
-          r= buf;
-      }
-      return r;
-    }
-
-    inline NodeId &append(size_t i)
-    {
-      if ((ssize_t)i < 0)
-        throw std::invalid_argument("negative node index is invalid");
-      index->push_back(i);
-      return *this;
-    }
-
-    inline NodeId &prepend(size_t i)
-    {
-      if ((ssize_t)i < 0)
-        throw std::invalid_argument("negative node index is invalid");
-      index->insert(index->begin(), i);
-      return *this;
-    }
+    NodeId &append(size_t i);
+    NodeId &prepend(size_t i);
   };
 
   //----------------------------------------------------------------------------

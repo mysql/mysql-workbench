@@ -85,7 +85,7 @@ TEST_FUNCTION(1)
   for (std::size_t c = diff_tree->count(), i = 0; i < c; i++)
   {
     bec::NodeId schema((int)i);
-    for (int j = 0; j  < diff_tree->count_children(schema); j++)
+    for (size_t j = 0; j  < diff_tree->count_children(schema); j++)
     {
       bec::NodeId object(diff_tree->get_child(schema, j));
       std::string name;
