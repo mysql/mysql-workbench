@@ -29,6 +29,8 @@ import time
 import json
 from multiprocessing import Process
 
+is_library = True
+
 
 
 def call_system(command, spawn):
@@ -70,8 +72,9 @@ class ConfigReader(object):
 
 
 class MEBCommand(object):
-    def __init__(self):
-        pass
+    def __init__(self, params = None, output_handler = None):
+        self.params = params
+        self.output_handler = output_handler
 
     def read_params(self):
         pass
@@ -87,14 +90,35 @@ class MEBCommand(object):
             
         return 1
 
+    # The parameter count increases in 2 when run as a script
+    # The first two parameters are the script name and the command identifier
+    def param_count(self):
+        return len(self.params) if is_library else len(self.params) - 2
+
+    def get_param(self, index):
+
+        real_index = index
+        if not is_library:
+            real_index += 2
+
+        return self.params[real_index]
+
+    def write_output(self, output):
+        if self.output_handler:
+            self.output_handler(output + '\n')
+        else:
+            print output
+
 
 class MEBCommandProcessor(MEBCommand):
-    def __init__(self, argv):
+    def __init__(self, params = None, output_handler = None):
+        super(MEBCommandProcessor, self).__init__(params, output_handler)
         self.help_needed = False
 
         self._commands = {}
-        self._commands['BACKUP'] = MEBBackup()
-        self._commands['VERSION'] = MEBVersion()
+        self._commands['BACKUP'] = MEBBackup
+        self._commands['VERSION'] = MEBVersion
+        self._commands['GET_PROFILES'] = MEBGetProfiles
 
 
     def read_params(self):
@@ -113,12 +137,12 @@ class MEBCommandProcessor(MEBCommand):
         return ret_val
 
     def print_usage(self):
-        print "wb_meb_helper <command> <parameters>"
-        print "WHERE : <command>        : is one of %s" % ','.join(self._commands.keys())
-        print "        <parameters>     : are the parameters needed for each command."
-        print "\nYou can also use as follows to get each command parameters:\n"
-        print "wb_meb_helper help <command>"
-        print "WHERE : <command>        : is one of %s\n" % self._commands.keys()
+        self.write_output("wb_meb_helper <command> <parameters>")
+        self.write_output("WHERE : <command>        : is one of %s" % ','.join(self._commands.keys()))
+        self.write_output("        <parameters>     : are the parameters needed for each command.")
+        self.write_output("\nYou can also use as follows to get each command parameters:\n")
+        self.write_output("wb_meb_helper help <command>")
+        self.write_output("WHERE : <command>        : is one of %s\n" % self._commands.keys())
 
     def execute(self):
         processed = False
@@ -126,37 +150,38 @@ class MEBCommandProcessor(MEBCommand):
         if self.read_params():
             command = self.command.upper()
             if self._commands.has_key(command):
+                klass = self._commands[command]
+                instance = klass(self.params, self.output_handler)
                 processed = True
                 if self.help_needed:
-                    self._commands[command].print_usage()
+                    instance.print_usage()
                     ret_val = 0
                 else:
-                    ret_val = self._commands[command].execute()
+                    ret_val = instance.execute()
 
 
         if not processed:
-            print "\nERROR Executing wb_meb_helper\n"
+            self.write_output("\nERROR Executing wb_meb_helper\n")
             self.print_usage()
             
         return ret_val
 
-
-
 class MEBBackup(MEBCommand):
-    def __init__(self):
+    def __init__(self, params = None, output_handler = None):
+        super(MEBBackup, self).__init__(params, output_handler)
         self.file_name=''
         self.time_format = '%Y-%m-%d_%H-%M-%S'
         self.time_format_re = re.compile("\\b[1-9]\\d\\d\\d\\b-[0-1]\\d-[0-3]\\d_[0-2]\\d-[0-5]\\d-[0-5]\\d")
 
     def print_usage(self):
-        print "BACKUP <profile> <compress> <incremental> <to_single_file> <report_progress> <command>"
-        print "WHERE : <profile>        : is the UUID of the profile to be used for the backup process."
-        print "        <compress>       : indicates if the backup will be compressed. (1 or 0)"
-        print "        <incremental>    : indicates the backup should be incremental.  (1 or 0)"
-        print "        <to_single_file> : indicates the backup will be done to an image file.  (1 or 0)"
-        print "        <report_progress>: indicates the backup should be compressed.  (1 or 0)"
-        print "        <command>        : indicates the backup operation to be done, could be backup or backup-and-apply-log"
-        print "        [file_name]      : indicates the target name for the backup file or folder\n\n"
+        self.write_output("BACKUP <profile> <compress> <incremental> <to_single_file> <report_progress> <command>")
+        self.write_output("WHERE : <profile>        : is the UUID of the profile to be used for the backup process.")
+        self.write_output("        <compress>       : indicates if the backup will be compressed. (1 or 0)")
+        self.write_output("        <incremental>    : indicates the backup should be incremental.  (1 or 0)")
+        self.write_output("        <to_single_file> : indicates the backup will be done to an image file.  (1 or 0)")
+        self.write_output("        <report_progress>: indicates the backup should be compressed.  (1 or 0)")
+        self.write_output("        <command>        : indicates the backup operation to be done, could be backup or backup-and-apply-log")
+        self.write_output("        [file_name]      : indicates the target name for the backup file or folder\n\n")
 
     def read_bool_param(self, param):
         true_param = ['1', 'TRUE', 'YES']
@@ -165,18 +190,16 @@ class MEBBackup(MEBCommand):
 
     def read_params(self):
         ret_val = False
-        param_count = len(sys.argv)
-        
-        if param_count >= 8:
-            self.profile_file = sys.argv[2]
-            self.compress = self.read_bool_param(sys.argv[3])
-            self.incremental = self.read_bool_param(sys.argv[4])
-            self.to_single_file = self.read_bool_param(sys.argv[5])
-            self.report_progress = self.read_bool_param(sys.argv[6])
-            self.bkcommand = sys.argv[7]
+        if self.param_count() >= 6:
+            self.profile_file = self.get_param(0)
+            self.compress = self.read_bool_param(self.get_param(1))
+            self.incremental = self.read_bool_param(self.get_param(2))
+            self.to_single_file = self.read_bool_param(self.get_param(3))
+            self.report_progress = self.read_bool_param(self.get_param(4))
+            self.bkcommand = self.get_param(5)
             
-            if param_count > 8:
-                self.file_name = sys.argv[8]
+            if self.param_count() > 6:
+                self.file_name = self.get_param(6)
 
             ret_val = True
 
@@ -244,7 +267,7 @@ class MEBBackup(MEBCommand):
                 self.backup_dir = self.inc_backup_dir
                 path_param = '  --incremental-backup-dir'
             else:
-                print "ERROR: Unable to run incremental backup without a base folder."
+                self.write_output("ERROR: Unable to run incremental backup without a base folder.")
                 ret_val = False
                 
         # Sets the needed backup paths
@@ -275,7 +298,7 @@ class MEBBackup(MEBCommand):
                 ret_val = call_system(self.command_call, True)
                 
                 # Prints the data to be returned back
-                print json.dumps({'LOG_PATH':self.log_path})
+                self.write_output(json.dumps({'LOG_PATH':self.log_path}))
 
         else:
             self.print_usage()
@@ -319,20 +342,134 @@ class MEBBackup(MEBCommand):
 
         return lastest_time
 
+class MEBGetProfiles(MEBCommand):
+    def __init__(self, params = None, output_handler = None):
+        super(MEBGetProfiles, self).__init__(params, output_handler)
+        self.datadir = ''
+
+    def read_params(self):
+        ret_val = False
+
+        if self.param_count() == 1:
+            self.datadir = self.get_param(0)
+            ret_val = True
+
+        return ret_val
+
+    def print_usage(self):
+        self.write_output("GET_PROFILES <datadir>")
+        self.write_output("WHERE : <datadir> : is the path to the datadir of the server instance for which the profiles are")
+        self.write_output("                    being loaded. (There could be more than one instance on the same box).")
+
+        if is_library:
+            self.write_output("\nWhen executed from python code the WBMEB_BACKUPSHOME environment variable must be set.")
+        
+
+    def execute(self):
+        # Gets the backups home path
+        backups_home = ''
+        if os.environ.has_key('WBMEB_BACKUPSHOME'):
+            backups_home = os.environ['WBMEB_BACKUPSHOME']
+
+        if backups_home and self.read_params():
+            master_data = {}
+
+
+            # Creates the string to be used on the file search
+            search_string = os.path.join(backups_home, '*.cnf')
+
+            # The glob module will be used to list only the required files
+            import glob
+            for filename in glob.glob(search_string):
+
+                # Creates a config reader for each profile
+                profile = ConfigReader(filename)
+
+                # Verifies the datadir to ensure it belongs to the requested instance
+                profile_datadir = profile.read_value('mysqlbackup', 'datadir', False, "")
+                if profile_datadir == self.datadir:
+                    data = {}
+                    data['LABEL'] = profile.read_value('meb_manager', 'label', False, "")
+                    data['PARTIAL'] = profile.read_value('meb_manager', 'partial', False, "")
+                    data['BACKUP_DIR'] = profile.read_value('mysqlbackup', 'backup_dir', False, "")
+
+                    # Gets the folder stats to calculate available space
+                    fs = os.statvfs(data['BACKUP_DIR'])
+                    total = fs.f_frsize * fs.f_blocks
+                    free = fs.f_frsize * fs.f_bfree
+
+                    # Formats to a human readable format
+                    data['AVAILABLE'] = self.get_available_space(total, free)
+
+                    # Validates the backups folder for write permission
+                    data['VALID'] = os.access(data['BACKUP_DIR'], os.W_OK)
+
+                    # Gets the full schedule data
+                    e = profile.read_value('meb_manager', 'full_backups_enabled', False, "")
+                    f = profile.read_value('meb_manager', 'full_backups_frequency', False, "")
+                    md = profile.read_value('meb_manager', 'full_backups_month_day', False, "")
+                    wd = profile.read_value('meb_manager', 'full_backups_week_days', False, "")
+                    h = profile.read_value('meb_manager', 'full_backups_hour', False, "")
+                    m = profile.read_value('meb_manager', 'full_backups_minute', False, "")
+                    data['FSCHEDULE'] = '-'.join([e, f, md, wd, h, m])
+
+                    # Gets the incremental schedule data
+                    e = profile.read_value('meb_manager', 'inc_backups_enabled', False, "")
+                    f = profile.read_value('meb_manager', 'inc_backups_frequency', False, "")
+                    md = profile.read_value('meb_manager', 'inc_backups_month_day', False, "")
+                    wd = profile.read_value('meb_manager', 'inc_backups_week_days', False, "")
+                    h = profile.read_value('meb_manager', 'inc_backups_hour', False, "")
+                    m = profile.read_value('meb_manager', 'inc_backups_minute', False, "")
+                    data['ISCHEDULE'] = '-'.join([e, f, md, wd, h, m])
+
+                    master_data[filename] = data
+
+            # If any, prints the profile data
+            if master_data:
+                self.write_output(json.dumps(master_data))
+
+            return 0
+        else:
+            self.print_usage()
+            return 1
+
+    def get_available_space(self, total, available):
+        suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']
+        limit = float(1024)
+        index = 0
+        while total > limit:
+            total /= limit
+            available /= limit
+            index +=1
+
+        return "%s%s of %s%s available" % ('{0:.2f}'.format(available), suffixes[index], '{0:.2f}'.format(total), suffixes[index])
+            
+        return 0
+
 class MEBVersion(MEBCommand):
     current = "1"
+
+    def __init__(self, params = None, output_handler = None):
+        super(MEBVersion, self).__init__(params, output_handler)
         
     def execute(self):
-        print self.current
+        self.write_output(self.current)
         return 0
     
 
 if __name__ == "__main__":
+    # The parameters passed to the command will have an offset when called
+    # form the script, this is the script name and the command name
+    is_library = False
+
+    # Setups some environment variables
+    this_file_path = os.path.realpath(__file__)
+    os.environ['WBMEB_BACKUPSHOME'] = os.path.dirname(this_file_path)
+
     # Initializes the logging module
     log_file = '%s.log' % __file__[:-3]
     logging.basicConfig(filename=log_file, level=logging.DEBUG)
     logging.basicConfig(format='[%(asctime)s] %(message)s', datefmt='%Y-%m-%d %I:%M:%S %p')
-
 
     processor = MEBCommandProcessor(sys.argv)
     sys.exit(processor.execute())
