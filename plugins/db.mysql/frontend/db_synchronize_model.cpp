@@ -98,10 +98,10 @@ public:
     scoped_connect(signal_leave(),boost::bind(&SyncOptionsPage::gather_options, this, _1));
 
     grt::Module *module= ((WizardPlugin*)_form)->module();
-    _skip_triggers_check.set_active(module->document_int_data("SkipTriggers", 0));
-    _skip_routines_check.set_active(module->document_int_data("SkipRoutines", 0));
-    _omit_schema_qualifier_check.set_active(module->document_int_data("OmitSchemata", 0));
-    _generate_attached_scripts.set_active(module->document_int_data("GenerateAttachedScripts", 0));
+    _skip_triggers_check.set_active(module->document_int_data("SkipTriggers", 0) != 0);
+    _skip_routines_check.set_active(module->document_int_data("SkipRoutines", 0) != 0);
+    _omit_schema_qualifier_check.set_active(module->document_int_data("OmitSchemata", 0) != 0);
+    _generate_attached_scripts.set_active(module->document_int_data("GenerateAttachedScripts", 0) != 0);
   }
 
   void gather_options(bool advancing)
