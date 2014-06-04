@@ -26,10 +26,10 @@ static bool populate_test_table(std::auto_ptr<sql::Statement> &stmt)
 {
   stmt->execute(DATABASE_TO_USE);
   stmt->execute("DROP TABLE IF EXISTS test_function");
-  if (true == stmt->execute("CREATE TABLE test_function (a integer, b integer, c integer default null)"))
+  if (stmt->execute("CREATE TABLE test_function (a integer, b integer, c integer default null)"))
     return false;
 
-  if (true == stmt->execute("INSERT INTO test_function (a,b,c) VALUES(1, 111, NULL)"))
+  if (stmt->execute("INSERT INTO test_function (a,b,c) VALUES(1, 111, NULL)"))
   {
     stmt->execute("DROP TABLE test_function");
     return false;
@@ -41,10 +41,10 @@ static bool populate_tx_test_table(std::auto_ptr<sql::Statement> &stmt)
 {
   stmt->execute(DATABASE_TO_USE);
   stmt->execute("DROP TABLE IF EXISTS test_function_tx");
-  if (true == stmt->execute("CREATE TABLE test_function_tx (a integer, b integer, c integer default null) engine = innodb"))
+  if (stmt->execute("CREATE TABLE test_function_tx (a integer, b integer, c integer default null) engine = innodb"))
     return false;
 
-  if (true == stmt->execute("INSERT INTO test_function_tx (a,b,c) VALUES(1, 111, NULL)"))
+  if (stmt->execute("INSERT INTO test_function_tx (a,b,c) VALUES(1, 111, NULL)"))
   {
     stmt->execute("DROP TABLE test_function_tx");
     return false;
@@ -55,40 +55,17 @@ static bool populate_tx_test_table(std::auto_ptr<sql::Statement> &stmt)
 
 BEGIN_TEST_DATA_CLASS(module_dbc_statement_test)
 public:
-  GRTManagerTest grtm;
+  WBTester _tester;
   SqlFacade::Ref sql_splitter;
-  GRT *grt;
   
   TEST_DATA_CONSTRUCTOR(module_dbc_statement_test)
   {
-    sql_splitter = NULL;
-#ifdef _WIN32
-    std::string path = "../../Bin/Debug";
-    grtm.set_search_paths(path, path, path);
-#else
-    std::string path = ".";
-    std::string libraries = getenv("MWB_LIBRARY_DIR");
-    std::string modules = getenv("TEST_MODULES_DIR");
-    
-    grtm.set_search_paths(modules, path, libraries);
-#endif  
-
-    grtm.initialize(true, path);
-
-    grt= grtm.get_grt();
-
-    // load structs
-    grt->scan_metaclasses_in("../../res/grt/");
-    grt->end_loading_metaclasses();
-
-    ensure_equals("load structs", grt->get_metaclasses().size(), INT_METACLASS_COUNT);
-
-    sql_splitter= SqlFacade::instance_for_rdbms_name(grt, "Mysql");
+    sql_splitter = SqlFacade::instance_for_rdbms_name(_tester.grt, "Mysql");
     ensure("failed to get sqlparser module", (NULL != sql_splitter));
     
-    db_mgmt_ConnectionRef connectionProperties(grt);
+    db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-    setup_env(grt, connectionProperties);   
+    setup_env(_tester.grt, connectionProperties);
     
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
     ensure("dm is NULL", dm != NULL);
@@ -103,9 +80,9 @@ public:
   
   TEST_DATA_DESTRUCTOR(module_dbc_statement_test)
   {
-    db_mgmt_ConnectionRef connectionProperties(grt);
+    db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-    setup_env(grt, connectionProperties);   
+    setup_env(_tester.grt, connectionProperties);
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
     ensure("dm is NULL", dm != NULL);
 
@@ -123,9 +100,9 @@ TEST_MODULE(module_dbc_statement_test, "DBC: statement tests");
 // Test construction of a statement object.
 TEST_FUNCTION(2)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -148,9 +125,9 @@ TEST_FUNCTION(2)
 // Test simple update statement against statement object.
 TEST_FUNCTION(3)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -164,8 +141,8 @@ TEST_FUNCTION(3)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
-    ensure("Data not populated", true == populate_test_table(stmt));
-    if (true == stmt->execute("UPDATE test_function SET a = 2, b = 222 where b = 111"))
+    ensure("Data not populated", populate_test_table(stmt));
+    if (stmt->execute("UPDATE test_function SET a = 2, b = 222 where b = 111"))
       ensure("True returned for UPDATE", false);
 
     stmt->execute("DROP TABLE test_function");
@@ -181,9 +158,9 @@ TEST_FUNCTION(3)
 // Test simple query against statement object.
 TEST_FUNCTION(4)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -197,7 +174,7 @@ TEST_FUNCTION(4)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
-    ensure("Data not populated", true == populate_test_table(stmt));
+    ensure("Data not populated", populate_test_table(stmt));
     if (false == stmt->execute("SELECT * FROM test_function"))
       ensure("False returned for SELECT", false);
 
@@ -221,9 +198,9 @@ TEST_FUNCTION(4)
 // Test executeQuery() - returning a result set.
 TEST_FUNCTION(5)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -237,7 +214,7 @@ TEST_FUNCTION(5)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
-    ensure("Data not populated", true == populate_test_table(stmt));
+    ensure("Data not populated", populate_test_table(stmt));
     /* Get a result set */
     try {
       std::auto_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT * FROM test_function"));
@@ -267,9 +244,9 @@ TEST_FUNCTION(5)
 // Test executeQuery() - returning empty result set.
 TEST_FUNCTION(6)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -283,7 +260,7 @@ TEST_FUNCTION(6)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
-    ensure("Data not populated", true == populate_test_table(stmt));
+    ensure("Data not populated", populate_test_table(stmt));
     /* Get a result set */
     try {
       std::auto_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT * FROM test_function WHERE 1=2"));
@@ -315,9 +292,9 @@ TEST_FUNCTION(6)
 // Test executeQuery() - use it for inserting, should generate an exception.
 TEST_FUNCTION(7)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -331,7 +308,7 @@ TEST_FUNCTION(7)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
-    ensure("Data not populated", true == populate_test_table(stmt));
+    ensure("Data not populated", populate_test_table(stmt));
     /* Get a result set */
     try {
       std::auto_ptr<sql::ResultSet> rset(stmt->executeQuery("INSERT INTO test_function VALUES(2,200)"));
@@ -362,9 +339,9 @@ TEST_FUNCTION(7)
 // Test executeUpdate() - check the returned value.
 TEST_FUNCTION(8)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm= sql::DriverManager::getDriverManager();
@@ -378,7 +355,7 @@ TEST_FUNCTION(8)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
-    ensure("Data not populated", true == populate_test_table(stmt));
+    ensure("Data not populated", populate_test_table(stmt));
     /* Get a result set */
     try {
       ensure_equals("Number of updated rows",
@@ -409,9 +386,9 @@ TEST_FUNCTION(8)
 // Test executeUpdate() - execute a SELECT, should get an exception
 TEST_FUNCTION(9)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -450,9 +427,9 @@ TEST_FUNCTION(9)
 // Test getFetchSize() - should return int value.
 TEST_FUNCTION(10)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -482,9 +459,9 @@ TEST_FUNCTION(10)
 // Test getResultSet() - execute() a query and get the result set.
 TEST_FUNCTION(11)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -498,8 +475,8 @@ TEST_FUNCTION(11)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
-    ensure("Data not populated", true == populate_test_table(stmt));
-    ensure("Statement::execute returned false", true == stmt->execute("SELECT * FROM test_function"));
+    ensure("Data not populated", populate_test_table(stmt));
+    ensure("Statement::execute returned false", stmt->execute("SELECT * FROM test_function"));
     
     std::auto_ptr<sql::ResultSet> rset(stmt->getResultSet());
     ensure("rset is NULL", rset.get() != NULL);
@@ -522,9 +499,9 @@ TEST_FUNCTION(11)
 // TODO: Doesn't test much as stmt::getResultSet() is not implemented.
 TEST_FUNCTION(12)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -538,7 +515,7 @@ TEST_FUNCTION(12)
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
-    ensure("Data not populated", true == populate_test_table(stmt));
+    ensure("Data not populated", populate_test_table(stmt));
 
     ensure("Statement::execute returned true", false == stmt->execute("UPDATE test_function SET a = 222"));
     
@@ -574,9 +551,9 @@ TEST_FUNCTION(12)
 // TODO: Doesn't pass because setFetchSize() is unimplemented.
 TEST_FUNCTION(13)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -606,9 +583,9 @@ TEST_FUNCTION(13)
 // TODO: Doesn't pass because setFetchSize() is unimplemented.
 TEST_FUNCTION(14)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -639,9 +616,9 @@ TEST_FUNCTION(14)
 // TODO: Doesn't pass because setQueryTimeout() is unimplemented.
 TEST_FUNCTION(15)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
@@ -671,9 +648,9 @@ TEST_FUNCTION(15)
 // Test addBatch()/executeBatch() (includes a test against the 'out of sync' error).
 TEST_FUNCTION(16)
 {
-  db_mgmt_ConnectionRef connectionProperties(grt);
+  db_mgmt_ConnectionRef connectionProperties(_tester.grt);
 
-  setup_env(grt, connectionProperties);
+  setup_env(_tester.grt, connectionProperties);
 
   try {
     sql::DriverManager *dm = sql::DriverManager::getDriverManager();
