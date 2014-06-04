@@ -17,10 +17,14 @@
  * 02110-1301  USA
  */
 
+#include "base/log.h"
+
 #include "mdc_back_layer.h"
 #include "mdc_algorithms.h"
 #include "mdc_canvas_view.h"
 #include "mdc_draw_util.h"
+
+DEFAULT_LOG_DOMAIN("canvas")
 
 using namespace mdc;
 using namespace base;
