@@ -34,6 +34,9 @@
 
 #include "mforms/canvas.h"
 #include "mdc.h"
+#include <ogrsf_frmts.h>
+#include <ogr_api.h>
+#include <gdal_pam.h>
 
 DEFAULT_LOG_DOMAIN("sqlide");
 
@@ -107,6 +110,11 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
 SpatialDataView::~SpatialDataView()
 {
+  std::deque<SpatialCanvasLayer*>::iterator it;
+  while(it!=_gis_layers.end()){
+      delete *it;
+      it = _gis_layers.erase(it);
+  }
 }
 
 
@@ -120,10 +128,12 @@ void SpatialDataView::activate()
     throw std::logic_error("canvas not initialized");
 
   // configure the canvas
-  _layer = new SpatialCanvasLayer(_viewer->canvas());
-  _layer->set_name("spatial");
-  _viewer->canvas()->add_layer(_layer);
+//  _layer = new SpatialCanvasLayer(_viewer->canvas(), NULL);
+//  _layer->set_name("spatial");
+//  _viewer->canvas()->add_layer(_layer);
   _viewer->canvas()->get_background_layer()->set_visible(true);
+  tree_toggled(_layer_tree->node_at_row(0), "1");
+  tree_toggled(_layer_tree->node_at_row(1), "1");
 }
 
 
@@ -137,6 +147,29 @@ void SpatialDataView::show_column_data(int column, bool show)
     // but the internal format seems to be 4 bytes of SRID followed by WKB data
     if (rset->get_raw_field(row, column, geom_data) && !geom_data.empty())
     {
+      GIS::SpatialHandler *handler = new GIS::SpatialHandler();
+      handler->importFromMySQL(geom_data);
+      SpatialCanvasLayer *layer = new SpatialCanvasLayer(_viewer->canvas(), handler);
+//      if (layer)
+//        std::cout << "dd" << std::endl;
+      _gis_layers.push_back(layer);
+
+      _viewer->canvas()->add_layer(layer);
+//      unsigned char* geom = new unsigned char[geom_data.size()-3];
+//      std::copy(geom_data.begin()+4, geom_data.end(), geom);
+//      geom += 4;
+//      std::istringstream ss(geom_data);
+//
+//      std::vector<unsigned char> buff;
+//      unsigned int ch;
+//      while(ss >> std::hex >> ch)
+//        buff.push_back(ch);
+
+
+//      unsigned char *geom = &(*(buff.begin()+4));
+//      OGRGeometry *poGeometry;
+//      OGRGeometryFactory::createFromWkb(geom, NULL, &poGeometry);
+
       g_message("--> [%i,%i] %s (%i)\n", (int)row, column, geom_data.c_str(), (int)geom_data.size());
     }
   }
@@ -171,13 +204,13 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     node->set_tag(base::strfmt("%i", iter->column_index));
     first = false;
   }
-  tree_toggled(_layer_tree->node_at_row(0), "1");
+//  tree_toggled(_layer_tree->node_at_row(0), "1");
 
   // standard background layer
   mforms::TreeNodeRef node = _layer_tree->add_node();
   node->set_string(1, "World Map");
   node->set_bool(0, true);
-  tree_toggled(node, "1");
+//  tree_toggled(node, "1");
 }
 
 

@@ -21,11 +21,13 @@
 #define _SPATIAL_CANVAS_LAYER_H_
 
 #include "mdc.h"
+#include "spatial_handler.h"
 
 class SpatialCanvasLayer : public mdc::Layer
 {
+  GIS::SpatialHandler *_shandler;
 public:
-  SpatialCanvasLayer(mdc::CanvasView *view);
+  SpatialCanvasLayer(mdc::CanvasView *view, GIS::SpatialHandler *handler);
   virtual ~SpatialCanvasLayer();
 
   virtual void repaint(const base::Rect &bounds);

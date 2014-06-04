@@ -26,6 +26,7 @@
 
 #include "mforms/box.h"
 #include "mforms/utilities.h"
+#include <deque>
 
 namespace mforms
 {
@@ -65,6 +66,7 @@ private:
 
   mforms::Canvas *_viewer;
   SpatialCanvasLayer *_layer;
+  std::deque<SpatialCanvasLayer*> _gis_layers;
 
   void tree_toggled(const mforms::TreeNodeRef &node, const std::string &value);
   void show_column_data(int column, bool show);

@@ -19,24 +19,57 @@
 
 #include "spatial_canvas_layer.h"
 
-SpatialCanvasLayer::SpatialCanvasLayer(mdc::CanvasView *view)
+SpatialCanvasLayer::SpatialCanvasLayer(mdc::CanvasView *view, GIS::SpatialHandler *handler)
 : mdc::Layer(view)
 {
+  this->_shandler = handler;
 }
 
 
 SpatialCanvasLayer::~SpatialCanvasLayer()
 {
+  if (_shandler)
+    delete _shandler;
 }
 
 
 void SpatialCanvasLayer::repaint(const base::Rect &bounds)
 {
-  mdc::CairoCtx *cr= _owner->cairoctx();
+  if (_shandler)
+  {
+    GIS::ProjectionView view;
+    base::Size s = _owner->get_total_view_size();
+    view.height = s.height;
+    view.width = s.width;
+    view.MaxLat = 180;
+    view.MaxLng = 90;
+    view.MinLat = -180;
+    view.MinLng = -90;
+    std::deque<GIS::ShapeContainer> shapes;
+    _shandler->getOutput(view, shapes);
+    std::deque<GIS::ShapeContainer>::iterator it;
+    mdc::CairoCtx *cr= _owner->cairoctx();
+    cr->set_color(base::Color(1,0,0));
+    cr->save();
+    for(it = shapes.begin(); it != shapes.end(); it++)
+    {
+      if ((*it).type == GIS::ShapePolygon)
+      {
+        cr->move_to((*it).points[0]);
+        for (size_t i = 0; i < (*it).points.size(); i++)
+          cr->line_to((*it).points[i]);
+        cr->stroke();
+      }
 
-  cr->save();
-  cr->rectangle(10, 10, 50, 50);
-  cr->set_color(base::Color(1,0,0));
-  cr->fill();
-  cr->restore();
+    }
+    cr->restore();
+
+  }
+//  mdc::CairoCtx *cr= _owner->cairoctx();
+//
+//  cr->save();
+//  cr->rectangle(10, 10, 50, 50);
+//  cr->set_color(base::Color(1,0,0));
+//  cr->fill();
+//  cr->restore();
 }
