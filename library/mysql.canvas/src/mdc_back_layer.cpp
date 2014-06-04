@@ -269,7 +269,7 @@ void BackLayer::repaint(const Rect &aBounds)
   
 #ifndef WIN32
   if (_owner->debug_enabled())
-    g_message("repaint background %s", aBounds.str().c_str());
+    log_debug3("repaint background %s", aBounds.str().c_str());
 #endif
   cr->save();
   

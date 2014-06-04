@@ -264,8 +264,12 @@ void test_table_collation(std::string src, std::string dst, grt::GRT * tester, b
   grt::NormalizedComparer caseless_normalizer3(tester, get_traits(tester,false));
   caseless_normalizer3.init_omf(&omf3);
   boost::shared_ptr<DiffChange> change3 = diff_make(table1,table2,&omf3);
+
+  /*
   if(change3)
     change3->dump_log(0);
+    */
+
   std::string infomsg = "Table collation comparison for ("+src+") and ("+dst+")";
   if (equal)
     ensure(infomsg, change3 == NULL);

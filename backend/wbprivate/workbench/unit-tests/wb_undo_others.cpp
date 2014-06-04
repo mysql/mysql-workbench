@@ -185,7 +185,6 @@ TEST_FUNCTION(1)
   
   overview= wbui->get_physical_overview();
   wbui->set_active_form(overview);
-  g_message("old document %s", tester.get_pmodel().id().c_str());
 
   ensure_equals("schemas", tester.get_catalog()->schemata().count(), 1U);
   

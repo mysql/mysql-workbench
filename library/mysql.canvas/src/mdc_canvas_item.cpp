@@ -980,7 +980,7 @@ void CanvasItem::repaint_cached()
   {
 #ifndef WIN32
     if (_layer->get_view()->debug_enabled())
-      g_message("paint cache data for %p", this);
+      log_debug3("paint cache data for %p", this);
 #endif
     // paint the image to the canvas
     _layer->get_view()->paint_item_cache(_layer->get_view()->cairoctx(),

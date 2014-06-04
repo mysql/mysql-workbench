@@ -43,7 +43,7 @@ END_TEST_DATA_CLASS
 TEST_MODULE(bedb_mem_tests, "DB stuff memory tests");
 
 
-TEST_FUNCTION(1)
+TEST_FUNCTION(10)
 {
   // make sure everything is registered
   register_structs_app_xml();
@@ -62,8 +62,8 @@ TEST_FUNCTION(1)
   ensure("rdbms", rdbms.is_valid());
 }
 
-
-TEST_FUNCTION(2)
+// XXX: what does this test case actually test?
+TEST_FUNCTION(20)
 {
   // test primary key
   enum {N=100};
@@ -113,7 +113,7 @@ TEST_FUNCTION(2)
       catch (...)
       {}
     }
-    fprintf(stderr, ".");
+    //fprintf(stderr, ".");
     prev_table = table;
   }
 }

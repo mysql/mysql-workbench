@@ -2233,7 +2233,7 @@ int WorkbenchImpl::initializeOtherRDBMS()
     }
   }
   if (failed)
-    g_message("Support for one or more RDBMS sources have failed. View log file for more details.");
+    log_warning("Support for one or more RDBMS sources have failed.");
 
   _wb->load_other_connections();
   

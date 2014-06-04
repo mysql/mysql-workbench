@@ -96,6 +96,7 @@ static void ensure_list_equals(const char *what, const std::vector<std::string> 
   }
   catch (...)
   {
+    // TODO: this should be part of the TUT message, otherwise we might not see it.
     g_message("Result list:");
     for (i = list.begin(); i != list.end(); ++i)
       g_message("  %s", i->c_str());
