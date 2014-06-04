@@ -1310,7 +1310,7 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
       {
         result = mforms::Utilities::show_message(_("Delete Routines"),
           strfmt(_("There are %lu routines in '%s' that are not in any other group, would you like to delete them?"),
-          (unsigned long)ungrouped_routines.size(), (unsigned long)routine_group->name().c_str()),
+          (unsigned long)ungrouped_routines.size(), routine_group->name().c_str()),
           _("Delete"), _("Cancel"), _("Keep"));
       }
       

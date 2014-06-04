@@ -31,9 +31,10 @@
 #include "mdc_selection.h"
 #include "mdc_magnet.h"
 #include "mdc_bounds_magnet.h"
+#include "base/log.h"
 
 #define MAGNET_STICK_DISTANCE 5
-
+DEFAULT_LOG_DOMAIN("canvas")
 using namespace mdc;
 using namespace base;
 
