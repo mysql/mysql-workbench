@@ -76,7 +76,7 @@ TEST_FUNCTION(1)
   
   schema = tester.get_catalog()->schemata()[0];
 
-  _rdbms = db_mgmt_RdbmsRef::cast_from(tester.grt->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml"));
+  _rdbms = db_mgmt_RdbmsRef::cast_from(tester.grt->unserialize("data/res/mysql_rdbms_info.xml"));
   
   // make sure the loaded model contains expected number of things
   ensure_equals("tables", schema->tables().count(), 2U);

@@ -38,7 +38,7 @@ TEST_MODULE(sql_editor, "SQL Editor");
 
 TEST_FUNCTION(1)
 {
-	rdbms= db_mgmt_RdbmsRef::cast_from(grtm.get_grt()->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml"));
+	rdbms= db_mgmt_RdbmsRef::cast_from(grtm.get_grt()->unserialize("data/res/mysql_rdbms_info.xml"));
 	ensure("db_mgmt_RdbmsRef initialization", rdbms.is_valid());
 
 	//!ListRef<db_mgmt_Rdbms> rdbms_list= ListRef<db_mgmt_Rdbms>::cast_from(grtm.get_grt()->get("/wb/rdbmsMgmt/rdbms"));
