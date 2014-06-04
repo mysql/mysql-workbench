@@ -54,7 +54,7 @@ TEST_FUNCTION(1)
 
 
   // load a lua module
-  grt.load_module("../../library/grt/unit-tests/lua_module.lua", false);
+  grt.load_module("data/modules/lua_module.lua", false);
 
   // register some C++ modules
   grt.get_native_module<SampleModule1Impl>();

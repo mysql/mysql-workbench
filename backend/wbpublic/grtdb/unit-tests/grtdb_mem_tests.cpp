@@ -57,7 +57,7 @@ TEST_FUNCTION(10)
   grtm.get_grt()->set_root(grtm.get_grt()->unserialize("../../res/grtdata/db_datatype_groups.xml"));
 
 
-  rdbms= db_mgmt_RdbmsRef::cast_from(grtm.get_grt()->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml"));
+  rdbms= db_mgmt_RdbmsRef::cast_from(grtm.get_grt()->unserialize("data/res/mysql_rdbms_info.xml"));
 
   ensure("rdbms", rdbms.is_valid());
 }
