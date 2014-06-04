@@ -1828,7 +1828,6 @@ protected:
             _decomposer_options.set("case_sensitive_identifiers", grt::IntegerRef(case_sensitive_opt ? 1 : 0));
           }
         }
-      g_message("==> %i\n", options.get_int("GenerateAttachedScripts"));
         include_document_properties = options.get_int("GenerateDocumentProperties", 1) != 0;
         include_scripts = options.get_int("GenerateAttachedScripts") != 0;
     };

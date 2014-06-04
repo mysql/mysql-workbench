@@ -271,9 +271,6 @@ ValueRef LuaModuleLoader::call_function(const BaseListRef &args,
   lua_pushcfunction(_lua, call_traceback);
   error_func= lua_gettop(_lua);
 
-//  if (getenv("GRT_VERBOSE"))
-//    g_message("Calling lua function %s.%s", function->module->name, function->name);
-
   lua_checkstack(_lua, lua_gettop(_lua)+5);
 
   lua_function_table_name.append("__").append(module->_name).append("_lua");

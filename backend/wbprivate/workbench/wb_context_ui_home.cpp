@@ -1088,7 +1088,6 @@ void WBContextUI::refresh_home_documents()
       for (std::list<std::string>::const_iterator path_iterator = examples_paths.begin();
         path_iterator != examples_paths.end(); path_iterator++)
       {
-        g_message("%s", path_iterator->c_str());
         if (g_file_test(path_iterator->c_str(), G_FILE_TEST_IS_DIR))
         {
           std::string pattern = make_path(*path_iterator, "*.mwb");

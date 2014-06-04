@@ -588,7 +588,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
       }
 
       // remove excluded object types from the copy of the model catalog... the right catalog should already come stripped from the source
-      if (options.get_int("SkipTriggers"))
+      if (options.is_valid() && options.get_int("SkipTriggers"))
       {
         log_info("Remove triggers from copy of model schema %s\n", schema->name().c_str());
         for (size_t t = 0; t < schema->tables().count(); t++)
@@ -596,7 +596,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
           schema->tables()[t]->triggers().remove_all();
         }
       }
-      if (options.get_int("SkipRoutines"))
+      if (options.is_valid() && options.get_int("SkipRoutines"))
       {
         log_info("Remove routines from copy of model schema %s\n", schema->name().c_str());
         schema->routines().remove_all();
