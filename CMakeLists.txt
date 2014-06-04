@@ -73,6 +73,7 @@ find_package(CTemplate)
 find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
+find_package(GDAL REQUIRED)
 
 if (UNIX)
 	option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)

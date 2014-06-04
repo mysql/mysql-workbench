@@ -65,6 +65,7 @@ add_library(wbprivate STATIC
     sqlide/query_side_palette.cpp
     sqlide/spatial_canvas_layer.cpp
     sqlide/spatial_data_view.cpp
+    sqlide/spatial_handler.cpp
     workbench/metaclasses.cpp
     workbench/upgrade_helper.cpp
     workbench/wb_command_ui.cpp
@@ -103,6 +104,7 @@ target_link_libraries(wbprivate
     ${LIBZIP_LIBRARIES}
     ${TINYXML_LIBRARY}
     ${PCRE_LIBRARIES}
+    ${GDAL_LIBRARIES}
 )
 
 #install(TARGETS wbprivate DESTINATION ${WB_INSTALL_LIB_DIR})
