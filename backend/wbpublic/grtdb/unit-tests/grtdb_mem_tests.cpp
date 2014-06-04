@@ -45,9 +45,7 @@ TEST_MODULE(bedb_mem_tests, "DB stuff memory tests");
 
 TEST_FUNCTION(10)
 {
-  // make sure everything is registered
-  register_structs_app_xml();
-  
+  // Structs are auto registered.
   int i= grtm.get_grt()->scan_metaclasses_in("../../res/grt/");
   ensure("load structs", i>0);
   
