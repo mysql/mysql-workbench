@@ -64,10 +64,12 @@ class JSONTreeViewer(mforms.TreeNodeView):
 
 
 class RenderBox(mforms.PyDrawBox):
-    def __init__(self, context):
+    def __init__(self, context, scroll):
         mforms.PyDrawBox.__init__(self)
         self.set_managed()
         self.set_release_on_add()
+
+        self.scroll = scroll
 
         self.set_instance(self)
         self.offset = (0, 0)
@@ -84,6 +86,10 @@ class RenderBox(mforms.PyDrawBox):
         x -= self.offset[0]
         y -= self.offset[1]
         self.econtext._canvas.mouse_down(b, x, y)
+        if self.econtext.overview_mode and b == 0:
+            self.econtext.mouse_down(x, y)
+        self.econtext.close_tooltip()
+
 
     def mouse_up(self, b, x, y):
         if b == 0:
@@ -93,11 +99,15 @@ class RenderBox(mforms.PyDrawBox):
         self.econtext._canvas.mouse_up(b, x, y)
 
     def mouse_move(self, x, y):
-        if self.drag_offset:
-            self.scroll.set_viewport_offset()
         x -= self.offset[0]
         y -= self.offset[1]
+        # for drag panning
+        #if self.drag_offset:
+        #  self.scroll.scroll_to(self.drag_offset[0] - x, self.drag_offset[1] - y)
         self.econtext._canvas.mouse_move(x, y)
+        if self.econtext.overview_mode:
+            self.econtext.mouse_moved(x, y)
+            self.set_needs_repaint()
 
     def mouse_leave(self):
         self.econtext._canvas.mouse_leave()
@@ -167,11 +177,11 @@ class QueryPlanTab(mforms.Box):
         self.toolbar.set_back_color("#ffffff")
         
         l = newToolBarItem(mforms.LabelItem)
-        l.set_text("Display Cost Info:")
+        l.set_text("Display Info:")
         self.toolbar.add_item(l)
 
         item = newToolBarItem(mforms.SelectorItem)
-        item.set_selector_items(["Prefix Cost (read + eval)", "Read Cost", "Eval Cost", "Data Read per Join"])
+        item.set_selector_items(["Read + Eval cost", "Data Read per Join"])
         item.add_activated_callback(self.display_cost)
         self.toolbar.add_item(item)
         cost_type_item = item
@@ -206,6 +216,19 @@ class QueryPlanTab(mforms.Box):
         btn.set_tooltip("Save image to an external file.")
         self.toolbar.add_item(btn)
 
+        s = newToolBarItem(mforms.SeparatorItem)
+        self.toolbar.add_item(s)
+
+        l = newToolBarItem(mforms.LabelItem)
+        l.set_text("Overview:")
+        self.toolbar.add_item(l)
+
+        btn = newToolBarItem(mforms.ActionItem)
+        btn.set_icon(get_resource_path("zoom_out.png"))
+        btn.add_activated_callback(self.overview)
+        btn.set_tooltip("Zoom out the diagram.")
+        self.toolbar.add_item(btn)
+
         self.add(self.toolbar, False, True)
 
         # Query Plan diagram
@@ -214,7 +237,7 @@ class QueryPlanTab(mforms.Box):
         self.scroll.set_visible_scrollers(True, True)
         
         #self.img = mforms.newImageBox()
-        self.drawbox = RenderBox(self._context)
+        self.drawbox = RenderBox(self._context, self.scroll)
         self.scroll.add(self.drawbox)
         
         self.drawbox.node_spacing = self.node_spacing
@@ -228,12 +251,8 @@ class QueryPlanTab(mforms.Box):
         text = item.get_text()
         if text:
             cost = text.lower().split()[0]
-            if cost == "eval":
-                self._context.show_cost_info_type("eval_cost")
-            elif cost == "prefix":
-                self._context.show_cost_info_type("prefix_cost")
-            elif cost == "read":
-                self._context.show_cost_info_type("read_cost")
+            if cost == "read":
+                self._context.show_cost_info_type("read_eval_cost")
             elif cost == "data":
                 self._context.show_cost_info_type("data_read_per_join")
             else:
@@ -248,14 +267,23 @@ class QueryPlanTab(mforms.Box):
 
     def save(self, item):
         ch = mforms.FileChooser(mforms.SaveFile)
+        directory = grt.root.wb.options.options.get("wb.VisualExplain:LastFileChooserDirectory", "")
+        if directory:
+            ch.set_directory(directory)
         ch.set_extensions("PNG image (*.png)|*.png", "png")
         ch.set_title("Save Image As")
         ch.set_path("explain.png")
         if ch.run_modal():
             self._context.export_to_png(ch.get_path())
+            grt.root.wb.options.options["wb.VisualExplain:LastFileChooserDirectory"] = ch.get_directory()
 
 
     def set_needs_repaint(self, x, y, w, h):
+        self.drawbox.set_needs_repaint()
+
+
+    def overview(self, item):
+        self._context.enter_overview_mode()
         self.drawbox.set_needs_repaint()
 
 
@@ -279,17 +307,33 @@ class ExplainTab(mforms.AppView):
         self.set_back_color("#ffffff")
         
         default_tab = grt.root.wb.state.get("wb.query.analysis:ActiveExplainTab", 0)
-
+        json_data = None
         if json_text:
-            json = decode_json(json_text)
-            self._explain_context = ExplainContext(json)
-            self._query_plan = QueryPlanTab(self._explain_context, server_version)
-            self._explain_context.init_canvas(self._query_plan.drawbox, self._query_plan.set_needs_repaint)
-            #self._explain_context._canvas.set_background_color(1, 0xfc/255.0, 0xe5/255.0)
-            # Initial layouting of the plan diagram
-            self._query_plan.drawbox.relayout()
-            self.tabview.add_page(self._query_plan, "Query Plan")
-        
+            try:
+                json_data = decode_json(json_text)
+            except Exception, e:
+                import traceback
+                grt.log_error("vexplain", "Error creating query plan: %s\n" % traceback.format_exc())
+                mforms.Utilities.show_error("Query Plan Generation Error",
+                                            "An unexpected error occurred parsing JSON query explain data.\nPlease file a bug report at http://bugs.mysql.com along with the query and the Raw Explain Data.\n\nException: %s" % e,
+                                            "OK", "", "")
+        if json_data:
+            try:
+                self._explain_context = ExplainContext(json_data, server_version)
+
+                self._query_plan = QueryPlanTab(self._explain_context, server_version)
+                self._explain_context.init_canvas(self._query_plan.drawbox, self._query_plan.scroll, self._query_plan.set_needs_repaint)
+                #self._explain_context._canvas.set_background_color(1, 0xfc/255.0, 0xe5/255.0)
+                # Initial layouting of the plan diagram
+                self._query_plan.drawbox.relayout()
+                self.tabview.add_page(self._query_plan, "Query Plan")
+            except Exception, e:
+                import traceback
+                grt.log_error("vexplain", "Error creating query plan: %s\n" % traceback.format_exc())
+                mforms.Utilities.show_error("Query Plan Generation Error",
+                                            "An unexpected error occurred during creation of the graphical query plan.\nPlease file a bug report at http://bugs.mysql.com along with the query and the Raw Explain Data.\n\nException: %s" % e,
+                                            "OK", "", "")
+
             self._raw_explain = mforms.CodeEditor()
             self._raw_explain.set_value(json_text)
             #self._raw_explain.enable_folding(True)
