@@ -377,15 +377,59 @@ class  db_Script : public GrtStoredNote
   typedef GrtStoredNote super;
 public:
   db_Script(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtStoredNote(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  : GrtStoredNote(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _forwardEngineerScriptPosition(""),
+     _synchronizeScriptPosition("")
 
   {
   }
 
   static std::string static_class_name() { return "db.Script"; }
 
+  /** Getter for attribute forwardEngineerScriptPosition
+   
+    
+   \par In Python:
+value = obj.forwardEngineerScriptPosition
+   */
+  grt::StringRef forwardEngineerScriptPosition() const { return _forwardEngineerScriptPosition; }
+  /** Setter for attribute forwardEngineerScriptPosition
+   
+    
+    \par In Python:
+obj.forwardEngineerScriptPosition = value
+   */
+  virtual void forwardEngineerScriptPosition(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_forwardEngineerScriptPosition);
+   _forwardEngineerScriptPosition= value;
+    member_changed("forwardEngineerScriptPosition", ovalue, value);
+  }
+
+  /** Getter for attribute synchronizeScriptPosition
+   
+    
+   \par In Python:
+value = obj.synchronizeScriptPosition
+   */
+  grt::StringRef synchronizeScriptPosition() const { return _synchronizeScriptPosition; }
+  /** Setter for attribute synchronizeScriptPosition
+   
+    
+    \par In Python:
+obj.synchronizeScriptPosition = value
+   */
+  virtual void synchronizeScriptPosition(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_synchronizeScriptPosition);
+   _synchronizeScriptPosition= value;
+    member_changed("synchronizeScriptPosition", ovalue, value);
+  }
+
 protected:
 
+  grt::StringRef _forwardEngineerScriptPosition;
+  grt::StringRef _synchronizeScriptPosition;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -399,6 +443,16 @@ public:
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Script::create);
+    {
+      void (db_Script::*setter)(const grt::StringRef &)= &db_Script::forwardEngineerScriptPosition;
+      grt::StringRef (db_Script::*getter)() const= &db_Script::forwardEngineerScriptPosition;
+      meta->bind_member("forwardEngineerScriptPosition", new grt::MetaClass::Property<db_Script,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Script::*setter)(const grt::StringRef &)= &db_Script::synchronizeScriptPosition;
+      grt::StringRef (db_Script::*getter)() const= &db_Script::synchronizeScriptPosition;
+      meta->bind_member("synchronizeScriptPosition", new grt::MetaClass::Property<db_Script,grt::StringRef >(getter,setter));
+    }
   }
 };
 
@@ -5115,16 +5169,10 @@ class GRT_STRUCTS_DB_PUBLIC db_Trigger : public db_DatabaseDdlObject
 public:
   db_Trigger(grt::GRT *grt, grt::MetaClass *meta=0)
   : db_DatabaseDdlObject(grt, meta ? meta : grt->get_metaclass(static_class_name())),
-     _condition(""),
      _enabled(0),
      _event(""),
-     _order(0),
-     _orientation(""),
-     _referenceNewRow(""),
-     _referenceNewTable(""),
-     _referenceOldRow(""),
-     _referenceOldTable(""),
-     _sequenceNumber(0),
+     _ordering(""),
+     _otherTrigger(""),
      _timing("")
 
   {
@@ -5133,26 +5181,6 @@ public:
   virtual ~db_Trigger();
 
   static std::string static_class_name() { return "db.Trigger"; }
-
-  /** Getter for attribute condition
-   
-    the condition that must be met for the trigger to execute
-   \par In Python:
-value = obj.condition
-   */
-  grt::StringRef condition() const { return _condition; }
-  /** Setter for attribute condition
-   
-    the condition that must be met for the trigger to execute
-    \par In Python:
-obj.condition = value
-   */
-  virtual void condition(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_condition);
-   _condition= value;
-    member_changed("condition", ovalue, value);
-  }
 
   /** Getter for attribute enabled
    
@@ -5176,14 +5204,14 @@ obj.enabled = value
 
   /** Getter for attribute event
    
-    the DDL(/DML) event that fires the trigger
+    what fires the trigger (INSERT, UPDATE or DELETE)
    \par In Python:
 value = obj.event
    */
   grt::StringRef event() const { return _event; }
   /** Setter for attribute event
    
-    the DDL(/DML) event that fires the trigger
+    what fires the trigger (INSERT, UPDATE or DELETE)
     \par In Python:
 obj.event = value
    */
@@ -5204,156 +5232,56 @@ obj.name = value
    */
   virtual void name(const grt::StringRef &value);
 
-  /** Getter for attribute order
+  /** Getter for attribute ordering
    
-    the order in which triggers of the same event and timing are executed
+    the order in which triggers of the same event and timing are executed (FOLLOWS or PRECEDES)
    \par In Python:
-value = obj.order
+value = obj.ordering
    */
-  grt::IntegerRef order() const { return _order; }
-  /** Setter for attribute order
+  grt::StringRef ordering() const { return _ordering; }
+  /** Setter for attribute ordering
    
-    the order in which triggers of the same event and timing are executed
+    the order in which triggers of the same event and timing are executed (FOLLOWS or PRECEDES)
     \par In Python:
-obj.order = value
+obj.ordering = value
    */
-  virtual void order(const grt::IntegerRef &value)
+  virtual void ordering(const grt::StringRef &value)
   {
-    grt::ValueRef ovalue(_order);
-   _order= value;
-    member_changed("order", ovalue, value);
+    grt::ValueRef ovalue(_ordering);
+   _ordering= value;
+    member_changed("ordering", ovalue, value);
   }
 
-  /** Getter for attribute orientation
+  /** Getter for attribute otherTrigger
    
-    for which object the trigger fires, e.g. ROW
+    the name of the trigger to which order is relative
    \par In Python:
-value = obj.orientation
+value = obj.otherTrigger
    */
-  grt::StringRef orientation() const { return _orientation; }
-  /** Setter for attribute orientation
+  grt::StringRef otherTrigger() const { return _otherTrigger; }
+  /** Setter for attribute otherTrigger
    
-    for which object the trigger fires, e.g. ROW
+    the name of the trigger to which order is relative
     \par In Python:
-obj.orientation = value
+obj.otherTrigger = value
    */
-  virtual void orientation(const grt::StringRef &value)
+  virtual void otherTrigger(const grt::StringRef &value)
   {
-    grt::ValueRef ovalue(_orientation);
-   _orientation= value;
-    member_changed("orientation", ovalue, value);
-  }
-
-  /** Getter for attribute referenceNewRow
-   
-    
-   \par In Python:
-value = obj.referenceNewRow
-   */
-  grt::StringRef referenceNewRow() const { return _referenceNewRow; }
-  /** Setter for attribute referenceNewRow
-   
-    
-    \par In Python:
-obj.referenceNewRow = value
-   */
-  virtual void referenceNewRow(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_referenceNewRow);
-   _referenceNewRow= value;
-    member_changed("referenceNewRow", ovalue, value);
-  }
-
-  /** Getter for attribute referenceNewTable
-   
-    
-   \par In Python:
-value = obj.referenceNewTable
-   */
-  grt::StringRef referenceNewTable() const { return _referenceNewTable; }
-  /** Setter for attribute referenceNewTable
-   
-    
-    \par In Python:
-obj.referenceNewTable = value
-   */
-  virtual void referenceNewTable(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_referenceNewTable);
-   _referenceNewTable= value;
-    member_changed("referenceNewTable", ovalue, value);
-  }
-
-  /** Getter for attribute referenceOldRow
-   
-    
-   \par In Python:
-value = obj.referenceOldRow
-   */
-  grt::StringRef referenceOldRow() const { return _referenceOldRow; }
-  /** Setter for attribute referenceOldRow
-   
-    
-    \par In Python:
-obj.referenceOldRow = value
-   */
-  virtual void referenceOldRow(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_referenceOldRow);
-   _referenceOldRow= value;
-    member_changed("referenceOldRow", ovalue, value);
-  }
-
-  /** Getter for attribute referenceOldTable
-   
-    
-   \par In Python:
-value = obj.referenceOldTable
-   */
-  grt::StringRef referenceOldTable() const { return _referenceOldTable; }
-  /** Setter for attribute referenceOldTable
-   
-    
-    \par In Python:
-obj.referenceOldTable = value
-   */
-  virtual void referenceOldTable(const grt::StringRef &value)
-  {
-    grt::ValueRef ovalue(_referenceOldTable);
-   _referenceOldTable= value;
-    member_changed("referenceOldTable", ovalue, value);
-  }
-
-  /** Getter for attribute sequenceNumber
-   
-    defines position in editor
-   \par In Python:
-value = obj.sequenceNumber
-   */
-  grt::IntegerRef sequenceNumber() const { return _sequenceNumber; }
-  /** Setter for attribute sequenceNumber
-   
-    defines position in editor
-    \par In Python:
-obj.sequenceNumber = value
-   */
-  virtual void sequenceNumber(const grt::IntegerRef &value)
-  {
-    grt::ValueRef ovalue(_sequenceNumber);
-   _sequenceNumber= value;
-    member_changed("sequenceNumber", ovalue, value);
+    grt::ValueRef ovalue(_otherTrigger);
+   _otherTrigger= value;
+    member_changed("otherTrigger", ovalue, value);
   }
 
   /** Getter for attribute timing
    
-    when the trigger fires, AFTER or BEFORE
+    when the trigger fires (AFTER or BEFORE)
    \par In Python:
 value = obj.timing
    */
   grt::StringRef timing() const { return _timing; }
   /** Setter for attribute timing
    
-    when the trigger fires, AFTER or BEFORE
+    when the trigger fires (AFTER or BEFORE)
     \par In Python:
 obj.timing = value
    */
@@ -5364,16 +5292,10 @@ obj.timing = value
 
 protected:
 
-  grt::StringRef _condition;
   grt::IntegerRef _enabled;
   grt::StringRef _event;
-  grt::IntegerRef _order;
-  grt::StringRef _orientation;
-  grt::StringRef _referenceNewRow;
-  grt::StringRef _referenceNewTable;
-  grt::StringRef _referenceOldRow;
-  grt::StringRef _referenceOldTable;
-  grt::IntegerRef _sequenceNumber;
+  grt::StringRef _ordering;
+  grt::StringRef _otherTrigger;
   grt::StringRef _timing;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
@@ -5388,11 +5310,6 @@ public:
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Trigger::create);
-    {
-      void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::condition;
-      grt::StringRef (db_Trigger::*getter)() const= &db_Trigger::condition;
-      meta->bind_member("condition", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
-    }
     {
       void (db_Trigger::*setter)(const grt::IntegerRef &)= &db_Trigger::enabled;
       grt::IntegerRef (db_Trigger::*getter)() const= &db_Trigger::enabled;
@@ -5409,39 +5326,14 @@ public:
       meta->bind_member("name", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
     }
     {
-      void (db_Trigger::*setter)(const grt::IntegerRef &)= &db_Trigger::order;
-      grt::IntegerRef (db_Trigger::*getter)() const= &db_Trigger::order;
-      meta->bind_member("order", new grt::MetaClass::Property<db_Trigger,grt::IntegerRef >(getter,setter));
+      void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::ordering;
+      grt::StringRef (db_Trigger::*getter)() const= &db_Trigger::ordering;
+      meta->bind_member("ordering", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
     }
     {
-      void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::orientation;
-      grt::StringRef (db_Trigger::*getter)() const= &db_Trigger::orientation;
-      meta->bind_member("orientation", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::referenceNewRow;
-      grt::StringRef (db_Trigger::*getter)() const= &db_Trigger::referenceNewRow;
-      meta->bind_member("referenceNewRow", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::referenceNewTable;
-      grt::StringRef (db_Trigger::*getter)() const= &db_Trigger::referenceNewTable;
-      meta->bind_member("referenceNewTable", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::referenceOldRow;
-      grt::StringRef (db_Trigger::*getter)() const= &db_Trigger::referenceOldRow;
-      meta->bind_member("referenceOldRow", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::referenceOldTable;
-      grt::StringRef (db_Trigger::*getter)() const= &db_Trigger::referenceOldTable;
-      meta->bind_member("referenceOldTable", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
-    }
-    {
-      void (db_Trigger::*setter)(const grt::IntegerRef &)= &db_Trigger::sequenceNumber;
-      grt::IntegerRef (db_Trigger::*getter)() const= &db_Trigger::sequenceNumber;
-      meta->bind_member("sequenceNumber", new grt::MetaClass::Property<db_Trigger,grt::IntegerRef >(getter,setter));
+      void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::otherTrigger;
+      grt::StringRef (db_Trigger::*getter)() const= &db_Trigger::otherTrigger;
+      meta->bind_member("otherTrigger", new grt::MetaClass::Property<db_Trigger,grt::StringRef >(getter,setter));
     }
     {
       void (db_Trigger::*setter)(const grt::StringRef &)= &db_Trigger::timing;

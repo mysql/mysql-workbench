@@ -67,10 +67,17 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   grtobj->resultDockingPoint(mforms_to_grt(grtm->get_grt(), &_lower_dock));
 
-  _editor= Sql_editor::create(owner->rdbms(), owner->wbsql()->get_grt_editor_object(owner)->serverVersion(), grtobj);
+  // In opposition to the object editors, each individual sql editor gets an own parser context
+  // (and hence an own parser), to allow concurrent and multi threaded work.
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grtm->get_grt());
+
+  parser::ParserContext::Ref context = services->createParserContext(owner->rdbms()->characterSets(),
+    owner->rdbms_version(), owner->lower_case_table_names() != 0);
+
+  _editor = MySQLEditor::create(grtm->get_grt(), context, grtobj);
   _editor->sql_check_progress_msg_throttle(grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
-  _editor->sql_mode(owner->sql_mode());
+  _editor->set_sql_mode(owner->sql_mode());
   _editor->set_current_schema(owner->active_schema());
   UIForm::scoped_connect(_editor->text_change_signal(),
                          boost::bind(&SqlEditorPanel::update_title, this));

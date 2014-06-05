@@ -14,45 +14,45 @@
     <ClCompile Include="MysqlEditorsWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MySQLRelationshipEditorBE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MySQLRoutineEditorBE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MySQLRoutineGroupEditorBE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MySQLSchemaEditorWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MySQLTableEditorWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MySQLViewEditorBE.cpp">
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="MySQLRoutineEditorWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="MySQLRoutineGroupEditorWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLViewEditorWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLRelationshipEditorWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MySQLRelationshipEditorBE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MySQLRoutineEditorBE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MySQLRoutineGroupEditorBE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MySQLSchemaEditorWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MySQLTableEditorWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MySQLViewEditorBE.h">
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="MySQLRoutineEditorWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="MySQLRoutineGroupEditorWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLViewEditorWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLRelationshipEditorWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

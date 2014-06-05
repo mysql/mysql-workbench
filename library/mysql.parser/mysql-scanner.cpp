@@ -59,7 +59,7 @@ public:
 
 MySQLScanner::MySQLScanner(const char *text, size_t length, bool is_utf8, long server_version,
   const std::string &sql_mode, const std::set<std::string> &charsets)
-  : MySQLParsingBase(charsets)
+  : MySQLRecognitionBase(charsets)
 {
   d = new Private();
 
@@ -67,7 +67,7 @@ MySQLScanner::MySQLScanner(const char *text, size_t length, bool is_utf8, long s
   d->_text_length = length;
   d->_context.version = server_version;
   d->_context.payload = this;
-  d->_context.sql_mode = parse_sql_mode(sql_mode);
+  set_sql_mode(sql_mode);
 
   // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
   // (everything requiring only one byte per char as Latin1, ASCII and similar).
@@ -120,6 +120,13 @@ void MySQLScanner::setup()
   d->_token_source = TOKENSOURCE(d->_lexer);
   
   log_debug2("Lexer setup ended\n");
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void* MySQLScanner::input_start()
+{
+  return (void *)d->_text;
 }
 
 //--------------------------------------------------------------------------------------------------

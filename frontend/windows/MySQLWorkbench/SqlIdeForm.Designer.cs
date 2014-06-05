@@ -157,7 +157,7 @@
       // mainContentSplitContainer.Panel2
       // 
       this.mainContentSplitContainer.Panel2.Controls.Add(this.rightSplitContainer);
-      this.mainContentSplitContainer.Panel2MinSize = 200;
+      this.mainContentSplitContainer.Panel2MinSize = 228;
       this.mainContentSplitContainer.Size = new System.Drawing.Size(735, 416);
       this.mainContentSplitContainer.SplitterDistance = 424;
       this.mainContentSplitContainer.SplitterWidth = 6;

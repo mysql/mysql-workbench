@@ -177,7 +177,7 @@ private:
 public:
   void set_tool_item_checked(const std::string &name, bool flag);
 
-  boost::signals2::signal<void (Sql_editor::Ref, bool)> sql_editor_list_changed;
+  boost::signals2::signal<void (MySQLEditor::Ref, bool)> sql_editor_list_changed;
 
   SqlEditorPanel* run_sql_in_scratch_tab(const std::string &sql, bool reuse_if_possible, bool start_collapsed);
   SqlEditorPanel* add_sql_editor(bool scratch = false, bool start_collapsed = false); // returns index of the added sql_editor

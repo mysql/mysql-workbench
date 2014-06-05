@@ -34,7 +34,7 @@ using namespace MySQL::Grt;
 //--------------------------------------------------------------------------------------------------
 
 SqlEditorWrapper::SqlEditorWrapper(IntPtr nref_ptr)
-  : _ref(gcnew ManagedRef<Sql_editor>(nref_ptr))
+  : _ref(gcnew ManagedRef<MySQLEditor>(nref_ptr))
 {
   _result_docking_point = NULL;
   _managed_result_dock_delegate = nullptr;
@@ -103,7 +103,7 @@ void SqlEditorWrapper::set_text(String^ text)
 
 SqlEditorWrapper^ SqlEditorWrapper::get_sql_editor(MySQL::Grt::BaseEditorWrapper ^wrapper)
 {
-  return Ref2Ptr_<::Sql_editor, SqlEditorWrapper>(wrapper->get_unmanaged_object()->get_sql_editor());
+  return Ref2Ptr_<MySQLEditor, SqlEditorWrapper>(wrapper->get_unmanaged_object()->get_sql_editor());
 }
 
 //--------------------------------------------------------------------------------------------------

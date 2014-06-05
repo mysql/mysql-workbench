@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,6 +49,8 @@ class TextBoxImpl : public ViewImpl
   static void set_monospaced(::mforms::TextBox *self, bool flag);
   static void get_selected_range(::mforms::TextBox *self, int &start, int &end);
   static void clear(::mforms::TextBox *self);
+protected:
+  void set_front_color(const std::string &color);
 
 public:
   static void init();

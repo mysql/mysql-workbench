@@ -499,6 +499,8 @@ bool DbSqlEditorSnippets::get_field(const bec::NodeId &node, ColumnId column, st
         break;
       case Script:
         value = _entries[node[0]].code;
+        if (value.empty())
+          return false;
         break;
     }
     return true;

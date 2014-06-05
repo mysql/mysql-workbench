@@ -431,8 +431,8 @@ std::list<std::string> SqlEditorTreeController::fetch_schema_list()
         {
           //! dbms-specific code
           //TODO: what it is used for?
-          //metadata_schemata_names["information_schema"];  // These should not be hidden
-          //metadata_schemata_names["performance_schema"];
+          metadata_schemata_names["information_schema"];
+          metadata_schemata_names["performance_schema"];
           metadata_schemata_names["mysql"];
         }
       };
@@ -1250,7 +1250,7 @@ bool SqlEditorTreeController::sidebar_action(const std::string& name)
     return true;
   }
   else
-    g_message("unhandled sidebar action %s", name.c_str());
+    log_warning("unhandled sidebar action %s", name.c_str());
 
   return false;
 }
@@ -1868,7 +1868,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
       }
       CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get 'sql_mode' session variable"));
 
-      parse_ddl_into_catalog(obj_editor->get_rdbms(), client_state_catalog,
+      parse_ddl_into_catalog(_owner->rdbms(), client_state_catalog,
                              strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
                              ddl_script, sql_mode);
     }
@@ -1884,7 +1884,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
   obj_editor->thaw_refresh_on_object_change();
 
   // enable refresh of sql editor contents
-  Sql_editor::Ref active_sql_editor= obj_editor->get_sql_editor();
+  MySQLEditor::Ref active_sql_editor= obj_editor->get_sql_editor();
   if (active_sql_editor)
   {
     active_sql_editor->set_refresh_enabled(true);
@@ -1966,7 +1966,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
   }
   try
   {
-    if (!dry_run && obj_editor->get_sql_editor()->has_sql_errors())
+    if (!dry_run && obj_editor->has_editor() && obj_editor->get_sql_editor()->has_sql_errors())
     {
       int res= mforms::Utilities::show_warning(
                                                _("Apply Changes to Object"),
@@ -1986,15 +1986,14 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE* obj
 
     if (!dry_run)
     {
-      ValueRef is_trigger_changed= db_object->customData().get("NonTriggerSQLFound");
+      ValueRef is_trigger_changed= db_object->customData().get("triggerInvalid");
       if (is_trigger_changed.is_valid() && (IntegerRef::cast_from(is_trigger_changed) != 0))
       {
         int res= mforms::Utilities::show_warning(
           _("Apply Changes to Object"),
-          _("The object's trigger DDL statement contains sql definitions without matching CREATE TRIGGER.\n"
-          "This will lead to invalid sql generated.\n"
-          "Ensure that you have only trigger creation sql in Triggers tab.\n"
-          "Are you sure you want to apply the DDL statement unchanged?"),
+          _("The tables's trigger SQL code contains errors.\n"
+            "This will lead to invalid sql generated.\n"
+            "Are you sure you want to apply the DDL statement as is?"),
           _("Yes"),
           _("No"));
 
@@ -2152,7 +2151,7 @@ void SqlEditorTreeController::create_live_table_stubs(bec::DBObjectEditorBE *tab
     grt::ListRef<db_Table> tables;
     db_TableRef table;
 
-    std::string database_package= *table_editor->get_rdbms()->databaseObjectPackage();
+    std::string database_package= *_owner->rdbms()->databaseObjectPackage();
     std::string schema_typename= database_package + ".Schema";
     std::string table_typename= database_package + ".Table";
     grt::GRT *grt= _grtm->get_grt();
@@ -2221,7 +2220,7 @@ bool SqlEditorTreeController::expand_live_table_stub(bec::DBObjectEditorBE *tabl
     return false;
 
   {
-    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(table_editor->get_rdbms());
+    SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(_owner->rdbms());
     Sql_parser::Ref sql_parser= sql_facade->sqlParser();
     sql_parser->messages_enabled(false);
     grt::DictRef options(_grtm->get_grt());

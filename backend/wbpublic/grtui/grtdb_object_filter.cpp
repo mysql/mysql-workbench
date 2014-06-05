@@ -189,8 +189,9 @@ void DBObjectFilterFrame::refresh()
   refill_list(_object_list, _model);
   refill_list(_mask_list, _exclude_model);
 
-  _summary_label.set_text(strfmt(_("%zi Total Objects, %zi Selected"),
-                                 _model->total_items_count(), _model->active_items_count()));
+  std::stringstream out;
+  out << _model->total_items_count() << " Total Objects, " << _model->active_items_count() << " Selected";
+  _summary_label.set_text(out.str());
 
   update_button_enabled();
 }

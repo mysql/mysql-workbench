@@ -27,7 +27,226 @@ using namespace bec;
 
 Pool<std::vector<size_t> > *NodeId::_pool = 0;
 
+// NodeId will get index from the pool
+NodeId::NodeId()
+  : index(0)
+{
+  index = pool()->get();
+}
+
 //--------------------------------------------------------------------------------------------------
+
+NodeId::NodeId(const NodeId &copy)
+  : index(0)
+{
+  index = pool()->get();
+  if (copy.index != NULL)
+    *index = *copy.index;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+NodeId::NodeId(size_t i)
+  : index(0)
+{
+  index = pool()->get();
+  index->push_back(i);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+NodeId::NodeId(const std::string &str)
+  : index(0)
+{
+  index = pool()->get();
+  try
+  {
+    const char* chr = str.c_str();
+    size_t size = str.length();
+    std::string num;
+    num.reserve(size);
+
+    for (size_t i = 0; i < size; i++)
+    {
+      if (isdigit(chr[i]))
+        num.push_back(chr[i]);
+      else if ('.' == chr[i] || ':' == chr[i])
+      {
+        if (!num.empty())
+        {
+          index->push_back(atoi(num.c_str()));
+          num.clear();
+        }
+      }
+      else
+        throw std::runtime_error("Wrong format of NodeId");
+    }
+
+    if (!num.empty())
+      index->push_back(atoi(num.c_str()));
+  }
+  catch (...)
+  {
+    index->clear();
+    pool()->put(index);
+    index = 0;
+    throw;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+NodeId::~NodeId()
+{
+  index->clear();
+  pool()->put(index);
+  index = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool NodeId::operator < (const NodeId &r) const
+{
+  bool ret = true;
+
+  if (index && r.index)
+  {
+    // Shorter node ids must go before longer. For example in a list ["0.1", "0.1.1"]
+    // longer nodeid is a subnode of the "0.1", so in case of deletion subnode deleted first
+    // (That's true only when traversing list from the end)
+    if (index->size() < r.index->size())
+      ret = true;
+    else if (index->size() > r.index->size())
+      ret = false;
+    else
+    {
+      // It is assumed that this node id is less than @r. Walk index vectors. If current value
+      // from this->index is less than or equal to the corresponding value from r.index the pair is skipped
+      // as it complies with assumption that this node is less than @r.
+      // Once current value becomes greater than @r's the assumption about current node's 
+      // less than @r becomes false, therefore this node is greater than @r.
+      for (size_t i = 0; i < index->size(); ++i)
+      {
+        if ((*index)[i] > (*r.index)[i])
+        {
+          ret = false;
+          break;
+        }
+      }
+    }
+  }
+
+  return ret;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool NodeId::equals(const NodeId &node) const
+{
+  // TODO: Check if we need to compare content of the index and node.index vectors
+  return index && node.index && *node.index == *index;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+size_t& NodeId::operator[] (size_t i) const
+{
+  if (i < index->size())
+    return const_cast<size_t&>((*index)[i]);
+  throw std::range_error("invalid index");
+}
+
+//--------------------------------------------------------------------------------------------------
+
+size_t NodeId::end() const
+{
+  if (index->size() > 0)
+    return (*index)[index->size() - 1];
+  throw std::logic_error("invalid node id. NodeId::end applied to an empty NodeId instance.");
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Sets leaf to the previous index, e.g. for node with path "1.3.2" it will become "1.3.1".
+ */
+bool NodeId::previous() const
+{
+  bool ret = false;
+  if (index->size() > 0)
+  {
+    --((*index)[index->size() - 1]);
+    ret = true;
+  }
+  return ret;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ *	Sets leaf to the next index, e.g. for node with path "1.3.2" it will become "1.3.3".
+ */
+bool NodeId::next() const
+{
+  bool ret = false;
+  if (index->size() > 0)
+  {
+    ++((*index)[index->size() - 1]);
+    ret = true;
+  }
+  return ret;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+NodeId NodeId::parent() const
+{
+  if (depth() < 2)
+    return NodeId();
+  NodeId copy(*this);
+  copy.index->pop_back();
+  return copy;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string NodeId::repr(const char separator) const
+{
+  std::stringstream out;
+  for (size_t i = 0; i < index->size(); i++)
+  {
+    if (i > 0)
+      out << separator;
+    out << (*index)[i];
+  }
+  return out.str();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+NodeId& NodeId::append(size_t i)
+{
+  // TODO: does it really make sense to cast to a signed type if the parameter can only be unsigned?
+  //       It would require that the caller takes a signed value and casts it to an unsigned one.
+  //       Very unlikely to happen.
+  //       If these checks are removed we can make append and prepend inline again.
+  if ((ssize_t)i < 0)
+    throw std::invalid_argument("negative node index is invalid");
+  index->push_back(i);
+  return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+NodeId& NodeId::prepend(size_t i)
+{
+  if ((ssize_t)i < 0)
+    throw std::invalid_argument("negative node index is invalid");
+  index->insert(index->begin(), i);
+  return *this;
+}
+
+//----------------- ListModel ----------------------------------------------------------------------
 
 Type ListModel::get_field_type(const NodeId &node, ColumnId column)
 {
@@ -287,7 +506,7 @@ void ListModel::dump(int show_field)
   g_print("\nFinished dumping list model.");
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------- TreeModel ----------------------------------------------------------------------
 
 size_t TreeModel::count()
 {

@@ -21,13 +21,13 @@
 #define _SCHEMA_EDITOR_WRAPPER_H_
 
 #include "grtdb/editor_schema.h"
-#include "DBObjectEditorBE.h"
+#include "DBObjectEditorWrapper.h"
 
 namespace MySQL {
 namespace Grt {
 namespace Db {
 
-public ref class SchemaEditorWrapper : public DBObjectEditorBE
+public ref class SchemaEditorWrapper : public DBObjectEditorWrapper
 {
 protected:
   SchemaEditorWrapper(::bec::SchemaEditorBE *inn);

@@ -235,7 +235,7 @@ static void text_changed(int line, int linesAdded, WBPluginEditorBase* self)
 
 - (void)setupEditorOnHost: (NSView*)host
 {
-  Sql_editor::Ref backend_editor = [self editorBE]->get_sql_editor();
+  MySQLEditor::Ref backend_editor = [self editorBE]->get_sql_editor();
   mforms::CodeEditor* mforms_editor = backend_editor->get_editor_control();
   mforms_editor->set_status_text("");
 

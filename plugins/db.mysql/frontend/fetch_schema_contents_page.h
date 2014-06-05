@@ -56,8 +56,10 @@ public:
 
     _dbplugin->load_db_objects(Db_plugin::dbotTable);
     _dbplugin->load_db_objects(Db_plugin::dbotView);
-    _dbplugin->load_db_objects(Db_plugin::dbotRoutine);
-    _dbplugin->load_db_objects(Db_plugin::dbotTrigger);
+    if (!values().get_int("SkipRoutines"))
+      _dbplugin->load_db_objects(Db_plugin::dbotRoutine);
+    if (!values().get_int("SkipTriggers"))
+      _dbplugin->load_db_objects(Db_plugin::dbotTrigger);
 
     return grt::ValueRef();
   }

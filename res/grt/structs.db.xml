@@ -385,16 +385,10 @@
       <gstruct name="db.Trigger" parent="db.DatabaseDdlObject" attr:caption="Trigger">
           <members>
               <member name="name" type="string" delegate-set="1" overrides="string"/>
-              <member name="event" type="string" delegate-set="1" attr:desc="the DDL(/DML) event that fires the trigger"/>
-              <member name="condition" type="string" attr:desc="the condition that must be met for the trigger to execute"/>
-              <member name="order" type="int" attr:desc="the order in which triggers of the same event and timing are executed"/>
-              <member name="orientation" type="string" attr:desc="for which object the trigger fires, e.g. ROW"/>
-              <member name="timing" type="string" delegate-set="1" attr:desc="when the trigger fires, AFTER or BEFORE"/>
-              <member name="referenceNewTable" type="string"/>
-              <member name="referenceOldTable" type="string"/>
-              <member name="referenceNewRow" type="string"/>
-              <member name="referenceOldRow" type="string"/>
-              <member name="sequenceNumber" type="int" attr:dontdiff="1" attr:desc="defines position in editor"/>
+              <member name="event" type="string" delegate-set="1" attr:desc="what fires the trigger (INSERT, UPDATE or DELETE)"/>
+              <member name="ordering" type="string" attr:desc="the order in which triggers of the same event and timing are executed (FOLLOWS or PRECEDES)"/>
+              <member name="otherTrigger" type="string" attr:desc="the name of the trigger to which order is relative"/>
+              <member name="timing" type="string" delegate-set="1" attr:desc="when the trigger fires (AFTER or BEFORE)"/>
               <member name="enabled" type="int"/>
           </members>
       </gstruct>
@@ -429,7 +423,12 @@
           </members>
       </gstruct>
 
-      <gstruct name="db.Script" parent="GrtStoredNote" attr:caption="SQL Script" attr:desc="a SQL script"/>
+      <gstruct name="db.Script" parent="GrtStoredNote" attr:caption="SQL Script" attr:desc="a SQL script">
+         <members>
+              <member name="forwardEngineerScriptPosition" type="string"/>
+              <member name="synchronizeScriptPosition" type="string"/>
+         </members>
+      </gstruct>
 
       <gstruct attr:caption="Synchronisation Managing Object" attr:desc="an object used for synchronisation" name="db.DatabaseSync" parent="GrtObject">
           <members>

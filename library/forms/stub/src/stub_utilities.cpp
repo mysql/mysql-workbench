@@ -16,13 +16,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
- 
+
 #include "../stub_utilities.h"
 
 #include "base/log.h"
 #include <cerrno>
+
+#include "tut.h"
+
 using namespace mforms;
 using namespace stub;
+using namespace tut;
 
 boost::function<mforms::DialogResult (void)> UtilitiesWrapper::message_callback;
 std::map<const std::string, std::string> UtilitiesWrapper::passwords;
@@ -144,7 +148,7 @@ bool UtilitiesWrapper::find_password(const std::string &service, const std::stri
     char *password_file = getenv("TEST_PASSWORD_FILE");
     if (!password_file)
     {
-      g_message("Specify a password file for tests with the TEST_PASSWORD_FILE env variable.");
+      fail("Specify a password file for tests with the TEST_PASSWORD_FILE env variable.");
     }
     else
     {

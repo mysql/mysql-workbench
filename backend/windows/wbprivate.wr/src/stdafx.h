@@ -19,8 +19,6 @@
 
 #pragma once
 
-#pragma warning(disable: 4793)  // 'vararg' causes native code generation
-
 using namespace System;
 
 #define NOMINMAX
@@ -62,6 +60,11 @@ using namespace System;
 #include <boost/weak_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
+#include "grts/structs.db.mgmt.h"
+#include "grts/structs.db.mysql.h"
+#include "grts/structs.db.query.h"
 
 #include "grts/structs.model.h"
 #include "grts/structs.db.query.h"

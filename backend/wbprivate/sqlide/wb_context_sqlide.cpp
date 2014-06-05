@@ -70,7 +70,7 @@ static std::map<std::string,std::string> auto_save_sessions;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC db_query_EditorConcreteImplData : public db_query_Editor::ImplData, public base::trackable
 {
-  void sql_editor_list_changed(Sql_editor::Ref editor, bool added)
+  void sql_editor_list_changed(MySQLEditor::Ref editor, bool added)
   {
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)

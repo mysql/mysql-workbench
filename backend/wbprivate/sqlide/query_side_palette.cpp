@@ -350,7 +350,7 @@ void QuerySidePalette::cancel_timer()
 
 //--------------------------------------------------------------------------------------------------
 
-static bool contains_editor(SqlEditorForm::Ref form, Sql_editor *ed)
+static bool contains_editor(SqlEditorForm::Ref form, MySQLEditor *ed)
 {
   for (int c = form->sql_editor_count(), i = 0; i < c; i++)
   {
@@ -374,7 +374,7 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
     if (code_editor == NULL)
       return;
 
-    Sql_editor *editor = static_cast<Sql_editor*>(code_editor->get_host());
+    MySQLEditor *editor = static_cast<MySQLEditor*>(code_editor->get_host());
     if (editor != NULL && editor->grtobj().is_valid())
     {
       // See if this editor instance is actually from the IDE this palette sits in.
@@ -509,7 +509,7 @@ void QuerySidePalette::show_help_hint_or_update()
 /**
  * Triggered by timer or manually to find a help topic from the given editor's text + position.
  */
-bool QuerySidePalette::find_context_help(Sql_editor *editor)
+bool QuerySidePalette::find_context_help(MySQLEditor *editor)
 {
   _help_timer = NULL;
 
@@ -845,7 +845,7 @@ bool compare_lengths(const std::pair<std::string, std::string> &l, const std::pa
 
 //--------------------------------------------------------------------------------------------------
 
-void QuerySidePalette::check_format_structures(Sql_editor *editor)
+void QuerySidePalette::check_format_structures(MySQLEditor *editor)
 {
   mforms::CodeEditorConfig *config = editor->get_editor_settings();
 

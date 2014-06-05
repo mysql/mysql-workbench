@@ -17,8 +17,10 @@
  * 02110-1301  USA
  */
 
-#include "mysql_relationship_editor.h"
 #include "base/string_utilities.h"
+#include "base/util_functions.h"
+
+#include "mysql_relationship_editor.h"
 
 using namespace bec;
 using namespace base;

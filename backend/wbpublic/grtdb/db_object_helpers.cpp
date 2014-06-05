@@ -22,17 +22,19 @@
 #include <stdio.h>
 #endif
 
+#include "base/string_utilities.h"
+#include "base/util_functions.h"
+#include "base/log.h"
+
 #include <boost/scoped_array.hpp>
 
 #include "db_object_helpers.h"
-#include <grtpp_undo_manager.h>
-#include <grtpp_util.h>
+#include "grtpp_undo_manager.h"
+#include "grtpp_util.h"
 #include "grt/common.h"
 #include "grt/parse_utils.h"
 #include "grts/structs.workbench.physical.h"
-#include "base/string_utilities.h"
 #include "grtdb/db_helpers.h"
-#include "base/log.h"
 
 DEFAULT_LOG_DOMAIN("dbhelpers");
 
@@ -314,7 +316,7 @@ db_TableRef TableHelper::create_associative_table(const db_SchemaRef &schema,
   first_fk->index(index);
   atable->indices().insert(index);
 
-  atable->createDate(grt::StringRef(fmttime(0, DATETIME_FMT)));
+  atable->createDate(grt::StringRef(base::fmttime(0, DATETIME_FMT)));
   atable->lastChangeDate(atable->createDate());
   
   undo.end("Create Associative Table");

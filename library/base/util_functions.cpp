@@ -69,7 +69,6 @@
 #include "base/file_functions.h"
 #include "base/util_functions.h"
 
-
 struct hardware_info
 {
   std::string _cpu;
@@ -895,7 +894,7 @@ const char *strfindword(const char *str, const char *word)
   return result;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
 // TODO: move to file_functions
 /**
@@ -999,3 +998,55 @@ int copy_folder(const char *source_folder, const char *target_folder)
   }
   return 1;
 }
+
+//--------------------------------------------------------------------------------------------------
+
+namespace base {
+
+double timestamp()
+{
+#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+  return (double)GetTickCount() / 1000.0;
+#else
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  double seconds = tv.tv_sec;
+  double fraction = tv.tv_usec / (double)(1000000);
+  return seconds + fraction;
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string fmttime(time_t t, const char *fmt)
+{
+  char date[100];
+#ifdef _WIN32
+  errno_t err;
+#else
+  int err;
+#endif
+  struct tm newtime;
+
+
+  if (t == 0)
+    time(&t);
+
+#ifdef _WIN32
+  err= localtime_s(&newtime, &t);
+#else
+  localtime_r(&t, &newtime);
+  err= 0;
+#endif
+
+  if (!err)
+    strftime(date, sizeof(date), fmt, &newtime);
+  else
+    date[0]= 0;
+
+  return date;
+}
+
+} // namespace base
+
+//--------------------------------------------------------------------------------------------------

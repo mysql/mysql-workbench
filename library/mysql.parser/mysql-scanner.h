@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MYSQL_LEXER_H_
-#define _MYSQL_LEXER_H_
+#pragma once
 
 #include "mysql-parser-common.h"
 
@@ -43,7 +42,7 @@ struct MySQLToken
   std::string text;      // The text of the token.
 };
 
-class MYSQL_PARSER_PUBLIC_FUNC MySQLScanner : public MySQLParsingBase
+class MYSQL_PARSER_PUBLIC_FUNC MySQLScanner : public MySQLRecognitionBase
 {
 public:
   MySQLScanner(const char *text, size_t length, bool is_utf8, long server_version, 
@@ -55,10 +54,9 @@ public:
 
 protected:
   void setup();
+  virtual void* input_start();
 
 private:
   class Private;
   Private *d;
 };
-
-#endif // _MYSQL_LEXER_H_

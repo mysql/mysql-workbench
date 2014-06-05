@@ -17,11 +17,14 @@
  * 02110-1301  USA
  */
 
-#include "inserts_export_form.h"
-#include "sqlide/recordset_text_storage.h"
-#include "sqlide/recordset_sql_storage.h"
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
+#include "base/util_functions.h"
+
+#include "inserts_export_form.h"
+
+#include "sqlide/recordset_text_storage.h"
+#include "sqlide/recordset_sql_storage.h"
 
 #include "mforms/simpleform.h"
 #include "mforms/utilities.h"
@@ -74,7 +77,7 @@ std::string InsertsExportForm::run()
 
       Recordset_sql_storage* storage = dynamic_cast<Recordset_sql_storage*>(_record_set->data_storage().get());
       textStorage->parameter_value("GENERATOR_QUERY", _record_set->generator_query());
-      textStorage->parameter_value("GENERATE_DATE", bec::fmttime(time(NULL), DATETIME_FMT));
+      textStorage->parameter_value("GENERATE_DATE", base::fmttime(time(NULL), DATETIME_FMT));
       textStorage->parameter_value("TABLE_NAME", storage->table_name().empty() ? "TABLE" : storage->table_name());
     
       if (!info.arguments.empty())

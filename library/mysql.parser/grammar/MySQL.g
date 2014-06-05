@@ -73,10 +73,19 @@ tokens {
 	SUBQUERY_TOKEN;
 	JOIN_EXPR_TOKEN;
 	INDEX_HINT_LIST_TOKEN;
-	TABLE_REF_ID_TOKEN;
-	FIELD_REF_ID_TOKEN;
 	VERSION_COMMENT_START_TOKEN;
 	STRING_TOKEN; // Several consecutive single or double quoted text tokens (can even be mixed).
+
+	SCHEMA_NAME_TOKEN;
+	TABLE_NAME_TOKEN;
+	FIELD_NAME_TOKEN;
+	VIEW_NAME_TOKEN;
+	TRIGGER_NAME_TOKEN;
+	PROCEDURE_NAME_TOKEN;
+	FUNCTION_NAME_TOKEN;
+	TABLESPACE_NAME_TOKEN;
+	LOGFILE_GROUP_NAME_TOKEN;
+	UDF_NAME_TOKEN;
 	XA_ID_TOKEN;
 	
 	// Subparts of more complex statements.
@@ -95,6 +104,10 @@ tokens {
 	EXPRESSION_TOKEN;
 	PAR_EXPRESSION_TOKEN;
 	FUNCTION_CALL_TOKEN;
+	
+	// Tokens for complexer optional subparts.
+	ROUTINE_CREATE_OPTIONS;
+	ROUTINE_ALTER_OPTIONS;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -306,8 +319,8 @@ alter_statement:
   (
 	alter_database
 	| alter_log_file_group
-	| FUNCTION_SYMBOL alter_routine
-	| PROCEDURE_SYMBOL alter_routine
+	| FUNCTION_SYMBOL function_identifier routine_alter_options?
+	| PROCEDURE_SYMBOL procedure_identifier routine_alter_options?
 	| alter_server
 	| alter_table
 	| alter_tablespace
@@ -338,10 +351,6 @@ alter_event:
 alter_log_file_group:
 	LOGFILE_SYMBOL GROUP_SYMBOL identifier ADD_SYMBOL UNDOFILE_SYMBOL string_literal
 		(INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)? WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? IDENTIFIER
-;
-
-alter_routine:
-	identifier routine_option*
 ;
 
 alter_server:
@@ -386,14 +395,20 @@ alter_table_list_entry:
 	| MODIFY_SYMBOL COLUMN_SYMBOL? identifier field_spec (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
 	| DROP_SYMBOL
 		(
-			(INDEX_SYMBOL | KEY_SYMBOL) identifier
+			(INDEX_SYMBOL | KEY_SYMBOL) field_name
 			| COLUMN_SYMBOL? identifier
 			| PRIMARY_SYMBOL KEY_SYMBOL
-			| FOREIGN_SYMBOL KEY_SYMBOL identifier
+			| FOREIGN_SYMBOL KEY_SYMBOL
+				(
+					// This part no longer is optional starting with 5.7.
+					{SERVER_VERSION >= 50700}? => field_name
+					| {SERVER_VERSION < 50700}? => field_name?
+				)
 		)
 	| DISABLE_SYMBOL KEYS_SYMBOL
 	| ENABLE_SYMBOL KEYS_SYMBOL
-	| RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? identifier
+	| RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? table_identifier
+	| {SERVER_VERSION >= 50700}? => RENAME_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL) field_name TO_SYMBOL field_name
 	| alter_order_by
 	| CONVERT_SYMBOL TO_SYMBOL CHAR_SYMBOL SET_SYMBOL charset_name_or_default (COLLATE_SYMBOL collation_name_or_default)?
 	| FORCE_SYMBOL
@@ -402,7 +417,7 @@ alter_table_list_entry:
 ;
 
 alter_order_by:
-	ORDER_SYMBOL BY_SYMBOL identifier direction (options { k = 3; }: COMMA_SYMBOL identifier direction)*
+	ORDER_SYMBOL BY_SYMBOL identifier direction (options { greedy = true; }: COMMA_SYMBOL identifier direction)*
 ;
 
 alter_algorithm_option:
@@ -449,15 +464,36 @@ all_or_partition_name_list:
 ;
 
 alter_tablespace:
-	TABLESPACE_SYMBOL identifier (ADD_SYMBOL | DROP_SYMBOL) DATAFILE_SYMBOL  (INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number)?
-		WAIT_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? IDENTIFIER
+	TABLESPACE_SYMBOL tablespace_name
+	(
+		(ADD_SYMBOL | DROP_SYMBOL) DATAFILE_SYMBOL string_literal (alter_tablespace_option (COMMA_SYMBOL? alter_tablespace_option)*)?
+		// The alternatives listed below are not documented but appear in the server grammar file.
+		| CHANGE_SYMBOL DATAFILE_SYMBOL string_literal (change_tablespace_option (COMMA_SYMBOL? change_tablespace_option)*)?
+		| READ_ONLY_SYMBOL
+		| READ_WRITE_SYMBOL
+		| NOT_SYMBOL ACCESSIBLE_SYMBOL
+	)
+;
+
+alter_tablespace_option:
+	INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number
+	| AUTOEXTEND_SIZE_SYMBOL EQUAL_OPERATOR? size_number
+	| MAX_SIZE_SYMBOL EQUAL_OPERATOR? size_number
+	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? text_or_identifier
+	| (WAIT_SYMBOL | NO_WAIT_SYMBOL)
+;
+
+change_tablespace_option:
+	INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number
+	| AUTOEXTEND_SIZE_SYMBOL EQUAL_OPERATOR? size_number
+	| MAX_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 ;
 
 alter_view:
 	(ALGORITHM_SYMBOL EQUAL_OPERATOR (UNDEFINED_SYMBOL | MERGE_SYMBOL | TEMPTABLE_SYMBOL))?
 		definer_clause?
 		(SQL_SYMBOL SECURITY_SYMBOL (DEFINER_SYMBOL | INVOKER_SYMBOL))?
-		VIEW_SYMBOL identifier identifier_list_with_parentheses? AS_SYMBOL select_statement
+		VIEW_SYMBOL view_identifier identifier_list_with_parentheses? AS_SYMBOL select_statement
 		(WITH_SYMBOL (CASCADED_SYMBOL | LOCAL_SYMBOL)? CHECK_SYMBOL OPTION_SYMBOL)?
 ;
 
@@ -486,8 +522,8 @@ create_statement:
 	)
 ;
 
-create_database: // For external use only.
-	CREATE_SYMBOL^ create_database_tail
+create_database: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_database_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_database_tail:
@@ -498,8 +534,8 @@ create_with_definer:
 	CREATE_SYMBOL^ definer_clause?
 ;
 
-create_event: // For external use only.
-	create_with_definer create_event_tail
+create_event: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer create_event_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_event_tail:
@@ -510,16 +546,16 @@ create_event_tail:
 		DO_SYMBOL compound_statement
 ;
 
-create_routine: // For external use only.
-	create_with_definer create_routine_or_udf
+create_routine: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer create_routine_or_udf SEMICOLON_SYMBOL? EOF
 ;
 
-create_procedure: // For external use only.
-	create_with_definer procedure_body
+create_procedure: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer procedure_body SEMICOLON_SYMBOL? EOF
 ;
 
-create_function: // For external use only.
-	create_with_definer function_body
+create_function: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer function_body SEMICOLON_SYMBOL? EOF
 ;
 
 create_routine_or_udf:
@@ -528,29 +564,37 @@ create_routine_or_udf:
 ;
 
 procedure_body:
-	PROCEDURE_SYMBOL qualified_identifier OPEN_PAR_SYMBOL (procedure_parameter (COMMA_SYMBOL procedure_parameter)*)? CLOSE_PAR_SYMBOL
-		routine_create_option* compound_statement
+	PROCEDURE_SYMBOL procedure_identifier OPEN_PAR_SYMBOL (procedure_parameter (COMMA_SYMBOL procedure_parameter)*)? CLOSE_PAR_SYMBOL
+		routine_create_options? compound_statement
 ;
 
 function_body: // Both built-in functions and UDFs.
 	FUNCTION_SYMBOL
 	(
-		qualified_identifier OPEN_PAR_SYMBOL (function_parameter (COMMA_SYMBOL function_parameter)*)? CLOSE_PAR_SYMBOL RETURNS_SYMBOL
-			data_type routine_create_option* compound_statement
+		function_identifier OPEN_PAR_SYMBOL (function_parameter (COMMA_SYMBOL function_parameter)*)? CLOSE_PAR_SYMBOL RETURNS_SYMBOL
+			data_type routine_create_options? compound_statement
 		| udf_tail
 	)
 	| AGGREGATE_SYMBOL FUNCTION_SYMBOL udf_tail // AGGREGATE is optional and in order to avoid ambiquities we have two udf paths.
 ;
 
 udf_tail:
-	identifier RETURNS_SYMBOL (STRING_SYMBOL | INTEGER_SYMBOL | REAL_SYMBOL | DECIMAL_SYMBOL) SONAME_SYMBOL string_literal
+	udf_name RETURNS_SYMBOL (STRING_SYMBOL | INTEGER_SYMBOL | REAL_SYMBOL | DECIMAL_SYMBOL) SONAME_SYMBOL string_literal
 ;
 
+routine_create_options:
+	routine_create_option+ -> ^(ROUTINE_CREATE_OPTIONS routine_create_option+)
+;
+	
 routine_create_option:
 	routine_option
 	| NOT_SYMBOL? DETERMINISTIC_SYMBOL
 ;
 
+routine_alter_options:
+	routine_create_option+ -> ^(ROUTINE_ALTER_OPTIONS routine_create_option+)
+;
+	
 routine_option:
 	COMMENT_SYMBOL string_literal
 	| LANGUAGE_SYMBOL SQL_SYMBOL
@@ -561,8 +605,8 @@ routine_option:
 	| SQL_SYMBOL SECURITY_SYMBOL (DEFINER_SYMBOL | INVOKER_SYMBOL)
 ;
 
-create_index: // For external use only.
-	CREATE_SYMBOL^ create_index_tail
+create_index: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_index_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_index_tail:
@@ -578,8 +622,8 @@ create_index_target:
 	ON_SYMBOL^ table_identifier index_columns
 ;
 
-create_logfile_group: // For external use only.
-	CREATE_SYMBOL^ create_logfile_group_tail
+create_logfile_group: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_logfile_group_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_logfile_group_tail:
@@ -601,8 +645,8 @@ logfile_group_option:
 	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? text_or_identifier
 ;
 	
-create_server: // For external use only.
-	CREATE_SYMBOL^ create_server_tail
+create_server: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_server_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_server_tail:
@@ -625,8 +669,8 @@ server_option:
 	| PORT_SYMBOL INTEGER
 ;
 
-create_table: // For external use only.
-	CREATE_SYMBOL^ create_table_tail
+create_table: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_table_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_table_tail:
@@ -669,42 +713,46 @@ create_select:
 	SELECT_SYMBOL ( options { greedy = true; }: select_option)* select_item_list select_source_and_options? select_lock_type?
 ;
 
-create_tablespace: // For external use only.
-	CREATE_SYMBOL^ create_tablespace_tail
+create_tablespace: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ create_tablespace_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_tablespace_tail:
-	TABLESPACE_SYMBOL identifier ADD_SYMBOL DATAFILE_SYMBOL string_literal
-		(USE_SYMBOL LOGFILE_SYMBOL GROUP_SYMBOL identifier)? (tablespace_option (COMMA_SYMBOL? tablespace_option)*)?
+	TABLESPACE_SYMBOL tablespace_name ADD_SYMBOL DATAFILE_SYMBOL string_literal
+		(USE_SYMBOL LOGFILE_SYMBOL GROUP_SYMBOL identifier)? (create_tablespace_option (COMMA_SYMBOL? create_tablespace_option)*)?
 ;
 
-tablespace_option:
+create_tablespace_option:
 	INITIAL_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 	| AUTOEXTEND_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 	| MAX_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 	| EXTENT_SIZE_SYMBOL EQUAL_OPERATOR? size_number
 	| NODEGROUP_SYMBOL EQUAL_OPERATOR? (INTEGER | HEXNUMBER)
+	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? text_or_identifier
 	| (WAIT_SYMBOL | NO_WAIT_SYMBOL)
 	| COMMENT_SYMBOL EQUAL_OPERATOR? string_literal
-	| STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? text_or_identifier
 ;
 
-create_trigger: // For external use only.
-	create_with_definer create_trigger_tail
+create_trigger: // For external use only. Don't reference this in the normal grammar.
+	create_with_definer create_trigger_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_trigger_tail:
-	TRIGGER_SYMBOL identifier (BEFORE_SYMBOL | AFTER_SYMBOL) (INSERT_SYMBOL | UPDATE_SYMBOL | DELETE_SYMBOL)
-		ON_SYMBOL qualified_identifier FOR_SYMBOL EACH_SYMBOL ROW_SYMBOL compound_statement
+	TRIGGER_SYMBOL trigger_identifier (BEFORE_SYMBOL | AFTER_SYMBOL) (INSERT_SYMBOL | UPDATE_SYMBOL | DELETE_SYMBOL)
+		ON_SYMBOL table_identifier FOR_SYMBOL EACH_SYMBOL ROW_SYMBOL trigger_follows_precedes_clause? compound_statement
 ;
 
-create_view: // For external use only.
-	CREATE_SYMBOL^ (OR_SYMBOL REPLACE_SYMBOL view_algorithm? | view_algorithm)?  definer_clause? create_view_tail
+trigger_follows_precedes_clause:
+	{SERVER_VERSION >= 50700}? => (FOLLOWS_SYMBOL | PRECEDES_SYMBOL) text_or_identifier // not a trigger reference!
+;
+	
+create_view: // For external use only. Don't reference this in the normal grammar.
+	CREATE_SYMBOL^ (OR_SYMBOL REPLACE_SYMBOL)? view_algorithm?  definer_clause? create_view_tail SEMICOLON_SYMBOL? EOF
 ;
 
 create_view_tail:
 	(SQL_SYMBOL SECURITY_SYMBOL (DEFINER_SYMBOL | INVOKER_SYMBOL))?
-		VIEW_SYMBOL qualified_identifier identifier_list_with_parentheses?
+		VIEW_SYMBOL view_identifier identifier_list_with_parentheses?
 		AS_SYMBOL select_statement
 		(WITH_SYMBOL (CASCADED_SYMBOL | LOCAL_SYMBOL)? CHECK_SYMBOL OPTION_SYMBOL)?
 ;
@@ -830,7 +878,7 @@ fields:
 ;
 
 insert_identifier:
-	insert_identifier_ref -> ^(FIELD_REF_ID_TOKEN insert_identifier_ref)
+	insert_identifier_ref -> ^(FIELD_NAME_TOKEN insert_identifier_ref)
 ;
 
 // Extra rule to simplify AST rewriting in insert_identifier.
@@ -945,7 +993,7 @@ select_item_list:
 ;
 
 select_item:
-	(qualified_identifier_with_wildcard) => qualified_identifier_with_wildcard -> ^(SELECT_EXPR_TOKEN qualified_identifier_with_wildcard)
+	(qualified_identifier_with_wildcard) => qualified_identifier_with_wildcard -> ^(FIELD_NAME_TOKEN qualified_identifier_with_wildcard)
 	| expression select_alias? -> ^(SELECT_EXPR_TOKEN expression select_alias?)
 ;
 
@@ -1202,12 +1250,12 @@ lock_statement:
 ;
 
 lock_item:
-	table_identifier table_alias? lock_type
+	table_identifier table_alias? lock_option
 ;
 
-lock_type:
+lock_option:
 	READ_SYMBOL LOCAL_SYMBOL?
-	| LOW_PRIORITY_SYMBOL? WRITE_SYMBOL
+	| LOW_PRIORITY_SYMBOL? WRITE_SYMBOL // low priority deprecated since 5.7
 ;
 
 xa_statement:
@@ -1232,6 +1280,7 @@ xid:
 replication_statement:
 	PURGE_SYMBOL^ (BINARY_SYMBOL | MASTER_SYMBOL) LOGS_SYMBOL (TO_SYMBOL string_literal | BEFORE_SYMBOL expression)
 	| change_master
+	| {SERVER_VERSION >= 50700}? => change_replication
 	/* Defined in the miscellaneous statement to avoid ambiguities.
 	| RESET_SYMBOL MASTER_SYMBOL
 	| RESET_SYMBOL SLAVE_SYMBOL ALL_SYMBOL
@@ -1282,6 +1331,36 @@ master_option:
 
 server_id_list:
 	OPEN_PAR_SYMBOL integer_list? CLOSE_PAR_SYMBOL
+;
+
+change_replication:
+	CHANGE_SYMBOL^ REPLICATION_SYMBOL FILTER_SYMBOL filter_definition (COMMA_SYMBOL filter_definition)*
+;
+
+filter_definition:
+	REPLICATE_DO_DB_SYMBOL EQUAL_OPERATOR OPEN_PAR_SYMBOL filter_db_list? CLOSE_PAR_SYMBOL
+	| REPLICATE_IGNORE_DB_SYMBOL EQUAL_OPERATOR OPEN_PAR_SYMBOL filter_db_list? CLOSE_PAR_SYMBOL
+	| REPLICATE_DO_TABLE_SYMBOL EQUAL_OPERATOR OPEN_PAR_SYMBOL filter_table_list? CLOSE_PAR_SYMBOL
+	| REPLICATE_IGNORE_TABLE_SYMBOL EQUAL_OPERATOR OPEN_PAR_SYMBOL filter_table_list? CLOSE_PAR_SYMBOL
+	| REPLICATE_WILD_DO_TABLE_SYMBOL EQUAL_OPERATOR OPEN_PAR_SYMBOL filter_string_list? CLOSE_PAR_SYMBOL
+	| REPLICATE_WILD_IGNORE_TABLE_SYMBOL EQUAL_OPERATOR OPEN_PAR_SYMBOL filter_string_list? CLOSE_PAR_SYMBOL
+	| REPLICATE_REWRITE_DB_SYMBOL EQUAL_OPERATOR OPEN_PAR_SYMBOL filter_db_pair_list? CLOSE_PAR_SYMBOL
+;
+
+filter_db_list:
+	schema_name (COMMA_SYMBOL schema_name)*
+;
+
+filter_table_list:
+	qualified_table_identifier (COMMA_SYMBOL qualified_table_identifier)*
+;
+
+filter_string_list:
+	string_literal (COMMA_SYMBOL string_literal)* // In server grammar: text without a line break.
+;
+
+filter_db_pair_list:
+	schema_identifier_pair (COMMA_SYMBOL schema_identifier_pair)*
 ;
 
 start_slave:
@@ -1539,13 +1618,13 @@ option_value:
 show_statement:
 	SHOW_SYMBOL^
 	(
-		AUTHORS_SYMBOL
+		{SERVER_VERSION < 50700}? => AUTHORS_SYMBOL
 		| BINARY_SYMBOL LOGS_SYMBOL
 		| (BINLOG_SYMBOL | RELAYLOG_SYMBOL) EVENTS_SYMBOL (IN_SYMBOL string_literal)? (FROM_SYMBOL INTEGER)? limit_clause?
 		| (CHAR_SYMBOL SET_SYMBOL | CHARSET_SYMBOL) like_or_where?
 		| COLLATION_SYMBOL like_or_where?
 		| FULL_SYMBOL? COLUMNS_SYMBOL (FROM_SYMBOL | IN_SYMBOL) table_identifier in_db? like_or_where?
-		| CONTRIBUTORS_SYMBOL
+		| {SERVER_VERSION < 50700}? => CONTRIBUTORS_SYMBOL
 		| COUNT_SYMBOL OPEN_PAR_SYMBOL MULT_OPERATOR CLOSE_PAR_SYMBOL (WARNINGS_SYMBOL | ERRORS_SYMBOL)
 		| CREATE_SYMBOL (DATABASE_SYMBOL | EVENT_SYMBOL | FUNCTION_SYMBOL | PROCEDURE_SYMBOL | TABLE_SYMBOL | TRIGGER_SYMBOL | VIEW_SYMBOL) qualified_identifier
 		| DATABASES_SYMBOL like_clause?
@@ -1568,7 +1647,11 @@ show_statement:
 		| FULL_SYMBOL? PROCESSLIST_SYMBOL
 		| PROFILE_SYMBOL (profile_type (COMMA_SYMBOL profile_type)*)? (FOR_SYMBOL QUERY_SYMBOL INTEGER)? limit_clause?
 		| PROFILES_SYMBOL
-		| SLAVE_SYMBOL (HOSTS_SYMBOL | STATUS_SYMBOL)
+		| SLAVE_SYMBOL
+			(
+				HOSTS_SYMBOL
+				| STATUS_SYMBOL {SERVER_VERSION >= 50700}? => NONBLOCKING_SYMBOL
+			)
 		| option_type? (STATUS_SYMBOL | VARIABLES_SYMBOL) like_or_where?
 		| TABLE_SYMBOL STATUS_SYMBOL in_db? like_or_where?
 		| FULL_SYMBOL? TABLES_SYMBOL in_db? like_or_where?
@@ -1690,8 +1773,8 @@ utility_statement:
 				(
 					// The format specifier is defined here like in the server grammar but actually defined are only
 					// traditional and json, anything else results in a server error.
-					EXTENDED_SYMBOL
-					| {SERVER_VERSION >= 50105}? => PARTITIONS_SYMBOL
+					EXTENDED_SYMBOL // deprecated since 5.7
+					| {SERVER_VERSION >= 50105}? => PARTITIONS_SYMBOL // deprecated since 5.7
 					| {SERVER_VERSION >= 50605}? => FORMAT_SYMBOL EQUAL_OPERATOR text_or_identifier
 				)? explainable_statement
 		)
@@ -1705,14 +1788,15 @@ describe_command:
 
 // Before server version 5.6 only select statements were explainable.
 explainable_statement:
-	{SERVER_VERSION >= 50603}? =>
+	select_statement
+	| {SERVER_VERSION >= 50603}? =>
 		(
 			delete_statement
 			| insert_statement
 			| replace_statement
 			| update_statement
 		)
-	| select_statement
+	| {SERVER_VERSION >= 50700}? => FOR_SYMBOL CONNECTION_SYMBOL INTEGER
 ;
 
 //----------------- Expression support -------------------------------------------------------------
@@ -1996,27 +2080,33 @@ geometry_function:
 ;
 
 aggregate_function:
-	AVG_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expression CLOSE_PAR_SYMBOL
-	| BIT_AND_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-	| BIT_OR_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-	| BIT_XOR_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+	AVG_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? in_aggregate_expression CLOSE_PAR_SYMBOL
+	| BIT_AND_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
+	| BIT_OR_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
+	| BIT_XOR_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
 	| count_function
-	| MIN_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expression CLOSE_PAR_SYMBOL
-	| MAX_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expression CLOSE_PAR_SYMBOL
-	| STD_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-	| VARIANCE_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-	| STDDEV_SAMP_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-	| VAR_SAMP_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-	| SUM_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expression CLOSE_PAR_SYMBOL
+	| MIN_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? in_aggregate_expression CLOSE_PAR_SYMBOL
+	| MAX_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? in_aggregate_expression CLOSE_PAR_SYMBOL
+	| STD_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
+	| VARIANCE_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
+	| STDDEV_SAMP_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
+	| VAR_SAMP_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
+	| SUM_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? in_aggregate_expression CLOSE_PAR_SYMBOL
 	| GROUP_CONCAT_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expression_list order_by_clause? (SEPARATOR_SYMBOL string_literal)? CLOSE_PAR_SYMBOL
+;
+
+in_aggregate_expression:
+	ALL_SYMBOL? expression
 ;
 
 count_function:
 	COUNT_SYMBOL OPEN_PAR_SYMBOL
 	(
-		ALL_SYMBOL? MULT_OPERATOR CLOSE_PAR_SYMBOL
-		| DISTINCT_SYMBOL? expression_list CLOSE_PAR_SYMBOL
+		ALL_SYMBOL? MULT_OPERATOR
+		| in_aggregate_expression
+		| DISTINCT_SYMBOL expression_list
 	)
+	CLOSE_PAR_SYMBOL
 ;
 
 aliased_expression_list:
@@ -2294,7 +2384,11 @@ return_statement:
 ;
 
 get_diagnostics:
-	GET_SYMBOL CURRENT_SYMBOL? DIAGNOSTICS_SYMBOL
+	GET_SYMBOL
+	(
+		CURRENT_SYMBOL
+		| {SERVER_VERSION >= 50700}? => STACKED_SYMBOL
+	)? DIAGNOSTICS_SYMBOL
 	(
 		statement_information_item (COMMA_SYMBOL statement_information_item)*
 		| CONDITION_SYMBOL INTEGER condition_information_item (COMMA_SYMBOL condition_information_item)*
@@ -2575,27 +2669,31 @@ create_table_option: // In the order as they appear in the server grammar.
 // Partition rules for CREATE/ALTER TABLE.
 partitioning:
 	{SERVER_VERSION >= 50100}? => PARTITION_SYMBOL^ BY_SYMBOL
+	(
+		LINEAR_SYMBOL? HASH_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+		| LINEAR_SYMBOL? KEY_SYMBOL partition_key_algorithm? identifier_list_with_parentheses
+		| (RANGE_SYMBOL | LIST_SYMBOL)
+			( 
+				OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+				| {SERVER_VERSION >= 50500}? => COLUMNS_SYMBOL identifier_list_with_parentheses
+			)
+	)
+	(PARTITIONS_SYMBOL INTEGER)?
+	(
+		SUBPARTITION_SYMBOL BY_SYMBOL LINEAR_SYMBOL?
 		(
-			LINEAR_SYMBOL? HASH_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-			| LINEAR_SYMBOL? KEY_SYMBOL identifier_list_with_parentheses
-			| (RANGE_SYMBOL | LIST_SYMBOL)
-				( 
-					OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-					| {SERVER_VERSION >= 50500}? => COLUMNS_SYMBOL identifier_list_with_parentheses
-				)
-		)
-		(PARTITIONS_SYMBOL INTEGER)?
-		(
-			SUBPARTITION_SYMBOL BY_SYMBOL LINEAR_SYMBOL?
 			(
-				(
-					 HASH_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-					| KEY_SYMBOL identifier_list_with_parentheses
-				)
-				(SUBPARTITIONS_SYMBOL INTEGER)?
-			)?
-	    )?
-	    partition_definitions?
+				 HASH_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
+				| KEY_SYMBOL partition_key_algorithm? identifier_list_with_parentheses
+			)
+			(SUBPARTITIONS_SYMBOL INTEGER)?
+		)?
+    )?
+    partition_definitions?
+;
+
+partition_key_algorithm: // Actually only 1 and 2 are allowed. Needs a semantic check.
+	{SERVER_VERSION >= 50700}? => ALGORITHM_SYMBOL EQUAL_OPERATOR INTEGER
 ;
 
 partition_definitions:
@@ -2658,8 +2756,20 @@ function_parameter:
 	identifier data_type
 ;
 
+schema_identifier_pair:
+	OPEN_PAR_SYMBOL schema_name COMMA_SYMBOL schema_name CLOSE_PAR_SYMBOL
+;
+
+schema_name:
+	identifier -> ^(SCHEMA_NAME_TOKEN identifier)
+;
+
+qualified_table_identifier: // Always qualified.
+	identifier DOT_SYMBOL identifier -> ^(TABLE_NAME_TOKEN identifier DOT_SYMBOL identifier)
+;
+
 table_identifier:
-	table_identifier_variants -> ^(TABLE_REF_ID_TOKEN table_identifier_variants)
+	table_identifier_variants -> ^(TABLE_NAME_TOKEN table_identifier_variants)
 ;
 
 table_identifier_variants:
@@ -2672,6 +2782,34 @@ table_identifier_variants:
 table_identifier_list:
 	table_identifier (COMMA_SYMBOL table_identifier)*
 ;       
+
+procedure_identifier:
+	qualified_identifier -> ^(PROCEDURE_NAME_TOKEN qualified_identifier)
+;
+
+function_identifier:
+	qualified_identifier -> ^(FUNCTION_NAME_TOKEN qualified_identifier)
+;
+
+trigger_identifier:
+	qualified_identifier -> ^(TRIGGER_NAME_TOKEN qualified_identifier)
+;
+
+view_identifier:
+	qualified_identifier -> ^(VIEW_NAME_TOKEN qualified_identifier)
+;
+
+tablespace_name:
+	identifier -> ^(TABLESPACE_NAME_TOKEN identifier)
+;
+
+log_file_group_name:
+	identifier -> ^(LOGFILE_GROUP_NAME_TOKEN identifier)
+;
+
+udf_name:
+	identifier -> ^(UDF_NAME_TOKEN identifier)
+;
 
 qualified_identifier_list:
 	qualified_identifier (COMMA_SYMBOL qualified_identifier)*
@@ -2688,11 +2826,11 @@ qualified_identifier_with_wildcard:
 // There are two table name rules: target_table and table_identifer. The latter allows a leading dot.
 // So this separation is by intention.
 target_table:
-	qualified_identifier -> ^(TABLE_REF_ID_TOKEN qualified_identifier)
+	qualified_identifier -> ^(TABLE_NAME_TOKEN qualified_identifier)
 ;
 	
 target_table_with_optional_wildcard:
-	qualified_identifier (DOT_SYMBOL MULT_OPERATOR)? -> ^(TABLE_REF_ID_TOKEN qualified_identifier (DOT_SYMBOL MULT_OPERATOR)?)
+	qualified_identifier (DOT_SYMBOL MULT_OPERATOR)? -> ^(TABLE_NAME_TOKEN qualified_identifier (DOT_SYMBOL MULT_OPERATOR)?)
 ;
 	
 column_assignment:
@@ -2704,7 +2842,7 @@ field_name_list:
 ;
 
 field_name:
-	field_name_entry -> ^(FIELD_REF_ID_TOKEN field_name_entry)
+	field_name_entry -> ^(FIELD_NAME_TOKEN field_name_entry)
 ;
 
 // In a separate rule because otherwise it would mess up the AST (repeating the first identifier 3 times).
@@ -2942,10 +3080,11 @@ option_type:
 	GLOBAL_SYMBOL | LOCAL_SYMBOL | SESSION_SYMBOL
 ;
 
-// Keyword that we allow for identifiers (except SP labels).
+// Keyword that we allow for identifiers.
+// Keywords defined only for specific server versions are handled at lexer level and so cannot match this rule
+// if the current server version doesn't allow them. Hence we don't need predicates here for them.
 keyword:
 	keyword_sp
-	| {SERVER_VERSION < 50600}? PARTITION_SYMBOL
 	| ( // Leave this list in parentheses, as this makes a difference of several MB in the resulting parser.
 	    // (at least in the C target).
 		ASCII_SYMBOL
@@ -2964,6 +3103,7 @@ keyword:
 		| END_SYMBOL
 		| EXECUTE_SYMBOL
 		| FLUSH_SYMBOL
+		| FOLLOWS_SYMBOL
 		| FORMAT_SYMBOL
 		| HANDLER_SYMBOL
 		| HELP_SYMBOL
@@ -2975,7 +3115,9 @@ keyword:
 		| OPTIONS_SYMBOL
 		| OWNER_SYMBOL
 		| PARSER_SYMBOL
+		| PARTITION_SYMBOL
 		| PORT_SYMBOL
+		| PRECEDES_SYMBOL
 		| PREPARE_SYMBOL
 		| REMOVE_SYMBOL
 		| REPAIR_SYMBOL
@@ -2986,17 +3128,17 @@ keyword:
 		| SECURITY_SYMBOL
 		| SERVER_SYMBOL
 		| SIGNED_SYMBOL
-		| SOCKET_SYMBOL
 		| SLAVE_SYMBOL
+		| SOCKET_SYMBOL
 		| SONAME_SYMBOL
 		| START_SYMBOL
 		| STOP_SYMBOL
 		| TRUNCATE_SYMBOL
 		| UNICODE_SYMBOL
 		| UNINSTALL_SYMBOL
+		| UPGRADE_SYMBOL
 		| WRAPPER_SYMBOL
 		| XA_SYMBOL
-		| UPGRADE_SYMBOL
 	)
 ;
 finally
@@ -3098,6 +3240,7 @@ keyword_sp:
 	| ENABLE_SYMBOL
 	| FULL_SYMBOL
 	| FILE_SYMBOL
+	| FILTER_SYMBOL
 	| FIRST_SYMBOL
 	| FIXED_SYMBOL
 	| GENERAL_SYMBOL
@@ -3229,6 +3372,13 @@ keyword_sp:
 	| REORGANIZE_SYMBOL
 	| REPEATABLE_SYMBOL
 	| REPLICATION_SYMBOL
+	| REPLICATE_DO_DB_SYMBOL
+	| REPLICATE_IGNORE_DB_SYMBOL
+	| REPLICATE_DO_TABLE_SYMBOL
+	| REPLICATE_IGNORE_TABLE_SYMBOL
+	| REPLICATE_WILD_DO_TABLE_SYMBOL
+	| REPLICATE_WILD_IGNORE_TABLE_SYMBOL
+	| REPLICATE_REWRITE_DB_SYMBOL
 	| RESUME_SYMBOL
 	| RETURNED_SQLSTATE_SYMBOL
 	| RETURNS_SYMBOL
@@ -3260,6 +3410,7 @@ keyword_sp:
 	| SQL_BUFFER_RESULT_SYMBOL
 	| SQL_NO_CACHE_SYMBOL
 	| SQL_THREAD_SYMBOL
+	| STACKED_SYMBOL
 	| STARTS_SYMBOL
 	| STATS_AUTO_RECALC_SYMBOL
 	| STATS_PERSISTENT_SYMBOL
@@ -3415,7 +3566,7 @@ ASC_SYMBOL:								'ASC';								// SQL-2003-N
 ASCII_SYMBOL:							'ASCII';							// MYSQL-FUNC
 ASENSITIVE_SYMBOL:						'ASENSITIVE'						{ $type = TYPE_FROM_VERSION(50000, $type); }; // FUTURE-USE
 AT_SYMBOL:								'AT';
-AUTHORS_SYMBOL:							'AUTHORS';
+AUTHORS_SYMBOL:							'AUTHORS'							{ $type = DEPRECATED_TYPE_FROM_VERSION(50700, $type); };
 AUTOEXTEND_SIZE_SYMBOL:					'AUTOEXTEND_SIZE';
 AUTO_INCREMENT_SYMBOL:					'AUTO_INCREMENT';
 AVG_ROW_LENGTH_SYMBOL:					'AVG_ROW_LENGTH';
@@ -3484,7 +3635,7 @@ CONSTRAINT_SCHEMA_SYMBOL:				'CONSTRAINT_SCHEMA';				// SQL-2003-N
 CONTAINS_SYMBOL:						'CONTAINS';							// SQL-2003-N
 CONTEXT_SYMBOL:							'CONTEXT';
 CONTINUE_SYMBOL:						'CONTINUE'							{ $type = TYPE_FROM_VERSION(50000, $type); };	// SQL-2003-R
-CONTRIBUTORS_SYMBOL:					'CONTRIBUTORS';
+CONTRIBUTORS_SYMBOL:					'CONTRIBUTORS'						{ $type = DEPRECATED_TYPE_FROM_VERSION(50700, $type); };
 CONVERT_SYMBOL:							'CONVERT'							{ $type = TYPE_FROM_VERSION(40100, $type); }; // SQL-2003-N
 COUNT_SYMBOL:							'COUNT'								{ $type = determine_function(ctx, $type); }; // SQL-2003-N
 CPU_SYMBOL:								'CPU';
@@ -3579,12 +3730,14 @@ FAULTS_SYMBOL:							'FAULTS';
 FETCH_SYMBOL:							'FETCH'								{ $type = TYPE_FROM_VERSION(50000, $type); }; // SQL-2003-R
 FIELDS_SYMBOL:							'FIELDS'							{ $type = COLUMNS_SYMBOL; };	// Synonym
 FILE_SYMBOL:							'FILE';
+FILTER_SYMBOL:							'FILTER'							{ $type = TYPE_FROM_VERSION(50700, $type); };
 FIRST_SYMBOL:							'FIRST';							// SQL-2003-N
 FIXED_SYMBOL:							'FIXED';
 FLOAT4_SYMBOL:							'FLOAT4'							{ $type = FLOAT_SYMBOL; }; // Synonym
 FLOAT8_SYMBOL:							'FLOAT8'							{ $type = DOUBLE_SYMBOL; }; // Synonym
 FLOAT_SYMBOL:							'FLOAT';							// SQL-2003-R
 FLUSH_SYMBOL:							'FLUSH';
+FOLLOWS_SYMBOL:							'FOLLOWS'							{ $type = TYPE_FROM_VERSION(50700, $type); };
 FORCE_SYMBOL:							'FORCE'								{ $type = TYPE_FROM_VERSION(40000, $type); };
 FOREIGN_SYMBOL:							'FOREIGN';							// SQL-2003-R
 FOR_SYMBOL:								'FOR';								// SQL-2003-R
@@ -3660,7 +3813,7 @@ LEAVE_SYMBOL:							'LEAVE';
 LEFT_SYMBOL:							'LEFT';								// SQL-2003-R
 LESS_SYMBOL:							'LESS';
 LEVEL_SYMBOL:							'LEVEL';
-LEX_HOSTNAME_SYMBOL:					'LEX_HOSTNAME';
+//LEX_HOSTNAME_SYMBOL:					'LEX_HOSTNAME'; // used internally
 LIKE_SYMBOL:							'LIKE';								// SQL-2003-R
 LIMIT_SYMBOL:							'LIMIT';
 LINEAR_SYMBOL:							'LINEAR'							{ $type = TYPE_FROM_VERSION(50100, $type); };
@@ -3753,6 +3906,7 @@ NEW_SYMBOL:								'NEW';								// SQL-2003-R
 NEXT_SYMBOL:							'NEXT';								// SQL-2003-N
 NODEGROUP_SYMBOL:						'NODEGROUP';
 NONE_SYMBOL:							'NONE';								// SQL-2003-R
+NONBLOCKING_SYMBOL:						'NONBLOCKING'						{ $type = TYPE_FROM_VERSION(50700, $type); };
 NOT_SYMBOL:								'NOT'								{ $type = SQL_MODE_ACTIVE(SQL_MODE_HIGH_NOT_PRECEDENCE) ? NOT2_SYMBOL : $type; }; // SQL-2003-R
 NOW_SYMBOL:								'NOW'								{ $type = determine_function(ctx, $type); }; 
 NO_SYMBOL:								'NO';								// SQL-2003-R
@@ -3784,6 +3938,7 @@ OUT_SYMBOL:								'OUT'								{ $type = TYPE_FROM_VERSION(50000, $type); }; //
 OWNER_SYMBOL:							'OWNER';
 PACK_KEYS_SYMBOL:						'PACK_KEYS';
 PAGE_SYMBOL:							'PAGE';
+PARAM_MARKER_SYMBOL:					'PARAM_MARKER';
 PARSER_SYMBOL:							'PARSER';
 PARTIAL_SYMBOL:							'PARTIAL';							// SQL-2003-N
 PARTITIONING_SYMBOL:					'PARTITIONING';
@@ -3798,6 +3953,7 @@ POINT_SYMBOL:							'POINT';
 POLYGON_SYMBOL:							'POLYGON';
 PORT_SYMBOL:							'PORT';
 POSITION_SYMBOL:						'POSITION'							{ $type = determine_function(ctx, $type); }; // SQL-2003-N
+PRECEDES_SYMBOL:						'PRECEDES'							{ $type = TYPE_FROM_VERSION(50700, $type); };
 PRECISION_SYMBOL:						'PRECISION';						// SQL-2003-R
 PREPARE_SYMBOL:							'PREPARE';							// SQL-2003-R
 PRESERVE_SYMBOL:						'PRESERVE';
@@ -3842,6 +3998,13 @@ REPEATABLE_SYMBOL:						'REPEATABLE';						// SQL-2003-N
 REPEAT_SYMBOL:							'REPEAT'							{ $type = TYPE_FROM_VERSION(50000, $type); }; // MYSQL-FUNC
 REPLACE_SYMBOL:							'REPLACE';							// MYSQL-FUNC
 REPLICATION_SYMBOL:						'REPLICATION';
+REPLICATE_DO_DB_SYMBOL:					'REPLICATE_DO_DB'					{ $type = TYPE_FROM_VERSION(50700, $type); };
+REPLICATE_IGNORE_DB_SYMBOL:				'REPLICATE_IGNORE_DB'				{ $type = TYPE_FROM_VERSION(50700, $type); };
+REPLICATE_DO_TABLE_SYMBOL:				'REPLICATE_DO_TABLE'				{ $type = TYPE_FROM_VERSION(50700, $type); };
+REPLICATE_IGNORE_TABLE_SYMBOL:			'REPLICATE_IGNORE_TABLE'			{ $type = TYPE_FROM_VERSION(50700, $type); };
+REPLICATE_WILD_DO_TABLE_SYMBOL:			'REPLICATE_WILD_DO_TABLE'			{ $type = TYPE_FROM_VERSION(50700, $type); };
+REPLICATE_WILD_IGNORE_TABLE_SYMBOL:		'REPLICATE_WILD_IGNORE_TABLE'		{ $type = TYPE_FROM_VERSION(50700, $type); };
+REPLICATE_REWRITE_DB_SYMBOL:			'REPLICATE_REWRITE_DB'				{ $type = TYPE_FROM_VERSION(50700, $type); };
 REQUIRE_SYMBOL:							'REQUIRE'							{ $type = TYPE_FROM_VERSION(40000, $type); };
 RESET_SYMBOL:							'RESET';
 RESIGNAL_SYMBOL:						'RESIGNAL'							{ $type = TYPE_FROM_VERSION(50500, $type); }; // SQL-2003-R
@@ -3913,6 +4076,7 @@ SQL_SMALL_RESULT_SYMBOL:				'SQL_SMALL_RESULT';
 SQL_SYMBOL:								'SQL'								{ $type = TYPE_FROM_VERSION(50000, $type); }; // SQL-2003-R
 SQL_THREAD_SYMBOL:						'SQL_THREAD';
 SSL_SYMBOL:								'SSL'								{ $type = TYPE_FROM_VERSION(40000, $type); };
+STACKED_SYMBOL:							'STACKED'							{ $type = TYPE_FROM_VERSION(50700, $type); };
 STARTING_SYMBOL:						'STARTING';
 STARTS_SYMBOL:							'STARTS';
 START_SYMBOL:							'START';							// SQL-2003-R

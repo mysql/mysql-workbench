@@ -160,7 +160,7 @@ void BaseEditor::run_from_grt(const boost::function<void()> &slot)
 
 bool BaseEditor::is_editor_dirty()
 {
-  Sql_editor::Ref editor = get_sql_editor();
+  MySQLEditor::Ref editor = get_sql_editor();
   if (editor)
   {
     mforms::CodeEditor* code_editor = editor->get_editor_control();

@@ -17,21 +17,27 @@
  * 02110-1301  USA
  */
 
+#include "base/log.h"
+#include "base/string_utilities.h"
+
 #include "grtpp_module_cpp.h"
 #include "grtpp_util.h"
-#include "base/string_utilities.h"
 
 #include <gmodule.h>
 
 using namespace grt;
 using namespace base;
 
+DEFAULT_LOG_DOMAIN("modules")
+
+//--------------------------------------------------------------------------------------------------
 
 Interface::Interface(CPPModuleLoader *loader)
   : Module(loader)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
 Interface *Interface::create(GRT *grt, const char *name, ...)
 {
@@ -75,6 +81,7 @@ Interface *Interface::create(GRT *grt, const char *name, ...)
   return iface;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool Interface::check_conformance(const Module *module) const
 {
@@ -117,9 +124,7 @@ bool Interface::check_conformance(const Module *module) const
   return true;
 }
 
-
-//--------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------
 
 void CPPModule::register_functions(ModuleFunctorBase *first, ...)
 {
@@ -150,12 +155,14 @@ void CPPModule::register_functions(ModuleFunctorBase *first, ...)
   _interfaces= _implemented_interfaces;
 }
 
+//----------------- CPPModule ----------------------------------------------------------------------
 
 CPPModule::CPPModule(CPPModuleLoader *loader)
   : Module(loader), _gmodule(NULL)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void CPPModule::set_name(const std::string &name)
 {
@@ -177,6 +184,7 @@ void CPPModule::set_name(const std::string &name)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 CPPModule::~CPPModule()
 {
@@ -193,6 +201,7 @@ CPPModule::~CPPModule()
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
 
 std::string CPPModule::get_module_datadir()
 {
@@ -205,70 +214,65 @@ std::string CPPModule::get_resource_file_path(const std::string &file)
   return get_module_datadir()+"/"+file;
 }
 
-
-
-
-//--------------------------------------------------------------------------------
-
+//----------------- CPPModuleLoader ----------------------------------------------------------------
 
 CPPModuleLoader::CPPModuleLoader(GRT *grt)
   : ModuleLoader(grt)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
 CPPModuleLoader::~CPPModuleLoader()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
 Module *CPPModuleLoader::init_module(const std::string &path)
 {
   GModule *gmodule;
   Module *(*module_init)(CPPModuleLoader *loader, const char* grt_version);
 
-					    // use lazy binding
-					    // so that interdependent modules can be loaded in any order
-  gmodule= g_module_open(path.c_str(), (GModuleFlags)G_MODULE_BIND_LAZY);
+	// Use lazy binding so that interdependent modules can be loaded in any order.
+  gmodule = g_module_open(path.c_str(), (GModuleFlags)G_MODULE_BIND_LAZY);
   if (!gmodule)
-  {
-    if (_grt->verbose())
-      _grt->send_warning(strfmt("Could not open module %s (%s)", path.c_str(), g_module_error()));
     throw grt::os_error(strfmt("Could not open module %s (%s)", path.c_str(), g_module_error()));
-  }
 
-  // locate entry point
+  // Locate entry point.
   if (!g_module_symbol(gmodule, "grt_module_init", (gpointer*)&module_init))
   {
-    if (_grt->verbose())
-      _grt->send_warning(strfmt("Could not get pointer to grt_module_init in module %s (%s)", path.c_str(), g_module_error()));
+    log_debug3("Module init function not found in module %s. Not a grt module.\n", path.c_str());
     g_module_close(gmodule);
-    throw std::runtime_error("Invalid module "+path);
+    
+    return NULL;
   }
 
   // execute module's init function, which must return a Module*
   // object created by init_module()
   CPPModule* cppmodule;
 
-  cppmodule= dynamic_cast<CPPModule*>((*module_init)(this, GRT_VERSION));
+  cppmodule = dynamic_cast<CPPModule*>((*module_init)(this, GRT_VERSION));
   if (!cppmodule)
   {
+    log_error("Failed initializing module '%s' (%s)\n", path.c_str(), get_loader_name().c_str());
     g_module_close(gmodule);
-    return 0;
+    return NULL;
   }
 
-  cppmodule->_path= path;
-
-  cppmodule->_gmodule= gmodule;
+  cppmodule->_path = path;
+  cppmodule->_gmodule = gmodule;
 
   return cppmodule;
 }
 
-  
+//--------------------------------------------------------------------------------------------------
+
 void CPPModuleLoader::refresh()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool CPPModuleLoader::check_file_extension(const std::string &path)
 {
@@ -282,3 +286,5 @@ bool CPPModuleLoader::check_file_extension(const std::string &path)
 
   return g_str_has_suffix(path.c_str(), ext) != 0;
 }
+
+//--------------------------------------------------------------------------------------------------

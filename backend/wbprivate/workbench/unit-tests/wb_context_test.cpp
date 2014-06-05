@@ -17,9 +17,10 @@
  * 02110-1301  USA
  */
 
-
 // High-level testing for Workbench
 // This tests WBContext, which will test the integration of all components.
+
+#include "base/util_functions.h"
 
 #include "wb_helpers.h"
 #include "grtdb/db_helpers.h"
@@ -717,7 +718,7 @@ static void set_note_content(grt::GRT *grt, GrtStoredNoteRef note, const std::st
   if (!module)
     throw std::runtime_error("Workbench module not found");
 
-  note->lastChangeDate(bec::fmttime());
+  note->lastChangeDate(base::fmttime());
 
   grt::BaseListRef args(grt);
 

@@ -19,6 +19,7 @@
 
 #include "editor_user_role.h"
 #include "db_object_helpers.h"
+
 #include "base/string_utilities.h"
 
 using namespace grt;
@@ -156,7 +157,7 @@ void RolePrivilegeListBE::remove_all()
     AutoUndoEdit undo(_owner);
     _role_privilege->privileges().remove_all();
     undo.end(strfmt(_("Remove Privileges for '%s' from Role '%s'"), 
-                    _role_privilege->databaseObject()->name().c_str(),
+                    _role_privilege->databaseObject().is_valid() ? _role_privilege->databaseObject()->name().c_str() : "*",
                     _owner->get_name().c_str()));
   }
 }

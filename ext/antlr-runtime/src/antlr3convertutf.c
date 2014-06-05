@@ -288,7 +288,6 @@ isLegalUTF8(const UTF8 *source, int length) {
     UTF8 a;
     const UTF8 *srcptr = source+length;
     switch (length) {
-    // ml: replaced false/true redefinition by the standard ANTLR3_FALSE/TRUE values.
     default: return ANTLR3_FALSE;
 	/* Everything else falls through when "true"... */
     case 4: if ((a = (*--srcptr)) < 0x80 || a > 0xBF) return ANTLR3_FALSE;
