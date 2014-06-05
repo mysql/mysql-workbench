@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -65,9 +65,15 @@ class Context(object):
 
     def new_path(self):
         cairo.cairo_new_path(self.cr)
-    
+
+    def new_sub_path(self):
+        cairo.cairo_new_sub_path(self.cr)
+
     def close_path(self):
         cairo.cairo_close_path(self.cr)
+
+    def set_fill_rule(self, rule):
+        cairo.cairo_set_fill_rule(self.cr, rule)
 
     def move_to(self, x, y):
         cairo.cairo_move_to(self.cr, x, y)
@@ -137,6 +143,12 @@ class Context(object):
 
     def set_source_rgba(self, r, g, b, a):
         cairo.cairo_set_source_rgba(self.cr, r, g, b, a)
+
+    def mask(self, pattern):
+        cairo.cairo_mask(self.cr, pattern.p)
+
+    def mask_surface(self, surface, x, y):
+        cairo.cairo_mask_surface(self.cr, surface.s, x, y)
 
     def show_text(self, text):
         cairo.cairo_show_text(self.cr, text)
