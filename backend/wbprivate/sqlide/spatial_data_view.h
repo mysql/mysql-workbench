@@ -36,12 +36,10 @@ namespace mforms
   class TreeNodeView;
   struct TreeNodeRef;
   class Label;
-  class Canvas;
 };
 
-
+class SpatialDrawBox;
 class SqlEditorResult;
-class SpatialCanvasLayer;
 
 class SpatialDataView : public mforms::Box
 {
@@ -64,9 +62,7 @@ private:
   mforms::ToolBarItem *_projection_picker;
   mforms::TreeNodeView *_layer_tree;
 
-  mforms::Canvas *_viewer;
-  SpatialCanvasLayer *_layer;
-  std::deque<SpatialCanvasLayer*> _gis_layers;
+  SpatialDrawBox *_viewer;
 
   void tree_toggled(const mforms::TreeNodeRef &node, const std::string &value);
   void show_column_data(int column, bool show);

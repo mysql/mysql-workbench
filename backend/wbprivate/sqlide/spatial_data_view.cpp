@@ -20,7 +20,6 @@
 #include "stdafx.h"
 #include "base/log.h"
 #include "spatial_data_view.h"
-#include "spatial_canvas_layer.h"
 #include "wb_sql_editor_result_panel.h"
 
 #include "mforms/app.h"
@@ -31,17 +30,35 @@
 #include "mforms/panel.h"
 #include "mforms/checkbox.h"
 #include "mforms/treenodeview.h"
+#include "mforms/drawbox.h"
 
-#include "mforms/canvas.h"
 #include "mdc.h"
-#include <ogrsf_frmts.h>
-#include <ogr_api.h>
-#include <gdal_pam.h>
+
+#include <gdal/ogrsf_frmts.h>
+#include <gdal/ogr_api.h>
+#include <gdal/gdal_pam.h>
 
 DEFAULT_LOG_DOMAIN("sqlide");
 
+
+class SpatialDrawBox : public mforms::DrawBox
+{
+public:
+  SpatialDrawBox()
+  {
+
+  }
+
+  virtual void repaint(cairo_t *cr, int x, int y, int w, int h)
+  {
+    cairo_set_source_rgb(cr, 0.2, 0.6, 1.0);
+    cairo_paint(cr);
+  }
+};
+
+
 SpatialDataView::SpatialDataView(SqlEditorResult *owner)
-: mforms::Box(false), _owner(owner), _layer(NULL)
+: mforms::Box(false), _owner(owner)
 {
   _toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
   {
@@ -83,7 +100,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   add(_toolbar, false, true);
 
   _main_box = mforms::manage(new mforms::Box(true));
-  _viewer = mforms::manage(new mforms::Canvas());
+  _viewer = mforms::manage(new SpatialDrawBox());
   _main_box->add(_viewer, true, true);
 
   _option_box = mforms::manage(new mforms::Box(false));
@@ -110,28 +127,12 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
 SpatialDataView::~SpatialDataView()
 {
-  std::deque<SpatialCanvasLayer*>::iterator it;
-  while(it!=_gis_layers.end()){
-      delete *it;
-      it = _gis_layers.erase(it);
-  }
 }
 
 
 void SpatialDataView::activate()
 {
-  if (_layer)
-    return;
-  // becasue of Gtk delayed realize bs, we have to delay creation of the canvas too which means
-  // we can't do anything with it until we know the cairo is on screen for sure
-  if (!_viewer->canvas())
-    throw std::logic_error("canvas not initialized");
-
   // configure the canvas
-//  _layer = new SpatialCanvasLayer(_viewer->canvas(), NULL);
-//  _layer->set_name("spatial");
-//  _viewer->canvas()->add_layer(_layer);
-  _viewer->canvas()->get_background_layer()->set_visible(true);
   tree_toggled(_layer_tree->node_at_row(0), "1");
   tree_toggled(_layer_tree->node_at_row(1), "1");
 }
@@ -147,14 +148,14 @@ void SpatialDataView::show_column_data(int column, bool show)
     // but the internal format seems to be 4 bytes of SRID followed by WKB data
     if (rset->get_raw_field(row, column, geom_data) && !geom_data.empty())
     {
-      GIS::SpatialHandler *handler = new GIS::SpatialHandler();
-      handler->importFromMySQL(geom_data);
-      SpatialCanvasLayer *layer = new SpatialCanvasLayer(_viewer->canvas(), handler);
-//      if (layer)
-//        std::cout << "dd" << std::endl;
-      _gis_layers.push_back(layer);
-
-      _viewer->canvas()->add_layer(layer);
+//      GIS::SpatialHandler *handler = new GIS::SpatialHandler();
+//      handler->importFromMySQL(geom_data);
+//      SpatialCanvasLayer *layer = new SpatialCanvasLayer(_viewer->canvas(), handler);
+////      if (layer)
+////        std::cout << "dd" << std::endl;
+//      _gis_layers.push_back(layer);
+//
+//      _viewer->canvas()->add_layer(layer);
 //      unsigned char* geom = new unsigned char[geom_data.size()-3];
 //      std::copy(geom_data.begin()+4, geom_data.end(), geom);
 //      geom += 4;
