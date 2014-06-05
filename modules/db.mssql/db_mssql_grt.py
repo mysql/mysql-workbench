@@ -182,7 +182,7 @@ def getCatalogNames(connection):
 
     [NOTE] From MSDN: [A catalog] is equivalent to a databases in SQL Server.
     """
-    query = 'exec sp_databases'
+    query = 'exec sys.sp_databases'
     return [ row[0] for row in execute_query(connection, query) ]
 
 
@@ -1162,18 +1162,6 @@ def getTDSProtocolVersionChoices():
 def resetProgressFlags(connection):
     _connections[connection.__id__]['_rev_eng_progress_flags'] = []
     return 0
-
-@ModuleInfo.export(grt.INT)
-def cleanup():
-    global _connections
-    _connections = {}
-    return 0
-
-@ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
-def resetProgressFlags(connection):
-    _connections[connection.__id__]['_rev_eng_progress_flags'] = []
-    return 0
-
 
 @ModuleInfo.export(grt.INT)
 def cleanup():
