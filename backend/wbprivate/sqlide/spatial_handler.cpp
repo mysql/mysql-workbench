@@ -71,7 +71,7 @@ GIS::SpatialHandler::SpatialHandler() :
   imgTransformerFunc = GDALGenImgProjTransform;
 }
 
-int GIS::SpatialHandler::importFromMySQL(std::string &data)
+int GIS::SpatialHandler::importFromMySQL(const std::string &data)
 {
   unsigned char* geom = new unsigned char[data.size() - 3];
   std::copy(data.begin() + 4, data.end(), geom);
@@ -105,15 +105,19 @@ GDALDataset* GIS::SpatialHandler::memSetup(ProjectionView &view)
   switch (view.type)
   {
   case ProjMercator:
+//    fprintf(stderr, "Using Mercator\n");
     projection = &(*mercator_projection.begin());
     break;
   case ProjRobinson:
+//    fprintf(stderr, "Using Robinson\n");
     projection = &(*robinson_projection.begin());
     break;
   case ProjEquirectangular:
+//    fprintf(stderr, "Using Equirectangular\n");
     projection = &(*equirectangular_projection.begin());
     break;
   default:
+//    fprintf(stderr, "Using Default\n");
     view.type = ProjDefault;
     projection = &(*default_projection.begin());
   }
@@ -122,8 +126,47 @@ GDALDataset* GIS::SpatialHandler::memSetup(ProjectionView &view)
 }
 
 void GIS::SpatialHandler::convertPoints(std::vector<double> &x,
-    std::vector<double> &y)
+    std::vector<double> &y, ProjectionView &view)
 {
+
+  if (view.type != ProjDefault)
+  {
+  OGRSpatialReference oSourceSRS, oTargetSRS;
+      OGRCoordinateTransformation *poCT;
+
+      char * src_projection = &(*default_projection.begin());
+
+      char * dst_projection;
+      switch (view.type)
+        {
+        case ProjMercator:
+          fprintf(stderr, "Reprojecting Mercator\n");
+          dst_projection = &(*mercator_projection.begin());
+          break;
+        case ProjRobinson:
+          fprintf(stderr, "Reprojecting Robinson\n");
+          dst_projection = &(*robinson_projection.begin());
+          break;
+        case ProjEquirectangular:
+          fprintf(stderr, "Reprojecting Equirectangular\n");
+          dst_projection = &(*equirectangular_projection.begin());
+          break;
+        case ProjDefault:
+          break;
+        }
+
+      oSourceSRS.importFromWkt(&src_projection);
+      oTargetSRS.importFromWkt(&dst_projection);
+//      oSourceSRS.importFromEPSG( atoi(papszArgv[i+1]) );
+//      oTargetSRS.importFromEPSG( atoi(papszArgv[i+2]) );
+
+      poCT = OGRCreateCoordinateTransformation( &oSourceSRS,
+                                                &oTargetSRS );
+
+
+      if( poCT == NULL || !poCT->Transform( x.size(), &x[0], &y[0] ) )
+          printf( "Transformation failed.\n" );
+  }
   int *panSuccess = (int *) CPLCalloc(sizeof(int), x.size());
 
   imgTransformerFunc(imgTransformerArgument, false, x.size(), &(x[0]), &(y[0]),
@@ -144,7 +187,7 @@ GIS::ShapeContainer GIS::SpatialHandler::convertToShapeContainer(ShapeType type,
 }
 
 void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
-    std::deque<ShapeContainer> &shapes_container)
+    std::deque<ShapeContainer> &shapes_container, ProjectionView &view)
 {
   OGRwkbGeometryType flat_type = wkbFlatten(shape->getGeometryType());
 
@@ -155,7 +198,7 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
     std::vector<double> aPointY;
     aPointX.push_back(point->getX());
     aPointY.push_back(point->getY());
-    convertPoints(aPointX, aPointY);
+    convertPoints(aPointX, aPointY, view);
     shapes_container.push_back(
         convertToShapeContainer(ShapePoint, aPointX, aPointY));
 
@@ -172,7 +215,7 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
       aPointX.push_back(line->getX(i));
       aPointY.push_back(line->getY(i));
     }
-    convertPoints(aPointX, aPointY);
+    convertPoints(aPointX, aPointY, view);
     shapes_container.push_back(
         convertToShapeContainer(ShapeLineString, aPointX, aPointY));
 
@@ -190,7 +233,7 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
       aPointY.push_back(ring->getY(i));
     }
 
-    convertPoints(aPointX, aPointY);
+    convertPoints(aPointX, aPointY, view);
     shapes_container.push_back(
         convertToShapeContainer(ShapeLinearRing, aPointX, aPointY));
 
@@ -208,24 +251,34 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
       aPointX.push_back(ring->getX(i));
       aPointY.push_back(ring->getY(i));
     }
-    convertPoints(aPointX, aPointY);
+    convertPoints(aPointX, aPointY, view);
     shapes_container.push_back(
         convertToShapeContainer(ShapePolygon, aPointX, aPointY));
      for (int i=0; i < poly->getNumInteriorRings(); ++i)
-       extractPoints(poly->getInteriorRing(i), shapes_container);
+       extractPoints(poly->getInteriorRing(i), shapes_container, view);
 
   } else if (flat_type == wkbMultiPoint || flat_type == wkbMultiLineString
       || flat_type == wkbMultiPolygon || flat_type == wkbGeometryCollection)
   {
     OGRGeometryCollection *geoCollection = (OGRGeometryCollection*) shape;
     for  ( int i=0; i < geoCollection->getNumGeometries(); ++i)
-      extractPoints(geoCollection->getGeometryRef(i), shapes_container);
+      extractPoints(geoCollection->getGeometryRef(i), shapes_container, view);
 }
 }
 
 int GIS::SpatialHandler::getOutput(ProjectionView &view,
     std::deque<ShapeContainer> &shapes_container)
 {
+  switch (view.type)
+  {
+  case ProjMercator:
+  case ProjRobinson:
+  case ProjEquirectangular:
+    break;
+  default:
+    view.type = ProjDefault;
+  }
+
   GDALDataset *ds = this->memSetup(view);
   imgTransformerArgument = GDALCreateGenImgProjTransformer( NULL, NULL, ds, NULL, false, 0.0, 0);
 
@@ -240,7 +293,7 @@ int GIS::SpatialHandler::getOutput(ProjectionView &view,
 
   poGeometry->assignSpatialReference(hDstSRS);
 
-  extractPoints(poGeometry, shapes_container);
+  extractPoints(poGeometry, shapes_container, view);
   GDALDestroyGenImgProjTransformer(imgTransformerArgument);
   imgTransformerArgument = NULL;
 

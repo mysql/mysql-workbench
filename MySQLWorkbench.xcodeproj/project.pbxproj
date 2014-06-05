@@ -1268,6 +1268,9 @@
 		2B5286420F1C1EED005FBF7C /* wb_validation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B52863D0F1C1EED005FBF7C /* wb_validation.h */; };
 		2B58F0FC1940E21A00397970 /* libgdal.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B58F0FB1940E21A00397970 /* libgdal.1.dylib */; };
 		2B58F0FD1940E74F00397970 /* libgdal.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2B58F0FB1940E21A00397970 /* libgdal.1.dylib */; };
+		2B58F1021940F95D00397970 /* spatial_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B58F1001940F95D00397970 /* spatial_handler.cpp */; };
+		2B58F1031940F95D00397970 /* spatial_handler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58F1011940F95D00397970 /* spatial_handler.h */; };
+		2B58F1051940F9B300397970 /* libgdal.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B58F0FB1940E21A00397970 /* libgdal.1.dylib */; };
 		2B59AA060E94F6BA0083C1C6 /* db_datatype_groups.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2B59AA040E94F6850083C1C6 /* db_datatype_groups.xml */; };
 		2B59AA070E94F6BA0083C1C6 /* main_menu.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2B59A9F10E94F6430083C1C6 /* main_menu.xml */; };
 		2B59AA100E94F6BA0083C1C6 /* paper_types.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2B59A9FA0E94F6430083C1C6 /* paper_types.xml */; };
@@ -4989,6 +4992,8 @@
 		2B52863C0F1C1EED005FBF7C /* wb_module_validation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_module_validation.h; path = internal/wb.validation/src/wb_module_validation.h; sourceTree = "<group>"; };
 		2B52863D0F1C1EED005FBF7C /* wb_validation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_validation.h; path = internal/wb.validation/src/wb_validation.h; sourceTree = "<group>"; };
 		2B58F0FB1940E21A00397970 /* libgdal.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.1.dylib; path = "../mysql-mac-res/lib/libgdal.1.dylib"; sourceTree = SOURCE_ROOT; };
+		2B58F1001940F95D00397970 /* spatial_handler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_handler.cpp; path = backend/wbprivate/sqlide/spatial_handler.cpp; sourceTree = "<group>"; };
+		2B58F1011940F95D00397970 /* spatial_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_handler.h; path = backend/wbprivate/sqlide/spatial_handler.h; sourceTree = "<group>"; };
 		2B59A9C30E94EFAC0083C1C6 /* MCPPUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MCPPUtilities.h; path = frontend/mac/utilities/MCPPUtilities.h; sourceTree = "<group>"; };
 		2B59A9C40E94EFAC0083C1C6 /* MCPPUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MCPPUtilities.mm; path = frontend/mac/utilities/MCPPUtilities.mm; sourceTree = "<group>"; };
 		2B59A9F10E94F6430083C1C6 /* main_menu.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = main_menu.xml; path = res/wbdata/main_menu.xml; sourceTree = "<group>"; };
@@ -6499,6 +6504,7 @@
 				2720C53A16EA1B1600E57A8D /* libpcre.1.dylib in Frameworks */,
 				2720C54016EA371200E57A8D /* libpcrecpp.0.dylib in Frameworks */,
 				27A7330F16C2706300C326E0 /* mysql.parser.dylib in Frameworks */,
+				2B58F1051940F9B300397970 /* libgdal.1.dylib in Frameworks */,
 				2BCB31990E884615005C8ED2 /* libmysql.canvas.dylib in Frameworks */,
 				2BCB31DB0E88493F005C8ED2 /* libwbpublic.be.dylib in Frameworks */,
 				2BCBAE4C15E7DA60009571DE /* libzip.1.0.0.dylib in Frameworks */,
@@ -8404,6 +8410,17 @@
 				2B5286350F1C1ED1005FBF7C /* wb_module_validation_mysql.h */,
 			);
 			name = wb.mysql.validation;
+			sourceTree = "<group>";
+		};
+		2B58F1041940F96500397970 /* Spatial */ = {
+			isa = PBXGroup;
+			children = (
+				2BAE2EB2192BE4E4000887F9 /* spatial_data_view.cpp */,
+				2BAE2EB3192BE4E5000887F9 /* spatial_data_view.h */,
+				2B58F1001940F95D00397970 /* spatial_handler.cpp */,
+				2B58F1011940F95D00397970 /* spatial_handler.h */,
+			);
+			name = Spatial;
 			sourceTree = "<group>";
 		};
 		2B59A9F00E94F6250083C1C6 /* WB Data */ = {
@@ -10422,8 +10439,7 @@
 				2B1FB7FD142C00070017A064 /* wb_sql_editor_form_ui.cpp */,
 				2BE0A25B184D66620056AE11 /* wb_sql_editor_result_panel.cpp */,
 				2BE0A25C184D66620056AE11 /* wb_sql_editor_result_panel.h */,
-				2BAE2EB2192BE4E4000887F9 /* spatial_data_view.cpp */,
-				2BAE2EB3192BE4E5000887F9 /* spatial_data_view.h */,
+				2B58F1041940F96500397970 /* Spatial */,
 				2BE0A259184CCF120056AE11 /* Output Area */,
 				2BE0A25A184CCF1A0056AE11 /* Main Sidebar */,
 				2BE0A258184CCCE00056AE11 /* Secondary Sidebar */,
@@ -11111,6 +11127,7 @@
 				2BF87A6E0FA7CEFB0012EADA /* wb_overview_privileges.h in Headers */,
 				27ED97B91802AE2D00F15650 /* wb_catalog_tree_view.h in Headers */,
 				2BF87A700FA7CEFB0012EADA /* wb_physical_model_diagram_features.h in Headers */,
+				2B58F1031940F95D00397970 /* spatial_handler.h in Headers */,
 				2BF87A720FA7CEFB0012EADA /* wb_user_datatypes.h in Headers */,
 				2BF87AB00FA8011A0012EADA /* wb_context_sqlide.h in Headers */,
 				2BF87B960FA8795D0012EADA /* wb_context_model.h in Headers */,
@@ -13920,6 +13937,7 @@
 				27B3E24712E05C1C00FFF572 /* advanced_sidebar.cpp in Sources */,
 				2BAE52C7134429CB00076130 /* plugin_install_window.cpp in Sources */,
 				2B4949561398092E006F0C3F /* select_option_dialog.cpp in Sources */,
+				2B58F1021940F95D00397970 /* spatial_handler.cpp in Sources */,
 				2B4973D513CA7D5600F6AF47 /* query_side_palette.cpp in Sources */,
 				2BF249EC1404B07D003B3C0F /* wb_sql_editor_tree_controller.cpp in Sources */,
 				27694816142A4FAA009DE637 /* snippet_popover.cpp in Sources */,
@@ -16814,6 +16832,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
@@ -16860,6 +16879,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
