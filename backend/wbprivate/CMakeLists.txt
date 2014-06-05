@@ -63,7 +63,6 @@ add_library(wbprivate STATIC
     sqlide/wb_live_schema_tree.cpp
     sqlide/wb_sql_editor_snippets.cpp
     sqlide/query_side_palette.cpp
-    sqlide/spatial_canvas_layer.cpp
     sqlide/spatial_data_view.cpp
     sqlide/spatial_handler.cpp
     workbench/metaclasses.cpp

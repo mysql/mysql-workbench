@@ -74,8 +74,10 @@ public:
   mforms::ToolBar *get_toolbar() { return _toolbar; }
 
   void set_geometry_columns(const std::vector<SpatialDataSource> &columns);
+  void projection_item_activated(mforms::ToolBarItem *item);
 
   void activate();
+
 };
 
 #endif /* defined(__MySQLWorkbench__spatial_data_view__) */

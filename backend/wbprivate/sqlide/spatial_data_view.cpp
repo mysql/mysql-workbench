@@ -20,7 +20,10 @@
 #include "stdafx.h"
 #include "base/log.h"
 #include "spatial_data_view.h"
+#include "spatial_handler.h"
 #include "wb_sql_editor_result_panel.h"
+
+#include <algorithm>
 
 #include "mforms/app.h"
 #include "mforms/toolbar.h"
@@ -40,26 +43,170 @@
 
 DEFAULT_LOG_DOMAIN("sqlide");
 
+static double ZoomLevels[] = {
+  0.0, 0.2, 0.4, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.97, 0.98, 0.99, 0.995
+};
 
 class SpatialDrawBox : public mforms::DrawBox
 {
+  std::deque<GIS::SpatialHandler*> _shandlers;
+  GIS::ProjectionType _proj;
+
+  int _zoom_level;
+  int _offset_x, _offset_y;
+
+  int _drag_x, _drag_y;
+  bool _dragging;
+
 public:
   SpatialDrawBox()
+  : _proj(GIS::ProjDefault), _zoom_level(0), _offset_x(0), _offset_y(0), _dragging(false)
+  {
+  }
+
+  void set_projection(GIS::ProjectionType proj)
+  {
+    _proj = proj;
+  }
+
+  void zoom_out()
+  {
+    _zoom_level = std::min((int)(sizeof(ZoomLevels)/sizeof(double))-1, _zoom_level+1);
+    set_needs_repaint();
+  }
+
+  void zoom_in()
+  {
+    _zoom_level = std::max(0, _zoom_level-1);
+    set_needs_repaint();
+  }
+
+  void add_layer_with_data(const std::string &geom_data)
+  {
+    GIS::SpatialHandler *h = new GIS::SpatialHandler();
+    h->importFromMySQL(geom_data);
+
+    _shandlers.push_back(h);
+  }
+
+
+
+  virtual bool mouse_down(mforms::MouseButton button, int x, int y)
+  {
+    if (button == 0)
+    {
+      _drag_x = x;
+      _drag_y = y;
+      _dragging = true;
+    }
+    return false;
+  }
+
+  virtual bool mouse_up(mforms::MouseButton button, int x, int y)
+  {
+    if (button == 0 && _dragging)
+    {
+      mouse_move(button, x, y);
+      _dragging = false;
+    }
+    return false;
+  }
+
+  virtual bool mouse_move(mforms::MouseButton button, int x, int y)
+  {
+    if (_dragging)
+    {
+      _offset_x += _drag_x - x;
+      _offset_y -= _drag_y - y;
+      if (_offset_x < 0)
+        _offset_x = 0;
+      if (_offset_y < 0)
+        _offset_y = 0;
+      set_needs_repaint();
+    }
+    return false;
+  }
+
+
+  virtual void repaint(cairo_t *crt, int x, int y, int w, int h)
+  {
+    mdc::CairoCtx cr(crt);
+
+    cr.set_color(base::Color(1, 1, 1));
+    cr.paint();
+
+    for (std::deque<GIS::SpatialHandler*>::const_iterator it = _shandlers.begin(); it != _shandlers.end(); ++it)
+      repaint_layer(cr, *it);
+  }
+
+  void screen_to_world(int x, int y, double &lat, double &lon)
+  {
+    // convert screen pixel values to the equivalent in latitude/longitude values for the current zoom level
+
+    //XXX must be done using gdal
+  }
+
+  void world_to_screen(double lat, double lon, int &x, int &y)
   {
 
   }
 
-  virtual void repaint(cairo_t *cr, int x, int y, int w, int h)
+  void repaint_layer(mdc::CairoCtx &cr, GIS::SpatialHandler *handler)
   {
-    cairo_set_source_rgb(cr, 0.2, 0.6, 1.0);
-    cairo_paint(cr);
+    double zoom = ZoomLevels[_zoom_level];
+    int width = get_width();
+    int height = get_height();
+
+    GIS::ProjectionView visible_area;
+
+    // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
+    // clipping area to the area we want to view
+    double dlo = 0, dla = 0;
+    screen_to_world(_offset_x, _offset_y, dla, dlo);
+
+    visible_area.MaxLat = 180 - 180*zoom + dla;
+    visible_area.MaxLng = 90 - 90*zoom + dlo;
+    visible_area.MinLat = -180 + 180*zoom + dla;
+    visible_area.MinLng = -90 + 90*zoom + dlo;
+
+    visible_area.height = height;
+    visible_area.width = width;
+    visible_area.type = _proj;
+
+    // TODO lat/long ranges must be adjusted according to account for the aspect ratio of the visible area
+
+    std::deque<GIS::ShapeContainer> shapes;
+    // method names must get_output() like.. camel case is only for class/struct names
+    handler->getOutput(visible_area, shapes); //XXX separate width/height and projection type into separate params
+    std::deque<GIS::ShapeContainer>::iterator it;
+
+    cr.set_line_width(1);
+    cr.set_color(base::Color(0,0,0, 0.5));
+    cr.save();
+    for(it = shapes.begin(); it != shapes.end(); it++)
+    {
+      if ((*it).type == GIS::ShapePolygon || (*it).type == GIS::ShapeLineString)
+      {
+        cr.move_to((*it).points[0]);
+        for (size_t i = 0; i < (*it).points.size(); i++)
+          cr.line_to((*it).points[i]);
+        cr.stroke();
+      }
+      else
+        log_debug("Unknown type %i\n", it->type);
+    }
+    cr.restore();
   }
+
 };
 
 
 SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 : mforms::Box(false), _owner(owner)
 {
+  _main_box = mforms::manage(new mforms::Box(true));
+  _viewer = mforms::manage(new SpatialDrawBox());
+
   _toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
   {
     mforms::ToolBarItem *item;
@@ -76,9 +223,13 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     std::vector<std::string> projection_types;
     projection_types.push_back("Equirectangular");
     projection_types.push_back("Mercator");
+    projection_types.push_back("Robinson");
 
     _projection_picker = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
     _projection_picker->set_selector_items(projection_types);
+
+    scoped_connect(_projection_picker->signal_activated(),boost::bind(&SpatialDataView::projection_item_activated, this, _1));
+
     _toolbar->add_item(_projection_picker);
 
     _toolbar->add_separator_item();
@@ -89,18 +240,18 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("navigator_zoom_out.png"));
+    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("navigator_zoom_in.png")); //XXX need @2x icons
+    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_out, _viewer));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
   }
   add(_toolbar, false, true);
 
-  _main_box = mforms::manage(new mforms::Box(true));
-  _viewer = mforms::manage(new SpatialDrawBox());
   _main_box->add(_viewer, true, true);
 
   _option_box = mforms::manage(new mforms::Box(false));
@@ -124,6 +275,26 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   add(_main_box, true, true);
 }
 
+void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item)
+{
+  std::string action = item->get_text();
+  if (action == "Mercator")
+  {
+    _viewer->set_projection(GIS::ProjMercator);
+
+    fprintf(stderr, "Set 0\n");
+  }
+  else if(action == "Equirectangular")
+  {
+    _viewer->set_projection(GIS::ProjEquirectangular);
+    fprintf(stderr, "Set 1\n");
+  }
+  else if(action == "Robinson")
+  {
+    _viewer->set_projection(GIS::ProjRobinson);
+    fprintf(stderr, "Set 2\n");
+  }
+}
 
 SpatialDataView::~SpatialDataView()
 {
@@ -132,9 +303,6 @@ SpatialDataView::~SpatialDataView()
 
 void SpatialDataView::activate()
 {
-  // configure the canvas
-  tree_toggled(_layer_tree->node_at_row(0), "1");
-  tree_toggled(_layer_tree->node_at_row(1), "1");
 }
 
 
@@ -148,28 +316,10 @@ void SpatialDataView::show_column_data(int column, bool show)
     // but the internal format seems to be 4 bytes of SRID followed by WKB data
     if (rset->get_raw_field(row, column, geom_data) && !geom_data.empty())
     {
-//      GIS::SpatialHandler *handler = new GIS::SpatialHandler();
-//      handler->importFromMySQL(geom_data);
-//      SpatialCanvasLayer *layer = new SpatialCanvasLayer(_viewer->canvas(), handler);
-////      if (layer)
-////        std::cout << "dd" << std::endl;
-//      _gis_layers.push_back(layer);
-//
-//      _viewer->canvas()->add_layer(layer);
-//      unsigned char* geom = new unsigned char[geom_data.size()-3];
-//      std::copy(geom_data.begin()+4, geom_data.end(), geom);
-//      geom += 4;
-//      std::istringstream ss(geom_data);
-//
-//      std::vector<unsigned char> buff;
-//      unsigned int ch;
-//      while(ss >> std::hex >> ch)
-//        buff.push_back(ch);
-
-
-//      unsigned char *geom = &(*(buff.begin()+4));
-//      OGRGeometry *poGeometry;
-//      OGRGeometryFactory::createFromWkb(geom, NULL, &poGeometry);
+      if (show)
+        _viewer->add_layer_with_data(geom_data);
+//      else
+//        _viewer->remove_layer();
 
       g_message("--> [%i,%i] %s (%i)\n", (int)row, column, geom_data.c_str(), (int)geom_data.size());
     }
@@ -205,13 +355,13 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     node->set_tag(base::strfmt("%i", iter->column_index));
     first = false;
   }
-//  tree_toggled(_layer_tree->node_at_row(0), "1");
+  tree_toggled(_layer_tree->node_at_row(0), "1");
 
   // standard background layer
   mforms::TreeNodeRef node = _layer_tree->add_node();
   node->set_string(1, "World Map");
   node->set_bool(0, true);
-//  tree_toggled(node, "1");
+  tree_toggled(node, "1");
 }
 
 

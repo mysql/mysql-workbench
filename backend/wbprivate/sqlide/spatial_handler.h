@@ -71,14 +71,14 @@ private:
 protected:
   GDALDataset* memSetup(ProjectionView &view);
   void extractPoints(OGRGeometry *shape,
-      std::deque<ShapeContainer> &shapes_container);
-  void convertPoints(std::vector<double> &x, std::vector<double> &y);
+      std::deque<ShapeContainer> &shapes_container, ProjectionView &view);
+  void convertPoints(std::vector<double> &x, std::vector<double> &y, ProjectionView &view);
   ShapeContainer convertToShapeContainer(ShapeType type, std::vector<double> &x,
       std::vector<double> &y);
 
 public:
   SpatialHandler();
-  int importFromMySQL(std::string &data);
+  int importFromMySQL(const std::string &data);
   virtual ~SpatialHandler();
   int getOutput(ProjectionView &view,
       std::deque<ShapeContainer> &shapes_container);
