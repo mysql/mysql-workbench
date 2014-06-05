@@ -57,6 +57,7 @@
 		2720C53E16EA1B9200E57A8D /* libpcrecpp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */; };
 		2720C54016EA371200E57A8D /* libpcrecpp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */; };
 		27257468191BBD6A00094162 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
+		27276AFF19406D050019FB0E /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		272A290111905DBE00CA2A13 /* wb_starter_mysql_bug_reporter_52.png in Resources */ = {isa = PBXBuildFile; fileRef = 272A28EE11905DBE00CA2A13 /* wb_starter_mysql_bug_reporter_52.png */; };
 		272A290311905DBE00CA2A13 /* wb_starter_mysql_doc_lib_52.png in Resources */ = {isa = PBXBuildFile; fileRef = 272A28F011905DBE00CA2A13 /* wb_starter_mysql_doc_lib_52.png */; };
 		272A290511905DBE00CA2A13 /* wb_starter_mysql_news_52.png in Resources */ = {isa = PBXBuildFile; fileRef = 272A28F211905DBE00CA2A13 /* wb_starter_mysql_news_52.png */; };
@@ -6308,6 +6309,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27276AFF19406D050019FB0E /* libwbbase.dylib in Frameworks */,
 				2B774FC315CEC4FB00923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B3D4A050F3E734C009238A7 /* libwbpublic.be.dylib in Frameworks */,
 				2B3D4A060F3E7356009238A7 /* libgrt.dylib in Frameworks */,
@@ -15007,10 +15009,7 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15055,10 +15054,7 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.8;
