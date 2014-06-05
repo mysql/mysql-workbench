@@ -2217,29 +2217,30 @@ public:
     std::string get_export_sql(const db_mysql_CatalogRef cat)
     {
         std::string out_sql;
-        std::string inserts_sql; // separate from main sql script & append to it as a last step,
-        // to separate creation of structures from data loading.
-        std::string triggers_sql;//Triggers DDLs could be prioir or after INSERTs depending on settings
+        std::string inserts_sql;  // separate from main sql script & append to it as a last step,
+                                  // to separate creation of structures from data loading.
+        std::string triggers_sql; //Triggers DDLs could be prior or after INSERTs depending on settings
 
         out_sql.append("-- MySQL Workbench Forward Engineering").append("\n");
-        out_sql.append("-- Generated: ").append(fmttime(0, DATETIME_FMT)).append("\n");
         if (include_document_properties && cat->owner().is_valid() && cat->owner()->owner().is_valid())
         {
-            workbench_DocumentRef doc(workbench_DocumentRef::cast_from(cat->owner()->owner()));
-            if (strlen(doc->info()->caption().c_str()))
-                out_sql.append("-- Model: ").append(doc->info()->caption()).append("\n");
-            if (strlen(doc->info()->version().c_str()))
-                out_sql.append("-- Version: ").append(doc->info()->version()).append("\n");
-            if (strlen(doc->info()->project().c_str()))
-                out_sql.append("-- Project: ").append(doc->info()->project()).append("\n");
-            if (strlen(doc->info()->author().c_str()))
-                out_sql.append("-- Author: ").append(doc->info()->author()).append("\n");
-            if (strlen(doc->info()->description().c_str()))
-            {
-                std::string description = doc->info()->description();
-                base::replace(description, "\n", "\n --");
-                out_sql.append("-- ").append(description).append("\n");
-            }
+          out_sql.append("-- Generated: ").append(fmttime(0, DATETIME_FMT)).append("\n");
+          
+          workbench_DocumentRef doc(workbench_DocumentRef::cast_from(cat->owner()->owner()));
+          if (strlen(doc->info()->caption().c_str()))
+              out_sql.append("-- Model: ").append(doc->info()->caption()).append("\n");
+          if (strlen(doc->info()->version().c_str()))
+              out_sql.append("-- Version: ").append(doc->info()->version()).append("\n");
+          if (strlen(doc->info()->project().c_str()))
+              out_sql.append("-- Project: ").append(doc->info()->project()).append("\n");
+          if (strlen(doc->info()->author().c_str()))
+              out_sql.append("-- Author: ").append(doc->info()->author()).append("\n");
+          if (strlen(doc->info()->description().c_str()))
+          {
+            std::string description = doc->info()->description();
+            base::replace(description, "\n", "\n --");
+            out_sql.append("-- ").append(description).append("\n");
+          }
         }
         out_sql.append("\n");
 
