@@ -96,6 +96,7 @@ xcopy /i /s /y /d %RES_DIR%\scripts\sys %TARGET_DIR%\sys 1> nul 2> nul
 
 
 echo Copy Scripting Libraries...
+xcopy /i /s /y /d %RES_DIR%\scripts\vbs\*.vbs %TARGET_DIR%\
 xcopy /i /s /y /d %RES_DIR%\scripts\lua\*.lua %TARGET_DIR%\
 xcopy /i /s /y /d %RES_DIR%\scripts\python\*.py %TARGET_DIR%\
 xcopy /i /s /y /d %RES_DIR%\scripts\snippets\shell_snippets.* %TARGET_DIR%\
