@@ -30,38 +30,50 @@
 #include "wb_helpers.h"
 #include "backend/db_mysql_sql_export.h"
 
+#include "grtsqlparser/mysql_parser_services.h"
+
+using namespace parser;
+
 BEGIN_TEST_DATA_CLASS(mysql_sql_parser)
 public:
   WBTester wbt;
   SqlFacade::Ref sql_facade;
+  
+  ParserContext::Ref context;
+  MySQLParserServices::Ref services;
+
   db_mgmt_RdbmsRef rdbms;
   DictRef options;
-  void test_import_sql(int test_no, const char *old_schema_name= NULL, const char *new_schema_name= NULL);
+
+  void test_import_sql(int test_no, const char *old_schema_name = NULL, const char *new_schema_name= NULL);
 
 END_TEST_DATA_CLASS
 
-
 TEST_MODULE(mysql_sql_parser, "SQL Parser (MySQL)");
-
 
 TEST_FUNCTION(10)
 {
   wbt.create_new_document();
-  GRT *grt= wbt.grt;
+  GRT *grt = wbt.grt;
 
   ensure_equals("loaded physycal model count", wbt.wb->get_document()->physicalModels().count(), 1U);
 
-  options= DictRef(grt);
+  options = DictRef(grt);
   options.set("gen_fk_names_when_empty", IntegerRef(0));
 
-  rdbms= wbt.wb->get_document()->physicalModels().get(0)->rdbms();
+  rdbms = wbt.wb->get_document()->physicalModels().get(0)->rdbms();
 
-  sql_facade= SqlFacade::instance_for_rdbms(rdbms);
+  sql_facade = SqlFacade::instance_for_rdbms(rdbms);
   ensure("failed to get sqlparser module", (NULL != sql_facade));
+
+  services = MySQLParserServices::get(grt);
+  context = MySQLParserServices::createParserContext(rdbms->characterSets(), rdbms->version(), false);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void Test_object_base<mysql_sql_parser>::test_import_sql(int test_no, const char *old_schema_name, const char *new_schema_name)
+void Test_object_base<mysql_sql_parser>::test_import_sql(int test_no, const char *old_schema_name,
+  const char *new_schema_name)
 {
   static const char* TEST_DATA_DIR = "data/modules_grt/wb_mysql_import/sql/";
 
@@ -81,7 +93,8 @@ void Test_object_base<mysql_sql_parser>::test_import_sql(int test_no, const char
   res_catalog->defaultCollationName("utf8_general_ci");
   grt::replace_contents(res_catalog->simpleDatatypes(), rdbms->simpleDatatypes());
 
-  // Parse the sql.
+  // We have actually 2 parser tests here for now: the old server based parser and the new ANTLR one.
+  // Parse the sql with the old parser.
   sql_facade->parseSqlScriptFileEx(res_catalog, test_sql_filename, options);
 
   // Rename the schema if asked.
@@ -96,7 +109,8 @@ void Test_object_base<mysql_sql_parser>::test_import_sql(int test_no, const char
 
   grt_ensure_equals(test_message.c_str(), res_catalog, test_catalog);
 
-  //grt::replace_contents(res_catalog->characterSets(), rdbms->characterSets());
+  // Same steps as above but using the ANTLR parser.
+  // todo
 }
 
 // Table
