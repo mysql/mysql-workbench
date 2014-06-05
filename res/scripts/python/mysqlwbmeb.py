@@ -137,11 +137,11 @@ class MEBCommandProcessor(MEBCommand):
         return ret_val
 
     def print_usage(self):
-        self.write_output("wb_meb_helper <command> <parameters>")
+        self.write_output("mysqlwbmeb <command> <parameters>")
         self.write_output("WHERE : <command>        : is one of %s" % ','.join(self._commands.keys()))
         self.write_output("        <parameters>     : are the parameters needed for each command.")
         self.write_output("\nYou can also use as follows to get each command parameters:\n")
-        self.write_output("wb_meb_helper help <command>")
+        self.write_output("mysqlwbmeb help <command>")
         self.write_output("WHERE : <command>        : is one of %s\n" % self._commands.keys())
 
     def execute(self):
@@ -161,7 +161,7 @@ class MEBCommandProcessor(MEBCommand):
 
 
         if not processed:
-            self.write_output("\nERROR Executing wb_meb_helper\n")
+            self.write_output("\nERROR Executing mysqlwbmeb\n")
             self.print_usage()
             
         return ret_val
