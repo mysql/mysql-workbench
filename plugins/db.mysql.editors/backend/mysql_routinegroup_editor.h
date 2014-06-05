@@ -33,6 +33,7 @@ public:
   virtual void load_routines_sql();
   virtual void commit_changes();
 
+  void use_sql(const std::string &sql);
 private:
   db_mysql_RoutineGroupRef _routine_group;
 };
