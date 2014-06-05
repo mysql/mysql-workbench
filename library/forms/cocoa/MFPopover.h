@@ -23,12 +23,15 @@
 
 @interface MFPopover : NSWindow
 {
+  mforms::Popover *mOwner;
   NSView* mChildContentView;
   NSPoint mHotSpot; // Position in screen coordinates.
   mforms::StartPosition mRelativePosition;
   NSSize mBaseSize;
   base::Padding mPadding;
   mforms::PopoverStyle mStyle;
+  NSView *mTrackedView;
+  NSTrackingArea *mOwnerTracking;
 
   int mArrowSize;
   int mArrowBase;
