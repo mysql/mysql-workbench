@@ -50,7 +50,7 @@ public:
 #pragma warning(push)
 #pragma warning(disable:4355)
   TestTableEditor(GRTManager *grtm, db_TableRef table, db_mgmt_RdbmsRef rdbms)
-    : TableEditorBE(grtm, table, rdbms), _table(table), _columns(this), _indexes(this)
+    : TableEditorBE(grtm, table), _table(table), _columns(this), _indexes(this)
     {
     }
 #pragma warning(pop)
@@ -756,7 +756,9 @@ TEST_FUNCTION(12)
   ensure("table editor !NULL", editor != NULL);
 
   // bug: unsetting an index column is wrong (and may crash)
-  db_TableRef table= db_mysql_TableRef(grtm->get_grt());
+  db_TableRef table = db_mysql_TableRef(grtm->get_grt());
+  table->owner(wbt.get_schema());
+
   ensure("table ok", table.is_valid());
 
   db_ColumnRef column(grtm->get_grt());
@@ -874,14 +876,14 @@ TEST_FUNCTION(20)
   db_mysql_ColumnRef column(grtm->get_grt());
   column->owner(table);
   column->name("id");
-  column->setParseType("int", editor.get_rdbms()->simpleDatatypes());
+  column->setParseType("int", wbt.get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(editor.get_rdbms(), userTypes, "int", column);
   table->columns().insert(column);
 
   column= db_mysql_ColumnRef(grtm->get_grt());
   column->owner(table);
   column->name("fk");
-  column->setParseType("int", editor.get_rdbms()->simpleDatatypes());
+  column->setParseType("int", wbt.get_rdbms()->simpleDatatypes());
   //bec::ColumnHelper::parse_column_type(editor.get_rdbms(), userTypes, "int", column);
   table->columns().insert(column);
 

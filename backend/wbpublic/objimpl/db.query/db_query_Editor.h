@@ -25,7 +25,7 @@
 
 #include "wbpublic_public_interface.h"
 
-class Sql_editor;
+class MySQLEditor;
 
 // Use an abstract class here because db_query_Editor.cpp is in wbpublic but
 // actual query editor object is in wbprivate. So wbprivate must subclass this

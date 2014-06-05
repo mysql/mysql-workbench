@@ -17,10 +17,14 @@
  * 02110-1301  USA
  */
 
+#include "base/log.h"
+
 #include "validation_manager.h"
 #include "grt/grt_manager.h"
 
 #include <algorithm>
+
+DEFAULT_LOG_DOMAIN("validation")
 
 //--------------------------------------------------------------------------------------------------
 
@@ -156,7 +160,7 @@ void bec::ValidationMessagesBE::validation_message(const grt::Validator::Tag& ta
     }
     default:
     {
-      g_message("Unhandled type in validation_message");
+      log_warning("Unhandled type in validation_message");
     }
   }
 
@@ -199,7 +203,7 @@ void bec::ValidationManager::scan(GRTManager* grtm)
       { 
         // Handle plugin directly
         //1. Fetch slot
-        g_message("ValidationManager: %s", plugins[i]->caption().c_str());
+        log_debug2("ValidationManager: %s", plugins[i]->caption().c_str());
       }
       else
       {

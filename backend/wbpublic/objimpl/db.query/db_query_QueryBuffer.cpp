@@ -24,24 +24,6 @@
 #include "db_query_Editor.h"
 #include "db_query_QueryBuffer.h"
 
-//================================================================================
-// db_query_QueryBuffer
-
-/*
-db_query_QueryBufferRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_sqleditor(db_query_EditorRef owner, Sql_editor::Ref editor)
-{
-  db_query_QueryBufferRef object(owner.get_grt());
-  
-  db_query_QueryBuffer::ImplData *data= new db_query_QueryBuffer::ImplData(object, editor);
-  
-  object->owner(owner);
-  
-  object->set_data(data);
-  
-  return object;
-}*/
-
-
 
 void db_query_QueryBuffer::init()
 {
@@ -63,7 +45,7 @@ grt::IntegerRef db_query_QueryBuffer::insertionPoint() const
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     return grt::IntegerRef(editor->cursor_pos());
   }
   return grt::IntegerRef(0);
@@ -73,7 +55,7 @@ void db_query_QueryBuffer::insertionPoint(const grt::IntegerRef &value)
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     editor->set_cursor_pos(*value);
   }
 }
@@ -83,7 +65,7 @@ grt::StringRef db_query_QueryBuffer::script() const
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     return grt::StringRef(editor->sql());
   }
   return grt::StringRef();
@@ -93,7 +75,7 @@ grt::StringRef db_query_QueryBuffer::currentStatement() const
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     return grt::StringRef(editor->current_statement());
   }
   return grt::StringRef();
@@ -103,7 +85,7 @@ grt::StringRef db_query_QueryBuffer::selectedText() const
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     return grt::StringRef(editor->selected_text());
   }
   return grt::StringRef();
@@ -113,7 +95,7 @@ void db_query_QueryBuffer::selectionEnd(const grt::IntegerRef &value)
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     
     // Read the old start value, as we pass an entire range to the editor.
     size_t start = 0, end = 0;
@@ -126,7 +108,7 @@ void db_query_QueryBuffer::selectionStart(const grt::IntegerRef &value)
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
 
     // Read the old end value, as we pass an entire range to the editor.
     size_t start = 0, end = 0;
@@ -139,7 +121,7 @@ grt::IntegerRef db_query_QueryBuffer::selectionEnd() const
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     size_t start, end;
     if (editor->selected_range(start, end))
       return grt::IntegerRef(end);
@@ -151,7 +133,7 @@ grt::IntegerRef db_query_QueryBuffer::selectionStart() const
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     size_t start, end;
     if (editor->selected_range(start, end))
       return grt::IntegerRef(start);
@@ -164,7 +146,7 @@ grt::IntegerRef db_query_QueryBuffer::replaceContents(const std::string &text)
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     editor->set_refresh_enabled(true);
     editor->sql(text.c_str());
   }
@@ -176,7 +158,7 @@ grt::IntegerRef db_query_QueryBuffer::replaceSelection(const std::string &text)
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     editor->set_selected_text(text);
   }
   return grt::IntegerRef(0);
@@ -187,7 +169,7 @@ grt::IntegerRef db_query_QueryBuffer::replaceCurrentStatement(const std::string 
 {
   if (_data)
   {
-    Sql_editor::Ref editor(_data->editor.lock());
+    MySQLEditor::Ref editor(_data->editor.lock());
     size_t start, end;
 
     if (editor->get_current_statement_range(start, end))

@@ -38,8 +38,7 @@ MySQLTableColumnsListWrapper::MySQLTableColumnsListWrapper(::MySQLTableColumnsLi
 MySQLTableEditorWrapper::MySQLTableEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
 : TableEditorWrapper(
       new ::MySQLTableEditorBE(grtm->get_unmanaged_object(), 
-      db_mysql_TableRef::cast_from(::grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0)),
-      get_rdbms_for_db_object(::grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+      db_mysql_TableRef::cast_from(::grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {
@@ -87,7 +86,8 @@ void MySQLTableEditorWrapper::commit_changes()
 
 bool MySQLTableEditorWrapper::is_server_version_at_least(int major, int minor)
 {
-  return get_unmanaged_object()->is_server_version_at_least(major, minor);
+  db_CatalogRef catalog = get_unmanaged_object()->get_catalog();
+  return bec::is_supported_mysql_version_at_least(catalog->version(), major, minor);
 }
 
 //--------------------------------------------------------------------------------------------------

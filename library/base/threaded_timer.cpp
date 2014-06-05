@@ -75,13 +75,11 @@ void ThreadedTimer::stop()
  *              - A time span (given in seconds).
  * @param single_shot True, if this event must be triggered only once.
  * @param callback_ What to call when a timer event fires.
- * @param user_data A pointer which is transparently passed to the callback.
  * @result The id of the new task (can be used in the callback) or -1 if the task could not be added.
  */
-int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, timer_function callback_,
-                            void* user_data)
+int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, TimerFunction callback)
 {
-  TimerTask task= {0, 0.0, 0.0, callback_, false, single_shot, user_data, false};
+  TimerTask task = {0, 0.0, 0.0, callback, false, single_shot, false};
   
   if (value <= 0)
     throw std::logic_error("The given timer value is invalid.");
@@ -111,7 +109,6 @@ int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, time
     
     // We have the lock acquired so it is save to increment the id counter.
     task.task_id= timer->_next_id++;
-    task.user_data= user_data;
     timer->_tasks.push_back(task);
     
     return task.task_id;
@@ -129,7 +126,7 @@ int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, time
  */
 void ThreadedTimer::remove_task(int task_id)
 {
-  ThreadedTimer* timer= ThreadedTimer::get();
+  ThreadedTimer *timer = ThreadedTimer::get();
   timer->remove(task_id);
 }
 
@@ -155,7 +152,7 @@ ThreadedTimer::~ThreadedTimer()
   log_debug2("Threaded timer shutdown...\n");
 
   // Don't lock the mutex or we might deadlock here if the mutex is currently held by the work loop.
-  _terminate= true;
+  _terminate = true;
 
   // Wait for the timer thread to terminate.
   g_thread_join(_thread);
@@ -172,7 +169,7 @@ ThreadedTimer::~ThreadedTimer()
  */
 gpointer ThreadedTimer::start(gpointer data)
 {
-  ThreadedTimer *thread= static_cast<ThreadedTimer*>(data);
+  ThreadedTimer *thread = static_cast<ThreadedTimer *>(data);
   thread->main_loop();
   return NULL;
 }
@@ -184,12 +181,12 @@ gpointer ThreadedTimer::start(gpointer data)
  */
 gpointer ThreadedTimer::pool_function(gpointer data, gpointer user_data)
 {
-  ThreadedTimer* timer= static_cast<ThreadedTimer*>(user_data);
-  TimerTask* task= static_cast<TimerTask*>(data);
+  ThreadedTimer *timer = static_cast<ThreadedTimer *>(user_data);
+  TimerTask *task = static_cast<TimerTask *>(data);
   
   try
   {
-    bool do_stop= task->callback(task->task_id, task->user_data);
+    bool do_stop = task->callback(task->task_id);
    
     base::MutexLock lock(timer->_timer_lock);
     task->stop= do_stop || task->single_shot;
@@ -228,10 +225,12 @@ public:
   }
 };
 
+//--------------------------------------------------------------------------------------------------
+
 void ThreadedTimer::main_loop()
 {
   // Provides a high-quality clock which is used to compute execution times of tasks.
-  GTimer* clock= g_timer_new();
+  GTimer *clock = g_timer_new();
   g_timer_start(clock);
   while (!_terminate)
   {
@@ -246,13 +245,13 @@ void ThreadedTimer::main_loop()
     for (std::list<TimerTask>::iterator iterator= _tasks.begin(); iterator != _tasks.end(); iterator++)
     {
       if (iterator->next_time == 0)
-        iterator->next_time= g_timer_elapsed(clock, NULL) + iterator->wait_time;
+        iterator->next_time = g_timer_elapsed(clock, NULL) + iterator->wait_time;
     }
     
     // 2. Execute all tasks which are due now.
     // Processing of the task entries should be very fast here. No need to make a copy of them.
-    gdouble current_time= g_timer_elapsed(clock, NULL);
-    for (std::list<TimerTask>::iterator iterator= _tasks.begin(); iterator != _tasks.end(); iterator++)
+    gdouble current_time = g_timer_elapsed(clock, NULL);
+    for (std::list<TimerTask>::iterator iterator = _tasks.begin(); iterator != _tasks.end(); ++iterator)
     {
       if (_terminate)
         break;
@@ -262,8 +261,8 @@ void ThreadedTimer::main_loop()
         // When the task is due push it to our thread pool. It will then get one of the
         // free threads assigned to run in and pool_function is called in this thread's context.
         // Do it only if it isn't already scheduled.
-        TimerTask& task= *iterator;
-        task.scheduled= true;
+        TimerTask& task = *iterator;
+        task.scheduled = true;
         task.next_time += task.wait_time;
         g_thread_pool_push(_pool, &task, NULL);
       }
@@ -273,7 +272,6 @@ void ThreadedTimer::main_loop()
     _tasks.remove_if(IsStopped());
 
   }
-  // printf("timer thread ended\n");
   g_timer_destroy(clock);
 }
 
@@ -289,7 +287,7 @@ void ThreadedTimer::remove(int task_id)
   {
     if (iterator->task_id == task_id)
     {
-      iterator->stop= true;
+      iterator->stop = true;
       break;
     }
   }

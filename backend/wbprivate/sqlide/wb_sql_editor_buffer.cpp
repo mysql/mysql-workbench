@@ -23,6 +23,8 @@
 #include "wb_sql_editor_panel.h"
 
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <errno.h>
 
 #include "grt/common.h"
@@ -37,6 +39,7 @@
 #include "mforms/code_editor.h"
 
 #include "query_side_palette.h"
+#include "grtsqlparser/mysql_parser_services.h"
 
 // 20 MB max file size for auto-restoring
 #define MAX_FILE_SIZE_FOR_AUTO_RESTORE 20000000
@@ -294,6 +297,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
         if (rc != mforms::ResultOk)
           return false;
       }
+      
     }
     else if (g_str_has_suffix(file.c_str(), ".filename"))
     {
@@ -457,7 +461,7 @@ mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::P
   const std::vector<std::string> &file_names)
 {
 #ifdef _WIN32
-  bool case_sensitive = false;
+  bool case_sensitive = false; // TODO: on Mac case sensitivity depends on the file system.
 #else
   bool case_sensitive = true;
 #endif

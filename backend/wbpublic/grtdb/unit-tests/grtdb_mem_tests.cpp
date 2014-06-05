@@ -43,11 +43,9 @@ END_TEST_DATA_CLASS
 TEST_MODULE(bedb_mem_tests, "DB stuff memory tests");
 
 
-TEST_FUNCTION(1)
+TEST_FUNCTION(10)
 {
-  // make sure everything is registered
-  register_structs_app_xml();
-  
+  // Structs are auto registered.
   int i= grtm.get_grt()->scan_metaclasses_in("../../res/grt/");
   ensure("load structs", i>0);
   
@@ -57,13 +55,13 @@ TEST_FUNCTION(1)
   grtm.get_grt()->set_root(grtm.get_grt()->unserialize("../../res/grtdata/db_datatype_groups.xml"));
 
 
-  rdbms= db_mgmt_RdbmsRef::cast_from(grtm.get_grt()->unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml"));
+  rdbms= db_mgmt_RdbmsRef::cast_from(grtm.get_grt()->unserialize("data/res/mysql_rdbms_info.xml"));
 
   ensure("rdbms", rdbms.is_valid());
 }
 
-
-TEST_FUNCTION(2)
+// XXX: what does this test case actually test?
+TEST_FUNCTION(20)
 {
   // test primary key
   enum {N=100};
@@ -113,7 +111,7 @@ TEST_FUNCTION(2)
       catch (...)
       {}
     }
-    fprintf(stderr, ".");
+    //fprintf(stderr, ".");
     prev_table = table;
   }
 }

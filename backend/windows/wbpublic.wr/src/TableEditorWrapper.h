@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "DBObjectEditorBE.h"
+#include "DBObjectEditorWrapper.h"
 #include "GrtTemplates.h"
 #include "grtdb/editor_table.h"
 #include "recordset_wr.h"
@@ -177,11 +177,11 @@ public:
   FKConstraintColumnsListWrapper^ get_columns();
 };
 
-public ref class TableEditorWrapper : public DBObjectEditorBE
+public ref class TableEditorWrapper : public DBObjectEditorWrapper
 {
 protected:
   TableEditorWrapper(bec::TableEditorBE *inn)
-    : DBObjectEditorBE(inn)
+    : DBObjectEditorWrapper(inn)
   {}
 
 public:

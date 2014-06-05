@@ -376,7 +376,7 @@ bool VarGridModel::get_field_(const NodeId &node, ColumnId column, ssize_t &valu
   Cell cell;
   bool res = get_cell(cell, node, column, false);
   if (res)
-    value = boost::apply_visitor(_var_to_int, *cell);
+    value = (ssize_t)boost::apply_visitor(_var_to_int, *cell);
   return res;
 }
 

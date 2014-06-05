@@ -11,12 +11,12 @@ DEFAULT_LOG_DOMAIN("Editor")
 //------------------------------------------------------------------------------
 DbMySQLEditorPrivPage::DbMySQLEditorPrivPage(::bec::DBObjectEditorBE *be)
                       : _be(be)
-                      , _object_roles_list_be(new bec::ObjectRoleListBE(_be))
+                      , _object_roles_list_be(new bec::ObjectRoleListBE(_be, get_rdbms_for_db_object(be->get_dbobject())))
                       , _role_tree_be(new bec::RoleTreeBE(_be->get_catalog()))
                       , _object_privilege_list_be(0)
 {
   _holder = new Gtk::HBox(false, 8);
-  
+
   Gtk::ScrolledWindow *scrolled = new Gtk::ScrolledWindow();
   scrolled->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
   _holder->pack_start(*scrolled, true, true);
@@ -173,7 +173,7 @@ void DbMySQLEditorPrivPage::switch_be(bec::DBObjectEditorBE* be)
   ::bec::ObjectRoleListBE *object_roles_list_be = _object_roles_list_be;
   ::bec::RoleTreeBE       *role_tree_be = _role_tree_be;
 
-  _object_roles_list_be = new bec::ObjectRoleListBE(_be);
+  _object_roles_list_be = new bec::ObjectRoleListBE(_be, get_rdbms_for_db_object(be->get_dbobject()));
   _role_tree_be = new bec::RoleTreeBE(_be->get_catalog());
 
   _assigned_priv_tv->remove_all_columns();

@@ -432,9 +432,11 @@ newSize8	(pANTLR3_STRING_FACTORY factory, ANTLR3_UINT32 size)
     /* Always add one more byte for a terminator ;-)
     */
     string->chars	= (pANTLR3_UINT8) ANTLR3_MALLOC((size_t)(sizeof(ANTLR3_UINT8) * (size+1)));
-    *(string->chars)	= '\0';
-    string->size	= size + 1;
-
+	if (string->chars != NULL)
+    {
+		*(string->chars)	= '\0';
+		string->size	= size + 1;
+	}
 
     return string;
 }
@@ -460,8 +462,11 @@ newSizeUTF16	(pANTLR3_STRING_FACTORY factory, ANTLR3_UINT32 size)
     /* Always add one more byte for a terminator ;-)
     */	
     string->chars	= (pANTLR3_UINT8) ANTLR3_MALLOC((size_t)(sizeof(ANTLR3_UINT16) * (size+1)));
-    *(string->chars)	= '\0';
-    string->size	= size+1;	/* Size is always in characters, as is len */
+    if (string->chars != NULL)
+	{
+		*(string->chars)	= '\0';
+		string->size	= size+1;	/* Size is always in characters, as is len */
+	}
 
     return string;
 }
@@ -800,7 +805,12 @@ append8	(pANTLR3_STRING string, const char * newbit)
 
     if	(string->size < (string->len + len + 1))
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(string->len + len + 1));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(string->len + len + 1));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= string->len + len + 1;
     }
 
@@ -823,7 +833,12 @@ appendUTF16_8	(pANTLR3_STRING string, const char * newbit)
 
     if	(string->size < (string->len + len + 1))
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)((sizeof(ANTLR3_UINT16)*(string->len + len + 1))));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)((sizeof(ANTLR3_UINT16)*(string->len + len + 1))));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= string->len + len + 1;
     }
 
@@ -857,7 +872,12 @@ appendUTF16_UTF16	(pANTLR3_STRING string, const char * newbit)
 
     if	(string->size < (string->len + len + 1))
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)( sizeof(ANTLR3_UINT16) *(string->len + len + 1) ));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)( sizeof(ANTLR3_UINT16) *(string->len + len + 1) ));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= string->len + len + 1;
     }
 
@@ -877,7 +897,12 @@ set8	(pANTLR3_STRING string, const char * chars)
     len = (ANTLR3_UINT32)strlen(chars);
     if	(string->size < len + 1)
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(len + 1));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(len + 1));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= len + 1;
     }
 
@@ -900,7 +925,12 @@ setUTF16_8	(pANTLR3_STRING string, const char * chars)
     len = (ANTLR3_UINT32)strlen(chars);
     if	(string->size < len + 1)
 	{
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16)*(len + 1)));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16)*(len + 1)));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= len + 1;
     }
     apPoint = ((pANTLR3_UINT16)string->chars);
@@ -933,7 +963,12 @@ setUTF16_UTF16    (pANTLR3_STRING string, const char * chars)
 
     if	(string->size < len + 1)
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16)*(len + 1)));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16)*(len + 1)));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= len + 1;
     }
 
@@ -951,7 +986,12 @@ addc8	(pANTLR3_STRING string, ANTLR3_UINT32 c)
 {
     if	(string->size < string->len + 2)
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(string->len + 2));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(string->len + 2));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= string->len + 2;
     }
     *(string->chars + string->len)	= (ANTLR3_UINT8)c;
@@ -968,7 +1008,12 @@ addcUTF16	(pANTLR3_STRING string, ANTLR3_UINT32 c)
 
     if	(string->size < string->len + 2)
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16) * (string->len + 2)));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16) * (string->len + 2)));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= string->len + 2;
     }
     ptr	= (pANTLR3_UINT16)(string->chars);
@@ -1035,7 +1080,12 @@ insert8	(pANTLR3_STRING string, ANTLR3_UINT32 point, const char * newbit)
 
     if	(string->size < (string->len + len + 1))
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(string->len + len + 1));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(string->len + len + 1));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= string->len + len + 1;
     }
 
@@ -1073,8 +1123,13 @@ insertUTF16_8	(pANTLR3_STRING string, ANTLR3_UINT32 point, const char * newbit)
 
     if	(string->size < (string->len + len + 1))
     {
-	string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16)*(string->len + len + 1)));
-	string->size	= string->len + len + 1;
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16)*(string->len + len + 1)));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
+		string->size	= string->len + len + 1;
     }
 
     /* Move the characters we are inserting before, including the delimiter
@@ -1120,7 +1175,12 @@ insertUTF16_UTF16	(pANTLR3_STRING string, ANTLR3_UINT32 point, const char * newb
 
     if	(string->size < (string->len + len + 1))
     {
-		string->chars	= (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16)*(string->len + len + 1)));
+		pANTLR3_UINT8 newAlloc = (pANTLR3_UINT8) ANTLR3_REALLOC((void *)string->chars, (ANTLR3_UINT32)(sizeof(ANTLR3_UINT16)*(string->len + len + 1)));
+		if (newAlloc == NULL)
+		{
+			return NULL;
+		}
+		string->chars	= newAlloc;
 		string->size	= string->len + len + 1;
     }
 
@@ -1379,24 +1439,27 @@ static	  pANTLR3_STRING    to8_UTF16	(pANTLR3_STRING string)
 	/* Always add one more byte for a terminator
 	*/
 	newStr->chars   = (pANTLR3_UINT8) ANTLR3_MALLOC((size_t)(string->len + 1));
-	newStr->size    = string->len + 1;
-	newStr->len	    = string->len;
-
-	/* Now copy each UTF16 charActer , making it an 8 bit character of 
-	* some sort.
-	*/
-	for	(i=0; i<string->len; i++)
+	if (newStr->chars != NULL)
 	{
-		ANTLR3_UCHAR	c;
+		newStr->size    = string->len + 1;
+		newStr->len	    = string->len;
 
-		c = *(((pANTLR3_UINT16)(string->chars)) + i);
+		/* Now copy each UTF16 charActer , making it an 8 bit character of 
+		* some sort.
+		*/
+		for	(i=0; i<string->len; i++)
+		{
+			ANTLR3_UCHAR	c;
 
-		*(newStr->chars + i) = (ANTLR3_UINT8)(c > 255 ? '_' : c);
+			c = *(((pANTLR3_UINT16)(string->chars)) + i);
+
+			*(newStr->chars + i) = (ANTLR3_UINT8)(c > 255 ? '_' : c);
+		}
+
+		/* Terminate
+		*/
+		*(newStr->chars + newStr->len) = '\0';
 	}
-
-	/* Terminate
-	*/
-	*(newStr->chars + newStr->len) = '\0';
 
 	return newStr;
 }

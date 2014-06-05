@@ -142,7 +142,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -159,7 +159,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>true</BrowseInformation>
@@ -180,7 +180,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -196,7 +196,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -213,7 +213,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -230,7 +230,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -252,11 +252,11 @@
     <ClCompile Include="src\GrtStringListModel.cpp" />
     <ClCompile Include="src\GrtThreadedTaskWrapper.cpp" />
     <ClCompile Include="src\ModelWrappers.cpp" />
-    <ClCompile Include="src\ObjectRolesBE.cpp" />
+    <ClCompile Include="src\ObjectRolesWrapper.cpp" />
     <ClCompile Include="src\RefreshUI.cpp" />
     <ClCompile Include="src\RoleTreeBE.cpp" />
-    <ClCompile Include="src\RoutineEditorBE.cpp" />
-    <ClCompile Include="src\RoutineGroupEditorBE.cpp" />
+    <ClCompile Include="src\RoutineEditorWrapper.cpp" />
+    <ClCompile Include="src\RoutineGroupEditorWrapper.cpp" />
     <ClCompile Include="src\SchemaEditorWrapper.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -269,7 +269,7 @@
     <ClCompile Include="src\TableEditorWrapper.cpp" />
     <ClCompile Include="src\UserEditorBE.cpp" />
     <ClCompile Include="src\UserRoleEditorBE.cpp" />
-    <ClCompile Include="src\ViewEditorBE.cpp" />
+    <ClCompile Include="src\ViewEditorWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\sqlide.wr\src\recordset_wr.h" />
@@ -277,7 +277,7 @@
     <ClInclude Include="src\ActionList.h" />
     <ClInclude Include="src\BaseEditorWrapper.h" />
     <ClInclude Include="src\Canvas.h" />
-    <ClInclude Include="src\DBObjectEditorBE.h" />
+    <ClInclude Include="src\DBObjectEditorWrapper.h" />
     <ClInclude Include="src\DBObjectFilterBE.h" />
     <ClInclude Include="src\DBObjectMasterFilterBE.h" />
     <ClInclude Include="src\DelegateWrapper.h" />
@@ -291,17 +291,17 @@
     <ClInclude Include="src\GrtValueInspector.h" />
     <ClInclude Include="src\IconManager.h" />
     <ClInclude Include="src\ModelWrappers.h" />
-    <ClInclude Include="src\ObjectRolesBE.h" />
+    <ClInclude Include="src\ObjectRolesWrapper.h" />
     <ClInclude Include="src\RefreshUI.h" />
     <ClInclude Include="src\RoleTreeBE.h" />
-    <ClInclude Include="src\RoutineEditorBE.h" />
-    <ClInclude Include="src\RoutineGroupEditorBE.h" />
+    <ClInclude Include="src\RoutineEditorWrapper.h" />
+    <ClInclude Include="src\RoutineGroupEditorWrapper.h" />
     <ClInclude Include="src\SchemaEditorWrapper.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\TableEditorWrapper.h" />
     <ClInclude Include="src\UserEditorBE.h" />
     <ClInclude Include="src\UserRoleEditorBE.h" />
-    <ClInclude Include="src\ViewEditorBE.h" />
+    <ClInclude Include="src\ViewEditorWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

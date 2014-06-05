@@ -52,7 +52,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const std::string &sql, std::list<std::st
 
 //--------------------------------------------------------------------------------------------------
 
-const char* skip_leading_whitespace(const char *head, const char *tail)
+static const unsigned char* skip_leading_whitespace(const unsigned char *head, const unsigned char *tail)
 {
   while (head < tail && *head <= ' ')
     head++;
@@ -61,15 +61,15 @@ const char* skip_leading_whitespace(const char *head, const char *tail)
 
 //--------------------------------------------------------------------------------------------------
 
-bool is_line_break(const char *head, const char *line_break)
+bool is_line_break(const unsigned char *head, const unsigned char *line_break)
 {
   if (*line_break == '\0')
     return false;
 
   while (*head != '\0' && *line_break != '\0' && *head == *line_break)
- {
-   head++;
-   line_break++;
+  {
+    head++;
+    line_break++;
   }
   return *line_break == '\0';
 }
@@ -80,18 +80,20 @@ bool is_line_break(const char *head, const char *line_break)
  * A statement splitter to take a list of sql statements and split them into individual statements,
  * return their position and length in the original string (instead the copied strings).
  */
-int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length, const std::string &initial_delimiter, 
-                                       std::vector<std::pair<size_t, size_t> > &ranges, const char *line_break)
+int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length,
+  const std::string &initial_delimiter, std::vector<std::pair<size_t, size_t> > &ranges,
+  const std::string &line_break)
 {
   _stop = false;
   std::string delimiter = initial_delimiter.empty() ? ";" : initial_delimiter;
-  const char *delimiter_head = delimiter.c_str();
+  const unsigned char *delimiter_head = (unsigned char*)delimiter.c_str();
   
-  const char keyword[] = "delimiter";
+  const unsigned char keyword[] = "delimiter";
   
-  const char *head = sql;
-  const char *tail = head;
-  const char *end = head + length;
+  const unsigned char *head = (unsigned char *)sql;
+  const unsigned char *tail = head;
+  const unsigned char *end = head + length;
+  const unsigned char *new_line = (unsigned char*)line_break.c_str(); 
   bool have_content = false; // Set when anything else but comments were found for the current statement.
   
   while (!_stop && tail < end)
@@ -129,12 +131,12 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length, const std
         
       case '-': // Possible single line comment.
       {
-        const char *end_char = tail + 2;
-        if (*(tail + 1) == '-' && (*end_char == ' ' || *end_char == '\t' || is_line_break(end_char, line_break)))
+        const unsigned char *end_char = tail + 2;
+        if (*(tail + 1) == '-' && (*end_char == ' ' || *end_char == '\t' || is_line_break(end_char, new_line)))
         {
           // Skip everything until the end of the line.
           tail += 2;
-          while (tail < end && !is_line_break(tail, line_break))
+          while (tail < end && !is_line_break(tail, new_line))
             tail++;
           if (!have_content)
             head = tail;
@@ -146,7 +148,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length, const std
       }
         
       case '#': // MySQL single line comment.
-        while (tail < end && !is_line_break(tail, line_break))
+        while (tail < end && !is_line_break(tail, new_line))
           tail++;
         if (!have_content)
           head = tail;
@@ -178,16 +180,16 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length, const std
 
         // Possible start of the keyword DELIMITER. Must be at the start of the text or a character,
         // which is not part of a regular MySQL identifier (0-9, A-Z, a-z, _, $, \u0080-\uffff).
-        unsigned char previous = tail > sql ? *(tail - 1) : 0;
+        unsigned char previous = tail > (unsigned char *)sql ? *(tail - 1) : 0;
         bool is_identifier_char = previous >= 0x80 
           || (previous >= '0' && previous <= '9')
           || ((previous | 0x20) >= 'a' && (previous | 0x20) <= 'z')
           || previous == '$'
           || previous == '_';
-        if (tail == sql || !is_identifier_char)
+        if (tail == (unsigned char *)sql || !is_identifier_char)
         {
-          const char *run = tail + 1;
-          const char *kw = keyword + 1;
+          const unsigned char *run = tail + 1;
+          const unsigned char *kw = keyword + 1;
           int count = 9;
           while (count-- > 1 && (*run++ | 0x20) == *kw++)
             ;
@@ -195,13 +197,13 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length, const std
           {
             // Delimiter keyword found. Get the new delimiter (everything until the end of the line).
             tail = run++;
-            while (run < end && !is_line_break(run, line_break))
+            while (run < end && !is_line_break(run, new_line))
               run++;
-            delimiter = base::trim(std::string(tail, run - tail));
-            delimiter_head = delimiter.c_str();
+            delimiter = base::trim(std::string((char *)tail, run - tail));
+            delimiter_head = (unsigned char*)delimiter.c_str();
 
             // Skip over the delimiter statement and any following line breaks.
-            while (is_line_break(run, line_break))
+            while (is_line_break(run, new_line))
               run++;
             tail = run;
             head = tail;
@@ -231,14 +233,14 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length, const std
         // Most common case. Trim the statement and check if it is not empty before adding the range.
         head = skip_leading_whitespace(head, tail);
         if (head < tail)
-          ranges.push_back(std::make_pair<size_t, size_t>(head - sql, tail - head));
+          ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
         head = ++tail;
         have_content = false;
       }
       else
       {
-        const char *run = tail + 1;
-        const char *del = delimiter_head + 1;
+        const unsigned char *run = tail + 1;
+        const unsigned char *del = delimiter_head + 1;
         while (count-- > 1 && (*run++ == *del++))
           ;
         
@@ -248,7 +250,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length, const std
           // Run points to the first character after the delimiter.
           head = skip_leading_whitespace(head, tail);
           if (head < tail)
-            ranges.push_back(std::make_pair<size_t, size_t>(head - sql, tail - head));
+            ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
           tail = run;
           head = run;
           have_content = false;
@@ -260,7 +262,7 @@ int MysqlSqlFacadeImpl::splitSqlScript(const char *sql, size_t length, const std
   // Add remaining text to the range list.
   head = skip_leading_whitespace(head, tail);
   if (head < tail)
-    ranges.push_back(std::make_pair<size_t, size_t>(head - sql, tail - head));
+    ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
   
   return 0;
 }
@@ -328,35 +330,35 @@ Invalid_sql_parser::Ref MysqlSqlFacadeImpl::invalidSqlParser()
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseInserts(db_TableRef table, const std::string sql)
+int MysqlSqlFacadeImpl::parseInserts(db_TableRef table, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_inserts(db_mysql_TableRef::cast_from(table), sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseTriggers(db_TableRef table, const std::string sql)
+int MysqlSqlFacadeImpl::parseTrigger(db_TriggerRef trigger, const std::string &sql)
 {
-  return Mysql_invalid_sql_parser::create(get_grt())->parse_triggers(db_mysql_TableRef::cast_from(table), sql);
+  return Mysql_invalid_sql_parser::create(get_grt())->parse_trigger(trigger, sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseRoutine(db_RoutineRef routine, const std::string sql)
+int MysqlSqlFacadeImpl::parseRoutine(db_RoutineRef routine, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_routine(db_mysql_RoutineRef::cast_from(routine), sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseRoutines(db_RoutineGroupRef routineGroup, const std::string sql)
+int MysqlSqlFacadeImpl::parseRoutines(db_RoutineGroupRef routineGroup, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_routines(db_mysql_RoutineGroupRef::cast_from(routineGroup), sql);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::parseView(db_ViewRef view, const std::string sql)
+int MysqlSqlFacadeImpl::parseView(db_ViewRef view, const std::string &sql)
 {
   return Mysql_invalid_sql_parser::create(get_grt())->parse_view(db_mysql_ViewRef::cast_from(view), sql);
 }
@@ -370,27 +372,27 @@ Sql_syntax_check::Ref MysqlSqlFacadeImpl::sqlSyntaxCheck()
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::checkSqlSyntax(const std::string sql)
+int MysqlSqlFacadeImpl::checkSqlSyntax(const std::string &sql)
 {
   return Mysql_sql_syntax_check::create(get_grt())->check_sql(sql.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::checkTriggerSyntax(const std::string sql)
+int MysqlSqlFacadeImpl::checkTriggerSyntax(const std::string &sql)
 {
   return Mysql_sql_syntax_check::create(get_grt())->check_trigger(sql.c_str());
 }
 
 
-int MysqlSqlFacadeImpl::checkViewSyntax(const std::string sql)
+int MysqlSqlFacadeImpl::checkViewSyntax(const std::string &sql)
 {
   return Mysql_sql_syntax_check::create(get_grt())->check_view(sql.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-int MysqlSqlFacadeImpl::checkRoutineSyntax(const std::string sql)
+int MysqlSqlFacadeImpl::checkRoutineSyntax(const std::string &sql)
 {
   return Mysql_sql_syntax_check::create(get_grt())->check_routine(sql.c_str());
 }
@@ -1078,13 +1080,11 @@ grt::DictRef MysqlSqlFacadeImpl::parseStatement(const std::string &sql_statement
     charsets.erase("utf32");
   }
   
-  MySQLRecognizer recognizer(sql_statement.c_str(), sql_statement.length(), true, server_version, sql_mode, charsets);
+  MySQLRecognizer recognizer(server_version, sql_mode, charsets);
+  recognizer.parse(sql_statement.c_str(), sql_statement.length(), true, QtGrant);
 
   if (!recognizer.has_errors())
-  {
-    if (recognizer.query_type() == QtGrant)
-      ret_val = parseGrantStatement(recognizer);
-  }
+    ret_val = parseGrantStatement(recognizer);
 
   return ret_val;
 }
@@ -1221,9 +1221,6 @@ grt::DictRef MysqlSqlFacadeImpl::parseGrantStatement(MySQLRecognizer &recognizer
   terminators.insert(PRIVILEGE_TARGET_TOKEN);
 
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
-
-  // Starts the tree navigation
-  walker.next();
 
   // Skips the GRANT token
   walker.next();

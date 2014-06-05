@@ -47,14 +47,14 @@ namespace mforms
 };
 
 class SqlEditorForm;
-class Sql_editor;
+class MySQLEditor;
 
 class SqlEditorResult;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
 {
   SqlEditorForm *_form;
-  boost::shared_ptr<Sql_editor> _editor;
+  boost::shared_ptr<MySQLEditor> _editor;
 
   mforms::Box _editor_box;
 
@@ -116,7 +116,7 @@ public:
   SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed);
   ~SqlEditorPanel();
 
-  boost::shared_ptr<Sql_editor> editor_be() { return _editor; }
+  boost::shared_ptr<MySQLEditor> editor_be() { return _editor; }
   db_query_QueryEditorRef grtobj();
 
   mforms::ToolBar *get_toolbar();

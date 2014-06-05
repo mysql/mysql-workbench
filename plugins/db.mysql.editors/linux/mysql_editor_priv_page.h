@@ -22,6 +22,7 @@
 #include "grtdb/role_tree_model.h"
 #include <gtkmm/treemodel.h>
 #include "widgets_auto_cleaner.h"
+#include "grtdb/db_object_helpers.h"
 
 class ListModelWrapper;
 namespace Gtk

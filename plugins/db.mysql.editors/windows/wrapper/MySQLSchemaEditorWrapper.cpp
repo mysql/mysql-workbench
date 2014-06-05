@@ -32,8 +32,7 @@ using namespace MySQL::Grt::Db;
 MySQLSchemaEditorWrapper::MySQLSchemaEditorWrapper(GrtManager^ grtm, GrtValue^ arglist)
   : SchemaEditorWrapper(
       new MySQLSchemaEditorBE(grtm->get_unmanaged_object(),
-        db_mysql_SchemaRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0)),
-        get_rdbms_for_db_object(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+        db_mysql_SchemaRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
       )
     )
 {

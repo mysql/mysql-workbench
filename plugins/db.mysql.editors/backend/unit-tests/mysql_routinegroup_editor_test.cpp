@@ -17,13 +17,8 @@
  * 02110-1301  USA
  */
 
-#include "grtpp.h"
 #include "../../plugins/db.mysql.editors/backend/mysql_routinegroup_editor.h"
 #include "synthetic_mysql_model.h"
-#include "wb_helpers.h"
-#include <vector>
-#include "stub/stub_mforms.h"
-#include "../../library/base/base/string_utilities.h"
 
 using namespace grt;
 using namespace bec;
@@ -32,21 +27,11 @@ using namespace tut;
 BEGIN_TEST_DATA_CLASS(mysql_routinegroup_editor_test)
 public:
   WBTester wbt;
-  //GRTManagerTest grtm;
   GRT* grt;
-  db_mgmt_RdbmsRef rdbms;
 
 TEST_DATA_CONSTRUCTOR(mysql_routinegroup_editor_test)
-//  :grtm(false)
 {
   grt = wbt.grt;
- // std::string path = "../../Bin/Debug";
- // grtm.set_search_paths(path, path, path);
- // grtm.initialize(path);
-
- // grt= grtm.get_grt();
-//  grt->scan_metaclasses_in("../../res/grt/");
-//  grt->end_loading_metaclasses();
 }
 
 END_TEST_DATA_CLASS
@@ -54,25 +39,23 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(mysql_routinegroup_editor_test, "mysql_routinegroup_editor_test");
 
-TEST_FUNCTION(1) 
+TEST_FUNCTION(10) 
 {
-const char* routine_sql= 
-  "DELIMITER //"
-  "\n\n-- --------------------------------\n";
+const char* routine_sql = "";
 
   SynteticMySQLModel model(grt);
-  size_t count= model.routineGroup->routines().count();
+  size_t count = model.routineGroup->routines().count();
   ensure("Invalid number of routines", count == 1);
 
   model.schema->name("test_schema");
   model.routineGroup->name("rg");
-  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup, model.model->rdbms());
+  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
 
-  // Parse SQL without any routine definition.
-  rg.parse_sql(grt, routine_sql);
+  // Parse SQL without any routine definition. That should not affect the routine's existence.
+  rg.set_sql(routine_sql);
 
-  count= model.routineGroup->routines().count();
-  ensure("Previous routine definition still there", count == 0);
+  count = model.routineGroup->routines().count();
+  ensure("Routine disappeard", count == 1);
 }
 
 
@@ -82,191 +65,172 @@ TEST_FUNCTION(20)
 #define NL "\n"
 #endif
 
-const char* routine_sql= 
-"DELIMITER //"NL
-"CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT"NL
-"    DETERMINISTIC"NL
-"    READS SQL DATA"NL
-"BEGIN"NL
-"       #OK, here some comment"NL
-"  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-"  SELECT count(*) INTO res"NL
-"    FROM t1"NL
-"    WHERE id > less_than AND id < greather_than;"NL
-"  RETURN res;"NL
-"END //"NL
-"CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT"NL
-"    DETERMINISTIC"NL
-"    READS SQL DATA"NL
-"BEGIN"NL
-"       #OK, here some comment"NL
-"  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-"  SELECT count(*) INTO res"NL
-"    FROM t1"NL
-"    WHERE id > less_than AND id < greather_than;"NL
-"  RETURN res;"NL
-"END //"NL
-"CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT"NL
-"    DETERMINISTIC"NL
-"    READS SQL DATA"NL
-"BEGIN"NL
-"       #OK, here some comment"NL
-"  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-"  SELECT count(*) INTO res"NL
-"    FROM t1"NL
-"    WHERE id > less_than AND id < greather_than;"NL
-"  RETURN res;"NL
-"END //"NL
-"DELIMITER ;";
+const char* routine_sql =
+  "DELIMITER //"NL
+  "CREATE FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT"NL
+  "    DETERMINISTIC"NL
+  "    READS SQL DATA"NL
+  "BEGIN"NL
+  "       #OK, here some comment"NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
+  "  SELECT count(*) INTO res"NL
+  "    FROM t1"NL
+  "    WHERE id > less_than AND id < greather_than;"NL
+  "  RETURN res;"NL
+  "END //"NL
+  "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT"NL
+  "    DETERMINISTIC"NL
+  "    READS SQL DATA"NL
+  "BEGIN"NL
+  "       #OK, here some comment"NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
+  "  SELECT count(*) INTO res"NL
+  "    FROM t1"NL
+  "    WHERE id > less_than AND id < greather_than;"NL
+  "  RETURN res;"NL
+  "END //"NL
+  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT"NL
+  "    DETERMINISTIC"NL
+  "    READS SQL DATA"NL
+  "BEGIN"NL
+  "       #OK, here some comment"NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
+  "  SELECT count(*) INTO res"NL
+  "    FROM t1"NL
+  "    WHERE id > less_than AND id < greather_than;"NL
+  "  RETURN res;"NL
+  "END //"NL
+  "DELIMITER ;";
 
   SynteticMySQLModel model(grt);
   model.schema->name("test_schema");
   model.routineGroup->name("rg");
-  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup, model.model->rdbms());
+  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
 
-  rg.parse_sql(grt, routine_sql);
+  // Note: use_sql is a special functions only for tests like this. The normal access function
+  //       set_sql() is interacting with the associated code editor. We don't have a working editor
+  //       in unit tests, however.
+  rg.use_sql(routine_sql);
 
-  std::string names[]= {"get_count", "get_count1", "get_count2"};
-  assure_equal(model.routineGroup->routines().count(), sizeof(names)/sizeof(names[0]));
-  for (size_t i= 0, size= model.routineGroup->routines().count(); i < size; i++)
+  std::string names[] = {"get_count", "get_count1", "get_count2"};
+  assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
+  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
   {
-    db_RoutineRef r= model.routineGroup->routines().get(i);
-    std::string name= r->name();
+    db_RoutineRef r = model.routineGroup->routines().get(i);
+    std::string name = r->name();
     assure_equal(names[i], name);
   }
 
-  // it would be wise requirement that it stays unchanged in case nothing changed in build sql
-  // otherwise it will grow with every processing
-  std::string processed_sql= rg.get_routines_sql();
+  // Read back the sql from the group to see how it changed.
+  std::string processed_sql = rg.get_sql();
 
   std::vector<std::string> processed_routines = base::split(processed_sql, "\n\n");
+  ensure_equals("Lines unintentionally removed", 5, processed_routines.size());
 
-  // Gets rid of the header
-  processed_routines.erase(processed_routines.begin());
+  // Do the same steps from above again with the processed sql.
+  // There shouldn't be any change.
+  rg.use_sql(processed_sql);
 
-  ensure("New line insertion failed", 3 == processed_routines.size());
-
-
-  rg.parse_sql(grt, processed_sql);
-
-  size_t routines_count= model.routineGroup->routines().count();
-
-  assure_equal(routines_count, sizeof(names) / sizeof(names[0]));
-  for (size_t i= 0, size= model.routineGroup->routines().count(); i < size; i++)
+  assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
+  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
   {
-    db_RoutineRef r= model.routineGroup->routines().get(i);
-    std::string name= r->name();
+    db_RoutineRef r = model.routineGroup->routines().get(i);
+    std::string name = r->name();
     assure_equal(names[i], name);
   }
 
-  std::string twice_processed_sql= rg.get_routines_sql();
-
+  std::string twice_processed_sql = rg.get_sql();
   std::vector<std::string> twice_processed_routines = base::split(twice_processed_sql, "\n\n");
-  
-  twice_processed_routines.erase(twice_processed_routines.begin());
-
-  ensure("New line insertion failed", 3 == twice_processed_routines.size());
+  ensure_equals("Lines unintentionally removed", 5, twice_processed_routines.size());
 
   // Now compares each routine to discard any difference
   for(size_t index = 0; index < processed_routines.size(); index++)
-  {
-    ensure("Processed routine is not stable", processed_routines[index] == twice_processed_routines[index]);
-  }
-
+    ensure_equals("Routine unintentionally changed", processed_routines[index], twice_processed_routines[index]);
 }
 
-TEST_FUNCTION(21) 
+/**
+ *	Same test as case 20, but this time with syntax errors.
+ */
+TEST_FUNCTION(30) 
 {
-const char* routine_sql= 
-"DELIMITER //"NL
-"CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT"NL
-"    DETERMINISTIC"NL
-"    READS SQL DATA"NL
-"BEGIN"NL
-"       #OK, here some comment"NL
-"  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-"  SELECT count(*) INTO res"NL
-"    FROM t1"NL
-"    WHERE id > less_than AND id < greather_than;"NL
-"  RETURN res;"NL
-"END //"NL
-"CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT"NL
-"    DETERMINISTIC"NL
-"    READS SQL DATA"NL
-"BEGIN"NL
-"       #OK, here some comment"NL
-"  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-"  SELECT count(*) INTO res"NL
-"    FROM t1"NL
-"    WHERE id > less_than AND id < greather_than;"NL
-"  RETURN res;"NL
-"END //"NL
-"CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT"NL
-"    DETERMINISTIC"NL
-"    READS SQL DATA"NL
-"-- BEGIN"NL
-"       #OK, here some comment"NL
-"  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
-"  SELECT count(*) INTO res"NL
-"    FROM t1"NL
-"    WHERE id > less_than AND id < greather_than;"NL
-"  RETURN res;"NL
-"END //"NL
-"DELIMITER ;";
+const char* routine_sql =
+  "DELIMITER //"NL
+  "CR!!! FUNCTION get_count(less_than INT, greather_than INT) RETURNS INT"NL
+  "    DETERMINISTIC"NL
+  "    READS SQL DATA"NL
+  "BEGIN"NL
+  "       #OK, here some comment"NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
+  "  SELECT count(*) INTO res"NL
+  "    FROM t1"NL
+  "    WHERE id > less_than AND id < greather_than;"NL
+  "  RETURN res;"NL
+  "END //"NL
+  "CREATE FUNCTION get_count1(less_than INT, greather_than INT) RETURNS INT"NL
+  "    DETERMINISTIC"NL
+  "    READS SQL DATA"NL
+  "BEGIN"NL
+  "       #OK, here some comment"NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
+  "  SELECT count(*) INTO res"NL
+  "    FROM t1"NL
+  "    WHERE id > less_than AND id < greather_than;"NL
+  "  RETURN res;"NL
+  "END //"NL
+  "CREATE FUNCTION get_count2(less_than INT, greather_than INT) RETURNS INT"NL
+  "    DETERMINISTIC"NL
+  "    READS SQL DATA"NL
+  "-- BEGIN"NL
+  "       #OK, here some comment"NL
+  "  DECLARE res INTEGER; #FEES PAID TO RENT THE VIDEOS INITIALLY"NL
+  "  SELECT count(*) INTO res"NL
+  "    FROM t1"NL
+  "    WHERE id > less_than AND id < greather_than;"NL
+  "  RETURN res;"NL
+  "END //"NL
+  "DELIMITER ;";
 
   SynteticMySQLModel model(grt);
   model.schema->name("test_schema");
   model.routineGroup->name("rg");
-  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup, model.model->rdbms());
+  MySQLRoutineGroupEditorBE rg(wbt.wb->get_grt_manager(), model.routineGroup);
 
-  rg.parse_sql(grt, routine_sql);
+  rg.use_sql(routine_sql);
 
-  std::string names[]= {"rg_SYNTAX_ERROR_1", "get_count1", "rg_SYNTAX_ERROR_2"};
-  assure_equal(model.routineGroup->routines().count(), sizeof(names)/sizeof(names[0]));
-  for (size_t i= 0, size= model.routineGroup->routines().count(); i < size; i++)
+  std::string names[] = {"get_count_SYNTAX_ERROR", "get_count1", "rg_SYNTAX_ERROR_1"};
+  assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
+  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
   {
     db_RoutineRef r= model.routineGroup->routines().get(i);
     std::string name= r->name();
     assure_equal(names[i], name);
   }
 
-  // it would be wise requirement that it stays unchanged in case nothing changed in build sql
-  // otherwise it will grow with every processing
-  std::string processed_sql= rg.get_routines_sql();
+  // Read back the sql from the group to see how it changed.
+  std::string processed_sql = rg.get_sql();
 
   std::vector<std::string> processed_routines = base::split(processed_sql, "\n\n");
+  ensure_equals("Lines unintentionally removed", 5, processed_routines.size());
 
-  processed_routines.erase(processed_routines.begin());
+  // Do the same steps from above again with the processed sql.
+  // There shouldn't be any change.
+  rg.use_sql(processed_sql);
 
-  ensure("New line insertion failed", 3 == processed_routines.size());
-
-
-  rg.parse_sql(grt, processed_sql);
-
-  size_t routines_count= model.routineGroup->routines().count();
-
-  assure_equal(routines_count, sizeof(names)/sizeof(names[0]));
-  for (size_t i= 0, size= model.routineGroup->routines().count(); i < size; i++)
+  assure_equal(model.routineGroup->routines().count(), sizeof(names) / sizeof(names[0]));
+  for (size_t i = 0, size = model.routineGroup->routines().count(); i < size; i++)
   {
-    db_RoutineRef r= model.routineGroup->routines().get(i);
-    std::string name= r->name();
+    db_RoutineRef r = model.routineGroup->routines().get(i);
+    std::string name = r->name();
     assure_equal(names[i], name);
   }
 
-  std::string twice_processed_sql= rg.get_routines_sql();
-  
+  std::string twice_processed_sql = rg.get_sql();
   std::vector<std::string> twice_processed_routines = base::split(twice_processed_sql, "\n\n");
-
-  twice_processed_routines.erase(twice_processed_routines.begin());
-
-  ensure("New line insertion failed", 3 == twice_processed_routines.size());
-
+  ensure_equals("Lines unintentionally removed", 5, twice_processed_routines.size());
 
   // Now compares each routine to discard any difference
-  for(size_t index = 0; index < processed_routines.size(); index++)
-  {
-    ensure("Processed routine is not stable", processed_routines[index] == twice_processed_routines[index]);
-  }
+  for (size_t index = 0; index < processed_routines.size(); index++)
+    ensure_equals("Routine unintentionally changed", processed_routines[index], twice_processed_routines[index]);
 }
 
 END_TESTS

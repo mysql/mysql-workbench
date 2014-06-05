@@ -169,7 +169,12 @@ public:
   
   int lastConnectionErrorCode(int conn);
   std::string lastConnectionError(int conn);
-  uint64_t lastUpdateCount(int conn);
+//  #ifdef DEFINE_INT_FUNCTIONS
+  size_t lastUpdateCount(int conn);
+//  #else
+//  uint64_t lastUpdateCount(int conn);
+//  #endif
+  
 
   // returns 1/0 for ok, -1 for error
   int execute(int conn, const std::string &query);
@@ -231,7 +236,13 @@ private:
     sql::ConnectionWrapper conn;
     std::string last_error;
     int last_error_code;
-    uint64_t last_update_count;
+//    #ifdef DEFINE_INT_FUNCTIONS
+	// size_t only for the time being, will be changed to uint64_t once we have big integer support
+	// for 32bit also.
+    size_t last_update_count;
+//    #else
+//    uint64_t last_update_count;
+//    #endif
   };
 
   base::Mutex _mutex;
@@ -354,7 +365,7 @@ int DbMySQLQueryImpl::execute(int conn, const std::string &query)
   {
     std::auto_ptr<sql::Statement> pstmt(con->createStatement());
     int r = pstmt->execute(query) ? 1 : 0;
-    cinfo->last_update_count = pstmt->getUpdateCount();
+    cinfo->last_update_count = (size_t)pstmt->getUpdateCount();
     return r;
   }
   catch (sql::SQLException &exc)
@@ -397,7 +408,7 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
 
     ++_resultset_id;
 
-    cinfo->last_update_count = pstmt->getUpdateCount();
+    cinfo->last_update_count = (size_t)pstmt->getUpdateCount();
     _resultsets[_resultset_id] = res;
   }
   catch (sql::SQLException &exc)
@@ -419,6 +430,15 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
 }
 
 
+//#ifdef DEFINE_INT_FUNCTIONS
+size_t DbMySQLQueryImpl::lastUpdateCount(int conn)
+{
+  base::MutexLock lock(_mutex);
+  if (_connections.find(conn) == _connections.end())
+    throw std::invalid_argument("Invalid connection");
+  return _connections[conn]->last_update_count;
+}
+/*#else
 uint64_t DbMySQLQueryImpl::lastUpdateCount(int conn)
 {
   base::MutexLock lock(_mutex);
@@ -426,6 +446,7 @@ uint64_t DbMySQLQueryImpl::lastUpdateCount(int conn)
     throw std::invalid_argument("Invalid connection");
   return _connections[conn]->last_update_count;
 }
+#endif*/
 
 
 int DbMySQLQueryImpl::lastConnectionErrorCode(int conn)

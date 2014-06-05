@@ -46,6 +46,7 @@
 #include "base/file_utilities.h"
 #include "base/log.h"
 #include "base/boost_smart_ptr_helpers.h"
+#include "base/util_functions.h"
 
 #include "workbench/wb_command_ui.h"
 #include "workbench/wb_context_names.h"
@@ -618,7 +619,7 @@ void SqlEditorForm::update_sql_mode_for_editors()
   {
     SqlEditorPanel *panel = sql_editor_panel(i);
     if (panel)
-      panel->editor_be()->sql_mode(_sql_mode);
+      panel->editor_be()->set_sql_mode(_sql_mode);
   }
 }
 
@@ -630,7 +631,6 @@ void SqlEditorForm::cache_sql_mode()
     if (sql_mode != _sql_mode)
     {
       _sql_mode= sql_mode;
-
       _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::update_sql_mode_for_editors, this));
     }
   }
@@ -1486,7 +1486,7 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
   
   do_exec_sql(_grtm->get_grt(), weak_ptr_from(this), boost::shared_ptr<std::string>(new std::string(sql_script)),
     NULL, (ExecFlags)(dont_add_limit_clause?DontAddLimitClause:0), rsets);
-  
+
   return rsets;
 }
 
@@ -1869,7 +1869,14 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     rs->set_client_data(rdata);
 
                     rs->data_storage(data_storage);
-                    rs->reset(true);
+
+                    {
+                      //We need this mutex, because reset(bool) is using aux_connection
+                      //to query bestrowidentifier.
+                      RecMutexLock aux_mtx(ensure_valid_aux_connection(_aux_dbc_conn));
+                      rs->reset(true);
+                    }
+
                     if (data_storage->valid()) // query statement
                     {
                       if (result_list)
@@ -1878,7 +1885,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                       if (editor)
                         editor->add_panel_for_recordset_from_main(rs);
 
-                      std::string statement_res_msg= strfmt(_("%zi row(s) returned"), rs->row_count());
+                      std::string statement_res_msg = base::to_string(rs->row_count()) + _(" row(s) returned");
                       if (!last_statement_info->empty())
                         statement_res_msg.append("\n").append(last_statement_info);
                       std::string exec_and_fetch_durations=

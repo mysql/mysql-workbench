@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@ namespace MySQL.GUI.Workbench.Plugins
   {
     #region Member Variables
 
-    private MySQLRoutineGroupEditorBE routineGroupEditorBE { get { return Backend as MySQLRoutineGroupEditorBE; } } 
+    private MySQLRoutineGroupEditorWrapper routineGroupEditorBE { get { return Backend as MySQLRoutineGroupEditorWrapper; } } 
 
     #endregion
 
@@ -55,7 +55,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLRoutineGroupEditorBE(GrtManager, value);
+        Backend = new MySQLRoutineGroupEditorWrapper(GrtManager, value);
         Control editor = SetupEditorOnHost(tabPage2, true);
         /*
          * TODO: The editor is an mforms control, so drag/drop is managed there, but this is still pending.

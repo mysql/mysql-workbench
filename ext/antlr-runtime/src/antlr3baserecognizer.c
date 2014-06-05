@@ -345,7 +345,6 @@ antlr3RecognitionExceptionNew(pANTLR3_BASE_RECOGNIZER recognizer)
 	case    ANTLR3_TOKENSTREAM:
 
 		ex->token		= cts->tstream->_LT						(cts->tstream, 1);	    /* Current input token			    */
-		// ml: casts added.
 		ex->line		= ((pANTLR3_COMMON_TOKEN)(ex->token))->getLine			((pANTLR3_COMMON_TOKEN)(ex->token));
 		ex->charPositionInLine	= ((pANTLR3_COMMON_TOKEN)(ex->token))->getCharPositionInLine	((pANTLR3_COMMON_TOKEN)(ex->token));
 		ex->index		= cts->tstream->istream->index					(cts->tstream->istream);
@@ -363,7 +362,6 @@ antlr3RecognitionExceptionNew(pANTLR3_BASE_RECOGNIZER recognizer)
 	case    ANTLR3_COMMONTREENODE:
 
 		ex->token		= tns->_LT						    (tns, 1);	    /* Current input tree node			    */
-		// ml: casts added.
 		ex->line		= ((pANTLR3_BASE_TREE)(ex->token))->getLine		    ((pANTLR3_BASE_TREE)(ex->token));
 		ex->charPositionInLine	= ((pANTLR3_BASE_TREE)(ex->token))->getCharPositionInLine   ((pANTLR3_BASE_TREE)(ex->token));
 		ex->index		= tns->istream->index					    (tns->istream);
@@ -1591,7 +1589,6 @@ recoverFromMismatchedSet	    (pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_BITSET
 	{
 		// We can fake the missing token and proceed
 		//
-		// ml: casts added.
 		matchedSymbol = (pANTLR3_COMMON_TOKEN)recognizer->getMissingSymbol(recognizer, is, recognizer->state->exception, ANTLR3_TOKEN_INVALID, follow);
 		recognizer->state->exception->type	= ANTLR3_MISSING_TOKEN_EXCEPTION;
 		recognizer->state->exception->token	= matchedSymbol;
@@ -2145,6 +2142,13 @@ reset(pANTLR3_BASE_RECOGNIZER recognizer)
 		}
 	}
 	
+  // ml: 2013-11-05, added reset of old exceptions.
+  pANTLR3_EXCEPTION thisE = recognizer->state->exception;
+  if	(thisE != NULL)
+  {
+    thisE->freeEx(thisE);
+    recognizer->state->exception = NULL;
+  }
 
     // Install a new following set
     //
@@ -2199,6 +2203,7 @@ getMissingSymbol			(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_INT_STREAM	istre
 		recognizer->state->tokFactory = antlr3TokenFactoryNew(current->input);
 	}
 	token	= recognizer->state->tokFactory->newToken(recognizer->state->tokFactory);
+	if (token == NULL) { return NULL; }
 
 	// Set some of the token properties based on the current token
 	//

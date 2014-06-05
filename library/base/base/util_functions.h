@@ -17,8 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef _UTIL_FUNCTIONS_H_
-#define _UTIL_FUNCTIONS_H_
+#pragma once
+
+#define DATETIME_FMT "%Y-%m-%d %H:%M"
 
 #include "common.h"
 
@@ -103,6 +104,10 @@ BASELIBRARY_PUBLIC_FUNC int copy_folder(const char *source_folder, const char *t
 
 namespace base
 {
+  BASELIBRARY_PUBLIC_FUNC  double timestamp();
+
+  BASELIBRARY_PUBLIC_FUNC std::string fmttime(time_t t= 0, const char *fmt= "%b %d, %Y");
+
 
 //-----------------------------------------------------------------------------
 // Return value is a reference to vector which was passed as the first argument
@@ -115,4 +120,3 @@ inline std::vector<T>& vector_remove(std::vector<T>& v, const T& k)
 }
 
 } // namespace base
-#endif

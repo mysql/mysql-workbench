@@ -459,8 +459,6 @@ void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node,
                               const std::string &path,
                               const BaseListRef &value)
 {
-  char buffer[30];
-
   node->reset_children();
   for (size_t i= 0; i < value->count(); i++)
   {
@@ -468,15 +466,14 @@ void ValueTreeBE::rescan_node(const NodeId &node_id, Node *node,
     std::string label;
     IconId icon= 0;
 
-    sprintf(buffer, "%zi", i);
-
+    std::string local_path = base::to_string(i);
     if (v.is_valid() && !is_simple_type(v.type()) &&
-        (!_node_filter || _node_filter(node_id, buffer, v, label, icon)))
+      (!_node_filter || _node_filter(node_id, local_path, v, label, icon)))
     {
       Node *child= new Node();
 
       fill_node_info(v, child);
-      child->path= buffer;
+      child->path = local_path;
       child->name= label.empty() ? child->path : label;
       child->small_icon= icon != 0 ? icon : child->small_icon;
       child->large_icon= icon != 0 ? icon : child->large_icon;

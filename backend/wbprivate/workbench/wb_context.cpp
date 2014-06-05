@@ -3034,15 +3034,7 @@ void WBContext::close_document_finish()
   // reset once again just to be sure
   get_grt()->get_undo_manager()->reset();
   _save_point= get_grt()->get_undo_manager()->get_latest_undo_action();
-  
-#ifdef ENABLE_DEBUG
-  /*
-  extern int mdc_live_item_count;
-  extern int grt_live_object_count;
-  g_message("After close document: %i canvas items, %i grt objects",
-            mdc_live_item_count, grt_live_object_count);
-    */        
-#endif
+ 
 }
 
 //--------------------------------------------------------------------------------
@@ -3592,21 +3584,21 @@ grt::DictRef WBContext::get_wb_options()
   return get_root()->options()->options();
 }
 
-
+// XXX: we have mforms::Utilities::perform_from_main_thread.
 void WBContext::execute_in_main_thread(const std::string &name, 
                               const boost::function<void ()> &function, bool wait) THROW (grt::grt_runtime_error)
 {
   _manager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
 }
 
-
+// XXX: not used anymore.
 grt::ValueRef WBContext::execute_in_grt_thread(const std::string &name, 
                                                    const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
 {
   return _manager->get_dispatcher()->execute_simple_function(name, function);
 }
 
-
+// XXX: not used anymore.
 void WBContext::execute_async_in_grt_thread(const std::string &name, 
                                             const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
 {

@@ -26,65 +26,30 @@ using namespace base;
 
 //--------------------------------------------------------------------------------------------------
 
-ViewEditorBE::ViewEditorBE(GRTManager *grtm, const db_ViewRef &view, const db_mgmt_RdbmsRef &rdbms)
-  : DBObjectEditorBE(grtm, view, rdbms), _view(view), _has_syntax_error(true)
+ViewEditorBE::ViewEditorBE(GRTManager *grtm, const db_ViewRef &view)
+  : DBObjectEditorBE(grtm, view)
 {
-  Sql_editor::Ref sql_editor = get_sql_editor();
+  MySQLEditor::Ref sql_editor = get_sql_editor();
   if (sql_editor)
-  {
-    sql_editor->sql_checker()->only_object_type_of(Sql_syntax_check::ot_view);
-    sql_editor->sql_checker()->context_object(_view);
-  }
+    sql_editor->restrict_content_to(MySQLEditor::ContentTypeView);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-std::string ViewEditorBE::get_query()
+std::string ViewEditorBE::get_sql()
 {
-  std::string ret = get_view()->sqlDefinition();
-  if ( ret.empty() )
-  {
-    ret = "CREATE VIEW `";
-    // make views schema portable by default
-    ret += /*get_schema_name() + "`.`" + */get_name() + "` AS\n";
-  }
-  
-  return ret;
-}
+  std::string sql = DBObjectEditorBE::get_sql();
+  if (sql.empty())
+    sql = "CREATE VIEW `" + get_name() + "` AS\n";
 
-//--------------------------------------------------------------------------------------------------
-
-void ViewEditorBE::set_query(const std::string &sql, bool sync)
-{
-  if (get_query() != sql)
-  {
-    // TODO: is it really necessary to bind it every time we set a new SQL text?
-    set_sql_parser_task_cb(boost::bind(&ViewEditorBE::parse_sql, this, _1, _2));
-    set_sql(sql, sync, _view);
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-grt::ValueRef ViewEditorBE::parse_sql(grt::GRT* grt, grt::StringRef sql)
-{
-  AutoUndoEdit undo(this);
-
-  int err_count= _sql_parser->parse_view(_view, sql.c_str());
-  _has_syntax_error= 0 < err_count;
-
-  undo.end(strfmt(_("Edit view `%s`.`%s`"), get_schema_name().c_str(), get_name().c_str()));
-
-  check_sql();
-
-  return grt::IntegerRef(err_count);
+  return sql;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 std::string ViewEditorBE::get_title()
 {
-  return base::strfmt("%s - View", get_name().c_str()); 
+  return get_name() + " - View";
 }
 
 //--------------------------------------------------------------------------------------------------
