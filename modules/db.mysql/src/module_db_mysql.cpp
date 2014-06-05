@@ -2461,24 +2461,24 @@ public:
         std::string triggers;
 
         out_sql.append("-- MySQL Workbench Synchronization").append("\n");
-        out_sql.append("-- Generated: ").append(fmttime(0, DATETIME_FMT)).append("\n");
         if (include_document_properties && cat.is_valid() && cat->owner().is_valid() && cat->owner()->owner().is_valid())
         {
-            workbench_DocumentRef doc(workbench_DocumentRef::cast_from(cat->owner()->owner()));
-            if (strlen(doc->info()->caption().c_str()))
-                out_sql.append("-- Model: ").append(doc->info()->caption()).append("\n");
-            if (strlen(doc->info()->version().c_str()))
-                out_sql.append("-- Version: ").append(doc->info()->version()).append("\n");
-            if (strlen(doc->info()->project().c_str()))
-                out_sql.append("-- Project: ").append(doc->info()->project()).append("\n");
-            if (strlen(doc->info()->author().c_str()))
-                out_sql.append("-- Author: ").append(doc->info()->author()).append("\n");
-            if (strlen(doc->info()->description().c_str()))
-            {
-                std::string description = doc->info()->description();
-                base::replace(description, "\n", "\n --");
-                out_sql.append("-- ").append(description).append("\n");
-            }
+          out_sql.append("-- Generated: ").append(fmttime(0, DATETIME_FMT)).append("\n");
+          workbench_DocumentRef doc(workbench_DocumentRef::cast_from(cat->owner()->owner()));
+          if (strlen(doc->info()->caption().c_str()))
+            out_sql.append("-- Model: ").append(doc->info()->caption()).append("\n");
+          if (strlen(doc->info()->version().c_str()))
+            out_sql.append("-- Version: ").append(doc->info()->version()).append("\n");
+          if (strlen(doc->info()->project().c_str()))
+            out_sql.append("-- Project: ").append(doc->info()->project()).append("\n");
+          if (strlen(doc->info()->author().c_str()))
+            out_sql.append("-- Author: ").append(doc->info()->author()).append("\n");
+          if (strlen(doc->info()->description().c_str()))
+          {
+            std::string description = doc->info()->description();
+            base::replace(description, "\n", "\n --");
+            out_sql.append("-- ").append(description).append("\n");
+          }
         }
         out_sql.append("\n");
 
