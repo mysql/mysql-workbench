@@ -112,6 +112,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
 
   void tab_menu_will_show();
   void rename_tab_clicked();
+  void pin_tab_clicked();
   void close_tab_clicked();
   void close_other_tabs_clicked();
 
