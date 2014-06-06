@@ -1407,43 +1407,22 @@ void SqlEditorForm::rollback()
 }
 
 
-void SqlEditorForm::explain_sql()
-{
-  size_t start, end;
-  SqlEditorPanel *panel = active_sql_editor_panel();
-  if (panel)
-  {
-    panel->editor_be()->selected_range(start, end);
-    std::string sql= panel->editor_be()->sql();
-    if (start != end)
-      sql= sql.substr(start, end-start);
-
-    do_explain_sql(sql);
-  }
-}
-
-
 void SqlEditorForm::explain_current_statement()
 {
   SqlEditorPanel *panel = active_sql_editor_panel();
   if (panel)
-    do_explain_sql(panel->editor_be()->current_statement());
+  {
+    SqlEditorResult *result = panel->add_panel_for_recordset(Recordset::Ref());
+    result->set_title("Explain");
+
+    grt::BaseListRef args(_grtm->get_grt());
+    args.ginsert(panel->grtobj());
+    args.ginsert(result->grtobj());
+    // run the visual explain plugin, so it will fill the result panel
+    _grtm->get_grt()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
+  }
 }
 
-
-void SqlEditorForm::do_explain_sql(const std::string &sql)
-{
-  SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms(rdbms());
-  std::list<std::string> statements;
-  sql_facade->splitSqlScript(sql, statements);
-  Sql_syntax_check::Ref sql_syntax_check= sql_facade->sqlSyntaxCheck();
-  std::string sql_script;
-  for (std::list<std::string>::iterator i= statements.begin(), i_end= statements.end(); i != i_end; ++i)
-    if (Sql_syntax_check::sql_select == sql_syntax_check->determine_statement_type(*i))
-      sql_script+= "EXPLAIN " + *i + ";\n";
-
-  exec_sql_retaining_editor_contents(sql_script, active_sql_editor_panel(), false);
-}
 
 // Should actually be called _retaining_old_recordsets
 void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_script, SqlEditorPanel* editor, bool sync, bool dont_add_limit_clause)
@@ -1505,10 +1484,12 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
  * @param dont_add_limit_clause If true the automatic addition of the LIMIT clause is suppressed, which
  *                              is used to limit on the number of return rows (avoid huge result sets
  *                              by accident).
+ * @param into_result If not NULL, the resultset grid will be displayed inside it, instead of creating 
+ *                     a new one in editor. The query/script must return at most one recordset.
  */
 
 bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool current_statement_only,
-  bool use_non_std_delimiter, bool dont_add_limit_clause)
+  bool use_non_std_delimiter, bool dont_add_limit_clause, SqlEditorResult *into_result)
 {
   boost::shared_ptr<std::string> shared_sql;
   if (current_statement_only)
@@ -1538,15 +1519,32 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
     flags = (ExecFlags)(flags | ShowWarnings);
   auto_save();
 
-  editor->query_started(false);
+  // if we're filling an already existing result panel, we shouldn't close the old resultsets
+  editor->query_started(into_result ? true : false);
   exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor), true);
   exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1), true);
 
-  exec_sql_task->exec(
-    sync,
-    boost::bind(&SqlEditorForm::do_exec_sql, this, _1, weak_ptr_from(this), shared_sql,
-    editor, flags, RecordsetsRef())
-    );
+  if (into_result)
+  {
+    RecordsetsRef rsets(new Recordsets());
+
+    exec_sql_task->exec(
+      sync,
+      boost::bind(&SqlEditorForm::do_exec_sql, this, _1, weak_ptr_from(this), shared_sql,
+      (SqlEditorPanel*)NULL, flags, rsets)
+      );
+
+    if (rsets->size() > 1)
+      log_error("Statement returns too many resultsets\n");
+    if (!rsets->empty())
+      into_result->set_recordset((*rsets)[0]);
+  }
+  else
+    exec_sql_task->exec(
+      sync,
+      boost::bind(&SqlEditorForm::do_exec_sql, this, _1, weak_ptr_from(this), shared_sql,
+      editor, flags, RecordsetsRef())
+      );
 
   return true;
 }

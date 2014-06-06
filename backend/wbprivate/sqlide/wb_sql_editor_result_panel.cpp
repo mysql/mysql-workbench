@@ -70,6 +70,18 @@ public:
   {
   }
 
+  virtual void undock_view(AppView *view)
+  {
+    for (int i = 0; i < view_count(); i++)
+      if (view_at_index(i) == view)
+      {
+        _switcher->remove_item(i);
+        break;
+      }
+
+    mforms::TabViewDockingPoint::undock_view(view);
+  }
+
   virtual void dock_view(AppView *view, const std::string &icon, int arg2)
   {
     mforms::TabViewDockingPoint::dock_view(view, icon, arg2);
@@ -78,9 +90,9 @@ public:
 };
 
 
-SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner, Recordset::Ref rset)
+SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 : mforms::AppView(true, "QueryResult", false),
-   _owner(owner), _rset(rset),
+   _owner(owner),
   _tabview(mforms::TabViewTabless), _switcher(mforms::VerticalIconSwitcher),
   _tabdock_delegate(new DockingDelegate(&_tabview, &_switcher, "SqlResultPanel")), _tabdock(_tabdock_delegate, true)
 {
@@ -89,18 +101,19 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner, Recordset::Ref rset)
   _column_info_created = false;
   _query_stats_created = false;
   _form_view_created = false;
+  _execution_plan_placeholder = NULL;
+
+  // put a placeholder for the resultset, which will be replaced when a resultset is actually available
+  _resultset_placeholder = mforms::manage(new mforms::AppView(false, "ResultGridPlaceholder", false));
+  _resultset_placeholder->set_back_color("#ffffff");
+  _resultset_placeholder->set_title("Result\nGrid");
+  _resultset_placeholder->set_identifier("result_grid");
+  _tabdock.dock_view(_resultset_placeholder, mforms::App::get()->get_resource_path("output_type-resultset.png"));
 
   {
     db_query_QueryEditorRef editor(owner->grtobj());
     _grtobj = db_query_ResultPanelRef(editor.get_grt());
     _grtobj->dockingPoint(mforms_to_grt(editor.get_grt(), &_tabdock));
-  }
-  if (rset)
-  {
-    if (!rset->is_readonly())
-      _grtobj->resultset(grtwrap_editablerecordset(grtobj(), rset));
-    else
-      _grtobj->resultset(grtwrap_recordset(grtobj(), rset));
   }
 
   set_on_close(boost::bind(&SqlEditorResult::can_close, this));
@@ -111,16 +124,39 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner, Recordset::Ref rset)
   _switcher.set_collapsed(_owner->owner()->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
 
   add(&_switcher, false, true);
-  
+  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
+  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
+}
+
+
+void SqlEditorResult::set_recordset(Recordset::Ref rset)
+{
+  if (_resultset_placeholder)
+  {
+    _tabdock_delegate->undock_view(_resultset_placeholder);
+    _resultset_placeholder = NULL;
+  }
+
+  _rset = rset;
+  if (!rset->is_readonly())
+    _grtobj->resultset(grtwrap_editablerecordset(grtobj(), rset));
+  else
+    _grtobj->resultset(grtwrap_recordset(grtobj(), rset));
+
   rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_export_recordset, this));
   if (rset->get_toolbar()->find_item("record_import"))
     rset->get_toolbar()->find_item("record_import")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_import_recordset, this));
-  
-  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
-  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
 
-  if (rset)
-    dock_result_grid(mforms::manage(mforms::RecordGrid::create(rset)));
+  dock_result_grid(mforms::manage(mforms::RecordGrid::create(rset)));
+
+  Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+  rset->caption(strfmt("%s %i",
+                       (storage->table_name().empty() ? _("Result") : storage->table_name().c_str()),
+                       ++_owner->_rs_sequence));
+
+  bec::UIForm::scoped_connect(rset->get_context_menu()->signal_will_show(),
+                              boost::bind(&SqlEditorPanel::on_recordset_context_menu_show, _owner, Recordset::Ptr(rset)));
+  rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
 }
 
 
@@ -180,7 +216,7 @@ bool SqlEditorResult::can_close()
 {
   if (Recordset::Ref rs = recordset())
     return rs->can_close(true);
-  return false;
+  return true;
 }
 
 
@@ -218,6 +254,35 @@ void SqlEditorResult::switch_tab()
     }
     else if (tab->identifier() == "result_grid")
     {
+      if (_resultset_placeholder)
+      {
+        _owner->owner()->exec_editor_sql(_owner, true, true, true, false, this);
+        set_title(_rset.lock()->caption());
+      }
+    }
+    else if (tab->identifier() == "execution_plan")
+    {
+      if (_execution_plan_placeholder)
+      {
+        _tabdock_delegate->undock_view(_execution_plan_placeholder);
+        _execution_plan_placeholder = NULL;
+
+        // if the explain tab is just a placeholder, execute visual explain, which will replace the tab when docking
+        grt::BaseListRef args(_grtobj.get_grt());
+        args.ginsert(_owner->grtobj());
+        args.ginsert(_grtobj);
+        try
+        {
+          // run the visual explain plugin, so it will fill the result panel
+          _grtobj.get_grt()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
+        }
+        catch (std::exception &exc)
+        {
+          log_error("Error executing visual explain: %s\n", exc.what());
+          mforms::Utilities::show_error("Execution Plan", "An internal error occurred while building the execution plan, please file a bug report.",
+                                        "OK");
+        }
+      }
     }
   }
 }
@@ -329,8 +394,9 @@ void SqlEditorResult::dock_result_grid(mforms::View *view)
   _result_grid = view;
   view->set_name("result-grid-wrapper");
 
+  mforms::AppView *grid_view;
   {
-    mforms::AppView *box = mforms::manage(new mforms::AppView(false, "ResultGridView", false));
+    mforms::AppView *box = grid_view = mforms::manage(new mforms::AppView(false, "ResultGridView", false));
     box->set_name("resultset-host");
     mforms::ToolBar *tbar = _rset.lock()->get_toolbar();
     tbar->set_name("resultset-toolbar");
@@ -369,6 +435,31 @@ void SqlEditorResult::dock_result_grid(mforms::View *view)
     _query_stats_box->set_identifier("query_stats");
     _tabdock.dock_view(_query_stats_box, app->get_resource_path("output_type-querystats.png"));
   }
+
+  // reorder the explain tab to last
+  bool has_explain_tab = false;
+  for (int i = 0; i < _tabdock_delegate->view_count(); i++)
+  {
+    mforms::AppView *view = _tabdock_delegate->view_at_index(i);
+    if (view->identifier() == "execution_plan")
+    {
+      has_explain_tab = true;
+      view->retain();
+      _tabdock_delegate->undock_view(view);
+      _tabdock.dock_view(view, app->get_resource_path("output_type-executionplan.png"));
+      view->release();
+      break;
+    }
+  }
+  if (!has_explain_tab)
+  {
+    _execution_plan_placeholder = mforms::manage(new mforms::AppView(false, "ExecutionPlan", false));
+    _execution_plan_placeholder->set_back_color("#ffffff");
+    _execution_plan_placeholder->set_title("Execution\nPlan");
+    _execution_plan_placeholder->set_identifier("execution_plan");
+    _tabdock.dock_view(_execution_plan_placeholder, app->get_resource_path("output_type-executionplan.png"));
+  }
+  _switcher.set_selected(0);
 }
 
 

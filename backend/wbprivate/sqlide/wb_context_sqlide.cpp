@@ -786,7 +786,6 @@ void WBContextSQLIDE::init()
 
   cmdui->add_builtin_command("query.stopOnError", boost::bind(call_continue_on_error, this));
   
-  cmdui->add_builtin_command("query.explain", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::explain_sql));
   cmdui->add_builtin_command("query.explain_current_statement",
                                                boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::explain_current_statement));
 

@@ -240,6 +240,7 @@ static void selected_record_changed(MResultsetViewer *self)
       tbar->find_item("record_add")->signal_activated()->connect(boost::bind(record_add, self));
       tbar->find_item("record_del")->signal_activated()->connect(boost::bind(record_del, self));
     }
+    [self rebuildColumns];
     //onRefresh(self);
   }
   return self;

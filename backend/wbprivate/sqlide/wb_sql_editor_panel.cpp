@@ -127,6 +127,8 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   set_on_close(boost::bind(&SqlEditorPanel::on_close_by_user, this));
 
   _lower_tab_menu.signal_will_show()->connect(boost::bind(&SqlEditorPanel::tab_menu_will_show, this));
+  _lower_tab_menu.add_item_with_title("Rename Tab", boost::bind(&SqlEditorPanel::rename_tab_clicked, this), "rename");
+  _lower_tab_menu.add_separator();
   _lower_tab_menu.add_item_with_title("Close Tab", boost::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
   _lower_tab_menu.add_item_with_title("Close Other Tabs", boost::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
 }
@@ -731,7 +733,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_tooltip(_("Execute the EXPLAIN command on the statement under the cursor"));
   _form->wbsql()->get_cmdui()->scoped_connect(item->signal_activated(),
                                       boost::bind((void (wb::CommandUI::*)(const std::string&))&wb::CommandUI::activate_command,
-                                                  _form->wbsql()->get_cmdui(), "plugin:wb.sqlide.visual_explain"));
+                                                  _form->wbsql()->get_cmdui(), "builtin:query.explain_current_statement"));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
@@ -1085,20 +1087,10 @@ void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
 
 SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
 {
-  Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
-
-  SqlEditorResult *result = new SqlEditorResult(this, rset);
-
-  rset->caption(strfmt("%s %i",
-                       (storage->table_name().empty() ? _("Result") : storage->table_name().c_str()),
-                       ++_rs_sequence));
-
-  bec::UIForm::scoped_connect(rset->get_context_menu()->signal_will_show(),
-                 boost::bind(&SqlEditorPanel::on_recordset_context_menu_show, this, Recordset::Ptr(rset)));
-
+  SqlEditorResult *result = new SqlEditorResult(this);
+  if (rset)
+    result->set_recordset(rset);
   dock_result_panel(result);
-
-  rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, this));
 
   return result;
 }
@@ -1241,10 +1233,25 @@ std::list<SqlEditorResult*> SqlEditorPanel::dirty_result_panels()
 
 void SqlEditorPanel::tab_menu_will_show()
 {
+  _lower_tab_menu.set_item_enabled("rename", result_panel(_lower_tabview.get_menu_tab()) != NULL);
+
   if (_lower_tabview.page_count() > 1)
     _lower_tab_menu.set_item_enabled("close_others", true); // close others
   else
     _lower_tab_menu.set_item_enabled("close_others", false); // close others
+}
+
+
+void SqlEditorPanel::rename_tab_clicked()
+{
+  int tab = _lower_tabview.get_menu_tab();
+  SqlEditorResult *result = result_panel(tab);
+  if (result)
+  {
+    std::string title;
+    if (mforms::Utilities::request_input(_("Rename Result Tab"), "Enter a new name for the result tab:", result->caption().c_str(), title))
+      _lower_tabview.set_tab_title(tab, title);
+  }
 }
 
 

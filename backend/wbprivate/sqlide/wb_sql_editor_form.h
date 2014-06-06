@@ -289,7 +289,8 @@ public:
   AutoCompleteCache *auto_completion_cache() { return _auto_completion_cache; }
 
   bool exec_editor_sql(SqlEditorPanel *editor, bool sync, bool current_statement_only = false,
-    bool wrap_with_non_std_delimiter = false, bool dont_add_limit_clause = false);
+                       bool wrap_with_non_std_delimiter = false, bool dont_add_limit_clause = false,
+                       SqlEditorResult *into_result = NULL);
   void exec_sql_retaining_editor_contents(const std::string &sql_script, SqlEditorPanel *editor, bool sync, bool dont_add_limit_clause= false);
 
   RecordsetsRef exec_sql_returning_results(const std::string &sql_script, bool dont_add_limit_clause);
@@ -300,7 +301,6 @@ public:
   void exec_main_sql(const std::string &sql, bool log);
   db_query_ResultsetRef exec_main_query(const std::string &sql, bool log);
 
-  void explain_sql();
   void explain_current_statement();
   bool is_running_query();
 private:
@@ -313,7 +313,6 @@ private:
 
   grt::StringRef do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::shared_ptr<std::string> sql,
     SqlEditorPanel *editor, ExecFlags flags, RecordsetsRef result_list);
-  void do_explain_sql(const std::string &sql);
 
   void handle_command_side_effects(const std::string &sql);
 public:

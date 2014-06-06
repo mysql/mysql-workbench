@@ -297,6 +297,7 @@ static void tabview_set_tab_title(::mforms::TabView *self, int tab, const std::s
     if ( tabView )
     {
       [[tabView->mTabView tabViewItemAtIndex:tab] setLabel: wrap_nsstring(title)];
+      [tabView->mTabSwitcher setNeedsDisplay: YES];
     }
   }
 }

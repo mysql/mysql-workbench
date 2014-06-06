@@ -53,6 +53,8 @@ class SqlEditorResult;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
 {
+  friend class SqlEditorResult;
+
   SqlEditorForm *_form;
   boost::shared_ptr<MySQLEditor> _editor;
 
@@ -78,6 +80,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   std::string _autosave_file_path;
 
   time_t _file_timestamp;
+
   int _rs_sequence;
 
   bool _busy;
@@ -108,6 +111,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   void splitter_resized();
 
   void tab_menu_will_show();
+  void rename_tab_clicked();
   void close_tab_clicked();
   void close_other_tabs_clicked();
 

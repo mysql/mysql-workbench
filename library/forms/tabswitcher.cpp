@@ -164,7 +164,12 @@ public:
 
     return (int)_items.size() - 1;
   }
-  
+
+  virtual void remove_item(int index)
+  {
+    delete _items[index];
+    _items.erase(_items.begin()+index);
+  }
   
   virtual int index_from_point(int x, int y) = 0;
   
@@ -510,6 +515,13 @@ int TabSwitcher::add_item(const std::string &title, const std::string &sub_title
   int i = _pimpl->add_item(title, sub_title, icon_path, alt_icon_path);
   set_needs_relayout();
   return i;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TabSwitcher::remove_item(int index)
+{
+  _pimpl->remove_item(index);
 }
 
 //--------------------------------------------------------------------------------------------------

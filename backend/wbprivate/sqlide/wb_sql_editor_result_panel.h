@@ -52,7 +52,8 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorResult : public mforms::AppView
   class DockingDelegate;
   
 public:
-  SqlEditorResult(SqlEditorPanel *owner, Recordset::Ref rset);
+  SqlEditorResult(SqlEditorPanel *owner);
+  void set_recordset(Recordset::Ref rset);
 
   virtual ~SqlEditorResult();
 
@@ -88,6 +89,8 @@ private:
 
   mforms::AppView *_column_info_box;
   mforms::AppView  *_query_stats_box;
+  mforms::AppView  *_resultset_placeholder;
+  mforms::AppView  *_execution_plan_placeholder;
   ResultFormView *_form_result_view;
   mforms::ContextMenu *_column_info_menu;
   std::list<mforms::ToolBar*> _toolbars;
