@@ -259,15 +259,16 @@ class BlobFieldView : public ResultFormView::FieldView
 {
   mforms::Box _box;
   mforms::Label _blob;
+  std::string _type_desc;
 
   void changed()
   {
   }
 
 public:
-  BlobFieldView(const std::string &name, bool editable, const boost::function<void (const std::string &s)> &change_callback,
+  BlobFieldView(const std::string &name, const std::string &type, bool editable, const boost::function<void (const std::string &s)> &change_callback,
                 const boost::function<void ()> &view_callback)
-  : FieldView(name, change_callback), _box(true), _blob("BLOB")
+  : FieldView(name, change_callback), _box(true), _blob(type), _type_desc(type)
   {
     _box.set_spacing(8);
     _box.add(&_blob, false, true);
@@ -282,7 +283,7 @@ public:
 
   virtual void set_value(const std::string &value, bool is_null)
   {
-    _blob.set_text(is_null ? "NULL" : "BLOB");
+    _blob.set_text(is_null ? "NULL" : _type_desc);
   }
 };
 
@@ -339,9 +340,9 @@ ResultFormView::FieldView *ResultFormView::FieldView::create(const Recordset_cdb
   {
     return new TextFieldView(format_label(field.field), editable, callback);
   }
-  else if (field.type == "BLOB")
+  else if (field.type == "BLOB" || field.type == "GEOMETRY")
   {
-    return new BlobFieldView(format_label(field.field), editable, callback, view_blob_callback);
+    return new BlobFieldView(format_label(field.field), field.type, editable, callback, view_blob_callback);
   }
   else if (field.type == "ENUM" && !full_type.empty())
   {
@@ -581,9 +582,6 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
     _refresh_ui_connection.disconnect();
     rset->refresh_ui_signal.connect(boost::bind(&ResultFormView::display_record, this));
 
-    int cols = rset->get_column_count();
-    _table.set_row_count(cols);
-
     if (rset->edited_field_row() == (RowId)-1 && rset->count() > 0)
     {
       rset->set_edited_field(0, 0);
@@ -594,6 +592,7 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
     Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
 
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+    _table.set_row_count(field_info.size());
 
     int i = 0;
     for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();

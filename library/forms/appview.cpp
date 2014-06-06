@@ -113,7 +113,7 @@ void AppView::set_title(const std::string &title)
   if (_dpoint)
     _dpoint->set_view_title(this, title);
   else
-    log_error("Calling AppView::set_title() on an undocked view\n");
+    log_error("Calling AppView::set_title(%s) on an undocked view\n", title.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------

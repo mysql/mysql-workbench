@@ -170,8 +170,6 @@ void SqlEditorForm::update_menu_and_toolbar()
     _menu->set_item_enabled("query.reconnect", !running);
     _menu->set_item_enabled("wb.sqlide.executeToTextOutput", !running && connected);
     _menu->set_item_enabled("query.execute_current_statement", !running && connected);
-    _menu->set_item_enabled("query.explain", !running && connected);
-    _menu->set_item_enabled("query.explain_current_statement", !running && connected);
     _menu->set_item_enabled("query.commit", !running && !auto_commit() && connected);
     _menu->set_item_enabled("query.rollback", !running && !auto_commit() && connected);
     _menu->set_item_enabled("query.stopOnError", connected);
@@ -212,9 +210,7 @@ void SqlEditorForm::update_menu_and_toolbar()
   set_editor_tool_items_enbled("query.reconnect", !running);
   set_editor_tool_items_enbled("wb.sqlide.executeToTextOutput", !running && connected);
   set_editor_tool_items_enbled("query.execute_current_statement", !running && connected);
-  set_editor_tool_items_enbled("query.explain", !running && connected);
-  set_editor_tool_items_enbled("query.explain_current_statement", !running && connected);
-  
+
   set_editor_tool_items_enbled("query.commit", !running && !auto_commit() && connected);
   set_editor_tool_items_enbled("query.rollback", !running && !auto_commit() && connected);
   set_editor_tool_items_enbled("query.autocommit", !running && connected);
