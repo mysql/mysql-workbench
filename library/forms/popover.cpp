@@ -45,6 +45,14 @@ void Popover::show(int x, int y, StartPosition position)
   _popover_impl->show(this, x, y, position);
 }
 
+void Popover::show_bound(View *owner, int x, int y, StartPosition position)
+{
+  if (!_popover_impl->show_bound) // XXX temporary until implemented in Win/Linux
+    show(x, y, position);
+  else
+    _popover_impl->show_bound(this, owner, x, y, position);
+}
+
 void Popover::set_size(int width, int height)
 {
   _popover_impl->set_size(this, width, height);

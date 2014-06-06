@@ -1,6 +1,4 @@
 include_directories(
-    ${GLIB_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
     ${ODBC_INCLUDE_DIRS} 
     ${PYTHON_INCLUDE_DIRS} 
     ${MYSQL_INCLUDE_DIRS} 

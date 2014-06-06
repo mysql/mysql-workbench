@@ -69,7 +69,7 @@ TEST_FUNCTION(1)
   grt.scan_metaclasses_in("data");
   grt.end_loading_metaclasses();
 
-  rdbms= db_mgmt_RdbmsRef::cast_from(grt.unserialize("../../modules/db.mysql/res/mysql_rdbms_info.xml"));
+  rdbms= db_mgmt_RdbmsRef::cast_from(grt.unserialize("data/res/mysql_rdbms_info.xml"));
   ensure("db_mgmt_RdbmsRef initialization", rdbms.is_valid());
 
   grt.set_root(rdbms);

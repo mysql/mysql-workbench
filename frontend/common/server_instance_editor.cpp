@@ -119,6 +119,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 , _sys_box(false)
 , _details_panel(mforms::TitledBoxPanel)
 , _connect_panel(new grtui::DbConnectPanel(grtui::DbConnectPanelHideConnectionName))
+, _custom_sudo_box(true)
 , _bottom_hbox(true)
 {
   set_name("instance_editor");
@@ -371,8 +372,20 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 #else
     _sudo_check.set_text(_("Acquire administrator rights to execute start/stop commands\nand write configuration data"));
 #endif
-    scoped_connect(_sudo_check.signal_clicked(),boost::bind(&ServerInstanceEditor::check_changed, this, 
-                                                  &_sudo_check));
+
+    _sudo_description.set_text(_("When sudo is used in Linux like systems, a certain set of parameters are passed to it.\n"
+                                 "In certain environments, it may be necessary to override these parameters.\n"
+                                 "Look at the Workbench log file to determine the parameters being currently used. Leave it blank if unsure."));
+    _sudo_description.set_style(SmallHelpTextStyle);
+    _sys_box.add(&_sudo_description, false, true);
+    _custom_sudo_box.add(manage(RLabel(_("Override sudo command line:"))), false, true);
+    _custom_sudo_box.add(&_sudo_prefix, true, true);
+    
+    scoped_connect(_sudo_prefix.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,
+                                                          &_sudo_prefix));
+    
+    _sys_box.add(&_custom_sudo_box, false, true);
+    
   }
   
 
@@ -1058,6 +1071,12 @@ void ServerInstanceEditor::entry_changed(mforms::TextEntry *sender)
       _sys_profile_type.set_selected(_sys_profile_type.get_item_count()-1);
       instance->serverInfo().gset("sys.preset", "");
     }
+    else if (&_sudo_prefix == sender)
+    {
+      instance->serverInfo().gset("sys.mysqld.sudo_override", value);
+      _sys_profile_type.set_selected(_sys_profile_type.get_item_count()-1);
+      instance->serverInfo().gset("sys.preset", "");
+    }
     reset_setup_pending();
   }
 }
@@ -1310,6 +1329,12 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
     _sys_win_service_name_label->show(false);
     _sys_win_hint_label.show(false);
   }
+  
+  bool show_custom_sudo = system != "Windows";
+  _sudo_description.show(show_custom_sudo);
+  _custom_sudo_box.show(show_custom_sudo);
+  
+  
 
   // If the MySQL connection is to a local server then remote administration makes no sense.
   // Disable it in this case.
@@ -1343,6 +1368,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
 
   _start_cmd.set_value(serverInfo.get_string("sys.mysqld.start"));
   _stop_cmd.set_value(serverInfo.get_string("sys.mysqld.stop"));
+  _sudo_prefix.set_value(serverInfo.get_string("sys.mysqld.sudo_override"));
 
   _sudo_check.set_active(serverInfo.get_int("sys.usesudo", 1) != 0);
 

@@ -238,7 +238,7 @@ TEST_FUNCTION(13)  //  Place Image
   size_t old_root_figure_count= diagram->rootLayer()->figures().count();
 
   // place image will ask for a filename of the image
-  tester.add_file_for_file_dialog("../../images/ui/sakila.png");
+  tester.add_file_for_file_dialog("data/images/sakila.png");
 
   place_figure_with_tool(WB_TOOL_IMAGE);
   check_only_one_undo_added();

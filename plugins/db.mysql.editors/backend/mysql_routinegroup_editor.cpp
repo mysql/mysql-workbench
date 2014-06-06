@@ -69,3 +69,20 @@ void MySQLRoutineGroupEditorBE::commit_changes()
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * This is a special function for unit/integration testing only. Don't use it for normal
+ * processing. It pretends there was new sql set in the associated editor and parses this text
+ * now into the routine group being edited by this editor.
+ */
+void MySQLRoutineGroupEditorBE::use_sql(const std::string &sql)
+{
+  AutoUndoEdit undo(this, _routine_group, "sql");
+
+  freeze_refresh_on_object_change();
+  _parser_services->parseRoutines(_parser_context, _routine_group, sql);
+  thaw_refresh_on_object_change();
+
+  undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+}
+
+//--------------------------------------------------------------------------------------------------

@@ -520,6 +520,7 @@ size_t MySQLParserServicesImpl::parseRoutines(parser::ParserContext::Ref context
   grt::ListRef<db_Routine> schema_routines = schema->routines();
 
   int sequence_number = 0;
+  int syntax_error_counter = 1;
   for (std::vector<std::pair<size_t, size_t> >::iterator iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
   {
     std::string routine_sql = sql.substr(iterator->first, iterator->second);
@@ -531,7 +532,26 @@ size_t MySQLParserServicesImpl::parseRoutines(parser::ParserContext::Ref context
     // Hence we first extract the name and act based on that.
     MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
     std::pair<std::string, std::string> values = get_routine_name_and_type(walker);
-    if (!values.first.empty())
+
+    // If there's no usable info from parsing preserve at least the code and generate a
+    // name for the routine using a counter.
+    if (values.first.empty())
+    {
+      // Create a new routine instance.
+      db_mysql_RoutineRef routine = db_mysql_RoutineRef(group->get_grt());
+      routine->createDate(base::fmttime(0, DATETIME_FMT));
+      routine->owner(schema);
+      schema_routines.insert(routine);
+
+      routine->name(*group->name() + "_SYNTAX_ERROR_" + base::to_string(syntax_error_counter++));
+      routine->routineType("unknown");
+      routine->modelOnly(1);
+      routine->sqlDefinition(routine_sql);
+      routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
+
+      routines.insert(routine);
+  }
+    else
     {
       db_mysql_RoutineRef routine;
       for (size_t i = 0; i < schema_routines.count(); ++i)

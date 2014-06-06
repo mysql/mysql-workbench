@@ -398,9 +398,11 @@ void BaseSnippetList::refresh_snippets()
     std::string caption;
     _model->get_field(bec::NodeId(i), 0, caption);
     std::string description;
-    _model->get_field(bec::NodeId(i), 1, description);
+    bool skip_image = false;
+    if (!_model->get_field(bec::NodeId(i), 1, description))
+      skip_image = true;
 
-    Snippet* snippet = new Snippet(description.empty() ? NULL : _image, caption, description, true);
+    Snippet* snippet = new Snippet(skip_image ? NULL : _image, caption, description, true);
     _snippets.push_back(snippet);
   }
   set_layout_dirty(true);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -205,7 +205,7 @@ static std::string filechooser_get_directory(mforms::FileChooser *self)
   MFFileChooserImpl *chooser= self->get_data();
   if (chooser)
   {
-    return [chooser->mPanel.URL.path UTF8String];
+    return [[chooser->mPanel.URL URLByDeletingLastPathComponent].path UTF8String];
   }
   return "";
 }

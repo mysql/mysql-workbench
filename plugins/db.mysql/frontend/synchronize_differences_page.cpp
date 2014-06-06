@@ -342,7 +342,7 @@ bool SynchronizeDifferencesPage::pre_load()
   if (get_target_catalog)
     _dst = get_target_catalog();
 
-  _diff_tree= _be->init_diff_tree(std::vector<std::string>(), _src, _dst, schemas_to_skip);
+  _diff_tree= _be->init_diff_tree(std::vector<std::string>(), _src, _dst, schemas_to_skip, grt::DictRef(values().get_grt()));
 
   _tree.freeze_refresh();
   _tree.clear();

@@ -1432,7 +1432,9 @@ std::string Recordset::status_text()
       skipped_row_count_text= strfmt(" after %i skipped", limit_rows_offset);
   }
 
-  std::string status_text = strfmt("Fetched %zi records%s%s", real_row_count(), skipped_row_count_text.c_str(), limit_text.c_str());
+  std::stringstream out;
+  out << "Fetched " << real_row_count() << " records" << skipped_row_count_text << limit_text;
+  std::string status_text = out.str();
   {
     int upd_count = 0, ins_count = 0, del_count = 0;
     pending_changes(upd_count, ins_count, del_count);
