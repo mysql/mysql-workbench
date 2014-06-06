@@ -9,7 +9,7 @@ Homepage: http://dev.mysql.com/workbench/
 Package: mysql-workbench-community
 Replaces: mysql-workbench-gpl, mysql-workbench-oss
 Architecture: i386 amd64
-Depends: ${shlibs:Depends}, python-paramiko, python-pexpect, mysql-client, python-pysqlite2
+Depends: ${shlibs:Depends}, python-paramiko, python-pexpect, python-pysqlite2, mysql-client|virtual-mysql-client
 Suggests: gnome-keyring
 Description: MySQL Workbench
  MySQL Workbench is a modeling tool that allows you to design

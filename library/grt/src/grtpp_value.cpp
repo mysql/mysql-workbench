@@ -68,11 +68,11 @@ void ClassRegistry::register_all(GRT *grt)
  for (std::map<std::string,ClassRegistrationFunction>::const_iterator iter= classes.begin();
       iter != classes.end(); ++iter)
  {
-   // register classes only for loaded metaclasses
+   // Register classes only for loaded meta classes.
    if (!grt->get_metaclass(iter->first))
    {
      if (grt->verbose())
-       grt->send_warning("MetaClass "+iter->first+" is registered but was not loaded from a XML");
+       grt->send_warning("MetaClass " + iter->first + " is registered but was not loaded from a XML");
      continue;
    }
    (*iter->second)(grt);

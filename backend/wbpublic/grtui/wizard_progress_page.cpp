@@ -17,12 +17,15 @@
  * 02110-1301  USA
  */
 
+#include "base/log.h"
+
 #include "wizard_progress_page.h"
 #include "grt/common.h"
 #include "grt/grt_manager.h"
 
-using namespace grtui;
+DEFAULT_LOG_DOMAIN("wizard")
 
+using namespace grtui;
 
 void WizardProgressPage::TaskRow::set_state(WizardProgressPage::TaskState state)
 {
@@ -75,7 +78,7 @@ void WizardProgressPage::TaskRow::set_state(WizardProgressPage::TaskState state)
 
   std::string path= bec::IconManager::get_instance()->get_icon_path(file);
   if (path.empty())
-    g_message("Could not find icon %s", file.c_str());
+    log_warning("Could not find icon %s", file.c_str());
   icon.set_image(path);
 }
 

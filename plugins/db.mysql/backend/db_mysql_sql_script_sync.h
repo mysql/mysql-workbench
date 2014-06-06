@@ -28,7 +28,8 @@ public:
   virtual std::string get_col_name(const size_t col_id) = 0;
   virtual std::string get_sql_for_object(GrtNamedObjectRef obj) = 0;
   virtual boost::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const grt::ValueRef &ext_cat, 
-                                              const grt::ValueRef &cat2, grt::StringListRef SchemaSkipList) = 0;
+                                                       const grt::ValueRef &cat2, grt::StringListRef SchemaSkipList,
+                                                       grt::DictRef options) = 0;
 };
 
 
@@ -47,9 +48,8 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLScriptSync : public DbMySQLValidation
   db_mysql_CatalogRef _mod_cat_copy;
   grt::StringListRef _alter_list;
   grt::ListRef<GrtNamedObject> _alter_object_list;
+  grt::DictRef _options;
   grt::DictRef _db_options;
-
-
 
   // options
   std::string _input_filename1, _input_filename2;
@@ -75,13 +75,16 @@ public:
 
   void set_option(const std::string& name, const std::string& value);
 
-  boost::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const ValueRef &left, const ValueRef &right, StringListRef SchemaSkipList = StringListRef());
+  boost::shared_ptr<DiffTreeBE> init_diff_tree(const std::vector<std::string>& schemata, const ValueRef &left, const ValueRef &right, StringListRef SchemaSkipList = StringListRef(), grt::DictRef options = grt::DictRef());
 
 
   std::string get_sql_for_object(GrtNamedObjectRef obj);
 
-  void set_db_options(grt::DictRef db_options){_db_options = db_options;};
-  grt::DictRef get_db_options()const{return _db_options.is_valid()?_db_options:grt::DictRef(_manager->get_grt());};
+  void set_options(grt::DictRef options) { _options = options; }
+  grt::DictRef get_options() const { return _options.is_valid() ? _options : grt::DictRef(_manager->get_grt()); }
+
+  void set_db_options(grt::DictRef db_options) {_db_options = db_options;};
+  grt::DictRef get_db_options() const { return _db_options.is_valid() ? _db_options : grt::DictRef(_manager->get_grt());}
 
   grt::StringRef generate_alter(db_mysql_CatalogRef org_cat, db_mysql_CatalogRef org_cat_copy, db_mysql_CatalogRef mod_cat_copy);
 

@@ -45,7 +45,7 @@ TEST_FUNCTION(1)
   
   ensure_equals("module count", grt.get_modules().size(), 0U);
   
-  grt.load_module("../../library/grt/unit-tests/lua_module.lua", true);
+  grt.load_module("data/modules/lua_module.lua", true);
   
   ensure_equals("module count after load", grt.get_modules().size(), 1U);
 }

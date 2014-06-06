@@ -57,6 +57,92 @@ class FinishPage;
 
 #include "grtui/connection_page.h"
 
+//--------------------------------------------------------------------------------
+
+class SyncOptionsPage : public WizardPage
+{
+public:
+  SyncOptionsPage(WizardForm *form, DbMySQLScriptSync *be)
+  : WizardPage(form, "options"), _be(be),
+    _options(mforms::TitledBoxPanel), _options_box(false), _db_options(mforms::TitledBoxPanel), _db_options_box(false)
+  {
+    set_title(_("Set Options for Synchronization Script"));
+    set_short_title(_("Sync Options"));
+
+    _options.set_title(_("Generation Options"));
+    _options.add(&_options_box);
+    _options_box.set_padding(12);
+    _options_box.set_spacing(8);
+
+    _db_options.set_title(_("Compare Options"));
+    _db_options.add(&_db_options_box);
+    _db_options_box.set_padding(12);
+    _db_options_box.set_spacing(8);
+
+    // DB Objects
+    _skip_triggers_check.set_text(_("Skip synchronization of Triggers"));
+    _db_options_box.add(&_skip_triggers_check, false, false);
+    _skip_routines_check.set_text(_("Skip synchronization of Stored Procedures and Functions"));
+    _db_options_box.add(&_skip_routines_check, false, false);
+
+    // Script
+    _omit_schema_qualifier_check.set_text(_("Omit Schema Qualifier in Object Names"));
+    _options_box.add(&_omit_schema_qualifier_check, false, false);
+
+    _generate_attached_scripts.set_text(_("Include SQL Scripts Attached to Model"));
+    _options_box.add(&_generate_attached_scripts, false, false);
+
+    add(&_db_options, false, false);
+    add(&_options, false, false);
+
+    scoped_connect(signal_leave(),boost::bind(&SyncOptionsPage::gather_options, this, _1));
+
+    grt::Module *module= ((WizardPlugin*)_form)->module();
+    _skip_triggers_check.set_active(module->document_int_data("SkipTriggers", 0) != 0);
+    _skip_routines_check.set_active(module->document_int_data("SkipRoutines", 0) != 0);
+    _omit_schema_qualifier_check.set_active(module->document_int_data("OmitSchemata", 0) != 0);
+    _generate_attached_scripts.set_active(module->document_int_data("GenerateAttachedScripts", 0) != 0);
+  }
+
+  void gather_options(bool advancing)
+  {
+    values().gset("SkipTriggers", _skip_triggers_check.get_active());
+    values().gset("SkipRoutines", _skip_routines_check.get_active());
+    values().gset("OmitSchemata", _omit_schema_qualifier_check.get_active());
+    values().gset("GenerateAttachedScripts", _generate_attached_scripts.get_active());
+
+    grt::Module *module= ((WizardPlugin*)_form)->module();
+    module->set_document_data("SkipTriggers", _skip_triggers_check.get_active());
+    module->set_document_data("SkipRoutines", _skip_routines_check.get_active());
+    module->set_document_data("OmitSchemata", _omit_schema_qualifier_check.get_active());
+    module->set_document_data("GenerateAttachedScripts", _generate_attached_scripts.get_active());
+  }
+
+
+  virtual bool advance()
+  {
+    _be->set_options(values());
+
+    return true;
+  }
+
+protected:
+  DbMySQLScriptSync *_be;
+
+  Panel _options;
+  Box _options_box;
+
+  Panel _db_options;
+  Box _db_options_box;
+
+  CheckBox _skip_triggers_check;
+  CheckBox _skip_routines_check;
+  CheckBox _omit_schema_qualifier_check;
+  CheckBox _generate_attached_scripts;
+};
+
+//--------------------------------------------------------------------------------
+
 #include "fetch_schema_names_page.h"
 
 //--------------------------------------------------------------------------------
@@ -316,6 +402,9 @@ WbPluginDbSynchronize::WbPluginDbSynchronize(grt::Module *module)
   ConnectionPage *connection_page= new ConnectionPage(this);
   connection_page->set_db_connection(_db_be.db_conn());
   add_page(mforms::manage(connection_page));
+
+  SyncOptionsPage *options_page = new SyncOptionsPage(this, &_be);
+  add_page(mforms::manage(options_page));
 
   FetchSchemaNamesProgressPage *fetch_progress_page= new FetchSchemaNamesProgressPage(this);
   fetch_progress_page->set_db_connection(_db_be.db_conn());

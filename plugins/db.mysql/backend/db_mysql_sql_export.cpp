@@ -52,6 +52,8 @@ DbMySQLSQLExport::DbMySQLSQLExport(bec::GRTManager *grtm, db_mysql_CatalogRef ca
   _users_are_selected= true;
   _catalog= catalog;
   _case_sensitive = true;
+  _gen_doc_props = false;
+  _gen_attached_scripts = false;
 
   if(!_catalog.is_valid())
     _catalog= get_model_catalog();  // call own version
@@ -112,6 +114,10 @@ void DbMySQLSQLExport::set_option(const std::string& name, bool value)
     _skip_foreign_keys= value;
   else if(name.compare("SkipFKIndexes") == 0)
     _skip_fk_indexes= value;
+  else if(name.compare("GenerateDocumentProperties") == 0)
+    _gen_doc_props= value;
+  else if(name.compare("GenerateAttachedScripts") == 0)
+    _gen_attached_scripts= value;
 }
 
 void DbMySQLSQLExport::set_option(const std::string& name, const std::string& value)
@@ -194,6 +200,8 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict(grt::GRT *grt)
   options.set("GenerateUse", grt::IntegerRef(_generate_use ? 1 : 0));
   options.set("SkipForeignKeys", grt::IntegerRef(_skip_foreign_keys ? 1 : 0));
   options.set("SkipFKIndexes", grt::IntegerRef(_skip_fk_indexes ? 1 : 0));
+  options.set("GenerateDocumentProperties", grt::IntegerRef(_gen_doc_props ? 1 : 0));
+  options.set("GenerateAttachedScripts", grt::IntegerRef(_gen_attached_scripts ? 1 : 0));
 
   options.set("OutputScriptHeader", grt::StringRef(_output_header));
 

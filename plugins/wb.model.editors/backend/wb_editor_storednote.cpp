@@ -26,11 +26,28 @@
 #include "grt/exceptions.h"
 
 #include "mforms/code_editor.h"
+#include "mforms/toolbar.h"
 
 #include "grtsqlparser/mysql_parser_services.h"
 
 using namespace base;
 using namespace parser;
+
+
+static struct {
+  const char *label;
+  const char *name;
+} inclusion_positions[] = {
+  { "Do not include", "" },
+  { "Top of script", "top_file" },
+  { "Before DDL", "before_ddl" },
+  { "After DDL", "after_ddl" },
+  { "Before Inserts", "before_inserts" },
+  { "After Inserts", "after_inserts" },  
+  { "Bottom of script", "bottom_file" },
+  { NULL, NULL }
+};
+
 
 StoredNoteEditorBE::StoredNoteEditorBE(bec::GRTManager *grtm, const GrtStoredNoteRef &note)
 : bec::BaseEditor(grtm, note), _note(note)
@@ -57,6 +74,53 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
     scoped_connect(_sql_editor->text_change_signal(),
       boost::bind(&StoredNoteEditorBE::do_partial_ui_refresh, this, (int)BaseEditor::RefreshTextChanged));
 
+    if (is_script())
+    {
+      mforms::ToolBar *tbar = _sql_editor->get_toolbar();
+      mforms::ToolBarItem *item;
+      db_ScriptRef script(db_ScriptRef::cast_from(_note));
+
+      std::string syncvalue = inclusion_positions[0].label, fwvalue = inclusion_positions[0].label;
+      std::vector<std::string> sync_choices, fw_choices;
+      for (int i = 0; inclusion_positions[i].label != NULL; i++)
+      {
+        if (strcmp(inclusion_positions[i].name, "after_inserts") != 0 && strcmp(inclusion_positions[i].name, "before_inserts") != 0)
+          sync_choices.push_back(inclusion_positions[i].label);
+        fw_choices.push_back(inclusion_positions[i].label);
+        if (strcmp(inclusion_positions[i].name, script->synchronizeScriptPosition().c_str()) == 0)
+          syncvalue = inclusion_positions[i].label;
+        if (strcmp(inclusion_positions[i].name, script->forwardEngineerScriptPosition().c_str()) == 0)
+          fwvalue = inclusion_positions[i].label;
+      }
+
+      item = mforms::manage(new mforms::ToolBarItem(mforms::ExpanderItem));
+      tbar->add_item(item);
+
+      item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
+      item->set_text(_("Synchronization:"));
+      tbar->add_item(item);
+
+      item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
+      item->set_selector_items(sync_choices);
+      item->set_name("syncscript");
+      item->set_tooltip(_("Position to insert this in synchronization output scripts"));
+      item->signal_activated()->connect(boost::bind(&StoredNoteEditorBE::changed_selector, this, item));
+      item->set_text(syncvalue);
+      tbar->add_item(item);
+
+      item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
+      item->set_text(_("Forward Engineering:"));
+      tbar->add_item(item);
+
+      item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
+      item->set_selector_items(fw_choices);
+      item->set_name("forwardscript");
+      item->signal_activated()->connect(boost::bind(&StoredNoteEditorBE::changed_selector, this, item));
+      item->set_tooltip(_("Position to insert this in forward engineering output scripts"));
+      item->set_text(fwvalue);
+      tbar->add_item(item);
+    }
+
     // Remove syntax highlighting if this is a note.
     if (!is_script())
     {
@@ -65,6 +129,31 @@ MySQLEditor::Ref StoredNoteEditorBE::get_sql_editor()
     }
   }
   return _sql_editor;
+}
+
+
+void StoredNoteEditorBE::changed_selector(mforms::ToolBarItem *item)
+{
+  std::string value = item->get_text();
+  std::string s;
+  for (int i = 0; inclusion_positions[i].label != NULL; i++)
+    if (strcmp(inclusion_positions[i].label, value.c_str()) == 0)
+    {
+      s = inclusion_positions[i].name;
+      break;
+    }
+
+  bec::AutoUndoEdit undo(this);
+  if (item->get_name() == "syncscript")
+  {
+    db_ScriptRef::cast_from(_note)->synchronizeScriptPosition(s);
+    undo.end(base::strfmt(_("Change sync output position for %s"), get_name().c_str()));
+  }
+  else
+  {
+    db_ScriptRef::cast_from(_note)->forwardEngineerScriptPosition(s);
+    undo.end(base::strfmt(_("Change forward eng. output position for %s"), get_name().c_str()));
+  }
 }
 
 
@@ -88,7 +177,6 @@ void StoredNoteEditorBE::set_text(grt::StringRef text)
 
 grt::StringRef StoredNoteEditorBE::get_text(bool &isutf8)
 {
-  //XXX replace this using module wrapper class
   grt::Module *module= get_grt()->get_module("Workbench");
   if (!module)
     throw std::runtime_error("Workbench module not found");

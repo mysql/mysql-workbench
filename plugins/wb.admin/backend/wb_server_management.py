@@ -30,7 +30,14 @@ import inspect
 import random
 import string
 
-default_sudo_prefix       = '/usr/bin/sudo -S -p EnterPasswordHere'
+# Declares the global variable for sudo prefix
+default_sudo_prefix = ''
+
+def reset_sudo_prefix():
+    global default_sudo_prefix
+    default_sudo_prefix       = '/usr/bin/sudo -S -p EnterPasswordHere'
+
+reset_sudo_prefix()
 
 from mforms import App
 from workbench.utils import QueueFileMP
@@ -1738,6 +1745,21 @@ _file_ops_classes.append(FileOpsRemoteWindows)
 #===============================================================================
 class ServerManagementHelper(object):
     def __init__(self, profile, ssh):
+      
+        settings = profile.get_settings_object()
+        serverInfo = settings.serverInfo
+        
+        # Resets the sudo prefix accordingly
+        reset_sudo_prefix()
+        
+        if serverInfo.has_key('sys.mysqld.sudo_override'):
+            sudo_override = serverInfo['sys.mysqld.sudo_override']
+        
+            if sudo_override.strip():
+                global default_sudo_prefix
+                default_sudo_prefix = sudo_override
+                log_warning('Overriding default sudo prefix to : %s\n' % default_sudo_prefix)
+    
         self.tmp_files = [] # TODO: make sure the files will be deleted on exit
 
         self.profile = profile

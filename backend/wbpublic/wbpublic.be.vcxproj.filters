@@ -896,5 +896,8 @@
     <ClCompile Include="grtsqlparser\mysql_parser_services.cpp">
       <Filter>grtsqlparser Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="objimpl\GrtStoredNote.cpp">
+      <Filter>Generated Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

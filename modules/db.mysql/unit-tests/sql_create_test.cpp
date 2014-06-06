@@ -37,6 +37,7 @@ protected:
     WbMysqlImportImpl *wb_mysql_import_module;
     SQLGeneratorInterfaceImpl *diffsql_module;
     sql::ConnectionWrapper connection;
+    
     TEST_DATA_CONSTRUCTOR(sql_create)
     {
         wb_mysql_import_module= NULL;
@@ -66,8 +67,8 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(sql_create, "sql create");
 
-//Test if sql generated for syntetic model is valid
-TEST_FUNCTION(1)
+// Test if sql generated for synthetic model is valid.
+TEST_FUNCTION(10)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
@@ -106,12 +107,12 @@ TEST_FUNCTION(1)
 
     diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
     std::string export_sql_script= options.get_string("OutputScript");
-    ensure("DROP TABLE missing in generated sql",export_sql_script.find("DROP TABLE IF EXISTS `test_schema`.`t1`") != std::string::npos);
+    ensure("DROP TABLE missing in generated sql", export_sql_script.find("DROP TABLE IF EXISTS `test_schema`.`t1`") != std::string::npos);
     execute_script(stmt.get(), export_sql_script,tester.wb->get_grt_manager());
 }
 
-//Forward engeneer syntetic model without qualifing schema, but inserting USE statements instead
-TEST_FUNCTION(2)
+// Forward engineer synthetic model without qualifying schema, but inserting USE statements instead.
+TEST_FUNCTION(20)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
@@ -148,7 +149,7 @@ TEST_FUNCTION(2)
 }
 
 //Test case for Bug #11926862 NO WAY TO SORT SCHEMAS ON EXPORT
-TEST_FUNCTION(3)
+TEST_FUNCTION(30)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
@@ -186,7 +187,7 @@ TEST_FUNCTION(3)
 //Test case for Bug #14278043 DB SYNCRONIZE MODEL GENERATES INCORRECT COLLATION
 //If somehow collation doesn't correspond to charset it should be skipped during 
 //sql generation to create valid DDL
-TEST_FUNCTION(4)
+TEST_FUNCTION(40)
 {
     grt::ValueRef e;
     std::auto_ptr<sql::Statement> stmt(connection->createStatement());
@@ -245,7 +246,7 @@ static std::string strrange(const std::string &s, const std::string &start, cons
 
 // Test generation of comments (with support for truncation)
 // Bug #17455899
-TEST_FUNCTION(10)
+TEST_FUNCTION(50)
 {
   std::string comment_60 = "012345678901234567890123456789012345678901234567890123456789";
   std::string comment_255 = comment_60+comment_60+comment_60+comment_60+"012345678912345";
@@ -357,7 +358,7 @@ TEST_FUNCTION(10)
 
 
 ////Test for bug: 11765994, fwd view can be sometimes problematic with case sensitivity
-TEST_FUNCTION(14)
+TEST_FUNCTION(60)
 {
 
   {
@@ -386,6 +387,7 @@ TEST_FUNCTION(14)
     options.set("UseShortNames", grt::IntegerRef(1));
     options.set("GenerateUse", grt::IntegerRef(1));
     options.set("GenerateDrops", grt::IntegerRef(1));
+    options.set("GenerateDocumentProperties", grt::IntegerRef(0));
     diffsql_module->generateSQL(catalog, options, create_change);
 
     //Case sensitive in db set to true
@@ -407,18 +409,15 @@ TEST_FUNCTION(14)
 
     tut::ensure(expected_sql, ref.is_open());
 
-    std::string error_msg("Forward engineer of:");
-    error_msg += modelfile;
-    error_msg += " and ";
-    error_msg += expected_sql;
-    error_msg += " failed";
-
     while (ref.good() && ss.good())
     {
      getline(ref, refline);
      getline(ss, line);
-     tut::ensure_equals(error_msg, line, refline);
+     tut::ensure_equals("Different lines", line, refline);
     }
+
+    if (ref.good() || ss.good())
+      fail("Generated and reference line count differ.");
 
     tester.wb->close_document();
     tester.wb->close_document_finish();
@@ -450,6 +449,7 @@ TEST_FUNCTION(14)
       options.set("UseShortNames", grt::IntegerRef(1));
       options.set("GenerateUse", grt::IntegerRef(1));
       options.set("GenerateDrops", grt::IntegerRef(1));
+      options.set("GenerateDocumentProperties", grt::IntegerRef(0));
       diffsql_module->generateSQL(catalog, options, create_change);
 
       //Case sensitive in db set to false
@@ -487,7 +487,7 @@ TEST_FUNCTION(14)
 }
 
 //Test forward engineer after renaming schema if it generate proper sql
-TEST_FUNCTION(15)
+TEST_FUNCTION(70)
 {
   grt::ValueRef e;
   std::auto_ptr<sql::Statement> stmt(connection->createStatement());
@@ -517,6 +517,7 @@ TEST_FUNCTION(15)
   DictRef drop_map(tester.grt);
 
   grt::DictRef options = DictRef::cast_from(tester.grt->unserialize("data/forward_engineer/rename_opts.dict"));
+  options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 
   create_map = diffsql_module->generateSQLForDifferences(GrtNamedObjectRef(), catalog, options);
 

@@ -17,10 +17,14 @@
  * 02110-1301  USA
  */
 
+#include "base/log.h"
+
 #include "mdc_back_layer.h"
 #include "mdc_algorithms.h"
 #include "mdc_canvas_view.h"
 #include "mdc_draw_util.h"
+
+DEFAULT_LOG_DOMAIN("canvas")
 
 using namespace mdc;
 using namespace base;
@@ -269,7 +273,7 @@ void BackLayer::repaint(const Rect &aBounds)
   
 #ifndef WIN32
   if (_owner->debug_enabled())
-    g_message("repaint background %s", aBounds.str().c_str());
+    log_debug3("repaint background %s", aBounds.str().c_str());
 #endif
   cr->save();
   

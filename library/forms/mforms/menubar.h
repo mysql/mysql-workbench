@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +43,7 @@ namespace mforms {
   };
 
 #ifndef SWIG
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
   // This merges functionality of menus and menu items.
   struct MFORMS_EXPORT MenuItemImplPtrs
   {
@@ -64,7 +65,8 @@ namespace mforms {
     void (*popup_menu)(ContextMenu *menu, int x, int y); // TODO: windows (not used, so this can go)
   };
 #endif
-  
+#endif
+ 
   // base abstract class for menuitem and menubase
   class MFORMS_EXPORT MenuBase : public Object, public base::trackable
   {

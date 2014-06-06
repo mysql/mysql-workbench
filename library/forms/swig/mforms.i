@@ -538,6 +538,10 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 %typemap (in) int64_t, boost::int64_t = long long;
 %typemap (out) int64_t, boost::int64_t = long long;
 
+%typemap (out) base::Rect {
+  $result = Py_BuildValue("(ffff)", $1.left(), $1.top(), $1.width(), $1.height());
+}
+
 %typemap(in) const std::string& {
   if (PyUnicode_Check($input))
   {
@@ -1131,6 +1135,10 @@ BOOST_ADD_SIGNAL_VOID_STRING_CALLBACK(link_click_callback, self->signal_link_cli
 
 %extend mforms::ToolBarItem {
 SWIG_ADD_SIGNAL_VOID_TOOLBARITEM_CALLBACK(activated_callback, self->signal_activated());
+}
+
+%extend mforms::Popover {
+SWIG_ADD_SIGNAL_VOID_CALLBACK(close_callback, self->signal_close());
 }
 
 %include mforms_extras.i

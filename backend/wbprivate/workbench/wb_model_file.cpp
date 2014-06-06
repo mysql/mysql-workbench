@@ -28,6 +28,8 @@
 #include <errno.h>
 
 #include "grtpp.h"
+
+#include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/file_functions.h"
@@ -75,22 +77,11 @@
  * and if so, the recovery function will kick in, using the autosave XML file.
  */
 
+DEFAULT_LOG_DOMAIN("model")
 
 using namespace bec;
 using namespace wb;
 using namespace base;
-
-/*
-static std::string fmt_ziperror(zip *z, const char *msg)
-{
-  int ziperr, syserr;
-  char buffer[1000];
-
-  zip_error_get(z, &ziperr, &syserr);
-  zip_error_to_str(buffer, sizeof(buffer), ziperr, syserr);
-
-  return strfmt("%s: %s", msg, buffer);
-}*/
 
 const std::string ModelFile::lock_filename("lock");
 
@@ -331,7 +322,7 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
                                                      path.c_str(), base::fmttime(autosave_ts, DATETIME_FMT).c_str(), base::fmttime(file_ts, DATETIME_FMT).c_str()),
                                         _("Recover"), _("Continue"), "") == mforms::ResultOk)
     {
-      g_message("Recovering %s...", path.c_str());
+      log_info("Recovering %s...", path.c_str());
       recover= true;
       _content_dir = auto_save_dir;
 
@@ -363,7 +354,7 @@ void ModelFile::open(const std::string &path, GRTManager *grtm)
     }
     else // Cancel recovery
     {
-      g_message("Cleaning up leftover auto-save directory %s", auto_save_dir.c_str());
+      log_info("Cleaning up leftover auto-save directory %s", auto_save_dir.c_str());
       rmdir_recursively(auto_save_dir.c_str());
     }
   }
