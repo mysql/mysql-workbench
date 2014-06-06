@@ -176,18 +176,26 @@ void DBObjectFilterFrame::set_models(bec::GrtStringListModel *model, bec::GrtStr
   else
     set_active(true);
 
-  refresh();
+  refresh(-1, -1);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void DBObjectFilterFrame::refresh()
+/**
+ * Reloads the models and the list boxes. Selects the given indices if > -1.
+ */
+void DBObjectFilterFrame::refresh(int object_list_selection, int mask_list_selection)
 {
   _model->refresh();
   _exclude_model->refresh();
   
   refill_list(_object_list, _model);
+  if (object_list_selection > -1 && object_list_selection < _model->count())
+    _object_list.set_selected(object_list_selection);
+
   refill_list(_mask_list, _exclude_model);
+  if (mask_list_selection > -1 && mask_list_selection < _exclude_model->count())
+    _mask_list.set_selected(mask_list_selection);
 
   std::stringstream out;
   out << _model->total_items_count() << " Total Objects, " << _model->active_items_count() << " Selected";
@@ -258,7 +266,7 @@ void DBObjectFilterFrame::add_mask()
     _exclude_model->add_item(dlg.get_value(), -1);
     _model->invalidate();
     
-    refresh();
+    refresh(-1, -1);
   }
 }
 
@@ -284,10 +292,8 @@ void DBObjectFilterFrame::add_clicked(bool all)
   }
 
   _model->copy_items_to_val_masks_list(indices);
-  refresh();
-
-  if (new_selection > -1)
-    _object_list.set_selected(new_selection);
+  _model->invalidate(); // Weird work flow here. Need to mark the model as invalidate or it will refuse to refresh.
+  refresh(new_selection, -1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,10 +318,8 @@ void DBObjectFilterFrame::del_clicked(bool all)
   }
 
   _exclude_model->remove_items(indices);
-  refresh();
-
-  if (new_selection > -1)
-    _mask_list.set_selected(new_selection);
+  _model->invalidate();
+  refresh(-1, new_selection);
 }
 
 //--------------------------------------------------------------------------------------------------
