@@ -40,7 +40,8 @@ TEST_DATA_CONSTRUCTOR(autocompletion_cache_test)
   _grt.scan_metaclasses_in("../../res/grt/");
   _grt.end_loading_metaclasses();
 
-  // setup the sakila db in server
+  // Because tests are executed in alphabetic order this is the first one.
+  // Hence we set up the sakila db in server here.
   setup_sakila_db();
 }
 
