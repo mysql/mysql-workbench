@@ -81,6 +81,9 @@ public:
 
   virtual void set_title(const std::string &title);
 
+  void set_pinned(bool flag) { _pinned = flag; }
+  bool pinned() const { return _pinned; }
+
 private:
   mforms::TabView _tabview;
   mforms::TabSwitcher _switcher;
@@ -104,6 +107,8 @@ private:
   bool _column_info_created;
   bool _query_stats_created;
   bool _form_view_created;
+
+  bool _pinned;
 
   void switch_tab();
   

@@ -94,7 +94,8 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 : mforms::AppView(true, "QueryResult", false),
    _owner(owner),
   _tabview(mforms::TabViewTabless), _switcher(mforms::VerticalIconSwitcher),
-  _tabdock_delegate(new DockingDelegate(&_tabview, &_switcher, "SqlResultPanel")), _tabdock(_tabdock_delegate, true)
+  _tabdock_delegate(new DockingDelegate(&_tabview, &_switcher, "SqlResultPanel")), _tabdock(_tabdock_delegate, true),
+  _pinned(false)
 {
   _result_grid = NULL;
   _column_info_menu = NULL;

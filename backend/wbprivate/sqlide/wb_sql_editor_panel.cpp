@@ -128,6 +128,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _lower_tab_menu.signal_will_show()->connect(boost::bind(&SqlEditorPanel::tab_menu_will_show, this));
   _lower_tab_menu.add_item_with_title("Rename Tab", boost::bind(&SqlEditorPanel::rename_tab_clicked, this), "rename");
+  _lower_tab_menu.add_item_with_title("Pin Tab", boost::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
   _lower_tab_menu.add_separator();
   _lower_tab_menu.add_item_with_title("Close Tab", boost::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
   _lower_tab_menu.add_item_with_title("Close Other Tabs", boost::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
@@ -907,8 +908,8 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets)
       SqlEditorResult *result = dynamic_cast<SqlEditorResult*>(_lower_tabview.get_page(i));
       if (result)
       {
-        //      if (ignore_pinned && result->pinned)
-        //        continue;
+        if (result->pinned())
+          continue;
 
         if (result->has_pending_changes())
           continue;
@@ -1233,7 +1234,11 @@ std::list<SqlEditorResult*> SqlEditorPanel::dirty_result_panels()
 
 void SqlEditorPanel::tab_menu_will_show()
 {
-  _lower_tab_menu.set_item_enabled("rename", result_panel(_lower_tabview.get_menu_tab()) != NULL);
+  SqlEditorResult *result(result_panel(_lower_tabview.get_menu_tab()));
+
+  _lower_tab_menu.set_item_enabled("rename", result != NULL);
+  _lower_tab_menu.set_item_enabled("pin", result != NULL);
+  _lower_tab_menu.set_item_checked("pin", result && result->pinned());
 
   if (_lower_tabview.page_count() > 1)
     _lower_tab_menu.set_item_enabled("close_others", true); // close others
@@ -1252,6 +1257,15 @@ void SqlEditorPanel::rename_tab_clicked()
     if (mforms::Utilities::request_input(_("Rename Result Tab"), "Enter a new name for the result tab:", result->caption().c_str(), title))
       _lower_tabview.set_tab_title(tab, title);
   }
+}
+
+
+void SqlEditorPanel::pin_tab_clicked()
+{
+  int tab = _lower_tabview.get_menu_tab();
+  SqlEditorResult *result = result_panel(tab);
+  if (result)
+    result->set_pinned(!_lower_tab_menu.find_item("pin")->get_checked());
 }
 
 
