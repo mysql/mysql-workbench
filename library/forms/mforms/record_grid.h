@@ -43,11 +43,17 @@ namespace mforms {
     virtual bool current_cell(size_t &row, int &column) = 0;
     virtual void set_current_cell(size_t row, int column) = 0;
 
+
 #ifndef SWIG
     static RecordGrid* create(boost::shared_ptr<Recordset> rset);
 
     static void register_factory(RecordGrid* (*create)(boost::shared_ptr<Recordset> rset));
 #endif
+
+    // TODO must be emited from Windows, Linux
+    boost::signals2::signal<void (int)>* signal_column_resized() { return &_signal_column_resized; }
+  private:
+    boost::signals2::signal<void (int)> _signal_column_resized;
   };
 };
 

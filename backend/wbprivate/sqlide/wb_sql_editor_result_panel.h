@@ -38,6 +38,7 @@ namespace mforms
   class ToolBarItem;
   class ContextMenu;
   class TreeNodeView;
+  class RecordGrid;
 };
 
 class SqlEditorPanel;
@@ -69,9 +70,8 @@ public:
 
   void show_export_recordset();
   void show_import_recordset();
-  
-  void dock_result_grid(mforms::View *view);
-  mforms::View *result_grid() { return _result_grid; }
+
+  mforms::RecordGrid *result_grid() { return _result_grid; }
 
   mforms::DockingPoint *dock() { return &_tabdock; }
 
@@ -97,12 +97,14 @@ private:
   ResultFormView *_form_result_view;
   mforms::ContextMenu *_column_info_menu;
   std::list<mforms::ToolBar*> _toolbars;
-  mforms::View *_result_grid;
+  mforms::RecordGrid *_result_grid;
   boost::signals2::signal<void (bool)> _collapse_toggled;
   boost::signals2::connection _collapse_toggled_sig;
 
   db_query_ResultPanelRef _grtobj;
   db_query_ResultsetRef _result_grtobj;
+
+  std::vector<std::string> _column_width_storage_ids;
 
   bool _column_info_created;
   bool _query_stats_created;
@@ -118,10 +120,16 @@ private:
   void create_query_stats_panel();
   void create_column_info_panel();
 
+  void dock_result_grid(mforms::RecordGrid *view);
+
+  void restore_grid_column_widths();
+  
   void add_switch_toggle_toolbar_item(mforms::ToolBar *tbar);
 
   void copy_column_info_name(mforms::TreeNodeView *tree);
   void copy_column_info(mforms::TreeNodeView *tree);
+
+  void on_recordset_column_resized(int column);
 };
 
 

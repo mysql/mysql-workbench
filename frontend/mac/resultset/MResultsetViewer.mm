@@ -346,7 +346,7 @@ static void selected_record_changed(MResultsetViewer *self)
 
 - (void)refresh
 {
-  [self rebuildColumns];
+//  [self rebuildColumns];
   [mTableView reloadData];
 }
 

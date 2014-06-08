@@ -60,6 +60,7 @@ namespace bec
 class QuerySidePalette;
 class SqlEditorTreeController;
 class AutoCompleteCache;
+class ColumnWidthCache;
 class SqlEditorPanel;
 class SqlEditorResult;
 
@@ -285,8 +286,11 @@ private:
   base::RecMutexLock get_autocompletion_connection(sql::Dbc_connection_handler::Ref &conn);
   void on_cache_action(bool active);
 
+  ColumnWidthCache *_column_width_cache;
 public:
   AutoCompleteCache *auto_completion_cache() { return _auto_completion_cache; }
+
+  ColumnWidthCache *column_width_cache() { return _column_width_cache; }
 
   bool exec_editor_sql(SqlEditorPanel *editor, bool sync, bool current_statement_only = false,
                        bool wrap_with_non_std_delimiter = false, bool dont_add_limit_clause = false,

@@ -31,6 +31,8 @@
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/db.query/db_query_EditableResultset.h"
 
+#include "column_width_cache.h"
+
 #include "base/sqlstring.h"
 #include "grt/parse_utils.h"
 #include "base/log.h"
@@ -157,6 +159,11 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
 
   bec::UIForm::scoped_connect(rset->get_context_menu()->signal_will_show(),
                               boost::bind(&SqlEditorPanel::on_recordset_context_menu_show, _owner, Recordset::Ptr(rset)));
+
+  restore_grid_column_widths();
+  bec::UIForm::scoped_connect(_result_grid->signal_column_resized(),
+                              boost::bind(&SqlEditorResult::on_recordset_column_resized, this, _1));
+
   rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
 }
 
@@ -388,8 +395,54 @@ void SqlEditorResult::toggle_switcher_collapsed()
   _collapse_toggled(flag);
 }
 
+void SqlEditorResult::on_recordset_column_resized(int column)
+{
+  std::string column_id = _column_width_storage_ids[column];
+  int width = _result_grid->get_column_width(column);
+  log_info("column %s resized to %i\n", column_id.c_str(), width);
+  _owner->owner()->column_width_cache()->save_column_width(column_id, width);
+}
 
-void SqlEditorResult::dock_result_grid(mforms::View *view)
+
+void SqlEditorResult::restore_grid_column_widths()
+{
+  ColumnWidthCache *cache = _owner->owner()->column_width_cache();
+
+  RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
+  {
+    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
+    std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+
+    for (int c = (int)field_info.size(), i = 0; i < c; i++)
+    {
+      std::string column_storage_id;
+
+      column_storage_id = field_info[i].field + "::" + field_info[i].schema + "::" + field_info[i].table;
+      _column_width_storage_ids.push_back(column_storage_id);
+
+      // check if we have a remembered column width
+      int width = cache->get_column_width(column_storage_id);
+      if (width > 0)
+      {
+        _result_grid->set_column_width(i, width);
+      }
+      else
+      {
+        // if not, we set a default width based on the display size
+        int length = field_info[i].display_size;
+
+        if (length < 0)
+          length = 10;
+        else if (length > 20)
+          length = 20;
+        _result_grid->set_column_width(i, length * 9);
+      }
+    }
+  }
+}
+
+
+void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
 {
   mforms::App *app = mforms::App::get();
   _result_grid = view;
@@ -692,3 +745,5 @@ void SqlEditorResult::create_query_stats_panel()
     _query_stats_box->add(spanel, true, true);
   }
 }
+
+

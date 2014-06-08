@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,31 +17,24 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_RECORD_GRID_VIEW_H_
-#define _MFORMS_RECORD_GRID_VIEW_H_
+#ifndef __MySQLWorkbench__column_width_cache__
+#define __MySQLWorkbench__column_width_cache__
 
-#include "mforms/record_grid.h"
+#include <sqlite/connection.hpp>
 
-@class MResultsetViewer;
+#include <string>
 
-namespace mforms
+class ColumnWidthCache
 {
-class RecordGridView : public mforms::RecordGrid
-{
-  MResultsetViewer *viewer;
+  std::string _connection_id;
+  sqlite::connection *_sqconn;
 
+  void init_db();
 public:
-  RecordGridView(boost::shared_ptr<Recordset> rset);
-  virtual ~RecordGridView();
+  ColumnWidthCache(const std::string &connection_id, const std::string &cache_dir);
 
-  virtual int get_column_count();
-  virtual int get_column_width(int column);
-  virtual void set_column_width(int column, int width);
-
-  virtual bool current_cell(size_t &row, int &column);
-  virtual void set_current_cell(size_t row, int column);
-
-  MResultsetViewer *control() { return viewer; }
+  void save_column_width(const std::string &column_id, int width);
+  int get_column_width(const std::string &column_id);
 };
-};
-#endif
+
+#endif /* __MySQLWorkbench__column_width_cache__ */

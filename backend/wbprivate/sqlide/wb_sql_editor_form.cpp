@@ -35,6 +35,7 @@
 #include "sqlide/sql_script_run_wizard.h"
 
 #include "sqlide/autocomplete_object_name_cache.h"
+#include "column_width_cache.h"
 
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/ui/mforms_ObjectReference_impl.h"
@@ -219,6 +220,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _usr_dbc_conn(new sql::Dbc_connection_handler()),
   _last_server_running_state(UnknownState),
   _auto_completion_cache(NULL),
+  _column_width_cache(NULL),
   exec_sql_task(GrtThreadedTask::create(_grtm)),
   _is_running_query(false),
   _live_tree(SqlEditorTreeController::create(this)),
@@ -281,14 +283,22 @@ void SqlEditorForm::finish_startup()
 
   _live_tree->finish_init();
 
+  std::string cache_dir = _grtm->get_user_datadir() + "/cache/";
+  try
+  {
+    base::create_directory(cache_dir, 0700); // No-op if the folder already exists.
+  }
+  catch (std::exception &e)
+  {
+    log_error("Could not create %s: %s\n", cache_dir.c_str(), e.what());
+  }
+
   //we moved this here, cause it needs schema_sidebar to be fully created,
   //due to some race conditions that occurs sometimes
   if (_grtm->get_app_option_int("DbSqlEditor:CodeCompletionEnabled") == 1 && connected())
     {
-      std::string cache_dir = _grtm->get_user_datadir() + "/cache/";
       try
       {
-        base::create_directory(cache_dir, 0700); // No-op if the folder already exists.
         _auto_completion_cache = new AutoCompleteCache(sanitize_file_name(get_session_name()),
           boost::bind(&SqlEditorForm::get_autocompletion_connection, this, _1), cache_dir,
           boost::bind(&SqlEditorForm::on_cache_action, this, _1));
@@ -303,6 +313,8 @@ void SqlEditorForm::finish_startup()
     }
     else
       log_debug("Code completion is disabled, so no name cache is created\n");
+
+  _column_width_cache = new ColumnWidthCache(sanitize_file_name(get_session_name()), cache_dir);
 
   if (_usr_dbc_conn && !_usr_dbc_conn->active_schema.empty())
     _live_tree->on_active_schema_change(_usr_dbc_conn->active_schema);
@@ -368,6 +380,8 @@ SqlEditorForm::~SqlEditorForm()
 {
   if (_auto_completion_cache)
     _auto_completion_cache->shutdown();
+
+  delete _column_width_cache;
 
   // debug: ensure that close() was called when the tab is closed
   if (_toolbar != NULL)

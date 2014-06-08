@@ -36,16 +36,62 @@ void cf_record_grid_init()
 }
 
 
+@interface RecordGridObserver : NSObject
+{
+  std::map<NSTableView*, RecordGridView*> gridView;
+}
+- (void)columnDidResize:(NSNotification*)notif;
+@end
 
+@implementation RecordGridObserver
+
+- (void)columnDidResize:(NSNotification*)notif
+{
+  std::map<NSTableView*, RecordGridView*>::iterator iter = gridView.find([notif object]);
+  if (iter != gridView.end())
+  {
+    id theColumn = [[notif userInfo] objectForKey: @"NSTableColumn"];
+    NSInteger i = [[iter->first tableColumns] indexOfObject: theColumn];
+    if (i != NSNotFound)
+      (*iter->second->signal_column_resized())(i-1);
+  }
+}
+
+
+- (void)observeViewer:(RecordGridView*)viewer
+{
+  gridView[[viewer->control() gridView]] = viewer;
+
+  [[NSNotificationCenter defaultCenter] addObserver: self
+                                           selector: @selector(columnDidResize:)
+                                               name: NSTableViewColumnDidResizeNotification
+                                             object: [viewer->control() gridView]];
+}
+
+- (void)forgetViewer:(RecordGridView*)viewer
+{
+  [[NSNotificationCenter defaultCenter] removeObserver: self
+                                                  name: NSTableViewColumnDidResizeNotification
+                                                object: [viewer->control() gridView]];
+}
+
+@end
+
+static RecordGridObserver *observer = nil;
 RecordGridView::RecordGridView(Recordset::Ref rset)
 {
+  if (!observer)
+    observer = [[RecordGridObserver alloc] init];
+
   viewer = [[MResultsetViewer alloc] initWithRecordset: rset];
 
+  [observer observeViewer: this];
   set_data([[viewer gridView] enclosingScrollView]);
 }
 
 RecordGridView::~RecordGridView()
 {
+  [observer forgetViewer: this];
   [viewer release];
 }
 
