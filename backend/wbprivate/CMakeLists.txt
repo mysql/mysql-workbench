@@ -65,6 +65,7 @@ add_library(wbprivate STATIC
     sqlide/wb_live_schema_tree.cpp
     sqlide/wb_sql_editor_snippets.cpp
     sqlide/query_side_palette.cpp
+    sqlide/column_width_cache.cpp
     workbench/metaclasses.cpp
     workbench/upgrade_helper.cpp
     workbench/wb_command_ui.cpp
