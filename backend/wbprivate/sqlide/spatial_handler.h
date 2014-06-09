@@ -20,11 +20,11 @@
 #ifndef SPATIAL_HANDLER_H_
 #define SPATIAL_HANDLER_H_
 
-#include <ogrsf_frmts.h>
-#include <ogr_api.h>
-#include <gdal_pam.h>
-#include <memdataset.h>
-#include <gdal_alg.h>
+#include <gdal/ogrsf_frmts.h>
+#include <gdal/ogr_api.h>
+#include <gdal/gdal_pam.h>
+#include <gdal/memdataset.h>
+#include <gdal/gdal_alg.h>
 #include <deque>
 #include "base/geometry.h"
 
@@ -32,7 +32,7 @@ namespace GIS
 {
 enum ProjectionType
 {
-  ProjDefault =0, ProjMercator = 1, ProjEquirectangular = 2, ProjRobinson = 3
+  ProjMercator = 1, ProjEquirectangular = 2, ProjRobinson = 3
 };
 enum ShapeType
 {
@@ -50,38 +50,45 @@ struct ProjectionView
   int width;
   int height;
   double MaxLat;
-  double MaxLng;
+  double MaxLon;
   double MinLat;
-  double MinLng;
+  double MinLon;
   ProjectionType type;
 };
 
 class SpatialHandler
 {
   OGRGeometry *poGeometry;
-  std::string default_projection;
   std::string robinson_projection;
   std::string mercator_projection;
   std::string equirectangular_projection;
+  std::string geodetic_wkt;
+  double _adfProjection[6];
+  double _invProjection[6];
+  OGRCoordinateTransformation *geo_to_proj;
+  OGRCoordinateTransformation *proj_to_geo;
 
 private:
-  void *imgTransformerArgument;
-  GDALTransformerFunc imgTransformerFunc;
 
 protected:
-  GDALDataset* memSetup(ProjectionView &view);
+  void setupMatrix(ProjectionView &view);
   void extractPoints(OGRGeometry *shape,
-      std::deque<ShapeContainer> &shapes_container, ProjectionView &view);
-  void convertPoints(std::vector<double> &x, std::vector<double> &y, ProjectionView &view);
+      std::deque<ShapeContainer> &shapes_container, ProjectionType &projection);
+  void convertPoints(std::vector<double> &x, std::vector<double> &y,
+      ProjectionType &projection);
   ShapeContainer convertToShapeContainer(ShapeType type, std::vector<double> &x,
       std::vector<double> &y);
-
+  char* getProjectionWkt(ProjectionType p);
 public:
   SpatialHandler();
   int importFromMySQL(const std::string &data);
   virtual ~SpatialHandler();
   int getOutput(ProjectionView &view,
       std::deque<ShapeContainer> &shapes_container);
+  void toLatLng(int x, int y, double &lat,
+      double &lon);
+  void fromLatLng(double lat, double lon, double &x,
+      double &y);
 };
 
 }

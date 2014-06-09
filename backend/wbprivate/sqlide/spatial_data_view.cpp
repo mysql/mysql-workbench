@@ -75,7 +75,7 @@ class SpatialDrawBox : public mforms::DrawBox
 
 public:
   SpatialDrawBox()
-  : _proj(GIS::ProjDefault), _zoom_level(0), _offset_x(0), _offset_y(0), _dragging(false),
+  : _proj(GIS::ProjRobinson), _zoom_level(0), _offset_x(0), _offset_y(0), _dragging(false),
   _needs_rerender(false)
   {
     _cache = NULL;
@@ -176,7 +176,7 @@ public:
     {
       _needs_rerender = false;
 
-      double zoom = ZoomLevels[_zoom_level];
+//      double zoom = ZoomLevels[_zoom_level];
       int width = get_width();
       int height = get_height();
 
@@ -184,13 +184,13 @@ public:
 
       // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
       // clipping area to the area we want to view
-      double dlo = 0, dla = 0;
-      screen_to_world(_offset_x, _offset_y, dla, dlo);
+//      double dlo = 0, dla = 0;
+//      screen_to_world(_offset_x, _offset_y, dla, dlo);
 
-      visible_area.MaxLat = 180 - 180*zoom + dla;
-      visible_area.MaxLng = 90 - 90*zoom + dlo;
-      visible_area.MinLat = -180 + 180*zoom + dla;
-      visible_area.MinLng = -90 + 90*zoom + dlo;
+      visible_area.MaxLat = 179;// - 179*zoom + dla;
+      visible_area.MaxLon = 89;// - 89*zoom + dlo;
+      visible_area.MinLat = -179;// + 179*zoom + dla;
+      visible_area.MinLon = -89;// + 89*zoom + dlo;
 
       visible_area.height = height;
       visible_area.width = width;
@@ -221,20 +221,51 @@ public:
     cr.paint();
   }
 
-  void screen_to_world(int x, int y, double &lat, double &lon)
+  void screen_to_world(GIS::SpatialHandler *handler, int x, int y, double &lat, double &lon)
   {
-    // convert screen pixel values to the equivalent in latitude/longitude values for the current zoom level
-
-    //XXX must be done using gdal
+    handler->toLatLng(x, y, lat, lon);
   }
 
-  void world_to_screen(double lat, double lon, int &x, int &y)
+  void world_to_screen(GIS::SpatialHandler *handler, double lat, double lon, int &x, int &y)
   {
 
+//    handler->fromLatLng(lat, lon, x, y);
   }
 
   void repaint_layer(mdc::CairoCtx &cr, const LayerInfo &layer)
   {
+//    double zoom = ZoomLevels[_zoom_level];
+/*    int width = get_width();
+    int height = get_height();
+
+    GIS::ProjectionView visible_area;
+*/
+    // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
+    // clipping area to the area we want to view
+//    double dlo = 0, dla = 0;
+
+//    fprintf(stderr, "Before OffsetX: %d, OffsetY: %d, dla:  %f, dlo: %f\n", _offset_x, _offset_y, dla, dlo);
+//    screen_to_world(handler, _offset_x, _offset_y, dla, dlo);
+//    fprintf(stderr, "Screen_to_world OffsetX: %d, OffsetY: %d, dla:  %f, dlo: %f\n", _offset_x, _offset_y, dla, dlo);
+//    int xx, yy;
+//    world_to_screen(handler, dla, dlo, xx, yy);
+//    fprintf(stderr, "World_to_screen OffsetX: %d, OffsetY: %d, dla:  %f, dlo: %f\n", xx, yy, dla, dlo);
+
+//    visible_area.MaxLat = 179;// - 180*zoom + dla;
+//    visible_area.MaxLon = 89;// - 90*zoom + dlo;
+//    visible_area.MinLat = -179;// + 180*zoom + dla;
+//    visible_area.MinLon = -89;// + 90*zoom + dlo;
+
+//    visible_area.height = height;
+//    visible_area.width = width;
+//    visible_area.type = _proj;
+
+    // TODO lat/long ranges must be adjusted according to account for the aspect ratio of the visible area
+
+//    std::deque<GIS::ShapeContainer> shapes;
+//    // method names must get_output() like.. camel case is only for class/struct names
+//    handler->getOutput(visible_area, shapes); //XXX separate width/height and projection type into separate params
+//    std::deque<GIS::ShapeContainer>::iterator it;
     std::deque<GIS::ShapeContainer>::const_iterator it;
 
     cr.set_line_width(1);
@@ -278,9 +309,9 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     std::vector<std::string> projection_types;
-    projection_types.push_back("Equirectangular");
     projection_types.push_back("Mercator");
     projection_types.push_back("Robinson");
+    projection_types.push_back("Equirectangular");
 
     _projection_picker = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
     _projection_picker->set_selector_items(projection_types);
@@ -351,18 +382,19 @@ void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item)
   {
     _viewer->set_projection(GIS::ProjMercator);
 
-    fprintf(stderr, "Set 0\n");
+    fprintf(stderr, "Set Mercator\n");
   }
   else if(action == "Equirectangular")
   {
     _viewer->set_projection(GIS::ProjEquirectangular);
-    fprintf(stderr, "Set 1\n");
+    fprintf(stderr, "Set Equirectangular\n");
   }
   else if(action == "Robinson")
   {
     _viewer->set_projection(GIS::ProjRobinson);
-    fprintf(stderr, "Set 2\n");
+    fprintf(stderr, "Set Robinson\n");
   }
+  _viewer->set_needs_repaint();
 }
 
 SpatialDataView::~SpatialDataView()
@@ -442,7 +474,7 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
   _sources = columns;
 
   bool first = true;
-  int i = 0;
+  size_t i = 0;
   for (std::vector<SpatialDataSource>::iterator iter = _sources.begin(); iter != _sources.end(); ++iter, ++i)
   {
     mforms::TreeNodeRef node = _layer_tree->add_node();
