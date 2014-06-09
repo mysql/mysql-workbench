@@ -19,6 +19,7 @@
 
 #include "stdafx.h"
 #include "base/log.h"
+#include "base/file_utilities.h"
 #include "spatial_data_view.h"
 #include "spatial_handler.h"
 #include "wb_sql_editor_result_panel.h"
@@ -28,6 +29,7 @@
 #include "mforms/app.h"
 #include "mforms/toolbar.h"
 #include "mforms/selector.h"
+#include "mforms/menubar.h"
 #include "mforms/drawbox.h"
 #include "mforms/label.h"
 #include "mforms/panel.h"
@@ -47,10 +49,21 @@ static double ZoomLevels[] = {
   0.0, 0.2, 0.4, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.97, 0.98, 0.99, 0.995
 };
 
+struct LayerInfo
+{
+  GIS::SpatialHandler* handler;
+  std::deque<GIS::ShapeContainer> shapes;
+
+  base::Color color;
+  bool show;
+};
+
+
 class SpatialDrawBox : public mforms::DrawBox
 {
-  std::deque<GIS::SpatialHandler*> _shandlers;
+  std::deque<LayerInfo> _layers;
   GIS::ProjectionType _proj;
+  mdc::Surface *_cache;
 
   int _zoom_level;
   int _offset_x, _offset_y;
@@ -58,37 +71,61 @@ class SpatialDrawBox : public mforms::DrawBox
   int _drag_x, _drag_y;
   bool _dragging;
 
+  bool _needs_rerender;
+
 public:
   SpatialDrawBox()
-  : _proj(GIS::ProjDefault), _zoom_level(0), _offset_x(0), _offset_y(0), _dragging(false)
+  : _proj(GIS::ProjDefault), _zoom_level(0), _offset_x(0), _offset_y(0), _dragging(false),
+  _needs_rerender(false)
   {
+    _cache = NULL;
+  }
+
+  ~SpatialDrawBox()
+  {
+    delete _cache;
   }
 
   void set_projection(GIS::ProjectionType proj)
   {
     _proj = proj;
+    invalidate();
   }
 
   void zoom_out()
   {
     _zoom_level = std::min((int)(sizeof(ZoomLevels)/sizeof(double))-1, _zoom_level+1);
-    set_needs_repaint();
+    invalidate();
   }
 
   void zoom_in()
   {
     _zoom_level = std::max(0, _zoom_level-1);
-    set_needs_repaint();
+    invalidate();
   }
 
-  void add_layer_with_data(const std::string &geom_data)
+  void add_layer_with_data(const std::string &geom_data, base::Color color)
   {
     GIS::SpatialHandler *h = new GIS::SpatialHandler();
     h->importFromMySQL(geom_data);
 
-    _shandlers.push_back(h);
+    LayerInfo l;
+    l.handler = h;
+    l.color = color;
+    l.show = true;
+
+    _layers.push_back(l);
+    invalidate();
   }
 
+  void invalidate()
+  {
+    delete _cache;
+    _cache = NULL;
+
+    set_needs_repaint();
+    _needs_rerender = true;
+  }
 
 
   virtual bool mouse_down(mforms::MouseButton button, int x, int y)
@@ -135,8 +172,53 @@ public:
     cr.set_color(base::Color(1, 1, 1));
     cr.paint();
 
-    for (std::deque<GIS::SpatialHandler*>::const_iterator it = _shandlers.begin(); it != _shandlers.end(); ++it)
-      repaint_layer(cr, *it);
+    if (_needs_rerender)
+    {
+      _needs_rerender = false;
+
+      double zoom = ZoomLevels[_zoom_level];
+      int width = get_width();
+      int height = get_height();
+
+      GIS::ProjectionView visible_area;
+
+      // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
+      // clipping area to the area we want to view
+      double dlo = 0, dla = 0;
+      screen_to_world(_offset_x, _offset_y, dla, dlo);
+
+      visible_area.MaxLat = 180 - 180*zoom + dla;
+      visible_area.MaxLng = 90 - 90*zoom + dlo;
+      visible_area.MinLat = -180 + 180*zoom + dla;
+      visible_area.MinLng = -90 + 90*zoom + dlo;
+
+      visible_area.height = height;
+      visible_area.width = width;
+      visible_area.type = _proj;
+
+      // TODO lat/long ranges must be adjusted according to account for the aspect ratio of the visible area
+
+
+      for (std::deque<LayerInfo>::iterator it = _layers.begin(); it != _layers.end(); ++it)
+      {
+        std::deque<GIS::ShapeContainer> shapes;
+        // method names must get_output() like.. camel case is only for class/struct names
+        it->handler->getOutput(visible_area, shapes); //XXX separate width/height and projection type into separate params
+        it->shapes = shapes;
+      }
+    }
+
+    if (!_cache)
+    {
+      _cache = new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32);
+      mdc::CairoCtx ctx(*_cache);
+      // cache everything into a bitmap
+      for (std::deque<LayerInfo>::const_iterator it = _layers.begin(); it != _layers.end(); ++it)
+        repaint_layer(ctx, *it);
+    }
+
+    cr.set_source_surface(_cache->get_surface(), 0, 0);
+    cr.paint();
   }
 
   void screen_to_world(int x, int y, double &lat, double &lon)
@@ -151,39 +233,14 @@ public:
 
   }
 
-  void repaint_layer(mdc::CairoCtx &cr, GIS::SpatialHandler *handler)
+  void repaint_layer(mdc::CairoCtx &cr, const LayerInfo &layer)
   {
-    double zoom = ZoomLevels[_zoom_level];
-    int width = get_width();
-    int height = get_height();
-
-    GIS::ProjectionView visible_area;
-
-    // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
-    // clipping area to the area we want to view
-    double dlo = 0, dla = 0;
-    screen_to_world(_offset_x, _offset_y, dla, dlo);
-
-    visible_area.MaxLat = 180 - 180*zoom + dla;
-    visible_area.MaxLng = 90 - 90*zoom + dlo;
-    visible_area.MinLat = -180 + 180*zoom + dla;
-    visible_area.MinLng = -90 + 90*zoom + dlo;
-
-    visible_area.height = height;
-    visible_area.width = width;
-    visible_area.type = _proj;
-
-    // TODO lat/long ranges must be adjusted according to account for the aspect ratio of the visible area
-
-    std::deque<GIS::ShapeContainer> shapes;
-    // method names must get_output() like.. camel case is only for class/struct names
-    handler->getOutput(visible_area, shapes); //XXX separate width/height and projection type into separate params
-    std::deque<GIS::ShapeContainer>::iterator it;
+    std::deque<GIS::ShapeContainer>::const_iterator it;
 
     cr.set_line_width(1);
-    cr.set_color(base::Color(0,0,0, 0.5));
+    cr.set_color(layer.color);
     cr.save();
-    for(it = shapes.begin(); it != shapes.end(); it++)
+    for(it = layer.shapes.begin(); it != layer.shapes.end(); it++)
     {
       if ((*it).type == GIS::ShapePolygon || (*it).type == GIS::ShapeLineString)
       {
@@ -249,6 +306,13 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
+    item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
+    item->set_text("External Data:");
+    _toolbar->add_item(item);
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item->set_icon(mforms::App::get()->get_resource_path("tiny_open.png"));
+    _toolbar->add_item(item);
   }
   add(_toolbar, false, true);
 
@@ -262,11 +326,16 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _option_box->set_back_color("#f0f0f0");
 #endif
 
+  _layer_menu = new mforms::ContextMenu();
+  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
+  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
+
   _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
-  _layer_tree->add_column(mforms::CheckColumnType, "", 30, true);
-  _layer_tree->add_column(mforms::StringColumnType, "Layer", 150, false);
+  _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
+  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 150, false);
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
+  _layer_tree->set_context_menu(_layer_menu);
   _option_box->add(_layer_tree, true, true);
 
   _option_box->set_size(200, -1);
@@ -298,6 +367,7 @@ void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item)
 
 SpatialDataView::~SpatialDataView()
 {
+  delete _layer_menu;
 }
 
 
@@ -306,7 +376,7 @@ void SpatialDataView::activate()
 }
 
 
-void SpatialDataView::show_column_data(int column, bool show)
+void SpatialDataView::show_column_data(const SpatialDataView::SpatialDataSource &source, bool show)
 {
   Recordset::Ref rset(_owner->recordset());
 
@@ -314,16 +384,40 @@ void SpatialDataView::show_column_data(int column, bool show)
   {
     std::string geom_data; // data in MySQL internal binary geometry format.. this is neither WKT nor WKB
     // but the internal format seems to be 4 bytes of SRID followed by WKB data
-    if (rset->get_raw_field(row, column, geom_data) && !geom_data.empty())
+    if (rset->get_raw_field(row, source.column_index, geom_data) && !geom_data.empty())
     {
       if (show)
-        _viewer->add_layer_with_data(geom_data);
+        _viewer->add_layer_with_data(geom_data, source.color);
 //      else
 //        _viewer->remove_layer();
 
-      g_message("--> [%i,%i] %s (%i)\n", (int)row, column, geom_data.c_str(), (int)geom_data.size());
+      g_message("--> [%i,%i] %s (%i)\n", (int)row, source.column_index, geom_data.c_str(), (int)geom_data.size());
     }
   }
+}
+
+
+void SpatialDataView::set_color_icon(mforms::TreeNodeRef node, int column, const base::Color &color)
+{
+  static std::string path;
+  if (path.empty())
+  {
+    path = mforms::Utilities::get_special_folder(mforms::ApplicationData) + "/tmpicons";
+    base::create_directory(path, 0700);
+  }
+  std::string p = path + "/" + base::strfmt("%02x%02x%02x.png", (unsigned char)color.red*255, (unsigned char)color.green*255, (unsigned char)color.blue*255);
+
+  if (!base::file_exists(p))
+  {
+    cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 16, 16);
+    cairo_t *cr = cairo_create(surf);
+    cairo_set_source_rgb(cr, color.red, color.green, color.blue);
+    cairo_paint(cr);
+    cairo_destroy(cr);
+    cairo_surface_write_to_png(surf, p.c_str());
+    cairo_surface_destroy(surf);
+  }
+  node->set_icon_path(column, p);
 }
 
 
@@ -332,36 +426,43 @@ void SpatialDataView::tree_toggled(const mforms::TreeNodeRef &node, const std::s
   bool show = value == "1";
   node->set_bool(0, show);
 
-  if (node->get_tag().empty())
-  {
-    // toggle the background
-  }
-  else
-  {
-    int index = atoi(node->get_tag().c_str());
-    show_column_data(index, show);
-  }
+  show_column_data(_sources[_layer_tree->row_for_node(node)], show);
 }
 
 
 void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> &columns)
 {
+  static base::Color layer_colors[] = {
+    base::Color(0.4, 1,   1),
+    base::Color(1,   0.4, 0.4),
+    base::Color(1,   1,   0.4),
+    base::Color(0.4, 1,   0.4)
+  };
+
+  _sources = columns;
+
   bool first = true;
-  for (std::vector<SpatialDataSource>::const_iterator iter = columns.begin(); iter != columns.end(); ++iter)
+  int i = 0;
+  for (std::vector<SpatialDataSource>::iterator iter = _sources.begin(); iter != _sources.end(); ++iter, ++i)
   {
     mforms::TreeNodeRef node = _layer_tree->add_node();
     node->set_string(1, iter->column);
+    set_color_icon(node, 1, layer_colors[i]);
+    if (i >= sizeof(layer_colors) / sizeof(base::Color))
+      i = sizeof(layer_colors) / sizeof(base::Color) - 1;
     node->set_bool(0, first);
-    node->set_tag(base::strfmt("%i", iter->column_index));
     first = false;
+
+    iter->color = layer_colors[i];
   }
   tree_toggled(_layer_tree->node_at_row(0), "1");
 
   // standard background layer
   mforms::TreeNodeRef node = _layer_tree->add_node();
   node->set_string(1, "World Map");
+  set_color_icon(node, 1, base::Color(1, 0, 1));
   node->set_bool(0, true);
-  tree_toggled(node, "1");
+//  tree_toggled(node, "1");
 }
 
 
