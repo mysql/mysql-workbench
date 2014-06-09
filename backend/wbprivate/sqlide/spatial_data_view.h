@@ -36,6 +36,7 @@ namespace mforms
   class TreeNodeView;
   struct TreeNodeRef;
   class Label;
+  class ContextMenu;
 };
 
 class SpatialDrawBox;
@@ -49,6 +50,7 @@ public:
     std::string column;
     int column_index;
     std::string type;
+    base::Color color;
   };
 
 private:
@@ -61,11 +63,16 @@ private:
 
   mforms::ToolBarItem *_projection_picker;
   mforms::TreeNodeView *_layer_tree;
+  mforms::ContextMenu *_layer_menu;
 
   SpatialDrawBox *_viewer;
 
+  std::vector<SpatialDataSource> _sources;
+
   void tree_toggled(const mforms::TreeNodeRef &node, const std::string &value);
-  void show_column_data(int column, bool show);
+  void show_column_data(const SpatialDataSource &source, bool show);
+
+  void set_color_icon(mforms::TreeNodeRef node, int column, const base::Color &color);
 
 public:
   SpatialDataView(SqlEditorResult *owner);
