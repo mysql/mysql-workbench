@@ -48,6 +48,7 @@ class SpatialDataView : public mforms::Box
 public:
   struct SpatialDataSource
   {
+    std::string source;
     Recordset::Ptr resultset;
     std::string column;
     int column_index;
@@ -74,6 +75,7 @@ private:
 
   void work_started(mforms::View *progress, bool reprojecting);
   void work_finished(mforms::View *progress);
+
 public:
   SpatialDataView(SqlEditorResult *owner);
   virtual ~SpatialDataView();
@@ -84,7 +86,7 @@ public:
   void projection_item_activated(mforms::ToolBarItem *item);
 
   void activate();
-
+  void refresh_layers();
 };
 
 #endif /* defined(__MySQLWorkbench__spatial_data_view__) */

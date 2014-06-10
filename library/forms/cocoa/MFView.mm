@@ -103,7 +103,7 @@ static const char *dropDelegateKey = "dropDelegate";
   NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
 
   mforms::MouseButton mouseButton;
-  switch (event.type)
+  switch ([event buttonNumber])
   {
     case NSRightMouseUp:
       mouseButton = mforms::MouseButtonRight;

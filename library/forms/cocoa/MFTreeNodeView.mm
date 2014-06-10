@@ -855,6 +855,12 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 }
 
 
+- (BOOL)isEnabled
+{
+  return [mOutline isEnabled];
+}
+
+
 - (NSSize)minimumSize
 {
   return NSMakeSize(40, 50);

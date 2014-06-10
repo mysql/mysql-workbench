@@ -67,6 +67,8 @@ public:
   void dock_result_grid(mforms::View *view);
   mforms::View *result_grid() { return _result_grid; }
 
+  SqlEditorForm *owner() { return _owner; }
+
   std::vector<SpatialDataView::SpatialDataSource> get_spatial_columns();
 private:
   int _column_info_tab;

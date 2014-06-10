@@ -45,6 +45,7 @@ struct ShapeContainer
 {
   ShapeType type;
   std::vector<base::Point> points;
+  bool interrupt;
 };
 
 struct ProjectionView
@@ -70,6 +71,7 @@ class SpatialHandler
   OGRCoordinateTransformation *geo_to_proj;
   OGRCoordinateTransformation *proj_to_geo;
 
+  bool _interrupt;
 private:
 
 protected:
@@ -92,6 +94,8 @@ public:
       double &lon);
   void fromLatLng(double lat, double lon, double &x,
       double &y);
+
+  void interrupt();
 };
 
 }
@@ -123,8 +127,9 @@ namespace spatial
 
   public:
     Feature(Layer *layer, int row_id, const std::string &data, bool wkt);
-
     ~Feature();
+
+    void interrupt();
 
     void render(GIS::ProjectionView &visible_area);
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);

@@ -653,6 +653,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorForm *owner, Recordset::Ref rset)
   _column_info_created = false;
   _query_stats_created = false;
   _form_view_created = false;
+  _spatial_view_initialized = false;
   _spatial_result_view = NULL;
 
   _tabview = mforms::manage(new mforms::TabView(mforms::TabViewTabless));
@@ -712,6 +713,7 @@ std::vector<SpatialDataView::SpatialDataSource> SqlEditorResult::get_spatial_col
     if (iter->type == "GEOMETRY")
     {
       SpatialDataView::SpatialDataSource field;
+      field.source = _owner->sql_editor_caption(_owner->sql_editor_index_for_recordset(_rset.lock()->key()));
       field.resultset = _rset;
       field.column = iter->field;
       field.type = iter->type;
@@ -753,22 +755,7 @@ void SqlEditorResult::switch_tab()
     if (!_spatial_view_initialized)
     {
       _spatial_view_initialized = true;
-      std::vector<SpatialDataView::SpatialDataSource> spatial_columns = get_spatial_columns();
-
-      for (int c= _owner->sql_editor_count(), editor = 0; editor < c; editor++)
-      {
-        RecordsetsRef rsets(_owner->sql_editor_recordsets(editor));
-        for (Recordsets::const_iterator rs = rsets->begin(); rs != rsets->end(); rs++)
-        {
-          boost::shared_ptr<SqlEditorResult> result = _owner->result_panel(*rs);
-          if (result && result.get() != this)
-          {
-            std::vector<SpatialDataView::SpatialDataSource> tmp(result->get_spatial_columns());
-            std::copy(tmp.begin(), tmp.end(), std::back_inserter(spatial_columns));
-          }
-        }
-      }
-      _spatial_result_view->set_geometry_columns(spatial_columns);
+      _spatial_result_view->refresh_layers();
     }
     _spatial_result_view->activate();
   }

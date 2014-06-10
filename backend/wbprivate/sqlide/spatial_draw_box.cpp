@@ -94,12 +94,14 @@ private:
 void *SpatialDrawBox::do_render_layers(void *data)
 {
   SpatialDrawBox *self = (SpatialDrawBox*)data;
-
-  base::MutexLock lock(self->_thread_mutex);
-
-  self->render(self->_needs_reprojection);
-  mforms::Utilities::perform_from_main_thread(boost::bind(&SpatialDrawBox::render_done, self));
-
+  {
+    base::MutexLock lock(self->_thread_mutex);
+    self->render(self->_needs_reprojection);
+    if (!self->_quitting)
+      mforms::Utilities::perform_from_main_thread(boost::bind(&SpatialDrawBox::render_done, self));
+    else
+      delete self->_progress;
+  }
   return NULL;
 }
 
@@ -144,10 +146,10 @@ void SpatialDrawBox::render(bool reproject)
   // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
   // clipping area to the area we want to view
 
-  visible_area.MaxLat = 179;
-  visible_area.MaxLon = 89;
-  visible_area.MinLat = -179;
-  visible_area.MinLon = -89;
+  visible_area.MaxLat = 180;
+  visible_area.MaxLon = 90;
+  visible_area.MinLat = -180;
+  visible_area.MinLon = -90;
 
   visible_area.height = height;
   visible_area.width = width;
@@ -190,11 +192,12 @@ void SpatialDrawBox::render(bool reproject)
     _needs_reprojection = false;
 }
 
+
 bool SpatialDrawBox::get_progress(std::string &action, float &pct)
 {
   bool changed = false;
   _progress_mutex.lock();
-  float current_progress = _current_layer_index / _layers.size();
+  float current_progress = (float)_current_layer_index / _layers.size();
   if (_current_layer)
     current_progress += (1.0/_layers.size()) * _current_layer->query_render_progress();
 
@@ -220,9 +223,9 @@ _rendering(false), _quitting(false), _needs_reprojection(true)
 
 SpatialDrawBox::~SpatialDrawBox()
 {
-  delete _background_layer;
-  // lock the mutex, so that if the worker is still busy, we'll wait for it
   _quitting = true;
+  clear();
+  // lock the mutex, so that if the worker is still busy, we'll wait for it
   _thread_mutex.lock();
 }
 
@@ -246,9 +249,32 @@ void SpatialDrawBox::zoom_in()
   invalidate();
 }
 
+void SpatialDrawBox::reset_view()
+{
+  _zoom_level = 1.0;
+  _offset_x = 0;
+  _offset_y = 0;
+  invalidate();
+}
+
+void SpatialDrawBox::clear()
+{
+  delete _background_layer;
+  _background_layer = NULL;
+
+  for (std::deque<spatial::Layer*>::iterator i = _layers.begin(); i != _layers.end(); ++i)
+    (*i)->interrupt();
+
+  base::MutexLock lock(_layer_mutex);
+  for (std::deque<spatial::Layer*>::iterator i = _layers.begin(); i != _layers.end(); ++i)
+    delete *i;
+  _layers.clear();
+}
 
 void SpatialDrawBox::set_background(spatial::Layer *layer)
 {
+  if (_background_layer)
+    delete _background_layer;
   _background_layer = layer;
 }
 
@@ -260,8 +286,25 @@ void SpatialDrawBox::add_layer(spatial::Layer *layer)
   }
 }
 
+void SpatialDrawBox::remove_layer(spatial::Layer *layer)
+{
+  {
+    base::MutexLock lock(_layer_mutex);
+    layer->interrupt();
+    std::deque<spatial::Layer*>::iterator l = std::find(_layers.begin(), _layers.end(), layer);
+    if (l != _layers.end())
+      _layers.erase(l);
+  }
+}
+
 void SpatialDrawBox::show_layer(int layer_id, bool flag)
 {
+  if (layer_id == 0 && _background_layer)
+  {
+    _background_layer->set_show(flag);
+    invalidate();
+  }
+  else
   {
     base::MutexLock lock(_layer_mutex);
     for (std::deque<spatial::Layer*>::iterator i = _layers.begin(); i != _layers.end(); ++i)
@@ -302,7 +345,7 @@ bool SpatialDrawBox::mouse_double_click(mforms::MouseButton button, int x, int y
 
 bool SpatialDrawBox::mouse_down(mforms::MouseButton button, int x, int y)
 {
-  if (button == 0)
+  if (button == mforms::MouseButtonLeft)
   {
     _initial_offset_x = _offset_x;
     _initial_offset_y = _offset_y;
@@ -310,18 +353,18 @@ bool SpatialDrawBox::mouse_down(mforms::MouseButton button, int x, int y)
     _drag_y = y;
     _dragging = true;
   }
-  return false;
+  return true;
 }
 
 bool SpatialDrawBox::mouse_up(mforms::MouseButton button, int x, int y)
 {
-  if (button == 0 && _dragging)
+  if (button == mforms::MouseButtonLeft && _dragging)
   {
     mouse_move(button, x, y);
     invalidate();
     _dragging = false;
   }
-  return false;
+  return true;
 }
 
 bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
@@ -332,7 +375,7 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
     _offset_y = _initial_offset_y + y - _drag_y;
     set_needs_repaint();
   }
-  return false;
+  return true;
 }
 
 void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
@@ -355,7 +398,7 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
     cr.paint();
   }
 
-  if (_background_layer)
+  if (_background_layer && !_background_layer->hidden())
   {
     cr.save();
     cr.translate(base::Point(_offset_x, _offset_y));
