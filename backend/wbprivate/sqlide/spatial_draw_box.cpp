@@ -60,8 +60,8 @@ public:
 
   void start(boost::function<bool (std::string&, float&)> progress_fetcher, float interval)
   {
-    _timer = mforms::Utilities::add_timeout(interval, boost::bind(&ProgressPanel::update, this));
     _progress_fetcher = progress_fetcher;
+    _timer = mforms::Utilities::add_timeout(interval, boost::bind(&ProgressPanel::update, this));
   }
 
   void stop()
@@ -417,7 +417,7 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
 
 void SpatialDrawBox::screen_to_world(GIS::SpatialHandler *handler, int x, int y, double &lat, double &lon)
 {
-  handler->toLatLng(x, y, lat, lon);
+  handler->to_latlon(x, y, lat, lon);
 }
 
 void SpatialDrawBox::world_to_screen(GIS::SpatialHandler *handler, double lat, double lon, int &x, int &y)
