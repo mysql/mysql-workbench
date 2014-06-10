@@ -25,6 +25,11 @@
 
 DEFAULT_LOG_DOMAIN("spatial");
 
+static void OGRErrorHandler(CPLErr eErrClass, int err_no, const char *msg)
+{
+  log_error("ERROR %d, %s\n", err_no, msg);
+}
+
 GIS::SpatialHandler::SpatialHandler() :
     poGeometry(NULL), geo_to_proj(NULL), proj_to_geo(NULL), _interrupt(false)
 {
@@ -76,8 +81,7 @@ GIS::SpatialHandler::SpatialHandler() :
           "UNIT[\"degree\",0.01745329251994328, "
           "AUTHORITY[\"EPSG\",\"9122\"]], "
           "AUTHORITY[\"EPSG\",\"4326\"]]";
-
-
+  CPLSetErrorHandler(&OGRErrorHandler);
 }
 
 
@@ -183,12 +187,18 @@ void GIS::SpatialHandler::setupMatrix(ProjectionView &view)
 void GIS::SpatialHandler::convertPoints(std::vector<double> &x,
     std::vector<double> &y, ProjectionType &projection)
 {
+  std::deque<size_t> for_removal;
   for (size_t i =0; i< x.size() && !_interrupt; i++)
   {
-    double _x = x[i], _y = y[i];
-    if (!geo_to_proj->Transform(1, &y[i], &x[i]))
-      ;
-      //fprintf(stderr, "Some problems occurs doing point convesrion of: lon: %f, lat: %f\n", _y, _x);
+    if(!geo_to_proj->Transform(1, &y[i], &x[i]))
+      for_removal.push_back(i);
+  }
+
+  std::deque<size_t>::reverse_iterator rit;
+  for (rit = for_removal.rbegin(); rit < for_removal.rend(); rit++)
+  {
+    x.erase(x.begin() + *rit);
+    y.erase(y.begin() + *rit);
   }
 
 
@@ -261,8 +271,11 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
       aPointY.push_back(line->getY(i));
     }
     convertPoints(aPointX, aPointY, projection);
-    shapes_container.push_back(
-        convertToShapeContainer(ShapeLineString, aPointX, aPointY));
+    if (!aPointX.empty() && !aPointY.empty())
+    {
+      shapes_container.push_back(
+          convertToShapeContainer(ShapeLineString, aPointX, aPointY));
+    }
 
   } else if (flat_type == wkbLinearRing)
   {
@@ -279,8 +292,11 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
     }
 
     convertPoints(aPointX, aPointY, projection);
-    shapes_container.push_back(
-        convertToShapeContainer(ShapeLinearRing, aPointX, aPointY));
+    if (!aPointX.empty() && !aPointY.empty())
+    {
+      shapes_container.push_back(
+          convertToShapeContainer(ShapeLinearRing, aPointX, aPointY));
+    }
 
   } else if (flat_type == wkbPolygon)
   {
@@ -297,8 +313,11 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
       aPointY.push_back(ring->getY(i));
     }
     convertPoints(aPointX, aPointY, projection);
-    shapes_container.push_back(
-        convertToShapeContainer(ShapePolygon, aPointX, aPointY));
+    if (!aPointX.empty() && !aPointY.empty())
+    {
+      shapes_container.push_back(
+          convertToShapeContainer(ShapePolygon, aPointX, aPointY));
+    }
     for (int i = 0; i < poly->getNumInteriorRings() && !_interrupt; ++i)
       extractPoints(poly->getInteriorRing(i), shapes_container, projection);
 
@@ -384,6 +403,7 @@ Feature::~Feature()
 
 void Feature::render(GIS::ProjectionView &visible_area)
 {
+  base::RecMutexLock mtx(_render_lock);
   _shapes.clear();
   // method names must get_output() like.. camel case is only for class/struct names
   _geometry.getOutput(visible_area, _shapes); //XXX separate width/height and projection type into separate params
@@ -398,6 +418,7 @@ void Feature::interrupt()
 
 void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
 {
+  base::RecMutexLock mtx(_render_lock);
   for (std::deque<GIS::ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
     switch (it->type)

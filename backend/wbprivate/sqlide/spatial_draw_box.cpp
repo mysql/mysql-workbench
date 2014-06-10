@@ -146,10 +146,10 @@ void SpatialDrawBox::render(bool reproject)
   // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
   // clipping area to the area we want to view
 
-  visible_area.MaxLat = 180;
-  visible_area.MaxLon = 90;
-  visible_area.MinLat = -180;
-  visible_area.MinLon = -90;
+  visible_area.MaxLat = 179;
+  visible_area.MaxLon = 89;
+  visible_area.MinLat = -179;
+  visible_area.MinLon = -89;
 
   visible_area.height = height;
   visible_area.width = width;
