@@ -76,13 +76,18 @@ public:
   SpatialDrawBox();
   ~SpatialDrawBox();
 
+  std::deque<spatial::Layer*> get_layers() { return _layers; }
+  
   void set_projection(GIS::ProjectionType proj);
 
+  void reset_view();
   void zoom_out();
   void zoom_in();
 
+  void clear();
   void set_background(spatial::Layer *layer);
   void add_layer(spatial::Layer *layer);
+  void remove_layer(spatial::Layer *layer);
 
   void show_layer(int layer_id, bool flag);
 

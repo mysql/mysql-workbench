@@ -26,7 +26,7 @@
 DEFAULT_LOG_DOMAIN("spatial");
 
 GIS::SpatialHandler::SpatialHandler() :
-    poGeometry(NULL), geo_to_proj(NULL), proj_to_geo(NULL)
+    poGeometry(NULL), geo_to_proj(NULL), proj_to_geo(NULL), _interrupt(false)
 {
   robinson_projection = "PROJCS[\"World_Robinson\","
       "GEOGCS[\"GCS_WGS_1984\","
@@ -79,6 +79,13 @@ GIS::SpatialHandler::SpatialHandler() :
 
 
 }
+
+
+void GIS::SpatialHandler::interrupt()
+{
+  _interrupt = true;
+}
+
 
 int GIS::SpatialHandler::importFromMySQL(const std::string &data)
 {
@@ -176,15 +183,16 @@ void GIS::SpatialHandler::setupMatrix(ProjectionView &view)
 void GIS::SpatialHandler::convertPoints(std::vector<double> &x,
     std::vector<double> &y, ProjectionType &projection)
 {
-  for (size_t i =0; i< x.size(); i++)
+  for (size_t i =0; i< x.size() && !_interrupt; i++)
   {
     double _x = x[i], _y = y[i];
     if (!geo_to_proj->Transform(1, &y[i], &x[i]))
-      fprintf(stderr, "Some problems occurs doing point convesrion of: lon: %f, lat: %f\n", _y, _x);
+      ;
+      //fprintf(stderr, "Some problems occurs doing point convesrion of: lon: %f, lat: %f\n", _y, _x);
   }
 
 
-  for(size_t i=0; i < x.size(); i++)
+  for(size_t i=0; i < x.size() && !_interrupt; i++)
   {
     fromLatLng(x[i], y[i], x[i], y[i]);
   }
@@ -195,7 +203,7 @@ GIS::ShapeContainer GIS::SpatialHandler::convertToShapeContainer(ShapeType type,
 {
   ShapeContainer container;
   container.type = type;
-  for (size_t i = 0; i < x.size(); ++i)
+  for (size_t i = 0; i < x.size() && !_interrupt; ++i)
   {
     container.points.push_back(base::Point(x[i], y[i]));
   }
@@ -247,7 +255,7 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
     std::vector<double> aPointY;
     aPointX.reserve(nPoints);
     aPointY.reserve(nPoints);
-    for (int i = nPoints - 1; i >= 0; i--)
+    for (int i = nPoints - 1; i >= 0 && !_interrupt; i--)
     {
       aPointX.push_back(line->getX(i));
       aPointY.push_back(line->getY(i));
@@ -264,7 +272,7 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
     std::vector<double> aPointY;
     aPointX.reserve(nPoints);
     aPointY.reserve(nPoints);
-    for (int i = nPoints - 1; i >= 0; i--)
+    for (int i = nPoints - 1; i >= 0 && !_interrupt; i--)
     {
       aPointX.push_back(ring->getX(i));
       aPointY.push_back(ring->getY(i));
@@ -291,14 +299,14 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
     convertPoints(aPointX, aPointY, projection);
     shapes_container.push_back(
         convertToShapeContainer(ShapePolygon, aPointX, aPointY));
-    for (int i = 0; i < poly->getNumInteriorRings(); ++i)
+    for (int i = 0; i < poly->getNumInteriorRings() && !_interrupt; ++i)
       extractPoints(poly->getInteriorRing(i), shapes_container, projection);
 
   } else if (flat_type == wkbMultiPoint || flat_type == wkbMultiLineString
       || flat_type == wkbMultiPolygon || flat_type == wkbGeometryCollection)
   {
     OGRGeometryCollection *geoCollection = (OGRGeometryCollection*) shape;
-    for (int i = 0; i < geoCollection->getNumGeometries(); ++i)
+    for (int i = 0; i < geoCollection->getNumGeometries() && !_interrupt; ++i)
       extractPoints(geoCollection->getGeometryRef(i), shapes_container,
           projection);
   }
@@ -382,29 +390,50 @@ void Feature::render(GIS::ProjectionView &visible_area)
 }
 
 
+void Feature::interrupt()
+{
+  _geometry.interrupt();
+}
+
+
 void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
 {
   for (std::deque<GIS::ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
-    if ((*it).type == GIS::ShapePolygon || (*it).type == GIS::ShapeLineString)
+    switch (it->type)
     {
-      cr.move_to((*it).points[0]);
-      for (size_t i = 1; i < (*it).points.size(); i++)
-        cr.line_to((*it).points[i]);
-      cr.stroke();
+      case GIS::ShapePolygon:
+        cr.new_path();
+        cr.move_to((*it).points[0]);
+        for (size_t i = 1; i < (*it).points.size(); i++)
+          cr.line_to((*it).points[i]);
+        cr.close_path();
+//        cr.stroke_preserve();
+//        cr.fill();
+        cr.stroke();
+        break;
+
+      case GIS::ShapeLineString:
+        cr.move_to((*it).points[0]);
+        for (size_t i = 1; i < (*it).points.size(); i++)
+          cr.line_to((*it).points[i]);
+        cr.stroke();
+        break;
+
+      case GIS::ShapePoint:
+        cr.save();
+        // for points, we paint the marker at the exact position but reverse the scaling, so that the marker size is constant
+        cr.translate((*it).points[0]);
+        cr.scale(1.0/scale, 1.0/scale);
+        cr.rectangle(-5, -5, 5, 5);
+        cr.fill();
+        cr.restore();
+        break;
+
+      default:
+        log_debug("Unknown type %i\n", it->type);
+        break;
     }
-    else if ((*it).type == GIS::ShapePoint)
-    {
-      cr.save();
-      // for points, we paint the marker at the exact position but reverse the scaling, so that the marker size is constant
-      cr.translate((*it).points[0]);
-      cr.scale(1.0/scale, 1.0/scale);
-      cr.rectangle(-5, -5, 5, 5);
-      cr.fill();
-      cr.restore();
-    }
-    else
-      log_debug("Unknown type %i\n", it->type);
   }
   cr.check_state();
 }
@@ -428,6 +457,8 @@ Layer::~Layer()
 void Layer::interrupt()
 {
   _interrupt = true;
+   for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
+     (*it)->interrupt();
 }
 
 bool Layer::hidden()

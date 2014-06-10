@@ -23,6 +23,7 @@
 #include "spatial_data_view.h"
 #include "spatial_draw_box.h"
 #include "spatial_handler.h"
+#include "wb_sql_editor_form.h"
 #include "wb_sql_editor_result_panel.h"
 
 #include <algorithm>
@@ -40,21 +41,30 @@
 
 class RecordsetLayer : public spatial::Layer
 {
-  Recordset::Ref _rset;
+  Recordset::Ptr _rset;
   int _geom_column;
 
 public:
-  RecordsetLayer(int layer_id, base::Color color, Recordset::Ref rset, int column)
+  RecordsetLayer(int layer_id, base::Color color, Recordset::Ptr rset, int column)
   : spatial::Layer(layer_id, color), _rset(rset), _geom_column(column)
   {
-    // reserve space for the features
-    for (ssize_t c = _rset->row_count(), row = 0; row < c; row++)
+    Recordset::Ref rs(rset.lock());
+    if (rs)
     {
-      std::string geom_data; // data in MySQL internal binary geometry format.. this is neither WKT nor WKB
-                // but the internal format seems to be 4 bytes of SRID followed by WKB data
-      if (_rset->get_raw_field(row, _geom_column, geom_data) && !geom_data.empty())
-        add_feature(row, geom_data, false);
+      // reserve space for the features
+      for (ssize_t c = rs->row_count(), row = 0; row < c; row++)
+      {
+        std::string geom_data; // data in MySQL internal binary geometry format.. this is neither WKT nor WKB
+        // but the internal format seems to be 4 bytes of SRID followed by WKB data
+        if (rs->get_raw_field(row, _geom_column, geom_data) && !geom_data.empty())
+          add_feature(row, geom_data, false);
+      }
     }
+  }
+
+  Recordset::Ref recordset()
+  {
+    return _rset.lock();
   }
 };
 
@@ -124,6 +134,11 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item->set_icon(mforms::App::get()->get_resource_path("zoom_reset.png"));
+    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::reset_view, _viewer));
+    _toolbar->add_item(item);
+
     /*
     _toolbar->add_separator_item();
     item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
@@ -149,18 +164,20 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 #endif
 
   _layer_menu = new mforms::ContextMenu();
-  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
-  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
+//  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
+//  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
+  _layer_menu->add_item_with_title("Refresh", boost::bind(&SpatialDataView::refresh_layers, this), "refresh");
 
   _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
   _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
-  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 150, false);
+  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false);
+  _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false);
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
-//  _layer_tree->set_context_menu(_layer_menu);
+  _layer_tree->set_context_menu(_layer_menu);
   _option_box->add(_layer_tree, true, true);
 
-  _option_box->set_size(200, -1);
+  _option_box->set_size(250, -1);
   _main_box->add(_option_box, false, true);
 
   add(_main_box, true, true);
@@ -185,6 +202,8 @@ SpatialDataView::~SpatialDataView()
 
 void SpatialDataView::work_started(mforms::View *progress_panel, bool reprojecting)
 {
+  _layer_tree->set_enabled(false);
+  _layer_menu->set_item_enabled("refresh", false);
   if (reprojecting)
   {
     progress_panel->set_size(500, 150);
@@ -196,6 +215,8 @@ void SpatialDataView::work_started(mforms::View *progress_panel, bool reprojecti
 
 void SpatialDataView::work_finished(mforms::View *progress_panel)
 {
+  _layer_tree->set_enabled(true);
+  _layer_menu->set_item_enabled("refresh", true);
   _viewer->remove(progress_panel);
   _main_box->show(true);
 }
@@ -204,6 +225,27 @@ void SpatialDataView::work_finished(mforms::View *progress_panel)
 void SpatialDataView::activate()
 {
   _viewer->activate();
+}
+
+
+void SpatialDataView::refresh_layers()
+{
+  std::vector<SpatialDataView::SpatialDataSource> spatial_columns = _owner->get_spatial_columns();
+
+  for (int c= _owner->owner()->sql_editor_count(), editor = 0; editor < c; editor++)
+  {
+    RecordsetsRef rsets(_owner->owner()->sql_editor_recordsets(editor));
+    for (Recordsets::const_iterator rs = rsets->begin(); rs != rsets->end(); rs++)
+    {
+      boost::shared_ptr<SqlEditorResult> result = _owner->owner()->result_panel(*rs);
+      if (result && result.get() != _owner)
+      {
+        std::vector<SpatialDataView::SpatialDataSource> tmp(result->get_spatial_columns());
+        std::copy(tmp.begin(), tmp.end(), std::back_inserter(spatial_columns));
+      }
+    }
+  }
+  set_geometry_columns(spatial_columns);
 }
 
 
@@ -233,10 +275,25 @@ void SpatialDataView::set_color_icon(mforms::TreeNodeRef node, int column, const
 
 void SpatialDataView::tree_toggled(const mforms::TreeNodeRef &node, const std::string &value)
 {
-  bool show = value == "1";
-  node->set_bool(0, show);
+  if (_layer_tree->is_enabled())
+  {
+    bool show = value == "1";
+    node->set_bool(0, show);
+    
+    _viewer->show_layer(_layer_tree->row_for_node(node), show);
+  }
+}
 
-  _viewer->show_layer(_layer_tree->row_for_node(node), show);
+
+static spatial::Layer *find_layer_for(std::deque<spatial::Layer*> &layers, Recordset::Ref rset, int column)
+{
+  for (std::deque<spatial::Layer*>::iterator l = layers.begin(); l != layers.end(); ++l)
+  {
+    RecordsetLayer *rsl = dynamic_cast<RecordsetLayer*>(*l);
+    if (rsl && rsl->recordset() == rset)
+      return *l;
+  }
+  return NULL;
 }
 
 
@@ -262,6 +319,7 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     base::Color(0.0, 0.0, 0.6)
   };
 
+  if (_layer_tree->count() == 0)
   {
     base::Color color(layer_colors[0]);
     mforms::TreeNodeRef node = _layer_tree->add_node();
@@ -272,19 +330,58 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
   }
 
   int layer_id = 1;
+  std::deque<spatial::Layer*> layers(_viewer->get_layers());
+  // remove layers that are gone
+  for (std::deque<spatial::Layer*>::iterator l = layers.begin(); l != layers.end(); ++l, ++layer_id)
+  {
+    RecordsetLayer *rsl = dynamic_cast<RecordsetLayer*>(*l);
+    if (rsl)
+    {
+      Recordset::Ref rset(rsl->recordset());
+      bool found = false;
+      if (rset)
+      {
+        for (std::vector<SpatialDataSource>::const_iterator iter = sources.begin(); iter != sources.end(); ++iter)
+        {
+          if (!iter->resultset.expired() && iter->resultset.lock() == rset)
+          {
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found)
+      {
+        _layer_tree->node_at_row(layer_id)->remove_from_parent();
+        _viewer->remove_layer(*l);
+        delete *l;
+        *l = NULL;
+      }
+    }
+  }
+
+  layer_id = 1;
   for (std::vector<SpatialDataSource>::const_iterator iter = sources.begin(); iter != sources.end(); ++iter)
   {
+    // check if already exists
+    if (!iter->resultset.expired() && find_layer_for(layers, iter->resultset.lock(), iter->column_index))
+    {
+      layer_id++;
+      continue;
+    }
     base::Color color(layer_colors[layer_id % (sizeof(layer_colors)/sizeof(base::Color))]);
     mforms::TreeNodeRef node = _layer_tree->add_node();
-    node->set_string(1, iter->column);
-    set_color_icon(node, 1, color);
     node->set_bool(0, false);
+    node->set_string(1, iter->column);
+    node->set_string(2, iter->source);
+    set_color_icon(node, 1, color);
+
 
     spatial::Layer *layer = NULL;
     if (iter->column_index >= 0)
     {
       // from recordset
-      layer = new RecordsetLayer(layer_id, color, iter->resultset.lock(), iter->column_index);
+      layer = new RecordsetLayer(layer_id, color, iter->resultset, iter->column_index);
     }
     else
     {
@@ -297,5 +394,4 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     }
   }
 }
-
 
