@@ -1198,18 +1198,19 @@ private:
     // Also works around a deadlock of python when a timer is fired while inside a modal loop.
     if (!mforms::Utilities::in_modal_loop())
     {
-      {
-        base::RecMutexLock lock(timeout_mutex);
-        if (timeout_handles->ContainsKey(_handle))
-          timeout_handles->Remove(_handle);
-      }
       _timer->Stop();
-
       // if callback returns true, then restart the timer
       if ((*_slot)())
         _timer->Enabled = true;
       else
+      {
+        {
+          base::RecMutexLock lock(timeout_mutex);
+          if (timeout_handles->ContainsKey(_handle))
+            timeout_handles->Remove(_handle);
+        }
         delete this;
+      }
     }
   }
 };
