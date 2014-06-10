@@ -25,15 +25,15 @@
 
 DEFAULT_LOG_DOMAIN("spatial");
 
-static void OGRErrorHandler(CPLErr eErrClass, int err_no, const char *msg)
+static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 {
   log_error("ERROR %d, %s\n", err_no, msg);
 }
 
 GIS::SpatialHandler::SpatialHandler() :
-    poGeometry(NULL), geo_to_proj(NULL), proj_to_geo(NULL), _interrupt(false)
+    _geometry(NULL), _geo_to_proj(NULL), _proj_to_geo(NULL), _interrupt(false)
 {
-  robinson_projection = "PROJCS[\"World_Robinson\","
+  _robinson_projection = "PROJCS[\"World_Robinson\","
       "GEOGCS[\"GCS_WGS_1984\","
       "DATUM[\"WGS_1984\","
       "SPHEROID[\"WGS_1984\",6378137,298.257223563]],"
@@ -45,7 +45,7 @@ GIS::SpatialHandler::SpatialHandler() :
       "PARAMETER[\"Central_Meridian\",0],"
       "UNIT[\"Meter\",1],"
       "AUTHORITY[\"EPSG\",\"54030\"]]";
-  mercator_projection = "PROJCS[\"World_Mercator\", "
+   _mercator_projection = "PROJCS[\"World_Mercator\", "
       "GEOGCS[\"GCS_WGS_1984\", "
       "DATUM[\"WGS_1984\", "
       "SPHEROID[\"WGS_1984\",6378137,298.257223563]], "
@@ -58,7 +58,7 @@ GIS::SpatialHandler::SpatialHandler() :
       "PARAMETER[\"Standard_Parallel_1\",0], "
       "UNIT[\"Meter\",1], "
       "AUTHORITY[\"EPSG\",\"54004\"]]";
-  equirectangular_projection = "PROJCS[\"World_Equidistant_Cylindrical\","
+  _equirectangular_projection = "PROJCS[\"World_Equidistant_Cylindrical\","
       "GEOGCS[\"GCS_WGS_1984\","
       "DATUM[\"WGS_1984\","
       "SPHEROID[\"WGS_1984\",6378137,298.257223563]],"
@@ -71,7 +71,7 @@ GIS::SpatialHandler::SpatialHandler() :
       "PARAMETER[\"Standard_Parallel_1\",60],"
       "UNIT[\"Meter\",1],"
       "AUTHORITY[\"EPSG\",\"54002\"]]";
-  geodetic_wkt = "GEOGCS[\"WGS 84\", "
+  _geodetic_wkt = "GEOGCS[\"WGS 84\", "
       "DATUM[\"WGS_1984\", "
       "SPHEROID[\"WGS 84\",6378137,298.257223563, "
       "AUTHORITY[\"EPSG\",\"7030\"]], "
@@ -81,7 +81,7 @@ GIS::SpatialHandler::SpatialHandler() :
           "UNIT[\"degree\",0.01745329251994328, "
           "AUTHORITY[\"EPSG\",\"9122\"]], "
           "AUTHORITY[\"EPSG\",\"4326\"]]";
-  CPLSetErrorHandler(&OGRErrorHandler);
+  CPLSetErrorHandler(&ogr_error_handler);
 }
 
 
@@ -91,22 +91,22 @@ void GIS::SpatialHandler::interrupt()
 }
 
 
-int GIS::SpatialHandler::importFromMySQL(const std::string &data)
+int GIS::SpatialHandler::import_from_mysql(const std::string &data)
 {
   unsigned char* geom = new unsigned char[data.size() - 3];
   std::copy(data.begin() + 4, data.end(), geom);
 
-  OGRErr ret_val = OGRGeometryFactory::createFromWkb(geom, NULL, &poGeometry);
+  OGRErr ret_val = OGRGeometryFactory::createFromWkb(geom, NULL, &_geometry);
   delete[] geom;
 
-  if (poGeometry)
+  if (_geometry)
   {
     OGRSpatialReference hDstSRS;
 
-    char *wkt = &(*geodetic_wkt.begin());
+    char *wkt = &(*_geodetic_wkt.begin());
     hDstSRS.importFromWkt(&wkt);
 
-    poGeometry->assignSpatialReference(&hDstSRS);
+    _geometry->assignSpatialReference(&hDstSRS);
 
   }
   if (ret_val == OGRERR_NONE)
@@ -116,20 +116,19 @@ int GIS::SpatialHandler::importFromMySQL(const std::string &data)
 }
 
 
-int GIS::SpatialHandler::importFromWKT(std::string data)
+int GIS::SpatialHandler::import_from_wkt(std::string data)
 {
   char *d = &(*data.begin());
-  OGRErr ret_val = OGRGeometryFactory::createFromWkt(&d, NULL, &poGeometry);
+  OGRErr ret_val = OGRGeometryFactory::createFromWkt(&d, NULL, &_geometry);
 
-  if (poGeometry)
+  if (_geometry)
   {
     OGRSpatialReference hDstSRS;
 
-    char *wkt = &(*geodetic_wkt.begin());
+    char *wkt = &(*_geodetic_wkt.begin());
     hDstSRS.importFromWkt(&wkt);
 
-    poGeometry->assignSpatialReference(&hDstSRS);
-
+    _geometry->assignSpatialReference(&hDstSRS);
   }
   if (ret_val == OGRERR_NONE)
     return 0;
@@ -137,60 +136,64 @@ int GIS::SpatialHandler::importFromWKT(std::string data)
     return 1;
 }
 
-void GIS::SpatialHandler::setupMatrix(ProjectionView &view)
+void GIS::SpatialHandler::setup_matrix(ProjectionView &view)
 {
   OGRSpatialReference sourceSRS;
   OGRSpatialReference targetSRS;
-  char *wkt_src = &(*geodetic_wkt.begin());
+  char *wkt_src = &(*_geodetic_wkt.begin());
   sourceSRS.importFromWkt(&wkt_src);
 
-  char *wkt_dst = getProjectionWkt(view.type);
+  char *wkt_dst = get_projection_wkt(view.type);
   targetSRS.importFromWkt(&wkt_dst);
 
-  if (geo_to_proj)
-    OCTDestroyCoordinateTransformation(geo_to_proj);
-  if (proj_to_geo)
-      OCTDestroyCoordinateTransformation(proj_to_geo);
+  if (_geo_to_proj)
+    OCTDestroyCoordinateTransformation(_geo_to_proj);
+  if (_proj_to_geo)
+      OCTDestroyCoordinateTransformation(_proj_to_geo);
 
-  geo_to_proj = OGRCreateCoordinateTransformation(&sourceSRS, &targetSRS);
-  proj_to_geo = OGRCreateCoordinateTransformation(&targetSRS, &sourceSRS);
-  if (!geo_to_proj)
+  _geo_to_proj = OGRCreateCoordinateTransformation(&sourceSRS, &targetSRS);
+  _proj_to_geo = OGRCreateCoordinateTransformation(&targetSRS, &sourceSRS);
+  if (!_geo_to_proj || !_proj_to_geo)
     throw std::logic_error("Unable to perform specified transformation.\n");
+
+
 
   double minLat = view.MinLat, maxLon = view.MaxLon, maxLat = view.MaxLat, minLon = view.MinLon;
 
+  if (!_geo_to_proj->Transform(1, &minLat, &maxLon, 0))
+  {
+    char * proj4;
+    targetSRS.exportToProj4(&proj4);
+    log_error("Unable to perform requested reprojection from WGS84, to %s\n", proj4);
+    CPLFree(proj4);
+  }
 
-  if (!geo_to_proj->Transform(1, &minLat, &maxLon, 0))
-    fprintf(stderr, "Sorry, unable to perform this conversion\n");
+  if (!_geo_to_proj->Transform(1, &maxLat, &minLon, 0))
+  {
+    char * proj4;
+    targetSRS.exportToProj4(&proj4);
+    log_error("Unable to perform requested reprojection from WGS84, to %s\n", proj4);
+    CPLFree(proj4);
+  }
 
-  if (!geo_to_proj->Transform(1, &maxLat, &minLon, 0))
-    fprintf(stderr, "Sorry, unable to perform this conversion\n");
 
+  _adf_projection[0] = minLat;
+  _adf_projection[1] = (maxLat - minLat) / (double)view.width;
+  _adf_projection[2] = 0;
+  _adf_projection[3] = maxLon;
+  _adf_projection[4] = 0;
+  _adf_projection[5] = -(maxLon - minLon) / (double)view.height;
+  GDALInvGeoTransform(_adf_projection, _inv_projection);
 
-//  fprintf(stderr, "Before conversion: %f; %f; %f; %f\n", view.MinLat, view.MaxLon, view.MaxLat, view.MinLon);
-//  fprintf(stderr, "After conversion: %f; %f; %f; %f\n", minLat, maxLon, maxLat, minLon);
-
-  _adfProjection[0] = minLat;
-  _adfProjection[1] = (maxLat - minLat) / (double)view.width;
-  _adfProjection[2] = 0;
-  _adfProjection[3] = maxLon;
-  _adfProjection[4] = 0;
-  _adfProjection[5] = -(maxLon - minLon) / (double)view.height;
-  GDALInvGeoTransform(_adfProjection, _invProjection);
-//  for(int i=0; i<6; i++)
-//  {
-//    fprintf(stderr, "Projection: %d: %f\n", i, _adfProjection[i]);
-//    fprintf(stderr, "Inverted: %d: %f\n", i, _invProjection[i]);
-//  }
 }
 
-void GIS::SpatialHandler::convertPoints(std::vector<double> &x,
+void GIS::SpatialHandler::convert_points(std::vector<double> &x,
     std::vector<double> &y, ProjectionType &projection)
 {
   std::deque<size_t> for_removal;
   for (size_t i =0; i< x.size() && !_interrupt; i++)
   {
-    if(!geo_to_proj->Transform(1, &y[i], &x[i]))
+    if(!_geo_to_proj->Transform(1, &x[i], &y[i]))
       for_removal.push_back(i);
   }
 
@@ -204,11 +207,11 @@ void GIS::SpatialHandler::convertPoints(std::vector<double> &x,
 
   for(size_t i=0; i < x.size() && !_interrupt; i++)
   {
-    fromLatLng(x[i], y[i], x[i], y[i]);
+    from_latlon(x[i], y[i], x[i], y[i]);
   }
 }
 
-GIS::ShapeContainer GIS::SpatialHandler::convertToShapeContainer(ShapeType type,
+GIS::ShapeContainer GIS::SpatialHandler::convert_to_shape_container(ShapeType type,
     std::vector<double> &x, std::vector<double> &y)
 {
   ShapeContainer container;
@@ -220,19 +223,19 @@ GIS::ShapeContainer GIS::SpatialHandler::convertToShapeContainer(ShapeType type,
   return container;
 }
 
-char* GIS::SpatialHandler::getProjectionWkt(ProjectionType p)
+char* GIS::SpatialHandler::get_projection_wkt(ProjectionType p)
 {
   char *projection = NULL;
   switch (p)
   {
   case ProjMercator:
-    projection = &(*mercator_projection.begin());
+    projection = &(*_mercator_projection.begin());
     break;
   case ProjRobinson:
-    projection = &(*robinson_projection.begin());
+    projection = &(*_robinson_projection.begin());
     break;
   case ProjEquirectangular:
-    projection = &(*equirectangular_projection.begin());
+    projection = &(*_equirectangular_projection.begin());
     break;
   default:
     throw std::logic_error("GIS: Unknown projection type\n");
@@ -241,7 +244,7 @@ char* GIS::SpatialHandler::getProjectionWkt(ProjectionType p)
   return projection;
 }
 
-void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
+void GIS::SpatialHandler::extract_points(OGRGeometry *shape,
     std::deque<ShapeContainer> &shapes_container, ProjectionType &projection)
 {
   OGRwkbGeometryType flat_type = wkbFlatten(shape->getGeometryType());
@@ -253,9 +256,9 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
     std::vector<double> aPointY;
     aPointX.push_back(point->getX());
     aPointY.push_back(point->getY());
-    convertPoints(aPointX, aPointY, projection);
+    convert_points(aPointX, aPointY, projection);
     shapes_container.push_back(
-        convertToShapeContainer(ShapePoint, aPointX, aPointY));
+        convert_to_shape_container(ShapePoint, aPointX, aPointY));
 
   } else if (flat_type == wkbLineString)
   {
@@ -270,11 +273,11 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
       aPointX.push_back(line->getX(i));
       aPointY.push_back(line->getY(i));
     }
-    convertPoints(aPointX, aPointY, projection);
+    convert_points(aPointX, aPointY, projection);
     if (!aPointX.empty() && !aPointY.empty())
     {
       shapes_container.push_back(
-          convertToShapeContainer(ShapeLineString, aPointX, aPointY));
+          convert_to_shape_container(ShapeLineString, aPointX, aPointY));
     }
 
   } else if (flat_type == wkbLinearRing)
@@ -291,11 +294,11 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
       aPointY.push_back(ring->getY(i));
     }
 
-    convertPoints(aPointX, aPointY, projection);
+    convert_points(aPointX, aPointY, projection);
     if (!aPointX.empty() && !aPointY.empty())
     {
       shapes_container.push_back(
-          convertToShapeContainer(ShapeLinearRing, aPointX, aPointY));
+          convert_to_shape_container(ShapeLinearRing, aPointX, aPointY));
     }
 
   } else if (flat_type == wkbPolygon)
@@ -312,26 +315,26 @@ void GIS::SpatialHandler::extractPoints(OGRGeometry *shape,
       aPointX.push_back(ring->getX(i));
       aPointY.push_back(ring->getY(i));
     }
-    convertPoints(aPointX, aPointY, projection);
+    convert_points(aPointX, aPointY, projection);
     if (!aPointX.empty() && !aPointY.empty())
     {
       shapes_container.push_back(
-          convertToShapeContainer(ShapePolygon, aPointX, aPointY));
+          convert_to_shape_container(ShapePolygon, aPointX, aPointY));
     }
     for (int i = 0; i < poly->getNumInteriorRings() && !_interrupt; ++i)
-      extractPoints(poly->getInteriorRing(i), shapes_container, projection);
+      extract_points(poly->getInteriorRing(i), shapes_container, projection);
 
   } else if (flat_type == wkbMultiPoint || flat_type == wkbMultiLineString
       || flat_type == wkbMultiPolygon || flat_type == wkbGeometryCollection)
   {
     OGRGeometryCollection *geoCollection = (OGRGeometryCollection*) shape;
     for (int i = 0; i < geoCollection->getNumGeometries() && !_interrupt; ++i)
-      extractPoints(geoCollection->getGeometryRef(i), shapes_container,
+      extract_points(geoCollection->getGeometryRef(i), shapes_container,
           projection);
   }
 }
 
-int GIS::SpatialHandler::getOutput(ProjectionView &view,
+int GIS::SpatialHandler::get_output(ProjectionView &view,
     std::deque<ShapeContainer> &shapes_container)
 {
   switch (view.type)
@@ -344,41 +347,41 @@ int GIS::SpatialHandler::getOutput(ProjectionView &view,
     throw std::logic_error("Unknown type of projection");
   }
 
-  this->setupMatrix(view);
+  this->setup_matrix(view);
 
-  extractPoints(poGeometry, shapes_container, view.type);
+  extract_points(_geometry, shapes_container, view.type);
 
   return 0;
 }
 
-void GIS::SpatialHandler::toLatLng(int x, int y,
+void GIS::SpatialHandler::to_latlon(int x, int y,
     double &lat, double &lon)
 {
-  if (geo_to_proj)
+  if (_geo_to_proj)
   {
-    lat = _adfProjection[3] + (double) x * _adfProjection[4] + (double) y * _adfProjection[5];
-    lon = _adfProjection[0] + (double) x * _adfProjection[1] + (double) y * _adfProjection[2];
-    proj_to_geo->Transform(1, &lon, &lat);
+    lat = _adf_projection[3] + (double) x * _adf_projection[4] + (double) y * _adf_projection[5];
+    lon = _adf_projection[0] + (double) x * _adf_projection[1] + (double) y * _adf_projection[2];
+    _proj_to_geo->Transform(1, &lon, &lat);
   }
 }
 
-void GIS::SpatialHandler::fromLatLng(double lat,
+void GIS::SpatialHandler::from_latlon(double lat,
     double lon, double &x, double &y)
 {
-  if (geo_to_proj)
+  if (_geo_to_proj)
   {
-    x = _invProjection[0] + _invProjection[1] * lat;
-    y = _invProjection[3] + _invProjection[5] * lon;
+    x = _inv_projection[0] + _inv_projection[1] * lat;
+    y = _inv_projection[3] + _inv_projection[5] * lon;
   }
 
 }
 
 GIS::SpatialHandler::~SpatialHandler()
 {
-  if (geo_to_proj)
-    OCTDestroyCoordinateTransformation(geo_to_proj);
-  if (proj_to_geo)
-    OCTDestroyCoordinateTransformation(proj_to_geo);
+  if (_geo_to_proj)
+    OCTDestroyCoordinateTransformation(_geo_to_proj);
+  if (_proj_to_geo)
+    OCTDestroyCoordinateTransformation(_proj_to_geo);
 
   // TODO Auto-generated destructor stub
 }
@@ -392,9 +395,9 @@ Feature::Feature(Layer *layer, int row_id, const std::string &data, bool wkt = f
 : _owner(layer), _row_id(row_id)
 {
   if (wkt)
-    _geometry.importFromWKT(data);
+    _geometry.import_from_wkt(data);
   else
-    _geometry.importFromMySQL(data);
+    _geometry.import_from_mysql(data);
 }
 
 Feature::~Feature()
@@ -403,10 +406,10 @@ Feature::~Feature()
 
 void Feature::render(GIS::ProjectionView &visible_area)
 {
-  base::RecMutexLock mtx(_render_lock);
-  _shapes.clear();
   // method names must get_output() like.. camel case is only for class/struct names
-  _geometry.getOutput(visible_area, _shapes); //XXX separate width/height and projection type into separate params
+  std::deque<GIS::ShapeContainer> tmp_shapes;
+  _geometry.get_output(visible_area, tmp_shapes); //XXX separate width/height and projection type into separate params
+  _shapes = tmp_shapes;
 }
 
 
@@ -418,7 +421,6 @@ void Feature::interrupt()
 
 void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
 {
-  base::RecMutexLock mtx(_render_lock);
   for (std::deque<GIS::ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
     switch (it->type)

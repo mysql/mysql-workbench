@@ -61,38 +61,38 @@ struct ProjectionView
 
 class SpatialHandler
 {
-  OGRGeometry *poGeometry;
-  std::string robinson_projection;
-  std::string mercator_projection;
-  std::string equirectangular_projection;
-  std::string geodetic_wkt;
-  double _adfProjection[6];
-  double _invProjection[6];
-  OGRCoordinateTransformation *geo_to_proj;
-  OGRCoordinateTransformation *proj_to_geo;
+  OGRGeometry *_geometry;
+  std::string _robinson_projection;
+  std::string _mercator_projection;
+  std::string _equirectangular_projection;
+  std::string _geodetic_wkt;
+  double _adf_projection[6];
+  double _inv_projection[6];
+  OGRCoordinateTransformation *_geo_to_proj;
+  OGRCoordinateTransformation *_proj_to_geo;
 
   bool _interrupt;
 private:
 
 protected:
-  void setupMatrix(ProjectionView &view);
-  void extractPoints(OGRGeometry *shape,
+  void setup_matrix(ProjectionView &view);
+  void extract_points(OGRGeometry *shape,
       std::deque<ShapeContainer> &shapes_container, ProjectionType &projection);
-  void convertPoints(std::vector<double> &x, std::vector<double> &y,
+  void convert_points(std::vector<double> &x, std::vector<double> &y,
       ProjectionType &projection);
-  ShapeContainer convertToShapeContainer(ShapeType type, std::vector<double> &x,
+  ShapeContainer convert_to_shape_container(ShapeType type, std::vector<double> &x,
       std::vector<double> &y);
-  char* getProjectionWkt(ProjectionType p);
+  char* get_projection_wkt(ProjectionType p);
 public:
   SpatialHandler();
-  int importFromMySQL(const std::string &data);
-  int importFromWKT(std::string data);
+  int import_from_mysql(const std::string &data);
+  int import_from_wkt(std::string data);
   virtual ~SpatialHandler();
-  int getOutput(ProjectionView &view,
+  int get_output(ProjectionView &view,
       std::deque<ShapeContainer> &shapes_container);
-  void toLatLng(int x, int y, double &lat,
+  void to_latlon(int x, int y, double &lat,
       double &lon);
-  void fromLatLng(double lat, double lon, double &x,
+  void from_latlon(double lat, double lon, double &x,
       double &y);
 
   void interrupt();
@@ -124,7 +124,6 @@ namespace spatial
     int _row_id;
     GIS::SpatialHandler _geometry;
     std::deque<GIS::ShapeContainer> _shapes;
-    base::RecMutex _render_lock;
 
   public:
     Feature(Layer *layer, int row_id, const std::string &data, bool wkt);
