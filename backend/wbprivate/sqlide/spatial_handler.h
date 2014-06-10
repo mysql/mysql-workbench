@@ -124,6 +124,7 @@ namespace spatial
     int _row_id;
     GIS::SpatialHandler _geometry;
     std::deque<GIS::ShapeContainer> _shapes;
+    base::RecMutex _render_lock;
 
   public:
     Feature(Layer *layer, int row_id, const std::string &data, bool wkt);
