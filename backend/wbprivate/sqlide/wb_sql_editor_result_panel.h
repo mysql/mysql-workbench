@@ -28,6 +28,8 @@
 
 #include <boost/signals2.hpp>
 
+#include "spatial_data_view.h"
+
 namespace mforms
 {
   class TabView;
@@ -41,7 +43,6 @@ namespace mforms
 class SqlEditorForm;
 
 class ResultFormView;
-class SpatialDataView;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorResult : public mforms::Box
 {
@@ -65,6 +66,8 @@ public:
   
   void dock_result_grid(mforms::View *view);
   mforms::View *result_grid() { return _result_grid; }
+
+  std::vector<SpatialDataView::SpatialDataSource> get_spatial_columns();
 private:
   int _column_info_tab;
   int _query_stats_tab;
@@ -85,6 +88,7 @@ private:
   bool _column_info_created;
   bool _query_stats_created;
   bool _form_view_created;
+  bool _spatial_view_initialized;
 
   void switch_tab();
   

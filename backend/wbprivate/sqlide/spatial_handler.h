@@ -28,6 +28,8 @@
 #include <deque>
 #include "base/geometry.h"
 
+#include "mdc.h"
+
 namespace GIS
 {
 enum ProjectionType
@@ -82,6 +84,7 @@ protected:
 public:
   SpatialHandler();
   int importFromMySQL(const std::string &data);
+  int importFromWKT(std::string data);
   virtual ~SpatialHandler();
   int getOutput(ProjectionView &view,
       std::deque<ShapeContainer> &shapes_container);
@@ -92,4 +95,75 @@ public:
 };
 
 }
+
+
+
+/* Spatial Object Model
+
+ Feature - corresponds to the value of a single geometry column of a row in a resultset
+ Identified by the layer (resultset) and row_id and may contain one or more attributes, which are the rest
+ of the columns of the resultset.
+
+ Layer - corresponds to a single resutset or data source to be displayed.
+ Can be toggled to be shown or not.
+ Contains a list of features that are part of that layer.
+ Should allow identifying the feature that is located at a specific coordinate.
+ */
+
+namespace spatial
+{
+  class Layer;
+
+  class Feature
+  {
+    Layer *_owner;
+    int _row_id;
+    GIS::SpatialHandler _geometry;
+    std::deque<GIS::ShapeContainer> _shapes;
+
+  public:
+    Feature(Layer *layer, int row_id, const std::string &data, bool wkt);
+
+    ~Feature();
+
+    void render(GIS::ProjectionView &visible_area);
+    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
+
+    int row_id() const { return _row_id; }
+  };
+
+  class Layer
+  {
+    friend class Feature;
+
+  protected:
+    std::list<Feature*> _features;
+
+    int _layer_id;
+    base::Color _color;
+    float _render_progress;
+    bool _show;
+    bool _interrupt;
+
+  public:
+    Layer(int layer_id, base::Color color);
+    virtual ~Layer();
+
+    virtual void process() {}
+
+    void interrupt();
+
+    bool hidden();
+    int layer_id();
+
+    void set_show(bool flag);
+
+    size_t size() { return _features.size(); }
+
+    void add_feature(int row_id, const std::string &geom_data, bool wkt);
+    virtual void render(GIS::ProjectionView &visible_area);
+    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
+    float query_render_progress();
+  };
+};
 #endif /* SPATIAL_HANDLER_H_ */

@@ -700,6 +700,28 @@ std::string SqlEditorResult::caption() const
 }
 
 
+std::vector<SpatialDataView::SpatialDataSource> SqlEditorResult::get_spatial_columns()
+{
+  std::vector<SpatialDataView::SpatialDataSource> spatial_columns;
+  int i = 0;
+  Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(_rset.lock()->data_storage()));
+  std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+  for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
+       iter != field_info.end(); ++iter, ++i)
+  {
+    if (iter->type == "GEOMETRY")
+    {
+      SpatialDataView::SpatialDataSource field;
+      field.resultset = _rset;
+      field.column = iter->field;
+      field.type = iter->type;
+      field.column_index = i;
+      spatial_columns.push_back(field);
+    }
+  }
+  return spatial_columns;
+}
+
 void SqlEditorResult::switch_tab()
 {
   int tab = _tabview->get_active_tab();
@@ -728,6 +750,26 @@ void SqlEditorResult::switch_tab()
   }
   else if (tab == _spatial_result_tab)
   {
+    if (!_spatial_view_initialized)
+    {
+      _spatial_view_initialized = true;
+      std::vector<SpatialDataView::SpatialDataSource> spatial_columns = get_spatial_columns();
+
+      for (int c= _owner->sql_editor_count(), editor = 0; editor < c; editor++)
+      {
+        RecordsetsRef rsets(_owner->sql_editor_recordsets(editor));
+        for (Recordsets::const_iterator rs = rsets->begin(); rs != rsets->end(); rs++)
+        {
+          boost::shared_ptr<SqlEditorResult> result = _owner->result_panel(*rs);
+          if (result && result.get() != this)
+          {
+            std::vector<SpatialDataView::SpatialDataSource> tmp(result->get_spatial_columns());
+            std::copy(tmp.begin(), tmp.end(), std::back_inserter(spatial_columns));
+          }
+        }
+      }
+      _spatial_result_view->set_geometry_columns(spatial_columns);
+    }
     _spatial_result_view->activate();
   }
 }
@@ -896,30 +938,23 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
 {
   if (Recordset::Ref rset = _rset.lock())
   {
-    std::vector<SpatialDataView::SpatialDataSource> spatial_columns;
     Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
-
-    int i = 0;
+    bool has_geometry = false;
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
     for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
-         iter != field_info.end(); ++iter, ++i)
+         iter != field_info.end(); ++iter)
     {
       if (iter->type == "GEOMETRY")
       {
-        SpatialDataView::SpatialDataSource field;
-        field.column = iter->field;
-        field.type = iter->type;
-        field.column_index = i;
-        spatial_columns.push_back(field);
+        has_geometry = true;
+        break;
       }
     }
-
-    if (!spatial_columns.empty())
+    if (has_geometry)
     {
       mforms::App *app = mforms::App::get();
 
       _spatial_result_view = mforms::manage(new SpatialDataView(this));
-      _spatial_result_view->set_geometry_columns(spatial_columns);
       _spatial_result_tab = _tabview->add_page(_spatial_result_view, "");
       _switcher->add_item("Spatial\nView", "", app->get_resource_path("output_type-spacialview.png"), "");
 

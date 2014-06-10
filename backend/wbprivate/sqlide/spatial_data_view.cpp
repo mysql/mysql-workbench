@@ -21,6 +21,7 @@
 #include "base/log.h"
 #include "base/file_utilities.h"
 #include "spatial_data_view.h"
+#include "spatial_draw_box.h"
 #include "spatial_handler.h"
 #include "wb_sql_editor_result_panel.h"
 
@@ -28,264 +29,48 @@
 
 #include "mforms/app.h"
 #include "mforms/toolbar.h"
-#include "mforms/selector.h"
 #include "mforms/menubar.h"
-#include "mforms/drawbox.h"
-#include "mforms/label.h"
-#include "mforms/panel.h"
 #include "mforms/checkbox.h"
 #include "mforms/treenodeview.h"
-#include "mforms/drawbox.h"
 
 #include "mdc.h"
 
-#include <gdal/ogrsf_frmts.h>
-#include <gdal/ogr_api.h>
-#include <gdal/gdal_pam.h>
+//DEFAULT_LOG_DOMAIN("spatial");
 
-DEFAULT_LOG_DOMAIN("sqlide");
 
-static double ZoomLevels[] = {
-  0.0, 0.2, 0.4, 0.6, 0.7, 0.8, 0.85, 0.90, 0.95, 0.97, 0.98, 0.99, 0.995
-};
-
-struct LayerInfo
+class RecordsetLayer : public spatial::Layer
 {
-  GIS::SpatialHandler* handler;
-  std::deque<GIS::ShapeContainer> shapes;
-
-  base::Color color;
-  bool show;
-};
-
-
-class SpatialDrawBox : public mforms::DrawBox
-{
-  std::deque<LayerInfo> _layers;
-  GIS::ProjectionType _proj;
-  mdc::Surface *_cache;
-
-  int _zoom_level;
-  int _offset_x, _offset_y;
-
-  int _drag_x, _drag_y;
-  bool _dragging;
-
-  bool _needs_rerender;
+  Recordset::Ref _rset;
+  int _geom_column;
 
 public:
-  SpatialDrawBox()
-  : _proj(GIS::ProjRobinson), _zoom_level(0), _offset_x(0), _offset_y(0), _dragging(false),
-  _needs_rerender(false)
+  RecordsetLayer(int layer_id, base::Color color, Recordset::Ref rset, int column)
+  : spatial::Layer(layer_id, color), _rset(rset), _geom_column(column)
   {
-    _cache = NULL;
-  }
-
-  ~SpatialDrawBox()
-  {
-    delete _cache;
-  }
-
-  void set_projection(GIS::ProjectionType proj)
-  {
-    _proj = proj;
-    invalidate();
-  }
-
-  void zoom_out()
-  {
-    _zoom_level = std::min((int)(sizeof(ZoomLevels)/sizeof(double))-1, _zoom_level+1);
-    invalidate();
-  }
-
-  void zoom_in()
-  {
-    _zoom_level = std::max(0, _zoom_level-1);
-    invalidate();
-  }
-
-  void add_layer_with_data(const std::string &geom_data, base::Color color)
-  {
-    GIS::SpatialHandler *h = new GIS::SpatialHandler();
-    h->importFromMySQL(geom_data);
-
-    LayerInfo l;
-    l.handler = h;
-    l.color = color;
-    l.show = true;
-
-    _layers.push_back(l);
-    invalidate();
-  }
-
-  void invalidate()
-  {
-    delete _cache;
-    _cache = NULL;
-
-    set_needs_repaint();
-    _needs_rerender = true;
-  }
-
-
-  virtual bool mouse_down(mforms::MouseButton button, int x, int y)
-  {
-    if (button == 0)
+    // reserve space for the features
+    for (ssize_t c = _rset->row_count(), row = 0; row < c; row++)
     {
-      _drag_x = x;
-      _drag_y = y;
-      _dragging = true;
+      std::string geom_data; // data in MySQL internal binary geometry format.. this is neither WKT nor WKB
+                // but the internal format seems to be 4 bytes of SRID followed by WKB data
+      if (_rset->get_raw_field(row, _geom_column, geom_data) && !geom_data.empty())
+        add_feature(row, geom_data, false);
     }
-    return false;
   }
+};
 
-  virtual bool mouse_up(mforms::MouseButton button, int x, int y)
+
+class GridLayer : public spatial::Layer
+{
+public:
+  GridLayer(int layer_id, base::Color color)
+  : spatial::Layer(layer_id, color)
   {
-    if (button == 0 && _dragging)
-    {
-      mouse_move(button, x, y);
-      _dragging = false;
-    }
-    return false;
+    _show = true;
+
+    std::string data = "GEOMETRYCOLLECTION(LINESTRING(-179 -89,-165 -89,-150 -89,-135 -89,-120 -89,-105 -89,-89 -89,-75 -89,-60 -89,-45 -89,-30 -89,-15 -89,0 -89,15 -89,30 -89,45 -89,60 -89,75 -89,89 -89,105 -89,120 -89,135 -89,150 -89,165 -89,179 -89),LINESTRING(-179 -75,-165 -75,-150 -75,-135 -75,-120 -75,-105 -75,-89 -75,-75 -75,-60 -75,-45 -75,-30 -75,-15 -75,0 -75,15 -75,30 -75,45 -75,60 -75,75 -75,89 -75,105 -75,120 -75,135 -75,150 -75,165 -75,179 -75),LINESTRING(-179 -60,-165 -60,-150 -60,-135 -60,-120 -60,-105 -60,-89 -60,-75 -60,-60 -60,-45 -60,-30 -60,-15 -60,0 -60,15 -60,30 -60,45 -60,60 -60,75 -60,89 -60,105 -60,120 -60,135 -60,150 -60,165 -60,179 -60),LINESTRING(-179 -45,-165 -45,-150 -45,-135 -45,-120 -45,-105 -45,-89 -45,-75 -45,-60 -45,-45 -45,-30 -45,-15 -45,0 -45,15 -45,30 -45,45 -45,60 -45,75 -45,89 -45,105 -45,120 -45,135 -45,150 -45,165 -45,179 -45),LINESTRING(-179 -30,-165 -30,-150 -30,-135 -30,-120 -30,-105 -30,-89 -30,-75 -30,-60 -30,-45 -30,-30 -30,-15 -30,0 -30,15 -30,30 -30,45 -30,60 -30,75 -30,89 -30,105 -30,120 -30,135 -30,150 -30,165 -30,179 -30),LINESTRING(-179 -15,-165 -15,-150 -15,-135 -15,-120 -15,-105 -15,-89 -15,-75 -15,-60 -15,-45 -15,-30 -15,-15 -15,0 -15,15 -15,30 -15,45 -15,60 -15,75 -15,89 -15,105 -15,120 -15,135 -15,150 -15,165 -15,179 -15),LINESTRING(-179 0,-165 0,-150 0,-135 0,-120 0,-105 0,-89 0,-75 0,-60 0,-45 0,-30 0,-15 0,0 0,15 0,30 0,45 0,60 0,75 0,89 0,105 0,120 0,135 0,150 0,165 0,179 0),LINESTRING(-179 15,-165 15,-150 15,-135 15,-120 15,-105 15,-89 15,-75 15,-60 15,-45 15,-30 15,-15 15,0 15,15 15,30 15,45 15,60 15,75 15,89 15,105 15,120 15,135 15,150 15,165 15,179 15),LINESTRING(-179 30,-165 30,-150 30,-135 30,-120 30,-105 30,-89 30,-75 30,-60 30,-45 30,-30 30,-15 30,0 30,15 30,30 30,45 30,60 30,75 30,89 30,105 30,120 30,135 30,150 30,165 30,179 30),LINESTRING(-179 45,-165 45,-150 45,-135 45,-120 45,-105 45,-89 45,-75 45,-60 45,-45 45,-30 45,-15 45,0 45,15 45,30 45,45 45,60 45,75 45,89 45,105 45,120 45,135 45,150 45,165 45,179 45),LINESTRING(-179 60,-165 60,-150 60,-135 60,-120 60,-105 60,-89 60,-75 60,-60 60,-45 60,-30 60,-15 60,0 60,15 60,30 60,45 60,60 60,75 60,89 60,105 60,120 60,135 60,150 60,165 60,179 60),LINESTRING(-179 75,-165 75,-150 75,-135 75,-120 75,-105 75,-89 75,-75 75,-60 75,-45 75,-30 75,-15 75,0 75,15 75,30 75,45 75,60 75,75 75,89 75,105 75,120 75,135 75,150 75,165 75,179 75),LINESTRING(-179 89,-165 89,-150 89,-135 89,-120 89,-105 89,-89 89,-75 89,-60 89,-45 89,-30 89,-15 89,0 89,15 89,30 89,45 89,60 89,75 89,89 89,105 89,120 89,135 89,150 89,165 89,179 89),LINESTRING(-179 -89,-179 -75,-179 -60,-179 -45,-179 -30,-179 -15,-179 0,-179 15,-179 30,-179 45,-179 60,-179 75,-179 89),LINESTRING(-165 -89,-165 -75,-165 -60,-165 -45,-165 -30,-165 -15,-165 0,-165 15,-165 30,-165 45,-165 60,-165 75,-165 89),LINESTRING(-150 -89,-150 -75,-150 -60,-150 -45,-150 -30,-150 -15,-150 0,-150 15,-150 30,-150 45,-150 60,-150 75,-150 89),LINESTRING(-135 -89,-135 -75,-135 -60,-135 -45,-135 -30,-135 -15,-135 0,-135 15,-135 30,-135 45,-135 60,-135 75,-135 89),LINESTRING(-120 -89,-120 -75,-120 -60,-120 -45,-120 -30,-120 -15,-120 0,-120 15,-120 30,-120 45,-120 60,-120 75,-120 89),LINESTRING(-105 -89,-105 -75,-105 -60,-105 -45,-105 -30,-105 -15,-105 0,-105 15,-105 30,-105 45,-105 60,-105 75,-105 89),LINESTRING(-89 -89,-89 -75,-89 -60,-89 -45,-89 -30,-89 -15,-89 0,-89 15,-89 30,-89 45,-89 60,-89 75,-89 89),LINESTRING(-75 -89,-75 -75,-75 -60,-75 -45,-75 -30,-75 -15,-75 0,-75 15,-75 30,-75 45,-75 60,-75 75,-75 89),LINESTRING(-60 -89,-60 -75,-60 -60,-60 -45,-60 -30,-60 -15,-60 0,-60 15,-60 30,-60 45,-60 60,-60 75,-60 89),LINESTRING(-45 -89,-45 -75,-45 -60,-45 -45,-45 -30,-45 -15,-45 0,-45 15,-45 30,-45 45,-45 60,-45 75,-45 89),LINESTRING(-30 -89,-30 -75,-30 -60,-30 -45,-30 -30,-30 -15,-30 0,-30 15,-30 30,-30 45,-30 60,-30 75,-30 89),LINESTRING(-15 -89,-15 -75,-15 -60,-15 -45,-15 -30,-15 -15,-15 0,-15 15,-15 30,-15 45,-15 60,-15 75,-15 89),LINESTRING(0 -89,0 -75,0 -60,0 -45,0 -30,0 -15,0 0,0 15,0 30,0 45,0 60,0 75,0 89),LINESTRING(15 -89,15 -75,15 -60,15 -45,15 -30,15 -15,15 0,15 15,15 30,15 45,15 60,15 75,15 89),LINESTRING(30 -89,30 -75,30 -60,30 -45,30 -30,30 -15,30 0,30 15,30 30,30 45,30 60,30 75,30 89),LINESTRING(45 -89,45 -75,45 -60,45 -45,45 -30,45 -15,45 0,45 15,45 30,45 45,45 60,45 75,45 89),LINESTRING(60 -89,60 -75,60 -60,60 -45,60 -30,60 -15,60 0,60 15,60 30,60 45,60 60,60 75,60 89),LINESTRING(75 -89,75 -75,75 -60,75 -45,75 -30,75 -15,75 0,75 15,75 30,75 45,75 60,75 75,75 89),LINESTRING(89 -89,89 -75,89 -60,89 -45,89 -30,89 -15,89 0,89 15,89 30,89 45,89 60,89 75,89 89),LINESTRING(105 -89,105 -75,105 -60,105 -45,105 -30,105 -15,105 0,105 15,105 30,105 45,105 60,105 75,105 89),LINESTRING(120 -89,120 -75,120 -60,120 -45,120 -30,120 -15,120 0,120 15,120 30,120 45,120 60,120 75,120 89),LINESTRING(135 -89,135 -75,135 -60,135 -45,135 -30,135 -15,135 0,135 15,135 30,135 45,135 60,135 75,135 89),LINESTRING(150 -89,150 -75,150 -60,150 -45,150 -30,150 -15,150 0,150 15,150 30,150 45,150 60,150 75,150 89),LINESTRING(165 -89,165 -75,165 -60,165 -45,165 -30,165 -15,165 0,165 15,165 30,165 45,165 60,165 75,165 89),LINESTRING(179 -89,179 -75,179 -60,179 -45,179 -30,179 -15,179 0,179 15,179 30,179 45,179 60,179 75,179 89))";
+
+    add_feature(0, data, true);
   }
-
-  virtual bool mouse_move(mforms::MouseButton button, int x, int y)
-  {
-    if (_dragging)
-    {
-      _offset_x += _drag_x - x;
-      _offset_y -= _drag_y - y;
-      if (_offset_x < 0)
-        _offset_x = 0;
-      if (_offset_y < 0)
-        _offset_y = 0;
-      set_needs_repaint();
-    }
-    return false;
-  }
-
-
-  virtual void repaint(cairo_t *crt, int x, int y, int w, int h)
-  {
-    mdc::CairoCtx cr(crt);
-
-    cr.set_color(base::Color(1, 1, 1));
-    cr.paint();
-
-    if (_needs_rerender)
-    {
-      _needs_rerender = false;
-
-//      double zoom = ZoomLevels[_zoom_level];
-      int width = get_width();
-      int height = get_height();
-
-      GIS::ProjectionView visible_area;
-
-      // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
-      // clipping area to the area we want to view
-//      double dlo = 0, dla = 0;
-//      screen_to_world(_offset_x, _offset_y, dla, dlo);
-
-      visible_area.MaxLat = 179;// - 179*zoom + dla;
-      visible_area.MaxLon = 89;// - 89*zoom + dlo;
-      visible_area.MinLat = -179;// + 179*zoom + dla;
-      visible_area.MinLon = -89;// + 89*zoom + dlo;
-
-      visible_area.height = height;
-      visible_area.width = width;
-      visible_area.type = _proj;
-
-      // TODO lat/long ranges must be adjusted according to account for the aspect ratio of the visible area
-
-
-      for (std::deque<LayerInfo>::iterator it = _layers.begin(); it != _layers.end(); ++it)
-      {
-        std::deque<GIS::ShapeContainer> shapes;
-        // method names must get_output() like.. camel case is only for class/struct names
-        it->handler->getOutput(visible_area, shapes); //XXX separate width/height and projection type into separate params
-        it->shapes = shapes;
-      }
-    }
-
-    if (!_cache)
-    {
-      _cache = new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32);
-      mdc::CairoCtx ctx(*_cache);
-      // cache everything into a bitmap
-      for (std::deque<LayerInfo>::const_iterator it = _layers.begin(); it != _layers.end(); ++it)
-        repaint_layer(ctx, *it);
-    }
-
-    cr.set_source_surface(_cache->get_surface(), 0, 0);
-    cr.paint();
-  }
-
-  void screen_to_world(GIS::SpatialHandler *handler, int x, int y, double &lat, double &lon)
-  {
-    handler->toLatLng(x, y, lat, lon);
-  }
-
-  void world_to_screen(GIS::SpatialHandler *handler, double lat, double lon, int &x, int &y)
-  {
-
-//    handler->fromLatLng(lat, lon, x, y);
-  }
-
-  void repaint_layer(mdc::CairoCtx &cr, const LayerInfo &layer)
-  {
-//    double zoom = ZoomLevels[_zoom_level];
-/*    int width = get_width();
-    int height = get_height();
-
-    GIS::ProjectionView visible_area;
-*/
-    // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
-    // clipping area to the area we want to view
-//    double dlo = 0, dla = 0;
-
-//    fprintf(stderr, "Before OffsetX: %d, OffsetY: %d, dla:  %f, dlo: %f\n", _offset_x, _offset_y, dla, dlo);
-//    screen_to_world(handler, _offset_x, _offset_y, dla, dlo);
-//    fprintf(stderr, "Screen_to_world OffsetX: %d, OffsetY: %d, dla:  %f, dlo: %f\n", _offset_x, _offset_y, dla, dlo);
-//    int xx, yy;
-//    world_to_screen(handler, dla, dlo, xx, yy);
-//    fprintf(stderr, "World_to_screen OffsetX: %d, OffsetY: %d, dla:  %f, dlo: %f\n", xx, yy, dla, dlo);
-
-//    visible_area.MaxLat = 179;// - 180*zoom + dla;
-//    visible_area.MaxLon = 89;// - 90*zoom + dlo;
-//    visible_area.MinLat = -179;// + 180*zoom + dla;
-//    visible_area.MinLon = -89;// + 90*zoom + dlo;
-
-//    visible_area.height = height;
-//    visible_area.width = width;
-//    visible_area.type = _proj;
-
-    // TODO lat/long ranges must be adjusted according to account for the aspect ratio of the visible area
-
-//    std::deque<GIS::ShapeContainer> shapes;
-//    // method names must get_output() like.. camel case is only for class/struct names
-//    handler->getOutput(visible_area, shapes); //XXX separate width/height and projection type into separate params
-//    std::deque<GIS::ShapeContainer>::iterator it;
-    std::deque<GIS::ShapeContainer>::const_iterator it;
-
-    cr.set_line_width(1);
-    cr.set_color(layer.color);
-    cr.save();
-    for(it = layer.shapes.begin(); it != layer.shapes.end(); it++)
-    {
-      if ((*it).type == GIS::ShapePolygon || (*it).type == GIS::ShapeLineString)
-      {
-        cr.move_to((*it).points[0]);
-        for (size_t i = 0; i < (*it).points.size(); i++)
-          cr.line_to((*it).points[i]);
-        cr.stroke();
-      }
-      else
-        log_debug("Unknown type %i\n", it->type);
-    }
-    cr.restore();
-  }
-
 };
 
 
@@ -294,6 +79,9 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 {
   _main_box = mforms::manage(new mforms::Box(true));
   _viewer = mforms::manage(new SpatialDrawBox());
+
+  _viewer->work_started = boost::bind(&SpatialDataView::work_started, this, _1, _2);
+  _viewer->work_finished = boost::bind(&SpatialDataView::work_finished, this, _1);
 
   _toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
   {
@@ -309,8 +97,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     std::vector<std::string> projection_types;
-    projection_types.push_back("Mercator");
     projection_types.push_back("Robinson");
+    projection_types.push_back("Mercator");
     projection_types.push_back("Equirectangular");
 
     _projection_picker = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
@@ -328,22 +116,25 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("navigator_zoom_out.png"));
-    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
+    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_out, _viewer));
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("navigator_zoom_in.png")); //XXX need @2x icons
-    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_out, _viewer));
+    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
+    /*
     _toolbar->add_separator_item();
     item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-    item->set_text("External Data:");
+    item->set_text("Export:");
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("tiny_open.png"));
+    item->set_icon(mforms::App::get()->get_resource_path("record_export.png"));
+    item->set_tooltip(_("Export geometry data to an external file."));
     _toolbar->add_item(item);
+     */
   }
   add(_toolbar, false, true);
 
@@ -366,7 +157,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 150, false);
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
-  _layer_tree->set_context_menu(_layer_menu);
+//  _layer_tree->set_context_menu(_layer_menu);
   _option_box->add(_layer_tree, true, true);
 
   _option_box->set_size(200, -1);
@@ -379,22 +170,11 @@ void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item)
 {
   std::string action = item->get_text();
   if (action == "Mercator")
-  {
     _viewer->set_projection(GIS::ProjMercator);
-
-    fprintf(stderr, "Set Mercator\n");
-  }
   else if(action == "Equirectangular")
-  {
     _viewer->set_projection(GIS::ProjEquirectangular);
-    fprintf(stderr, "Set Equirectangular\n");
-  }
   else if(action == "Robinson")
-  {
     _viewer->set_projection(GIS::ProjRobinson);
-    fprintf(stderr, "Set Robinson\n");
-  }
-  _viewer->set_needs_repaint();
 }
 
 SpatialDataView::~SpatialDataView()
@@ -403,29 +183,27 @@ SpatialDataView::~SpatialDataView()
 }
 
 
-void SpatialDataView::activate()
+void SpatialDataView::work_started(mforms::View *progress_panel, bool reprojecting)
 {
+  if (reprojecting)
+  {
+    progress_panel->set_size(500, 150);
+    _viewer->add(progress_panel, mforms::MiddleCenter);
+    relayout();
+  }
 }
 
 
-void SpatialDataView::show_column_data(const SpatialDataView::SpatialDataSource &source, bool show)
+void SpatialDataView::work_finished(mforms::View *progress_panel)
 {
-  Recordset::Ref rset(_owner->recordset());
+  _viewer->remove(progress_panel);
+  _main_box->show(true);
+}
 
-  for (ssize_t c = rset->row_count(), row = 0; row < c; row++)
-  {
-    std::string geom_data; // data in MySQL internal binary geometry format.. this is neither WKT nor WKB
-    // but the internal format seems to be 4 bytes of SRID followed by WKB data
-    if (rset->get_raw_field(row, source.column_index, geom_data) && !geom_data.empty())
-    {
-      if (show)
-        _viewer->add_layer_with_data(geom_data, source.color);
-//      else
-//        _viewer->remove_layer();
 
-      g_message("--> [%i,%i] %s (%i)\n", (int)row, source.column_index, geom_data.c_str(), (int)geom_data.size());
-    }
-  }
+void SpatialDataView::activate()
+{
+  _viewer->activate();
 }
 
 
@@ -437,7 +215,7 @@ void SpatialDataView::set_color_icon(mforms::TreeNodeRef node, int column, const
     path = mforms::Utilities::get_special_folder(mforms::ApplicationData) + "/tmpicons";
     base::create_directory(path, 0700);
   }
-  std::string p = path + "/" + base::strfmt("%02x%02x%02x.png", (unsigned char)color.red*255, (unsigned char)color.green*255, (unsigned char)color.blue*255);
+  std::string p = path + "/" + base::strfmt("%02x%02x%02x.png", (unsigned char)(color.red*255), (unsigned char)(color.green*255), (unsigned char)(color.blue*255));
 
   if (!base::file_exists(p))
   {
@@ -458,43 +236,66 @@ void SpatialDataView::tree_toggled(const mforms::TreeNodeRef &node, const std::s
   bool show = value == "1";
   node->set_bool(0, show);
 
-  show_column_data(_sources[_layer_tree->row_for_node(node)], show);
+  _viewer->show_layer(_layer_tree->row_for_node(node), show);
 }
 
 
-void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> &columns)
+void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> &sources)
 {
   static base::Color layer_colors[] = {
-    base::Color(0.4, 1,   1),
-    base::Color(1,   0.4, 0.4),
-    base::Color(1,   1,   0.4),
-    base::Color(0.4, 1,   0.4)
+    base::Color(0.4, 0.4, 0.4), // reserved for grid
+
+    base::Color(0.4, 0.8, 0.8),
+    base::Color(0.8, 0.4, 0.8),
+    base::Color(0.8, 0.8, 0.4),
+
+    base::Color(0.8, 0.4, 0.4),
+    base::Color(0.4, 0.8, 0.4),
+    base::Color(0.4, 0.4, 0.8),
+
+    base::Color(0.0, 0.6, 0.6),
+    base::Color(0.6, 0.0, 0.6),
+    base::Color(0.6, 0.6, 0.0),
+
+    base::Color(0.6, 0.0, 0.0),
+    base::Color(0.0, 0.6, 0.0),
+    base::Color(0.0, 0.0, 0.6)
   };
 
-  _sources = columns;
-
-  bool first = true;
-  size_t i = 0;
-  for (std::vector<SpatialDataSource>::iterator iter = _sources.begin(); iter != _sources.end(); ++iter, ++i)
   {
+    base::Color color(layer_colors[0]);
+    mforms::TreeNodeRef node = _layer_tree->add_node();
+    node->set_string(1, "Grid");
+    set_color_icon(node, 1, color);
+    node->set_bool(0, true);
+    _viewer->set_background(new GridLayer(0, color));
+  }
+
+  int layer_id = 1;
+  for (std::vector<SpatialDataSource>::const_iterator iter = sources.begin(); iter != sources.end(); ++iter)
+  {
+    base::Color color(layer_colors[layer_id % (sizeof(layer_colors)/sizeof(base::Color))]);
     mforms::TreeNodeRef node = _layer_tree->add_node();
     node->set_string(1, iter->column);
-    set_color_icon(node, 1, layer_colors[i]);
-    if (i >= sizeof(layer_colors) / sizeof(base::Color))
-      i = sizeof(layer_colors) / sizeof(base::Color) - 1;
-    node->set_bool(0, first);
-    first = false;
+    set_color_icon(node, 1, color);
+    node->set_bool(0, false);
 
-    iter->color = layer_colors[i];
+    spatial::Layer *layer = NULL;
+    if (iter->column_index >= 0)
+    {
+      // from recordset
+      layer = new RecordsetLayer(layer_id, color, iter->resultset.lock(), iter->column_index);
+    }
+    else
+    {
+      // from file
+    }
+    if (layer)
+    {
+      _viewer->add_layer(layer);
+      ++layer_id;
+    }
   }
-  tree_toggled(_layer_tree->node_at_row(0), "1");
-
-  // standard background layer
-  mforms::TreeNodeRef node = _layer_tree->add_node();
-  node->set_string(1, "World Map");
-  set_color_icon(node, 1, base::Color(1, 0, 1));
-  node->set_bool(0, true);
-//  tree_toggled(node, "1");
 }
 
 

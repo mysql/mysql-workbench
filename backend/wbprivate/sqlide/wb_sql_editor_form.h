@@ -175,10 +175,10 @@ public:
   void sql_editor_open_file(int index, const std::string &file_path, const std::string &encoding= "");
   boost::shared_ptr<mforms::ToolBar> sql_editor_toolbar(int index) { return _sql_editors[index]->toolbar; }
 
-private:
+
   int sql_editor_index_for_recordset(long rset);
   RecordsetsRef sql_editor_recordsets(const int index);
-
+private:
   struct Sql_editor_info {
     typedef boost::shared_ptr<Sql_editor_info> Ref;
     
