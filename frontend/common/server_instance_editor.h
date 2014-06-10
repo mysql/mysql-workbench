@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,6 +96,9 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
   mforms::TextEntry _start_cmd;
   mforms::TextEntry _stop_cmd;
   mforms::CheckBox _sudo_check;
+  mforms::Label _sudo_description;
+  mforms::Box _custom_sudo_box;
+  mforms::TextEntry _sudo_prefix;
   
   grtui::DbConnectPanel *_connect_panel;
   
