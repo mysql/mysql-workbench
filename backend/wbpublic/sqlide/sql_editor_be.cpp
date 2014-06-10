@@ -84,7 +84,12 @@ public:
 
   base::RecMutex _sql_checker_mutex;
   MySQLQueryType _parse_unit;  // The type of query we want to limit our parsing to.
-  bec::GRTManager::Timer* _current_timer;
+
+  // We use 2 timers here for delayed work. One is a grt timer to run a task in the main thread after a certain delay.
+  // The other one is to run the actual work task in a background thread.
+  bec::GRTManager::Timer* _current_delay_timer;
+  int _current_work_timer_id;
+
   std::pair<const char*, size_t> _text_info; // Only valid during a parse run.
 
   base::RecMutex _sql_errors_mutex;
@@ -121,7 +126,9 @@ public:
     _parser_context = context;
     _services = MySQLParserServices::get(grt);
 
-    _current_timer = NULL;
+    _current_delay_timer = NULL;
+    _current_work_timer_id = -1;
+
     _is_sql_check_enabled = true;
     _container = NULL;
     _editor_text_submenu = NULL;
@@ -792,7 +799,7 @@ void MySQLEditor::text_changed(int position, int length, int lines_changed, bool
   d->_splitting_required = true;
   d->_text_info = _code_editor->get_text_ptr();
   if (d->_is_sql_check_enabled)
-    d->_current_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.5);
+    d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.5);
   else
     d->_text_change_signal(); // If there is no timer set up then trigger change signals directly.
 }
@@ -871,7 +878,7 @@ bool MySQLEditor::start_sql_processing()
   // Consumers are expected to use this signal for UI updates, so we need to coalesce messages.
   d->_text_change_signal();
 
-  d->_current_timer = NULL; // The timer will be deleted by the grt manager.
+  d->_current_delay_timer = NULL; // The timer will be deleted by the grt manager.
 
   {
     RecMutexLock sql_errors_mutex(d->_sql_errors_mutex);
@@ -882,7 +889,8 @@ bool MySQLEditor::start_sql_processing()
 
   _code_editor->set_status_text("");
   if (d->_text_info.first != NULL && d->_text_info.second > 0)
-    ThreadedTimer::get()->add_task(TimerTimeSpan, 0.1, true, boost::bind(&MySQLEditor::do_statement_split_and_check, this, _1));
+    d->_current_work_timer_id = ThreadedTimer::get()->add_task(TimerTimeSpan, 0.1, true,
+      boost::bind(&MySQLEditor::do_statement_split_and_check, this, _1));
   return false; // Don't re-run this task, it's a single-shot.
 }
 
@@ -1256,8 +1264,9 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
     d->_is_sql_check_enabled = flag;
     if (flag)
     {
-      if (d->_current_timer == NULL)
-        d->_current_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.5);
+      ThreadedTimer::get()->remove_task(d->_current_work_timer_id); // Does nothing if the id is -1.
+      if (d->_current_delay_timer == NULL)
+        d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.5);
     }
     else
       stop_processing();
@@ -1366,10 +1375,13 @@ void MySQLEditor::stop_processing()
 {
   d->_stop_processing = true;
 
-  if (d->_current_timer != NULL)
+  ThreadedTimer::get()->remove_task(d->_current_work_timer_id);
+  d->_current_work_timer_id = -1;
+
+  if (d->_current_delay_timer != NULL)
   {
-    d->_grtm->cancel_timer(d->_current_timer);
-    d->_current_timer = NULL;
+    d->_grtm->cancel_timer(d->_current_delay_timer);
+    d->_current_delay_timer = NULL;
   }
 
   d->_services->stopProcessing();
