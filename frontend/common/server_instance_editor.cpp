@@ -118,8 +118,8 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 , _password_box(true)
 , _sys_box(false)
 , _details_panel(mforms::TitledBoxPanel)
-, _connect_panel(new grtui::DbConnectPanel(grtui::DbConnectPanelHideConnectionName))
 , _custom_sudo_box(true)
+, _connect_panel(new grtui::DbConnectPanel(grtui::DbConnectPanelHideConnectionName))
 , _bottom_hbox(true)
 {
   set_name("instance_editor");
