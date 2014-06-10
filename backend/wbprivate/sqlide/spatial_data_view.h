@@ -41,16 +41,17 @@ namespace mforms
 
 class SpatialDrawBox;
 class SqlEditorResult;
+class ProgressPanel;
 
 class SpatialDataView : public mforms::Box
 {
 public:
   struct SpatialDataSource
   {
+    Recordset::Ptr resultset;
     std::string column;
     int column_index;
     std::string type;
-    base::Color color;
   };
 
 private:
@@ -67,13 +68,12 @@ private:
 
   SpatialDrawBox *_viewer;
 
-  std::vector<SpatialDataSource> _sources;
-
   void tree_toggled(const mforms::TreeNodeRef &node, const std::string &value);
-  void show_column_data(const SpatialDataSource &source, bool show);
 
   void set_color_icon(mforms::TreeNodeRef node, int column, const base::Color &color);
 
+  void work_started(mforms::View *progress, bool reprojecting);
+  void work_finished(mforms::View *progress);
 public:
   SpatialDataView(SqlEditorResult *owner);
   virtual ~SpatialDataView();

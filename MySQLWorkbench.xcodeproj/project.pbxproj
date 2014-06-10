@@ -2236,6 +2236,8 @@
 		2BE7345E0EFB31DC00287AE0 /* libsql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC262A0E85671D0018CE34 /* libsql.parser.dylib */; };
 		2BE76165107283C800A1DF24 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
 		2BE7639D1073A8B400A1DF24 /* wb_admin_connections.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BE7639C1073A89700A1DF24 /* wb_admin_connections.py */; };
+		2BE8099F19465A40000745A9 /* spatial_draw_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE8099D19465A40000745A9 /* spatial_draw_box.cpp */; };
+		2BE809A019465A40000745A9 /* spatial_draw_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE8099E19465A40000745A9 /* spatial_draw_box.h */; };
 		2BE9015E151D4D2300CC0894 /* ui_db_ConnectPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE9015D151D4D2300CC0894 /* ui_db_ConnectPanel.cpp */; };
 		2BE92EFE1060147600FFD773 /* wb_sql_editor_snippets.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE92EFC1060147600FFD773 /* wb_sql_editor_snippets.h */; };
 		2BE92EFF1060147600FFD773 /* wb_sql_editor_snippets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE92EFD1060147600FFD773 /* wb_sql_editor_snippets.cpp */; };
@@ -5934,6 +5936,8 @@
 		2BE733A50EFAFF3200287AE0 /* mysql_sql_syntax_check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mysql_sql_syntax_check.h; path = modules/db.mysql.sqlparser/src/mysql_sql_syntax_check.h; sourceTree = "<group>"; };
 		2BE7362A0EFB3CED00287AE0 /* db.mysql.sqlparser.grt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = db.mysql.sqlparser.grt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE7639C1073A89700A1DF24 /* wb_admin_connections.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_connections.py; path = plugins/wb.admin/frontend/wb_admin_connections.py; sourceTree = "<group>"; };
+		2BE8099D19465A40000745A9 /* spatial_draw_box.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_draw_box.cpp; path = backend/wbprivate/sqlide/spatial_draw_box.cpp; sourceTree = "<group>"; };
+		2BE8099E19465A40000745A9 /* spatial_draw_box.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_draw_box.h; path = backend/wbprivate/sqlide/spatial_draw_box.h; sourceTree = "<group>"; };
 		2BE9015D151D4D2300CC0894 /* ui_db_ConnectPanel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ui_db_ConnectPanel.cpp; path = backend/wbpublic/objimpl/ui/ui_db_ConnectPanel.cpp; sourceTree = "<group>"; };
 		2BE92EFC1060147600FFD773 /* wb_sql_editor_snippets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_sql_editor_snippets.h; path = backend/wbprivate/sqlide/wb_sql_editor_snippets.h; sourceTree = "<group>"; };
 		2BE92EFD1060147600FFD773 /* wb_sql_editor_snippets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_sql_editor_snippets.cpp; path = backend/wbprivate/sqlide/wb_sql_editor_snippets.cpp; sourceTree = "<group>"; };
@@ -8417,6 +8421,8 @@
 			children = (
 				2BAE2EB2192BE4E4000887F9 /* spatial_data_view.cpp */,
 				2BAE2EB3192BE4E5000887F9 /* spatial_data_view.h */,
+				2BE8099D19465A40000745A9 /* spatial_draw_box.cpp */,
+				2BE8099E19465A40000745A9 /* spatial_draw_box.h */,
 				2B58F1001940F95D00397970 /* spatial_handler.cpp */,
 				2B58F1011940F95D00397970 /* spatial_handler.h */,
 			);
@@ -11115,6 +11121,7 @@
 				2BF87A550FA7CEFB0012EADA /* relationship_canvas_floater.h in Headers */,
 				2BF87A570FA7CEFB0012EADA /* wb_catalog_tree.h in Headers */,
 				2BF87A590FA7CEFB0012EADA /* wb_component.h in Headers */,
+				2BE809A019465A40000745A9 /* spatial_draw_box.h in Headers */,
 				2BF87A5B0FA7CEFB0012EADA /* wb_component_basic.h in Headers */,
 				2BF87A5D0FA7CEFB0012EADA /* wb_component_logical.h in Headers */,
 				2BF87A5F0FA7CEFB0012EADA /* wb_component_physical.h in Headers */,
@@ -13916,6 +13923,7 @@
 				2BF87A690FA7CEFB0012EADA /* wb_overview_physical.cpp in Sources */,
 				2BF87A6B0FA7CEFB0012EADA /* wb_overview_physical_schema.cpp in Sources */,
 				2BF87A6D0FA7CEFB0012EADA /* wb_overview_privileges.cpp in Sources */,
+				2BE8099F19465A40000745A9 /* spatial_draw_box.cpp in Sources */,
 				2BF87A6F0FA7CEFB0012EADA /* wb_physical_model_diagram_features.cpp in Sources */,
 				2BF87A710FA7CEFB0012EADA /* wb_user_datatypes.cpp in Sources */,
 				2BF87AB10FA8011A0012EADA /* wb_context_sqlide.cpp in Sources */,

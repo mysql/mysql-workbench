@@ -161,24 +161,24 @@ static base::Mutex timeout_lock;
 
 - (void)fire:(NSTimer*)timer
 {
-  {
-    base::MutexLock lock(timeout_lock);
-  
-    for (std::map<mforms::TimeoutHandle, NSTimer*>::iterator it = active_timeouts.begin();
-         it != active_timeouts.end(); ++it)
-    {
-      if (it->second == timer)
-      {
-        active_timeouts.erase(it);
-        break;
-      }
-    }
-  }
   try
   {
     bool ret = (*callback)();
     if (!ret)
     {
+      {
+        base::MutexLock lock(timeout_lock);
+
+        for (std::map<mforms::TimeoutHandle, NSTimer*>::iterator it = active_timeouts.begin();
+             it != active_timeouts.end(); ++it)
+        {
+          if (it->second == timer)
+          {
+            active_timeouts.erase(it);
+            break;
+          }
+        }
+      }
       [timer invalidate];
       [self autorelease];
     }
@@ -214,6 +214,8 @@ static void util_cancel_timeout(mforms::TimeoutHandle handle)
     [it->second invalidate];
     active_timeouts.erase(it);
   }
+  else
+    log_warning("cancel_timeout called on invalid handle %i\n", handle);
 }
 
 

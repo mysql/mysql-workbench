@@ -21,6 +21,9 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN("spatial");
 
 GIS::SpatialHandler::SpatialHandler() :
     poGeometry(NULL), geo_to_proj(NULL), proj_to_geo(NULL)
@@ -84,6 +87,28 @@ int GIS::SpatialHandler::importFromMySQL(const std::string &data)
 
   OGRErr ret_val = OGRGeometryFactory::createFromWkb(geom, NULL, &poGeometry);
   delete[] geom;
+
+  if (poGeometry)
+  {
+    OGRSpatialReference hDstSRS;
+
+    char *wkt = &(*geodetic_wkt.begin());
+    hDstSRS.importFromWkt(&wkt);
+
+    poGeometry->assignSpatialReference(&hDstSRS);
+
+  }
+  if (ret_val == OGRERR_NONE)
+    return 0;
+  else
+    return 1;
+}
+
+
+int GIS::SpatialHandler::importFromWKT(std::string data)
+{
+  char *d = &(*data.begin());
+  OGRErr ret_val = OGRGeometryFactory::createFromWkt(&d, NULL, &poGeometry);
 
   if (poGeometry)
   {
@@ -326,7 +351,135 @@ GIS::SpatialHandler::~SpatialHandler()
   if (geo_to_proj)
     OCTDestroyCoordinateTransformation(geo_to_proj);
   if (proj_to_geo)
-      OCTDestroyCoordinateTransformation(proj_to_geo);
+    OCTDestroyCoordinateTransformation(proj_to_geo);
 
   // TODO Auto-generated destructor stub
+}
+
+
+
+
+using namespace spatial;
+
+Feature::Feature(Layer *layer, int row_id, const std::string &data, bool wkt = false)
+: _owner(layer), _row_id(row_id)
+{
+  if (wkt)
+    _geometry.importFromWKT(data);
+  else
+    _geometry.importFromMySQL(data);
+}
+
+Feature::~Feature()
+{
+}
+
+void Feature::render(GIS::ProjectionView &visible_area)
+{
+  _shapes.clear();
+  // method names must get_output() like.. camel case is only for class/struct names
+  _geometry.getOutput(visible_area, _shapes); //XXX separate width/height and projection type into separate params
+}
+
+
+void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
+{
+  for (std::deque<GIS::ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
+  {
+    if ((*it).type == GIS::ShapePolygon || (*it).type == GIS::ShapeLineString)
+    {
+      cr.move_to((*it).points[0]);
+      for (size_t i = 1; i < (*it).points.size(); i++)
+        cr.line_to((*it).points[i]);
+      cr.stroke();
+    }
+    else if ((*it).type == GIS::ShapePoint)
+    {
+      cr.save();
+      // for points, we paint the marker at the exact position but reverse the scaling, so that the marker size is constant
+      cr.translate((*it).points[0]);
+      cr.scale(1.0/scale, 1.0/scale);
+      cr.rectangle(-5, -5, 5, 5);
+      cr.fill();
+      cr.restore();
+    }
+    else
+      log_debug("Unknown type %i\n", it->type);
+  }
+  cr.check_state();
+}
+
+
+
+Layer::Layer(int layer_id, base::Color color)
+: _layer_id(layer_id), _color(color), _show(false), _interrupt(false)
+{
+
+}
+
+Layer::~Layer()
+{
+  for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
+  {
+    delete *it;
+  }
+}
+
+void Layer::interrupt()
+{
+  _interrupt = true;
+}
+
+bool Layer::hidden()
+{
+  return !_show;
+}
+
+int Layer::layer_id()
+{
+  return _layer_id;
+}
+
+void Layer::set_show(bool flag)
+{
+  _show = flag;
+}
+
+void Layer::add_feature(int row_id, const std::string &geom_data, bool wkt)
+{
+  Feature *feature = new Feature(this, row_id, geom_data, wkt);
+  _features.push_back(feature);
+}
+
+void Layer::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
+{
+  std::deque<GIS::ShapeContainer>::const_iterator it;
+
+  cr.save();
+  cr.set_line_width(0.5);
+  cr.set_color(_color);
+
+  for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
+    (*it)->repaint(cr, scale, clip_area);
+
+  cr.restore();
+}
+
+
+float Layer::query_render_progress()
+{
+  return _render_progress;
+}
+
+
+void Layer::render(GIS::ProjectionView &visible_area)
+{
+  _render_progress = 0.0;
+  float step = 1.0 / _features.size();
+
+  for (std::list<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end(); ++iter)
+  {
+    (*iter)->render(visible_area);
+    _render_progress += step;
+  }
 }
