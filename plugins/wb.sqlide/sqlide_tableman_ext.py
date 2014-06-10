@@ -780,6 +780,7 @@ class TableTriggerManager(TableManDefs, TriggerManager):
            ]
     def __init__(self, editor):
         TriggerManager.__init__(self, editor, None)
+        self.inspect_btn.show(False)
         self.set_managed()
         self.set_release_on_add()
     
