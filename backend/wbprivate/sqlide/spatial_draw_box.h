@@ -34,9 +34,10 @@ class SpatialDrawBox : public mforms::DrawBox
   base::Mutex _layer_mutex;
   spatial::Layer *_background_layer;
   std::deque<spatial::Layer*> _layers;
-  GIS::ProjectionType _proj;
+  spatial::ProjectionType _proj;
   boost::shared_ptr<mdc::Surface> _cache;
   base::Mutex _thread_mutex;
+  spatial::Converter *_spatial_reprojector;
 
   ProgressPanel *_progress;
 
@@ -78,7 +79,7 @@ public:
 
   std::deque<spatial::Layer*> get_layers() { return _layers; }
   
-  void set_projection(GIS::ProjectionType proj);
+  void set_projection(spatial::ProjectionType proj);
 
   void reset_view();
   void zoom_out();
@@ -101,8 +102,8 @@ public:
   virtual bool mouse_move(mforms::MouseButton button, int x, int y);
   virtual void repaint(cairo_t *crt, int x, int y, int w, int h);
 
-  void screen_to_world(GIS::SpatialHandler *handler, int x, int y, double &lat, double &lon);
-  void world_to_screen(GIS::SpatialHandler *handler, double lat, double lon, int &x, int &y);
+  void screen_to_world(int x, int y, double &lat, double &lon);
+  void world_to_screen(double lat, double lon, int &x, int &y);
 };
 
 
