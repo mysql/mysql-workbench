@@ -189,7 +189,7 @@ namespace spatial
   class ProjectionFactory
   {
   public:
-    static Projection getProjection(ProjectionType);
+    static Projection get_projection(ProjectionType);
   };
 
 
@@ -224,7 +224,7 @@ namespace spatial
     void change_view(ProjectionView view);
     void to_latlon(int x, int y, double &lat, double &lon);
     void from_latlon(double lat, double lon, int &x, int &y);
-    void transformPoints(std::deque<ShapeContainer> &shapes_container);
+    void transform_points(std::deque<ShapeContainer> &shapes_container);
     void interrupt();
   };
 

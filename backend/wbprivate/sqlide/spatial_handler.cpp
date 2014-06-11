@@ -407,11 +407,11 @@ DEFAULT_LOG_DOMAIN("spatial");
 //  // TODO Auto-generated destructor stub
 //}
 
-//LOLEK
-//static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
-//{
-//  log_error("ERROR %d, %s\n", err_no, msg);
-//}
+
+static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
+{
+  log_error("ERROR %d, %s\n", err_no, msg);
+}
 
 spatial::Projection::Projection() : _is_projected(false), _name("Geodetic")
 {
@@ -521,7 +521,7 @@ spatial::Projection::Bonne::Bonne()
     "AUTHORITY[\"EPSG\",\"54024\"]]";
 }
 
-spatial::Projection spatial::ProjectionFactory::getProjection(ProjectionType type)
+spatial::Projection spatial::ProjectionFactory::get_projection(ProjectionType type)
 {
   switch(type)
     {
@@ -558,7 +558,8 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
     container.points.push_back(base::Point(point->getX(), point->getY()));
     shapes_container.push_back(container);
 
-  } else if (flat_type == wkbLineString)
+  }
+  else if (flat_type == wkbLineString)
   {
     ShapeContainer container;
     container.type = ShapeLineString;
@@ -571,7 +572,8 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
 
     shapes_container.push_back(container);
 
-  } else if (flat_type == wkbLinearRing)
+  }
+  else if (flat_type == wkbLinearRing)
   {
     ShapeContainer container;
     container.type = ShapeLinearRing;
@@ -583,7 +585,8 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
 
     shapes_container.push_back(container);
 
-  } else if (flat_type == wkbPolygon)
+  }
+  else if (flat_type == wkbPolygon)
   {
     ShapeContainer container;
     container.type = ShapePolygon;
@@ -596,10 +599,13 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
     for (int i = nPoints - 1; i >= 0; i--)
       container.points.push_back(base::Point(ring->getX(i), ring->getY(i)));
 
+    shapes_container.push_back(container);
+
     for (int i = 0; i < poly->getNumInteriorRings() && !_interrupt; ++i)
       extract_points(poly->getInteriorRing(i), shapes_container);
 
-  } else if (flat_type == wkbMultiPoint || flat_type == wkbMultiLineString
+  }
+  else if (flat_type == wkbMultiPoint || flat_type == wkbMultiLineString
       || flat_type == wkbMultiPolygon || flat_type == wkbGeometryCollection)
   {
     OGRGeometryCollection *geoCollection = (OGRGeometryCollection*) shape;
@@ -620,16 +626,12 @@ spatial::Importer::Importer() : _geometry(NULL), _interrupt(false)
 
 int spatial::Importer::import_from_mysql(const std::string &data)
 {
-  unsigned char* geom = new unsigned char[data.size() - 3];
-  std::copy(data.begin() + 4, data.end(), geom);
-
-  OGRErr ret_val = OGRGeometryFactory::createFromWkb(geom, NULL, &_geometry);
-  delete[] geom;
+  OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin()+4))), NULL, &_geometry);
 
   if (_geometry)
   {
     OGRSpatialReference hDstSRS;
-    char *wkt = ProjectionFactory::getProjection(ProjGeodetic).get_wkt();
+    char *wkt = ProjectionFactory::get_projection(ProjGeodetic).get_wkt();
     hDstSRS.importFromWkt(&wkt);
 
     _geometry->assignSpatialReference(&hDstSRS);
@@ -650,7 +652,7 @@ int spatial::Importer::import_from_wkt(std::string data)
   {
     OGRSpatialReference hDstSRS;
 
-    char *wkt = ProjectionFactory::getProjection(ProjGeodetic).get_wkt();
+    char *wkt = ProjectionFactory::get_projection(ProjGeodetic).get_wkt();
     hDstSRS.importFromWkt(&wkt);
 
     _geometry->assignSpatialReference(&hDstSRS);
@@ -668,6 +670,7 @@ void spatial::Importer::interrupt()
 
 spatial::Converter::Converter(ProjectionView view, char *src_wkt, char *dst_wkt) : _geo_to_proj(NULL), _proj_to_geo(NULL), _view(view), _interrupt(false)
 {
+  CPLSetErrorHandler(&ogr_error_handler);
   change_projection(src_wkt, dst_wkt);
 }
 
@@ -739,6 +742,7 @@ void spatial::Converter::to_latlon(int x, int y, double &lat, double &lon)
   lon = _adf_projection[0] + (double) x * _adf_projection[1] + (double) y * _adf_projection[2];
   _proj_to_geo->Transform(1, &lat, &lon);
 }
+
 void spatial::Converter::from_latlon(double lat, double lon, int &x, int &y)
 {
   base::RecMutexLock mtx(_projection_protector);
@@ -746,24 +750,23 @@ void spatial::Converter::from_latlon(double lat, double lon, int &x, int &y)
   y = _inv_projection[3] + _inv_projection[5] * lon;
 }
 
-
-void spatial::Converter::transformPoints(std::deque<ShapeContainer> &shapes_container)
+void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_container)
 {
 
   std::deque<ShapeContainer>::iterator it;
-  for(it = shapes_container.begin(); it != shapes_container.end(); it++)
+  for(it = shapes_container.begin(); it != shapes_container.end() && !_interrupt; it++)
   {
     std::deque<size_t> for_removal;
-    for (size_t i = 0; i < (*it).points.size(); i++)
+    for (size_t i = 0; i < (*it).points.size() && !_interrupt; i++)
     {
       if(!_geo_to_proj->Transform(1, &(*it).points[i].x, &(*it).points[i].y))
         for_removal.push_back(i);
     }
     std::deque<size_t>::reverse_iterator rit;
-    for (rit = for_removal.rbegin(); rit < for_removal.rend(); rit++)
+    for (rit = for_removal.rbegin(); rit < for_removal.rend() && !_interrupt; rit++)
       (*it).points.erase((*it).points.begin() + *rit);
 
-    for(size_t i=0; i < (*it).points.size(); i++)
+    for(size_t i=0; i < (*it).points.size() && !_interrupt; i++)
     {
       int x, y;
       from_latlon((*it).points[i].x, (*it).points[i].y, x, y);
@@ -798,7 +801,7 @@ void Feature::render(Converter *converter)
   // method names must get_output() like.. camel case is only for class/struct names
   std::deque<ShapeContainer> tmp_shapes;
   _geometry.get_points(tmp_shapes);
-  converter->transformPoints(tmp_shapes);
+  converter->transform_points(tmp_shapes);
 //  _geometry.get_output(visible_area, tmp_shapes); //XXX separate width/height and projection type into separate params
   _shapes = tmp_shapes;
 }

@@ -160,10 +160,10 @@ void SpatialDrawBox::render(bool reproject)
 
   if (_spatial_reprojector == NULL)
     _spatial_reprojector = new spatial::Converter(visible_area,
-                              spatial::ProjectionFactory::getProjection(spatial::ProjGeodetic).get_wkt(),
-                              spatial::ProjectionFactory::getProjection(_proj).get_wkt());
+                              spatial::ProjectionFactory::get_projection(spatial::ProjGeodetic).get_wkt(),
+                              spatial::ProjectionFactory::get_projection(_proj).get_wkt());
 
-  _spatial_reprojector->change_projection(NULL, spatial::ProjectionFactory::getProjection(_proj).get_wkt());
+  _spatial_reprojector->change_projection(NULL, spatial::ProjectionFactory::get_projection(_proj).get_wkt());
   _spatial_reprojector->change_view(visible_area);
 
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
@@ -243,7 +243,7 @@ SpatialDrawBox::~SpatialDrawBox()
 void SpatialDrawBox::set_projection(spatial::ProjectionType proj)
 {
   if (_spatial_reprojector)
-    _spatial_reprojector->change_projection(NULL, spatial::ProjectionFactory::getProjection(proj).get_wkt());
+    _spatial_reprojector->change_projection(NULL, spatial::ProjectionFactory::get_projection(proj).get_wkt());
 
   _proj = proj;
   invalidate(true);
