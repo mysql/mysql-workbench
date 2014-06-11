@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,5 +17,31 @@
  * 02110-1301  USA
  */
 
-#include "ImageEditorBE.h"
-#include "LayerEditorBE.h"
+#pragma once
+
+#include "wb_editor_note.h"
+#include "GrtTemplates.h"
+
+#pragma make_public(NoteEditorBE)
+
+namespace MySQL {
+namespace Grt {
+
+public ref class NoteEditorWrapper : public BaseEditorWrapper
+{
+protected:
+  NoteEditorWrapper(NoteEditorBE *inn);
+
+public:
+  NoteEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  ~NoteEditorWrapper();
+
+  NoteEditorBE *get_unmanaged_object();
+  void set_text(String ^text);
+  String^ get_text();
+  void set_name(String ^name);
+  String^ get_name();
+};
+
+} // namespace Grt
+} // namespace MySQL
