@@ -45,6 +45,10 @@ class WbAdminConfigurationStartup(mforms.Box):
         return "admin_start_stop"
 
     #---------------------------------------------------------------------------
+    def print_output_cb(self, text):
+        self.ctrl_be.uitask(self.print_output, text)
+
+    #---------------------------------------------------------------------------
     def print_output(self, text):
         ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S - ")
         self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self.ctrl_be.server_helper.cmd_output_encoding)
@@ -158,7 +162,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             self.create_ui()
             self.ui_created = True
         if self.server_control:
-            self.server_control.set_output_handler(self.print_output)
+            self.server_control.set_output_handler(self.print_output_cb)
 
         if self.is_server_running_prev_check is None:
             self.is_server_running_prev_check = self.ctrl_be.is_server_running()
