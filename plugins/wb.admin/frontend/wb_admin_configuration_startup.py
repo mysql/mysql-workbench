@@ -124,6 +124,7 @@ class WbAdminConfigurationStartup(mforms.Box):
         self.add(heading, False, True)
 
         self.startup_msgs_log = newTextBox(mforms.BothScrollBars)
+        self.startup_msgs_log.set_name('StartupMessagesLog')
         self.startup_msgs_log.set_read_only(True)
         self.add(self.startup_msgs_log, True, True)
 
