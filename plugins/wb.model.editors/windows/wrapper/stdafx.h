@@ -23,6 +23,8 @@
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
 
+using namespace System::Runtime::InteropServices;
+
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"
 #include "grts/structs.db.query.h"
