@@ -27,6 +27,11 @@
 #include "mdc.h"
 #include "spatial_handler.h"
 
+namespace mforms
+{
+  class ContextMenu;
+};
+
 class ProgressPanel;
 
 class SpatialDrawBox : public mforms::DrawBox
@@ -41,11 +46,19 @@ class SpatialDrawBox : public mforms::DrawBox
 
   ProgressPanel *_progress;
 
+  mforms::ContextMenu *_menu;
+
   double _zoom_level;
   int _offset_x, _offset_y;
   
   int _initial_offset_x, _initial_offset_y;
   int _drag_x, _drag_y;
+  int _select_x, _select_y;
+
+  std::pair<double,double> _clicked_coordinates;
+
+  double _min_lat, _max_lat;
+  double _min_lon, _max_lon;
 
   bool _ready;
   bool _dragging;
@@ -53,6 +66,9 @@ class SpatialDrawBox : public mforms::DrawBox
   bool _rendering;
   bool _quitting;
   bool _needs_reprojection;
+  bool _select_pending;
+  bool _selecting;
+  bool _displaying_restricted;
 
   base::Mutex _progress_mutex;
   std::string _current_work;
@@ -69,6 +85,8 @@ class SpatialDrawBox : public mforms::DrawBox
   void render(bool reproject = false);
   bool get_progress(std::string &action, float &pct);
 
+  void restrict_displayed_area(int x1, int y1, int x2, int y2);
+
 public:
   boost::function<void (mforms::View*, bool reprojecting)> work_started;
   boost::function<void (mforms::View*)> work_finished;
@@ -77,6 +95,11 @@ public:
   SpatialDrawBox();
   ~SpatialDrawBox();
 
+  boost::function<void (const std::string&,const std::string&)> position_changed_cb;
+
+  void set_context_menu(mforms::ContextMenu *menu);
+  std::pair<double,double> clicked_coordinates() { return _clicked_coordinates; }
+
   std::deque<spatial::Layer*> get_layers() { return _layers; }
   
   void set_projection(spatial::ProjectionType proj);
@@ -84,6 +107,9 @@ public:
   void reset_view();
   void zoom_out();
   void zoom_in();
+  void select_area();
+
+  void center_on(double lat, double lon);
 
   void clear();
   void set_background(spatial::Layer *layer);
@@ -102,7 +128,7 @@ public:
   virtual bool mouse_move(mforms::MouseButton button, int x, int y);
   virtual void repaint(cairo_t *crt, int x, int y, int w, int h);
 
-  void screen_to_world(int x, int y, double &lat, double &lon);
+  bool screen_to_world(int x, int y, double &lat, double &lon);
   void world_to_screen(double lat, double lon, int &x, int &y);
 };
 

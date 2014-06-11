@@ -27,31 +27,38 @@
 #include "wb_sql_editor_result_panel.h"
 
 #include <algorithm>
+#include <cstdlib>
 
 #include "mforms/app.h"
 #include "mforms/toolbar.h"
 #include "mforms/menubar.h"
 #include "mforms/checkbox.h"
 #include "mforms/treenodeview.h"
+#include "mforms/label.h"
 
 #include "mdc.h"
 
-//DEFAULT_LOG_DOMAIN("spatial");
+DEFAULT_LOG_DOMAIN("spatial");
 
 
 class RecordsetLayer : public spatial::Layer
 {
   Recordset::Ptr _rset;
   int _geom_column;
+  bool _loaded;
 
 public:
   RecordsetLayer(int layer_id, base::Color color, Recordset::Ptr rset, int column)
-  : spatial::Layer(layer_id, color), _rset(rset), _geom_column(column)
+  : spatial::Layer(layer_id, color), _rset(rset), _geom_column(column), _loaded(false)
   {
-    Recordset::Ref rs(rset.lock());
-    if (rs)
+  }
+
+  virtual void load_data()
+  {
+    Recordset::Ref rs(recordset());
+    if (rs && !_loaded)
     {
-      // reserve space for the features
+      _loaded = true;
       for (ssize_t c = rs->row_count(), row = 0; row < c; row++)
       {
         std::string geom_data; // data in MySQL internal binary geometry format.. this is neither WKT nor WKB
@@ -89,7 +96,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 {
   _main_box = mforms::manage(new mforms::Box(true));
   _viewer = mforms::manage(new SpatialDrawBox());
-
+  _viewer->position_changed_cb = boost::bind(&SpatialDataView::update_coordinates, this, _1, _2);
   _viewer->work_started = boost::bind(&SpatialDataView::work_started, this, _1, _2);
   _viewer->work_finished = boost::bind(&SpatialDataView::work_finished, this, _1);
 
@@ -126,6 +133,13 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item->set_icon(mforms::App::get()->get_resource_path("tiny_gridview.png"));
+    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::select_area, _viewer));
+    _toolbar->add_item(item);
+
+    _toolbar->add_separator_item();
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("navigator_zoom_out.png"));
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_out, _viewer));
     _toolbar->add_item(item);
@@ -135,9 +149,23 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
+    _toolbar->add_separator_item();
+
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("zoom_reset.png"));
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::reset_view, _viewer));
+    _toolbar->add_item(item);
+
+    _toolbar->add_separator_item();
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
+    item->set_text("Jump To:");
+    _toolbar->add_item(item);
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item->set_icon(mforms::App::get()->get_resource_path("zoom_reset.png"));
+    item->set_tooltip("Specify coordinates to center screen on.");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::jump_to, this));
     _toolbar->add_item(item);
 
     /*
@@ -164,6 +192,11 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _option_box->set_back_color("#f0f0f0");
 #endif
 
+  _map_menu = new mforms::ContextMenu();
+  _map_menu->add_item_with_title("Copy Coordinates", boost::bind(&SpatialDataView::copy_coordinates, this));
+
+  _viewer->set_context_menu(_map_menu);
+
   _layer_menu = new mforms::ContextMenu();
 //  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
 //  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
@@ -177,6 +210,9 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
   _layer_tree->set_context_menu(_layer_menu);
   _option_box->add(_layer_tree, true, true);
+
+  _mouse_pos_label = mforms::manage(new mforms::Label("Lat:\nLon:"));
+  _option_box->add(_mouse_pos_label, false, true);
 
   _option_box->set_size(250, -1);
   _main_box->add(_option_box, false, true);
@@ -200,6 +236,99 @@ void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item)
 SpatialDataView::~SpatialDataView()
 {
   delete _layer_menu;
+}
+
+static double parse_latitude(const std::string &s)
+{
+  double parsed = 0.0;
+
+  if (s.empty())
+    throw std::invalid_argument("Invalid value");
+
+  // check if in degrees
+  if (s.find("\xc2\xb0") != std::string::npos) // look for degree sign in utf8
+  {
+    int deg = 0, min = 0;
+    float sec = 0;
+    char o = *s.rbegin();
+
+    if (o != 'N' && o != 'S' && o != '"' && !isdigit(o))
+      throw std::invalid_argument("Latitude value must be N or S");
+
+    if (sscanf(s.c_str(), "%i\xc2\xb0%i'%f\"", &deg, &min, &sec) == 0)
+      throw std::invalid_argument("Unable to parse latitude value "+s);
+
+    parsed = deg + (min / 60.0) + (sec / 3600.0);
+    if (o == 'S')
+      parsed = -parsed;
+  }
+  else
+    parsed = strtod(s.c_str(), NULL);
+
+  return parsed;
+}
+
+static double parse_longitude(const std::string &s)
+{
+  double parsed = 0.0;
+
+  if (s.empty())
+    throw std::invalid_argument("Invalid value");
+
+  // check if in degrees
+  if (s.find("\xc2\xb0") != std::string::npos) // look for degree sign in utf8
+  {
+    int deg = 0, min = 0;
+    float sec = 0;
+    char o = *s.rbegin();
+
+    if (o != 'E' && o != 'W' && o != '"' && !isdigit(o))
+      throw std::invalid_argument("Longitude value must be E or W");
+
+    if (sscanf(s.c_str(), "%i\xc2\xb0%i'%f\"", &deg, &min, &sec) == 0)
+      throw std::invalid_argument("Unable to parse longitude value "+s);
+
+    parsed = deg + (min / 60.0) + (sec / 3600.0);
+    if (o == 'W')
+      parsed = -parsed;
+  }
+  else
+    parsed = strtod(s.c_str(), NULL);
+  
+  return parsed;
+}
+
+
+void SpatialDataView::jump_to()
+{
+  std::string ret;
+  bool badformat = false;
+  if (mforms::Utilities::request_input("Jump to Coordinates", "Enter coordinates in Lat, Lon:", "", ret))
+  {
+    std::string lat, lon;
+    if (base::partition(ret, ",", lat, lon))
+    {
+      double plat = parse_latitude(base::strip_text(lat));
+      double plon = parse_longitude(base::strip_text(lon));
+
+      _viewer->center_on(plat, plon);
+    }
+    else
+      badformat = true;
+  }
+
+  if (badformat)
+  {
+    mforms::Utilities::show_message("Jump to Coordinates", "Coordinates must be in Lat, Lon format.\nEx.: 40.32321312, -120.3232131 or 54°50'26.7\"N 98°23'51.0\"E", "OK");
+  }
+}
+
+
+void SpatialDataView::copy_coordinates()
+{
+  std::pair<double, double> p = _viewer->clicked_coordinates();
+
+  mforms::Utilities::set_clipboard_text(base::strfmt("%.6f,%.6f", p.first, p.second));
 }
 
 
@@ -379,12 +508,16 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     node->set_string(2, iter->source);
     set_color_icon(node, 1, color);
 
-
     spatial::Layer *layer = NULL;
     if (iter->column_index >= 0)
     {
       // from recordset
       layer = new RecordsetLayer(layer_id, color, iter->resultset, iter->column_index);
+      if (layer_id == 1)
+      {
+        layer->set_show(true);
+        node->set_bool(0, true);
+      }
     }
     else
     {
@@ -398,3 +531,7 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
   }
 }
 
+void SpatialDataView::update_coordinates(const std::string &lat, const std::string &lon)
+{
+  _mouse_pos_label->set_text("Lat: "+lat+"\n"+"Lon: "+lon);
+}

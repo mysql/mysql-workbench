@@ -222,7 +222,7 @@ namespace spatial
     ~Converter();
     void change_projection(char *src_wkt = NULL, char *dst_wkt = NULL);
     void change_view(ProjectionView view);
-    void to_latlon(int x, int y, double &lat, double &lon);
+    bool to_latlon(int x, int y, double &lat, double &lon);
     void from_latlon(double lat, double lon, int &x, int &y);
     void transform_points(std::deque<ShapeContainer> &shapes_container);
     void interrupt();
@@ -266,7 +266,7 @@ namespace spatial
     Layer(int layer_id, base::Color color);
     virtual ~Layer();
 
-    virtual void process() {}
+    virtual void load_data() {}
 
     void interrupt();
 
