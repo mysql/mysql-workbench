@@ -5792,7 +5792,7 @@
 		2BCD494115BDD53C00F88A38 /* build_freetds.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_freetds.sh; path = build/build_freetds.sh; sourceTree = "<group>"; };
 		2BCE49EB15F5341C00FA0CDC /* db_sybase_migration_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_sybase_migration_grt.py; path = modules/db.sybase/db_sybase_migration_grt.py; sourceTree = "<group>"; };
 		2BCE49EC15F5341C00FA0CDC /* db_sybase_re_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_sybase_re_grt.py; path = modules/db.sybase/db_sybase_re_grt.py; sourceTree = "<group>"; };
-		2BCE4A0315F6467B00FA0CDC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /System/Library/Frameworks/Python.framework/Versions/2.6/Python; sourceTree = "<absolute>"; };
+		2BCE4A0315F6467B00FA0CDC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /System/Library/Frameworks/Python.framework/Versions/2.7/Python; sourceTree = "<absolute>"; };
 		2BCE53DA122C6BE60019C95B /* confirm_save_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = confirm_save_dialog.h; sourceTree = "<group>"; };
 		2BCE53DB122C6BE60019C95B /* confirm_save_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = confirm_save_dialog.cpp; sourceTree = "<group>"; };
 		2BCEBF9513DBD3F100A23E75 /* mini_edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mini_edit.png; sourceTree = "<group>"; };
@@ -15369,7 +15369,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/lib/",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				PRODUCT_NAME = wbcopytables;
 				SKIP_INSTALL = YES;
@@ -15394,7 +15394,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/lib/",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				PRODUCT_NAME = wbcopytables;
 				SKIP_INSTALL = YES;
@@ -15423,7 +15423,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = _cairo;
 				SKIP_INSTALL = YES;
@@ -15454,7 +15454,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = _cairo;
 				SKIP_INSTALL = YES;
@@ -16212,7 +16212,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
@@ -16253,7 +16253,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
@@ -16278,7 +16278,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -16300,7 +16300,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -16331,7 +16331,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = grt;
 				SKIP_INSTALL = YES;
@@ -16360,7 +16360,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = grt;
 				SKIP_INSTALL = YES;
@@ -16735,7 +16735,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
@@ -16776,7 +16776,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
@@ -16831,7 +16831,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
@@ -16876,7 +16876,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
@@ -17418,7 +17418,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = MySQLWorkbench;
@@ -17470,7 +17470,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = MySQLWorkbench;
@@ -17504,7 +17504,7 @@
 					"$(SRCROOT)/../mysql-mac-res/lib/glib-2.0/include",
 					"$(SRCROOT)/../mysql-mac-res/include/glib-2.0",
 					"$(SRCROOT)/../mysql-mac-res/include/cairo",
-					/usr/include/python2.6,
+					/usr/include/python2.7,
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -17545,7 +17545,7 @@
 					"$(SRCROOT)/../mysql-mac-res/lib/glib-2.0/include",
 					"$(SRCROOT)/../mysql-mac-res/include/glib-2.0",
 					"$(SRCROOT)/../mysql-mac-res/include/cairo",
-					/usr/include/python2.6,
+					/usr/include/python2.7,
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = (

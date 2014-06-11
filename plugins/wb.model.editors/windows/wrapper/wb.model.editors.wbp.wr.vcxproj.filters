@@ -11,10 +11,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EditorBE.cpp">
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="NoteEditorWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="StoredNoteEditorWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LayerEditorWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageEditorWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImageEditorBE.h">
@@ -23,12 +32,12 @@
     <ClInclude Include="LayerEditorBE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NoteEditorBE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StoredNoteEditorBE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="NoteEditorWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StoredNoteEditorWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -243,7 +243,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EditorBE.cpp" />
+    <ClCompile Include="ImageEditorWrapper.cpp" />
+    <ClCompile Include="LayerEditorWrapper.cpp" />
+    <ClCompile Include="NoteEditorWrapper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -252,13 +254,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StoredNoteEditorWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImageEditorBE.h" />
     <ClInclude Include="LayerEditorBE.h" />
-    <ClInclude Include="NoteEditorBE.h" />
+    <ClInclude Include="NoteEditorWrapper.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="StoredNoteEditorBE.h" />
+    <ClInclude Include="StoredNoteEditorWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\backend\wbpublic\wbpublic.be.vcxproj">
