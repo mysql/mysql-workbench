@@ -86,6 +86,7 @@ private:
       _label.set_text(what);
       _progress.set_value(pct);
     }
+
     return true;
   }
 };
@@ -102,6 +103,7 @@ void *SpatialDrawBox::do_render_layers(void *data)
     else
       delete self->_progress;
   }
+
   return NULL;
 }
 
@@ -127,6 +129,7 @@ void *SpatialDrawBox::render_done()
   _progress->stop();
 
   _rendering = false;
+
   work_finished(_progress);
   delete _progress;
   _progress = NULL;
@@ -141,7 +144,8 @@ void SpatialDrawBox::render(bool reproject)
   int width = get_width();
   int height = get_height();
 
-  GIS::ProjectionView visible_area;
+
+  spatial::ProjectionView visible_area;
 
   // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
   // clipping area to the area we want to view
@@ -153,7 +157,14 @@ void SpatialDrawBox::render(bool reproject)
 
   visible_area.height = height;
   visible_area.width = width;
-  visible_area.type = _proj;
+
+  if (_spatial_reprojector == NULL)
+    _spatial_reprojector = new spatial::Converter(visible_area,
+                              spatial::ProjectionFactory::getProjection(spatial::ProjGeodetic).get_wkt(),
+                              spatial::ProjectionFactory::getProjection(_proj).get_wkt());
+
+  _spatial_reprojector->change_projection(NULL, spatial::ProjectionFactory::getProjection(_proj).get_wkt());
+  _spatial_reprojector->change_view(visible_area);
 
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
 
@@ -168,7 +179,7 @@ void SpatialDrawBox::render(bool reproject)
   ctx.scale(base::Point(_zoom_level, _zoom_level));
 
   if (reproject)
-    _background_layer->render(visible_area);
+    _background_layer->render(_spatial_reprojector);
 
   int i = 0;
   base::MutexLock lock(_layer_mutex);
@@ -181,7 +192,7 @@ void SpatialDrawBox::render(bool reproject)
     if (!(*it)->hidden())
     {
       if (reproject)
-        (*it)->render(visible_area);
+        (*it)->render(_spatial_reprojector);
       (*it)->repaint(ctx, _zoom_level, base::Rect());
     }
   }
@@ -213,8 +224,8 @@ bool SpatialDrawBox::get_progress(std::string &action, float &pct)
 
 
 SpatialDrawBox::SpatialDrawBox()
-: _background_layer(NULL),
-_proj(GIS::ProjRobinson), _zoom_level(1.0), _offset_x(0), _offset_y(0), _ready(false), _dragging(false),
+: _background_layer(NULL), _proj(spatial::ProjMercator), _spatial_reprojector(NULL),
+ _zoom_level(1.0), _offset_x(0), _offset_y(0), _ready(false), _dragging(false),
 _rendering(false), _quitting(false), _needs_reprojection(true)
 {
   _current_layer = NULL;
@@ -229,8 +240,11 @@ SpatialDrawBox::~SpatialDrawBox()
   _thread_mutex.lock();
 }
 
-void SpatialDrawBox::set_projection(GIS::ProjectionType proj)
+void SpatialDrawBox::set_projection(spatial::ProjectionType proj)
 {
+  if (_spatial_reprojector)
+    _spatial_reprojector->change_projection(NULL, spatial::ProjectionFactory::getProjection(proj).get_wkt());
+
   _proj = proj;
   invalidate(true);
 }
@@ -269,6 +283,12 @@ void SpatialDrawBox::clear()
   for (std::deque<spatial::Layer*>::iterator i = _layers.begin(); i != _layers.end(); ++i)
     delete *i;
   _layers.clear();
+  if (_spatial_reprojector)
+  {
+    _spatial_reprojector->interrupt();
+    delete _spatial_reprojector;
+    _spatial_reprojector = NULL;
+  }
 }
 
 void SpatialDrawBox::set_background(spatial::Layer *layer)
@@ -415,13 +435,14 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
   }
 }
 
-void SpatialDrawBox::screen_to_world(GIS::SpatialHandler *handler, int x, int y, double &lat, double &lon)
+void SpatialDrawBox::screen_to_world(int x, int y, double &lat, double &lon)
 {
-  handler->to_latlon(x, y, lat, lon);
+  if (_spatial_reprojector)
+    _spatial_reprojector->to_latlon(x, y, lat, lon);
 }
 
-void SpatialDrawBox::world_to_screen(GIS::SpatialHandler *handler, double lat, double lon, int &x, int &y)
+void SpatialDrawBox::world_to_screen(double lat, double lon, int &x, int &y)
 {
-  
-  //    handler->fromLatLng(lat, lon, x, y);
+  if (_spatial_reprojector)
+      _spatial_reprojector->from_latlon(lat, lon, x, y);
 }

@@ -110,6 +110,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     projection_types.push_back("Robinson");
     projection_types.push_back("Mercator");
     projection_types.push_back("Equirectangular");
+    projection_types.push_back("Bonne");
 
     _projection_picker = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
     _projection_picker->set_selector_items(projection_types);
@@ -187,11 +188,13 @@ void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item)
 {
   std::string action = item->get_text();
   if (action == "Mercator")
-    _viewer->set_projection(GIS::ProjMercator);
+    _viewer->set_projection(spatial::ProjMercator);
   else if(action == "Equirectangular")
-    _viewer->set_projection(GIS::ProjEquirectangular);
+    _viewer->set_projection(spatial::ProjEquirectangular);
   else if(action == "Robinson")
-    _viewer->set_projection(GIS::ProjRobinson);
+    _viewer->set_projection(spatial::ProjRobinson);
+  else if (action == "Bonne")
+    _viewer->set_projection(spatial::ProjBonne);
 }
 
 SpatialDataView::~SpatialDataView()

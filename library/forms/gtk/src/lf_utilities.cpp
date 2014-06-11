@@ -270,13 +270,15 @@ static base::Mutex timeout_mutex;
 
 inline bool run_slot(const boost::function<bool ()> slot, TimeoutHandle handle)
 {
+  if (!slot())
   {
     base::MutexLock lock(timeout_mutex);
     std::map<TimeoutHandle, sigc::connection>::iterator it;
     if ((it = timeouts.find(handle)) != timeouts.end())
       timeouts.erase(it);
+    return false;
   }
-  return slot();
+  return true;
 }
 
 //------------------------------------------------------------------------------
