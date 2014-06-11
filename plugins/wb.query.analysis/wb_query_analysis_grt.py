@@ -415,6 +415,7 @@ class ExplainTab(mforms.AppView):
         if self._form_deactivated_conn:
             self._form_deactivated_conn.disconnect()
             self._form_deactivated_conn = None
+        return True
 
 
 @ModuleInfo.plugin("wb.sqlide.visual_explain", caption="Visual Explain", input=[wbinputs.currentQueryEditor()])
