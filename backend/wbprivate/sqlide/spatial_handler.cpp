@@ -598,7 +598,6 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
 
     for (int i = nPoints - 1; i >= 0; i--)
       container.points.push_back(base::Point(ring->getX(i), ring->getY(i)));
-
     shapes_container.push_back(container);
 
     for (int i = 0; i < poly->getNumInteriorRings() && !_interrupt; ++i)
@@ -735,12 +734,12 @@ void spatial::Converter::change_projection(char *src_wkt, char *dst_wkt)
   GDALInvGeoTransform(_adf_projection, _inv_projection);
 }
 
-void spatial::Converter::to_latlon(int x, int y, double &lat, double &lon)
+bool spatial::Converter::to_latlon(int x, int y, double &lat, double &lon)
 {
   base::RecMutexLock mtx(_projection_protector);
   lat = _adf_projection[3] + (double) x * _adf_projection[4] + (double) y * _adf_projection[5];
   lon = _adf_projection[0] + (double) x * _adf_projection[1] + (double) y * _adf_projection[2];
-  _proj_to_geo->Transform(1, &lat, &lon);
+  return _proj_to_geo->Transform(1, &lat, &lon);
 }
 
 void spatial::Converter::from_latlon(double lat, double lon, int &x, int &y)
@@ -762,8 +761,11 @@ void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_con
       if(!_geo_to_proj->Transform(1, &(*it).points[i].x, &(*it).points[i].y))
         for_removal.push_back(i);
     }
+    if (!for_removal.empty())
+      log_debug("%i points that could not be converted were skipped\n", (int)for_removal.size());
+
     std::deque<size_t>::reverse_iterator rit;
-    for (rit = for_removal.rbegin(); rit < for_removal.rend() && !_interrupt; rit++)
+    for (rit = for_removal.rbegin(); rit != for_removal.rend() && !_interrupt; rit++)
       (*it).points.erase((*it).points.begin() + *rit);
 
     for(size_t i=0; i < (*it).points.size() && !_interrupt; i++)
@@ -891,6 +893,8 @@ int Layer::layer_id()
 void Layer::set_show(bool flag)
 {
   _show = flag;
+  if (flag)
+    load_data();
 }
 
 void Layer::add_feature(int row_id, const std::string &geom_data, bool wkt)
@@ -906,8 +910,7 @@ void Layer::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
   cr.save();
   cr.set_line_width(0.5);
   cr.set_color(_color);
-
-  for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
+  for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end() && !_interrupt; ++it)
     (*it)->repaint(cr, scale, clip_area);
 
   cr.restore();
@@ -925,7 +928,7 @@ void Layer::render(Converter *converter)
   _render_progress = 0.0;
   float step = 1.0 / _features.size();
 
-  for (std::list<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end(); ++iter)
+  for (std::list<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
   {
     (*iter)->render(converter);
     _render_progress += step;

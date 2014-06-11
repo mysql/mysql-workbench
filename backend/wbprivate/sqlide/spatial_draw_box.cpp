@@ -22,11 +22,29 @@
 #include "mforms/box.h"
 #include "mforms/label.h"
 #include "mforms/panel.h"
+#include "mforms/menubar.h"
 #include "mforms/progressbar.h"
 
 #include "base/log.h"
 
 DEFAULT_LOG_DOMAIN("spatial");
+
+
+inline std::string format_latitude(double l)
+{
+  int deg = floor(l);
+  int min = (l - deg) * 60;
+  double sec = (l - deg - min / 60.0) * 3600;
+  return base::strfmt("%3i\xc2\xb0%02i'%.6f\"%c", deg, min, sec, l < 0 ? 'S' : 'N');
+}
+
+inline std::string format_longitude(double l)
+{
+  int deg = floor(l);
+  int min = (l - deg) * 60;
+  double sec = (l - deg - min / 60.0) * 3600;
+  return base::strfmt("%3i\xc2\xb0%02i'%.6f\"%c", deg, min, sec, l < 0 ? 'W' : 'E');
+}
 
 
 class ProgressPanel : public mforms::Box
@@ -150,10 +168,10 @@ void SpatialDrawBox::render(bool reproject)
   // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
   // clipping area to the area we want to view
 
-  visible_area.MaxLat = 179;
-  visible_area.MaxLon = 89;
-  visible_area.MinLat = -179;
-  visible_area.MinLon = -89;
+  visible_area.MaxLat = _max_lat;
+  visible_area.MaxLon = _max_lon;
+  visible_area.MinLat = _min_lat;
+  visible_area.MinLon = _min_lon;
 
   visible_area.height = height;
   visible_area.width = width;
@@ -177,8 +195,9 @@ void SpatialDrawBox::render(bool reproject)
 
   ctx.translate(base::Point(_offset_x, _offset_y));
   ctx.scale(base::Point(_zoom_level, _zoom_level));
+  ctx.set_line_width(0);
 
-  if (reproject)
+  if (reproject && !_background_layer->hidden())
     _background_layer->render(_spatial_reprojector);
 
   int i = 0;
@@ -224,10 +243,17 @@ bool SpatialDrawBox::get_progress(std::string &action, float &pct)
 
 
 SpatialDrawBox::SpatialDrawBox()
-: _background_layer(NULL), _proj(spatial::ProjMercator), _spatial_reprojector(NULL),
- _zoom_level(1.0), _offset_x(0), _offset_y(0), _ready(false), _dragging(false),
-_rendering(false), _quitting(false), _needs_reprojection(true)
+: _background_layer(NULL),
+_proj(spatial::ProjRobinson),  _spatial_reprojector(NULL),
+_zoom_level(1.0), _offset_x(0), _offset_y(0), _ready(false), _dragging(false),
+_rendering(false), _quitting(false), _needs_reprojection(true), _select_pending(false), _selecting(false)
 {
+  _displaying_restricted = false;
+  _min_lat = -179;
+  _max_lat = 179;
+  _min_lon = -89;
+  _max_lon = 89;
+
   _current_layer = NULL;
   _progress = NULL;
 }
@@ -251,7 +277,7 @@ void SpatialDrawBox::set_projection(spatial::ProjectionType proj)
 
 void SpatialDrawBox::zoom_out()
 {
-  _zoom_level -= 0.3;
+  _zoom_level -= 0.2;
   if (_zoom_level < 0)
     _zoom_level = 0;
   invalidate();
@@ -259,17 +285,40 @@ void SpatialDrawBox::zoom_out()
 
 void SpatialDrawBox::zoom_in()
 {
-  _zoom_level += 0.3;
+  _zoom_level += 0.2;
   invalidate();
 }
 
-void SpatialDrawBox::reset_view()
+
+void SpatialDrawBox::center_on(double lat, double lon)
 {
-  _zoom_level = 1.0;
-  _offset_x = 0;
-  _offset_y = 0;
+  //XXX
   invalidate();
 }
+
+
+void SpatialDrawBox::reset_view()
+{
+  _min_lat = -179;
+  _max_lat = 179;
+  _min_lon = -89;
+  _max_lon = 89;
+
+  _zoom_level = 1;
+  _offset_x = 0;
+  _offset_y = 0;
+  invalidate(_displaying_restricted);
+  _displaying_restricted = false;
+}
+
+
+
+void SpatialDrawBox::select_area()
+{
+  mforms::App::get()->set_status_text("Click and drag to select an area to display.");
+  _select_pending = true;
+}
+
 
 void SpatialDrawBox::clear()
 {
@@ -296,6 +345,11 @@ void SpatialDrawBox::set_background(spatial::Layer *layer)
   if (_background_layer)
     delete _background_layer;
   _background_layer = layer;
+}
+
+void SpatialDrawBox::set_context_menu(mforms::ContextMenu *menu)
+{
+  _menu = menu;
 }
 
 void SpatialDrawBox::add_layer(spatial::Layer *layer)
@@ -371,7 +425,25 @@ bool SpatialDrawBox::mouse_down(mforms::MouseButton button, int x, int y)
     _initial_offset_y = _offset_y;
     _drag_x = x;
     _drag_y = y;
-    _dragging = true;
+    if (_select_pending || _selecting)
+    {
+      _selecting = true;
+      _select_pending = false;
+    }
+    else
+      _dragging = true;
+  }
+  else if (button == mforms::MouseButtonRight)
+  {
+    double lat = 0, lon = 0;
+    screen_to_world(x, y, lat, lon);
+    _clicked_coordinates = std::make_pair(lat, lon);
+
+    if (_menu)
+    {
+      std::pair<int,int> p = client_to_screen(x, y);
+      _menu->popup_at(p.first, p.second);
+    }
   }
   return true;
 }
@@ -384,6 +456,13 @@ bool SpatialDrawBox::mouse_up(mforms::MouseButton button, int x, int y)
     invalidate();
     _dragging = false;
   }
+  else if (button == mforms::MouseButtonLeft && _selecting)
+  {
+    restrict_displayed_area(_drag_x, _drag_y, x, y);
+    _selecting = false;
+    set_needs_repaint();
+    mforms::App::get()->set_status_text("");
+  }
   return true;
 }
 
@@ -395,7 +474,35 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
     _offset_y = _initial_offset_y + y - _drag_y;
     set_needs_repaint();
   }
+  else if (_selecting)
+  {
+    _select_x = x;
+    _select_y = y;
+    set_needs_repaint();
+  }
+
+  double lat, lon;
+  if (screen_to_world(x, y, lat, lon))
+    position_changed_cb(format_latitude(lat), format_longitude(lon));
+  else
+    position_changed_cb("", "");
+
   return true;
+}
+
+
+void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2)
+{
+  _zoom_level = 1.0;
+  _offset_x = 0;
+  _offset_y = 0;
+
+  // calculate the area in lat/lon
+  //TODO
+
+
+  _displaying_restricted = true;
+  invalidate(true);
 }
 
 void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
@@ -423,6 +530,7 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
     cr.save();
     cr.translate(base::Point(_offset_x, _offset_y));
     cr.scale(base::Point(_zoom_level, _zoom_level));
+    cr.set_line_width(0);
     _background_layer->repaint(cr, _zoom_level, base::Rect());
     cr.restore();
   }
@@ -433,16 +541,50 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
     cr.move_to(base::Point(10, 20));
     cr.show_text("Repainting...");
   }
+
+  if (_selecting)
+  {
+    cr.set_line_width(2);
+    cr.set_color(base::Color(0, 0, 0));
+    cr.rectangle(base::Rect(std::min(_drag_x, _select_x), std::min(_drag_y, _select_y),
+                            abs(_select_x-_drag_x), abs(_select_y-_drag_y)));
+    cr.stroke();
+  }
+
+  // test code (click on map to see if conversions are correct)
+  {
+    int x, y;
+    double la, lo;
+    // draw a red point in the converted coords
+    screen_to_world(_drag_x, _drag_y, la, lo);
+    world_to_screen(la, lo, x, y);
+    cr.set_color(base::Color(1,0,0));
+    cr.rectangle(x, y, 5, 5);
+    cr.fill();
+    // draw a blue point in the non-converted coords
+    cr.set_color(base::Color(0,0,0.7));
+    cr.rectangle(_drag_x, _drag_y, 3, 3);
+    cr.fill();
+  }
 }
 
-void SpatialDrawBox::screen_to_world(int x, int y, double &lat, double &lon)
+bool SpatialDrawBox::screen_to_world(int x, int y, double &lat, double &lon)
 {
   if (_spatial_reprojector)
-    _spatial_reprojector->to_latlon(x, y, lat, lon);
+  {
+    // TODO check if x, y are inside the envelope
+    if (x >= _offset_x && y >= _offset_y)
+      return _spatial_reprojector->to_latlon(x - _offset_x, y - _offset_y, lat, lon);
+  }
+  return false;
 }
 
 void SpatialDrawBox::world_to_screen(double lat, double lon, int &x, int &y)
 {
   if (_spatial_reprojector)
-      _spatial_reprojector->from_latlon(lat, lon, x, y);
+  {
+    _spatial_reprojector->from_latlon(lat, lon, x, y);
+    x += _offset_x;
+    y += _offset_y;
+  }
 }

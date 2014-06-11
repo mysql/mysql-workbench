@@ -66,6 +66,9 @@ private:
   mforms::ToolBarItem *_projection_picker;
   mforms::TreeNodeView *_layer_tree;
   mforms::ContextMenu *_layer_menu;
+  mforms::ContextMenu *_map_menu;
+
+  mforms::Label *_mouse_pos_label;
 
   SpatialDrawBox *_viewer;
 
@@ -75,6 +78,10 @@ private:
 
   void work_started(mforms::View *progress, bool reprojecting);
   void work_finished(mforms::View *progress);
+
+  void update_coordinates(const std::string &lat, const std::string &lon);
+  void jump_to();
+  void copy_coordinates();
 
 public:
   SpatialDataView(SqlEditorResult *owner);
