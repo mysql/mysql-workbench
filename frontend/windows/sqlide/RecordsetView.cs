@@ -42,10 +42,6 @@ namespace MySQL.Grt.Db
     public RecordsetView()
     {
       InitializeComponent();
-
-    //  dataSearchTimer = new Timer();
-    //  dataSearchTimer.Interval = 500;
-    //  dataSearchTimer.Tick += new EventHandler(OnDataSearchApply);
     }
 
     public void SetupRecordset(RecordsetWrapper recordset)
