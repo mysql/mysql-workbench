@@ -578,6 +578,7 @@ grt::StringRef Recordset::do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordse
 
 void Recordset::apply_changes_(Recordset_data_storage::Ptr data_storage_ptr)
 {
+  // TODO: not sure we need this function anymore. The SQL IDE form always redirects apply_changes now.
   task->finish_cb(boost::bind(&Recordset::on_apply_changes_finished, this));
   task->exec(true,
     boost::bind(&Recordset::do_apply_changes, this, _1, weak_ptr_from(this), data_storage_ptr));
@@ -1578,6 +1579,12 @@ void Recordset::apply_changes()
     flush_ui_changes_cb();
 
   apply_changes_cb();
+
+  // If the SQL IDE redirects apply_changes_cb() we won't get a call to the task finish callback.
+  // This causes some other notifications not to be called (especially changed rows).
+  // Currently this callback is always redirected, so we can assume rows_changed() is not called multiple times.
+  if (rows_changed)
+    rows_changed();
 }
 
 ActionList & Recordset::action_list()
