@@ -673,6 +673,19 @@ spatial::Converter::Converter(ProjectionView view, char *src_wkt, char *dst_wkt)
   change_projection(src_wkt, dst_wkt);
 }
 
+const char* spatial::Converter::dec_to_dms(double angle, AxisType axis, int precision)
+{
+  switch(axis)
+  {
+  case AxisLat:
+    return GDALDecToDMS(angle, "Lat", precision);
+  case AxisLon:
+    return GDALDecToDMS(angle, "Long", precision);
+  default:
+    throw std::logic_error("Unknown axis type\n");
+  }
+}
+
 spatial::Converter::~Converter()
 {
   base::RecMutexLock mtx(_projection_protector);
@@ -734,19 +747,42 @@ void spatial::Converter::change_projection(char *src_wkt, char *dst_wkt)
   GDALInvGeoTransform(_adf_projection, _inv_projection);
 }
 
-bool spatial::Converter::to_latlon(int x, int y, double &lat, double &lon)
+void spatial::Converter::to_projected(int x, int y, double &lat, double &lon)
 {
   base::RecMutexLock mtx(_projection_protector);
   lat = _adf_projection[3] + (double) x * _adf_projection[4] + (double) y * _adf_projection[5];
   lon = _adf_projection[0] + (double) x * _adf_projection[1] + (double) y * _adf_projection[2];
-  return _proj_to_geo->Transform(1, &lat, &lon);
 }
 
-void spatial::Converter::from_latlon(double lat, double lon, int &x, int &y)
+void spatial::Converter::from_projected(double lat, double lon, int &x, int &y)
 {
   base::RecMutexLock mtx(_projection_protector);
   x = _inv_projection[0] + _inv_projection[1] * lat;
   y = _inv_projection[3] + _inv_projection[5] * lon;
+}
+
+bool spatial::Converter::to_latlon(int x, int y, double &lat, double &lon)
+{
+  to_projected(x, y, lat, lon);
+  //for lat/lon projection, coordinate order is reversed and it's lon/lat
+  return from_proj_to_latlon(lon, lat);
+}
+
+bool spatial::Converter::from_latlon(double lat, double lon, int &x, int &y)
+{
+  bool ret_val = from_latlon_to_proj(lon, lat);
+  from_projected(lon, lat, x, y);
+  return ret_val;
+}
+
+bool spatial::Converter::from_latlon_to_proj(double &lat, double &lon)
+{
+  return _geo_to_proj->Transform(1, &lat, &lon);
+}
+
+bool spatial::Converter::from_proj_to_latlon(double &lat, double &lon)
+{
+  return _proj_to_geo->Transform(1, &lat, &lon);
 }
 
 void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_container)
@@ -771,7 +807,7 @@ void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_con
     for(size_t i=0; i < (*it).points.size() && !_interrupt; i++)
     {
       int x, y;
-      from_latlon((*it).points[i].x, (*it).points[i].y, x, y);
+      from_projected((*it).points[i].x, (*it).points[i].y, x, y);
       (*it).points[i].x = x;
       (*it).points[i].y = y;
     }
