@@ -25,6 +25,7 @@
 #include <gdal/gdal_pam.h>
 #include <gdal/memdataset.h>
 #include <gdal/gdal_alg.h>
+#include <gdal/gdal.h>
 #include <deque>
 #include "base/geometry.h"
 
@@ -136,6 +137,11 @@ namespace spatial
     ShapeUnknown, ShapePoint, ShapeLineString, ShapeLinearRing, ShapePolygon
   };
 
+  enum AxisType
+  {
+    AxisLat = 1, AxisLon = 2
+  };
+
   struct ShapeContainer
   {
     ShapeType type;
@@ -222,11 +228,19 @@ namespace spatial
     ~Converter();
     void change_projection(char *src_wkt = NULL, char *dst_wkt = NULL);
     void change_view(ProjectionView view);
+    void from_projected(double lat, double lon, int &x, int &y);
+    void to_projected(int x, int y, double &lat, double &lon);
+
     bool to_latlon(int x, int y, double &lat, double &lon);
-    void from_latlon(double lat, double lon, int &x, int &y);
+    bool from_latlon(double lat, double lon, int &x, int &y);
+
+    bool from_latlon_to_proj(double &lat, double &lon);
+    bool from_proj_to_latlon(double &lat, double &lon);
+    static const char* dec_to_dms(double angle, AxisType axis, int precision);
     void transform_points(std::deque<ShapeContainer> &shapes_container);
     void interrupt();
   };
+
 
   class Layer;
 

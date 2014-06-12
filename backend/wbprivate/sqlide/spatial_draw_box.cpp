@@ -483,7 +483,7 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
 
   double lat, lon;
   if (screen_to_world(x, y, lat, lon))
-    position_changed_cb(format_latitude(lat), format_longitude(lon));
+    position_changed_cb(spatial::Converter::dec_to_dms(lat, spatial::AxisLat, 2), spatial::Converter::dec_to_dms(lon, spatial::AxisLon, 2));
   else
     position_changed_cb("", "");
 
@@ -563,9 +563,21 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
     cr.fill();
     // draw a blue point in the non-converted coords
     cr.set_color(base::Color(0,0,0.7));
-    cr.rectangle(_drag_x, _drag_y, 3, 3);
+    cr.rectangle(_drag_x, _drag_y, 10, 10);
     cr.fill();
   }
+
+  //test code 2
+//  {
+//    int x = 0, y = 0;
+//    double la, _la, lo, _lo;
+//    _spatial_reprojector->to_latlon(x, y, la, lo, true);
+//    fprintf();
+//
+//    _spatial_reprojector->from_latlon(lo, la, x, y);
+//    fprintf(stderr, "X: %d, Y: %d\n", x, y);
+//
+//  }
 }
 
 bool SpatialDrawBox::screen_to_world(int x, int y, double &lat, double &lon)
