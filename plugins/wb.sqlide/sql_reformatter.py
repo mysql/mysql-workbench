@@ -1,4 +1,4 @@
-# Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,9 +16,7 @@
 # 02110-1301  USA
 
 import string
-import sys
 import grt
-import copy
 
 INDENTATION = "    "
 
@@ -284,7 +282,10 @@ class SQLPrettifier:
     
     def sym_variable_aux(self, node):
         return flatten_node_unspaced(node)
-    
+
+    def sym_select_var_ident(self, node):
+        return flatten_node_unspaced(node)
+
     ### SELECT ###
     def sym_select_init(self, node):
         select = node_direct_child(node, 0)
@@ -521,7 +522,7 @@ class SQLPrettifier:
                 
                 text += node_value(children[-1])
                 return text
-        except Exception, exc:
+        except Exception:
             import traceback
             traceback.print_exc()
         
@@ -789,7 +790,7 @@ def formatter_for_statement_ast(ast):
     elif statement[0] == "delete":
         return DeleteSQLPrettifier
     elif statement[0] == "create":
-        create = statement[2][0]
+        #unused create = statement[2][0]
         object = statement[2][1]
         if object[0] == "TABLE_SYM":
             return SQLPrettifier

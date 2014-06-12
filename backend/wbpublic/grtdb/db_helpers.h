@@ -17,13 +17,14 @@
  * 02110-1301  USA
  */
 
-#ifndef __db_helpers_h__
-#define __db_helpers_h__
+#pragma once
 
 #include "wbpublic_public_interface.h"
 
 #include <grts/structs.db.mgmt.h>
 #include <string>
+
+typedef grt::ListRef<db_CharacterSet> GrtCharacterSetsRef;
 
 namespace bec {
   std::string WBPUBLICBACKEND_PUBLIC_FUNC get_host_identifier_for_connection(const db_mgmt_ConnectionRef &connection);
@@ -45,5 +46,3 @@ namespace bec {
   bool WBPUBLICBACKEND_PUBLIC_FUNC is_supported_mysql_version(int mysql_major, int mysql_minor, int mysql_release);
   bool WBPUBLICBACKEND_PUBLIC_FUNC is_supported_mysql_version(const std::string &mysql_version);
 };
-
-#endif /* __db_helpers_h__ */

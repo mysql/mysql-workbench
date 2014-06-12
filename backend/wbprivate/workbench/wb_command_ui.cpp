@@ -1071,7 +1071,7 @@ void CommandUI::add_builtin_command(const std::string &name,
   cmd.validate= validate;
 
   if (_builtin_commands.find(name) != _builtin_commands.end())
-    g_message("%s built-in command is being overwritten", name.c_str());
+    log_warning("%s built-in command is being overwritten", name.c_str());
   
   _builtin_commands[name]= cmd;
 }

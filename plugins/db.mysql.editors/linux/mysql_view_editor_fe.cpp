@@ -47,7 +47,7 @@ class DbMySQLViewEditor : public PluginEditorBase
 
 DbMySQLViewEditor::DbMySQLViewEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
     : PluginEditorBase(m ,grtm, args, "modules/data/editor_view.glade")
-    , _be(new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0]), get_rdbms_for_db_object(args[0])))
+    , _be(new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0])))
 {
   xml()->get_widget("mysql_view_editor_notebook", _editor_notebook);
 
@@ -108,7 +108,7 @@ bool DbMySQLViewEditor::switch_edited_object(bec::GRTManager *grtm, const grt::B
   Gtk::VBox *ddl_win;
   xml()->get_widget("editor_placeholder", ddl_win);
  
-  _be = new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  _be = new MySQLViewEditorBE(grtm, db_mysql_ViewRef::cast_from(args[0]));
   embed_code_editor(_be->get_sql_editor()->get_container(), ddl_win);
   _be->load_view_sql();
 

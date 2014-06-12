@@ -31,7 +31,7 @@ using namespace MySQL::Grt::Db;
 //--------------------------------------------------------------------------------------------------
 
 SchemaEditorWrapper::SchemaEditorWrapper(::bec::SchemaEditorBE *inn)
-  : DBObjectEditorBE(inn)
+  : DBObjectEditorWrapper(inn)
 {
 }
 

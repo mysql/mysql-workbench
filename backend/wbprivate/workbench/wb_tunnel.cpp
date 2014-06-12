@@ -364,7 +364,7 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
     std::string target = parameter_values.get_string("hostName");
     size_t target_port = parameter_values.get_int("port", 3306);
 
-    target = strfmt("%s:%zi", target.c_str(), target_port);
+    target += ":" + base::to_string(target_port);
 
     // before anything, check if a tunnel already exists for this server/user/target tuple
     _wb->get_grt_manager()->replace_status_text("Looking for existing SSH tunnel to "+server+"...");

@@ -72,7 +72,7 @@ std::string AppWrapper::get_resource_path(App *app, const std::string &file)
   }
 
   if (f.empty())
-     g_message("file %s not found", file.c_str());
+     g_message("file %s not found", file.c_str()); // TODO: is this a reason to fail a test? If not, remove the message.
   return f;
 }
 

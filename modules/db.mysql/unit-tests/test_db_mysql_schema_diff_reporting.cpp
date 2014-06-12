@@ -29,7 +29,6 @@
 #include "db_rev_eng_be.h"
 
 #include "grti/diffsqlgen.h"
-//#include "grti/wb_model_reporting.h"
 
 #include "grt_manager.h"
 #include "wb_helpers.h"
@@ -39,14 +38,6 @@
 #include "changeobjects.h"
 #include "changelistobjects.h"
 #include "dbobjectmatch.h"
-
-//RegisterTemplateFilename(TEST_01_FN, "data/modules_grt/schema_reporting/schema_reporting_test_1.tpl.html");
-//#include "data/modules_grt/schema_reporting/schema_reporting_test_1.tpl.html.varnames.h"
-//
-//#define TEST_01_FO "data/modules_grt/schema_reporting/res_schema_reporting_test_1.html"
-//
-//#define TEST_02_FI "data/modules_grt/schema_reporting/basic_schema_report_test_model.mwb"
-//#define TEST_02_FO "data/modules_grt/schema_reporting/res_schema_reporting_test_2.html"
 
 using namespace std;
 

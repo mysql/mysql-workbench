@@ -2,14 +2,14 @@ Source: mysql-workbench
 Section: utils
 Priority: extra
 Maintainer: MySQL Workbench team <workbench@sun.com>
-Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-2.4-dev, libxml2-dev, libmysqlclient-dev, libgl1-mesa-dev, libpcre3-dev, liblua5.1-0-dev, python-dev (>= 2.5), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, libctemplate-dev, cmake, libtinyxml-dev, swig (>= 1.3)
+Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-2.4-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, liblua5.1-0-dev, python-dev (>= 2.5), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, libctemplate-dev, cmake, libtinyxml-dev, swig (>= 1.3)
 Standards-Version: 3.7.2
 Homepage: http://dev.mysql.com/workbench/
 
 Package: mysql-workbench-community
 Replaces: mysql-workbench-gpl, mysql-workbench-oss
 Architecture: i386 amd64
-Depends: ${shlibs:Depends}, python-paramiko, python-pexpect, mysql-client, python-pysqlite2
+Depends: ${shlibs:Depends}, python-paramiko, python-pexpect, python-pysqlite2, mysql-client|virtual-mysql-client
 Suggests: gnome-keyring
 Description: MySQL Workbench
  MySQL Workbench is a modeling tool that allows you to design

@@ -51,6 +51,8 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLSQLExport : public DbMySQLValidationP
   bool _skip_foreign_keys;
   bool _skip_fk_indexes;
   bool _case_sensitive;
+  bool _gen_doc_props;
+  bool _gen_attached_scripts;
 
   boost::shared_ptr<bec::GrtStringListModel> _users_model;
   boost::shared_ptr<bec::GrtStringListModel> _users_exc_model;

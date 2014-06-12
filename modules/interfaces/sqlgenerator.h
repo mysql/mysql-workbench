@@ -22,6 +22,7 @@
 
 #include <grtpp_module_cpp.h>
 #include "grts/structs.h"
+#include "grts/structs.db.h"
 
 // diff sql generation interface definition header
 
@@ -49,7 +50,7 @@ public:
   virtual grt::DictRef generateSQLForDifferences(grt::Ref<GrtNamedObject>, grt::Ref<GrtNamedObject>, grt::DictRef options)= 0;
   virtual grt::StringRef generateReportForDifferences(grt::Ref<GrtNamedObject> org_object, grt::Ref<GrtNamedObject> oth_object, const grt::DictRef& options)= 0;
   virtual ssize_t makeSQLExportScript(grt::Ref<GrtNamedObject>, grt::DictRef options, const grt::DictRef& objectCreateSQL, const grt::DictRef& objectDropSQL)= 0;
-  virtual ssize_t makeSQLSyncScript(grt::DictRef options, const grt::StringListRef& sql_list, const grt::ListRef<GrtNamedObject>& obj_list)= 0;
+  virtual ssize_t makeSQLSyncScript(db_CatalogRef cat, grt::DictRef options, const grt::StringListRef& sql_list, const grt::ListRef<GrtNamedObject>& obj_list)= 0;
   virtual std::string makeCreateScriptForObject(GrtNamedObjectRef object)= 0;
   virtual grt::DictRef getDefaultTraits() const= 0;
   virtual grt::DictRef getTraitsForServerVersion(const int major, const int minor, const int revision) = 0;

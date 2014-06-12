@@ -1,0 +1,8 @@
+New Features in 6.1.0
+---------------------
+
+Modeling:
+- Include stored scripts in model forward engineering and model synchronization scripts
+- Select where in forward engineering and model synchronization scripts should stored notes appear
+- Option to create triggers after INSERTs in forward engineering script
+- Button to toggle whether to show only changed objects in sync differences page

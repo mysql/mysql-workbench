@@ -23,6 +23,8 @@
 #include "workbench/wb_context_names.h"
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/ui/mforms_ObjectReference_impl.h"
+
+#include "grtsqlparser/sql_facade.h"
 #include "grtdb/editor_dbobject.h"
 #include "grtdb/db_helpers.h"
 
@@ -428,7 +430,7 @@ static void toggle_limit(mforms::ToolBarItem *item, SqlEditorForm *sql_editor_fo
 
 //--------------------------------------------------------------------------------------------------
 
-boost::shared_ptr<mforms::ToolBar> SqlEditorForm::setup_editor_toolbar(Sql_editor::Ref editor)
+boost::shared_ptr<mforms::ToolBar> SqlEditorForm::setup_editor_toolbar(MySQLEditor::Ref editor)
 {
   boost::shared_ptr<mforms::ToolBar> tbar(new mforms::ToolBar(mforms::SecondaryToolBar));
 #ifdef _WIN32
@@ -575,7 +577,7 @@ bool SqlEditorForm::run_live_object_alteration_wizard(const std::string &alter_s
   
   SqlScriptRunWizard wizard(_grtm, rdbms_version(), algorithm, lock);
   if (obj_editor)
-    wizard.regenerate_script = boost::bind(&SqlEditorTreeController::generate_alter_script, get_live_tree(), obj_editor->get_rdbms(),
+    wizard.regenerate_script = boost::bind(&SqlEditorTreeController::generate_alter_script, get_live_tree(), rdbms(),
                                            obj_editor->get_dbobject(), _1, _2);
   scoped_connection c1(on_sql_script_run_error.connect(boost::bind(&SqlScriptApplyPage::on_error, wizard.apply_page, _1, _2, _3)));
   scoped_connection c2(on_sql_script_run_progress.connect(boost::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, _1)));
@@ -623,7 +625,7 @@ int SqlEditorForm::sql_script_stats(long, long)
 }
 
 
-void SqlEditorForm::on_recordset_context_menu_show(Recordset::Ptr rs_ptr, Sql_editor::Ptr editor_ptr)
+void SqlEditorForm::on_recordset_context_menu_show(Recordset::Ptr rs_ptr, MySQLEditor::Ptr editor_ptr)
 {
   Recordset::Ref rs(rs_ptr.lock());
   if (rs)

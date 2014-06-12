@@ -20,7 +20,7 @@
 #include "base/wb_iterators.h"
 #include "base/file_utilities.h"
 #include "base/string_utilities.h"
-
+#include "base/util_functions.h"
 
 #include "wb_component_physical.h"
 #include "wb_model_diagram_form.h"
@@ -410,8 +410,8 @@ db_SchemaRef WBComponentPhysical::add_new_db_schema(const workbench_physical_Mod
   schema->owner(model->catalog());
   schema->name(name);
 
-  schema->createDate(bec::fmttime(0, DATETIME_FMT));
-  schema->lastChangeDate(bec::fmttime(0, DATETIME_FMT));
+  schema->createDate(base::fmttime(0, DATETIME_FMT));
+  schema->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
   model->catalog()->schemata().insert(schema);
 
@@ -644,8 +644,8 @@ db_ScriptRef WBComponentPhysical::add_new_stored_script(const workbench_physical
   script->owner(model);
   script->name(grt::get_name_suggestion_for_list_object(
                                                         grt::ObjectListRef::cast_from(model->scripts()), name, false));
-  script->createDate(bec::fmttime(0, DATETIME_FMT));
-  script->lastChangeDate(bec::fmttime(0, DATETIME_FMT));
+  script->createDate(base::fmttime(0, DATETIME_FMT));
+  script->lastChangeDate(base::fmttime(0, DATETIME_FMT));
   script->filename(_wb->create_attached_file("script", path));
 
   grt::AutoUndo undo(get_grt());
@@ -670,8 +670,8 @@ GrtStoredNoteRef WBComponentPhysical::add_new_stored_note(const workbench_physic
   note->owner(model);
   note->name(grt::get_name_suggestion_for_list_object(
     grt::ObjectListRef::cast_from(model->notes()), name, false));
-  note->createDate(bec::fmttime(0, DATETIME_FMT));
-  note->lastChangeDate(bec::fmttime(0, DATETIME_FMT));
+  note->createDate(base::fmttime(0, DATETIME_FMT));
+  note->lastChangeDate(base::fmttime(0, DATETIME_FMT));
   note->filename(_wb->create_attached_file("note", path));
 
   grt::AutoUndo undo(get_grt());
@@ -1307,10 +1307,12 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
                                                        routine_group->name().c_str()),
                                                 _("Delete"), _("Cancel"), _("Keep"));
       else
-        result= mforms::Utilities::show_message(_("Delete Routines"),
-                                                strfmt(_("There are %zu routines in '%s' that are not in any other group, would you like to delete them?"),
-                                                       ungrouped_routines.size(), routine_group->name().c_str()),
-                                                _("Delete"), _("Cancel"), _("Keep"));
+      {
+        result = mforms::Utilities::show_message(_("Delete Routines"),
+          strfmt(_("There are %lu routines in '%s' that are not in any other group, would you like to delete them?"),
+          (unsigned long)ungrouped_routines.size(), routine_group->name().c_str()),
+          _("Delete"), _("Cancel"), _("Keep"));
+      }
       
       if (result == mforms::ResultCancel)
       {

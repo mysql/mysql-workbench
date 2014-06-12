@@ -51,7 +51,7 @@ public:
 #pragma warning(push)
 #pragma warning(disable:4355)
   TestTableEditor(GRTManager *grtm, db_TableRef table, db_mgmt_RdbmsRef rdbms)
-    : TableEditorBE(grtm, table, rdbms), _table(table), _columns(this), _indexes(this)
+    : TableEditorBE(grtm, table), _table(table), _columns(this), _indexes(this)
     {
     }
 #pragma warning(pop)

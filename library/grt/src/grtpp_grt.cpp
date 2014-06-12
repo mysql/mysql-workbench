@@ -667,10 +667,9 @@ bool GRT::load_module(const std::string &path, bool refresh)
     {
       log_debug2("Trying to load module '%s' (%s)\n", path.c_str(), (*loader)->get_loader_name().c_str());
       
-      Module *module= (*loader)->init_module(path);
-      if (!module)
-        log_error("Failed loading module '%s' (%s)\n", path.c_str(), (*loader)->get_loader_name().c_str());
-      else
+      // Problems, if any, are logged in init_module.
+      Module *module = (*loader)->init_module(path);
+      if (module)
       {
         try 
         {
@@ -1019,9 +1018,9 @@ void GRT::pop_message_handler()
 
 bool GRT::handle_message(const Message &msg, void *sender)
 {
-  if (_message_slot_stack.empty())
-    log_error("Unhandled message: %s\n", msg.format().c_str());
-  else
+  // Don't log any message if there's no message slot is occupied. It just means
+  // we don't want anything logged.
+  if (!_message_slot_stack.empty())
   {
     int i = 0;
     MessageSlot slot;
@@ -1041,7 +1040,6 @@ bool GRT::handle_message(const Message &msg, void *sender)
         return true;
     }
   }
-  log_error("Unhandled message (%zi): %s\n", _message_slot_stack.size(), msg.format().c_str());
   return false;
 }
 
@@ -1106,7 +1104,7 @@ void GRT::send_warning(const std::string &message, const std::string &details, v
   msg.progress= 0.0;
   handle_message(msg, sender);
   
-  log_warning("%s\t%s", message.c_str(), details.c_str());
+  log_warning("%s\t%s\n", message.c_str(), details.c_str());
 }
 
 

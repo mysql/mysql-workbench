@@ -189,7 +189,7 @@ std::string tut::Test_object_base<db_mysql_plugin_test>::run_sync_plugin_generat
 {
   sync_plugin.reset(new DbMySQLScriptSyncTest(tester.wb->get_grt_manager()));
   static_cast<DbMySQLScriptSyncTest *>(sync_plugin.get())->set_model_catalog(mod_cat);
-  sync_plugin->init_diff_tree(std::vector<std::string>(), mod_cat, org_cat, grt::StringListRef());
+  sync_plugin->init_diff_tree(std::vector<std::string>(), mod_cat, org_cat);
   return sync_plugin->generate_diff_tree_script();
 }
 
@@ -200,7 +200,7 @@ void tut::Test_object_base<db_mysql_plugin_test>::run_sync_plugin_apply_to_model
 {
   sync_plugin.reset(new DbMySQLScriptSyncTest(tester.wb->get_grt_manager()));
   static_cast<DbMySQLScriptSyncTest *>(sync_plugin.get())->set_model_catalog(mod_cat);
-  sync_plugin->init_diff_tree(std::vector<std::string>(), org_cat, ValueRef(), grt::StringListRef());
+  sync_plugin->init_diff_tree(std::vector<std::string>(), org_cat, ValueRef());
   sync_plugin->apply_changes_to_model();
 }
 
@@ -263,7 +263,7 @@ void tut::Test_object_base<db_mysql_plugin_test>::apply_sql_to_model(const std::
 
   DbMySQLScriptSyncTest p(tester.wb->get_grt_manager());
   p.set_model_catalog(mod_cat);
-  boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), mod_cat, org_cat, grt::StringListRef());
+  boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), mod_cat, org_cat);
   
   // apply everything back to model
   tree->set_apply_direction(tree->get_root(), DiffNode::ApplyToModel, true);
@@ -773,7 +773,7 @@ TEST_FUNCTION(55)
 
   DbMySQLScriptSyncTest p(tester.wb->get_grt_manager());
   p.set_model_catalog(mod_cat);
-  boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), org_cat, ValueRef(), grt::StringListRef());
+  boost::shared_ptr<DiffTreeBE> tree= p.init_diff_tree(std::vector<std::string>(), org_cat, ValueRef());
   
   // change apply direction for table table1
   bec::NodeId mydb_node= tree->get_child(NodeId(), 0);

@@ -93,11 +93,11 @@ AutoCompleteCache::AutoCompleteCache(const std::string &connection_id,
 
 void AutoCompleteCache::shutdown()
 {
-  base::MutexLock sd_lock(_shutdown_mutex);
+  base::RecMutexLock sd_lock(_shutdown_mutex);
   _shutdown = true;
 
   {
-    base::MutexLock lock(_pending_mutex);
+    base::RecMutexLock lock(_pending_mutex);
     _pending_refresh_schema.clear();
     _feedback = NULL;
   }
@@ -130,8 +130,8 @@ std::vector<std::string>  AutoCompleteCache::get_matching_schema_names(const std
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::MutexLock sd_lock(_shutdown_mutex);
-    base::MutexLock lock(_sqconn_mutex);
+    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT name FROM schemas WHERE name LIKE ? ESCAPE '\\'");
     q.bind(1, base::escape_sql_string(prefix, true) + "%");
     if (q.emit())
@@ -167,8 +167,8 @@ std::vector<std::string> AutoCompleteCache::get_matching_table_names(const std::
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::MutexLock sd_lock(_shutdown_mutex);
-    base::MutexLock lock(_sqconn_mutex);
+    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT name FROM tables WHERE schema LIKE ? ESCAPE '\\' AND name LIKE ? ESCAPE '\\'");
     q.bind(1, schema.size() == 0 ? "%" : base::escape_sql_string(schema, true));
     q.bind(2, base::escape_sql_string(prefix, true) + "%");
@@ -205,8 +205,8 @@ std::vector<std::string> AutoCompleteCache::get_matching_column_names(const std:
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::MutexLock sd_lock(_shutdown_mutex);
-    base::MutexLock lock(_sqconn_mutex);
+    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT name FROM columns WHERE schema LIKE ? ESCAPE '\\' "
       "AND tabl LIKE ? ESCAPE '\\' AND name LIKE ? ESCAPE '\\'");
     q.bind(1, schema.size() == 0 ? "%" : base::escape_sql_string(schema, true));
@@ -247,8 +247,8 @@ std::vector<std::string> AutoCompleteCache::get_matching_procedure_names(const s
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::MutexLock sd_lock(_shutdown_mutex);
-    base::MutexLock lock(_sqconn_mutex);
+    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT name FROM routines WHERE schema LIKE ? ESCAPE '\\' "
       "AND name LIKE ? ESCAPE '\\' AND is_function=0");
     q.bind(1, schema.size() == 0 ? "%" : base::escape_sql_string(schema, true));
@@ -287,8 +287,8 @@ std::vector<std::string> AutoCompleteCache::get_matching_function_names(const st
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::MutexLock sd_lock(_shutdown_mutex);
-    base::MutexLock lock(_sqconn_mutex);
+    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT name FROM routines WHERE schema LIKE ? ESCAPE '\\' "
       "AND name LIKE ? ESCAPE '\\' AND is_function=1");
     q.bind(1, schema.size() == 0 ? "%" : base::escape_sql_string(schema, true));
@@ -327,8 +327,8 @@ bool AutoCompleteCache::refresh_schema_cache_if_needed(const std::string &schema
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::MutexLock sd_lock(_shutdown_mutex);
-    base::MutexLock lock(_sqconn_mutex);
+    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexLock lock(_sqconn_mutex);
     sqlite::query q(*_sqconn, "SELECT last_refresh FROM schemas WHERE name LIKE ? ESCAPE '\\' ");
     q.bind(1, schema.size() == 0 ? "%" : base::escape_sql_string(schema, true));
     if (q.emit())
@@ -635,7 +635,7 @@ void AutoCompleteCache::init_db()
 
 bool AutoCompleteCache::is_schema_list_fetch_done()
 {
-  base::MutexLock lock(_sqconn_mutex);
+  base::RecMutexLock lock(_sqconn_mutex);
   sqlite::query q(*_sqconn, "select * from schemas");
   if (q.emit())
     return true;
@@ -645,7 +645,7 @@ bool AutoCompleteCache::is_schema_list_fetch_done()
 
 bool AutoCompleteCache::is_schema_tables_fetch_done(const std::string &schema)
 {
-  base::MutexLock lock(_sqconn_mutex);
+  base::RecMutexLock lock(_sqconn_mutex);
   sqlite::query q(*_sqconn, "select * from tables where schema = ?");
   q.bind(1, schema);
   if (q.emit())
@@ -655,7 +655,7 @@ bool AutoCompleteCache::is_schema_tables_fetch_done(const std::string &schema)
 
 bool AutoCompleteCache::is_schema_table_columns_fetch_done(const std::string &schema, const std::string &table)
 {
-  base::MutexLock lock(_sqconn_mutex);
+  base::RecMutexLock lock(_sqconn_mutex);
   sqlite::query q(*_sqconn, "select * from columns where schema = ? and tabl = ?");
   q.bind(1, schema);
   q.bind(2, table);
@@ -666,7 +666,7 @@ bool AutoCompleteCache::is_schema_table_columns_fetch_done(const std::string &sc
 
 bool AutoCompleteCache::is_schema_routines_fetch_done(const std::string &schema)
 {
-  base::MutexLock lock(_sqconn_mutex);
+  base::RecMutexLock lock(_sqconn_mutex);
   sqlite::query q(*_sqconn, "select * from routines where schema = ?");
   q.bind(1, schema);
   if (q.emit())
@@ -702,8 +702,8 @@ void AutoCompleteCache::update_schemas(const std::vector<std::string> &schemas)
     if (!_shutdown)
     {
       // Ensures shutdown is not done while processing
-      base::MutexLock sd_lock(_shutdown_mutex);
-      base::MutexLock lock(_sqconn_mutex);
+      base::RecMutexLock sd_lock(_shutdown_mutex);
+      base::RecMutexLock lock(_sqconn_mutex);
  
       std::map<std::string, int> old_schema_update_times;
       {
@@ -766,8 +766,8 @@ void AutoCompleteCache::update_schema_tables(const std::string &schema,
     if (!_shutdown)
     {
       // Ensures shutdown is not done while processing
-      base::MutexLock sd_lock(_shutdown_mutex);
-      base::MutexLock lock(_sqconn_mutex);
+      base::RecMutexLock sd_lock(_shutdown_mutex);
+      base::RecMutexLock lock(_sqconn_mutex);
  
       touch_schema_record(schema);
     
@@ -814,8 +814,8 @@ void AutoCompleteCache::update_schema_routines(const std::string &schema,
     if (!_shutdown)
     {
       // Ensures shutdown is not done while processing
-      base::MutexLock sd_lock(_shutdown_mutex);
-      base::MutexLock lock(_sqconn_mutex);
+      base::RecMutexLock sd_lock(_shutdown_mutex);
+      base::RecMutexLock lock(_sqconn_mutex);
     
       touch_schema_record(schema);
 
@@ -863,8 +863,8 @@ void AutoCompleteCache::update_table_columns(const std::string &schema, const st
     if (!_shutdown)
     {
       // Ensures shutdown is not done while processing
-      base::MutexLock sd_lock(_shutdown_mutex);
-      base::MutexLock lock(_sqconn_mutex);
+      base::RecMutexLock sd_lock(_shutdown_mutex);
+      base::RecMutexLock lock(_sqconn_mutex);
       try
       {
         sqlide::Sqlite_transaction_guarder  trans(_sqconn, false); //will be committed when will go out of the scope
@@ -909,8 +909,8 @@ void AutoCompleteCache::add_pending_refresh(const std::string& task)
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::MutexLock sd_lock(_shutdown_mutex);
-    base::MutexLock lock(_pending_mutex);
+    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexLock lock(_pending_mutex);
     if ((!task.empty() || !_schema_list_fetched) && std::find(_pending_refresh_schema.begin(), _pending_refresh_schema.end(), task)
         == _pending_refresh_schema.end())
     {
@@ -930,8 +930,8 @@ bool AutoCompleteCache::get_pending_refresh(std::string &task)
   if (!_shutdown)
   {
     // Ensures shutdown is not done while processing
-    base::MutexLock sd_lock(_shutdown_mutex);
-    base::MutexLock lock(_pending_mutex);
+    base::RecMutexLock sd_lock(_shutdown_mutex);
+    base::RecMutexLock lock(_pending_mutex);
 
     if (!_pending_refresh_schema.empty())
     {

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -209,7 +209,7 @@ static void scrollpanel_scroll_to(mforms::ScrollPanel *self, int x, int y)
 {
   MFScrollPanelImpl *panel= self->get_data();
   if (panel)
-    [panel scrollPoint: NSMakePoint(x, y)];
+    [[panel documentView] scrollPoint: NSMakePoint(x, y)];
 }
 
 

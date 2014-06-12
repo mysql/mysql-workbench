@@ -342,7 +342,7 @@ bool SynchronizeDifferencesPage::pre_load()
   if (get_target_catalog)
     _dst = get_target_catalog();
 
-  _diff_tree= _be->init_diff_tree(std::vector<std::string>(), _src, _dst, schemas_to_skip);
+  _diff_tree= _be->init_diff_tree(std::vector<std::string>(), _src, _dst, schemas_to_skip, grt::DictRef(values().get_grt()));
 
   _tree.freeze_refresh();
   _tree.clear();
@@ -356,7 +356,7 @@ bool SynchronizeDifferencesPage::pre_load()
     for (size_t i = 0; i < _diff_tree->count(); ++i)
     {
       bec::NodeId schema(i);
-      mforms::TreeNodeRef schema_node = root->get_child(i);
+      mforms::TreeNodeRef schema_node = root->get_child((int)i);
       for (size_t j = 0; j  < _diff_tree->count_children(schema); ++j)
       {
         bec::NodeId object(_diff_tree->get_child(schema, j));
@@ -365,7 +365,7 @@ bool SynchronizeDifferencesPage::pre_load()
           schema_node->expand();
 
         // Expand the object node if it contains sub nodes with changes.
-        mforms::TreeNodeRef object_node = schema_node->get_child(j);
+        mforms::TreeNodeRef object_node = schema_node->get_child((int)j);
         for (size_t k = 0; k < _diff_tree->count_children(object); ++k)
         {
           if (_diff_tree->get_apply_direction(_diff_tree->get_child(object, k)) != DiffNode::CantApply)

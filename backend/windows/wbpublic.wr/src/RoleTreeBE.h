@@ -20,7 +20,7 @@
 #ifndef __ROLE_TREE_H__
 #define __ROLE_TREE_H__
 
-#include "DBObjectEditorBE.h"
+#include "DBObjectEditorWrapper.h"
 #include "GrtTemplates.h"
 #include "grtdb/role_tree_model.h"
 #include "ModelWrappers.h"

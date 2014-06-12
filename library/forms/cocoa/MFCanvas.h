@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#import "cocoa/MCanvasScrollView.h"
+#import "MCanvasScrollView.h"
 
 @class MCanvasViewer;
 

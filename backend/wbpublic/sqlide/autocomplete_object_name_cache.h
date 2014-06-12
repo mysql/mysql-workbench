@@ -79,15 +79,15 @@ private:
   void add_pending_refresh(const std::string& task);
   void create_worker_thread();
   
-  base::Mutex _sqconn_mutex;
+  base::RecMutex _sqconn_mutex;
   sqlite::connection *_sqconn;
 
   GThread *_refresh_thread;
   boost::interprocess::interprocess_semaphore _cache_working;
 
-  base::Mutex _shutdown_mutex;
+  base::RecMutex _shutdown_mutex;
 
-  base::Mutex _pending_mutex;
+  base::RecMutex _pending_mutex;
 
   std::list<std::string> _pending_refresh_schema;
 

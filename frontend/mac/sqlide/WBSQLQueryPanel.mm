@@ -282,7 +282,7 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     query.append("\n").append(text);
   }
 
-  Sql_editor::Ref editor = [self activeEditor];
+  MySQLEditor::Ref editor = [self activeEditor];
   if (editor)
     editor->append_text(query);
 }
@@ -432,7 +432,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 
 - (WBQueryTab*)activeQueryTab
 {
-  boost::shared_ptr<Sql_editor> be(mBackEnd->active_sql_editor());
+  boost::shared_ptr<MySQLEditor> be(mBackEnd->active_sql_editor());
   if (!be) return nil;
   
   for (id qtab in [mEditors allValues])
@@ -443,7 +443,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   return nil;  
 }
 
-- (Sql_editor::Ref)activeEditor
+- (MySQLEditor::Ref)activeEditor
 {
   return mBackEnd->active_sql_editor();
 }
@@ -452,7 +452,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
 {
   if (index >= 0)
   {
-    Sql_editor::Ref editor(mBackEnd->sql_editor(index));
+    MySQLEditor::Ref editor(mBackEnd->sql_editor(index));
     for (id tab in [mEditors allValues])
     {
       if ([tab isKindOfClass: [WBQueryTab class]] && ([tab editorController] == editor))
@@ -751,7 +751,7 @@ static int editorCreated(int editor_index, WBSQLQueryPanel *panel)
 
     if ([editor isKindOfClass: [WBQueryTab class]])
     {
-      Sql_editor::Ref ed([(WBQueryTab*)editor editorController]);
+      MySQLEditor::Ref ed([(WBQueryTab*)editor editorController]);
       
       mBackEnd->active_sql_editor_index(mBackEnd->sql_editor_index(ed));
     }
@@ -831,7 +831,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
     WBBasePanel *editor = [mEditors objectForKey: [tabViewItem identifier]];
     if ([editor isKindOfClass: [WBQueryTab class]])
     {
-      Sql_editor::Ref ed = [(WBQueryTab*)editor editorController];
+      MySQLEditor::Ref ed = [(WBQueryTab*)editor editorController];
       
       int idx = mBackEnd->sql_editor_index(ed);
       if (idx < 0)
@@ -908,7 +908,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
     id tab = [mEditors objectForKey: [item identifier]];
     if ([tab isKindOfClass: [WBQueryTab class]])
     {
-      Sql_editor::Ref editor = [tab editorController];
+      MySQLEditor::Ref editor = [tab editorController];
       
       int idx = mBackEnd->sql_editor_index(editor);
       if (idx >= 0)
@@ -926,7 +926,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
     id tab = [mEditors objectForKey: [item identifier]];
     if ([tab isKindOfClass: [WBQueryTab class]])
     {
-      Sql_editor::Ref editor = [tab editorController];
+      MySQLEditor::Ref editor = [tab editorController];
       if (editor)
       {
         int i = mBackEnd->sql_editor_index(editor);
@@ -955,7 +955,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
       id tab = [mEditors objectForKey: [item identifier]];
       if ([tab isKindOfClass: [WBQueryTab class]])
       {
-        Sql_editor::Ref editor = [tab editorController];
+        MySQLEditor::Ref editor = [tab editorController];
         if (editor)
         {
           int i = mBackEnd->sql_editor_index(editor);
@@ -971,7 +971,7 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
       id tab = [mEditors objectForKey: [item identifier]];
       if ([tab isKindOfClass: [WBQueryTab class]])
       {
-        Sql_editor::Ref editor = [tab editorController];
+        MySQLEditor::Ref editor = [tab editorController];
         if (editor)
         {        
           int i = mBackEnd->sql_editor_index(editor);

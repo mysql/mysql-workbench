@@ -97,7 +97,7 @@ static	ANTLR3_UINT32		antlr3VectorSet		(pANTLR3_VECTOR vector, ANTLR3_UINT32 ent
 static	ANTLR3_UINT32		antlr3VectorSize    (pANTLR3_VECTOR vector);
 static	ANTLR3_BOOLEAN      antlr3VectorSwap	(pANTLR3_VECTOR vector, ANTLR3_UINT32 entry1, ANTLR3_UINT32 entry2);
 
-static  void                newPool             (pANTLR3_VECTOR_FACTORY factory);
+static  ANTLR3_BOOLEAN      newPool             (pANTLR3_VECTOR_FACTORY factory);
 static  void				closeVectorFactory  (pANTLR3_VECTOR_FACTORY factory);
 static	pANTLR3_VECTOR		newVector			(pANTLR3_VECTOR_FACTORY factory);
 static	void				returnVector		(pANTLR3_VECTOR_FACTORY factory, pANTLR3_VECTOR vector);
@@ -132,7 +132,6 @@ antlr3HashTableNew(ANTLR3_UINT32 sizeHint)
 
 	ANTLR3_UINT32	bucket;	// Used to traverse the buckets
 
-    // ml: cast added.
 	table   = (pANTLR3_HASH_TABLE)ANTLR3_MALLOC(sizeof(ANTLR3_HASH_TABLE));
 
 	// Error out if no memory left
@@ -654,7 +653,6 @@ antlr3HashPut(pANTLR3_HASH_TABLE table, void * key, void * element, void (ANTLR3
     }
     else
     {
-        // ml: cast added.
         entry->keybase.key.sKey	= (pANTLR3_UINT8)key;                  /* Record the key value								*/
     }
 	entry->nextEntry		= NULL;					/* Ensure that the forward pointer ends the chain   */
@@ -1287,7 +1285,7 @@ static	void *		antrl3VectorRemove  (pANTLR3_VECTOR vector, ANTLR3_UINT32 entry)
 	return  element;
 }
 
-static  void
+static  ANTLR3_BOOLEAN
 antlr3VectorResize  (pANTLR3_VECTOR vector, ANTLR3_UINT32 hint)
 {
 	ANTLR3_UINT32	newSize;
@@ -1312,7 +1310,13 @@ antlr3VectorResize  (pANTLR3_VECTOR vector, ANTLR3_UINT32 hint)
         // We were already larger than the internal size, so we just
         // use realloc so that the pointers are copied for us
         //
-        vector->elements	= (pANTLR3_VECTOR_ELEMENT)ANTLR3_REALLOC(vector->elements, (sizeof(ANTLR3_VECTOR_ELEMENT)* newSize));
+		pANTLR3_VECTOR_ELEMENT newElements = (pANTLR3_VECTOR_ELEMENT)ANTLR3_REALLOC(vector->elements, (sizeof(ANTLR3_VECTOR_ELEMENT)* newSize));
+		if (newElements == NULL)
+		{
+			// realloc failed, but the old allocation is still there
+			return ANTLR3_FALSE;
+		}
+        vector->elements = newElements;
     }
     else
     {
@@ -1322,10 +1326,16 @@ antlr3VectorResize  (pANTLR3_VECTOR vector, ANTLR3_UINT32 hint)
         // is part of the internal or external entries, so we copy the internal ones to the new space
         //
         vector->elements	= (pANTLR3_VECTOR_ELEMENT)ANTLR3_MALLOC((sizeof(ANTLR3_VECTOR_ELEMENT)* newSize));
+		if (vector->elements == NULL)
+		{
+			// malloc failed
+			return ANTLR3_FALSE;
+		}
         ANTLR3_MEMCPY(vector->elements, vector->internal, ANTLR3_VECTOR_INTERNAL_SIZE * sizeof(ANTLR3_VECTOR_ELEMENT));
     }
 
 	vector->elementsSize	= newSize;
+	return ANTLR3_TRUE;
 }
 
 /// Add the supplied pointer and freeing function pointer to the list,
@@ -1337,7 +1347,12 @@ static	ANTLR3_UINT32    antlr3VectorAdd	    (pANTLR3_VECTOR vector, void * eleme
 	//
 	if	(vector->count == vector->elementsSize)
 	{
-		antlr3VectorResize(vector, 0);	    // Give no hint, we let it add 1024 or double it
+		// Give no hint, we let it add 1024 or double it
+		if (!antlr3VectorResize(vector, 0))
+		{
+			// Resize failed
+			return 0;
+		}
 	}
 
 	// Insert the new entry
@@ -1362,7 +1377,12 @@ antlr3VectorSet	    (pANTLR3_VECTOR vector, ANTLR3_UINT32 entry, void * element,
 	//
 	if (entry >= vector->elementsSize)
 	{
-		antlr3VectorResize(vector, entry);	// We will get at least this many 
+		// We will get at least this many
+		if (!antlr3VectorResize(vector, entry))
+		{
+			// Resize failed
+			return 0;
+		}
 	}
 
 	// Valid request, replace the current one, freeing any prior entry if told to
@@ -1493,25 +1513,40 @@ returnVector		(pANTLR3_VECTOR_FACTORY factory, pANTLR3_VECTOR vector)
 	// TODO: remove this line once happy printf("Returned vector %08X to the pool, stack size is %d\n", vector, factory->freeStack->size(factory->freeStack));
 }
 
-static void
+static ANTLR3_BOOLEAN
 newPool(pANTLR3_VECTOR_FACTORY factory)
 {
+	pANTLR3_VECTOR *newPools;
+
     /* Increment factory count
      */
-    factory->thisPool++;
+    ++factory->thisPool;
 
     /* Ensure we have enough pointers allocated
      */
-    factory->pools = (pANTLR3_VECTOR *)
-		     ANTLR3_REALLOC(	(void *)factory->pools,	    /* Current pools pointer (starts at NULL)	*/
+	newPools = (pANTLR3_VECTOR *)
+		ANTLR3_REALLOC(	(void *)factory->pools,	    /* Current pools pointer (starts at NULL)	*/
 					(ANTLR3_UINT32)((factory->thisPool + 1) * sizeof(pANTLR3_VECTOR *))	/* Memory for new pool pointers */
 					);
+	if (newPools == NULL)
+	{
+		// realloc failed, but we still have the old allocation
+		--factory->thisPool;
+		return ANTLR3_FALSE;
+	}
+	factory->pools = newPools;
 
     /* Allocate a new pool for the factory
      */
     factory->pools[factory->thisPool]	=
 			    (pANTLR3_VECTOR)
 				ANTLR3_MALLOC((size_t)(sizeof(ANTLR3_VECTOR) * ANTLR3_FACTORY_VPOOL_SIZE));
+	if (factory->pools[factory->thisPool] == NULL)
+	{
+		// malloc failed
+		--factory->thisPool;
+		return ANTLR3_FALSE;
+	}
 
 
     /* Reset the counters
@@ -1520,7 +1555,7 @@ newPool(pANTLR3_VECTOR_FACTORY factory)
 
     /* Done
      */
-    return;
+    return ANTLR3_TRUE;
 }
 
 static  void		
@@ -1643,7 +1678,6 @@ newVector(pANTLR3_VECTOR_FACTORY factory)
 
 	// If we have anything on the re claim stack, reuse it
 	//
-	// ml: cast added.
 	vector = (pANTLR3_VECTOR)factory->freeStack->peek(factory->freeStack);
 
 	if  (vector != NULL)
@@ -1664,7 +1698,11 @@ newVector(pANTLR3_VECTOR_FACTORY factory)
     {
         // We ran out of vectors in the current pool, so we need a new pool
         //
-        newPool(factory);
+        if (!newPool(factory))
+		{
+			// new pool creation failed
+			return NULL;
+		}
     }
 
     // Assuming everything went well (we are trying for performance here so doing minimal
@@ -1679,7 +1717,7 @@ newVector(pANTLR3_VECTOR_FACTORY factory)
     vector->factoryMade = ANTLR3_TRUE;
 
     // We know that the pool vectors are created at the default size, which means they
-    // will start off using their internal entry pointers. We must intialize our pool vector
+    // will start off using their internal entry pointers. We must initialize our pool vector
     // to point to its own internal entry table and not the pre-made one.
     //
     vector->elements = vector->internal;
@@ -1896,7 +1934,7 @@ intTrieDel	(pANTLR3_INT_TRIE trie, ANTLR3_INTKEY key)
     pANTLR3_INT_TRIE_NODE   p;
 
     p=trie->root;
-    // ml: removed meaningless assignment.
+
     return ANTLR3_FALSE;
 }
 
@@ -2339,7 +2377,6 @@ addEdge          (pANTLR3_TOPO topo, ANTLR3_UINT32 edge, ANTLR3_UINT32 dependenc
     {
         // We don't have any edges yet, so create an array to hold them
         //
-        // ml: cast added.
         topo->edges = (pANTLR3_BITSET*)ANTLR3_CALLOC(sizeof(pANTLR3_BITSET) * (maxEdge + 1), 1);
         if (topo->edges == NULL)
         {
@@ -2354,7 +2391,6 @@ addEdge          (pANTLR3_TOPO topo, ANTLR3_UINT32 edge, ANTLR3_UINT32 dependenc
     {
         // WE have some edges but not enough
         //
-        // ml: cast added.
         topo->edges = (pANTLR3_BITSET*)ANTLR3_REALLOC(topo->edges, sizeof(pANTLR3_BITSET) * (maxEdge + 1));
         if (topo->edges == NULL)
         {
@@ -2533,15 +2569,22 @@ sortToArray      (pANTLR3_TOPO topo)
     //
     if  (topo->edges == NULL)
     {
-        return 0;
+        return NULL;
     }
     // First we need a vector to populate with enough
-    // entries to accomodate the sorted list and another to accomodate
+    // entries to accommodate the sorted list and another to accommodate
     // the maximum cycle we could detect which is all nodes such as 0->1->2->3->0
     //
-    // ml: casts added.
     topo->sorted    = (pANTLR3_UINT32)ANTLR3_MALLOC(topo->limit * sizeof(ANTLR3_UINT32));
+	if (topo->sorted == NULL)
+	{
+		return NULL;
+	}
     topo->cycle     = (pANTLR3_UINT32)ANTLR3_MALLOC(topo->limit * sizeof(ANTLR3_UINT32));
+	if (topo->cycle == NULL)
+	{
+		return NULL;
+	}
 
     // Next we need an empty bitset to show whether we have visited a node
     // or not. This is the bit that gives us linear time of course as we are essentially
@@ -2600,7 +2643,7 @@ sortVector       (pANTLR3_TOPO topo, pANTLR3_VECTOR v)
     // we are given. This is just a convenience routine that allows you to
     // sort the children of a tree node into topological order before or
     // during an AST walk. This can be useful for optimizations that require
-    // dag reorders and also when the input stream defines thigns that are
+    // dag reorders and also when the input stream defines things that are
     // interdependent and you want to walk the list of the generated trees
     // for those things in topological order so you can ignore the interdependencies
     // at that point.
@@ -2626,8 +2669,8 @@ sortVector       (pANTLR3_TOPO topo, pANTLR3_VECTOR v)
     }
 
     // Ensure that the vector we are sorting is at least as big as the
-    // the input sequence we were adsked to sort. It does not matter if it is
-    // bigger as thaat probably just means that nodes numbered higher than the
+    // the input sequence we were asked to sort. It does not matter if it is
+    // bigger as that probably just means that nodes numbered higher than the
     // limit had no dependencies and so can be left alone.
     //
     if  (topo->limit > v->count)
@@ -2641,11 +2684,15 @@ sortVector       (pANTLR3_TOPO topo, pANTLR3_VECTOR v)
     // We need to know the locations of each of the entries
     // in the vector as we don't want to duplicate them in a new vector. We
     // just use an indirection table to get the vector entry for a particular sequence
-    // acording to where we moved it last. Then we can just swap vector entries until
+    // according to where we moved it last. Then we can just swap vector entries until
     // we are done :-)
     //
-    // ml: cast added.
     vIndex = (pANTLR3_UINT32)ANTLR3_MALLOC(topo->limit * sizeof(ANTLR3_UINT32));
+	if (vIndex == NULL)
+	{
+		// malloc failed
+		return;
+	}
 
     // Start index, each vector entry is located where you think it is
     //

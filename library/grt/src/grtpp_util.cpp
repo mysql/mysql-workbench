@@ -284,8 +284,9 @@ bool grt::set_value_by_path(const ValueRef &value, const std::string &path, cons
     else if (container.type() == ListType)
     {
       BaseListRef list(BaseListRef::cast_from(container));
-      size_t i;
-      if (sscanf(last.c_str(), "%zi", &i) != 1 || i >= list.count())
+
+      int i; // Unlikely we will ever need an index beyond 32bit.
+      if (sscanf(last.c_str(), "%i", &i) != 1 || i >= (int)list.count())
         return false;
       
       list.gset(i, new_value);

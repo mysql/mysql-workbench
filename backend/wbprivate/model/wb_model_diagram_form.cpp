@@ -1108,7 +1108,7 @@ bool ModelDiagramForm::can_paste()
   {
     if (!(*iter).is_valid())
     {
-      g_message("copy buffer has null value");
+      log_warning("copy buffer has null value");
       return false;
     }
     bool result= false;

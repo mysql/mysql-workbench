@@ -418,9 +418,11 @@ class WbAdminSchemaListTab(mforms.Box):
         self.file_btn.enable_internal_padding(False)
         self.file_btn.set_enabled(False)
 
+        self._radio_group = mforms.RadioButton.new_id()
+
         if is_importing:
             self.folderlabel = newLabel("Select the Dump Project Folder to import. You can do a selective restore.")
-            self.folderradio = newRadioButton(0)
+            self.folderradio = newRadioButton(self._radio_group)
             self.statlabel = newLabel("Press [Start Import] to start...")
             self.filelabel = newLabel("Select the SQL/dump file to import. Please note that the whole file will be imported.")
             self.single_transaction_check = None
@@ -431,7 +433,7 @@ class WbAdminSchemaListTab(mforms.Box):
         else:
             self.filelabel = newLabel("All selected database objects will be exported into a single, self-contained file.")
             self.folderlabel = newLabel("Each table will be exported into a separate file. This allows a selective restore, but may be slower.")
-            self.folderradio = newRadioButton(1)
+            self.folderradio = newRadioButton(self._radio_group)
             self.statlabel = newLabel("Press [Start Export] to start...")
             self.single_transaction_check = newCheckBox()
             #self.dump_view_check = newCheckBox()
@@ -443,10 +445,10 @@ class WbAdminSchemaListTab(mforms.Box):
         self.filelabel.set_style(mforms.SmallStyle)
 
         if is_importing:
-            self.fileradio = newRadioButton(0)
+            self.fileradio = newRadioButton(self._radio_group)
             self.fileradio.set_text("Import from Self-Contained File")
         else:
-            self.fileradio = newRadioButton(1)
+            self.fileradio = newRadioButton(self._radio_group)
             self.fileradio.set_text("Export to Self-Contained File")
             
         self.fileradio.set_size(260,-1)

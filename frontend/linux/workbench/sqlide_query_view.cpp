@@ -54,7 +54,7 @@ QueryView::QueryView(const int current_index, DbSqlEditorView* owner)
 {
   _dpoint = mforms::manage(new mforms::DockingPoint(&_dock_delegate, false));
   SqlEditorForm::Ref             be = owner->be();
-  Sql_editor::Ref            editor = be->sql_editor(current_index);
+  MySQLEditor::Ref            editor = be->sql_editor(current_index);
   Gtk::Widget&        editor_widget = *mforms::widget_for_view(editor->get_editor_control());
 
   _editor = editor;
