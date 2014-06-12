@@ -328,7 +328,7 @@ void SpatialDataView::copy_coordinates()
 {
   std::pair<double, double> p = _viewer->clicked_coordinates();
 
-  mforms::Utilities::set_clipboard_text(base::strfmt("%.6f %.6f", p.first, p.second));
+  mforms::Utilities::set_clipboard_text(base::strfmt("%.6f, %.6f", p.first, p.second));
 }
 
 

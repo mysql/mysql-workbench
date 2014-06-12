@@ -777,11 +777,13 @@ bool spatial::Converter::from_latlon(double lat, double lon, int &x, int &y)
 
 bool spatial::Converter::from_latlon_to_proj(double &lat, double &lon)
 {
+  base::RecMutexLock mtx(_projection_protector);
   return _geo_to_proj->Transform(1, &lat, &lon);
 }
 
 bool spatial::Converter::from_proj_to_latlon(double &lat, double &lon)
 {
+  base::RecMutexLock mtx(_projection_protector);
   return _proj_to_geo->Transform(1, &lat, &lon);
 }
 
