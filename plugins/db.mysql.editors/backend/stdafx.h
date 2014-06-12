@@ -29,6 +29,10 @@
 #include <map>
 #include <list>
 
-#include "grts/structs.model.h"
+#include <boost/enable_shared_from_this.hpp>
+
+#include "grts/structs.db.mgmt.h"
+#include "grts/structs.db.mysql.h"
 #include "grts/structs.db.query.h"
+#include "grts/structs.model.h"
 #include "grts/structs.workbench.physical.h"

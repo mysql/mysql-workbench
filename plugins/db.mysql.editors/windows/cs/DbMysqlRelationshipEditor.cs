@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@ namespace MySQL.GUI.Workbench.Plugins
 {
   public partial class DbMysqlRelationshipEditor : ObjectEditorPlugin
   {
-    private MySQLRelationshipEditorBE relationshipEditorBE { get { return Backend as MySQLRelationshipEditorBE; } }
+    private MySQLRelationshipEditorWrapper relationshipEditorBE { get { return Backend as MySQLRelationshipEditorWrapper; } }
     private bool refreshing = false;
 
     #region Constructors
@@ -94,7 +94,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQLRelationshipEditorBE(GrtManager, value);
+        Backend = new MySQLRelationshipEditorWrapper(GrtManager, value);
 
         RefreshFormData();
       }

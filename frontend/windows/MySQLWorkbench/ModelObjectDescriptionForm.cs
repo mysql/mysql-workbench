@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +39,7 @@ namespace MySQL.GUI.Workbench
     private bool initializing = false;
     private bool multipleObjectsSelected = false;
     private bool noItemsSelected = true;
+    private bool textHasChanged = false;
     private GrtValue activeObjList;
 
     private Timer changeTimer;
@@ -219,8 +220,11 @@ namespace MySQL.GUI.Workbench
     void PushChanges()
     {
       changeTimer.Stop();
-      if (activeObjList != null)
+      if (activeObjList != null && textHasChanged)
+      {
+        textHasChanged = false;
         wbContext.set_description_for_selection(activeObjList, ObjectDescription);
+      }
     }
 
     #endregion
@@ -240,7 +244,7 @@ namespace MySQL.GUI.Workbench
     }
 
     /// <summary>
-    /// if not initalizing, trigger change timer
+    /// if not initializing, trigger change timer
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -248,6 +252,8 @@ namespace MySQL.GUI.Workbench
     {
       if (!Initializing)
       {
+        textHasChanged = true;
+
         // Start or restart change timer
         changeTimer.Stop();
         changeTimer.Start();

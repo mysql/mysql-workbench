@@ -299,7 +299,7 @@ class WbAdminPSBaseTab(mforms.Box):
         if not self.ctrl_be.is_sql_connected():
             text = ("There is no connection to the MySQL Server.", "This functionality requires an established connection to a running MySQL server to work.")
         elif not self.ps_usable():
-            text = ("Performance Schema Unavailable", "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.5 or newer, with the performance_schema feature enabled.")
+            text = ("Performance Schema Unavailable", "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
         else:
             text = self.ps_helper_needs_installation()
             if self.installer_panel:

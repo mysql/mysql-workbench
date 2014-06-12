@@ -67,7 +67,7 @@ static vector<BaseWidget*> animated_widgets;
 /**
  * Animation timer callback. Triggers all registered step() methods.
  */
-static bool on_timer(int task_id, void* owner)
+static bool on_timer(int task_id)
 {
   base::MutexLock lock(animation_timer_mutex);
   
@@ -89,7 +89,7 @@ static void start_animation_timer_for(BaseWidget* widget)
 
   animated_widgets.push_back(widget);
   if (animation_timer_refcount == 0)
-    animation_timer_id= ThreadedTimer::add_task(TimerFrequency, 30, false, on_timer, NULL);
+    animation_timer_id= ThreadedTimer::add_task(TimerFrequency, 30, false, on_timer);
   animation_timer_refcount++;
   
 }

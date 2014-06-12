@@ -101,7 +101,6 @@
                 <File Id="file105" Name="db.mysql.grt.dll"/>
                 <File Id="file106" Name="db.search.wbp.dll"/>
                 <File Id="file111" Name="db.mysql.diff.reporting.wbp.dll"/>
-                <File Id="file119" Name="db.mysql.sqlide.grt.dll"/>
                 <File Id="file112" Name="db.mysql.sqlparser.grt.dll"/>
                 <File Id="file113" Name="db.mysql.wbp.dll"/>
                 <File Id="file115" Name="grt.db.fe.dll"/>
@@ -1781,7 +1780,6 @@
                     <File Id="file7003" Name="mysql_engines.xml"/>
                     <File Id="file7004" Name="mssql_rdbms_info.xml"/>
                     <File Id="file7005" Name="generic_rdbms_info.xml"/>
-                    <File Id="file7006" Name="com.mysql.rdbms.mysql.sql.editor.xml"/>
                     <File Id="file7007" Name="migration_generic_typemap.xml"/>
                     <File Id="file7008" Name="sybase_rdbms_info.xml"/>
                     <File Id="file7009" Name="sql92_rdbms_info.xml"/>

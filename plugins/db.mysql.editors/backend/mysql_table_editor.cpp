@@ -18,7 +18,6 @@
  */
 
 #include "mysql_table_editor.h"
-#include "grt/grt_dispatcher.h"
 #include "grtdb/db_object_helpers.h"
 #include "db.mysql/src/module_db_mysql.h"
 #include "grt/validation_manager.h"
@@ -30,9 +29,10 @@
 using namespace bec;
 using namespace base;
 
-MySQLTableColumnsListBE::MySQLTableColumnsListBE(MySQLTableEditorBE *owner)
+MySQLTableColumnsListBE::MySQLTableColumnsListBE(MySQLTableEditorBE *owner, db_mysql_TableRef table)
   : bec::TableColumnsListBE(owner)
 {
+  _table = table;
 }
 
 bool MySQLTableColumnsListBE::set_field(const NodeId &node, ColumnId column, const std::string &value)
@@ -41,7 +41,7 @@ bool MySQLTableColumnsListBE::set_field(const NodeId &node, ColumnId column, con
 
   if (node.is_valid() && node[0] < real_count())
   {
-    col= static_cast<MySQLTableEditorBE*>(_owner)->table()->columns().get(node[0]);
+    col = _table->columns().get(node[0]);
     if (!col.is_valid())
       return false;
 
@@ -82,7 +82,7 @@ bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, ColumnId colu
   
   if (node.is_valid() && node[0] < real_count())
   {
-    col= static_cast<MySQLTableEditorBE*>(_owner)->table()->columns().get(node[0]);
+    col = _table->columns().get(node[0]);
     if (!col.is_valid())
       return false;
 
@@ -109,7 +109,7 @@ bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, ColumnId colu
           if (value)
           {
             // check if there's already a column with auto-increment set and unset them
-            grt::ListRef<db_mysql_Column> columns(static_cast<MySQLTableEditorBE*>(_owner)->table()->columns());
+            grt::ListRef<db_mysql_Column> columns(_table->columns());
             
             for (size_t c = columns.count(), i= 0; i < c; i++)
             {
@@ -172,7 +172,7 @@ bool MySQLTableColumnsListBE::get_field_grt(const ::bec::NodeId &node, ColumnId 
   if (node.is_valid())
   {
     if (node[0] < real_count())
-      col= static_cast<MySQLTableEditorBE*>(_owner)->table()->columns().get(node[0]);
+      col = _table->columns().get(node[0]);
     if (col.is_valid())
     {
       switch (column)
@@ -223,7 +223,7 @@ bec::MenuItemList MySQLTableColumnsListBE::get_popup_items_for_nodes(const std::
   
   if (nodes.size() == 1)
   {
-    grt::ListRef<db_Column> columns(static_cast<MySQLTableEditorBE*>(_owner)->table()->columns());
+    grt::ListRef<db_Column> columns(_table->columns());
     const size_t idx = nodes.front()[0];
 
     db_ColumnRef col;
@@ -234,7 +234,7 @@ bec::MenuItemList MySQLTableColumnsListBE::get_popup_items_for_nodes(const std::
     {
       std::string type = col->simpleType()->name();
       bool improved_timestamp_support = false;
-      GrtVersionRef target_version = _owner->get_rdbms_target_version();
+      GrtVersionRef target_version = _owner->get_catalog()->version();
       // in MySQL 5.6, CURRENT_TIMESTAMP works for TIMESTAMP and DATETIME
       // and for any number of colums
       if (target_version.is_valid() &&
@@ -375,10 +375,11 @@ bool MySQLTableColumnsListBE::activate_popup_item_for_nodes(const std::string &n
 class MySQLTriggerPanel : public mforms::Box
 {
 public:
-  MySQLTriggerPanel(MySQLTableEditorBE *editor)
+  MySQLTriggerPanel(MySQLTableEditorBE *editor, db_mysql_TableRef table)
   : mforms::Box(true), _editor(editor), _list(mforms::TreeFlatList|mforms::TreeSizeSmall), _button(mforms::SmallButton), _refreshing(false)
   {
     _edited_trigger_index = 0;
+    _table = table;
 
     set_spacing(8);
     set_padding(4);
@@ -398,12 +399,8 @@ public:
     
     _name.set_name("trigger name");
     _name.set_read_only(true);
-    //TODO: Check if we can make this code usable again
-//    _name.signal_changed()->connect(boost::bind(&MySQLTriggerPanel::name_changed, this));
     _definer.set_name("trigger definer");
     _definer.set_read_only(true);
-    //TODO: Check if we can make this code usable again
-//    _definer.signal_changed()->connect(boost::bind(&MySQLTriggerPanel::definer_changed, this));
 
     _namel.set_style(mforms::SmallStyle);
     _definerl.set_style(mforms::SmallStyle);
@@ -423,7 +420,6 @@ public:
     _rtable.add(editor->get_sql_editor()->get_container(), 0, 5, 1, 2,
                 mforms::HExpandFlag|mforms::VExpandFlag|mforms::HFillFlag|mforms::VFillFlag);
     editor->get_sql_editor()->set_sql_check_enabled(true);
-    editor->get_sql_editor()->get_editor_control()->set_language(mforms::LanguageMySQL);
     
     _button.signal_clicked()->connect(boost::bind(&MySQLTriggerPanel::clicked, this));
     _code_editor = _editor->get_sql_editor()->get_editor_control();
@@ -437,11 +433,6 @@ public:
     _rtable.remove(_editor->get_sql_editor()->get_container());
   }
 
-  static bool compare_order(db_TriggerRef a, db_TriggerRef b)
-  {
-    return a->order() > b->order();
-  }
-  
   void refresh()
   {
     _refreshing = true;
@@ -469,7 +460,6 @@ public:
       t.append(" ").append((*trig)->event());
       trigmap.insert(std::make_pair(base::tolower(t), *trig));
     }
-//    std::sort(trigvec.begin(), trigvec.end(), &MySQLTriggerPanel::compare_order);
 
     mforms::TreeNodeRef node;
     std::map<std::string, db_TriggerRef>::iterator it;
@@ -489,6 +479,16 @@ public:
     _refreshing = false;
   }
   
+  void select_trigger(size_t index)
+  {
+    _list.select_node(_list.node_at_row((int)index));
+
+    db_mysql_TableRef table = db_mysql_TableRef::cast_from(_editor->get_table());
+    grt::ListRef<db_mysql_Trigger> triggers(table->triggers());
+    if (index < triggers->count())
+      _selected_trigger = triggers[index];
+  }
+
   void reload_selected_trigger()
   {
     mforms::TreeNodeRef node = _list.get_selected_node();
@@ -500,8 +500,9 @@ public:
 
     std::string timing, event;
     base::partition(node->get_string(1), " ", timing, event);
-    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
-    GRTLIST_FOREACH(db_Trigger, triggers, trig)
+    db_mysql_TableRef table = db_mysql_TableRef::cast_from(_editor->get_table());
+    grt::ListRef<db_mysql_Trigger> triggers(table->triggers());
+    GRTLIST_FOREACH(db_mysql_Trigger, triggers, trig)
     {
       if (base::string_compare((*trig)->timing(), timing, false) == 0 && base::string_compare((*trig)->event(), event, false) == 0)
       {
@@ -514,53 +515,67 @@ public:
 
   void code_edited()
   {
-    // Don't run commit_changes() or the parser will kill your current trigger if it has an error.
     if (_selected_trigger.is_valid())
     {
       if (_code_editor->is_dirty() && _selected_trigger->sqlDefinition() != _code_editor->get_string_value())
       {
         AutoUndoEdit undo(_editor, _selected_trigger, "sql");
+        
         _editor->freeze_refresh_on_object_change();
-        _editor->_sql_parser->parse_trigger(_selected_trigger, _code_editor->get_string_value().c_str());
-        _editor->thaw_refresh_on_object_change(true);
+        
+        _editor->_parser_services->parseTrigger(_editor->_parser_context, _selected_trigger, _code_editor->get_string_value());
+        _editor->thaw_refresh_on_object_change();
+
         _name.set_value(_selected_trigger->name());
         _definer.set_value(_selected_trigger->definer());
         mforms::TreeNodeRef node = _list.node_at_row(_edited_trigger_index);
         if (node)
-        {
           node->set_string(0, _selected_trigger->name());
-        }
+
         undo.end(strfmt(_("Edit trigger `%s` of `%s`.`%s`"), _selected_trigger->name().c_str(), _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
       }
     }
     else
       refresh();
   }
-  //TODO: Check if we can make this code usable again
-//  void name_changed()
-//  {
-//    if (_selected_trigger.is_valid())
-//    {
-//      AutoUndoEdit undo(_editor, _selected_trigger, "name");
-//      _selected_trigger->name(_name.get_string_value());
-//      undo.end(base::strfmt("Rename trigger to %s", _name.get_string_value().c_str()));
-//      mforms::TreeNodeRef node = _list.get_selected_node();
-//      if (node)
-//        node->set_string(0, _name.get_string_value());
-//      selection_changed();
-//    }
-//  }
-  //TODO: Check if we can make this code usable again
-//  void definer_changed()
-//  {
-//    if (_selected_trigger.is_valid())
-//    {
-//      AutoUndoEdit undo(_editor, _selected_trigger, "definer");
-//      _selected_trigger->definer(_definer.get_string_value());
-//      undo.end(base::strfmt("Change trigger definer to %s", _definer.get_string_value().c_str()));
-//      selection_changed();
-//    }
-//  }
+
+  void add_trigger(const std::string &timing, const std::string &event)
+  {
+    _editor->freeze_refresh_on_object_change();
+    AutoUndoEdit undo(_editor);
+
+    db_mysql_TriggerRef trigger = db_mysql_TriggerRef(_editor->get_grt());
+    trigger->owner(_editor->get_table());
+    trigger->name(base::strfmt("%s_%c%s", _editor->get_name().c_str(),
+      timing[0], event.substr(0, 3).c_str()));
+    trigger->event(event);
+
+    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
+    trigger->timing(timing);
+    triggers.insert(trigger);
+
+    undo.end(base::strfmt("Added trigger to %s.%s", _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
+
+    mforms::TreeNodeRef node = _list.get_selected_node();
+    if (node.is_valid())
+      node->set_string(0, trigger->name());
+    _editor->thaw_refresh_on_object_change(true);
+  }
+
+  void delete_trigger(db_TriggerRef trigger)
+  {
+    _editor->freeze_refresh_on_object_change();
+    AutoUndoEdit undo(_editor);
+
+    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
+    triggers.remove_value(trigger);
+    undo.end(base::strfmt("Delete trigger %s", trigger->name().c_str()));
+
+    mforms::TreeNodeRef node = _list.get_selected_node();
+    if (node.is_valid())
+      node->set_string(0, "-");
+    _editor->thaw_refresh_on_object_change(true);
+  }
 
   void clicked()
   {
@@ -581,30 +596,10 @@ public:
       }
       
       if (trigger.is_valid())
-      {
-        _editor->freeze_refresh_on_object_change();
-        AutoUndoEdit undo(_editor);
-        triggers.remove_value(trigger);
-        undo.end(base::strfmt("Delete trigger %s", trigger->name().c_str()));
-        
-        node->set_string(0, "-");
-        _editor->thaw_refresh_on_object_change(true);
-      }
+        delete_trigger(trigger);
       else
-      {
-        _editor->freeze_refresh_on_object_change();
-        AutoUndoEdit undo(_editor);
-        trigger = db_mysql_TriggerRef(_editor->get_grt());
-        trigger->owner(_editor->get_table());
-        trigger->name(base::strfmt("%s_%c%s", _editor->get_name().c_str(),
-                                   timing[0], event.substr(0, 3).c_str()));
-        trigger->event(event);
-        trigger->timing(timing);
-        triggers.insert(trigger);
-        undo.end(base::strfmt("Added trigger to %s.%s", _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
-        node->set_string(0, trigger->name());
-        _editor->thaw_refresh_on_object_change(true);
-      }
+        add_trigger(event, timing);
+
       update_editor();
     }
   }
@@ -633,9 +628,9 @@ public:
     std::string sql;
     bool editor_enabled = true;
     base::partition(node->get_string(1), " ", timing, event);
-    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
-    db_TriggerRef trigger;
-    GRTLIST_FOREACH(db_Trigger, triggers, trig)
+    grt::ListRef<db_mysql_Trigger> triggers(_table->triggers());
+    db_mysql_TriggerRef trigger;
+    GRTLIST_FOREACH(db_mysql_Trigger, triggers, trig)
     {
       if (base::string_compare((*trig)->timing(), timing, false) == 0 && base::string_compare((*trig)->event(), event, false) == 0)
       {
@@ -657,21 +652,16 @@ public:
         _name.set_enabled(true);
         _definer.set_enabled(true);
       
-        sql.append(base::strfmt("USE `%s`;\nDELIMITER $$\n", _editor->get_schema_name().c_str()));
         if (trigger->sqlDefinition().empty())
         {
-          sql.append(base::strfmt("CREATE TRIGGER `%s` %s %s ON `%s` FOR EACH ROW\n", trigger->name().c_str(),
-            timing.c_str(), event.c_str(), _editor->get_name().c_str()));
-          
-          // No longer necessary. We can now parse the entire sql (if the user types complete nonsense
-          // we are all lost however, but that's no news).
-          //sql.append("-- Edit trigger body code below this line. Do not edit lines above this one\n");
+          sql.append(base::strfmt("CREATE TRIGGER `%s`.`%s` %s %s ON `%s` FOR EACH ROW\n    ", _editor->get_schema_name().c_str(),
+                                  trigger->name().c_str(), timing.c_str(), event.c_str(), _editor->get_name().c_str()));
         }
         else
           sql.append(trigger->sqlDefinition());
 
         _edited_trigger_index = _list.row_for_node(_list.get_selected_node());
-        _code_editor->set_text_keeping_state(sql.c_str());
+        _editor->get_sql_editor()->sql(sql.c_str());
       }
       else
       {
@@ -692,7 +682,7 @@ public:
 
       _edited_trigger_index = _list.row_for_node(_list.get_selected_node());
       sql = "-- Trigger not defined. Click Add Trigger to create it.\n";
-      _code_editor->set_text_keeping_state(sql.c_str());
+      _editor->get_sql_editor()->sql(sql.c_str());
     }
     _button.set_enabled(true);
     _code_editor->reset_dirty();
@@ -709,15 +699,18 @@ private:
   mforms::Label _definerl;
   mforms::Button _button;
   mforms::CodeEditor *_code_editor;
-  db_TriggerRef _selected_trigger;
+
+  db_mysql_TriggerRef _selected_trigger;
+  db_mysql_TableRef _table;
   int _edited_trigger_index;
   bool _refreshing;
 };
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLTableEditorBE::MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table, const db_mgmt_RdbmsRef &rdbms)
-  : TableEditorBE(grtm, table, rdbms), _table(table), _columns(this), _partitions(this), _indexes(this), _trigger_panel(0)
+MySQLTableEditorBE::MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table)
+  : TableEditorBE(grtm, table), _table(table), _columns(this, table), _partitions(this, table),
+    _indexes(this), _trigger_panel(0)
 {
   _updating_triggers = false;
   if (_table->isStub() == 1)
@@ -734,30 +727,65 @@ MySQLTableEditorBE::MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRe
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 MySQLTableEditorBE::~MySQLTableEditorBE()
 {
   delete _trigger_panel;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+void MySQLTableEditorBE::commit_changes()
+{
+  _trigger_panel->code_edited();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 mforms::View *MySQLTableEditorBE::get_trigger_panel()
 {
   if (!_trigger_panel)
-    _trigger_panel = new MySQLTriggerPanel(this);
+    _trigger_panel = new MySQLTriggerPanel(this, _table);
   return _trigger_panel;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+/**
+* Programmatically add a new trigger (used for testing).
+*/
+void MySQLTableEditorBE::add_trigger(const std::string &timing, const std::string &event)
+{
+  get_trigger_panel();
+  _trigger_panel->add_trigger(timing, event);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Programmatically set the current trigger (used for testing).
+ */
+void MySQLTableEditorBE::select_trigger(size_t index)
+{
+  get_trigger_panel();
+  _trigger_panel->select_trigger(index);
+}
+
+//--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> MySQLTableEditorBE::get_index_types()
 {
   std::vector<std::string> index_types;
+  GrtVersionRef version = get_catalog()->version();
 
   index_types.push_back("INDEX");
   index_types.push_back("UNIQUE");
   // FULLTEXT exists only in MyISAM prior to 5.6. in 5.6+ InnoDB also supports it
-  if (_table->tableEngine() == "MyISAM" || (_table->tableEngine() == "InnoDB" && is_server_version_at_least(5, 6)))
+  if (_table->tableEngine() == "MyISAM" || ((_table->tableEngine() == "InnoDB" || _table->tableEngine() == "") && bec::is_supported_mysql_version_at_least(version, 5, 6)))
     index_types.push_back("FULLTEXT");
-  // SPATIAL is not supported by InnoDB
-  if (_table->tableEngine() == "MyISAM")
+  // SPATIAL is not supported by InnoDB before 5.7.5 (or maybe later)
+  if (_table->tableEngine() == "MyISAM" || ((_table->tableEngine() == "InnoDB" || _table->tableEngine() == "") && bec::is_supported_mysql_version_at_least(version, 5, 7, 5)))
     index_types.push_back("SPATIAL");
 
   // these are special types for PK and FK
@@ -851,7 +879,6 @@ static struct TableOption
 
 void MySQLTableEditorBE::set_table_option_by_name(const std::string& name, const std::string& value)
 {
-  //g_message("%s('%s','%s')", __FUNCTION__, name.c_str(), value.c_str());
   bool found= false;
 
   for (size_t i= 0; table_options[i].option_name; i++)
@@ -967,46 +994,6 @@ std::string MySQLTableEditorBE::get_table_option_by_name(const std::string& name
   return std::string("");
 }
 
-//TODO: Check if we still need this, if not ... remove.
-std::string MySQLTableEditorBE::get_all_triggers_sql() const
-{
-  std::string retval;
-
-  retval.append("-- Full Trigger DDL Statements\n");
-  retval.append("-- Note: Only CREATE TRIGGER statements are allowed\n");
-
-  retval.append(
-    strfmt("DELIMITER %s\n\n", _non_std_sql_delimiter.c_str())).append(
-    "USE `").append(_table->owner()->name()).append("`").
-    append(_non_std_sql_delimiter.c_str()).append("\n\n");
-
-  grt::ListRef<db_mysql_Trigger> triggers= _table->triggers();
-  size_t triggers_count= triggers.count();
-  typedef std::map<ssize_t, db_mysql_TriggerRef> OrderedTriggers;
-  typedef std::list<db_mysql_TriggerRef> UnorderedTriggers;
-  OrderedTriggers ordered_triggers;
-  UnorderedTriggers unordered_triggers; // triggers with duplicated sequence number. to upgrade old models smoothly, where sequence numbers are 0.
-
-  for (size_t i= 0; i < triggers_count; ++i)
-  {
-    db_mysql_TriggerRef trigger= triggers.get(i);
-    ssize_t sequenceNumber= trigger->sequenceNumber();
-    if (ordered_triggers.find(sequenceNumber) == ordered_triggers.end())
-      ordered_triggers[sequenceNumber]= trigger;
-    else
-      unordered_triggers.push_back(trigger);
-  }
-
-  //XXX fix parser so that it skips newlines before the trigger
-  for (OrderedTriggers::iterator i= ordered_triggers.begin(), i_end= ordered_triggers.end(); i != i_end; ++i)
-    retval.append(base::strip_text(i->second->sqlDefinition(), true, false)).append(_non_std_sql_delimiter).append("\n\n");
-
-  for (UnorderedTriggers::iterator i= unordered_triggers.begin(), i_end= unordered_triggers.end(); i != i_end; ++i)
-    retval.append(base::strip_text((*i)->sqlDefinition(), true, false)).append(_non_std_sql_delimiter).append("\n\n");
-
-  return retval;
-}
-
 //--------------------------------------------------------------------------------------------------
 
 /**
@@ -1023,7 +1010,6 @@ void MySQLTableEditorBE::load_trigger_sql()
   }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 
 bool MySQLTableEditorBE::can_close()
@@ -1034,34 +1020,19 @@ bool MySQLTableEditorBE::can_close()
 
 //--------------------------------------------------------------------------------------------------
 
-//TODO: Do we still need this?
-void MySQLTableEditorBE::commit_changes()
-{
-//  mforms::CodeEditor* editor = get_sql_editor()->get_editor_control();
-//  if (editor->is_dirty())
-//  {
-//    // TODO: no longer needed since we don't set all triggers at once anymore.
-//    set_triggers_sql(get_all_triggers_sql(), true); //we need to always get all editors code not just the currently visible
-//    // Note: don't reset the dirty state of the editor to be able to undo beyond this commit.
-//  }
-  // TODO: anything else to store?
-}
-
-//--------------------------------------------------------------------------------------------------
-
 bool MySQLTableEditorBE::set_partition_type(const std::string &type)
 {
-  if (type.compare(*table()->partitionType())!=0)
+  if (type.compare(*_table->partitionType())!=0)
   {
     if (type == "RANGE" || type == "LIST")
     {
       AutoUndoEdit undo(this);
-      table()->partitionType(type);
-      if (table()->partitionCount() == 0)
-        table()->partitionCount(1);
+      _table->partitionType(type);
+      if (_table->partitionCount() == 0)
+        _table->partitionCount(1);
       if (get_explicit_partitions())
-        reset_partition_definitions((int)table()->partitionCount(), 
-        get_explicit_subpartitions() ? (int)*table()->subpartitionCount() : 0);
+        reset_partition_definitions((int)_table->partitionCount(),
+        get_explicit_subpartitions() ? (int)*_table->subpartitionCount() : 0);
       update_change_date();
       undo.end(strfmt(_("Change Partition Type for '%s'"), get_name().c_str()));
       return true;
@@ -1070,14 +1041,14 @@ bool MySQLTableEditorBE::set_partition_type(const std::string &type)
              type == "LINEAR KEY" || type == "KEY" || type == "")
     {
       AutoUndoEdit undo(this);
-      table()->partitionType(type);
-      if (table()->partitionCount() == 0)
-        table()->partitionCount(1);
-      table()->subpartitionCount(0);
-      table()->subpartitionExpression("");
-      table()->subpartitionType("");
+      _table->partitionType(type);
+      if (_table->partitionCount() == 0)
+        _table->partitionCount(1);
+      _table->subpartitionCount(0);
+      _table->subpartitionExpression("");
+      _table->subpartitionType("");
       if (get_explicit_partitions())
-        reset_partition_definitions((int)table()->partitionCount(), 0);
+        reset_partition_definitions((int)_table->partitionCount(), 0);
       update_change_date();
       undo.end(strfmt(_("Change Partition Type for '%s'"), get_name().c_str()));
       return true;
@@ -1089,15 +1060,15 @@ bool MySQLTableEditorBE::set_partition_type(const std::string &type)
 
 std::string MySQLTableEditorBE::get_partition_type()
 {
-  return *table()->partitionType();
+  return *_table->partitionType();
 }
 
 
 void MySQLTableEditorBE::set_partition_expression(const std::string &expr)
 {
-  AutoUndoEdit undo(this, table(), "partitionExpression");
+  AutoUndoEdit undo(this, _table, "partitionExpression");
 
-  table()->partitionExpression(expr);
+  _table->partitionExpression(expr);
   
   update_change_date();
   undo.end(strfmt(_("Set Partition Expression for '%s'"), get_name().c_str()));
@@ -1106,7 +1077,7 @@ void MySQLTableEditorBE::set_partition_expression(const std::string &expr)
 
 std::string MySQLTableEditorBE::get_partition_expression()
 {
-  return *table()->partitionExpression();
+  return *_table->partitionExpression();
 }
 
 
@@ -1114,12 +1085,12 @@ void MySQLTableEditorBE::set_partition_count(int count)
 {
   AutoUndoEdit undo(this);
   if (count > 0)
-    table()->partitionCount(count);
+    _table->partitionCount(count);
   else
-    table()->partitionCount(1);
+    _table->partitionCount(1);
   if (get_explicit_partitions())
-    reset_partition_definitions((int)table()->partitionCount(),
-    get_explicit_partitions() ? (int)*table()->subpartitionCount() : 0);
+    reset_partition_definitions((int)_table->partitionCount(),
+    get_explicit_partitions() ? (int)*_table->subpartitionCount() : 0);
   update_change_date();
   undo.end(strfmt(_("Set Partition Count for '%s'"), get_name().c_str()));
 }
@@ -1127,22 +1098,22 @@ void MySQLTableEditorBE::set_partition_count(int count)
 
 int MySQLTableEditorBE::get_partition_count()
 {
-  return (int)*table()->partitionCount();
+  return (int)*_table->partitionCount();
 }
 
 
 bool MySQLTableEditorBE::subpartition_count_allowed()
 {
-  return (*table()->partitionType() == "RANGE" || *table()->partitionType() == "LIST");
+  return (*_table->partitionType() == "RANGE" || *_table->partitionType() == "LIST");
 }
 
 bool MySQLTableEditorBE::set_subpartition_type(const std::string &type)
 {
-  if (*table()->partitionType() == "RANGE" || *table()->partitionType() == "LIST")
+  if (*_table->partitionType() == "RANGE" || *_table->partitionType() == "LIST")
   {
-    AutoUndoEdit undo(this, table(), "subpartitionType");
+    AutoUndoEdit undo(this, _table, "subpartitionType");
 
-    table()->subpartitionType(type);
+    _table->subpartitionType(type);
     
     update_change_date();
     undo.end(strfmt(_("Set Subpartition Type for '%s'"), get_name().c_str()));
@@ -1154,17 +1125,17 @@ bool MySQLTableEditorBE::set_subpartition_type(const std::string &type)
 
 std::string MySQLTableEditorBE::get_subpartition_type()
 {
-  return *table()->subpartitionType();
+  return *_table->subpartitionType();
 }
 
 
 bool MySQLTableEditorBE::set_subpartition_expression(const std::string &expr)
 {
-  if (*table()->partitionType() == "RANGE" || *table()->partitionType() == "LIST")
+  if (*_table->partitionType() == "RANGE" || *_table->partitionType() == "LIST")
   {
-    AutoUndoEdit undo(this, table(), "subpartitionExpression");
+    AutoUndoEdit undo(this, _table, "subpartitionExpression");
 
-    table()->subpartitionExpression(expr);
+    _table->subpartitionExpression(expr);
 
     update_change_date();
     undo.end(strfmt(_("Set Subpartition Expression for '%s'"), get_name().c_str()));
@@ -1176,18 +1147,18 @@ bool MySQLTableEditorBE::set_subpartition_expression(const std::string &expr)
 
 std::string MySQLTableEditorBE::get_subpartition_expression()
 {
-  return *table()->subpartitionExpression();
+  return *_table->subpartitionExpression();
 }
 
 
 void MySQLTableEditorBE::set_subpartition_count(int count)
 {
-  if (*table()->partitionType() == "RANGE" || *table()->partitionType() == "LIST")
+  if (*_table->partitionType() == "RANGE" || *_table->partitionType() == "LIST")
   {
     AutoUndoEdit undo(this);
-    table()->subpartitionCount(count);
+    _table->subpartitionCount(count);
     if (get_explicit_subpartitions())
-      reset_partition_definitions((int)table()->partitionCount(), (int)table()->subpartitionCount());
+      reset_partition_definitions((int)_table->partitionCount(), (int)_table->subpartitionCount());
     update_change_date();
     undo.end(strfmt(_("Set Subpartition Count for '%s'"), get_name().c_str()));
   }
@@ -1196,7 +1167,7 @@ void MySQLTableEditorBE::set_subpartition_count(int count)
 
 int MySQLTableEditorBE::get_subpartition_count()
 {
-  return (int)*table()->subpartitionCount();
+  return (int)*_table->subpartitionCount();
 }
 
 
@@ -1207,11 +1178,11 @@ void MySQLTableEditorBE::set_explicit_partitions(bool flag)
     AutoUndoEdit undo(this);
     if (flag)
     {
-      if (table()->partitionCount() == 0)
+      if (_table->partitionCount() == 0)
       {
-        table()->partitionCount(2);
+        _table->partitionCount(2);
       }
-      reset_partition_definitions((int)table()->partitionCount(), (int)table()->subpartitionCount());
+      reset_partition_definitions((int)_table->partitionCount(), (int)_table->subpartitionCount());
     }
     else
       reset_partition_definitions(0, 0);
@@ -1232,14 +1203,14 @@ void MySQLTableEditorBE::set_explicit_subpartitions(bool flag)
       AutoUndoEdit undo(this);
       if (flag)
       {
-        if (table()->subpartitionCount() == 0)
+        if (_table->subpartitionCount() == 0)
         {
-          table()->subpartitionCount(2);
+          _table->subpartitionCount(2);
         }
-        reset_partition_definitions((int)table()->partitionCount(), (int)table()->subpartitionCount());
+        reset_partition_definitions((int)_table->partitionCount(), (int)_table->subpartitionCount());
       }
       else
-        reset_partition_definitions((int)table()->partitionCount(), 0);
+        reset_partition_definitions((int)_table->partitionCount(), 0);
       update_change_date();
       undo.end(flag ? 
         strfmt(_("Manually Define SubPartitions for '%s'"), get_name().c_str()) :
@@ -1251,19 +1222,19 @@ void MySQLTableEditorBE::set_explicit_subpartitions(bool flag)
 
 bool MySQLTableEditorBE::get_explicit_partitions()
 {
-  return table()->partitionDefinitions().count() > 0;
+  return _table->partitionDefinitions().count() > 0;
 }
 
 
 bool MySQLTableEditorBE::get_explicit_subpartitions()
 {
-  return table()->partitionDefinitions().count() > 0 
-    && table()->partitionDefinitions().get(0)->subpartitionDefinitions().count() > 0;
+  return _table->partitionDefinitions().count() > 0 
+    && _table->partitionDefinitions().get(0)->subpartitionDefinitions().count() > 0;
 }
 
 void MySQLTableEditorBE::reset_partition_definitions(int parts, int subparts)
 {
-  grt::ListRef<db_mysql_PartitionDefinition> pdefs(table()->partitionDefinitions());
+  grt::ListRef<db_mysql_PartitionDefinition> pdefs(_table->partitionDefinitions());
 
   AutoUndoEdit undo(this);
 
@@ -1271,7 +1242,7 @@ void MySQLTableEditorBE::reset_partition_definitions(int parts, int subparts)
   {
     db_mysql_PartitionDefinitionRef part(get_grt());
 
-    part->owner(table());
+    part->owner(_table);
     part->name(grt::StringRef::format("part%i", pdefs.count()));
     pdefs.insert(part);
   }
@@ -1383,9 +1354,10 @@ bool MySQLTableEditorBE::check_column_referenceable_by_fk(const db_ColumnRef &co
 
 //--------------------------------------------------------------------------------
 
-MySQLTablePartitionTreeBE::MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner)
-: _owner(owner)
+MySQLTablePartitionTreeBE::MySQLTablePartitionTreeBE(MySQLTableEditorBE *owner, const db_mysql_TableRef &table)
 {
+  _owner = owner;
+  _table = table;
 }
 
 
@@ -1539,14 +1511,14 @@ db_mysql_PartitionDefinitionRef MySQLTablePartitionTreeBE::get_definition(const 
 {
   if (node.depth() == 1)
   {
-    if (node[0] < _owner->table()->partitionDefinitions().count())
-      return _owner->table()->partitionDefinitions()[node[0]];
+    if (node[0] < _table->partitionDefinitions().count())
+      return _table->partitionDefinitions()[node[0]];
   }
   else if (node.depth() == 2)
   {
-    if (node[0] < _owner->table()->partitionDefinitions().count())
+    if (node[0] < _table->partitionDefinitions().count())
     {
-      db_mysql_PartitionDefinitionRef def(_owner->table()->partitionDefinitions()[node[0]]);
+      db_mysql_PartitionDefinitionRef def(_table->partitionDefinitions()[node[0]]);
 
       if (node[1] < def->subpartitionDefinitions().count())
         return def->subpartitionDefinitions()[node[1]];
@@ -1567,7 +1539,7 @@ size_t MySQLTablePartitionTreeBE::count_children(const NodeId &parent)
       return (int)def->subpartitionDefinitions().count();
   }
   else if (parent.depth() == 0)
-    return (int)_owner->table()->partitionDefinitions().count();
+    return (int)_table->partitionDefinitions().count();
 
   return 0;
 }

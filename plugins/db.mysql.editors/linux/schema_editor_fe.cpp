@@ -30,7 +30,7 @@ public:
   
   SchemaEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
     : PluginEditorBase(m, grtm, args, "modules/data/editor_schema.glade")
-    , _be(new MySQLSchemaEditorBE(grtm, db_SchemaRef::cast_from(args[0]), get_rdbms_for_db_object(args[0])))
+    , _be(new MySQLSchemaEditorBE(grtm, db_SchemaRef::cast_from(args[0])))
   {
     xml()->get_widget("mysql_schema_editor_notebook", _editor_notebook);
     
@@ -147,7 +147,7 @@ public:
 bool SchemaEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
 {
   MySQLSchemaEditorBE *old_be = _be;
-  _be = new MySQLSchemaEditorBE(grtm, db_SchemaRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  _be = new MySQLSchemaEditorBE(grtm, db_SchemaRef::cast_from(args[0]));
   
   if (_be)
   {

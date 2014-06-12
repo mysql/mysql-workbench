@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@
 #import "MySQLSchemaEditor.h"
 
 #import "MCPPUtilities.h"
-#include "grtdb/db_object_helpers.h" // get_rdbms_for_db_object()
 
 @implementation DbMysqlSchemaEditor
 
@@ -50,7 +49,7 @@ static void call_refresh(DbMysqlSchemaEditor *self)
     [self setMinimumSize: [tabView frame].size];
     
     // setup the editor backend with the schema object (args[0])
-    mBackEnd= new MySQLSchemaEditorBE(grtm, db_mysql_SchemaRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+    mBackEnd= new MySQLSchemaEditorBE(grtm, db_mysql_SchemaRef::cast_from(args[0]));
     
     // fill the collation Popup with the list of supported collations taken from the backend
     MFillPopupButtonWithStrings(collationPopup, mBackEnd->get_charset_collation_list());
@@ -89,7 +88,7 @@ static void call_refresh(DbMysqlSchemaEditor *self)
   
   delete mBackEnd;
   
-  mBackEnd= new MySQLSchemaEditorBE(_grtm, db_mysql_SchemaRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  mBackEnd = new MySQLSchemaEditorBE(_grtm, db_mysql_SchemaRef::cast_from(args[0]));
   
   MFillPopupButtonWithStrings(collationPopup, mBackEnd->get_charset_collation_list());
   

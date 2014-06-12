@@ -493,9 +493,9 @@ Windows::Forms::DialogResult CustomMessageBox::Show(MessageType type,  String^ t
 
 //----------------- DispatchControl ----------------------------------------------------------------
 
-delegate InvokationResult^ RunSlotDelegate();
+delegate InvokationResult^ RunSlotDelegate(SlotWrapper ^wrapper);
 
-void* DispatchControl::RunOnMainThread(const boost::function<void* ()>& slot, bool wait)
+void* DispatchControl::RunOnMainThread(const boost::function<void* ()> &slot, bool wait)
 {
   log_debug("Running slot on main thread (%swaiting for it)\n", wait ? "" : "not ");
 
@@ -503,16 +503,17 @@ void* DispatchControl::RunOnMainThread(const boost::function<void* ()>& slot, bo
   {
     log_debug2("Cross thread invocation required\n");
 
-    _slot = new boost::function<void* ()>(slot);
+    array<Object ^> ^parameters = gcnew array<Object^>(1);
+    parameters[0] = gcnew SlotWrapper(slot);
     if (wait)
     {
-      InvokationResult^ result = 
-        (InvokationResult^) Invoke(gcnew RunSlotDelegate(this, &DispatchControl::RunSlot));
+      InvokationResult^ result =
+        (InvokationResult^) Invoke(gcnew RunSlotDelegate(this, &DispatchControl::RunSlot), parameters);
       return result->Result;
     }
     else
     {
-      BeginInvoke( gcnew RunSlotDelegate(this, &DispatchControl::RunSlot));
+      BeginInvoke(gcnew RunSlotDelegate(this, &DispatchControl::RunSlot), parameters);
 
       // If we don't wait for the result we cannot return it.
       return NULL;
@@ -524,21 +525,14 @@ void* DispatchControl::RunOnMainThread(const boost::function<void* ()>& slot, bo
 
 //--------------------------------------------------------------------------------------------------
 
-DispatchControl::~DispatchControl()
-{
-  delete _slot; 
-}
-
-//--------------------------------------------------------------------------------------------------
-
 /**
  * Helper function to run a given cancel_slot in the main thread.
  */
-InvokationResult^ DispatchControl::RunSlot()
+InvokationResult^ DispatchControl::RunSlot(SlotWrapper ^wrapper)
 {
   log_debug2("Running cancel_slot on main thread\n");
 
-  return gcnew InvokationResult((*_slot)());
+  return gcnew InvokationResult((*wrapper->_slot)());
 }
 
 //----------------- UtilitiesWrapper ------------------------------------------------------------------

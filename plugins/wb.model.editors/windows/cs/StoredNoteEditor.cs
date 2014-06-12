@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ namespace MySQL.GUI.Workbench.Plugins
   {
     #region Member Variables
 
-    private MySQL.Grt.StoredNoteEditorBE storedNoteEditorBE { get { return Backend as MySQL.Grt.StoredNoteEditorBE; } }
+    private MySQL.Grt.StoredNoteEditorWrapper storedNoteEditorBE { get { return Backend as MySQL.Grt.StoredNoteEditorWrapper; } }
 
     #endregion
 
@@ -56,7 +56,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQL.Grt.StoredNoteEditorBE(GrtManager, value);
+        Backend = new MySQL.Grt.StoredNoteEditorWrapper(GrtManager, value);
         SetupEditorOnHost(content, storedNoteEditorBE.is_sql_script());
         storedNoteEditorBE.load_text();
         EditorTextChanged();

@@ -48,7 +48,7 @@ extern "C" {
     // Get the actual token text and skip the initial underscore char.
     // There's an additional char at the end of the input for some reason (maybe a lexer bug),
     // so we also ignore the last char.
-    MySQLParsingBase *base = (MySQLParsingBase*)payload;
+    MySQLRecognitionBase *base = (MySQLRecognitionBase*)payload;
 
     std::string token_text((const char*)text->chars + 1, text->len - 2);
     if (base->is_charset(base::tolower(token_text)))
@@ -71,9 +71,9 @@ extern "C" {
 
 } // extern "C"
 
-//----------------- MySQLParsingBase ---------------------------------------------------------------
+//----------------- MySQLRecognitionBase ---------------------------------------------------------------
 
-class MySQLParsingBase::Private
+class MySQLRecognitionBase::Private
 {
 public:
   std::set<std::string> _charsets; // A list of supported charsets.
@@ -81,7 +81,7 @@ public:
   std::vector<MySQLParserErrorInfo> _error_info;
 };
 
-MySQLParsingBase::MySQLParsingBase(const std::set<std::string> &charsets)
+MySQLRecognitionBase::MySQLRecognitionBase(const std::set<std::string> &charsets)
 {
   d = new Private();
   d->_charsets = charsets;
@@ -90,32 +90,63 @@ MySQLParsingBase::MySQLParsingBase(const std::set<std::string> &charsets)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLParsingBase::add_error(const std::string &text, ANTLR3_UINT32 error, ANTLR3_UINT32 token,
-                                 ANTLR3_UINT32 line, ANTLR3_UINT32 offset, ANTLR3_UINT32 length)
+void MySQLRecognitionBase::add_error(const std::string &text, ANTLR3_UINT32 token,
+  ANTLR3_MARKER token_start, ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length)
 {
-  MySQLParserErrorInfo info = {text, error, token, length, line, offset};
+  MySQLParserErrorInfo info = { text, token, (size_t)(token_start - (ANTLR3_MARKER)input_start()),
+    line, offset_in_line, (size_t)length};
   d->_error_info.push_back(info);
 };
 
 //--------------------------------------------------------------------------------------------------
 
-const std::vector<MySQLParserErrorInfo>& MySQLParsingBase::error_info()
+const std::vector<MySQLParserErrorInfo>& MySQLRecognitionBase::error_info()
 {
   return d->_error_info;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool MySQLParsingBase::has_errors()
+bool MySQLRecognitionBase::has_errors()
 {
   return d->_error_info.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-unsigned MySQLParsingBase::sql_mode()
+unsigned MySQLRecognitionBase::sql_mode()
 {
   return d->_sql_mode;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLRecognitionBase::set_sql_mode(const std::string &sql_mode)
+{
+  unsigned result = 0;
+
+  std::string sql_mode_string = base::toupper(sql_mode);
+  std::istringstream iss(sql_mode_string);
+  std::string mode;
+  while (std::getline(iss, mode, ','))
+  {
+    mode = base::trim(mode);
+    if (mode == "ANSI" || mode == "DB2" || mode == "MAXDB" || mode == "MSSQL" || mode == "ORACLE" ||
+        mode == "POSTGRESQL")
+      result |= SQL_MODE_ANSI_QUOTES | SQL_MODE_PIPES_AS_CONCAT | SQL_MODE_IGNORE_SPACE;
+    else if (mode == "ANSI_QUOTES")
+      result |= SQL_MODE_ANSI_QUOTES;
+    else if (mode == "PIPES_AS_CONCAT")
+      result |= SQL_MODE_PIPES_AS_CONCAT;
+    else if (mode == "NO_BACKSLASH_ESCAPES")
+      result |= SQL_MODE_NO_BACKSLASH_ESCAPES;
+    else if (mode == "IGNORE_SPACE")
+      result |= SQL_MODE_IGNORE_SPACE;
+    else if (mode == "HIGH_NOT_PRECEDENCE" || mode == "MYSQL323" || mode == "MYSQL40")
+      result |= SQL_MODE_HIGH_NOT_PRECEDENCE;
+  }
+
+  d->_sql_mode = result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,7 +154,7 @@ unsigned MySQLParsingBase::sql_mode()
 /**
  * Determines if the given string is one of the supported charsets.
  */
-bool MySQLParsingBase::is_charset(const std::string &s)
+bool MySQLRecognitionBase::is_charset(const std::string &s)
 {
   return d->_charsets.find(s) != d->_charsets.end();
 }
@@ -133,7 +164,7 @@ bool MySQLParsingBase::is_charset(const std::string &s)
 /**
  * Returns true if the given token is an identifier.
  */
-bool MySQLParsingBase::is_identifier(ANTLR3_UINT32 type)
+bool MySQLRecognitionBase::is_identifier(ANTLR3_UINT32 type)
 {
   bool result = (type == IDENTIFIER) || (type == BACK_TICK_QUOTED_ID);
   if (!result)
@@ -156,7 +187,7 @@ bool MySQLParsingBase::is_identifier(ANTLR3_UINT32 type)
 /**
  * Returns true if the given token is a keyword.
  */
-bool MySQLParsingBase::is_keyword(ANTLR3_UINT32 type)
+bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
 {
   if (type >= ACTION_SYMBOL && type <= PARTITION_SYMBOL)
     return true;
@@ -186,7 +217,7 @@ bool MySQLParsingBase::is_keyword(ANTLR3_UINT32 type)
   case EQUAL_OPERATOR:
   case ESCAPE_OPERATOR:
   case EXPRESSION_TOKEN:
-  case FIELD_REF_ID_TOKEN:
+  case FIELD_NAME_TOKEN:
   case FLOAT:
   case FUNCTION_CALL_TOKEN:
   case GREATER_OR_EQUAL_OPERATOR:
@@ -226,7 +257,7 @@ bool MySQLParsingBase::is_keyword(ANTLR3_UINT32 type)
   case SINGLE_QUOTED_TEXT:
   case STRING_TOKEN:
   case SUBQUERY_TOKEN:
-  case TABLE_REF_ID_TOKEN:
+  case TABLE_NAME_TOKEN:
   case UNDERLINE_SYMBOL:
   case UNDERSCORE_CHARSET:
   case VERSION_COMMENT:
@@ -248,7 +279,7 @@ bool MySQLParsingBase::is_keyword(ANTLR3_UINT32 type)
 /**
  * Returns true if the given token is a relation token.
  */
-bool MySQLParsingBase::is_relation(ANTLR3_UINT32 type)
+bool MySQLRecognitionBase::is_relation(ANTLR3_UINT32 type)
 {
   switch (type)
   {
@@ -298,7 +329,7 @@ bool MySQLParsingBase::is_relation(ANTLR3_UINT32 type)
 /**
  * Returns true if the given token is a number type.
  */
-bool MySQLParsingBase::is_number(ANTLR3_UINT32 type)
+bool MySQLRecognitionBase::is_number(ANTLR3_UINT32 type)
 {
   switch (type)
   {
@@ -320,7 +351,7 @@ bool MySQLParsingBase::is_number(ANTLR3_UINT32 type)
 /**
  * Returns true if the given token is an operator or punctuation character.
  */
-bool MySQLParsingBase::is_operator(ANTLR3_UINT32 type)
+bool MySQLRecognitionBase::is_operator(ANTLR3_UINT32 type)
 {
   switch (type)
   {
@@ -366,41 +397,16 @@ bool MySQLParsingBase::is_operator(ANTLR3_UINT32 type)
 
 //--------------------------------------------------------------------------------------------------
 
-bool MySQLParsingBase::is_subtree(struct ANTLR3_BASE_TREE_struct *tree)
+bool MySQLRecognitionBase::is_subtree(struct ANTLR3_BASE_TREE_struct *tree)
 {
   return tree->getChildCount(tree) > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-unsigned MySQLParsingBase::parse_sql_mode(const std::string &sql_mode)
+void MySQLRecognitionBase::reset()
 {
-  unsigned result = 0;
-
-  std::string sql_mode_string = base::toupper(sql_mode);
-  std::istringstream iss(sql_mode_string);
-  std::string mode;
-  while (std::getline(iss, mode, ','))
-  {
-    mode = base::trim(mode);
-    if (mode == "ANSI" || mode == "DB2" || mode == "MAXDB" || mode == "MSSQL" || mode == "ORACLE" ||
-      mode == "POSTGRESQL")
-      result |= SQL_MODE_ANSI_QUOTES | SQL_MODE_PIPES_AS_CONCAT | SQL_MODE_IGNORE_SPACE;
-    else if (mode == "ANSI_QUOTES")
-      result |= SQL_MODE_ANSI_QUOTES;
-    else if (mode == "PIPES_AS_CONCAT")
-      result |= SQL_MODE_PIPES_AS_CONCAT;
-    else if (mode == "NO_BACKSLASH_ESCAPES")
-      result |= SQL_MODE_NO_BACKSLASH_ESCAPES;
-    else if (mode == "IGNORE_SPACE")
-      result |= SQL_MODE_IGNORE_SPACE;
-    else if (mode == "HIGH_NOT_PRECEDENCE" || mode == "MYSQL323" || mode == "MYSQL40")
-      result |= SQL_MODE_HIGH_NOT_PRECEDENCE;
-  }
-
-  d->_sql_mode = result;
-
-  return result;
+  d->_error_info.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

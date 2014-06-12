@@ -101,14 +101,13 @@ antlr3BitsetNew(ANTLR3_UINT32 numBits)
 	numelements	= ((numBits -1) >> ANTLR3_BITSET_LOG_BITS) + 1;
 
 	bitset->blist.bits    = (pANTLR3_BITWORD) ANTLR3_MALLOC((size_t)(numelements * sizeof(ANTLR3_BITWORD)));
-	memset(bitset->blist.bits, 0, (size_t)(numelements * sizeof(ANTLR3_BITWORD)));
-	bitset->blist.length  = numelements;
-
 	if	(bitset->blist.bits == NULL)
 	{
 		ANTLR3_FREE(bitset);
 		return	NULL;
 	}
+	memset(bitset->blist.bits, 0, (size_t)(numelements * sizeof(ANTLR3_BITWORD)));
+	bitset->blist.length  = numelements;
 
 	antlr3BitsetSetAPI(bitset);
 

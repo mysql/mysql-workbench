@@ -27,9 +27,8 @@
 
 #include <glib.h>
 
+#include "base/log.h"
 #include "base/file_functions.h"
-//#include "base/xml_util_functions.h"
-
 
 #define GRT_FILE_VERSION_TAG "grt_format"
 #define GRT_FILE_VERSION "2.0"
@@ -41,7 +40,7 @@
 #define DBL_MAX_PRECISION 64
 
 
-
+DEFAULT_LOG_DOMAIN("serializer")
 
 static xmlNodePtr new_int_node(xmlNodePtr node, const char *name, int value)
 {
@@ -241,7 +240,7 @@ xmlNodePtr internal::Serializer::serialize_value(const ValueRef &value, xmlNodeP
       
       if (seen(value))
       {
-        g_message("found duplicate list value");
+        log_debug3("found duplicate list value");
         g_snprintf(buffer, sizeof(buffer), "%p", list.valueptr());
         node= new_node(parent, "link", buffer);
         set_prop(node, "type", "list");

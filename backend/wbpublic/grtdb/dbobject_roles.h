@@ -17,12 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef _DBOBJECT_ROLES_H_
-#define _DBOBJECT_ROLES_H_
+#pragma once
 
 #include "editor_dbobject.h"
-
-#include "wbpublic_public_interface.h"
 
 namespace bec {
 
@@ -36,13 +33,12 @@ namespace bec {
       Enabled
     };
 
-    ObjectPrivilegeListBE(const db_mgmt_RdbmsRef &rdbms);
+    ObjectPrivilegeListBE(ObjectRoleListBE* owner, const db_mgmt_RdbmsRef &rdbms);
 
     virtual void refresh();
     virtual size_t count();
 
     virtual bool set_field(const NodeId &node, ColumnId column, ssize_t value);
-    void set_owner(ObjectRoleListBE* owner) { _owner= owner; };
 
   protected:
     ObjectRoleListBE *_owner;
@@ -60,7 +56,7 @@ namespace bec {
       Name
     };
 
-    ObjectRoleListBE(DBObjectEditorBE *owner);
+    ObjectRoleListBE(DBObjectEditorBE *owner, const db_mgmt_RdbmsRef &rdbms);
 
     virtual size_t count();
     virtual void refresh();
@@ -76,6 +72,7 @@ namespace bec {
 
   protected:
     DBObjectEditorBE *_owner;
+    db_mgmt_RdbmsRef _rdbms;
     std::vector<db_RolePrivilegeRef> _role_privs;
 
     ObjectPrivilegeListBE _privilege_list;
@@ -85,5 +82,3 @@ namespace bec {
     virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
   };
 };
-
-#endif /* _DBOBJECT_ROLES_H_ */

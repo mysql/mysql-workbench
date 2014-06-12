@@ -51,7 +51,7 @@
   {\
     app_PluginRef plugin(get_grt());\
     app_PluginObjectInputRef pdef(get_grt());\
-    plugin->name("wb.print."aName);\
+    plugin->name("wb.print." aName);\
     plugin->caption(aCaption);\
     plugin->moduleName("WbPrinting");\
     plugin->moduleFunctionName(aName);\

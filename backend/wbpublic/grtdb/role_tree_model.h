@@ -20,7 +20,6 @@
 #ifndef _ROLE_TREE_MODEL_H_
 #define _ROLE_TREE_MODEL_H_
 
-#include "grtdb/editor_dbobject.h"
 #include "grt/tree_model.h"
 
 #include "grts/structs.db.h"

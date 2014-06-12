@@ -1848,7 +1848,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
     
 #endif
 
-  log_debug("Found %zd installed MySQL servers\n", entries.is_valid() ? entries.count() : -1);
+  log_debug("Found %li installed MySQL servers\n", entries.is_valid() ? (long)entries.count() : -1);
 
   return entries;
 }
@@ -2009,7 +2009,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       
       // If the display name is invalid will create one using the port
       if (display_name=="invalid")
-        display_name = base::strfmt("%zd", port);
+        display_name = base::to_string(port);
 
       instance->name("Local " + display_name);
 
@@ -2233,7 +2233,7 @@ int WorkbenchImpl::initializeOtherRDBMS()
     }
   }
   if (failed)
-    g_message("Support for one or more RDBMS sources have failed. View log file for more details.");
+    log_warning("Support for one or more RDBMS sources have failed.");
 
   _wb->load_other_connections();
   

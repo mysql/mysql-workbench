@@ -913,7 +913,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
     case mforms::FloatColumnType:
     {
       NSNumberFormatter *nf = [[[NSNumberFormatter alloc] init] autorelease];
-      [nf setNumberStyle: kCFNumberFormatterDecimalStyle];
+      [nf setNumberStyle: (NSNumberFormatterStyle)kCFNumberFormatterDecimalStyle];
       [[column dataCell] setAlignment: NSRightTextAlignment];
       [[column dataCell] setFormatter: nf];
       break;

@@ -63,6 +63,7 @@ add_library(wbpublic
     grtdb/editor_view.cpp
     grtdb/role_tree_model.cpp
     grtdb/sync_profile.cpp
+    objimpl/GrtStoredNote.cpp
     objimpl/db/db_DatabaseObject.cpp
     objimpl/db/db_Schema.cpp
     objimpl/db/db_Table.cpp
@@ -79,6 +80,7 @@ add_library(wbpublic
     grtsqlparser/sql_normalizer.cpp
     grtsqlparser/sql_statement_decomposer.cpp
     grtsqlparser/sql_specifics.cpp
+    grtsqlparser/mysql_parser_services.cpp
     sqlide/sqlide_generics.cpp
     sqlide/sql_editor_be.cpp
     sqlide/sql_editor_be_autocomplete.cpp
@@ -90,7 +92,6 @@ add_library(wbpublic
     sqlide/recordset_sqlite_storage.cpp
     sqlide/recordset_table_inserts_storage.cpp
     sqlide/recordset_text_storage.cpp
-    sqlide/sqlide.cpp
     sqlide/table_inserts_loader_be.cpp
     sqlide/autocomplete_object_name_cache.cpp
     sqlide/sql_script_run_wizard.cpp

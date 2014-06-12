@@ -148,6 +148,8 @@ class PSHelperViewTab(mforms.Box):
         for col in range(len(self._column_types)):
             if self._column_types[col] in [mforms.IntegerColumnType, mforms.LongIntegerColumnType]:
                 row.append(str(node.get_long(col)))
+            elif self._column_types[col] in [mforms.FloatColumnType]:
+                row.append(str(node.get_float(col)))
             else:
                 row.append(node.get_string(col))
         return ", ".join(row)
@@ -309,7 +311,6 @@ js_column_types = {
   "Float:s" : (mforms.FloatColumnType, lambda x: x / 1000000000.0),
   "String" : (mforms.StringColumnType, None),
   "StringLT" : (mforms.StringLTColumnType, None),
-  "NumberWithUnit" : (mforms.NumberWithUnitColumnType, None),
 }
 
 class JSSourceHelperViewTab(PSHelperViewTab):
@@ -351,6 +352,8 @@ class JSSourceHelperViewTab(PSHelperViewTab):
 
 
 class WbAdminPerformanceSchema(WbAdminPSBaseTab):
+    min_server_version = (5,6,6)
+    
     @classmethod
     def wba_register(cls, admin_context):
         admin_context.register_page(cls, "wba_performance", "Performance Reports", False)

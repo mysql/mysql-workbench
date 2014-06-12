@@ -501,7 +501,7 @@ NSString *sql8 = @"select 1--2";
   parser = MySQLParserNew(tokens);
   parser->pParser->rec->state->userp = &context;
 
-  MySQLParser_query_return ast = parser->query(parser);
+  pANTLR3_BASE_TREE tree = parser->query(parser).tree;
   
   NSString *combinedErrorText = @"No errors found";
   ANTLR3_UINT32 error_count = parser->pParser->rec->state->errorCount;
@@ -511,8 +511,8 @@ NSString *sql8 = @"select 1--2";
   }
   [errorText setString: combinedErrorText];
 
-  if (ast.tree != NULL) {
-    NSString *token_text = [self dumpTree: ast.tree state: parser->pParser->rec->state indentation: @""];
+  if (tree != NULL) {
+    NSString *token_text = [self dumpTree: tree state: parser->pParser->rec->state indentation: @""];
     [output setString: token_text];
   } else {
     [output setString: @"no tree"];

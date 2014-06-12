@@ -551,7 +551,9 @@ public:
         (*i)->set_value(value, rset->is_field_null(rset->edited_field_row(), c));
       }
 
-      _label_item->set_text(base::strfmt("%zi / %zi", rset->edited_field_row()+1, rset->count()));
+      std::stringstream out;
+      out << rset->edited_field_row() + 1 << " / " << rset->count();
+      _label_item->set_text(out.str());
       _tbar.find_item("first")->set_enabled(rset->edited_field_row() > 0);
       _tbar.find_item("back")->set_enabled(rset->edited_field_row() > 0);
 
@@ -835,7 +837,7 @@ void SqlEditorResult::show_import_recordset()
   try
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, _rset, rs)
-    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Sql_editor, dynamic_cast<SqlEditorForm::RecordsetData*>(rs->client_data())->editor, editor)
+    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(MySQLEditor, dynamic_cast<SqlEditorForm::RecordsetData*>(rs->client_data())->editor, editor)
     {
       grt::BaseListRef args(grtm->get_grt());
 

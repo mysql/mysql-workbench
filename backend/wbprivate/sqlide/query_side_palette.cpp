@@ -360,7 +360,7 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
     if (code_editor == NULL)
       return;
 
-    Sql_editor *editor = static_cast<Sql_editor*>(code_editor->get_host());
+    MySQLEditor *editor = static_cast<MySQLEditor*>(code_editor->get_host());
     if (editor != NULL && editor->grtobj().is_valid())
     {
       check_format_structures(editor);
@@ -490,7 +490,7 @@ void QuerySidePalette::show_help_hint_or_update()
 /**
  * Triggered by timer or manually to find a help topic from the given editor's text + position.
  */
-bool QuerySidePalette::find_context_help(Sql_editor *editor)
+bool QuerySidePalette::find_context_help(MySQLEditor *editor)
 {
   _help_timer = NULL;
 
@@ -501,7 +501,7 @@ bool QuerySidePalette::find_context_help(Sql_editor *editor)
   if (editor == NULL)
   {
     SqlEditorForm::Ref form = _owner.lock();
-    Sql_editor::Ref editor_ref = form->active_sql_editor();
+    MySQLEditor::Ref editor_ref = form->active_sql_editor();
     if (editor_ref)
       editor = &(*editor_ref);
     else
@@ -826,7 +826,7 @@ bool compare_lengths(const std::pair<std::string, std::string> &l, const std::pa
 
 //--------------------------------------------------------------------------------------------------
 
-void QuerySidePalette::check_format_structures(Sql_editor *editor)
+void QuerySidePalette::check_format_structures(MySQLEditor *editor)
 {
   mforms::CodeEditorConfig *config = editor->get_editor_settings();
 

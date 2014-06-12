@@ -30,6 +30,7 @@ configure-stamp:
 		-DMYSQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
         -DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
         -DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
+        -DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \
         -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
         -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp"
 
@@ -118,7 +119,7 @@ binary-arch: build install
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
-	LD_LIBRARY_PATH=$(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH) dh_shlibdeps
+	LD_LIBRARY_PATH=$(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH) dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

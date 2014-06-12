@@ -303,9 +303,10 @@ public:
 
     if (column == Name)
     {
-      char buffer[20];
-      sprintf(buffer, "[%zi]", node[0]+1);
-      value= buffer;
+      std::stringstream out;
+      out << "[" << node[0] + 1 << "]";
+      value = out.str();
+
       return true;
     }
     else
@@ -351,11 +352,12 @@ private:
     {
     case Name:
       {
-        char buffer[30];
-        sprintf(buffer, "[%zi]", node[0]+1);
-        value= StringRef(buffer);
+        std::stringstream out;
+        out << "[" << node[0] + 1 << "]";
+        value = StringRef(out.str());
       }
       return true;
+
     case Value:
       value= _value[node[0]];
       return true;

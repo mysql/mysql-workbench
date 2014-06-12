@@ -33,7 +33,7 @@
 DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
 //    : PluginEditorBase(m, grtm, args, "modules/data/editor_mysql_table.glade")
     : PluginEditorBase(m, grtm, args, 0)
-    , _be(new MySQLTableEditorBE(grtm, db_mysql_TableRef::cast_from(args[0]), get_rdbms_for_db_object(args[0])))
+    , _be(new MySQLTableEditorBE(grtm, db_mysql_TableRef::cast_from(args[0])))
     , _part_page(0)
     , _inserts_panel(0)
     , _inserts_grid(0)
@@ -80,7 +80,6 @@ DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, co
     if (cbox)
     {
       setup_combo_for_string_list(cbox);
-      //fill_combo_from_string_list(cbox, _be->get_all_schema_names());
     }
   }
   
@@ -198,7 +197,7 @@ void DbMySQLTableEditor::toggle_header_part()
 bool DbMySQLTableEditor::switch_edited_object(bec::GRTManager *grtm, const grt::BaseListRef &args)
 {
   MySQLTableEditorBE* old_be = _be;
-  _be = new MySQLTableEditorBE(grtm, db_mysql_TableRef::cast_from(args[0]), get_rdbms_for_db_object(args[0]));
+  _be = new MySQLTableEditorBE(grtm, db_mysql_TableRef::cast_from(args[0]));
 
   _columns_page->switch_be(_be);
   _indexes_page->switch_be(_be);

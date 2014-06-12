@@ -26,7 +26,6 @@
 #include <pcre.h>
 #include <ctime>
 
-//#define snprintf _snprintf
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -52,6 +51,7 @@
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <cairo/cairo.h>
 #include <cairo/cairo-pdf.h>
@@ -60,11 +60,9 @@
 #include <gl/glu.h>
 
 #include <glib.h>
-#include <glib/gstdio.h>
 
+#include "grts/structs.db.mgmt.h"
+#include "grts/structs.db.mysql.h"
 #include "grts/structs.model.h"
 #include "grts/structs.workbench.physical.h"
 #include "grts/structs.db.query.h"
-#include "grts/structs.workbench.physical.h"
-#include "grts/structs.workbench.logical.h"
-#include "grts/structs.db.migration.h"

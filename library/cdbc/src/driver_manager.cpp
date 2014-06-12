@@ -448,7 +448,9 @@ retry:
   catch (sql::SQLException &exc)
   {
     // authentication error
-    if (exc.getErrorCode() == 1045 || exc.getErrorCode() == 1044)
+    if (exc.getErrorCode() == 1045 || exc.getErrorCode() == 1044
+        || exc.getErrorCode() == 1968 // ER_ACCESS_DENIED_NO_PASSWORD_ERROR
+        )
     {
       if (!force_ask_password)
       {

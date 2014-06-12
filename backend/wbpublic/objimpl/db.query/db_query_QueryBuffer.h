@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,26 +17,20 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _DB_QUERY_QUERYBUFFER_H_
-#define _DB_QUERY_QUERYBUFFER_H_
+#pragma once
 
 #include <grts/structs.db.query.h>
 
-//db_query_QueryBufferRef WBPUBLICBACKEND_PUBLIC_FUNC grtwrap_sqleditor(db_query_EditorRef owner, Sql_editor::Ref editor);
-
-
+class MySQLEditor;
 
 class WBPUBLICBACKEND_PUBLIC_FUNC db_query_QueryBuffer::ImplData
 {
 public:
-  ImplData(db_query_QueryBufferRef aself, boost::shared_ptr<Sql_editor> aeditor)
-  : self(dynamic_cast<db_query_QueryBuffer*>(aself.valueptr())), editor(aeditor)
+  ImplData(db_query_QueryBufferRef aself, boost::shared_ptr<MySQLEditor> aeditor)
+    : self(dynamic_cast<db_query_QueryBuffer*>(aself.valueptr())), editor(aeditor)
   { 
   }
   
   db_query_QueryBuffer *self;
-  boost::weak_ptr<Sql_editor> editor;
+  boost::weak_ptr<MySQLEditor> editor;
 };
-
-#endif

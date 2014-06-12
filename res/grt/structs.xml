@@ -22,6 +22,13 @@
               <member name="filename" type="string" attr:editas="hide"/>
               <member name="createDate" type="string" attr:dontdiff="1" attr:editas="hide"/>
               <member name="lastChangeDate" type="string" attr:dontdiff="1" attr:editas="hide"/>
+              <method name="getText">
+                  <return type="string"/>
+              </method>
+              <method name="setText">
+                  <argument name="text" type="string"/>
+                  <return type="void"/>
+              </method>
           </members>
       </gstruct>
 

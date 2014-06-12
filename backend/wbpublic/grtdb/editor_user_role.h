@@ -104,7 +104,6 @@ namespace bec {
     RoleEditorBE(GRTManager *grtm, const db_RoleRef &role, const db_mgmt_RdbmsRef &rdbms);
 
     db_RoleRef get_role() { return _role; }
-    virtual GrtObjectRef get_object() { return get_role(); }
 
     const db_mgmt_RdbmsRef& get_rdbms() { return _rdbms; }
 

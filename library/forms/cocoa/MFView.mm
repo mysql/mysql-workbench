@@ -103,18 +103,19 @@ static const char *dropDelegateKey = "dropDelegate";
   NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
 
   mforms::MouseButton mouseButton;
-  switch ([event buttonNumber])
+  switch ([event buttonNumber]) // NSLeftMouseDown etc are NOT buttonNumber constants
   {
-    case NSRightMouseUp:
+    case 1:
       mouseButton = mforms::MouseButtonRight;
       break;
 
-    case NSOtherMouseUp:
-      mouseButton = mforms::MouseButtonOther;
+    case 0:
+      mouseButton = mforms::MouseButtonLeft;
       break;
 
     default:
-      mouseButton = mforms::MouseButtonLeft;
+      mouseButton = mforms::MouseButtonOther;
+      break;
   }
 
   bool handled = false;
@@ -139,18 +140,19 @@ static const char *dropDelegateKey = "dropDelegate";
 {
   NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
   mforms::MouseButton mouseButton;
-  switch ([event buttonNumber])
+  switch ([event buttonNumber]) // NSLeftMouseDown etc are NOT buttonNumber constants
   {
-    case NSRightMouseDown:
+    case 1:
       mouseButton = mforms::MouseButtonRight;
       break;
 
-    case NSOtherMouseDown:
-      mouseButton = mforms::MouseButtonOther;
+    case 0:
+      mouseButton = mforms::MouseButtonLeft;
       break;
 
     default:
-      mouseButton = mforms::MouseButtonLeft;
+      mouseButton = mforms::MouseButtonOther;
+      break;
   }
   
   return mOwner->mouse_down(mouseButton, p.x, p.y);

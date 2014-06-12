@@ -371,11 +371,6 @@ static void textbox_clear(mforms::TextBox *self)
   }  
 }
 
-void textbox_set_front_color(const std::string &color)
-{
-  //TODO: implement change font color
-}
-
 void cf_textbox_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();

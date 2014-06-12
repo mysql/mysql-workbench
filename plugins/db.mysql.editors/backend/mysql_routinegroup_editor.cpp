@@ -17,46 +17,31 @@
  * 02110-1301  USA
  */
 
-#include "grt/grt_dispatcher.h"
 #include "mysql_routinegroup_editor.h"
+
 #include "base/string_utilities.h"
 
 #include "mforms/code_editor.h"
 
-using namespace base;
+using namespace bec;
 
-MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineGroupRef &group, const db_mgmt_RdbmsRef &rdbms)
-  : bec::RoutineGroupEditorBE(grtm, group, rdbms)
+MySQLRoutineGroupEditorBE::MySQLRoutineGroupEditorBE(bec::GRTManager *grtm, const db_mysql_RoutineGroupRef &group)
+  : bec::RoutineGroupEditorBE(grtm, group)
 {
+  _routine_group = group;
   if (!is_editing_live_object())
-    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(),boost::bind(&MySQLRoutineGroupEditorBE::commit_changes, this));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-std::string MySQLRoutineGroupEditorBE::get_procedure_body()
-{
-  return strfmt("CREATE PROCEDURE `%s`.`proc`()\nBEGIN\n  \nEND %s\n\n",
-    get_schema()->name().c_str(), _non_std_sql_delimiter.c_str());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-std::string MySQLRoutineGroupEditorBE::get_function_body()
-{
-  return strfmt("CREATE FUNCTION `%s`.`func`() RETURNS INT\nBEGIN\n  \nEND %s\n\n",
-    get_schema()->name().c_str(), _non_std_sql_delimiter.c_str());
+    scoped_connect(get_sql_editor()->get_editor_control()->signal_lost_focus(), boost::bind(&MySQLRoutineGroupEditorBE::commit_changes, this));
 }
 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Loads the current view sql text into the editor control and marks that as not dirty.
+ * Loads the current routines sql text into the editor control and marks that as not dirty.
  */
 void MySQLRoutineGroupEditorBE::load_routines_sql()
 {
   mforms::CodeEditor* editor = get_sql_editor()->get_editor_control();
-  std::string sql = get_routines_sql();
+  std::string sql = get_sql();
   editor->set_text_keeping_state(sql.c_str());
   editor->reset_dirty();
 }
@@ -69,10 +54,35 @@ void MySQLRoutineGroupEditorBE::commit_changes()
   if (editor->is_dirty())
   {
     const std::string sql = editor->get_text(false);
-    set_routines_sql(sql, true);
-    editor->reset_dirty();
+    if (sql != get_sql())
+    {
+      AutoUndoEdit undo(this, _routine_group, "sql");
+
+      freeze_refresh_on_object_change();
+      _parser_services->parseRoutines(_parser_context, _routine_group, sql);
+      thaw_refresh_on_object_change();
+
+      undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+    }
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * This is a special function for unit/integration testing only. Don't use it for normal
+ * processing. It pretends there was new sql set in the associated editor and parses this text
+ * now into the routine group being edited by this editor.
+ */
+void MySQLRoutineGroupEditorBE::use_sql(const std::string &sql)
+{
+  AutoUndoEdit undo(this, _routine_group, "sql");
+
+  freeze_refresh_on_object_change();
+  _parser_services->parseRoutines(_parser_context, _routine_group, sql);
+  thaw_refresh_on_object_change();
+
+  undo.end(base::strfmt(_("Edit routine group `%s` of `%s`.`%s`"), _routine_group->name().c_str(), get_schema_name().c_str(), get_name().c_str()));
+}
+
+//--------------------------------------------------------------------------------------------------

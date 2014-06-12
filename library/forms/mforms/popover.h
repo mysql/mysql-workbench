@@ -55,6 +55,7 @@ namespace mforms {
     void (*set_content)(Popover *self, View *content);
     void (*set_size)(Popover *self, int, int);
     void (*show)(Popover *self, int, int, StartPosition); // Position of the popover's tip in screen coordinates.
+    void (*show_bound)(Popover *self, View*, int, int, StartPosition); // Position of the popover's tip in screen coordinates.
     void (*close)(Popover* self);
   };
 #endif
@@ -84,6 +85,13 @@ namespace mforms {
     void show(int x, int y, StartPosition position);
     void close();
 
+    /** Same as show, but the popover will automatically close when the mouse moves outside of the area occcupied by the owner view */
+    void show_bound(View *owner, int x, int y, StartPosition position); //TODO: Windows, Linux
+
+    boost::signals2::signal<void ()> *signal_close() { return &_bound_close; }
+
+  private:
+    boost::signals2::signal<void ()> _bound_close;
   };
 };
 
