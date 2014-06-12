@@ -410,10 +410,24 @@ void SpatialDrawBox::invalidate(bool reproject)
 
 bool SpatialDrawBox::mouse_double_click(mforms::MouseButton button, int x, int y)
 {
-  // zoom in and center the map at the clicked position
- 
-  zoom_in();
+  double lat, lon;
 
+  // zoom in and center the map at the clicked position
+  if (screen_to_world(x, y, lat, lon))
+  {
+    double clat, clon;
+    if (screen_to_world(get_width()/2, get_height()/2, clat, clon))
+    {
+      zoom_in();
+      
+      int dx, dy;
+      world_to_screen(clat - lat, clon - lon, dx, dy);
+      _offset_x = (dx - get_width()/2);
+      _offset_y = (dy - get_height()/2);
+      invalidate();
+      _dragging = false;
+    }
+  }
   return false;
 }
 
@@ -493,16 +507,29 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
 
 void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2)
 {
-  _zoom_level = 1.0;
-  _offset_x = 0;
-  _offset_y = 0;
+  double lat1, lat2;
+  double lon1, lon2;
 
-  // calculate the area in lat/lon
-  //TODO
+  if (x1 > x2) std::swap(x1, x2);
+  if (y1 > y2) std::swap(y1, y2);
 
+  if (screen_to_world(x1, y1, lat1, lon1) &&
+      screen_to_world(x2, y2, lat2, lon2))
+  {
+    _zoom_level = 1.0;
+    _offset_x = 0;
+    _offset_y = 0;
 
-  _displaying_restricted = true;
-  invalidate(true);
+    _min_lat = lat1;
+    _max_lat = lat2;
+    _min_lon = lon1;
+    _max_lon = lon2;
+
+    //XXX not working
+
+    _displaying_restricted = true;
+    invalidate(true);
+  }
 }
 
 void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
@@ -550,34 +577,6 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
                             abs(_select_x-_drag_x), abs(_select_y-_drag_y)));
     cr.stroke();
   }
-
-  // test code (click on map to see if conversions are correct)
-  {
-    int x, y;
-    double la, lo;
-    // draw a red point in the converted coords
-    screen_to_world(_drag_x, _drag_y, la, lo);
-    world_to_screen(la, lo, x, y);
-    cr.set_color(base::Color(1,0,0));
-    cr.rectangle(x, y, 5, 5);
-    cr.fill();
-    // draw a blue point in the non-converted coords
-    cr.set_color(base::Color(0,0,0.7));
-    cr.rectangle(_drag_x, _drag_y, 10, 10);
-    cr.fill();
-  }
-
-  //test code 2
-//  {
-//    int x = 0, y = 0;
-//    double la, _la, lo, _lo;
-//    _spatial_reprojector->to_latlon(x, y, la, lo, true);
-//    fprintf();
-//
-//    _spatial_reprojector->from_latlon(lo, la, x, y);
-//    fprintf(stderr, "X: %d, Y: %d\n", x, y);
-//
-//  }
 }
 
 bool SpatialDrawBox::screen_to_world(int x, int y, double &lat, double &lon)
