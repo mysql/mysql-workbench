@@ -29,24 +29,6 @@
 
 DEFAULT_LOG_DOMAIN("spatial");
 
-
-inline std::string format_latitude(double l)
-{
-  int deg = floor(l);
-  int min = (l - deg) * 60;
-  double sec = (l - deg - min / 60.0) * 3600;
-  return base::strfmt("%3i\xc2\xb0%02i'%.6f\"%c", deg, min, sec, l < 0 ? 'S' : 'N');
-}
-
-inline std::string format_longitude(double l)
-{
-  int deg = floor(l);
-  int min = (l - deg) * 60;
-  double sec = (l - deg - min / 60.0) * 3600;
-  return base::strfmt("%3i\xc2\xb0%02i'%.6f\"%c", deg, min, sec, l < 0 ? 'W' : 'E');
-}
-
-
 class ProgressPanel : public mforms::Box
 {
 public:
@@ -178,11 +160,10 @@ void SpatialDrawBox::render(bool reproject)
 
   if (_spatial_reprojector == NULL)
     _spatial_reprojector = new spatial::Converter(visible_area,
-                              spatial::ProjectionFactory::get_projection(spatial::ProjGeodetic).get_wkt(),
-                              spatial::ProjectionFactory::get_projection(_proj).get_wkt());
+                              spatial::Projection::get_instance().get_projection(spatial::ProjGeodetic),
+                              spatial::Projection::get_instance().get_projection(_proj));
 
-  _spatial_reprojector->change_projection(NULL, spatial::ProjectionFactory::get_projection(_proj).get_wkt());
-  _spatial_reprojector->change_view(visible_area);
+  _spatial_reprojector->change_projection(visible_area, NULL, spatial::Projection::get_instance().get_projection(_proj));
 
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
 
@@ -269,7 +250,7 @@ SpatialDrawBox::~SpatialDrawBox()
 void SpatialDrawBox::set_projection(spatial::ProjectionType proj)
 {
   if (_spatial_reprojector)
-    _spatial_reprojector->change_projection(NULL, spatial::ProjectionFactory::get_projection(proj).get_wkt());
+    _spatial_reprojector->change_projection(NULL, spatial::Projection::get_instance().get_projection(proj));
 
   _proj = proj;
   invalidate(true);
