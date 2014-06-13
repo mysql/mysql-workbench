@@ -412,82 +412,163 @@ static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 {
   log_error("ERROR %d, %s\n", err_no, msg);
 }
+//
+//spatial::Projection::Projection() : _is_projected(false), _name("Geodetic")
+//{
+//  _wkt = "GEOGCS[\"WGS 84\", "
+//    "DATUM[\"WGS_1984\", "
+//    "SPHEROID[\"WGS 84\",6378137,298.257223563, "
+//    "AUTHORITY[\"EPSG\",\"7030\"]], "
+//        "AUTHORITY[\"EPSG\",\"6326\"]], "
+//        "PRIMEM[\"Greenwich\",0, "
+//        "AUTHORITY[\"EPSG\",\"8901\"]], "
+//        "UNIT[\"degree\",0.01745329251994328, "
+//        "AUTHORITY[\"EPSG\",\"9122\"]], "
+//        "AUTHORITY[\"EPSG\",\"4326\"]]";
+//}
+//
+//char* spatial::Projection::get_wkt()
+//{
+//  return &(*_wkt.begin());
+//}
+//
+//bool spatial::Projection::is_projected()
+//{
+//  return _is_projected;
+//}
+//
+//const char* spatial::Projection::to_string()
+//{
+//  return _name.c_str();
+//}
+//
+//spatial::Projection::Mercator::Mercator()
+//{
+//  _is_projected = true;
+//  _name = "Mercator";
+//
+//  _wkt = "PROJCS[\"World_Mercator\", "
+//    "GEOGCS[\"GCS_WGS_1984\", "
+//    "DATUM[\"WGS_1984\", "
+//    "SPHEROID[\"WGS_1984\",6378137,298.257223563]], "
+//    "PRIMEM[\"Greenwich\",0], "
+//    "UNIT[\"Degree\",0.017453292519943295]], "
+//    "PROJECTION[\"Mercator_1SP\"], "
+//    "PARAMETER[\"False_Easting\",0], "
+//    "PARAMETER[\"False_Northing\",0], "
+//    "PARAMETER[\"Central_Meridian\",0], "
+//    "PARAMETER[\"Standard_Parallel_1\",0], "
+//    "UNIT[\"Meter\",1], "
+//    "AUTHORITY[\"EPSG\",\"54004\"]]";
+//}
+//
+//spatial::Projection::Equirectangular::Equirectangular()
+//{
+//   _is_projected = true;
+//  _name = "Equirectangular";
+//
+//  _wkt = "PROJCS[\"World_Equidistant_Cylindrical\","
+//    "GEOGCS[\"GCS_WGS_1984\","
+//    "DATUM[\"WGS_1984\","
+//    "SPHEROID[\"WGS_1984\",6378137,298.257223563]],"
+//    "PRIMEM[\"Greenwich\",0],"
+//    "UNIT[\"Degree\",0.017453292519943295]],"
+//    "PROJECTION[\"Equirectangular\"],"
+//    "PARAMETER[\"False_Easting\",0],"
+//    "PARAMETER[\"False_Northing\",0],"
+//    "PARAMETER[\"Central_Meridian\",0],"
+//    "PARAMETER[\"Standard_Parallel_1\",60],"
+//    "UNIT[\"Meter\",1],"
+//    "AUTHORITY[\"EPSG\",\"54002\"]]";
+//}
+//
+//spatial::Projection::Robinson::Robinson()
+//{
+//  _is_projected = true;
+//  _name = "Robinson";
+//
+//  _wkt = "PROJCS[\"World_Robinson\","
+//    "GEOGCS[\"GCS_WGS_1984\","
+//    "DATUM[\"WGS_1984\","
+//    "SPHEROID[\"WGS_1984\",6378137,298.257223563]],"
+//    "PRIMEM[\"Greenwich\",0],"
+//    "UNIT[\"Degree\",0.017453292519943295]],"
+//    "PROJECTION[\"Robinson\"],"
+//    "PARAMETER[\"False_Easting\",0],"
+//    "PARAMETER[\"False_Northing\",0],"
+//    "PARAMETER[\"Central_Meridian\",0],"
+//    "UNIT[\"Meter\",1],"
+//    "AUTHORITY[\"EPSG\",\"54030\"]]";
+//}
+//
+//spatial::Projection::Bonne::Bonne()
+//{
+//  _is_projected = true;
+//  _name = "Bonne";
+//
+//  _wkt = "PROJCS[\"World_Bonne\", "
+//    "GEOGCS[\"GCS_WGS_1984\", "
+//    "DATUM[\"WGS_1984\", "
+//    "SPHEROID[\"WGS_1984\",6378137,298.257223563]], "
+//    "PRIMEM[\"Greenwich\",0], "
+//    "UNIT[\"Degree\",0.017453292519943295]], "
+//    "PROJECTION[\"Bonne\"], "
+//    "PARAMETER[\"False_Easting\",0], "
+//    "PARAMETER[\"False_Northing\",0], "
+//    "PARAMETER[\"Central_Meridian\",0], "
+//    "PARAMETER[\"Standard_Parallel_1\",60], "
+//    "UNIT[\"Meter\",1], "
+//    "AUTHORITY[\"EPSG\",\"54024\"]]";
+//}
 
-spatial::Projection::Projection() : _is_projected(false), _name("Geodetic")
+
+bool spatial::operator== (ProjectionView &v1, ProjectionView &v2)
 {
-  _wkt = "GEOGCS[\"WGS 84\", "
-    "DATUM[\"WGS_1984\", "
-    "SPHEROID[\"WGS 84\",6378137,298.257223563, "
-    "AUTHORITY[\"EPSG\",\"7030\"]], "
-        "AUTHORITY[\"EPSG\",\"6326\"]], "
-        "PRIMEM[\"Greenwich\",0, "
-        "AUTHORITY[\"EPSG\",\"8901\"]], "
-        "UNIT[\"degree\",0.01745329251994328, "
-        "AUTHORITY[\"EPSG\",\"9122\"]], "
-        "AUTHORITY[\"EPSG\",\"4326\"]]";
+  return (v1.MaxLat == v2.MaxLat &&
+      v1.MaxLon == v2.MaxLon &&
+      v1.MinLat == v2.MinLat &&
+      v1.MinLon == v2.MinLon &&
+      v1.height == v2.height &&
+      v1.width == v2.width);
+}
+bool spatial::operator!= (ProjectionView &v1, ProjectionView &v2)
+{
+  return !(v1==v2);
 }
 
-char* spatial::Projection::get_wkt()
+spatial::Projection::Projection()
 {
-  return &(*_wkt.begin());
-}
+  char* m_wkt = const_cast<char*>("PROJCS[\"World_Mercator\", "
+      "GEOGCS[\"GCS_WGS_1984\", "
+      "DATUM[\"WGS_1984\", "
+      "SPHEROID[\"WGS_1984\",6378137,298.257223563]], "
+      "PRIMEM[\"Greenwich\",0], "
+      "UNIT[\"Degree\",0.017453292519943295]], "
+      "PROJECTION[\"Mercator_1SP\"], "
+      "PARAMETER[\"False_Easting\",0], "
+      "PARAMETER[\"False_Northing\",0], "
+      "PARAMETER[\"Central_Meridian\",0], "
+      "PARAMETER[\"Standard_Parallel_1\",0], "
+      "UNIT[\"Meter\",1], "
+      "AUTHORITY[\"EPSG\",\"54004\"]]");
+  _mercator_srs.importFromWkt(&m_wkt);
 
-bool spatial::Projection::is_projected()
-{
-  return _is_projected;
-}
+  char* e_wkt = const_cast<char*>("PROJCS[\"World_Equidistant_Cylindrical\","
+      "GEOGCS[\"GCS_WGS_1984\","
+      "DATUM[\"WGS_1984\","
+      "SPHEROID[\"WGS_1984\",6378137,298.257223563]],"
+      "PRIMEM[\"Greenwich\",0],"
+      "UNIT[\"Degree\",0.017453292519943295]],"
+      "PROJECTION[\"Equirectangular\"],"
+      "PARAMETER[\"False_Easting\",0],"
+      "PARAMETER[\"False_Northing\",0],"
+      "PARAMETER[\"Central_Meridian\",0],"
+      "PARAMETER[\"Standard_Parallel_1\",60],"
+      "UNIT[\"Meter\",1],"
+      "AUTHORITY[\"EPSG\",\"54002\"]]");
+  _equirectangular_srs.importFromWkt(&e_wkt);
 
-const char* spatial::Projection::to_string()
-{
-  return _name.c_str();
-}
-
-spatial::Projection::Mercator::Mercator()
-{
-  _is_projected = true;
-  _name = "Mercator";
-
-  _wkt = "PROJCS[\"World_Mercator\", "
-    "GEOGCS[\"GCS_WGS_1984\", "
-    "DATUM[\"WGS_1984\", "
-    "SPHEROID[\"WGS_1984\",6378137,298.257223563]], "
-    "PRIMEM[\"Greenwich\",0], "
-    "UNIT[\"Degree\",0.017453292519943295]], "
-    "PROJECTION[\"Mercator_1SP\"], "
-    "PARAMETER[\"False_Easting\",0], "
-    "PARAMETER[\"False_Northing\",0], "
-    "PARAMETER[\"Central_Meridian\",0], "
-    "PARAMETER[\"Standard_Parallel_1\",0], "
-    "UNIT[\"Meter\",1], "
-    "AUTHORITY[\"EPSG\",\"54004\"]]";
-}
-
-spatial::Projection::Equirectangular::Equirectangular()
-{
-   _is_projected = true;
-  _name = "Equirectangular";
-
-  _wkt = "PROJCS[\"World_Equidistant_Cylindrical\","
-    "GEOGCS[\"GCS_WGS_1984\","
-    "DATUM[\"WGS_1984\","
-    "SPHEROID[\"WGS_1984\",6378137,298.257223563]],"
-    "PRIMEM[\"Greenwich\",0],"
-    "UNIT[\"Degree\",0.017453292519943295]],"
-    "PROJECTION[\"Equirectangular\"],"
-    "PARAMETER[\"False_Easting\",0],"
-    "PARAMETER[\"False_Northing\",0],"
-    "PARAMETER[\"Central_Meridian\",0],"
-    "PARAMETER[\"Standard_Parallel_1\",60],"
-    "UNIT[\"Meter\",1],"
-    "AUTHORITY[\"EPSG\",\"54002\"]]";
-}
-
-spatial::Projection::Robinson::Robinson()
-{
-  _is_projected = true;
-  _name = "Robinson";
-
-  _wkt = "PROJCS[\"World_Robinson\","
+  char* r_wkt = const_cast<char*>("PROJCS[\"World_Robinson\","
     "GEOGCS[\"GCS_WGS_1984\","
     "DATUM[\"WGS_1984\","
     "SPHEROID[\"WGS_1984\",6378137,298.257223563]],"
@@ -498,52 +579,86 @@ spatial::Projection::Robinson::Robinson()
     "PARAMETER[\"False_Northing\",0],"
     "PARAMETER[\"Central_Meridian\",0],"
     "UNIT[\"Meter\",1],"
-    "AUTHORITY[\"EPSG\",\"54030\"]]";
+    "AUTHORITY[\"EPSG\",\"54030\"]]");
+  _robinson_srs.importFromWkt(&r_wkt);
+
+  char *g_wkt = const_cast<char*>("GEOGCS[\"WGS 84\", "
+      "DATUM[\"WGS_1984\", "
+      "SPHEROID[\"WGS 84\",6378137,298.257223563, "
+      "AUTHORITY[\"EPSG\",\"7030\"]], "
+          "AUTHORITY[\"EPSG\",\"6326\"]], "
+          "PRIMEM[\"Greenwich\",0, "
+          "AUTHORITY[\"EPSG\",\"8901\"]], "
+          "UNIT[\"degree\",0.01745329251994328, "
+          "AUTHORITY[\"EPSG\",\"9122\"]], "
+          "AUTHORITY[\"EPSG\",\"4326\"]]");
+  _geodetic_srs.importFromWkt(&g_wkt);
+
+  char *b_wkt = const_cast<char*>("PROJCS[\"World_Bonne\", "
+      "GEOGCS[\"GCS_WGS_1984\", "
+      "DATUM[\"WGS_1984\", "
+      "SPHEROID[\"WGS_1984\",6378137,298.257223563]], "
+      "PRIMEM[\"Greenwich\",0], "
+      "UNIT[\"Degree\",0.017453292519943295]], "
+      "PROJECTION[\"Bonne\"], "
+      "PARAMETER[\"False_Easting\",0], "
+      "PARAMETER[\"False_Northing\",0], "
+      "PARAMETER[\"Central_Meridian\",0], "
+      "PARAMETER[\"Standard_Parallel_1\",60], "
+      "UNIT[\"Meter\",1], "
+      "AUTHORITY[\"EPSG\",\"54024\"]]");
+  _bonne_srs.importFromWkt(&b_wkt);
+
 }
 
-spatial::Projection::Bonne::Bonne()
+spatial::Projection& spatial::Projection::get_instance()
 {
-  _is_projected = true;
-  _name = "Bonne";
-
-  _wkt = "PROJCS[\"World_Bonne\", "
-    "GEOGCS[\"GCS_WGS_1984\", "
-    "DATUM[\"WGS_1984\", "
-    "SPHEROID[\"WGS_1984\",6378137,298.257223563]], "
-    "PRIMEM[\"Greenwich\",0], "
-    "UNIT[\"Degree\",0.017453292519943295]], "
-    "PROJECTION[\"Bonne\"], "
-    "PARAMETER[\"False_Easting\",0], "
-    "PARAMETER[\"False_Northing\",0], "
-    "PARAMETER[\"Central_Meridian\",0], "
-    "PARAMETER[\"Standard_Parallel_1\",60], "
-    "UNIT[\"Meter\",1], "
-    "AUTHORITY[\"EPSG\",\"54024\"]]";
+  static Projection instance;
+  return instance;
 }
 
-spatial::Projection spatial::ProjectionFactory::get_projection(ProjectionType type)
+OGRSpatialReference* spatial::Projection::get_projection(ProjectionType type)
 {
   switch(type)
-    {
-    case ProjMercator:
-      return Projection::Mercator();
-
-    case ProjEquirectangular:
-      return Projection::Equirectangular();
-
-    case ProjBonne:
-      return Projection::Bonne();
-
-    case ProjRobinson:
-      return Projection::Robinson();
-
-    case ProjGeodetic:
-      return Projection();
-
-    default:
-      throw std::logic_error("Specified projection type is unsupported\n");
-    }
+  {
+  case ProjMercator:
+    return &_mercator_srs;
+  case ProjEquirectangular:
+    return &_equirectangular_srs;
+  case ProjBonne:
+    return &_bonne_srs;
+  case ProjRobinson:
+    return &_robinson_srs;
+  case ProjGeodetic:
+    return &_geodetic_srs;
+  default:
+    throw std::logic_error("Specified projection type is unsupported\n");
+  }
 }
+//
+//spatial::Projection spatial::ProjectionFactory::get_projection(ProjectionType type)
+//{
+//  switch(type)
+//    {
+//    case ProjMercator:
+//      return Projection::Mercator();
+//
+//    case ProjEquirectangular:
+//      return Projection::Equirectangular();
+//
+//    case ProjBonne:
+//      return Projection::Bonne();
+//
+//    case ProjRobinson:
+//      return Projection::Robinson();
+//
+//    case ProjGeodetic:
+//      return Projection();
+//
+//    default:
+//      throw std::logic_error("Specified projection type is unsupported\n");
+//    }
+//}
 
 
 void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeContainer> &shapes_container)
@@ -628,14 +743,8 @@ int spatial::Importer::import_from_mysql(const std::string &data)
   OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin()+4))), NULL, &_geometry);
 
   if (_geometry)
-  {
-    OGRSpatialReference hDstSRS;
-    char *wkt = ProjectionFactory::get_projection(ProjGeodetic).get_wkt();
-    hDstSRS.importFromWkt(&wkt);
+    _geometry->assignSpatialReference(Projection::get_instance().get_projection(ProjGeodetic));
 
-    _geometry->assignSpatialReference(&hDstSRS);
-
-  }
   if (ret_val == OGRERR_NONE)
     return 0;
   else
@@ -648,14 +757,8 @@ int spatial::Importer::import_from_wkt(std::string data)
   OGRErr ret_val = OGRGeometryFactory::createFromWkt(&d, NULL, &_geometry);
 
   if (_geometry)
-  {
-    OGRSpatialReference hDstSRS;
+    _geometry->assignSpatialReference(Projection::get_instance().get_projection(ProjGeodetic));
 
-    char *wkt = ProjectionFactory::get_projection(ProjGeodetic).get_wkt();
-    hDstSRS.importFromWkt(&wkt);
-
-    _geometry->assignSpatialReference(&hDstSRS);
-  }
   if (ret_val == OGRERR_NONE)
     return 0;
   else
@@ -667,10 +770,12 @@ void spatial::Importer::interrupt()
   _interrupt = true;
 }
 
-spatial::Converter::Converter(ProjectionView view, char *src_wkt, char *dst_wkt) : _geo_to_proj(NULL), _proj_to_geo(NULL), _view(view), _interrupt(false)
+spatial::Converter::Converter(ProjectionView view, OGRSpatialReference *src_srs, OGRSpatialReference *dst_srs)
+: _geo_to_proj(NULL), _proj_to_geo(NULL), _source_srs(NULL), _target_srs(NULL), _interrupt(false)
 {
   CPLSetErrorHandler(&ogr_error_handler);
-  change_projection(src_wkt, dst_wkt);
+  OGRRegisterAll();
+  change_projection(view, src_srs, dst_srs);
 }
 
 const char* spatial::Converter::dec_to_dms(double angle, AxisType axis, int precision)
@@ -691,30 +796,46 @@ spatial::Converter::~Converter()
   base::RecMutexLock mtx(_projection_protector);
 }
 
-void spatial::Converter::change_view(ProjectionView view)
+void spatial::Converter::change_projection(OGRSpatialReference *src_srs, OGRSpatialReference *dst_srs)
 {
-  _view = view;
-  change_projection();
+  change_projection(_view, src_srs, dst_srs);
 }
 
-void spatial::Converter::change_projection(char *src_wkt, char *dst_wkt)
+void spatial::Converter::change_projection(ProjectionView view, OGRSpatialReference *src_srs, OGRSpatialReference *dst_srs)
 {
   base::RecMutexLock mtx(_projection_protector);
-  if (src_wkt != NULL)
-    _sourceSRS.importFromWkt(&src_wkt);
+  int recalculate = 0;
 
-  if (dst_wkt != NULL)
-    _targetSRS.importFromWkt(&dst_wkt);
+  if (view != _view)
+  {
+    _view = view;
+    recalculate = 1;
+  }
 
-  if (dst_wkt != NULL || src_wkt != NULL)
+  if (src_srs != NULL && src_srs != _source_srs)
+  {
+    _source_srs = src_srs;
+    recalculate = 2;
+  }
+
+  if (dst_srs != NULL && dst_srs != _target_srs)
+  {
+    _target_srs = dst_srs;
+    recalculate = 2;
+  }
+
+  if (recalculate == 0)
+    return;
+
+  if (recalculate == 2)
   {
     if (_geo_to_proj != NULL)
       OCTDestroyCoordinateTransformation(_geo_to_proj);
     if (_proj_to_geo != NULL)
       OCTDestroyCoordinateTransformation(_proj_to_geo);
 
-    _geo_to_proj = OGRCreateCoordinateTransformation(&_sourceSRS, &_targetSRS);
-    _proj_to_geo = OGRCreateCoordinateTransformation(&_targetSRS, &_sourceSRS);
+    _geo_to_proj = OGRCreateCoordinateTransformation(_source_srs, _target_srs);
+    _proj_to_geo = OGRCreateCoordinateTransformation(_target_srs, _source_srs);
     if (!_geo_to_proj || !_proj_to_geo)
       throw std::logic_error("Unable to perform specified transformation.\n");
   }
@@ -724,7 +845,7 @@ void spatial::Converter::change_projection(char *src_wkt, char *dst_wkt)
   if (!_geo_to_proj->Transform(1, &minLat, &maxLon, 0))
   {
     char * proj4;
-    _targetSRS.exportToProj4(&proj4);
+    _target_srs->exportToProj4(&proj4);
     log_error("Unable to perform requested reprojection from WGS84, to %s\n", proj4);
     CPLFree(proj4);
   }
@@ -732,7 +853,7 @@ void spatial::Converter::change_projection(char *src_wkt, char *dst_wkt)
   if (!_geo_to_proj->Transform(1, &maxLat, &minLon, 0))
   {
     char * proj4;
-    _targetSRS.exportToProj4(&proj4);
+    _target_srs->exportToProj4(&proj4);
     log_error("Unable to perform requested reprojection from WGS84, to %s\n", proj4);
     CPLFree(proj4);
   }

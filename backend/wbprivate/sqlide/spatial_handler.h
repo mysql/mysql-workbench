@@ -126,7 +126,13 @@ namespace spatial
     double MaxLon;
     double MinLat;
     double MinLon;
+    friend bool operator== (ProjectionView &v1, ProjectionView &v2);
+    friend bool operator!= (ProjectionView &v1, ProjectionView &v2);
   };
+
+  bool operator== (ProjectionView &v1, ProjectionView &v2);
+  bool operator!= (ProjectionView &v1, ProjectionView &v2);
+
   enum ProjectionType
   {
     ProjMercator = 1, ProjEquirectangular = 2, ProjRobinson = 3, ProjBonne = 4, ProjGeodetic = 5
@@ -148,54 +154,69 @@ namespace spatial
     std::vector<base::Point> points;
   };
 
+//  class Projection
+//  {
+//  protected:
+//    std::string _wkt;
+//    bool _is_projected;
+//    std::string _name;
+//
+//  public:
+//    Projection();
+//    char* get_wkt();
+//    bool is_projected();
+//    const char *to_string();
+//
+//    class Mercator;
+//    class Equirectangular;
+//    class Robinson;
+//    class Bonne;
+//  };
+//
+//
+//  class Projection::Mercator : public Projection
+//  {
+//    friend class ProjectionFactory;
+//    Mercator();
+//  };
+//
+//  class Projection::Equirectangular : public Projection
+//  {
+//    friend class ProjectionFactory;
+//    Equirectangular();
+//  };
+//
+//  class Projection::Robinson : public Projection
+//  {
+//    friend class ProjectionFactory;
+//    Robinson();
+//  };
+//
+//  class Projection::Bonne : public Projection
+//  {
+//    friend class ProjectionFactory;
+//    Bonne();
+//  };
+
   class Projection
   {
   protected:
-    std::string _wkt;
-    bool _is_projected;
-    std::string _name;
+    OGRSpatialReference _mercator_srs;
+    OGRSpatialReference _equirectangular_srs;
+    OGRSpatialReference _robinson_srs;
+    OGRSpatialReference _geodetic_srs;
+    OGRSpatialReference _bonne_srs;
 
   public:
+    static Projection& get_instance();
+    OGRSpatialReference* get_projection(ProjectionType);
+  private:
     Projection();
-    char* get_wkt();
-    bool is_projected();
-    const char *to_string();
-
-    class Mercator;
-    class Equirectangular;
-    class Robinson;
-    class Bonne;
-  };
+    Projection(Projection const&);
+    void operator=(Projection const&);
 
 
-  class Projection::Mercator : public Projection
-  {
-    friend class ProjectionFactory;
-    Mercator();
-  };
-
-  class Projection::Equirectangular : public Projection
-  {
-    friend class ProjectionFactory;
-    Equirectangular();
-  };
-
-  class Projection::Robinson : public Projection
-  {
-    friend class ProjectionFactory;
-    Robinson();
-  };
-
-  class Projection::Bonne : public Projection
-  {
-    friend class ProjectionFactory;
-    Bonne();
-  };
-
-  class ProjectionFactory
-  {
-  public:
-    static Projection get_projection(ProjectionType);
+//    static Projection get_projection(ProjectionType);
   };
 
 
@@ -219,15 +240,15 @@ namespace spatial
     double _inv_projection[6];
     OGRCoordinateTransformation *_geo_to_proj;
     OGRCoordinateTransformation *_proj_to_geo;
-    OGRSpatialReference _sourceSRS;
-    OGRSpatialReference _targetSRS;
+    OGRSpatialReference *_source_srs;
+    OGRSpatialReference *_target_srs;
     ProjectionView _view;
     bool _interrupt;
   public:
-    Converter(ProjectionView view, char *src_wkt, char *dst_wkt);
+    Converter(ProjectionView view, OGRSpatialReference *src_srs, OGRSpatialReference *dst_srs);
     ~Converter();
-    void change_projection(char *src_wkt = NULL, char *dst_wkt = NULL);
-    void change_view(ProjectionView view);
+    void change_projection(OGRSpatialReference *src_srs = NULL, OGRSpatialReference *dst_srs = NULL);
+    void change_projection(ProjectionView view, OGRSpatialReference *src_srs = NULL, OGRSpatialReference *dst_srs = NULL);
     void from_projected(double lat, double lon, int &x, int &y);
     void to_projected(int x, int y, double &lat, double &lon);
 
