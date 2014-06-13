@@ -484,7 +484,7 @@ static void popover_show(Popover* popover, int x, int y, StartPosition relativeP
 
 //--------------------------------------------------------------------------------------------------
 
-static void popover_show_bound(Popover* popover, View *owner, int x, int y, StartPosition relativePosition)
+static void popover_show_and_track(Popover* popover, View *owner, int x, int y, StartPosition relativePosition)
 {
   MFPopover *impl = popover->get_data();
   [impl show: NSMakePoint(x, y) relativePosition: relativePosition];
@@ -517,12 +517,12 @@ void cf_popover_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-  f->_popover_impl.create= &popover_create;
-  f->_popover_impl.destroy= &popover_destroy;
-  f->_popover_impl.set_content= &popover_set_content;
-  f->_popover_impl.set_size= &popover_set_size;
-  f->_popover_impl.show= &popover_show;
-  f->_popover_impl.show_bound= &popover_show_bound;
+  f->_popover_impl.create = &popover_create;
+  f->_popover_impl.destroy = &popover_destroy;
+  f->_popover_impl.set_content = &popover_set_content;
+  f->_popover_impl.set_size = &popover_set_size;
+  f->_popover_impl.show = &popover_show;
+  f->_popover_impl.show_and_track = &popover_show_and_track;
 
   f->_popover_impl.close= &popover_close;
 }
