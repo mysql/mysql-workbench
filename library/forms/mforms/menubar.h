@@ -27,9 +27,6 @@
 
 namespace mforms {
   class MenuBase;
-}
-
-namespace mforms {
   class MenuItem;
   class MenuBar;
   class View;
@@ -61,6 +58,8 @@ namespace mforms {
 
     void (*insert_item)(MenuBase *menu, int index, MenuItem *item);
     void (*remove_item)(MenuBase *menu, MenuItem *item); // NULL item to remove all
+
+    void (*popup_at)(ContextMenu *menu, View *owner, base::Point location);
   };
 #endif
 #endif
@@ -182,6 +181,8 @@ namespace mforms {
 
     void will_show();
     void will_show_submenu_from(MenuItem *item);
+
+    void popup_at(View *owner, base::Point location);
 
   private:
     boost::signals2::signal<void (MenuItem*)> _signal_will_show;

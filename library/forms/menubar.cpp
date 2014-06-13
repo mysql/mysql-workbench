@@ -277,3 +277,8 @@ void ContextMenu::will_show_submenu_from(MenuItem *item)
 {
   _signal_will_show(item);
 }
+
+void ContextMenu::popup_at(View *owner, base::Point location)
+{
+  _impl->popup_at(this, owner, location);
+}
