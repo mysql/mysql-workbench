@@ -194,7 +194,7 @@ class RenderBox(mforms.PyDrawBox):
             
                 self.tooltip.set_content(box)
                 self.tooltip.add_close_callback(self.close_tooltip)
-                self.tooltip.show_bound(self, xx, yy, mforms.Right)
+                self.tooltip.show_and_track(self, xx, yy, mforms.Right)
 
 
 

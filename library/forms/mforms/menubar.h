@@ -61,8 +61,6 @@ namespace mforms {
 
     void (*insert_item)(MenuBase *menu, int index, MenuItem *item);
     void (*remove_item)(MenuBase *menu, MenuItem *item); // NULL item to remove all
-
-    void (*popup_menu)(ContextMenu *menu, int x, int y); // TODO: windows (not used, so this can go)
   };
 #endif
 #endif
@@ -110,7 +108,6 @@ namespace mforms {
   };
   
   /** A menu item that can be added to the host application menus.
-   
    */
   class MFORMS_EXPORT MenuItem : public MenuBase
   {
@@ -150,8 +147,6 @@ namespace mforms {
     MenuItemType _type;
   };
 
-  
-  
   /** A menu that can be added to the host application.
    */
   class MFORMS_EXPORT MenuBar : public MenuBase
@@ -177,10 +172,6 @@ namespace mforms {
   class MFORMS_EXPORT ContextMenu : public MenuBase
   {
   public:
-    /** Constructor
-
-     @param
-     */
     ContextMenu();
 
 #ifndef SWIG
@@ -191,8 +182,6 @@ namespace mforms {
 
     void will_show();
     void will_show_submenu_from(MenuItem *item);
-
-    void popup_at(int x, int y);
 
   private:
     boost::signals2::signal<void (MenuItem*)> _signal_will_show;

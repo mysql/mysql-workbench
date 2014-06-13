@@ -277,9 +277,3 @@ void ContextMenu::will_show_submenu_from(MenuItem *item)
 {
   _signal_will_show(item);
 }
-
-
-void ContextMenu::popup_at(int x, int y)
-{
-  _impl->popup_menu(this, x, y);
-}
