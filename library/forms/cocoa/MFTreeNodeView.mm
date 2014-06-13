@@ -701,6 +701,13 @@ static NSImage *descendingSortIndicator = nil;
 {
   mforms::TreeNodeView *mOwner;
   NSTrackingArea *mTrackingArea;
+
+  NSInteger mOverlayedRow;
+  NSImage *mOverlayIcon;
+
+  BOOL mMouseInside;
+  BOOL mOverOverlay;
+  BOOL mClickingOverlay;
 }
 @end
 
@@ -714,6 +721,12 @@ static NSImage *descendingSortIndicator = nil;
     mOwner = treeView;
   }
   return self;
+}
+
+- (void)dealloc
+{
+  [mOverlayIcon release];
+  [super dealloc];
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent
@@ -740,6 +753,118 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
   if (menu)
     return menu->get_data();
   return nil;
+}
+
+
+- (bool)handleMouseMove: (NSEvent*)event owner: (mforms::View*)owner
+{
+  NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
+  NSInteger row = [self rowAtPoint: p];
+
+  if (NSPointInRect(p, [self visibleRect]))
+  {
+    if (!mClickingOverlay)
+    {
+      [mOverlayIcon release];
+      mOverlayIcon = nil;
+      mOverOverlay = NO;
+      [self setNeedsDisplay: YES];
+    }
+    if (row >= 0)
+    {
+      mforms::TreeNodeRef node(mOwner->node_at_row(row));
+      if (node)
+      {
+        std::vector<std::string> icons = mOwner->overlay_icons_for_node(node);
+        if (!icons.empty())
+        {
+          NSRect iconRect = [self rectOfRow: row];
+
+          if (!mClickingOverlay)
+          {
+            mOverlayedRow = row;
+            mOverlayIcon = [[NSImage alloc] initWithContentsOfFile: [NSString stringWithCPPString: icons[0]]];
+          }
+          [self setNeedsDisplay: YES];
+
+          iconRect.origin.x = NSMaxX([self visibleRect]) - [mOverlayIcon size].width - 4;
+          iconRect.size.width = [mOverlayIcon size].height;
+
+          mOverOverlay = NSPointInRect(p, iconRect);
+        }
+      }
+    }
+  }
+  return [super handleMouseMove: event owner: owner];
+}
+
+
+- (bool)handleMouseEntered:(NSEvent *)event owner:(mforms::View *)owner
+{
+  mMouseInside = YES;
+  return [super handleMouseEntered: event owner: owner];
+}
+
+
+- (bool)handleMouseExited:(NSEvent *)event owner:(mforms::View *)owner
+{
+  mMouseInside = NO;
+  if (mOverlayIcon)
+  {
+    [mOverlayIcon release];
+    mOverlayIcon = nil;
+    [self setNeedsDisplay: YES];
+  }
+  return [super handleMouseExited: event owner: owner];
+}
+
+
+- (bool)handleMouseDown:(NSEvent *)event owner:(mforms::View *)owner
+{
+  if (mOverOverlay)
+  {
+    mClickingOverlay = YES;
+    return true;
+  }
+  return [super handleMouseDown: event owner: owner];
+}
+
+
+- (bool)handleMouseUp:(NSEvent *)event owner:(mforms::View *)owner
+{
+  if (mOverOverlay)
+  {
+    if (mClickingOverlay)
+    {
+      mforms::TreeNodeRef node(mOwner->node_at_row(mOverlayedRow));
+      if (node)
+        mOwner->overlay_icon_for_node_clicked(node, 0);
+      else
+        log_debug("Error getting node for row %i, shouldn't be NULL\n", mOverlayedRow);
+    }
+    mClickingOverlay = NO;
+    return true;
+  }
+  mClickingOverlay = NO;
+  return [super handleMouseUp: event owner: owner];
+}
+
+
+- (void)drawRow:(NSInteger)rowIndex clipRect:(NSRect)clipRect
+{
+  [super drawRow: rowIndex clipRect: clipRect];
+  if (mOverlayIcon && rowIndex == mOverlayedRow)
+  {
+    NSSize size = [mOverlayIcon size];
+    [mOverlayIcon drawInRect: NSMakeRect(NSMaxX([self visibleRect]) - [mOverlayIcon size].width - 4,
+                                         NSMinY([self rectOfRow: rowIndex]),
+                                         size.width, size.height)
+                    fromRect: NSZeroRect
+                   operation: NSCompositeSourceOver
+                    fraction: mOverOverlay ? 1.0 : 0.6
+              respectFlipped: YES
+                       hints: nil];
+  }
 }
 
 @end

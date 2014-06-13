@@ -485,6 +485,8 @@ private:
   void note_connection_open_outcome(int error);
 
 public:
+  void inspect_object(const std::string &name, const std::string &object, const std::string &type);
+
   void toolbar_command(const std::string& command);
 
   bool save_snippet();
