@@ -1305,6 +1305,8 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
           _schema_side_bar->get_filter_entry()->set_value(changes[i].name);
           (*_schema_side_bar->get_filter_entry()->signal_changed())();
         }
+        else if (real_action == "inspect")
+          _owner->inspect_object(changes[i].name, "", "db.Schema");
         else
           _owner->active_schema(changes[i].name);
         break;
@@ -1312,6 +1314,8 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
       case wb::LiveSchemaTree::View:
         if (real_action == "activate" || real_action == "edit_data" || real_action == "select_data")
           sql = sqlstring("SELECT * FROM !.!;", base::QuoteOnlyIfNeeded) << changes[i].schema << changes[i].name;
+        else if (real_action == "inspect")
+          _owner->inspect_object(changes[i].schema, changes[i].name, "db.Table");
         break;
       default:
         break;

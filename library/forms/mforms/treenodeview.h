@@ -272,6 +272,13 @@ namespace mforms {
     /** Must be called after needed add_column() calls are finished. */
     void end_columns();
 
+    /** Sets a callback that's called when the mouse hovers on a row.
+     
+     Callback must return path to an icon if it wants it to be displayed. When the user clicks it,
+     the node_activated() handler is called, with -1 as the index.
+     */
+    void set_row_overlay_handler(const boost::function<std::vector<std::string> (TreeNodeRef)> &overlay_icon_for_node);
+
     int get_column_count() const { return (int)_column_types.size(); }
     TreeColumnType get_column_type(int column);
     
@@ -405,6 +412,11 @@ namespace mforms {
     
     virtual void column_resized(int column);
 
+    // Called when the mouse hovers on a row
+    std::vector<std::string> overlay_icons_for_node(TreeNodeRef row); //XXX Windows, Linux
+
+    // Called when mouse clicks on a overlay icon
+    void overlay_icon_for_node_clicked(TreeNodeRef row, int index);  //XXX Windows, Linux
 #endif
 #endif
 
@@ -415,6 +427,7 @@ namespace mforms {
     boost::signals2::signal<void (TreeNodeRef, bool)> _signal_expand_toggle;
     boost::function<void (TreeNodeRef, int, std::string)> _cell_edited;
     boost::signals2::signal<void (int)> _signal_column_resized;
+    boost::function<std::vector<std::string> (TreeNodeRef)> _overlay_icons_for_node;
     ContextMenu *_context_menu;
     std::vector<TreeColumnType> _column_types;
     int _update_count;

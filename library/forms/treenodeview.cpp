@@ -324,6 +324,29 @@ void TreeNodeView::node_activated(TreeNodeRef row, int column)
 
 //--------------------------------------------------------------------------------------------------
 
+void TreeNodeView::set_row_overlay_handler(const boost::function<std::vector<std::string> (TreeNodeRef)> &overlay_icons_for_node)
+{
+  _overlay_icons_for_node = overlay_icons_for_node;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> TreeNodeView::overlay_icons_for_node(TreeNodeRef row)
+{
+  if (_overlay_icons_for_node)
+    return _overlay_icons_for_node(row);
+  return std::vector<std::string>();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeView::overlay_icon_for_node_clicked(TreeNodeRef row, int index)
+{
+  node_activated(row, -(index+1));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Descendants can override this method to indicate expandability depending on other information.
  */
