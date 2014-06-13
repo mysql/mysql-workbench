@@ -41,7 +41,7 @@ namespace mforms {
     TriCheckColumnType,    //!< checkbox field (same as CheckColumnType) which also accepts -1 as mixed state
     IconColumnType,        //!< icon field, value is the icon path
     IconStringColumnType = IconColumnType,
-    NumberWithUnitColumnType, //!< string type, representing numbers with a unit suffix (like KB, MB, ms etc) TODO windows, linux
+    NumberWithUnitColumnType, //!< string type, representing numbers with a unit suffix (like KB, MB, ms etc) TODO linux
     FloatColumnType        //!< a double precision floating point number
   };
   
