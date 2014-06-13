@@ -207,6 +207,7 @@ namespace mforms {
     bool _layout_dirty;
     
     boost::signals2::signal<void ()> _signal_resized;
+    boost::signals2::signal<bool ()> _signal_mouse_leave;
 
   protected:
     View();
@@ -375,7 +376,7 @@ namespace mforms {
     virtual bool mouse_click(MouseButton button, int x, int y) { return false; }
     virtual bool mouse_double_click(MouseButton button, int x, int y) { return false; }
     virtual bool mouse_enter() { return false; }
-    virtual bool mouse_leave() { return false; }
+    virtual bool mouse_leave();
     virtual bool mouse_move(MouseButton button, int x, int y) { return false; }
 #endif
 #endif
@@ -386,6 +387,7 @@ namespace mforms {
     virtual void resize();
 
     boost::signals2::signal<void ()>* signal_resized() { return &_signal_resized; }
+    boost::signals2::signal<bool ()>* signal_mouse_leave() { return &_signal_mouse_leave; }
   };
 };
 
