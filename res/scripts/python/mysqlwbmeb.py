@@ -219,6 +219,7 @@ class MEBBackup(MEBCommand):
         self.command = profile.read_value('meb_manager', 'command', True, "")
         self.backup_dir = profile.read_value('mysqlbackup', 'backup_dir', True, "")
         self.inc_backup_dir = profile.read_value('mysqlbackup', 'incremental_backup_dir', True, "")
+        self.use_tts = profile.read_value('meb_manager', 'using_tts', False, "0")
 
     def set_backup_paths(self):
         target_folder = ''
@@ -278,6 +279,13 @@ class MEBBackup(MEBCommand):
 
         if self.to_single_file:
             self.command_call += ' --backup-image=%s' % self.file_name
+            
+        if self.use_tts != "0":
+            tts_value="with-minimum-locking"
+            if self.use_tts=="2":
+                tts_value="with-full-locking"
+                
+            self.command_call += " --use-tts=%s" % tts_value
             
         if self.report_progress:
             self.command_call += ' --show-progress=stdout'
@@ -346,20 +354,23 @@ class MEBGetProfiles(MEBCommand):
     def __init__(self, params = None, output_handler = None):
         super(MEBGetProfiles, self).__init__(params, output_handler)
         self.datadir = ''
+        self.meb_version=0
 
     def read_params(self):
         ret_val = False
 
-        if self.param_count() == 1:
-            self.datadir = self.get_param(0)
+        if self.param_count() == 2:
+            self.meb_version = int(self.get_param(0))
+            self.datadir = self.get_param(1)
             ret_val = True
 
         return ret_val
 
     def print_usage(self):
-        self.write_output("GET_PROFILES <datadir>")
-        self.write_output("WHERE : <datadir> : is the path to the datadir of the server instance for which the profiles are")
-        self.write_output("                    being loaded. (There could be more than one instance on the same box).")
+        self.write_output("GET_PROFILES <meb_version> <datadir>")
+        self.write_output("WHERE : <meb_version> : is the profile version required by the meb being used at the server for backups")
+        self.write_output("WHERE :               : is the path to the datadir of the server instance for which the profiles are")
+        self.write_output("                        being loaded. (There could be more than one instance on the same box).")
 
         if is_library:
             self.write_output("\nWhen executed from python code the WBMEB_BACKUPSHOME environment variable must be set.")
@@ -381,7 +392,8 @@ class MEBGetProfiles(MEBCommand):
             # The glob module will be used to list only the required files
             import glob
             for filename in glob.glob(search_string):
-
+                profile_issues = 0
+                
                 # Creates a config reader for each profile
                 profile = ConfigReader(filename)
 
@@ -402,7 +414,8 @@ class MEBGetProfiles(MEBCommand):
                     data['AVAILABLE'] = self.get_available_space(total, free)
 
                     # Validates the backups folder for write permission
-                    data['VALID'] = os.access(data['BACKUP_DIR'], os.W_OK)
+                    if not os.access(data['BACKUP_DIR'], os.W_OK):
+                        profile_issues |= 1
 
                     # Gets the full schedule data
                     e = profile.read_value('meb_manager', 'full_backups_enabled', False, "")
@@ -421,6 +434,26 @@ class MEBGetProfiles(MEBCommand):
                     h = profile.read_value('meb_manager', 'inc_backups_hour', False, "")
                     m = profile.read_value('meb_manager', 'inc_backups_minute', False, "")
                     data['ISCHEDULE'] = '-'.join([e, f, md, wd, h, m])
+                    
+                    # Gets the profile version
+                    p_version = int(profile.read_value('meb_manager', 'version', False, "0"))
+                    if p_version == 0 and self.meb_version > 0:
+                        include = profile.read_value('mysqlbackup', 'include', False, "")
+                        if include:
+                            expression='^[\dA-Fa-f]{8}-([\dA-Fa-f]{4}-){3}[\dA-Fa-f]{12}$'
+                            compiled=re.compile(expression)
+                            match=compiled.match(include)
+                            
+                            if match:
+                                profile_issues |= 2
+
+                    # The VALID item will cintain a numeric valid describing the issues encountered on the profile
+                    # Validation. Each issue should be assigned a value of 2^x so the different issues can be joined
+                    # using bitwise operations
+                    # 1 : Indicates the backup folder is not valid to store the backups.
+                    # 2 : Indicates a partial backup profile using a regular expression on the include parameter.
+                    data['VALID'] = profile_issues
+                    
 
                     master_data[filename] = data
 

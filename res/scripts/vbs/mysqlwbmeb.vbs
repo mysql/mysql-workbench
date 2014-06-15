@@ -236,6 +236,7 @@ class MEBBackup
     private backups_home
     private target_folder
     private command_call
+    private use_tts
     
     ' These are for internal use
     private file_name
@@ -274,6 +275,7 @@ class MEBBackup
         command = profile.get_value("meb_manager", "command", "")
         backup_dir = profile.get_value("mysqlbackup", "backup_dir", "")
         inc_backup_dir = profile.get_value("mysqlbackup", "incremental_backup_dir", "")
+        use_tts = profile.get_value("meb_manager", "using_tts", "0")
     end sub
     
     ' Function used to create the target name in case it is a timestamp
@@ -424,6 +426,15 @@ class MEBBackup
         command_call =  command_call & " " & path_param & "=""" & backup_dir & """"
 
         if to_single_file then command_call = command_call & " --backup-image=""" & file_name & """"
+        
+        if use_tts <> "0" then
+            tts_value="with-minimum-locking"
+            if use_tts == 2 then
+                tts_value="with-full-locking"
+            end if
+            
+            command_call = command_call & " --use-tts=" & tts_value
+        end if
             
         if report_progress then command_call = command_call & " --show-progress=stdout"
 
@@ -480,11 +491,13 @@ class MEBGetProfiles
     
     private fso
     private backups_home
+    private meb_version
     
     
     
     private sub Class_Initialize()
         datadir = ""
+        meb_version = 0
         set fso = CreateObject("Scripting.FileSystemObject")
         
         ' Sets the backups home to the parent folder of this script
@@ -494,8 +507,9 @@ class MEBGetProfiles
     public function read_params()
         ret_val = false
 
-        if Wscript.Arguments.Count = 2 then
-            datadir = Wscript.Arguments.Item(1)
+        if Wscript.Arguments.Count = 3 then
+            meb_version = CInt(Wscript.Arguments.Item(1))
+            datadir = Wscript.Arguments.Item(2)
             ret_val = true
         end if
 
@@ -503,16 +517,16 @@ class MEBGetProfiles
     end function
 
     public sub print_usage()
-        Wscript.Echo "GET_PROFILES <datadir>"
-        Wscript.Echo
-        Wscript.Echo "WHERE : <datadir> : is the path to the datadir of the server instance for which the profiles are"
+        Wscript.Echo "GET_PROFILES <meb_version> <datadir>"
+        Wscript.Echo 
+        Wscript.Echo "WHERE : <meb_version> : is the profile version required by the meb being used at the server for backups"
+        Wscript.Echo "        <datadir> : is the path to the datadir of the server instance for which the profiles are"
         Wscript.Echo "                    being loaded. (There could be more than one instance on the same box)."
         Wscript.Echo
     end sub
         
 
     public function execute()
-
         if read_params() then
             Set master_data = CreateObject("Scripting.Dictionary")
 
@@ -520,6 +534,7 @@ class MEBGetProfiles
             Set all_files = backups_home_folder.Files
             
             for each file in all_files
+                profile_issues = 0
                 if ucase(fso.GetExtensionName(file.name)) = "CNF" then
                     set profile = new ConfigReader
                     profile.load(backups_home & "\" & file.name)
@@ -540,7 +555,9 @@ class MEBGetProfiles
                         data.add "AVAILABLE", get_available_space(data("BACKUP_DIR"))
 
                         ' Validates the backups folder for write permission
-                        data.add "VALID", is_dir_writable(data("BACKUP_DIR"))
+                        if not is_dir_writable(data("BACKUP_DIR")) then
+                            profile_issues = profile_issues or 1
+                        end if
 
                         ' Gets the full schedule data
                         e = profile.get_value("meb_manager", "full_backups_enabled", "")
@@ -559,7 +576,29 @@ class MEBGetProfiles
                         h = profile.get_value("meb_manager", "inc_backups_hour", "")
                         m = profile.get_value("meb_manager", "inc_backups_minute", "")
                         data.add "ISCHEDULE", e & "-" & f & "-" & md & "-" & wd & "-" & h & "-" & m
-
+                        
+                        ' Gets the profile version
+                        p_version = CInt(profile.get_value("meb_manager", "version", "0"))
+                        if p_version = 0 and meb_version > 0 then
+                            include = profile.get_value("mysqlbackup", "include", "")
+                            if include <> "" then
+                                set my_reg_exp = New RegExp
+                                my_reg_exp.Pattern = "^[\dA-Fa-f]{8}-([\dA-Fa-f]{4}-){3}[\dA-Fa-f]{12}$"
+                                set my_matches = my_reg_exp.Execute(include)
+                                
+                                if my_matches.count > 0 then
+                                    profile_issues = profile_issues or 2
+                                end if
+                            end if
+                        end if
+                        
+                        ' The VALID item will cintain a numeric valid describing the issues encountered on the profile
+                        ' Validation. Each issue should be assigned a value of 2^x so the different issues can be joined
+                        ' using bitwise operations
+                        ' 1 : Indicates the backup folder is not valid to store the backups.
+                        ' 2 : Indicates a partial backup profile using a regular expression on the include parameter.
+                        ' 
+                        data.add "VALID", CStr(profile_issues)
                         master_data.add backups_home & "\" & file.name, data
                     end if
                 end if
@@ -578,13 +617,18 @@ class MEBGetProfiles
     end function
             
     private function is_dir_writable(path)
-        set folder = fso.GetFolder(path)
-        set file = folder.CreateTextFile("test.txt")
-        if file is Nothing then
-            is_dir_writable = "False"
-        else
-            is_dir_writable = "True"
+        ret_val = "False"
+        if fso.FolderExists(path) then
+            set folder = fso.GetFolder(path)
+            set file = folder.CreateTextFile("test.txt")
+            if not file is Nothing then
+                ret_val = "True"
+                file.Close()
+                fso.DeleteFile(path & "\" & "test.txt")
+            end if
         end if
+        
+        is_dir_writable = ret_val
     end function
 
     private function get_available_space(path):
