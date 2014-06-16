@@ -52,6 +52,7 @@ namespace gtk {
 
     static void insert_item(MenuBase *menu, int index, MenuItem *item);
     static void remove_item(MenuBase *menu, MenuItem *item); // NULL item to remove all
+    static void popup_menu(mforms::ContextMenu *menu, View *owner, base::Point location);
   };
 
 }; // namespace gtk

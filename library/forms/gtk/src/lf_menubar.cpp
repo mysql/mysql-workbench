@@ -472,6 +472,13 @@ void mforms::gtk::MenuItemImpl::remove_item(mforms::MenuBase *menu, mforms::Menu
     }
   }
 }
+
+void mforms::gtk::MenuItemImpl::popup_menu(mforms::ContextMenu *menu, View *owner, base::Point location)
+{
+  Gtk::Menu* mb = cast<Gtk::Menu*>(menu->get_data_ptr());
+//
+  mb->popup(3, gtk_get_current_event_time()); // 3 is normally right mouse button, according to doc
+}
 //------------------------------------------------------------------------------
 void mforms::gtk::lf_menubar_init()
 {
@@ -490,5 +497,6 @@ void mforms::gtk::lf_menubar_init()
 
   f->_menu_item_impl.insert_item      = mforms::gtk::MenuItemImpl::insert_item;
   f->_menu_item_impl.remove_item      = mforms::gtk::MenuItemImpl::remove_item;
+  f->_menu_item_impl.popup_at         = mforms::gtk::MenuItemImpl::popup_menu;
 }
 
