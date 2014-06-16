@@ -229,9 +229,6 @@
     <ClInclude Include="sqlide\wb_sql_editor_tree_controller.h">
       <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
-    <ClInclude Include="sqlide\spatial_canvas_layer.h">
-      <Filter>Header Files SQL IDE</Filter>
-    </ClInclude>
     <ClInclude Include="sqlide\spatial_data_view.h">
       <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
@@ -437,9 +434,6 @@
     </ClCompile>
     <ClCompile Include="workbench\stdafx.cpp" />
     <ClCompile Include="sqlide\spatial_data_view.cpp">
-      <Filter>Source Files SQL IDE</Filter>
-    </ClCompile>
-    <ClCompile Include="sqlide\spatial_canvas_layer.cpp">
       <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
   </ItemGroup>

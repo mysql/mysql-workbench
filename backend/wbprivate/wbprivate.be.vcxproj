@@ -292,7 +292,6 @@
     <ClInclude Include="sqlide\db_sql_editor_history_be.h" />
     <ClInclude Include="sqlide\db_sql_editor_log.h" />
     <ClInclude Include="sqlide\query_side_palette.h" />
-    <ClInclude Include="sqlide\spatial_canvas_layer.h" />
     <ClInclude Include="sqlide\spatial_data_view.h" />
     <ClInclude Include="sqlide\wb_context_sqlide.h" />
     <ClInclude Include="sqlide\wb_live_schema_tree.h" />
@@ -364,7 +363,6 @@
     <ClCompile Include="sqlide\db_sql_editor_history_be.cpp" />
     <ClCompile Include="sqlide\db_sql_editor_log.cpp" />
     <ClCompile Include="sqlide\query_side_palette.cpp" />
-    <ClCompile Include="sqlide\spatial_canvas_layer.cpp" />
     <ClCompile Include="sqlide\spatial_data_view.cpp" />
     <ClCompile Include="sqlide\wb_context_sqlide.cpp" />
     <ClCompile Include="sqlide\wb_live_schema_tree.cpp" />
