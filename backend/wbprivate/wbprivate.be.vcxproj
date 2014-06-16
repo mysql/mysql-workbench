@@ -293,7 +293,6 @@
     <ClInclude Include="model\wb_physical_model_diagram_features.h" />
     <ClInclude Include="model\wb_template_list.h" />
     <ClInclude Include="model\wb_user_datatypes.h" />
-    <ClInclude Include="sqlide\column_width_cache.h" />
     <ClInclude Include="sqlide\db_sql_editor_history_be.h" />
     <ClInclude Include="sqlide\db_sql_editor_log.h" />
     <ClInclude Include="sqlide\query_side_palette.h" />
@@ -366,7 +365,6 @@
     <ClCompile Include="model\wb_physical_model_diagram_features.cpp" />
     <ClCompile Include="model\wb_template_list.cpp" />
     <ClCompile Include="model\wb_user_datatypes.cpp" />
-    <ClCompile Include="sqlide\column_width_cache.cpp" />
     <ClCompile Include="sqlide\db_sql_editor_history_be.cpp" />
     <ClCompile Include="sqlide\db_sql_editor_log.cpp" />
     <ClCompile Include="sqlide\query_side_palette.cpp" />
