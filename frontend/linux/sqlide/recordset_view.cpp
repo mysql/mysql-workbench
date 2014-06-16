@@ -184,9 +184,7 @@ bool RecordsetView::on_event(GdkEvent *event)
     _grid->current_cell(row, col);
 
     _model->update_selection_for_menu(rows, col);
-    Gtk::Menu* m = dynamic_cast<Gtk::Menu*>((Gtk::Widget*)(_model->get_context_menu()->get_data_ptr()));
-    if (m)
-      m->popup(event->button.button, event->button.time);
+    _model->get_context_menu()->popup_at(NULL, base::Point(event->button.x, event->button.y));
 
     processed= true;
   }

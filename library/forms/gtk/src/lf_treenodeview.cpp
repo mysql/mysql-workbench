@@ -1366,11 +1366,7 @@ bool TreeNodeViewImpl::on_button_event(GdkEventButton *event)
   {
     mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner); 
     if (tv->get_context_menu())
-    {
-      Gtk::Menu* m = dynamic_cast<Gtk::Menu*>((Gtk::Widget*)(tv->get_context_menu()->get_data_ptr()));
-      if (m)
-        m->popup(event->button, event->time);
-    }
+      tv->get_context_menu()->popup_at(mforms::gtk::ViewImpl::get_view_for_widget(this->get_outer()), base::Point(event->x, event->y));
     
     std::list<TreeNodeRef> selected_nodes = this->get_selection(tv);
     
