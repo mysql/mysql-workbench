@@ -192,8 +192,8 @@ public:
       node->set_string(1, *i);
     }
 
-    int height = items.size() * 20;
-    _tree.set_size(250, height > 100 ? 100 : height);
+    size_t height = items.size() * 20;
+    _tree.set_size(250, height > 100 ? 100 : (int)height);
 
     _tree.set_enabled(editable);
     _tree.signal_changed()->connect(boost::bind(&SetFieldView::changed, this));
@@ -367,8 +367,8 @@ void ResultFormView::navigate(mforms::ToolBarItem *item)
   Recordset::Ref rset(_rset.lock());
   if (rset)
   {
-    int row = rset->edited_field_row();
-    if (row < 0)
+    ssize_t row = rset->edited_field_row();
+    if (row < 0) // Useless. RowID is size_t and can never be 0.
       return;
 
     if (name == "delete")
@@ -394,7 +394,7 @@ void ResultFormView::navigate(mforms::ToolBarItem *item)
     else if (name == "next")
     {
       row++;
-      if (row >= rset->count())
+      if ((size_t)row >= rset->count())
         row = rset->count()-1;
       rset->set_edited_field(row, rset->edited_field_column());
       if (rset->update_edited_field)
@@ -417,7 +417,7 @@ void ResultFormView::update_value(int column, const std::string &value)
   Recordset::Ref rset(_rset.lock());
   if (rset)
   {
-    int row = rset->edited_field_row();
+    RowId row = rset->edited_field_row();
     if (rset->count() > row && row >= 0)
       rset->set_field(row, column, value);
   }
@@ -429,7 +429,7 @@ void ResultFormView::open_field_editor(int column)
   Recordset::Ref rset(_rset.lock());
   if (rset)
   {
-    int row = rset->edited_field_row();
+    RowId row = rset->edited_field_row();
     if (row < rset->count() && row >= 0)
       rset->open_field_data_editor(row, column);
   }
@@ -592,7 +592,7 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
     Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
 
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
-    _table.set_row_count(field_info.size());
+    _table.set_row_count((int)field_info.size());
 
     int i = 0;
     for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();

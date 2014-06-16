@@ -235,6 +235,9 @@
     <ClInclude Include="sqlide\wb_sql_editor_panel.h">
       <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
+    <ClInclude Include="sqlide\column_width_cache.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\frontend\common\advanced_sidebar.cpp">
@@ -440,6 +443,9 @@
       <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
     <ClCompile Include="sqlide\wb_sql_editor_panel.cpp">
+      <Filter>Source Files SQL IDE</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\column_width_cache.cpp">
       <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
   </ItemGroup>
