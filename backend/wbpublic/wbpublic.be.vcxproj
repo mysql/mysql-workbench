@@ -355,6 +355,7 @@
     <ClCompile Include="objimpl\workbench.physical\workbench_physical_TableFigure.cpp" />
     <ClCompile Include="objimpl\workbench.physical\workbench_physical_ViewFigure.cpp" />
     <ClCompile Include="sqlide\autocomplete_object_name_cache.cpp" />
+    <ClCompile Include="sqlide\column_width_cache.cpp" />
     <ClCompile Include="sqlide\recordset_be.cpp" />
     <ClCompile Include="sqlide\recordset_cdbc_storage.cpp" />
     <ClCompile Include="sqlide\recordset_data_storage.cpp" />
@@ -507,6 +508,7 @@
     <ClInclude Include="objimpl\ui\mforms_ObjectReference_impl.h" />
     <ClInclude Include="objimpl\ui\ui_ObjectEditor_impl.h" />
     <ClInclude Include="sqlide\autocomplete_object_name_cache.h" />
+    <ClInclude Include="sqlide\column_width_cache.h" />
     <ClInclude Include="sqlide\recordset_be.h" />
     <ClInclude Include="sqlide\recordset_cdbc_storage.h" />
     <ClInclude Include="sqlide\recordset_data_storage.h" />

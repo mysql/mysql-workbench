@@ -23,7 +23,7 @@
 
 #include <string>
 
-class ColumnWidthCache
+class WBPUBLICBACKEND_PUBLIC_FUNC ColumnWidthCache
 {
   std::string _connection_id;
   sqlite::connection *_sqconn;

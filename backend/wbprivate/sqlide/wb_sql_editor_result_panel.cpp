@@ -31,7 +31,7 @@
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/db.query/db_query_EditableResultset.h"
 
-#include "column_width_cache.h"
+#include "sqlide/column_width_cache.h"
 
 #include "base/sqlstring.h"
 #include "grt/parse_utils.h"
