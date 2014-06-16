@@ -78,7 +78,7 @@ WindowsGLCanvasView ^WindowsCanvasViewerPanel::CreateGLCanvas(Form ^ownerForm, b
   if (!canvas->initialize())
   {
     // OpenGL initialization can fail.
-   // canvas->Dispose();
+    canvas = nullptr;
     return nullptr;
   }
 
