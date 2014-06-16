@@ -329,6 +329,7 @@
 		2B02FEF8183E771B00770CC0 /* view.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B02FEEA183E771B00770CC0 /* view.png */; };
 		2B03B5C1116CC42C009987BE /* binary_data_editor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B03B5B8116CC0B4009987BE /* binary_data_editor.h */; };
 		2B03B5C2116CC42C009987BE /* binary_data_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */; };
+		2B0609E8194F7F7100022F40 /* sqlide_import_spatial.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B0609E6194F7F3C00022F40 /* sqlide_import_spatial.py */; };
 		2B064CDA14D3257200B01887 /* treenodeview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064CD914D3257200B01887 /* treenodeview.h */; };
 		2B064CE014D327F400B01887 /* treenodeview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B064CDE14D327F400B01887 /* treenodeview.cpp */; };
 		2B064D0714D32DAD00B01887 /* MFTreeNodeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */; };
@@ -3466,6 +3467,7 @@
 				75C847FD1067E9FC0067947D /* opts.py in Copy Files (plugins) */,
 				2BAD7C52156D897A0025F13F /* SQLEXT.py in Copy Files (plugins) */,
 				2BAD7C50156D897A0025F13F /* db_generic_migration_grt.py in Copy Files (plugins) */,
+				2B0609E8194F7F7100022F40 /* sqlide_import_spatial.py in Copy Files (plugins) */,
 				2BAD7C51156D897A0025F13F /* db_generic_re_grt.py in Copy Files (plugins) */,
 				2BAD7C49156D89470025F13F /* db_mssql_grt.py in Copy Files (plugins) */,
 				2BAD7C4A156D89470025F13F /* db_mssql_migration_grt.py in Copy Files (plugins) */,
@@ -4046,6 +4048,8 @@
 		2B02FEEA183E771B00770CC0 /* view.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = view.png; sourceTree = "<group>"; };
 		2B03B5B8116CC0B4009987BE /* binary_data_editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = binary_data_editor.h; sourceTree = "<group>"; };
 		2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = binary_data_editor.cpp; sourceTree = "<group>"; };
+		2B0609E6194F7F3C00022F40 /* sqlide_import_spatial.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_import_spatial.py; path = plugins/wb.sqlide/sqlide_import_spatial.py; sourceTree = "<group>"; };
+		2B0609E9194F8A4200022F40 /* wizard_form.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = wizard_form.py; path = library/python/workbench/wizard_form.py; sourceTree = "<group>"; };
 		2B064CD914D3257200B01887 /* treenodeview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = treenodeview.h; path = library/forms/mforms/treenodeview.h; sourceTree = "<group>"; wrapsLines = 0; };
 		2B064CDE14D327F400B01887 /* treenodeview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = treenodeview.cpp; path = library/forms/treenodeview.cpp; sourceTree = "<group>"; };
 		2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFTreeNodeView.h; path = library/forms/cocoa/MFTreeNodeView.h; sourceTree = "<group>"; };
@@ -8515,6 +8519,7 @@
 		2B6C6FBB16C0BDD500C4CC98 /* wb.sqlide */ = {
 			isa = PBXGroup;
 			children = (
+				2B0609E6194F7F3C00022F40 /* sqlide_import_spatial.py */,
 				2B6C6FC416C0BFB100C4CC98 /* text_output.py */,
 				2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */,
 				2B6C6FC216C0BF1D00C4CC98 /* sql_reformatter.py */,
@@ -9329,6 +9334,7 @@
 				2BF04976174933E200A7EA35 /* plugins.py */,
 				2B9115B51577239B00C82308 /* ui.py */,
 				2B9115B61577239B00C82308 /* utils.py */,
+				2B0609E9194F8A4200022F40 /* wizard_form.py */,
 				2B9115B71577239B00C82308 /* wizard_page_widget.py */,
 				2B9115B81577239B00C82308 /* wizard_progress_page_widget.py */,
 			);
@@ -16874,7 +16880,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
@@ -16920,7 +16925,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;

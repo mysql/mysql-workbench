@@ -20,7 +20,7 @@ from __future__ import with_statement
 # import the mforms module for GUI stuff
 import mforms
 
-import os, platform, threading, subprocess
+import os, platform, subprocess
 
 
 from mforms import newButton
@@ -33,14 +33,10 @@ except ImportError:
 
 from workbench.log import log_error, log_debug
 
-
 def showImporter(editor, schema):
-    importer = SpatialImporterGui(editor)
-    dpoint = mforms.fromgrt(editor.dockingPoint)
-    dpoint.dock_view(importer, "", 0)
-    dpoint.select_view(importer)
-    importer.set_title("Spatial Importer")
+    importer = SpatialImporterWizard(editor)
     importer.set_schema(schema)
+    importer.run()
 
 def handleContextMenu(name, sender, args):
     menu = mforms.fromgrt(args['menu'])
@@ -65,7 +61,7 @@ def handleContextMenu(name, sender, args):
     menu.add_separator()
     
     
-class SpatialImporter(threading.Thread):
+class SpatialImporter:
     def __init__(self):
         self.import_table = None
         self.process_handle = None
@@ -82,11 +78,9 @@ class SpatialImporter(threading.Thread):
         self.abort_requested = False
         
         self.is_running = False
-        
-        threading.Thread.__init__(self)
+
 
     def execute_cmd(self, cmd):
-        print cmd
         p1 = None
         if platform.system() != "Windows":
             try:
@@ -184,6 +178,7 @@ class SpatialImporter(threading.Thread):
 
         cmd = """ogr2ogr -f "MySQL" MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d" %(filepath)s %(table_name)s %(overwrite)s %(opts)s -progress -lco ENGINE=InnoDb -lco SPATIAL_INDEX=NO %(opts)s""" % cmd_args
         self.is_running = True
+        print cmd
         try:
             self.execute_cmd(cmd)
         except Exception, exc:
@@ -191,92 +186,162 @@ class SpatialImporter(threading.Thread):
         self.is_running = False
 
 
-class SpatialImporterGui(mforms.AppView):
-    def __init__(self, editor):
-        mforms.AppView.__init__(self, False, "spatial_importer", False)
+from workbench.ui import WizardForm, WizardPage, WizardProgressPage
 
-        self.editor = editor
-        
-        self.selected_schema = None
-        
-        self.importer = None
-        
-        self.content = mforms.newBox(False)
-        self.content.set_padding(12)
-        self.content.set_spacing(8)
-        self.add(self.content, True, True)
-        
-        self.schema_label = mforms.newLabel("Schema: ")
-        
-        self.content.add(self.schema_label, False, False)
-        
+class SelectFileWizardPage(WizardPage):
+    def __init__(self, owner):
+        WizardPage.__init__(self, owner, "Select File to Import", wide=True)
+
+        self.schema_label = mforms.newLabel("Target schema: ")
+
+        self.back_button.set_enabled(False)
+
+
+    def create_ui(self):
+        self.set_spacing(16)
+
+        self.content.add(self.schema_label, False, True)
+
         entry_box = mforms.newBox(True)
         entry_box.set_spacing(5)
 
-        entry_box.add(mforms.newLabel("Shapefile path:"), False, False)
+        entry_box.add(mforms.newLabel("File Path:"), False, True)
+
         self.shapefile_path = mforms.newTextEntry()
         entry_box.add(self.shapefile_path, True, True)
-        
+
         self.shapefile_browse_btn = newButton()
-        self.shapefile_browse_btn.set_text("Browse")
+        self.shapefile_browse_btn.set_text("Browse...")
         self.shapefile_browse_btn.add_clicked_callback(self.shapefile_browse)
-        entry_box.add_end(self.shapefile_browse_btn, False, False)
+        entry_box.add(self.shapefile_browse_btn, False, False)
 
         self.content.add(entry_box, False, True)
 
-        self.start_btn = mforms.newButton()
-        self.start_btn.set_text("Start")
-        self.start_btn.add_clicked_callback(self.start_import)
-        
-        self.content.add(self.start_btn, False, True)
-        
-    def get_mysql_password(self, connection):
-        parameterValues = connection.parameterValues
-        pwd = parameterValues["password"]
-        if not pwd:
-            username = parameterValues["userName"]
-            host = connection.hostIdentifier
-            title = "Import file (type the correct password)"
-            accepted, pwd = mforms.Utilities.find_or_ask_for_password(title, host, username, False)
-            if not accepted:
-                return None
-        return pwd
-        
-    def notify_finished(self):
-        mforms.Utilities.show_message("Import", "Import finished", "Ok", "", "")
-        
-    def start_import(self):
-        if self.importer and self.importer.is_running:
-            mforms.Utilities.show_message("Importing...", "Import thread is already running.", "Ok", "", "")
-            return;
+        label = mforms.newLabel("""Select a shapefile containing spatial data to load into MySQL.
+A new table with the imported fields will be created in the selected schema,
+unless the append or update options are specified.""")
+        self.content.add(label, False, False)
 
-        self.importer = SpatialImporter()
-        self.importer.filepath = self.shapefile_path.get_string_value()
-        if self.importer.filepath == None or os.path.isfile(self.importer.filepath) == False:
-            log_error("Unable to open specified file: %s\n" % self.importer.filepath)
-            return
+    def go_cancel(self):
+        self.main.cancel()
 
-        self.importer.my_pwd = self.get_mysql_password(self.editor.connection)
-        if self.importer.my_pwd == None:
-            log_error("Unknown MySQL password\n")
-            return
-        self.importer.my_host = self.editor.connection.parameterValues.hostName
-        self.importer.my_port = self.editor.connection.parameterValues.port
-         
-        self.importer.my_user = self.editor.connection.parameterValues.userName
-        self.importer.my_schema = self.selected_schema
 
-        self.importer.start()
-        
-    def set_schema(self, schema_name):
-        self.schema_label.set_text("Schema: %s" % schema_name)
-        self.selected_schema = schema_name
+    def validate(self):
+        filepath = self.shapefile_path.get_string_value()
+        if not os.path.isfile(filepath):
+            mforms.Utilities.show_error("Invalid Path", "Please specify a valid file path.", "OK", "", "")
+            return False
+        return True
 
-        
+
     def shapefile_browse(self):
         filechooser = FileChooser(mforms.OpenFile)
         filechooser.set_directory(os.path.dirname(self.shapefile_path.get_string_value()))
         filechooser.set_extensions("Spatial Shape File (*.shp)|*.shp", "shp");
         if filechooser.run_modal():
             self.shapefile_path.set_value(filechooser.get_path())
+
+
+
+class ContentPreviewPage(WizardPage):
+    def __init__(self, owner):
+        WizardPage.__init__(self, owner, "Select Layers to Import", wide=True)
+
+
+    def create_ui(self):
+        self.set_spacing(16)
+
+
+
+class ImportProgressPage(WizardProgressPage):
+    importer = None
+
+    def __init__(self, owner):
+        WizardProgressPage.__init__(self, owner, "Import Data")
+
+        self.add_task(self.prepare_import, "Prepare import")
+        self.add_threaded_task(self.start_import, "Import data file")
+
+
+    def get_mysql_password(self, connection):
+        parameterValues = connection.parameterValues
+        pwd = parameterValues["password"]
+        if not pwd:
+            username = parameterValues["userName"]
+            host = connection.hostIdentifier
+            title = "MySQL password for File Import"
+            accepted, pwd = mforms.Utilities.find_or_ask_for_password(title, host, username, False)
+            if not accepted:
+                return None
+        return pwd
+
+
+    def get_path(self):
+        return self.main.select_file_page.shapefile_path.get_string_value()
+
+
+    def prepare_import(self):
+        if self.importer and self.importer.is_running:
+            mforms.Utilities.show_message("Importing...", "Import thread is already running.", "Ok", "", "")
+            raise RuntimeError("Import is already running")
+
+        self.importer = SpatialImporter()
+        self.importer.filepath = self.get_path()
+        if self.importer.filepath == None or not os.path.isfile(self.importer.filepath):
+            raise RuntimeError("Unable to open specified file: %s" % self.importer.filepath)
+
+        self.importer.my_pwd = self.get_mysql_password(self.main.editor.connection)
+        if self.importer.my_pwd == None:
+            log_error("Cancelled MySQL password input\n")
+            raise RuntimeError("Cancelled MySQL password input")
+
+        self.importer.my_host = self.main.editor.connection.parameterValues.hostName
+        self.importer.my_port = self.main.editor.connection.parameterValues.port
+
+        self.importer.my_user = self.main.editor.connection.parameterValues.userName
+        self.importer.my_schema = self.main.selected_schema
+        return True
+
+
+    def start_import(self):
+        self.importer.run()
+        return True
+
+
+class ResultsPage(WizardPage):
+    def __init__(self, owner):
+        WizardPage.__init__(self, owner, "Import Results")
+
+
+    def create_ui(self):
+        self.content.add(mforms.newLabel("File %s was imported in %i:%02is"))
+        self.content.add(mforms.newLabel("Table %s was created and %i records were inserted"))
+        # etc etc
+
+
+class SpatialImporterWizard(WizardForm):
+    def __init__(self, editor):
+        WizardForm.__init__(self, mforms.Form.main_form())
+
+        self.editor = editor
         
+        self.selected_schema = None
+
+        self.set_title("Load Spatial Data")
+
+        self.center()
+
+        self.select_file_page = SelectFileWizardPage(self)
+        self.add_page(self.select_file_page)
+
+        self.import_page = ImportProgressPage(self)
+        self.add_page(self.import_page)
+
+        self.results_page = ResultsPage(self)
+        self.add_page(self.results_page)
+
+
+    def set_schema(self, schema_name):
+        self.select_file_page.schema_label.set_text("Tables will be imported to schema: %s" % schema_name)
+        self.selected_schema = schema_name
+
