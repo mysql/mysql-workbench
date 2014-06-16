@@ -187,15 +187,19 @@ bool workbench_model_ImageFigure::ImplData::realize()
     
     view->get_current_layer()->add_item(_figure, agroup);
     
-    cairo_surface_t *img= self()->owner()->owner()->get_data()->get_delegate()->fetch_image(self()->_filename);
-    if (!img)
-      g_warning("Could not load image '%s' for '%s'", self()->_filename.c_str(),
-                self()->name().c_str());
+    std::string path;
+    if (self()->_filename.is_valid())
+      path = *self()->_filename;
+    if (!path.empty())
+    {
+      cairo_surface_t *img = self()->owner()->owner()->get_data()->get_delegate()->fetch_image(path);
+      if (!img)
+        g_warning("Could not load image '%s' for '%s'", path.c_str(), self()->name().c_str());
 
-    _figure->set_image(img);
+      _figure->set_image(img);
+      cairo_surface_destroy(img);
+    }
 
-    cairo_surface_destroy(img);
-    
     if (shrink_if_needed())
     {
       self()->_width= _figure->get_size().width;
