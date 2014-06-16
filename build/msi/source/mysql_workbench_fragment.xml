@@ -891,44 +891,44 @@
                 <Directory Id="python_dlls" Name="DLLs">
                   <Component DiskId="1" Guid="e9a008a8-605a-11e0-a9ed-34159e1d64e6" Id="python_dlls" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68002" Name="_ctypes_d.pyd"/>
+                      <File Id="file68002d" Name="_ctypes_d.pyd"/>
                     <?else ?>
                       <File Id="file68002" Name="_ctypes.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68004" Name="_elementtree_d.pyd"/>
+                      <File Id="file68004d" Name="_elementtree_d.pyd"/>
                     <?else ?>
                       <File Id="file68004" Name="_elementtree.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68007" Name="_multiprocessing_d.pyd"/>
+                      <File Id="file68007d" Name="_multiprocessing_d.pyd"/>
                     <?else ?>
                       <File Id="file68007" Name="_multiprocessing.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68008" Name="_socket_d.pyd"/>
+                      <File Id="file68008d" Name="_socket_d.pyd"/>
                     <?else ?>
                       <File Id="file68008" Name="_socket.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68009" Name="_sqlite3_d.pyd"/>
+                      <File Id="file68009d" Name="_sqlite3_d.pyd"/>
                     <?else ?>
                       <File Id="file68009" Name="_sqlite3.pyd"/>
                     <?endif ?>
 <!--                    <File Id="file68010" Name="_ssl.pyd"/> -->
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68013" Name="pyexpat_d.pyd"/>
+                      <File Id="file68013d" Name="pyexpat_d.pyd"/>
                     <?else ?>
                       <File Id="file68013" Name="pyexpat.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68014" Name="select_d.pyd"/>
+                      <File Id="file68014d" Name="select_d.pyd"/>
                     <?else ?>
                       <File Id="file68014" Name="select.pyd"/>
                     <?endif ?>
@@ -1673,6 +1673,7 @@
                   <File Id="file614046" Name="table_templates.py"/>
                   <File Id="file614047" Name="sqlide_catalogman_ext.py"/>
                   <File Id="file614048" Name="sqlide_tableman_ext.py"/>
+                  <File Id="file614049" Name="sqlide_import_spatial.py" />
 
                   <File Id="file650000" Name="migration_grt.py"/>
                   <File Id="file650001" Name="migration_main.py"/>
