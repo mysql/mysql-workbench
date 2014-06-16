@@ -438,7 +438,7 @@ def visualExplain(editor):
             return 0
         
         json = None
-        if version.is_supported_mysql_version_at_least(5, 6):
+        if None and version.is_supported_mysql_version_at_least(5, 6):
             rset = editor.owner.executeQuery("EXPLAIN FORMAT=JSON %s" % statement, 1)
             if rset and rset.goToFirstRow():
                 json = rset.stringFieldValue(0)
