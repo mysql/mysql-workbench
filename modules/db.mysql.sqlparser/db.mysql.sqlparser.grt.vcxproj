@@ -155,7 +155,7 @@
       </ForcedIncludeFiles>
       <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -474,7 +474,7 @@ mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::P
 
     for (size_t c = _tabdock->view_count(), j = 0; j < c; j++)
     {
-      SqlEditorPanel *panel = sql_editor_panel(j);
+      SqlEditorPanel *panel = sql_editor_panel((int)j);
 
       if (panel && base::same_string(panel->filename(), file_names[i], case_sensitive))
       {
@@ -553,7 +553,7 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
     return;
 
   /// Reorder the GRT lists
-  int from_index = grtobj()->queryEditors().get_index(panel->grtobj());
+  size_t from_index = grtobj()->queryEditors().get_index(panel->grtobj());
   if (from_index < 0)
     should_never_happen("Could not find reordered editor in GRT object list\n");
 

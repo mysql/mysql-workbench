@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __MySQLWorkbench__column_width_cache__
-#define __MySQLWorkbench__column_width_cache__
+#pragma once
 
 #include <sqlite/connection.hpp>
 
@@ -36,5 +35,3 @@ public:
   void save_column_width(const std::string &column_id, int width);
   int get_column_width(const std::string &column_id);
 };
-
-#endif /* __MySQLWorkbench__column_width_cache__ */

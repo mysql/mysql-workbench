@@ -557,7 +557,7 @@ void SqlEditorForm::close()
   // are kept that prevent the correct deletion of the editor.
   for (size_t c = _tabdock->view_count(), i = 0; i < c; i++)
   {
-    SqlEditorPanel *p = sql_editor_panel(i);
+    SqlEditorPanel *p = sql_editor_panel((int)i);
     if (p)
       p->editor_be()->stop_processing();
   }
@@ -752,8 +752,8 @@ void SqlEditorForm::refresh_log_messages(bool ignore_last_message_timestamp)
     bool is_refresh_needed= ignore_last_message_timestamp;
     if (!ignore_last_message_timestamp)
     {
-      double now= timestamp();
-      int progress_status_update_interval = _grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000;
+      double now = timestamp();
+      int progress_status_update_interval = (int)(_grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500) / 1000.);
 
       if (_last_log_message_timestamp + progress_status_update_interval < now)
         is_refresh_needed= true;

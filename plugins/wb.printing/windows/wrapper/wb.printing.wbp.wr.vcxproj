@@ -159,7 +159,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>..\..\backend;$(SolutionDir)\backend\windows\wbpublic.wr\src;$(SolutionDir)\library\base;$(SolutionDir)\generated;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
