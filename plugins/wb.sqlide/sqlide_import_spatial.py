@@ -61,6 +61,35 @@ def handleContextMenu(name, sender, args):
     menu.insert_item(0, item)
     menu.add_separator()
     
+    
+def cmd_executor(cmd):
+    p1 = None
+    if platform.system() != "Windows":
+        try:
+            p1 = subprocess.Popen("exec " + cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
+        except OSError, exc:
+            log_error("Error executing command %s\n%s\n" % (cmd, exc));
+            import traceback
+            traceback.print_ext()
+    else:
+        try:
+            info = subprocess.STARTUPINFO()
+            info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
+            info.wShowWindow = _subprocess.SW_HIDE
+            # Command line can contain object names in case of export and filename in case of import
+            # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
+            # which probably isn't utf-8 in windows.
+            
+            cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
+            log_debug("Executing command: %s\n" % cmd)
+            p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE,startupinfo=info,shell=True)
+        except OSError, exc:
+            log_error("Error executing command %s\n%s\n" % (cmd, exc))
+            import traceback
+            traceback.print_exc()
+            p1 = None
+    return p1
+
 class SpatialImporter:
     def __init__(self):
         self.import_table = None
@@ -74,6 +103,8 @@ class SpatialImporter:
         self.filepath = None
         self.skipfailures = False
         
+        self.layers = []
+        
         self.my_geo_column = "shape"
         self.abort_requested = False
         
@@ -82,34 +113,7 @@ class SpatialImporter:
 
 
     def execute_cmd(self, cmd, progress_notify):
-        p1 = None
-        if platform.system() != "Windows":
-            try:
-                p1 = subprocess.Popen("exec " + cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
-            except OSError, exc:
-                log_error("Error executing command %s\n%s\n" % (cmd, exc));
-                import traceback
-                traceback.print_ext()
-                self.print_log_message("Error executing task: %s" % exc)
-        else:
-            try:
-                info = subprocess.STARTUPINFO()
-                info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-                info.wShowWindow = _subprocess.SW_HIDE
-                # Command line can contain object names in case of export and filename in case of import
-                # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
-                # which probably isn't utf-8 in windows.
-                
-                cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
-                log_debug("Executing command: %s\n" % cmd)
-                p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE,startupinfo=info,shell=True)
-            except OSError, exc:
-                log_error("Error executing command %s\n%s\n" % (cmd, exc))
-                import traceback
-                traceback.print_exc()
-                self.print_log_message("Error executing task: %s" % str(exc))
-                p1 = None
-
+        p1 = cmd_executor(cmd)
 
         self.process_handle = p1
 
@@ -127,7 +131,7 @@ class SpatialImporter:
                 else:
                     try:
                         num = float(char)
-                    except ValueError, exc:
+                    except ValueError:
                         #it means that child process pass away, we can do nothing with it
                         break
 
@@ -186,11 +190,13 @@ class SpatialImporter:
         cmd_args['opts'] = "-lco GEOMETRY_NAME=%s" % self.my_geo_column
         if self.skipfailures:
             cmd_args['opts'] = cmd_args['opts'] + " -skipfailures"
+        if len(self.layers) != 0:
+            cmd_args['opts'] = cmd_args['opts'] + "  ".join(self.layers)
 
         
         cmd_args['filepath'] = self.filepath
 
-        cmd = """ogr2ogr -f "MySQL" MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d" %(filepath)s %(table_name)s %(overwrite)s %(opts)s -progress -lco ENGINE=InnoDb -lco SPATIAL_INDEX=NO %(opts)s""" % cmd_args
+        cmd = """ogr2ogr -f "MySQL" MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d" %(filepath)s %(table_name)s %(overwrite)s %(opts)s -progress -select "name" -lco ENGINE=InnoDb -lco SPATIAL_INDEX=NO %(opts)s""" % cmd_args
         self.is_running = True
         try:
             self.execute_cmd(cmd, progress_notify)
@@ -265,9 +271,60 @@ class ContentPreviewPage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Select Layers to Import", wide=True)
 
+    def get_path(self):
+        return self.main.select_file_page.shapefile_path.get_string_value()
+    
+    def get_info(self):
+        cmd = "ogrinfo -al -so %s" % self.get_path()
+        p1 = cmd_executor(cmd)
+        sout, serr = p1.communicate(input)
+        for line in sout.splitlines():
+            if line.startswith("Layer name: "):
+                node = self.columns.add_node()
+                node.set_bool(0, True)
+                node.set_string(1, line.split(':')[1].strip())
+                node.set_tag(line.split(':')[1].strip())
+        
+    def go_cancel(self):
+        self.main.cancel()
 
     def create_ui(self):
         self.set_spacing(16)
+
+        self._layers_box = mforms.newPanel(mforms.TitledBoxPanel)
+        self._layers_box.set_title("Available layers:")
+        self._layers_box.set_padding(12)
+        self.columns = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        self.columns.add_column(mforms.CheckColumnType, "", 50, True)
+        self.columns.add_column(mforms.StringColumnType, "Name", 60, False)
+        self.columns.end_columns()
+        self._layers_box.add(self.columns)
+        self._layers_box.show(True)
+        self.content.add(self._layers_box, True, True)
+        
+                
+        entry_box = mforms.newBox(True)
+        entry_box.set_spacing(5)
+
+        entry_box.add(mforms.newLabel("Destination table (leave empty for falback to layer name):"), False, True)
+
+        self.table_name = mforms.newTextEntry()
+        entry_box.add(self.table_name, True, True)
+        
+        self.content.add(entry_box, True, True)
+        entry_box.show(True)
+#         self._log_box = mforms.newPanel(mforms.TitledBoxPanel)
+#         self._log_box.set_title("Log Data")
+#         self._log_box.set_padding(12)
+# 
+#         self._log_text = mforms.newTextBox(mforms.VerticalScrollBar)
+#         self._log_text.set_name('WizardProgressLogText')
+#         self._log_text.set_read_only(True)
+#         self._log_box.add(self._log_text)
+#         self._log_box.show(True)
+# 
+#         self.content.add(self._log_box, True, True)
+        self.get_info()
 
 
 
@@ -279,7 +336,6 @@ class ImportProgressPage(WizardProgressPage):
 
         self.add_task(self.prepare_import, "Prepare import")
         self.add_threaded_task(self.start_import, "Import data file")
-
 
     def get_mysql_password(self, connection):
         parameterValues = connection.parameterValues
@@ -318,6 +374,11 @@ class ImportProgressPage(WizardProgressPage):
 
         self.importer.my_user = self.main.editor.connection.parameterValues.userName
         self.importer.my_schema = self.main.selected_schema
+        for i in range(self.main.content_preview_page.columns.count()):
+            self.importer.layers.append(self.main.content_preview_page.columns.node_at_row(i).get_tag())
+        
+        if self.main.content_preview_page.table_name.get_string_value() != "":
+            self.importer.import_table = self.main.content_preview_page.table_name.get_string_value()
         return True
 
     def progress_notify(self, pct, msg):
@@ -330,6 +391,7 @@ class ImportProgressPage(WizardProgressPage):
         return False
     
     def go_cancel(self):
+            
         if self.importer and self.importer.is_running:
             if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop import process?", "Yes", "No", "Cancel"):
                 if self.importer:
@@ -361,6 +423,9 @@ class SpatialImporterWizard(WizardForm):
 
         self.select_file_page = SelectFileWizardPage(self)
         self.add_page(self.select_file_page)
+        
+        self.content_preview_page = ContentPreviewPage(self)
+        self.add_page(self.content_preview_page)
 
         self.import_page = ImportProgressPage(self)
         self.add_page(self.import_page)
