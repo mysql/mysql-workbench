@@ -19,6 +19,7 @@ from __future__ import with_statement
 
 # import the mforms module for GUI stuff
 import mforms
+import grt
 
 import os, platform, subprocess
 
@@ -31,7 +32,7 @@ try:
 except ImportError:
     pass
 
-from workbench.log import log_error, log_debug
+from workbench.log import log_error, log_debug, log_info
 
 def showImporter(editor, schema):
     importer = SpatialImporterWizard(editor)
@@ -60,7 +61,6 @@ def handleContextMenu(name, sender, args):
     menu.insert_item(0, item)
     menu.add_separator()
     
-    
 class SpatialImporter:
     def __init__(self):
         self.import_table = None
@@ -78,13 +78,14 @@ class SpatialImporter:
         self.abort_requested = False
         
         self.is_running = False
+        self.returncode = None
 
 
-    def execute_cmd(self, cmd):
+    def execute_cmd(self, cmd, progress_notify):
         p1 = None
         if platform.system() != "Windows":
             try:
-                p1 = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
+                p1 = subprocess.Popen("exec " + cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
             except OSError, exc:
                 log_error("Error executing command %s\n%s\n" % (cmd, exc));
                 import traceback
@@ -112,25 +113,38 @@ class SpatialImporter:
 
         self.process_handle = p1
 
-#         while p1 and p1.poll() == None and not self.abort_requested:
+        pct = 0.0
+        progress_notify(pct, "0 %")
+        while p1 and p1.returncode is None:
+            p1.poll()
+            char = p1.stdout.read(1)
+             
+            if char == "0":
+                continue
+            else:
+                if char == ".":
+                    pct = pct + 0.03
+                else:
+                    try:
+                        num = float(char)
+                    except ValueError, exc:
+                        #it means that child process pass away, we can do nothing with it
+                        break
 
-#             err = read_nonblocking(p1.stderr, timeout = 1)
-#             print "Error is: %s\n" % err
-#             out = read_nonblocking(p1.stdout, timeout = 1)
-#             print "Output is: %s\n" % out
-#             print "err"
-#             if err != "":
-#                 print "The error is: %s\n" % err
-#             print p1.stdout.read()
+                    if num == 1.0 and pct > 3.0:
+                        progress_notify(pct, "Finished")
+                        break
+                    pct = num/10.0
+            progress_notify(pct, "%d %%" % int(pct * 100))
 
-                
-                
-#             log_error("Error from task: %s\n" % err)
-#             self.print_log_message(err)
-#             if 'Access denied for user' in err:
-#                 self.e = wb_common.InvalidPasswordError('Wrong username/password!')
-    
-        
+        sout, serr = p1.communicate()
+        self.returncode = p1.returncode
+        if self.returncode !=0:
+            if serr != "":
+                raise Exception(serr)
+            raise grt.UserInterrupt()
+
+
     def print_log_message(self, msg):
         print msg
  
@@ -150,7 +164,7 @@ class SpatialImporter:
                     log_error("Exception sending SIGTERM to task: %s\n" % exc)
                     self.print_log_message("kill task: %s" % str(exc))
                      
-    def run(self):
+    def run(self, progress_notify):
         cmd_args = {}
         cmd_args['host'] = self.my_host
         cmd_args['schema'] = self.my_schema
@@ -178,11 +192,15 @@ class SpatialImporter:
 
         cmd = """ogr2ogr -f "MySQL" MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d" %(filepath)s %(table_name)s %(overwrite)s %(opts)s -progress -lco ENGINE=InnoDb -lco SPATIAL_INDEX=NO %(opts)s""" % cmd_args
         self.is_running = True
-        print cmd
         try:
-            self.execute_cmd(cmd)
+            self.execute_cmd(cmd, progress_notify)
+        except grt.UserInterrupt:
+            log_info("User cancelled")
+            raise
         except Exception, exc:
-            log_error("An error occured during execution of ogr2ogr file import: %s\n", exc)
+            import traceback
+            log_error("An error occured during execution of ogr2ogr file import: %s, stack: %s\n" % (exc, traceback.format_exc()))
+            raise
         self.is_running = False
 
 
@@ -302,10 +320,20 @@ class ImportProgressPage(WizardProgressPage):
         self.importer.my_schema = self.main.selected_schema
         return True
 
+    def progress_notify(self, pct, msg):
+        self.send_progress(pct, msg)
 
     def start_import(self):
-        self.importer.run()
-        return True
+        self.importer.run(self.progress_notify)
+        if self.importer.returncode == 0:
+            return True
+        return False
+    
+    def go_cancel(self):
+        if self.importer and self.importer.is_running:
+            if mforms.ResultOk == mforms.Utilities.show_message("Confirmation", "Do you wish to stop import process?", "Yes", "No", "Cancel"):
+                if self.importer:
+                    self.importer.kill()
 
 
 class ResultsPage(WizardPage):
@@ -344,4 +372,5 @@ class SpatialImporterWizard(WizardForm):
     def set_schema(self, schema_name):
         self.select_file_page.schema_label.set_text("Tables will be imported to schema: %s" % schema_name)
         self.selected_schema = schema_name
+        
 
