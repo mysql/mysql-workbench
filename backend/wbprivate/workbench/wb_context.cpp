@@ -378,6 +378,7 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
     else if (check_arg_with_value(argv, i, "run-script", argval))
     {
       run_language= "python";
+      open_at_startup_type = "run-script";
       open_at_startup_type= argv[start_index] + strlen(OPPREFIX);
       std::string::size_type p = open_at_startup_type.find('=');
       if (p != std::string::npos)
@@ -1175,6 +1176,8 @@ void WBContext::init_finish_(WBOptions *options)
     else if (g_str_has_suffix(initial_file.c_str(), ".sql") || g_str_has_suffix(initial_file.c_str(), ".dbquery")
              || options->open_at_startup_type == "query")
       options->open_at_startup_type = "query";
+    else if (g_str_has_suffix(initial_file.c_str(), ".py") && options->open_at_startup_type == "run-script")
+      options->open_at_startup_type = "run-script";
     else
       log_error("Unknown file type %s\n", initial_file.c_str());
   }
