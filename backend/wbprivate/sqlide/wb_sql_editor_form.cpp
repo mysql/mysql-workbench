@@ -684,7 +684,7 @@ void SqlEditorForm::list_members()
 {
   MySQLEditor::Ref editor = active_sql_editor();
   if (editor)
-    editor->show_auto_completion(true);
+    editor->show_auto_completion(true, _autocomplete_context->recognizer());
 }
 
 void SqlEditorForm::reset()
@@ -1130,6 +1130,9 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       std::string value;
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
         _lower_case_table_names = atoi(value.c_str());
+
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      _autocomplete_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   }

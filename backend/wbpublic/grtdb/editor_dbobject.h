@@ -86,6 +86,7 @@ namespace bec {
 
   protected:
     parser::ParserContext::Ref _parser_context;
+    parser::ParserContext::Ref _autocompletion_context; // Temporary.
     parser::MySQLParserServices::Ref _parser_services;
 
     DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef &object);
