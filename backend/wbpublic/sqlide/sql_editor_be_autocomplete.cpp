@@ -1510,11 +1510,9 @@ void collect_table_references(MySQLEditor::AutoCompletionContext &context, MySQL
  * 
  * Returns false if there was a syntax error, otherwise true.
  */
-bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
+bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context, MySQLRecognizer *recognizer)
 {
   log_debug("Creating new code completion list\n");
-
-  parser::ParserContext::Ref parser_context = get_parser_context();
 
   std::set<std::pair<int, std::string>, CompareAcEntries> new_entries;
   _auto_completion_entries.clear();
@@ -1523,7 +1521,6 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
   bool found_errors = false;
   if (!context.statement.empty())
   {
-    MySQLRecognizer *recognizer = parser_context->recognizer();
     context.version = recognizer->server_version();
 
     recognizer->parse(context.statement.c_str(), context.statement.length(), true, QtUnknown);
@@ -1705,7 +1702,7 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context)
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLEditor::show_auto_completion(bool auto_choose_single)
+void MySQLEditor::show_auto_completion(bool auto_choose_single, MySQLRecognizer *recognizer)
 {
   if (!code_completion_enabled())
     return;
@@ -1748,7 +1745,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single)
   context.typed_part.erase(std::remove(context.typed_part.begin(), context.typed_part.end(), '\\'),
     context.typed_part.end());
 
-  create_auto_completion_list(context);
+  create_auto_completion_list(context, recognizer);
   update_auto_completion(context.typed_part);
 }
 

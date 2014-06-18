@@ -66,6 +66,12 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef 
   if (object->customData().has_key("sqlMode"))
     _parser_context->use_sql_mode(object->customData().get_string("sqlMode"));
 
+  // Because syntax checks and auto completion are done in different threads we need 2 different parser.
+  // With the refactoring of the auto completion code this second parser will go.
+  _autocompletion_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
+  if (object->customData().has_key("sqlMode"))
+    _autocompletion_context->use_sql_mode(object->customData().get_string("sqlMode"));
+
   _val_notify_conn = ValidationManager::signal_notify()->connect(boost::bind(&DBObjectEditorBE::notify_from_validation, this, _1, _2, _3, _4));
 
   // Get notified about version number changes.
@@ -515,7 +521,7 @@ MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 {
   if (!_sql_editor)
   {
-    _sql_editor = MySQLEditor::create(get_grt(), _parser_context);
+    _sql_editor = MySQLEditor::create(get_grt(), _parser_context, _autocompletion_context);
     grt::DictRef obj_options = get_dbobject()->customData();
     if (obj_options.has_key("sqlMode"))
       _sql_editor->set_sql_mode(obj_options.get_string("sqlMode"));

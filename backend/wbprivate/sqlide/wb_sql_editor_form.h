@@ -289,6 +289,7 @@ private:
 private:
   std::string _sql_mode;
   int _lower_case_table_names;
+  parser::ParserContext::Ref _autocomplete_context; // Temporary, until auto completion is refactored.
 
 private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
