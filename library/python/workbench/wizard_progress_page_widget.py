@@ -320,10 +320,6 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         super(WizardProgressPage, self).page_activated(advancing)
         
         self.next_button.set_enabled(self._tasks_finished or self._currently_running_task_index is None)
-        
-        if advancing:
-            if self._currently_running_task_index is None and not self._tasks_finished:
-                self.start()
 
     def reset(self, clear_log_box= False):
         self._cancel_requested = False

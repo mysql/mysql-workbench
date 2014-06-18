@@ -54,8 +54,8 @@ class WizardForm(mforms.Form):
         if not self.pages[current_page].validate():
             return
         if current_page < len(self.pages)-1:
-            self.tabview.set_active_tab(current_page+1)
-            self.pages[current_page].page_activated(True)
+            self.tabview.set_active_tab(current_page + 1)
+            self.pages[current_page + 1].page_activated(True)
 
 
     def go_previous_page(self):
