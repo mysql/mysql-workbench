@@ -1789,6 +1789,24 @@ static std::string get_executable_path(mforms::App* app, const std::string& file
     if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
       return path;
   }
+  
+  // This is useful when  workbench is installed with a DESTDIR
+  path = std::string("/usr/local/bin/") + file;
+  if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
+    return path;  
+
+  path = std::string("/usr/local/libexec/") + file;
+  if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
+    return path;  
+
+  path = std::string("/usr/libexec/") + file;
+  if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
+    return path; 
+  
+  path = std::string("/usr/bin/") + file;
+  if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
+    return path;  
+
   return "";
 }
 
