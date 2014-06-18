@@ -90,6 +90,19 @@ public:
     PossiblyStoppedState
   };
 
+
+  struct PSStage
+  {
+    std::string name;
+    double wait_time;
+  };
+
+  struct PSWait
+  {
+    std::string name;
+    double wait_time;
+  };
+
   class RecordsetData : public Recordset::ClientData
   {
   public:
@@ -100,6 +113,8 @@ public:
     double duration;
     std::string ps_stat_error;
     std::map<std::string, boost::int64_t> ps_stat_info;
+    std::vector<PSStage> ps_stage_info;
+    std::vector<PSWait> ps_wait_info;
   };
 
 public:
@@ -282,10 +297,14 @@ public:
   db_mgmt_ConnectionRef connection_descriptor() const { return _connection; }
 
   bool get_session_variable(sql::Connection *dbc_conn, const std::string &name, std::string &value);
-  
+
 private:
   void cache_sql_mode();
   void query_ps_statistics(boost::int64_t conn_id, std::map<std::string, boost::int64_t> &stats);
+
+  std::vector<SqlEditorForm::PSStage> query_ps_stages(boost::int64_t stmt_event_id);
+  std::vector<SqlEditorForm::PSWait> query_ps_waits(boost::int64_t stmt_event_id);
+
 private:
   std::string _sql_mode;
   int _lower_case_table_names;
