@@ -129,22 +129,22 @@ void ItemHandle::paint_gl(Rect& r)
       _display_list= glGenLists(1);
     glNewList(_display_list, GL_COMPILE_AND_EXECUTE);
 
-        // Color for the polygon border.
+    // Color for the polygon border.
     Color border_color;
-        if (_draggable)
-        {
-          if (_highlighted)
+    if (_draggable)
+    {
+      if (_highlighted)
         border_color= Color(0, 1, 1);
-          else
+      else
         border_color= Color(0, 0, 0);
-        }
-        else
-        {
-          if (_highlighted)
+    }
+    else
+    {
+      if (_highlighted)
         border_color= Color(0.5, 1, 1);
-          else
+      else
         border_color= Color(0.5, 0.5, 0.5);
-        }
+    }
     gl_box(r, border_color, _color);
     glEndList();
   }
