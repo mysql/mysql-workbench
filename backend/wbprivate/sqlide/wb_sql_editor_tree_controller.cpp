@@ -1294,42 +1294,49 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
     _owner->run_sql_in_scratch_tab(text, false, true);
   }
 
-  for (size_t i = 0; i < changes.size(); i++)
+  try
   {
-    std::string sql;
-    switch (changes[i].type)
+    for (size_t i = 0; i < changes.size(); i++)
     {
-      case wb::LiveSchemaTree::Schema:
-        if (real_action == "filter")
-        {
-          _schema_side_bar->get_filter_entry()->set_value(changes[i].name);
-          (*_schema_side_bar->get_filter_entry()->signal_changed())();
-        }
-        else if (real_action == "inspect")
-          _owner->inspect_object(changes[i].name, "", "db.Schema");
-        else
-          _owner->active_schema(changes[i].name);
-        break;
-      case wb::LiveSchemaTree::Table:
-      case wb::LiveSchemaTree::View:
-        if (real_action == "activate" || real_action == "edit_data" || real_action == "select_data")
-          sql = sqlstring("SELECT * FROM !.!;", base::QuoteOnlyIfNeeded) << changes[i].schema << changes[i].name;
-        else if (real_action == "inspect")
-          _owner->inspect_object(changes[i].schema, changes[i].name, "db.Table");
-        break;
-      default:
-        break;
-    }
+      std::string sql;
+      switch (changes[i].type)
+      {
+        case wb::LiveSchemaTree::Schema:
+          if (real_action == "filter")
+          {
+            _schema_side_bar->get_filter_entry()->set_value(changes[i].name);
+            (*_schema_side_bar->get_filter_entry()->signal_changed())();
+          }
+          else if (real_action == "inspect")
+            _owner->inspect_object(changes[i].name, "", "db.Schema");
+          else
+            _owner->active_schema(changes[i].name);
+          break;
+        case wb::LiveSchemaTree::Table:
+        case wb::LiveSchemaTree::View:
+          if (real_action == "activate" || real_action == "edit_data" || real_action == "select_data")
+            sql = sqlstring("SELECT * FROM !.!;", base::QuoteOnlyIfNeeded) << changes[i].schema << changes[i].name;
+          else if (real_action == "inspect")
+            _owner->inspect_object(changes[i].schema, changes[i].name, "db.Table");
+          break;
+        default:
+          break;
+      }
 
-    if (!sql.empty())
-    {
-      bool _autosave = _owner->get_autosave_disabled();
-      _owner->set_autosave_disabled(true);
-      int ed = _owner->run_sql_in_scratch_tab(sql, false, true);
-      _owner->sql_editor_caption(ed, changes[i].name);
-      _owner->do_partial_ui_refresh(SqlEditorForm::RefreshEditorTitle);
-      _owner->set_autosave_disabled(_autosave);
+      if (!sql.empty())
+      {
+        bool _autosave = _owner->get_autosave_disabled();
+        _owner->set_autosave_disabled(true);
+        int ed = _owner->run_sql_in_scratch_tab(sql, false, true);
+        _owner->sql_editor_caption(ed, changes[i].name);
+        _owner->do_partial_ui_refresh(SqlEditorForm::RefreshEditorTitle);
+        _owner->set_autosave_disabled(_autosave);
+      }
     }
+  }
+  catch (std::exception &exc)
+  {
+    mforms::Utilities::show_error("Error", exc.what(), "OK");
   }
 }
 
