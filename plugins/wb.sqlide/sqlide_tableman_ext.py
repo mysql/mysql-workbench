@@ -217,9 +217,9 @@ class TableInfoPanel(mforms.Box):
         self.analyze_btn.add_clicked_callback(self.analyze_table)
         self.analyze_btn.enable_internal_padding(False)
         
-        table.add(mforms.newLabel("Information on this page may be outdated. Click the "), 0, 1, 0, 1, mforms.HFillFlag)
+        table.add(mforms.newLabel("Information on this page may be outdated. Click "), 0, 1, 0, 1, mforms.HFillFlag)
         table.add(self.analyze_btn,                                                     1, 2, 0, 1, mforms.HFillFlag)
-        table.add(mforms.newLabel(" button to update it."),                              2, 3, 0, 1, mforms.HFillFlag)
+        table.add(mforms.newLabel(" to update it."),                              2, 3, 0, 1, mforms.HFillFlag)
         
         bbox.add(table, False, False)
         
@@ -262,12 +262,15 @@ class TableInfoPanel(mforms.Box):
 #                     setattr(columnsVal, col.lower(), rset.stringFieldValueByName(col))
 
                 ok = rset.nextRow()
-            
-            self.table_size.set_text(human_size(int(column_values['data_length']) + int(column_values['index_length'])))
-            self.data_length.set_text(human_size(int(column_values['data_length'])))
-            self.index_length.set_text(human_size(int(column_values['index_length'])))
-            self.data_free.set_text(human_size(int(column_values['data_free'])))
-            self.max_data_length.set_text(human_size(int(column_values['max_data_length'])))
+
+            try:
+                self.table_size.set_text(human_size(int(column_values['data_length']) + int(column_values['index_length'])))
+                self.data_length.set_text(human_size(int(column_values['data_length'])))
+                self.index_length.set_text(human_size(int(column_values['index_length'])))
+                self.data_free.set_text(human_size(int(column_values['data_free'])))
+                self.max_data_length.set_text(human_size(int(column_values['max_data_length'])))
+            except Exception, e:
+                log_error("Error displaying table info for %s.%s: %s\n" % (self._schema, self._table, e))
 
         try:
             rset = self.editor.executeManagementQuery("select count(*) column_count from information_schema.columns WHERE table_schema = '%s' and table_name = '%s'" % (self._schema, self._table), 0)
@@ -780,7 +783,6 @@ class TableTriggerManager(TableManDefs, TriggerManager):
            ]
     def __init__(self, editor):
         TriggerManager.__init__(self, editor, None)
-        self.inspect_btn.show(False)
         self.set_managed()
         self.set_release_on_add()
     
