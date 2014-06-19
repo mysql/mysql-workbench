@@ -329,6 +329,7 @@
 		2B02FEF8183E771B00770CC0 /* view.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B02FEEA183E771B00770CC0 /* view.png */; };
 		2B03B5C1116CC42C009987BE /* binary_data_editor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B03B5B8116CC0B4009987BE /* binary_data_editor.h */; };
 		2B03B5C2116CC42C009987BE /* binary_data_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */; };
+		2B0609F21952B2AA00022F40 /* db.Table.32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0609F11952B2AA00022F40 /* db.Table.32x32.png */; };
 		2B064CDA14D3257200B01887 /* treenodeview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064CD914D3257200B01887 /* treenodeview.h */; };
 		2B064CE014D327F400B01887 /* treenodeview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B064CDE14D327F400B01887 /* treenodeview.cpp */; };
 		2B064D0714D32DAD00B01887 /* MFTreeNodeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */; };
@@ -4035,6 +4036,7 @@
 		2B02FEEA183E771B00770CC0 /* view.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = view.png; sourceTree = "<group>"; };
 		2B03B5B8116CC0B4009987BE /* binary_data_editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = binary_data_editor.h; sourceTree = "<group>"; };
 		2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = binary_data_editor.cpp; sourceTree = "<group>"; };
+		2B0609F11952B2AA00022F40 /* db.Table.32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.Table.32x32.png; path = structs/db.Table.32x32.png; sourceTree = "<group>"; };
 		2B064CD914D3257200B01887 /* treenodeview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = treenodeview.h; path = library/forms/mforms/treenodeview.h; sourceTree = "<group>"; wrapsLines = 0; };
 		2B064CDE14D327F400B01887 /* treenodeview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = treenodeview.cpp; path = library/forms/treenodeview.cpp; sourceTree = "<group>"; };
 		2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFTreeNodeView.h; path = library/forms/cocoa/MFTreeNodeView.h; sourceTree = "<group>"; };
@@ -7843,6 +7845,7 @@
 		2B26389E0E93B0F800933149 /* grt */ = {
 			isa = PBXGroup;
 			children = (
+				2B0609F11952B2AA00022F40 /* db.Table.32x32.png */,
 				2B3B22F61860ECBB003FA474 /* db.Column.pkfk.11x11.png */,
 				2B3B22F71860ECBB003FA474 /* db.Column.pkfk.16x16.png */,
 				2B2909CF159A0C7200708C09 /* db.ForeignKey.16x16.png */,
@@ -12302,6 +12305,7 @@
 				2B5FE4D1187F2C7400AEC55C /* output_type-formeditor.png in Resources */,
 				2B263A570E9402DD00933149 /* collapsing_panel_header_tab_left.png in Resources */,
 				2B263A580E9402DD00933149 /* collapsing_panel_header_tab_left_flat.png in Resources */,
+				2B0609F21952B2AA00022F40 /* db.Table.32x32.png in Resources */,
 				2B263A590E9402DD00933149 /* collapsing_panel_header_tab_middle.png in Resources */,
 				2B263A5A0E9402DD00933149 /* collapsing_panel_header_tab_middle_flat.png in Resources */,
 				2B263A5B0E9402DD00933149 /* collapsing_panel_header_tab_right.png in Resources */,
