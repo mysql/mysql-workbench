@@ -703,11 +703,11 @@ static NSImage *descendingSortIndicator = nil;
   NSTrackingArea *mTrackingArea;
 
   NSInteger mOverlayedRow;
-  NSImage *mOverlayIcon;
+  NSMutableArray *mOverlayIcons;
 
+  int mOverOverlay;
+  int mClickingOverlay;
   BOOL mMouseInside;
-  BOOL mOverOverlay;
-  BOOL mClickingOverlay;
 }
 @end
 
@@ -718,6 +718,8 @@ static NSImage *descendingSortIndicator = nil;
   self = [super initWithFrame: frame];
   if (self != nil)
   {
+    mOverOverlay = -1;
+    mClickingOverlay = -1;
     mOwner = treeView;
   }
   return self;
@@ -725,7 +727,7 @@ static NSImage *descendingSortIndicator = nil;
 
 - (void)dealloc
 {
-  [mOverlayIcon release];
+  [mOverlayIcons release];
   [super dealloc];
 }
 
@@ -763,14 +765,15 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 
   if (NSPointInRect(p, [self visibleRect]))
   {
-    if (!mClickingOverlay)
+    if (mClickingOverlay < 0)
     {
-      [mOverlayIcon release];
-      mOverlayIcon = nil;
-      mOverOverlay = NO;
+      [mOverlayIcons release];
+      mOverlayIcons = nil;
+      mOverOverlay = -1;
+      mOverlayedRow = -1;
       [self setNeedsDisplay: YES];
     }
-    if (row >= 0)
+    if (row >= 0 && NSPointInRect(p, [self rectOfRow: row]))
     {
       mforms::TreeNodeRef node(mOwner->node_at_row(row));
       if (node)
@@ -780,18 +783,28 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
         {
           NSRect iconRect = [self rectOfRow: row];
 
-          if (!mClickingOverlay)
+          iconRect.origin.x = NSMaxX([self visibleRect]) - 4;
+          iconRect.size.width = 0;
+
+          mOverlayIcons = [[NSMutableArray alloc] initWithCapacity: icons.size()];
+          int i = 0;
+          for (std::vector<std::string>::const_iterator icon = icons.begin(); icon != icons.end(); ++icon, ++i)
           {
-            mOverlayedRow = row;
-            mOverlayIcon = [[NSImage alloc] initWithContentsOfFile: [NSString stringWithCPPString: icons[0]]];
+            NSImage *img = icon->empty() ? nil : [(MFTreeNodeViewImpl*)[self delegate] iconForFile: [NSString stringWithCPPString: *icon]];
+            if (img)
+              [mOverlayIcons addObject: img];
+            else
+              [mOverlayIcons addObject: [NSNull null]];
+
+            iconRect.origin.x -= NSHeight(iconRect);
+            iconRect.size.width += NSHeight(iconRect);
+
+            if (NSPointInRect(p, iconRect) && mOverOverlay < 0)
+              mOverOverlay = i;
           }
           [self setNeedsDisplay: YES];
-
-          iconRect.origin.x = NSMaxX([self visibleRect]) - [mOverlayIcon size].width - 4;
-          iconRect.size.width = [mOverlayIcon size].height;
-
-          mOverOverlay = NSPointInRect(p, iconRect);
         }
+        mOverlayedRow = row;
       }
     }
   }
@@ -809,21 +822,21 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 - (bool)handleMouseExited:(NSEvent *)event owner:(mforms::View *)owner
 {
   mMouseInside = NO;
-  if (mOverlayIcon)
-  {
-    [mOverlayIcon release];
-    mOverlayIcon = nil;
-    [self setNeedsDisplay: YES];
-  }
+  [mOverlayIcons release];
+  mOverlayIcons = nil;
+  mOverOverlay = -1;
+  mClickingOverlay = -1;
+  [self setNeedsDisplay: YES];
+
   return [super handleMouseExited: event owner: owner];
 }
 
 
 - (bool)handleMouseDown:(NSEvent *)event owner:(mforms::View *)owner
 {
-  if (mOverOverlay)
+  if (mOverOverlay >= 0)
   {
-    mClickingOverlay = YES;
+    mClickingOverlay = mOverOverlay;
     return true;
   }
   return [super handleMouseDown: event owner: owner];
@@ -832,20 +845,18 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 
 - (bool)handleMouseUp:(NSEvent *)event owner:(mforms::View *)owner
 {
-  if (mOverOverlay)
+  if (mOverOverlay >= 0 && mOverOverlay == mClickingOverlay)
   {
-    if (mClickingOverlay)
-    {
-      mforms::TreeNodeRef node(mOwner->node_at_row(mOverlayedRow));
-      if (node)
-        mOwner->overlay_icon_for_node_clicked(node, 0);
-      else
-        log_debug("Error getting node for row %i, shouldn't be NULL\n", mOverlayedRow);
-    }
-    mClickingOverlay = NO;
+    mforms::TreeNodeRef node(mOwner->node_at_row(mOverlayedRow));
+    if (node)
+      mOwner->overlay_icon_for_node_clicked(node, mClickingOverlay);
+    else
+      log_debug("Error getting node for row %i, shouldn't be NULL\n", mOverlayedRow);
+
+    mClickingOverlay = -1;
     return true;
   }
-  mClickingOverlay = NO;
+  mClickingOverlay = -1;
   return [super handleMouseUp: event owner: owner];
 }
 
@@ -853,17 +864,27 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 - (void)drawRow:(NSInteger)rowIndex clipRect:(NSRect)clipRect
 {
   [super drawRow: rowIndex clipRect: clipRect];
-  if (mOverlayIcon && rowIndex == mOverlayedRow)
+  if (mOverlayIcons && rowIndex == mOverlayedRow)
   {
-    NSSize size = [mOverlayIcon size];
-    [mOverlayIcon drawInRect: NSMakeRect(NSMaxX([self visibleRect]) - [mOverlayIcon size].width - 4,
-                                         NSMinY([self rectOfRow: rowIndex]),
-                                         size.width, size.height)
-                    fromRect: NSZeroRect
-                   operation: NSCompositeSourceOver
-                    fraction: mOverOverlay ? 1.0 : 0.6
-              respectFlipped: YES
-                       hints: nil];
+    double x = NSMaxX([self visibleRect]) - 4;
+    NSRect rowRect = [self rectOfRow: rowIndex];
+    int i = 0;
+    for (id icon in mOverlayIcons)
+    {
+      if ([icon isKindOfClass: [NSImage class]])
+      {
+        NSSize size = [icon size];
+        x -= NSHeight(rowRect);
+        [(NSImage*)icon drawInRect: NSMakeRect(x, NSMinY(rowRect),
+                                               size.width, size.height)
+                          fromRect: NSZeroRect
+                         operation: NSCompositeSourceOver
+                          fraction: mOverOverlay == i ? 1.0 : 0.4
+                    respectFlipped: YES
+                             hints: nil];
+      }
+      i++;
+    }
   }
 }
 

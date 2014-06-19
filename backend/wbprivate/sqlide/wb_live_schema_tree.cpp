@@ -2301,7 +2301,7 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
           changes.push_back(record);
 
           if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
-          delegate->tree_activate_objects("inspect", changes);
+            delegate->tree_activate_objects(column == -1 ? "inspect" : "select_data", changes);
           break;
         }
       }
@@ -2552,7 +2552,20 @@ std::vector<std::string> LiveSchemaTree::overlay_icons_for_tree_node(mforms::Tre
   LSTData *data = dynamic_cast<LSTData*>(node->get_data());
 
   std::vector<std::string> icons;
-  if (data && (data->get_type() == Table || data->get_type() == Schema))
-    icons.push_back(mforms::App::get()->get_resource_path("wb_magnifier.png"));
+  if (data)
+  {
+    switch (data->get_type())
+    {
+      case Schema:
+        icons.push_back(mforms::App::get()->get_resource_path("wb_magnifier.png"));
+        break;
+      case Table:
+        icons.push_back(mforms::App::get()->get_resource_path("wb_magnifier.png"));
+        icons.push_back(mforms::App::get()->get_resource_path("wb_db_table.png"));
+        break;
+      default:
+        break;
+    }
+  }
   return icons;
 }
