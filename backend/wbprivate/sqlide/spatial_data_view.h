@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __MySQLWorkbench__spatial_data_view__
-#define __MySQLWorkbench__spatial_data_view__
+#pragma once
 
 #include "workbench/wb_backend_public_interface.h"
 
@@ -95,5 +94,3 @@ public:
   void activate();
   void refresh_layers();
 };
-
-#endif /* defined(__MySQLWorkbench__spatial_data_view__) */

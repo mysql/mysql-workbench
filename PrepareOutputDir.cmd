@@ -196,6 +196,10 @@ copy %EXT_LIB_DIR%\pcre\%2\pcre.dll %TARGET_DIR%\.
 echo * sqlite library ...
 copy %EXT_LIB_DIR%\sqlite\%2\sqlite3.dll %TARGET_DIR%\.
 
+echo * gdal library + tools ...
+copy %EXT_LIB_DIR%\gdal\gdal.dll %TARGET_DIR%\.
+copy %EXT_LIB_DIR%\gdal\*.exe %TARGET_DIR%\.
+
 rem copy LGPL source packages to bin directory - only for community release build
 if "%2"=="Release" (
   echo * LGPL source packages ...

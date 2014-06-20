@@ -25,6 +25,12 @@
     <Filter Include="WMI">
       <UniqueIdentifier>{4bbf0b30-4c26-452a-b67e-6dca5f14745c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files Spatial Support">
+      <UniqueIdentifier>{f662d5fc-aafc-4108-812f-51a2b21069f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files Spatial Support">
+      <UniqueIdentifier>{4fb53ee5-1eb1-4c76-95da-f7b27a8f2055}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="workbench\about_box.h">
@@ -229,8 +235,14 @@
     <ClInclude Include="sqlide\wb_sql_editor_tree_controller.h">
       <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
+    <ClInclude Include="sqlide\spatial_handler.h">
+      <Filter>Header Files Spatial Support</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\spatial_draw_box.h">
+      <Filter>Header Files Spatial Support</Filter>
+    </ClInclude>
     <ClInclude Include="sqlide\spatial_data_view.h">
-      <Filter>Header Files SQL IDE</Filter>
+      <Filter>Header Files Spatial Support</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -434,7 +446,13 @@
     </ClCompile>
     <ClCompile Include="workbench\stdafx.cpp" />
     <ClCompile Include="sqlide\spatial_data_view.cpp">
-      <Filter>Source Files SQL IDE</Filter>
+      <Filter>Source Files Spatial Support</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\spatial_handler.cpp">
+      <Filter>Source Files Spatial Support</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\spatial_draw_box.cpp">
+      <Filter>Source Files Spatial Support</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

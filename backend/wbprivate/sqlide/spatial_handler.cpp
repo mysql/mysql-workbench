@@ -410,7 +410,7 @@ DEFAULT_LOG_DOMAIN("spatial");
 
 static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 {
-  log_error("ERROR %d, %s\n", err_no, msg);
+  log_error("gdal error: %d, %s\n", err_no, msg);
 }
 //
 //spatial::Projection::Projection() : _is_projected(false), _name("Geodetic")
@@ -878,8 +878,8 @@ void spatial::Converter::to_projected(int x, int y, double &lat, double &lon)
 void spatial::Converter::from_projected(double lat, double lon, int &x, int &y)
 {
   base::RecMutexLock mtx(_projection_protector);
-  x = _inv_projection[0] + _inv_projection[1] * lat;
-  y = _inv_projection[3] + _inv_projection[5] * lon;
+  x = (int)(_inv_projection[0] + _inv_projection[1] * lat);
+  y = (int)(_inv_projection[3] + _inv_projection[5] * lon);
 }
 
 bool spatial::Converter::to_latlon(int x, int y, double &lat, double &lon)
@@ -899,13 +899,13 @@ bool spatial::Converter::from_latlon(double lat, double lon, int &x, int &y)
 bool spatial::Converter::from_latlon_to_proj(double &lat, double &lon)
 {
   base::RecMutexLock mtx(_projection_protector);
-  return _geo_to_proj->Transform(1, &lat, &lon);
+  return _geo_to_proj->Transform(1, &lat, &lon) != 0;
 }
 
 bool spatial::Converter::from_proj_to_latlon(double &lat, double &lon)
 {
   base::RecMutexLock mtx(_projection_protector);
-  return _proj_to_geo->Transform(1, &lat, &lon);
+  return _proj_to_geo->Transform(1, &lat, &lon) != 0;
 }
 
 void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_container)
@@ -1085,7 +1085,7 @@ float Layer::query_render_progress()
 void Layer::render(Converter *converter)
 {
   _render_progress = 0.0;
-  float step = 1.0 / _features.size();
+  float step = 1.0f / _features.size();
 
   for (std::list<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
   {

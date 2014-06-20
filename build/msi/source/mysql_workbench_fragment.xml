@@ -80,6 +80,9 @@
                 <File Id="file1106" Name="Scintilla.dll"/>
                 <File Id="pcre.dll" Name="pcre.dll"/>
                 <File Id="file68725" Name="sqlite3.dll"/>
+                <File Id="gdal.dll" Name="gdal.dll"/>
+                <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
+                <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
               </Component>
 
               <?if $(var.SETUP_TYPE) = "commercial" ?>
