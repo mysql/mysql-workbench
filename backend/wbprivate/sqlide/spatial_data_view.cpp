@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,7 +64,7 @@ public:
         std::string geom_data; // data in MySQL internal binary geometry format.. this is neither WKT nor WKB
         // but the internal format seems to be 4 bytes of SRID followed by WKB data
         if (rs->get_raw_field(row, _geom_column, geom_data) && !geom_data.empty())
-          add_feature(row, geom_data, false);
+          add_feature((int)row, geom_data, false);
       }
     }
   }

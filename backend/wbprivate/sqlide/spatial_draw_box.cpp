@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -115,8 +115,7 @@ void SpatialDrawBox::render_in_thread(bool reproject)
     _current_layer = NULL;
     _rendering = true;
     _progress = new ProgressPanel("Rendering spatial data, please wait.");
-    _progress->start(boost::bind(&SpatialDrawBox::get_progress, this, _1, _2),
-                     0.2);
+    _progress->start(boost::bind(&SpatialDrawBox::get_progress, this, _1, _2), 0.2f);
     base::create_thread(do_render_layers, this);
     work_started(_progress, reproject);
 
@@ -210,7 +209,7 @@ bool SpatialDrawBox::get_progress(std::string &action, float &pct)
   _progress_mutex.lock();
   float current_progress = (float)_current_layer_index / _layers.size();
   if (_current_layer)
-    current_progress += (1.0/_layers.size()) * _current_layer->query_render_progress();
+    current_progress += (1.0f / _layers.size()) * _current_layer->query_render_progress();
 
   if (pct != current_progress || action != _current_work)
   {
@@ -258,7 +257,7 @@ void SpatialDrawBox::set_projection(spatial::ProjectionType proj)
 
 void SpatialDrawBox::zoom_out()
 {
-  _zoom_level -= 0.2;
+  _zoom_level -= 0.2f;
   if (_zoom_level < 0)
     _zoom_level = 0;
   invalidate();
@@ -266,7 +265,7 @@ void SpatialDrawBox::zoom_out()
 
 void SpatialDrawBox::zoom_in()
 {
-  _zoom_level += 0.2;
+  _zoom_level += 0.2f;
   invalidate();
 }
 

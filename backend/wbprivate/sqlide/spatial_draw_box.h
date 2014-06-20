@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _SPATIAL_DRAW_BOX_H_
-#define _SPATIAL_DRAW_BOX_H_
+#pragma once
 
 #include "mforms/drawbox.h"
 #include "base/threading.h"
@@ -48,7 +47,7 @@ class SpatialDrawBox : public mforms::DrawBox
 
   mforms::ContextMenu *_menu;
 
-  double _zoom_level;
+  float _zoom_level;
   int _offset_x, _offset_y;
   
   int _initial_offset_x, _initial_offset_y;
@@ -131,6 +130,3 @@ public:
   bool screen_to_world(int x, int y, double &lat, double &lon);
   void world_to_screen(double lat, double lon, int &x, int &y);
 };
-
-
-#endif
