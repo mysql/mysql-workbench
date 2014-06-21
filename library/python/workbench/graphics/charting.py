@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -27,16 +27,16 @@ import math
 
 def scale_value(value):
     if value >= 1024*1024*1024*1024:
-        unit = "Ti"
+        unit = "T"
         value /= 1024*1024*1024*1024
     elif value >= 1024*1024*1024:
-        unit = "Gi"
+        unit = "G"
         value /= 1024*1024*1024
     elif value >= 1024*1024:
-        unit = "Mi"
+        unit = "M"
         value /= 1024*1024
     elif value >= 1024:
-        unit = "Ki"
+        unit = "K"
         value /= 1024
     else:
         value = int(round(value))
