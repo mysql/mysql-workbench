@@ -211,7 +211,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
       }
 
 #if 0
-    XXX: don't use log_calls* for debug output! This is output is not meant to end up in the log.
+#error "don't use log_calls* for debug output! This is output is not meant to end up in the log."
       // Debug code below, modify it to suit your needs to see what is the exact difference being detected
       // between 2 objects
       if (source.class_name() == "db.mysql.Table")

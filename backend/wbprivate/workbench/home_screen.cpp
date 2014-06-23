@@ -1346,7 +1346,7 @@ public:
     cairo_stroke(cr);
 
     cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
-    if (entry.children.size() > 0 and !is_fabric)
+    if (entry.children.size() > 0 && !is_fabric)
     {
 #ifdef __APPLE__
       cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);

@@ -19,11 +19,14 @@
 
 #include "grt/grt_manager.h"
 #include "binary_data_editor.h"
+#include "base/log.h"
 #include "base/string_utilities.h"
 #include <glib/gstdio.h>
 #ifdef _WIN32
 #include <io.h>
 #endif
+
+DEFAULT_LOG_DOMAIN("BlobViewer");
 
 #include "mforms/scrollpanel.h"
 #include "mforms/imagebox.h"
@@ -52,6 +55,24 @@ public:
   virtual void data_changed()
   {
     _image.set_image_data(_owner->data(), _owner->length());
+  }
+
+  static bool can_display(const char *data, size_t length)
+  {
+    if (length > 4)
+    {
+      if (data[0] == (char)0x89 && strncmp(data+1, "PNG", 3) == 0)
+        return true;
+      if (data[0] == (char)0xff && data[1] == (char)0xd8) // jpeg
+        return true;
+      if (strncmp(data, "BM", 2) == 0) // bmp
+        return true;
+      if (strncmp(data, "GIF", 3) == 0)
+        return true;
+      if ((strncmp(data, "II", 2) == 0 || strncmp(data, "MM", 2) == 0) && data[2] == 42) // tiff
+        return true;
+    }
+    return false;
   }
 
 private:
@@ -328,7 +349,8 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
 
   add_viewer(new HexDataViewer(this, read_only), "Binary");
   add_viewer(new TextDataViewer(this, "LATIN1", read_only), "Text");
-  add_viewer(new ImageDataViewer(this, read_only), "Image");
+  if (ImageDataViewer::can_display(data, length))
+    add_viewer(new ImageDataViewer(this, read_only), "Image");
     
   if (tab.is_valid())
     _tab_view.set_active_tab((int)*tab);
@@ -349,7 +371,8 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
 
   add_viewer(new HexDataViewer(this, read_only), "Binary");
   add_viewer(new TextDataViewer(this, text_encoding, read_only), "Text");
-  add_viewer(new ImageDataViewer(this, read_only), "Image");
+  if (ImageDataViewer::can_display(data, length))
+    add_viewer(new ImageDataViewer(this, read_only), "Image");
   
   if (tab.is_valid())
     _tab_view.set_active_tab((int)*tab);  
@@ -424,14 +447,21 @@ void BinaryDataEditor::tab_changed()
   if (dict.is_valid())
     dict.gset("BlobViewer:DefaultTab", i);
 
-  _viewers[i]->data_changed();
+  try
+  {
+    _viewers[i]->data_changed();
+  }
+  catch (std::exception &exc)
+  {
+    log_error("Error displaying binary data: %s\n", exc.what());
+  }
 }
 
 void BinaryDataEditor::add_viewer(BinaryDataViewer *viewer, const std::string &title)
 {
   _viewers.push_back(viewer);
   
-  _tab_view.add_page(viewer, title);
+  _tab_view.add_page(mforms::manage(viewer), title);
 }
 
 void BinaryDataEditor::save()

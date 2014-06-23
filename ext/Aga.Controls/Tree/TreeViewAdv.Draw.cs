@@ -60,7 +60,8 @@ namespace Aga.Controls.Tree
             {
 				DrawColumnHeaders(e.Graphics);
                 y += ColumnHeaderHeight;
-                if (Columns.Count == 0 || e.ClipRectangle.Height <= y)
+              // ml: this optimization doesn't work with only small invalid parts.
+                if (Columns.Count == 0 /*|| e.ClipRectangle.Height <= y*/)
                     return;
             }
 
@@ -197,6 +198,9 @@ namespace Aga.Controls.Tree
 				DrawLines(e.Graphics, node, rowRect);
 
 			DrawNode(node, context);
+
+      // ml: added for overlay images.
+      OnAfterNodeDrawing(node, context);
 		}
 
 		private void DrawVerticalGridLines(Graphics gr, int y)
