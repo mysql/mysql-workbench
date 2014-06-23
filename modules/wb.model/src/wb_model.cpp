@@ -315,7 +315,7 @@ class Layouter
     bool shuffle();
     double calc_energy();
     double calc_node_energy(const size_t i, const Node& n);
-    long distance_to_node(const size_t n1, const size_t n2, bool *is_horiz = false);
+    long distance_to_node(const size_t n1, const size_t n2, bool *is_horiz = (bool*)false);
     double calc_node_pair(const size_t i1, const size_t i2);
     void prepare_layout_stages();
 
