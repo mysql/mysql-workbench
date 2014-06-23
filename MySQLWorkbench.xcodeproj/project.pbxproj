@@ -2428,6 +2428,8 @@
 		ED9251871743B7E5008F1A50 /* wb_about@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27CC86011741336B00AAA267 /* wb_about@2x.png */; };
 		EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = EDC7588B1847A47B00936C9B /* wb_admin_perfschema_instrumentation_be.py */; };
 		EDD13F3417C7B92000A57673 /* change_tracker.py in Resources */ = {isa = PBXBuildFile; fileRef = EDD13F3317C7B92000A57673 /* change_tracker.py */; };
+		EDD76C8B19573F1100D3D54F /* wbfabric_grt.py in Resources */ = {isa = PBXBuildFile; fileRef = EDD76C8A19573F1100D3D54F /* wbfabric_grt.py */; };
+		EDD76C8C19573FDC00D3D54F /* wbfabric_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = EDD76C8A19573F1100D3D54F /* wbfabric_grt.py */; };
 		EDE7748B14C50BD3005AFF52 /* wb_db_schema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDE7748914C50BD3005AFF52 /* wb_db_schema.cpp */; };
 		EDE7748C14C50BD3005AFF52 /* wb_db_schema.h in Headers */ = {isa = PBXBuildFile; fileRef = EDE7748A14C50BD3005AFF52 /* wb_db_schema.h */; };
 /* End PBXBuildFile section */
@@ -3420,6 +3422,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				EDD76C8C19573FDC00D3D54F /* wbfabric_grt.py in Copy Files (plugins) */,
 				27378CD31917D10000DE1AA6 /* db.mysql.parser.grt.dylib in Copy Files (plugins) */,
 				EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */,
 				2B1D6D2F178C540A0073C062 /* wb_model_utils.py in Copy Files (plugins) */,
@@ -6116,6 +6119,7 @@
 		ED8C845F174A9EF80036E6EF /* tcp_utils.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = tcp_utils.py; path = library/python/workbench/tcp_utils.py; sourceTree = "<group>"; };
 		EDC7588B1847A47B00936C9B /* wb_admin_perfschema_instrumentation_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_perfschema_instrumentation_be.py; path = plugins/wb.admin/backend/wb_admin_perfschema_instrumentation_be.py; sourceTree = "<group>"; };
 		EDD13F3317C7B92000A57673 /* change_tracker.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = change_tracker.py; path = library/python/workbench/change_tracker.py; sourceTree = "<group>"; };
+		EDD76C8A19573F1100D3D54F /* wbfabric_grt.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wbfabric_grt.py; path = modules/wb.fabric/wbfabric_grt.py; sourceTree = "<group>"; };
 		EDE7748914C50BD3005AFF52 /* wb_db_schema.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wb_db_schema.cpp; sourceTree = "<group>"; };
 		EDE7748A14C50BD3005AFF52 /* wb_db_schema.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wb_db_schema.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -9191,6 +9195,7 @@
 		2B825EBE0E0B68F500BE52DF /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EDD76C8719573E5100D3D54F /* wb.fabric */,
 				2BE732E90EFAFB4000287AE0 /* db */,
 				2BAD7C4C156D89640025F13F /* db.generic */,
 				2BAD7C45156D89270025F13F /* db.mssql */,
@@ -10631,6 +10636,14 @@
 				2B2C0042183121A400543D46 /* wb_admin_perfschema.py */,
 			);
 			name = Frontend;
+			sourceTree = "<group>";
+		};
+		EDD76C8719573E5100D3D54F /* wb.fabric */ = {
+			isa = PBXGroup;
+			children = (
+				EDD76C8A19573F1100D3D54F /* wbfabric_grt.py */,
+			);
+			name = wb.fabric;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -12377,6 +12390,7 @@
 				2BD9E787185FFF6E00A7252B /* output_type-item_selected@2x.png in Resources */,
 				2B263A990E9402DD00933149 /* db.View.16x16.png in Resources */,
 				2B263A9A0E9402DD00933149 /* db.View.24x24.png in Resources */,
+				EDD76C8B19573F1100D3D54F /* wbfabric_grt.py in Resources */,
 				2B263A9B0E9402DD00933149 /* db.View.48x48.png in Resources */,
 				2B263A9C0E9402DD00933149 /* db.View.64x64.png in Resources */,
 				2B263A9D0E9402DD00933149 /* db.View.add.16x16.png in Resources */,
@@ -13172,7 +13186,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pyresdir=\"$SRCROOT/../mysql-mac-res/python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\ncp -R ${pyresdir}/paramiko \"$pythondir\"\ncp -R ${pyresdir}/Crypto \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/wba_audit ]; then\n    echo \"Copying pysqlite2 for Audit Inspector\"\n    rm -fr \"$pythondir\"/pysqlite2\n    cp -R ${pyresdir}/pysqlite2-com \"$pythondir\"/pysqlite2\nelse\n    cp -R ${pyresdir}/pysqlite2 \"$pythondir\"\nfi\n\ncp ${pyresdir}/pyodbc.so \"$pythondir\"\n\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"/\n";
+			shellScript = "pyresdir=\"$SRCROOT/../mysql-mac-res/python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\ncp -R ${pyresdir}/paramiko \"$pythondir\"\ncp -R ${pyresdir}/Crypto \"$pythondir\"\ncp -R ${pyresdir}/mysql \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/wba_audit ]; then\n    echo \"Copying pysqlite2 for Audit Inspector\"\n    rm -fr \"$pythondir\"/pysqlite2\n    cp -R ${pyresdir}/pysqlite2-com \"$pythondir\"/pysqlite2\nelse\n    cp -R ${pyresdir}/pysqlite2 \"$pythondir\"\nfi\n\ncp ${pyresdir}/pyodbc.so \"$pythondir\"\n\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"/\n";
 			showEnvVarsInLog = 0;
 		};
 		2BEA13BE16E68F1500FC44F0 /* Copy plugins if exist */ = {

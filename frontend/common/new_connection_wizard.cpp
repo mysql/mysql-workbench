@@ -165,12 +165,15 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
 
       // Auto create an unconfigured server instance for this connection.
       // The module creates the instance, adds it to the stored instances and stores them on disk.
-      grt::BaseListRef args(_mgmt.get_grt());
-      args.ginsert(_connection);
-      if (is_local_connection(_connection))
-        db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
-      else
-        db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+      if (_connection->driver()->name() != "MySQLFabric")
+      {
+        grt::BaseListRef args(_mgmt.get_grt());
+        args.ginsert(_connection);
+        if (is_local_connection(_connection))
+          db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
+        else
+          db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+      }
 
       return _connection;
     }

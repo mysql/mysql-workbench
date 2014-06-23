@@ -581,11 +581,17 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       refresh_home_connections();
     }
   }
-  else if (action == "delete_connection_group")
+  else if (action == "delete_connection_group"  || "delete_fabric_connections")
   {
     std::string group = object.repr();
-    std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), group.c_str());
-    int answer = Utilities::show_warning(_("Delete Connection Group"), text,  _("Delete"), _("Cancel"));
+    int answer = mforms::ResultOk;
+    
+    if (action == "delete_connection_group")
+    {
+      std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), group.c_str());
+      answer = Utilities::show_warning(_("Delete Connection Group"), text,  _("Delete"), _("Cancel"));
+    }
+    
     if (answer == mforms::ResultOk)
     {
       group += "/";
@@ -778,8 +784,22 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       if (object.is_valid())
       {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-        _wb->show_status_text("Opening SQL Editor...");          
-        _wb->add_new_query_window(connection);
+        if (connection->driver().is_valid() && connection->driver()->name() == "MySQLFabric")
+        {
+          /*grt::BaseListRef args(_wb->get_grt());
+          args->insert_unchecked(connection);
+          
+          grt::ValueRef result = _wb->get_grt()->call_module_function("WBFabric", "create_connections", args);
+          std::string error = grt::StringRef::extract_from(result);
+          
+          if (error.length())
+            mforms::Utilities::show_error("MySQL Fabric Connection Error", error, "OK");*/
+        }
+        else
+        {
+          _wb->show_status_text("Opening SQL Editor...");
+          _wb->add_new_query_window(connection);
+        }
       }
       _processing_action_open_connection = false;
       break;
