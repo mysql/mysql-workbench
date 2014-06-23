@@ -713,18 +713,21 @@ private:
 
   base::Color _tile_bk_color1;
   base::Color _tile_bk_color2;
+  base::Color _fabric_tile_bk_color;
   base::Color _folder_tile_bk_color;
   base::Color _back_tile_bk_color;
 
   base::Color _tile_bk_color1_hl;
   base::Color _tile_bk_color2_hl;
   base::Color _folder_tile_bk_color_hl;
+  base::Color _fabric_tile_bk_color_hl;
   base::Color _back_tile_bk_color_hl;
 
   ssize_t _page_start;        // Index into the list where root display starts.
   ssize_t _page_start_backup; // Copy of the current page start when we go into a folder (for restauration).
   ssize_t _active_folder;     // The index of the folder entry that is currently active.
   ssize_t _tiles_per_page;
+  ssize_t _fabric_entry;
 
   typedef std::vector<ConnectionEntry> ConnectionVector;
   typedef ConnectionVector::iterator ConnectionIterator;
@@ -777,6 +780,7 @@ public:
     _drop_index = -1;
     _active_folder = -1;
     _filtered = false;
+    _fabric_entry = -1;
 
 
     std::vector<std::string> formats;
@@ -892,9 +896,12 @@ public:
 #ifdef __APPLE__
     _folder_tile_bk_color = base::Color::parse("#3477a6");
     _folder_tile_bk_color_hl = base::Color::parse("#4699b8");
+    _fabric_tile_bk_color = base::Color::parse("#3422a6");
+    _fabric_tile_bk_color_hl = base::Color::parse("#4655b8");
 #else
     _folder_tile_bk_color = base::Color::parse("#178ec5");
     _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
+    _fabric_tile_bk_color_hl = base::Color::parse("#465500");
 #endif
 
     _back_tile_bk_color = base::Color::parse("#d9532c");
@@ -1219,8 +1226,11 @@ public:
   void draw_tile(cairo_t *cr, ConnectionEntry &entry, bool hot, double alpha, bool for_dragging, 
     bool high_contrast)
   {
+    bool is_fabric = entry.connection->driver()->name() == "MySQLFabric";
     base::Color current_color;
-    if (entry.children.size() > 0)
+    if (is_fabric)
+      current_color = hot ? _fabric_tile_bk_color_hl : _fabric_tile_bk_color;
+    else if (entry.children.size() > 0)
       current_color = hot ? _folder_tile_bk_color_hl : _folder_tile_bk_color;
     else
     {
@@ -1282,7 +1292,8 @@ public:
 
     // Background icon.
     bounds.use_inter_pixel = false;
-    cairo_surface_t *back_icon = entry.children.size() > 0 ? _folder_icon : _sakila_icon;
+    cairo_surface_t *back_icon = (entry.children.size() && !is_fabric) ? _folder_icon : _sakila_icon;
+    
     double x = bounds.left() + bounds.width() - image_width(back_icon);
     double y = bounds.top() + bounds.height() - image_height(back_icon);
     cairo_set_source_surface(cr, back_icon, x, y);
@@ -1293,7 +1304,7 @@ public:
       component = 1;
     cairo_set_source_rgba(cr, component, component, component, alpha);
 
-    if (hot && _show_details && entry.children.size() == 0)
+    if (hot && _show_details && (entry.children.size() == 0 || is_fabric))
     {
 #ifdef __APPLE__
       // On OS X we show the usual italic small i letter instead of the peeling corner.
@@ -1335,7 +1346,7 @@ public:
     cairo_stroke(cr);
 
     cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
-    if (entry.children.size() > 0)
+    if (entry.children.size() > 0 and !is_fabric)
     {
 #ifdef __APPLE__
       cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);
@@ -1616,7 +1627,7 @@ public:
       bool found_parent = false;
       for (ConnectionIterator iterator = _connections.begin(); iterator != _connections.end(); iterator++)
       {
-        if (iterator->children.size() > 0 && iterator->title == parent_name)
+        if (iterator->title == parent_name && (iterator->children.size() > 0 || iterator->connection->driver()->name() == "MySQLFabric" ))
         {
           found_parent = true;
           iterator->children.push_back(entry);
@@ -1753,16 +1764,24 @@ public:
           {
             if (_active_folder > -1 && _hot_entry == 0)
             {
+              if (_fabric_entry > -1)
+              {
+                handle_command("delete_fabric_connections");
+                _fabric_entry = -1;
+              }
+              
               // Returning to root list.
               _page_start = _page_start_backup;
               _active_folder = -1;
               _filtered = false;
               _search_text.set_value("");
+              
               set_needs_repaint();
               return true;
             }
 
             bool is_folder = false;
+            bool is_fabric = _connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
             if (_filtered)
               is_folder = _filtered_connections[_hot_entry].children.size() > 1;
             else
@@ -1779,13 +1798,31 @@ public:
             bool show_info = _show_details;
 #endif
 
-            if (!is_folder && show_info)
+            if (show_info && (!is_folder || is_fabric))
             {
               show_info_popup();
               return true;
             }
+            
+            if (is_fabric)
+            {
+              grt::GRT *grt = _connections[_hot_entry].connection->get_grt();
+              grt::BaseListRef args(grt);
+              args->insert_unchecked(_connections[_hot_entry].connection);
+              
+              grt::ValueRef result = grt->call_module_function("WBFabric", "create_connections", args);
+              std::string error = grt::StringRef::extract_from(result);
+              
+              if (error.length())
+              {
+                mforms::Utilities::show_error("MySQL Fabric Connection Error", error, "OK");
+                return true;
+              }
+              
+              _fabric_entry = _hot_entry;
+            }
 
-            if (is_folder)
+            if (is_folder || is_fabric)
             {
               // Drilling into a folder.
               _page_start_backup = _page_start;
@@ -2005,6 +2042,14 @@ public:
           item = _connections[_entry_for_menu].connection;
       }
     }
+    
+    if (_fabric_entry > -1 && command == "delete_fabric_connections")
+    {
+      _entry_for_menu = _fabric_entry;
+      handle_folder_command("delete_fabric_connections");
+      return;
+    }
+    
     _owner->handle_context_menu(item, command);
     _entry_for_menu = -1;
   }

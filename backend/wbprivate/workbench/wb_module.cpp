@@ -1729,8 +1729,8 @@ static const char *DEFAULT_RDBMS_ID= "com.mysql.rdbms.mysql";
  */
 db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, const std::string& user,
                                                        const std::string socket_or_pipe_name,
-                                                       bool can_use_networking,
-                                                       bool can_use_socket_or_pipe,
+                                                       int can_use_networking,
+                                                       int can_use_socket_or_pipe,
                                                        int port,
                                                        const std::string& name)
 {
@@ -1883,17 +1883,17 @@ int WorkbenchImpl::createConnectionsFromLocalServers()
       if (!key_file.has_section("mysqld"))
         continue;
 
-      bool can_use_networking = true;
-      bool can_use_socket_or_pipe = false;
+      bool can_use_networking = 1;
+      bool can_use_socket_or_pipe = 0;
       std::string socket_or_pipe_name;
 
       int port = key_file.get_int("port", "mysqld");
       if (port == INT_MIN)
         port = 3306;
       if (key_file.has_key("skip-networking", "mysqld"))
-        can_use_networking = false;
+        can_use_networking = 0;
       if (key_file.has_key("enable-named-pipe", "mysqld"))
-        can_use_socket_or_pipe = true;
+        can_use_socket_or_pipe = 1;
 
       if (can_use_socket_or_pipe)
       {

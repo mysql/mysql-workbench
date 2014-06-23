@@ -602,48 +602,68 @@ void DbConnectPanel::save_connection_as(const std::string &name)
 
 bool DbConnectPanel::test_connection()
 {
+  std::string message;
   try
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
-    sql::ConnectionWrapper _dbc_conn= dbc_drv_man->getConnection(get_be()->get_connection());
+    db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
     
-    if (_dbc_conn.get() && !_dbc_conn->isClosed())
+    if ( connectionProperties->driver()->name() == "MySQLFabric")
     {
-      // check that we're connecting to a known and supported version of the server
-      std::string version;
-      {
-        std::auto_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
-        std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT version()"));
-        if (result->next())
-          version = result->getString(1);
-      }
-      if (!bec::is_supported_mysql_version(version))
-      {
-        log_error("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
-                  version.c_str());
-        if (mforms::Utilities::show_warning("Connection Warning",
-                                            base::strfmt("Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
-                                                         "A connection to this database can be established but some MySQL Workbench features may not work properly since the database is not fully compatible with the supported versions of MySQL.\n\n"
-                                                         "MySQL Workbench is developed and tested for MySQL Server versions 5.1, 5.5, 5.6 and 5.7",
-                                                         bec::sanitize_server_version_number(version).c_str()),
-                                            "Continue Anyway", "Cancel") != mforms::ResultOk)
-          return false;
-      }
-      
-      mforms::Utilities::show_message(base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str()),
-                                      "Connection parameters are correct.", "OK");
-      return true;
+      grt::GRT *grt = connectionProperties->get_grt();
+      grt::BaseListRef args(grt);
+      args->insert_unchecked(connectionProperties);
+      grt::ValueRef result= grt->call_module_function("WBFabric", "test_connection", args);
+      message = grt::StringRef::extract_from(result);
     }
     else
-      mforms::Utilities::show_error(base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str()),
-                                    "Connection Failed", "OK");
+    {
+      sql::ConnectionWrapper _dbc_conn= dbc_drv_man->getConnection(connectionProperties);
+      
+      if (_dbc_conn.get() && !_dbc_conn->isClosed())
+      {
+        // check that we're connecting to a known and supported version of the server
+        std::string version;
+        {
+          std::auto_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
+          std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT version()"));
+          if (result->next())
+            version = result->getString(1);
+        }
+        if (!bec::is_supported_mysql_version(version))
+        {
+          log_error("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
+                    version.c_str());
+          if (mforms::Utilities::show_warning("Connection Warning",
+                                              base::strfmt("Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
+                                                           "A connection to this database can be established but some MySQL Workbench features may not work properly since the database is not fully compatible with the supported versions of MySQL.\n\n"
+                                                           "MySQL Workbench is developed and tested for MySQL Server versions 5.1, 5.5, 5.6 and 5.7",
+                                                           bec::sanitize_server_version_number(version).c_str()),
+                                              "Continue Anyway", "Cancel") != mforms::ResultOk)
+            return false;
+        }
+      }
+      else
+        message = "Connection Failed";
+    }
   }
   catch (const std::exception& e)
   {
-    mforms::Utilities::show_error(base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str()),
-                                  e.what(), "OK");
+    message = e.what();
   }
-  return false;
+  
+  std::string title;
+  if (message.length())
+    title = base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
+  else
+  {
+    title = base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
+    message = "Connection parameters are correct";
+  }
+  
+  mforms::Utilities::show_error(title, message, "OK");
+  
+  return message.length() == 0;
 }
 
 

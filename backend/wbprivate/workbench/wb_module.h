@@ -162,6 +162,7 @@ public:
 
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::createConnectionsFromLocalServers),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::createInstancesFromLocalServers),
+    DECLARE_MODULE_FUNCTION(WorkbenchImpl::create_connection),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::initializeOtherRDBMS)
     );
 
@@ -329,7 +330,7 @@ private:
 #endif
 
   db_mgmt_ConnectionRef create_connection(const std::string& host, const std::string& user,
-    const std::string socket_or_pipe_name, bool can_use_networking, bool can_use_socket_or_pipe,
+    const std::string socket_or_pipe_name, int can_use_networking, int can_use_socket_or_pipe,
     int port, const std::string& name);
   grt::DictListRef getLocalServerList();
   int createConnectionsFromLocalServers();
