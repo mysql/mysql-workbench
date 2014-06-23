@@ -413,10 +413,10 @@ namespace mforms {
     virtual void column_resized(int column);
 
     // Called when the mouse hovers on a row
-    std::vector<std::string> overlay_icons_for_node(TreeNodeRef row); //XXX Windows, Linux
+    std::vector<std::string> overlay_icons_for_node(TreeNodeRef row); //XXX Linux
 
     // Called when mouse clicks on a overlay icon
-    void overlay_icon_for_node_clicked(TreeNodeRef row, int index);  //XXX Windows, Linux
+    void overlay_icon_for_node_clicked(TreeNodeRef row, int index);  //XXX Linux
 #endif
 #endif
 

@@ -15,7 +15,7 @@ INSTALL_PREFIX=/usr
 ODBC_HOME=$(HOME)/linux-res-6.1/usr/
 LINUXRES_HOME=$(HOME)/linux-res-6.1/
 CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
-#MYSQL_HOME=~/mysql-server/
+MYSQL_HOME=$(HOME)/mysql-server/
 
 WBDIRNAME=mysql-workbench-community
 
@@ -25,10 +25,11 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
-		-DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
-	        -DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
-                -DIODBC_CONFIG_PATH="$(ODBC_HOME)/bin/iodbc-config"
+	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX)\
+                -DMYSQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
+        -DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
+        -DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
+        -DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config 
 
 	touch configure-stamp
 
