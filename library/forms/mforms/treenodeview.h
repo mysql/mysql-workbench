@@ -242,8 +242,8 @@ namespace mforms {
     void (*set_column_visible)(TreeNodeView *self, int column, bool flag);
     bool (*get_column_visible)(TreeNodeView *self, int column);
       
-    void (*set_column_width)(TreeNodeView *self, int column, int width); // XXX linux
-    int (*get_column_width)(TreeNodeView *self, int column); // XXX linux
+    void (*set_column_width)(TreeNodeView *self, int column, int width);
+    int (*get_column_width)(TreeNodeView *self, int column);
   };
 #endif
 #endif
@@ -413,10 +413,10 @@ namespace mforms {
     virtual void column_resized(int column);
 
     // Called when the mouse hovers on a row
-    std::vector<std::string> overlay_icons_for_node(TreeNodeRef row); //XXX Linux
+    std::vector<std::string> overlay_icons_for_node(TreeNodeRef row);
 
     // Called when mouse clicks on a overlay icon
-    void overlay_icon_for_node_clicked(TreeNodeRef row, int index);  //XXX Linux
+    void overlay_icon_for_node_clicked(TreeNodeRef row, int index);
 #endif
 #endif
 
