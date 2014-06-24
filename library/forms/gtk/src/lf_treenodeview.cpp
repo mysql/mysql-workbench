@@ -1099,6 +1099,7 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
 //  _tree.set_reorderable((opts & mforms::TreeAllowReorderRows) || (opts & mforms::TreeCanBeDragSource)); // we need this to have D&D working
   _tree.signal_button_release_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_button_release), false);
   _tree.signal_expose_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_expose_event), true);
+  _tree.signal_realize().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_realize));
   _tree.signal_motion_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_motion_notify), false);
   _tree.signal_enter_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_enter_notify), false);
   _tree.signal_leave_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_leave_notify), false);
@@ -1525,6 +1526,23 @@ bool TreeNodeViewImpl::on_button_event(GdkEventButton *event)
   return ret_val;
 }
 
+
+bool TreeNodeViewImpl::on_header_button_event(GdkEventButton *event, int column)
+{
+  if (event->button == 3)
+  {
+    mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
+
+    tv->header_clicked(column);
+
+    if (tv->get_header_menu())
+      tv->get_header_menu()->popup_at(mforms::gtk::ViewImpl::get_view_for_widget(this->get_inner()), base::Point(event->x, event->y));
+  }
+  return false;
+}
+
+
+
 int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable, bool attributed)
 {
   int column;
@@ -1602,6 +1620,11 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     break;
   }
   
+  {
+    Gtk::Label *label = Gtk::manage(new Gtk::Label(name));
+    label->show();
+    _tree.get_column(column)->set_widget(*label);
+  }
   _tree.get_column(column)->set_resizable(true);
   if (initial_width > 0)
     _tree.get_column(column)->set_fixed_width(initial_width);
@@ -2119,6 +2142,32 @@ bool TreeNodeViewImpl::get_column_visible(TreeNodeView *self, int column)
   return false;
 }
 
+
+void TreeNodeViewImpl::set_column_title(TreeNodeView *self, int column, const std::string &title)
+{
+  TreeNodeViewImpl* impl = self->get_data<TreeNodeViewImpl>();
+  Gtk::TreeViewColumn *col = impl->_tree.get_column(column);
+  if (col)
+  {
+    dynamic_cast<Gtk::Label*>(col->get_widget())->set_text(title);
+  }
+}
+
+
+void TreeNodeViewImpl::on_realize()
+{
+  // nasty workaround to allow context menu for tree headers
+  for (int i = 0; i < (int)_tree.get_columns().size(); i++)
+  {
+    Gtk::Widget *w = _tree.get_column(i)->get_widget();
+    while (w && !dynamic_cast<Gtk::Button*>(w))
+      w = w->get_parent();
+    if (dynamic_cast<Gtk::Button*>(w))
+      w->signal_button_press_event().connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::on_header_button_event), i), false);
+  }
+}
+
+
 void TreeNodeViewImpl::set_column_width(TreeNodeView *self, int column, int width)
 {
   TreeNodeViewImpl* impl = self->get_data<TreeNodeViewImpl>();
@@ -2164,6 +2213,7 @@ void TreeNodeViewImpl::init()
   f->_treenodeview_impl.row_for_node= &TreeNodeViewImpl::row_for_node;
   f->_treenodeview_impl.set_column_visible= &TreeNodeViewImpl::set_column_visible;
   f->_treenodeview_impl.get_column_visible= &TreeNodeViewImpl::get_column_visible;
+  f->_treenodeview_impl.set_column_title= &TreeNodeViewImpl::set_column_title;
   f->_treenodeview_impl.set_column_width= &TreeNodeViewImpl::set_column_width;
   f->_treenodeview_impl.get_column_width= &TreeNodeViewImpl::get_column_width;
 }
