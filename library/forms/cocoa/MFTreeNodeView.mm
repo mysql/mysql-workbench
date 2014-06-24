@@ -697,8 +697,16 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
 static NSImage *ascendingSortIndicator = nil;
 static NSImage *descendingSortIndicator = nil;
 
+
+@interface TreeNodeHeaderView : NSTableHeaderView
+{
+}
+@end
+
+
 @interface TreeNodeViewOutlineView : NSOutlineView
 {
+  @public
   mforms::TreeNodeView *mOwner;
   NSTrackingArea *mTrackingArea;
 
@@ -721,6 +729,7 @@ static NSImage *descendingSortIndicator = nil;
     mOverOverlay = -1;
     mClickingOverlay = -1;
     mOwner = treeView;
+    [self setHeaderView: [[TreeNodeHeaderView alloc] init]];
   }
   return self;
 }
@@ -886,6 +895,29 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
       i++;
     }
   }
+}
+
+@end
+
+//--------------------------------------------------------------------------------------------------
+
+@implementation TreeNodeHeaderView
+
+- (NSMenu*)menuForEvent:(NSEvent *)event
+{
+  TreeNodeViewOutlineView *outline = (TreeNodeViewOutlineView*)[self tableView];
+  
+  if (outline)
+  {
+    mforms::ContextMenu *menu = outline->mOwner->get_header_menu();
+    int column = [[outline headerView] columnAtPoint: [[outline headerView] convertPoint: [event locationInWindow]
+                                                                                fromView: nil]];
+    outline->mOwner->header_clicked(column);
+    
+    if (menu)
+      return menu->get_data();
+  }
+  return nil;
 }
 
 @end
@@ -1537,6 +1569,7 @@ static bool treeview_create(mforms::TreeNodeView *self, mforms::TreeOptions opti
   
   if (options & mforms::TreeNoHeader)
     [tree->mOutline setHeaderView: nil];
+  
   int mask = 0;
   if (options & mforms::TreeShowColumnLines)
     mask |= NSTableViewSolidVerticalGridLineMask;
@@ -1916,6 +1949,14 @@ static bool treeview_get_column_visible(mforms::TreeNodeView *self, int column)
   return true;
 }
 
+static void treeview_set_column_title(mforms::TreeNodeView *self, int column, const std::string &title)
+{
+  MFTreeNodeViewImpl *tree= self->get_data();
+  if (tree)
+    [[[tree->mOutline tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] headerCell]
+       setStringValue: [NSString stringWithCPPString: title]];
+}
+
 
 static void treeview_set_column_width(mforms::TreeNodeView *self, int column, int width)
 {
@@ -1964,7 +2005,9 @@ void cf_treenodeview_init()
 
   f->_treenodeview_impl.set_column_visible = &treeview_set_column_visible;
   f->_treenodeview_impl.get_column_visible = &treeview_get_column_visible;
-    
+
+  f->_treenodeview_impl.set_column_title = &treeview_set_column_title;
+  
   f->_treenodeview_impl.set_column_width = &treeview_set_column_width;
   f->_treenodeview_impl.get_column_width = &treeview_get_column_width;
 }

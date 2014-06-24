@@ -239,6 +239,8 @@ namespace mforms {
     TreeNodeRef (*node_at_row)(TreeNodeView *self, int row);
     TreeNodeRef (*node_with_tag)(TreeNodeView *self, const std::string &tag);
 
+    void (*set_column_title)(TreeNodeView *self, int column, const std::string &title);
+    
     void (*set_column_visible)(TreeNodeView *self, int column, bool flag);
     bool (*get_column_visible)(TreeNodeView *self, int column);
       
@@ -271,6 +273,9 @@ namespace mforms {
     int add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable = false, bool attributed = false);
     /** Must be called after needed add_column() calls are finished. */
     void end_columns();
+    
+    /** Sets the title of the given column */
+    void set_column_title(int column, const std::string &title); // TODO: Windows, Linux
 
     /** Sets a callback that's called when the mouse hovers on a row.
      
@@ -365,8 +370,22 @@ namespace mforms {
      when this object is deleted. */
     void set_context_menu(ContextMenu *menu);
     
+    /** Sets a context menu to be attached to the treeviews header, to be shown on right click
+     
+     You can use the get_clicked_header_column() from the menu's will_show handler to get the column
+     that was right clicked.
+     
+     Note: Ownership of the context menu remains with the caller and it will not be freed
+     when this object is deleted. */
+    void set_header_menu(ContextMenu *menu); // TODO: Windows, Linux
+    
     /** Returns the context menu object attached to the treeview */
     ContextMenu *get_context_menu() { return _context_menu; }
+    
+    /** Returns the context menu object attached to the treeview header */
+    ContextMenu *get_header_menu() { return _header_menu; }
+    
+    int get_clicked_header_column() { return _clicked_header_column; }
     
     /** Returns the current width of a column */
     int get_column_width(int column);
@@ -417,6 +436,10 @@ namespace mforms {
 
     // Called when mouse clicks on a overlay icon
     void overlay_icon_for_node_clicked(TreeNodeRef row, int index);
+
+    // Called when right clicking on a header/title of a column, so that the context menu handler can know
+    // what column is it being shown for
+    void header_clicked(int column); // TODO: Windows, Linux
 #endif
 #endif
 
@@ -429,8 +452,10 @@ namespace mforms {
     boost::signals2::signal<void (int)> _signal_column_resized;
     boost::function<std::vector<std::string> (TreeNodeRef)> _overlay_icons_for_node;
     ContextMenu *_context_menu;
+    ContextMenu *_header_menu;
     std::vector<TreeColumnType> _column_types;
     int _update_count;
+    int _clicked_header_column;
     bool _index_on_tag;
     bool _end_column_called;
   };
