@@ -136,7 +136,7 @@ TreeNodeRef TreeNode::find_child_with_tag(const std::string &tag)
 //----------------- TreeNodeView -------------------------------------------------------------------
 
 TreeNodeView::TreeNodeView(TreeOptions options)
-: _context_menu(0), _update_count(0), _end_column_called(false)
+: _context_menu(0), _header_menu(0), _update_count(0), _clicked_header_column(0), _end_column_called(false)
 {
   _treeview_impl= &ControlFactory::get_instance()->_treenodeview_impl;
   _index_on_tag = (options & TreeIndexOnTag) ? true : false;
@@ -160,6 +160,20 @@ void TreeNodeView::set_context_menu(ContextMenu *menu)
 
 //--------------------------------------------------------------------------------------------------
 
+void TreeNodeView::set_header_menu(ContextMenu *menu)
+{
+  _header_menu = menu;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeView::header_clicked(int column)
+{
+  _clicked_header_column = column;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 int TreeNodeView::add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable, bool attributed)
 {
   if (_end_column_called)
@@ -170,6 +184,12 @@ int TreeNodeView::add_column(TreeColumnType type, const std::string &name, int i
 #else
   return _treeview_impl->add_column(this, type, name, initial_width, editable, attributed);
 #endif
+}
+
+
+void TreeNodeView::set_column_title(int column, const std::string &title)
+{
+  _treeview_impl->set_column_title(this, column, title);
 }
 
 

@@ -71,6 +71,7 @@ public:
   virtual std::string get_column_caption(ColumnId index);
   virtual ColumnType get_column_type(ColumnId column);
   virtual ColumnType get_real_column_type(ColumnId column);
+  virtual int get_column_width_hint(int column) { return 0; /* 0 - no hint */ }
 
 public:
   virtual bool is_readonly() const { return _readonly; }
