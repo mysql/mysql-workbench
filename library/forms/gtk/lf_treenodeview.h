@@ -159,6 +159,8 @@ private:
   void on_activated(const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*);
   void on_will_expand(const Gtk::TreeModel::iterator& iter, const Gtk::TreeModel::Path& path);
   void on_collapsed(const Gtk::TreeModel::iterator& iter, const Gtk::TreeModel::Path& path);
+  void on_realize();
+  bool on_header_button_event(GdkEventButton *ev, int);
   bool on_button_event(GdkEventButton *ev);
   bool on_button_release(GdkEventButton* ev);
   bool on_motion_notify(GdkEventMotion* ev);
@@ -195,6 +197,7 @@ private:
   static void freeze_refresh(TreeNodeView* self, bool flag);
   static void set_column_visible(TreeNodeView* self, int column, bool flag);
   static bool get_column_visible(TreeNodeView* self, int column);
+  static void set_column_title(TreeNodeView* self, int column, const std::string &title);
   static void set_column_width(TreeNodeView* self, int column, int width);
   static int get_column_width(TreeNodeView* self, int column);
 

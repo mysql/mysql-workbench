@@ -41,7 +41,7 @@ namespace mforms {
     TriCheckColumnType,    //!< checkbox field (same as CheckColumnType) which also accepts -1 as mixed state
     IconColumnType,        //!< icon field, value is the icon path
     IconStringColumnType = IconColumnType,
-    NumberWithUnitColumnType, //!< string type, representing numbers with a unit suffix (like KB, MB, ms etc) TODO linux
+    NumberWithUnitColumnType, //!< string type, representing numbers with a unit suffix (like KB, MB, ms etc) 
     FloatColumnType        //!< a double precision floating point number
   };
   
@@ -275,7 +275,7 @@ namespace mforms {
     void end_columns();
     
     /** Sets the title of the given column */
-    void set_column_title(int column, const std::string &title); // TODO: Windows, Linux
+    void set_column_title(int column, const std::string &title); // TODO: Windows
 
     /** Sets a callback that's called when the mouse hovers on a row.
      
@@ -377,7 +377,7 @@ namespace mforms {
      
      Note: Ownership of the context menu remains with the caller and it will not be freed
      when this object is deleted. */
-    void set_header_menu(ContextMenu *menu); // TODO: Windows, Linux
+    void set_header_menu(ContextMenu *menu); // TODO: Windows
     
     /** Returns the context menu object attached to the treeview */
     ContextMenu *get_context_menu() { return _context_menu; }
@@ -439,7 +439,7 @@ namespace mforms {
 
     // Called when right clicking on a header/title of a column, so that the context menu handler can know
     // what column is it being shown for
-    void header_clicked(int column); // TODO: Windows, Linux
+    void header_clicked(int column); // TODO: Windows
 #endif
 #endif
 

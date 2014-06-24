@@ -28,17 +28,18 @@ from threading import Thread
 
 
 unit_formatters = {
-  "us"    : lambda x: x / 1000000.0,
-  "ms"    : lambda x: x / 1000000000.0,
-  "s"     : lambda x: x / 1000000000000.0,
+  "us"    : lambda x: "%.2f" % (x / 1000000.0),
+  "ms"    : lambda x: "%.2f" % (x / 1000000000.0),
+  "s"     : lambda x: "%.2f" % (x / 1000000000000.0),
+  "h:m:s" : lambda x: "%i:%02i:%.02f" % ((int)(x / (60*60*1000000000000.0)), (int)(x / (60*1000000000000.0)) % 60, (x / 1000000000000.0)%60),
 
-  "Bytes" : None,
-  "KB": lambda x: x / 1000.0,
-  "MB": lambda x: x / 1000000.0,
-  "GB": lambda x: x / 1000000000.0,
+  "Bytes" : lambda x: "%.0f" % x,
+  "KB": lambda x: "%.2f" % (x / 1000.0),
+  "MB": lambda x: "%.2f" % (x / 1000000.0),
+  "GB": lambda x: "%.2f" % (x / 1000000000.0),
 }
 
-time_units = ["us", "ms", "s"]
+time_units = ["us", "ms", "s", "h:m:s"]
 byte_units = ["Bytes", "KB", "MB", "GB"]
 
 
@@ -47,8 +48,8 @@ known_column_types = {
   "LongInteger" : (mforms.LongIntegerColumnType, None),
   "Float" :       (mforms.FloatColumnType, None),
   
-  "Time" :        (mforms.FloatColumnType, "us"),
-  "Bytes" :       (mforms.FloatColumnType, "Bytes"),
+  "Time" :        (mforms.NumberWithUnitColumnType, "us"),
+  "Bytes" :       (mforms.NumberWithUnitColumnType, "Bytes"),
 
   "String" :      (mforms.StringColumnType, None),
   "StringLT" :    (mforms.StringLTColumnType, None),
@@ -280,17 +281,25 @@ class PSHelperViewTab(mforms.Box):
                             node.set_long(i, long(s) if s else 0)
                         elif self._column_types[i] == mforms.FloatColumnType:
                             unit = self._column_units[i]
+                            node.set_float(i, result.floatByName(self._column_names[i]))
+                        elif self._column_types[i] == mforms.NumberWithUnitColumnType:
+                            unit = self._column_units[i]
                             if unit and unit_formatters[unit]:
                                 formatter = unit_formatters[unit]
-                                node.set_float(i, formatter(float(result.stringByName(self._column_names[i]))))
+                                node.set_string(i, formatter(float(result.stringByName(self._column_names[i]))))
                             else:
-                                node.set_float(i, result.floatByName(self._column_names[i]))
+                                s = result.stringByName(self._column_names[i])
+                                if i == self._column_file and self._owner.instance_info.datadir:
+                                    s = s.replace(self._owner.instance_info.datadir, "<datadir>")
+                                node.set_string(i, s or "")
                         else:
                             s = result.stringByName(self._column_names[i])
                             if i == self._column_file and self._owner.instance_info.datadir:
                                 s = s.replace(self._owner.instance_info.datadir, "<datadir>")
                             node.set_string(i, s or "")
                     except Exception, e:
+                        import traceback
+                        traceback.print_exc()
                         log_error("Error handling column %i (%s) of report for %s: %s\n" % (i, cname, self.view, e))
 
 
