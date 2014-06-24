@@ -124,6 +124,13 @@ private:
   int _row_height;
   bool _flat_list;
   bool _tagmap_enabled;
+  bool _drag_source_enabled;
+
+  Gtk::TreePath _overlayed_row;
+  std::vector<Cairo::RefPtr<Cairo::ImageSurface> > _overlay_icons;
+  int _hovering_overlay;
+  int _clicking_overlay;
+  bool _mouse_inside;
 
   GdkEventButton *_org_event;
   int _drag_button;
@@ -155,6 +162,10 @@ private:
   bool on_button_event(GdkEventButton *ev);
   bool on_button_release(GdkEventButton* ev);
   bool on_motion_notify(GdkEventMotion* ev);
+  bool on_expose_event(GdkEventExpose *ev);
+  bool on_enter_notify(GdkEventCrossing *ev);
+  bool on_leave_notify(GdkEventCrossing *ev);
+
   void slot_drag_end(const Glib::RefPtr<Gdk::DragContext> &context);
   bool slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &context,Gtk::DragResult result);
 
