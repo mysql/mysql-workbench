@@ -109,13 +109,16 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
     g_file_set_contents(make_path(path, "connection_id").c_str(), _connection->id().c_str(),
       (gssize)_connection->id().size(), NULL);
 
-  for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+  if (_tabdock)
   {
-    SqlEditorPanel *editor = sql_editor_panel(i);
-    if (!editor)
-      continue;
+    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+    {
+      SqlEditorPanel *editor = sql_editor_panel(i);
+      if (!editor)
+        continue;
 
-    editor->auto_save(path, i);
+      editor->auto_save(path, i);
+    }
   }
 }
 
