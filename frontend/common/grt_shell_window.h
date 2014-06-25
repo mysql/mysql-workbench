@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,6 @@
 #define __GRT_SHELL_WINDOW_H__
 
 #include "grt/grt_manager.h"
-//#include "wb_context.h"
 
 namespace wb {
   class WBContext;
@@ -213,8 +212,7 @@ protected:
 
   void on_tab_changed();
   bool on_tab_closing(int index);
-  void on_tab_closed(int index);
-  
+
 private:
   mforms::Button *add_tool_button(const std::string &image,
                        const boost::function<void ()> &action,

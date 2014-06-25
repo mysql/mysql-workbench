@@ -177,8 +177,8 @@ public:
   virtual void set_edited_field(RowId row_index, ColumnId col_index);
   bool is_field_value_truncation_enabled(bool val);
 
-  size_t edited_field_row() { return _edited_field_row; }
-  size_t edited_field_column() { return _edited_field_col; }
+  RowId edited_field_row() { return _edited_field_row; }
+  ColumnId edited_field_column() { return _edited_field_col; }
 
   // called when the backend changes the current edited field row/column and the frontend must reselect
   boost::function<void ()> update_edited_field;

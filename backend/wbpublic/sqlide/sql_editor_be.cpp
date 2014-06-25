@@ -309,13 +309,14 @@ static void open_file(MySQLEditor *sql_editor)
 
     if (g_file_get_contents(file.c_str(), &contents, &length, &error))
     {
-      std::string converted;
+      char *converted;
 
       mforms::CodeEditor* code_editor = sql_editor->get_editor_control();
       if (FileCharsetDialog::ensure_filedata_utf8(contents, length, "", file, converted))
       {
+        code_editor->set_text_keeping_state(converted ? converted : contents);
         g_free(contents);
-        code_editor->set_text_keeping_state(converted.c_str());
+        g_free(converted);
       }
       else
       {
@@ -811,6 +812,15 @@ void MySQLEditor::char_added(int char_code)
     std::string text = get_written_part(_code_editor->get_caret_pos());
     update_auto_completion(text);
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLEditor::cancel_auto_completion()
+{
+  // make sure a pending timed autocompletion won't kick in after we cancel it
+  d->_last_typed_char = 0;
+  _code_editor->auto_completion_cancel();
 }
 
 //--------------------------------------------------------------------------------------------------
