@@ -418,7 +418,7 @@ void ResultFormView::update_value(int column, const std::string &value)
   if (rset)
   {
     RowId row = rset->edited_field_row();
-    if (rset->count() > row && row >= 0)
+    if (rset->count() > row && (int)row >= 0)
       rset->set_field(row, column, value);
   }
 }
@@ -430,7 +430,7 @@ void ResultFormView::open_field_editor(int column)
   if (rset)
   {
     RowId row = rset->edited_field_row();
-    if (row < rset->count() && row >= 0)
+    if (row < rset->count() && (int)row >= 0)
       rset->open_field_data_editor(row, column);
   }
 }

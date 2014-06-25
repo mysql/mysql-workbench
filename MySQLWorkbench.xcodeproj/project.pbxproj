@@ -329,6 +329,9 @@
 		2B02FEF8183E771B00770CC0 /* view.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B02FEEA183E771B00770CC0 /* view.png */; };
 		2B03B5C1116CC42C009987BE /* binary_data_editor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B03B5B8116CC0B4009987BE /* binary_data_editor.h */; };
 		2B03B5C2116CC42C009987BE /* binary_data_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */; };
+		2B0609F21952B2AA00022F40 /* db.Table.32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0609F11952B2AA00022F40 /* db.Table.32x32.png */; };
+		2B0609FB195A496700022F40 /* column_width_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B0609F9195A496700022F40 /* column_width_cache.cpp */; };
+		2B0609FC195A496700022F40 /* column_width_cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0609FA195A496700022F40 /* column_width_cache.h */; };
 		2B064CDA14D3257200B01887 /* treenodeview.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064CD914D3257200B01887 /* treenodeview.h */; };
 		2B064CE014D327F400B01887 /* treenodeview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B064CDE14D327F400B01887 /* treenodeview.cpp */; };
 		2B064D0714D32DAD00B01887 /* MFTreeNodeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */; };
@@ -1272,8 +1275,6 @@
 		2B5286400F1C1EED005FBF7C /* wb_module_validation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B52863B0F1C1EED005FBF7C /* wb_module_validation.cpp */; };
 		2B5286410F1C1EED005FBF7C /* wb_module_validation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B52863C0F1C1EED005FBF7C /* wb_module_validation.h */; };
 		2B5286420F1C1EED005FBF7C /* wb_validation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B52863D0F1C1EED005FBF7C /* wb_validation.h */; };
-		2B58F10B19428E2100397970 /* column_width_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B58F10919428E2100397970 /* column_width_cache.cpp */; };
-		2B58F10C19428E2100397970 /* column_width_cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58F10A19428E2100397970 /* column_width_cache.h */; };
 		2B58F10D194291BB00397970 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
 		2B59AA060E94F6BA0083C1C6 /* db_datatype_groups.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2B59AA040E94F6850083C1C6 /* db_datatype_groups.xml */; };
 		2B59AA070E94F6BA0083C1C6 /* main_menu.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2B59A9F10E94F6430083C1C6 /* main_menu.xml */; };
@@ -4044,6 +4045,9 @@
 		2B02FEEA183E771B00770CC0 /* view.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = view.png; sourceTree = "<group>"; };
 		2B03B5B8116CC0B4009987BE /* binary_data_editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = binary_data_editor.h; sourceTree = "<group>"; };
 		2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = binary_data_editor.cpp; sourceTree = "<group>"; };
+		2B0609F11952B2AA00022F40 /* db.Table.32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.Table.32x32.png; path = structs/db.Table.32x32.png; sourceTree = "<group>"; };
+		2B0609F9195A496700022F40 /* column_width_cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = column_width_cache.cpp; path = backend/wbpublic/sqlide/column_width_cache.cpp; sourceTree = "<group>"; };
+		2B0609FA195A496700022F40 /* column_width_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = column_width_cache.h; path = backend/wbpublic/sqlide/column_width_cache.h; sourceTree = "<group>"; };
 		2B064CD914D3257200B01887 /* treenodeview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = treenodeview.h; path = library/forms/mforms/treenodeview.h; sourceTree = "<group>"; wrapsLines = 0; };
 		2B064CDE14D327F400B01887 /* treenodeview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = treenodeview.cpp; path = library/forms/treenodeview.cpp; sourceTree = "<group>"; };
 		2B064D0514D32DAD00B01887 /* MFTreeNodeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFTreeNodeView.h; path = library/forms/cocoa/MFTreeNodeView.h; sourceTree = "<group>"; };
@@ -5000,8 +5004,6 @@
 		2B52863B0F1C1EED005FBF7C /* wb_module_validation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_module_validation.cpp; path = internal/wb.validation/src/wb_module_validation.cpp; sourceTree = "<group>"; };
 		2B52863C0F1C1EED005FBF7C /* wb_module_validation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_module_validation.h; path = internal/wb.validation/src/wb_module_validation.h; sourceTree = "<group>"; };
 		2B52863D0F1C1EED005FBF7C /* wb_validation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_validation.h; path = internal/wb.validation/src/wb_validation.h; sourceTree = "<group>"; };
-		2B58F10919428E2100397970 /* column_width_cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = column_width_cache.cpp; path = backend/wbprivate/sqlide/column_width_cache.cpp; sourceTree = "<group>"; };
-		2B58F10A19428E2100397970 /* column_width_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = column_width_cache.h; path = backend/wbprivate/sqlide/column_width_cache.h; sourceTree = "<group>"; };
 		2B59A9C30E94EFAC0083C1C6 /* MCPPUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MCPPUtilities.h; path = frontend/mac/utilities/MCPPUtilities.h; sourceTree = "<group>"; };
 		2B59A9C40E94EFAC0083C1C6 /* MCPPUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MCPPUtilities.mm; path = frontend/mac/utilities/MCPPUtilities.mm; sourceTree = "<group>"; };
 		2B59A9F10E94F6430083C1C6 /* main_menu.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = main_menu.xml; path = res/wbdata/main_menu.xml; sourceTree = "<group>"; };
@@ -5800,7 +5802,7 @@
 		2BCD494115BDD53C00F88A38 /* build_freetds.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_freetds.sh; path = build/build_freetds.sh; sourceTree = "<group>"; };
 		2BCE49EB15F5341C00FA0CDC /* db_sybase_migration_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_sybase_migration_grt.py; path = modules/db.sybase/db_sybase_migration_grt.py; sourceTree = "<group>"; };
 		2BCE49EC15F5341C00FA0CDC /* db_sybase_re_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_sybase_re_grt.py; path = modules/db.sybase/db_sybase_re_grt.py; sourceTree = "<group>"; };
-		2BCE4A0315F6467B00FA0CDC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /System/Library/Frameworks/Python.framework/Versions/2.6/Python; sourceTree = "<absolute>"; };
+		2BCE4A0315F6467B00FA0CDC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /System/Library/Frameworks/Python.framework/Versions/2.7/Python; sourceTree = "<absolute>"; };
 		2BCE53DA122C6BE60019C95B /* confirm_save_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = confirm_save_dialog.h; sourceTree = "<group>"; };
 		2BCE53DB122C6BE60019C95B /* confirm_save_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = confirm_save_dialog.cpp; sourceTree = "<group>"; };
 		2BCEBF9513DBD3F100A23E75 /* mini_edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mini_edit.png; sourceTree = "<group>"; };
@@ -7860,6 +7862,7 @@
 		2B26389E0E93B0F800933149 /* grt */ = {
 			isa = PBXGroup;
 			children = (
+				2B0609F11952B2AA00022F40 /* db.Table.32x32.png */,
 				2B3B22F61860ECBB003FA474 /* db.Column.pkfk.11x11.png */,
 				2B3B22F71860ECBB003FA474 /* db.Column.pkfk.16x16.png */,
 				2B2909CF159A0C7200708C09 /* db.ForeignKey.16x16.png */,
@@ -8323,6 +8326,8 @@
 			children = (
 				2B60B9C315114CAD00636FE2 /* autocomplete_object_name_cache.cpp */,
 				2B60B9C415114CAE00636FE2 /* autocomplete_object_name_cache.h */,
+				2B0609F9195A496700022F40 /* column_width_cache.cpp */,
+				2B0609FA195A496700022F40 /* column_width_cache.h */,
 				2B7F8BF0110DC5FC009D398E /* sql_script_run_wizard.cpp */,
 				2B7F8BF1110DC5FC009D398E /* sql_script_run_wizard.h */,
 				2BEC8E741035F77B00607CA4 /* sql_semantic_check.cpp */,
@@ -10316,8 +10321,6 @@
 				2BE0A25C184D66620056AE11 /* wb_sql_editor_result_panel.h */,
 				2BF2CBB51911C702007B0BB9 /* result_form_view.h */,
 				2BF2CBB41911C702007B0BB9 /* result_form_view.cpp */,
-				2B58F10919428E2100397970 /* column_width_cache.cpp */,
-				2B58F10A19428E2100397970 /* column_width_cache.h */,
 			);
 			name = "Result Panel";
 			sourceTree = "<group>";
@@ -10865,6 +10868,7 @@
 				2B3D4FF80F40CB3B009238A7 /* wizard_object_filter_page.h in Headers */,
 				2B3D4FFA0F40CB3B009238A7 /* wizard_schema_filter_page.h in Headers */,
 				2B3D4FFC0F40CB3B009238A7 /* wizard_view_text_page.h in Headers */,
+				2B0609FC195A496700022F40 /* column_width_cache.h in Headers */,
 				2B738FFE0F5EB37F0084CA96 /* grtdb_connection_editor.h in Headers */,
 				2B7390BA0F5F00BA0084CA96 /* refresh_ui.h in Headers */,
 				2B869C530F7E8DBF0005CB9B /* badge_figure.h in Headers */,
@@ -11142,7 +11146,6 @@
 				2B5B77080F781D6C007E54CF /* document_properties_form.h in Headers */,
 				2B5B770A0F781D6C007E54CF /* preferences_form.h in Headers */,
 				2BF879C50FA7BE730012EADA /* db_sql_editor_history_be.h in Headers */,
-				2B58F10C19428E2100397970 /* column_width_cache.h in Headers */,
 				2BF879C70FA7BE730012EADA /* db_sql_editor_log.h in Headers */,
 				2BF879C80FA7BE730012EADA /* wb_live_schema_tree.h in Headers */,
 				2BF879CE0FA7C13E0012EADA /* wb_sql_editor_form.h in Headers */,
@@ -12347,6 +12350,7 @@
 				2B5FE4D1187F2C7400AEC55C /* output_type-formeditor.png in Resources */,
 				2B263A570E9402DD00933149 /* collapsing_panel_header_tab_left.png in Resources */,
 				2B263A580E9402DD00933149 /* collapsing_panel_header_tab_left_flat.png in Resources */,
+				2B0609F21952B2AA00022F40 /* db.Table.32x32.png in Resources */,
 				2B263A590E9402DD00933149 /* collapsing_panel_header_tab_middle.png in Resources */,
 				2B263A5A0E9402DD00933149 /* collapsing_panel_header_tab_middle_flat.png in Resources */,
 				2B263A5B0E9402DD00933149 /* collapsing_panel_header_tab_right.png in Resources */,
@@ -13107,7 +13111,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\n  header_path_string+=\"-I$arg \"\ndone\n\ncd library/forms/swig\n\n/usr/local/bin/swig ${header_path_string} -DCAIRO_HAS_PNG_FUNCTIONS=1 -w312 -fvirtual -fcompact -c++ -python cairo.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' cairo_wrap.cxx > cairo_wrap.tmp\nmv -f cairo_wrap.tmp cairo_wrap.cxx\n";
+			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\n  header_path_string+=\"-I$arg \"\ndone\n\ncd library/forms/swig\n\n# Remove the file or it won't get regenerated.\nrm -f cairo_wrap.cxx\n\n/usr/local/bin/swig ${header_path_string} -DCAIRO_HAS_PNG_FUNCTIONS=1 -w312 -fvirtual -fcompact -c++ -python cairo.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' cairo_wrap.cxx > cairo_wrap.tmp\nmv -f cairo_wrap.tmp cairo_wrap.cxx\n";
 			showEnvVarsInLog = 0;
 		};
 		2B4B52EB122F102000F1EA6B /* Copy Other Resource Data Folders */ = {
@@ -13142,7 +13146,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\nheader_path_string+=\"-I$arg \"\ndone\n\ncd \"${SRCROOT}/library/forms/swig\"\n/usr/local/bin/swig -I../../../../mysql-mac-res/include -w401,402,509 -fvirtual -fcompact -c++ -python mforms.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' mforms_wrap.cxx > mforms_wrap.tmp\nmv -f mforms_wrap.tmp mforms_wrap.cxx\n";
+			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\nheader_path_string+=\"-I$arg \"\ndone\n\ncd \"${SRCROOT}/library/forms/swig\"\n\n# Remove the file or it won't get regenerated.\nrm -f mforms_wrap.cxx\n\n/usr/local/bin/swig -I../../../../mysql-mac-res/include -w401,402,509 -fvirtual -fcompact -c++ -python mforms.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' mforms_wrap.cxx > mforms_wrap.tmp\nmv -f mforms_wrap.tmp mforms_wrap.cxx\n";
 			showEnvVarsInLog = 0;
 		};
 		2B7F79500F0160B900C3C53E /* Fixup dylibs in builddir */ = {
@@ -13609,6 +13613,7 @@
 				2BAE1A810F368EB200BE725E /* workbench_physical_Connection.cpp in Sources */,
 				2BAE1A820F368EB200BE725E /* workbench_physical_Diagram.cpp in Sources */,
 				2BAE1A830F368EB200BE725E /* workbench_physical_Model.cpp in Sources */,
+				2B0609FB195A496700022F40 /* column_width_cache.cpp in Sources */,
 				2BAE1A840F368EB200BE725E /* workbench_physical_RoutineGroupFigure.cpp in Sources */,
 				2BAE1A850F368EB200BE725E /* workbench_physical_TableFigure.cpp in Sources */,
 				2BAE1A860F368EB200BE725E /* workbench_physical_ViewFigure.cpp in Sources */,
@@ -13978,7 +13983,6 @@
 				27694816142A4FAA009DE637 /* snippet_popover.cpp in Sources */,
 				2B1FB7FF142C00070017A064 /* wb_sql_editor_form_ui.cpp in Sources */,
 				2B1FB819142C02780017A064 /* wb_sql_editor_buffer.cpp in Sources */,
-				2B58F10B19428E2100397970 /* column_width_cache.cpp in Sources */,
 				EDE7748B14C50BD3005AFF52 /* wb_db_schema.cpp in Sources */,
 				2BF2CBBB1911E8A7007B0BB9 /* wb_sql_editor_panel.cpp in Sources */,
 				2BF42B4416862D82007C030C /* wb_history_tree.cpp in Sources */,
@@ -15417,7 +15421,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/lib/",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				PRODUCT_NAME = wbcopytables;
 				SKIP_INSTALL = YES;
@@ -15442,7 +15446,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/lib/",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				PRODUCT_NAME = wbcopytables;
 				SKIP_INSTALL = YES;
@@ -15471,7 +15475,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = _cairo;
 				SKIP_INSTALL = YES;
@@ -15502,7 +15506,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = _cairo;
 				SKIP_INSTALL = YES;
@@ -16260,7 +16264,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
@@ -16301,7 +16305,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
@@ -16326,7 +16330,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -16348,7 +16352,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -16379,7 +16383,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = grt;
 				SKIP_INSTALL = YES;
@@ -16408,7 +16412,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = grt;
 				SKIP_INSTALL = YES;
@@ -16783,7 +16787,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
@@ -16824,7 +16828,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
@@ -16879,8 +16883,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
-					"/Users/kojima/wb62/mysql-mac-res/lib",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
@@ -16925,8 +16928,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
-					"/Users/kojima/wb62/mysql-mac-res/lib",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
@@ -17468,9 +17470,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx10.8;
 			};
@@ -17520,9 +17523,11 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.6\"",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CODE_SIGN_FLAGS = "";
+				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--deep";
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx10.8;
 				STRIP_INSTALLED_PRODUCT = YES;
@@ -17554,7 +17559,7 @@
 					"$(SRCROOT)/../mysql-mac-res/lib/glib-2.0/include",
 					"$(SRCROOT)/../mysql-mac-res/include/glib-2.0",
 					"$(SRCROOT)/../mysql-mac-res/include/cairo",
-					/usr/include/python2.6,
+					/usr/include/python2.7,
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -17595,7 +17600,7 @@
 					"$(SRCROOT)/../mysql-mac-res/lib/glib-2.0/include",
 					"$(SRCROOT)/../mysql-mac-res/include/glib-2.0",
 					"$(SRCROOT)/../mysql-mac-res/include/cairo",
-					/usr/include/python2.6,
+					/usr/include/python2.7,
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = (

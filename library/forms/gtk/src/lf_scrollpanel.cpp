@@ -112,6 +112,25 @@ void mforms::gtk::ScrollPanelImpl::set_padding_impl(int left, int top, int right
   _swin->set_border_width(left);
 }
 
+//------------------------------------------------------------------------------
+base::Rect mforms::gtk::ScrollPanelImpl::get_content_rect(mforms::ScrollPanel* self)
+{
+  mforms::gtk::ScrollPanelImpl *panel      = self->get_data<mforms::gtk::ScrollPanelImpl>();
+  base::Rect rect;
+  Gtk::Viewport *vp;
+
+  if (panel && (vp = dynamic_cast<Gtk::Viewport*>(panel->_swin->get_child())))
+  {
+    rect.pos.y = panel->_swin->get_vadjustment()->get_value();
+    rect.pos.x = panel->_swin->get_hadjustment()->get_value();
+    rect.size.width = vp->get_window()->get_width();
+    rect.size.height = vp->get_window()->get_height();
+  }
+
+  return rect;
+}
+
+
 void mforms::gtk::ScrollPanelImpl::init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -122,4 +141,5 @@ void mforms::gtk::ScrollPanelImpl::init()
   f->_spanel_impl.set_visible_scrollers  = &mforms::gtk::ScrollPanelImpl::set_visible_scrollers;
   f->_spanel_impl.set_autohide_scrollers = &mforms::gtk::ScrollPanelImpl::set_autohide_scrollers;
   f->_spanel_impl.scroll_to_view         = &mforms::gtk::ScrollPanelImpl::scroll_to_view;
+  f->_spanel_impl.get_content_rect       = &mforms::gtk::ScrollPanelImpl::get_content_rect;
 }

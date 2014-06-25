@@ -55,6 +55,7 @@ namespace mforms {
 };
 
 class AutoCompleteCache;
+class MySQLRecognizer;
 
 // Identifiers for images used in auto completion lists.
 #define AC_KEYWORD_IMAGE  1
@@ -175,7 +176,8 @@ public:
   typedef boost::shared_ptr<MySQLEditor> Ref;
   typedef boost::weak_ptr<MySQLEditor> Ptr;
 
-  static Ref create(grt::GRT *grt, parser::ParserContext::Ref context, db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
+  static Ref create(grt::GRT *grt, parser::ParserContext::Ref syntax_check_context, parser::ParserContext::Ref autocopmlete_context,
+                    db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
 
   virtual ~MySQLEditor();
 
@@ -220,12 +222,12 @@ public:
   bool is_sql_check_enabled() const;
   void set_sql_check_enabled(bool val);
   
-  void show_auto_completion(bool auto_choose_single);
+  void show_auto_completion(bool auto_choose_single, MySQLRecognizer *recognizer);
   std::vector<std::pair<int, std::string> >  update_auto_completion(const std::string &typed_part);
   void cancel_auto_completion();
   void set_auto_completion_cache(AutoCompleteCache *cache);
 
-  bool create_auto_completion_list(AutoCompletionContext &context);
+  bool create_auto_completion_list(AutoCompletionContext &context, MySQLRecognizer *recognizer);
 
   std::string selected_text();
   void set_selected_text(const std::string &new_text);
@@ -249,9 +251,7 @@ public:
   void register_file_drop_for(mforms::DropDelegate *target);
 
 protected:
-  MySQLEditor(grt::GRT *grt, parser::ParserContext::Ref context);
-
-  parser::ParserContext::Ref get_parser_context();
+  MySQLEditor(grt::GRT *grt, parser::ParserContext::Ref syntax_check_context, parser::ParserContext::Ref autocopmlete_context);
 
 private:
   class Private;

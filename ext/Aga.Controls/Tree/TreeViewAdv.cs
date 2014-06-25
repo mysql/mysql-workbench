@@ -150,6 +150,13 @@ namespace Aga.Controls.Tree
         BeforeDrawNode(this, new TreeViewAdvDrawRowEventArgs(node, context));
     }
 
+    public event EventHandler<TreeViewAdvDrawRowEventArgs> AfterDrawNode;
+    protected virtual void OnAfterNodeDrawing(TreeNodeAdv node, DrawContext context)
+    {
+      if (AfterDrawNode != null)
+        AfterDrawNode(this, new TreeViewAdvDrawRowEventArgs(node, context));
+    }
+
     #endregion
 
 		public TreeViewAdv()
@@ -818,12 +825,25 @@ namespace Aga.Controls.Tree
 			return node.RightBounds.Value;
 		}
 
-		internal Rectangle GetNodeBounds(TreeNodeAdv node)
+    /// <summary>
+    /// ml: added for hit tests.
+    /// Returns a node's bounds in client coordinates, taking the current scroll position into account.
+    /// </summary>
+    public Rectangle GetRealNodeBounds(TreeNodeAdv node)
+    {
+      Rectangle bounds = GetNodeBounds(node);
+      Point p = ScrollPosition;
+      int colHeaderY = node.Tree.UseColumns ? node.Tree.ColumnHeaderHeight : 0;
+      bounds.Offset(-p.X, -p.Y * RowHeight + colHeaderY);
+      return bounds;
+    }
+
+		protected Rectangle GetNodeBounds(TreeNodeAdv node)
 		{
 			return GetNodeBounds(GetNodeControls(node));
 		}
 
-		private Rectangle GetNodeBounds(IEnumerable<NodeControlInfo> nodeControls)
+		internal Rectangle GetNodeBounds(IEnumerable<NodeControlInfo> nodeControls)
 		{
 			Rectangle res = Rectangle.Empty;
 			foreach (NodeControlInfo info in nodeControls)

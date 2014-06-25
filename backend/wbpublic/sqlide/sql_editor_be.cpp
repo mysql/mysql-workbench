@@ -77,6 +77,7 @@ public:
   int _last_typed_char;
 
   ParserContext::Ref _parser_context;
+  ParserContext::Ref _autocompletion_context;
   MySQLParserServices::Ref _services;
 
   double _last_sql_check_progress_msg_timestamp;
@@ -111,7 +112,8 @@ public:
 
   boost::signals2::signal<void ()> _text_change_signal;
 
-  Private(grt::GRT *grt, ParserContext::Ref context)
+  // autocomplete_context will go after auto completion refactoring.
+  Private(grt::GRT *grt, ParserContext::Ref syntaxcheck_context, ParserContext::Ref autocomplete_context)
     : _grtobj(grt)
   {
     _grtm = GRTManager::get_instance_for(grt);
@@ -123,7 +125,8 @@ public:
 
     _splitting_required = false;
 
-    _parser_context = context;
+    _parser_context = syntaxcheck_context;
+    _autocompletion_context = autocomplete_context;
     _services = MySQLParserServices::get(grt);
 
     _current_delay_timer = NULL;
@@ -167,9 +170,10 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLEditor::Ref MySQLEditor::create(grt::GRT *grt, ParserContext::Ref context, db_query_QueryBufferRef grtobj)
+MySQLEditor::Ref MySQLEditor::create(grt::GRT *grt, ParserContext::Ref syntax_check_context, ParserContext::Ref autocopmlete_context,
+                                     db_query_QueryBufferRef grtobj)
 {
-  Ref sql_editor = MySQLEditor::Ref(new MySQLEditor(grt, context));
+  Ref sql_editor = MySQLEditor::Ref(new MySQLEditor(grt, syntax_check_context, autocopmlete_context));
   // replace the default object with the custom one
   if (grtobj.is_valid())
     sql_editor->set_grtobj(grtobj);
@@ -183,16 +187,16 @@ MySQLEditor::Ref MySQLEditor::create(grt::GRT *grt, ParserContext::Ref context, 
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref context)
+MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref syntax_check_context, ParserContext::Ref autocopmlete_context)
 {
-  d = new Private(grt, context);
+  d = new Private(grt, syntax_check_context, autocopmlete_context);
   
   _code_editor = new mforms::CodeEditor(this);
   _code_editor->set_font(d->_grtm->get_app_option_string("workbench.general.Editor:Font"));
   _code_editor->set_features(mforms::FeatureUsePopup, false);
   _code_editor->set_features(mforms::FeatureConvertEolOnPaste | mforms::FeatureAutoIndent, true);
 
-  GrtVersionRef version = context->get_server_version();
+  GrtVersionRef version = syntax_check_context->get_server_version();
   _editor_config = NULL;
   create_editor_config_for_version(version);
 
@@ -235,13 +239,6 @@ MySQLEditor::~MySQLEditor()
   delete _code_editor;
 
   delete d;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-parser::ParserContext::Ref MySQLEditor::get_parser_context()
-{
-  return d->_parser_context;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -980,13 +977,10 @@ void* MySQLEditor::splitting_done()
   // This has to be done after our statement  splitter has completed (which is the case when we appear here).
   if (auto_start_code_completion() && !_code_editor->auto_completion_active() &&
     (g_unichar_isalnum(d->_last_typed_char)
-     || d->_last_typed_char == '.'
-     /* do not try to autocomplete after a space. The filtering is too weak, so we always get a keyword list that's
-      too long to be useful for anything
-      || d->_last_typed_char == ' '*/))
+      || d->_last_typed_char == '.'))
   {
     d->_last_typed_char = 0;
-    show_auto_completion(false);
+    show_auto_completion(false, d->_autocompletion_context->recognizer());
   }
   return NULL;
 }

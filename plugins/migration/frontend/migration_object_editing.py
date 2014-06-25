@@ -97,10 +97,18 @@ class MainView(WizardPage):
         self.COL_MESSAGE = self._columns.add_column(mforms.IconStringColumnType, "Migration Message", 300, False)
         self._columns.end_columns()
         self._columns.set_allow_sorting(True)
+        self._columns.set_selection_mode(mforms.TreeSelectMultiple)
         self._columns.add_changed_callback(self._selection_changed)
         self.content.add(self._columns, True, True)
         self._columns.set_cell_edited_callback(self._columns_cell_edited)
         self._columns.show(False)
+        
+        self._menu = mforms.newContextMenu()
+        self._menu.add_will_show_callback(self.menu_will_show)
+        self._menu.add_item_with_title("Set Target Type of Selected Columns...", self.set_target_type, "set_target_type")
+        self._menu.add_item_with_title("Find and Replace Target Type...", self.replace_target_type, "replace_target_type")
+        self._columns.set_context_menu(self._menu)
+        
         self.help_label = mforms.newLabel("You can rename target schemas and tables and change column definitions by clicking them once selected.")
         self.help_label.set_style(mforms.SmallStyle)
         self.content.add(self.help_label, False, True)
@@ -771,5 +779,83 @@ class MainView(WizardPage):
                 self._add_node(None, None, obj, "GrtObject.16x16.png")
 
         self._selection_changed()
+
+    def menu_will_show(self, item):
+        self._menu.get_item(0).set_enabled(len(self._columns.get_selection()) > 1)
+
+    def set_target_type(self):
+        selected_nodes = self._columns.get_selection()
+        if selected_nodes:
+            ret, type = mforms.Utilities.request_input('Change target columns type', 'Please specify the target type', '')
+            if ret:
+                for n in selected_nodes:
+                    self._columns_cell_edited(n, self.COL_TARGET_TYPE, type)
+
+    def replace_target_type(self):
+        class ReplaceForm(mforms.Form):
+            def __init__(self):
+                self._canceled = False
+                mforms.Form.__init__(self, None, mforms.FormDialogFrame|mforms.FormResizable|mforms.FormMinimizable)
+                self.set_title("Find and Replace Target Type")
+
+                content = mforms.newBox(False)
+                self.set_content(content)
+                content.set_padding(12)
+                content.set_spacing(12)
+
+                v_box = mforms.newBox(False)
+                content.add(v_box, False, False)
+                v_box.set_spacing(12)
+
+                table = mforms.newTable()
+                table.set_padding(12)
+                v_box.add(table, False, False)
+                table.set_row_count(2)
+                table.set_column_count(2)
+                table.set_row_spacing(8)
+                table.set_column_spacing(4)
+                table.add(mforms.newLabel("Find:"), 0, 1, 0, 1)
+                table.add(mforms.newLabel("Replace with:"), 1, 2, 0, 1)
+
+                self.from_type_entry = mforms.newTextEntry()
+                table.add(self.from_type_entry, 0, 1, 1, 2)
+
+                self.to_type_entry = mforms.newTextEntry()
+                table.add(self.to_type_entry, 1, 2, 1, 2)
+
+                h_box = mforms.newBox(True)
+                v_box.add(h_box, True, True)
+                h_box.set_spacing(12)
+
+                self.cancel_btn = mforms.newButton()
+                self.cancel_btn.set_text("Cancel")
+                h_box.add_end(self.cancel_btn, False, True)
+                self.cancel_btn.add_clicked_callback(self.cancel_clicked)
+
+                self.ok_btn = mforms.newButton()
+                self.ok_btn.set_text("OK")
+                h_box.add_end(self.ok_btn, False, True)
+
+            def cancel_clicked(self):
+                self._canceled = True
+
+            def show(self, type_to_replace):
+                self.from_type_entry.set_value(type_to_replace)
+                self.run_modal(self.ok_btn, self.cancel_btn)
+
+            def get(self):
+                return (not self._canceled, self.from_type_entry.get_string_value(), self.to_type_entry.get_string_value())
+
+        selected_node = self._columns.get_selection()[0]
+        if selected_node:
+            type_to_replace = selected_node.get_string(self.COL_TARGET_TYPE)
+            repl_form = ReplaceForm()
+            repl_form.show(type_to_replace)
+            ret, type_to_replace, type = repl_form.get()
+            if ret:
+                for i in range(self._columns.count()):
+                    node = self._columns.node_at_row(i)
+                    if node.get_string(self.COL_TARGET_TYPE) == type_to_replace:
+                        self._columns_cell_edited(node, self.COL_TARGET_TYPE, type)
 
 

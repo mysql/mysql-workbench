@@ -83,6 +83,19 @@ public:
     PossiblyStoppedState
   };
 
+
+  struct PSStage
+  {
+    std::string name;
+    double wait_time;
+  };
+
+  struct PSWait
+  {
+    std::string name;
+    double wait_time;
+  };
+
   class RecordsetData : public Recordset::ClientData
   {
   public:
@@ -92,6 +105,8 @@ public:
     double duration;
     std::string ps_stat_error;
     std::map<std::string, boost::int64_t> ps_stat_info;
+    std::vector<PSStage> ps_stage_info;
+    std::vector<PSWait> ps_wait_info;
   };
 
 public:
@@ -241,16 +256,22 @@ public:
   db_mgmt_ConnectionRef connection_descriptor() const { return _connection; }
 
   bool get_session_variable(sql::Connection *dbc_conn, const std::string &name, std::string &value);
-  
+
 private:
   void cache_sql_mode();
   void update_sql_mode_for_editors();
 
   void query_ps_statistics(boost::int64_t conn_id, std::map<std::string, boost::int64_t> &stats);
+
+  std::vector<SqlEditorForm::PSStage> query_ps_stages(boost::int64_t stmt_event_id);
+  std::vector<SqlEditorForm::PSWait> query_ps_waits(boost::int64_t stmt_event_id);
+
 private:
   std::string _sql_mode;
   int _lower_case_table_names;
-
+  parser::ParserContext::Ref _autocomplete_context; // Temporary, until auto completion is refactored.
+public:
+  parser::ParserContext::Ref autocomplete_context() { return _autocomplete_context; }
 private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
   void init_connection(sql::Connection* dbc_conn_ref, const db_mgmt_ConnectionRef& connectionProperties, sql::Dbc_connection_handler::Ref& dbc_conn, bool user_connection);
@@ -427,6 +448,8 @@ private:
   void note_connection_open_outcome(int error);
 
 public:
+  void inspect_object(const std::string &name, const std::string &object, const std::string &type);
+
   void toolbar_command(const std::string& command);
 
   bool save_snippet();

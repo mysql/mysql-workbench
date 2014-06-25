@@ -491,6 +491,7 @@ class ExplainTab(mforms.AppView):
         if self._form_deactivated_conn:
             self._form_deactivated_conn.disconnect()
             self._form_deactivated_conn = None
+        return True
 
 
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor, grt.classes.db_query_ResultPanel)
@@ -512,7 +513,7 @@ def visualExplain(editor, result_panel):
             return 0
         
         json = None
-        if version.is_supported_mysql_version_at_least(5, 6):
+        if None and version.is_supported_mysql_version_at_least(5, 6):
             rset = editor.owner.executeQuery("EXPLAIN FORMAT=JSON %s" % statement, 1)
             if rset and rset.goToFirstRow():
                 json = rset.stringFieldValue(0)

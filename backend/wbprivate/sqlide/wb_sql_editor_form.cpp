@@ -654,6 +654,8 @@ void SqlEditorForm::cache_sql_mode()
 void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::string, boost::int64_t> &stats)
 {
   static const char *stat_fields[] = {
+    "EVENT_ID",
+    "THREAD_ID",
     "TIMER_WAIT",
     "LOCK_TIME",
     "ERRORS",
@@ -685,7 +687,6 @@ void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::st
     std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.* FROM performance_schema.events_statements_current st JOIN performance_schema.threads thr ON thr.thread_id = st.thread_id WHERE thr.processlist_id = %"PRId64, conn_id)));
     while (result->next())
     {
-
       for (const char **field = stat_fields; *field; ++field)
       {
         stats[*field] = result->getInt64(*field);
@@ -696,6 +697,100 @@ void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::st
   {
     log_exception("Error querying performance_schema.events_statements_current\n", exc);
   }
+}
+
+
+std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(boost::int64_t stmt_event_id)
+{
+  RecMutexLock lock(ensure_valid_aux_connection());
+
+  std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+  std::vector<PSStage> stages;
+  try
+  {
+    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.*"\
+                                                                         " FROM performance_schema.events_stages_history_long st"\
+                                                                         " WHERE st.nesting_event_id = %"PRId64,
+                                                                         stmt_event_id)));
+    while (result->next())
+    {
+      double wait_time = (double)result->getInt64("timer_wait") / 1000000000.0; // ps to ms
+      std::string event = result->getString("event_name");
+
+      // rename the stage/sql/Sending data event to something more suitable
+      if (event == "stage/sql/Sending data")
+        event = "executing (storage engine)";
+
+      bool flag = false;
+      for (std::vector<PSStage>::iterator iter = stages.begin(); iter != stages.end(); ++iter)
+      {
+        if (iter->name == event)
+        {
+          flag = true;
+          iter->wait_time += wait_time;
+          break;
+        }
+      }
+
+      if (!flag)
+      {
+        PSStage stage;
+        stage.name = event;
+        stage.wait_time = wait_time;
+        stages.push_back(stage);
+      }
+    }
+  }
+  catch (sql::SQLException &exc)
+  {
+    log_exception("Error querying performance_schema.event_stages_history\n", exc);
+  }
+
+  return stages;
+}
+
+
+std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(boost::int64_t stmt_event_id)
+{
+  RecMutexLock lock(ensure_valid_aux_connection());
+
+  std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+  std::vector<PSWait> waits;
+  try
+  {
+    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.*"\
+                                                                         " FROM performance_schema.events_waits_history_long st"\
+                                                                         " WHERE st.nesting_event_id = %"PRId64,
+                                                                         stmt_event_id)));
+    while (result->next())
+    {
+      double wait_time = (double)result->getInt64("timer_wait") / 1000000000.0; // ps to ms
+      std::string event = result->getString("event_name");
+      bool flag = false;
+      for (std::vector<PSWait>::iterator iter = waits.begin(); iter != waits.end(); ++iter)
+      {
+        if (iter->name == event)
+        {
+          flag = true;
+          iter->wait_time += wait_time;
+          break;
+        }
+      }
+
+      if (!flag)
+      {
+        PSWait wait;
+        wait.name = event;
+        wait.wait_time = wait_time;
+        waits.push_back(wait);
+      }
+    }
+  }
+  catch (sql::SQLException &exc)
+  {
+    log_exception("Error querying performance_schema.event_waits_history\n", exc);
+  }
+  return waits;
 }
 
 
@@ -711,6 +806,7 @@ SqlEditorPanel* SqlEditorForm::run_sql_in_scratch_tab(const std::string &sql, bo
   
   return editor;
 }
+
 
 void SqlEditorForm::reset()
 {
@@ -1118,6 +1214,9 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       std::string value;
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
         _lower_case_table_names = atoi(value.c_str());
+
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      _autocomplete_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   }
@@ -1576,6 +1675,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
   bool use_non_std_delimiter = (flags & NeedNonStdDelimiter) != 0;
   bool dont_add_limit_clause = (flags & DontAddLimitClause) != 0;
   std::map<std::string, boost::int64_t> ps_stats;
+  std::vector<PSStage> ps_stages;
+  std::vector<PSWait> ps_waits;
   bool fetch_field_info = collect_field_info();
   bool query_ps_stats = collect_ps_statement_events();
   std::string query_ps_statement_events_error;
@@ -1795,8 +1896,11 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           }
 
           if (query_ps_stats)
+          {
             query_ps_statistics(_usr_dbc_conn->id, ps_stats);
-
+            ps_stages = query_ps_stages(ps_stats["EVENT_ID"]);
+            ps_waits = query_ps_waits(ps_stats["EVENT_ID"]);
+          }
           int resultset_count= 0;
           bool more_results= is_result_set_first;
           bool reuse_log_msg= false;
@@ -1874,11 +1978,15 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     rs->apply_changes_cb= boost::bind(&SqlEditorForm::apply_changes_to_recordset, this, Recordset::Ptr(rs));
                     rs->generator_query(statement);
 
-                    RecordsetData *rdata = new RecordsetData();
-                    rdata->duration = statement_exec_timer.duration();
-                    rdata->ps_stat_error = query_ps_statement_events_error;
-                    rdata->ps_stat_info = ps_stats;
-                    rs->set_client_data(rdata);
+                    {
+                      RecordsetData *rdata = new RecordsetData();
+                      rdata->duration = statement_exec_timer.duration();
+                      rdata->ps_stat_error = query_ps_statement_events_error;
+                      rdata->ps_stat_info = ps_stats;
+                      rdata->ps_stage_info = ps_stages;
+                      rdata->ps_wait_info = ps_waits;
+                      rs->set_client_data(rdata);
+                    }
 
                     rs->data_storage(data_storage);
 

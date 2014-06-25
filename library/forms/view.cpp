@@ -492,6 +492,15 @@ DragOperation View::do_drag_drop(DragDetails details, void *data, const std::str
 
 //--------------------------------------------------------------------------------------------------
 
+bool View::mouse_leave()
+{
+  if (_signal_mouse_leave.num_slots() > 0)
+    return _signal_mouse_leave();
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * To be called by platform code when the active control changes (either by code or user interaction).
  */
