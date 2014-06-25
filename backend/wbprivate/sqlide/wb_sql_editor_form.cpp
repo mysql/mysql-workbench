@@ -555,13 +555,15 @@ void SqlEditorForm::close()
 
   // Ensure all processing is stopped before freeing the info structure, otherwise references
   // are kept that prevent the correct deletion of the editor.
-  for (size_t c = _tabdock->view_count(), i = 0; i < c; i++)
+  if (_tabdock)
   {
-    SqlEditorPanel *p = sql_editor_panel((int)i);
-    if (p)
-      p->editor_be()->stop_processing();
+    for (size_t c = _tabdock->view_count(), i = 0; i < c; i++)
+    {
+      SqlEditorPanel *p = sql_editor_panel((int)i);
+      if (p)
+        p->editor_be()->stop_processing();
+    }
   }
-
   _grtm->replace_status_text("Closing SQL Editor...");
   wbsql()->editor_will_close(this);
 
