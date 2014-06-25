@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,14 +19,29 @@
 
 #pragma once
 
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN 
-#include <windows.h>
+#include "wb_editor_note.h"
+#include "GrtTemplates.h"
 
-using namespace System::Runtime::InteropServices;
+#pragma make_public(NoteEditorBE)
 
-#include "grts/structs.db.mgmt.h"
-#include "grts/structs.db.mysql.h"
-#include "grts/structs.db.query.h"
-#include "grts/structs.model.h"
-#include "grts/structs.workbench.physical.h"
+namespace MySQL {
+namespace Grt {
+
+public ref class NoteEditorWrapper : public BaseEditorWrapper
+{
+protected:
+  NoteEditorWrapper(NoteEditorBE *inn);
+
+public:
+  NoteEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  ~NoteEditorWrapper();
+
+  NoteEditorBE *get_unmanaged_object();
+  void set_text(String ^text);
+  String^ get_text();
+  void set_name(String ^name);
+  String^ get_name();
+};
+
+} // namespace Grt
+} // namespace MySQL

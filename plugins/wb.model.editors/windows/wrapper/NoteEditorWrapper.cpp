@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,59 +17,73 @@
  * 02110-1301  USA
  */
 
-#include "mforms/mforms.h"
+#include "NoteEditorWrapper.h"
 
-using namespace mforms;
+using namespace MySQL::Grt;
 
 //--------------------------------------------------------------------------------------------------
 
-Popover::Popover(PopoverStyle style)
+NoteEditorWrapper::NoteEditorWrapper(NoteEditorBE *inn)
+  : BaseEditorWrapper(inn)
 {
-  _popover_impl = &ControlFactory::get_instance()->_popover_impl;
-  _popover_impl->create(this, style);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Popover::~Popover()
+NoteEditorWrapper::NoteEditorWrapper(MySQL::Grt::GrtManager ^grtm, MySQL::Grt::GrtValue ^arglist)
+  : BaseEditorWrapper(
+    new ::NoteEditorBE(grtm->get_unmanaged_object(),
+      workbench_model_NoteFigureRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+      )
+    )
 {
-  if (_popover_impl->destroy)
-    _popover_impl->destroy(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::set_content(View* content)
+NoteEditorWrapper::~NoteEditorWrapper()
 {
-  _popover_impl->set_content(this, content);
+  // These wrappers keep a gc pointer to this instance (if assigned);
+  set_refresh_partial_ui_handler(nullptr);
+  set_refresh_ui_handler(nullptr);
+
+  delete inner; // We created it.
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::show(int x, int y, StartPosition position)
+NoteEditorBE *NoteEditorWrapper::get_unmanaged_object()
 {
-  _popover_impl->show(this, x, y, position);
+  return static_cast<::NoteEditorBE *>(inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::show_and_track(View *owner, int x, int y, StartPosition position)
+
+void NoteEditorWrapper::set_text(String ^text)
 {
-  _popover_impl->show_and_track(this, owner, x, y, position);
+  get_unmanaged_object()->set_text(NativeToCppString(text));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::set_size(int width, int height)
+String^ NoteEditorWrapper::get_text()
 {
-  _popover_impl->set_size(this, width, height);
+  return CppStringToNative(get_unmanaged_object()->get_text());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::close()
+void NoteEditorWrapper::set_name(String ^name)
 {
-  _popover_impl->close(this);
+  get_unmanaged_object()->set_name(NativeToCppString(name));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+String^ NoteEditorWrapper::get_name()
+{
+  return CppStringToNative(get_unmanaged_object()->get_name());
 }
 
 //--------------------------------------------------------------------------------------------------

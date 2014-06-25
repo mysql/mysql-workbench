@@ -74,7 +74,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   parser::ParserContext::Ref context = services->createParserContext(owner->rdbms()->characterSets(),
     owner->rdbms_version(), owner->lower_case_table_names() != 0);
 
-  _editor = MySQLEditor::create(grtm->get_grt(), context, grtobj);
+  _editor = MySQLEditor::create(grtm->get_grt(), context, owner->autocomplete_context(), grtobj);
   _editor->sql_check_progress_msg_throttle(grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
   _editor->set_sql_mode(owner->sql_mode());
@@ -877,7 +877,7 @@ void SqlEditorPanel::update_title()
  */
 void SqlEditorPanel::list_members()
 {
-  editor_be()->show_auto_completion(true);
+  editor_be()->show_auto_completion(true, owner()->autocomplete_context()->recognizer());
 }
 
 void SqlEditorPanel::jump_to_placeholder()

@@ -92,7 +92,7 @@ namespace grtui
 
     void update_button_enabled();
     
-    void refresh(int object_list_selection, int mask_list_selection);
+    void refresh(ssize_t object_list_selection, ssize_t mask_list_selection);
 
     void add_mask();
     void add_clicked(bool all);

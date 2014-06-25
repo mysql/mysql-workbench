@@ -36,6 +36,7 @@
 #include "base/sqlstring.h"
 #include "grt/parse_utils.h"
 #include "base/log.h"
+#include "base/string_utilities.h"
 #include "base/boost_smart_ptr_helpers.h"
 
 #include "mforms/utilities.h"
@@ -50,6 +51,7 @@
 #include "mforms/scrollpanel.h"
 #include "mforms/menubar.h"
 #include "mforms/record_grid.h"
+#include "mforms/imagebox.h"
 
 #include "mforms/button.h"
 #include "mforms/selector.h"
@@ -636,6 +638,177 @@ void SqlEditorResult::create_column_info_panel()
 }
 
 
+static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
+{
+  std::string path = mforms::Utilities::get_special_folder(mforms::ApplicationData) + "/stages.png";
+  static struct Color {
+    double r, g, b;
+  } colors[] = {
+    {0.17, 0.34, 0.89},
+    {0.89, 0.34, 0.17},
+    {0.34, 0.89, 0.17},
+
+    {1.00, 0.37, 0.37},
+
+    {0.17, 0.89, 0.89},
+    {0.89, 0.89, 0.17},
+    {0.89, 0.17, 0.89},
+
+    {0.37, 0.64, 0.64},
+    {0.64, 0.37, 0.64},
+    {0.64, 0.64, 0.37},
+  };
+  int ncolors = sizeof(colors)/sizeof(Color);
+  double total = 0;
+
+  for (size_t i = 0; i < stages.size(); i++)
+  {
+    total += stages[i].wait_time;
+  }
+
+  int rows_of_text = stages.size() / 3 + 1;
+  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 800, 30 + 20 + rows_of_text * 25);
+  cairo_t *cr = cairo_create(surf);
+
+  cairo_set_font_size(cr, 12);
+
+  cairo_set_line_width(cr, 1);
+  cairo_set_source_rgb(cr, 1, 1, 1);
+  cairo_paint(cr);
+
+  double x = 0.0;
+  for (size_t i = 0; i < stages.size(); i++)
+  {
+    cairo_set_source_rgb(cr, colors[i%ncolors].r, colors[i%ncolors].g, colors[i%ncolors].b);
+    cairo_rectangle(cr, x, 0, x + stages[i].wait_time * 800 / total, 30);
+    cairo_fill(cr);
+
+    {
+      int capx = (i % 3) * 800/3 + 1;
+      int capy = 50 + (i / 3) * 25;
+
+      cairo_text_extents_t ext;
+      cairo_text_extents(cr, stages[i].name.c_str(), &ext);
+
+      cairo_save(cr);
+      cairo_set_source_rgb(cr, 0, 0, 0);
+      cairo_move_to(cr, floor(capx) + 30, capy + 25 + ext.y_bearing);
+      if (base::starts_with(stages[i].name, "stage/sql/"))
+        cairo_show_text(cr, base::strfmt("%s - %.4fms", stages[i].name.c_str() + sizeof("stage/sql/")-1, stages[i].wait_time).c_str());
+      else
+        cairo_show_text(cr, base::strfmt("%s - %.4fms", stages[i].name.c_str(), stages[i].wait_time).c_str());
+      cairo_rectangle(cr, floor(capx), capy, 20, 20);
+      cairo_stroke_preserve(cr);
+      cairo_restore(cr);
+      cairo_fill(cr);
+    }
+    x += stages[i].wait_time * 800 / total;
+  }
+
+  cairo_rectangle(cr, 0, 0, 800, 30);
+  cairo_set_source_rgb(cr, 0, 0, 0);
+  cairo_stroke(cr);
+
+  cairo_set_line_width(cr, 3);
+  cairo_set_source_rgba(cr, 0, 0, 0, 0.3);
+  cairo_move_to(cr, 2, 28);
+  cairo_line_to(cr, 2, 2);
+  cairo_line_to(cr, 798, 2);
+  cairo_stroke(cr);
+
+  cairo_surface_write_to_png(surf, path.c_str());
+  cairo_destroy(cr);
+  cairo_surface_destroy(surf);
+
+  return path;
+}
+
+
+static std::string render_waits(std::vector<SqlEditorForm::PSWait> &waits)
+{
+  std::string path = mforms::Utilities::get_special_folder(mforms::ApplicationData) + "/waits.png";
+  static struct Color {
+    double r, g, b;
+  } colors[] = {
+    {0.17, 0.34, 0.89},
+    {0.89, 0.34, 0.17},
+    {0.34, 0.89, 0.17},
+
+    {1.00, 0.37, 0.37},
+
+    {0.17, 0.89, 0.89},
+    {0.89, 0.89, 0.17},
+    {0.89, 0.17, 0.89},
+
+    {0.37, 0.64, 0.64},
+    {0.64, 0.37, 0.64},
+    {0.64, 0.64, 0.37},
+  };
+  int ncolors = sizeof(colors)/sizeof(Color);
+  double total = 0;
+
+  for (size_t i = 0; i < waits.size(); i++)
+  {
+    total += waits[i].wait_time;
+  }
+
+  int rows_of_text = waits.size() / 2 + 1;
+  cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 800, 30 + 20 + rows_of_text * 25);
+  cairo_t *cr = cairo_create(surf);
+
+  cairo_set_font_size(cr, 12);
+
+  cairo_set_line_width(cr, 1);
+  cairo_set_source_rgb(cr, 1, 1, 1);
+  cairo_paint(cr);
+
+  double x = 0.0;
+  for (size_t i = 0; i < waits.size(); i++)
+  {
+    cairo_set_source_rgb(cr, colors[i%ncolors].r, colors[i%ncolors].g, colors[i%ncolors].b);
+    cairo_rectangle(cr, x, 0, x + waits[i].wait_time * 800 / total, 30);
+    cairo_fill(cr);
+
+    {
+      int capx = (i % 2) * 800/2 + 1;
+      int capy = 50 + (i / 2) * 25;
+
+      cairo_text_extents_t ext;
+      cairo_text_extents(cr, waits[i].name.c_str(), &ext);
+
+      cairo_save(cr);
+      cairo_set_source_rgb(cr, 0, 0, 0);
+      cairo_move_to(cr, floor(capx) + 30, capy + 25 + ext.y_bearing);
+      cairo_show_text(cr, base::strfmt("%s - %.4fms", waits[i].name.c_str(), waits[i].wait_time).c_str());
+
+      cairo_rectangle(cr, floor(capx), capy, 20, 20);
+      cairo_stroke_preserve(cr);
+      cairo_restore(cr);
+      cairo_fill(cr);
+    }
+    x += waits[i].wait_time * 800 / total;
+  }
+
+  cairo_rectangle(cr, 0, 0, 800, 30);
+  cairo_set_source_rgb(cr, 0, 0, 0);
+  cairo_stroke(cr);
+
+  cairo_set_line_width(cr, 3);
+  cairo_set_source_rgba(cr, 0, 0, 0, 0.3);
+  cairo_move_to(cr, 2, 28);
+  cairo_line_to(cr, 2, 2);
+  cairo_line_to(cr, 798, 2);
+  cairo_stroke(cr);
+
+  cairo_surface_write_to_png(surf, path.c_str());
+  cairo_destroy(cr);
+  cairo_surface_destroy(surf);
+  
+  return path;
+}
+
+
+
 void SqlEditorResult::create_query_stats_panel()
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
@@ -645,8 +818,10 @@ void SqlEditorResult::create_query_stats_panel()
     
     mforms::ScrollPanel *spanel = mforms::manage(new mforms::ScrollPanel());
     mforms::Table *table = mforms::manage(new mforms::Table());
-    table->set_row_count(2);
+    table->set_padding(20);
+    table->set_row_count(6);
     table->set_column_count(2);
+    table->set_row_spacing(4);
     spanel->set_back_color("#ffffff");
 
     mforms::ToolBar *tbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
@@ -736,12 +911,49 @@ void SqlEditorResult::create_query_stats_panel()
       else
         info.append("At least one Index was used");
       if (ps_stats["NO_GOOD_INDEX_USED"])
-        info.append("No good index used");        
+        info.append("No good index used");
+      info.append("\n");
       box->add(mforms::manage(new mforms::Label(info)), false, true);
-      
+
+      box->add(bold_label("Other Info:"), false, true);
+      info.clear();
+      info.append(strfmt("Event Id: %" PRId64 "\n", ps_stats["EVENT_ID"]));
+      info.append(strfmt("Thread Id: %" PRId64 "\n", ps_stats["THREAD_ID"]));
+      box->add(mforms::manage(new mforms::Label(info)), false, true);
+
       table->add(box, 1, 2, 1, 2, mforms::HFillFlag|mforms::HExpandFlag);
     }
+
+    std::vector<SqlEditorForm::PSStage> stages(rsdata->ps_stage_info);
+    if (!stages.empty())
+    {
+      mforms::Label *l = mforms::manage(new mforms::Label("Time Spent per Execution Stage (aggregated)"));
+      l->set_text_align(mforms::MiddleCenter);
+      l->set_style(mforms::BoldStyle);
+      table->add(l, 0, 2, 2, 3, mforms::HFillFlag);
+
+      std::string file = render_stages(stages);
+      mforms::ImageBox *image = mforms::manage(new mforms::ImageBox());
+      image->set_image(file);
+      table->add(image, 0, 2, 3, 4, mforms::HFillFlag);
+    }
+
+    std::vector<SqlEditorForm::PSWait> waits(rsdata->ps_wait_info);
+    if (!waits.empty())
+    {
+      mforms::Label *l = mforms::manage(new mforms::Label("Time Spent Waiting (aggregated)"));
+      l->set_text_align(mforms::MiddleCenter);
+      l->set_style(mforms::BoldStyle);
+      table->add(l, 0, 2, 4, 5, mforms::HFillFlag);
+
+      std::string file = render_waits(waits);
+      mforms::ImageBox *image = mforms::manage(new mforms::ImageBox());
+      image->set_image(file);
+      table->add(image, 0, 2, 5, 6, mforms::HFillFlag);
+    }
+
     spanel->add(table);
+
     _query_stats_box->add(spanel, true, true);
   }
 }

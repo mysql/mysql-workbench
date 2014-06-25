@@ -2066,6 +2066,8 @@ void LiveSchemaTree::set_model_view(mforms::TreeNodeView* target)
   {
     scoped_connect(_model_view->signal_expand_toggle(),boost::bind(&LiveSchemaTree::expand_toggled, this, _1, _2));
     scoped_connect(_model_view->signal_node_activated(),boost::bind(&LiveSchemaTree::node_activated, this, _1, _2));
+
+    _model_view->set_row_overlay_handler(boost::bind(&LiveSchemaTree::overlay_icons_for_tree_node, this, _1));
   }
 }
 
@@ -2287,9 +2289,22 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
         changes.push_back(record);
 
         if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
-          delegate->tree_activate_objects("activate", changes);
+          delegate->tree_activate_objects(column < 0 ? "inspect" : "activate", changes);
       }
       break;
+    case Table:
+      {
+        if (column < 0)
+        {
+          std::vector<ChangeRecord> changes;
+          ChangeRecord record = { Table, get_schema_name(node), node_name, ""};
+          changes.push_back(record);
+
+          if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
+            delegate->tree_activate_objects(column == -1 ? "inspect" : "select_data", changes);
+          break;
+        }
+      }
     default:
       node_name = base::quote_identifier_if_needed(node_name, '`');
       sql_editor_text_insert_signal(node_name);
@@ -2528,4 +2543,29 @@ void LiveSchemaTree::discard_object_data(mforms::TreeNodeRef& node, int data_mas
         parent_node = node->get_child(TABLE_FOREIGN_KEYS_NODE_INDEX);
         parent_node->remove_children();
     }
+}
+
+
+#include "mforms/app.h"
+std::vector<std::string> LiveSchemaTree::overlay_icons_for_tree_node(mforms::TreeNodeRef node)
+{
+  LSTData *data = dynamic_cast<LSTData*>(node->get_data());
+
+  std::vector<std::string> icons;
+  if (data)
+  {
+    switch (data->get_type())
+    {
+      case Schema:
+        icons.push_back(mforms::App::get()->get_resource_path("wb_magnifier.png"));
+        break;
+      case Table:
+        icons.push_back(mforms::App::get()->get_resource_path("wb_magnifier.png"));
+        icons.push_back(mforms::App::get()->get_resource_path("wb_db_table.png"));
+        break;
+      default:
+        break;
+    }
+  }
+  return icons;
 }

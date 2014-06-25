@@ -1195,6 +1195,8 @@ class SetupThreads(mforms.Box):
 
 
 class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
+    min_server_version = (5,6,6)
+
     @classmethod
     def wba_register(cls, admin_context):
         admin_context.register_page(cls, "wba_performance", "Performance Schema Setup", False)

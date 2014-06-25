@@ -184,17 +184,17 @@ void DBObjectFilterFrame::set_models(bec::GrtStringListModel *model, bec::GrtStr
 /**
  * Reloads the models and the list boxes. Selects the given indices if > -1.
  */
-void DBObjectFilterFrame::refresh(int object_list_selection, int mask_list_selection)
+void DBObjectFilterFrame::refresh(ssize_t object_list_selection, ssize_t mask_list_selection)
 {
   _model->refresh();
   _exclude_model->refresh();
   
   refill_list(_object_list, _model);
-  if (object_list_selection > -1 && object_list_selection < _model->count())
+  if (object_list_selection > -1 && object_list_selection < (ssize_t)_model->count())
     _object_list.set_selected(object_list_selection);
 
   refill_list(_mask_list, _exclude_model);
-  if (mask_list_selection > -1 && mask_list_selection < _exclude_model->count())
+  if (mask_list_selection > -1 && mask_list_selection < (ssize_t)_exclude_model->count())
     _mask_list.set_selected(mask_list_selection);
 
   std::stringstream out;

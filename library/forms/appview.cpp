@@ -21,7 +21,7 @@
 #include "base/log.h"
 #include "mforms/mforms.h"
 
-DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE);
+//DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE);
 
 using namespace mforms;
 

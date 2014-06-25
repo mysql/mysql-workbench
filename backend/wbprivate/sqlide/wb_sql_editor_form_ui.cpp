@@ -371,6 +371,28 @@ void SqlEditorForm::toolbar_command(const std::string& command)
 
 //--------------------------------------------------------------------------------------------------
 
+void SqlEditorForm::inspect_object(const std::string &schema, const std::string &object, const std::string &type)
+{
+  db_query_EditorRef editor(_wbsql->get_grt_editor_object(this));
+  if (editor.is_valid())
+  {
+    grt::BaseListRef selected_items(_grtm->get_grt());
+    grt::BaseListRef args(_grtm->get_grt());
+    args.ginsert(editor);
+
+    db_query_LiveDBObjectRef obj(_grtm->get_grt());
+    obj->type(type);
+    obj->schemaName(schema);
+    obj->name(object);
+    selected_items.ginsert(obj);
+
+    args.ginsert(selected_items);
+    _grtm->get_grt()->call_module_function("SQLIDEUtils", "showInspector", args);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::show_output_area()
 {
   mforms::ToolBarItem *item = _toolbar->find_item("wb.toggleOutputArea");

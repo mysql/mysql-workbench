@@ -659,7 +659,8 @@ void GRTShellWindow::side_tab_changed()
     _("File Browser"),
     _("Globals Tree"),
     _("Classes List"),
-    _("Modules List")
+    _("Modules List"),
+    _("Notifications")
   };
 
   _side_header_panel.set_title(side_bar_titles[_side_tab.get_active_tab()]);

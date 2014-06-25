@@ -1789,6 +1789,7 @@ static std::string get_executable_path(mforms::App* app, const std::string& file
     if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
       return path;
   }
+
   return "";
 }
 

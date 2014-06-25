@@ -1259,7 +1259,7 @@ objectValueForItemAtIndex: (NSInteger) index
   [mEditorsTabView setFrame: trect];
   [[mTableComment enclosingScrollView] setHidden: !flag];
   
-  [[mHeaderView viewWithTag: 1] setFrame: flag ? NSMakeRect(9, NSHeight(hrect) - 48 - 9, 48, 48) : NSMakeRect(9, NSHeight(hrect) - 24 - 9, 24, 24)];
+  [[mHeaderView viewWithTag: 1] setFrame: flag ? NSMakeRect(7, NSHeight(hrect) - 48 - 9, 48, 48) : NSMakeRect(7, NSHeight(hrect) - 24 - 9, 24, 24)];
     
   for (id view in [mHeaderView subviews])
   {

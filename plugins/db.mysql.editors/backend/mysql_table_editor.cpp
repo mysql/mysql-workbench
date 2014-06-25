@@ -782,10 +782,10 @@ std::vector<std::string> MySQLTableEditorBE::get_index_types()
   index_types.push_back("INDEX");
   index_types.push_back("UNIQUE");
   // FULLTEXT exists only in MyISAM prior to 5.6. in 5.6+ InnoDB also supports it
-  if (_table->tableEngine() == "MyISAM" || (_table->tableEngine() == "InnoDB" && bec::is_supported_mysql_version_at_least(version, 5, 6)))
+  if (_table->tableEngine() == "MyISAM" || ((_table->tableEngine() == "InnoDB" || _table->tableEngine() == "") && bec::is_supported_mysql_version_at_least(version, 5, 6)))
     index_types.push_back("FULLTEXT");
-  // SPATIAL is not supported by InnoDB
-  if (_table->tableEngine() == "MyISAM")
+  // SPATIAL is not supported by InnoDB before 5.7.5 (or maybe later)
+  if (_table->tableEngine() == "MyISAM" || ((_table->tableEngine() == "InnoDB" || _table->tableEngine() == "") && bec::is_supported_mysql_version_at_least(version, 5, 7, 5)))
     index_types.push_back("SPATIAL");
 
   // these are special types for PK and FK

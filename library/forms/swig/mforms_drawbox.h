@@ -60,6 +60,9 @@ namespace mforms
 
     virtual bool mouse_down(mforms::MouseButton button, int x, int y)
     {
+      if (DrawBox::mouse_down(button, x, y))
+        return true;
+
       WillEnterPython lock;
 
       PyObject *args = Py_BuildValue("(iii)", button, x, y);
@@ -71,6 +74,9 @@ namespace mforms
 
     virtual bool mouse_up(mforms::MouseButton button, int x, int y)
     {
+      if (DrawBox::mouse_up(button, x, y))
+        true;
+
       WillEnterPython lock;
 
       PyObject *args = Py_BuildValue("(iii)", button, x, y);
@@ -82,6 +88,9 @@ namespace mforms
 
     virtual bool mouse_click(mforms::MouseButton button, int x, int y)
     {
+      if (DrawBox::mouse_click(button, x, y))
+        return true;
+
       WillEnterPython lock;
 
       PyObject *args = Py_BuildValue("(iii)", button, x, y);
@@ -93,6 +102,9 @@ namespace mforms
 
     virtual bool mouse_double_click(mforms::MouseButton button, int x, int y)
     {
+      if (DrawBox::mouse_double_click(button, x, y))
+        return true;
+
       WillEnterPython lock;
 
       PyObject *args = Py_BuildValue("(iii)", button, x, y);
@@ -104,6 +116,9 @@ namespace mforms
 
     virtual bool mouse_enter()
     {
+      if (DrawBox::mouse_enter())
+        return true;
+
       WillEnterPython lock;
 
       PyObject *args = Py_BuildValue("()");
@@ -115,6 +130,9 @@ namespace mforms
 
     virtual bool mouse_leave()
     {
+      if (DrawBox::mouse_leave())
+        return true;
+
       WillEnterPython lock;
 
       PyObject *args = Py_BuildValue("()");
@@ -126,6 +144,9 @@ namespace mforms
 
     virtual bool mouse_move(mforms::MouseButton button, int x, int y)
     {
+      if (DrawBox::mouse_move(button, x, y))
+        return true;
+
       WillEnterPython lock;
 
       PyObject *args = Py_BuildValue("(ii)", x, y);

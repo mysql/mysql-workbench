@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,59 +17,73 @@
  * 02110-1301  USA
  */
 
-#include "mforms/mforms.h"
+#include "stdafx.h"
 
-using namespace mforms;
+#include "LayerEditorWrapper.h"
+
+using namespace MySQL::Grt;
 
 //--------------------------------------------------------------------------------------------------
 
-Popover::Popover(PopoverStyle style)
+LayerEditorWrapper::LayerEditorWrapper(LayerEditorBE *inn)
+  : BaseEditorWrapper(inn)
+{}
+
+//--------------------------------------------------------------------------------------------------
+
+LayerEditorWrapper::LayerEditorWrapper(MySQL::Grt::GrtManager ^grtm, MySQL::Grt::GrtValue ^arglist)
+  : BaseEditorWrapper(
+    new ::LayerEditorBE(grtm->get_unmanaged_object(),
+      workbench_physical_LayerRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+      )
+    )
 {
-  _popover_impl = &ControlFactory::get_instance()->_popover_impl;
-  _popover_impl->create(this, style);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-Popover::~Popover()
+LayerEditorWrapper::~LayerEditorWrapper()
 {
-  if (_popover_impl->destroy)
-    _popover_impl->destroy(this);
+  // These wrappers keep a gc pointer to this instance (if assigned);
+  set_refresh_partial_ui_handler(nullptr);
+  set_refresh_ui_handler(nullptr);
+
+  delete inner; // We created it.
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::set_content(View* content)
+LayerEditorBE *LayerEditorWrapper::get_unmanaged_object()
 {
-  _popover_impl->set_content(this, content);
+  return static_cast<::LayerEditorBE *>(inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::show(int x, int y, StartPosition position)
+void LayerEditorWrapper::set_name(String ^name)
 {
-  _popover_impl->show(this, x, y, position);
+  get_unmanaged_object()->set_name(NativeToCppString(name));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::show_and_track(View *owner, int x, int y, StartPosition position)
+String^ LayerEditorWrapper::get_name()
 {
-  _popover_impl->show_and_track(this, owner, x, y, position);
+  return CppStringToNative(get_unmanaged_object()->get_name());
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::set_size(int width, int height)
+void LayerEditorWrapper::set_color(String ^color)
 {
-  _popover_impl->set_size(this, width, height);
+  get_unmanaged_object()->set_color(NativeToCppString(color));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Popover::close()
+String^ LayerEditorWrapper::get_color()
 {
-  _popover_impl->close(this);
+  return CppStringToNative(get_unmanaged_object()->get_color());
 }
 
 //--------------------------------------------------------------------------------------------------

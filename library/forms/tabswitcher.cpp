@@ -627,6 +627,9 @@ bool TabSwitcher::mouse_click(mforms::MouseButton button, int x, int y)
 
 bool TabSwitcher::mouse_enter()
 {
+  if (DrawBox::mouse_enter())
+    return true;
+
   _was_collapsed = _pimpl->get_collapsed();
   if (_was_collapsed)
     set_collapsed(false);
@@ -646,6 +649,9 @@ bool TabSwitcher::collapse()
 
 bool TabSwitcher::mouse_leave()
 {
+  if (DrawBox::mouse_leave())
+    return true;
+
   if (_was_collapsed)
   {
     _was_collapsed = false;
