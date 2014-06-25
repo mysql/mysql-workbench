@@ -310,6 +310,8 @@ def enbeautificate(editor):
         try:
             result = doReformatSQLStatement(statement, True)
         except:
+            import traceback
+            log_error("Error reformating SQL: %s\n%s\n" % (statement, traceback.format_exc()))
             result = None
         if result:
             ok_count += 1
