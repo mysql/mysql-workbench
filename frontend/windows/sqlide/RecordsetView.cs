@@ -29,7 +29,7 @@ using MySQL.Workbench;
 
 namespace MySQL.Grt.Db
 {
-  public partial class RecordsetView : Form
+  public partial class RecordsetView : Form, IRecordsetView
   {
     private RecordsetWrapper model;
     private GridView gridView;
@@ -42,6 +42,13 @@ namespace MySQL.Grt.Db
     public RecordsetView()
     {
       InitializeComponent();
+    }
+
+    static public MySQL.Base.IRecordsetView create(RecordsetWrapper recordset)
+    {
+      RecordsetView view = new RecordsetView();
+      view.SetupRecordset(recordset);
+      return view;
     }
 
     public void SetupRecordset(RecordsetWrapper recordset)
@@ -428,5 +435,44 @@ namespace MySQL.Grt.Db
 
     #endregion
 
+    #region IRecordsetView
+
+    public Control control()
+    {
+      return gridView;
+    }
+
+    public int get_column_count()
+    {
+      return gridView.ColumnCount;
+    }
+
+    public int get_column_width(int column)
+    {
+      return gridView.Columns[column].Width;
+    }
+
+    public void set_column_width(int column, int width)
+    {
+      gridView.Columns[column].Width = width;
+    }
+
+    public int current_cell_row()
+    {
+      if (gridView.CurrentCell != null)
+        return gridView.CurrentCell.RowIndex;
+      return -1;
+    }
+
+    public int current_cell_column()
+    {
+      return gridView.CurrentCell.ColumnIndex;
+    }
+
+    public void set_current_cell(int row, int column)
+    {
+      gridView.CurrentCell = gridView[row, column];
+    }
+    #endregion
   }
 }

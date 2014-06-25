@@ -1605,6 +1605,21 @@ namespace MySQL.GUI.Workbench
       }
     }
 
+    public int view_count()
+    {
+      return contentTabControl.TabCount;
+    }
+
+    public AppViewDockContent view_at_index(int i)
+    {
+      return contentTabControl.TabPages[i].Tag as AppViewDockContent;
+    }
+
+    public AppViewDockContent selected_view()
+    {
+      return contentTabControl.SelectedTab.Tag as AppViewDockContent;
+    }
+
     #endregion
 
     #region UI Event Handling
@@ -1964,6 +1979,21 @@ namespace MySQL.GUI.Workbench
       public override System.Drawing.Size get_size(Object representedObject)
       {
         return _owner.get_size();
+      }
+
+      public override AppViewDockContent selected_view()
+      {
+        return _owner.selected_view();
+      }
+
+      public override int view_count()
+      {
+        return _owner.view_count();
+      }
+
+      public override AppViewDockContent view_at_index(int i)
+      {
+        return _owner.view_at_index(i);
       }
     };
 

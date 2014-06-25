@@ -70,6 +70,7 @@ BuildRequires: cmake >= 2.8
 BuildRequires: libzip-devel libxml2-devel
 BuildRequires: python-devel >= 2.5
 BuildRequires: boost-devel
+BuildRequires: gtk2-devel >= 2.20
 BuildRequires: gtkmm24-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: sqlite-devel

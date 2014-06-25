@@ -58,8 +58,10 @@ add_library(wbprivate STATIC
     sqlide/wb_sql_editor_form_ui.cpp
     sqlide/wb_sql_editor_help.cpp
     sqlide/wb_sql_editor_tree_controller.cpp
+    sqlide/wb_sql_editor_panel.cpp
     sqlide/wb_sql_editor_result_panel.cpp
     sqlide/wb_context_sqlide.cpp
+    sqlide/result_form_view.cpp
     sqlide/wb_live_schema_tree.cpp
     sqlide/wb_sql_editor_snippets.cpp
     sqlide/query_side_palette.cpp

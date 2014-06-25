@@ -19,12 +19,10 @@
 
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_form_ui.h"
+#include "wb_sql_editor_panel.h"
 #include "query_side_palette.h"
 #include "workbench/wb_context_names.h"
 #include "objimpl/db.query/db_query_Resultset.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
-
-#include "grtsqlparser/sql_facade.h"
 #include "grtdb/editor_dbobject.h"
 #include "grtdb/db_helpers.h"
 
@@ -172,8 +170,6 @@ void SqlEditorForm::update_menu_and_toolbar()
     _menu->set_item_enabled("query.reconnect", !running);
     _menu->set_item_enabled("wb.sqlide.executeToTextOutput", !running && connected);
     _menu->set_item_enabled("query.execute_current_statement", !running && connected);
-    _menu->set_item_enabled("query.explain", !running && connected);
-    _menu->set_item_enabled("query.explain_current_statement", !running && connected);
     _menu->set_item_enabled("query.commit", !running && !auto_commit() && connected);
     _menu->set_item_enabled("query.rollback", !running && !auto_commit() && connected);
     _menu->set_item_enabled("query.stopOnError", connected);
@@ -214,9 +210,7 @@ void SqlEditorForm::update_menu_and_toolbar()
   set_editor_tool_items_enbled("query.reconnect", !running);
   set_editor_tool_items_enbled("wb.sqlide.executeToTextOutput", !running && connected);
   set_editor_tool_items_enbled("query.execute_current_statement", !running && connected);
-  set_editor_tool_items_enbled("query.explain", !running && connected);
-  set_editor_tool_items_enbled("query.explain_current_statement", !running && connected);
-  
+
   set_editor_tool_items_enbled("query.commit", !running && !auto_commit() && connected);
   set_editor_tool_items_enbled("query.rollback", !running && !auto_commit() && connected);
   set_editor_tool_items_enbled("query.autocommit", !running && connected);
@@ -425,164 +419,33 @@ mforms::View *SqlEditorForm::get_side_palette()
 }
 
 //--------------------------------------------------------------------------------------------------
-// Editor Toolbar
-
-static void toggle_continue_on_error(SqlEditorForm *sql_editor_form)
-{
-  sql_editor_form->continue_on_error(!sql_editor_form->continue_on_error());
-}
-
-
-static void toggle_limit(mforms::ToolBarItem *item, SqlEditorForm *sql_editor_form)
-{
-  bool do_limit = item->get_checked();
-
-  sql_editor_form->grt_manager()->set_app_option("SqlEditor:LimitRows", do_limit ? grt::IntegerRef(1) : grt::IntegerRef(0));
-
-  std::string limit = do_limit ? base::strfmt("%li", sql_editor_form->grt_manager()->get_app_option_int("SqlEditor:LimitRowsCount")) : "0";
-
-  mforms::MenuItem *menu = sql_editor_form->get_menubar()->find_item("limit_rows");
-  int c = menu->item_count();
-  for (int i = 0; i < c; i++)
-  {
-    mforms::MenuItem *item = menu->get_item(i);
-    if (item->get_type() != mforms::SeparatorMenuItem)
-    {
-      if (item->get_name() == limit)
-        item->set_checked(true);
-      else
-        item->set_checked(false);
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-boost::shared_ptr<mforms::ToolBar> SqlEditorForm::setup_editor_toolbar(MySQLEditor::Ref editor)
-{
-  boost::shared_ptr<mforms::ToolBar> tbar(new mforms::ToolBar(mforms::SecondaryToolBar));
-#ifdef _WIN32
-  tbar->set_size(-1, 27);
-#endif
-  mforms::ToolBarItem *item;
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.openFile");
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_open.png"));
-  item->set_tooltip(_("Open a script file in this editor"));
-  scoped_connect(item->signal_activated(),boost::bind((void (SqlEditorForm::*)(const std::string&,bool))&SqlEditorForm::open_file, this, "", false));
-  tbar->add_item(item);
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.saveFile");
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_save.png"));
-  item->set_tooltip(_("Save the script to a file."));
-  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_file, this));
-  tbar->add_item(item);
-  
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.execute");
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_execute.png"));
-  item->set_tooltip(_("Execute the selected portion of the script or everything, if there is no selection"));
-  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::run_editor_contents, this, false));
-  tbar->add_item(item);
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.execute_current_statement");
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_execute-current.png"));
-  item->set_tooltip(_("Execute the statement under the keyboard cursor"));
-  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::run_editor_contents, this, true));
-  tbar->add_item(item);  
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.explain_current_statement");
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_explain.png"));
-  item->set_tooltip(_("Execute the EXPLAIN command on the statement under the cursor"));
-  _wbsql->get_cmdui()->scoped_connect(item->signal_activated(),
-                                      boost::bind((void (wb::CommandUI::*)(const std::string&))&wb::CommandUI::activate_command, 
-                                                  _wbsql->get_cmdui(), "plugin:wb.sqlide.visual_explain"));
-  tbar->add_item(item);
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.cancel");
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop.png"));
-  item->set_tooltip(_("Stop the query being executed (the connection to the DB server will not be restarted and any open transactions will remain open)"));
-  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::cancel_query, this));
-  tbar->add_item(item);  
-
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
-
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.stopOnError");
-  item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-on.png"));
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_stop-on-error-off.png"));
-  item->set_tooltip(_("Toggle whether execution of SQL script should continue after failed statements"));
-  scoped_connect(item->signal_activated(),boost::bind(toggle_continue_on_error, this));
-  
-  tbar->add_item(item);
-
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.toggleLimit");
-  item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_row-limit-on.png"));
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_row-limit-off.png"));
-  item->set_tooltip(_("Toggle limiting of number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries.\nYou can change the limit number in Preferences or in the Query -> Limit Rows menu."));
-  scoped_connect(item->signal_activated(),boost::bind(toggle_limit, item, this));
-  tbar->add_item(item);
-  
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.commit");
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_commit.png"));
-  item->set_tooltip(_("Commit the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::commit, this));
-  tbar->add_item(item);  
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.rollback");
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_rollback.png"));
-  item->set_tooltip(_("Rollback the current transaction.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::rollback, this));
-  tbar->add_item(item);
-  
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.autocommit");
-  item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_autocommit-on.png"));
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_autocommit-off.png"));
-  item->set_tooltip(_("Toggle autocommit mode. When enabled, each statement will be committed immediately.\nNOTE: all query tabs in the same connection share the same transaction. To have independent transactions, you must open a new connection."));
-  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::toggle_autocommit, this));
-  tbar->add_item(item);  
-  
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
-
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("add_snippet");
-  item->set_icon(IconManager::get_instance()->get_icon_path("snippet_add.png"));
-  item->set_tooltip(_("Save current statement or selection to the snippet list."));
-  scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, this));
-  tbar->add_item(item);
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
-
-  // adds generic SQL editor toolbar buttons
-  editor->set_base_toolbar(tbar.get());
-
-  return tbar;
-}
 
 
 void SqlEditorForm::set_editor_tool_items_enbled(const std::string &name, bool flag)
 {
-  for (Sql_editors::iterator editor = _sql_editors.begin(); editor != _sql_editors.end(); ++editor)
-    (*editor)->toolbar->set_item_enabled(name, flag);
+  if (_tabdock)
+  {
+    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+    {
+      SqlEditorPanel* panel = dynamic_cast<SqlEditorPanel*>(_tabdock->view_at_index(i));
+      if (panel)
+        panel->get_toolbar()->set_item_enabled(name, flag);
+    }
+  }
 }
 
 
 void SqlEditorForm::set_editor_tool_items_checked(const std::string &name, bool flag)
 {
-  for (Sql_editors::iterator editor = _sql_editors.begin(); editor != _sql_editors.end(); ++editor)
-    (*editor)->toolbar->set_item_checked(name, flag);
+  if (_tabdock)
+  {
+    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+    {
+      SqlEditorPanel* panel = dynamic_cast<SqlEditorPanel*>(_tabdock->view_at_index(i));
+      if (panel)
+        panel->get_toolbar()->set_item_checked(name, flag);
+    }
+  }
 }
 
 void SqlEditorForm::set_tool_item_checked(const std::string& name, bool flag)
@@ -653,35 +516,51 @@ int SqlEditorForm::sql_script_stats(long, long)
 }
 
 
-void SqlEditorForm::on_recordset_context_menu_show(Recordset::Ptr rs_ptr, MySQLEditor::Ptr editor_ptr)
+void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_index)
 {
-  Recordset::Ref rs(rs_ptr.lock());
-  if (rs)
+  if (action == "new_tab")
+    new_sql_script_file();
+  else if (action == "save_tab")
   {
-    grt::DictRef info(_grtm->get_grt());
-
-    std::vector<int> selection(rs->selected_rows());
-    grt::IntegerListRef rows(_grtm->get_grt());
-    for (std::vector<int>::const_iterator i = selection.begin(); i != selection.end(); ++i)
-      rows.insert(*i);
-
-    info.set("selected-rows", rows);
-    info.gset("selected-column", rs->selected_column());
-    info.set("menu", mforms_to_grt(info.get_grt(), rs->get_context_menu()));
-
-    db_query_QueryBufferRef qbuffer(editor_ptr.lock()->grtobj());
-    if (qbuffer.is_valid() && db_query_QueryEditorRef::can_wrap(qbuffer))
+    SqlEditorPanel *editor = sql_editor_panel(tab_index);
+    if (editor)
+      editor->save();
+  }
+  else if (action == "copy_path")
+  {
+    SqlEditorPanel *editor = sql_editor_panel(tab_index);
+    if (editor)
+      mforms::Utilities::set_clipboard_text(editor->filename());
+  }
+  else if (action == "close_tab")
+    _grtm->run_once_when_idle(this, boost::bind(&mforms::DockingPoint::close_view, _tabdock, _tabdock->view_at_index(tab_index)));
+  else if (action == "close_other_tabs")
+  {
+    for (int i = _tabdock->view_count()-1; i >= 0; --i)
     {
-      db_query_QueryEditorRef qeditor(db_query_QueryEditorRef::cast_from(qbuffer));
-      for (size_t c = qeditor->resultsets().count(), i = 0; i < c; i++)
-      {
-        if (dynamic_cast<WBRecordsetResultset*>(qeditor->resultsets()[i]->get_data())->recordset == rs)
-        {
-          grt::GRTNotificationCenter::get()->send_grt("GRNSQLResultsetMenuWillShow", qeditor->resultsets()[i], info);
-          break;
-        }
-      }
+      if (i != tab_index)
+        _tabdock->close_view(_tabdock->view_at_index(i));
     }
   }
 }
 
+
+void SqlEditorForm::handle_history_action(const std::string &action, const std::string &sql)
+{
+  if (action == "copy")
+    mforms::Utilities::set_clipboard_text(sql);
+  else if (action == "append")
+  {
+    SqlEditorPanel *panel = active_sql_editor_panel();
+    if (panel)
+      panel->editor_be()->append_text(sql);
+  }
+  else if (action == "replace")
+  {
+    SqlEditorPanel *panel = active_sql_editor_panel();
+    if (panel)
+      panel->editor_be()->sql(sql.c_str());
+  }
+  else
+   throw std::invalid_argument("invalid history action " + action);
+}

@@ -29,6 +29,7 @@
 
 #include "mforms/utilities.h"
 #include "wb_sql_editor_form.h"
+#include "wb_sql_editor_panel.h"
 #include <boost/foreach.hpp>
 
 DEFAULT_LOG_DOMAIN("SqlEditorLog");
@@ -138,16 +139,16 @@ void DbSqlEditorLog::handle_context_menu(const std::string &action)
   else if (action == "append_selected_items")
   {
     sql = get_selection_text(false, true, false, false);
-    MySQLEditor::Ref editor(_owner->active_sql_editor());
+    SqlEditorPanel *editor(_owner->active_sql_editor_panel());
     if (editor)
-      editor->append_text(sql);
+      editor->editor_be()->append_text(sql);
   }
   else if (action == "replace_sql_script")
   {
     sql = get_selection_text(false, true, false, false);
-    MySQLEditor::Ref editor(_owner->active_sql_editor());
+    SqlEditorPanel *editor(_owner->active_sql_editor_panel());
     if (editor)
-      editor->sql(sql.c_str());
+      editor->editor_be()->sql(sql.c_str());
   }
   else if (action == "clear")
   {

@@ -36,30 +36,18 @@ private:
   ~GrtThreadedTaskWrapper();
 
 public:
-  typedef DelegateSlot3<int, int,
-    int, int,
-    std::string, String^,
-    std::string, String^> Msg_cb;
 
   typedef DelegateSlot2<int, int,
     float, float,
     std::string, String^> Progress_cb;
-
-  typedef DelegateSlot1<int, int,
-    std::string, String^> Fail_cb;
-
   typedef DelegateSlot0<int, int> Finish_cb;
 
-  void msg_cb(Msg_cb::ManagedDelegate ^cb);
   void progress_cb(Progress_cb::ManagedDelegate ^cb);
-  void fail_cb(Fail_cb::ManagedDelegate ^cb);
-  void finish_cb(Finish_cb::ManagedDelegate ^cb);
+ // void finish_cb(Finish_cb::ManagedDelegate ^cb);
 
 private:
-  Msg_cb ^_msg_cb;
   Progress_cb ^_progress_cb;
-  Fail_cb ^_fail_cb;
-  Finish_cb ^_finish_cb;
+ // Finish_cb ^_finish_cb;
 };
 
 

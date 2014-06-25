@@ -37,6 +37,9 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Stdafx.h" />
+    <ClInclude Include="src\IRecordsetView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="MySQLAssembly.ico">
@@ -68,5 +71,8 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Stdafx.cpp" />
+    <ClCompile Include="src\IRecordsetView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
