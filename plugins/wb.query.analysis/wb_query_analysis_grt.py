@@ -432,6 +432,8 @@ class ExplainTab(mforms.AppView):
                 mforms.Utilities.show_error("Query Plan Generation Error",
                                             "An unexpected error occurred during creation of the graphical query plan.\nPlease file a bug report at http://bugs.mysql.com along with the query and the Raw Explain Data.\n\nException: %s" % e,
                                             "OK", "", "")
+        else:
+            grt.log_error("vexplain", "No JSON data for explain\n")
 
         # Good old explain
         if explain:
@@ -450,7 +452,10 @@ class ExplainTab(mforms.AppView):
             self.tabview.set_active_tab(default_tab)
 
 
+    _switching = False
     def switch_view(self, item):
+        if self._switching: return
+        self._switching = True
         new_view = item.get_text()
         if new_view == "Visual Explain":
             self.tabview.set_active_tab(0)
@@ -465,6 +470,7 @@ class ExplainTab(mforms.AppView):
           item.set_text("Visual Explain")
         elif source == "tabular_explain_switcher":
           item.set_text("Tabular Explain")
+        self._switching = False
 
 
     def tab_changed(self):
@@ -513,7 +519,7 @@ def visualExplain(editor, result_panel):
             return 0
         
         json = None
-        if None and version.is_supported_mysql_version_at_least(5, 6):
+        if version.is_supported_mysql_version_at_least(5, 6):
             rset = editor.owner.executeQuery("EXPLAIN FORMAT=JSON %s" % statement, 1)
             if rset and rset.goToFirstRow():
                 json = rset.stringFieldValue(0)
