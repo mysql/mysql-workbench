@@ -2000,7 +2000,7 @@ static void globals_rescan_list(mforms::TreeNodeRef &node,
     grt::ValueRef v= value.get(i);
     std::string label;
     
-    sprintf(buffer, "%lu", i);
+    sprintf(buffer, "%lu", (long unsigned)i);
     
     if (v.is_valid() && !grt::is_simple_type(v.type()))
     {

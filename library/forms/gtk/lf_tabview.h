@@ -242,7 +242,7 @@ bool MyActiveLabel::button_press_slot(GdkEventButton* evb)
   if (evb->button == 3)
   {
     _owner->set_menu_tab(_owner->get_page_index(_page));
-    _owner->get_tab_menu()->popup_at(evb->x, evb->y);
+    _owner->get_tab_menu()->popup_at(NULL, base::Point(evb->x, evb->y));
   }
   return false;
 }
