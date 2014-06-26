@@ -1144,7 +1144,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     // connection info
     _connection_details["name"] = _connection->name();
     _connection_details["hostName"] = _connection->parameterValues().get_string("hostName");
-    _connection_details["port"] = strfmt("%li\n", _connection->parameterValues().get_int("port"));
+    _connection_details["port"] = strfmt("%li\n", (long)_connection->parameterValues().get_int("port"));
     _connection_details["socket"] = _connection->parameterValues().get_string("socket");
     _connection_details["driverName"] = _connection->driver()->name();
     _connection_details["userName"] = _connection->parameterValues().get_string("userName");

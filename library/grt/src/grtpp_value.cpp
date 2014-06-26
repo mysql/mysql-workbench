@@ -92,7 +92,7 @@ ClassRegistry *ClassRegistry::get_instance()
 std::string Integer::repr() const
 {
   char s[100];
-  g_snprintf(s, sizeof(s), "%li", _value);
+  g_snprintf(s, sizeof(s), "%li", (long int)_value);
   return s;
 }
 

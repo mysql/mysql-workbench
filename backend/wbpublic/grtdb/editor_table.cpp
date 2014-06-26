@@ -3256,7 +3256,7 @@ mforms::View *TableEditorBE::create_inserts_panel(mforms::View *grid)
 //--------------------------------------------------------------------------------------------------
 
 void TableEditorBE::show_export_wizard(mforms::Form *owner)
-{
+{printf("SHOW EXPORT %i\n", _inserts_model->count());
   if (_inserts_model && _inserts_model->count() > 0)
   {
     grt::ValueRef option(_grtm->get_app_option("TableEditor:LastExportDirectory"));

@@ -1000,7 +1000,7 @@ void* MySQLEditor::update_error_markers()
     if (d->_recognition_errors.size() == 1)
       _code_editor->set_status_text(_("1 error found"));
     else
-      _code_editor->set_status_text(base::strfmt(_("%lu errors found"), d->_recognition_errors.size()));
+      _code_editor->set_status_text(base::strfmt(_("%lu errors found"), (unsigned long)d->_recognition_errors.size()));
 
     for (size_t i = 0; i < d->_recognition_errors.size(); ++i)
     {
