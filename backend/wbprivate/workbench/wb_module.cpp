@@ -1764,7 +1764,7 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
   connection->driver(driver);
   connection->name(name);
 
-  connection->parameterValues().gset("hostName", "localhost");
+  connection->parameterValues().gset("hostName", host);
   connection->parameterValues().gset("userName", user);
   connection->parameterValues().gset("port", port);
 

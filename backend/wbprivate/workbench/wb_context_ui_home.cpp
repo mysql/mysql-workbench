@@ -413,7 +413,7 @@ void WBContextUI::show_home_screen()
   try
   {
     refresh_home_documents();
-    refresh_home_connections();
+    refresh_home_connections(true);
     refresh_home_starters();
   }
   catch (const std::exception *exc)
@@ -581,7 +581,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       refresh_home_connections();
     }
   }
-  else if (action == "delete_connection_group"  || "delete_fabric_connections")
+  else if (action == "delete_connection_group")
   {
     std::string group = object.repr();
     int answer = mforms::ResultOk;
@@ -988,7 +988,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
 //--------------------------------------------------------------------------------------------------
 
-void WBContextUI::refresh_home_connections()
+void WBContextUI::refresh_home_connections(bool initial_load)
 {
   if (!_home_screen)
     return;
@@ -1012,32 +1012,51 @@ void WBContextUI::refresh_home_connections()
     module->call_function("createInstancesFromLocalServers", arguments);
   }
 
+
+  std::vector<db_mgmt_ConnectionRef> fabric_managed;
+
   for (grt::ListRef<db_mgmt_Connection>::const_iterator end = connections.end(),
-       inst = connections.begin(); inst != end; ++inst)
+      inst = connections.begin(); inst != end; ++inst)
   {
     grt::DictRef dict((*inst)->parameterValues());
 
-    std::string host_entry;
-    if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSSH")
-      host_entry = dict.get_string("sshUserName") + "@" + dict.get_string("sshHost");
+    // Fabric managed connections will be deleted the initial loading
+    if (initial_load && dict.has_key("fabric_managed"))
+      fabric_managed.push_back(*inst);
     else
     {
-      host_entry = strfmt("%s:%i", dict.get_string("hostName").c_str(), (int) dict.get_int("port", 3306));
-      if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSocket")
+      std::string host_entry;
+      if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSSH")
+        host_entry = dict.get_string("sshUserName") + "@" + dict.get_string("sshHost");
+      else
       {
-        // TODO: what about the default for sockets (only have a default for the pipe name)?
-        std::string socket= dict.get_string("socket", "MySQL"); // socket or pipe
-        host_entry= "Localhost via pipe " + socket;
+        // Fabric connectoins for which the managed server connections were created need to have the
+        // flag reset on the initial loading
+        if (initial_load && dict.has_key("connections_created"))
+          dict.set("connections_created", grt::IntegerRef(0));
+
+        host_entry = strfmt("%s:%i", dict.get_string("hostName").c_str(), (int) dict.get_int("port", 3306));
+        if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSocket")
+        {
+          // TODO: what about the default for sockets (only have a default for the pipe name)?
+          std::string socket= dict.get_string("socket", "MySQL"); // socket or pipe
+          host_entry= "Localhost via pipe " + socket;
+        }
       }
+
+      std::string title = *(*inst)->name();
+      if (auto_save_files.find((*inst)->id()) != auto_save_files.end())
+        title += " (auto saved)";
+
+      _home_screen->add_connection(*inst, title, host_entry,
+        dict.get_string("userName"), dict.get_string("schema"));
     }
-
-    std::string title = *(*inst)->name();
-    if (auto_save_files.find((*inst)->id()) != auto_save_files.end())
-      title += " (auto saved)";
-
-    _home_screen->add_connection(*inst, title, host_entry,
-      dict.get_string("userName"), dict.get_string("schema"));
   }
+
+  // Deletes the fabric managed connections
+  for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = fabric_managed.begin();
+    iterator != fabric_managed.end(); ++iterator)
+    remove_connection(*iterator);
   
   _wb->save_connections();
   _wb->save_instances();

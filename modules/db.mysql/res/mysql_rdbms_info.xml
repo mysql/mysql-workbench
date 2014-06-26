@@ -1487,6 +1487,20 @@ one per line.</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">1</value>
           </value>
+          <!-- Note this parameters is to store the status about the connections for managed nodes being created or not -->
+          <!-- But it is not a field displayed on the UI -->
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param6">
+            <value type="string" key="defaultValue">0</value>
+            <value type="int" key="layoutAdvanced">-1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">connections_created</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>        
         </value>
       </value>    
     </value>

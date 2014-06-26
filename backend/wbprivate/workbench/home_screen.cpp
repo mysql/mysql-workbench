@@ -1765,10 +1765,7 @@ public:
             if (_active_folder > -1 && _hot_entry == 0)
             {
               if (_fabric_entry > -1)
-              {
-                handle_command("delete_fabric_connections");
                 _fabric_entry = -1;
-              }
               
               // Returning to root list.
               _page_start = _page_start_backup;
@@ -1806,17 +1803,26 @@ public:
             
             if (is_fabric)
             {
-              grt::GRT *grt = _connections[_hot_entry].connection->get_grt();
-              grt::BaseListRef args(grt);
-              args->insert_unchecked(_connections[_hot_entry].connection);
-              
-              grt::ValueRef result = grt->call_module_function("WBFabric", "create_connections", args);
-              std::string error = grt::StringRef::extract_from(result);
-              
-              if (error.length())
+              // Creates the fabric connections only if they have not been already created
+              // since the last connection refresh
+              int created_connections = grt::IntegerRef::cast_from(_connections[_hot_entry].connection->parameterValues().get("connections_created"));
+              if (!created_connections)
               {
-                mforms::Utilities::show_error("MySQL Fabric Connection Error", error, "OK");
-                return true;
+                grt::GRT *grt = _connections[_hot_entry].connection->get_grt();
+                grt::BaseListRef args(grt);
+                args->insert_unchecked(_connections[_hot_entry].connection);
+
+                grt::ValueRef result = grt->call_module_function("WBFabric", "create_connections", args);
+                std::string error = grt::StringRef::extract_from(result);
+
+                if (error.length())
+                {
+                  mforms::Utilities::show_error("MySQL Fabric Connection Error", error, "OK");
+                  return true;
+                }
+                else
+                  // Sets the flag to indicate the connections have been crated for this fabric node
+                  _connections[_hot_entry].connection->parameterValues().set("connections_created", grt::IntegerRef(1));
               }
               
               _fabric_entry = _hot_entry;
@@ -2041,13 +2047,6 @@ public:
         else
           item = _connections[_entry_for_menu].connection;
       }
-    }
-    
-    if (_fabric_entry > -1 && command == "delete_fabric_connections")
-    {
-      _entry_for_menu = _fabric_entry;
-      handle_folder_command("delete_fabric_connections");
-      return;
     }
     
     _owner->handle_context_menu(item, command);
