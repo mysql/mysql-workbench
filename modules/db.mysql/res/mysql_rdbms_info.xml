@@ -1473,77 +1473,15 @@ one per line.</value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param5">
-            <value type="string" key="caption">Hostname:</value>
-            <value type="string" key="defaultValue">127.0.0.1</value>
-            <value type="string" key="description">Name or IP address of the Backing Store.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">1</value>
-            <value type="int" key="layoutWidth">118</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">bsHostName</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param6">
-            <value type="string" key="caption">Port:</value>
-            <value type="string" key="defaultValue">3306</value>
-            <value type="string" key="description">TCP/IP port.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">1</value>
-            <value type="int" key="layoutWidth">46</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">bsPort</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">int</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param7">
-            <value type="string" key="caption">Username:</value>
-            <value type="string" key="defaultValue">root</value>
-            <value type="string" key="description">Name of the fabric user.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">2</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">bsUserName</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">string</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
-            <value type="int" key="required">1</value>
-          </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param8">
-            <value type="string" key="caption">Password:</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">3</value>
-            <value type="int" key="layoutWidth">218</value>
-            <value type="string" key="lookupValueMethod"></value>
-            <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">bsPassword</value>
-            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">keychain</value>
-            <value type="dict" content-type="string" key="paramTypeDetails">
-              <value type="string" key="storageKeyFormat">%userName%::Mysql@%hostName%:%port%</value>
-            </value>
-            <value type="int" key="required">0</value>
-          </value>        
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param9">
-            <value type="string" key="caption">Fabric Schema:</value>
+            <value type="string" key="caption">MySQL Username for Managed Instances:</value>
             <value type="string" key="defaultValue">fabric</value>
-            <value type="string" key="description">Name of the schema holding the fabric information.</value>
-            <value type="int" key="layoutAdvanced">0</value>
-            <value type="int" key="layoutRow">2</value>
+            <value type="string" key="description">MySQL user to connect to the managed MySQL Instances.</value>
+            <value type="int" key="layoutAdvanced">3</value>
+            <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">218</value>
             <value type="string" key="lookupValueMethod"></value>
             <value type="string" key="lookupValueModule"></value>
-            <value type="string" key="name">bsDatabase</value>
+            <value type="string" key="name">mysqlUserName</value>
             <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
             <value type="string" key="paramType">string</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>

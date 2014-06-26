@@ -58,7 +58,8 @@ _tab(mforms::TabViewSystemStandard),
 _params_panel(mforms::TransparentPanel), _params_table(0),
 _ssl_panel(mforms::TransparentPanel), _ssl_table(0),
 _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
-_show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0), 
+_options_panel(mforms::TransparentPanel), _options_table(0),
+_show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
 _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0)
 {
@@ -147,10 +148,8 @@ _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) !=
   _params_panel.set_name("params_panel");
   _ssl_panel.set_name("ssl_panel");
   _advanced_panel.set_name("advanced_panel");
-  _tab.add_page(&_params_panel, _("Parameters"));
-  _tab.add_page(&_ssl_panel, _("SSL"));
-  _tab.add_page(&_advanced_panel, _("Advanced"));
-  
+  _options_panel.set_name("options_panel");
+
   set_name("connect_panel");
   add(&_table, false, false);
   add(&_tab, true, true);
@@ -770,16 +769,25 @@ void DbConnectPanel::begin_layout()
 {
   if (_params_table)
   {
+    _tab.remove_page(&_params_panel);
     _params_panel.remove(_params_table);
   }
   if (_ssl_table)
   {
+    _tab.remove_page(&_ssl_panel);
     _ssl_panel.remove(_ssl_table);
   }
   if (_advanced_table)
   {
+    _tab.remove_page(&_advanced_panel);
     _advanced_panel.remove(_advanced_table);
   }
+  if (_options_table)
+  {
+    _tab.remove_page(&_options_panel);
+    _options_panel.remove(_options_table);
+  }
+
   _params_table = mforms::manage(new mforms::Table());
   _params_table->set_name("params_table");
   _params_table->set_column_count(3);
@@ -801,18 +809,46 @@ void DbConnectPanel::begin_layout()
   _advanced_table->set_column_spacing(MF_TABLE_COLUMN_SPACING);
   _advanced_table->set_padding(MF_PANEL_PADDING);
   
+  _options_table = mforms::manage(new mforms::Table());
+  _options_table->set_name("options_table");
+  _options_table->set_column_count(3);
+  _options_table->set_row_spacing(MF_TABLE_ROW_SPACING);
+  _options_table->set_column_spacing(MF_TABLE_COLUMN_SPACING);
+  _options_table->set_padding(MF_PANEL_PADDING);
+
   _views.clear();
   _param_rows.clear();
   _ssl_rows.clear();
   _advanced_rows.clear();  
+  _options_rows.clear();
 }
 
 
 void DbConnectPanel::end_layout()
 {
-  _params_panel.add(_params_table);
-  _ssl_panel.add(_ssl_table);
-  _advanced_panel.add(_advanced_table);
+  if (_param_rows.size())
+  {
+    _params_panel.add(_params_table);
+    _tab.add_page(&_params_panel, _("Parameters"));
+  }
+
+  if (_ssl_rows.size())
+  {
+    _ssl_panel.add(_ssl_table);
+    _tab.add_page(&_ssl_panel, _("SSL"));
+  }
+
+  if (_advanced_rows.size())
+  {
+    _advanced_panel.add(_advanced_table);
+    _tab.add_page(&_advanced_panel, _("Advanced"));
+  }
+
+  if (_options_rows.size())
+  {
+    _options_panel.add(_options_table);
+    _tab.add_page(&_options_panel, _("Options"));
+  }
 }
 
 
@@ -899,6 +935,10 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     rows = &_ssl_rows;
     table = _ssl_table;
     break;
+  case 3:
+	  rows = &_options_rows;
+	  table = _options_table;
+	  break;
   default:
     return;
   }
