@@ -9,6 +9,7 @@ from grt import log_warning
 from mysql.fabric.config import Config
 from mysql.fabric.credentials import check_credentials
 import mforms
+import urllib2
 
 from mysql.fabric.command import get_groups, get_command, get_commands
 from mysql.fabric.services import find_client, find_commands
@@ -18,6 +19,33 @@ from mysql.fabric.options import OptionParser
 ModuleInfo = DefineModule(name= "WBFabric", author= "Oracle Corp.", version="1.0")
 
 
+# ----------------------------------------------------------------------
+# Patch for python 2.7 which does not have getheader method for urlinfo
+# object
+# ----------------------------------------------------------------------
+
+class addinfourl(urllib2.addinfourl):
+    """
+    Replacement addinfourl class compatible with python-2.7's xmlrpclib
+
+    In python-2.7, xmlrpclib expects that the response object that it receives
+    has a getheader method. httplib.HTTPResponse provides this but
+    urllib2.addinfourl does not. Add the necessary functions here, ported to
+    use the internal data structures of addinfourl.
+    """
+    def getheader(self, name, default=None):
+        if self.headers is None:
+            raise httplib.ResponseNotReady()
+        return self.headers.getheader(name, default)
+
+    def getheaders(self):
+        if self.headers is None:
+            raise httplib.ResponseNotReady()
+        return self.headers.items()
+
+urllib2.addinfourl = addinfourl
+# ----------------------------------------------------------------------
+
 
 def create_config(conn):
   # Retrieves the fabric node connection data
@@ -25,18 +53,9 @@ def create_config(conn):
   port = conn.parameterValues["port"]
   user = conn.parameterValues["userName"]
   
-  # Retrieves the backing store connection data
-  bs_host = conn.parameterValues["bsHostName"]
-  bs_port = conn.parameterValues["bsPort"]
-  bs_user = conn.parameterValues["bsUserName"]
-  bs_database = conn.parameterValues["bsDatabase"]
-  
   accepted, password = mforms.Utilities.find_or_ask_for_password("Fabric Node Connection", '%s@%s' % (host, port), user, False)
   if accepted:
-    accepted, bs_password = mforms.Utilities.find_or_ask_for_password("Backing Store Connection", '%s@%s' % (bs_host, bs_port), bs_user, False)
-    
-    if accepted:
-      config = Config(None, {'protocol.xmlrpc':{'address':'%s:%s' % (host, port), 'user':user, 'password':password, 'realm':'MySQL Fabric'}, 'storage':{'address':'%s:%s' % (bs_host, bs_port), 'user':bs_user,'password':bs_password,'database':bs_database}})
+      config = Config(None, {'protocol.xmlrpc':{'address':'%s:%s' % (host, port), 'user':user, 'password':password, 'realm':'MySQL Fabric'}})
   
   return config
 
@@ -95,8 +114,6 @@ def test_connection(conn):
   error = ""
   if config:
       try:
-          check_credentials('user', '', config, "xmlrpc")
-          
           status = execute_command('manage', 'ping', None, None, config)
       
           if not status:
@@ -114,16 +131,18 @@ def create_connections(conn):
     ret_val = ""
     
     try:
-
-
-        # Creates the configuration object
+        # Creates the configuration object from the connection
+        # settings.
         config = create_config(conn)
         
         if config:
+
+            # Pulls the HA groups
             group_status = execute_command('group', 'lookup_groups', None, None, config)
 
+
+            # If all is OK continues pulling the servers for each group
             success = group_status[0]
-            
             if success:
                 groups = group_status[2]
 
@@ -134,18 +153,26 @@ def create_connections(conn):
                     if success:
                         servers = servers_status[2]
 
+
+                        # Creates a connection for each retrieved server.
                         for server in servers:
                             address = server['address']
                             host, port = address.split(':')
                             
+                            # If the managed servers are located on the fabric node
+                            # most probably they will use localhost or 127.0.0.1 as
+                            # address on the fabric configuration.
+
+                            # We need to replace that for the fabric node IP in order
+                            # to create the connections in WB
                             if host in ['localhost', '127.0.0.1']:
                                 address = config.get('protocol.xmlrpc', 'address')
                                 host, _ = address.split(':')
 
-                            db_user = config.get('storage', 'user')
                             child_conn_name = '%s/%s/%s:%s' % (conn.name, group['group_id'], host, port)
                             
-                            grt.modules.Workbench.create_connection(host, db_user, '', 1, 0, int(port), child_conn_name)
+                            server_user = conn.parameterValues["mysqlUserName"]
+                            grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
 
                 grt.modules.Workbench.refreshHomeConnections()
 

@@ -115,6 +115,10 @@ protected:
   mforms::Table *_advanced_table;
   std::vector<mforms::Box*> _advanced_rows;
 
+  mforms::Panel _options_panel;
+  mforms::Table *_options_table;
+  std::vector<mforms::Box*> _options_rows;
+
   std::list<mforms::View*> _views;
 
 private:
