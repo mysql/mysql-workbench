@@ -31,14 +31,12 @@
 #import "WBSplitViewUnbrokenizerDelegate.h"
 #import "WBMiniToolbar.h"
 #import "GRTListDataSource.h"
-#import "WBQueryTab.h"
 #import "TabViewDockingDelegate.h"
-
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
 
 #import "WBPluginPanel.h"
 #import "WBPluginEditorBase.h"
 #import "MSpinProgressCell.h"
+#include "sqlide/wb_sql_editor_panel.h"
 #include "sqlide/query_side_palette.h"
 #include "mforms/toolbar.h"
 #include "mforms/appview.h"
@@ -282,32 +280,30 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     query.append("\n").append(text);
   }
 
-  MySQLEditor::Ref editor = [self activeEditor];
+  SqlEditorPanel *editor = mBackEnd->active_sql_editor_panel();
   if (editor)
-    editor->append_text(query);
+    editor->editor_be()->append_text(query);
 }
 
+static void set_busy_tab(int tab, WBSQLQueryPanel *self)
+{
+  if (tab < 0)
+    [self->mUpperTabSwitcher setBusyTab: nil];
+  else
+    [self->mUpperTabSwitcher setBusyTab: [self->mUpperTabView tabViewItemAtIndex: tab]];
+}
 
-static int processTaskFinish(WBSQLQueryPanel *self)
+static void processTaskFinish(WBSQLQueryPanel *self)
 {
   [self->mMessagesTable reloadData];
   [self->mMessagesTable scrollRowToVisible: [self->mMessagesTable numberOfRows]-1];
-  [[self activeQueryTab] updateResultsetTabs];
-  [self->mUpperTabSwitcher setBusyTab: nil];
-  
+
   if (self->mBackEnd->exec_sql_error_count() > 0)
   {
     [self->mOutputTabView selectTabViewItemWithIdentifier: @"actions"];
     [self->mOutputSelector selectItemAtIndex: 0];
     self->mBackEnd->show_output_area();
   }
-  else
-  {
-    // re-select the top editor to force re-selection of its resultset tab
-    [self->mUpperTabView selectTabViewItemWithIdentifier: [[self->mUpperTabView selectedTabViewItem] identifier]];
-  }
-  
-  return 0;
 }
 
 - (void)refreshTable:(NSTableView*)table
@@ -335,27 +331,6 @@ static int reloadTable(NSTableView *table, WBSQLQueryPanel *self)
   return 0;
 }
 
-static void recordsetListChanged(int editor_index, Recordset::Ref rs, bool added, WBSQLQueryPanel *self)
-{
-  if (!added)
-  {
-    if (![NSThread isMainThread])
-    {
-      NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-      [[self queryTabForBackEndIndex: editor_index]
-            performSelectorOnMainThread: @selector(removeRecordsetWithIdentifier:) 
-                             withObject: [NSString stringWithFormat:@"rset%li", rs->key()]
-                          waitUntilDone: NO];
-      [pool release];
-    }
-    else
-      [[self queryTabForBackEndIndex: editor_index]
-           removeRecordsetWithIdentifier: [NSString stringWithFormat:@"rset%li", rs->key()]];
-  }
-  else
-    [[self queryTabForBackEndIndex: editor_index]
-          performSelectorOnMainThread:@selector(updateResultsetTabs) withObject:nil waitUntilDone:NO];
-}
 
 static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQueryPanel *self)
 {
@@ -409,57 +384,12 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     [editor performSelector: @selector(didShow)];
 }
 
-- (void)addSQLEditorTabWithBackEndIndex:(int)editor_index
-{
-  WBQueryTab *qtab = [[[WBQueryTab alloc] initWithOwner: self
-                                                backEnd: mBackEnd->sql_editor(editor_index)] autorelease];  
-  [self addEditor: qtab];
-
-  if (mBackEnd->sql_editor_start_collapsed(editor_index))
-    [qtab setQueryCollapsed: YES];
-  else
-    [qtab activateQueryArea: nil];
-}
-
 
 - (void)closeActiveEditorTab
 {
   NSTabViewItem *item = [mUpperTabView selectedTabViewItem];
   if (item)
     [mUpperTabSwitcher closeTabViewItem: item];
-}
-
-
-- (WBQueryTab*)activeQueryTab
-{
-  boost::shared_ptr<MySQLEditor> be(mBackEnd->active_sql_editor());
-  if (!be) return nil;
-  
-  for (id qtab in [mEditors allValues])
-  {
-    if ([qtab isKindOfClass: [WBQueryTab class]] && ([qtab editorController] == be))
-      return qtab;
-  }
-  return nil;  
-}
-
-- (MySQLEditor::Ref)activeEditor
-{
-  return mBackEnd->active_sql_editor();
-}
-
-- (WBQueryTab*)queryTabForBackEndIndex:(int)index
-{
-  if (index >= 0)
-  {
-    MySQLEditor::Ref editor(mBackEnd->sql_editor(index));
-    for (id tab in [mEditors allValues])
-    {
-      if ([tab isKindOfClass: [WBQueryTab class]] && ([tab editorController] == editor))
-        return tab;
-    }
-  }
-  return nil;
 }
 
 #pragma mark Output
@@ -483,15 +413,19 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     switch ([sender tag])
     {
       case 1:
-        if ([self activeEditor])
-          [self activeEditor]->append_text(sql);
+      {
+        SqlEditorPanel *editor = mBackEnd->active_sql_editor_panel();
+        if (editor)
+          editor->editor_be()->append_text(sql);
         break;
-        
+      }
       case 2:
-        if ([self activeEditor])
-          [self activeEditor]->sql(sql.c_str());
+      {
+        SqlEditorPanel *editor = mBackEnd->active_sql_editor_panel();
+        if (editor)
+          editor->editor_be()->sql(sql.c_str());
         break;
-        
+      }
       case 3:
         [[NSPasteboard generalPasteboard] declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner:nil];
         [[NSPasteboard generalPasteboard] setString: [NSString stringWithCPPString: sql] forType: NSStringPboardType];
@@ -569,38 +503,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
   return boost::get_pointer(mBackEnd);
 }
 
-
-- (void)setActiveEditorTitle:(NSString*)title
-{
-  if ([[mEditors objectForKey: [[mUpperTabView selectedTabViewItem] identifier]] isKindOfClass: [WBQueryTab class]])
-  {
-    [[mUpperTabView selectedTabViewItem] setLabel: title];
-    [mUpperTabSwitcher setNeedsDisplay: YES];
-  }
-}
-
-
-static void refreshUIPartial(const int what, WBSQLQueryPanel *panel)
-{
-  switch (what)
-  {
-    case SqlEditorForm::RefreshEditorTitle:
-      [panel setActiveEditorTitle: [NSString stringWithCPPString: panel->mBackEnd->sql_editor_caption()]];
-      break;
-    case SqlEditorForm::QueryExecutionStarted:
-      [panel activateBusyAnimationForActiveEditor];
-      break;
-    case SqlEditorForm::RefreshRecordsetTitle:
-      [[panel activeQueryTab] updateActiveRecordsetTitle];
-      break;
-  }
-}
-
-static int editorCreated(int editor_index, WBSQLQueryPanel *panel)
-{
-  [panel addSQLEditorTabWithBackEndIndex: editor_index];
-  return 0;
-}
 
 #pragma mark Other Delegates
 
@@ -747,16 +649,7 @@ static int editorCreated(int editor_index, WBSQLQueryPanel *panel)
 {
   if (tabView == mUpperTabView)
   {
-    WBBasePanel *editor = [mEditors objectForKey: [tabViewItem identifier]];
-
-    if ([editor isKindOfClass: [WBQueryTab class]])
-    {
-      MySQLEditor::Ref ed([(WBQueryTab*)editor editorController]);
-      
-      mBackEnd->active_sql_editor_index(mBackEnd->sql_editor_index(ed));
-    }
-    else
-      mBackEnd->active_sql_editor_index(-1);
+    mDockingPoint->view_switched();
 
     // hide auxiliary sidebars if the administrator tab is active
     BOOL expanded_mode = NO;
@@ -808,18 +701,14 @@ static int editorCreated(int editor_index, WBSQLQueryPanel *panel)
 }
 
 
-- (BOOL)tabView:(NSTabView *)tabView willReorderTabViewItem:(NSTabViewItem *)item toIndex:(NSInteger)index
+- (void)tabView:(NSTabView *)tabView didReorderTabViewItem:(NSTabViewItem *)item toIndex:(NSInteger)index
 {
   if (tabView == mUpperTabView)
   {
-    WBBasePanel *editor = [mEditors objectForKey: [item identifier]];
-    if ([editor isKindOfClass: [WBQueryTab class]])
-    {
-      if (!mBackEnd->sql_editor_reorder([(WBQueryTab*)editor editorController], index))
-        return NO;
-    }
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    if (editor)
+      mBackEnd->sql_editor_reordered(editor, index);
   }
-  return YES;
 }
 
 
@@ -828,39 +717,18 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 {
   if (tabView == mUpperTabView)
   {
-    WBBasePanel *editor = [mEditors objectForKey: [tabViewItem identifier]];
-    if ([editor isKindOfClass: [WBQueryTab class]])
-    {
-      MySQLEditor::Ref ed = [(WBQueryTab*)editor editorController];
-      
-      int idx = mBackEnd->sql_editor_index(ed);
-      if (idx < 0)
-        return NO;
-      
-      if (!mBackEnd->sql_editor_will_close(idx))
-        return NO;
-      
-      mBackEnd->remove_sql_editor(idx);
+    TabViewDockingPointDelegate* deleg = dynamic_cast<TabViewDockingPointDelegate*>(mDockingPoint->get_delegate());
+    mforms::AppView *appView = deleg->appview_for_view([tabViewItem view]);
 
-      [mEditors removeObjectForKey: [tabViewItem identifier]];
-    }
+    if (appView)
+      return mDockingPoint->close_view(appView);
     else
     {
-      TabViewDockingPointDelegate* deleg = dynamic_cast<TabViewDockingPointDelegate*>(mDockingPoint->get_delegate());
-      mforms::AppView *appView = deleg->appview_for_view([tabViewItem view]);
-
-      if (appView)
-      {
-        mDockingPoint->close_view(appView);
-      }
-      else
-      {
-        id editor = [mEditors objectForKey: [tabViewItem identifier]];
-        if ([editor respondsToSelector: @selector(willClose)])
-          if (![editor willClose])
-            return NO;
-        [mEditors removeObjectForKey: [tabViewItem identifier]];
-      }
+      id editor = [mEditors objectForKey: [tabViewItem identifier]];
+      if ([editor respondsToSelector: @selector(willClose)])
+        if (![editor willClose])
+          return NO;
+      [mEditors removeObjectForKey: [tabViewItem identifier]];
     }
     return YES;
   }
@@ -905,15 +773,9 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 {
   if (tabView == mUpperTabView)
   {
-    id tab = [mEditors objectForKey: [item identifier]];
-    if ([tab isKindOfClass: [WBQueryTab class]])
-    {
-      MySQLEditor::Ref editor = [tab editorController];
-      
-      int idx = mBackEnd->sql_editor_index(editor);
-      if (idx >= 0)
-        return [NSString stringWithCPPString: mBackEnd->sql_editor_path(idx)];
-    }    
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    if (editor)
+      return [NSString stringWithCPPString: editor->filename()];
   }
   return nil;
 }
@@ -923,67 +785,37 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 {
   if (tabView == mUpperTabView)
   {
-    id tab = [mEditors objectForKey: [item identifier]];
-    if ([tab isKindOfClass: [WBQueryTab class]])
+    SqlEditorPanel *editor = mBackEnd->sql_editor_panel([tabView indexOfTabViewItem: item]);
+    if (editor)
     {
-      MySQLEditor::Ref editor = [tab editorController];
-      if (editor)
-      {
-        int i = mBackEnd->sql_editor_index(editor);
-        if (i >= 0 && !mBackEnd->sql_editor_path(i).empty())
+      if (!editor->filename().empty())
           [[menu itemWithTag: 60] setEnabled: YES];
-        else
-          [[menu itemWithTag: 60] setEnabled: NO];
-      }
       else
         [[menu itemWithTag: 60] setEnabled: NO];
     }
+    else
+      [[menu itemWithTag: 60] setEnabled: NO];
   }
 }
 
 
 - (IBAction)handleMenuAction:(id)sender
 {
+  int clicked_tab = [mUpperTabView indexOfTabViewItem: [mUpperTabSwitcher clickedItem]];
+
   switch ([sender tag])
   {
     case 50: // new tab
-      mBackEnd->new_sql_script_file();
+      mBackEnd->handle_tab_menu_action("new_tab", clicked_tab);
       break;
     case 51: // save tab
     {
-      NSTabViewItem *item = [mUpperTabSwitcher clickedItem];
-      id tab = [mEditors objectForKey: [item identifier]];
-      if ([tab isKindOfClass: [WBQueryTab class]])
-      {
-        MySQLEditor::Ref editor = [tab editorController];
-        if (editor)
-        {
-          int i = mBackEnd->sql_editor_index(editor);
-          if (i >= 0)
-            mBackEnd->save_sql_script_file(mBackEnd->sql_editor_path(i), i);
-        }
-      }
+      mBackEnd->handle_tab_menu_action("save_tab", clicked_tab);
       break;
     }
     case 60: // copy path to clipboard
     {
-      NSTabViewItem *item = [mUpperTabSwitcher clickedItem];
-      id tab = [mEditors objectForKey: [item identifier]];
-      if ([tab isKindOfClass: [WBQueryTab class]])
-      {
-        MySQLEditor::Ref editor = [tab editorController];
-        if (editor)
-        {        
-          int i = mBackEnd->sql_editor_index(editor);
-          if (i >= 0)
-          {
-            NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
-            [pasteBoard declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner:nil];
-            [pasteBoard setString: [NSString stringWithUTF8String: mBackEnd->sql_editor_path(i).c_str()]
-                          forType: NSStringPboardType]; 
-          }
-        }
-      }
+      mBackEnd->handle_tab_menu_action("copy_path", clicked_tab);
       break;
     }
   }
@@ -1009,20 +841,24 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
     [NSBundle loadNibNamed: @"WBSQLQueryPanel"
                      owner: self];
 
+    // setup docking point for mUpperTabView
+    {
+      mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(mUpperTabView, MAIN_DOCKING_POINT), true));
+      be->set_tab_dock(mDockingPoint);
+    }
+
     grtm = be->grt_manager();
     mBackEnd= be;
     mBackEnd->log()->refresh_ui_signal.connect(boost::bind(reloadTable, mMessagesTable, self));
     mBackEnd->history()->entries_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryTable, self));
     mBackEnd->history()->details_model()->refresh_ui_signal.connect(boost::bind(reloadTable, mHistoryDetailsTable, self));
+
+    mBackEnd->output_text_slot= boost::bind(addTextToOutput, _1, _2, self);//XXX
     
-    mBackEnd->set_partial_refresh_ui_slot(boost::bind(refreshUIPartial, _1, self));
-    mBackEnd->output_text_slot= boost::bind(addTextToOutput, _1, _2, self);
-    
-    mBackEnd->exec_sql_task->finish_cb(boost::bind(processTaskFinish, self));
-    mBackEnd->recordset_list_changed.connect(boost::bind(recordsetListChanged, _1, _2, _3, self));
-    
-    mBackEnd->sql_editor_new_ui.connect(boost::bind(editorCreated, _1, self));
-    
+    mBackEnd->post_query_slot = boost::bind(processTaskFinish, self);
+
+    mBackEnd->set_busy_tab = boost::bind(set_busy_tab, _1, self);
+
     mBackEnd->set_frontend_data(self);
     [mUpperTabSwitcher setTabStyle: MEditorTabSwitcher];
     [mUpperTabSwitcher setAllowTabReordering: YES];
@@ -1096,20 +932,6 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
     mQueryAreaOpen = YES;
     mResultsAreaOpen = YES;
 
-    // setup docking point for mUpperTabView
-    {
-      mDockingPoint = mforms::manage(new mforms::DockingPoint(new TabViewDockingPointDelegate(mUpperTabView, MAIN_DOCKING_POINT), true));
-      db_query_EditorRef qeditor(be->wbsql()->get_grt_editor_object(be.get()));
-
-      qeditor->dockingPoint(mforms_to_grt(qeditor.get_grt(), mDockingPoint));
-    }
-    
-    // realize pre-existing editors
-    for (int i = 0; i < mBackEnd->sql_editor_count(); i++)
-    {
-      [self addSQLEditorTabWithBackEndIndex: [mUpperTabView numberOfTabViewItems]];
-    }
-    
     NSProgressIndicator *indicator = [[NSProgressIndicator alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
     [indicator setControlSize: NSSmallControlSize];
     [indicator setStyle: NSProgressIndicatorSpinningStyle];
@@ -1155,17 +977,6 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 
 - (BOOL)willClose
 {
-  // Check for edited tabs in frontend for tab types that the backend doesn't handle
-  for (id qtab in [mEditors allValues])
-  {
-    if (![qtab isKindOfClass: [WBQueryTab class]])
-      if ([qtab respondsToSelector: @selector(willClose)] && ![qtab willClose])
-        return NO;
-  }
-
-  if (!dynamic_cast<TabViewDockingPointDelegate*>(mDockingPoint->get_delegate())->close_all())
-    return NO;
-
   return mBackEnd->can_close();
 }
 
@@ -1212,11 +1023,6 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
   }
   else
     [super performCommand: command];
-}
-
-- (void)activateBusyAnimationForActiveEditor
-{
-  [mUpperTabSwitcher setBusyTab: [mUpperTabView selectedTabViewItem]];
 }
 
 @end

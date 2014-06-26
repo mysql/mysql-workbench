@@ -44,10 +44,6 @@
       this.nodeTextBox2 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.contentSplitContainer = new System.Windows.Forms.SplitContainer();
       this.mainContentSplitContainer = new System.Windows.Forms.SplitContainer();
-      this.readOnlyLabel = new System.Windows.Forms.Label();
-      this.readOnlyPictureBox = new System.Windows.Forms.PictureBox();
-      this.cancelButton = new System.Windows.Forms.Button();
-      this.applyButton = new System.Windows.Forms.Button();
       this.mainContentTabControl = new MySQL.Controls.FlatTabControl();
       this.editorTabImageList = new System.Windows.Forms.ImageList(this.components);
       this.rightSplitContainer = new System.Windows.Forms.SplitContainer();
@@ -58,7 +54,7 @@
       this.outputPaneIcon = new System.Windows.Forms.ToolStripLabel();
       this.outputSelector = new System.Windows.Forms.ToolStripComboBox();
       this.textOutputPage = new System.Windows.Forms.Panel();
-      this.resultSetTextBox = new System.Windows.Forms.TextBox();
+//      this.resultSetTextBox = new System.Windows.Forms.TextBox();
       this.historyPage = new System.Windows.Forms.Panel();
       this.historySplitContainer = new System.Windows.Forms.SplitContainer();
       this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
@@ -70,7 +66,6 @@
       this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
       this.copyFullPathToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.labelsTooltip = new System.Windows.Forms.ToolTip(this.components);
       this.recordsetTabsContextMenuStrip.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.contentSplitContainer)).BeginInit();
       this.contentSplitContainer.Panel1.SuspendLayout();
@@ -80,7 +75,6 @@
       this.mainContentSplitContainer.Panel1.SuspendLayout();
       this.mainContentSplitContainer.Panel2.SuspendLayout();
       this.mainContentSplitContainer.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.readOnlyPictureBox)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.rightSplitContainer)).BeginInit();
       this.rightSplitContainer.SuspendLayout();
       this.outputHeader.SuspendLayout();
@@ -96,54 +90,6 @@
       this.mainSplitContainer.SuspendLayout();
       this.editorTabsContextMenuStrip.SuspendLayout();
       this.SuspendLayout();
-      // 
-      // recordsetTabsContextMenuStrip
-      // 
-      this.recordsetTabsContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem4,
-            this.toolStripMenuItem5,
-            this.toolStripMenuItem6,
-            this.toolStripMenuItem3,
-            this.renamePage_ToolStripMenuItem});
-      this.recordsetTabsContextMenuStrip.Name = "recordsetPageContextMenuStrip";
-      this.recordsetTabsContextMenuStrip.Size = new System.Drawing.Size(168, 98);
-      // 
-      // toolStripMenuItem4
-      // 
-      this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-      this.toolStripMenuItem4.Size = new System.Drawing.Size(167, 22);
-      this.toolStripMenuItem4.Tag = "1";
-      this.toolStripMenuItem4.Text = "Close";
-      this.toolStripMenuItem4.Click += new System.EventHandler(this.recordsetTabContextMenuClick);
-      // 
-      // toolStripMenuItem5
-      // 
-      this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-      this.toolStripMenuItem5.Size = new System.Drawing.Size(167, 22);
-      this.toolStripMenuItem5.Tag = "2";
-      this.toolStripMenuItem5.Text = "Close All";
-      this.toolStripMenuItem5.Click += new System.EventHandler(this.recordsetTabContextMenuClick);
-      // 
-      // toolStripMenuItem6
-      // 
-      this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-      this.toolStripMenuItem6.Size = new System.Drawing.Size(167, 22);
-      this.toolStripMenuItem6.Tag = "3";
-      this.toolStripMenuItem6.Text = "Close All But This";
-      this.toolStripMenuItem6.Click += new System.EventHandler(this.recordsetTabContextMenuClick);
-      // 
-      // toolStripMenuItem3
-      // 
-      this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-      this.toolStripMenuItem3.Size = new System.Drawing.Size(164, 6);
-      // 
-      // renamePage_ToolStripMenuItem
-      // 
-      this.renamePage_ToolStripMenuItem.Name = "renamePage_ToolStripMenuItem";
-      this.renamePage_ToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-      this.renamePage_ToolStripMenuItem.Tag = "0";
-      this.renamePage_ToolStripMenuItem.Text = "Rename Resultset";
-      this.renamePage_ToolStripMenuItem.Click += new System.EventHandler(this.recordsetTabContextMenuClick);
       // 
       // treeColumn1
       // 
@@ -206,10 +152,6 @@
       // 
       // mainContentSplitContainer.Panel1
       // 
-      this.mainContentSplitContainer.Panel1.Controls.Add(this.readOnlyLabel);
-      this.mainContentSplitContainer.Panel1.Controls.Add(this.readOnlyPictureBox);
-      this.mainContentSplitContainer.Panel1.Controls.Add(this.cancelButton);
-      this.mainContentSplitContainer.Panel1.Controls.Add(this.applyButton);
       this.mainContentSplitContainer.Panel1.Controls.Add(this.mainContentTabControl);
       // 
       // mainContentSplitContainer.Panel2
@@ -221,55 +163,6 @@
       this.mainContentSplitContainer.SplitterWidth = 6;
       this.mainContentSplitContainer.TabIndex = 3;
       this.mainContentSplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mainContentSplitContainer_SplitterMoved);
-      // 
-      // readOnlyLabel
-      // 
-      this.readOnlyLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.readOnlyLabel.FlatStyle = System.Windows.Forms.FlatStyle.System;
-      this.readOnlyLabel.ForeColor = System.Drawing.Color.Black;
-      this.readOnlyLabel.Location = new System.Drawing.Point(351, 400);
-      this.readOnlyLabel.Name = "readOnlyLabel";
-      this.readOnlyLabel.Size = new System.Drawing.Size(57, 13);
-      this.readOnlyLabel.TabIndex = 3;
-      this.readOnlyLabel.Text = "Read Only";
-      this.readOnlyLabel.Visible = false;
-      // 
-      // readOnlyPictureBox
-      // 
-      this.readOnlyPictureBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.readOnlyPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("readOnlyPictureBox.Image")));
-      this.readOnlyPictureBox.Location = new System.Drawing.Point(405, 398);
-      this.readOnlyPictureBox.Name = "readOnlyPictureBox";
-      this.readOnlyPictureBox.Size = new System.Drawing.Size(16, 16);
-      this.readOnlyPictureBox.TabIndex = 4;
-      this.readOnlyPictureBox.TabStop = false;
-      this.readOnlyPictureBox.Visible = false;
-      // 
-      // cancelButton
-      // 
-      this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-      this.cancelButton.Location = new System.Drawing.Point(346, 398);
-      this.cancelButton.Name = "cancelButton";
-      this.cancelButton.Size = new System.Drawing.Size(65, 17);
-      this.cancelButton.TabIndex = 0;
-      this.cancelButton.Text = "Cancel";
-      this.cancelButton.UseVisualStyleBackColor = true;
-      this.cancelButton.Visible = false;
-      this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
-      // 
-      // applyButton
-      // 
-      this.applyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.applyButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-      this.applyButton.Location = new System.Drawing.Point(265, 398);
-      this.applyButton.Name = "applyButton";
-      this.applyButton.Size = new System.Drawing.Size(65, 17);
-      this.applyButton.TabIndex = 0;
-      this.applyButton.Text = "Apply";
-      this.applyButton.UseVisualStyleBackColor = true;
-      this.applyButton.Visible = false;
-      this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
       // 
       // mainContentTabControl
       // 
@@ -297,7 +190,6 @@
       this.mainContentTabControl.TabIndex = 2;
       this.mainContentTabControl.TabStyle = MySQL.Controls.FlatTabControl.TabStyleType.TopNormal;
       this.mainContentTabControl.TabClosing += new System.EventHandler<MySQL.Controls.TabClosingEventArgs>(this.editorTabControl_TabClosing);
-      this.mainContentTabControl.TabClosed += new System.EventHandler<MySQL.Controls.TabClosedEventArgs>(this.editorTabControl_TabClosed);
       this.mainContentTabControl.TabMoving += new System.EventHandler<MySQL.Controls.TabMovingEventArgs>(this.editorTabControl_TabMoving);
       this.mainContentTabControl.SelectedIndexChanged += new System.EventHandler(this.mainContentTabControl_SelectedIndexChanged);
       this.mainContentTabControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.editorTabControlMouseClick);
@@ -404,7 +296,7 @@
       // textOutputPage
       // 
       this.textOutputPage.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.textOutputPage.Controls.Add(this.resultSetTextBox);
+    //XXX!  this.textOutputPage.Controls.Add(this.resultSetTextBox);
       this.textOutputPage.Location = new System.Drawing.Point(0, 24);
       this.textOutputPage.Margin = new System.Windows.Forms.Padding(0);
       this.textOutputPage.Name = "textOutputPage";
@@ -414,7 +306,7 @@
       // 
       // resultSetTextBox
       // 
-      this.resultSetTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+   /*   this.resultSetTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.resultSetTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
       this.resultSetTextBox.Location = new System.Drawing.Point(0, 0);
       this.resultSetTextBox.Multiline = true;
@@ -424,6 +316,7 @@
       this.resultSetTextBox.Size = new System.Drawing.Size(731, 281);
       this.resultSetTextBox.TabIndex = 1;
       this.resultSetTextBox.WordWrap = false;
+    * */
       // 
       // historyPage
       // 
@@ -528,7 +421,7 @@
       // 
       this.copyFullPathToClipboardToolStripMenuItem.Name = "copyFullPathToClipboardToolStripMenuItem";
       this.copyFullPathToClipboardToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
-      this.copyFullPathToClipboardToolStripMenuItem.Tag = "4";
+      this.copyFullPathToClipboardToolStripMenuItem.Tag = "copy_path";
       this.copyFullPathToClipboardToolStripMenuItem.Text = "Copy Full Path To Clipboard";
       this.copyFullPathToClipboardToolStripMenuItem.Click += new System.EventHandler(this.editorTabContextMenuItemClick);
       // 
@@ -553,7 +446,6 @@
       this.mainContentSplitContainer.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.mainContentSplitContainer)).EndInit();
       this.mainContentSplitContainer.ResumeLayout(false);
-      ((System.ComponentModel.ISupportInitialize)(this.readOnlyPictureBox)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.rightSplitContainer)).EndInit();
       this.rightSplitContainer.ResumeLayout(false);
       this.outputHeader.ResumeLayout(false);
@@ -585,7 +477,7 @@
         private MySQL.Controls.HeaderPanel outputHeader;
         private System.Windows.Forms.Panel outputPageContent;
         private System.Windows.Forms.Panel textOutputPage;
-        private System.Windows.Forms.TextBox resultSetTextBox;
+     //   private System.Windows.Forms.TextBox resultSetTextBox;
         private System.Windows.Forms.Panel actionPanel;
         private System.Windows.Forms.ToolStrip outputPageToolStrip;
         private System.Windows.Forms.ToolStripComboBox outputSelector;
@@ -602,17 +494,12 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
-        private System.Windows.Forms.Button cancelButton;
-        private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem copyFullPathToClipboardToolStripMenuItem;
-        private System.Windows.Forms.Label readOnlyLabel;
-        private System.Windows.Forms.ToolTip labelsTooltip;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem6;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
-        private System.Windows.Forms.PictureBox readOnlyPictureBox;
         private System.Windows.Forms.ToolStripMenuItem closeAllOfTheSameTypeToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel outputPaneIcon;
     }

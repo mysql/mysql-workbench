@@ -1074,6 +1074,11 @@ bool TreeNodeViewImpl::ColumnRecord::on_focus_out(GdkEventFocus *event, Gtk::Ent
 TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
   : ViewImpl(self), _row_height(-1), _org_event(0)
 {
+  _mouse_inside = false;
+  _hovering_overlay = -1;
+  _clicking_overlay = -1;
+
+  _drag_source_enabled = (opts & mforms::TreeCanBeDragSource) != 0;
   _drag_in_progress = false;
   _drag_button = 0;
   _flat_list = (opts & mforms::TreeFlatList) != 0;
@@ -1093,10 +1098,14 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
   _tree.signal_button_press_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_button_event), false);
 //  _tree.set_reorderable((opts & mforms::TreeAllowReorderRows) || (opts & mforms::TreeCanBeDragSource)); // we need this to have D&D working
   _tree.signal_button_release_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_button_release), false);
+  _tree.signal_expose_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_expose_event), true);
+  _tree.signal_realize().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_realize));
+  _tree.signal_motion_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_motion_notify), false);
+  _tree.signal_enter_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_enter_notify), false);
+  _tree.signal_leave_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_leave_notify), false);
+
   if (opts & mforms::TreeCanBeDragSource)
   {
-
-    _tree.signal_motion_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_motion_notify), false);
 
     Gtk::Widget *w = this->get_outer();
     if (w)
@@ -1114,6 +1123,7 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
   _swin.show_all();
   _tree.set_headers_visible((opts & mforms::TreeNoHeader) == 0);
 }
+
 TreeNodeViewImpl::~TreeNodeViewImpl()
 {
   if (_org_event)
@@ -1146,9 +1156,116 @@ bool TreeNodeViewImpl::slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &co
 
 }
 
+bool TreeNodeViewImpl::on_expose_event(GdkEventExpose *ev)
+{
+  if (!_overlay_icons.empty() && !_overlayed_row.empty() && _mouse_inside)
+  {
+    Cairo::RefPtr<Cairo::Context> context(_tree.get_bin_window()->create_cairo_context());
+    Gdk::Rectangle rect;
+    Gdk::Rectangle vrect;
+    int i = 1;
+    _tree.get_visible_rect(vrect);
+    _tree.get_background_area(_overlayed_row, *_tree.get_column(_tree.get_columns().size()-1), rect);
+    for (std::vector<Cairo::RefPtr<Cairo::ImageSurface> >::const_iterator icon = _overlay_icons.begin();
+        icon != _overlay_icons.end(); ++icon, ++i)
+    {
+      if (*icon)
+      {
+        context->set_source(*icon, vrect.get_x() + vrect.get_width() - 4 - i*rect.get_height(), rect.get_y());
+        if (i-1 == _hovering_overlay)
+          context->paint();
+        else
+          context->paint_with_alpha(0.4);
+      }
+    }
+  }
+
+  return false;
+}
+
+
+
+bool TreeNodeViewImpl::on_enter_notify(GdkEventCrossing *ev)
+{
+  _mouse_inside = true;
+  return false;
+}
+
+
+bool TreeNodeViewImpl::on_leave_notify(GdkEventCrossing *ev)
+{
+  if (_mouse_inside)
+  {
+    _mouse_inside = false;
+    _overlay_icons.clear();
+    _hovering_overlay = -1;
+    _clicking_overlay = -1;
+    _tree.queue_draw();
+  }
+  return false;  
+}
+
+
 bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
 {
-  if (_drag_in_progress || _drag_button == 0 || !ev)
+  int dummy;
+  Gtk::TreeViewColumn *column;
+  Gtk::TreePath path;
+
+  // handle overlay icons
+  if (_clicking_overlay < 0)
+  {
+    _overlay_icons.clear();
+    _hovering_overlay=-1;
+    _overlayed_row.clear();
+    _tree.queue_draw();
+  }
+  if (!_drag_in_progress && _tree.get_path_at_pos(ev->x, ev->y, path, column, dummy, dummy))
+  {
+    mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
+    mforms::TreeNodeRef node(new TreeNodeImpl(this, tree_store(), path));
+
+    if (node)
+    {
+      std::vector<std::string> icons = tv->overlay_icons_for_node(node);
+      if (!icons.empty())
+      {
+        int icon_rect_x;
+        int row_height;
+        Gdk::Rectangle rect;
+        Gdk::Rectangle vrect;
+
+        _overlayed_row = path;
+
+        _tree.get_background_area(path, *column, rect);
+        row_height = rect.get_height();
+
+        _tree.get_visible_rect(vrect);
+        icon_rect_x = vrect.get_width() - 4;
+        
+        for (std::vector<std::string>::const_iterator icon = icons.begin();
+          icon != icons.end(); ++icon)
+        {
+          Cairo::RefPtr<Cairo::ImageSurface> surf;
+          if (!icon->empty())
+          {
+            surf = Cairo::ImageSurface::create_from_png(*icon);
+            if (!surf)
+              g_warning("Could not load %s", icon->c_str());
+          }
+          _overlay_icons.push_back(surf);
+          icon_rect_x -= row_height;
+
+          if (_hovering_overlay < 0 && ev->x-vrect.get_x() > icon_rect_x)
+            _hovering_overlay = icon - icons.begin();
+        }
+        _tree.queue_draw();
+      }
+    }
+  }
+
+  // drag and drop
+  if (_drag_in_progress || _drag_button == 0 || !ev || !_drag_source_enabled)
   {
     return false;
   }
@@ -1258,6 +1375,15 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
 
 bool TreeNodeViewImpl::on_button_release(GdkEventButton* ev)
 {
+  if (!_drag_in_progress && _hovering_overlay >= 0 && _hovering_overlay == _clicking_overlay)
+  { 
+    mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
+    mforms::TreeNodeRef node(new TreeNodeImpl(this, tree_store(), _overlayed_row));
+    if (node)
+      tv->overlay_icon_for_node_clicked(node, _clicking_overlay);
+  }
+  _clicking_overlay = -1;
+
   if (_drag_in_progress)
   {
     return false;
@@ -1361,6 +1487,11 @@ void TreeNodeViewImpl::on_collapsed(const Gtk::TreeModel::iterator& iter, const 
 bool TreeNodeViewImpl::on_button_event(GdkEventButton *event)
 {
   bool ret_val = false;
+
+  if (event->button == 1 && _drag_button == 0 && _hovering_overlay >= 0)
+  {
+    _clicking_overlay = _hovering_overlay;
+  }
   
   if (event->button == 3)
   {
@@ -1392,9 +1523,25 @@ bool TreeNodeViewImpl::on_button_event(GdkEventButton *event)
     }
   }
 
-  
   return ret_val;
 }
+
+
+bool TreeNodeViewImpl::on_header_button_event(GdkEventButton *event, int column)
+{
+  if (event->button == 3)
+  {
+    mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
+
+    tv->header_clicked(column);
+
+    if (tv->get_header_menu())
+      tv->get_header_menu()->popup_at(mforms::gtk::ViewImpl::get_view_for_widget(this->get_inner()), base::Point(event->x, event->y));
+  }
+  return false;
+}
+
+
 
 int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable, bool attributed)
 {
@@ -1473,6 +1620,11 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     break;
   }
   
+  {
+    Gtk::Label *label = Gtk::manage(new Gtk::Label(name));
+    label->show();
+    _tree.get_column(column)->set_widget(*label);
+  }
   _tree.get_column(column)->set_resizable(true);
   if (initial_width > 0)
     _tree.get_column(column)->set_fixed_width(initial_width);
@@ -1990,6 +2142,32 @@ bool TreeNodeViewImpl::get_column_visible(TreeNodeView *self, int column)
   return false;
 }
 
+
+void TreeNodeViewImpl::set_column_title(TreeNodeView *self, int column, const std::string &title)
+{
+  TreeNodeViewImpl* impl = self->get_data<TreeNodeViewImpl>();
+  Gtk::TreeViewColumn *col = impl->_tree.get_column(column);
+  if (col)
+  {
+    dynamic_cast<Gtk::Label*>(col->get_widget())->set_text(title);
+  }
+}
+
+
+void TreeNodeViewImpl::on_realize()
+{
+  // nasty workaround to allow context menu for tree headers
+  for (int i = 0; i < (int)_tree.get_columns().size(); i++)
+  {
+    Gtk::Widget *w = _tree.get_column(i)->get_widget();
+    while (w && !dynamic_cast<Gtk::Button*>(w))
+      w = w->get_parent();
+    if (dynamic_cast<Gtk::Button*>(w))
+      w->signal_button_press_event().connect(sigc::bind(sigc::mem_fun(this, &TreeNodeViewImpl::on_header_button_event), i), false);
+  }
+}
+
+
 void TreeNodeViewImpl::set_column_width(TreeNodeView *self, int column, int width)
 {
   TreeNodeViewImpl* impl = self->get_data<TreeNodeViewImpl>();
@@ -2035,6 +2213,7 @@ void TreeNodeViewImpl::init()
   f->_treenodeview_impl.row_for_node= &TreeNodeViewImpl::row_for_node;
   f->_treenodeview_impl.set_column_visible= &TreeNodeViewImpl::set_column_visible;
   f->_treenodeview_impl.get_column_visible= &TreeNodeViewImpl::get_column_visible;
+  f->_treenodeview_impl.set_column_title= &TreeNodeViewImpl::set_column_title;
   f->_treenodeview_impl.set_column_width= &TreeNodeViewImpl::set_column_width;
   f->_treenodeview_impl.get_column_width= &TreeNodeViewImpl::get_column_width;
 }

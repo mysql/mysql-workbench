@@ -20,6 +20,7 @@
 #include "grtpp_util.h"
 #include "wb_sql_editor_tree_controller.h"
 #include "wb_sql_editor_form.h"
+#include "wb_sql_editor_panel.h"
 #include "base/sqlstring.h"
 #include "base/util_functions.h"
 #include "base/string_utilities.h"
@@ -1327,9 +1328,9 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
       {
         bool _autosave = _owner->get_autosave_disabled();
         _owner->set_autosave_disabled(true);
-        int ed = _owner->run_sql_in_scratch_tab(sql, false, true);
-        _owner->sql_editor_caption(ed, changes[i].name);
-        _owner->do_partial_ui_refresh(SqlEditorForm::RefreshEditorTitle);
+        SqlEditorPanel* ed = _owner->run_sql_in_scratch_tab(sql, false, true);
+        if (ed)
+          ed->set_title(changes[i].name);
         _owner->set_autosave_disabled(_autosave);
       }
     }
@@ -2386,11 +2387,11 @@ void SqlEditorTreeController::handle_grt_notification(const std::string &name, g
 
 int SqlEditorTreeController::insert_text_to_active_editor(const std::string& str)
 {
-  MySQLEditor::Ref editor(_owner->active_sql_editor());
+  SqlEditorPanel *editor(_owner->active_sql_editor_panel());
   if (editor)
   {
-    editor->insert_text(str);
-    editor->focus();
+    editor->editor_be()->insert_text(str);
+    editor->editor_be()->focus();
   }
   return 0;
 }

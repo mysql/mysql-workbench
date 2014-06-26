@@ -83,13 +83,13 @@ TEST_FUNCTION(2)
 TEST_FUNCTION(4)
 {
   IntegerRef iv(1234);
-  int i;
+  ssize_t i;
 
   ensure("IntegerRef(NULL)", !IntegerRef((grt::internal::Integer*)NULL).is_valid());
   ensure("IntegerRef(0)", IntegerRef(0).is_valid());
   ensure("IntegerRef()", !IntegerRef().is_valid());
 
-  i= iv;
+  i = iv;
   ensure_equals("IntegerRef to int", i, 1234);
 
   ensure_equals("IntegerRef refcount", iv.refcount(), 1);

@@ -229,6 +229,12 @@
     <ClInclude Include="sqlide\wb_sql_editor_tree_controller.h">
       <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
+    <ClInclude Include="sqlide\result_form_view.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_panel.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\frontend\common\advanced_sidebar.cpp">
@@ -430,5 +436,11 @@
       <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
     <ClCompile Include="workbench\stdafx.cpp" />
+    <ClCompile Include="sqlide\result_form_view.cpp">
+      <Filter>Source Files SQL IDE</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_panel.cpp">
+      <Filter>Source Files SQL IDE</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

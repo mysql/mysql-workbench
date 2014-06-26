@@ -133,6 +133,9 @@
     <ClInclude Include="src\wf_wizard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\wf_record_grid_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -261,6 +264,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="src\wf_record_grid_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="MySQLAssembly.ico">

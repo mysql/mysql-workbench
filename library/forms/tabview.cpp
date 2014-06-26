@@ -24,10 +24,20 @@ using namespace mforms;
 //--------------------------------------------------------------------------------------------------
 
 TabView::TabView(TabViewType tabType)
+: _type(tabType), _aux_view(NULL), _menu_tab(0), _tab_menu(NULL)
 {
   _tabview_impl= &ControlFactory::get_instance()->_tabview_impl;
 
   _tabview_impl->create(this, tabType);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+TabView::~TabView()
+{
+  if (_aux_view)
+    _aux_view->release();
+  _aux_view = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,8 +66,28 @@ int TabView::add_page(View *page, const std::string& caption)
 
 void TabView::remove_page(View *page)
 {
+  page->retain();
+  int i = get_page_index(page);
   _tabview_impl->remove_page(this, page);
   remove_from_cache(page);
+  _signal_tab_closed(page, i);
+  page->release();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TabView::reordered(View *view, int index)
+{
+  int old_index = get_subview_index(view);
+  reorder_cache(view, index);
+  _signal_tab_reordered(view, old_index, index);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int TabView::page_count()
+{
+  return get_subview_count();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,3 +121,42 @@ bool TabView::can_close_tab(int index)
 }
 
 //--------------------------------------------------------------------------------------------------
+
+void TabView::set_aux_view(View *view)
+{
+  if (_aux_view)
+    _aux_view->release();
+  _aux_view = view;
+  if (_aux_view)
+    _aux_view->retain();
+  _tabview_impl->set_aux_view(this, view);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TabView::set_allows_reordering(bool flag)
+{
+  _tabview_impl->set_allows_reordering(this, flag);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
+void TabView::set_tab_menu(ContextMenu *menu)
+{
+  _tab_menu = menu;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TabView::set_menu_tab(int tab)
+{
+  _menu_tab = tab;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int TabView::get_menu_tab()
+{
+  return _menu_tab;
+}
