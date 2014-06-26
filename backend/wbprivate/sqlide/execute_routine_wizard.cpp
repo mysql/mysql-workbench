@@ -38,12 +38,12 @@ ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
   _routine = routine;
   _catalog = db_mysql_CatalogRef::cast_from(_routine->owner()->owner());
 
-  set_managed();
+ // set_managed();
   set_title(base::strfmt(_("Call stored %s %s.%s"), routine->routineType().c_str(), routine->owner()->name().c_str(), routine->name().c_str()));
 
   mforms::Box *content = mforms::manage(new mforms::Box(false));
   content->set_padding(12);
-  content->set_spacing(12);
+  content->set_spacing(20);
 
   _cancel_button = mforms::manage(new mforms::Button());
   _cancel_button->set_text(_("Cancel"));
@@ -68,7 +68,7 @@ ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
 
   // Create a table with a row for each IN and IN/OUT parameter.
   mforms::Table *table = mforms::manage(new mforms::Table());
-  table->set_padding(5, 20, 5, 20);
+  table->set_padding(5, 0, 5, 0);
   table->set_column_spacing(4);
   table->set_row_spacing(4);
   table->set_column_count(4);
@@ -114,7 +114,7 @@ ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
   }
 
   set_content(content);
-  set_size(500, std::min(400, 120 + (int)parameters->count() * 30));
+  set_size(500, std::min(800, 160 + (int)parameters->count() * 30));
 }
 
 //--------------------------------------------------------------------------------------------------
