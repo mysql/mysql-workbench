@@ -77,20 +77,28 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ImageEditor.cs" />
+    <Compile Include="ImageEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ImageEditor.Designer.cs">
       <DependentUpon>ImageEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="NoteEditor.cs" />
+    <Compile Include="NoteEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="NoteEditor.Designer.cs">
       <DependentUpon>NoteEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="PhysicalLayerEditor.cs" />
+    <Compile Include="PhysicalLayerEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="PhysicalLayerEditor.Designer.cs">
       <DependentUpon>PhysicalLayerEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StoredNoteEditor.cs" />
+    <Compile Include="StoredNoteEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="StoredNoteEditor.Designer.cs">
       <DependentUpon>StoredNoteEditor.cs</DependentUpon>
     </Compile>
