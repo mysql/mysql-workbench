@@ -21,6 +21,10 @@
 
 #include "mforms/form.h"
 
+#ifdef __linux__
+#include "grts/structs.db.mysql.h"
+#endif
+
 namespace mforms {
   class Button;
   class TextEntry;
