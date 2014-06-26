@@ -283,6 +283,12 @@ namespace MySQL.GUI.Workbench.Plugins
       RoleEditorBackend.set_name(nameTextBox.Text);
     }
 
+    private void checkAllButton_Click(object sender, EventArgs e)
+    {
+      for (int i = 0; i < privCheckedListBox.Items.Count; i++)
+        privCheckedListBox.SetItemChecked(i, true);
+    }
+
     private void uncheckAllButton_Click(object sender, EventArgs e)
     {
       for (int i = 0; i < privCheckedListBox.Items.Count; i++)
