@@ -1,0 +1,262 @@
+/* 
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; version 2 of the
+ * License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ */
+
+#include "execute_routine_wizard.h"
+
+#include "base/string_utilities.h"
+
+#include "mforms/button.h"
+#include "mforms/box.h"
+#include "mforms/table.h"
+#include "mforms/label.h"
+#include "mforms/textentry.h"
+#include "mforms/scrollpanel.h"
+
+#include "grtdb/db_object_helpers.h"
+
+//--------------------------------------------------------------------------------------------------
+
+ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
+  : Form(NULL)
+{
+  _routine = routine;
+  _catalog = db_mysql_CatalogRef::cast_from(_routine->owner()->owner());
+
+  set_managed();
+  set_size(500, 300);
+  set_title(_("Call a stored routine"));
+
+  mforms::Box *content = mforms::manage(new mforms::Box(false));
+  content->set_padding(10);
+  content->set_spacing(10);
+
+  _execxute_button = mforms::manage(new mforms::Button());
+  _execxute_button->set_text(_("Execute"));
+
+  mforms::Box *button_bar = mforms::manage(new mforms::Box(true));
+  button_bar->add_end(_execxute_button, false, false);
+  
+  content->add_end(button_bar, false, true);
+
+  mforms::Label *title = mforms::manage(new mforms::Label());
+  title->set_text(base::strfmt(_("Enter values for parameters of your %s and click <Execute> to create "
+    "an SQL editor to run the call."), routine->routineType().c_str()));
+  title->set_wrap_text(true);
+  content->add(title, false, true);
+
+  mforms::ScrollPanel *scroll_box = mforms::manage(new mforms::ScrollPanel());
+  content->add(scroll_box, true, true);
+
+  // Create a table with a row for each IN and IN/OUT parameter.
+  mforms::Table *table = mforms::manage(new mforms::Table());
+  table->set_padding(5, 20, 5, 20);
+  table->set_column_spacing(4);
+  table->set_row_spacing(4);
+  table->set_column_count(4);
+
+  // Need an intermediate container as we have to make the scrollbox expand, but don't want
+  // the table expand as well.
+  mforms::Box *container = mforms::manage(new mforms::Box(false));
+  container->add(table, false, true);
+  scroll_box->add(container);
+
+  grt::ListRef<db_mysql_RoutineParam> parameters = routine->params();
+  table->set_row_count((int)parameters->count());
+  for (int i = 0; i < (int)parameters->count(); ++i)
+  {
+    db_mysql_RoutineParamRef parameter = parameters[i];
+
+    // Skip pure out parameters.
+    if (routine->routineType() == "procedure" && parameter->paramType() == "out")
+      continue;
+
+    mforms::Label *text = mforms::manage(new mforms::Label(parameter->name()));
+    text->set_style(mforms::BoldStyle);
+    text->set_text_align(mforms::MiddleRight);
+    table->add(text, 0, 1, i, i + 1);
+
+    mforms::TextEntry *value_entry = mforms::manage(new mforms::TextEntry());
+    _edits.push_back(value_entry);
+    value_entry->set_size(100, -1);
+    table->add(value_entry, 1, 2, i, i + 1, mforms::VFillFlag);
+
+    text = mforms::manage(new mforms::Label(parameter->paramType()));
+    text->set_text_align(mforms::MiddleLeft);
+    text->set_color("#376BA5");
+    table->add(text, 2, 3, i, i + 1, mforms::VFillFlag);
+
+    text = mforms::manage(new mforms::Label(parameter->datatype()));
+    text->set_style(mforms::InfoCaptionStyle);
+    text->set_text_align(mforms::MiddleLeft);
+    table->add(text, 3, 4, i, i + 1);
+  }
+
+  set_content(content);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool ExecuteRoutineWizard::needs_quoting(const std::string &type)
+{
+  // Parse type to see if it needs quoting.
+  grt::ListRef<db_SimpleDatatype> default_type_list;
+  grt::ListRef<db_SimpleDatatype> type_list;
+  GrtVersionRef target_version;
+  if (_catalog.is_valid())
+  {
+    default_type_list = _catalog->simpleDatatypes();
+    type_list = default_type_list;
+    target_version = _catalog->version();
+  }
+
+  db_UserDatatypeRef userType;
+  db_SimpleDatatypeRef simpleType;
+  int precision = bec::EMPTY_COLUMN_PRECISION;
+  int scale = bec::EMPTY_COLUMN_SCALE;
+  int length = bec::EMPTY_COLUMN_LENGTH;
+  std::string datatypeExplicitParams;
+
+  // Since we work with code directly from the server parsing should always succeed.
+  // But just in case there's an unexpected error assume quoting is needed.
+  if (!bec::parseType(type, target_version, type_list, grt::ListRef<db_UserDatatype>(), default_type_list,
+    simpleType, userType, precision, scale, length, datatypeExplicitParams))
+    return true;
+
+  return simpleType->needsQuotes() != 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool is_quoted(const std::string &text)
+{
+  std::string text_ = base::trim(text);
+  if (text_.size() < 2)
+    return false;
+
+  if (text_[0] == '"' || text_[0] == '\'')
+  {
+    char quote_char = text_[0];
+    if (text_[text.size() - 1] == quote_char)
+      return true;
+  }
+
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string ExecuteRoutineWizard::run()
+{
+  // Generate sql for the caller, so it can be run in an editor.
+  std::string result;
+
+  // If there are no input parameters, we don't need to ask the user for anything.
+  grt::ListRef<db_mysql_RoutineParam> parameters = _routine->params();
+  if (!_edits.empty())
+  {
+    if (!run_modal(_execxute_button, NULL))
+      return "";
+  }
+
+  if (_routine->routineType() == "procedure")
+  {
+    std::string parameters_list;
+    std::string variables_list;
+    int edit_index = 0;
+
+    for (size_t i = 0; i < parameters->count(); ++i)
+    {
+      db_mysql_RoutineParamRef parameter = parameters[i];
+      bool quote = needs_quoting(parameter->datatype());
+      if (parameter->paramType() == "in")
+      {
+        // A pure input parameter. Just add it to the parameter list.
+        if (!parameters_list.empty())
+          parameters_list += ", ";
+
+        std::string value = _edits[edit_index++]->get_string_value();
+
+        // Don't quote if the user already did.
+        if (quote && is_quoted(value))
+          quote = false;
+        if (quote)
+          parameters_list += "'" + value + "'";
+        else
+          parameters_list += value;
+      }
+      else
+      {
+        // Out or in/out parameter.
+        // Since we cannot use DECLARE outside stored programs we use SET to define a variable
+        // that can take the output of the call. Need to set a dummy value, however.
+        result += "set @" + *parameter->name() + " = ";
+        
+        std::string value = "0";
+        if (parameter->paramType() == "inout")
+          value = _edits[edit_index++]->get_string_value();
+
+        if (quote && is_quoted(value))
+          quote = false;
+        if (quote)
+          result += "'" + value + "';\n";
+        else
+          result += value + ";\n";
+
+        if (!parameters_list.empty())
+          parameters_list += ", ";
+        parameters_list += "@" + *parameter->name();
+
+        if (!variables_list.empty())
+          variables_list += ", ";
+        variables_list += "@" + *parameter->name();
+      }
+    }
+
+    result += "call " + *_routine->name() + "(" + parameters_list + ");\n";
+    if (!variables_list.empty())
+      result += "select " + variables_list + ";\n";
+
+  }
+  else
+  {
+    std::string parameter_list;
+
+    for (size_t i = 0; i < _edits.size(); ++i)
+    {
+      // For functions there's a 1:1 relationship between input edits and parameters.
+      db_mysql_RoutineParamRef parameter = parameters[i];
+      if (!parameter_list.empty())
+        parameter_list += ", ";
+
+      if (needs_quoting(parameter->datatype()))
+        parameter_list += "'" + _edits[i]->get_string_value() + "'";
+      else
+        parameter_list += _edits[i]->get_string_value();
+    }
+
+    result = "select " + *_routine->name() + "(" + parameter_list + ");\n";
+  }
+
+  for (size_t i = 0; i < _edits.size(); ++i)
+    _edits[i]->release();
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------

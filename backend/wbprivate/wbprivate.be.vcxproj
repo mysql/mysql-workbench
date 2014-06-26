@@ -295,6 +295,7 @@
     <ClInclude Include="model\wb_user_datatypes.h" />
     <ClInclude Include="sqlide\db_sql_editor_history_be.h" />
     <ClInclude Include="sqlide\db_sql_editor_log.h" />
+    <ClInclude Include="sqlide\execute_routine_wizard.h" />
     <ClInclude Include="sqlide\query_side_palette.h" />
     <ClInclude Include="sqlide\result_form_view.h" />
     <ClInclude Include="sqlide\wb_context_sqlide.h" />
@@ -367,6 +368,7 @@
     <ClCompile Include="model\wb_user_datatypes.cpp" />
     <ClCompile Include="sqlide\db_sql_editor_history_be.cpp" />
     <ClCompile Include="sqlide\db_sql_editor_log.cpp" />
+    <ClCompile Include="sqlide\execute_routine_wizard.cpp" />
     <ClCompile Include="sqlide\query_side_palette.cpp" />
     <ClCompile Include="sqlide\result_form_view.cpp" />
     <ClCompile Include="sqlide\wb_context_sqlide.cpp" />

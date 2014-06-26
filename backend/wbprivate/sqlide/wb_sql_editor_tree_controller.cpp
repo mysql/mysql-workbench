@@ -20,7 +20,9 @@
 #include "grtpp_util.h"
 #include "wb_sql_editor_tree_controller.h"
 #include "wb_sql_editor_form.h"
+#include "execute_routine_wizard.h"
 #include "wb_sql_editor_panel.h"
+
 #include "base/sqlstring.h"
 #include "base/util_functions.h"
 #include "base/string_utilities.h"
@@ -61,6 +63,7 @@ using namespace grt;
 using namespace bec;
 using namespace wb;
 using namespace base;
+using namespace parser;
 
 using boost::signals2::scoped_connection;
 
@@ -1302,7 +1305,7 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
       std::string sql;
       switch (changes[i].type)
       {
-        case wb::LiveSchemaTree::Schema:
+        case LiveSchemaTree::Schema:
           if (real_action == "filter")
           {
             _schema_side_bar->get_filter_entry()->set_value(changes[i].name);
@@ -1310,16 +1313,38 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
           }
           else if (real_action == "inspect")
             _owner->inspect_object(changes[i].name, "", "db.Schema");
+          else if (real_action == "alter")
+            do_alter_live_object(LiveSchemaTree::Schema, changes[i].name, "");
           else
             _owner->active_schema(changes[i].name);
           break;
-        case wb::LiveSchemaTree::Table:
-        case wb::LiveSchemaTree::View:
+
+        case LiveSchemaTree::Table:
           if (real_action == "activate" || real_action == "edit_data" || real_action == "select_data")
             sql = sqlstring("SELECT * FROM !.!;", base::QuoteOnlyIfNeeded) << changes[i].schema << changes[i].name;
           else if (real_action == "inspect")
             _owner->inspect_object(changes[i].schema, changes[i].name, "db.Table");
+          else if (real_action == "alter")
+            do_alter_live_object(changes[i].type, changes[i].schema, changes[i].name);
           break;
+
+        case LiveSchemaTree::View:
+          if (real_action == "activate" || real_action == "edit_data" || real_action == "select_data")
+            sql = sqlstring("SELECT * FROM !.!;", base::QuoteOnlyIfNeeded) << changes[i].schema << changes[i].name;
+          else if (real_action == "inspect")
+            _owner->inspect_object(changes[i].schema, changes[i].name, "db.View");
+          else if (real_action == "alter")
+            do_alter_live_object(changes[i].type, changes[i].schema, changes[i].name);
+          break;
+
+        case LiveSchemaTree::Procedure:
+        case LiveSchemaTree::Function:
+          if (real_action == "alter")
+            do_alter_live_object(changes[i].type, changes[i].schema, changes[i].name);
+          else if (real_action == "execute")
+            sql = run_execute_routine_wizard(changes[i].type, changes[i].schema, changes[i].name);
+          break;
+
         default:
           break;
       }
@@ -1518,6 +1543,8 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
 }
 
 
+//--------------------------------------------------------------------------------------------------
+
 void SqlEditorTreeController::open_alter_object_editor(db_DatabaseObjectRef object,
                                                        db_CatalogRef server_state_catalog)
 {
@@ -1557,6 +1584,57 @@ void SqlEditorTreeController::open_alter_object_editor(db_DatabaseObjectRef obje
   _grtm->open_object_editor(object, bec::ForceNewWindowFlag);
 }
 
+//--------------------------------------------------------------------------------------------------
+
+std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTree::ObjectType type, 
+  const std::string &schema_name, const std::string &obj_name)
+{
+  std::pair<std::string, std::string> script = get_object_create_script(type, schema_name, obj_name);
+  if (script.second.empty())
+    return ""; // get_object_create_script() already showed an error.
+  
+  db_mysql_RoutineRef routine(_grtm->get_grt());
+  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(_grtm->get_grt());
+
+  db_mysql_CatalogRef catalog(_grtm->get_grt());
+  catalog->version(_owner->rdbms_version());
+  grt::replace_contents(catalog->simpleDatatypes(), _owner->rdbms()->simpleDatatypes());
+
+  db_mysql_SchemaRef schema(_grtm->get_grt());
+  schema->owner(catalog);
+  catalog->schemata().insert(schema);
+
+  routine->owner(schema);
+  schema->routines().insert(routine);
+
+  std::string previous_sql_mode;
+  if (!script.first.empty())
+  {
+    previous_sql_mode = _owner->work_parser_context()->get_sql_mode();
+    _owner->work_parser_context()->use_sql_mode(script.first);
+  }
+
+  size_t error_count = services->parseRoutine(_owner->work_parser_context(), routine, script.second);
+
+  if (!previous_sql_mode.empty())
+    _owner->work_parser_context()->use_sql_mode(previous_sql_mode);
+
+  if (error_count > 0)
+  {
+    log_warning("Error parsing SQL code for %s.%s:\n%s\n", schema_name.c_str(), obj_name.c_str(), script.second.c_str());
+
+    std::vector<ParserErrorEntry> errors = _owner->work_parser_context()->get_errors_with_offset(0);
+    mforms::Utilities::show_error(_("Error parsing sql code for object"), _("Syntax error:\n") + errors[0].message, "OK");
+    return "";
+  }
+
+  ExecuteRoutineWizard wizard(routine);
+  wizard.center();
+  return wizard.run();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 db_SchemaRef SqlEditorTreeController::create_new_schema(db_CatalogRef owner)
 {
   db_SchemaRef object= _grtm->get_grt()->create_object<db_Schema>(owner->schemata()->content_type_spec().object_class);
@@ -1567,6 +1645,7 @@ db_SchemaRef SqlEditorTreeController::create_new_schema(db_CatalogRef owner)
   return object;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 db_TableRef SqlEditorTreeController::create_new_table(db_SchemaRef owner)
 {
@@ -1652,6 +1731,7 @@ std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRe
 
 //--------------------------------------------------------------------------------------------------
 
+// Deprecated.
 std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name)
 {
   //const size_t DDL_COLUMN= 5;
@@ -1769,7 +1849,7 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
     }
     else
     {
-      log_error("Error getting SQL definition for %s.%s: %s", schema_name.c_str(), obj_name.c_str(), e.what());
+      log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
       mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK", "", "");
       ddl_script.clear();
     }
@@ -1777,6 +1857,149 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
   return ddl_script;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Retrieves the original DDL text that was used to create the object.
+ * Returns a tuple of <sql_mode, script>. The sql mode is what was used to create the object,
+ * if it is a routine. Otherwise this value is empty.
+ */
+std::pair<std::string, std::string> SqlEditorTreeController::get_object_create_script(wb::LiveSchemaTree::ObjectType type,
+  const std::string &schema_name, const std::string &obj_name)
+{
+  std::pair<std::string, std::string> result;
+
+  try
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    std::string query;
+
+    RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
+
+    // cant use getSchemaObjects() because it silently ignores errors
+    switch (type)
+    {
+    case wb::LiveSchemaTree::Schema:
+      query = base::sqlstring("SHOW CREATE SCHEMA !", 0) << obj_name;
+      break;
+
+    case wb::LiveSchemaTree::Table:
+      query = base::sqlstring("SHOW CREATE TABLE !.!", 0) << schema_name << obj_name;
+      break;
+
+    case wb::LiveSchemaTree::View:
+      query = base::sqlstring("SHOW CREATE VIEW !.!", 0) << schema_name << obj_name;
+      break;
+
+    case wb::LiveSchemaTree::Procedure:
+      query = base::sqlstring("SHOW CREATE PROCEDURE !.!", 0) << schema_name << obj_name;
+      break;
+
+    case wb::LiveSchemaTree::Function:
+      query = base::sqlstring("SHOW CREATE FUNCTION !.!", 0) << schema_name << obj_name;
+      break;
+
+    default:
+      break;
+    }
+
+    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+
+    if (rs.get() && rs->next())
+    {
+      if (type == wb::LiveSchemaTree::Function || type == wb::LiveSchemaTree::Procedure)
+      {
+        result.first = rs->getString(2);
+        result.second = rs->getString(3);
+      }
+      else
+        result.second = rs->getString(2);
+    }
+  }
+  catch (const sql::SQLException &e)
+  {
+    if (type == wb::LiveSchemaTree::View && e.getErrorCode() == 1356)
+    {
+      // Error for not being allowed to run SHOW CREATE VIEW. Use I_S instead to get the code.
+      sql::Dbc_connection_handler::Ref conn;
+      std::string query, view;
+      RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
+      query = base::sqlstring("SELECT DEFINER, SECURITY_TYPE, VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", 0) << schema_name << obj_name;
+      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+
+      if (rs.get() && rs->next())
+      {
+        std::string view, definer;
+        std::vector<std::string> definer_tokens = base::split(rs->getString(1), "@", 2);
+
+        view = base::sqlstring("!.!", 0) << schema_name << obj_name;
+        definer = base::sqlstring("!@!", 0) << definer_tokens[0] << definer_tokens[1];
+        result.second = "CREATE ALGORITHM = UNDEFINED DEFINER = " + definer;
+        result.second += " SQL SECURITY " + rs->getString(2);
+        result.second += " VIEW " + view + " AS\n";
+        result.second += rs->getString(3);
+      }
+    }
+    else
+    {
+      log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), e.what());
+      mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK");
+    }
+  }
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ *	Returns a list of trigger create scripts for the given table.
+ */
+std::vector<std::string> SqlEditorTreeController::get_trigger_sql_for_table(const std::string &schema_name,
+  const std::string &table_name)
+{
+  std::vector<std::string> result;
+
+  try
+  {
+    sql::Dbc_connection_handler::Ref conn;
+    RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
+
+    std::vector<std::string> triggers;
+    {
+      std::string trigger_query = base::sqlstring("SHOW TRIGGERS FROM ! WHERE ! = ?", 0) << schema_name << "Table" << table_name;
+      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
+
+      if (rs.get())
+      {
+        while (rs->next())
+          triggers.push_back(rs->getString(1));
+      }
+    }
+
+    for (size_t index = 0; index < triggers.size(); index++)
+    {
+      std::string trigger_query = base::sqlstring("SHOW CREATE TRIGGER !.!", 0) << schema_name << triggers[index];
+      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
+
+      if (rs.get() && rs->next())
+        result.push_back(rs->getString(3));
+    }
+  }
+  catch (const sql::SQLException &e)
+  {
+    log_error("Error getting SQL definition for %s.%s: %s\n", schema_name.c_str(), table_name.c_str(), e.what());
+    mforms::Utilities::show_error("Error getting DDL for object", e.what(), "OK");
+  }
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorBE* obj_editor, bool using_old_name)
 {

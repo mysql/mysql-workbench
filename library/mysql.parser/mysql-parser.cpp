@@ -1330,7 +1330,7 @@ MySQLRecognizerTreeWalker MySQLRecognizer::tree_walker()
 void MySQLRecognizer::set_sql_mode(const std::string &new_mode)
 {
   MySQLRecognitionBase::set_sql_mode(new_mode);
-  d->_context.sql_mode = sql_mode();
+  d->_context.sql_mode = sql_mode(); // Parsed SQL mode.
 }
 
 //--------------------------------------------------------------------------------------------------

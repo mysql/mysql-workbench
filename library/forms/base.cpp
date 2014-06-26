@@ -35,7 +35,7 @@ Object* Object::retain()
 void Object::release()
 {
     if (base::atomic_int_dec_and_test_if_zero(&_refcount) && _managed)
-    delete this;
+      delete this;
 }
 
 //--------------------------------------------------------------------------------------------------

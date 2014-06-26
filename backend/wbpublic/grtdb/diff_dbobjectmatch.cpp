@@ -653,6 +653,8 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   int length1 = bec::EMPTY_COLUMN_LENGTH;
   std::string datatypeExplicitParams1;
   std::string type1 = r1->returnDatatype();
+
+  // XXX: always set a valid version number!
   if (!bec::parseType(type1, GrtVersionRef(), types1,    user_types1,    default_type_list1,
       simpleType1, userType1, precision1,    scale1,    length1,    datatypeExplicitParams1))
       return false;

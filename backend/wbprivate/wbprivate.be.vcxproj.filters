@@ -229,6 +229,9 @@
     <ClInclude Include="sqlide\wb_sql_editor_tree_controller.h">
       <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
+    <ClInclude Include="sqlide\execute_routine_wizard.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
     <ClInclude Include="sqlide\result_form_view.h">
       <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
@@ -436,6 +439,9 @@
       <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
     <ClCompile Include="workbench\stdafx.cpp" />
+    <ClCompile Include="sqlide\execute_routine_wizard.cpp">
+      <Filter>Source Files SQL IDE</Filter>
+    </ClCompile>
     <ClCompile Include="sqlide\result_form_view.cpp">
       <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
