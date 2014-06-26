@@ -48,10 +48,9 @@ DbSqlEditorLog::DbSqlEditorLog(SqlEditorForm *owner, GRTManager *grtm, int max_e
   : VarGridModel(grtm), _owner(owner), _max_entry_count(max_entry_count)
 {
   reset();
-
-  std::string log_dir = grtm->get_user_datadir() + "/log/";
+  std::string log_dir = base::join_path(grtm->get_user_datadir().c_str(), "log", "");
   create_directory(log_dir, 0700);
-  _log_file_name = log_dir + sanitize_file_name("sql_actions_" + owner->get_session_name() + ".log");
+  _log_file_name = base::join_path(log_dir.c_str(), sanitize_file_name("sql_actions_" + owner->get_session_name() + ".log").c_str(), "");
 
   _context_menu.add_item("Copy Row", "copy_row");
   _context_menu.add_item("Copy Action", "copy_action");
