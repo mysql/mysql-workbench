@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,7 +67,8 @@ namespace MySQL {
 
       virtual void ApplyContentBounds(const System::Drawing::Rectangle% bounds)
       {
-        Controls[0]->Bounds = bounds;
+        if (Controls->Count > 0)
+          Controls[0]->Bounds = bounds;
       };
     };
 
@@ -100,7 +101,8 @@ namespace MySQL {
 
       virtual void ApplyContentBounds(const Drawing::Rectangle% bounds)
       {
-        Controls[0]->Bounds = bounds;
+        if (Controls->Count > 0)
+          Controls[0]->Bounds = bounds;
       };
     };
 
