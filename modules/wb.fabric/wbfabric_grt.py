@@ -172,7 +172,8 @@ def create_connections(conn):
                             child_conn_name = '%s/%s/%s:%s' % (conn.name, group['group_id'], host, port)
                             
                             server_user = conn.parameterValues["mysqlUserName"]
-                            grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
+                            managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
+                            managed_conn.parameterValues["fabric_managed"] = True
 
                 grt.modules.Workbench.refreshHomeConnections()
 
