@@ -58,6 +58,7 @@ ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
   title->set_text(base::strfmt(_("Enter values for parameters of your %s and click <Execute> to create "
     "an SQL editor to run the call."), routine->routineType().c_str()));
   title->set_wrap_text(true);
+  title->set_style(mforms::BoldStyle);
   content->add(title, false, true);
 
   mforms::ScrollPanel *scroll_box = mforms::manage(new mforms::ScrollPanel());
@@ -96,10 +97,13 @@ ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
     value_entry->set_size(100, -1);
     table->add(value_entry, 1, 2, i, i + 1, mforms::VFillFlag);
 
-    text = mforms::manage(new mforms::Label(parameter->paramType()));
-    text->set_text_align(mforms::MiddleLeft);
-    text->set_color("#376BA5");
-    table->add(text, 2, 3, i, i + 1, mforms::VFillFlag);
+    if (!parameter->paramType().empty())
+    {
+      text = mforms::manage(new mforms::Label("[" + base::toupper(parameter->paramType()) + "]"));
+      text->set_text_align(mforms::MiddleLeft);
+      text->set_color("#376BA5");
+      table->add(text, 2, 3, i, i + 1, mforms::VFillFlag);
+    }
 
     text = mforms::manage(new mforms::Label(parameter->datatype()));
     text->set_style(mforms::InfoCaptionStyle);
@@ -174,6 +178,8 @@ std::string ExecuteRoutineWizard::run()
       return "";
   }
 
+  std::string schema_name = base::quote_identifier_if_needed(*_routine->owner()->name(), '`');
+  std::string routine_name = base::quote_identifier_if_needed(*_routine->name(), '`');
   if (_routine->routineType() == "procedure")
   {
     std::string parameters_list;
@@ -205,7 +211,8 @@ std::string ExecuteRoutineWizard::run()
         // Out or in/out parameter.
         // Since we cannot use DECLARE outside stored programs we use SET to define a variable
         // that can take the output of the call. Need to set a dummy value, however.
-        result += "set @" + *parameter->name() + " = ";
+        std::string parameter_name = base::quote_identifier_if_needed(*parameter->name(), '`');
+        result += "set @" + parameter_name + " = ";
         
         std::string value = "0";
         if (parameter->paramType() == "inout")
@@ -220,15 +227,15 @@ std::string ExecuteRoutineWizard::run()
 
         if (!parameters_list.empty())
           parameters_list += ", ";
-        parameters_list += "@" + *parameter->name();
+        parameters_list += "@" + parameter_name;
 
         if (!variables_list.empty())
           variables_list += ", ";
-        variables_list += "@" + *parameter->name();
+        variables_list += "@" + parameter_name;
       }
     }
 
-    result += "call " + *_routine->name() + "(" + parameters_list + ");\n";
+    result += "call " + schema_name + "." + routine_name + "(" + parameters_list + ");\n";
     if (!variables_list.empty())
       result += "select " + variables_list + ";\n";
 
@@ -250,7 +257,7 @@ std::string ExecuteRoutineWizard::run()
         parameter_list += _edits[i]->get_string_value();
     }
 
-    result = "select " + *_routine->name() + "(" + parameter_list + ");\n";
+    result = "select " + schema_name + "." + routine_name + "(" + parameter_list + ");\n";
   }
 
   for (size_t i = 0; i < _edits.size(); ++i)

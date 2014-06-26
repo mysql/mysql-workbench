@@ -1602,6 +1602,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
 
   db_mysql_SchemaRef schema(_grtm->get_grt());
   schema->owner(catalog);
+  schema->name(schema_name);
   catalog->schemata().insert(schema);
 
   routine->owner(schema);
@@ -1624,7 +1625,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
     log_warning("Error parsing SQL code for %s.%s:\n%s\n", schema_name.c_str(), obj_name.c_str(), script.second.c_str());
 
     std::vector<ParserErrorEntry> errors = _owner->work_parser_context()->get_errors_with_offset(0);
-    mforms::Utilities::show_error(_("Error parsing sql code for object"), _("Syntax error:\n") + errors[0].message, "OK");
+    mforms::Utilities::show_error(_("Error parsing sql code for object"), errors[0].message, "OK");
     return "";
   }
 
