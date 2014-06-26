@@ -16,7 +16,7 @@
 # 02110-1301  USA
 
 
-from wb import DefineModule, wbinputs
+from wb import DefineModule
 import grt
 import mforms
 
@@ -164,7 +164,7 @@ class QueryPlanTab(mforms.Box):
     node_spacing = 30
     vertical = True
 
-    def __init__(self, context, server_version):
+    def __init__(self, owner, json_text, context, server_version):
         mforms.Box.__init__(self, False)
         self.set_managed()
         self.set_release_on_add()
@@ -175,7 +175,13 @@ class QueryPlanTab(mforms.Box):
 
         self.toolbar = mforms.newToolBar(mforms.SecondaryToolBar)
         self.toolbar.set_back_color("#ffffff")
-        
+
+        self.switcher_item = newToolBarItem(mforms.SelectorItem)
+        self.toolbar.add_item(self.switcher_item)
+
+        s = newToolBarItem(mforms.SeparatorItem)
+        self.toolbar.add_item(s)
+
         l = newToolBarItem(mforms.LabelItem)
         l.set_text("Display Info:")
         self.toolbar.add_item(l)
@@ -229,6 +235,21 @@ class QueryPlanTab(mforms.Box):
         btn.set_tooltip("Zoom out the diagram.")
         self.toolbar.add_item(btn)
 
+        s = newToolBarItem(mforms.SeparatorItem)
+        self.toolbar.add_item(s)
+
+        l = newToolBarItem(mforms.LabelItem)
+        l.set_text("Raw Data:")
+        self.toolbar.add_item(l)
+
+        btn = newToolBarItem(mforms.ToggleItem)
+        btn.set_icon(get_resource_path("qe_sql-editor-tb-icon_word-wrap-off.png"))
+        btn.set_alt_icon(get_resource_path("qe_sql-editor-tb-icon_word-wrap-on.png"))
+        btn.add_activated_callback(self.switch_to_raw)
+        btn.set_tooltip("View the raw JSON explain data.")
+        self.toolbar.add_item(btn)
+
+
         self.add(self.toolbar, False, True)
 
         # Query Plan diagram
@@ -245,7 +266,16 @@ class QueryPlanTab(mforms.Box):
         self.add(self.scroll, True, True)
     
         self.display_cost(cost_type_item)
-    
+
+        # textbox to view the json data
+        self._raw_explain = mforms.CodeEditor()
+        self._raw_explain.set_value(json_text)
+        #self._raw_explain.enable_folding(True)
+        self._raw_explain.set_language(mforms.LanguagePython)
+        self._raw_explain.set_features(mforms.FeatureReadOnly, 1)
+        self.add(self._raw_explain, True, True)
+        self._raw_explain.show(False)
+
 
     def display_cost(self, item):
         text = item.get_text()
@@ -263,6 +293,12 @@ class QueryPlanTab(mforms.Box):
     def toggle_aggregated(self, item):
         self._context.show_aggregated_cost_info("aggregated" in item.get_text().lower())
         self.drawbox.set_needs_repaint()
+
+
+    def switch_to_raw(self, item):
+        flag = item.get_checked()
+        self._raw_explain.show(flag)
+        self.scroll.show(not flag)
 
 
     def save(self, item):
@@ -287,6 +323,65 @@ class QueryPlanTab(mforms.Box):
         self.drawbox.set_needs_repaint()
 
 
+
+class TabularExplainTab(mforms.Box):
+    node_spacing = 30
+    vertical = True
+
+    def __init__(self, owner, explain, server_version):
+        mforms.Box.__init__(self, False)
+        self.set_managed()
+        self.set_release_on_add()
+
+        self.toolbar = mforms.newToolBar(mforms.SecondaryToolBar)
+        self.toolbar.set_back_color("#ffffff")
+
+        self.switcher_item = newToolBarItem(mforms.SelectorItem)
+        self.toolbar.add_item(self.switcher_item)
+
+        self.add(self.toolbar, False, False)
+
+        self.explain_tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeAltRowColors)
+        self.explain_tree.add_column_resized_callback(self.column_resized)
+        c = len(explain.columns)
+        rows_column = None
+
+        saved_widths = grt.root.wb.state.get("wb.query.analysis:ExplainTreeColumnWidths", None)
+        if saved_widths:
+          saved_widths = [int(i) for i in saved_widths.split(",")]
+
+        for i, column in enumerate(explain.columns):
+          width = saved_widths[i] if saved_widths and i < len(saved_widths) else EXPLAIN_COLUMN_WIDTHS.get(column.name, 100)
+          if column.name == "rows":
+            rows_column = i
+            self.explain_tree.add_column(mforms.LongIntegerColumnType, column.name, width)
+          else:
+            self.explain_tree.add_column(mforms.StringColumnType, column.name, width)
+        self.explain_tree.end_columns()
+
+        if explain.goToFirstRow():
+          while True:
+            node = self.explain_tree.add_node()
+            for i in range(c):
+              value = explain.stringFieldValue(i)
+              if i == rows_column:
+                node.set_long(i, long(value) if value else 0)
+              else:
+                node.set_string(i, value)
+            if not explain.nextRow():
+              break
+
+        explain.reset_references()
+        self.add(self.explain_tree, True, True)
+
+
+    def column_resized(self, column):
+        sizes = []
+        for i in range(self.explain_tree.get_column_count()):
+            sizes.append(self.explain_tree.get_column_width(i))
+        grt.root.wb.state["wb.query.analysis:ExplainTreeColumnWidths"] = ",".join([str(i) for i in sizes])
+
+
 class ExplainTab(mforms.AppView):
     _query_plan = None
     _costs_tree = None
@@ -302,7 +397,7 @@ class ExplainTab(mforms.AppView):
         self._form_deactivated_conn = mforms.Form.main_form().add_deactivated_callback(self.form_deactivated)
         
         self._query = query
-        self.tabview = mforms.newTabView(0)
+        self.tabview = mforms.newTabView(mforms.TabViewTabless)
         self.tabview.add_tab_changed_callback(self.tab_changed)
         self.set_back_color("#ffffff")
         
@@ -321,62 +416,35 @@ class ExplainTab(mforms.AppView):
             try:
                 self._explain_context = ExplainContext(json_data, server_version)
 
-                self._query_plan = QueryPlanTab(self._explain_context, server_version)
+                self._query_plan = QueryPlanTab(self, json_text, self._explain_context, server_version)
                 self._explain_context.init_canvas(self._query_plan.drawbox, self._query_plan.scroll, self._query_plan.set_needs_repaint)
                 #self._explain_context._canvas.set_background_color(1, 0xfc/255.0, 0xe5/255.0)
                 # Initial layouting of the plan diagram
                 self._query_plan.drawbox.relayout()
-                self.tabview.add_page(self._query_plan, "Query Plan")
+                self.tabview.add_page(self._query_plan, "Visual Explain")
+
+                self._query_plan.switcher_item.set_name("visual_explain_switcher")
+                self._query_plan.switcher_item.set_selector_items(["Visual Explain", "Tabular Explain"])
+                self._query_plan.switcher_item.add_activated_callback(self.switch_view)
             except Exception, e:
                 import traceback
                 grt.log_error("vexplain", "Error creating query plan: %s\n" % traceback.format_exc())
                 mforms.Utilities.show_error("Query Plan Generation Error",
                                             "An unexpected error occurred during creation of the graphical query plan.\nPlease file a bug report at http://bugs.mysql.com along with the query and the Raw Explain Data.\n\nException: %s" % e,
                                             "OK", "", "")
-
-            self._raw_explain = mforms.CodeEditor()
-            self._raw_explain.set_value(json_text)
-            #self._raw_explain.enable_folding(True)
-            self._raw_explain.set_language(mforms.LanguagePython)
-            self._raw_explain.set_features(mforms.FeatureReadOnly, 1)
-            self.tabview.add_page(self._raw_explain, "Raw Explain Data")
-
-            #self._costs_tree = self.fill_costs_tree(json)
-        #self.tabview.add_page(self._costs_tree, "Query Costs")
+        else:
+            grt.log_error("vexplain", "No JSON data for explain\n")
 
         # Good old explain
         if explain:
-            self.explain_tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeAltRowColors)
-            self.explain_tree.add_column_resized_callback(self.column_resized)
-            c = len(explain.columns)
-            rows_column = None
-            
-            saved_widths = grt.root.wb.state.get("wb.query.analysis:ExplainTreeColumnWidths", None)
-            if saved_widths:
-                saved_widths = [int(i) for i in saved_widths.split(",")]
-            
-            for i, column in enumerate(explain.columns):
-                width = saved_widths[i] if saved_widths and i < len(saved_widths) else EXPLAIN_COLUMN_WIDTHS.get(column.name, 100)
-                if column.name == "rows":
-                    rows_column = i
-                    self.explain_tree.add_column(mforms.LongIntegerColumnType, column.name, width)
-                else:
-                    self.explain_tree.add_column(mforms.StringColumnType, column.name, width)
-            self.explain_tree.end_columns()
-            
-            if explain.goToFirstRow():
-                while True:
-                    node = self.explain_tree.add_node()
-                    for i in range(c):
-                        value = explain.stringFieldValue(i)
-                        if i == rows_column:
-                            node.set_long(i, long(value) if value else 0)
-                        else:
-                            node.set_string(i, value)
-                    if not explain.nextRow():
-                        break
-            self.tabview.add_page(self.explain_tree, "Explain")
-            explain.reset_references()
+            self._tabular_explain = TabularExplainTab(self, explain, server_version)
+            self.tabview.add_page(self._tabular_explain, "Tabular Explain")
+
+            self._tabular_explain.switcher_item.set_name("tabular_explain_switcher")
+            self._tabular_explain.switcher_item.set_selector_items(["Visual Explain", "Tabular Explain"])
+            self._tabular_explain.switcher_item.set_text("Tabular Explain")
+            self._tabular_explain.switcher_item.add_activated_callback(self.switch_view)
+
 
         self.add(self.tabview, True, True)
 
@@ -384,11 +452,25 @@ class ExplainTab(mforms.AppView):
             self.tabview.set_active_tab(default_tab)
 
 
-    def column_resized(self, column):
-        sizes = []
-        for i in range(self.explain_tree.get_column_count()):
-            sizes.append(self.explain_tree.get_column_width(i))
-        grt.root.wb.state["wb.query.analysis:ExplainTreeColumnWidths"] = ",".join([str(i) for i in sizes])
+    _switching = False
+    def switch_view(self, item):
+        if self._switching: return
+        self._switching = True
+        new_view = item.get_text()
+        if new_view == "Visual Explain":
+            self.tabview.set_active_tab(0)
+        elif new_view == "Tabular Explain":
+            self.tabview.set_active_tab(1)
+        else:
+            raise Exception("Unknown "+new_view)
+
+        source = item.get_name()
+        # switch back the selector
+        if source == "visual_explain_switcher":
+          item.set_text("Visual Explain")
+        elif source == "tabular_explain_switcher":
+          item.set_text("Tabular Explain")
+        self._switching = False
 
 
     def tab_changed(self):
@@ -418,9 +500,8 @@ class ExplainTab(mforms.AppView):
         return True
 
 
-@ModuleInfo.plugin("wb.sqlide.visual_explain", caption="Visual Explain", input=[wbinputs.currentQueryEditor()])
-@ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor)
-def visualExplain(editor):
+@ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor, grt.classes.db_query_ResultPanel)
+def visualExplain(editor, result_panel):
     version = Version.fromgrt(editor.owner.serverVersion)
     
     statement = editor.currentStatement
@@ -428,27 +509,28 @@ def visualExplain(editor):
         try:
             explain = editor.owner.executeQuery("EXPLAIN %s" % statement, 1)
         except Exception, e:
-            mforms.Utilities.show_error("Explain for Connection",
+            mforms.Utilities.show_error("Visual Explain",
                                         "Error executing explain\n%s" % (e), "OK", "", "")
             return 0
         
         if not explain:
-            mforms.Utilities.show_error("Explain for Connection",
+            mforms.Utilities.show_error("Visual Explain",
                                         "Error executing explain.", "OK", "", "")
             return 0
         
         json = None
-        if None and version.is_supported_mysql_version_at_least(5, 6):
+        if version.is_supported_mysql_version_at_least(5, 6):
             rset = editor.owner.executeQuery("EXPLAIN FORMAT=JSON %s" % statement, 1)
             if rset and rset.goToFirstRow():
                 json = rset.stringFieldValue(0)
                 rset.reset_references()
 
         view = ExplainTab(version, statement, json, explain if explain else None)
-        dock = mforms.fromgrt(editor.resultDockingPoint)
-        dock.dock_view(view, "", 0)
+        dock = mforms.fromgrt(result_panel.dockingPoint)
+        view.set_identifier("execution_plan")
+        view.set_title("Execution\nPlan")
+        dock.dock_view(view, mforms.App.get().get_resource_path("output_type-executionplan.png").encode("utf8"), 0)
         dock.select_view(view)
-        dock.set_view_title(view, "Explain")
     
     return 0
 
@@ -486,6 +568,7 @@ def visualExplainForConnection(editor, conn_id, the_query):
             json = None
     
     view = ExplainTab(version, the_query, json, explain if explain else None)
+    view.set_identifier("execution_plan")
     dock = mforms.fromgrt(editor.resultDockingPoint)
     dock.dock_view(view, "", 0)
     dock.select_view(view)

@@ -25,10 +25,14 @@
 #include "base/wb_memory.h"
 #include "base/file_functions.h"
 #include "base/file_utilities.h"
+#include "base/log.h"
 
 #include "mforms/utilities.h"
 #include "wb_sql_editor_form.h"
+#include "wb_sql_editor_panel.h"
 #include <boost/foreach.hpp>
+
+DEFAULT_LOG_DOMAIN("SqlEditorLog");
 
 using namespace bec;
 using namespace grt;
@@ -135,16 +139,16 @@ void DbSqlEditorLog::handle_context_menu(const std::string &action)
   else if (action == "append_selected_items")
   {
     sql = get_selection_text(false, true, false, false);
-    MySQLEditor::Ref editor(_owner->active_sql_editor());
+    SqlEditorPanel *editor(_owner->active_sql_editor_panel());
     if (editor)
-      editor->append_text(sql);
+      editor->editor_be()->append_text(sql);
   }
   else if (action == "replace_sql_script")
   {
     sql = get_selection_text(false, true, false, false);
-    MySQLEditor::Ref editor(_owner->active_sql_editor());
+    SqlEditorPanel *editor(_owner->active_sql_editor_panel());
     if (editor)
-      editor->sql(sql.c_str());
+      editor->editor_be()->sql(sql.c_str());
   }
   else if (action == "clear")
   {
@@ -299,9 +303,15 @@ RowId DbSqlEditorLog::add_message(int msg_type, const std::string &context, cons
     return -1;
 
   std::string time = current_time();
+  if (!_log_file_name.empty())
   {
     base::FILE_scope_ptr fp = base_fopen(_log_file_name.c_str(), "a");
     fprintf(fp, "[%u, %s] %s: %s\n",  _next_id, time.c_str(), context.c_str(), msg.c_str());
+  }
+  else
+  {
+    log_error("DbSqlEditorLog::add_message called with no log file name set\n");
+    return -1;
   }
 
   {

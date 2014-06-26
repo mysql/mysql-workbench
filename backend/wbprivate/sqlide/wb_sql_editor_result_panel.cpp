@@ -17,12 +17,21 @@
  * 02110-1301  USA
  */
 
+#include "stdafx.h"
 #include "wb_sql_editor_form.h"
+#include "wb_sql_editor_panel.h"
 #include "wb_sql_editor_result_panel.h"
+#include "result_form_view.h"
+
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "sqlide/recordset_cdbc_storage.h"
 #include "grtdb/db_helpers.h"
 #include "grtui/inserts_export_form.h"
+#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/db.query/db_query_Resultset.h"
+#include "objimpl/db.query/db_query_EditableResultset.h"
+
+#include "sqlide/column_width_cache.h"
 
 #include "base/sqlstring.h"
 #include "grt/parse_utils.h"
@@ -41,6 +50,7 @@
 #include "mforms/toolbar.h"
 #include "mforms/scrollpanel.h"
 #include "mforms/menubar.h"
+#include "mforms/record_grid.h"
 #include "mforms/imagebox.h"
 
 #include "mforms/button.h"
@@ -53,626 +63,110 @@ using namespace base;
 
 DEFAULT_LOG_DOMAIN("SqlResult")
 
-class FieldView
+
+class SqlEditorResult::DockingDelegate : public mforms::TabViewDockingPoint
 {
-  mforms::Label _label;
-
-protected:
-
-  boost::function<void (const std::string &s)> _change_callback;
+  mforms::TabSwitcher *_switcher;
 
 public:
-  FieldView(const std::string &name, const boost::function<void (const std::string &s)> &change_callback)
-  : _label(name), _change_callback(change_callback)
+  DockingDelegate(mforms::TabView *tabview, mforms::TabSwitcher *switcher, const std::string &name)
+  : mforms::TabViewDockingPoint(tabview, name), _switcher(switcher)
   {
-    _label.set_text_align(mforms::TopRight);
   }
 
-  virtual ~FieldView() {}
-
-  static FieldView *create(const Recordset_cdbc_storage::FieldInfo &field, const std::string &full_type, bool editable,
-                           const boost::function<void (const std::string &s)> &callback,
-                           const boost::function<void ()> &view_blob_callback);
-
-  mforms::Label *label() { return &_label; }
-  virtual mforms::View *value() = 0;
-  virtual bool expands() { return false; }
-
-  virtual void set_value(const std::string &value, bool is_null) = 0;
-
-};
-
-
-class StringFieldView : public FieldView
-{
-  mforms::TextEntry *_entry;
-  bool _expands;
-
-  void changed()
+  virtual void undock_view(AppView *view)
   {
-    _change_callback(_entry->get_string_value());
+    for (int i = 0; i < view_count(); i++)
+      if (view_at_index(i) == view)
+      {
+        _switcher->remove_item(i);
+        break;
+      }
+
+    mforms::TabViewDockingPoint::undock_view(view);
   }
 
-public:
-  StringFieldView(const std::string &name, int max_length, bool editable, const boost::function<void (const std::string &s)> &change_callback)
-  : FieldView(name, change_callback), _expands(false)
+  virtual void dock_view(AppView *view, const std::string &icon, int arg2)
   {
-    _entry = new mforms::TextEntry();
-    _entry->set_enabled(editable);
-    _entry->signal_changed()->connect(boost::bind(&StringFieldView::changed, this));
-    if (max_length > 64)
-      _expands = true;
-    else
-      _entry->set_size(std::max(max_length * 10, 60), -1);
-  }
-
-  virtual bool expands()
-  {
-    return _expands;
-  }
-
-  virtual ~StringFieldView()
-  {
-    _entry->release();
-  }
-
-  virtual mforms::View *value() { return _entry; }
-
-  virtual void set_value(const std::string &value, bool is_null)
-  {
-    _entry->set_value(value);
+    mforms::TabViewDockingPoint::dock_view(view, icon, arg2);
+    _switcher->add_item(view->get_title(), "", icon, "");
   }
 };
 
 
-class SelectorFieldView : public FieldView
-{
-  mforms::Selector *_selector;
-
-  void changed()
-  {
-    _change_callback(_selector->get_string_value());
-  }
-
-public:
-  SelectorFieldView(const std::string &name, const std::list<std::string> &items,
-                    bool editable, const boost::function<void (const std::string &s)> &change_callback)
-  : FieldView(name, change_callback)
-  {
-    _selector = new mforms::Selector();
-    _selector->add_items(items);
-    _selector->set_enabled(editable);
-    _selector->signal_changed()->connect(boost::bind(&SelectorFieldView::changed, this));
-  }
-
-  virtual ~SelectorFieldView()
-  {
-    _selector->release();
-  }
-
-  virtual mforms::View *value() { return _selector; }
-
-  virtual void set_value(const std::string &value, bool is_null)
-  {
-    _selector->set_value(value);
-  }
-};
-
-
-class SetFieldView : public FieldView
-{
-  mforms::TreeNodeView _tree;
-
-  void changed()
-  {
-    std::string value;
-
-    for (int c = _tree.count(), i = 0; i < c; i++)
-    {
-      mforms::TreeNodeRef node = _tree.node_at_row(i);
-      if (node->get_bool(0))
-      {
-        if (!value.empty())
-          value.append(",");
-        value.append(node->get_string(1));
-      }
-    }
-    _change_callback(value);
-  }
-
-public:
-  SetFieldView(const std::string &name, const std::list<std::string> &items,
-               bool editable, const boost::function<void (const std::string &s)> &change_callback)
-  : FieldView(name, change_callback), _tree(mforms::TreeFlatList|mforms::TreeNoHeader)
-  {
-    _tree.add_column(mforms::CheckColumnType, "", 30, true);
-    _tree.add_column(mforms::StringColumnType, "", 200, false);
-    _tree.end_columns();
-
-    for (std::list<std::string>::const_iterator i = items.begin(); i != items.end(); ++i)
-    {
-      mforms::TreeNodeRef node = _tree.add_node();
-      node->set_string(1, *i);
-    }
-
-    int height = (int)items.size() * 20;
-    _tree.set_size(250, height > 100 ? 100 : height);
-
-    _tree.set_enabled(editable);
-    _tree.signal_changed()->connect(boost::bind(&SetFieldView::changed, this));
-  }
-
-  virtual mforms::View *value() { return &_tree; }
-
-  virtual void set_value(const std::string &value, bool is_null)
-  {
-    std::vector<std::string> l(base::split_token_list(value, ','));
-
-    for (int c = _tree.count(), i = 0; i < c; i++)
-    {
-      mforms::TreeNodeRef node = _tree.node_at_row(i);
-      if (std::find(l.begin(), l.end(), node->get_string(1)) != l.end())
-        node->set_bool(0, true);
-      else
-        node->set_bool(0, false);
-    }
-  }
-};
-
-
-class TextFieldView : public FieldView
-{
-  mforms::TextBox *_tbox;
-
-  void changed()
-  {
-    _change_callback(_tbox->get_string_value());
-  }
-
-public:
-  TextFieldView(const std::string &name, bool editable, const boost::function<void (const std::string &s)> &change_callback)
-  : FieldView(name, change_callback)
-  {
-    _tbox = new mforms::TextBox(mforms::BothScrollBars);
-    _tbox->set_enabled(editable);
-    _tbox->signal_changed()->connect(boost::bind(&TextFieldView::changed, this));
-    _tbox->set_size(-1, 60);
-  }
-
-  virtual bool expands()
-  {
-    return true;
-  }
-
-  virtual ~TextFieldView()
-  {
-    _tbox->release();
-  }
-
-  virtual mforms::View *value() { return _tbox; }
-
-  virtual void set_value(const std::string &value, bool is_null)
-  {
-    _tbox->set_value(value);
-  }
-};
-
-
-class BlobFieldView : public FieldView
-{
-  mforms::Box _box;
-  mforms::Label _blob;
-
-  void changed()
-  {
-  }
-
-public:
-  BlobFieldView(const std::string &name, bool editable, const boost::function<void (const std::string &s)> &change_callback,
-                const boost::function<void ()> &view_callback)
-  : FieldView(name, change_callback), _box(true), _blob("BLOB")
-  {
-    _box.set_spacing(8);
-    _box.add(&_blob, false, true);
-    mforms::Button *b = mforms::manage(new mforms::Button());
-    b->enable_internal_padding(false);
-    b->signal_clicked()->connect(view_callback);
-    b->set_text("View...");
-    _box.add(b, false, true);
-  }
-
-  virtual mforms::View *value() { return &_box; }
-
-  virtual void set_value(const std::string &value, bool is_null)
-  {
-    _blob.set_text(is_null ? "NULL" : "BLOB");
-  }
-};
-
-
-static std::list<std::string> parse_enum_definition(const std::string &full_type)
-{
-  std::list<std::string> l;
-  std::string::size_type b, e;
-
-  b = full_type.find('(');
-  e = full_type.rfind(')');
-  if (b != std::string::npos && e != std::string::npos && e > b)
-  {
-    bec::tokenize_string_list(full_type.substr(b+1, e-b-1), '\'', true, l);
-    for (std::list<std::string>::iterator i = l.begin(); i != l.end(); ++i)
-    {
-      // strip quotes
-      *i = i->substr(1, i->size()-2);
-    }
-  }
-  return l;
-}
-
-
-inline std::string format_label(const std::string &label)
-{
-  std::string flabel = label + ":";
-
-  if (g_ascii_isalpha(flabel[0]))
-    flabel = g_ascii_toupper(flabel[0]) + flabel.substr(1);
-
-  return flabel;
-}
-
-
-FieldView *FieldView::create(const Recordset_cdbc_storage::FieldInfo &field, const std::string &full_type, bool editable,
-                             const boost::function<void (const std::string &s)> &callback,
-                             const boost::function<void ()> &view_blob_callback)
-{
-  if (field.type == "VARCHAR")
-  {
-    if (field.display_size > 40)
-    {
-      TextFieldView *text = new TextFieldView(format_label(field.field), editable, callback);
-      if (field.display_size > 1000)
-        text->value()->set_size(-1, 200);
-      return text;
-    }
-    else
-      return new StringFieldView(format_label(field.field), field.display_size, editable, callback);
-  }
-  else if (field.type == "TEXT")
-  {
-    return new TextFieldView(format_label(field.field), editable, callback);
-  }
-  else if (field.type == "BLOB")
-  {
-    return new BlobFieldView(format_label(field.field), editable, callback, view_blob_callback);
-  }
-  else if (field.type == "ENUM" && !full_type.empty())
-  {
-    return new SelectorFieldView(format_label(field.field), parse_enum_definition(full_type), editable, callback);
-  }
-  else if (field.type == "SET" && !full_type.empty())
-  {
-    return new SetFieldView(format_label(field.field), parse_enum_definition(full_type), editable, callback);
-  }
-  else
-    return new StringFieldView(format_label(field.field), field.display_size, editable, callback);
-  return NULL;
-}
-
-
-class ResultFormView : public mforms::Box
-{
-  Recordset::Ptr _rset;
-
-  mforms::ScrollPanel _spanel;
-  mforms::Table _table;
-  std::vector<FieldView*> _fields;
-  mforms::ToolBar _tbar;
-  mforms::ToolBarItem *_label_item;
-
-  bool _editable;
-  boost::signals2::connection _refresh_ui_connection;
-
-  void navigate(mforms::ToolBarItem *item)
-  {
-    std::string name = item->get_name();
-    Recordset::Ref rset(_rset.lock());
-    if (rset)
-    {
-      ssize_t row = rset->edited_field_row();
-      if (row < 0)
-        return;
-
-      if (name == "delete")
-      {
-        rset->delete_node(row);
-      }
-      else if (name == "back")
-      {
-        row--;
-        if (row < 0)
-          row = 0;
-        rset->set_edited_field(row, rset->edited_field_column());
-        if (rset->update_edited_field)
-          rset->update_edited_field();
-      }
-      else if (name == "first")
-      {
-        row = 0;
-        rset->set_edited_field(row, rset->edited_field_column());
-        if (rset->update_edited_field)
-          rset->update_edited_field();
-      }
-      else if (name == "next")
-      {
-        row++;
-        if (row >= (ssize_t)rset->count())
-          row = rset->count()-1;
-        rset->set_edited_field(row, rset->edited_field_column());
-        if (rset->update_edited_field)
-          rset->update_edited_field();
-      }
-      else if (name == "last")
-      {
-        row = rset->count()-1;
-        rset->set_edited_field(row, rset->edited_field_column());
-        if (rset->update_edited_field)
-          rset->update_edited_field();
-      }
-      display_record();
-    }
-  }
-
-
-  void update_value(int column, const std::string &value)
-  {
-    Recordset::Ref rset(_rset.lock());
-    if (rset)
-    {
-      size_t row = rset->edited_field_row();
-      if (rset->count() > row)
-        rset->set_field(row, column, value);
-    }
-  }
-
-
-  void open_field_editor(int column)
-  {
-    Recordset::Ref rset(_rset.lock());
-    if (rset)
-    {
-      size_t row = rset->edited_field_row();
-      if (row < rset->count())
-        rset->open_field_data_editor(row, column);
-    }
-  }
-
-public:
-  ResultFormView(bool editable)
-  : mforms::Box(false), _spanel(mforms::ScrollPanelDrawBackground), _tbar(mforms::SecondaryToolBar),
-  _editable(editable)
-  {
-    mforms::ToolBarItem *item;
-    mforms::App *app = mforms::App::get();
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::TitleItem));
-    item->set_text("Form Editor");
-    _tbar.add_item(item);
-    _tbar.add_separator_item();
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-    item->set_text("Navigate:");
-    _tbar.add_item(item);
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_name("first");
-    item->set_tooltip("Go to the first row in the recordset.");
-    item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
-    item->set_icon(app->get_resource_path("record_first.png"));
-    _tbar.add_item(item);
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_name("back");
-    item->set_tooltip("Go back one row in the recordset.");
-    item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
-    item->set_icon(app->get_resource_path("record_back.png"));
-    _tbar.add_item(item);
-
-    _label_item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-    _label_item->set_name("location");
-    _tbar.add_item(_label_item);
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_name("next");
-    item->set_tooltip("Go next one row in the recordset.");
-    item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
-    item->set_icon(app->get_resource_path("record_next.png"));
-    _tbar.add_item(item);
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_name("last");
-    item->set_tooltip("Go to the last row in the recordset.");
-    item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
-    item->set_icon(app->get_resource_path("record_last.png"));
-    _tbar.add_item(item);
-
-    if (editable)
-    {
-      _tbar.add_separator_item();
-
-      item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-      item->set_text("Edit:");
-      _tbar.add_item(item);
-
-      item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-      item->set_name("delete");
-      item->set_tooltip("Delete current row from the recordset.");
-      item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
-      item->set_icon(app->get_resource_path("record_del.png"));
-      _tbar.add_item(item);
-
-      item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-      item->set_name("last");
-      item->set_tooltip("Add a new row to the recordset.");
-      item->signal_activated()->connect(boost::bind(&ResultFormView::navigate, this, item));
-      item->set_icon(app->get_resource_path("record_add.png"));
-      _tbar.add_item(item);
-    }
-
-    add(&_tbar, false, true);
-    _spanel.set_back_color(mforms::App::get()->get_system_color(mforms::SystemColorContainer).to_html());
-
-    add(&_spanel, true, true);
-    _spanel.add(&_table);
-    _table.set_column_count(2);
-    _table.set_padding(12, 12, 12, 12);
-    _table.set_row_spacing(8);
-    _table.set_column_spacing(8);
-  }
-
-  mforms::ToolBar *get_toolbar() { return &_tbar; }
-
-  virtual ~ResultFormView()
-  {
-    _refresh_ui_connection.disconnect();
-    for (std::vector<FieldView*>::const_iterator i = _fields.begin(); i != _fields.end(); ++i)
-      delete *i;
-  }
-
-  int display_record()
-  {
-    Recordset::Ref rset(_rset.lock());
-    if (rset)
-    {
-      int c = 0;
-
-      for (std::vector<FieldView*>::const_iterator i = _fields.begin(); i != _fields.end(); ++i, ++c)
-      {
-        std::string value;
-        rset->get_field_repr_no_truncate(rset->edited_field_row(), c, value);
-        (*i)->set_value(value, rset->is_field_null(rset->edited_field_row(), c));
-      }
-
-      std::stringstream out;
-      out << rset->edited_field_row() + 1 << " / " << rset->count();
-      _label_item->set_text(out.str());
-      _tbar.find_item("first")->set_enabled(rset->edited_field_row() > 0);
-      _tbar.find_item("back")->set_enabled(rset->edited_field_row() > 0);
-
-      _tbar.find_item("next")->set_enabled(rset->edited_field_row() < rset->count()-1);
-      _tbar.find_item("last")->set_enabled(rset->edited_field_row() < rset->count()-1);
-    }
-    return 0;
-  }
-
-  std::string get_full_column_type(SqlEditorForm *editor, const std::string &schema, const std::string &table, const std::string &column)
-  {
-    // we only support 5.5+ for this feature
-    if (bec::is_supported_mysql_version_at_least(editor->rdbms_version(), 5, 5))
-    {
-      std::string q = base::sqlstring("SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = ? and table_name = ? and column_name = ?", 0) << schema << table << column;
-      try
-      {
-        // XXX handle case where column is an alias, in that case we have to parse the query and extract the original column name by hand
-        sql::Dbc_connection_handler::Ref conn;
-        base::RecMutexLock lock(editor->ensure_valid_aux_connection(conn));
-
-        std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-        std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(q));
-        if (result.get() && result->first())
-          return result->getString(1);
-      }
-      catch (std::exception &e)
-      {
-        log_exception(("Exception getting column information: "+q).c_str(), e);
-      }
-    }
-    return "";
-  }
-
-  void init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *editor)
-  {
-    Recordset::Ref rset(rset_ptr.lock());
-    _rset = rset_ptr;
-    if (rset)
-    {
-      _refresh_ui_connection.disconnect();
-      rset->refresh_ui_signal.connect(boost::bind(&ResultFormView::display_record, this));
-
-      size_t cols = rset->get_column_count();
-      _table.set_row_count((int)cols);
-
-      if (rset->count() > 0)
-      {
-        rset->set_edited_field(0, 0);
-        if (rset->update_edited_field)
-          rset->update_edited_field();
-      }
-
-      Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
-
-      std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
-
-      int i = 0;
-      for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
-           iter != field_info.end(); ++iter, ++i)
-      {
-        std::string full_type;
-
-        if ((iter->type == "ENUM" || iter->type == "SET") && !iter->table.empty())
-        {
-          full_type = get_full_column_type(editor, iter->schema, iter->table, iter->field);
-        }
-
-        FieldView *fview = FieldView::create(*iter, full_type, _editable,
-                                             boost::bind(&ResultFormView::update_value, this, i, _1),
-                                             boost::bind(&ResultFormView::open_field_editor, this, i));
-        if (fview)
-        {
-          _table.add(fview->label(), 0, 1, i, i+1, mforms::HFillFlag);
-          _table.add(fview->value(), 1, 2, i, i+1, mforms::HFillFlag | (fview->expands() ? mforms::HExpandFlag : 0));
-          _fields.push_back(fview);
-        }
-      }
-
-      if (field_info.empty())
-      {
-        mforms::Label *label = mforms::manage(new mforms::Label("To use the Form Editor, please enable Query -> Collect Resultset Field Metadata from the main menu"));
-        label->set_style(mforms::BigBoldStyle);
-        _table.add(label, 0, 2, 0, 1, mforms::HFillFlag|mforms::VFillFlag|mforms::VExpandFlag);
-      }
-    }
-  }
-};
-
-
-
-
-
-SqlEditorResult::SqlEditorResult(SqlEditorForm *owner, Recordset::Ref rset)
-: mforms::Box(true), _owner(owner), _rset(rset), _column_info_tab(-1), _query_stats_tab(-1), _switcher(NULL)
+SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
+: mforms::AppView(true, "QueryResult", false),
+   _owner(owner),
+  _tabview(mforms::TabViewTabless), _switcher(mforms::VerticalIconSwitcher),
+  _tabdock_delegate(new DockingDelegate(&_tabview, &_switcher, "SqlResultPanel")), _tabdock(_tabdock_delegate, true),
+  _pinned(false)
 {
   _result_grid = NULL;
   _column_info_menu = NULL;
   _column_info_created = false;
   _query_stats_created = false;
   _form_view_created = false;
+  _execution_plan_placeholder = NULL;
 
-  _tabview = mforms::manage(new mforms::TabView(mforms::TabViewTabless));
-  add(_tabview, true, true);
+  // put a placeholder for the resultset, which will be replaced when a resultset is actually available
+  _resultset_placeholder = mforms::manage(new mforms::AppView(false, "ResultGridPlaceholder", false));
+  _resultset_placeholder->set_back_color("#ffffff");
+  _resultset_placeholder->set_title("Result\nGrid");
+  _resultset_placeholder->set_identifier("result_grid");
+  _tabdock.dock_view(_resultset_placeholder, mforms::App::get()->get_resource_path("output_type-resultset.png"));
 
-  _switcher = mforms::manage(new mforms::TabSwitcher(mforms::VerticalIconSwitcher));
-  _switcher->attach_to_tabview(_tabview);
-  _switcher->set_collapsed(_owner->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
+  {
+    db_query_QueryEditorRef editor(owner->grtobj());
+    _grtobj = db_query_ResultPanelRef(editor.get_grt());
+    _grtobj->dockingPoint(mforms_to_grt(editor.get_grt(), &_tabdock));
+  }
 
-  add(_switcher, false, true);
+  set_on_close(boost::bind(&SqlEditorResult::can_close, this));
 
-  
+  add(&_tabview, true, true);
+
+  _switcher.attach_to_tabview(&_tabview);
+  _switcher.set_collapsed(_owner->owner()->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
+
+  add(&_switcher, false, true);
+  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
+  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
+}
+
+
+void SqlEditorResult::set_recordset(Recordset::Ref rset)
+{
+  if (_resultset_placeholder)
+  {
+    _tabdock_delegate->undock_view(_resultset_placeholder);
+    _resultset_placeholder = NULL;
+  }
+
+  _rset = rset;
+  if (!rset->is_readonly())
+    _grtobj->resultset(grtwrap_editablerecordset(grtobj(), rset));
+  else
+    _grtobj->resultset(grtwrap_recordset(grtobj(), rset));
+
   rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_export_recordset, this));
   if (rset->get_toolbar()->find_item("record_import"))
     rset->get_toolbar()->find_item("record_import")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_import_recordset, this));
-  
-  _switcher->signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
-  _switcher->signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
+
+  dock_result_grid(mforms::manage(mforms::RecordGrid::create(rset)));
+
+  Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+  rset->caption(strfmt("%s %i",
+                       (storage->table_name().empty() ? _("Result") : storage->table_name().c_str()),
+                       ++_owner->_rs_sequence));
+
+  bec::UIForm::scoped_connect(rset->get_context_menu()->signal_will_show(),
+                              boost::bind(&SqlEditorPanel::on_recordset_context_menu_show, _owner, Recordset::Ptr(rset)));
+
+  restore_grid_column_widths();
+  bec::UIForm::scoped_connect(_result_grid->signal_column_resized(),
+                              boost::bind(&SqlEditorResult::on_recordset_column_resized, this, _1));
+
+  rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
 }
 
 
@@ -681,15 +175,35 @@ SqlEditorResult::~SqlEditorResult()
   delete _column_info_menu;
 }
 
-SqlEditorResult::Ref SqlEditorResult::create(SqlEditorForm *owner, Recordset::Ref rset)
-{
-  return Ref(new SqlEditorResult(owner, rset));
-}
-
 
 Recordset::Ref SqlEditorResult::recordset() const
 {
   return _rset.lock();
+}
+
+
+bool SqlEditorResult::has_pending_changes()
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+    return rset->has_pending_changes();
+  return false;
+}
+
+
+void SqlEditorResult::apply_changes()
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+    rset->apply_changes();
+}
+
+
+void SqlEditorResult::discard_changes()
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+    rset->rollback();
 }
 
 
@@ -702,31 +216,84 @@ std::string SqlEditorResult::caption() const
 }
 
 
+void SqlEditorResult::set_title(const std::string &title)
+{
+  grtobj()->name(title);
+  mforms::AppView::set_title(title);
+}
+
+bool SqlEditorResult::can_close()
+{
+  if (Recordset::Ref rs = recordset())
+    return rs->can_close(true);
+  return true;
+}
+
+
+void SqlEditorResult::close()
+{// called by DockingPoint::close_view()
+  if (Recordset::Ref rs = recordset())
+    rs->close();
+}
+
+
 void SqlEditorResult::switch_tab()
 {
-  int tab = _tabview->get_active_tab();
-  if (tab == _column_info_tab && !_column_info_created)
-  {
-    _column_info_created = true;
-    create_column_info_panel();
-  }
-  else if (tab == _query_stats_tab && !_query_stats_created)
-  {
-    _query_stats_created = true;
-    create_query_stats_panel();
-  }
-  else if (tab == _form_result_tab)
-  {
-    if (!_form_view_created)
-    {
-      _form_view_created = true;
-      _form_result_view->init_for_resultset(_rset, _owner);
-    }
-    _form_result_view->display_record();
-  }
-  else if (tab == _result_grid_tab)
-  {
+  mforms::AppView *tab = _tabdock.selected_view();
 
+  if (tab)
+  {
+    if (tab->identifier() == "column_info" && !_column_info_created)
+    {
+      _column_info_created = true;
+      create_column_info_panel();
+    }
+    else if (tab->identifier() == "query_stats" && !_query_stats_created)
+    {
+      _query_stats_created = true;
+      create_query_stats_panel();
+    }
+    else if (tab->identifier() == "form_result")
+    {
+      if (!_form_view_created)
+      {
+        _form_view_created = true;
+        _form_result_view->init_for_resultset(_rset, _owner->owner());
+      }
+      _form_result_view->display_record();
+    }
+    else if (tab->identifier() == "result_grid")
+    {
+      if (_resultset_placeholder)
+      {
+        _owner->owner()->exec_editor_sql(_owner, true, true, true, false, this);
+        set_title(_rset.lock()->caption());
+      }
+    }
+    else if (tab->identifier() == "execution_plan")
+    {
+      if (_execution_plan_placeholder)
+      {
+        _tabdock_delegate->undock_view(_execution_plan_placeholder);
+        _execution_plan_placeholder = NULL;
+
+        // if the explain tab is just a placeholder, execute visual explain, which will replace the tab when docking
+        grt::BaseListRef args(_grtobj.get_grt());
+        args.ginsert(_owner->grtobj());
+        args.ginsert(_grtobj);
+        try
+        {
+          // run the visual explain plugin, so it will fill the result panel
+          _grtobj.get_grt()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
+        }
+        catch (std::exception &exc)
+        {
+          log_error("Error executing visual explain: %s\n", exc.what());
+          mforms::Utilities::show_error("Execution Plan", "An internal error occurred while building the execution plan, please file a bug report.",
+                                        "OK");
+        }
+      }
+    }
   }
 }
 
@@ -741,7 +308,7 @@ void SqlEditorResult::add_switch_toggle_toolbar_item(mforms::ToolBar *tbar)
   item->set_icon(app->get_resource_path("output_type-toggle-on.png"));
   item->set_alt_icon(app->get_resource_path("output_type-toggle-off.png"));
   item->signal_activated()->connect(boost::bind(&SqlEditorResult::toggle_switcher_collapsed, this));
-  item->set_checked(!_switcher->get_collapsed());
+  item->set_checked(!_switcher.get_collapsed());
   tbar->add_item(item);
   _collapse_toggled_sig = _collapse_toggled.connect(boost::bind(&mforms::ToolBarItem::set_checked, item, _1));
 }
@@ -749,21 +316,21 @@ void SqlEditorResult::add_switch_toggle_toolbar_item(mforms::ToolBar *tbar)
 
 void SqlEditorResult::switcher_collapsed()
 {
-  bool state = _switcher->get_collapsed();
+  bool state = _switcher.get_collapsed();
   for (std::list<mforms::ToolBar*>::const_iterator it = _toolbars.begin(); it != _toolbars.end(); ++it)
   {
     (*it)->find_item("sidetoggle")->set_checked(state);
   }
   relayout();
   
-  bec::GRTManager *grtm = _owner->grt_manager();
+  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   grtm->set_app_option("Recordset:SwitcherCollapsed", grt::IntegerRef(state?1:0));
 }
 
 
 void SqlEditorResult::show_export_recordset()
 {
-  bec::GRTManager *grtm = _owner->grt_manager();
+  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   try
   {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, _rset, rs)
@@ -800,28 +367,16 @@ void SqlEditorResult::show_export_recordset()
 
 void SqlEditorResult::show_import_recordset()
 {
-  bec::GRTManager *grtm = _owner->grt_manager();
+  bec::GRTManager *grtm = _owner->owner()->grt_manager();
   try
   {
-    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, _rset, rs)
-    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(MySQLEditor, dynamic_cast<SqlEditorForm::RecordsetData*>(rs->client_data())->editor, editor)
+    RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
     {
       grt::BaseListRef args(grtm->get_grt());
 
-      db_query_ResultsetRef rset;
-      db_query_QueryEditorRef qeditor(db_query_QueryEditorRef::cast_from(editor->grtobj()));
-      for (size_t c = qeditor->resultsets().count(), i = 0; i < c; i++)
+      if (result_grtobj().is_valid())
       {
-        if (dynamic_cast<WBRecordsetResultset*>(qeditor->resultsets()[i]->get_data())->recordset.get() == rs)
-        {
-          rset = qeditor->resultsets()[i];
-          break;
-        }
-      }
-
-      if (rset.is_valid())
-      {
-        args.ginsert(rset);
+        args.ginsert(result_grtobj());
         grt::Module *module = grtm->get_grt()->get_module("SQLIDEUtils");
         if (module)
           module->call_function("importRecordsetDataFromFile", args);
@@ -837,20 +392,67 @@ void SqlEditorResult::show_import_recordset()
 
 void SqlEditorResult::toggle_switcher_collapsed()
 {
-  bool flag = !_switcher->get_collapsed();
-  _switcher->set_collapsed(flag);
+  bool flag = !_switcher.get_collapsed();
+  _switcher.set_collapsed(flag);
   _collapse_toggled(flag);
 }
 
+void SqlEditorResult::on_recordset_column_resized(int column)
+{
+  std::string column_id = _column_width_storage_ids[column];
+  int width = _result_grid->get_column_width(column);
+  log_info("column %s resized to %i\n", column_id.c_str(), width);
+  _owner->owner()->column_width_cache()->save_column_width(column_id, width);
+}
 
-void SqlEditorResult::dock_result_grid(mforms::View *view)
+
+void SqlEditorResult::restore_grid_column_widths()
+{
+  ColumnWidthCache *cache = _owner->owner()->column_width_cache();
+
+  RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
+  {
+    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
+    std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+
+    for (int c = (int)field_info.size(), i = 0; i < c; i++)
+    {
+      std::string column_storage_id;
+
+      column_storage_id = field_info[i].field + "::" + field_info[i].schema + "::" + field_info[i].table;
+      _column_width_storage_ids.push_back(column_storage_id);
+
+      // check if we have a remembered column width
+      int width = cache->get_column_width(column_storage_id);
+      if (width > 0)
+      {
+        _result_grid->set_column_width(i, width);
+      }
+      else
+      {
+        // if not, we set a default width based on the display size
+        int length = field_info[i].display_size;
+
+        if (length < 0)
+          length = 10;
+        else if (length > 20)
+          length = 20;
+        _result_grid->set_column_width(i, length * 9);
+      }
+    }
+  }
+}
+
+
+void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
 {
   mforms::App *app = mforms::App::get();
   _result_grid = view;
   view->set_name("result-grid-wrapper");
 
+  mforms::AppView *grid_view;
   {
-    mforms::Box *box = mforms::manage(new mforms::Box(false));
+    mforms::AppView *box = grid_view = mforms::manage(new mforms::AppView(false, "ResultGridView", false));
     box->set_name("resultset-host");
     mforms::ToolBar *tbar = _rset.lock()->get_toolbar();
     tbar->set_name("resultset-toolbar");
@@ -860,9 +462,10 @@ void SqlEditorResult::dock_result_grid(mforms::View *view)
     
     box->add(tbar, false, true);
     box->add(view, true, true);
-    
-    _result_grid_tab = _tabview->add_page(box, "");
-    _switcher->add_item("Result\nGrid", "", app->get_resource_path("output_type-resultset.png"), "");
+
+    box->set_title("Result\nGrid");
+    box->set_identifier("result_grid");
+    _tabdock.dock_view(box, app->get_resource_path("output_type-resultset.png"));
   }
   {
     bool editable = false;
@@ -870,21 +473,49 @@ void SqlEditorResult::dock_result_grid(mforms::View *view)
       editable = !rset->is_readonly();
     _form_result_view = mforms::manage(new ResultFormView(editable));
     add_switch_toggle_toolbar_item(_form_result_view->get_toolbar());
-    _form_result_tab = _tabview->add_page(_form_result_view, "");
-    _switcher->add_item("Form\nEditor", "", app->get_resource_path("output_type-formeditor.png"), "");
+    _form_result_view->set_title("Form\nEditor");
+    _form_result_view->set_identifier("form_result");
+    _tabdock.dock_view(_form_result_view, app->get_resource_path("output_type-formeditor.png"));
   }
   {
-    _column_info_box = mforms::manage(new mforms::Box(false));
-    _column_info_tab = _tabview->add_page(_column_info_box, "");
+    _column_info_box = mforms::manage(new mforms::AppView(false, "ResultFieldTypes", false));
     _column_info_box->set_back_color("#ffffff");
-    _switcher->add_item("Field\nTypes", "", app->get_resource_path("output_type-fieldtypes.png"), "");
+    _column_info_box->set_title("Field\nTypes");
+    _column_info_box->set_identifier("column_info");
+    _tabdock.dock_view(_column_info_box, app->get_resource_path("output_type-fieldtypes.png"));
   }
   {
-    _query_stats_box = mforms::manage(new mforms::Box(false));
-    _query_stats_tab = _tabview->add_page(_query_stats_box, "");
+    _query_stats_box = mforms::manage(new mforms::AppView(false, "ResultQueryStats", false));
     _query_stats_box->set_back_color("#ffffff");
-    _switcher->add_item("Query\nStats", "", app->get_resource_path("output_type-querystats.png"), "");
+    _query_stats_box->set_title("Query\nStats");
+    _query_stats_box->set_identifier("query_stats");
+    _tabdock.dock_view(_query_stats_box, app->get_resource_path("output_type-querystats.png"));
   }
+
+  // reorder the explain tab to last
+  bool has_explain_tab = false;
+  for (int i = 0; i < _tabdock_delegate->view_count(); i++)
+  {
+    mforms::AppView *view = _tabdock_delegate->view_at_index(i);
+    if (view->identifier() == "execution_plan")
+    {
+      has_explain_tab = true;
+      view->retain();
+      _tabdock_delegate->undock_view(view);
+      _tabdock.dock_view(view, app->get_resource_path("output_type-executionplan.png"));
+      view->release();
+      break;
+    }
+  }
+  if (!has_explain_tab)
+  {
+    _execution_plan_placeholder = mforms::manage(new mforms::AppView(false, "ExecutionPlan", false));
+    _execution_plan_placeholder->set_back_color("#ffffff");
+    _execution_plan_placeholder->set_title("Execution\nPlan");
+    _execution_plan_placeholder->set_identifier("execution_plan");
+    _tabdock.dock_view(_execution_plan_placeholder, app->get_resource_path("output_type-executionplan.png"));
+  }
+  _switcher.set_selected(0);
 }
 
 
@@ -928,6 +559,7 @@ void SqlEditorResult::copy_column_info(mforms::TreeNodeView *tree)
   mforms::Utilities::set_clipboard_text(text);
 }
 
+
 void SqlEditorResult::copy_column_info_name(mforms::TreeNodeView *tree)
 {
   std::list<mforms::TreeNodeRef> nodes(tree->get_selection());
@@ -959,7 +591,7 @@ void SqlEditorResult::create_column_info_panel()
 
     box->add(tbar, false, true);
     
-    if (_owner->collect_field_info())
+    if (_owner->owner()->collect_field_info())
     {
       mforms::TreeNodeView *tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList|mforms::TreeAltRowColors|mforms::TreeShowRowLines|mforms::TreeShowColumnLines|mforms::TreeNoBorder));
       tree->add_column(mforms::IntegerColumnType, "#", 50);
@@ -1325,3 +957,5 @@ void SqlEditorResult::create_query_stats_panel()
     _query_stats_box->add(spanel, true, true);
   }
 }
+
+

@@ -425,7 +425,7 @@ def autoDetectLocalInstance(connection):
                 return []
             path += "/mysql.profiles"
         version = Version.fromstr(version or "5.6")
-        files = os.listdir(path)
+        files = [f for f in os.listdir(path) if f.endswith(".xml")]
         profiles = []
         matched_profiles = []
         for f in files:

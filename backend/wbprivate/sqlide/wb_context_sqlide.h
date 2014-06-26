@@ -29,6 +29,7 @@
 #include "base/trackable.h"
 #include "base/notifications.h"
 
+class SqlEditorPanel;
 class SqlEditorForm;
 
 // Central point of management for SQLIDE (sql editor)
@@ -84,6 +85,8 @@ namespace wb
     void call_in_editor(void (SqlEditorForm::*method)());    
     void call_in_editor_str(void (SqlEditorForm::*method)(const std::string &arg), const std::string &arg);
     void call_in_editor_bool(void (SqlEditorForm::*method)(bool arg), bool arg);
+
+    void call_in_editor_panel(void (SqlEditorPanel::*method)());
     
     bool auto_save_workspaces();
     void option_changed(grt::internal::OwnedDict*dict, bool, const std::string&key);

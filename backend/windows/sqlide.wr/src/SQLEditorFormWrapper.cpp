@@ -20,11 +20,9 @@
 #include "workbench/wb_overview.h"
 #include "GrtTemplates.h"
 #include "DelegateWrapper.h"
-#include "sqlide/wb_sql_editor_result_panel.h"
 
 #include "SQLEditorFormWrapper.h"
 #include "objimpl/ui/mforms_ObjectReference_impl.h"
-#include "sqlide/wb_sql_editor_result_panel.h"
 
 #include "mforms/dockingpoint.h"
 #include "mforms/view.h"
@@ -44,60 +42,34 @@ SqlEditorFormWrapper::SqlEditorFormWrapper(boost::shared_ptr<SqlEditorForm> *ptr
   _docking_point = NULL;
   _dock_delegate_wrapper = nullptr;
 
+  _set_busy_tab_cb = nullptr;
+
   SqlEditorForm *inner= (SqlEditorForm*)ptr->get();
 
   _ref = new SqlEditorForm::Ref(*ptr);
   
-  _refresh_ui = gcnew RefreshUI(inner);
-
   UIForm::init((*_ref).get());
 
   _log = Ref2Ptr_<::VarGridModel, VarGridModelWrapper>((*_ref)->log());
   _history = Ref2Ptr<::DbSqlEditorHistory, DbSqlEditorHistoryWrapper>((*_ref)->history());
 
   exec_sql_task = gcnew GrtThreadedTaskWrapper((*_ref)->exec_sql_task.get());
-
 }
 
 //--------------------------------------------------------------------------------------------------
 
 SqlEditorFormWrapper::~SqlEditorFormWrapper()
 {
+  (*_ref)->close();
   if (_docking_point != NULL)
     _docking_point->release();
   delete _dock_delegate_wrapper;
 
-  delete _refresh_ui;
   delete exec_sql_task;
   delete _history;
   delete _log;
-  (*_ref)->close();
   inner = NULL;
   delete _ref;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-RecordsetWrapper^ SqlEditorFormWrapper::recordset(Int32 editor, Int32 index)
-{
-  return Ref2Ptr_<::Recordset, RecordsetWrapper>((*_ref)->recordset(editor, index));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-RecordsetWrapper^ SqlEditorFormWrapper::recordset_for_key(Int32 editor, Int32 key)
-{
-  return Ref2Ptr_<::Recordset, RecordsetWrapper>((*_ref)->recordset_for_key(editor, key));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void SqlEditorFormWrapper::active_recordset(Int32 editor, RecordsetWrapper ^val)
-{
-  if (val == nullptr)
-    (*_ref)->active_recordset(editor, Recordset::Ref());
-  else
-    (*_ref)->active_recordset(editor, *(Recordset::Ref*)val->ref_intptr().ToPointer());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,26 +81,10 @@ void SqlEditorFormWrapper::show_output_area()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorFormWrapper::recordset_list_changed_cb(Recordset_list_changed_cb::ManagedDelegate ^cb)
-{
-  _recordset_list_changed_cb = gcnew Recordset_list_changed_cb(cb);
-  (*_ref)->recordset_list_changed.connect(_recordset_list_changed_cb->get_slot());
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void SqlEditorFormWrapper::output_text_ui_cb(Output_text_ui_cb::ManagedDelegate ^cb)
 {
   _output_text_ui_cb= gcnew Output_text_ui_cb(cb);
   (*_ref)->output_text_slot= _output_text_ui_cb->get_slot();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void SqlEditorFormWrapper::sql_editor_new_ui_cb(Sql_editor_new_ui_cb::ManagedDelegate ^cb)
-{
-  _sql_editor_new_ui_cb = gcnew Sql_editor_new_ui_cb(cb);
-  (*_ref)->sql_editor_new_ui.connect(_sql_editor_new_ui_cb->get_slot());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,38 +125,11 @@ Control^ SqlEditorFormWrapper::get_sidebar_control()
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns the managed toolstrip for an individual sql editor.
- */
-ToolStrip^ SqlEditorFormWrapper::get_editor_toolbar(Int32 index)
-{
-  return dynamic_cast<ToolStrip ^>(ObjectMapper::GetManagedComponent((*_ref)->sql_editor_toolbar(index).get()));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
  * Managed control for the palette window for docking.
  */
 Control^ SqlEditorFormWrapper::get_palette_control()
 {
   return dynamic_cast<Control^>(ObjectMapper::GetManagedComponent((*_ref)->get_side_palette()));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-Control^ SqlEditorFormWrapper::get_result_panel_for(RecordsetWrapper ^resultset)
-{
-  boost::shared_ptr<SqlEditorResult> panel((*_ref)->result_panel(*(Recordset::Ref*)resultset->ref_intptr().ToPointer()));
-  return dynamic_cast<Control ^>(ObjectMapper::GetManagedComponent(&*panel));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void SqlEditorFormWrapper::dock_grid_to_result_panel(Control ^control, RecordsetWrapper ^resultset)
-{
-  boost::shared_ptr<SqlEditorResult> panel((*_ref)->result_panel(*(Recordset::Ref*)resultset->ref_intptr().ToPointer()));
-
-  panel->dock_result_grid(MySQL::Forms::Native::wrapper_for_control(control));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,8 +153,28 @@ void SqlEditorFormWrapper::set_docking_delegate(ManagedDockDelegate ^theDelegate
   // We don't let the docking point delete our native delegate because it is managed by the 
   // managed delegate.
   _docking_point = mforms::manage(new mforms::DockingPoint(theDelegate->get_unmanaged_delegate(), false));
-  db_query_EditorRef qeditor((*_ref)->wbsql()->get_grt_editor_object(_ref->get()));
-  qeditor->dockingPoint(mforms_to_grt(qeditor->get_grt(), _docking_point, "DockingPoint"));
+  (*_ref)->set_tab_dock(_docking_point);
 }
 
 //--------------------------------------------------------------------------------------------------
+
+void SqlEditorFormWrapper::set_busy_tab_cb(Set_busy_tab_cb::ManagedDelegate ^cb)
+{
+  _set_busy_tab_cb = gcnew Set_busy_tab_cb(cb);
+  (*_ref)->set_busy_tab = _set_busy_tab_cb->get_slot();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void SqlEditorFormWrapper::set_post_query_cb(Post_query_cb::ManagedDelegate ^cb)
+{
+  _post_query_cb = gcnew Post_query_cb(cb);
+  (*_ref)->post_query_slot = _post_query_cb->get_slot();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void SqlEditorFormWrapper::view_switched()
+{
+  _docking_point->view_switched();
+}

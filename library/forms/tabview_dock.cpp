@@ -39,6 +39,15 @@ bool TabViewDockingPoint::select_view(mforms::AppView *view)
 }
 
 
+mforms::AppView *TabViewDockingPoint::selected_view()
+{
+  int i = _tabview->get_active_tab();
+  if (i >= 0)
+    return dynamic_cast<mforms::AppView*>(_tabview->get_page(i));
+  return NULL;
+}
+
+
 void TabViewDockingPoint::undock_view(mforms::AppView *view)
 {
   _tabview->remove_page(view);
@@ -58,3 +67,16 @@ std::pair<int, int> TabViewDockingPoint::get_size()
 {
   return std::make_pair(_tabview->get_width(), _tabview->get_height());
 }
+
+
+int TabViewDockingPoint::view_count()
+{
+  return _tabview->page_count();
+}
+
+
+AppView *TabViewDockingPoint::view_at_index(int index)
+{
+  return dynamic_cast<AppView*>(_tabview->get_page(index));
+}
+

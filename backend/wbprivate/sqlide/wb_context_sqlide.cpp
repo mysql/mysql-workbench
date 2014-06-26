@@ -38,6 +38,7 @@
 
 #include "sqlide/wb_context_sqlide.h"
 #include "sqlide/wb_sql_editor_form.h"
+#include "sqlide/wb_sql_editor_panel.h"
 #include "sqlide/wb_sql_editor_snippets.h"
 #include "sqlide/wb_sql_editor_help.h"
 #include "sqlide/wb_sql_editor_result_panel.h"
@@ -87,83 +88,22 @@ class MYSQLWBBACKEND_PUBLIC_FUNC db_query_EditorConcreteImplData : public db_que
     }
   }
 
-  void recordset_list_changed(int editor_index, Recordset::Ref rset, bool added)
-  {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
-    if (ref)
-    {
-      db_query_QueryEditorRef editor;
-      
-      boost::shared_ptr<MySQLEditor> sqleditor(ref->sql_editor(editor_index));
-      if (sqleditor)
-      {
-        editor = db_query_QueryEditorRef::cast_from(sqleditor->grtobj());
-      }
-      else
-      {
-        log_warning("recordset_list_changed received for invalid editor index (%i). Internal state of db_query_QueryEditor might have become inconsistent\n",
-                    editor_index);
-        return;
-      }
-
-      if (added)
-      {
-        if (!rset->is_readonly())
-          editor->resultsets().insert(grtwrap_editablerecordset(editor, rset));
-        else
-          editor->resultsets().insert(grtwrap_recordset(editor, rset));
-      }
-      else
-      {
-        for (size_t c= editor->resultsets().count(), i= 0; i < c; i++)
-        {
-          db_query_ResultsetRef e(editor->resultsets()[i]);
-          
-          if (dynamic_cast<WBRecordsetResultset*>(e->get_data())->recordset == rset)
-          {
-            editor->resultsets().remove(i);
-            e->reset_references();
-            break;
-          }
-        }
-      }
-    }
-  }
-  
-  
-  virtual void refresh_editor(MySQLEditor::Ref editor)
-  {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
-    if (ref)
-    {
-      int oindex = ref->active_sql_editor_index();
-      
-      for (size_t c= _self->queryEditors().count(), i= 0; i < c; i++)
-      {
-        db_query_QueryBufferRef e(_self->queryEditors()[i]);
-        if (e == editor->grtobj())
-        {
-          ref->active_sql_editor_index((int)i);
-          break;
-        }
-      }
-      ref->active_sql_editor_index(oindex);
-    }
-  }
-  
 public:
   db_query_EditorConcreteImplData(boost::shared_ptr<SqlEditorForm> editor,
                                   const db_query_EditorRef &self)
   : _self(dynamic_cast<db_query_Editor*>(self.valueptr())), _editor(editor)
   {
-    for (size_t i= 0; i < (size_t) editor->sql_editor_count(); i++)
+    for (int c = editor->sql_editor_count(), i = 0; i < c; i++)
     {
-      db_query_QueryEditorRef qb(db_query_QueryEditorRef::cast_from(editor->sql_editor((int)i)->grtobj()));
-      qb->owner(self);
-      _self->queryEditors().insert(qb);
+      SqlEditorPanel *panel = editor->sql_editor_panel(i);
+      if (panel)
+      {
+        db_query_QueryEditorRef qb(panel->grtobj());
+        qb->owner(self);
+        _self->queryEditors().insert(qb);
+      }
     }
     
-    editor->recordset_list_changed.connect(boost::bind(&db_query_EditorConcreteImplData::recordset_list_changed, this, _1, _2, _3));
     editor->sql_editor_list_changed.connect(boost::bind(&db_query_EditorConcreteImplData::sql_editor_list_changed, this, _1, _2));
   }
   
@@ -192,7 +132,7 @@ public:
     {
       _editor->new_sql_script_file();
       
-      return db_query_QueryEditorRef::cast_from(_editor->active_sql_editor()->grtobj());
+      return _editor->active_sql_editor_panel()->grtobj();
     }
     return db_query_QueryEditorRef();
   }
@@ -235,7 +175,7 @@ public:
   {
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)      
-      ref->exec_sql_retaining_editor_contents(sql, MySQLEditor::Ref(), true);
+      ref->exec_sql_retaining_editor_contents(sql, NULL, true);
 
     return grt::IntegerRef(0);
   }
@@ -273,7 +213,7 @@ public:
     if (ref)
     {
       if (background)
-        ref->exec_sql_retaining_editor_contents(sql, MySQLEditor::Ref(), false);
+        ref->exec_sql_retaining_editor_contents(sql, NULL, false);
       else
         ref->exec_main_sql(sql, log);
     }
@@ -325,9 +265,9 @@ public:
     boost::shared_ptr<SqlEditorForm> ref(_editor);
     if (ref)
     {
-      MySQLEditor::Ref editor(ref->active_sql_editor());
-      if (editor)
-        return db_query_QueryEditorRef::cast_from(editor->grtobj());
+      SqlEditorPanel *panel = ref->active_sql_editor_panel();
+      if (panel)
+        return panel->grtobj();
     }
     return db_query_QueryEditorRef();
   }
@@ -391,6 +331,17 @@ void WBContextSQLIDE::call_in_editor(void (SqlEditorForm::*method)())
     (form->*method)();
 }
 
+void WBContextSQLIDE::call_in_editor_panel(void (SqlEditorPanel::*method)())
+{
+  SqlEditorForm *form= get_active_sql_editor();
+  if (form)
+  {
+    SqlEditorPanel *panel = form->active_sql_editor_panel();
+    if (panel)
+      (panel->*method)();
+  }
+}
+
 
 void WBContextSQLIDE::call_in_editor_str(void (SqlEditorForm::*method)(const std::string &arg), const std::string &arg)
 {
@@ -412,16 +363,28 @@ static void call_export(wb::WBContextSQLIDE *sqlide)
   SqlEditorForm *form= sqlide->get_active_sql_editor();
   if (form)
   {
-    int editor = form->active_sql_editor_index();
-    if (editor >= 0)
-      form->active_result_panel(editor)->show_export_recordset();
+    SqlEditorPanel *panel = form->active_sql_editor_panel();
+    if (panel && panel->active_result_panel())
+      panel->active_result_panel()->show_export_recordset();
   }
+}
+
+
+inline bool has_active_resultset(wb::WBContextSQLIDE *sqlide)
+{
+  SqlEditorForm *form = sqlide->get_active_sql_editor();
+  if (form)
+  {
+    SqlEditorPanel *panel = form->active_sql_editor_panel();
+    if (panel)
+      return panel->active_result_panel() != NULL;
+  }
+  return false;
 }
 
 static bool validate_export(wb::WBContextSQLIDE *sqlide)
 {
-  SqlEditorForm *form = sqlide->get_active_sql_editor();
-  return form && form->active_sql_editor_index() >= 0 && form->active_result_panel(form->active_sql_editor_index());
+  return has_active_resultset(sqlide);
 }
 
 static void call_run_file(wb::WBContextSQLIDE *sqlide)
@@ -431,15 +394,29 @@ static void call_run_file(wb::WBContextSQLIDE *sqlide)
     sqlide->run_file(path);
 }
 
+static void call_save_file(wb::WBContextSQLIDE *sqlide)
+{
+  SqlEditorForm *editor = sqlide->get_active_sql_editor();
+  if (editor)
+  {
+    SqlEditorPanel *panel = editor->active_sql_editor_panel();
+    if (panel)
+    {
+      panel->save();
+    }
+  }
+}
+
+
 static void call_save_file_as(wb::WBContextSQLIDE *sqlide)
 {
   SqlEditorForm *editor = sqlide->get_active_sql_editor();
   if (editor)
   {
-    int i = editor->active_sql_editor_index();
-    if (i >= 0)
+    SqlEditorPanel *panel = editor->active_sql_editor_panel();
+    if (panel)
     {
-      editor->save_sql_script_file("", i);
+      panel->save_as("");
     }
   }
 }
@@ -450,19 +427,19 @@ static void call_revert(wb::WBContextSQLIDE *sqlide)
   SqlEditorForm *editor = sqlide->get_active_sql_editor();
   if (editor)
   {
-    int i = editor->active_sql_editor_index();
-    if (i >= 0)
+    SqlEditorPanel *panel = editor->active_sql_editor_panel();
+    if (panel)
     {
-      if (editor->sql_editor(i)->get_editor_control()->is_dirty())
+      if (panel->is_dirty())
       {
         int rc = mforms::Utilities::show_message(_("Revert to Saved"),
                             base::strfmt(_("Do you want to revert to the most recently saved version of '%s'?\nAny changes since them will be lost."),
-                                         editor->sql_editor_path(i).c_str()),
-                                                _("Revert"), _("Cancel"), "");
+                                         panel->filename().c_str()),
+                                                 _("Revert"), _("Cancel"), "");
         if (rc != mforms::ResultOk)
           return;
         
-        editor->revert_sql_script_file();
+        panel->revert_to_saved();
       }
     }
   }
@@ -473,9 +450,9 @@ static bool validate_revert(wb::WBContextSQLIDE *sqlide)
   SqlEditorForm *editor = sqlide->get_active_sql_editor();
   if (editor)
   {
-    int i = editor->active_sql_editor_index();
-    if (i >= 0 && i < editor->sql_editor_count() && !editor->sql_editor_path(i).empty())
-      return !editor->sql_editor_is_scratch(i);
+    SqlEditorPanel *panel = editor->active_sql_editor_panel();
+    if (panel)
+      return !panel->is_scratch() && !panel->filename().empty();
   }
   return false;
 }
@@ -527,15 +504,12 @@ static void call_save_edits(wb::WBContextSQLIDE *sqlide)
   SqlEditorForm *form = sqlide->get_active_sql_editor();
   if (form)
   {
-    int i = form->active_sql_editor_index();
-    if (i >= 0)
+    SqlEditorPanel *panel = form->active_sql_editor_panel();
+    if (panel)
     {
-      Recordset::Ref rs= form->active_recordset(i);
-      if (rs)
-      {
-        form->do_partial_ui_refresh(SqlEditorForm::SaveRecordsetChanges);
-        rs->apply_changes();
-      }
+      SqlEditorResult *result = panel->active_result_panel();
+      if (result)
+        result->apply_changes();
     }
   }
 }
@@ -545,15 +519,12 @@ static void call_discard_edits(wb::WBContextSQLIDE *sqlide)
   SqlEditorForm *form = sqlide->get_active_sql_editor();
   if (form)
   {
-    int i = form->active_sql_editor_index();
-    if (i >= 0)
+    SqlEditorPanel *panel = form->active_sql_editor_panel();
+    if (panel)
     {
-      Recordset::Ref rs= form->active_recordset(i);
-      if (rs)
-      {
-        form->do_partial_ui_refresh(SqlEditorForm::DiscardRecordsetChanges);
-        rs->rollback();
-      }
+      SqlEditorResult *result = panel->active_result_panel();
+      if (result)
+        result->discard_changes();
     }
   }
 }
@@ -563,13 +534,17 @@ static void call_discard_edits(wb::WBContextSQLIDE *sqlide)
 static bool validate_save_edits(wb::WBContextSQLIDE *sqlide)
 {
   SqlEditorForm *form = sqlide->get_active_sql_editor();
-  if (!form)
-    return false;
-  int i = form->active_sql_editor_index();
-  if (i < 0)
-    return false;
-  Recordset::Ref rs= form->active_recordset(i);
-  return (rs && rs->has_pending_changes());
+  if (form)
+  {
+    SqlEditorPanel *panel = form->active_sql_editor_panel();
+    if (panel)
+    {
+      SqlEditorResult *result = panel->active_result_panel();
+      if (result)
+        return result->has_pending_changes();
+    }
+  }
+  return false;
 }
 
 
@@ -793,11 +768,11 @@ void WBContextSQLIDE::init()
 
   cmdui->add_builtin_command("query.new_connection", boost::bind(call_new_connection, this));
   
-  cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor_bool, this, &SqlEditorForm::new_sql_scratch_area, false));
+  cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
   //cmdui->add_builtin_command("query.newFile", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_sql_script_file));
   cmdui->add_builtin_command("query.newFile", boost::bind(new_script_tab, this));
   cmdui->add_builtin_command("query.openFile", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, (void(SqlEditorForm::*)(const std::string&))&SqlEditorForm::open_file, ""));
-  cmdui->add_builtin_command("query.saveFile", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::save_file));
+  cmdui->add_builtin_command("query.saveFile", boost::bind(call_save_file, this));
   cmdui->add_builtin_command("query.saveFileAs", boost::bind(call_save_file_as, this));
   cmdui->add_builtin_command("query.revert", boost::bind(call_revert, this), boost::bind(validate_revert, this));
 
@@ -811,12 +786,11 @@ void WBContextSQLIDE::init()
 
   cmdui->add_builtin_command("query.stopOnError", boost::bind(call_continue_on_error, this));
   
-  cmdui->add_builtin_command("query.explain", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::explain_sql));
   cmdui->add_builtin_command("query.explain_current_statement",
                                                boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::explain_current_statement));
 
-  cmdui->add_builtin_command("query.jump_to_placeholder", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::jump_to_placeholder));
-  cmdui->add_builtin_command("list-members", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::list_members),
+  cmdui->add_builtin_command("query.jump_to_placeholder", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::jump_to_placeholder));
+  cmdui->add_builtin_command("list-members", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::list_members),
                              boost::bind(validate_list_members, this));
 }
 
@@ -1033,7 +1007,9 @@ void WBContextSQLIDE::open_document(const std::string &path)
 {
   SqlEditorForm *editor= get_active_sql_editor();
   if (editor)
+  {
     editor->open_file(path);
+  }
   else
     mforms::Utilities::show_error(_("Open SQL Script"),
                                   _("Please select a connected SQL Editor tab to open a script file."),
@@ -1113,14 +1089,14 @@ void WBContextSQLIDE::update_plugin_arguments_pool(bec::ArgumentPool &args)
       db_query_QueryEditorRef qeditor(editor->activeQueryEditor());
       if (qeditor.is_valid())
       {
-        db_query_ResultsetRef rset(qeditor->activeResultset());
+        db_query_ResultPanelRef rpanel(qeditor->activeResultPanel());
       
         args.add_entries_for_object("activeSQLEditor", editor);
         args.add_entries_for_object("activeQueryBuffer", qeditor);
         args.add_entries_for_object("activeQueryEditor", qeditor);
         args.add_entries_for_object("", qeditor);
-        if (rset.is_valid())
-          args.add_entries_for_object("activeResultset", rset, "db.query.Resultset");
+        if (rpanel.is_valid() && rpanel->resultset().is_valid())
+          args.add_entries_for_object("activeResultset", rpanel->resultset(), "db.query.Resultset");
       }
       else
         args.add_entries_for_object("activeSQLEditor", editor);

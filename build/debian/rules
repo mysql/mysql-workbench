@@ -12,9 +12,11 @@
 
 INSTALL_PREFIX=/usr
 
-ODBC_HOME=$(HOME)/linux-res-6.1/usr/
-LINUXRES_HOME=$(HOME)/linux-res-6.1/
+ODBC_HOME=$(HOME)/linux-res-6.2/usr/
+LINUXRES_HOME=$(HOME)/linux-res-6.2/
 CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
+VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
+PYCONN_DIR=$(LINUXRES_HOME)/python/mysql
 MYSQL_HOME=$(HOME)/mysql-server/
 
 WBDIRNAME=mysql-workbench-community
@@ -26,10 +28,10 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX)\
-                -DMYSQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
-        -DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
-        -DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
-        -DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config 
+	        -DMYSQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
+	-DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
+	-DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
+	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config 
 
 	touch configure-stamp
 
@@ -68,8 +70,9 @@ install: build
 	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(PYCONN_DIR) $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	# Bundle other unpackaged libs
-	cp -a /usr/local/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	
 	# Remove these files:

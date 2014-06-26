@@ -473,6 +473,9 @@
     <ClInclude Include="grtsqlparser\mysql_parser_services.h">
       <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sqlide\column_width_cache.h">
+      <Filter>sqlide Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -898,6 +901,9 @@
     </ClCompile>
     <ClCompile Include="objimpl\GrtStoredNote.cpp">
       <Filter>Generated Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\column_width_cache.cpp">
+      <Filter>sqlide Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

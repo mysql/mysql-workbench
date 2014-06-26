@@ -36,7 +36,7 @@ typedef enum
 - (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)item;
 - (NSImage*)tabView:(NSTabView*)tabView iconForItem:(NSTabViewItem*)tabViewItem;
 - (void)tabView:(NSTabView*)tabView willDisplayMenu:(NSMenu*)menu forTabViewItem:(NSTabViewItem*)item;
-- (BOOL)tabView:(NSTabView*)tabView willReorderTabViewItem:(NSTabViewItem*)item toIndex:(NSInteger)index;
+- (void)tabView:(NSTabView*)tabView didReorderTabViewItem:(NSTabViewItem*)item toIndex:(NSInteger)index;
 - (NSString*)tabView:(NSTabView*)tabView toolTipForItem:(NSTabViewItem*)item;
 @end
 
