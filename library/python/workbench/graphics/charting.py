@@ -156,7 +156,7 @@ class DBTimeLineGraph(Figure):
                 p0, t0 = points[-1]
                 tp = t0
 
-                c.move_to(x, self.height - (p0 / self._scale) * (self.height - 20))
+                c.move_to(x, self.height - (float(p0) / self._scale) * (self.height - 20))
                 for p, t in reversed(points[:-1]):
                     x -= round((tp - t) / self._seconds_per_hpixel)
                     tp = t
@@ -439,18 +439,21 @@ class DBLevelMeter(Figure):
         cr.set_source_rgb(0.8, 0.8, 0.8)
         cr.rectangle(0, 0, 30, self.height)
         cr.fill()
-        
+
         p1 = (float(self._max_seen_value)/self._max_value)*self.height
         p2 = (float(self._value)/self._max_value)*self.height
         
         cr.set_source_rgb(0.5, 0.5, 0.5)
 
-        cr.move_to(34, cr.text_extents("limit %s" % self._max_value).height)
+        limit_y = cr.text_extents("limit %s" % self._max_value).height
+
+        cr.move_to(34, limit_y)
         cr.show_text("limit %s" % self._max_value)
 
         if p1 != p2:
-            if self.height - p1 + cr.text_extents("max").height > self.height - p2:
-                cr.move_to(34, self.height - p2 - cr.text_extents("max").height - 2)
+            max_y = self.height - p1 + cr.text_extents("max %s" % self._max_seen_value).height
+            if max_y < limit_y:
+                cr.move_to(34, limit_y + cr.text_extents("max").height + 2)
                 cr.show_text("max %s" % self._max_seen_value)
             else:
                 cr.move_to(34, self.height - p1)
