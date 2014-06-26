@@ -37,6 +37,7 @@ private:
   db_mysql_CatalogRef _catalog;
   std::vector<mforms::TextEntry *> _edits;
 
+  mforms::Button *_cancel_button;
   mforms::Button *_execxute_button;
 
   bool needs_quoting(const std::string &type);

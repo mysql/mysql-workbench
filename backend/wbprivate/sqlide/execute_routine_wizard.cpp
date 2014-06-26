@@ -39,26 +39,28 @@ ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
   _catalog = db_mysql_CatalogRef::cast_from(_routine->owner()->owner());
 
   set_managed();
-  set_size(500, 300);
-  set_title(_("Call a stored routine"));
+  set_title(base::strfmt(_("Call stored %s %s.%s"), routine->routineType().c_str(), routine->owner()->name().c_str(), routine->name().c_str()));
 
   mforms::Box *content = mforms::manage(new mforms::Box(false));
-  content->set_padding(10);
-  content->set_spacing(10);
+  content->set_padding(12);
+  content->set_spacing(12);
+
+  _cancel_button = mforms::manage(new mforms::Button());
+  _cancel_button->set_text(_("Cancel"));
 
   _execxute_button = mforms::manage(new mforms::Button());
   _execxute_button->set_text(_("Execute"));
 
   mforms::Box *button_bar = mforms::manage(new mforms::Box(true));
-  button_bar->add_end(_execxute_button, false, false);
-  
+  button_bar->set_spacing(12);
+  mforms::Utilities::add_end_ok_cancel_buttons(button_bar, _execxute_button, _cancel_button);
+
   content->add_end(button_bar, false, true);
 
   mforms::Label *title = mforms::manage(new mforms::Label());
   title->set_text(base::strfmt(_("Enter values for parameters of your %s and click <Execute> to create "
-    "an SQL editor to run the call."), routine->routineType().c_str()));
+    "an SQL editor and run the call:"), routine->routineType().c_str()));
   title->set_wrap_text(true);
-  title->set_style(mforms::BoldStyle);
   content->add(title, false, true);
 
   mforms::ScrollPanel *scroll_box = mforms::manage(new mforms::ScrollPanel());
@@ -112,6 +114,7 @@ ExecuteRoutineWizard::ExecuteRoutineWizard(db_mysql_RoutineRef routine)
   }
 
   set_content(content);
+  set_size(500, std::min(400, 120 + (int)parameters->count() * 30));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +177,7 @@ std::string ExecuteRoutineWizard::run()
   grt::ListRef<db_mysql_RoutineParam> parameters = _routine->params();
   if (!_edits.empty())
   {
-    if (!run_modal(_execxute_button, NULL))
+    if (!run_modal(_execxute_button, _cancel_button))
       return "";
   }
 
