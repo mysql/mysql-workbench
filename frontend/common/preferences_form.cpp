@@ -480,7 +480,7 @@ void PreferencesForm::update_entry_option_numeric(const std::string &option_name
   else if (value > maxrange)
     value= maxrange;
   
-  _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, strfmt("%li", value));
+  _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, strfmt("%li", (long)value));
 }
 
 
@@ -1347,11 +1347,11 @@ void PreferencesForm::create_model_page()
 static void show_target_version(const workbench_physical_ModelRef &model, mforms::TextEntry *entry)
 {
   if (*model->catalog()->version()->releaseNumber() < 0)
-    entry->set_value(base::strfmt("%li.%li", *model->catalog()->version()->majorNumber(),
-                                  *model->catalog()->version()->minorNumber()));
+    entry->set_value(base::strfmt("%li.%li", (long)*model->catalog()->version()->majorNumber(),
+                                  (long)*model->catalog()->version()->minorNumber()));
   else
-    entry->set_value(base::strfmt("%li.%li.%li", *model->catalog()->version()->majorNumber(),
-                   *model->catalog()->version()->minorNumber(), *model->catalog()->version()->releaseNumber()));
+    entry->set_value(base::strfmt("%li.%li.%li", (long)*model->catalog()->version()->majorNumber(),
+                   (long)*model->catalog()->version()->minorNumber(), (long)*model->catalog()->version()->releaseNumber()));
 }
 
 static void update_target_version(workbench_physical_ModelRef model, mforms::TextEntry *entry)
