@@ -952,8 +952,8 @@ public:
 #ifdef __APPLE__
     _folder_tile_bk_color = base::Color::parse("#3477a6");
     _folder_tile_bk_color_hl = base::Color::parse("#4699b8");
-    _fabric_tile_bk_color = base::Color::parse("#3422a6");
-    _fabric_tile_bk_color_hl = base::Color::parse("#4655b8");
+    _fabric_tile_bk_color = base::Color::parse("#0e0e0e");
+    _fabric_tile_bk_color_hl = base::Color::parse("#2f2f2f");
 #else
     _folder_tile_bk_color = base::Color::parse("#178ec5");
     _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");

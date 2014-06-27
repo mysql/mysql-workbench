@@ -2431,6 +2431,7 @@
 		ED69F9E815DECA0C00FF2FE3 /* profiling.h in Headers */ = {isa = PBXBuildFile; fileRef = ED69F9E715DEC9F600FF2FE3 /* profiling.h */; };
 		ED69F9E915DECA2500FF2FE3 /* profiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */; };
 		ED70F1CC17303E2500584453 /* libmysqlcppconn.7.1.1.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ED70F1CB17303E2500584453 /* libmysqlcppconn.7.1.1.3.dylib */; };
+		ED7D01F6195DAE0E001FE8E7 /* wb_tile_fabric.png in Resources */ = {isa = PBXBuildFile; fileRef = ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */; };
 		ED8C8460174A9EF80036E6EF /* os_utils.py in Resources */ = {isa = PBXBuildFile; fileRef = ED8C845E174A9EF80036E6EF /* os_utils.py */; };
 		ED8C8461174A9EF80036E6EF /* tcp_utils.py in Resources */ = {isa = PBXBuildFile; fileRef = ED8C845F174A9EF80036E6EF /* tcp_utils.py */; };
 		ED9251861743B7E3008F1A50 /* wb_about.png in Resources */ = {isa = PBXBuildFile; fileRef = 27CC86001741336B00AAA267 /* wb_about.png */; };
@@ -6131,6 +6132,7 @@
 		ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = profiling.cpp; path = library/base/profiling.cpp; sourceTree = "<group>"; };
 		ED69F9E715DEC9F600FF2FE3 /* profiling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = profiling.h; path = library/base/base/profiling.h; sourceTree = "<group>"; };
 		ED70F1CB17303E2500584453 /* libmysqlcppconn.7.1.1.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.3.dylib; path = "../mysql-mac-res/lib/libmysqlcppconn.7.1.1.3.dylib"; sourceTree = "<group>"; };
+		ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_fabric.png; path = images/home/wb_tile_fabric.png; sourceTree = "<group>"; };
 		ED8C845E174A9EF80036E6EF /* os_utils.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = os_utils.py; path = library/python/workbench/os_utils.py; sourceTree = "<group>"; };
 		ED8C845F174A9EF80036E6EF /* tcp_utils.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = tcp_utils.py; path = library/python/workbench/tcp_utils.py; sourceTree = "<group>"; };
 		EDC7588B1847A47B00936C9B /* wb_admin_perfschema_instrumentation_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_perfschema_instrumentation_be.py; path = plugins/wb.admin/backend/wb_admin_perfschema_instrumentation_be.py; sourceTree = "<group>"; };
@@ -7203,6 +7205,7 @@
 		27F77A9E1096EE020060EBBF /* Home Screen Icons */ = {
 			isa = PBXGroup;
 			children = (
+				ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */,
 				27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */,
 				27327BA3172FB2B300DE65D7 /* wb_tile_more.png */,
 				27327BA4172FB2B300DE65D7 /* wb_tile_open.png */,
@@ -12328,6 +12331,7 @@
 				1617BA250F8E4CF400F5249C /* WBSQLQueryPanel.xib in Resources */,
 				2B07487C0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.16x16.png in Resources */,
 				2B07487D0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.48x48.png in Resources */,
+				ED7D01F6195DAE0E001FE8E7 /* wb_tile_fabric.png in Resources */,
 				2B0749D50F94344300D7E4E3 /* Apply_16x16.png in Resources */,
 				2B0749DA0F94344300D7E4E3 /* Discard_16x16.png in Resources */,
 				2B0749DD0F94344300D7E4E3 /* First_16x16.png in Resources */,
