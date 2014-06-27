@@ -55,6 +55,8 @@ public:
 
   virtual db_query_ResultsetRef executeManagementQuery(const std::string &sql, bool log)= 0;
   virtual void executeManagementCommand(const std::string &sql, bool log)= 0;
+
+  virtual grt_PyObjectRef createCPyConnection()= 0;
 };
 
 
