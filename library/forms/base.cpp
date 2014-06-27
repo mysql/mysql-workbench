@@ -67,15 +67,6 @@ bool Object::release_on_add()
 }
 
 //--------------------------------------------------------------------------------------------------
-// Below code is used only for debug purpose.
-// It's used in view::show_retain_counts.
-#ifdef _0
-int Object::retain_count()
-{
-  return _refcount;
-}
-#endif
-//--------------------------------------------------------------------------------------------------
 
 void Object::set_destroying()
 {
