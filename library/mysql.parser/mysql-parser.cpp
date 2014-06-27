@@ -293,7 +293,9 @@ extern "C" {
   {
     pANTLR3_EXCEPTION exception = recognizer->state->exception;
 
-    while (exception != NULL)
+    // Only the take the current exception into account. There's a linked list of all exceptions we could walk
+    // but that only contains what we've seen anyway.
+    if (exception != NULL)
     {
       // Token position and length for error marker.
       ANTLR3_MARKER length = 0;
@@ -317,8 +319,6 @@ extern "C" {
       our_recognizer->add_error("Syntax error: " + message,
         (error_token == NULL) ? 0 : error_token->type, start,
         exception->line, exception->charPositionInLine, length);
-
-      exception = exception->nextException;
     }
   }
 
