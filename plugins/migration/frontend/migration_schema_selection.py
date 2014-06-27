@@ -17,6 +17,7 @@
 
 import grt
 import mforms
+import re
 
 from workbench.ui import WizardPage, WizardProgressPage, DatabaseSchemaSelector
 
@@ -61,9 +62,9 @@ class SchemaMainView(WizardPage):
 
         if advancing:
             self.doesSupportCatalogs = self.main.plan.migrationSource.rdbms.doesSupportCatalogs
-            
+            match_str = r"\%s\.\%s" % (self.main.plan.migrationSource._db_module.quoteIdentifier('(.+)\\'), self.main.plan.migrationSource._db_module.quoteIdentifier('(.+)\\'))
             if self.doesSupportCatalogs:
-                catalog_schemata_list = [ (catalog_name, schema_name) for catalog_name, dot, schema_name in (full_name.rpartition('.') 
+                catalog_schemata_list = [ (catalog_name, schema_name) for catalog_name, schema_name in (re.match(match_str, full_name).groups() 
                                             for full_name in self.main.plan.migrationSource.schemaNames) ]
                 self.catalog_schemata = {}
                 for catalog_name, schema_name in catalog_schemata_list:
@@ -73,7 +74,7 @@ class SchemaMainView(WizardPage):
                 self._optionspanel.show(True)
                 #self.advanced_button.show(True)
             else:
-                self.catalog_schemata = [ schema_name for catalog_name, dot, schema_name in (full_name.rpartition('.') 
+                self.catalog_schemata = [ schema_name for catalog_name, schema_name in (re.match(match_str, full_name).groups() 
                                             for full_name in self.main.plan.migrationSource.schemaNames) ]
                 self._optionspanel.show(False)
                 #self.advanced_button.show(False)
