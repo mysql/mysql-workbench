@@ -816,10 +816,10 @@ bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y)
     SidebarEntry* entry = entry_from_point(x, y);
     if (entry != _hot_entry)
     {
-      if (_hot_entry != NULL || (entry != NULL && entry->type() == mforms::TaskEntryLink))
+      if (_hot_entry != NULL || (entry != NULL && (entry->type() == mforms::TaskEntryLink || entry->type() == mforms::TaskEntryAlwaysActiveLink)))
         need_refresh = true;
 
-      if (entry != NULL && entry->type() == mforms::TaskEntryLink)
+      if (entry != NULL && (entry->type() == mforms::TaskEntryLink || entry->type() == mforms::TaskEntryAlwaysActiveLink))
         _hot_entry = entry; // Only links can appear as hot entries.
       else
         _hot_entry = NULL;
@@ -928,7 +928,7 @@ bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y)
       if (!handled)
       {
         SidebarEntry* entry = entry_from_point(x, y);
-        if (entry && entry->enabled() && ((entry == _hot_entry) || (entry == _selected_entry)))
+        if (entry && (entry->enabled() || entry->type() == mforms::TaskEntryAlwaysActiveLink) && ((entry == _hot_entry) || (entry == _selected_entry)))
           (*_owner->on_section_command())(entry->name());
       }
     }
