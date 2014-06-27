@@ -26,6 +26,7 @@
 #include "base/ui_form.h"
 
 #include "grtpp.h"
+#include "python_context.h"
 
 #include "grts/structs.h"
 #include "grts/structs.app.h"
@@ -49,6 +50,7 @@
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/db.query/db_query_EditableResultset.h"
 #include "objimpl/db.query/db_query_QueryBuffer.h"
+#include "objimpl/ui/grt_PyObject_impl.h"
 #include "grts/structs.db.query.h"
 
 #include "grtdb/db_helpers.h"
@@ -314,6 +316,34 @@ public:
   void detach()
   {
     _editor.reset();
+  }
+
+
+  grt_PyObjectRef createCPyConnection()
+  {
+    boost::shared_ptr<SqlEditorForm> ref(_editor);
+
+    WillEnterPython lock;
+    grt::PythonContext *py = grt::PythonContext::get();
+    py->run_buffer("import mysql.connector");
+    PyObject *ctor = py->get_global("mysql.connector.Connect");
+    if (!ctor)
+      throw std::logic_error("Could not get handle to Connector method");
+
+    grt::AutoPyObject kwarg(PyDict_New());
+
+    grt::DictRef params(ref->connection_descriptor()->parameterValues());
+
+    PyDict_SetItemString(kwarg, "host", grt::AutoPyObject(PyString_FromString(params.get_string("hostName").c_str())));
+    PyDict_SetItemString(kwarg, "port", grt::AutoPyObject(PyLong_FromLong(params.get_int("port"))));
+    PyDict_SetItemString(kwarg, "user", grt::AutoPyObject(PyString_FromString(params.get_string("userName").c_str())));
+    PyDict_SetItemString(kwarg, "password", grt::AutoPyObject(PyString_FromString(ref->dbc_auth_data()->password())));
+
+    grt::AutoPyObject connection(PyObject_Call(ctor, grt::AutoPyObject(PyTuple_New(0)), kwarg));
+    if (!connection)
+      throw grt::python_error("error opening connection");
+
+    return pyobject_to_grt(_self->get_grt(), connection);
   }
     
 protected:  

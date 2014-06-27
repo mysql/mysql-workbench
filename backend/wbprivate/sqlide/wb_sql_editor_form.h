@@ -326,6 +326,8 @@ public:
 
   void explain_current_statement();
   bool is_running_query();
+
+  sql::Authentication::Ref dbc_auth_data() { return _dbc_auth; }
 private:
   enum ExecFlags { 
     NeedNonStdDelimiter = 1 << 1,
