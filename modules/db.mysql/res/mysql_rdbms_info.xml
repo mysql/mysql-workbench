@@ -1473,7 +1473,7 @@ one per line.</value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param5">
-            <value type="string" key="caption">MySQL Username for Managed Instances:</value>
+            <value type="string" key="caption">MySQL User:</value>
             <value type="string" key="defaultValue">fabric</value>
             <value type="string" key="description">MySQL user to connect to the managed MySQL Instances.</value>
             <value type="int" key="layoutAdvanced">3</value>
@@ -1487,9 +1487,25 @@ one per line.</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">1</value>
           </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param6">
+            <value type="string" key="caption">H.A. Group Filter:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Comma separated list of groups to be included. 
+Leave empty to include all the available groups.</value>
+            <value type="int" key="layoutAdvanced">3</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">haGroupFilter</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
           <!-- Note this parameters is to store the status about the connections for managed nodes being created or not -->
           <!-- But it is not a field displayed on the UI -->
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param6">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param7">
             <value type="string" key="defaultValue">0</value>
             <value type="int" key="layoutAdvanced">-1</value>
             <value type="int" key="layoutRow">-1</value>

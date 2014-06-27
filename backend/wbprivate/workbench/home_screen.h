@@ -69,6 +69,7 @@ namespace wb
   {
     HomeMenuConnection,
     HomeMenuConnectionGroup,
+    HomeMenuConnectionFabric,
     HomeMenuConnectionGeneric,
 
     HomeMenuDocumentModelAction,

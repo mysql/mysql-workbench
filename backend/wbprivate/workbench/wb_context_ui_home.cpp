@@ -364,6 +364,21 @@ void WBContextUI::show_home_screen()
     _home_screen->set_menu(menu, HomeMenuConnectionGroup);
 
     menu = mforms::manage(new mforms::Menu());
+    menu->add_item(_("Move To Top"), "move_connection_to_top");
+    menu->add_item(_("Move Up"), "move_connection_up");
+    menu->add_item(_("Move Down"), "move_connection_down");
+    menu->add_item(_("Move To End"), "move_connection_to_end");
+
+    menu->add_separator();
+    menu->add_item(_("Edit Connection..."), "edit_connection");
+    menu->add_item(_("Delete Connection..."), "delete_fabric_connection");
+
+    menu->add_separator();
+    menu->add_item(_("Delete Connections to Managed Servers..."), "delete_fabric_connection_servers");
+
+    _home_screen->set_menu(menu, HomeMenuConnectionFabric);
+
+    menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Open Model"), "open_model_from_list");
     {
       std::list<std::string> groups;
@@ -515,16 +530,40 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
   {
     handle_home_action(ActionOpenConnectionFromList, object);
   }
-  else if (action == "delete_connection")
+  else if (action == "delete_connection" || action == "delete_fabric_connection" || action == "delete_fabric_connection_servers")
   {
     db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
     
     std::string name = connection->name();
-    std::string text= strfmt(_("Do you want to delete connection %s?"), name.c_str());
-    int answer = Utilities::show_warning(_("Delete Connection"), text,  _("Delete"), _("Cancel"));
+    std::string title;
+    std::string warning;
+
+    if (action == "delete_fabric_connection_servers")
+    {
+      title = _("Delete Managed Server Connections");
+      warning = strfmt(_("Do you really want to delete managed server connections on this fabric node: %s?"), name.c_str());
+    }
+    else
+    {
+      title = _("Delete Connection");
+      warning = strfmt(_("Do you want to delete connection %s?"), name.c_str());
+    }
+
+    int answer = Utilities::show_warning(title, warning,  _("Delete"), _("Cancel"));
     if (answer == mforms::ResultOk)
     {
-      remove_connection(connection);
+      // In case it is not a single connection, implies it is a fabric connection and we need to
+      // delete the connections to the managed servers
+      if (action != "delete_connection")
+      {
+        handle_home_context_menu(grt::StringRef(name), "internal_delete_connection_group");
+        connection->parameterValues().set("connections_created", grt::IntegerRef(0));
+      }
+
+      // Connection is not deleted when we are just deleting the children of a fabric connection
+      if (action != "delete_fabric_connection_servers")
+        remove_connection(connection);
+
       refresh_home_connections();
     }
   }
@@ -581,11 +620,13 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       refresh_home_connections();
     }
   }
-  else if (action == "delete_connection_group")
+  else if (action == "delete_connection_group" || "internal_delete_connection_group")
   {
     std::string group = object.repr();
     int answer = mforms::ResultOk;
     
+
+    // Internal deletion does not require the prompt
     if (action == "delete_connection_group")
     {
       std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), group.c_str());
@@ -614,7 +655,10 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = candidates.begin();
         iterator != candidates.end(); ++iterator)
         remove_connection(*iterator);
-      refresh_home_connections();
+
+      // Internal deletion does not require the UI update
+      if (action == "delete_connection_group")
+        refresh_home_connections();
     }
   }
   else if (action == "delete_connection_all")
