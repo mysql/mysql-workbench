@@ -140,42 +140,68 @@ def create_connections(conn):
             # Pulls the HA groups
             group_status = execute_command('group', 'lookup_groups', None, None, config)
 
+            # Variables for error handling
+            fabric_group_count = 0
+            filter_group_count = 0
+            matched_groups = []
+            server_count = 0
 
             # If all is OK continues pulling the servers for each group
             success = group_status[0]
             if success:
                 groups = group_status[2]
 
+                fabric_grounp_count = len(groups)
+
+                group_filter = conn.parameterValues["haGroupFilter"].strip()
+                group_list = []
+                if group_filter:
+                    group_list = [group.strip() for group in group_filter.split(',')]
+                    filter_group_count = len(group_list)
+
                 for group in groups:
-                    servers_status = execute_command('group', 'lookup_servers', None, [group['group_id']], config)
-                    success = servers_status[0]
+                    include_group = not group_filter or group['group_id'] in group_filter
 
-                    if success:
-                        servers = servers_status[2]
+                    if include_group:
+                        matched_groups.append(group['group_id'])
+                        servers_status = execute_command('group', 'lookup_servers', None, [group['group_id']], config)
+                        success = servers_status[0]
 
+                        if success:
+                            servers = servers_status[2]
 
-                        # Creates a connection for each retrieved server.
-                        for server in servers:
-                            address = server['address']
-                            host, port = address.split(':')
+                            # Creates a connection for each retrieved server.
+                            for server in servers:
+                                address = server['address']
+                                host, port = address.split(':')
                             
-                            # If the managed servers are located on the fabric node
-                            # most probably they will use localhost or 127.0.0.1 as
-                            # address on the fabric configuration.
+                                # If the managed servers are located on the fabric node
+                                # most probably they will use localhost or 127.0.0.1 as
+                                # address on the fabric configuration.
 
-                            # We need to replace that for the fabric node IP in order
-                            # to create the connections in WB
-                            if host in ['localhost', '127.0.0.1']:
-                                address = config.get('protocol.xmlrpc', 'address')
-                                host, _ = address.split(':')
+                                # We need to replace that for the fabric node IP in order
+                                # to create the connections in WB
+                                if host in ['localhost', '127.0.0.1']:
+                                    address = config.get('protocol.xmlrpc', 'address')
+                                    host, _ = address.split(':')
 
-                            child_conn_name = '%s/%s/%s:%s' % (conn.name, group['group_id'], host, port)
+                                child_conn_name = '%s/%s/%s:%s' % (conn.name, group['group_id'], host, port)
                             
-                            server_user = conn.parameterValues["mysqlUserName"]
-                            managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
-                            managed_conn.parameterValues["fabric_managed"] = True
+                                server_user = conn.parameterValues["mysqlUserName"]
+                                managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
+                                managed_conn.parameterValues["fabric_managed"] = True
 
-                grt.modules.Workbench.refreshHomeConnections()
+                                server_count += 1
+
+                if server_count:
+                    grt.modules.Workbench.refreshHomeConnections()
+                else:
+                    if fabric_grounp_count == 0:
+                        ret_val = "There are no High Availability Groups defined on the fabric node."
+                    elif not matched_groups:
+                        ret_val = "There are no High Availability Groups matching the configured group filter."
+                    else:
+                        ret_val = "There are no Managed Servers defined for the included groups: %s." % ','.join(matched_groups)
 
     except Exception, e:
       ret_val = str(e)

@@ -244,6 +244,7 @@ public:
 
   void repaint(cairo_t *cr, int x, int y, int w, int h)
   {
+    bool is_fabric = _connection.is_valid() && _connection->driver()->name() == "MySQLFabric";
     cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
     
     base::Rect bounds = get_content_rect();
@@ -332,39 +333,45 @@ public:
     // All the various info.
     cairo_select_font_face(cr, HOME_DETAILS_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_DETAILS_FONT_SIZE);
-    print_details_text(cr, content_bounds);
+    if (is_fabric)
+      print_fabric_details_text(cr, content_bounds);
+    else
+      print_details_text(cr, content_bounds);
 
     // Buttons at the bottom.
     base::Point position = base::Point(content_bounds.left(), content_bounds.bottom() - POPUP_BUTTON_HEIGHT);
     _button1_rect = draw_button(cr, position, _("Edit Connection..."), high_contrast);
 
-    grt::DictRef serverInfo;
-    if (_instance.is_valid())
-      serverInfo =_instance->serverInfo();
-
-    bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
-    if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
-      serverInfo.get_int("windowsAdmin") == 0)
-      pending = true;
-
-    if (pending)
+    if (!is_fabric)
     {
-      position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
-      if (is_local_connection(_connection))
-        _button2_rect = draw_button(cr, position, _("Configure Local Management..."), high_contrast);
-      else
-        _button2_rect = draw_button(cr, position, _("Configure Remote Management..."), high_contrast);
-    }
-    else
-      _button2_rect = base::Rect();
+      grt::DictRef serverInfo;
+      if (_instance.is_valid())
+        serverInfo = _instance->serverInfo();
 
-    /*
-    position.x += _button2_rect.width() + POPUP_BUTTON_SPACING;
-    _button3_rect = draw_button(cr, position, _("Add to Favorites"), high_contrast);
-    */
-    // The last button is right-aligned.
-    position.x = right - POPUP_LR_PADDING;
-    _button4_rect = draw_button(cr, position, _("Connect"), high_contrast, true);
+      bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
+      if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
+        serverInfo.get_int("windowsAdmin") == 0)
+        pending = true;
+
+      if (pending)
+      {
+        position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
+        if (is_local_connection(_connection))
+          _button2_rect = draw_button(cr, position, _("Configure Local Management..."), high_contrast);
+        else
+          _button2_rect = draw_button(cr, position, _("Configure Remote Management..."), high_contrast);
+      }
+      else
+        _button2_rect = base::Rect();
+
+      /*
+      position.x += _button2_rect.width() + POPUP_BUTTON_SPACING;
+      _button3_rect = draw_button(cr, position, _("Add to Favorites"), high_contrast);
+      */
+      // The last button is right-aligned.
+      position.x = right - POPUP_LR_PADDING;
+      _button4_rect = draw_button(cr, position, _("Connect"), high_contrast, true);
+    }
 
     // Finally the close button.
     _close_button_rect = base::Rect(right - image_width(_close_icon) - 10, top + 10, image_width(_close_icon), image_height(_close_icon));
@@ -423,6 +430,7 @@ public:
     line_bounds.size.width = (bounds.width() - POPUP_LR_PADDING) / 2;
 
     grt::DictRef parameter_values = _connection->parameterValues();
+
     grt::DictRef server_info;
     if (_instance.is_valid())
       server_info = _instance->serverInfo();
@@ -568,6 +576,43 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  void print_fabric_details_text(cairo_t *cr, base::Rect bounds)
+  {
+    // Connection info first.
+    base::Rect line_bounds = bounds;
+    line_bounds.pos.y += DETAILS_TOP_OFFSET;
+
+    // Use POPUP_LR_PADDIND as space between the two columns.
+    line_bounds.size.width = (bounds.width() - POPUP_LR_PADDING) / 2;
+
+    grt::DictRef parameter_values = _connection->parameterValues();
+
+    std::string user_name = parameter_values.get_string("userName");
+    print_info_line(cr, line_bounds, _("Fabric User"), user_name);
+    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+
+    std::string password_stored = _("<not stored>");
+    std::string password;
+    if (mforms::Utilities::find_password(_connection->hostIdentifier(), user_name, password))
+    {
+      password = "";
+      password_stored = _("<stored>");
+    }
+    print_info_line(cr, line_bounds, _("Password"), password_stored);
+    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+    print_info_line(cr, line_bounds, _("Network Address"), parameter_values.get_string("hostName"));
+    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+    ssize_t port = parameter_values.get_int("port");
+    print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
+    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+
+    print_info_line(cr, line_bounds, _("Group Filter"), parameter_values.get_string("haGroupFilter"));
+    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   virtual bool mouse_up(mforms::MouseButton button, int x, int y)
   {
     if (button == mforms::MouseButtonLeft)
@@ -703,10 +748,12 @@ private:
   cairo_surface_t* _mouse_over_icon;
   cairo_surface_t* _mouse_over2_icon;
   cairo_surface_t* _network_icon;
+  cairo_surface_t* _ha_filter_icon;
   cairo_surface_t* _page_down_icon;
   cairo_surface_t* _page_up_icon;
   cairo_surface_t* _plus_icon;
   cairo_surface_t* _sakila_icon;
+  cairo_surface_t* _fabric_icon;
   cairo_surface_t* _schema_icon;
   cairo_surface_t* _user_icon;
   cairo_surface_t* _manage_icon;
@@ -736,6 +783,7 @@ private:
   bool _filtered;
 
   mforms::Menu *_connection_context_menu;
+  mforms::Menu *_fabric_context_menu;
   mforms::Menu *_folder_context_menu;
   mforms::Menu *_generic_context_menu;
 
@@ -772,6 +820,7 @@ public:
     _page_start = 0;
     _connection_context_menu = NULL;
     _folder_context_menu = NULL;
+    _fabric_context_menu = NULL;
     _generic_context_menu = NULL;
     _hot_entry = -1;
     _entry_for_menu = -1;
@@ -792,10 +841,13 @@ public:
     _mouse_over_icon = mforms::Utilities::load_icon("wb_tile_mouseover.png");
     _mouse_over2_icon = mforms::Utilities::load_icon("wb_tile_mouseover_2.png");
     _network_icon = mforms::Utilities::load_icon("wb_tile_network.png");
+    // TODO: We need an tile icon for the group filter
+    _ha_filter_icon = mforms::Utilities::load_icon("wb_tile_network.png");
     _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
     _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
     _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
     _sakila_icon = mforms::Utilities::load_icon("wb_tile_sakila.png");
+    _fabric_icon = mforms::Utilities::load_icon("wb_tile_fabric.png");
     _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png");
     _user_icon = mforms::Utilities::load_icon("wb_tile_user.png");
     _manage_icon = mforms::Utilities::load_icon("wb_tile_manage.png");
@@ -859,6 +911,8 @@ public:
       _connection_context_menu->release();
     if (_folder_context_menu != NULL)
       _folder_context_menu->release();
+    if (_fabric_context_menu != NULL)
+      _fabric_context_menu->release();
     if (_generic_context_menu != NULL)
       _generic_context_menu->release();
 
@@ -866,10 +920,12 @@ public:
     delete_surface(_mouse_over_icon);
     delete_surface(_mouse_over2_icon);
     delete_surface(_network_icon);
+    delete_surface(_ha_filter_icon);
     delete_surface(_page_down_icon);
     delete_surface(_page_up_icon);
     delete_surface(_plus_icon);
     delete_surface(_sakila_icon);
+    delete_surface(_fabric_icon);
     delete_surface(_schema_icon);
     delete_surface(_user_icon);
     delete_surface(_manage_icon);
@@ -901,7 +957,8 @@ public:
 #else
     _folder_tile_bk_color = base::Color::parse("#178ec5");
     _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
-    _fabric_tile_bk_color_hl = base::Color::parse("#465500");
+    _fabric_tile_bk_color = base::Color::parse("#444444");
+    _fabric_tile_bk_color_hl = base::Color::parse("#535353");
 #endif
 
     _back_tile_bk_color = base::Color::parse("#d9532c");
@@ -918,6 +975,37 @@ public:
   void focus_search_box()
   {
     _search_text.focus();
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  bool is_hot_connection_folder()
+  // This method will return true for both fabric and folder connections
+  // This validation needs to be done outside
+  {
+    bool is_folder;
+
+    if (_filtered)
+      is_folder = _filtered_connections[_hot_entry].children.size() > 0;
+    else if (_active_folder > -1)
+      is_folder = _connections[_active_folder].children[_hot_entry].children.size() > 1;
+    else
+      is_folder = _connections[_hot_entry].children.size() > 1;
+
+    return is_folder;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  bool is_hot_connection_fabric()
+  {
+    bool is_fabric;
+    if (_filtered)
+      is_fabric = _filtered_connections[_hot_entry].connection.is_valid() && _filtered_connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
+    else
+      is_fabric = _connections[_hot_entry].connection.is_valid() && _connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
+
+    return is_fabric;
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1226,7 +1314,7 @@ public:
   void draw_tile(cairo_t *cr, ConnectionEntry &entry, bool hot, double alpha, bool for_dragging, 
     bool high_contrast)
   {
-    bool is_fabric = entry.connection->driver()->name() == "MySQLFabric";
+    bool is_fabric = entry.connection.is_valid() && entry.connection->driver()->name() == "MySQLFabric";
     base::Color current_color;
     if (is_fabric)
       current_color = hot ? _fabric_tile_bk_color_hl : _fabric_tile_bk_color;
@@ -1292,7 +1380,7 @@ public:
 
     // Background icon.
     bounds.use_inter_pixel = false;
-    cairo_surface_t *back_icon = (entry.children.size() && !is_fabric) ? _folder_icon : _sakila_icon;
+    cairo_surface_t *back_icon = is_fabric ? _fabric_icon : entry.children.size() ? _folder_icon : _sakila_icon;
     
     double x = bounds.left() + bounds.width() - image_width(back_icon);
     double y = bounds.top() + bounds.height() - image_height(back_icon);
@@ -1377,9 +1465,31 @@ public:
       y = bounds.top() + 74 - image_height(_network_icon);
       draw_icon_with_text(cr, x, y, _network_icon, entry.description, alpha, high_contrast);
 
-      y = bounds.top() + 56 - image_height(_schema_icon);
-      draw_icon_with_text(cr, bounds.center().x, y, _schema_icon,
-        entry.schema.empty() ? _("n/a") : entry.schema, alpha, high_contrast);
+      if (is_fabric)
+      {
+        std::string ha_filter = base::strip_text(entry.connection->parameterValues().get("haGroupFilter").repr());
+
+        std::string text(_("All Groups"));
+        if (ha_filter.length())
+        {
+          std::vector<std::string> groups = base::split(ha_filter, ",");
+
+          // Creates the legend to be displayed on the filter icon
+          if (groups.size() > 2)
+            text = base::strfmt("%s and %d others", groups[0].c_str(), groups.size() - 1);
+          else
+            text = ha_filter;
+        }
+
+        y = bounds.top() + 56 - image_height(_schema_icon);
+        draw_icon_with_text(cr, bounds.center().x, y, _ha_filter_icon, text, alpha, high_contrast);
+      }
+      else
+      {
+        y = bounds.top() + 56 - image_height(_schema_icon);
+        draw_icon_with_text(cr, bounds.center().x, y, _schema_icon,
+          entry.schema.empty() ? _("n/a") : entry.schema, alpha, high_contrast);
+      }
     }
 
     entry.compute_strings = false;
@@ -1777,17 +1887,8 @@ public:
               return true;
             }
 
-            bool is_folder = false;
-            bool is_fabric = _connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
-            if (_filtered)
-              is_folder = _filtered_connections[_hot_entry].children.size() > 1;
-            else
-            {
-              if (_active_folder > -1)
-                is_folder = _connections[_active_folder].children[_hot_entry].children.size() > 1;
-              else
-                is_folder = _connections[_hot_entry].children.size() > 1;
-            }
+            bool is_fabric = is_hot_connection_fabric();
+            bool is_folder = !is_fabric && is_hot_connection_folder();
 
 #ifdef __APPLE__
             bool show_info = _info_button_rect.contains_flipped(x, y);
@@ -1857,48 +1958,34 @@ public:
 
       case mforms::MouseButtonRight:
       {
+        mforms::Menu *context_menu = NULL;
+
         if (_hot_entry > -1)
         {
           if (_active_folder > -1)
           {
             // There can't be any folder, as we don't support folder nesting.
-            if (_connection_context_menu != NULL && _hot_entry > 0)
-            {
-              _entry_for_menu = _hot_entry;
-              _connection_context_menu->popup_at(this, x, y);
-            }
+            if (_hot_entry > 0)
+              context_menu = _connection_context_menu;
           }
           else
           {
-            bool is_folder;
-            if (_filtered)
-              is_folder = _filtered_connections[_hot_entry].children.size() > 0;
+            if (is_hot_connection_fabric())
+              context_menu = _fabric_context_menu;
+            else if (is_hot_connection_folder())
+              context_menu = _folder_context_menu;
             else
-              is_folder = _connections[_hot_entry].children.size() > 0;
-            if (is_folder)
-            {
-              if (_folder_context_menu != NULL)
-              {
-                _entry_for_menu = _hot_entry;
-                _folder_context_menu->popup_at(this, x, y);
-              }
-            }
-            else
-              if (_connection_context_menu != NULL)
-              {
-                _entry_for_menu = _hot_entry;
-                _connection_context_menu->popup_at(this, x, y);
-              }
+              context_menu = _connection_context_menu;
           }
-          return true;
+
+          _entry_for_menu = _hot_entry;
         }
         else
-        {
-          if (_generic_context_menu != NULL)
-            _generic_context_menu->popup_at(this, x, y);
+          context_menu = _generic_context_menu;
 
-          return true;
-        }
+        // At this point the context menu and the associated entry have been selected
+        if (context_menu)
+          context_menu->popup_at(this, x, y);
       }
         break;
 
@@ -1985,6 +2072,17 @@ public:
         {
           _folder_context_menu->retain();
           menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1));
+        }
+        break;
+
+      case HomeMenuConnectionFabric:
+        if (_fabric_context_menu != NULL)
+          _fabric_context_menu->release();
+        _fabric_context_menu = menu;
+        if (_fabric_context_menu != NULL)
+        {
+          _fabric_context_menu->retain();
+          menu->set_handler(boost::bind(&ConnectionsSection::handle_command, this, _1));
         }
         break;
 
@@ -2082,13 +2180,24 @@ public:
       last_index = _active_folder > -1 ? _connections[_active_folder].children.size() - 1 : _connections.size() - 1;
     if (_connection_context_menu != NULL)
     {
+      _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_to_top"), _entry_for_menu > first_index);
       _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_up"), _entry_for_menu > first_index);
       _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_down"), _entry_for_menu < last_index);
+      _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_to_end"), _entry_for_menu < last_index);
     }
     if (_folder_context_menu != NULL)
     {
+      _folder_context_menu->set_item_enabled(_folder_context_menu->get_item_index("move_connection_to_top"), _entry_for_menu > first_index);
       _folder_context_menu->set_item_enabled(_folder_context_menu->get_item_index("move_connection_up"), _entry_for_menu > first_index);
       _folder_context_menu->set_item_enabled(_folder_context_menu->get_item_index("move_connection_down"), _entry_for_menu < last_index);
+      _folder_context_menu->set_item_enabled(_folder_context_menu->get_item_index("move_connection_to_end"), _entry_for_menu < last_index);
+    }
+    if (_fabric_context_menu != NULL)
+    {
+      _fabric_context_menu->set_item_enabled(_fabric_context_menu->get_item_index("move_connection_to_top"), _entry_for_menu > first_index);
+      _fabric_context_menu->set_item_enabled(_fabric_context_menu->get_item_index("move_connection_up"), _entry_for_menu > first_index);
+      _fabric_context_menu->set_item_enabled(_fabric_context_menu->get_item_index("move_connection_down"), _entry_for_menu < last_index);
+      _fabric_context_menu->set_item_enabled(_fabric_context_menu->get_item_index("move_connection_to_end"), _entry_for_menu < last_index);
     }
   }
 
@@ -4496,6 +4605,7 @@ void HomeScreen::set_menu(mforms::Menu *menu, HomeScreenMenuType type)
   {
     case HomeMenuConnection:
     case HomeMenuConnectionGroup:
+    case HomeMenuConnectionFabric:
     case HomeMenuConnectionGeneric:
       _connection_section->set_context_menu(menu, type);
       break;
