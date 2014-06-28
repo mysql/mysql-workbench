@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="db.mgmt.Rdbms" id="com.mysql.rdbms.msaccess">
+    <value type="string" key="caption">Microsoft Access</value>
+    <value type="string" key="name">MsAccess</value>
+    <value type="string" key="databaseObjectPackage">db.msaccess</value>
+    <value type="int" key="maximumIdentifierLength">64</value>
+    <link type="object" key="defaultDriver">com.mysql.rdbms.msaccess.driver.odbc</link>
+    <value type="int" key="doesSupportCatalogs">0</value>
+
+    <!-- Privileges -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PrivilegeMapping" key="privilegeNames">
+    </value>
+
+    <!-- Character Sets -->
+
+    <value type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets">
+    </value>
+
+    <!-- Drivers -->
+
+    <value type="list" content-type="object" content-struct-name="db.mgmt.PythonDBAPIDriver" key="drivers">
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.msaccess.driver.odbc">
+        <value type="string" key="caption">ODBC (manually entered parameters)</value>
+        <value type="string" key="description">Pyodbc ODBC Driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DRIVER=%driver%;DBQ=%filename%;UID=%userName%;PWD=%password%;%extras%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">msaccess@DRIVER=%driver%;DBQ=%filename%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">MsAccessOdbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.msaccess</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param6">
+            <value type="string" key="caption">Driver:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The Driver name of your ODBC driver (E.g. Microsoft Access Driver (*.mdb; *.accdb)).</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">driver</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param1">
+            <value type="string" key="caption">Database File:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Path to the mdb/accdb database file.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">118</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">hostName</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc</link>
+            <value type="string" key="paramType">file</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param3">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">admin</value>
+            <value type="string" key="description">Name of the user to connect with.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param4">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::MsAccess@%hostName%:%port%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param6">
+            <value type="string" key="caption">Additional arguments</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">; separated list of extra arguments to use in the
+ODBC connection string.</value>
+            <value type="int" key="layoutAdvanced">1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">extras</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.msaccess.driver.odbc_dsn">
+        <value type="string" key="caption">ODBC Data Source</value>
+        <value type="string" key="description">Pyodbc ODBC Driver, using DSN</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">DSN=%dsn%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">MsAccessOdbcDSN</value>
+        <link type="object" key="owner">com.mysql.rdbms.msaccess</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_dsn.param1">
+            <value type="string" key="caption">DSN:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Pre-configured ODBC data source.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueModule">DbMsAccessRE</value>
+            <value type="string" key="lookupValueMethod">getDataSourceNames</value>
+            <value type="string" key="name">dsn</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc_dsn</link>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_dsn.param2">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc_dsn</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">&lt;dsn user&gt;::MsAccess@%dsn%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+        </value>
+      </value>
+
+      <value type="object" struct-name="db.mgmt.PythonDBAPIDriver" id="com.mysql.rdbms.msaccess.driver.odbc_connstr">
+        <value type="string" key="caption">ODBC (direct connection string)</value>
+        <value type="string" key="description">Pyodbc ODBC Driver</value>
+        <value type="string" key="driverLibraryName">pyodbc</value>
+        <value type="string" key="connectionStringTemplate">%connection_string%</value>
+
+        <value  type="list" content-type="string" key="files">
+          <!--value type="string">libmysql.dll</value-->
+        </value>
+        <value type="string" key="hostIdentifierTemplate">msaccess@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="name">MsAccessOdbc</value>
+        <link type="object" key="owner">com.mysql.rdbms.msaccess</link>
+        <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_connstr.param1">
+            <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The full ODBC connection string to use for the connection.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">connection_string</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc_connstr</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+        </value>
+      </value>
+    </value>
+
+    <!-- Datatypes -->
+
+    <value type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
+    </value>
+  </value>
+</data>

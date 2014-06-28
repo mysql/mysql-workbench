@@ -190,9 +190,9 @@ class MigrationSource(object):
             raise NotSupportedError('MySQL connections through SSH are not supported in this version '
                                     'of the MySQL Workbench Migration Wizard.')
         self._rev_eng_module.connect(self.connection, self.password or "")
-        if str(self.getDriverDBMSName()).upper() == 'ACCESS':
-            raise NotSupportedError('Microsoft Access is not supported in this version of the MySQL Workbench '
-                                    'Migration Wizard.')
+        #if str(self.getDriverDBMSName()).upper() == 'ACCESS':
+        #    raise NotSupportedError('Microsoft Access is not supported in this version of the MySQL Workbench '
+        #                            'Migration Wizard.')
         return True
 
     def disconnect(self):
