@@ -40,6 +40,7 @@ copy %MODULES_DIR%\db.postgresql\res\*.xml %TARGET_DIR%\modules\data\. 1> nul 2>
 copy %MODULES_DIR%\db.sql92\res\*.xml %TARGET_DIR%\modules\data\. 1> nul 2> nul
 copy %MODULES_DIR%\db.sqlanywhere\res\*.xml %TARGET_DIR%\modules\data\. 1> nul 2> nul
 copy %MODULES_DIR%\db.sqlite\res\*.xml %TARGET_DIR%\modules\data\. 1> nul 2> nul
+copy %MODULES_DIR%\db.msaccess\res\*.xml %TARGET_DIR%\modules\data\. 1> nul 2> nul
 
 rem catalog diff reporting templates
 if not exist %TARGET_DIR%\modules\data\db_mysql_catalog_reporting mkdir %TARGET_DIR%\modules\data\db_mysql_catalog_reporting
@@ -64,6 +65,7 @@ xcopy %MODULES_DIR%\db.sql92\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclu
 xcopy %MODULES_DIR%\db.postgresql\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\db.sqlanywhere\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\db.sqlite\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
+xcopy %MODULES_DIR%\db.msaccess\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 
 rem copy WBA extension modules
 echo Copy WBA Extension files ..

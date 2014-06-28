@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -146,7 +146,7 @@ class DatabaseObjectSelector(mforms.Box):
                 filter_container.add(search_entry, 0, 1, 0, 1)
 
                 available_list = mforms.newTreeNodeView(mforms.TreeFlatList)
-                available_list.add_column(mforms.IconColumnType, 'Available Objects', 100, False)
+                available_list.add_column(mforms.IconColumnType, 'Available Objects', 200, False)
                 available_list.end_columns()
                 available_list.set_selection_mode(mforms.TreeSelectMultiple)
                 available_list.set_allow_sorting(False)
@@ -178,7 +178,7 @@ class DatabaseObjectSelector(mforms.Box):
 
                 selected_list = mforms.newTreeNodeView(mforms.TreeFlatList)
                 selected_list.set_size(-1, 200)
-                selected_list.add_column(mforms.IconColumnType, 'Objects to Migrate', 100, False)
+                selected_list.add_column(mforms.IconColumnType, 'Objects to Migrate', 200, False)
                 selected_list.end_columns()
                 selected_list.set_selection_mode(mforms.TreeSelectMultiple)
                 selected_list.set_allow_sorting(False)
