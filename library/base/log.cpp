@@ -123,8 +123,8 @@ Logger::Logger(const std::string& dir, const bool stderr_log, const std::string&
   _impl->_new_line_pending = true;
   if (!dir.empty() && !file_name.empty())
   {
-    _impl->_dir = dir + "/log/";
-    _impl->_filename = _impl->_dir + filenames[0];
+    _impl->_dir = base::join_path(dir.c_str(), "log", "");
+    _impl->_filename = base::join_path(_impl->_dir.c_str(), filenames[0].c_str(), "");
     try
     {
       create_directory(_impl->_dir, 0700, true);

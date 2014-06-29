@@ -336,7 +336,7 @@ void fill_routine_details(MySQLRecognizerTreeWalker &walker, db_mysql_RoutineRef
         case IN_SYMBOL:
         case OUT_SYMBOL:
         case INOUT_SYMBOL:
-          param->paramType(walker.token_text());
+          param->paramType(base::tolower(walker.token_text()));
           walker.next();
           break;
       }

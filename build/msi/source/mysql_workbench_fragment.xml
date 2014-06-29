@@ -879,7 +879,11 @@
                     <File Id="file62052" Name="output_type-spacialview.png"/>
                     <File Id="file62053" Name="output_type-toggle-off.png"/>
                     <File Id="file62054" Name="output_type-toggle-on.png"/>
-                    <File Id="file62055" Name="output_type-formeditor.png"/>
+					
+                    <File Id="wb_item_overlay_editor" Name="wb_item_overlay_editor.png"/>
+                    <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
+                    <File Id="wb_item_overlay_inspector" Name="wb_item_overlay_inspector.png"/>
+                    <File Id="wb_item_overlay_result" Name="wb_item_overlay_result.png"/>
                   </Component>
                   
                 </Directory>

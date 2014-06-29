@@ -31,9 +31,6 @@ MenuBase::~MenuBase()
 {
   for (std::vector<MenuItem*>::iterator iter = _items.begin(); iter != _items.end(); ++iter)
   {
-#ifdef _DEBUG
-    g_message("%s", (*iter)->get_name().c_str());
-#endif
     (*iter)->release();
   }
   _items.clear();  

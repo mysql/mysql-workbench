@@ -49,10 +49,10 @@
 
 DEFAULT_LOG_DOMAIN("SqlEditorPanel");
 
-
 using namespace bec;
 using namespace base;
 
+//--------------------------------------------------------------------------------------------------
 
 SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed)
 : mforms::AppView(false, "db.query.QueryBuffer", false), _form(owner),
@@ -74,7 +74,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   parser::ParserContext::Ref context = services->createParserContext(owner->rdbms()->characterSets(),
     owner->rdbms_version(), owner->lower_case_table_names() != 0);
 
-  _editor = MySQLEditor::create(grtm->get_grt(), context, owner->autocomplete_context(), grtobj);
+  _editor = MySQLEditor::create(grtm->get_grt(), context, owner->work_parser_context(), grtobj);
   _editor->sql_check_progress_msg_throttle(grtm->get_app_option_int("DbSqlEditor:ProgressStatusUpdateInterval", 500)/(double)1000);
   _editor->set_auto_completion_cache(owner->auto_completion_cache());
   _editor->set_sql_mode(owner->sql_mode());
@@ -98,7 +98,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _splitter.add(&_editor_box);
   _splitter.add(&_lower_tabview);
-  _splitter.set_position(mforms::App::get()->get_application_bounds().height());
+  _splitter.set_position((int)mforms::App::get()->get_application_bounds().height());
   UIForm::scoped_connect(_splitter.signal_position_changed(), boost::bind(&SqlEditorPanel::splitter_resized, this));
 
   _lower_tabview.set_aux_view(&_tab_action_box);
@@ -134,6 +134,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _lower_tab_menu.add_item_with_title("Close Other Tabs", boost::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
 }
 
+//--------------------------------------------------------------------------------------------------
 
 SqlEditorPanel::~SqlEditorPanel()
 {
@@ -141,12 +142,14 @@ SqlEditorPanel::~SqlEditorPanel()
   _editor->cancel_auto_completion();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 db_query_QueryEditorRef SqlEditorPanel::grtobj()
 {
   return db_query_QueryEditorRef::cast_from(_editor->grtobj());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorPanel::on_close_by_user()
 {
@@ -157,6 +160,8 @@ bool SqlEditorPanel::on_close_by_user()
   }
   return false;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorPanel::can_close()
 {
@@ -257,6 +262,7 @@ bool SqlEditorPanel::can_close()
   return success;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::apply_clicked()
 {
@@ -265,6 +271,7 @@ void SqlEditorPanel::apply_clicked()
     result->apply_changes();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::revert_clicked()
 {
@@ -273,6 +280,7 @@ void SqlEditorPanel::revert_clicked()
     result->discard_changes();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::resultset_edited()
 {
@@ -286,6 +294,7 @@ void SqlEditorPanel::resultset_edited()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::splitter_resized()
 {
@@ -296,11 +305,9 @@ void SqlEditorPanel::splitter_resized()
   }
 }
 
-//----- editor
-
+//--------------------------------------------------------------------------------------------------
 
 #define EDITOR_TEXT_LIMIT 100 * 1024 * 1024
-
 
 bool SqlEditorPanel::load_autosave(const std::string &file, const std::string &real_filename, const std::string &encoding)
 {
@@ -327,6 +334,7 @@ bool SqlEditorPanel::load_autosave(const std::string &file, const std::string &r
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorPanel::load_from(const std::string &file, const std::string &encoding, bool keep_dirty)
 {
@@ -396,13 +404,14 @@ bool SqlEditorPanel::load_from(const std::string &file, const std::string &encod
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::close()
 {
   _form->remove_sql_editor(this);
 }
 
-
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorPanel::save_as(const std::string &path)
 {
@@ -433,6 +442,7 @@ bool SqlEditorPanel::save_as(const std::string &path)
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorPanel::save()
 {
@@ -441,9 +451,7 @@ bool SqlEditorPanel::save()
 
   GError *error= NULL;
 
-  // this is already done in FileChooser
-  //    if (!g_str_has_suffix(path.c_str(), ".sql"))
-  //      path.append(".sql");
+  // File extension check is already done in FileChooser.
 
   _form->grt_manager()->replace_status_text(strfmt(_("Saving SQL script to '%s'..."), _filename.c_str()));
 
@@ -471,6 +479,7 @@ bool SqlEditorPanel::save()
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::revert_to_saved()
 {
@@ -488,6 +497,7 @@ void SqlEditorPanel::revert_to_saved()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 int SqlEditorPanel::autosave_index()
 {
@@ -496,6 +506,7 @@ int SqlEditorPanel::autosave_index()
   return atoi(strip_extension(basename(_autosave_file_path)).c_str());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::rename_auto_save(int to)
 {
@@ -542,6 +553,7 @@ void SqlEditorPanel::rename_auto_save(int to)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::auto_save(const std::string &directory, int order)
 {
@@ -629,6 +641,7 @@ void SqlEditorPanel::auto_save(const std::string &directory, int order)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::delete_auto_save()
 {
@@ -648,8 +661,8 @@ void SqlEditorPanel::delete_auto_save()
 }
 
 //--------------------------------------------------------------------------------------------------
-// Editor Toolbar
 
+// Toolbar handling.
 
 void SqlEditorPanel::show_find_panel(mforms::CodeEditor *editor, bool show)
 {
@@ -659,12 +672,14 @@ void SqlEditorPanel::show_find_panel(mforms::CodeEditor *editor, bool show)
   panel->show(show);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 static void toggle_continue_on_error(SqlEditorForm *sql_editor_form)
 {
   sql_editor_form->continue_on_error(!sql_editor_form->continue_on_error());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 static void toggle_limit(mforms::ToolBarItem *item, SqlEditorForm *sql_editor_form)
 {
@@ -689,6 +704,7 @@ static void toggle_limit(mforms::ToolBarItem *item, SqlEditorForm *sql_editor_fo
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 {
@@ -803,18 +819,21 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   return tbar;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 mforms::ToolBar *SqlEditorPanel::get_toolbar()
 {
   return _editor->get_toolbar();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorPanel::is_dirty() const
 {
   return _editor->get_editor_control()->is_dirty();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::check_external_file_changes()
 {
@@ -842,12 +861,14 @@ void SqlEditorPanel::check_external_file_changes()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 std::pair<const char*, size_t> SqlEditorPanel::text_data() const
 {
   return _editor->text_ptr();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::set_title(const std::string &title)
 {
@@ -856,6 +877,7 @@ void SqlEditorPanel::set_title(const std::string &title)
   mforms::AppView::set_title(title);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::set_filename(const std::string &filename)
 {
@@ -864,6 +886,7 @@ void SqlEditorPanel::set_filename(const std::string &filename)
     set_title(strip_extension(basename(filename)));
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::update_title()
 {
@@ -871,22 +894,25 @@ void SqlEditorPanel::update_title()
     mforms::AppView::set_title(_title+(is_dirty() ? "*" : ""));
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Starts the auto completion list in the currently active editor. The content of this list is
  * determined from various sources + the current query context.
  */
 void SqlEditorPanel::list_members()
 {
-  editor_be()->show_auto_completion(true, owner()->autocomplete_context()->recognizer());
+  editor_be()->show_auto_completion(true, owner()->work_parser_context()->recognizer());
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::jump_to_placeholder()
 {
   _editor->get_editor_control()->jump_to_next_placeholder();
 }
 
-//-----
-
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::query_started(bool retain_old_recordsets)
 {
@@ -928,6 +954,7 @@ void SqlEditorPanel::query_started(bool retain_old_recordsets)
   _was_empty = (_lower_tabview.page_count() == 0);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::query_finished()
 {
@@ -939,6 +966,7 @@ void SqlEditorPanel::query_finished()
   _form->post_query_slot();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::query_failed(const std::string &message)
 {
@@ -951,13 +979,16 @@ void SqlEditorPanel::query_failed(const std::string &message)
   _form->post_query_slot();
 }
 
-//----- Resulset management
+//--------------------------------------------------------------------------------------------------
+
+// Resultset management.
 
 SqlEditorResult *SqlEditorPanel::active_result_panel()
 {
   return result_panel(_lower_tabview.get_active_tab());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::lower_tab_switched()
 {
@@ -1028,6 +1059,7 @@ void SqlEditorPanel::lower_tab_switched()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
 {
@@ -1063,6 +1095,7 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 SqlEditorResult *SqlEditorPanel::result_panel(int i)
 {
@@ -1071,6 +1104,7 @@ SqlEditorResult *SqlEditorPanel::result_panel(int i)
   return NULL;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
 {
@@ -1085,6 +1119,7 @@ void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
       boost::bind(&SqlEditorPanel::add_panel_for_recordset_from_main, this, rset));
 }
 
+//--------------------------------------------------------------------------------------------------
 
 SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
 {
@@ -1096,6 +1131,7 @@ SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
   return result;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
 {
@@ -1116,6 +1152,7 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
 {
@@ -1128,10 +1165,10 @@ void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
   // relative result object order changes always mean that a tab was reordered, but the other way around is
   // not always true
 
-  int from_index = grtobj()->resultPanels().get_index(dynamic_cast<SqlEditorResult*>(view)->grtobj());
-  if (from_index < 0)
+  size_t from_index = grtobj()->resultPanels().get_index(dynamic_cast<SqlEditorResult*>(view)->grtobj());
+  if (from_index == grt::BaseListRef::npos)
   {
-    should_never_happen("Result panel is not in resultPanels() list\n");
+    log_fatal("Result panel is not in resultPanels() list\n");
     return;
   }
 
@@ -1172,13 +1209,14 @@ void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to)
   }
   if (to_index < 0)
   {
-    should_never_happen("Unable to find suitable target index for reorder\n");
+    log_fatal("Unable to find suitable target index for reorder\n");
     return;
   }
 
   grtobj()->resultPanels()->reorder(from_index, to_index);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool SqlEditorPanel::lower_tab_closing(int tab)
 {
@@ -1195,6 +1233,7 @@ bool SqlEditorPanel::lower_tab_closing(int tab)
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::lower_tab_closed(mforms::View *page, int tab)
 {
@@ -1209,6 +1248,7 @@ void SqlEditorPanel::lower_tab_closed(mforms::View *page, int tab)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::result_removed()
 {
@@ -1217,6 +1257,7 @@ void SqlEditorPanel::result_removed()
   lower_tab_switched();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 std::list<SqlEditorResult*> SqlEditorPanel::dirty_result_panels()
 {
@@ -1231,6 +1272,7 @@ std::list<SqlEditorResult*> SqlEditorPanel::dirty_result_panels()
   return results;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::tab_menu_will_show()
 {
@@ -1246,6 +1288,7 @@ void SqlEditorPanel::tab_menu_will_show()
     _lower_tab_menu.set_item_enabled("close_others", false); // close others
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::rename_tab_clicked()
 {
@@ -1259,6 +1302,7 @@ void SqlEditorPanel::rename_tab_clicked()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::pin_tab_clicked()
 {
@@ -1268,12 +1312,14 @@ void SqlEditorPanel::pin_tab_clicked()
     result->set_pinned(!_lower_tab_menu.find_item("pin")->get_checked());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::close_tab_clicked()
 {
   lower_tab_closing(_lower_tabview.get_menu_tab());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorPanel::close_other_tabs_clicked()
 {
@@ -1284,3 +1330,5 @@ void SqlEditorPanel::close_other_tabs_clicked()
       lower_tab_closing(i);
   }
 }
+
+//--------------------------------------------------------------------------------------------------

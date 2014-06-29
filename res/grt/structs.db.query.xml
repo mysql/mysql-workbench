@@ -73,6 +73,10 @@
                   <argument name="background" type="int"/>
                   <return type="void"/>
               </method>
+
+              <method name="createCPyConnection" attr:desc="Open a Connector/Python connection to the same instance the editor is connected to">
+                  <return type="object" struct-name="grt.PyObject"/>
+              </method>
           </members>
       </gstruct>
 

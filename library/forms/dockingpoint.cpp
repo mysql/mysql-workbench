@@ -97,7 +97,7 @@ bool DockingPoint::close_view(AppView *view)
 
 bool DockingPoint::close_all_views()
 {
-  for (int c = view_count(), i = 0; i < c; i++)
+  for (int i = view_count() - 1; i >= 0; --i)
   {
     AppView *v = view_at_index(i);
     if (v && !close_view(v))
