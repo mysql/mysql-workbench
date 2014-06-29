@@ -17,45 +17,10 @@
 
 import weakref
 
-from mforms import Utilities, newLabel
+from mforms import newLabel
 import mforms
 
-from workbench.db_utils import MySQLConnection, MySQLError
-
 #-------------------------------------------------------------------------------
-def get_db_connection(server_instance_settings):
-    if server_instance_settings.connection:
-        db_connection = MySQLConnection(server_instance_settings.connection)
-        ignore_error = False
-        error_location = None
-        the_error = None
-        try:
-            db_connection.connect()
-        except MySQLError, exc:
-         # errors that probably just mean the server is down can be ignored (ex 2013)
-         # errors from incorrect connect parameters should raise an exception
-         # ex 1045: bad password
-            if exc.code in (1045,):
-                raise exc
-            elif exc.code in (2013,):
-                ignore_error = True
-            error_location = exc.location
-            the_error = str(exc)
-
-            if not ignore_error:
-                if Utilities.show_warning("Could not connect to MySQL Server at %s" % error_location,
-                        "%s\nYou can continue but some functionality may be unavailable." % the_error,
-                        "Continue Anyway", "Cancel", "") != mforms.ResultOk:
-                    raise MySQLError("", 0, "")
-        return db_connection
-    else:
-        Utilities.show_warning("WB Admin", "Server instance has no database connection specified.\nSome functionality will not be available.", "OK", "", "")
-
-
-    return None
-
-
-
 
 def weakcb(object, cbname):
     """Create a callback that holds a weak reference to the object. When passing a callback

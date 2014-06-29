@@ -70,7 +70,15 @@ ParserContext::~ParserContext()
 
 void ParserContext::use_sql_mode(const std::string &mode)
 {
+  _sql_mode = mode;
   _recognizer->set_sql_mode(mode);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string ParserContext::get_sql_mode()
+{
+  return _sql_mode;
 }
 
 //--------------------------------------------------------------------------------------------------

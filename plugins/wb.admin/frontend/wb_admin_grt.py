@@ -96,6 +96,8 @@ class AdministratorContext:
         self.server_profile = None
         self.admin_pages = {}
         self.page_instances = {}
+        self.page_titles = {}
+        self.disabled_pages = {}
         self.admin_tab = None
         self.error_box = None
         self.ctrl_be = None
@@ -291,6 +293,11 @@ class AdministratorContext:
         if entry_id == "configure":
             grt.modules.Workbench.showInstanceManagerFor(self.editor.connection)
         else:
+            if entry_id in self.disabled_pages:
+                Utilities.show_error(self.page_titles[entry_id],
+                                     self.disabled_pages[entry_id],
+                                     "OK", "", "")
+                return
             self.open_into_section(entry_id)
 
 
@@ -332,6 +339,8 @@ class AdministratorContext:
         if not section_id:
             section_id = "wba_management" # the default
 
+        self.page_titles[page_class.identifier()] = title
+
         self.admin_pages[page_class.identifier()] = (page_class, needs_remote_access)
         icon_path = page_class.identifier()+".png"
         for sname, stitle, sitems in self.sidebar_sections:
@@ -347,6 +356,7 @@ class AdministratorContext:
                 server_version = None
             self.shown_in_sidebar = True
             first = True
+            self.disabled_pages = {}
             for sname, stitle, sitems in self.sidebar_sections:
                 flags = mforms.TaskSectionShowConfigButton if sname == "wba_instance" else mforms.TaskSectionPlain
                 if first:
@@ -354,14 +364,16 @@ class AdministratorContext:
                     first = False
                 self.sidebar.add_section(sname, stitle, flags)
                 for ident, ititle, icon_path in sitems:
-                    self.sidebar.add_section_entry(sname, ident, ititle, icon_path, mforms.TaskEntryLink)
+                    self.sidebar.add_section_entry(sname, ident, ititle, icon_path, mforms.TaskEntryAlwaysActiveLink)
                     mod, requires_remote_access = self.admin_pages.get(ident, (None, True))
                     enabled = True
                     if requires_remote_access and (not self.server_profile or (self.server_profile and not self.server_profile.is_local and not self.server_profile.remote_admin_enabled)):
                         enabled = False
+                        self.disabled_pages[ident] = "Feature requires remote host access.\nClick the wrench icon to configure a remote administration method for this connection."
                     elif getattr(mod, "min_server_version", None):
                         if server_version and not server_version.is_supported_mysql_version_at_least(*mod.min_server_version):
                             enabled = False
+                            self.disabled_pages[ident] = "This feature requires MySQL version %s or newer" % ".".join([str(x) for x in mod.min_server_version])
 
                     self.sidebar.set_section_entry_enabled(ident, enabled)
 

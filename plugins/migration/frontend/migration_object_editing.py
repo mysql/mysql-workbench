@@ -37,6 +37,57 @@ def find_object_with_old_name(list, name):
     return None
 
 
+class ReplaceForm(mforms.Form):
+    def __init__(self, title, description):
+        self._canceled = False
+        mforms.Form.__init__(self, None, mforms.FormDialogFrame|mforms.FormResizable|mforms.FormMinimizable)
+        self.set_title(title)
+
+        content = mforms.newBox(False)
+        self.set_content(content)
+        content.set_padding(12)
+        content.set_spacing(12)
+
+        v_box = mforms.newBox(False)
+        content.add(v_box, False, False)
+        v_box.set_spacing(12)
+        v_box.add(mforms.newLabel(description), False, False)
+
+        table = mforms.newTable()
+        table.set_padding(12)
+        v_box.add(table, False, False)
+        table.set_row_count(2)
+        table.set_column_count(2)
+        table.set_row_spacing(8)
+        table.set_column_spacing(4)
+        table.add(mforms.newLabel("Find:"), 0, 1, 0, 1)
+        table.add(mforms.newLabel("Replace with:"), 0, 1, 1, 2)
+
+        self.from_type_entry = mforms.newTextEntry()
+        table.add(self.from_type_entry, 1, 2, 0, 1)
+
+        self.to_type_entry = mforms.newTextEntry()
+        table.add(self.to_type_entry, 1, 2, 1, 2)
+
+        h_box = mforms.newBox(True)
+        content.add_end(h_box, False, False)
+        h_box.set_spacing(12)
+
+        self.cancel_btn = mforms.newButton()
+        self.cancel_btn.set_text("Cancel")
+        h_box.add_end(self.cancel_btn, False, True)
+
+        self.ok_btn = mforms.newButton()
+        self.ok_btn.set_text("OK")
+        h_box.add_end(self.ok_btn, False, True)
+        self.set_size(600, 180)
+
+    def show(self, type_to_replace):
+        self.from_type_entry.set_value(type_to_replace)
+        modal_result = self.run_modal(self.ok_btn, self.cancel_btn)
+        return (modal_result, self.from_type_entry.get_string_value(), self.to_type_entry.get_string_value())
+
+
 class MainView(WizardPage):
     def __init__(self, main):
         WizardPage.__init__(self, main, "Manual Editing", wide=True)
@@ -107,6 +158,9 @@ class MainView(WizardPage):
         self._menu.add_will_show_callback(self.menu_will_show)
         self._menu.add_item_with_title("Set Target Type of Selected Columns...", self.set_target_type, "set_target_type")
         self._menu.add_item_with_title("Find and Replace Target Type...", self.replace_target_type, "replace_target_type")
+        self._menu.add_item_with_title("Find and Replace Target Flags...", self.replace_target_flags, "replace_target_flags")
+        self._menu.add_item_with_title("Find and Replace Target Default Value...", self.replace_target_default_value, "replace_target_default_value")
+        self._menu.add_item_with_title("Find and Replace Target Collation...", self.replace_target_collation, "replace_target_collation")
         self._columns.set_context_menu(self._menu)
         
         self.help_label = mforms.newLabel("You can rename target schemas and tables and change column definitions by clicking them once selected.")
@@ -300,7 +354,7 @@ class MainView(WizardPage):
                 self._regenerateSQL()
             elif column == self.COL_TARGET_COLLATION:
                 node.set_string(column, value)
-                object.collation = value
+                object.collationName = value
                 grt.log_info("Migration", "User changed target column collation of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
 
@@ -791,71 +845,34 @@ class MainView(WizardPage):
                 for n in selected_nodes:
                     self._columns_cell_edited(n, self.COL_TARGET_TYPE, type)
 
-    def replace_target_type(self):
-        class ReplaceForm(mforms.Form):
-            def __init__(self):
-                self._canceled = False
-                mforms.Form.__init__(self, None, mforms.FormDialogFrame|mforms.FormResizable|mforms.FormMinimizable)
-                self.set_title("Find and Replace Target Type")
-
-                content = mforms.newBox(False)
-                self.set_content(content)
-                content.set_padding(12)
-                content.set_spacing(12)
-
-                v_box = mforms.newBox(False)
-                content.add(v_box, False, False)
-                v_box.set_spacing(12)
-
-                table = mforms.newTable()
-                table.set_padding(12)
-                v_box.add(table, False, False)
-                table.set_row_count(2)
-                table.set_column_count(2)
-                table.set_row_spacing(8)
-                table.set_column_spacing(4)
-                table.add(mforms.newLabel("Find:"), 0, 1, 0, 1)
-                table.add(mforms.newLabel("Replace with:"), 1, 2, 0, 1)
-
-                self.from_type_entry = mforms.newTextEntry()
-                table.add(self.from_type_entry, 0, 1, 1, 2)
-
-                self.to_type_entry = mforms.newTextEntry()
-                table.add(self.to_type_entry, 1, 2, 1, 2)
-
-                h_box = mforms.newBox(True)
-                v_box.add(h_box, True, True)
-                h_box.set_spacing(12)
-
-                self.cancel_btn = mforms.newButton()
-                self.cancel_btn.set_text("Cancel")
-                h_box.add_end(self.cancel_btn, False, True)
-                self.cancel_btn.add_clicked_callback(self.cancel_clicked)
-
-                self.ok_btn = mforms.newButton()
-                self.ok_btn.set_text("OK")
-                h_box.add_end(self.ok_btn, False, True)
-
-            def cancel_clicked(self):
-                self._canceled = True
-
-            def show(self, type_to_replace):
-                self.from_type_entry.set_value(type_to_replace)
-                self.run_modal(self.ok_btn, self.cancel_btn)
-
-            def get(self):
-                return (not self._canceled, self.from_type_entry.get_string_value(), self.to_type_entry.get_string_value())
-
+    def replace_target(self, title, description, type):
         selected_node = self._columns.get_selection()[0]
         if selected_node:
-            type_to_replace = selected_node.get_string(self.COL_TARGET_TYPE)
-            repl_form = ReplaceForm()
-            repl_form.show(type_to_replace)
-            ret, type_to_replace, type = repl_form.get()
+            to_replace = selected_node.get_string(type)
+            repl_form = ReplaceForm(title, description)
+            ret, to_replace, replace_with = repl_form.show(to_replace)
             if ret:
                 for i in range(self._columns.count()):
                     node = self._columns.node_at_row(i)
-                    if node.get_string(self.COL_TARGET_TYPE) == type_to_replace:
-                        self._columns_cell_edited(node, self.COL_TARGET_TYPE, type)
+                    if node.get_string(type) == to_replace:
+                        self._columns_cell_edited(node, type, replace_with)
 
+    def replace_target_type(self):
+        self.replace_target("Find and Replace Target Type", 
+                            "Target/migrated data type matching the search term will be replaced for all columns of all tables.", 
+                            self.COL_TARGET_TYPE)
 
+    def replace_target_flags(self):
+        self.replace_target("Find and Replace Target Flags", 
+                            "Target/migrated flags matching the search term will be replaced for all columns of all tables.", 
+                            self.COL_TARGET_FLAGS)
+
+    def replace_target_default_value(self):
+        self.replace_target("Find and Replace Target Default Value", 
+                            "Target/migrated default value matching the search term will be replaced for all columns of all tables.", 
+                            self.COL_TARGET_DEFAULT)
+
+    def replace_target_collation(self):
+        self.replace_target("Find and Replace Target Collation", 
+                            "Target/migrated collation matching the search term will be replaced for all columns of all tables.", 
+                            self.COL_TARGET_COLLATION)

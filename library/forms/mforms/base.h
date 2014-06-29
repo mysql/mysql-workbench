@@ -56,8 +56,8 @@ namespace mforms {
     bool release_on_add();
 
 // Below code is used only for debug purpose.
-#ifdef _0
-    int retain_count();
+#ifdef _DEBUG
+    inline base::refcount_t retain_count() const { return _refcount; }
 #endif
 
     void set_destroying();

@@ -790,26 +790,28 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
         std::vector<std::string> icons = mOwner->overlay_icons_for_node(node);
         if (!icons.empty())
         {
-          NSRect iconRect = [self rectOfRow: row];
+          NSRect iconRect = [self rectOfRow: row];	
 
           iconRect.origin.x = NSMaxX([self visibleRect]) - 4;
           iconRect.size.width = 0;
 
           mOverlayIcons = [[NSMutableArray alloc] initWithCapacity: icons.size()];
           int i = 0;
-          for (std::vector<std::string>::const_iterator icon = icons.begin(); icon != icons.end(); ++icon, ++i)
+
+          // Iterating the icons reversely to simplify hit computation.
+          for (std::vector<std::string>::reverse_iterator icon = icons.rbegin(); icon != icons.rend(); ++icon, ++i)
           {
             NSImage *img = icon->empty() ? nil : [(MFTreeNodeViewImpl*)[self delegate] iconForFile: [NSString stringWithCPPString: *icon]];
             if (img)
-              [mOverlayIcons addObject: img];
+              [mOverlayIcons insertObject: img atIndex: 0];
             else
-              [mOverlayIcons addObject: [NSNull null]];
+              [mOverlayIcons insertObject: NSNull.null atIndex: 0];
 
-            iconRect.origin.x -= NSHeight(iconRect);
-            iconRect.size.width += NSHeight(iconRect);
+            iconRect.origin.x -= img.size.width + 4;
+            iconRect.size.width = img.size.width;
 
             if (NSPointInRect(p, iconRect) && mOverOverlay < 0)
-              mOverOverlay = i;
+              mOverOverlay = icons.size() - i - 1;
           }
           [self setNeedsDisplay: YES];
         }
@@ -875,15 +877,24 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
   [super drawRow: rowIndex clipRect: clipRect];
   if (mOverlayIcons && rowIndex == mOverlayedRow)
   {
-    double x = NSMaxX([self visibleRect]) - 4;
     NSRect rowRect = [self rectOfRow: rowIndex];
     int i = 0;
+
+    CGFloat x = NSMaxX([self visibleRect]);
     for (id icon in mOverlayIcons)
     {
       if ([icon isKindOfClass: [NSImage class]])
       {
         NSSize size = [icon size];
-        x -= NSHeight(rowRect);
+        x -= size.width + 4;
+      }
+    }
+
+    for (id icon in mOverlayIcons)
+    {
+      if ([icon isKindOfClass: [NSImage class]])
+      {
+        NSSize size = [icon size];
         [(NSImage*)icon drawInRect: NSMakeRect(x, NSMinY(rowRect),
                                                size.width, size.height)
                           fromRect: NSZeroRect
@@ -891,6 +902,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
                           fraction: mOverOverlay == i ? 1.0 : 0.4
                     respectFlipped: YES
                              hints: nil];
+        x += size.width + 4;
       }
       i++;
     }

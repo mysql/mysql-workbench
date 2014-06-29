@@ -579,7 +579,7 @@ def showInspector(editor, selection):
     for s in selection:
         if s.type == "db.Schema":
             schema_insp.append(s.schemaName)
-        elif s.type == "db.Table":
+        elif (s.type == "db.Table") or (s.type == "db.View"):
             table_insp.append((s.schemaName, s.name))
         elif s.type == "db.Index":
             table_insp_idx.append((s.schemaName, s.owner.name))

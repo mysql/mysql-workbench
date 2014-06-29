@@ -239,7 +239,6 @@ extern "C" {
     
     return LA(1) == '(' ? proposed : IDENTIFIER;
   }
-  
 }
 
 @lexer::apifuncs
@@ -1027,6 +1026,7 @@ into_clause:
 		OUTFILE_SYMBOL string_literal charset_clause? fields_clause? lines_clause?
 		| DUMPFILE_SYMBOL string_literal
 		| AT_SIGN_SYMBOL? text_or_identifier (COMMA_SYMBOL AT_SIGN_SYMBOL? text_or_identifier)*
+		| AT_TEXT_SUFFIX (COMMA_SYMBOL AT_TEXT_SUFFIX)*
 	)
 ;
 
@@ -1252,7 +1252,6 @@ lock_statement:
 lock_item:
 	table_identifier table_alias? lock_option
 ;
-
 lock_option:
 	READ_SYMBOL LOCAL_SYMBOL?
 	| LOW_PRIORITY_SYMBOL? WRITE_SYMBOL // low priority deprecated since 5.7
@@ -1414,7 +1413,7 @@ prepared_statement:
 ;
 
 execute_statement:
-	EXECUTE_SYMBOL^ identifier USING_SYMBOL execute_var_list
+	EXECUTE_SYMBOL^ identifier (USING_SYMBOL execute_var_list)?
 ;
 
 execute_var_list:
@@ -1913,9 +1912,9 @@ interval_time_span:
 primary:
     (
 		literal
-		| field_name
 		| function_call_expression
 		| (qualified_identifier OPEN_PAR_SYMBOL) => generic_function_call
+		| field_name
 		| PARAM_MARKER
 		| variable
 		| {LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? subquery
@@ -2123,7 +2122,8 @@ variable options { greedy = true; }:
 ;
 
 user_variable:
-	AT_SIGN_SYMBOL text_or_identifier
+	(AT_SIGN_SYMBOL text_or_identifier) -> AT_TEXT_SUFFIX AT_SIGN_SYMBOL text_or_identifier
+	| AT_TEXT_SUFFIX
 ;
 
 // System variables as used in expressions. SET has another variant of this (SET GLOBAL/LOCAL varname).
@@ -2320,7 +2320,7 @@ while_do_block:
 ;
 
 declarations: // Order is important here.
-	( options { greedy = true; }: DECLARE_SYMBOL identifier (variable_declaration | condition_declaration))*
+	( options { k = 3; }: DECLARE_SYMBOL identifier (variable_declaration | condition_declaration))*
 		cursor_declaration* handler_declaration*
 ;
 
@@ -2333,7 +2333,7 @@ condition_declaration:
 ;
 
 cursor_declaration:
-	DECLARE_SYMBOL identifier CURSOR_SYMBOL SEMICOLON_SYMBOL
+	DECLARE_SYMBOL identifier CURSOR_SYMBOL FOR_SYMBOL select_statement SEMICOLON_SYMBOL
 ;
 
 handler_declaration:
@@ -2400,15 +2400,12 @@ statement_information_item:
 ;
 
 condition_information_item:
-	(variable | identifier) EQUAL_OPERATOR condition_information_item_name
+	(variable | identifier) EQUAL_OPERATOR (signal_information_item_name | RETURNED_SQLSTATE_SYMBOL)
 ;
 
-condition_information_item_name:
+signal_information_item_name:
 	CLASS_ORIGIN_SYMBOL
 	| SUBCLASS_ORIGIN_SYMBOL
-	| RETURNED_SQLSTATE_SYMBOL
-	| MESSAGE_TEXT_SYMBOL
-	| MYSQL_ERRNO_SYMBOL
 	| CONSTRAINT_CATALOG_SYMBOL
 	| CONSTRAINT_SCHEMA_SYMBOL
 	| CONSTRAINT_NAME_SYMBOL
@@ -2417,10 +2414,16 @@ condition_information_item_name:
 	| TABLE_NAME_SYMBOL
 	| COLUMN_NAME_SYMBOL
 	| CURSOR_NAME_SYMBOL
+	| MESSAGE_TEXT_SYMBOL
+	| MYSQL_ERRNO_SYMBOL
 ;
 
 signal_statement:
-	SIGNAL_SYMBOL (SQLSTATE_SYMBOL VALUE_SYMBOL? text_or_identifier)
+	SIGNAL_SYMBOL
+		(
+			identifier
+			| SQLSTATE_SYMBOL VALUE_SYMBOL? text_or_identifier
+		)
 		(SET_SYMBOL signal_information_item (COMMA_SYMBOL signal_information_item)*)?
 ;
 
@@ -2430,7 +2433,7 @@ resignal_statement:
 ;
 
 signal_information_item:
-	condition_information_item_name EQUAL_OPERATOR literal
+	signal_information_item_name EQUAL_OPERATOR (literal | variable | identifier)
 ;
 
 cursor_close:
@@ -2847,7 +2850,7 @@ field_name:
 
 // In a separate rule because otherwise it would mess up the AST (repeating the first identifier 3 times).
 field_name_entry:
-	(identifier? DOT_SYMBOL (identifier DOT_SYMBOL)?)? identifier
+	identifier (DOT_SYMBOL identifier (DOT_SYMBOL identifier)?)?
 ;
 
 column_assignment_list_with_default:
@@ -2897,7 +2900,7 @@ user_specification:
 ;
 
 user:
-	text_or_identifier (AT_SIGN_SYMBOL text_or_identifier)?
+	text_or_identifier (AT_SIGN_SYMBOL text_or_identifier | AT_TEXT_SUFFIX)?
 	| CURRENT_USER_SYMBOL parentheses?
 ;
 
@@ -3055,7 +3058,9 @@ text_or_param_marker:
 ;
 
 text_or_identifier:
-	string_literal | identifier
+	string_literal
+	| identifier
+	//| USER_VARIABLE // LEX_HOSTNAME in the server grammar.
 ;
 
 float_or_param:
@@ -3517,7 +3522,11 @@ OPEN_BRACKET_SYMBOL:		'['; // Square brackets aren't used in the grammar, but it
 CLOSE_BRACKET_SYMBOL:		']';
 
 UNDERLINE_SYMBOL:			'_';
-AT_SIGN_SYMBOL:				'@';
+
+// The MySQL parser uses custom code in its lexer to allow base alphanum chars (and ._$) as variable name.
+// For this it handles user variables in 2 different ways and we have to model this to match that behavior.
+AT_SIGN_SYMBOL:				'@' ((SIMPLE_IDENTIFIER) => SIMPLE_IDENTIFIER { $type = AT_TEXT_SUFFIX; } )?;
+
 AT_AT_SIGN_SYMBOL:			'@@';
 
 NULL2_SYMBOL:				'\\N'	{ $type = check_null($text); };
@@ -3813,7 +3822,6 @@ LEAVE_SYMBOL:							'LEAVE';
 LEFT_SYMBOL:							'LEFT';								// SQL-2003-R
 LESS_SYMBOL:							'LESS';
 LEVEL_SYMBOL:							'LEVEL';
-//LEX_HOSTNAME_SYMBOL:					'LEX_HOSTNAME'; // used internally
 LIKE_SYMBOL:							'LIKE';								// SQL-2003-R
 LIMIT_SYMBOL:							'LIMIT';
 LINEAR_SYMBOL:							'LINEAR'							{ $type = TYPE_FROM_VERSION(50100, $type); };
@@ -4347,6 +4355,7 @@ fragment LINEBREAK:		'\n' | '\r';
 fragment DIGIT:		'0'..'9';
 fragment DIGITS:	DIGIT+;
 fragment HEXDIGIT:	DIGIT | 'A'..'F';
+fragment SIMPLE_IDENTIFIER: (DIGIT | 'A'..'Z' | DOT_SYMBOL | '_' | '$')+;
 
 fragment ML_COMMENT_HEAD:				'/*';
 fragment ML_COMMENT_END:				'*/';
@@ -4362,5 +4371,7 @@ fragment LETTER_WHEN_UNQUOTED:
 ;
 
 // These are imaginary tokens which are never matched (but used as special tokens).
+
 fragment NOT2_SYMBOL: ;
 fragment CONCAT_PIPES_SYMBOL: ;
+fragment AT_TEXT_SUFFIX: ; // See AT_SYMBOL for more information.

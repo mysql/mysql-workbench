@@ -798,13 +798,9 @@ public:
             int total_width = 0;
             for (size_t i = 0; i < overlay_icons.size(); ++i)
             {
-              String ^path = CppStringToNative(mforms::App::get()->get_resource_path(overlay_icons[i]));
-              if (path == nullptr)
-                continue;
-
               NodeOverlay ^overlay = gcnew NodeOverlay();
               overlay->isHot = false;
-              overlay->image = Drawing::Image::FromFile(path);
+              overlay->image = Drawing::Image::FromFile(CppStringToNativeRaw(overlay_icons[i]));
               if (overlay->image == nullptr)
                 continue;
 

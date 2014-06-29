@@ -43,14 +43,6 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  ~FillForm()
-  {
-    mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
-    backend->release();
-  }
-
-  //------------------------------------------------------------------------------------------------
-
   /**
    * Computes the entire layout of the form.
    * 
@@ -142,7 +134,7 @@ public:
     mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
     if (wrapper->hide_on_close())
     {
-      args->Cancel= true;
+      args->Cancel = true;
       Hide();
     }
 
@@ -378,7 +370,10 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
     }
 
     mforms::Utilities::enter_modal_loop();
-    dialog_result = form->ShowDialog(wrapper->owner);
+    Windows::Forms::Form ^owner = (Windows::Forms::Form ^)wrapper->owner;
+    if (owner == nullptr)
+      owner = Windows::Forms::Form::ActiveForm;
+    dialog_result = form->ShowDialog(owner);
     mforms::Utilities::leave_modal_loop();
   }
 

@@ -809,7 +809,6 @@ SqlEditorPanel* SqlEditorForm::run_sql_in_scratch_tab(const std::string &sql, bo
   return editor;
 }
 
-
 void SqlEditorForm::reset()
 {
   //_log->reset();
@@ -1145,7 +1144,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     // connection info
     _connection_details["name"] = _connection->name();
     _connection_details["hostName"] = _connection->parameterValues().get_string("hostName");
-    _connection_details["port"] = strfmt("%li\n", _connection->parameterValues().get_int("port"));
+    _connection_details["port"] = strfmt("%li\n", (long)_connection->parameterValues().get_int("port"));
     _connection_details["socket"] = _connection->parameterValues().get_string("socket");
     _connection_details["driverName"] = _connection->driver()->name();
     _connection_details["userName"] = _connection->parameterValues().get_string("userName");
@@ -1218,7 +1217,8 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
         _lower_case_table_names = atoi(value.c_str());
 
       parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
-      _autocomplete_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
+      _work_parser_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);
+      _work_parser_context->use_sql_mode(_sql_mode);
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   }

@@ -1,25 +1,25 @@
-<?xml version="1.0"?>
-<!--Generated with glade3 3.4.5 on Mon Mar  2 16:39:41 2009 -->
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
+  <!-- interface-requires gtk+ 2.12 -->
+  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkWindow" id="window1">
-    <property name="name">window1</property>
+    <property name="can_focus">False</property>
     <child>
       <object class="GtkNotebook" id="mysql_role_editor_notebook">
-        <property name="name">mysql_role_editor_notebook</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="tab_pos">GTK_POS_BOTTOM</property>
+        <property name="tab_pos">bottom</property>
         <property name="tab_border">0</property>
         <property name="tab_hborder">4</property>
         <property name="tab_vborder">1</property>
         <child>
           <object class="GtkHBox" id="hbox1">
-            <property name="name">hbox1</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkImage" id="image1">
-                <property name="name">image1</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="xalign">0</property>
                 <property name="yalign">0</property>
                 <property name="xpad">12</property>
@@ -28,12 +28,14 @@
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkTable" id="table2">
-                <property name="name">table2</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="border_width">8</property>
                 <property name="n_rows">3</property>
                 <property name="n_columns">3</property>
@@ -41,15 +43,13 @@
                 <property name="row_spacing">8</property>
                 <child>
                   <object class="GtkScrolledWindow" id="scrolledwindow1">
-                    <property name="name">scrolledwindow1</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <property name="shadow_type">etched-in</property>
                     <child>
                       <object class="GtkTreeView" id="roles_tv">
-                        <property name="name">roles_tv</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                       </object>
@@ -64,8 +64,8 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="label4">
-                    <property name="name">label4</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">1</property>
                     <property name="label" translatable="yes">Name:</property>
                   </object>
@@ -76,8 +76,8 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="label5">
-                    <property name="name">label5</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">1</property>
                     <property name="label" translatable="yes">Parent:</property>
                   </object>
@@ -90,8 +90,8 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="label6">
-                    <property name="name">label6</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="yalign">0</property>
                     <property name="label" translatable="yes">&lt;small&gt;Privileges of a parent role
@@ -109,9 +109,12 @@ will be available to its descendants.&lt;/small&gt;</property>
                 </child>
                 <child>
                   <object class="GtkEntry" id="name_entry">
-                    <property name="name">name_entry</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -121,8 +124,8 @@ will be available to its descendants.&lt;/small&gt;</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="label7">
-                    <property name="name">label7</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="top_attach">2</property>
@@ -133,8 +136,8 @@ will be available to its descendants.&lt;/small&gt;</property>
                 </child>
                 <child>
                   <object class="GtkComboBox" id="parent_combo">
-                    <property name="name">parent_combo</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -146,6 +149,8 @@ will be available to its descendants.&lt;/small&gt;</property>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -153,8 +158,8 @@ will be available to its descendants.&lt;/small&gt;</property>
         </child>
         <child type="tab">
           <object class="GtkLabel" id="label1">
-            <property name="name">label1</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Role</property>
           </object>
           <packing>
@@ -163,34 +168,17 @@ will be available to its descendants.&lt;/small&gt;</property>
         </child>
         <child>
           <object class="GtkTable" id="table1">
-            <property name="name">table1</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="border_width">8</property>
             <property name="n_rows">2</property>
             <property name="n_columns">3</property>
             <property name="column_spacing">12</property>
             <property name="row_spacing">12</property>
             <child>
-              <object class="GtkButton" id="clear_privs_button">
-                <property name="name">clear_privs_button</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="label" translatable="yes">Uncheck All Privileges</property>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkLabel" id="label2">
-                <property name="name">label2</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="xalign">0</property>
                 <property name="yalign">0</property>
                 <property name="label" translatable="yes">&lt;small&gt;Drag objects from Physical Schemata
@@ -212,15 +200,13 @@ object.&lt;/small&gt;</property>
             </child>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow3">
-                <property name="name">scrolledwindow3</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
+                <property name="shadow_type">etched-in</property>
                 <child>
                   <object class="GtkTreeView" id="privs_tv">
-                    <property name="name">privs_tv</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                   </object>
@@ -235,15 +221,13 @@ object.&lt;/small&gt;</property>
             </child>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow2">
-                <property name="name">scrolledwindow2</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
+                <property name="shadow_type">etched-in</property>
                 <child>
                   <object class="GtkTreeView" id="objects_tv">
-                    <property name="name">objects_tv</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                   </object>
@@ -254,12 +238,58 @@ object.&lt;/small&gt;</property>
                 <property name="y_options">GTK_EXPAND | GTK_SHRINK | GTK_FILL</property>
               </packing>
             </child>
+            <child>
+              <object class="GtkHBox" id="hbox2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="spacing">8</property>
+                <child>
+                  <object class="GtkButton" id="checkall_privs_button">
+                    <property name="label" translatable="yes">Check All</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="clear_privs_button">
+                    <property name="label" translatable="yes">Uncheck All</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options">GTK_FILL</property>
+              </packing>
+            </child>
           </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
         </child>
         <child type="tab">
           <object class="GtkLabel" id="label3">
-            <property name="name">label3</property>
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Privileges</property>
           </object>
           <packing>

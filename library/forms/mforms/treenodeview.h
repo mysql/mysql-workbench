@@ -280,7 +280,7 @@ namespace mforms {
     /** Sets a callback that's called when the mouse hovers on a row.
      
      Callback must return path to an icon if it wants it to be displayed. When the user clicks it,
-     the node_activated() handler is called, with -1 as the index.
+     the node_activated() handler is called, with a negated, one-based index of the icon index (-1, -2 etc.).
      */
     void set_row_overlay_handler(const boost::function<std::vector<std::string> (TreeNodeRef)> &overlay_icon_for_node);
 

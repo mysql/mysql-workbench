@@ -45,6 +45,7 @@ namespace bec {
 
     virtual size_t count();
 
+    void add_all();
     void remove_all();
 
     virtual bool set_field(const NodeId &node, ColumnId column, ssize_t value);

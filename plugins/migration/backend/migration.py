@@ -252,7 +252,7 @@ class MigrationSource(object):
                 grt.send_progress(accumulated_progress, 'Fetching schema names from %s...' % catalog)
                 schema_names = self.getSchemaNames(catalog)
                 for schema in schema_names:
-                    self.state.sourceSchemataNames.append("%s.%s" % (catalog, schema))
+                    self.state.sourceSchemataNames.append("%s.%s" % (self._db_module.quoteIdentifier(catalog), self._db_module.quoteIdentifier(schema)))
                 accumulated_progress += 0.9 * step_progress_share
         else:  # The rdbms doesn't support catalogs
             grt.send_progress(0.1, "Fetching schema names...")
@@ -265,7 +265,7 @@ class MigrationSource(object):
             self._catalog_names = []
             self.state.sourceSchemataNames.remove_all()
             for schema in schema_names:
-                self.state.sourceSchemataNames.append('def.%s' % schema)
+                self.state.sourceSchemataNames.append('%s.%s' % (self._db_module.quoteIdentifier('def'), self._db_module.quoteIdentifier(schema)))
         grt.send_progress(1.0, "Finished")
 
 
