@@ -43,11 +43,11 @@ struct help_test_entry
 
 BEGIN_TEST_DATA_CLASS(wb_sql_editor_help_test)
 public:
-  WBTester tester;
-  WBContextSQLIDE wb_context_sqlide;
-  sql::ConnectionWrapper connection;
-  SqlEditorForm::Ref editor_form;
-  int version;
+  WBTester _tester;
+  WBContextSQLIDE _sqlide;
+  sql::ConnectionWrapper _connection;
+  SqlEditorForm::Ref _editor_form;
+  int _version;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
   for (size_t i = start; i < end; i++)
   {
     // Ignore disabled test cases or those defined only for a higher server version.
-    if (entries[i].version_first < version || entries[i].version_last >= version)
+    if (entries[i].version_first < _version || entries[i].version_last >= _version)
       continue;
 
     // If there's no query given then scan backwards and use the first query we can.
@@ -100,7 +100,7 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
     std::pair<int, int> caret(entries[i].offset, entries[i].line); // column, row
 
     std::string message = base::strfmt("Step %lu (line: %u), topics differ", i, entries[i].test_line_number);
-    std::string topic = DbSqlEditorContextHelp::find_help_topic_from_position(editor_form, statement, caret);
+    std::string topic = DbSqlEditorContextHelp::find_help_topic_from_position(_editor_form, statement, caret);
 #if VERBOSE_TESTING
     std::cout << "Iteration     : " << i << std::endl
               << "Current topic : " << topic << std::endl
@@ -116,34 +116,43 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
 //--------------------------------------------------------------------------------------------------
 
 TEST_DATA_CONSTRUCTOR(wb_sql_editor_help_test)
-  :wb_context_sqlide(tester.wbui)
+  : _sqlide(_tester.wbui)
 {
-  populate_grt(tester.grt, tester);
+  populate_grt(_tester.grt, _tester);
 
-  connection = create_connection(tester.grt);
+  _connection = create_connection(_tester.grt);
 
-  db_mgmt_ConnectionRef my_connection(tester.grt);
-  set_connection_properties(tester.grt, my_connection);
-  editor_form = SqlEditorForm::create(&wb_context_sqlide, my_connection);
-  editor_form->connect(boost::shared_ptr<sql::TunnelConnection>());
-  tester.wbui->set_active_form(editor_form.get());
+  db_mgmt_ConnectionRef my_connection(_tester.grt);
+  set_connection_properties(_tester.grt, my_connection);
+  _editor_form = SqlEditorForm::create(&_sqlide, my_connection);
+  _editor_form->connect(boost::shared_ptr<sql::TunnelConnection>());
+  _tester.wbui->set_active_form(_editor_form.get());
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::auto_ptr<sql::Statement> stmt(_connection->createStatement());
 
   sql::ResultSet *res = stmt->executeQuery("SELECT VERSION() as VERSION");
   GrtVersionRef grt_version;
   if (res && res->next())
   {
     std::string version_string = res->getString("VERSION");
-    grt_version = parse_version(tester.grt, version_string);
+    grt_version = parse_version(_tester.grt, version_string);
   }
   delete res;
 
   ensure("Server version is invalid", grt_version.is_valid());
 
-  tester.get_rdbms()->version(grt_version);
-  version = (int)(grt_version->majorNumber() * 10000 + grt_version->minorNumber() * 100 + grt_version->releaseNumber());
+  _tester.get_rdbms()->version(grt_version);
+  _version = (int)(grt_version->majorNumber() * 10000 + grt_version->minorNumber() * 100 + grt_version->releaseNumber());
 }
+
+//--------------------------------------------------------------------------------------------------
+
+TEST_DATA_DESTRUCTOR(wb_sql_editor_help_test)
+{
+  _editor_form->close();
+}
+
+//--------------------------------------------------------------------------------------------------
 
 END_TEST_DATA_CLASS;
 
@@ -352,7 +361,7 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT left_tbl.*\n"
     "  FROM left_tbl LEFT JOIN right_tbl ON left_tbl.id = right_tbl.id\n"
     "  WHERE right_tbl.id IS NULL;", 1, 23, "JOIN", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "kill connection 1", 0, 0, "KILL", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "kill _connection 1", 0, 0, "KILL", __LINE__},
   {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "CREATE PROCEDURE doiterate(p1 INT)\n"
     "BEGIN\n"
     "  label1: LOOP\n"

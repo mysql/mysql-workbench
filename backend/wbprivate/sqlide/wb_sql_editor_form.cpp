@@ -573,9 +573,9 @@ void SqlEditorForm::close()
   _grtm->replace_status_text("SQL Editor closed");
 
   delete _menu;
-  _menu = 0;
+  _menu = NULL;
   delete _toolbar;
-  _toolbar = 0;
+  _toolbar = NULL;
 }
 
 
