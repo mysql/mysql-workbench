@@ -55,6 +55,7 @@ namespace mforms {
     void (*set_content)(Popover *self, View *content);
     void (*set_size)(Popover *self, int, int);
     void (*show)(Popover *self, int, int, StartPosition); // Position of the popover's tip in screen coordinates.
+    void (*show_and_track)(Popover *self, View*, int, int, StartPosition); // Position of the popover's tip in screen coordinates.
     void (*close)(Popover* self);
   };
 #endif
@@ -84,6 +85,14 @@ namespace mforms {
     void show(int x, int y, StartPosition position);
     void close();
 
+    // Same as show, but the popover will call the _bound_close callback when the mouse leaves the area
+    // of the tracked view (which usually is to close the popover).
+    void show_and_track(View *tracked_view, int x, int y, StartPosition position);
+
+    boost::signals2::signal<void ()> *signal_close() { return &_bound_close; }
+
+  private:
+    boost::signals2::signal<void ()> _bound_close;
   };
 };
 

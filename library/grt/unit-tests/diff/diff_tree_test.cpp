@@ -53,7 +53,7 @@ TEST_MODULE(sync_diff, "sync diff");
  * there was a sync problem when model has difference in schema collation and table collation,
  * wb was seeing only table difference, there was SR connect to bug #16492371, but the bug itself was not related
  */
-TEST_FUNCTION(1)
+TEST_FUNCTION(10)
 {
   ValueRef source_val(tester.grt->unserialize("data/diff/sync-catalogs-collations/source_catalog.xml"));
   ValueRef target_val(tester.grt->unserialize("data/diff/sync-catalogs-collations/target_catalog.xml"));
@@ -85,7 +85,7 @@ TEST_FUNCTION(1)
   for (std::size_t c = diff_tree->count(), i = 0; i < c; i++)
   {
     bec::NodeId schema((int)i);
-    for (int j = 0; j  < diff_tree->count_children(schema); j++)
+    for (size_t j = 0; j  < diff_tree->count_children(schema); j++)
     {
       bec::NodeId object(diff_tree->get_child(schema, j));
       std::string name;
@@ -110,7 +110,7 @@ TEST_FUNCTION(1)
 }
 
 // Regression test for bug #17454626
-TEST_FUNCTION(2)
+TEST_FUNCTION(20)
 {
   ValueRef source_val(tester.grt->unserialize("data/diff/sync-catalogs-rowformat/source_catalog.xml"));
   ValueRef target_val(tester.grt->unserialize("data/diff/sync-catalogs-rowformat/target_catalog.xml"));
@@ -122,6 +122,7 @@ TEST_FUNCTION(2)
 
   grt::DictRef options(tester.grt);
   options.set("CaseSensitive", grt::IntegerRef(true));
+  options.set("GenerateDocumentProperties", grt::IntegerRef(0));
 
   std::string script = diffsql_module->makeAlterScript(target_cat, source_cat, options);
   

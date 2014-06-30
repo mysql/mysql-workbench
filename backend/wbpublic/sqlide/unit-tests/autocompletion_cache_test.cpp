@@ -27,10 +27,6 @@
 using namespace grt;
 using namespace wb;
 
-// Helper to wait for cache operations to finish.
-static base::Mutex cache_mutex;
-static base::Cond cache_condition;
-
 BEGIN_TEST_DATA_CLASS(autocompletion_cache_test)
 public:
   GRT _grt;
@@ -44,7 +40,8 @@ TEST_DATA_CONSTRUCTOR(autocompletion_cache_test)
   _grt.scan_metaclasses_in("../../res/grt/");
   _grt.end_loading_metaclasses();
 
-  // setup the sakila db in server
+  // Because tests are executed in alphabetic order this is the first one.
+  // Hence we set up the sakila db in server here.
   setup_sakila_db();
 }
 
@@ -66,16 +63,6 @@ END_TEST_DATA_CLASS;
 
 TEST_MODULE(autocompletion_cache_test, "autocompletion object name cache");
 
-static void cache_callback(bool working)
-{
-  if (!working)
-  {
-    cache_mutex.lock();
-    cache_condition.signal();
-    cache_mutex.unlock();
-  }
-}
-
 TEST_FUNCTION(2)
 {
   db_mgmt_ConnectionRef connectionProperties(&_grt);
@@ -92,7 +79,7 @@ TEST_FUNCTION(3)
 {
   base::remove("testconn.cache");
   _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<autocompletion_cache_test>::get_connection, this, _1),
-    ".", cache_callback);
+    ".", NULL);
 }
 
 static void ensure_list_equals(const char *what, const std::vector<std::string> &list, const char **comp)
@@ -110,6 +97,7 @@ static void ensure_list_equals(const char *what, const std::vector<std::string> 
   }
   catch (...)
   {
+    // TODO: this should be part of the TUT message, otherwise we might not see it.
     g_message("Result list:");
     for (i = list.begin(); i != list.end(); ++i)
       g_message("  %s", i->c_str());
@@ -133,7 +121,7 @@ TEST_FUNCTION(10)
   // The loops are not necessary, but there can be spurious condition signals,
   // as the glib docs say.
   while (!_cache->is_schema_list_fetch_done())
-    cache_condition.wait(cache_mutex);
+    g_usleep(500000);
 
   list = _cache->get_matching_schema_names("");
   int found = 0;
@@ -170,7 +158,7 @@ TEST_FUNCTION(12)
   std::vector<std::string> list = _cache->get_matching_table_names("sakila", "ac");
 
   while (!_cache->is_schema_tables_fetch_done("sakila"))
-    cache_condition.wait(cache_mutex);
+    g_usleep(500000);
 
   // get the list now
   list = _cache->get_matching_table_names("sakila", "ac");
@@ -190,7 +178,7 @@ TEST_FUNCTION(14)
   std::vector<std::string> list = _cache->get_matching_function_names("sakila", "inv");
 
   while (!_cache->is_schema_routines_fetch_done("sakila"))
-    cache_condition.wait(cache_mutex);
+    g_usleep(500000);
 
   // get the list now
   list = _cache->get_matching_function_names("sakila", "inv");
@@ -207,7 +195,7 @@ TEST_FUNCTION(16)
   std::vector<std::string> list = _cache->get_matching_procedure_names("sakila", "fi");
 
   while (!_cache->is_schema_routines_fetch_done("sakila"))
-    cache_condition.wait(cache_mutex);
+    g_usleep(500000);
 
   // get the list now
   list = _cache->get_matching_procedure_names("sakila", "fi");
@@ -225,7 +213,7 @@ TEST_FUNCTION(18)
   std::vector<std::string> list = _cache->get_matching_column_names("sakila", "actor", "a");
 
   while (!_cache->is_schema_table_columns_fetch_done("sakila", "actor"))
-    cache_condition.wait(cache_mutex);
+    g_usleep(500000);
 
   // get the list now
   list = _cache->get_matching_column_names("sakila", "actor", "a");
@@ -238,7 +226,7 @@ TEST_FUNCTION(19)
   _cache->shutdown();
   delete _cache;
   _cache = new AutoCompleteCache("testconn", boost::bind(&Test_object_base<autocompletion_cache_test>::get_connection, this, _1),
-    ".", cache_callback);
+    ".", NULL);
 }
 
 

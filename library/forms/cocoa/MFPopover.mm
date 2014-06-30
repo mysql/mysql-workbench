@@ -415,9 +415,26 @@
 }
 
 //--------------------------------------------------------------------------------------------------
+// Tracking area related
+
+- (void)mouseExited:(NSEvent *)theEvent
+{
+  if ([theEvent userData])
+  {
+    (*mOwner->signal_close())();
+  }
+  else
+    [super mouseExited: theEvent];
+}
+
+//--------------------------------------------------------------------------------------------------
 
 - (void)close
 {
+  [mTrackedView removeTrackingArea: mOwnerTracking];
+  [mOwnerTracking release];
+  mOwnerTracking = nil;
+  mTrackedView = nil;
   [[NSAnimationContext currentContext] setDuration: 0.25];
   [[self animator] setAlphaValue: 0];
   [self performSelector: @selector(orderOut:) withObject: nil afterDelay: 0.5
@@ -436,6 +453,7 @@ static bool popover_create(Popover* popover, mforms::PopoverStyle style)
                                                                defer: NO
                                                                style: style]
                               autorelease];
+  popoverWindow->mOwner = popover;
   [popoverWindow setHasShadow: YES];
   [popoverWindow setLevel: NSPopUpMenuWindowLevel];
   popover->set_data(popoverWindow);
@@ -466,6 +484,21 @@ static void popover_show(Popover* popover, int x, int y, StartPosition relativeP
 
 //--------------------------------------------------------------------------------------------------
 
+static void popover_show_and_track(Popover* popover, View *owner, int x, int y, StartPosition relativePosition)
+{
+  MFPopover *impl = popover->get_data();
+  [impl show: NSMakePoint(x, y) relativePosition: relativePosition];
+  NSTrackingArea *tarea = [[NSTrackingArea alloc] initWithRect: [owner->get_data() bounds]
+                                                       options: NSTrackingMouseEnteredAndExited|NSTrackingAssumeInside|NSTrackingActiveAlways
+                                                         owner: popover->get_data()
+                                                      userInfo: [NSDictionary dictionary]];
+  [owner->get_data() addTrackingArea: tarea];
+  impl->mTrackedView = owner->get_data();
+  impl->mOwnerTracking = tarea;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 static void popover_close(Popover* popover)
 {
   [popover->get_data() close];
@@ -484,11 +517,12 @@ void cf_popover_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-  f->_popover_impl.create= &popover_create;
-  f->_popover_impl.destroy= &popover_destroy;
-  f->_popover_impl.set_content= &popover_set_content;
-  f->_popover_impl.set_size= &popover_set_size;
-  f->_popover_impl.show= &popover_show;
+  f->_popover_impl.create = &popover_create;
+  f->_popover_impl.destroy = &popover_destroy;
+  f->_popover_impl.set_content = &popover_set_content;
+  f->_popover_impl.set_size = &popover_set_size;
+  f->_popover_impl.show = &popover_show;
+  f->_popover_impl.show_and_track = &popover_show_and_track;
 
   f->_popover_impl.close= &popover_close;
 }

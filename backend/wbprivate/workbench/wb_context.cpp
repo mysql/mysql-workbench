@@ -239,6 +239,7 @@ static void show_help(const char *arg0)
   printf("  %supgrade-mysql-dbs     Open a migration wizard tab\n", OPPREFIX);
   printf("  %smodel <model file>    Open the given EER model file\n", OPPREFIX);
   printf("  %sscript <sql file>     Open the given SQL file in an connection, best in conjunction with a query parameter\n", OPPREFIX);
+  printf("  %srun-script <file>     Execute Python code from a file\n", OPPREFIX);
   printf("  %srun <script>          Execute the given code in default language for GRT shell\n", OPPREFIX);
   printf("  %srun-python <script>   Execute the given code in Python\n", OPPREFIX);
   printf("  %srun-lua <script>      Execute the given code in Lua\n", OPPREFIX);
@@ -372,6 +373,18 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
         if (retval)
           *retval = 1;
         return false;
+      }
+    }
+    else if (check_arg_with_value(argv, i, "run-script", argval))
+    {
+      run_language= "python";
+      open_at_startup_type = "run-script";
+      open_at_startup_type= argv[start_index] + strlen(OPPREFIX);
+      std::string::size_type p = open_at_startup_type.find('=');
+      if (p != std::string::npos)
+      {
+        open_at_startup = open_at_startup_type.substr(p + 1);
+        open_at_startup_type = open_at_startup_type.substr(0, p);
       }
     }
     else if (check_arg_with_value(argv, i, "run-lua", argval))
@@ -1163,6 +1176,8 @@ void WBContext::init_finish_(WBOptions *options)
     else if (g_str_has_suffix(initial_file.c_str(), ".sql") || g_str_has_suffix(initial_file.c_str(), ".dbquery")
              || options->open_at_startup_type == "query")
       options->open_at_startup_type = "query";
+    else if (g_str_has_suffix(initial_file.c_str(), ".py") && options->open_at_startup_type == "run-script")
+      options->open_at_startup_type = "run-script";
     else
       log_error("Unknown file type %s\n", initial_file.c_str());
   }
@@ -1252,7 +1267,7 @@ void WBContext::init_finish_(WBOptions *options)
         throw std::runtime_error(message);
       }
     }
-    else if (options->open_at_startup_type == "script")
+    else if (options->open_at_startup_type == "run-script")
     {
       std::string script_file= options->open_at_startup;
 
@@ -1296,7 +1311,7 @@ void WBContext::init_finish_(WBOptions *options)
   _initialization_finished= true;
 
   if (options->quit_when_done && 
-    (!options->run_at_startup.empty() || options->open_at_startup_type == "script"))
+    (!options->run_at_startup.empty() || options->open_at_startup_type == "script" || options->open_at_startup_type == "run-script"))
     quit_application();
 }
 
@@ -3034,15 +3049,7 @@ void WBContext::close_document_finish()
   // reset once again just to be sure
   get_grt()->get_undo_manager()->reset();
   _save_point= get_grt()->get_undo_manager()->get_latest_undo_action();
-  
-#ifdef ENABLE_DEBUG
-  /*
-  extern int mdc_live_item_count;
-  extern int grt_live_object_count;
-  g_message("After close document: %i canvas items, %i grt objects",
-            mdc_live_item_count, grt_live_object_count);
-    */        
-#endif
+ 
 }
 
 //--------------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_buffer.h"
 
-#include "grtui/file_charset_dialog.h"
+#include "wb_sql_editor_panel.h"
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -75,11 +75,6 @@ void SqlEditorForm::auto_save()
 // Save all script buffers, including scratch buffers
 void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_autosave)
 {
-  MutexLock sql_editors_mutex(_sql_editors_mutex);
-  
-  if (_sql_editors.size() < 1 || (_sql_editors.size() == 1 && _sql_editors[0]->is_scratch && _sql_editors[0]->editor->empty()))
-    return;
-  
   std::string path;
   
   // if we're autosaving, just use the same path from previous saves
@@ -114,93 +109,15 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
     g_file_set_contents(make_path(path, "connection_id").c_str(), _connection->id().c_str(),
       (gssize)_connection->id().size(), NULL);
 
-  //XXX The editor contents need to be up-to-date. Since we can only request a refresh of the backend
-  // for the active tab, the frontend must automatically refresh tabs when switching away from them
-  // This can be removed once backend copy of text is dropped and getting data from frontend editor happens
-  // through a callback
-  
-  int editor_index = 0;
-  BOOST_FOREACH (EditorInfo::Ref sql_editor_info, _sql_editors)
+  if (_tabdock)
   {
-    editor_index++;
-    
-    // if the editor is saved to a file, we store the path. if the file is unsaved, we save an updated copy
-    // for scrath areas, the file is always kept as an autosave
-    std::string filename;
-    
-    if (!sql_editor_info->is_scratch)
+    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
     {
-      GError *error = 0;
-      std::string contents = sql_editor_info->filename + "\n" + sql_editor_info->orig_encoding;
-      // save the path to the real file
-      if (!g_file_set_contents(make_path(path, strfmt("%i.filename", editor_index)).c_str(),
-        contents.data(), (gssize)contents.size(), &error))
-      {
-        std::string msg(strfmt("Could not save snapshot of editor contents to %s: %s", path.c_str(), error->message));
-        g_error_free(error);
-        base_rmdir_recursively(path.c_str());
-        throw msg;
-      }
-    }
-    
-    if (sql_editor_info->is_scratch)
-    {
-      if (!base::starts_with(sql_editor_info->caption, "Query "))
-        filename = strfmt("%s.scratch", sql_editor_info->caption.c_str());
-      else
-        filename = strfmt("%i.scratch", editor_index);
-      sql_editor_info->autosave_filename = filename;
-    }
-    else
-    {
-      if (sql_editor_info->editor->get_editor_control()->is_dirty())
-      {
-        if (extension(sql_editor_info->autosave_filename) == ".scratch")
-        {
-          try
-          {
-            base::remove(make_path(path, sql_editor_info->autosave_filename));
-          }
-          catch (...)
-          {
-          }
-        }
+      SqlEditorPanel *editor = sql_editor_panel(i);
+      if (!editor)
+        continue;
 
-        filename = strfmt("%i.autosave", editor_index);
-        sql_editor_info->autosave_filename = filename;
-      }
-    }
-    
-    // only save editor contents for scratch areas and unsaved editors
-    if (!filename.empty())
-    {
-      // We don't need to lock the editor as we are in the main thread here
-      // and directly set the file content without detouring to anything that could change the text.
-      GError *error = 0;
-      std::string fn = make_path(path, filename);
-      
-      std::pair<const char*, size_t> text = sql_editor_info->editor->text_ptr();
-      if (!g_file_set_contents(fn.c_str(), text.first, (gssize)text.second, &error))
-      {
-        std::string msg(strfmt("Could not save snapshot of editor contents to %s: %s", fn.c_str(), error->message));
-        g_error_free(error);
-        base_rmdir_recursively(path.c_str());
-        throw std::runtime_error(msg);
-      }
-    }
-    else
-    {
-      // delete the autosave file if the file was saved
-      try
-      {
-        if (!sql_editor_info->autosave_filename.empty())
-        {
-          base::remove(make_path(path, sql_editor_info->autosave_filename));
-        }
-      }
-      catch (...)
-      {
-      }
+      editor->auto_save(path, i);
     }
   }
 }
@@ -355,11 +272,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
   BOOST_FOREACH(std::string file, editor_files)
   {
     if (g_str_has_suffix(file.c_str(), ".scratch"))
-    {
-      GError *error = NULL;
-      gchar *data;
-      gsize length;
-      
+    {      
       if (!check_if_file_too_big_to_restore(make_path(workspace_path, file),
                                             strfmt("Saved scratch buffer '%s'", file.c_str())))
       {
@@ -371,36 +284,23 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
         }
         continue;
       }
-      
-      if (!g_file_get_contents(make_path(workspace_path, file).c_str(), &data, &length, &error))
+
+
+      SqlEditorPanel* editor(add_sql_editor(true));
+      try
+      {
+        editor->load_autosave(make_path(workspace_path, file), "");
+      }
+      catch (std::exception &e)
       {
         int rc;
-        rc = mforms::Utilities::show_error("Restore Workspace", 
-                                           strfmt("Could not read contents of '%s'.\n%s", make_path(workspace_path, file).c_str(), error->message),
+        rc = mforms::Utilities::show_error("Restore Workspace",
+                                           strfmt("Could not read contents of '%s'.\n%s", make_path(workspace_path, file).c_str(), e.what()),
                                            "Ignore", "Cancel", "");
         if (rc != mforms::ResultOk)
           return false;
       }
       
-      int i = add_sql_editor(true);
-      EditorInfo::Ref info(_sql_editors[i]);
-      sql_editor_new_ui(i);
-      info->editor->sql(data ? data : "");
-      info->editor->get_editor_control()->reset_dirty();
-
-      _active_sql_editor_index = i;
-
-      std::string tab_name = base::strip_extension(file);
-      try
-      {
-        boost::lexical_cast<int>(tab_name);
-      }
-      catch(const boost::bad_lexical_cast &)
-      {
-        info->caption =  tab_name;
-        do_partial_ui_refresh(RefreshEditorTitle);
-      }
-      g_free(data);
     }
     else if (g_str_has_suffix(file.c_str(), ".filename"))
     {
@@ -408,7 +308,6 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       std::string filename;
       std::string encoding;
       bool filename_was_empty = false;
-      GError *error = NULL;
       gchar *data;
       gsize length;
       
@@ -438,9 +337,20 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
                                              strfmt("File '%s'", filename.c_str()),
                                              false))        
         {
-          new_sql_script_file();
-          // load the saved file
-          sql_editor_open_file(_active_sql_editor_index, filename, encoding);
+          SqlEditorPanel* editor(add_sql_editor(false));
+          try
+          {
+            editor->load_from(filename, encoding);
+          }
+          catch (std::exception &e)
+          {
+            int rc;
+            rc = mforms::Utilities::show_error("Restore Workspace",
+                                               strfmt("Could not read contents of '%s'.\n%s", make_path(workspace_path, file).c_str(), e.what()),
+                                               "Ignore", "Cancel", "");
+            if (rc != mforms::ResultOk)
+              return false;
+          }
         }
         else
         {
@@ -471,41 +381,30 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
             }
             continue;
           }
-          // load auto-saved file and set the filename to the original path
-          if (!g_file_get_contents(autosave_path.c_str(), &data, &length, &error))
+
+          SqlEditorPanel *panel = add_sql_editor(false);
+
+          try
+          {
+            panel->load_autosave(autosave_path, filename, "");
+          }
+          catch (std::exception &e)
           {
             int rc;
-            rc = mforms::Utilities::show_error("Restore Workspace", 
-                                               strfmt("Could not read auto-saved contents for '%s'.\n%s", 
-                                                      (filename.empty() ? "Unsaved Script" : filename.c_str()), error->message),
+            rc = mforms::Utilities::show_error("Restore Workspace",
+                                               strfmt("Could not read auto-saved contents for '%s'.\n%s",
+                                                      (filename.empty() ? "Unsaved Script" : filename.c_str()), e.what()),
                                                "Ignore", "Cancel", "");
             if (rc != mforms::ResultOk)
               return false;
           }
-          else
-          {
-            int i = add_sql_editor(false);
-            EditorInfo::Ref info(_sql_editors[i]);
-            
-            // set active editor now so that any callbacks triggered now go to the right editor
-            _active_sql_editor_index = i;
-            
-            sql_editor_new_ui(_active_sql_editor_index);
-            info->editor->sql(data ? data : "");
-            if (!filename_was_empty && data) //it's only autosave file, we should load is a dirty
-              info->editor->get_editor_control()->reset_dirty();
 
-            info->filename = filename;
-            if (!filename.empty())
-              info->caption = base::strip_extension(base::basename(filename));
-            
-            g_free(data);
-          }
+          if (!filename_was_empty) //it's only autosave file, we should load is a dirty
+            panel->editor_be()->get_editor_control()->reset_dirty();
         }
         else if (filename.empty()) // An empty sql file.
         {
-          int index = add_sql_editor(false, false);
-          sql_editor_new_ui(index);
+          add_sql_editor(false, false);
         }
       }
     }
@@ -527,53 +426,25 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
   return true;
 }
 
-int SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed)
+SqlEditorPanel* SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed)
 {
-  db_query_QueryEditorRef grtobj(grt_manager()->get_grt());
+  SqlEditorPanel* editor(mforms::manage(new SqlEditorPanel(this, scratch, start_collapsed)));
+  editor->editor_be()->register_file_drop_for(this);
 
-  // In opposition to the object editors, each individual sql editor gets an own parser context
-  // (and hence an own parser), to allow concurrent and multi threaded work.
-  parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt_manager()->get_grt());
+  editor->grtobj()->owner(grtobj());
+  grtobj()->queryEditors().insert(editor->grtobj());
 
-  GrtVersionRef serverVer = wbsql()->get_grt_editor_object(this)->serverVersion();
-  if (!serverVer.is_valid())
-    serverVer = bec::parse_version(grt_manager()->get_grt(), "5.5.1");
+  _tabdock->dock_view(editor);
+  _tabdock->select_view(editor);
+  if (!scratch)
+    editor->set_title(strfmt("SQL File %i", ++_sql_editors_serial));
+  else
+    editor->set_title(strfmt("Query %i", ++_scratch_editors_serial));
 
-  parser::ParserContext::Ref context = services->createParserContext(rdbms()->characterSets(),
-    serverVer, _lower_case_table_names != 0);
-
-  MySQLEditor::Ref sql_editor = MySQLEditor::create(grt_manager()->get_grt(), context, grtobj);
-
-  sql_editor->sql_check_progress_msg_throttle(_progress_status_update_interval);
-  sql_editor->set_auto_completion_cache(_auto_completion_cache);
-  sql_editor->set_sql_mode(_sql_mode);
-  sql_editor->set_current_schema(active_schema());
-  sql_editor->register_file_drop_for(this);
-  scoped_connect(sql_editor->text_change_signal(),
-    boost::bind(&SqlEditorForm::do_partial_ui_refresh, this, (int)RefreshEditorTitle));
-  int sql_editor_index;
-  {
-    MutexLock sql_editors_mutex(_sql_editors_mutex);
-    EditorInfo::Ref info(new EditorInfo());
-    info->toolbar = setup_editor_toolbar(sql_editor);
-    info->editor = sql_editor;
-    info->is_scratch = scratch;
-    info->start_collapsed = start_collapsed;
-    if (!scratch)
-      info->caption = strfmt("SQL File %i", ++_sql_editors_serial);
-    else
-      info->caption = strfmt("Query %i", ++_scratch_editors_serial);
-    
-    _sql_editors.push_back(info);
-    sql_editor_index = (int)_sql_editors.size() - 1;
-  }
-  
-  sql_editor_list_changed(sql_editor, true);
-  
   if (!_loading_workspace)
     auto_save();
   
-  return sql_editor_index;
+  return editor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -592,462 +463,223 @@ mforms::DragOperation SqlEditorForm::drag_over(mforms::View *sender, base::Point
 mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::Point p,
   const std::vector<std::string> &file_names)
 {
-#if _WIN32
+#ifdef _WIN32
   bool case_sensitive = false; // TODO: on Mac case sensitivity depends on the file system.
 #else
   bool case_sensitive = true;
 #endif
-  Sql_editors editors_copy;
-  {
-    MutexLock sql_editors_mutex(_sql_editors_mutex);
-    editors_copy = _sql_editors;
-  }
+  std::vector<std::string> file_names_to_open;
+
   for (size_t i = 0; i < file_names.size(); ++i)
   {
     // First see if we have already a tab with that file open.
     bool found = false;
-    for (size_t j = 0; j < editors_copy.size(); ++j)
+
+    for (size_t c = _tabdock->view_count(), j = 0; j < c; j++)
     {
-      if (base::same_string(editors_copy[j]->filename, file_names[i], case_sensitive))
+      SqlEditorPanel *panel = sql_editor_panel((int)j);
+
+      if (panel && base::same_string(panel->filename(), file_names[i], case_sensitive))
       {
         found = true;
 
         // Ignore this file name, but if this is the only one dropped the activate the particular
         // sql editor.
         if (file_names.size() == 1)
-          active_sql_editor_index((int)j); // TODO: signal the UI that we changed the active sql editor.
+          _tabdock->select_view(panel);
         break;
       }
     }
 
     if (!found)
-      open_file(file_names[i], true);
+      file_names_to_open.push_back(file_names[i]);
   }
+
+  for (std::vector<std::string>::const_iterator f = file_names_to_open.begin();
+       f != file_names_to_open.end(); ++f)
+    open_file(*f, true);
 
   return mforms::DragOperationCopy;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Helper to rename all auto-save files under the from index to the to index, provided that:
- * - A file with that name exists and
- * - the target name isn't already used.
- * 
- * The given indices are one-based.
- */
-void SqlEditorForm::rename_autosave_files(int from, int to)
-{
-  try
-  {
-    if (file_exists(make_path(_autosave_path, strfmt("%i.autosave", from))))
-      rename(make_path(_autosave_path, strfmt("%i.autosave", from)),
-             make_path(_autosave_path, strfmt("%i.autosave", to)));
-    else
-      if (file_exists(make_path(_autosave_path, strfmt("%i.scratch", from))))
-        rename(make_path(_autosave_path, strfmt("%i.scratch", from)),
-               make_path(_autosave_path, strfmt("%i.scratch", to)));
-  }
-  catch (std::exception &exc)
-  {
-    if (from > 0)
-    {
-      log_warning("Could not rename auto-save file %s: %s\n",
-        _sql_editors[from - 1]->autosave_filename.c_str(), exc.what());
-    }
-    else
-    {
-      log_warning("Could not rename temporary auto-save file: %s\n", exc.what());
-    }
-  }
-
-  try
-  {
-    if (file_exists(make_path(_autosave_path, strfmt("%i.filename", from))))
-      rename(make_path(_autosave_path, strfmt("%i.filename", from)), 
-      make_path(_autosave_path, strfmt("%i.filename", to)));
-  }
-  catch (std::exception &exc)
-  {
-    log_warning("Could not rename auto-save file %s: %s\n", strfmt("%i.filename", from).c_str(),
-      exc.what());
-  }
-}
-
-void SqlEditorForm::remove_sql_editor(int editor_index)
+void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
 {
   //if we're removing editor, just cancel query side timer cause there is only one timer
   if (_side_palette)
     _side_palette->cancel_timer();
 
-  EditorInfo::Ref info(_sql_editors.at(editor_index));
-  info->editor->stop_processing();
+  panel->delete_auto_save();
+
+  bool found = false;
+  for (int c = _tabdock->view_count(), i = 0; i < c; i++)
   {
-    // Notify the UI that recordsets must be closed.
-    MutexLock  lock(info->recordset_mutex);
-    RecordsetsRef rsets = info->recordsets;
-    if (rsets != NULL)
+    SqlEditorPanel *p = sql_editor_panel(i);
+    if (p)
     {
-      // Keep in mind the list_changed callback will modify the recordset list.
-      while (rsets->size() > 0)
-      {
-        recordset_list_changed(editor_index, *rsets->begin(), false);
-        rsets->erase(rsets->begin());
-      }
+      // Rename the remaining editor auto saves to match their index.
+      if (found)
+        p->rename_auto_save(i-1);
+      if (p == panel)
+        found = true;
     }
   }
-  
-  MySQLEditor::Ref active_sql_editor;
-  {
-    MutexLock sql_editors_mutex(_sql_editors_mutex);
-    if ((editor_index < 0) || (editor_index >= (int)_sql_editors.size()))
-      return;
-    
-    try
-    {
-      base::remove(make_path(_autosave_path, strfmt("%i.autosave", editor_index+1)));
-    } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
-    try
-    {
-      base::remove(make_path(_autosave_path, strfmt("%i.filename", editor_index+1)));
-    } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
-    try
-    {
-      base::remove(make_path(_autosave_path, strfmt("%i.scratch", editor_index+1)));
-    } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
-    
-    active_sql_editor= _sql_editors[editor_index]->editor;
-    _sql_editors.erase(_sql_editors.begin() + editor_index);
-    
-    // Rename the remaining editor auto saves to match their index.
-    for (size_t i= editor_index; i < _sql_editors.size(); i++)
-      rename_autosave_files((int)i + 2, (int)i + 1);
-  }
-  
-  if (_active_sql_editor_index >= (int) _sql_editors.size())
-    _active_sql_editor_index = (int)_sql_editors.size() - 1;
-  
-  sql_editor_list_changed(active_sql_editor, false);
+  _tabdock->undock_view(panel);
+
+  delete panel;
 }
 
 
-int SqlEditorForm::sql_editor_count()
+SqlEditorPanel* SqlEditorForm::active_sql_editor_panel()
 {
-  MutexLock sql_editors_mutex(_sql_editors_mutex);
-  return (int)_sql_editors.size();
+  if (_tabdock)
+    return dynamic_cast<SqlEditorPanel*>(_tabdock->selected_view());
+  return NULL;
 }
 
 
-void SqlEditorForm::active_sql_editor_index(int val) 
-{ 
-  _active_sql_editor_index= val; 
+void SqlEditorForm::sql_editor_panel_switched()
+{
+  SqlEditorPanel *panel = active_sql_editor_panel();
+  if (panel)
+    _grtm->run_once_when_idle((bec::UIForm*)panel, boost::bind(&mforms::View::focus, panel->editor_be()->get_editor_control()));
 
   validate_menubar();
 }
 
 
-MySQLEditor::Ref SqlEditorForm::active_sql_editor()
+void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
 {
-  if (_active_sql_editor_index < 0 || _active_sql_editor_index >= (int) _sql_editors.size())
-    return MySQLEditor::Ref();
-  return _sql_editors.at(_active_sql_editor_index)->editor;
-}
+  int from = panel->autosave_index();
+  if (!panel || to < 0 || from < 0)
+    return;
 
+  /// Reorder the GRT lists
+  size_t from_index = grtobj()->queryEditors().get_index(panel->grtobj());
+  if (from_index == grt::BaseListRef::npos)
+    log_fatal("Could not find reordered editor in GRT object list\n");
 
-MySQLEditor::Ref SqlEditorForm::active_sql_editor_or_new_scratch()
-{
-  if (_active_sql_editor_index < 0)
-    new_sql_scratch_area(false);
-  return active_sql_editor();
-}
-
-MySQLEditor::Ref SqlEditorForm::sql_editor(int new_index)
-{
-  MutexLock sql_editors_mutex(_sql_editors_mutex);
-  if (new_index >= 0 && new_index < (int)_sql_editors.size())
-    return _sql_editors.at(new_index)->editor;
-  return MySQLEditor::Ref();
-}
-
-
-bool SqlEditorForm::sql_editor_reorder(MySQLEditor::Ref editor, int new_index)
-{
-  int old_index = sql_editor_index(editor);
-  if (old_index < 0 || old_index == new_index || new_index < 0)
-    return false;
-
-  MutexTryLock editor_lock(_sql_editors_mutex);
-  if (editor_lock.locked())
+  // first build an array of result panel objects, in the same order as the tabview
+  std::vector<std::pair<db_query_QueryEditorRef, int> > panels;
+  for (int panel_order = 0, i = 0; i < sql_editor_count(); i++)
   {
-    // First reorder auto-save files so file names are correct in case of errors.
-    rename_autosave_files(old_index + 1, 0); // A name not used otherwise.
-    if (old_index > new_index)
-    {
-      for (int i = old_index - 1; i >= new_index; i--)
-        rename_autosave_files(i + 1, i + 2);
-    }
+    SqlEditorPanel *p = sql_editor_panel(i);
+    if (p)
+      panels.push_back(std::make_pair(p->grtobj(), panel_order++));
     else
-    {
-      for (int i = old_index + 1; i <= new_index; i++)
-        rename_autosave_files(i + 1, i);
-    }
-    rename_autosave_files(0, new_index + 1);
-
-    // Then reorder the editors.
-    EditorInfo::Ref info(_sql_editors[old_index]);
-    _sql_editors.erase(_sql_editors.begin()+old_index);
-    if (new_index >= (int)_sql_editors.size())
-      _sql_editors.push_back(info);
-    else
-      _sql_editors.insert(_sql_editors.begin() + new_index, info);
-    return true;
+      panels.push_back(std::make_pair(db_query_QueryEditorRef(), 0));
   }
-  return false;
-}
 
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Returns true if this is an editor created from context menu (so it is supposed to maximize the resultset).
- */
-bool SqlEditorForm::sql_editor_start_collapsed(int index)
-{
-  bool result = _sql_editors[index]->start_collapsed;
-
-  // Reset the collapsed flag in case it is queried multiple times even though the editor has already
-  // been set up. This is to avoid frequently resetting the collapsed state when rerunning the query
-  // in that particular sql editor.
-  _sql_editors[index]->start_collapsed = false;
-  return result;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-bool SqlEditorForm::sql_editor_will_close(int new_index)
-{
-  int edited_recordsets = 0;
+  int to_index = -1;
+  // now find out where we have to move to
+  if (from < to)
   {
-    MutexLock sql_editors_mutex(_sql_editors_mutex);
-    if (new_index < 0 || new_index >= (int)_sql_editors.size() || _sql_editors.at(new_index)->busy)
-      return false;
-  }
-  
-  // the recordset lock will prevent the editor from being closed elsewhere
-  MutexTryLock recordset_mutex(_sql_editors[new_index]->recordset_mutex);
-  if (!recordset_mutex.locked())
-    return false;
-  {
-    RecordsetsRef rsets(sql_editor_recordsets(new_index));
-    if (rsets)
+    for (int i = to; i > from; i--)
     {
-      for (Recordsets::const_iterator end = rsets->end(), iter = rsets->begin(); iter != end; ++iter)
-        if ((*iter)->has_pending_changes())
-          edited_recordsets++;
-    }
-  }
-  
-  bool check_scratch_editors = true;
-
-  // if Save of workspace on close is enabled, we don't need to check whether there are unsaved scratch 
-  // SQL editors but other stuff should be checked.
-  grt::ValueRef option(_grtm->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
-  if (option.is_valid() && *grt::IntegerRef::cast_from(option))
-    check_scratch_editors = false;
-
-  if (!sql_editor_is_scratch(new_index) || check_scratch_editors)
-  {
-    if (sql_editor(new_index)->get_editor_control()->is_dirty())
-    {
-      int result = mforms::Utilities::show_warning(_("Close SQL Tab"), 
-        strfmt(_("SQL script %s has unsaved changes.\n"
-        "Would you like to Save these changes, discard them or cancel closing the page?"),
-        sql_editor_caption(new_index).c_str()), _("Save"), _("Cancel"), _("Don't Save"));
-
-      if (result == mforms::ResultCancel)
-        return false;
-      else if (result == mforms::ResultOk)
+      if (panels[i].first.is_valid())
       {
-        if (!save_sql_script_file(sql_editor_path(new_index), new_index))
-          return false;
+        to_index = panels[i].second;
+        break;
       }
-      else
-        sql_editor(new_index)->get_editor_control()->reset_dirty();
     }
   }
-  
-  int r = -1;
-  if (edited_recordsets == 1)
-    r = mforms::Utilities::show_warning(_("Close SQL Tab"),
-                                        strfmt(_("An edited recordset has unsaved changes in SQL tab %s.\n"
-                                                 "Would you like to save these changes, discard them or cancel closing the page?"),
-                                               sql_editor_caption(new_index).c_str()),
-                                        _("Save Changes"), _("Cancel"), _("Don't Save"));
-  else
-    if (edited_recordsets > 0)
-      r = mforms::Utilities::show_warning(_("Close SQL Tab"),
-                                          strfmt(_("There are %i recordsets with unsaved changes in SQL tab %s.\n"
-                                                   "Would you like to save these changes, discard them or cancel closing to review them manually?"),
-                                                 edited_recordsets, sql_editor_caption(new_index).c_str()),
-                                          _("Save All"), _("Cancel"), _("Don't Save"));
-  
-  bool success = true;
-  if (r == mforms::ResultCancel)
-    success = false;
   else
   {
-    RecordsetsRef rsets(sql_editor_recordsets(new_index));
-    
-    for (Recordsets::const_iterator end = rsets->end(), iter = rsets->begin(); iter != end; ++iter)
+    for (int i = to; i < from; i++)
     {
-      if ((*iter)->has_pending_changes())
+      if (panels[i].first.is_valid())
       {
-        try
-        {
-          if (r == mforms::ResultOk)
-            (*iter)->apply_changes();
-          else
-            (*iter)->rollback();
-        }
-        catch (const std::exception &exc)
-        {
-          if (mforms::Utilities::show_error(_("Save Changes"),
-                                            strfmt(_("An error occurred while saving changes to the recordset %s\n%s"),
-                                                   (*iter)->caption().c_str(), exc.what()),
-                                            _("Ignore"), _("Cancel"), "") == mforms::ResultCancel)
-          {
-            success = false;
-            break;
-          }
-        }        
+        to_index = panels[i].second;
+        break;
       }
     }
   }
-  return success;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-std::string SqlEditorForm::sql_editor_caption(int new_index)
-{
-  if (new_index < 0)
-    new_index = _active_sql_editor_index;
-  
-  if (new_index >= 0 && new_index < (int) _sql_editors.size())
+  if (to_index < 0)
   {
-    if (_sql_editors.at(new_index)->editor->get_editor_control()->is_dirty() && !_sql_editors.at(new_index)->is_scratch)
-      return _sql_editors.at(new_index)->caption+"*";
-    else
-      return _sql_editors.at(new_index)->caption;
+    log_fatal("Unable to find suitable target index for reorder\n");
+    return;
   }
-  return "";
-}
 
-//--------------------------------------------------------------------------------------------------
+  grtobj()->queryEditors()->reorder(from_index, to_index);
 
-void SqlEditorForm::sql_editor_caption(int new_index, std::string caption)
-{
-  if (new_index < 0)
-    new_index = _active_sql_editor_index;
-  
-  if (new_index >= 0 && new_index < (int) _sql_editors.size())
-    _sql_editors.at(new_index)->caption = caption;
-}
 
-//--------------------------------------------------------------------------------------------------
-
-int SqlEditorForm::sql_editor_index_for_recordset(long rset)
-{
-  int i = 0;
-  for (Sql_editors::iterator iter = _sql_editors.begin(); iter != _sql_editors.end(); ++iter)
+  /// Rename autosave files to keep the order
+  panel->rename_auto_save(-1); // temporary name
+  if (from > to)
   {
-    RecordsetsRef rsets = (*iter)->recordsets;
-    if (rsets)
+    for (int i = from - 1; i >= to; i--)
     {
-      for (Recordsets::iterator rend = rsets->end(), rec = rsets->begin(); rec != rend; ++rec)
-      {
-        if ((*rec)->key() == rset)
-          return i;
-      }
+      SqlEditorPanel *p = sql_editor_panel(i);
+      if (p)
+        p->rename_auto_save(i+1);
     }
-    ++i;
+  }
+  else
+  {
+    for (int i = from + 1; i <= to; i++)
+    {
+      SqlEditorPanel *p = sql_editor_panel(i);
+      if (p)
+        p->rename_auto_save(i-1);
+    }
+  }
+  panel->rename_auto_save(to);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+SqlEditorPanel *SqlEditorForm::sql_editor_panel(int index)
+{
+  if (index >= 0 && index < _tabdock->view_count())
+    return dynamic_cast<SqlEditorPanel*>(_tabdock->view_at_index(index));
+  return NULL;
+}
+
+
+int SqlEditorForm::sql_editor_panel_index(SqlEditorPanel *panel)
+{
+  for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+  {
+    if (sql_editor_panel(i) == panel)
+      return i;
   }
   return -1;
 }
 
-RecordsetsRef SqlEditorForm::sql_editor_recordsets(const int index)
+int SqlEditorForm::sql_editor_count()
 {
-  EditorInfo::Ref editor_info = _sql_editors[index];
-  RecordsetsRef rsets = editor_info->recordsets;
-  
-  if (!rsets)
-  {
-    rsets = RecordsetsRef(new Recordsets());
-    editor_info->recordsets = rsets;
-  }
-  
-  return rsets;
+  if (_tabdock)
+    return _tabdock->view_count();
+  return 0;
 }
-
 //--------------------------------------------------------------------------------------------------
 
-int SqlEditorForm::sql_editor_index(MySQLEditor::Ref editor)
+SqlEditorPanel *SqlEditorForm::new_sql_script_file()
 {
-  MutexLock ed_lock(_sql_editors_mutex);
-  for (size_t i = 0; i < _sql_editors.size(); i++)
-  {
-    if (_sql_editors[i]->editor == editor)
-      return (int)i;
-  }
-  return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void SqlEditorForm::set_sql_editor_text(const char *sql, int editor_index)
-{
-  if (editor_index < 0)
-    editor_index = _active_sql_editor_index;
-
-  if (editor_index >= 0 && editor_index < (int)_sql_editors.size())
-  {
-    _sql_editors[editor_index]->editor->set_refresh_enabled(true);
-    _sql_editors[editor_index]->editor->sql(sql);
-  }
-}
-
-void SqlEditorForm::new_sql_script_file()
-{
-  _active_sql_editor_index= add_sql_editor(false);
-  sql_editor_new_ui(_active_sql_editor_index);
+  SqlEditorPanel *panel = add_sql_editor(false);
   _grtm->replace_status_text(_("Added new script editor"));
   update_menu_and_toolbar();
+  return panel;
 }
 
 
-void SqlEditorForm::new_sql_scratch_area(bool start_collapsed)
+SqlEditorPanel *SqlEditorForm::new_sql_scratch_area(bool start_collapsed)
 {
-  _active_sql_editor_index= add_sql_editor(true, start_collapsed);
-  sql_editor_new_ui(_active_sql_editor_index);
+  SqlEditorPanel *panel = add_sql_editor(true, start_collapsed);
   _grtm->replace_status_text(_("Added new scratch query editor"));
   update_menu_and_toolbar();
+  return panel;
 }
 
-
-void SqlEditorForm::revert_sql_script_file()
-{
-  EditorInfo::Ref info(_sql_editors[_active_sql_editor_index]);
-  
-  info->editor->sql("");
-  sql_editor_open_file(_active_sql_editor_index, info->filename, info->orig_encoding);
-  
-  _grtm->replace_status_text(strfmt(_("Reverted to saved '%s'"), info->filename.c_str()));
-}
-
+//--------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::open_file(const std::string &path, bool in_new_tab)
 {
   std::string file_path = path;
-  
+
+  _grtm->replace_status_text(base::strfmt(_("Opening %s..."), path.c_str()));
+
   if (file_path.empty())
   {
     mforms::FileChooser opendlg(mforms::OpenFile);
@@ -1061,190 +693,52 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab)
     _grtm->replace_status_text(_("Cancelled open file"));
     return;
   }
-  
-  if (in_new_tab)
-    new_sql_script_file();
-  
-  if (sql_editor(_active_sql_editor_index)->get_editor_control()->is_dirty())
+
+  SqlEditorPanel *panel = NULL;
+  if (!in_new_tab)
+    panel = active_sql_editor_panel();
+
+  if (!panel)
+    panel = new_sql_script_file();
+
+  if (panel->is_dirty())
   {
     int r = mforms::Utilities::show_warning(_("Open File"), 
                                             strfmt(_("SQL script %s has unsaved changes.\n"
                                                      "Would you like to Save these changes?"),
-                                                   sql_editor_path(_active_sql_editor_index).c_str()), _("Save"), _("Cancel"), _("Don't Save"));
+                                                   panel->get_title().c_str()), _("Save"), _("Cancel"), _("Don't Save"));
     if (r == mforms::ResultCancel)
       return;
     else if (r == mforms::ResultOk)
-      if (!save_sql_script_file(sql_editor_path(_active_sql_editor_index), _active_sql_editor_index))
+      if (!panel->save())
         return;
   }
-  
-  sql_editor_open_file(_active_sql_editor_index, file_path, "");
-}
 
-#define EDITOR_TEXT_LIMIT 100 * 1024 * 1024
-
-void SqlEditorForm::sql_editor_open_file(int index, const std::string &file_path, const std::string &encoding)
-{
-  if (index < 0)
-    index = _active_sql_editor_index;
-  
-  if (index < 0 || index >= (int)_sql_editors.size())
-    return;
-  
-  gchar *contents = NULL;
-  gsize length = base_get_file_size(file_path.c_str());
-  GError *error = NULL;
-  
-  if (length > EDITOR_TEXT_LIMIT)
+  try
   {
-    // File is larger than 100 MB. Tell the user we are going to switch off code folding and
-    // auto completion.
-    int result = mforms::Utilities::show_warning(_("Large File"), strfmt(_("The file \"%s\" has a size "
-      "of %.2f MB. Are you sure you want to load this large file?\n\nNote: code folding "
-      "will be disabled for this file."), file_path.c_str(), length / 1024.0 / 1024.0), _("OK, load it"), _("No, better not"));
-    if (result != mforms::ResultOk)
-      return;
+    panel->load_from(file_path);
   }
-  _grtm->replace_status_text(strfmt(_("Loading SQL script file '%s'..."), file_path.c_str()));
-  
-  if (!g_file_get_contents(file_path.c_str(), &contents, &length, &error))
+  catch (std::exception &exc)
   {
-    _grtm->replace_status_text(strfmt(_("Error loading SQL script file '%s'."), file_path.c_str()));
-    mforms::Utilities::show_error(strfmt(_("Error opening file %s"), file_path.c_str()), error->message, _("OK"));
-    g_error_free(error);
+    log_error("Cannot open file %s: %s\n", file_path.c_str(), exc.what());
+    if (in_new_tab)
+      remove_sql_editor(panel);
+    mforms::Utilities::show_error(_("Open File"),
+                                  strfmt(_("Could not open file %s\n%s"), file_path.c_str(), exc.what()),
+                                  _("OK"));
     return;
   }
-  
-  // XXX: the handling here is ineffective. Switch to const char* instead copying around data.
-  std::string utf8_contents;
-  std::string original_encoding;
-  if (!FileCharsetDialog::ensure_filedata_utf8(contents, length, encoding,
-                                               file_path, utf8_contents, &original_encoding))
-  {
-    g_free(contents);
-    _grtm->replace_status_text(_("Cancelled"));
-    return;
-  }
-  g_free(contents);
-  
-  //if (run_only_skip_editor)
-  if (0)
-  {    
-    _grtm->replace_status_text(strfmt(_("Executing SQL script file '%s'..."), file_path.c_str()));
-    
-    exec_sql_retaining_editor_contents(utf8_contents, MySQLEditor::Ref(), true); 
-    
-    _grtm->replace_status_text(strfmt(_("Finished executing SQL script file '%s'."), file_path.c_str()));
-    
-    if (_exec_sql_error_count == 0)
-      mforms::Utilities::show_message(_("Execute Script File"),
-                                      _("Script file execution finished with no errors."), "OK", "", "");
-    else
-      mforms::Utilities::show_message(_("Execute Script File"),
-                                      strfmt(_("Script file execution finished with %i errors."), _exec_sql_error_count),
-                                      "OK", "", "");
-    return;
-  }  
-  
-  _updating_sql_editor++;
-  set_sql_editor_text(utf8_contents.c_str(), index);
-  _updating_sql_editor--;
-  
-  EditorInfo::Ref editor(_sql_editors[index]);
-  editor->editor->get_editor_control()->reset_dirty();
 
-  editor->filename = file_path;
-  editor->orig_encoding = original_encoding;
-  editor->is_scratch = false;
-  editor->caption = base::strip_extension(base::basename(file_path));
-  base::file_mtime(file_path, editor->file_timestamp);
-  //_context_ui->get_wb()->add_recent_file(file_path);
   {
-    NotificationInfo info;
+    base::NotificationInfo info;
     info["opener"] = "SqlEditorForm";
     info["path"] = file_path;
-    NotificationCenter::get()->send("GNDocumentOpened", this, info);
+    base::NotificationCenter::get()->send("GNDocumentOpened", this, info);
   }
-  do_partial_ui_refresh(RefreshEditorTitle);
-  
-  if (!_loading_workspace)
-    auto_save();
-  
-  _grtm->replace_status_text(strfmt(_("Loaded SQL script file '%s'"), file_path.c_str()));
+  auto_save();
 }
 
-
-void SqlEditorForm::save_file()
-{
-  if (_active_sql_editor_index >= 0 && _active_sql_editor_index < (int)_sql_editors.size())
-    save_sql_script_file(sql_editor_path(_active_sql_editor_index), _active_sql_editor_index);
-}
-
-// file_name - filename to save to or empty if it should be asked to user
-// editor_index - index of the editor which contents should be saved
-// Returns true if file was saved or false if it was cancelled or failed.
-bool SqlEditorForm::save_sql_script_file(const std::string &file_name, int editor_index)
-{  
-  std::string path = file_name;
-  
-  if (path.empty())
-  {
-    mforms::FileChooser dlg(mforms::SaveFile);
-    
-    dlg.set_title(_("Save SQL Script"));
-    dlg.set_extensions("SQL Files (*.sql)|*.sql", "sql");
-    if (!dlg.run_modal())
-      return false;
-    
-    path = dlg.get_path();
-  }
-  
-  if (!path.empty())
-  {
-    GError *error= NULL;
-    
-    // this is already done in FileChooser  
-    //    if (!g_str_has_suffix(path.c_str(), ".sql"))
-    //      path.append(".sql");
-    
-    _grtm->replace_status_text(strfmt(_("Saving SQL script to '%s'..."), path.c_str()));
-    
-    std::pair<const char*, size_t> text = sql_editor(editor_index)->text_ptr();
-    if (!g_file_set_contents(path.c_str(), text.first, (gssize)text.second, &error))
-    {
-      _grtm->replace_status_text(strfmt(_("Error saving SQL script to '%s'."), path.c_str()));
-      
-      mforms::Utilities::show_error(strfmt(_("Error writing file %s"), path.c_str()),
-                                    error->message, _("OK"));
-      g_error_free(error);
-      return false;
-    }
-    
-    EditorInfo::Ref editor(_sql_editors[editor_index]);
-    editor->editor->get_editor_control()->reset_dirty();
-    editor->filename = path;
-    editor->is_scratch = false;
-    editor->caption = base::strip_extension(base::basename(path));
-    base::file_mtime(path, editor->file_timestamp);
-
-    do_partial_ui_refresh(RefreshEditorTitle);
-    
-    //_context_ui->get_wb()->add_recent_file(path);
-    {
-      NotificationInfo info;
-      info["opener"] = "SqlEditorForm";
-      info["path"] = path;
-      NotificationCenter::get()->send("GNDocumentOpened", this, info);
-    }    
-    
-    _grtm->replace_status_text(strfmt(_("SQL script saved to '%s'"), path.c_str()));
-    
-    auto_save();
-    return true;
-  }
-  return false;
-}
-
+//--------------------------------------------------------------------------------------------------
 
 std::string SqlEditorForm::restore_sql_from_history(int entry_index, std::list<int> &detail_indexes)
 {

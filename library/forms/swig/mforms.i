@@ -314,6 +314,29 @@ static bool call_bool_pycallable(PyObjectRef &callable)
   }
 }
 
+static bool call_bool_int_pycallable(int i, PyObjectRef &callable)
+{
+  PyObject *ret;
+
+  WillEnterPython lock;
+
+  PyObject *args = Py_BuildValue("(i)", i);
+  ret = PyObject_Call(callable, args, NULL);
+  Py_DECREF(args);
+  if (!ret)
+  {
+    show_python_exception();
+    PyErr_Print();
+    return false;
+  }
+  else
+  {
+    bool r = ret == Py_True;
+    Py_DECREF(ret);
+    return r;
+  }
+}
+
 /*
 static void call_cell_edited_pycallable(int row, int col, const std::string &value, PyObjectRef &callable)
 {
@@ -443,6 +466,10 @@ inline boost::function<bool ()> pycall_bool_fun(PyObject *callable)
   return boost::bind(call_bool_pycallable, PyObjectRef(callable));
 }
 
+inline boost::function<bool (int)> pycall_bool_int_fun(PyObject *callable)
+{
+  return boost::bind(call_bool_int_pycallable, _1, PyObjectRef(callable));
+}
 
 
 inline boost::function<void (const mforms::ToolBarItem*)> pycall_void_toolbaritem_fun(PyObject *callable)
@@ -501,7 +528,9 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 #define SWIG_ADD_SIGNAL_VOID_TOOLBARITEM_CALLBACK(method, signal)\
 	void add_##method(PyObject *callback) { signal->connect(pycall_void_toolbaritem_fun(callback)); }
 
-
+#define SWIG_ADD_SIGNAL_BOOL_INT_CALLBACK(method, signal)\
+        void add_##method(PyObject *callback) { signal->connect(pycall_bool_int_fun(callback)); }\
+        bool call_##method(int i) { return (*signal)(i); }
 
 #define SWIG_ADD_SIGNAL_VOID_ENTRYACTION_CALLBACK(method, signal)\
 	void add_##method(PyObject *callback) { signal->connect(pycall_void_entryaction_fun(callback)); }
@@ -537,6 +566,10 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 
 %typemap (in) int64_t, boost::int64_t = long long;
 %typemap (out) int64_t, boost::int64_t = long long;
+
+%typemap (out) base::Rect {
+  $result = Py_BuildValue("(ffff)", $1.left(), $1.top(), $1.width(), $1.height());
+}
 
 %typemap(in) const std::string& {
   if (PyUnicode_Check($input))
@@ -1084,7 +1117,7 @@ SWIG_ADD_SET_BOOL_CALLBACK(on_close, self->set_on_close);
 
 %extend mforms::TabView {
 SWIG_ADD_SIGNAL_VOID_CALLBACK(tab_changed_callback, self->signal_tab_changed());
-SWIG_ADD_SIGNAL_VOID_INT_CALLBACK(tab_closed_callback, self->signal_tab_closed());
+SWIG_ADD_SIGNAL_BOOL_INT_CALLBACK(tab_closing_callback, self->signal_tab_closing());
 }
 
 %extend mforms::TabSwitcher {
@@ -1131,6 +1164,10 @@ BOOST_ADD_SIGNAL_VOID_STRING_CALLBACK(link_click_callback, self->signal_link_cli
 
 %extend mforms::ToolBarItem {
 SWIG_ADD_SIGNAL_VOID_TOOLBARITEM_CALLBACK(activated_callback, self->signal_activated());
+}
+
+%extend mforms::Popover {
+SWIG_ADD_SIGNAL_VOID_CALLBACK(close_callback, self->signal_close());
 }
 
 %include mforms_extras.i

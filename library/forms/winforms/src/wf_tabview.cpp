@@ -72,13 +72,15 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnTabClosed(TabClosedEventArgs ^args) override
+  virtual void OnTabMoved(TabMovedEventArgs ^args) override
   {
-    __super::OnTabClosed(args);
-
+    __super::OnTabMoved(args);
     mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
-    if (tabview != NULL)
-      (*tabview->signal_tab_closed())(args->page->TabIndex);
+    if (tabview != NULL && args->MovedPage->Controls->Count > 0)
+    {
+      mforms::View *view = ViewWrapper::GetBackend<mforms::View>(args->MovedPage->Controls[0]);
+      tabview->reordered(view, args->ToIndex);
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -166,6 +168,18 @@ bool TabViewWrapper::create(mforms::TabView *backend, mforms::TabViewType type)
       break;
     }
 
+  case mforms::TabViewEditorBottom:
+    {
+      FlatTabControl ^tabControl = CreateFlatTabControl(backend, wrapper);
+      tabControl->Margin = Padding(0);
+      tabControl->ItemSize = Size(0, 19);
+      tabControl->ShowCloseButton = true;
+      tabControl->ShowFocusState = false;
+      tabControl->CanCloseLastTab = true;
+      tabControl->TabStyle = FlatTabControl::TabStyleType::BottomNormal;
+      break;
+    }
+ 
   default: // mforms::TabViewSystemStandard
     TabViewWrapper::Create<MformsStandardTabControl>(backend, wrapper);
   }
@@ -255,6 +269,35 @@ void TabViewWrapper::set_tab_title(mforms::TabView *backend, int tab, const std:
 
 //--------------------------------------------------------------------------------------------------
 
+void TabViewWrapper::set_aux_view(mforms::TabView *backend, mforms::View *aux)
+{
+  FlatTabControl ^tabControl = TabViewWrapper::GetManagedObject<FlatTabControl>(backend);
+
+  if (tabControl != nullptr)
+  {
+    Control ^control = TabViewWrapper::GetManagedObject<Control>(aux);
+    if (control != nullptr)
+    {
+      //XXX here
+      return;
+    }
+  }
+#ifdef _DEBUG
+  throw std::invalid_argument("invalid args to set_aux_view");
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TabViewWrapper::set_allows_reordering(mforms::TabView *backend, bool flag)
+{
+  FlatTabControl ^tabControl = TabViewWrapper::GetManagedObject<FlatTabControl>(backend);
+  if (tabControl != nullptr)
+    tabControl->CanReorderTabs = flag;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void TabViewWrapper::init()
 {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
@@ -265,6 +308,8 @@ void TabViewWrapper::init()
   f->_tabview_impl.add_page = &TabViewWrapper::add_page;
   f->_tabview_impl.remove_page = &TabViewWrapper::remove_page;
   f->_tabview_impl.set_tab_title = &TabViewWrapper::set_tab_title;
+  f->_tabview_impl.set_aux_view = &TabViewWrapper::set_aux_view;
+  f->_tabview_impl.set_allows_reordering = &TabViewWrapper::set_allows_reordering;
 }
 
 //--------------------------------------------------------------------------------------------------

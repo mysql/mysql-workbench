@@ -31,9 +31,10 @@
 #include "mdc_selection.h"
 #include "mdc_magnet.h"
 #include "mdc_bounds_magnet.h"
+#include "base/log.h"
 
 #define MAGNET_STICK_DISTANCE 5
-
+DEFAULT_LOG_DOMAIN("canvas")
 using namespace mdc;
 using namespace base;
 
@@ -980,7 +981,7 @@ void CanvasItem::repaint_cached()
   {
 #ifndef WIN32
     if (_layer->get_view()->debug_enabled())
-      g_message("paint cache data for %p", this);
+      log_debug3("paint cache data for %p", this);
 #endif
     // paint the image to the canvas
     _layer->get_view()->paint_item_cache(_layer->get_view()->cairoctx(),

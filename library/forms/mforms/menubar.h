@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,9 +27,6 @@
 
 namespace mforms {
   class MenuBase;
-}
-
-namespace mforms {
   class MenuItem;
   class MenuBar;
   class View;
@@ -43,6 +40,7 @@ namespace mforms {
   };
 
 #ifndef SWIG
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
   // This merges functionality of menus and menu items.
   struct MFORMS_EXPORT MenuItemImplPtrs
   {
@@ -61,10 +59,11 @@ namespace mforms {
     void (*insert_item)(MenuBase *menu, int index, MenuItem *item);
     void (*remove_item)(MenuBase *menu, MenuItem *item); // NULL item to remove all
 
-    void (*popup_menu)(ContextMenu *menu, int x, int y); // TODO: windows (not used, so this can go)
+    void (*popup_at)(ContextMenu *menu, View *owner, base::Point location);
   };
 #endif
-  
+#endif
+ 
   // base abstract class for menuitem and menubase
   class MFORMS_EXPORT MenuBase : public Object, public base::trackable
   {
@@ -108,7 +107,6 @@ namespace mforms {
   };
   
   /** A menu item that can be added to the host application menus.
-   
    */
   class MFORMS_EXPORT MenuItem : public MenuBase
   {
@@ -148,8 +146,6 @@ namespace mforms {
     MenuItemType _type;
   };
 
-  
-  
   /** A menu that can be added to the host application.
    */
   class MFORMS_EXPORT MenuBar : public MenuBase
@@ -175,10 +171,6 @@ namespace mforms {
   class MFORMS_EXPORT ContextMenu : public MenuBase
   {
   public:
-    /** Constructor
-
-     @param
-     */
     ContextMenu();
 
 #ifndef SWIG
@@ -190,7 +182,7 @@ namespace mforms {
     void will_show();
     void will_show_submenu_from(MenuItem *item);
 
-    void popup_at(int x, int y);
+    void popup_at(View *owner, base::Point location);
 
   private:
     boost::signals2::signal<void (MenuItem*)> _signal_will_show;

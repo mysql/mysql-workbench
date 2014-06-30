@@ -30,7 +30,9 @@ MenuBase::MenuBase()
 MenuBase::~MenuBase()
 {
   for (std::vector<MenuItem*>::iterator iter = _items.begin(); iter != _items.end(); ++iter)
+  {
     (*iter)->release();
+  }
   _items.clear();  
 }
 
@@ -278,8 +280,7 @@ void ContextMenu::will_show_submenu_from(MenuItem *item)
   _signal_will_show(item);
 }
 
-
-void ContextMenu::popup_at(int x, int y)
+void ContextMenu::popup_at(View *owner, base::Point location)
 {
-  _impl->popup_menu(this, x, y);
+  _impl->popup_at(this, owner, location);
 }

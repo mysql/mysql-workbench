@@ -29,6 +29,10 @@
 #include "base/util_functions.h"
 #include "base/log.h"
 
+#ifdef DEBUG_DIFF
+DEFAULT_LOG_DOMAIN("Diff module")
+#endif
+
 namespace grt
 {
 
@@ -51,6 +55,8 @@ boost::shared_ptr<DiffChange> diff_make(const ValueRef &source, const ValueRef &
 #endif
   boost::shared_ptr<DiffChange> result = GrtDiff(omf, dont_clone_values).diff(source, target, omf);
 #ifdef LOG_DIFF_TIME
+  XXX log_* calls are not meant to be switched at compile time. Either make this always-on log_debug3 or
+  just use g_message or something.
   log_debug2("Diff took %li ticks\n", timestamp() - start);
   printf("Diff took %li ticks\n", timestamp() - start);
 #endif
@@ -205,6 +211,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
       }
 
 #if 0
+#error "don't use log_calls* for debug output! This is output is not meant to end up in the log."
       // Debug code below, modify it to suit your needs to see what is the exact difference being detected
       // between 2 objects
       if (source.class_name() == "db.mysql.Table")

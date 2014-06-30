@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -136,6 +136,8 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC std::string strip_extension(const std::string &path);
 
   BASELIBRARY_PUBLIC_FUNC bool file_mtime(const std::string &path, time_t &mtime);
+
+  BASELIBRARY_PUBLIC_FUNC std::string join_path(const char *prefix, ...);
 };
 
 #endif

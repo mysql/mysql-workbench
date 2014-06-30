@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@ namespace mforms {
 
 class MFORMS_EXPORT TabViewDockingPoint : public mforms::DockingPointDelegate
 {
+protected:
   TabView *_tabview;
   std::string _type;
 
@@ -42,6 +43,10 @@ public:
   virtual void undock_view(mforms::AppView *view);
   virtual void set_view_title(mforms::AppView *view, const std::string &title);
   virtual std::pair<int, int> get_size();
+
+  virtual AppView *selected_view();
+  virtual int view_count();
+  virtual AppView *view_at_index(int index);
 };
 
 };

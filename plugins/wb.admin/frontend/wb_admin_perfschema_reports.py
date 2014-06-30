@@ -27,6 +27,36 @@ from wb_admin_perfschema import WbAdminPSBaseTab
 from threading import Thread
 
 
+unit_formatters = {
+  "us"    : lambda x: "%.2f" % (x / 1000000.0),
+  "ms"    : lambda x: "%.2f" % (x / 1000000000.0),
+  "s"     : lambda x: "%.2f" % (x / 1000000000000.0),
+  "h:m:s" : lambda x: "%i:%02i:%.02f" % ((int)(x / (60*60*1000000000000.0)), (int)(x / (60*1000000000000.0)) % 60, (x / 1000000000000.0)%60),
+
+  "Bytes" : lambda x: "%.0f" % x,
+  "KB": lambda x: "%.2f" % (x / 1000.0),
+  "MB": lambda x: "%.2f" % (x / 1000000.0),
+  "GB": lambda x: "%.2f" % (x / 1000000000.0),
+}
+
+time_units = ["us", "ms", "s", "h:m:s"]
+byte_units = ["Bytes", "KB", "MB", "GB"]
+
+
+known_column_types = {
+  "Integer" :     (mforms.IntegerColumnType, None),
+  "LongInteger" : (mforms.LongIntegerColumnType, None),
+  "Float" :       (mforms.FloatColumnType, None),
+  
+  "Time" :        (mforms.NumberWithUnitColumnType, "us"),
+  "Bytes" :       (mforms.NumberWithUnitColumnType, "Bytes"),
+
+  "String" :      (mforms.StringColumnType, None),
+  "StringLT" :    (mforms.StringLTColumnType, None),
+  "NumberWithUnit" : (mforms.NumberWithUnitColumnType, None)
+}
+
+
 class PSHelperViewTab(mforms.Box):
     category = None
     caption = None
@@ -46,6 +76,7 @@ class PSHelperViewTab(mforms.Box):
         self._title = None
         self._cback = None
         self._wait_table = None
+
 
     def __del__(self):
         if self._cback:
@@ -77,20 +108,27 @@ class PSHelperViewTab(mforms.Box):
         self._tree.set_selection_mode(mforms.TreeSelectMultiple)
         c = 0
 
+        self._hmenu = mforms.newContextMenu()
+        self._hmenu.add_will_show_callback(self._header_menu_will_show)
+        self._tree.set_header_menu(self._hmenu)
+
         self._column_types = []
+        self._column_units = []
         self._column_names = []
         self._column_titles = []
-        self._column_formatters = []
         for column, cname, ctype, length in self.get_view_columns():
-            format = None
+            unit = None
             if type(ctype) is tuple:
-                ctype, format = ctype
+                ctype, unit = ctype
             label = self.column_label(column)
+            self._column_units.append(unit)
             self._column_names.append(cname)
             self._column_titles.append(label)
             self._column_types.append(ctype)
-            self._column_formatters.append(format)
-            self._tree.add_column(ctype, label, min(max(length, 40), 300), False)
+            if unit:
+                self._tree.add_column(ctype, label + " (%s)" % unit, min(max(length, 40), 300), False)
+            else:
+                self._tree.add_column(ctype, label, min(max(length, 40), 300), False)
             c += 1
         self._tree.end_columns()
         self._tree.set_allow_sorting(True)
@@ -148,6 +186,8 @@ class PSHelperViewTab(mforms.Box):
         for col in range(len(self._column_types)):
             if self._column_types[col] in [mforms.IntegerColumnType, mforms.LongIntegerColumnType]:
                 row.append(str(node.get_long(col)))
+            elif self._column_types[col] in [mforms.FloatColumnType]:
+                row.append(str(node.get_float(col)))
             else:
                 row.append(node.get_string(col))
         return ", ".join(row)
@@ -192,7 +232,7 @@ class PSHelperViewTab(mforms.Box):
             self._wait_table.set_row_count(2)
             self._wait_table.set_column_count(1)
             self._wait_table.set_padding(-1)
-            self._wait_table.add(mforms.newLabel("Quering performance schema %s..." % self.caption.encode("utf8")), 0, 1, 0, 1, mforms.HFillFlag)
+            self._wait_table.add(mforms.newLabel("Querying performance schema %s..." % self.caption.encode("utf8")), 0, 1, 0, 1, mforms.HFillFlag)
             self._wait_table.add(self._pbar, 0, 1, 1, 2, mforms.HFillFlag)
         
             self.add(self._wait_table, True, True)
@@ -240,16 +280,26 @@ class PSHelperViewTab(mforms.Box):
                             s = result.stringByName(self._column_names[i])
                             node.set_long(i, long(s) if s else 0)
                         elif self._column_types[i] == mforms.FloatColumnType:
-                            if self._column_formatters[i]:
-                                node.set_float(i, self._column_formatters[i](float(result.stringByName(self._column_names[i]))))
+                            unit = self._column_units[i]
+                            node.set_float(i, result.floatByName(self._column_names[i]))
+                        elif self._column_types[i] == mforms.NumberWithUnitColumnType:
+                            unit = self._column_units[i]
+                            if unit and unit_formatters[unit]:
+                                formatter = unit_formatters[unit]
+                                node.set_string(i, formatter(float(result.stringByName(self._column_names[i]))))
                             else:
-                                node.set_float(i, result.floatByName(self._column_names[i]))
+                                s = result.stringByName(self._column_names[i])
+                                if i == self._column_file and self._owner.instance_info.datadir:
+                                    s = s.replace(self._owner.instance_info.datadir, "<datadir>")
+                                node.set_string(i, s or "")
                         else:
                             s = result.stringByName(self._column_names[i])
                             if i == self._column_file and self._owner.instance_info.datadir:
                                 s = s.replace(self._owner.instance_info.datadir, "<datadir>")
                             node.set_string(i, s or "")
                     except Exception, e:
+                        import traceback
+                        traceback.print_exc()
                         log_error("Error handling column %i (%s) of report for %s: %s\n" % (i, cname, self.view, e))
 
 
@@ -297,6 +347,32 @@ class PSHelperViewTab(mforms.Box):
     def column_label(self, colname):
         return " ".join(s.capitalize() for s in colname.replace("_", " ").split(" "))
 
+    def _header_menu_will_show(self, parent):
+        column = self._tree.get_clicked_header_column()
+        
+        self._hmenu.remove_all()
+
+        item = self._hmenu.add_item_with_title("Set Display Unit", lambda: None, "change_unit")
+        unit = self._column_units[column]
+        if unit in time_units:
+            for label in time_units:
+                i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
+                if unit == label:
+                    i.set_checked(True)
+        elif unit in byte_units:
+            for label in byte_units:
+                i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
+                if unit == label:
+                    i.set_checked(True)
+        else:
+            item.set_enabled(False)
+
+
+    def _change_unit(self, column, unit):
+        self._tree.set_column_title(column, self._column_titles[column] + " (%s)" % unit)
+        self._column_units[column] = unit
+        self.refresh()
+
 
 
 js_column_types = {
@@ -309,7 +385,6 @@ js_column_types = {
   "Float:s" : (mforms.FloatColumnType, lambda x: x / 1000000000.0),
   "String" : (mforms.StringColumnType, None),
   "StringLT" : (mforms.StringLTColumnType, None),
-  "NumberWithUnit" : (mforms.NumberWithUnitColumnType, None),
 }
 
 class JSSourceHelperViewTab(PSHelperViewTab):
@@ -329,7 +404,7 @@ class JSSourceHelperViewTab(PSHelperViewTab):
             self.query += " limit %s" % data["limit"]
         self.columns = []
         for label, name, type, width in data["columns"]:
-            self.columns.append((label, name, js_column_types[type], width))
+            self.columns.append((label, name, known_column_types[type], width))
 
 
     def column_label(self, label):
@@ -350,7 +425,10 @@ class JSSourceHelperViewTab(PSHelperViewTab):
             return PSHelperViewTab.get_view_columns(self)
 
 
+
 class WbAdminPerformanceSchema(WbAdminPSBaseTab):
+    min_server_version = (5,6,6)
+    
     @classmethod
     def wba_register(cls, admin_context):
         admin_context.register_page(cls, "wba_performance", "Performance Reports", False)

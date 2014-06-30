@@ -468,7 +468,7 @@ def startUtilitiesShell():
     import platform
     import os
 
-    utilities_url = ("http://dev.mysql.com/downloads/tools/utilities/" if grt.root.wb.info.edition == "Community" else
+    utilities_url = ("http://dev.mysql.com/downloads/utilities/" if grt.root.wb.info.edition == "Community" else
                      "https://edelivery.oracle.com/EPD/Search/get_form?product=18251")
 
     if platform.system() == "Windows":
@@ -490,7 +490,7 @@ def startUtilitiesShell():
         else:
             if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
                                              "located.\n\nTo use them, you must download and install the utilities "
-                                             "package for your system from %s" % utilities_url,
+                                             "package for your system from:\n%s" % utilities_url,
                                        "Download...", "Cancel", "") == mforms.ResultOk:
                 mforms.Utilities.open_url(utilities_url)
     elif platform.system() == "Darwin":
@@ -599,4 +599,5 @@ def checkForUpdates():
         thread = CheckForUpdateThread()
     thread.start()
     mforms.App.get().set_status_text('Checking for updates...')
-    mforms.Utilities.add_timeout(1.0, thread.checkForUpdatesCallback)
+    ignore = mforms.Utilities.add_timeout(1.0, thread.checkForUpdatesCallback) # noqa
+

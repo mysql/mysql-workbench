@@ -242,6 +242,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._log_box.set_padding(12)
         
         self._log_text = mforms.newTextBox(mforms.VerticalScrollBar)
+        self._log_text.set_name('WizardProgressLogText')
         self._log_text.set_read_only(True)
         self._log_box.add(self._log_text)
         self._log_box.show(False)

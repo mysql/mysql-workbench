@@ -469,7 +469,7 @@ public:
     print_info_line(cr, line_bounds, _("Network Address"), parameter_values.get_string("hostName"));
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     ssize_t port = parameter_values.get_int("port");
-    print_info_line(cr, line_bounds, _("TCP/IP Port"), base::strfmt("%zd", port));
+    print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
 
     // Instance info next.
     line_bounds = bounds;
@@ -1341,7 +1341,7 @@ public:
       cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);
 #endif
       
-      std::string info = base::strfmt(_("%zd Connections"), entry.children.size() - 1);
+      std::string info = base::to_string(entry.children.size() - 1) + " " + _("Connections");
       y = bounds.top() + 55;
       cairo_move_to(cr, x, y);
       cairo_show_text(cr, info.c_str());

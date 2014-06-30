@@ -540,6 +540,11 @@ static void close(mforms::Popover* self)
   w->hide();
 }
 
+static void show_and_track(mforms::Popover *self, mforms::View* owner, int x, int y, mforms::StartPosition pos)
+{
+  show(self, x, y, pos);
+}
+
 namespace mforms
 {
 namespace gtk
@@ -553,6 +558,7 @@ void Popover_init()
   f->_popover_impl.set_size     = set_size;
   f->_popover_impl.show         = show;
   f->_popover_impl.close        = close;
+  f->_popover_impl.show_and_track = show_and_track;
 }
 }
 }

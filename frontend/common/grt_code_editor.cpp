@@ -74,7 +74,7 @@ GRTCodeEditor::GRTCodeEditor(GRTShellWindow *owner, bool module, const std::stri
 
   add(&_top, true, true);
 
-  scoped_connect(_text.signal_changed(),boost::bind(&GRTCodeEditor::text_changed, this, _1, _2));  
+  scoped_connect(_text.signal_changed(),boost::bind(&GRTCodeEditor::text_changed, this, _1, _2));
 }
 
 
@@ -219,6 +219,7 @@ bool GRTCodeEditor::can_close()
 
   return true;
 }
+
 //--------------------------------------------------------------------------------------------------
 
 #ifdef _DEBUG

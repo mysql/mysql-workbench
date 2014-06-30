@@ -33,7 +33,8 @@ public:
 TEST_DATA_CONSTRUCTOR(grt_dispatcher_test)
 : grtm(true)
 {
-  grtm.initialize(true, "../../Bin/Debug");
+  // No need to initialize Python for this test. No need for a module path either.
+  grtm.initialize(false, "");
 }
 
 END_TEST_DATA_CLASS;

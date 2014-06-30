@@ -398,9 +398,11 @@ void BaseSnippetList::refresh_snippets()
     std::string caption;
     _model->get_field(bec::NodeId(i), 0, caption);
     std::string description;
-    _model->get_field(bec::NodeId(i), 1, description);
+    bool skip_image = false;
+    if (!_model->get_field(bec::NodeId(i), 1, description))
+      skip_image = true;
 
-    Snippet* snippet = new Snippet(description.empty() ? NULL : _image, caption, description, true);
+    Snippet* snippet = new Snippet(skip_image ? NULL : _image, caption, description, true);
     _snippets.push_back(snippet);
   }
   set_layout_dirty(true);
@@ -476,6 +478,9 @@ Snippet* BaseSnippetList::selected()
 
 bool BaseSnippetList::mouse_leave()
 {
+  if (DrawBox::mouse_leave())
+    return true;
+
   if (_hot_snippet != NULL)
   {
     _hot_snippet = NULL;
@@ -489,6 +494,9 @@ bool BaseSnippetList::mouse_leave()
 
 bool BaseSnippetList::mouse_move(mforms::MouseButton button, int x, int y)
 {
+  if (DrawBox::mouse_move(button, x, y))
+    return true;
+
   if (_single_click)
   {
     Snippet* snippet = snippet_from_point(x, y);
@@ -506,6 +514,9 @@ bool BaseSnippetList::mouse_move(mforms::MouseButton button, int x, int y)
 
 bool BaseSnippetList::mouse_down(mforms::MouseButton button, int x, int y)
 {
+  if (DrawBox::mouse_down(button, x, y))
+    return true;
+
   if (button == MouseButtonLeft || button == MouseButtonRight)
   {
     Snippet* snippet= snippet_from_point(x, y);
@@ -519,6 +530,9 @@ bool BaseSnippetList::mouse_down(mforms::MouseButton button, int x, int y)
 
 bool BaseSnippetList::mouse_double_click(mforms::MouseButton button, int x, int y)
 {
+  if (DrawBox::mouse_double_click(button, x, y))
+    return true;
+
   bool result = false;
   if (button == MouseButtonRight)
   {
@@ -538,6 +552,9 @@ bool BaseSnippetList::mouse_double_click(mforms::MouseButton button, int x, int 
 
 bool BaseSnippetList::mouse_click(mforms::MouseButton button, int x, int y)
 {
+  if (DrawBox::mouse_click(button, x, y))
+    return true;
+
   // Keep the last pressed button. A quick series of two different button clicks might be interpreted
   // as a double click of the second button. So we need to handle that.
   _last_mouse_button = button;

@@ -756,7 +756,9 @@ TEST_FUNCTION(12)
   ensure("table editor !NULL", editor != NULL);
 
   // bug: unsetting an index column is wrong (and may crash)
-  db_TableRef table= db_mysql_TableRef(grtm->get_grt());
+  db_TableRef table = db_mysql_TableRef(grtm->get_grt());
+  table->owner(wbt.get_schema());
+
   ensure("table ok", table.is_valid());
 
   db_ColumnRef column(grtm->get_grt());

@@ -130,6 +130,7 @@
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_LUA_MODULES;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -148,12 +149,16 @@
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_LUA_MODULES;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>python\$(Configuration)\python27_d.lib;glib\glib-2.0.lib;glib\gmodule-2.0.lib;glib\gthread-2.0.lib;libxml\libiconv.lib;libxml\libxml2.lib;lua\lua.lib;mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

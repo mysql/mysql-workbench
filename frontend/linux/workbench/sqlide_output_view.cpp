@@ -26,7 +26,7 @@
 #include "mforms/../gtk/lf_view.h"
 #include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "sqlide_form.h"
-#include "sqlide_query_view.h"
+#include "sqlide/wb_sql_editor_panel.h"
 
 DEFAULT_LOG_DOMAIN("UI")
 using base::strfmt;
@@ -341,11 +341,17 @@ void QueryOutputView::handle_history_context_menu(const std::string& action)
 
         const std::string sql = _db_sql_editor_view->be()->restore_sql_from_history(selected_entry, details);
 
-        if (action == "append_selected_items" || action == "replace_sql_script")
+        if (action == "append_selected_items")
         {
-          QueryView* qv = _db_sql_editor_view->active_view();
+          SqlEditorPanel* qv = _be->active_sql_editor_panel();
           if (qv)
-            qv->be()->sql(((action == "replace_sql_script") ? sql : qv->be()->sql() + sql).c_str());
+            qv->editor_be()->append_text(sql);
+        }
+        else if (action == "replace_sql_script")
+        {
+          SqlEditorPanel* qv = _be->active_sql_editor_panel();
+          if (qv)
+            qv->editor_be()->sql(sql.c_str());
         }
         else if (action == "copy_row")
         {

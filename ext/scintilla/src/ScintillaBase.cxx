@@ -68,12 +68,14 @@ void ScintillaBase::Finalise() {
 }
 
 void ScintillaBase::AddCharUTF(char *s, unsigned int len, bool treatAsDBCS) {
-	bool isFillUp = ac.Active() && ac.IsFillUpChar(*s);
+	bool isFillUp = (s != NULL) && ac.Active() && ac.IsFillUpChar(*s);
 	if (!isFillUp) {
 		Editor::AddCharUTF(s, len, treatAsDBCS);
 	}
 	if (ac.Active()) {
-		AutoCompleteCharacterAdded(s[0]);
+    if (s != NULL) {
+      AutoCompleteCharacterAdded(s[0]);
+    }
 		// For fill ups add the character after the autocompletion has
 		// triggered so containers see the key so can display a calltip.
 		if (isFillUp) {

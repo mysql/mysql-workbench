@@ -15,6 +15,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/antlr-runtime
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/gtk
+    ${PROJECT_SOURCE_DIR}/library/forms/gtk/src
     ${PROJECT_SOURCE_DIR}/generated/grti
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/library/mysql.parser
@@ -25,7 +26,6 @@ include_directories(.
 )
 
 add_library(linux_utilities
-    active_label.cpp
     listmodel_wrapper.cpp
     form_view_base.cpp
     treemodel_wrapper.cpp
@@ -38,7 +38,6 @@ add_library(linux_utilities
     notebook_dockingpoint.cpp
     widgets_auto_cleaner.cpp
     widget_saver.cpp
-    notebooks.cpp
 )
 
 install(TARGETS linux_utilities DESTINATION ${WB_INSTALL_LIB_DIR})

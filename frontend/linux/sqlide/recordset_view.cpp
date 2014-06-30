@@ -184,7 +184,7 @@ bool RecordsetView::on_event(GdkEvent *event)
     _grid->current_cell(row, col);
 
     _model->update_selection_for_menu(rows, col);
-    _model->get_context_menu()->popup_at(event->button.x, event->button.y);
+    _model->get_context_menu()->popup_at(NULL, base::Point(event->button.x, event->button.y));
 
     processed= true;
   }

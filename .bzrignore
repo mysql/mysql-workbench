@@ -204,4 +204,8 @@ build/msi/distribution/
 build/zip/distribution/
 *.wixpdb
 MySQL.tokens
+<<<<<<< TREE
 MySQLSimpleParser.tokens
+=======
+config.cnf
+>>>>>>> MERGE-SOURCE

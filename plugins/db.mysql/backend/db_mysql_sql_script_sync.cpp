@@ -467,7 +467,7 @@ grt::StringRef DbMySQLScriptSync::generate_alter(db_mysql_CatalogRef org_cat, db
 
   diffsql_module->generateSQL(org_cat, options, alter_change);
 
-  ssize_t res = diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
+  ssize_t res= diffsql_module->makeSQLSyncScript(org_cat, options, alter_list, alter_object_list);
   if (res != 0)
     throw std::runtime_error("SQL Script Export Module Returned Error");
 
@@ -536,7 +536,8 @@ void DbMySQLScriptSync::restore_overriden_names()
 
 boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vector<std::string>& schemata,
                                                                 const ValueRef &left, const ValueRef &right,
-                                                                StringListRef SchemaSkipList)
+                                                                StringListRef SchemaSkipList,
+                                                                grt::DictRef options)
 {
   db_mgmt_RdbmsRef rdbms= db_mgmt_RdbmsRef::cast_from(_manager->get_grt()->get("/wb/rdbmsMgmt/rdbms/0"));
   std::string default_engine_name;
@@ -585,6 +586,22 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
         Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
         renamer->rename_schema_references(_mod_cat_copy, orig_schema_name, schema->name());
       }
+
+      // remove excluded object types from the copy of the model catalog... the right catalog should already come stripped from the source
+      if (options.is_valid() && options.get_int("SkipTriggers"))
+      {
+        log_info("Remove triggers from copy of model schema %s\n", schema->name().c_str());
+        for (size_t t = 0; t < schema->tables().count(); t++)
+        {
+          schema->tables()[t]->triggers().remove_all();
+        }
+      }
+      if (options.is_valid() && options.get_int("SkipRoutines"))
+      {
+        log_info("Remove routines from copy of model schema %s\n", schema->name().c_str());
+        schema->routines().remove_all();
+        schema->routineGroups().remove_all();
+      }
     }
   }
 
@@ -614,11 +631,11 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
   _alter_list.remove_all();
   _alter_object_list.remove_all();
   
-  grt::DictRef options(_manager->get_grt());
-  options.set("DBSettings", get_db_options());
-  options.set("OutputContainer", _alter_list);
-  options.set("OutputObjectContainer", _alter_object_list);
-  options.set("UseFilteredLists", grt::IntegerRef(0));
+  grt::DictRef genoptions(_manager->get_grt());
+  genoptions.set("DBSettings", get_db_options());
+  genoptions.set("OutputContainer", _alter_list);
+  genoptions.set("OutputObjectContainer", _alter_object_list);
+  genoptions.set("UseFilteredLists", grt::IntegerRef(0));
   // enable this once the ALTER script generation code is able to properly generate USE statements
   //options.set("UseShortNames", grt::IntegerRef(1));
 //  options.set("CaseSensitive", grt::IntegerRef(_case_sensitive));
@@ -626,7 +643,7 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
   if (_alter_change && diffsql_module)
   {
 //    _alter_change->dump_log(0);
-    diffsql_module->generateSQL(_org_cat, options, _alter_change);
+    diffsql_module->generateSQL(_org_cat, genoptions, _alter_change);
     //TODO: use this result in generate_diff_tree_report
   }
 
@@ -701,6 +718,9 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
   }
 
   grt::DictRef options(_manager->get_grt());
+
+  merge_contents(options, get_options(), true);
+
   options.set("DBSettings", get_db_options());
   options.set("SchemaFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), schemata));
   options.set("TableFilterList", convert_string_vector_to_grt_list(_manager->get_grt(), tables));
@@ -721,7 +741,7 @@ std::string DbMySQLScriptSync::generate_diff_tree_script()
     diffsql_module->generateSQL(_org_cat, options, _alter_change);
   }
 
-  ssize_t res = diffsql_module->makeSQLSyncScript(options, alter_list, alter_object_list);
+  ssize_t res= diffsql_module->makeSQLSyncScript(_mod_cat_copy, options, alter_list, alter_object_list);
   if (res != 0)
     return "";
 

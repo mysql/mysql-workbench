@@ -431,7 +431,19 @@ Please edit your connection settings and try again."""
     # OS specific things
     @property
     def sudo_prefix(self):
-        return UnixVariant['']['sudo_command']
+        prefix = UnixVariant['']['sudo_command']
+
+        # If the sudo override is configured, will use it instead
+        settings_object = self.get_settings_object()
+        serverInfo = settings_object.serverInfo
+        
+        if serverInfo.has_key('sys.mysqld.sudo_override'):
+          sudo_override = serverInfo['sys.mysqld.sudo_override']
+          
+          if sudo_override.strip():
+              prefix = sudo_override
+
+        return prefix
 
 
 class PasswordHandler(object):

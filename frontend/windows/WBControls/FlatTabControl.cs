@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1176,7 +1176,7 @@ namespace MySQL.Controls
             if (DoDragDrop(page, DragDropEffects.Move) == DragDropEffects.Move)
             {
               int newIndex = TabPages.IndexOf(page);
-              OnTabMoved(new TabMovedEventArgs(lastTabHit, newIndex));
+              OnTabMoved(new TabMovedEventArgs(page, lastTabHit, newIndex));
             }
           }
           else
@@ -1598,7 +1598,7 @@ namespace MySQL.Controls
     {
       int oldIndex = TabPages.IndexOf(page);
 
-      TabMovingEventArgs args = new TabMovingEventArgs(oldIndex, newIndex);
+      TabMovingEventArgs args = new TabMovingEventArgs(page, oldIndex, newIndex);
       OnTabMoving(args);
       if (args.Cancel)
         return;
@@ -2141,9 +2141,11 @@ namespace MySQL.Controls
   public class TabMovedEventArgs : EventArgs
   {
     public int FromIndex, ToIndex;
+    public TabPage MovedPage;
 
-    public TabMovedEventArgs(int from, int to)
+    public TabMovedEventArgs(TabPage page, int from, int to)
     {
+      MovedPage = page;
       FromIndex = from;
       ToIndex = to;
     }
@@ -2152,10 +2154,12 @@ namespace MySQL.Controls
   public class TabMovingEventArgs : EventArgs
   {
     public int FromIndex, ToIndex;
+    public TabPage MovedPage;
     public bool Cancel;
 
-    public TabMovingEventArgs(int from, int to)
+    public TabMovingEventArgs(TabPage page, int from, int to)
     {
+      MovedPage = page;
       FromIndex = from;
       ToIndex = to;
       Cancel = false;

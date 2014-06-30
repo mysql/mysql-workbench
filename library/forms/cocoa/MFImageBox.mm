@@ -86,6 +86,8 @@ static void imagebox_set_image_data(mforms::ImageBox *self, const char *data, si
     NSSize oldSize= [impl frame].size;
     
     NSImage *image= [[NSImage alloc] initWithData: [NSData dataWithBytes: (void*)data length: length]];
+    if (![image isValid])
+      throw std::invalid_argument("Invalid image data");
 
     [impl setImage: image];
     

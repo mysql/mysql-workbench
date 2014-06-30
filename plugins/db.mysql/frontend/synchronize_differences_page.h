@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -54,8 +54,12 @@ public:
   void update_model();
   void update_none();
 
+//  virtual void extra_clicked();
+//  virtual std::string extra_button_caption();
+
 protected:
   void refresh_node(mforms::TreeNodeRef node);
+//  bool node_has_changes(boost::shared_ptr<DiffTreeBE> model, bec::NodeId);
 
   SynchronizeDifferencesPageBEInterface *_be;
   boost::function<db_CatalogRef ()> get_source_catalog;
@@ -78,5 +82,7 @@ protected:
   mforms::Button _skip;
   mforms::Button _edit_table_mapping;
   mforms::Button _edit_column_mapping;
+
+  bool _hide_unchanged;
 };
 

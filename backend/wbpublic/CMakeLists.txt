@@ -63,6 +63,7 @@ add_library(wbpublic
     grtdb/editor_view.cpp
     grtdb/role_tree_model.cpp
     grtdb/sync_profile.cpp
+    objimpl/GrtStoredNote.cpp
     objimpl/db/db_DatabaseObject.cpp
     objimpl/db/db_Schema.cpp
     objimpl/db/db_Table.cpp
@@ -94,6 +95,7 @@ add_library(wbpublic
     sqlide/table_inserts_loader_be.cpp
     sqlide/autocomplete_object_name_cache.cpp
     sqlide/sql_script_run_wizard.cpp
+    sqlide/column_width_cache.cpp
     wbcanvas/figure_common.cpp
     wbcanvas/badge_figure.cpp
     wbcanvas/connection_figure.cpp

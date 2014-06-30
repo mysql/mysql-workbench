@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _DB_OBJECT_HELPERS_H_
-#define _DB_OBJECT_HELPERS_H_
+#pragma once
 
 #include <grtpp.h>
 #include <grts/structs.db.h>
@@ -213,7 +212,7 @@ namespace bec {
     Schema_action sa(cat, rdbms);
     ct::for_each<ct::Schemata>(cat, sa);
   }
-  bool parseType(const std::string &type,
+  bool WBPUBLICBACKEND_PUBLIC_FUNC parseType(const std::string &type,
     const GrtVersionRef &target_version,
     const grt::ListRef<db_SimpleDatatype> &typeList,
     const grt::ListRef<db_UserDatatype>& user_types,
@@ -233,5 +232,3 @@ namespace bec {
   std::string WBPUBLICBACKEND_PUBLIC_FUNC get_default_collation_for_charset(const db_SchemaRef &schema, const std::string &character_set);
   std::string WBPUBLICBACKEND_PUBLIC_FUNC get_default_collation_for_charset(const db_TableRef &table, const std::string &character_set);
 };
-
-#endif /* _DB_OBJECT_HELPERS_H_ */

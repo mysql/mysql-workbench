@@ -376,15 +376,59 @@ class  db_Script : public GrtStoredNote
   typedef GrtStoredNote super;
 public:
   db_Script(grt::GRT *grt, grt::MetaClass *meta=0)
-  : GrtStoredNote(grt, meta ? meta : grt->get_metaclass(static_class_name()))
+  : GrtStoredNote(grt, meta ? meta : grt->get_metaclass(static_class_name())),
+     _forwardEngineerScriptPosition(""),
+     _synchronizeScriptPosition("")
 
   {
   }
 
   static std::string static_class_name() { return "db.Script"; }
 
+  /** Getter for attribute forwardEngineerScriptPosition
+   
+    
+   \par In Python:
+value = obj.forwardEngineerScriptPosition
+   */
+  grt::StringRef forwardEngineerScriptPosition() const { return _forwardEngineerScriptPosition; }
+  /** Setter for attribute forwardEngineerScriptPosition
+   
+    
+    \par In Python:
+obj.forwardEngineerScriptPosition = value
+   */
+  virtual void forwardEngineerScriptPosition(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_forwardEngineerScriptPosition);
+   _forwardEngineerScriptPosition= value;
+    member_changed("forwardEngineerScriptPosition", ovalue, value);
+  }
+
+  /** Getter for attribute synchronizeScriptPosition
+   
+    
+   \par In Python:
+value = obj.synchronizeScriptPosition
+   */
+  grt::StringRef synchronizeScriptPosition() const { return _synchronizeScriptPosition; }
+  /** Setter for attribute synchronizeScriptPosition
+   
+    
+    \par In Python:
+obj.synchronizeScriptPosition = value
+   */
+  virtual void synchronizeScriptPosition(const grt::StringRef &value)
+  {
+    grt::ValueRef ovalue(_synchronizeScriptPosition);
+   _synchronizeScriptPosition= value;
+    member_changed("synchronizeScriptPosition", ovalue, value);
+  }
+
 protected:
 
+  grt::StringRef _forwardEngineerScriptPosition;
+  grt::StringRef _synchronizeScriptPosition;
 private: // wrapper methods for use by grt
   static grt::ObjectRef create(grt::GRT *grt)
   {
@@ -398,6 +442,16 @@ public:
     grt::MetaClass *meta= grt->get_metaclass(static_class_name());
     if (!meta) throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&db_Script::create);
+    {
+      void (db_Script::*setter)(const grt::StringRef &)= &db_Script::forwardEngineerScriptPosition;
+      grt::StringRef (db_Script::*getter)() const= &db_Script::forwardEngineerScriptPosition;
+      meta->bind_member("forwardEngineerScriptPosition", new grt::MetaClass::Property<db_Script,grt::StringRef >(getter,setter));
+    }
+    {
+      void (db_Script::*setter)(const grt::StringRef &)= &db_Script::synchronizeScriptPosition;
+      grt::StringRef (db_Script::*getter)() const= &db_Script::synchronizeScriptPosition;
+      meta->bind_member("synchronizeScriptPosition", new grt::MetaClass::Property<db_Script,grt::StringRef >(getter,setter));
+    }
   }
 };
 

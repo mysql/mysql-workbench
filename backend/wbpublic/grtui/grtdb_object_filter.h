@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +92,7 @@ namespace grtui
 
     void update_button_enabled();
     
-    void refresh();
+    void refresh(ssize_t object_list_selection, ssize_t mask_list_selection);
 
     void add_mask();
     void add_clicked(bool all);

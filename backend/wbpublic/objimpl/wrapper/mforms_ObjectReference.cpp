@@ -75,7 +75,7 @@ mforms_ObjectReferenceRef mforms_to_grt(grt::GRT *grt, mforms::Object *object, c
 
     mforms_ObjectReferenceRef ref(grt);
     object->retain();
-    ref->set_data(object, release_object);
+    ref->set_data(object, object->is_managed() ? release_object : NULL);
     ref->type(grt::StringRef(type_name.empty() ? grt::get_type_name(typeid(*object)) : type_name));
     return ref;
   }

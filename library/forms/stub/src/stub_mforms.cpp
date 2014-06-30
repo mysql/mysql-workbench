@@ -59,6 +59,10 @@ class DockingPointDelegate : public mforms::DockingPointDelegate
   virtual void undock_view(mforms::AppView *view) {}
   virtual void set_view_title(mforms::AppView *view, const std::string &title) {}
   virtual std::pair<int, int> get_size() { return std::make_pair(0, 0); }
+
+  virtual mforms::AppView *selected_view() { return NULL; }
+  virtual int view_count() { return 0; }
+  virtual mforms::AppView *view_at_index(int index) { return NULL; }
 };
 
 DockingPointDelegate deleg;
