@@ -121,6 +121,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 , _custom_sudo_box(true)
 , _connect_panel(new grtui::DbConnectPanel(grtui::DbConnectPanelHideConnectionName))
 , _bottom_hbox(true)
+, _remote_admin_box(false)
 {
   set_name("instance_editor");
   _mgmt= mgmt;
@@ -179,9 +180,8 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 
   // Remote management
   {
-    Box* remote_admin_box = manage(new Box(false));                 // For the content.
-    remote_admin_box->set_padding(MF_PANEL_PADDING);
-    remote_admin_box->set_spacing(4);
+    _remote_admin_box.set_padding(MF_PANEL_PADDING);
+    _remote_admin_box.set_spacing(4);
     mforms::Table* remote_param_table = NewTable(6, 2);
     
     _no_remote_admin.set_text(_("Do not use remote management"));
@@ -194,9 +194,9 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
     _ssh_remote_admin.set_text(_("SSH login based management"));
     scoped_connect(_ssh_remote_admin.signal_toggled(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
 
-    remote_admin_box->add(&_no_remote_admin, false, true);
-    remote_admin_box->add(&_win_remote_admin, false, true);
-    remote_admin_box->add(&_ssh_remote_admin, false, true);
+    _remote_admin_box.add(&_no_remote_admin, false, true);
+    _remote_admin_box.add(&_win_remote_admin, false, true);
+    _remote_admin_box.add(&_ssh_remote_admin, false, true);
 
     _remote_param_box.set_spacing(12);
     _remote_param_box.add(manage(remote_param_table), true, true);
@@ -268,9 +268,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
     scoped_connect(b->signal_clicked(),boost::bind(&ServerInstanceEditor::browse_file, this));
     remote_param_table->add(box, 1, 2, 4, 5, HFillFlag);
 
-    remote_admin_box->add(&_remote_param_box, true, true);
-
-    _tabview.add_page(remote_admin_box, _("Remote Management"));
+    _remote_admin_box.add(&_remote_param_box, true, true);
   }
   
   {
@@ -287,8 +285,6 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   }
   
   
-  _tabview.add_page(&_sys_box, _("System Profile"));
-
   // Sys
   {
     Label *label = manage(new Label(_("Information about the server and MySQL configuration, such as path to the configuration file,\n"
@@ -1208,6 +1204,23 @@ void ServerInstanceEditor::show_connection()
   db_mgmt_ServerInstanceRef instance = selected_instance();
 
   _connect_panel->set_active_stored_conn(connection);
+
+  if (connection.is_valid() && connection->driver()->name() == "MySQLFabric")
+  {
+    if (_tabview.get_page_index(&_remote_admin_box) != -1)
+      _tabview.remove_page(&_remote_admin_box);
+
+    if (_tabview.get_page_index(&_sys_box) != -1)
+      _tabview.remove_page(&_sys_box);
+  }
+  else
+  {
+    if (_tabview.get_page_index(&_remote_admin_box) == -1)
+      _tabview.add_page(&_remote_admin_box, _("Remote Management"));
+
+    if (_tabview.get_page_index(&_sys_box) == -1)
+      _tabview.add_page(&_sys_box, _("System Profile"));
+  }
 
   if (connection.is_valid())
   {
