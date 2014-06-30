@@ -246,9 +246,9 @@ class LogView(mforms.Box):
 
         try:
             self.log_reader = self.BackendLogReaderClass(*self.args)
-        except (ServerIOError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError), error:
+        except Exception, error:
             log_error("Exception creating log reader: %s\n" % error)
-            self._show_error(error)
+            self._show_error("Unexpected error creating log reader: %s\n" % error)
             return
 
         if self.log_reader.partial_support:

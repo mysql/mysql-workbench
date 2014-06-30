@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 #import "MFTabView.h"
 #import "MFMForms.h"
 
-// XXX: move to mforms
 @implementation MFTabViewItemView
 
 - (NSView*)superview
@@ -92,16 +91,23 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
 {
   self = [super initWithFrame:NSMakeRect(10, 10, 100, 100)];
   if (self)
-  {     
+  {
+    BOOL tabSwitcherBelow = NO;
     mTabView = [[[DraggingTabView alloc] initWithFrame: NSMakeRect(0, 0, 100, 100) owner: aTabView] autorelease];
 
     switch (tabType)
     {
+      case mforms::TabViewSystemStandard:
+        break;
       case mforms::TabViewTabless:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         break;
-      case mforms::TabViewMainClosable:
-        //[self doCustomize];
+      case mforms::TabViewDocumentClosable:
+        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
+        [mTabSwitcher setTabStyle: MEditorTabSwitcher];
+        tabSwitcherBelow = NO;
+        [mTabSwitcher setTabView: mTabView];
         break;
       case mforms::TabViewPalette:
         [mTabView setControlSize: NSSmallControlSize];
@@ -112,15 +118,29 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         [mTabSwitcher setTabStyle: MPaletteTabSwitcherSmallText];
-        [self addSubview: mTabSwitcher];
+        tabSwitcherBelow = NO;
         [mTabSwitcher setTabView: mTabView];
         break;
-      default:
+
+      case mforms::TabViewEditorBottom:
+        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
+        [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
+        tabSwitcherBelow = YES;
+        [mTabSwitcher setTabView: mTabView];
         break;
     }
     [mTabView setDrawsBackground: NO];
-    [self addSubview: mTabView];
-
+    if (tabSwitcherBelow)
+    {
+      [self addSubview: mTabView];
+      [self addSubview: mTabSwitcher];
+    }
+    else
+    {
+      [self addSubview: mTabSwitcher];
+      [self addSubview: mTabView];
+    }
     mExtraSize = [mTabView minimumSize];
     {
       NSRect contentRect = [mTabView contentRect];
@@ -178,7 +198,13 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
     NSRect rect = [self bounds];
 
     srect.size.width = NSWidth(rect);
-    srect.origin.y = NSHeight(rect) - NSHeight(srect);
+    if (mOwner->get_type() == mforms::TabViewEditorBottom)
+    {
+      srect.origin.y = 0;
+      rect.origin.y = NSHeight(srect);
+    }
+    else
+      srect.origin.y = NSHeight(rect) - NSHeight(srect);
     [mTabSwitcher setFrame: srect];
 
     rect.size.height -= NSHeight(srect);
@@ -188,6 +214,12 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
     [mTabView setFrame: [self bounds]];
   for (NSTabViewItem *item in [mTabView tabViewItems])
     [[item view] resizeSubviewsWithOldSize: oldBoundsSize];
+
+  if (mforms::View *view = mOwner->get_aux_view())
+  {
+    view->set_size(view->get_preferred_width(), NSHeight([mTabSwitcher frame]));
+    view->set_position(mOwner->get_width() - view->get_width() - 11, 0);
+  }
 }
 
 - (void)setEnabled:(BOOL)flag
@@ -196,6 +228,7 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
     [[item view] setEnabled: flag];
 }
 
+
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
   if (!mOwner->is_destroying())
@@ -203,11 +236,35 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
 }
 
 
-- (void)addTabViewItem: (NSTabViewItem*)item
+- (void)tabView:(NSTabView*)tabView didReorderTabViewItem:(NSTabViewItem *)tabViewItem toIndex:(NSInteger)index
 {
-  [mTabView addTabViewItem: item];
+  MFTabViewItemView *itemView = [tabViewItem view];
+  mOwner->reordered(itemView->mOwner, index);
 }
 
+
+- (void)tabView:(NSTabView*)tabView willDisplayMenu:(NSMenu*)menu forTabViewItem:(NSTabViewItem *)tabViewItem
+{
+  mOwner->set_menu_tab([tabView indexOfTabViewItem: tabViewItem]);
+}
+
+
+- (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)item
+{
+  if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewDocumentClosable)
+    return YES;
+  return NO;
+}
+
+
+- (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)item
+{
+  if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewDocumentClosable)
+  {
+    return mOwner->can_close_tab([mTabView indexOfTabViewItem: item]);
+  }
+  return NO;
+}
 
 static bool tabview_create(::mforms::TabView *self, ::mforms::TabViewType tabType)
 {
@@ -240,6 +297,7 @@ static void tabview_set_tab_title(::mforms::TabView *self, int tab, const std::s
     if ( tabView )
     {
       [[tabView->mTabView tabViewItemAtIndex:tab] setLabel: wrap_nsstring(title)];
+      [tabView->mTabSwitcher setNeedsDisplay: YES];
     }
   }
 }
@@ -270,7 +328,8 @@ static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const st
     {
       NSTabViewItem *item= [[[NSTabViewItem alloc] initWithIdentifier: [NSString stringWithFormat:@"%p", tab]] autorelease];
       MFTabViewItemView *view= [[MFTabViewItemView alloc] init];
-      
+
+      view->mOwner = tab;
       view->mTabView= tabView->mTabView;
       
       [item setLabel: wrap_nsstring(label)];
@@ -279,6 +338,9 @@ static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const st
       [view addSubview: tab->get_data()];
       
       [tabView->mTabView addTabViewItem: item];
+
+      if (tabView->mTabSwitcher && self->get_tab_menu())
+        [tabView->mTabSwitcher setMenu: self->get_tab_menu()->get_data()];
       
       return [tabView->mTabView numberOfTabViewItems]-1;
     }
@@ -289,7 +351,7 @@ static int tabview_add_page(::mforms::TabView *self, mforms::View *tab, const st
 
 static void tabview_remove_page(::mforms::TabView *self, mforms::View *tab)
 {
-  if ( self )
+  if (self)
   {
     MFTabViewImpl* tabView = self->get_data();
     
@@ -315,6 +377,34 @@ static void tabview_remove_page(::mforms::TabView *self, mforms::View *tab)
 }
 
 
+static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
+{
+  if (self->get_type() != mforms::TabViewEditorBottom)
+    throw std::invalid_argument("set_aux_view called for invalid Tab type\n");
+
+  MFTabViewImpl* tabView = self->get_data();
+  if (tabView)
+  {
+    [tabView->mTabSwitcher addSubview: nsviewForView(view)];
+    view->set_size(view->get_preferred_width(), NSHeight([tabView->mTabSwitcher frame]));
+    view->set_position(self->get_width() - view->get_width(), 0);
+  }
+}
+
+
+static void tabview_set_allow_reordering(::mforms::TabView *self, bool flag)
+{
+  if (self->get_type() != mforms::TabViewEditorBottom || self->get_type() == mforms::TabViewDocumentClosable)
+    throw std::invalid_argument("TabView is not of a reorderable type\n");
+
+  MFTabViewImpl* tabView = self->get_data();
+  if (tabView)
+  {
+    [tabView->mTabSwitcher setAllowTabReordering: flag];
+  }
+}
+
+
 void cf_tabview_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -325,9 +415,8 @@ void cf_tabview_init()
   f->_tabview_impl.set_tab_title= &tabview_set_tab_title;
   f->_tabview_impl.add_page= &tabview_add_page;
   f->_tabview_impl.remove_page= &tabview_remove_page;
+  f->_tabview_impl.set_aux_view= &tabview_set_aux_view;
+  f->_tabview_impl.set_allows_reordering= &tabview_set_allow_reordering;
 }
 
-
 @end
-
-

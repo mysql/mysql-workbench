@@ -1276,7 +1276,7 @@ TEST_FUNCTION(6)
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
 
     diffsql_module->generateSQL(mod_cat, options, alter_change);
-    diffsql_module->makeSQLSyncScript(options, alter_map, alter_object_list);
+    diffsql_module->makeSQLSyncScript(mod_cat, options, alter_map, alter_object_list);
     std::string export_sql_script= options.get_string("OutputScript");
 
     // 2. apply it to server
@@ -1333,7 +1333,7 @@ TEST_FUNCTION(6)
       alter_map.clear();
       alter_object_list.clear();
       diffsql_module->generateSQL(mod_cat, options, empty_change);
-      diffsql_module->makeSQLSyncScript(options, alter_map, alter_object_list);
+      diffsql_module->makeSQLSyncScript(mod_cat, options, alter_map, alter_object_list);
 
       // we can't check for the changeset to make sure there are not changes, because some changes from the diff
       // don't cause a script to be generated (like foreign keys being reordered)
@@ -1610,7 +1610,7 @@ TEST_FUNCTION(5)
       alter_map.clear();
       alter_object_list.clear();
       diffsql_module->generateSQL(mod_cat, options, empty_change);
-      diffsql_module->makeSQLSyncScript(options, alter_map, alter_object_list);
+      diffsql_module->makeSQLSyncScript(mod_cat, options, alter_map, alter_object_list);
 
       // we can't check for the changeset to make sure there are not changes, because some changes from the diff
       // don't cause a script to be generated (like foreign keys being reordered)

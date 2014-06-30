@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,13 +34,12 @@
   NSTrackingArea *trackingArea;
 }
 
-- (void)addTabViewItem: (NSTabViewItem*)item;
-
 @end
 
 @interface MFTabViewItemView : NSView
 {
 @public
   NSTabView *mTabView;
+  mforms::View *mOwner;
 }
 @end

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,9 +16,7 @@
 # 02110-1301  USA
 
 import string
-import sys
 import grt
-import copy
 
 INDENTATION = "    "
 
@@ -213,9 +211,9 @@ class SQLPrettifier:
     def __init__(self, ast):
         self.ast = ast
         self.parent = []
-
+        #import sys
         #dump_tree(sys.stdout, ast)
-        
+
 
     def run(self):
         return self.traverse(self.ast, [], [])[1].rstrip()
@@ -278,13 +276,19 @@ class SQLPrettifier:
 
     def sym_table_ident(self, node):
         return flatten_node_unspaced(node)
-    
+
+    def sym_table_wild(self, node):
+        return flatten_node_unspaced(node)
+
     def sym_variable(self, node):
         return flatten_node_unspaced(node)
     
     def sym_variable_aux(self, node):
         return flatten_node_unspaced(node)
-    
+
+    def sym_select_var_ident(self, node):
+        return flatten_node_unspaced(node)
+
     ### SELECT ###
     def sym_select_init(self, node):
         select = node_direct_child(node, 0)
@@ -447,15 +451,20 @@ class SQLPrettifier:
 
     def sym_function_call_generic(self, node):
         children = node_children(node)
-        head = children[0]
-        del children[0]
-        flattened = node_value(head)
+        if node_symbol(children[0]) == "ident" and node_symbol(children[1]) == "46" and node_symbol(children[2]) == "ident":
+            flattened = node_value(children[0])+"."+node_value(children[2])
+            del children[0:3]
+        else:
+            flattened = node_value(children[0])
+            del children[0]
+        head = flattened
+
         flattened += flatten_comma_sep_node(node)
         if "select_derived_union" not in self.current_path:  # try to generate more compact output for nested joins
             try:
                 if self.opt_func_arg_per_line or len(flattened) > self.opt_expr_length_per_line or "\n" in flattened:
                     #flattened = flatten_comma_sep_node_multiline(node)
-                    tmp = node_value(head)
+                    tmp = head
                     tmp += indent_tail(flatten_comma_sep_node(node, newline_on_comma=True))
                     flattened = tmp
             except Exception, exc:
@@ -521,7 +530,7 @@ class SQLPrettifier:
                 
                 text += node_value(children[-1])
                 return text
-        except Exception, exc:
+        except Exception:
             import traceback
             traceback.print_exc()
         
@@ -789,7 +798,7 @@ def formatter_for_statement_ast(ast):
     elif statement[0] == "delete":
         return DeleteSQLPrettifier
     elif statement[0] == "create":
-        create = statement[2][0]
+        #unused create = statement[2][0]
         object = statement[2][1]
         if object[0] == "TABLE_SYM":
             return SQLPrettifier

@@ -49,6 +49,7 @@ private:
   GrtVersionRef _version;
 
   bool _case_sensitive;
+  std::string _sql_mode;
 
 public:
   typedef boost::shared_ptr<ParserContext> Ref;
@@ -60,6 +61,8 @@ public:
   MySQLSyntaxChecker *syntax_checker() { return _syntax_checker; };
 
   void use_sql_mode(const std::string &mode);
+  std::string get_sql_mode();
+
   void use_server_version(GrtVersionRef version);
   GrtVersionRef get_server_version() { return _version; };
 

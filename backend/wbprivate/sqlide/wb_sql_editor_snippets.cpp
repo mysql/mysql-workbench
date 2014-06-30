@@ -28,6 +28,7 @@
 
 #include "wb_sql_editor_snippets.h"
 #include "sqlide/wb_sql_editor_form.h"
+#include "sqlide/wb_sql_editor_panel.h"
 #include "workbench/wb_db_schema.h"
 
 #include "mforms/utilities.h"
@@ -106,17 +107,18 @@ bool DbSqlEditorSnippets::activate_toolbar_item(const bec::NodeId &selected, con
     else
     {
       SqlEditorForm *editor_form = _sqlide->get_active_sql_editor();
-      if (editor_form != NULL && editor_form->active_sql_editor() != NULL)
+      SqlEditorPanel *panel;
+      if (editor_form != NULL && (panel = editor_form->active_sql_editor_panel()) != NULL)
       {
         if (name == "replace_text")
         {
-          editor_form->active_sql_editor()->set_refresh_enabled(true);
-          editor_form->active_sql_editor()->sql(script.c_str());
+          panel->editor_be()->set_refresh_enabled(true);
+          panel->editor_be()->sql(script.c_str());
         }
         else if (name == "insert_text")
         {
-          editor_form->active_sql_editor()->set_refresh_enabled(true);
-          editor_form->active_sql_editor()->set_selected_text(script);
+          panel->editor_be()->set_refresh_enabled(true);
+          panel->editor_be()->set_selected_text(script);
         }
       }
       else
@@ -497,6 +499,8 @@ bool DbSqlEditorSnippets::get_field(const bec::NodeId &node, ColumnId column, st
         break;
       case Script:
         value = _entries[node[0]].code;
+        if (value.empty())
+          return false;
         break;
     }
     return true;

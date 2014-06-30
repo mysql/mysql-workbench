@@ -288,7 +288,7 @@ public:
   /** 
    * generate SQL alter script
    */
-  virtual ssize_t makeSQLSyncScript(grt::DictRef options, const grt::StringListRef& sql_list, const grt::ListRef<GrtNamedObject>& param2);
+  virtual ssize_t makeSQLSyncScript(db_CatalogRef cat, grt::DictRef options, const grt::StringListRef& sql_list, const grt::ListRef<GrtNamedObject>& param2);
 
   virtual grt::ListRef<db_mysql_StorageEngine> getKnownEngines();
   

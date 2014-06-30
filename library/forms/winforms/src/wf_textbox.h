@@ -51,7 +51,6 @@ namespace MySQL {
       static void set_monospaced(mforms::TextBox *backend, bool flag);
       static void get_selected_range(mforms::TextBox *backend, int &start, int &end);
       static void clear(mforms::TextBox *backend);
-      virtual void set_front_color(String ^color);
     public:
       static void init();
     };

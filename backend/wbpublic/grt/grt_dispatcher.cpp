@@ -30,14 +30,15 @@
 
 using namespace bec;
 
-static bool debug_dispatcher= false;
-
 DEFAULT_LOG_DOMAIN("GRTDispatcher");
 
+// Extra debug print flag for additional information (not dynamically switchable like log calls).
+static bool debug_dispatcher = false;
+
 #ifdef __GNUC__
-#define DPRINT(fmt, ...) if (debug_dispatcher) g_message(fmt,##__VA_ARGS__)
+#define DPRINT(fmt, ...) if (debug_dispatcher) log_debug3(fmt,##__VA_ARGS__)
 #else
-#define DPRINT(...) if (debug_dispatcher) g_message(__VA_ARGS__)
+#define DPRINT(...) if (debug_dispatcher) log_debug3(__VA_ARGS__)
 #endif
 
 class NULLTask : public GRTTaskBase
@@ -361,7 +362,7 @@ void GRTDispatcher::start(boost::shared_ptr<GRTDispatcher> self)
   if (!_threading_disabled)
   {
 
-    DPRINT("starting worker thread");
+    log_debug("starting worker thread\n");
     _thread= base::create_thread(worker_thread, this);
     if (_thread == 0)
     {
@@ -417,9 +418,8 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
   mforms::Utilities::set_thread_name("GRTDispatcher");
 
-  DPRINT("worker thread running");
-
-
+  log_debug("worker thread running\n");
+  
   g_async_queue_ref(task_queue);
   g_async_queue_ref(callback_queue);
 
@@ -432,7 +432,6 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
     self->worker_thread_iteration();
 
-    DPRINT("worker: waiting task...");
     // pop next task pushed to queue by the main thread
 
 #if GLIB_CHECK_VERSION(2,32,0)
@@ -476,7 +475,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
     if (task->get_error())
     {
-      DPRINT("%s", std::string(("worker: task '"+task->name()+"' has failed with error:.")+task->get_error()->what()).c_str());
+      log_error("%s\n", std::string(("worker: task '"+task->name()+"' has failed with error:.")+task->get_error()->what()).c_str());
       task->release();
       base::atomic_int_dec_and_test_if_zero(&self->_busy);
       continue;
@@ -501,7 +500,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 //  self->_worker_running= false;
   self->_w_runing.post();
 
-  DPRINT("worker thread exiting...");
+  log_debug("worker thread exiting...\n");
 
   return NULL;
 }

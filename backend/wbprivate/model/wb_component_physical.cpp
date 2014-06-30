@@ -504,11 +504,11 @@ void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema)
     std::string objects;
 
     if (info.get_int("tables") > 0)
-      objects+= strfmt("%li tables, ", info.get_int("tables"));
+      objects+= strfmt("%li tables, ", (long)info.get_int("tables"));
     if (info.get_int("views") > 0)
-      objects+= strfmt("%li views, ", info.get_int("views"));
+      objects+= strfmt("%li views, ", (long)info.get_int("views"));
     if (info.get_int("routines") > 0)
-      objects+= strfmt("%li routines, ", info.get_int("routines"));
+      objects+= strfmt("%li routines, ", (long)info.get_int("routines"));
 
     if (!objects.empty())
       objects= objects.substr(0, objects.length()-2);
@@ -1307,10 +1307,12 @@ void WBComponentPhysical::delete_db_object(const db_DatabaseObjectRef &object)
                                                        routine_group->name().c_str()),
                                                 _("Delete"), _("Cancel"), _("Keep"));
       else
-        result= mforms::Utilities::show_message(_("Delete Routines"),
-                                                strfmt(_("There are %zu routines in '%s' that are not in any other group, would you like to delete them?"),
-                                                       ungrouped_routines.size(), routine_group->name().c_str()),
-                                                _("Delete"), _("Cancel"), _("Keep"));
+      {
+        result = mforms::Utilities::show_message(_("Delete Routines"),
+          strfmt(_("There are %lu routines in '%s' that are not in any other group, would you like to delete them?"),
+          (unsigned long)ungrouped_routines.size(), routine_group->name().c_str()),
+          _("Delete"), _("Cancel"), _("Keep"));
+      }
       
       if (result == mforms::ResultCancel)
       {

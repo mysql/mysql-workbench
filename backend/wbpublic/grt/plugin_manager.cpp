@@ -17,17 +17,19 @@
  * 02110-1301  USA
  */
 
+#include "base/log.h"
+#include "base/string_utilities.h"
+
 #include "plugin_manager.h"
 #include "editor_base.h"
 #include "grt_manager.h"
-#include "base/string_utilities.h"
 
 #include "interfaces/plugin.h"
 
+DEFAULT_LOG_DOMAIN("plugins")
+
 using namespace bec;
 using namespace grt;
-
-
 
 static std::string get_args_hash(const grt::BaseListRef &list)
 {
@@ -1236,8 +1238,8 @@ grt::BaseListRef ArgumentPool::build_argument_list(const app_PluginRef &plugin)
     grt::ValueRef argument= find_match(pdef, searched_key);
     if (!argument.is_valid())
     {
-      g_message("Cannot satisfy plugin input for %s: %s", plugin->name().c_str(), searched_key.c_str());
-      g_message("Missing input: %s", pdef.repr().c_str());
+      log_warning("Cannot satisfy plugin input for %s: %s", plugin->name().c_str(), searched_key.c_str());
+      log_warning("Missing input: %s", pdef.repr().c_str());
       
       throw grt::grt_runtime_error("Cannot execute "+*plugin->name(),
                                    "Plugin requires unavailable argument value.");

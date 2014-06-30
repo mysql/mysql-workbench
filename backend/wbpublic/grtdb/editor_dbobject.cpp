@@ -56,10 +56,21 @@ DBObjectEditorBE::DBObjectEditorBE(GRTManager *grtm, const db_DatabaseObjectRef 
   bool case_sensitive = true;
   if (object->customData().get_int("CaseSensitive", 1) == 0)
     case_sensitive = false;
-  _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), get_catalog()->version(), case_sensitive);
+
+  // Assume a default version if the given catalog is incomplete.
+  GrtVersionRef version = get_catalog()->version();
+  if (!version.is_valid())
+    version = bec::parse_version(grtm->get_grt(), "5.5.1");
+  _parser_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
 
   if (object->customData().has_key("sqlMode"))
     _parser_context->use_sql_mode(object->customData().get_string("sqlMode"));
+
+  // Because syntax checks and auto completion are done in different threads we need 2 different parser.
+  // With the refactoring of the auto completion code this second parser will go.
+  _autocompletion_context = _parser_services->createParserContext(get_catalog()->characterSets(), version, case_sensitive);
+  if (object->customData().has_key("sqlMode"))
+    _autocompletion_context->use_sql_mode(object->customData().get_string("sqlMode"));
 
   _val_notify_conn = ValidationManager::signal_notify()->connect(boost::bind(&DBObjectEditorBE::notify_from_validation, this, _1, _2, _3, _4));
 
@@ -497,11 +508,20 @@ bool DBObjectEditorBE::parse_charset_collation(const std::string &str, std::stri
 
 //--------------------------------------------------------------------------------------------------
 
+bool DBObjectEditorBE::has_editor()
+{
+  if (_sql_editor)
+    return true;
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 {
   if (!_sql_editor)
   {
-    _sql_editor = MySQLEditor::create(get_grt(), _parser_context);
+    _sql_editor = MySQLEditor::create(get_grt(), _parser_context, _autocompletion_context);
     grt::DictRef obj_options = get_dbobject()->customData();
     if (obj_options.has_key("sqlMode"))
       _sql_editor->set_sql_mode(obj_options.get_string("sqlMode"));
@@ -513,7 +533,9 @@ MySQLEditor::Ref DBObjectEditorBE::get_sql_editor()
 
 void bec::DBObjectEditorBE::reset_editor_undo_stack()
 {
-  get_sql_editor()->get_editor_control()->reset_dirty();
+  // Don't create an editor control if we don't need one (e.g. for the schema editor).
+  if (_sql_editor)
+    _sql_editor->get_editor_control()->reset_dirty();
 }
 
 //--------------------------------------------------------------------------------------------------

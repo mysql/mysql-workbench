@@ -158,12 +158,16 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>..\base\;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -228,6 +232,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\Conversions.h" />
     <ClInclude Include="src\ConvUtils.h" />
+    <ClInclude Include="src\IRecordsetView.h" />
     <ClInclude Include="src\LogWrapper.h" />
     <ClInclude Include="src\ManagedNotifications.h" />
     <ClInclude Include="src\Stdafx.h" />
@@ -243,6 +248,7 @@
   <ItemGroup>
     <ClCompile Include="src\AssemblyInfo.cpp" />
     <ClCompile Include="src\Conversions.cpp" />
+    <ClCompile Include="src\IRecordsetView.cpp" />
     <ClCompile Include="src\LogWrapper.cpp" />
     <ClCompile Include="src\ManagedNotifications.cpp" />
     <ClCompile Include="src\Stdafx.cpp">

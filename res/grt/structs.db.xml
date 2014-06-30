@@ -423,7 +423,12 @@
           </members>
       </gstruct>
 
-      <gstruct name="db.Script" parent="GrtStoredNote" attr:caption="SQL Script" attr:desc="a SQL script"/>
+      <gstruct name="db.Script" parent="GrtStoredNote" attr:caption="SQL Script" attr:desc="a SQL script">
+         <members>
+              <member name="forwardEngineerScriptPosition" type="string"/>
+              <member name="synchronizeScriptPosition" type="string"/>
+         </members>
+      </gstruct>
 
       <gstruct attr:caption="Synchronisation Managing Object" attr:desc="an object used for synchronisation" name="db.DatabaseSync" parent="GrtObject">
           <members>

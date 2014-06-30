@@ -20,10 +20,12 @@
 #include "test.h"
 #include "mforms/code_editor.h"
 #include "stub/stub_mforms.h"
-
+#include "wb_helpers.h"
 using namespace mforms;
 
 BEGIN_TEST_DATA_CLASS(mforms_code_editor_test)
+private:
+  WBTester _tester; // Initializes the mforms stub with good values (among others).
 END_TEST_DATA_CLASS;
 
 TEST_MODULE(mforms_code_editor_test, "mforms code editor testing");
@@ -32,8 +34,6 @@ TEST_MODULE(mforms_code_editor_test, "mforms code editor testing");
 
 TEST_FUNCTION(1)
 {
-  mforms::stub::init(NULL);
-
   // Copy a current version of the code editor configuration file to the test data folder.
   gchar *contents;
   gsize length;

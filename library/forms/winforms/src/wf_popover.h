@@ -26,13 +26,19 @@ namespace MySQL {
 
     public class PopoverWrapper : public ObjectWrapper
     {
+    private:
+      boost::signals2::connection _track_connection;
+      bool mouse_left_tracked_object();
     protected:
       PopoverWrapper(mforms::Popover *backend);
 
       static bool create(mforms::Popover *backend, mforms::PopoverStyle style);
+      static void destroy(mforms::Popover *backend);
       static void set_content(mforms::Popover *backend, mforms::View *content);
       static void set_size(mforms::Popover *backend, int width, int height);
       static void show(mforms::Popover *backend, int spot_x, int spot_y, mforms::StartPosition position);
+      static void show_and_track(mforms::Popover *backend, mforms::View *owner, int spot_x, int spot_y,
+        mforms::StartPosition position);
       static base::Rect get_content_rect(mforms::Popover *backend);
       static void close(mforms::Popover *backend);
 

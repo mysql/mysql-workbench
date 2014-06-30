@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 namespace mforms
 {
   class TabView;
+  class ContextMenu;
 
   enum TabViewType
   {
@@ -37,6 +38,7 @@ namespace mforms
                                //   and such). closable tabs
     TabViewPalette,            //!< WB style tab view (bottom hanging tabs on Win), unclosable tabs
     TabViewSelectorSecondary,  //!< Sidebar palette selector style, unclosable tabs.
+    TabViewEditorBottom        //!< Bottom facing, closable tabs to be used for docking editors
   };
   
   
@@ -50,6 +52,8 @@ namespace mforms
     int (*get_active_tab)(TabView*);
     int (*add_page)(TabView*,View*,const std::string&);
     void (*remove_page)(TabView*,View*);
+    void (*set_aux_view)(TabView*,View*);     /** XXX TODO Windows */
+    void (*set_allows_reordering)(TabView*,bool);     /** XXX TODO Windows */
   };
 #endif
 #endif
@@ -58,16 +62,24 @@ namespace mforms
   class MFORMS_EXPORT TabView : public View
   {
     TabViewImplPtrs *_tabview_impl;
+    TabViewType _type;
+    View *_aux_view;
+    int _menu_tab;
+    ContextMenu *_tab_menu;
 
     boost::signals2::signal<void ()> _signal_tab_changed;
+    boost::signals2::signal<void (View*, int, int)> _signal_tab_reordered;
     boost::signals2::signal<bool (int)> _signal_tab_closing;
-    boost::signals2::signal<void (int)> _signal_tab_closed;
+    boost::signals2::signal<void (View*, int)> _signal_tab_closed;
 
   public:
     /** Constructor.
      
      @param type - Type of the tabView. See @ref TabViewType */
     TabView(TabViewType tabType = TabViewSystemStandard);
+    virtual ~TabView();
+
+    TabViewType get_type() const { return _type; }
 
     /** Sets the currently selected/active tab */
     void set_active_tab(int index);
@@ -86,21 +98,42 @@ namespace mforms
     /** Returns the page object at the given page index */
     View *get_page(int index);
 
+    /** Number of tabs in the control */
+    int page_count();
+
     /** Returns true if the tab with the given index can be closed. */
     bool can_close_tab(int index);
 
+    /** Whether the tabs can be reordered by the user by dragging (supported by select tabview types) */
+     void set_allows_reordering(bool flag);
+
+    /** Sets a menu to be shown when right clicking on a tab (supported by select tabview types) */
+    void set_tab_menu(ContextMenu *menu); //XXX Windows
+    ContextMenu *get_tab_menu() { return _tab_menu; }
+
+    /** Returns the index of the tab for which the context menu is being shown */
+    int get_menu_tab();
+
+    void set_aux_view(View *view);
+    View *get_aux_view() { return _aux_view; }
+
 #ifndef SWIG
+    void set_menu_tab(int tab);
+
+    void reordered(View *view, int index);
+
     /** Signal emitted when the tab is switched by user.
      
      In Python use add_tab_changed_callback()
      */
     boost::signals2::signal<void ()>* signal_tab_changed() { return &_signal_tab_changed; }
+
+    boost::signals2::signal<void (View*, int, int)>* signal_tab_reordered() { return &_signal_tab_reordered; }
     
     /** Callback called when a tab is about to close. Returning false will prevent the closure. */
     boost::signals2::signal<bool (int)>* signal_tab_closing() { return &_signal_tab_closing; }
 
-    /** Callback called when a tab has been closed. */
-    boost::signals2::signal<void (int)>* signal_tab_closed() { return &_signal_tab_closed; }
+    boost::signals2::signal<void (View*, int)>* signal_tab_closed() { return &_signal_tab_closed; }
 #endif
   };
 };

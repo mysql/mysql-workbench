@@ -422,6 +422,7 @@ bool Utilities::request_input(const std::string &title, const std::string &descr
 
   input_form.set_content(&content);
   input_form.center();
+  edit.focus();
   bool result= input_form.run_modal(&ok_button, &cancel_button);
   if (result)
     ret_value = edit.get_string_value();

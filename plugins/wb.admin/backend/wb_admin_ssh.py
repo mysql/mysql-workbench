@@ -474,12 +474,12 @@ class WbAdminSSH(object):
         sftp.close()
         return ret
 
-    def set_contents(self, path, data): # raises IOError
+    def set_contents(self, path, data, mode = "w"): # raises IOError
         path = normalize_windows_path_for_ftp(path)
         
         sftp = self.client.open_sftp()
         try:
-            f = sftp.file(path, "w")
+            f = sftp.file(path, mode)
             f.chmod(stat.S_IREAD | stat.S_IWRITE)
         except IOError, exc:
             sftp.close()
@@ -654,10 +654,12 @@ class WbAdminSSH(object):
                     more_data = True
                   
                     chan.exec_command(cmd)
+                    pass_prompt_count = 0
                   
                     if (as_user != Users.CURRENT and user_password is not None):
                       
                         ret_code, prompted, initial_data, error = self._read_streams(chan, stdout, stderr, 1, 'EnterPasswordHere', 15, spawn_process, wait_output)
+                        log_debug2("%s.exec_cmd initial read for command [%s]:\nRetCode : [%s]\nPrompted : [%s]\nData : [%s]\nError : [%s]\n" % (self.__class__.__name__, cmd, ret_code, prompted, initial_data, error) )
                         
                         if prompted:
                             initial_data = ''
@@ -681,13 +683,19 @@ class WbAdminSSH(object):
                                 more_data = False
                             else:
                                 log_debug("exec_cmd: was expecting sudo password prompt, but it never came\n")
-                                if output_handler:
-                                    output_handler(initial_data)
-                                else:
-                                    out = initial_data
             
                                 if initial_data:
                                     wait_output = CmdOutput.WAIT_NEVER
+
+                        # Outputs the initial read
+                        if output_handler:
+                            output_handler(initial_data)
+                        else:
+                            if prompted:
+                                pass_prompt_count=1
+
+                            out = initial_data
+
 
                     # TODO: Is this really needed????
                     #       The call with channel get_channel_cb is only done in two places:
@@ -705,19 +713,20 @@ class WbAdminSSH(object):
                         ret_code, prompted, chunk, error = self._read_streams(chan, stdout, stderr, read_size, None, 10, False, wait_output)
                         
                         if chunk or error:
-                            if expect_sudo_failure and (chunk.count("EnterPasswordHere") >= 1 or chunk.find("Sorry, try again") >= 0):
+                            out += chunk
+                            # Detects an additional password prompt which could come in 2 formats
+                            # EnterPasswordHere is checked against pass_prompt_count as out could may or may not contain
+                            # the initial password prompt, the Sorry.... 
+                            if expect_sudo_failure and (out.count("EnterPasswordHere") > pass_prompt_count or out.count("Sorry, try again") > 0):
                                 raise InvalidPasswordError("Incorrect password for sudo")
                             elif output_handler:
                                 output_handler(chunk)
-                            else:
-                                out += chunk
                                 
-                            if ret_code != None:
-                                more_data = False
-                                log_error("exec_cmd : %s\n" % error)
+                            if error:
+                                log_warning("%s.exec_cmd error : %s\n" % (self.__class__.__name__, error))
 
-                                  
-                        elif ret_code != None:
+                        # Quits reading when the exit code is read
+                        if ret_code != None:
                             more_data = False
 
                     if ret_code is None:

@@ -222,7 +222,12 @@ namespace grt {
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
     
   };
-  
+
+  class python_error : public std::runtime_error
+  {
+  public:
+    python_error(const std::string &what) : std::runtime_error(what) {}
+  };
 };
 
 #endif

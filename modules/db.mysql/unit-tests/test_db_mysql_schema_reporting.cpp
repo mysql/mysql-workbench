@@ -153,7 +153,7 @@ TEST_FUNCTION(10)
   options.gset("fk_show_parent_and_child_table", 1);
   options.gset("output_path", test_filename);
 
-  int res= module->generateReport(physicalModel, options);
+  ssize_t res= module->generateReport(physicalModel, options);
   ensure("generateSchemaReport call failed.", res == 1);
 
 
@@ -171,7 +171,7 @@ TEST_FUNCTION(11)
   ensure("WbModel module initialization", NULL != module);
 
   grt::StringListRef templates(wbt.grt);
-  int res= module->getAvailableReportingTemplates(templates);
+  ssize_t res= module->getAvailableReportingTemplates(templates);
   ensure("getAvailableSchemaReportTemplates call failed.", res == 1);
 
   ensure("no templates returned.", templates.count() > 0);

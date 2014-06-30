@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ namespace MySQL.GUI.Workbench.Plugins
   {
     #region Member Variables
 
-    private MySQL.Grt.LayerEditorBE LayerEditorBE { get { return Backend as MySQL.Grt.LayerEditorBE; } }
+    private MySQL.Grt.LayerEditorWrapper LayerEditorBE { get { return Backend as MySQL.Grt.LayerEditorWrapper; } }
 
     #endregion
 
@@ -53,7 +53,7 @@ namespace MySQL.GUI.Workbench.Plugins
 
       try
       {
-        Backend = new MySQL.Grt.LayerEditorBE(GrtManager, value);
+        Backend = new MySQL.Grt.LayerEditorWrapper(GrtManager, value);
         RefreshFormData();
       }
       finally

@@ -170,7 +170,7 @@ static void show_help()
   printf("<source schema><TAB><source table><TAB><target schema><TAB><target table><TAB>*|<select expression>\n");
   printf("Table Specification from command line:\n");
   printf("--table <source schema> <source table> <target schema> <target table> *|<select expression>\n");
-  printf("--table-range <source schema> <source table> <target schema> <target table> <select expression> <source key> <start>|-1 <end>|-1\n");
+  printf("--table-range <source schema> <source table> <target schema> <target table> <select expression> <source key> <start> <end>|-1\n");
   printf("\n");
   printf("--log-file=<file_path>\n");
   printf("--log-level=<level>\n");

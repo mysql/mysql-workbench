@@ -193,7 +193,8 @@ class RenderBox(mforms.PyDrawBox):
                 self.tooltip.set_size(max(box.get_preferred_width(), 100), max(box.get_preferred_height(), 50))
             
                 self.tooltip.set_content(box)
-                self.tooltip.show(xx, yy, mforms.Right)
+                self.tooltip.add_close_callback(self.close_tooltip)
+                self.tooltip.show_and_track(self, xx, yy, mforms.Right)
 
 
 

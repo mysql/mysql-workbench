@@ -1083,7 +1083,7 @@ void UndoManager::add_undo(UndoAction *cmd)
     if (!flag)
     {
       if (debug_undo && !dynamic_cast<UndoGroup*>(cmd))
-        g_message("added undo action that's not a group to top");
+        log_debug2("added undo action that's not a group to top");
       _undo_stack.push_back(cmd);
       trim_undo_stack();
     }

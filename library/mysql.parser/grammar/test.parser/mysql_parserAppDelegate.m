@@ -289,28 +289,6 @@ extern "C" {
       break;
     }
 
-    {
-      pANTLR3_STACK followStack = recognizer->state->following;
-      if (followStack != NULL)
-      {
-        error << "\nFollow set:\n";
-        pANTLR3_BITSET followBits = antlr3BitsetLoad((pANTLR3_BITSET_LIST)followStack->peek(followStack));
-        pANTLR3_INT32 indexList = followBits->toIntList(followBits);
-        int size = indexList[0];
-
-        for	(int index = 1; index < size; index++)
-        {
-          if  (tokenNames[index])
-          {
-            error << (index > 1 ? ", " : "") << tokenNames[index];
-          }
-        }
-        error << "\n";
-
-        followBits->free(followBits);
-      }
-    }
-    
     last_error += error.str();
   }
   
@@ -368,7 +346,7 @@ NSString *sql5 = @"grant alter (a, b) on table * to 'mike'@'%'";
 NSString *sql6 = @"select A, B, A OR B, A XOR B, A AND B from t1_30237_bool where C is null order by A, B";
 NSString *sql7 = @"select count(distinct a.actor_id), phone, first_name, a.last_name, country.country \n"
   "from sakila.actor a, address aa, country\nwhere (a.actor_id = 0 and country_id > 0) \ngroup by actor_id";
-NSString *sql8 = @"select 1--2";
+NSString *sql8 = @"drop user current_user(), 'mike'@localhost";
 
 @implementation mysql_parserAppDelegate
 

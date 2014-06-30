@@ -21,12 +21,15 @@
 
 using namespace mforms;
 
+//--------------------------------------------------------------------------------------------------
+
 Popover::Popover(PopoverStyle style)
 {
-  _popover_impl= &ControlFactory::get_instance()->_popover_impl;
+  _popover_impl = &ControlFactory::get_instance()->_popover_impl;
   _popover_impl->create(this, style);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 Popover::~Popover()
 {
@@ -34,25 +37,39 @@ Popover::~Popover()
     _popover_impl->destroy(this);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Popover::set_content(View* content)
 {
   _popover_impl->set_content(this, content);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void Popover::show(int x, int y, StartPosition position)
 {
   _popover_impl->show(this, x, y, position);
 }
+
+//--------------------------------------------------------------------------------------------------
+
+void Popover::show_and_track(View *owner, int x, int y, StartPosition position)
+{
+  _popover_impl->show_and_track(this, owner, x, y, position);
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void Popover::set_size(int width, int height)
 {
   _popover_impl->set_size(this, width, height);
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void Popover::close()
 {
   _popover_impl->close(this);
 }
 
-
+//--------------------------------------------------------------------------------------------------

@@ -25,6 +25,9 @@
 #include "grts/structs.workbench.model.h"
 #include <memory>
 
+namespace mforms {
+  class ToolBarItem;
+};
 
 class WBEDITOR_BACKEND_PUBLIC_FUNC StoredNoteEditorBE : public bec::BaseEditor
 {
@@ -51,4 +54,5 @@ protected:
   void set_text(grt::StringRef ext);
   grt::StringRef get_text(bool &isutf8);
 
+  void changed_selector(mforms::ToolBarItem *item);
 };

@@ -50,6 +50,8 @@ protected:
   boost::signals2::connection _refresh_ui_stat_sig;
 
 public:
+  GridView *grid_view() { return _grid; }
+
   virtual void refresh();
   virtual void reset();
 

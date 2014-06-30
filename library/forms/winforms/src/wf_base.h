@@ -122,6 +122,12 @@ namespace Forms {
     }
 
     template<class T>
+    T* GetBackend()
+    {
+      return GetBackend<T>(component);
+    }
+
+    template<class T>
     static T* GetBackend(System::Object ^object)
     {
       IntPtr ^reference = nullptr;

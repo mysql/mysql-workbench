@@ -164,7 +164,12 @@ public:
 
     return (int)_items.size() - 1;
   }
-  
+
+  virtual void remove_item(int index)
+  {
+    delete _items[index];
+    _items.erase(_items.begin()+index);
+  }
   
   virtual int index_from_point(int x, int y) = 0;
   
@@ -514,6 +519,13 @@ int TabSwitcher::add_item(const std::string &title, const std::string &sub_title
 
 //--------------------------------------------------------------------------------------------------
 
+void TabSwitcher::remove_item(int index)
+{
+  _pimpl->remove_item(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Replaces the icon pair for the given item with the new values.
  */
@@ -615,6 +627,9 @@ bool TabSwitcher::mouse_click(mforms::MouseButton button, int x, int y)
 
 bool TabSwitcher::mouse_enter()
 {
+  if (DrawBox::mouse_enter())
+    return true;
+
   _was_collapsed = _pimpl->get_collapsed();
   if (_was_collapsed)
     set_collapsed(false);
@@ -634,6 +649,9 @@ bool TabSwitcher::collapse()
 
 bool TabSwitcher::mouse_leave()
 {
+  if (DrawBox::mouse_leave())
+    return true;
+
   if (_was_collapsed)
   {
     _was_collapsed = false;

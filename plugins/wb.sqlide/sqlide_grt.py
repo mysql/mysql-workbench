@@ -310,6 +310,8 @@ def enbeautificate(editor):
         try:
             result = doReformatSQLStatement(statement, True)
         except:
+            import traceback
+            log_error("Error reformating SQL: %s\n%s\n" % (statement, traceback.format_exc()))
             result = None
         if result:
             ok_count += 1
@@ -577,7 +579,7 @@ def showInspector(editor, selection):
     for s in selection:
         if s.type == "db.Schema":
             schema_insp.append(s.schemaName)
-        elif s.type == "db.Table":
+        elif (s.type == "db.Table") or (s.type == "db.View"):
             table_insp.append((s.schemaName, s.name))
         elif s.type == "db.Index":
             table_insp_idx.append((s.schemaName, s.owner.name))

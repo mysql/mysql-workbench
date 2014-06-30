@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@ class DbMySQLRoleEditor : public PluginEditorBase
   void refresh_objects();
   void refresh_privileges();
 
+  void check_all_privileges();
   void clear_privileges();
   void change_parent();
   
@@ -106,6 +107,9 @@ DbMySQLRoleEditor::DbMySQLRoleEditor(grt::Module *m, bec::GRTManager *grtm, cons
   Gtk::Button *button;
   xml()->get_widget("clear_privs_button", button);
   button->signal_clicked().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::clear_privileges));
+
+  xml()->get_widget("checkall_privs_button", button);
+  button->signal_clicked().connect(sigc::mem_fun(this, &DbMySQLRoleEditor::check_all_privileges));
 
   _role_tree_model    = TreeModelWrapper::create(_be->get_role_tree(), _role_tree_tv, "RoleTree");
   _role_objects_model = ListModelWrapper::create(_be->get_object_list(), _role_objects_tv, "RoleObjectsTree");
@@ -192,6 +196,13 @@ void DbMySQLRoleEditor::refresh_privileges()
   _role_privs_tv->unset_model();
   _role_privs_model->refresh();
   _role_privs_tv->set_model(_role_privs_model);
+}
+
+//------------------------------------------------------------------------------
+void DbMySQLRoleEditor::check_all_privileges()
+{
+  _be->get_privilege_list()->add_all();
+  refresh_privileges();
 }
 
 //------------------------------------------------------------------------------
