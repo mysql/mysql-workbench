@@ -77,9 +77,10 @@ public:
     // between both. If that still fails it can only mean the container is smaller than the sum of
     // the min sizes. In that case don't assign a splitter position at all.
     int size = Orientation == Windows::Forms::Orientation::Horizontal ? Height : Width;
-    if (distance < Panel1MinSize ||
-      distance > size - Panel2MinSize)
-      distance = (size - Panel2MinSize - Panel1MinSize) / 2;
+    if (distance < Panel1MinSize)
+      distance = Panel1MinSize;
+    if (distance > size - Panel2MinSize)
+      distance = size - Panel2MinSize;
 
     try
     {
