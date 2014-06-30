@@ -666,7 +666,7 @@ static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
     total += stages[i].wait_time;
   }
 
-  int rows_of_text = stages.size() / 3 + 1;
+  int rows_of_text = (int)stages.size() / 3 + 1;
   cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 800, 30 + 20 + rows_of_text * 25);
   cairo_t *cr = cairo_create(surf);
 
@@ -684,8 +684,8 @@ static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
     cairo_fill(cr);
 
     {
-      int capx = (i % 3) * 800/3 + 1;
-      int capy = 50 + (i / 3) * 25;
+      double capx = (i % 3) * 800 / 3 + 1;
+      double capy = 50 + (i / 3) * 25;
 
       cairo_text_extents_t ext;
       cairo_text_extents(cr, stages[i].name.c_str(), &ext);
@@ -752,7 +752,7 @@ static std::string render_waits(std::vector<SqlEditorForm::PSWait> &waits)
     total += waits[i].wait_time;
   }
 
-  int rows_of_text = waits.size() / 2 + 1;
+  int rows_of_text = (int)waits.size() / 2 + 1;
   cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 800, 30 + 20 + rows_of_text * 25);
   cairo_t *cr = cairo_create(surf);
 
@@ -770,8 +770,8 @@ static std::string render_waits(std::vector<SqlEditorForm::PSWait> &waits)
     cairo_fill(cr);
 
     {
-      int capx = (i % 2) * 800/2 + 1;
-      int capy = 50 + (i / 2) * 25;
+      size_t capx = (i % 2) * 800 / 2 + 1;
+      size_t capy = 50 + (i / 2) * 25;
 
       cairo_text_extents_t ext;
       cairo_text_extents(cr, waits[i].name.c_str(), &ext);

@@ -88,7 +88,7 @@ static PyObject *call_object_method(const grt::ObjectRef &object, const grt::Cla
     PythonContext::set_db_error(exc);
     return NULL;
   }
-  catch (grt::python_error &exc)
+  catch (grt::python_error)
   {
     return NULL;
   }

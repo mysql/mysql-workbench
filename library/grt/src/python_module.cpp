@@ -125,7 +125,7 @@ static PyObject* function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
     PythonContext::set_python_error(exc, strfmt("%s.%s()", self->module->name().c_str(), self->function->name.c_str()));
     return NULL;
   }
-  catch (grt::python_error &exc)
+  catch (grt::python_error)
   {
     return NULL;
   }
