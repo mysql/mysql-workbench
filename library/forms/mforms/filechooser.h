@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,14 +43,14 @@ namespace mforms {
     void (*set_title)(FileChooser *self, const std::string &title);
     bool (*run_modal)(FileChooser *self);
     void (*set_directory)(FileChooser *self, const std::string &path);
-    void (*set_path)(FileChooser *self, const std::string &path);//TODO windows
+    void (*set_path)(FileChooser *self, const std::string &path);
     std::string (*get_directory)(FileChooser *self);
     std::string (*get_path)(FileChooser *self);
     void (*set_extensions)(FileChooser *self, const std::string &extensions, const std::string &default_extension);
 
     void (*add_selector_option)(FileChooser *self, const std::string &name, 
-        const std::string &label, const std::vector<std::pair<std::string, std::string> > &options);//TODO windows
-    std::string (*get_selector_option_value)(FileChooser *self, const std::string &name); //TODO windows
+        const std::string &label, const std::vector<std::pair<std::string, std::string> > &options);
+    std::string (*get_selector_option_value)(FileChooser *self, const std::string &name);
   };
 #endif
 #endif

@@ -233,7 +233,7 @@ public:
     m.Result = IntPtr::Zero;
   }
 
-  //--------------------------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
 
   /**
    * Scrolls the control's content to the given position.
@@ -272,14 +272,14 @@ public:
     }
   }
 
-  //--------------------------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
 
   virtual System::Drawing::Size GetPreferredSize(System::Drawing::Size proposedSize) override
   {
     return proposedSize;
   }
 
-  //--------------------------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
 
   virtual void WndProc(Message %m) override
   {
@@ -307,7 +307,7 @@ public:
     Control::WndProc(m);
   }
 
-  //--------------------------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
 
   void UpdateHorizontalScrollbar(int newWidth)
   {
@@ -344,7 +344,7 @@ public:
     updateCount--;
   }
 
-  //--------------------------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
 
   void UpdateVerticalScrollbar(int newHeight)
   {
@@ -386,7 +386,7 @@ public:
     updateCount--;
   }
 
-  //--------------------------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------------------------
 
   /**
    * Scrolls the box so that the given control is in the visual portion of the box.
@@ -421,6 +421,8 @@ public:
     }
   }
 
+  //------------------------------------------------------------------------------------------------
+
   virtual property Windows::Forms::Layout::LayoutEngine^ LayoutEngine
   {
     Windows::Forms::Layout::LayoutEngine^ get() override
@@ -432,9 +434,11 @@ public:
     }
   }
 
+  //------------------------------------------------------------------------------------------------
+
   /**
-    * Used to either hide scrollbars completely if they are not needed or show them as disabled.
-    */
+   * Used to either hide scrollbars completely if they are not needed or show them as disabled.
+   */
   property bool AutoHideScrollbars
   {
     bool get() { return autoHideScrollbars; }
@@ -447,6 +451,8 @@ public:
       }
     }
   }
+
+  //------------------------------------------------------------------------------------------------
 
   property bool HideHorizontalScrollbar
   {
@@ -461,6 +467,8 @@ public:
     }
   }
 
+  //------------------------------------------------------------------------------------------------
+
   property bool HideVerticalScrollbar
   {
     bool get() { return hideVerticalScrollbar; }
@@ -474,15 +482,22 @@ public:
     }
   }
 
+  //------------------------------------------------------------------------------------------------
+
   property int HorizontalOffset
   {
     int get() { return horizontalOffset; };
   }
 
+  //------------------------------------------------------------------------------------------------
+
   property int VerticalOffset
   {
     int get() { return verticalOffset; };
   }
+
+  //------------------------------------------------------------------------------------------------
+
 };
 
 //----------------- WheelMessageFilter -------------------------------------------------------------
@@ -633,6 +648,16 @@ void ScrollPanelWrapper::set_visible_scrollers(mforms::ScrollPanel *backend, boo
 
 //--------------------------------------------------------------------------------------------------
 
+base::Rect ScrollPanelWrapper::get_content_rect(mforms::ScrollPanel *backend)
+{
+  ScrollPanelWrapper *wrapper = backend->get_data<ScrollPanelWrapper>();
+  Drawing::Rectangle rect = wrapper->container->ClientRectangle;
+
+  return base::Rect(rect.Left, rect.Top, rect.Width, rect.Height);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void ScrollPanelWrapper::init()
 {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
@@ -643,6 +668,7 @@ void ScrollPanelWrapper::init()
   f->_spanel_impl.set_visible_scrollers = &ScrollPanelWrapper::set_visible_scrollers;
   f->_spanel_impl.set_autohide_scrollers = &ScrollPanelWrapper::set_autohide_scrollers;
   f->_spanel_impl.scroll_to_view = &ScrollPanelWrapper::scroll_to_view;
+  f->_spanel_impl.get_content_rect = &ScrollPanelWrapper::get_content_rect;
 }
 
 //--------------------------------------------------------------------------------------------------

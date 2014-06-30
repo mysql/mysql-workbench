@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 #ifndef __grt_code_editor_h__
 #define __grt_code_editor_h__
 
-#include "mforms/box.h"
+#include "mforms/appview.h"
 #include "mforms/code_editor.h"
 #include "mforms/splitter.h"
 #include "mforms/panel.h"
@@ -48,7 +48,7 @@ public:
   
   bool is_dirty() const { return _dirty; }
   bool can_close();
-  
+
   bool load(const std::string &path);
   bool save(bool choose_file);
   void execute();
@@ -72,8 +72,6 @@ protected:
   bool _dirty;
   
   void text_changed(int line, int linesAdded);
-  
-  void close();
 };
 
 

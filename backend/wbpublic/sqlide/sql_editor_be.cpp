@@ -77,6 +77,7 @@ public:
   int _last_typed_char;
 
   ParserContext::Ref _parser_context;
+  ParserContext::Ref _autocompletion_context;
   MySQLParserServices::Ref _services;
 
   double _last_sql_check_progress_msg_timestamp;
@@ -111,7 +112,8 @@ public:
 
   boost::signals2::signal<void ()> _text_change_signal;
 
-  Private(grt::GRT *grt, ParserContext::Ref context)
+  // autocomplete_context will go after auto completion refactoring.
+  Private(grt::GRT *grt, ParserContext::Ref syntaxcheck_context, ParserContext::Ref autocomplete_context)
     : _grtobj(grt)
   {
     _grtm = GRTManager::get_instance_for(grt);
@@ -123,7 +125,8 @@ public:
 
     _splitting_required = false;
 
-    _parser_context = context;
+    _parser_context = syntaxcheck_context;
+    _autocompletion_context = autocomplete_context;
     _services = MySQLParserServices::get(grt);
 
     _current_delay_timer = NULL;
@@ -167,9 +170,10 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLEditor::Ref MySQLEditor::create(grt::GRT *grt, ParserContext::Ref context, db_query_QueryBufferRef grtobj)
+MySQLEditor::Ref MySQLEditor::create(grt::GRT *grt, ParserContext::Ref syntax_check_context, ParserContext::Ref autocopmlete_context,
+                                     db_query_QueryBufferRef grtobj)
 {
-  Ref sql_editor = MySQLEditor::Ref(new MySQLEditor(grt, context));
+  Ref sql_editor = MySQLEditor::Ref(new MySQLEditor(grt, syntax_check_context, autocopmlete_context));
   // replace the default object with the custom one
   if (grtobj.is_valid())
     sql_editor->set_grtobj(grtobj);
@@ -183,16 +187,16 @@ MySQLEditor::Ref MySQLEditor::create(grt::GRT *grt, ParserContext::Ref context, 
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref context)
+MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref syntax_check_context, ParserContext::Ref autocopmlete_context)
 {
-  d = new Private(grt, context);
+  d = new Private(grt, syntax_check_context, autocopmlete_context);
   
   _code_editor = new mforms::CodeEditor(this);
   _code_editor->set_font(d->_grtm->get_app_option_string("workbench.general.Editor:Font"));
   _code_editor->set_features(mforms::FeatureUsePopup, false);
   _code_editor->set_features(mforms::FeatureConvertEolOnPaste | mforms::FeatureAutoIndent, true);
 
-  GrtVersionRef version = context->get_server_version();
+  GrtVersionRef version = syntax_check_context->get_server_version();
   _editor_config = NULL;
   create_editor_config_for_version(version);
 
@@ -235,13 +239,6 @@ MySQLEditor::~MySQLEditor()
   delete _code_editor;
 
   delete d;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-parser::ParserContext::Ref MySQLEditor::get_parser_context()
-{
-  return d->_parser_context;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,13 +309,14 @@ static void open_file(MySQLEditor *sql_editor)
 
     if (g_file_get_contents(file.c_str(), &contents, &length, &error))
     {
-      std::string converted;
+      char *converted;
 
       mforms::CodeEditor* code_editor = sql_editor->get_editor_control();
       if (FileCharsetDialog::ensure_filedata_utf8(contents, length, "", file, converted))
       {
+        code_editor->set_text_keeping_state(converted ? converted : contents);
         g_free(contents);
-        code_editor->set_text_keeping_state(converted.c_str());
+        g_free(converted);
       }
       else
       {
@@ -818,6 +816,15 @@ void MySQLEditor::char_added(int char_code)
 
 //--------------------------------------------------------------------------------------------------
 
+void MySQLEditor::cancel_auto_completion()
+{
+  // make sure a pending timed autocompletion won't kick in after we cancel it
+  d->_last_typed_char = 0;
+  _code_editor->auto_completion_cancel();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void MySQLEditor::dwell_event(bool started, size_t position, int x, int y)
 {
   if (started)
@@ -970,11 +977,10 @@ void* MySQLEditor::splitting_done()
   // This has to be done after our statement  splitter has completed (which is the case when we appear here).
   if (auto_start_code_completion() && !_code_editor->auto_completion_active() &&
     (g_unichar_isalnum(d->_last_typed_char)
-      || d->_last_typed_char == '.'
-      || d->_last_typed_char == ' '))
+      || d->_last_typed_char == '.'))
   {
     d->_last_typed_char = 0;
-    show_auto_completion(false);
+    show_auto_completion(false, d->_autocompletion_context->recognizer());
   }
   return NULL;
 }
@@ -994,7 +1000,7 @@ void* MySQLEditor::update_error_markers()
     if (d->_recognition_errors.size() == 1)
       _code_editor->set_status_text(_("1 error found"));
     else
-      _code_editor->set_status_text(base::strfmt(_("%lu errors found"), d->_recognition_errors.size()));
+      _code_editor->set_status_text(base::strfmt(_("%lu errors found"), (unsigned long)d->_recognition_errors.size()));
 
     for (size_t i = 0; i < d->_recognition_errors.size(); ++i)
     {

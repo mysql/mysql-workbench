@@ -59,7 +59,7 @@ void Table::add(View *subview, int row_left, int row_right, int col_top, int col
   _table_impl->add(this, subview, row_left, row_right, col_top, col_bottom, flags);
   subview->show();
 #ifdef _WIN32 // XXX this shouldn't be needed here, the plat specific code is supposed to do this
-  relayout();
+  //relayout();
 #endif
 }
 

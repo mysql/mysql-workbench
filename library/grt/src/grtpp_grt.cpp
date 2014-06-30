@@ -1040,6 +1040,7 @@ bool GRT::handle_message(const Message &msg, void *sender)
         return true;
     }
   }
+  log_error("Unhandled message (%lu): %s\n", (unsigned long)_message_slot_stack.size(), msg.format().c_str());
   return false;
 }
 

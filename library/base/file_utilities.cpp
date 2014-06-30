@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <sys/file.h>
 #endif
+#include <algorithm>
 
 namespace base {
   
@@ -608,12 +609,11 @@ FileHandle::FileHandle(const char *filename, const char *mode, bool throw_on_fai
       _file= NULL;
     }
   }
-};
 
 /**
  * Returns the last modification time of the given file.
  */
-bool base::file_mtime(const std::string &path, time_t &mtime)
+bool file_mtime(const std::string &path, time_t &mtime)
 {
 #ifdef _WIN32
   struct _stat stbuf;
@@ -633,3 +633,28 @@ bool base::file_mtime(const std::string &path, time_t &mtime)
   return false;
 }
 
+std::string join_path(const char *prefix, ...)
+{
+  std::string path = prefix;
+  char wrong_path_separator = G_DIR_SEPARATOR == '/' ? '\\' : '/';
+  std::replace(path.begin(), path.end(), wrong_path_separator, G_DIR_SEPARATOR);
+  std::string arg = const_cast<char*>(prefix);
+  va_list ap;
+  va_start(ap, prefix);
+  while (!arg.empty())
+  {
+    arg = va_arg(ap, char*);
+    if (!arg.empty())
+    {
+      if (path[path.size() - 1] == G_DIR_SEPARATOR)
+        path += arg;
+      else
+        path += G_DIR_SEPARATOR + arg;
+    }
+  }
+  va_end(ap);
+
+  return path;
+}
+
+};

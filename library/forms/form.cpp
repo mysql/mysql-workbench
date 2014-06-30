@@ -59,7 +59,7 @@ Form *Form::main_form()
 
 Form::~Form()
 {
-  if (_content && !_content->release_on_add())
+  if (_content != NULL)
     _content->release();
 }
 

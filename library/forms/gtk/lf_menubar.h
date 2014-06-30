@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,7 +52,7 @@ namespace gtk {
 
     static void insert_item(MenuBase *menu, int index, MenuItem *item);
     static void remove_item(MenuBase *menu, MenuItem *item); // NULL item to remove all
-    static void popup_menu(ContextMenu *menu, int, int);
+    static void popup_menu(mforms::ContextMenu *menu, View *owner, base::Point location);
   };
 
 }; // namespace gtk

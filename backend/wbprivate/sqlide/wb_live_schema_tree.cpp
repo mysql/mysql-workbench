@@ -26,6 +26,8 @@
 #include "base/string_utilities.h"
 #include "base/log.h"
 
+#include "mforms/app.h"
+
 using namespace wb;
 using namespace bec;
 using namespace base;
@@ -2066,6 +2068,8 @@ void LiveSchemaTree::set_model_view(mforms::TreeNodeView* target)
   {
     scoped_connect(_model_view->signal_expand_toggle(),boost::bind(&LiveSchemaTree::expand_toggled, this, _1, _2));
     scoped_connect(_model_view->signal_node_activated(),boost::bind(&LiveSchemaTree::node_activated, this, _1, _2));
+
+    _model_view->set_row_overlay_handler(boost::bind(&LiveSchemaTree::overlay_icons_for_tree_node, this, _1));
   }
 }
 
@@ -2287,9 +2291,76 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
         changes.push_back(record);
 
         if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
-          delegate->tree_activate_objects("activate", changes);
+        {
+          switch (column)
+          {
+          case -1:
+            delegate->tree_activate_objects("inspect", changes);
+            break;
+          case -2:
+            delegate->tree_activate_objects("alter", changes);
+            break;
+          default:
+            delegate->tree_activate_objects("activate", changes);
+            break;
+          }
+        }
       }
       break;
+
+    case Table:
+    case View:
+      {
+        if (column < 0)
+        {
+          std::vector<ChangeRecord> changes;
+          ChangeRecord record = { node_data->get_type(), get_schema_name(node), node_name, "" };
+          changes.push_back(record);
+
+          if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
+          {
+            switch (column)
+            {
+            case -1:
+              delegate->tree_activate_objects("inspect", changes);
+              break;
+            case -2:
+              delegate->tree_activate_objects("alter", changes);
+              break;
+            case -3:
+              delegate->tree_activate_objects("select_data", changes);
+              break;
+            }
+          }
+          break;
+        }
+      }
+
+    case Procedure:
+    case Function:
+    {
+      if (column < 0)
+      {
+        std::vector<ChangeRecord> changes;
+        ChangeRecord record = { node_data->get_type(), get_schema_name(node), node_name, "" };
+        changes.push_back(record);
+
+        if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
+        {
+          switch (column)
+          {
+          case -1:
+            delegate->tree_activate_objects("alter", changes);
+            break;
+          case -2:
+            delegate->tree_activate_objects("execute", changes);
+            break;
+          }
+        }
+        break;
+      }
+    }
+
     default:
       node_name = base::quote_identifier_if_needed(node_name, '`');
       sql_editor_text_insert_signal(node_name);
@@ -2496,6 +2567,8 @@ void LiveSchemaTree::reload_object_data(mforms::TreeNodeRef& node)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void LiveSchemaTree::discard_object_data(mforms::TreeNodeRef& node, int data_mask)
 {
     mforms::TreeNodeRef parent_node;
@@ -2529,3 +2602,38 @@ void LiveSchemaTree::discard_object_data(mforms::TreeNodeRef& node, int data_mas
         parent_node->remove_children();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+
+std::vector<std::string> LiveSchemaTree::overlay_icons_for_tree_node(mforms::TreeNodeRef node)
+{
+  LSTData *data = dynamic_cast<LSTData*>(node->get_data());
+
+  std::vector<std::string> icons;
+  if (data)
+  {
+    switch (data->get_type())
+    {
+      case Schema:
+        icons.push_back(mforms::App::get()->get_resource_path("wb_item_overlay_inspector.png"));
+        icons.push_back(mforms::App::get()->get_resource_path("wb_item_overlay_editor.png"));
+        break;
+      case Table:
+      case View:
+        icons.push_back(mforms::App::get()->get_resource_path("wb_item_overlay_inspector.png"));
+        icons.push_back(mforms::App::get()->get_resource_path("wb_item_overlay_editor.png"));
+        icons.push_back(mforms::App::get()->get_resource_path("wb_item_overlay_result.png"));
+        break;
+      case Procedure:
+      case Function:
+        icons.push_back(mforms::App::get()->get_resource_path("wb_item_overlay_editor.png"));
+        icons.push_back(mforms::App::get()->get_resource_path("wb_item_overlay_execute.png"));
+        break;
+      default:
+        break;
+    }
+  }
+  return icons;
+}
+
+//--------------------------------------------------------------------------------------------------

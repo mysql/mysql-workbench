@@ -29,12 +29,12 @@
 #include "mforms/../gtk/lf_toolbar.h"
 #include "objimpl/ui/mforms_ObjectReference_impl.h"
 #include "sqlide/query_side_palette.h"
+#include "sqlide/wb_sql_editor_panel.h"
 #include "workbench/wb_context.h"
 #include <glib.h>
 #include "grt/common.h"
 #include "widget_saver.h"
 #include "plugin_editor_base.h"
-#include "sqlide_query_view.h"
 
 DEFAULT_LOG_DOMAIN("UI")
 using base::strfmt;
@@ -53,6 +53,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
                 , _output(_be, this)
                 , _side_palette(mforms::gtk::ViewImpl::get_widget_for_view(_be->get_side_palette()))
                 , _dock_delegate(NULL, MAIN_DOCKING_POINT)
+                , _busy_tab(NULL)
                 , _right_aligned(editor_be->wbsql()->get_wbui()->get_wb()->get_wb_options().get_int("Sidebar:RightAligned", 0))
                 , _editor_maximized(false)
 {
@@ -66,6 +67,8 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   _grtm = _be->grt_manager();
   _toolbar = _be->get_toolbar();
 
+  _be->set_busy_tab = boost::bind(&DbSqlEditorView::set_busy_tab, this, _1);
+
   mforms::View *sbview  = _be->get_sidebar();
   Gtk::Widget  *sidebar = mforms::gtk::ViewImpl::get_widget_for_view(sbview);
 
@@ -73,8 +76,6 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   _editor_note->show();
   _editor_note->set_scrollable(true);
   _editor_note->set_show_border(false);
-
-  _dock_delegate.set_notebook(_editor_note);
 
   _main_pane.pack1(_top_right_pane, true, false);
   _main_pane.pack2(_output.get_outer(), false, true);
@@ -125,14 +126,9 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
   show_all();
 
   // Connect signals
-  _be->sql_editor_new_ui.connect(sigc::mem_fun(this, &DbSqlEditorView::add_editor_tab));
-  _be->set_partial_refresh_ui_slot(sigc::mem_fun(this, &DbSqlEditorView::partial_refresh_ui));
-
-  _be->exec_sql_task->finish_cb(sigc::mem_fun(this, &DbSqlEditorView::on_exec_sql_done));
-  _be->recordset_list_changed.connect(sigc::mem_fun(this, &DbSqlEditorView::recordset_list_changed));
+  _be->post_query_slot = sigc::mem_fun(this, &DbSqlEditorView::on_exec_sql_done);
   _be->output_text_slot= sigc::mem_fun(this, &DbSqlEditorView::output_text);
 
-  _dispatch_rset_update_conn = _dispatch_rset_update.connect(sigc::mem_fun(this, &DbSqlEditorView::update_resultsets_from_main));
   _editor_note->signal_switch_page().connect(sigc::mem_fun(this, &DbSqlEditorView::editor_page_switched));
   _editor_note->signal_page_reordered().connect(sigc::mem_fun(this, &DbSqlEditorView::editor_page_reordered));
   _editor_note->signal_page_added().connect(sigc::mem_fun(this, &DbSqlEditorView::editor_page_added));
@@ -161,6 +157,8 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
     db_query_EditorRef editor(_be->wbsql()->get_grt_editor_object(_be.get()));
     editor->dockingPoint(mforms_to_grt(_grtm->get_grt(), _dpoint));
   }
+  _dock_delegate.set_notebook(_editor_note);
+  _be->set_tab_dock(_dpoint);
 }
 //------------------------------------------------------------------------------
 
@@ -210,11 +208,7 @@ DbSqlEditorView::~DbSqlEditorView()
 //  utils::gtk::save_settings(_grtm, &_main_pane, false);
 //  utils::gtk::save_settings(_grtm, &_top_right_pane, true);
 
-  _sig_close_editor.disconnect();
-  _sig_close_plugin.disconnect();
-  _sig_close_app.disconnect();
   _sig_restore_sidebar.disconnect();
-  _dispatch_rset_update_conn.disconnect();
 
   if (_side_palette)
     _side_palette->hide();
@@ -222,11 +216,10 @@ DbSqlEditorView::~DbSqlEditorView()
   if (_dpoint)
     _dpoint->release();
 
-  dispose();
+  if (_busy_tab)
+    _busy_tab->unreference();
 
-  base::MutexTryLock tlock(_update_resultset_slots_lock);
-  while (!tlock.locked()) // maybe add sleep here
-    tlock.retry_lock(_update_resultset_slots_lock);
+  dispose();
 }
 
 //------------------------------------------------------------------------------
@@ -240,142 +233,22 @@ void DbSqlEditorView::dispose()
 }
 
 //------------------------------------------------------------------------------
-std::vector<QueryView*> DbSqlEditorView::query_views()
-{
-  std::vector<QueryView*> list;
-
-  const int size = _editor_note->get_n_pages();
-  list.reserve(size);
-
-  for (int i = 0; i < size; ++i)
-  {
-    Gtk::Widget* const child = _editor_note->get_nth_page(i);
-    if (child)
-    {
-      QueryView* qv = reinterpret_cast<QueryView*>(child->get_data("query_view"));
-      if (qv)
-        list.push_back(qv);
-    }
-  }
-
-  return list;
-}
-
-//------------------------------------------------------------------------------
 void DbSqlEditorView::init()
 {
 }
 
 //------------------------------------------------------------------------------
-bool DbSqlEditorView::validate_explain_sql()
-{
-  return true;
-}
-
-//------------------------------------------------------------------------------
-void DbSqlEditorView::explain_sql()
-{
-  if (_be)
-    _be->explain_sql();
-}
-
-//------------------------------------------------------------------------------
-
-QueryView* DbSqlEditorView::active_view()
-{
-  QueryView* ret = 0;
-
-  const int     cur_page_id = _editor_note->get_current_page();
-  Gtk::Widget*  content     = _editor_note->get_nth_page(cur_page_id);
-  if (content)
-    ret = (QueryView*)content->get_data("query_view");
-
-  return ret;
-}
-
-//------------------------------------------------------------------------------
-QueryView* DbSqlEditorView::find_view_by_index(const int index)
-{
-  QueryView* view = 0;
-
-  const int size = _editor_note->get_n_pages();
-  for (int i = 0; i < size; ++i)
-  {
-    Gtk::Widget* const child = _editor_note->get_nth_page(i);
-    if (child)
-    {
-      QueryView* qv = reinterpret_cast<QueryView*>(child->get_data("query_view"));
-      if (qv && qv->index() == index)
-      {
-        view = qv;
-        break;
-      }
-    }
-  }
-
-  return view;
-}
-
-
-//------------------------------------------------------------------------------
-void DbSqlEditorView::recalc_tab_indices()
-{
-  if (_be)
-  {
-    int query_views_cnt = 0;
-
-    const int size = _editor_note->get_n_pages();
-    int current_page = _editor_note->get_current_page();
-    int active_idx = -1;
-    for (int i = 0; i < size; ++i)
-    {
-      Gtk::Widget* const child = _editor_note->get_nth_page(i);
-      if (child)
-      {
-        QueryView* qv = reinterpret_cast<QueryView*>(child->get_data("query_view"));
-        if (qv) // skip non query view tabs, query view tabs have "query_view" set
-        {
-          if (qv->be())
-          {
-            if (i == current_page)
-              active_idx = current_page;
-
-            _be->sql_editor_reorder(qv->be(), query_views_cnt++);
-
-          }
-          else
-            log_error("QueryView has no backend\n");
-        }
-      }
-    }
-    //We set up new active idx, cause it could change, if somehow the active_idx == -1,
-    //then there is a chance that user is currenlty on non query_view, then active_idx will be set,
-    //next time he switch into query_view.
-    if (active_idx != -1)
-      _be->active_sql_editor_index(active_idx);
-  }
-}
-
-
-//------------------------------------------------------------------------------
-mforms::Menu *DbSqlEditorView::init_tab_menu(Gtk::Widget *w, bool only_close_opts)
+mforms::Menu *DbSqlEditorView::init_tab_menu(Gtk::Widget *w)
 {
   {
     mforms::Menu *m = new mforms::Menu();
-    if (!only_close_opts)
-    {
-      m->add_item("New Tab", "new tab");
-      m->add_item("Save Tab", "save tab");
-      m->add_separator();
-    }
-    m->add_item("Close Tab", "close tab");
-    m->add_item("Close Other Tabs", "close other tabs");
-    if (!only_close_opts)
-    {
-      m->add_separator();
-      m->add_item("Copy Path to Clipboard", "copy path");
-      m->set_item_enabled(4, false);
-    }
+    m->add_item("New Tab", "new_tab");
+    m->add_item("Save Tab", "save_tab");
+    m->add_separator();
+    m->add_item("Copy Path to Clipboard", "copy_path");
+    m->add_separator();
+    m->add_item("Close Tab", "close_tab");
+    m->add_item("Close Other Tabs", "close_other_tabs");
     return m;
   }
 }
@@ -385,89 +258,9 @@ void DbSqlEditorView::tab_menu_handler(const std::string& action, ActiveLabel *s
 {
   if (widget && _be)
   {
-    if (action == "new tab")
-      _be->new_sql_script_file();
-    else if (action == "save tab")
-    {
-      QueryView* qv = reinterpret_cast<QueryView*>(widget->get_data("query_view")); //we will use this very often
-      if (qv)
-        qv->save();
-    }
-    else if (action == "copy path")
-    {
-      QueryView* qv = reinterpret_cast<QueryView*>(widget->get_data("query_view")); //we will use this very often
-      if (qv)
-      {
-        const std::string path = qv->editor_path();
-        Glib::RefPtr<Gtk::Clipboard> clip = Gtk::Clipboard::get();
-        if (clip && !path.empty())
-          clip->set_text(path);
-      }
-    }
-    else if (action == "close tab")
-    {
-      QueryView* qv = reinterpret_cast<QueryView*>(widget->get_data("query_view")); //we will use this very often
-      PluginEditorBase* plugin = dynamic_cast<PluginEditorBase*>(widget);
-      if (qv)
-      {
-        _sig_close_editor = Glib::signal_idle().connect(sigc::bind_return(sigc::bind(sigc::mem_fun(this, &DbSqlEditorView::close_editor_tab), qv), false));
-      }
-      else if (plugin)
-      {
-        _sig_close_plugin = Glib::signal_idle().connect(sigc::bind_return(sigc::bind(sigc::mem_fun(this, &DbSqlEditorView::close_plugin_tab), plugin), false));
-      }
-      else
-      {
-        mforms::AppView *aview = dynamic_cast<mforms::AppView*>(mforms::gtk::ViewImpl::get_view_for_widget(widget));
-        if (aview)
-          _sig_close_app = Glib::signal_idle().connect(sigc::bind_return(sigc::bind(sigc::mem_fun(this, &DbSqlEditorView::close_appview_tab), aview), false));
-      }
-    }
-    else if (action == "close other tabs")
-    {
-      int size = _editor_note->get_n_pages();
+    int page = _editor_note->page_num(*widget);
 
-      std::deque<Gtk::Widget*> to_close_list;
-
-      for (int i = 0; i < size; ++i)
-      {
-        Gtk::Widget *w = _editor_note->get_nth_page(i);
-        if (w != widget)
-          to_close_list.push_back(w);
-      }
-
-
-      for (std::deque<Gtk::Widget*>::reverse_iterator rit = to_close_list.rbegin(); rit != to_close_list.rend(); ++rit)
-      {
-        QueryView* qv = reinterpret_cast<QueryView*>((*rit)->get_data("query_view"));
-        if (qv)
-        {
-          close_editor_tab(qv);
-          continue;
-        }
-        PluginEditorBase* plugin = dynamic_cast<PluginEditorBase*>((*rit));
-        if (plugin)
-        {
-          close_plugin_tab(plugin);
-          continue;
-        }
-        mforms::AppView *aview = dynamic_cast<mforms::AppView*>(mforms::gtk::ViewImpl::get_view_for_widget((*rit)));
-        if (aview)
-        {
-          _dock_delegate.close_appview_page(aview);
-        }
-      }
-      size = _editor_note->get_n_pages();
-
-      for (int i = 0; i < size; ++i)
-      {
-        if (widget == _editor_note->get_nth_page(i))
-        {
-          _editor_note->set_current_page(i);
-          break;
-        }
-      }
-    }
+    _be->handle_tab_menu_action(action, page);
   }
 }
 //------------------------------------------------------------------------------
@@ -486,73 +279,64 @@ void DbSqlEditorView::reenable_items_in_tab_menus()
       mforms::Menu* const menu = al->get_menu();
       if (menu)
       {
-        const int index = menu->get_item_index("close other tabs");
+        const int index = menu->get_item_index("close_other_tabs");
         if (index >= 0)
           menu->set_item_enabled(index, size > 1);
       }
     }
-
-    QueryView* qv = reinterpret_cast<QueryView*>(page.get_child()->get_data("query_view"));
-    if (qv)
-      qv->reenable_items_in_tab_menus();
   }
-
 }
 
-//------------------------------------------------------------------------------
-void DbSqlEditorView::partial_refresh_ui(const int what)
-{
-  if(!_be)
-    return;
 
-  switch (what)
+void DbSqlEditorView::set_busy_tab(int tab)
+{
+  if (_busy_tab)
   {
-    case SqlEditorForm::RefreshEditorTitle:
-    {
-      QueryView* qv = active_view();
-      if (qv)
-        qv->update_label(_be->sql_editor_caption());
-      break;
-    }
-    case SqlEditorForm::RefreshRecordsetTitle:
-    {
-      QueryView* qv = active_view();
-      if (qv)
-        qv->update_recordset_caption();
-      break;
-    }
-    case SqlEditorForm::QueryExecutionStarted:
-    {
-      QueryView* qv = active_view();
-      if (qv)
-        qv->start_busy();
-      break;
-    }
+    _busy_tab->stop_busy();
+    _busy_tab->unreference();
+    _busy_tab = NULL;
   }
+  if (tab >= 0)
+  {
+    Gtk::Notebook_Helpers::Page page = _editor_note->pages()[tab];
+    ActiveLabel* const al = dynamic_cast<ActiveLabel*>(page.get_tab_label());
+    if (al)
+    {
+      al->start_busy();
+      _busy_tab = al;
+      _busy_tab->reference();
+    }
+  } 
 }
 
 void DbSqlEditorView::editor_page_added(Gtk::Widget *page, guint index)
 {
-
   //first check if new tab has menu, if not.. connect it ;)
-
   ActiveLabel* const al = dynamic_cast<ActiveLabel*>(_editor_note->get_tab_label(*page));
   if (al && !al->has_menu())
   {
-    //now check what kind of widget it is, if it's query view, then we show all menu
-    QueryView* qv = reinterpret_cast<QueryView*>(page->get_data("query_view"));
-
-    mforms::Menu *menu = init_tab_menu(page, qv ? false : true);
+    mforms::Menu *menu = init_tab_menu(page);
     menu->set_handler(sigc::bind(sigc::mem_fun(this, &DbSqlEditorView::tab_menu_handler), al, page));
     al->set_menu(menu, true);
   }
 
+  _editor_note->set_tab_reorderable(*page, true);
+
   reenable_items_in_tab_menus();
+}
+
+void DbSqlEditorView::editor_page_reordered(Gtk::Widget *page, guint index)
+{
+  SqlEditorPanel *panel = be()->sql_editor_panel(index);
+  if (panel)
+    be()->sql_editor_reordered(panel, index);
 }
 
 void DbSqlEditorView::editor_page_removed(Gtk::Widget *page, guint index)
 {
   reenable_items_in_tab_menus();
+  if (_editor_note->get_n_pages() == 0 && be())
+    be()->new_sql_script_file();
 }
 
 //------------------------------------------------------------------------------
@@ -563,84 +347,16 @@ void DbSqlEditorView::plugin_tab_added(PluginEditorBase *plugin)
     _editor_note->set_current_page(page_num);
 }
 
-//------------------------------------------------------------------------------
-int DbSqlEditorView::add_editor_tab(int active_sql_editor_index)
-{
-  QueryView    *qv    = new QueryView(active_sql_editor_index, this);
-  ActiveLabel  *label = Gtk::manage(new ActiveLabel(_be->sql_editor_caption(active_sql_editor_index)
-                                       ,sigc::mem_fun(qv, &QueryView::close)
-                                       ));
-
-  qv->set_linked_label(label);
-  mforms::Menu *menu = init_tab_menu(qv->get_outer(), false);
-  label->set_menu(menu, true);
-  menu->set_handler(sigc::bind(sigc::mem_fun(this, &DbSqlEditorView::tab_menu_handler), label, qv->get_outer()));
-
-  qv->get_outer()->set_data("query_view", (void*)qv); // Adding backlink
-
-  const int page_index =_editor_note->append_page(*qv->get_outer(), *label);
-  _editor_note->set_tab_reorderable(*qv->get_outer(), true);
-  qv->get_outer()->show();
-  label->show();
-
-  _editor_note->set_current_page(page_index);
-
-  qv->focus();
-
-  return 0;
-}
-
 void DbSqlEditorView::close_appview_tab(mforms::AppView *aview)
 {
   if (aview)
     _dock_delegate.close_appview_page(aview);
-}
-//------------------------------------------------------------------------------
-void DbSqlEditorView::close_editor_tab(QueryView* qv)
-{
-  const int idx = qv->index();
-
-  if (!_be || !_be->sql_editor_will_close(idx))
-    return;
-
-  _be->remove_sql_editor(idx);
-
-  _editor_note->remove_page(*qv->get_outer());
-
-  delete qv;
-
-  recalc_tab_indices();
-
-  int size = 0;
-  for (int i = _editor_note->get_n_pages() - 1; i >= 0; --i)
-  {
-    Gtk::Widget* const child = _editor_note->get_nth_page(i);
-    if (child && child->get_data("query_view"))
-    {
-      ++size;
-      break;
-    }
-  }
-
-  if (size == 0)
-  {
-    _be->new_sql_script_file();
-    //const int new_editor_index = _be->add_sql_editor();
-    //add_editor_tab(new_editor_index);
-  }
 }
 
 //------------------------------------------------------------------------------
 
 bool DbSqlEditorView::close_focused_tab()
 {
-  QueryView *qv = active_view();
-  if (qv)
-  {
-    close_editor_tab(qv);
-    return true;
-  }
-  else
   {
     Gtk::Widget* content = _editor_note->get_nth_page(_editor_note->get_current_page());
     Gtk::Widget* label   = _editor_note->get_tab_label(*content);
@@ -649,28 +365,20 @@ bool DbSqlEditorView::close_focused_tab()
     if (al)
     {
       al->call_close();
-      _editor_note->remove_page(*content);
-
-      recalc_tab_indices();
+//      _editor_note->remove_page(*content);
     }
   }
-
   return false;
 }
 
 //------------------------------------------------------------------------------
 void DbSqlEditorView::editor_page_switched(GtkNotebookPage *page, guint index)
 {
-  Gtk::Widget*  content = _editor_note->get_nth_page(index);
-  if (_be && content)
+  if (_be)
   {
-    QueryView* qv = (QueryView*)content->get_data("query_view");
-    if (qv)
-      _be->active_sql_editor_index(qv->index());
-    else
-      _be->active_sql_editor_index(-1);
+    _dpoint->view_switched();
 
-    mforms::AppView *aview = dynamic_cast<mforms::AppView*>(mforms::view_for_widget(content));
+    mforms::AppView *aview = _dpoint->view_at_index(index);
     if (aview && aview->get_form_context_name() == "administrator")
       set_maximized_editor_mode(true);
     else
@@ -706,95 +414,16 @@ void DbSqlEditorView::set_maximized_editor_mode(bool flag)
 //------------------------------------------------------------------------------
 bool DbSqlEditorView::on_close()
 {
-  for (int i= _editor_note->get_n_pages()-1; i >= 0; i--)
-  {
-    Gtk::Widget *page = _editor_note->get_nth_page(i);
-    PluginEditorBase *editor = dynamic_cast<PluginEditorBase*>(page);
-    QueryView *qv = reinterpret_cast<QueryView*>(page->get_data("query_view"));
-    if (qv)
-      continue;
-
-    if (editor)
-    {
-      if (!close_plugin_tab(editor))
-        return false;
-    }
-    else if (!_dock_delegate.close_page(page))
-      return false;
-  }
-  if (_be && _be->can_close())
-  {
-    const std::vector<QueryView*> views = DbSqlEditorView::query_views();
-    for (size_t i = 0; i < views.size(); ++i)
-    {
-      _editor_note->remove_page(*views[i]->get_outer());
-      delete views[i];
-    }
-    return true;
-  }
-
-  if (_editor_note->get_n_pages() > 0)
-     log_warning("%i tabs left in editor note after closing all\n", _editor_note->get_n_pages());
-
-  return false;
+  return be()->can_close();
 }
 
 //------------------------------------------------------------------------------
-int DbSqlEditorView::on_exec_sql_done()
+void DbSqlEditorView::on_exec_sql_done()
 {
   _output.refresh();
 
-  QueryView* qv = active_view();
-  if (qv)
-  {
-    qv->stop_busy();
-
-    if (_be->exec_sql_error_count() > 0)
-      _be->show_output_area();
-
-    qv->update_resultsets();
-  }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-void DbSqlEditorView::update_resultsets_from_main()
-{
-  std::deque<sigc::slot<void> >  slots;
-
-  {
-    base::MutexLock lock(_update_resultset_slots_lock);
-    slots = _update_resultset_slots;
-    _update_resultset_slots.clear();
-  }
-
-  const size_t size = slots.size();
-  for (size_t i = 0; i < size; ++i)
-    slots[i]();
-}
-
-//------------------------------------------------------------------------------
-void DbSqlEditorView::update_resultsets(int editor_index, Recordset::Ref rset, bool added)
-{
-  QueryView* qv = find_view_by_index(editor_index);
-  if (qv)
-    qv->update_resultsets();
-  else
-    log_error("editor index %i is unknown\n", editor_index);
-}
-
-//------------------------------------------------------------------------------
-void DbSqlEditorView::recordset_list_changed(int editor_index, Recordset::Ref rset, bool added)
-{
-  log_debug2("recordset_list_changed: editor_index = %i, added = %i\n", editor_index, added);
-  sigc::slot<void> update_resultset_slot = sigc::bind(sigc::mem_fun(this, &DbSqlEditorView::update_resultsets), editor_index, rset, added);
-
-  {
-    base::MutexLock lock(_update_resultset_slots_lock);
-    _update_resultset_slots.push_back(update_resultset_slot);
-  }
-
-  _dispatch_rset_update.emit();
+  if (_be->exec_sql_error_count() > 0)
+    _be->show_output_area();
 }
 
 //------------------------------------------------------------------------------

@@ -388,7 +388,7 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
       {
         // interactively ask user for password
         service = strfmt("ssh@%s", server.c_str());
-        if (!mforms::Utilities::find_or_ask_for_password(_("Open SSH Tunnel"),
+        if (!mforms::Utilities::credentials_for_service(_("Open SSH Tunnel"),
                                                         service,
                                                         username,
                                                         reset_password,

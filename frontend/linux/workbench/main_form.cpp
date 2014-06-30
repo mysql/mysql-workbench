@@ -1789,6 +1789,7 @@ static std::string get_executable_path(mforms::App* app, const std::string& file
     if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
       return path;
   }
+
   return "";
 }
 
@@ -2133,4 +2134,29 @@ void MainForm::set_view_title(mforms::AppView *view, const std::string &title)
   if (label)
     label->set_text(title);
 }
+
+
+mforms::AppView *MainForm::selected_view()
+{
+  int i = get_upper_note()->get_current_page();
+  if (i >= 0)
+    return view_at_index(i);
+  return NULL;
+}
+
+
+int MainForm::view_count()
+{
+  return get_upper_note()->get_n_pages();
+}
+
+
+mforms::AppView *MainForm::view_at_index(int index)
+{
+  Gtk::Widget *page = get_upper_note()->get_nth_page(index);
+  if (page)
+    return reinterpret_cast<mforms::AppView*>(page->get_data("AppView"));
+  return NULL;
+}
+
 

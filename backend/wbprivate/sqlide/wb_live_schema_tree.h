@@ -344,6 +344,8 @@ namespace wb
 
     bool identifiers_equal(const std::string &a, const std::string &b);
 
+    std::vector<std::string> overlay_icons_for_tree_node(mforms::TreeNodeRef node);
+
     // Filtering functions
     std::string get_filter_wildcard(const std::string& filter, FilterType type = LocalLike);
     void clean_filter();
