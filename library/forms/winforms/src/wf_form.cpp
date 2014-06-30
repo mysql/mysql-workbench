@@ -371,8 +371,6 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
 
     mforms::Utilities::enter_modal_loop();
     Windows::Forms::Form ^owner = (Windows::Forms::Form ^)wrapper->owner;
-    if (owner == nullptr)
-      owner = Windows::Forms::Form::ActiveForm;
     dialog_result = form->ShowDialog(owner);
     mforms::Utilities::leave_modal_loop();
   }
