@@ -101,6 +101,16 @@ public:
   GrtThreadedTaskWrapper ^task;
 
   System::Windows::Forms::ContextMenuStrip ^get_context_menu(List<int> ^indexes, int clicked_column);
+
+  delegate MySQL::Base::IRecordsetView ^CreateRecordsetViewForWrapper(RecordsetWrapper^ wrapper);
+
+  // used by the main program to initialize mforms::RecordGridView
+  // we can't create a direct delegate that will create a RecordsetView from a boost::shared_ptr<Recordset>, because RecordsetView
+  // is in C# and can't pass around boost::shared_ptr values, so we do it in 2 stage callback
+  static void init_mforms(CreateRecordsetViewForWrapper ^deleg);
+private:
+  static MySQL::Base::IRecordsetView ^wrap_and_create_recordset_view(IntPtr /* to a boost::shared_ptr<Recordset> ptr */ rset);
+  static CreateRecordsetViewForWrapper^ create_recordset_for_wrapper = nullptr;
 };
 
 };  // namespace Db

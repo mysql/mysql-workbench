@@ -1,4 +1,4 @@
-###################################################################
+
 # This is the SPEC file to build RPM packages for MySQL Workbench
 # 
 # To use this file, you should define several macros when calling
@@ -25,13 +25,16 @@
 
 # Directory where iodbc and pyodbc binaries are located. Build both using the build_iodbc.sh script
 # If using distribution provided ODBC manager lib and pyodbc, then comment out this
-%define odbc_home        $HOME/linux-res-6.1/usr
-%define linuxres_home    $HOME/linux-res-6.1
+%define odbc_home        $HOME/linux-res-6.2/usr
+%define linuxres_home    $HOME/linux-res-6.2
+
+%define mysqlpyconn_dir $HOME/linux-res-6.2/python/mysql
+%define vsqlite_dir      $HOME/linux-res-6.2/vsqlite
+%define ctemplate_dir    $HOME/linux-res-6.2
 
 %if "%{edition}" == "commercial"
 %define commercial       1
-%define mysqlcppconn_dir $HOME/linux-res-6.1/cppconn-com
-%define vsqlite_dir      $HOME/linux-res-6.1/vsqlite-com
+%define mysqlcppconn_dir $HOME/linux-res-6.2/cppconn-com
 %define mysql_home       $HOME/mysql-server-advanced
 
 %define edition          commercial
@@ -39,8 +42,7 @@
 %define license_file     LICENSE.mysql
 %else
 %define community        1
-%define mysqlcppconn_dir $HOME/linux-res-6.1/cppconn-gpl
-%define vsqlite_dir      /usr/local
+%define mysqlcppconn_dir $HOME/linux-res-6.2/cppconn-gpl
 %define mysql_home       $HOME/mysql-server
 
 %define edition          community
@@ -70,6 +72,7 @@ BuildRequires: cmake >= 2.8
 BuildRequires: libzip-devel libxml2-devel
 BuildRequires: python-devel >= 2.5
 BuildRequires: boost-devel
+BuildRequires: gtk2-devel >= 2.20
 BuildRequires: gtkmm24-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: sqlite-devel
@@ -169,7 +172,7 @@ Windows, Linux and Mac OS X.
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
-%if 0%{?commercial}
+%if 0%{?rhel} == 6
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
 %endif
@@ -186,12 +189,16 @@ rm -fr %{buildroot}/usr/share/doc/mysql-workbench
     cp -a %{mysqlcppconn_dir}/lib/libmysqlcppconn.so.7* %{buildroot}%{_libdir}/mysql-workbench
 %endif
 
+%if %{defined mysqlpyconn_dir}
+    cp -a %{mysqlpyconn_dir} %{buildroot}%{_libdir}/mysql-workbench/modules
+%endif
+
 if [ -f %{vsqlite_dir}/lib/libvsqlitepp.so.3 ]; then
     cp -a %{vsqlite_dir}/lib/libvsqlitepp.so.3* %{buildroot}%{_libdir}/mysql-workbench
 fi
 
-if [ -f /usr/local/lib/libctemplate.so.0 ]; then
-    cp -a /usr/local/lib/libctemplate.so.0* %{buildroot}%{_libdir}/mysql-workbench
+if [ -f %{ctemplate_dir}/lib/libctemplate.so.0 ]; then
+    cp -a %{ctemplate_dir}/lib/libctemplate.so.0* %{buildroot}%{_libdir}/mysql-workbench
 fi
 
 # Bundle client programs and lib

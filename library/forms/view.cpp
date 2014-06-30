@@ -103,6 +103,19 @@ void View::cache_view(View *sv)
 
 //--------------------------------------------------------------------------------------------------
 
+void View::reorder_cache(View *sv, int position)
+{
+  int old = get_subview_index(sv);
+  if (old < 0)
+    throw std::invalid_argument("mforms: invalid subview");
+
+  std::pair<View*, bool> value = _subviews[old];
+  _subviews.erase(_subviews.begin() + old);
+  _subviews.insert(_subviews.begin() + position, value);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void View::remove_from_cache(View *sv)
 {
   sv->_parent = NULL;
@@ -157,6 +170,13 @@ View *View::get_subview_at_index(int index)
     return NULL;
 
   return _subviews[index].first;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int View::get_subview_count()
+{
+  return (int)_subviews.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,6 +488,15 @@ DragOperation View::do_drag_drop(DragDetails details, const std::string &text)
 DragOperation View::do_drag_drop(DragDetails details, void *data, const std::string &format)
 {
   return _view_impl->drag_data(this, details, data, format);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool View::mouse_leave()
+{
+  if (_signal_mouse_leave.num_slots() > 0)
+    return _signal_mouse_leave();
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------

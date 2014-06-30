@@ -26,6 +26,7 @@
 #include "wf_menubar.h"
 
 using namespace System::Drawing;
+using namespace System::Drawing::Imaging;
 using namespace System::Collections::Generic;
 using namespace System::Collections::ObjectModel;
 using namespace System::Windows::Forms;
@@ -274,6 +275,14 @@ public:
 
 //----------------- MformsTree ---------------------------------------------------------------------
 
+ref struct NodeOverlay
+{
+  bool isHot;
+  Drawing::Rectangle bounds;     // For mouse hit tests.
+  Drawing::Rectangle drawBounds; // For drawing (different coordinate system, hence separate).
+  Image ^image;
+};
+
 ref class MformsTree : TreeViewAdv
 {
 public:
@@ -293,6 +302,9 @@ public:
   
   Dictionary<String^, TreeViewNode^> ^tagMap;
 
+  TreeNodeAdv ^hotNode;             // The node under the mouse.
+  List<NodeOverlay^> ^overlayInfo; // Overlay images and their bounds for special actions.
+
   MformsTree()
   {
     model = gcnew SortableTreeModel();
@@ -306,6 +318,9 @@ public:
     canReorderRows = false;
     rowDragFormat = nullptr;
     dragBox = Rectangle::Empty;
+
+    hotNode = nullptr;
+    overlayInfo = gcnew List<NodeOverlay^>();
   }
   
   //------------------------------------------------------------------------------------------------
@@ -626,8 +641,53 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  virtual void OnAfterNodeDrawing(TreeNodeAdv ^node, DrawContext context) override
+  {
+    __super::OnAfterNodeDrawing(node, context);
+
+    // Draw overlay icon(s).
+    if (node == hotNode && overlayInfo->Count > 0)
+    {
+      Graphics ^graphics = context.Graphics;
+
+      ColorMatrix ^matrix = gcnew ColorMatrix();
+      ImageAttributes ^attributes = gcnew ImageAttributes();
+      for each (NodeOverlay ^overlay in overlayInfo)
+      {
+        matrix->Matrix33 = overlay->isHot ? 1 : 0.5f;
+        attributes->SetColorMatrix(matrix);
+
+        Drawing::Rectangle bounds = overlay->drawBounds;
+        bounds.X += context.Bounds.Left;
+        bounds.Y += context.Bounds.Top;
+        graphics->DrawImage(overlay->image, bounds,
+          0, 0, overlay->image->Size.Width, overlay->image->Size.Width,
+          GraphicsUnit::Pixel, attributes);
+      }
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   virtual void OnMouseDown(MouseEventArgs ^args) override
   {
+    // First check for clicks on the overlay.
+    if (args->Button == ::MouseButtons::Left && overlayInfo->Count > 0)
+    {
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+
+      for (int i = 0; i < overlayInfo->Count; ++i)
+      {
+        NodeOverlay ^overlay = overlayInfo[i];
+        if (overlay->bounds.Contains(args->Location))
+        {
+          backend->overlay_icon_for_node_clicked(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode ^)hotNode->Tag)), i);
+          return;
+        }
+      }
+    }
+
     __super::OnMouseDown(args);
 
     switch (args->Button)
@@ -710,8 +770,105 @@ public:
         }
     }
     else
-      __super::OnMouseMove(args);
+    {
+      // Any overlay icon to show?
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      NodeControlInfo ^info = GetNodeControlInfoAt(Point(args->X, args->Y));
+      if (hotNode != info->Node)
+      {
+        if (hotNode != nullptr)
+        {
+          overlayInfo->Clear();
+          Drawing::Rectangle bounds = GetRealNodeBounds(hotNode);
+          Invalidate(Drawing::Rectangle(0, bounds.Top, Width, bounds.Height));
+        }
+        hotNode = info->Node;
 
+        if (hotNode != nullptr)
+        {
+          TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+          std::vector<std::string> overlay_icons = backend->overlay_icons_for_node
+            (mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode ^)info->Node->Tag)));
+
+          if (!overlay_icons.empty())
+          {
+            // info->Bounds is unreliable (e.g. can be empty).
+            Drawing::Rectangle scrolledBounds = GetRealNodeBounds(hotNode);
+            Drawing::Rectangle drawBounds = GetNodeBounds(hotNode);
+            int total_width = 0;
+            for (size_t i = 0; i < overlay_icons.size(); ++i)
+            {
+              NodeOverlay ^overlay = gcnew NodeOverlay();
+              overlay->isHot = false;
+              overlay->image = Drawing::Image::FromFile(CppStringToNativeRaw(overlay_icons[i]));
+              if (overlay->image == nullptr)
+                continue;
+
+              // Compute bounding rectangles of the image for drawing and hit tests.
+              // The left offset is computed separately, after we have all images loaded (and know their widths).
+              Drawing::Point position = Drawing::Point(0,
+                scrolledBounds.Top + (scrolledBounds.Height - overlay->image->Size.Height) / 2);
+
+              // The draw coordinates are relative to the node. We add offset during paint.
+              Drawing::Point drawPosition = Drawing::Point(0, (drawBounds.Height - overlay->image->Size.Height) / 2);
+              overlay->bounds = Drawing::Rectangle(position, overlay->image->Size);
+              overlay->drawBounds = Drawing::Rectangle(drawPosition, overlay->image->Size);
+              overlayInfo->Add(overlay);
+
+              total_width += overlay->bounds.Size.Width;
+            }
+
+            int offset = DisplayRectangle.Size.Width - total_width;
+            for each (NodeOverlay ^overlay in overlayInfo)
+            {
+              overlay->bounds.X = offset;
+              overlay->drawBounds.X = offset;
+              offset += overlay->bounds.Width;
+            }
+
+            Invalidate(Drawing::Rectangle(0, scrolledBounds.Top, Width, scrolledBounds.Height));
+          }
+        }
+        else
+        {
+          hotNode = nullptr;
+          overlayInfo->Clear();
+        }
+      }
+      else
+      {
+        // No change to a new node, but maybe a different overlay.
+        if (overlayInfo->Count > 0)
+        {
+          for each (NodeOverlay ^overlay in overlayInfo)
+          {
+            bool willBeHighlighted = overlay->bounds.Contains(args->Location);
+            if (overlay->isHot != willBeHighlighted)
+            {
+              overlay->isHot = willBeHighlighted;
+              Invalidate(overlay->bounds);
+            }
+          }
+        }
+      }
+      Update();
+
+      __super::OnMouseMove(args);
+    }
+
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  virtual void OnMouseLeave(EventArgs ^args) override
+  {
+    if (hotNode != nullptr)
+    {
+      hotNode = nullptr;
+      overlayInfo->Clear();
+      Invalidate();
+    }
+    __super::OnMouseLeave(args);
   }
 
   //------------------------------------------------------------------------------------------------

@@ -207,6 +207,7 @@ namespace mforms {
     bool _layout_dirty;
     
     boost::signals2::signal<void ()> _signal_resized;
+    boost::signals2::signal<bool ()> _signal_mouse_leave;
 
   protected:
     View();
@@ -217,8 +218,10 @@ namespace mforms {
 
     void cache_view(View *sv);
     virtual void remove_from_cache(View *sv);
+    void reorder_cache(View *sv, int position);
     int get_subview_index(View *sv);
     View *get_subview_at_index(int index);
+    int get_subview_count();
     
     // This works only for containers so is made public in the Container subclass
     virtual void set_back_image(const std::string& path, Alignment alignment);
@@ -375,7 +378,7 @@ namespace mforms {
     virtual bool mouse_click(MouseButton button, int x, int y) { return false; }
     virtual bool mouse_double_click(MouseButton button, int x, int y) { return false; }
     virtual bool mouse_enter() { return false; }
-    virtual bool mouse_leave() { return false; }
+    virtual bool mouse_leave();
     virtual bool mouse_move(MouseButton button, int x, int y) { return false; }
 #endif
 #endif
@@ -386,6 +389,7 @@ namespace mforms {
     virtual void resize();
 
     boost::signals2::signal<void ()>* signal_resized() { return &_signal_resized; }
+    boost::signals2::signal<bool ()>* signal_mouse_leave() { return &_signal_mouse_leave; }
   };
 };
 

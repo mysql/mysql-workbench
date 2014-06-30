@@ -706,6 +706,9 @@ void SidebarSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int a
 
 bool SidebarSection::mouse_leave()
 {
+  if (DrawBox::mouse_leave())
+    return true;
+
   if (_hot_entry != NULL || _expand_text_visible || _expand_text_active ||
       (_config_button && _config_button->hot) ||
       (_refresh_button && _refresh_button->hot) ||
@@ -743,6 +746,9 @@ bool SidebarSection::mouse_leave()
 
 bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y)
 {
+  if (DrawBox::mouse_move(button, x, y))
+    return true;
+
   bool need_refresh = false;
   
   if (y < SECTION_TOP_SPACING + SECTION_HEADER_HEIGHT)
@@ -810,10 +816,10 @@ bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y)
     SidebarEntry* entry = entry_from_point(x, y);
     if (entry != _hot_entry)
     {
-      if (_hot_entry != NULL || (entry != NULL && entry->type() == mforms::TaskEntryLink))
+      if (_hot_entry != NULL || (entry != NULL && (entry->type() == mforms::TaskEntryLink || entry->type() == mforms::TaskEntryAlwaysActiveLink)))
         need_refresh = true;
 
-      if (entry != NULL && entry->type() == mforms::TaskEntryLink)
+      if (entry != NULL && (entry->type() == mforms::TaskEntryLink || entry->type() == mforms::TaskEntryAlwaysActiveLink))
         _hot_entry = entry; // Only links can appear as hot entries.
       else
         _hot_entry = NULL;
@@ -830,6 +836,9 @@ bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y)
 
 bool SidebarSection::mouse_down(mforms::MouseButton button, int x, int y)
 {
+  if (DrawBox::mouse_down(button, x, y))
+    return true;
+
   bool result = false;
   if (button == MouseButtonLeft)
   {
@@ -875,6 +884,9 @@ bool SidebarSection::mouse_down(mforms::MouseButton button, int x, int y)
 
 bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y)
 {
+  if (DrawBox::mouse_click(button, x, y))
+    return true;
+
   bool handled = false;
 
   switch (button)
@@ -916,7 +928,7 @@ bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y)
       if (!handled)
       {
         SidebarEntry* entry = entry_from_point(x, y);
-        if (entry && entry->enabled() && ((entry == _hot_entry) || (entry == _selected_entry)))
+        if (entry && (entry->enabled() || entry->type() == mforms::TaskEntryAlwaysActiveLink) && ((entry == _hot_entry) || (entry == _selected_entry)))
           (*_owner->on_section_command())(entry->name());
       }
     }
@@ -940,6 +952,9 @@ bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y)
 
 bool SidebarSection::mouse_up(mforms::MouseButton button, int x, int y)
 {
+  if (DrawBox::mouse_up(button, x, y))
+    return true;
+
   bool result = false;
 
   switch (button)

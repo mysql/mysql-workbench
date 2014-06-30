@@ -148,6 +148,21 @@ bool RolePrivilegeListBE::set_field(const NodeId &node, ColumnId column, ssize_t
 }
 
 
+void RolePrivilegeListBE::add_all()
+{
+  if (_role_privilege.is_valid())
+  {
+    AutoUndoEdit undo(_owner);
+
+    for (size_t c = _privileges.count(), i = 0; i < c; i++)
+      _role_privilege->privileges().insert(_privileges[i]);
+
+    undo.end(strfmt(_("Add All Privileges for '%s' to Role '%s'"),
+                    _role_privilege->databaseObject().is_valid() ? _role_privilege->databaseObject()->name().c_str() : "*",
+                    _owner->get_name().c_str()));
+  }
+}
+
 
 void RolePrivilegeListBE::remove_all()
 {
@@ -216,8 +231,11 @@ MenuItemList RoleObjectListBE::get_popup_items_for_nodes(const std::vector<NodeI
       item.caption = base::strfmt(_("Add Schema '%s'"), (*schema)->name().c_str());
       item.name    = base::strfmt("adds:%s", (*schema)->name().c_str());
       items.push_back(item);
-      item.caption = base::strfmt(_("Add Tables '%s.*'"), (*schema)->name().c_str());
+      item.caption = base::strfmt(_("Add Tables Wildcard for '%s.*'"), (*schema)->name().c_str());
       item.name    = base::strfmt("addt:%s", (*schema)->name().c_str());
+      items.push_back(item);
+      item.caption = base::strfmt(_("Add All Tables in '%s'"), (*schema)->name().c_str());
+      item.name    = base::strfmt("allt:%s", (*schema)->name().c_str());
       items.push_back(item);
     }
   }
@@ -247,6 +265,22 @@ bool RoleObjectListBE::activate_popup_item_for_nodes(const std::string &name, co
     _owner->add_object("SCHEMA", name.substr(5)+".*");
   else if (name.substr(0, 5) == "addt:")
     _owner->add_object("TABLE", name.substr(5)+".*");
+  else if (name.substr(0, 5) == "allt:")
+  {
+    db_RoleRef role(_owner->get_role());
+    if (role.is_valid() && role->owner().is_valid())
+    {
+      db_CatalogRef catalog(db_CatalogRef::cast_from(role->owner()));
+      std::string wanted_schema = name.substr(5);
+
+      db_SchemaRef schema = grt::find_named_object_in_list(catalog->schemata(), wanted_schema);
+      if (schema.is_valid())
+      {
+        GRTLIST_FOREACH(db_Table, schema->tables(), table)
+          _owner->add_object(*table);
+      }
+    }
+  }
   else
     return false;
   

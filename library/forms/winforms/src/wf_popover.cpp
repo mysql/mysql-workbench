@@ -495,6 +495,15 @@ bool PopoverWrapper::create(mforms::Popover *backend, mforms::PopoverStyle style
 
 //--------------------------------------------------------------------------------------------------
 
+void PopoverWrapper::destroy(mforms::Popover *backend)
+{
+  PopoverControl^ popover = PopoverWrapper::GetManagedObject<PopoverControl>(backend);
+  PopoverWrapper *wrapper = PopoverWrapper::GetWrapper<PopoverWrapper>(popover);
+  wrapper->_track_connection.disconnect();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void PopoverWrapper::set_content(mforms::Popover *backend, mforms::View *content)
 {
   Control ^child = PopoverWrapper::GetControl(content);
@@ -523,6 +532,30 @@ void PopoverWrapper::show(mforms::Popover *backend, int spot_x, int spot_y, mfor
 
 //--------------------------------------------------------------------------------------------------
 
+void PopoverWrapper::show_and_track(mforms::Popover *backend, mforms::View *owner, int spot_x, int spot_y,
+  mforms::StartPosition position)
+{
+  PopoverControl^ popover = PopoverWrapper::GetManagedObject<PopoverControl>(backend);
+  PopoverWrapper *wrapper = PopoverWrapper::GetWrapper<PopoverWrapper>(popover);
+  wrapper->_track_connection = owner->signal_mouse_leave()->connect(boost::bind(&PopoverWrapper::mouse_left_tracked_object, wrapper));
+
+  popover->Show(spot_x, spot_y, position);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool PopoverWrapper::mouse_left_tracked_object()
+{
+  _track_connection.disconnect();
+
+  mforms::Popover *popover = GetBackend<mforms::Popover>();
+  (*popover->signal_close())();
+
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 base::Rect PopoverWrapper::get_content_rect(mforms::Popover *backend)
 {
   PopoverControl^ popover = PopoverWrapper::GetManagedObject<PopoverControl>(backend);
@@ -544,9 +577,11 @@ void PopoverWrapper::init()
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_popover_impl.create = &PopoverWrapper::create;
+  f->_popover_impl.destroy =  &PopoverWrapper::destroy;
   f->_popover_impl.set_content = &PopoverWrapper::set_content;
   f->_popover_impl.set_size = &PopoverWrapper::set_size;
   f->_popover_impl.show = &PopoverWrapper::show;
+  f->_popover_impl.show_and_track = &PopoverWrapper::show_and_track;
   f->_popover_impl.close = &PopoverWrapper::close;
 }
 

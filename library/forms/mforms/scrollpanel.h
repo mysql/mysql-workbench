@@ -43,7 +43,7 @@ namespace mforms {
     void (*set_autohide_scrollers)(ScrollPanel*, bool flag);
     void (*scroll_to_view)(ScrollPanel*, View*);
       
-    base::Rect (*get_content_rect)(ScrollPanel*); //TODO: Windows, Linux
+    base::Rect (*get_content_rect)(ScrollPanel*);
     void (*scroll_to)(ScrollPanel*, int x, int y);
   };
 #endif

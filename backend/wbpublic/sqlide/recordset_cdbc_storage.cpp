@@ -299,34 +299,42 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
     sql::Dbc_connection_handler::ConnectionRef aux_dbms_conn_ref= this->aux_dbms_conn_ref();
 
     sql::DatabaseMetaData *conn_meta(aux_dbms_conn_ref->getMetaData());
-    std::auto_ptr<sql::ResultSet> rs(conn_meta->getBestRowIdentifier("", _schema_name, _table_name, 0, 0));
-    rowid_col_count= rs->rowsCount();
-    if (rowid_col_count > 0)
+    try
     {
-      _pkey_columns.reserve(rowid_col_count);
-      column_names.reserve(editable_col_count + rowid_col_count);
-      column_types.reserve(editable_col_count + rowid_col_count);
-      real_column_types.reserve(editable_col_count + rowid_col_count);
-      while (rs->next())
+      std::auto_ptr<sql::ResultSet> rs(conn_meta->getBestRowIdentifier("", _schema_name, _table_name, 0, 0));
+      rowid_col_count= rs->rowsCount();
+      if (rowid_col_count > 0)
       {
-        Recordset::Column_names::const_iterator i=
-          std::find(column_names.begin(), column_names.end(), rs->getString("COLUMN_NAME"));
-        if (i != column_names.end())
+        _pkey_columns.reserve(rowid_col_count);
+        column_names.reserve(editable_col_count + rowid_col_count);
+        column_types.reserve(editable_col_count + rowid_col_count);
+        real_column_types.reserve(editable_col_count + rowid_col_count);
+        while (rs->next())
         {
-          ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
-          column_names.push_back(column_names[col]);
-          column_types.push_back(column_types[col]);
-          real_column_types.push_back(real_column_types[col]);
-          _pkey_columns.push_back(col); // copy original value of pk field(s)
+          Recordset::Column_names::const_iterator i=
+          std::find(column_names.begin(), column_names.end(), rs->getString("COLUMN_NAME"));
+          if (i != column_names.end())
+          {
+            ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
+            column_names.push_back(column_names[col]);
+            column_types.push_back(column_types[col]);
+            real_column_types.push_back(real_column_types[col]);
+            _pkey_columns.push_back(col); // copy original value of pk field(s)
+          }
+          else
+            rowid_col_count--;
         }
-        else
-          rowid_col_count--;
+      }
+      else
+      {
+        _readonly = true;
+        _readonly_reason = "The table has no unique row identifier (primary key or a NOT NULL unique index)";
       }
     }
-    else
+    catch (sql::SQLException &exc)
     {
       _readonly = true;
-      _readonly_reason = "The table has no unique row identifier (primary key or a NOT NULL unique index)";
+      _readonly_reason = base::strfmt("Could not determine a unique row identifier (%s)", exc.what());
     }
   }
 

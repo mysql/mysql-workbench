@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,7 +84,7 @@ bool TabViewDockingPointDelegate::select_view(mforms::AppView *view)
 void TabViewDockingPointDelegate::undock_view(mforms::AppView *view)
 {
   NSInteger i = [_tabView indexOfTabViewItemWithIdentifier: [NSString stringWithFormat: @"appview:%p", view]];
-  if (i >= 0)
+  if (i != NSNotFound)
   {
     NSTabViewItem *item = [_tabView tabViewItemAtIndex: i];
     if (item)
@@ -117,3 +117,30 @@ std::pair<int, int> TabViewDockingPointDelegate::get_size()
   return std::make_pair(NSWidth(frame), NSHeight(frame));
 }
 
+
+mforms::AppView *TabViewDockingPointDelegate::selected_view()
+{
+  id view = [[_tabView selectedTabViewItem] view];
+  if (view)
+  {
+    if (_views.find(view) != _views.end())
+      return _views[view];
+  }
+  return NULL;
+}
+
+
+int TabViewDockingPointDelegate::view_count()
+{
+  return [_tabView numberOfTabViewItems];
+}
+
+
+mforms::AppView *TabViewDockingPointDelegate::view_at_index(int index)
+{
+  id view = [[_tabView tabViewItemAtIndex: index] view];
+
+  if (_views.find(view) != _views.end())
+    return _views[view];
+  return NULL;
+}

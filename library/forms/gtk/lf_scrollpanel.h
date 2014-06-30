@@ -49,6 +49,7 @@ protected:
   static void set_visible_scrollers(::mforms::ScrollPanel *self, bool vertical, bool horizontal);
   static void set_autohide_scrollers(::mforms::ScrollPanel *self, bool flag);
   static void scroll_to_view(mforms::ScrollPanel*, mforms::View*);
+  static base::Rect get_content_rect(mforms::ScrollPanel*);
   virtual void set_padding_impl(int left, int top, int right, int bottom);
 
  public:

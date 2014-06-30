@@ -373,7 +373,7 @@ class ExplainNode(VBoxFigure):
         
             self._context.tooltip.set_content(box)
             self._context.tooltip.add_close_callback(self._context.close_tooltip)
-            self._context.tooltip.show_bound(self._context._view, xx, yy, mforms.Right)
+            self._context.tooltip.show_and_track(self._context._view, xx, yy, mforms.Right)
 
 
 
@@ -514,7 +514,7 @@ Fast because the index search leads directly to the page with all the row data""
                       ("index",           RED, "Full Index Scan", "High - especially for large indexes"),
                       ("ALL",             RED, "Full Table Scan", """Very High - very costly for large tables (not so much for small ones).
 No usable indexes were found for the table and the optimizer must search every row.
-Consider adding an index."""),
+This could also mean the search range is so broad that the index would be useless."""),
                       ("UNKNOWN",         BLACK, "unknown", ""), # the default, in case none matches
                       ]
     
@@ -579,7 +579,9 @@ Consider adding an index."""),
         return []
 
     def get_read_eval_cost(self):
-        return float(self.cost_info.get("read_cost", 0)) + float(self.cost_info.get("eval_cost", 0))
+        if self.cost_info:
+            return float(self.cost_info.get("read_cost", 0)) + float(self.cost_info.get("eval_cost", 0))
+        return None
 
     @property
     def rows_count(self):
@@ -728,7 +730,10 @@ class MaterializedTableNode(TableNode):
         self._figure.set_fill_color(fill[0], fill[1], fill[2], 0.8)
 
         self._figure_name.set_color(0.9, 0.9, 0.9, 0.9)
-        self._figure_name.set_text("%s (materialized)" % name)
+        if name.startswith("<") and name.endswith(">"):
+            self._figure_name.set_text(name)
+        else:
+            self._figure_name.set_text("%s (materialized)" % name)
         self._figure_name.set_fill_color(0.9, 0.9, 0.9, 0.9)
         self._figure_name.set_padding(4, 4, 4, 4)
 
@@ -1508,9 +1513,12 @@ class ExplainContext:
                     qblock = self.handle_query_block(key, value, True)
                 elif key in ("dependent", "cacheable", "using_temporary_table"):
                     attributes[key] = value
+                elif key == "table": # handles bug #18997475
+                    qblock = self.handle_table(value)
                 else:
                     self.unexpected(key, name)
-            qblock.set_attributes(attributes)
+            if attributes:
+                qblock.set_attributes(attributes)
             subqueries.append(qblock)
         return SubQueries(self, name, subqueries)
 

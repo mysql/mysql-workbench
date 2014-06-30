@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,13 @@
 // log_* calls. You can always use base::Logger::log to specify an arbitrary domain.
 #define DEFAULT_LOG_DOMAIN(domain)\
 	static const char* const default_log_domain = domain;\
+
+#if defined(DEBUG) || defined(_DEBUG)
+// same as log_error, but throws exception in debug builds
+#define log_fatal(...) base::Logger::log_throw(base::Logger::LogError, default_log_domain, __VA_ARGS__)
+#else
+#define log_fatal(...) base::Logger::log(base::Logger::LogError, default_log_domain, __VA_ARGS__)
+#endif
 
 #define log_error(...) base::Logger::log(base::Logger::LogError, default_log_domain, __VA_ARGS__)
 #define log_exception(msg, exc) base::Logger::log_exc(base::Logger::LogError, default_log_domain, msg, exc)
@@ -100,6 +107,7 @@ namespace base
 #else
     static void log(const LogLevel level, const char* const domain, const char* format, ...);
 #endif
+    static void log_throw(const LogLevel level, const char* const domain, const char* format, ...);
     static void log_exc(const LogLevel level, const char* const domain, const char* msg, const std::exception &exc);
     static std::string get_state();
     static void set_state(const std::string& state);

@@ -142,8 +142,13 @@ private:
   int insert_text_to_active_editor(const std::string& str);
 private:
   void do_alter_live_object(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);
-  
+  std::string run_execute_routine_wizard(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);
+
+  // Deprecated.
   std::string get_object_ddl_script(wb::LiveSchemaTree::ObjectType type, const std::string &schema_name, const std::string &obj_name);
+  std::pair<std::string, std::string> get_object_create_script(wb::LiveSchemaTree::ObjectType type,
+    const std::string &schema_name, const std::string &obj_name);
+  std::vector<std::string> get_trigger_sql_for_table(const std::string &schema_name, const std::string &table_name);
   
   bool parse_ddl_into_catalog(db_mgmt_RdbmsRef rdbms, db_CatalogRef client_state_catalog, const std::string &obj_descr, const std::string &ddl_script, std::string sql_mode);
   

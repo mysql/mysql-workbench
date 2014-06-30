@@ -21,7 +21,7 @@
 #include "base/log.h"
 #include "mforms/mforms.h"
 
-DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE);
+//DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE);
 
 using namespace mforms;
 
@@ -112,8 +112,8 @@ void AppView::set_title(const std::string &title)
   _title= title;
   if (_dpoint)
     _dpoint->set_view_title(this, title);
-  else
-    log_error("Calling AppView::set_title() on an undocked view\n");
+//  else
+//    log_error("Calling AppView::set_title(%s) on an undocked view\n", title.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
