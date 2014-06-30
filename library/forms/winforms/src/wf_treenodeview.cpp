@@ -586,39 +586,68 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnColumnClicked(TreeColumn ^column) override
+  virtual void OnColumnClicked(TreeColumn ^column, ::MouseButtons button) override
   {
-    __super::OnColumnClicked(column);
+    __super::OnColumnClicked(column, button);
 
-    if (canSortColumn)
+    switch (button)
     {
-      // Note: TreeViewAdv^ uses sort indicators wrongly. They are used as if they were arrows pointing
-      //       to the greater value. However common usage is to view them as normal triangles with the
-      //       tip showing the smallest value and the base side the greatest (Windows explorer and many
-      //       other controls use it that way). Hence I switch the order here for the columns
-      //       (though not for the comparer).
-      if (column->Index != currentSortColumn)
+    case ::MouseButtons::Left:
+      if (canSortColumn)
       {
-        currentSortColumn = column->Index;
+        // Note: TreeViewAdv^ uses sort indicators wrongly. They are used as if they were arrows pointing
+        //       to the greater value. However common usage is to view them as normal triangles with the
+        //       tip showing the smallest value and the base side the greatest (Windows explorer and many
+        //       other controls use it that way). Hence I switch the order here for the columns
+        //       (though not for the comparer).
+        if (column->Index != currentSortColumn)
+        {
+          currentSortColumn = column->Index;
 
-        // Initial sort order is always ascending.
-        column->SortOrder = SortOrder::Descending;
-        currentSortOrder = SortOrder::Ascending;
+          // Initial sort order is always ascending.
+          column->SortOrder = SortOrder::Descending;
+          currentSortOrder = SortOrder::Ascending;
+        }
+        else
+        {
+          if (column->SortOrder == SortOrder::Ascending)
+            column->SortOrder = SortOrder::Descending;
+          else
+            column->SortOrder = SortOrder::Ascending;
+
+          // Revert the sort order for our comparer, read above why.
+          currentSortOrder = (column->SortOrder == SortOrder::Ascending) ? SortOrder::Descending : SortOrder::Ascending;
+        }
+
+        model->Comparer = gcnew ColumnComparer(currentSortColumn, currentSortOrder,
+          (mforms::TreeColumnType)columnTypes[currentSortColumn]);
+      }
+      break;
+
+    case ::MouseButtons::Right:
+      // Update the associated header context menu.
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      mforms::ContextMenu *header_menu = backend->get_header_menu();
+      if (header_menu != NULL)
+      {
+        ::ContextMenuStrip ^menu = MenuBarWrapper::GetManagedObject<::ContextMenuStrip>(header_menu);
+        if (menu != ContextMenuStrip)
+        {
+          ContextMenuStrip = menu;
+          if (Conversions::UseWin8Drawing())
+            ContextMenuStrip->Renderer = gcnew Win8MenuStripRenderer();
+          else
+            ContextMenuStrip->Renderer = gcnew TransparentMenuStripRenderer();
+
+          backend->header_clicked(column->Index);
+          header_menu->will_show();
+        }
       }
       else
-      {
-        if (column->SortOrder == SortOrder::Ascending)
-          column->SortOrder = SortOrder::Descending;
-        else
-          column->SortOrder = SortOrder::Ascending;
-
-        // Revert the sort order for our comparer, read above why.
-        currentSortOrder = (column->SortOrder == SortOrder::Ascending) ? SortOrder::Descending : SortOrder::Ascending;
-      }
-
-      model->Comparer = gcnew ColumnComparer(currentSortColumn, currentSortOrder,
-        (mforms::TreeColumnType)columnTypes[currentSortColumn]);
+        ContextMenuStrip = nullptr;
+      break;
     }
+
   }
 
   //------------------------------------------------------------------------------------------------
@@ -702,7 +731,7 @@ public:
 
     case ::MouseButtons::Right:
       {
-        // Update the associated context menu.
+        // Update the associated standard context menu.
         mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
         if (backend->get_context_menu())
         {
@@ -1212,6 +1241,14 @@ mforms::TreeNodeRef TreeNodeViewWrapper::node_with_tag(mforms::TreeNodeView *bac
 
 //--------------------------------------------------------------------------------------------------
 
+void TreeNodeViewWrapper::set_column_title(mforms::TreeNodeView *backend, int column, const std::string &title)
+{
+  TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+  wrapper->set_column_title(column, title);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void TreeNodeViewWrapper::set_column_visible(mforms::TreeNodeView *backend, int column, bool flag)
 {
   TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
@@ -1389,6 +1426,14 @@ int TreeNodeViewWrapper::row_for_node(mforms::TreeNodeRef node)
 
 //--------------------------------------------------------------------------------------------------
 
+void TreeNodeViewWrapper::set_column_title(int column, const std::string &title)
+{
+  TreeViewAdv ^tree = GetManagedObject<TreeViewAdv>();
+  tree->Columns[column]->Header = CppStringToNative(title);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void TreeNodeViewWrapper::set_column_visible(int column, bool flag)
 {
   TreeViewAdv ^tree = GetManagedObject<TreeViewAdv>();
@@ -1485,6 +1530,8 @@ void TreeNodeViewWrapper::init()
   f->_treenodeview_impl.set_selection_mode = &TreeNodeViewWrapper::set_selection_mode;
   f->_treenodeview_impl.get_selection_mode = &TreeNodeViewWrapper::get_selection_mode;
   f->_treenodeview_impl.node_with_tag = &TreeNodeViewWrapper::node_with_tag;
+
+  f->_treenodeview_impl.set_column_title = &TreeNodeViewWrapper::set_column_title;
 
   f->_treenodeview_impl.set_column_visible = &TreeNodeViewWrapper::set_column_visible;
   f->_treenodeview_impl.get_column_visible = &TreeNodeViewWrapper::get_column_visible;

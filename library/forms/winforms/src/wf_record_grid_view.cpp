@@ -64,7 +64,7 @@ public:
 
   virtual void set_current_cell(size_t row, int column)
   {
-    _view->set_current_cell(row, column);
+    _view->set_current_cell((int)row, column);
   }
 };
 
