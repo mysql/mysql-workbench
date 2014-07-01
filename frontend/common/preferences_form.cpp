@@ -175,7 +175,7 @@ static mforms::Label *new_label(const std::string &text, bool right_align=false,
   return label;
 }
 
-
+// ------------------------------------------------------------------------------------------------
 
 class OptionTable : public mforms::Panel
 {
@@ -263,11 +263,28 @@ public:
   }
 };
 
+
+// ------------------------------------------------------------------------------------------------
+
+static void force_checkbox_on_toggle(mforms::CheckBox *value, mforms::CheckBox *target, bool same_value, bool disable_on_active)
+{
+  if (value->get_active())
+  {
+    target->set_active(!same_value);
+    target->set_enabled(!disable_on_active);
+  }
+  else
+  {
+    //    target->set_active(same_value);
+    target->set_enabled(disable_on_active);
+  }
+}
+
 //----------------- PreferencesForm ----------------------------------------------------------------
 
 PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical_ModelRef &model)
-  : Form(NULL, mforms::FormResizable), _top_box(false), _bottom_box(true), 
-  _tabview(mforms::TabViewDocument), _button_box(true), _font_list(mforms::TreeFlatList)
+: Form(NULL, mforms::FormResizable), _switcher(mforms::TreeNoHeader|mforms::TreeSidebar), _hbox(true), _top_box(false), _bottom_box(true),
+  _tabview(mforms::TabViewTabless), _button_box(true), _font_list(mforms::TreeFlatList)
 {
   _wbui = wbui;
   _model = model;
@@ -279,20 +296,25 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
   else
     set_title(_("Model Options"));
 
-  set_content(&_top_box);
 #ifdef _WIN32
   set_back_color(base::Color::get_application_color_as_string(base::AppColorMainBackground, false));
 #endif
 
-  _top_box.set_padding(4);
-  _top_box.set_spacing(4);
+  _switcher.add_column(mforms::StringColumnType, "", 150);
+  _switcher.end_columns();
+  _switcher.signal_changed()->connect(boost::bind(&PreferencesForm::switch_page, this));
+
+  _switcher.set_size(150, -1);
+  _hbox.add(&_switcher, false, true);
+
+  _top_box.set_padding(12);
+  _top_box.set_spacing(8);
 
   _top_box.add(&_tabview, true, true);
 
   _top_box.add(&_bottom_box, false);
 
   _bottom_box.add_end(&_button_box, false, true);
-  _button_box.set_padding(7);
   _button_box.set_spacing(8);
   _button_box.set_homogeneous(true);
 
@@ -301,11 +323,11 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
 
   _cancel_button.set_text(_("Cancel"));
   _cancel_button.enable_internal_padding(true);
-  _button_box.add_end(&_cancel_button, false, true);
 
   _ok_button.set_text(_("OK"));
   _ok_button.enable_internal_padding(true);
-  _button_box.add_end(&_ok_button, false, true);
+
+  mforms::Utilities::add_end_ok_cancel_buttons(&_button_box, &_ok_button, &_cancel_button);
   
   if (_model.is_valid())
   {
@@ -320,23 +342,47 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
     scoped_connect(_use_global.signal_clicked(),boost::bind(&PreferencesForm::toggle_use_global, this));
   }
 
+  mforms::TreeNodeRef node;
+
   if (!_model.is_valid())
   {
-    create_general_page();
-    create_admin_page();
-    create_sqlide_page();
-    create_query_page();
+    add_page(NULL, _("General Editors"), create_general_editor_page());
+
+    node = add_page(NULL, _("SQL Editor"), create_sqlide_page());
+    add_page(node, _("Query Editor"), create_editor_page());
+    add_page(node, _("Object Editors"), create_object_editor_page());
+    add_page(node, _("SQL Execution"), create_query_page());
+    node->expand();
+
+    add_page(NULL, _("Administration"), create_admin_page());
   }
-  create_model_page();
-  create_mysql_page();
-  create_diagram_page();
+  node = add_page(NULL, _("Modeling"), create_model_page());
+  add_page(node, _("Defaults"), create_model_defaults_page());
+  add_page(node, _("MySQL"), create_mysql_page());
+  add_page(node, _("Diagram"), create_diagram_page());
   if (!_model.is_valid())
   {
-    create_appearance_page();
+    add_page(node, _("Appearance"), create_appearance_page());
+    node->expand();
+  }
+
+  if (!_model.is_valid())
+  {
 #ifdef _WIN32
-    create_color_scheme_page();
+    add_page(NULL, _("Fonts & Colors"), create_fonts_and_colors_page());
+#else
+    // Fonts only for now in Mac/Linux
+    add_page(NULL, _("Fonts"), create_fonts_and_colors_page());
+#endif
+
+#ifdef _WIN32
+    // right now, there's only a single option specific to windows
+    add_page(NULL, _("Others"), create_others_page());
 #endif
   }
+
+  _hbox.add(&_top_box, true, true);
+  set_content(&_hbox);
 
   grt::DictRef info(wbui->get_wb()->get_grt());
   if (!_model.is_valid())
@@ -348,7 +394,9 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
   }
   grt::GRTNotificationCenter::get()->send_grt("GRNPreferencesDidCreate", grt::ObjectRef(), info);
 
-  set_size(700, 680);
+  _switcher.select_node(_switcher.node_at_row(0));
+
+  set_size(750, 600);
   center();
   
   show_values();
@@ -360,6 +408,26 @@ PreferencesForm::~PreferencesForm()
 {
   for (std::list<Option*>::iterator iter= _options.begin(); iter != _options.end(); ++iter)
     delete *iter;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::TreeNodeRef PreferencesForm::add_page(mforms::TreeNodeRef parent, const std::string &title, mforms::View *view)
+{
+  mforms::TreeNodeRef node = parent ? parent->add_child() : _switcher.add_node();
+  node->set_string(0, title);
+  _tabview.add_page(view, title);
+
+  return node;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void PreferencesForm::switch_page()
+{
+  int row = _switcher.get_selected_row();
+  if (row >= 0)
+    _tabview.set_active_tab(row);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -654,10 +722,9 @@ void PreferencesForm::cancel_clicked()
 
 //--------------------------------------------------------------------------------------------------
 
-void PreferencesForm::create_admin_page()
+mforms::View *PreferencesForm::create_admin_page()
 {
   mforms::Box *box= mforms::manage(new mforms::Box(false));
-  box->set_padding(12);
   box->set_spacing(8);
 
   {
@@ -704,28 +771,52 @@ void PreferencesForm::create_admin_page()
     box->add(frame, false);
   }
     
-  _tabview.add_page(box, _("Administrator"));
+  return box;
 }
 
 
-void PreferencesForm::create_sqlide_page()
+mforms::View *PreferencesForm::create_sqlide_page()
 {
   // General options for the SQL Editor
   
   mforms::Box *box= mforms::manage(new mforms::Box(false));
-  box->set_padding(12);
   box->set_spacing(8);
-  
-  _tabview.add_page(box, _("SQL Editor"));
+
+  {
+    OptionTable *table = mforms::manage(new OptionTable(this, _("SQL Editor"), true));
+    {
+      mforms::CheckBox *save_workspace, *discard_unsaved;
+
+      save_workspace = table->add_checkbox_option("workbench:SaveSQLWorkspaceOnClose",
+                                                  _("Save snapshot of open editors on close"),
+                                                  _("A snapshot of all open scripts is saved when the SQL Editor is closed. Next time it is opened to the same connection that state is restored. Unsaved files will remain unsaved, but their contents will be preserved."));
+
+      {
+        static const char *auto_save_intervals= "disable:0,10 seconds:10,15 seconds:15,30 seconds:30,1 minute:60,5 minutes:300,10 minutes:600,20 minutes:1200";
+        mforms::Selector *sel = new_selector_option("workbench:AutoSaveScriptsInterval", auto_save_intervals, true);
+
+        table->add_option(sel, _("Auto-save scripts interval:"),
+                          _("Interval to perform auto-saving of all open script tabs.\nThe scripts will be restored from the last auto-saved version\nif Workbench unexpectedly quits."));
+      }
+
+      discard_unsaved = table->add_checkbox_option("DbSqlEditor:DiscardUnsavedQueryTabs",
+                                                   _("Create new tabs as Query tabs instead of File"),
+                                                   _("Unsaved Query tabs do not get a close confirmation, unlike File tabs.\nHowever, once saved, such tabs will also get unsaved change confirmations.\n"
+                                                     "If Snapshot saving is enabled, query tabs are always autosaved to temporary files when the connection is closed."));
+      save_workspace->signal_clicked()->connect(boost::bind(force_checkbox_on_toggle, save_workspace, discard_unsaved, true, true));
+      (*save_workspace->signal_clicked())();
+    }
+    box->add(table, false, true);
+  }
 
   {
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-    frame->set_title(_("General"));
+    frame->set_title(_("Sidebar"));
     box->add(frame, false);
     
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
     vbox->set_padding(8);
-    vbox->set_spacing(4);
+    vbox->set_spacing(8);
     frame->add(vbox);
     
     {
@@ -746,119 +837,69 @@ void PreferencesForm::create_sqlide_page()
     
     {
       mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:SidebarModeCombined");
-      check->set_text(_("Show Management Tools and Schema Tree in a single tab"));
+      check->set_text(_("Combine Management Tools and Schema Tree"));
       check->set_tooltip(_("Check this if you want to display the management tools and the "
         "schema list in the same tab page in the sidebar. Uncheck it to have them "
 	"in separate tab pages."));
       vbox->add(check, false);
     }
-
-    {
-      mforms::Box *tbox= mforms::manage(new mforms::Box(true));
-      tbox->set_spacing(4);
-      vbox->add(tbox, false);
-      
-      tbox->add(new_label(_("DBMS connection keep-alive interval (in seconds):"), true), false, false);
-      mforms::TextEntry *entry= new_entry_option("DbSqlEditor:KeepAliveInterval", false);
-      entry->set_size(50, -1);
-      entry->set_tooltip(_(
-                           "Time interval between sending keep-alive messages to DBMS.\n"
-                           "Set to 0 to not send keep-alive messages."));
-      tbox->add(entry, false, false);
-    }    
-    
-    {
-      mforms::Box *tbox= mforms::manage(new mforms::Box(true));
-      tbox->set_spacing(4);
-      vbox->add(tbox, false);
-      
-      tbox->add(new_label(_("DBMS connection read time out (in seconds):"), true), false, false);
-      mforms::TextEntry *entry= new_entry_option("DbSqlEditor:ReadTimeOut", false);
-      entry->set_size(50, -1);
-      entry->set_tooltip(_("Max time the a query can take to return data from the DBMS"));
-      tbox->add(entry, false, false);
-    }
   }
-  
+
   {
-    mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-    frame->set_title(_("Productivity"));
-    box->add(frame, false);
-    
-    mforms::Box *vbox= mforms::manage(new mforms::Box(false));
-    vbox->set_padding(8);
-    vbox->set_spacing(4);
-    frame->add(vbox);
-    
-    // Code completion settings.
-    {
-      mforms::Box *subsettings_box = mforms::manage(new mforms::Box(false));
-      subsettings_box->set_padding(20, 0, 0, 0);
-      {
-        mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:CodeCompletionEnabled");
-        scoped_connect(check->signal_clicked(), boost::bind(&PreferencesForm::code_completion_changed,
-                                                            this, check, subsettings_box));
-        
-        check->set_text(_("Enable Code Completion in Editors"));
-        check->set_tooltip(_("If enabled SQL editors display a code completion list when pressing "
-          "the defined hotkey"));
-        vbox->add(check, false);
-        
-      }
+    OptionTable *otable = new OptionTable(this, _("MySQL Session"), true);
 
-      {
-        mforms::CheckBox *auto_start_check = new_checkbox_option("DbSqlEditor:AutoStartCodeCompletion");
-        auto_start_check->set_text(_("Automatically Start Code Completion"));
-        auto_start_check->set_tooltip(_("Available only if code completion is enabled. By activating "
-          "this option code completion will be started automatically when you type something and wait "
-          "a moment"));
-        subsettings_box->add(auto_start_check, false);
+    otable->add_entry_option("DbSqlEditor:KeepAliveInterval",
+                             _("DBMS connection keep-alive interval (in seconds):"),
+                             _("Time interval between sending keep-alive messages to DBMS.\n"
+                               "Set to 0 to not send keep-alive messages."));
 
-        mforms::CheckBox *upper_case_check = new_checkbox_option("DbSqlEditor:CodeCompletionUpperCaseKeywords");
-        upper_case_check->set_text(_("Use UPPERCASE keywords on completion"));
-        upper_case_check->set_tooltip(_("Normally keywords are shown and inserted as they come from the "
-          "code editor configuration file. With this swich they are always upper-cased instead."));
-        subsettings_box->add(upper_case_check, false);
+    otable->add_entry_option("DbSqlEditor:ReadTimeOut",
+                             _("DBMS connection read time out (in seconds):"),
+                             _("Max time the a query can take to return data from the DBMS"));
 
-        // Set initial enabled state of sub settings depending on whether code completion is enabled.
-        std::string value;
-        _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "DbSqlEditor:CodeCompletionEnabled", value);
-        subsettings_box->set_enabled(atoi(value.c_str()) != 0);
+    otable->add_checkbox_option("DbSqlEditor:SafeUpdates", _("\"Safe Updates\". Forbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause. Requires a reconnection."),
+                                _(
+                                  "Enables the SQL_SAFE_UPDATES option for the session.\n"
+                                  "If enabled, MySQL aborts UPDATE or DELETE statements\n"
+                                  "that do not use a key in the WHERE clause or a LIMIT clause.\n"
+                                  "This makes it possible to catch UPDATE or DELETE statements\n"
+                                  "where keys are not used properly and that would probably change\n"
+                                  "or delete a large number of rows. \n"
+                                  "Changing this option requires a reconnection (Query -> Reconnect to Server)"));
 
-        vbox->add(subsettings_box, false);
-      }
-    }
-    
-    {
-      mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:ReformatViewDDL");
-      check->set_text(_("Reformat DDL for Views"));
-      check->set_tooltip(_("Whether to automatically reformat View DDL returned by the server. The MySQL server does not store the formatting information for View definitions."));
-      vbox->add(check, false);
-    }
-    
-    {
-      mforms::Box *tbox= mforms::manage(new mforms::Box(true));
-      tbox->set_spacing(4);
-      vbox->add(tbox, false);
-      
-      tbox->add(new_label(_("Max syntax error count:"), true), false, false);
-      mforms::TextEntry *entry= new_entry_option("SqlEditor::SyntaxCheck::MaxErrCount", false);
-      entry->set_size(50, -1);
-      entry->set_tooltip(_("Maximum number of errors for syntax checking.\n"
-                           "Syntax errors aren't highlighted beyond this threshold.\n"
-                           "Set to 0 to show all errors."));
-      tbox->add(entry, false, false);
-    }
   }
-  
+
+  {
+    OptionTable *otable = new OptionTable(this, _("Other"), true);
+
+    {
+      mforms::TextEntry *entry= new_entry_option("workbench:InternalSchema", false);
+      entry->set_max_length(100);
+      entry->set_size(100, -1);
+
+      otable->add_option(entry, _("Internal Workbench Schema:"),
+                         _("This schema will be used by Workbench.\nto store information required on\ncertain operations."));
+    }
+
+    box->add(otable, false, true);
+  }
+  return box;
+}
+
+
+mforms::View *PreferencesForm::create_general_editor_page()
+{
+  mforms::Box *box= mforms::manage(new mforms::Box(false));
+  box->set_spacing(8);
+
   {
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-    frame->set_title(_("SQL Parsing in Text Editors"));
+    frame->set_title(_("SQL Parsing in Code Editors"));
     box->add(frame, false);
     
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
     vbox->set_padding(8);
-    vbox->set_spacing(4);
+    vbox->set_spacing(8);
     frame->add(vbox);
     
     {
@@ -897,36 +938,181 @@ void PreferencesForm::create_sqlide_page()
                            "SQL statement delimiter different from the normally used one (ie, shouldn't be ;). Change this only if the delimiter you normally use, specially in stored routines, happens to be the current setting."));
       tbox->add(entry, false, false);
     }
+  }
+  return box;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::View *PreferencesForm::create_editor_page()
+{
+  mforms::Box *box= mforms::manage(new mforms::Box(false));
+  box->set_spacing(8);
+
+  {
+    mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    frame->set_title(_("Productivity"));
+    box->add(frame, false);
+
+    mforms::Box *vbox= mforms::manage(new mforms::Box(false));
+    vbox->set_padding(8);
+    vbox->set_spacing(8);
+    frame->add(vbox);
+
+    // Code completion settings.
+    {
+      mforms::Box *subsettings_box = mforms::manage(new mforms::Box(false));
+      subsettings_box->set_padding(40, 0, 0, 0);
+      subsettings_box->set_spacing(8);
+      {
+        mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:CodeCompletionEnabled");
+        scoped_connect(check->signal_clicked(), boost::bind(&PreferencesForm::code_completion_changed,
+                                                            this, check, subsettings_box));
+
+        check->set_text(_("Enable Code Completion in Editors"));
+        check->set_tooltip(_("If enabled SQL editors display a code completion list when pressing "
+                             "the defined hotkey"));
+        vbox->add(check, false);
+
+      }
+
+      {
+        mforms::CheckBox *auto_start_check = new_checkbox_option("DbSqlEditor:AutoStartCodeCompletion");
+        auto_start_check->set_text(_("Automatically Start Code Completion"));
+        auto_start_check->set_tooltip(_("Available only if code completion is enabled. By activating "
+                                        "this option code completion will be started automatically when you type something and wait "
+                                        "a moment"));
+        subsettings_box->add(auto_start_check, false);
+
+        mforms::CheckBox *upper_case_check = new_checkbox_option("DbSqlEditor:CodeCompletionUpperCaseKeywords");
+        upper_case_check->set_text(_("Use UPPERCASE keywords on completion"));
+        upper_case_check->set_tooltip(_("Normally keywords are shown and inserted as they come from the "
+                                        "code editor configuration file. With this swich they are always upper-cased instead."));
+        subsettings_box->add(upper_case_check, false);
+
+        // Set initial enabled state of sub settings depending on whether code completion is enabled.
+        std::string value;
+        _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "DbSqlEditor:CodeCompletionEnabled", value);
+        subsettings_box->set_enabled(atoi(value.c_str()) != 0);
+
+        vbox->add(subsettings_box, false);
+      }
+    }
 
     {
       mforms::Box *tbox = mforms::manage(new mforms::Box(true));
       tbox->set_spacing(4);
       vbox->add(tbox, false);
 
-      tbox->add(new_label(_("Comment type for hotkey:"), true), false, false);
+      tbox->add(new_label(_("Comment type to use for comment shortcut:"), true), false, false);
 
       std::string comment_types = "--:--,#:#";
       mforms::Selector *selector = new_selector_option("DbSqlEditor:SQLCommentTypeForHotkey", comment_types, false);
       selector->set_size(150, -1);
-      selector->set_tooltip(_("Default comment type for SQL Query editor"));
+      selector->set_tooltip(_("Default comment type for SQL Query editor, to be used when the comment shortcut is used."));
       tbox->add(selector, false, false);
     }
 
-  }  
+    {
+      mforms::Box *tbox= mforms::manage(new mforms::Box(true));
+      tbox->set_spacing(4);
+      vbox->add(tbox, false);
+
+      tbox->add(new_label(_("Max syntax error count:"), true), false, false);
+      mforms::TextEntry *entry= new_entry_option("SqlEditor::SyntaxCheck::MaxErrCount", false);
+      entry->set_size(50, -1);
+      entry->set_tooltip(_("Maximum number of errors for syntax checking.\n"
+                           "Syntax errors aren't highlighted beyond this threshold.\n"
+                           "Set to 0 to show all errors."));
+      tbox->add(entry, false, false);
+    }
+  }
+
+  return box;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void PreferencesForm::create_query_page()
+mforms::View *PreferencesForm::create_object_editor_page()
+{
+  mforms::Box *box= mforms::manage(new mforms::Box(false));
+  box->set_spacing(8);
+
+  {
+    mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    frame->set_title(_("Online DDL"));
+    box->add(frame, false);
+
+    mforms::Box *vbox = mforms::manage(new mforms::Box(false));
+    vbox->set_padding(8);
+    vbox->set_spacing(8);
+    frame->add(vbox);
+
+    {
+      mforms::Box *line_box = mforms::manage(new mforms::Box(true));
+      line_box->set_spacing(4);
+      vbox->add(line_box, false);
+
+      mforms::Label *label = new_label(_("Default algorithm for ALTER table:"), true);
+      label->set_size(180, -1);
+      line_box->add(label, false, false);
+
+      std::string algorithms = "Default:DEFAULT,In place:INPLACE,Copy:COPY";
+      mforms::Selector *selector = new_selector_option("DbSqlEditor:OnlineDDLAlgorithm", algorithms, false);
+      selector->set_size(150, -1);
+      selector->set_tooltip(_("If the currently connected server supports online DDL then use the selected "
+                              "algorithm as default. This setting can also be adjusted for each alter operation."));
+      line_box->add(selector, false, false);
+    }
+    {
+      mforms::Box *line_box = mforms::manage(new mforms::Box(true));
+      line_box->set_spacing(4);
+      vbox->add(line_box, false);
+
+      mforms::Label *label = new_label(_("Default lock for ALTER table:"), true);
+      label->set_size(180, -1);
+      line_box->add(label, false, false);
+
+      std::string locks = "Default:DEFAULT,None:NONE,Shared:SHARED,Exclusive:EXCLUSIVE";
+      mforms::Selector *selector = new_selector_option("DbSqlEditor:OnlineDDLLock", locks, false);
+      selector->set_size(150, -1);
+      selector->set_tooltip(_("If the currently connected server supports online DDL then use the selected "
+                              "lock as default. This setting can also be adjusted for each alter operation."));
+      line_box->add(selector, false, false);
+    }
+  }
+
+  {
+    mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    frame->set_title(_("Views"));
+    box->add(frame, false);
+
+    mforms::Box *vbox= mforms::manage(new mforms::Box(false));
+    vbox->set_padding(8);
+    vbox->set_spacing(8);
+    frame->add(vbox);
+
+
+    {
+      mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:ReformatViewDDL");
+      check->set_text(_("Reformat DDL for Views"));
+      check->set_tooltip(_("Whether to automatically reformat View DDL returned by the server. The MySQL server does not store the formatting information for View definitions."));
+      vbox->add(check, false);
+    }
+  }
+
+  return box;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::View *PreferencesForm::create_query_page()
 {
   // Options specific for the query/script execution aspect of the SQL Editor
   
   mforms::Box *box= mforms::manage(new mforms::Box(false));
-  box->set_padding(12);
   box->set_spacing(8);
-  
-  _tabview.add_page(box, _("SQL Queries"));
-  
+
   {
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("General"));
@@ -934,7 +1120,7 @@ void PreferencesForm::create_query_page()
     
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
     vbox->set_padding(8);
-    vbox->set_spacing(4);
+    vbox->set_spacing(8);
     frame->add(vbox);
     
     {
@@ -954,26 +1140,11 @@ void PreferencesForm::create_query_page()
     
     {
       mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:ContinueOnError");
-      check->set_text(_("Continue on SQL Script Error (by default)"));
-      check->set_tooltip(_(
-                           "Whether to continue bypassing failed SQL statements when running script."));
+      check->set_text(_("Continue SQL script execution on errors (by default)"));
+      check->set_tooltip(_("Whether to continue skipping failed SQL statements when running a script."));
       vbox->add(check, false);
     }
-    
-    {
-      mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:SafeUpdates");
-      check->set_text(_("\"Safe Updates\". Forbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause. Requires a reconnection."));
-      check->set_tooltip(_(
-                           "Enables the SQL_SAFE_UPDATES option for the session.\n"
-                           "If enabled, MySQL aborts UPDATE or DELETE statements\n"
-                           "that do not use a key in the WHERE clause or a LIMIT clause.\n"
-                           "This makes it possible to catch UPDATE or DELETE statements\n"
-                           "where keys are not used properly and that would probably change\n"
-                           "or delete a large number of rows. \n"
-                           "Changing this option requires a reconnection (Query -> Reconnect to Server)"));
-      vbox->add(check, false);
-    }
-    
+
     {
       mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:AutocommitMode");
       check->set_text(_("Leave autocommit mode enabled by default"));
@@ -997,59 +1168,15 @@ void PreferencesForm::create_query_page()
       tbox->add(entry, false, false);
     }
   }
-  
-  {
-    mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-    frame->set_title(_("Online DDL"));
-    box->add(frame, false);
-
-    mforms::Box *vbox = mforms::manage(new mforms::Box(false));
-    vbox->set_padding(8);
-    vbox->set_spacing(4);
-    frame->add(vbox);
-
-    {
-      mforms::Box *line_box = mforms::manage(new mforms::Box(true));
-      line_box->set_spacing(4);
-      vbox->add(line_box, false);
-
-      mforms::Label *label = new_label(_("Default algorithm for ALTER table:"), true);
-      label->set_size(180, -1);
-      line_box->add(label, false, false);
-
-      std::string algorithms = "Default:DEFAULT,In place:INPLACE,Copy:COPY";    
-      mforms::Selector *selector = new_selector_option("DbSqlEditor:OnlineDDLAlgorithm", algorithms, false);
-      selector->set_size(150, -1);
-      selector->set_tooltip(_("If the currently connected server supports online DDL then use the selected "
-        "algorithm as default. This setting can also be adjusted for each alter operation."));
-      line_box->add(selector, false, false);
-    }
-    {
-      mforms::Box *line_box = mforms::manage(new mforms::Box(true));
-      line_box->set_spacing(4);
-      vbox->add(line_box, false);
-
-      mforms::Label *label = new_label(_("Default lock for ALTER table:"), true);
-      label->set_size(180, -1);
-      line_box->add(label, false, false);
-
-      std::string locks = "Default:DEFAULT,None:NONE,Shared:SHARED,Exclusive:EXCLUSIVE";    
-      mforms::Selector *selector = new_selector_option("DbSqlEditor:OnlineDDLLock", locks, false);
-      selector->set_size(150, -1);
-      selector->set_tooltip(_("If the currently connected server supports online DDL then use the selected "
-        "lock as default. This setting can also be adjusted for each alter operation."));
-      line_box->add(selector, false, false);
-    }
-  }
 
   {
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-    frame->set_title(_("Query Results"));
+    frame->set_title(_("SELECT Query Results"));
     box->add(frame, false);
     
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
     vbox->set_padding(8);
-    vbox->set_spacing(4);
+    vbox->set_spacing(8);
     frame->add(vbox);
     
     {
@@ -1115,6 +1242,7 @@ void PreferencesForm::create_query_page()
      vbox->add(check, false);
      }*/
   }
+  return box;
 }
 
 
@@ -1130,25 +1258,10 @@ void PreferencesForm::code_completion_changed(mforms::CheckBox *cc_box, mforms::
 }
 
 //--------------------------------------------------------------------------------------------------
-static void force_checkbox_on_toggle(mforms::CheckBox *value, mforms::CheckBox *target, bool same_value, bool disable_on_active)
-{
-  if (value->get_active())
-  {
-    target->set_active(!same_value);
-    target->set_enabled(!disable_on_active);
-  }
-  else
-  {
-    //    target->set_active(same_value);
-    target->set_enabled(disable_on_active);
-  }
-}
 
-
-void PreferencesForm::create_general_page()
+mforms::View *PreferencesForm::create_model_page()
 {
   mforms::Box *top_box = mforms::manage(new mforms::Box(false));
-  top_box->set_padding(12);
   top_box->set_spacing(8);
 
   OptionTable *table;
@@ -1180,64 +1293,27 @@ void PreferencesForm::create_general_page()
                         _("Interval to perform auto-saving of the open model.\nThe model will be restored from the last auto-saved version\nif Workbench unexpectedly quits."));
     }
   }
+  return top_box;
+}
 
-  table = mforms::manage(new OptionTable(this, _("SQL Editor"), true));
-  top_box->add(table, false, true);
-  {
-    mforms::CheckBox *save_workspace, *discard_unsaved;
-    
-    save_workspace = table->add_checkbox_option("workbench:SaveSQLWorkspaceOnClose",
-                               _("Save snapshot of open editors on close"),
-                               _("A snapshot of all open scripts is saved when the SQL Editor is closed. Next time it is opened to the same connection that state is restored. Unsaved files will remain unsaved, but their contents will be preserved."));
 
-    {
-      static const char *auto_save_intervals= "disable:0,10 seconds:10,15 seconds:15,30 seconds:30,1 minute:60,5 minutes:300,10 minutes:600,20 minutes:1200";    
-      mforms::Selector *sel = new_selector_option("workbench:AutoSaveScriptsInterval", auto_save_intervals, true);
-      
-      table->add_option(sel, _("Auto-save scripts interval:"), 
-                        _("Interval to perform auto-saving of all open script tabs.\nThe scripts will be restored from the last auto-saved version\nif Workbench unexpectedly quits."));
-    }
-    
-    discard_unsaved = table->add_checkbox_option("DbSqlEditor:DiscardUnsavedQueryTabs",
-                               _("Create new tabs as Query tabs instead of File"),
-                               _("Unsaved Query tabs do not get a close confirmation, unlike File tabs.\nHowever, once saved, such tabs will also get unsaved change confirmations.\n"
-                                 "If Snapshot saving is enabled, query tabs are always autosaved to temporary files when the connection is closed."));
-    save_workspace->signal_clicked()->connect(boost::bind(force_checkbox_on_toggle, save_workspace, discard_unsaved, true, true));
-    (*save_workspace->signal_clicked())();
-  }
-  
-  table = mforms::manage(new OptionTable(this, _("Others"), true));
-  top_box->add(table, false, true);
+mforms::View *PreferencesForm::create_others_page()
+{
+  OptionTable *table = mforms::manage(new OptionTable(this, _("Others"), true));
   {
 #ifdef _WIN32
     table->add_checkbox_option("DisableSingleInstance", _("Allow more than one instance of MySQL Workbench to run"), 
       _("By default only one instance of MySQL Workbench can run at the same time.\nThis is more resource friendly "
         "and necessary as multiple instances share the same files (settings etc.). Change at your own risk."));
 #endif
-
-    mforms::Selector *combo= new_selector_option("grtshell:ShellLanguage");
-    table->add_option(combo, _("Interactive GRT Shell language:"), 
-                      _("Select the language to use in the interactive GRT shell.\n"
-                        "Scripts, modules and plugins will work regardless of this setting.\n"
-                        "This option requires a restart."));
-
-    mforms::TextEntry *entry= new_entry_option("workbench:InternalSchema", false);
-    entry->set_max_length(100);
-    entry->set_size(100, -1);
-      
-    table->add_option(entry, _("Internal Workbench Schema:"), 
-                      _("This schema will be used by Workbench.\nto store information required on\ncertain operations."));
-
   }
-
-  _tabview.add_page(top_box, _("General"));
+  return table;
 }
 
 
-void PreferencesForm::create_model_page()
+mforms::View *PreferencesForm::create_model_defaults_page()
 {
   mforms::Box *box= mforms::manage(new mforms::Box(false));
-  box->set_padding(12);
   box->set_spacing(8);
 
   {
@@ -1340,7 +1416,7 @@ void PreferencesForm::create_model_page()
     box->add(frame, false);
   }
 
-  _tabview.add_page(box, _("Model"));
+  return box;
 }
 
 
@@ -1362,10 +1438,9 @@ static void update_target_version(workbench_physical_ModelRef model, mforms::Tex
 }
 
 
-void PreferencesForm::create_mysql_page()
+mforms::View *PreferencesForm::create_mysql_page()
 {
   mforms::Box *box= mforms::manage(new mforms::Box(false));
-  box->set_padding(12);
   box->set_spacing(8);
 
   {
@@ -1438,17 +1513,15 @@ void PreferencesForm::create_mysql_page()
     box->add(frame, false);
   }
 
-  _tabview.add_page(box, _("Model: MySQL"));
+  return box;
 }
 
 
 
-void PreferencesForm::create_diagram_page()
+mforms::View *PreferencesForm::create_diagram_page()
 {
   mforms::Box *box= mforms::manage(new mforms::Box(false));
-  box->set_padding(12);
   box->set_spacing(8);
-
 
   {
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1457,7 +1530,7 @@ void PreferencesForm::create_diagram_page()
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
 
     vbox->set_padding(8);
-    vbox->set_spacing(4);
+    vbox->set_spacing(8);
 
     frame->add(vbox);
     
@@ -1483,7 +1556,7 @@ void PreferencesForm::create_diagram_page()
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
 
     vbox->set_padding(8);
-    vbox->set_spacing(4);
+    vbox->set_spacing(8);
 
     frame->add(vbox);
     
@@ -1577,7 +1650,7 @@ void PreferencesForm::create_diagram_page()
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
 
     vbox->set_padding(8);
-    vbox->set_spacing(4);
+    vbox->set_spacing(8);
 
     frame->add(vbox);
     
@@ -1598,7 +1671,7 @@ void PreferencesForm::create_diagram_page()
     box->add(frame, false);
   }
 
-  _tabview.add_page(box, _("Diagram"));
+  return box;
 }
 
 
@@ -1646,12 +1719,10 @@ void PreferencesForm::font_preset_changed()
 }
 
 
-void PreferencesForm::create_appearance_page()
+mforms::View *PreferencesForm::create_appearance_page()
 {
   mforms::Box *box= mforms::manage(new mforms::Box(false));
-  box->set_padding(12);
   box->set_spacing(8);
-
   
   {
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1669,7 +1740,7 @@ void PreferencesForm::create_appearance_page()
 
     mforms::TextBox *text;
     
-    table->add(new_label(_("Colors available for tables, views etc")), 0, 1, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("Colors available when creating tables, views etc")), 0, 1, 0, 1, mforms::HFillFlag);
     text= mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
     text->set_size(200, 100);
     table->add(text, 0, 1, 1, 2, mforms::FillAndExpand);
@@ -1680,7 +1751,7 @@ void PreferencesForm::create_appearance_page()
     option->show_value= boost::bind(show_text_option, get_options(), "workbench.model.ObjectFigure:ColorList", text);
     option->update_value= boost::bind(update_text_option, get_options(), "workbench.model.ObjectFigure:ColorList", text);
     
-    table->add(new_label(_("Colors available for layers, notes etc")), 1, 2, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("Colors available when creating layers, notes etc")), 1, 2, 0, 1, mforms::HFillFlag);
     text= mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
     text->set_size(200, 100);
     table->add(text, 1, 2, 1, 2, mforms::FillAndExpand);
@@ -1710,8 +1781,13 @@ void PreferencesForm::create_appearance_page()
 
     _font_preset.signal_changed()->connect(boost::bind(&PreferencesForm::font_preset_changed, this));
     for (size_t i = 0; font_sets[i].name; i++)
+    {
+      // skip font options that are not modeling specific
+      if (base::starts_with(font_sets[i].name, "workbench.general") ||
+          base::starts_with(font_sets[i].name, "workbench.scripting"))
+        continue;
       _font_preset.add_item(font_sets[i].name);
-
+    }
     hbox->add(mforms::manage(new mforms::Label("Configure Fonts For:")), false, true);
     hbox->add(&_font_preset, true, true);
 
@@ -1724,34 +1800,54 @@ void PreferencesForm::create_appearance_page()
   }
 
 
-  _tabview.add_page(box, _("Appearance"));
+  return box;
 }
 
-#ifdef _WIN32
 /**
- * Windows specific theming and colors page.
+ * Theming and colors page.
  */
-void PreferencesForm::create_color_scheme_page()
+mforms::View *PreferencesForm::create_fonts_and_colors_page()
 {
   Box* content = manage(new Box(false));
-  content->set_padding(12);
   content->set_spacing(8);
 
-  mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-  frame->set_title(_("Color Scheme"));
-  mforms::Box *hbox = mforms::manage(new mforms::Box(true));
-  hbox->add(new_label(_("Select your scheme:")), false, false);
-  mforms::Selector *selector = new_selector_option("ColorScheme", "", true);
-  selector->set_size(250, -1);
-  hbox->add(selector, true, false);
-  hbox->add(new_label(_("The scheme that determines the core colors."), false, true), true, false);
+  {
+    OptionTable *table = new OptionTable(this, _("Fonts"), true);
 
-  frame->add(hbox);
-  content->add(frame, false, true);
-  _tabview.add_page(content, _("Theming"));
+    table->add_option(new_entry_option("workbench.general.Editor:Font", false),
+                      _("SQL Editor:"),
+                      _("Global font for SQL text editors."));
+
+    table->add_option(new_entry_option("workbench.scripting.ScriptingShell:Font", false),
+                      _("Scripting Shell:"),
+                      _("Font to be used in Scripting Shell."));
+
+    table->add_option(new_entry_option("workbench.scripting.ScriptingEditor:Font", false),
+                      _("Script Editor:"),
+                      _("Font to be used in code editors in Scripting Shell."));
+
+    content->add(table, false, true);
+  }
+
+#ifdef _WIN32
+  {
+    mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+    frame->set_title(_("Color Scheme"));
+    mforms::Box *hbox = mforms::manage(new mforms::Box(true));
+    hbox->add(new_label(_("Select your scheme:")), false, false);
+    mforms::Selector *selector = new_selector_option("ColorScheme", "", true);
+    selector->set_size(250, -1);
+    hbox->add(selector, true, false);
+    hbox->add(new_label(_("The scheme that determines the core colors."), false, true), true, false);
+
+    frame->add(hbox);
+    content->add(frame, false, true);
+  }
+#endif
+
+  return content;
 }
 
-#endif
 
 static std::string separate_camel_word(const std::string &word)
 {
