@@ -16,7 +16,6 @@ ODBC_HOME=$(HOME)/linux-res-6.2/usr/
 LINUXRES_HOME=$(HOME)/linux-res-6.2/
 CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
 VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
-PYCONN_DIR=$(LINUXRES_HOME)/python/mysql
 MYSQL_HOME=$(HOME)/mysql-server/
 
 WBDIRNAME=mysql-workbench-community
@@ -70,7 +69,6 @@ install: build
 	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(PYCONN_DIR) $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	# Bundle other unpackaged libs
 	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)

@@ -28,7 +28,6 @@
 %define odbc_home        $HOME/linux-res-6.2/usr
 %define linuxres_home    $HOME/linux-res-6.2
 
-%define mysqlpyconn_dir $HOME/linux-res-6.2/python/mysql
 %define vsqlite_dir      $HOME/linux-res-6.2/vsqlite
 %define ctemplate_dir    $HOME/linux-res-6.2
 
@@ -187,10 +186,6 @@ rm -fr %{buildroot}/usr/share/doc/mysql-workbench
 
 %if  %{defined mysqlcppconn_dir}
     cp -a %{mysqlcppconn_dir}/lib/libmysqlcppconn.so.7* %{buildroot}%{_libdir}/mysql-workbench
-%endif
-
-%if %{defined mysqlpyconn_dir}
-    cp -a %{mysqlpyconn_dir} %{buildroot}%{_libdir}/mysql-workbench/modules
 %endif
 
 if [ -f %{vsqlite_dir}/lib/libvsqlitepp.so.3 ]; then
