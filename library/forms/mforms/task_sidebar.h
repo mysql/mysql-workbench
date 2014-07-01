@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_TASK_SIDEBAR_H_
-#define _MFORMS_TASK_SIDEBAR_H_
+
+#pragma once
 
 /**
  * mforms interface to the advanced sidebar, which implements an iTunes like interface.
@@ -124,4 +124,3 @@ namespace mforms {
 }
 
 #endif // !DOXYGEN_SHOULD_SKIP_THIS
-#endif // _MFORMS_TASK_SIDEBAR_H_

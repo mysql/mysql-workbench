@@ -814,7 +814,7 @@ void* WBContext::do_request_password(const std::string &title, const std::string
 
   try
   {
-    ret = mforms::Utilities::credentials_for_service(title, service, *account, force_asking, *password);
+    ret = mforms::Utilities::find_or_ask_for_password(title, service, *account, force_asking, *password);
   }
   catch (const std::exception &e)
   {
@@ -865,7 +865,6 @@ std::string WBContext::request_connection_password(const db_mgmt_ConnectionRef &
 {
   std::string password_tmp;
   std::string user_tmp = conn->parameterValues().get_string("userName");
-  bool need_user_name = user_tmp.empty();
   void *ret = mforms::Utilities::perform_from_main_thread(
                       boost::bind(&WBContext::do_request_password, this,
                                   _("Connect to MySQL Server"),
@@ -873,8 +872,6 @@ std::string WBContext::request_connection_password(const db_mgmt_ConnectionRef &
                                   reset_password,
                                   &user_tmp,
                                   &password_tmp));
-  if (need_user_name && !user_tmp.empty())
-    conn->parameterValues().gset("userName", user_tmp);
   if (ret)
     return password_tmp;
   throw grt::user_cancelled("Canceled by user");
