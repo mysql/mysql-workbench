@@ -172,8 +172,12 @@ class PSHelperViewTab(mforms.Box):
             error = None
         except Exception, e:
             error = str(e)
-        self._cback = grt.run_from_main_thread(lambda error=error: self.run_query_finished(error))
 
+    def check_if_finished(self):
+        if self.result is None:
+            return True
+        self.run_query_finished(None)
+        return False
 
     def do_refresh(self):
         self._refresh.set_text("Refresh")
@@ -242,7 +246,9 @@ class PSHelperViewTab(mforms.Box):
             if self._refresh:
                 self._refresh.set_enabled(False)
 
+            self.result = None
             self._thr = Thread(target=self.run_query)
+            mforms.Utilities.add_timeout(1.0, self.check_if_finished)
             self._thr.start()
 
 
@@ -265,7 +271,6 @@ class PSHelperViewTab(mforms.Box):
                 self._wait_table = None
             mforms.Utilities.show_error("Error Executing Report Query", error, "OK", "", "")
             return
-
         self.init_ui()
         self._tree.clear()
         if result is not None:
@@ -301,7 +306,6 @@ class PSHelperViewTab(mforms.Box):
                         import traceback
                         traceback.print_exc()
                         log_error("Error handling column %i (%s) of report for %s: %s\n" % (i, cname, self.view, e))
-
 
     def get_view_columns(self):
         result = self._owner.ctrl_be.exec_query("DESCRIBE `%s`.%s" % (self._owner.sys, self.view))

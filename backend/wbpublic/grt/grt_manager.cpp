@@ -95,8 +95,6 @@ GRTManager::GRTManager(bool threaded, bool verbose)
   _plugin_manager= _grt->get_native_module<PluginManagerImpl>();
 
   _messages_list= new MessageListStorage(this);
-
-  PythonContext::set_run_once_when_idle(boost::bind(&GRTManager::run_once_when_idle_, this, _1));
 }
 
 bool GRTManager::try_soft_lock_globals_tree()
