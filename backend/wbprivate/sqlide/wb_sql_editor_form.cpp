@@ -958,7 +958,7 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
     dbc_conn->ref= dbc_drv_man->getConnection(temp_connection, tunnel, auth,
                                               boost::bind(&SqlEditorForm::init_connection, this, _1, _2, dbc_conn, user_connection));
 
-    note_connection_open_outcome(0); // succeess
+    note_connection_open_outcome(0); // success
   }
   catch (sql::SQLException &exc)
   {
@@ -1097,6 +1097,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
     break;
   }
 
+  // XXX: ouch, what if we ever change the init sequence, *nobody* will look here to note the side effect.
   // we should only send this after the initial connection
   // assumes setup_side_palette() is called in finish_init(), signalizing that the editor was already initialized once
   if (_side_palette) // we're in a thread here, so make sure the notification is sent from the main thread
