@@ -43,6 +43,10 @@ set(IMAGE_FILES
     ./qe_sql-editor-tb-icon_row-limit-off.png
     ./qe_sql-editor-tb-icon_row-limit-1k-on.png
     ./qe_sql-editor-tb-icon_row-limit-on.png
+    ./wb_item_overlay_editor.png
+    ./wb_item_overlay_execute.png
+    ./wb_item_overlay_inspector.png
+    ./wb_item_overlay_result.png
     ./snippet_css.png
     ./snippet_htm.png
     ./snippet_lua.png
