@@ -257,6 +257,8 @@ void Recordset::refresh()
   // reapply filter, if needed
   if (!data_search_string.empty())
     set_data_search_string(data_search_string);
+
+  rows_changed();
 }
 
 
