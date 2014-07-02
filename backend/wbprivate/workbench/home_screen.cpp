@@ -1469,20 +1469,23 @@ public:
       {
         std::string ha_filter = base::strip_text(entry.connection->parameterValues().get("haGroupFilter").repr());
 
-        std::string text(_("All Groups"));
+        std::string tile_groups;
         if (ha_filter.length())
         {
           std::vector<std::string> groups = base::split(ha_filter, ",");
 
           // Creates the legend to be displayed on the filter icon
           if (groups.size() > 2)
-            text = base::strfmt("%s and %d others", groups[0].c_str(), groups.size() - 1);
+            tile_groups = base::strfmt("%s and %d others", groups[0].c_str(), groups.size() - 1);
           else
-            text = ha_filter;
+            tile_groups = ha_filter;
         }
 
-        y = bounds.top() + 56 - image_height(_schema_icon);
-        draw_icon_with_text(cr, bounds.center().x, y, _ha_filter_icon, text, alpha, high_contrast);
+        if (tile_groups.length() > 0)
+        {
+          y = bounds.top() + 56 - image_height(_schema_icon);
+          draw_icon_with_text(cr, bounds.center().x, y, _ha_filter_icon, tile_groups, alpha, high_contrast);
+        }
       }
       else
       {
@@ -1913,7 +1916,7 @@ public:
                 grt::BaseListRef args(grt);
                 args->insert_unchecked(_connections[_hot_entry].connection);
 
-                grt::ValueRef result = grt->call_module_function("WBFabric", "create_connections", args);
+                grt::ValueRef result = grt->call_module_function("WBFabric", "createConnections", args);
                 std::string error = grt::StringRef::extract_from(result);
 
                 if (error.length())
