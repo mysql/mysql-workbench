@@ -828,22 +828,9 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       if (object.is_valid())
       {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-        if (connection->driver().is_valid() && connection->driver()->name() == "MySQLFabric")
-        {
-          /*grt::BaseListRef args(_wb->get_grt());
-          args->insert_unchecked(connection);
-          
-          grt::ValueRef result = _wb->get_grt()->call_module_function("WBFabric", "create_connections", args);
-          std::string error = grt::StringRef::extract_from(result);
-          
-          if (error.length())
-            mforms::Utilities::show_error("MySQL Fabric Connection Error", error, "OK");*/
-        }
-        else
-        {
-          _wb->show_status_text("Opening SQL Editor...");
-          _wb->add_new_query_window(connection);
-        }
+
+        _wb->show_status_text("Opening SQL Editor...");
+        _wb->add_new_query_window(connection);
       }
       _processing_action_open_connection = false;
       break;

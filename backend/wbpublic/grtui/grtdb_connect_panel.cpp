@@ -612,7 +612,7 @@ bool DbConnectPanel::test_connection()
       grt::GRT *grt = connectionProperties->get_grt();
       grt::BaseListRef args(grt);
       args->insert_unchecked(connectionProperties);
-      grt::ValueRef result= grt->call_module_function("WBFabric", "test_connection", args);
+      grt::ValueRef result= grt->call_module_function("WBFabric", "testConnection", args);
       message = grt::StringRef::extract_from(result);
     }
     else

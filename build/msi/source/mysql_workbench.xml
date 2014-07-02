@@ -189,15 +189,6 @@
 			<ComponentRef Id="python_site_packages_crypto_signature" />
 			<ComponentRef Id="python_site_packages_crypto_util" />
 			<ComponentRef Id="python_site_packages_paramiko" />
-			<ComponentRef Id="python_site_packages_mysql" />
-			<ComponentRef Id="python_site_packages_mysql_connector" />
-			<ComponentRef Id="python_site_packages_mysql_connector_django" />
-			<ComponentRef Id="python_site_packages_mysql_connector_fabric" />
-			<ComponentRef Id="python_site_packages_mysql_connector_locales" />
-			<ComponentRef Id="python_site_packages_mysql_connector_locales_eng" />
-			<ComponentRef Id="python_site_packages_mysql_fabric" />
-			<ComponentRef Id="python_site_packages_mysql_fabric_protocols" />
-			<ComponentRef Id="python_site_packages_mysql_fabric_services" />
       <?if $(var.SETUP_TYPE) = "commercial" ?>
         <ComponentRef Id="python_site_packages_pysqlite2" />
         <ComponentRef Id="reporting_HTML_Basic_Frames" />
