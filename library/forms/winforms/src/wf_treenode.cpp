@@ -616,6 +616,34 @@ mforms::TreeNodeRef TreeNodeWrapper::get_parent() const
 
 //--------------------------------------------------------------------------------------------------
 
+mforms::TreeNodeRef TreeNodeWrapper::previous_sibling() const
+{
+  if (isRoot)
+    return mforms::TreeNodeRef();
+
+  TreeViewNode ^node = dynamic_cast<TreeViewNode^>(nativeNode->PreviousNode);
+  if (node == nullptr)
+    return mforms::TreeNodeRef();
+
+  return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, node));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::TreeNodeRef TreeNodeWrapper::next_sibling() const
+{
+  if (isRoot)
+    return mforms::TreeNodeRef();
+
+  TreeViewNode ^node = dynamic_cast<TreeViewNode^>(nativeNode->NextNode);
+  if (node == nullptr)
+    return mforms::TreeNodeRef();
+
+  return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, node));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void TreeNodeWrapper::expand()
 {
   if (!is_root())

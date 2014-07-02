@@ -121,6 +121,8 @@ namespace MySQL {
       virtual void remove_from_parent();
       virtual mforms::TreeNodeRef get_child(int index) const;
       virtual mforms::TreeNodeRef get_parent() const;
+      virtual mforms::TreeNodeRef previous_sibling() const;
+      virtual mforms::TreeNodeRef next_sibling() const;
       virtual void remove_children();
 
       Drawing::Bitmap^ get_cached_icon(const std::string &icon_id);

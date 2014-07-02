@@ -210,6 +210,16 @@ mforms::TreeNodeRef TreeNodeWrapper::get_parent() const
   return _parent;
 }
 
+mforms::TreeNodeRef TreeNodeWrapper::previous_sibling() const
+{
+  return mforms::TreeNodeRef();
+}
+
+mforms::TreeNodeRef TreeNodeWrapper::next_sibling() const
+{
+  return mforms::TreeNodeRef();
+}
+
 void TreeNodeWrapper::remove_children()
 {
     mforms::TreeNode::remove_children();

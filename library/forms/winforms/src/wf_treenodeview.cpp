@@ -206,6 +206,9 @@ protected:
     if (attributes.italic)
       newStyle = newStyle | FontStyle::Italic;
     args->Font = gcnew Drawing::Font(args->Font, newStyle);
+
+    if (attributes.color.is_valid())
+      args->TextColor = Conversions::ColorToNative(attributes.color);
   }
 };
 
@@ -528,8 +531,11 @@ public:
   {
     __super::OnSelectionChanged();
 
-    mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-    backend->changed();
+    if (!SuspendSelectionEvent)
+    {
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      backend->changed();
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1095,6 +1101,8 @@ bool TreeNodeViewWrapper::create(mforms::TreeNodeView *backend, mforms::TreeOpti
     // Add some padding or the content will directly start at the boundaries.
     tree->Padding = Padding(2);
   }
+  else
+    tree->BorderStyle = BorderStyle::FixedSingle; // Make the border a single line if there's any.
 
   tree->ShowLines = false;
   tree->ShowPlusMinus = false;
@@ -1152,10 +1160,10 @@ mforms::TreeNodeRef TreeNodeViewWrapper::get_selected_node(mforms::TreeNodeView 
 {
   TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
   TreeViewAdv ^tree = wrapper->GetManagedObject<TreeViewAdv>();
-  TreeNodeAdv ^snode = tree->CurrentNode;
-  if (snode == nullptr || snode->Tag == nullptr)
+  TreeNodeAdv ^node = tree->SelectedNode;
+  if (node == nullptr || node->Tag == nullptr)
     return mforms::TreeNodeRef();
-  return mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode^)snode->Tag));
+  return mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode^)node->Tag));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1417,7 +1425,7 @@ int TreeNodeViewWrapper::row_for_node(mforms::TreeNodeRef node)
       for (int i = 0; i < node_index; i++)
         row += count_rows_in_node(parent->get_child(i));
       if (parent != root_node())
-        row += row_for_node(parent);
+        row += row_for_node(parent) + 1; // One more for the parent node.
     }
     return row;
   }

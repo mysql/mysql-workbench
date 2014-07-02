@@ -89,6 +89,8 @@ public:
   virtual void remove_from_parent();
   virtual mforms::TreeNodeRef get_child(int index) const;
   virtual mforms::TreeNodeRef get_parent() const;
+  virtual mforms::TreeNodeRef previous_sibling() const;
+  virtual mforms::TreeNodeRef next_sibling() const;
   virtual void remove_children();
 
   virtual std::vector<mforms::TreeNodeRef> add_node_collection(const mforms::TreeNodeCollectionSkeleton &nodes, int position = -1);

@@ -60,4 +60,5 @@ void register_all_metaclasses()
   register_structs_workbench_model_reporting_xml();
   register_structs_workbench_physical_xml();
   register_structs_ui_xml();
+  register_structs_wrapper_xml();
 }

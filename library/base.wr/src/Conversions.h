@@ -53,6 +53,7 @@ namespace MySQL {
   {
   public:
     static base::Color NativeToColor(System::Drawing::Color color);
+    static System::Drawing::Color ColorToNative(base::Color color);
 
     static System::Drawing::Color GetApplicationColor(ApplicationColor color, bool foreground);
     static bool UseWin8Drawing();
