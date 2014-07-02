@@ -356,7 +356,11 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
 
     add_page(NULL, _("Administration"), create_admin_page());
   }
-  node = add_page(NULL, _("Modeling"), create_model_page());
+
+  if (_model.is_valid())
+    node = NULL;
+  else
+    node = add_page(NULL, _("Modeling"), create_model_page());
   add_page(node, _("Defaults"), create_model_defaults_page());
   add_page(node, _("MySQL"), create_mysql_page());
   add_page(node, _("Diagram"), create_diagram_page());
@@ -365,7 +369,6 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
     add_page(node, _("Appearance"), create_appearance_page());
     node->expand();
   }
-
   if (!_model.is_valid())
   {
 #ifdef _WIN32
