@@ -57,6 +57,7 @@ namespace MySQL.Grt.Db
    //   gridView.Dock = DockStyle.Fill;
       gridView.BorderStyle = BorderStyle.None;
       gridView.StandardTab = false; // Let Tab move the cursor to the next cell instead next control in parent tab order.
+      gridView.AllowAutoResizeColumns = false; // this will mess up our custom sizing/column width saving
 
       recordset.register_edit_actions();
 
@@ -78,6 +79,7 @@ namespace MySQL.Grt.Db
       gridView.CellContextMenuStripNeeded += gridView_CellContextMenuStripNeeded;
       gridView.CellStateChanged += gridView_CellStateChanged;
       gridView.CellPainting += gridView_CellPainting;
+      gridView.ColumnWidthChanged += gridView_ColumnWidthChanged;
 
       gridView.AdditionalColumnWidth += gridView_AdditionalColumnWidth;
 
@@ -123,6 +125,7 @@ namespace MySQL.Grt.Db
         ProcessModelChange();
       else
         gridView.Invalidate();
+      gridView.ProcessModelRowsChange();
     }
 
     public int ProcessModelChange()
@@ -440,6 +443,18 @@ namespace MySQL.Grt.Db
     public Control control()
     {
       return gridView;
+    }
+
+    private IRecordsetView.ColumnResizeCallback column_resize_callback = null;
+    void gridView_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
+    {
+      if (column_resize_callback != null)
+        column_resize_callback(e.Column.Index);
+    }
+
+    public void set_column_resize_callback(IRecordsetView.ColumnResizeCallback callback)
+    {
+      column_resize_callback = callback;
     }
 
     public int get_column_count()

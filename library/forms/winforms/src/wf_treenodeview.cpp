@@ -416,6 +416,7 @@ public:
     };
 
     TreeColumn ^column = gcnew TreeColumn(name, (initial_width < 0) ? 50 : initial_width);
+    column->WidthChanged += gcnew System::EventHandler(this, &MformsTree::OnColumnResized);
     Columns->Add(column);
     columnTypes.Add(type);
 
@@ -648,6 +649,16 @@ public:
       break;
     }
 
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void OnColumnResized(Object ^sender, System::EventArgs ^args)
+  {
+    TreeColumn ^column = (TreeColumn^)sender;
+    mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+    if (backend)
+      backend->column_resized(column->Index);
   }
 
   //------------------------------------------------------------------------------------------------
