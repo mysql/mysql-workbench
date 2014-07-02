@@ -29,14 +29,20 @@ using namespace MySQL::Base;
 class ConcreteRecordGridView : public mforms::RecordGrid
 {
   gcroot<IRecordsetView^> _view;
+  bool _resizing;
 
 public:
   ConcreteRecordGridView(IRecordsetView ^rset)
   {
+    _resizing = false;
     _view = rset;
   }
 
+  IRecordsetView ^view() { return _view; }
+
   Control ^control() { return _view->control(); }
+
+  bool is_resizing() { return _resizing;  }
 
   virtual int get_column_count()
   {
@@ -68,6 +74,23 @@ public:
   }
 };
 
+
+public ref class MySQL::Forms::ColumnResizedWrapper
+{
+  ConcreteRecordGridView *backend;
+public:
+  ColumnResizedWrapper(ConcreteRecordGridView *be)
+    : backend(be)
+  {
+  }
+
+  void resized(int column)
+  {
+    if (!backend->is_resizing())
+      (*backend->signal_column_resized())(column);
+  }
+};
+
 gcroot<CreateRecordGridDelegate^> RecordGridViewWrapper::factory = nullptr;
 
 RecordGridViewWrapper::RecordGridViewWrapper(mforms::RecordGrid *backend)
@@ -86,6 +109,9 @@ mforms::RecordGrid *RecordGridViewWrapper::create(boost::shared_ptr<Recordset> r
   ConcreteRecordGridView *backend = new ConcreteRecordGridView(create(IntPtr(&rset)));
   RecordGridViewWrapper *wrapper = new RecordGridViewWrapper(backend);
   NativeWrapper::ConnectParts(backend, wrapper, backend->control());
+
+  wrapper->column_resize_delegate = gcnew ColumnResizedWrapper(backend);
+  backend->view()->set_column_resize_callback(gcnew IRecordsetView::ColumnResizeCallback(wrapper->column_resize_delegate, &ColumnResizedWrapper::resized));
 
   return backend;
 }

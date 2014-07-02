@@ -25,6 +25,10 @@ namespace MySQL {
     {
       System::Windows::Forms::Control ^control();
 
+      delegate void ColumnResizeCallback(int column);
+
+      void set_column_resize_callback(ColumnResizeCallback ^callback);
+
       int get_column_count();
       int get_column_width(int column);
       void set_column_width(int column, int width);
