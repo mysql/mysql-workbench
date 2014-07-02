@@ -102,6 +102,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _pinned(false)
 {
   _result_grid = NULL;
+  _grid_header_menu = NULL;
   _column_info_menu = NULL;
   _column_info_created = false;
   _query_stats_created = false;
@@ -134,6 +135,42 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 }
 
 
+void SqlEditorResult::reset_sorting()
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+    rset->sort_by(0, 0, false);
+  if (_result_grid)
+  {
+    for (int i = 0; i < _result_grid->get_column_count(); i++)
+      _result_grid->set_column_header_indicator(i, mforms::NoIndicator);
+  }
+}
+
+void SqlEditorResult::copy_column_name()
+{
+  int column = _result_grid->get_clicked_header_column();
+  Recordset::Ref rset(recordset());
+  if (rset)
+    mforms::Utilities::set_clipboard_text(rset->get_column_caption(column));
+}
+
+
+void SqlEditorResult::copy_all_column_names()
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+  {
+    std::string text;
+    for (Recordset::Column_names::const_iterator col = rset->column_names()->begin(); col != rset->column_names()->end(); ++col)
+      text.append(", ").append(*col);
+    if (!text.empty())
+      text = text.substr(2);
+    mforms::Utilities::set_clipboard_text(text);
+  }
+}
+
+
 void SqlEditorResult::set_recordset(Recordset::Ref rset)
 {
   if (_resultset_placeholder)
@@ -152,7 +189,23 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   if (rset->get_toolbar()->find_item("record_import"))
     rset->get_toolbar()->find_item("record_import")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_import_recordset, this));
 
-  dock_result_grid(mforms::manage(mforms::RecordGrid::create(rset)));
+  // reset the column header indicators
+  rset->get_toolbar()->find_item("record_sort_reset")->signal_activated()->connect(boost::bind(&SqlEditorResult::reset_sorting, this));
+
+
+  _grid_header_menu = new mforms::ContextMenu();
+  _grid_header_menu->add_item_with_title("Copy Field Name", boost::bind(&SqlEditorResult::copy_column_name, this));
+  _grid_header_menu->add_item_with_title("Copy All Field Names", boost::bind(&SqlEditorResult::copy_all_column_names, this));
+
+  mforms::RecordGrid *grid = mforms::manage(mforms::RecordGrid::create(rset));
+  {
+    std::string font = _owner->owner()->grt_manager()->get_app_option_string("Recordset:Font");
+    if (!font.empty())
+      grid->set_font(font);
+
+    grid->set_header_menu(_grid_header_menu);
+  }
+  dock_result_grid(grid);
 
   Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
   rset->caption(strfmt("%s %i",
@@ -173,6 +226,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
 SqlEditorResult::~SqlEditorResult()
 {
   delete _column_info_menu;
+  delete _grid_header_menu;
 }
 
 
@@ -381,6 +435,8 @@ void SqlEditorResult::show_import_recordset()
         if (module)
           module->call_function("importRecordsetDataFromFile", args);
       }
+      else
+        log_fatal("resultset GRT obj is NULL\n");
     }
   }
   catch (const std::exception &exc)
