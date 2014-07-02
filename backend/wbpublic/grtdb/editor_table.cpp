@@ -2891,9 +2891,8 @@ TableEditorBE::TableEditorBE(GRTManager *grtm, const db_TableRef &table)
 {
   _inserts_panel = NULL;
 
-  if (table.class_name() == "db.Table") throw std::logic_error("table object is abstract");
-  
-  scoped_connect(table->signal_refreshDisplay(),(boost::bind(&BaseEditor::on_object_changed, this)));
+  if (table.class_name() == "db.Table")
+    throw std::logic_error("table object is abstract");
 }
 
 #ifdef _WIN32
@@ -3203,6 +3202,7 @@ bool TableEditorBE::parse_column_type(const std::string &str, db_ColumnRef &colu
     grt::UndoManager *um= get_grt()->get_undo_manager();
 
     // call _refresh_ui when this parse column type action is undone
+    // XXX: everytime we parse a column type 2 new connections are added without removing the old ones!
     scoped_connect(um->signal_undo(),boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
     scoped_connect(um->signal_redo(),boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
   }

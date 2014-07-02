@@ -39,7 +39,7 @@
 
 #include "base/boost_smart_ptr_helpers.h"
 
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "objimpl/db.query/db_query_Resultset.h"
 
 #include "grtui/file_charset_dialog.h"

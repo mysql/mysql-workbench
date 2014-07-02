@@ -185,7 +185,9 @@ namespace mforms {
     virtual TreeNodeRef get_child(int index) const = 0;
     virtual TreeNodeRef get_parent() const = 0;
     virtual TreeNodeRef find_child_with_tag(const std::string &tag); // this will search the subnodes sequentially
- 
+    virtual TreeNodeRef previous_sibling() const = 0; // TODO: Mac, Linux
+    virtual TreeNodeRef next_sibling() const = 0;     // TODO: Mac, Linux
+
     virtual std::vector<mforms::TreeNodeRef> add_node_collection(const TreeNodeCollectionSkeleton &nodes, int position = -1) = 0;
 
     virtual void expand() = 0;

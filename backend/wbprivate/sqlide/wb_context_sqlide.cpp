@@ -50,7 +50,7 @@
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/db.query/db_query_EditableResultset.h"
 #include "objimpl/db.query/db_query_QueryBuffer.h"
-#include "objimpl/ui/grt_PyObject_impl.h"
+#include "objimpl/wrapper/grt_PyObject_impl.h"
 #include "grts/structs.db.query.h"
 
 #include "grtdb/db_helpers.h"
@@ -335,7 +335,7 @@ public:
     grt::DictRef params(ref->connection_descriptor()->parameterValues());
 
     PyDict_SetItemString(kwarg, "host", grt::AutoPyObject(PyString_FromString(params.get_string("hostName").c_str())));
-    PyDict_SetItemString(kwarg, "port", grt::AutoPyObject(PyLong_FromLong(params.get_int("port"))));
+    PyDict_SetItemString(kwarg, "port", grt::AutoPyObject(PyLong_FromSize_t(params.get_int("port"))));
     PyDict_SetItemString(kwarg, "user", grt::AutoPyObject(PyString_FromString(params.get_string("userName").c_str())));
     PyDict_SetItemString(kwarg, "password", grt::AutoPyObject(PyString_FromString(ref->dbc_auth_data()->password())));
 
