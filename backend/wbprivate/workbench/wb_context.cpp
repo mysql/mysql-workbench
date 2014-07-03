@@ -1764,27 +1764,26 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "workbench.model.NoteFigure:TextFont", DEFAULT_FONT_FAMILY" 11");
 
 #if defined(_WIN32)
+  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 8");
   if (get_local_os_name().find("Windows XP") != std::string::npos)
   {
-    set_default(options, "workbench.general.Resultset:Font", DEFAULT_MONOSPACE_FONT_FAMILY_ALT" 10");
     set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY_ALT" 10");
     set_default(options, "workbench.scripting.ScriptingShell:Font", DEFAULT_MONOSPACE_FONT_FAMILY_ALT" 10");
     set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY_ALT" 10");
   }
   else
   {
-    set_default(options, "workbench.general.Resultset:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 10");
     set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 10");
     set_default(options, "workbench.scripting.ScriptingShell:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 10");
     set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 10");
   }
 #elif defined(__APPLE__)
-  set_default(options, "workbench.general.Resultset:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
+  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 13");
   set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
   set_default(options, "workbench.scripting.ScriptingShell:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
   set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
 #else
-  set_default(options, "workbench.general.Resultset:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 11");
+  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 11");
   set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 11");
   set_default(options, "workbench.scripting.ScriptingShell:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 11");
   set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 11");
