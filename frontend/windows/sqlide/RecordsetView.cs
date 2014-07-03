@@ -33,11 +33,9 @@ namespace MySQL.Grt.Db
   {
     private RecordsetWrapper model;
     private GridView gridView;
-    private ColumnFilterDialog columnFilterDialog = new ColumnFilterDialog();
     private int contextColumnIndex;
     private int contextRowIndex;
    // private Timer dataSearchTimer;
-    private Image columnHeaderFilterImage;
 
     public RecordsetView()
     {
@@ -78,16 +76,7 @@ namespace MySQL.Grt.Db
       gridView.ColumnHeaderMouseClick += gridView_ColumnHeaderMouseClick;
       gridView.CellContextMenuStripNeeded += gridView_CellContextMenuStripNeeded;
       gridView.CellStateChanged += gridView_CellStateChanged;
-      gridView.CellPainting += gridView_CellPainting;
       gridView.ColumnWidthChanged += gridView_ColumnWidthChanged;
-
-      gridView.AdditionalColumnWidth += gridView_AdditionalColumnWidth;
-
-      // cache icon used for marking columns with applied filters
-      {
-        int iconId = recordset.column_filter_icon_id();
-        columnHeaderFilterImage = IconManagerWrapper.get_instance().get_icon(iconId);
-      }
 
       Model = recordset;
     }
@@ -175,9 +164,7 @@ namespace MySQL.Grt.Db
       contextRowIndex = e.RowIndex;
       if (e.RowIndex == -1)
       {
-        e.ContextMenuStrip = (e.ColumnIndex == -1) ? null : columnHeaderContextMenuStrip;
-        resetAllColumnFiltersToolStripMenuItem.Enabled = model.has_column_filters();
-        resetColumnFilterToolStripMenuItem.Enabled = model.has_column_filter(contextColumnIndex);
+        e.ContextMenuStrip = (e.ColumnIndex == -1) ? null : get_column_header_right_click_menu(contextColumnIndex);
       }
       else
       {
@@ -234,28 +221,6 @@ namespace MySQL.Grt.Db
       }
     }
 
-    private void setColumnFilterToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-      columnFilterDialog.ColumnName = model.get_column_caption(contextColumnIndex);
-      columnFilterDialog.FilterExpression = model.get_column_filter_expr(contextColumnIndex);
-      columnFilterDialog.Location = new Point(columnHeaderContextMenuStrip.Left, columnHeaderContextMenuStrip.Top);
-      columnFilterDialog.ShowDialog();
-      if (columnFilterDialog.DialogResult == DialogResult.OK)
-      {
-        model.set_column_filter(contextColumnIndex, columnFilterDialog.FilterExpression);
-      }
-    }
-
-    private void resetColumnFilterToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-      model.reset_column_filter(contextColumnIndex);
-    }
-
-    private void resetAllColumnFiltersToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-      model.reset_column_filters();
-    }
-
     /// <summary>
     /// Resorts the recordset for the given column and direction.
     /// </summary>
@@ -300,44 +265,6 @@ namespace MySQL.Grt.Db
           contextRowIndex = -1;
         }
       }
-    }
-
-    private int gridView_AdditionalColumnWidth(DataGridViewColumn column)
-    {
-      int additionalColumnWidth = 0;
-      if (column.Index >= 0)
-        if (model.has_column_filter(column.Index))
-          additionalColumnWidth += columnHeaderFilterImage.Size.Width + 2;
-      return additionalColumnWidth;
-    }
-
-    private void gridView_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
-    {
-      if ((0 <= e.RowIndex) || (-1 == e.ColumnIndex))
-        return;
-
-      if (!model.has_column_filter(e.ColumnIndex))
-        return;
-
-      e.PaintBackground(e.ClipBounds, true);
-
-      Rectangle glyphRect = new Rectangle(new Point(0, 0), columnHeaderFilterImage.Size);
-      glyphRect.X = e.CellBounds.Right - glyphRect.Width - 2;
-      if (gridView.Columns[e.ColumnIndex].HeaderCell.SortGlyphDirection != SortOrder.None)
-        glyphRect.X -= glyphRect.Width;
-      if (glyphRect.X < 0)
-        glyphRect.X = 0;
-      glyphRect.Y = e.ClipBounds.Top + (e.ClipBounds.Height - glyphRect.Height) / 2;
-      if (glyphRect.Y < 0)
-        glyphRect.Y = 0;
-
-      Rectangle contentRect = e.ClipBounds;
-      if (contentRect.Width > (e.CellBounds.Width - glyphRect.Width))
-        contentRect.Width = e.CellBounds.Width - glyphRect.Width;
-      e.PaintContent(contentRect);
-      e.Graphics.DrawImageUnscaledAndClipped(columnHeaderFilterImage, glyphRect);
-
-      e.Handled = true;
     }
 
     #endregion
@@ -457,6 +384,12 @@ namespace MySQL.Grt.Db
       column_resize_callback = callback;
     }
 
+    private IRecordsetView.ColumnHeaderRightClickCallback get_column_header_right_click_menu;
+    public void set_column_header_right_click_callback(IRecordsetView.ColumnHeaderRightClickCallback callback)
+    {
+      get_column_header_right_click_menu = callback;
+    }
+
     public int get_column_count()
     {
       return gridView.ColumnCount;
@@ -487,6 +420,30 @@ namespace MySQL.Grt.Db
     public void set_current_cell(int row, int column)
     {
       gridView.CurrentCell = gridView[row, column];
+    }
+
+    
+    public void set_font(String font, float size, FontStyle style)
+    {
+      gridView.Font = new Font(font, size, style);
+      gridView.AutoResizeRows();
+      gridView.AutoResizeColumnHeadersHeight();
+    }
+    
+    public void set_column_header_indicator(int column, IRecordsetView.ColumnHeaderIndicator order)
+    {
+      switch (order)
+      {
+      case IRecordsetView.ColumnHeaderIndicator.NoOrder:
+        gridView.Columns[column].HeaderCell.SortGlyphDirection = SortOrder.None;
+        break;
+      case IRecordsetView.ColumnHeaderIndicator.OrderAsc:
+        gridView.Columns[column].HeaderCell.SortGlyphDirection = SortOrder.Ascending;
+        break;
+      case IRecordsetView.ColumnHeaderIndicator.OrderDesc:
+        gridView.Columns[column].HeaderCell.SortGlyphDirection = SortOrder.Descending;
+        break;
+      }
     }
     #endregion
   }
