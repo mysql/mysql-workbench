@@ -1573,7 +1573,6 @@
 		2B7FEC1A12EB9C23007945E2 /* wb_admin_main.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B7FEC0812EB9C0A007945E2 /* wb_admin_main.py */; };
 		2B825D210E0B578600BE52DF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B825D1D0E0B578600BE52DF /* InfoPlist.strings */; };
 		2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
-		2B825D670E0B5F4000BE52DF /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */; };
 		2B825DA50E0B604D00BE52DF /* changefactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825D960E0B604D00BE52DF /* changefactory.cpp */; };
 		2B825DA60E0B604D00BE52DF /* changefactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825D970E0B604D00BE52DF /* changefactory.h */; };
 		2B825DA70E0B604D00BE52DF /* changelistobjects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825D980E0B604D00BE52DF /* changelistobjects.cpp */; };
@@ -2027,8 +2026,6 @@
 		2BCB31DB0E88493F005C8ED2 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2BCB3C1F183C18E1007D06F4 /* ps_overview.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCB3C1E183C18E1007D06F4 /* ps_overview.png */; };
-		2BCBAE4815E7D91A009571DE /* libintl.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCBAE4415E7D749009571DE /* libintl.8.dylib */; };
-		2BCBAE4A15E7D9A1009571DE /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */; };
 		2BCBAE4C15E7DA60009571DE /* libzip.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCBAE4615E7D749009571DE /* libzip.1.0.0.dylib */; };
 		2BCC405B0EFFC06E008A66D4 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
 		2BCC40620EFFD0F3008A66D4 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
@@ -2260,6 +2257,7 @@
 		2BEC8E7C1035F80900607CA4 /* mysql_sql_semantic_check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */; };
 		2BECA53618B3A13D00E12F8B /* sys in Resources */ = {isa = PBXBuildFile; fileRef = 2BECA53518B3A13D00E12F8B /* sys */; };
 		2BECA53918BD2F3000E12F8B /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		2BF02D031964A8CF008C9304 /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */; };
 		2BF0490117398B0400A7EA35 /* wb_admin_server_status.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF04900173989C600A7EA35 /* wb_admin_server_status.py */; };
 		2BF0491C1739925E00A7EA35 /* mysql-logo-00.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */; };
 		2BF0491D1739925E00A7EA35 /* mysql-logo-00@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */; };
@@ -6242,13 +6240,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BF02D031964A8CF008C9304 /* libiconv.2.dylib in Frameworks */,
 				2BECA53918BD2F3000E12F8B /* Python in Frameworks */,
 				2B2E92F21589991B0078D08A /* libwbbase.dylib in Frameworks */,
 				2B2E92FE158999890078D08A /* libiodbc.dylib in Frameworks */,
 				2B774FB415CEC45500923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FB515CEC45500923448 /* libgthread-2.0.0.dylib in Frameworks */,
-				2BCBAE4815E7D91A009571DE /* libintl.8.dylib in Frameworks */,
-				2BCBAE4A15E7D9A1009571DE /* libiconv.2.dylib in Frameworks */,
 				2BC7896817D7BE2D005E03D5 /* libmysqlclient.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6416,7 +6413,6 @@
 			files = (
 				2720C53816EA18B500E57A8D /* libpcre.1.dylib in Frameworks */,
 				2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */,
-				2B825D670E0B5F4000BE52DF /* libiconv.2.dylib in Frameworks */,
 				2BDC26050E855EC40018CE34 /* liblua.a in Frameworks */,
 				2B774FA915CEC39D00923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FAA15CEC3B000923448 /* libgthread-2.0.0.dylib in Frameworks */,
