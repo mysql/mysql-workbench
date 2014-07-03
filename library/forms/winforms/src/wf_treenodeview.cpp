@@ -449,7 +449,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void EndColumns() // TODO: not really clear we need that.
+  void EndColumns()
   {
     Model = model; // Trigger refresh.
   }

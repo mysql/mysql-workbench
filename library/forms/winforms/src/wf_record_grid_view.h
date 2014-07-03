@@ -26,12 +26,12 @@ namespace MySQL {
   namespace Forms {
     public delegate MySQL::Base::IRecordsetView ^CreateRecordGridDelegate(IntPtr  /* to a boost::shared_ptr<Recordset> ptr */ rset);
 
-    ref class ColumnResizedWrapper;
+    ref class ColumnCallbackWrapper;
 
     public class RecordGridViewWrapper : public NativeWrapper
     {
       static gcroot<CreateRecordGridDelegate^> factory;
-      gcroot<ColumnResizedWrapper^> column_resize_delegate;
+      gcroot<ColumnCallbackWrapper^> column_callback_delegate;
 
     public:
       static mforms::RecordGrid *create(boost::shared_ptr<class ::Recordset> rset);
