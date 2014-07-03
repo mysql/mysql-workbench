@@ -192,14 +192,13 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   // reset the column header indicators
   rset->get_toolbar()->find_item("record_sort_reset")->signal_activated()->connect(boost::bind(&SqlEditorResult::reset_sorting, this));
 
-
   _grid_header_menu = new mforms::ContextMenu();
   _grid_header_menu->add_item_with_title("Copy Field Name", boost::bind(&SqlEditorResult::copy_column_name, this));
   _grid_header_menu->add_item_with_title("Copy All Field Names", boost::bind(&SqlEditorResult::copy_all_column_names, this));
 
   mforms::RecordGrid *grid = mforms::manage(mforms::RecordGrid::create(rset));
   {
-    std::string font = _owner->owner()->grt_manager()->get_app_option_string("Recordset:Font");
+    std::string font = _owner->owner()->grt_manager()->get_app_option_string("workbench.general.Resultset:Font");
     if (!font.empty())
       grid->set_font(font);
 
@@ -457,7 +456,6 @@ void SqlEditorResult::on_recordset_column_resized(int column)
 {
   std::string column_id = _column_width_storage_ids[column];
   int width = _result_grid->get_column_width(column);
-  log_info("column %s resized to %i\n", column_id.c_str(), width);
   _owner->owner()->column_width_cache()->save_column_width(column_id, width);
 }
 
@@ -493,7 +491,11 @@ void SqlEditorResult::restore_grid_column_widths()
           length = 10;
         else if (length > 20)
           length = 20;
+#if defined(__APPLE__) || defined(_WIN32)
         _result_grid->set_column_width(i, length * 9);
+#else
+        _result_grid->set_column_width(i, length * 12);
+#endif
       }
     }
   }

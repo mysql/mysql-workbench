@@ -1633,15 +1633,16 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     break;
   }
   
+  Gtk::TreeViewColumn *tvc = _tree.get_column(column);
   {
     Gtk::Label *label = Gtk::manage(new Gtk::Label(name));
     label->show();
-    _tree.get_column(column)->set_widget(*label);
+    tvc->set_widget(*label);
   }
-  _tree.get_column(column)->set_resizable(true);
+  tvc->set_resizable(true);
   if (initial_width > 0)
-    _tree.get_column(column)->set_fixed_width(initial_width);
-  _tree.get_column(column)->set_data("index", (void*)(intptr_t)column);
+    tvc->set_fixed_width(initial_width);
+  tvc->set_data("index", (void*)(intptr_t)column);
   
   return column;
 }
@@ -2062,7 +2063,13 @@ static int calc_row_for_node(Gtk::TreeView *tree, const Gtk::TreeIter &iter)
   {
     for (Gtk::TreeIter i = parent->children().begin(); i != iter; i++)
       row += count_rows_in_node(tree, i);
-    row += calc_row_for_node(tree, parent);
+    row += calc_row_for_node(tree, parent) + 1;
+  }
+  else
+  {
+    Gtk::TreePath path(iter);
+    while (path.prev())
+      row += count_rows_in_node(tree, tree->get_model()->get_iter(path));
   }
   return row;
 }

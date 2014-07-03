@@ -49,14 +49,14 @@ namespace mforms {
     virtual int get_column_width(int column) = 0;
     virtual void set_column_width(int column, int width) = 0;
 
-    virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order) = 0; //TODO Windows, Linux
+    virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order) = 0; //TODO Windows
 
     virtual bool current_cell(size_t &row, int &column) = 0;
     virtual void set_current_cell(size_t row, int column) = 0;
 
-    virtual void set_font(const std::string &font) = 0; // TODO Windows, Linux
+    virtual void set_font(const std::string &font) = 0; // TODO Windows
 
-    virtual void set_header_menu(ContextMenu *menu); // TODO Windows, Linux
+    virtual void set_header_menu(ContextMenu *menu); // TODO Windows
     int get_clicked_header_column() { return _clicked_header_column; }
 
 #ifndef SWIG
@@ -65,7 +65,7 @@ namespace mforms {
     static void register_factory(RecordGrid* (*create)(boost::shared_ptr<Recordset> rset));
 #endif
 
-    // TODO must be emited from Windows, Linux
+    // TODO must be emited from Windows
     boost::signals2::signal<void (int)>* signal_column_resized() { return &_signal_column_resized; }
 
     ContextMenu *header_menu() { return _header_menu; }

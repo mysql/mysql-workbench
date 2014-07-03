@@ -17,6 +17,7 @@ _model(model),
 _view(view),
 _row_numbers_visible(true)
 {
+  _ignore_column_resizes = 0;
   view->set_rules_hint(true); // enable alternating row colors
   set_fake_column_value_getter(sigc::mem_fun(this, &GridViewModel::get_cell_value));
   //set_fake_column_value_setter(sigc::mem_fun(this, &GridViewModel::set_cell_value));
@@ -70,10 +71,11 @@ int GridViewModel::refresh(bool reset_columns)
       {
         Gtk::TreeViewColumn *col= add_column<ValueTypeTraits<> >(-2, "#", RO, NULL);
         col->get_first_cell_renderer()->property_cell_background()= "LightGray";
-        col->set_min_width(30);
+        col->set_min_width(35);
       }
     }
 
+    ignore_column_resizes(true);
     bool is_model_editable= !_model->is_readonly();
     for (int index= 0, count= _model->get_column_count(); index < count; ++index)
     {
@@ -85,22 +87,73 @@ int GridViewModel::refresh(bool reset_columns)
       {
       case bec::GridModel::NumericType:
         col = add_column<ValueTypeTraits<bec::GridModel::NumericType> >(index, label, is_col_editable, 0);
-        col->set_min_width(30);
+        col->set_min_width(10);
         break;
       case bec::GridModel::FloatType:
         col = add_column<ValueTypeTraits<bec::GridModel::FloatType> >(index, label, is_col_editable, 0);
-        col->set_min_width(30);
+        col->set_min_width(10);
         break;
       default:
         col = add_column<ValueTypeTraits<bec::GridModel::StringType> >(index, label, is_col_editable, 0);
-        col->set_min_width(80);
+        col->set_min_width(10);
         break;
       }
+      col->set_sizing(Gtk::TREE_VIEW_COLUMN_FIXED);
+      col->set_resizable(true);
+      _current_column_size[index] = col->get_width();
+      col->property_width().signal_changed().connect(sigc::bind(sigc::mem_fun(this, &GridViewModel::on_column_resized), col));
     }
+
+    // horrible hack to workaround shitty gtk column resizing, needed to make the last column resizable
+    // even in Ubuntu's bizarre scrollbar that covers the resize area and also make the last column have a fixed size,
+    // instead of using all available space when there's more than needed
+    Gtk::TreeViewColumn *col = add_column<ValueTypeTraits<bec::GridModel::StringType> >(-3, "", RO, NULL);
+    col->set_min_width(5);
+    col->set_sizing(Gtk::TREE_VIEW_COLUMN_FIXED);
+    col->set_expand(true);
+    col->set_resizable(true);
+
+    ignore_column_resizes(false);
   }
 
   return 0;
 }
+
+
+void GridViewModel::on_column_resized(Gtk::TreeViewColumn *col)
+{
+  int column = column_index(col);
+  if (_current_column_size[column] != col->get_width())
+  {
+    _current_column_size[column] = col->get_width();
+
+    // this will be called whenever the width property changes, not only when the column is resized by the user, so we need
+    // to do some filtering
+    if (_ignore_column_resizes == 0) 
+      column_resized(column);
+  }
+}
+
+
+void GridViewModel::set_column_width(int column, int width)
+{
+  ignore_column_resizes(true); 
+  Gtk::TreeViewColumn *tc = _view->get_column(column+1); 
+  if (tc) 
+    tc->set_fixed_width(width);
+  ignore_column_resizes(false);
+}
+
+
+void GridViewModel::on_column_header_button_press(GdkEventButton *ev, Gtk::TreeViewColumn *column)
+{
+  if (ev->button == 3)
+  {
+    int col = column_index(column);
+    column_right_clicked(col, ev->x, ev->y);
+  }
+}
+
 
 template <typename ValueTypeTraits>
 Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &name, Editable editable, Gtk::TreeModelColumnBase *color_column)
@@ -110,9 +163,12 @@ Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &na
   typedef Gtk::TreeModelColumn<typename ValueTypeTraits::ValueType> ModelColumn;
   ModelColumn *col = new ModelColumn();
   columns.add_model_column(col, index);
-  Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *icon = new Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> >();
-  columns.add_model_column(icon, index);
-
+  Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > *icon = NULL;
+  if (index != -3)
+  {
+    icon = new Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> >();
+    columns.add_model_column(icon, index);
+  }
   typedef CustomRenderer<typename ValueTypeTraits::Renderer, typename ValueTypeTraits::RendererValueType, typename ValueTypeTraits::ValueType> CustomRenderer;
   CustomRenderer *renderer= Gtk::manage(new CustomRenderer());
   renderer->floating_point_visible_scale(_model->floating_point_visible_scale());
@@ -123,11 +179,23 @@ Gtk::TreeViewColumn * GridViewModel::add_column(int index, const std::string &na
     treeview_column->signal_clicked().connect(sigc::bind(sigc::mem_fun(_view, &GridView::on_column_header_clicked), treeview_column, index));
     treeview_column->set_clickable();
   }
+  if (index >= 0)
+  {
+    Gtk::Label *label = Gtk::manage(new Gtk::Label(name));
+    label->show();
+    treeview_column->set_widget(*label);
+    // another hack to allow right click catching in header
+    Gtk::Button *btn = (Gtk::Button*)label->get_ancestor(GTK_TYPE_BUTTON);
+    if (btn)
+      btn->signal_button_press_event().connect_notify(sigc::bind(sigc::mem_fun(this, &GridViewModel::on_column_header_button_press), treeview_column));
+    else
+      g_warning("Could not find a button widget for treeview header\n");
+  }
   if (color_column)
     treeview_column->add_attribute(renderer->property_cell_background_gdk(), *color_column);
   _col_index_map[treeview_column]= index;
-// XXX This causes the column auto-sizing to not work well. Enable it back once the auto-sizing is fixed.
-//  set_ellipsize(index, true);
+
+  set_ellipsize(index, true);
   //TODO: implement editable wothout first row
   if (editable == EDITABLE || editable == EDITABLE_WO_FIRST)
   {
@@ -212,6 +280,10 @@ void GridViewModel::get_cell_value(const iterator& iter, int column, GType type,
       set_glib_string(value, oss.str().c_str());
     }
   }
+    break;
+
+  case -3:
+    set_glib_string(value, "");
     break;
   }
 }
