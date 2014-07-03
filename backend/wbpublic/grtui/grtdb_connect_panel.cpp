@@ -769,26 +769,27 @@ void DbConnectPanel::begin_layout()
 {
   if (_params_table)
   {
+    _params_panel.remove(_params_table);	  
     _tab.remove_page(&_params_panel);
-    _params_panel.remove(_params_table);
   }
   if (_ssl_table)
   {
-    _tab.remove_page(&_ssl_panel);
     _ssl_panel.remove(_ssl_table);
+    _tab.remove_page(&_ssl_panel);
   }
   if (_advanced_table)
   {
-    _tab.remove_page(&_advanced_panel);
     _advanced_panel.remove(_advanced_table);
+    _tab.remove_page(&_advanced_panel);
   }
   if (_options_table)
   {
-    _tab.remove_page(&_options_panel);
     _options_panel.remove(_options_table);
+    _tab.remove_page(&_options_panel);
   }
 
   _params_table = mforms::manage(new mforms::Table());
+  _params_table->set_release_on_add();
   _params_table->set_name("params_table");
   _params_table->set_column_count(3);
   _params_table->set_row_spacing(MF_TABLE_ROW_SPACING);
