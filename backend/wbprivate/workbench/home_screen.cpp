@@ -1476,7 +1476,7 @@ public:
 
           // Creates the legend to be displayed on the filter icon
           if (groups.size() > 2)
-            tile_groups = base::strfmt("%s and %d others", groups[0].c_str(), groups.size() - 1);
+            tile_groups = base::strfmt("%s and %li others", groups[0].c_str(), (long)groups.size() - 1);
           else
             tile_groups = ha_filter;
         }
