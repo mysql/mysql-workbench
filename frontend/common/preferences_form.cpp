@@ -1819,15 +1819,19 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page()
 
     table->add_option(new_entry_option("workbench.general.Editor:Font", false),
                       _("SQL Editor:"),
-                      _("Global font for SQL text editors."));
+                      _("Global font for SQL text editors"));
+
+    table->add_option(new_entry_option("workbench.general.Resultset:Font", false),
+                      _("Resultset Grid:"),
+                      _("Resultset grid in SQL Editor"));
 
     table->add_option(new_entry_option("workbench.scripting.ScriptingShell:Font", false),
                       _("Scripting Shell:"),
-                      _("Font to be used in Scripting Shell."));
+                      _("Scripting Shell output area"));
 
     table->add_option(new_entry_option("workbench.scripting.ScriptingEditor:Font", false),
                       _("Script Editor:"),
-                      _("Font to be used in code editors in Scripting Shell."));
+                      _("Code editors in scripting shell"));
 
     content->add(table, false, true);
   }
@@ -1877,6 +1881,10 @@ void PreferencesForm::show_colors_and_fonts()
   for (std::vector<std::string>::const_iterator iter= options.begin();
        iter != options.end(); ++iter)
   {
+    if (base::starts_with(*iter, "workbench.general") ||
+        base::starts_with(*iter, "workbench.scripting"))
+      continue;
+
     if (bec::has_suffix(*iter, "Font") && bec::has_prefix(*iter, "workbench."))
     {
       std::string::size_type pos= iter->find(':');

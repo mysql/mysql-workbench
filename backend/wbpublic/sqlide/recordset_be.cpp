@@ -258,7 +258,8 @@ void Recordset::refresh()
   if (!data_search_string.empty())
     set_data_search_string(data_search_string);
 
-  rows_changed();
+  if (rows_changed)
+    rows_changed();
 }
 
 
