@@ -920,64 +920,77 @@ public:
 
   virtual void OnDragOver(DragEventArgs ^args) override
   {
-    if (args->Data->GetDataPresent(rowDragFormat->Name))
+    if (canReorderRows)
     {
-      // Only accept row move events from this tree instance.
-      if (args->Data->GetData(rowDragFormat->Name) == this)
+      if (args->Data->GetDataPresent(rowDragFormat->Name))
       {
-        args->Effect = DragDropEffects::Move;
-        return;
+        // Only accept row move events from this tree instance.
+        if (args->Data->GetData(rowDragFormat->Name) == this)
+        {
+          args->Effect = DragDropEffects::Move;
+          return;
+        }
       }
+
+      args->Effect = DragDropEffects::None;
+      return;
     }
 
-    args->Effect = DragDropEffects::None;
+    __super::OnDragOver(args);
   }
 
   //------------------------------------------------------------------------------------------------
 
   virtual void OnDragDrop(DragEventArgs ^args) override
   {
-    if (args->Data->GetDataPresent(rowDragFormat->Name))
+    if (canReorderRows)
     {
-      if (args->Data->GetData(rowDragFormat->Name) == this)
+      if (args->Data->GetDataPresent(rowDragFormat->Name))
       {
-        // Make a copy of the selection. We are going to modify the tree structure.
-        Collections::Generic::List<TreeViewNode^> ^selection = gcnew Collections::Generic::List<TreeViewNode^>();
-        for each (TreeNodeAdv ^node in SelectedNodes)
-          selection->Add((TreeViewNode^)node->Tag);
-
-        Point p = PointToClient(Point(args->X, args->Y));
-        NodeControlInfo ^info = GetNodeControlInfoAt(p);
-        if (info->Node == nullptr)
+        if (args->Data->GetData(rowDragFormat->Name) == this)
         {
-          // No target node means either insert before the first one or after the last.
-          for each (TreeViewNode ^node in selection)
-          {
-            node->Parent->Nodes->Remove(node);
+          // Make a copy of the selection. We are going to modify the tree structure.
+          Collections::Generic::List<TreeViewNode^> ^selection = gcnew Collections::Generic::List<TreeViewNode^>();
+          for each (TreeNodeAdv ^node in SelectedNodes)
+            selection->Add((TreeViewNode^)node->Tag);
 
-            if (p.Y < ColumnHeaderHeight)
-              model->Root->Nodes->Insert(0, node);
-            else
-              model->Root->Nodes->Add(node);
-          }
-        }
-        else
-        {
-          NodePosition position = DropPosition.Position;
-          TreeViewNode ^targetNode = (TreeViewNode^)info->Node->Tag;
-
-          for each (TreeViewNode ^node in selection)
+          Point p = PointToClient(Point(args->X, args->Y));
+          NodeControlInfo ^info = GetNodeControlInfoAt(p);
+          if (info->Node == nullptr)
           {
-            if (node != targetNode) // Don't move a node to the place it is currently.
+            // No target node means either insert before the first one or after the last.
+            for each (TreeViewNode ^node in selection)
             {
               node->Parent->Nodes->Remove(node);
-              int index = targetNode->Index + ((position == NodePosition::After) ?  1 : 0);
-              targetNode->Parent->Nodes->Insert(index, node);
+
+              if (p.Y < ColumnHeaderHeight)
+                model->Root->Nodes->Insert(0, node);
+              else
+                model->Root->Nodes->Add(node);
+            }
+          }
+          else
+          {
+            NodePosition position = DropPosition.Position;
+            TreeViewNode ^targetNode = (TreeViewNode^)info->Node->Tag;
+
+            for each (TreeViewNode ^node in selection)
+            {
+              if (node != targetNode) // Don't move a node to the place it is currently.
+              {
+                node->Parent->Nodes->Remove(node);
+                int index = targetNode->Index + ((position == NodePosition::After) ? 1 : 0);
+                targetNode->Parent->Nodes->Insert(index, node);
+              }
             }
           }
         }
       }
+
+      return;
     }
+
+    __super::OnDragDrop(args);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1233,6 +1246,14 @@ mforms::TreeNodeRef TreeNodeViewWrapper::node_at_row(mforms::TreeNodeView *backe
 
 //--------------------------------------------------------------------------------------------------
 
+mforms::TreeNodeRef TreeNodeViewWrapper::node_at_position(mforms::TreeNodeView *backend, base::Point position)
+{
+  TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+  return wrapper->node_at_position(position);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 int TreeNodeViewWrapper::row_for_node(mforms::TreeNodeView *backend, mforms::TreeNodeRef node)
 {
   TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
@@ -1393,6 +1414,19 @@ mforms::TreeNodeRef TreeNodeViewWrapper::node_at_row(int row)
 
 //--------------------------------------------------------------------------------------------------
 
+mforms::TreeNodeRef TreeNodeViewWrapper::node_at_position(base::Point position)
+{
+  TreeViewAdv ^tree = GetManagedObject<TreeViewAdv>();
+  TreeNodeAdv ^node = tree->GetNodeAt(::Point((int)position.x, (int)position.y));
+  if (node == nullptr)
+    return mforms::TreeNodeRef();
+
+  TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(node->Tag);
+  return mforms::TreeNodeRef(new TreeNodeWrapper(this, ourNode));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 static int count_rows_in_node(mforms::TreeNodeRef node)
 {
   if (node->is_expanded())
@@ -1535,6 +1569,7 @@ void TreeNodeViewWrapper::init()
   f->_treenodeview_impl.root_node = &TreeNodeViewWrapper::root_node;
   f->_treenodeview_impl.row_for_node = &TreeNodeViewWrapper::row_for_node;
   f->_treenodeview_impl.node_at_row = &TreeNodeViewWrapper::node_at_row;
+  f->_treenodeview_impl.node_at_position = &TreeNodeViewWrapper::node_at_position;
   f->_treenodeview_impl.set_selection_mode = &TreeNodeViewWrapper::set_selection_mode;
   f->_treenodeview_impl.get_selection_mode = &TreeNodeViewWrapper::get_selection_mode;
   f->_treenodeview_impl.node_with_tag = &TreeNodeViewWrapper::node_with_tag;
