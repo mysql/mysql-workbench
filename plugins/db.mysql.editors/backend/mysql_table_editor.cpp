@@ -360,10 +360,37 @@ bool MySQLTableColumnsListBE::activate_popup_item_for_nodes(const std::string &n
   return TableColumnsListBE::activate_popup_item_for_nodes(name, orig_nodes);
 }  
 
+//----------------- TriggerTreeView ----------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+class TriggerTreeView : public mforms::TreeNodeView
+{
+public:
+  TriggerTreeView(mforms::TreeOptions options)
+    : mforms::TreeNodeView(options)
+  {
+  }
 
-class MySQLTriggerPanel : public mforms::Box
+  virtual bool get_drag_data(mforms::DragDetails &details, void **data, std::string &format)
+  {
+    mforms::TreeNodeRef selection = get_selected_node();
+    if (selection.is_valid() && selection->get_parent() != root_node())
+    {
+//      *data = &selection;
+      format = "drag-trigger";
+      details.allowedOperations = mforms::DragOperationCopy | mforms::DragOperationMove;
+
+      return true;
+    }
+
+    return false;
+  }
+};
+
+//----------------- MySQLTriggerPanel --------------------------------------------------------------
+
+#define TRIGGER_DRAG_FORMAT "com.mysql.workbench.drag-trigger"
+
+class MySQLTriggerPanel : public mforms::Box, public mforms::DropDelegate
 {
 public:
   MySQLTriggerPanel(MySQLTableEditorBE *editor, db_mysql_TableRef table)
@@ -382,6 +409,9 @@ public:
     set_spacing(15);
     set_padding(4);
     
+    std::vector<std::string> formats;
+    formats.push_back(TRIGGER_DRAG_FORMAT);
+    _trigger_list.register_drop_formats(this, formats);
     mforms::Box *trigger_list_host = mforms::manage(new mforms::Box(false));
     trigger_list_host->set_padding(4);
     trigger_list_host->set_spacing(4);
@@ -900,10 +930,34 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  virtual mforms::DragOperation drag_over(View *sender, base::Point p, const std::vector<std::string> &formats)
+  {
+    TriggerTreeView *tree = dynamic_cast<TriggerTreeView*>(sender);
+    if (tree != NULL)
+    {
+      mforms::TreeNodeRef target_node = tree->node_at_position(p);
+      if (!target_node.is_valid())
+        return mforms::DragOperationNone;
+
+      return (tree == &_trigger_list) ? mforms::DragOperationMove : mforms::DragOperationCopy;
+    }
+
+    return mforms::DragOperationNone;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  virtual mforms::DragOperation data_dropped(View *sender, base::Point p, void *data, const std::string &format)
+  {
+    return mforms::DragOperationNone;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
 private:
   MySQLTableEditorBE *_editor;
   mforms::Table _rtable;
-  mforms::TreeNodeView _trigger_list;
+  TriggerTreeView _trigger_list;
   mforms::ContextMenu _trigger_menu;
 
   mforms::TextEntry _name;

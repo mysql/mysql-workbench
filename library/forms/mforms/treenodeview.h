@@ -239,6 +239,7 @@ namespace mforms {
     
     int (*row_for_node)(TreeNodeView *self, TreeNodeRef node);
     TreeNodeRef (*node_at_row)(TreeNodeView *self, int row);
+    TreeNodeRef(*node_at_position)(TreeNodeView *self, base::Point position);
     TreeNodeRef (*node_with_tag)(TreeNodeView *self, const std::string &tag);
 
     void (*set_column_title)(TreeNodeView *self, int column, const std::string &title);
@@ -313,6 +314,7 @@ namespace mforms {
     
     int row_for_node(TreeNodeRef node);
     TreeNodeRef node_at_row(int row);
+    TreeNodeRef node_at_position(base::Point position); // TODO: Mac, Linux
 
     /** Requires TreeIndexOnTag */
     TreeNodeRef node_with_tag(const std::string &tag);

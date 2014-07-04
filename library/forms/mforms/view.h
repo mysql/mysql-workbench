@@ -81,6 +81,13 @@ namespace mforms {
     DragOperationMove = 1 << 1
   };
 
+#ifndef SWIG
+  inline DragOperation operator | (DragOperation a, DragOperation b)
+  {
+    return (DragOperation)((int)a | (int)b);
+  }
+#endif
+
   struct DragDetails {
     base::Point location; // Position of the mouse in client coordinates.
     DragOperation allowedOperations; // A combination of flags that determine the allowed actions.

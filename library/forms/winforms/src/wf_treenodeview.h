@@ -52,6 +52,7 @@ namespace MySQL {
       static mforms::TreeNodeRef root_node(mforms::TreeNodeView *backend);
 
       static mforms::TreeNodeRef node_at_row(mforms::TreeNodeView *backend, int row);
+      static mforms::TreeNodeRef node_at_position(mforms::TreeNodeView *backend, base::Point position);
       static int row_for_node(mforms::TreeNodeView *backend, mforms::TreeNodeRef node);
       static mforms::TreeNodeRef node_with_tag(mforms::TreeNodeView *backend, const std::string &tag);
 
@@ -79,6 +80,7 @@ namespace MySQL {
       mforms::TreeNodeRef root_node();
       
       mforms::TreeNodeRef node_at_row(int row);
+      mforms::TreeNodeRef node_at_position(base::Point position);
       int row_for_node(mforms::TreeNodeRef node);
 
       void set_column_title(int column, const std::string &title);
