@@ -10,6 +10,8 @@ import mforms
 import urllib2
 import traceback
 
+from wb_common import OperationCancelledError
+
 fabric_unavailable_message = ""
 
 try: 
@@ -23,7 +25,8 @@ except ImportError, e:
     if str(e).find('No module named mysql.fabric') == 0:
         fabric_unavailable_message = "MySQL Fabric support not available.\nPlease make sure MySQL Utilities version 1.4.3 is installed to use this feature.\nSee log file for more details."
     else:
-        fabric_unavailable_message = "MySQL Fabric support not available.\n Error : %s" % str(e)
+        fabric_unavailable_message = "A component needed by this version of MySQL Fabric could not be found.\nPlease refer to the MySQL Workbench Release Notes for details about supported MySQL Fabric versions and setups."
+        log_warning("WBFabric Module", "Error loading MySQL Fabric components.\nMySQL Fabric support is unavailable: %s\n" % traceback.format_exc())
 except Exception, e:
     log_warning("WBFabric Module", "Error loading MySQL Fabric components.\nMySQL Fabric support is unavailable: %s\n" % traceback.format_exc())
     fabric_unavailable_message = "MySQL Fabric support not available.\n Error : %s" % str(e)
@@ -64,9 +67,13 @@ def create_config(conn):
   port = conn.parameterValues["port"]
   user = conn.parameterValues["userName"]
   
+  config = None
+  
   accepted, password = mforms.Utilities.find_or_ask_for_password("Fabric Node Connection", '%s@%s' % (host, port), user, False)
   if accepted:
       config = Config(None, {'protocol.xmlrpc':{'address':'%s:%s' % (host, port), 'user':user, 'password':password, 'realm':'MySQL Fabric'}})
+  else:
+      raise OperationCancelledError("Password input cancelled")
   
   return config
 
@@ -120,23 +127,26 @@ def execute_command(group_name, command_name, options, args, config):
 @ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
 def testConnection(conn):
 
-  error = fabric_unavailable_message
+    error = fabric_unavailable_message
 
-  if not error:
-      config = create_config(conn)
+    if not error:
+        try:
+            config = create_config(conn)
 
-      if config:
-          try:
-              status = execute_command('manage', 'ping', None, None, config)
-      
-              if not status:
-                  error = "Unexpected error while connecting to the fabric node"
-      
-          except Exception, e:
-              error = str(e)
-              log_warning("WBFabric Module", "Error testing MySQL Fabric connection %s : %s\n" % (conn.name, traceback.format_exc()))
+            if config:
+                status = execute_command('manage', 'ping', None, None, config)
+        
+                if not status:
+                    error = "Unexpected error while connecting to the fabric node"
+        
+        except OperationCancelledError, e:
+            error = "Operation Cancelled"
+            log_warning("WBFabric Module", "User cancelled testing MySQL Fabric connection %s\n" % conn.name)
+        except Exception, e:
+            error = str(e)
+            log_warning("WBFabric Module", "Error testing MySQL Fabric connection %s : %s\n" % (conn.name, traceback.format_exc()))
 
-  return error
+    return error
 
 
 @ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
@@ -218,6 +228,9 @@ def createConnections(conn):
                         else:
                             error = "There are no Managed Servers defined for the included groups in %s: %s." % (conn.name, ','.join(matched_groups))
 
+        except OperationCancelledError, e:
+            error = "Operation Cancelled"
+            log_warning("WBFabric Module", "User cancelled creating connectios to managed servers in the %s fabric node\n" % conn.name)
         except Exception, e:
             error = str(e)
             log_warning("WBFabric Module", "Error creating connectios to managed servers in the %s fabric node : %s\n" % (conn.name, traceback.format_exc()))

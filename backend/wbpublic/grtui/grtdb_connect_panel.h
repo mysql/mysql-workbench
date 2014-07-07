@@ -77,6 +77,8 @@ public:
 
   void save_connection_as(const std::string &name);
   
+  void set_driver_changed_cb(const boost::function<void (db_mgmt_DriverRef)> &cb) {_driver_changed_cb = cb;};
+  
   bool test_connection();
   
   db_mgmt_RdbmsRef selected_rdbms();
@@ -161,6 +163,8 @@ private:
   db_mgmt_ConnectionRef open_editor();
   
   grt::StringListRef get_enum_values(db_mgmt_DriverParameterRef param);
+  
+  boost::function<void (const db_mgmt_DriverRef &)> _driver_changed_cb;
 };
 
 };

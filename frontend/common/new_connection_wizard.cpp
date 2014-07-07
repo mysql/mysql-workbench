@@ -78,15 +78,15 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
   _bottom_hbox.set_spacing(12);
   
   _panel.init(_mgmt);
+  _panel.set_driver_changed_cb(boost::bind(&NewConnectionWizard::driver_changed_cb, this, _1));
     
   _conn_name= _panel.get_name_entry();
 
-  mforms::Button *config_button = mforms::manage(new mforms::Button());
-  scoped_connect(config_button->signal_clicked(), boost::bind(&NewConnectionWizard::open_remote_mgm_config, this));
-  config_button->set_text(_("Configure Server Management..."));
-  config_button->enable_internal_padding(true);
+  scoped_connect(_config_button.signal_clicked(), boost::bind(&NewConnectionWizard::open_remote_mgm_config, this));
+  _config_button.set_text(_("Configure Server Management..."));
+  _config_button.enable_internal_padding(true);
 
-  _bottom_hbox.add(config_button, false, true);
+  _bottom_hbox.add(&_config_button, false, true);
   _bottom_hbox.add_end(&_ok_button, false, true);
   _bottom_hbox.add_end(&_cancel_button, false, true);
   _bottom_hbox.add_end(&_test_button, false, true);
@@ -111,6 +111,14 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
 NewConnectionWizard::~NewConnectionWizard()
 {
 }
+
+//--------------------------------------------------------------------------------------------------
+
+void NewConnectionWizard::driver_changed_cb(const db_mgmt_DriverRef &driver)
+{
+  _config_button.show(driver->name() != "MySQLFabric");
+}
+
 
 //--------------------------------------------------------------------------------------------------
 
