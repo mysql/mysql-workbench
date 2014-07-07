@@ -5,7 +5,7 @@
 
 from wb import *
 import grt
-from grt import log_warning
+from grt import log_warning, log_info
 import mforms
 import urllib2
 import traceback
@@ -15,6 +15,9 @@ from wb_common import OperationCancelledError
 fabric_unavailable_message = ""
 
 try: 
+    import mysql.fabric as fabric_module
+    log_info("WBFabric Module", "Successfully imported fabric module %s at : %s\n" % (fabric_module.__version__, fabric_module.__file__))
+
     from mysql.fabric.config import Config
     from mysql.fabric.command import get_groups, get_command, get_commands
     from mysql.fabric.services import find_client, find_commands
@@ -25,7 +28,7 @@ except ImportError, e:
     if str(e).find('No module named mysql.fabric') == 0:
         fabric_unavailable_message = "MySQL Fabric support not available.\nPlease make sure MySQL Utilities version 1.4.3 is installed to use this feature.\nSee log file for more details."
     else:
-        fabric_unavailable_message = "A component needed by this version of MySQL Fabric could not be found.\nPlease refer to the MySQL Workbench Release Notes for details about supported MySQL Fabric versions and setups."
+        fabric_unavailable_message = "A component needed by the installed version of MySQL Fabric could not be found.\nPlease refer to the MySQL Workbench Release Notes for details about supported MySQL Fabric versions and setups."
         log_warning("WBFabric Module", "Error loading MySQL Fabric components.\nMySQL Fabric support is unavailable: %s\n" % traceback.format_exc())
 except Exception, e:
     log_warning("WBFabric Module", "Error loading MySQL Fabric components.\nMySQL Fabric support is unavailable: %s\n" % traceback.format_exc())
