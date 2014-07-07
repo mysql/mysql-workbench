@@ -377,7 +377,7 @@ void WBContextUI::show_home_screen()
     menu->add_item(_("Delete Connections to Managed Servers..."), "delete_fabric_connection_servers");
 
     _home_screen->set_menu(menu, HomeMenuConnectionFabric);
-
+    
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Open Model"), "open_model_from_list");
     {
@@ -918,6 +918,36 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
         move_item_to_group<db_mgmt_Connection>(group, connections, connection);
         refresh_home_connections();
       }
+      break;
+    }
+    
+    case ActionCreateFabricConnections:
+    {
+      // Creates the fabric connections only if they have not been already created
+      // since the last connection refresh
+      GUILock lock(_wb, _("Connecting to MySQL Fabric Management Node"), _("The connections to the managed MySQL Servers will be created in a moment.\n"
+                                                                     "\nPlease stand by..."));
+      _wb->show_status_text(_("Connecting to MySQL Fabric Management Node..."));
+      db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
+      grt::GRT *grt = connection->get_grt();
+      grt::BaseListRef args(grt);
+      args->insert_unchecked(connection);
+      
+      grt::ValueRef result = grt->call_module_function("WBFabric", "createConnections", args);
+      std::string error = grt::StringRef::extract_from(result);
+      
+      if (error.length())
+      {
+        mforms::Utilities::show_error(_("MySQL Fabric Connection Error"), error, "OK");
+        _wb->show_status_text(_("Failed creating connections to Managed MySQL Servers..."));
+      }
+      else
+      {
+        // Sets the flag to indicate the connections have been crated for this fabric node
+        connection->parameterValues().set("connections_created", grt::IntegerRef(1));
+        _wb->show_status_text(_("Created connections to Managed MySQL Servers..."));
+      }
+      
       break;
     }
       

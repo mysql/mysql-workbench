@@ -492,6 +492,9 @@ void DbConnectPanel::change_active_driver()
         actual_connection->parameterValues().gset("hostName", "127.0.0.1");
       }
     
+    if (_driver_changed_cb)
+      _driver_changed_cb(new_driver);
+    
     _connection->set_driver_and_update(new_driver);
     show();
     
@@ -651,18 +654,24 @@ bool DbConnectPanel::test_connection()
     message = e.what();
   }
   
-  std::string title;
-  if (message.length())
-    title = base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
-  else
+
+  bool ret_val = false;
+  if (message != "Operation Cancelled")
   {
-    title = base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
-    message = "Connection parameters are correct";
+    std::string title;
+    if (message.length())
+      title = base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
+    else
+    {
+      title = base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
+      message = "Connection parameters are correct";
+      ret_val = true;
+    }
+    
+    mforms::Utilities::show_error(title, message, "OK");
   }
   
-  mforms::Utilities::show_error(title, message, "OK");
-  
-  return message.length() == 0;
+  return ret_val;
 }
 
 

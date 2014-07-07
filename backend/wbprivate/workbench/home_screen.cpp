@@ -607,8 +607,12 @@ public:
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-    print_info_line(cr, line_bounds, _("Group Filter"), parameter_values.get_string("haGroupFilter"));
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+    std::string group_filter =parameter_values.get_string("haGroupFilter");
+    if (group_filter.length())
+    {
+      print_info_line(cr, line_bounds, _("Group Filter"), parameter_values.get_string("haGroupFilter"));
+      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1006,6 +1010,22 @@ public:
       is_fabric = _connections[_hot_entry].connection.is_valid() && _connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
 
     return is_fabric;
+  }
+  
+  //------------------------------------------------------------------------------------------------
+  
+  bool is_hot_connection_managed()
+  {
+    bool is_managed = false;
+    
+    if (_fabric_entry > -1)
+    {
+      if (_filtered)
+        is_managed = _filtered_connections[_fabric_entry].children[_hot_entry].connection->parameterValues().has_key("fabric_managed");
+      else
+        is_managed = _connections[_fabric_entry].children[_hot_entry].connection->parameterValues().has_key("fabric_managed");
+    }
+    return is_managed;
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1581,7 +1601,12 @@ public:
 
     ConnectionVector *connections;
     std::string title = _("MySQL Connections");
-    if (_active_folder > -1)
+    if ( _fabric_entry > -1)
+    {
+      title += " / " + _connections[_fabric_entry].title + " / Managed MySQL Servers";
+      connections = &_connections[_fabric_entry].children;
+    }
+    else if (_active_folder > -1)
     {
       title += " / " + _connections[_active_folder].title;
       connections = &_connections[_active_folder].children;
@@ -1907,29 +1932,21 @@ public:
             
             if (is_fabric)
             {
-              // Creates the fabric connections only if they have not been already created
-              // since the last connection refresh
-              int created_connections = grt::IntegerRef::cast_from(_connections[_hot_entry].connection->parameterValues().get("connections_created"));
+              _fabric_entry = _hot_entry;
+              db_mgmt_ConnectionRef fabric_connection;
+              if (_filtered)
+                fabric_connection = _filtered_connections[_hot_entry].connection;
+              else
+                fabric_connection = _connections[_hot_entry].connection;
+              
+              int created_connections = grt::IntegerRef::cast_from(fabric_connection->parameterValues().get("connections_created"));
               if (!created_connections)
               {
-                grt::GRT *grt = _connections[_hot_entry].connection->get_grt();
-                grt::BaseListRef args(grt);
-                args->insert_unchecked(_connections[_hot_entry].connection);
-
-                grt::ValueRef result = grt->call_module_function("WBFabric", "createConnections", args);
-                std::string error = grt::StringRef::extract_from(result);
-
-                if (error.length())
-                {
-                  mforms::Utilities::show_error("MySQL Fabric Connection Error", error, "OK");
-                  return true;
-                }
-                else
-                  // Sets the flag to indicate the connections have been crated for this fabric node
-                  _connections[_hot_entry].connection->parameterValues().set("connections_created", grt::IntegerRef(1));
+                _owner->trigger_callback(ActionCreateFabricConnections, fabric_connection);
+                created_connections = grt::IntegerRef::cast_from(fabric_connection->parameterValues().get("connections_created"));
+                if (!created_connections)
+                  return false;
               }
-              
-              _fabric_entry = _hot_entry;
             }
 
             if (is_folder || is_fabric)
@@ -1998,7 +2015,7 @@ public:
 
     return false;
   }
-
+  
   //------------------------------------------------------------------------------------------------
 
   bool mouse_leave()
@@ -2174,7 +2191,7 @@ public:
 
   void menu_open()
   {
-    ssize_t first_index = _active_folder > -1 ? 1 : 0;
+    ssize_t first_index = (_active_folder > -1 || _fabric_entry > -1)? 1 : 0;
     ssize_t last_index;
 
     if (_filtered)
@@ -2183,6 +2200,12 @@ public:
       last_index = _active_folder > -1 ? _connections[_active_folder].children.size() - 1 : _connections.size() - 1;
     if (_connection_context_menu != NULL)
     {
+      bool is_managed = is_hot_connection_managed();
+      _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("edit_connection"), !is_managed);
+      _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_to_group"), !is_managed);
+      _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("delete_connection"), !is_managed);
+      _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("delete_connection_all"), !is_managed);
+
       _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_to_top"), _entry_for_menu > first_index);
       _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_up"), _entry_for_menu > first_index);
       _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_down"), _entry_for_menu < last_index);
