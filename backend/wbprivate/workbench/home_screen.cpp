@@ -956,13 +956,13 @@ public:
 #ifdef __APPLE__
     _folder_tile_bk_color = base::Color::parse("#3477a6");
     _folder_tile_bk_color_hl = base::Color::parse("#4699b8");
-    _fabric_tile_bk_color = base::Color::parse("#0e0e0e");
-    _fabric_tile_bk_color_hl = base::Color::parse("#2f2f2f");
+    _fabric_tile_bk_color = base::Color::parse("#34a677");
+    _fabric_tile_bk_color_hl = base::Color::parse("#46b899");
 #else
     _folder_tile_bk_color = base::Color::parse("#178ec5");
     _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
-    _fabric_tile_bk_color = base::Color::parse("#444444");
-    _fabric_tile_bk_color_hl = base::Color::parse("#535353");
+    _fabric_tile_bk_color = base::Color::parse("#329863");
+    _fabric_tile_bk_color_hl = base::Color::parse("#3eac87");
 #endif
 
     _back_tile_bk_color = base::Color::parse("#d9532c");
@@ -984,17 +984,16 @@ public:
   //------------------------------------------------------------------------------------------------
 
   bool is_hot_connection_folder()
-  // This method will return true for both fabric and folder connections
-  // This validation needs to be done outside
   {
-    bool is_folder;
-
-    if (_filtered)
-      is_folder = _filtered_connections[_hot_entry].children.size() > 0;
-    else if (_active_folder > -1)
-      is_folder = _connections[_active_folder].children[_hot_entry].children.size() > 1;
-    else
-      is_folder = _connections[_hot_entry].children.size() > 1;
+    bool is_folder = false;
+    
+    if (_hot_entry > -1 && _active_folder == -1)
+    {
+      if (_filtered)
+        is_folder = _filtered_connections[_hot_entry].children.size() > 0 && !_filtered_connections[_hot_entry].connection.is_valid();
+      else
+        is_folder = _connections[_hot_entry].children.size() > 0 && !_connections[_hot_entry].connection.is_valid();
+    }
 
     return is_folder;
   }
@@ -1003,11 +1002,16 @@ public:
 
   bool is_hot_connection_fabric()
   {
-    bool is_fabric;
-    if (_filtered)
-      is_fabric = _filtered_connections[_hot_entry].connection.is_valid() && _filtered_connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
-    else
-      is_fabric = _connections[_hot_entry].connection.is_valid() && _connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
+    bool is_fabric = false;
+    
+    // The hot connection only could be a fabric connection if
+    if (_hot_entry > -1 && _active_folder == -1)
+    {
+      if (_filtered)
+        is_fabric = _filtered_connections[_hot_entry].connection.is_valid() && _filtered_connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
+      else
+        is_fabric = _connections[_hot_entry].connection.is_valid() && _connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
+    }
 
     return is_fabric;
   }
@@ -1018,12 +1022,12 @@ public:
   {
     bool is_managed = false;
     
-    if (_fabric_entry > -1)
+    if (_hot_entry > -1 && _active_folder > -1)
     {
       if (_filtered)
-        is_managed = _filtered_connections[_fabric_entry].children[_hot_entry].connection->parameterValues().has_key("fabric_managed");
+        is_managed = _filtered_connections[_active_folder].children[_hot_entry].connection->parameterValues().has_key("fabric_managed");
       else
-        is_managed = _connections[_fabric_entry].children[_hot_entry].connection->parameterValues().has_key("fabric_managed");
+        is_managed = _connections[_active_folder].children[_hot_entry].connection->parameterValues().has_key("fabric_managed");
     }
     return is_managed;
   }
@@ -1767,12 +1771,33 @@ public:
       {
         if (iterator->title == parent_name && (iterator->children.size() > 0 || iterator->connection->driver()->name() == "MySQLFabric" ))
         {
-          found_parent = true;
-          iterator->children.push_back(entry);
-          break;
+          // This will be true when the parent folder is found
+          if (!iterator->connection.is_valid() && iterator->children.size() > 0)
+            found_parent = true;
+          
+          // This will be true when the parent fabric node is found
+          else if (iterator->connection.is_valid() && iterator->connection->driver()->name() == "MySQLFabric")
+          {
+            if (iterator->children.size() == 0)
+            {
+              ConnectionEntry back_entry;
+              back_entry.connection = db_mgmt_ConnectionRef();
+              back_entry.title = "< back";
+              iterator->children.push_back(back_entry);
+            }
+            
+            found_parent = true;
+          }
+          
+          if (found_parent)
+          {
+            iterator->children.push_back(entry);
+            break;
+          }
         }
       }
 
+      // If the parent was not found, a folder should be created
       if (!found_parent)
       {
         ConnectionEntry parent;
@@ -1801,7 +1826,7 @@ public:
   void clear_connections()
   {
     _entry_for_menu = -1;
-    _active_folder = -1;
+    _active_folder = _fabric_entry;
     _connections.clear();
     _filtered = false;
     _filtered_connections.clear();
@@ -1902,12 +1927,9 @@ public:
           {
             if (_active_folder > -1 && _hot_entry == 0)
             {
-              if (_fabric_entry > -1)
-                _fabric_entry = -1;
-              
               // Returning to root list.
               _page_start = _page_start_backup;
-              _active_folder = -1;
+              _active_folder = _fabric_entry = -1;
               _filtered = false;
               _search_text.set_value("");
               
@@ -1932,7 +1954,7 @@ public:
             
             if (is_fabric)
             {
-              _fabric_entry = _hot_entry;
+              _active_folder = _fabric_entry = _hot_entry;
               db_mgmt_ConnectionRef fabric_connection;
               if (_filtered)
                 fabric_connection = _filtered_connections[_hot_entry].connection;
@@ -1948,13 +1970,14 @@ public:
                   return false;
               }
             }
+            else if (is_folder)
+              _active_folder = _hot_entry;
 
             if (is_folder || is_fabric)
             {
               // Drilling into a folder.
               _page_start_backup = _page_start;
               _page_start = 0;
-              _active_folder = _hot_entry;
               _filtered = false;
               _search_text.set_value("");
               set_needs_repaint();
@@ -2191,7 +2214,7 @@ public:
 
   void menu_open()
   {
-    ssize_t first_index = (_active_folder > -1 || _fabric_entry > -1)? 1 : 0;
+    ssize_t first_index = (_active_folder > -1)? 1 : 0;
     ssize_t last_index;
 
     if (_filtered)

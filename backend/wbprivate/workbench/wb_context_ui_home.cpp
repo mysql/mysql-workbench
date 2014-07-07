@@ -620,7 +620,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       refresh_home_connections();
     }
   }
-  else if (action == "delete_connection_group" || "internal_delete_connection_group")
+  else if (action == "delete_connection_group" || action == "internal_delete_connection_group")
   {
     std::string group = object.repr();
     int answer = mforms::ResultOk;
