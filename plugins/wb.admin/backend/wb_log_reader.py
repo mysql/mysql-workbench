@@ -98,6 +98,7 @@ from workbench.log import log_info, log_error
 from wb_server_management import SudoTailInputFile, LocalInputFile, SFTPInputFile
 from wb_common import LogFileAccessError, ServerIOError, InvalidPasswordError
 from workbench.utils import server_os_path
+import dateutil.parser
 
 #========================= Query Based Readers ================================
 
@@ -410,7 +411,8 @@ class BaseLogFileReader(object):
             abbr = data[:256].decode('latin1').encode('utf-8')
         size = '%d bytes' % l if l < 1024 else '%.1f KB' % (l / 1024.0)
         return abbr if l <= 256 else abbr + ' [truncated, %s total]' % size
-    
+
+
     def current(self):
         '''
             Returns a list with the records in the current chunk.
@@ -491,7 +493,7 @@ class ErrorLogFileReader(BaseLogFileReader):
         # this is also the format used by mysqld_safe
         mysql_55 = r'^(?P<v55>(\d{6} {1,2}\d{1,2}:\d{2}:\d{2}) {1,2}([^ ]*) (.*?))$'
         mysql_pre55 = r'^(?P<old>(\d{2})(\d{2})(\d{2}) {1,2}(\d{1,2}:\d{2}:\d{2}) ([a-zA-Z0-9_]*?) (.*?))$'
-        mysql_57 = r'^(?P<v57>(\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+)Z (\d+) \[(.*)\] (.*?))$'
+        mysql_57 = r'^(?P<v57>(\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+Z) (\d+) \[(.*)\] (.*?))$'
 
         # add new formats to the end, or you'll have a hard time adjusting indexes
         partial_re = '|'.join([mysql_56, mysql_55, mysql_pre55, mysql_57])
@@ -520,7 +522,7 @@ class ErrorLogFileReader(BaseLogFileReader):
         elif gdict['old']:
             return ["20%s-%s-%s %s" % (g[10], g[11], g[12], g[13]), "", g[14], g[15]]
         elif gdict['v57']:
-            return [g[17].replace("T", " "), g[18], g[19], g[20]]
+            return [dateutil.parser.parse(g[17]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T"), g[18], g[19], g[20]]
         else:
             return ["", "", "", g[-1]]
 
@@ -543,7 +545,7 @@ class GeneralLogFileReader(BaseLogFileReader):
     log file.
     '''
     def __init__(self, ctrl_be, file_name, chunk_size=64 * 1024, truncate_long_lines=True):
-        pat = re.compile(r'^(?P<v57>(\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+)Z[\t ]*(\d+)\s*(.*?)(?:\t+| {2,})(.*?))$|^(?P<v56>(\d{6} {1,2}\d{1,2}:\d{2}:\d{2}[\t ]+|[\t ]+)(\s*\d+)(\s*.*?)(?:\t+| {2,})(.*?))$', re.M)
+        pat = re.compile(r'^(?P<v57>(\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+Z)[\t ]*(\d+)\s*(.*?)(?:\t+| {2,})(.*?))$|^(?P<v56>(\d{6} {1,2}\d{1,2}:\d{2}:\d{2}[\t ]+|[\t ]+)(\s*\d+)(\s*.*?)(?:\t+| {2,})(.*?))$', re.M)
 
         super(GeneralLogFileReader, self).__init__(ctrl_be, file_name, pat, chunk_size, truncate_long_lines)
         self.column_specs = (
@@ -559,7 +561,7 @@ class GeneralLogFileReader(BaseLogFileReader):
         gdict = found.groupdict()
         g = found.groups()
         if gdict['v57']:
-            return [g[1].replace("T", " "), g[2], g[3], g[4]]
+            return [dateutil.parser.parse(g[1]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T"), g[2], g[3], g[4]]
         else: # v56
             return list(g[6:10])
 
@@ -571,7 +573,7 @@ class SlowLogFileReader(BaseLogFileReader):
     log file.
     '''
     def __init__(self, ctrl_be, file_name, chunk_size=64 * 1024, truncate_long_lines=True, append_gaps=False):
-        mysql_57 = r'(?:^|\n)(?P<v57># Time: (\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+)Z.*?\n# User@Host: (.*?)\n# Query_time: +([0-9.]+) +Lock_time: +([\d.]+) +Rows_sent: +(\d+) +Rows_examined: +(\d+)\s*\n(.*?)(?=\n# |\n[^\n]+, Version: |$))'
+        mysql_57 = r'(?:^|\n)(?P<v57># Time: (\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+Z).*?\n# User@Host: (.*?)\n# Query_time: +([0-9.]+) +Lock_time: +([\d.]+) +Rows_sent: +(\d+) +Rows_examined: +(\d+)\s*\n(.*?)(?=\n# |\n[^\n]+, Version: |$))'
         mysql_56 = r'(?:^|\n)(?P<v56># Time: (\d{6} {1,2}\d{1,2}:\d{2}:\d{2}).*?\n# User@Host: (.*?)\n# Query_time: +([0-9.]+) +Lock_time: +([\d.]+) +Rows_sent: +(\d+) +Rows_examined: +(\d+)\s*\n(.*?)(?=\n# |\n[^\n]+, Version: |$))'
         pat = re.compile('|'.join([mysql_57, mysql_56]), re.S)
         super(SlowLogFileReader, self).__init__(ctrl_be, file_name, pat, chunk_size, truncate_long_lines, append_gaps)
@@ -590,6 +592,7 @@ class SlowLogFileReader(BaseLogFileReader):
         gdict = found.groupdict()
         g = found.groups()
         if gdict['v57']:
-            return [g[1].replace("T", " ")]+list(g[2:8])
+            # convert timezone from UTC to local
+            return [dateutil.parser.parse(g[1]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T")]+list(g[2:8])
         else: # v56
             return list(g[9:9+7])
