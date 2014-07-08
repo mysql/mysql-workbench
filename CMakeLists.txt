@@ -240,12 +240,12 @@ install(FILES ${CMAKE_BINARY_DIR}/mysql-workbench.desktop DESTINATION ${WB_INSTA
 
 if (EXISTS ${PROJECT_SOURCE_DIR}/COPYING)
     install(FILES README COPYING DESTINATION ${WB_INSTALL_DOC_DIR})
-    install(FILES build/debian/mysql-workbench-community.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
-    install(FILES build/debian/mysql-workbench-community.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
+    install(FILES build/mysql-workbench-community.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
+    install(FILES build/mysql-workbench-community.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
 else ()
     install(FILES README LICENSE.mysql DESTINATION ${WB_INSTALL_DOC_DIR})
-    install(FILES build/debian/mysql-workbench-commercial.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
-    install(FILES build/debian/mysql-workbench-commercial.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
+    install(FILES build/mysql-workbench-commercial.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
+    install(FILES build/mysql-workbench-commercial.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
 endif ()
 
 install(FILES build/build_freetds.sh
