@@ -58,7 +58,7 @@ public:
 };
 
 MySQLScanner::MySQLScanner(const char *text, size_t length, bool is_utf8, long server_version,
-  const std::string &sql_mode, const std::set<std::string> &charsets)
+  const std::string &sql_mode_string, const std::set<std::string> &charsets)
   : MySQLRecognitionBase(charsets)
 {
   d = new Private();
@@ -67,7 +67,7 @@ MySQLScanner::MySQLScanner(const char *text, size_t length, bool is_utf8, long s
   d->_text_length = length;
   d->_context.version = server_version;
   d->_context.payload = this;
-  set_sql_mode(sql_mode);
+  set_sql_mode(sql_mode_string);
 
   // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
   // (everything requiring only one byte per char as Latin1, ASCII and similar).
@@ -97,10 +97,21 @@ void MySQLScanner::reset()
 MySQLToken MySQLScanner::next_token()
 {
   pANTLR3_COMMON_TOKEN token = d->_token_source->nextToken(d->_token_source);
-  MySQLToken result = {token->type, token->line, token->charPosition, token->index, token->channel,
-                       (char*)token->lineStart, reinterpret_cast<char*>(token->start), reinterpret_cast<char*>(token->stop)};
-  pANTLR3_STRING text = token->getText(token);
-  result.text = (const char*)text->chars;
+  MySQLToken result;
+  if (token != NULL)
+  {
+    result.type = token->type;
+    result.line = token->line;
+    result.position = token->charPosition;
+    result.index = token->index;
+    result.channel = token->channel;
+    result.line_start = (char*)token->lineStart;
+    result.start = reinterpret_cast<char*>(token->start);
+    result.stop = reinterpret_cast<char*>(token->stop);
+
+    pANTLR3_STRING text = token->getText(token);
+    result.text = (const char*)text->chars;
+  }
 
   return result;
 }
@@ -124,9 +135,24 @@ void MySQLScanner::setup()
 
 //--------------------------------------------------------------------------------------------------
 
-void* MySQLScanner::input_start()
+const char* MySQLScanner::text()
 {
-  return (void *)d->_text;
+  return d->_text;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLScanner::set_server_version(long version)
+{
+  d->_context.version = version;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLScanner::set_sql_mode(const std::string &new_mode)
+{
+  MySQLRecognitionBase::set_sql_mode(new_mode);
+  d->_context.sql_mode = sql_mode(); // Parsed SQL mode.
 }
 
 //--------------------------------------------------------------------------------------------------

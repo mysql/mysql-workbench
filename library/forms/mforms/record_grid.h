@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_RECORD_GRID_H_
-#define _MFORMS_RECORD_GRID_H_
+#pragma once
 
 #include "mforms/native.h"
 #include <boost/shared_ptr.hpp>
@@ -50,11 +49,9 @@ namespace mforms {
     static void register_factory(RecordGrid* (*create)(boost::shared_ptr<Recordset> rset));
 #endif
 
-    // TODO must be emited from Windows, Linux
+    // TODO must be emitted from Windows, Linux
     boost::signals2::signal<void (int)>* signal_column_resized() { return &_signal_column_resized; }
   private:
     boost::signals2::signal<void (int)> _signal_column_resized;
   };
 };
-
-#endif

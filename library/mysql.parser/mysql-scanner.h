@@ -27,34 +27,22 @@
  * but provides tokenizing functionality beside it.
  */
 
-struct MySQLToken
-{
-  ANTLR3_UINT32 type;    // The type as defined in the grammar.
-  ANTLR3_UINT32 line;    // One-based line number of this token.
-  ANTLR3_INT32 position; // Zero-based position in the line.
-  ANTLR3_MARKER index;   // The index of the token in the input.
-  ANTLR3_UINT32 channel; // 0 for normally visible tokens. 99  for the hidden channel (whitespaces, comments).
-
-  char *line_start;      // Pointer into the input to the beginning of the line where this token is located.
-  char *start;           // Points to the start of the token in the input.
-  char *stop;            // Points to the last character of the token.
-
-  std::string text;      // The text of the token.
-};
-
 class MYSQL_PARSER_PUBLIC_FUNC MySQLScanner : public MySQLRecognitionBase
 {
 public:
   MySQLScanner(const char *text, size_t length, bool is_utf8, long server_version, 
-    const std::string &sql_mode, const std::set<std::string> &charsets);
+    const std::string &sql_mode_string, const std::set<std::string> &charsets);
   virtual ~MySQLScanner();
   
   void reset();
   MySQLToken next_token();
 
+  void set_server_version(long version);
+  void set_sql_mode(const std::string &new_mode);
+  virtual const char* text();
+
 protected:
   void setup();
-  virtual void* input_start();
 
 private:
   class Private;

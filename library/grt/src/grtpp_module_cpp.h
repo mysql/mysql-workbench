@@ -520,6 +520,15 @@ struct native_value_for_grt_type<ssize_t>
 #endif
 
 template<>
+struct native_value_for_grt_type < size_t >
+{
+  static size_t convert(const ValueRef& t)
+  {
+    return IntegerRef::cast_from(t).operator IntegerRef::storage_type();
+  }
+};
+
+template<>
 struct native_value_for_grt_type<DoubleRef>
 {
   static double convert(const ValueRef& t)

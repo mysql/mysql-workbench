@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_PASSWORD_CACHE_H_
-#define _MFORMS_PASSWORD_CACHE_H_
+#pragma once
 
 #include <string>
 #include <cstddef>
@@ -46,5 +45,3 @@ namespace mforms {
     bool get_password(const std::string &service, const std::string &account, std::string &ret_password);
   };
 };
-
-#endif

@@ -36,11 +36,10 @@ public:
 
   virtual void set_sql_mode(const std::string &new_mode);
   virtual void set_server_version(long new_version);
-
+  virtual const char* text();
   long server_version();
 
 protected:
-  virtual void* input_start();
 
 private:
   class Private;

@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _WebBROWSER_H_
-#define _WebBROWSER_H_
+#pragma once
 
 #include <mforms/view.h>
 
@@ -79,5 +78,3 @@ namespace mforms {
     boost::function<bool (const std::string&)> _handle_link_click;
   };
 };
-
-#endif // #fndef _WebBROWSER_H_

@@ -54,7 +54,7 @@ namespace mforms {
                                    //! At least gtk has problems with arbitrary items for a tree. Treeview in gtk is
                                    //! built on View-Source model, where source is a row/column based thing. That may
                                    //! require some hacking to support NoColums in gtk, so really think if that is worth it.
-    TreeAllowReorderRows = 1 << 4, //!< Allows row reordering, sets TreeCanBeDragSource implicitely.
+    TreeAllowReorderRows = 1 << 4, //!< Allows row reordering, sets TreeCanBeDragSource implicitly.
     TreeShowColumnLines  = 1 << 5, //!< show column separator lines
     TreeShowRowLines     = 1 << 6, //!< show row separator lines
     TreeNoBorder         = 1 << 7, //!< Switch off the border around the control. Default is to show the border.

@@ -30,6 +30,7 @@
 
 class MySQLRecognizer;
 class MySQLSyntaxChecker;
+class MySQLScanner;
 
 namespace parser {
 
@@ -46,11 +47,13 @@ class WBPUBLICBACKEND_PUBLIC_FUNC ParserContext {
 private:
   MySQLRecognizer *_recognizer;
   MySQLSyntaxChecker *_syntax_checker;
-  GrtVersionRef _version;
 
+  GrtVersionRef _version;
   bool _case_sensitive;
   std::string _sql_mode;
+  std::set<std::string> _filtered_charsets;
 
+  void update_filtered_charsets(long version);
 public:
   typedef boost::shared_ptr<ParserContext> Ref;
 
@@ -59,6 +62,8 @@ public:
 
   MySQLRecognizer *recognizer() { return _recognizer; };
   MySQLSyntaxChecker *syntax_checker() { return _syntax_checker; };
+  MySQLScanner *create_scanner(const std::string &text); // The scanner uses the same version etc as the other recognizers
+                                                         // and must be freed by the caller.
 
   void use_sql_mode(const std::string &mode);
   std::string get_sql_mode();
@@ -69,6 +74,8 @@ public:
   bool case_sensitive() { return _case_sensitive; };
   
   std::vector<ParserErrorEntry> get_errors_with_offset(size_t offset, bool for_syntax_check);
+
+  size_t get_keyword_token(const std::string &keyword);
 };
 
 /**
@@ -96,7 +103,11 @@ public:
     const std::string old_name, const std::string new_name) = 0;
 
   virtual size_t determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
-                                          std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
+    std::vector<std::pair<size_t, size_t> > &ranges, const std::string &line_break = "\n") = 0;
+
+  // Query manipulation services.
+  virtual std::string replaceTokenSequenceWithText(const parser::ParserContext::Ref &context,
+    const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements) = 0;
 };
 
 } // namespace parser

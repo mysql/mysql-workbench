@@ -287,6 +287,9 @@
     <ProjectReference Include="..\..\..\library\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\library\mysql.parser\mysql.parser.vcxproj">
+      <Project>{f563e3de-39ba-4a9d-a6c2-9e9222e8f518}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\modules\db.mysql\db.mysql.grt.vcxproj">
       <Project>{500b44c3-7d51-42ea-bd8d-5db34c3160fa}</Project>
     </ProjectReference>

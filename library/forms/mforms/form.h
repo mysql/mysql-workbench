@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_FORM_H_
-#define _MFORMS_FORM_H_
+#pragma once
 
 #include <mforms/base.h>
 #include <mforms/view.h>
@@ -168,5 +167,3 @@ namespace mforms {
 
   };
 };
-
-#endif

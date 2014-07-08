@@ -35,6 +35,8 @@
 #include "mforms/toolbar.h"
 #include "mforms/menubar.h"
 
+#include "mysql-scanner.h"
+
 using namespace bec;
 using namespace base;
 
@@ -362,9 +364,13 @@ bool MySQLTableColumnsListBE::activate_popup_item_for_nodes(const std::string &n
 
 //----------------- TriggerTreeView ----------------------------------------------------------------
 
+#define TRIGGER_DRAG_FORMAT "com.mysql.workbench.drag-trigger"
+
 class TriggerTreeView : public mforms::TreeNodeView
 {
 public:
+  mforms::TreeNodeRef selection;
+
   TriggerTreeView(mforms::TreeOptions options)
     : mforms::TreeNodeView(options)
   {
@@ -372,23 +378,22 @@ public:
 
   virtual bool get_drag_data(mforms::DragDetails &details, void **data, std::string &format)
   {
-    mforms::TreeNodeRef selection = get_selected_node();
+    selection = get_selected_node();
     if (selection.is_valid() && selection->get_parent() != root_node())
     {
-//      *data = &selection;
-      format = "drag-trigger";
+      format = TRIGGER_DRAG_FORMAT;
       details.allowedOperations = mforms::DragOperationCopy | mforms::DragOperationMove;
 
       return true;
     }
+    else
+      selection = mforms::TreeNodeRef();
 
     return false;
   }
 };
 
 //----------------- MySQLTriggerPanel --------------------------------------------------------------
-
-#define TRIGGER_DRAG_FORMAT "com.mysql.workbench.drag-trigger"
 
 class MySQLTriggerPanel : public mforms::Box, public mforms::DropDelegate
 {
@@ -930,16 +935,39 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual mforms::DragOperation drag_over(View *sender, base::Point p, const std::vector<std::string> &formats)
+  virtual mforms::DragOperation drag_over(View *sender, base::Point p, mforms::DragOperation allowedOperations,
+    const std::vector<std::string> &formats)
   {
     TriggerTreeView *tree = dynamic_cast<TriggerTreeView*>(sender);
-    if (tree != NULL)
+
+    // For now accept a drop only from our own trigger list. Might change later if we can show multiple editors at once.
+    if (allowedOperations != mforms::DragOperationNone && tree == &_trigger_list && tree->selection.is_valid())
     {
-      mforms::TreeNodeRef target_node = tree->node_at_position(p);
-      if (!target_node.is_valid())
+      mforms::TreeNodeRef target_node = _trigger_list.node_at_position(p);
+
+      // Don't allow dropping either if the drop position would be the same places we are currently
+      // (that includes dropping on the group node the target is in already).
+      if (!target_node.is_valid() || target_node == tree->selection || target_node == tree->selection->get_parent())
         return mforms::DragOperationNone;
 
-      return (tree == &_trigger_list) ? mforms::DragOperationMove : mforms::DragOperationCopy;
+      mforms::DropPosition position = _trigger_list.get_drop_position();
+
+      // Don't allow dropping before or after a top level node, only *on* it.
+      if (target_node->get_parent() == _trigger_list.root_node() && position != mforms::DropPositionOn)
+        return mforms::DragOperationNone;
+
+      // Check direct siblings with a position pointing to the current position.
+      // If selection and target are from different trees this check will not lead to early exit.
+      if (position == mforms::DropPositionBottom && tree->selection->previous_sibling() == target_node)
+        return mforms::DragOperationNone;
+      if (tree->selection->next_sibling().is_valid()
+        && (position == mforms::DropPositionTop || position == mforms::DropPositionOn)
+        && tree->selection->next_sibling() == target_node)
+        return mforms::DragOperationNone;
+
+      if (tree == &_trigger_list)
+        return allowedOperations & mforms::DragOperationMove;
+      return allowedOperations & mforms::DragOperationCopy;
     }
 
     return mforms::DragOperationNone;
@@ -947,8 +975,132 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual mforms::DragOperation data_dropped(View *sender, base::Point p, void *data, const std::string &format)
+  virtual mforms::DragOperation data_dropped(View *sender, base::Point p, mforms::DragOperation allowedOperations,
+    void *data, const std::string &format)
   {
+    TriggerTreeView *tree = dynamic_cast<TriggerTreeView*>(sender);
+    if (allowedOperations != mforms::DragOperationNone && tree == &_trigger_list)
+    {
+      mforms::TreeNodeRef target_node = _trigger_list.node_at_position(p);
+      mforms::DropPosition position = _trigger_list.get_drop_position();
+      if (target_node.is_valid())
+      {
+        // Note: the code below only works if the source tree is our own trigger list.
+        //       For drag support between multiple editors code is required to get trigger-for-node
+        //       and vice versa information from that other editor instance.
+        grt::ListRef<db_Trigger> triggers(_table->triggers());
+        db_mysql_TriggerRef trigger = trigger_for_node(tree->selection);
+
+        // If the user dropped onto a group node (which then must always be a different one than that
+        // it is in currently) or if the group node of source and target node differ,
+        // change the timing/event of the source trigger to the timing of the group it will move to.
+        if (target_node->get_parent() == _trigger_list.root_node()
+          || tree->selection->get_parent() != target_node->get_parent())
+        {
+          mforms::TreeNodeRef group_node = target_node;
+          if (target_node->get_parent() != _trigger_list.root_node())
+            group_node = group_node->get_parent();
+
+          std::string timing, event;
+          if (base::partition(group_node->get_string(0), " ", timing, event))
+          {
+            bool use_uppercase = (*trigger->timing())[0] >= 'A';
+            if (!use_uppercase)
+            {
+              timing = base::tolower(timing);
+              event = base::tolower(event);
+            }
+
+            // We do here a simple search-and-replace here. Keep in mind the sql text might not be valid.
+            std::string sql;
+
+            std::string source = trigger->sqlDefinition();
+            MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
+            size_t timing_token = _editor->_parser_context->get_keyword_token(trigger->timing());
+            size_t event_token = _editor->_parser_context->get_keyword_token(trigger->event());
+            bool replace_done = false;
+            do 
+            {
+              MySQLToken token = scanner->next_token();
+              if (token.type == ANTLR3_TOKEN_EOF)
+                break;
+
+              if (!replace_done && token.type == timing_token)
+              {
+                // The token we are looking for. Replace the timing and see if there's an event token too.
+                sql += timing;
+                do
+                { // Add any following hidden tokens (whitespace/comment).
+                  token = scanner->next_token();
+                  if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+                    break;
+                  sql += token.text;
+                } while (true);
+
+                if (token.type == event_token)
+                  sql += event;
+
+                replace_done = true;
+                if (token.type == ANTLR3_TOKEN_EOF)
+                  break;
+              }
+              else
+                sql += token.text;
+
+            } while (true);
+
+            trigger->sqlDefinition(sql);
+            trigger->timing(timing);
+            trigger->event(event);
+
+            delete scanner;
+          }
+        }
+
+        // After that move in the trigger list so, that it appears in the right position
+        // relative to the target. Dropping on a group node will move the node to the end of the
+        // end of the list in that group.
+        if (target_node->get_parent() == _trigger_list.root_node())
+        {
+          // Group node.
+          triggers->remove(trigger);
+
+          if (target_node->count() == 0)
+          {
+            // Group node with no entries. In that case take the last child of last group node
+            // before this group node which has children. If there isn't any then simply insert at
+            // position 0.
+            while (target_node->previous_sibling().is_valid() && target_node->previous_sibling()->count() == 0)
+              target_node = target_node->previous_sibling();
+          }
+
+          if (target_node->count() > 0)
+          {
+            mforms::TreeNodeRef last_child = target_node->get_child(target_node->count() - 1);
+            db_mysql_TriggerRef target_trigger = trigger_for_node(last_child);
+            triggers->insert_unchecked(trigger, triggers->get_index(target_trigger) + 1);
+          }
+          else
+            triggers->insert_unchecked(trigger, 0);
+        }
+        else
+        {
+          // A trigger node.
+          db_mysql_TriggerRef trigger = trigger_for_node(tree->selection);
+          triggers->remove(trigger);
+
+          db_mysql_TriggerRef target_trigger = trigger_for_node(target_node);
+          size_t index = triggers->get_index(target_trigger);
+          if (position == mforms::DropPositionBottom)
+            ++index;
+          triggers->insert_unchecked(trigger, index);
+        }
+
+        // We will always have only small lists of triggers, so a simple refresh does the job here.
+        refresh();
+        return (tree == &_trigger_list) ? mforms::DragOperationMove : mforms::DragOperationCopy;
+      }
+    }
     return mforms::DragOperationNone;
   }
 

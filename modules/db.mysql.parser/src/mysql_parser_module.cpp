@@ -1091,3 +1091,85 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
 }
 
 //--------------------------------------------------------------------------------------------------
+
+std::string MySQLParserServicesImpl::replaceTokenSequence(parser_ContextReferenceRef context_ref,
+  const std::string &sql, size_t start_token, size_t count, grt::StringListRef replacements)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+
+  std::vector<std::string> list;
+  list.reserve(replacements->count());
+  std::copy(replacements.begin(), replacements.end(), std::back_inserter(list));
+  return replaceTokenSequenceWithText(context, sql, start_token, count, list);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string MySQLParserServicesImpl::replaceTokenSequenceWithText(const parser::ParserContext::Ref &context,
+  const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements)
+{
+  std::string result;
+  context->recognizer()->parse(sql.c_str(), sql.size(), true, MySQLQueryType::QtUnknown);
+  size_t error_count = context->recognizer()->error_info().size();
+  if (error_count > 0)
+    return "";
+
+  MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+  if (!walker.advance_to_type((unsigned)start_token, true))
+    return sql;
+
+  // Get the index of each token in the input stream and use that in the input lexer to find
+  // tokens to replace. Don't touch any other (including whitespaces).
+  // The given start_token can only be a visible token.
+
+  // First find the range of the text before the start token and copy that unchanged.
+  ANTLR3_MARKER current_index = walker.token_index();
+  if (current_index > 0)
+  {
+    MySQLToken token = context->recognizer()->token_at_index(current_index - 1);
+    result = sql.substr(0, token.stop - sql.c_str() + 1);
+  }
+
+  // Next replace all tokens we have replacements for. Remember tokens are separated by hidden tokens
+  // which must be added to the result unchanged.
+  size_t c = std::min(count, replacements.size());
+  size_t i = 0;
+  for (; i < c; ++i)
+  {
+    ++current_index; // Ignore the token.
+    result += replacements[i];
+
+    // Append the following separator token.
+    MySQLToken token = context->recognizer()->token_at_index(current_index++);
+    if (token.type == ANTLR3_TOKEN_INVALID)
+      return result; // Premature end. Too many values given to replace.
+    result += token.text;
+
+    --count;
+  }
+
+  if (i < replacements.size())
+  {
+    // Something left to add before continuing with the rest of the SQL.
+    // In order to separate replacements properly they must include necessary whitespaces.
+    // We don't add any here.
+    while (i < replacements.size())
+      result += replacements[i++];
+  }
+
+  if (count > 0)
+  {
+    // Some tokens left without replacement. Skip them and add the rest of the query unchanged.
+    // Can be a large number to indicate the removal of anything left.
+    current_index += count;
+  }
+
+  // Finally add the remaining text.
+  MySQLToken token = context->recognizer()->token_at_index(current_index);
+  if (token.type != ANTLR3_TOKEN_INVALID)
+    result += token.start; // Implicitly zero-terminated.
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------

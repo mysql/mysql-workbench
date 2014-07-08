@@ -168,9 +168,9 @@ long MySQLSyntaxChecker::server_version()
 
 //--------------------------------------------------------------------------------------------------
 
-void* MySQLSyntaxChecker::input_start()
+const char* MySQLSyntaxChecker::text()
 {
-  return (void *)d->_text;
+  return d->_text;
 }
 
 //--------------------------------------------------------------------------------------------------

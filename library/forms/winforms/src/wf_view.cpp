@@ -45,8 +45,6 @@ typedef System::Runtime::InteropServices::ComTypes::IDataObject SystemIDataObjec
 
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 
-#define DRAG_SOURCE_FORMAT_NAME "com.mysql.workbench.drag-source"
-
 //--------------------------------------------------------------------------------------------------
 
 /**
@@ -211,9 +209,13 @@ public:
     Control^ control= dynamic_cast<Control^>(sender);
     if (control != nullptr)
     {
-      helper = (MySQL::Utilities::IDropTargetHelper ^)gcnew MySQL::Utilities::DragDropHelper();
-      Win32::POINT point(e->X, e->Y);
-      helper->DragEnter(IntPtr::Zero, (SystemIDataObject^)e->Data, point, (int)e->Effect);
+      if (e->Data->GetDataPresent("DragImageBits"))
+      {
+        // If a drag image was registered we can use the drag drop helper.
+        helper = (MySQL::Utilities::IDropTargetHelper ^)gcnew MySQL::Utilities::DragDropHelper();
+        Win32::POINT point(e->X, e->Y);
+        helper->DragEnter(IntPtr::Zero, (SystemIDataObject^)e->Data, point, (int)e->Effect);
+      }
     }
   }
 
@@ -229,14 +231,15 @@ public:
       {
         Drawing::Point point = control->PointToClient(Point(e->X, e->Y));
 
-        mforms::View *origin = NULL;
-        if (e->Data->GetDataPresent(DRAG_SOURCE_FORMAT_NAME))
-        {
-          IntPtr ^ref = (IntPtr ^)e->Data->GetData(DRAG_SOURCE_FORMAT_NAME);
-          if (ref != nullptr)
-            origin = (mforms::View *)ref->ToPointer();
-        }
-        mforms::DragOperation operation = target->drag_over(origin, base::Point(point.X, point.Y),
+        mforms::View *origin = ViewWrapper::source_view_from_data(e->Data);
+
+        mforms::DragOperation operation = mforms::DragOperationNone;
+        if ((e->AllowedEffect & DragDropEffects::Copy) == DragDropEffects::Copy)
+          operation = operation | mforms::DragOperationCopy;
+        if ((e->AllowedEffect & DragDropEffects::Move) == DragDropEffects::Move)
+          operation = operation | mforms::DragOperationMove;
+
+        operation = target->drag_over(origin, base::Point(point.X, point.Y), operation,
           get_available_formats(e->Data));
 
         if ((operation & mforms::DragOperationCopy) != 0)
@@ -244,6 +247,8 @@ public:
         if ((operation & mforms::DragOperationMove) != 0)
           e->Effect = e->Effect | DragDropEffects::Move;
       }
+      else
+        e->Effect = DragDropEffects::None;
 
       if (helper != nullptr)
       {
@@ -275,7 +280,14 @@ public:
 
         Drawing::Point point = control->PointToClient(Point(e->X, e->Y));
         std::vector<std::string> formats = get_available_formats(e->Data);
+
         mforms::DragOperation operation;
+        mforms::DragOperation allowedOperations = mforms::DragOperationNone;
+        if ((e->AllowedEffect & DragDropEffects::Copy) == DragDropEffects::Copy)
+          allowedOperations = allowedOperations | mforms::DragOperationCopy;
+        if ((e->AllowedEffect & DragDropEffects::Move) == DragDropEffects::Move)
+          allowedOperations = allowedOperations | mforms::DragOperationMove;
+
         for (size_t i = 0; i < formats.size(); ++i)
         {
           if (formats[i] == mforms::DragFormatFileName)
@@ -286,15 +298,17 @@ public:
               std::vector<std::string> file_names;
               for each (String ^name in names)
                 file_names.push_back(NativeToCppStringRaw(name));
-              operation = target->files_dropped(origin, base::Point(point.X, point.Y), file_names);
-              break;
+              operation = target->files_dropped(origin, base::Point(point.X, point.Y), allowedOperations,
+                file_names);
+              break; // TODO: the breaks in the loop allow only for a single drop format, even though the view.h description says differently.
             }
           }
           else
             if (formats[i] == mforms::DragFormatText)
             {
               String ^text = (String^)e->Data->GetData(DataFormats::UnicodeText);
-              operation = target->text_dropped(origin, base::Point(point.X, point.Y), NativeToCppStringRaw(text));
+              operation = target->text_dropped(origin, base::Point(point.X, point.Y), allowedOperations,
+                NativeToCppStringRaw(text));
               break;
             }
             else
@@ -303,7 +317,8 @@ public:
               DataWrapper ^wrapper = dynamic_cast<DataWrapper^>(e->Data->GetData(e->Data->GetFormats()[(int)i], false));
               if (wrapper != nullptr)
               {
-                operation = target->data_dropped(origin, base::Point(point.X, point.Y), wrapper->GetData(), formats[i]);
+                operation = target->data_dropped(origin, base::Point(point.X, point.Y), allowedOperations,
+                  wrapper->GetData(), formats[i]);
                 break;
               }
             }
@@ -933,7 +948,8 @@ mforms::DragOperation ViewWrapper::drag_text(mforms::View *backend, mforms::Drag
   const std::string &text)
 {
   Control ^control = GetManagedObject<Control>(backend);
-  Windows::Forms::DataObject ^dataObject = gcnew Windows::Forms::DataObject(DataFormats::UnicodeText, CppStringToNative(text));
+  Windows::Forms::DataObject ^dataObject = gcnew Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
+  WBIDataObjectExtensions::SetDataEx(dataObject, DataFormats::UnicodeText, CppStringToNative(text));
 
   // Store the backend pointer in the data object, so we can distinguish between internal and
   // external drag sources.
@@ -989,6 +1005,30 @@ mforms::DragOperation ViewWrapper::drag_data(mforms::View *backend, mforms::Drag
 }
 
 //-------------------------------------------------------------------------------------------------
+
+mforms::DropPosition ViewWrapper::get_drop_position(mforms::View *backend)
+{
+  ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
+  return wrapper->get_drop_position();
+}
+
+//-------------------------------------------------------------------------------------------------
+
+/**
+*	Tries to get a reference to the source backend view in a drag operation, if there's one.
+*/
+mforms::View* ViewWrapper::source_view_from_data(Windows::Forms::IDataObject ^data)
+{
+  if (data->GetDataPresent(DRAG_SOURCE_FORMAT_NAME))
+  {
+    IntPtr ^ref = (IntPtr ^)data->GetData(DRAG_SOURCE_FORMAT_NAME);
+    if (ref != nullptr)
+      return (mforms::View *)ref->ToPointer();
+  }
+  return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
 
 /**
  * Creates and sets a drag image from the given details for the data object.
@@ -1283,6 +1323,7 @@ void ViewWrapper::init()
   f->_view_impl.register_drop_formats = &register_drop_formats;
   f->_view_impl.drag_text = &drag_text;
   f->_view_impl.drag_data = &drag_data;
+  f->_view_impl.get_drop_position = &get_drop_position;
 }
 
 //-------------------------------------------------------------------------------------------------
