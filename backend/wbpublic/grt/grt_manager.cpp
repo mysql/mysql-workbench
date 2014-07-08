@@ -19,7 +19,6 @@
 
 #include <grtpp_module_python.h>
 #include <grtpp_module_cpp.h>
-#include <grtpp_module_lua.h>
 
 #include <python_context.h>
 
@@ -365,7 +364,7 @@ void GRTManager::initialize(bool init_python, const std::string &loader_module_p
 
 bool GRTManager::initialize_shell(const std::string &shell_type)
 {
-  if (!_shell->setup(shell_type.empty() ? grt::LanguageLua : shell_type))
+  if (!_shell->setup(shell_type.empty() ? grt::LanguagePython : shell_type))
   {
     g_warning("Could not initialize GRT shell of type '%s'", shell_type.c_str());
     return false;
@@ -774,16 +773,6 @@ void GRTManager::rescan_modules()
 
 bool GRTManager::init_loaders(const std::string &loader_module_path, bool init_python)
 {
-  try
-  {
-    _grt->add_module_loader(new LuaModuleLoader(_grt));
-    if (_verbose) _shell->write_line(_("Lua loader initialized."));
-  }
-  catch (std::exception &exc)
-  {
-    _shell->write_line(strfmt("Error initializing Lua loader: %s", exc.what()));
-  }
-  
   if (init_python)
   {
     try

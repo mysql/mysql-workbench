@@ -37,8 +37,11 @@ DEFAULT_LOG_DOMAIN("grtshell")
 #include "mforms/app.h"
 #include "mforms/imagebox.h"
 
+#include <glib/gstdio.h>
+
 using namespace base;
 using namespace bec;
+using namespace mforms;
 
 
 #define EDITOR_TAB_OFFSET 2
@@ -221,7 +224,9 @@ _lower_tab(mforms::TabViewDocument),
 
   _global_box2.add(&_global_entry, false, true);
   _global_entry.set_read_only(true);
+#if defined(_WIN32) | defined(__APPLE__)
   _global_entry.set_back_color("#FFFFFF");
+#endif
   
   _global_box2.add(&_global_list, true, true);
   _global_list.add_column(mforms::IconStringColumnType, "Name", 100);
@@ -314,8 +319,10 @@ _lower_tab(mforms::TabViewDocument),
   _shell_box.add(&_shell_text, true, true);
   _shell_text.set_monospaced(true);
   _shell_text.set_read_only(true);
+#if defined(_WIN32) | defined(__APPLE__)
   _shell_text.set_front_color("#FFFFFF");
   _shell_text.set_back_color("#000000");
+#endif
   _shell_text.set_padding(2);
   _shell_box.add(&_shell_hbox, false, true);
   _shell_hbox.add(&_shell_prompt, false, true);
@@ -480,16 +487,8 @@ void GRTShellWindow::refresh_all()
 
   refresh_notifs_list();
 
-  if (grtm()->get_grt()->shell_type() == "lua")
-  {
-    _script_extension = ".lua";
-    _comment_prefix = "-- ";
-  }
-  else if (grtm()->get_grt()->shell_type() == "python")
-  {
-    _script_extension = ".py";
-    _comment_prefix = "# ";
-  }
+  _script_extension = ".py";
+  _comment_prefix = "# ";  
   
   refresh_snippets();
 }
@@ -950,12 +949,6 @@ void GRTShellWindow::scriptize_snippet()
     std::string snippet = node->get_tag();
     std::string language = "python";
     
-    // kind of a hack.. pick language depending on comment type used
-    if (g_str_has_prefix(snippet.c_str(), "#"))
-      language= "python";
-    else if (g_str_has_prefix(snippet.c_str(), "--"))
-      language= "lua";
-    
     GRTCodeEditor *editor= add_editor(true, language);
     editor->set_text(snippet);
   }
@@ -984,12 +977,6 @@ void GRTShellWindow::run_snippet()
     try
     {
       std::string language = "python";
-      
-      // kind of a hack.. pick language depending on comment type used
-      if (g_str_has_prefix(script.c_str(), "#"))
-        language= "python";
-      else if (g_str_has_prefix(script.c_str(), "--"))
-        language= "lua";
 
       bool ret = execute_script(script, language);
       grtm()->get_grt()->pop_message_handler();
@@ -1150,11 +1137,8 @@ void GRTShellWindow::open_file_in_editor(const std::string &path, bool is_script
   if (g_str_has_suffix(path.c_str(), ".py"))
     language = "python"; // Python script
   else
-    if (g_str_has_suffix(path.c_str(), ".lua"))
-      language = "lua"; // Lua script
-    else
-      if (g_str_has_suffix(path.c_str(), ".sql") || g_str_has_suffix(path.c_str(), ".qbquery"))
-        language = "sql";
+    if (g_str_has_suffix(path.c_str(), ".sql") || g_str_has_suffix(path.c_str(), ".qbquery"))
+      language = "sql";
 
   // Show warning messages if applicable...
   if (language == "")
@@ -1262,7 +1246,7 @@ void GRTShellWindow::add_files_from_dir(mforms::TreeNodeRef parent, const std::s
     
   while (const gchar *name= g_dir_read_name(dir))
   {
-    if (g_str_has_suffix(name, ".py") || g_str_has_suffix(name, ".lua"))
+    if (g_str_has_suffix(name, ".py"))
     {
       mforms::TreeNodeRef node = parent->add_child();
       node->set_string(0, name);
@@ -1459,7 +1443,7 @@ void GRTShellWindow::on_tab_changed()
   GRTCodeEditor *editor = get_active_editor();
   if (editor)
   {
-    bool exec_enabled = (editor->get_language() == "python" || editor->get_language() == "lua");
+    bool exec_enabled = (editor->get_language() == "python");
 
     _save_button->set_enabled(true);
     _save_as_button->set_enabled(true);
