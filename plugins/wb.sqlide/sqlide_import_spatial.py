@@ -27,7 +27,7 @@ if sys.platform=="darwin":
     os_icon_suffix = "_mac"
 
 
-from mforms import newButton, newCheckBox
+from mforms import newButton, newCheckBox, newTreeNodeView
 from mforms import FileChooser
 from datetime import datetime
 
@@ -97,6 +97,7 @@ def cmd_executor(cmd):
 class SpatialImporter:
     def __init__(self):
         self.import_table = None
+        self.selected_fields = None
         self.process_handle = None
         self.import_overwrite = False
         self.import_append = False
@@ -107,6 +108,7 @@ class SpatialImporter:
         self.my_schema = None
         self.filepath = None
         self.skipfailures = False
+        self.features_per_transcation = 200
         
         self.my_geo_column = "shape"
         self.abort_requested = False
@@ -178,6 +180,7 @@ class SpatialImporter:
         cmd_args['user'] = self.my_user
         cmd_args['pwd'] = self.my_pwd
         cmd_args['port'] = self.my_port
+        cmd_args['features_per_transcation'] = self.features_per_transcation
         if self.import_table:
             cmd_args['table_name'] = " -nln %s" % self.import_table
         else:
@@ -193,9 +196,12 @@ class SpatialImporter:
         if self.import_overwrite:
             cmd_args['opts'] = cmd_args['opts'] + " -overwrite"
         
+        if self.selected_fields:
+            cmd_args['opts'] = cmd_args['opts'] + " -select " + self.selected_fields
+        
         cmd_args['filepath'] = self.filepath
 
-        cmd = """ogr2ogr -f "MySQL" MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d" %(filepath)s %(table_name)s %(opts)s -progress -lco ENGINE=InnoDb -lco SPATIAL_INDEX=NO""" % cmd_args
+        cmd = """ogr2ogr -f "MySQL" MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d" %(filepath)s %(table_name)s %(opts)s -progress -gt %(features_per_transcation)d -lco ENGINE=InnoDb -lco SPATIAL_INDEX=NO""" % cmd_args
         self.is_running = True
         try:
             self.execute_cmd(cmd, progress_notify)
@@ -301,14 +307,17 @@ unless the append or update options are specified.""")
                 self.warning_srs.set_text("Projection file not found, assuming WGS84 Spatial Reference System")
                 
             
-
+def small_label(text):
+    l = mforms.newLabel(text)
+    l.set_style(mforms.SmallHelpTextStyle)
+    return l
 
 
 class ContentPreviewPage(WizardPage):
     def __init__(self, owner):
         WizardPage.__init__(self, owner, "Import Options", wide=True)
-        
         self.layer_name = None
+        self.column_list = []
 
     def get_path(self):
         return self.main.select_file_page.shapefile_path.get_string_value()
@@ -317,16 +326,29 @@ class ContentPreviewPage(WizardPage):
         cmd = "ogrinfo -al -so %s" % self.get_path()
         p1 = cmd_executor(cmd)
         sout, serr = p1.communicate(input)
+        import re
+        p = re.compile("^(\w+):\s(\w+)\s\(([0-9\.]+)\)", re.IGNORECASE)
         for line in sout.splitlines():
             if line.startswith("Layer name: "):
                 self.layer_name_lbl.set_text(line.split(':')[1].strip())
                 self.layer_name = line.split(':')[1].strip()
                 self.table_name.set_value(line.split(':')[1].strip())
-        
+            else:
+               m = p.match(line)
+               if m is not None:
+                    row = self.column_list.add_node()
+                    row.set_bool(0, True)
+                    row.set_string(1, m.group(1))
+
     def go_cancel(self):
         self.main.cancel()
         
     def validate(self):
+        sfields = self.get_fields()
+        if len(sfields) == 0:
+            mforms.Utilities.show_error("Missing columns", "Please specify at least one column to import.", "OK")
+            return False
+        
         table_name = self.table_name.get_string_value()
         if len(table_name) < 1:
             if mforms.ResultOk == mforms.Utilities.show_error("Invalid Table Name ", "Please specify a destination table name.", "Use Layer Name", "Cancel", ""):
@@ -334,6 +356,14 @@ class ContentPreviewPage(WizardPage):
                 return True
             return False
         return True
+
+    def get_fields(self):
+        fields = []
+        for i in range(self.column_list.count()):
+            node = self.column_list.node_at_row(i)
+            if node.get_bool(0):
+                fields.append(node.get_string(1))
+        return fields
 
     def create_ui(self):
         self.set_spacing(16)
@@ -350,44 +380,77 @@ class ContentPreviewPage(WizardPage):
         entry_box = mforms.newBox(True)
         entry_box.set_spacing(12)
 
-        entry_box.add(mforms.newLabel("Destination table :"), False, True)
+        entry_box.add(mforms.newLabel("Destination table:"), False, True)
 
         self.table_name = mforms.newTextEntry()
         entry_box.add(self.table_name, True, True)
         
         self.content.add(entry_box, False, True)
         entry_box.show(True)
+
+        cbox = mforms.newBox(False)
+
+        self.column_list = newTreeNodeView(mforms.TreeFlatList)
+        self.column_list.add_column(mforms.CheckColumnType, "", 40, True)
+        self.column_list.add_column(mforms.StringColumnType, "Column name", 300, False)
+        self.column_list.end_columns()
+        self.column_list.set_size(-1, 100)
+
+        cbox.add(self.column_list, False, True)
+        cbox.add(small_label("Please select columns you'd like to import"), False, True)
+
+        self.content.add(cbox, False, True)
+        cbox.show(True)
         
         options_layer = mforms.newPanel(mforms.TitledBoxPanel)
         options_layer.set_title("Additional options")
         
-        options_box = mforms.newBox(True)
+        options_box = mforms.newBox(False)
         options_box.set_spacing(12)
+        options_box.set_padding(12)
+        
+        boxfailures = mforms.newBox(False)
         
         self.skipfailures_chb = newCheckBox()
         self.skipfailures_chb.set_text("Skip failures");
         self.skipfailures_chb.set_active(False)
-        options_box.add(self.skipfailures_chb, False, False)
+        
+        boxfailures.add(self.skipfailures_chb, False, False)
+        boxfailures.add(small_label("if error occurs, skip it and continue processing the data"), False, False)
+        options_box.add(boxfailures, False, False)
+        
+        boxappend = mforms.newBox(False)
         
         self.append_chb = newCheckBox()
         self.append_chb.set_text("Append to existing data");
         self.append_chb.set_active(False)
-        options_box.add(self.append_chb, False, False)
+        boxappend.add(self.append_chb, False, False)
+        boxappend.add(small_label("append to existing table instead of creating new one"), False, False)
+        options_box.add(boxappend, False, False)
+        
+        boxoverwrite = mforms.newBox(False)
         
         self.overwrite_chb = newCheckBox()
         self.overwrite_chb.set_text("Overwrite existing data");
         self.overwrite_chb.set_active(False)
-        options_box.add(self.overwrite_chb, False, False)
+        boxoverwrite.add(self.overwrite_chb, False, False)
+        boxoverwrite.add(small_label("delete current table and recreate it empty"), False, False)
+        options_box.add(boxoverwrite, False, False)
+        
         options_layer.add(options_box)
         options_layer.show(True)
         
         self.content.add(options_layer, False, False)
 
+        boxconvert = mforms.newBox(False)
         self.cartesian_convert_chb = newCheckBox()
         self.cartesian_convert_chb.set_text("Convert data to cartesian coordinate system");
         self.cartesian_convert_chb.set_active(True)
 
-        self.content.add(self.cartesian_convert_chb, False, True)
+        boxconvert.add(self.cartesian_convert_chb, False, True)
+        boxconvert.add(small_label("MySQL support only Cartesian format, leaving this checkbox in it's initial state will convert the data which may lead to data loss"), False, False)
+        
+        self.content.add(boxconvert, False, True)
         self.get_info()
 
 
@@ -446,6 +509,8 @@ class ImportProgressPage(WizardProgressPage):
         
         if self.main.content_preview_page.table_name.get_string_value() != "":
             self.importer.import_table = self.main.content_preview_page.table_name.get_string_value()
+
+        self.importer.selected_fields = ",".join(self.main.content_preview_page.get_fields())
         return True
 
     def progress_notify(self, pct, msg):

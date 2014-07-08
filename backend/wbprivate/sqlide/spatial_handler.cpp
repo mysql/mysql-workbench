@@ -536,6 +536,31 @@ bool spatial::operator!= (ProjectionView &v1, ProjectionView &v2)
   return !(v1==v2);
 }
 
+//enum ShapeType
+//  {
+//    ShapeUnknown, ShapePoint, ShapeLineString, ShapeLinearRing, ShapePolygon
+//  };
+
+std::string spatial::shape_description(ShapeType shp)
+{
+  switch(shp)
+  {
+  case ShapePolygon:
+    return "Polygon";
+  case ShapeLinearRing:
+    return "LinearRing";
+  case ShapeLineString:
+    return "LineString";
+  case ShapePoint:
+    return "Point";
+  case ShapeUnknown:
+  default:
+    return "Unknown shape type";
+
+  }
+  return "";
+}
+
 spatial::Projection::Projection()
 {
   char* m_wkt = const_cast<char*>("PROJCS[\"World_Mercator\", "
@@ -978,6 +1003,13 @@ void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_are
 {
   for (std::deque<ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
+    //TODO: log somwhere information that this type doesn't have any point data
+    if ((*it).points.empty())
+    {
+      log_error("%s is empty", shape_description(it->type).c_str());
+      continue;
+    }
+
     switch (it->type)
     {
       case ShapePolygon:

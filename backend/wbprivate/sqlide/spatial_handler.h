@@ -143,6 +143,9 @@ namespace spatial
     ShapeUnknown, ShapePoint, ShapeLineString, ShapeLinearRing, ShapePolygon
   };
 
+  std::string shape_description(ShapeType shp);
+
+
   enum AxisType
   {
     AxisLat = 1, AxisLon = 2
