@@ -102,6 +102,8 @@ namespace mforms {
     /** Used to specify the main form to the Form() constructor. The returned object cannot be used for anything else */
     static Form* main_form();
 
+    static Form* active_form();
+
     /** Sets the content view of the window.
      
      Usually a layouting container, such as a Box or a Table.
@@ -165,7 +167,6 @@ namespace mforms {
       if (_release_on_close)
         release();
     }
-
   };
 };
 

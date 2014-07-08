@@ -21,6 +21,8 @@
 
 using namespace mforms;
 
+static Form *current_active_form = NULL;
+
 //--------------------------------------------------------------------------------------------------
 
 Form::Form(Form *owner, FormFlag flag)
@@ -59,6 +61,8 @@ Form *Form::main_form()
 
 Form::~Form()
 {
+  if (current_active_form == this)
+    current_active_form = NULL;
   if (_content != NULL)
     _content->release();
 }
@@ -151,6 +155,7 @@ void Form::flush_events()
 
 void Form::activated()
 {
+  current_active_form = this;
   _active = true;
   _activated_signal();
 }
@@ -171,3 +176,8 @@ bool Form::is_active()
 }
 
 //--------------------------------------------------------------------------------------------------
+
+Form* Form::active_form()
+{
+  return current_active_form;
+}

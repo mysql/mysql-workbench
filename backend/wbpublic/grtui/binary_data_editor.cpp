@@ -32,6 +32,7 @@ DEFAULT_LOG_DOMAIN("BlobViewer");
 #include "mforms/imagebox.h"
 #include "mforms/treenodeview.h"
 #include "mforms/code_editor.h"
+#include "mforms/find_panel.h"
 #include "mforms/filechooser.h"
 
 BinaryDataViewer::BinaryDataViewer(BinaryDataEditor *owner)
@@ -240,13 +241,15 @@ public:
       _encoding = "UTF-8";
     
     add(&_message, false, true);
-    add(&_text, true, true);
+    add_end(&_text, true, true);
     
     _text.set_language(mforms::LanguageNone);
     _text.set_features(mforms::FeatureWrapText, true);
     _text.set_features(mforms::FeatureReadOnly, read_only);
     
     scoped_connect(_text.signal_changed(),boost::bind(&TextDataViewer::edited, this));
+
+    _text.set_show_find_panel_callback(boost::bind(&TextDataViewer::embed_find_panel, this, _2));
   }
   
   virtual void data_changed()
@@ -328,6 +331,21 @@ private:
     {
       _owner->assign_data(data.data(), data.length());
       _message.set_text("");
+    }
+  }
+
+  void embed_find_panel(bool show)
+  {
+    mforms::View *panel = _text.get_find_panel();
+    if (show)
+    {
+      if (!panel->get_parent())
+        add(panel, false, true);
+    }
+    else
+    {
+      remove(panel);
+      _text.focus();
     }
   }
 };
