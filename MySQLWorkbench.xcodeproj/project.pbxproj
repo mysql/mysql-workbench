@@ -628,6 +628,7 @@
 		2B18EDD8196C9646004D7596 /* admin_dashboard@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDD5196C9646004D7596 /* admin_dashboard@2x.png */; };
 		2B18EDDB196C9650004D7596 /* admin_instrumentation_setup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */; };
 		2B18EDDC196C9650004D7596 /* admin_performance_reports@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */; };
+		2B18EDE0196C9CDF004D7596 /* grt_plugin_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */; };
 		2B1AC771127F99C800AEC070 /* debug_continue.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76C127F99C800AEC070 /* debug_continue.png */; };
 		2B1AC772127F99C800AEC070 /* debug_step.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76D127F99C800AEC070 /* debug_step.png */; };
 		2B1AC773127F99C800AEC070 /* debug_step_into.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76E127F99C800AEC070 /* debug_step_into.png */; };
@@ -6428,7 +6429,6 @@
 			files = (
 				2720C53816EA18B500E57A8D /* libpcre.1.dylib in Frameworks */,
 				2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */,
-				2BDC26050E855EC40018CE34 /* liblua.a in Frameworks */,
 				2B774FA915CEC39D00923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FAA15CEC3B000923448 /* libgthread-2.0.0.dylib in Frameworks */,
 				2717A6871192E30F00FED3E5 /* libcairo.2.dylib in Frameworks */,
@@ -14012,7 +14012,7 @@
 				2BF87A5C0FA7CEFB0012EADA /* wb_component_logical.cpp in Sources */,
 				27987706195C5246003E8E44 /* execute_routine_wizard.cpp in Sources */,
 				2BF87A5E0FA7CEFB0012EADA /* wb_component_physical.cpp in Sources */,
-				2BF02D061965B141008C9304 /* grt_plugin_wizard.cpp in Sources */,
+				2B18EDE0196C9CDF004D7596 /* grt_plugin_wizard.cpp in Sources */,
 				2BF87A600FA7CEFB0012EADA /* wb_component_physical_relationship.cpp in Sources */,
 				2BF87A610FA7CEFB0012EADA /* wb_diagram_options.cpp in Sources */,
 				2BF87A630FA7CEFB0012EADA /* wb_layer_tree.cpp in Sources */,
