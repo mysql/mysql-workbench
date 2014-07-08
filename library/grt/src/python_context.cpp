@@ -25,8 +25,6 @@
 #include "base/file_functions.h"
 #include "base/wb_memory.h"
 
-#ifdef ENABLE_PYTHON_MODULES
-
 // python internals
 #include <node.h>
 //#include <grammar.h>
@@ -44,9 +42,6 @@ DEFAULT_LOG_DOMAIN("python context")
 
 using namespace grt;
 using namespace base;
-
-const std::string grt::LanguagePython= "python";
-
 
 // used to identify a proper GRT context object as a PyCObject
 static const char *GRTTypeSignature= "GRTCONTEXT";
@@ -1909,6 +1904,3 @@ void PythonContext::run_post_init_script()
   if (PyRun_SimpleString((char*)post_init_script) < 0)
     PythonContext::log_python_error("Error running post-init script:");
 }
-
-
-#endif // ENABLE_PYTHON_MODULES

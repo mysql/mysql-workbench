@@ -62,9 +62,6 @@ Source : %{name}-%{version}-src.tar.gz
 BuildRoot    : %{_tmppath}/%{name}-%{version}-root
 BuildRequires: pcre-devel >= 3.9
 %if 0%{?fedora} >= 20
-BuildRequires: compat-lua
-%else
-BuildRequires: lua-devel >= 5.1
 BuildRequires: mysql-devel >= 5.1
 %endif
 BuildRequires: cmake >= 2.8

@@ -48,8 +48,8 @@ private:
   wb::LiveSchemaTree::NewSchemaContentArrivedSlot schema_content_arrived_slot;
 public:
   EditorFormTester():
-      _expect_update_node_children(false),
       _expect_schema_content_arrived(false),
+      _expect_update_node_children(false),
       _mock_validate_schema_content(false),
       _mock_propagate_schema_content(false),
       _mock_propagate_update_node_children(false)

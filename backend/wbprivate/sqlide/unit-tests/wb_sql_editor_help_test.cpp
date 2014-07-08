@@ -89,7 +89,7 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
     std::string statement = entries[i].query;
     if (statement.empty() && i > 0)
     {
-      size_t j = i;
+      int j = i;
       while (--j >= 0)
         if (!entries[j].query.empty())
         {
@@ -601,17 +601,17 @@ static help_test_entry single_token_tests[] =
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = within(b, c)", 0, 5, "WITHIN", __LINE__},
   {MYSQL_VERSION_5_6, MYSQL_VERSION_HIGHER, "wkt", 0, 0, "WKT DEFINITION", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "x = 1", 0, 0, "", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT X(POINT(56.7, 53.34));", 0, 7, "X" },
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT X(POINT(56.7, 53.34));", 0, 7, "X", __LINE__ },
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select a xor b", 0, 10, "XOR", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "y = 1", 0, 0, "", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT Y(POINT(56.7, 53.34));", 0, 7, "Y" },
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT Y(POINT(56.7, 53.34));", 0, 7, "Y", __LINE__ },
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT YEAR('12:00:00.123456');", 0, 9, "YEAR", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id year(4))", 0, 20, "YEAR DATA TYPE", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "SELECT YEARWEEK('12:00:00.123456');", 0, 9, "YEARWEEK", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b ^ c", 0, 6, "^", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b | c", 0, 6, "|", __LINE__},
   {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = b || c", 0, 6, "||", __LINE__},
-  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = ~b", 0, 4, "~", __LINE__},
+  {MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "a = ~b", 0, 4, "~", __LINE__}
 };
 
 /**

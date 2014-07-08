@@ -96,7 +96,6 @@ xcopy /i /s /y /d %RES_DIR%\scripts\sys %TARGET_DIR%\sys 1> nul 2> nul
 
 
 echo Copy Scripting Libraries...
-xcopy /i /s /y /d %RES_DIR%\scripts\lua\*.lua %TARGET_DIR%\
 xcopy /i /s /y /d %RES_DIR%\scripts\python\*.py %TARGET_DIR%\
 xcopy /i /s /y /d %RES_DIR%\scripts\snippets\shell_snippets.* %TARGET_DIR%\
 xcopy /i /s /y /d %LIBRARY_DIR%\sshtunnel\sshtunnel.py %TARGET_DIR%\
@@ -174,9 +173,6 @@ rem if "%2"=="Release" del %TARGET_DIR%\python\*_d.* /S
 rem del %TARGET_DIR%\python\*85.dll %TARGET_DIR%\python\_tkinter.*  1> nul 2> nul
 
 rem =======================================
-
-echo * lua library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\lua\lua.dll %TARGET_DIR%\.
 
 echo * cairo library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\cairo\*.dll %TARGET_DIR%\. 1> nul 2> nul

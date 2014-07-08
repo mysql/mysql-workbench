@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +19,6 @@
 
 #ifndef _GRTPP_SHELL_PYTHON_H_
 #define _GRTPP_SHELL_PYTHON_H_
-
-#ifdef ENABLE_PYTHON_MODULES
 
 #include "grtpp_module_python.h"
 #include "grtpp_shell.h"
@@ -56,7 +54,5 @@ namespace grt
   };
   
 };
-
-#endif
 
 #endif /* _GRTPP_SHELL_PYTHON_H_ */

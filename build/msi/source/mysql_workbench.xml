@@ -157,8 +157,6 @@
             <?endif?>
             <ComponentRef Id="modules_data" />
             <ComponentRef Id="modules_data_sqlite" />
-            <ComponentRef Id="modules_data_doclibrary" />
-            <ComponentRef Id="modules_templates" />
             <ComponentRef Id="library_workbench" />
             <ComponentRef Id="library_workbench_graphics" />
 			<ComponentRef Id="python_dlls" />

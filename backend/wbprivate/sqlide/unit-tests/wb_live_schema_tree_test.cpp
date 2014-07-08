@@ -138,17 +138,17 @@ public:
     _expect_fetch_object_details_call(false),
     _expect_fetch_data_for_filter(false),
     _expect_editor_insert_text(false),
-    _mock_call_back_slot_columns(false),
-    _mock_call_back_slot_indexes(false),
-    _mock_call_back_slot_triggers(false),
-    _mock_call_back_slot_foreign_keys(false),
-    _mock_just_append(false),
+    _expect_plugin_item_call(false),
     _expect_tree_activate_objects(false),
     _expect_tree_create_object(false),
     _expect_tree_alter_objects(false),
     _expect_tree_drop_objects(false),
     _expect_tree_refresh(false),
-    _expect_plugin_item_call(false)
+    _mock_call_back_slot_columns(false),
+    _mock_call_back_slot_indexes(false),
+    _mock_call_back_slot_triggers(false),
+    _mock_call_back_slot_foreign_keys(false),
+    _mock_just_append(false)
   {
   }
 
@@ -3066,7 +3066,6 @@ TEST_FUNCTION(26)
 /* Test wb::LiveSchemaTree::activate_node */
 TEST_FUNCTION(27)
 {
-  LiveSchemaTree::ObjectData *pobject_node = NULL;
   mforms::TreeNodeRef schema_node;
   mforms::TreeNodeRef child_node;
   mforms::TreeNodeRef object_node;
@@ -3898,7 +3897,10 @@ TEST_FUNCTION(29)
   _lst.activate_popup_item_for_nodes("filter_schema", nodes);
   deleg->check_and_reset("TF029CHK014");
 
-  /* deprecated
+  //////////////////////////////////////////////////////////////////////
+  //  deprecated
+  //////////////////////////////////////////////////////////////////////
+  
   // Tests a custom functions for the database objects
   nodes.clear();
   set_nodes(&_lst, nodes, SCHEMA|TABLE|VIEW|PROCEDURE|FUNCTION);
@@ -3935,11 +3937,12 @@ TEST_FUNCTION(29)
 
     nodes.erase(nodes.begin());
   }
-*//*
+//////////
   deleg->check_and_reset("TF029CHK016");
 
 
-  pmodel_view->root_node()->remove_children();*/
+  pmodel_view->root_node()->remove_children();
+  */
 }
 
 // Test wb::LiveSchemaTree::get_filter_wildcard

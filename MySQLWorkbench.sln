@@ -198,6 +198,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wba_meb", "wba_meb", "{FC1F
 		plugins\wb.admin\internal\wba_meb\wb_admin_meb_syshelpers.py = plugins\wb.admin\internal\wba_meb\wb_admin_meb_syshelpers.py
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wb.docs", "wb.docs", "{2D29756B-4E63-4FBD-9F83-354D62867E65}"
+  ProjectSection(SolutionItems) = preProject
+    plugins\wb.docs\wb_docs_grt.py = plugins\wb.docs\wb_docs_grt.py
+  EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "grt", "grt", "{6203D283-F9E0-4839-B50E-41FF0A4998BF}"
 	ProjectSection(SolutionItems) = preProject
 		res\grt\structs.app.xml = res\grt\structs.app.xml

@@ -49,7 +49,6 @@ set(IMAGE_FILES
     ./wb_item_overlay_result.png
     ./snippet_css.png
     ./snippet_htm.png
-    ./snippet_lua.png
     ./snippet_mwb.png
     ./snippet_php.png
     ./snippet_py.png

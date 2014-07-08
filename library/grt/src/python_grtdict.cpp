@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#ifdef ENABLE_PYTHON_MODULES
 #include "python_context.h"
 #include "base/string_utilities.h"
 
@@ -571,6 +570,4 @@ void grt::PythonContext::init_grt_dict_type()
   
   _grt_dict_class= PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Dict");
 }
-
-#endif
 

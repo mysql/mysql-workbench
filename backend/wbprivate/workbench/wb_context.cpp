@@ -242,7 +242,6 @@ static void show_help(const char *arg0)
   printf("  %srun-script <file>     Execute Python code from a file\n", OPPREFIX);
   printf("  %srun <script>          Execute the given code in default language for GRT shell\n", OPPREFIX);
   printf("  %srun-python <script>   Execute the given code in Python\n", OPPREFIX);
-  printf("  %srun-lua <script>      Execute the given code in Lua\n", OPPREFIX);
   printf("  %smigration             Open the Migration Wizard tab\n", OPPREFIX);
   printf("  %squit-when-done        Quit Workbench when the script is done\n", OPPREFIX);
   printf("  %slog-to-stderr         Also log to stderr\n", OPPREFIX);
@@ -389,16 +388,8 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
     }
     else if (check_arg_with_value(argv, i, "run-lua", argval))
     {
-      run_language= "lua";
-      if (argval)
-        run_at_startup= argval;
-      else
-      {
-        printf("%s: Missing argument for option %s", argv[0], argv[start_index]);
-        if (retval)
-          *retval = 1;
-        return false;
-      }
+      printf("Lua is no longer supported in this version");
+      return false;
     }
     else if (check_arg_with_value(argv, i, "run-python", argval))
     {
@@ -1639,7 +1630,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "workbench.physical:DeleteObjectConfirmation", "ask");
 
   set_default(options, "grtshell:ShellLanguage", "python");
-  set_default(options, "@grtshell:ShellLanguage/Items", "lua,python");
+  set_default(options, "@grtshell:ShellLanguage/Items", "python");
   
   // URL of latest versions file (used by version updater)
   set_default(options, "VersionsFileURL", "http://wb.mysql.com/versions.php");
@@ -3680,8 +3671,7 @@ bool WBContext::install_module_file(const std::string &path)
   }
   else if (lang_extension == ".lua")
   {
-    if (!g_str_has_suffix(target_path.c_str(), ".grt")) // if the extension is not .grt, add it
-      target_path.append(".grt");
+    show_error("Install Plugin", "Lua is no longer supported in this version.");
   }
   else if (lang_extension == ".mwbpluginz")
   {

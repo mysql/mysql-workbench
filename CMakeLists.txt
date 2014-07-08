@@ -53,12 +53,6 @@ find_package(PythonLibs 2.6)
 if (NOT PYTHONLIBS_FOUND)
     pkg_check_modules(PYTHON REQUIRED python)
 endif ()
-set(GRT_DEFINITIONS -DENABLE_PYTHON_MODULES)
-
-find_package(Lua51)
-if (LUA51_FOUND)
-	set(GRT_DEFINITIONS ${GRT_DEFINITIONS} -DENABLE_LUA_MODULES)
-endif()
 
 find_package(MySQL REQUIRED)
 if (UNIX)
@@ -220,8 +214,8 @@ endif()
 #	#set(CMAKE_EXE_LINKER_FLAGS "-s")  ## Strip binary
 #endif()
 
-set(GRT_LIBRARIES ${PYTHON_LIBRARIES} ${LUA_LIBRARIES} ${LIBXML2_LIBRARIES})
-set(GRT_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${LUA_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR})
+set(GRT_LIBRARIES ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES})
+set(GRT_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
 
 configure_file(${PROJECT_SOURCE_DIR}/mysql-workbench.desktop.in mysql-workbench.desktop)
 

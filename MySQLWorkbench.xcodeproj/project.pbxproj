@@ -359,7 +359,6 @@
 		2B0749DF0F94344300D7E4E3 /* Refresh_16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0749CE0F94344300D7E4E3 /* Refresh_16x16.png */; };
 		2B0749E00F94344300D7E4E3 /* Refresh_18x18.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0749CF0F94344300D7E4E3 /* Refresh_18x18.png */; };
 		2B0749E10F94344300D7E4E3 /* Refresh_disabled_18x18.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0749D00F94344300D7E4E3 /* Refresh_disabled_18x18.png */; };
-		2B08A4791194800200F8C550 /* mysqldoclib.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B08A4781194800200F8C550 /* mysqldoclib.py */; };
 		2B0CE62910C60EED00325F30 /* file_charset_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B0CE62710C60EED00325F30 /* file_charset_dialog.cpp */; };
 		2B0CE62A10C60EED00325F30 /* file_charset_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0CE62810C60EED00325F30 /* file_charset_dialog.h */; };
 		2B0DE77A11E916EF00989395 /* db_query_EditableResultset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B0DE77311E916EF00989395 /* db_query_EditableResultset.cpp */; };
@@ -491,7 +490,6 @@
 		2B1434A5179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143424179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-on@2x.png */; };
 		2B1434A6179DDDE7002217CF /* snippet_css.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143425179DDDE7002217CF /* snippet_css.png */; };
 		2B1434A7179DDDE7002217CF /* snippet_htm.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143426179DDDE7002217CF /* snippet_htm.png */; };
-		2B1434A8179DDDE7002217CF /* snippet_lua.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143427179DDDE7002217CF /* snippet_lua.png */; };
 		2B1434A9179DDDE7002217CF /* snippet_mwb.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143428179DDDE7002217CF /* snippet_mwb.png */; };
 		2B1434AA179DDDE7002217CF /* snippet_php.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143429179DDDE7002217CF /* snippet_php.png */; };
 		2B1434AB179DDDE7002217CF /* snippet_py.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B14342A179DDDE7002217CF /* snippet_py.png */; };
@@ -624,7 +622,6 @@
 		2B1CA4240F965CB1001443CA /* MQIndicatorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1CA4200F965CB1001443CA /* MQIndicatorCell.m */; };
 		2B1CA4250F965CB1001443CA /* MQResultSetCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1CA4210F965CB1001443CA /* MQResultSetCell.h */; };
 		2B1CA4260F965CB1001443CA /* MQResultSetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1CA4220F965CB1001443CA /* MQResultSetCell.m */; };
-		2B1CF3AA11931D2B00D1410D /* wb_doclib_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B1CF3A911931D2B00D1410D /* wb_doclib_grt.py */; };
 		2B1CF45411939DDF00D1410D /* DB Management.txt in Copy Files (snippets) */ = {isa = PBXBuildFile; fileRef = 2B1CF45311939DDE00D1410D /* DB Management.txt */; };
 		2B1D6CAC177C6BDD0073C062 /* maintab_home_background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6CA3177C6BDD0073C062 /* maintab_home_background@2x.png */; };
 		2B1D6CAD177C6BDD0073C062 /* maintab_home_home.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6CA4177C6BDD0073C062 /* maintab_home_home.png */; };
@@ -729,7 +726,6 @@
 		2B2403DD101BC7A800079580 /* grtdb_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403DA101BC7A800079580 /* grtdb_tests.cpp */; };
 		2B2403E1101BC7C800079580 /* db_sql_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403DF101BC7C800079580 /* db_sql_editor.cpp */; };
 		2B2403EE101BC81800079580 /* grtlistdiff_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403E7101BC81800079580 /* grtlistdiff_test.cpp */; };
-		2B2403FD101BC82F00079580 /* grtpp_lua_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403F0101BC82F00079580 /* grtpp_lua_test.cpp */; };
 		2B2403FE101BC82F00079580 /* grtpp_serialization_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403F1101BC82F00079580 /* grtpp_serialization_test.cpp */; };
 		2B2403FF101BC82F00079580 /* grtpp_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403F2101BC82F00079580 /* grtpp_test.cpp */; };
 		2B240400101BC82F00079580 /* grtpp_util_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403F3101BC82F00079580 /* grtpp_util_test.cpp */; };
@@ -1595,21 +1591,15 @@
 		2B825DD70E0B605A00BE52DF /* grtpp_helper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DBD0E0B605A00BE52DF /* grtpp_helper.h */; };
 		2B825DD80E0B605A00BE52DF /* serializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DBE0E0B605A00BE52DF /* serializer.h */; };
 		2B825DD90E0B605A00BE52DF /* serializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DBF0E0B605A00BE52DF /* serializer.cpp */; };
-		2B825DDA0E0B605A00BE52DF /* grtpp_module_lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC00E0B605A00BE52DF /* grtpp_module_lua.h */; };
 		2B825DDB0E0B605A00BE52DF /* grtpp_module_cpp.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC10E0B605A00BE52DF /* grtpp_module_cpp.h */; };
 		2B825DDC0E0B605A00BE52DF /* grtpp_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC20E0B605A00BE52DF /* grtpp_util.cpp */; };
 		2B825DDD0E0B605A00BE52DF /* grtpp_undo_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC30E0B605A00BE52DF /* grtpp_undo_manager.h */; };
 		2B825DDE0E0B605A00BE52DF /* grtpp_value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */; };
 		2B825DDF0E0B605A00BE52DF /* grtpp_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC50E0B605A00BE52DF /* grtpp_util.h */; };
-		2B825DE00E0B605A00BE52DF /* lua_context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC60E0B605A00BE52DF /* lua_context.cpp */; };
 		2B825DE10E0B605A00BE52DF /* grtpp_value.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC70E0B605A00BE52DF /* grtpp_value.h */; };
 		2B825DE20E0B605A00BE52DF /* grtpp_grt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */; };
-		2B825DE30E0B605A00BE52DF /* grtpp_shell_lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC90E0B605A00BE52DF /* grtpp_shell_lua.h */; };
-		2B825DE40E0B605A00BE52DF /* lua_context.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DCA0E0B605A00BE52DF /* lua_context.h */; };
 		2B825DE50E0B605A00BE52DF /* grtpp_shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DCB0E0B605A00BE52DF /* grtpp_shell.h */; };
-		2B825DE60E0B605A00BE52DF /* grtpp_shell_lua.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DCC0E0B605A00BE52DF /* grtpp_shell_lua.cpp */; };
 		2B825DE70E0B605A00BE52DF /* grtpp_shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DCD0E0B605A00BE52DF /* grtpp_shell.cpp */; };
-		2B825DE80E0B605A00BE52DF /* grtpp_module_lua.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DCE0E0B605A00BE52DF /* grtpp_module_lua.cpp */; };
 		2B825E710E0B664E00BE52DF /* mdc_canvas_view_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825E270E0B664E00BE52DF /* mdc_canvas_view_image.h */; };
 		2B825E720E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825E280E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp */; };
 		2B825E730E0B664E00BE52DF /* mdc_icon_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825E290E0B664E00BE52DF /* mdc_icon_text.cpp */; };
@@ -1710,9 +1700,7 @@
 		2B8760E70F47E568000B6DE1 /* python_grtdict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8760E50F47E568000B6DE1 /* python_grtdict.cpp */; };
 		2B8761280F47ECB5000B6DE1 /* python_module.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8761260F47ECB5000B6DE1 /* python_module.h */; };
 		2B8761290F47ECB5000B6DE1 /* python_module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8761270F47ECB5000B6DE1 /* python_module.cpp */; };
-		2B87631A0F48D499000B6DE1 /* wb_library.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2B8762F00F48D296000B6DE1 /* wb_library.lua */; };
 		2B87631B0F48D4E6000B6DE1 /* wb.py in Copy Files (grt libraries) */ = {isa = PBXBuildFile; fileRef = 2B87628E0F48AEF2000B6DE1 /* wb.py */; };
-		2B87631C0F48D4E6000B6DE1 /* wb_library.lua in Copy Files (grt libraries) */ = {isa = PBXBuildFile; fileRef = 2B8762F00F48D296000B6DE1 /* wb_library.lua */; };
 		2B8767C30F4B1792000B6DE1 /* WBPluginPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8767C20F4B1792000B6DE1 /* WBPluginPanel.mm */; };
 		2B87B86116AA0988003C91C1 /* table_templates.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B87B86016AA089E003C91C1 /* table_templates.py */; };
 		2B87B8CB16B0CCE6003C91C1 /* TabViewDockingDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B87B8C916B0CCE6003C91C1 /* TabViewDockingDelegate.h */; };
@@ -2162,13 +2150,9 @@
 		2BDAE46111139AA500AC1D7A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BDAE46B11139B3B00AC1D7A /* file_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDAE46911139B3B00AC1D7A /* file_functions.h */; };
 		2BDAE48011139E8E00AC1D7A /* wba_ssh_ui.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */; };
-		2BDC26040E855EC40018CE34 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26020E855EC40018CE34 /* liblua.a */; };
-		2BDC26050E855EC40018CE34 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26020E855EC40018CE34 /* liblua.a */; };
-		2BDC26060E855EC40018CE34 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26020E855EC40018CE34 /* liblua.a */; };
 		2BDC26080E855F470018CE34 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */; };
 		2BDC261B0E8565C20018CE34 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		2BDC261F0E8565F50018CE34 /* grtpp_shell_lua_help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC261E0E8565F50018CE34 /* grtpp_shell_lua_help.cpp */; };
 		2BDC26950E8567530018CE34 /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC26470E8567510018CE34 /* hash.h */; };
 		2BDC26970E8567530018CE34 /* lex_symbol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC26490E8567510018CE34 /* lex_symbol.h */; };
 		2BDC269A0E8567540018CE34 /* m_ctype.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC264D0E8567510018CE34 /* m_ctype.h */; };
@@ -3515,9 +3499,7 @@
 				2BF98AB2123A098E008DDCD0 /* wb_server_management.py in Copy Files (plugins) */,
 				27A3E88B1098CAB20014F5B1 /* wba_monitor_be.py in Copy Files (plugins) */,
 				2B5C151F11FA59B800F1237A /* text_grt.py in Copy Files (plugins) */,
-				2B08A4791194800200F8C550 /* mysqldoclib.py in Copy Files (plugins) */,
 				2BDAE48011139E8E00AC1D7A /* wba_ssh_ui.py in Copy Files (plugins) */,
-				2B1CF3AA11931D2B00D1410D /* wb_doclib_grt.py in Copy Files (plugins) */,
 				2BBC38FB12380E9000CACF4C /* wb_admin_control.py in Copy Files (plugins) */,
 				2BF440EA108C9C6300F04A6C /* wb_admin_logs.py in Copy Files (plugins) */,
 				2BF43851108778F500F04A6C /* wb_admin_security.py in Copy Files (plugins) */,
@@ -3629,7 +3611,6 @@
 				2B7A3A1C126E91870097DDA9 /* grt_python_debugger.py in Copy Files (grt libraries) */,
 				2B75735C12077FDC00CC60E4 /* db_utils.py in Copy Files (grt libraries) */,
 				2B87631B0F48D4E6000B6DE1 /* wb.py in Copy Files (grt libraries) */,
-				2B87631C0F48D4E6000B6DE1 /* wb_library.lua in Copy Files (grt libraries) */,
 			);
 			name = "Copy Files (grt libraries)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4227,7 +4208,6 @@
 		2B143424179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_word-wrap-on@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_word-wrap-on@2x.png"; sourceTree = "<group>"; };
 		2B143425179DDDE7002217CF /* snippet_css.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_css.png; path = images/sql/snippet_css.png; sourceTree = "<group>"; };
 		2B143426179DDDE7002217CF /* snippet_htm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_htm.png; path = images/sql/snippet_htm.png; sourceTree = "<group>"; };
-		2B143427179DDDE7002217CF /* snippet_lua.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_lua.png; path = images/sql/snippet_lua.png; sourceTree = "<group>"; };
 		2B143428179DDDE7002217CF /* snippet_mwb.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_mwb.png; path = images/sql/snippet_mwb.png; sourceTree = "<group>"; };
 		2B143429179DDDE7002217CF /* snippet_php.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_php.png; path = images/sql/snippet_php.png; sourceTree = "<group>"; };
 		2B14342A179DDDE7002217CF /* snippet_py.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_py.png; path = images/sql/snippet_py.png; sourceTree = "<group>"; };
@@ -4470,11 +4450,9 @@
 		2B2403E4101BC81800079580 /* grtdiff_db_diff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtdiff_db_diff.cpp; path = "library/grt/unit-tests/diff/grtdiff_db_diff.cpp"; sourceTree = "<group>"; };
 		2B2403E6101BC81800079580 /* grtdiff_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtdiff_test.cpp; path = "library/grt/unit-tests/diff/grtdiff_test.cpp"; sourceTree = "<group>"; };
 		2B2403E7101BC81800079580 /* grtlistdiff_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtlistdiff_test.cpp; path = "library/grt/unit-tests/diff/grtlistdiff_test.cpp"; sourceTree = "<group>"; };
-		2B2403F0101BC82F00079580 /* grtpp_lua_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_lua_test.cpp; path = "library/grt/unit-tests/grtpp_lua_test.cpp"; sourceTree = "<group>"; };
 		2B2403F1101BC82F00079580 /* grtpp_serialization_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_serialization_test.cpp; path = "library/grt/unit-tests/grtpp_serialization_test.cpp"; sourceTree = "<group>"; };
 		2B2403F2101BC82F00079580 /* grtpp_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_test.cpp; path = "library/grt/unit-tests/grtpp_test.cpp"; sourceTree = "<group>"; };
 		2B2403F3101BC82F00079580 /* grtpp_util_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_util_test.cpp; path = "library/grt/unit-tests/grtpp_util_test.cpp"; sourceTree = "<group>"; };
-		2B2403F4101BC82F00079580 /* lua_module.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lua_module.lua; path = "library/grt/unit-tests/lua_module.lua"; sourceTree = "<group>"; };
 		2B2403F5101BC82F00079580 /* module_native_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = module_native_test.cpp; path = "library/grt/unit-tests/module_native_test.cpp"; sourceTree = "<group>"; };
 		2B2403F6101BC82F00079580 /* grt_module_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_module_test.cpp; path = "library/grt/unit-tests/grt_module_test.cpp"; sourceTree = "<group>"; };
 		2B2403F7101BC82F00079580 /* object_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = object_test.cpp; path = "library/grt/unit-tests/object_test.cpp"; sourceTree = "<group>"; };
@@ -5414,21 +5392,15 @@
 		2B825DBD0E0B605A00BE52DF /* grtpp_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_helper.h; path = library/grt/src/grtpp_helper.h; sourceTree = "<group>"; };
 		2B825DBE0E0B605A00BE52DF /* serializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = serializer.h; path = library/grt/src/serializer.h; sourceTree = "<group>"; };
 		2B825DBF0E0B605A00BE52DF /* serializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = serializer.cpp; path = library/grt/src/serializer.cpp; sourceTree = "<group>"; };
-		2B825DC00E0B605A00BE52DF /* grtpp_module_lua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_module_lua.h; path = library/grt/src/grtpp_module_lua.h; sourceTree = "<group>"; };
 		2B825DC10E0B605A00BE52DF /* grtpp_module_cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_module_cpp.h; path = library/grt/src/grtpp_module_cpp.h; sourceTree = "<group>"; };
 		2B825DC20E0B605A00BE52DF /* grtpp_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_util.cpp; path = library/grt/src/grtpp_util.cpp; sourceTree = "<group>"; };
 		2B825DC30E0B605A00BE52DF /* grtpp_undo_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_undo_manager.h; path = library/grt/src/grtpp_undo_manager.h; sourceTree = "<group>"; };
 		2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_value.cpp; path = library/grt/src/grtpp_value.cpp; sourceTree = "<group>"; };
 		2B825DC50E0B605A00BE52DF /* grtpp_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_util.h; path = library/grt/src/grtpp_util.h; sourceTree = "<group>"; };
-		2B825DC60E0B605A00BE52DF /* lua_context.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lua_context.cpp; path = library/grt/src/lua_context.cpp; sourceTree = "<group>"; };
 		2B825DC70E0B605A00BE52DF /* grtpp_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_value.h; path = library/grt/src/grtpp_value.h; sourceTree = "<group>"; };
 		2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_grt.cpp; path = library/grt/src/grtpp_grt.cpp; sourceTree = "<group>"; };
-		2B825DC90E0B605A00BE52DF /* grtpp_shell_lua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_shell_lua.h; path = library/grt/src/grtpp_shell_lua.h; sourceTree = "<group>"; };
-		2B825DCA0E0B605A00BE52DF /* lua_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lua_context.h; path = library/grt/src/lua_context.h; sourceTree = "<group>"; };
 		2B825DCB0E0B605A00BE52DF /* grtpp_shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_shell.h; path = library/grt/src/grtpp_shell.h; sourceTree = "<group>"; };
-		2B825DCC0E0B605A00BE52DF /* grtpp_shell_lua.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_shell_lua.cpp; path = library/grt/src/grtpp_shell_lua.cpp; sourceTree = "<group>"; };
 		2B825DCD0E0B605A00BE52DF /* grtpp_shell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_shell.cpp; path = library/grt/src/grtpp_shell.cpp; sourceTree = "<group>"; };
-		2B825DCE0E0B605A00BE52DF /* grtpp_module_lua.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_module_lua.cpp; path = library/grt/src/grtpp_module_lua.cpp; sourceTree = "<group>"; };
 		2B825E220E0B662200BE52DF /* libmysql.canvas.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmysql.canvas.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B825E270E0B664E00BE52DF /* mdc_canvas_view_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_canvas_view_image.h; path = library/mysql.canvas/src/mdc_canvas_view_image.h; sourceTree = "<group>"; };
 		2B825E280E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_canvas_view_macosx.cpp; path = library/mysql.canvas/src/mdc_canvas_view_macosx.cpp; sourceTree = "<group>"; };
@@ -5527,7 +5499,6 @@
 		2B8761260F47ECB5000B6DE1 /* python_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_module.h; path = library/grt/src/python_module.h; sourceTree = "<group>"; };
 		2B8761270F47ECB5000B6DE1 /* python_module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_module.cpp; path = library/grt/src/python_module.cpp; sourceTree = "<group>"; };
 		2B87628E0F48AEF2000B6DE1 /* wb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb.py; path = res/scripts/python/wb.py; sourceTree = "<group>"; };
-		2B8762F00F48D296000B6DE1 /* wb_library.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wb_library.lua; path = res/scripts/lua/wb_library.lua; sourceTree = "<group>"; };
 		2B8767C10F4B1792000B6DE1 /* WBPluginPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBPluginPanel.h; path = frontend/mac/workbench/WBPluginPanel.h; sourceTree = "<group>"; };
 		2B8767C20F4B1792000B6DE1 /* WBPluginPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBPluginPanel.mm; path = frontend/mac/workbench/WBPluginPanel.mm; sourceTree = "<group>"; };
 		2B87B86016AA089E003C91C1 /* table_templates.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = table_templates.py; path = modules/wb.utils/table_templates.py; sourceTree = "<group>"; };
@@ -5865,9 +5836,7 @@
 		2BD9E7A61860012000A7252B /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = native.h; path = library/forms/mforms/native.h; sourceTree = "<group>"; };
 		2BDAE46911139B3B00AC1D7A /* file_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file_functions.h; path = library/base/base/file_functions.h; sourceTree = "<group>"; };
 		2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wba_ssh_ui.py; path = plugins/wb.admin/frontend/wba_ssh_ui.py; sourceTree = "<group>"; };
-		2BDC26020E855EC40018CE34 /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../mysql-mac-res/lib/liblua.a"; sourceTree = "<group>"; };
 		2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		2BDC261E0E8565F50018CE34 /* grtpp_shell_lua_help.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_shell_lua_help.cpp; path = library/grt/src/grtpp_shell_lua_help.cpp; sourceTree = "<group>"; };
 		2BDC262A0E85671D0018CE34 /* libsql.parser.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsql.parser.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BDC26470E8567510018CE34 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hash.h; path = library/sql.parser/source/hash.h; sourceTree = "<group>"; };
 		2BDC26490E8567510018CE34 /* lex_symbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lex_symbol.h; path = library/sql.parser/source/lex_symbol.h; sourceTree = "<group>"; };
@@ -5968,6 +5937,7 @@
 		2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_sql_semantic_check.cpp; path = modules/db.mysql.sqlparser/src/mysql_sql_semantic_check.cpp; sourceTree = "<group>"; };
 		2BEC8E7B1035F80900607CA4 /* mysql_sql_semantic_check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mysql_sql_semantic_check.h; path = modules/db.mysql.sqlparser/src/mysql_sql_semantic_check.h; sourceTree = "<group>"; };
 		2BECA53518B3A13D00E12F8B /* sys */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sys; path = res/scripts/sys; sourceTree = "<group>"; };
+		2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_plugin_wizard.cpp; path = frontend/common/grt_plugin_wizard.cpp; sourceTree = "<group>"; };
 		2BF04900173989C600A7EA35 /* wb_admin_server_status.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = wb_admin_server_status.py; path = plugins/wb.admin/frontend/wb_admin_server_status.py; sourceTree = "<group>"; };
 		2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "mysql-logo-00.png"; path = "images/admin/mysql-logo-00.png"; sourceTree = "<group>"; };
 		2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "mysql-logo-00@2x.png"; path = "images/admin/mysql-logo-00@2x.png"; sourceTree = "<group>"; };
@@ -6427,7 +6397,6 @@
 			files = (
 				2BDC261B0E8565C20018CE34 /* libwbbase.dylib in Frameworks */,
 				2BDC26080E855F470018CE34 /* libxml2.2.dylib in Frameworks */,
-				2BDC26040E855EC40018CE34 /* liblua.a in Frameworks */,
 				2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */,
 				2B15AE9912D6C6C4006567D6 /* libgmodule-2.0.0.dylib in Frameworks */,
 				2BCE4A0615F6478200FA0CDC /* Python in Frameworks */,
@@ -6631,7 +6600,6 @@
 				2B774FA715CEC32900923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FA815CEC32900923448 /* libgthread-2.0.0.dylib in Frameworks */,
 				271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */,
-				2BDC26060E855EC40018CE34 /* liblua.a in Frameworks */,
 				2B750F720E8794200003120A /* Cocoa.framework in Frameworks */,
 				2B263B480E94031C00933149 /* libwbbase.dylib in Frameworks */,
 				2B263B490E94031C00933149 /* libgrt.dylib in Frameworks */,
@@ -7552,11 +7520,9 @@
 				27983C7E1676080900D8DC35 /* Library */,
 				2B100E2813F493600001F933 /* mforms stub */,
 				2B100E7913F4B99B0001F933 /* Modules */,
-				2B2403F0101BC82F00079580 /* grtpp_lua_test.cpp */,
 				2B2403F1101BC82F00079580 /* grtpp_serialization_test.cpp */,
 				2B2403F2101BC82F00079580 /* grtpp_test.cpp */,
 				2B2403F3101BC82F00079580 /* grtpp_util_test.cpp */,
-				2B2403F4101BC82F00079580 /* lua_module.lua */,
 				2B2403F5101BC82F00079580 /* module_native_test.cpp */,
 				2B2403F6101BC82F00079580 /* grt_module_test.cpp */,
 				2B2403F7101BC82F00079580 /* object_test.cpp */,
@@ -8318,6 +8284,7 @@
 				2B84DEAD124A89A7009136B7 /* grt_python_debugger.h */,
 				2B84DEAE124A89A7009136B7 /* grt_python_debugger.cpp */,
 				2B648417122741FB00207149 /* grt_plugin_wizard.h */,
+				2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */,
 				2BB376BF1104898700DA4577 /* grt_shell_window.cpp */,
 				2BB376C01104898700DA4577 /* grt_shell_window.h */,
 				2B3DBD081212ECAB001837A5 /* plugin_manager_window.h */,
@@ -8644,7 +8611,6 @@
 				2B15AE9712D6C6B5006567D6 /* libgmodule-2.0.0.dylib */,
 				2B41EDFB0F8B819400F5EB1E /* libsqlite3.dylib */,
 				2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */,
-				2BDC26020E855EC40018CE34 /* liblua.a */,
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
 				2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */,
 			);
@@ -9105,7 +9071,6 @@
 			children = (
 				2B825D950E0B604D00BE52DF /* diff */,
 				2BB58B1E0F45F0C300089423 /* python */,
-				2BB58B1D0F45F0BE00089423 /* lua */,
 				2B825DBC0E0B605A00BE52DF /* grtpp_module_cpp.cpp */,
 				2B825DC10E0B605A00BE52DF /* grtpp_module_cpp.h */,
 				2B825DB50E0B605A00BE52DF /* unserializer.h */,
@@ -9720,21 +9685,6 @@
 				2BB5890D0F44D64000089423 /* diff_reporting.cpp */,
 			);
 			name = Frontend;
-			sourceTree = "<group>";
-		};
-		2BB58B1D0F45F0BE00089423 /* lua */ = {
-			isa = PBXGroup;
-			children = (
-				2B8762F00F48D296000B6DE1 /* wb_library.lua */,
-				2B825DC60E0B605A00BE52DF /* lua_context.cpp */,
-				2B825DCA0E0B605A00BE52DF /* lua_context.h */,
-				2B825DC90E0B605A00BE52DF /* grtpp_shell_lua.h */,
-				2B825DCC0E0B605A00BE52DF /* grtpp_shell_lua.cpp */,
-				2BDC261E0E8565F50018CE34 /* grtpp_shell_lua_help.cpp */,
-				2B825DCE0E0B605A00BE52DF /* grtpp_module_lua.cpp */,
-				2B825DC00E0B605A00BE52DF /* grtpp_module_lua.h */,
-			);
-			name = lua;
 			sourceTree = "<group>";
 		};
 		2BB58B1E0F45F0C300089423 /* python */ = {
@@ -10467,7 +10417,6 @@
 				2BD9E77F185FFF6E00A7252B /* output_type-toggle-on@2x.png */,
 				2B143425179DDDE7002217CF /* snippet_css.png */,
 				2B143426179DDDE7002217CF /* snippet_htm.png */,
-				2B143427179DDDE7002217CF /* snippet_lua.png */,
 				2B143428179DDDE7002217CF /* snippet_mwb.png */,
 				2B143429179DDDE7002217CF /* snippet_php.png */,
 				2B14342A179DDDE7002217CF /* snippet_py.png */,
@@ -10978,13 +10927,10 @@
 				2B825DD10E0B605A00BE52DF /* grtpp.h in Headers */,
 				2B825DD70E0B605A00BE52DF /* grtpp_helper.h in Headers */,
 				2B825DD80E0B605A00BE52DF /* serializer.h in Headers */,
-				2B825DDA0E0B605A00BE52DF /* grtpp_module_lua.h in Headers */,
 				2B825DDB0E0B605A00BE52DF /* grtpp_module_cpp.h in Headers */,
 				2B825DDD0E0B605A00BE52DF /* grtpp_undo_manager.h in Headers */,
 				2B825DDF0E0B605A00BE52DF /* grtpp_util.h in Headers */,
 				2B825DE10E0B605A00BE52DF /* grtpp_value.h in Headers */,
-				2B825DE30E0B605A00BE52DF /* grtpp_shell_lua.h in Headers */,
-				2B825DE40E0B605A00BE52DF /* lua_context.h in Headers */,
 				2B825DE50E0B605A00BE52DF /* grtpp_shell.h in Headers */,
 				2BB58B1A0F45ED0A00089423 /* python_context.h in Headers */,
 				2BB58B3A0F45F11C00089423 /* grtpp_module_python.h in Headers */,
@@ -12329,7 +12275,6 @@
 				2B3D57D70F4319F9009238A7 /* workbench.physical.Diagram.48x48.png in Resources */,
 				2B3D57D80F4319F9009238A7 /* workbench.physical.Diagram.add.16x16.png in Resources */,
 				2B3D59370F433BBE009238A7 /* task_disabled_mac.png in Resources */,
-				2B87631A0F48D499000B6DE1 /* wb_library.lua in Resources */,
 				2BFBEFEA0F50941C0016F9D1 /* DiagramOptions.xib in Resources */,
 				2BE67F400F8E25C500E00A97 /* field_overlay_blob.png in Resources */,
 				2BE67F410F8E25C500E00A97 /* field_overlay_null.png in Resources */,
@@ -13050,7 +12995,6 @@
 				2B1434A6179DDDE7002217CF /* snippet_css.png in Resources */,
 				279EC891185214A7007D1252 /* wb-toolbar_automatic-help-off.png in Resources */,
 				2B1434A7179DDDE7002217CF /* snippet_htm.png in Resources */,
-				2B1434A8179DDDE7002217CF /* snippet_lua.png in Resources */,
 				2B1434A9179DDDE7002217CF /* snippet_mwb.png in Resources */,
 				2B5FE4D2187F2C7400AEC55C /* output_type-formeditor@2x.png in Resources */,
 				2B1434AA179DDDE7002217CF /* snippet_php.png in Resources */,
@@ -13224,7 +13168,6 @@
 				"$(SRCROOT)/modules/db.mssql/res/",
 				"$(SRCROOT)/modules/db.mysql/res/",
 				"$(SRCROOT)/modules/wb.model/res/",
-				"$(SRCROOT)/plugins/wb.doclib/res/",
 				"$(SRCROOT)/modules/db.sybase/res/",
 				"$(SRCROOT)/modules/db.postgresql/res/",
 				"$(SRCROOT)/modules/db.sql92/res/",
@@ -13390,7 +13333,6 @@
 				2B2403DD101BC7A800079580 /* grtdb_tests.cpp in Sources */,
 				2B2403E1101BC7C800079580 /* db_sql_editor.cpp in Sources */,
 				2B2403EE101BC81800079580 /* grtlistdiff_test.cpp in Sources */,
-				2B2403FD101BC82F00079580 /* grtpp_lua_test.cpp in Sources */,
 				2B2403FE101BC82F00079580 /* grtpp_serialization_test.cpp in Sources */,
 				2B2403FF101BC82F00079580 /* grtpp_test.cpp in Sources */,
 				2B240400101BC82F00079580 /* grtpp_util_test.cpp in Sources */,
@@ -13768,12 +13710,8 @@
 				2B825DD90E0B605A00BE52DF /* serializer.cpp in Sources */,
 				2B825DDC0E0B605A00BE52DF /* grtpp_util.cpp in Sources */,
 				2B825DDE0E0B605A00BE52DF /* grtpp_value.cpp in Sources */,
-				2B825DE00E0B605A00BE52DF /* lua_context.cpp in Sources */,
 				2B825DE20E0B605A00BE52DF /* grtpp_grt.cpp in Sources */,
-				2B825DE60E0B605A00BE52DF /* grtpp_shell_lua.cpp in Sources */,
 				2B825DE70E0B605A00BE52DF /* grtpp_shell.cpp in Sources */,
-				2B825DE80E0B605A00BE52DF /* grtpp_module_lua.cpp in Sources */,
-				2BDC261F0E8565F50018CE34 /* grtpp_shell_lua_help.cpp in Sources */,
 				2BB58B1B0F45ED0A00089423 /* python_context.cpp in Sources */,
 				2BB58B3B0F45F11C00089423 /* grtpp_module_python.cpp in Sources */,
 				2BB58BC20F46027E00089423 /* python_grtlist.cpp in Sources */,
@@ -13984,6 +13922,7 @@
 				2BF87A5C0FA7CEFB0012EADA /* wb_component_logical.cpp in Sources */,
 				27987706195C5246003E8E44 /* execute_routine_wizard.cpp in Sources */,
 				2BF87A5E0FA7CEFB0012EADA /* wb_component_physical.cpp in Sources */,
+				2BF02D061965B141008C9304 /* grt_plugin_wizard.cpp in Sources */,
 				2BF87A600FA7CEFB0012EADA /* wb_component_physical_relationship.cpp in Sources */,
 				2BF87A610FA7CEFB0012EADA /* wb_diagram_options.cpp in Sources */,
 				2BF87A630FA7CEFB0012EADA /* wb_layer_tree.cpp in Sources */,

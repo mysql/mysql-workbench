@@ -468,7 +468,6 @@ TEST_FUNCTION(22) // Move into and out of Layer
 
   // Move object out of layer.
   double new_x = figure->left();
-  double new_y = figure->top();
 
   double mouse_x = figure->left() + layer->left();
   double mouse_y = figure->top() + layer->top();
@@ -628,10 +627,6 @@ TEST_FUNCTION(32) // Delete Table
   model_FigureRef figure(find_named_object_in_list(diagram->figures(), "table1"));
   
   ensure("table found", figure.is_valid());
-
-  double w,h;
-  w= figure->width();
-  h= figure->height();
   
   // delete the figure
   mforms::stub::UtilitiesWrapper::set_message_callback(message_ok_callback);

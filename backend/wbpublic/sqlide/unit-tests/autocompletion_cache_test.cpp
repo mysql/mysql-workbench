@@ -35,7 +35,7 @@ public:
   AutoCompleteCache *_cache;
 
 TEST_DATA_CONSTRUCTOR(autocompletion_cache_test)
-  : _cache(0), _conn(new sql::Dbc_connection_handler())
+  : _conn(new sql::Dbc_connection_handler()), _cache(0)
 {
   _grt.scan_metaclasses_in("../../res/grt/");
   _grt.end_loading_metaclasses();

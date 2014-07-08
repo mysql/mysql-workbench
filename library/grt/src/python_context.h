@@ -25,8 +25,8 @@
 #include "grtpp_notifications.h"
 
 namespace grt {
-  extern const std::string LanguagePython;
-  
+  const std::string LanguagePython = "python";
+
   class AutoPyObject
   {
   private:
