@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_POPOVER_H_
-#define _MFORMS_POPOVER_H_
+#pragma once
 
 #include "mforms/container.h"
 
@@ -95,5 +94,3 @@ namespace mforms {
     boost::signals2::signal<void ()> _bound_close;
   };
 };
-
-#endif

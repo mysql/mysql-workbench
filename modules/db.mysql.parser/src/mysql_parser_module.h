@@ -106,10 +106,21 @@ public:
     DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::getSqlStatementRanges,
       "Scans the sql code to find start and stop positions of each contained statement. An initial "
       "delimiter must be provided to find a statement's end. Embedded delimiter commands will be taken "
-      "into account properly. The found ranges are returned as grt list.\n",
+      "into account properly. The found ranges are returned as grt list.",
       "sql the sql script to process\n"),
 
-     NULL);
+    DECLARE_MODULE_FUNCTION_DOC(MySQLParserServicesImpl::replaceTokenSequence,
+      "Parses the given SQL code and searches for the given token. If found this and the following "
+      "tokens (determined by the count) is replaced by the text in the string array (one string "
+      "entry per replaced token). It is attempted to maintain the current text casing.",
+      "sql the sql script to process\n"
+      "start_token the token to search for. The first found instance is used.\n"
+      "count the number of tokens to replace (including the start token).\n"
+      "replacements the strings to use instead of the text for the found tokens.\n"
+      "             If more than count the rest is simply appended.\n"
+      "             If less than count then entries are removed."),
+
+    NULL);
 
     // All module functions taking a parser context have 2 implementations. One for
     // the module interface (with a grt wrapper) and one for direct access.
@@ -153,6 +164,11 @@ public:
       const std::string &initial_delimiter, std::vector<std::pair<size_t, size_t> > &ranges,
       const std::string &line_break = "\n");
 
+    // Query manipulation.
+    std::string MySQLParserServicesImpl::replaceTokenSequence(parser_ContextReferenceRef context_ref,
+      const std::string &sql, size_t start_token, size_t count, grt::StringListRef replacements);
+    virtual std::string replaceTokenSequenceWithText(const parser::ParserContext::Ref &context,
+      const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements);
 private:
   bool _stop;
 };

@@ -1007,12 +1007,23 @@ unsigned int MySQLRecognizerTreeWalker::token_start()
 //--------------------------------------------------------------------------------------------------
 
 /**
+* Returns the (zero-based) index of the current token within the input.
+*/
+ANTLR3_MARKER MySQLRecognizerTreeWalker::token_index()
+{
+  pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
+  return token->index;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Returns the offset of the token in its source string.
  */
 size_t MySQLRecognizerTreeWalker::token_offset()
 {
   pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
-  return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->input_start());
+  return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->text());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1315,9 +1326,9 @@ std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string
 
 //--------------------------------------------------------------------------------------------------
 
-void* MySQLRecognizer::input_start()
+const char* MySQLRecognizer::text()
 {
-  return (void *)d->_text;
+  return d->_text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2135,16 +2146,40 @@ std::string MySQLRecognizer::text_for_tree(pANTLR3_BASE_TREE node)
   child = (pANTLR3_BASE_TREE)node->getChild(node, node->getChildCount(node) - 1);
   token = child->getToken(child);
   ANTLR3_MARKER stop = token->stop;
-/*
-  pANTLR3_TOKEN_STREAM token_stream = d->_tokens->tstream;
-  for (ANTLR3_MARKER i = start; i <= stop; ++i)
-  {
-    pANTLR3_COMMON_TOKEN token = token_stream->get(token_stream, i);
-    pANTLR3_STRING text = token->getText(token);
-    result += (char*)text->chars;
-  }
-*/
   return std::string((char*)start, stop - start + 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the information for the token at the given index in the input stream. This includes
+ * every possible token, including those on a hidden channel (e.g. comments and whitespaces).
+ * Before calling this function the parser must have parsed the input to have the values available.
+ * The result's type member can be used to find out if token information is not yet available or
+ * the given index is out of the available range (ANTLR3_TOKEN_INVALID).
+ */
+MySQLToken MySQLRecognizer::token_at_index(ANTLR3_MARKER index)
+{
+  MySQLToken result;
+
+  pANTLR3_COMMON_TOKEN token = d->_tokens->tstream->get(d->_tokens->tstream, (ANTLR3_UINT32)index);
+  if (token != NULL)
+  {
+    result.type = token->type;
+    result.line = token->line;
+    result.position = token->charPosition;
+    result.index = token->index;
+    result.channel = token->channel;
+    result.line_start = (char*)token->lineStart;
+    result.start = reinterpret_cast<char*>(token->start);
+    result.stop = reinterpret_cast<char*>(token->stop);
+
+    // If necessary the following part can be optimized to not always create a copy of the input.
+    pANTLR3_STRING text = token->getText(token);
+    result.text = (const char*)text->chars;
+  }
+
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------

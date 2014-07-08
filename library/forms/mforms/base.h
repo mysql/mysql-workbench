@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_BASE_H_
-#define _MFORMS_BASE_H_
+
+#pragma once
 
 #include <string>
 #include <list>
@@ -119,4 +119,3 @@ namespace mforms {
 };
 
 #endif  // !DOXYGEN_SHOULD_SKIP_THIS
-#endif

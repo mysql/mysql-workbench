@@ -72,6 +72,7 @@ public:
   unsigned int token_type();
   unsigned int token_line();
   unsigned int token_start();
+  ANTLR3_MARKER token_index();
   size_t token_offset();
   int token_length();
 
@@ -111,6 +112,7 @@ public:
   
   virtual void set_sql_mode(const std::string &new_mode);
   virtual void set_server_version(long new_version);
+  virtual const char* text();
 
   long server_version();
 
@@ -119,9 +121,9 @@ public:
   MySQLQueryType query_type(pANTLR3_BASE_TREE node);
 
   std::string text_for_tree(pANTLR3_BASE_TREE node);
+  MySQLToken token_at_index(ANTLR3_MARKER index);
 
 protected:
-  virtual void* input_start();
 
 private:
   class Private;

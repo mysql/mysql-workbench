@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _CODE_EDITOR_H_
-#define _CODE_EDITOR_H_
+#pragma once
 
 #ifndef SCI_NAMESPACE
 #define SCI_NAMESPACE
@@ -534,5 +533,3 @@ public:
     boost::function<void (CodeEditor*, bool)> _show_find_panel;
   };
 };
-
-#endif // _CODE_EDITOR_H_

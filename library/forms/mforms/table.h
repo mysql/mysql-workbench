@@ -16,12 +16,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_TABLE_H_
-#define _MFORMS_TABLE_H_
+
+#pragma once
 
 #include <mforms/base.h>
 #include <mforms/container.h>
-
 
 namespace mforms {
 
@@ -100,6 +99,3 @@ namespace mforms {
     TableImplPtrs *_table_impl;
   };
 };
-
-
-#endif /* _MFORMS_TABLE_H_ */

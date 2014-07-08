@@ -63,6 +63,8 @@ namespace MySQL {
 
       static void set_column_width(mforms::TreeNodeView *backend, int column, int width);
       static int get_column_width(mforms::TreeNodeView *backend, int column);
+
+      virtual mforms::DropPosition get_drop_position();
     public:
       void set_row_height(int h);
 

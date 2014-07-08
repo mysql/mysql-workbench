@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_Utilities_H_
-#define _MFORMS_Utilities_H_
+#pragma once
 
 /**
  * Implementation some miscellaneous stuff needed in mforms.
@@ -356,4 +355,3 @@ namespace mforms {
   };
 
 };
-#endif // _MFORMS_Utilities_H_

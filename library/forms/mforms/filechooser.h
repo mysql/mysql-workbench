@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFILECHOOSERS_FILECHOOSER_H_
-#define _MFILECHOOSERS_FILECHOOSER_H_
+
+#pragma once
 
 #include "base/file_utilities.h"
 #include <mforms/base.h>
@@ -116,4 +116,3 @@ namespace mforms {
     static std::string last_directory;
   };
 };
-#endif

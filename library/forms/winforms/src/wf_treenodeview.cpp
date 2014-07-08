@@ -298,7 +298,6 @@ public:
   bool canReorderRows;
   bool canBeDragSource;
   Drawing::Rectangle dragBox;
-  DataFormats::Format ^rowDragFormat;
   int freezeCount;
   SortOrder currentSortOrder;
   List<int> columnTypes;
@@ -319,7 +318,6 @@ public:
     tagMap = nullptr;
     canBeDragSource = false;
     canReorderRows = false;
-    rowDragFormat = nullptr;
     dragBox = Rectangle::Empty;
 
     hotNode = nullptr;
@@ -765,30 +763,29 @@ public:
   {
     if (dragBox != Rectangle::Empty && !dragBox.Contains(args->Location))
     {
+      // We come here only if canBeDragSource is true. So we start a drag operation in any case.
       dragBox = Rectangle::Empty;
 
       mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+
       mforms::DragDetails details;
+      details.location = base::Point(args->X, args->Y);
+
       void *data = NULL;
       std::string format;
 
+      // First see if there is custom data in the tree backend.
       if (backend->get_drag_data(details, &data, format))
       {
-        details.location = base::Point(args->X, args->Y);
         mforms::DragOperation operation = backend->do_drag_drop(details, data, format);
         backend->drag_finished(operation);
       }
       else
+      {
+        // if there's no custom data then collect all selected node's text and use that for dragging.
+        // In addition, if row reordering is allowed, add an own data format for that too.
         if (SelectedNodes->Count > 0)
         {
-          Windows::Forms::DataObject ^data = gcnew Windows::Forms::DataObject();
-          DragDropEffects allowedEffects = DragDropEffects::Copy;
-          if (canReorderRows)
-          {
-            allowedEffects = static_cast<DragDropEffects>(allowedEffects | DragDropEffects::Move);
-            data->SetData(rowDragFormat->Name, this);
-          }
-
           // Set all selected nodes as strings too, so we can drag their names to text editors etc.
           String ^text = "";
           for each (TreeNodeAdv ^nodeAdv in SelectedNodes)
@@ -799,10 +796,22 @@ public:
               text += ", ";
             text += node->FullCaption;
           }
-          data->SetData(DataFormats::UnicodeText, text);
 
-          DoDragDrop(data, allowedEffects);
+          Windows::Forms::DataObject ^dataObject = gcnew Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
+          WBIDataObjectExtensions::SetDataEx(dataObject, DataFormats::UnicodeText, text);
+
+          // Store the backend pointer in the data object, so we can distinguish between internal and
+          // external drag sources.
+          WBIDataObjectExtensions::SetDataEx(dataObject, DRAG_SOURCE_FORMAT_NAME, gcnew IntPtr(backend));
+
+          DragDropEffects effects = DragDropEffects::Copy;
+          if (canReorderRows)
+            effects = static_cast<DragDropEffects>(effects | DragDropEffects::Move);
+
+          DoDragDrop(dataObject, effects);
+          delete dataObject;
         }
+      }
     }
     else
     {
@@ -920,77 +929,67 @@ public:
 
   virtual void OnDragOver(DragEventArgs ^args) override
   {
+    __super::OnDragOver(args); // Draws the drop mark.
+
     if (canReorderRows)
     {
-      if (args->Data->GetDataPresent(rowDragFormat->Name))
-      {
-        // Only accept row move events from this tree instance.
-        if (args->Data->GetData(rowDragFormat->Name) == this)
-        {
-          args->Effect = DragDropEffects::Move;
-          return;
-        }
-      }
-
-      args->Effect = DragDropEffects::None;
-      return;
+      // Only accept row move events from this tree instance.
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      if (ViewWrapper::source_view_from_data(args->Data) == backend)
+        args->Effect = DragDropEffects::Move;
+      else
+        args->Effect = DragDropEffects::None;
     }
-
-    __super::OnDragOver(args);
   }
 
   //------------------------------------------------------------------------------------------------
 
   virtual void OnDragDrop(DragEventArgs ^args) override
   {
+    __super::OnDragDrop(args);
+
     if (canReorderRows)
     {
-      if (args->Data->GetDataPresent(rowDragFormat->Name))
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      if (ViewWrapper::source_view_from_data(args->Data) == backend)
       {
-        if (args->Data->GetData(rowDragFormat->Name) == this)
-        {
-          // Make a copy of the selection. We are going to modify the tree structure.
-          Collections::Generic::List<TreeViewNode^> ^selection = gcnew Collections::Generic::List<TreeViewNode^>();
-          for each (TreeNodeAdv ^node in SelectedNodes)
-            selection->Add((TreeViewNode^)node->Tag);
+        // Make a copy of the selection. We are going to modify the tree structure.
+        Collections::Generic::List<TreeViewNode^> ^selection = gcnew Collections::Generic::List<TreeViewNode^>();
+        for each (TreeNodeAdv ^node in SelectedNodes)
+          selection->Add((TreeViewNode^)node->Tag);
 
-          Point p = PointToClient(Point(args->X, args->Y));
-          NodeControlInfo ^info = GetNodeControlInfoAt(p);
-          if (info->Node == nullptr)
+        Point p = PointToClient(Point(args->X, args->Y));
+        NodeControlInfo ^info = GetNodeControlInfoAt(p);
+        if (info->Node == nullptr)
+        {
+          // No target node means either insert before the first one or after the last.
+          for each (TreeViewNode ^node in selection)
           {
-            // No target node means either insert before the first one or after the last.
-            for each (TreeViewNode ^node in selection)
+            node->Parent->Nodes->Remove(node);
+
+            if (p.Y < ColumnHeaderHeight)
+              model->Root->Nodes->Insert(0, node);
+            else
+              model->Root->Nodes->Add(node);
+          }
+        }
+        else
+        {
+          NodePosition position = DropPosition.Position;
+          TreeViewNode ^targetNode = (TreeViewNode^)info->Node->Tag;
+
+          for each (TreeViewNode ^node in selection)
+          {
+            if (node != targetNode) // Don't move a node to the place it is currently.
             {
               node->Parent->Nodes->Remove(node);
-
-              if (p.Y < ColumnHeaderHeight)
-                model->Root->Nodes->Insert(0, node);
-              else
-                model->Root->Nodes->Add(node);
-            }
-          }
-          else
-          {
-            NodePosition position = DropPosition.Position;
-            TreeViewNode ^targetNode = (TreeViewNode^)info->Node->Tag;
-
-            for each (TreeViewNode ^node in selection)
-            {
-              if (node != targetNode) // Don't move a node to the place it is currently.
-              {
-                node->Parent->Nodes->Remove(node);
-                int index = targetNode->Index + ((position == NodePosition::After) ? 1 : 0);
-                targetNode->Parent->Nodes->Insert(index, node);
-              }
+              int index = targetNode->Index + ((position == NodePosition::After) ? 1 : 0);
+              targetNode->Parent->Nodes->Insert(index, node);
             }
           }
         }
       }
-
-      return;
     }
-
-    __super::OnDragDrop(args);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1094,8 +1093,6 @@ bool TreeNodeViewWrapper::create(mforms::TreeNodeView *backend, mforms::TreeOpti
     tree->canBeDragSource = true;
     if ((options & mforms::TreeAllowReorderRows) != 0)
     {
-      // Register an own format for row reorder.
-      tree->rowDragFormat = DataFormats::GetFormat("com.mysql.workbench.row-reorder");
       tree->AllowDrop = true;
       tree->canReorderRows = true;
     }
@@ -1504,6 +1501,25 @@ int TreeNodeViewWrapper::get_column_width(int column)
 {
   TreeViewAdv ^tree = GetManagedObject<TreeViewAdv>();
   return tree->Columns[column]->Width;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::DropPosition TreeNodeViewWrapper::get_drop_position()
+{
+  TreeViewAdv ^tree = GetManagedObject<TreeViewAdv>();
+  switch (tree->DropPosition.Position)
+  {
+  case NodePosition::Inside:
+    return mforms::DropPositionOn;
+  case NodePosition::Before :
+    return mforms::DropPositionTop;
+  case NodePosition::After:
+    return mforms::DropPositionBottom;
+
+  default:
+    return mforms::DropPositionUnknown;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -492,6 +492,13 @@ DragOperation View::do_drag_drop(DragDetails details, void *data, const std::str
 
 //--------------------------------------------------------------------------------------------------
 
+DropPosition View::get_drop_position()
+{
+  return _view_impl->get_drop_position(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 bool View::mouse_leave()
 {
   if (_signal_mouse_leave.num_slots() > 0)
