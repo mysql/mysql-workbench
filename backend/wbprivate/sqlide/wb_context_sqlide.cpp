@@ -17,6 +17,7 @@
  * 02110-1301  USA
  */
 
+#include "python_context.h"
 #include "base/file_utilities.h"
 #include "base/string_utilities.h"
 #include "base/sqlstring.h"
@@ -26,7 +27,7 @@
 #include "base/ui_form.h"
 
 #include "grtpp.h"
-#include "python_context.h"
+
 
 #include "grts/structs.h"
 #include "grts/structs.app.h"
