@@ -187,7 +187,7 @@ namespace mforms {
 
     void (*flush_events)(View *self);
     void (*focus)(View *self);
-    bool (*has_focus)(View *self); // TODO Windows, Mac
+    bool (*has_focus)(View *self); // TODO Windows
 
     void (*register_drop_formats)(View *self, DropDelegate *target, const std::vector<std::string>&);
     DragOperation (*drag_text)(View *self, DragDetails details, const std::string &text);
