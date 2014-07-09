@@ -128,7 +128,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _lower_tab_menu.signal_will_show()->connect(boost::bind(&SqlEditorPanel::tab_menu_will_show, this));
   _lower_tab_menu.add_item_with_title("Rename Tab", boost::bind(&SqlEditorPanel::rename_tab_clicked, this), "rename");
-  _lower_tab_menu.add_item_with_title("Pin Tab", boost::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
+  _lower_tab_menu.add_check_item_with_title("Pin Tab", boost::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
   _lower_tab_menu.add_separator();
   _lower_tab_menu.add_item_with_title("Close Tab", boost::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
   _lower_tab_menu.add_item_with_title("Close Other Tabs", boost::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
@@ -1309,7 +1309,7 @@ void SqlEditorPanel::pin_tab_clicked()
   int tab = _lower_tabview.get_menu_tab();
   SqlEditorResult *result = result_panel(tab);
   if (result)
-    result->set_pinned(!_lower_tab_menu.find_item("pin")->get_checked());
+    result->set_pinned(!result->pinned());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,6 +47,7 @@ namespace mforms {
 
   class Form;
   class Button;
+  class MenuBar;
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
@@ -54,6 +55,7 @@ namespace mforms {
   {
     bool (*create)(Form *self, Form *owner, FormFlag flag);
     void (*set_title)(Form *self, const std::string &title);
+    void (*set_menubar)(Form *self, MenuBar *menu);
     void (*show_modal)(Form *self, Button *accept, Button *cancel);
     bool (*run_modal)(Form *self, Button *accept, Button *cancel);
     void (*end_modal)(Form *self, bool result);
@@ -73,6 +75,7 @@ namespace mforms {
   {
     FormImplPtrs *_form_impl;
     View *_content;
+    MenuBar *_menu;
     bool _fixed_size;
     bool _release_on_close;
     bool _active;
@@ -109,11 +112,22 @@ namespace mforms {
      Usually a layouting container, such as a Box or a Table.
      */
     virtual void set_content(View *view);
-    
+
+    View *get_content() { return _content; }    
+
     /** Sets the title of the window.
      */
     virtual void set_title(const std::string &title);
-    
+
+    /** Sets the menubar for the window 
+        In Linux and Windows, this will add to the toplevel box of the window, 
+        which is expected to have the correct layout.
+        In MacOS, it will make the menu the active menu, whenever the window becomes key.
+    */
+    virtual void set_menubar(mforms::MenuBar *menu);
+
+    mforms::MenuBar *get_menubar() { return _menu; }
+
     /** Deprecated */
     virtual void show_modal(Button *accept, Button *cancel);
     

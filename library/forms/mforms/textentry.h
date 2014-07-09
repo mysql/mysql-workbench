@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,6 +58,12 @@ namespace mforms {
     void (*set_placeholder_text)(TextEntry *self, const std::string &text);
     void (*set_placeholder_color)(TextEntry *self, const std::string &color);
     void (*set_bordered)(TextEntry *self, bool flag);
+
+    void (*cut)(TextEntry *self); // TODO Windows, Mac
+    void (*copy)(TextEntry *self);
+    void (*paste)(TextEntry *self);
+    void (*select)(TextEntry *self, const base::Range &range);
+    base::Range (*get_selection)(TextEntry *self);
   };
 #endif
 #endif
@@ -90,6 +96,13 @@ namespace mforms {
 
     /** Sets whether to draw a border around the text box. Default is bordered. */
     void set_bordered(bool flag);
+
+
+    void cut();
+    void copy();
+    void paste();
+    void select(const base::Range &);
+    base::Range get_selection();
 
 #ifndef SWIG
     /** Signal emitted when the entry is edited 

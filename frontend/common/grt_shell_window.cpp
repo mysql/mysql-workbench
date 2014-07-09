@@ -76,9 +76,53 @@ _lower_tab(mforms::TabViewDocument),
   set_title(("Workbench Scripting Shell"));
   set_name("shell_window");
   set_content(&_content);
+  set_menubar(&_menu);
   scoped_connect(signal_closed(),boost::bind(&GRTShellWindow::shell_closed, this));
-  
+ 
   _content.add(&_toolbar, false, true);
+
+  // setup the menubar
+  {
+    mforms::MenuItem *menu = mforms::manage(new mforms::MenuItem("File"));
+    mforms::MenuItem *item;
+    _menu.add_submenu(menu);
+    item = menu->add_item_with_title("New...", boost::bind(&GRTShellWindow::add_new_script, this));
+    item->set_shortcut("Modifier+N");
+    menu->add_item_with_title("New Script", boost::bind(&GRTShellWindow::add_editor, this, true, "python"));
+    item = menu->add_item_with_title("Open...", boost::bind(&GRTShellWindow::open_script_file, this));
+    item->set_shortcut("Modifier+O");
+    menu->add_separator();
+    item = menu->add_item_with_title("Save", boost::bind(&GRTShellWindow::save_file, this, false));
+    item->set_shortcut("Modifier+S");
+    item = menu->add_item_with_title("Save As...", boost::bind(&GRTShellWindow::save_file, this, true));
+    item->set_shortcut("Modifier+Shift+S");
+    menu->add_separator();
+    item = menu->add_item_with_title("Close Script", boost::bind(&GRTShellWindow::close_tab, this));
+    item->set_shortcut("Modifier+W");
+    item = menu->add_item_with_title("Close Window", boost::bind(&GRTShellWindow::close, this));
+    item->set_shortcut("Modifier+Shift+W");
+
+    menu = mforms::manage(new mforms::MenuItem("Edit"));
+    _menu.add_submenu(menu);
+
+    item = menu->add_item_with_title("Cut", boost::bind(&GRTShellWindow::cut, this));
+    item->set_shortcut("Modifier+X");
+    item = menu->add_item_with_title("Copy", boost::bind(&GRTShellWindow::copy, this));
+    item->set_shortcut("Modifier+C");
+    item = menu->add_item_with_title("Paste", boost::bind(&GRTShellWindow::paste, this));
+    item->set_shortcut("Modifier+V");
+    item = menu->add_item_with_title("Select All", boost::bind(&GRTShellWindow::select_all, this));
+    item->set_shortcut("Modifier+A");
+    menu->add_separator();
+    item = menu->add_item_with_title("Find...", boost::bind(&GRTShellWindow::show_find_panel, this));
+    item->set_shortcut("Modifier+F");
+
+    menu = mforms::manage(new mforms::MenuItem("Script"));
+    _menu.add_submenu(menu);
+    
+    item = menu->add_item_with_title("Run", boost::bind(&GRTShellWindow::execute_file, this));
+    item->set_shortcut("Modifier+R");
+  }
 
 #ifdef _WIN32
   _content.add(&_padding_box, true, true);
@@ -2236,4 +2280,42 @@ void GRTShellWindow::refresh_notifs_list()
     node->expand();
   }
 }
+
+
+void GRTShellWindow::cut()
+{
+  GRTCodeEditor *editor = get_active_editor();
+  if (editor)
+    editor->get_editor()->cut();
+  else if (_shell_entry.has_focus())
+    _shell_entry.cut();
+}
+
+void GRTShellWindow::copy()
+{
+  GRTCodeEditor *editor = get_active_editor();
+  if (editor)
+    editor->get_editor()->copy();
+  else if (_shell_entry.has_focus())
+    _shell_entry.copy();
+}
+
+void GRTShellWindow::paste()
+{
+  GRTCodeEditor *editor = get_active_editor();
+  if (editor)
+    editor->get_editor()->paste();
+  else if (_shell_entry.has_focus())
+    _shell_entry.paste();
+}
+
+void GRTShellWindow::select_all()
+{
+  GRTCodeEditor *editor = get_active_editor();
+  if (editor)
+    editor->get_editor()->select_all();
+  else if (_shell_entry.has_focus())
+    _shell_entry.select(base::Range(0, (size_t)-1));
+}
+
 
