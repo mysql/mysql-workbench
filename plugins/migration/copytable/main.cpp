@@ -34,7 +34,6 @@
 #include "base/sqlstring.h"
 
 #include "boost/scoped_ptr.hpp"
-#include <boost/algorithm/string.hpp>
 
 #undef tolower
 #undef toupper
@@ -232,8 +231,8 @@ bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueu
         {
           param.target_schema = fields[2];
           param.target_table = fields[3];
-          boost::split(param.source_pk_columns, fields[4], boost::is_any_of(","));
-          boost::split(param.target_pk_columns, fields[5], boost::is_any_of(","));
+          param.source_pk_columns = base::split(fields[4], ",", -1);
+          param.target_pk_columns = base::split(fields[5], ",", -1);
           param.select_expression = fields[6];
 
           trigger_schemas.insert(param.target_schema);
@@ -418,8 +417,8 @@ int main(int argc, char **argv)
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
-        boost::split(param.source_pk_columns, argv[++i], boost::is_any_of(","));
-        boost::split(param.target_pk_columns, argv[++i], boost::is_any_of(","));
+        param.source_pk_columns = base::split(argv[++i], ",", -1);
+        param.target_pk_columns = base::split(argv[++i], ",", -1);
         param.select_expression = argv[++i];
 
         trigger_schemas.insert(param.target_schema);
@@ -445,8 +444,8 @@ int main(int argc, char **argv)
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
-        boost::split(param.source_pk_columns, argv[++i], boost::is_any_of(","));
-        boost::split(param.target_pk_columns, argv[++i], boost::is_any_of(","));
+        param.source_pk_columns = base::split(argv[++i], ",", -1);
+        param.target_pk_columns = base::split(argv[++i], ",", -1);
         param.select_expression = argv[++i];
 
         trigger_schemas.insert(param.target_schema);
@@ -473,8 +472,8 @@ int main(int argc, char **argv)
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
-        boost::split(param.source_pk_columns, argv[++i], boost::is_any_of(","));
-        boost::split(param.target_pk_columns, argv[++i], boost::is_any_of(","));
+        param.source_pk_columns = base::split(argv[++i], ",", -1);
+        param.target_pk_columns = base::split(argv[++i], ",", -1);
         param.select_expression = argv[++i];
       }
       param.copy_spec.row_count = atoll(argv[++i]);
