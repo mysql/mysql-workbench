@@ -59,7 +59,7 @@ namespace mforms {
     void (*set_placeholder_color)(TextEntry *self, const std::string &color);
     void (*set_bordered)(TextEntry *self, bool flag);
 
-    void (*cut)(TextEntry *self); // TODO Windows, Mac
+    void (*cut)(TextEntry *self); // TODO Windows
     void (*copy)(TextEntry *self);
     void (*paste)(TextEntry *self);
     void (*select)(TextEntry *self, const base::Range &range);
