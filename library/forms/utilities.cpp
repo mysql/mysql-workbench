@@ -728,6 +728,7 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
   if (name.empty())
     return NULL;
 
+#if defined(__APPLE__)
   if (allow_hidpi)
   {
     std::string hidpi_name = base::strip_extension(name)+"@2x"+base::extension(name);
@@ -739,6 +740,7 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
       return tmp;
     }
   }
+#endif
 
   std::string icon_path= App::get()->get_resource_path(name);
   cairo_surface_t* result= cairo_image_surface_create_from_png(icon_path.c_str());
