@@ -198,11 +198,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wba_meb", "wba_meb", "{FC1F
 		plugins\wb.admin\internal\wba_meb\wb_admin_meb_syshelpers.py = plugins\wb.admin\internal\wba_meb\wb_admin_meb_syshelpers.py
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wb.docs", "wb.docs", "{2D29756B-4E63-4FBD-9F83-354D62867E65}"
-  ProjectSection(SolutionItems) = preProject
-    plugins\wb.docs\wb_docs_grt.py = plugins\wb.docs\wb_docs_grt.py
-  EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "grt", "grt", "{6203D283-F9E0-4839-B50E-41FF0A4998BF}"
 	ProjectSection(SolutionItems) = preProject
 		res\grt\structs.app.xml = res\grt\structs.app.xml
@@ -485,6 +480,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "db.mysql.parser.grt", "modu
 		{F563E3DE-39BA-4A9D-A6C2-9E9222E8F518} = {F563E3DE-39BA-4A9D-A6C2-9E9222E8F518}
 		{28FCB4E3-8BAA-42F2-B2C6-247D9D0745B1} = {28FCB4E3-8BAA-42F2-B2C6-247D9D0745B1}
 	EndProjectSection
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "wb.docs", "plugins\wb.docs\wb.docs.pyproj", "{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1128,6 +1125,12 @@ Global
 		{05413B7F-3EE1-4797-8EDE-BF4E8E3C4BEF}.Release|x64.Build.0 = Release|x64
 		{05413B7F-3EE1-4797-8EDE-BF4E8E3C4BEF}.Release|x86.ActiveCfg = Release|Win32
 		{05413B7F-3EE1-4797-8EDE-BF4E8E3C4BEF}.Release|x86.Build.0 = Release|Win32
+		{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}.Release_OSS|x64.ActiveCfg = Release|Any CPU
+		{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}.Release_OSS|x86.ActiveCfg = Release|Any CPU
+		{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}.Release|x64.ActiveCfg = Release|Any CPU
+		{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1217,5 +1220,6 @@ Global
 		{64D6062D-40EA-43AA-A53B-F75F2BE1D723} = {8B716575-9B09-491C-946E-0C83FAFBAC3A}
 		{9E144B72-45B2-4986-8571-85EB99F9DEAD} = {3C3506C9-A64C-4F62-B7BD-D5BE70AB69DC}
 		{05413B7F-3EE1-4797-8EDE-BF4E8E3C4BEF} = {72E9A6AB-79B2-461F-B45A-924CC08E9007}
+		{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E} = {337E1D75-979C-4108-8632-E8B413F2B188}
 	EndGlobalSection
 EndGlobal
