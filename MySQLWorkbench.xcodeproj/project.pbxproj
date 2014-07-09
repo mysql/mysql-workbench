@@ -629,6 +629,7 @@
 		2B18EDDB196C9650004D7596 /* admin_instrumentation_setup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */; };
 		2B18EDDC196C9650004D7596 /* admin_performance_reports@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */; };
 		2B18EDE0196C9CDF004D7596 /* grt_plugin_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */; };
+		2B18EDE3196DA6FA004D7596 /* wb_docs_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */; };
 		2B1AC771127F99C800AEC070 /* debug_continue.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76C127F99C800AEC070 /* debug_continue.png */; };
 		2B1AC772127F99C800AEC070 /* debug_step.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76D127F99C800AEC070 /* debug_step.png */; };
 		2B1AC773127F99C800AEC070 /* debug_step_into.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76E127F99C800AEC070 /* debug_step_into.png */; };
@@ -3444,6 +3445,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				2B18EDE3196DA6FA004D7596 /* wb_docs_grt.py in Copy Files (plugins) */,
 				27378CD31917D10000DE1AA6 /* db.mysql.parser.grt.dylib in Copy Files (plugins) */,
 				EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */,
 				2B1D6D2F178C540A0073C062 /* wb_model_utils.py in Copy Files (plugins) */,
@@ -4365,6 +4367,7 @@
 		2B18EDD5196C9646004D7596 /* admin_dashboard@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_dashboard@2x.png"; path = "images/admin/admin_dashboard@2x.png"; sourceTree = "<group>"; };
 		2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_instrumentation_setup@2x.png"; path = "images/admin/admin_instrumentation_setup@2x.png"; sourceTree = "<group>"; };
 		2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_performance_reports@2x.png"; path = "images/admin/admin_performance_reports@2x.png"; sourceTree = "<group>"; };
+		2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = wb_docs_grt.py; path = plugins/wb.docs/wb_docs_grt.py; sourceTree = "<group>"; };
 		2B1AC76C127F99C800AEC070 /* debug_continue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_continue.png; path = images/toolbar/debug_continue.png; sourceTree = "<group>"; };
 		2B1AC76D127F99C800AEC070 /* debug_step.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_step.png; path = images/toolbar/debug_step.png; sourceTree = "<group>"; };
 		2B1AC76E127F99C800AEC070 /* debug_step_into.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_step_into.png; path = images/toolbar/debug_step_into.png; sourceTree = "<group>"; };
@@ -7526,6 +7529,14 @@
 			name = "MySQL Relationship Editor";
 			sourceTree = "<group>";
 		};
+		2B18EDE1196DA6DD004D7596 /* wb.docs */ = {
+			isa = PBXGroup;
+			children = (
+				2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */,
+			);
+			name = wb.docs;
+			sourceTree = "<group>";
+		};
 		2B1CA5210EA3E8780062C916 /* Canvas Viewer */ = {
 			isa = PBXGroup;
 			children = (
@@ -9278,6 +9289,7 @@
 		2B825EBF0E0B690400BE52DF /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				2B18EDE1196DA6DD004D7596 /* wb.docs */,
 				2BAD7C20156D88B10025F13F /* wb.migration */,
 				2BAD76FE1568465C0025F13F /* wb.query.analysis */,
 				2B3D496D0F3E6FAD009238A7 /* db.mysql */,
