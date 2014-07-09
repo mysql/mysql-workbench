@@ -28,7 +28,8 @@ static Form *current_active_form = NULL;
 Form::Form(Form *owner, FormFlag flag)
 {
   _form_impl= &ControlFactory::get_instance()->_form_impl;
-  
+ 
+  _menu = NULL; 
   _content = NULL;
   _fixed_size = false;
   _release_on_close = false;
@@ -41,6 +42,7 @@ Form::Form(Form *owner, FormFlag flag)
 Form::Form()
 {
   _form_impl = &ControlFactory::get_instance()->_form_impl;
+  _menu = NULL; 
   _content = NULL;
   _fixed_size = false;
   _release_on_close = false;
@@ -61,10 +63,30 @@ Form *Form::main_form()
 
 Form::~Form()
 {
+  if (_menu)
+    _menu->release();
   if (current_active_form == this)
     current_active_form = NULL;
   if (_content != NULL)
     _content->release();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void Form::set_menubar(MenuBar *menu)
+{
+  if (!_content || !dynamic_cast<Box*>(_content))
+    throw std::logic_error("set_menubar() must be called on a window with a Box as it's toplevel content");
+
+  if (menu != _menu)
+  {
+    if (_menu)
+      _menu->release();
+    _menu = menu;
+    _menu->retain();
+
+    _form_impl->set_menubar(this, menu);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -50,6 +50,8 @@ class ActiveLabel : public Gtk::HBox
 
     void call_close() {_close_callback();}
 
+    Gtk::EventBox *get_event_box() { return &_evbox; }
+
   private:
     bool button_press_slot(GdkEventButton*);
     bool handle_event(GdkEvent*);

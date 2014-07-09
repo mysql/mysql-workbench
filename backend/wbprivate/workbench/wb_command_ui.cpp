@@ -650,6 +650,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
           continue;
         item = mforms::manage(new mforms::MenuItem(mitem->caption(), type));
         item->set_name(mitem->name());
+        parent->add_item(item);
         update_item_state(mitem, cmd, item);
         
         add_menu_items_for_context(context, item, mitem);
@@ -660,6 +661,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
           continue;
         item = mforms::manage(new mforms::MenuItem("", mforms::SeparatorMenuItem));
         item->set_name(mitem->name());
+        parent->add_item(item);
       }
       else
       { 
@@ -729,6 +731,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         }
         
         item = mforms::manage(new mforms::MenuItem(caption, type));
+        parent->add_item(item);
         item->set_name(cmd.args.empty() ? cmd.name : cmd.name+":"+cmd.args);
         if (!mitem->shortcut().empty())
           item->set_shortcut(mitem->shortcut());
@@ -752,8 +755,6 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
 #endif
       
       added_menu_items.insert(mitem->name());
-      
-      parent->add_item(item);
     }
   }
 

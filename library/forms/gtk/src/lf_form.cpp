@@ -18,6 +18,7 @@
  */
 #include "../lf_mforms.h"
 #include "../lf_form.h"
+#include "../lf_menubar.h"
 #include "../lf_wizard.h"
 
 static GThread *_main_thread = 0;
@@ -213,6 +214,23 @@ void FormImpl::center(Form *self)
 }
 
 
+void FormImpl::set_menubar(mforms::Form *self, mforms::MenuBar *menu)
+{
+  FormImpl* form = self->get_data<FormImpl>();
+  Gtk::MenuBar *mbar = widget_for_menubar(menu);
+  if (form && mbar)
+  {
+    Gtk::Box *box = dynamic_cast<Gtk::Box*>(self->get_content()->get_data<ViewImpl>()->get_inner());
+    if (!box)
+      throw std::logic_error("set_menubar called on a window without a Box as toplevel content");
+    box->pack_start(*mbar, false, true);
+    box->reorder_child(*mbar, 0);
+
+    on_add_menubar_to_window(menu, form->_window);
+  }
+}
+
+
 FormImpl::FormImpl(::mforms::Form *form, ::mforms::Form *owner, mforms::FormFlag form_flag)
   : ViewImpl(form), _in_modal_loop(0), _result(false)
 {
@@ -220,25 +238,25 @@ FormImpl::FormImpl(::mforms::Form *form, ::mforms::Form *owner, mforms::FormFlag
 
   if (owner)
   {
-		if (dynamic_cast<mforms::Wizard*>(owner))
-		{
-			WizardImpl* impl = owner->get_data<WizardImpl>();
+    if (dynamic_cast<mforms::Wizard*>(owner))
+    {
+      WizardImpl* impl = owner->get_data<WizardImpl>();
       if (impl)
       {
         Gtk::Window *w = impl->get_window();
         if (w)
           _window->set_transient_for(*w);
-			}
-		}
-		else
-		{
+      }
+    }
+    else
+    {
       FormImpl* impl = owner->get_data<FormImpl>();
       if (impl)
       {
         Gtk::Window *w = impl->get_window();
         if (w)
           _window->set_transient_for(*w);
-			}
+      }
     }
   }
 
@@ -253,7 +271,6 @@ FormImpl::FormImpl(::mforms::Form *form, ::mforms::Form *owner, mforms::FormFlag
 
   _window->set_events(Gdk::FOCUS_CHANGE_MASK);
   _window->signal_realize().connect(sigc::bind(sigc::mem_fun(this, &FormImpl::realized), form, flags));
-
 
   _window->signal_focus_in_event().connect(sigc::bind< ::mforms::Form *>(sigc::mem_fun(this, &FormImpl::on_focus_event), form));
   _window->signal_focus_out_event().connect(sigc::bind< ::mforms::Form *>(sigc::mem_fun(this, &FormImpl::on_focus_event), form));
@@ -312,6 +329,7 @@ void FormImpl::init()
   f->_form_impl.set_content= &FormImpl::set_content;
   f->_form_impl.flush_events= &FormImpl::flush_events;
   f->_form_impl.center      = &FormImpl::center;
+  f->_form_impl.set_menubar = &FormImpl::set_menubar;
 }
 
 };
