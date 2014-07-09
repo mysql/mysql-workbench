@@ -28,7 +28,7 @@ include_directories(.
     ${TINYXML_INCLUDE_DIRS}
 )
 
-add_library(wbprivate STATIC
+add_library(wbprivate
     model/canvas_floater.cpp
     model/mini_view.cpp
     model/relationship_canvas_floater.cpp
@@ -106,4 +106,4 @@ target_link_libraries(wbprivate
     ${PCRE_LIBRARIES}
 )
 
-#install(TARGETS wbprivate DESTINATION ${WB_INSTALL_LIB_DIR})
+install(TARGETS wbprivate DESTINATION ${WB_INSTALL_LIB_DIR})
