@@ -313,7 +313,6 @@ namespace bec {
     {
       // For strings (i.e. group names).
       group_name = object.repr();
-      group_name += "/";
 
       // Searches the index of the initial element of the group.
       item_index = find_list_ref_item_position<T>(items, group_name);
@@ -421,7 +420,7 @@ namespace bec {
     else
     {
       // For strings (i.e. group names).
-      group_name = object.repr() + "/";
+      group_name = object.repr();
 
       // Searches the index of the initial element of the group.
       item_index = find_list_ref_item_position<T>(items, group_name);
@@ -433,6 +432,7 @@ namespace bec {
     {
       // Working on an ungrouped item (can itself be a group, however).
       std::vector<std::string> names_list;
+      std::vector<bool> fabric_names;
 
       // Collect names of all ungrouped items and groups in an own list for lookup.
       for (grt::TypedListConstIterator<T> iterator = items.begin(); iterator != items.end(); ++iterator)
@@ -444,13 +444,33 @@ namespace bec {
         {
           std::string group_name = item_name.substr(0, position + 1);
           if (std::find(names_list.begin(), names_list.end(), group_name) == names_list.end())
+          {
             names_list.push_back(group_name);
+            fabric_names.push_back(false);
+          }
+        }
+        // On a fabric node the first tile will always be the parent node's name which does
+        // not contain the /
+        // It needs to be added to the child connections match it
+        else if ((*iterator)->driver()->name() == "MySQLFabric")
+        {
+          names_list.push_back(item_name + "/");
+          fabric_names.push_back(true);
         }
         else
+        {
           names_list.push_back(item_name);
+          fabric_names.push_back(true);
+        }
       }
 
-      item_name = to < names_list.size() ? names_list.at(to) : "";
+
+      // We added the / to a fabric connection to match it's child connections
+      // But we need to remove it for the search so it properly fins the position
+      // of the fabric connection
+      item_name = "";
+      if (to < names_list.size())
+        item_name = fabric_names.at(to) ? base::left(names_list.at(to), names_list.at(to).length() - 1) : names_list.at(to);
 
       // If the next item is a group search for that group. Otherwise use the item name directly.
       group_indicator_position = item_name.find("/");
@@ -505,16 +525,37 @@ namespace bec {
           group_members.insert(*iterator);
       }
 
-      for (grt::TypedListConstReverseIterator<T> iterator = group_members.rbegin();
-           iterator != group_members.rend(); ++iterator)
+      // When reordering items we need to consider the position of the reordered
+      // items in relation with the target index.
+      int first_group_index = items.get_index(*group_members.begin());
+      bool before = true;
+      if (first_group_index > target_index)
+        before = false;;
+
+      for (grt::TypedListConstIterator<T> iterator = group_members.begin();
+        iterator != group_members.end(); ++iterator)
       {
         item_index = items.get_index(*iterator);
-        if (item_index < target_index)
-          items.reorder(item_index, target_index - 1);
-        else
-          items.reorder(item_index, target_index);
-      }
 
+        // Items before the target are positioned on the target index
+        if (before)
+        {
+          // This identifies the first item AFTER the target index
+          if (item_index > target_index)
+          {
+            target_index++;
+            before = false;
+          }
+          else
+            items.reorder(item_index, target_index - 1);
+        }
+        
+        // On Items after the original target index will be inserted
+        // after each other, this is to avoid reversing the connections
+        // position which could fake the fabric structure
+        if (!before)
+          items.reorder(item_index, target_index++);
+      }
     }
   }
 
