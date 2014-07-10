@@ -279,6 +279,46 @@ void TextEntryWrapper::set_front_color(String ^color)
 
 //--------------------------------------------------------------------------------------------------
 
+void TextEntryWrapper::cut(mforms::TextEntry *self)
+{
+  TextBox ^textbox = TextEntryWrapper::GetManagedObject<TextBox>(self);
+  textbox->Cut();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TextEntryWrapper::copy(mforms::TextEntry *self)
+{
+  TextBox ^textbox = TextEntryWrapper::GetManagedObject<TextBox>(self);
+  textbox->Copy();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TextEntryWrapper::paste(mforms::TextEntry *self)
+{
+  TextBox ^textbox = TextEntryWrapper::GetManagedObject<TextBox>(self);
+  textbox->Paste();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TextEntryWrapper::select(mforms::TextEntry *self, const base::Range &range)
+{
+  TextBox ^textbox = TextEntryWrapper::GetManagedObject<TextBox>(self);
+  textbox->Select(range.position, range.size == (size_t)-1 ? textbox->Text->Length : range.size);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+base::Range TextEntryWrapper::get_selection(mforms::TextEntry *self)
+{
+  TextBox ^textbox = TextEntryWrapper::GetManagedObject<TextBox>(self);
+  return base::Range(textbox->SelectionStart, textbox->SelectionLength);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 TextEntryWrapper::TextEntryWrapper(mforms::TextEntry *text)
   : ViewWrapper(text)
 {
@@ -298,6 +338,12 @@ void TextEntryWrapper::init()
   f->_textentry_impl.set_max_length = &TextEntryWrapper::set_max_length;
   f->_textentry_impl.set_read_only = &TextEntryWrapper::set_read_only;
   f->_textentry_impl.set_bordered = &TextEntryWrapper::set_bordered;
+  f->_textentry_impl.cut = &TextEntryWrapper::cut;
+  f->_textentry_impl.copy = &TextEntryWrapper::copy;
+  f->_textentry_impl.paste = &TextEntryWrapper::paste;
+  f->_textentry_impl.select = &TextEntryWrapper::select;
+  f->_textentry_impl.get_selection = &TextEntryWrapper::get_selection;
+
 }
 
 //--------------------------------------------------------------------------------------------------
