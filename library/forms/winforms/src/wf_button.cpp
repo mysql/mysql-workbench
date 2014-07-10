@@ -81,6 +81,11 @@ bool ButtonWrapper::create(mforms::Button *backend, mforms::ButtonType btype)
       Button_SetElevationRequiredState((HWND)button->Handle.ToPointer(), true);
     break;
 
+  case mforms::SmallButton:
+    button->FlatStyle = FlatStyle::Flat;
+    button->FlatAppearance->BorderSize = 0;
+    break;
+
   default:
     button->FlatStyle = FlatStyle::System;
   }
