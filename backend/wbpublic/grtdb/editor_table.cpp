@@ -35,8 +35,11 @@
 
 #include "mforms/box.h"
 #include "mforms/form.h"
+#include "mforms/record_grid.h"
 #include "mforms/toolbar.h"
 #include "mforms/utilities.h"
+
+#include <algorithm>
 
 using namespace bec;
 using namespace grt;
@@ -2890,6 +2893,7 @@ TableEditorBE::TableEditorBE(GRTManager *grtm, const db_TableRef &table)
   : DBObjectEditorBE(grtm, table), _fk_list(this)
 {
   _inserts_panel = NULL;
+  _inserts_grid = NULL;
 
   if (table.class_name() == "db.Table") throw std::logic_error("table object is abstract");
   
@@ -3217,39 +3221,97 @@ std::string TableEditorBE::format_column_type(db_ColumnRef &column)
 
 //--------------------------------------------------------------------------------------------------
 
-Recordset::Ref TableEditorBE::get_inserts_model()
+void TableEditorBE::inserts_column_resized(int column)
 {
-  if (!_inserts_model)
+  int width = _inserts_grid->get_column_width(column);
+
+  grt::IntegerListRef widths;
+  if (grt::IntegerListRef::can_wrap(get_table()->customData().get("InsertsColumnWidths")))
+    widths = grt::IntegerListRef::cast_from(get_table()->customData().get("InsertsColumnWidths"));
+  else
   {
-    if (get_table().class_name() == "db.Table")
-      throw std::logic_error("table object is abstract");
-
-    _inserts_storage= Recordset_table_inserts_storage::create(_grtm);
-    _inserts_storage->table(get_table());
-
-    _inserts_model= Recordset::create(_grtm);
-    _inserts_model->set_inserts_editor(true);
-    _inserts_model->data_storage(_inserts_storage);
-    _inserts_model->refresh();
+    widths = grt::IntegerListRef(_grtm->get_grt());
+    get_table()->customData().set("InsertsColumnWidths", widths);
   }
-  return _inserts_model;
+
+  while (column >= widths.count())
+    widths.insert(grt::IntegerRef(0));
+
+  widths.set(column, grt::IntegerRef(width));
 }
 
-//--------------------------------------------------------------------------------------------------
 
-mforms::View *TableEditorBE::create_inserts_panel(mforms::View *grid)
+void TableEditorBE::restore_inserts_columns()
 {
-  Recordset::Ref rset = get_inserts_model();
+  grt::IntegerListRef widths;
+  if (grt::IntegerListRef::can_wrap(get_table()->customData().get("InsertsColumnWidths")))
+    widths = grt::IntegerListRef::cast_from(get_table()->customData().get("InsertsColumnWidths"));
 
-  mforms::ToolBar *tbar = rset->get_toolbar();
-  tbar->find_item("record_export")->signal_activated()->connect(boost::bind(&TableEditorBE::show_export_wizard, this, (mforms::Form*)0));
-  if (tbar->find_item("record_import"))
-    tbar->find_item("record_import")->signal_activated()->connect(boost::bind(&TableEditorBE::show_import_wizard, this));
+  for (int i = 0; i < _inserts_grid->get_column_count(); i++)
+  {
+    bool flag = false;
+    if (widths.is_valid() && i < widths.count())
+    {
+      int width = widths[i];
+      if (width > 0)
+      {
+        _inserts_grid->set_column_width(i, width);
+        flag = true;
+      }
+    }
+    if (!flag && get_table()->columns().count() > i)
+    {
+      // set a default
+      db_ColumnRef column(get_table()->columns()[i]);
+      if (column.is_valid() && column->simpleType().is_valid())
+      {
+        std::string type_group = column->simpleType()->group()->name();
+        if (type_group == "string")
+        {
+          _inserts_grid->set_column_width(i, std::min((int)column->length() * 15, 200));
+        }
+        else if (type_group == "numeric")
+          _inserts_grid->set_column_width(i, 80);
+        else
+          _inserts_grid->set_column_width(i, 150);
+      }
+      else
+        _inserts_grid->set_column_width(i, 100);
+    }
+  }
+}
 
-  _inserts_panel = mforms::manage(new mforms::Box(false));
-  _inserts_panel->add(mforms::manage(tbar), false, true);
-  _inserts_panel->add(mforms::manage(grid), true, true);
 
+mforms::View *TableEditorBE::get_inserts_panel()
+{
+  if (!_inserts_panel)
+  {
+    {
+      if (get_table().class_name() == "db.Table")
+        throw std::logic_error("table object is abstract");
+
+      _inserts_storage= Recordset_table_inserts_storage::create(_grtm);
+      _inserts_storage->table(get_table());
+
+      _inserts_model= Recordset::create(_grtm);
+      _inserts_model->set_inserts_editor(true);
+      _inserts_model->data_storage(_inserts_storage);
+      _inserts_model->refresh();
+    }
+
+    mforms::ToolBar *tbar = _inserts_model->get_toolbar();
+    tbar->find_item("record_export")->signal_activated()->connect(boost::bind(&TableEditorBE::show_export_wizard, this, (mforms::Form*)0));
+    if (tbar->find_item("record_import"))
+      tbar->find_item("record_import")->signal_activated()->connect(boost::bind(&TableEditorBE::show_import_wizard, this));
+
+    _inserts_grid = mforms::RecordGrid::create(_inserts_model);
+    restore_inserts_columns();
+    _inserts_grid->signal_column_resized()->connect(boost::bind(&TableEditorBE::inserts_column_resized, this, _1));
+
+    _inserts_panel = mforms::manage(new mforms::Box(false));
+    _inserts_panel->add(mforms::manage(tbar), false, true);
+    _inserts_panel->add(mforms::manage(_inserts_grid), true, true);
+  }
   return _inserts_panel;
 }
 
@@ -3333,5 +3395,24 @@ MySQLEditor::Ref TableEditorBE::get_sql_editor()
 std::string TableEditorBE::get_title()
 {
   return base::strfmt("%s - Table", get_name().c_str()); 
+}
+
+
+bool TableEditorBE::can_close()
+{
+  if (_inserts_grid && _inserts_model->has_pending_changes())
+  {
+    int ret = mforms::Utilities::show_message("Close Table Editor",
+                                              base::strfmt("There are unsaved changes to the INSERTs data for %s. "
+                                              "If you do not save, these changes will be discarded.", get_name().c_str()),
+                                              "Save Changes", "Cancel", "Don't Save");
+    if (ret == mforms::ResultOk)
+      _inserts_model->apply_changes();
+    else if (ret == mforms::ResultOther)
+      _inserts_model->rollback();
+    else
+      return false;
+  }
+  return true;
 }
 

@@ -183,6 +183,14 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   log_error("SQL editor could not be connected: %s\n", error.c_str());
   mforms::App::get()->set_status_text(_("Could not connect to target database."));
 
+  if (error.find("exceeded the 'max_user_connections' resource") != std::string::npos)
+  {
+    mforms::Utilities::show_error(_("Could not Connect to Database Server"),
+                                  base::strfmt("%s\n\nMySQL Workbench requires at least 2 connections to the server, one for management purposes and another for user queries.",
+                                               error.c_str()), "OK");
+    return;
+  }
+
   message = "Your connection attempt failed for user '%user%' from your host to server at %server%:%port%:\n  %error%\n"\
   "\n"\
   "Please:\n"\

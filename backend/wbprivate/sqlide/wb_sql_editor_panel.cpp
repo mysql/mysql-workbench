@@ -293,6 +293,9 @@ void SqlEditorPanel::resultset_edited()
     bool edited = rset->has_pending_changes();
     _tab_action_apply.set_enabled(edited);
     _tab_action_revert.set_enabled(edited);
+
+    _form->get_menubar()->set_item_enabled("query.save_edits", edited);
+    _form->get_menubar()->set_item_enabled("query.discard_edits", edited);
   }
 }
 
