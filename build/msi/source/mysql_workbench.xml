@@ -85,7 +85,7 @@
       <CustomAction Id="SetAdditionalCleanupDir3"
               Property="LEFTOVERDIR3"
               Value="[INSTALLDIR]workbench\graphics" />
-      <Binary Id="MySQLCA" SourceFile="MySQLCA\bin\Release\MySQLCA.CA.dll" />
+      <Binary Id="MySQLCA" SourceFile="..\..\..\mysql-win-res\bin\MySQLCA.CA.dll" />
       
       <CustomAction Id="PrecompilePythonFiles" BinaryKey="MySQLCA" DllEntry="PrecompilePythonFiles" Execute="deferred" Impersonate="no" Return="asyncWait" />
       <CustomAction Id="PrecompilePythonFiles.SetProperty" Return="check" Property="PrecompilePythonFiles" Value="[INSTALLDIR]"/>
