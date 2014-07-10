@@ -426,6 +426,8 @@ public:
     _trigger_list.add_column(mforms::StringColumnType, _("Name"), 200, false, true);
     _trigger_list.end_columns();
     _trigger_list.signal_changed()->connect(boost::bind(&MySQLTriggerPanel::selection_changed, this));
+    _trigger_list.set_row_overlay_handler(boost::bind(&MySQLTriggerPanel::overlay_icons_for_node, this, _1));
+    scoped_connect(_trigger_list.signal_node_activated(), boost::bind(&MySQLTriggerPanel::node_activated, this, _1, _2));
     trigger_list_host->add(&_trigger_list, true, true);
 
     _warning_label.set_text(_("Warning: the current server version does not allow multiple triggers "
@@ -513,6 +515,56 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  std::vector<std::string> overlay_icons_for_node(mforms::TreeNodeRef node)
+  {
+    std::vector<std::string> result;
+
+    // Add for both group nodes and triggers.
+    result.push_back(mforms::App::get()->get_resource_path("item_overlay_add.png"));
+    if (node->level() == 2)
+      result.push_back(mforms::App::get()->get_resource_path("item_overlay_delete.png"));
+
+    return result;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void node_activated(mforms::TreeNodeRef node, int index)
+  {
+    switch (index)
+    {
+      // Negative indices for overlay icons.
+    case -1: // Add button.
+    {
+      GrtVersionRef version = _editor->get_catalog()->version();
+      bool supports_multiple = bec::is_supported_mysql_version_at_least(version, 5, 7, 2);
+      if (node->level() == 2) // Go up to group node if this is a trigger node.
+        node = node->get_parent();
+
+      if (supports_multiple || node->count() == 0)
+      {
+        std::string timing, event;
+        if (base::partition(node->get_string(0), " ", timing, event))
+          add_trigger(timing, event, true);
+      }
+      else
+        mforms::Utilities::beep();
+
+      break;
+    }
+    case -2: // Delete button.
+      _editor->freeze_refresh_on_object_change();
+
+      db_mysql_TriggerRef trigger = trigger_for_node(node);
+      delete_trigger(trigger);
+
+      _editor->thaw_refresh_on_object_change(true);
+      break;
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   mforms::TreeNodeRef insert_trigger_in_tree(const db_TriggerRef trigger)
   {
     int index = 0;
@@ -591,7 +643,7 @@ public:
       ++index;
 
     // Now iterate over its children to find the one we are looking for.
-    mforms::TreeNodeRef parent = _trigger_list.node_at_row(index);
+    mforms::TreeNodeRef parent = _trigger_list.root_node()->get_child(index);
     if (!parent.is_valid())
       return mforms::TreeNodeRef();
 
@@ -707,7 +759,10 @@ public:
 
     mforms::TreeNodeRef node = insert_trigger_in_tree(trigger);
     if (select)
+    {
       _trigger_list.select_node(node);
+      selection_changed();
+    }
     _editor->thaw_refresh_on_object_change(true);
 
     return trigger;

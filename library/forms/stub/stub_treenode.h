@@ -68,6 +68,7 @@ public:
 
   virtual bool equals(const mforms::TreeNode &other);
   virtual bool is_valid() const;
+  virtual int level() const;
     
   virtual void set_icon_path(int column, const std::string &icon);
 

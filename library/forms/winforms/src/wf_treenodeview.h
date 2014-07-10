@@ -94,7 +94,7 @@ namespace MySQL {
       int get_column_width(int column);
 
       // Internal functions.
-      void process_mapping(TreeViewNode ^node, const std::string &tag);
+      void process_mapping(Aga::Controls::Tree::TreeNodeAdv ^node, const std::string &tag);
       void node_value_set(int column);
 
       static void init();

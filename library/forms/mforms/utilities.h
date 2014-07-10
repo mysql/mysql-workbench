@@ -97,6 +97,7 @@ namespace mforms {
 #ifndef SWIG
   struct MFORMS_EXPORT UtilitiesImplPtrs
   {
+    void (*beep) ();
     int (*show_message)(const std::string &title, const std::string &text,
                         const std::string &ok, const std::string &cancel,
                         const std::string &other);
@@ -151,40 +152,36 @@ namespace mforms {
 %ignore show_error(const std::string &title, const std::string &text, const std::string &ok);
 #endif
   public:
+    /** Plays the system's default error sound. */
+    static void beep(); // TODO: Mac, Linux
+
     /** Show a message dialog. Return value is from the DialogResult enum.
-     
-     In Python, all arguments are mandatory. */
+     * In Python, all arguments are mandatory. */
     static int show_message(const std::string &title, const std::string &text,
-                            const std::string &ok, const std::string &cancel="",
-                            const std::string &other="");
+                            const std::string &ok, const std::string &cancel = "",
+                            const std::string &other = "");
+
     /** Show an error dialog. Return value is from the DialogResult enum.
-     
-     In Python, all arguments are mandatory. */
+     * In Python, all arguments are mandatory. */
     static int show_error(const std::string &title, const std::string &text,
                             const std::string &ok, const std::string &cancel="",
                             const std::string &other="");
+
     /** Show a warning dialog. Return value is from the DialogResult enum.
-     
-     In Python, all arguments are mandatory. */
+     * In Python, all arguments are mandatory. */
     static int show_warning(const std::string &title, const std::string &text,
                             const std::string &ok, const std::string &cancel="",
                             const std::string &other="");
 
     /** Show a message dialog and save the answer, if the checkbox is enabled.
-     
-     In Python, all arguments are mandatory. */
+     * In Python, all arguments are mandatory. */
     static int show_message_and_remember(const std::string &title, const std::string &text,
                                          const std::string &ok, const std::string &cancel,
                                          const std::string &other,
                                          const std::string &answer_id, const std::string &checkbox_text);
     static void forget_message_answers();
     static void set_message_answers_storage_path(const std::string &path);
-  private:
-    static boost::function<void ()> _driver_shutdown_cb;
 
-    static void save_message_answers();
-
-  public:
     static void show_wait_message(const std::string &title, const std::string &text);
     static bool hide_wait_message();
     
@@ -194,57 +191,52 @@ namespace mforms {
                                     void *&task_result);
 
     /** Asks the user to enter a string, which is returned to the caller.
-
-     @param title - the title of the input dialog
-     @param description - description of the value to enter.
-     @param default_value - an initial value for the edit control
-     @param ret_value - the string the user entered, can be empty or the default string too
-
-     @return true if user presses ok or false if its cancelled.
+     * @param title - the title of the input dialog
+     * @param description - description of the value to enter.
+     * @param default_value - an initial value for the edit control
+     * @param ret_value - the string the user entered, can be empty or the default string too
+     *
+     * @return true if user presses ok or false if its canceled.
      */
     static bool request_input(const std::string &title, const std::string &description,
       const std::string &default_value, std::string &ret_value);
 
     /** Prompts the user for a password and whether it should be stored.
-     
-     @param title - the title of the password dialog
-     @param service - the service the password refers to (ie sudo@hostname, Mysql@hostname etc)
-     @param username - the username the password corresponds to, if empty the user will be able to enter it
-     @param ret_password - the password the user typed
-     @param ret_store - true if the user clicks in "Store Password" checkbox
-     
-     @return true if user presses ok or false if its cancelled.
-     
-     In Python, ret_password and ret_store are returned as a tuple. */
+     * @param title - the title of the password dialog
+     * @param service - the service the password refers to (ie sudo@hostname, Mysql@hostname etc)
+     * @param username - the username the password corresponds to, if empty the user will be able to enter it
+     * @param ret_password - the password the user typed
+     * @param ret_store - true if the user clicks in "Store Password" checkbox
+     * 
+     * @return true if user presses ok or false if its canceled.
+     * In Python, ret_password and ret_store are returned as a tuple.
+     */
     static bool ask_for_password_check_store(const std::string &title, const std::string &service,
       std::string &username /*in/out*/, std::string &ret_password /*out*/, bool &ret_store /*out*/);
 
     /** Prompts the user for a password.
-     
-     @param title - the title of the password dialog
-     @param service - the service the password refers to (ie sudo@hostname, Mysql@hostname etc)
-     @param username - the username the password corresponds to
-     @param ret_password - the password the user typed
-     
-     @return true if user presses ok or false if its cancelled.
-     
-     If you need the username to be editable by the user, use credentials_for_service()
-     
-     In Python, ret_password is returned by the function. */
+     * @param title - the title of the password dialog
+     * @param service - the service the password refers to (ie sudo@hostname, Mysql@hostname etc)
+     * @param username - the username the password corresponds to
+     * @param ret_password - the password the user typed
+     * 
+     * @return true if user presses ok or false if its canceled.
+     * If you need the username to be editable by the user, use credentials_for_service()
+     * In Python, ret_password is returned by the function.
+     */
     static bool ask_for_password(const std::string &title, const std::string &service, const std::string &username,
                                  std::string &ret_password /*out*/);
 
     /** Tries to find a previously stored password and prompts the user if not found.
-     
-     @param title - the title of the password dialog
-     @param service - the service the password refers to (ie sudo@hostname, Mysql@hostname etc)
-     @param username - the username the password corresponds to, if empty the user will be able to enter it
-     @param reset_password - whether the password should be reset without looking for a stored one
-     @param ret_password - the password the user typed
-
-     @return true if user presses ok or false if its cancelled.
-     
-     In Python, ret_password and ret_store are returned as a tuple. */
+     * @param title - the title of the password dialog
+     * @param service - the service the password refers to (ie sudo@hostname, Mysql@hostname etc)
+     * @param username - the username the password corresponds to, if empty the user will be able to enter it
+     * @param reset_password - whether the password should be reset without looking for a stored one
+     * @param ret_password - the password the user typed
+     *
+     * @return true if user presses ok or false if its canceled.
+     * In Python, ret_password and ret_store are returned as a tuple.
+     */
     static bool find_or_ask_for_password(const std::string &title, const std::string &service, const std::string &username,
                                          bool reset_password, std::string &ret_password /*out*/)
     {
@@ -261,37 +253,32 @@ namespace mforms {
 #endif
 
     /** Store the password for the given service and account.
-     
-     @li In Windows, an encrypted Vault file is used.
-     @li In Mac, the secure KeyChain is used.
-     @li In Linux, the gnome-keychain is used, unless it's not available (such as in KDE).
-     In that case, passwords will be forgotten when the application exits.
+     * @li In Windows, an encrypted Vault file is used.
+     * @li In Mac, the secure KeyChain is used.
+     * @li In Linux, the gnome-keychain is used, unless it's not available (such as in KDE).
+     * In that case, passwords will be forgotten when the application exits.
      */
     static void store_password(const std::string &service, const std::string &account, const std::string &password);
-    /** Locates the password for the given service and account. 
 
-     @return true if password was found else false.
+    /** Locates the password for the given service and account. 
+     * @return true if password was found else false.
      */
     static bool find_password(const std::string &service, const std::string &account, std::string &ret_password);
     
     /** Locates the password for the given service and account in the in-memory cache only.
-     
-     @return true if password was found else false.
+     * @return true if password was found else false.
      */
     static bool find_cached_password(const std::string &service, const std::string &account, std::string &ret_password);
+
     /** Clears the stored password for the given service and account */
     static void forget_password(const std::string &service, const std::string &account);
-    
     
     /** Sets the given text to the system clipboard */
     static void set_clipboard_text(const std::string &text);
     /** Gets the text stored in the system clipboard */
     static std::string get_clipboard_text();
 
-    /** Gets the path of the requested special folder:     
-       Documents
-       Desktop
-     */
+    /** Gets the path of the requested special folder: documents, desktop etc. */
     static std::string get_special_folder(FolderType type);
 
     /** Opens the given URL in the default system browser. */
@@ -303,6 +290,7 @@ namespace mforms {
 
     /** Shows the given file path in the OS Finder/Explorer */
     static void reveal_file(const std::string &path);
+
 #ifndef SWIG
     /** Sets up a callback to be called after a given interval. 
      
@@ -344,7 +332,7 @@ namespace mforms {
     static void set_thread_name(const std::string &name);
 
 
-    //Should be called at the end of python thread, when there was some query involved.
+    // Should be called at the end of python thread, when there was some query involved.
     static void driver_shutdown();
 
 #ifndef SWIG
@@ -352,6 +340,11 @@ namespace mforms {
     static void add_driver_shutdown_callback(const boost::function<void ()> &slot);
 #endif
 #endif
+
+  private:
+    static boost::function<void()> _driver_shutdown_cb;
+
+    static void save_message_answers();
   };
 
 };

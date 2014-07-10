@@ -161,6 +161,8 @@ namespace mforms {
 #ifndef SWIG
     virtual bool is_valid() const = 0;
 #endif
+    virtual int level() const = 0; // 0 for root, 1 for top level etc. TODO: Mac, Linux
+
     virtual void set_icon_path(int column, const std::string &icon) = 0;
 
     virtual void set_string(int column, const std::string &value) = 0;
@@ -188,6 +190,9 @@ namespace mforms {
     virtual TreeNodeRef previous_sibling() const = 0; // TODO: Mac, Linux
     virtual TreeNodeRef next_sibling() const = 0;     // TODO: Mac, Linux
 
+    // This is a very special function and I'm not sure it should be here.
+    // It creates nodes out of the collection's captions and adds the same child nodes to each of those nodes
+    // as given in the children member. This works iteratively.
     virtual std::vector<mforms::TreeNodeRef> add_node_collection(const TreeNodeCollectionSkeleton &nodes, int position = -1) = 0;
 
     virtual void expand() = 0;
