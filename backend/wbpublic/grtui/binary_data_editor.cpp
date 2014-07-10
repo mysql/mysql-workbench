@@ -449,7 +449,7 @@ void BinaryDataEditor::assign_data(const char *data, size_t length)
     g_free(_data);
     _data = (char*)g_memdup(data, (guint)length);
 
-    for (int i = 0; i < _viewers.size(); i++)
+    for (size_t i = 0; i < _viewers.size(); i++)
       _viewers[i].second = true;
   }
   _length = length;
