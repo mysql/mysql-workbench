@@ -983,16 +983,16 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  bool is_hot_connection_folder()
+  bool is_folder_tile(int index)
   {
     bool is_folder = false;
     
-    if (_hot_entry > -1 && _active_folder == -1)
+    if (index > -1 && _active_folder == -1)
     {
       if (_filtered)
-        is_folder = _filtered_connections[_hot_entry].children.size() > 0 && !_filtered_connections[_hot_entry].connection.is_valid();
+        is_folder = _filtered_connections[index].children.size() > 0 && !_filtered_connections[index].connection.is_valid();
       else
-        is_folder = _connections[_hot_entry].children.size() > 0 && !_connections[_hot_entry].connection.is_valid();
+        is_folder = _connections[index].children.size() > 0 && !_connections[index].connection.is_valid();
     }
 
     return is_folder;
@@ -1000,17 +1000,17 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  bool is_hot_connection_fabric()
+  bool is_fabric_tile(int index)
   {
     bool is_fabric = false;
     
     // The hot connection only could be a fabric connection if
-    if (_hot_entry > -1 && _active_folder == -1)
+    if (index > -1 && _active_folder == -1)
     {
       if (_filtered)
-        is_fabric = _filtered_connections[_hot_entry].connection.is_valid() && _filtered_connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
+        is_fabric = _filtered_connections[index].connection.is_valid() && _filtered_connections[index].connection->driver()->name() == "MySQLFabric";
       else
-        is_fabric = _connections[_hot_entry].connection.is_valid() && _connections[_hot_entry].connection->driver()->name() == "MySQLFabric";
+        is_fabric = _connections[index].connection.is_valid() && _connections[index].connection->driver()->name() == "MySQLFabric";
     }
 
     return is_fabric;
@@ -1018,16 +1018,16 @@ public:
   
   //------------------------------------------------------------------------------------------------
   
-  bool is_hot_connection_managed()
+  bool is_managed_connection(int index)
   {
     bool is_managed = false;
     
-    if (_hot_entry > -1 && _active_folder > -1)
+    if (index > -1 && _active_folder > -1)
     {
       if (_filtered)
-        is_managed = _filtered_connections[_active_folder].children[_hot_entry].connection->parameterValues().has_key("fabric_managed");
+        is_managed = _filtered_connections[_active_folder].children[index].connection->parameterValues().has_key("fabric_managed");
       else
-        is_managed = _connections[_active_folder].children[_hot_entry].connection->parameterValues().has_key("fabric_managed");
+        is_managed = _connections[_active_folder].children[index].connection->parameterValues().has_key("fabric_managed");
     }
     return is_managed;
   }
@@ -1202,47 +1202,18 @@ public:
     if (index < 0 || (_active_folder > -1 && index == 0))
       return db_mgmt_ConnectionRef();
 
+    // Group tiles already have an invalid connection
     if (_filtered)
-    {
-      if (_filtered_connections[index].children.size() > 1)
-        return db_mgmt_ConnectionRef();
       return _filtered_connections[index].connection;
-    }
     else
     {
       if (_active_folder > -1)
-      {
-        if (_connections[_active_folder].children[index].children.size() > 1)
-          return db_mgmt_ConnectionRef();
         return _connections[_active_folder].children[index].connection;
-      }
       else
-      {
-        if (_connections[index].children.size() > 1)
-          return db_mgmt_ConnectionRef();
         return _connections[index].connection;
-      }
     }
   }
 
-  //------------------------------------------------------------------------------------------------
-
-  bool is_group(int index)
-  {
-    if (index < 0)
-      return false;
-
-    if (_filtered)
-      return _filtered_connections[index].children.size() > 1;
-    else
-    {
-      if (_active_folder > -1)
-        return (index == 0) || _connections[_active_folder].children[index].children.size() > 1;
-      else
-        return _connections[index].children.size() > 1;
-    }
-  }
-  
   //------------------------------------------------------------------------------------------------
 
   /**
@@ -1937,8 +1908,8 @@ public:
               return true;
             }
 
-            bool is_fabric = is_hot_connection_fabric();
-            bool is_folder = !is_fabric && is_hot_connection_folder();
+            bool is_fabric = is_fabric_tile(_hot_entry);
+            bool is_folder = !is_fabric && is_folder_tile(_hot_entry);
 
 #ifdef __APPLE__
             bool show_info = _info_button_rect.contains_flipped(x, y);
@@ -1954,7 +1925,7 @@ public:
             
             if (is_fabric)
             {
-              _active_folder = _fabric_entry = _hot_entry;
+              int entry = _hot_entry;
               db_mgmt_ConnectionRef fabric_connection;
               if (_filtered)
                 fabric_connection = _filtered_connections[_hot_entry].connection;
@@ -1969,6 +1940,7 @@ public:
                 if (!created_connections)
                   return false;
               }
+              _active_folder = _fabric_entry = entry;
             }
             else if (is_folder)
               _active_folder = _hot_entry;
@@ -2013,9 +1985,9 @@ public:
           }
           else
           {
-            if (is_hot_connection_fabric())
+            if (is_fabric_tile(_hot_entry))
               context_menu = _fabric_context_menu;
-            else if (is_hot_connection_folder())
+            else if (is_folder_tile(_hot_entry))
               context_menu = _folder_context_menu;
             else
               context_menu = _connection_context_menu;
@@ -2203,9 +2175,10 @@ public:
     // We have to pass on a valid connection (for the group name).
     // All child items have the same group name (except the dummy entry for the back tile).
     if (_filtered)
-      item = grt::StringRef(_filtered_connections[_entry_for_menu].title);
+      item = grt::StringRef(_filtered_connections[_entry_for_menu].title + "/");
     else
-      item = grt::StringRef(_connections[_entry_for_menu].title);
+      item = grt::StringRef(_connections[_entry_for_menu].title + "/");
+
     _owner->handle_context_menu(item, command);
     _entry_for_menu = -1;
   }
@@ -2223,7 +2196,7 @@ public:
       last_index = _active_folder > -1 ? _connections[_active_folder].children.size() - 1 : _connections.size() - 1;
     if (_connection_context_menu != NULL)
     {
-      bool is_managed = is_hot_connection_managed();
+      bool is_managed = is_managed_connection(_hot_entry);
       _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("edit_connection"), !is_managed);
       _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("move_connection_to_group"), !is_managed);
       _connection_context_menu->set_item_enabled(_connection_context_menu->get_item_index("delete_connection"), !is_managed);
@@ -2607,7 +2580,7 @@ public:
           // Folder tiles have "before", "on" and "after" positions. Connection tiles only have "before"
           // and "after".
           base::Rect bounds = bounds_for_entry(index);
-          if (is_group(index))
+          if (is_folder_tile(index))
           {
             // In a group take the first third as hit area for "before", the second as "on" and the
             // last one as "after".
@@ -2632,13 +2605,17 @@ public:
       if (index == _drag_index ||
           (index + 1 == _drag_index && position == DropAfter) ||
           (index - 1 == _drag_index && position == DropBefore) ||
-          (position == DropOn && is_group((int)_drag_index) && is_group(index)))
+          (position == DropOn && (is_folder_tile((int)_drag_index) || is_fabric_tile((int)_drag_index))))
       {
         index = -1;
       }
-      else
-        if (!_filtered && _active_folder > -1 && index == 0 && position == DropBefore)
+      else if (!_filtered && _active_folder > -1 && index == 0 && position == DropBefore)
+      {
+        if (is_managed_connection((int)_drag_index))
+          return mforms::DragOperationNone;
+        else
           position = DropOn; // Drop on back tile.
+      }
 
       if (_drop_index != index || _drop_position != position)
       {
@@ -2659,7 +2636,7 @@ public:
   {
     bool in_details_area;
     ssize_t entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
-    if (entry == -1)
+    if (entry == -1 || is_fabric_tile(entry))
       return mforms::DragOperationNone;
 
     db_mgmt_ConnectionRef connection = connection_from_index(entry);
@@ -2727,10 +2704,13 @@ public:
 
       // Drop target is a group.
       grt::DictRef details(grt);
-      if (connection.is_valid())
+      if (connection.is_valid() && connection->driver()->name()!="MySQLFabric")
         details.set("object", connection);
+      else if (connection.is_valid())
+        details.set("object", grt::StringRef(source_entry->title));
       else
-        details.set ("object", grt::StringRef(source_entry->title));
+        details.set("object", grt::StringRef(source_entry->title + "/"));
+
 
       // Because the connection changes will reload the entire list we try to restore
       // the last active folder and page position.

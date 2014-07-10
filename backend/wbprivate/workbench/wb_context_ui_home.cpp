@@ -629,13 +629,12 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     // Internal deletion does not require the prompt
     if (action == "delete_connection_group")
     {
-      std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), group.c_str());
+      std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), base::left(group, group.length() -1));
       answer = Utilities::show_warning(_("Delete Connection Group"), text,  _("Delete"), _("Cancel"));
     }
     
     if (answer == mforms::ResultOk)
     {
-      group += "/";
       size_t group_length = group.length();
 
       std::vector<db_mgmt_ConnectionRef> candidates;
@@ -936,18 +935,23 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       grt::ValueRef result = grt->call_module_function("WBFabric", "createConnections", args);
       std::string error = grt::StringRef::extract_from(result);
       
-      if (error.length())
-      {
-        mforms::Utilities::show_error(_("MySQL Fabric Connection Error"), error, "OK");
-        _wb->show_status_text(_("Failed creating connections to Managed MySQL Servers..."));
-      }
+      if (error == "Operation Cancelled")
+        _wb->show_status_text(_("Creation of connections to Managed MySQL Servers was cancelled."));
       else
       {
-        // Sets the flag to indicate the connections have been crated for this fabric node
-        connection->parameterValues().set("connections_created", grt::IntegerRef(1));
-        _wb->show_status_text(_("Created connections to Managed MySQL Servers..."));
+        if (error.length())
+        {
+          mforms::Utilities::show_error(_("MySQL Fabric Connection Error"), error, "OK");
+          _wb->show_status_text(_("Failed creating connections to Managed MySQL Servers..."));
+        }
+        else
+        {
+          // Sets the flag to indicate the connections have been crated for this fabric node
+          connection->parameterValues().set("connections_created", grt::IntegerRef(1));
+          _wb->show_status_text(_("Created connections to Managed MySQL Servers..."));
+        }
       }
-      
+
       break;
     }
       
