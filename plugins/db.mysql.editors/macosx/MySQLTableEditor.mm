@@ -414,14 +414,6 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
 }
 
 
-
-- (void) refreshTableEditorGUIInsertsTab;
-{
-  if (mBackEnd->get_table()->columns().count() > 0)
-    [mEditorInsertsController refreshFull];
-}
-
-
 - (void)refreshTableEditorGUITriggersTab
 {
   if (mBackEnd)
@@ -438,8 +430,6 @@ static void call_partial_refresh(int what, DbMysqlTableEditor* theEditor)
   [self refreshTableEditorGUITriggersTab];
   [self refreshTableEditorGUIPartitioningTab];
   [self refreshTableEditorGUIOptionsTab];
-  if (!mBackEnd->is_editing_live_object())
-    [self refreshTableEditorGUIInsertsTab];
 }
 
 
@@ -854,8 +844,6 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
     if (shouldRefreshGUI)
     {
       [self refreshTableEditorGUIColumnsTab];
-      if (!mBackEnd->is_editing_live_object())
-        [self refreshTableEditorGUIInsertsTab];
     }
   }
   
@@ -1529,22 +1517,6 @@ objectValueForItemAtIndex: (NSInteger) index
 
 - (BOOL)pluginWillClose: (id)sender
 {
-  if (mEditorInsertsController && [mEditorInsertsController hasPendingChanges])
-  {
-    int ret = NSRunAlertPanel(@"Close Table Editor", @"There are unsaved changes to the INSERTs data for %s. "
-                              "If you do not save, these changes will be discarded.",
-                              @"Save Changes", @"Don't Save", @"Cancel", mBackEnd->get_name().c_str());
-    if (ret == NSAlertDefaultReturn)
-    {
-      [mEditorInsertsController recordset]->apply_changes();
-    }
-    else if (ret == NSAlertAlternateReturn)
-    {
-      [mEditorInsertsController recordset]->rollback();
-    }
-    else
-      return NO;
-  }
   return [super pluginWillClose: sender];
 }
 
@@ -1576,7 +1548,6 @@ objectValueForItemAtIndex: (NSInteger) index
   [super reinitWithArguments: args];
   
   [[[mEditorInserts subviews] lastObject] removeFromSuperview];
-  [mEditorInsertsController release];
   delete mBackEnd;
 
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(args[0]);
@@ -1622,10 +1593,9 @@ objectValueForItemAtIndex: (NSInteger) index
   
   if (!mBackEnd->is_editing_live_object())
   {
-    mEditorInsertsController = [[MResultsetViewer alloc] initWithRecordset: mBackEnd->get_inserts_model()];
     NSInteger i;
 
-    mEditorInserts = nsviewForView(mBackEnd->create_inserts_panel(nativeContainerFromNSView([mEditorInsertsController view])));
+    mEditorInserts = nsviewForView(mBackEnd->get_inserts_panel());
 
     if ((i = [mEditorsTabView indexOfTabViewItemWithIdentifier: @"inserts"]) == NSNotFound)
     {
