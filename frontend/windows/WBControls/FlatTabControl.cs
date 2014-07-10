@@ -87,6 +87,8 @@ namespace MySQL.Controls
     private SubClass scroller = null;
     private Form activationTracker = null;
 
+    internal Control auxView = null;
+
     // For top-transparent there is no tab background color.
     private Color topTransparentTabColor = Color.White;
     private Color topTransparentTabTextColor = Color.Black;
@@ -393,11 +395,11 @@ namespace MySQL.Controls
     }
 
     protected override void OnPaint(PaintEventArgs e)
-	  {
-	    base.OnPaint(e); 
+	{
+      base.OnPaint(e); 
   			
-	    DrawControl(e.Graphics);
-	  }
+      DrawControl(e.Graphics);
+	}
 
 		internal void DrawControl(Graphics g)
 		{
@@ -1015,6 +1017,16 @@ namespace MySQL.Controls
     #endregion
 
     #region Event handling
+
+    protected override void OnResize(EventArgs e)
+    {
+      base.OnResize(e);
+      if (auxView != null)
+      {
+        auxView.Top = Top + Height - auxView.Height;
+        auxView.Left = Left + Width - auxView.Width;
+      }
+    }
 
     protected override void OnHandleCreated(EventArgs e)
     {
@@ -1825,6 +1837,26 @@ namespace MySQL.Controls
         if (SelectedTab != null)
           return DocumentFromHierarchy(SelectedTab);
         return null;
+      }
+    }
+
+    public Control AuxControl
+    {
+      get
+      {
+        return auxView;
+      }
+
+      set
+      {
+        if (auxView != value)
+        {
+          auxView = value;
+          auxView.BackColor = Color.Transparent;
+          auxView.Dock = DockStyle.None;
+          Parent.Controls.Add(auxView);
+          Parent.Controls.SetChildIndex(auxView, 0);
+        }
       }
     }
 

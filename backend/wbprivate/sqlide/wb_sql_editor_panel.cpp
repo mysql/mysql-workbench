@@ -100,8 +100,6 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _splitter.add(&_lower_tabview);
   _splitter.set_position((int)mforms::App::get()->get_application_bounds().height());
   UIForm::scoped_connect(_splitter.signal_position_changed(), boost::bind(&SqlEditorPanel::splitter_resized, this));
-
-  _lower_tabview.set_aux_view(&_tab_action_box);
   _tab_action_box.set_spacing(4);
   _tab_action_box.add_end(&_tab_action_info, false, true);
   _tab_action_box.add_end(&_tab_action_icon, false, false);
@@ -117,6 +115,10 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_revert.set_text("Revert");
   _tab_action_revert.signal_clicked()->connect(boost::bind(&SqlEditorPanel::revert_clicked, this));
 
+  _tab_action_box.relayout();
+  _tab_action_box.set_size(_tab_action_box.get_preferred_width(), _tab_action_box.get_preferred_height());
+
+  _lower_tabview.set_aux_view(&_tab_action_box);
   _lower_tabview.set_allows_reordering(true);
   _lower_tabview.signal_tab_reordered()->connect(boost::bind(&SqlEditorPanel::lower_tab_reordered, this, _1, _2, _3));
   _lower_tabview.signal_tab_changed()->connect(boost::bind(&SqlEditorPanel::lower_tab_switched, this));

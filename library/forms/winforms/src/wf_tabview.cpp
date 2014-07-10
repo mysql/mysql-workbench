@@ -292,7 +292,7 @@ void TabViewWrapper::set_aux_view(mforms::TabView *backend, mforms::View *aux)
     Control ^control = TabViewWrapper::GetManagedObject<Control>(aux);
     if (control != nullptr)
     {
-      //XXX here
+      tabControl->AuxControl = control;
       return;
     }
   }
