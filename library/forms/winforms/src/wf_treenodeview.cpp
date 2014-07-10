@@ -29,6 +29,7 @@ using namespace System::Drawing;
 using namespace System::Drawing::Imaging;
 using namespace System::Collections::Generic;
 using namespace System::Collections::ObjectModel;
+using namespace System::IO;
 using namespace System::Windows::Forms;
 
 using namespace Aga::Controls::Tree;
@@ -302,7 +303,7 @@ public:
   SortOrder currentSortOrder;
   List<int> columnTypes;
   
-  Dictionary<String^, TreeViewNode^> ^tagMap;
+  Dictionary<String^, TreeNodeAdv^> ^tagMap;
 
   TreeNodeAdv ^hotNode;             // The node under the mouse.
   List<NodeOverlay^> ^overlayInfo; // Overlay images and their bounds for special actions.
@@ -334,7 +335,7 @@ public:
 
   void UseTagMap()
   {
-    tagMap = gcnew Dictionary<String^, TreeViewNode^>();
+    tagMap = gcnew Dictionary<String^, TreeNodeAdv^>();
   }
 
   //------------------------------------------------------------------------------------------------
@@ -460,7 +461,7 @@ public:
   {
     if (tagMap != nullptr)
     {
-      TreeViewNode^ node;
+      TreeNodeAdv^ node;
       if (tagMap->TryGetValue(tag, node))
       {
         TreeNodeViewWrapper *wrapper = TreeNodeViewWrapper::GetWrapper<TreeNodeViewWrapper>(this);
@@ -473,7 +474,7 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  void UpdateTagMap(TreeViewNode ^node, String ^tag)
+  void UpdateTagMap(TreeNodeAdv ^node, String ^tag)
   {
     if (tagMap != nullptr)
     {
@@ -542,13 +543,12 @@ public:
   {
     __super::OnExpanding(node);
 
-     TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(node->Tag);
-     if (ourNode != nullptr)
-     {
-       mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-       TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-       backend->expand_toggle(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)), true);
-     }
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      if (backend != NULL)
+      {
+        TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+        backend->expand_toggle(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, node)), true);
+      }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -557,13 +557,12 @@ public:
   {
     __super::OnCollapsed(node);
 
-   TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(node->Tag);
-   if (ourNode != nullptr)
-   {
-     mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-     TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-     backend->expand_toggle(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)), false);
-   }
+    mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+    if (backend != NULL)
+    {
+      TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+      backend->expand_toggle(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, node)), false);
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -574,17 +573,11 @@ public:
 
     if (args->Control != nullptr)
     {
-      TreeNodeAdv ^treeNode = args->Node;
-      TreeViewNode ^ourNode = dynamic_cast<TreeViewNode^>(treeNode->Tag);
-
-      if (ourNode != nullptr)
-      {
-        mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-        TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-        int row = backend->row_for_node(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)));
-        int column= args->Control->ParentColumn->Index;
-        backend->node_activated(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)), column);
-      }
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+      //int row = backend->row_for_node(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, args->Node)));
+      int column = args->Control->ParentColumn->Index;
+      backend->node_activated(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, args->Node)), column);
     }
   }
 
@@ -715,7 +708,7 @@ public:
         NodeOverlay ^overlay = overlayInfo[i];
         if (overlay->bounds.Contains(args->Location))
         {
-          backend->overlay_icon_for_node_clicked(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode ^)hotNode->Tag)), i);
+          backend->overlay_icon_for_node_clicked(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, hotNode)), i);
           return;
         }
       }
@@ -832,7 +825,7 @@ public:
         {
           TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
           std::vector<std::string> overlay_icons = backend->overlay_icons_for_node
-            (mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode ^)info->Node->Tag)));
+            (mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, info->Node)));
 
           if (!overlay_icons.empty())
           {
@@ -844,7 +837,11 @@ public:
             {
               NodeOverlay ^overlay = gcnew NodeOverlay();
               overlay->isHot = false;
-              overlay->image = Drawing::Image::FromFile(CppStringToNativeRaw(overlay_icons[i]));
+              String ^name = CppStringToNativeRaw(overlay_icons[i]);
+              if (!File::Exists(name))
+                continue;
+              
+              overlay->image = Drawing::Image::FromFile(name);
               if (overlay->image == nullptr)
                 continue;
 
@@ -1035,8 +1032,6 @@ public:
   void TreeValuePushed(System::Object ^sender, NodeControlValueEventArgs ^args)
   {
     BindableControl ^control = (BindableControl ^)sender;
-    TreeNodeAdv ^treeNode = args->Node;
-    TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(treeNode->Tag);
 
     // First check if the backend allows editing that value.
     std::string new_value = NativeToCppString(args->Value->ToString());
@@ -1051,9 +1046,10 @@ public:
 
     mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
     TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-    if (backend->cell_edited(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)), control->ParentColumn->Index, new_value))
+    if (backend->cell_edited(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, args->Node)), control->ParentColumn->Index, new_value))
     {
       // Backend says ok, so update the model.
+      TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(args->Node->Tag);
       if (ourNode != nullptr)
         ourNode->Caption[control->ParentColumn->Index] = args->Value->ToString();
     }
@@ -1173,7 +1169,7 @@ mforms::TreeNodeRef TreeNodeViewWrapper::get_selected_node(mforms::TreeNodeView 
   TreeNodeAdv ^node = tree->SelectedNode;
   if (node == nullptr || node->Tag == nullptr)
     return mforms::TreeNodeRef();
-  return mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode^)node->Tag));
+  return mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, node));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1331,10 +1327,7 @@ std::list<mforms::TreeNodeRef> TreeNodeViewWrapper::get_selection()
   if (sel != nullptr)
   {
     for (int i = 0; i < sel->Count; i++)
-    {
-      TreeViewNode ^node = (TreeViewNode^)sel[i]->Tag;
-      selection.push_back(mforms::TreeNodeRef(new TreeNodeWrapper(this, node)));
-    }
+      selection.push_back(mforms::TreeNodeRef(new TreeNodeWrapper(this, sel[i])));
   }
   return selection;
 }
@@ -1418,8 +1411,7 @@ mforms::TreeNodeRef TreeNodeViewWrapper::node_at_position(base::Point position)
   if (node == nullptr)
     return mforms::TreeNodeRef();
 
-  TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(node->Tag);
-  return mforms::TreeNodeRef(new TreeNodeWrapper(this, ourNode));
+  return mforms::TreeNodeRef(new TreeNodeWrapper(this, node));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1527,7 +1519,7 @@ mforms::DropPosition TreeNodeViewWrapper::get_drop_position()
 /**
  * Adds, removes or changes a node <-> tag mapping (if mapping is enabled).
  */
-void TreeNodeViewWrapper::process_mapping(TreeViewNode ^node, const std::string &tag)
+void TreeNodeViewWrapper::process_mapping(TreeNodeAdv ^node, const std::string &tag)
 {
   MformsTree ^tree = GetManagedObject<MformsTree>();
   tree->UpdateTagMap(node, CppStringToNative(tag));
@@ -1548,13 +1540,8 @@ void TreeNodeViewWrapper::node_value_set(int column)
 
 void TreeNodeViewWrapper::set_selected(mforms::TreeNodeRef node, bool flag)
 {
-  TreeNodeWrapper *impl = dynamic_cast<TreeNodeWrapper*>(node.ptr());
-  if (impl)
-  {
-    TreeNodeAdv ^tna = impl->find_node_adv();
-    if (tna)
-      tna->IsSelected = true;
-  }
+  TreeNodeWrapper *wrapper = dynamic_cast<TreeNodeWrapper*>(node.ptr());
+  wrapper->set_selected(flag);
 }
 
 //--------------------------------------------------------------------------------------------------

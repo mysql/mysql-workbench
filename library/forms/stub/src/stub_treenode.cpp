@@ -39,6 +39,11 @@ bool TreeNodeWrapper::is_valid() const
   return true;
 }
     
+int TreeNodeWrapper::level() const
+{
+  return 1;
+}
+
 void TreeNodeWrapper::set_icon_path(int column, const std::string &icon)
 {
   set_string(column+1, icon);

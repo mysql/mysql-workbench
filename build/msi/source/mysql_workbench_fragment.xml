@@ -756,6 +756,9 @@
                     <File Id="file60666" Name="wb_lock.png"/>
                     <File Id="file60667" Name="change_alert_create.png"/>
 
+                    <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
+                    <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
+
                     </Component>
                 </Directory>
 

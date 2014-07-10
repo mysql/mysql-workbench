@@ -40,6 +40,14 @@ static std::map<std::string, int> remembered_message_answers;
 static std::string remembered_message_answer_file;
 
 boost::function<void ()> mforms::Utilities::_driver_shutdown_cb;
+
+//--------------------------------------------------------------------------------------------------
+
+void Utilities::beep()
+{
+  ControlFactory::get_instance()->_utilities_impl.beep();
+}
+
 //--------------------------------------------------------------------------------------------------
 
 int Utilities::show_message(const std::string &title, const std::string &text,
