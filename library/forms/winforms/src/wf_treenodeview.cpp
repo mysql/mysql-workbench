@@ -1428,7 +1428,12 @@ int TreeNodeViewWrapper::row_for_node(mforms::TreeNodeRef node)
       for (int i = 0; i < node_index; i++)
         row += count_rows_in_node(parent->get_child(i));
       if (parent != root_node())
-        row += row_for_node(parent);
+        row += row_for_node(parent) + 1;
+    }
+    else
+    {
+      for (int i = 0; i < node_index; i++)
+        row += count_rows_in_node(root_node()->get_child(i));
     }
     return row;
   }

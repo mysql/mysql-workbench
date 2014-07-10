@@ -100,8 +100,11 @@ _lower_tab(mforms::TabViewDocument),
     item = menu->add_item_with_title("Close Script", boost::bind(&GRTShellWindow::close_tab, this));
     item->set_shortcut("Modifier+W");
     item = menu->add_item_with_title("Close Window", boost::bind(&GRTShellWindow::close, this));
+#ifdef _WIN32
+    item->set_shortcut("Control+F4");
+#else
     item->set_shortcut("Modifier+Shift+W");
-
+#endif
     menu = mforms::manage(new mforms::MenuItem("Edit"));
     _menu.add_submenu(menu);
 
@@ -1270,7 +1273,7 @@ void GRTShellWindow::set_editor_title(GRTCodeEditor *editor, const std::string &
  */
 bool GRTShellWindow::request_quit()
 {
-  for (std::vector<GRTCodeEditor*>::iterator editor = _editors.begin(); editor != _editors.end(); editor++)
+  for (std::vector<GRTCodeEditor*>::reverse_iterator editor = _editors.rbegin(); editor != _editors.rend(); editor++)
   {
     if (!(*editor)->can_close())
       return false;

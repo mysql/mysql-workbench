@@ -1158,6 +1158,16 @@ namespace MySQL.Controls
           }
           break;
 
+        case MouseButtons.Right:
+          {
+            int tab = TabIndexFromPosition(e.Location);
+            if (tab > -1)
+            {
+              OnTabShowMenu(new TabMenuEventArgs(TabPages[tab], tab, PointToScreen(e.Location)));
+            }
+          }
+          break;
+
         default:
           base.OnMouseUp(e);
           break;
@@ -1299,6 +1309,13 @@ namespace MySQL.Controls
     {
       if (TabMoved != null)
         TabMoved(this, args);
+    }
+
+    public event EventHandler<TabMenuEventArgs> TabShowMenu;
+    protected internal virtual void OnTabShowMenu(TabMenuEventArgs args)
+    {
+      if (TabShowMenu != null)
+        TabShowMenu(this, args);
     }
 
     protected override void OnKeyDown(KeyEventArgs ke)
@@ -2137,6 +2154,20 @@ namespace MySQL.Controls
       this.page = page;
     }
   }
+
+  public class TabMenuEventArgs : EventArgs
+  {
+    public TabPage page;
+    public int pageIndex;
+    public Point location;
+
+    public TabMenuEventArgs(TabPage page, int index, Point pos)
+    {
+      this.page = page;
+      this.pageIndex = index;
+      this.location = pos;
+    }
+  };
 
   public class TabMovedEventArgs : EventArgs
   {

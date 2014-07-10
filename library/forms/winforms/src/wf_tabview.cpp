@@ -50,6 +50,20 @@ public:
 ref class MformsFlatTabControl : FlatTabControl
 {
 public:
+  virtual void OnTabShowMenu(TabMenuEventArgs ^args) override
+  {
+    __super::OnTabShowMenu(args);
+
+    mforms::TabView *tabview = TabViewWrapper::GetBackend<mforms::TabView>(this);
+    tabview->set_menu_tab(args->pageIndex);
+    if (tabview->get_tab_menu())
+    {
+      tabview->get_tab_menu()->popup_at(tabview, base::Point(args->location.X, args->location.Y));
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   virtual void OnSelected(TabControlEventArgs ^args) override
   {
     __super::OnSelected(args);
