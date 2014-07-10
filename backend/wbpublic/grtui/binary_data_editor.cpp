@@ -174,7 +174,6 @@ public:
       }
     }
     resume_layout();
-
     _label.set_text(base::strfmt("Viewing Range %i to %i", (int) _offset, (int) (_offset+_block_size)));
     
     if (_offset == 0)
@@ -251,7 +250,7 @@ public:
 
     _text.set_show_find_panel_callback(boost::bind(&TextDataViewer::embed_find_panel, this, _2));
   }
-  
+
   virtual void data_changed()
   {
     GError *error = 0;
@@ -385,13 +384,13 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   grt::IntegerRef tab = grt::IntegerRef::cast_from(_grtm->get_app_option("BlobViewer:DefaultTab"));
 
   setup();
-  assign_data(data, length);
-
   add_viewer(new HexDataViewer(this, read_only), "Binary");
   add_viewer(new TextDataViewer(this, text_encoding, read_only), "Text");
   if (ImageDataViewer::can_display(data, length))
     add_viewer(new ImageDataViewer(this, read_only), "Image");
-  
+
+  assign_data(data, length);
+
   if (tab.is_valid())
     _tab_view.set_active_tab((int)*tab);  
   tab_changed();
@@ -449,6 +448,9 @@ void BinaryDataEditor::assign_data(const char *data, size_t length)
   {
     g_free(_data);
     _data = (char*)g_memdup(data, (guint)length);
+
+    for (int i = 0; i < _viewers.size(); i++)
+      _viewers[i].second = true;
   }
   _length = length;
 
@@ -467,7 +469,9 @@ void BinaryDataEditor::tab_changed()
 
   try
   {
-    _viewers[i]->data_changed();
+    if (_viewers[i].second && _data)
+      _viewers[i].first->data_changed();
+    _viewers[i].second = false;
   }
   catch (std::exception &exc)
   {
@@ -477,7 +481,7 @@ void BinaryDataEditor::tab_changed()
 
 void BinaryDataEditor::add_viewer(BinaryDataViewer *viewer, const std::string &title)
 {
-  _viewers.push_back(viewer);
+  _viewers.push_back(std::make_pair(viewer, true));
   
   _tab_view.add_page(mforms::manage(viewer), title);
 }
