@@ -725,14 +725,28 @@ bool Utilities::in_modal_loop()
 
 //--------------------------------------------------------------------------------------------------
 
+static cairo_user_data_key_t hidpi_icon_key;
+
 /**
  * Helper function to simplify icon loading. Returns NULL if the icon could not be found or
  * something wrong happened while loading.
  */
-cairo_surface_t* Utilities::load_icon(const std::string& name)
+cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
 {
   if (name.empty())
     return NULL;
+
+  if (allow_hidpi && mforms::App::get()->backing_scale_factor() > 1.0)
+  {
+    std::string hidpi_name = base::strip_extension(name)+"@2x"+base::extension(name);
+    cairo_surface_t *tmp = load_icon(hidpi_name, false);
+    if (tmp)
+    {
+      // mark the surface as being hidpi
+      cairo_surface_set_user_data(tmp, &hidpi_icon_key, (void*)1, NULL);
+      return tmp;
+    }
+  }
 
   std::string icon_path= App::get()->get_resource_path(name);
   cairo_surface_t* result= cairo_image_surface_create_from_png(icon_path.c_str());
@@ -743,6 +757,51 @@ cairo_surface_t* Utilities::load_icon(const std::string& name)
   }
 
   return result;
+}
+
+bool Utilities::is_hidpi_icon(cairo_surface_t *s)
+{
+  return cairo_surface_get_user_data(s, &hidpi_icon_key) == (void*)1;
+}
+
+
+void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, int x, int y, float alpha)
+{
+  float backing_scale_factor = mforms::App::get()->backing_scale_factor();
+
+  if (backing_scale_factor > 1 && mforms::Utilities::is_hidpi_icon(image))
+  {
+    cairo_save(cr);
+    cairo_scale(cr, 1/backing_scale_factor, 1/backing_scale_factor);
+    cairo_set_source_surface(cr, image, x*backing_scale_factor, y*backing_scale_factor);
+    if (alpha == 1.0)
+      cairo_paint(cr);
+    else
+      cairo_paint_with_alpha(cr, alpha);
+    cairo_restore(cr);
+  }
+  else
+  {
+    cairo_set_source_surface(cr, image, x, y);
+    if (alpha == 1.0)
+      cairo_paint(cr);
+    else
+      cairo_paint_with_alpha(cr, alpha);
+  }
+}
+
+
+void Utilities::get_icon_size(cairo_surface_t *icon, int &w, int &h)
+{
+  float backing_scale_factor = mforms::App::get()->backing_scale_factor();
+
+  w = cairo_image_surface_get_width(icon);
+  h = cairo_image_surface_get_height(icon);
+  if (backing_scale_factor > 1 && mforms::Utilities::is_hidpi_icon(icon))
+  {
+    w = w / backing_scale_factor;
+    h = h / backing_scale_factor;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

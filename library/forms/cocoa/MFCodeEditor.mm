@@ -29,6 +29,27 @@
 
 using namespace mforms;
 
+
+// hack in find panel support to the code editor
+@interface SCIContentView (mforms_extras)
+- (void)performFindPanelAction:(id)sender;
+@end
+
+@implementation SCIContentView (mforms_extras)
+- (void)performFindPanelAction:(id)sender
+{
+  if ([sender tag] == NSFindPanelActionShowFindPanel)
+  {
+    id parent = [[[self superview] superview] superview];
+    if ([parent isKindOfClass: [MFCodeEditor class]])
+    {
+      [parent showFindPanel: NO];
+    }
+  }
+}
+@end
+
+
 //--------------------------------------------------------------------------------------------------
 
 @implementation MFCodeEditor

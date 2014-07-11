@@ -20,6 +20,7 @@
 #include "record_grid_view.h"
 #include "../sqlide/recordset_view.h"
 #include "sqlide/recordset_be.h"
+#include "mforms/menubar.h"
 
 using namespace mforms;
 
@@ -40,9 +41,12 @@ void lf_record_grid_init()
 RecordGridView::RecordGridView(Recordset::Ref rset)
 {
   viewer = RecordsetView::create(rset);
+  viewer->grid_view()->view_model()->column_resized = boost::bind(&RecordGridView::column_resized, this, _1);
+  viewer->grid_view()->view_model()->column_right_clicked = boost::bind(&RecordGridView::column_right_clicked, this, _1, _2, _3);
   viewer->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
   set_data(viewer);
   viewer->show_all();
+  viewer->grid_view()->refresh(true);
 }
 
 RecordGridView::~RecordGridView()
@@ -52,12 +56,12 @@ RecordGridView::~RecordGridView()
 
 int RecordGridView::get_column_count()
 {
-  return viewer->grid_view()->get_columns().size()-1;
+  return viewer->model()->get_column_count();
 }
 
 int RecordGridView::get_column_width(int column)
 {
-  Gtk::TreeViewColumn *tc = viewer->grid_view()->get_column(column);
+  Gtk::TreeViewColumn *tc = viewer->grid_view()->get_column(column+1);
   if (tc)
     return tc->get_width();
   return 0;
@@ -66,9 +70,7 @@ int RecordGridView::get_column_width(int column)
 
 void RecordGridView::set_column_width(int column, int width)
 {
-  Gtk::TreeViewColumn *tc = viewer->grid_view()->get_column(column);
-  if (tc)
-    tc->set_fixed_width(width);
+  viewer->grid_view()->view_model()->set_column_width(column, width);
 }
 
 
@@ -86,5 +88,39 @@ bool RecordGridView::current_cell(size_t &row, int &column)
 void RecordGridView::set_current_cell(size_t row, int column)
 {
   viewer->grid_view()->select_cell(row, column);
+}
+
+
+void RecordGridView::set_column_header_indicator(int column_index, ColumnHeaderIndicator order)
+{
+  Gtk::TreeViewColumn *column= viewer->grid_view()->get_column(column_index + 1);
+  switch (order)
+  {
+  case NoIndicator:
+    column->set_sort_indicator(false);
+    break;
+  case SortDescIndicator:
+    column->set_sort_order(Gtk::SORT_DESCENDING);
+    column->set_sort_indicator(true);
+    break;
+  case SortAscIndicator:
+    column->set_sort_order(Gtk::SORT_ASCENDING);
+    column->set_sort_indicator(true);
+    break;
+  }
+}
+
+
+void RecordGridView::set_font(const std::string &font)
+{
+  viewer->grid_view()->modify_font(Pango::FontDescription(font));
+}
+
+
+void RecordGridView::column_right_clicked(int c, int x, int y)
+{
+  clicked_header_column(c);
+  if (header_menu())
+    header_menu()->popup_at(this, base::Point(x, y));
 }
 

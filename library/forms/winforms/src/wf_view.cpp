@@ -849,6 +849,14 @@ void ViewWrapper::focus(mforms::View *backend)
 
 //-------------------------------------------------------------------------------------------------
 
+bool ViewWrapper::has_focus(mforms::View *backend)
+{
+  Control ^control = GetManagedObject<Control>(backend);
+  return control->Focused;
+}
+
+//-------------------------------------------------------------------------------------------------
+
 void ViewWrapper::set_tooltip(mforms::View *backend, const std::string& text)
 {
   ViewWrapper *wrapper = backend->get_data<ViewWrapper>();
@@ -1319,6 +1327,7 @@ void ViewWrapper::init()
   f->_view_impl.set_back_image = &set_back_image;
   f->_view_impl.flush_events = &flush_events;
   f->_view_impl.focus = &focus;
+  f->_view_impl.has_focus = &has_focus;
 
   f->_view_impl.register_drop_formats = &register_drop_formats;
   f->_view_impl.drag_text = &drag_text;

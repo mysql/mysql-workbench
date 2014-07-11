@@ -144,6 +144,7 @@ struct CopySpec
   long long range_start;
   long long range_end;
   long long row_count;
+  bool resume;
 };
 
 
@@ -154,6 +155,8 @@ struct TableParam
   std::string target_schema;
   std::string target_table;
   std::string select_expression;
+  std::vector<std::string> source_pk_columns;
+  std::vector<std::string> target_pk_columns;
   CopySpec copy_spec;
 };
 
@@ -180,11 +183,14 @@ public:
   void set_get_field_lengths_from_target(bool value) { _get_field_lengths_from_target = value; }
   bool get_get_field_lengths_from_target() { return _get_field_lengths_from_target; }
   void set_bulk_inserts(bool value) { _use_bulk_inserts = value; }
+  std::string get_where_condition(const std::vector<std::string> &pk_columns, const std::vector<std::string> &last_pkeys);
 
-  virtual size_t count_rows(const std::string &schema, const std::string &table, const CopySpec &spec) = 0;
+  virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
+                            const CopySpec &spec, const std::vector<std::string> &last_pkeys) = 0;
   virtual boost::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
+                                                                         const std::vector<std::string> &pk_columns,
                                                                          const std::string &select_expression,
-                                                                         const CopySpec &spec) = 0;
+                                                                         const CopySpec &spec, const std::vector<std::string> &last_pkeys) = 0;
   virtual void end_select_table() = 0;
   virtual bool fetch_row(RowBuffer &rowbuffer) = 0;
 };
@@ -226,10 +232,12 @@ public:
   SQLRETURN get_geometry_buffer_data(RowBuffer &rowbuffer, int column);
 
 public:
-  virtual size_t count_rows(const std::string &schema, const std::string &table, const CopySpec &spec);
+  virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
+                            const CopySpec &spec, const std::vector<std::string> &last_pkeys);
   virtual boost::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
+                                                                         const std::vector<std::string> &pk_columns,
                                                                          const std::string &select_expression,
-                                                                         const CopySpec &spec);
+                                                                         const CopySpec &spec, const std::vector<std::string> &last_pkeys);
 
   virtual void end_select_table();
   virtual bool fetch_row(RowBuffer &rowbuffer);
@@ -247,10 +255,12 @@ public:
                     const std::string &socket);
   virtual ~MySQLCopyDataSource();
 
-  virtual size_t count_rows(const std::string &schema, const std::string &table, const CopySpec &spec);
+  virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
+                            const CopySpec &spec, const std::vector<std::string> &last_pkeys);
   virtual boost::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
+                                                                         const std::vector<std::string> &pk_columns,
                                                                          const std::string &select_expression,
-                                                                         const CopySpec &spec);
+                                                                         const CopySpec &spec, const std::vector<std::string> &last_pkeys);
   virtual void end_select_table();
   virtual bool fetch_row(RowBuffer &rowbuffer);
 };
@@ -345,6 +355,7 @@ public:
   void get_triggers_for_schema(const std::string &schema, std::map<std::string, std::string>& triggers);
   bool get_trigger_definitions_for_schema(const std::string &schema, std::map<std::string, std::string>& triggers);
   void drop_trigger_backups(const std::string& schema);
+  std::vector<std::string> get_last_pkeys(const std::vector<std::string> &pk_columns, const std::string &schema, const std::string &table);
 
   RowBuffer &row_buffer();
 };

@@ -53,12 +53,6 @@ find_package(PythonLibs 2.6)
 if (NOT PYTHONLIBS_FOUND)
     pkg_check_modules(PYTHON REQUIRED python)
 endif ()
-set(GRT_DEFINITIONS -DENABLE_PYTHON_MODULES)
-
-find_package(Lua51)
-if (LUA51_FOUND)
-	set(GRT_DEFINITIONS ${GRT_DEFINITIONS} -DENABLE_LUA_MODULES)
-endif()
 
 find_package(MySQL REQUIRED)
 if (UNIX)
@@ -220,8 +214,8 @@ endif()
 #	#set(CMAKE_EXE_LINKER_FLAGS "-s")  ## Strip binary
 #endif()
 
-set(GRT_LIBRARIES ${PYTHON_LIBRARIES} ${LUA_LIBRARIES} ${LIBXML2_LIBRARIES})
-set(GRT_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${LUA_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR})
+set(GRT_LIBRARIES ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES})
+set(GRT_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
 
 configure_file(${PROJECT_SOURCE_DIR}/mysql-workbench.desktop.in mysql-workbench.desktop)
 
@@ -246,12 +240,12 @@ install(FILES ${CMAKE_BINARY_DIR}/mysql-workbench.desktop DESTINATION ${WB_INSTA
 
 if (EXISTS ${PROJECT_SOURCE_DIR}/COPYING)
     install(FILES README COPYING DESTINATION ${WB_INSTALL_DOC_DIR})
-    install(FILES build/debian/mysql-workbench-community.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
-    install(FILES build/debian/mysql-workbench-community.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
+    install(FILES build/mysql-workbench-community.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
+    install(FILES build/mysql-workbench-community.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
 else ()
     install(FILES README LICENSE.mysql DESTINATION ${WB_INSTALL_DOC_DIR})
-    install(FILES build/debian/mysql-workbench-commercial.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
-    install(FILES build/debian/mysql-workbench-commercial.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
+    install(FILES build/mysql-workbench-commercial.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
+    install(FILES build/mysql-workbench-commercial.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
 endif ()
 
 install(FILES build/build_freetds.sh

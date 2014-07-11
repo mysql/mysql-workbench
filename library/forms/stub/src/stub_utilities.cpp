@@ -206,17 +206,7 @@ void UtilitiesWrapper::forget_password(const std::string &service, const std::st
 //--------------------------------------------------------------------------------------------------
 
 enum {Gnome_keyring_results_size = 10};
-static const char* gnome_keyring_results[Gnome_keyring_results_size] = {"OK",
-                                             "GNOME_KEYRING_RESULT_DENIED",
-                                             "GNOME_KEYRING_RESULT_NO_KEYRING_DAEMON",
-                                             "GNOME_KEYRING_RESULT_ALREADY_UNLOCKED",
-                                             "GNOME_KEYRING_RESULT_NO_SUCH_KEYRING",
-                                             "GNOME_KEYRING_RESULT_BAD_ARGUMENTS",
-                                             "GNOME_KEYRING_RESULT_IO_ERROR",
-                                             "GNOME_KEYRING_RESULT_CANCELLED",
-                                             "GNOME_KEYRING_RESULT_ALREADY_EXISTS",
-                                             ""
-                                            };
+
 //--------------------------------------------------------------------------------------------------
 
 void* UtilitiesWrapper::perform_from_main_thread(const boost::function<void* ()>& slot, bool wait)

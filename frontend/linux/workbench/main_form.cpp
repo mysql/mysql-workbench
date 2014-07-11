@@ -104,14 +104,6 @@ MainForm::MainForm(wb::WBContextUI* ctx)
       _sys_selection_color = Gdk::Color(&style->bg[GTK_STATE_SELECTED]);
   }
 
-  _accel_group = get_mainwindow()->get_accel_group();
-  if (!_accel_group)
-  {
-    _accel_group= Gtk::AccelGroup::create();
-    get_mainwindow()->add_accel_group(_accel_group);
-  }
-  mforms::gtk::set_accel_group(_accel_group);
-
   get_mainwindow()->signal_delete_event().connect(sigc::mem_fun(this, &MainForm::close_window));
   get_mainwindow()->signal_set_focus().connect(sigc::mem_fun(this, &MainForm::on_focus_widget));
   get_mainwindow()->signal_configure_event().connect_notify(sigc::mem_fun(this, &MainForm::on_configure_window));
@@ -121,9 +113,6 @@ MainForm::MainForm(wb::WBContextUI* ctx)
   get_mainwindow()->signal_focus_in_event().connect(sigc::bind_return(sigc::hide(sigc::mem_fun(mforms::Form::main_form(), &mforms::Form::activated)), false));
   get_mainwindow()->signal_focus_out_event().connect(sigc::bind_return(sigc::hide(sigc::mem_fun(mforms::Form::main_form(), &mforms::Form::deactivated)), false));
   get_mainwindow()->set_title("MySQL Workbench");
-
-  //_accel_group= Gtk::AccelGroup::create();
-  //get_mainwindow()->add_accel_group(_accel_group);
 
   _model_panel= 0;
 
@@ -1667,6 +1656,8 @@ void MainForm::add_form_pane(FormViewBase *panel, TabStateInfo tabState)
   if (label)
     panel->signal_title_changed().connect(sigc::mem_fun(label, &ActiveLabel::set_text));
 
+  mforms::on_add_menubar_to_window(panel->get_form()->get_menubar(), get_mainwindow());
+
   panel->reset_layout();
 }
 
@@ -1997,6 +1988,7 @@ Gtk::Widget *MainForm::decorate_widget(Gtk::Widget *panel, bec::UIForm *form)
     w->set_name(form->get_form_context_name());
     top_box->pack_start(*w, false, true);
     w->show();
+    on_add_menubar_to_window(menu, get_mainwindow());
   }
 
   if (toolbar)

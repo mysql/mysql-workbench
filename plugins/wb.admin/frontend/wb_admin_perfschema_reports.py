@@ -74,15 +74,14 @@ class PSHelperViewTab(mforms.Box):
         self._busy = False
         self._tree = None
         self._title = None
-        self._cback = None
+        self._check_timeout = None
         self._wait_table = None
 
 
     def __del__(self):
-        if self._cback:
-            grt.cancel_run_from_main_thread(self._cback)
-            self._cback = None
-    
+        if self._check_timeout:
+            mforms.Utilities.cancel_timeout(self._check_timeout)
+            self._check_timeout = None
 
     def init_ui(self):
         if self._title:
@@ -106,6 +105,7 @@ class PSHelperViewTab(mforms.Box):
             
         self._tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self._tree.set_selection_mode(mforms.TreeSelectMultiple)
+        self._tree.add_column_resized_callback(self._tree_column_resized)
         c = 0
 
         self._hmenu = mforms.newContextMenu()
@@ -116,19 +116,25 @@ class PSHelperViewTab(mforms.Box):
         self._column_units = []
         self._column_names = []
         self._column_titles = []
-        for column, cname, ctype, length in self.get_view_columns():
+        for i, (column, cname, ctype, length) in enumerate(self.get_view_columns()):
             unit = None
             if type(ctype) is tuple:
                 ctype, unit = ctype
+            unit = grt.root.wb.state.get("wb.admin.psreport:unit:%s:%i" % (self.view, i), unit)
+
+            width = min(max(length, 40), 300)
+            width = grt.root.wb.state.get("wb.admin.psreport:width:%s:%i" % (self.view, i), width)
+
             label = self.column_label(column)
             self._column_units.append(unit)
             self._column_names.append(cname)
             self._column_titles.append(label)
             self._column_types.append(ctype)
+
             if unit:
-                self._tree.add_column(ctype, label + " (%s)" % unit, min(max(length, 40), 300), False)
+                self._tree.add_column(ctype, label + " (%s)" % unit, width, False)
             else:
-                self._tree.add_column(ctype, label, min(max(length, 40), 300), False)
+                self._tree.add_column(ctype, label, width, False)
             c += 1
         self._tree.end_columns()
         self._tree.set_allow_sorting(True)
@@ -172,8 +178,15 @@ class PSHelperViewTab(mforms.Box):
             error = None
         except Exception, e:
             error = str(e)
-        self._cback = grt.run_from_main_thread(lambda error=error: self.run_query_finished(error))
+            log_error("Error executing '%s': %s\n" % (self.get_query(), error))
 
+
+    def check_if_finished(self):
+        self._check_timeout = None
+        if self.result is None:
+            return True
+        self.run_query_finished(None)
+        return False
 
     def do_refresh(self):
         self._refresh.set_text("Refresh")
@@ -242,7 +255,9 @@ class PSHelperViewTab(mforms.Box):
             if self._refresh:
                 self._refresh.set_enabled(False)
 
+            self.result = None
             self._thr = Thread(target=self.run_query)
+            self._check_timeout = mforms.Utilities.add_timeout(1.0, self.check_if_finished)
             self._thr.start()
 
 
@@ -251,7 +266,6 @@ class PSHelperViewTab(mforms.Box):
 
         self._thr.join()
         self._thr = None
-        self._cback = None
 
         self._busy = False
         if self._refresh:
@@ -265,7 +279,6 @@ class PSHelperViewTab(mforms.Box):
                 self._wait_table = None
             mforms.Utilities.show_error("Error Executing Report Query", error, "OK", "", "")
             return
-
         self.init_ui()
         self._tree.clear()
         if result is not None:
@@ -301,7 +314,6 @@ class PSHelperViewTab(mforms.Box):
                         import traceback
                         traceback.print_exc()
                         log_error("Error handling column %i (%s) of report for %s: %s\n" % (i, cname, self.view, e))
-
 
     def get_view_columns(self):
         result = self._owner.ctrl_be.exec_query("DESCRIBE `%s`.%s" % (self._owner.sys, self.view))
@@ -368,9 +380,15 @@ class PSHelperViewTab(mforms.Box):
             item.set_enabled(False)
 
 
+    def _tree_column_resized(self, column):
+        if column >= 0:
+            width = self._tree.get_column_width(column)
+            grt.root.wb.state["wb.admin.psreport:width:%s:%i" % (self.view, column)] = width
+
     def _change_unit(self, column, unit):
         self._tree.set_column_title(column, self._column_titles[column] + " (%s)" % unit)
         self._column_units[column] = unit
+        grt.root.wb.state["wb.admin.psreport:unit:%s:%i" % (self.view, column)] = unit
         self.refresh()
 
 

@@ -87,6 +87,8 @@ namespace MySQL.Controls
     private SubClass scroller = null;
     private Form activationTracker = null;
 
+    internal Control auxView = null;
+
     // For top-transparent there is no tab background color.
     private Color topTransparentTabColor = Color.White;
     private Color topTransparentTabTextColor = Color.Black;
@@ -393,11 +395,11 @@ namespace MySQL.Controls
     }
 
     protected override void OnPaint(PaintEventArgs e)
-	  {
-	    base.OnPaint(e); 
+	{
+      base.OnPaint(e); 
   			
-	    DrawControl(e.Graphics);
-	  }
+      DrawControl(e.Graphics);
+	}
 
 		internal void DrawControl(Graphics g)
 		{
@@ -1016,6 +1018,16 @@ namespace MySQL.Controls
 
     #region Event handling
 
+    protected override void OnResize(EventArgs e)
+    {
+      base.OnResize(e);
+      if (auxView != null)
+      {
+        auxView.Top = Top + Height - auxView.Height;
+        auxView.Left = Left + Width - auxView.Width;
+      }
+    }
+
     protected override void OnHandleCreated(EventArgs e)
     {
       base.OnHandleCreated(e);
@@ -1154,6 +1166,16 @@ namespace MySQL.Controls
               // Close tab if the application agrees.
               TabPage page = TabPages[lastTabHit];
               CloseTabPage(page);
+            }
+          }
+          break;
+
+        case MouseButtons.Right:
+          {
+            int tab = TabIndexFromPosition(e.Location);
+            if (tab > -1)
+            {
+              OnTabShowMenu(new TabMenuEventArgs(TabPages[tab], tab, PointToScreen(e.Location)));
             }
           }
           break;
@@ -1299,6 +1321,13 @@ namespace MySQL.Controls
     {
       if (TabMoved != null)
         TabMoved(this, args);
+    }
+
+    public event EventHandler<TabMenuEventArgs> TabShowMenu;
+    protected internal virtual void OnTabShowMenu(TabMenuEventArgs args)
+    {
+      if (TabShowMenu != null)
+        TabShowMenu(this, args);
     }
 
     protected override void OnKeyDown(KeyEventArgs ke)
@@ -1811,6 +1840,26 @@ namespace MySQL.Controls
       }
     }
 
+    public Control AuxControl
+    {
+      get
+      {
+        return auxView;
+      }
+
+      set
+      {
+        if (auxView != value)
+        {
+          auxView = value;
+          auxView.BackColor = Color.Transparent;
+          auxView.Dock = DockStyle.None;
+          Parent.Controls.Add(auxView);
+          Parent.Controls.SetChildIndex(auxView, 0);
+        }
+      }
+    }
+
     /// <summary>
     /// Helper enumeration that returns the control which represents an ITabDocument on each page
     /// or null if there is none on the specific page.
@@ -2137,6 +2186,20 @@ namespace MySQL.Controls
       this.page = page;
     }
   }
+
+  public class TabMenuEventArgs : EventArgs
+  {
+    public TabPage page;
+    public int pageIndex;
+    public Point location;
+
+    public TabMenuEventArgs(TabPage page, int index, Point pos)
+    {
+      this.page = page;
+      this.pageIndex = index;
+      this.location = pos;
+    }
+  };
 
   public class TabMovedEventArgs : EventArgs
   {

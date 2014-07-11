@@ -183,6 +183,14 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   log_error("SQL editor could not be connected: %s\n", error.c_str());
   mforms::App::get()->set_status_text(_("Could not connect to target database."));
 
+  if (error.find("exceeded the 'max_user_connections' resource") != std::string::npos)
+  {
+    mforms::Utilities::show_error(_("Could not Connect to Database Server"),
+                                  base::strfmt("%s\n\nMySQL Workbench requires at least 2 connections to the server, one for management purposes and another for user queries.",
+                                               error.c_str()), "OK");
+    return;
+  }
+
   message = "Your connection attempt failed for user '%user%' from your host to server at %server%:%port%:\n  %error%\n"\
   "\n"\
   "Please:\n"\
@@ -958,7 +966,7 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
     dbc_conn->ref= dbc_drv_man->getConnection(temp_connection, tunnel, auth,
                                               boost::bind(&SqlEditorForm::init_connection, this, _1, _2, dbc_conn, user_connection));
 
-    note_connection_open_outcome(0); // succeess
+    note_connection_open_outcome(0); // success
   }
   catch (sql::SQLException &exc)
   {
@@ -1097,6 +1105,7 @@ bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
     break;
   }
 
+  // XXX: ouch, what if we ever change the init sequence, *nobody* will look here to note the side effect.
   // we should only send this after the initial connection
   // assumes setup_side_palette() is called in finish_init(), signalizing that the editor was already initialized once
   if (_side_palette) // we're in a thread here, so make sure the notification is sent from the main thread

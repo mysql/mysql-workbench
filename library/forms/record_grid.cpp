@@ -30,7 +30,25 @@ RecordGrid* RecordGrid::create(boost::shared_ptr<Recordset> rset)
 }
 
 
+RecordGrid::RecordGrid()
+: _header_menu(NULL), _clicked_header_column(0)
+{
+}
+
+
 void RecordGrid::register_factory(RecordGrid* (*create)(boost::shared_ptr<Recordset> rset))
 {
   record_grid_factory = create;
+}
+
+
+void RecordGrid::set_header_menu(ContextMenu *menu)
+{
+  _header_menu = menu;
+}
+
+
+void RecordGrid::clicked_header_column(int column)
+{
+  _clicked_header_column = column;
 }

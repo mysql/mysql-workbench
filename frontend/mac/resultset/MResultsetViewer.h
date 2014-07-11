@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,8 @@ class Recordset;
 {
   IBOutlet NSView *mView;
   IBOutlet MGridView *mTableView;
+
+  NSFont *mFont;
   
   std::list<boost::signals2::connection> mSigConns;
   boost::shared_ptr<Recordset> *mData;
@@ -47,4 +49,7 @@ class Recordset;
 - (void)refreshFull;
 - (void)close;
 
+- (void)setFont: (NSFont*)font;
+
+- (void)setHeaderIndicator:(int)indicator forColumn:(int)column;
 @end

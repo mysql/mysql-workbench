@@ -76,22 +76,14 @@ xcopy %MODULES_DIR%\..\plugins\migration\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:
 xcopy %MODULES_DIR%\..\plugins\migration\frontend\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\..\plugins\migration\backend\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\..\plugins\migration\dbcopy\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
-xcopy %MODULES_DIR%\..\plugins\wb.doclib\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\..\plugins\wb.bugreport\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\..\plugins\wb.query.analysis\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
-if not exist %TARGET_DIR%\modules\data\DocLibrary mkdir %TARGET_DIR%\modules\data\DocLibrary
-xcopy %MODULES_DIR%\..\plugins\wb.doclib\res\DocLibrary\*.sqlite %TARGET_DIR%\modules\data\DocLibrary\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\..\plugins\wb.updater\backend\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\..\plugins\wb.sqlide\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
+xcopy %MODULES_DIR%\..\plugins\wb.docs\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 
 rem remove temp file
 del _xcopy_exclude.txt
-
-
-echo Copy Module template files ..
-if not exist %TARGET_DIR%\modules\templates mkdir %TARGET_DIR%\modules\templates
-
-copy %MODULES_DIR%\templates\*.lua %TARGET_DIR%\modules\templates\. 1> nul 2> nul
 
 rem -------------------------------------------------------------------------------
 rem Work is done

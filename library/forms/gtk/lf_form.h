@@ -53,6 +53,7 @@ class FormImpl : public ViewImpl
   static void set_content(::mforms::Form *self, ::mforms::View *child);
   static void flush_events(::mforms::Form *self);
   static void center(Form *self);
+  static void set_menubar(mforms::Form *self, mforms::MenuBar *menu);
   void realized(mforms::Form *owner, Gdk::WMDecoration flags);
   virtual void set_size(int width, int height);
   virtual void set_name(const std::string &name);

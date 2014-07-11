@@ -418,6 +418,7 @@ public:
     };
 
     TreeColumn ^column = gcnew TreeColumn(name, (initial_width < 0) ? 50 : initial_width);
+    column->WidthChanged += gcnew System::EventHandler(this, &MformsTree::OnColumnResized);
     Columns->Add(column);
     columnTypes.Add(type);
 
@@ -450,7 +451,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void EndColumns() // TODO: not really clear we need that.
+  void EndColumns()
   {
     Model = model; // Trigger refresh.
   }
@@ -645,6 +646,16 @@ public:
       break;
     }
 
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void OnColumnResized(Object ^sender, System::EventArgs ^args)
+  {
+    TreeColumn ^column = (TreeColumn^)sender;
+    mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+    if (backend)
+      backend->column_resized(column->Index);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1449,6 +1460,11 @@ int TreeNodeViewWrapper::row_for_node(mforms::TreeNodeRef node)
         row += count_rows_in_node(parent->get_child(i));
       if (parent != root_node())
         row += row_for_node(parent) + 1; // One more for the parent node.
+    }
+    else
+    {
+      for (int i = 0; i < node_index; i++)
+        row += count_rows_in_node(root_node()->get_child(i));
     }
     return row;
   }

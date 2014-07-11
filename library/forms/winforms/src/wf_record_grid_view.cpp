@@ -17,26 +17,38 @@
 * 02110-1301  USA
 */
 
-
+#include "base/string_utilities.h"
 #include "wf_base.h"
 #include "wf_view.h"
 #include "wf_native.h"
+#include "wf_menubar.h"
 #include "wf_record_grid_view.h"
 
+using namespace MySQL;
+using namespace MySQL::Controls;
 using namespace MySQL::Forms;
 using namespace MySQL::Base;
+
+
+using namespace System::Drawing;
 
 class ConcreteRecordGridView : public mforms::RecordGrid
 {
   gcroot<IRecordsetView^> _view;
+  bool _resizing;
 
 public:
   ConcreteRecordGridView(IRecordsetView ^rset)
   {
+    _resizing = false;
     _view = rset;
   }
 
+  IRecordsetView ^view() { return _view; }
+
   Control ^control() { return _view->control(); }
+
+  bool is_resizing() { return _resizing;  }
 
   virtual int get_column_count()
   {
@@ -66,6 +78,64 @@ public:
   {
     _view->set_current_cell((int)row, column);
   }
+
+  virtual void set_font(const std::string &font)
+  {
+    std::string family;
+    float size;
+    bool bold;
+    bool italic;
+    base::parse_font_description(font, family, size, bold, italic);
+
+    FontStyle style = FontStyle::Regular;
+    if (bold)
+      style = (FontStyle)(style | FontStyle::Bold);
+    if (italic)
+      style = (FontStyle)(style | FontStyle::Italic);
+
+    _view->set_font(MySQL::CppStringToNative(family), size, style);
+  }
+
+  virtual void set_column_header_indicator(int column, mforms::ColumnHeaderIndicator order)
+  {
+    _view->set_column_header_indicator(column, (IRecordsetView::ColumnHeaderIndicator)order);
+  }
+
+  virtual void set_header_menu(mforms::ContextMenu *header_menu)
+  {
+    System::Windows::Forms::ContextMenuStrip ^menu = MenuBarWrapper::GetManagedObject<System::Windows::Forms::ContextMenuStrip>(header_menu);
+    if (Conversions::UseWin8Drawing())
+      menu->Renderer = gcnew Win8MenuStripRenderer();
+    else
+      menu->Renderer = gcnew TransparentMenuStripRenderer();
+
+    mforms::RecordGrid::set_header_menu(header_menu);
+  }
+};
+
+
+public ref class MySQL::Forms::ColumnCallbackWrapper
+{
+  ConcreteRecordGridView *backend;
+public:
+  ColumnCallbackWrapper(ConcreteRecordGridView *be)
+    : backend(be)
+  {
+  }
+
+  void resized(int column)
+  {
+    if (!backend->is_resizing())
+      (*backend->signal_column_resized())(column);
+  }
+
+  System::Windows::Forms::ContextMenuStrip ^header_right_click(int column)
+  {
+    backend->clicked_header_column(column);
+    backend->header_menu()->will_show();
+    
+    return MenuBarWrapper::GetManagedObject<System::Windows::Forms::ContextMenuStrip>(backend->header_menu());
+  }
 };
 
 gcroot<CreateRecordGridDelegate^> RecordGridViewWrapper::factory = nullptr;
@@ -87,6 +157,9 @@ mforms::RecordGrid *RecordGridViewWrapper::create(boost::shared_ptr<Recordset> r
   RecordGridViewWrapper *wrapper = new RecordGridViewWrapper(backend);
   NativeWrapper::ConnectParts(backend, wrapper, backend->control());
 
+  wrapper->column_callback_delegate = gcnew ColumnCallbackWrapper(backend);
+  backend->view()->set_column_resize_callback(gcnew IRecordsetView::ColumnResizeCallback(wrapper->column_callback_delegate, &ColumnCallbackWrapper::resized));
+  backend->view()->set_column_header_right_click_callback(gcnew IRecordsetView::ColumnHeaderRightClickCallback(wrapper->column_callback_delegate, &ColumnCallbackWrapper::header_right_click));
   return backend;
 }
 

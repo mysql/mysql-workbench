@@ -212,6 +212,7 @@ namespace mforms {
 
     void (*flush_events)(View *self);
     void (*focus)(View *self);
+    bool (*has_focus)(View *self); // TODO Windows
 
     void (*register_drop_formats)(View *self, DropDelegate *target, const std::vector<std::string>&);
     DragOperation (*drag_text)(View *self, DragDetails details, const std::string &text);
@@ -234,6 +235,7 @@ namespace mforms {
     
     boost::signals2::signal<void ()> _signal_resized;
     boost::signals2::signal<bool ()> _signal_mouse_leave;
+    boost::signals2::signal<void ()> _signal_got_focus;
 
   protected:
     View();
@@ -376,6 +378,8 @@ namespace mforms {
      */
     virtual void focus();
 
+    virtual bool has_focus(); 
+
 #ifndef SWIG
     /**
      * Enables or disables the ability to accept a drag/drop operation (internal or from outside)
@@ -425,5 +429,6 @@ namespace mforms {
 
     boost::signals2::signal<void ()>* signal_resized() { return &_signal_resized; }
     boost::signals2::signal<bool ()>* signal_mouse_leave() { return &_signal_mouse_leave; }
+    boost::signals2::signal<void ()>* signal_got_focus() { return &_signal_got_focus; }
   };
 };

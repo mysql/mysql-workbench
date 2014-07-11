@@ -86,9 +86,6 @@ namespace MySQL.GUI.Workbench.Plugins
 
     public override bool ReinitWithArguments(GrtValue value)
     {
-      if (insertsRecordsetView != null && insertsRecordsetView.Model.has_pending_changes())
-        return false;  // Will open the plugin in a new editor window instead.
-
       InitializingControls = true;
       SuspendLayout();
 
@@ -508,9 +505,6 @@ namespace MySQL.GUI.Workbench.Plugins
         }
 
         refreshPartitioningList();
-
-        if (insertsRecordsetView != null)
-          insertsRecordsetView.Model = tableEditorBE.get_inserts_model();
       }
       finally
       {
@@ -570,11 +564,6 @@ namespace MySQL.GUI.Workbench.Plugins
         }
         else
           foreignKeyWarningPanel.Visible = true;
-      }
-      else if (mainTabControl.SelectedTab == insertsTabPage)
-      {
-      //XXX!  ActiveControl = insertsRecordsetView.GridView;
-        insertsRecordsetView.Model.refresh();
       }
     }
 
@@ -1657,15 +1646,11 @@ namespace MySQL.GUI.Workbench.Plugins
 
     #region Inserts
 
-    MySQL.Grt.Db.RecordsetView insertsRecordsetView;
-
     private void insertsTabPage_Enter(object sender, EventArgs e)
     {
-      if (insertsRecordsetView == null)
+      if (insertsTabPage.Controls.Count == 0)
       {
-        insertsRecordsetView = new MySQL.Grt.Db.RecordsetView();
-        insertsRecordsetView.SetupRecordset(tableEditorBE.get_inserts_model());
-        Control panel = tableEditorBE.get_inserts_panel(insertsRecordsetView.GridView);
+        Control panel = tableEditorBE.get_inserts_panel();
         insertsTabPage.Controls.Add(panel);
         panel.Parent = insertsTabPage;
         panel.Dock = DockStyle.Fill;
@@ -1827,12 +1812,6 @@ namespace MySQL.GUI.Workbench.Plugins
 
     public override bool CanCloseDocument()
     {
-      if (insertsRecordsetView != null && insertsRecordsetView.Model.has_pending_changes())
-      {
-        CustomMessageBox.Show(MessageType.MessageWarning, "Inserts Data Changed", "There are pending changes that " +
-          "must be applied first before you can close the editor. Alternatively you can revert to the previous state. ", "OK");
-        return false;
-      }
       return base.CanCloseDocument();
     }
     

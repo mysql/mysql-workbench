@@ -331,6 +331,7 @@
     <ClCompile Include="..\..\frontend\common\advanced_sidebar.cpp" />
     <ClCompile Include="..\..\frontend\common\document_properties_form.cpp" />
     <ClCompile Include="..\..\frontend\common\grt_code_editor.cpp" />
+    <ClCompile Include="..\..\frontend\common\grt_plugin_wizard.cpp" />
     <ClCompile Include="..\..\frontend\common\grt_python_debugger.cpp" />
     <ClCompile Include="..\..\frontend\common\grt_shell_window.cpp" />
     <ClCompile Include="..\..\frontend\common\new_connection_wizard.cpp" />
