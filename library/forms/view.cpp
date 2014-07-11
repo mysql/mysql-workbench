@@ -47,10 +47,13 @@ View::~View()
   
   clear_subviews();
 
+#ifdef __APPLE__
   // Let the frontend delete all resources it allocated.
-  // XXX: is this really needed given that we have a FreeDataFunc in mforms::Object?
+  // This is only needed for OSX as on Win + Linux we use the data free function (set in set_data()) to free
+  // platform resources.
   if (_view_impl->destroy)
     _view_impl->destroy(this);
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

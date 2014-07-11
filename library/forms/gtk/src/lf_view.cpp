@@ -41,7 +41,7 @@ ViewImpl::ViewImpl(::mforms::View *view)
 
 void ViewImpl::destroy(::mforms::View *self)
 {
-  //XXX
+  // Nothing to do here. Freeing platform objects happens in lf_base.h, via data free function.
 }
 
 void ViewImpl::show(::mforms::View *self, bool show)
