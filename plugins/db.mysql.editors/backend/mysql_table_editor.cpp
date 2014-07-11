@@ -531,35 +531,43 @@ public:
 
   void node_activated(mforms::TreeNodeRef node, int index)
   {
+    if (!node.is_valid())
+      return;
+    
     switch (index)
     {
       // Negative indices for overlay icons.
-    case -1: // Add button.
-    {
-      GrtVersionRef version = _editor->get_catalog()->version();
-      bool supports_multiple = bec::is_supported_mysql_version_at_least(version, 5, 7, 2);
-      if (node->level() == 2) // Go up to group node if this is a trigger node.
-        node = node->get_parent();
-
-      if (supports_multiple || node->count() == 0)
+      case -1: // Add button.
       {
-        std::string timing, event;
-        if (base::partition(node->get_string(0), " ", timing, event))
-          add_trigger(timing, event, true);
+        GrtVersionRef version = _editor->get_catalog()->version();
+        bool supports_multiple = bec::is_supported_mysql_version_at_least(version, 5, 7, 2);
+        if (node->level() == 2) // Go up to group node if this is a trigger node.
+          node = node->get_parent();
+
+        if (supports_multiple || node->count() == 0)
+        {
+          std::string timing, event;
+          if (base::partition(node->get_string(0), " ", timing, event))
+            add_trigger(timing, event, true);
+        }
+        else
+          mforms::Utilities::beep();
+
+        break;
       }
-      else
-        mforms::Utilities::beep();
+      case -2: // Delete button.
+      {
+        db_mysql_TriggerRef trigger = trigger_for_node(node);
+        if (trigger.is_valid())
+        {
+          _editor->freeze_refresh_on_object_change();
 
-      break;
-    }
-    case -2: // Delete button.
-      _editor->freeze_refresh_on_object_change();
+          delete_trigger(trigger);
 
-      db_mysql_TriggerRef trigger = trigger_for_node(node);
-      delete_trigger(trigger);
-
-      _editor->thaw_refresh_on_object_change(true);
-      break;
+          _editor->thaw_refresh_on_object_change(true);
+        }
+        break;
+      }
     }
   }
 
@@ -745,7 +753,7 @@ public:
       std::stringstream buffer;
       do 
       {
-        buffer = std::stringstream(name);
+        buffer.str("");
         buffer << name << "_" << counter++;
       } while (counter < 100 && trigger_name_exists(buffer.str()));
       trigger->name(buffer.str());
@@ -1177,7 +1185,6 @@ private:
   mforms::Label _warning_label;
   mforms::CodeEditor *_code_editor;
   mforms::View *_editor_host;
-  mforms::ContextMenu *_context_menu;
 
   db_mysql_TriggerRef _selected_trigger;
   db_mysql_TableRef _table;

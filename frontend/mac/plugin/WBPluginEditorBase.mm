@@ -27,7 +27,7 @@
 #import "MVerticalLayoutView.h"
 #import "TabViewDockingDelegate.h"
 
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "objimpl/ui/ui_ObjectEditor_impl.h"
 
 #import "editor_base.h"

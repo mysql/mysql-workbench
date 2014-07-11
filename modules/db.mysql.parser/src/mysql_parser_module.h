@@ -165,7 +165,7 @@ public:
       const std::string &line_break = "\n");
 
     // Query manipulation.
-    std::string MySQLParserServicesImpl::replaceTokenSequence(parser_ContextReferenceRef context_ref,
+    std::string replaceTokenSequence(parser_ContextReferenceRef context_ref,
       const std::string &sql, size_t start_token, size_t count, grt::StringListRef replacements);
     virtual std::string replaceTokenSequenceWithText(const parser::ParserContext::Ref &context,
       const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements);

@@ -1109,7 +1109,7 @@ std::string MySQLParserServicesImpl::replaceTokenSequenceWithText(const parser::
   const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements)
 {
   std::string result;
-  context->recognizer()->parse(sql.c_str(), sql.size(), true, MySQLQueryType::QtUnknown);
+  context->recognizer()->parse(sql.c_str(), sql.size(), true, QtUnknown);
   size_t error_count = context->recognizer()->error_info().size();
   if (error_count > 0)
     return "";

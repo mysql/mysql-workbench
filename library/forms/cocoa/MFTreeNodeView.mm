@@ -186,7 +186,27 @@ public:
     }
     return mforms::TreeNodeRef();
   }
-    
+
+  virtual mforms::TreeNodeRef previous_sibling() const
+  {
+    NSUInteger index = [_self.parent.children indexOfObject: _self];
+    if (index == 0 || index == NSNotFound)
+      return mforms::TreeNodeRef();
+
+    MFTreeNodeImpl *child = [_self.parent.children objectAtIndex: index - 1];
+    return child.nodeRef;
+  }
+
+  virtual mforms::TreeNodeRef next_sibling() const
+  {
+    NSUInteger index = [_self.parent.children indexOfObject: _self];
+    if (index == _self.parent.children.count - 1 || index == NSNotFound)
+      return mforms::TreeNodeRef();
+
+    MFTreeNodeImpl *child = [_self.parent.children objectAtIndex: index + 1];
+    return child.nodeRef;
+  }
+
   virtual std::vector<mforms::TreeNodeRef> add_node_collection(const mforms::TreeNodeCollectionSkeleton &nodes, int position = -1)
   {
     std::vector<mforms::TreeNodeRef> result;
@@ -467,7 +487,14 @@ public:
     }
     return image;
   }
-  
+
+  virtual int level() const
+  {
+    // 0 for the root node, 1 for top level nodes etc.
+    // NSOutlineView returns 0 for the top level nodes, however.
+    return [_self.treeNodeView.outlineView levelForItem: _self] + 1;
+  }
+
   virtual void set_icon_path(int column, const std::string &icon)
   {
     NSImage *image = get_icon(icon);
@@ -792,7 +819,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
         {
           NSRect iconRect = [self rectOfRow: row];	
 
-          iconRect.origin.x = NSMaxX([self visibleRect]) - 4;
+          iconRect.origin.x = NSMaxX([self visibleRect]);
           iconRect.size.width = 0;
 
           mOverlayIcons = [[NSMutableArray alloc] initWithCapacity: icons.size()];
@@ -807,7 +834,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
             else
               [mOverlayIcons insertObject: NSNull.null atIndex: 0];
 
-            iconRect.origin.x -= img.size.width + 4;
+            iconRect.origin.x -= img.size.width;
             iconRect.size.width = img.size.width;
 
             if (NSPointInRect(p, iconRect) && mOverOverlay < 0)
@@ -886,7 +913,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
       if ([icon isKindOfClass: [NSImage class]])
       {
         NSSize size = [icon size];
-        x -= size.width + 4;
+        x -= size.width;
       }
     }
 
@@ -902,7 +929,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
                           fraction: mOverOverlay == i ? 1.0 : 0.4
                     respectFlipped: YES
                              hints: nil];
-        x += size.width + 4;
+        x += size.width;
       }
       i++;
     }
@@ -1898,7 +1925,6 @@ static mforms::TreeNodeRef find_node_at_row(mforms::TreeNodeRef node, int &row_c
   return res;
 }
 
-
 static mforms::TreeNodeRef treeview_node_with_tag(mforms::TreeNodeView *self, const std::string &tag)
 {
   MFTreeNodeViewImpl *tree= self->get_data();
@@ -1935,12 +1961,26 @@ static mforms::TreeNodeRef treeview_node_at_row(mforms::TreeNodeView *self, int 
     {
       if ([tree isPendingReload])
         [tree reloadTreeData];
-        
+
       id n = [tree->mOutline itemAtRow: row];
       if (n)
         return [n nodeRef];
     }
   }
+  return mforms::TreeNodeRef();
+}
+
+mforms::TreeNodeRef treeview_node_at_position(mforms::TreeNodeView *self, base::Point position)
+{
+  MFTreeNodeViewImpl *tree = self->get_data();
+  NSInteger row = [tree->mOutline rowAtPoint: NSMakePoint(position.x, position.y)];
+  if (row < 0)
+    return mforms::TreeNodeRef();
+
+  id item = [tree->mOutline itemAtRow: row];
+  if (item != nil)
+    return [item nodeRef];
+  
   return mforms::TreeNodeRef();
 }
 
@@ -2013,6 +2053,7 @@ void cf_treenodeview_init()
   
   f->_treenodeview_impl.row_for_node = &treeview_row_for_node;
   f->_treenodeview_impl.node_at_row = &treeview_node_at_row;
+  f->_treenodeview_impl.node_at_position = &treeview_node_at_position;
   f->_treenodeview_impl.node_with_tag = &treeview_node_with_tag;
 
   f->_treenodeview_impl.set_column_visible = &treeview_set_column_visible;

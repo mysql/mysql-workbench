@@ -997,6 +997,11 @@ namespace grt {
       ++iter;
       return temp;
     }
+
+    inline size_t operator - (const TypedListConstIterator &other) const
+    {
+      return iter - other.iter;
+    }
   };
 
   template<class C>
