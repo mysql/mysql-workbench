@@ -789,6 +789,9 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 
 - (NSMenu*)menuForEvent:(NSEvent *)event
 {
+  if (mOwner == nil)
+    return nil;
+
   mforms::ContextMenu *menu = mOwner->get_context_menu();
   if (menu)
     return menu->get_data();
@@ -1017,6 +1020,11 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
   return self;
 }
 
+- (void)destroy
+{
+  mOwner = nil;
+  [self release];
+}
 
 - (void)enableIndexing
 {
@@ -1312,6 +1320,9 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (BOOL)outlineView: (NSOutlineView *)outlineView isItemExpandable: (id)item
 {
+  if (mOwner == nil)
+    return NO;
+  
   if (item)
   {
     MFTreeNodeImpl *node = (MFTreeNodeImpl *)item;
@@ -1333,6 +1344,9 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)outlineViewItemDidExpand: (NSNotification *)notification
 {
+  if (mOwner == nil)
+    return;
+
   // Tell the backend now would be a good time to add child nodes if not yet done.
   try
   {
@@ -1348,6 +1362,9 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)outlineViewItemDidCollapse:(NSNotification *)notification
 {
+  if (mOwner == nil)
+    return;
+
   try
   {
     MFTreeNodeImpl *node = [[notification userInfo] objectForKey: @"NSObject"];
@@ -1430,7 +1447,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification
 {
-  if (![self frozen])
+  if (mOwner != nil && ![self frozen])
     mOwner->changed();
 }
 
@@ -1446,6 +1463,9 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)outlineViewColumnDidResize:(NSNotification *)notification
 {
+  if (mOwner == nil)
+    return;
+
   mOwner->column_resized([[mOutline headerView] resizedColumn]);
 }
 
@@ -1580,7 +1600,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize
 {
-  if (!mOwner->is_destroying())
+  if (mOwner != nil && !mOwner->is_destroying())
   {
     [super resizeSubviewsWithOldSize: oldSize];
     NSArray *columns = [mOutline tableColumns];
