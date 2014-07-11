@@ -20,6 +20,8 @@
 #import "MFTabView.h"
 #import "MFMForms.h"
 
+#include "base/string_utilities.h"
+
 @implementation MFTabViewItemView
 
 - (NSView*)superview
@@ -128,6 +130,10 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
         [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
         tabSwitcherBelow = YES;
         [mTabSwitcher setTabView: mTabView];
+        break;
+
+      default:
+        throw std::runtime_error("mforms: invalid tab type: " + base::to_string(tabType));
         break;
     }
     [mTabView setDrawsBackground: NO];

@@ -161,7 +161,7 @@ namespace mforms {
 #ifndef SWIG
     virtual bool is_valid() const = 0;
 #endif
-    virtual int level() const = 0; // 0 for root, 1 for top level etc. TODO: Mac, Linux
+    virtual int level() const = 0; // 0 for root, 1 for top level etc. TODO: Linux
 
     virtual void set_icon_path(int column, const std::string &icon) = 0;
 
@@ -187,8 +187,8 @@ namespace mforms {
     virtual TreeNodeRef get_child(int index) const = 0;
     virtual TreeNodeRef get_parent() const = 0;
     virtual TreeNodeRef find_child_with_tag(const std::string &tag); // this will search the subnodes sequentially
-    virtual TreeNodeRef previous_sibling() const = 0; // TODO: Mac, Linux
-    virtual TreeNodeRef next_sibling() const = 0;     // TODO: Mac, Linux
+    virtual TreeNodeRef previous_sibling() const = 0; // TODO: Linux
+    virtual TreeNodeRef next_sibling() const = 0;     // TODO: Linux
 
     // This is a very special function and I'm not sure it should be here.
     // It creates nodes out of the collection's captions and adds the same child nodes to each of those nodes
@@ -319,7 +319,7 @@ namespace mforms {
     
     int row_for_node(TreeNodeRef node);
     TreeNodeRef node_at_row(int row);
-    TreeNodeRef node_at_position(base::Point position); // TODO: Mac, Linux
+    TreeNodeRef node_at_position(base::Point position); // TODO: Linux
 
     /** Requires TreeIndexOnTag */
     TreeNodeRef node_with_tag(const std::string &tag);
