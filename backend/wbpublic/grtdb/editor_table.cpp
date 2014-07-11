@@ -3234,7 +3234,7 @@ void TableEditorBE::inserts_column_resized(int column)
     get_table()->customData().set("InsertsColumnWidths", widths);
   }
 
-  while (column >= widths.count())
+  while (column >= (int)widths.count())
     widths.insert(grt::IntegerRef(0));
 
   widths.set(column, grt::IntegerRef(width));
@@ -3250,7 +3250,7 @@ void TableEditorBE::restore_inserts_columns()
   for (int i = 0; i < _inserts_grid->get_column_count(); i++)
   {
     bool flag = false;
-    if (widths.is_valid() && i < widths.count())
+    if (widths.is_valid() && i < (int)widths.count())
     {
       int width = widths[i];
       if (width > 0)
@@ -3259,7 +3259,7 @@ void TableEditorBE::restore_inserts_columns()
         flag = true;
       }
     }
-    if (!flag && get_table()->columns().count() > i)
+    if (!flag && (int)get_table()->columns().count() > i)
     {
       // set a default
       db_ColumnRef column(get_table()->columns()[i]);

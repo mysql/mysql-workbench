@@ -899,6 +899,11 @@ static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::Tu
     log_error("Got an authentication error during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }
+  catch (grt::user_cancelled &exc)
+  {
+    log_info("User cancelled connection\n");
+    return new std::string(":CANCELLED");
+  }
   catch (std::exception &exc)
   {
     if (tunnel.get())
@@ -960,6 +965,10 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
       if (result != 0)
         return create_connected_editor(conn);
       throw grt::user_cancelled("password reset cancelled by user");
+    }
+    else if (tmp == ":CANCELLED")
+    {
+      throw grt::user_cancelled("Cancelled");
     }
     
     throw std::runtime_error(tmp);
