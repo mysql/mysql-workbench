@@ -350,6 +350,7 @@ namespace bec {
     virtual IndexListBE *get_indexes()= 0;
     FKConstraintListBE *get_fks() { return &_fk_list; }
 
+    RecordsetRef get_inserts_model();
     mforms::View *get_inserts_panel();
 
     virtual void set_name(const std::string &name);
