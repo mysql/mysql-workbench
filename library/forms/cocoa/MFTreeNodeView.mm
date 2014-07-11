@@ -19,6 +19,7 @@
 
 #import "MFTreeNodeView.h"
 #import "NSString_extras.h"
+#import "NSColor_extras.h"
 #import "MFView.h"
 #import "MFMForms.h"
 #include "base/log.h"
@@ -508,9 +509,10 @@ public:
   
   virtual void set_attributes(int column, const mforms::TreeNodeTextAttributes& attrs)
   {
-    if (attrs.bold || attrs.italic)
+    if (attrs.bold || attrs.italic || attrs.color.is_valid())
     {
-      NSString *attrstr = [NSString stringWithFormat: @"%s%s", attrs.bold ? "b" : "", attrs.italic ? "i":""];
+      NSString *attrstr = [NSString stringWithFormat: @"%s%s%s", attrs.bold ? "b" : "", attrs.italic ? "i" : "",
+                           attrs.color.is_valid() ? attrs.color.to_html().c_str() : ""];
       [_self setObject: attrstr
                 forKey: [[[_self treeNodeView] keyForColumn: column] stringByAppendingString: @"attrs"]];
     }
@@ -1369,22 +1371,41 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
     [cell setImage: [item objectForKey: [[tableColumn identifier] stringByAppendingString: @"icon"]]];
   
   NSString *attributes = [item objectForKey: [[tableColumn identifier] stringByAppendingString: @"attrs"]];
-  if (attributes)
+  if (attributes.length > 0)
   {
-    NSFont *font = [mAttributedFonts objectForKey: attributes];
-    if (!font)
+    NSString *fontKey = attributes;
+    NSRange range = [attributes rangeOfString: @"#"];
+    if (range.length > 0)
     {
-      int traits = 0;
-      if ([attributes rangeOfString: @"b"].length > 0)
-        traits |= NSBoldFontMask;
-      if ([attributes rangeOfString: @"i"].length > 0)
-        traits |= NSItalicFontMask;
-
-      font = [[NSFontManager sharedFontManager] convertFont: [[[[tableColumn dataCell] font] copy] autorelease]
-                                                toHaveTrait: traits];
-      [mAttributedFonts setObject: font forKey: attributes];
+      fontKey = [fontKey substringToIndex: range.location];
+      if (![cell isHighlighted])
+      {
+        NSColor *color = [NSColor colorFromHexString: [attributes substringWithRange: NSMakeRange(range.location, 7)]];
+        [cell setTextColor: color];
+      }
+      else
+        [cell setTextColor: NSColor.whiteColor];
     }
-    [cell setFont: font];
+
+    if (fontKey.length > 0)
+    {
+      NSFont *font = [mAttributedFonts objectForKey: fontKey];
+      if (!font)
+      {
+        int traits = 0;
+        if ([attributes rangeOfString: @"b"].length > 0)
+          traits |= NSBoldFontMask;
+        if ([attributes rangeOfString: @"i"].length > 0)
+          traits |= NSItalicFontMask;
+
+        font = [[NSFontManager sharedFontManager] convertFont: [[[[tableColumn dataCell] font] copy] autorelease]
+                                                  toHaveTrait: traits];
+        [mAttributedFonts setObject: font forKey: fontKey];
+      }
+      [cell setFont: font];
+    }
+    else
+      [cell setFont: [mAttributedFonts objectForKey: @""]];
   }
   else
     [cell setFont: [mAttributedFonts objectForKey: @""]];

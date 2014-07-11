@@ -62,7 +62,7 @@ protected:
 
 public:
 TEST_DATA_CONSTRUCTOR(sql_editor_be_autocomplete_tests)
-  : _cache(NULL), _conn(new sql::Dbc_connection_handler())
+  : _conn(new sql::Dbc_connection_handler()), _cache(NULL)
 {
   populate_grt(_tester.grt, _tester);
 
