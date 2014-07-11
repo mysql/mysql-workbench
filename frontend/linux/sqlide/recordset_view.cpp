@@ -332,7 +332,7 @@ void RecordsetView::set_fixed_row_height(int height)
   if (_grid && _grid->view_model())
   {
     std::vector<Gtk::TreeViewColumn*> columns = _grid->get_columns();
-    if (_grid->view_model()->row_numbers_visible())
+    if (_grid->view_model()->row_numbers_visible() && !columns.empty())
       columns.erase(columns.begin());
 
     for (std::vector<Gtk::TreeViewColumn*>::iterator iter = columns.begin(); iter != columns.end(); ++iter)

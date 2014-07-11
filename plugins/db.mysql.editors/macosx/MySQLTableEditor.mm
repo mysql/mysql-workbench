@@ -47,11 +47,9 @@
 #import "ScintillaView.h"
 #import "MVerticalLayoutView.h"
 
-#include "sqlide/recordset_be.h"
 #import "WBTabItem.h" // needed for WBCustomTabItemView
 
 #import "mforms/../cocoa/MFView.h"
-#import "mforms/../cocoa/MFNative.h"
 #import "DbPrivilegeEditorTab.h"
 #include <mforms/view.h>
 

@@ -80,7 +80,7 @@ int GridViewModel::refresh(bool reset_columns)
     for (int index= 0, count= _model->get_column_count(); index < count; ++index)
     {
       Editable is_col_editable= (is_model_editable && (bec::GridModel::BlobType != _model->get_column_type(index))) ? EDITABLE : RO;
-      std::string label= bec::replace_string(base::sanitize_utf8(_model->get_column_caption(index)), "_", "__");
+      std::string label= base::sanitize_utf8(_model->get_column_caption(index));
       bec::GridModel::ColumnType type= _model->get_column_type(index);
       Gtk::TreeViewColumn *col;
       switch (type)
@@ -88,14 +88,17 @@ int GridViewModel::refresh(bool reset_columns)
       case bec::GridModel::NumericType:
         col = add_column<ValueTypeTraits<bec::GridModel::NumericType> >(index, label, is_col_editable, 0);
         col->set_min_width(10);
+        col->set_fixed_width(50);
         break;
       case bec::GridModel::FloatType:
         col = add_column<ValueTypeTraits<bec::GridModel::FloatType> >(index, label, is_col_editable, 0);
         col->set_min_width(10);
+        col->set_fixed_width(50);
         break;
       default:
         col = add_column<ValueTypeTraits<bec::GridModel::StringType> >(index, label, is_col_editable, 0);
         col->set_min_width(10);
+        col->set_fixed_width(100);
         break;
       }
       col->set_sizing(Gtk::TREE_VIEW_COLUMN_FIXED);
