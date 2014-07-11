@@ -87,10 +87,6 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
     lexer = "SCLEX_HTML";
     break;
 
-  case mforms::LanguageLua:
-    lexer = "SCLEX_LUA";
-    break;
-
   case mforms::LanguagePython:
     lexer = "SCLEX_PYTHON";
     break;
@@ -712,10 +708,6 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language)
 
   case mforms::LanguageHtml:
     _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_HTML, 0);
-    break;
-
-  case mforms::LanguageLua:
-    _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_LUA, 0);
     break;
 
   case mforms::LanguagePython:

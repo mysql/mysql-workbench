@@ -2007,7 +2007,7 @@ namespace grt {
    * the list of members and methods with information about types and
    * other metadata. This information is used for generating C++ classes
    * that actually implement these classes and also for exposing the
-   * interface to these classes to the scripting interface (such as Lua).
+   * interface to these classes to the scripting interface (such as Python).
    * 
    * @ingroup GRT
    */
@@ -2339,10 +2339,8 @@ namespace grt {
    * 
    * @ingroup GRT
    */ 
-  class LuaModuleLoader;
   class MYSQLGRT_PUBLIC Module//
   {
-  friend class LuaModuleLoader;
   public:
     struct Function
     {

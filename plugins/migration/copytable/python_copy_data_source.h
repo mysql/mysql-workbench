@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,10 +48,12 @@ public:
   virtual ~PythonCopyDataSource();
 
 public:
-  virtual size_t count_rows(const std::string &schema, const std::string &table, const CopySpec &spec);
+  virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
+                            const CopySpec &spec, const std::vector<std::string> &last_pkeys);
   virtual boost::shared_ptr<std::vector<ColumnInfo> > begin_select_table(const std::string &schema, const std::string &table,
+                                                                         const std::vector<std::string> &pk_columns,
                                                                          const std::string &select_expression,
-                                                                         const CopySpec &spec);
+                                                                         const CopySpec &spec, const std::vector<std::string> &last_pkeys);
   virtual void end_select_table();
   virtual bool fetch_row(RowBuffer &rowbuffer);
 };

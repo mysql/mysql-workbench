@@ -57,10 +57,11 @@ public:
 DEFAULT_LOG_DOMAIN("copytable");
 
 
-static void count_rows(boost::scoped_ptr<CopyDataSource>& source, const std::string &source_schema, const std::string &source_table,
-                       const CopySpec &spec)
+static void count_rows(boost::scoped_ptr<CopyDataSource>& source, const std::string &source_schema,
+                       const std::string &source_table, const std::vector<std::string> &pk_columns,
+                       const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
-  unsigned long long total = source->count_rows(source_schema, source_table, spec);
+  unsigned long long total = source->count_rows(source_schema, source_table, pk_columns, spec, last_pkeys);
 
   printf("ROW_COUNT:%s:%s: %llu\n", source_schema.c_str(), source_table.c_str(), total);
   fflush(stdout);
@@ -165,12 +166,13 @@ static void show_help()
   printf("--count-only\n");
   printf("--jobs-from-stdin\n");
   printf("--abort-on-oversized-blobs\n");
+  printf("--resume\n");
   printf("Table Specification from file:\n");
   printf("--table-file=<filename>\n");
-  printf("<source schema><TAB><source table><TAB><target schema><TAB><target table><TAB>*|<select expression>\n");
+  printf("<source schema><TAB><source table><TAB><target schema><TAB><target table><TAB><source pk columns><TAB><target pk columns><TAB>*|<select expression>\n");
   printf("Table Specification from command line:\n");
-  printf("--table <source schema> <source table> <target schema> <target table> *|<select expression>\n");
-  printf("--table-range <source schema> <source table> <target schema> <target table> <select expression> <source key> <start> <end>|-1\n");
+  printf("--table <source schema> <source table> <target schema> <target table> <source pk columns> <target pk columns> *|<select expression>\n");
+  printf("--table-range <source schema> <source table> <target schema> <target table> <source pk columns> <target pk columns> <select expression> <source key> <start> <end>|-1\n");
   printf("\n");
   printf("--log-file=<file_path>\n");
   printf("--log-level=<level>\n");
@@ -191,17 +193,19 @@ static void show_help()
 *                from the source DB or to actually trasmit the data
 * - tasks : output parameter that will contain a task for each table definition loaded
 *           from the file
+  - resume : indicates if the file contains information to resume copying data from
+             last PK
 *
-* Remarks : Each table is defined in a single line with the next format for count_only = true
+* Remarks : Each table is defined in a single line with the next format for count_only = true and resume = false
 *           <src_schema>\t<src_table>\n
 *
-*           and in the next format for a count_only = false
-*           <src_schema>\t<src_table>\t<tgt_schema>\t<tgt_table>\t<select_expression>
+*           and in the next format for a count_only = false or resume = true
+*           <src_schema>\t<src_table>\t<tgt_schema>\t<tgt_table>\t<source_pk_columns>\t<target_pk_columns>\t<select_expression>
 */
-bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueue& tasks, std::set<std::string> &trigger_schemas)
+bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueue& tasks, std::set<std::string> &trigger_schemas, bool resume)
 {
   std::ifstream ifs ( file_name.data() , std::ifstream::in );
-  unsigned int field_count = count_only ? 2 : 5;
+  unsigned int field_count = count_only ? 2 : 7;
   bool error = false;
 
   printf("Loading table information from file %s\n", file_name.data());
@@ -223,15 +227,18 @@ bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueu
         param.source_schema = fields[0];
         param.source_table = fields[1];
 
-        if (!count_only)
+        if (!(count_only && !resume))
         {
           param.target_schema = fields[2];
           param.target_table = fields[3];
-          param.select_expression = fields[4];
+          param.source_pk_columns = base::split(fields[4], ",", -1);
+          param.target_pk_columns = base::split(fields[5], ",", -1);
+          param.select_expression = fields[6];
 
           trigger_schemas.insert(param.target_schema);
         }
 
+        param.copy_spec.resume = resume;
         param.copy_spec.type = CopyAll;
         tasks.add_task(param);
       }
@@ -272,6 +279,7 @@ int main(int argc, char **argv)
   bool disable_triggers = false;
   bool reenable_triggers = false;
   bool disable_triggers_on_copy = true;
+  bool resume = false;
   int thread_count = 1;
   int bulk_insert_batch = 100;
 
@@ -330,6 +338,8 @@ int main(int argc, char **argv)
       abort_on_oversized_blobs = true;
     else if (strcmp(argv[i], "--dont-disable-triggers") == 0)
       disable_triggers_on_copy = false;
+    else if (strcmp(argv[i], "--resume") == 0)
+      resume = true;
     else if (check_arg_with_value(argv, i, "--disable-triggers-on", argval, true))
     {
       // disabling/enabling triggers are standalone operations and mutually exclusive
@@ -395,21 +405,26 @@ int main(int argc, char **argv)
     {
       TableParam param;
 
-      if ((!count_only && i + 5 >= argc) || (count_only && i + 2 >= argc))
+      if ((!count_only && i + 7 >= argc) || (count_only && i + 2 >= argc))
       {
         fprintf(stderr, "%s: Missing value for table copy specification\n", argv[0]);
         exit(1);
       }
+
       param.source_schema = argv[++i];
       param.source_table = argv[++i];
-      if (!count_only)
+      if (!(count_only && !resume))
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
+        param.source_pk_columns = base::split(argv[++i], ",", -1);
+        param.target_pk_columns = base::split(argv[++i], ",", -1);
         param.select_expression = argv[++i];
 
         trigger_schemas.insert(param.target_schema);
       }
+
+      param.copy_spec.resume = resume;
       param.copy_spec.type = CopyAll;
 
       tables.add_task(param);
@@ -418,17 +433,19 @@ int main(int argc, char **argv)
     {
       TableParam param;
 
-      if ((!count_only && i + 8 >= argc) || (count_only && i + 5 >= argc))
+      if ((!count_only && i + 10 >= argc) || (count_only && i + 5 >= argc))
       {
         fprintf(stderr, "%s: Missing value for table copy specification\n", argv[0]);
         exit(1);
       }
       param.source_schema = argv[++i];
       param.source_table = argv[++i];
-      if (!count_only)
+      if (!(count_only && !resume))
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
+        param.source_pk_columns = base::split(argv[++i], ",", -1);
+        param.target_pk_columns = base::split(argv[++i], ",", -1);
         param.select_expression = argv[++i];
 
         trigger_schemas.insert(param.target_schema);
@@ -444,19 +461,23 @@ int main(int argc, char **argv)
     {
       TableParam param;
 
-      if ((!count_only && i + 5 >= argc) || (count_only && i + 3 >= argc))
+      if ((!count_only && i + 8 >= argc) || (count_only && i + 3 >= argc))
       {
         fprintf(stderr, "%s: Missing value for table copy specification\n", argv[0]);
         exit(1);
       }
       param.source_schema = argv[++i];
       param.source_table = argv[++i];
-      if (!count_only)
+      if (!(count_only && !resume))
       {
         param.target_schema = argv[++i];
         param.target_table = argv[++i];
+        param.source_pk_columns = base::split(argv[++i], ",", -1);
+        param.target_pk_columns = base::split(argv[++i], ",", -1);
+        param.select_expression = argv[++i];
       }
       param.copy_spec.row_count = atoll(argv[++i]);
+      param.copy_spec.resume = resume;
       param.copy_spec.type = CopyCount;
 
       tables.add_task(param);
@@ -503,7 +524,7 @@ int main(int argc, char **argv)
   // If needed, reads the tasks from the table definition file
   if (!table_file.empty())
   {
-    if (!read_tasks_from_file(table_file, count_only, tables, trigger_schemas))
+    if (!read_tasks_from_file(table_file, count_only, tables, trigger_schemas, resume))
     {
       fprintf(stderr, "Error reading table definitions from table file: %s\n", table_file.data());
       exit(1);
@@ -519,7 +540,7 @@ int main(int argc, char **argv)
     exit(1);
   }
 
-  if (target_connstring.empty() && !count_only)
+  if (target_connstring.empty() && !(count_only && !resume))
   {
     fprintf(stderr, "Missing target DB server\n");
     exit(1);
@@ -554,7 +575,7 @@ int main(int argc, char **argv)
   std::string target_user;
   int target_port = -1;
   std::string target_socket;
-  if (!count_only && !parse_mysql_connstring(target_connstring, target_user, target_password,
+  if (!(count_only && !resume) && !parse_mysql_connstring(target_connstring, target_user, target_password,
                                              target_host, target_port, target_socket))
   {
     fprintf(stderr, "Invalid MySQL connection string %s for target database. Must be in format user[:pass]@host:port or user[:pass]@::socket\n", target_connstring.c_str());
@@ -570,7 +591,7 @@ int main(int argc, char **argv)
       exit(1);
     }
 
-    if (count_only || reenable_triggers || disable_triggers)
+    if ((count_only && !resume)|| reenable_triggers || disable_triggers)
     {
       char *ptr = strtok(password, "\t\r\n");
       if (ptr)
@@ -625,9 +646,19 @@ int main(int argc, char **argv)
       else
         psource.reset(new PythonCopyDataSource(source_connstring, source_password));
 
+      boost::scoped_ptr<MySQLCopyDataTarget> ptarget;
       TableParam task;
       while(tables.get_task(task))
-        count_rows(psource, task.source_schema, task.source_table, task.copy_spec);
+      {
+        std::vector<std::string> last_pkeys;
+        if (task.copy_spec.resume)
+        {
+          if(!ptarget.get())
+            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name));
+          last_pkeys = ptarget->get_last_pkeys(task.target_pk_columns, task.target_schema, task.target_table);
+        }
+        count_rows(psource, task.source_schema, task.source_table, task.source_pk_columns, task.copy_spec, last_pkeys);
+      }
     }
     else if (reenable_triggers || disable_triggers)
     {

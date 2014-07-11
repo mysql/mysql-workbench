@@ -922,7 +922,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
       if ([icon isKindOfClass: [NSImage class]])
       {
         NSSize size = [icon size];
-        [(NSImage*)icon drawInRect: NSMakeRect(x, NSMinY(rowRect),
+        [(NSImage*)icon drawInRect: NSMakeRect(x, NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2,
                                                size.width, size.height)
                           fromRect: NSZeroRect
                          operation: NSCompositeSourceOver

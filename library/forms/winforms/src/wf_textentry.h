@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,6 +35,12 @@ namespace MySQL {
       static void set_max_length(mforms::TextEntry *backend, int length);
       static void set_read_only(mforms::TextEntry *backend, bool flag);
       static void set_bordered(mforms::TextEntry *backend, bool flag);
+
+      static void cut(mforms::TextEntry *self);
+      static void copy(mforms::TextEntry *self);
+      static void paste(mforms::TextEntry *self);
+      static void select(mforms::TextEntry *self, const base::Range &range);
+      static base::Range get_selection(mforms::TextEntry *self);
 
       virtual void set_front_color(String ^color);
     public:

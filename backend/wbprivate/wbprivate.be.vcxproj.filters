@@ -448,5 +448,8 @@
     <ClCompile Include="sqlide\execute_routine_wizard.cpp">
       <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\frontend\common\grt_plugin_wizard.cpp">
+      <Filter>Source Files UI</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

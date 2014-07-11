@@ -1076,7 +1076,6 @@ void grt::remove_list_items_matching(ObjectListRef list, const boost::function<b
 
 bool grt::init_python_support(grt::GRT *grt, const std::string &module_path)
 {
-#ifdef ENABLE_PYTHON_MODULES
   PythonModuleLoader *loader= new PythonModuleLoader(grt, module_path);
   if (!module_path.empty())
   {
@@ -1087,18 +1086,14 @@ bool grt::init_python_support(grt::GRT *grt, const std::string &module_path)
   }
   grt->add_module_loader(loader);
   return true;
-#endif
-  return false;
 }
 
 
 void grt::add_python_module_dir(grt::GRT *grt, const std::string &python_module_path)
 {
-#ifdef ENABLE_PYTHON_MODULES
   PythonModuleLoader *loader= dynamic_cast<PythonModuleLoader *>(grt->get_module_loader("python"));
   if (loader && !python_module_path.empty())
     loader->get_python_context()->add_module_path(python_module_path, true);
-#endif
 }
 
 static void dump_value(const grt::ValueRef &value, int level, bool skip_spacing=false);

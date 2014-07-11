@@ -57,7 +57,6 @@
                 <File Id="file1034" Name="libmysql.dll"/>
                 <File Id="file1035" Name="libpng.dll"/>
                 <File Id="file1036" Name="libxml2.dll"/>
-                <File Id="file1037" Name="lua.dll"/>
                 <File Id="file1030" Name="libglib-2.0-0.dll"/>
                 <File Id="file1031" Name="libgmodule-2.0-0.dll"/>
                 <File Id="file1032" Name="libgobject-2.0-0.dll"/>
@@ -67,7 +66,6 @@
                 <File Id="file1065" Name="libzip.dll"/>
                 <File Id="file1083" Name="zlib.dll"/>
                 <File Id="file1087" Name="wb.py"/>
-                <File Id="file1088" Name="wb_library.lua"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
                 <File Id="file1099d" Name="python27_d.dll"/>
                 <?else ?>
@@ -840,7 +838,6 @@
                     <File Id="file61731" Name="qe_sql-editor-tb-icon_stop.png"/>
                     <File Id="file61732" Name="snippet_sql.png"/>
                     <File Id="file61733" Name="snippet_htm.png"/>
-                    <File Id="file61734" Name="snippet_lua.png"/>
                     <File Id="file61735" Name="snippet_mwb.png"/>
                     <File Id="file61736" Name="snippet_php.png"/>
                     <File Id="file61737" Name="snippet_py.png"/>
@@ -1663,12 +1660,10 @@
                   <File Id="file614024" Name="wb_common.py"/>
                   <File Id="file614025" Name="wb_server_management.py"/>
                   <File Id="file614026" Name="wb_server_control.py"/>
-                  <File Id="file614027" Name="wb_doclib_grt.py"/>
                   <File Id="file614028" Name="sqlide_grt.py"/>
                   <File Id="file614029" Name="text_grt.py"/>
                   <File Id="file614030" Name="wba_monitor_be.py"/>
                   <File Id="file614031" Name="wba_ssh_ui.py"/>
-                  <File Id="file614032" Name="mysqldoclib.py"/>
                   <File Id="file614033" Name="sql_reformatter.py"/>
                   <File Id="file614034" Name="wb_admin_ui_profile.py"/>
                   <File Id="file614035" Name="wb_dev_utils_grt.py"/>
@@ -1746,6 +1741,7 @@
                   <File Id="file66711" Name="wb_admin_perfschema_instrumentation_be.py"/>
                   <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
 
+                  <File Id="file66713" Name="wb_docs_grt.py"/>
                 </Component>
 
                 <?if $(var.LICENSE_TYPE) = "commercial"?>
@@ -1773,14 +1769,7 @@
                 </Directory>
                 <?endif ?>
  
-                <Directory Id="modules_templates" Name="templates">
-                  <Component DiskId="1" Guid="C566C04D-80E2-472e-B530-D85782EFD702" Id="modules_templates" Location="either">
-                    <File Id="file66300" Name="Table_Plugin_template.lua"/>
-                    <File Id="file66301" Name="Catalog_Plugin_template.lua"/>
-                  </Component>
-                </Directory>
-
-                <Directory Id="data" Name="data">
+                 <Directory Id="data" Name="data">
                   <Component DiskId="1" Guid="2bfa656d-c6a9-4c05-b7d8-155ccb03fc21" Id="modules_data" Location="either">
                     <File Id="file7001" Name="mysql_reserved.xml"/>
                     <File Id="file7002" Name="mysql_rdbms_info.xml"/>
@@ -1829,13 +1818,6 @@
                       <File Id="file8031" Name="JSON.pre.tpl"/>
                       <File Id="file8032" Name="JSON.tpl"/>
                       <File Id="file8033" Name="JSON.tpli"/>
-                    </Component>
-                  </Directory>
-
-                  <Directory Id="modules_data_doclibrary" Name="DocLibrary">
-                    <Component DiskId="1" Guid="5B9E4E74-A25E-4fb0-B9C5-30243B38FFF2" Id="modules_data_doclibrary" Location="either">
-                      <File Id="file8201" Name="mysqldoclib.sqlite"/>
-                      <File Id="file8202" Name="mysqldoclib_webui.sqlite"/>
                     </Component>
                   </Directory>
 

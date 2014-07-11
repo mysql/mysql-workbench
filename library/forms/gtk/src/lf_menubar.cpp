@@ -41,7 +41,11 @@ T cast(void *ptr)
 }
 }
 
-static Glib::RefPtr<Gtk::AccelGroup> accel_group;
+class MyMenuBar : public Gtk::MenuBar
+{
+public:
+  Glib::RefPtr<Gtk::AccelGroup> accel_group;
+};
 
 //------------------------------------------------------------------------------
 static void process_click(Gtk::MenuItem* mi, mforms::MenuItem* item)
@@ -52,27 +56,62 @@ static void process_click(Gtk::MenuItem* mi, mforms::MenuItem* item)
 }
 
 //------------------------------------------------------------------------------
-void mforms::gtk::set_accel_group(Glib::RefPtr<Gtk::AccelGroup> ag)
+Gtk::MenuBar* mforms::widget_for_menubar(mforms::MenuBar* self)
 {
-  accel_group = ag;
+  Gtk::MenuBar* mb = dynamic_cast<Gtk::MenuBar*>(self->get_data<Gtk::Object>());
+  return mb;
+}
+
+
+//------------------------------------------------------------------------------
+
+Glib::RefPtr<Gtk::AccelGroup> get_accel_group(mforms::MenuBase *m)
+{
+  MyMenuBar *mbar = NULL;
+  while (m && !(mbar = dynamic_cast<MyMenuBar*>(m->get_data<Gtk::Object>())))
+    m = m->get_parent();
+  if (mbar)
+    return mbar->accel_group;
+  return Glib::RefPtr<Gtk::AccelGroup>();
 }
 
 //------------------------------------------------------------------------------
-Gtk::MenuBar* mforms::widget_for_menubar(mforms::MenuBar* self)
-{
-  Gtk::MenuBar* mb = self->get_data<Gtk::MenuBar>();
-  return mb;
+static void propagate_accel_group(mforms::MenuBase *item, Glib::RefPtr<Gtk::AccelGroup> agroup)
+{ 
+  Gtk::MenuItem *mi = cast<Gtk::MenuItem*>(item->get_data_ptr());
+  if (mi && mi->has_submenu())
+    mi->get_submenu()->set_accel_group(agroup);
+
+  for (int i = item->item_count()-1; i >= 0; --i)
+  {
+    mforms::MenuItem *it = item->get_item(i);
+    if (!it->get_shortcut().empty())
+      mforms::gtk::MenuItemImpl::set_shortcut(it, it->get_shortcut());
+    propagate_accel_group(it, agroup);
+  }
+}
+
+//------------------------------------------------------------------------------
+void mforms::on_add_menubar_to_window(mforms::MenuBar *menu, Gtk::Window *window)
+{ // must be called when a menubar is attached to a window, so that the accelgroup can be created and attached
+  MyMenuBar *mbar = cast<MyMenuBar*>(menu->get_data_ptr());
+
+  if (!mbar->accel_group)
+  {
+    mbar->accel_group = window->get_accel_group();
+    propagate_accel_group(menu, mbar->accel_group);
+  }
 }
 
 //------------------------------------------------------------------------------
 bool mforms::gtk::MenuItemImpl::create_menu_bar(mforms::MenuBar *item)
 {
-  Gtk::MenuBar* mb = cast<Gtk::MenuBar*>(item->get_data_ptr());
+  MyMenuBar* mb = cast<MyMenuBar*>(item->get_data_ptr());
   if (mb)
     delete mb;
-  mb = Gtk::manage(new Gtk::MenuBar());
+  mb = Gtk::manage(new MyMenuBar());
   mb->show();
-  item->set_data(Gtk::manage(mb));
+  item->set_data(mb);
   return mb;
 }
 
@@ -152,7 +191,7 @@ std::string mforms::gtk::MenuItemImpl::get_title(mforms::MenuItem *item)
   return ret;
 }
 
-static void add_shortcuts(Gtk::MenuItem* menu_item, 
+static void add_shortcuts(Glib::RefPtr<Gtk::AccelGroup> accel_group, Gtk::MenuItem* menu_item, 
                           const std::vector<std::string> &modifiers, 
                           const std::vector<std::string> &shortcuts)
 {
@@ -203,12 +242,6 @@ void mforms::gtk::MenuItemImpl::set_shortcut(mforms::MenuItem *item, const std::
     return;
   }
   
-  if (accel_group == 0)
-  {
-    log_error("AccelGroup was not set for menubar (%s)\n", item_shortcut.c_str());
-    return;
-  }
-
   // convert the accelerator format from Control+X to <control>x which is recognized by gtk
   std::vector<std::string> parts(base::split(item_shortcut, "+"));
 
@@ -351,7 +384,9 @@ void mforms::gtk::MenuItemImpl::set_shortcut(mforms::MenuItem *item, const std::
   else
     keys.push_back(key);
 
-  add_shortcuts(menu_item, parts, keys);
+  // if the item is not in a menu yet, the shortcut adding will be deferred
+  if (item->get_parent() && get_accel_group(item->get_parent()))
+    add_shortcuts(get_accel_group(item->get_parent()), menu_item, parts, keys);
 }
 
 //------------------------------------------------------------------------------
@@ -413,7 +448,7 @@ void mforms::gtk::MenuItemImpl::insert_item(mforms::MenuBase *menub, int index, 
   Gtk::MenuShell* menu_shell = cast<Gtk::MenuShell*>(menub->get_data_ptr());
   Gtk::MenuItem* item_to_insert = cast<Gtk::MenuItem*>(item->get_data_ptr());
 
-  if (!menu_shell)
+  if (!menu_shell) // menub is not a menubar
   {
     Gtk::MenuItem* mi = cast<Gtk::MenuItem*>(menub->get_data_ptr());
     if (mi)
@@ -433,7 +468,11 @@ void mforms::gtk::MenuItemImpl::insert_item(mforms::MenuBase *menub, int index, 
     else
       log_error("Passed MenuBase %p does not contain neither Gtk::MenuBar nor Gtk::MenuItem\n", menub);
   }
-
+  else
+  {
+    if (menub->get_parent() && get_accel_group(menub))
+      propagate_accel_group(menub, get_accel_group(menub));
+  }
   if (menu_shell && item_to_insert)
     menu_shell->insert(*item_to_insert, index);
   else

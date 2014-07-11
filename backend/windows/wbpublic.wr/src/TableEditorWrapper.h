@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -200,13 +200,7 @@ public:
 
   FKConstraintListWrapper^ get_fks();
 
-  MySQL::Grt::Db::RecordsetWrapper^ get_inserts_model()
-  {
-    return Ref2Ptr<::Recordset, MySQL::Grt::Db::RecordsetWrapper>(
-      get_unmanaged_object()->get_inserts_model());
-  }
-
-  Control ^get_inserts_panel(Control ^grid);
+  Control ^get_inserts_panel();
 
 
   // table options

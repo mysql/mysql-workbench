@@ -194,6 +194,8 @@ bool workbench_physical_RoutineGroupFigure::ImplData::realize()
 
     sync_routines();
 
+    _figure->toggle(*self()->_expanded!=0);
+
     finish_realize();
 
     view->unlock();

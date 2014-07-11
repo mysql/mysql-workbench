@@ -21,7 +21,6 @@
 #include "structs.test.h"
 
 #include "grtpp_module_cpp.h"
-#include "grtpp_module_lua.h"
 
 BEGIN_TEST_DATA_CLASS(grt_module_test)
 public:

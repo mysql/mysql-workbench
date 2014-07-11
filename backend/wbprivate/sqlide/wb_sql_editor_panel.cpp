@@ -100,8 +100,6 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _splitter.add(&_lower_tabview);
   _splitter.set_position((int)mforms::App::get()->get_application_bounds().height());
   UIForm::scoped_connect(_splitter.signal_position_changed(), boost::bind(&SqlEditorPanel::splitter_resized, this));
-
-  _lower_tabview.set_aux_view(&_tab_action_box);
   _tab_action_box.set_spacing(4);
   _tab_action_box.add_end(&_tab_action_info, false, true);
   _tab_action_box.add_end(&_tab_action_icon, false, false);
@@ -117,6 +115,10 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_revert.set_text("Revert");
   _tab_action_revert.signal_clicked()->connect(boost::bind(&SqlEditorPanel::revert_clicked, this));
 
+  _tab_action_box.relayout();
+  _tab_action_box.set_size(_tab_action_box.get_preferred_width(), _tab_action_box.get_preferred_height());
+
+  _lower_tabview.set_aux_view(&_tab_action_box);
   _lower_tabview.set_allows_reordering(true);
   _lower_tabview.signal_tab_reordered()->connect(boost::bind(&SqlEditorPanel::lower_tab_reordered, this, _1, _2, _3));
   _lower_tabview.signal_tab_changed()->connect(boost::bind(&SqlEditorPanel::lower_tab_switched, this));
@@ -128,7 +130,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _lower_tab_menu.signal_will_show()->connect(boost::bind(&SqlEditorPanel::tab_menu_will_show, this));
   _lower_tab_menu.add_item_with_title("Rename Tab", boost::bind(&SqlEditorPanel::rename_tab_clicked, this), "rename");
-  _lower_tab_menu.add_item_with_title("Pin Tab", boost::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
+  _lower_tab_menu.add_check_item_with_title("Pin Tab", boost::bind(&SqlEditorPanel::pin_tab_clicked, this), "pin");
   _lower_tab_menu.add_separator();
   _lower_tab_menu.add_item_with_title("Close Tab", boost::bind(&SqlEditorPanel::close_tab_clicked, this), "close");
   _lower_tab_menu.add_item_with_title("Close Other Tabs", boost::bind(&SqlEditorPanel::close_other_tabs_clicked, this), "close_others");
@@ -291,6 +293,9 @@ void SqlEditorPanel::resultset_edited()
     bool edited = rset->has_pending_changes();
     _tab_action_apply.set_enabled(edited);
     _tab_action_revert.set_enabled(edited);
+
+    _form->get_menubar()->set_item_enabled("query.save_edits", edited);
+    _form->get_menubar()->set_item_enabled("query.discard_edits", edited);
   }
 }
 
@@ -1309,7 +1314,7 @@ void SqlEditorPanel::pin_tab_clicked()
   int tab = _lower_tabview.get_menu_tab();
   SqlEditorResult *result = result_panel(tab);
   if (result)
-    result->set_pinned(!_lower_tab_menu.find_item("pin")->get_checked());
+    result->set_pinned(!result->pinned());
 }
 
 //--------------------------------------------------------------------------------------------------

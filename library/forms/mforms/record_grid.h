@@ -27,6 +27,15 @@ class Recordset;
 #endif
 
 namespace mforms {
+  class ContextMenu;
+
+  enum ColumnHeaderIndicator
+  {
+    NoIndicator = 0,
+    SortDescIndicator = -1,
+    SortAscIndicator = 1,
+  };
+
   // This is a skeleton/proxy/facade class for a Recordset grid view
   // The implementation of the view itself is in frontend/platform specific code
   // The main use for this class is to provide an interface for SWIG
@@ -39,9 +48,15 @@ namespace mforms {
     virtual int get_column_width(int column) = 0;
     virtual void set_column_width(int column, int width) = 0;
 
+    virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order) = 0; //TODO Windows
+
     virtual bool current_cell(size_t &row, int &column) = 0;
     virtual void set_current_cell(size_t row, int column) = 0;
 
+    virtual void set_font(const std::string &font) = 0; // TODO Windows
+
+    virtual void set_header_menu(ContextMenu *menu); // TODO Windows
+    int get_clicked_header_column() { return _clicked_header_column; }
 
 #ifndef SWIG
     static RecordGrid* create(boost::shared_ptr<Recordset> rset);
@@ -49,9 +64,19 @@ namespace mforms {
     static void register_factory(RecordGrid* (*create)(boost::shared_ptr<Recordset> rset));
 #endif
 
-    // TODO must be emitted from Windows, Linux
+    // TODO must be emited from Windows
     boost::signals2::signal<void (int)>* signal_column_resized() { return &_signal_column_resized; }
+
+    ContextMenu *header_menu() { return _header_menu; }
+
+#ifndef SWIG
+    void clicked_header_column(int column);
+#endif
+  protected:
+    RecordGrid();
   private:
     boost::signals2::signal<void (int)> _signal_column_resized;
+    ContextMenu *_header_menu;
+    int _clicked_header_column;
   };
 };

@@ -75,7 +75,7 @@ namespace mforms
     virtual bool mouse_up(mforms::MouseButton button, int x, int y)
     {
       if (DrawBox::mouse_up(button, x, y))
-        true;
+        return true;
 
       WillEnterPython lock;
 

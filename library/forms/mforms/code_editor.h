@@ -49,7 +49,6 @@ namespace mforms {
     LanguageMySQL57,
 
     LanguageHtml,   // includes embedded xml, javascript, php, vb, python
-    LanguageLua,
     LanguagePython,
     LanguageCpp,    // Lexer for C++, C, Java, and JavaScript (which includes JSON).
 

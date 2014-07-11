@@ -942,7 +942,7 @@ db_mysql_StorageEngineRef TableHelper::get_engine_by_name(grt::GRT *grt, const s
 }
 
 /**
- * Returns a pointer to the position of the first line break or the first character after the
+ * Returns a pointer to the position of the first empty line (NOT a line break!) or the first character after the
  * maximum count, whichever comes first. If no line break was found and the string is shorter
  * than the maximum length the result points to the terminating 0.
  */
@@ -951,7 +951,16 @@ static void split_comment(const std::string &comment, size_t db_comment_len,
 {
   size_t res;
   // XXX: check for Unicode line breaks! especially asian languages don't use the ANSI new line.
-  gchar* pointer_to_linebreak = g_utf8_strchr(comment.c_str(), (gssize)comment.size(), '\n');
+  const gchar* pointer_to_linebreak = NULL;
+
+  { // find 1st occurrence of 2 consecutive newlines
+    std::string::size_type pos = comment.find("\n\n");
+    if (pos == std::string::npos)
+      pos = comment.find("\r\n\r\n");
+
+    if (pos != std::string::npos)
+      pointer_to_linebreak = comment.c_str() + pos;
+  }
 
   // We need the number of characters which the string part includes, so convert to a char count.
   if (pointer_to_linebreak != NULL)
@@ -981,7 +990,10 @@ static void split_comment(const std::string &comment, size_t db_comment_len,
 std::string TableHelper::get_sync_comment(const std::string &comment, const size_t max_len)
 {
   std::string ret;
-  split_comment(comment, max_len, &ret, NULL);
+  if (comment.size() > max_len)
+    split_comment(comment, max_len, &ret, NULL);
+  else
+    ret = comment;
   return ret;
 };
 
@@ -1551,18 +1563,25 @@ std::string bec::get_default_collation_for_charset(const db_TableRef &table, con
 
 std::string bec::TableHelper::generate_comment_text(const std::string& comment_text, size_t comment_lenght)
 {
-  std::string comment, leftover;
-
-  split_comment(comment_text, comment_lenght, &comment, &leftover);
-
-  if (!comment.empty())
-      comment = "'"+base::escape_sql_string(comment)+"'";
-  if (!leftover.empty())
+  if (comment_text.size() > comment_lenght)
   {
-    base::replace(leftover, "*/", "*\\/");
-    comment.append(" /* comment truncated */ /*")
+    std::string comment, leftover;
+
+    split_comment(comment_text, comment_lenght, &comment, &leftover);
+
+    if (!comment.empty())
+      comment = "'"+base::escape_sql_string(comment)+"'";
+    if (!leftover.empty())
+    {
+      base::replace(leftover, "*/", "*\\/");
+      comment.append(" /* comment truncated */ /*")
       .append(leftover)
       .append("*/");
+    }
+    return comment;
   }
-  return comment; 
+  else if (!comment_text.empty())
+    return "'"+base::escape_sql_string(comment_text)+"'";
+
+  return "";
 }
