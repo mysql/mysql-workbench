@@ -391,6 +391,8 @@ namespace bec {
 
     virtual db_TableRef create_stub_table(const std::string &schema, const std::string &table) = 0;
 
+
+    void column_count_changed();
   protected:
     FKConstraintListBE _fk_list;
 

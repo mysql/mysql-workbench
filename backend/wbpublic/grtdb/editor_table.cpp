@@ -40,6 +40,7 @@
 #include "mforms/utilities.h"
 
 #include <algorithm>
+#undef min
 
 using namespace bec;
 using namespace grt;
@@ -1761,6 +1762,7 @@ NodeId IndexListBE::add_column(const db_ColumnRef &column, const db_IndexRef &aI
           column->name().c_str(), _owner->get_name().c_str(), index->name().c_str()));
   }
   _column_list.refresh();
+
   return NodeId(index->columns().count() - 1);
 }
 
@@ -2941,6 +2943,8 @@ NodeId TableEditorBE::add_column(const std::string &name)
 
   get_columns()->refresh();
 
+  column_count_changed();
+
   bec::ValidationManager::validate_instance(column, CHECK_NAME);
   bec::ValidationManager::validate_instance(get_table(), "columns-count");
   return NodeId(get_table()->columns().count()-1);
@@ -2970,6 +2974,8 @@ NodeId TableEditorBE::duplicate_column(const db_ColumnRef &column, ssize_t inser
   bec::ValidationManager::validate_instance(new_column, CHECK_NAME);
   bec::ValidationManager::validate_instance(get_table(), "columns-count");
   
+  column_count_changed();
+
   return NodeId(get_table()->columns().count() - 1);
 }
 
@@ -2991,6 +2997,8 @@ void TableEditorBE::rename_column(const db_ColumnRef &column, const std::string 
 
   undo.end(strfmt(_("Rename '%s.%s' to '%s'"), get_name().c_str(), old_name.c_str(), name.c_str()));
   bec::ValidationManager::validate_instance(column, CHECK_NAME);
+
+  column_count_changed();
 }
 
 
@@ -3010,6 +3018,8 @@ void TableEditorBE::remove_column(const NodeId &node)
 
   get_columns()->refresh();
   bec::ValidationManager::validate_instance(get_table(), "columns-count");
+
+  column_count_changed();
 }
 
 
@@ -3416,3 +3426,8 @@ bool TableEditorBE::can_close()
   return true;
 }
 
+void TableEditorBE::column_count_changed()
+{
+  if (_inserts_model)
+    _inserts_model->refresh();
+}
