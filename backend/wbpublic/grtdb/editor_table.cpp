@@ -3291,30 +3291,35 @@ void TableEditorBE::restore_inserts_columns()
   }
 }
 
+// used in unit-tests
+Recordset::Ref TableEditorBE::get_inserts_model()
+{
+  if (!_inserts_model)
+  {
+    if (get_table().class_name() == "db.Table")
+      throw std::logic_error("table object is abstract");
+
+    _inserts_storage = Recordset_table_inserts_storage::create(_grtm);
+    _inserts_storage->table(get_table());
+
+    _inserts_model = Recordset::create(_grtm);
+    _inserts_model->set_inserts_editor(true);
+    _inserts_model->data_storage(_inserts_storage);
+    _inserts_model->refresh();
+  }
+  return _inserts_model;
+}
 
 mforms::View *TableEditorBE::get_inserts_panel()
 {
   if (!_inserts_panel)
   {
-    {
-      if (get_table().class_name() == "db.Table")
-        throw std::logic_error("table object is abstract");
-
-      _inserts_storage= Recordset_table_inserts_storage::create(_grtm);
-      _inserts_storage->table(get_table());
-
-      _inserts_model= Recordset::create(_grtm);
-      _inserts_model->set_inserts_editor(true);
-      _inserts_model->data_storage(_inserts_storage);
-      _inserts_model->refresh();
-    }
-
-    mforms::ToolBar *tbar = _inserts_model->get_toolbar();
+    mforms::ToolBar *tbar = get_inserts_model()->get_toolbar();
     tbar->find_item("record_export")->signal_activated()->connect(boost::bind(&TableEditorBE::show_export_wizard, this, (mforms::Form*)0));
     if (tbar->find_item("record_import"))
       tbar->find_item("record_import")->signal_activated()->connect(boost::bind(&TableEditorBE::show_import_wizard, this));
 
-    _inserts_grid = mforms::RecordGrid::create(_inserts_model);
+    _inserts_grid = mforms::RecordGrid::create(get_inserts_model());
     restore_inserts_columns();
     _inserts_grid->signal_column_resized()->connect(boost::bind(&TableEditorBE::inserts_column_resized, this, _1));
 
