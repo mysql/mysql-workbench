@@ -536,10 +536,125 @@ bool spatial::operator!= (ProjectionView &v1, ProjectionView &v2)
   return !(v1==v2);
 }
 
-//enum ShapeType
-//  {
-//    ShapeUnknown, ShapePoint, ShapeLineString, ShapeLinearRing, ShapePolygon
-//  };
+spatial::Envelope::Envelope() : converted(false)
+{
+
+}
+
+bool spatial::ShapeContainer::within(base::Point &p)
+{
+  switch(type)
+  {
+  case ShapePoint:
+    return within_point(p);
+  case ShapeLineString:
+    return within_line(points, p);
+  case ShapeLinearRing:
+    return within_linearring(p);
+  case ShapePolygon:
+    return within_polygon(p);
+  default:
+    return false;
+  }
+}
+
+bool spatial::ShapeContainer::within_linearring(base::Point &p)
+{
+  if (points.empty())
+    return false;
+  std::vector<base::Point> tmp = points;
+  tmp.push_back(*tmp.begin());
+
+  return within_line(tmp, p);
+}
+
+static double distance_to_segment(base::Point &start, base::Point &end, base::Point &p)
+{
+  double dx = end.x - start.x;
+  double dy = end.y - start.y;
+  if (dx == 0 && dy == 0)
+    return sqrt(pow(p.x - start.x, 2) + pow(p.y - start.y, 2));
+
+  double dist_to_line = ((p.x - start.x) * dx + (p.y - start.y) * dy) / (pow(dx, 2) + pow(dy, 2));
+
+  if (dist_to_line > 1)
+  {
+    dx = p.x - end.x;
+    dy = p.y - end.y;
+  }
+  else if (dist_to_line < 0)
+  {
+    dx = p.x - start.x;
+    dy = p.y - start.y;
+  }
+  else
+  {
+    dx = p.x - (start.x + dist_to_line * dx);
+    dy = p.y - (start.y + dist_to_line * dy);
+  }
+  return sqrt(pow(dx, 2) + pow(dy, 2));
+}
+
+bool spatial::ShapeContainer::within_line(std::vector<base::Point> &point_list, base::Point &p)
+{
+  if (point_list.empty())
+    return false;
+
+  std::vector<base::Point>::iterator it = point_list.begin(), it_tmp = point_list.begin();
+  while (++it != point_list.end())
+  {
+    try
+    {
+      if (distance_to_segment(*it_tmp, *it, p) <= 1.0)
+        return true;
+    }
+    catch (std::logic_error &e)
+    {
+      //distance can raise Divide by zero exception, we silently skip this
+    }
+
+    it_tmp = it;
+  }
+
+  return false;
+}
+
+bool spatial::ShapeContainer::within_polygon(base::Point &p)
+{
+  if (points.empty())
+      return false;
+
+  //first we check if we're in the bounding box cause maybe it's pointless to check all the polygon points
+  if (!(bounding_box.top_left.x <= p.x && bounding_box.top_left.y <= p.y && bounding_box.bottom_right.x >= p.x && bounding_box.bottom_right.y >= p.y))
+    return false;
+
+  bool c = false;
+  int i, j = 0;
+  int nvert = points.size();
+  for (i = 0, j = nvert-1; i < nvert; j = i++) {
+    if ( ((points[i].y > p.y) != (points[j].y > p.y)) && (p.x < (points[j].x - points[i].x) * (p.y - points[i].y) / (points[j].y - points[i].y) + points[i].x) )
+      c = !c;
+  }
+  return c;
+}
+
+bool spatial::ShapeContainer::within_point(base::Point &p)
+{
+  if (points.empty())
+    return false;
+
+  double rval = sqrt(pow((p.x - points[0].x), 2) + pow((p.y - points[0].y), 2));
+  if (rval < 4.0) //4 is tolerance for point to point distance
+  {
+    return true;
+  }
+  return false;
+}
+
+spatial::ShapeContainer::ShapeContainer()
+{
+
+}
 
 std::string spatial::shape_description(ShapeType shp)
 {
@@ -696,6 +811,7 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
     container.type = ShapePoint;
     OGRPoint *point = (OGRPoint*)shape;
     container.points.push_back(base::Point(point->getX(), point->getY()));
+    container.bounding_box.top_left = container.bounding_box.bottom_right = base::Point(point->getX(), point->getY());
     shapes_container.push_back(container);
 
   }
@@ -704,6 +820,12 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
     ShapeContainer container;
     container.type = ShapeLineString;
     OGRLineString *line = (OGRLineString*) shape;
+    OGREnvelope env;
+    line->getEnvelope(&env);
+    container.bounding_box.top_left.x = env.MinX;
+    container.bounding_box.top_left.y = env.MaxY;
+    container.bounding_box.bottom_right.x = env.MaxX;
+    container.bounding_box.bottom_right.y = env.MinY;
     int nPoints = line->getNumPoints();
 
     container.points.reserve(nPoints);
@@ -718,6 +840,12 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
     ShapeContainer container;
     container.type = ShapeLinearRing;
     OGRLinearRing *ring = (OGRLinearRing *) shape;
+    OGREnvelope env;
+    ring->getEnvelope(&env);
+    container.bounding_box.top_left.x = env.MinX;
+    container.bounding_box.top_left.y = env.MaxY;
+    container.bounding_box.bottom_right.x = env.MaxX;
+    container.bounding_box.bottom_right.y = env.MinY;
     int nPoints = ring->getNumPoints();
     container.points.reserve(nPoints);
     for (int i = nPoints - 1; i >= 0 && !_interrupt; i--)
@@ -735,6 +863,12 @@ void spatial::Importer::extract_points(OGRGeometry *shape, std::deque<ShapeConta
     OGRLinearRing *ring = poly->getExteriorRing();
     int nPoints = ring->getNumPoints();
     container.points.reserve(nPoints);
+    OGREnvelope env;
+    ring->getEnvelope(&env);
+    container.bounding_box.top_left.x = env.MinX;
+    container.bounding_box.top_left.y = env.MaxY;
+    container.bounding_box.bottom_right.x = env.MaxX;
+    container.bounding_box.bottom_right.y = env.MinY;
 
     for (int i = nPoints - 1; i >= 0; i--)
       container.points.push_back(base::Point(ring->getX(i), ring->getY(i)));
@@ -945,6 +1079,20 @@ void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_con
       if(!_geo_to_proj->Transform(1, &(*it).points[i].x, &(*it).points[i].y))
         for_removal.push_back(i);
     }
+
+    if(_geo_to_proj->Transform(1, &(*it).bounding_box.bottom_right.x, &(*it).bounding_box.bottom_right.y) &&
+       _geo_to_proj->Transform(1, &(*it).bounding_box.top_left.x, &(*it).bounding_box.top_left.y))
+    {
+      int x, y;
+      from_projected((*it).bounding_box.bottom_right.x, (*it).bounding_box.bottom_right.y, x, y);
+      (*it).bounding_box.bottom_right.x = x;
+      (*it).bounding_box.bottom_right.y = y;
+      from_projected((*it).bounding_box.top_left.x, (*it).bounding_box.top_left.y, x, y);
+      (*it).bounding_box.top_left.x = x;
+      (*it).bounding_box.top_left.y = y;
+      (*it).bounding_box.converted = true;
+    }
+
     if (!for_removal.empty())
       log_debug("%i points that could not be converted were skipped\n", (int)for_removal.size());
 
@@ -992,6 +1140,16 @@ void Feature::render(Converter *converter)
   _shapes = tmp_shapes;
 }
 
+
+bool Feature::within(base::Point &p)
+{
+  for (std::deque<ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
+  {
+    if ((*it).within(p))
+      return true;
+  }
+  return false;
+}
 
 void Feature::interrupt()
 {
@@ -1124,4 +1282,14 @@ void Layer::render(Converter *converter)
     (*iter)->render(converter);
     _render_progress += step;
   }
+}
+
+bool Layer::within(base::Point &p)
+{
+  for (std::list<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
+  {
+    if ((*iter)->within(p))
+      return true;
+  }
+  return false;
 }

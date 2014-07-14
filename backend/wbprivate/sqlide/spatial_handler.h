@@ -130,6 +130,15 @@ namespace spatial
     friend bool operator!= (ProjectionView &v1, ProjectionView &v2);
   };
 
+  class Envelope
+  {
+  public:
+    Envelope();
+    bool converted;
+    base::Point top_left;
+    base::Point bottom_right;
+  };
+
   bool operator== (ProjectionView &v1, ProjectionView &v2);
   bool operator!= (ProjectionView &v1, ProjectionView &v2);
 
@@ -151,10 +160,20 @@ namespace spatial
     AxisLat = 1, AxisLon = 2
   };
 
-  struct ShapeContainer
+  class ShapeContainer
   {
+
+  protected:
+    bool within_linearring(base::Point &p);
+    bool within_line(std::vector<base::Point> &point_list, base::Point &p);
+    bool within_polygon(base::Point &p);
+    bool within_point(base::Point &p);
+  public:
+    ShapeContainer();
     ShapeType type;
     std::vector<base::Point> points;
+    Envelope bounding_box;
+    bool within(base::Point &p);
   };
 
 //  class Projection
@@ -285,6 +304,7 @@ namespace spatial
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
 
     int row_id() const { return _row_id; }
+    bool within(base::Point &p);
   };
 
   class Layer
@@ -317,6 +337,7 @@ namespace spatial
 
     void add_feature(int row_id, const std::string &geom_data, bool wkt);
     virtual void render(spatial::Converter *converter);
+    bool within(base::Point &p);
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
     float query_render_progress();
   };

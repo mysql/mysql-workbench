@@ -439,6 +439,19 @@ bool SpatialDrawBox::mouse_down(mforms::MouseButton button, int x, int y)
       _menu->popup_at(p.first, p.second);
     }
   }
+  else if (button == mforms::MouseButtonOther)
+  {
+    base::Point p(x - _offset_x, y - _offset_y);
+    base::MutexLock lock(_layer_mutex);
+    for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
+    {
+      if ((*it)->within(p))
+      {
+        fprintf(stderr, "Object clicked.\n");
+        break;
+      }
+    }
+  }
   return true;
 }
 
@@ -493,6 +506,13 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2)
   if (x1 > x2) std::swap(x1, x2);
   if (y1 > y2) std::swap(y1, y2);
 
+  double w = x2 - x1;
+  double ratio = (double)get_width() / (double)get_height();
+  if (ratio > 1.0)
+    y2 = y1 + w / ratio;
+  else
+    y2 = y1 + w * ratio;
+
   if (screen_to_world(x1, y1, lat1, lon1) &&
       screen_to_world(x2, y2, lat2, lon2))
   {
@@ -500,12 +520,10 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2)
     _offset_x = 0;
     _offset_y = 0;
 
-    _min_lat = lat1;
-    _max_lat = lat2;
-    _min_lon = lon1;
-    _max_lon = lon2;
-
-    //XXX not working
+    _min_lat = lon1;
+    _max_lat = lon2;
+    _min_lon = lat2;
+    _max_lon = lat1;
 
     _displaying_restricted = true;
     invalidate(true);
@@ -563,9 +581,9 @@ bool SpatialDrawBox::screen_to_world(int x, int y, double &lat, double &lon)
 {
   if (_spatial_reprojector)
   {
-    // TODO check if x, y are inside the envelope
-    if (x >= _offset_x && y >= _offset_y)
-      return _spatial_reprojector->to_latlon(x - _offset_x, y - _offset_y, lat, lon);
+//     TODO check if x, y are inside the world image
+//    if (x >= _offset_x && y >= _offset_y) <- this is not working when we do rectangular zoom
+    return _spatial_reprojector->to_latlon(x - _offset_x, y - _offset_y, lat, lon);
   }
   return false;
 }
