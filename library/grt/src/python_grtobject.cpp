@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
  
-#ifdef ENABLE_PYTHON_MODULES
 #include "python_context.h"
 #include "base/string_utilities.h"
 
@@ -88,7 +87,7 @@ static PyObject *call_object_method(const grt::ObjectRef &object, const grt::Cla
     PythonContext::set_db_error(exc);
     return NULL;
   }
-  catch (grt::python_error &exc)
+  catch (grt::python_error)
   {
     return NULL;
   }
@@ -631,7 +630,3 @@ void grt::PythonContext::init_grt_object_type()
     _grt_method_class= PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Method");
   }    
 }
-
-
-#endif
-

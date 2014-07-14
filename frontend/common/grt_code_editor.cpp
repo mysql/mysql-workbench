@@ -54,16 +54,12 @@ GRTCodeEditor::GRTCodeEditor(GRTShellWindow *owner, bool module, const std::stri
   _text.set_show_find_panel_callback(boost::bind(embed_find_panel, _1, _2, &_top));
 
 
-  if (_language == "lua")
-    _text.set_language(LanguageLua);
+  if (_language == "python")
+    _text.set_language(LanguagePython);
+  else if (_language == "sql")
+    _text.set_language(LanguageMySQL);
   else
-    if (_language == "python")
-      _text.set_language(LanguagePython);
-    else
-      if (_language == "sql")
-        _text.set_language(LanguageMySQL);
-      else
-        _text.set_language(LanguageNone);
+    _text.set_language(LanguageNone);
 
   if (_language == "python")
     _debugging_supported= true;

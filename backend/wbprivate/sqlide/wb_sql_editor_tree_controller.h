@@ -87,6 +87,8 @@ private:
   bool _is_refreshing_schema_tree;
   bool _unified_mode;
 
+  bool _use_show_procedure;
+
   mforms::Splitter *_side_splitter;
   mforms::TabView *_info_tabview;
   mforms::HyperText *_object_info;

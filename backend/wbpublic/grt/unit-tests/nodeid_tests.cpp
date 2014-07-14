@@ -147,7 +147,7 @@ TEST_FUNCTION(6)
 TEST_FUNCTION(7)
 {
   bec::NodeId n1("23.56.78.1.43");
-  const int test[] = {23,56,78,1,43};
+  const size_t test[] = {23,56,78,1,43};
 
   for ( unsigned int i = 0U; i < sizeof(test)/sizeof(*test); i++ )
   {

@@ -38,6 +38,7 @@ public:
   MyActiveLabel(mforms::TabView *owner, mforms::View *page, const std::string &title, const sigc::slot<void> &close_cb)
     : ActiveLabel(title, close_cb), _owner(owner), _page(page)
   {
+    signal_button_press_event().connect(sigc::mem_fun(this, &MyActiveLabel::button_press_slot));
   }
 
   virtual bool button_press_slot(GdkEventButton* evb);
@@ -242,6 +243,7 @@ bool MyActiveLabel::button_press_slot(GdkEventButton* evb)
   if (evb->button == 3)
   {
     _owner->set_menu_tab(_owner->get_page_index(_page));
+    _owner->get_tab_menu()->will_show();
     _owner->get_tab_menu()->popup_at(NULL, base::Point(evb->x, evb->y));
   }
   return false;

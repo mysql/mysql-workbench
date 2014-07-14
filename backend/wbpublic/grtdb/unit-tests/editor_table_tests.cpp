@@ -47,13 +47,17 @@ class TestTableEditor : public TableEditorBE
   IndexListBE _indexes;
 
 public:
-#pragma warning(push)
-#pragma warning(disable:4355)
+#ifdef _WIN32
+# pragma warning(push)
+# pragma warning(disable:4355)
+#endif
   TestTableEditor(GRTManager *grtm, db_TableRef table, db_mgmt_RdbmsRef rdbms)
     : TableEditorBE(grtm, table), _table(table), _columns(this), _indexes(this)
     {
     }
-#pragma warning(pop)
+#ifdef _WIN32
+# pragma warning(pop)
+#endif
 
   db_TableRef get_table() { return _table; }
   
@@ -135,22 +139,6 @@ END_TEST_DATA_CLASS
 
 
 TEST_MODULE(editor_table_tests, "Table Editor backend");
-
-
-static grt::ValueRef get_app_option(const std::string &option)
-{
-  if (option == "DefaultPkColumnType")
-    return grt::StringRef("INT(11)");
-  else if (option == "DefaultColumnType")
-    return grt::StringRef("VARCHAR(40)");
-  else
-    g_warning("get_app_option(%s) unhandled", option.c_str());
-}
-
-
-static void set_app_option_dummy(const std::string &option, grt::ValueRef)
-{
-}
 
 TEST_FUNCTION(1)
 {

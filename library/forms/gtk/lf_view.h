@@ -95,6 +95,7 @@ protected:
   static void register_drop_formats(::mforms::View* self, DropDelegate *target, const std::vector<std::string> &formats);
   void register_drop_formats(const std::vector<std::string> &formats, DropDelegate *target);
   static void focus(::mforms::View *view);
+  static bool has_focus(::mforms::View *view);
   static DragOperation drag_text(::mforms::View *self, ::mforms::DragDetails details, const std::string &text);
   static DragOperation drag_data(::mforms::View *self, ::mforms::DragDetails details, void *data,const std::string &format);
   DragOperation drag_data(::mforms::DragDetails details, void *data,const std::string &format);

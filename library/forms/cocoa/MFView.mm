@@ -922,6 +922,17 @@ static void view_focus(::mforms::View *self)
   [[view window] makeFirstResponder: view];
 }
 
+static bool view_has_focus(::mforms::View *self)
+{
+  id view = self->get_data();
+  id firstResponder = [[view window] firstResponder];
+  if (firstResponder == view)
+    return true;
+  if ([firstResponder respondsToSelector: @selector(delegate)] && [firstResponder delegate] == view)
+    return true;
+  return false;
+}
+
 static void register_drop_formats(mforms::View *self, mforms::DropDelegate *target, const std::vector<std::string> &formats)
 {
   NSMutableArray *list = [[[NSMutableArray alloc] init] autorelease];
@@ -997,6 +1008,7 @@ void cf_view_init()
 
   f->_view_impl.flush_events         = &view_flush_events;
   f->_view_impl.focus                = &view_focus;
+  f->_view_impl.has_focus            = &view_has_focus;
 
   f->_view_impl.register_drop_formats = &register_drop_formats;
   f->_view_impl.drag_text            = &view_drag_text;

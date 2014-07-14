@@ -149,7 +149,7 @@ NL
 {"modules",
 "    In the GRT, modules are libraries with a list of functions that are exported for use"NL
 "by code in other modules, scripts or Workbench itself. Modules can be currently written"NL
-"in C++, Lua and Python but the datatypes used in arguments and return value must be GRT"NL
+"in C++ and Python but the datatypes used in arguments and return value must be GRT"NL
 "types."NL
 "    To export certain functions from a Python source file as a module, you need to do the"NL
 "following:"NL

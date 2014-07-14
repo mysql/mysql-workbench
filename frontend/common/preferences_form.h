@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,6 +50,9 @@ private:
   friend class OptionTable;
   std::list<Option*> _options;
 
+  mforms::TreeNodeView _switcher;
+
+  mforms::Box _hbox;
   mforms::Box _top_box;
   mforms::Box _bottom_box;
   mforms::TabView _tabview;
@@ -89,17 +92,24 @@ private:
   void show_colors_and_fonts();
   void update_colors_and_fonts();
 
-  void create_admin_page();
-  void create_sqlide_page();
-  void create_query_page();
-  void create_general_page();
-  void create_model_page();
-  void create_mysql_page();
-  void create_diagram_page();
-  void create_appearance_page();
-#if _WIN32
-  void create_color_scheme_page();
-#endif
+  mforms::View *create_general_editor_page();
+
+  mforms::View *create_admin_page();
+  mforms::View *create_sqlide_page();
+  mforms::View *create_editor_page();
+  mforms::View *create_query_page();
+  mforms::View *create_object_editor_page();
+
+  mforms::View *create_model_defaults_page();
+  mforms::View *create_model_page();
+  mforms::View *create_mysql_page();
+  mforms::View *create_diagram_page();
+  mforms::View *create_appearance_page();
+
+  mforms::View *create_fonts_and_colors_page();
+
+  mforms::View *create_others_page();
+
 
   grt::DictRef get_options(bool global= false);
   
@@ -119,6 +129,8 @@ private:
   void update_selector_option(const std::string &option_name, mforms::Selector *selector,
                               const std::vector<std::string> &choices, const std::string &default_value, bool as_number);
 
+  void switch_page();
+  mforms::TreeNodeRef add_page(mforms::TreeNodeRef parent, const std::string &title, mforms::View *view);
 public:
   PreferencesForm(wb::WBContextUI *wbui, const workbench_physical_ModelRef &model = workbench_physical_ModelRef());
   virtual ~PreferencesForm();

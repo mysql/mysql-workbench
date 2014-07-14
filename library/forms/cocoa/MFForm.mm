@@ -55,6 +55,7 @@
 
 - (void)dealloc
 {
+  [mOriginalMenu release];
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   [super dealloc];
 }
@@ -201,6 +202,11 @@
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
+  if (mOwner->get_menubar())
+  {
+    mOriginalMenu = [[NSApp mainMenu] retain];
+    [NSApp setMainMenu: mOwner->get_menubar()->get_data()];
+  }
   if (mOwner)
     mOwner->activated();
 }
@@ -208,6 +214,12 @@
 
 - (void)windowDidResignKey:(NSNotification *)notification
 {
+  if (mOriginalMenu)
+  {
+    [NSApp setMainMenu: mOriginalMenu];
+    [mOriginalMenu release];
+    mOriginalMenu = nil;
+  }
   if (mOwner)
     mOwner->deactivated();
 }
@@ -346,6 +358,12 @@ static void form_flush_events(::mforms::Form *self)
 }
 
 
+static void form_set_menubar(mforms::Form *self, mforms::MenuBar *menubar)
+{
+  // nop
+}
+
+
 void cf_form_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -359,5 +377,6 @@ void cf_form_init()
   f->_form_impl.set_content= &form_set_content;
   f->_form_impl.flush_events= &form_flush_events;
   f->_form_impl.center= &form_center;
+  f->_form_impl.set_menubar = &form_set_menubar;
 }
 

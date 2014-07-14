@@ -246,7 +246,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._log_text.set_read_only(True)
         self._log_box.add(self._log_text)
         self._log_box.show(False)
-        self.content.add(self._log_box, True, True)
+        self.content.add_end(self._log_box, True, True)
         self._log_queue = deque()
         
         self._showing_logs = False

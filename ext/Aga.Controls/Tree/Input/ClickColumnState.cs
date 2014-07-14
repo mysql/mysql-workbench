@@ -39,7 +39,7 @@ namespace Aga.Controls.Tree
 		{
 			Tree.ChangeInput();
 			Tree.UpdateView();
-			Tree.OnColumnClicked(Column);
+			Tree.OnColumnClicked(Column, args.Button);
 		}
 	}
 }

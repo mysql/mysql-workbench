@@ -235,7 +235,7 @@ TEST_FUNCTION(1)
   return;
 #endif
 
-  size_t cntr = 0;
+//   size_t cntr = 0;
   std::vector<std::vector<int> >::const_iterator It2 = test_dst.begin();
   for(std::vector<std::vector<int> >::const_iterator It1 = test_src.begin();
     It1 != test_src.end() && It2 != test_dst.end(); ++It1,++It2)
