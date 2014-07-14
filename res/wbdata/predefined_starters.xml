@@ -2,17 +2,6 @@
 
 <data grt_format="2.0" document_type="MySQL Workbench Starters" version="1.0.0">
   <value type="list" key="items" content-type="object" content-struct-name="app.Starter">
-    <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.docs">
-      <value type="string" key="type">WB Plugin</value>
-      <value type="string" key="title">MySQL Doc Library</value>
-      <value type="string" key="description">The full MySQL Documentation Library for all MySQL products.</value>
-      <value type="string" key="publisher">Oracle Corp.</value>
-      <value type="string" key="authorHome">http://www.mysql.com</value>
-      <value type="string" key="smallIcon">wb_starter_mysql_doc_lib_52.png</value>
-      <value type="string" key="largeIcon">wb_starter_mysql_doc_lib_68.png</value>
-      <value type="string" key="command">plugin:wb.doclib.open</value>
-    </value>
-
     <value type="object" struct-name="app.Starter" id="com.mysql.wb.starter.utilities">
       <value type="string" key="type">WB Plugin</value>
       <value type="string" key="title">MySQL Utilities</value>

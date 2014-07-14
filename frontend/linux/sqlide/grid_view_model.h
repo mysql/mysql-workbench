@@ -23,8 +23,14 @@ public:
   bool row_numbers_visible() { return _row_numbers_visible; }
   void set_ellipsize(const int column, const bool on);
 
+  void set_column_width(int column, int width);
+
+  void ignore_column_resizes(bool flag) { if (flag) _ignore_column_resizes++; else _ignore_column_resizes--; }
+
   sigc::slot<void, const int, Glib::ValueBase*>   before_render;
 
+  sigc::slot<void, int> column_resized;
+  sigc::slot<void, int, int, int> column_right_clicked;
 protected:
   GridViewModel(bec::GridModel::Ref model, GridView *view, const std::string &name);
   virtual void get_value_vfunc(const iterator& iter, int column, Glib::ValueBase& value) const;
@@ -33,6 +39,8 @@ private:
   bec::GridModel::Ref                   _model;
   GridView                             *_view;
   std::map<Gtk::TreeViewColumn*, int>   _col_index_map;
+  std::map<int, int>                    _current_column_size;
+  int                                   _ignore_column_resizes;
   bool                                  _row_numbers_visible;
 
   template <typename ValueTypeTraits>
@@ -40,6 +48,9 @@ private:
 
   void get_cell_value(const iterator& iter, int column, GType type, Glib::ValueBase& value);
   void set_cell_value(const iterator& itier, int column, GType type, const Glib::ValueBase& value);
+
+  void on_column_resized(Gtk::TreeViewColumn *c);
+  void on_column_header_button_press(GdkEventButton *ev, Gtk::TreeViewColumn *col);
 };
 
 

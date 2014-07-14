@@ -868,12 +868,13 @@ void grt::NormalizedComparer::load_db_options(sql::DatabaseMetaData *dbc_meta)
     const unsigned int major = dbc_meta->getDatabaseMajorVersion();
     const unsigned int minor = dbc_meta->getDatabaseMinorVersion();
     const unsigned int revision = dbc_meta->getDatabasePatchVersion();
-    if ((major >= 5) && (minor >= 5) && (revision >= 5))
+    if (bec::is_supported_mysql_version_at_least(major, minor, revision, 5, 5, 5))
     {
         _maxTableCommentLength = 2048;
         _maxIndexCommentLength = 1024;
         _maxColumnCommentLength = 1024;
-    }else
+    }
+    else
     {
         _maxTableCommentLength = 60;
         _maxIndexCommentLength = 0;

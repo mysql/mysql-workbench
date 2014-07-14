@@ -13,13 +13,9 @@ add_library(grt
     grtpp_util.cpp
     grtpp_value.cpp
     grtpp_shell.cpp
-    grtpp_shell_lua.cpp
-    grtpp_shell_lua_help.cpp
     grtpp_module.cpp
     grtpp_module_cpp.cpp
-    grtpp_module_lua.cpp
     grtpp_notifications.cpp
-    lua_context.cpp
     serializer.cpp
     unserializer.cpp
     grtpp_undo_manager.cpp

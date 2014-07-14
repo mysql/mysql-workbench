@@ -79,7 +79,7 @@ SidebarEntry::SidebarEntry(const string& name, const string& title, const string
   _name = name;
   _title = title;
   if (!icon.empty())
-    _icon = Utilities::load_icon(icon);
+    _icon = Utilities::load_icon(icon, true);
   else
     _icon = NULL;
   _type = type;
@@ -108,7 +108,7 @@ void SidebarEntry::set_icon(const std::string &icon)
 {
   if (_icon)
     cairo_surface_destroy(_icon);
-  _icon = Utilities::load_icon(icon);
+  _icon = Utilities::load_icon(icon, true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,10 +138,11 @@ void SidebarEntry::paint(cairo_t* cr, Rect bounds, bool hot, bool active, const 
   double offset;
   if (_icon != NULL)
   {
-    offset = (bounds.height() - cairo_image_surface_get_height(_icon)) / 2;
-    cairo_set_source_surface(cr, _icon, bounds.left(), bounds.top() + offset);
-    cairo_paint(cr);
-    cairo_rel_move_to(cr, cairo_image_surface_get_width(_icon) + SECTION_ENTRY_ICON_SPACING, 0);
+    int width, height;
+    mforms::Utilities::get_icon_size(_icon, width, height);
+    offset = (bounds.height() - height) / 2;
+    mforms::Utilities::paint_icon(cr, _icon, bounds.left(), bounds.top() + offset);
+    cairo_rel_move_to(cr, width + SECTION_ENTRY_ICON_SPACING, 0);
   }
 
   cairo_select_font_face(cr, SIDEBAR_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -188,24 +189,22 @@ SidebarSection::Button::Button(const std::string &accessible_name, const std::st
   move(0, 0);
 
   if (!icon_name.empty())
-    icon = Utilities::load_icon(icon_name);
+    icon = Utilities::load_icon(icon_name, true);
   if (!alt_icon_name.empty())
-    alt_icon = Utilities::load_icon(alt_icon_name);
+    alt_icon = Utilities::load_icon(alt_icon_name, true);
 
   width = 0;
   height = 0;
   if (icon)
   {
-    width = cairo_image_surface_get_width(icon);
-    height = cairo_image_surface_get_height(icon);
+    Utilities::get_icon_size(icon, width, height);
   }
   else if (alt_icon)
   {
-    width = cairo_image_surface_get_width(alt_icon);
-    height = cairo_image_surface_get_height(alt_icon);
+    Utilities::get_icon_size(alt_icon, width, height);
   }
-  bounds_width = width;
-  bounds_height = height;
+  bounds_width = width + 4;
+  bounds_height = height + 4;
 }
 
 
@@ -253,10 +252,9 @@ void SidebarSection::Button::draw(cairo_t *cr)
       cairo_stroke(cr);
     }
 
-    image_left += (bounds_width - width) / 2;
-    image_top += (bounds_height - height) / 2;
-    cairo_set_source_surface(cr, image, image_left + 0.5, image_top + 0.5);
-    cairo_paint(cr);
+    image_left += (bounds_width - width) / 2 + 1;
+    image_top += (bounds_height - height) / 2 + 1;
+    Utilities::paint_icon(cr, image, image_left, image_top);
   }
 }
 
@@ -302,7 +300,7 @@ SidebarSection::SidebarSection(SimpleSidebar* owner, const std::string& name, co
   if (flags & mforms::TaskSectionRefreshable)
   {
 #ifdef __APPLE__
-    _refresh_button = new Button("Refresh", "refresh_sidebar_mac.png", "busy_sidebar_mac.png");
+    _refresh_button = new Button("Refresh", "wb-sidebar-refresh.png", "busy_sidebar_mac.png");
 #else
     _refresh_button = new Button("Refresh", "refresh_sidebar.png", "busy_sidebar.png");
 #endif

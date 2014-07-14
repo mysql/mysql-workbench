@@ -37,9 +37,13 @@ public:
   virtual int get_column_count();
   virtual int get_column_width(int column);
   virtual void set_column_width(int column, int width);
+  virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order);
 
   virtual bool current_cell(size_t &row, int &column);
   virtual void set_current_cell(size_t row, int column);
+
+  virtual void set_font(const std::string &font);
+  virtual void set_header_menu(ContextMenu *menu);
 
   MResultsetViewer *control() { return viewer; }
 };

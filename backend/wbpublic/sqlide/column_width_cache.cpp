@@ -84,20 +84,12 @@ void ColumnWidthCache::init_db()
 
 void ColumnWidthCache::save_column_width(const std::string &column_id, int width)
 {
-  sqlite::query q(*_sqconn, "update widths set width=? where column_id=?");
-  q.bind(1, width);
-  q.bind(2, column_id);
   try
   {
+    sqlite::query q(*_sqconn, "insert or replace into widths values (?, ?)");
+    q.bind(1, column_id);
+    q.bind(2, width);
     q.emit();
-    if (q.get_result()->get_row_count() == 0)
-    {
-      // try inserting if update didn't do anything
-      sqlite::query q(*_sqconn, "insert into widths values (?, ?)");
-      q.bind(1, column_id);
-      q.bind(2, width);
-      q.emit();
-    }
   }
   catch (std::exception &exc)
   {

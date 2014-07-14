@@ -41,7 +41,7 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(grtdb_tests, "DB stuff tests");
 
-TEST_FUNCTION(1)
+TEST_FUNCTION(2)
 {
   tester.create_new_document();
 }
@@ -304,7 +304,10 @@ TEST_FUNCTION(26)
     bec::TableHelper::get_sync_comment("hell\xE2\x82\xAC world", 5), "hell");
    
    ensure_equals("split trunc part", 
-    bec::TableHelper::get_sync_comment("hello\nworld", 15), "hello");
+    bec::TableHelper::get_sync_comment("hello\n\nworld", 15), "hello\n\nworld");
+
+   ensure_equals("split trunc part, paragraph break",
+     bec::TableHelper::get_sync_comment("hello\n\nworld long text", 15), "hello");
 }
 
 
@@ -320,8 +323,12 @@ TEST_FUNCTION(27)
     "'hello world'");
 
   ensure_equals("comment", 
-    bec::TableHelper::generate_comment_text("hello\nworld", 15), 
-    "'hello' /* comment truncated */ /*world*/");
+    bec::TableHelper::generate_comment_text("hello\nworld", 12), 
+    "'hello\\nworld'");
+
+  ensure_equals("comment",
+    bec::TableHelper::generate_comment_text("hello\n\nworld", 10),
+    "'hello' /* comment truncated */ /*\nworld*/");
 
   ensure_equals("comment", 
     bec::TableHelper::generate_comment_text("hello wo'rld", 5), 
@@ -344,6 +351,21 @@ TEST_FUNCTION(27)
     "'h\\'llo' /* comment truncated */ /*/* a *\\/*/");
 }
 
+
+TEST_FUNCTION(30)
+{
+  // test version checking utils
+  ensure("5.5.0 supported", bec::is_supported_mysql_version("5.5.0"));
+  ensure("5.6.5 supported", bec::is_supported_mysql_version("5.6.5"));
+  ensure("3.14.15 not supported", !bec::is_supported_mysql_version("3.14.15"));
+  ensure("5.5 supported", bec::is_supported_mysql_version("5.5"));
+  ensure("6.6.6 not supported", !bec::is_supported_mysql_version("6.6.6"));
+
+  ensure("5.5.5 vs 5.7.4", bec::is_supported_mysql_version_at_least(5, 7, 4, 5, 5, 5));
+  ensure("5.10.5 vs 5.7.4", !bec::is_supported_mysql_version_at_least(5, 7, 4, 5, 10, 5));
+  ensure("5.5.5 vs 5.5.4", !bec::is_supported_mysql_version_at_least(5, 5, 4, 5, 5, 5));
+  ensure("5.5.5 vs 6.6.6", !bec::is_supported_mysql_version_at_least(5, 5, 5, 6, 6, 6));
+}
 
 END_TESTS
 

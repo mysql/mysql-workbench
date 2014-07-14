@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_TREENODEVIEW_H_
-#define _MFORMS_TREENODEVIEW_H_
+
+#pragma once
 
 #include <mforms/view.h>
 #include <boost/cstdint.hpp>
@@ -275,7 +275,7 @@ namespace mforms {
     void end_columns();
     
     /** Sets the title of the given column */
-    void set_column_title(int column, const std::string &title); // TODO: Windows
+    void set_column_title(int column, const std::string &title);
 
     /** Sets a callback that's called when the mouse hovers on a row.
      
@@ -377,7 +377,7 @@ namespace mforms {
      
      Note: Ownership of the context menu remains with the caller and it will not be freed
      when this object is deleted. */
-    void set_header_menu(ContextMenu *menu); // TODO: Windows
+    void set_header_menu(ContextMenu *menu);
     
     /** Returns the context menu object attached to the treeview */
     ContextMenu *get_context_menu() { return _context_menu; }
@@ -439,7 +439,7 @@ namespace mforms {
 
     // Called when right clicking on a header/title of a column, so that the context menu handler can know
     // what column is it being shown for
-    void header_clicked(int column); // TODO: Windows
+    void header_clicked(int column);
 #endif
 #endif
 
@@ -460,5 +460,3 @@ namespace mforms {
     bool _end_column_called;
   };
 }
-
-#endif /* _TREENODEVIEW_H_ */

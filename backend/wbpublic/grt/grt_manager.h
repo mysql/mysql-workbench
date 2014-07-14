@@ -271,12 +271,6 @@ namespace bec {
     void shell_write(const std::string &text);
 
     void task_error_cb(const std::exception &error, const std::string &title);
-    
-    // cheat wrapper for deambiguation
-    inline boost::signals2::connection run_once_when_idle_(const boost::function<void ()> &func)
-    {
-      return run_once_when_idle(func);
-    }
   };
 
 };
