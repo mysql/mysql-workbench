@@ -13224,7 +13224,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${SRCROOT}/library/mysql.parser/grammar\nif [ ! -f ../MySQLParser.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLParser.c ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLLexer.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLLexer.c ]; then ./build-parser-mac; fi\n\nif [ MySQL.g -nt ../MySQLParser.c ]; then\n./build-parser-mac;\nfi";
+			shellScript = "cd ${SRCROOT}/library/mysql.parser/grammar\nif [ ! -f ../MySQLParser.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLParser.c ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLLexer.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLLexer.c ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLSimpleParser.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLSimpleParser.c ]; then ./build-parser-mac; fi\n\nif [ MySQL.g -nt ../MySQLParser.c  -o  MySQLSimpleParser.g -nt ../MySQLSimpleParser.c ]; then\n./build-parser-mac;\nfi";
 			showEnvVarsInLog = 0;
 		};
 		2B02FEFF183EBF7000770CC0 /* Generate swig wrapper */ = {
