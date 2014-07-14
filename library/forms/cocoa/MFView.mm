@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #import "MFView.h"
 #import "MFMForms.h"
 #include "base/string_utilities.h"
@@ -107,6 +106,19 @@ static const char *dropDelegateKey = "dropDelegate";
 - (void)setDropDelegate: (mforms::DropDelegate *)delegate
 {
   objc_setAssociatedObject(self, dropDelegateKey, @((NSUInteger)delegate), OBJC_ASSOCIATION_RETAIN);
+}
+
+static const char *lastDropPositionKey = "lastDropPositionKey";
+
+- (mforms::DropPosition)lastDropPosition
+{
+  NSNumber *value = objc_getAssociatedObject(self, lastDropPositionKey);
+  return (mforms::DropPosition)value.intValue;
+}
+
+- (void)setLastDropPosition: (mforms::DropPosition)value
+{
+  objc_setAssociatedObject(self, lastDropPositionKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,10 +456,16 @@ struct PasteboardDataWrapper {
   return NO;
 }
 
+- (void)draggingEnded: (id <NSDraggingInfo>)sender
+{
+  self.lastDropPosition = mforms::DropPositionUnknown;
+}
+
 - (mforms::DragOperation)startDragWithText: (NSString *)text
                                    details: (mforms::DragDetails)details
 {
   self.allowedDragOperations = details.allowedOperations;
+  self.lastDropPosition = mforms::DropPositionUnknown;
 
   NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
   [pasteboard clearContents];
@@ -525,6 +543,7 @@ struct PasteboardDataWrapper {
                                     format: (NSString *)format
 {
   self.allowedDragOperations = details.allowedOperations;
+  self.lastDropPosition = mforms::DropPositionUnknown;
 
   NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
   [pasteboard clearContents];
@@ -968,6 +987,7 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
         [list addObject: [NSString stringWithUTF8String: formats[i].c_str()]];
   }
   NSView *view = self->get_data();
+
   view.acceptableDropFormats = list;
   view.dropDelegate = target;
 }
@@ -984,13 +1004,14 @@ static mforms::DragOperation view_drag_data(mforms::View *self, mforms::DragDeta
 {
   NSView *view = self->get_data();
   return [view startDragWithData: data
-                        details: details
+                         details: details
                           format: [NSString stringWithUTF8String: format.c_str()]];
 }
 
 static mforms::DropPosition view_get_drop_position(mforms::View *self)
 {
-  return mforms::DropPositionUnknown;
+  NSView *view = self->get_data();
+  return view.lastDropPosition;
 }
 
 void cf_view_init()

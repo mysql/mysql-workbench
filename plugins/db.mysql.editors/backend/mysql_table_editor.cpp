@@ -383,6 +383,7 @@ public:
     {
       format = TRIGGER_DRAG_FORMAT;
       details.allowedOperations = mforms::DragOperationCopy | mforms::DragOperationMove;
+      *data = &selection;
 
       return true;
     }
@@ -693,6 +694,8 @@ public:
   {
     if (_selected_trigger.is_valid())
     {
+      bool need_refresh = false;
+
       if (_code_editor->is_dirty() && _selected_trigger->sqlDefinition() != _code_editor->get_string_value())
       {
         AutoUndoEdit undo(_editor, _selected_trigger, "sql");
@@ -710,9 +713,103 @@ public:
         if (node)
           node->set_string(0, name);
 
+        // Check if the user included a follow or precedes clause (which is valid starting with 5.7.2).
+        // Reorder the triggers in the current group and remove the clause if one exists.
+        if (!_selected_trigger->ordering().empty())
+        {
+          std::string other_trigger = _selected_trigger->otherTrigger();
+          if (!other_trigger.empty())
+          {
+            // Positioning information is only valid for the same timing and event.
+            grt::ListRef<db_mysql_Trigger> triggers(_table->triggers());
+            size_t old_index = triggers->get_index(_selected_trigger);
+            for (size_t i = 0; i < triggers.count(); ++i)
+            {
+              db_mysql_TriggerRef trigger = triggers[i];
+              if (trigger == _selected_trigger)
+                continue;
+
+              if (base::same_string(trigger->name(), other_trigger, false) &&
+                  base::same_string(trigger->event(), _selected_trigger->event(), false)
+                  && base::same_string(trigger->timing(), _selected_trigger->timing(), false))
+              {
+                if (base::same_string(_selected_trigger->ordering(), "precedes", false))
+                  triggers->move(old_index, i);
+                else
+                  triggers->move(old_index, i + 1);
+
+                need_refresh = true;
+                break;
+              }
+            }
+          }
+
+          // Remove ordering clause from the sql.
+          // We do a token-based search-and-replace here. Keep in mind the sql text might not be valid.
+          std::string sql;
+          std::string source = _selected_trigger->sqlDefinition();
+
+          MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
+          size_t ordering_token = _editor->_parser_context->get_keyword_token(_selected_trigger->ordering());
+          bool removal_done = false;
+          do
+          {
+            MySQLToken token = scanner->next_token();
+            if (token.type == ANTLR3_TOKEN_EOF)
+              break;
+
+            if (!removal_done && token.type == ordering_token)
+            {
+              // The token we are looking for. Skip this and any whitespace token following it.
+              do
+              {
+                token = scanner->next_token();
+                if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+                  break;
+              } while (true);
+
+              // See if there's an identifier following the ordering keyword and if so remove that too
+              // including the following whitespace).
+              if (scanner->is_identifier(token.type))
+              {
+                do
+                {
+                  token = scanner->next_token();
+                  if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+                    break;
+                } while (true);
+              }
+
+              removal_done = true;
+              if (token.type == ANTLR3_TOKEN_EOF)
+                break;
+
+              // Add the following token we already scanned or it will get lost.
+              sql += token.text;
+            }
+            else
+              sql += token.text;
+
+          } while (true);
+
+          // Finally remove position information from the trigger object, regardless wether the other trigger actually
+          // exists (or is valid) and update the code editor.
+          _selected_trigger->ordering("");
+          _selected_trigger->otherTrigger("");
+          _editor->get_sql_editor()->sql(sql.c_str());
+        }
+
         _editor->thaw_refresh_on_object_change();
 
         undo.end(strfmt(_("Edit trigger `%s` of `%s`.`%s`"), name.c_str(), _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
+      }
+
+      if (need_refresh)
+      {
+        // Reload the tree but keep the current trigger selected.
+        refresh();
+
+        _trigger_list.select_node(node_for_trigger(_selected_trigger));
       }
     }
     else
@@ -1048,6 +1145,8 @@ public:
       mforms::DropPosition position = _trigger_list.get_drop_position();
       if (target_node.is_valid())
       {
+        _editor->freeze_refresh_on_object_change();
+
         // Note: the code below only works if the source tree is our own trigger list.
         //       For drag support between multiple editors code is required to get trigger-for-node
         //       and vice versa information from that other editor instance.
@@ -1074,10 +1173,10 @@ public:
               event = base::tolower(event);
             }
 
-            // We do here a simple search-and-replace here. Keep in mind the sql text might not be valid.
+            // We do a token-based search-and-replace here. Keep in mind the sql text might not be valid.
             std::string sql;
-
             std::string source = trigger->sqlDefinition();
+
             MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
             size_t timing_token = _editor->_parser_context->get_keyword_token(trigger->timing());
             size_t event_token = _editor->_parser_context->get_keyword_token(trigger->event());
@@ -1159,8 +1258,12 @@ public:
           triggers->insert_unchecked(trigger, index);
         }
 
+        _editor->thaw_refresh_on_object_change(true);
+
         // We will always have only small lists of triggers, so a simple refresh does the job here.
         refresh();
+        selection_changed();
+        
         return (tree == &_trigger_list) ? mforms::DragOperationMove : mforms::DragOperationCopy;
       }
     }

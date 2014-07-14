@@ -319,6 +319,7 @@ namespace grt {
       virtual void remove(const ValueRef & value);
       virtual void remove(size_t index);
       void reorder(size_t oi, size_t ni);
+      void move(size_t from, size_t to);
       
       size_t get_index(const ValueRef &value);
       

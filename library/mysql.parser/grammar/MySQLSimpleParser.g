@@ -835,6 +835,7 @@ into_clause:
 		OUTFILE_SYMBOL string_literal charset_clause? fields_clause? lines_clause?
 		| DUMPFILE_SYMBOL string_literal
 		| AT_SIGN_SYMBOL? text_or_identifier (COMMA_SYMBOL AT_SIGN_SYMBOL? text_or_identifier)*
+		| AT_TEXT_SUFFIX (COMMA_SYMBOL AT_TEXT_SUFFIX)*
 	)
 ;
 
@@ -1719,9 +1720,9 @@ interval_time_span:
 primary:
     (
 		literal
-		| field_name
 		| function_call_expression
 		| (qualified_identifier OPEN_PAR_SYMBOL) => generic_function_call
+		| field_name
 		| PARAM_MARKER
 		| variable
 		| {LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? subquery
@@ -1928,7 +1929,8 @@ variable options { greedy = true; }:
 ;
 
 user_variable:
-	AT_SIGN_SYMBOL text_or_identifier
+	(AT_SIGN_SYMBOL text_or_identifier)
+	| AT_TEXT_SUFFIX
 ;
 
 // System variables as used in expressions. SET has another variant of this (SET GLOBAL/LOCAL varname).
@@ -2125,7 +2127,7 @@ while_do_block:
 ;
 
 declarations: // Order is important here.
-	( options { greedy = true; }: DECLARE_SYMBOL identifier (variable_declaration | condition_declaration))*
+	( options { k = 3; }: DECLARE_SYMBOL identifier (variable_declaration | condition_declaration))*
 		cursor_declaration* handler_declaration*
 ;
 
@@ -2138,7 +2140,7 @@ condition_declaration:
 ;
 
 cursor_declaration:
-	DECLARE_SYMBOL identifier CURSOR_SYMBOL SEMICOLON_SYMBOL
+	DECLARE_SYMBOL identifier CURSOR_SYMBOL FOR_SYMBOL select_statement SEMICOLON_SYMBOL
 ;
 
 handler_declaration:
@@ -2205,15 +2207,12 @@ statement_information_item:
 ;
 
 condition_information_item:
-	(variable | identifier) EQUAL_OPERATOR condition_information_item_name
+	(variable | identifier) EQUAL_OPERATOR (signal_information_item_name | RETURNED_SQLSTATE_SYMBOL)
 ;
 
-condition_information_item_name:
+signal_information_item_name:
 	CLASS_ORIGIN_SYMBOL
 	| SUBCLASS_ORIGIN_SYMBOL
-	| RETURNED_SQLSTATE_SYMBOL
-	| MESSAGE_TEXT_SYMBOL
-	| MYSQL_ERRNO_SYMBOL
 	| CONSTRAINT_CATALOG_SYMBOL
 	| CONSTRAINT_SCHEMA_SYMBOL
 	| CONSTRAINT_NAME_SYMBOL
@@ -2222,10 +2221,16 @@ condition_information_item_name:
 	| TABLE_NAME_SYMBOL
 	| COLUMN_NAME_SYMBOL
 	| CURSOR_NAME_SYMBOL
+	| MESSAGE_TEXT_SYMBOL
+	| MYSQL_ERRNO_SYMBOL
 ;
 
 signal_statement:
-	SIGNAL_SYMBOL (SQLSTATE_SYMBOL VALUE_SYMBOL? text_or_identifier)
+	SIGNAL_SYMBOL
+		(
+			identifier
+			| SQLSTATE_SYMBOL VALUE_SYMBOL? text_or_identifier
+		)
 		(SET_SYMBOL signal_information_item (COMMA_SYMBOL signal_information_item)*)?
 ;
 
@@ -2235,7 +2240,7 @@ resignal_statement:
 ;
 
 signal_information_item:
-	condition_information_item_name EQUAL_OPERATOR literal
+	signal_information_item_name EQUAL_OPERATOR (literal | variable | identifier)
 ;
 
 cursor_close:
@@ -2701,7 +2706,7 @@ user_specification:
 ;
 
 user:
-	text_or_identifier (AT_SIGN_SYMBOL text_or_identifier)?
+	text_or_identifier (AT_SIGN_SYMBOL text_or_identifier | AT_TEXT_SUFFIX)?
 	| CURRENT_USER_SYMBOL parentheses?
 ;
 
@@ -2859,7 +2864,9 @@ text_or_param_marker:
 ;
 
 text_or_identifier:
-	string_literal | identifier
+	string_literal
+	| identifier
+	//| USER_VARIABLE // LEX_HOSTNAME in the server grammar.
 ;
 
 float_or_param:

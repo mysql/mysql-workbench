@@ -139,10 +139,11 @@ size_t MySQLParserServicesImpl::parseTrigger(const ParserContext::Ref &context,
     trigger->timing(walker.token_text());
     walker.next();
     trigger->event(walker.token_text());
+    walker.next();
 
     // The referenced table is not stored in the trigger object as that is defined by it's position
     // in the grt tree.
-    walker.skip_token_sequence(ON_SYMBOL, TABLE_NAME_TOKEN, IDENTIFIER, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
+    walker.skip_token_sequence(ON_SYMBOL, TABLE_NAME_TOKEN, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
     ANTLR3_UINT32 type = walker.token_type();
     if (type == FOLLOWS_SYMBOL || type == PRECEDES_SYMBOL)
     {
@@ -174,13 +175,32 @@ size_t MySQLParserServicesImpl::parseTrigger(const ParserContext::Ref &context,
       }
       trigger->name(name);
     }
+
+    // Another attempt: find the ordering as we may need to manipulate this.
+    if (walker.advance_to_type(ROW_SYMBOL, true))
+    {
+      walker.next();
+      if (walker.token_type() == FOLLOWS_SYMBOL || walker.token_type() == PRECEDES_SYMBOL)
+      {
+        trigger->ordering(walker.token_text());
+        walker.next();
+        if (walker.is_identifier())
+        {
+          trigger->otherTrigger(walker.token_text());
+          walker.next();
+        }
+      }
+    }
   }
 
   trigger->modelOnly(result_flag);
-  if (trigger->owner().is_valid())
+  if (trigger->owner().is_valid() && result_flag == 1)
   {
+    // TODO: this is modeled after the old parser code but doesn't make much sense this way.
+    //       There's only one flag for all triggers. So, at least there should be a scan over all triggers
+    //       when determining this flag.
     db_TableRef table = db_TableRef::cast_from(trigger->owner());
-    table->customData().set("triggerInvalid", grt::IntegerRef(result_flag));
+    table->customData().set("triggerInvalid", grt::IntegerRef(1));
   }
   return error_count;
 }
