@@ -536,9 +536,26 @@ bool spatial::operator!= (ProjectionView &v1, ProjectionView &v2)
   return !(v1==v2);
 }
 
+bool spatial::operator== (Envelope &env1, Envelope &env2)
+{
+  return env1.bottom_right == env2.bottom_right && env1.top_left == env2.top_left;
+}
+
+bool spatial::operator!= (Envelope &env1, Envelope &env2)
+{
+  return !(env1==env2);
+}
+
 spatial::Envelope::Envelope() : converted(false)
 {
+}
 
+spatial::Envelope::Envelope(double left, double top, double right, double bottom) : converted(false)
+{
+  top_left.x = left;
+  top_left.y = top;
+  bottom_right.x = right;
+  bottom_right.y = bottom;
 }
 
 bool spatial::ShapeContainer::within(base::Point &p)
@@ -893,6 +910,19 @@ void spatial::Importer::get_points(std::deque<ShapeContainer> &shapes_container)
     extract_points(_geometry, shapes_container);
 }
 
+void spatial::Importer::get_envelope(spatial::Envelope &env)
+{
+  if (_geometry)
+  {
+    OGREnvelope ogr_env;
+    _geometry->getEnvelope(&ogr_env);
+    env.top_left.x = ogr_env.MinX;
+    env.top_left.y = ogr_env.MaxY;
+    env.bottom_right.x = ogr_env.MaxX;
+    env.bottom_right.y = ogr_env.MinY;
+  }
+}
+
 spatial::Importer::Importer() : _geometry(NULL), _interrupt(false)
 {
 }
@@ -1130,6 +1160,11 @@ Feature::~Feature()
 {
 }
 
+void Feature::get_envelope(spatial::Envelope &env)
+{
+  _geometry.get_envelope(env);
+}
+
 void Feature::render(Converter *converter)
 {
   // method names must get_output() like.. camel case is only for class/struct names
@@ -1155,7 +1190,6 @@ void Feature::interrupt()
 {
   _geometry.interrupt();
 }
-
 
 void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
 {
@@ -1207,11 +1241,34 @@ void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_are
 }
 
 
+static void extend_env(spatial::Envelope &env, const spatial::Envelope &env2)
+{
+  if (env.top_left.x > env2.top_left.x)
+  {
+    env.top_left.x = env2.top_left.x;
+  }
+  if (env.top_left.y < env2.top_left.y)
+  {
+    env.top_left.y = env2.top_left.y;
+  }
+  if (env.bottom_right.x < env2.bottom_right.x)
+  {
+    env.bottom_right.x = env2.bottom_right.x;
+  }
+  if (env.bottom_right.y > env2.bottom_right.y)
+  {
+    env.bottom_right.y = env2.bottom_right.y;
+  }
+}
+
 
 Layer::Layer(int layer_id, base::Color color)
 : _layer_id(layer_id), _color(color), _show(false), _interrupt(false)
 {
-
+  _spatial_envelope.top_left.x = 180;
+  _spatial_envelope.top_left.y = -90;
+  _spatial_envelope.bottom_right.x = -180;
+  _spatial_envelope.bottom_right.y = 90;
 }
 
 Layer::~Layer()
@@ -1248,7 +1305,10 @@ void Layer::set_show(bool flag)
 
 void Layer::add_feature(int row_id, const std::string &geom_data, bool wkt)
 {
+  spatial::Envelope env;
   Feature *feature = new Feature(this, row_id, geom_data, wkt);
+  feature->get_envelope(env);
+  extend_env(_spatial_envelope, env);
   _features.push_back(feature);
 }
 
@@ -1269,6 +1329,11 @@ void Layer::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
 float Layer::query_render_progress()
 {
   return _render_progress;
+}
+
+spatial::Envelope spatial::Layer::get_envelope()
+{
+  return _spatial_envelope;
 }
 
 

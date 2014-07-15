@@ -80,6 +80,7 @@ private:
 
   void update_coordinates(const std::string &lat, const std::string &lon);
   void jump_to();
+  void auto_zoom();
   void copy_coordinates();
 
 public:

@@ -134,13 +134,18 @@ namespace spatial
   {
   public:
     Envelope();
+    Envelope(double left, double top, double right, double bottom);
     bool converted;
     base::Point top_left;
     base::Point bottom_right;
+    friend bool operator == (Envelope &env1, Envelope &env2);
+    friend bool operator != (Envelope &env1, Envelope &env2);
   };
 
   bool operator== (ProjectionView &v1, ProjectionView &v2);
   bool operator!= (ProjectionView &v1, ProjectionView &v2);
+  bool operator== (Envelope &env1, Envelope &env2);
+  bool operator!= (Envelope &env1, Envelope &env2);
 
   enum ProjectionType
   {
@@ -252,6 +257,7 @@ namespace spatial
     int import_from_mysql(const std::string &data);
     int import_from_wkt(std::string data);
     void get_points(std::deque<ShapeContainer> &shapes_container);
+    void get_envelope(Envelope &env);
     void interrupt();
   };
 
@@ -299,7 +305,7 @@ namespace spatial
     ~Feature();
 
     void interrupt();
-
+    void get_envelope(spatial::Envelope &env);
     void render(spatial::Converter *converter);
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
 
@@ -319,6 +325,7 @@ namespace spatial
     float _render_progress;
     bool _show;
     bool _interrupt;
+    spatial::Envelope _spatial_envelope;
 
   public:
     Layer(int layer_id, base::Color color);
@@ -340,6 +347,7 @@ namespace spatial
     bool within(base::Point &p);
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
     float query_render_progress();
+    spatial::Envelope get_envelope();
   };
 };
 #endif /* SPATIAL_HANDLER_H_ */
