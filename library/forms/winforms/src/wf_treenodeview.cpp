@@ -1107,7 +1107,7 @@ bool TreeNodeViewWrapper::create(mforms::TreeNodeView *backend, mforms::TreeOpti
 
   tree->FullRowSelect = true; // Same as in Explorer.
   tree->AsyncExpanding = false;
-  tree->LoadOnDemand = true;
+  tree->LoadOnDemand = false;
   tree->UseColumns = options & mforms::TreeNoColumns ? false : true;
   tree->ShowHeader = tree->UseColumns && (options & mforms::TreeNoHeader) == 0;
   

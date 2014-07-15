@@ -511,6 +511,7 @@ void TreeNodeWrapper::add_children_from_skeletons(std::vector<TreeNodeWrapper> p
   {
     String ^caption = CppStringToNative(children[child_index].caption);
     Bitmap ^icon = get_cached_icon(children[child_index].icon);
+    std::string tag = children[child_index].tag;
 
     std::vector<TreeNodeWrapper> child_nodes;
     for (size_t parent_index = 0; parent_index < parents.size(); ++parent_index)
@@ -522,6 +523,7 @@ void TreeNodeWrapper::add_children_from_skeletons(std::vector<TreeNodeWrapper> p
 
       child->Caption[0] = caption;
       child->Icon[0] = icon;
+      child->MyTag = tag;
 
       TreeNodeWrapper nodeWrapper(treeWrapper, treeNode);
       child_nodes.push_back(nodeWrapper);
@@ -532,6 +534,17 @@ void TreeNodeWrapper::add_children_from_skeletons(std::vector<TreeNodeWrapper> p
       add_children_from_skeletons(child_nodes, children[child_index].children);
   }
 }  
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ *	The compiler doesn't allow to assign that value from outside (another wrapper instance),
+ *	so take a detour via an assignment function.
+ */
+void TreeNodeWrapper::node_changed(TreeNodeAdv ^new_node)
+{
+  nativeNodeAdv = new_node;
+}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -552,6 +565,51 @@ mforms::TreeNodeRef TreeNodeWrapper::insert_child(int index)
   }
 
   return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, treeNode));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeWrapper::insert_child(int index, const mforms::TreeNode &child)
+{
+  // Inserting an existing node only works if both belong to the same tree.
+  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)&child;
+  if (treeWrapper != wrapper->treeWrapper)
+    return;
+
+  TreeNodeAdv ^treeNode;
+  if (index < 0)
+  {
+    nativeNode->Nodes->Add(wrapper->nativeNode);
+    treeNode = nativeNodeAdv->Children[nativeNodeAdv->Children->Count - 1];
+  }
+  else
+  {
+    nativeNode->Nodes->Insert(index, wrapper->nativeNode);
+    treeNode = nativeNodeAdv->Children[index];
+  }
+
+  wrapper->node_changed(treeNode);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Moving a child node within it's parent list without the need to reinit (when using the backend).
+ */
+void MySQL::Forms::TreeNodeWrapper::move_child(const TreeNode &child, int new_index)
+{
+  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)&child;
+  int old_index = nativeNode->Nodes->IndexOf(wrapper->nativeNode);
+  if (old_index == new_index)
+    return;
+
+  nativeNode->Nodes->RemoveAt(old_index);
+  if (old_index < new_index)
+    --new_index;
+  nativeNode->Nodes->Insert(new_index, wrapper->nativeNode);
+
+  // Removing the model node destroyed the tree node, so we need to get the new tree node.
+  wrapper->node_changed(nativeNodeAdv->Children[new_index]);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,6 +648,14 @@ mforms::TreeNodeRef TreeNodeWrapper::get_child(int index) const
     return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, child));
 
   return mforms::TreeNodeRef();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int MySQL::Forms::TreeNodeWrapper::get_child_index(const mforms::TreeNode &node) const
+{
+  const TreeNodeWrapper *wrapper = dynamic_cast<const TreeNodeWrapper *>(&node);
+  return nativeNode->Nodes->IndexOf(wrapper->nativeNode);
 }
 
 //--------------------------------------------------------------------------------------------------

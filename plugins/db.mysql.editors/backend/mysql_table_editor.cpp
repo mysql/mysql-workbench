@@ -440,11 +440,18 @@ public:
     add(trigger_list_host, false, true);
 
     _trigger_menu.signal_will_show()->connect(boost::bind(&MySQLTriggerPanel::trigger_menu_will_show, this, _1));
+    _trigger_menu.add_item_with_title("Move trigger up",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_up"), "trigger_up");
+    _trigger_menu.add_item_with_title("Move trigger down",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_down"), "trigger_down");
+    _trigger_menu.add_separator();
+
     _trigger_menu.add_item_with_title("Add new trigger",
       boost::bind(&MySQLTriggerPanel::trigger_action, this, "add_trigger"), "add_trigger");
     _trigger_menu.add_item_with_title("Duplicate trigger",
       boost::bind(&MySQLTriggerPanel::trigger_action, this, "duplicate_trigger"), "duplicate_trigger");
     _trigger_menu.add_separator();
+
     _trigger_menu.add_item_with_title("Delete trigger",
       boost::bind(&MySQLTriggerPanel::trigger_action, this, "delete_trigger"), "delete_trigger");
     _trigger_menu.add_item_with_title("Delete all triggers with this timing",
@@ -504,7 +511,24 @@ public:
     _code_editor = _editor->get_sql_editor()->get_editor_control();
     _code_editor->signal_lost_focus()->connect(boost::bind(&MySQLTriggerPanel::code_edited, this));
     
-    // Loading content is usually called by the owning table editor.
+    // Sort the triggers list so that the order corresponds to the visual representation
+    // we establish, to ease manipulating the list later. This will not change the order of triggers
+    // with the same timing/event relative to each other.
+    // This sort order is not preserved in the model unless the user makes other changes that are saved
+    // (saving so also the new order, if it has changed at all).
+    grt::ListRef<db_mysql_Trigger> triggers(_table->triggers());
+    grt::ListRef<db_mysql_Trigger> sorted_triggers(_table->get_grt());
+
+    _editor->freeze_refresh_on_object_change();
+    coalesce_triggers(triggers, sorted_triggers, "BEFORE", "INSERT");
+    coalesce_triggers(triggers, sorted_triggers, "AFTER", "INSERT");
+    coalesce_triggers(triggers, sorted_triggers, "BEFORE", "UPDATE");
+    coalesce_triggers(triggers, sorted_triggers, "AFTER", "UPDATE");
+    coalesce_triggers(triggers, sorted_triggers, "BEFORE", "DELETE");
+    coalesce_triggers(triggers, sorted_triggers, "AFTER", "DELETE");
+    grt::replace_contents(_table->triggers(), sorted_triggers);
+    _editor->thaw_refresh_on_object_change(true);
+
   }
 
   //------------------------------------------------------------------------------------------------
@@ -512,6 +536,30 @@ public:
   ~MySQLTriggerPanel()
   {
     //_rtable.remove(_editor->get_sql_editor()->get_container());
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  /**
+   *	Moves all triggers from source to target with the given timing and event, maintaining
+   *	their relative order.
+   */
+  void coalesce_triggers(grt::ListRef<db_mysql_Trigger> source, grt::ListRef<db_mysql_Trigger> target,
+    std::string timing, std::string event)
+  {
+    size_t i = 0;
+    while (i < source->count())
+    {
+      db_mysql_TriggerRef trigger = source[i];
+      if (base::same_string(trigger->timing(), timing, false)
+        && base::same_string(trigger->event(), event, false))
+      {
+        source->remove(i);
+        target->insert_unchecked(trigger);
+      }
+      else
+        ++i;
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1011,6 +1059,9 @@ public:
     if (node->get_parent() != _trigger_list.root_node())
     {
       // One of the triggers.
+      _trigger_menu.set_item_enabled("trigger_up", node->previous_sibling().is_valid() || node->get_parent()->previous_sibling().is_valid());
+      _trigger_menu.set_item_enabled("trigger_down", node->next_sibling().is_valid() || node->get_parent()->next_sibling().is_valid());
+
       bool enable = bec::is_supported_mysql_version_at_least(version, 5, 7, 2);
       _trigger_menu.set_item_enabled("add_trigger", enable);
       _trigger_menu.set_item_enabled("duplicate_trigger", enable);
@@ -1021,6 +1072,9 @@ public:
     else
     {
       // One of the group nodes.
+      _trigger_menu.set_item_enabled("trigger_up", false);
+      _trigger_menu.set_item_enabled("trigger_down", false);
+
       bool enable = bec::is_supported_mysql_version_at_least(version, 5, 7, 2) || node->count() == 0;
       _trigger_menu.set_item_enabled("add_trigger", enable);
       _trigger_menu.set_item_enabled("duplicate_trigger", false);
@@ -1039,7 +1093,83 @@ public:
     mforms::TreeNodeRef group_node = node;
     if (node->get_parent() != _trigger_list.root_node())
       group_node = node->get_parent();
-    if (action == "add_trigger")
+
+    if (action == "trigger_up")
+    {
+      _editor->freeze_refresh_on_object_change();
+
+      grt::ListRef<db_Trigger> triggers(_table->triggers());
+      db_mysql_TriggerRef trigger = trigger_for_node(node);
+
+      AutoUndoEdit undo(_editor);
+      if (node->previous_sibling().is_valid())
+      {
+        // Move within a group.
+        size_t index = triggers->get_index(trigger); // Index is always > 0 if the above test succeeds.
+        triggers->move(index, index - 1);
+
+        int node_index = group_node->get_child_index(*node.ptr());
+        group_node->move_child(*node.ptr(), node_index - 1);
+      }
+      else
+      {
+        // Move to the end of the previous group.
+        // There's always a previous group or we wouldn't have come here.
+        // There's no need to move the trigger in the triggers list since at this point it is
+        // the first in it's group and the previous trigger is by definition the last one in the
+        // previous group.
+        group_node = group_node->previous_sibling();
+        std::string timing, event;
+        if (base::partition(group_node->get_string(0), " ", timing, event))
+        {
+          change_trigger_timing(trigger, timing, event);
+          node->remove_from_parent();
+          group_node->add_child(*node.ptr());
+        }
+      }
+
+      // Since we didn't destroy the node, but just moved it, selecting it this simple way works.
+      _trigger_list.select_node(node);
+      undo.end("Move trigger up in execution order");
+
+      _editor->thaw_refresh_on_object_change(true);
+    }
+    else if (action == "trigger_down")
+    {
+      _editor->freeze_refresh_on_object_change();
+
+      grt::ListRef<db_Trigger> triggers(_table->triggers());
+      db_mysql_TriggerRef trigger = trigger_for_node(node);
+
+      AutoUndoEdit undo(_editor);
+      if (node->next_sibling().is_valid())
+      {
+        // Move within a group.
+        size_t index = triggers->get_index(trigger); // Index is always < count - 1 if the above test succeeds.
+        triggers->move(index, index + 2); // +2 instead of +1 because we want it to appear *after* the next node, not instead of.
+
+        int node_index = group_node->get_child_index(*node.ptr());
+        group_node->move_child(*node.ptr(), node_index + 2);
+      }
+      else
+      {
+        // Move to the beginning of the next group.
+        group_node = group_node->next_sibling();
+        std::string timing, event;
+        if (base::partition(group_node->get_string(0), " ", timing, event))
+        {
+          change_trigger_timing(trigger, timing, event);
+          node->remove_from_parent();
+          group_node->insert_child(0, *node.ptr());
+        }
+      }
+
+      _trigger_list.select_node(node);
+      undo.end("Move trigger down in execution order");
+
+      _editor->thaw_refresh_on_object_change(true);
+    }
+    else if (action == "add_trigger")
     {
       std::string timing, event;
       if (base::partition(group_node->get_string(0), " ", timing, event))
@@ -1145,13 +1275,13 @@ public:
       mforms::DropPosition position = _trigger_list.get_drop_position();
       if (target_node.is_valid())
       {
-        _editor->freeze_refresh_on_object_change();
-
         // Note: the code below only works if the source tree is our own trigger list.
         //       For drag support between multiple editors code is required to get trigger-for-node
         //       and vice versa information from that other editor instance.
         grt::ListRef<db_Trigger> triggers(_table->triggers());
         db_mysql_TriggerRef trigger = trigger_for_node(tree->selection);
+
+        _editor->freeze_refresh_on_object_change();
 
         // If the user dropped onto a group node (which then must always be a different one than that
         // it is in currently) or if the group node of source and target node differ,
@@ -1165,58 +1295,7 @@ public:
 
           std::string timing, event;
           if (base::partition(group_node->get_string(0), " ", timing, event))
-          {
-            bool use_uppercase = (*trigger->timing())[0] >= 'A';
-            if (!use_uppercase)
-            {
-              timing = base::tolower(timing);
-              event = base::tolower(event);
-            }
-
-            // We do a token-based search-and-replace here. Keep in mind the sql text might not be valid.
-            std::string sql;
-            std::string source = trigger->sqlDefinition();
-
-            MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
-            size_t timing_token = _editor->_parser_context->get_keyword_token(trigger->timing());
-            size_t event_token = _editor->_parser_context->get_keyword_token(trigger->event());
-            bool replace_done = false;
-            do 
-            {
-              MySQLToken token = scanner->next_token();
-              if (token.type == ANTLR3_TOKEN_EOF)
-                break;
-
-              if (!replace_done && token.type == timing_token)
-              {
-                // The token we are looking for. Replace the timing and see if there's an event token too.
-                sql += timing;
-                do
-                { // Add any following hidden tokens (whitespace/comment).
-                  token = scanner->next_token();
-                  if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
-                    break;
-                  sql += token.text;
-                } while (true);
-
-                if (token.type == event_token)
-                  sql += event;
-
-                replace_done = true;
-                if (token.type == ANTLR3_TOKEN_EOF)
-                  break;
-              }
-              else
-                sql += token.text;
-
-            } while (true);
-
-            trigger->sqlDefinition(sql);
-            trigger->timing(timing);
-            trigger->event(event);
-
-            delete scanner;
-          }
+            change_trigger_timing(trigger, timing, event);
         }
 
         // After that move in the trigger list so, that it appears in the right position
@@ -1268,6 +1347,62 @@ public:
       }
     }
     return mforms::DragOperationNone;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void change_trigger_timing(db_mysql_TriggerRef trigger, std::string timing, std::string event)
+  {
+    bool use_uppercase = (*trigger->timing())[0] >= 'A';
+    if (!use_uppercase)
+    {
+      timing = base::tolower(timing);
+      event = base::tolower(event);
+    }
+
+    // We do a token-based search-and-replace here. Keep in mind the sql text might not be valid.
+    std::string sql;
+    std::string source = trigger->sqlDefinition();
+
+    MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
+    size_t timing_token = _editor->_parser_context->get_keyword_token(trigger->timing());
+    size_t event_token = _editor->_parser_context->get_keyword_token(trigger->event());
+    bool replace_done = false;
+    do
+    {
+      MySQLToken token = scanner->next_token();
+      if (token.type == ANTLR3_TOKEN_EOF)
+        break;
+
+      if (!replace_done && token.type == timing_token)
+      {
+        // The token we are looking for. Replace the timing and see if there's an event token too.
+        sql += timing;
+        do
+        { // Add any following hidden tokens (whitespace/comment).
+          token = scanner->next_token();
+          if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+            break;
+          sql += token.text;
+        } while (true);
+
+        if (token.type == event_token)
+          sql += event;
+
+        replace_done = true;
+        if (token.type == ANTLR3_TOKEN_EOF)
+          break;
+      }
+      else
+        sql += token.text;
+
+    } while (true);
+
+    trigger->sqlDefinition(sql);
+    trigger->timing(timing);
+    trigger->event(event);
+
+    delete scanner;
   }
 
   //------------------------------------------------------------------------------------------------

@@ -87,6 +87,7 @@ namespace MySQL {
     protected:
       virtual void add_children_from_skeletons(std::vector<TreeNodeWrapper> parents,
         const std::vector<mforms::TreeNodeSkeleton>& children);
+      void node_changed(Aga::Controls::Tree::TreeNodeAdv ^new_node);
     public:
       TreeNodeWrapper(TreeNodeViewWrapper *wrapper, Aga::Controls::Tree::TreeNodeAdv ^node);
       TreeNodeWrapper(TreeNodeViewWrapper *wrapper);
@@ -118,8 +119,11 @@ namespace MySQL {
     
       virtual int count() const;
       virtual mforms::TreeNodeRef insert_child(int index);
+      virtual void insert_child(int index, const mforms::TreeNode &child);
+      virtual void move_child(const TreeNode &child, int new_index);
       virtual void remove_from_parent();
       virtual mforms::TreeNodeRef get_child(int index) const;
+      virtual int get_child_index(const mforms::TreeNode &node) const;
       virtual mforms::TreeNodeRef get_parent() const;
       virtual mforms::TreeNodeRef previous_sibling() const;
       virtual mforms::TreeNodeRef next_sibling() const;

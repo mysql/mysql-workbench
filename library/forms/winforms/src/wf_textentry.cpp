@@ -306,7 +306,7 @@ void TextEntryWrapper::paste(mforms::TextEntry *self)
 void TextEntryWrapper::select(mforms::TextEntry *self, const base::Range &range)
 {
   TextBox ^textbox = TextEntryWrapper::GetManagedObject<TextBox>(self);
-  textbox->Select(range.position, range.size == (size_t)-1 ? textbox->Text->Length : range.size);
+  textbox->Select((int)range.position, range.size == (size_t)-1 ? textbox->Text->Length : (int)range.size);
 }
 
 //--------------------------------------------------------------------------------------------------

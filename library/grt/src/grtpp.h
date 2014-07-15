@@ -1145,17 +1145,7 @@ namespace grt {
     {
       return content().raw_end();
     }
-/*
-    inline raw_const_reverse_iterator rbegin() const
-    {
-      return content().raw_rbegin();
-    }
-    
-    inline raw_const_reverse_iterator rend() const
-    {
-      return content().raw_rend();
-    }
-  */
+
     template<typename TPred>
     bool foreach(TPred pred) const
     {
@@ -1176,6 +1166,11 @@ namespace grt {
     inline void reorder(size_t oindex, size_t nindex)
     {
       content().reorder(oindex, nindex);
+    }
+
+    inline void move(size_t oindex, size_t nindex)
+    {
+      content().move(oindex, nindex);
     }
 
     // methods beginning with g perform type checking at runtime
