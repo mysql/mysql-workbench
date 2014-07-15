@@ -80,9 +80,9 @@ static int image_width(cairo_surface_t* image)
   if (image != NULL)
   {
     if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor();
+      return (int)cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor();
     else
-      return cairo_image_surface_get_width(image);
+      return (int)cairo_image_surface_get_width(image);
   }
   return 0;
 }
@@ -3999,7 +3999,7 @@ public:
       for (ShortcutIterator iterator = _shortcuts.begin() + _page_start; iterator != _shortcuts.end();
         iterator++)
       {
-        double alpha = (yoffset + SHORTCUTS_ROW_HEIGHT) > height ? 0.25 : 1;
+        float alpha = (yoffset + SHORTCUTS_ROW_HEIGHT) > height ? 0.25 : 1;
 
         iterator->acc_bounds.pos.x = SHORTCUTS_LEFT_PADDING;
         iterator->acc_bounds.pos.y = yoffset;

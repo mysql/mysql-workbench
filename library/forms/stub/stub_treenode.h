@@ -87,8 +87,11 @@ public:
     
   virtual int count() const;
   virtual mforms::TreeNodeRef insert_child(int index);
+  virtual void insert_child(int index, const mforms::TreeNode &node);
+  virtual void move_child(const TreeNode &child, int new_index);
   virtual void remove_from_parent();
   virtual mforms::TreeNodeRef get_child(int index) const;
+  virtual int get_child_index(const TreeNode &node) const;
   virtual mforms::TreeNodeRef get_parent() const;
   virtual mforms::TreeNodeRef previous_sibling() const;
   virtual mforms::TreeNodeRef next_sibling() const;

@@ -181,10 +181,14 @@ namespace mforms {
     
     virtual int count() const = 0;
     virtual TreeNodeRef add_child() { return insert_child(-1); }
+    virtual void add_child(const TreeNode &child) { return insert_child(-1, child); }
     virtual TreeNodeRef insert_child(int index) = 0;
+    virtual void insert_child(int index, const TreeNode &child) = 0; // TODO: Mac, Linux
+    virtual void move_child(const TreeNode &child, int new_index) = 0; // TODO: Mac, Linux
     virtual void remove_from_parent() = 0;
     virtual void remove_children(); // default impl provided, subclasses may override to provide faster impl
     virtual TreeNodeRef get_child(int index) const = 0;
+    virtual int get_child_index(const TreeNode &node) const = 0; // TODO: Mac, Linux
     virtual TreeNodeRef get_parent() const = 0;
     virtual TreeNodeRef find_child_with_tag(const std::string &tag); // this will search the subnodes sequentially
     virtual TreeNodeRef previous_sibling() const = 0; // TODO: Linux

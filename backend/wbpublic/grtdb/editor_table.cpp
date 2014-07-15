@@ -3262,7 +3262,7 @@ void TableEditorBE::restore_inserts_columns()
     bool flag = false;
     if (widths.is_valid() && i < (int)widths.count())
     {
-      int width = widths[i];
+      int width = (int)widths[i];
       if (width > 0)
       {
         _inserts_grid->set_column_width(i, width);
