@@ -577,28 +577,26 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     // with the name of the group. For connections it's the connection ref.
     // Similar for the other move_* actions.
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(MoveTop, connections, object);
-    refresh_home_connections();
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveTop);
+    refresh_home_connections(false, false);
   }
   else if (action == "move_connection_up")
   {
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(MoveUp, connections, object);
-    refresh_home_connections();
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveUp);
+    refresh_home_connections(false, false);
   }
   else if (action == "move_connection_down")
   {
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(MoveDown, connections, object);
-
-    refresh_home_connections();
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveDown);
+    refresh_home_connections(false, false);
   }
   else if (action == "move_connection_to_end")
   {
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(MoveBottom, connections, object);
-
-    refresh_home_connections();
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveBottom);
+    refresh_home_connections(false, false);
   }
   else if (action == "move_connection_to_group")
   {
@@ -884,7 +882,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
       grt::DictRef dict = grt::DictRef::cast_from(object);
-      ssize_t to = grt::IntegerRef::cast_from(dict["to"]);
+      int to = grt::IntegerRef::cast_from(dict["to"]);
       if (db_mgmt_ConnectionRef::can_wrap(dict["object"]))
       {
         db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(dict["object"]);
@@ -1053,7 +1051,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
 //--------------------------------------------------------------------------------------------------
 
-void WBContextUI::refresh_home_connections(bool initial_load)
+void WBContextUI::refresh_home_connections(bool initial_load, bool clear_state)
 {
   if (!_home_screen)
     return;
@@ -1062,7 +1060,7 @@ void WBContextUI::refresh_home_connections(bool initial_load)
 
   std::map<std::string, std::string> auto_save_files = WBContextSQLIDE::auto_save_sessions();
   
-  _home_screen->clear_connections();
+  _home_screen->clear_connections(clear_state);
 
   // If there are no connections defined yet then create entries for all currently installed
   // local servers (only if this is the first run, after application start).
