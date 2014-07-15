@@ -122,6 +122,7 @@ protected:
   std::vector<mforms::Box*> _options_rows;
 
   std::list<mforms::View*> _views;
+  mforms::Label _warning;
 
 private:
   void save_param(const std::string& name, const grt::StringRef& param);

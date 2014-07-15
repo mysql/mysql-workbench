@@ -153,6 +153,9 @@ _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) !=
   set_name("connect_panel");
   add(&_table, false, false);
   add(&_tab, true, true);
+  _warning.set_style(mforms::SmallHelpTextStyle);
+  _warning.set_front_color("#FF0000");
+  add(&_warning, false, false);
 }
 
 
@@ -686,8 +689,12 @@ void DbConnectPanel::set_active_stored_conn(const std::string &name)
 
 void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
 {
+  _warning.set_text("");
   if (!connection.is_valid())
     connection = _anonymous_connection;
+  else if (connection->parameterValues().has_key("fabric_managed"))
+    _warning.set_text(_("This is a fabric managed connection, changes done on it will be lost once Workbench restarts.\n"
+                        "To make the changes permanent please duplicate the connection and do the changes there."));
 
   db_mgmt_DriverRef driver = connection->driver();
   db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(connection->driver()->owner());
