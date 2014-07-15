@@ -116,7 +116,7 @@ namespace wb
     void clear_shortcuts();
     void add_shortcut(const grt::ValueRef &object, const std::string &icon_name);
 
-    void clear_connections();
+    void clear_connections(bool clear_state = true);
     void add_connection(db_mgmt_ConnectionRef connection, const std::string &title,
       const std::string &description, const std::string &user, const std::string &schema);
 

@@ -149,7 +149,7 @@ namespace wb {
 
     void show_output();
     
-    void refresh_home_connections(bool initial_load = false);
+    void refresh_home_connections(bool initial_load = false, bool clear_state = true);
     void refresh_home_documents();
     void refresh_home_starters();
     bool home_screen_closing();

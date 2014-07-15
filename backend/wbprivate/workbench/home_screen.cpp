@@ -1794,14 +1794,17 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void clear_connections()
+  void clear_connections(bool clear_state = true)
   {
-    _entry_for_menu = -1;
-    _active_folder = _fabric_entry;
+    if (clear_state)
+    {
+      _entry_for_menu = -1;
+      _active_folder = _fabric_entry;
+      _filtered = false;
+      _filtered_connections.clear();
+      _search_text.set_value("");
+    }
     _connections.clear();
-    _filtered = false;
-    _filtered_connections.clear();
-    _search_text.set_value("");
 
     set_layout_dirty(true);
   }
@@ -2086,7 +2089,7 @@ public:
         if (_folder_context_menu != NULL)
         {
           _folder_context_menu->retain();
-          menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1));
+          menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1, false));
         }
         break;
 
@@ -2097,7 +2100,7 @@ public:
         if (_fabric_context_menu != NULL)
         {
           _fabric_context_menu->retain();
-          menu->set_handler(boost::bind(&ConnectionsSection::handle_command, this, _1));
+          menu->set_handler(boost::bind(&ConnectionsSection::handle_folder_command, this, _1, true));
         }
         break;
 
@@ -2142,7 +2145,7 @@ public:
           // We only want to delete all connections in the active group. This is the same as
           // removing the group entirely, since the group is formed by connections in it.
           _entry_for_menu = _active_folder;
-          handle_folder_command("delete_connection_group");
+          handle_folder_command("delete_connection_group", _fabric_entry > -1);
           return;
         }
         else
@@ -2168,19 +2171,35 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void handle_folder_command(const std::string &command)
+  void handle_folder_command(const std::string &command, bool is_fabric)
   {
     grt::ValueRef item;
 
-    // We have to pass on a valid connection (for the group name).
-    // All child items have the same group name (except the dummy entry for the back tile).
-    if (_filtered)
-      item = grt::StringRef(_filtered_connections[_entry_for_menu].title + "/");
-    else
-      item = grt::StringRef(_connections[_entry_for_menu].title + "/");
+    if (is_fabric && !base::starts_with(command, "move"))
+    {
+      if (_filtered)
+        item = _filtered_connections[_entry_for_menu].connection;
+      else
+        item = _connections[_entry_for_menu].connection;
 
-    _owner->handle_context_menu(item, command);
-    _entry_for_menu = -1;
+      _owner->handle_context_menu(item, command);
+    }
+    else
+    {
+      // We have to pass on a valid connection (for the group name).
+      // All child items have the same group name (except the dummy entry for the back tile).
+      std::string title;
+      if (_filtered)
+        title = _filtered_connections[_entry_for_menu].title;
+      else
+        title = _connections[_entry_for_menu].title;
+
+      title += "/";
+
+      _owner->handle_context_menu(grt::StringRef(title), command);
+      _entry_for_menu = -1;
+    }
+
   }
 
   //------------------------------------------------------------------------------------------------
@@ -2706,8 +2725,6 @@ public:
       grt::DictRef details(grt);
       if (connection.is_valid() && connection->driver()->name()!="MySQLFabric")
         details.set("object", connection);
-      else if (connection.is_valid())
-        details.set("object", grt::StringRef(source_entry->title));
       else
         details.set("object", grt::StringRef(source_entry->title + "/"));
 
@@ -4598,10 +4615,11 @@ void HomeScreen::add_shortcut(const grt::ValueRef& object, const std::string& ic
 
 //--------------------------------------------------------------------------------------------------
 
-void HomeScreen::clear_connections()
+void HomeScreen::clear_connections(bool clear_state)
 {
-  _connection_section->clear_connections();
+  _connection_section->clear_connections(clear_state);
 }
+
 
 //--------------------------------------------------------------------------------------------------
 
