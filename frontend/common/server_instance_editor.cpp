@@ -902,6 +902,11 @@ void ServerInstanceEditor::duplicate_instance()
   grt::merge_contents(copy_conn->parameterValues(), orig_conn->parameterValues(), true);
   copy_conn->hostIdentifier(orig_conn->hostIdentifier());
 
+  // Deletes the identifier of a managed connection so it is
+  // threated as a normal connection
+  if (copy_conn->parameterValues().has_key("fabric_managed"))
+    copy_conn->parameterValues().remove("fabric_managed");
+
   if (orig_inst.is_valid())
   {
     copy_inst->owner(orig_inst->owner());
@@ -1224,10 +1229,12 @@ void ServerInstanceEditor::show_connection()
 
   if (connection.is_valid())
   {
+    bool is_managed = connection->parameterValues().has_key("fabric_managed");
+    
     _content_box.set_enabled(true);
-    _move_up_button.set_enabled(true);
-    _move_down_button.set_enabled(true);
-    _del_inst_button.set_enabled(true);
+    _move_up_button.set_enabled(!is_managed);
+    _move_down_button.set_enabled(!is_managed);
+    _del_inst_button.set_enabled(!is_managed);
     _dup_inst_button.set_enabled(true);
 
     _name_entry.set_value(connection->name());
