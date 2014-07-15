@@ -84,7 +84,7 @@ class SpatialDrawBox : public mforms::DrawBox
   void render(bool reproject = false);
   bool get_progress(std::string &action, float &pct);
 
-  void restrict_displayed_area(int x1, int y1, int x2, int y2);
+  void restrict_displayed_area(int x1, int y1, int x2, int y2, bool no_invalidate = false);
 
 public:
   boost::function<void (mforms::View*, bool reprojecting)> work_started;
@@ -106,6 +106,7 @@ public:
   void reset_view();
   void zoom_out();
   void zoom_in();
+  void auto_zoom(const size_t layer_idx = (size_t)-1, bool no_invalidate = false); //by default we set it to max, cause 0 can be also idx
   void select_area();
 
   void center_on(double lat, double lon);

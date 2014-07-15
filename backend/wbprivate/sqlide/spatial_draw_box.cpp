@@ -143,16 +143,36 @@ void SpatialDrawBox::render(bool reproject)
   int width = get_width();
   int height = get_height();
 
-
   spatial::ProjectionView visible_area;
-
-  // calculate how much the offset in pixels corresponds to in lon/lat values, so that gdal will adjust the
-  // clipping area to the area we want to view
 
   visible_area.MaxLat = _max_lat;
   visible_area.MaxLon = _max_lon;
   visible_area.MinLat = _min_lat;
   visible_area.MinLon = _min_lon;
+
+  //we need to make a fix cause some projections will fail
+  if (_proj == spatial::ProjMercator)
+  {
+    if (visible_area.MaxLat > 179.0)
+      visible_area.MaxLat = 179.0;
+    if (visible_area.MaxLon > 89.0)
+      visible_area.MaxLon = 89.0;
+    if (visible_area.MinLat < -179.0)
+      visible_area.MinLat = -179.0;
+    if (visible_area.MinLon < -89.0)
+      visible_area.MinLon = -89.0;
+  }
+  if (_proj == spatial::ProjBonne)
+  {
+    if (visible_area.MaxLat > 154.0)
+      visible_area.MaxLat = 154.0;
+    if (visible_area.MaxLon > 64.0)
+      visible_area.MaxLon = 64.0;
+    if (visible_area.MinLat < -154.0)
+      visible_area.MinLat = -154.0;
+    if (visible_area.MinLon < -64.0)
+      visible_area.MinLon = -64.0;
+  }
 
   visible_area.height = height;
   visible_area.width = width;
@@ -163,6 +183,9 @@ void SpatialDrawBox::render(bool reproject)
                               spatial::Projection::get_instance().get_projection(_proj));
 
   _spatial_reprojector->change_projection(visible_area, NULL, spatial::Projection::get_instance().get_projection(_proj));
+
+
+
 
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
 
@@ -236,6 +259,7 @@ _rendering(false), _quitting(false), _needs_reprojection(true), _select_pending(
 
   _current_layer = NULL;
   _progress = NULL;
+
 }
 
 SpatialDrawBox::~SpatialDrawBox()
@@ -267,6 +291,51 @@ void SpatialDrawBox::zoom_in()
 {
   _zoom_level += 0.2f;
   invalidate();
+}
+
+void SpatialDrawBox::auto_zoom(const size_t layer_idx, bool no_invalidate)
+{
+  if (_layers.empty())
+    return;
+
+  spatial::Layer* lay = NULL;
+  if (layer_idx == (size_t)-1 || layer_idx >= _layers.size())
+  {
+    lay = _layers.back();
+  }
+  else
+  {
+    lay = _layers[layer_idx];
+  }
+
+  if (lay == NULL)
+    return;
+
+  spatial::Envelope env = lay->get_envelope();
+
+  double w = std::abs(env.bottom_right.x - env.top_left.x);
+  double h = std::abs(env.top_left.y - env.bottom_right.y);
+
+
+  const double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
+  if (w > h)
+    env.top_left.y = env.bottom_right.y + w / ratio;
+  else
+    env.bottom_right.x = env.top_left.x + h * ratio;
+
+//  _zoom_level = 1.0;
+//  _offset_x = 0;
+//  _offset_y = 0;
+
+  _min_lat = env.top_left.x;
+  _max_lat = env.bottom_right.x;
+  _min_lon = env.bottom_right.y;
+  _max_lon = env.top_left.y;
+
+  _displaying_restricted = true;
+
+  if (!no_invalidate)
+    invalidate(true);
 }
 
 
@@ -498,7 +567,7 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
 }
 
 
-void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2)
+void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, bool no_invalidate)
 {
   double lat1, lat2;
   double lon1, lon2;
@@ -506,16 +575,22 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2)
   if (x1 > x2) std::swap(x1, x2);
   if (y1 > y2) std::swap(y1, y2);
 
-  double w = x2 - x1;
-  double ratio = (double)get_width() / (double)get_height();
-  if (ratio > 1.0)
-    y2 = y1 + w / ratio;
-  else
-    y2 = y1 + w * ratio;
-
   if (screen_to_world(x1, y1, lat1, lon1) &&
       screen_to_world(x2, y2, lat2, lon2))
   {
+    _zoom_level = 1.0;
+    _offset_x = 0;
+    _offset_y = 0;
+
+    double w = std::abs(lat2 - lat1);
+    double h = std::abs(lon2 - lon1);
+
+    double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
+    if (w > h)
+      lat2 = lat1 + h / ratio;
+    else
+      lon2 = lon1 + w * ratio;
+
     _zoom_level = 1.0;
     _offset_x = 0;
     _offset_y = 0;
@@ -526,7 +601,8 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2)
     _max_lon = lat1;
 
     _displaying_restricted = true;
-    invalidate(true);
+    if (!no_invalidate)
+      invalidate(true);
   }
 }
 

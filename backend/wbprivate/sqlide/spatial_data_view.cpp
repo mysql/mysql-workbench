@@ -168,6 +168,12 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item->signal_activated()->connect(boost::bind(&SpatialDataView::jump_to, this));
     _toolbar->add_item(item);
 
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item->set_icon(mforms::App::get()->get_resource_path("zoom_reset.png"));
+    item->set_tooltip("Zoom to data.");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::auto_zoom, this));
+    _toolbar->add_item(item);
+
     /*
     _toolbar->add_separator_item();
     item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
@@ -321,6 +327,11 @@ void SpatialDataView::jump_to()
   {
     mforms::Utilities::show_message("Jump to Coordinates", "Coordinates must be in Lat, Lon format.\nEx.: 40.32321312, -120.3232131 or 54°50'26.7\"N 98°23'51.0\"E", "OK");
   }
+}
+
+void SpatialDataView::auto_zoom()
+{
+  _viewer->auto_zoom((size_t)_layer_tree->get_selected_row());
 }
 
 
