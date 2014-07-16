@@ -344,7 +344,7 @@ def enbeautificate(editor):
 
 def apply_to_keywords(editor, callable):
     from grt.modules import MysqlSqlFacade
-    non_keywords = ["ident", "TEXT_STRING", "text_string", "TEXT_STRING_filesystem", "TEXT_STRING_literal", "TEXT_STRING_sys",
+    non_keywords = ["ident", "ident_or_text", "TEXT_STRING", "text_string", "TEXT_STRING_filesystem", "TEXT_STRING_literal", "TEXT_STRING_sys",
                     "part_name"]
 
     text = editor.selectedText

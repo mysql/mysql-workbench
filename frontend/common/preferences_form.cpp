@@ -1031,6 +1031,16 @@ mforms::View *PreferencesForm::create_editor_page()
     }
   }
 
+  {
+    OptionTable *table;
+
+    table = mforms::manage(new OptionTable(this, _("SQL Beautifier"), true));
+    box->add(table, false, true);
+    {
+      table->add_checkbox_option("DbSqlEditor:Reformatter:UpcaseKeywords", _("Change keywords to UPPER CASE"), "");
+    }
+  }
+
   return box;
 }
 
