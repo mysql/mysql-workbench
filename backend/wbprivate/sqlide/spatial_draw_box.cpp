@@ -282,9 +282,22 @@ void SpatialDrawBox::set_projection(spatial::ProjectionType proj)
 void SpatialDrawBox::zoom_out()
 {
   _zoom_level -= 0.2f;
-  if (_zoom_level < 0)
-    _zoom_level = 0;
-  invalidate();
+  if (_zoom_level < 1.0)
+    _zoom_level = 1.0;
+  bool reproject = false;
+  if (_zoom_level == 1.0 && !_hw_zoom_history.empty())
+  {
+    spatial::Envelope env = _hw_zoom_history.top();
+    _hw_zoom_history.pop();
+    _min_lat = env.top_left.x;
+    _max_lat = env.bottom_right.x;
+    _min_lon = env.bottom_right.y;
+    _max_lon = env.top_left.y;
+    _offset_x = 0;
+    _offset_y = 0;
+    reproject = true;
+  }
+  invalidate(reproject);
 }
 
 void SpatialDrawBox::zoom_in()
@@ -356,6 +369,9 @@ void SpatialDrawBox::reset_view()
   _zoom_level = 1;
   _offset_x = 0;
   _offset_y = 0;
+
+  while(!_hw_zoom_history.empty())
+    _hw_zoom_history.pop();
   invalidate(_displaying_restricted);
   _displaying_restricted = false;
 }
@@ -594,6 +610,13 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, boo
     _zoom_level = 1.0;
     _offset_x = 0;
     _offset_y = 0;
+
+    spatial::Envelope env;
+     env.top_left.x = _min_lat;
+     env.bottom_right.x = _max_lat;
+     env.bottom_right.y = _min_lon;
+     env.top_left.y = _max_lon;
+     _hw_zoom_history.push(env);
 
     _min_lat = lon1;
     _max_lat = lon2;
