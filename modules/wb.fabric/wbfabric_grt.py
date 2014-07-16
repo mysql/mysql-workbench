@@ -219,6 +219,11 @@ def createConnections(conn):
                                     managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
                                     managed_conn.parameterValues["fabric_managed"] = True
 
+                                    # Includes the rest of the server parameters on the connection parameters
+                                    for att in server.keys():
+                                        if att != 'address':
+                                            managed_conn.parameterValues['fabric_%s' % att] = server[att]
+
                                     server_count += 1
 
                     if server_count:
