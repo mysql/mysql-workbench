@@ -245,6 +245,7 @@ public:
   void repaint(cairo_t *cr, int x, int y, int w, int h)
   {
     bool is_fabric = _connection.is_valid() && _connection->driver()->name() == "MySQLFabric";
+    bool is_managed = _connection.is_valid() && _connection->parameterValues().has_key("fabric_managed");
     cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
     
     base::Rect bounds = get_content_rect();
@@ -344,25 +345,28 @@ public:
 
     if (!is_fabric)
     {
-      grt::DictRef serverInfo;
-      if (_instance.is_valid())
-        serverInfo = _instance->serverInfo();
-
-      bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
-      if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
-        serverInfo.get_int("windowsAdmin") == 0)
-        pending = true;
-
-      if (pending)
+      if (!is_managed)
       {
-        position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
-        if (is_local_connection(_connection))
-          _button2_rect = draw_button(cr, position, _("Configure Local Management..."), high_contrast);
+        grt::DictRef serverInfo;
+        if (_instance.is_valid())
+          serverInfo = _instance->serverInfo();
+
+        bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
+        if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
+          serverInfo.get_int("windowsAdmin") == 0)
+          pending = true;
+
+        if (pending)
+        {
+          position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
+          if (is_local_connection(_connection))
+            _button2_rect = draw_button(cr, position, _("Configure Local Management..."), high_contrast);
+          else
+            _button2_rect = draw_button(cr, position, _("Configure Remote Management..."), high_contrast);
+        }
         else
-          _button2_rect = draw_button(cr, position, _("Configure Remote Management..."), high_contrast);
+          _button2_rect = base::Rect();
       }
-      else
-        _button2_rect = base::Rect();
 
       /*
       position.x += _button2_rect.width() + POPUP_BUTTON_SPACING;
@@ -479,7 +483,7 @@ public:
     ssize_t port = parameter_values.get_int("port");
     print_info_line(cr, line_bounds, _("TCP/IP Port"), base::to_string(port));
 
-    // Instance info next.
+    // Instance or fabric info next.
     line_bounds = bounds;
     line_bounds.pos.x += (bounds.width() + POPUP_LR_PADDING) / 2;
     line_bounds.pos.y += DETAILS_TOP_OFFSET;
@@ -489,86 +493,106 @@ public:
     if (line_bounds.right() > bounds.right())
       line_bounds.pos.x -= bounds.right() - line_bounds.right();
 
-    grt::DictRef serverInfo;
-    if (_instance.is_valid())
-      serverInfo =_instance->serverInfo();
-
-    bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
-    if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
-      serverInfo.get_int("windowsAdmin") == 0)
-      pending = true;
-
-    if (pending)
+    if (parameter_values.has_key("fabric_managed"))
     {
-      if (is_local_connection(_connection))
-        print_info_line(cr, line_bounds, _("Local management not set up"), " ");
-      else
-        print_info_line(cr, line_bounds, _("Remote management not set up"), " ");
+      print_info_line(cr, line_bounds, _("Fabric Managed Instance"), " ");
+      line_bounds.pos.y += 2 * DETAILS_LINE_HEIGHT;
+
+      print_info_line(cr, line_bounds, _("Server ID:"), parameter_values.get_string("fabric_server_uuid"));
+      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+
+      print_info_line(cr, line_bounds, _("Status:"), parameter_values.get_string("fabric_status"));
+      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+
+      print_info_line(cr, line_bounds, _("Mode:"), parameter_values.get_string("fabric_mode"));
+      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+
+      print_info_line(cr, line_bounds, _("Weight:"), parameter_values.get("fabric_weight").repr());
+      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
     }
     else
     {
-      if (is_local_connection(_connection))
+      grt::DictRef serverInfo;
+      if (_instance.is_valid())
+        serverInfo =_instance->serverInfo();
+
+      bool pending = !serverInfo.is_valid() || serverInfo.get_int("setupPending") == 1;
+      if (!pending && !is_local_connection(_connection) && serverInfo.get_int("remoteAdmin") == 0 &&
+        serverInfo.get_int("windowsAdmin") == 0)
+        pending = true;
+
+      if (pending)
       {
-        print_info_line(cr, line_bounds, _("Local management"), "Enabled");
-        line_bounds.pos.y += 6 * DETAILS_LINE_HEIGHT; // Same layout as for remote mgm. So config file is at bottom.
-        print_info_line(cr, line_bounds, _("Config Path"), serverInfo.get_string("sys.config.path"));
+        if (is_local_connection(_connection))
+          print_info_line(cr, line_bounds, _("Local management not set up"), " ");
+        else
+          print_info_line(cr, line_bounds, _("Remote management not set up"), " ");
       }
       else
       {
-        grt::DictRef loginInfo = _instance->loginInfo();
-        bool windowsAdmin = serverInfo.get_int("windowsAdmin", 0) == 1;
-
-        std::string os = serverInfo.get_string("serverOS");
-        if (os.empty()) // If there's no OS set (yet) then use the generic system identifier (which is not that specific, but better than nothing).
-          os = serverInfo.get_string("sys.system");
-        if (os.empty() && windowsAdmin)
-          os = "Windows";
-        print_info_line(cr, line_bounds, _("Operating System"), os);
-        line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-        if (windowsAdmin)
+        if (is_local_connection(_connection))
         {
-          print_info_line(cr, line_bounds, _("Remote management via"), "WMI");
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-          std::string host_name = loginInfo.get_string("wmi.hostName");
-          print_info_line(cr, line_bounds, _("Target Server"), loginInfo.get_string("wmi.hostName"));
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-          print_info_line(cr, line_bounds, _("WMI user"), loginInfo.get_string("wmi.userName"));
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-          std::string password_key = "wmi@" + host_name;
-          user_name = loginInfo.get_string("wmi.userName");
-          if (mforms::Utilities::find_password(password_key, user_name, password))
-          {
-            password = "";
-            password_stored = _("<stored>");
-          }
-          else
-            password_stored = _("<not stored>");
-          print_info_line(cr, line_bounds, _("WMI Password"), user_name);
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
+          print_info_line(cr, line_bounds, _("Local management"), "Enabled");
+          line_bounds.pos.y += 6 * DETAILS_LINE_HEIGHT; // Same layout as for remote mgm. So config file is at bottom.
           print_info_line(cr, line_bounds, _("Config Path"), serverInfo.get_string("sys.config.path"));
         }
         else
         {
-          print_info_line(cr, line_bounds, _("Remote management via"), "SSH");
+          grt::DictRef loginInfo = _instance->loginInfo();
+          bool windowsAdmin = serverInfo.get_int("windowsAdmin", 0) == 1;
+
+          std::string os = serverInfo.get_string("serverOS");
+          if (os.empty()) // If there's no OS set (yet) then use the generic system identifier (which is not that specific, but better than nothing).
+            os = serverInfo.get_string("sys.system");
+          if (os.empty() && windowsAdmin)
+            os = "Windows";
+          print_info_line(cr, line_bounds, _("Operating System"), os);
           line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
+          if (windowsAdmin)
+          {
+            print_info_line(cr, line_bounds, _("Remote management via"), "WMI");
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-          std::string host_name = loginInfo.get_string("ssh.hostName");
-          print_info_line(cr, line_bounds, _("SSH Target"), host_name);
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-          print_info_line(cr, line_bounds, _("SSH User"), loginInfo.get_string("ssh.userName"));
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+            std::string host_name = loginInfo.get_string("wmi.hostName");
+            print_info_line(cr, line_bounds, _("Target Server"), loginInfo.get_string("wmi.hostName"));
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+            print_info_line(cr, line_bounds, _("WMI user"), loginInfo.get_string("wmi.userName"));
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
 
-          std::string security = (loginInfo.get_int("ssh.useKey", 0) != 0) ? _("Public Key") : _("Password ") + password_stored;
-          print_info_line(cr, line_bounds, _("SSH Security"), security);
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-          print_info_line(cr, line_bounds, _("SSH Port"), loginInfo.get_string("ssh.port", "22"));
+            std::string password_key = "wmi@" + host_name;
+            user_name = loginInfo.get_string("wmi.userName");
+            if (mforms::Utilities::find_password(password_key, user_name, password))
+            {
+              password = "";
+              password_stored = _("<stored>");
+            }
+            else
+              password_stored = _("<not stored>");
+            print_info_line(cr, line_bounds, _("WMI Password"), user_name);
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
+            print_info_line(cr, line_bounds, _("Config Path"), serverInfo.get_string("sys.config.path"));
+          }
+          else
+          {
+            print_info_line(cr, line_bounds, _("Remote management via"), "SSH");
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
+
+            std::string host_name = loginInfo.get_string("ssh.hostName");
+            print_info_line(cr, line_bounds, _("SSH Target"), host_name);
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+            print_info_line(cr, line_bounds, _("SSH User"), loginInfo.get_string("ssh.userName"));
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+
+            std::string security = (loginInfo.get_int("ssh.useKey", 0) != 0) ? _("Public Key") : _("Password ") + password_stored;
+            print_info_line(cr, line_bounds, _("SSH Security"), security);
+            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
+            print_info_line(cr, line_bounds, _("SSH Port"), loginInfo.get_string("ssh.port", "22"));
+          }
         }
       }
     }
@@ -753,6 +777,7 @@ private:
   cairo_surface_t* _mouse_over2_icon;
   cairo_surface_t* _network_icon;
   cairo_surface_t* _ha_filter_icon;
+  cairo_surface_t* _managed_status_icon;
   cairo_surface_t* _page_down_icon;
   cairo_surface_t* _page_up_icon;
   cairo_surface_t* _plus_icon;
@@ -765,6 +790,10 @@ private:
   base::Color _tile_bk_color1;
   base::Color _tile_bk_color2;
   base::Color _fabric_tile_bk_color;
+  base::Color _managed_primary_tile_bk_color;
+  base::Color _managed_secondary_tile_bk_color;
+  base::Color _managed_faulty_tile_bk_color;
+  base::Color _managed_spare_tile_bk_color;
   base::Color _folder_tile_bk_color;
   base::Color _back_tile_bk_color;
 
@@ -772,6 +801,10 @@ private:
   base::Color _tile_bk_color2_hl;
   base::Color _folder_tile_bk_color_hl;
   base::Color _fabric_tile_bk_color_hl;
+  base::Color _managed_primary_tile_bk_color_hl;
+  base::Color _managed_secondary_tile_bk_color_hl;
+  base::Color _managed_faulty_tile_bk_color_hl;
+  base::Color _managed_spare_tile_bk_color_hl;
   base::Color _back_tile_bk_color_hl;
 
   ssize_t _page_start;        // Index into the list where root display starts.
@@ -845,8 +878,9 @@ public:
     _mouse_over_icon = mforms::Utilities::load_icon("wb_tile_mouseover.png");
     _mouse_over2_icon = mforms::Utilities::load_icon("wb_tile_mouseover_2.png");
     _network_icon = mforms::Utilities::load_icon("wb_tile_network.png");
-    // TODO: We need an tile icon for the group filter
+    // TODO: We need an tile icon for the group filter and the status
     _ha_filter_icon = mforms::Utilities::load_icon("wb_tile_network.png");
+    _managed_status_icon = mforms::Utilities::load_icon("wb_tile_network.png");
     _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
     _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
     _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
@@ -925,6 +959,7 @@ public:
     delete_surface(_mouse_over2_icon);
     delete_surface(_network_icon);
     delete_surface(_ha_filter_icon);
+    delete_surface(_managed_status_icon);
     delete_surface(_page_down_icon);
     delete_surface(_page_up_icon);
     delete_surface(_plus_icon);
@@ -956,14 +991,21 @@ public:
 #ifdef __APPLE__
     _folder_tile_bk_color = base::Color::parse("#3477a6");
     _folder_tile_bk_color_hl = base::Color::parse("#4699b8");
-    _fabric_tile_bk_color = base::Color::parse("#34a677");
-    _fabric_tile_bk_color_hl = base::Color::parse("#46b899");
 #else
     _folder_tile_bk_color = base::Color::parse("#178ec5");
     _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
-    _fabric_tile_bk_color = base::Color::parse("#329863");
-    _fabric_tile_bk_color_hl = base::Color::parse("#3eac87");
 #endif
+
+    _fabric_tile_bk_color = base::Color::parse("#34a677");
+    _fabric_tile_bk_color_hl = base::Color::parse("#46b899");
+    _managed_primary_tile_bk_color = base::Color::parse("#22bf2e");
+    _managed_primary_tile_bk_color_hl = base::Color::parse("#44dd50");
+    _managed_secondary_tile_bk_color = base::Color::parse("#13cea4");
+    _managed_secondary_tile_bk_color_hl = base::Color::parse("#21ebbd");
+    _managed_faulty_tile_bk_color = base::Color::parse("#e73414");
+    _managed_faulty_tile_bk_color_hl = base::Color::parse("#ee5a40");
+    _managed_spare_tile_bk_color = base::Color::parse("#f9ba44");
+    _managed_spare_tile_bk_color_hl = base::Color::parse("#fac86b");
 
     _back_tile_bk_color = base::Color::parse("#d9532c");
     _back_tile_bk_color_hl = base::Color::parse("#d97457");
@@ -1228,9 +1270,6 @@ public:
 
     x += image_width(icon) + 3;
 
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, text.c_str(), &extents);
-
     double component = 0xF9 / 255.0;
     if (high_contrast)
       component = 1;
@@ -1240,9 +1279,18 @@ public:
     cairo_set_source_rgba(cr, component, component, component, alpha);
 #endif
 
-    cairo_move_to(cr, x, (int)(y + image_height(icon) / 2.0 + extents.height / 2.0));
-    cairo_show_text(cr, text.c_str());
-    cairo_stroke(cr);
+    std::vector<std::string> texts = base::split(text, "\n");
+
+    for (size_t index = 0; index < texts.size(); index++)
+    {
+      cairo_text_extents_t extents;
+      std::string line = texts[index];
+      cairo_text_extents(cr, line.c_str(), &extents);
+
+      cairo_move_to(cr, x, (int)(y + image_height(icon) / 2.0 + extents.height / 2.0 + (index * (extents.height + 3))));
+      cairo_show_text(cr, line.c_str());
+      cairo_stroke(cr);
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1310,9 +1358,22 @@ public:
     bool high_contrast)
   {
     bool is_fabric = entry.connection.is_valid() && entry.connection->driver()->name() == "MySQLFabric";
+    bool is_managed = entry.connection.is_valid() && entry.connection->parameterValues().has_key("fabric_managed");
     base::Color current_color;
     if (is_fabric)
       current_color = hot ? _fabric_tile_bk_color_hl : _fabric_tile_bk_color;
+    else if (is_managed)
+    {
+      std::string status = base::strip_text(entry.connection->parameterValues().get("fabric_status").repr());
+      if (status == "PRIMARY")
+        current_color = hot ? _managed_primary_tile_bk_color_hl : _managed_primary_tile_bk_color;
+      else if (status == "SECONDARY")
+        current_color = hot ? _managed_secondary_tile_bk_color_hl : _managed_secondary_tile_bk_color;
+      else if (status == "FAULTY")
+        current_color = hot ? _managed_faulty_tile_bk_color_hl : _managed_faulty_tile_bk_color;
+      else if (status == "SPARE")
+        current_color = hot ? _managed_spare_tile_bk_color_hl : _managed_spare_tile_bk_color;
+    }
     else if (entry.children.size() > 0)
       current_color = hot ? _folder_tile_bk_color_hl : _folder_tile_bk_color;
     else
@@ -1478,9 +1539,17 @@ public:
 
         if (tile_groups.length() > 0)
         {
-          y = bounds.top() + 56 - image_height(_schema_icon);
+          y = bounds.top() + 56 - image_height(_ha_filter_icon);
           draw_icon_with_text(cr, bounds.center().x, y, _ha_filter_icon, tile_groups, alpha, high_contrast);
         }
+      }
+      else if (is_managed)
+      {
+        std::string status = base::strip_text(entry.connection->parameterValues().get("fabric_status").repr());
+        std::string mode = base::strip_text(entry.connection->parameterValues().get("fabric_mode").repr());
+        
+        y = bounds.top() + 56 - image_height(_managed_status_icon);
+        draw_icon_with_text(cr, bounds.center().x, y, _managed_status_icon, base::strfmt("Status: %s\nMode: %s", status.c_str(), mode.c_str()), alpha, high_contrast);
       }
       else
       {

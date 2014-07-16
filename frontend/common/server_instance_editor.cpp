@@ -902,10 +902,18 @@ void ServerInstanceEditor::duplicate_instance()
   grt::merge_contents(copy_conn->parameterValues(), orig_conn->parameterValues(), true);
   copy_conn->hostIdentifier(orig_conn->hostIdentifier());
 
-  // Deletes the identifier of a managed connection so it is
-  // threated as a normal connection
+  // Deletes the fabric parameters if a fabric managed connection
+  // is being duplicated
   if (copy_conn->parameterValues().has_key("fabric_managed"))
-    copy_conn->parameterValues().remove("fabric_managed");
+  {
+    std::vector<std::string> params = copy_conn->parameterValues().keys();
+    for (size_t index = 0; index < params.size(); index++)
+    {
+      std::string parameter = params[index];
+      if (base::starts_with(parameter, "fabric_"))
+        copy_conn->parameterValues().remove(parameter);
+    }
+  }
 
   if (orig_inst.is_valid())
   {
@@ -1210,7 +1218,12 @@ void ServerInstanceEditor::show_connection()
 
   _connect_panel->set_active_stored_conn(connection);
 
-  if (connection.is_valid() && connection->driver()->name() == "MySQLFabric")
+  bool valid_connection = connection.is_valid();
+  bool is_managed = valid_connection ? connection->parameterValues().has_key("fabric_managed") : false;
+
+  // On Fabric Connections and Fabric Managed Connections the Remote Management 
+  // and System Profile tabs are hidden
+  if (valid_connection && (connection->driver()->name() == "MySQLFabric" || is_managed))
   {
     if (_tabview.get_page_index(&_remote_admin_box) != -1)
       _tabview.remove_page(&_remote_admin_box);
@@ -1227,28 +1240,13 @@ void ServerInstanceEditor::show_connection()
       _tabview.add_page(&_sys_box, _("System Profile"));
   }
 
-  if (connection.is_valid())
-  {
-    bool is_managed = connection->parameterValues().has_key("fabric_managed");
-    
-    _content_box.set_enabled(true);
-    _move_up_button.set_enabled(!is_managed);
-    _move_down_button.set_enabled(!is_managed);
-    _del_inst_button.set_enabled(!is_managed);
-    _dup_inst_button.set_enabled(true);
+  _content_box.set_enabled(valid_connection);
+  _move_up_button.set_enabled(valid_connection && !is_managed);
+  _move_down_button.set_enabled(valid_connection && !is_managed);
+  _del_inst_button.set_enabled(valid_connection && !is_managed);
+  _dup_inst_button.set_enabled(valid_connection);
 
-    _name_entry.set_value(connection->name());
-  }
-  else
-  {
-    _content_box.set_enabled(false);
-    _move_up_button.set_enabled(false);
-    _move_down_button.set_enabled(false);
-    _del_inst_button.set_enabled(false);
-    _dup_inst_button.set_enabled(false);
-
-    _name_entry.set_value("");
-  }
+  _name_entry.set_value(valid_connection ? connection->name() : "");
 
   show_instance_info(connection, instance);
 }
