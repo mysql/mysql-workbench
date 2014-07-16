@@ -22,6 +22,7 @@
 #include "mforms/drawbox.h"
 #include "base/threading.h"
 #include <deque>
+#include <stack>
 
 #include "mdc.h"
 #include "spatial_handler.h"
@@ -47,6 +48,7 @@ class SpatialDrawBox : public mforms::DrawBox
 
   mforms::ContextMenu *_menu;
 
+  std::stack<spatial::Envelope> _hw_zoom_history;
   float _zoom_level;
   int _offset_x, _offset_y;
   
