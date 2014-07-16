@@ -796,7 +796,7 @@ mforms::View *PreferencesForm::create_sqlide_page()
 
       {
         static const char *auto_save_intervals= "disable:0,10 seconds:10,15 seconds:15,30 seconds:30,1 minute:60,5 minutes:300,10 minutes:600,20 minutes:1200";
-        mforms::Selector *sel = new_selector_option("workbench:AutoSaveScriptsInterval", auto_save_intervals, true);
+        mforms::Selector *sel = new_selector_option("workbench:AutoSaveSQLEditorInterval", auto_save_intervals, true);
 
         table->add_option(sel, _("Auto-save scripts interval:"),
                           _("Interval to perform auto-saving of all open script tabs.\nThe scripts will be restored from the last auto-saved version\nif Workbench unexpectedly quits."));
