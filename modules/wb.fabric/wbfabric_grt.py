@@ -177,7 +177,11 @@ def createConnections(conn):
                 # If all is OK continues pulling the servers for each group
                 success = group_status[0]
                 if success:
-                    groups = group_status[2]
+                    # Sorts the groups
+                    def group_key(item):
+                        return item['group_id']
+                    
+                    groups = sorted(group_status[2], key=group_key)
 
                     fabric_grounp_count = len(groups)
 
@@ -186,7 +190,7 @@ def createConnections(conn):
                     if group_filter:
                         group_list = [group.strip() for group in group_filter.split(',')]
                         filter_group_count = len(group_list)
-
+                        
                     for group in groups:
                         include_group = not group_filter or group['group_id'] in group_filter
 
@@ -196,7 +200,12 @@ def createConnections(conn):
                             success = servers_status[0]
 
                             if success:
-                                servers = servers_status[2]
+                            
+                                # Sorts the servers
+                                def server_key(item):
+                                  return item['address']
+                                  
+                                servers = sorted(servers_status[2], key=server_key)
 
                                 # Creates a connection for each retrieved server.
                                 for server in servers:
