@@ -284,7 +284,10 @@ class WbAdminServerStatus(mforms.Box):
         repl_error = None
         res = None
         try:
-            res = self.ctrl_be.exec_query("SHOW SLAVE STATUS")
+            if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 0):
+                res = self.ctrl_be.exec_query("SHOW SLAVE STATUS NONBLOCKING")
+            else:
+                res = self.ctrl_be.exec_query("SHOW SLAVE STATUS")
         except QueryError, e:
             if e.error == 1227:
                 repl_error = "Insufficient privileges to view slave status"

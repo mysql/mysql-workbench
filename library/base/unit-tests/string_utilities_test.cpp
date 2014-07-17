@@ -529,8 +529,8 @@ TEST_FUNCTION(35)
   test_result = base::unescape_sql_string("lorem\\n ip\\t\\rsum dolor\\b sit \\Zamet", '"');
   ensure_equals("Unquoting 35.8", test_result, "lorem\n ip\t\rsum dolor\b sit \032amet");
 
-  test_result = base::unescape_sql_string("lorem ipsum \\zd\\a\\ olor sit amet", '"');
-  ensure_equals("Unquoting 35.9", test_result, "lorem ipsum zda olor sit amet");
+  test_result = base::unescape_sql_string("lorem ipsum \\zd\\a\\olor sit amet", '"');
+  ensure_equals("Unquoting 35.9", test_result, "lorem ipsum zdaolor sit amet");
 
   test_result = base::unescape_sql_string("\\0\\n\\t\\r\\b\\Z", '"');
   ensure("Unquoting 35.10", 

@@ -126,23 +126,39 @@ namespace Aga.Controls.Tree
 				Focus();
 
 			_search.EndSearch();
-			if (e.Button == MouseButtons.Left)
-			{
-				TreeColumn c;
-				c = GetColumnDividerAt(e.Location);
-				if (c != null)
-				{
-					Input = new ResizeColumnState(this, c, e.Location);
-					return;
-				}
-				c = GetColumnAt(e.Location);
-				if (c != null)
-				{
-					Input = new ClickColumnState(this, c, e.Location);
-					UpdateView();
-					return;
-				}
-			}
+
+      // ml: added support for right button.
+      switch (e.Button)
+      {
+        case MouseButtons.Left:
+			  {
+				  TreeColumn c = GetColumnDividerAt(e.Location);
+				  if (c != null)
+				  {
+					  Input = new ResizeColumnState(this, c, e.Location);
+					  return;
+				  }
+				  c = GetColumnAt(e.Location);
+				  if (c != null)
+				  {
+					  Input = new ClickColumnState(this, c, e.Location);
+					  UpdateView();
+					  return;
+				  }
+          break;
+			  }
+
+        case MouseButtons.Right:
+        {
+          TreeColumn c = GetColumnAt(e.Location);
+          if (c != null)
+          {
+            Input = new ClickColumnState(this, c, e.Location);
+            return;
+          }
+          break;
+        }
+      }
 
 			ChangeInput();
 			TreeNodeAdvMouseEventArgs args = CreateMouseArgs(e);

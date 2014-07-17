@@ -45,6 +45,15 @@ MenuItem *MenuBase::add_item_with_title(const std::string &title, boost::functio
   return item;
 }
 
+MenuItem *MenuBase::add_check_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name)
+{
+  MenuItem *item = manage(new MenuItem(title, CheckedMenuItem));
+  item->signal_clicked()->connect(action);
+  add_item(item);
+  item->set_name(name);
+  return item;
+}
+
 MenuItem *MenuBase::add_separator()
 {
   MenuItem *item = manage(new MenuItem("", SeparatorMenuItem));
@@ -179,6 +188,7 @@ std::string MenuItem::get_title()
   
 void MenuItem::set_shortcut(const std::string &shortcut)
 {
+  _shortcut = shortcut;
   _impl->set_shortcut(this, shortcut);
 }
 

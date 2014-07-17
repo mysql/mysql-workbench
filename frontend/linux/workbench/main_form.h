@@ -204,8 +204,6 @@ private:
   Glib::RefPtr<Gtk::Builder>   _ui;            //!< Glade model wrapper of the main window
   const char                  *_db_glade_file; //!< File name of the glade model of the model overview part
   
-  Glib::RefPtr<Gtk::AccelGroup> _accel_group;
-  
   bool _gui_locked;
   bool                         _exiting;
   Gtk::ProgressBar             _progress_bar;

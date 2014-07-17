@@ -18,11 +18,14 @@
  */
 
 #include "grt_python_debugger.h"
+#include "base/log.h"
 #include "base/string_utilities.h"
 #include "grt_shell_window.h"
 #include "grt_code_editor.h"
 
 #include "mforms/app.h"
+
+DEFAULT_LOG_DOMAIN("pydebugger");
 
 /* The PythonDebugger object is meant to be used as an editor tab for editing
  Python scripts. Executing the script in the debugger tab will save the script
@@ -512,6 +515,7 @@ void PythonDebugger::ui_add_breakpoint(const char *file, int line, const char *c
 const char *PythonDebugger::ui_program_stopped(const char *file, int line, int reason)
 {
   GRTCodeEditor *editor = 0;
+  mforms::CodeEditor *code_editor = NULL;
   bool continue_possible = true;
 
   if (_pause_clicked && reason == 5)
@@ -535,6 +539,9 @@ const char *PythonDebugger::ui_program_stopped(const char *file, int line, int r
     }
   }
 
+  if (editor)
+    code_editor = editor->get_editor();
+
   if (reason == 6)
     reason = 0; // treat like we're stepping
   
@@ -548,13 +555,13 @@ const char *PythonDebugger::ui_program_stopped(const char *file, int line, int r
       
     case 1: // breakpoint
       // show the cursor position in the editor
-      if (editor)
-        editor->get_editor()->show_markup(LineMarkupBreakpointHit, line-1);
+      if (code_editor)
+        code_editor->show_markup(LineMarkupBreakpointHit, line-1);
       break;
       
     case 2: // exception
-      if (editor)
-        editor->get_editor()->show_markup(LineMarkupError, line-1);
+      if (code_editor)
+        code_editor->show_markup(LineMarkupError, line-1);
       continue_possible = false;
       
       _shell->activate_output_tab();
@@ -566,8 +573,8 @@ const char *PythonDebugger::ui_program_stopped(const char *file, int line, int r
       continue_possible = false;
       break;
   }
-  if (editor)
-    editor->get_editor()->show_markup(LineMarkupCurrent, line-1);
+  if (code_editor)
+    code_editor->show_markup(LineMarkupCurrent, line-1);
   _stack_position_editor = editor;
   _stack_position_line = line-1;
 
@@ -589,7 +596,12 @@ const char *PythonDebugger::ui_program_stopped(const char *file, int line, int r
   
   // enter event loop and wait for some action from user
   int action = mforms::App::get()->enter_event_loop(timeout);
-  
+
+  // check if editor is still there
+  editor = _shell->get_editor_for(file, true);
+  if (!editor)
+    log_warning("editor gone\n");
+
   switch (reason)
   {
     case 0: // step
@@ -597,13 +609,13 @@ const char *PythonDebugger::ui_program_stopped(const char *file, int line, int r
       
     case 1: // breakpoint
       // show the cursor position in the editor
-      if (editor)
-        editor->get_editor()->remove_markup(LineMarkupBreakpointHit, line-1);
+      if (code_editor)
+        code_editor->remove_markup(LineMarkupBreakpointHit, line-1);
       break;
       
     case 2: // exception
-      if (editor)
-        editor->get_editor()->remove_markup(LineMarkupError, line-1);
+      if (code_editor)
+        code_editor->remove_markup(LineMarkupError, line-1);
       break;
       
     case 5: // heartbeat
@@ -611,8 +623,8 @@ const char *PythonDebugger::ui_program_stopped(const char *file, int line, int r
         action = BP_ACTION_CONTINUE;            
       break;
   }
-  if (editor)
-    editor->get_editor()->remove_markup(LineMarkupCurrent, line-1);
+  if (code_editor)
+    code_editor->remove_markup(LineMarkupCurrent, line-1);
 
   if (_stack_position_editor)
   {

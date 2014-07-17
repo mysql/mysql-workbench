@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +47,8 @@ namespace MySQL {
       static void center(mforms::Form *backend);
       static void flush_events(mforms::Form *backend);
       static void end_modal(mforms::Form *backend, bool result);
+      static void set_menubar(mforms::Form *backend, mforms::MenuBar *menubar);
+
     public:
       bool hide_on_close();
 

@@ -562,11 +562,9 @@ void CommandUI::add_scripts_menu(mforms::MenuItem *parent)
   try
   {
     std::list<std::string> pyfiles = base::scan_for_files_matching(bec::make_path(_wb->get_grt_manager()->get_user_script_path(), "*.py"));
-    std::list<std::string> luafiles = base::scan_for_files_matching(bec::make_path(_wb->get_grt_manager()->get_user_script_path(), "*.lua"));
     std::vector<std::string> files;
 
     std::copy(pyfiles.begin(), pyfiles.end(), std::back_inserter(files));
-    std::copy(luafiles.begin(), luafiles.end(), std::back_inserter(files));
     std::sort(files.begin(), files.end());
 
     for (std::vector<std::string>::const_iterator f = files.begin(); f != files.end(); ++f)
@@ -652,6 +650,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
           continue;
         item = mforms::manage(new mforms::MenuItem(mitem->caption(), type));
         item->set_name(mitem->name());
+        parent->add_item(item);
         update_item_state(mitem, cmd, item);
         
         add_menu_items_for_context(context, item, mitem);
@@ -662,6 +661,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
           continue;
         item = mforms::manage(new mforms::MenuItem("", mforms::SeparatorMenuItem));
         item->set_name(mitem->name());
+        parent->add_item(item);
       }
       else
       { 
@@ -731,6 +731,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         }
         
         item = mforms::manage(new mforms::MenuItem(caption, type));
+        parent->add_item(item);
         item->set_name(cmd.args.empty() ? cmd.name : cmd.name+":"+cmd.args);
         if (!mitem->shortcut().empty())
           item->set_shortcut(mitem->shortcut());
@@ -754,8 +755,6 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
 #endif
       
       added_menu_items.insert(mitem->name());
-      
-      parent->add_item(item);
     }
   }
 

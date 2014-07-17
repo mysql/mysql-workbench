@@ -199,9 +199,9 @@ FKConstraintListWrapper^ TableEditorWrapper::get_fks()
 { return gcnew FKConstraintListWrapper(get_unmanaged_object()->get_fks()); }
 
 
-Control ^TableEditorWrapper::get_inserts_panel(Control ^grid)
+Control ^TableEditorWrapper::get_inserts_panel()
 {
-  mforms::View *view = get_unmanaged_object()->create_inserts_panel(MySQL::Forms::Native::wrapper_for_control(grid));
+  mforms::View *view = get_unmanaged_object()->get_inserts_panel();
 
   return dynamic_cast<Control ^>(MySQL::Forms::ObjectMapper::GetManagedComponent(view));
 }

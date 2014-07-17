@@ -443,7 +443,7 @@ TEST_FUNCTION(20)
  * Parses the given string and checks the built AST. Returns true if no error occurred, otherwise false.
  */
 bool parse_and_compare(const std::string &sql, long server_version, const std::string &sql_mode,
-  const std::set<std::string> &charsets, std::vector<ANTLR3_INT32> tokens, int error_count = 0)
+  const std::set<std::string> &charsets, std::vector<ANTLR3_UINT32> tokens, unsigned int error_count = 0)
 {
   MySQLRecognizer recognizer(server_version, sql_mode, charsets);
   recognizer.parse(sql.c_str(), sql.size(), true, QtUnknown);
@@ -475,7 +475,7 @@ bool parse_and_compare(const std::string &sql, long server_version, const std::s
 struct pred_test_entry
 {
   std::string query;
-  std::vector<ANTLR3_INT32> tokens;
+  std::vector<ANTLR3_UINT32> tokens;
 };
 
 const pred_test_entry precedence_test_data[] = {
@@ -988,7 +988,7 @@ const pred_test_entry precedence_test_data[] = {
 
 TEST_FUNCTION(25)
 {
-  for (int i = 0; i < sizeof(precedence_test_data) / sizeof(precedence_test_data[0]); i++)
+  for (unsigned int i = 0; i < sizeof(precedence_test_data) / sizeof(precedence_test_data[0]); i++)
     if (!parse_and_compare(precedence_test_data[i].query, 50530, "ANSI_QUOTES", _charsets,
       precedence_test_data[i].tokens))
       ensure("Operator precedence test - query failed: " + precedence_test_data[i].query, false);
@@ -1003,8 +1003,8 @@ struct sql_mode_test_entry
 {
   std::string query;
   std::string modes;
-  int errors;
-  std::vector<ANTLR3_INT32> tokens;
+  unsigned int errors;
+  std::vector<ANTLR3_UINT32> tokens;
 };
 
 const sql_mode_test_entry sql_mode_test_data[] = {
@@ -1081,7 +1081,7 @@ const sql_mode_test_entry sql_mode_test_data[] = {
 
 TEST_FUNCTION(30)
 {
-  for (int i = 0; i < sizeof(sql_mode_test_data) / sizeof(sql_mode_test_data[0]); i++)
+  for (unsigned int i = 0; i < sizeof(sql_mode_test_data) / sizeof(sql_mode_test_data[0]); i++)
     ensure(base::strfmt("30.%i SQL_MODE test", i),
       parse_and_compare(sql_mode_test_data[i].query, 50610, sql_mode_test_data[i].modes,
         _charsets, sql_mode_test_data[i].tokens, sql_mode_test_data[i].errors));

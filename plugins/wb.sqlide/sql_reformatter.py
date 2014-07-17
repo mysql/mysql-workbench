@@ -28,6 +28,10 @@ KEYWORD_TOKENS = set( ['ACCESSIBLE_SYM', 'ACTION', 'ADD', 'ADDDATE_SYM', 'AFTER_
 
 KEYWORD_ONLY_NODES = set( ['sp_opt_fetch_noise', 'insert_lock_option', 'opt_var_ident_type', 'trg_event', 'opt_ignore', 'opt_ev_status', 'remember_end', 'opt_ignore_leaves', 'param_marker', 'opt_wild', 'show_engine_param', 'profile_def', 'opt_distinct', 'view_algorithm', 'IDENT_sys', 'opt_query_expansion', 'TEXT_STRING_sys', 'text_or_password', 'interval_time_stamp', 'opt_natural_language_mode', 'udf_type', 'fulltext', 'opt_one_phase', 'spatial_type', 'opt_chain', 'nvarchar', 'opt_match_clause', 'ev_on_completion', 'ascii', 'opt_local', 'charset', 'view_suid', 'keys_or_index', 'olap_opt', 'opt_with_read_lock', 'no_definer', 'union_option', 'opt_outer', 'opt_default', 'view_check_option', 'opt_full', 'not', 'ts_access_mode', 'opt_migrate', 'btree_or_rtree', 'opt_temporary', 'opt_no_write_to_binlog', 'sp_suid', 'reset_option', 'describe_command', 'NUM_literal', 'slave_thread_opt', 'option_type2', 'opt_join_or_resume', 'delete_option', 'handler_scan_function', 'keyword_sp', 'and', 'remember_name', 'opt_bin_mod', 'opt_checksum_type', 'opt_all', 'query_expression_option', 'require_list_element', 'not2', 'data_or_xml', 'lines_or_rows', 'part_value_item', 'comp_op', 'init_key_options', 'opt_privileges', 'opt_table_sym', 'subselect_end', 'have_partitioning', 'table_or_tables', 'opt_storage', 'row_types', 'table_alias', 'opt_as', 'get_select_lex', 'opt_var_type', 'normal_join', 'opt_linear', 'TEXT_STRING_literal', 'opt_primary', 'equal', 'nchar', 'dec_num', 'master_or_binary', 'real_type', 'field_length', 'mi_check_type', 'ulonglong_num', 'opt_and', 'trg_action_time', 'precision', 'load_data_lock', 'TEXT_STRING_filesystem', 'isolation_types', 'opt_release', 'sp_init_param', 'signal_condition_information_item_name', 'opt_table', 'select_derived_init', 'opt_extended_describe', 'from_or_in', 'ts_wait', 'unicode', 'opt_work', 'merge_insert_types', 'opt_profile_args', 'sp_handler_type', 'opt_unique', 'mi_repair_type', 'select_lock_type', 'opt_column', 'deallocate_or_drop', 'int_type', 'table_option', 'start_transaction_opts', 'if_exists', 'all_or_any', 'clear_privileges', 'date_time_type', 'or', 'order_dir', 'opt_option', 'field_option', 'opt_savepoint', 'lock_option', 'ulong_num', 'opt_low_priority', 'optional_braces', 'flush_option', 'index_hint_clause', 'remove_partitioning', 'opt_delete_option', 'view_replace', 'key_or_index', 'subselect_start', 'opt_to', 'char', 'index_hint_type', 'spatial', 'opt_value', 'opt_duplicate', 'sp_opt_inout', 'kill_option', 'opt_restrict', 'begin_or_start', 'handler_rkey_mode', 'opt_end_of_input'] )
 
+NON_KEYWORD_TOKENS = set(["ident", "ident_or_text", "TEXT_STRING", "text_string", "TEXT_STRING_filesystem", "TEXT_STRING_literal", "TEXT_STRING_sys",
+                                             "part_name"]
+)
+
 
 def dump_tree(f, ast, depth=0):
     sym, value, children = ast[0], ast[1], ast[2]
@@ -211,8 +215,33 @@ class SQLPrettifier:
     def __init__(self, ast):
         self.ast = ast
         self.parent = []
+
+        if grt.root.wb.options.options.get("DbSqlEditor:Reformatter:UpcaseKeywords", 0):
+            self.ast = self.upcasify_keywords(ast)
+
+
+
         #import sys
         #dump_tree(sys.stdout, ast)
+
+
+    def upcasify_keywords(self, node):
+        symbol, value, children = node
+
+        new_symbol = symbol
+        if value and symbol not in NON_KEYWORD_TOKENS:
+            new_value = value.upper()
+        else:
+            new_value = value
+        new_children = []
+        # traverse the AST depth-first and build up the formatted expression bottom up
+        for node in children:
+            processed_node = self.upcasify_keywords(node)
+            if processed_node:
+                new_children.append(processed_node)
+
+        return new_symbol, new_value, new_children
+
 
 
     def run(self):
@@ -221,7 +250,7 @@ class SQLPrettifier:
 
     def traverse(self, ast, siblings, path):
         symbol, value, children = ast
-        
+
         new_symbol = symbol
         new_value = value
         new_children = []

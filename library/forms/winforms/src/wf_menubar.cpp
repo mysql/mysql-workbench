@@ -380,6 +380,17 @@ void MenuBarWrapper::remove_item(mforms::MenuBase *menu, mforms::MenuItem *item)
   }
 }
 
+
+void MenuBarWrapper::popup_at(mforms::ContextMenu *menu, mforms::View *owner, base::Point location)
+{
+  MformsContextMenuStrip^ native_menu = MenuBarWrapper::GetManagedObject<MformsContextMenuStrip>(menu);
+  if (native_menu != nullptr)
+  {
+    native_menu->Show(location.x, location.y);
+  }
+}
+
+
 //--------------------------------------------------------------------------------------------------
 
 void MenuBarWrapper::init()
@@ -398,6 +409,7 @@ void MenuBarWrapper::init()
   f->_menu_item_impl.get_checked = &MenuBarWrapper::get_checked;
   f->_menu_item_impl.insert_item = &MenuBarWrapper::insert_item;
   f->_menu_item_impl.remove_item = &MenuBarWrapper::remove_item;
+  f->_menu_item_impl.popup_at = &MenuBarWrapper::popup_at;
 }
 
 //--------------------------------------------------------------------------------------------------

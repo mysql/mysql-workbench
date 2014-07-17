@@ -116,12 +116,15 @@ void Authentication::set_password(const char *password)
 
 void Authentication::invalidate()
 {
-  if (_password)
+  if (_password != NULL)
+  {
     memset(_password, 0, strlen(_password));
-  _password = NULL;
+    g_free(_password);
+    _password = NULL;
+  }
 }  
-  
-////
+
+//----------------- DriverManager ------------------------------------------------------------------
 
 DriverManager *DriverManager::getDriverManager()
 {
@@ -215,6 +218,10 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
   boost::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password,
   ConnectionInitSlot connection_init_slot)
 {
+  grt::DictRef parameter_values = connectionProperties->parameterValues();
+  if (parameter_values.get_string("userName").empty())
+    throw SQLException("No user name set for this connection");
+
   // Load the driver for the connection dynamically. However for the C++ connector we have a static
   // link anyway, so use this instead.
 
@@ -284,7 +291,6 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
     param_types["useLegacyAuth"] = "boolean";
   }
   ConnectOptionsMap properties;
-  grt::DictRef parameter_values = connectionProperties->parameterValues();
   parameter_values.foreach(boost::bind(&conv_to_dbc_value, _1, _2, boost::ref(properties), param_types));
 
   {

@@ -541,12 +541,9 @@ namespace base {
     while (*out)
       *in++ = (WCHAR) (*out++);
     
-    errno_t error = _wfopen_s(&result, converted, converted_mode);
+    result = _wfsopen(converted, converted_mode, _SH_DENYNO);
     delete[] converted;
     delete[] converted_mode;
-    
-    if (error != 0)
-      return NULL;
 
     return result;
     

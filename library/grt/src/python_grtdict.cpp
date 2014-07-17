@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#ifdef ENABLE_PYTHON_MODULES
 #include "python_context.h"
 #include "base/string_utilities.h"
 
@@ -108,8 +107,12 @@ static Py_ssize_t dict_length(PyGRTDictObject *self)
 
 
 static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name)
-{  
-  if (PyString_Check(attr_name)) 
+{
+  AutoPyObject tmp;
+  if (PyUnicode_Check(attr_name))
+    attr_name = tmp = PyUnicode_AsUTF8String(attr_name);
+
+  if (PyString_Check(attr_name))
   {
     const char *attrname= PyString_AsString(attr_name);
     
@@ -155,6 +158,10 @@ static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name)
 
 static PyObject *dict_subscript(PyGRTDictObject *self, PyObject *key)
 {
+  AutoPyObject tmp;
+  if (PyUnicode_Check(key))
+    key = tmp = PyUnicode_AsUTF8String(key);
+
   if (!PyString_Check(key))
   {
     PyErr_SetString(PyExc_KeyError, "grt.Dict key must be a string");
@@ -185,6 +192,10 @@ static PyObject *dict_subscript(PyGRTDictObject *self, PyObject *key)
 
 static int dict_ass_subscript(PyGRTDictObject *self, PyObject *key, PyObject *value)
 {
+  AutoPyObject tmp;
+  if (PyUnicode_Check(key))
+    key = tmp = PyUnicode_AsUTF8String(key);
+
   if (!PyString_Check(key))
   {
     PyErr_SetString(PyExc_KeyError, "grt.Dict key must be a string");
@@ -559,6 +570,4 @@ void grt::PythonContext::init_grt_dict_type()
   
   _grt_dict_class= PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Dict");
 }
-
-#endif
 

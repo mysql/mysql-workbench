@@ -72,7 +72,8 @@ protected:
   char *_data;
   size_t _length;
 
-  std::vector<BinaryDataViewer*> _viewers;
+  // editor, needs-update
+  std::vector<std::pair<BinaryDataViewer*, bool> > _viewers;
 
   mforms::Box _box;
   mforms::Box _hbox;
