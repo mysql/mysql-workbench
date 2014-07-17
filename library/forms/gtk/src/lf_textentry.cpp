@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -233,6 +233,58 @@ void TextEntryImpl::focus_out(GdkEventFocus*)
   }
 }
 
+void TextEntryImpl::cut(::mforms::TextEntry *self)
+{
+  TextEntryImpl* te = self->get_data<TextEntryImpl>();
+  if (te)
+    te->_entry->cut_clipboard();
+}
+
+void TextEntryImpl::copy(::mforms::TextEntry *self)
+{
+  TextEntryImpl* te = self->get_data<TextEntryImpl>();
+  if (te)
+    te->_entry->copy_clipboard();
+}
+
+void TextEntryImpl::paste(::mforms::TextEntry *self)
+{
+  TextEntryImpl* te = self->get_data<TextEntryImpl>();
+  if (te)
+    te->_entry->paste_clipboard();
+}
+
+void TextEntryImpl::select(::mforms::TextEntry *self, const base::Range &range)
+{
+  TextEntryImpl* te = self->get_data<TextEntryImpl>();
+  if (te)
+  {
+    if (range.size > 0)
+      te->_entry->select_region(range.position, range.position + range.size);
+    else
+      te->_entry->set_position(range.position);
+  }
+}
+
+base::Range TextEntryImpl::get_selection(::mforms::TextEntry *self)
+{
+  TextEntryImpl* te = self->get_data<TextEntryImpl>();
+  base::Range range;
+  int start, end;
+  if (te->_entry->get_selection_bounds(start, end))
+  {
+    range.position = start;
+    range.size = end - start;
+  }
+  else
+  {
+    range.position = te->_entry->get_position();
+    range.size = 0;
+  }
+  return range;
+}
+
+
 void TextEntryImpl::init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -245,6 +297,11 @@ void TextEntryImpl::init()
   f->_textentry_impl.set_placeholder_text = &TextEntryImpl::set_placeholder_text;
   f->_textentry_impl.set_placeholder_color = &TextEntryImpl::set_placeholder_color;
   f->_textentry_impl.set_bordered = &TextEntryImpl::set_bordered;
+  f->_textentry_impl.cut = &TextEntryImpl::cut;
+  f->_textentry_impl.paste = &TextEntryImpl::paste;
+  f->_textentry_impl.copy = &TextEntryImpl::copy;
+  f->_textentry_impl.select = &TextEntryImpl::select;
+  f->_textentry_impl.get_selection = &TextEntryImpl::get_selection;
 }
 
 };

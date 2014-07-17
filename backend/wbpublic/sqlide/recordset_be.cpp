@@ -257,6 +257,9 @@ void Recordset::refresh()
   // reapply filter, if needed
   if (!data_search_string.empty())
     set_data_search_string(data_search_string);
+
+  if (rows_changed)
+    rows_changed();
 }
 
 
@@ -772,7 +775,8 @@ void Recordset::sort_by(ColumnId column, int direction, bool retaining)
     {
       boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
       rebuild_data_index(data_swap_db.get(), true, true);
-      //refresh_ui();
+
+      refresh_ui(); // refresh the sort indicators in column headers
       return;
     }
   }
@@ -1507,7 +1511,6 @@ void Recordset::rebuild_toolbar()
     bec::IconManager *im = bec::IconManager::get_instance();
 
     item = add_toolbar_action_item(_toolbar, im, "record_sort_reset.png", "record_sort_reset", "Resets all sorted columns");
-    item->signal_activated()->connect(boost::bind(&Recordset::sort_by, this, 0, 0, false));
 
     if (!_data_storage || _data_storage->reloadable())
     {

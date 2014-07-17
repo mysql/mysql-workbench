@@ -104,7 +104,8 @@ int GridView::refresh(bool reset_columns)
   _row_count= _model->count();
   set_model(_view_model);
 
-  get_column(0)->set_resizable(false);
+  if (get_column(0))
+    get_column(0)->set_resizable(false);
   
   reset_sorted_columns();
 

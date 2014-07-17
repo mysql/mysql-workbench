@@ -242,7 +242,6 @@ static void show_help(const char *arg0)
   printf("  %srun-script <file>     Execute Python code from a file\n", OPPREFIX);
   printf("  %srun <script>          Execute the given code in default language for GRT shell\n", OPPREFIX);
   printf("  %srun-python <script>   Execute the given code in Python\n", OPPREFIX);
-  printf("  %srun-lua <script>      Execute the given code in Lua\n", OPPREFIX);
   printf("  %smigration             Open the Migration Wizard tab\n", OPPREFIX);
   printf("  %squit-when-done        Quit Workbench when the script is done\n", OPPREFIX);
   printf("  %slog-to-stderr         Also log to stderr\n", OPPREFIX);
@@ -389,16 +388,8 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
     }
     else if (check_arg_with_value(argv, i, "run-lua", argval))
     {
-      run_language= "lua";
-      if (argval)
-        run_at_startup= argval;
-      else
-      {
-        printf("%s: Missing argument for option %s", argv[0], argv[start_index]);
-        if (retval)
-          *retval = 1;
-        return false;
-      }
+      printf("Lua is no longer supported in this version");
+      return false;
     }
     else if (check_arg_with_value(argv, i, "run-python", argval))
     {
@@ -814,7 +805,7 @@ void* WBContext::do_request_password(const std::string &title, const std::string
 
   try
   {
-    ret = mforms::Utilities::credentials_for_service(title, service, *account, force_asking, *password);
+    ret = mforms::Utilities::find_or_ask_for_password(title, service, *account, force_asking, *password);
   }
   catch (const std::exception &e)
   {
@@ -865,7 +856,6 @@ std::string WBContext::request_connection_password(const db_mgmt_ConnectionRef &
 {
   std::string password_tmp;
   std::string user_tmp = conn->parameterValues().get_string("userName");
-  bool need_user_name = user_tmp.empty();
   void *ret = mforms::Utilities::perform_from_main_thread(
                       boost::bind(&WBContext::do_request_password, this,
                                   _("Connect to MySQL Server"),
@@ -873,8 +863,6 @@ std::string WBContext::request_connection_password(const db_mgmt_ConnectionRef &
                                   reset_password,
                                   &user_tmp,
                                   &password_tmp));
-  if (need_user_name && !user_tmp.empty())
-    conn->parameterValues().gset("userName", user_tmp);
   if (ret)
     return password_tmp;
   throw grt::user_cancelled("Canceled by user");
@@ -1642,7 +1630,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "workbench.physical:DeleteObjectConfirmation", "ask");
 
   set_default(options, "grtshell:ShellLanguage", "python");
-  set_default(options, "@grtshell:ShellLanguage/Items", "lua,python");
+  set_default(options, "@grtshell:ShellLanguage/Items", "python");
   
   // URL of latest versions file (used by version updater)
   set_default(options, "VersionsFileURL", "http://wb.mysql.com/versions.php");
@@ -1681,7 +1669,9 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "DbSqlEditor:DiscardUnsavedQueryTabs", 0);
   set_default(options, "DbSqlEditor:SQLCommentTypeForHotkey", "--");
   set_default(options, "DbSqlEditor:DisableAutomaticContextHelp", 1);
-  
+
+  set_default(options, "DbSqlEditor:Reformatter:UpcaseKeywords", 1);
+
   //options.gset("DbSqlEditor:IsLiveObjectAlterationWizardEnabled", 1);
 
   // DB SQL editor (MySQL)
@@ -1767,6 +1757,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "workbench.model.NoteFigure:TextFont", DEFAULT_FONT_FAMILY" 11");
 
 #if defined(_WIN32)
+  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 8");
   if (get_local_os_name().find("Windows XP") != std::string::npos)
   {
     set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY_ALT" 10");
@@ -1780,10 +1771,12 @@ void WBContext::set_default_options(grt::DictRef options)
     set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 10");
   }
 #elif defined(__APPLE__)
+  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 13");
   set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
   set_default(options, "workbench.scripting.ScriptingShell:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
   set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
 #else
+  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 11");
   set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 11");
   set_default(options, "workbench.scripting.ScriptingShell:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 11");
   set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 11");
@@ -3680,8 +3673,7 @@ bool WBContext::install_module_file(const std::string &path)
   }
   else if (lang_extension == ".lua")
   {
-    if (!g_str_has_suffix(target_path.c_str(), ".grt")) // if the extension is not .grt, add it
-      target_path.append(".grt");
+    show_error("Install Plugin", "Lua is no longer supported in this version.");
   }
   else if (lang_extension == ".mwbpluginz")
   {

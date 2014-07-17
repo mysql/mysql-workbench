@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +47,12 @@ class TextEntryImpl : public ViewImpl
   static std::string get_text(::mforms::TextEntry *self);
   static void set_read_only(::mforms::TextEntry *self, bool flag);
   static void set_bordered(::mforms::TextEntry *self, bool flag);
+  static void cut(::mforms::TextEntry *self);
+  static void copy(::mforms::TextEntry *self);
+  static void paste(::mforms::TextEntry *self);
+  static void select(::mforms::TextEntry *self, const base::Range &range);
+  static base::Range get_selection(::mforms::TextEntry *self);
+  
   void activated(mforms::TextEntry *self);
   bool key_press(GdkEventKey *event, mforms::TextEntry *self);
  

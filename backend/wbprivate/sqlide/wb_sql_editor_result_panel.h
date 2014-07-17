@@ -63,7 +63,7 @@ public:
   std::string caption() const;
 
   db_query_ResultPanelRef grtobj() { return _grtobj; }
-  db_query_ResultsetRef result_grtobj() { return _result_grtobj; }
+  db_query_ResultsetRef result_grtobj() { return _grtobj->resultset(); }
 
   virtual bool can_close();
   virtual void close();
@@ -96,13 +96,13 @@ private:
   mforms::AppView  *_execution_plan_placeholder;
   ResultFormView *_form_result_view;
   mforms::ContextMenu *_column_info_menu;
+  mforms::ContextMenu *_grid_header_menu;
   std::list<mforms::ToolBar*> _toolbars;
   mforms::RecordGrid *_result_grid;
   boost::signals2::signal<void (bool)> _collapse_toggled;
   boost::signals2::connection _collapse_toggled_sig;
 
   db_query_ResultPanelRef _grtobj;
-  db_query_ResultsetRef _result_grtobj;
 
   std::vector<std::string> _column_width_storage_ids;
 
@@ -129,6 +129,10 @@ private:
   void copy_column_info_name(mforms::TreeNodeView *tree);
   void copy_column_info(mforms::TreeNodeView *tree);
 
+  void copy_column_name();
+  void copy_all_column_names();
+
+  void reset_sorting();
   void on_recordset_column_resized(int column);
 };
 

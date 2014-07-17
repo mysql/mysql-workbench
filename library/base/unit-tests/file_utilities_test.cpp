@@ -2323,15 +2323,8 @@ TEST_FUNCTION(65)
           if (LockFile::check(TEST_FILE_NAME01) != LockFile::LockedSelf)
               fail(strfmt("TEST 65.1: File \"%s\" not locked",TEST_FILE_NAME01));
 
-          // Semantics have changed with base::FileHandle as it now always creates the file
-          // when the class is instantiated. However, a file created like this does neither allow
-          // writing nor reading so the a test for NotLocked will fail.
-          /*
           if (LockFile::check(TEST_FILE_NAME02) != LockFile::NotLocked)
               fail(strfmt("TEST 65.2: File \"%s\" locked",TEST_FILE_NAME02));
-          */
-          if (LockFile::check(TEST_FILE_NAME02) != LockFile::LockedOther)
-            fail(strfmt("TEST 65.2: File \"%s\" not exclusively locked", TEST_FILE_NAME02));
         }
         ensure("TEST 65.3: Failed d-tor call", !base::file_exists(TEST_FILE_NAME01));
       }

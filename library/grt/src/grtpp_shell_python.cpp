@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#ifdef ENABLE_PYTHON_MODULES
 #include "grtpp_shell_python.h"
 #include "base/string_utilities.h"
 
@@ -196,6 +195,3 @@ void PythonShell::show_help(const std::string &keyword)
   
   grt_shell_show_python_help(_grt, keyword.c_str());
 }
-
-
-#endif

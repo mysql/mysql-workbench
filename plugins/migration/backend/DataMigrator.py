@@ -185,6 +185,7 @@ class DataMigrator(object):
         self._src_password = srcpassword or ''
         self._tgt_conn_object = tgtconnobj
         self._tgt_password = tgtpassword or ''
+        self._resume = False
 
         # Container for the tasks...
         self._tasks = []
@@ -200,6 +201,15 @@ class DataMigrator(object):
                         fields = []
                         fields.append(task["source_schema"])
                         fields.append(task["source_table"])
+                        if self._resume:
+                            fields.append(task["target_schema"])
+                            fields.append(task["target_table"])
+                            fields.append(task["source_primary_key"])
+                            fields.append(task["target_primary_key"])
+                            if task.get("select_expression", None):
+                                fields.append(task["select_expression"])
+                            else:
+                                fields.append("*")
                         line = "\t".join(fields)
                         table_file.write(line + "\n")
 
@@ -209,14 +219,23 @@ class DataMigrator(object):
                 raise Exception ("Error creating table file: %s" % e.strerror)
         else:
             for task in working_set.values():
-                table_param += ["--table", task["source_schema"], task["source_table"]]
+                if self._resume:
+                    table_param += ["--table", task["source_schema"], task["source_table"], task["target_schema"], task["target_table"], task["source_primary_key"], task["target_primary_key"]]
+                    if task.get("select_expression", None):
+                        table_param.append(task["select_expression"])
+                    else:
+                        table_param.append("*")
+                else:
+                    table_param += ["--table", task["source_schema"], task["source_table"]]
 
         stdout = ""
 
         if not self.copytable_path:
             raise RuntimeError("Path to wbcopytables not found")
 
-        if self._src_conn_object.driver.owner.name == "Mysql":
+        if self._resume:
+            args = self.helper_basic_arglist()
+        elif self._src_conn_object.driver.owner.name == "Mysql":
             args = ['--mysql-source="%s"' % mysql_conn_string(self._src_conn_object)]
         elif (isinstance(self._src_conn_object.driver, grt.classes.db_mgmt_PythonDBAPIDriver) and
               self._src_conn_object.driver.driverLibraryName != 'pyodbc'):
@@ -224,6 +243,10 @@ class DataMigrator(object):
         else:
             args = ['--odbc-source="%s"' % odbc_conn_string(self._src_conn_object, True)]
         args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
+
+        if self._resume:
+            args.append("--resume")
+
         argv = [self.copytable_path, "--count-only", "--passwords-from-stdin"] + args + table_param
         self._owner.send_info(" ".join(argv))
 
@@ -234,7 +257,10 @@ class DataMigrator(object):
         else:
             out = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        passwords= (self._src_password+"\n").encode("utf8")
+        if self._resume:
+            passwords= (self._src_password+"\t"+self._tgt_password+"\n").encode("utf8") 
+        else:
+            passwords= (self._src_password+"\n").encode("utf8")
         while out.poll() is None:
             o, e = out.communicate(passwords)
             passwords = None
@@ -264,6 +290,8 @@ class DataMigrator(object):
                         fields.append(task["source_table"])
                         fields.append(task["target_schema"])
                         fields.append(task["target_table"])
+                        fields.append(task["source_primary_key"])
+                        fields.append(task["target_primary_key"])
                         if task.get("select_expression", None):
                             fields.append(task["select_expression"])
                         else:
@@ -277,7 +305,7 @@ class DataMigrator(object):
                 raise Exception ("Error creating table file: %s" % e.strerror)
         else:
             for task in working_set.values():
-                table_param += ["--table", task["source_schema"], task["source_table"], task["target_schema"], task["target_table"]]
+                table_param += ["--table", task["source_schema"], task["source_table"], task["target_schema"], task["target_table"], task["source_primary_key"], task["target_primary_key"]]
                 if task.get("select_expression", None):
                     table_param.append(task["select_expression"])
                 else:
@@ -296,6 +324,9 @@ class DataMigrator(object):
 
         args.append("--thread-count=" + str(num_processes));
         args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
+
+        if self._resume:
+          args.append("--resume")
 
         argv = [self.copytable_path] + args + table_param
 
@@ -337,12 +368,14 @@ class DataMigrator(object):
         self.interrupted = False
 
         active_job_names = set()
+        self._resume = False
         done = False
 
         while True:
             if done:
                 # flush pending messages
                 try:
+                    self._owner._update_resume_status(self._resume)
                     msgtype, message = self._result_queue.get_nowait()
                 except Queue.Empty:
                     break
@@ -367,6 +400,8 @@ class DataMigrator(object):
                 self._owner.send_error(message)
 
                 self._owner.add_log_entry(2, target_table, message)
+                grt.log_error("Migration", "%s\n"%message)
+                self._resume = True
 
             elif msgtype == "PROGRESS":
                 target_table, current, total = message.split(":")
@@ -377,12 +412,14 @@ class DataMigrator(object):
             elif msgtype == "DONE":
                 done = True
                 if message:
+                    self._resume = True
                     self._owner.send_error("Copy helper exited with an error: %s" % message)
                 else:
                     self._owner.send_info("Copy helper has finished")
             elif msgtype == "INTERRUPTED":
                 done = True
                 self.interrupted = True
+                self._resume = True
                 self._owner.send_info("Copy helper was aborted by user")
             else:
                 self._owner.send_info(msgtype + ": " + message)

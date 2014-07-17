@@ -27,9 +27,6 @@
     <ClInclude Include="src\grtpp_module_cpp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\grtpp_module_lua.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\grtpp_module_python.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -37,9 +34,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\grtpp_shell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\grtpp_shell_lua.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\grtpp_shell_python.h">
@@ -55,9 +49,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\grtpp_value.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\lua_context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\python_context.h">
@@ -117,9 +108,6 @@
     <ClCompile Include="src\grtpp_module_cpp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\grtpp_module_lua.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\grtpp_module_python.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -127,12 +115,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\grtpp_shell.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\grtpp_shell_lua.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\grtpp_shell_lua_help.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\grtpp_shell_python.cpp">
@@ -148,9 +130,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\grtpp_value.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\lua_context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\python_context.cpp">

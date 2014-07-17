@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="application/vnd.mysql-workbench-model">
+    <comment>MySQL Workbench Model</comment>
+    <glob pattern="*.mwb"/>
+  </mime-type>
+</mime-info>

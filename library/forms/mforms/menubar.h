@@ -88,6 +88,7 @@ namespace mforms {
 
 #ifndef SWIG
     MenuItem *add_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name="");
+    MenuItem *add_check_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name="");
 #endif
     MenuItem *add_separator();
 
@@ -121,6 +122,7 @@ namespace mforms {
     std::string get_title();
     
     void set_shortcut(const std::string &shortcut);
+    std::string get_shortcut() { return _shortcut; }
         
     void set_checked(bool flag);
     bool get_checked();
@@ -141,6 +143,7 @@ namespace mforms {
 
   private:
     std::string _name;
+    std::string _shortcut;
     boost::function<bool ()> _validate;
     boost::signals2::signal<void ()> _clicked_signal;
     MenuItemType _type;
@@ -190,3 +193,4 @@ namespace mforms {
 };
 
 #endif
+

@@ -78,7 +78,12 @@ static void delete_surface(cairo_surface_t* surface)
 static int image_width(cairo_surface_t* image)
 {
   if (image != NULL)
-    return cairo_image_surface_get_width(image);
+  {
+    if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
+      return cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor();
+    else
+      return cairo_image_surface_get_width(image);
+  }
   return 0;
 }
 
@@ -87,7 +92,12 @@ static int image_width(cairo_surface_t* image)
 static int image_height(cairo_surface_t* image)
 {
   if (image != NULL)
-    return cairo_image_surface_get_height(image);
+  {
+    if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
+      return cairo_image_surface_get_height(image) / mforms::App::get()->backing_scale_factor();
+    else
+      return cairo_image_surface_get_height(image);
+  }
   return 0;
 }
 
@@ -792,7 +802,7 @@ public:
     _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
     _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
     _sakila_icon = mforms::Utilities::load_icon("wb_tile_sakila.png");
-    _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png");
+    _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png", true);
     _user_icon = mforms::Utilities::load_icon("wb_tile_user.png");
     _manage_icon = mforms::Utilities::load_icon("wb_tile_manage.png");
 
@@ -1133,9 +1143,7 @@ public:
   void draw_icon_with_text(cairo_t *cr, double x, double y, cairo_surface_t *icon,
     const std::string &text, double alpha, bool high_contrast)
   {
-    cairo_set_source_surface(cr, icon, floor(x), floor(y));
-    cairo_paint_with_alpha(cr, alpha);
-
+    mforms::Utilities::paint_icon(cr, icon, x, y);
     x += image_width(icon) + 3;
 
     cairo_text_extents_t extents;
@@ -2679,11 +2687,11 @@ public:
     _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
     _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
     _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
-    _model_icon = mforms::Utilities::load_icon("wb_doc_model.png");
+    _model_icon = mforms::Utilities::load_icon("wb_doc_model.png", true);
     _sql_icon = mforms::Utilities::load_icon("wb_doc_sql.png");
-    _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png");
-    _time_icon = mforms::Utilities::load_icon("wb_tile_time.png");
-    _folder_icon = mforms::Utilities::load_icon("wb_tile_folder_mini.png");
+    _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png", true);
+    _time_icon = mforms::Utilities::load_icon("wb_tile_time.png", true);
+    _folder_icon = mforms::Utilities::load_icon("wb_tile_folder_mini.png", true);
     _size_icon = mforms::Utilities::load_icon("wb_tile_number.png");
     _close_icon = mforms::Utilities::load_icon("wb_close.png");
     _open_icon = mforms::Utilities::load_icon("wb_tile_open.png");
@@ -2786,9 +2794,7 @@ public:
   void draw_icon_with_text(cairo_t *cr, int x, int y, cairo_surface_t *icon,
     const std::string &text, bool high_contrast)
   {
-    cairo_set_source_surface(cr, icon, x, y);
-    cairo_paint(cr);
-
+    mforms::Utilities::paint_icon(cr, icon, x, y);
     x += image_width(icon) + 3;
 
     cairo_text_extents_t extents;
@@ -2871,8 +2877,10 @@ public:
 
   void draw_entry(cairo_t *cr, const DocumentEntry &entry, bool hot, bool high_contrast)
   {
-    cairo_set_source_surface(cr, _model_icon, entry.bounds.left(), entry.bounds.top());
-    cairo_paint(cr);
+    mforms::Utilities::paint_icon(cr, _model_icon, entry.bounds.left(), entry.bounds.top() + 26);
+
+    int icon_width, icon_height;
+    mforms::Utilities::get_icon_size(_model_icon, icon_width, icon_height);
 
     if (high_contrast)
       cairo_set_source_rgb(cr, 0, 0, 0);
@@ -2880,7 +2888,7 @@ public:
       cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
     cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_SUBTITLE_FONT_SIZE);
-    int x = (int)(entry.bounds.left() + image_width(_model_icon) + 10);
+    int x = (int)entry.bounds.left();
     int y = (int)entry.bounds.top() + 18;
     if (hot)
     {
@@ -2904,6 +2912,8 @@ public:
     }
     else
       text_with_decoration(cr, x, y, entry.title_shorted.c_str(), false, 0);
+
+    x += icon_width + 10;
 
     cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
 
@@ -3272,7 +3282,7 @@ public:
     entry.title = base::strip_extension(base::basename(path));
     if (entry.title.empty())
       entry.title = "???";
-    entry.is_model = base::tolower(base::extension(path)) == ".mwb";
+    entry.is_model = base::ends_with(path, ".mwb") || base::ends_with(path, ".mwbd");
     entry.folder = base::dirname(path);
 
     if (time > 0)
@@ -3842,7 +3852,7 @@ public:
     _owner = owner;
     _hot_shortcut = app_StarterRef();
     _active_shortcut = app_StarterRef();
-    _default_shortcut_icon = mforms::Utilities::load_icon("wb_starter_generic_52.png");
+    _default_shortcut_icon = mforms::Utilities::load_icon("wb_starter_generic_52.png", true);
     _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
     _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
 
@@ -3992,8 +4002,7 @@ public:
         iterator->acc_bounds.size.width = get_width() - (SHORTCUTS_LEFT_PADDING + SHORTCUTS_RIGHT_PADDING);
         iterator->acc_bounds.size.height = SHORTCUTS_ROW_HEIGHT;
 
-        cairo_set_source_surface(cr, iterator->icon, SHORTCUTS_LEFT_PADDING, yoffset);
-        cairo_paint_with_alpha(cr, alpha);
+        mforms::Utilities::paint_icon(cr, iterator->icon, SHORTCUTS_LEFT_PADDING, yoffset, alpha);
 
         if (!iterator->title.empty())
         {
@@ -4070,7 +4079,7 @@ public:
     entry.shortcut = shortcut;
 
     // See if we can load the icon. If not use the placeholder.
-    entry.icon = mforms::Utilities::load_icon(icon_name);
+    entry.icon = mforms::Utilities::load_icon(icon_name, true);
     if (entry.icon == NULL)
       entry.icon = _default_shortcut_icon;
 

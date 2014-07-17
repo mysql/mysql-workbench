@@ -25,8 +25,6 @@
 #include "base/file_functions.h"
 #include "base/wb_memory.h"
 
-#ifdef ENABLE_PYTHON_MODULES
-
 // python internals
 #include <node.h>
 //#include <grammar.h>
@@ -44,9 +42,6 @@ DEFAULT_LOG_DOMAIN("python context")
 
 using namespace grt;
 using namespace base;
-
-const std::string grt::LanguagePython= "python";
-
 
 // used to identify a proper GRT context object as a PyCObject
 static const char *GRTTypeSignature= "GRTCONTEXT";
@@ -1050,72 +1045,6 @@ void PythonContext::set_unwrap_pyobject_func(PyObject *(*func)(PyObject *, PyObj
   unwrap_pyobject_func = func;
 }
 
-
-static boost::function<boost::signals2::connection (const boost::function<void ()>&)> run_once_when_idle;
-
-void PythonContext::set_run_once_when_idle(boost::function<boost::signals2::connection (const boost::function<void ()>&)> func)
-{
-  run_once_when_idle = func;
-}
-
-static void call_callback(AutoPyObject callback)
-{
-  WillEnterPython lock;
-  PyObject *args = PyTuple_New(0);
-  PyObject *r = PyObject_Call(callback, args, NULL);
-  Py_XDECREF(args);
-  if (r == NULL)
-    PythonContext::log_python_error("Exeption executing callback for run_from_main_thread:\n");
-  else
-    Py_DECREF(r);
-}
-
-static void delete_connection(void *conn, void *desc)
-{
-  delete reinterpret_cast<boost::signals2::connection*>(conn);
-}
-
-
-static PyObject *grt_run_from_main_thread(PyObject *self, PyObject *args)
-{
-  PyObject *object;
-  
-  if (!PyArg_ParseTuple(args, "O", &object))
-    return NULL;
-  
-  if (!PyCallable_Check(object))
-  {
-    PyErr_SetString(PyExc_ValueError, "notification observer argument must be a callable");
-    return NULL;
-  }
-
-  boost::signals2::connection conn = run_once_when_idle(boost::bind(call_callback, AutoPyObject(object)));
-
-  return PyCObject_FromVoidPtrAndDesc(new boost::signals2::connection(conn), (void*)call_callback, delete_connection);
-}
-
-
-static PyObject *grt_cancel_run_from_main_thread(PyObject *self, PyObject *args)
-{
-  PyObject *object;
-  
-  if (!PyArg_ParseTuple(args, "O:CObject", &object))
-    return NULL;
-
-  if (PyCObject_GetDesc(object) == (void*)call_callback)
-  {
-    boost::signals2::connection *conn = reinterpret_cast<boost::signals2::connection*>(PyCObject_AsVoidPtr(object));
-    if (conn && conn->connected())
-      conn->disconnect();
-    Py_INCREF(Py_None);
-    return Py_None;
-  }
-  
-  return NULL;
-}
-
-
-
 /** Register grt related functionality as a module
 
  Stuff made available in the module include:
@@ -1191,12 +1120,6 @@ static PyMethodDef GrtModuleMethods[] = {
 
 {"togrt", grt_wrap_pyobject, METH_VARARGS,
   "Wraps a Python object in a grt_PyObject GRT object, which you can then use to reference from GRT objects (such as GRT dicts and lists)"},
-
-{"run_from_main_thread", grt_run_from_main_thread, METH_VARARGS,
-  "Executes a Python callable from the main thread once, as soon as possible. Return value can be given to cancel_run_from_main_thread to cancel it's execution, if it hasn't executed yet."},
-
-{"cancel_run_from_main_thread", grt_cancel_run_from_main_thread, METH_VARARGS,
-  "Cancels execution of callback from main thread, which was previously scheduled with run_from_main_thread."},
 
 {NULL, NULL, 0, NULL}        /* Sentinel */
 };
@@ -1981,6 +1904,3 @@ void PythonContext::run_post_init_script()
   if (PyRun_SimpleString((char*)post_init_script) < 0)
     PythonContext::log_python_error("Error running post-init script:");
 }
-
-
-#endif // ENABLE_PYTHON_MODULES

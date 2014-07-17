@@ -32,6 +32,7 @@ DEFAULT_LOG_DOMAIN("BlobViewer");
 #include "mforms/imagebox.h"
 #include "mforms/treenodeview.h"
 #include "mforms/code_editor.h"
+#include "mforms/find_panel.h"
 #include "mforms/filechooser.h"
 
 BinaryDataViewer::BinaryDataViewer(BinaryDataEditor *owner)
@@ -173,7 +174,6 @@ public:
       }
     }
     resume_layout();
-
     _label.set_text(base::strfmt("Viewing Range %i to %i", (int) _offset, (int) (_offset+_block_size)));
     
     if (_offset == 0)
@@ -240,15 +240,17 @@ public:
       _encoding = "UTF-8";
     
     add(&_message, false, true);
-    add(&_text, true, true);
+    add_end(&_text, true, true);
     
     _text.set_language(mforms::LanguageNone);
     _text.set_features(mforms::FeatureWrapText, true);
     _text.set_features(mforms::FeatureReadOnly, read_only);
     
     scoped_connect(_text.signal_changed(),boost::bind(&TextDataViewer::edited, this));
+
+    _text.set_show_find_panel_callback(boost::bind(&TextDataViewer::embed_find_panel, this, _2));
   }
-  
+
   virtual void data_changed()
   {
     GError *error = 0;
@@ -330,6 +332,21 @@ private:
       _message.set_text("");
     }
   }
+
+  void embed_find_panel(bool show)
+  {
+    mforms::View *panel = _text.get_find_panel();
+    if (show)
+    {
+      if (!panel->get_parent())
+        add(panel, false, true);
+    }
+    else
+    {
+      remove(panel);
+      _text.focus();
+    }
+  }
 };
 
 //--------------------------------------------------------------------------------
@@ -367,13 +384,13 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   grt::IntegerRef tab = grt::IntegerRef::cast_from(_grtm->get_app_option("BlobViewer:DefaultTab"));
 
   setup();
-  assign_data(data, length);
-
   add_viewer(new HexDataViewer(this, read_only), "Binary");
   add_viewer(new TextDataViewer(this, text_encoding, read_only), "Text");
   if (ImageDataViewer::can_display(data, length))
     add_viewer(new ImageDataViewer(this, read_only), "Image");
-  
+
+  assign_data(data, length);
+
   if (tab.is_valid())
     _tab_view.set_active_tab((int)*tab);  
   tab_changed();
@@ -431,6 +448,9 @@ void BinaryDataEditor::assign_data(const char *data, size_t length)
   {
     g_free(_data);
     _data = (char*)g_memdup(data, (guint)length);
+
+    for (size_t i = 0; i < _viewers.size(); i++)
+      _viewers[i].second = true;
   }
   _length = length;
 
@@ -449,7 +469,9 @@ void BinaryDataEditor::tab_changed()
 
   try
   {
-    _viewers[i]->data_changed();
+    if (_viewers[i].second && _data)
+      _viewers[i].first->data_changed();
+    _viewers[i].second = false;
   }
   catch (std::exception &exc)
   {
@@ -459,7 +481,7 @@ void BinaryDataEditor::tab_changed()
 
 void BinaryDataEditor::add_viewer(BinaryDataViewer *viewer, const std::string &title)
 {
-  _viewers.push_back(viewer);
+  _viewers.push_back(std::make_pair(viewer, true));
   
   _tab_view.add_page(mforms::manage(viewer), title);
 }

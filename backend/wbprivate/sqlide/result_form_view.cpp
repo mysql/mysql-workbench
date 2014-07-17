@@ -230,7 +230,7 @@ public:
   TextFieldView(const std::string &name, bool editable, const boost::function<void (const std::string &s)> &change_callback)
   : FieldView(name, change_callback)
   {
-    _tbox = new mforms::TextBox(mforms::BothScrollBars);
+    _tbox = new mforms::TextBox(mforms::VerticalScrollBar);
     _tbox->set_enabled(editable);
     _tbox->signal_changed()->connect(boost::bind(&TextFieldView::changed, this));
     _tbox->set_size(-1, 60);

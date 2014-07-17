@@ -92,3 +92,37 @@ void TextEntry::set_bordered(bool flag)
 }
 
 //--------------------------------------------------------------------------------------------------
+
+void TextEntry::cut()
+{
+  _textentry_impl->cut(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TextEntry::copy()
+{
+  _textentry_impl->copy(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TextEntry::paste()
+{
+  _textentry_impl->paste(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TextEntry::select(const base::Range &range)
+{
+  _textentry_impl->select(this, range);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+base::Range TextEntry::get_selection()
+{
+  return _textentry_impl->get_selection(this);
+}
+
