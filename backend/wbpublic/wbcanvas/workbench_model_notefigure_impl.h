@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +38,8 @@ class WBPUBLICBACKEND_PUBLIC_FUNC workbench_model_NoteFigure::ImplData : public 
   virtual ~ImplData() {};
    
    void set_text(const std::string &text);
+   void set_text_color(const std::string &color);
+   void set_font(const std::string &font);
    
    virtual mdc::CanvasItem* get_canvas_item() const { return _figure; }
 
