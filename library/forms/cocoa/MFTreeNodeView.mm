@@ -1007,8 +1007,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
     rect.size= [NSScrollView contentSizeForFrameSize:[self frame].size hasHorizontalScroller:YES hasVerticalScroller:YES
                                           borderType:NSBezelBorder];
 
-    // TODO: might be worth making this not auto released but release it manually so we can control when it goes.
-    mOutline= [[[TreeNodeViewOutlineView alloc] initWithFrame: rect owner: mOwner] autorelease];
+    mOutline= [[TreeNodeViewOutlineView alloc] initWithFrame: rect owner: mOwner];
 
     [self setDocumentView: mOutline];
     [mOutline setColumnAutoresizingStyle: NSTableViewLastColumnOnlyAutoresizingStyle];
@@ -1029,7 +1028,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 - (void)destroy
 {
   mOwner = nil;
-  [self release];
+  [self autorelease];
 }
 
 - (void)enableIndexing
@@ -1041,10 +1040,13 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 - (void) dealloc
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
+
   // Setting nil is necessary since there are still datasouce and delegate messages comming in after dealloc.
   // Might become unnecessary if we don't auto release mOutline.
   [mOutline setDataSource: nil];
   [mOutline setDelegate: nil];
+  [mOutline release];
+  
   mTagMap.clear();
   [mAttributedFonts release];
   [mColumnKeys release];
