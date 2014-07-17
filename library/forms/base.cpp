@@ -34,15 +34,18 @@ Object* Object::retain()
 
 void Object::release()
 {
-    if (base::atomic_int_dec_and_test_if_zero(&_refcount) && _managed)
-      delete this;
+  if (base::atomic_int_dec_and_test_if_zero(&_refcount) && _managed)
+  {
+    _destroying = true;
+    delete this;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void Object::set_managed()
 {
-  _managed= true;
+  _managed = true;
 }
 
 //--------------------------------------------------------------------------------------------------
