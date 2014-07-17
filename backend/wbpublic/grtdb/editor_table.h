@@ -42,6 +42,7 @@ namespace mforms {
   class Form;
   class View;
   class Box;
+  class RecordGrid;
 }
 
 namespace bec {
@@ -341,14 +342,16 @@ namespace bec {
     TableEditorBE(GRTManager *grtm, const db_TableRef &table);
 
     virtual std::string get_title();
+    virtual bool can_close();
 
     db_TableRef get_table() { return db_TableRef::cast_from(get_object()); };
 
     virtual TableColumnsListBE *get_columns()= 0;
     virtual IndexListBE *get_indexes()= 0;
     FKConstraintListBE *get_fks() { return &_fk_list; }
+
     RecordsetRef get_inserts_model();
-    mforms::View *create_inserts_panel(mforms::View *grid);
+    mforms::View *get_inserts_panel();
 
     virtual void set_name(const std::string &name);
 
@@ -389,15 +392,21 @@ namespace bec {
 
     virtual db_TableRef create_stub_table(const std::string &schema, const std::string &table) = 0;
 
-    protected:
+
+    void column_count_changed();
+  protected:
     FKConstraintListBE _fk_list;
 
     void undo_called(grt::UndoAction *action, grt::UndoAction *expected);
 
   private:
     mforms::Box *_inserts_panel;
+    mforms::RecordGrid *_inserts_grid;
     RecordsetRef _inserts_model;
     RecordsetTableInsertsStorageRef _inserts_storage;
+
+    void inserts_column_resized(int);
+    void restore_inserts_columns();
   };
 
 };

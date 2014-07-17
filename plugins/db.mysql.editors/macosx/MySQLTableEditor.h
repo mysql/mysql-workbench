@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -130,8 +130,6 @@ class MySQLTablePartitionTreeBE;
   IBOutlet NSView* mEditorInserts;
   
   @private
-  MResultsetViewer* mEditorInsertsController;
-
   MySQLTableEditorBE* mBackEnd;
   MacTableEditorColumnsInformationSource* mColumnsDataSource;
   NSArray* mColumnTypes;

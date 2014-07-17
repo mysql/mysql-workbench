@@ -365,16 +365,10 @@ TEST_FUNCTION(30)
   tester.wb->close_document_finish();
 }
 
-static int delegated_confirm_action(std::string,std::string,std::string,std::string,std::string, int *result)
-{
-  return *result;
-}
-
 TEST_FUNCTION(35)
 {
   // check if figure/dbobject deletion works
   WBFrontendCallbacks callbacks;
-  int result;
 
   //TODO: Investigate what was the purpose of this and if it continues needed
   //callbacks.confirm_action= boost::bind(&delegated_confirm_action, &result);
@@ -393,8 +387,6 @@ TEST_FUNCTION(35)
   
 
   // delete table with dbobject (1)
-  result= 1;
-
   tester.wb->get_model_context()->delete_object(tester.get_pview()->figures()[0]);
 
   ensure_equals("table object", tester.get_schema()->tables().count(), 0U);
@@ -406,8 +398,6 @@ TEST_FUNCTION(35)
   ensure_equals("table figure", tester.get_pview()->figures().count(), 1U);
 
   // delete table without dbobject (0)
-  result= 0;
-
   tester.wb->get_model_context()->remove_figure(tester.get_pview()->figures()[0]);
 
   ensure_equals("table object", tester.get_schema()->tables().count(), 1U);

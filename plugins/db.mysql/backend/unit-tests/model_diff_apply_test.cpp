@@ -138,13 +138,6 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(model_diff_apply, "db.mysql plugin test");
 
-static int process_sql_statement_callback(const MyxStatementParser *splitter, const char *sql, void *user_data)
-{
-  sql::Statement *stmt= static_cast<sql::Statement *>(user_data);
-  stmt->execute(sql);
-  return 1;
-}
-
 db_mysql_CatalogRef tut::Test_object_base<model_diff_apply>::create_catalog_from_script(
   const std::string& sql)
 {

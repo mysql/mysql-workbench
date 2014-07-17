@@ -362,7 +362,7 @@ void GRTDispatcher::start(boost::shared_ptr<GRTDispatcher> self)
   if (!_threading_disabled)
   {
 
-    log_debug("starting worker thread");
+    log_debug("starting worker thread\n");
     _thread= base::create_thread(worker_thread, this);
     if (_thread == 0)
     {
@@ -418,7 +418,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
   mforms::Utilities::set_thread_name("GRTDispatcher");
 
-  log_debug("worker thread running");
+  log_debug("worker thread running\n");
   
   g_async_queue_ref(task_queue);
   g_async_queue_ref(callback_queue);
@@ -475,7 +475,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
     if (task->get_error())
     {
-      log_error("%s", std::string(("worker: task '"+task->name()+"' has failed with error:.")+task->get_error()->what()).c_str());
+      log_error("%s\n", std::string(("worker: task '"+task->name()+"' has failed with error:.")+task->get_error()->what()).c_str());
       task->release();
       base::atomic_int_dec_and_test_if_zero(&self->_busy);
       continue;
@@ -500,7 +500,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 //  self->_worker_running= false;
   self->_w_runing.post();
 
-  log_debug("worker thread exiting...");
+  log_debug("worker thread exiting...\n");
 
   return NULL;
 }

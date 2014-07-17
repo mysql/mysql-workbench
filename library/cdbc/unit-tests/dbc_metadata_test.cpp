@@ -84,7 +84,7 @@ TEST_FUNCTION(4)
     sql::DatabaseMetaData *meta(connection->getMetaData());
     ensure("meta is NULL", meta != NULL);
 
-    const std::string & name = meta->getDatabaseProductName();
+    meta->getDatabaseProductName();
   } catch (sql::SQLException &) {
     printf("ERR: Caught sql::SQLException\n");
   }
@@ -108,7 +108,7 @@ TEST_FUNCTION(5)
     sql::DatabaseMetaData *meta(connection->getMetaData());
     ensure("meta is NULL", meta != NULL);
 
-    const std::string & name = meta->getDatabaseProductVersion();
+    meta->getDatabaseProductVersion();
   } catch (sql::SQLException &) {
     printf("ERR: Caught sql::SQLException\n");
     throw;
@@ -133,7 +133,7 @@ TEST_FUNCTION(7)
     sql::DatabaseMetaData *meta(connection->getMetaData());
     ensure("meta is NULL", meta != NULL);
 
-    int major = meta->getDriverMajorVersion();
+    meta->getDriverMajorVersion();
   } catch (sql::SQLException &) {
     printf("ERR: Caught sql::SQLException\n");
     throw;
@@ -158,7 +158,7 @@ TEST_FUNCTION(8)
     sql::DatabaseMetaData *meta(connection->getMetaData());
     ensure("meta is NULL", meta != NULL);
 
-    int major = meta->getDriverMinorVersion();
+    meta->getDriverMinorVersion();
   } catch (sql::SQLException &) {
     printf("ERR: Caught sql::SQLException\n");
     throw;
@@ -183,7 +183,7 @@ TEST_FUNCTION(9)
     sql::DatabaseMetaData *meta(connection->getMetaData());
     ensure("meta is NULL", meta != NULL);
 
-    const std::string & name = meta->getDriverName();
+    meta->getDriverName();
   } catch (sql::SQLException &) {
     printf("ERR: Caught sql::SQLException\n");
     throw;

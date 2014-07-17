@@ -29,7 +29,6 @@ exclude_files=[
 "libgthread-2.0-0.dll",
 "libpng12-0.dll", 
 "libxml2.dll", 
-"lua.dll", 
 "pcre.dll", 
 "python27_d.dll", 
 "python27.dll", 

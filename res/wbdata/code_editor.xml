@@ -650,55 +650,6 @@
 	</keywords>
   </language> <!-- SCLEX_MYSQL_57 -->
 
-  <language name="SCLEX_LUA">
-
-    <property name="fold.compact" value="0" />
-
-    <setting name="usetabs" value="1" />
-    <setting name="tabwidth" value="4" />
-    <setting name="indentation" value="4" />
-
-    <keywords name="Keywords">
-      and break do else elseif end false for function if
-      in local nil not or repeat return then true until while
-      assert collectgarbage dofile error gcinfo loadfile loadstring
-      print rawget rawset require tonumber tostring type unpack
-      _G getfenv getmetatable ipairs loadlib next pairs pcall
-      rawequal setfenv setmetatable xpcall
-      string table math coroutine io os debug
-      load module select
-      string.byte string.char string.dump string.find string.len
-      string.lower string.rep string.sub string.upper string.format string.gfind string.gsub
-      table.concat table.foreach table.foreachi table.getn table.sort table.insert table.remove table.setn
-      math.abs math.acos math.asin math.atan math.atan2 math.ceil math.cos math.deg math.exp
-      math.floor math.frexp math.ldexp math.log math.log10 math.max math.min math.mod
-      math.pi math.pow math.rad math.random math.randomseed math.sin math.sqrt math.tan
-      string.gmatch string.match string.reverse table.maxn
-      math.cosh math.fmod math.modf math.sinh math.tanh math.huge
-      coroutine.create coroutine.resume coroutine.status
-      coroutine.wrap coroutine.yield
-      io.close io.flush io.input io.lines io.open io.output io.read io.tmpfile io.type io.write
-      io.stdin io.stdout io.stderr
-      os.clock os.date os.difftime os.execute os.exit os.getenv os.remove os.rename
-      os.setlocale os.time os.tmpname
-      coroutine.running package.cpath package.loaded package.loadlib package.path
-      package.preload package.seeall io.popen
-    </keywords>
-
-    <style id="0" fore-color="#000000" /> <!-- SCE_LUA_DEFAULT -->
-
-    <style id="1" fore-color="#A0A0A0" /> <!-- SCE_LUA_COMMENT -->
-    <style id="2" fore-color="#A0A0A0" /> <!-- SCE_LUA_COMMENTLINE -->
-
-    <style id="4" fore-color="#F0A030" /> <!-- SCE_LUA_NUMBER -->
-    <style id="6" fore-color="#209F20" /> <!-- SCE_LUA_STRING -->
-
-    <style id="5" fore-color="#007FBF" bold="Yes" /> <!-- SCE_LUA_WORD -->
-    <style id="10" bold="Yes" /> <!-- SCE_LUA_OPERATOR -->
-
-    <style id="11" fore-color="#000000" /> <!-- SCE_LUA_IDENTIFIER -->
-
-  </language>
 
   <language name="SCLEX_PYTHON">
 

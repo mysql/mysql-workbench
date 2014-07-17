@@ -359,7 +359,6 @@
 		2B0749DF0F94344300D7E4E3 /* Refresh_16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0749CE0F94344300D7E4E3 /* Refresh_16x16.png */; };
 		2B0749E00F94344300D7E4E3 /* Refresh_18x18.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0749CF0F94344300D7E4E3 /* Refresh_18x18.png */; };
 		2B0749E10F94344300D7E4E3 /* Refresh_disabled_18x18.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0749D00F94344300D7E4E3 /* Refresh_disabled_18x18.png */; };
-		2B08A4791194800200F8C550 /* mysqldoclib.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B08A4781194800200F8C550 /* mysqldoclib.py */; };
 		2B0CE62910C60EED00325F30 /* file_charset_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B0CE62710C60EED00325F30 /* file_charset_dialog.cpp */; };
 		2B0CE62A10C60EED00325F30 /* file_charset_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0CE62810C60EED00325F30 /* file_charset_dialog.h */; };
 		2B0DE77A11E916EF00989395 /* db_query_EditableResultset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B0DE77311E916EF00989395 /* db_query_EditableResultset.cpp */; };
@@ -491,7 +490,6 @@
 		2B1434A5179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143424179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-on@2x.png */; };
 		2B1434A6179DDDE7002217CF /* snippet_css.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143425179DDDE7002217CF /* snippet_css.png */; };
 		2B1434A7179DDDE7002217CF /* snippet_htm.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143426179DDDE7002217CF /* snippet_htm.png */; };
-		2B1434A8179DDDE7002217CF /* snippet_lua.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143427179DDDE7002217CF /* snippet_lua.png */; };
 		2B1434A9179DDDE7002217CF /* snippet_mwb.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143428179DDDE7002217CF /* snippet_mwb.png */; };
 		2B1434AA179DDDE7002217CF /* snippet_php.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143429179DDDE7002217CF /* snippet_php.png */; };
 		2B1434AB179DDDE7002217CF /* snippet_py.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B14342A179DDDE7002217CF /* snippet_py.png */; };
@@ -608,6 +606,30 @@
 		2B17CA4514663BEC00F6E4DA /* libctemplate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */; };
 		2B17D29C159210EC0029B71A /* datatype_mapping_editor.py in Resources */ = {isa = PBXBuildFile; fileRef = 2B17D29B159210EC0029B71A /* datatype_mapping_editor.py */; };
 		2B17D2AC159219370029B71A /* datatype_mapping_editor.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B17D29B159210EC0029B71A /* datatype_mapping_editor.py */; };
+		2B18EDB8196C8705004D7596 /* wb_doc_model@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDAD196C8705004D7596 /* wb_doc_model@2x.png */; };
+		2B18EDB9196C8706004D7596 /* wb_starter_edelivery_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDAE196C8705004D7596 /* wb_starter_edelivery_52@2x.png */; };
+		2B18EDBA196C8706004D7596 /* wb_starter_grt_shell_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDAF196C8705004D7596 /* wb_starter_grt_shell_52@2x.png */; };
+		2B18EDBB196C8706004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDB0196C8705004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png */; };
+		2B18EDBC196C8706004D7596 /* wb_starter_mysql_doc_lib_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDB1196C8705004D7596 /* wb_starter_mysql_doc_lib_52@2x.png */; };
+		2B18EDBD196C8706004D7596 /* wb_starter_mysql_forums_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDB2196C8705004D7596 /* wb_starter_mysql_forums_52@2x.png */; };
+		2B18EDBE196C8706004D7596 /* wb_starter_mysql_migration_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDB3196C8705004D7596 /* wb_starter_mysql_migration_52@2x.png */; };
+		2B18EDBF196C8706004D7596 /* wb_starter_mysql_utilities_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDB4196C8705004D7596 /* wb_starter_mysql_utilities_52@2x.png */; };
+		2B18EDC0196C8706004D7596 /* wb_starter_planet_mysql_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDB5196C8705004D7596 /* wb_starter_planet_mysql_52@2x.png */; };
+		2B18EDC1196C8706004D7596 /* wb_starter_support_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDB6196C8705004D7596 /* wb_starter_support_52@2x.png */; };
+		2B18EDC2196C8706004D7596 /* wb_tile_fabric.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDB7196C8705004D7596 /* wb_tile_fabric.png */; };
+		2B18EDC7196C8B0C004D7596 /* wb_tile_schema@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDC4196C8B0C004D7596 /* wb_tile_schema@2x.png */; };
+		2B18EDC8196C8B0C004D7596 /* wb_tile_time@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDC5196C8B0C004D7596 /* wb_tile_time@2x.png */; };
+		2B18EDCC196C8B7D004D7596 /* wb_tile_folder_mini@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDCA196C8B7D004D7596 /* wb_tile_folder_mini@2x.png */; };
+		2B18EDD0196C9105004D7596 /* wb-sidebar-collapse@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDCD196C9105004D7596 /* wb-sidebar-collapse@2x.png */; };
+		2B18EDD1196C9105004D7596 /* wb-sidebar-expand@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDCE196C9105004D7596 /* wb-sidebar-expand@2x.png */; };
+		2B18EDD2196C9105004D7596 /* wb-sidebar-refresh@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDCF196C9105004D7596 /* wb-sidebar-refresh@2x.png */; };
+		2B18EDD6196C9646004D7596 /* admin_audit_inspector@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDD3196C9646004D7596 /* admin_audit_inspector@2x.png */; };
+		2B18EDD7196C9646004D7596 /* admin_connections@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDD4196C9646004D7596 /* admin_connections@2x.png */; };
+		2B18EDD8196C9646004D7596 /* admin_dashboard@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDD5196C9646004D7596 /* admin_dashboard@2x.png */; };
+		2B18EDDB196C9650004D7596 /* admin_instrumentation_setup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */; };
+		2B18EDDC196C9650004D7596 /* admin_performance_reports@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */; };
+		2B18EDE0196C9CDF004D7596 /* grt_plugin_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */; };
+		2B18EDE3196DA6FA004D7596 /* wb_docs_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */; };
 		2B1AC771127F99C800AEC070 /* debug_continue.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76C127F99C800AEC070 /* debug_continue.png */; };
 		2B1AC772127F99C800AEC070 /* debug_step.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76D127F99C800AEC070 /* debug_step.png */; };
 		2B1AC773127F99C800AEC070 /* debug_step_into.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76E127F99C800AEC070 /* debug_step_into.png */; };
@@ -624,7 +646,6 @@
 		2B1CA4240F965CB1001443CA /* MQIndicatorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1CA4200F965CB1001443CA /* MQIndicatorCell.m */; };
 		2B1CA4250F965CB1001443CA /* MQResultSetCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1CA4210F965CB1001443CA /* MQResultSetCell.h */; };
 		2B1CA4260F965CB1001443CA /* MQResultSetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1CA4220F965CB1001443CA /* MQResultSetCell.m */; };
-		2B1CF3AA11931D2B00D1410D /* wb_doclib_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B1CF3A911931D2B00D1410D /* wb_doclib_grt.py */; };
 		2B1CF45411939DDF00D1410D /* DB Management.txt in Copy Files (snippets) */ = {isa = PBXBuildFile; fileRef = 2B1CF45311939DDE00D1410D /* DB Management.txt */; };
 		2B1D6CAC177C6BDD0073C062 /* maintab_home_background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6CA3177C6BDD0073C062 /* maintab_home_background@2x.png */; };
 		2B1D6CAD177C6BDD0073C062 /* maintab_home_home.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6CA4177C6BDD0073C062 /* maintab_home_home.png */; };
@@ -729,7 +750,6 @@
 		2B2403DD101BC7A800079580 /* grtdb_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403DA101BC7A800079580 /* grtdb_tests.cpp */; };
 		2B2403E1101BC7C800079580 /* db_sql_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403DF101BC7C800079580 /* db_sql_editor.cpp */; };
 		2B2403EE101BC81800079580 /* grtlistdiff_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403E7101BC81800079580 /* grtlistdiff_test.cpp */; };
-		2B2403FD101BC82F00079580 /* grtpp_lua_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403F0101BC82F00079580 /* grtpp_lua_test.cpp */; };
 		2B2403FE101BC82F00079580 /* grtpp_serialization_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403F1101BC82F00079580 /* grtpp_serialization_test.cpp */; };
 		2B2403FF101BC82F00079580 /* grtpp_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403F2101BC82F00079580 /* grtpp_test.cpp */; };
 		2B240400101BC82F00079580 /* grtpp_util_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403F3101BC82F00079580 /* grtpp_util_test.cpp */; };
@@ -1573,7 +1593,6 @@
 		2B7FEC1A12EB9C23007945E2 /* wb_admin_main.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B7FEC0812EB9C0A007945E2 /* wb_admin_main.py */; };
 		2B825D210E0B578600BE52DF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B825D1D0E0B578600BE52DF /* InfoPlist.strings */; };
 		2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
-		2B825D670E0B5F4000BE52DF /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */; };
 		2B825DA50E0B604D00BE52DF /* changefactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825D960E0B604D00BE52DF /* changefactory.cpp */; };
 		2B825DA60E0B604D00BE52DF /* changefactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825D970E0B604D00BE52DF /* changefactory.h */; };
 		2B825DA70E0B604D00BE52DF /* changelistobjects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825D980E0B604D00BE52DF /* changelistobjects.cpp */; };
@@ -1596,21 +1615,15 @@
 		2B825DD70E0B605A00BE52DF /* grtpp_helper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DBD0E0B605A00BE52DF /* grtpp_helper.h */; };
 		2B825DD80E0B605A00BE52DF /* serializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DBE0E0B605A00BE52DF /* serializer.h */; };
 		2B825DD90E0B605A00BE52DF /* serializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DBF0E0B605A00BE52DF /* serializer.cpp */; };
-		2B825DDA0E0B605A00BE52DF /* grtpp_module_lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC00E0B605A00BE52DF /* grtpp_module_lua.h */; };
 		2B825DDB0E0B605A00BE52DF /* grtpp_module_cpp.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC10E0B605A00BE52DF /* grtpp_module_cpp.h */; };
 		2B825DDC0E0B605A00BE52DF /* grtpp_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC20E0B605A00BE52DF /* grtpp_util.cpp */; };
 		2B825DDD0E0B605A00BE52DF /* grtpp_undo_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC30E0B605A00BE52DF /* grtpp_undo_manager.h */; };
 		2B825DDE0E0B605A00BE52DF /* grtpp_value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */; };
 		2B825DDF0E0B605A00BE52DF /* grtpp_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC50E0B605A00BE52DF /* grtpp_util.h */; };
-		2B825DE00E0B605A00BE52DF /* lua_context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC60E0B605A00BE52DF /* lua_context.cpp */; };
 		2B825DE10E0B605A00BE52DF /* grtpp_value.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC70E0B605A00BE52DF /* grtpp_value.h */; };
 		2B825DE20E0B605A00BE52DF /* grtpp_grt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */; };
-		2B825DE30E0B605A00BE52DF /* grtpp_shell_lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DC90E0B605A00BE52DF /* grtpp_shell_lua.h */; };
-		2B825DE40E0B605A00BE52DF /* lua_context.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DCA0E0B605A00BE52DF /* lua_context.h */; };
 		2B825DE50E0B605A00BE52DF /* grtpp_shell.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825DCB0E0B605A00BE52DF /* grtpp_shell.h */; };
-		2B825DE60E0B605A00BE52DF /* grtpp_shell_lua.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DCC0E0B605A00BE52DF /* grtpp_shell_lua.cpp */; };
 		2B825DE70E0B605A00BE52DF /* grtpp_shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DCD0E0B605A00BE52DF /* grtpp_shell.cpp */; };
-		2B825DE80E0B605A00BE52DF /* grtpp_module_lua.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825DCE0E0B605A00BE52DF /* grtpp_module_lua.cpp */; };
 		2B825E710E0B664E00BE52DF /* mdc_canvas_view_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825E270E0B664E00BE52DF /* mdc_canvas_view_image.h */; };
 		2B825E720E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825E280E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp */; };
 		2B825E730E0B664E00BE52DF /* mdc_icon_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825E290E0B664E00BE52DF /* mdc_icon_text.cpp */; };
@@ -1711,9 +1724,7 @@
 		2B8760E70F47E568000B6DE1 /* python_grtdict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8760E50F47E568000B6DE1 /* python_grtdict.cpp */; };
 		2B8761280F47ECB5000B6DE1 /* python_module.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8761260F47ECB5000B6DE1 /* python_module.h */; };
 		2B8761290F47ECB5000B6DE1 /* python_module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8761270F47ECB5000B6DE1 /* python_module.cpp */; };
-		2B87631A0F48D499000B6DE1 /* wb_library.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2B8762F00F48D296000B6DE1 /* wb_library.lua */; };
 		2B87631B0F48D4E6000B6DE1 /* wb.py in Copy Files (grt libraries) */ = {isa = PBXBuildFile; fileRef = 2B87628E0F48AEF2000B6DE1 /* wb.py */; };
-		2B87631C0F48D4E6000B6DE1 /* wb_library.lua in Copy Files (grt libraries) */ = {isa = PBXBuildFile; fileRef = 2B8762F00F48D296000B6DE1 /* wb_library.lua */; };
 		2B8767C30F4B1792000B6DE1 /* WBPluginPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8767C20F4B1792000B6DE1 /* WBPluginPanel.mm */; };
 		2B87B86116AA0988003C91C1 /* table_templates.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B87B86016AA089E003C91C1 /* table_templates.py */; };
 		2B87B8CB16B0CCE6003C91C1 /* TabViewDockingDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B87B8C916B0CCE6003C91C1 /* TabViewDockingDelegate.h */; };
@@ -2027,8 +2038,6 @@
 		2BCB31DB0E88493F005C8ED2 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2BCB3C1F183C18E1007D06F4 /* ps_overview.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCB3C1E183C18E1007D06F4 /* ps_overview.png */; };
-		2BCBAE4815E7D91A009571DE /* libintl.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCBAE4415E7D749009571DE /* libintl.8.dylib */; };
-		2BCBAE4A15E7D9A1009571DE /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */; };
 		2BCBAE4C15E7DA60009571DE /* libzip.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCBAE4615E7D749009571DE /* libzip.1.0.0.dylib */; };
 		2BCC405B0EFFC06E008A66D4 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
 		2BCC40620EFFD0F3008A66D4 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
@@ -2165,13 +2174,9 @@
 		2BDAE46111139AA500AC1D7A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BDAE46B11139B3B00AC1D7A /* file_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDAE46911139B3B00AC1D7A /* file_functions.h */; };
 		2BDAE48011139E8E00AC1D7A /* wba_ssh_ui.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */; };
-		2BDC26040E855EC40018CE34 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26020E855EC40018CE34 /* liblua.a */; };
-		2BDC26050E855EC40018CE34 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26020E855EC40018CE34 /* liblua.a */; };
-		2BDC26060E855EC40018CE34 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26020E855EC40018CE34 /* liblua.a */; };
 		2BDC26080E855F470018CE34 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */; };
 		2BDC261B0E8565C20018CE34 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		2BDC261F0E8565F50018CE34 /* grtpp_shell_lua_help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC261E0E8565F50018CE34 /* grtpp_shell_lua_help.cpp */; };
 		2BDC26950E8567530018CE34 /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC26470E8567510018CE34 /* hash.h */; };
 		2BDC26970E8567530018CE34 /* lex_symbol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC26490E8567510018CE34 /* lex_symbol.h */; };
 		2BDC269A0E8567540018CE34 /* m_ctype.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC264D0E8567510018CE34 /* m_ctype.h */; };
@@ -2260,6 +2265,7 @@
 		2BEC8E7C1035F80900607CA4 /* mysql_sql_semantic_check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */; };
 		2BECA53618B3A13D00E12F8B /* sys in Resources */ = {isa = PBXBuildFile; fileRef = 2BECA53518B3A13D00E12F8B /* sys */; };
 		2BECA53918BD2F3000E12F8B /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		2BF02D031964A8CF008C9304 /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */; };
 		2BF0490117398B0400A7EA35 /* wb_admin_server_status.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF04900173989C600A7EA35 /* wb_admin_server_status.py */; };
 		2BF0491C1739925E00A7EA35 /* mysql-logo-00.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */; };
 		2BF0491D1739925E00A7EA35 /* mysql-logo-00@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */; };
@@ -3443,6 +3449,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				EDD76C8C19573FDC00D3D54F /* wbfabric_grt.py in Copy Files (plugins) */,
+				2B18EDE3196DA6FA004D7596 /* wb_docs_grt.py in Copy Files (plugins) */,
 				27378CD31917D10000DE1AA6 /* db.mysql.parser.grt.dylib in Copy Files (plugins) */,
 				EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */,
 				2B1D6D2F178C540A0073C062 /* wb_model_utils.py in Copy Files (plugins) */,
@@ -3521,9 +3528,7 @@
 				2BF98AB2123A098E008DDCD0 /* wb_server_management.py in Copy Files (plugins) */,
 				27A3E88B1098CAB20014F5B1 /* wba_monitor_be.py in Copy Files (plugins) */,
 				2B5C151F11FA59B800F1237A /* text_grt.py in Copy Files (plugins) */,
-				2B08A4791194800200F8C550 /* mysqldoclib.py in Copy Files (plugins) */,
 				2BDAE48011139E8E00AC1D7A /* wba_ssh_ui.py in Copy Files (plugins) */,
-				2B1CF3AA11931D2B00D1410D /* wb_doclib_grt.py in Copy Files (plugins) */,
 				2BBC38FB12380E9000CACF4C /* wb_admin_control.py in Copy Files (plugins) */,
 				2BF440EA108C9C6300F04A6C /* wb_admin_logs.py in Copy Files (plugins) */,
 				2BF43851108778F500F04A6C /* wb_admin_security.py in Copy Files (plugins) */,
@@ -3635,7 +3640,6 @@
 				2B7A3A1C126E91870097DDA9 /* grt_python_debugger.py in Copy Files (grt libraries) */,
 				2B75735C12077FDC00CC60E4 /* db_utils.py in Copy Files (grt libraries) */,
 				2B87631B0F48D4E6000B6DE1 /* wb.py in Copy Files (grt libraries) */,
-				2B87631C0F48D4E6000B6DE1 /* wb_library.lua in Copy Files (grt libraries) */,
 			);
 			name = "Copy Files (grt libraries)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4233,7 +4237,6 @@
 		2B143424179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_word-wrap-on@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_word-wrap-on@2x.png"; sourceTree = "<group>"; };
 		2B143425179DDDE7002217CF /* snippet_css.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_css.png; path = images/sql/snippet_css.png; sourceTree = "<group>"; };
 		2B143426179DDDE7002217CF /* snippet_htm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_htm.png; path = images/sql/snippet_htm.png; sourceTree = "<group>"; };
-		2B143427179DDDE7002217CF /* snippet_lua.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_lua.png; path = images/sql/snippet_lua.png; sourceTree = "<group>"; };
 		2B143428179DDDE7002217CF /* snippet_mwb.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_mwb.png; path = images/sql/snippet_mwb.png; sourceTree = "<group>"; };
 		2B143429179DDDE7002217CF /* snippet_php.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_php.png; path = images/sql/snippet_php.png; sourceTree = "<group>"; };
 		2B14342A179DDDE7002217CF /* snippet_py.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = snippet_py.png; path = images/sql/snippet_py.png; sourceTree = "<group>"; };
@@ -4345,6 +4348,30 @@
 		2B17B44E0F4E4FBC0087ED42 /* MySQLRelationshipEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLRelationshipEditor.h; path = plugins/db.mysql.editors/macosx/MySQLRelationshipEditor.h; sourceTree = "<group>"; };
 		2B17B44F0F4E4FBC0087ED42 /* MySQLRelationshipEditor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MySQLRelationshipEditor.mm; path = plugins/db.mysql.editors/macosx/MySQLRelationshipEditor.mm; sourceTree = "<group>"; };
 		2B17D29B159210EC0029B71A /* datatype_mapping_editor.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = datatype_mapping_editor.py; sourceTree = "<group>"; };
+		2B18EDAD196C8705004D7596 /* wb_doc_model@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_doc_model@2x.png"; path = "images/home/wb_doc_model@2x.png"; sourceTree = "<group>"; };
+		2B18EDAE196C8705004D7596 /* wb_starter_edelivery_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_edelivery_52@2x.png"; path = "images/home/wb_starter_edelivery_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDAF196C8705004D7596 /* wb_starter_grt_shell_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_grt_shell_52@2x.png"; path = "images/home/wb_starter_grt_shell_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDB0196C8705004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_mysql_bug_reporter_52@2x.png"; path = "images/home/wb_starter_mysql_bug_reporter_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDB1196C8705004D7596 /* wb_starter_mysql_doc_lib_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_mysql_doc_lib_52@2x.png"; path = "images/home/wb_starter_mysql_doc_lib_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDB2196C8705004D7596 /* wb_starter_mysql_forums_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_mysql_forums_52@2x.png"; path = "images/home/wb_starter_mysql_forums_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDB3196C8705004D7596 /* wb_starter_mysql_migration_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_mysql_migration_52@2x.png"; path = "images/home/wb_starter_mysql_migration_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDB4196C8705004D7596 /* wb_starter_mysql_utilities_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_mysql_utilities_52@2x.png"; path = "images/home/wb_starter_mysql_utilities_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDB5196C8705004D7596 /* wb_starter_planet_mysql_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_planet_mysql_52@2x.png"; path = "images/home/wb_starter_planet_mysql_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDB6196C8705004D7596 /* wb_starter_support_52@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_starter_support_52@2x.png"; path = "images/home/wb_starter_support_52@2x.png"; sourceTree = "<group>"; };
+		2B18EDB7196C8705004D7596 /* wb_tile_fabric.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_fabric.png; path = images/home/wb_tile_fabric.png; sourceTree = "<group>"; };
+		2B18EDC4196C8B0C004D7596 /* wb_tile_schema@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_tile_schema@2x.png"; path = "images/home/wb_tile_schema@2x.png"; sourceTree = "<group>"; };
+		2B18EDC5196C8B0C004D7596 /* wb_tile_time@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_tile_time@2x.png"; path = "images/home/wb_tile_time@2x.png"; sourceTree = "<group>"; };
+		2B18EDC9196C8B7D004D7596 /* wb_tile_folder_mini.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_folder_mini.png; path = images/home/wb_tile_folder_mini.png; sourceTree = "<group>"; };
+		2B18EDCA196C8B7D004D7596 /* wb_tile_folder_mini@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb_tile_folder_mini@2x.png"; path = "images/home/wb_tile_folder_mini@2x.png"; sourceTree = "<group>"; };
+		2B18EDCD196C9105004D7596 /* wb-sidebar-collapse@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-sidebar-collapse@2x.png"; path = "images/sql/wb-sidebar-collapse@2x.png"; sourceTree = "<group>"; };
+		2B18EDCE196C9105004D7596 /* wb-sidebar-expand@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-sidebar-expand@2x.png"; path = "images/sql/wb-sidebar-expand@2x.png"; sourceTree = "<group>"; };
+		2B18EDCF196C9105004D7596 /* wb-sidebar-refresh@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "wb-sidebar-refresh@2x.png"; path = "images/sql/wb-sidebar-refresh@2x.png"; sourceTree = "<group>"; };
+		2B18EDD3196C9646004D7596 /* admin_audit_inspector@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_audit_inspector@2x.png"; path = "images/admin/admin_audit_inspector@2x.png"; sourceTree = "<group>"; };
+		2B18EDD4196C9646004D7596 /* admin_connections@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_connections@2x.png"; path = "images/admin/admin_connections@2x.png"; sourceTree = "<group>"; };
+		2B18EDD5196C9646004D7596 /* admin_dashboard@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_dashboard@2x.png"; path = "images/admin/admin_dashboard@2x.png"; sourceTree = "<group>"; };
+		2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_instrumentation_setup@2x.png"; path = "images/admin/admin_instrumentation_setup@2x.png"; sourceTree = "<group>"; };
+		2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_performance_reports@2x.png"; path = "images/admin/admin_performance_reports@2x.png"; sourceTree = "<group>"; };
+		2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = wb_docs_grt.py; path = plugins/wb.docs/wb_docs_grt.py; sourceTree = "<group>"; };
 		2B1AC76C127F99C800AEC070 /* debug_continue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_continue.png; path = images/toolbar/debug_continue.png; sourceTree = "<group>"; };
 		2B1AC76D127F99C800AEC070 /* debug_step.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_step.png; path = images/toolbar/debug_step.png; sourceTree = "<group>"; };
 		2B1AC76E127F99C800AEC070 /* debug_step_into.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_step_into.png; path = images/toolbar/debug_step_into.png; sourceTree = "<group>"; };
@@ -4476,11 +4503,9 @@
 		2B2403E4101BC81800079580 /* grtdiff_db_diff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtdiff_db_diff.cpp; path = "library/grt/unit-tests/diff/grtdiff_db_diff.cpp"; sourceTree = "<group>"; };
 		2B2403E6101BC81800079580 /* grtdiff_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtdiff_test.cpp; path = "library/grt/unit-tests/diff/grtdiff_test.cpp"; sourceTree = "<group>"; };
 		2B2403E7101BC81800079580 /* grtlistdiff_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtlistdiff_test.cpp; path = "library/grt/unit-tests/diff/grtlistdiff_test.cpp"; sourceTree = "<group>"; };
-		2B2403F0101BC82F00079580 /* grtpp_lua_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_lua_test.cpp; path = "library/grt/unit-tests/grtpp_lua_test.cpp"; sourceTree = "<group>"; };
 		2B2403F1101BC82F00079580 /* grtpp_serialization_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_serialization_test.cpp; path = "library/grt/unit-tests/grtpp_serialization_test.cpp"; sourceTree = "<group>"; };
 		2B2403F2101BC82F00079580 /* grtpp_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_test.cpp; path = "library/grt/unit-tests/grtpp_test.cpp"; sourceTree = "<group>"; };
 		2B2403F3101BC82F00079580 /* grtpp_util_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_util_test.cpp; path = "library/grt/unit-tests/grtpp_util_test.cpp"; sourceTree = "<group>"; };
-		2B2403F4101BC82F00079580 /* lua_module.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lua_module.lua; path = "library/grt/unit-tests/lua_module.lua"; sourceTree = "<group>"; };
 		2B2403F5101BC82F00079580 /* module_native_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = module_native_test.cpp; path = "library/grt/unit-tests/module_native_test.cpp"; sourceTree = "<group>"; };
 		2B2403F6101BC82F00079580 /* grt_module_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_module_test.cpp; path = "library/grt/unit-tests/grt_module_test.cpp"; sourceTree = "<group>"; };
 		2B2403F7101BC82F00079580 /* object_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = object_test.cpp; path = "library/grt/unit-tests/object_test.cpp"; sourceTree = "<group>"; };
@@ -5420,21 +5445,15 @@
 		2B825DBD0E0B605A00BE52DF /* grtpp_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_helper.h; path = library/grt/src/grtpp_helper.h; sourceTree = "<group>"; };
 		2B825DBE0E0B605A00BE52DF /* serializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = serializer.h; path = library/grt/src/serializer.h; sourceTree = "<group>"; };
 		2B825DBF0E0B605A00BE52DF /* serializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = serializer.cpp; path = library/grt/src/serializer.cpp; sourceTree = "<group>"; };
-		2B825DC00E0B605A00BE52DF /* grtpp_module_lua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_module_lua.h; path = library/grt/src/grtpp_module_lua.h; sourceTree = "<group>"; };
 		2B825DC10E0B605A00BE52DF /* grtpp_module_cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_module_cpp.h; path = library/grt/src/grtpp_module_cpp.h; sourceTree = "<group>"; };
 		2B825DC20E0B605A00BE52DF /* grtpp_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_util.cpp; path = library/grt/src/grtpp_util.cpp; sourceTree = "<group>"; };
 		2B825DC30E0B605A00BE52DF /* grtpp_undo_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_undo_manager.h; path = library/grt/src/grtpp_undo_manager.h; sourceTree = "<group>"; };
 		2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_value.cpp; path = library/grt/src/grtpp_value.cpp; sourceTree = "<group>"; };
 		2B825DC50E0B605A00BE52DF /* grtpp_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_util.h; path = library/grt/src/grtpp_util.h; sourceTree = "<group>"; };
-		2B825DC60E0B605A00BE52DF /* lua_context.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lua_context.cpp; path = library/grt/src/lua_context.cpp; sourceTree = "<group>"; };
 		2B825DC70E0B605A00BE52DF /* grtpp_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_value.h; path = library/grt/src/grtpp_value.h; sourceTree = "<group>"; };
 		2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_grt.cpp; path = library/grt/src/grtpp_grt.cpp; sourceTree = "<group>"; };
-		2B825DC90E0B605A00BE52DF /* grtpp_shell_lua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_shell_lua.h; path = library/grt/src/grtpp_shell_lua.h; sourceTree = "<group>"; };
-		2B825DCA0E0B605A00BE52DF /* lua_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lua_context.h; path = library/grt/src/lua_context.h; sourceTree = "<group>"; };
 		2B825DCB0E0B605A00BE52DF /* grtpp_shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grtpp_shell.h; path = library/grt/src/grtpp_shell.h; sourceTree = "<group>"; };
-		2B825DCC0E0B605A00BE52DF /* grtpp_shell_lua.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_shell_lua.cpp; path = library/grt/src/grtpp_shell_lua.cpp; sourceTree = "<group>"; };
 		2B825DCD0E0B605A00BE52DF /* grtpp_shell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_shell.cpp; path = library/grt/src/grtpp_shell.cpp; sourceTree = "<group>"; };
-		2B825DCE0E0B605A00BE52DF /* grtpp_module_lua.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_module_lua.cpp; path = library/grt/src/grtpp_module_lua.cpp; sourceTree = "<group>"; };
 		2B825E220E0B662200BE52DF /* libmysql.canvas.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmysql.canvas.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B825E270E0B664E00BE52DF /* mdc_canvas_view_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mdc_canvas_view_image.h; path = library/mysql.canvas/src/mdc_canvas_view_image.h; sourceTree = "<group>"; };
 		2B825E280E0B664E00BE52DF /* mdc_canvas_view_macosx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mdc_canvas_view_macosx.cpp; path = library/mysql.canvas/src/mdc_canvas_view_macosx.cpp; sourceTree = "<group>"; };
@@ -5533,7 +5552,6 @@
 		2B8761260F47ECB5000B6DE1 /* python_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_module.h; path = library/grt/src/python_module.h; sourceTree = "<group>"; };
 		2B8761270F47ECB5000B6DE1 /* python_module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_module.cpp; path = library/grt/src/python_module.cpp; sourceTree = "<group>"; };
 		2B87628E0F48AEF2000B6DE1 /* wb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb.py; path = res/scripts/python/wb.py; sourceTree = "<group>"; };
-		2B8762F00F48D296000B6DE1 /* wb_library.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wb_library.lua; path = res/scripts/lua/wb_library.lua; sourceTree = "<group>"; };
 		2B8767C10F4B1792000B6DE1 /* WBPluginPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBPluginPanel.h; path = frontend/mac/workbench/WBPluginPanel.h; sourceTree = "<group>"; };
 		2B8767C20F4B1792000B6DE1 /* WBPluginPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBPluginPanel.mm; path = frontend/mac/workbench/WBPluginPanel.mm; sourceTree = "<group>"; };
 		2B87B86016AA089E003C91C1 /* table_templates.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = table_templates.py; path = modules/wb.utils/table_templates.py; sourceTree = "<group>"; };
@@ -5871,9 +5889,7 @@
 		2BD9E7A61860012000A7252B /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = native.h; path = library/forms/mforms/native.h; sourceTree = "<group>"; };
 		2BDAE46911139B3B00AC1D7A /* file_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file_functions.h; path = library/base/base/file_functions.h; sourceTree = "<group>"; };
 		2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wba_ssh_ui.py; path = plugins/wb.admin/frontend/wba_ssh_ui.py; sourceTree = "<group>"; };
-		2BDC26020E855EC40018CE34 /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../mysql-mac-res/lib/liblua.a"; sourceTree = "<group>"; };
 		2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		2BDC261E0E8565F50018CE34 /* grtpp_shell_lua_help.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtpp_shell_lua_help.cpp; path = library/grt/src/grtpp_shell_lua_help.cpp; sourceTree = "<group>"; };
 		2BDC262A0E85671D0018CE34 /* libsql.parser.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsql.parser.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BDC26470E8567510018CE34 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hash.h; path = library/sql.parser/source/hash.h; sourceTree = "<group>"; };
 		2BDC26490E8567510018CE34 /* lex_symbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lex_symbol.h; path = library/sql.parser/source/lex_symbol.h; sourceTree = "<group>"; };
@@ -5974,6 +5990,7 @@
 		2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_sql_semantic_check.cpp; path = modules/db.mysql.sqlparser/src/mysql_sql_semantic_check.cpp; sourceTree = "<group>"; };
 		2BEC8E7B1035F80900607CA4 /* mysql_sql_semantic_check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mysql_sql_semantic_check.h; path = modules/db.mysql.sqlparser/src/mysql_sql_semantic_check.h; sourceTree = "<group>"; };
 		2BECA53518B3A13D00E12F8B /* sys */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sys; path = res/scripts/sys; sourceTree = "<group>"; };
+		2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_plugin_wizard.cpp; path = frontend/common/grt_plugin_wizard.cpp; sourceTree = "<group>"; };
 		2BF04900173989C600A7EA35 /* wb_admin_server_status.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = wb_admin_server_status.py; path = plugins/wb.admin/frontend/wb_admin_server_status.py; sourceTree = "<group>"; };
 		2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "mysql-logo-00.png"; path = "images/admin/mysql-logo-00.png"; sourceTree = "<group>"; };
 		2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "mysql-logo-00@2x.png"; path = "images/admin/mysql-logo-00@2x.png"; sourceTree = "<group>"; };
@@ -6248,13 +6265,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BF02D031964A8CF008C9304 /* libiconv.2.dylib in Frameworks */,
 				2BECA53918BD2F3000E12F8B /* Python in Frameworks */,
 				2B2E92F21589991B0078D08A /* libwbbase.dylib in Frameworks */,
 				2B2E92FE158999890078D08A /* libiodbc.dylib in Frameworks */,
 				2B774FB415CEC45500923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FB515CEC45500923448 /* libgthread-2.0.0.dylib in Frameworks */,
-				2BCBAE4815E7D91A009571DE /* libintl.8.dylib in Frameworks */,
-				2BCBAE4A15E7D9A1009571DE /* libiconv.2.dylib in Frameworks */,
 				2BC7896817D7BE2D005E03D5 /* libmysqlclient.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6422,8 +6438,6 @@
 			files = (
 				2720C53816EA18B500E57A8D /* libpcre.1.dylib in Frameworks */,
 				2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */,
-				2B825D670E0B5F4000BE52DF /* libiconv.2.dylib in Frameworks */,
-				2BDC26050E855EC40018CE34 /* liblua.a in Frameworks */,
 				2B774FA915CEC39D00923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FAA15CEC3B000923448 /* libgthread-2.0.0.dylib in Frameworks */,
 				2717A6871192E30F00FED3E5 /* libcairo.2.dylib in Frameworks */,
@@ -6437,7 +6451,6 @@
 			files = (
 				2BDC261B0E8565C20018CE34 /* libwbbase.dylib in Frameworks */,
 				2BDC26080E855F470018CE34 /* libxml2.2.dylib in Frameworks */,
-				2BDC26040E855EC40018CE34 /* liblua.a in Frameworks */,
 				2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */,
 				2B15AE9912D6C6C4006567D6 /* libgmodule-2.0.0.dylib in Frameworks */,
 				2BCE4A0615F6478200FA0CDC /* Python in Frameworks */,
@@ -6641,7 +6654,6 @@
 				2B774FA715CEC32900923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FA815CEC32900923448 /* libgthread-2.0.0.dylib in Frameworks */,
 				271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */,
-				2BDC26060E855EC40018CE34 /* liblua.a in Frameworks */,
 				2B750F720E8794200003120A /* Cocoa.framework in Frameworks */,
 				2B263B480E94031C00933149 /* libwbbase.dylib in Frameworks */,
 				2B263B490E94031C00933149 /* libgrt.dylib in Frameworks */,
@@ -7226,6 +7238,21 @@
 			isa = PBXGroup;
 			children = (
 				ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */,
+				2B18EDC4196C8B0C004D7596 /* wb_tile_schema@2x.png */,
+				2B18EDC5196C8B0C004D7596 /* wb_tile_time@2x.png */,
+				2B18EDC9196C8B7D004D7596 /* wb_tile_folder_mini.png */,
+				2B18EDCA196C8B7D004D7596 /* wb_tile_folder_mini@2x.png */,
+				2B18EDAD196C8705004D7596 /* wb_doc_model@2x.png */,
+				2B18EDAE196C8705004D7596 /* wb_starter_edelivery_52@2x.png */,
+				2B18EDAF196C8705004D7596 /* wb_starter_grt_shell_52@2x.png */,
+				2B18EDB0196C8705004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png */,
+				2B18EDB1196C8705004D7596 /* wb_starter_mysql_doc_lib_52@2x.png */,
+				2B18EDB2196C8705004D7596 /* wb_starter_mysql_forums_52@2x.png */,
+				2B18EDB3196C8705004D7596 /* wb_starter_mysql_migration_52@2x.png */,
+				2B18EDB4196C8705004D7596 /* wb_starter_mysql_utilities_52@2x.png */,
+				2B18EDB5196C8705004D7596 /* wb_starter_planet_mysql_52@2x.png */,
+				2B18EDB6196C8705004D7596 /* wb_starter_support_52@2x.png */,
+				2B18EDB7196C8705004D7596 /* wb_tile_fabric.png */,
 				27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */,
 				27327BA3172FB2B300DE65D7 /* wb_tile_more.png */,
 				27327BA4172FB2B300DE65D7 /* wb_tile_open.png */,
@@ -7509,6 +7536,14 @@
 			name = "MySQL Relationship Editor";
 			sourceTree = "<group>";
 		};
+		2B18EDE1196DA6DD004D7596 /* wb.docs */ = {
+			isa = PBXGroup;
+			children = (
+				2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */,
+			);
+			name = wb.docs;
+			sourceTree = "<group>";
+		};
 		2B1CA5210EA3E8780062C916 /* Canvas Viewer */ = {
 			isa = PBXGroup;
 			children = (
@@ -7563,11 +7598,9 @@
 				27983C7E1676080900D8DC35 /* Library */,
 				2B100E2813F493600001F933 /* mforms stub */,
 				2B100E7913F4B99B0001F933 /* Modules */,
-				2B2403F0101BC82F00079580 /* grtpp_lua_test.cpp */,
 				2B2403F1101BC82F00079580 /* grtpp_serialization_test.cpp */,
 				2B2403F2101BC82F00079580 /* grtpp_test.cpp */,
 				2B2403F3101BC82F00079580 /* grtpp_util_test.cpp */,
-				2B2403F4101BC82F00079580 /* lua_module.lua */,
 				2B2403F5101BC82F00079580 /* module_native_test.cpp */,
 				2B2403F6101BC82F00079580 /* grt_module_test.cpp */,
 				2B2403F7101BC82F00079580 /* object_test.cpp */,
@@ -8171,6 +8204,11 @@
 				2BF04940173DF46800A7EA35 /* wb-backup-logo-small@2x.png */,
 				2BF04941173DF46800A7EA35 /* wb-backup-logo.png */,
 				2BF04942173DF46800A7EA35 /* wb-backup-logo@2x.png */,
+				2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */,
+				2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */,
+				2B18EDD3196C9646004D7596 /* admin_audit_inspector@2x.png */,
+				2B18EDD4196C9646004D7596 /* admin_connections@2x.png */,
+				2B18EDD5196C9646004D7596 /* admin_dashboard@2x.png */,
 			);
 			name = "Admin Icons";
 			sourceTree = "<group>";
@@ -8329,6 +8367,7 @@
 				2B84DEAD124A89A7009136B7 /* grt_python_debugger.h */,
 				2B84DEAE124A89A7009136B7 /* grt_python_debugger.cpp */,
 				2B648417122741FB00207149 /* grt_plugin_wizard.h */,
+				2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */,
 				2BB376BF1104898700DA4577 /* grt_shell_window.cpp */,
 				2BB376C01104898700DA4577 /* grt_shell_window.h */,
 				2B3DBD081212ECAB001837A5 /* plugin_manager_window.h */,
@@ -8655,7 +8694,6 @@
 				2B15AE9712D6C6B5006567D6 /* libgmodule-2.0.0.dylib */,
 				2B41EDFB0F8B819400F5EB1E /* libsqlite3.dylib */,
 				2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */,
-				2BDC26020E855EC40018CE34 /* liblua.a */,
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
 				2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */,
 			);
@@ -9116,7 +9154,6 @@
 			children = (
 				2B825D950E0B604D00BE52DF /* diff */,
 				2BB58B1E0F45F0C300089423 /* python */,
-				2BB58B1D0F45F0BE00089423 /* lua */,
 				2B825DBC0E0B605A00BE52DF /* grtpp_module_cpp.cpp */,
 				2B825DC10E0B605A00BE52DF /* grtpp_module_cpp.h */,
 				2B825DB50E0B605A00BE52DF /* unserializer.h */,
@@ -9260,6 +9297,7 @@
 		2B825EBF0E0B690400BE52DF /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				2B18EDE1196DA6DD004D7596 /* wb.docs */,
 				2BAD7C20156D88B10025F13F /* wb.migration */,
 				2BAD76FE1568465C0025F13F /* wb.query.analysis */,
 				2B3D496D0F3E6FAD009238A7 /* db.mysql */,
@@ -9732,21 +9770,6 @@
 				2BB5890D0F44D64000089423 /* diff_reporting.cpp */,
 			);
 			name = Frontend;
-			sourceTree = "<group>";
-		};
-		2BB58B1D0F45F0BE00089423 /* lua */ = {
-			isa = PBXGroup;
-			children = (
-				2B8762F00F48D296000B6DE1 /* wb_library.lua */,
-				2B825DC60E0B605A00BE52DF /* lua_context.cpp */,
-				2B825DCA0E0B605A00BE52DF /* lua_context.h */,
-				2B825DC90E0B605A00BE52DF /* grtpp_shell_lua.h */,
-				2B825DCC0E0B605A00BE52DF /* grtpp_shell_lua.cpp */,
-				2BDC261E0E8565F50018CE34 /* grtpp_shell_lua_help.cpp */,
-				2B825DCE0E0B605A00BE52DF /* grtpp_module_lua.cpp */,
-				2B825DC00E0B605A00BE52DF /* grtpp_module_lua.h */,
-			);
-			name = lua;
 			sourceTree = "<group>";
 		};
 		2BB58B1E0F45F0C300089423 /* python */ = {
@@ -10358,6 +10381,9 @@
 		2BF510B912E8BBC500A6CCC3 /* SQLIDE Icons */ = {
 			isa = PBXGroup;
 			children = (
+				2B18EDCD196C9105004D7596 /* wb-sidebar-collapse@2x.png */,
+				2B18EDCE196C9105004D7596 /* wb-sidebar-expand@2x.png */,
+				2B18EDCF196C9105004D7596 /* wb-sidebar-refresh@2x.png */,
 				27987709195C534F003E8E44 /* wb_item_overlay_editor.png */,
 				2798770A195C534F003E8E44 /* wb_item_overlay_editor@2x.png */,
 				2798770B195C534F003E8E44 /* wb_item_overlay_execute.png */,
@@ -10479,7 +10505,6 @@
 				2BD9E77F185FFF6E00A7252B /* output_type-toggle-on@2x.png */,
 				2B143425179DDDE7002217CF /* snippet_css.png */,
 				2B143426179DDDE7002217CF /* snippet_htm.png */,
-				2B143427179DDDE7002217CF /* snippet_lua.png */,
 				2B143428179DDDE7002217CF /* snippet_mwb.png */,
 				2B143429179DDDE7002217CF /* snippet_php.png */,
 				2B14342A179DDDE7002217CF /* snippet_py.png */,
@@ -10998,13 +11023,10 @@
 				2B825DD10E0B605A00BE52DF /* grtpp.h in Headers */,
 				2B825DD70E0B605A00BE52DF /* grtpp_helper.h in Headers */,
 				2B825DD80E0B605A00BE52DF /* serializer.h in Headers */,
-				2B825DDA0E0B605A00BE52DF /* grtpp_module_lua.h in Headers */,
 				2B825DDB0E0B605A00BE52DF /* grtpp_module_cpp.h in Headers */,
 				2B825DDD0E0B605A00BE52DF /* grtpp_undo_manager.h in Headers */,
 				2B825DDF0E0B605A00BE52DF /* grtpp_util.h in Headers */,
 				2B825DE10E0B605A00BE52DF /* grtpp_value.h in Headers */,
-				2B825DE30E0B605A00BE52DF /* grtpp_shell_lua.h in Headers */,
-				2B825DE40E0B605A00BE52DF /* lua_context.h in Headers */,
 				2B825DE50E0B605A00BE52DF /* grtpp_shell.h in Headers */,
 				2BB58B1A0F45ED0A00089423 /* python_context.h in Headers */,
 				2BB58B3A0F45F11C00089423 /* grtpp_module_python.h in Headers */,
@@ -12343,13 +12365,13 @@
 				2B3D56650F425362009238A7 /* DotRed.png in Resources */,
 				2B3D566B0F425463009238A7 /* task_checked_mac.png in Resources */,
 				2B3D566C0F425463009238A7 /* task_error_mac.png in Resources */,
+				2B18EDDC196C9650004D7596 /* admin_performance_reports@2x.png in Resources */,
 				2B3D566D0F425463009238A7 /* task_executing_mac.png in Resources */,
 				2B3D566E0F425463009238A7 /* task_unchecked_mac.png in Resources */,
 				2B3D566F0F425463009238A7 /* task_warning_mac.png in Resources */,
 				2B3D57D70F4319F9009238A7 /* workbench.physical.Diagram.48x48.png in Resources */,
 				2B3D57D80F4319F9009238A7 /* workbench.physical.Diagram.add.16x16.png in Resources */,
 				2B3D59370F433BBE009238A7 /* task_disabled_mac.png in Resources */,
-				2B87631A0F48D499000B6DE1 /* wb_library.lua in Resources */,
 				2BFBEFEA0F50941C0016F9D1 /* DiagramOptions.xib in Resources */,
 				2BE67F400F8E25C500E00A97 /* field_overlay_blob.png in Resources */,
 				2BE67F410F8E25C500E00A97 /* field_overlay_null.png in Resources */,
@@ -12404,6 +12426,7 @@
 				2B263A590E9402DD00933149 /* collapsing_panel_header_tab_middle.png in Resources */,
 				2B263A5A0E9402DD00933149 /* collapsing_panel_header_tab_middle_flat.png in Resources */,
 				2B263A5B0E9402DD00933149 /* collapsing_panel_header_tab_right.png in Resources */,
+				2B18EDDB196C9650004D7596 /* admin_instrumentation_setup@2x.png in Resources */,
 				2B263A5C0E9402DD00933149 /* collapsing_panel_header_tab_right_flat.png in Resources */,
 				2B263A5D0E9402DD00933149 /* collapsing_panel_header_tab_separator.png in Resources */,
 				2B263A5E0E9402DD00933149 /* collapsing_panel_header_tab_separator_flat.png in Resources */,
@@ -12492,6 +12515,7 @@
 				2BD9E78B185FFF6E00A7252B /* output_type-resultset@2x.png in Resources */,
 				2B263AB00E9402DD00933149 /* grt_struct.png in Resources */,
 				2B263AB10E9402DD00933149 /* GrtObject.16x16.png in Resources */,
+				2B18EDC8196C8B0C004D7596 /* wb_tile_time@2x.png in Resources */,
 				2B263AB20E9402DD00933149 /* GrtObject.24x24.png in Resources */,
 				2B263AB30E9402DD00933149 /* GrtObject.32x32.png in Resources */,
 				2B263AB40E9402DD00933149 /* GrtObject.48x48.png in Resources */,
@@ -12503,6 +12527,7 @@
 				2B263ABA0E9402DD00933149 /* GrtStoredNote.48x48.png in Resources */,
 				2B263ABB0E9402DD00933149 /* GrtStoredNote.add.48x48.png in Resources */,
 				2B263ABD0E9402DD00933149 /* header_bar_blue.png in Resources */,
+				2B18EDBF196C8706004D7596 /* wb_starter_mysql_utilities_52@2x.png in Resources */,
 				2B263ABE0E9402DD00933149 /* header_bar_gray.png in Resources */,
 				2B263ABF0E9402DD00933149 /* header_bar_orange.png in Resources */,
 				2B263AC00E9402DD00933149 /* history.png in Resources */,
@@ -12552,6 +12577,7 @@
 				2B263B330E9402DD00933149 /* workbench.physical.sybase.Model.48x48.png in Resources */,
 				2B263B340E9402DD00933149 /* workbench.physical.TableFigure.16x16.png in Resources */,
 				2B263B350E9402DD00933149 /* workbench.physical.Diagram.16x16.png in Resources */,
+				2B18EDD1196C9105004D7596 /* wb-sidebar-expand@2x.png in Resources */,
 				2B263B370E9402DD00933149 /* workbench.physical.Diagram.add.48x48.png in Resources */,
 				2B263B380E9402DD00933149 /* workbench.physical.ViewFigure.16x16.png in Resources */,
 				2B263B3A0E9402DD00933149 /* zoom_in.png in Resources */,
@@ -12593,6 +12619,7 @@
 				2BD9E79D185FFF8500A7252B /* title_table_inspector@2x.png in Resources */,
 				2B7FC438112D9BE5008C07BF /* change_nothing.png in Resources */,
 				2B7FC439112D9BE5008C07BF /* Close_18x18.png in Resources */,
+				2B18EDBD196C8706004D7596 /* wb_starter_mysql_forums_52@2x.png in Resources */,
 				2B7FC43A112D9BE5008C07BF /* message_wb_bug.png in Resources */,
 				2B7FC4A4112D9C2B008C07BF /* tiny_align_h_left.png in Resources */,
 				2B7FC4A5112D9C2B008C07BF /* tiny_align_h_left2.png in Resources */,
@@ -12612,8 +12639,10 @@
 				2B7FC4AF112D9C2B008C07BF /* tiny_align_v_top2.png in Resources */,
 				2B7FC4B5112D9C2B008C07BF /* tiny_bookmark_mac.png in Resources */,
 				2B5FE4D4187F36A500AEC55C /* dashboard_separator@2x.png in Resources */,
+				2B18EDBC196C8706004D7596 /* wb_starter_mysql_doc_lib_52@2x.png in Resources */,
 				2B7FC4B7112D9C2B008C07BF /* tiny_cancel_disabled.png in Resources */,
 				2B02FEF2183E771B00770CC0 /* rel1n.png in Resources */,
+				2B18EDCC196C8B7D004D7596 /* wb_tile_folder_mini@2x.png in Resources */,
 				2B7FC4BB112D9C2B008C07BF /* tiny_commit_disabled.png in Resources */,
 				2B7FC4BD112D9C2B008C07BF /* tiny_execute.png in Resources */,
 				2B6C4FC318DE372D00869EBE /* mysql.profiles in Resources */,
@@ -12630,8 +12659,10 @@
 				2B7FC4C8112D9C2B008C07BF /* tiny_loadsql.png in Resources */,
 				2B02FEF8183E771B00770CC0 /* view.png in Resources */,
 				2B7FC4CA112D9C2B008C07BF /* tiny_lock.png in Resources */,
+				2B18EDC0196C8706004D7596 /* wb_starter_planet_mysql_52@2x.png in Resources */,
 				2B7FC4CD112D9C2B008C07BF /* tiny_new_diagram.png in Resources */,
 				2B7FC4CE112D9C2B008C07BF /* tiny_new_doc.png in Resources */,
+				2B18EDD2196C9105004D7596 /* wb-sidebar-refresh@2x.png in Resources */,
 				2B7FC4D0112D9C2B008C07BF /* tiny_new_routine.png in Resources */,
 				2B7FC4D1112D9C2B008C07BF /* tiny_new_schema.png in Resources */,
 				2B7FC4D2112D9C2B008C07BF /* tiny_new_script.png in Resources */,
@@ -12651,9 +12682,11 @@
 				2B7FC4E5112D9C2B008C07BF /* tiny_rollback_disabled.png in Resources */,
 				27987712195C534F003E8E44 /* wb_item_overlay_editor@2x.png in Resources */,
 				2B7FC4E7112D9C2B008C07BF /* tiny_ruler.png in Resources */,
+				2B18EDD6196C9646004D7596 /* admin_audit_inspector@2x.png in Resources */,
 				2B7FC4E8112D9C2B008C07BF /* tiny_save.png in Resources */,
 				2B7FC4E9112D9C2B008C07BF /* tiny_save_mac.png in Resources */,
 				2B7FC4EA112D9C2B008C07BF /* tiny_saveas.png in Resources */,
+				2B18EDC7196C8B0C004D7596 /* wb_tile_schema@2x.png in Resources */,
 				2B7FC4EB112D9C2B008C07BF /* tiny_saveas_mac.png in Resources */,
 				2B7FC4EC112D9C2B008C07BF /* tiny_savesql.png in Resources */,
 				2B7FC4EF112D9C2B008C07BF /* tiny_search.png in Resources */,
@@ -12767,6 +12800,7 @@
 				2BCC4AFF12D36DAE0092AA6F /* db.Column.side.16x16.png in Resources */,
 				2BF510C912E8BBEF00A6CCC3 /* admin_add_user.png in Resources */,
 				2BF510CA12E8BBEF00A6CCC3 /* admin_config_wizard.png in Resources */,
+				2B18EDD0196C9105004D7596 /* wb-sidebar-collapse@2x.png in Resources */,
 				2BF510CB12E8BBEF00A6CCC3 /* admin_export.png in Resources */,
 				2BF510CC12E8BBEF00A6CCC3 /* admin_manage_exported.png in Resources */,
 				2BF510CD12E8BBEF00A6CCC3 /* admin_manage_privs.png in Resources */,
@@ -12783,6 +12817,7 @@
 				2B20DCC1188DA8DE0095EA03 /* separator_vertical@2x.png in Resources */,
 				2BF510D712E8BBEF00A6CCC3 /* admin_system_startup.png in Resources */,
 				2B7FEA9112EA067C007945E2 /* WB_Home_mac.png in Resources */,
+				2B18EDBB196C8706004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png in Resources */,
 				27987715195C534F003E8E44 /* wb_item_overlay_inspector.png in Resources */,
 				2B02FEF3183E771B00770CC0 /* rel11.png in Resources */,
 				2B85653E183ADE2D0081D52E /* dashboard_arrow_out_static.png in Resources */,
@@ -12814,6 +12849,7 @@
 				2BC80A61144713C40072E632 /* db.View.broken.side.16x16.png in Resources */,
 				2BC083A6145BB66000CB84D6 /* EditorCollapsed.png in Resources */,
 				2BC083A7145BB66000CB84D6 /* EditorExpanded.png in Resources */,
+				2B18EDD8196C9646004D7596 /* admin_dashboard@2x.png in Resources */,
 				2B262A081471AB8000D3D259 /* db.Schema.unloaded.side.16x16.png in Resources */,
 				2B262A5B1471F8D400D3D259 /* db.Schema.loading.side.16x16.png in Resources */,
 				2B0F190414FED5CA0087D62A /* EmbedableFindPane.xib in Resources */,
@@ -12838,6 +12874,7 @@
 				2B2909D8159A0C9300708C09 /* migration_check_point.png in Resources */,
 				2BF7247215AFDA5B005948F0 /* busy_sidebar_mac.png in Resources */,
 				2BF7247315AFDA5B005948F0 /* busy_sidebar.png in Resources */,
+				2B18EDD7196C9646004D7596 /* admin_connections@2x.png in Resources */,
 				2B98345B15FA2F080038D5ED /* record_import.png in Resources */,
 				2B20DCB7188DA7AA0095EA03 /* big_switcher_no@2x.png in Resources */,
 				27A3EC8E164BA997001B6D8F /* MainMenu.xib in Resources */,
@@ -12902,6 +12939,7 @@
 				2BF04944173DF46800A7EA35 /* wb-backup-logo-small@2x.png in Resources */,
 				2BF04945173DF46800A7EA35 /* wb-backup-logo.png in Resources */,
 				2BF04946173DF46800A7EA35 /* wb-backup-logo@2x.png in Resources */,
+				2B18EDC2196C8706004D7596 /* wb_tile_fabric.png in Resources */,
 				ED9251861743B7E3008F1A50 /* wb_about.png in Resources */,
 				ED9251871743B7E5008F1A50 /* wb_about@2x.png in Resources */,
 				ED8C8460174A9EF80036E6EF /* os_utils.py in Resources */,
@@ -12927,6 +12965,7 @@
 				2BF0499B174E559C00A7EA35 /* title_variables.png in Resources */,
 				2BF0499C174E559C00A7EA35 /* title_variables@2x.png in Resources */,
 				2BF049A717511C4000A7EA35 /* change_alert_create.png in Resources */,
+				2B18EDBA196C8706004D7596 /* wb_starter_grt_shell_52@2x.png in Resources */,
 				2B883458176507B90099D927 /* wb_starter_edelivery_52.png in Resources */,
 				2B88345A176507B90099D927 /* wb_starter_support_52.png in Resources */,
 				ED0955E1177374690051CF28 /* page_restore.png in Resources */,
@@ -12968,9 +13007,11 @@
 				2B1D6E5E179DCF590073C062 /* wb-toolbar_nav-back.png in Resources */,
 				2B1D6E5F179DCF590073C062 /* wb-toolbar_nav-back@2x.png in Resources */,
 				2B1D6E60179DCF590073C062 /* wb-toolbar_nav-forward.png in Resources */,
+				2B18EDB8196C8705004D7596 /* wb_doc_model@2x.png in Resources */,
 				2B1D6E61179DCF590073C062 /* wb-toolbar_nav-forward@2x.png in Resources */,
 				2B14343E179DDDE7002217CF /* auto-completion-column.png in Resources */,
 				2B14343F179DDDE7002217CF /* auto-completion-engine.png in Resources */,
+				2B18EDC1196C8706004D7596 /* wb_starter_support_52@2x.png in Resources */,
 				2B143440179DDDE7002217CF /* auto-completion-function.png in Resources */,
 				2B143441179DDDE7002217CF /* auto-completion-keyword.png in Resources */,
 				2B143442179DDDE7002217CF /* auto-completion-operator.png in Resources */,
@@ -13047,6 +13088,7 @@
 				2B14348E179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback.png in Resources */,
 				2B14348F179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback@2x.png in Resources */,
 				2B143490179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on.png in Resources */,
+				2B18EDBE196C8706004D7596 /* wb_starter_mysql_migration_52@2x.png in Resources */,
 				2B143491179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on@2x.png in Resources */,
 				2B143492179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off.png in Resources */,
 				2B143493179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off@2x.png in Resources */,
@@ -13072,7 +13114,6 @@
 				2B1434A6179DDDE7002217CF /* snippet_css.png in Resources */,
 				279EC891185214A7007D1252 /* wb-toolbar_automatic-help-off.png in Resources */,
 				2B1434A7179DDDE7002217CF /* snippet_htm.png in Resources */,
-				2B1434A8179DDDE7002217CF /* snippet_lua.png in Resources */,
 				2B1434A9179DDDE7002217CF /* snippet_mwb.png in Resources */,
 				2B5FE4D2187F2C7400AEC55C /* output_type-formeditor@2x.png in Resources */,
 				2B1434AA179DDDE7002217CF /* snippet_php.png in Resources */,
@@ -13093,6 +13134,7 @@
 				2B1434B8179DDDE7002217CF /* switcher_right_on@2x.png in Resources */,
 				2B1434B9179DDDE7002217CF /* wb-sidebar-collapse.png in Resources */,
 				2B1434BB179DDDE7002217CF /* wb-sidebar-expand.png in Resources */,
+				2B18EDB9196C8706004D7596 /* wb_starter_edelivery_52@2x.png in Resources */,
 				2B1434BD179DDDE7002217CF /* wb-sidebar-refresh.png in Resources */,
 				2B1434E2179DEC03002217CF /* mysql-status-off@2x.png in Resources */,
 				2B1434E3179DEC03002217CF /* mysql-status-on@2x.png in Resources */,
@@ -13246,7 +13288,6 @@
 				"$(SRCROOT)/modules/db.mssql/res/",
 				"$(SRCROOT)/modules/db.mysql/res/",
 				"$(SRCROOT)/modules/wb.model/res/",
-				"$(SRCROOT)/plugins/wb.doclib/res/",
 				"$(SRCROOT)/modules/db.sybase/res/",
 				"$(SRCROOT)/modules/db.postgresql/res/",
 				"$(SRCROOT)/modules/db.sql92/res/",
@@ -13273,7 +13314,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pyresdir=\"$SRCROOT/../mysql-mac-res/python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\ncp -R ${pyresdir}/paramiko \"$pythondir\"\ncp -R ${pyresdir}/Crypto \"$pythondir\"\ncp -R ${pyresdir}/mysql \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/wba_audit ]; then\n    echo \"Copying pysqlite2 for Audit Inspector\"\n    rm -fr \"$pythondir\"/pysqlite2\n    cp -R ${pyresdir}/pysqlite2-com \"$pythondir\"/pysqlite2\nelse\n    cp -R ${pyresdir}/pysqlite2 \"$pythondir\"\nfi\n\ncp ${pyresdir}/pyodbc.so \"$pythondir\"\n\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"/\n";
+			shellScript = "pyresdir=\"$SRCROOT/../mysql-mac-res/python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\ncp -R ${pyresdir}/paramiko \"$pythondir\"\ncp -R ${pyresdir}/Crypto \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/wba_audit ]; then\n    echo \"Copying pysqlite2 for Audit Inspector\"\n    rm -fr \"$pythondir\"/pysqlite2\n    cp -R ${pyresdir}/pysqlite2-com \"$pythondir\"/pysqlite2\nelse\n    cp -R ${pyresdir}/pysqlite2 \"$pythondir\"\nfi\n\ncp ${pyresdir}/pyodbc.so \"$pythondir\"\n\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"/\n";
 			showEnvVarsInLog = 0;
 		};
 		2BEA13BE16E68F1500FC44F0 /* Copy plugins if exist */ = {
@@ -13412,7 +13453,6 @@
 				2B2403DD101BC7A800079580 /* grtdb_tests.cpp in Sources */,
 				2B2403E1101BC7C800079580 /* db_sql_editor.cpp in Sources */,
 				2B2403EE101BC81800079580 /* grtlistdiff_test.cpp in Sources */,
-				2B2403FD101BC82F00079580 /* grtpp_lua_test.cpp in Sources */,
 				2B2403FE101BC82F00079580 /* grtpp_serialization_test.cpp in Sources */,
 				2B2403FF101BC82F00079580 /* grtpp_test.cpp in Sources */,
 				2B240400101BC82F00079580 /* grtpp_util_test.cpp in Sources */,
@@ -13790,12 +13830,8 @@
 				2B825DD90E0B605A00BE52DF /* serializer.cpp in Sources */,
 				2B825DDC0E0B605A00BE52DF /* grtpp_util.cpp in Sources */,
 				2B825DDE0E0B605A00BE52DF /* grtpp_value.cpp in Sources */,
-				2B825DE00E0B605A00BE52DF /* lua_context.cpp in Sources */,
 				2B825DE20E0B605A00BE52DF /* grtpp_grt.cpp in Sources */,
-				2B825DE60E0B605A00BE52DF /* grtpp_shell_lua.cpp in Sources */,
 				2B825DE70E0B605A00BE52DF /* grtpp_shell.cpp in Sources */,
-				2B825DE80E0B605A00BE52DF /* grtpp_module_lua.cpp in Sources */,
-				2BDC261F0E8565F50018CE34 /* grtpp_shell_lua_help.cpp in Sources */,
 				2BB58B1B0F45ED0A00089423 /* python_context.cpp in Sources */,
 				2BB58B3B0F45F11C00089423 /* grtpp_module_python.cpp in Sources */,
 				2BB58BC20F46027E00089423 /* python_grtlist.cpp in Sources */,
@@ -14006,6 +14042,7 @@
 				2BF87A5C0FA7CEFB0012EADA /* wb_component_logical.cpp in Sources */,
 				27987706195C5246003E8E44 /* execute_routine_wizard.cpp in Sources */,
 				2BF87A5E0FA7CEFB0012EADA /* wb_component_physical.cpp in Sources */,
+				2B18EDE0196C9CDF004D7596 /* grt_plugin_wizard.cpp in Sources */,
 				2BF87A600FA7CEFB0012EADA /* wb_component_physical_relationship.cpp in Sources */,
 				2BF87A610FA7CEFB0012EADA /* wb_diagram_options.cpp in Sources */,
 				2BF87A630FA7CEFB0012EADA /* wb_layer_tree.cpp in Sources */,

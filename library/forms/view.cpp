@@ -471,6 +471,13 @@ void View::focus()
 
 //--------------------------------------------------------------------------------------------------
 
+bool View::has_focus()
+{
+  return _view_impl->has_focus(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void View::register_drop_formats(DropDelegate *target, const std::vector<std::string> &drop_formats)
 {
   _view_impl->register_drop_formats(this, target, drop_formats);
@@ -506,6 +513,7 @@ bool View::mouse_leave()
  */
 void View::focus_changed()
 {
+  _signal_got_focus();
   base::NotificationCenter::get()->send("GNFocusChanged", this);
 }
 

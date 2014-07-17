@@ -20,7 +20,7 @@
 #include "test.h"
 #include "mforms/code_editor.h"
 #include "stub/stub_mforms.h"
-
+#include "wb_helpers.h"
 using namespace mforms;
 
 BEGIN_TEST_DATA_CLASS(mforms_code_editor_test)

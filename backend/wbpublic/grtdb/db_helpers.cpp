@@ -248,17 +248,20 @@ bool bec::is_supported_mysql_version_at_least(int mysql_major, int mysql_minor, 
   // if the version required is older (<) than 5.6, then any server that matches is fine
   // if the version required is newer (>=) than 5.6, then we can only guarantee that known servers versions have the feature
 
+  assert(mysql_major < 100 && mysql_minor < 100 && mysql_release < 1000);
+  assert(major < 100 && minor < 100 && release < 1000);
+
+  // assemble MMNNRRR
+  unsigned int required = major * 100000 + minor * 1000 + (release < 0 ? 0 : release);
+  unsigned int available = mysql_major * 100000 + mysql_minor * 1000 + (mysql_release < 0 ? 0 : mysql_release);
+
   if (major < 5 || (major == 5 && minor < 6))
   {
-    // check if it satisfies the requirement
-    if (major <= 5 && minor <= mysql_minor && (release <= mysql_release || mysql_release < 0))
-      return true;
+    return (required <= available);
   }
   else if (is_supported_mysql_version(mysql_major, mysql_minor, mysql_release))
   {
-    // check if it satisfies the requirement
-    if (major <= 5 && minor <= mysql_minor && (release <= mysql_release || mysql_release < 0))
-      return true;
+    return (required <= available);
   }
   return false;
 }

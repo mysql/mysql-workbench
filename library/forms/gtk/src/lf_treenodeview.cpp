@@ -1166,12 +1166,19 @@ bool TreeNodeViewImpl::on_expose_event(GdkEventExpose *ev)
     int i = 1;
     _tree.get_visible_rect(vrect);
     _tree.get_background_area(_overlayed_row, *_tree.get_column(_tree.get_columns().size()-1), rect);
+
+    int x = vrect.get_x() + vrect.get_width() - 4;
+    for (std::vector<Cairo::RefPtr<Cairo::ImageSurface> >::const_iterator icon = _overlay_icons.begin();
+        icon != _overlay_icons.end(); ++icon)
+      x -= (*icon)->get_width() + 4;
+
     for (std::vector<Cairo::RefPtr<Cairo::ImageSurface> >::const_iterator icon = _overlay_icons.begin();
         icon != _overlay_icons.end(); ++icon, ++i)
     {
       if (*icon)
       {
-        context->set_source(*icon, vrect.get_x() + vrect.get_width() - 4 - i*rect.get_height(), rect.get_y());
+        context->set_source(*icon, x, rect.get_y() + (rect.get_height() - (*icon)->get_height()) / 2);
+        x += (*icon)->get_width() + 4;
         if (i-1 == _hovering_overlay)
           context->paint();
         else
@@ -1231,14 +1238,12 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
       if (!icons.empty())
       {
         int icon_rect_x;
-        int row_height;
         Gdk::Rectangle rect;
         Gdk::Rectangle vrect;
 
         _overlayed_row = path;
 
         _tree.get_background_area(path, *column, rect);
-        row_height = rect.get_height();
 
         _tree.get_visible_rect(vrect);
         icon_rect_x = vrect.get_width() - 4;
@@ -1254,10 +1259,18 @@ bool TreeNodeViewImpl::on_motion_notify(GdkEventMotion *ev)
               g_warning("Could not load %s", icon->c_str());
           }
           _overlay_icons.push_back(surf);
-          icon_rect_x -= row_height;
+          icon_rect_x -= surf->get_width() + 4;
+        }
 
-          if (_hovering_overlay < 0 && ev->x-vrect.get_x() > icon_rect_x)
-            _hovering_overlay = icon - icons.begin();
+        for (std::vector<Cairo::RefPtr<Cairo::ImageSurface> >::const_iterator icon = _overlay_icons.begin();
+            icon != _overlay_icons.end(); ++icon)
+        {
+          if (ev->x - vrect.get_x() > icon_rect_x && ev->x - vrect.get_x() < icon_rect_x + (*icon)->get_width())
+          {
+            _hovering_overlay = icon - _overlay_icons.begin();
+            break;
+          }
+          icon_rect_x += (*icon)->get_width() + 4;
         }
         _tree.queue_draw();
       }
@@ -1620,15 +1633,16 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     break;
   }
   
+  Gtk::TreeViewColumn *tvc = _tree.get_column(column);
   {
     Gtk::Label *label = Gtk::manage(new Gtk::Label(name));
     label->show();
-    _tree.get_column(column)->set_widget(*label);
+    tvc->set_widget(*label);
   }
-  _tree.get_column(column)->set_resizable(true);
+  tvc->set_resizable(true);
   if (initial_width > 0)
-    _tree.get_column(column)->set_fixed_width(initial_width);
-  _tree.get_column(column)->set_data("index", (void*)(intptr_t)column);
+    tvc->set_fixed_width(initial_width);
+  tvc->set_data("index", (void*)(intptr_t)column);
   
   return column;
 }
@@ -2049,7 +2063,13 @@ static int calc_row_for_node(Gtk::TreeView *tree, const Gtk::TreeIter &iter)
   {
     for (Gtk::TreeIter i = parent->children().begin(); i != iter; i++)
       row += count_rows_in_node(tree, i);
-    row += calc_row_for_node(tree, parent);
+    row += calc_row_for_node(tree, parent) + 1;
+  }
+  else
+  {
+    Gtk::TreePath path(iter);
+    while (path.prev())
+      row += count_rows_in_node(tree, tree->get_model()->get_iter(path));
   }
   return row;
 }

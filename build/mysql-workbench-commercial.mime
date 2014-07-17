@@ -1,0 +1,2 @@
+application/vnd.mysql-workbench-model; mysql-workbench '%s'; description="MySQL Workbench Model"; test=test -n "$DISPLAY"; nametemplate=%s.mwb
+
