@@ -21,7 +21,7 @@
 
 #include <grtpp_util.h>
 
-
+#include "base/string_utilities.h"
 #include "wbcanvas/workbench_model_notefigure_impl.h"
 
 //================================================================================
@@ -53,5 +53,21 @@ void workbench_model_NoteFigure::text(const grt::StringRef &value)
 }
 
 
+void workbench_model_NoteFigure::textColor(const grt::StringRef &value)
+{
+  grt::ValueRef ovalue(_textColor);
+  _textColor= value;
+  _data->set_text_color(_textColor);
+  member_changed("textColor", ovalue, value);
+}
+
+
+void workbench_model_NoteFigure::font(const grt::StringRef &value)
+{
+  grt::ValueRef ovalue(_font);
+  _font= value;
+  _data->set_font(*value);
+  member_changed("font", ovalue, value);
+}
 
 

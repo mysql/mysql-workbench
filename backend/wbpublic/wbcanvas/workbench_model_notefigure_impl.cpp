@@ -57,6 +57,41 @@ void workbench_model_NoteFigure::ImplData::set_text(const std::string &text)
   }
 }
 
+void workbench_model_NoteFigure::ImplData::set_text_color(const std::string &color)
+{
+  self()->_textColor= color;
+
+  if (_figure)
+  {
+    _figure->set_text_color(base::Color(color));
+  }
+}
+
+void workbench_model_NoteFigure::ImplData::set_font(const std::string &font)
+{
+  self()->_font= font;
+
+  if (_figure)
+  {
+    _figure->set_font(font);
+
+    Size min_size= _figure->get_min_size();
+    Size size= _figure->get_size();
+    if (min_size.width > size.width)
+      size.width= min_size.width;
+    if (min_size.height > size.height)
+      size.height= min_size.height;
+    if (size != _figure->get_size())
+    {
+      if (*self()->_manualSizing)
+        get_canvas_item()->set_fixed_size(size);
+      else
+        get_canvas_item()->resize_to(size);
+
+      figure_bounds_changed(_figure->get_bounds());
+    }
+  }
+}
 
 void workbench_model_NoteFigure::ImplData::unrealize()
 {
@@ -89,16 +124,19 @@ bool workbench_model_NoteFigure::ImplData::realize()
     view->lock();
     
     wbfig::Note *note= _figure= new wbfig::Note(view->get_current_layer(), self()->owner()->get_data(), self());
-    note->set_text(self()->_text);
 
     agroup= self()->layer()->get_data()->get_area_group();
     
     view->get_current_layer()->add_item(_figure, agroup);
-    
-    _figure->set_color(Color::parse(*self()->_color));
 
     finish_realize();
-    
+
+    // do everything after finish_realize(), as we need to override the defaults set there
+    note->set_color(Color::parse(*self()->_color));
+    note->set_text_color(Color::parse(*self()->_textColor));
+    note->set_font(self()->_font);
+    note->set_text(self()->_text);
+
     view->unlock();
 
     self()->owner()->get_data()->notify_object_realize(self());
