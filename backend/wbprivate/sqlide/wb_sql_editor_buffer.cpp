@@ -506,6 +506,9 @@ mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::P
 
 void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
 {
+  panel->grtobj()->owner().clear();
+  grtobj()->queryEditors().remove_value(panel->grtobj());
+
   //if we're removing editor, just cancel query side timer cause there is only one timer
   if (_side_palette)
     _side_palette->cancel_timer();
