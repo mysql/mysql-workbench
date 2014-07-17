@@ -309,7 +309,7 @@ namespace bec {
     std::map<std::string, size_t> name_positions;
     std::map<std::string, int> initial_positions;
     std::map<std::string, int> final_positions;
-    std::map<std::string, grt::ListRef<T>>groups;
+    std::map<std::string, grt::ListRef<T> >groups;
     std::map<std::string, bool> fabric_names;
 
     // Collect names of all ungrouped items and groups in an own list for lookup.

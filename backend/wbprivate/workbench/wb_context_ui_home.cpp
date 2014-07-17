@@ -627,7 +627,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     // Internal deletion does not require the prompt
     if (action == "delete_connection_group")
     {
-      std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), base::left(group, group.length() -1));
+      std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), base::left(group, group.length() -1).c_str());
       answer = Utilities::show_warning(_("Delete Connection Group"), text,  _("Delete"), _("Cancel"));
     }
     
