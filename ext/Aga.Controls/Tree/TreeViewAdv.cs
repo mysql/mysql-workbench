@@ -64,12 +64,13 @@ namespace Aga.Controls.Tree
 				NodeMouseDoubleClick(this, args);
 		}
 
-		[Category("Behavior")]
+    // ml: added button for all 3 column events.
+    [Category("Behavior")]
 		public event EventHandler<TreeColumnEventArgs> ColumnWidthChanged;
 		protected internal virtual void OnColumnWidthChanged(TreeColumn column)
 		{
 			if (ColumnWidthChanged != null)
-				ColumnWidthChanged(this, new TreeColumnEventArgs(column));
+				ColumnWidthChanged(this, new TreeColumnEventArgs(column, MouseButtons.Left));
 		}
 
 		[Category("Behavior")]
@@ -77,15 +78,16 @@ namespace Aga.Controls.Tree
 		protected internal virtual void OnColumnReordered(TreeColumn column)
 		{
 			if (ColumnReordered != null)
-				ColumnReordered(this, new TreeColumnEventArgs(column));
+        ColumnReordered(this, new TreeColumnEventArgs(column, MouseButtons.Left));
 		}
 
 		[Category("Behavior")]
 		public event EventHandler<TreeColumnEventArgs> ColumnClicked;
-		protected internal virtual void OnColumnClicked(TreeColumn column)
+
+		protected internal virtual void OnColumnClicked(TreeColumn column, MouseButtons button)
 		{
 			if (ColumnClicked != null)
-				ColumnClicked(this, new TreeColumnEventArgs(column));
+				ColumnClicked(this, new TreeColumnEventArgs(column, button));
 		}
 
 		[Category("Behavior")]

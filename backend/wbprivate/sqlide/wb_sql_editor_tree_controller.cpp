@@ -133,6 +133,7 @@ SqlEditorTreeController::SqlEditorTreeController(SqlEditorForm *owner)
     live_schemata_refresh_task(GrtThreadedTask::create(_grtm)),
     _is_refreshing_schema_tree(false),
     _unified_mode(false),
+    _use_show_procedure(false),
     _side_splitter(NULL),
     _info_tabview(NULL),
     _object_info(NULL),
@@ -520,23 +521,60 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
           table_list.push_back(std::make_pair(name, type == "VIEW"));
         }
       }
-      {
-        std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema_name)));
 
-        while (rs->next())
+      if (!_use_show_procedure)
+      {
+        // SHOW PROCEDURE uses I_S which can be very slow for big dbs, so we try a hack and go to mysql.proc and .func directly
+        // if an error occurs with these, we fallback to show procedure
+        // Something will happen once the DD is introduced in 5.7, but don't know what as of now... maybe this hack
+        // will become unnecessary then
+        try
         {
-          std::string name = rs->getString(2);
-          procedures->push_back(name);
-          routine_list.push_back(std::make_pair(name, false));
+          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SELECT name, type FROM mysql.proc WHERE Db=?", 0) << schema_name)));
+
+          while (rs->next())
+          {
+            std::string name = rs->getString(1);
+            std::string type = rs->getString(2);
+            if (type == "PROCEDURE")
+            {
+              procedures->push_back(name);
+              routine_list.push_back(std::make_pair(name, false));
+            }
+            else
+            {
+              functions->push_back(name);
+              routine_list.push_back(std::make_pair(name, true));
+            }
+          }
+        }
+        catch (std::exception &exc)
+        {
+          log_exception("Exception querying metadata from mysql.proc, will fallback to SHOW PROCEDURE", exc);
+          _use_show_procedure = true;
         }
       }
+
+      if (_use_show_procedure)
       {
-        std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW FUNCTION STATUS WHERE Db=?", 0) << schema_name)));
-        while (rs->next())
         {
-          std::string name = rs->getString(2);
-          functions->push_back(name);
-          routine_list.push_back(std::make_pair(name, true));
+          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema_name)));
+
+          while (rs->next())
+          {
+            std::string name = rs->getString(2);
+            procedures->push_back(name);
+            routine_list.push_back(std::make_pair(name, false));
+          }
+        }
+        {
+          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(std::string(sqlstring("SHOW FUNCTION STATUS WHERE Db=?", 0) << schema_name)));
+          while (rs->next())
+          {
+            std::string name = rs->getString(2);
+            functions->push_back(name);
+            routine_list.push_back(std::make_pair(name, true));
+          }
         }
       }
     }

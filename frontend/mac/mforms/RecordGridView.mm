@@ -19,7 +19,14 @@
 
 #import "RecordGridView.h"
 #import "MResultsetViewer.h"
+
+#include "mforms/menubar.h"
+
 #include "sqlide/recordset_be.h"
+#include "base/string_utilities.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN("RecordGridView");
 
 using namespace mforms;
 
@@ -113,6 +120,12 @@ void RecordGridView::set_column_width(int column, int width)
 }
 
 
+void RecordGridView::set_column_header_indicator(int column, ColumnHeaderIndicator indicator)
+{
+  [viewer setHeaderIndicator: (int)indicator forColumn: column];
+}
+
+
 bool RecordGridView::current_cell(size_t &row, int &column)
 {
   MGridView *grid = [viewer gridView];
@@ -132,3 +145,34 @@ void RecordGridView::set_current_cell(size_t row, int column)
   [[viewer gridView] selectCellAtRow: row column: column];
 }
 
+
+static void set_clicked_column(RecordGridView *grid, NSTableView *gridView)
+{
+  NSPoint point = [gridView convertPoint: [[gridView window] mouseLocationOutsideOfEventStream] fromView: nil];
+  int column = [gridView columnAtPoint: NSMakePoint(point.x, 20)];
+  grid->clicked_header_column(column - 1);
+}
+
+
+void RecordGridView::set_header_menu(ContextMenu *menu)
+{
+  menu->signal_will_show()->connect(boost::bind(set_clicked_column, this, [viewer gridView]));
+  [[[viewer gridView] headerView] setMenu: menu->get_data()];
+}
+
+
+void RecordGridView::set_font(const std::string &font_desc)
+{
+  std::string font;
+  float size;
+  bool bold;
+  bool italic;
+  if (base::parse_font_description(font_desc, font, size, bold, italic))
+  {
+    NSFontDescriptor *fd = [NSFontDescriptor fontDescriptorWithName: [NSString stringWithUTF8String: font.c_str()] size: size];
+    [viewer setFont: [NSFont fontWithDescriptor: [fd fontDescriptorWithSymbolicTraits: (bold ? NSFontBoldTrait : 0) | (italic ? NSFontItalicTrait : 0)]
+                                           size: size]];
+  }
+  else
+    log_error("Invalid font specification: %s\n", font_desc.c_str());
+}

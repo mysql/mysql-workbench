@@ -26,8 +26,6 @@
 
 DEFAULT_LOG_DOMAIN("ModulePython");
 
-#ifdef ENABLE_PYTHON_MODULES
-
 using namespace grt;
 using namespace base;
 
@@ -520,5 +518,4 @@ bool PythonModuleLoader::check_file_extension(const std::string &path)
 }
 
 
-#endif // ENABLE_PYTHON_MODULES
 

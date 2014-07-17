@@ -1,0 +1,28 @@
+Source: mysql-workbench
+Section: utils
+Priority: extra
+Maintainer: MySQL Workbench team <workbench@sun.com>
+Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-2.4-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python-dev (>= 2.5), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, libctemplate-dev, cmake, libtinyxml-dev, swig (>= 1.3)
+Standards-Version: 3.7.2
+Homepage: http://dev.mysql.com/workbench/
+
+@ifdef community
+Package: mysql-workbench-community
+Replaces: mysql-workbench-gpl, mysql-workbench-oss
+@else
+Package: mysql-workbench-commercial
+@endif
+Architecture: i386 amd64
+@ifdef community
+Depends: ${shlibs:Depends}, python-paramiko, python-pexpect, python-pysqlite2, mysql-client|virtual-mysql-client
+@else
+Replaces: mysql-workbench-com-se
+Depends: ${shlibs:Depends}, python-paramiko, python-pysqlite2, mysql-client|virtual-mysql-client
+@endif
+Suggests: gnome-keyring
+Description: MySQL Workbench
+ MySQL Workbench is development, administration and data modeling tool
+ for MySQL. Besides editing and running SQL queries and scripts, it supports
+ the design of MySQL databases through a EER diagram, which is then used to
+ generate SQL scripts. Workbench also supports migration from many RDBMS
+ products to MySQL.

@@ -1220,7 +1220,7 @@ void MySQLEditor::create_editor_config_for_version(GrtVersionRef version)
   delete _editor_config;
 
   mforms::SyntaxHighlighterLanguage lang = mforms::LanguageMySQL;
-  if (version->majorNumber() == 5)
+  if (version.is_valid() && version->majorNumber() == 5)
   {
     switch (version->minorNumber())
     {

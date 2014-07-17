@@ -28,12 +28,8 @@
 #include "grtpp_undo_manager.h"
 #include "grtpp_notifications.h"
 
-#include <algorithm>
-
-#include "grtpp_shell_lua.h"
-
 #include <cppconn/exception.h>
-
+#include <algorithm>
 #include <glib.h>
 
 #include "serializer.h"
@@ -967,12 +963,8 @@ void *GRT::get_context_data(const std::string &key)
 
 bool GRT::init_shell(const std::string &shell_type)
 {
-  if (shell_type == LanguageLua)
-    _shell= new LuaShell(this);
-#ifdef ENABLE_PYTHON_MODULES
-  else if (shell_type == LanguagePython)
+  if (shell_type == LanguagePython)
     _shell= new PythonShell(this);
-#endif
   else
     throw std::runtime_error("Invalid shell type "+shell_type);
   
@@ -983,12 +975,9 @@ bool GRT::init_shell(const std::string &shell_type)
 
 std::string GRT::shell_type()
 {
-  if (dynamic_cast<LuaShell*>(_shell))
-    return LanguageLua;
-#ifdef ENABLE_PYTHON_MODULES
-  else if (dynamic_cast<PythonShell*>(_shell))
+  if (dynamic_cast<PythonShell*>(_shell))
     return LanguagePython;
-#endif
+
   return "";
 }
 

@@ -30,6 +30,8 @@ class RecordGridView : public mforms::RecordGrid
 {
   RecordsetView *viewer;
 
+  void column_resized(int c) { (*signal_column_resized())(c); }
+  void column_right_clicked(int c, int x, int y);
 public:
   RecordGridView(boost::shared_ptr<Recordset> rset);
   virtual ~RecordGridView();
@@ -40,6 +42,10 @@ public:
 
   virtual bool current_cell(size_t &row, int &column);
   virtual void set_current_cell(size_t row, int column);
+
+  virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order);
+
+  virtual void set_font(const std::string &font);
 };
 };
 #endif

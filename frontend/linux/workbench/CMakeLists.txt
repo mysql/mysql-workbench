@@ -76,6 +76,7 @@ add_executable(mysql-workbench-bin
     ../../common/grt_python_debugger.cpp
     ../../common/advanced_sidebar.cpp
     ../../common/snippet_popover.cpp
+    ../../common/grt_plugin_wizard.cpp
 )
 
 target_link_libraries(mysql-workbench-bin

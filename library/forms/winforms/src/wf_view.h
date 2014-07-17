@@ -86,6 +86,7 @@ namespace MySQL {
       static void SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDetails details);
 
       static void focus(mforms::View *backend);
+      static bool has_focus(mforms::View *backend);
 
       virtual void Initialize();
 
