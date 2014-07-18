@@ -188,6 +188,26 @@ public:
     return mforms::TreeNodeRef();
   }
 
+  virtual void move_child(mforms::TreeNodeRef child, int new_index)
+  {
+    TreeNodeImpl *node = from_ref(child);
+
+    [node->self() retain];
+    [[_self children] removeObject: node->self()];
+    [[_self children] insertObject: node->self() atIndex: new_index];
+    [node->self() release];
+    if (![[_self treeNodeView] frozen] && (!get_parent() || is_expanded() || [[_self children] count] == 1))
+    {
+      [[_self treeNodeView] setNeedsReload];
+    }
+  }
+
+  virtual int get_child_index(mforms::TreeNodeRef node) const
+  {
+    id child = from_ref(node)->self();
+    return [[_self children] indexOfObject: child];
+  }
+
   virtual mforms::TreeNodeRef previous_sibling() const
   {
     NSUInteger index = [_self.parent.children indexOfObject: _self];

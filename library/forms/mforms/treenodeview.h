@@ -126,6 +126,7 @@ namespace mforms {
     TreeNode *node;
 
   public:
+    // following methods are private, but need to be made public for the platform implementation
 #ifndef SWIG
     TreeNodeRef(TreeNode *anode);
     TreeNode *ptr() { return node; }
@@ -182,12 +183,11 @@ namespace mforms {
     virtual int count() const = 0;
     virtual TreeNodeRef add_child() { return insert_child(-1); }
     virtual TreeNodeRef insert_child(int index) = 0;
-    virtual void reparent_to(TreeNodeRef &child, int new_index) = 0; //TODO: MAC, WIN
-    virtual void move_child(const TreeNode &child, int new_index) = 0; // TODO: Mac
+    virtual void move_child(TreeNodeRef child, int new_index) = 0;
     virtual void remove_from_parent() = 0;
     virtual void remove_children(); // default impl provided, subclasses may override to provide faster impl
     virtual TreeNodeRef get_child(int index) const = 0;
-    virtual int get_child_index(const TreeNode &child) const = 0; // TODO: Mac
+    virtual int get_child_index(TreeNodeRef child) const = 0;
     virtual TreeNodeRef get_parent() const = 0;
     virtual TreeNodeRef find_child_with_tag(const std::string &tag); // this will search the subnodes sequentially
     virtual TreeNodeRef previous_sibling() const = 0;

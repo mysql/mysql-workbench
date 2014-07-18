@@ -1069,6 +1069,15 @@ public:
   }
 
   //------------------------------------------------------------------------------------------------
+  mforms::TreeNodeRef move_node_to(mforms::TreeNodeRef node, mforms::TreeNodeRef new_parent, int index)
+  {
+    mforms::TreeNodeRef new_node = new_parent->insert_child(index);
+    new_node->set_string(0, node->get_string(0));
+    new_node->set_tag(node->get_tag());
+    new_node->set_data(node->get_data());
+    node->remove_from_parent();
+    return new_node;
+  }
 
   void trigger_action(const std::string &action)
   {
@@ -1091,8 +1100,8 @@ public:
         size_t index = triggers->get_index(trigger); // Index is always > 0 if the above test succeeds.
         triggers->move(index, index - 1);
 
-        int node_index = group_node->get_child_index(*node.ptr());
-        group_node->move_child(*node.ptr(), node_index - 1);
+        int node_index = group_node->get_child_index(node);
+        group_node->move_child(node, node_index - 1);
       }
       else
       {
@@ -1106,9 +1115,8 @@ public:
         if (base::partition(group_node->get_string(0), " ", timing, event))
         {
           change_trigger_timing(trigger, timing, event);
-//          node->remove_from_parent();
-//          group_node->add_child(*node.ptr());
-          group_node->move_child(*node.ptr(), -1);
+          node = move_node_to(node, group_node, group_node->count());
+          group_node->expand();
         }
       }
 
@@ -1132,8 +1140,8 @@ public:
         size_t index = triggers->get_index(trigger); // Index is always < count - 1 if the above test succeeds.
         triggers->move(index, index + 2); // +2 instead of +1 because we want it to appear *after* the next node, not instead of.
 
-        int node_index = group_node->get_child_index(*node.ptr());
-        group_node->move_child(*node.ptr(), node_index + 2);
+        int node_index = group_node->get_child_index(node);
+        group_node->move_child(node, node_index + 2);
       }
       else
       {
@@ -1143,8 +1151,8 @@ public:
         if (base::partition(group_node->get_string(0), " ", timing, event))
         {
           change_trigger_timing(trigger, timing, event);
-//          node->remove_from_parent();
-          group_node->move_child(*node.ptr(), 0);
+          node = move_node_to(node, group_node, 0);
+          group_node->expand();
         }
       }
 
@@ -1168,7 +1176,7 @@ public:
           trigger->sqlDefinition());
       }
     }
-    else  if (action == "delete_trigger")
+    else if (action == "delete_trigger")
     {
       _editor->freeze_refresh_on_object_change();
 
