@@ -12,6 +12,8 @@ if [ ! -f "$TARGET_DIRECTORY/MySQLLexer.c" ]  || [ $SOURCE_FILE -nt "$TARGET_DIR
 if [ ! -f "$TARGET_DIRECTORY/MySQLLexer.h" ]  || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLLexer.h" ];  then GENERATE_FILES=true; fi
 if [ ! -f "$TARGET_DIRECTORY/MySQLParser.c" ] || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLParser.c" ]; then GENERATE_FILES=true; fi
 if [ ! -f "$TARGET_DIRECTORY/MySQLParser.h" ] || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLParser.h" ]; then GENERATE_FILES=true; fi
+if [ ! -f "$TARGET_DIRECTORY/MySQLSimpleParser.c" ] || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLSimpleParser.c" ]; then GENERATE_FILES=true; fi
+if [ ! -f "$TARGET_DIRECTORY/MySQLSimpleParser.h" ] || [ $SOURCE_FILE -nt "$TARGET_DIRECTORY/MySQLSimpleParser.h" ]; then GENERATE_FILES=true; fi
 
 if [ $GENERATE_FILES == true ]; then
   # Check if the supplied file exists
