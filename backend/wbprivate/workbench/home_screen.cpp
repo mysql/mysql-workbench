@@ -3282,7 +3282,7 @@ public:
     entry.title = base::strip_extension(base::basename(path));
     if (entry.title.empty())
       entry.title = "???";
-    entry.is_model = base::tolower(base::extension(path)) == ".mwb";
+    entry.is_model = base::ends_with(path, ".mwb") || base::ends_with(path, ".mwbd");
     entry.folder = base::dirname(path);
 
     if (time > 0)

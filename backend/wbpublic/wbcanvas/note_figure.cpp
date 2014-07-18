@@ -28,7 +28,7 @@ Note::Note(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self)
   set_allowed_resizing(true, true);
   set_accepts_focus(true);
   set_accepts_selection(true);
-  set_auto_sizing(true);
+  set_auto_sizing(false);
 
   set_border_color(Color(0.5, 0.5, 0.5, 0.2));
   set_background_color(Color::White());
@@ -38,6 +38,8 @@ Note::Note(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self)
   _text.set_font(get_view()->get_default_font());
   _text.set_pen_color(Color::Black());
   _text.set_multi_line(true);
+  _text.set_auto_sizing(false);
+  _text.set_allow_shrinking(true);
 
   add(&_text, false, false, true);
 }
@@ -60,6 +62,16 @@ void Note::set_text_color(const Color &color)
   _text.set_pen_color(color);
 }
 
+void Note::set_font(const std::string &font)
+{
+  if (font.empty()) // use default font
+    _text.set_font(get_view()->get_default_font());
+  else
+  {
+    mdc::FontSpec mfont(mdc::FontSpec::from_string(font));
+    set_content_font(mfont);
+  }
+}
 
 void Note::set_content_font(const mdc::FontSpec &font)
 {
