@@ -83,11 +83,13 @@ void AppView::set_menubar(mforms::MenuBar *menu)
 {
   if (_menubar != menu)
   {
-    if (_menubar)
+    if (_menubar != NULL)
       _menubar->release();
     _menubar = menu;
-    if (menu)
+    if (menu != NULL && !menu->release_on_add())
       _menubar->retain();
+    else
+      _menubar->set_release_on_add(false);
   }
 }
 

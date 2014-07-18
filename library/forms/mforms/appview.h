@@ -51,7 +51,7 @@ namespace mforms {
    */
   class MFORMS_EXPORT AppView : public Box , public bec::UIForm
   {
-  protected:
+  private:
     AppViewImplPtrs* _app_view_impl;
     boost::function<bool ()> _on_close_slot;
     std::string _context_name;

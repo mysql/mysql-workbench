@@ -50,9 +50,9 @@ void Object::set_managed()
 
 //--------------------------------------------------------------------------------------------------
 
-void Object::set_release_on_add()
+void Object::set_release_on_add(bool flag)
 {
-  _release_on_add = true;
+  _release_on_add = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
