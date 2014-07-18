@@ -33,6 +33,8 @@
 #include "copytable.h"
 #include "converter.h"
 
+#undef min
+
 #include <boost/bind.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -168,7 +170,8 @@ std::string ConnectionError::process(SQLRETURN retcode, SQLSMALLINT htype, SQLHA
 
 
 RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
-                     boost::function<void (int, const char*, size_t)> send_blob_data)
+                     boost::function<void (int, const char*, size_t)> send_blob_data,
+                     size_t max_packet_size)
 : _current_field(0), _send_blob_data(send_blob_data)
 {
   for (std::vector<ColumnInfo>::const_iterator col = columns->begin(); col != columns->end(); ++col)
@@ -220,8 +223,12 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
         break;
       case MYSQL_TYPE_BLOB:
       case MYSQL_TYPE_GEOMETRY:
-        bind.buffer_length = (unsigned)col->source_length+1;
+        // source_length is not reliable (and returns bogus value for access)
+        // so we just use the max_packet_size value
+        bind.buffer_length = std::min((unsigned long long)max_packet_size, col->source_length+1);
         bind.length = (unsigned long*)malloc(sizeof(unsigned long));
+        if (!bind.length)
+          throw std::runtime_error("Could not allocate memory for row buffer");
         break;
       case MYSQL_TYPE_NULL:
         bind.buffer_length = 0;
@@ -230,12 +237,18 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
         throw std::logic_error(base::strfmt("Unhandled MySQL type %i for column '%s'", col->target_type, col->target_name.c_str()));
     }
     bind.error = (my_bool*)malloc(sizeof(my_bool));
+    if (!bind.error)
+      throw std::runtime_error("Could not allocate memory for row buffer");
     if (col->target_type != MYSQL_TYPE_NULL)
     {
       bind.is_null = (my_bool*)malloc(sizeof(my_bool));
       if (!bind.is_null)
       {
-        if (bind.length) free(bind.length);
+        if (bind.length)
+        {
+          free(bind.length);
+          bind.length = NULL;
+        }
         throw std::runtime_error("Could not allocate row buffer");
       }
     }
@@ -246,12 +259,17 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
       if (!bind.buffer)
       {
         if (bind.error)
+        {
           free(bind.error);
-
+          bind.error = NULL;
+        }
         if (bind.is_null)
+        {
           free(bind.is_null);
-
-        throw std::runtime_error("Could not allocate row buffer");
+          bind.is_null = NULL;
+        }
+        throw std::runtime_error(base::strfmt("Could not allocate %i bytes for row buffer column of %s %s %i", 
+          bind.buffer_length, col->source_name.c_str(), col->source_type.c_str(), col->target_type));
       }
     }
     else
@@ -1599,10 +1617,25 @@ void MySQLCopyDataTarget::init()
   if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
     throw ConnectionError(q, &_mysql);
 
+  // the source data will come in a charset that's not utf-8, so we let the server do the conversion
+  if (!_incoming_data_charset.empty())
+  {
+    log_info("Setting charset for source data to %s\n", _incoming_data_charset.c_str());
+    q = base::sqlstring("SET character_set_client=?", 0) << _incoming_data_charset;
+    if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
+      throw ConnectionError(q, &_mysql);
+  }
+
   q = "SET FOREIGN_KEY_CHECKS=0";
   if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
     throw ConnectionError(q, &_mysql);
 
+  // some DBs (like MS Access) have sequence/auto-increment values start at 0
+  // by default, mysql will change that to 1, so when the actual row numbered 1 comes it will be duplicated
+  if (mysql_query(&_mysql, "SET SESSION SQL_MODE=CONCAT('NO_AUTO_VALUE_ON_ZERO,', @@SQL_MODE)") != 0)
+  {
+    log_warning("Error changing sql_mode: %s\n", mysql_error(&_mysql));
+  }
 }
 
 std::vector<std::string> MySQLCopyDataTarget::get_last_pkeys(const std::vector<std::string> &pk_columns, const std::string &schema, const std::string &table)
@@ -1823,13 +1856,18 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
 
 MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket, const std::string &app_name)
+                    const std::string &socket, const std::string &app_name,
+                    const std::string &incoming_charset)
 : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
   _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
   _bulk_insert_batch(0)
 {
   std::string host = hostname;
   _truncate = false;
+
+  _incoming_data_charset = incoming_charset;
+  if (base::tolower(_incoming_data_charset) == "cp1252" || base::tolower(_incoming_data_charset) == "windows-1252")
+    _incoming_data_charset = "latin1";
 
   mysql_init(&_mysql);
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
@@ -1998,7 +2036,7 @@ void MySQLCopyDataTarget::begin_inserts()
   if (_row_buffer)
     delete _row_buffer;
 
-  _row_buffer = new RowBuffer(_columns, boost::bind(&MySQLCopyDataTarget::send_long_data, this, _1, _2, _3));
+  _row_buffer = new RowBuffer(_columns, boost::bind(&MySQLCopyDataTarget::send_long_data, this, _1, _2, _3), _max_allowed_packet);
 
   if (!_use_bulk_inserts)
   {
@@ -2112,8 +2150,12 @@ int MySQLCopyDataTarget::do_insert(bool final)
       ret_val = _bulk_record_count;
       _init_bulk_insert = true;
       if (mysql_real_query(&_mysql, _bulk_insert_buffer.buffer, (unsigned long)_bulk_insert_buffer.length) != 0)
-        throw ConnectionError("Inserting Batch", &_mysql);
+      {
+        _bulk_insert_buffer.buffer[_bulk_insert_buffer.length] = 0;
+        log_info("Statement execution failed: %s:\n%s\n", mysql_error(&_mysql), _bulk_insert_buffer.buffer);
 
+        throw ConnectionError("Inserting Data", &_mysql);
+      }
       _bulk_insert_buffer.reset(_max_allowed_packet);
       _bulk_record_count = 0;
     }

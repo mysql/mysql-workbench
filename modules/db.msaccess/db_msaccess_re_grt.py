@@ -115,9 +115,6 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
     def fullyQualifiedObjectName(cls, obj):
         owner = obj.owner
         if owner and isinstance(owner, grt.classes.db_Schema):
-            if owner.owner and isinstance(owner.owner, grt.classes.db_Catalog):
-                return cls.quoteIdentifier(owner.owner.name)+"."+cls.quoteIdentifier(owner.name)+"."+cls.quoteIdentifier(obj.name)
-        elif owner and isinstance(owner, grt.classes.db_Catalog):
             return cls.quoteIdentifier(owner.name)+"."+cls.quoteIdentifier(obj.name)
         return cls.quoteIdentifier(obj.name)
 
@@ -458,7 +455,7 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
         for column_info in table_columns:
             column = grt.classes.db_Column()
             column.name = column_info[3]  # column_name
-            column.isNotNull = column_info[17] == 'YES'  # is_nullable
+            column.isNotNull = column_info[17] != 'YES'  # is_nullable
             column.length = column_info[6]  # column_size
             column.scale = column_info[8]  # decimal_digits
             column.precision = column_info[6]  # column_size
@@ -516,18 +513,30 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
             index.indexType = 'UNIQUE' if index.unique else 'INDEX'
     #        index.hasFilter = False  # TODO: Find out if there's a way to determine this
 
+            skip = False
             # Get the columns for the index:
             for row in sorted(row_list, key=lambda elem: elem[7]):  # Sorted by ordinal_position
                 column = find_object_with_name(table.columns, row.column_name)
                 if column:
-                    index_column = grt.classes.db_IndexColumn()
-                    index_column.name = index_name + '.' + row.column_name
-                    index_column.referencedColumn = column
-                    index.columns.append(index_column)
-            table.addIndex(index)
-
-            if index.isPrimary:
-                table.primaryKey = index
+                    # skip indexes on LONGCHAR columns
+                    if column.simpleType.name in ["LONGCHAR"]:
+                        grt.send_warning("Migration: reverseEngineerTable: Skipping index %s.%s on a %s column\n" % (table.name, column.name, column.simpleType.name)) 
+                        skip = True
+                    else:
+                        index_column = grt.classes.db_IndexColumn()
+                        index_column.name = index_name + '.' + row.column_name
+                        index_column.referencedColumn = column
+                        index.columns.append(index_column)
+                        if not column.isNotNull and index.isPrimary:
+                            column.isNotNull = 1
+                            grt.send_warning("Migration: reverseEngineerTablePK: column %s.%s was changed to NOT NULL because it's a Primary Key column\n" % (column.owner.name, column.name))
+                else:
+                    grt.send_warning("Migration: reverseEngineerTablePK: could not find column %s, belonging to key %s. Key will be skipped\n" % (row.column_name, index_name))
+                    skip = True
+            if not skip:
+                table.addIndex(index)
+                if index.isPrimary:
+                    table.primaryKey = index
 
         return 0
 
@@ -584,6 +593,18 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
                 foreign_key.columns.append(column)
                 foreign_key.referencedColumns.append(ref_column)
 
+            # Find and delete indexes that are identical to FKs
+            for index in reversed(table.indices):
+                if table.primaryKey != index and len(index.columns) == len(foreign_key.columns):
+                    match = True
+                    for i, col in enumerate(index.columns):
+                        if foreign_key.columns[i] != col.referencedColumn:
+                            match = False
+                            break
+                    if match:
+                        grt.send_warning("Migration: reverseEngineerTable: Skipping duplicate index %s from table %s\n" % (col.name, table.name))
+                        table.indices.remove(index)
+
             cls._connections[connection.__id__]['fk_names'][foreign_key.name] = table 
             table.foreignKeys.append(foreign_key)
                 
@@ -597,12 +618,14 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
         table.foreignKeys.remove_all()
         fk_dict = {}  # Map the foreign key names to their respective columns:
 
+        import pyodbc
         try:
             for row in cls.get_connection(connection).cursor().execute("SELECT * FROM MSysRelationships WHERE szObject = ?", (table.name,)):
                 fk_dict.setdefault(row.szRelationship, []).append(row)
         except pyodbc.ProgrammingError, e:
-            if e.args[1] == 42000:
-                grt.send_error("Migration: Could not read from System Tables. You must grant SELECT access on all system tables for the database.")
+            if e.args[0] == '42000':
+                grt.send_error("\n\nMigration: Could not read from System Tables. You must grant SELECT access on all system tables for the database.")
+                return 1
             raise
 
         for fk_name, fk_columns in fk_dict.iteritems():

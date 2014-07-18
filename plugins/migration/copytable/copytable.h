@@ -106,7 +106,8 @@ class RowBuffer : public std::vector<MYSQL_BIND>
 
 public:
   RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
-            boost::function<void (int, const char*, size_t)> send_blob_data);
+            boost::function<void (int, const char*, size_t)> send_blob_data,
+            size_t max_packet_size);
   ~RowBuffer();
 
   void clear();
@@ -289,6 +290,7 @@ class MySQLCopyDataTarget
 
   MYSQL _mysql;
   MYSQL_STMT *_insert_stmt;
+  std::string _incoming_data_charset;
   unsigned long _max_allowed_packet;
   unsigned long _max_long_data_size;
   std::string _schema;
@@ -326,7 +328,8 @@ class MySQLCopyDataTarget
 public:
   MySQLCopyDataTarget(const std::string &hostname, int port,
                       const std::string &username, const std::string &password,
-                      const std::string &socket, const std::string &app_name);
+                      const std::string &socket, const std::string &app_name,
+                      const std::string &incoming_charset);
 
   ~MySQLCopyDataTarget();
 
