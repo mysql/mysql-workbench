@@ -116,7 +116,7 @@ class TableCopyWorker(Thread):
                     if type in ("PROGRESS", "ERROR", "BEGIN", "END"):
                         self.result_queue.put((type, msg))
                     else:
-                        self.result_queue.put(("LOG", msg))
+                        self.result_queue.put(("LOG", line))
 
             # Processes any remaining output
             output = self.process.stdout.read()
@@ -259,7 +259,7 @@ class DataMigrator(object):
 
         if self._resume:
             passwords= (self._src_password+"\t"+self._tgt_password+"\n").encode("utf8") 
-        else:
+        else:               
             passwords= (self._src_password+"\n").encode("utf8")
         while out.poll() is None:
             o, e = out.communicate(passwords)
@@ -277,6 +277,7 @@ class DataMigrator(object):
                 working_set[schema+"."+table]["row_count"] = count
             return total
         else:
+            self._owner.send_info(stdout)
             raise Exception("Error getting row count from source tables")
 
     def migrate_data(self, num_processes, working_set):
@@ -324,6 +325,9 @@ class DataMigrator(object):
 
         args.append("--thread-count=" + str(num_processes));
         args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
+        default_charset = self._src_conn_object.parameterValues.get("defaultCharSet")
+        if default_charset:
+            args.append('--source-charset=%s' % default_charset)
 
         if self._resume:
           args.append("--resume")
