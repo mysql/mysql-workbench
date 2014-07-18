@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -173,6 +173,8 @@ class DatabaseSchemaSelector(mforms.Box):
                 schema_node.set_string(1, schema_name)
                 schema_node.set_tag(schema_name)
                 self._schema_nodes.append(schema_node)
+            if len(self._schemata) == 1:
+                self.schema_list_tree.select_node(schema_node)
             
         self.select_summary_label.set_text(self.ui_settings['general']['summary_text'] % {'nSchemata':0})
         

@@ -6,7 +6,7 @@
     <value type="string" key="databaseObjectPackage">db.msaccess</value>
     <value type="int" key="maximumIdentifierLength">64</value>
     <link type="object" key="defaultDriver">com.mysql.rdbms.msaccess.driver.odbc</link>
-    <value type="int" key="doesSupportCatalogs">0</value>
+    <value type="int" key="doesSupportCatalogs">-1</value>
 
     <!-- Privileges -->
 
@@ -97,6 +97,21 @@
             </value>
             <value type="int" key="required">0</value>
           </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param5">
+            <value type="string" key="caption">Default Character Set</value>
+            <value type="string" key="defaultValue">cp1252</value>
+            <value type="string" key="description">The character set used in the source database.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">4</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">defaultCharSet</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
+          </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param6">
             <value type="string" key="caption">Additional arguments</value>
             <value type="string" key="defaultValue"></value>
@@ -161,6 +176,21 @@ ODBC connection string.</value>
             </value>
             <value type="int" key="required">0</value>
           </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_dsn.param3">
+            <value type="string" key="caption">Default Character Set</value>
+            <value type="string" key="defaultValue">cp1252</value>
+            <value type="string" key="description">The character set used in the source database.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">defaultCharSet</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc_dsn</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
+          </value>
         </value>
       </value>
 
@@ -192,6 +222,21 @@ ODBC connection string.</value>
             <value type="string" key="paramType">string</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_connstr.param2">
+            <value type="string" key="caption">Default Character Set</value>
+            <value type="string" key="defaultValue">cp1252</value>
+            <value type="string" key="description">The character set used in the source database.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">318</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">defaultCharSet</value>
+            <link type="object" key="owner">com.mysql.rdbms.msaccess.driver.odbc_connstr</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>          
           </value>
         </value>
       </value>

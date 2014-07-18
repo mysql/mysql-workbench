@@ -263,6 +263,7 @@ int main(int argc, char **argv)
   std::string source_password;
   std::string source_connstring;
   bool source_is_utf8 = false;
+  std::string source_charset;
   SourceType source_type = ST_MYSQL;
 
   std::string target_connstring;
@@ -319,6 +320,8 @@ int main(int argc, char **argv)
       target_password = argval;
     else if (strcmp(argv[i], "--force-utf8-for-source") == 0)
       source_is_utf8 = true;
+    else if (check_arg_with_value(argv, i, "--source-charset", argval, true))
+      source_charset = argval;
     else if (strcmp(argv[i], "--progress") == 0)
       show_progress = true;
     else if (strcmp(argv[i], "--truncate-target") == 0)
@@ -526,7 +529,7 @@ int main(int argc, char **argv)
   {
     if (!read_tasks_from_file(table_file, count_only, tables, trigger_schemas, resume))
     {
-      fprintf(stderr, "Error reading table definitions from table file: %s\n", table_file.data());
+      fprintf(stderr, "Invalid table definitions format in file: %s\n", table_file.data());
       exit(1);
     }
   }
@@ -654,7 +657,7 @@ int main(int argc, char **argv)
         if (task.copy_spec.resume)
         {
           if(!ptarget.get())
-            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name));
+            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
           last_pkeys = ptarget->get_last_pkeys(task.target_pk_columns, task.target_schema, task.target_table);
         }
         count_rows(psource, task.source_schema, task.source_table, task.source_pk_columns, task.copy_spec, last_pkeys);
@@ -663,7 +666,7 @@ int main(int argc, char **argv)
     else if (reenable_triggers || disable_triggers)
     {
       boost::scoped_ptr<MySQLCopyDataTarget> ptarget;
-      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name));
+      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
 
       if (disable_triggers)
         ptarget->backup_triggers(trigger_schemas);
@@ -680,7 +683,7 @@ int main(int argc, char **argv)
 
       if (disable_triggers_on_copy)
       {
-        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name));
+        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
         ptarget_conn->backup_triggers(trigger_schemas);
       }
 
@@ -698,7 +701,7 @@ int main(int argc, char **argv)
         else
           psource = new PythonCopyDataSource(source_connstring, source_password);
 
-        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name);
+        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset);
 
         psource->set_max_blob_chunk_size(ptarget->get_max_allowed_packet());
         psource->set_max_parameter_size((unsigned long)ptarget->get_max_long_data_size());

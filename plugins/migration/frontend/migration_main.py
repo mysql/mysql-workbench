@@ -273,8 +273,14 @@ class Migration(mforms.AppView):
         current = self._page_trail[-1]
         self.tasks_side.set_section_entry_icon(current.identifier(), plat_icon("migration_check_done.png"))
         
-        i = self.tabs.index(current)
-        next = self.tabs[i+skip_count]
+        i = self.tabs.index(current)+skip_count
+        next = self.tabs[i]
+        while True:
+            if not next.should_skip():
+                break
+            next.page_skipped()
+            i += 1
+            next = self.tabs[i]
         self._page_trail.append(next)
         self.tasks_side.set_section_entry_icon(next.identifier(), plat_icon("migration_check_current.png"))
         self.tasks_side.select_entry(next.identifier())

@@ -62,8 +62,9 @@ class SchemaMainView(WizardPage):
 
         if advancing:
             self.doesSupportCatalogs = self.main.plan.migrationSource.rdbms.doesSupportCatalogs
+
             match_str = r"\%s\.\%s" % (self.main.plan.migrationSource._db_module.quoteIdentifier('(.+)\\'), self.main.plan.migrationSource._db_module.quoteIdentifier('(.+)\\'))
-            if self.doesSupportCatalogs:
+            if self.doesSupportCatalogs > 0:
                 catalog_schemata_list = [ (catalog_name, schema_name) for catalog_name, schema_name in (re.match(match_str, full_name).groups() 
                                             for full_name in self.main.plan.migrationSource.schemaNames) ]
                 self.catalog_schemata = {}
@@ -93,20 +94,31 @@ class SchemaMainView(WizardPage):
         label.set_style(mforms.BoldStyle)
         self.content.add(label, False)
         self.schema_selector = None
-            
+
+
+    def should_skip(self):
+        return self.main.plan.migrationSource.rdbms.doesSupportCatalogs < 0 and len(self.main.plan.migrationSource.schemaNames) == 1
+
+    def page_skipped(self):
+        # called when the page is not activated, because should_skip returned True
+        match_re = self.main.plan.migrationSource._db_module.quoteIdentifier('(.+)\\')
+        names = [re.match(match_re, s).groups()[0] for s in self.main.plan.migrationSource.schemaNames]
+        self.main.plan.migrationSource.selectedCatalogName, self.main.plan.migrationSource.selectedSchemataNames = ("def", names)
+        self.main.plan.state.applicationData["schemaMappingMethod"] = "drop_catalog"
+
 
     def update_next_button(self, count):
         self.next_button.set_enabled( bool(count) )
 
     def schemata_to_migrate(self):
         selected = self.schema_selector.get_selected()
-        if self.doesSupportCatalogs:
+        if self.doesSupportCatalogs > 0:
             if len(selected) > 1:
                 raise Exception('Cannot select multiple schemas from different catalogs')
             catalog = selected.keys()[0]
             return catalog, selected[catalog]
         else:
-            return 'def', selected
+            return "def", selected
 
     #def go_advanced(self):
     #    self._advanced_shown = not self._advanced_shown
@@ -118,7 +130,7 @@ class SchemaMainView(WizardPage):
         except Exception, e:
             mforms.Utilities.show_error("Invalid Selection", str(e), "OK", "", "")
             return
-            
+
         def find_selected_option():  #TODO: When we finally drop py2.5 support substitute this with self.options.index(next(opt for opt in self.options if opt.get_active()))
             for idx, option_radio in enumerate(self.options):
                 if option_radio.get_active():
