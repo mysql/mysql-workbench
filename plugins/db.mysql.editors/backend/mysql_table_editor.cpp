@@ -410,7 +410,7 @@ public:
 
     _editor_host = editor->get_sql_editor()->get_container();
     scoped_connect(editor->get_catalog()->signal_changed(), boost::bind(&MySQLTriggerPanel::catalog_changed, this, _1, _2));
-    update_warning();
+
 
     set_spacing(15);
     set_padding(4);
@@ -430,6 +430,8 @@ public:
     _trigger_list.set_row_overlay_handler(boost::bind(&MySQLTriggerPanel::overlay_icons_for_node, this, _1));
     scoped_connect(_trigger_list.signal_node_activated(), boost::bind(&MySQLTriggerPanel::node_activated, this, _1, _2));
     trigger_list_host->add(&_trigger_list, true, true);
+
+    update_warning();
 
     _warning_label.set_text(_("Warning: the current server version does not allow multiple triggers "
       "for the same timing/event."));
@@ -1104,8 +1106,9 @@ public:
         if (base::partition(group_node->get_string(0), " ", timing, event))
         {
           change_trigger_timing(trigger, timing, event);
-          node->remove_from_parent();
-          group_node->add_child(*node.ptr());
+//          node->remove_from_parent();
+//          group_node->add_child(*node.ptr());
+          group_node->move_child(*node.ptr(), -1);
         }
       }
 
@@ -1140,8 +1143,8 @@ public:
         if (base::partition(group_node->get_string(0), " ", timing, event))
         {
           change_trigger_timing(trigger, timing, event);
-          node->remove_from_parent();
-          group_node->insert_child(0, *node.ptr());
+//          node->remove_from_parent();
+          group_node->move_child(*node.ptr(), 0);
         }
       }
 
@@ -1261,6 +1264,8 @@ public:
         //       and vice versa information from that other editor instance.
         grt::ListRef<db_Trigger> triggers(_table->triggers());
         db_mysql_TriggerRef trigger = trigger_for_node(tree->selection);
+        if (!trigger.is_valid())
+          return mforms::DragOperationNone;
 
         _editor->freeze_refresh_on_object_change();
 

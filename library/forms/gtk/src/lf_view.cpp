@@ -768,7 +768,14 @@ bool ViewImpl::slot_drag_motion(const Glib::RefPtr<Gdk::DragContext> &context, i
       }
     }
 
-    mforms::DragOperation operation = drop_delegate->drag_over((mforms::View*)owner, base::Point(x, y), targets);
+    mforms::DragOperation operation, allowedOperations = mforms::DragOperationNone;
+
+    if ((context->get_suggested_action() & Gdk::ACTION_COPY) == Gdk::ACTION_COPY)
+      allowedOperations = allowedOperations | mforms::DragOperationCopy;
+    if ((context->get_suggested_action() & Gdk::ACTION_MOVE) == Gdk::ACTION_MOVE)
+        allowedOperations = allowedOperations | mforms::DragOperationMove;
+
+    operation = drop_delegate->drag_over((mforms::View*)owner, base::Point(x, y), allowedOperations, targets);
     switch(operation)
     {
 
@@ -817,11 +824,18 @@ void ViewImpl::slot_drag_data_received(const Glib::RefPtr<Gdk::DragContext> &con
   if (data.get_length() >= 0 && data.get_format() == 8)
      files = data.get_uris();
 
+  mforms::DragOperation allowedOperations = mforms::DragOperationNone;
+
+  if ((context->get_suggested_action() & Gdk::ACTION_COPY) == Gdk::ACTION_COPY)
+    allowedOperations = allowedOperations | mforms::DragOperationCopy;
+  if ((context->get_suggested_action() & Gdk::ACTION_MOVE) == Gdk::ACTION_MOVE)
+    allowedOperations = allowedOperations | mforms::DragOperationMove;
+
   if (files.empty())
   {
     std::string tmpstr = std::vector<std::string>(context->get_targets())[0];
 
-    drop_delegate->data_dropped((mforms::View*)owner, base::Point(x, y), dwrapper->GetData(), tmpstr);
+    drop_delegate->data_dropped((mforms::View*)owner, base::Point(x, y), allowedOperations, dwrapper->GetData(), tmpstr);
   }
   else
   {
@@ -832,7 +846,8 @@ void ViewImpl::slot_drag_data_received(const Glib::RefPtr<Gdk::DragContext> &con
       if((*it).compare(0, file_schema.size(), file_schema) == 0)
         (*it) = (*it).substr(file_schema.size());
     }
-    drop_delegate->files_dropped((mforms::View*)owner, base::Point(x, y), files);
+
+    drop_delegate->files_dropped((mforms::View*)owner, base::Point(x, y), allowedOperations, files);
   }
 
   context->drag_finish(true, false, time);
@@ -948,6 +963,20 @@ void ViewImpl::focus(::mforms::View *self)
     view->get_inner()->grab_focus();
 }
 
+mforms::DropPosition ViewImpl::get_drop_position()
+{
+  return mforms::DropPositionUnknown;
+}
+
+mforms::DropPosition ViewImpl::get_drop_position(::mforms::View *self)
+{
+  ViewImpl *view = self->get_data<ViewImpl>();
+  if (view)
+    return view->get_drop_position();
+
+  return mforms::DropPositionUnknown;
+}
+
 
 void ViewImpl::init()
 {
@@ -993,6 +1022,7 @@ void ViewImpl::init()
   f->_view_impl.register_drop_formats = &ViewImpl::register_drop_formats;
   f->_view_impl.focus                 = &ViewImpl::focus;
   f->_view_impl.has_focus             = &ViewImpl::has_focus;
+  f->_view_impl.get_drop_position     = &ViewImpl::get_drop_position;
 };
 
 

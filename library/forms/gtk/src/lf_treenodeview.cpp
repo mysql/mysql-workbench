@@ -35,6 +35,46 @@ namespace mforms {
 namespace gtk {
 
 
+
+
+static int count_rows_in_node(Gtk::TreeView *tree, const Gtk::TreeIter &iter)
+{
+  if (tree->row_expanded(Gtk::TreePath(iter)))
+  {
+    Gtk::TreeRow row = *iter;
+    int count = 0;
+    for (Gtk::TreeIter last = row.children().end(), i = row.children().begin(); i != last; i++)
+    {
+      count++;
+      count += count_rows_in_node(tree, i);
+    }
+    return count;
+  }
+  return 0;
+}
+
+
+static int calc_row_for_node(Gtk::TreeView *tree, const Gtk::TreeIter &iter)
+{
+  Gtk::TreeIter parent = iter->parent();
+  int node_index = Gtk::TreePath(iter).back();
+  int row = node_index;
+
+  if (parent)
+  {
+    for (Gtk::TreeIter i = parent->children().begin(); i != iter; i++)
+      row += count_rows_in_node(tree, i);
+    row += calc_row_for_node(tree, parent) + 1;
+  }
+  else
+  {
+    Gtk::TreePath path(iter);
+    while (path.prev())
+      row += count_rows_in_node(tree, tree->get_model()->get_iter(path));
+  }
+  return row;
+}
+
 class TreeNodeViewImpl;
 
 
@@ -63,6 +103,11 @@ protected:
     if (impl)
       return impl == this;
     return false;
+  }
+
+  virtual int level() const
+  {
+    return 0;
   }
 
 public:
@@ -393,6 +438,29 @@ public:
   virtual TreeNodeData *get_data() const
   {
     return NULL;
+  }
+
+  virtual TreeNodeRef previous_sibling() const
+  {
+    return TreeNodeRef();
+  }
+
+  virtual TreeNodeRef next_sibling() const
+  {
+    return TreeNodeRef();
+  }
+
+  virtual void move_child(const TreeNode &child, int new_index)
+  { //noop
+  }
+
+  virtual void reparent_to(TreeNodeRef &child, int new_index)
+  { //noop
+  }
+
+  virtual int get_child_index(const TreeNode &child) const
+  {
+    return -1;
   }
 };
 
@@ -819,6 +887,57 @@ public:
     return NULL;
   }
 
+  virtual int level() const
+  {
+    if (is_root())
+      return 0;
+    return _treeview->tree_store()->iter_depth(*iter()) + 1;
+  }
+
+  virtual TreeNodeRef next_sibling() const
+  {
+    if (is_root())
+      return TreeNodeRef();
+
+    Gtk::TreePath path = _rowref.get_path();
+    path.next();
+    Gtk::TreeIter iter = _treeview->tree_store()->get_iter(path);
+    if (iter)
+      return ref_from_path(path);
+    return TreeNodeRef();
+  }
+
+  virtual TreeNodeRef previous_sibling() const
+  {
+    if (is_root())
+      return TreeNodeRef();
+
+    Gtk::TreePath path = _rowref.get_path();
+    if (!path.prev())
+      return TreeNodeRef();
+
+    return ref_from_path(path);
+  }
+
+  virtual void move_child(const TreeNode &child, int new_index)
+  {
+
+    TreeNodeImpl *node = (TreeNodeImpl*)const_cast<TreeNode*>(&child);
+    if (node)
+    {
+      Gtk::TreePath path;
+      path.push_back(new_index);
+      _treeview->tree_store()->move(_treeview->tree_store()->get_iter(node->path()), _treeview->tree_store()->get_iter(path));
+    }
+  }
+
+  virtual int get_child_index(const TreeNode &child) const
+  {
+    TreeNodeImpl *node = (TreeNodeImpl*)const_cast<TreeNode*>(&child);
+    if (node)
+      return calc_row_for_node(&_treeview->_tree, _treeview->tree_store()->get_iter(node->path()));
+    return -1;
+  }
 };
 
 
@@ -2036,45 +2155,6 @@ void TreeNodeViewImpl::clear_selection(TreeNodeView *self)
 }
 
 
-static int count_rows_in_node(Gtk::TreeView *tree, const Gtk::TreeIter &iter)
-{
-  if (tree->row_expanded(Gtk::TreePath(iter)))
-  {
-    Gtk::TreeRow row = *iter;
-    int count = 0;
-    for (Gtk::TreeIter last = row.children().end(), i = row.children().begin(); i != last; i++)
-    {
-      count++;
-      count += count_rows_in_node(tree, i);
-    }
-    return count;
-  }
-  return 0;
-}
-
-
-static int calc_row_for_node(Gtk::TreeView *tree, const Gtk::TreeIter &iter)
-{
-  Gtk::TreeIter parent = iter->parent();
-  int node_index = Gtk::TreePath(iter).back();
-  int row = node_index;
-
-  if (parent)
-  {
-    for (Gtk::TreeIter i = parent->children().begin(); i != iter; i++)
-      row += count_rows_in_node(tree, i);
-    row += calc_row_for_node(tree, parent) + 1;
-  }
-  else
-  {
-    Gtk::TreePath path(iter);
-    while (path.prev())
-      row += count_rows_in_node(tree, tree->get_model()->get_iter(path));
-  }
-  return row;
-}
-
-
 int TreeNodeViewImpl::row_for_node(TreeNodeView *self, TreeNodeRef node)
 {
   TreeNodeViewImpl* impl = self->get_data<TreeNodeViewImpl>();
@@ -2173,6 +2253,26 @@ void TreeNodeViewImpl::set_column_title(TreeNodeView *self, int column, const st
   }
 }
 
+mforms::DropPosition TreeNodeViewImpl::get_drop_position()
+{
+  Gtk::TreePath path;
+  Gtk::TreeViewDropPosition pos;
+  _tree.get_drag_dest_row(path, pos);
+
+  switch(pos)
+  {
+  case Gtk::TREE_VIEW_DROP_BEFORE:
+    return mforms::DropPositionTop;
+  case Gtk::TREE_VIEW_DROP_AFTER:
+    return mforms::DropPositionBottom;
+  case Gtk::TREE_VIEW_DROP_INTO_OR_AFTER:
+  case Gtk::TREE_VIEW_DROP_INTO_OR_BEFORE:
+    return mforms::DropPositionOn;
+  default:
+    return mforms::DropPositionUnknown;
+  }
+}
+
 
 void TreeNodeViewImpl::on_realize()
 {
@@ -2209,6 +2309,16 @@ int TreeNodeViewImpl::get_column_width(TreeNodeView *self, int column)
   return 0;
 }
 
+mforms::TreeNodeRef TreeNodeViewImpl::node_at_position(TreeNodeView *self, base::Point position)
+{
+  TreeNodeViewImpl* impl = self->get_data<TreeNodeViewImpl>();
+  Gtk::TreePath path;
+  if (!impl->_tree.get_path_at_pos(position.x, position.y, path))
+    return mforms::TreeNodeRef();
+
+  return TreeNodeRef(new TreeNodeImpl(impl, impl->tree_store(), path));
+}
+
 
 void TreeNodeViewImpl::init()
 {
@@ -2236,6 +2346,7 @@ void TreeNodeViewImpl::init()
   f->_treenodeview_impl.set_column_title= &TreeNodeViewImpl::set_column_title;
   f->_treenodeview_impl.set_column_width= &TreeNodeViewImpl::set_column_width;
   f->_treenodeview_impl.get_column_width= &TreeNodeViewImpl::get_column_width;
+  f->_treenodeview_impl.node_at_position = &TreeNodeViewImpl::node_at_position;
 }
 
 }
