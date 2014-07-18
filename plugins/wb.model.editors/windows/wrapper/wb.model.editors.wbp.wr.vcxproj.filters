@@ -26,17 +26,17 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImageEditorBE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LayerEditorBE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="NoteEditorWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StoredNoteEditorWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageEditorWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerEditorWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

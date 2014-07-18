@@ -899,7 +899,7 @@ static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::Tu
     log_error("Got an authentication error during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }
-  catch (grt::user_cancelled &exc)
+  catch (grt::user_cancelled &)
   {
     log_info("User cancelled connection\n");
     return new std::string(":CANCELLED");

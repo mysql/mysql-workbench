@@ -80,7 +80,7 @@ static int image_width(cairo_surface_t* image)
   if (image != NULL)
   {
     if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return (int)cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor();
+      return (int)(cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor());
     else
       return (int)cairo_image_surface_get_width(image);
   }
@@ -94,9 +94,9 @@ static int image_height(cairo_surface_t* image)
   if (image != NULL)
   {
     if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return cairo_image_surface_get_height(image) / mforms::App::get()->backing_scale_factor();
+      return (int)(cairo_image_surface_get_height(image) / mforms::App::get()->backing_scale_factor());
     else
-      return cairo_image_surface_get_height(image);
+      return (int)cairo_image_surface_get_height(image);
   }
   return 0;
 }
@@ -3999,7 +3999,7 @@ public:
       for (ShortcutIterator iterator = _shortcuts.begin() + _page_start; iterator != _shortcuts.end();
         iterator++)
       {
-        float alpha = (yoffset + SHORTCUTS_ROW_HEIGHT) > height ? 0.25 : 1;
+        float alpha = (yoffset + SHORTCUTS_ROW_HEIGHT) > height ? 0.25f : 1;
 
         iterator->acc_bounds.pos.x = SHORTCUTS_LEFT_PADDING;
         iterator->acc_bounds.pos.y = yoffset;
@@ -4329,7 +4329,7 @@ HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
   _shortcut_section->set_size(300, -1);
   add(_shortcut_section, false, true);
   
-  _menubar = mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL));
+  set_menubar(mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
   //_toolbar = mforms::manage(cmdui->create_toolbar(""));
 
   update_colors();

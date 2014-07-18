@@ -51,7 +51,7 @@ namespace mforms {
     Object *retain();
     void release();    
     virtual void set_managed();    
-    void set_release_on_add();    
+    void set_release_on_add(bool flag = true);    
     bool is_managed();    
     bool release_on_add();
 
