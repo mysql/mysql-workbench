@@ -126,6 +126,13 @@ class MainView(WizardPage):
         self._tree.add_changed_callback(self._selection_changed)
         self.content.add(self._tree, True, True)
         self._tree.set_cell_edited_callback(self._cell_edited)
+
+        self._all_menu = mforms.newContextMenu()
+        self._all_menu.add_will_show_callback(self.all_menu_will_show)
+        self._all_menu.add_check_item_with_title("Skip Object", self.skip_object, "skip_object")
+
+        self._tree.set_context_menu(self._all_menu)
+
         
         self._columns = mforms.newTreeNodeView(mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeFlatList)
         self.COL_SOURCE_SCHEMA = self._columns.add_column(mforms.StringColumnType, "Source Schema", 100, False)
@@ -833,6 +840,26 @@ class MainView(WizardPage):
                 self._add_node(None, None, obj, "GrtObject.16x16.png")
 
         self._selection_changed()
+
+
+    def skip_object(self):
+        node = self._tree.get_selected_node()
+        tag = node.get_tag()
+        if tag and tag in self._object_dict:
+            obj = self._object_dict[tag]
+            if hasattr(obj, 'commentedOut'):
+                obj.commentedOut = not obj.commentedOut    
+
+    def all_menu_will_show(self, item):
+        node = self._tree.get_selected_node()
+        tag = node.get_tag()
+        self._all_menu.get_item(0).set_enabled(False)
+        if tag and tag in self._object_dict:
+            obj = self._object_dict[tag]
+            if hasattr(obj, 'commentedOut'):
+                self._all_menu.get_item(0).set_checked(obj.commentedOut)
+                if obj.__grtclassname__ in ("db.Index", "db.ForeignKey"):
+                    self._all_menu.get_item(0).set_enabled(True)
 
     def menu_will_show(self, item):
         self._menu.get_item(0).set_enabled(len(self._columns.get_selection()) > 1)
