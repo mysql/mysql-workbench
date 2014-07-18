@@ -431,8 +431,6 @@ public:
     scoped_connect(_trigger_list.signal_node_activated(), boost::bind(&MySQLTriggerPanel::node_activated, this, _1, _2));
     trigger_list_host->add(&_trigger_list, true, true);
 
-    update_warning();
-
     _warning_label.set_text(_("Warning: the current server version does not allow multiple triggers "
       "for the same timing/event."));
     _warning_label.set_wrap_text(true);
@@ -492,6 +490,8 @@ public:
     coalesce_triggers(triggers, sorted_triggers, "AFTER", "DELETE");
     grt::replace_contents(_table->triggers(), sorted_triggers);
     _editor->thaw_refresh_on_object_change(true);
+
+    update_warning();
   }
 
   //------------------------------------------------------------------------------------------------
@@ -503,8 +503,8 @@ public:
   //------------------------------------------------------------------------------------------------
 
   /**
-   *	Moves all triggers from source to target with the given timing and event, maintaining
-   *	their relative order.
+   * Moves all triggers from source to target with the given timing and event, maintaining
+   *	 their relative order.
    */
   void coalesce_triggers(grt::ListRef<db_mysql_Trigger> source, grt::ListRef<db_mysql_Trigger> target,
     std::string timing, std::string event)
@@ -1069,6 +1069,7 @@ public:
   }
 
   //------------------------------------------------------------------------------------------------
+
   mforms::TreeNodeRef move_node_to(mforms::TreeNodeRef node, mforms::TreeNodeRef new_parent, int index)
   {
     mforms::TreeNodeRef new_node = new_parent->insert_child(index);
@@ -1078,6 +1079,8 @@ public:
     node->remove_from_parent();
     return new_node;
   }
+
+  //------------------------------------------------------------------------------------------------
 
   void trigger_action(const std::string &action)
   {

@@ -178,9 +178,9 @@ void TreeNodeWrapper::insert_child(int index, const mforms::TreeNode &node)
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeNodeWrapper::move_child(const TreeNode &node, int new_index)
+void TreeNodeWrapper::move_child(mforms::TreeNodeRef node, int new_index)
 {
-  TreeNodeWrapper *child = (TreeNodeWrapper *)&node;
+  TreeNodeWrapper *child = (TreeNodeWrapper *)node.ptr();
 
   std::vector<TreeNodeWrapper*>::iterator i = std::find(_children.begin(), _children.end(), child);
   if (i == _children.end())
@@ -250,9 +250,9 @@ mforms::TreeNodeRef TreeNodeWrapper::get_child(int index) const
 
 //--------------------------------------------------------------------------------------------------
 
-int TreeNodeWrapper::get_child_index(const TreeNode &node) const
+int TreeNodeWrapper::get_child_index(mforms::TreeNodeRef node) const
 {
-  TreeNodeWrapper *child = (TreeNodeWrapper *)&node;
+  TreeNodeWrapper *child = (TreeNodeWrapper *)node.ptr();
   std::vector<TreeNodeWrapper*>::const_iterator i = std::find(_children.begin(), _children.end(), child);
   if (i == _children.end())
     return -1;

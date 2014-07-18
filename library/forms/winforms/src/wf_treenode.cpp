@@ -596,9 +596,9 @@ void TreeNodeWrapper::insert_child(int index, const mforms::TreeNode &child)
 /**
  * Moving a child node within it's parent list without the need to reinit (when using the backend).
  */
-void MySQL::Forms::TreeNodeWrapper::move_child(const TreeNode &child, int new_index)
+void MySQL::Forms::TreeNodeWrapper::move_child(mforms::TreeNodeRef child, int new_index)
 {
-  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)&child;
+  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)child.ptr();
   int old_index = nativeNode->Nodes->IndexOf(wrapper->nativeNode);
   if (old_index == new_index)
     return;
@@ -652,9 +652,9 @@ mforms::TreeNodeRef TreeNodeWrapper::get_child(int index) const
 
 //--------------------------------------------------------------------------------------------------
 
-int MySQL::Forms::TreeNodeWrapper::get_child_index(const mforms::TreeNode &node) const
+int MySQL::Forms::TreeNodeWrapper::get_child_index(mforms::TreeNodeRef node) const
 {
-  const TreeNodeWrapper *wrapper = dynamic_cast<const TreeNodeWrapper *>(&node);
+  const TreeNodeWrapper *wrapper = dynamic_cast<const TreeNodeWrapper *>(node.ptr());
   return nativeNode->Nodes->IndexOf(wrapper->nativeNode);
 }
 
