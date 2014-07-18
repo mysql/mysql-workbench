@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 
 #import "MFBase.h"
 
-// A macro to ease adding support for backend based mouse handling (e.g. for drag'n drop).
+// A macro to ease adding support for backend based mouse/focus handling (e.g. for drag'n drop).
 // No handling for right mouse button here.
 #define STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(wrapper) \
 - (void)mouseDown:(NSEvent*)event {\
@@ -53,6 +53,11 @@
 }\
 - (void)updateTrackingAreas            {\
   [super updateTrackingAreas]; mTrackingArea = [self updateTrackingArea: mTrackingArea];\
+}\
+- (BOOL)becomeFirstResponder\
+{\
+  wrapper->mOwner->focus_changed();\
+  return [super becomeFirstResponder];\
 }
 
 // A macro to ease adding support for backend based mouse handling (e.g. for drag'n drop).
