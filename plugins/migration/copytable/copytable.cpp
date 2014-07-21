@@ -269,7 +269,7 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
           bind.is_null = NULL;
         }
         throw std::runtime_error(base::strfmt("Could not allocate %i bytes for row buffer column of %s %s %i", 
-          bind.buffer_length, col->source_name.c_str(), col->source_type.c_str(), col->target_type));
+          (int)bind.buffer_length, col->source_name.c_str(), col->source_type.c_str(), col->target_type));
       }
     }
     else
