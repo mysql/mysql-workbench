@@ -450,15 +450,7 @@ public:
     return TreeNodeRef();
   }
 
-  virtual void move_child(const TreeNode &child, int new_index)
-  { //noop
-  }
-
-  virtual void reparent_to(TreeNodeRef &child, int new_index)
-  { //noop
-  }
-
-  virtual int get_child_index(const TreeNode &child) const
+  virtual int get_child_index(TreeNodeRef child) const
   {
     return -1;
   }
@@ -560,11 +552,15 @@ public:
     else
     {
       Gtk::TreePath path;
-      path = _rowref.get_path();
-      path.push_back(index);
-      new_iter = store->insert(store->get_iter(path));
+         Gtk::TreeIter child_iter;
+         path = _rowref.get_path();
+         path.push_back(index);
+         child_iter = store->get_iter(path);
+         if (!child_iter)
+           new_iter = store->append(iter()->children());
+         else
+           new_iter = store->insert(child_iter);
     }
-    
     return new_iter;
   }
   
@@ -919,23 +915,12 @@ public:
     return ref_from_path(path);
   }
 
-  virtual void move_child(const TreeNode &child, int new_index)
+  virtual int get_child_index(TreeNodeRef child) const
   {
-
-    TreeNodeImpl *node = (TreeNodeImpl*)const_cast<TreeNode*>(&child);
+    dynamic_cast<TreeNodeImpl*>(child.ptr());
+    TreeNodeImpl *node = dynamic_cast<TreeNodeImpl*>(child.ptr());
     if (node)
-    {
-      Gtk::TreePath path;
-      path.push_back(new_index);
-      _treeview->tree_store()->move(_treeview->tree_store()->get_iter(node->path()), _treeview->tree_store()->get_iter(path));
-    }
-  }
-
-  virtual int get_child_index(const TreeNode &child) const
-  {
-    TreeNodeImpl *node = (TreeNodeImpl*)const_cast<TreeNode*>(&child);
-    if (node)
-      return calc_row_for_node(&_treeview->_tree, _treeview->tree_store()->get_iter(node->path()));
+      return ((std::vector<int>)node->path().get_indices())[0];
     return -1;
   }
 };
@@ -943,7 +928,8 @@ public:
 
 inline TreeNodeRef RootTreeNodeImpl::ref_from_iter(const Gtk::TreeIter &iter) const
 {
-  return TreeNodeRef(new TreeNodeImpl(_treeview, _treeview->tree_store(), Gtk::TreePath(iter)));
+  Gtk::TreePath path(iter);
+  return TreeNodeRef(new TreeNodeImpl(_treeview, _treeview->tree_store(), path));
 }
 
 inline TreeNodeRef RootTreeNodeImpl::ref_from_path(const Gtk::TreePath &path) const

@@ -962,7 +962,8 @@ public:
 
   void update_ui()
   {
-    db_mysql_TriggerRef trigger = trigger_for_node(_trigger_list.get_selected_node());
+    mforms::TreeNodeRef node = _trigger_list.get_selected_node();
+    db_mysql_TriggerRef trigger = trigger_for_node(node);
 
     if (_selected_trigger != trigger)
     {
@@ -1104,7 +1105,7 @@ public:
         triggers->move(index, index - 1);
 
         int node_index = group_node->get_child_index(node);
-        group_node->move_child(node, node_index - 1);
+        node = move_node_to(node, group_node, node_index - 1);
       }
       else
       {
@@ -1144,7 +1145,7 @@ public:
         triggers->move(index, index + 2); // +2 instead of +1 because we want it to appear *after* the next node, not instead of.
 
         int node_index = group_node->get_child_index(node);
-        group_node->move_child(node, node_index + 2);
+        node = move_node_to(node, group_node, node_index + 1);
       }
       else
       {
