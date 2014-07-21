@@ -757,9 +757,9 @@ public:
                   && base::same_string(trigger->timing(), _selected_trigger->timing(), false))
               {
                 if (base::same_string(_selected_trigger->ordering(), "precedes", false))
-                  triggers->move(old_index, i);
+                  triggers->reorder(old_index, i);
                 else
-                  triggers->move(old_index, i + 1);
+                  triggers->reorder(old_index, i + 1);
 
                 need_refresh = true;
                 break;
@@ -1102,7 +1102,7 @@ public:
       {
         // Move within a group.
         size_t index = triggers->get_index(trigger); // Index is always > 0 if the above test succeeds.
-        triggers->move(index, index - 1);
+        triggers->reorder(index, index - 1);
 
         int node_index = group_node->get_child_index(node);
         node = move_node_to(node, group_node, node_index - 1);
@@ -1142,10 +1142,10 @@ public:
       {
         // Move within a group.
         size_t index = triggers->get_index(trigger); // Index is always < count - 1 if the above test succeeds.
-        triggers->move(index, index + 2); // +2 instead of +1 because we want it to appear *after* the next node, not instead of.
+        triggers->reorder(index, index + 1);
 
         int node_index = group_node->get_child_index(node);
-        node = move_node_to(node, group_node, node_index + 1);
+        node = move_node_to(node, group_node, node_index + 2);
       }
       else
       {
@@ -1215,7 +1215,6 @@ public:
       outer_undo.end("Delete all triggers");
       _editor->thaw_refresh_on_object_change(true);
     }
-
     update_ui();
   }
 

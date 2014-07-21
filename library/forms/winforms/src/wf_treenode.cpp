@@ -593,27 +593,6 @@ void TreeNodeWrapper::insert_child(int index, const mforms::TreeNode &child)
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Moving a child node within it's parent list without the need to reinit (when using the backend).
- */
-void MySQL::Forms::TreeNodeWrapper::move_child(mforms::TreeNodeRef child, int new_index)
-{
-  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)child.ptr();
-  int old_index = nativeNode->Nodes->IndexOf(wrapper->nativeNode);
-  if (old_index == new_index)
-    return;
-
-  nativeNode->Nodes->RemoveAt(old_index);
-  if (old_index < new_index)
-    --new_index;
-  nativeNode->Nodes->Insert(new_index, wrapper->nativeNode);
-
-  // Removing the model node destroyed the tree node, so we need to get the new tree node.
-  wrapper->node_changed(nativeNodeAdv->Children[new_index]);
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void TreeNodeWrapper::remove_from_parent()
 {
   if (!isRoot && nativeNode->Parent != nullptr)

@@ -1168,11 +1168,6 @@ namespace grt {
       content().reorder(oindex, nindex);
     }
 
-    inline void move(size_t oindex, size_t nindex)
-    {
-      content().move(oindex, nindex);
-    }
-
     // methods beginning with g perform type checking at runtime
     inline void gset(size_t index, const ValueRef &value)
     {

@@ -331,14 +331,6 @@ void List::remove(size_t index)
   _content.erase(_content.begin()+index);
 }
 
-/**
- * Moves the entry at the old index (oi) to the new index (ni). Due to the way this is implemented
- * (which we cannot change without breaking a lot of code) can the new index behave differently
- * depending on whether it is before or after the old index. In the latter case the new index
- * is off by +1 (as the entry is removed without adjusting the index).
- *
- * Use the move() function instead for correct changes. It also uses the correct name for the task.
- */
 void List::reorder(size_t oi, size_t ni)
 {
   if (oi == ni)
@@ -353,29 +345,6 @@ void List::reorder(size_t oi, size_t ni)
     _content.insert(_content.end(), tmp);
   else
     _content.insert(_content.begin() + ni, tmp);
-}
-
-/**
- * Moves the item at index from to the index to. Both values are taken as the indices in the unchanged list
- * and work reliably regardless of the ordering of from and to.
- * Use npos for to if you want to move an item to the end of the list (or a value >= count).
- */
-void List::move(size_t from, size_t to)
-{
-  if (from == to)
-    return;
-
-  if (_is_global > 0 && _grt->tracking_changes())
-    _grt->get_undo_manager()->add_undo(new UndoListReorderAction(this, from, to));
-
-  ValueRef tmp(_content[from]);
-  _content.erase(_content.begin() + from);
-  if (from < to)
-    --to;
-  if (to >= _content.size())
-    _content.insert(_content.end(), tmp);
-  else
-    _content.insert(_content.begin() + to, tmp);
 }
 
 size_t List::get_index(const ValueRef &value)
