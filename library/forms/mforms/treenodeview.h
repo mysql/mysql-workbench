@@ -183,7 +183,6 @@ namespace mforms {
     virtual int count() const = 0;
     virtual TreeNodeRef add_child() { return insert_child(-1); }
     virtual TreeNodeRef insert_child(int index) = 0;
-    virtual void move_child(TreeNodeRef child, int new_index) = 0;
     virtual void remove_from_parent() = 0;
     virtual void remove_children(); // default impl provided, subclasses may override to provide faster impl
     virtual TreeNodeRef get_child(int index) const = 0;
