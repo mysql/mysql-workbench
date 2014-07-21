@@ -20,7 +20,7 @@ import grt
 import json
 
 import os
-from workbench.log import log_info, log_error, log_debug
+from workbench.log import log_error, log_debug
 
 from wb_admin_perfschema import WbAdminPSBaseTab
 
@@ -532,56 +532,6 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
             parent.expand()
 
         print "The following views are not handled", set([v for v in known_views if not v[0]=='-' and not v.endswith("_raw")]) - set(["wbversion", "version"])
-
-
-    def ps_usable_for_reports(self):
-        ret_val = False
-        try:
-            res = self.main_view.editor.executeManagementQuery("""
-                -- consumers
-                SELECT
-                    (SELECT COUNT(*) = 0 FROM performance_schema.setup_consumers WHERE (NAME LIKE 'events_%_current' OR NAME LIKE 'events_%_history_long') AND enabled='NO')
-                AND
-                -- instrumentation
-                    (SELECT COUNT(*) > 0 FROM performance_schema.setup_instruments WHERE enabled='YES' AND timed='YES' AND (NAME LIKE 'wait/%'))
-                AND
-                    (SELECT COUNT(*) > 0 FROM performance_schema.setup_instruments WHERE enabled='YES' AND timed='YES' AND (NAME LIKE 'stage/%'))
-                AND
-                    (SELECT COUNT(*) > 0 FROM performance_schema.setup_instruments WHERE enabled='YES' AND timed='YES' AND
-                (NAME LIKE 'statement/%'))
-                """, 0)
-            if res.goToFirstRow():
-                log_debug("PS enable status check returned %s\n" % res.stringFieldValue(0))
-                ret_val = res.stringFieldValue(0) == "1"
-        except grt.DBError, e:
-            log_error("MySQL error checking status of PS instrumentation for reports: %s\n" % e)
-
-        return ret_val
-          
-          
-    def ps_enable_for_reports(self):
-        try:
-            log_info("Enabling PS for WB reporting functionality...\n")
-
-            # enable consumer tables
-            self.main_view.editor.executeManagementCommand("UPDATE performance_schema.setup_consumers SET enabled='YES' WHERE NAME LIKE 'events_%_current' OR NAME LIKE 'events_%_history_long'", 0)
-
-            # enable instrumentation
-            self.main_view.editor.executeManagementCommand("UPDATE performance_schema.setup_instruments SET enabled='YES', timed='YES' WHERE NAME LIKE 'wait/%' OR NAME LIKE 'stage/%' OR NAME LIKE 'statement/%'", 0)
-
-        except grt.DBError, e:
-            log_error("MySQL error enabling PS instrumentation: %s\n" % e)
-            mforms.Utilities.show_error("Error Enabling PS Instrumentation", str(e), "OK", "", "")
-        self.page_activated()
-
-
-    def check_usable(self):
-        if not self.ps_usable_for_reports():
-            message_data = ("Missing Instrumentation for Reporting", "The current Performance Schema configuration is missing some settings needed for performance reports.\nWould you like to enable them?\nNote: events will only be collected from the moment instrumentation is enabled.")
-            button_data = ("Enable Instrumentation for Reports", self.ps_enable_for_reports)
-            return message_data, button_data
-
-        return None, None
 
 
     def refresh(self):

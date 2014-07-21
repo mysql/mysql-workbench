@@ -2423,6 +2423,36 @@
 		2BF87BC60FA87CF60012EADA /* model_option_toolbar_physical_view.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2BF87BBD0FA87CF60012EADA /* model_option_toolbar_physical_view.xml */; };
 		2BF87BC70FA87CF60012EADA /* model_option_toolbar_selection.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2BF87BBE0FA87CF60012EADA /* model_option_toolbar_selection.xml */; };
 		2BF87BC80FA87CF60012EADA /* model_toolbar.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2BF87BBF0FA87CF60012EADA /* model_toolbar.xml */; };
+		2BF90EE61979C3230029E1F9 /* ps_easysetup_logo_enabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EE41979C3230029E1F9 /* ps_easysetup_logo_enabled.png */; };
+		2BF90EE71979C3230029E1F9 /* ps_easysetup_logo_enabled@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EE51979C3230029E1F9 /* ps_easysetup_logo_enabled@2x.png */; };
+		2BF90EFE1979C3310029E1F9 /* ps_switcher_custom_hoover.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EE81979C3310029E1F9 /* ps_switcher_custom_hoover.png */; };
+		2BF90EFF1979C3310029E1F9 /* ps_switcher_custom_hoover@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EE91979C3310029E1F9 /* ps_switcher_custom_hoover@2x.png */; };
+		2BF90F001979C3310029E1F9 /* ps_switcher_custom_off.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EEA1979C3310029E1F9 /* ps_switcher_custom_off.png */; };
+		2BF90F011979C3310029E1F9 /* ps_switcher_custom_off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EEB1979C3310029E1F9 /* ps_switcher_custom_off@2x.png */; };
+		2BF90F021979C3310029E1F9 /* ps_switcher_custom_on.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EEC1979C3310029E1F9 /* ps_switcher_custom_on.png */; };
+		2BF90F031979C3310029E1F9 /* ps_switcher_custom_on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EED1979C3310029E1F9 /* ps_switcher_custom_on@2x.png */; };
+		2BF90F041979C3310029E1F9 /* ps_switcher_default_hoover.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EEE1979C3310029E1F9 /* ps_switcher_default_hoover.png */; };
+		2BF90F051979C3310029E1F9 /* ps_switcher_default_hoover@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EEF1979C3310029E1F9 /* ps_switcher_default_hoover@2x.png */; };
+		2BF90F061979C3310029E1F9 /* ps_switcher_default_off.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF01979C3310029E1F9 /* ps_switcher_default_off.png */; };
+		2BF90F071979C3310029E1F9 /* ps_switcher_default_off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF11979C3310029E1F9 /* ps_switcher_default_off@2x.png */; };
+		2BF90F081979C3310029E1F9 /* ps_switcher_default_on.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF21979C3310029E1F9 /* ps_switcher_default_on.png */; };
+		2BF90F091979C3310029E1F9 /* ps_switcher_default_on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF31979C3310029E1F9 /* ps_switcher_default_on@2x.png */; };
+		2BF90F0A1979C3310029E1F9 /* ps_switcher_disabled_hoover.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF41979C3310029E1F9 /* ps_switcher_disabled_hoover.png */; };
+		2BF90F0B1979C3310029E1F9 /* ps_switcher_disabled_hoover@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF51979C3310029E1F9 /* ps_switcher_disabled_hoover@2x.png */; };
+		2BF90F0C1979C3310029E1F9 /* ps_switcher_disabled_off.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF61979C3310029E1F9 /* ps_switcher_disabled_off.png */; };
+		2BF90F0D1979C3310029E1F9 /* ps_switcher_disabled_off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF71979C3310029E1F9 /* ps_switcher_disabled_off@2x.png */; };
+		2BF90F0E1979C3310029E1F9 /* ps_switcher_disabled_on.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF81979C3310029E1F9 /* ps_switcher_disabled_on.png */; };
+		2BF90F0F1979C3310029E1F9 /* ps_switcher_disabled_on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EF91979C3310029E1F9 /* ps_switcher_disabled_on@2x.png */; };
+		2BF90F101979C3310029E1F9 /* ps_switcher_fully_hoover.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EFA1979C3310029E1F9 /* ps_switcher_fully_hoover.png */; };
+		2BF90F111979C3310029E1F9 /* ps_switcher_fully_hoover@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EFB1979C3310029E1F9 /* ps_switcher_fully_hoover@2x.png */; };
+		2BF90F121979C3310029E1F9 /* ps_switcher_fully_off.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EFC1979C3310029E1F9 /* ps_switcher_fully_off.png */; };
+		2BF90F131979C3310029E1F9 /* ps_switcher_fully_off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90EFD1979C3310029E1F9 /* ps_switcher_fully_off@2x.png */; };
+		2BF90F1A1979C3410029E1F9 /* ps_switcher_fully_on.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F141979C3410029E1F9 /* ps_switcher_fully_on.png */; };
+		2BF90F1B1979C3410029E1F9 /* ps_switcher_fully_on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F151979C3410029E1F9 /* ps_switcher_fully_on@2x.png */; };
+		2BF90F1C1979C3410029E1F9 /* ps_switcher_legende.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F161979C3410029E1F9 /* ps_switcher_legende.png */; };
+		2BF90F1D1979C3410029E1F9 /* ps_switcher_legende@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F171979C3410029E1F9 /* ps_switcher_legende@2x.png */; };
+		2BF90F1E1979C3410029E1F9 /* ps_switcher_text.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F181979C3410029E1F9 /* ps_switcher_text.png */; };
+		2BF90F1F1979C3410029E1F9 /* ps_switcher_text@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F191979C3410029E1F9 /* ps_switcher_text@2x.png */; };
 		2BF98AB1123A098E008DDCD0 /* wb_server_control.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AAF123A098E008DDCD0 /* wb_server_control.py */; };
 		2BF98AB2123A098E008DDCD0 /* wb_server_management.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AB0123A098E008DDCD0 /* wb_server_management.py */; };
 		2BF98B00123A8892008DDCD0 /* wb_common.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AFF123A8892008DDCD0 /* wb_common.py */; };
@@ -6137,6 +6167,36 @@
 		2BF87BBD0FA87CF60012EADA /* model_option_toolbar_physical_view.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = model_option_toolbar_physical_view.xml; path = res/wbdata/model_option_toolbar_physical_view.xml; sourceTree = "<group>"; };
 		2BF87BBE0FA87CF60012EADA /* model_option_toolbar_selection.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = model_option_toolbar_selection.xml; path = res/wbdata/model_option_toolbar_selection.xml; sourceTree = "<group>"; };
 		2BF87BBF0FA87CF60012EADA /* model_toolbar.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = model_toolbar.xml; path = res/wbdata/model_toolbar.xml; sourceTree = "<group>"; };
+		2BF90EE41979C3230029E1F9 /* ps_easysetup_logo_enabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_easysetup_logo_enabled.png; path = images/admin/ps_easysetup_logo_enabled.png; sourceTree = "<group>"; };
+		2BF90EE51979C3230029E1F9 /* ps_easysetup_logo_enabled@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_easysetup_logo_enabled@2x.png"; path = "images/admin/ps_easysetup_logo_enabled@2x.png"; sourceTree = "<group>"; };
+		2BF90EE81979C3310029E1F9 /* ps_switcher_custom_hoover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_custom_hoover.png; path = images/admin/ps_switcher_custom_hoover.png; sourceTree = "<group>"; };
+		2BF90EE91979C3310029E1F9 /* ps_switcher_custom_hoover@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_custom_hoover@2x.png"; path = "images/admin/ps_switcher_custom_hoover@2x.png"; sourceTree = "<group>"; };
+		2BF90EEA1979C3310029E1F9 /* ps_switcher_custom_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_custom_off.png; path = images/admin/ps_switcher_custom_off.png; sourceTree = "<group>"; };
+		2BF90EEB1979C3310029E1F9 /* ps_switcher_custom_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_custom_off@2x.png"; path = "images/admin/ps_switcher_custom_off@2x.png"; sourceTree = "<group>"; };
+		2BF90EEC1979C3310029E1F9 /* ps_switcher_custom_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_custom_on.png; path = images/admin/ps_switcher_custom_on.png; sourceTree = "<group>"; };
+		2BF90EED1979C3310029E1F9 /* ps_switcher_custom_on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_custom_on@2x.png"; path = "images/admin/ps_switcher_custom_on@2x.png"; sourceTree = "<group>"; };
+		2BF90EEE1979C3310029E1F9 /* ps_switcher_default_hoover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_default_hoover.png; path = images/admin/ps_switcher_default_hoover.png; sourceTree = "<group>"; };
+		2BF90EEF1979C3310029E1F9 /* ps_switcher_default_hoover@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_default_hoover@2x.png"; path = "images/admin/ps_switcher_default_hoover@2x.png"; sourceTree = "<group>"; };
+		2BF90EF01979C3310029E1F9 /* ps_switcher_default_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_default_off.png; path = images/admin/ps_switcher_default_off.png; sourceTree = "<group>"; };
+		2BF90EF11979C3310029E1F9 /* ps_switcher_default_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_default_off@2x.png"; path = "images/admin/ps_switcher_default_off@2x.png"; sourceTree = "<group>"; };
+		2BF90EF21979C3310029E1F9 /* ps_switcher_default_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_default_on.png; path = images/admin/ps_switcher_default_on.png; sourceTree = "<group>"; };
+		2BF90EF31979C3310029E1F9 /* ps_switcher_default_on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_default_on@2x.png"; path = "images/admin/ps_switcher_default_on@2x.png"; sourceTree = "<group>"; };
+		2BF90EF41979C3310029E1F9 /* ps_switcher_disabled_hoover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_disabled_hoover.png; path = images/admin/ps_switcher_disabled_hoover.png; sourceTree = "<group>"; };
+		2BF90EF51979C3310029E1F9 /* ps_switcher_disabled_hoover@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_disabled_hoover@2x.png"; path = "images/admin/ps_switcher_disabled_hoover@2x.png"; sourceTree = "<group>"; };
+		2BF90EF61979C3310029E1F9 /* ps_switcher_disabled_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_disabled_off.png; path = images/admin/ps_switcher_disabled_off.png; sourceTree = "<group>"; };
+		2BF90EF71979C3310029E1F9 /* ps_switcher_disabled_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_disabled_off@2x.png"; path = "images/admin/ps_switcher_disabled_off@2x.png"; sourceTree = "<group>"; };
+		2BF90EF81979C3310029E1F9 /* ps_switcher_disabled_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_disabled_on.png; path = images/admin/ps_switcher_disabled_on.png; sourceTree = "<group>"; };
+		2BF90EF91979C3310029E1F9 /* ps_switcher_disabled_on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_disabled_on@2x.png"; path = "images/admin/ps_switcher_disabled_on@2x.png"; sourceTree = "<group>"; };
+		2BF90EFA1979C3310029E1F9 /* ps_switcher_fully_hoover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_fully_hoover.png; path = images/admin/ps_switcher_fully_hoover.png; sourceTree = "<group>"; };
+		2BF90EFB1979C3310029E1F9 /* ps_switcher_fully_hoover@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_fully_hoover@2x.png"; path = "images/admin/ps_switcher_fully_hoover@2x.png"; sourceTree = "<group>"; };
+		2BF90EFC1979C3310029E1F9 /* ps_switcher_fully_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_fully_off.png; path = images/admin/ps_switcher_fully_off.png; sourceTree = "<group>"; };
+		2BF90EFD1979C3310029E1F9 /* ps_switcher_fully_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_fully_off@2x.png"; path = "images/admin/ps_switcher_fully_off@2x.png"; sourceTree = "<group>"; };
+		2BF90F141979C3410029E1F9 /* ps_switcher_fully_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_fully_on.png; path = images/admin/ps_switcher_fully_on.png; sourceTree = "<group>"; };
+		2BF90F151979C3410029E1F9 /* ps_switcher_fully_on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_fully_on@2x.png"; path = "images/admin/ps_switcher_fully_on@2x.png"; sourceTree = "<group>"; };
+		2BF90F161979C3410029E1F9 /* ps_switcher_legende.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_legende.png; path = images/admin/ps_switcher_legende.png; sourceTree = "<group>"; };
+		2BF90F171979C3410029E1F9 /* ps_switcher_legende@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_legende@2x.png"; path = "images/admin/ps_switcher_legende@2x.png"; sourceTree = "<group>"; };
+		2BF90F181979C3410029E1F9 /* ps_switcher_text.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_text.png; path = images/admin/ps_switcher_text.png; sourceTree = "<group>"; };
+		2BF90F191979C3410029E1F9 /* ps_switcher_text@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ps_switcher_text@2x.png"; path = "images/admin/ps_switcher_text@2x.png"; sourceTree = "<group>"; };
 		2BF98AAF123A098E008DDCD0 /* wb_server_control.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_server_control.py; path = plugins/wb.admin/backend/wb_server_control.py; sourceTree = "<group>"; };
 		2BF98AB0123A098E008DDCD0 /* wb_server_management.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_server_management.py; path = plugins/wb.admin/backend/wb_server_management.py; sourceTree = "<group>"; };
 		2BF98AFF123A8892008DDCD0 /* wb_common.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_common.py; path = plugins/wb.admin/backend/wb_common.py; sourceTree = "<group>"; };
@@ -8103,6 +8163,36 @@
 			children = (
 				2B20DCBA188DA7C00095EA03 /* ps_easysetup_logo.png */,
 				2B20DCBB188DA7C00095EA03 /* ps_easysetup_logo@2x.png */,
+				2BF90EE41979C3230029E1F9 /* ps_easysetup_logo_enabled.png */,
+				2BF90EE51979C3230029E1F9 /* ps_easysetup_logo_enabled@2x.png */,
+				2BF90EE81979C3310029E1F9 /* ps_switcher_custom_hoover.png */,
+				2BF90EE91979C3310029E1F9 /* ps_switcher_custom_hoover@2x.png */,
+				2BF90EEA1979C3310029E1F9 /* ps_switcher_custom_off.png */,
+				2BF90EEB1979C3310029E1F9 /* ps_switcher_custom_off@2x.png */,
+				2BF90EEC1979C3310029E1F9 /* ps_switcher_custom_on.png */,
+				2BF90EED1979C3310029E1F9 /* ps_switcher_custom_on@2x.png */,
+				2BF90EEE1979C3310029E1F9 /* ps_switcher_default_hoover.png */,
+				2BF90EEF1979C3310029E1F9 /* ps_switcher_default_hoover@2x.png */,
+				2BF90EF01979C3310029E1F9 /* ps_switcher_default_off.png */,
+				2BF90EF11979C3310029E1F9 /* ps_switcher_default_off@2x.png */,
+				2BF90EF21979C3310029E1F9 /* ps_switcher_default_on.png */,
+				2BF90EF31979C3310029E1F9 /* ps_switcher_default_on@2x.png */,
+				2BF90EF41979C3310029E1F9 /* ps_switcher_disabled_hoover.png */,
+				2BF90EF51979C3310029E1F9 /* ps_switcher_disabled_hoover@2x.png */,
+				2BF90EF61979C3310029E1F9 /* ps_switcher_disabled_off.png */,
+				2BF90EF71979C3310029E1F9 /* ps_switcher_disabled_off@2x.png */,
+				2BF90EF81979C3310029E1F9 /* ps_switcher_disabled_on.png */,
+				2BF90EF91979C3310029E1F9 /* ps_switcher_disabled_on@2x.png */,
+				2BF90EFA1979C3310029E1F9 /* ps_switcher_fully_hoover.png */,
+				2BF90EFB1979C3310029E1F9 /* ps_switcher_fully_hoover@2x.png */,
+				2BF90EFC1979C3310029E1F9 /* ps_switcher_fully_off.png */,
+				2BF90EFD1979C3310029E1F9 /* ps_switcher_fully_off@2x.png */,
+				2BF90F141979C3410029E1F9 /* ps_switcher_fully_on.png */,
+				2BF90F151979C3410029E1F9 /* ps_switcher_fully_on@2x.png */,
+				2BF90F161979C3410029E1F9 /* ps_switcher_legende.png */,
+				2BF90F171979C3410029E1F9 /* ps_switcher_legende@2x.png */,
+				2BF90F181979C3410029E1F9 /* ps_switcher_text.png */,
+				2BF90F191979C3410029E1F9 /* ps_switcher_text@2x.png */,
 				2B1E2FD3173040850037D3DD /* admin_audit_inspector.png */,
 				2BF510BB12E8BBEF00A6CCC3 /* admin_config_wizard.png */,
 				2BF510BF12E8BBEF00A6CCC3 /* admin_connections.png */,
@@ -12337,6 +12427,7 @@
 				27987718195C534F003E8E44 /* wb_item_overlay_result@2x.png in Resources */,
 				2B825D210E0B578600BE52DF /* InfoPlist.strings in Resources */,
 				2B02FEF4183E771B00770CC0 /* relnm.png in Resources */,
+				2BF90F1F1979C3410029E1F9 /* ps_switcher_text@2x.png in Resources */,
 				2B263B9B0E94210A00933149 /* MainWindow.xib in Resources */,
 				169CCFF20F017969005152CD /* MySQLWorkbench.icns in Resources */,
 				169CD0000F017A2A005152CD /* MySQLWorkbenchDoc.icns in Resources */,
@@ -12400,9 +12491,11 @@
 				2B263A520E9402DD00933149 /* collapsing_panel_header_shadow.png in Resources */,
 				2B263A530E9402DD00933149 /* collapsing_panel_header_tab_add.png in Resources */,
 				2B263A540E9402DD00933149 /* collapsing_panel_header_tab_add2.png in Resources */,
+				2BF90F0A1979C3310029E1F9 /* ps_switcher_disabled_hoover.png in Resources */,
 				2B263A550E9402DD00933149 /* collapsing_panel_header_tab_del.png in Resources */,
 				2B263A560E9402DD00933149 /* collapsing_panel_header_tab_del2.png in Resources */,
 				2B5FE4D1187F2C7400AEC55C /* output_type-formeditor.png in Resources */,
+				2BF90F1D1979C3410029E1F9 /* ps_switcher_legende@2x.png in Resources */,
 				2B263A570E9402DD00933149 /* collapsing_panel_header_tab_left.png in Resources */,
 				2B263A580E9402DD00933149 /* collapsing_panel_header_tab_left_flat.png in Resources */,
 				2B0609F21952B2AA00022F40 /* db.Table.32x32.png in Resources */,
@@ -12428,6 +12521,7 @@
 				2B263A6B0E9402DD00933149 /* db.Column.pk.11x11.png in Resources */,
 				2B263A6C0E9402DD00933149 /* db.Column.pk.16x16.png in Resources */,
 				2B263A6D0E9402DD00933149 /* db.DatatypeGroup.blob.16x16.png in Resources */,
+				2BF90F1A1979C3410029E1F9 /* ps_switcher_fully_on.png in Resources */,
 				2B263A6E0E9402DD00933149 /* db.DatatypeGroup.datetime.16x16.png in Resources */,
 				2B263A6F0E9402DD00933149 /* db.DatatypeGroup.geo.16x16.png in Resources */,
 				2B241BD81868CC1C00AF6794 /* wb_tile_folder_mini.png in Resources */,
@@ -12448,8 +12542,10 @@
 				2B263A7D0E9402DD00933149 /* db.Routine.add.48x48.png in Resources */,
 				2B263A7E0E9402DD00933149 /* db.Routine.editor.48x48.png in Resources */,
 				2B263A7F0E9402DD00933149 /* db.Routine.many.32x32.png in Resources */,
+				2BF90F041979C3310029E1F9 /* ps_switcher_default_hoover.png in Resources */,
 				2B263A800E9402DD00933149 /* db.RoutineGroup.16x16.png in Resources */,
 				2B02FEF6183E771B00770CC0 /* rubber.png in Resources */,
+				2BF90EFE1979C3310029E1F9 /* ps_switcher_custom_hoover.png in Resources */,
 				2B263A810E9402DD00933149 /* db.RoutineGroup.48x48.png in Resources */,
 				2B263A820E9402DD00933149 /* db.RoutineGroup.add.16x16.png in Resources */,
 				2B263A830E9402DD00933149 /* db.RoutineGroup.add.48x48.png in Resources */,
@@ -12459,6 +12555,7 @@
 				2B263A870E9402DD00933149 /* db.Schema.add.32x32.png in Resources */,
 				2B263A880E9402DD00933149 /* db.Schema.editor.48x48.png in Resources */,
 				2B263A890E9402DD00933149 /* db.Schema.many.16x16.png in Resources */,
+				2BF90F051979C3310029E1F9 /* ps_switcher_default_hoover@2x.png in Resources */,
 				2B263A8A0E9402DD00933149 /* db.Schema.many.32x32.png in Resources */,
 				2B263A8B0E9402DD00933149 /* db.Script.48x48.png in Resources */,
 				2B263A8C0E9402DD00933149 /* db.Script.add.48x48.png in Resources */,
@@ -12476,6 +12573,7 @@
 				2B263A970E9402DD00933149 /* db.User.add.48x48.png in Resources */,
 				2B856540183ADE2D0081D52E /* dashboard_header_mysql.png in Resources */,
 				2B263A980E9402DD00933149 /* db.User.editor.48x48.png in Resources */,
+				2BF90F071979C3310029E1F9 /* ps_switcher_default_off@2x.png in Resources */,
 				2BD9E787185FFF6E00A7252B /* output_type-item_selected@2x.png in Resources */,
 				2B263A990E9402DD00933149 /* db.View.16x16.png in Resources */,
 				2B263A9A0E9402DD00933149 /* db.View.24x24.png in Resources */,
@@ -12485,6 +12583,7 @@
 				2B263A9E0E9402DD00933149 /* db.View.add.48x48.png in Resources */,
 				2B263A9F0E9402DD00933149 /* db.View.editor.48x48.png in Resources */,
 				2B263AA00E9402DD00933149 /* db.View.many.32x32.png in Resources */,
+				2BF90F1E1979C3410029E1F9 /* ps_switcher_text.png in Resources */,
 				2B263AA50E9402DD00933149 /* dialog_input.png in Resources */,
 				2B263AA60E9402DD00933149 /* Discard.png in Resources */,
 				2B263AA90E9402DD00933149 /* grt.png in Resources */,
@@ -12546,6 +12645,7 @@
 				2B263B270E9402DD00933149 /* workbench.physical.db2.Model.48x48.png in Resources */,
 				2B263B280E9402DD00933149 /* workbench.physical.Layer.16x16.png in Resources */,
 				2B263B290E9402DD00933149 /* workbench.physical.Layer.24x24.png in Resources */,
+				2BF90F111979C3310029E1F9 /* ps_switcher_fully_hoover@2x.png in Resources */,
 				2B263B2A0E9402DD00933149 /* workbench.physical.Layer.many.16x16.png in Resources */,
 				2B263B2B0E9402DD00933149 /* workbench.physical.Model.16x16.png in Resources */,
 				2B263B2C0E9402DD00933149 /* workbench.physical.Model.48x48.png in Resources */,
@@ -12585,6 +12685,7 @@
 				27D6590D107625FE0030F627 /* section_unexpandable.png in Resources */,
 				27D6590E107625FE0030F627 /* section_unexpanded.png in Resources */,
 				2BD9E79A185FFF8500A7252B /* title_schema_inspector.png in Resources */,
+				2BF90F061979C3310029E1F9 /* ps_switcher_default_off.png in Resources */,
 				2B02FEEF183E771B00770CC0 /* layer.png in Resources */,
 				274E9B9B107C9FF100551AC4 /* options-horizontal-separator.png in Resources */,
 				2791E52F1087530400866B8E /* admin_info_unknown.png in Resources */,
@@ -12593,6 +12694,7 @@
 				2BD9E78E185FFF6E00A7252B /* output_type-toggle-off.png in Resources */,
 				279EF97910D6B08D00C1ED1B /* mysql_system_status.vbs in Resources */,
 				2B96EA3310F43226004E6875 /* PageSetup.xib in Resources */,
+				2BF90F0B1979C3310029E1F9 /* ps_switcher_disabled_hoover@2x.png in Resources */,
 				2720518E111847920013E88B /* message_wb_lock.png in Resources */,
 				2B7FC434112D9BE5008C07BF /* change_alert_thin.png in Resources */,
 				2B7FC435112D9BE5008C07BF /* change_backward.png in Resources */,
@@ -12603,10 +12705,12 @@
 				2B7FC439112D9BE5008C07BF /* Close_18x18.png in Resources */,
 				2B18EDBD196C8706004D7596 /* wb_starter_mysql_forums_52@2x.png in Resources */,
 				2B7FC43A112D9BE5008C07BF /* message_wb_bug.png in Resources */,
+				2BF90F0C1979C3310029E1F9 /* ps_switcher_disabled_off.png in Resources */,
 				2B7FC4A4112D9C2B008C07BF /* tiny_align_h_left.png in Resources */,
 				2B7FC4A5112D9C2B008C07BF /* tiny_align_h_left2.png in Resources */,
 				2B7FC4A6112D9C2B008C07BF /* tiny_align_h_middle.png in Resources */,
 				2753E59918E95FBC0079DAA8 /* sshtunnel.py in Resources */,
+				2BF90F121979C3310029E1F9 /* ps_switcher_fully_off.png in Resources */,
 				2B7FC4A7112D9C2B008C07BF /* tiny_align_h_middle2.png in Resources */,
 				2B7FC4A8112D9C2B008C07BF /* tiny_align_h_right.png in Resources */,
 				2B7FC4A9112D9C2B008C07BF /* tiny_align_h_right2.png in Resources */,
@@ -12651,6 +12755,7 @@
 				2B7FC4D3112D9C2B008C07BF /* tiny_new_script_mac.png in Resources */,
 				2B7FC4D4112D9C2B008C07BF /* tiny_new_table.png in Resources */,
 				2B7FC4D5112D9C2B008C07BF /* tiny_new_view.png in Resources */,
+				2BF90F1C1979C3410029E1F9 /* ps_switcher_legende.png in Resources */,
 				2B7FC4D6112D9C2B008C07BF /* tiny_open.png in Resources */,
 				2B7FC4D7112D9C2B008C07BF /* tiny_open_mac.png in Resources */,
 				2B5FE4DA187F39C700AEC55C /* dashboard_header_network@2x.png in Resources */,
@@ -12663,6 +12768,7 @@
 				2B7FC4E3112D9C2B008C07BF /* tiny_refresh_plugins.png in Resources */,
 				2B7FC4E5112D9C2B008C07BF /* tiny_rollback_disabled.png in Resources */,
 				27987712195C534F003E8E44 /* wb_item_overlay_editor@2x.png in Resources */,
+				2BF90F001979C3310029E1F9 /* ps_switcher_custom_off.png in Resources */,
 				2B7FC4E7112D9C2B008C07BF /* tiny_ruler.png in Resources */,
 				2B18EDD6196C9646004D7596 /* admin_audit_inspector@2x.png in Resources */,
 				2B7FC4E8112D9C2B008C07BF /* tiny_save.png in Resources */,
@@ -12697,6 +12803,7 @@
 				2B4BCE3718478FEE00865D37 /* title_instrumentation_setup@2x.png in Resources */,
 				2B7FC504112D9C2B008C07BF /* wb_rel_11.png in Resources */,
 				2B7FC505112D9C2B008C07BF /* wb_rel_11_nonid.png in Resources */,
+				2BF90EE61979C3230029E1F9 /* ps_easysetup_logo_enabled.png in Resources */,
 				2B7FC506112D9C2B008C07BF /* wb_rel_nm.png in Resources */,
 				2B7FC507112D9C2B008C07BF /* wb_rubber.png in Resources */,
 				279EC893185214A7007D1252 /* wb-toolbar_automatic-help-on.png in Resources */,
@@ -12717,6 +12824,7 @@
 				2B3EC7A8114833AA00BE2266 /* record_last.png in Resources */,
 				2B448AA018AA4CD8001F1B62 /* arrow_down.png in Resources */,
 				2B3EC7A9114833AA00BE2266 /* record_next.png in Resources */,
+				2BF90F091979C3310029E1F9 /* ps_switcher_default_on@2x.png in Resources */,
 				2B3EC7AA114833AA00BE2266 /* record_save.png in Resources */,
 				2B3EC7AB114833AA00BE2266 /* record_sort_asc.png in Resources */,
 				2B3EC7AC114833AA00BE2266 /* record_sort_desc.png in Resources */,
@@ -12801,11 +12909,13 @@
 				2B7FEA9112EA067C007945E2 /* WB_Home_mac.png in Resources */,
 				2B18EDBB196C8706004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png in Resources */,
 				27987715195C534F003E8E44 /* wb_item_overlay_inspector.png in Resources */,
+				2BF90EE71979C3230029E1F9 /* ps_easysetup_logo_enabled@2x.png in Resources */,
 				2B02FEF3183E771B00770CC0 /* rel11.png in Resources */,
 				2B85653E183ADE2D0081D52E /* dashboard_arrow_out_static.png in Resources */,
 				2BAE51D51342444400076130 /* MySQLPlugin-16.png in Resources */,
 				2BAE51D61342444400076130 /* MySQLPlugin-24.png in Resources */,
 				2BAE51D71342444400076130 /* MySQLPlugin-32.png in Resources */,
+				2BF90F021979C3310029E1F9 /* ps_switcher_custom_on.png in Resources */,
 				2BAE51D81342444400076130 /* MySQLPlugin-48.png in Resources */,
 				2BAE51D91342444400076130 /* MySQLPlugin-64.png in Resources */,
 				2BAE51DA1342444400076130 /* MySQLPlugin-128.png in Resources */,
@@ -12816,6 +12926,7 @@
 				2B4974D513CAA4DB00F6AF47 /* hypertextview.css in Resources */,
 				2BCEBF9713DBD3F100A23E75 /* mini_edit.png in Resources */,
 				2BCEBF9813DBD3F100A23E75 /* mini_ok.png in Resources */,
+				2BF90EFF1979C3310029E1F9 /* ps_switcher_custom_hoover@2x.png in Resources */,
 				2BD9E789185FFF6E00A7252B /* output_type-querystats@2x.png in Resources */,
 				2BCEC00013DC565B00A23E75 /* record_autosize.png in Resources */,
 				2B9BA9E213F436420090DBA9 /* db.Column.many.side.16x16.png in Resources */,
@@ -12841,6 +12952,7 @@
 				2B7A74CE15743D31003D8549 /* migration_check_done.png in Resources */,
 				2B4BCE3618478FEE00865D37 /* title_instrumentation_setup.png in Resources */,
 				2B7A74D015743D31003D8549 /* migration_check_open.png in Resources */,
+				2BF90F0F1979C3310029E1F9 /* ps_switcher_disabled_on@2x.png in Resources */,
 				2B7A74D115743D31003D8549 /* migration_icon_32x32.png in Resources */,
 				27987714195C534F003E8E44 /* wb_item_overlay_execute@2x.png in Resources */,
 				2B7A74D215743D31003D8549 /* migration_logo.png in Resources */,
@@ -12902,6 +13014,7 @@
 				2BF0491F1739925E00A7EA35 /* mysql-logo-50@2x.png in Resources */,
 				2BF049201739925E00A7EA35 /* mysql-logo-51.png in Resources */,
 				2BF049211739925E00A7EA35 /* mysql-logo-51@2x.png in Resources */,
+				2BF90F0D1979C3310029E1F9 /* ps_switcher_disabled_off@2x.png in Resources */,
 				2BF049221739925E00A7EA35 /* mysql-logo-55.png in Resources */,
 				2BF049231739925E00A7EA35 /* mysql-logo-55@2x.png in Resources */,
 				2B85653D183ADE2D0081D52E /* dashboard_arrow_in_static.png in Resources */,
@@ -12925,6 +13038,7 @@
 				ED9251861743B7E3008F1A50 /* wb_about.png in Resources */,
 				ED9251871743B7E5008F1A50 /* wb_about@2x.png in Resources */,
 				ED8C8460174A9EF80036E6EF /* os_utils.py in Resources */,
+				2BF90F0E1979C3310029E1F9 /* ps_switcher_disabled_on.png in Resources */,
 				2BD9E781185FFF6E00A7252B /* output_type-executionplan@2x.png in Resources */,
 				ED8C8461174A9EF80036E6EF /* tcp_utils.py in Resources */,
 				2BF0498D174E559C00A7EA35 /* title_connections.png in Resources */,
@@ -12966,6 +13080,7 @@
 				27635D1A179968B300288DBE /* tiny_execute_mac@2x.png in Resources */,
 				2BD9E79B185FFF8500A7252B /* title_schema_inspector@2x.png in Resources */,
 				27635D1B179968B300288DBE /* tiny_explain_mac@2x.png in Resources */,
+				2BF90F031979C3310029E1F9 /* ps_switcher_custom_on@2x.png in Resources */,
 				27635D1C179968B300288DBE /* tiny_hidesidebar.png in Resources */,
 				27635D1D179968B300288DBE /* tiny_manage_connections.png in Resources */,
 				27635D1E179968B300288DBE /* tiny_manage_instances.png in Resources */,
@@ -13033,9 +13148,11 @@
 				2B143462179DDDE7002217CF /* qe_main-tb-icon_preferences.png in Resources */,
 				2B143463179DDDE7002217CF /* qe_main-tb-icon_refresh-conn_mac.png in Resources */,
 				2BD9E780185FFF6E00A7252B /* output_type-executionplan.png in Resources */,
+				2BF90F1B1979C3410029E1F9 /* ps_switcher_fully_on@2x.png in Resources */,
 				2B143464179DDDE7002217CF /* qe_main-tb-icon_refresh-conn_mac@2x.png in Resources */,
 				2B143465179DDDE7002217CF /* qe_main-tb-icon_refresh-conn.png in Resources */,
 				2B4BCE3818478FEE00865D37 /* title_performance_reports.png in Resources */,
+				2BF90F011979C3310029E1F9 /* ps_switcher_custom_off@2x.png in Resources */,
 				2B20DCBC188DA7C00095EA03 /* ps_easysetup_logo.png in Resources */,
 				2B143469179DDDE7002217CF /* qe_main-tb-icon_search_db_mac.png in Resources */,
 				2B14346A179DDDE7002217CF /* qe_main-tb-icon_search_db_mac@2x.png in Resources */,
@@ -13064,7 +13181,9 @@
 				2B143488179DDDE7002217CF /* qe_sql-editor-tb-icon_explain.png in Resources */,
 				2B143489179DDDE7002217CF /* qe_sql-editor-tb-icon_explain@2x.png in Resources */,
 				2B14348A179DDDE7002217CF /* qe_sql-editor-tb-icon_find.png in Resources */,
+				2BF90F101979C3310029E1F9 /* ps_switcher_fully_hoover.png in Resources */,
 				2B14348B179DDDE7002217CF /* qe_sql-editor-tb-icon_find@2x.png in Resources */,
+				2BF90F131979C3310029E1F9 /* ps_switcher_fully_off@2x.png in Resources */,
 				2B14348C179DDDE7002217CF /* qe_sql-editor-tb-icon_open.png in Resources */,
 				2B14348D179DDDE7002217CF /* qe_sql-editor-tb-icon_open@2x.png in Resources */,
 				2B14348E179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback.png in Resources */,
@@ -13077,6 +13196,7 @@
 				2B143494179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on.png in Resources */,
 				2B143495179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on@2x.png in Resources */,
 				2B143496179DDDE7002217CF /* qe_sql-editor-tb-icon_save.png in Resources */,
+				2BF90F081979C3310029E1F9 /* ps_switcher_default_on.png in Resources */,
 				2B143497179DDDE7002217CF /* qe_sql-editor-tb-icon_save@2x.png in Resources */,
 				2B143498179DDDE7002217CF /* qe_sql-editor-tb-icon_special-chars-off.png in Resources */,
 				2B20DCB8188DA7AA0095EA03 /* big_switcher_yes.png in Resources */,

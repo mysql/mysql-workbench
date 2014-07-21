@@ -617,6 +617,21 @@
                     <File Id="file62041" Name="title_performance_reports.png"/>
                     <File Id="file62040" Name="dashboard_separator.png"/>
                     <File Id="file62042" Name="ps_easysetup_logo.png"/>
+                    <File Id="file62043" Name="ps_easysetup_logo_enabled.png"/>
+                    <File Id="file62044" Name="ps_switcher_custom_hoover.png"/>
+                    <File Id="file62045" Name="ps_switcher_custom_off.png"/>
+                    <File Id="file62046" Name="ps_switcher_custom_on.png"/>
+                    <File Id="file62047" Name="ps_switcher_default_hoover.png"/>
+                    <File Id="file62048" Name="ps_switcher_default_off.png"/>
+                    <File Id="file62049" Name="ps_switcher_default_on.png"/>
+                    <File Id="file62050" Name="ps_switcher_disabled_hoover.png"/>
+                    <File Id="file62051" Name="ps_switcher_disabled_off.png"/>
+                    <File Id="file62052" Name="ps_switcher_disabled_on.png"/>
+                    <File Id="file62053" Name="ps_switcher_fully_hoover.png"/>
+                    <File Id="file62054" Name="ps_switcher_fully_off.png"/>
+                    <File Id="file62055" Name="ps_switcher_fully_on.png"/>
+                    <File Id="file62056" Name="ps_switcher_legende.png"/>
+                    <File Id="file62057" Name="ps_switcher_text.png"/>
                   </Component>
                 </Directory>
 
@@ -864,18 +879,18 @@
                     <File Id="file61773" Name="switcher_left_on.png"/>
                     <File Id="file61774" Name="switcher_right_off.png"/>
                     <File Id="file61775" Name="switcher_right_on.png"/>
-                    <File Id="file62043" Name="object_inspector.png"/>
-                    <File Id="file62044" Name="title_schema_inspector.png"/>
-                    <File Id="file62045" Name="title_table_inspector.png"/>
-                    <File Id="file62046" Name="output_type-executionplan.png"/>
-                    <File Id="file62047" Name="output_type-explaindata.png"/>
-                    <File Id="file62048" Name="output_type-fieldtypes.png"/>
-                    <File Id="file62049" Name="output_type-item_selected.png"/>
-                    <File Id="file62050" Name="output_type-querystats.png"/>
-                    <File Id="file62051" Name="output_type-resultset.png"/>
-                    <File Id="file62052" Name="output_type-spacialview.png"/>
-                    <File Id="file62053" Name="output_type-toggle-off.png"/>
-                    <File Id="file62054" Name="output_type-toggle-on.png"/>
+                    <File Id="file61776" Name="object_inspector.png"/>
+                    <File Id="file61777" Name="title_schema_inspector.png"/>
+                    <File Id="file61778" Name="title_table_inspector.png"/>
+                    <File Id="file61779" Name="output_type-executionplan.png"/>
+                    <File Id="file61780" Name="output_type-explaindata.png"/>
+                    <File Id="file61781" Name="output_type-fieldtypes.png"/>
+                    <File Id="file61782" Name="output_type-item_selected.png"/>
+                    <File Id="file61783" Name="output_type-querystats.png"/>
+                    <File Id="file61784" Name="output_type-resultset.png"/>
+                    <File Id="file61785" Name="output_type-spacialview.png"/>
+                    <File Id="file61786" Name="output_type-toggle-off.png"/>
+                    <File Id="file61787" Name="output_type-toggle-on.png"/>
 					
                     <File Id="wb_item_overlay_editor" Name="wb_item_overlay_editor.png"/>
                     <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
