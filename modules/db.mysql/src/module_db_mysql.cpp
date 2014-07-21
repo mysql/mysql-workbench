@@ -1407,16 +1407,94 @@ void ActionGenerateSQL::alter_table_fks_end(db_mysql_TableRef table)
 
 // triggers
 
+static db_mysql_TriggerRef find_ordering_for_trigger(db_mysql_TriggerRef trigger, std::string &position)
+{
+  db_mysql_TriggerRef prec;
+
+  // the trigger FOLLOWS the last one before it
+  position = "FOLLOWS";
+
+  db_mysql_TableRef table(db_mysql_TableRef::cast_from(trigger->owner()));
+  GRTLIST_FOREACH(db_mysql_Trigger, table->triggers(), t)
+  {
+    if ((*t)->event() == trigger->event() && (*t)->timing() == trigger->timing())
+    {
+      if (trigger == *t)
+      {
+        if (prec.is_valid())
+          break;
+        else
+        {
+          // if there are no triggers before it, then maybe there's something after it
+          position = "PRECEDES";
+          continue;
+        }
+      }
+      prec = *t;
+      // first one to match after the trigger itself is good to go
+      if (position == "PRECEDES")
+        break;
+    }
+  }
+  return prec;
+}
+
+
 void ActionGenerateSQL::create_trigger(db_mysql_TriggerRef trigger, bool for_alter)
 {
   std::string trigger_sql;
+  std::string schema_name = trigger->owner()->owner()->name().c_str();
   if (!_use_short_names || _gen_use)
-    trigger_sql.append("USE `").append(trigger->owner()->owner()->name().c_str()).append("`").append(_non_std_sql_delimiter).append("\n");
-  trigger_sql.append(trigger->sqlDefinition().c_str());
+    trigger_sql.append("USE `").append(schema_name).append("`").append(_non_std_sql_delimiter).append("\n");
 
-  if(for_alter)
-    remember_alter(trigger, trigger_sql);
-  else
+  std::string trigger_definition = trigger->sqlDefinition();
+
+  if (for_alter)
+  {
+    std::string position;
+
+    // if we're altering (ie inserting a new trigger), we need to find out what's the previous trigger of the same type
+    // and then rewrite the trigger code to add the FOLLOWS keyword (5.7+)
+    db_mysql_TriggerRef preceding = find_ordering_for_trigger(trigger, position);
+    if (preceding.is_valid())
+    {
+      // check if the remember() at the end of this method was called for the "preceding" object
+      bool flag = false;
+      if (target_list.is_valid())
+      {
+        if (target_object_list.get_index(preceding) != grt::BaseListRef::npos)
+          flag = true;
+      }
+      else
+      {
+        if (target_map.get(_use_oids_as_dict_key ? preceding.id() : get_full_object_name_for_key(preceding,_case_sensitive)).is_valid())
+          flag = true;
+      }
+      if (!flag)
+      {
+        trigger_definition = "CREATE";
+        if (!trigger->definer().empty())
+        trigger_definition.append(" ").append("DEFINER = ").append(trigger->definer());
+        if (_use_short_names)
+        trigger_definition.append(" TRIGGER `").append(trigger->name()).append("`");
+        else
+        trigger_definition.append(" TRIGGER `").append(schema_name).append("`.`").append(trigger->name()).append("`");
+        trigger_definition.append(" ").append(trigger->timing());
+        trigger_definition.append(" ").append(trigger->event());
+        trigger_definition.append(" ").append("ON `").append(trigger->owner()->name()).append("`");
+        trigger_definition.append(" ").append("FOR EACH ROW");
+        trigger_definition.append(" ").append(position).append(" `").append(preceding->name()).append("`");
+        trigger_definition.append("\n").append(trigger->sqlBody());
+      }
+      else puts("SHIT");
+    }
+  }
+
+  trigger_sql.append(trigger_definition);
+
+//  if(for_alter)
+//    remember_alter(trigger, trigger_sql);
+//  else
     remember(trigger, trigger_sql);
 }
 
