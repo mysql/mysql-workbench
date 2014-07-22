@@ -420,14 +420,6 @@
                     <File Id="file6025" Name="tiny_undo.png"/>
                     <File Id="file6025a" Name="tiny_loadsql.png"/>
                     <File Id="file6025b" Name="tiny_savesql.png"/>
-                    <File Id="file6025c" Name="tiny_commit.png"/>
-                    <File Id="file6025d" Name="tiny_rollback.png"/>
-                    <File Id="file6025e" Name="tiny_commit_disabled.png"/>
-                    <File Id="file6025f" Name="tiny_rollback_disabled.png"/>
-                    <File Id="file6025g" Name="tiny_execute.png"/>
-                    <File Id="file6025h" Name="tiny_execute_disabled.png"/>
-                    <File Id="file6025i" Name="tiny_cancel.png"/>
-                    <File Id="file6025j" Name="tiny_cancel_disabled.png"/>
                     <File Id="file6025k" Name="clear_output.png"/>
                     <File Id="file6026" Name="wb_arrow.png"/>
                     <File Id="file6027" Name="wb_db_routinegroup.png"/>
@@ -479,23 +471,13 @@
                     <File Id="file60008" Name="admin_info_running.png"/>
                     <File Id="file60015" Name="admin_meb_backup.png"/>
                     <File Id="file60016" Name="admin_meb_restore.png"/>
-                    <File Id="file60017" Name="tiny_bookmark.png"/>
                     <File Id="file60018" Name="admin_info_unknown.png"/>
                     <File Id="file60019" Name="MySQLWorkbench.ico"/>
                     <File Id="file60020" Name="MySQLWorkbench-256.png"/>
                     <File Id="file60021" Name="MySQLWorkbench-512.png"/>
-                    <File Id="file60022" Name="tiny_execute_current.png"/>
-                    <File Id="file60023" Name="query_continue_on_error.png"/>
-                    <File Id="file60024" Name="query_stop_on_error.png"/>
-                    <File Id="file60025" Name="tiny_autocommit_off.png"/>
-                    <File Id="file60026" Name="tiny_autocommit_on.png"/>
-                    <File Id="file60027" Name="tiny_explain.png"/>
-                    <File Id="file60028" Name="tiny_reconnect.png"/>
                     <File Id="file60029" Name="tiny_new.png"/>
-                    <File Id="file60030" Name="tiny_manage_connections.png"/>
                     <File Id="file60031" Name="tiny_new_diagram.png"/>
                     <File Id="file60032" Name="tiny_new_doc.png"/>
-                    <File Id="file60033" Name="tiny_manage_instances.png"/>
                     <File Id="file60034" Name="tiny_new_routine.png"/>
                     <File Id="file60035" Name="tiny_new_schema.png"/>
                     <File Id="file60036" Name="tiny_new_script.png"/>
