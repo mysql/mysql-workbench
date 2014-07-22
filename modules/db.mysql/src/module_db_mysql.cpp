@@ -1474,11 +1474,19 @@ void ActionGenerateSQL::create_trigger(db_mysql_TriggerRef trigger, bool for_alt
       {
         trigger_definition = "CREATE";
         if (!trigger->definer().empty())
-        trigger_definition.append(" ").append("DEFINER = ").append(trigger->definer());
+        {
+          std::string definer = trigger->definer();
+          // workaround for bug in parser, where definers get their outer `` stripped
+          if (definer[0] != '`' && definer.find("`@") != std::string::npos)
+            definer = "`" + definer;
+          if (definer[definer.size()-1] != '`' && definer.find("@`") != std::string::npos)
+            definer = definer + "`";
+          trigger_definition.append(" ").append("DEFINER = ").append(definer);
+        }
         if (_use_short_names)
-        trigger_definition.append(" TRIGGER `").append(trigger->name()).append("`");
+          trigger_definition.append(" TRIGGER `").append(trigger->name()).append("`");
         else
-        trigger_definition.append(" TRIGGER `").append(schema_name).append("`.`").append(trigger->name()).append("`");
+          trigger_definition.append(" TRIGGER `").append(schema_name).append("`.`").append(trigger->name()).append("`");
         trigger_definition.append(" ").append(trigger->timing());
         trigger_definition.append(" ").append(trigger->event());
         trigger_definition.append(" ").append("ON `").append(trigger->owner()->name()).append("`");
