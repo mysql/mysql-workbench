@@ -204,6 +204,7 @@ void SpatialDrawBox::render(bool reproject)
     _background_layer->render(_spatial_reprojector);
 
   int i = 0;
+
   base::MutexLock lock(_layer_mutex);
   for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end() && !_quitting; ++it, ++i)
   {
@@ -216,6 +217,7 @@ void SpatialDrawBox::render(bool reproject)
       if (reproject)
         (*it)->render(_spatial_reprojector);
       (*it)->repaint(ctx, _zoom_level, base::Rect());
+
     }
   }
 
@@ -246,7 +248,7 @@ bool SpatialDrawBox::get_progress(std::string &action, float &pct)
 
 
 SpatialDrawBox::SpatialDrawBox()
-: _background_layer(NULL),
+: _background_layer(NULL), _last_autozoom_layer(-1),
 _proj(spatial::ProjRobinson),  _spatial_reprojector(NULL),
 _zoom_level(1.0), _offset_x(0), _offset_y(0), _ready(false), _dragging(false),
 _rendering(false), _quitting(false), _needs_reprojection(true), _select_pending(false), _selecting(false)
@@ -311,8 +313,10 @@ void SpatialDrawBox::auto_zoom(const size_t layer_idx, bool no_invalidate)
   if (_layers.empty())
     return;
 
+  _last_autozoom_layer = layer_idx;
+
   spatial::Layer* lay = NULL;
-  if (layer_idx == (size_t)-1 || layer_idx >= _layers.size())
+  if (_last_autozoom_layer == (size_t)-1 || _last_autozoom_layer >= _layers.size())
   {
     lay = _layers.back();
   }
@@ -326,19 +330,11 @@ void SpatialDrawBox::auto_zoom(const size_t layer_idx, bool no_invalidate)
 
   spatial::Envelope env = lay->get_envelope();
 
-  double w = std::abs(env.bottom_right.x - env.top_left.x);
   double h = std::abs(env.top_left.y - env.bottom_right.y);
 
-
   const double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
-  if (w > h)
-    env.top_left.y = env.bottom_right.y + w / ratio;
-  else
-    env.bottom_right.x = env.top_left.x + h * ratio;
 
-//  _zoom_level = 1.0;
-//  _offset_x = 0;
-//  _offset_y = 0;
+  env.bottom_right.x = env.top_left.x + h * ratio;
 
   _min_lat = env.top_left.x;
   _max_lat = env.bottom_right.x;
@@ -347,8 +343,8 @@ void SpatialDrawBox::auto_zoom(const size_t layer_idx, bool no_invalidate)
 
   _displaying_restricted = true;
 
-  if (!no_invalidate)
-    invalidate(true);
+//  if (!no_invalidate)
+//    invalidate(true);
 }
 
 
@@ -372,6 +368,9 @@ void SpatialDrawBox::reset_view()
 
   while(!_hw_zoom_history.empty())
     _hw_zoom_history.pop();
+
+  auto_zoom(_last_autozoom_layer, true);
+
   invalidate(_displaying_restricted);
   _displaying_restricted = false;
 }
@@ -420,7 +419,9 @@ void SpatialDrawBox::set_context_menu(mforms::ContextMenu *menu)
 void SpatialDrawBox::add_layer(spatial::Layer *layer)
 {
   {
+
     base::MutexLock lock(_layer_mutex);
+    layer->set_fill_polygons((bool)get_option("SqlEditor::FillUpPolygons", 1));
     _layers.push_back(layer);
   }
 }
@@ -441,7 +442,7 @@ void SpatialDrawBox::show_layer(int layer_id, bool flag)
   if (layer_id == 0 && _background_layer)
   {
     _background_layer->set_show(flag);
-    invalidate();
+    invalidate(true);
   }
   else
   {
@@ -450,6 +451,21 @@ void SpatialDrawBox::show_layer(int layer_id, bool flag)
       if ((*i)->layer_id() == layer_id)
       {
         (*i)->set_show(flag);
+        invalidate(true);
+        return;
+      }
+  }
+}
+
+void SpatialDrawBox::fillup_polygon(int layer_id)
+{
+  if (layer_id != 0)
+  {
+    base::MutexLock lock(_layer_mutex);
+    for (std::deque<spatial::Layer*>::iterator i = _layers.begin(); i != _layers.end(); ++i)
+      if ((*i)->layer_id() == layer_id)
+      {
+        (*i)->set_fill_polygons(!(*i)->get_fill_polygons());
         invalidate(true);
         return;
       }
@@ -598,14 +614,11 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, boo
     _offset_x = 0;
     _offset_y = 0;
 
-    double w = std::abs(lat2 - lat1);
-    double h = std::abs(lon2 - lon1);
+    double h = std::abs(lat2 - lat1);
 
     double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
-    if (w > h)
-      lat2 = lat1 + h / ratio;
-    else
-      lon2 = lon1 + w * ratio;
+    lon2 = lon1 + h * ratio;
+
 
     _zoom_level = 1.0;
     _offset_x = 0;

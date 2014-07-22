@@ -1191,7 +1191,7 @@ void Feature::interrupt()
   _geometry.interrupt();
 }
 
-void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
+void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, bool fill_polygons)
 {
   for (std::deque<ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
@@ -1211,7 +1211,8 @@ void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_are
           cr.line_to((*it).points[i]);
         cr.close_path();
 //        cr.stroke_preserve();
-//        cr.fill();
+        if (fill_polygons)
+          cr.fill();
         cr.stroke();
         break;
 
@@ -1269,14 +1270,23 @@ Layer::Layer(int layer_id, base::Color color)
   _spatial_envelope.top_left.y = -90;
   _spatial_envelope.bottom_right.x = -180;
   _spatial_envelope.bottom_right.y = 90;
+  _fill_polygons = false;
 }
 
 Layer::~Layer()
 {
   for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
-  {
     delete *it;
-  }
+}
+
+void Layer::set_fill_polygons(bool fill)
+{
+  _fill_polygons = fill;
+}
+
+bool Layer::get_fill_polygons()
+{
+  return _fill_polygons;
 }
 
 void Layer::interrupt()
@@ -1320,7 +1330,7 @@ void Layer::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
   cr.set_line_width(0.5);
   cr.set_color(_color);
   for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end() && !_interrupt; ++it)
-    (*it)->repaint(cr, scale, clip_area);
+    (*it)->repaint(cr, scale, clip_area, _fill_polygons);
 
   cr.restore();
 }

@@ -99,6 +99,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _viewer->position_changed_cb = boost::bind(&SpatialDataView::update_coordinates, this, _1, _2);
   _viewer->work_started = boost::bind(&SpatialDataView::work_started, this, _1, _2);
   _viewer->work_finished = boost::bind(&SpatialDataView::work_finished, this, _1);
+  _viewer->get_option = boost::bind(&SpatialDataView::get_option, this, _1, _2);
 
   _toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
   {
@@ -133,26 +134,26 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("tiny_gridview.png"));
+    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-area.png"));
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::select_area, _viewer));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("navigator_zoom_out.png"));
+    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-out.png"));
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_out, _viewer));
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("navigator_zoom_in.png")); //XXX need @2x icons
+    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-in.png")); //XXX need @2x icons
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("zoom_reset.png"));
+    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-reset.png"));
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::reset_view, _viewer));
     _toolbar->add_item(item);
 
@@ -207,6 +208,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 //  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
 //  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
   _layer_menu->add_item_with_title("Refresh", boost::bind(&SpatialDataView::refresh_layers, this), "refresh");
+  _layer_menu->add_item_with_title("Fillup/Clear polygon", boost::bind(&SpatialDataView::fillup_polygon, this), "fillup_polygon");
 
   _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
   _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
@@ -224,6 +226,17 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _main_box->add(_option_box, false, true);
 
   add(_main_box, true, true);
+}
+
+int SpatialDataView::get_option(const char* opt_name, int default_value)
+{
+  return _owner->owner()->grt_manager()->get_app_option_int(opt_name, default_value) != 0;
+}
+
+void SpatialDataView::fillup_polygon()
+{
+  if (_layer_tree->is_enabled())
+    _viewer->fillup_polygon(_layer_tree->get_selected_row());
 }
 
 void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item)
@@ -331,7 +344,7 @@ void SpatialDataView::jump_to()
 
 void SpatialDataView::auto_zoom()
 {
-  _viewer->auto_zoom((size_t)_layer_tree->get_selected_row());
+  _viewer->auto_zoom(_layer_tree->get_selected_row());
 }
 
 
@@ -389,6 +402,8 @@ void SpatialDataView::refresh_layers()
     }
   }
   set_geometry_columns(spatial_columns);
+  if ((bool)get_option("SqlEditor::SpatialAutoZoom", 1))
+    _viewer->auto_zoom(-1);
 }
 
 
