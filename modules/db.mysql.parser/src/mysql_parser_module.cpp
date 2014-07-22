@@ -153,7 +153,8 @@ size_t MySQLParserServicesImpl::parseTrigger(const ParserContext::Ref &context,
       walker.next();
     }
 
-    // sqlBody is obsolete.
+    // The rest of the sql belongs to the sql body.
+    trigger->sqlBody(sql.substr(walker.token_offset(), sql.size()));
   }
   else
   {
