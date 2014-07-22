@@ -20,6 +20,8 @@ parser grammar MySQLSimpleParser;
  */
 
 /*
+ * Merged in all changes up to mysql-trunk rev. 8454.
+ *
  * This is a duplicate of the main MySQL grammar, but without any tree output/rewriting.
  * Without that the parser is around 3 times faster and hence better suited for tasks like syntax
  * checking.
@@ -69,6 +71,18 @@ extern "C" {
 #ifdef __cplusplus
 };
 #endif
+}
+
+@parser::members {
+  // Skips over any open parenthesis to see what comes next after them. If that is a SELECT then we are in a subquery.
+  ANTLR3_BOOLEAN is_subquery(pMySQLSimpleParser ctx)
+  {
+    int input = LA(1);
+    int k = 2;
+    while (input == OPEN_PAR_SYMBOL)
+      input = LA(k++);
+    return input == SELECT_SYMBOL ? ANTLR3_TRUE : ANTLR3_FALSE;
+  }
 }
 
 @parser::apifuncs
@@ -200,7 +214,7 @@ alter_table_list_entry:
 		)
 	| ADD_SYMBOL FULLTEXT_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_columns index_option*
 	| ADD_SYMBOL SPATIAL_SYMBOL (INDEX_SYMBOL | KEY_SYMBOL)? identifier? index_columns index_option*
-	| ALTER_SYMBOL COLUMN_SYMBOL? identifier (SET_SYMBOL DEFAULT_SYMBOL literal | DROP_SYMBOL DEFAULT_SYMBOL)
+	| ALTER_SYMBOL COLUMN_SYMBOL? identifier (SET_SYMBOL DEFAULT_SYMBOL signed_literal | DROP_SYMBOL DEFAULT_SYMBOL)
 	| CHANGE_SYMBOL COLUMN_SYMBOL? identifier field_spec (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
 	| MODIFY_SYMBOL COLUMN_SYMBOL? identifier field_spec (FIRST_SYMBOL | AFTER_SYMBOL identifier)?
 	| DROP_SYMBOL
@@ -262,6 +276,8 @@ alter_partition:
 	| {SERVER_VERSION >= 50500}? => TRUNCATE_SYMBOL PARTITION_SYMBOL all_or_partition_name_list
 	| EXCHANGE_SYMBOL PARTITION_SYMBOL identifier WITH_SYMBOL TABLE_SYMBOL table_identifier
 	| REORGANIZE_SYMBOL PARTITION_SYMBOL no_write_to_bin_log? (identifier_list INTO_SYMBOL partition_definitions)?
+	| {SERVER_VERSION >= 50704}? => DISCARD_SYMBOL PARTITION_SYMBOL all_or_partition_name_list TABLESPACE_SYMBOL
+	| {SERVER_VERSION >= 50704}? => IMPORT_SYMBOL PARTITION_SYMBOL all_or_partition_name_list TABLESPACE_SYMBOL
 ;
 
 remove_partitioning:
@@ -513,8 +529,12 @@ create_field_list_item:
 	| CHECK_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 ;
 
-table_creation_source:
-	(REPLACE_SYMBOL | IGNORE_SYMBOL)? AS_SYMBOL? (create_select | OPEN_PAR_SYMBOL create_select CLOSE_PAR_SYMBOL) union_clause?
+table_creation_source: // create3 in sql_yacc.yy
+	(REPLACE_SYMBOL | IGNORE_SYMBOL)? AS_SYMBOL?
+	(
+		create_select union_clause?
+		| OPEN_PAR_SYMBOL create_select CLOSE_PAR_SYMBOL union_or_order_by_or_limit?
+	)
 ;
 
 // The select statement allowed for CREATE TABLE (and certain others) differs from the standard select statement.
@@ -765,28 +785,43 @@ select_paren:
 	| OPEN_PAR_SYMBOL select_paren CLOSE_PAR_SYMBOL
 ;
 
-select_part2:
+select_part2: // This is an optimized variant of the same rule form sql_yacc.yy.
 	( options { greedy = true; }: select_option)* select_item_list select_source_and_options? select_lock_type?
 ;
 
-subquery:
-	OPEN_PAR_SYMBOL SELECT_SYMBOL select_part2_derived union_clause? CLOSE_PAR_SYMBOL
+table_expression:
+	( options { greedy = true; }: from_clause)?
+	( options { greedy = true; }: where_clause)?
+	( options { greedy = true; }: group_by_clause)?
+	( options { greedy = true; }: having_clause)?
+	( options { greedy = true; }: order_by_clause)?
+	( options { greedy = true; }: limit_clause)?
+	( options { greedy = true; }: procedure_analyse_clause)?
+	( options { greedy = true; }: select_lock_type)?
+;
+
+subquery: // subselect in sql_yacc.yy, this is always wrapped by parentheses so I moved them into this rule.
+	OPEN_PAR_SYMBOL query_expression_body CLOSE_PAR_SYMBOL
+;
+
+query_expression_body:
+	query_specification (UNION_SYMBOL union_option query_specification)*
 ;
 
 select_part2_derived: // select_part2 equivalent for sub queries.
 	( options { greedy = true; }:
-		query_expression_option
+		query_spec_option
 		| {SERVER_VERSION <= 50100}? => (SQL_NO_CACHE_SYMBOL | SQL_CACHE_SYMBOL)
 	)* select_item_list select_source_and_options? select_lock_type?
 ;
 
 select_option:
-	query_expression_option
+	query_spec_option
 	| SQL_NO_CACHE_SYMBOL
 	| SQL_CACHE_SYMBOL
 ;
 
-query_expression_option:
+query_spec_option:
 	(ALL_SYMBOL | DISTINCT_SYMBOL)
 	| STRAIGHT_JOIN_SYMBOL
 	| HIGH_PRIORITY_SYMBOL
@@ -883,12 +918,16 @@ direction:
 	ASC_SYMBOL
 	| DESC_SYMBOL
 ;
-        
+
+from_clause:
+	FROM_SYMBOL table_references
+;
+	        
 where_clause:
 	WHERE_SYMBOL expression
 ;
 
-table_references:
+table_references: // derived_table_list in sql_yacc.yy
 	 escaped_table_reference ( options { greedy = true; }: COMMA_SYMBOL escaped_table_reference)*
 ;
 
@@ -912,9 +951,9 @@ join:
 ;
 
 table_factor:
-	SELECT_SYMBOL ( options { greedy = true; }: select_option)* select_item_list ( options { greedy = true; }: table_factor_select_tail)?
+	SELECT_SYMBOL ( options { greedy = true; }: select_option)* select_item_list table_expression
 	| OPEN_PAR_SYMBOL select_table_factor_union CLOSE_PAR_SYMBOL table_alias?
-	| table_factor_table
+	| table_identifier use_partition? table_alias? index_hint_list?
 ;
 
 table_factor_select_tail:
@@ -923,16 +962,12 @@ table_factor_select_tail:
 ;
 
 select_table_factor_union:
-	(table_references order_by_or_limit?) (UNION_SYMBOL union_option? join_query_specification order_by_or_limit?)*
+	(table_references order_by_or_limit?) (UNION_SYMBOL union_option? query_specification order_by_or_limit?)*
 ;
 
-join_query_specification:
-	SELECT_SYMBOL ( options { greedy = true; }: query_expression_option)* select_item_list select_from? select_lock_type?
-	| OPEN_PAR_SYMBOL join_query_specification CLOSE_PAR_SYMBOL
-;
-
-table_factor_table:
-	table_identifier use_partition? table_alias? index_hint_list?
+query_specification:
+	SELECT_SYMBOL ( options { greedy = true; }: query_spec_option)* select_item_list select_from? select_lock_type?
+	| OPEN_PAR_SYMBOL query_specification CLOSE_PAR_SYMBOL
 ;
 
 join_table:
@@ -956,10 +991,9 @@ union_option:
 	| ALL_SYMBOL
 ;
 
-union_or_order_by_or_limit:
+union_or_order_by_or_limit: // union_opt in sql_yacc.yy
 	union_clause
-	| order_by_clause limit_clause?
-	| limit_clause
+	| order_by_or_limit
 ;
 
 select_lock_type:
@@ -1075,8 +1109,12 @@ xa_statement:
 			| PREPARE_SYMBOL xid
 			| COMMIT_SYMBOL xid (ONE_SYMBOL PHASE_SYMBOL)?
 			| ROLLBACK_SYMBOL xid
-			| RECOVER_SYMBOL
+			| RECOVER_SYMBOL xa_convert?
 		)
+;
+
+xa_convert:
+	{SERVER_VERSION >= 50704}? => CONVERT_SYMBOL XID_SYMBOL
 ;
 
 xid:
@@ -1232,7 +1270,7 @@ execute_var_list:
 //--------------------------------------------------------------------------------------------------
 
 account_management_statement:
-	{SERVER_VERSION >= 50606}? => alter_user
+	{SERVER_VERSION >= 50606}? => alter_user_list
 	| create_user
 	| drop_user
 	| {SERVER_VERSION >= 50500}? => grant_proxy
@@ -1242,8 +1280,17 @@ account_management_statement:
 	| set_password
 ;
 
+alter_user_list:
+	ALTER_SYMBOL USER_SYMBOL alter_user (COMMA_SYMBOL alter_user)*
+;
+
 alter_user:
-	ALTER_SYMBOL USER_SYMBOL user PASSWORD_SYMBOL EXPIRE_SYMBOL (COMMA_SYMBOL user PASSWORD_SYMBOL EXPIRE_SYMBOL)*
+	user PASSWORD_SYMBOL EXPIRE_SYMBOL
+	{SERVER_VERSION >= 50704}? => (
+		INTERVAL_SYMBOL number DAY_SYMBOL
+		| NEVER_SYMBOL
+		| DEFAULT_SYMBOL
+	)?
 ;
 
 create_user:
@@ -1384,15 +1431,18 @@ install_uninstall_statment:
 //--------------------------------------------------------------------------------------------------
 
 set_statement:
-	SET_SYMBOL option_type?
-		(
-			 TRANSACTION_SYMBOL set_transaction_characteristic
-			| ONE_SHOT_SYMBOL? variable_assignment (COMMA_SYMBOL option_value_list)?
+	SET_SYMBOL
+		( options { k = 3; }:
+			 option_type? TRANSACTION_SYMBOL set_transaction_characteristic
+			| ONE_SHOT_SYMBOL? option_value_no_option_type (COMMA_SYMBOL option_value_list)?
 			// ONE_SHOT is available only until 5.6. We don't need a predicate here, however. Handling it in the lexer is enough.
+			| option_type option_value_following_option_type (COMMA_SYMBOL option_value_list)?
+			
+			// SET PASSWORD is handled in an own rule.
 		)
 ;
 
-variable_assignment:
+option_value_no_option_type:
 	{LA(1) == NAMES_SYMBOL}? NAMES_SYMBOL
 		(
 			equal expression
@@ -1404,6 +1454,10 @@ variable_assignment:
 	| charset_clause
 ;
 
+option_value_following_option_type:
+	variable_name equal set_expression_or_default
+;
+	
 set_expression_or_default:
 	expression
 	| DEFAULT_SYMBOL
@@ -1418,7 +1472,7 @@ option_value_list:
 
 option_value:
 	option_type variable_name equal set_expression_or_default
-	| variable_assignment
+	| option_value_no_option_type
 ;
 
 //--------------------------------------------------------------------------------------------------
@@ -1653,10 +1707,16 @@ predicate:
 					BETWEEN_SYMBOL bitwise_or_expression AND_SYMBOL predicate
 					| LIKE_SYMBOL unary_expression ( options { greedy = true; }: ESCAPE_SYMBOL primary)?
 					| REGEXP_SYMBOL bitwise_or_expression
-					| IN_SYMBOL ( subquery | expression_list_with_parentheses)
+					| IN_SYMBOL predicate_in
 	    		)
 	    	| SOUNDS_SYMBOL LIKE_SYMBOL bitwise_or_expression
 		)?
+;
+
+// One of the 2 rules were 2 sub rules with unlimited nesting come together (and we need backtracking)
+predicate_in:
+	{is_subquery(ctx)}? => subquery
+	| expression_list_with_parentheses
 ;
 
 bitwise_or_expression:
@@ -1725,9 +1785,8 @@ primary:
 		| field_name
 		| PARAM_MARKER
 		| variable
-		| {LA(1) == OPEN_PAR_SYMBOL && LA(2) == SELECT_SYMBOL}? subquery
 		| EXISTS_SYMBOL subquery
-		| ROW_SYMBOL? expression_list_with_parentheses
+		| expression_with_nested_parentheses
 		| OPEN_CURLY_SYMBOL identifier expression CLOSE_CURLY_SYMBOL
 		| match_expression
 		| case_expression
@@ -1735,6 +1794,14 @@ primary:
 	)
 	// Consume any collation expression locally to avoid ambiguities with the recursive cast_expression.
 	( options { greedy = true; }: COLLATE_SYMBOL text_or_identifier)*
+;
+
+// This part is tricky, because all alternatives can have an unlimited nesting within parentheses.
+// Best results by using a custom semantic predicate.
+expression_with_nested_parentheses:
+	{is_subquery(ctx)}? => subquery
+	| expression_list_with_parentheses
+	| ROW_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)+ CLOSE_PAR_SYMBOL
 ;
 
 comparison_operator:
@@ -2281,7 +2348,7 @@ field_spec:
 
 attribute:
 	NOT_SYMBOL? null_literal
-	| DEFAULT_SYMBOL (literal | NOW_SYMBOL time_function_parameters?)
+	| DEFAULT_SYMBOL (signed_literal | NOW_SYMBOL time_function_parameters?)
 	| ON_SYMBOL UPDATE_SYMBOL NOW_SYMBOL time_function_parameters?
 	| AUTO_INCREMENT_SYMBOL
 	| SERIAL_SYMBOL DEFAULT_SYMBOL VALUE_SYMBOL
@@ -2773,6 +2840,12 @@ literal:
 	| {LA(1) == DATE_SYMBOL || LA(1) == TIME_SYMBOL || LA(1) == TIMESTAMP_SYMBOL}? temporal_literal
 ;
 
+signed_literal:
+	literal
+	| PLUS_OPERATOR number_literal
+	| MINUS_OPERATOR number_literal
+;
+
 // To ease post processing strings (for automatic concatenation) we use an own subtree for each string.
 // Because of that already mentioned bug we need a separate rule when doing tree rewrite for a single alternative.
 string_literal:
@@ -2871,6 +2944,12 @@ text_or_identifier:
 
 float_or_param:
 	FLOAT | PARAM_MARKER
+;
+
+// Any integer number (no float) up to 64bits (real_ulong_num in sql_yacc.yy).
+number:
+	INTEGER
+	| HEXNUMBER
 ;
 
 size_number:
@@ -3104,6 +3183,7 @@ keyword_sp:
 	| MASTER_AUTO_POSITION_SYMBOL
 	| MAX_CONNECTIONS_PER_HOUR_SYMBOL
 	| MAX_QUERIES_PER_HOUR_SYMBOL
+	| MAX_STATEMENT_TIME_SYMBOL
 	| MAX_SIZE_SYMBOL
 	| MAX_UPDATES_PER_HOUR_SYMBOL
 	| MAX_USER_CONNECTIONS_SYMBOL
@@ -3128,6 +3208,7 @@ keyword_sp:
 	| NATIONAL_SYMBOL
 	| NCHAR_SYMBOL
 	| NDBCLUSTER_SYMBOL
+	| NEVER_SYMBOL
 	| NEXT_SYMBOL
 	| NEW_SYMBOL
 	| NO_WAIT_SYMBOL
@@ -3268,6 +3349,7 @@ keyword_sp:
 	| WORK_SYMBOL
 	| WEIGHT_STRING_SYMBOL
 	| X509_SYMBOL
+	| XID_SYMBOL
 	| XML_SYMBOL
 	| YEAR_SYMBOL
 ;
