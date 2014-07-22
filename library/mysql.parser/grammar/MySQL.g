@@ -261,7 +261,7 @@ extern "C" {
 
 @parser::members {
   // Skips over any open parenthesis to see what comes next after them. If that is a SELECT then we are in a subquery.
-  ANTLR3_BOOLEAN is_subquery(pMySQLParser ctx)
+  static ANTLR3_BOOLEAN is_subquery(pMySQLParser ctx)
   {
     int input = LA(1);
     int k = 2;

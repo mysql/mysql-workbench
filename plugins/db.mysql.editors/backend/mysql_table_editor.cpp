@@ -727,8 +727,13 @@ public:
         mforms::TreeNodeRef node = node_for_trigger(_selected_trigger);
 
         _editor->freeze_refresh_on_object_change();
-        
+
+        std::string old_timing = _selected_trigger->timing();
+        std::string old_event = _selected_trigger->event();
         _editor->_parser_services->parseTrigger(_editor->_parser_context, _selected_trigger, _code_editor->get_string_value());
+
+        need_refresh = !base::same_string(old_timing, _selected_trigger->timing(), false)
+          || !base::same_string(old_event, _selected_trigger->event(), false);
 
         // Set the name before thawing the refresh, as this will update the ui and may select
         // a different current trigger.

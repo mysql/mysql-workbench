@@ -347,6 +347,16 @@ NSString *sql6 = @"select A, B, A OR B, A XOR B, A AND B from t1_30237_bool wher
 NSString *sql7 = @"select count(distinct a.actor_id), phone, first_name, a.last_name, country.country \n"
   "from sakila.actor a, address aa, country\nwhere (a.actor_id = 0 and country_id > 0) \ngroup by actor_id";
 NSString *sql8 = @"drop user current_user(), 'mike'@localhost";
+NSString *sql9 = @"CREATE definer = `root`@`localhost` trigger `upd_film` AFTER UPDATE ON `film` FOR EACH ROW BEGIN\n"
+  "  IF (old.title != new.title) or (old.description != new.description)\n"
+  "  THEN\n"
+  "    UPDATE film_text\n"
+  "      SET title=new.title,\n"
+  "          description=new.description,\n"
+  "          film_id=new.film_id\n"
+  "    WHERE film_id=old.film_id;\n"
+  "  END IF;\n"
+  "END";
 
 @implementation mysql_parserAppDelegate
 
@@ -357,7 +367,7 @@ NSString *sql8 = @"drop user current_user(), 'mike'@localhost";
   // Make the SQL edit control scroll horizontally too.
   [[text textContainer] setContainerSize: NSMakeSize(FLT_MAX, FLT_MAX)];
   [[text textContainer] setWidthTracksTextView: NO];
-  [text setString: sql8];
+  [text setString: sql9];
 }
 
 - (NSString*)dumpTree: (pANTLR3_BASE_TREE)tree state: (pANTLR3_RECOGNIZER_SHARED_STATE)state indentation: (NSString*)indentation
