@@ -39,7 +39,8 @@ base::Color Conversions::NativeToColor(Color color)
 
 Color Conversions::ColorToNative(base::Color color)
 {
-  return Color::FromArgb(color.alpha * 255, color.red * 255, color.green * 255, color.blue * 255);
+  return Color::FromArgb((int)(color.alpha * 255), (int)(color.red * 255), (int)(color.green * 255),
+    (int)(color.blue * 255));
 }
 
 //--------------------------------------------------------------------------------------------------
