@@ -1618,6 +1618,7 @@
                   <File Id="file200015" Name="change_tracker.py"/>
                   <File Id="file200016" Name="client_utils.py"/>
                   <File Id="file200017" Name="log.py"/>
+                  <File Id="file200018" Name="wizard_form.py"/>
                 </Component>
                 <Directory Id="library_workbench_graphics" Name="graphics">
                   <Component DiskId="1" Guid="4b29e751-d608-47c2-b3ab-d156dcbd94c7" Id="library_workbench_graphics" Location="either">
