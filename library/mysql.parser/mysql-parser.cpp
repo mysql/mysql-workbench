@@ -206,11 +206,11 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
     break;
 
   case ANTLR3_FAILED_PREDICATE_EXCEPTION:
-    // Probably something we can use to indicated an error that would not occur for other server
-    // versions (as that is what we mostly use predicates for), but to be sure we need a test case
-    // to trigger that error (which I haven't found yet).
-    // On the other hand a predicate is only to direct the parser. It shouldn't raise an error.
-    // TODO: find a query that triggers this error branch.
+    // Appears when a gated semantic predicate is used in the grammar, but not for predicting an alternative,
+    // e.g. ... some_rule {condition}? => some_rule.
+    // If the condition does not match we get a failed predicate error. So it's more like a grammar error
+    // unless this is by intention (which is never the case in the MySQL grammar where predicates are only used
+    // to guide the parser).
     error << "failed predicate";
     break;
 
