@@ -223,6 +223,12 @@
   [self.cell setDrawsBackground: flag];
 }
 
+- (BOOL)becomeFirstResponder
+{
+  mOwner->focus_changed();
+  return [super becomeFirstResponder];
+}
+
 @end
 
 
