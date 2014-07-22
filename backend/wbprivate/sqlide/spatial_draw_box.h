@@ -39,6 +39,7 @@ class SpatialDrawBox : public mforms::DrawBox
   base::Mutex _layer_mutex;
   spatial::Layer *_background_layer;
   std::deque<spatial::Layer*> _layers;
+  size_t _last_autozoom_layer;
   spatial::ProjectionType _proj;
   boost::shared_ptr<mdc::Surface> _cache;
   base::Mutex _thread_mutex;
@@ -91,6 +92,7 @@ class SpatialDrawBox : public mforms::DrawBox
 public:
   boost::function<void (mforms::View*, bool reprojecting)> work_started;
   boost::function<void (mforms::View*)> work_finished;
+  boost::function<int (const char*, int)> get_option;
 
 public:
   SpatialDrawBox();
@@ -119,6 +121,7 @@ public:
   void remove_layer(spatial::Layer *layer);
 
   void show_layer(int layer_id, bool flag);
+  void fillup_polygon(int layer_id);
 
   void activate();
 

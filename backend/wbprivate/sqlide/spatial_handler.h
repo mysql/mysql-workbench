@@ -307,7 +307,7 @@ namespace spatial
     void interrupt();
     void get_envelope(spatial::Envelope &env);
     void render(spatial::Converter *converter);
-    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
+    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, bool fill_polygons);
 
     int row_id() const { return _row_id; }
     bool within(base::Point &p);
@@ -326,6 +326,7 @@ namespace spatial
     bool _show;
     bool _interrupt;
     spatial::Envelope _spatial_envelope;
+    bool _fill_polygons;
 
   public:
     Layer(int layer_id, base::Color color);
@@ -345,6 +346,8 @@ namespace spatial
     void add_feature(int row_id, const std::string &geom_data, bool wkt);
     virtual void render(spatial::Converter *converter);
     bool within(base::Point &p);
+    void set_fill_polygons(bool fill);
+    bool get_fill_polygons();
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
     float query_render_progress();
     spatial::Envelope get_envelope();

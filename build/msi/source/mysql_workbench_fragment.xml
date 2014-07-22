@@ -758,6 +758,14 @@
                     <File Id="file60658" Name="audit_log.png"/>
                     <File Id="file60666" Name="wb_lock.png"/>
                     <File Id="file60667" Name="change_alert_create.png"/>
+                    <File Id="file606601" Name="qe_sql-editor-tb-icon_zoom-area@2x.png"/>
+                    <File Id="file606602" Name="qe_sql-editor-tb-icon_zoom-area.png" />
+                    <File Id="file606603" Name="qe_sql-editor-tb-icon_zoom-in@2x.png" />
+                    <File Id="file606604" Name="qe_sql-editor-tb-icon_zoom-in.png" />
+                    <File Id="file606605" Name="qe_sql-editor-tb-icon_zoom-out@2x.png" />
+                    <File Id="file606606" Name="qe_sql-editor-tb-icon_zoom-out.png" />
+                    <File Id="file606607" Name="qe_sql-editor-tb-icon_zoom-reset@2x.png" />
+                    <File Id="file606608" Name="qe_sql-editor-tb-icon_zoom-reset.png" />
 
                     </Component>
                 </Directory>
