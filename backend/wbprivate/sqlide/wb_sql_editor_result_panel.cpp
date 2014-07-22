@@ -491,7 +491,7 @@ void SqlEditorResult::restore_grid_column_widths()
         else if (length > 20)
           length = 20;
 #if defined(__APPLE__) || defined(_WIN32)
-        _result_grid->set_column_width(i, length * 9);
+        _result_grid->set_column_width(i, length * 10);
 #else
         _result_grid->set_column_width(i, length * 12);
 #endif
