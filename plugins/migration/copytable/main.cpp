@@ -166,13 +166,14 @@ static void show_help()
   printf("--count-only\n");
   printf("--jobs-from-stdin\n");
   printf("--abort-on-oversized-blobs\n");
+  printf("--max-count=<max rows count>\n");
   printf("--resume\n");
   printf("Table Specification from file:\n");
   printf("--table-file=<filename>\n");
   printf("<source schema><TAB><source table><TAB><target schema><TAB><target table><TAB><source pk columns><TAB><target pk columns><TAB>*|<select expression>\n");
   printf("Table Specification from command line:\n");
   printf("--table <source schema> <source table> <target schema> <target table> <source pk columns> <target pk columns> *|<select expression>\n");
-  printf("--table-range <source schema> <source table> <target schema> <target table> <source pk columns> <target pk columns> <select expression> <source key> <start> <end>|-1\n");
+  printf("--table-where <source schema> <source table> <target schema> <target table> <source pk columns> <target pk columns> *|<select expression> <where expression>\n");
   printf("\n");
   printf("--log-file=<file_path>\n");
   printf("--log-level=<level>\n");
@@ -195,6 +196,7 @@ static void show_help()
 *           from the file
   - resume : indicates if the file contains information to resume copying data from
              last PK
+* - max_count : limit copied rows count to max_count
 *
 * Remarks : Each table is defined in a single line with the next format for count_only = true and resume = false
 *           <src_schema>\t<src_table>\n
@@ -202,7 +204,8 @@ static void show_help()
 *           and in the next format for a count_only = false or resume = true
 *           <src_schema>\t<src_table>\t<tgt_schema>\t<tgt_table>\t<source_pk_columns>\t<target_pk_columns>\t<select_expression>
 */
-bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueue& tasks, std::set<std::string> &trigger_schemas, bool resume)
+bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueue& tasks, std::set<std::string> &trigger_schemas,
+                          bool resume, long long int max_count)
 {
   std::ifstream ifs ( file_name.data() , std::ifstream::in );
   unsigned int field_count = count_only ? 2 : 7;
@@ -239,6 +242,7 @@ bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueu
         }
 
         param.copy_spec.resume = resume;
+        param.copy_spec.max_count = max_count;
         param.copy_spec.type = CopyAll;
         tasks.add_task(param);
       }
@@ -283,6 +287,7 @@ int main(int argc, char **argv)
   bool resume = false;
   int thread_count = 1;
   int bulk_insert_batch = 100;
+  long long int max_count = 0;
 
   std::string table_file;
 
@@ -428,6 +433,8 @@ int main(int argc, char **argv)
       }
 
       param.copy_spec.resume = resume;
+      param.copy_spec.max_count = max_count;
+
       param.copy_spec.type = CopyAll;
 
       tables.add_task(param);
@@ -487,6 +494,41 @@ int main(int argc, char **argv)
     }
     else if (check_arg_with_value(argv, i, "--source-rdbms-type", argval, false))
     	source_rdbms_type = argval;
+    else if (strcmp(argv[i], "--table-where") == 0)
+    {
+      TableParam param;
+
+      if ((!count_only && i + 8 >= argc) || (count_only && i + 4 >= argc))
+      {
+        fprintf(stderr, "%s: Missing value for table copy specification\n", argv[0]);
+        exit(1);
+      }
+      param.source_schema = argv[++i];
+      param.source_table = argv[++i];
+      if (!(count_only && !resume))
+      {
+        param.target_schema = argv[++i];
+        param.target_table = argv[++i];
+        param.source_pk_columns = base::split(argv[++i], ",", -1);
+        param.target_pk_columns = base::split(argv[++i], ",", -1);
+        param.select_expression = argv[++i];
+        param.copy_spec.where_expression = argv[++i];
+
+        trigger_schemas.insert(param.target_schema);
+      }
+      else
+      {
+        param.select_expression = argv[++i];
+        param.copy_spec.where_expression = argv[++i];
+      }
+      param.copy_spec.type = CopyWhere;
+
+      tables.add_task(param);
+    }
+    else if (check_arg_with_value(argv, i, "--max-count", argval, true))
+    {
+      max_count = atoi(argval);
+    }
     else
     {
       fprintf(stderr, "%s: Invalid option %s\n", argv[0], argv[i]);
@@ -527,7 +569,7 @@ int main(int argc, char **argv)
   // If needed, reads the tasks from the table definition file
   if (!table_file.empty())
   {
-    if (!read_tasks_from_file(table_file, count_only, tables, trigger_schemas, resume))
+    if (!read_tasks_from_file(table_file, count_only, tables, trigger_schemas, resume, max_count))
     {
       fprintf(stderr, "Invalid table definitions format in file: %s\n", table_file.data());
       exit(1);
@@ -707,6 +749,8 @@ int main(int argc, char **argv)
         psource->set_max_parameter_size((unsigned long)ptarget->get_max_long_data_size());
         psource->set_abort_on_oversized_blobs(abort_on_oversized_blobs);
         ptarget->set_truncate(truncate_target);
+        if (max_count > 0)
+          bulk_insert_batch = max_count;
         ptarget->set_bulk_insert_batch_size(bulk_insert_batch);
 
         if (check_types_only)
