@@ -131,6 +131,32 @@ static const char *odbc_type_to_name(SQLSMALLINT type)
   }
 }
 
+std::string QueryBuilder::build_query()
+{
+  std::string q;
+  std::string where_cond;
+  for (size_t i = 0; i < this->_where.size(); ++i)
+  {
+    if (i > 0)
+      where_cond += " AND ";
+    where_cond += base::strfmt("(%s)", this->_where[i].c_str());
+  }
+
+  if (this->_schema.empty())
+    q = base::strfmt("SELECT %s FROM %s", this->_columns.c_str(), this->_table.c_str());
+  else
+    q = base::strfmt("SELECT %s FROM %s.%s", this->_columns.c_str(), this->_schema.c_str(), this->_table.c_str());
+
+  if (!where_cond.empty())
+    q += base::strfmt(" WHERE %s", + where_cond.c_str());
+  if (!this->_orderby.empty())
+    q += base::strfmt(" ORDER BY %s", + this->_orderby.c_str());
+  if (!this->_limit.empty())
+    q += base::strfmt(" LIMIT %s", + this->_limit.c_str());
+
+  return q;
+}
+
 
 std::string ConnectionError::process(SQLRETURN retcode, SQLSMALLINT htype, SQLHANDLE handle)
 {
@@ -263,13 +289,12 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
           free(bind.error);
           bind.error = NULL;
         }
-        if (bind.is_null)
         {
           free(bind.is_null);
           bind.is_null = NULL;
         }
-        throw std::runtime_error(base::strfmt("Could not allocate %i bytes for row buffer column of %s %s %i", 
-          (int)bind.buffer_length, col->source_name.c_str(), col->source_type.c_str(), col->target_type));
+        throw std::runtime_error(base::strfmt("Could not allocate %lu bytes for row buffer column of %s %s %i",
+          bind.buffer_length, col->source_name.c_str(), col->source_type.c_str(), col->target_type));
       }
     }
     else
@@ -871,6 +896,11 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
         q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
       break;
     }
+    case CopyWhere:
+    {
+      q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), spec.where_expression.c_str());
+      break;
+    }
   }
   log_debug("Executing query: %s\n", q.c_str());
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
@@ -881,6 +911,9 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
     SQLGetData(stmt, 1, SQL_C_ULONG, &count, sizeof(count), NULL);
 
   SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+    count = spec.max_count;
 
   return count;
 }
@@ -903,33 +936,23 @@ boost::shared_ptr<std::vector<ColumnInfo> > ODBCCopyDataSource::begin_select_tab
 
   std::string q;
 
-  if (spec.type == CopyAll || spec.type == CopyCount)
+  QueryBuilder select_query;
+  select_query.select_columns(select_expression);
+  select_query.select_from_table(table, schema);
+  select_query.add_orderby(boost::algorithm::join(pk_columns, ", "));
+
+  if (spec.resume && last_pkeys.size())
+    select_query.add_where(get_where_condition(pk_columns, last_pkeys));
+  if (spec.type == CopyRange)
   {
-    if (spec.resume && last_pkeys.size())
-      q = base::strfmt("SELECT %s FROM %s.%s WHERE %s ORDER BY %s", select_expression.c_str(),
-                       schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str(),
-                       boost::algorithm::join(pk_columns, ", ").c_str());
-    else
-      q = base::strfmt("SELECT %s FROM %s.%s ORDER BY %s", select_expression.c_str(), schema.c_str(),
-                       table.c_str(), boost::algorithm::join(pk_columns, ", ").c_str());
+    select_query.add_where(base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start));
+    if (spec.range_end >= 0)
+      select_query.add_where(base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end));
   }
-  else if (spec.type == CopyRange)
-  {
-    std::string start_expr, end_expr;
-    if (spec.range_end < 0)
-      end_expr = "";
-    else
-      end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
-    start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
-    if (!end_expr.empty())
-      q = base::strfmt("SELECT %s FROM %s.%s WHERE %s AND %s ORDER BY %s", select_expression.c_str(),
-                       schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str(),
-                       boost::algorithm::join(pk_columns, ", ").c_str());
-    else
-      q = base::strfmt("SELECT %s FROM %s.%s WHERE %s ORDER BY %s", select_expression.c_str(),
-                       schema.c_str(), table.c_str(), start_expr.c_str(),
-                       boost::algorithm::join(pk_columns, ", ").c_str());
-  }
+  if (spec.type == CopyWhere)
+    select_query.add_where(spec.where_expression);
+
+  q = select_query.build_query();
 
   log_debug("Executing query: %s\n", q.c_str());
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(_stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
@@ -1369,6 +1392,11 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
         q = base::strfmt("SELECT count(*) FROM %s LIMIT %lli", table.c_str(), spec.row_count);
       break;
     }
+    case CopyWhere:
+    {
+      q = base::strfmt("SELECT count(*) FROM %s WHERE %s", table.c_str(), spec.where_expression.c_str());
+      break;
+    }
   }
 
   if (mysql_query(&_mysql, q.data()) != 0)
@@ -1388,6 +1416,9 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
 
   mysql_free_result(result);
 
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+      count = spec.max_count;
+
   return count;
 }
 
@@ -1406,39 +1437,27 @@ boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_ta
   if (mysql_query(&_mysql, q.data()) < 0)
     throw ConnectionError("mysql_query("+q+")", &_mysql);
 
-  if (spec.type == CopyAll)
-    if (spec.resume && last_pkeys.size())
-      q = base::strfmt("SELECT %s FROM %s WHERE %s ORDER BY %s", select_expression.c_str(),
-                       table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str(),
-                       boost::algorithm::join(pk_columns, ", ").c_str());
-    else
-      q = base::strfmt("SELECT %s FROM %s ORDER BY %s", select_expression.c_str(), table.c_str(),
-                       boost::algorithm::join(pk_columns, ", ").c_str());
-  else if (spec.type == CopyCount)
-    if (spec.resume && last_pkeys.size())
-      q = base::strfmt("SELECT %s FROM %s WHERE %s ORDER BY %s LIMIT %lli", select_expression.c_str(),
-                       table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str(),
-                       boost::algorithm::join(pk_columns, ", ").c_str(), spec.row_count);
-    else
-      q = base::strfmt("SELECT %s FROM %s LIMIT %lli", select_expression.c_str(), table.c_str(), spec.row_count);
-  else if (spec.type == CopyRange)
-  {
-    std::string start_expr, end_expr;
-    if (spec.range_end < 0)
-      end_expr = "";
-    else
-      end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
-    start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
-    if (!end_expr.empty())
-      q = base::strfmt("SELECT %s FROM %s WHERE %s AND %s ORDER BY %s", select_expression.c_str(),
-                       table.c_str(), start_expr.c_str(), end_expr.c_str(),
-                       boost::algorithm::join(pk_columns, ", ").c_str());
-    else
-      q = base::strfmt("SELECT %s FROM %s WHERE %s ORDER BY %s", select_expression.c_str(),
-                       table.c_str(), start_expr.c_str(),
-                       boost::algorithm::join(pk_columns, ", ").c_str());
-  }
+  QueryBuilder select_query;
+  select_query.select_columns(select_expression);
+  select_query.select_from_table(table);
+  select_query.add_orderby(boost::algorithm::join(pk_columns, ", "));
 
+  if (spec.type == CopyCount || spec.max_count > 0)
+    select_query.add_limit(base::strfmt("%lli", spec.row_count));
+  if (spec.resume && last_pkeys.size())
+    select_query.add_where(get_where_condition(pk_columns, last_pkeys));
+  if (spec.type == CopyRange)
+  {
+    select_query.add_where(base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start));
+    if (spec.range_end >= 0)
+      select_query.add_where(base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end));
+  }
+  if (spec.type == CopyWhere)
+    select_query.add_where(spec.where_expression);
+
+  q = select_query.build_query();
+
+  log_debug("Executing query: %s\n", q.c_str());
   MYSQL_STMT *stmt = mysql_stmt_init(&_mysql);
   if (stmt)
   {
@@ -2718,7 +2737,8 @@ void CopyDataTask::copy_table(const TableParam &task)
 
       _target->row_buffer().clear();
 
-      if (task.copy_spec.type == CopyCount && i >= task.copy_spec.row_count)
+      if ((task.copy_spec.type == CopyCount && i >= task.copy_spec.row_count) ||
+          (task.copy_spec.max_count > 0 && i >= task.copy_spec.max_count))
         break;
     }
 

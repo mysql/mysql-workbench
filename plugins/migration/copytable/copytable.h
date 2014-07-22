@@ -46,6 +46,23 @@
 #include "glib.h"
 #include "base/threading.h"
 
+class QueryBuilder
+{
+public:
+  void select_columns(const std::string &columns){_columns = columns;};
+  void select_from_table(const std::string &table, const std::string &schema = ""){_table = table; _schema = schema;};
+  void add_limit(const std::string &limit){_limit = limit;};
+  void add_orderby(const std::string &orderby){_orderby = orderby;};
+  void add_where(const std::string &where){_where.push_back(where);};
+  std::string build_query();
+private:
+  std::string _orderby;
+  std::string _limit;
+  std::string _schema;
+  std::string _table;
+  std::string _columns;
+  std::vector<std::string> _where;
+};
 
 class ConnectionError : public std::runtime_error
 {
@@ -134,7 +151,8 @@ enum CopyType
 {
   CopyAll,
   CopyRange,
-  CopyCount
+  CopyCount,
+  CopyWhere
 };
 
 struct CopySpec
@@ -142,9 +160,11 @@ struct CopySpec
   CopyType type;
 
   std::string range_key;
+  std::string where_expression;
   long long range_start;
   long long range_end;
   long long row_count;
+  long long max_count;
   bool resume;
 };
 
