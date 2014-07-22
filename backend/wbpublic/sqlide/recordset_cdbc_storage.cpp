@@ -211,7 +211,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
         known_types["VARCHAR"]= std::string();
         known_types["CHAR"]= std::string();
 
-        known_types["GEOMETRY"]= sqlite::unknown_t();
+        known_types["GEOMETRY"]= sqlite::blob_ref_t();
 
         known_types["UNKNOWN"]= sqlite::unknown_t();
 
