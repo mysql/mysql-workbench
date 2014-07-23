@@ -53,6 +53,12 @@ cd /tmp/freetdsbuild
 echo "Extracting files from $freetds_tarball..."
 tar xzf $freetds_tarball
 
+if `uname` = darwin; then
+# force 32bit build
+export CFLAGS="-arch i386"
+export LDFLAGS="-arch i386"
+fi
+
 if iodbc-config --cflags|grep -- -I; then
     ln -s `iodbc-config --cflags|sed -e "s/.*-I\([^ ]*\).*/\1/"` include
 else

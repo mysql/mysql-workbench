@@ -2356,9 +2356,9 @@ bool FKConstraintColumnsListBE::set_field(const NodeId &node, ColumnId column, s
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-bool FKConstraintColumnsListBE::get_field_grt(const NodeId &node, int column,
-                                              grt::ValueRef &value)
+bool FKConstraintColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   switch (column)
   {
@@ -2756,7 +2756,7 @@ bool FKConstraintListBE::set_field(const NodeId &node, ColumnId column, const st
 }
 
 
-bool FKConstraintListBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool FKConstraintListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   db_ForeignKeyRef fk;
 

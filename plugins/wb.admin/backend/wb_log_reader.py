@@ -98,7 +98,23 @@ from workbench.log import log_info, log_error
 from wb_server_management import SudoTailInputFile, LocalInputFile, SFTPInputFile
 from wb_common import LogFileAccessError, ServerIOError, InvalidPasswordError
 from workbench.utils import server_os_path
-import dateutil.parser
+
+import time
+import datetime
+import calendar
+
+def ts_iso_to_local(ts, fmt):
+    if ts[-1] == "Z":
+        ts = ts[:-1]
+    if "." in ts: # strip the millisecond part
+        ts, _, ms = ts.partition(".")
+        ms = "."+ms
+    else:
+        ms = ""
+    local_time = calendar.timegm(datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S").timetuple())
+    return time.strftime(fmt, time.localtime(local_time))+ms
+
+
 
 #========================= Query Based Readers ================================
 
@@ -522,7 +538,7 @@ class ErrorLogFileReader(BaseLogFileReader):
         elif gdict['old']:
             return ["20%s-%s-%s %s" % (g[10], g[11], g[12], g[13]), "", g[14], g[15]]
         elif gdict['v57']:
-            return [dateutil.parser.parse(g[17]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T"), g[18], g[19], g[20]]
+            return [ts_iso_to_local(g[17], "%F %T"), g[18], g[19], g[20]]
         else:
             return ["", "", "", g[-1]]
 
@@ -561,7 +577,7 @@ class GeneralLogFileReader(BaseLogFileReader):
         gdict = found.groupdict()
         g = found.groups()
         if gdict['v57']:
-            return [dateutil.parser.parse(g[1]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T"), g[2], g[3], g[4]]
+            return [ts_iso_to_local(g[1], "%F %T"), g[2], g[3], g[4]]
         else: # v56
             return list(g[6:10])
 
@@ -593,6 +609,6 @@ class SlowLogFileReader(BaseLogFileReader):
         g = found.groups()
         if gdict['v57']:
             # convert timezone from UTC to local
-            return [dateutil.parser.parse(g[1]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T")]+list(g[2:8])
+            return [ts_iso_to_local(g[1], "%F %T")]+list(g[2:8])
         else: # v56
             return list(g[9:9+7])

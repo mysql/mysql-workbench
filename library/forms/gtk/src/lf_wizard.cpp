@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2012, 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,6 @@
 namespace mforms{
 namespace gtk{
 
-static TextListColumnsModel    steps_model;
 static std::string icon_path;
 
 
@@ -133,7 +132,7 @@ WizardImpl::WizardImpl(::mforms::Wizard *wiz, ::mforms::Form* owner)
   _fwd_label.set_use_underline(true);
   _extra_btn.hide();
 
-  get_window()->set_size_request(-1, 650);
+  get_window()->set_size_request(800, 650);
 
   if (owner)
   {

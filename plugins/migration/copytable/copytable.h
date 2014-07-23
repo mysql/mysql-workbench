@@ -46,6 +46,23 @@
 #include "glib.h"
 #include "base/threading.h"
 
+class QueryBuilder
+{
+public:
+  void select_columns(const std::string &columns){_columns = columns;};
+  void select_from_table(const std::string &table, const std::string &schema = ""){_table = table; _schema = schema;};
+  void add_limit(const std::string &limit){_limit = limit;};
+  void add_orderby(const std::string &orderby){_orderby = orderby;};
+  void add_where(const std::string &where){_where.push_back(where);};
+  std::string build_query();
+private:
+  std::string _orderby;
+  std::string _limit;
+  std::string _schema;
+  std::string _table;
+  std::string _columns;
+  std::vector<std::string> _where;
+};
 
 class ConnectionError : public std::runtime_error
 {
@@ -106,7 +123,8 @@ class RowBuffer : public std::vector<MYSQL_BIND>
 
 public:
   RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
-            boost::function<void (int, const char*, size_t)> send_blob_data);
+            boost::function<void (int, const char*, size_t)> send_blob_data,
+            size_t max_packet_size);
   ~RowBuffer();
 
   void clear();
@@ -133,7 +151,8 @@ enum CopyType
 {
   CopyAll,
   CopyRange,
-  CopyCount
+  CopyCount,
+  CopyWhere
 };
 
 struct CopySpec
@@ -141,9 +160,11 @@ struct CopySpec
   CopyType type;
 
   std::string range_key;
+  std::string where_expression;
   long long range_start;
   long long range_end;
   long long row_count;
+  long long max_count;
   bool resume;
 };
 
@@ -289,6 +310,7 @@ class MySQLCopyDataTarget
 
   MYSQL _mysql;
   MYSQL_STMT *_insert_stmt;
+  std::string _incoming_data_charset;
   unsigned long _max_allowed_packet;
   unsigned long _max_long_data_size;
   std::string _schema;
@@ -326,7 +348,8 @@ class MySQLCopyDataTarget
 public:
   MySQLCopyDataTarget(const std::string &hostname, int port,
                       const std::string &username, const std::string &password,
-                      const std::string &socket, const std::string &app_name);
+                      const std::string &socket, const std::string &app_name,
+                      const std::string &incoming_charset);
 
   ~MySQLCopyDataTarget();
 

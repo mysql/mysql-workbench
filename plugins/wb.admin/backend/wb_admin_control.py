@@ -233,6 +233,7 @@ class WbAdminControl(object):
         self.server_helper = ServerManagementHelper(self.server_profile, self.ssh)
         if self.server_helper:
             self.server_profile.expanded_config_file_path = self.server_helper.shell.expand_path_variables(self.server_profile.config_file_path)
+            self.query_server_installation_info()
         # detect the exact type of OS we're managing
         os_info = self.detect_operating_system_version()
         if os_info:
@@ -597,44 +598,6 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
 
     #---------------------------------------------------------------------------
     def query_server_info(self):
-        normpath = self.server_profile.path_module.normpath
-
-        def get_config_options():
-            if self.server_profile.config_file_path:
-                try:
-                    cfg_file = StringIO.StringIO(self.server_helper.get_file_content(self.server_profile.config_file_path))
-                except PermissionDeniedError:
-                    log_debug('Could not open the file "%s" as the current user. Trying as admin\n' % self.server_profile.config_file_path)
-                    while True:
-                        try:
-                            password = self.password_handler.get_password_for('file')
-                            cfg_file = StringIO.StringIO(self.server_helper.get_file_content(self.server_profile.config_file_path,
-                                              as_user=Users.ADMIN, user_password = password))
-                            break
-                        except InvalidPasswordError:
-                            self.password_handler.reset_password_for('file')
-                        except Exception, err:
-                            log_error('Could not open the file "%s": %s\n' % (self.server_profile.config_file_path, str(err)))
-                            return {}
-                except Exception, err:
-                    log_error('Could not open the file "%s": %s\n' % (self.server_profile.config_file_path, str(err)))
-                    return {}
-
-                opts = {}
-                section = 'root'
-                for line in cfg_file:
-                    line = line.strip()
-                    if line == '' or line.startswith('#'):
-                        continue
-                    elif line.startswith('[') and line.endswith(']'):
-                        section = line[1:-1].strip()
-                    else:
-                        k, d, v = line.partition('=')
-                        val = v.strip() or 'ON'
-                        opts.setdefault(section, {})[k.strip()] = val
-                return opts
-            return {}
-
         self.server_variables = {}
         result = self.exec_query("SHOW VARIABLES")
         while result and result.nextRow():
@@ -669,6 +632,46 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 plugin_type = result.stringByName("Type")
                 if status == "ACTIVE":
                     self.server_active_plugins.add((name, plugin_type))
+
+
+    def query_server_installation_info(self):
+        normpath = self.server_profile.path_module.normpath
+
+        def get_config_options():
+            if self.server_profile.config_file_path and self.server_helper:
+                try:
+                    cfg_file = StringIO.StringIO(self.server_helper.get_file_content(self.server_profile.config_file_path))
+                except PermissionDeniedError:
+                    log_debug('Could not open the file "%s" as the current user. Trying as admin\n' % self.server_profile.config_file_path)
+                    while True:
+                        try:
+                            password = self.password_handler.get_password_for('file')
+                            cfg_file = StringIO.StringIO(self.server_helper.get_file_content(self.server_profile.config_file_path,
+                                              as_user=Users.ADMIN, user_password = password))
+                            break
+                        except InvalidPasswordError:
+                            self.password_handler.reset_password_for('file')
+                        except Exception, err:
+                            log_error('Could not open the file "%s": %s\n' % (self.server_profile.config_file_path, str(err)))
+                            return {}
+                except Exception, err:
+                    log_error('Could not open the file "%s": %s\n' % (self.server_profile.config_file_path, str(err)))
+                    return {}
+
+                opts = {}
+                section = 'root'
+                for line in cfg_file:
+                    line = line.strip()
+                    if line == '' or line.startswith('#'):
+                        continue
+                    elif line.startswith('[') and line.endswith(']'):
+                        section = line[1:-1].strip()
+                    else:
+                        k, d, v = line.partition('=')
+                        val = v.strip() or 'ON'
+                        opts.setdefault(section, {})[k.strip()] = val
+                return opts
+            return {}
 
         opts = get_config_options()
         config_section = self.server_profile.config_file_section or 'mysqld'
