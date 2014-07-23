@@ -140,6 +140,7 @@ namespace spatial
     base::Point bottom_right;
     friend bool operator == (Envelope &env1, Envelope &env2);
     friend bool operator != (Envelope &env1, Envelope &env2);
+    bool is_init();
   };
 
   bool operator== (ProjectionView &v1, ProjectionView &v2);

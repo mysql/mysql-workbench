@@ -548,6 +548,10 @@ bool spatial::operator!= (Envelope &env1, Envelope &env2)
 
 spatial::Envelope::Envelope() : converted(false)
 {
+  top_left.x = 180;
+  top_left.y = -90;
+  bottom_right.x = -180;
+  bottom_right.y = 90;
 }
 
 spatial::Envelope::Envelope(double left, double top, double right, double bottom) : converted(false)
@@ -556,6 +560,15 @@ spatial::Envelope::Envelope(double left, double top, double right, double bottom
   top_left.y = top;
   bottom_right.x = right;
   bottom_right.y = bottom;
+  top_left.x = 180;
+  top_left.y = -90;
+  bottom_right.x = -180;
+  bottom_right.y = 90;
+}
+
+bool spatial::Envelope::is_init()
+{
+  return (top_left.x != 180 && top_left.y != -90 && bottom_right.x != -180 && bottom_right.y != 90);
 }
 
 bool spatial::ShapeContainer::within(base::Point &p)
@@ -1244,22 +1257,10 @@ void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_are
 
 static void extend_env(spatial::Envelope &env, const spatial::Envelope &env2)
 {
-  if (env.top_left.x > env2.top_left.x)
-  {
-    env.top_left.x = env2.top_left.x;
-  }
-  if (env.top_left.y < env2.top_left.y)
-  {
-    env.top_left.y = env2.top_left.y;
-  }
-  if (env.bottom_right.x < env2.bottom_right.x)
-  {
-    env.bottom_right.x = env2.bottom_right.x;
-  }
-  if (env.bottom_right.y > env2.bottom_right.y)
-  {
-    env.bottom_right.y = env2.bottom_right.y;
-  }
+  env.top_left.x = MIN(env.top_left.x, env2.top_left.x);
+  env.top_left.y = MAX(env.top_left.y, env2.top_left.y);
+  env.bottom_right.x = MAX(env.bottom_right.x, env2.bottom_right.x);
+  env.bottom_right.y = MIN(env.bottom_right.y, env2.bottom_right.y);
 }
 
 

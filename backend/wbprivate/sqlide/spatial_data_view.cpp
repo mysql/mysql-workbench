@@ -345,6 +345,7 @@ void SpatialDataView::jump_to()
 void SpatialDataView::auto_zoom()
 {
   _viewer->auto_zoom(_layer_tree->get_selected_row());
+  _viewer->invalidate(true);
 }
 
 

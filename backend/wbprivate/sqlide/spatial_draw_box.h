@@ -110,7 +110,7 @@ public:
   void reset_view();
   void zoom_out();
   void zoom_in();
-  void auto_zoom(const size_t layer_idx = (size_t)-1, bool no_invalidate = false); //by default we set it to max, cause 0 can be also idx
+  void auto_zoom(const size_t layer_idx = (size_t)-1); //by default we set it to max, cause 0 can be also idx
   void select_area();
 
   void center_on(double lat, double lon);
