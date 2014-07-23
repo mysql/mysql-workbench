@@ -461,7 +461,7 @@ void SpatialDrawBox::show_layer(int layer_id, bool flag)
   }
 }
 
-void SpatialDrawBox::fillup_polygon(int layer_id)
+void SpatialDrawBox::fillup_polygon(int layer_id, bool flag)
 {
   if (layer_id != 0)
   {
@@ -469,7 +469,7 @@ void SpatialDrawBox::fillup_polygon(int layer_id)
     for (std::deque<spatial::Layer*>::iterator i = _layers.begin(); i != _layers.end(); ++i)
       if ((*i)->layer_id() == layer_id)
       {
-        (*i)->set_fill_polygons(!(*i)->get_fill_polygons());
+        (*i)->set_fill_polygons(flag);
         invalidate(true);
         return;
       }

@@ -121,7 +121,7 @@ public:
   void remove_layer(spatial::Layer *layer);
 
   void show_layer(int layer_id, bool flag);
-  void fillup_polygon(int layer_id);
+  void fillup_polygon(int layer_id, bool flag);
 
   void activate();
 

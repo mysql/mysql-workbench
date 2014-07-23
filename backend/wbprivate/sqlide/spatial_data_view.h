@@ -36,6 +36,7 @@ namespace mforms
   struct TreeNodeRef;
   class Label;
   class ContextMenu;
+  class MenuItem;
 };
 
 class SpatialDrawBox;
@@ -91,7 +92,7 @@ public:
 
   void set_geometry_columns(const std::vector<SpatialDataSource> &columns);
   int get_option(const char* opt_name, int default_value);
-  void fillup_polygon();
+  void fillup_polygon(mforms::MenuItem *mitem);
   void projection_item_activated(mforms::ToolBarItem *item);
 
   void activate();
