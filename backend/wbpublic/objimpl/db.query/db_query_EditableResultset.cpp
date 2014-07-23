@@ -159,7 +159,8 @@ grt::IntegerRef db_query_EditableResultset::addNewRow()
   if (_data)
 {
     _data->cursor= _data->recordset->count()-1;
-  
+    if (_data->recordset->rows_changed)
+      _data->recordset->rows_changed();
     return grt::IntegerRef((grt::IntegerRef::storage_type)_data->cursor);
   }
   return grt::IntegerRef(0);
