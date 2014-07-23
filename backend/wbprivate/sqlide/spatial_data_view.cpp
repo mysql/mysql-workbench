@@ -90,7 +90,6 @@ public:
   }
 };
 
-
 SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 : mforms::Box(false), _owner(owner)
 {
@@ -207,8 +206,16 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_menu = new mforms::ContextMenu();
 //  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
 //  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
+
   _layer_menu->add_item_with_title("Refresh", boost::bind(&SpatialDataView::refresh_layers, this), "refresh");
-  _layer_menu->add_item_with_title("Fillup/Clear polygon", boost::bind(&SpatialDataView::fillup_polygon, this), "fillup_polygon");
+
+   mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fillup/Clear polygon", mforms::CheckedMenuItem));
+   mitem->set_checked(true);
+   mitem->set_name("fillup_polygon");
+   mitem->signal_clicked()->connect(boost::bind(&SpatialDataView::fillup_polygon, this, mitem));
+   _layer_menu->add_item(mitem);
+
+
 
   _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
   _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
@@ -233,10 +240,13 @@ int SpatialDataView::get_option(const char* opt_name, int default_value)
   return _owner->owner()->grt_manager()->get_app_option_int(opt_name, default_value) != 0;
 }
 
-void SpatialDataView::fillup_polygon()
+void SpatialDataView::fillup_polygon(mforms::MenuItem *mitem)
 {
+
   if (_layer_tree->is_enabled())
-    _viewer->fillup_polygon(_layer_tree->get_selected_row());
+  {
+    _viewer->fillup_polygon(_layer_tree->get_selected_row(), mitem->get_checked());
+  }
 }
 
 void SpatialDataView::projection_item_activated(mforms::ToolBarItem *item)
