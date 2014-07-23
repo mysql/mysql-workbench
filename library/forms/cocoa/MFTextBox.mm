@@ -26,16 +26,18 @@ using namespace mforms;
 
 @implementation InternalTextView
   
-- (id) initWithFrame: (NSRect) frame
-          AndBackend: (mforms::TextBox*) backend
+- (id) initWithFrame: (NSRect)frame
+             backend: (mforms::TextBox*)backend
 {
   self = [super initWithFrame: frame];
   if (self)
   {
-    mBackend = backend;
+    mOwner = backend;
   }
   return self;
 }
+
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 //--------------------------------------------------------------------------------------------------
 
@@ -62,7 +64,7 @@ using namespace mforms;
 {
   mforms::ModifierKey modifiers = [self modifiersFromEvent: event];
 
-  if (mBackend->key_event(mforms::KeyModifierOnly, modifiers, ""))
+  if (mOwner->key_event(mforms::KeyModifierOnly, modifiers, ""))
     [super flagsChanged: event];
 }
 
@@ -74,7 +76,7 @@ using namespace mforms;
   
   NSString* input = [event characters];
   
-  if (mBackend->key_event(mforms::KeyChar, modifiers, [input UTF8String]))
+  if (mOwner->key_event(mforms::KeyChar, modifiers, [input UTF8String]))
     [super keyDown: event];
 }
 
@@ -112,7 +114,7 @@ using namespace mforms;
     }
 
     frame.size= [self minimumSize];
-    mContentView= [[[InternalTextView alloc] initWithFrame: frame AndBackend: mOwner] autorelease];
+    mContentView= [[[InternalTextView alloc] initWithFrame: frame backend: mOwner] autorelease];
     [self setDocumentView:mContentView];
 
     [[mContentView textContainer] setContainerSize: NSMakeSize(1000000000, 1000000000)];

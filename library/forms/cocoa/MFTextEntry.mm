@@ -148,6 +148,8 @@
   return self;
 }
 
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+
 - (mforms::Object*)mformsObject
 {
   return mOwner;
@@ -221,12 +223,6 @@
 {
   [super setDrawsBackground: flag];
   [self.cell setDrawsBackground: flag];
-}
-
-- (BOOL)becomeFirstResponder
-{
-  mOwner->focus_changed();
-  return [super becomeFirstResponder];
 }
 
 @end

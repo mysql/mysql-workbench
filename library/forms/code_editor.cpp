@@ -1012,8 +1012,13 @@ void CodeEditor::on_notify(SCNotification* notification)
 
     }
     break;
+
+  case SCN_FOCUSIN:
+    focus_changed();
+    break;
+
   case SCN_FOCUSOUT:
-    _signal_lost_focus();
+    _signal_lost_focus(); // For validation, parsing etc.
     break;
   }
 }

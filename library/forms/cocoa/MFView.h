@@ -54,11 +54,6 @@
 - (void)updateTrackingAreas            {\
   [super updateTrackingAreas]; mTrackingArea = [self updateTrackingArea: mTrackingArea];\
 }\
-- (BOOL)becomeFirstResponder\
-{\
-  wrapper->mOwner->focus_changed();\
-  return [super becomeFirstResponder];\
-}
 
 // A macro to ease adding support for backend based mouse handling (e.g. for drag'n drop).
 #define STANDARD_MOUSE_HANDLING(wrapper) \
@@ -69,6 +64,13 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(wrapper) \
 - (void)rightMouseUp:(NSEvent*)event {\
   if (![self handleMouseUp: event owner: wrapper->mOwner]) [super mouseUp: event];\
 }\
+
+#define STANDARD_FOCUS_HANDLING(wrapper) \
+- (BOOL)becomeFirstResponder\
+{ \
+wrapper->mOwner->focus_changed(); \
+return [super becomeFirstResponder]; \
+}
 
 namespace mforms { class View; }
 
