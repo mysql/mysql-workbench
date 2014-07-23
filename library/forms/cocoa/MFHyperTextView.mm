@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 #import "MFHyperTextView.h"
 #import "MFMForms.h"
 #import "MFBase.h"
+#import "MFView.h"
 #import "NSColor_extras.h"
 
 @implementation MFHyperTextView
@@ -66,6 +67,7 @@
   [super dealloc];
 }
 
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 - (void)setBackgroundColor:(NSColor *)color
 {
