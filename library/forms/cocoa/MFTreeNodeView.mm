@@ -796,6 +796,7 @@ static NSImage *descendingSortIndicator = nil;
 //--------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 //--------------------------------------------------------------------------------------------------
 

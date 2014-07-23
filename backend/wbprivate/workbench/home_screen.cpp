@@ -4343,6 +4343,7 @@ HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
 HomeScreen::~HomeScreen()
 {
   base::NotificationCenter::get()->remove_observer(this);
+  clear_subviews(); // Remove our sections or the View d-tor will try to release them.
 
   delete _shortcut_section;
   delete _connection_section;

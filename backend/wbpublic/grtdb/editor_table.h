@@ -262,7 +262,7 @@ namespace bec {
 
   protected:
     // for internal use only
-    virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
+    virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
     
     bool set_fk_column_pair(const db_ColumnRef &column, const db_ColumnRef &refcolumn); 
     
@@ -319,7 +319,7 @@ namespace bec {
     virtual bool activate_popup_item_for_nodes(const std::string &name, const std::vector<NodeId>& nodes);
   protected:
     // for internal use only
-    virtual bool get_field_grt(const NodeId &node, int column, grt::ValueRef &value);
+    virtual bool get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value);
     
   protected:
     FKConstraintColumnsListBE _column_list;

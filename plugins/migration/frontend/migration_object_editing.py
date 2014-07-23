@@ -126,6 +126,13 @@ class MainView(WizardPage):
         self._tree.add_changed_callback(self._selection_changed)
         self.content.add(self._tree, True, True)
         self._tree.set_cell_edited_callback(self._cell_edited)
+
+        self._all_menu = mforms.newContextMenu()
+        self._all_menu.add_will_show_callback(self.all_menu_will_show)
+        self._all_menu.add_check_item_with_title("Skip Object", self.skip_object, "skip_object")
+
+        self._tree.set_context_menu(self._all_menu)
+
         
         self._columns = mforms.newTreeNodeView(mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeFlatList)
         self.COL_SOURCE_SCHEMA = self._columns.add_column(mforms.StringColumnType, "Source Schema", 100, False)
@@ -133,7 +140,7 @@ class MainView(WizardPage):
         self.COL_SOURCE_COLUMN = self._columns.add_column(mforms.IconStringColumnType, "Source Column", 100, False)
         self.COL_SOURCE_TYPE = self._columns.add_column(mforms.StringColumnType, "Source Type", 100, False)
         self.COL_SOURCE_FLAGS = self._columns.add_column(mforms.StringColumnType, "Source Flags", 100, False)
-        self.COL_SOURCE_NOTNULL = self._columns.add_column(mforms.CheckColumnType, "NN", 20, False)
+        self.COL_SOURCE_NOTNULL = self._columns.add_column(mforms.CheckColumnType, "NN", 25, False)
         self.COL_SOURCE_DEFAULT = self._columns.add_column(mforms.StringColumnType, "Source Default Value", 100, False)
         self.COL_SOURCE_COLLATION = self._columns.add_column(mforms.StringColumnType, "Source Collation", 100, False)
         self.COL_TARGET_SCHEMA = self._columns.add_column(mforms.StringColumnType, "Target Schema", 100, False)
@@ -141,8 +148,8 @@ class MainView(WizardPage):
         self.COL_TARGET_COLUMN = self._columns.add_column(mforms.IconStringColumnType, "Target Column", 100, True)
         self.COL_TARGET_TYPE = self._columns.add_column(mforms.StringColumnType, "Target Type", 100, True)
         self.COL_TARGET_FLAGS = self._columns.add_column(mforms.StringColumnType, "Target Flags", 100, True)
-        self.COL_TARGET_AI = self._columns.add_column(mforms.CheckColumnType, "AI", 20, True)
-        self.COL_TARGET_NOTNULL = self._columns.add_column(mforms.CheckColumnType, "NN", 20, True)
+        self.COL_TARGET_AI = self._columns.add_column(mforms.CheckColumnType, "AI", 25, True)
+        self.COL_TARGET_NOTNULL = self._columns.add_column(mforms.CheckColumnType, "NN", 25, True)
         self.COL_TARGET_DEFAULT = self._columns.add_column(mforms.StringColumnType, "Target Default Value", 100, True)
         self.COL_TARGET_COLLATION = self._columns.add_column(mforms.StringColumnType, "Target Collation", 100, True)
         self.COL_MESSAGE = self._columns.add_column(mforms.IconStringColumnType, "Migration Message", 300, False)
@@ -833,6 +840,26 @@ class MainView(WizardPage):
                 self._add_node(None, None, obj, "GrtObject.16x16.png")
 
         self._selection_changed()
+
+
+    def skip_object(self):
+        node = self._tree.get_selected_node()
+        tag = node.get_tag()
+        if tag and tag in self._object_dict:
+            obj = self._object_dict[tag]
+            if hasattr(obj, 'commentedOut'):
+                obj.commentedOut = not obj.commentedOut    
+
+    def all_menu_will_show(self, item):
+        node = self._tree.get_selected_node()
+        tag = node.get_tag()
+        self._all_menu.get_item(0).set_enabled(False)
+        if tag and tag in self._object_dict:
+            obj = self._object_dict[tag]
+            if hasattr(obj, 'commentedOut'):
+                self._all_menu.get_item(0).set_checked(obj.commentedOut)
+                if obj.__grtclassname__ in ("db.Index", "db.ForeignKey"):
+                    self._all_menu.get_item(0).set_enabled(True)
 
     def menu_will_show(self, item):
         self._menu.get_item(0).set_enabled(len(self._columns.get_selection()) > 1)
