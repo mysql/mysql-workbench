@@ -1106,7 +1106,7 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
 
   if (opts & mforms::TreeCanBeDragSource)
   {
-
+    _is_drag_source = true;
     Gtk::Widget *w = this->get_outer();
     if (w)
     {
@@ -1117,8 +1117,9 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
       w->signal_drag_failed().connect(sigc::mem_fun(this, &TreeNodeViewImpl::slot_drag_failed));
     }
     _tree.add_events(Gdk::POINTER_MOTION_MASK);
-
   }
+  _is_drag_source = false;
+
   _swin.add(_tree);
   _swin.show_all();
   _tree.set_headers_visible((opts & mforms::TreeNoHeader) == 0);
@@ -1526,13 +1527,18 @@ bool TreeNodeViewImpl::on_button_event(GdkEventButton *event)
   }
   else if (event->button == 1 && _drag_button == 0)
   {
-    if (_org_event == 0)
+    Gtk::TreeModel::Path  path;
+    Gtk::TreeViewDropPosition   pos;
+    if (_tree.get_dest_row_at_pos(event->x, event->y, path, pos) && _is_drag_source)
     {
-      _org_event = new GdkEventButton(*event);
-      _drag_button = event->button;
-      _drag_start_x = event->x;
-      _drag_start_y = event->y;
-      ret_val = true;
+      if (_org_event == 0)
+      {
+        _org_event = new GdkEventButton(*event);
+        _drag_button = event->button;
+        _drag_start_x = event->x;
+        _drag_start_y = event->y;
+        ret_val = true;
+      }
     }
   }
 
