@@ -688,9 +688,9 @@ void HeartbeatWidget::repaint(cairo_t *cr, int areax, int areay, int areaw, int 
 ServerStatusWidget::ServerStatusWidget()
 {
   _status= -1;
-  _image_unknown= Utilities::load_icon("admin_info_unknown.png");
-  _image_running= Utilities::load_icon("admin_info_running.png");
-  _image_stopped= Utilities::load_icon("admin_info_stopped.png");
+  _image_unknown= Utilities::load_icon("admin_info_unknown.png", true);
+  _image_running= Utilities::load_icon("admin_info_running.png", true);
+  _image_stopped= Utilities::load_icon("admin_info_stopped.png", true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -748,6 +748,9 @@ void ServerStatusWidget::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   // Icon.
   if (icon != NULL)
   {
+    float scale;
+    if (mforms::Utilities::is_hidpi_icon(icon) && (scale = mforms::App::get()->backing_scale_factor()) > 1)
+      cairo_scale(cr, 1/scale, 1/scale);
     cairo_set_source_surface(cr, icon, 0, 0);
     cairo_paint(cr);
   }
@@ -793,6 +796,13 @@ bool ServerStatusWidget::layout(cairo_t* cr)
   {
     _layout_width = MAX(_layout_width, cairo_image_surface_get_width(icon));
     _layout_height += cairo_image_surface_get_height(icon) + LINE_SPACING;
+
+    float scale;
+    if (mforms::Utilities::is_hidpi_icon(icon) && (scale = mforms::App::get()->backing_scale_factor()) > 1)
+    {
+      _layout_width /= scale;
+      _layout_height /= scale;
+    }
   }
 
   cairo_restore(cr);
