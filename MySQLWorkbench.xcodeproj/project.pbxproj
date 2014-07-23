@@ -2102,6 +2102,53 @@
 		2BD1FBBE0F33D4C100FFC762 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2BD1FBD30F33D51800FFC762 /* ExceptionHandling.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16E036BE0F3062AC004651CB /* ExceptionHandling.framework */; };
 		2BD1FBDD0F33D53100FFC762 /* ExceptionHandling.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16E036BE0F3062AC004651CB /* ExceptionHandling.framework */; };
+		2BD4201C198034600061895B /* output_type-explaindata.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4201A198034600061895B /* output_type-explaindata.png */; };
+		2BD4201D198034600061895B /* output_type-explaindata@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4201B198034600061895B /* output_type-explaindata@2x.png */; };
+		2BD42035198034A60061895B /* admin_add_user.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4201E198034A60061895B /* admin_add_user.png */; };
+		2BD42036198034A60061895B /* admin_add_user@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4201F198034A60061895B /* admin_add_user@2x.png */; };
+		2BD42037198034A60061895B /* admin_config_wizard@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42020198034A60061895B /* admin_config_wizard@2x.png */; };
+		2BD42038198034A60061895B /* admin_export@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42021198034A60061895B /* admin_export@2x.png */; };
+		2BD42039198034A60061895B /* admin_info_running@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42022198034A60061895B /* admin_info_running@2x.png */; };
+		2BD4203A198034A60061895B /* admin_info_stopped@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42023198034A60061895B /* admin_info_stopped@2x.png */; };
+		2BD4203B198034A60061895B /* admin_info_unknown@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42024198034A60061895B /* admin_info_unknown@2x.png */; };
+		2BD4203C198034A60061895B /* admin_manage_exported@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42025198034A60061895B /* admin_manage_exported@2x.png */; };
+		2BD4203D198034A60061895B /* admin_manage_privs@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42026198034A60061895B /* admin_manage_privs@2x.png */; };
+		2BD4203E198034A60061895B /* admin_meb_backup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42027198034A60061895B /* admin_meb_backup@2x.png */; };
+		2BD4203F198034A60061895B /* admin_meb_restore@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42028198034A60061895B /* admin_meb_restore@2x.png */; };
+		2BD42040198034A60061895B /* admin_option_file@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42029198034A60061895B /* admin_option_file@2x.png */; };
+		2BD42041198034A60061895B /* admin_restore_data@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4202A198034A60061895B /* admin_restore_data@2x.png */; };
+		2BD42042198034A60061895B /* admin_schema_management@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4202B198034A60061895B /* admin_schema_management@2x.png */; };
+		2BD42043198034A60061895B /* admin_scripts@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4202C198034A60061895B /* admin_scripts@2x.png */; };
+		2BD42044198034A60061895B /* admin_server_logs@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4202D198034A60061895B /* admin_server_logs@2x.png */; };
+		2BD42045198034A60061895B /* admin_server_status@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4202E198034A60061895B /* admin_server_status@2x.png */; };
+		2BD42046198034A60061895B /* admin_start_stop@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4202F198034A60061895B /* admin_start_stop@2x.png */; };
+		2BD42047198034A60061895B /* admin_status_vars@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42030198034A60061895B /* admin_status_vars@2x.png */; };
+		2BD42048198034A60061895B /* admin_system_startup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42031198034A60061895B /* admin_system_startup@2x.png */; };
+		2BD42049198034A60061895B /* page_restore@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42032198034A60061895B /* page_restore@2x.png */; };
+		2BD4204A198034A60061895B /* title_backup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42033198034A60061895B /* title_backup@2x.png */; };
+		2BD4204B198034A60061895B /* title_restore@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42034198034A60061895B /* title_restore@2x.png */; };
+		2BD42062198034C10061895B /* db.Column.fk.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4204C198034C10061895B /* db.Column.fk.side.16x16@2x.png */; };
+		2BD42063198034C10061895B /* db.Column.many.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4204D198034C10061895B /* db.Column.many.side.16x16@2x.png */; };
+		2BD42064198034C10061895B /* db.Column.pk.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4204E198034C10061895B /* db.Column.pk.side.16x16@2x.png */; };
+		2BD42065198034C10061895B /* db.Column.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4204F198034C10061895B /* db.Column.side.16x16@2x.png */; };
+		2BD42066198034C10061895B /* db.ForeignKey.many.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42050198034C10061895B /* db.ForeignKey.many.side.16x16@2x.png */; };
+		2BD42067198034C10061895B /* db.ForeignKey.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42051198034C10061895B /* db.ForeignKey.side.16x16@2x.png */; };
+		2BD42068198034C10061895B /* db.Index.many.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42052198034C10061895B /* db.Index.many.side.16x16@2x.png */; };
+		2BD42069198034C10061895B /* db.Index.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42053198034C10061895B /* db.Index.side.16x16@2x.png */; };
+		2BD4206A198034C10061895B /* db.Routine.many.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42054198034C10061895B /* db.Routine.many.side.16x16@2x.png */; };
+		2BD4206B198034C10061895B /* db.Routine.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42055198034C10061895B /* db.Routine.side.16x16@2x.png */; };
+		2BD4206C198034C10061895B /* db.Schema.loading.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42056198034C10061895B /* db.Schema.loading.side.16x16@2x.png */; };
+		2BD4206D198034C10061895B /* db.Schema.selected.32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42057198034C10061895B /* db.Schema.selected.32x32.png */; };
+		2BD4206E198034C10061895B /* db.Schema.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42058198034C10061895B /* db.Schema.side.16x16@2x.png */; };
+		2BD4206F198034C10061895B /* db.Schema.unloaded.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42059198034C10061895B /* db.Schema.unloaded.side.16x16@2x.png */; };
+		2BD42070198034C10061895B /* db.Table.editor.24x24.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4205A198034C10061895B /* db.Table.editor.24x24.png */; };
+		2BD42071198034C10061895B /* db.Table.many.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4205B198034C10061895B /* db.Table.many.side.16x16@2x.png */; };
+		2BD42072198034C10061895B /* db.Table.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4205C198034C10061895B /* db.Table.side.16x16@2x.png */; };
+		2BD42073198034C10061895B /* db.Trigger.many.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4205D198034C10061895B /* db.Trigger.many.side.16x16@2x.png */; };
+		2BD42074198034C10061895B /* db.Trigger.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4205E198034C10061895B /* db.Trigger.side.16x16@2x.png */; };
+		2BD42075198034C10061895B /* db.View.broken.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4205F198034C10061895B /* db.View.broken.side.16x16@2x.png */; };
+		2BD42076198034C10061895B /* db.View.many.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42060198034C10061895B /* db.View.many.side.16x16@2x.png */; };
+		2BD42077198034C10061895B /* db.View.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42061198034C10061895B /* db.View.side.16x16@2x.png */; };
 		2BD820120F4F0E7D009E485D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BD820110F4F0E7D009E485D /* Carbon.framework */; };
 		2BD9968E0FAC02B00074852E /* grtdb_connect_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */; };
 		2BD9968F0FAC02B00074852E /* grtdb_connect_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */; };
@@ -5804,6 +5851,53 @@
 		2BD1FADE0F33C74D00FFC762 /* WBPluginEditorBase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBPluginEditorBase.mm; path = frontend/mac/plugin/WBPluginEditorBase.mm; sourceTree = "<group>"; };
 		2BD1FB0E0F33D29400FFC762 /* WBExtras.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WBExtras.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BD1FB0F0F33D29400FFC762 /* WBExtras-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "WBExtras-Info.plist"; sourceTree = "<group>"; };
+		2BD4201A198034600061895B /* output_type-explaindata.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "output_type-explaindata.png"; path = "images/sql/output_type-explaindata.png"; sourceTree = "<group>"; };
+		2BD4201B198034600061895B /* output_type-explaindata@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "output_type-explaindata@2x.png"; path = "images/sql/output_type-explaindata@2x.png"; sourceTree = "<group>"; };
+		2BD4201E198034A60061895B /* admin_add_user.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_add_user.png; path = images/admin/admin_add_user.png; sourceTree = "<group>"; };
+		2BD4201F198034A60061895B /* admin_add_user@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_add_user@2x.png"; path = "images/admin/admin_add_user@2x.png"; sourceTree = "<group>"; };
+		2BD42020198034A60061895B /* admin_config_wizard@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_config_wizard@2x.png"; path = "images/admin/admin_config_wizard@2x.png"; sourceTree = "<group>"; };
+		2BD42021198034A60061895B /* admin_export@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_export@2x.png"; path = "images/admin/admin_export@2x.png"; sourceTree = "<group>"; };
+		2BD42022198034A60061895B /* admin_info_running@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_info_running@2x.png"; path = "images/admin/admin_info_running@2x.png"; sourceTree = "<group>"; };
+		2BD42023198034A60061895B /* admin_info_stopped@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_info_stopped@2x.png"; path = "images/admin/admin_info_stopped@2x.png"; sourceTree = "<group>"; };
+		2BD42024198034A60061895B /* admin_info_unknown@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_info_unknown@2x.png"; path = "images/admin/admin_info_unknown@2x.png"; sourceTree = "<group>"; };
+		2BD42025198034A60061895B /* admin_manage_exported@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_manage_exported@2x.png"; path = "images/admin/admin_manage_exported@2x.png"; sourceTree = "<group>"; };
+		2BD42026198034A60061895B /* admin_manage_privs@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_manage_privs@2x.png"; path = "images/admin/admin_manage_privs@2x.png"; sourceTree = "<group>"; };
+		2BD42027198034A60061895B /* admin_meb_backup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_meb_backup@2x.png"; path = "images/admin/admin_meb_backup@2x.png"; sourceTree = "<group>"; };
+		2BD42028198034A60061895B /* admin_meb_restore@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_meb_restore@2x.png"; path = "images/admin/admin_meb_restore@2x.png"; sourceTree = "<group>"; };
+		2BD42029198034A60061895B /* admin_option_file@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_option_file@2x.png"; path = "images/admin/admin_option_file@2x.png"; sourceTree = "<group>"; };
+		2BD4202A198034A60061895B /* admin_restore_data@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_restore_data@2x.png"; path = "images/admin/admin_restore_data@2x.png"; sourceTree = "<group>"; };
+		2BD4202B198034A60061895B /* admin_schema_management@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_schema_management@2x.png"; path = "images/admin/admin_schema_management@2x.png"; sourceTree = "<group>"; };
+		2BD4202C198034A60061895B /* admin_scripts@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_scripts@2x.png"; path = "images/admin/admin_scripts@2x.png"; sourceTree = "<group>"; };
+		2BD4202D198034A60061895B /* admin_server_logs@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_server_logs@2x.png"; path = "images/admin/admin_server_logs@2x.png"; sourceTree = "<group>"; };
+		2BD4202E198034A60061895B /* admin_server_status@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_server_status@2x.png"; path = "images/admin/admin_server_status@2x.png"; sourceTree = "<group>"; };
+		2BD4202F198034A60061895B /* admin_start_stop@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_start_stop@2x.png"; path = "images/admin/admin_start_stop@2x.png"; sourceTree = "<group>"; };
+		2BD42030198034A60061895B /* admin_status_vars@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_status_vars@2x.png"; path = "images/admin/admin_status_vars@2x.png"; sourceTree = "<group>"; };
+		2BD42031198034A60061895B /* admin_system_startup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "admin_system_startup@2x.png"; path = "images/admin/admin_system_startup@2x.png"; sourceTree = "<group>"; };
+		2BD42032198034A60061895B /* page_restore@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "page_restore@2x.png"; path = "images/admin/page_restore@2x.png"; sourceTree = "<group>"; };
+		2BD42033198034A60061895B /* title_backup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "title_backup@2x.png"; path = "images/admin/title_backup@2x.png"; sourceTree = "<group>"; };
+		2BD42034198034A60061895B /* title_restore@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "title_restore@2x.png"; path = "images/admin/title_restore@2x.png"; sourceTree = "<group>"; };
+		2BD4204C198034C10061895B /* db.Column.fk.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Column.fk.side.16x16@2x.png"; path = "structs/db.Column.fk.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD4204D198034C10061895B /* db.Column.many.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Column.many.side.16x16@2x.png"; path = "structs/db.Column.many.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD4204E198034C10061895B /* db.Column.pk.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Column.pk.side.16x16@2x.png"; path = "structs/db.Column.pk.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD4204F198034C10061895B /* db.Column.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Column.side.16x16@2x.png"; path = "structs/db.Column.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42050198034C10061895B /* db.ForeignKey.many.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.ForeignKey.many.side.16x16@2x.png"; path = "structs/db.ForeignKey.many.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42051198034C10061895B /* db.ForeignKey.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.ForeignKey.side.16x16@2x.png"; path = "structs/db.ForeignKey.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42052198034C10061895B /* db.Index.many.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Index.many.side.16x16@2x.png"; path = "structs/db.Index.many.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42053198034C10061895B /* db.Index.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Index.side.16x16@2x.png"; path = "structs/db.Index.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42054198034C10061895B /* db.Routine.many.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Routine.many.side.16x16@2x.png"; path = "structs/db.Routine.many.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42055198034C10061895B /* db.Routine.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Routine.side.16x16@2x.png"; path = "structs/db.Routine.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42056198034C10061895B /* db.Schema.loading.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Schema.loading.side.16x16@2x.png"; path = "structs/db.Schema.loading.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42057198034C10061895B /* db.Schema.selected.32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.Schema.selected.32x32.png; path = structs/db.Schema.selected.32x32.png; sourceTree = "<group>"; };
+		2BD42058198034C10061895B /* db.Schema.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Schema.side.16x16@2x.png"; path = "structs/db.Schema.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42059198034C10061895B /* db.Schema.unloaded.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Schema.unloaded.side.16x16@2x.png"; path = "structs/db.Schema.unloaded.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD4205A198034C10061895B /* db.Table.editor.24x24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.Table.editor.24x24.png; path = structs/db.Table.editor.24x24.png; sourceTree = "<group>"; };
+		2BD4205B198034C10061895B /* db.Table.many.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Table.many.side.16x16@2x.png"; path = "structs/db.Table.many.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD4205C198034C10061895B /* db.Table.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Table.side.16x16@2x.png"; path = "structs/db.Table.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD4205D198034C10061895B /* db.Trigger.many.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Trigger.many.side.16x16@2x.png"; path = "structs/db.Trigger.many.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD4205E198034C10061895B /* db.Trigger.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.Trigger.side.16x16@2x.png"; path = "structs/db.Trigger.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD4205F198034C10061895B /* db.View.broken.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.View.broken.side.16x16@2x.png"; path = "structs/db.View.broken.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42060198034C10061895B /* db.View.many.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.View.many.side.16x16@2x.png"; path = "structs/db.View.many.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42061198034C10061895B /* db.View.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.View.side.16x16@2x.png"; path = "structs/db.View.side.16x16@2x.png"; sourceTree = "<group>"; };
 		2BD820110F4F0E7D009E485D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grtdb_connect_dialog.h; sourceTree = "<group>"; };
 		2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grtdb_connect_dialog.cpp; sourceTree = "<group>"; };
@@ -7895,6 +7989,28 @@
 		2B26389E0E93B0F800933149 /* grt */ = {
 			isa = PBXGroup;
 			children = (
+				2BD4204C198034C10061895B /* db.Column.fk.side.16x16@2x.png */,
+				2BD4204D198034C10061895B /* db.Column.many.side.16x16@2x.png */,
+				2BD4204E198034C10061895B /* db.Column.pk.side.16x16@2x.png */,
+				2BD4204F198034C10061895B /* db.Column.side.16x16@2x.png */,
+				2BD42050198034C10061895B /* db.ForeignKey.many.side.16x16@2x.png */,
+				2BD42051198034C10061895B /* db.ForeignKey.side.16x16@2x.png */,
+				2BD42052198034C10061895B /* db.Index.many.side.16x16@2x.png */,
+				2BD42053198034C10061895B /* db.Index.side.16x16@2x.png */,
+				2BD42054198034C10061895B /* db.Routine.many.side.16x16@2x.png */,
+				2BD42055198034C10061895B /* db.Routine.side.16x16@2x.png */,
+				2BD42056198034C10061895B /* db.Schema.loading.side.16x16@2x.png */,
+				2BD42057198034C10061895B /* db.Schema.selected.32x32.png */,
+				2BD42058198034C10061895B /* db.Schema.side.16x16@2x.png */,
+				2BD42059198034C10061895B /* db.Schema.unloaded.side.16x16@2x.png */,
+				2BD4205A198034C10061895B /* db.Table.editor.24x24.png */,
+				2BD4205B198034C10061895B /* db.Table.many.side.16x16@2x.png */,
+				2BD4205C198034C10061895B /* db.Table.side.16x16@2x.png */,
+				2BD4205D198034C10061895B /* db.Trigger.many.side.16x16@2x.png */,
+				2BD4205E198034C10061895B /* db.Trigger.side.16x16@2x.png */,
+				2BD4205F198034C10061895B /* db.View.broken.side.16x16@2x.png */,
+				2BD42060198034C10061895B /* db.View.many.side.16x16@2x.png */,
+				2BD42061198034C10061895B /* db.View.side.16x16@2x.png */,
 				2B0609F11952B2AA00022F40 /* db.Table.32x32.png */,
 				2B3B22F61860ECBB003FA474 /* db.Column.pkfk.11x11.png */,
 				2B3B22F71860ECBB003FA474 /* db.Column.pkfk.16x16.png */,
@@ -8081,6 +8197,29 @@
 		2B2DEFDD1056069F00F267F9 /* Admin Icons */ = {
 			isa = PBXGroup;
 			children = (
+				2BD4201E198034A60061895B /* admin_add_user.png */,
+				2BD4201F198034A60061895B /* admin_add_user@2x.png */,
+				2BD42020198034A60061895B /* admin_config_wizard@2x.png */,
+				2BD42021198034A60061895B /* admin_export@2x.png */,
+				2BD42022198034A60061895B /* admin_info_running@2x.png */,
+				2BD42023198034A60061895B /* admin_info_stopped@2x.png */,
+				2BD42024198034A60061895B /* admin_info_unknown@2x.png */,
+				2BD42025198034A60061895B /* admin_manage_exported@2x.png */,
+				2BD42026198034A60061895B /* admin_manage_privs@2x.png */,
+				2BD42027198034A60061895B /* admin_meb_backup@2x.png */,
+				2BD42028198034A60061895B /* admin_meb_restore@2x.png */,
+				2BD42029198034A60061895B /* admin_option_file@2x.png */,
+				2BD4202A198034A60061895B /* admin_restore_data@2x.png */,
+				2BD4202B198034A60061895B /* admin_schema_management@2x.png */,
+				2BD4202C198034A60061895B /* admin_scripts@2x.png */,
+				2BD4202D198034A60061895B /* admin_server_logs@2x.png */,
+				2BD4202E198034A60061895B /* admin_server_status@2x.png */,
+				2BD4202F198034A60061895B /* admin_start_stop@2x.png */,
+				2BD42030198034A60061895B /* admin_status_vars@2x.png */,
+				2BD42031198034A60061895B /* admin_system_startup@2x.png */,
+				2BD42032198034A60061895B /* page_restore@2x.png */,
+				2BD42033198034A60061895B /* title_backup@2x.png */,
+				2BD42034198034A60061895B /* title_restore@2x.png */,
 				2B20DCBA188DA7C00095EA03 /* ps_easysetup_logo.png */,
 				2B20DCBB188DA7C00095EA03 /* ps_easysetup_logo@2x.png */,
 				2BF90EE41979C3230029E1F9 /* ps_easysetup_logo_enabled.png */,
@@ -10343,6 +10482,8 @@
 		2BF510B912E8BBC500A6CCC3 /* SQLIDE Icons */ = {
 			isa = PBXGroup;
 			children = (
+				2BD4201A198034600061895B /* output_type-explaindata.png */,
+				2BD4201B198034600061895B /* output_type-explaindata@2x.png */,
 				2B18EDCD196C9105004D7596 /* wb-sidebar-collapse@2x.png */,
 				2B18EDCE196C9105004D7596 /* wb-sidebar-expand@2x.png */,
 				2B18EDCF196C9105004D7596 /* wb-sidebar-refresh@2x.png */,
@@ -12306,7 +12447,9 @@
 			files = (
 				27987718195C534F003E8E44 /* wb_item_overlay_result@2x.png in Resources */,
 				2B825D210E0B578600BE52DF /* InfoPlist.strings in Resources */,
+				2BD42067198034C10061895B /* db.ForeignKey.side.16x16@2x.png in Resources */,
 				2B02FEF4183E771B00770CC0 /* relnm.png in Resources */,
+				2BD42075198034C10061895B /* db.View.broken.side.16x16@2x.png in Resources */,
 				2BF90F1F1979C3410029E1F9 /* ps_switcher_text@2x.png in Resources */,
 				2B263B9B0E94210A00933149 /* MainWindow.xib in Resources */,
 				169CCFF20F017969005152CD /* MySQLWorkbench.icns in Resources */,
@@ -12314,6 +12457,7 @@
 				2B3D56180F4240C4009238A7 /* MacWizardBackground.png in Resources */,
 				2B3D56620F425362009238A7 /* DotBlue.png in Resources */,
 				2B02FEEE183E771B00770CC0 /* image.png in Resources */,
+				2BD42068198034C10061895B /* db.Index.many.side.16x16@2x.png in Resources */,
 				2BD9E784185FFF6E00A7252B /* output_type-fieldtypes.png in Resources */,
 				2B3D56630F425362009238A7 /* DotDisabled.png in Resources */,
 				2B3D56640F425362009238A7 /* DotGrey.png in Resources */,
@@ -12323,9 +12467,11 @@
 				2B18EDDC196C9650004D7596 /* admin_performance_reports@2x.png in Resources */,
 				2B3D566D0F425463009238A7 /* task_executing_mac.png in Resources */,
 				2B3D566E0F425463009238A7 /* task_unchecked_mac.png in Resources */,
+				2BD4206F198034C10061895B /* db.Schema.unloaded.side.16x16@2x.png in Resources */,
 				2B3D566F0F425463009238A7 /* task_warning_mac.png in Resources */,
 				2B3D57D70F4319F9009238A7 /* workbench.physical.Diagram.48x48.png in Resources */,
 				2B3D57D80F4319F9009238A7 /* workbench.physical.Diagram.add.16x16.png in Resources */,
+				2BD42046198034A60061895B /* admin_start_stop@2x.png in Resources */,
 				2B3D59370F433BBE009238A7 /* task_disabled_mac.png in Resources */,
 				2BFBEFEA0F50941C0016F9D1 /* DiagramOptions.xib in Resources */,
 				2BE67F400F8E25C500E00A97 /* field_overlay_blob.png in Resources */,
@@ -12336,13 +12482,16 @@
 				27987717195C534F003E8E44 /* wb_item_overlay_result.png in Resources */,
 				2BE67F550F8E265300E00A97 /* workbench.Document.16x16.png in Resources */,
 				2BE67F560F8E265300E00A97 /* workbench.Document.32x32.png in Resources */,
+				2BD4206D198034C10061895B /* db.Schema.selected.32x32.png in Resources */,
 				2BE67F570F8E265300E00A97 /* workbench.Document.48x48.png in Resources */,
 				2BE6802C0F8E3E9E00E00A97 /* InputDialog.xib in Resources */,
 				1617BA250F8E4CF400F5249C /* WBSQLQueryPanel.xib in Resources */,
+				2BD4206A198034C10061895B /* db.Routine.many.side.16x16@2x.png in Resources */,
 				2B07487C0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.16x16.png in Resources */,
 				2B07487D0F93FAEA00D7E4E3 /* db.mgmt.Connection.add.48x48.png in Resources */,
 				2B0749D50F94344300D7E4E3 /* Apply_16x16.png in Resources */,
 				2B0749DA0F94344300D7E4E3 /* Discard_16x16.png in Resources */,
+				2BD42038198034A60061895B /* admin_export@2x.png in Resources */,
 				2B0749DD0F94344300D7E4E3 /* First_16x16.png in Resources */,
 				2B0749DE0F94344300D7E4E3 /* Last_16x16.png in Resources */,
 				2B0749DF0F94344300D7E4E3 /* Refresh_16x16.png in Resources */,
@@ -12356,6 +12505,7 @@
 				2B263A410E9402DD00933149 /* Apply.png in Resources */,
 				279EC892185214A7007D1252 /* wb-toolbar_automatic-help-off@2x.png in Resources */,
 				2B263A420E9402DD00933149 /* background.png in Resources */,
+				2BD42041198034A60061895B /* admin_restore_data@2x.png in Resources */,
 				2B263A430E9402DD00933149 /* background_top_shadow.png in Resources */,
 				2B263A480E9402DD00933149 /* collapsing_panel_bg.png in Resources */,
 				2B263A490E9402DD00933149 /* collapsing_panel_grid_bg.png in Resources */,
@@ -12368,10 +12518,13 @@
 				2B263A500E9402DD00933149 /* collapsing_panel_header_bg.png in Resources */,
 				2B4BCE3518478FEE00865D37 /* title_dashboard@2x.png in Resources */,
 				2B263A510E9402DD00933149 /* collapsing_panel_header_bg_flat.png in Resources */,
+				2BD4206B198034C10061895B /* db.Routine.side.16x16@2x.png in Resources */,
 				2B263A520E9402DD00933149 /* collapsing_panel_header_shadow.png in Resources */,
+				2BD42045198034A60061895B /* admin_server_status@2x.png in Resources */,
 				2B263A530E9402DD00933149 /* collapsing_panel_header_tab_add.png in Resources */,
 				2B263A540E9402DD00933149 /* collapsing_panel_header_tab_add2.png in Resources */,
 				2BF90F0A1979C3310029E1F9 /* ps_switcher_disabled_hoover.png in Resources */,
+				2BD4203B198034A60061895B /* admin_info_unknown@2x.png in Resources */,
 				2B263A550E9402DD00933149 /* collapsing_panel_header_tab_del.png in Resources */,
 				2B263A560E9402DD00933149 /* collapsing_panel_header_tab_del2.png in Resources */,
 				2B5FE4D1187F2C7400AEC55C /* output_type-formeditor.png in Resources */,
@@ -12392,8 +12545,10 @@
 				2B263A620E9402DD00933149 /* collapsing_panel_plus_flat.png in Resources */,
 				2B263A630E9402DD00933149 /* collapsing_panel_tab_left.png in Resources */,
 				2B263A640E9402DD00933149 /* collapsing_panel_tab_middle.png in Resources */,
+				2BD42035198034A60061895B /* admin_add_user.png in Resources */,
 				2B263A650E9402DD00933149 /* collapsing_panel_tab_right.png in Resources */,
 				2B263A660E9402DD00933149 /* comment.png in Resources */,
+				2BD42036198034A60061895B /* admin_add_user@2x.png in Resources */,
 				2B263A670E9402DD00933149 /* db.Column.11x11.png in Resources */,
 				2B263A680E9402DD00933149 /* db.Column.16x16.png in Resources */,
 				2B263A690E9402DD00933149 /* db.Column.fk.11x11.png in Resources */,
@@ -12426,6 +12581,7 @@
 				2B263A800E9402DD00933149 /* db.RoutineGroup.16x16.png in Resources */,
 				2B02FEF6183E771B00770CC0 /* rubber.png in Resources */,
 				2BF90EFE1979C3310029E1F9 /* ps_switcher_custom_hoover.png in Resources */,
+				2BD4201D198034600061895B /* output_type-explaindata@2x.png in Resources */,
 				2B263A810E9402DD00933149 /* db.RoutineGroup.48x48.png in Resources */,
 				2B263A820E9402DD00933149 /* db.RoutineGroup.add.16x16.png in Resources */,
 				2B263A830E9402DD00933149 /* db.RoutineGroup.add.48x48.png in Resources */,
@@ -12512,6 +12668,8 @@
 				2B263AE10E9402DD00933149 /* show_whitespace.png in Resources */,
 				2B263AE20E9402DD00933149 /* statusbar_output.png in Resources */,
 				2BD9E790185FFF6E00A7252B /* output_type-toggle-on.png in Resources */,
+				2BD42069198034C10061895B /* db.Index.side.16x16@2x.png in Resources */,
+				2BD42066198034C10061895B /* db.ForeignKey.many.side.16x16@2x.png in Resources */,
 				2B263AE30E9402DD00933149 /* statusbar_separator.png in Resources */,
 				2B263AE40E9402DD00933149 /* statusbar_shell.png in Resources */,
 				2B263B050E9402DD00933149 /* user_datatypes.png in Resources */,
@@ -12522,7 +12680,9 @@
 				2B263B240E9402DD00933149 /* workbench.logical.Diagram.add.48x48.png in Resources */,
 				2B263B250E9402DD00933149 /* workbench.model.ImageFigure.16x16.png in Resources */,
 				2B263B260E9402DD00933149 /* workbench.model.NoteFigure.16x16.png in Resources */,
+				2BD4203E198034A60061895B /* admin_meb_backup@2x.png in Resources */,
 				2B263B270E9402DD00933149 /* workbench.physical.db2.Model.48x48.png in Resources */,
+				2BD42047198034A60061895B /* admin_status_vars@2x.png in Resources */,
 				2B263B280E9402DD00933149 /* workbench.physical.Layer.16x16.png in Resources */,
 				2B263B290E9402DD00933149 /* workbench.physical.Layer.24x24.png in Resources */,
 				2BF90F111979C3310029E1F9 /* ps_switcher_fully_hoover@2x.png in Resources */,
@@ -12575,6 +12735,7 @@
 				279EF97910D6B08D00C1ED1B /* mysql_system_status.vbs in Resources */,
 				2B96EA3310F43226004E6875 /* PageSetup.xib in Resources */,
 				2BF90F0B1979C3310029E1F9 /* ps_switcher_disabled_hoover@2x.png in Resources */,
+				2BD4206E198034C10061895B /* db.Schema.side.16x16@2x.png in Resources */,
 				2720518E111847920013E88B /* message_wb_lock.png in Resources */,
 				2B7FC434112D9BE5008C07BF /* change_alert_thin.png in Resources */,
 				2B7FC435112D9BE5008C07BF /* change_backward.png in Resources */,
@@ -12635,11 +12796,13 @@
 				2BF90F001979C3310029E1F9 /* ps_switcher_custom_off.png in Resources */,
 				2B7FC4E7112D9C2B008C07BF /* tiny_ruler.png in Resources */,
 				2B18EDD6196C9646004D7596 /* admin_audit_inspector@2x.png in Resources */,
+				2BD4203D198034A60061895B /* admin_manage_privs@2x.png in Resources */,
 				2B7FC4E8112D9C2B008C07BF /* tiny_save.png in Resources */,
 				2B7FC4EA112D9C2B008C07BF /* tiny_saveas.png in Resources */,
 				2B18EDC7196C8B0C004D7596 /* wb_tile_schema@2x.png in Resources */,
 				2B7FC4EC112D9C2B008C07BF /* tiny_savesql.png in Resources */,
 				2B7FC4EF112D9C2B008C07BF /* tiny_search.png in Resources */,
+				2BD4204A198034A60061895B /* title_backup@2x.png in Resources */,
 				2B7FC4F1112D9C2B008C07BF /* tiny_undo.png in Resources */,
 				2B7FC4F3112D9C2B008C07BF /* wb_arrow.png in Resources */,
 				2B7FC4F4112D9C2B008C07BF /* wb_db_routinegroup.png in Resources */,
@@ -12662,6 +12825,7 @@
 				2B7FC503112D9C2B008C07BF /* wb_rel_1n_pick.png in Resources */,
 				2B4BCE3718478FEE00865D37 /* title_instrumentation_setup@2x.png in Resources */,
 				2B7FC504112D9C2B008C07BF /* wb_rel_11.png in Resources */,
+				2BD42076198034C10061895B /* db.View.many.side.16x16@2x.png in Resources */,
 				2B7FC505112D9C2B008C07BF /* wb_rel_11_nonid.png in Resources */,
 				2BF90EE61979C3230029E1F9 /* ps_easysetup_logo_enabled.png in Resources */,
 				2B7FC506112D9C2B008C07BF /* wb_rel_nm.png in Resources */,
@@ -12686,12 +12850,15 @@
 				2B3EC7AA114833AA00BE2266 /* record_save.png in Resources */,
 				2B3EC7AB114833AA00BE2266 /* record_sort_asc.png in Resources */,
 				2B3EC7AC114833AA00BE2266 /* record_sort_desc.png in Resources */,
+				2BD42063198034C10061895B /* db.Column.many.side.16x16@2x.png in Resources */,
 				2B3EC7AD114833AA00BE2266 /* record_wrap_vertical.png in Resources */,
 				2B3EC7AE114833AA00BE2266 /* snippet_add.png in Resources */,
 				2B3EC7AF114833AA00BE2266 /* snippet_del.png in Resources */,
 				2B3EC7B0114833AA00BE2266 /* snippet_insert.png in Resources */,
+				2BD42072198034C10061895B /* db.Table.side.16x16@2x.png in Resources */,
 				2B3EC7B1114833AA00BE2266 /* snippet_use.png in Resources */,
 				2BEC44DF1863672F00BE1BEA /* object_inspector_mac.png in Resources */,
+				2BD4203C198034A60061895B /* admin_manage_exported@2x.png in Resources */,
 				279822FD118AFBC300406A84 /* message_wb_wait.png in Resources */,
 				279823A3118B074C00406A84 /* HUDPanel.xib in Resources */,
 				272A290111905DBE00CA2A13 /* wb_starter_mysql_bug_reporter_52.png in Resources */,
@@ -12712,6 +12879,7 @@
 				2BB0D66118C26CBA00B59458 /* record_first@2x.png in Resources */,
 				2BBC38601235C5BC00CACF4C /* tiny_load.png in Resources */,
 				2B4D18BD123F19BF004E6309 /* clear_output.png in Resources */,
+				2BD42039198034A60061895B /* admin_info_running@2x.png in Resources */,
 				27E1EFB41279B02000CF6290 /* editor_breakpoint.xpm in Resources */,
 				27E1EFB51279B02000CF6290 /* editor_breakpoint_hit.xpm in Resources */,
 				27E1EFB61279B02000CF6290 /* editor_current_pos.xpm in Resources */,
@@ -12745,6 +12913,7 @@
 				2BF510CA12E8BBEF00A6CCC3 /* admin_config_wizard.png in Resources */,
 				2B18EDD0196C9105004D7596 /* wb-sidebar-collapse@2x.png in Resources */,
 				2BF510CB12E8BBEF00A6CCC3 /* admin_export.png in Resources */,
+				2BD42073198034C10061895B /* db.Trigger.many.side.16x16@2x.png in Resources */,
 				2BF510CC12E8BBEF00A6CCC3 /* admin_manage_exported.png in Resources */,
 				2BF510CD12E8BBEF00A6CCC3 /* admin_manage_privs.png in Resources */,
 				2BF510CE12E8BBEF00A6CCC3 /* admin_connections.png in Resources */,
@@ -12754,25 +12923,31 @@
 				2BF510D212E8BBEF00A6CCC3 /* admin_scripts.png in Resources */,
 				2BF510D312E8BBEF00A6CCC3 /* admin_server_logs.png in Resources */,
 				2BF510D412E8BBEF00A6CCC3 /* admin_server_status.png in Resources */,
+				2BD42048198034A60061895B /* admin_system_startup@2x.png in Resources */,
 				2BF510D512E8BBEF00A6CCC3 /* admin_start_stop.png in Resources */,
 				2BF510D612E8BBEF00A6CCC3 /* admin_status_vars.png in Resources */,
 				2B856541183ADE2D0081D52E /* dashboard_header_network.png in Resources */,
 				2B20DCC1188DA8DE0095EA03 /* separator_vertical@2x.png in Resources */,
 				2BF510D712E8BBEF00A6CCC3 /* admin_system_startup.png in Resources */,
+				2BD42074198034C10061895B /* db.Trigger.side.16x16@2x.png in Resources */,
 				2B7FEA9112EA067C007945E2 /* WB_Home_mac.png in Resources */,
+				2BD4201C198034600061895B /* output_type-explaindata.png in Resources */,
 				2B18EDBB196C8706004D7596 /* wb_starter_mysql_bug_reporter_52@2x.png in Resources */,
 				27987715195C534F003E8E44 /* wb_item_overlay_inspector.png in Resources */,
 				2BF90EE71979C3230029E1F9 /* ps_easysetup_logo_enabled@2x.png in Resources */,
 				2B02FEF3183E771B00770CC0 /* rel11.png in Resources */,
 				2B85653E183ADE2D0081D52E /* dashboard_arrow_out_static.png in Resources */,
+				2BD42077198034C10061895B /* db.View.side.16x16@2x.png in Resources */,
 				2BAE51D51342444400076130 /* MySQLPlugin-16.png in Resources */,
 				2BAE51D61342444400076130 /* MySQLPlugin-24.png in Resources */,
 				2BAE51D71342444400076130 /* MySQLPlugin-32.png in Resources */,
+				2BD4206C198034C10061895B /* db.Schema.loading.side.16x16@2x.png in Resources */,
 				2BF90F021979C3310029E1F9 /* ps_switcher_custom_on.png in Resources */,
 				2BAE51D81342444400076130 /* MySQLPlugin-48.png in Resources */,
 				2BAE51D91342444400076130 /* MySQLPlugin-64.png in Resources */,
 				2BAE51DA1342444400076130 /* MySQLPlugin-128.png in Resources */,
 				2BAE51DB1342444400076130 /* MySQLPlugin-256.png in Resources */,
+				2BD42049198034A60061895B /* page_restore@2x.png in Resources */,
 				2BAE51DD1342445C00076130 /* MySQLWBPlugin.icns in Resources */,
 				2BCD412E13837A3500B375FD /* wait_panel_cancel_button.png in Resources */,
 				275F04FF1386942400F29131 /* refresh_sidebar_mac.png in Resources */,
@@ -12819,6 +12994,7 @@
 				2B2909D7159A0C9300708C09 /* migration_check_current.png in Resources */,
 				2B20DCB6188DA7AA0095EA03 /* big_switcher_no.png in Resources */,
 				2B2909D8159A0C9300708C09 /* migration_check_point.png in Resources */,
+				2BD42070198034C10061895B /* db.Table.editor.24x24.png in Resources */,
 				2BF7247215AFDA5B005948F0 /* busy_sidebar_mac.png in Resources */,
 				2BF7247315AFDA5B005948F0 /* busy_sidebar.png in Resources */,
 				2B18EDD7196C9646004D7596 /* admin_connections@2x.png in Resources */,
@@ -12826,10 +13002,12 @@
 				2B20DCB7188DA7AA0095EA03 /* big_switcher_no@2x.png in Resources */,
 				27A3EC8E164BA997001B6D8F /* MainMenu.xib in Resources */,
 				27A3EC91164BA9AB001B6D8F /* IconCollectionView.xib in Resources */,
+				2BD4203F198034A60061895B /* admin_meb_restore@2x.png in Resources */,
 				2B45FCD6165180EA008D1853 /* admin_meb_backup.png in Resources */,
 				2B45FCD7165180EA008D1853 /* admin_meb_restore.png in Resources */,
 				2B5CE236188D89B20034DD9E /* ps_overview@2x.png in Resources */,
 				2B20DCB9188DA7AA0095EA03 /* big_switcher_yes@2x.png in Resources */,
+				2BD42065198034C10061895B /* db.Column.side.16x16@2x.png in Resources */,
 				2B7AE06716822CA800D8C777 /* tiny_less_space.png in Resources */,
 				2B7AE06816822CA800D8C777 /* tiny_more_space.png in Resources */,
 				2B5C241D16A26BA50023598F /* notifications.py in Resources */,
@@ -12847,6 +13025,7 @@
 				2B15CBFD171F2AB900EEF0EA /* wb_tile_page-up.png in Resources */,
 				2B15CBFE171F2AB900EEF0EA /* wb_tile_plus.png in Resources */,
 				2BEC44E01863672F00BE1BEA /* object_inspector_mac@2x.png in Resources */,
+				2BD42064198034C10061895B /* db.Column.pk.side.16x16@2x.png in Resources */,
 				2B15CBFF171F2AB900EEF0EA /* wb_tile_sakila.png in Resources */,
 				2B15CC00171F2AB900EEF0EA /* wb_tile_schema.png in Resources */,
 				2B15CC01171F2AB900EEF0EA /* wb_tile_time.png in Resources */,
@@ -12893,6 +13072,7 @@
 				ED8C8460174A9EF80036E6EF /* os_utils.py in Resources */,
 				2BF90F0E1979C3310029E1F9 /* ps_switcher_disabled_on.png in Resources */,
 				2BD9E781185FFF6E00A7252B /* output_type-executionplan@2x.png in Resources */,
+				2BD4203A198034A60061895B /* admin_info_stopped@2x.png in Resources */,
 				ED8C8461174A9EF80036E6EF /* tcp_utils.py in Resources */,
 				2BF0498D174E559C00A7EA35 /* title_connections.png in Resources */,
 				2BF0498E174E559C00A7EA35 /* title_connections@2x.png in Resources */,
@@ -12939,17 +13119,21 @@
 				273766AF17997E4600803099 /* record_import@2x.png in Resources */,
 				2B448AA118AA4CD8001F1B62 /* arrow_up.png in Resources */,
 				2B1D6D56179D9FF70073C062 /* record_refresh.png in Resources */,
+				2BD4204B198034A60061895B /* title_restore@2x.png in Resources */,
 				2B1D6D57179D9FF70073C062 /* record_refresh@2x.png in Resources */,
+				2BD42044198034A60061895B /* admin_server_logs@2x.png in Resources */,
 				2B1D6D59179DA00D0073C062 /* record_edit@2x.png in Resources */,
 				2B1D6E5E179DCF590073C062 /* wb-toolbar_nav-back.png in Resources */,
 				2B1D6E5F179DCF590073C062 /* wb-toolbar_nav-back@2x.png in Resources */,
 				2B1D6E60179DCF590073C062 /* wb-toolbar_nav-forward.png in Resources */,
+				2BD42040198034A60061895B /* admin_option_file@2x.png in Resources */,
 				2B18EDB8196C8705004D7596 /* wb_doc_model@2x.png in Resources */,
 				2B1D6E61179DCF590073C062 /* wb-toolbar_nav-forward@2x.png in Resources */,
 				2B14343E179DDDE7002217CF /* auto-completion-column.png in Resources */,
 				2B14343F179DDDE7002217CF /* auto-completion-engine.png in Resources */,
 				2B18EDC1196C8706004D7596 /* wb_starter_support_52@2x.png in Resources */,
 				2B143440179DDDE7002217CF /* auto-completion-function.png in Resources */,
+				2BD42071198034C10061895B /* db.Table.many.side.16x16@2x.png in Resources */,
 				2B143441179DDDE7002217CF /* auto-completion-keyword.png in Resources */,
 				2B143442179DDDE7002217CF /* auto-completion-operator.png in Resources */,
 				2BECA53618B3A13D00E12F8B /* sys in Resources */,
@@ -13042,6 +13226,7 @@
 				2B20DCB8188DA7AA0095EA03 /* big_switcher_yes.png in Resources */,
 				2B143499179DDDE7002217CF /* qe_sql-editor-tb-icon_special-chars-off@2x.png in Resources */,
 				2B14349A179DDDE7002217CF /* qe_sql-editor-tb-icon_special-chars-on.png in Resources */,
+				2BD42062198034C10061895B /* db.Column.fk.side.16x16@2x.png in Resources */,
 				2B14349B179DDDE7002217CF /* qe_sql-editor-tb-icon_special-chars-on@2x.png in Resources */,
 				2B14349C179DDDE7002217CF /* qe_sql-editor-tb-icon_stop-on-error-off.png in Resources */,
 				2B14349D179DDDE7002217CF /* qe_sql-editor-tb-icon_stop-on-error-off@2x.png in Resources */,
@@ -13049,6 +13234,7 @@
 				2B14349F179DDDE7002217CF /* qe_sql-editor-tb-icon_stop-on-error-on@2x.png in Resources */,
 				2B1434A0179DDDE7002217CF /* qe_sql-editor-tb-icon_stop.png in Resources */,
 				2B1434A1179DDDE7002217CF /* qe_sql-editor-tb-icon_stop@2x.png in Resources */,
+				2BD42037198034A60061895B /* admin_config_wizard@2x.png in Resources */,
 				2B1434A2179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-off.png in Resources */,
 				2B1434A3179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-off@2x.png in Resources */,
 				2B1434A4179DDDE7002217CF /* qe_sql-editor-tb-icon_word-wrap-on.png in Resources */,
@@ -13070,9 +13256,11 @@
 				2B1434B2179DDDE7002217CF /* switcher_left_off@2x.png in Resources */,
 				2B1434B3179DDDE7002217CF /* switcher_left_on.png in Resources */,
 				2B1434B4179DDDE7002217CF /* switcher_left_on@2x.png in Resources */,
+				2BD42042198034A60061895B /* admin_schema_management@2x.png in Resources */,
 				2B1434B5179DDDE7002217CF /* switcher_right_off.png in Resources */,
 				2B1434B6179DDDE7002217CF /* switcher_right_off@2x.png in Resources */,
 				2B1434B7179DDDE7002217CF /* switcher_right_on.png in Resources */,
+				2BD42043198034A60061895B /* admin_scripts@2x.png in Resources */,
 				2B1434B8179DDDE7002217CF /* switcher_right_on@2x.png in Resources */,
 				2B1434B9179DDDE7002217CF /* wb-sidebar-collapse.png in Resources */,
 				2B1434BB179DDDE7002217CF /* wb-sidebar-expand.png in Resources */,
