@@ -339,6 +339,7 @@ class WorkerThreadHelper:
         self.thread = threading.Thread()
         self.queue = Queue.Queue()
         self.thread.run = self._run
+        self._timeout = None
         self._running = False
 
 
@@ -346,7 +347,7 @@ class WorkerThreadHelper:
         self.thread.start()
         self._running = True
         import mforms
-        mforms.Utilities.add_timeout(update_interval, self._timeout)
+        self._timeout = mforms.Utilities.add_timeout(update_interval, self._timeout)
 
     def add_message(self, message):
         self.queue.put(message)
@@ -358,14 +359,14 @@ class WorkerThreadHelper:
             except Queue.Empty:
                 break
             self.message_handler(message)
-        return self._running
+        return self._running and self.queue.empty()
 
     def _run(self):
         try:
             self.worker(self.add_message)
-        except:
+        except Exception, e:
             import traceback
-            traceback.print_exc()
-            log_error("WorkerThreadHelper", "An exception occurred in the worker thread.\n")
+            log_error("WorkerThreadHelper", "An exception occurred in the worker thread:\n%s\n" % traceback.format_exc())
+            self.add_message(e)
         self._running = False
 
