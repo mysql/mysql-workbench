@@ -8,6 +8,8 @@ output_distros = ["trusty", "precise"]
 
 editions = ["community", "commercial"]
 
+var_dictionary = []
+
 import shutil
 import os
 
@@ -45,6 +47,12 @@ def preprocess(inpath, inf, outf, distro, edition):
                                 print inpath+": unknown directive", line
                 if conditions[-1]:
                         outf.write(line)
+                        
+                for key, value in var_dictionary:
+                        print('key: %s, value: %s' % (key, value))
+                        if line.find('@%s@' % key):
+                          print('found @%s@' % key)
+                        line = line.replace('@%s@' % key, value)
 
 edition_specific_file_exts = [".menu", ".mime", ".sharedmimeinfo"]
 
@@ -54,6 +62,7 @@ def generate_distro(source_dir, distro, edition):
         os.mkdir(target_dir)
         
         for f in os.listdir(source_dir):
+                print('parsing file '+f)
                 inpath = os.path.join(source_dir, f)
                 if os.path.splitext(inpath)[-1] in edition_specific_file_exts:
                         if edition not in inpath:
@@ -67,8 +76,10 @@ def generate_distro(source_dir, distro, edition):
 
         print target_dir, "generated"
 
-
 for distro in output_distros:
         for edition in editions:
+                var_dictionary = []
+                var_dictionary['distro'] = distro
+                var_dictionary['edition'] = edition
                 generate_distro("debian.in", distro, edition)
 

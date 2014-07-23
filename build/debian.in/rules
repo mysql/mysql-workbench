@@ -30,25 +30,21 @@ INSTALL_PREFIX=/usr
 
 ODBC_HOME=$(HOME)/linux-res-6.2/usr/
 LINUXRES_HOME=$(HOME)/linux-res-6.2/
+
 @ifdef community
 CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
-@else
-CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
-@endif
-VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
-@ifdef community
 MYSQL_HOME=$(HOME)/mysql-server/
 @else
+CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 @endif
 
-@ifdef community
-WBDIRNAME=mysql-workbench-community
-@else
-WBDIRNAME=mysql-workbench-commercial
-@endif
+VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
+
+WBDIRNAME=mysql-workbench-@edition@
 
 WBLIBPATH=$(INSTALL_PREFIX)/lib/mysql-workbench
+WBDOCPATH=$(INSTALL_PREFIX)/share/doc/mysql-workbench-@edition@
 
 configure: configure-stamp
 configure-stamp:
@@ -107,6 +103,7 @@ install: build
 	# Bundle other unpackaged libs
 	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(CURDIR)/debian/copyright $(WBDOCPATH)
 @ifdef commercial
 	# Bundle libs only needed for SE edition
 	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
