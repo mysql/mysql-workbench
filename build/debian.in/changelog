@@ -1,4 +1,10 @@
-mysql-workbench (6.2.0-1) unstable; urgency=low
+@ifdef trusty
+mysql-workbench (6.2.0-1) trusty; urgency=low
+@endif
+@ifdef precise
+mysql-workbench (6.2.0-1) precise; urgency=low
+@endif
+
 
   * New release
 
