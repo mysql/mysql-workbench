@@ -149,19 +149,8 @@ void SpatialDrawBox::render(bool reproject)
   visible_area.MaxLon = _max_lon;
   visible_area.MinLat = _min_lat;
   visible_area.MinLon = _min_lon;
-
   //we need to make a fix cause some projections will fail
-  if (_proj == spatial::ProjMercator)
-  {
-    if (visible_area.MaxLat > 179.0)
-      visible_area.MaxLat = 179.0;
-    if (visible_area.MaxLon > 89.0)
-      visible_area.MaxLon = 89.0;
-    if (visible_area.MinLat < -179.0)
-      visible_area.MinLat = -179.0;
-    if (visible_area.MinLon < -89.0)
-      visible_area.MinLon = -89.0;
-  }
+
   if (_proj == spatial::ProjBonne)
   {
     if (visible_area.MaxLat > 154.0)
@@ -173,6 +162,18 @@ void SpatialDrawBox::render(bool reproject)
     if (visible_area.MinLon < -64.0)
       visible_area.MinLon = -64.0;
   }
+  else
+  {
+    if (visible_area.MaxLat > 179.0)
+      visible_area.MaxLat = 179.0;
+    if (visible_area.MaxLon > 89.0)
+      visible_area.MaxLon = 89.0;
+    if (visible_area.MinLat < -179.0)
+      visible_area.MinLat = -179.0;
+    if (visible_area.MinLon < -89.0)
+      visible_area.MinLon = -89.0;
+  }
+
 
   visible_area.height = height;
   visible_area.width = width;
@@ -308,7 +309,7 @@ void SpatialDrawBox::zoom_in()
   invalidate();
 }
 
-void SpatialDrawBox::auto_zoom(const size_t layer_idx, bool no_invalidate)
+void SpatialDrawBox::auto_zoom(const size_t layer_idx)
 {
   if (_layers.empty())
     return;
@@ -317,18 +318,25 @@ void SpatialDrawBox::auto_zoom(const size_t layer_idx, bool no_invalidate)
 
   spatial::Layer* lay = NULL;
   if (_last_autozoom_layer == (size_t)-1 || _last_autozoom_layer >= _layers.size())
-  {
     lay = _layers.back();
-  }
   else
   {
-    lay = _layers[layer_idx];
+    for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
+    {
+      if ((size_t)(*it)->layer_id() == layer_idx)
+      {
+        lay = *it;
+        break;
+      }
+    }
   }
 
   if (lay == NULL)
     return;
 
   spatial::Envelope env = lay->get_envelope();
+  if (!env.is_init())
+    return;
 
   double h = std::abs(env.top_left.y - env.bottom_right.y);
 
@@ -340,11 +348,7 @@ void SpatialDrawBox::auto_zoom(const size_t layer_idx, bool no_invalidate)
   _max_lat = env.bottom_right.x;
   _min_lon = env.bottom_right.y;
   _max_lon = env.top_left.y;
-
   _displaying_restricted = true;
-
-//  if (!no_invalidate)
-//    invalidate(true);
 }
 
 
@@ -369,7 +373,7 @@ void SpatialDrawBox::reset_view()
   while(!_hw_zoom_history.empty())
     _hw_zoom_history.pop();
 
-  auto_zoom(_last_autozoom_layer, true);
+  auto_zoom(_last_autozoom_layer);
 
   invalidate(_displaying_restricted);
   _displaying_restricted = false;
