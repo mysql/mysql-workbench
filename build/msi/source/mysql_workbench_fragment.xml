@@ -751,6 +751,9 @@
                     <File Id="file60666" Name="wb_lock.png"/>
                     <File Id="file60667" Name="change_alert_create.png"/>
 
+                    <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
+                    <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
+
                     </Component>
                 </Directory>
 
@@ -1947,6 +1950,7 @@
                   <File Id="file14018" Name="structs.xml"/>
                   <File Id="file14019" Name="structs.meta.xml"/>
                   <File Id="file14020" Name="structs.ui.xml"/>
+                  <File Id="file14021" Name="structs.wrapper.xml"/>
                 </Component>
               </Directory>
 

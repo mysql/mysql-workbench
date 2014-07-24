@@ -39,7 +39,6 @@ void free_wrapper(void *payload)
 ObjectWrapper::ObjectWrapper(mforms::Object *object)
 {
   object->set_data(this, free_wrapper);
-  Manager::get_instance()->instance_created();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,8 +60,6 @@ ObjectWrapper::~ObjectWrapper()
   // unmanaged resources).
   Component ^value = component; // Assign from gcroot to real var.
   delete value;
-
-  Manager::get_instance()->instance_destroyed();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 #include "base/threading.h"
 #include "glib/gstdio.h"
 #include "base/log.h"
-#include "objimpl/ui/grt_PyObject_impl.h"
+#include "objimpl/wrapper/grt_PyObject_impl.h"
 
 #include "base/notifications.h"
 #include "base/file_functions.h"

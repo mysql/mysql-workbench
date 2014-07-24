@@ -24,7 +24,7 @@
 #include <grts/structs.ui.h>
 #include "mforms/dockingpoint.h"
 
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 // The throw clause gives a warning in VS (as it is not support, except to indicate this is not a nothrow function).
 PyObject *fromgrt(PyObject *object) //throw (std::runtime_error, std::invalid_argument, std::logic_error)

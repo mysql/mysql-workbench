@@ -17,11 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_POPUPSELECT_H_
-#define _MFORMS_POPUPSELECT_H_
+#pragma once
 
 #include <mforms/view.h>
-
 
 namespace mforms {
   class Selector;
@@ -104,5 +102,3 @@ namespace mforms {
     bool _editable;
   };
 };
-
-#endif

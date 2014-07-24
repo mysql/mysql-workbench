@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_MENUBAR_H_
-#define _MFORMS_MENUBAR_H_
+#pragma once
 
 #include "base/trackable.h"
 #include <mforms/box.h>
@@ -191,6 +190,4 @@ namespace mforms {
     boost::signals2::signal<void (MenuItem*)> _signal_will_show;
   };
 };
-
-#endif
 

@@ -17,9 +17,7 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _MFORMS_HYPERTEXT_H_
-#define _MFORMS_HYPERTEXT_H_
+#pragma once
 
 #include <mforms/view.h>
 #include <boost/signals2.hpp>
@@ -61,5 +59,3 @@ namespace mforms {
     void handle_url_click(const std::string &url);
   };
 };
-
-#endif

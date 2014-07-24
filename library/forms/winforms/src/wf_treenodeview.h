@@ -52,6 +52,7 @@ namespace MySQL {
       static mforms::TreeNodeRef root_node(mforms::TreeNodeView *backend);
 
       static mforms::TreeNodeRef node_at_row(mforms::TreeNodeView *backend, int row);
+      static mforms::TreeNodeRef node_at_position(mforms::TreeNodeView *backend, base::Point position);
       static int row_for_node(mforms::TreeNodeView *backend, mforms::TreeNodeRef node);
       static mforms::TreeNodeRef node_with_tag(mforms::TreeNodeView *backend, const std::string &tag);
 
@@ -62,6 +63,8 @@ namespace MySQL {
 
       static void set_column_width(mforms::TreeNodeView *backend, int column, int width);
       static int get_column_width(mforms::TreeNodeView *backend, int column);
+
+      virtual mforms::DropPosition get_drop_position();
     public:
       void set_row_height(int h);
 
@@ -79,6 +82,7 @@ namespace MySQL {
       mforms::TreeNodeRef root_node();
       
       mforms::TreeNodeRef node_at_row(int row);
+      mforms::TreeNodeRef node_at_position(base::Point position);
       int row_for_node(mforms::TreeNodeRef node);
 
       void set_column_title(int column, const std::string &title);
@@ -90,7 +94,7 @@ namespace MySQL {
       int get_column_width(int column);
 
       // Internal functions.
-      void process_mapping(TreeViewNode ^node, const std::string &tag);
+      void process_mapping(Aga::Controls::Tree::TreeNodeAdv ^node, const std::string &tag);
       void node_value_set(int column);
 
       static void init();

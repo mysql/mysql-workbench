@@ -18,6 +18,7 @@
  */
 
 #include "mysql_table_editor.h"
+
 #include "grtdb/db_object_helpers.h"
 #include "db.mysql/src/module_db_mysql.h"
 #include "grt/validation_manager.h"
@@ -25,6 +26,16 @@
 #include "base/string_utilities.h"
 
 #include "mforms/code_editor.h"
+#include "mforms/table.h"
+#include "mforms/treenodeview.h"
+#include "mforms/textentry.h"
+#include "mforms/button.h"
+#include "mforms/box.h"
+#include "mforms/label.h"
+#include "mforms/toolbar.h"
+#include "mforms/menubar.h"
+
+#include "mysql-scanner.h"
 
 using namespace bec;
 using namespace base;
@@ -351,352 +362,1070 @@ bool MySQLTableColumnsListBE::activate_popup_item_for_nodes(const std::string &n
   return TableColumnsListBE::activate_popup_item_for_nodes(name, orig_nodes);
 }  
 
+//----------------- TriggerTreeView ----------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------------
+#define TRIGGER_DRAG_FORMAT "com.mysql.workbench.drag-trigger"
 
-#include <mforms/table.h>
-#include <mforms/treenodeview.h>
-#include <mforms/textentry.h>
-#include <mforms/button.h>
-#include <mforms/box.h>
-#include <mforms/label.h>
-#include <mforms/toolbar.h>
+class TriggerTreeView : public mforms::TreeNodeView
+{
+public:
+  mforms::TreeNodeRef selection;
 
-class MySQLTriggerPanel : public mforms::Box
+  TriggerTreeView(mforms::TreeOptions options)
+    : mforms::TreeNodeView(options)
+  {
+  }
+
+  virtual bool get_drag_data(mforms::DragDetails &details, void **data, std::string &format)
+  {
+    selection = get_selected_node();
+    if (selection.is_valid() && selection->get_parent() != root_node())
+    {
+      format = TRIGGER_DRAG_FORMAT;
+      details.allowedOperations = mforms::DragOperationCopy | mforms::DragOperationMove;
+      *data = &selection;
+
+      return true;
+    }
+    else
+      selection = mforms::TreeNodeRef();
+
+    return false;
+  }
+};
+
+//----------------- MySQLTriggerPanel --------------------------------------------------------------
+
+class MySQLTriggerPanel : public mforms::Box, public mforms::DropDelegate
 {
 public:
   MySQLTriggerPanel(MySQLTableEditorBE *editor, db_mysql_TableRef table)
-  : mforms::Box(true), _editor(editor), _list(mforms::TreeFlatList|mforms::TreeSizeSmall), _button(mforms::SmallButton), _refreshing(false)
+    : mforms::Box(true), _editor(editor),
+    _trigger_list(mforms::TreeSizeSmall | mforms::TreeNoBorder | mforms::TreeNoHeader | mforms::TreeCanBeDragSource),
+    _refreshing(false)
   {
-    _edited_trigger_index = 0;
     _table = table;
 
-    set_spacing(8);
+    scoped_connect(table->signal_refreshDisplay(), boost::bind(&MySQLTriggerPanel::need_refresh, this, _1));
+
+    _editor_host = editor->get_sql_editor()->get_container();
+    scoped_connect(editor->get_catalog()->signal_changed(), boost::bind(&MySQLTriggerPanel::catalog_changed, this, _1, _2));
+
+
+    set_spacing(15);
     set_padding(4);
     
-    _list.set_size(230, -1);
-    _list.set_name("triggers list");
-    add(&_list, false, true);
-    _rtable.set_name("trigger right pane");
-    add(&_rtable, true, true);
-    
-    _rtable.set_row_count(2);
-    _rtable.set_column_count(5);
-    
-    _button.set_text("Delete Trigger");
-    _rtable.set_row_spacing(8);
-    _rtable.set_column_spacing(6);
-    
-    _name.set_name("trigger name");
-    _name.set_read_only(true);
-    _definer.set_name("trigger definer");
-    _definer.set_read_only(true);
+    std::vector<std::string> formats;
+    formats.push_back(TRIGGER_DRAG_FORMAT);
+    _trigger_list.register_drop_formats(this, formats);
+    mforms::Box *trigger_list_host = mforms::manage(new mforms::Box(false));
+    trigger_list_host->set_padding(4);
+    trigger_list_host->set_spacing(4);
 
-    _namel.set_style(mforms::SmallStyle);
-    _definerl.set_style(mforms::SmallStyle);
-    _namel.set_text("Trigger Name:");
-    _definerl.set_text("Definer:");
-    _rtable.add(&_namel, 0, 1, 0, 1, mforms::HFillFlag);
-    _rtable.add(&_name, 1, 2, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
-    _rtable.add(&_definerl, 2, 3, 0, 1, mforms::HFillFlag);
-    _rtable.add(&_definer, 3, 4, 0, 1, mforms::HExpandFlag|mforms::HFillFlag);
-    _rtable.add(&_button, 4, 5, 0, 1, mforms::HFillFlag);
+    _trigger_list.set_size(230, -1);
+    _trigger_list.set_name("triggers list");
+    _trigger_list.add_column(mforms::StringColumnType, _("Name"), 200, false, true);
+    _trigger_list.end_columns();
+    _trigger_list.signal_changed()->connect(boost::bind(&MySQLTriggerPanel::selection_changed, this));
+    _trigger_list.set_row_overlay_handler(boost::bind(&MySQLTriggerPanel::overlay_icons_for_node, this, _1));
+    scoped_connect(_trigger_list.signal_node_activated(), boost::bind(&MySQLTriggerPanel::node_activated, this, _1, _2));
+    trigger_list_host->add(&_trigger_list, true, true);
 
-    _list.add_column(mforms::StringColumnType, _("Name"), 110, false);
-    _list.add_column(mforms::StringColumnType, _("Timing/Event"), 100, false);
-    _list.end_columns();
-    _list.signal_changed()->connect(boost::bind(&MySQLTriggerPanel::selection_changed, this));
+    _warning_label.set_text(_("Warning: the current server version does not allow multiple triggers "
+      "for the same timing/event."));
+    _warning_label.set_wrap_text(true);
+    _warning_label.set_style(mforms::SmallStyle);
+    _warning_label.set_front_color("#AF1F00");
+    trigger_list_host->add(&_warning_label, false, true);
+    add(trigger_list_host, false, true);
 
-    _rtable.add(editor->get_sql_editor()->get_container(), 0, 5, 1, 2,
-                mforms::HExpandFlag|mforms::VExpandFlag|mforms::HFillFlag|mforms::VFillFlag);
-    editor->get_sql_editor()->set_sql_check_enabled(true);
-    
-    _button.signal_clicked()->connect(boost::bind(&MySQLTriggerPanel::clicked, this));
+    _trigger_menu.signal_will_show()->connect(boost::bind(&MySQLTriggerPanel::trigger_menu_will_show, this, _1));
+    _trigger_menu.add_item_with_title("Move trigger up",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_up"), "trigger_up");
+    _trigger_menu.add_item_with_title("Move trigger down",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_down"), "trigger_down");
+    _trigger_menu.add_separator();
+
+    _trigger_menu.add_item_with_title("Add new trigger",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "add_trigger"), "add_trigger");
+    _trigger_menu.add_item_with_title("Duplicate trigger",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "duplicate_trigger"), "duplicate_trigger");
+    _trigger_menu.add_separator();
+
+    _trigger_menu.add_item_with_title("Delete trigger",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "delete_trigger"), "delete_trigger");
+    _trigger_menu.add_item_with_title("Delete all triggers with this timing",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers_in_group"), "delete_triggers_in_group");
+    _trigger_menu.add_item_with_title("Delete all triggers",
+      boost::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers"), "delete_triggers");
+    _trigger_list.set_context_menu(&_trigger_menu);
+
+    add(_editor_host, true, true);
+
+    _info_label.set_text(_("Select an existing trigger in the tree to edit it.\nUse the context menu "
+      "to add and remove triggers."));
+    _info_label.set_front_color("#909090");
+    _info_label.set_text_align(mforms::MiddleCenter);
+    _info_label.set_font(DEFAULT_FONT_FAMILY " bold 14");
+
+    add(&_info_label, true, true);
+
     _code_editor = _editor->get_sql_editor()->get_editor_control();
     _code_editor->signal_lost_focus()->connect(boost::bind(&MySQLTriggerPanel::code_edited, this));
-    refresh();
-    selection_changed();
+    
+    // Sort the triggers list so that the order corresponds to the visual representation
+    // we establish, to ease manipulating the list later. This will not change the order of triggers
+    // with the same timing/event relative to each other.
+    // This sort order is not preserved in the model unless the user makes other changes that are saved
+    // (saving so also the new order, if it has changed at all).
+    grt::ListRef<db_mysql_Trigger> triggers(_table->triggers());
+    grt::ListRef<db_mysql_Trigger> sorted_triggers(_table->get_grt());
+
+    _editor->freeze_refresh_on_object_change();
+    coalesce_triggers(triggers, sorted_triggers, "BEFORE", "INSERT");
+    coalesce_triggers(triggers, sorted_triggers, "AFTER", "INSERT");
+    coalesce_triggers(triggers, sorted_triggers, "BEFORE", "UPDATE");
+    coalesce_triggers(triggers, sorted_triggers, "AFTER", "UPDATE");
+    coalesce_triggers(triggers, sorted_triggers, "BEFORE", "DELETE");
+    coalesce_triggers(triggers, sorted_triggers, "AFTER", "DELETE");
+    grt::replace_contents(_table->triggers(), sorted_triggers);
+    _editor->thaw_refresh_on_object_change(true);
+
+    update_warning();
   }
+
+  //------------------------------------------------------------------------------------------------
 
   ~MySQLTriggerPanel()
   {
-    _rtable.remove(_editor->get_sql_editor()->get_container());
   }
+
+  //------------------------------------------------------------------------------------------------
+
+  /**
+   * Moves all triggers from source to target with the given timing and event, maintaining
+   *	 their relative order.
+   */
+  void coalesce_triggers(grt::ListRef<db_mysql_Trigger> source, grt::ListRef<db_mysql_Trigger> target,
+    std::string timing, std::string event)
+  {
+    size_t i = 0;
+    while (i < source->count())
+    {
+      db_mysql_TriggerRef trigger = source[i];
+      if (base::same_string(trigger->timing(), timing, false)
+        && base::same_string(trigger->event(), event, false))
+      {
+        source->remove(i);
+        target->insert_unchecked(trigger);
+      }
+      else
+        ++i;
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  std::vector<std::string> overlay_icons_for_node(mforms::TreeNodeRef node)
+  {
+    std::vector<std::string> result;
+
+    // Add for both group nodes and triggers.
+    result.push_back(mforms::App::get()->get_resource_path("item_overlay_add.png"));
+    if (node->level() == 2)
+      result.push_back(mforms::App::get()->get_resource_path("item_overlay_delete.png"));
+
+    return result;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void node_activated(mforms::TreeNodeRef node, int index)
+  {
+    if (!node.is_valid())
+      return;
+    
+    switch (index)
+    {
+      // Negative indices for overlay icons.
+      case -1: // Add button.
+      {
+        GrtVersionRef version = _editor->get_catalog()->version();
+        bool supports_multiple = bec::is_supported_mysql_version_at_least(version, 5, 7, 2);
+        if (node->level() == 2) // Go up to group node if this is a trigger node.
+          node = node->get_parent();
+
+        if (supports_multiple || node->count() == 0)
+        {
+          std::string timing, event;
+          if (base::partition(node->get_string(0), " ", timing, event))
+            add_trigger(timing, event, true);
+        }
+        else
+          mforms::Utilities::beep();
+
+        break;
+      }
+      case -2: // Delete button.
+      {
+        db_mysql_TriggerRef trigger = trigger_for_node(node);
+        if (trigger.is_valid())
+        {
+          _editor->freeze_refresh_on_object_change();
+
+          delete_trigger(trigger);
+
+          _editor->thaw_refresh_on_object_change(true);
+        }
+        break;
+      }
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  class AttachedTrigger : public mforms::TreeNodeData
+  {
+  public:
+    db_mysql_TriggerRef _trigger;
+    AttachedTrigger(db_mysql_TriggerRef trigger) : _trigger(trigger) {};
+  };
+
+  mforms::TreeNodeRef insert_trigger_in_tree(const db_mysql_TriggerRef trigger)
+  {
+    int index = 0;
+    std::string event = base::tolower(trigger->event());
+    if (event == "update")
+      index += 2;
+    else
+      if (event == "delete")
+        index += 4;
+    if (base::tolower(trigger->timing()) == "after")
+      ++index;
+
+    mforms::TreeNodeRef parent = _trigger_list.root_node()->get_child(index);
+    mforms::TreeNodeRef node = parent->add_child();
+    node->set_string(0, trigger->name());
+    node->set_data(new AttachedTrigger(trigger));
+
+    parent->expand(); // Make sure the child is visible.
+    node->expand();   // Dummy to remove the expander icon.
+
+    return node;
+  }
+
+  //------------------------------------------------------------------------------------------------
 
   void refresh()
   {
     _refreshing = true;
 
-    std::set<std::string> leftover;
-    leftover.insert("BEFORE INSERT");
-    leftover.insert("AFTER INSERT");
-    leftover.insert("BEFORE UPDATE");
-    leftover.insert("AFTER UPDATE");
-    leftover.insert("BEFORE DELETE");
-    leftover.insert("AFTER DELETE");
-
-    mforms::TreeNodeRef selected = _list.get_selected_node();
+    mforms::TreeNodeRef selected = _trigger_list.get_selected_node();
     int old_selected = 0;
     if (selected)
-      old_selected = _list.row_for_node(selected);
-    
-    _list.clear();
+      old_selected = _trigger_list.row_for_node(selected);
 
-    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
-    std::map<std::string, db_TriggerRef> trigmap;
-    GRTLIST_FOREACH(db_Trigger, triggers, trig)
+    _trigger_list.clear();
+
+    // Add top level nodes for each event/timing combination.
+    static const char *top_level_captions[] = {
+      "BEFORE INSERT",
+      "AFTER INSERT",
+      "BEFORE UPDATE",
+      "AFTER UPDATE",
+      "BEFORE DELETE",
+      "AFTER DELETE"
+    };
+
+    for (size_t i = 0; i < 6; ++i)
     {
-      std::string t = (*trig)->timing();
-      t.append(" ").append((*trig)->event());
-      trigmap.insert(std::make_pair(base::tolower(t), *trig));
+      mforms::TreeNodeRef node = _trigger_list.add_node();
+      node->set_string(0, top_level_captions[i]);
+      node->set_attributes(0, mforms::TextAttributes("#303030", true, false));
+      node->expand();
     }
 
-    mforms::TreeNodeRef node;
-    std::map<std::string, db_TriggerRef>::iterator it;
-    for (std::set<std::string>::const_iterator t = leftover.begin(); t != leftover.end(); ++t)
-    {
-      node = _list.add_node();
-      if ((it = trigmap.find(base::tolower(*t))) != trigmap.end())
-        node->set_string(0, it->second->name());
-      else
-        node->set_string(0, "-");
+    grt::ListRef<db_mysql_Trigger> triggers(_table->triggers());
+    GRTLIST_FOREACH(db_mysql_Trigger, triggers, trigger)
+      insert_trigger_in_tree(*trigger);
 
-      node->set_string(1, *t);
-    }
-
-    _list.select_node(_list.node_at_row(old_selected));
+    _trigger_list.select_node(_trigger_list.node_at_row(old_selected));
 
     _refreshing = false;
   }
   
-  void select_trigger(size_t index)
-  {
-    _list.select_node(_list.node_at_row((int)index));
+  //------------------------------------------------------------------------------------------------
 
-    db_mysql_TableRef table = db_mysql_TableRef::cast_from(_editor->get_table());
-    grt::ListRef<db_mysql_Trigger> triggers(table->triggers());
-    if (index < triggers->count())
-      _selected_trigger = triggers[index];
-  }
-
-  void reload_selected_trigger()
+  mforms::TreeNodeRef node_for_trigger(const db_TriggerRef &trigger)
   {
-    mforms::TreeNodeRef node = _list.get_selected_node();
-    if (!node)
+    // Find the index of the top level node based on timing and event.
+    int index = 0;
+    std::string event = base::tolower(trigger->event());
+    if (event == "update")
+      index += 2;
+    else
+      if (event == "delete")
+        index += 4;
+    if (base::tolower(trigger->timing()) == "after")
+      ++index;
+
+    // Now iterate over its children to find the one we are looking for.
+    mforms::TreeNodeRef parent = _trigger_list.root_node()->get_child(index);
+    if (!parent.is_valid())
+      return mforms::TreeNodeRef();
+
+    for (int i = 0; i < parent->count(); ++i)
     {
-      _list.select_node(_list.node_at_row(0));
-      return;
+      mforms::TreeNodeRef child = parent->get_child(i);
+      AttachedTrigger *data = dynamic_cast<AttachedTrigger *>(child->get_data());
+      if (data != NULL && data->_trigger == trigger)
+        return child;
     }
 
-    std::string timing, event;
-    base::partition(node->get_string(1), " ", timing, event);
-    db_mysql_TableRef table = db_mysql_TableRef::cast_from(_editor->get_table());
-    grt::ListRef<db_mysql_Trigger> triggers(table->triggers());
-    GRTLIST_FOREACH(db_mysql_Trigger, triggers, trig)
+    return mforms::TreeNodeRef();
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  db_mysql_TriggerRef trigger_for_node(mforms::TreeNodeRef node)
+  {
+    if (!node.is_valid())
+      return db_mysql_TriggerRef();
+
+    mforms::TreeNodeRef parent = node->get_parent();
+    if (!parent.is_valid())
+      return db_mysql_TriggerRef();
+
+    AttachedTrigger *data = dynamic_cast<AttachedTrigger *>(node->get_data());
+    if (data == NULL || !data->_trigger.is_valid())
+      return db_mysql_TriggerRef();
+
+    std::string title = node->get_string(0);
+    grt::ListRef<db_mysql_Trigger> triggers(_table->triggers());
+    GRTLIST_FOREACH(db_mysql_Trigger, triggers, iterator)
     {
-      if (base::string_compare((*trig)->timing(), timing, false) == 0 && base::string_compare((*trig)->event(), event, false) == 0)
-      {
-        _selected_trigger = *trig;
-        break;
-      }
+      if (data->_trigger == *iterator)
+        return *iterator;
     }
 
+    return db_mysql_TriggerRef();
   }
+
+  //------------------------------------------------------------------------------------------------
 
   void code_edited()
   {
     if (_selected_trigger.is_valid())
     {
+      bool need_refresh = false;
+
       if (_code_editor->is_dirty() && _selected_trigger->sqlDefinition() != _code_editor->get_string_value())
       {
         AutoUndoEdit undo(_editor, _selected_trigger, "sql");
-        
+
+        // Get the tree node for the trigger first, as it is based on the name.
+        mforms::TreeNodeRef node = node_for_trigger(_selected_trigger);
+
         _editor->freeze_refresh_on_object_change();
-        
+
+        std::string old_timing = _selected_trigger->timing();
+        std::string old_event = _selected_trigger->event();
         _editor->_parser_services->parseTrigger(_editor->_parser_context, _selected_trigger, _code_editor->get_string_value());
+
+        need_refresh = !base::same_string(old_timing, _selected_trigger->timing(), false)
+          || !base::same_string(old_event, _selected_trigger->event(), false);
+
+        // Set the name before thawing the refresh, as this will update the ui and may select
+        // a different current trigger.
+        std::string name = _selected_trigger->name();
+        if (node)
+          node->set_string(0, name);
+
+        // Check if the user included a follow or precedes clause (which is valid starting with 5.7.2).
+        // Reorder the triggers in the current group and remove the clause if one exists.
+        if (!_selected_trigger->ordering().empty())
+        {
+          std::string other_trigger = _selected_trigger->otherTrigger();
+          if (!other_trigger.empty())
+          {
+            // Positioning information is only valid for the same timing and event.
+            grt::ListRef<db_mysql_Trigger> triggers(_table->triggers());
+            size_t old_index = triggers->get_index(_selected_trigger);
+            for (size_t i = 0; i < triggers.count(); ++i)
+            {
+              db_mysql_TriggerRef trigger = triggers[i];
+              if (trigger == _selected_trigger)
+                continue;
+
+              if (base::same_string(trigger->name(), other_trigger, false) &&
+                  base::same_string(trigger->event(), _selected_trigger->event(), false)
+                  && base::same_string(trigger->timing(), _selected_trigger->timing(), false))
+              {
+                if (base::same_string(_selected_trigger->ordering(), "precedes", false))
+                  triggers->reorder(old_index, i);
+                else
+                  triggers->reorder(old_index, i + 1);
+
+                need_refresh = true;
+                break;
+              }
+            }
+          }
+
+          // Remove ordering clause from the sql.
+          // We do a token-based search-and-replace here. Keep in mind the sql text might not be valid.
+          std::string sql;
+          std::string source = _selected_trigger->sqlDefinition();
+
+          MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
+          size_t ordering_token = _editor->_parser_context->get_keyword_token(_selected_trigger->ordering());
+          bool removal_done = false;
+          do
+          {
+            MySQLToken token = scanner->next_token();
+            if (token.type == ANTLR3_TOKEN_EOF)
+              break;
+
+            if (!removal_done && token.type == ordering_token)
+            {
+              // The token we are looking for. Skip this and any whitespace token following it.
+              do
+              {
+                token = scanner->next_token();
+                if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+                  break;
+              } while (true);
+
+              // See if there's an identifier following the ordering keyword and if so remove that too
+              // including the following whitespace).
+              if (scanner->is_identifier(token.type))
+              {
+                do
+                {
+                  token = scanner->next_token();
+                  if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+                    break;
+                } while (true);
+              }
+
+              removal_done = true;
+              if (token.type == ANTLR3_TOKEN_EOF)
+                break;
+
+              // Add the following token we already scanned or it will get lost.
+              sql += token.text;
+            }
+            else
+              sql += token.text;
+
+          } while (true);
+
+          // Finally remove position information from the trigger object, regardless wether the other trigger actually
+          // exists (or is valid) and update the code editor.
+          _selected_trigger->ordering("");
+          _selected_trigger->otherTrigger("");
+          _editor->get_sql_editor()->sql(sql.c_str());
+        }
+
         _editor->thaw_refresh_on_object_change();
 
-        _name.set_value(_selected_trigger->name());
-        _definer.set_value(_selected_trigger->definer());
-        mforms::TreeNodeRef node = _list.node_at_row(_edited_trigger_index);
-        if (node)
-          node->set_string(0, _selected_trigger->name());
+        undo.end(strfmt(_("Edit trigger `%s` of `%s`.`%s`"), name.c_str(), _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
+      }
 
-        undo.end(strfmt(_("Edit trigger `%s` of `%s`.`%s`"), _selected_trigger->name().c_str(), _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
+      if (need_refresh)
+      {
+        // Reload the tree but keep the current trigger selected.
+        refresh();
+
+        _trigger_list.select_node(node_for_trigger(_selected_trigger));
       }
     }
     else
       refresh();
   }
 
-  void add_trigger(const std::string &timing, const std::string &event)
+  //------------------------------------------------------------------------------------------------
+
+  bool trigger_name_exists(const std::string &name)
+  {
+    grt::ListRef<db_Trigger> triggers(_table->triggers());
+    for (size_t i = 0; i < triggers->count(); ++i)
+    {
+      if (base::same_string(triggers[i]->name(), name))
+        return true;
+    }
+    return false;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  db_mysql_TriggerRef add_trigger(const std::string &timing, const std::string &event, bool select,
+    const std::string &sql = "")
   {
     _editor->freeze_refresh_on_object_change();
     AutoUndoEdit undo(_editor);
 
+    grt::ListRef<db_Trigger> triggers(_table->triggers());
     db_mysql_TriggerRef trigger = db_mysql_TriggerRef(_editor->get_grt());
-    trigger->owner(_editor->get_table());
-    trigger->name(base::strfmt("%s_%c%s", _editor->get_name().c_str(),
-      timing[0], event.substr(0, 3).c_str()));
-    trigger->event(event);
+    trigger->owner(_table);
 
-    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
-    trigger->timing(timing);
+    if (sql.empty())
+    {
+      // Find a unique name for the new trigger if the default name is already taken.
+      std::string name = _editor->get_name() + "_" + timing + "_" + event;
+      if (!trigger_name_exists(name))
+        trigger->name(name);
+      else
+      {
+        int counter = 1;
+        std::stringstream buffer;
+        do
+        {
+          buffer.str("");
+          buffer << name << "_" << counter++;
+        } while (counter < 100 && trigger_name_exists(buffer.str()));
+        trigger->name(buffer.str());
+      }
+
+      trigger->event(event);
+      trigger->timing(timing);
+    }
+    else
+    {
+      _editor->_parser_services->parseTrigger(_editor->_parser_context, trigger, sql);
+    }
     triggers.insert(trigger);
 
-    undo.end(base::strfmt("Added trigger to %s.%s", _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
+    undo.end(base::strfmt("Add trigger to %s.%s", _editor->get_schema_name().c_str(), _editor->get_name().c_str()));
 
-    mforms::TreeNodeRef node = _list.get_selected_node();
-    if (node.is_valid())
-      node->set_string(0, trigger->name());
+    mforms::TreeNodeRef node = insert_trigger_in_tree(trigger);
+    if (select)
+    {
+      _trigger_list.select_node(node);
+      selection_changed();
+    }
     _editor->thaw_refresh_on_object_change(true);
+
+    return trigger;
   }
+
+  //------------------------------------------------------------------------------------------------
 
   void delete_trigger(db_TriggerRef trigger)
   {
     _editor->freeze_refresh_on_object_change();
     AutoUndoEdit undo(_editor);
 
-    grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
+    grt::ListRef<db_Trigger> triggers(_table->triggers());
     triggers.remove_value(trigger);
     undo.end(base::strfmt("Delete trigger %s", trigger->name().c_str()));
 
-    mforms::TreeNodeRef node = _list.get_selected_node();
+    mforms::TreeNodeRef node = node_for_trigger(trigger);
     if (node.is_valid())
-      node->set_string(0, "-");
-    _editor->thaw_refresh_on_object_change(true);
-  }
-
-  void clicked()
-  {
-    std::string timing, event;
-    mforms::TreeNodeRef node = _list.get_selected_node();
-    
-    if (base::partition(node->get_string(1), " ", timing, event))
     {
-      grt::ListRef<db_Trigger> triggers(_editor->get_table()->triggers());
-      db_TriggerRef trigger;
-      GRTLIST_FOREACH(db_Trigger, triggers, trig)
+      mforms::TreeNodeRef previous = node->previous_sibling();
+      if (!previous.is_valid())
+        previous = node->get_parent();
+      node->remove_from_parent();
+      if (previous.is_valid())
       {
-        if ((*trig)->timing() == timing && (*trig)->event() == event)
-        {
-          trigger = *trig;
-          break;
-        }
+        _trigger_list.select_node(previous);
+        selection_changed();
       }
-      
-      if (trigger.is_valid())
-        delete_trigger(trigger);
-      else
-        add_trigger(event, timing);
-
-      update_editor();
     }
+    _editor->thaw_refresh_on_object_change(true);
+    update_warning();
   }
+
+  //------------------------------------------------------------------------------------------------
 
   void selection_changed()
   {
     if (_refreshing)
       return;
+
+    update_ui();
+
     if (_code_editor->is_dirty())
       code_edited();
-
-    update_editor();
   }
 
+  //------------------------------------------------------------------------------------------------
 
-  void update_editor()
+  void need_refresh(const std::string &member)
   {
-    mforms::TreeNodeRef node = _list.get_selected_node();
-    if (!node)
+    // Handle undo/redo changes.
+    if (member == "trigger" && !_editor->is_refresh_frozen())
     {
-      _list.select_node(_list.node_at_row(0));
-      return;
+      refresh();
+      update_ui();
+      update_warning();
     }
+  }
 
-    std::string timing, event;
-    std::string sql;
-    bool editor_enabled = true;
-    base::partition(node->get_string(1), " ", timing, event);
-    grt::ListRef<db_mysql_Trigger> triggers(_table->triggers());
-    db_mysql_TriggerRef trigger;
-    GRTLIST_FOREACH(db_mysql_Trigger, triggers, trig)
-    {
-      if (base::string_compare((*trig)->timing(), timing, false) == 0 && base::string_compare((*trig)->event(), event, false) == 0)
-      {
-        trigger = *trig;
-        break;
-      }
-    }
+  //------------------------------------------------------------------------------------------------
 
-    bool empty_trigger = false;
+  void update_ui()
+  {
+    mforms::TreeNodeRef node = _trigger_list.get_selected_node();
+    db_mysql_TriggerRef trigger = trigger_for_node(node);
+
     if (_selected_trigger != trigger)
     {
       _selected_trigger = trigger;
 
       if (trigger.is_valid())
       {
-        _button.set_text("Delete Trigger");
-        _name.set_value(trigger->name());
-        _definer.set_value(trigger->definer());
-        _name.set_enabled(true);
-        _definer.set_enabled(true);
-      
+        std::string sql;
         if (trigger->sqlDefinition().empty())
         {
-          sql.append(base::strfmt("CREATE TRIGGER `%s`.`%s` %s %s ON `%s` FOR EACH ROW\n    ", _editor->get_schema_name().c_str(),
-                                  trigger->name().c_str(), timing.c_str(), event.c_str(), _editor->get_name().c_str()));
+          sql = base::strfmt("CREATE DEFINER = CURRENT_USER TRIGGER `%s`.`%s` %s %s ON `%s` FOR EACH ROW\n    ",
+            _editor->get_schema_name().c_str(), trigger->name().c_str(), trigger->timing().c_str(),
+            trigger->event().c_str(), _editor->get_name().c_str());
         }
         else
-          sql.append(trigger->sqlDefinition());
+          sql = trigger->sqlDefinition();
 
-        _edited_trigger_index = _list.row_for_node(_list.get_selected_node());
         _editor->get_sql_editor()->sql(sql.c_str());
+      }
+    }
+
+    _editor_host->show(trigger.is_valid());
+    _info_label.show(!trigger.is_valid());
+    _code_editor->reset_dirty();
+  }
+  
+  //------------------------------------------------------------------------------------------------
+
+  void update_warning()
+  {
+    // See if there's any timing/event combination with more than one trigger definition.
+    bool found_multiple = false;
+    bool supports_multiple = bec::is_supported_mysql_version_at_least(_editor->get_catalog()->version(), 5, 7, 2);
+
+    mforms::TreeNodeTextAttributes normal_attributes("#000000", false, false);
+    mforms::TreeNodeTextAttributes warning_attributes("#AF1F00", false, false);
+    for (int i = 0; i < _trigger_list.count(); ++i)
+    {
+      mforms::TreeNodeRef node = _trigger_list.root_node()->get_child(i);
+      if (node->count() > 0)
+      {
+        if (node->count() > 1)
+          found_multiple = true;
+
+        for (int j = 0; j < node->count(); ++j)
+          node->get_child(j)->set_attributes(0,
+            (!supports_multiple && node->count() > 1) ? warning_attributes : normal_attributes);
+      }
+    }
+    _warning_label.show(!supports_multiple && found_multiple);
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void catalog_changed(const std::string& member, const grt::ValueRef& value)
+  {
+    if (member == "version")
+      update_warning();
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void trigger_menu_will_show(mforms::MenuItem *sub_menu_root)
+  {
+    mforms::TreeNodeRef node = _trigger_list.get_selected_node();
+    if (!node.is_valid())
+    {
+      for (int i = 0; i < _trigger_menu.item_count(); ++i)
+        _trigger_menu.get_item(i)->set_enabled(false);
+
+      _trigger_menu.set_item_enabled("delete_triggers", true);
+      return;
+    }
+
+    // Since 5.7 we can add multiple triggers for the same timing.
+    GrtVersionRef version = _editor->get_catalog()->version();
+    if (node->get_parent() != _trigger_list.root_node())
+    {
+      // One of the triggers.
+      _trigger_menu.set_item_enabled("trigger_up", node->previous_sibling().is_valid() || node->get_parent()->previous_sibling().is_valid());
+      _trigger_menu.set_item_enabled("trigger_down", node->next_sibling().is_valid() || node->get_parent()->next_sibling().is_valid());
+
+      bool enable = bec::is_supported_mysql_version_at_least(version, 5, 7, 2);
+      _trigger_menu.set_item_enabled("add_trigger", enable);
+      _trigger_menu.set_item_enabled("duplicate_trigger", enable);
+
+      _trigger_menu.set_item_enabled("delete_trigger", true);
+      _trigger_menu.set_item_enabled("delete_triggers_in_group", true);
+    }
+    else
+    {
+      // One of the group nodes.
+      _trigger_menu.set_item_enabled("trigger_up", false);
+      _trigger_menu.set_item_enabled("trigger_down", false);
+
+      bool enable = bec::is_supported_mysql_version_at_least(version, 5, 7, 2) || node->count() == 0;
+      _trigger_menu.set_item_enabled("add_trigger", enable);
+      _trigger_menu.set_item_enabled("duplicate_trigger", false);
+
+      _trigger_menu.set_item_enabled("delete_trigger", false);
+      _trigger_menu.set_item_enabled("delete_triggers_in_group", node->count() > 0);
+    }
+    _trigger_menu.set_item_enabled("delete_triggers", true);
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  mforms::TreeNodeRef move_node_to(mforms::TreeNodeRef node, mforms::TreeNodeRef new_parent, int index)
+  {
+    mforms::TreeNodeRef new_node = new_parent->insert_child(index);
+    new_node->set_string(0, node->get_string(0));
+    new_node->set_tag(node->get_tag());
+    new_node->set_data(node->get_data());
+    node->remove_from_parent();
+    return new_node;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void trigger_action(const std::string &action)
+  {
+    mforms::TreeNodeRef node = _trigger_list.get_selected_node();
+    mforms::TreeNodeRef group_node = node;
+    if (node->get_parent() != _trigger_list.root_node())
+      group_node = node->get_parent();
+
+    if (action == "trigger_up")
+    {
+      _editor->freeze_refresh_on_object_change();
+
+      grt::ListRef<db_Trigger> triggers(_table->triggers());
+      db_mysql_TriggerRef trigger = trigger_for_node(node);
+
+      AutoUndoEdit undo(_editor);
+      if (node->previous_sibling().is_valid())
+      {
+        // Move within a group.
+        size_t index = triggers->get_index(trigger); // Index is always > 0 if the above test succeeds.
+        triggers->reorder(index, index - 1);
+
+        int node_index = group_node->get_child_index(node);
+        node = move_node_to(node, group_node, node_index - 1);
       }
       else
       {
-        empty_trigger = true;
+        // Move to the end of the previous group.
+        // There's always a previous group or we wouldn't have come here.
+        // There's no need to move the trigger in the triggers list since at this point it is
+        // the first in it's group and the previous trigger is by definition the last one in the
+        // previous group.
+        group_node = group_node->previous_sibling();
+        std::string timing, event;
+        if (base::partition(group_node->get_string(0), " ", timing, event))
+        {
+          change_trigger_timing(trigger, timing, event);
+          node = move_node_to(node, group_node, group_node->count());
+          group_node->expand();
+        }
+      }
+
+      // Since we didn't destroy the node, but just moved it, selecting it this simple way works.
+      _trigger_list.select_node(node);
+      undo.end("Move trigger up in execution order");
+
+      _editor->thaw_refresh_on_object_change(true);
+    }
+    else if (action == "trigger_down")
+    {
+      _editor->freeze_refresh_on_object_change();
+
+      grt::ListRef<db_Trigger> triggers(_table->triggers());
+      db_mysql_TriggerRef trigger = trigger_for_node(node);
+
+      AutoUndoEdit undo(_editor);
+      if (node->next_sibling().is_valid())
+      {
+        // Move within a group.
+        size_t index = triggers->get_index(trigger); // Index is always < count - 1 if the above test succeeds.
+        triggers->reorder(index, index + 1);
+
+        int node_index = group_node->get_child_index(node);
+        node = move_node_to(node, group_node, node_index + 2);
+      }
+      else
+      {
+        // Move to the beginning of the next group.
+        group_node = group_node->next_sibling();
+        std::string timing, event;
+        if (base::partition(group_node->get_string(0), " ", timing, event))
+        {
+          change_trigger_timing(trigger, timing, event);
+          node = move_node_to(node, group_node, 0);
+          group_node->expand();
+        }
+      }
+
+      _trigger_list.select_node(node);
+      undo.end("Move trigger down in execution order");
+
+      _editor->thaw_refresh_on_object_change(true);
+    }
+    else if (action == "add_trigger")
+    {
+      std::string timing, event;
+      if (base::partition(group_node->get_string(0), " ", timing, event))
+        add_trigger(timing, event, true);
+    }
+    else if (action == "duplicate_trigger")
+    {
+      db_mysql_TriggerRef trigger = trigger_for_node(node);
+      if (trigger.is_valid())
+      {
+        db_mysql_TriggerRef new_trigger = add_trigger(trigger->timing(), trigger->event(), true,
+          trigger->sqlDefinition());
       }
     }
-
-    if (empty_trigger || !_selected_trigger.is_valid())
+    else if (action == "delete_trigger")
     {
-      _name.set_value("");
-      _definer.set_value("");
-      _name.set_enabled(false);
-      _name.set_read_only(true);
-      _definer.set_enabled(false);
-      _definer.set_read_only(true);
-      _button.set_text("Add Trigger");
-      editor_enabled = false;
+      _editor->freeze_refresh_on_object_change();
 
-      _edited_trigger_index = _list.row_for_node(_list.get_selected_node());
-      sql = "-- Trigger not defined. Click Add Trigger to create it.\n";
-      _editor->get_sql_editor()->sql(sql.c_str());
+      db_mysql_TriggerRef trigger = trigger_for_node(node);
+      delete_trigger(trigger);
+
+      _editor->thaw_refresh_on_object_change(true);
     }
-    _button.set_enabled(true);
-    _code_editor->reset_dirty();
-    _code_editor->set_enabled(editor_enabled);
+    else if (action == "delete_triggers_in_group")
+    {
+      _editor->freeze_refresh_on_object_change();
+
+      AutoUndoEdit outer_undo(_editor);
+      while (group_node->count() > 0)
+        delete_trigger(trigger_for_node(group_node->get_child(0)));
+
+      outer_undo.end("Delete triggers in " + group_node->get_string(0));
+      _editor->thaw_refresh_on_object_change(true);
+    }
+    else if (action == "delete_triggers")
+    {
+      _editor->freeze_refresh_on_object_change();
+      AutoUndoEdit outer_undo(_editor);
+
+      for (int i = 0; i < _trigger_list.root_node()->count(); ++i)
+      {
+        group_node = _trigger_list.root_node()->get_child(i);
+        while (group_node->count() > 0)
+          delete_trigger(trigger_for_node(group_node->get_child(0)));
+      }
+
+      outer_undo.end("Delete all triggers");
+      _editor->thaw_refresh_on_object_change(true);
+    }
+    update_ui();
   }
-  
+
+  //------------------------------------------------------------------------------------------------
+
+  virtual mforms::DragOperation drag_over(View *sender, base::Point p, mforms::DragOperation allowedOperations,
+    const std::vector<std::string> &formats)
+  {
+    TriggerTreeView *tree = dynamic_cast<TriggerTreeView*>(sender);
+
+    // For now accept a drop only from our own trigger list. Might change later if we can show multiple editors at once.
+    if (allowedOperations != mforms::DragOperationNone && tree == &_trigger_list && tree->selection.is_valid())
+    {
+      mforms::TreeNodeRef target_node = _trigger_list.node_at_position(p);
+
+      // Don't allow dropping either if the drop position would be the same places we are currently
+      // (that includes dropping on the group node the target is in already).
+      if (!target_node.is_valid() || target_node == tree->selection || target_node == tree->selection->get_parent())
+        return mforms::DragOperationNone;
+
+      mforms::DropPosition position = _trigger_list.get_drop_position();
+
+      // Don't allow dropping before or after a top level node, only *on* it.
+      if (target_node->get_parent() == _trigger_list.root_node() && position != mforms::DropPositionOn)
+        return mforms::DragOperationNone;
+
+      // Check direct siblings with a position pointing to the current position.
+      // If selection and target are from different trees this check will not lead to early exit.
+      if (position == mforms::DropPositionBottom && tree->selection->previous_sibling() == target_node)
+        return mforms::DragOperationNone;
+      if (tree->selection->next_sibling().is_valid()
+        && (position == mforms::DropPositionTop || position == mforms::DropPositionOn)
+        && tree->selection->next_sibling() == target_node)
+        return mforms::DragOperationNone;
+
+      if (tree == &_trigger_list)
+        return allowedOperations & mforms::DragOperationMove;
+      return allowedOperations & mforms::DragOperationCopy;
+    }
+
+    return mforms::DragOperationNone;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  virtual mforms::DragOperation data_dropped(View *sender, base::Point p, mforms::DragOperation allowedOperations,
+    void *data, const std::string &format)
+  {
+    TriggerTreeView *tree = dynamic_cast<TriggerTreeView*>(sender);
+    if (allowedOperations != mforms::DragOperationNone && tree == &_trigger_list)
+    {
+      mforms::TreeNodeRef target_node = _trigger_list.node_at_position(p);
+      mforms::DropPosition position = _trigger_list.get_drop_position();
+      if (target_node.is_valid())
+      {
+        // Note: the code below only works if the source tree is our own trigger list.
+        //       For drag support between multiple editors code is required to get trigger-for-node
+        //       and vice versa information from that other editor instance.
+        grt::ListRef<db_Trigger> triggers(_table->triggers());
+        db_mysql_TriggerRef trigger = trigger_for_node(tree->selection);
+        if (!trigger.is_valid())
+          return mforms::DragOperationNone;
+
+        _editor->freeze_refresh_on_object_change();
+
+        // If the user dropped onto a group node (which then must always be a different one than that
+        // it is in currently) or if the group node of source and target node differ,
+        // change the timing/event of the source trigger to the timing of the group it will move to.
+        if (target_node->get_parent() == _trigger_list.root_node()
+          || tree->selection->get_parent() != target_node->get_parent())
+        {
+          mforms::TreeNodeRef group_node = target_node;
+          if (target_node->get_parent() != _trigger_list.root_node())
+            group_node = group_node->get_parent();
+
+          std::string timing, event;
+          if (base::partition(group_node->get_string(0), " ", timing, event))
+            change_trigger_timing(trigger, timing, event);
+        }
+
+        // After that move in the trigger list so, that it appears in the right position
+        // relative to the target. Dropping on a group node will move the node to the end of the
+        // end of the list in that group.
+        if (target_node->get_parent() == _trigger_list.root_node())
+        {
+          // Group node.
+          triggers->remove(trigger);
+
+          if (target_node->count() == 0)
+          {
+            // Group node with no entries. In that case take the last child of last group node
+            // before this group node which has children. If there isn't any then simply insert at
+            // position 0.
+            while (target_node->previous_sibling().is_valid() && target_node->previous_sibling()->count() == 0)
+              target_node = target_node->previous_sibling();
+          }
+
+          if (target_node->count() > 0)
+          {
+            mforms::TreeNodeRef last_child = target_node->get_child(target_node->count() - 1);
+            db_mysql_TriggerRef target_trigger = trigger_for_node(last_child);
+            triggers->insert_unchecked(trigger, triggers->get_index(target_trigger) + 1);
+          }
+          else
+            triggers->insert_unchecked(trigger, 0);
+        }
+        else
+        {
+          // A trigger node.
+          db_mysql_TriggerRef trigger = trigger_for_node(tree->selection);
+          triggers->remove(trigger);
+
+          db_mysql_TriggerRef target_trigger = trigger_for_node(target_node);
+          size_t index = triggers->get_index(target_trigger);
+          if (position == mforms::DropPositionBottom)
+            ++index;
+          triggers->insert_unchecked(trigger, index);
+        }
+
+        _editor->thaw_refresh_on_object_change(true);
+
+        // We will always have only small lists of triggers, so a simple refresh does the job here.
+        refresh();
+        selection_changed();
+        
+        return (tree == &_trigger_list) ? mforms::DragOperationMove : mforms::DragOperationCopy;
+      }
+    }
+    return mforms::DragOperationNone;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void change_trigger_timing(db_mysql_TriggerRef trigger, std::string timing, std::string event)
+  {
+    bool use_uppercase = (*trigger->timing())[0] >= 'A';
+    if (!use_uppercase)
+    {
+      timing = base::tolower(timing);
+      event = base::tolower(event);
+    }
+
+    // We do a token-based search-and-replace here. Keep in mind the sql text might not be valid.
+    std::string sql;
+    std::string source = trigger->sqlDefinition();
+
+    MySQLScanner *scanner = _editor->_parser_context->create_scanner(source);
+    size_t timing_token = _editor->_parser_context->get_keyword_token(trigger->timing());
+    size_t event_token = _editor->_parser_context->get_keyword_token(trigger->event());
+    bool replace_done = false;
+    do
+    {
+      MySQLToken token = scanner->next_token();
+      if (token.type == ANTLR3_TOKEN_EOF)
+        break;
+
+      if (!replace_done && token.type == timing_token)
+      {
+        // The token we are looking for. Replace the timing and see if there's an event token too.
+        sql += timing;
+        do
+        { // Add any following hidden tokens (whitespace/comment).
+          token = scanner->next_token();
+          if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+            break;
+          sql += token.text;
+        } while (true);
+
+        if (token.type == event_token)
+          sql += event;
+
+        replace_done = true;
+        if (token.type == ANTLR3_TOKEN_EOF)
+          break;
+      }
+      else
+        sql += token.text;
+
+    } while (true);
+
+    trigger->sqlDefinition(sql);
+    trigger->timing(timing);
+    trigger->event(event);
+
+    delete scanner;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
 private:
   MySQLTableEditorBE *_editor;
-  mforms::Table _rtable;
-  mforms::TreeNodeView _list;
-  mforms::TextEntry _name;
-  mforms::TextEntry _definer;
-  mforms::Label _namel;
-  mforms::Label _definerl;
-  mforms::Button _button;
+  TriggerTreeView _trigger_list;
+  mforms::ContextMenu _trigger_menu;
+
+  mforms::Label _info_label;
+  mforms::Label _warning_label;
   mforms::CodeEditor *_code_editor;
+  mforms::View *_editor_host;
 
   db_mysql_TriggerRef _selected_trigger;
   db_mysql_TableRef _table;
-  int _edited_trigger_index;
+
   bool _refreshing;
 };
 
-//--------------------------------------------------------------------------------------------------
+//----------------- MySQLTableEditorBE -------------------------------------------------------------
 
 MySQLTableEditorBE::MySQLTableEditorBE(::bec::GRTManager *grtm, db_mysql_TableRef table)
   : TableEditorBE(grtm, table), _table(table), _columns(this, table), _partitions(this, table),
@@ -748,18 +1477,7 @@ mforms::View *MySQLTableEditorBE::get_trigger_panel()
 void MySQLTableEditorBE::add_trigger(const std::string &timing, const std::string &event)
 {
   get_trigger_panel();
-  _trigger_panel->add_trigger(timing, event);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Programmatically set the current trigger (used for testing).
- */
-void MySQLTableEditorBE::select_trigger(size_t index)
-{
-  get_trigger_panel();
-  _trigger_panel->select_trigger(index);
+  _trigger_panel->add_trigger(timing, event, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -994,8 +1712,7 @@ void MySQLTableEditorBE::load_trigger_sql()
   if (_trigger_panel && !_updating_triggers)
   {
     _updating_triggers = true;
-    _trigger_panel->refresh();
-    _trigger_panel->update_editor();
+    _trigger_panel->need_refresh("trigger");
     _updating_triggers = false;
   }
 }

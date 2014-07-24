@@ -80,9 +80,9 @@ static int image_width(cairo_surface_t* image)
   if (image != NULL)
   {
     if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor();
+      return (int)(cairo_image_surface_get_width(image) / mforms::App::get()->backing_scale_factor());
     else
-      return cairo_image_surface_get_width(image);
+      return (int)cairo_image_surface_get_width(image);
   }
   return 0;
 }
@@ -94,9 +94,9 @@ static int image_height(cairo_surface_t* image)
   if (image != NULL)
   {
     if (mforms::Utilities::is_hidpi_icon(image) && mforms::App::get()->backing_scale_factor() > 1.0)
-      return cairo_image_surface_get_height(image) / mforms::App::get()->backing_scale_factor();
+      return (int)(cairo_image_surface_get_height(image) / mforms::App::get()->backing_scale_factor());
     else
-      return cairo_image_surface_get_height(image);
+      return (int)cairo_image_surface_get_height(image);
   }
   return 0;
 }
@@ -702,8 +702,6 @@ struct ConnectionEntry: mforms::Accessible
   };
 };
 
-typedef enum { DropBefore, DropOn, DropAfter } DropPosition;
-
 class ConnectionsSection: public mforms::DrawBox, public mforms::DropDelegate
 {
 private:
@@ -752,7 +750,7 @@ private:
 
   ssize_t _drag_index;     // The index of the entry that is being dragged.
   ssize_t _drop_index;     // The index of the entry that is currently the drop target.
-  DropPosition _drop_position;
+  mforms::DropPosition _drop_position;
 
   HomeAccessibleButton _add_button;
   HomeAccessibleButton _manage_button;
@@ -1538,7 +1536,7 @@ public:
             else
               cairo_set_source_rgb(cr, 1, 1, 1);
 
-            if (_drop_position == DropOn)
+            if (_drop_position == mforms::DropPositionOn)
             {
               double x = bounds.left() - 4;
               double y = bounds.ycenter();
@@ -1550,7 +1548,7 @@ public:
             else
             {
               double x = bounds.left() - 4.5;
-              if (_drop_position == DropAfter)
+              if (_drop_position == mforms::DropPositionRight)
                 x = bounds.right() + 4.5;
               cairo_move_to(cr, x, bounds.top());
               cairo_line_to(cr, x, bounds.bottom());
@@ -2319,8 +2317,12 @@ public:
   //------------------------------------------------------------------------------------------------
   
   // Drop delegate implementation.
-  mforms::DragOperation drag_over(View *sender, base::Point p, const std::vector<std::string> &formats)
+  mforms::DragOperation drag_over(View *sender, base::Point p, mforms::DragOperation allowedOperations,
+    const std::vector<std::string> &formats)
   {
+    if (allowedOperations == mforms::DragOperationNone)
+      return allowedOperations;
+
     if (std::find(formats.begin(), formats.end(), mforms::DragFormatFileName) != formats.end())
     {
       // Indicate we can accept files if one of the connection tiles is hit.
@@ -2338,7 +2340,7 @@ public:
         _hot_entry = entry;
         set_needs_repaint();
       }
-      return mforms::DragOperationCopy;
+      return allowedOperations & mforms::DragOperationCopy;
     }
 
     if (std::find(formats.begin(), formats.end(), TILE_DRAG_FORMAT) != formats.end())
@@ -2396,15 +2398,15 @@ public:
         if (column > -1)
           index += column;
 
-      DropPosition position = DropBefore;
+      mforms::DropPosition position = mforms::DropPositionLeft;
       if (column == tiles_per_row)
-        position = DropAfter;
+        position = mforms::DropPositionRight;
       else
       {
         if (index >= count)
         {
           index = count - 1;
-          position = DropAfter;
+          position = mforms::DropPositionRight;
         }
         else
         {
@@ -2420,15 +2422,15 @@ public:
             if (p.x > bounds.left() + bounds.width() / 3)
             {
               if (p.x > bounds.right() - bounds.width() / 3)
-                position = DropAfter;
+                position = mforms::DropPositionRight;
               else
-                position = DropOn;
+                position = mforms::DropPositionOn;
             }
           }
           else
           {
             if (p.x > bounds.xcenter())
-              position = DropAfter;
+              position = mforms::DropPositionRight;
           }
         }
       }
@@ -2436,15 +2438,15 @@ public:
       // Check that the drop position does not resolve to the dragged item.
       // Don't allow dragging a group on a group either.
       if (index == _drag_index ||
-          (index + 1 == _drag_index && position == DropAfter) ||
-          (index - 1 == _drag_index && position == DropBefore) ||
-          (position == DropOn && is_group((int)_drag_index) && is_group(index)))
+        (index + 1 == _drag_index && position == mforms::DropPositionRight) ||
+        (index - 1 == _drag_index && position == mforms::DropPositionLeft) ||
+        (position == mforms::DropPositionOn && is_group((int)_drag_index) && is_group(index)))
       {
         index = -1;
       }
       else
-        if (!_filtered && _active_folder > -1 && index == 0 && position == DropBefore)
-          position = DropOn; // Drop on back tile.
+        if (!_filtered && _active_folder > -1 && index == 0 && position == mforms::DropPositionLeft)
+          position = mforms::DropPositionOn; // Drop on back tile.
 
       if (_drop_index != index || _drop_position != position)
       {
@@ -2461,7 +2463,8 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  mforms::DragOperation files_dropped(View *sender, base::Point p, const std::vector<std::string> &file_names)
+  mforms::DragOperation files_dropped(View *sender, base::Point p, mforms::DragOperation allowedOperations,
+    const std::vector<std::string> &file_names)
   {
     bool in_details_area;
     ssize_t entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
@@ -2493,7 +2496,8 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  mforms::DragOperation data_dropped(mforms::View *sender, base::Point p, void *data, const std::string &format)
+  mforms::DragOperation data_dropped(mforms::View *sender, base::Point p,
+    mforms::DragOperation allowedOperations, void *data, const std::string &format)
   {
     if (format == TILE_DRAG_FORMAT && _drop_index > -1)
     {
@@ -2543,7 +2547,7 @@ public:
       ssize_t last_group = _active_folder;
       size_t last_page_start = _page_start;
       size_t last_page_start_backup = _page_start_backup;
-      if (_drop_position == DropOn)
+      if (_drop_position == mforms::DropPositionOn)
       {
         // Drop on a group (or back tile).
         if (is_back_tile)
@@ -2558,7 +2562,7 @@ public:
         size_t to = _drop_index;
         if (_active_folder > - 1)
           to--; // The back tile has no representation in the global list.
-        if (_drop_position == DropAfter)
+        if (_drop_position == mforms::DropPositionRight)
           to++;
 
         details.set("to", grt::IntegerRef((int)to));
@@ -2605,7 +2609,7 @@ struct DocumentEntry: mforms::Accessible
     return other.timestamp < timestamp; // Sort from newest do oldest.
   }
 
-  // ------ Accesibility Methods -----
+  //------ Accessibility Methods -----
   virtual std::string get_acc_name() { return title; }
   virtual std::string get_acc_description() 
   { 
@@ -3995,7 +3999,7 @@ public:
       for (ShortcutIterator iterator = _shortcuts.begin() + _page_start; iterator != _shortcuts.end();
         iterator++)
       {
-        double alpha = (yoffset + SHORTCUTS_ROW_HEIGHT) > height ? 0.25 : 1;
+        float alpha = (yoffset + SHORTCUTS_ROW_HEIGHT) > height ? 0.25f : 1;
 
         iterator->acc_bounds.pos.x = SHORTCUTS_LEFT_PADDING;
         iterator->acc_bounds.pos.y = yoffset;
@@ -4325,7 +4329,7 @@ HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
   _shortcut_section->set_size(300, -1);
   add(_shortcut_section, false, true);
   
-  _menubar = mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL));
+  set_menubar(mforms::manage(cmdui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
   //_toolbar = mforms::manage(cmdui->create_toolbar(""));
 
   update_colors();
@@ -4339,6 +4343,7 @@ HomeScreen::HomeScreen(CommandUI *cmdui, db_mgmt_ManagementRef rdbms)
 HomeScreen::~HomeScreen()
 {
   base::NotificationCenter::get()->remove_observer(this);
+  clear_subviews(); // Remove our sections or the View d-tor will try to release them.
 
   delete _shortcut_section;
   delete _connection_section;
