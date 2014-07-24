@@ -351,8 +351,6 @@ def check_redundant_option(opts, optid):
 for option in doc.documentElement.getElementsByTagName('mysqloption'):
     opt = {}
     optid = str(option.getAttribute('id'))
-    if check_redundant_option(opts, optid):
-        continue
     opt['name'] = optid
     opt['caption'] = optid
     is_mycnf_opt = False
@@ -404,7 +402,8 @@ for option in doc.documentElement.getElementsByTagName('mysqloption'):
 
     if is_mycnf_opt or optid in mycnf_vars:#or variable_class == "system":
         if optid[:5] != 'maria' and optid[:6] != 'falcon' and optid[:3] != 'bdb' and (not optid in skip_list):
-            opts.append(opt)
+            if not check_redundant_option(opts, optid):
+                opts.append(opt)
 
         if 'values' in opt and len(opt['values']) == 0:
             guess_values(opt)
