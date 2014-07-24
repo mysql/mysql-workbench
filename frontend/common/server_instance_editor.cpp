@@ -121,6 +121,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 , _custom_sudo_box(true)
 , _connect_panel(new grtui::DbConnectPanel(grtui::DbConnectPanelHideConnectionName))
 , _bottom_hbox(true)
+, _remote_admin_box(false)
 {
   set_name("instance_editor");
   _mgmt= mgmt;
@@ -179,9 +180,8 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
 
   // Remote management
   {
-    Box* remote_admin_box = manage(new Box(false));                 // For the content.
-    remote_admin_box->set_padding(MF_PANEL_PADDING);
-    remote_admin_box->set_spacing(4);
+    _remote_admin_box.set_padding(MF_PANEL_PADDING);
+    _remote_admin_box.set_spacing(4);
     mforms::Table* remote_param_table = NewTable(6, 2);
     
     _no_remote_admin.set_text(_("Do not use remote management"));
@@ -194,9 +194,9 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
     _ssh_remote_admin.set_text(_("SSH login based management"));
     scoped_connect(_ssh_remote_admin.signal_toggled(),boost::bind(&ServerInstanceEditor::toggle_administration, this));
 
-    remote_admin_box->add(&_no_remote_admin, false, true);
-    remote_admin_box->add(&_win_remote_admin, false, true);
-    remote_admin_box->add(&_ssh_remote_admin, false, true);
+    _remote_admin_box.add(&_no_remote_admin, false, true);
+    _remote_admin_box.add(&_win_remote_admin, false, true);
+    _remote_admin_box.add(&_ssh_remote_admin, false, true);
 
     _remote_param_box.set_spacing(12);
     _remote_param_box.add(manage(remote_param_table), true, true);
@@ -268,9 +268,7 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
     scoped_connect(b->signal_clicked(),boost::bind(&ServerInstanceEditor::browse_file, this));
     remote_param_table->add(box, 1, 2, 4, 5, HFillFlag);
 
-    remote_admin_box->add(&_remote_param_box, true, true);
-
-    _tabview.add_page(remote_admin_box, _("Remote Management"));
+    _remote_admin_box.add(&_remote_param_box, true, true);
   }
   
   {
@@ -287,8 +285,6 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
   }
   
   
-  _tabview.add_page(&_sys_box, _("System Profile"));
-
   // Sys
   {
     Label *label = manage(new Label(_("Information about the server and MySQL configuration, such as path to the configuration file,\n"
@@ -906,6 +902,19 @@ void ServerInstanceEditor::duplicate_instance()
   grt::merge_contents(copy_conn->parameterValues(), orig_conn->parameterValues(), true);
   copy_conn->hostIdentifier(orig_conn->hostIdentifier());
 
+  // Deletes the fabric parameters if a fabric managed connection
+  // is being duplicated
+  if (copy_conn->parameterValues().has_key("fabric_managed"))
+  {
+    std::vector<std::string> params = copy_conn->parameterValues().keys();
+    for (size_t index = 0; index < params.size(); index++)
+    {
+      std::string parameter = params[index];
+      if (base::starts_with(parameter, "fabric_"))
+        copy_conn->parameterValues().remove(parameter);
+    }
+  }
+
   if (orig_inst.is_valid())
   {
     copy_inst->owner(orig_inst->owner());
@@ -1209,26 +1218,35 @@ void ServerInstanceEditor::show_connection()
 
   _connect_panel->set_active_stored_conn(connection);
 
-  if (connection.is_valid())
-  {
-    _content_box.set_enabled(true);
-    _move_up_button.set_enabled(true);
-    _move_down_button.set_enabled(true);
-    _del_inst_button.set_enabled(true);
-    _dup_inst_button.set_enabled(true);
+  bool valid_connection = connection.is_valid();
+  bool is_managed = valid_connection ? connection->parameterValues().has_key("fabric_managed") : false;
 
-    _name_entry.set_value(connection->name());
+  // On Fabric Connections and Fabric Managed Connections the Remote Management 
+  // and System Profile tabs are hidden
+  if (valid_connection && (connection->driver()->name() == "MySQLFabric" || is_managed))
+  {
+    if (_tabview.get_page_index(&_remote_admin_box) != -1)
+      _tabview.remove_page(&_remote_admin_box);
+
+    if (_tabview.get_page_index(&_sys_box) != -1)
+      _tabview.remove_page(&_sys_box);
   }
   else
   {
-    _content_box.set_enabled(false);
-    _move_up_button.set_enabled(false);
-    _move_down_button.set_enabled(false);
-    _del_inst_button.set_enabled(false);
-    _dup_inst_button.set_enabled(false);
+    if (_tabview.get_page_index(&_remote_admin_box) == -1)
+      _tabview.add_page(&_remote_admin_box, _("Remote Management"));
 
-    _name_entry.set_value("");
+    if (_tabview.get_page_index(&_sys_box) == -1)
+      _tabview.add_page(&_sys_box, _("System Profile"));
   }
+
+  _content_box.set_enabled(valid_connection);
+  _move_up_button.set_enabled(valid_connection && !is_managed);
+  _move_down_button.set_enabled(valid_connection && !is_managed);
+  _del_inst_button.set_enabled(valid_connection && !is_managed);
+  _dup_inst_button.set_enabled(valid_connection);
+
+  _name_entry.set_value(valid_connection ? connection->name() : "");
 
   show_instance_info(connection, instance);
 }

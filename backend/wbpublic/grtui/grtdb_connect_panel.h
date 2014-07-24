@@ -77,6 +77,8 @@ public:
 
   void save_connection_as(const std::string &name);
   
+  void set_driver_changed_cb(const boost::function<void (db_mgmt_DriverRef)> &cb) {_driver_changed_cb = cb;};
+  
   bool test_connection();
   
   db_mgmt_RdbmsRef selected_rdbms();
@@ -115,7 +117,12 @@ protected:
   mforms::Table *_advanced_table;
   std::vector<mforms::Box*> _advanced_rows;
 
+  mforms::Panel _options_panel;
+  mforms::Table *_options_table;
+  std::vector<mforms::Box*> _options_rows;
+
   std::list<mforms::View*> _views;
+  mforms::Label _warning;
 
 private:
   void save_param(const std::string& name, const grt::StringRef& param);
@@ -157,6 +164,8 @@ private:
   db_mgmt_ConnectionRef open_editor();
   
   grt::StringListRef get_enum_values(db_mgmt_DriverParameterRef param);
+  
+  boost::function<void (const db_mgmt_DriverRef &)> _driver_changed_cb;
 };
 
 };

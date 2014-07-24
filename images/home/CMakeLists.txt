@@ -26,6 +26,7 @@ wb_starter_planet_mysql_52@2x.png
 wb_starter_support_52.png
 wb_starter_support_52@2x.png
 wb_tile_folder.png
+wb_tile_fabric.png
 wb_tile_folder_mini.png
 wb_tile_mouseover_2.png
 wb_tile_mouseover.png
