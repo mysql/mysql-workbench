@@ -12,7 +12,7 @@ echo .
 
 rem Set search path to our debug folder to be able to find all required dlls for the wrapper.
 rem Note: This requires that WB was successfully build at least once, otherwise the folder does not
-rem       yet have all the dlls. We use the x86 debug build here, as the architecture doesn't make a difference.
+rem       yet have all the dlls. We use the x64 debug build here, as the architecture doesn't make a difference.
 set PATH=../bin/x64/Debug;%PATH%
 
 echo --------------------------------------------------------------------------------
@@ -42,6 +42,8 @@ echo Generating new wrappers...
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.workbench.model.xml ../res/grt/ grts ../backend/wbpublic/objimpl/workbench.model
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.workbench.physical.xml ../res/grt/ grts ../backend/wbpublic/objimpl/workbench.physical
 ..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.workbench.model.reporting.xml ../res/grt/ grts ../backend/wbpublic/objimpl/workbench.model.reporting
+..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.ui.xml ../res/grt/ grts ../backend/wbpublic/objimpl/ui
+..\tools\bin\x64\Debug\genobj.exe ../res/grt/structs.wrapper.xml ../res/grt/ grts ../backend/wbpublic/objimpl/wrapper
 
 echo.
 echo Building generation tools with new wrappers...

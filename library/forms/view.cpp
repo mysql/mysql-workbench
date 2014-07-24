@@ -47,10 +47,13 @@ View::~View()
   
   clear_subviews();
 
+#ifdef __APPLE__
   // Let the frontend delete all resources it allocated.
-  // XXX: is this really needed given that we have a FreeDataFunc in mforms::Object?
+  // This is only needed for OSX as on Win + Linux we use the data free function (set in set_data()) to free
+  // platform resources.
   if (_view_impl->destroy)
     _view_impl->destroy(this);
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -495,6 +498,13 @@ DragOperation View::do_drag_drop(DragDetails details, const std::string &text)
 DragOperation View::do_drag_drop(DragDetails details, void *data, const std::string &format)
 {
   return _view_impl->drag_data(this, details, data, format);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+DropPosition View::get_drop_position()
+{
+  return _view_impl->get_drop_position(this);
 }
 
 //--------------------------------------------------------------------------------------------------

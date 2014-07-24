@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+    <requires file="structs.xml"/>
+
+    <gstruct name="grt.PyObject" parent="TransientObject" attr:caption="Python object" attr:desc="wraps a Python object reference so it can be stored in a GRT container" impl-data="1" force-impl="1" attr:simple-impl-data="grt::AutoPyObject">
+        <members>
+             <method name="isEqualTo" attr:desc="checks whether the reference points to the same object as another refrence">
+                <argument name="other" type="object" struct-name="grt.PyObject"/>
+                <return type="int"/>
+             </method>
+        </members>
+    </gstruct>
+
+    <gstruct name="mforms.ObjectReference" parent="TransientObject" attr:caption="mforms Object Reference" attr:desc="an object representing a reference to a mforms object" impl-data="1" force-impl="1" attr:simple-impl-data="mforms::Object">
+        <members>
+            <member name="type" type="string" attr:desc="the specific type of mforms object" />
+            <member name="valid" type="int" read-only="1" calculated="1" delegate-get="1" attr:desc="whether the object is currently valid"/>
+
+             <method name="isEqualTo" attr:desc="checks whether the reference points to the same view as another reference">
+                <argument name="other" type="object" struct-name="mforms.ObjectReference"/>
+                <return type="int"/>
+             </method>
+        </members>
+    </gstruct>
+
+    <gstruct name="parser.ContextReference" parent="TransientObject" attr:caption="Parser context wrapper" attr:desc="wraps a parser context so it can be stored in a grt container" impl-data="1" force-impl="1">
+        <members>
+            <member name="valid" type="int" read-only="1" calculated="1" delegate-get="1" attr:desc="whether there's a context set"/>
+        </members>
+    </gstruct>
+
+</gstructs>

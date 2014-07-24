@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-
 #import "MFView.h"
 #import "MFMForms.h"
 #include "base/string_utilities.h"
@@ -67,6 +66,19 @@ static const char *lastDragOperationKey = "lastDragOperationKey";
   objc_setAssociatedObject(self, lastDragOperationKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
 
+static const char *allowedDragOperationsKey = "allowedDragOperationsKey";
+
+- (mforms::DragOperation)allowedDragOperations
+{
+  NSNumber *value = objc_getAssociatedObject(self, allowedDragOperationsKey);
+  return (mforms::DragOperation)value.intValue;
+}
+
+- (void)setAllowedDragOperations: (mforms::DragOperation)value
+{
+  objc_setAssociatedObject(self, allowedDragOperationsKey, @(value), OBJC_ASSOCIATION_RETAIN);
+}
+
 static const char *acceptableDropFormatsKey = "acceptableDropFormats";
 
 - (NSArray *)acceptableDropFormats
@@ -94,6 +106,19 @@ static const char *dropDelegateKey = "dropDelegate";
 - (void)setDropDelegate: (mforms::DropDelegate *)delegate
 {
   objc_setAssociatedObject(self, dropDelegateKey, @((NSUInteger)delegate), OBJC_ASSOCIATION_RETAIN);
+}
+
+static const char *lastDropPositionKey = "lastDropPositionKey";
+
+- (mforms::DropPosition)lastDropPosition
+{
+  NSNumber *value = objc_getAssociatedObject(self, lastDropPositionKey);
+  return (mforms::DropPosition)value.intValue;
+}
+
+- (void)setLastDropPosition: (mforms::DropPosition)value
+{
+  objc_setAssociatedObject(self, lastDropPositionKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,7 +394,8 @@ struct PasteboardDataWrapper {
   }
 
   NSDragOperation result = NSDragOperationNone;
-  mforms::DragOperation operation = delegate->drag_over(view, base::Point(location.x, location.y), formats);
+  mforms::DragOperation operation = delegate->drag_over(view, base::Point(location.x, location.y),
+                                                        self.allowedDragOperations, formats);
   self.lastDragOperation = operation;
   if ((operation & mforms::DragOperationCopy) != 0)
     result |= NSDragOperationCopy;
@@ -399,7 +425,8 @@ struct PasteboardDataWrapper {
     if ([entry isEqualToString: NSStringPboardType])
     {
       NSString *text = [pasteboard stringForType: NSStringPboardType];
-      if (delegate->text_dropped(view, base::Point(location.x, location.y), [text UTF8String]) != mforms::DragOperationNone)
+      if (delegate->text_dropped(view, base::Point(location.x, location.y), self.allowedDragOperations,
+                                 [text UTF8String]) != mforms::DragOperationNone)
         return YES;
     }
     else
@@ -409,7 +436,8 @@ struct PasteboardDataWrapper {
         std::vector<std::string> names;
         for (NSString *name in fileNames)
           names.push_back([name UTF8String]);
-        if (names.size() > 0 && delegate->files_dropped(view, base::Point(location.x, location.y), names) != mforms::DragOperationNone)
+        if (names.size() > 0 && delegate->files_dropped(view, base::Point(location.x, location.y),
+                                                        self.allowedDragOperations, names) != mforms::DragOperationNone)
           return YES;
       }
       else
@@ -418,7 +446,8 @@ struct PasteboardDataWrapper {
         void *data = [pasteboard nativeDataForTypeAsString: entry];
         if (data != NULL)
         {
-          if (delegate->data_dropped(view, base::Point(location.x, location.y), data, [entry UTF8String]) != mforms::DragOperationNone)
+          if (delegate->data_dropped(view, base::Point(location.x, location.y), self.allowedDragOperations, data,
+                                     [entry UTF8String]) != mforms::DragOperationNone)
             return YES;
         }
       }
@@ -427,9 +456,17 @@ struct PasteboardDataWrapper {
   return NO;
 }
 
+- (void)draggingEnded: (id <NSDraggingInfo>)sender
+{
+  self.lastDropPosition = mforms::DropPositionUnknown;
+}
+
 - (mforms::DragOperation)startDragWithText: (NSString *)text
                                    details: (mforms::DragDetails)details
 {
+  self.allowedDragOperations = details.allowedOperations;
+  self.lastDropPosition = mforms::DropPositionUnknown;
+
   NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
   [pasteboard clearContents];
   [pasteboard setString: text forType: NSStringPboardType];
@@ -505,6 +542,9 @@ struct PasteboardDataWrapper {
                                    details: (mforms::DragDetails)details
                                     format: (NSString *)format
 {
+  self.allowedDragOperations = details.allowedOperations;
+  self.lastDropPosition = mforms::DropPositionUnknown;
+
   NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
   [pasteboard clearContents];
   [pasteboard writeNativeData: data typeAsString: format];
@@ -947,6 +987,7 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
         [list addObject: [NSString stringWithUTF8String: formats[i].c_str()]];
   }
   NSView *view = self->get_data();
+
   view.acceptableDropFormats = list;
   view.dropDelegate = target;
 }
@@ -963,8 +1004,14 @@ static mforms::DragOperation view_drag_data(mforms::View *self, mforms::DragDeta
 {
   NSView *view = self->get_data();
   return [view startDragWithData: data
-                        details: details
+                         details: details
                           format: [NSString stringWithUTF8String: format.c_str()]];
+}
+
+static mforms::DropPosition view_get_drop_position(mforms::View *self)
+{
+  NSView *view = self->get_data();
+  return view.lastDropPosition;
 }
 
 void cf_view_init()
@@ -1013,4 +1060,5 @@ void cf_view_init()
   f->_view_impl.register_drop_formats = &register_drop_formats;
   f->_view_impl.drag_text            = &view_drag_text;
   f->_view_impl.drag_data            = &view_drag_data;
+  f->_view_impl.get_drop_position    = &view_get_drop_position;
 }

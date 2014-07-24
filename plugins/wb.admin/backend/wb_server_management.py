@@ -230,9 +230,43 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             child.stdin.write((user_password or "")+"\n")
             expect_sudo_failure = True # we could get a Sorry or the password prompt again
         else:
-            log_debug("local_run_cmd_linux: was expecting sudo password prompt, but it never came\n")
-            if output_handler and data:
-                output_handler(data)
+            # If the prompt didn't come in, it could mean that password is not required
+            # or it could also mean that sudo printed some junk/banner message before sending over the prompt
+            # Problem is, there's no way to tell whether the text coming in is the output from the program being executed
+            # or stuff from sudo itself, until either the sudo finishes or the prompt is seen.
+            # So to account for this case, we will buffer everything that comes until:
+            # - until the sudo prompt is seen
+            # - a certain number of lines are read from the pipe
+            # - until a timeout occurs (a short one, since the banner shouldn't take very long to get printed)
+            # - until the sudo terminates
+
+            max_lines_to_read_until_giving_up_waiting_for_sudo_prompt = 10
+            num_seconds_to_wait_for_sudo_greeting_message_until_we_assume_prompt_wont_come = 1
+
+            buffered_output = [data] # init with the data that came in initially
+            start_time = time.time()
+            while child.poll() is None:
+                data = read_nonblocking_until_nl_or(child, child.stdout, "EnterPasswordHere", timeout=1)
+                if data.endswith("EnterPasswordHere"):
+                    log_info("Banner message from sudo for command %s:\n%s\n" % (script, "".join(buffered_output)))
+                    buffered_output = None
+                    # ok, so the stuff that came in until now is all garbage and the sudo prompt finally arrived
+                    if debug_run_cmd:
+                        log_debug2("local_run_cmd_linux: sending password to child, after receiving greeting from sudo...\n")
+                    child.stdin.write((user_password or "")+"\n")
+                    expect_sudo_failure = True # we could get a Sorry or the password prompt again
+                    break
+                else:
+                    buffered_output.append(data)
+                    if len(buffered_output) > max_lines_to_read_until_giving_up_waiting_for_sudo_prompt or \
+                        time.time() - start_time < num_seconds_to_wait_for_sudo_greeting_message_until_we_assume_prompt_wont_come:
+                        log_debug("local_run_cmd_linux: was expecting sudo password prompt, but it never came\n")
+                        # ok, we assume the output that came in until now is all from the program and there's no sudo prompt
+                        break
+
+            if output_handler and buffered_output:
+                for line in buffered_output:
+                    output_handler(line)
 
     if debug_run_cmd:
         log_debug2("local_run_cmd_linux: waiting for data...\n")

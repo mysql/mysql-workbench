@@ -19,6 +19,8 @@
 
 #pragma once
 
+#define DRAG_SOURCE_FORMAT_NAME "com.mysql.workbench.drag-source"
+
 namespace MySQL {
   namespace Forms {
 
@@ -82,6 +84,7 @@ namespace MySQL {
         const std::string &text);
       static mforms::DragOperation drag_data(mforms::View *backend, mforms::DragDetails details, void *data,
         const std::string &format);
+      static mforms::DropPosition get_drop_position(mforms::View *backend);
 
       static void SetDragImage(Windows::Forms::DataObject ^data, mforms::DragDetails details);
 
@@ -92,7 +95,9 @@ namespace MySQL {
 
       virtual void set_front_color(String ^color);
       virtual void set_padding(int left, int top, int right, int bottom);
+
       virtual void register_file_drop(mforms::DropDelegate *target) {};
+      virtual mforms::DropPosition get_drop_position() { return mforms::DropPositionUnknown;  };
 
     public:
 
@@ -115,6 +120,8 @@ namespace MySQL {
       static void resize_with_docking(Windows::Forms::Control ^control, System::Drawing::Size &size);
       static void adjust_auto_resize_from_docking(Windows::Forms::Control ^control);
       static bool can_layout(Windows::Forms::Control ^control, String ^reason);
+
+      static mforms::View* source_view_from_data(Windows::Forms::IDataObject ^data);
 
       static void init();
     };

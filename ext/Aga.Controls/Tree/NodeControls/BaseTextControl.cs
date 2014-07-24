@@ -206,12 +206,20 @@ namespace Aga.Controls.Tree.NodeControls
       switch (context.DrawSelection)
       {
         case DrawSelectionMode.Active:
-          textColor = SystemColors.HighlightText;
-          backgroundBrush = SystemBrushes.Highlight;
+          if (TreeViewAdv.isWin8OrAbove)
+          {
+            textColor = SystemColors.ControlText;
+            backgroundBrush = new SolidBrush(Color.FromArgb(0xFF, 0xD1, 0xE8, 0xFF));
+          }
+          else
+          {
+            textColor = SystemColors.HighlightText;
+            backgroundBrush = SystemBrushes.Highlight;
+          }
           break;
         case DrawSelectionMode.Inactive:
           textColor = SystemColors.ControlText;
-          backgroundBrush = SystemBrushes.InactiveBorder;
+          backgroundBrush = TreeViewAdv.isWin8OrAbove ? new SolidBrush(Color.FromArgb(0xFF, 0xF7, 0xF7, 0xF7)) : SystemBrushes.InactiveBorder;
           break;
         case DrawSelectionMode.FullRowSelect:
           //textColor = SystemColors.HighlightText;

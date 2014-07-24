@@ -18,6 +18,7 @@ set(SOURCES_TO_GENERATE
     grts/structs.workbench.physical.h
     grts/structs.h
     grts/structs.ui.h
+    grts/structs.wrapper.h
     #    grti/plugin.h
     #    grti/wb_model_reporting.h
     #    grti/wbvalidation.h

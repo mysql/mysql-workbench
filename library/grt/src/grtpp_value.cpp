@@ -331,12 +331,6 @@ void List::remove(size_t index)
   _content.erase(_content.begin()+index);
 }
 
-/**
- * Moves the entry at the old index (oi) to the new index (ni). Due to the way this is implemented
- * (which we cannot change without breaking a lot of code) can the new index behave differently
- * depending on whether it is before or after the old index. In the latter case the new index
- * is off by +1 (as the entry is removed without adjusting the index).
- */
 void List::reorder(size_t oi, size_t ni)
 {
   if (oi == ni)

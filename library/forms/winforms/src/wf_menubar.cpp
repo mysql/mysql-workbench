@@ -380,16 +380,14 @@ void MenuBarWrapper::remove_item(mforms::MenuBase *menu, mforms::MenuItem *item)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void MenuBarWrapper::popup_at(mforms::ContextMenu *menu, mforms::View *owner, base::Point location)
 {
   MformsContextMenuStrip^ native_menu = MenuBarWrapper::GetManagedObject<MformsContextMenuStrip>(menu);
   if (native_menu != nullptr)
-  {
-    native_menu->Show(location.x, location.y);
-  }
+    native_menu->Show((int)location.x, (int)location.y);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 

@@ -206,11 +206,11 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
     break;
 
   case ANTLR3_FAILED_PREDICATE_EXCEPTION:
-    // Probably something we can use to indicated an error that would not occur for other server
-    // versions (as that is what we mostly use predicates for), but to be sure we need a test case
-    // to trigger that error (which I haven't found yet).
-    // On the other hand a predicate is only to direct the parser. It shouldn't raise an error.
-    // TODO: find a query that triggers this error branch.
+    // Appears when a gated semantic predicate is used in the grammar, but not for predicting an alternative,
+    // e.g. ... some_rule {condition}? => some_rule.
+    // If the condition does not match we get a failed predicate error. So it's more like a grammar error
+    // unless this is by intention (which is never the case in the MySQL grammar where predicates are only used
+    // to guide the parser).
     error << "failed predicate";
     break;
 
@@ -1007,12 +1007,23 @@ unsigned int MySQLRecognizerTreeWalker::token_start()
 //--------------------------------------------------------------------------------------------------
 
 /**
+* Returns the (zero-based) index of the current token within the input.
+*/
+ANTLR3_MARKER MySQLRecognizerTreeWalker::token_index()
+{
+  pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
+  return token->index;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Returns the offset of the token in its source string.
  */
 size_t MySQLRecognizerTreeWalker::token_offset()
 {
   pANTLR3_COMMON_TOKEN token = _tree->getToken(_tree);
-  return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->input_start());
+  return (size_t)(token->start - (ANTLR3_MARKER)_recognizer->text());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1209,10 +1220,6 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 
   reset();
 
-  // Always recreate the parser struct as there's a mem leak in the reset() function.
-  if (d->_parser != NULL)
-    d->_parser->free(d->_parser);
-
   if (d->_input == NULL)
   {
     // Input and depending structures are only created once. If there's no input stream yet we need the full setup.
@@ -1222,17 +1229,26 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
     d->_lexer->pLexer->rec->state->userp = &d->_context;
 
     d->_tokens = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(d->_lexer));
+
+    d->_parser = MySQLParserNew(d->_tokens);
+    d->_parser->pParser->rec->state->userp = &d->_context;
   }
   else
   {
     d->_input->reuse(d->_input, (pANTLR3_UINT8)d->_text, (ANTLR3_UINT32)d->_text_length, (pANTLR3_UINT8)"");
     d->_tokens->reset(d->_tokens);
     d->_lexer->reset(d->_lexer);
+    d->_parser->reset(d->_parser);
+
+    // Manually free adaptor and vector pool members. The parser reset() misses them and we cannot
+    // add this code to the parser (as it is generated). Without that these members grow endlessly.
+    d->_parser->vectors->close(d->_parser->vectors);
+    d->_parser->vectors = antlr3VectorFactoryNew(0);
+
+    d->_parser->adaptor->free(d->_parser->adaptor);
+    d->_parser->adaptor = ANTLR3_TREE_ADAPTORNew(d->_tokens->tstream->tokenSource->strFactory);
   }
 
-  d->_parser = MySQLParserNew(d->_tokens);
-  d->_parser->pParser->rec->state->userp = &d->_context;
-  
   switch (parse_unit)
   {
   case QtCreateTrigger:
@@ -1310,9 +1326,9 @@ std::string MySQLRecognizer::dump_tree(pANTLR3_BASE_TREE tree, const std::string
 
 //--------------------------------------------------------------------------------------------------
 
-void* MySQLRecognizer::input_start()
+const char* MySQLRecognizer::text()
 {
-  return (void *)d->_text;
+  return d->_text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2130,16 +2146,40 @@ std::string MySQLRecognizer::text_for_tree(pANTLR3_BASE_TREE node)
   child = (pANTLR3_BASE_TREE)node->getChild(node, node->getChildCount(node) - 1);
   token = child->getToken(child);
   ANTLR3_MARKER stop = token->stop;
-/*
-  pANTLR3_TOKEN_STREAM token_stream = d->_tokens->tstream;
-  for (ANTLR3_MARKER i = start; i <= stop; ++i)
-  {
-    pANTLR3_COMMON_TOKEN token = token_stream->get(token_stream, i);
-    pANTLR3_STRING text = token->getText(token);
-    result += (char*)text->chars;
-  }
-*/
   return std::string((char*)start, stop - start + 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the information for the token at the given index in the input stream. This includes
+ * every possible token, including those on a hidden channel (e.g. comments and whitespaces).
+ * Before calling this function the parser must have parsed the input to have the values available.
+ * The result's type member can be used to find out if token information is not yet available or
+ * the given index is out of the available range (ANTLR3_TOKEN_INVALID).
+ */
+MySQLToken MySQLRecognizer::token_at_index(ANTLR3_MARKER index)
+{
+  MySQLToken result;
+
+  pANTLR3_COMMON_TOKEN token = d->_tokens->tstream->get(d->_tokens->tstream, (ANTLR3_UINT32)index);
+  if (token != NULL)
+  {
+    result.type = token->type;
+    result.line = token->line;
+    result.position = token->charPosition;
+    result.index = token->index;
+    result.channel = token->channel;
+    result.line_start = (char*)token->lineStart;
+    result.start = reinterpret_cast<char*>(token->start);
+    result.stop = reinterpret_cast<char*>(token->stop);
+
+    // If necessary the following part can be optimized to not always create a copy of the input.
+    pANTLR3_STRING text = token->getText(token);
+    result.text = (const char*)text->chars;
+  }
+
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------

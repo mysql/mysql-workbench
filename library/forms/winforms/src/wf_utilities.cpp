@@ -35,6 +35,7 @@
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 
 using namespace Windows::Forms;
+using namespace System::Media;
 
 using namespace MySQL::Forms;
 using namespace MySQL::Utilities;
@@ -543,7 +544,14 @@ UtilitiesWrapper::UtilitiesWrapper()
 
 //--------------------------------------------------------------------------------------------------
 
-int UtilitiesWrapper::show_message(const std::string &title, const std::string &text, const std::string &ok, 
+void UtilitiesWrapper::beep()
+{
+  SystemSounds::Beep->Play();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int UtilitiesWrapper::show_message(const std::string &title, const std::string &text, const std::string &ok,
   const std::string &cancel, const std::string &other)
 {
   log_debug("Showing a message to the user\n");
@@ -1237,6 +1245,7 @@ void UtilitiesWrapper::init()
 
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
+  f->_utilities_impl.beep = &UtilitiesWrapper::beep;
   f->_utilities_impl.show_message = &UtilitiesWrapper::show_message;
   f->_utilities_impl.show_error = &UtilitiesWrapper::show_error;
   f->_utilities_impl.show_warning = &UtilitiesWrapper::show_warning;
