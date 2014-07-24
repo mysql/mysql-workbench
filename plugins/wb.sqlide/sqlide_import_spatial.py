@@ -44,6 +44,7 @@ def showImporter(editor, schema):
     importer.run()
 
 def handleContextMenu(name, sender, args):
+    return #we hide it for now
     menu = mforms.fromgrt(args['menu'])
 
     selection = args['selection']
