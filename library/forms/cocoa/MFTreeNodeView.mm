@@ -1401,13 +1401,15 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 {
   if ([cell isKindOfClass: [MTextImageCell class]])
     [cell setImage: [item objectForKey: [[tableColumn identifier] stringByAppendingString: @"icon"]]];
-  
+
+  BOOL canSetColor = [cell respondsToSelector: @selector(setTextColor:)];
+
   NSString *attributes = [item objectForKey: [[tableColumn identifier] stringByAppendingString: @"attrs"]];
   if (attributes.length > 0)
   {
     NSString *fontKey = attributes;
     NSRange range = [attributes rangeOfString: @"#"];
-    if (range.length > 0)
+    if (range.length > 0 && canSetColor)
     {
       fontKey = [fontKey substringToIndex: range.location];
       if (![cell isHighlighted])
@@ -1444,10 +1446,13 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
     [cell setFont: [mAttributedFonts objectForKey: @""]];
 
     // Restore default colors. The outline doesn't seem to auto reset.
-    if (![cell isHighlighted])
-      [cell setTextColor: NSColor.controlTextColor];
-    else
-      [cell setTextColor: NSColor.whiteColor];
+    if (canSetColor)
+    {
+      if (![cell isHighlighted])
+        [cell setTextColor: NSColor.controlTextColor];
+      else
+        [cell setTextColor: NSColor.whiteColor];
+    }
   }
 }
 
