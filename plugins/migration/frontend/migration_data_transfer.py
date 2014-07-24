@@ -326,6 +326,17 @@ All tables are copied by default.""")
 class TransferMainView(WizardProgressPage):
     def __init__(self, main):
         WizardProgressPage.__init__(self, main, "Bulk Data Transfer", use_private_message_handling=True)
+        self._resume = False
+        self.retry_button = mforms.newButton()
+        self.retry_button.set_text('Retry')
+        self.retry_button.add_clicked_callback(self.go_retry)
+
+        self.retry_box = mforms.newBox(True)
+        self.content.remove(self._detail_label)
+        self.retry_box.add(self._detail_label, True, True)
+        self.retry_box.add(self.retry_button, False, True)
+        self.content.add(self.retry_box, False, False)
+        self.retry_button.show(False)
 
         self.main.add_wizard_page(self, "DataMigration", "Bulk Data Transfer")
 
@@ -333,7 +344,7 @@ class TransferMainView(WizardProgressPage):
         self._copy_script_task = self.add_task(self._create_copy_script, "Create shell script for data copy")
         self._migrate_task1 = self.add_threaded_task(self._count_rows, "Determine number of rows to copy")
         self._migrate_task2 = self.add_threaded_task(self._migrate_data, "Copy data to target RDBMS")
-
+        self._tables_to_exclude = list()
 
     def page_activated(self, advancing):
         if advancing:
@@ -386,7 +397,8 @@ class TransferMainView(WizardProgressPage):
         # create work list
         source_catalog = self.main.plan.migrationSource.catalog
         tables = self.main.plan.state.dataBulkTransferParams["tableList"]
-        has_catalogs = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs
+        has_catalogs = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs > 0
+        has_schema = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs >= 0
 
         source_db_module = self.main.plan.migrationSource.module_db()
         target_db_module = self.main.plan.migrationTarget.module_db()
@@ -406,6 +418,9 @@ class TransferMainView(WizardProgressPage):
                 self.send_error("Source table for %s (%s) not found, skipping...\n" % (table.name, table.oldName))
                 continue
 
+            if table.name in self._tables_to_exclude:
+                continue
+
             if has_catalogs:
                 schema_name = source_db_module.quoteIdentifier(stable.owner.owner.name)
                 if stable.oldName:
@@ -414,7 +429,10 @@ class TransferMainView(WizardProgressPage):
                 else:
                     table_name = source_db_module.quoteIdentifier(stable.owner.name) + "." + source_db_module.quoteIdentifier(stable.name)
             else:
-                schema_name = source_db_module.quoteIdentifier(stable.owner.name)
+                if has_schema:
+                    schema_name = source_db_module.quoteIdentifier(stable.owner.name)
+                else:
+                    schema_name = ''
                 table_name = source_db_module.quoteIdentifier(stable.name)
 
             targ_schema_name = target_db_module.quoteIdentifier(table.owner.name)
@@ -425,13 +443,20 @@ class TransferMainView(WizardProgressPage):
                         "target_schema":targ_schema_name, "target_table":targ_table_name,
                         "target_table_object":table}
             select_expression = []
+            source_pk_list = []
+            target_pk_list = []
             for column in table.columns:
+                if table.isPrimaryKeyColumn(column):
+                    source_pk_list.append(source_db_module.quoteIdentifier(column.oldName))
+                    target_pk_list.append(target_db_module.quoteIdentifier(column.name))
                 cast = table.customData.get("columnTypeCastExpression:%s" % column.name, None)
                 if cast:
                     select_expression.append(cast.replace("?", source_db_module.quoteIdentifier(column.oldName)))
                 else:
                     select_expression.append(source_db_module.quoteIdentifier(column.oldName))
 
+            self._working_set[schema_name+"."+table_name]["source_primary_key"] = ",".join(source_pk_list)
+            self._working_set[schema_name+"."+table_name]["target_primary_key"] = ",".join(target_pk_list)
             self._working_set[schema_name+"."+table_name]["select_expression"] = ", ".join(select_expression)
 #            source_db_module = self.main.plan.migrationSource.module_db()
  #           source_table = source_db_module.fullyQualifiedObjectName(stable)
@@ -499,6 +524,8 @@ IF [%arg_source_password%] == [] (
                 fields.append(table["source_table"])
                 fields.append(table["target_schema"])
                 fields.append(table["target_table"])
+                fields.append(table["source_primary_key"].replace("'", r"\'"))
+                fields.append(table["target_primary_key"].replace("'", r"\'"))
                 fields.append(table["select_expression"].replace("'", r"\'"))
 
                 line = "ECHO %s >> %s" % ("\t".join(fields), filename)
@@ -539,7 +566,7 @@ fi
             f.write(' --thread-count=$arg_worker_count $arg_truncate_target $arg_debug_output')
 
             for table in self._working_set.values():
-                opt = "--table '%s' '%s' '%s' '%s' '%s'" % (table["source_schema"], table["source_table"], table["target_schema"], table["target_table"], table["select_expression"].replace("'", "\'"))
+                opt = "--table '%s' '%s' '%s' '%s' '%s' '%s' '%s'" % (table["source_schema"], table["source_table"], table["target_schema"], table["target_table"], table["source_primary_key"].replace("'", "\'"), table["target_primary_key"].replace("'", "\'"), table["select_expression"].replace("'", "\'"))
                 f.write(" "+opt)
 
         f.write("\n\n")
@@ -582,6 +609,8 @@ fi
 
             self.send_info("Data copy results:")
             fully_copied = 0
+            self._tables_to_exclude = list()
+            self._count_of_failed_tables = 0
             for task in self._working_set.values():
                 info = succeeded_tasks.get(task["target_schema"]+"."+task["target_table"], None)
                 row_count = task.get("row_count", 0)
@@ -599,13 +628,18 @@ fi
 
 
                     self.send_info("- %s.%s has succeeded (%s of %s rows copied)" % (task["target_schema"], task["target_table"], count, row_count))
+                    self._tables_to_exclude.append(task["target_table"])
                 else:
                     self.send_info("- %s.%s has FAILED (%s of %s rows copied)" % (task["target_schema"], task["target_table"], count, row_count))
+                    self._count_of_failed_tables = self._count_of_failed_tables + 1
 
             self.send_info("%i tables of %i were fully copied" % (fully_copied, table_count))
 
             if self._transferer.interrupted:
                 raise grt.UserInterrupt("Canceled by user")
+
+            if self._resume:
+                self.send_info("Click [Retry] to retry copying remaining data from tables")
         else:
             self.send_info("Nothing to be done")
 
@@ -640,3 +674,30 @@ fi
         entry.name = message
 
         logObject.entries.append(entry)
+
+    def tasks_finished(self):
+        self.show_retry_button(False)
+
+
+    def tasks_failed(self, canceled):
+        if self._resume:
+            self.show_retry_button(True)
+            mforms.Utilities.show_message("Copying Tables", "Table data copy failed for %i tables. Please review the logs for details.\nIf you'd like to retry copying from the last successful point, click [Retry]."
+                                           %self._count_of_failed_tables,
+                                           "OK", "", "")
+        else:
+            self.show_retry_button(False)
+
+    def go_retry(self):
+        self._resume = False
+        self.retry_button.show(False)
+        self.reset()
+        self.start()
+
+    def show_retry_button(self, _show):
+        self.retry_button.show(_show)
+        self.next_button.set_enabled(not _show)
+
+    def _update_resume_status(self, _resume):
+        self._resume = _resume
+

@@ -19,7 +19,7 @@
 import mforms
 import grt 
 
-from workbench.log import log_error
+from workbench.log import log_error, log_warning
 from mforms import IconStringColumnType, StringColumnType, LongIntegerColumnType, IntegerColumnType, NumberWithUnitColumnType
 from workbench.notifications import NotificationCenter
 from wb_admin_utils import make_panel_header
@@ -142,6 +142,7 @@ def do_table_maintenance(editor, action, selection):
 class ObjectManager(mforms.Box):
     filter = None
     icon_column = None
+    bad_icon_path = "task_error.png"
     node_name = None
     actions = []
     def __init__(self, editor, schema):
@@ -192,6 +193,7 @@ class ObjectManager(mforms.Box):
         self.tree.set_context_menu(self.menu)
 
         self.icon_path = mforms.App.get().get_resource_path(self.klass+".16x16.png")
+        self.bad_icon_path = mforms.App.get().get_resource_path(self.bad_icon_path)
 
         self.row_count = mforms.newLabel("")
         self.row_count.set_text("");
@@ -308,12 +310,14 @@ class ObjectManager(mforms.Box):
             else:
                 mforms.Utilities.show_error("MySQL Error", "An error occurred retrieving information about the schema.\nQuery: %s\nError: %s"%(query, e.args[0]), "OK", "", "")
             return
-
         ok = rset.goToFirstRow()
         while ok:
             if not self.filter or self.filter(rset):
                 node = self.tree.add_node()
-                if self.icon_column is not None:
+                if self.is_row_corrupted(rset):
+                    print rset.stringFieldValueByName("Name"), "IS CORRUPTED"
+                    node.set_icon_path(self.icon_column, self.bad_icon_path)
+                elif self.icon_column is not None:
                     node.set_icon_path(self.icon_column, self.icon_path)
                 i = 0
                 for field_obj, ctype, caption, width, min_version in self.columns:
@@ -355,6 +359,9 @@ class ObjectManager(mforms.Box):
         if node:
             self.on_activate(node, 0)
 
+    def is_row_corrupted(self, rset):
+        return False
+
 
 class TableManager(ObjectManager):
     caption = "Tables"
@@ -364,7 +371,7 @@ class TableManager(ObjectManager):
     
     table_names = None
 
-    show_query = "show table status from `%(schema)s` where Engine is not NULL"
+    show_query = "show table status from `%(schema)s` where Comment <> 'VIEW'"
     name_column = 0
     columns = [("Name", IconStringColumnType, "Name", 180, None),
                ("Engine", StringColumnType, "Engine", 80, None),
@@ -372,10 +379,10 @@ class TableManager(ObjectManager):
                ("Row_format", StringColumnType, "Row Format", 100, None),
                ("Rows", LongIntegerColumnType, "Rows", 80, None),
                ("Avg_row_length", LongIntegerColumnType, "Avg Row Length", 100, None),
-               ({'field' : "Data_length", 'format_func' : lambda x: human_size(long(x))}, NumberWithUnitColumnType, "Data Length", 100, None),
-               ({'field' : "Max_data_length", 'format_func' : lambda x: human_size(long(x))}, NumberWithUnitColumnType, "Max Data Length", 100, None),
-               ({'field' : "Index_length", 'format_func' : lambda x: human_size(long(x))}, NumberWithUnitColumnType, "Index Length", 100, None),
-               ({'field' : "Data_free", 'format_func' : lambda x: human_size(long(x))}, NumberWithUnitColumnType, "Data Free", 80, None),
+               ({'field' : "Data_length", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Data Length", 100, None),
+               ({'field' : "Max_data_length", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Max Data Length", 100, None),
+               ({'field' : "Index_length", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Index Length", 100, None),
+               ({'field' : "Data_free", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Data Free", 80, None),
                ("Auto_increment", LongIntegerColumnType, "Auto Increment", 80, None),
                ("Create_time", StringColumnType, "Create Time", 100, None),
                ("Update_time", StringColumnType, "Update Time", 100, None),
@@ -384,6 +391,10 @@ class TableManager(ObjectManager):
                ("Checksum", StringColumnType, "Checksum", 80, None),
                ("Comment", StringColumnType, "Comment", 500, None)
                ]
+
+    def is_row_corrupted(self, rset):
+        return not rset.stringFieldValueByName("Engine")
+
 
     def refresh(self):
         self.table_names = []
@@ -735,7 +746,11 @@ class IndexManager(ObjectManager):
     def refresh(self):
         self.tree.clear()
         for table in self.table_manager.table_names or []:
-            rset = self.editor.executeManagementQuery(self.show_query % {'table' : table.replace("`", "``"), 'schema' : self.schema.replace("`", "``")}, 0)
+            try:
+                rset = self.editor.executeManagementQuery(self.show_query % {'table' : table.replace("`", "``"), 'schema' : self.schema.replace("`", "``")}, 0)
+            except grt.DBError, err:
+                log_warning("Error querying index info for %s.%s: %s\n" % (self.schema, table, err[0]))
+                continue
             ok = rset.goToFirstRow()
             while ok:
                 if not self.filter or self.filter(rset):
@@ -838,7 +853,7 @@ class ViewManager(ObjectManager):
     klass = "db.View"
     node_name = "views"
     filter = None
-    show_query = "show table status from `%(schema)s` where Engine is NULL"
+    show_query = "show table status from `%(schema)s` where Comment = 'VIEW'"
     name_column = 0
     icon_column = 0
     columns = [(0, IconStringColumnType, "Name", 400, None)]

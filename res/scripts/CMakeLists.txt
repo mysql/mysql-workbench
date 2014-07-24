@@ -1,5 +1,4 @@
 set(LIBRARY_FILES 
-    lua/wb_library.lua
     python/wb.py
     python/db_utils.py
     python/grt_python_debugger.py

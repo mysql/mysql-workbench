@@ -194,6 +194,9 @@ namespace MySQL.GUI.Workbench
       // Initialize forms stuff.
       MySQL.Forms.Manager formsManager = MySQL.Forms.Manager.get_instance(); // Creates the singleton.
 
+      // init extra mforms things that are delegated to the frontend, indirectly through RecordsetWrapper in wbpublic
+      MySQL.Grt.Db.RecordsetWrapper.init_mforms(MySQL.Grt.Db.RecordsetView.create);
+
       #region Runtime path check
 
       // Currently WB has trouble running from a path containing non-ASCII characters.
@@ -644,7 +647,6 @@ namespace MySQL.GUI.Workbench
       foreach (string subfolder in Directory.GetDirectories(folder))
         RemoveCompiledPythonFiles(subfolder, failed);
     }
-
     #endregion
 
   }

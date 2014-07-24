@@ -57,7 +57,6 @@
                 <File Id="file1034" Name="libmysql.dll"/>
                 <File Id="file1035" Name="libpng.dll"/>
                 <File Id="file1036" Name="libxml2.dll"/>
-                <File Id="file1037" Name="lua.dll"/>
                 <File Id="file1030" Name="libglib-2.0-0.dll"/>
                 <File Id="file1031" Name="libgmodule-2.0-0.dll"/>
                 <File Id="file1032" Name="libgobject-2.0-0.dll"/>
@@ -67,7 +66,6 @@
                 <File Id="file1065" Name="libzip.dll"/>
                 <File Id="file1083" Name="zlib.dll"/>
                 <File Id="file1087" Name="wb.py"/>
-                <File Id="file1088" Name="wb_library.lua"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
                 <File Id="file1099d" Name="python27_d.dll"/>
                 <?else ?>
@@ -425,14 +423,6 @@
                     <File Id="file6025" Name="tiny_undo.png"/>
                     <File Id="file6025a" Name="tiny_loadsql.png"/>
                     <File Id="file6025b" Name="tiny_savesql.png"/>
-                    <File Id="file6025c" Name="tiny_commit.png"/>
-                    <File Id="file6025d" Name="tiny_rollback.png"/>
-                    <File Id="file6025e" Name="tiny_commit_disabled.png"/>
-                    <File Id="file6025f" Name="tiny_rollback_disabled.png"/>
-                    <File Id="file6025g" Name="tiny_execute.png"/>
-                    <File Id="file6025h" Name="tiny_execute_disabled.png"/>
-                    <File Id="file6025i" Name="tiny_cancel.png"/>
-                    <File Id="file6025j" Name="tiny_cancel_disabled.png"/>
                     <File Id="file6025k" Name="clear_output.png"/>
                     <File Id="file6026" Name="wb_arrow.png"/>
                     <File Id="file6027" Name="wb_db_routinegroup.png"/>
@@ -484,23 +474,13 @@
                     <File Id="file60008" Name="admin_info_running.png"/>
                     <File Id="file60015" Name="admin_meb_backup.png"/>
                     <File Id="file60016" Name="admin_meb_restore.png"/>
-                    <File Id="file60017" Name="tiny_bookmark.png"/>
                     <File Id="file60018" Name="admin_info_unknown.png"/>
                     <File Id="file60019" Name="MySQLWorkbench.ico"/>
                     <File Id="file60020" Name="MySQLWorkbench-256.png"/>
                     <File Id="file60021" Name="MySQLWorkbench-512.png"/>
-                    <File Id="file60022" Name="tiny_execute_current.png"/>
-                    <File Id="file60023" Name="query_continue_on_error.png"/>
-                    <File Id="file60024" Name="query_stop_on_error.png"/>
-                    <File Id="file60025" Name="tiny_autocommit_off.png"/>
-                    <File Id="file60026" Name="tiny_autocommit_on.png"/>
-                    <File Id="file60027" Name="tiny_explain.png"/>
-                    <File Id="file60028" Name="tiny_reconnect.png"/>
                     <File Id="file60029" Name="tiny_new.png"/>
-                    <File Id="file60030" Name="tiny_manage_connections.png"/>
                     <File Id="file60031" Name="tiny_new_diagram.png"/>
                     <File Id="file60032" Name="tiny_new_doc.png"/>
-                    <File Id="file60033" Name="tiny_manage_instances.png"/>
                     <File Id="file60034" Name="tiny_new_routine.png"/>
                     <File Id="file60035" Name="tiny_new_schema.png"/>
                     <File Id="file60036" Name="tiny_new_script.png"/>
@@ -622,6 +602,21 @@
                     <File Id="file62041" Name="title_performance_reports.png"/>
                     <File Id="file62040" Name="dashboard_separator.png"/>
                     <File Id="file62042" Name="ps_easysetup_logo.png"/>
+                    <File Id="file62043" Name="ps_easysetup_logo_enabled.png"/>
+                    <File Id="file62044" Name="ps_switcher_custom_hoover.png"/>
+                    <File Id="file62045" Name="ps_switcher_custom_off.png"/>
+                    <File Id="file62046" Name="ps_switcher_custom_on.png"/>
+                    <File Id="file62047" Name="ps_switcher_default_hoover.png"/>
+                    <File Id="file62048" Name="ps_switcher_default_off.png"/>
+                    <File Id="file62049" Name="ps_switcher_default_on.png"/>
+                    <File Id="file62050" Name="ps_switcher_disabled_hoover.png"/>
+                    <File Id="file62051" Name="ps_switcher_disabled_off.png"/>
+                    <File Id="file62052" Name="ps_switcher_disabled_on.png"/>
+                    <File Id="file62053" Name="ps_switcher_fully_hoover.png"/>
+                    <File Id="file62054" Name="ps_switcher_fully_off.png"/>
+                    <File Id="file62055" Name="ps_switcher_fully_on.png"/>
+                    <File Id="file62056" Name="ps_switcher_legende.png"/>
+                    <File Id="file62057" Name="ps_switcher_text.png"/>
                   </Component>
                 </Directory>
 
@@ -848,7 +843,6 @@
                     <File Id="file61731" Name="qe_sql-editor-tb-icon_stop.png"/>
                     <File Id="file61732" Name="snippet_sql.png"/>
                     <File Id="file61733" Name="snippet_htm.png"/>
-                    <File Id="file61734" Name="snippet_lua.png"/>
                     <File Id="file61735" Name="snippet_mwb.png"/>
                     <File Id="file61736" Name="snippet_php.png"/>
                     <File Id="file61737" Name="snippet_py.png"/>
@@ -878,19 +872,23 @@
                     <File Id="file61773" Name="switcher_left_on.png"/>
                     <File Id="file61774" Name="switcher_right_off.png"/>
                     <File Id="file61775" Name="switcher_right_on.png"/>
-                    <File Id="file62043" Name="object_inspector.png"/>
-                    <File Id="file62044" Name="title_schema_inspector.png"/>
-                    <File Id="file62045" Name="title_table_inspector.png"/>
-                    <File Id="file62046" Name="output_type-executionplan.png"/>
-                    <File Id="file62047" Name="output_type-explaindata.png"/>
-                    <File Id="file62048" Name="output_type-fieldtypes.png"/>
-                    <File Id="file62049" Name="output_type-item_selected.png"/>
-                    <File Id="file62050" Name="output_type-querystats.png"/>
-                    <File Id="file62051" Name="output_type-resultset.png"/>
-                    <File Id="file62052" Name="output_type-spacialview.png"/>
-                    <File Id="file62053" Name="output_type-toggle-off.png"/>
-                    <File Id="file62054" Name="output_type-toggle-on.png"/>
-                    <File Id="file62055" Name="output_type-formeditor.png"/>
+                    <File Id="file61776" Name="object_inspector.png"/>
+                    <File Id="file61777" Name="title_schema_inspector.png"/>
+                    <File Id="file61778" Name="title_table_inspector.png"/>
+                    <File Id="file61779" Name="output_type-executionplan.png"/>
+                    <File Id="file61780" Name="output_type-explaindata.png"/>
+                    <File Id="file61781" Name="output_type-fieldtypes.png"/>
+                    <File Id="file61782" Name="output_type-item_selected.png"/>
+                    <File Id="file61783" Name="output_type-querystats.png"/>
+                    <File Id="file61784" Name="output_type-resultset.png"/>
+                    <File Id="file61785" Name="output_type-spacialview.png"/>
+                    <File Id="file61786" Name="output_type-toggle-off.png"/>
+                    <File Id="file61787" Name="output_type-toggle-on.png"/>
+					
+                    <File Id="wb_item_overlay_editor" Name="wb_item_overlay_editor.png"/>
+                    <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
+                    <File Id="wb_item_overlay_inspector" Name="wb_item_overlay_inspector.png"/>
+                    <File Id="wb_item_overlay_result" Name="wb_item_overlay_result.png"/>
                   </Component>
                   
                 </Directory>
@@ -1668,12 +1666,10 @@
                   <File Id="file614024" Name="wb_common.py"/>
                   <File Id="file614025" Name="wb_server_management.py"/>
                   <File Id="file614026" Name="wb_server_control.py"/>
-                  <File Id="file614027" Name="wb_doclib_grt.py"/>
                   <File Id="file614028" Name="sqlide_grt.py"/>
                   <File Id="file614029" Name="text_grt.py"/>
                   <File Id="file614030" Name="wba_monitor_be.py"/>
                   <File Id="file614031" Name="wba_ssh_ui.py"/>
-                  <File Id="file614032" Name="mysqldoclib.py"/>
                   <File Id="file614033" Name="sql_reformatter.py"/>
                   <File Id="file614034" Name="wb_admin_ui_profile.py"/>
                   <File Id="file614035" Name="wb_dev_utils_grt.py"/>
@@ -1731,6 +1727,9 @@
                   <File Id="file66901" Name="db_sqlite_re_grt.py"/>
                   <File Id="file66902" Name="db_sqlite_migration_grt.py"/>
 
+                  <File Id="file66911" Name="db_msaccess_re_grt.py"/>
+                  <File Id="file66912" Name="db_msaccess_migration_grt.py"/>
+                  
                   <File Id="file66204" Name="DataMigrator.py"/>
 
                   <File Id="file66221" Name="explain_renderer.py"/>
@@ -1752,6 +1751,7 @@
                   <File Id="file66711" Name="wb_admin_perfschema_instrumentation_be.py"/>
                   <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
 
+                  <File Id="file66713" Name="wb_docs_grt.py"/>
                 </Component>
 
                 <?if $(var.LICENSE_TYPE) = "commercial"?>
@@ -1779,14 +1779,7 @@
                 </Directory>
                 <?endif ?>
  
-                <Directory Id="modules_templates" Name="templates">
-                  <Component DiskId="1" Guid="C566C04D-80E2-472e-B530-D85782EFD702" Id="modules_templates" Location="either">
-                    <File Id="file66300" Name="Table_Plugin_template.lua"/>
-                    <File Id="file66301" Name="Catalog_Plugin_template.lua"/>
-                  </Component>
-                </Directory>
-
-                <Directory Id="data" Name="data">
+                 <Directory Id="data" Name="data">
                   <Component DiskId="1" Guid="2bfa656d-c6a9-4c05-b7d8-155ccb03fc21" Id="modules_data" Location="either">
                     <File Id="file7001" Name="mysql_reserved.xml"/>
                     <File Id="file7002" Name="mysql_rdbms_info.xml"/>
@@ -1799,6 +1792,7 @@
                     <File Id="file7010" Name="postgresql_rdbms_info.xml"/>
                     <File Id="file7011" Name="sqlanywhere_rdbms_info.xml"/>
                     <File Id="file7012" Name="sqlite_rdbms_info.xml"/>
+                    <File Id="file7013" Name="msaccess_rdbms_info.xml"/>
                   </Component>
 
                   <Directory Id="sqlide" Name="sqlide">
@@ -1835,13 +1829,6 @@
                       <File Id="file8031" Name="JSON.pre.tpl"/>
                       <File Id="file8032" Name="JSON.tpl"/>
                       <File Id="file8033" Name="JSON.tpli"/>
-                    </Component>
-                  </Directory>
-
-                  <Directory Id="modules_data_doclibrary" Name="DocLibrary">
-                    <Component DiskId="1" Guid="5B9E4E74-A25E-4fb0-B9C5-30243B38FFF2" Id="modules_data_doclibrary" Location="either">
-                      <File Id="file8201" Name="mysqldoclib.sqlite"/>
-                      <File Id="file8202" Name="mysqldoclib_webui.sqlite"/>
                     </Component>
                   </Directory>
 

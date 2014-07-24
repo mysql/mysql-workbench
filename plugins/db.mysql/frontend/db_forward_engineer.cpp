@@ -156,7 +156,7 @@ public:
     _generate_use_check.set_active(module->document_int_data("GenerateUse", 0) != 0);
     _generate_use_check.set_enabled(_omit_schema_qualifier_check.get_active());
     _skip_FK_indexes_check.set_enabled(_skip_foreign_keys_check.get_active());
-    _include_user_scripts.set_active(module->document_int_data("GenerateAttachedScripts", 1));
+    _include_user_scripts.set_active(module->document_int_data("GenerateAttachedScripts", 1) != 0);
   }
 
   void SkipFKToggled()

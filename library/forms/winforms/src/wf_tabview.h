@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +38,8 @@ namespace MySQL
       static int add_page(mforms::TabView *backend, mforms::View *page, const std::string& caption);
       static void remove_page(mforms::TabView *backend, mforms::View *page);
       static void set_tab_title(mforms::TabView *backend, int tab, const std::string& caption);
+      static void set_aux_view(mforms::TabView *backend, mforms::View *aux);
+      static void set_allows_reordering(mforms::TabView *backend, bool flag);
     public:
       static void init();
     };

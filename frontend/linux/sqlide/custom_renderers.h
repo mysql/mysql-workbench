@@ -312,7 +312,8 @@ on_cell_data(Gtk::CellRenderer* cr, const Gtk::TreeModel::iterator &iter, Gtk::T
     editing_iter= tree->get_model()->get_iter(_editing_path);
 
   load_cell_data(_property_data, iter->get_value(*_model_data_column), (_editing && editing_iter == iter), _floating_point_visible_scale);
-  _property_pixbuf= iter->get_value(*_model_pixbuf_column);
+  if (_model_pixbuf_column)
+    _property_pixbuf= iter->get_value(*_model_pixbuf_column);
 }
 
 //------------------------------------------------------------------------------

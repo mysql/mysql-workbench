@@ -88,11 +88,10 @@ public:
   bool reset(bool rethrow);
   virtual void reset();
   virtual void refresh();
-  boost::signals2::signal<void ()> refresh_ui_status_bar_signal;
+  boost::signals2::signal<void ()> data_edited_signal;
 private:
   bool reset(Recordset_data_storage_Ptr data_storage_ptr, bool rethrow);
-protected:
-  virtual void refresh_ui_status_bar();
+  void data_edited();
 
 public:
   RowId real_row_count() const;
@@ -133,6 +132,7 @@ protected:
 
 public:
   boost::function<void ()> apply_changes_cb;
+  // force UI to save any ongoing edits by the user 
   boost::function<void()> flush_ui_changes_cb;
 public:
   bool apply_changes_and_gather_messages(std::string &messages);

@@ -42,6 +42,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label1 = new System.Windows.Forms.Label();
       this.pictureBox1 = new System.Windows.Forms.PictureBox();
       this.privilegesPage = new System.Windows.Forms.TabPage();
+      this.checkAllButton = new System.Windows.Forms.Button();
       this.uncheckAllButton = new System.Windows.Forms.Button();
       this.label4 = new System.Windows.Forms.Label();
       this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -202,6 +203,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // privilegesPage
       // 
       this.privilegesPage.BackColor = System.Drawing.Color.White;
+      this.privilegesPage.Controls.Add(this.checkAllButton);
       this.privilegesPage.Controls.Add(this.uncheckAllButton);
       this.privilegesPage.Controls.Add(this.label4);
       this.privilegesPage.Controls.Add(this.splitContainer2);
@@ -211,6 +213,17 @@ namespace MySQL.GUI.Workbench.Plugins
       this.privilegesPage.Size = new System.Drawing.Size(788, 213);
       this.privilegesPage.TabIndex = 1;
       this.privilegesPage.Text = "Privileges";
+      // 
+      // checkAllButton
+      // 
+      this.checkAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+      this.checkAllButton.Location = new System.Drawing.Point(546, 155);
+      this.checkAllButton.Name = "checkAllButton";
+      this.checkAllButton.Size = new System.Drawing.Size(135, 23);
+      this.checkAllButton.TabIndex = 3;
+      this.checkAllButton.Text = "Check All Privileges";
+      this.checkAllButton.UseVisualStyleBackColor = true;
+      this.checkAllButton.Click += new System.EventHandler(this.checkAllButton_Click);
       // 
       // uncheckAllButton
       // 
@@ -399,6 +412,7 @@ namespace MySQL.GUI.Workbench.Plugins
     private Aga.Controls.Tree.TreeViewAdv roleObjectsTreeView;
     private System.Windows.Forms.CheckedListBox privCheckedListBox;
     private System.Windows.Forms.Label label3;
+    private System.Windows.Forms.Button checkAllButton;
     private System.Windows.Forms.Button uncheckAllButton;
     private System.Windows.Forms.ComboBox ParentComboBox;
     private System.Windows.Forms.TextBox nameTextBox;

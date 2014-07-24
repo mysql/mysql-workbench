@@ -37,6 +37,57 @@ def find_object_with_old_name(list, name):
     return None
 
 
+class ReplaceForm(mforms.Form):
+    def __init__(self, title, description):
+        self._canceled = False
+        mforms.Form.__init__(self, None, mforms.FormDialogFrame|mforms.FormResizable|mforms.FormMinimizable)
+        self.set_title(title)
+
+        content = mforms.newBox(False)
+        self.set_content(content)
+        content.set_padding(12)
+        content.set_spacing(12)
+
+        v_box = mforms.newBox(False)
+        content.add(v_box, False, False)
+        v_box.set_spacing(12)
+        v_box.add(mforms.newLabel(description), False, False)
+
+        table = mforms.newTable()
+        table.set_padding(12)
+        v_box.add(table, False, False)
+        table.set_row_count(2)
+        table.set_column_count(2)
+        table.set_row_spacing(8)
+        table.set_column_spacing(4)
+        table.add(mforms.newLabel("Find:"), 0, 1, 0, 1)
+        table.add(mforms.newLabel("Replace with:"), 0, 1, 1, 2)
+
+        self.from_type_entry = mforms.newTextEntry()
+        table.add(self.from_type_entry, 1, 2, 0, 1)
+
+        self.to_type_entry = mforms.newTextEntry()
+        table.add(self.to_type_entry, 1, 2, 1, 2)
+
+        h_box = mforms.newBox(True)
+        content.add_end(h_box, False, False)
+        h_box.set_spacing(12)
+
+        self.cancel_btn = mforms.newButton()
+        self.cancel_btn.set_text("Cancel")
+        h_box.add_end(self.cancel_btn, False, True)
+
+        self.ok_btn = mforms.newButton()
+        self.ok_btn.set_text("OK")
+        h_box.add_end(self.ok_btn, False, True)
+        self.set_size(600, 180)
+
+    def show(self, type_to_replace):
+        self.from_type_entry.set_value(type_to_replace)
+        modal_result = self.run_modal(self.ok_btn, self.cancel_btn)
+        return (modal_result, self.from_type_entry.get_string_value(), self.to_type_entry.get_string_value())
+
+
 class MainView(WizardPage):
     def __init__(self, main):
         WizardPage.__init__(self, main, "Manual Editing", wide=True)
@@ -75,6 +126,13 @@ class MainView(WizardPage):
         self._tree.add_changed_callback(self._selection_changed)
         self.content.add(self._tree, True, True)
         self._tree.set_cell_edited_callback(self._cell_edited)
+
+        self._all_menu = mforms.newContextMenu()
+        self._all_menu.add_will_show_callback(self.all_menu_will_show)
+        self._all_menu.add_check_item_with_title("Skip Object", self.skip_object, "skip_object")
+
+        self._tree.set_context_menu(self._all_menu)
+
         
         self._columns = mforms.newTreeNodeView(mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeFlatList)
         self.COL_SOURCE_SCHEMA = self._columns.add_column(mforms.StringColumnType, "Source Schema", 100, False)
@@ -82,7 +140,7 @@ class MainView(WizardPage):
         self.COL_SOURCE_COLUMN = self._columns.add_column(mforms.IconStringColumnType, "Source Column", 100, False)
         self.COL_SOURCE_TYPE = self._columns.add_column(mforms.StringColumnType, "Source Type", 100, False)
         self.COL_SOURCE_FLAGS = self._columns.add_column(mforms.StringColumnType, "Source Flags", 100, False)
-        self.COL_SOURCE_NOTNULL = self._columns.add_column(mforms.CheckColumnType, "NN", 20, False)
+        self.COL_SOURCE_NOTNULL = self._columns.add_column(mforms.CheckColumnType, "NN", 25, False)
         self.COL_SOURCE_DEFAULT = self._columns.add_column(mforms.StringColumnType, "Source Default Value", 100, False)
         self.COL_SOURCE_COLLATION = self._columns.add_column(mforms.StringColumnType, "Source Collation", 100, False)
         self.COL_TARGET_SCHEMA = self._columns.add_column(mforms.StringColumnType, "Target Schema", 100, False)
@@ -90,17 +148,28 @@ class MainView(WizardPage):
         self.COL_TARGET_COLUMN = self._columns.add_column(mforms.IconStringColumnType, "Target Column", 100, True)
         self.COL_TARGET_TYPE = self._columns.add_column(mforms.StringColumnType, "Target Type", 100, True)
         self.COL_TARGET_FLAGS = self._columns.add_column(mforms.StringColumnType, "Target Flags", 100, True)
-        self.COL_TARGET_AI = self._columns.add_column(mforms.CheckColumnType, "AI", 20, True)
-        self.COL_TARGET_NOTNULL = self._columns.add_column(mforms.CheckColumnType, "NN", 20, True)
+        self.COL_TARGET_AI = self._columns.add_column(mforms.CheckColumnType, "AI", 25, True)
+        self.COL_TARGET_NOTNULL = self._columns.add_column(mforms.CheckColumnType, "NN", 25, True)
         self.COL_TARGET_DEFAULT = self._columns.add_column(mforms.StringColumnType, "Target Default Value", 100, True)
         self.COL_TARGET_COLLATION = self._columns.add_column(mforms.StringColumnType, "Target Collation", 100, True)
         self.COL_MESSAGE = self._columns.add_column(mforms.IconStringColumnType, "Migration Message", 300, False)
         self._columns.end_columns()
         self._columns.set_allow_sorting(True)
+        self._columns.set_selection_mode(mforms.TreeSelectMultiple)
         self._columns.add_changed_callback(self._selection_changed)
         self.content.add(self._columns, True, True)
         self._columns.set_cell_edited_callback(self._columns_cell_edited)
         self._columns.show(False)
+        
+        self._menu = mforms.newContextMenu()
+        self._menu.add_will_show_callback(self.menu_will_show)
+        self._menu.add_item_with_title("Set Target Type of Selected Columns...", self.set_target_type, "set_target_type")
+        self._menu.add_item_with_title("Find and Replace Target Type...", self.replace_target_type, "replace_target_type")
+        self._menu.add_item_with_title("Find and Replace Target Flags...", self.replace_target_flags, "replace_target_flags")
+        self._menu.add_item_with_title("Find and Replace Target Default Value...", self.replace_target_default_value, "replace_target_default_value")
+        self._menu.add_item_with_title("Find and Replace Target Collation...", self.replace_target_collation, "replace_target_collation")
+        self._columns.set_context_menu(self._menu)
+        
         self.help_label = mforms.newLabel("You can rename target schemas and tables and change column definitions by clicking them once selected.")
         self.help_label.set_style(mforms.SmallStyle)
         self.content.add(self.help_label, False, True)
@@ -292,7 +361,7 @@ class MainView(WizardPage):
                 self._regenerateSQL()
             elif column == self.COL_TARGET_COLLATION:
                 node.set_string(column, value)
-                object.collation = value
+                object.collationName = value
                 grt.log_info("Migration", "User changed target column collation of '%s' to '%s'\n"%(object.name, value))
                 self._regenerateSQL()
 
@@ -773,3 +842,64 @@ class MainView(WizardPage):
         self._selection_changed()
 
 
+    def skip_object(self):
+        node = self._tree.get_selected_node()
+        tag = node.get_tag()
+        if tag and tag in self._object_dict:
+            obj = self._object_dict[tag]
+            if hasattr(obj, 'commentedOut'):
+                obj.commentedOut = not obj.commentedOut    
+
+    def all_menu_will_show(self, item):
+        node = self._tree.get_selected_node()
+        tag = node.get_tag()
+        self._all_menu.get_item(0).set_enabled(False)
+        if tag and tag in self._object_dict:
+            obj = self._object_dict[tag]
+            if hasattr(obj, 'commentedOut'):
+                self._all_menu.get_item(0).set_checked(obj.commentedOut)
+                if obj.__grtclassname__ in ("db.Index", "db.ForeignKey"):
+                    self._all_menu.get_item(0).set_enabled(True)
+
+    def menu_will_show(self, item):
+        self._menu.get_item(0).set_enabled(len(self._columns.get_selection()) > 1)
+
+    def set_target_type(self):
+        selected_nodes = self._columns.get_selection()
+        if selected_nodes:
+            ret, type = mforms.Utilities.request_input('Change target columns type', 'Please specify the target type', '')
+            if ret:
+                for n in selected_nodes:
+                    self._columns_cell_edited(n, self.COL_TARGET_TYPE, type)
+
+    def replace_target(self, title, description, type):
+        selected_node = self._columns.get_selection()[0]
+        if selected_node:
+            to_replace = selected_node.get_string(type)
+            repl_form = ReplaceForm(title, description)
+            ret, to_replace, replace_with = repl_form.show(to_replace)
+            if ret:
+                for i in range(self._columns.count()):
+                    node = self._columns.node_at_row(i)
+                    if node.get_string(type) == to_replace:
+                        self._columns_cell_edited(node, type, replace_with)
+
+    def replace_target_type(self):
+        self.replace_target("Find and Replace Target Type", 
+                            "Target/migrated data type matching the search term will be replaced for all columns of all tables.", 
+                            self.COL_TARGET_TYPE)
+
+    def replace_target_flags(self):
+        self.replace_target("Find and Replace Target Flags", 
+                            "Target/migrated flags matching the search term will be replaced for all columns of all tables.", 
+                            self.COL_TARGET_FLAGS)
+
+    def replace_target_default_value(self):
+        self.replace_target("Find and Replace Target Default Value", 
+                            "Target/migrated default value matching the search term will be replaced for all columns of all tables.", 
+                            self.COL_TARGET_DEFAULT)
+
+    def replace_target_collation(self):
+        self.replace_target("Find and Replace Target Collation", 
+                            "Target/migrated collation matching the search term will be replaced for all columns of all tables.", 
+                            self.COL_TARGET_COLLATION)

@@ -662,8 +662,8 @@ bool is_token_without_topic(unsigned type)
 std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref &form,
   const std::string &query, std::pair<ssize_t, ssize_t> caret)
 {
-  log_debug2("Trying to get help topic at position <%li, %li>, from query: %s...\n", caret. first,
-    caret.second, query.substr(0, 300).c_str());
+  log_debug2("Trying to get help topic at position <%li, %li>, from query: %s...\n", (long)caret.first,
+    (long)caret.second, query.substr(0, 300).c_str());
   
   // First collect all tokens up to the caret position.
   MySQLScanner scanner(query.c_str(), query.length(), true, form->server_version(), form->sql_mode(),

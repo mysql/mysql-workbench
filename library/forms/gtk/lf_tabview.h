@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,27 +22,57 @@
 #include "lf_view.h"
 #include "mforms/tabview.h"
 
+#include "src/active_label.h"
+
 namespace mforms
 {
 namespace gtk
 {
 
+class MyActiveLabel : public ActiveLabel
+{
+  mforms::TabView *_owner;
+  mforms::View *_page;
+
+public:
+  MyActiveLabel(mforms::TabView *owner, mforms::View *page, const std::string &title, const sigc::slot<void> &close_cb)
+    : ActiveLabel(title, close_cb), _owner(owner), _page(page)
+  {
+    signal_button_press_event().connect(sigc::mem_fun(this, &MyActiveLabel::button_press_slot));
+  }
+
+  virtual bool button_press_slot(GdkEventButton* evb);
+};
+
+
 class TabViewImpl : public ViewImpl
 {
   Gtk::Notebook *_nb;
+  int _rclicked_tab;
+  bool _reorderable;
   virtual Gtk::Widget *get_outer() const { return _nb; }
  protected:
   TabViewImpl(::mforms::TabView *self, ::mforms::TabViewType tabType)
-    : ViewImpl(self)
+    : ViewImpl(self), _reorderable(false)
   {
     _nb = new Gtk::Notebook();
-    if (tabType == mforms::TabViewTabless)
+    switch (tabType)
     {
-      _nb->set_show_tabs(false);
-      _nb->set_show_border(false);
+      case mforms::TabViewSystemStandard:
+        break;
+      case mforms::TabViewTabless:
+        _nb->set_show_tabs(false);
+        _nb->set_show_border(false);
+        break;
+      case mforms::TabViewEditorBottom:
+        _nb->set_tab_pos(Gtk::POS_BOTTOM);
+        break;
+      default://XXX
+        break;
     }
     _nb->set_scrollable(true);
     _nb->signal_switch_page().connect(sigc::mem_fun(this, &TabViewImpl::tab_changed));
+    _nb->signal_page_reordered().connect(sigc::mem_fun(this, &TabViewImpl::tab_reordered));
     _nb->show();
   }
 
@@ -56,6 +86,25 @@ class TabViewImpl : public ViewImpl
     TabView* tv = dynamic_cast< TabView* >(owner);
     if (tv && !tv->is_destroying())
       (*tv->signal_tab_changed())();
+  }
+
+  void tab_reordered(Gtk::Widget *page, guint to)
+  {
+    TabView* tv = dynamic_cast< TabView* >(owner);
+    mforms::View *view = view_for_widget(page);    
+    if (!view)
+      throw std::logic_error("view_for_widget returned NULL");
+
+    if (tv)
+      tv->reordered(view, to);
+  }
+
+  void close_tab_clicked(mforms::View *page)
+  {
+    TabView* tv = dynamic_cast< TabView* >(owner);
+    int i = tv->get_page_index(page);
+    if (tv->can_close_tab(i))
+        tv->remove_page(page);
   }
 
   static bool create(::mforms::TabView *self, mforms::TabViewType tabtype)
@@ -88,13 +137,21 @@ class TabViewImpl : public ViewImpl
     if ( cb)
     {
       ViewImpl *widget_wrapper = page->get_data<ViewImpl>();
-      if ( widget_wrapper )
+      if (widget_wrapper)
       {
-        Gtk::Label *label= Gtk::manage(new Gtk::Label(caption));
-        widget_wrapper->get_outer()->set_data("TabViewLabel", label);
+        widget_wrapper->get_outer()->set_data("mforms::View", page);
+
+        Gtk::Widget *label;
+        if (self->get_type() == mforms::TabViewEditorBottom)
+          label= Gtk::manage(new MyActiveLabel(self, page, caption, sigc::bind(sigc::mem_fun(cb, &TabViewImpl::close_tab_clicked), page)));
+        else
+          label= Gtk::manage(new Gtk::Label(caption));
         page_index_after_insert = cb->_nb->append_page(*widget_wrapper->get_outer(), *label);
         label->show();
+        widget_wrapper->get_outer()->set_data("TabViewLabel", label);
         widget_wrapper->get_outer()->show();
+        if (cb->_reorderable)
+          cb->_nb->set_tab_reorderable(*widget_wrapper->get_outer(), true);
       }
     }
     
@@ -124,11 +181,42 @@ class TabViewImpl : public ViewImpl
       Gtk::Widget *page= cb->_nb->get_nth_page(tab);
       if (page)
       {
-        Gtk::Label *label = reinterpret_cast<Gtk::Label*>(page->get_data("TabViewLabel"));
-        if (label)
-        {
+        Gtk::Widget* w = reinterpret_cast<Gtk::Widget*>(page->get_data("TabViewLabel"));
+        if (Gtk::Label *label = dynamic_cast<Gtk::Label*>(w))
           label->set_text(title);
-        }
+        else if (ActiveLabel *label = dynamic_cast<ActiveLabel*>(w))
+          label->set_text(title);
+      }
+    }
+  }
+
+  static void set_aux_view(mforms::TabView *self, mforms::View *view)
+  {
+   TabViewImpl* cb= self->get_data<TabViewImpl>();
+
+    if (cb)
+    {
+      Gtk::Widget *widget = view->get_data<ViewImpl>()->get_outer();
+#if GTK_CHECK_VERSION(2, 20, 0)
+// gtkmm2 shipped in el6 doesn't support this
+//      cb->_nb->set_action_widget(widget, Gtk::PACK_END);
+      gtk_notebook_set_action_widget(cb->_nb->gobj(), widget->gobj(), GTK_PACK_END);
+#else
+      #error "Gtk+ version 2.20 or newer is required"
+#endif
+    }
+  }
+
+  static void set_allows_reordering(mforms::TabView *self, bool flag)
+  {
+    TabViewImpl* cb= self->get_data<TabViewImpl>();
+
+    if (cb)
+    {
+      cb->_reorderable = flag;
+      for (int c = cb->_nb->get_n_pages(), i = 0; i < c; i++)
+      {
+        cb->_nb->set_tab_reorderable(*cb->_nb->get_nth_page(i), flag);
       }
     }
   }
@@ -144,8 +232,22 @@ class TabViewImpl : public ViewImpl
     f->_tabview_impl.add_page       = &TabViewImpl::add_page;
     f->_tabview_impl.remove_page    = &TabViewImpl::remove_page;
     f->_tabview_impl.set_tab_title  = &TabViewImpl::set_tab_title;
+    f->_tabview_impl.set_aux_view  = &TabViewImpl::set_aux_view;
+    f->_tabview_impl.set_allows_reordering  = &TabViewImpl::set_allows_reordering;
   }
 };
+
+
+bool MyActiveLabel::button_press_slot(GdkEventButton* evb)
+{
+  if (evb->button == 3)
+  {
+    _owner->set_menu_tab(_owner->get_page_index(_page));
+    _owner->get_tab_menu()->will_show();
+    _owner->get_tab_menu()->popup_at(NULL, base::Point(evb->x, evb->y));
+  }
+  return false;
+}
 
 };
 };

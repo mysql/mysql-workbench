@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,6 +55,8 @@ namespace MySQL {
       static int row_for_node(mforms::TreeNodeView *backend, mforms::TreeNodeRef node);
       static mforms::TreeNodeRef node_with_tag(mforms::TreeNodeView *backend, const std::string &tag);
 
+      static void set_column_title(mforms::TreeNodeView *backend, int column, const std::string &title);
+
       static void set_column_visible(mforms::TreeNodeView *backend, int column, bool flag);
       static bool get_column_visible(mforms::TreeNodeView *backend, int column);
 
@@ -78,6 +80,8 @@ namespace MySQL {
       
       mforms::TreeNodeRef node_at_row(int row);
       int row_for_node(mforms::TreeNodeRef node);
+
+      void set_column_title(int column, const std::string &title);
 
       void set_column_visible(int column, bool flag);
       bool is_column_visible(int column);

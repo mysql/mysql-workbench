@@ -33,6 +33,42 @@ static NSImage *descendingSortIndicator= nil;
 
 @implementation MResultsetViewer
 
+
+
+// for use by mforms
+static const char *viewFlagsKey = "viewFlagsKey";
+
+- (NSInteger)viewFlags
+{
+  NSNumber *value = objc_getAssociatedObject(self, viewFlagsKey);
+  return value.intValue;
+}
+
+- (void)setViewFlags: (NSInteger)value
+{
+  objc_setAssociatedObject(self, viewFlagsKey, @(value), OBJC_ASSOCIATION_RETAIN);
+}
+//
+
+
+- (void)setHeaderIndicator:(int)indicator forColumn:(int)column
+{
+  NSTableColumn *tableColumn= [mTableView tableColumnWithIdentifier:[NSString stringWithFormat:@"%i", column]];
+  switch (indicator)
+  {
+    case 0:
+      [mTableView setIndicatorImage: nil inTableColumn:tableColumn];
+      break;
+    case 1:
+      [mTableView setIndicatorImage: ascendingSortIndicator inTableColumn:tableColumn];
+      break;
+    case -1:
+      [mTableView setIndicatorImage: descendingSortIndicator inTableColumn:tableColumn];
+      break;
+  }
+}
+
+
 - (void)rebuildColumns
 {
   for (id column in [[mTableView tableColumns] reverseObjectEnumerator])
@@ -51,6 +87,7 @@ static NSImage *descendingSortIndicator= nil;
       mWarnedManyColumns = -1;
   }
 
+  float rowHeight = 0;
   for (int index= 0, count= (*mData)->get_column_count(); index < count; ++index)
   {
     std::string label= base::sanitize_utf8((*mData)->get_column_caption(index));
@@ -58,27 +95,24 @@ static NSImage *descendingSortIndicator= nil;
     NSTableColumn *column= [[[NSTableColumn alloc] initWithIdentifier: [NSString stringWithFormat:@"%i", index]] autorelease];
 
     [[column headerCell] setTitle: [NSString stringWithUTF8String: label.c_str()]];
+
     [column setEditable: YES];
     
     [column setDataCell: [[[MQResultSetCell alloc] init] autorelease]];
     [[column dataCell] setEditable: YES];
     [[column dataCell] setLineBreakMode: NSLineBreakByTruncatingTail];
-
+    if (mFont)
+    {
+      [[column dataCell] setFont: mFont];
+      rowHeight = MAX(rowHeight, [[column dataCell] cellSize].height + 1);
+    }
     if (mWarnedManyColumns == 1)
       [column setResizingMask: 0];
     
     [mTableView addTableColumn: column];
   }
-  
-  // restore sorting columns glyphs
-  {
-    ::bec::GridModel::SortColumns sort_columns= (*mData)->sort_columns();
-    for (::bec::GridModel::SortColumns::const_iterator i= sort_columns.begin(), end= sort_columns.end(); i != end; ++i)
-    {
-      NSTableColumn *tableColumn= [mTableView tableColumnWithIdentifier:[NSString stringWithFormat:@"%i", (int)i->first]];
-      [mTableView setIndicatorImage:((i->second == 1) ? ascendingSortIndicator : descendingSortIndicator) inTableColumn:tableColumn];
-    }
-  }
+  if (rowHeight > 0)
+    [mTableView setRowHeight: rowHeight];
 }
 
 
@@ -90,7 +124,15 @@ static NSImage *descendingSortIndicator= nil;
   std::for_each(mSigConns.begin(), mSigConns.end(), boost::bind(&boost::signals2::connection::disconnect, _1));
   delete mData;
   [mView release];
+  [mFont release];
   [super dealloc];
+}
+
+
+- (void)setFont:(NSFont*)font
+{
+  [mFont autorelease];
+  mFont = [font retain];
 }
 
 /*
@@ -212,6 +254,8 @@ static void selected_record_changed(MResultsetViewer *self)
     [mTableView selectionChangedActionTarget:self];
     [mTableView setSelectionChangedAction:@selector(handleNSTableViewSelectionIsChangingNotification:)];
     [mTableView setAllowsMultipleSelection: YES];
+
+    [[mTableView enclosingScrollView] setBorderType: NSNoBorder];
     
     mforms::ToolBar *tbar = (*mData)->get_toolbar();
     if (tbar->find_item("record_edit"))
@@ -220,6 +264,7 @@ static void selected_record_changed(MResultsetViewer *self)
       tbar->find_item("record_add")->signal_activated()->connect(boost::bind(record_add, self));
       tbar->find_item("record_del")->signal_activated()->connect(boost::bind(record_del, self));
     }
+    [self rebuildColumns];
     //onRefresh(self);
   }
   return self;
@@ -293,8 +338,6 @@ static void selected_record_changed(MResultsetViewer *self)
         int column = [mTableView selectedColumnIndex]-1;
         if (column >= 0)
         {
-          [mTableView setIndicatorImage:ascendingSortIndicator 
-                          inTableColumn:[[mTableView tableColumns] objectAtIndex:column]];
           (*mData)->sort_by(column, 1, false);
         }
       }
@@ -303,8 +346,6 @@ static void selected_record_changed(MResultsetViewer *self)
         int column = [mTableView selectedColumnIndex]-1;
         if (column >= 0)
         {
-          [mTableView setIndicatorImage:descendingSortIndicator
-                          inTableColumn:[[mTableView tableColumns] objectAtIndex:column]];
           (*mData)->sort_by(column, -1, false);
         }
       }
@@ -325,7 +366,7 @@ static void selected_record_changed(MResultsetViewer *self)
 
 - (void)refresh
 {
-  [self rebuildColumns];
+//  [self rebuildColumns];
   [mTableView reloadData];
 }
 
@@ -473,9 +514,9 @@ static int onRefresh(MResultsetViewer *self)
         break;
       }
     }
-    if (0 == sort_order)
-      [mTableView setIndicatorImage:nil inTableColumn:tableColumn];
     (*mData)->sort_by(column_index, sort_order, true);
+
+    [self setHeaderIndicator: sort_order forColumn: column_index];
   }
   else
   {

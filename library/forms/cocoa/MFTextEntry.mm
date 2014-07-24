@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -148,6 +148,8 @@
   return self;
 }
 
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+
 - (mforms::Object*)mformsObject
 {
   return mOwner;
@@ -279,6 +281,44 @@ static void entry_set_bordered(mforms::TextEntry *self, bool flag)
   // Ignored on OS X.
 }
 
+
+static void entry_cut(mforms::TextEntry *self)
+{
+  MFTextEntryImpl* entry = self->get_data();
+  NSText *editor = [[entry window] fieldEditor:NO forObject:entry];
+  [editor cut: nil];
+}
+
+static void entry_copy(mforms::TextEntry *self)
+{
+  MFTextEntryImpl* entry = self->get_data();
+  NSText *editor = [[entry window] fieldEditor:NO forObject:entry];
+  [editor copy: nil];
+}
+
+static void entry_paste(mforms::TextEntry *self)
+{
+  MFTextEntryImpl* entry = self->get_data();
+  NSText *editor = [[entry window] fieldEditor:NO forObject:entry];
+  [editor paste: nil];
+}
+
+static void entry_select(mforms::TextEntry *self, const base::Range &range)
+{
+  MFTextEntryImpl* entry = self->get_data();
+  NSText *editor = [[entry window] fieldEditor:YES forObject:entry];
+  [editor setSelectedRange: NSMakeRange(range.position, range.size)];
+}
+
+static base::Range entry_get_selection(mforms::TextEntry *self)
+{
+  MFTextEntryImpl* entry = self->get_data();
+  NSText *editor = [[entry window] fieldEditor:NO forObject:entry];
+  NSRange r = [editor selectedRange];
+  return base::Range(r.location, r.length);
+}
+
+
 void cf_textentry_init()
 {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
@@ -291,6 +331,11 @@ void cf_textentry_init()
   f->_textentry_impl.set_placeholder_text= &entry_set_placeholder_text;
   f->_textentry_impl.set_placeholder_color = &entry_set_placeholder_color;
   f->_textentry_impl.set_bordered = &entry_set_bordered;
+  f->_textentry_impl.cut = &entry_cut;
+  f->_textentry_impl.copy = &entry_copy;
+  f->_textentry_impl.paste = &entry_paste;
+  f->_textentry_impl.select = &entry_select;
+  f->_textentry_impl.get_selection = &entry_get_selection;
 }
 
 

@@ -73,6 +73,10 @@
                   <argument name="background" type="int"/>
                   <return type="void"/>
               </method>
+
+              <method name="createCPyConnection" attr:desc="Open a Connector/Python connection to the same instance the editor is connected to">
+                  <return type="object" struct-name="grt.PyObject"/>
+              </method>
           </members>
       </gstruct>
 
@@ -101,13 +105,20 @@
       </gstruct>
       <gstruct name="db.query.QueryEditor" impl-data="1" parent="db.query.QueryBuffer">
           <members>
-              <member name="resultsets" type="list" content-type="object" content-struct-name="db.query.Resultset" owned="1" attr:desc="list of open resultsets. This list cannot be modified"/>
-              <member name="activeResultset" type="object" struct-name="db.query.Resultset" attr:desc="resultset that is currently selected in UI"/>
-              <member name="resultDockingPoint" type="object" struct-name="mforms.ObjectReference"/>
+              <member name="resultPanels" type="list" content-type="object" content-struct-name="db.query.ResultPanel" owned="1" attr:desc="list of open query result panels. Result panels contain the resultset grid and other views" />
+              <member name="activeResultPanel" type="object" struct-name="db.query.ResultPanel" attr:desc="result panel that is currently selected in UI"/>
+              <member name="resultDockingPoint" type="object" owned="1" struct-name="mforms.ObjectReference"/>
+          </members>
+      </gstruct>
+
+      <gstruct name="db.query.ResultPanel" impl-data="1" parent="GrtObject" attr:desc="the GUI object that holds a query resultset and other related things">
+          <members>
+              <member name="resultset" type="object" owned="1" struct-name="db.query.Resultset" attr:desc="the resultset grid. May be NULL"/>
+              <member name="dockingPoint" type="object" owned="1" struct-name="mforms.ObjectReference" attr:desc="docking point for plugins to insert new tabs. The string argument of dock_view must point to an icon file."/>
           </members>
       </gstruct>
  
-      <gstruct name="db.query.Resultset" impl-data="1" parent="GrtObject" attr:desc="a database resultset. This object does not allow changes to the resultset, if you need to edit the resultset, see \ref db_query_EditableResultset">
+      <gstruct name="db.query.Resultset" impl-data="1" parent="GrtObject" attr:desc="a query resultset. This object does not allow changes to the resultset, if you need to edit the resultset, see \ref db_query_EditableResultset">
           <members>        
               <member name="sql" type="string" read-only="1" calculated="1" delegate-get="1" attr:desc="the SQL statement that generated this resultset"/>   
               <member name="columns" type="list" owned="1"  content-struct-name="db.query.ResultsetColumn" content-type="object" read-only="1" attr:desc="the columns of the resultset"/>

@@ -52,7 +52,7 @@ RecordsetView::~RecordsetView()
 
 void RecordsetView::init()
 {
-  _grid= GridView::create(_model, false); // XXX put back to true when column-autosizing is fixed
+  _grid= GridView::create(_model, false);
   _grid->get_selection()->set_mode(Gtk::SELECTION_MULTIPLE);
 
   _grid->_copy_func_ptr = sigc::mem_fun(this,&RecordsetView::copy);
@@ -125,7 +125,7 @@ void RecordsetView::reset()
 
 void RecordsetView::refresh()
 {
-  _grid->refresh(true);
+  _grid->refresh(false);
 
   // calculate the height of a row with single line of text
   if (_grid->view_model()->row_numbers_visible())
@@ -184,7 +184,7 @@ bool RecordsetView::on_event(GdkEvent *event)
     _grid->current_cell(row, col);
 
     _model->update_selection_for_menu(rows, col);
-    _model->get_context_menu()->popup_at(event->button.x, event->button.y);
+    _model->get_context_menu()->popup_at(NULL, base::Point(event->button.x, event->button.y));
 
     processed= true;
   }
@@ -323,12 +323,6 @@ void RecordsetView::on_record_sort_desc()
 
 void RecordsetView::on_toggle_vertical_sizing()
 {
-  if (!_grid->get_fixed_height_mode())
-  {
-    std::vector<Gtk::TreeViewColumn*> columns = _grid->get_columns();
-    for (std::vector<Gtk::TreeViewColumn*>::iterator iter = columns.begin(); iter != columns.end(); ++iter)
-      (*iter)->set_sizing(Gtk::TREE_VIEW_COLUMN_FIXED);
-  }
   _grid->set_fixed_height_mode(!_grid->get_fixed_height_mode());
   refresh();
 }
@@ -338,7 +332,7 @@ void RecordsetView::set_fixed_row_height(int height)
   if (_grid && _grid->view_model())
   {
     std::vector<Gtk::TreeViewColumn*> columns = _grid->get_columns();
-    if (_grid->view_model()->row_numbers_visible())
+    if (_grid->view_model()->row_numbers_visible() && !columns.empty())
       columns.erase(columns.begin());
 
     for (std::vector<Gtk::TreeViewColumn*>::iterator iter = columns.begin(); iter != columns.end(); ++iter)

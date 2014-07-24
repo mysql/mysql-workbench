@@ -20,6 +20,7 @@
 #include "wf_base.h"
 #include "wf_view.h"
 #include "wf_form.h"
+#include "wf_box.h"
 #include "wf_utilities.h"
 
 using namespace System;
@@ -40,14 +41,6 @@ private:
 public:
   FormWrapper *wrapper;
   delegate Windows::Forms::DialogResult ShowModalDelegate(Windows::Forms::IWin32Window ^parent);
-
-  //------------------------------------------------------------------------------------------------
-
-  ~FillForm()
-  {
-    mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
-    backend->release();
-  }
 
   //------------------------------------------------------------------------------------------------
 
@@ -142,7 +135,7 @@ public:
     mforms::Form *backend = FormWrapper::GetBackend<mforms::Form>(this);
     if (wrapper->hide_on_close())
     {
-      args->Cancel= true;
+      args->Cancel = true;
       Hide();
     }
 
@@ -378,7 +371,8 @@ bool FormWrapper::run_modal(mforms::Form *backend, mforms::Button *accept,mforms
     }
 
     mforms::Utilities::enter_modal_loop();
-    dialog_result = form->ShowDialog(wrapper->owner);
+    Windows::Forms::Form ^owner = (Windows::Forms::Form ^)wrapper->owner;
+    dialog_result = form->ShowDialog(owner);
     mforms::Utilities::leave_modal_loop();
   }
 
@@ -439,6 +433,38 @@ bool FormWrapper::hide_on_close()
   return hideOnClose;
 }
 
+//--------------------------------------------------------------------------------------------------\
+
+void FormWrapper::set_menubar(mforms::Form *backend, mforms::MenuBar *menubar)
+{
+  mforms::Box *content = dynamic_cast<mforms::Box*>(backend->get_content());
+  if (!content)
+    throw std::invalid_argument("set_menubar() must be called after a toplevel content box has been added to the window");
+
+  MySQL::Controls::DrawablePanel ^menuPanel;
+  {
+    // wrap menubar inside a container that will give it a background color
+    Control ^control = BoxWrapper::GetControl(menubar);
+
+    menuPanel = gcnew MySQL::Controls::DrawablePanel();
+    menuPanel->BackColor = Color::Transparent;
+    menuPanel->CustomBackground = true;
+    menuPanel->Dock = DockStyle::Top;
+    menuPanel->AutoSize = true;
+
+    control->BackColor = Conversions::GetApplicationColor(ApplicationColor::AppColorMainTab, false);
+
+    menuPanel->Controls->Add(control);
+    control->Dock = DockStyle::Top;
+    control->AutoSize = true;
+  }
+
+  LayoutBox ^box = BoxWrapper::GetManagedObject<LayoutBox>(content);
+  box->Add(menuPanel, false, true);
+  //TODO reorder the menuPanel to the top
+  content->set_layout_dirty(true);
+}
+
 //--------------------------------------------------------------------------------------------------
 
 void FormWrapper::init()
@@ -454,4 +480,5 @@ void FormWrapper::init()
   f->_form_impl.end_modal = &FormWrapper::end_modal;
   f->_form_impl.center = &FormWrapper::center;
   f->_form_impl.flush_events = &FormWrapper::flush_events;
+  f->_form_impl.set_menubar = &FormWrapper::set_menubar;
 }

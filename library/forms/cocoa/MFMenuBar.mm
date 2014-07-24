@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -329,11 +329,11 @@ static void remove_item(MenuBase *aitem, MenuItem *asubitem)
   }
 }
 
-static void popup_menu(ContextMenu *menu, int x, int y)
+static void popup_at(ContextMenu *menu, View *owner, base::Point location)
 {
   [NSMenu popUpContextMenu: menu->get_data()
                  withEvent: [NSApp currentEvent]
-                   forView: nil];
+                   forView: owner->get_data()];
 }
 
 
@@ -396,7 +396,7 @@ void cf_menubar_init()
   f->_menu_item_impl.insert_item = insert_item;
   f->_menu_item_impl.remove_item = remove_item;
 
-  f->_menu_item_impl.popup_menu = popup_menu;
+  f->_menu_item_impl.popup_at = popup_at;
 }
 
 

@@ -69,6 +69,7 @@ HyperTextImpl::HyperTextImpl(HyperText* self)
   _win.add(_text);
   _win.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
   _text.show();
+  _text.set_editable(false);
 }
 
 //------------------------------------------------------------------------------
@@ -153,7 +154,9 @@ void HyperTextImpl::set_markup_text(HyperText *self, const std::string &text)
 {
   HyperTextImpl *impl = self->get_data<HyperTextImpl>();
   if (impl)
+  {
     impl->_text.get_buffer()->set_text(strip_html(text));
+  }
 }
 
 //------------------------------------------------------------------------------

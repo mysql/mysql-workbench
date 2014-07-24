@@ -102,6 +102,7 @@ grt::IntegerRef db_query_Editor::addToOutput(const std::string &text, ssize_t br
   return grt::IntegerRef(0);
 }
 
+
 db_query_EditableResultsetRef db_query_Editor::createTableEditResultset(const std::string &schema, const std::string &table, const std::string &where, ssize_t showGrid)
 {
   if (_data)
@@ -165,3 +166,10 @@ void db_query_Editor::executeCommand(const std::string &sql, ssize_t log, ssize_
   if (_data)
   _data->executeCommand(sql, log != 0, background != 0);
 }
+
+
+grt_PyObjectRef db_query_Editor::createCPyConnection()
+{
+  return _data->createCPyConnection();
+}
+

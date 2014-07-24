@@ -41,6 +41,7 @@ namespace mforms
 
 class SpatialDrawBox;
 class SqlEditorResult;
+class SqlEditorForm;
 class ProgressPanel;
 
 class SpatialDataView : public mforms::Box

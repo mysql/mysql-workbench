@@ -30,13 +30,24 @@ MenuBase::MenuBase()
 MenuBase::~MenuBase()
 {
   for (std::vector<MenuItem*>::iterator iter = _items.begin(); iter != _items.end(); ++iter)
+  {
     (*iter)->release();
+  }
   _items.clear();  
 }
 
 MenuItem *MenuBase::add_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name)
 {
   MenuItem *item = manage(new MenuItem(title));
+  item->signal_clicked()->connect(action);
+  add_item(item);
+  item->set_name(name);
+  return item;
+}
+
+MenuItem *MenuBase::add_check_item_with_title(const std::string &title, boost::function<void ()> action, const std::string &name)
+{
+  MenuItem *item = manage(new MenuItem(title, CheckedMenuItem));
   item->signal_clicked()->connect(action);
   add_item(item);
   item->set_name(name);
@@ -177,6 +188,7 @@ std::string MenuItem::get_title()
   
 void MenuItem::set_shortcut(const std::string &shortcut)
 {
+  _shortcut = shortcut;
   _impl->set_shortcut(this, shortcut);
 }
 
@@ -278,8 +290,7 @@ void ContextMenu::will_show_submenu_from(MenuItem *item)
   _signal_will_show(item);
 }
 
-
-void ContextMenu::popup_at(int x, int y)
+void ContextMenu::popup_at(View *owner, base::Point location)
 {
-  _impl->popup_menu(this, x, y);
+  _impl->popup_at(this, owner, location);
 }

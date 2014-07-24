@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,7 @@
 #import "MFMForms.h"
 #include "base/string_utilities.h"
 
+#import "MFView.h"
 #import "MFCodeEditor.h"
 #import "NSString_extras.h"
 #import "MVerticalLayoutView.h"
@@ -28,6 +29,27 @@
 #import "InfoBar.h"
 
 using namespace mforms;
+
+
+// hack in find panel support to the code editor
+@interface SCIContentView (mforms_extras)
+- (void)performFindPanelAction:(id)sender;
+@end
+
+@implementation SCIContentView (mforms_extras)
+- (void)performFindPanelAction:(id)sender
+{
+  if ([sender tag] == NSFindPanelActionShowFindPanel)
+  {
+    id parent = [[[self superview] superview] superview];
+    if ([parent isKindOfClass: [MFCodeEditor class]])
+    {
+      [parent showFindPanel: NO];
+    }
+  }
+}
+@end
+
 
 //--------------------------------------------------------------------------------------------------
 
@@ -39,11 +61,13 @@ using namespace mforms;
   self = [super initWithFrame: frame];
   if (self)
   {
-    mfOwner = codeEditor;
-    mfOwner->set_data(self);
+    mOwner = codeEditor;
+    mOwner->set_data(self);
   }
   return self;
 }
+
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 // for MVerticalLayoutView
 - (BOOL)expandsOnLayoutVertically:(BOOL)flag
@@ -53,7 +77,7 @@ using namespace mforms;
 
 - (NSMenu*) menuForEvent: (NSEvent*) theEvent
 {
-  mforms::Menu* menu = mfOwner->get_context_menu();
+  mforms::Menu* menu = mOwner->get_context_menu();
   if (menu != NULL)
   {
     (*menu->signal_will_show())();
@@ -67,39 +91,24 @@ using namespace mforms;
 - (void)notification: (Scintilla::SCNotification*)notification
 {
   [super notification: notification];
-  if (!mfOwner->is_destroying())
-    mfOwner->on_notify(notification);
+  if (!mOwner->is_destroying())
+    mOwner->on_notify(notification);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 - (void)command: (int)code
 {
-  if (!mfOwner->is_destroying())
-    mfOwner->on_command(code);
+  if (!mOwner->is_destroying())
+    mOwner->on_command(code);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 - (void)showFindPanel: (bool)doReplace;
 {
-  if (!mfOwner->is_destroying())
-    mfOwner->show_find_panel(doReplace);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-// XXX these two should be in ScintillaView
-- (BOOL)becomeFirstResponder
-{
-  [[self window] makeFirstResponder: [self content]];
-  return YES;
-}
-
-
-- (BOOL)resignFirstResponder
-{
-  return [[self content] resignFirstResponder];
+  if (!mOwner->is_destroying())
+    mOwner->show_find_panel(doReplace);
 }
 
 //--------------------------------------------------------------------------------------------------

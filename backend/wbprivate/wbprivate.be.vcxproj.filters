@@ -244,6 +244,15 @@
     <ClInclude Include="sqlide\spatial_data_view.h">
       <Filter>Header Files Spatial Support</Filter>
     </ClInclude>
+    <ClInclude Include="sqlide\result_form_view.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\wb_sql_editor_panel.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlide\execute_routine_wizard.h">
+      <Filter>Header Files SQL IDE</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\frontend\common\advanced_sidebar.cpp">
@@ -444,7 +453,6 @@
     <ClCompile Include="sqlide\wb_sql_editor_tree_controller.cpp">
       <Filter>Source Files SQL IDE</Filter>
     </ClCompile>
-    <ClCompile Include="workbench\stdafx.cpp" />
     <ClCompile Include="sqlide\spatial_data_view.cpp">
       <Filter>Source Files Spatial Support</Filter>
     </ClCompile>
@@ -454,5 +462,18 @@
     <ClCompile Include="sqlide\spatial_draw_box.cpp">
       <Filter>Source Files Spatial Support</Filter>
     </ClCompile>
+    <ClCompile Include="sqlide\result_form_view.cpp">
+      <Filter>Source Files SQL IDE</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\wb_sql_editor_panel.cpp">
+      <Filter>Source Files SQL IDE</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlide\execute_routine_wizard.cpp">
+      <Filter>Source Files SQL IDE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\frontend\common\grt_plugin_wizard.cpp">
+      <Filter>Source Files UI</Filter>
+   </ClCompile>
+    <ClCompile Include="workbench\stdafx.cpp" />
   </ItemGroup>
 </Project>

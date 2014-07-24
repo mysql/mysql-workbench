@@ -333,6 +333,14 @@ void ViewImpl::on_focus_grab()
   }
 }
 
+bool ViewImpl::has_focus(mforms::View *self)
+{
+  ViewImpl *view = self->get_data<ViewImpl>();
+  if (view)
+    return view->get_inner()->has_focus();
+  return false;
+}
+
 bool ViewImpl::on_button_release(GdkEventButton* btn)
 {
   if(_last_btn_down)
@@ -984,6 +992,7 @@ void ViewImpl::init()
 //  f->_view_impl.set_allow_drag       = &ViewImpl::set_allow_drag;
   f->_view_impl.register_drop_formats = &ViewImpl::register_drop_formats;
   f->_view_impl.focus                 = &ViewImpl::focus;
+  f->_view_impl.has_focus             = &ViewImpl::has_focus;
 };
 
 

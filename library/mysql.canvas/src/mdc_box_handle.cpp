@@ -18,6 +18,8 @@
  */
 
 #include "mdc_box_handle.h"
+#include "mdc_interaction_layer.h"
+#include "mdc_canvas_view.h"
 
 using namespace mdc;
 using namespace base;
@@ -37,19 +39,23 @@ BoxHandle::~BoxHandle()
 Rect BoxHandle::get_bounds() const
 {
   Rect r;
+
+  // try to unscale the zoom factor, so the handles are +/- the same size regardless of the zoom level
   if (_draggable)
   {
-    r.pos.x= _pos.x - 3.5;
-    r.pos.y= _pos.y - 3.5;
-    r.size.width= 8;
-    r.size.height= 8;
+    double size = floor(8 / _layer->get_view()->get_zoom());
+    r.pos.x= _pos.x - size/2;
+    r.pos.y= _pos.y - size/2;
+    r.size.width= size;
+    r.size.height= size;
   }
   else
   {
-    r.pos.x= _pos.x - 2.5;
-    r.pos.y= _pos.y - 2.5;
-    r.size.width= 6;
-    r.size.height= 6;
+    double size = floor(6 / _layer->get_view()->get_zoom());
+    r.pos.x= _pos.x - size/2;
+    r.pos.y= _pos.y - size/2;
+    r.size.width= size;
+    r.size.height= size;
   }
   return r;
 }

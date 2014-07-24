@@ -2023,15 +2023,6 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="itemType">separator</value>
         </value>
 
-        <!--value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.explain"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Explain (All or Selection)</value> 
-          <value type="string" key="name">query.explain</value> 
-          <value type="string" key="command">builtin:query.explain</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut">Modifier+Alt+Shift+Return</value>
-        </value--> 
-
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.explain_current_statement"> 
           <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
           <value type="string" key="caption">Explain Current Statement</value> 
@@ -2040,15 +2031,6 @@ value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.view.fkhili
           <value type="string" key="itemType">action</value> 
           <value type="string" key="shortcut">Modifier+Alt+X</value>
         </value> 
-
-        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.query.visual_explain"> 
-          <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.query</link> 
-          <value type="string" key="caption">Visual Explain Current Statement</value> 
-          <value type="string" key="name">query.visual_explain</value> 
-          <value type="string" key="command">plugin:wb.sqlide.visual_explain</value> 
-          <value type="string" key="itemType">action</value> 
-          <value type="string" key="shortcut">Modifier+Alt+Shift+X</value>
-        </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.query.stopsep">
           <value type="string" key="itemType">separator</value>

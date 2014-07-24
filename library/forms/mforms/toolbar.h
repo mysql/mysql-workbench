@@ -51,12 +51,13 @@ namespace mforms {
     SeparatorItem,
     ExpanderItem,
     ImageBoxItem,
-#ifdef __APPLE__
-    TitleItem
+#ifdef __linux__
+    TitleItem = LabelItem // TODO implement specific TitleItem (bold with #333333 color) for Linux
 #else
-    TitleItem = LabelItem // TODO implement specific TitleItem (bold with #333333 color) for Windows, Linux
+    TitleItem
 #endif
   };
+
 #ifndef SWIG
   struct MFORMS_EXPORT ToolBarImplPtrs
   {

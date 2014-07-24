@@ -373,10 +373,10 @@ TEST_FUNCTION(30)
  
   tester.open_all_diagrams();
 
-  ensure_equals("loaded 1 schema", tester.get_catalog()->schemata().count(), 1);
+  ensure_equals("loaded 1 schema", tester.get_catalog()->schemata().count(), (size_t)1);
 
   std::list<db_DatabaseObjectRef> objects;
-  ensure_equals("loaded model correctly", tester.get_schema()->tables().count(), 2);
+  ensure_equals("loaded model correctly", tester.get_schema()->tables().count(), (size_t)2);
   objects.push_back(grt::find_named_object_in_list(tester.get_schema()->tables(), "table1"));
   ensure("found table", objects.front().is_valid());
   ensure_equals("found correct table", *objects.front()->name(), "table1");

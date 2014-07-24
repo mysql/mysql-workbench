@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
  
-#ifdef ENABLE_PYTHON_MODULES
 #include "python_context.h"
 #include "base/string_utilities.h"
 
@@ -123,6 +122,10 @@ static PyObject* function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
   catch (sql::SQLException &exc)
   {
     PythonContext::set_python_error(exc, strfmt("%s.%s()", self->module->name().c_str(), self->function->name.c_str()));
+    return NULL;
+  }
+  catch (grt::python_error)
+  {
     return NULL;
   }
   catch (std::exception &exc)
@@ -462,8 +465,3 @@ void grt::PythonContext::init_grt_module_type()
     _grt_function_class= PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Function");
   }    
 }
-
-
-
-#endif
-

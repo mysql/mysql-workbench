@@ -59,6 +59,8 @@ namespace mforms
     
     int add_item(const std::string &title, const std::string &sub_title,
                   const std::string &icon_path, const std::string &alt_icon_path);
+    void remove_item(int index);
+
     void set_icon(int index, const std::string &icon_path, const std::string &alt_icon_path);
 
     void set_selected(int index);

@@ -92,10 +92,6 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
     lexer = "SCLEX_HTML";
     break;
 
-  case mforms::LanguageLua:
-    lexer = "SCLEX_LUA";
-    break;
-
   case mforms::LanguagePython:
     lexer = "SCLEX_PYTHON";
     break;
@@ -664,10 +660,6 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language)
     _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_HTML, 0);
     break;
 
-  case mforms::LanguageLua:
-    _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_LUA, 0);
-    break;
-
   case mforms::LanguagePython:
     _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_PYTHON, 0);
     break;
@@ -1020,8 +1012,13 @@ void CodeEditor::on_notify(SCNotification* notification)
 
     }
     break;
+
+  case SCN_FOCUSIN:
+    focus_changed();
+    break;
+
   case SCN_FOCUSOUT:
-    _signal_lost_focus();
+    _signal_lost_focus(); // For validation, parsing etc.
     break;
   }
 }

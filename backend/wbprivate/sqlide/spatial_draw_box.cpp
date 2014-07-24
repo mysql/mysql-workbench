@@ -541,7 +541,7 @@ bool SpatialDrawBox::mouse_down(mforms::MouseButton button, int x, int y)
     if (_menu)
     {
       std::pair<int,int> p = client_to_screen(x, y);
-      _menu->popup_at(p.first, p.second);
+      _menu->popup_at(this, base::Point(p.first, p.second));
     }
   }
   else if (button == mforms::MouseButtonOther)

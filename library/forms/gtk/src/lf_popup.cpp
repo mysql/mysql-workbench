@@ -194,7 +194,7 @@ bool PopupImpl::mouse_button_event(GdkEventButton *event)
       return false;
     }
 
-    mforms::MouseButton mbtn;
+    mforms::MouseButton mbtn = MouseButtonOther;
     switch (event->button) // button number assumptions from starter icon code
     {
     case 1: mbtn = MouseButtonLeft; break;

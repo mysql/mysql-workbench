@@ -462,7 +462,7 @@ void AutoCompleteCache::refresh_schemas_w()
         {
           schemas.push_back(rs->getString(1));
         }
-        log_debug2("Found %zi schemas.\n", schemas.size()); 
+        log_debug2("Found %li schemas.\n", (long)schemas.size()); 
       }
       else
         log_debug2("No schema found.\n");
@@ -493,7 +493,7 @@ void AutoCompleteCache::refresh_tables_w(const std::string &schema)
           // automatically trigger fetch of columns for this table
           add_pending_refresh(schema + "\n" + table);
         }
-        log_debug2("updating %zi tables...\n", tables.size());
+        log_debug2("updating %li tables...\n", (long)tables.size());
       }
       else
         log_debug2("no tables for %s\n", schema.c_str());

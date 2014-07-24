@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,6 +42,10 @@ namespace MySQL {
       virtual void undock_view(Object ^represented_object, AppViewDockContent ^view) = 0;
       virtual void set_view_title(Object ^represented_object, AppViewDockContent ^view, String ^title) = 0;
       virtual Drawing::Size get_size(Object ^represented_object) = 0;
+
+	  virtual int view_count() = 0;
+	  virtual AppViewDockContent ^view_at_index(int i) = 0;
+      virtual AppViewDockContent ^selected_view() = 0;
     };
 
   }

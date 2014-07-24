@@ -87,8 +87,8 @@ public:
   typedef boost::function<grt::StringRef (grt::GRT *)> Proc_cb;
   typedef boost::function<int (int, const std::string&, const std::string&)> Msg_cb;
   typedef boost::function<int (float, const std::string&)> Progress_cb;
-  typedef boost::function<int ()> Finish_cb;
-  typedef boost::function<int (const std::string&)> Fail_cb;
+  typedef boost::function<void ()> Finish_cb;
+  typedef boost::function<void (const std::string&)> Fail_cb;
 
 public:
   void exec(bool sync= false, Proc_cb proc_cb= Proc_cb());
@@ -100,8 +100,8 @@ public:
   const Msg_cb &msg_cb() { return _msg_cb; }
   
   void progress_cb(Progress_cb cb) { _progress_cb= cb; }
-  void finish_cb(Finish_cb cb) { _finish_cb= cb; }
-  void fail_cb(Fail_cb cb) { _fail_cb= cb; }
+  void finish_cb(Finish_cb cb, bool onetime=false) { _finish_cb= cb; _onetime_finish_cb = onetime; }
+  void fail_cb(Fail_cb cb, bool onetime=false) { _fail_cb= cb; _onetime_fail_cb = onetime; }
   void proc_cb(Proc_cb cb) { _proc_cb= cb; }
 
 private:
@@ -114,7 +114,9 @@ private:
   Msg_cb _msg_cb;
   Progress_cb _progress_cb;
   Finish_cb _finish_cb;
+  bool _onetime_finish_cb;
   Fail_cb _fail_cb;
+  bool _onetime_fail_cb;
 
 public:
   void execute_in_main_thread(const boost::function<void ()> &function, bool wait, bool force_queue);

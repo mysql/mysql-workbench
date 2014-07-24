@@ -115,7 +115,7 @@ void InteractionLayer::repaint(const Rect &bounds)
     fill_hollow_rectangle(cr, Rect(Point(0, 0), vsize), _active_area);
     cr->restore();
   }
-  
+
   _owner->lock();
   for (std::list<ItemHandle*>::iterator iter= _handles.begin(); iter != _handles.end(); ++iter)
   {

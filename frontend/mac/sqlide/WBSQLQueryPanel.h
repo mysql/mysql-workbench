@@ -31,7 +31,6 @@
 @class WBSplitViewUnbrokenizerDelegate;
 @class WBMiniToolbar;
 @class GRTListDataSource;
-@class WBQueryTab;
 
 namespace mforms
 {
@@ -87,15 +86,9 @@ namespace mforms
 
 - (void)addEditor:(WBBasePanel*)editor;
 
-//- (void)executeQuery:(id)sender currentStatementOnly: (bool) currentStatementOnly;
 - (id)initWithBE:(const SqlEditorForm::Ref&)be;
-- (MySQLEditor::Ref)activeEditor;
-- (WBQueryTab*)activeQueryTab;
-- (WBQueryTab*)queryTabForBackEndIndex:(int)index;
-- (void)addSQLEditorTabWithBackEndIndex:(int)index;
 - (void)setRightSidebar:(BOOL)flag;
 - (void)flushOutputBuffer;
-- (void)activateBusyAnimationForActiveEditor;
 
 @end
 

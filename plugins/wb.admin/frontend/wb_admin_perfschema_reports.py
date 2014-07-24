@@ -20,11 +20,41 @@ import grt
 import json
 
 import os
-from workbench.log import log_info, log_error, log_debug
+from workbench.log import log_error, log_debug
 
 from wb_admin_perfschema import WbAdminPSBaseTab
 
 from threading import Thread
+
+
+unit_formatters = {
+  "us"    : lambda x: "%.2f" % (x / 1000000.0),
+  "ms"    : lambda x: "%.2f" % (x / 1000000000.0),
+  "s"     : lambda x: "%.2f" % (x / 1000000000000.0),
+  "h:m:s" : lambda x: "%i:%02i:%.02f" % ((int)(x / (60*60*1000000000000.0)), (int)(x / (60*1000000000000.0)) % 60, (x / 1000000000000.0)%60),
+
+  "Bytes" : lambda x: "%.0f" % x,
+  "KB": lambda x: "%.2f" % (x / 1000.0),
+  "MB": lambda x: "%.2f" % (x / 1000000.0),
+  "GB": lambda x: "%.2f" % (x / 1000000000.0),
+}
+
+time_units = ["us", "ms", "s", "h:m:s"]
+byte_units = ["Bytes", "KB", "MB", "GB"]
+
+
+known_column_types = {
+  "Integer" :     (mforms.IntegerColumnType, None),
+  "LongInteger" : (mforms.LongIntegerColumnType, None),
+  "Float" :       (mforms.FloatColumnType, None),
+  
+  "Time" :        (mforms.NumberWithUnitColumnType, "us"),
+  "Bytes" :       (mforms.NumberWithUnitColumnType, "Bytes"),
+
+  "String" :      (mforms.StringColumnType, None),
+  "StringLT" :    (mforms.StringLTColumnType, None),
+  "NumberWithUnit" : (mforms.NumberWithUnitColumnType, None)
+}
 
 
 class PSHelperViewTab(mforms.Box):
@@ -44,14 +74,14 @@ class PSHelperViewTab(mforms.Box):
         self._busy = False
         self._tree = None
         self._title = None
-        self._cback = None
+        self._check_timeout = None
         self._wait_table = None
 
+
     def __del__(self):
-        if self._cback:
-            grt.cancel_run_from_main_thread(self._cback)
-            self._cback = None
-    
+        if self._check_timeout:
+            mforms.Utilities.cancel_timeout(self._check_timeout)
+            self._check_timeout = None
 
     def init_ui(self):
         if self._title:
@@ -75,22 +105,36 @@ class PSHelperViewTab(mforms.Box):
             
         self._tree = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
         self._tree.set_selection_mode(mforms.TreeSelectMultiple)
+        self._tree.add_column_resized_callback(self._tree_column_resized)
         c = 0
 
+        self._hmenu = mforms.newContextMenu()
+        self._hmenu.add_will_show_callback(self._header_menu_will_show)
+        self._tree.set_header_menu(self._hmenu)
+
         self._column_types = []
+        self._column_units = []
         self._column_names = []
         self._column_titles = []
-        self._column_formatters = []
-        for column, cname, ctype, length in self.get_view_columns():
-            format = None
+        for i, (column, cname, ctype, length) in enumerate(self.get_view_columns()):
+            unit = None
             if type(ctype) is tuple:
-                ctype, format = ctype
+                ctype, unit = ctype
+            unit = grt.root.wb.state.get("wb.admin.psreport:unit:%s:%i" % (self.view, i), unit)
+
+            width = min(max(length, 40), 300)
+            width = grt.root.wb.state.get("wb.admin.psreport:width:%s:%i" % (self.view, i), width)
+
             label = self.column_label(column)
+            self._column_units.append(unit)
             self._column_names.append(cname)
             self._column_titles.append(label)
             self._column_types.append(ctype)
-            self._column_formatters.append(format)
-            self._tree.add_column(ctype, label, min(max(length, 40), 300), False)
+
+            if unit:
+                self._tree.add_column(ctype, label + " (%s)" % unit, width, False)
+            else:
+                self._tree.add_column(ctype, label, width, False)
             c += 1
         self._tree.end_columns()
         self._tree.set_allow_sorting(True)
@@ -134,8 +178,15 @@ class PSHelperViewTab(mforms.Box):
             error = None
         except Exception, e:
             error = str(e)
-        self._cback = grt.run_from_main_thread(lambda error=error: self.run_query_finished(error))
+            log_error("Error executing '%s': %s\n" % (self.get_query(), error))
 
+
+    def check_if_finished(self):
+        self._check_timeout = None
+        if self.result is None:
+            return True
+        self.run_query_finished(None)
+        return False
 
     def do_refresh(self):
         self._refresh.set_text("Refresh")
@@ -194,7 +245,7 @@ class PSHelperViewTab(mforms.Box):
             self._wait_table.set_row_count(2)
             self._wait_table.set_column_count(1)
             self._wait_table.set_padding(-1)
-            self._wait_table.add(mforms.newLabel("Quering performance schema %s..." % self.caption.encode("utf8")), 0, 1, 0, 1, mforms.HFillFlag)
+            self._wait_table.add(mforms.newLabel("Querying performance schema %s..." % self.caption.encode("utf8")), 0, 1, 0, 1, mforms.HFillFlag)
             self._wait_table.add(self._pbar, 0, 1, 1, 2, mforms.HFillFlag)
         
             self.add(self._wait_table, True, True)
@@ -204,7 +255,9 @@ class PSHelperViewTab(mforms.Box):
             if self._refresh:
                 self._refresh.set_enabled(False)
 
+            self.result = None
             self._thr = Thread(target=self.run_query)
+            self._check_timeout = mforms.Utilities.add_timeout(1.0, self.check_if_finished)
             self._thr.start()
 
 
@@ -213,7 +266,6 @@ class PSHelperViewTab(mforms.Box):
 
         self._thr.join()
         self._thr = None
-        self._cback = None
 
         self._busy = False
         if self._refresh:
@@ -227,7 +279,6 @@ class PSHelperViewTab(mforms.Box):
                 self._wait_table = None
             mforms.Utilities.show_error("Error Executing Report Query", error, "OK", "", "")
             return
-
         self.init_ui()
         self._tree.clear()
         if result is not None:
@@ -242,18 +293,27 @@ class PSHelperViewTab(mforms.Box):
                             s = result.stringByName(self._column_names[i])
                             node.set_long(i, long(s) if s else 0)
                         elif self._column_types[i] == mforms.FloatColumnType:
-                            if self._column_formatters[i]:
-                                node.set_float(i, self._column_formatters[i](float(result.stringByName(self._column_names[i]))))
+                            unit = self._column_units[i]
+                            node.set_float(i, result.floatByName(self._column_names[i]))
+                        elif self._column_types[i] == mforms.NumberWithUnitColumnType:
+                            unit = self._column_units[i]
+                            if unit and unit_formatters[unit]:
+                                formatter = unit_formatters[unit]
+                                node.set_string(i, formatter(float(result.stringByName(self._column_names[i]))))
                             else:
-                                node.set_float(i, result.floatByName(self._column_names[i]))
+                                s = result.stringByName(self._column_names[i])
+                                if i == self._column_file and self._owner.instance_info.datadir:
+                                    s = s.replace(self._owner.instance_info.datadir, "<datadir>")
+                                node.set_string(i, s or "")
                         else:
                             s = result.stringByName(self._column_names[i])
                             if i == self._column_file and self._owner.instance_info.datadir:
                                 s = s.replace(self._owner.instance_info.datadir, "<datadir>")
                             node.set_string(i, s or "")
                     except Exception, e:
+                        import traceback
+                        traceback.print_exc()
                         log_error("Error handling column %i (%s) of report for %s: %s\n" % (i, cname, self.view, e))
-
 
     def get_view_columns(self):
         result = self._owner.ctrl_be.exec_query("DESCRIBE `%s`.%s" % (self._owner.sys, self.view))
@@ -299,6 +359,38 @@ class PSHelperViewTab(mforms.Box):
     def column_label(self, colname):
         return " ".join(s.capitalize() for s in colname.replace("_", " ").split(" "))
 
+    def _header_menu_will_show(self, parent):
+        column = self._tree.get_clicked_header_column()
+        
+        self._hmenu.remove_all()
+
+        item = self._hmenu.add_item_with_title("Set Display Unit", lambda: None, "change_unit")
+        unit = self._column_units[column]
+        if unit in time_units:
+            for label in time_units:
+                i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
+                if unit == label:
+                    i.set_checked(True)
+        elif unit in byte_units:
+            for label in byte_units:
+                i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
+                if unit == label:
+                    i.set_checked(True)
+        else:
+            item.set_enabled(False)
+
+
+    def _tree_column_resized(self, column):
+        if column >= 0:
+            width = self._tree.get_column_width(column)
+            grt.root.wb.state["wb.admin.psreport:width:%s:%i" % (self.view, column)] = width
+
+    def _change_unit(self, column, unit):
+        self._tree.set_column_title(column, self._column_titles[column] + " (%s)" % unit)
+        self._column_units[column] = unit
+        grt.root.wb.state["wb.admin.psreport:unit:%s:%i" % (self.view, column)] = unit
+        self.refresh()
+
 
 
 js_column_types = {
@@ -330,7 +422,7 @@ class JSSourceHelperViewTab(PSHelperViewTab):
             self.query += " limit %s" % data["limit"]
         self.columns = []
         for label, name, type, width in data["columns"]:
-            self.columns.append((label, name, js_column_types[type], width))
+            self.columns.append((label, name, known_column_types[type], width))
 
 
     def column_label(self, label):
@@ -349,6 +441,7 @@ class JSSourceHelperViewTab(PSHelperViewTab):
                 log_error("report '%s' is missing column list\n" % self.caption)
                 return []
             return PSHelperViewTab.get_view_columns(self)
+
 
 
 class WbAdminPerformanceSchema(WbAdminPSBaseTab):
@@ -439,56 +532,6 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
             parent.expand()
 
         print "The following views are not handled", set([v for v in known_views if not v[0]=='-' and not v.endswith("_raw")]) - set(["wbversion", "version"])
-
-
-    def ps_usable_for_reports(self):
-        ret_val = False
-        try:
-            res = self.main_view.editor.executeManagementQuery("""
-                -- consumers
-                SELECT
-                    (SELECT COUNT(*) = 0 FROM performance_schema.setup_consumers WHERE (NAME LIKE 'events_%_current' OR NAME LIKE 'events_%_history_long') AND enabled='NO')
-                AND
-                -- instrumentation
-                    (SELECT COUNT(*) > 0 FROM performance_schema.setup_instruments WHERE enabled='YES' AND timed='YES' AND (NAME LIKE 'wait/%'))
-                AND
-                    (SELECT COUNT(*) > 0 FROM performance_schema.setup_instruments WHERE enabled='YES' AND timed='YES' AND (NAME LIKE 'stage/%'))
-                AND
-                    (SELECT COUNT(*) > 0 FROM performance_schema.setup_instruments WHERE enabled='YES' AND timed='YES' AND
-                (NAME LIKE 'statement/%'))
-                """, 0)
-            if res.goToFirstRow():
-                log_debug("PS enable status check returned %s\n" % res.stringFieldValue(0))
-                ret_val = res.stringFieldValue(0) == "1"
-        except grt.DBError, e:
-            log_error("MySQL error checking status of PS instrumentation for reports: %s\n" % e)
-
-        return ret_val
-          
-          
-    def ps_enable_for_reports(self):
-        try:
-            log_info("Enabling PS for WB reporting functionality...\n")
-
-            # enable consumer tables
-            self.main_view.editor.executeManagementCommand("UPDATE performance_schema.setup_consumers SET enabled='YES' WHERE NAME LIKE 'events_%_current' OR NAME LIKE 'events_%_history_long'", 0)
-
-            # enable instrumentation
-            self.main_view.editor.executeManagementCommand("UPDATE performance_schema.setup_instruments SET enabled='YES', timed='YES' WHERE NAME LIKE 'wait/%' OR NAME LIKE 'stage/%' OR NAME LIKE 'statement/%'", 0)
-
-        except grt.DBError, e:
-            log_error("MySQL error enabling PS instrumentation: %s\n" % e)
-            mforms.Utilities.show_error("Error Enabling PS Instrumentation", str(e), "OK", "", "")
-        self.page_activated()
-
-
-    def check_usable(self):
-        if not self.ps_usable_for_reports():
-            message_data = ("Missing Instrumentation for Reporting", "The current Performance Schema configuration is missing some settings needed for performance reports.\nWould you like to enable them?\nNote: events will only be collected from the moment instrumentation is enabled.")
-            button_data = ("Enable Instrumentation for Reports", self.ps_enable_for_reports)
-            return message_data, button_data
-
-        return None, None
 
 
     def refresh(self):
