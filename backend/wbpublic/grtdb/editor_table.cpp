@@ -2214,6 +2214,9 @@ bool FKConstraintColumnsListBE::set_field(const NodeId &node, ColumnId column, c
       std::auto_ptr<AutoUndoEdit> undo;
 
       tcolumn= grt::find_named_object_in_list(fk->referencedTable()->columns(), value);
+      
+      if (tcolumn.is_valid() == false)
+        return false;
 
       // special handling for stub tables
       if (fk->referencedTable()->isStub() && !tcolumn.is_valid() && !_owner->get_owner()->is_editing_live_object())
