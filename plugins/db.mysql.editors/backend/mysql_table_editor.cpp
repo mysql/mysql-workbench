@@ -491,6 +491,7 @@ public:
     grt::replace_contents(_table->triggers(), sorted_triggers);
     _editor->thaw_refresh_on_object_change(true);
 
+    refresh();
     update_warning();
   }
 
