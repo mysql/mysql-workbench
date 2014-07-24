@@ -202,8 +202,10 @@ public:
   int sql_editor_count();
   int sql_editor_panel_index(SqlEditorPanel *panel);
 
-  virtual mforms::DragOperation drag_over(mforms::View *sender, base::Point p, const std::vector<std::string> &formats);
-  virtual mforms::DragOperation files_dropped(mforms::View *sender, base::Point p, const std::vector<std::string> &file_names);
+  virtual mforms::DragOperation drag_over(mforms::View *sender, base::Point p,
+    mforms::DragOperation allowedOperations, const std::vector<std::string> &formats);
+  virtual mforms::DragOperation files_dropped(mforms::View *sender, base::Point p,
+    mforms::DragOperation allowedOperations, const std::vector<std::string> &file_names);
 private:
   int count_connection_editors(const std::string& conn_name);
 

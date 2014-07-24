@@ -1,10 +1,9 @@
-#ifndef __grts_structs_workbench_model_h__
-#define __grts_structs_workbench_model_h__
+#pragma once
 
 #include <grtpp.h>
 
 #ifdef _WIN32
-  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list
+  #pragma warning(disable: 4355) // 'this' : used in base member initializer list
   #ifdef GRT_STRUCTS_WORKBENCH_MODEL_EXPORT
   #define GRT_STRUCTS_WORKBENCH_MODEL_PUBLIC __declspec(dllexport)
 #else
@@ -259,4 +258,3 @@ inline void register_structs_workbench_model_xml()
 static struct _autoreg__structs_workbench_model_xml { _autoreg__structs_workbench_model_xml() { register_structs_workbench_model_xml(); } } __autoreg__structs_workbench_model_xml;
 #endif
 
-#endif

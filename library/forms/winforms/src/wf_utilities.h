@@ -122,6 +122,7 @@ namespace MySQL {
     protected:
       UtilitiesWrapper();
 
+      static void beep();
       static int show_message(const std::string &title, const std::string &text, const std::string &ok, 
         const std::string &cancel, const std::string &other);
       static int show_error(const std::string &title, const std::string &text, const std::string &ok, 

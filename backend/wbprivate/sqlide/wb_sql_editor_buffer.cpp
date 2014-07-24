@@ -450,19 +450,22 @@ SqlEditorPanel* SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed
 //--------------------------------------------------------------------------------------------------
 
 mforms::DragOperation SqlEditorForm::drag_over(mforms::View *sender, base::Point p,
-  const std::vector<std::string> &formats)
+  mforms::DragOperation allowedOperations, const std::vector<std::string> &formats)
 {
   // We can accept dropped files.
   if (std::find(formats.begin(), formats.end(), mforms::DragFormatFileName) != formats.end())
-    return mforms::DragOperationCopy; // Copy to indicate we don't do anything with the files.
+    return allowedOperations & mforms::DragOperationCopy; // Copy to indicate we don't do anything with the files.
   return mforms::DragOperationNone;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::Point p,
-  const std::vector<std::string> &file_names)
+  mforms::DragOperation allowedOperations, const std::vector<std::string> &file_names)
 {
+  if ((allowedOperations & mforms::DragOperationCopy) != mforms::DragOperationCopy)
+    return mforms::DragOperationNone;
+
 #ifdef _WIN32
   bool case_sensitive = false; // TODO: on Mac case sensitivity depends on the file system.
 #else

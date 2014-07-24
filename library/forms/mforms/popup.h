@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_POPUP_H_
-#define _MFORMS_POPUP_H_
+#pragma once
 
 #include <mforms/base.h>
 #include <mforms/view.h>
@@ -89,5 +88,3 @@ namespace mforms
     boost::signals2::signal<void ()> _on_close; // Callback for non-modal popups.
   };
 };
-
-#endif // _MFORMS_POPUP_H_

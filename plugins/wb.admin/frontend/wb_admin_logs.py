@@ -220,8 +220,14 @@ class LogView(mforms.Box):
         try_again_button = newButton()
         try_again_button.set_text('Try again')
         self.error_box.add(try_again_button, False, False)
-        try_again_button.add_clicked_callback(self.update_ui)
+        try_again_button.add_clicked_callback(self.try_again)
         self.add(self.error_box, False, True)
+
+
+    def try_again(self):
+        self.update_ui()
+        self.refresh()
+
 
     def update_ui(self):
         # Clean up:
@@ -247,7 +253,8 @@ class LogView(mforms.Box):
         try:
             self.log_reader = self.BackendLogReaderClass(*self.args)
         except Exception, error:
-            log_error("Exception creating log reader: %s\n" % error)
+            import traceback
+            log_error("Exception creating log reader: %s\n%s\n" % (error, traceback.format_exc()))
             self._show_error("Unexpected error creating log reader: %s\n" % error)
             return
 
@@ -335,6 +342,11 @@ class LogView(mforms.Box):
         out(self.log_reader.current())
 
     def handle_worker_data(self, data):
+        if isinstance(data, Exception):
+            mforms.Utilities.show_error("Error Reading Log File",
+                                        "%s" % data, "OK", "", "")
+            self.worker = None            
+            return
         self.refresh(data)
         self.worker = None
 

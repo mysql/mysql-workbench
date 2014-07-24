@@ -83,11 +83,17 @@ void AppView::set_menubar(mforms::MenuBar *menu)
 {
   if (_menubar != menu)
   {
-    if (_menubar)
+    if (_menubar != NULL)
       _menubar->release();
     _menubar = menu;
-    if (menu)
-      _menubar->retain();
+
+    if (menu != NULL)
+    {
+      if (!menu->release_on_add())
+        _menubar->retain();
+      else
+        _menubar->set_release_on_add(false);
+    }
   }
 }
 
@@ -100,8 +106,14 @@ void AppView::set_toolbar(mforms::ToolBar *toolbar)
     if (_toolbar)
       _toolbar->release();
     _toolbar = toolbar;
-    if (toolbar)
-      _toolbar->retain();
+
+    if (toolbar != NULL)
+    {
+      if (!_toolbar->release_on_add())
+        _toolbar->retain();
+      else
+        _toolbar->set_release_on_add(false);
+    }
   }
 }
 

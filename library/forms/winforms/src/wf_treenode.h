@@ -77,22 +77,21 @@ namespace MySQL {
     private class TreeNodeWrapper : public mforms::TreeNode
     {
     private:
-      gcroot<Aga::Controls::Tree::TreeViewAdv ^> nativeTree;
-      gcroot<TreeViewNode ^> nativeNode;
+      gcroot<Aga::Controls::Tree::Node ^> nativeNode;    // The model node (implicitly there's always a model in TreeViewAdv).
+      gcroot<Aga::Controls::Tree::TreeNodeAdv ^> nativeNodeAdv; // The tree node for the model node.
 
       TreeNodeViewWrapper *treeWrapper;
 
       bool isRoot;
       int refCount;
     protected:
-      bool is_root() const;
-      Aga::Controls::Tree::TreeModel ^model() const;
-
+      virtual void add_children_from_skeletons(std::vector<TreeNodeWrapper> parents,
+        const std::vector<mforms::TreeNodeSkeleton>& children);
+      void node_changed(Aga::Controls::Tree::TreeNodeAdv ^new_node);
     public:
-      TreeNodeWrapper(TreeNodeViewWrapper *wrapper, TreeViewNode ^node);
+      TreeNodeWrapper(TreeNodeViewWrapper *wrapper, Aga::Controls::Tree::TreeNodeAdv ^node);
       TreeNodeWrapper(TreeNodeViewWrapper *wrapper);
   
-      Aga::Controls::Tree::TreeNodeAdv^ find_node_adv();
       int node_index();
 
       virtual void release();
@@ -100,8 +99,10 @@ namespace MySQL {
 
       virtual bool equals(const mforms::TreeNode &other);
       virtual bool is_valid() const;
+      virtual int level() const;
     
       virtual void set_icon_path(int column, const std::string &icon);
+      virtual void set_selected(bool flag);
 
       virtual void set_attributes(int column, const mforms::TreeNodeTextAttributes &attrs);
       virtual void set_string(int column, const std::string &value);
@@ -118,14 +119,17 @@ namespace MySQL {
     
       virtual int count() const;
       virtual mforms::TreeNodeRef insert_child(int index);
+      virtual void insert_child(int index, const mforms::TreeNode &child);
       virtual void remove_from_parent();
       virtual mforms::TreeNodeRef get_child(int index) const;
+      virtual int get_child_index(mforms::TreeNodeRef node) const;
       virtual mforms::TreeNodeRef get_parent() const;
+      virtual mforms::TreeNodeRef previous_sibling() const;
+      virtual mforms::TreeNodeRef next_sibling() const;
       virtual void remove_children();
 
       Drawing::Bitmap^ get_cached_icon(const std::string &icon_id);
       virtual std::vector<mforms::TreeNodeRef> add_node_collection(const mforms::TreeNodeCollectionSkeleton &nodes, int position = -1);
-      virtual void add_children_from_skeletons(array<MySQL::Forms::TreeViewNode^>^ parents, const std::vector<mforms::TreeNodeSkeleton>& children);
     
       virtual void expand();
       virtual void collapse();

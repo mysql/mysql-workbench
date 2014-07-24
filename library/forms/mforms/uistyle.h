@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __UISTYLE_H__
-#define __UISTYLE_H__
+#pragma once
 
 // Various constants for platform specific look & feel
 
@@ -58,8 +57,3 @@
 #define MF_PANEL_SMALL_PADDING 6
 
 #endif
-
-#endif
-
-
-

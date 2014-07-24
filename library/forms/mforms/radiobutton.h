@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_RADIOBUTTON_H_
-#define _MFORMS_RADIOBUTTON_H_
+
+#pragma once
 
 #include <mforms/base.h>
 #include <mforms/button.h>
@@ -85,5 +85,3 @@ namespace mforms {
 #endif
   };
 };
-
-#endif

@@ -38,7 +38,7 @@
 #include "sqlide/column_width_cache.h"
 
 #include "objimpl/db.query/db_query_Resultset.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 #include "base/string_utilities.h"
 #include "base/notifications.h"
@@ -2909,6 +2909,9 @@ void SqlEditorForm::note_connection_open_outcome(int error)
       break;
     case 2002: // CR_CONNECTION_ERROR
     case 2003: // CR_CONN_HOST_ERROR
+      new_state = PossiblyStoppedState;
+      break;
+    case 2013: // Lost packet blabla, can happen on failure when using ssh tunnel
       new_state = PossiblyStoppedState;
       break;
     default:

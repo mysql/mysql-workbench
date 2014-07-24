@@ -10,15 +10,6 @@
     <Filter Include="grt Header Files">
       <UniqueIdentifier>{5f660123-6c06-4938-bb28-42da529256d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="grt Source Files">
-      <UniqueIdentifier>{6b96c0d2-4a48-4242-bf36-c59cdf70ff45}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="grtb Header Files">
-      <UniqueIdentifier>{e938cd18-9f1b-4000-a683-c053a16aa9b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="grtb Source Files">
-      <UniqueIdentifier>{a8aae8af-d1d2-4571-91c8-3b27a2947f4b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="grtsqlparser Header Files">
       <UniqueIdentifier>{10bfd995-dec5-46db-b5c3-9a69314a675c}</UniqueIdentifier>
     </Filter>
@@ -43,6 +34,15 @@
     </Filter>
     <Filter Include="wbcanvas Source Files">
       <UniqueIdentifier>{ddd2cf6a-eb15-438d-a30f-a523abf6dd8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grtdb Header Files">
+      <UniqueIdentifier>{e938cd18-9f1b-4000-a683-c053a16aa9b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grt Source Files">
+      <UniqueIdentifier>{6b96c0d2-4a48-4242-bf36-c59cdf70ff45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grtdb Source Files">
+      <UniqueIdentifier>{a8aae8af-d1d2-4571-91c8-3b27a2947f4b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -111,12 +111,6 @@
       <Filter>Generated Source Files</Filter>
     </ClInclude>
     <ClInclude Include="objimpl\db.query\db_query_Resultset.h">
-      <Filter>Generated Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="objimpl\ui\grt_PyObject_impl.h">
-      <Filter>Generated Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="objimpl\ui\mforms_ObjectReference_impl.h">
       <Filter>Generated Source Files</Filter>
     </ClInclude>
     <ClInclude Include="objimpl\ui\ui_ObjectEditor_impl.h">
@@ -189,61 +183,61 @@
       <Filter>grt Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\catalog_templates.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\charset_list.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\charset_utils.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\db_helpers.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\db_object_filter.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\db_object_helpers.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\db_object_master_filter.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\dbobject_roles.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\diff_dbobjectmatch.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\editor_dbobject.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\editor_routine.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\editor_routinegroup.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\editor_schema.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\editor_table.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\editor_user.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\editor_user_role.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\editor_view.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\role_tree_model.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtdb\sync_profile.h">
-      <Filter>grtb Header Files</Filter>
+      <Filter>grtdb Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grtsqlparser\fk_ref.h">
       <Filter>grtsqlparser Header Files</Filter>
@@ -473,6 +467,18 @@
     <ClInclude Include="grtsqlparser\mysql_parser_services.h">
       <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\generated\grts\structs.wrapper.h">
+      <Filter>Generated Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\wrapper\mforms_ObjectReference_impl.h">
+      <Filter>Generated Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\wrapper\grt_PyObject_impl.h">
+      <Filter>Generated Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\wrapper\parser_ContextReference_impl.h">
+      <Filter>Generated Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="sqlide\column_width_cache.h">
       <Filter>sqlide Header Files</Filter>
     </ClInclude>
@@ -534,12 +540,6 @@
       <Filter>Generated Source Files</Filter>
     </ClCompile>
     <ClCompile Include="objimpl\model\model_Object.cpp">
-      <Filter>Generated Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="objimpl\ui\grt_PyObject.cpp">
-      <Filter>Generated Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="objimpl\ui\mforms_ObjectReference.cpp">
       <Filter>Generated Source Files</Filter>
     </ClCompile>
     <ClCompile Include="objimpl\ui\ui_db_ConnectPanel.cpp">
@@ -636,58 +636,58 @@
       <Filter>grt Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\charset_list.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\charset_utils.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\db_helpers.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\db_object_filter.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\db_object_helpers.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\db_object_master_filter.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\dbobject_roles.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\diff_dbobjectmatch.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\editor_dbobject.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\editor_routine.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\editor_routinegroup.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\editor_schema.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\editor_table.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\editor_user.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\editor_user_role.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\editor_view.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\role_tree_model.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtdb\sync_profile.cpp">
-      <Filter>grtb Source Files</Filter>
+      <Filter>grtdb Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grtsqlparser\module_utils.cpp">
       <Filter>grtsqlparser Source Files</Filter>
@@ -898,6 +898,15 @@
     </ClCompile>
     <ClCompile Include="grtsqlparser\mysql_parser_services.cpp">
       <Filter>grtsqlparser Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\wrapper\mforms_ObjectReference.cpp">
+      <Filter>Generated Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\wrapper\parser_ContextReference.cpp">
+      <Filter>Generated Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\wrapper\grt_PyObject.cpp">
+      <Filter>Generated Source Files</Filter>
     </ClCompile>
     <ClCompile Include="objimpl\GrtStoredNote.cpp">
       <Filter>Generated Source Files</Filter>

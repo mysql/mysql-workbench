@@ -27,7 +27,7 @@
 #include "sqlide/recordset_cdbc_storage.h"
 #include "grtdb/db_helpers.h"
 #include "grtui/inserts_export_form.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/db.query/db_query_EditableResultset.h"
 
@@ -817,8 +817,8 @@ static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
     cairo_fill(cr);
 
     {
-      double capx = (i % 3) * 800 / 3 + 1;
-      double capy = 50 + (i / 3) * 25;
+      double capx = (i % 3) * 800.0 / 3 + 1;
+      double capy = 50 + (i / 3) * 25.0;
 
       cairo_text_extents_t ext;
       cairo_text_extents(cr, stages[i].name.c_str(), &ext);
@@ -903,8 +903,8 @@ static std::string render_waits(std::vector<SqlEditorForm::PSWait> &waits)
     cairo_fill(cr);
 
     {
-      size_t capx = (i % 2) * 800 / 2 + 1;
-      size_t capy = 50 + (i / 2) * 25;
+      double capx = (i % 2) * 800.0 / 2 + 1;
+      double capy = 50 + (i / 2) * 25.0;
 
       cairo_text_extents_t ext;
       cairo_text_extents(cr, waits[i].name.c_str(), &ext);

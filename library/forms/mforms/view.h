@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_VIEW_H_
-#define _MFORMS_VIEW_H_
+#pragma once
 
 #include <boost/signals2.hpp>
 
@@ -81,6 +80,29 @@ namespace mforms {
     DragOperationMove = 1 << 1
   };
 
+#ifndef SWIG
+  inline DragOperation operator | (DragOperation a, DragOperation b)
+  {
+    return (DragOperation)((int)a | (int)b);
+  }
+
+  inline DragOperation operator & (DragOperation a, DragOperation b)
+  {
+    return (DragOperation)((int)a & (int)b);
+  }
+#endif
+
+  // Position relative to the target. There's no general rule what this means. View descendants
+  // decide what to use (e.g. a node in a treeview).
+  enum DropPosition {
+    DropPositionUnknown,
+    DropPositionLeft,
+    DropPositionRight,
+    DropPositionOn,
+    DropPositionTop,
+    DropPositionBottom,
+  };
+
   struct DragDetails {
     base::Point location; // Position of the mouse in client coordinates.
     DragOperation allowedOperations; // A combination of flags that determine the allowed actions.
@@ -102,22 +124,22 @@ namespace mforms {
 
 #ifndef SWIG
   /**
-   * Delegate class for events caused by a drop operation. Must be implemented by View objects
-   * that want to accept a drop operation
+   * Delegate class for events caused by a drop operation. Must be implemented by objects
+   * that want to accept a drop operation (not necessarily mforms objects).
    * The sender is the View that initiated the operation. If the operation started outside WB
-   * the sender is NULL.
-   * The drop position p is given in the receiver's coordinate space.
+   * (or by non-mforms code) the sender is NULL.
+   * The drop point p is given in the receiver's coordinate space.
    */
   class MFORMS_EXPORT DropDelegate
   {
   public:
     /**
      * Called constantly while the mouse is moving over the receiver during a drag operation.
-     * sender can be nil for non-mforms sources (even from outside WB).
-     * Return a compination of the drag operations that are supported with the offered formats.
+     * Return a combination of the drag operations that are supported with the offered formats.
      * This function must always be implemented by the delegate object. All others are optional.
      */
-    virtual DragOperation drag_over(View *sender, base::Point p, const std::vector<std::string> &formats) = 0;
+    virtual DragOperation drag_over(View *sender, base::Point p, DragOperation allowedOperations,
+      const std::vector<std::string> &formats) = 0;
 
     /**
      * Called when files were dropped on the receiver (only called if drag_over returned true).
@@ -125,22 +147,25 @@ namespace mforms {
      * Return the operation that actually took place. This will tell the drag initiator what happened
      * so it can update its structures.
      */
-    virtual DragOperation files_dropped(View *sender, base::Point p, const std::vector<std::string> &file_names) { return DragOperationNone; };
+    virtual DragOperation files_dropped(View *sender, base::Point p, DragOperation allowedOperations,
+      const std::vector<std::string> &file_names) { return DragOperationNone; };
 
     /**
-     * Called when text was dropped on the receiver (only called if drag_over returned true).
+     * Called when text was dropped on the receiver (only called if drag_over returned a valid drag operation).
      * This callback is specifically for the predefined format DragFormatText.
      */
-    virtual DragOperation text_dropped(View *sender, base::Point p, const std::string &text) { return DragOperationNone; };
+    virtual DragOperation text_dropped(View *sender, base::Point p, DragOperation allowedOperations,
+      const std::string &text) { return DragOperationNone; };
 
     /**
-     * Called when any custom data was dropped on the receiver (only called if drag_over returned true).
+     * Called when any custom data was dropped on the receiver (only called if drag_over returned a valid drag operation).
      * This callback is for all custom data formats and only used for drag operations
      * within WB. It will never be called for data from other sources.
      * Note: any of the *_dropped functions can be called during a drop (in random order),
      *       since a single such operation can carry more than one format.
      */
-    virtual DragOperation data_dropped(View *sender, base::Point p, void *data, const std::string &format) { return DragOperationNone; };
+    virtual DragOperation data_dropped(View *sender, base::Point p, DragOperation allowedOperations,
+      void *data, const std::string &format) { return DragOperationNone; };
 
   };
 #endif
@@ -193,6 +218,7 @@ namespace mforms {
     DragOperation (*drag_text)(View *self, DragDetails details, const std::string &text);
     DragOperation (*drag_data)(View *self, DragDetails details, void *data,
                                          const std::string &format);
+    DropPosition(*get_drop_position)(View *self);
   };
 #endif
 #endif
@@ -343,7 +369,7 @@ namespace mforms {
     virtual bool get_bool_value() { return false; }
 
     /**
-     * Iterate over all events that were queuedand flush them, results in faster gui updates or faster signal calls.
+     * Iterate over all events that were queued and flush them, results in faster gui updates or faster signal calls.
      */
     virtual void flush_events();
 
@@ -369,6 +395,15 @@ namespace mforms {
      */
     DragOperation do_drag_drop(DragDetails details, const std::string &text);
     DragOperation do_drag_drop(DragDetails details, void *data, const std::string &format);
+
+    /**
+     *	Only valid during a drag operation. Returns a drop position value of the drop target
+     *	(if one can be determined, like above or below a tree node).
+     *	This is a helper to ease determination of the actual drop operation if that depends on the
+     *	position within the target.
+     */
+    DropPosition get_drop_position(); // TODO: Mac, Linux.
+
 #endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -397,5 +432,3 @@ namespace mforms {
     boost::signals2::signal<void ()>* signal_got_focus() { return &_signal_got_focus; }
   };
 };
-
-#endif

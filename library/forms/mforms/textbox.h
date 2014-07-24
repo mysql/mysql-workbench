@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_TEXTBOX_H_
-#define _MFORMS_TEXTBOX_H_
+
+#pragma once
 
 #include <mforms/view.h>
 #include <mforms/utilities.h>
@@ -136,5 +136,3 @@ namespace mforms {
     boost::signals2::signal<bool (KeyCode, ModifierKey, const std::string&)> _key_event_signal;
   };
 };
-
-#endif

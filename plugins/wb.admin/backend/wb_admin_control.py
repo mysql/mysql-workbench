@@ -216,17 +216,17 @@ class WbAdminControl(object):
                 self.ssh = None
                 raise OperationCancelledError("SSH connection cancelled")
 
-            except SSHDownException:
+            except SSHDownException, e:
                 log_error("SSHDownException: %s\n" % traceback.format_exc())
                 self.ssh = None
                 if self.sql_enabled:
                     if mforms.Utilities.show_warning('SSH connection failed',
-                                                     "Check if the SSH server is up on the remote side.\nYou may continue anyway, but some functionality will be unavailable",
+                                                     "Check your SSH connection settings and whether the SSH server is up.\nYou may continue anyway, but some functionality will be unavailable.\nError: %s" % e,
                                                      "Continue", "Cancel", "") != mforms.ResultOk:
                         raise OperationCancelledError("Could not connect to SSH server")
                 else:
                     mforms.Utilities.show_warning('SSH connection failed',
-                                                  "Check if the SSH server is up on the remote side.", "OK", "", "")
+                                                  "Check your SSH connection settings and whether the SSH server is up.\nError: %s" % e, "OK", "", "")
         else:
             self.ssh = None
         # init server management helper (for doing remote file operations, process management etc)
@@ -305,6 +305,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         # changed. Returns None if no state change was detected or the new state if it did change.
         
         new_state = self.is_server_running(verbose=verbose, force_hard_check=True)
+        log_debug("Force check server state returned %s\n" % new_state)
         if new_state != self.last_known_server_running_status[0]:
             info = { "state" : 1 if new_state == "running" else 0, "connection" : self.server_profile.db_connection_params }
             # this will notify the rest of the App that the server state has changed, giving them a chance
@@ -424,7 +425,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 self.connect_sql()
         except Exception, e:
             log_error("Error connecting to MySQL: %s\n" % e)
-            mforms.Utilities.show_error("Error", "Could not connect to MySQL: %s" % e, "OK", "", "")
+            mforms.Utilities.show_error("Connect Error", "Could not connect to MySQL: %s" % e, "OK", "", "")
 
     #---------------------------------------------------------------------------
     def server_stopped_event(self):
@@ -678,78 +679,80 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
 
         request_save_profile = False
 
-        hostname = self.server_variables.get('hostname', '')
-        if not hostname and self.server_profile.is_local:
-            hostname = socket.gethostname()
+        if self.server_variables:
+            hostname = self.server_variables.get('hostname', '')
+            if not hostname and self.server_profile.is_local:
+                hostname = socket.gethostname()
 
-        datadir = self.server_variables.get('datadir', '')
-        if datadir and self.server_profile.datadir != datadir:
-            self.server_profile.datadir = datadir
-            request_save_profile = True
-
-        basedir = self.server_variables.get('basedir', '')
-        if basedir and self.server_profile.basedir != basedir:
-            self.server_profile.basedir = basedir
-            request_save_profile = True
-
-        try:
-            general_log_enabled = self.server_variables.get('general_log') in ('ON', '1')
-            if self.server_profile.general_log_enabled != general_log_enabled:
-                self.server_profile.general_log_enabled = general_log_enabled
+            datadir = self.server_variables.get('datadir', '')
+            if datadir and self.server_profile.datadir != datadir:
+                self.server_profile.datadir = datadir
                 request_save_profile = True
-        except ValueError:
-            pass
 
-        try:
-            if self.target_version and self.target_version.is_supported_mysql_version_at_least(5, 1, 29):
-                slow_query_var = 'slow_query_log'
-            else:
-                slow_query_var = 'log_slow_queries'
-            
-            slow_log_enabled = self.server_variables.get(slow_query_var) in ('ON', '1')
-            if self.server_profile.slow_log_enabled != slow_log_enabled:
-                self.server_profile.slow_log_enabled = slow_log_enabled
+            basedir = self.server_variables.get('basedir', '')
+            if basedir and self.server_profile.basedir != basedir:
+                self.server_profile.basedir = basedir
                 request_save_profile = True
-        except ValueError:
-            pass
+
+            try:
+                general_log_enabled = self.server_variables.get('general_log') in ('ON', '1')
+                if self.server_profile.general_log_enabled != general_log_enabled:
+                    self.server_profile.general_log_enabled = general_log_enabled
+                    request_save_profile = True
+            except ValueError:
+                pass
+
+            try:
+                if self.target_version and self.target_version.is_supported_mysql_version_at_least(5, 1, 29):
+                    slow_query_var = 'slow_query_log'
+                else:
+                    slow_query_var = 'log_slow_queries'
+                
+                slow_log_enabled = self.server_variables.get(slow_query_var) in ('ON', '1')
+                if self.server_profile.slow_log_enabled != slow_log_enabled:
+                    self.server_profile.slow_log_enabled = slow_log_enabled
+                    request_save_profile = True
+            except ValueError:
+                pass
 
         if not self.target_version or not self.target_version.is_supported_mysql_version_at_least(5, 1, 29):
             general_log_file_path = opts[config_section].get('log', '').strip(' "') if opts.has_key(config_section) else ''
-            general_log_file_path = normpath(general_log_file_path)
-            if self.server_profile.general_log_file_path != general_log_file_path:
+            general_log_file_path = normpath(general_log_file_path) if general_log_file_path else ''
+            if general_log_file_path and self.server_profile.general_log_file_path != general_log_file_path:
                 self.server_profile.general_log_file_path = general_log_file_path or os.path.join(self.server_profile.datadir, hostname + '.log')
                 request_save_profile = True
 
             slow_query_log_file = opts[config_section].get('log-slow-queries', '').strip(' "') if opts.has_key(config_section) else ''
-            slow_query_log_file = normpath(slow_query_log_file)
-            if self.server_profile.slow_log_file_path != slow_query_log_file:
+            slow_query_log_file = normpath(slow_query_log_file) if slow_query_log_file else ''
+            if slow_query_log_file and self.server_profile.slow_log_file_path != slow_query_log_file:
                 self.server_profile.slow_log_file_path = slow_query_log_file or os.path.join(self.server_profile.datadir, hostname + '.slow')
                 request_save_profile = True
 
             error_log_file_path = opts[config_section].get('log-error', '').strip(' "') if opts.has_key(config_section) else ''
-            error_log_file_path = normpath(error_log_file_path)
-            if self.server_profile.error_log_file_path != error_log_file_path:
+            error_log_file_path = normpath(error_log_file_path) if error_log_file_path else ''
+            if error_log_file_path and self.server_profile.error_log_file_path != error_log_file_path:
                 self.server_profile.error_log_file_path = error_log_file_path or os.path.join(self.server_profile.datadir, hostname + '.err')
                 request_save_profile = True
 
         else:
-            path = self.server_variables.get('general_log_file')
-            general_log_file_path = normpath(path) if path and path != '0' else ''
-            if self.server_profile.general_log_file_path != general_log_file_path:
-                self.server_profile.general_log_file_path = general_log_file_path
-                request_save_profile = True
+            if self.server_variables:
+                path = self.server_variables.get('general_log_file')
+                general_log_file_path = normpath(path) if path and path != '0' else ''
+                if self.server_profile.general_log_file_path != general_log_file_path:
+                    self.server_profile.general_log_file_path = general_log_file_path
+                    request_save_profile = True
 
-            path = self.server_variables.get('slow_query_log_file')
-            slow_query_log_file_path = normpath(path) if path and path != '0' else ''
-            if self.server_profile.slow_log_file_path != slow_query_log_file_path:
-                self.server_profile.slow_log_file_path = slow_query_log_file_path
-                request_save_profile = True
+                path = self.server_variables.get('slow_query_log_file')
+                slow_query_log_file_path = normpath(path) if path and path != '0' else ''
+                if self.server_profile.slow_log_file_path != slow_query_log_file_path:
+                    self.server_profile.slow_log_file_path = slow_query_log_file_path
+                    request_save_profile = True
 
-            path = self.server_variables.get('log_error')
-            log_error_path = normpath(path) if path and path != '0' else ''
-            if self.server_profile.error_log_file_path != log_error_path:
-                self.server_profile.error_log_file_path = log_error_path
-                request_save_profile = True
+                path = self.server_variables.get('log_error')
+                log_error_path = normpath(path) if path and path != '0' else ''
+                if self.server_profile.error_log_file_path != log_error_path:
+                    self.server_profile.error_log_file_path = log_error_path
+                    request_save_profile = True
 
         log_info("Currently connected to MySQL server version " + repr(self.raw_version) +
                  ", conn status = " + repr(self.is_sql_connected()) +

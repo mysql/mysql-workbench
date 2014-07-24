@@ -368,7 +368,7 @@ void DbDriverParams::init(
 
   if (trim_schema)
     _collection.resize(param_count-1);
-  for (int layout_type= 0; layout_type < 3; ++layout_type) // separate cycle for controls tagged as advanced layout
+  for (int layout_type= 0; layout_type < 4; ++layout_type) // separate cycle for controls tagged as advanced layout
   {
     LayoutRows rows;
     LayoutRow row(0, hmargin);

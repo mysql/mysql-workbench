@@ -54,7 +54,7 @@ namespace mforms {
                                    //! At least gtk has problems with arbitrary items for a tree. Treeview in gtk is
                                    //! built on View-Source model, where source is a row/column based thing. That may
                                    //! require some hacking to support NoColums in gtk, so really think if that is worth it.
-    TreeAllowReorderRows = 1 << 4, //!< Allows row reordering, sets TreeCanBeDragSource implicitely.
+    TreeAllowReorderRows = 1 << 4, //!< Allows row reordering, sets TreeCanBeDragSource implicitly.
     TreeShowColumnLines  = 1 << 5, //!< show column separator lines
     TreeShowRowLines     = 1 << 6, //!< show row separator lines
     TreeNoBorder         = 1 << 7, //!< Switch off the border around the control. Default is to show the border.
@@ -126,6 +126,7 @@ namespace mforms {
     TreeNode *node;
 
   public:
+    // following methods are private, but need to be made public for the platform implementation
 #ifndef SWIG
     TreeNodeRef(TreeNode *anode);
     TreeNode *ptr() { return node; }
@@ -161,6 +162,8 @@ namespace mforms {
 #ifndef SWIG
     virtual bool is_valid() const = 0;
 #endif
+    virtual int level() const = 0; // 0 for root, 1 for top level etc.
+
     virtual void set_icon_path(int column, const std::string &icon) = 0;
 
     virtual void set_string(int column, const std::string &value) = 0;
@@ -183,9 +186,15 @@ namespace mforms {
     virtual void remove_from_parent() = 0;
     virtual void remove_children(); // default impl provided, subclasses may override to provide faster impl
     virtual TreeNodeRef get_child(int index) const = 0;
+    virtual int get_child_index(TreeNodeRef child) const = 0;
     virtual TreeNodeRef get_parent() const = 0;
     virtual TreeNodeRef find_child_with_tag(const std::string &tag); // this will search the subnodes sequentially
- 
+    virtual TreeNodeRef previous_sibling() const = 0;
+    virtual TreeNodeRef next_sibling() const = 0;
+
+    // This is a very special function and I'm not sure it should be here.
+    // It creates nodes out of the collection's captions and adds the same child nodes to each of those nodes
+    // as given in the children member. This works iteratively.
     virtual std::vector<mforms::TreeNodeRef> add_node_collection(const TreeNodeCollectionSkeleton &nodes, int position = -1) = 0;
 
     virtual void expand() = 0;
@@ -237,6 +246,7 @@ namespace mforms {
     
     int (*row_for_node)(TreeNodeView *self, TreeNodeRef node);
     TreeNodeRef (*node_at_row)(TreeNodeView *self, int row);
+    TreeNodeRef(*node_at_position)(TreeNodeView *self, base::Point position);
     TreeNodeRef (*node_with_tag)(TreeNodeView *self, const std::string &tag);
 
     void (*set_column_title)(TreeNodeView *self, int column, const std::string &title);
@@ -311,6 +321,7 @@ namespace mforms {
     
     int row_for_node(TreeNodeRef node);
     TreeNodeRef node_at_row(int row);
+    TreeNodeRef node_at_position(base::Point position); // TODO: Linux
 
     /** Requires TreeIndexOnTag */
     TreeNodeRef node_with_tag(const std::string &tag);

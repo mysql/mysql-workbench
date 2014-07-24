@@ -193,6 +193,8 @@ class DiffSQLGeneratorBE
   void generate_alter_stmt(db_mysql_ViewRef old_view, db_mysql_ViewRef new_view, const grt::DiffChange *diffchange);
   void generate_routine_alter_stmt(db_mysql_RoutineRef old_routine, db_mysql_RoutineRef new_routine, const grt::DiffChange *diffchange);
 
+  void process_trigger_alter_stmts(db_mysql_TableRef table, const grt::DiffChange *triggers_cs);
+
   /**
    * The 2 routines below - remember() and remember_alter() are used to store the gerneated SQL.
    * remember() just adds SQL strings to a list and remember_alter() can store to both a list or a map

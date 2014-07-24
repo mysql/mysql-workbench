@@ -26,179 +26,6 @@
  * C++ interface for the ANTLR based MySQL parser.
  */
 
-// Describes the type of a given query.
-enum MySQLQueryType
-{
-  QtUnknown,
-  QtAmbiguous,
-
-  // DDL
-  QtAlterDatabase,
-  QtAlterLogFileGroup,
-  QtAlterFunction,
-  QtAlterProcedure,
-  QtAlterServer,
-  QtAlterTable,
-  QtAlterTableSpace,
-  QtAlterEvent,
-  QtAlterView,
-
-  QtCreateTable,
-  QtCreateIndex,
-  QtCreateDatabase,
-  QtCreateEvent,
-  QtCreateView,
-  QtCreateRoutine,    // All of procedure, function, UDF. Used for parse type.
-  QtCreateProcedure,
-  QtCreateFunction,
-  QtCreateUdf,
-  QtCreateTrigger,
-  QtCreateLogFileGroup,
-  QtCreateServer,
-  QtCreateTableSpace,
-
-  QtDropDatabase,
-  QtDropEvent,
-  QtDropFunction, // Includes UDF.
-  QtDropProcedure,
-  QtDropIndex,
-  QtDropLogfileGroup,
-  QtDropServer,
-  QtDropTable,
-  QtDropTablespace,
-  QtDropTrigger,
-  QtDropView,
-
-  QtRenameTable,
-  QtTruncateTable,
-
-  // DML
-  QtCall,
-  QtDelete,
-  QtDo,
-
-  QtHandler, // Do we need Handler open/close etc.?
-  
-  QtInsert,
-  QtLoadData,
-  QtLoadXML,
-  QtReplace,
-  QtSelect,
-  QtUpdate,
-
-  QtPartition, // Cannot be used standalone.
-
-  QtStartTransaction,
-  QtBeginWork,
-  QtCommit,
-  QtRollbackWork,
-  QtSetAutoCommit, // "set autocommit" is especially mentioned in transaction help, so identify this too.
-  QtSetTransaction,
-
-  QtSavepoint,
-  QtReleaseSavepoint,
-  QtRollbackSavepoint,
-
-  QtLock,
-  QtUnlock,
-
-  QtXA,    // Do we need xa start, xa end etc.?
-  
-  QtPurge,
-  QtChangeMaster,
-  QtReset,
-  QtResetMaster,
-  QtResetSlave,
-  QtStartSlave,
-  QtStopSlave,
-  QtLoadDataMaster,
-  QtLoadTableMaster,
-
-  QtPrepare,
-  QtExecute,
-  QtDeallocate,
-
-  // Database administration
-  QtAlterUser,
-  QtCreateUser,
-  QtDropUser,
-  QtGrantProxy,
-  QtGrant,
-  QtRenameUser,
-  QtRevokeProxy,
-  QtRevoke,
-  
-  QtAnalyzeTable,
-  QtCheckTable,
-  QtChecksumTable,
-  QtOptimizeTable,
-  QtRepairTable,
-  QtBackUpTable,
-  QtRestoreTable,
-
-  QtInstallPlugin,
-  QtUninstallPlugin,
-
-  QtSet,   // Any variable assignment.
-  QtSetPassword,
-
-  QtShow,
-  QtShowAuthors,
-  QtShowBinaryLogs,
-  QtShowBinlogEvents,
-  QtShowRelaylogEvents,
-  QtShowCharset,
-  QtShowCollation,
-  QtShowColumns,
-  QtShowContributors,
-  QtShowCreateDatabase,
-  QtShowCreateEvent,
-  QtShowCreateFunction,
-  QtShowCreateProcedure,
-  QtShowCreateTable,
-  QtShowCreateTrigger,
-  QtShowCreateView,
-  QtShowDatabases,
-  QtShowEngineStatus,
-  QtShowStorageEngines,
-  QtShowErrors,
-  QtShowEvents,
-  QtShowFunctionCode,
-  QtShowFunctionStatus,
-  QtShowGrants,
-  QtShowIndexes, // Index, Indexes, Keys
-  QtShowInnoDBStatus,
-  QtShowMasterStatus,
-  QtShowOpenTables,
-  QtShowPlugins,
-  QtShowProcedureStatus,
-  QtShowProcedureCode,
-  QtShowPrivileges,
-  QtShowProcessList,
-  QtShowProfile,
-  QtShowProfiles,
-  QtShowSlaveHosts,
-  QtShowSlaveStatus,
-  QtShowStatus,
-  QtShowVariables,
-  QtShowTableStatus,
-  QtShowTables,
-  QtShowTriggers,
-  QtShowWarnings,
-
-  QtCacheIndex,
-  QtFlush,
-  QtKill,   // Connection, Query
-  QtLoadIndex,
-
-  QtExplainTable,
-  QtExplainStatement,
-  QtHelp,
-  QtUse,
-
-  QtSentinel
-};
-
 class MySQLRecognizer;
 
 /**
@@ -245,6 +72,7 @@ public:
   unsigned int token_type();
   unsigned int token_line();
   unsigned int token_start();
+  ANTLR3_MARKER token_index();
   size_t token_offset();
   int token_length();
 
@@ -284,6 +112,7 @@ public:
   
   virtual void set_sql_mode(const std::string &new_mode);
   virtual void set_server_version(long new_version);
+  virtual const char* text();
 
   long server_version();
 
@@ -292,12 +121,9 @@ public:
   MySQLQueryType query_type(pANTLR3_BASE_TREE node);
 
   std::string text_for_tree(pANTLR3_BASE_TREE node);
+  MySQLToken token_at_index(ANTLR3_MARKER index);
 
-  // Internal routine, called from the error callback.
-  void add_error(const std::string &text, ANTLR3_UINT32 error, ANTLR3_UINT32 token, ANTLR3_UINT32 line,
-                 ANTLR3_UINT32 offset, ANTLR3_UINT32 length);
 protected:
-  virtual void* input_start();
 
 private:
   class Private;

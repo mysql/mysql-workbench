@@ -120,8 +120,7 @@ void SidebarEntry::set_enabled(bool flag)
 
 //--------------------------------------------------------------------------------------------------
 
-
-void SidebarEntry::paint(cairo_t* cr, Rect bounds, bool hot, bool active, const Color& selection_color)
+void SidebarEntry::paint(cairo_t *cr, base::Rect bounds, bool hot, bool active, const Color& selection_color)
 {
   _bounds = bounds;
 

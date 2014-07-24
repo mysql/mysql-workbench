@@ -22,6 +22,7 @@ import os
 import tempfile
 import difflib
 import re
+import sys
 
 import opts
 import mforms
@@ -122,6 +123,10 @@ def pick_value(opt, version, platform):
     if 'values' in opt:
         # Walk all values and pick best match
         for i, cur_value in enumerate(opt['values']):
+            if 'bitsize' in cur_value:
+                is_64bit = sys.maxsize > 2**32
+                if (is_64bit and cur_value['bitsize'] != '64') or (not is_64bit and cur_value['bitsize'] != '32'):
+                    continue
             inversion  = cur_value.get('inversion')
             outversion = cur_value.get('outversion')
 
@@ -634,18 +639,24 @@ class WbAdminConfigFileBE(object):
         # split the path for / and \\
         directory, filename = splitpath(self.file_name)
 
-        if helper.check_dir_writable(directory):
-            password = None
-            as_user = Users.CURRENT
-        else:
-            password = self.ctrl_be.password_handler.get_password_for("file")
-            as_user = Users.ADMIN
+        first_try = True
+        while True:
+            if helper.check_dir_writable(directory):
+                password = None
+                as_user = Users.CURRENT
+            else:
+                password = self.ctrl_be.password_handler.get_password_for("file", cached_only=first_try)
+                as_user = Users.ADMIN
 
-        try:
-            helper.set_file_content_and_backup(self.file_name, user_modified_file_content, ".wba.bak", as_user, password)
-        except InvalidPasswordError, err:
-            self.ctrl_be.password_handler.reset_password_for("file")
-            raise err
+            try:
+                helper.set_file_content_and_backup(self.file_name, user_modified_file_content, ".wba.bak", as_user, password)
+            except InvalidPasswordError, err:
+                self.ctrl_be.password_handler.reset_password_for("file")
+                if first_try:
+                    first_try = False
+                    continue
+                raise err
+            break
 
         # read back the saved file
         data = self.read_mysql_cfg_file(self.file_name)

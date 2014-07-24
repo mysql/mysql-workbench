@@ -72,9 +72,8 @@ TEST_FUNCTION(20)
   t.add_trigger("before", "delete");
   t.add_trigger("after", "update");
 
-  // Only 3 triggers. The last one wasn't even recognized so it
   assure_equal(model.table->triggers().count(), 3U);
-  std::string names[]= {"film_adel", "film_bdel", "film_aupd"};
+  std::string names[]= {"film_after_delete", "film_before_delete", "film_after_update"};
 
   for (size_t i= 0, size= model.table->triggers().count(); i < size; i++)
   {

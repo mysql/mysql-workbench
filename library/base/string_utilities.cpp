@@ -1468,6 +1468,20 @@ std::string quote_identifier_if_needed(const std::string &ident, const char quot
     return ident;
 }
 
+
+bool is_number(const std::string &word)
+{
+  if (word.empty())
+    return false;
+  size_t i = 0;
+  if (word[0] == '-')
+    i++;
+  for (; i < word.size(); i++)
+    if (!isdigit(word[i]))
+      return false;
+  return true;
+}
+
 //--------------------------------------------------------------------------------------------------
   
 /**

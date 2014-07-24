@@ -74,6 +74,14 @@ std::string bec::get_description_for_connection(const db_mgmt_ConnectionRef &con
                              params.get_string("sshHost").c_str(),
                              user.c_str());
   }
+  else if (g_str_has_suffix(driver.c_str(), "Fabric"))
+  {
+    conn_type = base::strfmt("%s at %s:%i fabric node with user %s",
+                             server.c_str(),
+                             params.get_string("hostName").c_str(),
+                             (int) params.get_int("port"),
+                             user.c_str());
+  }
   else // TCP
   {
     conn_type = base::strfmt("%s at %s:%i with user %s",
@@ -273,6 +281,7 @@ bool bec::is_supported_mysql_version_at_least(const std::string &mysql_version,
 bool bec::is_supported_mysql_version_at_least(const GrtVersionRef &mysql_version, int major, int minor, int release)
 {
   if (mysql_version.is_valid())
-    return is_supported_mysql_version_at_least((int)mysql_version->majorNumber(), (int)mysql_version->minorNumber(), 0, major, minor, release);
+    return is_supported_mysql_version_at_least((int)mysql_version->majorNumber(),
+      (int)mysql_version->minorNumber(), (int)mysql_version->releaseNumber(), major, minor, release);
   return false;
 }

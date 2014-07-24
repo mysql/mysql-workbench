@@ -29,6 +29,7 @@ using namespace grt;
 ObjectRoleListBE::ObjectRoleListBE(DBObjectEditorBE *owner, const db_mgmt_RdbmsRef &rdbms)
 : _owner(owner), _privilege_list(this, rdbms)
 {
+  _rdbms = rdbms;
   refresh();
 }
 
