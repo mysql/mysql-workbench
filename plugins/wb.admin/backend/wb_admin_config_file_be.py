@@ -22,6 +22,7 @@ import os
 import tempfile
 import difflib
 import re
+import sys
 
 import opts
 import mforms
@@ -122,6 +123,10 @@ def pick_value(opt, version, platform):
     if 'values' in opt:
         # Walk all values and pick best match
         for i, cur_value in enumerate(opt['values']):
+            if 'bitsize' in cur_value:
+                is_64bit = sys.maxsize > 2**32
+                if (is_64bit and cur_value['bitsize'] != '64') or (not is_64bit and cur_value['bitsize'] != '32'):
+                    continue
             inversion  = cur_value.get('inversion')
             outversion = cur_value.get('outversion')
 
