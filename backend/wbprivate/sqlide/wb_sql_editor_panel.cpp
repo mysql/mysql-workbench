@@ -39,7 +39,7 @@
 
 #include "base/boost_smart_ptr_helpers.h"
 
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "objimpl/db.query/db_query_Resultset.h"
 
 #include "grtui/file_charset_dialog.h"
@@ -325,15 +325,10 @@ bool SqlEditorPanel::load_autosave(const std::string &file, const std::string &r
     base::file_mtime(_filename, _file_timestamp);
 
   std::string tab_name = base::strip_extension(base::basename(file));
-  try
-  {
-    // check if the filename is just a number
-    boost::lexical_cast<int>(tab_name);
-  }
-  catch(const boost::bad_lexical_cast &)
-  {
+
+  if (!base::is_number(tab_name))
     set_title(tab_name);
-  }
+
   _autosave_file_path = file;
 
   return false;

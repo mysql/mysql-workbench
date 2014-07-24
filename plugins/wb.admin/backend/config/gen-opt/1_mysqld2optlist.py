@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import sys
 import xml.dom.minidom
 import re
 import pprint
@@ -186,6 +185,12 @@ def parse_bitmap(node, value, opt):
     pass
 
 #-------------------------------------------------------------------------------
+def parse_date_time(node, value, opt):
+    pass
+
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
 type_parsers = {'boolean':parse_boolean
                ,'set':parse_set
                ,'string':parse_string
@@ -194,6 +199,8 @@ type_parsers = {'boolean':parse_boolean
                ,'dirname':parse_filename
                ,'enumeration':parse_enumeration
                ,'bitmap':parse_bitmap
+               ,'datetime':parse_date_time
+               ,'integer':parse_numeric
                }
 
 #-------------------------------------------------------------------------------
@@ -207,7 +214,7 @@ def parse_version_str(version_str):
                 version = (int(tokens[0]), int(tokens[1]), int(tokens[2]))
             else:
                 version = (int(tokens[3]), int(tokens[4]))
-    except ValueError, e:
+    except ValueError:
         print "ERROR! incorrect version attribute value '" + version_str + "', ", type(version_str)
 
     return version
@@ -246,36 +253,16 @@ def guess_values(opt):
 
 #-------------------------------------------------------------------------------
 def parse_optype(node, option):
-    optype = None
-    if node.getAttribute('class') == 'mycnf':
-        optype = {}
-        for i in node.attributes.items():
-            if i[0] != 'class':
-                optype[str(i[0])] = str(i[1])
+    optype = {}
+    for i in node.attributes.items():
+        optype[str(i[0])] = str(i[1])
 
     # make cleanup
     if optype:
-        if 'setvar' in optype:
-            del optype['setvar']
         if 'format' in optype:
             if optype['format'] == option['name']:
                 del optype['format']
     return optype
-
-#-------------------------------------------------------------------------------
-def parse_version_str(version_str):
-    version = None
-    try:
-        res = re.match("([0-9]+)\.([0-9]+)\.([0-9]+)|([0-9]+)\.([0-9]+)", version_str)
-        if res:
-            tokens = res.groups()
-            if tokens[0] is not None:
-                version = (int(tokens[0]), int(tokens[1]), int(tokens[2]))
-            else:
-                version = (int(tokens[3]), int(tokens[4]))
-    except ValueError, e:
-        print "ERROR! incorrect version attribute value '" + version_str + "', ", type(version_str)
-    return version
 
 #-------------------------------------------------------------------------------
 def ver_cmp(v1, v2):
@@ -332,7 +319,7 @@ def parse_versions(versions_node, option):
 def parse_types(node, option):
     optype = None
     for t in node.childNodes:
-        if t.nodeType == t.ELEMENT_NODE and t.tagName == 'optype':
+        if t.nodeType == t.ELEMENT_NODE and t.tagName == 'mycnf':
             cur_optype = parse_optype(t, option)
             if optype is None and cur_optype is not None:
                 optype = cur_optype
@@ -341,13 +328,26 @@ def parse_types(node, option):
 #-------------------------------------------------------------------------------
 def parse_var_types(node, option):
     for t in node.childNodes:
-        if t.nodeType == t.ELEMENT_NODE and t.tagName == 'vartype':
+        if t.nodeType == t.ELEMENT_NODE and t.hasAttribute('isdynamic'):
             if t.getAttribute('isdynamic') not in ('yes','no'):
                 print "Invalid isdynamic value", t.getAttribute('isdynamic')
-            return t.getAttribute('isdynamic') == 'yes', t.getAttribute('class')
+            return t.getAttribute('isdynamic') == 'yes', t.nodeName
     return None, None
 
 #-------------------------------------------------------------------------------
+
+def check_redundant_option(opts, optid):
+    if '-' in optid and optid.replace('-', '_') in [o['name'] for o in opts]:
+        print 'Skipped redundant option: %s'%o['name']
+        return True
+    elif '_' in optid and optid.replace('_', '-') in [o['name'] for o in opts]:
+        for o in opts:
+            if optid.replace('_', '-') == o['name']:
+                opts.remove(o)
+                print 'Removed redundant option: %s'%o['name']
+    return False
+#-------------------------------------------------------------------------------
+
 for option in doc.documentElement.getElementsByTagName('mysqloption'):
     opt = {}
     optid = str(option.getAttribute('id'))
@@ -402,7 +402,8 @@ for option in doc.documentElement.getElementsByTagName('mysqloption'):
 
     if is_mycnf_opt or optid in mycnf_vars:#or variable_class == "system":
         if optid[:5] != 'maria' and optid[:6] != 'falcon' and optid[:3] != 'bdb' and (not optid in skip_list):
-            opts.append(opt)
+            if not check_redundant_option(opts, optid):
+                opts.append(opt)
 
         if 'values' in opt and len(opt['values']) == 0:
             guess_values(opt)
@@ -438,7 +439,7 @@ for o in opts:
     if 'values' in o and len(o['values']) > 0:
         o['values'] = values = list(o['values'])
 for o in opts:
-    if len(o['values']) == 0:
+    if not 'values' in o or len(o['values']) == 0:
         print "Warning: option", o['name'], "has no values"
 
 print "Writing to raw_opts.py..."
@@ -457,7 +458,6 @@ f.write("\n\n")
 f.write("status_vars_list =")
 pp.pprint(stat_vars)
 f.close()
-
 
 #f = open("variable_groups.py","w+")
 #pp = pprint.PrettyPrinter(indent=2, stream=f)

@@ -45,6 +45,7 @@
 //--------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 //--------------------------------------------------------------------------------------------------
 

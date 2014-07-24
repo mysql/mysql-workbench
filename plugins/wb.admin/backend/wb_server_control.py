@@ -547,7 +547,7 @@ class PasswordHandler(object):
             self.pwd_store[password_type] = None
 
 
-    def get_password_for(self, service_type): # Raises OperationCancelledError if user cancels pwd dlg.
+    def get_password_for(self, service_type, cached_only=False): # Raises OperationCancelledError if user cancels pwd dlg.
         force_reset = False
         password_type = self.get_password_type(service_type)
 
@@ -569,14 +569,20 @@ class PasswordHandler(object):
 
         grt.log_debug2('%s:get_password_for()' % self.__class__.__name__, 'request password for "%s" => "%s", "%s", "%s"\n' % (service_type, title, service, account))
 
-        accepted, password = mforms.Utilities.find_or_ask_for_password(title, service, account, force_reset)
-        if accepted:
-            if not password:
-                password = ""
-            self.pwd_store[password_type] = password.encode("utf8")
-            return password
+        if cached_only:
+            found, password = mforms.Utilities.find_password(service, account)
+            if found:
+                return password
+            return None
         else:
-            raise OperationCancelledError("Password input cancelled")
+            accepted, password = mforms.Utilities.find_or_ask_for_password(title, service, account, force_reset)
+            if accepted:
+                if not password:
+                    password = ""
+                self.pwd_store[password_type] = password.encode("utf8")
+                return password
+            else:
+                raise OperationCancelledError("Password input cancelled")
 
 
 class ServerControlBase(object):
@@ -602,10 +608,10 @@ class ServerControlBase(object):
         # do cleanup, free up resources etc
         pass
 
-    def start_async(self, finish_callback): # callback(status) where status can be success, bad_password or an error message
+    def start_async(self, finish_callback, try_without_password): # callback(status) where status can be success, bad_password or an error message
         raise NotImplementedError()
 
-    def stop_async(self, finish_callback):
+    def stop_async(self, finish_callback, try_without_password):
         raise NotImplementedError()
 
     def worker_thread(self, action, password, finish_callback):
@@ -613,7 +619,10 @@ class ServerControlBase(object):
             action(password)
             finish_callback("success")
         except InvalidPasswordError, err:
-            finish_callback("bad_password")
+            if password is None:
+                finish_callback("need_password")
+            else:
+                finish_callback("bad_password")
         except Exception, err:
             import traceback
             traceback.print_exc()
@@ -628,16 +637,16 @@ class ServerControlShell(ServerControlBase):
         """ Can also throw OperationCancelledError"""
         ServerControlBase.__init__(self, profile, helper, password_delegate)
 
-    def get_password(self):
-        return self.password_delegate.get_password_for("service.startstop")
+    def get_password(self, try_without_password=False):
+        return self.password_delegate.get_password_for("service.startstop", cached_only=try_without_password)
 
-    def start_async(self, finish_callback): # callback(status) where status can be success, bad_password or an error message
+    def start_async(self, finish_callback, try_without_password=False): # callback(status) where status can be success, bad_password or an error message
         if not self.profile.start_server_cmd:
             self.info("Command to start the server is not configured. Please set the command that must be used to start the server in the remote management section of this connections settings.")
             return False
         if self.profile.use_sudo:
             try:
-                password = self.get_password()
+                password = self.get_password(try_without_password)
             except OperationCancelledError:
                 return False
         else:
@@ -646,13 +655,13 @@ class ServerControlShell(ServerControlBase):
         thread.run()
         return True
 
-    def stop_async(self, finish_callback):
+    def stop_async(self, finish_callback, try_without_password=False):
         if not self.profile.stop_server_cmd:
             self.info("Command to stop the server is not configured. Please set the command that must be used to stop the server in the remote management section of this connections settings.")
             return False
         if self.profile.use_sudo:
             try:
-                password = self.get_password()
+                password = self.get_password(try_without_password)
             except OperationCancelledError:
                 return False
         else:
@@ -790,7 +799,7 @@ class ServerControlWMI(ServerControlBase):
         self.wmi_session_ids = {}
         ServerControlBase.close() # not certain if the call is needed.
 
-    def start_async(self, finish_callback): # callback(status) where status can be success, bad_password or an error message
+    def start_async(self, finish_callback, try_without_password): # callback(status) where status can be success, bad_password or an error message
         try:
             # ask subclass to provide password
             password = self.get_password()
@@ -800,7 +809,7 @@ class ServerControlWMI(ServerControlBase):
         thread.run()
         return True
 
-    def stop_async(self, finish_callback):
+    def stop_async(self, finish_callback, try_without_password):
         try:
             password = self.get_password()
         except OperationCancelledError:

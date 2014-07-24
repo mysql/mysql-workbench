@@ -21,6 +21,8 @@ namespace Aga.Controls.Tree
 {
 	public partial class TreeViewAdv : Control
 	{
+    static public bool isWin8OrAbove; // Added by mikel.
+
 		private const int LeftMargin = 7;
 		internal const int ItemDragSensivity = 4;
 		private readonly int _columnHeaderHeight;
@@ -160,6 +162,14 @@ namespace Aga.Controls.Tree
     }
 
     #endregion
+
+    static TreeViewAdv() // Added by mikel.
+    {
+      isWin8OrAbove = false;
+      OperatingSystem system = Environment.OSVersion;
+      if (system.Platform == PlatformID.Win32NT)
+        isWin8OrAbove = system.Version.Major > 6 || (system.Version.Major == 6 && system.Version.Minor >= 2);
+    }
 
 		public TreeViewAdv()
 		{

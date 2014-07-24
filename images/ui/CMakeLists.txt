@@ -115,6 +115,8 @@ set(IMAGE_FILES
     big_switcher_yes.png
     big_switcher_no.png
     separator_vertical.png
+	item_overlay_add.png
+	item_overlay_delete.png
 )
 
 if (UNIX)

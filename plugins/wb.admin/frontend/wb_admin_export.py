@@ -70,11 +70,12 @@ class DumpThread(threading.Thread):
     # description, object_count, pipe_factory, extra_args, objects
     #operations.append((title, len(tables), lambda schema=schema:self.dump_to_file([schema]), params, objects))
     class TaskData:
-        def __init__(self, title, table_count, extra_arguments, objec_names, make_pipe = lambda:None):
+        def __init__(self, title, table_count, extra_arguments, objec_names, tables_to_ignore, make_pipe = lambda:None):
             self.title = title
             self.table_count = table_count
             self.extra_arguments = extra_arguments
             self.objec_names = objec_names
+            self.tables_to_ignore = tables_to_ignore
             self.make_pipe = make_pipe
 
     def __init__(self, command, operations, pwd, owner, log_queue):
@@ -93,11 +94,12 @@ class DumpThread(threading.Thread):
         self.e = None
         threading.Thread.__init__(self)
 
-    def process_db(self, respipe, extra_arguments, object_names):
+    def process_db(self, respipe, extra_arguments, object_names, tables_to_ignore):
         pwdfilename = None
         tmpdir = None
         try:
             params = [self.command] + extra_arguments
+
             for arg in object_names:
                 params.append(quote_shell_token(arg))
 
@@ -134,6 +136,15 @@ class DumpThread(threading.Thread):
             pwdfile.write('[client]\npassword="')
             pwdfile.write(self.pwd.replace("\\", "\\\\"))
             pwdfile.write('"')
+
+            # When there are tables to ignore they are added as ignored entries
+            # On the configuration file
+            if tables_to_ignore:
+                pwdfile.write('\n\n[mysqldump]\n')
+
+                for s, t in tables_to_ignore:
+                    pwdfile.write("ignore-table=%s.%s\n" % (s,t))
+
             pwdfile.close()
             if platform.system() == 'Windows':
                 try:
@@ -238,7 +249,7 @@ class DumpThread(threading.Thread):
 
                 tables_processed += task.table_count or 1
                 pipe = task.make_pipe()
-                exitcode = self.process_db(pipe, task.extra_arguments, task.objec_names)
+                exitcode = self.process_db(pipe, task.extra_arguments, task.objec_names, task.tables_to_ignore)
                 if exitcode == 0:
                     if self.is_import:
                         self.status_text = "%i of %i imported." % (tables_processed, tables_total)
@@ -1066,12 +1077,12 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                 path = self.tables_paths.get((schema, table))
                 # description, object_count, extra_args, objects, pipe_factory
                 if path != None:
-                    task = DumpThread.TaskData(logmsg, 1, [], [path], lambda:None)
+                    task = DumpThread.TaskData(logmsg, 1, [], [path], None, lambda:None)
                     #operations.insert(0,task)
                     operations.append(task)
                 else:
                     path = self.views_paths.get((schema, table))
-                    task = DumpThread.TaskData(logmsg, 1, [], [path], lambda:None)
+                    task = DumpThread.TaskData(logmsg, 1, [], [path], None, lambda:None)
                     if path != None:
                         operations.append(task)
         else:
@@ -1081,7 +1092,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                 return
             logmsg = "Restoring " + self.path
             # description, object_count, pipe_factory, extra_args, objects
-            task = DumpThread.TaskData(logmsg, 1, [], [self.path], lambda:None)
+            task = DumpThread.TaskData(logmsg, 1, [], [self.path], None, lambda:None)
             operations.append(task)
 #            operations.append((logmsg, 1, lambda:None, [], [self.path]))
 
@@ -1531,19 +1542,19 @@ class WbAdminExportTab(WbAdminSchemaListTab):
     class ViewDumpData(DumpThread.TaskData):
         def __init__(self,schema,views,make_pipe):
             title = "Dumping " + schema + " views"
-            DumpThread.TaskData.__init__(self, title, len(views), [], [schema] + views, make_pipe)
+            DumpThread.TaskData.__init__(self, title, len(views), [], [schema] + views, None, make_pipe)
 
     class TableDumpData(DumpThread.TaskData):
         def __init__(self,schema,table,make_pipe):
             title = "Dumping " + schema
             title += " (%s)" % table
-            DumpThread.TaskData.__init__(self,title, 1, [], [schema, table], make_pipe)
+            DumpThread.TaskData.__init__(self,title, 1, [], [schema, table], None, make_pipe)
 
     class TableDumpNoData(DumpThread.TaskData):
         def __init__(self,schema,table,make_pipe):
             title = "Dumping " + schema
             title += " (%s)" % table
-            DumpThread.TaskData.__init__(self,title, 1, ["--no-data"], [schema, table],make_pipe)
+            DumpThread.TaskData.__init__(self,title, 1, ["--no-data"], [schema, table], None, make_pipe)
 
     class ViewsRoutinesEventsDumpData(DumpThread.TaskData):
         def __init__(self, schema, views, args, make_pipe):
@@ -1552,7 +1563,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 extra_args = ["--no-create-info"]
             else:
                 extra_args = []
-            DumpThread.TaskData.__init__(self,title, len(views), ["--skip-triggers", " --no-data" ," --no-create-db"] + extra_args + args, [schema] + views, make_pipe)
+            DumpThread.TaskData.__init__(self,title, len(views), ["--skip-triggers", " --no-data" ," --no-create-db"] + extra_args + args, [schema] + views, None, make_pipe)
 
     def dump_to_folder(self, schemaname, tablename):
         self.close_pipe()
@@ -1660,29 +1671,33 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                     # this is to workaround a problem with mysqldump where functions are dumped after
                     # tables if the table names are specified
                     # see bug #14359349
+                    title = "Dumping " + schema
                     if set(tables) == set(self.table_list_model.get_tables(schema)):
-                        title = "Dumping " + schema
                         title += " (all tables)"
-                        objects = [schema]
                     else:
-                        title = "Dumping " + schema
                         title += " (%s)" % ", ".join(tables)
-                        objects = [schema] + tables
+
+                    objects = [schema]
+
                     if single_transaction:
                         params = ["--single-transaction=TRUE"]
                     else:
                         params = []
+
                     if dump_routines:
                         params.append("--routines")
+
                     if dump_events:
                         params.append("--events")
+
                     if skip_data or not tables:
                         params.append("--no-data")
+
                     if not tables:
                         params.append("--no-create-info=TRUE")
                         params.append("--skip-triggers")
                     # description, object_count, pipe_factory, extra_args, objects
-                    task = DumpThread.TaskData(title, len(tables), params, objects, lambda schema=schema:self.dump_to_file([schema]))
+                    task = DumpThread.TaskData(title, len(tables), params, objects, tables_to_ignore, lambda schema=schema:self.dump_to_file([schema]))
                     operations.append(task)
 #                    operations.append((title, len(tables), lambda schema=schema:self.dump_to_file([schema]), params, objects))
             else:
@@ -1696,14 +1711,14 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                     params.append("--events")
                 if skip_data:
                     params.append("--no-data")
-                params += ["--ignore-table=%s.%s"%(s,t) for s, t in tables_to_ignore]
+                
                 if single_transaction:
                     params += ["--single-transaction=TRUE", "--databases"]
                 else:
                     params += ["--databases"]
                 # --databases includes CREATE DATABASE info, so it's not needed for dump_to_file()
                 # description, object_count, pipe_factory, extra_args, objects
-                task = DumpThread.TaskData(title, count, params, schema_names, lambda:self.dump_to_file([]))
+                task = DumpThread.TaskData(title, count, params, schema_names, tables_to_ignore, lambda:self.dump_to_file([]))
                 operations.append(task)
 #                operations.append((title, count, lambda:self.dump_to_file([]), params, schema_names))
 

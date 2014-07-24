@@ -23,8 +23,10 @@
 
 #include "mysql_parser_module.h"
 #include "MySQLLexer.h"
+#include "mysql-parser.h"
+#include "mysql-syntax-check.h"
 
-#include "grts/structs.db.mysql.h"
+#include "objimpl/wrapper/parser_ContextReference_impl.h"
 
 using namespace grt;
 using namespace parser;
@@ -35,21 +37,12 @@ GRT_MODULE_ENTRY_POINT(MySQLParserServicesImpl);
 
 //--------------------------------------------------------------------------------------------------
 
-grt::BaseListRef MySQLParserServicesImpl::getSqlStatementRanges(const std::string &sql)
+parser_ContextReferenceRef MySQLParserServicesImpl::createParserContext(const GrtCharacterSetsRef &charsets,
+  const GrtVersionRef &version, const std::string &sql_mode, int case_sensitive)
 {
-  grt::BaseListRef list(get_grt());
-  std::vector<std::pair<size_t, size_t> > ranges;
-
-  determineStatementRanges(sql.c_str(), sql.size(), ";", ranges);
-
-  for (std::vector<std::pair<size_t,size_t> >::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
-  {
-    grt::BaseListRef item(get_grt());
-    item.ginsert(grt::IntegerRef(i->first));
-    item.ginsert(grt::IntegerRef(i->second));
-    list.ginsert(item);
-  }
-  return list;
+  ParserContext::Ref context = MySQLParserServices::createParserContext(charsets, version, case_sensitive != 0);
+  context->use_sql_mode(sql_mode);
+  return parser_context_to_grt(version.get_grt(), context);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,13 +88,22 @@ std::string get_definer(MySQLRecognizerTreeWalker &walker)
 
 //--------------------------------------------------------------------------------------------------
 
+size_t MySQLParserServicesImpl::parseTriggerSql(parser_ContextReferenceRef context_ref,
+  const db_mysql_TriggerRef &trigger, const std::string &sql)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+  return parseTrigger(context, trigger, sql);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Parses the given sql as trigger create script and fills all found details in the given trigger ref.
  * If there's an error nothing is changed.
  * Returns the number of errors.
  */
-size_t MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context, db_mysql_TriggerRef trigger,
-                                             const std::string &sql)
+size_t MySQLParserServicesImpl::parseTrigger(const ParserContext::Ref &context,
+  const db_mysql_TriggerRef &trigger, const std::string &sql)
 {
   log_debug2("Parse trigger\n");
 
@@ -137,10 +139,11 @@ size_t MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context,
     trigger->timing(walker.token_text());
     walker.next();
     trigger->event(walker.token_text());
+    walker.next();
 
     // The referenced table is not stored in the trigger object as that is defined by it's position
     // in the grt tree.
-    walker.skip_token_sequence(ON_SYMBOL, TABLE_NAME_TOKEN, IDENTIFIER, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
+    walker.skip_token_sequence(ON_SYMBOL, TABLE_NAME_TOKEN, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
     ANTLR3_UINT32 type = walker.token_type();
     if (type == FOLLOWS_SYMBOL || type == PRECEDES_SYMBOL)
     {
@@ -150,7 +153,8 @@ size_t MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context,
       walker.next();
     }
 
-    // sqlBody is obsolete.
+    // The rest of the sql belongs to the sql body.
+    trigger->sqlBody(sql.substr(walker.token_offset(), sql.size()));
   }
   else
   {
@@ -172,15 +176,43 @@ size_t MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context,
       }
       trigger->name(name);
     }
+
+    // Another attempt: find the ordering as we may need to manipulate this.
+    if (walker.advance_to_type(ROW_SYMBOL, true))
+    {
+      walker.next();
+      if (walker.token_type() == FOLLOWS_SYMBOL || walker.token_type() == PRECEDES_SYMBOL)
+      {
+        trigger->ordering(walker.token_text());
+        walker.next();
+        if (walker.is_identifier())
+        {
+          trigger->otherTrigger(walker.token_text());
+          walker.next();
+        }
+      }
+    }
   }
 
   trigger->modelOnly(result_flag);
-  if (trigger->owner().is_valid())
+  if (trigger->owner().is_valid() && result_flag == 1)
   {
+    // TODO: this is modeled after the old parser code but doesn't make much sense this way.
+    //       There's only one flag for all triggers. So, at least there should be a scan over all triggers
+    //       when determining this flag.
     db_TableRef table = db_TableRef::cast_from(trigger->owner());
-    table->customData().set("triggerInvalid", grt::IntegerRef(result_flag));
+    table->customData().set("triggerInvalid", grt::IntegerRef(1));
   }
   return error_count;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+size_t MySQLParserServicesImpl::parseViewSql(parser_ContextReferenceRef context_ref,
+  const db_mysql_ViewRef &view, const std::string &sql)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+  return parseView(context, view, sql);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,7 +222,8 @@ size_t MySQLParserServicesImpl::parseTrigger(parser::ParserContext::Ref context,
  * If there's an error nothing changes. If the sql contains a schema reference other than that the
  * the view is in the view's name will be changed (adds _WRONG_SCHEMA) to indicate that.
  */
-size_t MySQLParserServicesImpl::parseView(parser::ParserContext::Ref context, db_mysql_ViewRef view, const std::string &sql)
+size_t MySQLParserServicesImpl::parseView(const ParserContext::Ref &context,
+  const db_mysql_ViewRef &view, const std::string &sql)
 {
   log_debug2("Parse view\n");
 
@@ -445,13 +478,22 @@ std::pair<std::string, std::string> get_routine_name_and_type(MySQLRecognizerTre
 
 //--------------------------------------------------------------------------------------------------
 
+size_t MySQLParserServicesImpl::parseRoutineSql(parser_ContextReferenceRef context_ref,
+  const db_mysql_RoutineRef &routine, const std::string &sql)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+  return parseRoutine(context, routine, sql);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Parses the given sql as a create function/procedure script and fills all found details in the given routine ref.
  * If there's an error nothing changes. If the sql contains a schema reference other than that the
  * the routine is in the routine's name will be changed (adds _WRONG_SCHEMA) to indicate that.
  */
-size_t MySQLParserServicesImpl::parseRoutine(parser::ParserContext::Ref context, db_mysql_RoutineRef routine,
-                                             const std::string &sql)
+size_t MySQLParserServicesImpl::parseRoutine(const ParserContext::Ref &context,
+  const db_mysql_RoutineRef &routine, const std::string &sql)
 {
   log_debug2("Parse routine\n");
 
@@ -494,6 +536,15 @@ bool consider_as_same_type(std::string type1, std::string type2)
 
 //--------------------------------------------------------------------------------------------------
 
+size_t MySQLParserServicesImpl::parseRoutinesSql(parser_ContextReferenceRef context_ref,
+  const db_mysql_RoutineGroupRef &group, const std::string &sql)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+  return parseRoutines(context, group, sql);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Parses the given sql as a list of create function/procedure statements.
  * In case of an error handling depends on the error position. We try to get most of the routines out
@@ -503,8 +554,8 @@ bool consider_as_same_type(std::string type1, std::string type2)
  *   - Update the sql text + properties for any routine that is in the script in the owning schema.
  *   - Update the list of routines in the given routine group to what is in the script.
  */
-size_t MySQLParserServicesImpl::parseRoutines(parser::ParserContext::Ref context, db_mysql_RoutineGroupRef group,
-                                           const std::string &sql)
+size_t MySQLParserServicesImpl::parseRoutines(const ParserContext::Ref &context,
+  const db_mysql_RoutineGroupRef &group, const std::string &sql)
 {
   log_debug2("Parse routine group\n");
 
@@ -618,15 +669,37 @@ size_t MySQLParserServicesImpl::parseRoutines(parser::ParserContext::Ref context
 
 //--------------------------------------------------------------------------------------------------
 
+size_t MySQLParserServicesImpl::doSyntaxCheck(parser_ContextReferenceRef context_ref,
+  const std::string &sql, const std::string &type)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+  MySQLQueryType query_type = QtUnknown;
+  if (type == "view")
+    query_type = QtCreateView;
+  else
+    if (type == "routine")
+      query_type = QtCreateRoutine;
+    else
+      if (type == "trigger")
+        query_type = QtCreateTrigger;
+      else
+        if (type == "event")
+          query_type = QtCreateEvent;
+
+  return checkSqlSyntax(context, sql.c_str(), sql.size(), query_type);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Parses the given text as a specific query type (see parser for supported types).
  * Returns the error count.
  */
-size_t MySQLParserServicesImpl::checkSqlSyntax(ParserContext::Ref context, const char *sql,
-                                               size_t length, MySQLQueryType type)
+size_t MySQLParserServicesImpl::checkSqlSyntax(const ParserContext::Ref &context, const char *sql,
+  size_t length, MySQLQueryType type)
 {
-  context->recognizer()->parse(sql, length, true, type);
-  return context->recognizer()->error_info().size();
+  context->syntax_checker()->parse(sql, length, true, type);
+  return context->syntax_checker()->error_info().size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -742,8 +815,8 @@ void replace_schema_names(std::string &sql, const std::list<size_t> &offsets, si
 
 //--------------------------------------------------------------------------------------------------
 
-void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, ParserContext::Ref context, MySQLQueryType type,
-                    const std::string old_name, const std::string new_name)
+void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, const ParserContext::Ref &context,
+  MySQLQueryType type, const std::string old_name, const std::string new_name)
 {
   for (size_t i = 0; i < list.count(); ++i)
   {
@@ -767,13 +840,22 @@ void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, ParserContext::Ref 
 
 //--------------------------------------------------------------------------------------------------
 
+size_t MySQLParserServicesImpl::doSchemaRefRename(parser_ContextReferenceRef context_ref,
+  const db_mysql_CatalogRef &catalog, const std::string old_name, const std::string new_name)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+  return renameSchemaReferences(context, catalog, old_name, new_name);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Goes through all schemas in the catalog and changes all db objects to refer to the new name if they
  * currently refer to the old name. We also iterate non-related schemas in order to have some
- * consolidation/sanitzing in effect where wrong schema references were used.
+ * consolidation/sanitizing in effect where wrong schema references were used.
  */
-size_t MySQLParserServicesImpl::renameSchemaReferences(ParserContext::Ref context, db_mysql_CatalogRef catalog,
-                                                       const std::string old_name, const std::string new_name)
+size_t MySQLParserServicesImpl::renameSchemaReferences(const ParserContext::Ref &context,
+  const db_mysql_CatalogRef &catalog, const std::string old_name, const std::string new_name)
 {
   log_debug("Rename schema references\n");
 
@@ -814,6 +896,25 @@ bool is_line_break(const unsigned char *head, const unsigned char *line_break)
     line_break++;
   }
   return *line_break == '\0';
+}
+
+//--------------------------------------------------------------------------------------------------
+
+grt::BaseListRef MySQLParserServicesImpl::getSqlStatementRanges(const std::string &sql)
+{
+  grt::BaseListRef list(get_grt());
+  std::vector<std::pair<size_t, size_t> > ranges;
+
+  determineStatementRanges(sql.c_str(), sql.size(), ";", ranges);
+
+  for (std::vector<std::pair<size_t, size_t> >::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
+  {
+    grt::BaseListRef item(get_grt());
+    item.ginsert(grt::IntegerRef(i->first));
+    item.ginsert(grt::IntegerRef(i->second));
+    list.ginsert(item);
+  }
+  return list;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1008,6 +1109,88 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
     ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
   
   return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string MySQLParserServicesImpl::replaceTokenSequence(parser_ContextReferenceRef context_ref,
+  const std::string &sql, size_t start_token, size_t count, grt::StringListRef replacements)
+{
+  ParserContext::Ref context = parser_context_from_grt(context_ref);
+
+  std::vector<std::string> list;
+  list.reserve(replacements->count());
+  std::copy(replacements.begin(), replacements.end(), std::back_inserter(list));
+  return replaceTokenSequenceWithText(context, sql, start_token, count, list);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string MySQLParserServicesImpl::replaceTokenSequenceWithText(const parser::ParserContext::Ref &context,
+  const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements)
+{
+  std::string result;
+  context->recognizer()->parse(sql.c_str(), sql.size(), true, QtUnknown);
+  size_t error_count = context->recognizer()->error_info().size();
+  if (error_count > 0)
+    return "";
+
+  MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
+  if (!walker.advance_to_type((unsigned)start_token, true))
+    return sql;
+
+  // Get the index of each token in the input stream and use that in the input lexer to find
+  // tokens to replace. Don't touch any other (including whitespaces).
+  // The given start_token can only be a visible token.
+
+  // First find the range of the text before the start token and copy that unchanged.
+  ANTLR3_MARKER current_index = walker.token_index();
+  if (current_index > 0)
+  {
+    MySQLToken token = context->recognizer()->token_at_index(current_index - 1);
+    result = sql.substr(0, token.stop - sql.c_str() + 1);
+  }
+
+  // Next replace all tokens we have replacements for. Remember tokens are separated by hidden tokens
+  // which must be added to the result unchanged.
+  size_t c = std::min(count, replacements.size());
+  size_t i = 0;
+  for (; i < c; ++i)
+  {
+    ++current_index; // Ignore the token.
+    result += replacements[i];
+
+    // Append the following separator token.
+    MySQLToken token = context->recognizer()->token_at_index(current_index++);
+    if (token.type == ANTLR3_TOKEN_INVALID)
+      return result; // Premature end. Too many values given to replace.
+    result += token.text;
+
+    --count;
+  }
+
+  if (i < replacements.size())
+  {
+    // Something left to add before continuing with the rest of the SQL.
+    // In order to separate replacements properly they must include necessary whitespaces.
+    // We don't add any here.
+    while (i < replacements.size())
+      result += replacements[i++];
+  }
+
+  if (count > 0)
+  {
+    // Some tokens left without replacement. Skip them and add the rest of the query unchanged.
+    // Can be a large number to indicate the removal of anything left.
+    current_index += count;
+  }
+
+  // Finally add the remaining text.
+  MySQLToken token = context->recognizer()->token_at_index(current_index);
+  if (token.type != ANTLR3_TOKEN_INVALID)
+    result += token.start; // Implicitly zero-terminated.
+
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------

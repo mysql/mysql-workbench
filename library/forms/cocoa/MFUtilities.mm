@@ -28,6 +28,11 @@
 
 DEFAULT_LOG_DOMAIN("utilities");
 
+static void util_beep()
+{
+  NSBeep();
+}
+
 static int util_show_message(const std::string &title, const std::string &text,
                              const std::string &ok, const std::string &cancel,
                              const std::string &other)
@@ -415,7 +420,8 @@ static void util_set_thread_name(const std::string &name)
 void cf_util_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
-    
+
+  f->_utilities_impl.beep = &util_beep;
   f->_utilities_impl.show_message= &util_show_message;
   f->_utilities_impl.show_error= &util_show_message;
   f->_utilities_impl.show_warning= &util_show_message;

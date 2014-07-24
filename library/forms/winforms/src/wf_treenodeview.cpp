@@ -29,6 +29,7 @@ using namespace System::Drawing;
 using namespace System::Drawing::Imaging;
 using namespace System::Collections::Generic;
 using namespace System::Collections::ObjectModel;
+using namespace System::IO;
 using namespace System::Windows::Forms;
 
 using namespace Aga::Controls::Tree;
@@ -206,6 +207,9 @@ protected:
     if (attributes.italic)
       newStyle = newStyle | FontStyle::Italic;
     args->Font = gcnew Drawing::Font(args->Font, newStyle);
+
+    if (attributes.color.is_valid())
+      args->TextColor = Conversions::ColorToNative(attributes.color);
   }
 };
 
@@ -295,12 +299,11 @@ public:
   bool canReorderRows;
   bool canBeDragSource;
   Drawing::Rectangle dragBox;
-  DataFormats::Format ^rowDragFormat;
   int freezeCount;
   SortOrder currentSortOrder;
   List<int> columnTypes;
   
-  Dictionary<String^, TreeViewNode^> ^tagMap;
+  Dictionary<String^, TreeNodeAdv^> ^tagMap;
 
   TreeNodeAdv ^hotNode;             // The node under the mouse.
   List<NodeOverlay^> ^overlayInfo; // Overlay images and their bounds for special actions.
@@ -316,7 +319,6 @@ public:
     tagMap = nullptr;
     canBeDragSource = false;
     canReorderRows = false;
-    rowDragFormat = nullptr;
     dragBox = Rectangle::Empty;
 
     hotNode = nullptr;
@@ -333,7 +335,7 @@ public:
 
   void UseTagMap()
   {
-    tagMap = gcnew Dictionary<String^, TreeViewNode^>();
+    tagMap = gcnew Dictionary<String^, TreeNodeAdv^>();
   }
 
   //------------------------------------------------------------------------------------------------
@@ -460,7 +462,7 @@ public:
   {
     if (tagMap != nullptr)
     {
-      TreeViewNode^ node;
+      TreeNodeAdv^ node;
       if (tagMap->TryGetValue(tag, node))
       {
         TreeNodeViewWrapper *wrapper = TreeNodeViewWrapper::GetWrapper<TreeNodeViewWrapper>(this);
@@ -473,7 +475,7 @@ public:
 
   //--------------------------------------------------------------------------------------------------
 
-  void UpdateTagMap(TreeViewNode ^node, String ^tag)
+  void UpdateTagMap(TreeNodeAdv ^node, String ^tag)
   {
     if (tagMap != nullptr)
     {
@@ -529,8 +531,11 @@ public:
   {
     __super::OnSelectionChanged();
 
-    mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-    backend->changed();
+    if (!SuspendSelectionEvent)
+    {
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      backend->changed();
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -539,13 +544,12 @@ public:
   {
     __super::OnExpanding(node);
 
-     TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(node->Tag);
-     if (ourNode != nullptr)
-     {
-       mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-       TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-       backend->expand_toggle(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)), true);
-     }
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      if (backend != NULL)
+      {
+        TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+        backend->expand_toggle(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, node)), true);
+      }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -554,13 +558,12 @@ public:
   {
     __super::OnCollapsed(node);
 
-   TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(node->Tag);
-   if (ourNode != nullptr)
-   {
-     mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-     TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-     backend->expand_toggle(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)), false);
-   }
+    mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+    if (backend != NULL)
+    {
+      TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+      backend->expand_toggle(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, node)), false);
+    }
   }
 
   //------------------------------------------------------------------------------------------------
@@ -571,17 +574,11 @@ public:
 
     if (args->Control != nullptr)
     {
-      TreeNodeAdv ^treeNode = args->Node;
-      TreeViewNode ^ourNode = dynamic_cast<TreeViewNode^>(treeNode->Tag);
-
-      if (ourNode != nullptr)
-      {
-        mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-        TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-        int row = backend->row_for_node(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)));
-        int column= args->Control->ParentColumn->Index;
-        backend->node_activated(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)), column);
-      }
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+      //int row = backend->row_for_node(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, args->Node)));
+      int column = args->Control->ParentColumn->Index;
+      backend->node_activated(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, args->Node)), column);
     }
   }
 
@@ -722,7 +719,7 @@ public:
         NodeOverlay ^overlay = overlayInfo[i];
         if (overlay->bounds.Contains(args->Location))
         {
-          backend->overlay_icon_for_node_clicked(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode ^)hotNode->Tag)), i);
+          backend->overlay_icon_for_node_clicked(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, hotNode)), i);
           return;
         }
       }
@@ -770,30 +767,29 @@ public:
   {
     if (dragBox != Rectangle::Empty && !dragBox.Contains(args->Location))
     {
+      // We come here only if canBeDragSource is true. So we start a drag operation in any case.
       dragBox = Rectangle::Empty;
 
       mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+
       mforms::DragDetails details;
+      details.location = base::Point(args->X, args->Y);
+
       void *data = NULL;
       std::string format;
 
+      // First see if there is custom data in the tree backend.
       if (backend->get_drag_data(details, &data, format))
       {
-        details.location = base::Point(args->X, args->Y);
         mforms::DragOperation operation = backend->do_drag_drop(details, data, format);
         backend->drag_finished(operation);
       }
       else
+      {
+        // if there's no custom data then collect all selected node's text and use that for dragging.
+        // In addition, if row reordering is allowed, add an own data format for that too.
         if (SelectedNodes->Count > 0)
         {
-          Windows::Forms::DataObject ^data = gcnew Windows::Forms::DataObject();
-          DragDropEffects allowedEffects = DragDropEffects::Copy;
-          if (canReorderRows)
-          {
-            allowedEffects = static_cast<DragDropEffects>(allowedEffects | DragDropEffects::Move);
-            data->SetData(rowDragFormat->Name, this);
-          }
-
           // Set all selected nodes as strings too, so we can drag their names to text editors etc.
           String ^text = "";
           for each (TreeNodeAdv ^nodeAdv in SelectedNodes)
@@ -804,10 +800,22 @@ public:
               text += ", ";
             text += node->FullCaption;
           }
-          data->SetData(DataFormats::UnicodeText, text);
 
-          DoDragDrop(data, allowedEffects);
+          Windows::Forms::DataObject ^dataObject = gcnew Windows::Forms::DataObject(gcnew MySQL::Utilities::DataObject());
+          WBIDataObjectExtensions::SetDataEx(dataObject, DataFormats::UnicodeText, text);
+
+          // Store the backend pointer in the data object, so we can distinguish between internal and
+          // external drag sources.
+          WBIDataObjectExtensions::SetDataEx(dataObject, DRAG_SOURCE_FORMAT_NAME, gcnew IntPtr(backend));
+
+          DragDropEffects effects = DragDropEffects::Copy;
+          if (canReorderRows)
+            effects = static_cast<DragDropEffects>(effects | DragDropEffects::Move);
+
+          DoDragDrop(dataObject, effects);
+          delete dataObject;
         }
+      }
     }
     else
     {
@@ -828,7 +836,7 @@ public:
         {
           TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
           std::vector<std::string> overlay_icons = backend->overlay_icons_for_node
-            (mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode ^)info->Node->Tag)));
+            (mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, info->Node)));
 
           if (!overlay_icons.empty())
           {
@@ -840,7 +848,11 @@ public:
             {
               NodeOverlay ^overlay = gcnew NodeOverlay();
               overlay->isHot = false;
-              overlay->image = Drawing::Image::FromFile(CppStringToNativeRaw(overlay_icons[i]));
+              String ^name = CppStringToNativeRaw(overlay_icons[i]);
+              if (!File::Exists(name))
+                continue;
+              
+              overlay->image = Drawing::Image::FromFile(name);
               if (overlay->image == nullptr)
                 continue;
 
@@ -925,26 +937,29 @@ public:
 
   virtual void OnDragOver(DragEventArgs ^args) override
   {
-    if (args->Data->GetDataPresent(rowDragFormat->Name))
+    __super::OnDragOver(args); // Draws the drop mark.
+
+    if (canReorderRows)
     {
       // Only accept row move events from this tree instance.
-      if (args->Data->GetData(rowDragFormat->Name) == this)
-      {
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      if (ViewWrapper::source_view_from_data(args->Data) == backend)
         args->Effect = DragDropEffects::Move;
-        return;
-      }
+      else
+        args->Effect = DragDropEffects::None;
     }
-
-    args->Effect = DragDropEffects::None;
   }
 
   //------------------------------------------------------------------------------------------------
 
   virtual void OnDragDrop(DragEventArgs ^args) override
   {
-    if (args->Data->GetDataPresent(rowDragFormat->Name))
+    __super::OnDragDrop(args);
+
+    if (canReorderRows)
     {
-      if (args->Data->GetData(rowDragFormat->Name) == this)
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      if (ViewWrapper::source_view_from_data(args->Data) == backend)
       {
         // Make a copy of the selection. We are going to modify the tree structure.
         Collections::Generic::List<TreeViewNode^> ^selection = gcnew Collections::Generic::List<TreeViewNode^>();
@@ -976,7 +991,7 @@ public:
             if (node != targetNode) // Don't move a node to the place it is currently.
             {
               node->Parent->Nodes->Remove(node);
-              int index = targetNode->Index + ((position == NodePosition::After) ?  1 : 0);
+              int index = targetNode->Index + ((position == NodePosition::After) ? 1 : 0);
               targetNode->Parent->Nodes->Insert(index, node);
             }
           }
@@ -1028,8 +1043,6 @@ public:
   void TreeValuePushed(System::Object ^sender, NodeControlValueEventArgs ^args)
   {
     BindableControl ^control = (BindableControl ^)sender;
-    TreeNodeAdv ^treeNode = args->Node;
-    TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(treeNode->Tag);
 
     // First check if the backend allows editing that value.
     std::string new_value = NativeToCppString(args->Value->ToString());
@@ -1044,9 +1057,10 @@ public:
 
     mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
     TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-    if (backend->cell_edited(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, ourNode)), control->ParentColumn->Index, new_value))
+    if (backend->cell_edited(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, args->Node)), control->ParentColumn->Index, new_value))
     {
       // Backend says ok, so update the model.
+      TreeViewNode ^ourNode = dynamic_cast<TreeViewNode ^>(args->Node->Tag);
       if (ourNode != nullptr)
         ourNode->Caption[control->ParentColumn->Index] = args->Value->ToString();
     }
@@ -1086,8 +1100,6 @@ bool TreeNodeViewWrapper::create(mforms::TreeNodeView *backend, mforms::TreeOpti
     tree->canBeDragSource = true;
     if ((options & mforms::TreeAllowReorderRows) != 0)
     {
-      // Register an own format for row reorder.
-      tree->rowDragFormat = DataFormats::GetFormat("com.mysql.workbench.row-reorder");
       tree->AllowDrop = true;
       tree->canReorderRows = true;
     }
@@ -1095,7 +1107,7 @@ bool TreeNodeViewWrapper::create(mforms::TreeNodeView *backend, mforms::TreeOpti
 
   tree->FullRowSelect = true; // Same as in Explorer.
   tree->AsyncExpanding = false;
-  tree->LoadOnDemand = true;
+  tree->LoadOnDemand = false;
   tree->UseColumns = options & mforms::TreeNoColumns ? false : true;
   tree->ShowHeader = tree->UseColumns && (options & mforms::TreeNoHeader) == 0;
   
@@ -1106,6 +1118,8 @@ bool TreeNodeViewWrapper::create(mforms::TreeNodeView *backend, mforms::TreeOpti
     // Add some padding or the content will directly start at the boundaries.
     tree->Padding = Padding(2);
   }
+  else
+    tree->BorderStyle = BorderStyle::FixedSingle; // Make the border a single line if there's any.
 
   tree->ShowLines = false;
   tree->ShowPlusMinus = false;
@@ -1163,10 +1177,10 @@ mforms::TreeNodeRef TreeNodeViewWrapper::get_selected_node(mforms::TreeNodeView 
 {
   TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
   TreeViewAdv ^tree = wrapper->GetManagedObject<TreeViewAdv>();
-  TreeNodeAdv ^snode = tree->CurrentNode;
-  if (snode == nullptr || snode->Tag == nullptr)
+  TreeNodeAdv ^node = tree->SelectedNode;
+  if (node == nullptr || node->Tag == nullptr)
     return mforms::TreeNodeRef();
-  return mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode^)snode->Tag));
+  return mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, node));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1232,6 +1246,14 @@ mforms::TreeNodeRef TreeNodeViewWrapper::node_at_row(mforms::TreeNodeView *backe
 {
   TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
   return wrapper->node_at_row(row);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::TreeNodeRef TreeNodeViewWrapper::node_at_position(mforms::TreeNodeView *backend, base::Point position)
+{
+  TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+  return wrapper->node_at_position(position);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1316,10 +1338,7 @@ std::list<mforms::TreeNodeRef> TreeNodeViewWrapper::get_selection()
   if (sel != nullptr)
   {
     for (int i = 0; i < sel->Count; i++)
-    {
-      TreeViewNode ^node = (TreeViewNode^)sel[i]->Tag;
-      selection.push_back(mforms::TreeNodeRef(new TreeNodeWrapper(this, node)));
-    }
+      selection.push_back(mforms::TreeNodeRef(new TreeNodeWrapper(this, sel[i])));
   }
   return selection;
 }
@@ -1396,6 +1415,18 @@ mforms::TreeNodeRef TreeNodeViewWrapper::node_at_row(int row)
 
 //--------------------------------------------------------------------------------------------------
 
+mforms::TreeNodeRef TreeNodeViewWrapper::node_at_position(base::Point position)
+{
+  TreeViewAdv ^tree = GetManagedObject<TreeViewAdv>();
+  TreeNodeAdv ^node = tree->GetNodeAt(::Point((int)position.x, (int)position.y));
+  if (node == nullptr)
+    return mforms::TreeNodeRef();
+
+  return mforms::TreeNodeRef(new TreeNodeWrapper(this, node));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 static int count_rows_in_node(mforms::TreeNodeRef node)
 {
   if (node->is_expanded())
@@ -1428,7 +1459,7 @@ int TreeNodeViewWrapper::row_for_node(mforms::TreeNodeRef node)
       for (int i = 0; i < node_index; i++)
         row += count_rows_in_node(parent->get_child(i));
       if (parent != root_node())
-        row += row_for_node(parent) + 1;
+        row += row_for_node(parent) + 1; // One more for the parent node.
     }
     else
     {
@@ -1482,10 +1513,29 @@ int TreeNodeViewWrapper::get_column_width(int column)
 
 //--------------------------------------------------------------------------------------------------
 
+mforms::DropPosition TreeNodeViewWrapper::get_drop_position()
+{
+  TreeViewAdv ^tree = GetManagedObject<TreeViewAdv>();
+  switch (tree->DropPosition.Position)
+  {
+  case NodePosition::Inside:
+    return mforms::DropPositionOn;
+  case NodePosition::Before :
+    return mforms::DropPositionTop;
+  case NodePosition::After:
+    return mforms::DropPositionBottom;
+
+  default:
+    return mforms::DropPositionUnknown;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Adds, removes or changes a node <-> tag mapping (if mapping is enabled).
  */
-void TreeNodeViewWrapper::process_mapping(TreeViewNode ^node, const std::string &tag)
+void TreeNodeViewWrapper::process_mapping(TreeNodeAdv ^node, const std::string &tag)
 {
   MformsTree ^tree = GetManagedObject<MformsTree>();
   tree->UpdateTagMap(node, CppStringToNative(tag));
@@ -1506,13 +1556,8 @@ void TreeNodeViewWrapper::node_value_set(int column)
 
 void TreeNodeViewWrapper::set_selected(mforms::TreeNodeRef node, bool flag)
 {
-  TreeNodeWrapper *impl = dynamic_cast<TreeNodeWrapper*>(node.ptr());
-  if (impl)
-  {
-    TreeNodeAdv ^tna = impl->find_node_adv();
-    if (tna)
-      tna->IsSelected = true;
-  }
+  TreeNodeWrapper *wrapper = dynamic_cast<TreeNodeWrapper*>(node.ptr());
+  wrapper->set_selected(flag);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1543,6 +1588,7 @@ void TreeNodeViewWrapper::init()
   f->_treenodeview_impl.root_node = &TreeNodeViewWrapper::root_node;
   f->_treenodeview_impl.row_for_node = &TreeNodeViewWrapper::row_for_node;
   f->_treenodeview_impl.node_at_row = &TreeNodeViewWrapper::node_at_row;
+  f->_treenodeview_impl.node_at_position = &TreeNodeViewWrapper::node_at_position;
   f->_treenodeview_impl.set_selection_mode = &TreeNodeViewWrapper::set_selection_mode;
   f->_treenodeview_impl.get_selection_mode = &TreeNodeViewWrapper::get_selection_mode;
   f->_treenodeview_impl.node_with_tag = &TreeNodeViewWrapper::node_with_tag;

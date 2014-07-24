@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_TABSWITCHER_H_
-#define _MFORMS_TABSWITCHER_H_
+#pragma once
 
 #include <vector>
 
@@ -102,7 +101,3 @@ namespace mforms
     bool collapse();
   };
 };
-
-#endif
-
-

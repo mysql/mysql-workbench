@@ -190,9 +190,9 @@ class MigrationSource(object):
             raise NotSupportedError('MySQL connections through SSH are not supported in this version '
                                     'of the MySQL Workbench Migration Wizard.')
         self._rev_eng_module.connect(self.connection, self.password or "")
-        if str(self.getDriverDBMSName()).upper() == 'ACCESS':
-            raise NotSupportedError('Microsoft Access is not supported in this version of the MySQL Workbench '
-                                    'Migration Wizard.')
+        #if str(self.getDriverDBMSName()).upper() == 'ACCESS':
+        #    raise NotSupportedError('Microsoft Access is not supported in this version of the MySQL Workbench '
+        #                            'Migration Wizard.')
         return True
 
     def disconnect(self):
@@ -235,7 +235,7 @@ class MigrationSource(object):
         
         grt.send_progress(0.0, "Checking connection...")
         self.connect()
-        if self.rdbms.doesSupportCatalogs:
+        if self.rdbms.doesSupportCatalogs > 0:
             grt.send_progress(0.1, "Fetching catalog names...")
             self.state.sourceSchemataNames.remove_all()
             catalog_names = self.getCatalogNames()
@@ -254,7 +254,7 @@ class MigrationSource(object):
                 for schema in schema_names:
                     self.state.sourceSchemataNames.append("%s.%s" % (self._db_module.quoteIdentifier(catalog), self._db_module.quoteIdentifier(schema)))
                 accumulated_progress += 0.9 * step_progress_share
-        else:  # The rdbms doesn't support catalogs
+        elif self.rdbms.doesSupportCatalogs == 0:  # The rdbms doesn't support catalogs
             grt.send_progress(0.1, "Fetching schema names...")
             schema_names = self.getSchemaNames('')
             if only_these_catalogs:  # Here only_these_catalogs would rather mean only these schemata
@@ -266,6 +266,11 @@ class MigrationSource(object):
             self.state.sourceSchemataNames.remove_all()
             for schema in schema_names:
                 self.state.sourceSchemataNames.append('%s.%s' % (self._db_module.quoteIdentifier('def'), self._db_module.quoteIdentifier(schema)))
+        else: # no schema either
+            self._catalog_names = []
+            self.state.sourceSchemataNames.remove_all()
+            for schema in self.getSchemaNames(''):
+                self.state.sourceSchemataNames.append(self._db_module.quoteIdentifier(schema))
         grt.send_progress(1.0, "Finished")
 
 

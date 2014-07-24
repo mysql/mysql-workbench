@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_CHECKBOX_H_
-#define _MFORMS_CHECKBOX_H_
+#pragma once
 
 #include <mforms/base.h>
 #include <mforms/button.h>
@@ -59,5 +58,3 @@ namespace mforms {
     CheckBoxImplPtrs *_checkbox_impl;
   };
 };
-
-#endif

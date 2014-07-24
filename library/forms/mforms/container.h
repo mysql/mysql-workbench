@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_CONTAINER_H_
-#define _MFORMS_CONTAINER_H_
+#pragma once
 
 #include "mforms/view.h"
 
@@ -39,5 +38,3 @@ namespace mforms {
     virtual void set_back_image(const std::string& path, Alignment alignment) { View::set_back_image(path, alignment); }
   };
 };
-
-#endif

@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_NATIVE_H_
-#define _MFORMS_NATIVE_H_
+#pragma once
 
 #include "mforms/view.h"
 
@@ -29,5 +28,3 @@ namespace mforms {
     NativeContainer();
   };
 };
-
-#endif
