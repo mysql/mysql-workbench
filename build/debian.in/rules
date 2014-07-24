@@ -103,7 +103,7 @@ install: build
 	# Bundle other unpackaged libs
 	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(CURDIR)/debian/copyright $(WBDOCPATH)
+	cp -a $(CURDIR)/debian/copyright $(CURDIR)/debian/$(WBDIRNAME)/$(WBDOCPATH)
 @ifdef commercial
 	# Bundle libs only needed for SE edition
 	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
