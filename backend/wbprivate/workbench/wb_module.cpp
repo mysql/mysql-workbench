@@ -2239,4 +2239,73 @@ int WorkbenchImpl::initializeOtherRDBMS()
   
   return 1;
 }
+
+/**
+* Removes a connection from the stored connections list along with all associated data
+* (including its server instance entry).
+*/
+int WorkbenchImpl::deleteConnection(const db_mgmt_ConnectionRef &connection)
+{
+  grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
+  grt::ListRef<db_mgmt_ServerInstance> instances = _wb->get_root()->rdbmsMgmt()->storedInstances();
+
+  // Remove all associated server instances.
+  for (ssize_t i = instances.count() - 1; i >= 0; --i)
+  {
+    db_mgmt_ServerInstanceRef instance(instances[i]);
+    if (instance->connection() == connection)
+      instances->remove(i);
+  }
+
+  // Remove password associated with this connection (if stored in keychain/vault). Check first
+  // this service/username combination isn't used anymore by other connections.
+  bool credentials_still_used = false;
+  grt::DictRef parameter_values = connection->parameterValues();
+  std::string host = connection->hostIdentifier();
+  std::string user = parameter_values.get_string("userName");
+  for (grt::ListRef<db_mgmt_Connection>::const_iterator i = connections.begin();
+    i != connections.end(); ++i)
+  {
+    if (*i != connection)
+    {
+      grt::DictRef current_parameters = (*i)->parameterValues();
+      if (host == *(*i)->hostIdentifier() && user == current_parameters.get_string("userName"))
+      {
+        credentials_still_used = true;
+        break;
+      }
+    }
+  }
+  if (!credentials_still_used)
+    mforms::Utilities::forget_password(host, user);
+
+  connections->remove(connection);
+
+  return 0;
+}
+
+int WorkbenchImpl::deleteConnectionGroup(const std::string& group)
+{
+  size_t group_length = group.length();
+
+  std::vector<db_mgmt_ConnectionRef> candidates;
+  grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
+
+  ssize_t index = connections.count() - 1;
+  while (index >= 0)
+  {
+    std::string name = connections[index]->name();
+
+    if (name.compare(0, group_length, group) == 0)
+      candidates.push_back(connections[index]);
+
+    index--;
+  }
+
+  for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = candidates.begin();
+    iterator != candidates.end(); ++iterator)
+    deleteConnection(*iterator);
+
+  return 0;
+}
 //--------------------------------------------------------------------------------------------------

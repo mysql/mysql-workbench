@@ -9,6 +9,7 @@ from grt import log_warning, log_info
 import mforms
 import urllib2
 import traceback
+import time
 
 from wb_common import OperationCancelledError
 
@@ -183,7 +184,7 @@ def createConnections(conn):
                     
                     groups = sorted(group_status[2], key=group_key)
 
-                    fabric_grounp_count = len(groups)
+                    fabric_group_count = len(groups)
 
                     group_filter = conn.parameterValues["haGroupFilter"].strip()
                     group_list = []
@@ -235,10 +236,12 @@ def createConnections(conn):
 
                                     server_count += 1
 
+                    conn.parameterValues["managedConnectionsUpdateTime"] = time.strftime('%Y-%m-%d %H:%M:%S')
+
                     if server_count:
                         grt.modules.Workbench.refreshHomeConnections()
                     else:
-                        if fabric_grounp_count == 0:
+                        if fabric_group_count == 0:
                             error = "There are no High Availability Groups defined on the %s fabric node." % conn.name
                         elif not matched_groups:
                             error = "There are no High Availability Groups matching the configured group filter on %s." % conn.name

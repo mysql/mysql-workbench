@@ -2008,18 +2008,23 @@ public:
               int entry = _hot_entry;
               db_mgmt_ConnectionRef fabric_connection;
               if (_filtered)
-                fabric_connection = _filtered_connections[_hot_entry].connection;
+                fabric_connection = _filtered_connections[entry].connection;
               else
-                fabric_connection = _connections[_hot_entry].connection;
+                fabric_connection = _connections[entry].connection;
               
               int created_connections = grt::IntegerRef::cast_from(fabric_connection->parameterValues().get("connections_created"));
-              if (!created_connections)
+
+              if (created_connections)
               {
-                _owner->trigger_callback(ActionCreateFabricConnections, fabric_connection);
-                created_connections = grt::IntegerRef::cast_from(fabric_connection->parameterValues().get("connections_created"));
-                if (!created_connections)
-                  return false;
+                _entry_for_menu = entry;
+                handle_folder_command("internal_delete_connection_group", true);
               }
+                
+              _owner->trigger_callback(ActionCreateFabricConnections, fabric_connection);
+              created_connections = grt::IntegerRef::cast_from(fabric_connection->parameterValues().get("connections_created"));
+              if (!created_connections)
+                return false;
+
               _active_folder = _fabric_entry = entry;
             }
             else if (is_folder)
@@ -2252,7 +2257,7 @@ public:
   {
     grt::ValueRef item;
 
-    if (is_fabric && !base::starts_with(command, "move"))
+    if (is_fabric && !base::starts_with(command, "move") && command != "internal_delete_connection_group")
     {
       if (_filtered)
         item = _filtered_connections[_entry_for_menu].connection;

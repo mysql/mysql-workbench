@@ -163,7 +163,9 @@ public:
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::createConnectionsFromLocalServers),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::createInstancesFromLocalServers),
     DECLARE_MODULE_FUNCTION(WorkbenchImpl::create_connection),
-    DECLARE_MODULE_FUNCTION(WorkbenchImpl::initializeOtherRDBMS)
+    DECLARE_MODULE_FUNCTION(WorkbenchImpl::initializeOtherRDBMS),
+    DECLARE_MODULE_FUNCTION(WorkbenchImpl::deleteConnection),
+    DECLARE_MODULE_FUNCTION(WorkbenchImpl::deleteConnectionGroup)
     );
 
 protected:
@@ -339,6 +341,8 @@ private:
   std::string getVideoAdapter();
   std::string getFullVideoAdapterInfo(bool indent);
   int initializeOtherRDBMS();
+  int deleteConnection(const db_mgmt_ConnectionRef &connection);
+  int deleteConnectionGroup(const std::string& group);
 };
 
 };
