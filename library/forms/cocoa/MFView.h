@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#import <Cocoa/Cocoa.h>
+#include "mforms/view.h"
 
 #import "MFBase.h"
 
@@ -90,6 +90,9 @@ namespace mforms { class View; }
 
 @property NSInteger viewFlags;
 @property NSArray *acceptableDropFormats;
+@property mforms::DragOperation lastDragOperation;
+@property mforms::DragOperation allowedDragOperations;
+@property mforms::DropPosition lastDropPosition; // Only valid during a drag operation. Set by descendants.
 
 - (id)innerView;
 
@@ -110,6 +113,7 @@ namespace mforms { class View; }
 - (bool)handleMouseEntered: (NSEvent*) event owner: (mforms::View *)mOwner;
 - (bool)handleMouseExited: (NSEvent*) event owner: (mforms::View *)mOwner;
 - (NSTrackingArea *)updateTrackingArea: (NSTrackingArea *)currentArea;
+
 
 @end
 

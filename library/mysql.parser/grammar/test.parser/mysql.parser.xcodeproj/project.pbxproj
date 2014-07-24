@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
 		256AC3DA0F4B6AC300CF3369 /* mysql_parserAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 256AC3D90F4B6AC300CF3369 /* mysql_parserAppDelegate.m */; };
+		27103291197E91B1005D7CF5 /* MySQLSimpleParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 2710328F197E91B1005D7CF5 /* MySQLSimpleParser.c */; };
 		277BCD551559412700F6C2CD /* MySQLLexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 277BCD511559412700F6C2CD /* MySQLLexer.c */; settings = {COMPILER_FLAGS = "-Wno-sign-compare"; }; };
 		277BCD561559412700F6C2CD /* MySQLParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 277BCD531559412700F6C2CD /* MySQLParser.c */; };
 		277BCD8C1559415700F6C2CD /* antlr3baserecognizer.c in Sources */ = {isa = PBXBuildFile; fileRef = 277BCD751559415700F6C2CD /* antlr3baserecognizer.c */; };
@@ -47,6 +48,8 @@
 		256AC3D80F4B6AC300CF3369 /* mysql_parserAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mysql_parserAppDelegate.h; sourceTree = "<group>"; };
 		256AC3D90F4B6AC300CF3369 /* mysql_parserAppDelegate.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = mysql_parserAppDelegate.m; sourceTree = "<group>"; wrapsLines = 0; };
 		256AC3F00F4B6AF500CF3369 /* mysql_parser_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mysql_parser_Prefix.pch; sourceTree = "<group>"; };
+		2710328F197E91B1005D7CF5 /* MySQLSimpleParser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MySQLSimpleParser.c; path = ../../MySQLSimpleParser.c; sourceTree = "<group>"; };
+		27103290197E91B1005D7CF5 /* MySQLSimpleParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLSimpleParser.h; path = ../../MySQLSimpleParser.h; sourceTree = "<group>"; };
 		277BCD511559412700F6C2CD /* MySQLLexer.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = MySQLLexer.c; path = ../../MySQLLexer.c; sourceTree = SOURCE_ROOT; };
 		277BCD521559412700F6C2CD /* MySQLLexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLLexer.h; path = ../../MySQLLexer.h; sourceTree = SOURCE_ROOT; };
 		277BCD531559412700F6C2CD /* MySQLParser.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = MySQLParser.c; path = ../../MySQLParser.c; sourceTree = SOURCE_ROOT; tabWidth = 2; wrapsLines = 0; };
@@ -225,6 +228,8 @@
 				277BCD521559412700F6C2CD /* MySQLLexer.h */,
 				277BCD531559412700F6C2CD /* MySQLParser.c */,
 				277BCD541559412700F6C2CD /* MySQLParser.h */,
+				27103290197E91B1005D7CF5 /* MySQLSimpleParser.h */,
+				2710328F197E91B1005D7CF5 /* MySQLSimpleParser.c */,
 			);
 			name = Parser;
 			sourceTree = "<group>";
@@ -376,6 +381,7 @@
 				277BCD9A1559415700F6C2CD /* antlr3filestream.c in Sources */,
 				277BCD9B1559415700F6C2CD /* antlr3inputstream.c in Sources */,
 				277BCD9C1559415700F6C2CD /* antlr3intstream.c in Sources */,
+				27103291197E91B1005D7CF5 /* MySQLSimpleParser.c in Sources */,
 				277BCD9D1559415700F6C2CD /* antlr3lexer.c in Sources */,
 				277BCD9E1559415700F6C2CD /* antlr3parser.c in Sources */,
 				277BCD9F1559415700F6C2CD /* antlr3rewritestreams.c in Sources */,

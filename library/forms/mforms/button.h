@@ -16,11 +16,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_BUTTON_H_
-#define _MFORMS_BUTTON_H_
+
+#pragma once
 
 #include <mforms/view.h>
-
 
 namespace mforms {
   class Button;
@@ -85,5 +84,3 @@ namespace mforms {
     bool _updating;
   };
 };
-
-#endif

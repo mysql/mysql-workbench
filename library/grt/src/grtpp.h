@@ -997,6 +997,11 @@ namespace grt {
       ++iter;
       return temp;
     }
+
+    inline size_t operator - (const TypedListConstIterator &other) const
+    {
+      return iter - other.iter;
+    }
   };
 
   template<class C>
@@ -1140,17 +1145,7 @@ namespace grt {
     {
       return content().raw_end();
     }
-/*
-    inline raw_const_reverse_iterator rbegin() const
-    {
-      return content().raw_rbegin();
-    }
-    
-    inline raw_const_reverse_iterator rend() const
-    {
-      return content().raw_rend();
-    }
-  */
+
     template<typename TPred>
     bool foreach(TPred pred) const
     {

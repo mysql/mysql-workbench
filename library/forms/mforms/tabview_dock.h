@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _TABVIEW_DOCK_H_
-#define _TABVIEW_DOCK_H_
+#pragma once
 
 #include "mforms/dockingpoint.h"
 #include "mforms/tabview.h"
@@ -50,5 +49,3 @@ public:
 };
 
 };
-
-#endif

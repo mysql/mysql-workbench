@@ -33,8 +33,10 @@ using namespace mforms;
 FsObjectSelector::FsObjectSelector(bool horizontal)
 : Box(horizontal)
 {
-  _browse_button= mforms::manage(new Button());
-  _edit= mforms::manage(new TextEntry());
+  _browse_button = mforms::manage(new Button(), false);
+  _browse_button->retain();
+  _edit = mforms::manage(new TextEntry(), false);
+  _edit->retain();
   
   set_spacing(10);
   add(_edit, true, true);
@@ -47,7 +49,7 @@ FsObjectSelector::FsObjectSelector(bool horizontal)
  * Constructor that can be given controls to use for its task, which might be laid out in any way
  * not supported by the selector.
  * If you use this constructor you should not add the selector to any other container or it will
- * show up empty (unless you explicitely add the given controls to this selector).
+ * show up empty (unless you explicitly add the given controls to this selector).
  */
 FsObjectSelector::FsObjectSelector(Button* button, TextEntry* edit)
 : Box(true)

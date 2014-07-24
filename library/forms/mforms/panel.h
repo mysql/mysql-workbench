@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_PANEL_H_
-#define _MFORMS_PANEL_H_
+
+#pragma once
 
 #include <mforms/container.h>
 
@@ -89,5 +89,3 @@ namespace mforms {
     PanelImplPtrs *_panel_impl;
   };
 };
-
-#endif

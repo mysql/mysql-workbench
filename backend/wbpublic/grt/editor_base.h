@@ -80,6 +80,7 @@ namespace bec {
     virtual void on_object_changed();
     
     void freeze_refresh_on_object_change();
+    bool is_refresh_frozen();
     void thaw_refresh_on_object_change(bool discard_pending = false);
 
     virtual bool is_editor_dirty();

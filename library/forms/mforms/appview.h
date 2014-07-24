@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_APPVIEW_H_
-#define _MFORMS_APPVIEW_H_
+#pragma once
 
 #include <mforms/box.h>
 #include <mforms/app.h>
@@ -52,8 +51,10 @@ namespace mforms {
    */
   class MFORMS_EXPORT AppView : public Box , public bec::UIForm
   {
-  protected:
+  private:
+#ifdef _WIN32
     AppViewImplPtrs* _app_view_impl;
+#endif
     boost::function<bool ()> _on_close_slot;
     std::string _context_name;
     std::string _identifier;
@@ -123,5 +124,3 @@ namespace mforms {
 #endif
   };
 };
-
-#endif

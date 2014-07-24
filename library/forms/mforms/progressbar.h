@@ -17,12 +17,10 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_PROGRESSBAR_H_
-#define _MFORMS_PROGRESSBAR_H_
+#pragma once
 
 #include <mforms/base.h>
 #include <mforms/view.h>
-
 
 namespace mforms {
   class ProgressBar;
@@ -59,6 +57,3 @@ namespace mforms {
     ProgressBarImplPtrs *_progressbar_impl;
   };
 };
-
-
-#endif /* _MFORMS_PROGRESSBAR_H_ */

@@ -20,6 +20,8 @@
 #import "MFTabView.h"
 #import "MFMForms.h"
 
+#include "base/string_utilities.h"
+
 @implementation MFTabViewItemView
 
 - (NSView*)superview
@@ -138,6 +140,10 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
         tabSwitcherBelow = YES;
         [mTabSwitcher setTabView: mTabView];
+        break;
+
+      default:
+        throw std::runtime_error("mforms: invalid tab type: " + base::to_string(tabType));
         break;
     }
     [mTabView setDrawsBackground: NO];

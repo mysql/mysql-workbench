@@ -22,7 +22,7 @@
 
 #include <grtpp_util.h>
 #include "grtui/grtdb_connect_panel.h"
-#include "mforms_ObjectReference_impl.h"
+#include "../wrapper/mforms_ObjectReference_impl.h"
 
 //================================================================================
 // ui_db_ConnectPanel

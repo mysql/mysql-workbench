@@ -246,6 +246,21 @@
 		27B3E26012E05FC700FFF572 /* log.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3E25E12E05FC700FFF572 /* log.h */; };
 		27B7FB7911B6A07A00F58910 /* MFMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B7FB7711B6A07A00F58910 /* MFMenu.h */; };
 		27B7FB7A11B6A07A00F58910 /* MFMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27B7FB7811B6A07A00F58910 /* MFMenu.mm */; };
+		27B923B8196EC71700D98D18 /* item_overlay_add.png in Resources */ = {isa = PBXBuildFile; fileRef = 27B923B4196EC71700D98D18 /* item_overlay_add.png */; };
+		27B923B9196EC71700D98D18 /* item_overlay_add@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27B923B5196EC71700D98D18 /* item_overlay_add@2x.png */; };
+		27B923BA196EC71700D98D18 /* item_overlay_delete.png in Resources */ = {isa = PBXBuildFile; fileRef = 27B923B6196EC71700D98D18 /* item_overlay_delete.png */; };
+		27B923BB196EC71700D98D18 /* item_overlay_delete@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27B923B7196EC71700D98D18 /* item_overlay_delete@2x.png */; };
+		27B923BE196ED07200D98D18 /* mysql-syntax-check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27B923BC196ED07200D98D18 /* mysql-syntax-check.cpp */; };
+		27B923BF196ED07200D98D18 /* mysql-syntax-check.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B923BD196ED07200D98D18 /* mysql-syntax-check.h */; };
+		27B923C2196ED0C700D98D18 /* MySQLSimpleParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 27B923C0196ED0C700D98D18 /* MySQLSimpleParser.c */; };
+		27B923C3196ED0C700D98D18 /* MySQLSimpleParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B923C1196ED0C700D98D18 /* MySQLSimpleParser.h */; };
+		27B923CB196ED20000D98D18 /* grt_PyObject_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B923C5196ED20000D98D18 /* grt_PyObject_impl.h */; };
+		27B923CC196ED20000D98D18 /* grt_PyObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27B923C6196ED20000D98D18 /* grt_PyObject.cpp */; };
+		27B923CD196ED20000D98D18 /* mforms_ObjectReference_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B923C7196ED20000D98D18 /* mforms_ObjectReference_impl.h */; };
+		27B923CE196ED20000D98D18 /* mforms_ObjectReference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27B923C8196ED20000D98D18 /* mforms_ObjectReference.cpp */; };
+		27B923CF196ED20000D98D18 /* parser_ContextReference_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B923C9196ED20000D98D18 /* parser_ContextReference_impl.h */; };
+		27B923D0196ED20000D98D18 /* parser_ContextReference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27B923CA196ED20000D98D18 /* parser_ContextReference.cpp */; };
+		27B923D2196EDB1300D98D18 /* mysql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* mysql.parser.dylib */; };
 		27BFE4561924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch */; };
 		27BFE4581924B89E0070B8FB /* wbpublic.be_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.pch */; };
 		27BFE45B1924BB080070B8FB /* WBExtras_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE45A1924BB080070B8FB /* WBExtras_prefix.pch */; };
@@ -1790,8 +1805,6 @@
 		2BA2B6101796F57700673E8D /* maintab_right_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BA2B6051796F57600673E8D /* maintab_right_inactive.png */; };
 		2BA6AFF213676C2C008600AF /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		2BA8528C16A8A4D40048015B /* db_copy_report.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BA8528B16A8A4CE0048015B /* db_copy_report.py */; };
-		2BAD74E6156180B30025F13F /* mforms_ObjectReference_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAD74E4156180B30025F13F /* mforms_ObjectReference_impl.h */; };
-		2BAD74E7156180B30025F13F /* mforms_ObjectReference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD74E5156180B30025F13F /* mforms_ObjectReference.cpp */; };
 		2BAD74EB156182DB0025F13F /* dockingpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAD74EA156182DB0025F13F /* dockingpoint.h */; };
 		2BAD74ED156182F90025F13F /* dockingpoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD74EC156182F90025F13F /* dockingpoint.cpp */; };
 		2BAD7706156846820025F13F /* explain_renderer.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7701156846820025F13F /* explain_renderer.py */; };
@@ -1977,8 +1990,6 @@
 		2BC929A0170CD7B300D5BCAD /* edit_table_templates.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC9299F170CD7B300D5BCAD /* edit_table_templates.png */; };
 		2BC929A2170E21D100D5BCAD /* tabview_dock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC929A1170E21D100D5BCAD /* tabview_dock.cpp */; };
 		2BC929A4170E21DB00D5BCAD /* tabview_dock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC929A3170E21DB00D5BCAD /* tabview_dock.h */; };
-		2BC929A71718319F00D5BCAD /* grt_PyObject_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC929A51718319F00D5BCAD /* grt_PyObject_impl.h */; };
-		2BC929A9171831AE00D5BCAD /* grt_PyObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC929A61718319F00D5BCAD /* grt_PyObject.cpp */; };
 		2BC929AA171831D600D5BCAD /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2BCAD0581006D11A00D1772C /* mforms_wrap.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2BCAD0571006D11A00D1772C /* mforms_wrap.cxx */; };
 		2BCAD05E1006D20B00D1772C /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
@@ -4006,6 +4017,20 @@
 		27B3E25E12E05FC700FFF572 /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = log.h; path = library/base/base/log.h; sourceTree = "<group>"; };
 		27B7FB7711B6A07A00F58910 /* MFMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFMenu.h; path = library/forms/cocoa/MFMenu.h; sourceTree = "<group>"; };
 		27B7FB7811B6A07A00F58910 /* MFMenu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFMenu.mm; path = library/forms/cocoa/MFMenu.mm; sourceTree = "<group>"; };
+		27B923B4196EC71700D98D18 /* item_overlay_add.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = item_overlay_add.png; sourceTree = "<group>"; };
+		27B923B5196EC71700D98D18 /* item_overlay_add@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "item_overlay_add@2x.png"; sourceTree = "<group>"; };
+		27B923B6196EC71700D98D18 /* item_overlay_delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = item_overlay_delete.png; sourceTree = "<group>"; };
+		27B923B7196EC71700D98D18 /* item_overlay_delete@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "item_overlay_delete@2x.png"; sourceTree = "<group>"; };
+		27B923BC196ED07200D98D18 /* mysql-syntax-check.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "mysql-syntax-check.cpp"; path = "library/mysql.parser/mysql-syntax-check.cpp"; sourceTree = "<group>"; };
+		27B923BD196ED07200D98D18 /* mysql-syntax-check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-syntax-check.h"; path = "library/mysql.parser/mysql-syntax-check.h"; sourceTree = "<group>"; };
+		27B923C0196ED0C700D98D18 /* MySQLSimpleParser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MySQLSimpleParser.c; path = library/mysql.parser/MySQLSimpleParser.c; sourceTree = "<group>"; };
+		27B923C1196ED0C700D98D18 /* MySQLSimpleParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLSimpleParser.h; path = library/mysql.parser/MySQLSimpleParser.h; sourceTree = "<group>"; };
+		27B923C5196ED20000D98D18 /* grt_PyObject_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grt_PyObject_impl.h; path = backend/wbpublic/objimpl/wrapper/grt_PyObject_impl.h; sourceTree = "<group>"; };
+		27B923C6196ED20000D98D18 /* grt_PyObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_PyObject.cpp; path = backend/wbpublic/objimpl/wrapper/grt_PyObject.cpp; sourceTree = "<group>"; };
+		27B923C7196ED20000D98D18 /* mforms_ObjectReference_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mforms_ObjectReference_impl.h; path = backend/wbpublic/objimpl/wrapper/mforms_ObjectReference_impl.h; sourceTree = "<group>"; };
+		27B923C8196ED20000D98D18 /* mforms_ObjectReference.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mforms_ObjectReference.cpp; path = backend/wbpublic/objimpl/wrapper/mforms_ObjectReference.cpp; sourceTree = "<group>"; };
+		27B923C9196ED20000D98D18 /* parser_ContextReference_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = parser_ContextReference_impl.h; path = backend/wbpublic/objimpl/wrapper/parser_ContextReference_impl.h; sourceTree = "<group>"; };
+		27B923CA196ED20000D98D18 /* parser_ContextReference.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parser_ContextReference.cpp; path = backend/wbpublic/objimpl/wrapper/parser_ContextReference.cpp; sourceTree = "<group>"; };
 		27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.parser.grt_prefix.pch; path = prefix/db.mysql.parser.grt_prefix.pch; sourceTree = SOURCE_ROOT; };
 		27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbpublic.be_prefix.pch; path = prefix/wbpublic.be_prefix.pch; sourceTree = "<group>"; };
 		27BFE45A1924BB080070B8FB /* WBExtras_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBExtras_prefix.pch; path = prefix/WBExtras_prefix.pch; sourceTree = "<group>"; };
@@ -5671,8 +5696,6 @@
 		2BA8528B16A8A4CE0048015B /* db_copy_report.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_copy_report.py; path = plugins/migration/dbcopy/db_copy_report.py; sourceTree = "<group>"; };
 		2BAD62C112732FD20080C832 /* MFCodeEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFCodeEditor.h; path = library/forms/cocoa/MFCodeEditor.h; sourceTree = "<group>"; };
 		2BAD62C212732FD20080C832 /* MFCodeEditor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFCodeEditor.mm; path = library/forms/cocoa/MFCodeEditor.mm; sourceTree = "<group>"; };
-		2BAD74E4156180B30025F13F /* mforms_ObjectReference_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mforms_ObjectReference_impl.h; path = backend/wbpublic/objimpl/ui/mforms_ObjectReference_impl.h; sourceTree = "<group>"; };
-		2BAD74E5156180B30025F13F /* mforms_ObjectReference.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mforms_ObjectReference.cpp; path = backend/wbpublic/objimpl/ui/mforms_ObjectReference.cpp; sourceTree = "<group>"; };
 		2BAD74EA156182DB0025F13F /* dockingpoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dockingpoint.h; path = library/forms/mforms/dockingpoint.h; sourceTree = "<group>"; };
 		2BAD74EC156182F90025F13F /* dockingpoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dockingpoint.cpp; path = library/forms/dockingpoint.cpp; sourceTree = "<group>"; };
 		2BAD7701156846820025F13F /* explain_renderer.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = explain_renderer.py; path = plugins/wb.query.analysis/explain_renderer.py; sourceTree = "<group>"; };
@@ -5812,8 +5835,6 @@
 		2BC9299F170CD7B300D5BCAD /* edit_table_templates.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = edit_table_templates.png; path = images/toolbar/edit_table_templates.png; sourceTree = "<group>"; };
 		2BC929A1170E21D100D5BCAD /* tabview_dock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabview_dock.cpp; path = library/forms/tabview_dock.cpp; sourceTree = "<group>"; };
 		2BC929A3170E21DB00D5BCAD /* tabview_dock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tabview_dock.h; path = library/forms/mforms/tabview_dock.h; sourceTree = "<group>"; };
-		2BC929A51718319F00D5BCAD /* grt_PyObject_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grt_PyObject_impl.h; path = backend/wbpublic/objimpl/ui/grt_PyObject_impl.h; sourceTree = "<group>"; };
-		2BC929A61718319F00D5BCAD /* grt_PyObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_PyObject.cpp; path = backend/wbpublic/objimpl/ui/grt_PyObject.cpp; sourceTree = "<group>"; };
 		2BCAD04C1006D09C00D1772C /* _mforms.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _mforms.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BCAD0561006D11A00D1772C /* mforms.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = mforms.py; path = library/forms/swig/mforms.py; sourceTree = "<group>"; };
 		2BCAD0571006D11A00D1772C /* mforms_wrap.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mforms_wrap.cxx; path = library/forms/swig/mforms_wrap.cxx; sourceTree = "<group>"; };
@@ -6396,6 +6417,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27B923D2196EDB1300D98D18 /* mysql.parser.dylib in Frameworks */,
 				2B774FC615CEC52D00923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B5284BC0F1AE977005FBF7C /* libgrt.dylib in Frameworks */,
 				2BAE1B320F3698C200BE725E /* libwbpublic.be.dylib in Frameworks */,
@@ -7080,16 +7102,20 @@
 		27467FBA154AC77A00021708 /* mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
+				27467FD9154AC8B500021708 /* mysql-parser.h */,
+				27467FDA154AC8B500021708 /* mysql-parser.cpp */,
 				27C79EEB16E0A8210092958E /* mysql-parser-common.cpp */,
 				27C79EEC16E0A8210092958E /* mysql-parser-common.h */,
 				27C79EED16E0A8210092958E /* mysql-scanner.cpp */,
 				27C79EEE16E0A8220092958E /* mysql-scanner.h */,
+				27B923BD196ED07200D98D18 /* mysql-syntax-check.h */,
+				27B923BC196ED07200D98D18 /* mysql-syntax-check.cpp */,
 				27467FCF154AC7C300021708 /* MySQLLexer.c */,
 				27467FD0154AC7C300021708 /* MySQLLexer.h */,
 				27467FD1154AC7C300021708 /* MySQLParser.c */,
 				27467FD2154AC7C300021708 /* MySQLParser.h */,
-				27467FD9154AC8B500021708 /* mysql-parser.h */,
-				27467FDA154AC8B500021708 /* mysql-parser.cpp */,
+				27B923C0196ED0C700D98D18 /* MySQLSimpleParser.c */,
+				27B923C1196ED0C700D98D18 /* MySQLSimpleParser.h */,
 			);
 			name = mysql.parser;
 			sourceTree = "<group>";
@@ -7262,6 +7288,19 @@
 				2B3D48F10F3E3FAE009238A7 /* wizard.cpp */,
 			);
 			name = Source;
+			sourceTree = "<group>";
+		};
+		27B923C4196ED1AD00D98D18 /* wrapper */ = {
+			isa = PBXGroup;
+			children = (
+				27B923C5196ED20000D98D18 /* grt_PyObject_impl.h */,
+				27B923C6196ED20000D98D18 /* grt_PyObject.cpp */,
+				27B923C7196ED20000D98D18 /* mforms_ObjectReference_impl.h */,
+				27B923C8196ED20000D98D18 /* mforms_ObjectReference.cpp */,
+				27B923C9196ED20000D98D18 /* parser_ContextReference_impl.h */,
+				27B923CA196ED20000D98D18 /* parser_ContextReference.cpp */,
+			);
+			name = wrapper;
 			sourceTree = "<group>";
 		};
 		27C5B0AE16440C92009E2C41 /* Backend */ = {
@@ -7729,6 +7768,11 @@
 		2B2637580E932F7C00933149 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				2B7FC43B112D9C0D008C07BF /* toolbar */,
+				2B2637F40E93B0F700933149 /* icons */,
+				2B2638430E93B0F700933149 /* ui */,
+				2B26388E0E93B0F700933149 /* cursors */,
+				2B26389E0E93B0F800933149 /* grt */,
 				2B448A9E18AA4CD8001F1B62 /* arrow_down.png */,
 				2B448A9F18AA4CD8001F1B62 /* arrow_up.png */,
 				2B20DCBE188DA8DE0095EA03 /* separator_vertical.png */,
@@ -7755,11 +7799,6 @@
 				2B7FEA9012EA067C007945E2 /* WB_Home_mac.png */,
 				2B89ABB812BB961900D0D01A /* warning_icon.png */,
 				2B4D18BC123F19BF004E6309 /* clear_output.png */,
-				2B7FC43B112D9C0D008C07BF /* toolbar */,
-				2B2637F40E93B0F700933149 /* icons */,
-				2B2638430E93B0F700933149 /* ui */,
-				2B26388E0E93B0F700933149 /* cursors */,
-				2B26389E0E93B0F800933149 /* grt */,
 			);
 			name = Icons;
 			sourceTree = "<group>";
@@ -7943,6 +7982,10 @@
 				2B2638690E93B0F700933149 /* header_bar_blue.png */,
 				2B26386A0E93B0F700933149 /* header_bar_gray.png */,
 				2B26386B0E93B0F700933149 /* header_bar_orange.png */,
+				27B923B4196EC71700D98D18 /* item_overlay_add.png */,
+				27B923B5196EC71700D98D18 /* item_overlay_add@2x.png */,
+				27B923B6196EC71700D98D18 /* item_overlay_delete.png */,
+				27B923B7196EC71700D98D18 /* item_overlay_delete@2x.png */,
 				2B26386E0E93B0F700933149 /* message_confirm.png */,
 				2B26386F0E93B0F700933149 /* message_edit.png */,
 				2B2638700E93B0F700933149 /* message_error.png */,
@@ -9757,6 +9800,7 @@
 				2BAE1A7B0F368EB200BE725E /* db */,
 				2BAD7A7C156CA45E0025F13F /* db.migration */,
 				2BAD7A76156CA36E0025F13F /* db.mgmt */,
+				27B923C4196ED1AD00D98D18 /* wrapper */,
 			);
 			name = objimpl;
 			sourceTree = "<group>";
@@ -10409,10 +10453,6 @@
 				2769C87E1726761F0096ACF5 /* ui_ObjectEditor_impl.cpp */,
 				2769C87F1726761F0096ACF5 /* ui_ObjectEditor_impl.h */,
 				2769C8801726761F0096ACF5 /* ui_ObjectEditor.cpp */,
-				2BC929A51718319F00D5BCAD /* grt_PyObject_impl.h */,
-				2BC929A61718319F00D5BCAD /* grt_PyObject.cpp */,
-				2BAD74E4156180B30025F13F /* mforms_ObjectReference_impl.h */,
-				2BAD74E5156180B30025F13F /* mforms_ObjectReference.cpp */,
 				2BE9015D151D4D2300CC0894 /* ui_db_ConnectPanel.cpp */,
 			);
 			name = ui;
@@ -10846,6 +10886,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27B923C3196ED0C700D98D18 /* MySQLSimpleParser.h in Headers */,
 				27467EED154A97BC00021708 /* antlr3.h in Headers */,
 				27467EEE154A97BC00021708 /* antlr3baserecognizer.h in Headers */,
 				27467EEF154A97BC00021708 /* antlr3basetree.h in Headers */,
@@ -10873,6 +10914,7 @@
 				27467F05154A97BC00021708 /* antlr3parsetree.h in Headers */,
 				27467F06154A97BC00021708 /* antlr3recognizersharedstate.h in Headers */,
 				27467F07154A97BC00021708 /* antlr3rewritestreams.h in Headers */,
+				27B923BF196ED07200D98D18 /* mysql-syntax-check.h in Headers */,
 				27467F08154A97BC00021708 /* antlr3string.h in Headers */,
 				27467F09154A97BC00021708 /* antlr3tokenstream.h in Headers */,
 				27467F0A154A97BC00021708 /* antlr3treeparser.h in Headers */,
@@ -11041,6 +11083,7 @@
 				2B41EE220F8B837900F5EB1E /* recordset_cdbc_storage.h in Headers */,
 				2B41EE240F8B837900F5EB1E /* recordset_data_storage.h in Headers */,
 				2B41EE260F8B837900F5EB1E /* recordset_sql_storage.h in Headers */,
+				27B923CD196ED20000D98D18 /* mforms_ObjectReference_impl.h in Headers */,
 				2B41EE280F8B837900F5EB1E /* recordset_sqlite_storage.h in Headers */,
 				2B41EE2A0F8B837900F5EB1E /* recordset_table_inserts_storage.h in Headers */,
 				2B41EE2C0F8B837900F5EB1E /* recordset_text_storage.h in Headers */,
@@ -11058,6 +11101,7 @@
 				2BD9968E0FAC02B00074852E /* grtdb_connect_dialog.h in Headers */,
 				2B5DE7270FFE9F7D00701821 /* sql_statement_decomposer.h in Headers */,
 				2BEC8E771035F77B00607CA4 /* sql_semantic_check.h in Headers */,
+				27B923CF196ED20000D98D18 /* parser_ContextReference_impl.h in Headers */,
 				2B39A4FB10ADE47E00AD3447 /* connection_page.h in Headers */,
 				2B0CE62A10C60EED00325F30 /* file_charset_dialog.h in Headers */,
 				2B7F8BF3110DC5FC009D398E /* sql_script_run_wizard.h in Headers */,
@@ -11066,13 +11110,13 @@
 				2B03B5C1116CC42C009987BE /* binary_data_editor.h in Headers */,
 				2B84F5561183201F00DD9B13 /* db_helpers.h in Headers */,
 				2B0DE77C11E916EF00989395 /* db_query_Editor.h in Headers */,
+				27B923CB196ED20000D98D18 /* grt_PyObject_impl.h in Headers */,
 				2B0DE77E11E916EF00989395 /* db_query_Resultset.h in Headers */,
 				2B0DE78011E916EF00989395 /* db_query_QueryBuffer.h in Headers */,
 				2B0DE78511E919BA00989395 /* db_query_EditableResultset.h in Headers */,
 				2BCE53DC122C6BE60019C95B /* confirm_save_dialog.h in Headers */,
 				27DC56B7130ED5DE00E0200F /* inserts_export_form.h in Headers */,
 				2B60B9C615114CAE00636FE2 /* autocomplete_object_name_cache.h in Headers */,
-				2BAD74E6156180B30025F13F /* mforms_ObjectReference_impl.h in Headers */,
 				2769C8821726761F0096ACF5 /* ui_ObjectEditor_impl.h in Headers */,
 				2B88344F175E46FC0099D927 /* sync_profile.h in Headers */,
 			);
@@ -11271,7 +11315,6 @@
 				2B0F18D214FECBE10087D62A /* MFFindPanel.h in Headers */,
 				2BAD74EB156182DB0025F13F /* dockingpoint.h in Headers */,
 				2BC929A4170E21DB00D5BCAD /* tabview_dock.h in Headers */,
-				2BC929A71718319F00D5BCAD /* grt_PyObject_impl.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -12297,10 +12340,10 @@
 				2BDC26290E85671D0018CE34 /* sql.parser */,
 				2B750DAE0E877D030003120A /* cdbc */,
 				2B96161A0F2759A400F0B599 /* mforms */,
+				2BCAD04B1006D09B00D1772C /* mforms.so */,
 				2B7510D70E8799D00003120A /* wbpublic.be */,
 				2BCB31540E8845D0005C8ED2 /* wbprivate.be */,
 				2B350058152DEC0000014C0D /* cairo.so */,
-				2BCAD04B1006D09B00D1772C /* mforms.so */,
 				2BD1FB0D0F33D29400FFC762 /* WBExtras */,
 				2BE732EE0EFAFB6500287AE0 /* db.grt */,
 				2BE733030EFAFB8B00287AE0 /* db.mysql.grt */,
@@ -12591,7 +12634,7 @@
 				2B263A870E9402DD00933149 /* db.Schema.add.32x32.png in Resources */,
 				2B263A880E9402DD00933149 /* db.Schema.editor.48x48.png in Resources */,
 				2B263A890E9402DD00933149 /* db.Schema.many.16x16.png in Resources */,
-				2BF90F051979C3310029E1F9 /* ps_switcher_default_hoover@2x.png in Resources */,
+				27B923BA196EC71700D98D18 /* item_overlay_delete.png in Resources */,
 				2B263A8A0E9402DD00933149 /* db.Schema.many.32x32.png in Resources */,
 				2B263A8B0E9402DD00933149 /* db.Script.48x48.png in Resources */,
 				2B263A8C0E9402DD00933149 /* db.Script.add.48x48.png in Resources */,
@@ -12807,6 +12850,7 @@
 				2B7FC4F3112D9C2B008C07BF /* wb_arrow.png in Resources */,
 				2B7FC4F4112D9C2B008C07BF /* wb_db_routinegroup.png in Resources */,
 				2B7FC4F5112D9C2B008C07BF /* wb_db_table.png in Resources */,
+				27B923B9196EC71700D98D18 /* item_overlay_add@2x.png in Resources */,
 				2B7FC4F6112D9C2B008C07BF /* wb_db_view.png in Resources */,
 				27987716195C534F003E8E44 /* wb_item_overlay_inspector@2x.png in Resources */,
 				2B7FC4F7112D9C2B008C07BF /* wb_draw_ellipse.png in Resources */,
@@ -13009,6 +13053,7 @@
 				2B20DCB9188DA7AA0095EA03 /* big_switcher_yes@2x.png in Resources */,
 				2BD42065198034C10061895B /* db.Column.side.16x16@2x.png in Resources */,
 				2B7AE06716822CA800D8C777 /* tiny_less_space.png in Resources */,
+				27B923B8196EC71700D98D18 /* item_overlay_add.png in Resources */,
 				2B7AE06816822CA800D8C777 /* tiny_more_space.png in Resources */,
 				2B5C241D16A26BA50023598F /* notifications.py in Resources */,
 				2BC929A0170CD7B300D5BCAD /* edit_table_templates.png in Resources */,
@@ -13215,6 +13260,7 @@
 				2B143490179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on.png in Resources */,
 				2B18EDBE196C8706004D7596 /* wb_starter_mysql_migration_52@2x.png in Resources */,
 				2B143491179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on@2x.png in Resources */,
+				27B923BB196EC71700D98D18 /* item_overlay_delete@2x.png in Resources */,
 				2B143492179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off.png in Resources */,
 				2B143493179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off@2x.png in Resources */,
 				2B143494179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on.png in Resources */,
@@ -13325,7 +13371,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${SRCROOT}/library/mysql.parser/grammar\nif [ ! -f ../MySQLParser.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLParser.c ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLLexer.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLLexer.c ]; then ./build-parser-mac; fi\n\nif [ MySQL.g -nt ../MySQLParser.c ]; then\n./build-parser-mac;\nfi";
+			shellScript = "cd ${SRCROOT}/library/mysql.parser/grammar\nif [ ! -f ../MySQLParser.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLParser.c ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLLexer.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLLexer.c ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLSimpleParser.h ]; then ./build-parser-mac; fi\nif [ ! -f ../MySQLSimpleParser.c ]; then ./build-parser-mac; fi\n\nif [ MySQL.g -nt ../MySQLParser.c  -o  MySQLSimpleParser.g -nt ../MySQLSimpleParser.c ]; then\n./build-parser-mac;\nfi";
 			showEnvVarsInLog = 0;
 		};
 		2B02FEFF183EBF7000770CC0 /* Generate swig wrapper */ = {
@@ -13444,7 +13490,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pyresdir=\"$SRCROOT/../mysql-mac-res/python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\ncp -R ${pyresdir}/paramiko \"$pythondir\"\ncp -R ${pyresdir}/Crypto \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/wba_audit ]; then\n    echo \"Copying pysqlite2 for Audit Inspector\"\n    rm -fr \"$pythondir\"/pysqlite2\n    cp -R ${pyresdir}/pysqlite2-com \"$pythondir\"/pysqlite2\nelse\n    cp -R ${pyresdir}/pysqlite2 \"$pythondir\"\nfi\n\ncp ${pyresdir}/pyodbc.so \"$pythondir\"\n\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"/\n";
+			shellScript = "pyresdir=\"$SRCROOT/../mysql-mac-res/python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\ncp -R ${pyresdir}/paramiko \"$pythondir\"\ncp -R ${pyresdir}/Crypto \"$pythondir\"\n# cp -R ${pyresdir}/mysql \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/wba_audit ]; then\n    echo \"Copying pysqlite2 for Audit Inspector\"\n    rm -fr \"$pythondir\"/pysqlite2\n    cp -R ${pyresdir}/pysqlite2-com \"$pythondir\"/pysqlite2\nelse\n    cp -R ${pyresdir}/pysqlite2 \"$pythondir\"\nfi\n\ncp ${pyresdir}/pyodbc.so \"$pythondir\"\n\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"/\n";
 			showEnvVarsInLog = 0;
 		};
 		2BEA13BE16E68F1500FC44F0 /* Copy plugins if exist */ = {
@@ -13503,10 +13549,12 @@
 				27467F24154A97D200021708 /* antlr3basetreeadaptor.c in Sources */,
 				27467F25154A97D200021708 /* antlr3bitset.c in Sources */,
 				27467F26154A97D200021708 /* antlr3collections.c in Sources */,
+				27B923C2196ED0C700D98D18 /* MySQLSimpleParser.c in Sources */,
 				27467F27154A97D200021708 /* antlr3commontoken.c in Sources */,
 				27467F28154A97D200021708 /* antlr3commontree.c in Sources */,
 				27467F29154A97D200021708 /* antlr3commontreeadaptor.c in Sources */,
 				27467F2A154A97D200021708 /* antlr3commontreenodestream.c in Sources */,
+				27B923BE196ED07200D98D18 /* mysql-syntax-check.cpp in Sources */,
 				27467F2B154A97D200021708 /* antlr3convertutf.c in Sources */,
 				27467F2C154A97D200021708 /* antlr3cyclicdfa.c in Sources */,
 				27467F2D154A97D200021708 /* antlr3debughandlers.c in Sources */,
@@ -13819,6 +13867,7 @@
 				2B7511540E87E2910003120A /* model_connection_impl.cpp in Sources */,
 				2B7511550E87E2920003120A /* model_figure_impl.cpp in Sources */,
 				2B7511560E87E2930003120A /* model_layer_impl.cpp in Sources */,
+				27B923D0196ED20000D98D18 /* parser_ContextReference.cpp in Sources */,
 				2B7511570E87E2930003120A /* model_model_impl.cpp in Sources */,
 				2B7511580E87E2940003120A /* model_object_impl.cpp in Sources */,
 				2B7511590E87E2940003120A /* model_diagram_impl.cpp in Sources */,
@@ -13851,6 +13900,7 @@
 				2BAE1A8B0F368EB200BE725E /* model_Connection.cpp in Sources */,
 				27CE5FB21917B5A1005574D4 /* mysql_parser_services.cpp in Sources */,
 				2BAE1A8C0F368EB200BE725E /* model_Diagram.cpp in Sources */,
+				27B923CE196ED20000D98D18 /* mforms_ObjectReference.cpp in Sources */,
 				2BAE1A8D0F368EB200BE725E /* model_Figure.cpp in Sources */,
 				2BAE1A8E0F368EB200BE725E /* model_Layer.cpp in Sources */,
 				2BAE1A8F0F368EB200BE725E /* model_Model.cpp in Sources */,
@@ -13864,6 +13914,7 @@
 				2B3D4A370F3E78A7009238A7 /* grt_wizard_form.cpp in Sources */,
 				2B3D4A390F3E78A7009238A7 /* grtdb_connect_panel.cpp in Sources */,
 				2B3D4A3B0F3E78A7009238A7 /* grtdb_object_filter.cpp in Sources */,
+				27B923CC196ED20000D98D18 /* grt_PyObject.cpp in Sources */,
 				2B3D4A3D0F3E78A7009238A7 /* gui_plugin_base.cpp in Sources */,
 				2B3D4A3F0F3E78A7009238A7 /* text_input_dialog.cpp in Sources */,
 				2B3D4A410F3E78A7009238A7 /* wizard_finished_page.cpp in Sources */,
@@ -13910,10 +13961,8 @@
 				2B60B9C515114CAE00636FE2 /* autocomplete_object_name_cache.cpp in Sources */,
 				2BE9015E151D4D2300CC0894 /* ui_db_ConnectPanel.cpp in Sources */,
 				27E0E14115515F3E0073FD6F /* sql_editor_be_autocomplete.cpp in Sources */,
-				2BAD74E7156180B30025F13F /* mforms_ObjectReference.cpp in Sources */,
 				2BAD7A7E156CA4810025F13F /* db_migration_Migration.cpp in Sources */,
 				2B2AB0FE15A68107008E2C0B /* db_RoutineGroup.cpp in Sources */,
-				2BC929A9171831AE00D5BCAD /* grt_PyObject.cpp in Sources */,
 				2769C8811726761F0096ACF5 /* ui_ObjectEditor_impl.cpp in Sources */,
 				2769C8831726761F0096ACF5 /* ui_ObjectEditor.cpp in Sources */,
 				2B88344E175E46FC0099D927 /* sync_profile.cpp in Sources */,

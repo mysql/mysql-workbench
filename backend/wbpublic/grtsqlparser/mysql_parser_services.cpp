@@ -21,42 +21,52 @@
 
 #include "base/string_utilities.h"
 
+#include "mysql-parser.h"
+#include "mysql-syntax-check.h"
+#include "mysql-scanner.h"
+
 using namespace parser;
+
+//--------------------------------------------------------------------------------------------------
+
+long short_version(const GrtVersionRef &version)
+{
+  ssize_t short_version;
+  if (version.is_valid())
+  {
+    short_version = version->majorNumber() * 10000;
+    if (version->minorNumber() > -1)
+      short_version += version->minorNumber() * 100;
+    else
+      short_version += 500;
+    if (version->releaseNumber() > -1)
+      short_version += version->releaseNumber();
+  }
+  else
+    short_version = 50501; // Assume some reasonable default (5.5.1).
+
+  return (long)short_version;
+}
 
 //------------------ ParserContext -----------------------------------------------------------------
 
-ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version, bool case_sensitive)
+ParserContext::ParserContext(const GrtCharacterSetsRef &charsets, const GrtVersionRef &version,
+  bool case_sensitive)
 {
   _version = version;
   _case_sensitive = case_sensitive;
 
-  std::set<std::string> filtered_charsets;
   for (size_t i = 0; i < charsets->count(); i++)
-    filtered_charsets.insert(base::tolower(*charsets[i]->name()));
+    _filtered_charsets.insert(base::tolower(*charsets[i]->name()));
 
-  // 3 character sets were added in version 5.5.3. Remove them from the list if the current version
-  // is lower than that.
-  ssize_t server_version;
-  if (version.is_valid())
-  {
-    server_version = version->majorNumber() * 10000;
-    if (version->minorNumber() > -1)
-      server_version += version->minorNumber() * 100;
-    else
-      server_version += 500;
-    if (version->releaseNumber() > -1)
-      server_version += version->releaseNumber();
-  }
-  else
-    server_version = 50501; // Assume some reasonable default (5.5.1).
-  if (server_version < 50503)
-  {
-    filtered_charsets.erase("utf8mb4");
-    filtered_charsets.erase("utf16");
-    filtered_charsets.erase("utf32");
-  }
+  long server_version = short_version(_version);
+  update_filtered_charsets(server_version);
   
-  _recognizer = new MySQLRecognizer((long)server_version, "", filtered_charsets);
+  // Both, parser and syntax checker are only a few hundreds of bytes in size (except for any
+  // stored token strings or the AST), so we can always simply create both without serious memory
+  // concerns (the syntax checker has no AST).
+  _recognizer = new MySQLRecognizer(server_version, "", _filtered_charsets);
+  _syntax_checker = new MySQLSyntaxChecker(server_version, "", _filtered_charsets);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +74,34 @@ ParserContext::ParserContext(GrtCharacterSetsRef charsets, GrtVersionRef version
 ParserContext::~ParserContext()
 {
   delete _recognizer;
+  delete _syntax_checker;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ParserContext::update_filtered_charsets(long version)
+{
+  if (version < 50503)
+  {
+    _filtered_charsets.erase("utf8mb4");
+    _filtered_charsets.erase("utf16");
+    _filtered_charsets.erase("utf32");
+  }
+  else
+  {
+    // Duplicates are automatically ignored.
+    _filtered_charsets.insert("utf8mb4");
+    _filtered_charsets.insert("utf16");
+    _filtered_charsets.insert("utf32");
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+MySQLScanner* ParserContext::create_scanner(const std::string &text)
+{
+  long server_version = short_version(_version);
+  return new MySQLScanner(text.c_str(), text.size(), true, server_version, _sql_mode, _filtered_charsets);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,6 +110,7 @@ void ParserContext::use_sql_mode(const std::string &mode)
 {
   _sql_mode = mode;
   _recognizer->set_sql_mode(mode);
+  _syntax_checker->set_sql_mode(mode);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,22 +124,16 @@ std::string ParserContext::get_sql_mode()
 
 void ParserContext::use_server_version(GrtVersionRef version)
 {
+  if (_version == version)
+    return;
+
   _version = version;
   
-  ssize_t server_version;
-  if (version.is_valid())
-  {
-    server_version = version->majorNumber() * 10000;
-    if (version->minorNumber() > -1)
-      server_version += version->minorNumber() * 100;
-    else
-      server_version += 500;
-    if (version->releaseNumber() > -1)
-      server_version += version->releaseNumber();
-  }
-  else
-    server_version = 50501; // Assume some reasonable default (5.5.1).
-  _recognizer->set_server_version((long)server_version);
+  long server_version = short_version(_version);
+  update_filtered_charsets(server_version);
+
+  _recognizer->set_server_version(server_version);
+  _syntax_checker->set_server_version(server_version);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,18 +142,21 @@ void ParserContext::use_server_version(GrtVersionRef version)
  * Returns a collection of errors from the last parser run. The start position is offset by the given
  * value (used to adjust error position in a larger context).
  */
-std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offset)
+std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offset, bool for_syntax_check)
 {
   std::vector<ParserErrorEntry> errors;
 
-  if (_recognizer->has_errors())
+  MySQLRecognitionBase *recognizer = _recognizer;
+  if (for_syntax_check)
+    recognizer = _syntax_checker;
+  if (recognizer->has_errors())
   {
-    const std::vector<MySQLParserErrorInfo> error_info = _recognizer->error_info();
+    const std::vector<MySQLParserErrorInfo> error_info = recognizer->error_info();
     for (std::vector<MySQLParserErrorInfo>::const_iterator error_iterator = error_info.begin();
-         error_iterator != error_info.end(); ++error_iterator)
+      error_iterator != error_info.end(); ++error_iterator)
     {
-      ParserErrorEntry entry = {error_iterator->message, error_iterator->charOffset + offset,
-        error_iterator->line, error_iterator->length};
+      ParserErrorEntry entry = { error_iterator->message, error_iterator->charOffset + offset,
+        error_iterator->line, error_iterator->length };
       errors.push_back(entry);
     }
   }
@@ -128,10 +164,17 @@ std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offse
   return errors;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+size_t parser::ParserContext::get_keyword_token(const std::string &keyword)
+{
+  return _recognizer->get_keyword_token(keyword);
+}
+
 //------------------ MySQLParserServices -----------------------------------------------------------
 
-ParserContext::Ref MySQLParserServices::createParserContext(GrtCharacterSetsRef charsets,
-                                                            GrtVersionRef version, bool case_sensitive)
+ParserContext::Ref MySQLParserServices::createParserContext(const GrtCharacterSetsRef &charsets,
+  const GrtVersionRef &version, bool case_sensitive)
 {
   boost::shared_ptr<ParserContext> result(new ParserContext(charsets, version, case_sensitive));
 

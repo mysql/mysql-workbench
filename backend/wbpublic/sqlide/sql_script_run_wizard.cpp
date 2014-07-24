@@ -121,6 +121,9 @@ SqlScriptReviewPage::SqlScriptReviewPage(grtui::WizardForm *form, GrtVersionRef 
     case 6:
       _sql_editor->set_language(mforms::LanguageMySQL56);
       break;
+    case 7:
+      _sql_editor->set_language(mforms::LanguageMySQL57);
+      break;
     default: // Should not be called actually. All valid versions should be handled above.
       _sql_editor->set_language(mforms::LanguageMySQL);
     }
@@ -132,9 +135,7 @@ SqlScriptReviewPage::SqlScriptReviewPage(grtui::WizardForm *form, GrtVersionRef 
 
 SqlScriptReviewPage::~SqlScriptReviewPage()
 {
-  // do not release managed() objects
-//  _algorithm_selector->release();
-//  _lock_selector->release();
+  // No need to release _algorithm_selector and _lock_selector. They are managed with release_on_add.
   _sql_editor->release();
 };
 

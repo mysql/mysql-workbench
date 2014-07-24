@@ -40,6 +40,14 @@ static std::map<std::string, int> remembered_message_answers;
 static std::string remembered_message_answer_file;
 
 boost::function<void ()> mforms::Utilities::_driver_shutdown_cb;
+
+//--------------------------------------------------------------------------------------------------
+
+void Utilities::beep()
+{
+  ControlFactory::get_instance()->_utilities_impl.beep();
+}
+
 //--------------------------------------------------------------------------------------------------
 
 int Utilities::show_message(const std::string &title, const std::string &text,
@@ -730,11 +738,11 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
 
   if (allow_hidpi && mforms::App::get()->backing_scale_factor() > 1.0)
   {
-    std::string hidpi_name = base::strip_extension(name)+"@2x"+base::extension(name);
+    std::string hidpi_name = base::strip_extension(name) + "@2x" + base::extension(name);
     cairo_surface_t *tmp = load_icon(hidpi_name, false);
     if (tmp)
     {
-      // mark the surface as being hidpi
+      // Mark the surface as being a hi-res variant of a standard icon.
       cairo_surface_set_user_data(tmp, &hidpi_icon_key, (void*)1, NULL);
       return tmp;
     }
@@ -751,21 +759,24 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
   return result;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 bool Utilities::is_hidpi_icon(cairo_surface_t *s)
 {
   return cairo_surface_get_user_data(s, &hidpi_icon_key) == (void*)1;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, int x, int y, float alpha)
+void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double y, float alpha)
 {
   float backing_scale_factor = mforms::App::get()->backing_scale_factor();
 
   if (backing_scale_factor > 1 && mforms::Utilities::is_hidpi_icon(image))
   {
     cairo_save(cr);
-    cairo_scale(cr, 1/backing_scale_factor, 1/backing_scale_factor);
-    cairo_set_source_surface(cr, image, x*backing_scale_factor, y*backing_scale_factor);
+    cairo_scale(cr, 1 / backing_scale_factor, 1 / backing_scale_factor);
+    cairo_set_source_surface(cr, image, x * backing_scale_factor, y * backing_scale_factor);
     if (alpha == 1.0)
       cairo_paint(cr);
     else
@@ -782,6 +793,7 @@ void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, int x, int y, fl
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Utilities::get_icon_size(cairo_surface_t *icon, int &w, int &h)
 {
@@ -791,8 +803,8 @@ void Utilities::get_icon_size(cairo_surface_t *icon, int &w, int &h)
   h = cairo_image_surface_get_height(icon);
   if (backing_scale_factor > 1 && mforms::Utilities::is_hidpi_icon(icon))
   {
-    w = w / backing_scale_factor;
-    h = h / backing_scale_factor;
+    w = (int)(w / backing_scale_factor);
+    h = (int)(h / backing_scale_factor);
   }
 }
 
