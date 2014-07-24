@@ -7,8 +7,12 @@
 # force disable the Mac style single menu hack in Ubuntu Unity
 UBUNTU_MENUPROXY=0
 
+# another Ubuntu bug, this this one causes modal dialogs to not work as intended
+# https://bugs.launchpad.net/ubuntu/+source/overlay-scrollbar/+bug/903302
+export LIBOVERLAY_SCROLLBAR=0
+
 # Set the destdir=<some_dir> when ever you install using DESTDIR=<some_dir>. 
-destdir=
+destdir="$WB_DEST_DIR"
 
 wblibdir="$destdir@WB_INSTALL_LIB_DIR@"
 

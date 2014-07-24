@@ -114,6 +114,7 @@ private:
     void format_tri_check(Gtk::CellRenderer* cell, const Gtk::TreeIter& iter, const Gtk::TreeModelColumn<int>& column);
   };
 
+  bool _is_drag_source;
   ColumnRecord _columns;
   
 
@@ -124,6 +125,13 @@ private:
   int _row_height;
   bool _flat_list;
   bool _tagmap_enabled;
+  bool _drag_source_enabled;
+
+  Gtk::TreePath _overlayed_row;
+  std::vector<Cairo::RefPtr<Cairo::ImageSurface> > _overlay_icons;
+  int _hovering_overlay;
+  int _clicking_overlay;
+  bool _mouse_inside;
 
   GdkEventButton *_org_event;
   int _drag_button;
@@ -152,9 +160,15 @@ private:
   void on_activated(const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*);
   void on_will_expand(const Gtk::TreeModel::iterator& iter, const Gtk::TreeModel::Path& path);
   void on_collapsed(const Gtk::TreeModel::iterator& iter, const Gtk::TreeModel::Path& path);
+  void on_realize();
+  bool on_header_button_event(GdkEventButton *ev, int);
   bool on_button_event(GdkEventButton *ev);
   bool on_button_release(GdkEventButton* ev);
   bool on_motion_notify(GdkEventMotion* ev);
+  bool on_expose_event(GdkEventExpose *ev);
+  bool on_enter_notify(GdkEventCrossing *ev);
+  bool on_leave_notify(GdkEventCrossing *ev);
+
   void slot_drag_end(const Glib::RefPtr<Gdk::DragContext> &context);
   bool slot_drag_failed(const Glib::RefPtr<Gdk::DragContext> &context,Gtk::DragResult result);
 
@@ -184,6 +198,7 @@ private:
   static void freeze_refresh(TreeNodeView* self, bool flag);
   static void set_column_visible(TreeNodeView* self, int column, bool flag);
   static bool get_column_visible(TreeNodeView* self, int column);
+  static void set_column_title(TreeNodeView* self, int column, const std::string &title);
   static void set_column_width(TreeNodeView* self, int column, int width);
   static int get_column_width(TreeNodeView* self, int column);
 

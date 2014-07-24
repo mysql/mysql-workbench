@@ -33,6 +33,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/library/forms/gtk
+    ${PROJECT_SOURCE_DIR}/library/forms/gtk/src
     ${PROJECT_SOURCE_DIR}/generated/grti
     ${PROJECT_SOURCE_DIR}/modules/wb.model/src
     ${PROJECT_SOURCE_DIR}/modules/interfaces
@@ -67,7 +68,6 @@ add_executable(mysql-workbench-bin
     diagram_size_form.cpp
     validation_panel.cpp
     sqlide_form.cpp
-    sqlide_query_view.cpp
     sqlide_output_view.cpp
     sqlide_main.cpp
     ../../common/new_server_instance_wizard.cpp
@@ -76,6 +76,7 @@ add_executable(mysql-workbench-bin
     ../../common/grt_python_debugger.cpp
     ../../common/advanced_sidebar.cpp
     ../../common/snippet_popover.cpp
+    ../../common/grt_plugin_wizard.cpp
 )
 
 target_link_libraries(mysql-workbench-bin

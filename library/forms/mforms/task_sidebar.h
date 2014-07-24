@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_TASK_SIDEBAR_H_
-#define _MFORMS_TASK_SIDEBAR_H_
+
+#pragma once
 
 /**
  * mforms interface to the advanced sidebar, which implements an iTunes like interface.
@@ -61,6 +61,7 @@ namespace mforms {
   {
     TaskEntrySelectableItem,
     TaskEntryLink,
+    TaskEntryAlwaysActiveLink, // same as TaskEntryLink, but will send action even if disabled
     TaskEntryPlainItem
   };
 
@@ -123,4 +124,3 @@ namespace mforms {
 }
 
 #endif // !DOXYGEN_SHOULD_SKIP_THIS
-#endif // _MFORMS_TASK_SIDEBAR_H_

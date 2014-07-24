@@ -509,6 +509,8 @@ void setup_mforms_app(WBMainWindow *mwin);
     else
       [NSApp setMainMenu: _defaultMainMenu];
 
+    mforms::App::get()->view_switched();
+
     [tabSwitcher setNeedsDisplay:YES];
   }
   
@@ -1218,6 +1220,35 @@ public:
   {
     NSRect rect = [[self window] frame];
     return std::make_pair(NSWidth(rect), NSHeight(rect));
+  }
+
+  virtual int view_count()
+  {
+    return [self->topTabView numberOfTabViewItems];
+  }
+
+  virtual mforms::AppView *selected_view()
+  {
+    id view = [[self->topTabView selectedTabViewItem] view];
+    id panel = [self findPanelForView:view inTabView: self->topTabView];
+
+    if ([panel isKindOfClass: [WBMFormsPluginPanel class]])
+    {
+      return [(WBMFormsPluginPanel*)panel appView];
+    }
+    return NULL;
+  }
+
+  virtual mforms::AppView *view_at_index(int index)
+  {
+    id view = [[self->topTabView tabViewItemAtIndex: index] view];
+    id panel = [self findPanelForView:view inTabView: self->topTabView];
+
+    if ([panel isKindOfClass: [WBMFormsPluginPanel class]])
+    {
+      return [(WBMFormsPluginPanel*)panel appView];
+    }
+    return NULL;
   }
 };
 

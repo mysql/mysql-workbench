@@ -62,11 +62,11 @@ fi
 echo "Updating Info.plist"
 sed -e "/<key>CFBundleShortVersionString<\/key>/N;s/.*\n.*<\/string>/	<key>CFBundleShortVersionString<\/key>@	<string>$major.$minor.$release$dot_release_type<\/string>/" -e 'y/@/\n/' -i.bak Info.plist
 
-# check if build/debian/changelog needs update
-echo "Checking if build/debian/changelog needs updating"
-if ! grep $major.$minor.$release- build/debian/changelog; then
-	echo "build/debian/changelog needs update, adding a new entry"
-	cat <<EOF > build/debian/changelog.new
+# check if build/debian.in/changelog needs update
+echo "Checking if build/debian.in/changelog needs updating"
+if ! grep $major.$minor.$release- build/debian.in/changelog; then
+	echo "build/debian.in/changelog needs update, adding a new entry"
+	cat <<EOF > build/debian.in/changelog.new
 mysql-workbench ($major.$minor.$release$dot_release_type-1) unstable; urgency=low
 
   * New release
@@ -74,7 +74,7 @@ mysql-workbench ($major.$minor.$release$dot_release_type-1) unstable; urgency=lo
  -- `bzr whoami`  `date +"%a, %d %b %Y %T %z"`
 
 EOF
-	cat build/debian/changelog >> build/debian/changelog.new
-	mv -f build/debian/changelog.new build/debian/changelog
-	head -10 build/debian/changelog
+	cat build/debian.in/changelog >> build/debian.in/changelog.new
+	mv -f build/debian.in/changelog.new build/debian.in/changelog
+	head -10 build/debian.in/changelog
 fi

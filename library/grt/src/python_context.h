@@ -25,8 +25,8 @@
 #include "grtpp_notifications.h"
 
 namespace grt {
-  extern const std::string LanguagePython;
-  
+  const std::string LanguagePython = "python";
+
   class AutoPyObject
   {
   private:
@@ -127,9 +127,6 @@ namespace grt {
     static void set_wrap_pyobject_func(PyObject *(*func)(PyObject *, PyObject*));
     static void set_unwrap_pyobject_func(PyObject *(*func)(PyObject *, PyObject*));
     
-    typedef boost::function<void ()> SimpleCallback;
-    static void set_run_once_when_idle(boost::function<boost::signals2::connection (const SimpleCallback&)> func);
-
     void add_module_path(const std::string &path, bool prepend = false);
     bool import_module(const std::string &name);
     
@@ -222,7 +219,12 @@ namespace grt {
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
     
   };
-  
+
+  class python_error : public std::runtime_error
+  {
+  public:
+    python_error(const std::string &what) : std::runtime_error(what) {}
+  };
 };
 
 #endif

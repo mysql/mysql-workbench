@@ -611,13 +611,20 @@ class ProgressMainView(WizardPage):
                         "target_schema":targ_schema_name, "target_table":targ_table_name,
                         "target_table_object":table}
             select_expression = []
+            source_pk_list = []
+            target_pk_list = []
             for column in table.columns:
+                if table.isPrimaryKeyColumn(column):
+                    source_pk_list.append(source_db_module.quoteIdentifier(column.oldName))
+                    target_pk_list.append(target_db_module.quoteIdentifier(column.name))
                 cast = table.customData.get("columnTypeCastExpression:%s" % column.name, None)
                 if cast:
                     select_expression.append(cast.replace("?", source_db_module.quoteIdentifier(column.oldName)))
                 else:
                     select_expression.append(source_db_module.quoteIdentifier(column.oldName))
 
+            self._working_set[schema_name+"."+table_name]["source_primary_key"] = ",".join(source_pk_list)
+            self._working_set[schema_name+"."+table_name]["target_primary_key"] = ",".join(target_pk_list)
             self._working_set[schema_name+"."+table_name]["select_expression"] = ", ".join(select_expression)
 
     def _row_count(self):

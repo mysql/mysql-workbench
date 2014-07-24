@@ -1186,9 +1186,7 @@ TEST_FUNCTION(3)
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_german1_ci",
       "CREATE TABLE grtdiff_alter_test.t1 (`id` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM DEFAULT CHARSET=latin1"
     },
-    {
-      NULL, NULL, NULL
-    }
+    {NULL, NULL, NULL, NULL, NULL}
   };
 
 
@@ -1453,7 +1451,7 @@ TEST_FUNCTION(7)
     if (report != str)
     {
         alter_change->dump_log(0);
-        int pp = strcmp(report.c_str(),str.c_str());
+//         int pp = strcmp(report.c_str(),str.c_str());
         std::cout<<report.c_str()<<std::endl;
         std::cout<<"=======================================================================================================================\n";
         std::cout<<str<<std::endl;
@@ -1522,7 +1520,7 @@ static struct
       "CREATE TABLE grtdiff_alter_test.t1 (`a` enum('a','b','c'))",
       "CREATE TABLE grtdiff_alter_test.t1 (`a` ENUM('a', 'b',    'c'  ))"
     },
-    {NULL, NULL}
+    {NULL, NULL, NULL, NULL, NULL}
 };
 
 

@@ -37,22 +37,6 @@ static bool populate_test_table(std::auto_ptr<sql::Statement> &stmt)
   return true;
 }
 
-static bool populate_tx_test_table(std::auto_ptr<sql::Statement> &stmt)
-{
-  stmt->execute(DATABASE_TO_USE);
-  stmt->execute("DROP TABLE IF EXISTS test_function_tx");
-  if (stmt->execute("CREATE TABLE test_function_tx (a integer, b integer, c integer default null) engine = innodb"))
-    return false;
-
-  if (stmt->execute("INSERT INTO test_function_tx (a,b,c) VALUES(1, 111, NULL)"))
-  {
-    stmt->execute("DROP TABLE test_function_tx");
-    return false;
-  }
-  stmt->getConnection()->commit();
-  return true;
-}
-
 BEGIN_TEST_DATA_CLASS(module_dbc_statement_test)
 public:
   WBTester _tester;

@@ -29,6 +29,7 @@
 #include "mforms/utilities.h"
 #include "mforms/filechooser.h"
 
+#include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/boost_smart_ptr_helpers.h"
 #include "sqlite/command.hpp"
@@ -37,6 +38,8 @@
 #include <sstream>
 
 #include "recordset_text_storage.h"
+
+DEFAULT_LOG_DOMAIN("Recordset")
 
 using namespace bec;
 using namespace base;
@@ -180,7 +183,7 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
     CATCH_AND_DISPATCH_EXCEPTION(rethrow, "Reset recordset")
   }
 
-  refresh_ui_status_bar();
+  data_edited();
   refresh_ui();
 
   return res;
@@ -211,7 +214,7 @@ bool Recordset::can_close(bool interactive)
   if (!res && interactive)
   {
     int r= mforms::Utilities::show_warning(_("Close Recordset"),
-      strfmt(_("There are unsaved changed to the recordset data: %s. Do you want to apply them before closing?"), _caption.c_str()),
+      strfmt(_("There are unsaved changes to the recordset data: %s. Do you want to apply them before closing?"), _caption.c_str()),
       _("Apply"), _("Cancel"), _("Don't Apply"));
     switch (r)
     {
@@ -255,6 +258,9 @@ void Recordset::refresh()
   // reapply filter, if needed
   if (!data_search_string.empty())
     set_data_search_string(data_search_string);
+
+  if (rows_changed)
+    rows_changed();
 }
 
 
@@ -265,10 +271,12 @@ void Recordset::rollback()
 }
 
 
-void Recordset::refresh_ui_status_bar()
+void Recordset::data_edited()
 {
   if (_grtm->in_main_thread())
-    refresh_ui_status_bar_signal();
+    data_edited_signal();
+  else
+    log_debug2("data_edited called from thread\n");
 }
 
 
@@ -364,7 +372,7 @@ void Recordset::after_set_field(const NodeId &node, ColumnId column, const sqlit
 {
   VarGridModel::after_set_field(node, column, value);
   mark_dirty(node[0], column, value);
-  refresh_ui_status_bar();
+  data_edited();
   tree_changed();
 }
 
@@ -502,7 +510,7 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
   if (rows_changed)
     rows_changed();
 
-  refresh_ui_status_bar();
+  data_edited();
 
   return true;
 }
@@ -632,7 +640,7 @@ int Recordset::on_apply_changes_finished()
   task->finish_cb(GrtThreadedTask::Finish_cb());
   if (rows_changed)
     rows_changed();
-  refresh_ui_status_bar();
+  data_edited();
   return refresh_ui();
 }
 
@@ -768,7 +776,8 @@ void Recordset::sort_by(ColumnId column, int direction, bool retaining)
     {
       boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
       rebuild_data_index(data_swap_db.get(), true, true);
-      //refresh_ui();
+
+      refresh_ui(); // refresh the sort indicators in column headers
       return;
     }
   }
@@ -1070,7 +1079,7 @@ void Recordset::paste_rows_from_clipboard(ssize_t dest_row)
         mforms::Utilities::show_error("Cannot Paste Row",
                                       strfmt("Number of fields in pasted data doesn't match the columns in the table (%zi vs %zi).\n"
                                              "Data must be in the same format used by the Copy Row Content command.",
-                                             parts.size(), get_column_count()),
+                                             (long)parts.size(), (long)get_column_count()),
                                       "OK");
 
         if (rows_changed && row != rows.begin())
@@ -1503,7 +1512,6 @@ void Recordset::rebuild_toolbar()
     bec::IconManager *im = bec::IconManager::get_instance();
 
     item = add_toolbar_action_item(_toolbar, im, "record_sort_reset.png", "record_sort_reset", "Resets all sorted columns");
-    item->signal_activated()->connect(boost::bind(&Recordset::sort_by, this, 0, 0, false));
 
     if (!_data_storage || _data_storage->reloadable())
     {

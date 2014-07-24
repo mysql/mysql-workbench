@@ -237,7 +237,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
 int SpatialDataView::get_option(const char* opt_name, int default_value)
 {
-  return _owner->owner()->grt_manager()->get_app_option_int(opt_name, default_value) != 0;
+  return _owner->owner()->owner()->grt_manager()->get_app_option_int(opt_name, default_value) != 0;
 }
 
 void SpatialDataView::fillup_polygon(mforms::MenuItem *mitem)
@@ -399,19 +399,24 @@ void SpatialDataView::refresh_layers()
 {
   std::vector<SpatialDataView::SpatialDataSource> spatial_columns = _owner->get_spatial_columns();
 
-  for (int c= _owner->owner()->sql_editor_count(), editor = 0; editor < c; editor++)
+  for (int c= _owner->owner()->owner()->sql_editor_count(), editor = 0; editor < c; editor++)
   {
-    RecordsetsRef rsets(_owner->owner()->sql_editor_recordsets(editor));
-    for (Recordsets::const_iterator rs = rsets->begin(); rs != rsets->end(); rs++)
+
+    SqlEditorPanel *panel = _owner->owner()->owner()->sql_editor_panel(editor);
+    if (panel)
     {
-      boost::shared_ptr<SqlEditorResult> result = _owner->owner()->result_panel(*rs);
-      if (result && result.get() != _owner)
+      for (int i = 0; i < panel->result_count(); ++i)
       {
-        std::vector<SpatialDataView::SpatialDataSource> tmp(result->get_spatial_columns());
-        std::copy(tmp.begin(), tmp.end(), std::back_inserter(spatial_columns));
+        SqlEditorResult *result = panel->result_panel(i);
+        if (result && result != _owner)
+        {
+          std::vector<SpatialDataView::SpatialDataSource> tmp(result->get_spatial_columns());
+          std::copy(tmp.begin(), tmp.end(), std::back_inserter(spatial_columns));
+        }
       }
     }
   }
+
   set_geometry_columns(spatial_columns);
   if ((bool)get_option("SqlEditor::SpatialAutoZoom", 1))
     _viewer->auto_zoom(-1);

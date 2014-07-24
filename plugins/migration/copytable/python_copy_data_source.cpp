@@ -30,6 +30,8 @@
 
 #include "converter.h"
 
+#include <boost/algorithm/string.hpp>
+
 DEFAULT_LOG_DOMAIN("copytable");
 
 PythonCopyDataSource::PythonCopyDataSource(const std::string &connstring,
@@ -206,7 +208,8 @@ void PythonCopyDataSource::_init()  // This has to be executed from the same thr
   PyGILState_Release(state);
 }
 
-size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::string &table, const CopySpec &spec)
+size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
+                                        const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
   _init();
 
@@ -227,7 +230,10 @@ size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::st
   switch (spec.type)
   {
     case CopyAll:
-      q = base::strfmt("SELECT count(*) FROM %s", table.c_str());
+      if (spec.resume && last_pkeys.size())
+        q = base::strfmt("SELECT count(*) FROM %s WHERE %s", table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+      else
+        q = base::strfmt("SELECT count(*) FROM %s", table.c_str());
       break;
     case CopyRange:
     {
@@ -245,7 +251,15 @@ size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::st
     }
     case CopyCount:
     {
-      q = base::strfmt("SELECT count(*) FROM %s LIMIT %lli", table.c_str(), spec.row_count);
+      if (spec.resume && last_pkeys.size())
+        q = base::strfmt("SELECT count(*) FROM %s WHERE %s LIMIT %lli", table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str(), spec.row_count);
+      else
+        q = base::strfmt("SELECT count(*) FROM %s LIMIT %lli", table.c_str(), spec.row_count);
+      break;
+    }
+    case CopyWhere:
+    {
+      q = base::strfmt("SELECT count(*) FROM %s WHERE %s", table.c_str(), spec.where_expression.c_str());
       break;
     }
   }
@@ -272,12 +286,17 @@ size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::st
   Py_DECREF(row);
 
   PyGILState_Release(state);
+
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < (long long)count)
+      count = spec.max_count;
+
   return count;
 }
 
 boost::shared_ptr<std::vector<ColumnInfo> > PythonCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
+                                                                                    const std::vector<std::string> &pk_columns,
                                                                                     const std::string &select_expression,
-                                                                                    const CopySpec &spec)
+                                                                                    const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
   _init();
 
@@ -305,25 +324,25 @@ boost::shared_ptr<std::vector<ColumnInfo> > PythonCopyDataSource::begin_select_t
     }
   }
 
-  if (spec.type == CopyAll)
-    q = base::strfmt("SELECT %s FROM %s", select_expression.c_str(), table.c_str());
-  else if (spec.type == CopyCount)
-    q = base::strfmt("SELECT %s FROM %s LIMIT %lli", select_expression.c_str(), table.c_str(), spec.row_count);
-  else if (spec.type == CopyRange)
+  QueryBuilder select_query;
+  select_query.select_columns(select_expression);
+  select_query.select_from_table(table);
+  select_query.add_orderby(boost::algorithm::join(pk_columns, ", "));
+
+  if (spec.type == CopyCount || spec.max_count > 0)
+    select_query.add_limit(base::strfmt("%lli", spec.row_count));
+  if (spec.resume && last_pkeys.size())
+    select_query.add_where(get_where_condition(pk_columns, last_pkeys));
+  if (spec.type == CopyRange)
   {
-    std::string start_expr, end_expr;
-    if (spec.range_end < 0)
-      end_expr = "";
-    else
-      end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
-    start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
-    if (!end_expr.empty())
-      q = base::strfmt("SELECT %s FROM %s WHERE %s AND %s", select_expression.c_str(),
-                       table.c_str(), start_expr.c_str(), end_expr.c_str());
-    else
-      q = base::strfmt("SELECT %s FROM %s WHERE %s", select_expression.c_str(),
-                       table.c_str(), start_expr.c_str());
+    select_query.add_where(base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start));
+    if (spec.range_end >= 0)
+      select_query.add_where(base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end));
   }
+  if (spec.type == CopyWhere)
+    select_query.add_where(spec.where_expression);
+
+  q = select_query.build_query();
 
   if (PyObject_CallMethod(_cursor, (char*)"execute", (char*)"(s)", q.c_str()) == NULL)
   {

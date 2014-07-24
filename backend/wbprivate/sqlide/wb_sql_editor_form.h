@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_SQL_EDITOR_FORM_H_
-#define _WB_SQL_EDITOR_FORM_H_
+#pragma once
 
 #include "workbench/wb_backend_public_interface.h"
 
@@ -28,7 +27,6 @@
 #include "grts/structs.workbench.h"
 #include "grts/structs.db.mgmt.h"
 #include "grtpp_notifications.h"
-#include "grt/refresh_ui.h"
 
 #include "sqlide/recordset_be.h"
 #include "sqlide/sql_editor_be.h"
@@ -46,6 +44,7 @@ namespace mforms {
   class ToolBar;
   class View;
   class MenuItem;
+  class DockingPoint;
 };
 
 namespace bec
@@ -60,12 +59,14 @@ namespace bec
 class QuerySidePalette;
 class SqlEditorTreeController;
 class AutoCompleteCache;
+class ColumnWidthCache;
+class SqlEditorPanel;
 class SqlEditorResult;
 
 typedef std::vector<Recordset::Ref> Recordsets;
 typedef boost::shared_ptr<Recordsets> RecordsetsRef;
 
-class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorForm : public bec::UIForm, public bec::RefreshUI, grt::GRTObserver,
+class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorForm : public bec::UIForm, grt::GRTObserver,
                                                  public boost::enable_shared_from_this<SqlEditorForm>,
                                                  mforms::DropDelegate
 {
@@ -74,15 +75,6 @@ public:
   friend class EditorFormTester;
 #endif
 
-  enum
-  {
-    RefreshEditorTitle,     // refresh the caption of active editor
-    RefreshRecordsetTitle,  // refresh caption of active recordset
-    QueryExecutionStarted,  // show busy marker for active editor
-    SaveRecordsetChanges,   // commit changes being made to active recordset (as if focus was removed)
-    DiscardRecordsetChanges // revert changes being made to active recordset (as if esc was pressed)
-  };
-
   enum ServerState
   {
     UnknownState,
@@ -90,16 +82,30 @@ public:
     PossiblyStoppedState
   };
 
+
+  struct PSStage
+  {
+    std::string name;
+    double wait_time;
+  };
+
+  struct PSWait
+  {
+    std::string name;
+    double wait_time;
+  };
+
   class RecordsetData : public Recordset::ClientData
   {
   public:
-    boost::shared_ptr<SqlEditorResult> result_panel;
-    MySQLEditor::Ptr editor;
+    SqlEditorResult* result_panel;
     std::string generator_query;
 
     double duration;
     std::string ps_stat_error;
     std::map<std::string, boost::int64_t> ps_stat_info;
+    std::vector<PSStage> ps_stage_info;
+    std::vector<PSWait> ps_wait_info;
   };
 
 public:
@@ -107,7 +113,12 @@ public:
   typedef boost::weak_ptr<SqlEditorForm> Ptr;
   static SqlEditorForm::Ref create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn);
   static void report_connection_failure(const std::string &error, const db_mgmt_ConnectionRef &target);
-  
+
+  void set_tab_dock(mforms::DockingPoint *dp);
+
+  /* Callback must be set by frontend to show a busy indicator on the tab with the given index. -1 means remove it from all */
+  boost::function<void (int)> set_busy_tab;
+
 protected:
   SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn);
 
@@ -134,9 +145,12 @@ public:
   bec::GRTManager * grt_manager() const { return _grtm; }
   wb::WBContextSQLIDE *wbsql() const { return _wbsql; }
 
+  db_query_EditorRef grtobj();
+
   void validate_menubar();
 
-  void jump_to_placeholder();
+  void handle_tab_menu_action(const std::string &action, int tab_index);
+  void handle_history_action(const std::string &action, const std::string &sql);
 private:
   wb::WBContextSQLIDE *_wbsql;
   GrtVersionRef _version;
@@ -146,12 +160,14 @@ private:
   std::string _connection_info;
   base::LockFile *_autosave_lock;
   std::string _autosave_path;
+
+  mforms::DockingPoint *_tabdock;
+
   bool _autosave_disabled;
   bool _loading_workspace;
   bool _cancel_connect;
 
   void activate_command(const std::string &command);
-  void rename_autosave_files(int from, int to);
 
 public:
   // do NOT use rdbms->version().. it's not specific for this connection
@@ -161,51 +177,17 @@ public:
   std::string get_connection_info() const { return _connection_info; }
   
 public:
+  SqlEditorPanel* active_sql_editor_panel();
 
-  MySQLEditor::Ref active_sql_editor();
-  MySQLEditor::Ref sql_editor(int index);
-  int sql_editor_index(MySQLEditor::Ref);
-  std::string sql_editor_path(int index) { return _sql_editors[index]->filename; }
-  std::string sql_editor_caption(int index=-1);
-  void sql_editor_caption(int new_index, std::string caption);
-  bool sql_editor_is_scratch(int index) { return _sql_editors[index]->is_scratch; }
-  bool sql_editor_start_collapsed(int index);
-  bool sql_editor_will_close(int index);
-  bool sql_editor_reorder(MySQLEditor::Ref, int new_index);
-  void sql_editor_open_file(int index, const std::string &file_path, const std::string &encoding= "");
-  boost::shared_ptr<mforms::ToolBar> sql_editor_toolbar(int index) { return _sql_editors[index]->toolbar; }
+  void sql_editor_reordered(SqlEditorPanel *editor, int new_index);
 
-
-  int sql_editor_index_for_recordset(long rset);
-  RecordsetsRef sql_editor_recordsets(const int index);
 private:
-  struct EditorInfo {
-    typedef boost::shared_ptr<EditorInfo> Ref;
-    
-    boost::shared_ptr<mforms::ToolBar> toolbar;
-    std::string filename;
-    std::string autosave_filename;
-    std::string orig_encoding;
-    std::string caption;
-    MySQLEditor::Ref editor;
-    RecordsetsRef recordsets;
-    boost::shared_ptr<SqlEditorResult> active_result;
-    base::Mutex recordset_mutex;
-    time_t file_timestamp;
-    int rs_sequence;
-    bool is_scratch;
-    bool start_collapsed;
-    bool busy;
-    
-    EditorInfo() : rs_sequence(0), is_scratch(false), start_collapsed(false), busy(false) { memset(&file_timestamp, 0, sizeof(file_timestamp)); }
-  };
-  typedef std::vector<EditorInfo::Ref> Sql_editors;
-  Sql_editors _sql_editors;
+
   int _sql_editors_serial;
   int _scratch_editors_serial;
-  base::Mutex _sql_editors_mutex;
-  
-  boost::shared_ptr<mforms::ToolBar> setup_editor_toolbar(MySQLEditor::Ref editor);
+
+  void sql_editor_panel_switched();
+
   void set_editor_tool_items_enbled(const std::string &name, bool flag);
   void set_editor_tool_items_checked(const std::string &name, bool flag);
 public:
@@ -213,23 +195,17 @@ public:
 
   boost::signals2::signal<void (MySQLEditor::Ref, bool)> sql_editor_list_changed;
 
-  int run_sql_in_scratch_tab(const std::string &sql, bool reuse_if_possible, bool start_collapsed);
-  int add_sql_editor(bool scratch = false, bool start_collapsed = false); // returns index of the added sql_editor
-  void remove_sql_editor(int index);
+  SqlEditorPanel* run_sql_in_scratch_tab(const std::string &sql, bool reuse_if_possible, bool start_collapsed);
+  SqlEditorPanel* add_sql_editor(bool scratch = false, bool start_collapsed = false); // returns index of the added sql_editor
+  void remove_sql_editor(SqlEditorPanel *panel);
+  SqlEditorPanel *sql_editor_panel(int index);
   int sql_editor_count();
-  int active_sql_editor_index() { return _active_sql_editor_index; }
-  void active_sql_editor_index(int val);
-  
-  MySQLEditor::Ref active_sql_editor_or_new_scratch();
+  int sql_editor_panel_index(SqlEditorPanel *panel);
 
   virtual mforms::DragOperation drag_over(mforms::View *sender, base::Point p, const std::vector<std::string> &formats);
   virtual mforms::DragOperation files_dropped(mforms::View *sender, base::Point p, const std::vector<std::string> &file_names);
 private:
-  int _active_sql_editor_index;
-  int _updating_sql_editor;
-
   int count_connection_editors(const std::string& conn_name);
-  void set_sql_editor_text(const char *sql, int editor_index = -1);
 
 protected:
   std::string create_title();
@@ -263,12 +239,12 @@ public:
   bool auto_commit();
   void auto_commit(bool value);
   void toggle_autocommit();
+  void toggle_collect_field_info();
+  bool collect_field_info() const;
   void toggle_collect_ps_statement_events();
   bool collect_ps_statement_events() const;
   
   void run_editor_contents(bool current_statement_only);
-
-  void list_members();
 
   void limit_rows(mforms::MenuItem *menu, const char *limit);
 
@@ -280,14 +256,20 @@ public:
   db_mgmt_ConnectionRef connection_descriptor() const { return _connection; }
 
   bool get_session_variable(sql::Connection *dbc_conn, const std::string &name, std::string &value);
-  
+
 private:
   void cache_sql_mode();
+  void update_sql_mode_for_editors();
+
   void query_ps_statistics(boost::int64_t conn_id, std::map<std::string, boost::int64_t> &stats);
+
+  std::vector<SqlEditorForm::PSStage> query_ps_stages(boost::int64_t stmt_event_id);
+  std::vector<SqlEditorForm::PSWait> query_ps_waits(boost::int64_t stmt_event_id);
+
 private:
   std::string _sql_mode;
   int _lower_case_table_names;
-
+  parser::ParserContext::Ref _work_parser_context; // Never use in a background thread.
 private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
   void init_connection(sql::Connection* dbc_conn_ref, const db_mgmt_ConnectionRef& connectionProperties, sql::Dbc_connection_handler::Ref& dbc_conn, bool user_connection);
@@ -298,6 +280,7 @@ private:
 
 public:
   base::RecMutexLock ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn);
+  parser::ParserContext::Ref work_parser_context() { return _work_parser_context;  };
 
 private:
   bec::TimerActionThread *_keep_alive_thread;
@@ -323,10 +306,16 @@ private:
   base::RecMutexLock get_autocompletion_connection(sql::Dbc_connection_handler::Ref &conn);
   void on_cache_action(bool active);
 
+  ColumnWidthCache *_column_width_cache;
 public:
-  bool exec_editor_sql(MySQLEditor::Ref editor, bool sync, bool current_statement_only = false,
-    bool wrap_with_non_std_delimiter = false, bool dont_add_limit_clause = false);
-  void exec_sql_retaining_editor_contents(const std::string &sql_script, MySQLEditor::Ref editor, bool sync, bool dont_add_limit_clause= false);
+  AutoCompleteCache *auto_completion_cache() { return _auto_completion_cache; }
+
+  ColumnWidthCache *column_width_cache() { return _column_width_cache; }
+
+  bool exec_editor_sql(SqlEditorPanel *editor, bool sync, bool current_statement_only = false,
+                       bool wrap_with_non_std_delimiter = false, bool dont_add_limit_clause = false,
+                       SqlEditorResult *into_result = NULL);
+  void exec_sql_retaining_editor_contents(const std::string &sql_script, SqlEditorPanel *editor, bool sync, bool dont_add_limit_clause= false);
 
   RecordsetsRef exec_sql_returning_results(const std::string &sql_script, bool dont_add_limit_clause);
 
@@ -336,12 +325,12 @@ public:
   void exec_main_sql(const std::string &sql, bool log);
   db_query_ResultsetRef exec_main_query(const std::string &sql, bool log);
 
-  void explain_sql();
   void explain_current_statement();
   bool is_running_query();
+
+  sql::Authentication::Ref dbc_auth_data() { return _dbc_auth; }
 private:
-  enum ExecFlags {
-    Retaining           = 1 << 0, 
+  enum ExecFlags { 
     NeedNonStdDelimiter = 1 << 1,
     DontAddLimitClause  = 1 << 2,
     ShowWarnings        = 1 << 3
@@ -349,12 +338,13 @@ private:
   void update_live_schema_tree(const std::string &sql);
 
   grt::StringRef do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::shared_ptr<std::string> sql,
-    MySQLEditor::Ref editor, ExecFlags flags, RecordsetsRef result_list);
-  void do_explain_sql(const std::string &sql);
+    SqlEditorPanel *editor, ExecFlags flags, RecordsetsRef result_list);
 
   void handle_command_side_effects(const std::string &sql);
 public:
   GrtThreadedTask::Ref exec_sql_task;
+
+  boost::function<void()> post_query_slot; // called after a query is executed
 private:
   int on_exec_sql_finished();
   bool _is_running_query;
@@ -383,46 +373,23 @@ public:
   void apply_object_alter_script(std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id);
   bool run_live_object_alteration_wizard(const std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id, const std::string &log_context);
 
-public:
-  int recordset_count(int editor);
-  boost::shared_ptr<SqlEditorResult> result_panel(Recordset::Ref rset);
-
-  Recordset::Ref recordset(int editor, int idx);
-  Recordset::Ref recordset_for_key(int editor, long key);
-  Recordset::Ref active_recordset(int editor);
-  void active_recordset(int editor, Recordset::Ref rset);
-
-  void active_result_panel(int editor, boost::shared_ptr<SqlEditorResult> value);
-  boost::shared_ptr<SqlEditorResult> active_result_panel(int editor);
-  bool recordset_reorder(int editor, Recordset::Ref value, int new_index);
-public:
-  boost::signals2::signal<void (int, Recordset::Ref, bool)> recordset_list_changed;
-private:
-  void on_close_recordset(Recordset::Ptr rs_ptr);
 private:
   void apply_changes_to_recordset(Recordset::Ptr rs_ptr);
   bool run_data_changes_commit_wizard(Recordset::Ptr rs_ptr);
   void apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr);
-  void recall_recordset_query(Recordset::Ptr rs_ptr);
   void update_editor_title_schema(const std::string& schema);
 
-  void on_recordset_context_menu_show(Recordset::Ptr rs_ptr, MySQLEditor::Ptr editor_ptr);
 public:  
   bool can_close();
   bool can_close_(bool interactive);
 
   void check_external_file_changes();
 public:
-  void new_sql_script_file();
-  void new_sql_scratch_area(bool start_collapsed = false);
+  SqlEditorPanel *new_sql_script_file();
+  SqlEditorPanel *new_sql_scratch_area(bool start_collapsed = false);
+  void new_scratch_area() { new_sql_scratch_area(false); }
   void open_file(const std::string &path, bool in_new_tab);
   void open_file(const std::string &path = "") { open_file(path, true); }
-  void save_file();
-  bool save_sql_script_file(const std::string &file_path, int editor_index);
-  void revert_sql_script_file();
-
-public:
-  boost::signals2::signal<int (int)> sql_editor_new_ui;
 
 public:
   void active_schema(const std::string &value);
@@ -469,7 +436,6 @@ private:
   int _exec_sql_error_count;
 
 protected:
-  double _progress_status_update_interval;
   std::string _title;
 
 private:
@@ -483,6 +449,8 @@ private:
   void note_connection_open_outcome(int error);
 
 public:
+  void inspect_object(const std::string &name, const std::string &object, const std::string &type);
+
   void toolbar_command(const std::string& command);
 
   bool save_snippet();
@@ -495,6 +463,3 @@ public:
   void set_autosave_disabled(const bool autosave_disabled);
   bool get_autosave_disabled(void);
 };
-
-
-#endif /* _WB_SQL_EDITOR_FORM_H_ */

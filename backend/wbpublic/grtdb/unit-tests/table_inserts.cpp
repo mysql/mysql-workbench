@@ -48,13 +48,17 @@ class TestTableEditor : public TableEditorBE
   IndexListBE _indexes;
 
 public:
-#pragma warning(push)
-#pragma warning(disable:4355)
+#ifdef _WIN32
+# pragma warning(push)
+# pragma warning(disable:4355)
+#endif
   TestTableEditor(GRTManager *grtm, db_TableRef table, db_mgmt_RdbmsRef rdbms)
     : TableEditorBE(grtm, table), _table(table), _columns(this), _indexes(this)
     {
     }
-#pragma warning(pop)
+#ifdef _WIN32
+# pragma warning(pop)
+#endif
 
   db_TableRef get_table() { return _table; }
   
@@ -136,22 +140,6 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(table_inserts, "Table Editor Inserts backend");
 
-
-static grt::ValueRef get_app_option(const std::string &option)
-{
-  if (option == "DefaultPkColumnType")
-    return grt::StringRef("INT(11)");
-  else if (option == "DefaultColumnType")
-    return grt::StringRef("VARCHAR(40)");
-  else
-    g_warning("get_app_option(%s) unhandled", option.c_str());
-}
-
-
-static void set_app_option_dummy(const std::string &option, grt::ValueRef)
-{
-}
-
 static db_TableRef make_inserts_test_table(grt::GRT *grt, const db_mgmt_RdbmsRef &rdbms, const db_CatalogRef &catalog)
 {
   grt::ListRef<db_UserDatatype> usertypes;
@@ -230,8 +218,8 @@ TEST_FUNCTION(5)
     RecordsetRef rs= editor.get_inserts_model();
 
     // starts with 1 row, which is the placeholder
-    ensure_equals("rows", rs->count(), 1);
-    ensure_equals("columns", rs->get_column_count(), 4);
+    ensure_equals("rows", rs->count(), (size_t)1);
+    ensure_equals("columns", rs->get_column_count(), (size_t)4);
 
     std::string s;
     rs->set_field(0, 0, std::string("1"));
@@ -249,7 +237,7 @@ TEST_FUNCTION(5)
     RecordsetRef rs= editor.get_inserts_model();
 
     ensure_equals("rows", rs->count(), 2);
-    ensure_equals("columns", rs->get_column_count(), 4);
+    ensure_equals("columns", rs->get_column_count(), (size_t)4);
 
     std::string s;
     rs->get_field(0, 0, s);
@@ -260,7 +248,7 @@ TEST_FUNCTION(5)
     ensure_equals("get 2", s, std::string("2012-01-01"));
 
     rs->set_field(1, 0, std::string("42"));
-    ensure_equals("added temporary", rs->count(), 3);
+    ensure_equals("added temporary", rs->count(), (size_t)3);
     rs->get_field(1, 0, s);
     ensure_equals("get 0 tmp", s, std::string("42"));
     std::string msg;

@@ -33,7 +33,10 @@
 #include "copytable.h"
 #include "converter.h"
 
+#undef min
+
 #include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
 
 DEFAULT_LOG_DOMAIN("copytable");
 #define TMP_TRIGGER_TABLE "wb_tmp_triggers"
@@ -128,6 +131,32 @@ static const char *odbc_type_to_name(SQLSMALLINT type)
   }
 }
 
+std::string QueryBuilder::build_query()
+{
+  std::string q;
+  std::string where_cond;
+  for (size_t i = 0; i < this->_where.size(); ++i)
+  {
+    if (i > 0)
+      where_cond += " AND ";
+    where_cond += base::strfmt("(%s)", this->_where[i].c_str());
+  }
+
+  if (this->_schema.empty())
+    q = base::strfmt("SELECT %s FROM %s", this->_columns.c_str(), this->_table.c_str());
+  else
+    q = base::strfmt("SELECT %s FROM %s.%s", this->_columns.c_str(), this->_schema.c_str(), this->_table.c_str());
+
+  if (!where_cond.empty())
+    q += base::strfmt(" WHERE %s", + where_cond.c_str());
+  if (!this->_orderby.empty())
+    q += base::strfmt(" ORDER BY %s", + this->_orderby.c_str());
+  if (!this->_limit.empty())
+    q += base::strfmt(" LIMIT %s", + this->_limit.c_str());
+
+  return q;
+}
+
 
 std::string ConnectionError::process(SQLRETURN retcode, SQLSMALLINT htype, SQLHANDLE handle)
 {
@@ -167,7 +196,8 @@ std::string ConnectionError::process(SQLRETURN retcode, SQLSMALLINT htype, SQLHA
 
 
 RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
-                     boost::function<void (int, const char*, size_t)> send_blob_data)
+                     boost::function<void (int, const char*, size_t)> send_blob_data,
+                     size_t max_packet_size)
 : _current_field(0), _send_blob_data(send_blob_data)
 {
   for (std::vector<ColumnInfo>::const_iterator col = columns->begin(); col != columns->end(); ++col)
@@ -219,8 +249,12 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
         break;
       case MYSQL_TYPE_BLOB:
       case MYSQL_TYPE_GEOMETRY:
-        bind.buffer_length = (unsigned)col->source_length+1;
+        // source_length is not reliable (and returns bogus value for access)
+        // so we just use the max_packet_size value
+        bind.buffer_length = std::min((unsigned long long)max_packet_size, col->source_length+1);
         bind.length = (unsigned long*)malloc(sizeof(unsigned long));
+        if (!bind.length)
+          throw std::runtime_error("Could not allocate memory for row buffer");
         break;
       case MYSQL_TYPE_NULL:
         bind.buffer_length = 0;
@@ -229,12 +263,18 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
         throw std::logic_error(base::strfmt("Unhandled MySQL type %i for column '%s'", col->target_type, col->target_name.c_str()));
     }
     bind.error = (my_bool*)malloc(sizeof(my_bool));
+    if (!bind.error)
+      throw std::runtime_error("Could not allocate memory for row buffer");
     if (col->target_type != MYSQL_TYPE_NULL)
     {
       bind.is_null = (my_bool*)malloc(sizeof(my_bool));
       if (!bind.is_null)
       {
-        if (bind.length) free(bind.length);
+        if (bind.length)
+        {
+          free(bind.length);
+          bind.length = NULL;
+        }
         throw std::runtime_error("Could not allocate row buffer");
       }
     }
@@ -245,12 +285,16 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
       if (!bind.buffer)
       {
         if (bind.error)
+        {
           free(bind.error);
-
-        if (bind.is_null)
+          bind.error = NULL;
+        }
+        {
           free(bind.is_null);
-
-        throw std::runtime_error("Could not allocate row buffer");
+          bind.is_null = NULL;
+        }
+        throw std::runtime_error(base::strfmt("Could not allocate %lu bytes for row buffer column of %s %s %i",
+          bind.buffer_length, col->source_name.c_str(), col->source_type.c_str(), col->target_type));
       }
     }
     else
@@ -430,6 +474,49 @@ void CopyDataSource::set_max_blob_chunk_size(size_t size)
 void CopyDataSource::set_block_size(int bsize)
 {
   _block_size = bsize;
+}
+
+/*
+* get_where_condition : creates where condition for --resume parameter.
+* Parameters:
+* - pk_columns : vector of PK columns
+* - last_pk : vector of last PK value for each of PK column
+*
+* Remarks : For these columns and values ​​creates a condition to the WHERE clause
+*           to skip the rows that have already been copied.
+*           For one columns will produce:
+*             col1 > val1
+*           For two columns:
+*             col1 > val1 or (col1 = val1 and col2 > val2)
+*           For three columns:
+*             col1 > val1 or (col1 = val1 and col2 > val2) or (col1 = val1 and col2 = val2 and col3 > val3)
+*           And so on...
+*/
+std::string CopyDataSource::get_where_condition(const std::vector<std::string> &pk_columns, const std::vector<std::string> &last_pk)
+{
+  std::string where_cond;
+  bool add_and = false;
+
+  for(size_t i = 0; i < pk_columns.size(); ++i)
+  {
+    add_and = false;
+    for(unsigned int j = 0; j < i; ++j)
+    {
+      add_and = true;
+      if(j==0)
+        where_cond += " or (";
+      else
+        where_cond += " and ";
+      where_cond += base::strfmt("%s = '%s'", pk_columns[j].c_str(), base::escape_sql_string(last_pk[j]).c_str());
+    }
+    if(add_and)
+      where_cond += " and ";
+    where_cond += base::strfmt("%s > '%s'", pk_columns[i].c_str(), base::escape_sql_string(last_pk[i]).c_str());
+    if(add_and)
+      where_cond += ")";
+  }
+
+    return where_cond;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -758,8 +845,8 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
         throw std::logic_error(base::strfmt("Error during charset conversion of wstring: %s", strerror(errno)));
 
       if (inbuf_len > 0)
-        log_warning("%zi characters could not be converted to UTF-8 from column %s during copy\n",
-                    inbuf_len, (*_columns)[column-1].source_name.c_str());
+        log_warning("%lu characters could not be converted to UTF-8 from column %s during copy\n",
+                    (unsigned long)inbuf_len, (*_columns)[column-1].source_name.c_str());
 
       *out_length = (unsigned long)(out_buffer_len - outbuf_len);
     }
@@ -769,8 +856,8 @@ SQLRETURN ODBCCopyDataSource::get_geometry_buffer_data(RowBuffer &rowbuffer, int
 }
 
 
-size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::string &table,
-                                      const CopySpec &spec)
+size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
+                                      const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
   SQLHSTMT stmt;
   SQLRETURN ret;
@@ -782,7 +869,10 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
   switch (spec.type)
   {
     case CopyAll:
-      q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+      if (spec.resume && last_pkeys.size())
+        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+      else
+        q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
       break;
     case CopyRange:
     {
@@ -800,7 +890,15 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
     }
     case CopyCount:
     {
-      q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+      if (spec.resume && last_pkeys.size())
+        q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+      else
+        q = base::strfmt("SELECT count(*) FROM %s.%s", schema.c_str(), table.c_str());
+      break;
+    }
+    case CopyWhere:
+    {
+      q = base::strfmt("SELECT count(*) FROM %s.%s WHERE %s", schema.c_str(), table.c_str(), spec.where_expression.c_str());
       break;
     }
   }
@@ -814,13 +912,17 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
 
   SQLFreeHandle(SQL_HANDLE_STMT, stmt);
 
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+    count = spec.max_count;
+
   return count;
 }
 
 
 boost::shared_ptr<std::vector<ColumnInfo> > ODBCCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
+                                                                                   const std::vector<std::string> &pk_columns,
                                                                                    const std::string &select_expression,
-                                                                                   const CopySpec &spec)
+                                                                                   const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
   boost::shared_ptr<std::vector<ColumnInfo> > columns(new std::vector<ColumnInfo>());
   _columns = columns;
@@ -834,23 +936,23 @@ boost::shared_ptr<std::vector<ColumnInfo> > ODBCCopyDataSource::begin_select_tab
 
   std::string q;
 
-  if (spec.type == CopyAll || spec.type == CopyCount)
-    q = base::strfmt("SELECT %s FROM %s.%s", select_expression.c_str(), schema.c_str(), table.c_str());
-  else if (spec.type == CopyRange)
+  QueryBuilder select_query;
+  select_query.select_columns(select_expression);
+  select_query.select_from_table(table, schema);
+  select_query.add_orderby(boost::algorithm::join(pk_columns, ", "));
+
+  if (spec.resume && last_pkeys.size())
+    select_query.add_where(get_where_condition(pk_columns, last_pkeys));
+  if (spec.type == CopyRange)
   {
-    std::string start_expr, end_expr;
-    if (spec.range_end < 0)
-      end_expr = "";
-    else
-      end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
-    start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
-    if (!end_expr.empty())
-      q = base::strfmt("SELECT %s FROM %s.%s WHERE %s AND %s", select_expression.c_str(),
-                       schema.c_str(), table.c_str(), start_expr.c_str(), end_expr.c_str());
-    else
-      q = base::strfmt("SELECT %s FROM %s.%s WHERE %s", select_expression.c_str(),
-                       schema.c_str(), table.c_str(), start_expr.c_str());
+    select_query.add_where(base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start));
+    if (spec.range_end >= 0)
+      select_query.add_where(base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end));
   }
+  if (spec.type == CopyWhere)
+    select_query.add_where(spec.where_expression);
+
+  q = select_query.build_query();
 
   log_debug("Executing query: %s\n", q.c_str());
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(_stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
@@ -1252,7 +1354,8 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
     throw ConnectionError(q, &_mysql);
 }
 
-size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::string &table, const CopySpec &spec)
+size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
+                                       const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
   std::string q = base::strfmt("USE %s", schema.c_str());
 
@@ -1262,7 +1365,10 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
   switch (spec.type)
   {
     case CopyAll:
-      q = base::strfmt("SELECT count(*) FROM %s", table.c_str());
+      if (spec.resume && last_pkeys.size())
+        q = base::strfmt("SELECT count(*) FROM %s WHERE %s", table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str());
+      else
+        q = base::strfmt("SELECT count(*) FROM %s", table.c_str());
       break;
     case CopyRange:
     {
@@ -1280,7 +1386,15 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
     }
     case CopyCount:
     {
-      q = base::strfmt("SELECT count(*) FROM %s LIMIT %lli", table.c_str(), spec.row_count);
+      if (spec.resume && last_pkeys.size())
+        q = base::strfmt("SELECT count(*) FROM %s WHERE %s LIMIT %lli", table.c_str(), get_where_condition(pk_columns, last_pkeys).c_str(), spec.row_count);
+      else
+        q = base::strfmt("SELECT count(*) FROM %s LIMIT %lli", table.c_str(), spec.row_count);
+      break;
+    }
+    case CopyWhere:
+    {
+      q = base::strfmt("SELECT count(*) FROM %s WHERE %s", table.c_str(), spec.where_expression.c_str());
       break;
     }
   }
@@ -1302,12 +1416,16 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
 
   mysql_free_result(result);
 
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+      count = spec.max_count;
+
   return count;
 }
 
 boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_table(const std::string &schema, const std::string &table,
+                                                                                    const std::vector<std::string> &pk_columns,
                                                                                     const std::string &select_expression,
-                                                                                    const CopySpec &spec)
+                                                                                    const CopySpec &spec, const std::vector<std::string> &last_pkeys)
 {
   boost::shared_ptr<std::vector<ColumnInfo> > columns(new std::vector<ColumnInfo>());
 
@@ -1319,26 +1437,27 @@ boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_ta
   if (mysql_query(&_mysql, q.data()) < 0)
     throw ConnectionError("mysql_query("+q+")", &_mysql);
 
-  if (spec.type == CopyAll)
-    q = base::strfmt("SELECT %s FROM %s", select_expression.c_str(), table.c_str());
-  else if (spec.type == CopyCount)
-    q = base::strfmt("SELECT %s FROM %s LIMIT %lli", select_expression.c_str(), table.c_str(), spec.row_count);
-  else if (spec.type == CopyRange)
-  {
-    std::string start_expr, end_expr;
-    if (spec.range_end < 0)
-      end_expr = "";
-    else
-      end_expr = base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end);
-    start_expr = base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start);
-    if (!end_expr.empty())
-      q = base::strfmt("SELECT %s FROM %s WHERE %s AND %s", select_expression.c_str(),
-                       table.c_str(), start_expr.c_str(), end_expr.c_str());
-    else
-      q = base::strfmt("SELECT %s FROM %s WHERE %s", select_expression.c_str(),
-                       table.c_str(), start_expr.c_str());
-  }
+  QueryBuilder select_query;
+  select_query.select_columns(select_expression);
+  select_query.select_from_table(table);
+  select_query.add_orderby(boost::algorithm::join(pk_columns, ", "));
 
+  if (spec.type == CopyCount || spec.max_count > 0)
+    select_query.add_limit(base::strfmt("%lli", spec.row_count));
+  if (spec.resume && last_pkeys.size())
+    select_query.add_where(get_where_condition(pk_columns, last_pkeys));
+  if (spec.type == CopyRange)
+  {
+    select_query.add_where(base::strfmt("%s >= %lli", spec.range_key.c_str(), spec.range_start));
+    if (spec.range_end >= 0)
+      select_query.add_where(base::strfmt("%s <= %lli", spec.range_key.c_str(), spec.range_end));
+  }
+  if (spec.type == CopyWhere)
+    select_query.add_where(spec.where_expression);
+
+  q = select_query.build_query();
+
+  log_debug("Executing query: %s\n", q.c_str());
   MYSQL_STMT *stmt = mysql_stmt_init(&_mysql);
   if (stmt)
   {
@@ -1517,9 +1636,66 @@ void MySQLCopyDataTarget::init()
   if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
     throw ConnectionError(q, &_mysql);
 
+  // the source data will come in a charset that's not utf-8, so we let the server do the conversion
+  if (!_incoming_data_charset.empty())
+  {
+    log_info("Setting charset for source data to %s\n", _incoming_data_charset.c_str());
+    q = base::sqlstring("SET character_set_client=?", 0) << _incoming_data_charset;
+    if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
+      throw ConnectionError(q, &_mysql);
+  }
+
   q = "SET FOREIGN_KEY_CHECKS=0";
   if (mysql_real_query(&_mysql, q.data(), (unsigned long)q.length()) != 0)
     throw ConnectionError(q, &_mysql);
+
+  // some DBs (like MS Access) have sequence/auto-increment values start at 0
+  // by default, mysql will change that to 1, so when the actual row numbered 1 comes it will be duplicated
+  if (mysql_query(&_mysql, "SET SESSION SQL_MODE=CONCAT('NO_AUTO_VALUE_ON_ZERO,', @@SQL_MODE)") != 0)
+  {
+    log_warning("Error changing sql_mode: %s\n", mysql_error(&_mysql));
+  }
+}
+
+std::vector<std::string> MySQLCopyDataTarget::get_last_pkeys(const std::vector<std::string> &pk_columns, const std::string &schema, const std::string &table)
+{
+  std::vector<std::string> ret;
+  std::string order_by_cond;
+
+  for (size_t i = 0; i < pk_columns.size(); ++i)
+  {
+    order_by_cond += base::strfmt("%s DESC", pk_columns[i].c_str());
+    if (i < pk_columns.size() - 1)
+      order_by_cond += ",";
+  }
+
+  const std::string q = base::strfmt("SELECT %s FROM %s.%s ORDER BY %s LIMIT 0,1", boost::algorithm::join(pk_columns, ", ").c_str(), schema.c_str(), table.c_str(), order_by_cond.c_str());
+  if (mysql_query(&_mysql, q.data()) != 0)
+      throw ConnectionError("mysql_query(" + q + ")", &_mysql);
+
+  MYSQL_RES *result;
+  if ((result = mysql_use_result(&_mysql)) == NULL)
+    throw ConnectionError("mysql_use_result", &_mysql);
+
+
+  MYSQL_ROW row = mysql_fetch_row(result);
+
+  if (row)
+    for (size_t i = 0; i < pk_columns.size(); ++i)
+      ret.push_back(row[i]);
+
+  mysql_free_result(result);
+
+  std::string column_value;
+  for (size_t i = 0; i < ret.size(); ++i)
+  {
+    column_value += base::strfmt("%s: %s", pk_columns[i].c_str(), ret[i].c_str());
+    if (i < pk_columns.size() - 1)
+      column_value += ",";
+  }
+  log_info("Resuming copy of table %s.%s. Starting on record with keys: %s\n", schema.c_str(), table.c_str(), column_value.c_str());
+
+  return ret;
 }
 
 
@@ -1699,13 +1875,18 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
 
 MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket, const std::string &app_name)
+                    const std::string &socket, const std::string &app_name,
+                    const std::string &incoming_charset)
 : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
   _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
   _bulk_insert_batch(0)
 {
   std::string host = hostname;
   _truncate = false;
+
+  _incoming_data_charset = incoming_charset;
+  if (base::tolower(_incoming_data_charset) == "cp1252" || base::tolower(_incoming_data_charset) == "windows-1252")
+    _incoming_data_charset = "latin1";
 
   mysql_init(&_mysql);
 #if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
@@ -1874,7 +2055,7 @@ void MySQLCopyDataTarget::begin_inserts()
   if (_row_buffer)
     delete _row_buffer;
 
-  _row_buffer = new RowBuffer(_columns, boost::bind(&MySQLCopyDataTarget::send_long_data, this, _1, _2, _3));
+  _row_buffer = new RowBuffer(_columns, boost::bind(&MySQLCopyDataTarget::send_long_data, this, _1, _2, _3), _max_allowed_packet);
 
   if (!_use_bulk_inserts)
   {
@@ -1988,8 +2169,12 @@ int MySQLCopyDataTarget::do_insert(bool final)
       ret_val = _bulk_record_count;
       _init_bulk_insert = true;
       if (mysql_real_query(&_mysql, _bulk_insert_buffer.buffer, (unsigned long)_bulk_insert_buffer.length) != 0)
-        throw ConnectionError("Inserting Batch", &_mysql);
+      {
+        _bulk_insert_buffer.buffer[_bulk_insert_buffer.length] = 0;
+        log_info("Statement execution failed: %s:\n%s\n", mysql_error(&_mysql), _bulk_insert_buffer.buffer);
 
+        throw ConnectionError("Inserting Data", &_mysql);
+      }
       _bulk_insert_buffer.reset(_max_allowed_packet);
       _bulk_record_count = 0;
     }
@@ -2365,7 +2550,7 @@ void MySQLCopyDataTarget::backup_triggers_for_schema(const std::string &schema)
       }
     }
 
-    log_info("Successfully backed up %zu triggers.\n", triggers.size());
+    log_info("Successfully backed up %lu triggers.\n", (unsigned long)triggers.size());
   }
 }
 
@@ -2457,7 +2642,7 @@ void MySQLCopyDataTarget::restore_triggers(std::set<std::string> &schemas)
       // Drops the trigger backup table
       drop_trigger_backups(a_schema);
 
-      log_info("Trigger Restore: %d succeeded, %zu failed\n", restored, trigger_sql.size() - restored);
+      log_info("Trigger Restore: %d succeeded, %lu failed\n", restored, (unsigned long)(trigger_sql.size() - restored));
     }
   }
 }
@@ -2523,8 +2708,11 @@ void CopyDataTask::copy_table(const TableParam &task)
   time_t start = time(NULL);
   try
   {
-    total = _source->count_rows(task.source_schema, task.source_table, task.copy_spec);
-    columns = _source->begin_select_table(task.source_schema, task.source_table, task.select_expression, task.copy_spec);
+    std::vector<std::string> last_pkeys;
+    if (task.copy_spec.resume)
+      last_pkeys = _target->get_last_pkeys(task.target_pk_columns, task.target_schema, task.target_table);
+    total = _source->count_rows(task.source_schema, task.source_table, task.source_pk_columns, task.copy_spec, last_pkeys);
+    columns = _source->begin_select_table(task.source_schema, task.source_table, task.source_pk_columns, task.select_expression, task.copy_spec, last_pkeys);
 
     printf("BEGIN:%s.%s:Copying %li columns of %lli rows from table %s.%s\n",
            task.target_schema.c_str(), task.target_table.c_str(),
@@ -2549,7 +2737,8 @@ void CopyDataTask::copy_table(const TableParam &task)
 
       _target->row_buffer().clear();
 
-      if (task.copy_spec.type == CopyCount && i >= task.copy_spec.row_count)
+      if ((task.copy_spec.type == CopyCount && i >= task.copy_spec.row_count) ||
+          (task.copy_spec.max_count > 0 && i >= task.copy_spec.max_count))
         break;
     }
 

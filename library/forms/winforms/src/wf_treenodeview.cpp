@@ -26,6 +26,7 @@
 #include "wf_menubar.h"
 
 using namespace System::Drawing;
+using namespace System::Drawing::Imaging;
 using namespace System::Collections::Generic;
 using namespace System::Collections::ObjectModel;
 using namespace System::Windows::Forms;
@@ -274,6 +275,14 @@ public:
 
 //----------------- MformsTree ---------------------------------------------------------------------
 
+ref struct NodeOverlay
+{
+  bool isHot;
+  Drawing::Rectangle bounds;     // For mouse hit tests.
+  Drawing::Rectangle drawBounds; // For drawing (different coordinate system, hence separate).
+  Image ^image;
+};
+
 ref class MformsTree : TreeViewAdv
 {
 public:
@@ -293,6 +302,9 @@ public:
   
   Dictionary<String^, TreeViewNode^> ^tagMap;
 
+  TreeNodeAdv ^hotNode;             // The node under the mouse.
+  List<NodeOverlay^> ^overlayInfo; // Overlay images and their bounds for special actions.
+
   MformsTree()
   {
     model = gcnew SortableTreeModel();
@@ -306,6 +318,9 @@ public:
     canReorderRows = false;
     rowDragFormat = nullptr;
     dragBox = Rectangle::Empty;
+
+    hotNode = nullptr;
+    overlayInfo = gcnew List<NodeOverlay^>();
   }
   
   //------------------------------------------------------------------------------------------------
@@ -401,6 +416,7 @@ public:
     };
 
     TreeColumn ^column = gcnew TreeColumn(name, (initial_width < 0) ? 50 : initial_width);
+    column->WidthChanged += gcnew System::EventHandler(this, &MformsTree::OnColumnResized);
     Columns->Add(column);
     columnTypes.Add(type);
 
@@ -433,7 +449,7 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  void EndColumns() // TODO: not really clear we need that.
+  void EndColumns()
   {
     Model = model; // Trigger refresh.
   }
@@ -571,39 +587,78 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  virtual void OnColumnClicked(TreeColumn ^column) override
+  virtual void OnColumnClicked(TreeColumn ^column, ::MouseButtons button) override
   {
-    __super::OnColumnClicked(column);
+    __super::OnColumnClicked(column, button);
 
-    if (canSortColumn)
+    switch (button)
     {
-      // Note: TreeViewAdv^ uses sort indicators wrongly. They are used as if they were arrows pointing
-      //       to the greater value. However common usage is to view them as normal triangles with the
-      //       tip showing the smallest value and the base side the greatest (Windows explorer and many
-      //       other controls use it that way). Hence I switch the order here for the columns
-      //       (though not for the comparer).
-      if (column->Index != currentSortColumn)
+    case ::MouseButtons::Left:
+      if (canSortColumn)
       {
-        currentSortColumn = column->Index;
+        // Note: TreeViewAdv^ uses sort indicators wrongly. They are used as if they were arrows pointing
+        //       to the greater value. However common usage is to view them as normal triangles with the
+        //       tip showing the smallest value and the base side the greatest (Windows explorer and many
+        //       other controls use it that way). Hence I switch the order here for the columns
+        //       (though not for the comparer).
+        if (column->Index != currentSortColumn)
+        {
+          currentSortColumn = column->Index;
 
-        // Initial sort order is always ascending.
-        column->SortOrder = SortOrder::Descending;
-        currentSortOrder = SortOrder::Ascending;
+          // Initial sort order is always ascending.
+          column->SortOrder = SortOrder::Descending;
+          currentSortOrder = SortOrder::Ascending;
+        }
+        else
+        {
+          if (column->SortOrder == SortOrder::Ascending)
+            column->SortOrder = SortOrder::Descending;
+          else
+            column->SortOrder = SortOrder::Ascending;
+
+          // Revert the sort order for our comparer, read above why.
+          currentSortOrder = (column->SortOrder == SortOrder::Ascending) ? SortOrder::Descending : SortOrder::Ascending;
+        }
+
+        model->Comparer = gcnew ColumnComparer(currentSortColumn, currentSortOrder,
+          (mforms::TreeColumnType)columnTypes[currentSortColumn]);
+      }
+      break;
+
+    case ::MouseButtons::Right:
+      // Update the associated header context menu.
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      mforms::ContextMenu *header_menu = backend->get_header_menu();
+      if (header_menu != NULL)
+      {
+        ::ContextMenuStrip ^menu = MenuBarWrapper::GetManagedObject<::ContextMenuStrip>(header_menu);
+        if (menu != ContextMenuStrip)
+        {
+          ContextMenuStrip = menu;
+          if (Conversions::UseWin8Drawing())
+            ContextMenuStrip->Renderer = gcnew Win8MenuStripRenderer();
+          else
+            ContextMenuStrip->Renderer = gcnew TransparentMenuStripRenderer();
+
+          backend->header_clicked(column->Index);
+          header_menu->will_show();
+        }
       }
       else
-      {
-        if (column->SortOrder == SortOrder::Ascending)
-          column->SortOrder = SortOrder::Descending;
-        else
-          column->SortOrder = SortOrder::Ascending;
-
-        // Revert the sort order for our comparer, read above why.
-        currentSortOrder = (column->SortOrder == SortOrder::Ascending) ? SortOrder::Descending : SortOrder::Ascending;
-      }
-
-      model->Comparer = gcnew ColumnComparer(currentSortColumn, currentSortOrder,
-        (mforms::TreeColumnType)columnTypes[currentSortColumn]);
+        ContextMenuStrip = nullptr;
+      break;
     }
+
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void OnColumnResized(Object ^sender, System::EventArgs ^args)
+  {
+    TreeColumn ^column = (TreeColumn^)sender;
+    mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+    if (backend)
+      backend->column_resized(column->Index);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -626,8 +681,53 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  virtual void OnAfterNodeDrawing(TreeNodeAdv ^node, DrawContext context) override
+  {
+    __super::OnAfterNodeDrawing(node, context);
+
+    // Draw overlay icon(s).
+    if (node == hotNode && overlayInfo->Count > 0)
+    {
+      Graphics ^graphics = context.Graphics;
+
+      ColorMatrix ^matrix = gcnew ColorMatrix();
+      ImageAttributes ^attributes = gcnew ImageAttributes();
+      for each (NodeOverlay ^overlay in overlayInfo)
+      {
+        matrix->Matrix33 = overlay->isHot ? 1 : 0.5f;
+        attributes->SetColorMatrix(matrix);
+
+        Drawing::Rectangle bounds = overlay->drawBounds;
+        bounds.X += context.Bounds.Left;
+        bounds.Y += context.Bounds.Top;
+        graphics->DrawImage(overlay->image, bounds,
+          0, 0, overlay->image->Size.Width, overlay->image->Size.Width,
+          GraphicsUnit::Pixel, attributes);
+      }
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   virtual void OnMouseDown(MouseEventArgs ^args) override
   {
+    // First check for clicks on the overlay.
+    if (args->Button == ::MouseButtons::Left && overlayInfo->Count > 0)
+    {
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+
+      for (int i = 0; i < overlayInfo->Count; ++i)
+      {
+        NodeOverlay ^overlay = overlayInfo[i];
+        if (overlay->bounds.Contains(args->Location))
+        {
+          backend->overlay_icon_for_node_clicked(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode ^)hotNode->Tag)), i);
+          return;
+        }
+      }
+    }
+
     __super::OnMouseDown(args);
 
     switch (args->Button)
@@ -642,7 +742,7 @@ public:
 
     case ::MouseButtons::Right:
       {
-        // Update the associated context menu.
+        // Update the associated standard context menu.
         mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
         if (backend->get_context_menu())
         {
@@ -710,8 +810,105 @@ public:
         }
     }
     else
-      __super::OnMouseMove(args);
+    {
+      // Any overlay icon to show?
+      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
+      NodeControlInfo ^info = GetNodeControlInfoAt(Point(args->X, args->Y));
+      if (hotNode != info->Node)
+      {
+        if (hotNode != nullptr)
+        {
+          overlayInfo->Clear();
+          Drawing::Rectangle bounds = GetRealNodeBounds(hotNode);
+          Invalidate(Drawing::Rectangle(0, bounds.Top, Width, bounds.Height));
+        }
+        hotNode = info->Node;
 
+        if (hotNode != nullptr)
+        {
+          TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+          std::vector<std::string> overlay_icons = backend->overlay_icons_for_node
+            (mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, (TreeViewNode ^)info->Node->Tag)));
+
+          if (!overlay_icons.empty())
+          {
+            // info->Bounds is unreliable (e.g. can be empty).
+            Drawing::Rectangle scrolledBounds = GetRealNodeBounds(hotNode);
+            Drawing::Rectangle drawBounds = GetNodeBounds(hotNode);
+            int total_width = 0;
+            for (size_t i = 0; i < overlay_icons.size(); ++i)
+            {
+              NodeOverlay ^overlay = gcnew NodeOverlay();
+              overlay->isHot = false;
+              overlay->image = Drawing::Image::FromFile(CppStringToNativeRaw(overlay_icons[i]));
+              if (overlay->image == nullptr)
+                continue;
+
+              // Compute bounding rectangles of the image for drawing and hit tests.
+              // The left offset is computed separately, after we have all images loaded (and know their widths).
+              Drawing::Point position = Drawing::Point(0,
+                scrolledBounds.Top + (scrolledBounds.Height - overlay->image->Size.Height) / 2);
+
+              // The draw coordinates are relative to the node. We add offset during paint.
+              Drawing::Point drawPosition = Drawing::Point(0, (drawBounds.Height - overlay->image->Size.Height) / 2);
+              overlay->bounds = Drawing::Rectangle(position, overlay->image->Size);
+              overlay->drawBounds = Drawing::Rectangle(drawPosition, overlay->image->Size);
+              overlayInfo->Add(overlay);
+
+              total_width += overlay->bounds.Size.Width;
+            }
+
+            int offset = DisplayRectangle.Size.Width - total_width;
+            for each (NodeOverlay ^overlay in overlayInfo)
+            {
+              overlay->bounds.X = offset;
+              overlay->drawBounds.X = offset;
+              offset += overlay->bounds.Width;
+            }
+
+            Invalidate(Drawing::Rectangle(0, scrolledBounds.Top, Width, scrolledBounds.Height));
+          }
+        }
+        else
+        {
+          hotNode = nullptr;
+          overlayInfo->Clear();
+        }
+      }
+      else
+      {
+        // No change to a new node, but maybe a different overlay.
+        if (overlayInfo->Count > 0)
+        {
+          for each (NodeOverlay ^overlay in overlayInfo)
+          {
+            bool willBeHighlighted = overlay->bounds.Contains(args->Location);
+            if (overlay->isHot != willBeHighlighted)
+            {
+              overlay->isHot = willBeHighlighted;
+              Invalidate(overlay->bounds);
+            }
+          }
+        }
+      }
+      Update();
+
+      __super::OnMouseMove(args);
+    }
+
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  virtual void OnMouseLeave(EventArgs ^args) override
+  {
+    if (hotNode != nullptr)
+    {
+      hotNode = nullptr;
+      overlayInfo->Clear();
+      Invalidate();
+    }
+    __super::OnMouseLeave(args);
   }
 
   //------------------------------------------------------------------------------------------------
@@ -1055,6 +1252,14 @@ mforms::TreeNodeRef TreeNodeViewWrapper::node_with_tag(mforms::TreeNodeView *bac
 
 //--------------------------------------------------------------------------------------------------
 
+void TreeNodeViewWrapper::set_column_title(mforms::TreeNodeView *backend, int column, const std::string &title)
+{
+  TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
+  wrapper->set_column_title(column, title);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void TreeNodeViewWrapper::set_column_visible(mforms::TreeNodeView *backend, int column, bool flag)
 {
   TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
@@ -1223,11 +1428,24 @@ int TreeNodeViewWrapper::row_for_node(mforms::TreeNodeRef node)
       for (int i = 0; i < node_index; i++)
         row += count_rows_in_node(parent->get_child(i));
       if (parent != root_node())
-        row += row_for_node(parent);
+        row += row_for_node(parent) + 1;
+    }
+    else
+    {
+      for (int i = 0; i < node_index; i++)
+        row += count_rows_in_node(root_node()->get_child(i));
     }
     return row;
   }
   return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeViewWrapper::set_column_title(int column, const std::string &title)
+{
+  TreeViewAdv ^tree = GetManagedObject<TreeViewAdv>();
+  tree->Columns[column]->Header = CppStringToNative(title);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1328,6 +1546,8 @@ void TreeNodeViewWrapper::init()
   f->_treenodeview_impl.set_selection_mode = &TreeNodeViewWrapper::set_selection_mode;
   f->_treenodeview_impl.get_selection_mode = &TreeNodeViewWrapper::get_selection_mode;
   f->_treenodeview_impl.node_with_tag = &TreeNodeViewWrapper::node_with_tag;
+
+  f->_treenodeview_impl.set_column_title = &TreeNodeViewWrapper::set_column_title;
 
   f->_treenodeview_impl.set_column_visible = &TreeNodeViewWrapper::set_column_visible;
   f->_treenodeview_impl.get_column_visible = &TreeNodeViewWrapper::get_column_visible;

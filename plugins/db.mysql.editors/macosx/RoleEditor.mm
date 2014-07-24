@@ -93,6 +93,14 @@
 }
 
 
+- (IBAction)checkAll:(id)sender
+{
+  mList->add_all();
+
+  [mOwner refresh];
+}
+
+
 - (IBAction)uncheckAll:(id)sender
 {
   mList->remove_all();

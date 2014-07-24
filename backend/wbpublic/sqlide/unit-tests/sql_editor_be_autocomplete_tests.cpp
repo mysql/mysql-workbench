@@ -57,11 +57,12 @@ protected:
   base::RecMutex _connection_mutex;
   sql::Dbc_connection_handler::Ref _conn;
   AutoCompleteCache *_cache;
+  parser::ParserContext::Ref _autocomplete_context;
   int version;
 
 public:
 TEST_DATA_CONSTRUCTOR(sql_editor_be_autocomplete_tests)
-  : _cache(NULL), _conn(new sql::Dbc_connection_handler())
+  : _conn(new sql::Dbc_connection_handler()), _cache(NULL)
 {
   populate_grt(_tester.grt, _tester);
 
@@ -115,7 +116,7 @@ void run_simple_query_tests(MySQLEditor::Ref editor, int part, ac_test_entry *te
     context.offset = test_input[i].offset;
 
     std::string message = base::strfmt("Part %u, step %lu", part, i);
-    if (!editor->create_auto_completion_list(context))
+    if (!editor->create_auto_completion_list(context, _autocomplete_context->recognizer()))
       fail(message + ", unexpected syntax error: " + test_input[i].query);
     match_included_parts(message, context, test_input[i].parts);
     if (test_input[i].check_entries)
@@ -185,7 +186,7 @@ void run_all_queries_tests(MySQLEditor::Ref editor, ac_test_entry *test_input, s
     context.offset = test_input[i].offset;
     
     std::string message = base::strfmt("Step %lu", i);
-    if (!editor->create_auto_completion_list(context))
+    if (!editor->create_auto_completion_list(context, _autocomplete_context->recognizer()))
       fail(message + ", unexpected syntax error: " + test_input[i].query);
     match_included_parts(message, context, test_input[i].parts);
     if (test_input[i].check_entries)
@@ -220,7 +221,7 @@ void run_typing_tests(MySQLEditor::Ref editor, int part, ac_test_entry *test_inp
     context.offset = test_input[i].offset;
 
     std::string message = base::strfmt("Part %u, step %lu", part, i);
-    editor->create_auto_completion_list(context);
+    editor->create_auto_completion_list(context, _autocomplete_context->recognizer());
     match_included_parts(message, context, test_input[i].parts);
     if (test_input[i].check_entries)
     {
@@ -282,7 +283,10 @@ TEST_FUNCTION(5)
   parser::ParserContext::Ref context = services->createParserContext(_tester.get_rdbms()->characterSets(),
     _version, false);
 
-  _sql_editor = MySQLEditor::create(_tester.grt, context);
+  _autocomplete_context = services->createParserContext(_tester.get_rdbms()->characterSets(),
+    _version, false);
+
+  _sql_editor = MySQLEditor::create(_tester.grt, context, _autocomplete_context);
   _sql_editor->set_current_schema("sakila");
   _sql_editor->set_auto_completion_cache(_cache);
 

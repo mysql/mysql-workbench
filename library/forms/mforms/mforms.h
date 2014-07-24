@@ -97,6 +97,7 @@
 #include <mforms/find_panel.h>
 #include <mforms/native.h>
 #include <mforms/canvas.h>
+#include <mforms/record_grid.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 namespace mforms

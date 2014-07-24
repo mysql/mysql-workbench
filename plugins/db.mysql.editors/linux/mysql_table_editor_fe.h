@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ class DbMySQLTableEditorFKPage;
 class DbMySQLTableEditorTriggerPage;
 class DbMySQLTableEditorPartPage;
 class DbMySQLTableEditorOptPage;
-class RecordsetView;
 class DbMySQLEditorPrivPage;
 
 //==============================================================================
@@ -47,7 +46,6 @@ class DbMySQLTableEditor : public PluginEditorBase
   DbMySQLTableEditorPartPage        *_part_page;
   DbMySQLTableEditorOptPage         *_opts_page;
   mforms::View                      *_inserts_panel;
-  RecordsetView                     *_inserts_grid;
   DbMySQLEditorPrivPage             *_privs_page;
   Gtk::Widget                       *_main_page_widget;
 

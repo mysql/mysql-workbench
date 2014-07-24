@@ -130,6 +130,7 @@
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_LUA_MODULES;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -148,12 +149,16 @@
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_LUA_MODULES;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>python\$(Configuration)\python27_d.lib;glib\glib-2.0.lib;glib\gmodule-2.0.lib;glib\gthread-2.0.lib;libxml\libiconv.lib;libxml\libxml2.lib;lua\lua.lib;mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\mysql-win-res\lib\$(PlatformTarget)\;$(SolutionDir)..\..\mysql-win-res\lib\$(PlatformTarget)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -250,18 +255,14 @@
     <ClCompile Include="src\grtpp_metaclass.cpp" />
     <ClCompile Include="src\grtpp_module.cpp" />
     <ClCompile Include="src\grtpp_module_cpp.cpp" />
-    <ClCompile Include="src\grtpp_module_lua.cpp" />
     <ClCompile Include="src\grtpp_module_python.cpp" />
     <ClCompile Include="src\grtpp_notifications.cpp" />
     <ClCompile Include="src\grtpp_shell.cpp" />
-    <ClCompile Include="src\grtpp_shell_lua.cpp" />
-    <ClCompile Include="src\grtpp_shell_lua_help.cpp" />
     <ClCompile Include="src\grtpp_shell_python.cpp" />
     <ClCompile Include="src\grtpp_shell_python_help.cpp" />
     <ClCompile Include="src\grtpp_undo_manager.cpp" />
     <ClCompile Include="src\grtpp_util.cpp" />
     <ClCompile Include="src\grtpp_value.cpp" />
-    <ClCompile Include="src\lua_context.cpp" />
     <ClCompile Include="src\python_context.cpp" />
     <ClCompile Include="src\python_grtdict.cpp" />
     <ClCompile Include="src\python_grtlist.cpp" />
@@ -288,17 +289,14 @@
     <ClInclude Include="src\grtpp.h" />
     <ClInclude Include="src\grtpp_helper.h" />
     <ClInclude Include="src\grtpp_module_cpp.h" />
-    <ClInclude Include="src\grtpp_module_lua.h" />
     <ClInclude Include="src\grtpp_module_python.h" />
     <ClInclude Include="src\grtpp_notifications.h" />
     <ClInclude Include="src\grtpp_shell.h" />
-    <ClInclude Include="src\grtpp_shell_lua.h" />
     <ClInclude Include="src\grtpp_shell_python.h" />
     <ClInclude Include="src\grtpp_shell_python_help.h" />
     <ClInclude Include="src\grtpp_undo_manager.h" />
     <ClInclude Include="src\grtpp_util.h" />
     <ClInclude Include="src\grtpp_value.h" />
-    <ClInclude Include="src\lua_context.h" />
     <ClInclude Include="src\python_context.h" />
     <ClInclude Include="src\python_grtdict.h" />
     <ClInclude Include="src\python_grtlist.h" />

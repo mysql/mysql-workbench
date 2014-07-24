@@ -82,8 +82,10 @@
 		  <CustomAction Id="SetAdditionalCleanupDir2"
               Property="LEFTOVERDIR2"
               Value="[INSTALLDIR]python\logging" />
-
-      <Binary Id="MySQLCA" SourceFile="MySQLCA\bin\Release\MySQLCA.CA.dll" />
+      <CustomAction Id="SetAdditionalCleanupDir3"
+              Property="LEFTOVERDIR3"
+              Value="[INSTALLDIR]workbench\graphics" />
+      <Binary Id="MySQLCA" SourceFile="..\..\..\mysql-win-res\bin\MySQLCA.CA.dll" />
       
       <CustomAction Id="PrecompilePythonFiles" BinaryKey="MySQLCA" DllEntry="PrecompilePythonFiles" Execute="deferred" Impersonate="no" Return="asyncWait" />
       <CustomAction Id="PrecompilePythonFiles.SetProperty" Return="check" Property="PrecompilePythonFiles" Value="[INSTALLDIR]"/>
@@ -115,19 +117,20 @@
             <RegistryValue Id="Location" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" 
                       Name="Location" Type="string" 
                       Value="[INSTALLDIR]"/>
-      <?if $(var.SETUP_TYPE) = "commercial" ?>
-        <RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
-      <?endif?>
-			<RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />			
-			<RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />			
-			<RemoveFile Id="pyc_cleanup27" Name="pyodbc*.pyd" On="both" Directory="python_site_packages" />
-			<RemoveFile Id="pyc_cleanup28" Name="*.pyc" On="both" Directory="python_site_packages_crypto_signature" />
-			<RemoveFile Id="pyc_cleanup29" Name="*.pyc" On="both" Directory="python_lib_ctypes" />
-			<RemoveFile Id="pyc_cleanup30" Name="*.pyc" On="both" Directory="library_workbench" />
-            <?if $(var.LICENSE_TYPE) = "commercial"?>
-			<RemoveFile Id="pyc_cleanup31" Name="*.pyc" On="both" Directory="modules_wba_audit" />
-			<RemoveFile Id="pyc_cleanup32" Name="*.pyc" On="both" Directory="modules_wba_meb" />
+            <?if $(var.SETUP_TYPE) = "commercial" ?>
+              <RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
             <?endif?>
+            <RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />			
+            <RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />			
+            <RemoveFile Id="pyc_cleanup27" Name="pyodbc*.pyd" On="both" Directory="python_site_packages" />
+            <RemoveFile Id="pyc_cleanup28" Name="*.pyc" On="both" Directory="python_site_packages_crypto_signature" />
+            <RemoveFile Id="pyc_cleanup29" Name="*.pyc" On="both" Directory="python_lib_ctypes" />
+            <RemoveFile Id="pyc_cleanup30" Name="*.pyc" On="both" Directory="library_workbench" />
+            <?if $(var.LICENSE_TYPE) = "commercial"?>
+              <RemoveFile Id="pyc_cleanup31" Name="*.pyc" On="both" Directory="modules_wba_audit" />
+              <RemoveFile Id="pyc_cleanup32" Name="*.pyc" On="both" Directory="modules_wba_meb" />
+            <?endif?>
+            <RemoveFile Id="pyc_cleanup33" Name="*.pyc" On="both" Property="LEFTOVERDIR3" />
           </Component>
         </DirectoryRef>
 
@@ -154,8 +157,6 @@
             <?endif?>
             <ComponentRef Id="modules_data" />
             <ComponentRef Id="modules_data_sqlite" />
-            <ComponentRef Id="modules_data_doclibrary" />
-            <ComponentRef Id="modules_templates" />
             <ComponentRef Id="library_workbench" />
             <ComponentRef Id="library_workbench_graphics" />
 			<ComponentRef Id="python_dlls" />
@@ -249,9 +250,10 @@
 		<CustomAction Id="LaunchApplication" FileKey="file1056" ExeCommand="" Execute="immediate" Impersonate="yes" Return="asyncNoWait" />
 
         <InstallExecuteSequence>
-			<Custom Action="SetAdditionalCleanupDir1" Before="InstallInitialize"/>
-			<Custom Action="SetAdditionalCleanupDir2" Before="InstallInitialize"/>
-            <Custom Action="NewerVersionInstalled" After="FindRelatedProducts">NEWERPRODUCTFOUND</Custom>
+          <Custom Action="SetAdditionalCleanupDir1" Before="InstallInitialize"/>
+          <Custom Action="SetAdditionalCleanupDir2" Before="InstallInitialize"/>
+          <Custom Action="SetAdditionalCleanupDir3" Before="InstallInitialize"/>
+          <Custom Action="NewerVersionInstalled" After="FindRelatedProducts">NEWERPRODUCTFOUND</Custom>
 
           <Custom Action="PrecompilePythonFiles.SetProperty" Before="PrecompilePythonFiles">NOT(REMOVE="ALL")</Custom>
           <Custom Action="PrecompilePythonFiles" After="InstallFiles">NOT(REMOVE="ALL")</Custom>

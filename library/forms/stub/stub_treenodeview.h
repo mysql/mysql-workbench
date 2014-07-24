@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,7 +50,7 @@ private:
 
   static bool create(TreeNodeView *self, mforms::TreeOptions opt)
   {
-    TreeNodeViewWrapper *ptree_node_view = new TreeNodeViewWrapper(self, opt);
+    new TreeNodeViewWrapper(self, opt);
     return true;
   }
 

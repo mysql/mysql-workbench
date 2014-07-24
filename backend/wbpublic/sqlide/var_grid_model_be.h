@@ -71,6 +71,7 @@ public:
   virtual std::string get_column_caption(ColumnId index);
   virtual ColumnType get_column_type(ColumnId column);
   virtual ColumnType get_real_column_type(ColumnId column);
+  virtual int get_column_width_hint(int column) { return 0; /* 0 - no hint */ }
 
 public:
   virtual bool is_readonly() const { return _readonly; }
@@ -176,8 +177,8 @@ public:
   virtual void set_edited_field(RowId row_index, ColumnId col_index);
   bool is_field_value_truncation_enabled(bool val);
 
-  size_t edited_field_row() { return _edited_field_row; }
-  size_t edited_field_column() { return _edited_field_col; }
+  RowId edited_field_row() { return _edited_field_row; }
+  ColumnId edited_field_column() { return _edited_field_col; }
 
   // called when the backend changes the current edited field row/column and the frontend must reselect
   boost::function<void ()> update_edited_field;

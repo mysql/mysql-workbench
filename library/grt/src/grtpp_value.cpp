@@ -92,7 +92,7 @@ ClassRegistry *ClassRegistry::get_instance()
 std::string Integer::repr() const
 {
   char s[100];
-  g_snprintf(s, sizeof(s), "%zi", _value);
+  g_snprintf(s, sizeof(s), "%li", (long int)_value);
   return s;
 }
 
@@ -359,8 +359,8 @@ size_t List::get_index(const ValueRef &value)
   for (std::vector<ValueRef>::const_iterator iter= _content.begin();
        iter != _content.end(); ++iter, ++i)
   {
-    //if (iter->is_same(value)) return i; // FIXED by mx
-    if ( *iter == value ) return i;
+    if ( *iter == value )
+      return i;
   }
   return npos;
 }

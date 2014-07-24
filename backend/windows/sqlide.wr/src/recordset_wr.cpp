@@ -128,3 +128,14 @@ bool RecordsetWrapper::delete_nodes(List<NodeIdWrapper^> ^nodes)
 }
 
 //--------------------------------------------------------------------------------------------------
+
+MySQL::Base::IRecordsetView ^RecordsetWrapper::wrap_and_create_recordset_view(IntPtr rset)
+{
+  return create_recordset_for_wrapper(Ref2Ptr_<::Recordset, RecordsetWrapper>(*(boost::shared_ptr<Recordset>*)rset.ToPointer()));
+}
+
+void RecordsetWrapper::init_mforms(CreateRecordsetViewForWrapper ^deleg)
+{
+  create_recordset_for_wrapper = deleg;
+  MySQL::Forms::RecordGridViewHelper::init(gcnew MySQL::Forms::CreateRecordGridDelegate(RecordsetWrapper::wrap_and_create_recordset_view));
+}

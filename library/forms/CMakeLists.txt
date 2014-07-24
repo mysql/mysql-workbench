@@ -45,6 +45,7 @@ add_library(mforms
     find_panel.cpp
     form.cpp
     fs_object_selector.cpp
+    gtk/src/active_label.cpp
     gtk/src/lf_box.cpp
     gtk/src/lf_button.cpp
     gtk/src/lf_code_editor.cpp
@@ -86,6 +87,7 @@ add_library(mforms
     popup.cpp
     progressbar.cpp
     radiobutton.cpp
+    record_grid.cpp
     scrollpanel.cpp
     sectionbox.cpp
     selector.cpp

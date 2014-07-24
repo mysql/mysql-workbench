@@ -21,6 +21,15 @@
 
 namespace MySQL {
   namespace Forms {
+    public class NativeWrapper : public ViewWrapper
+    {
+    protected:
+      NativeWrapper(mforms::NativeContainer *native);
+
+    public:
+      static mforms::NativeContainer *from_control(Windows::Forms::Control ^control);
+    };
+
     public ref class Native
     {
     public:

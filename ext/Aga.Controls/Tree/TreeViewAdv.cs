@@ -64,12 +64,13 @@ namespace Aga.Controls.Tree
 				NodeMouseDoubleClick(this, args);
 		}
 
-		[Category("Behavior")]
+    // ml: added button for all 3 column events.
+    [Category("Behavior")]
 		public event EventHandler<TreeColumnEventArgs> ColumnWidthChanged;
 		protected internal virtual void OnColumnWidthChanged(TreeColumn column)
 		{
 			if (ColumnWidthChanged != null)
-				ColumnWidthChanged(this, new TreeColumnEventArgs(column));
+				ColumnWidthChanged(this, new TreeColumnEventArgs(column, MouseButtons.Left));
 		}
 
 		[Category("Behavior")]
@@ -77,15 +78,16 @@ namespace Aga.Controls.Tree
 		protected internal virtual void OnColumnReordered(TreeColumn column)
 		{
 			if (ColumnReordered != null)
-				ColumnReordered(this, new TreeColumnEventArgs(column));
+        ColumnReordered(this, new TreeColumnEventArgs(column, MouseButtons.Left));
 		}
 
 		[Category("Behavior")]
 		public event EventHandler<TreeColumnEventArgs> ColumnClicked;
-		protected internal virtual void OnColumnClicked(TreeColumn column)
+
+		protected internal virtual void OnColumnClicked(TreeColumn column, MouseButtons button)
 		{
 			if (ColumnClicked != null)
-				ColumnClicked(this, new TreeColumnEventArgs(column));
+				ColumnClicked(this, new TreeColumnEventArgs(column, button));
 		}
 
 		[Category("Behavior")]
@@ -148,6 +150,13 @@ namespace Aga.Controls.Tree
     {
       if (BeforeDrawNode != null)
         BeforeDrawNode(this, new TreeViewAdvDrawRowEventArgs(node, context));
+    }
+
+    public event EventHandler<TreeViewAdvDrawRowEventArgs> AfterDrawNode;
+    protected virtual void OnAfterNodeDrawing(TreeNodeAdv node, DrawContext context)
+    {
+      if (AfterDrawNode != null)
+        AfterDrawNode(this, new TreeViewAdvDrawRowEventArgs(node, context));
     }
 
     #endregion
@@ -818,12 +827,25 @@ namespace Aga.Controls.Tree
 			return node.RightBounds.Value;
 		}
 
-		internal Rectangle GetNodeBounds(TreeNodeAdv node)
+    /// <summary>
+    /// ml: added for hit tests.
+    /// Returns a node's bounds in client coordinates, taking the current scroll position into account.
+    /// </summary>
+    public Rectangle GetRealNodeBounds(TreeNodeAdv node)
+    {
+      Rectangle bounds = GetNodeBounds(node);
+      Point p = ScrollPosition;
+      int colHeaderY = node.Tree.UseColumns ? node.Tree.ColumnHeaderHeight : 0;
+      bounds.Offset(-p.X, -p.Y * RowHeight + colHeaderY);
+      return bounds;
+    }
+
+		protected Rectangle GetNodeBounds(TreeNodeAdv node)
 		{
 			return GetNodeBounds(GetNodeControls(node));
 		}
 
-		private Rectangle GetNodeBounds(IEnumerable<NodeControlInfo> nodeControls)
+		internal Rectangle GetNodeBounds(IEnumerable<NodeControlInfo> nodeControls)
 		{
 			Rectangle res = Rectangle.Empty;
 			foreach (NodeControlInfo info in nodeControls)

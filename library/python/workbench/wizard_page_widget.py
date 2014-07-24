@@ -85,6 +85,14 @@ class WizardPage(mforms.Box):
     def go_next(self):
         self.main.go_next_page()
 
+    def should_skip(self):
+        """Return True if the page should not be displayed"""
+        return False
+
+    def page_skipped(self):
+        """Called when the page is not opened, because should_skip returned True"""
+        pass
+
     #def go_cancel(self):
     #    pass
 

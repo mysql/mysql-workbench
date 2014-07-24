@@ -1,0 +1,145 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+
+INSTALL_PREFIX=/usr
+
+ODBC_HOME=$(HOME)/linux-res-6.2/usr/
+LINUXRES_HOME=$(HOME)/linux-res-6.2/
+@ifdef community
+CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
+@else
+CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
+@endif
+VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
+@ifdef community
+MYSQL_HOME=$(HOME)/mysql-server/
+@else
+MYSQL_HOME=$(HOME)/mysql-server-advanced/
+@endif
+
+@ifdef community
+WBDIRNAME=mysql-workbench-community
+@else
+WBDIRNAME=mysql-workbench-commercial
+@endif
+
+WBLIBPATH=$(INSTALL_PREFIX)/lib/mysql-workbench
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX)\
+	        -DMYSQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
+	-DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
+	-DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
+@ifdef community
+	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config 
+@else
+	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \
+	-DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
+	-DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp"
+
+@endif
+
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+
+	# Add here commands to compile the package.
+	$(MAKE) -j2
+	#docbook-to-man debian/mysql-workbench.sgml > mysql-workbench.1
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) clean
+
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	# Add here commands to install the package into debian/mysql-workbench.
+	$(MAKE) DESTDIR=$(CURDIR)/debian/$(WBDIRNAME) install
+
+	# Bundle pyodbc and iodbc
+	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(LINUXRES_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	# Bundle other unpackaged libs
+	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+@ifdef commercial
+	# Bundle libs only needed for SE edition
+	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(LINUXRES_HOME)/pysqlite2 $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+	# Bundle client programs and lib
+	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(MYSQL_HOME)/bin/mysql $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(MYSQL_HOME)/bin/mysqldump $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+@endif
+	# Remove these files:
+	# - The file /etc/ld.so.conf.d/mysql-workbench.conf is a non.conformance in debian based distros
+	# - The .la metadata files are not necessary
+	rm $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/*.la
+	rm -rf $(CURDIR)/debian/$(WBDIRNAME)/etc
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs ChangeLog
+	dh_installdocs
+	dh_installexamples
+#	dh_install
+	dh_installmenu
+#	dh_installdebconf	
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+	dh_installmime
+#	dh_python
+#	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms -X*.sh
+#	dh_perl
+#	dh_makeshlibs
+	dh_installdeb
+	LD_LIBRARY_PATH=$(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH) dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

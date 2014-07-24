@@ -99,6 +99,18 @@ bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, ColumnId colu
         
       if (columnType.is_valid() && columnType->group().is_valid())
       {
+        // in InnoDB, with a composite PK, only the 1st column can be auto_increment
+        // http://dev.mysql.com/doc/refman/5.7/en/example-auto-increment.html
+        if (value && *_owner->get_table()->isPrimaryKeyColumn(col)
+            && db_mysql_TableRef::cast_from(_owner->get_table())->tableEngine() == "InnoDB"
+            && _owner->get_table()->primaryKey()->columns()[0]->referencedColumn() != col)
+        {
+          mforms::Utilities::show_error("Set AUTO_INCREMENT column",
+                                        "Only the first key column of a InnoDB table can be AUTO_INCREMENT. Please reorder the columns before making this column AUTO_INCREMENT.",
+                                        "OK");
+          return false;
+        }
+
         // Allow removing the auto inc setting even for non-numeric columns so we can
         // switch that off *after* we changed the column type or for invalid/old models
         // which have an auto inc set for non-numeric columns.
@@ -126,28 +138,6 @@ bool MySQLTableColumnsListBE::set_field(const ::bec::NodeId &node, ColumnId colu
           if (col->autoIncrement() && !(*col->defaultValue()).empty())
             bec::ColumnHelper::set_default_value(col, "");
 
-          // if this is a primary key and auto-inc was set, then we should move this to the
-          // beginning of the pk index 
-          if (value && *_owner->get_table()->isPrimaryKeyColumn(col))
-          {
-            db_IndexRef index(_owner->get_table()->primaryKey());
-            size_t oindex= 0;
-            bool found= false;
-
-            for (size_t c= index->columns().count(), i= 0; i < c; i++)
-            {
-              if (index->columns()[i]->referencedColumn() == col)
-              {
-                found= true;
-                oindex= i;
-                break;
-              }
-            }
-            if (found)
-            {
-              index->columns().reorder(oindex, 0);
-            }
-          }
           _owner->update_change_date();
           (*_owner->get_table()->signal_refreshDisplay())("column");
           undo.end(value ? 

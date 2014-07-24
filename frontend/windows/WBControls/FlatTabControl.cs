@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,6 +86,8 @@ namespace MySQL.Controls
     private Dictionary<string, Bitmap> busyIndicators = new Dictionary<string, Bitmap>();
     private SubClass scroller = null;
     private Form activationTracker = null;
+
+    internal Control auxView = null;
 
     // For top-transparent there is no tab background color.
     private Color topTransparentTabColor = Color.White;
@@ -393,11 +395,11 @@ namespace MySQL.Controls
     }
 
     protected override void OnPaint(PaintEventArgs e)
-	  {
-	    base.OnPaint(e); 
+	{
+      base.OnPaint(e); 
   			
-	    DrawControl(e.Graphics);
-	  }
+      DrawControl(e.Graphics);
+	}
 
 		internal void DrawControl(Graphics g)
 		{
@@ -1016,6 +1018,16 @@ namespace MySQL.Controls
 
     #region Event handling
 
+    protected override void OnResize(EventArgs e)
+    {
+      base.OnResize(e);
+      if (auxView != null)
+      {
+        auxView.Top = Top + Height - auxView.Height;
+        auxView.Left = Left + Width - auxView.Width;
+      }
+    }
+
     protected override void OnHandleCreated(EventArgs e)
     {
       base.OnHandleCreated(e);
@@ -1158,6 +1170,16 @@ namespace MySQL.Controls
           }
           break;
 
+        case MouseButtons.Right:
+          {
+            int tab = TabIndexFromPosition(e.Location);
+            if (tab > -1)
+            {
+              OnTabShowMenu(new TabMenuEventArgs(TabPages[tab], tab, PointToScreen(e.Location)));
+            }
+          }
+          break;
+
         default:
           base.OnMouseUp(e);
           break;
@@ -1176,7 +1198,7 @@ namespace MySQL.Controls
             if (DoDragDrop(page, DragDropEffects.Move) == DragDropEffects.Move)
             {
               int newIndex = TabPages.IndexOf(page);
-              OnTabMoved(new TabMovedEventArgs(lastTabHit, newIndex));
+              OnTabMoved(new TabMovedEventArgs(page, lastTabHit, newIndex));
             }
           }
           else
@@ -1299,6 +1321,13 @@ namespace MySQL.Controls
     {
       if (TabMoved != null)
         TabMoved(this, args);
+    }
+
+    public event EventHandler<TabMenuEventArgs> TabShowMenu;
+    protected internal virtual void OnTabShowMenu(TabMenuEventArgs args)
+    {
+      if (TabShowMenu != null)
+        TabShowMenu(this, args);
     }
 
     protected override void OnKeyDown(KeyEventArgs ke)
@@ -1598,7 +1627,7 @@ namespace MySQL.Controls
     {
       int oldIndex = TabPages.IndexOf(page);
 
-      TabMovingEventArgs args = new TabMovingEventArgs(oldIndex, newIndex);
+      TabMovingEventArgs args = new TabMovingEventArgs(page, oldIndex, newIndex);
       OnTabMoving(args);
       if (args.Cancel)
         return;
@@ -1808,6 +1837,26 @@ namespace MySQL.Controls
         if (SelectedTab != null)
           return DocumentFromHierarchy(SelectedTab);
         return null;
+      }
+    }
+
+    public Control AuxControl
+    {
+      get
+      {
+        return auxView;
+      }
+
+      set
+      {
+        if (auxView != value)
+        {
+          auxView = value;
+          auxView.BackColor = Color.Transparent;
+          auxView.Dock = DockStyle.None;
+          Parent.Controls.Add(auxView);
+          Parent.Controls.SetChildIndex(auxView, 0);
+        }
       }
     }
 
@@ -2138,12 +2187,28 @@ namespace MySQL.Controls
     }
   }
 
+  public class TabMenuEventArgs : EventArgs
+  {
+    public TabPage page;
+    public int pageIndex;
+    public Point location;
+
+    public TabMenuEventArgs(TabPage page, int index, Point pos)
+    {
+      this.page = page;
+      this.pageIndex = index;
+      this.location = pos;
+    }
+  };
+
   public class TabMovedEventArgs : EventArgs
   {
     public int FromIndex, ToIndex;
+    public TabPage MovedPage;
 
-    public TabMovedEventArgs(int from, int to)
+    public TabMovedEventArgs(TabPage page, int from, int to)
     {
+      MovedPage = page;
       FromIndex = from;
       ToIndex = to;
     }
@@ -2152,10 +2217,12 @@ namespace MySQL.Controls
   public class TabMovingEventArgs : EventArgs
   {
     public int FromIndex, ToIndex;
+    public TabPage MovedPage;
     public bool Cancel;
 
-    public TabMovingEventArgs(int from, int to)
+    public TabMovingEventArgs(TabPage page, int from, int to)
     {
+      MovedPage = page;
       FromIndex = from;
       ToIndex = to;
       Cancel = false;

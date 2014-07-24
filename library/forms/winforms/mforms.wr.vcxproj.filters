@@ -139,6 +139,9 @@
     <ClInclude Include="src\wf_canvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\wf_record_grid_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Canvas.h">
       <Filter>Canvas</Filter>
     </ClInclude>
@@ -274,6 +277,9 @@
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp" />
     <ClCompile Include="src\wf_canvas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wf_record_grid_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Canvas.cpp">

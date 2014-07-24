@@ -30,6 +30,31 @@ from wb_admin_perfschema import WbAdminPSBaseTab
 MYSQL_ERR_TABLE_DOESNT_EXIST = 1146
 
 
+DEFAULT_INSTRUMENTS_57 = [
+'wait/io/file/%',
+'wait/io/table/%',
+'wait/lock/table/sql/handler',
+'statement/%',
+'idle'
+]
+
+DEFAULT_INSTRUMENTS_56 = [
+'wait/io/file/%',
+'wait/io/table/%',
+'statement/%',
+'wait/lock/table/sql/handler',
+'idle'
+]
+
+DEFAULT_CONSUMERS_57 = [
+'events_statements_current', 'events_transactions_current', 'global_instrumentation', 'thread_instrumentation', 'statements_digest'
+]
+
+DEFAULT_CONSUMERS_56 = [
+'events_statements_current', 'global_instrumentation', 'thread_instrumentation', 'statements_digest'
+]
+
+
 class BigSwitch(mforms.PyDrawBox):
     def __init__(self):
         mforms.PyDrawBox.__init__(self)
@@ -38,25 +63,63 @@ class BigSwitch(mforms.PyDrawBox):
 
         self.set_instance(self)
 
-        self.state = False
-        self.off_image = mforms.App.get().get_resource_path("big_switcher_no.png")
-        self.on_image = mforms.App.get().get_resource_path("big_switcher_yes.png")
-        self.image = ImageFigure(self.off_image)
+        self.state = "default"
+
+        self.hovering_state = None
+        self.mouse_pos = None, None
+
+        self.text_image = ImageFigure(mforms.App.get().get_resource_path("ps_switcher_text.png"))
+        self.legend = ImageFigure(mforms.App.get().get_resource_path("ps_switcher_legende.png"))
+
+        self.state_images = []
+        for item in ["fully", "custom", "default", "disabled"]:
+            icons = []
+            for state in ["off", "hoover", "on"]:
+                icon = ImageFigure(mforms.App.get().get_resource_path("ps_switcher_%s_%s.png" % (item, state)))
+                icons.append(icon)
+            self.state_images.append((item, tuple(icons)))
+
 
 
     def repaint(self, cr, x, y, w, h):
-        self.image.move((self.get_width() - self.image.width) / 2, 0)
-        self.image.render(Context(cr))
+        c = Context(cr)
+        self.hovering_state = None
+        yy = 0
+        for state, (off, hoover, on) in self.state_images:
+            image = off
+            xx = (self.get_width() - image.width - self.text_image.width) / 2
+            if state == self.state:
+                image = on
+            else:
+                if self.mouse_pos[0] > xx and self.mouse_pos[0] < xx + image.width and self.mouse_pos[1] >= yy and self.mouse_pos[1] <= yy + image.height and state != "custom":
+                    image = hoover
+                    self.hovering_state = state
+
+            image.move(xx, yy)
+            image.render(c)
+
+            yy += image.height
+        self.text_image.move(xx + image.width, 0)
+        self.text_image.render(c)
+
+        self.legend.move(xx + image.width + self.text_image.width + 100, self.get_height() - self.legend.height)
+        self.legend.render(c)
 
 
-    def set_state(self, flag):
-        self.state = flag
-        self.image.set_image_file(self.on_image if self.state else self.off_image)
+
+    def set_state(self, state):
+        self.state = state
         self.set_needs_repaint()
 
+
+    def mouse_move(self, x, y):
+        self.mouse_pos = x, y
+        self.set_needs_repaint()
+
+
     def mouse_click(self, button, x, y):
-        self.set_state(not self.state)
-        self.callback(self.state)
+        if self.hovering_state:
+            self.callback(self.hovering_state)
 
 
 class EasySetupPage(mforms.Box):
@@ -71,14 +134,56 @@ class EasySetupPage(mforms.Box):
         self.create_ui()
 
 
-    def check_full_instrumentation(self):
+    def check_instrumentation_level(self):
         try:
             r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_consumers WHERE enabled='NO'")
             if r == 0:
                 r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE enabled='NO' OR timed='NO'")
                 if r == 0:
-                    return True
-            return False
+                    return "fully"
+
+            r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_consumers WHERE enabled='YES'")
+            if r == 0:
+                r = self.owner.get_select_int_result("SELECT COUNT(*) FROM performance_schema.setup_instruments WHERE enabled='YES' OR timed='YES'")
+                if r == 0:
+                    return "disabled"
+
+            if self.owner.target_version.is_supported_mysql_version_at_least(5, 7, 0):
+                instruments = DEFAULT_INSTRUMENTS_57
+                consumers = DEFAULT_CONSUMERS_57
+            else:
+                instruments = DEFAULT_INSTRUMENTS_56
+                consumers = DEFAULT_CONSUMERS_56
+
+            # this will return 0 if all consumers have the expected value
+            r = self.owner.get_select_int_result("""
+                SELECT sum(IF(%s, 1, 0)) + sum(IF(%s, 1, 0)) FROM performance_schema.setup_consumers
+                """ % ("ENABLED='NO' AND NAME IN (%s)" % ",".join(["'%s'" % c for c in consumers]),
+                       "ENABLED='YES' AND NAME NOT IN (%s)" % ",".join(["'%s'" % c for c in consumers])))
+            if r == 0:
+                nlikes = []
+                likes = []
+                ins = []
+                for i in instruments:
+                   if '%' in i:
+                       likes.append("NAME LIKE '%s'" % i)
+                       nlikes.append("NAME NOT LIKE '%s'" % i)
+                   else:
+                       ins.append(i)
+                exp = " OR ".join(["NAME IN (%s)" % ",".join(["'%s'" % i for i in ins])] + likes)
+                nexp = " AND ".join(["NAME NOT IN (%s)" % ",".join(["'%s'" % i for i in ins])] + nlikes)
+                r = self.owner.get_select_int_result("""
+                    SELECT sum(IF(ENABLED='NO' AND (%(cond)s), 1, 0)) +
+                        sum(IF(ENABLED='YES' AND (%(notcond)s), 1, 0)) +
+                        sum(IF(TIMED='NO' AND (%(cond)s), 1, 0)) +
+                        sum(IF(TIMED='YES' AND (%(notcond)s), 1, 0))
+                    FROM performance_schema.setup_instruments
+                    """ % {"cond" : exp, "notcond" : nexp})
+                if r == 0:
+                    return "default"
+
+            return "custom"
+
         except grt.DBError, e:
             log_error("MySQL error querying PS instrumentation/consumers: %s\n" % e)
             mforms.Utilities.show_error("Check Performance Schema Configuration State", "Error checking configuration state of Performance Schema: %s" % e, "OK", "", "")
@@ -86,27 +191,64 @@ class EasySetupPage(mforms.Box):
         return None
 
 
-    def toggle_full_instrumentation(self, state):
+    def generate_updates_for_reset(self, instruments, consumers):
+        likes = []
+        ins = []
+        for i in instruments:
+            if '%' in i:
+                likes.append("NAME LIKE '%s'" % i)
+            else:
+                ins.append(i)
+        isql = """
+            UPDATE performance_schema.setup_instruments
+                SET ENABLED = IF(%s, 'YES', 'NO'),
+                    TIMED = ENABLED
+        """ % " OR ".join(["NAME IN (%s)" % ",".join(["'%s'" % i for i in ins])] + likes)
+
+        csql = """
+            UPDATE performance_schema.setup_consumers
+                SET ENABLED = IF(%s, 'YES', 'NO')
+        """ % "NAME IN (%s)" % ",".join(["'%s'" % c for c in consumers])
+
+        return [isql, csql]
+
+
+    def change_instrumentation(self, state):
         try:
-            if state:
+            if state == "fully":
+                if mforms.Utilities.show_warning("Performance Warning",
+                                                 "While enabling all performance_schema instrumentation allows collecting a lot of information from MySQL, it will also impose a significant performance and memory overhead on it.\nDo not enable this option if your server is a production server under heavy load, unless you know what you're doing.", "Leave Unchanged", "Enable Everything", "") == mforms.ResultOk:
+                    return
+
                 sql = ["UPDATE performance_schema.setup_consumers SET enabled='YES'",
                        "UPDATE performance_schema.setup_instruments SET enabled='YES', timed='YES'"]
                 mforms.App.get().set_status_text("Enabling Full Performance Schema Instrumentation...")
-            else:
-                sql = ["UPDATE performance_schema.setup_consumers SET enabled='NO'"]
+            elif state == "disabled":
+                sql = ["UPDATE performance_schema.setup_consumers SET enabled='NO'",
+                       "UPDATE performance_schema.setup_instruments SET enabled='NO', timed='NO'"]
                 mforms.App.get().set_status_text("Disabling Full Performance Schema Instrumentation...")
+            elif state == "default":
+                if self.owner.target_version.is_supported_mysql_version_at_least(5, 7, 0):
+                    instruments = DEFAULT_INSTRUMENTS_57
+                    consumers = DEFAULT_CONSUMERS_57
+                else:
+                    instruments = DEFAULT_INSTRUMENTS_56
+                    consumers = DEFAULT_CONSUMERS_56
+                mforms.App.get().set_status_text("Resetting Performance Schema settings to default instrumentation...")
+                sql = self.generate_updates_for_reset(instruments, consumers)
+                print sql
             for s in sql:
                 log_info("Executing %s...\n" % s)
                 self.owner.main_view.editor.executeManagementCommand(s, 0)
             if state:
-                mforms.App.get().set_status_text("Enabled Full Performance Schema Instrumentation")
+                mforms.App.get().set_status_text("Changed Performance Schema Settings")
             else:
-                mforms.App.get().set_status_text("Disabled Full Performance Schema Instrumentation")
+                mforms.App.get().set_status_text("Disabled Performance Schema Settings")
 
             self.owner.rebuild_ui(False)
         except grt.DBError, e:
-            log_error("MySQL error toggling (%s) Full PS Instrumentation\n" % e)
-            mforms.App.get().set_status_text("Error toggling Full Performance Schema Instrumentation: %s" % e)
+            log_error("MySQL error toggling (%s) PS Instrumentation\n" % e)
+            mforms.App.get().set_status_text("Error toggling Performance Schema Instrumentation: %s" % e)
             mforms.Utilities.show_error("Toggle Performance Schema Instrumentation",
                                         "MySQL Error: %s" % e,
                                         "OK", "", "")
@@ -114,26 +256,29 @@ class EasySetupPage(mforms.Box):
 
 
     def create_ui(self):
-        image = mforms.newImageBox()
-        image.set_image(mforms.App.get().get_resource_path("ps_easysetup_logo.png"))
-        self.add(image, False, True)
+        self.logo = mforms.newImageBox()
+        self.logo.set_image(mforms.App.get().get_resource_path("ps_easysetup_logo.png"))
+        self.add(self.logo, False, True)
 
         self.switch_image = BigSwitch()
-        self.switch_image.callback = self.toggle_full_instrumentation
-        self.switch_image.set_size(200, 50)
+        self.switch_image.callback = self.change_instrumentation
+        self.switch_image.set_size(200, 152)
         self.add(self.switch_image, False, True)
 
         image = mforms.newImageBox()
         image.set_image(mforms.App.get().get_resource_path("separator_vertical.png"))
         self.add(image, False, True)
 
-        label = mforms.newLabel("\n\nThe MySQL Performance Schema allows to:\n- instrument MySQL to collect statistics and performance data\n- log collected events into tables, so they can be analyzed\n\nUse the switch above to enable all available Performance Schema instruments.")
+        label = mforms.newLabel("\n\nThe MySQL Performance Schema allows to:\n- instrument MySQL to collect statistics and performance data\n- log collected events into tables, so they can be analyzed\n\nUse the switch above to change Performance Schema instrumentation or disable it.")
         label.set_text_align(mforms.MiddleCenter)
         self.add(label, False, True)
 
 
     def reload(self):
-        self.switch_image.set_state(self.check_full_instrumentation())
+        state = self.check_instrumentation_level()
+        print state
+        self.logo.set_image(mforms.App.get().get_resource_path("ps_easysetup_logo_enabled.png" if state != "disabled" else "ps_easysetup_logo.png"))
+        self.switch_image.set_state(state)
 
 
 class SetupInstruments(mforms.Box):
@@ -1344,8 +1489,8 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
 
             if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6):
                 self.reset_to_factory_button = mforms.newButton()
-                self.reset_to_factory_button.set_tooltip("Reset all performance_schema settings to factory defaults.")
-                self.reset_to_factory_button.set_text('Reset to Factory Defaults')
+                self.reset_to_factory_button.set_tooltip("Reset all performance_schema settings (instruments, threads, actors, objects etc) to factory defaults.")
+                self.reset_to_factory_button.set_text('Full Reset to Factory Defaults')
                 self.reset_to_factory_button.add_clicked_callback(self.on_reset_to_factory_button_clicked)
                 self.buttons.add_end(self.reset_to_factory_button, False, True)
 

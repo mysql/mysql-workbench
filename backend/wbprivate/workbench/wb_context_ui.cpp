@@ -452,7 +452,7 @@ void WBContextUI::show_help_index()
   GUILock lock(_wb, _("Starting Doc Lib"), _("The MySQL Doc Library is opening currently, "
     "which should be finished in a moment .\n\nPlease stand by..."));
 
-  _wb->execute_plugin("wb.doclib.open");
+  _wb->execute_plugin("wb.docs.open");
 }
 
 //--------------------------------------------------------------------------------------------------

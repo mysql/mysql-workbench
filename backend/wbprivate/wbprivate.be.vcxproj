@@ -155,11 +155,15 @@
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -291,16 +295,19 @@
     <ClInclude Include="model\wb_user_datatypes.h" />
     <ClInclude Include="sqlide\db_sql_editor_history_be.h" />
     <ClInclude Include="sqlide\db_sql_editor_log.h" />
+    <ClInclude Include="sqlide\execute_routine_wizard.h" />
     <ClInclude Include="sqlide\query_side_palette.h" />
     <ClInclude Include="sqlide\spatial_data_view.h" />
     <ClInclude Include="sqlide\spatial_draw_box.h" />
     <ClInclude Include="sqlide\spatial_handler.h" />
+    <ClInclude Include="sqlide\result_form_view.h" />
     <ClInclude Include="sqlide\wb_context_sqlide.h" />
     <ClInclude Include="sqlide\wb_live_schema_tree.h" />
     <ClInclude Include="sqlide\wb_sql_editor_buffer.h" />
     <ClInclude Include="sqlide\wb_sql_editor_form.h" />
     <ClInclude Include="sqlide\wb_sql_editor_form_ui.h" />
     <ClInclude Include="sqlide\wb_sql_editor_help.h" />
+    <ClInclude Include="sqlide\wb_sql_editor_panel.h" />
     <ClInclude Include="sqlide\wb_sql_editor_result_panel.h" />
     <ClInclude Include="sqlide\wb_sql_editor_snippets.h" />
     <ClInclude Include="sqlide\wb_sql_editor_tree_controller.h" />
@@ -327,6 +334,7 @@
     <ClCompile Include="..\..\frontend\common\advanced_sidebar.cpp" />
     <ClCompile Include="..\..\frontend\common\document_properties_form.cpp" />
     <ClCompile Include="..\..\frontend\common\grt_code_editor.cpp" />
+    <ClCompile Include="..\..\frontend\common\grt_plugin_wizard.cpp" />
     <ClCompile Include="..\..\frontend\common\grt_python_debugger.cpp" />
     <ClCompile Include="..\..\frontend\common\grt_shell_window.cpp" />
     <ClCompile Include="..\..\frontend\common\new_connection_wizard.cpp" />
@@ -364,16 +372,19 @@
     <ClCompile Include="model\wb_user_datatypes.cpp" />
     <ClCompile Include="sqlide\db_sql_editor_history_be.cpp" />
     <ClCompile Include="sqlide\db_sql_editor_log.cpp" />
+    <ClCompile Include="sqlide\execute_routine_wizard.cpp" />
     <ClCompile Include="sqlide\query_side_palette.cpp" />
     <ClCompile Include="sqlide\spatial_data_view.cpp" />
     <ClCompile Include="sqlide\spatial_draw_box.cpp" />
     <ClCompile Include="sqlide\spatial_handler.cpp" />
+    <ClCompile Include="sqlide\result_form_view.cpp" />
     <ClCompile Include="sqlide\wb_context_sqlide.cpp" />
     <ClCompile Include="sqlide\wb_live_schema_tree.cpp" />
     <ClCompile Include="sqlide\wb_sql_editor_buffer.cpp" />
     <ClCompile Include="sqlide\wb_sql_editor_form.cpp" />
     <ClCompile Include="sqlide\wb_sql_editor_form_ui.cpp" />
     <ClCompile Include="sqlide\wb_sql_editor_help.cpp" />
+    <ClCompile Include="sqlide\wb_sql_editor_panel.cpp" />
     <ClCompile Include="sqlide\wb_sql_editor_result_panel.cpp" />
     <ClCompile Include="sqlide\wb_sql_editor_snippets.cpp" />
     <ClCompile Include="sqlide\wb_sql_editor_tree_controller.cpp" />

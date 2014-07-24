@@ -28,7 +28,6 @@
 
 #import "WBMainController.h"
 #import "WBMainWindow.h"
-#import "WBQueryTab.h"
 #import "MResultsetViewer.h"
 
 #include "mforms/code_editor.h"

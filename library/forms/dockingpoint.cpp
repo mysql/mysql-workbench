@@ -85,10 +85,47 @@ bool DockingPoint::close_view(AppView *view)
 {
   if (view->on_close())
   {
+    view->close();
     undock_view(view);
     if (view->is_managed())
       view->release();
     return true;
   }
   return false;
+}
+
+
+bool DockingPoint::close_all_views()
+{
+  for (int i = view_count() - 1; i >= 0; --i)
+  {
+    AppView *v = view_at_index(i);
+    if (v && !close_view(v))
+      return false;
+  }
+  return true;
+}
+
+
+AppView *DockingPoint::selected_view()
+{
+  return _delegate->selected_view();
+}
+
+
+int DockingPoint::view_count()
+{
+  return _delegate->view_count();
+}
+
+
+AppView *DockingPoint::view_at_index(int index)
+{
+  return _delegate->view_at_index(index);
+}
+
+
+void DockingPoint::view_switched()
+{
+  _view_switched();
 }

@@ -80,8 +80,6 @@ std::string GRT::module_path_in_bundle(const std::string &path)
   
   if (g_file_test((path+"/main_grt.py").c_str(), G_FILE_TEST_IS_REGULAR))
     return path+"/main_grt.py";
-  if (g_file_test((path+"/main.grt.lua").c_str(), G_FILE_TEST_IS_REGULAR))
-    return path+"/main.grt.lua";
   
   return "";
 }

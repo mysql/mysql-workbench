@@ -1005,6 +1005,7 @@ static void init_mforms()
   log_debug("Initializing mforms\n");
 
   extern void cf_tabview_init();
+  extern void cf_record_grid_init();
   static BOOL inited= NO;
   
   if (!inited)
@@ -1013,6 +1014,7 @@ static void init_mforms()
   
     mforms_cocoa_init();
     cf_tabview_init();
+    cf_record_grid_init();
   }
 }
 

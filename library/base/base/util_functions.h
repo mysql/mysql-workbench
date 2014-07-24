@@ -24,7 +24,6 @@
 #include "common.h"
 
 #if !defined(_WIN32)
-  #include <iconv.h>
   #include <sys/types.h>
   #include <string.h>
   #include <errno.h>

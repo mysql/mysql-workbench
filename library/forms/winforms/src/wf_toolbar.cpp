@@ -389,6 +389,15 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
     item = ViewWrapper::Create<ToolStripExpander>(backend, this);
     break;
 
+  case mforms::TitleItem:
+    {
+      ToolStripLabel ^label = ToolBarItemWrapper::Create<ToolStripLabel>(backend, this);
+      label->Font = gcnew Font(DEFAULT_FONT_FAMILY, 10, FontStyle::Bold, GraphicsUnit::Pixel);
+      label->ForeColor = ColorTranslator::FromHtml("#333333");
+      item = label;
+      break;
+    }
+
   default:
     throw std::runtime_error(base::strfmt("Internal error: unimplemented toolbar item type requested (%i).", (int) type));
   }

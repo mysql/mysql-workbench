@@ -99,6 +99,23 @@ from wb_server_management import SudoTailInputFile, LocalInputFile, SFTPInputFil
 from wb_common import LogFileAccessError, ServerIOError, InvalidPasswordError
 from workbench.utils import server_os_path
 
+import time
+import datetime
+import calendar
+
+def ts_iso_to_local(ts, fmt):
+    if ts[-1] == "Z":
+        ts = ts[:-1]
+    if "." in ts: # strip the millisecond part
+        ts, _, ms = ts.partition(".")
+        ms = "."+ms
+    else:
+        ms = ""
+    local_time = calendar.timegm(datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S").timetuple())
+    return time.strftime(fmt, time.localtime(local_time))+ms
+
+
+
 #========================= Query Based Readers ================================
 
 class BaseQueryLogReader(object):
@@ -257,6 +274,7 @@ class BaseLogFileReader(object):
             """
 
         self.pat = pat  # the regular expression that identifies a record
+        self.pat2 = pat # subclasses may override this if they want a different pattern for parsing chunks
         self.append_gaps = append_gaps
         # regex are considered to belong to the last field of the record
         self.truncate_long_lines = truncate_long_lines
@@ -366,12 +384,15 @@ class BaseLogFileReader(object):
             return match.start()
         return 0
 
+    def _extract_record(self, found):
+        return list(found.groups())
+
     def _parse_chunk(self, data):
         '''
             Extracts the records from a chunk of data.
             '''
         records = []
-        found = self.pat.search(data)
+        found = self.pat2.search(data)
         if found:
             end = found.start()
             if self.chunk_start > 0:  # optional?
@@ -380,9 +401,9 @@ class BaseLogFileReader(object):
             start = found.start()
             if start-end > 1 and self.append_gaps:  # there's a gap between occurrences of the pattern
                 records[-1][-1] += data[end:start]  # append the gap to previous record
-            records.append( list(found.groups()) )
+            records.append( self._extract_record(found) )
             end = found.end()
-            found = self.pat.search(data, end)
+            found = self.pat2.search(data, end)
             if found and self.truncate_long_lines:  # shorten all but the last record
                 records[-1][-1] = self._shorten_query_field(records[-1][-1])
         if records:
@@ -406,7 +427,8 @@ class BaseLogFileReader(object):
             abbr = data[:256].decode('latin1').encode('utf-8')
         size = '%d bytes' % l if l < 1024 else '%.1f KB' % (l / 1024.0)
         return abbr if l <= 256 else abbr + ' [truncated, %s total]' % size
-    
+
+
     def current(self):
         '''
             Returns a list with the records in the current chunk.
@@ -483,7 +505,14 @@ class ErrorLogFileReader(BaseLogFileReader):
     '''
     def __init__(self, ctrl_be, file_name, chunk_size=64 * 1024, truncate_long_lines=True):
         # The error log is a mess, there are several different formats for each entry and a new one comes up every version
-        partial_re = r'^(?P<v56>(\d{2,4}-\d{1,2}-\d{2} {1,2}\d{1,2}:\d{2}:\d{2}) (\d+) \[(.*)\] (.*?))$|^(?P<v55>(\d{6} {1,2}\d{1,2}:\d{2}:\d{2}) {1,2}([^ ]*) (.*?))$|^(?P<old>(\d{2})(\d{2})(\d{2}) {1,2}(\d{1,2}:\d{2}:\d{2}) ([a-zA-Z0-9_]*?) (.*?))$'
+        mysql_56 = r'^(?P<v56>(\d{2,4}-\d{1,2}-\d{2} {1,2}\d{1,2}:\d{2}:\d{2}) (\d+) \[(.*)\] (.*?))$'
+        # this is also the format used by mysqld_safe
+        mysql_55 = r'^(?P<v55>(\d{6} {1,2}\d{1,2}:\d{2}:\d{2}) {1,2}([^ ]*) (.*?))$'
+        mysql_pre55 = r'^(?P<old>(\d{2})(\d{2})(\d{2}) {1,2}(\d{1,2}:\d{2}:\d{2}) ([a-zA-Z0-9_]*?) (.*?))$'
+        mysql_57 = r'^(?P<v57>(\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+Z) (\d+) \[(.*)\] (.*?))$'
+
+        # add new formats to the end, or you'll have a hard time adjusting indexes
+        partial_re = '|'.join([mysql_56, mysql_55, mysql_pre55, mysql_57])
 
         pat = re.compile(partial_re, re.M)
         super(ErrorLogFileReader, self).__init__(ctrl_be, file_name, pat, chunk_size, truncate_long_lines, append_gaps=False)
@@ -498,44 +527,20 @@ class ErrorLogFileReader(BaseLogFileReader):
 
         self.detail_column = 3
 
-    
-    def _parse_chunk(self, data):
-        '''
-            Extracts the records from a chunk of data.
-            '''
-        records = []
-        found = self.pat2.search(data)
-        if found:
-            end = found.start()
-            if self.chunk_start > 0:  # optional?
-                self.chunk_start += end
-        while found:
-            #start = found.start()
-            #if start-end > 1 and self.append_gaps:  # there's a gap between occurrences of the pattern
-            #    records[-1][-1] += data[end:start]  # append the gap to previous record
-            gdict = found.groupdict()
-            g = found.groups()
-            if gdict['v56']:
-                records.append(list(g[1:5]))
-            elif gdict['v55']:
-                ts = g[6]
-                records.append(["20%s-%s-%s %s" % (ts[:2], ts[2:4], ts[4:6], ts[6:].lstrip()), "", g[7], g[8]])
-            elif gdict['old']:
-                records.append(["20%s-%s-%s %s" % (g[10], g[11], g[12], g[13]), "", g[14], g[15]])
-            else:
-                records.append(["", "", "", g[-1]])
-            end = found.end()
-            found = self.pat2.search(data, end)
-            if found and self.truncate_long_lines:  # shorten all but the last record
-                records[-1][-1] = self._shorten_query_field(records[-1][-1])
-        if records:
-            #if self.append_gaps:
-            #    records[-1][-1] += data[end:]  # add what remains in data
-            if self.truncate_long_lines:
-                records[-1][-1] = self._shorten_query_field(records[-1][-1])  # now shorten the last record
-        self.record_count = len(records)
-        return records
-
+    def _extract_record(self, found):
+        gdict = found.groupdict()
+        g = found.groups()
+        if gdict['v56']:
+            return list(g[1:5])
+        elif gdict['v55']:
+            ts = g[6]
+            return ["20%s-%s-%s %s" % (ts[:2], ts[2:4], ts[4:6], ts[6:].lstrip()), "", g[7], g[8]]
+        elif gdict['old']:
+            return ["20%s-%s-%s %s" % (g[10], g[11], g[12], g[13]), "", g[14], g[15]]
+        elif gdict['v57']:
+            return [ts_iso_to_local(g[17], "%F %T"), g[18], g[19], g[20]]
+        else:
+            return ["", "", "", g[-1]]
 
     def current(self):
         records = super(ErrorLogFileReader, self).current()
@@ -556,7 +561,8 @@ class GeneralLogFileReader(BaseLogFileReader):
     log file.
     '''
     def __init__(self, ctrl_be, file_name, chunk_size=64 * 1024, truncate_long_lines=True):
-        pat = re.compile(r'^(\d{6} {1,2}\d{1,2}:\d{2}:\d{2}[\t ]+|[\t ]+)(\s*\d+)(\s*.*?)(?:\t+| {2,})(.*?)$', re.M)
+        pat = re.compile(r'^(?P<v57>(\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+Z)[\t ]*(\d+)\s*(.*?)(?:\t+| {2,})(.*?))$|^(?P<v56>(\d{6} {1,2}\d{1,2}:\d{2}:\d{2}[\t ]+|[\t ]+)(\s*\d+)(\s*.*?)(?:\t+| {2,})(.*?))$', re.M)
+
         super(GeneralLogFileReader, self).__init__(ctrl_be, file_name, pat, chunk_size, truncate_long_lines)
         self.column_specs = (
                 ('Timestamp', 150),
@@ -567,6 +573,15 @@ class GeneralLogFileReader(BaseLogFileReader):
         self.detail_column = 3
 
 
+    def _extract_record(self, found):
+        gdict = found.groupdict()
+        g = found.groups()
+        if gdict['v57']:
+            return [ts_iso_to_local(g[1], "%F %T"), g[2], g[3], g[4]]
+        else: # v56
+            return list(g[6:10])
+
+
 #==============================================================================
 class SlowLogFileReader(BaseLogFileReader):
     '''
@@ -574,7 +589,9 @@ class SlowLogFileReader(BaseLogFileReader):
     log file.
     '''
     def __init__(self, ctrl_be, file_name, chunk_size=64 * 1024, truncate_long_lines=True, append_gaps=False):
-        pat = re.compile(r'(?:^|\n)# Time: (\d{6} {1,2}\d{1,2}:\d{2}:\d{2}).*?\n# User@Host: (.*?)\n# Query_time: +([0-9.]+) +Lock_time: +([\d.]+) +Rows_sent: +(\d+) +Rows_examined: +(\d+)\s*\n(.*?)(?=\n# |\n[^\n]+, Version: |$)', re.S)
+        mysql_57 = r'(?:^|\n)(?P<v57># Time: (\d{2,4}-\d{1,2}-\d{2}T{1,2}\d{1,2}:\d{2}:\d{2}.\d+Z).*?\n# User@Host: (.*?)\n# Query_time: +([0-9.]+) +Lock_time: +([\d.]+) +Rows_sent: +(\d+) +Rows_examined: +(\d+)\s*\n(.*?)(?=\n# |\n[^\n]+, Version: |$))'
+        mysql_56 = r'(?:^|\n)(?P<v56># Time: (\d{6} {1,2}\d{1,2}:\d{2}:\d{2}).*?\n# User@Host: (.*?)\n# Query_time: +([0-9.]+) +Lock_time: +([\d.]+) +Rows_sent: +(\d+) +Rows_examined: +(\d+)\s*\n(.*?)(?=\n# |\n[^\n]+, Version: |$))'
+        pat = re.compile('|'.join([mysql_57, mysql_56]), re.S)
         super(SlowLogFileReader, self).__init__(ctrl_be, file_name, pat, chunk_size, truncate_long_lines, append_gaps)
         self.column_specs = (
                 ('Start Time', 150),
@@ -586,3 +603,12 @@ class SlowLogFileReader(BaseLogFileReader):
                 ('Detail', 500),
                             )
         self.detail_column = 6
+
+    def _extract_record(self, found):
+        gdict = found.groupdict()
+        g = found.groups()
+        if gdict['v57']:
+            # convert timezone from UTC to local
+            return [ts_iso_to_local(g[1], "%F %T")]+list(g[2:8])
+        else: # v56
+            return list(g[9:9+7])

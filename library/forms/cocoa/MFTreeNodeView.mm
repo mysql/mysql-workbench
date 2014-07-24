@@ -697,10 +697,25 @@ inline TreeNodeImpl *from_ref(mforms::TreeNodeRef node)
 static NSImage *ascendingSortIndicator = nil;
 static NSImage *descendingSortIndicator = nil;
 
+
+@interface TreeNodeHeaderView : NSTableHeaderView
+{
+}
+@end
+
+
 @interface TreeNodeViewOutlineView : NSOutlineView
 {
+  @public
   mforms::TreeNodeView *mOwner;
   NSTrackingArea *mTrackingArea;
+
+  NSInteger mOverlayedRow;
+  NSMutableArray *mOverlayIcons;
+
+  int mOverOverlay;
+  int mClickingOverlay;
+  BOOL mMouseInside;
 }
 @end
 
@@ -711,9 +726,18 @@ static NSImage *descendingSortIndicator = nil;
   self = [super initWithFrame: frame];
   if (self != nil)
   {
+    mOverOverlay = -1;
+    mClickingOverlay = -1;
     mOwner = treeView;
+    [self setHeaderView: [[TreeNodeHeaderView alloc] init]];
   }
   return self;
+}
+
+- (void)dealloc
+{
+  [mOverlayIcons release];
+  [super dealloc];
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent
@@ -731,6 +755,7 @@ static NSImage *descendingSortIndicator = nil;
 //--------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 //--------------------------------------------------------------------------------------------------
 
@@ -739,6 +764,172 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
   mforms::ContextMenu *menu = mOwner->get_context_menu();
   if (menu)
     return menu->get_data();
+  return nil;
+}
+
+
+- (bool)handleMouseMove: (NSEvent*)event owner: (mforms::View*)owner
+{
+  NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
+  NSInteger row = [self rowAtPoint: p];
+
+  if (NSPointInRect(p, [self visibleRect]))
+  {
+    if (mClickingOverlay < 0)
+    {
+      [mOverlayIcons release];
+      mOverlayIcons = nil;
+      mOverOverlay = -1;
+      mOverlayedRow = -1;
+      [self setNeedsDisplay: YES];
+    }
+    if (row >= 0 && NSPointInRect(p, [self rectOfRow: row]))
+    {
+      mforms::TreeNodeRef node(mOwner->node_at_row(row));
+      if (node)
+      {
+        std::vector<std::string> icons = mOwner->overlay_icons_for_node(node);
+        if (!icons.empty())
+        {
+          NSRect iconRect = [self rectOfRow: row];	
+
+          iconRect.origin.x = NSMaxX([self visibleRect]);
+          iconRect.size.width = 0;
+
+          mOverlayIcons = [[NSMutableArray alloc] initWithCapacity: icons.size()];
+          int i = 0;
+
+          // Iterating the icons reversely to simplify hit computation.
+          for (std::vector<std::string>::reverse_iterator icon = icons.rbegin(); icon != icons.rend(); ++icon, ++i)
+          {
+            NSImage *img = icon->empty() ? nil : [(MFTreeNodeViewImpl*)[self delegate] iconForFile: [NSString stringWithCPPString: *icon]];
+            if (img)
+              [mOverlayIcons insertObject: img atIndex: 0];
+            else
+              [mOverlayIcons insertObject: NSNull.null atIndex: 0];
+
+            iconRect.origin.x -= img.size.width + 4;
+            iconRect.size.width = img.size.width;
+
+            if (NSPointInRect(p, iconRect) && mOverOverlay < 0)
+              mOverOverlay = icons.size() - i - 1;
+          }
+          [self setNeedsDisplay: YES];
+        }
+        mOverlayedRow = row;
+      }
+    }
+  }
+  return [super handleMouseMove: event owner: owner];
+}
+
+
+- (bool)handleMouseEntered:(NSEvent *)event owner:(mforms::View *)owner
+{
+  mMouseInside = YES;
+  return [super handleMouseEntered: event owner: owner];
+}
+
+
+- (bool)handleMouseExited:(NSEvent *)event owner:(mforms::View *)owner
+{
+  mMouseInside = NO;
+  [mOverlayIcons release];
+  mOverlayIcons = nil;
+  mOverOverlay = -1;
+  mClickingOverlay = -1;
+  [self setNeedsDisplay: YES];
+
+  return [super handleMouseExited: event owner: owner];
+}
+
+
+- (bool)handleMouseDown:(NSEvent *)event owner:(mforms::View *)owner
+{
+  if (mOverOverlay >= 0)
+  {
+    mClickingOverlay = mOverOverlay;
+    return true;
+  }
+  return [super handleMouseDown: event owner: owner];
+}
+
+
+- (bool)handleMouseUp:(NSEvent *)event owner:(mforms::View *)owner
+{
+  if (mOverOverlay >= 0 && mOverOverlay == mClickingOverlay)
+  {
+    mforms::TreeNodeRef node(mOwner->node_at_row(mOverlayedRow));
+    if (node)
+      mOwner->overlay_icon_for_node_clicked(node, mClickingOverlay);
+    else
+      log_debug("Error getting node for row %i, shouldn't be NULL\n", mOverlayedRow);
+
+    mClickingOverlay = -1;
+    return true;
+  }
+  mClickingOverlay = -1;
+  return [super handleMouseUp: event owner: owner];
+}
+
+
+- (void)drawRow:(NSInteger)rowIndex clipRect:(NSRect)clipRect
+{
+  [super drawRow: rowIndex clipRect: clipRect];
+  if (mOverlayIcons && rowIndex == mOverlayedRow)
+  {
+    NSRect rowRect = [self rectOfRow: rowIndex];
+    int i = 0;
+
+    CGFloat x = NSMaxX([self visibleRect]);
+    for (id icon in mOverlayIcons)
+    {
+      if ([icon isKindOfClass: [NSImage class]])
+      {
+        NSSize size = [icon size];
+        x -= size.width + 4;
+      }
+    }
+
+    for (id icon in mOverlayIcons)
+    {
+      if ([icon isKindOfClass: [NSImage class]])
+      {
+        NSSize size = [icon size];
+        [(NSImage*)icon drawInRect: NSMakeRect(x, NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2,
+                                               size.width, size.height)
+                          fromRect: NSZeroRect
+                         operation: NSCompositeSourceOver
+                          fraction: mOverOverlay == i ? 1.0 : 0.4
+                    respectFlipped: YES
+                             hints: nil];
+        x += size.width + 4;
+      }
+      i++;
+    }
+  }
+}
+
+@end
+
+//--------------------------------------------------------------------------------------------------
+
+@implementation TreeNodeHeaderView
+
+- (NSMenu*)menuForEvent:(NSEvent *)event
+{
+  TreeNodeViewOutlineView *outline = (TreeNodeViewOutlineView*)[self tableView];
+  
+  if (outline)
+  {
+    mforms::ContextMenu *menu = outline->mOwner->get_header_menu();
+    int column = [[outline headerView] columnAtPoint: [[outline headerView] convertPoint: [event locationInWindow]
+                                                                                fromView: nil]];
+    outline->mOwner->header_clicked(column);
+    
+    if (menu)
+      return menu->get_data();
+  }
   return nil;
 }
 
@@ -1397,6 +1588,7 @@ static bool treeview_create(mforms::TreeNodeView *self, mforms::TreeOptions opti
   
   if (options & mforms::TreeNoHeader)
     [tree->mOutline setHeaderView: nil];
+  
   int mask = 0;
   if (options & mforms::TreeShowColumnLines)
     mask |= NSTableViewSolidVerticalGridLineMask;
@@ -1776,6 +1968,14 @@ static bool treeview_get_column_visible(mforms::TreeNodeView *self, int column)
   return true;
 }
 
+static void treeview_set_column_title(mforms::TreeNodeView *self, int column, const std::string &title)
+{
+  MFTreeNodeViewImpl *tree= self->get_data();
+  if (tree)
+    [[[tree->mOutline tableColumnWithIdentifier: [NSString stringWithFormat:@"%i", column]] headerCell]
+       setStringValue: [NSString stringWithCPPString: title]];
+}
+
 
 static void treeview_set_column_width(mforms::TreeNodeView *self, int column, int width)
 {
@@ -1824,7 +2024,9 @@ void cf_treenodeview_init()
 
   f->_treenodeview_impl.set_column_visible = &treeview_set_column_visible;
   f->_treenodeview_impl.get_column_visible = &treeview_get_column_visible;
-    
+
+  f->_treenodeview_impl.set_column_title = &treeview_set_column_title;
+  
   f->_treenodeview_impl.set_column_width = &treeview_set_column_width;
   f->_treenodeview_impl.get_column_width = &treeview_get_column_width;
 }

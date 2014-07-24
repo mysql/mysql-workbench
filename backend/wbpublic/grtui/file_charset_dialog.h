@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ public:
   
   static bool ensure_filedata_utf8(const char *data, size_t length, const std::string &encoding,
                                    const std::string &filename,
-                                   std::string &output_str,
+                                   char *&utf8_data,
                                    std::string *original_encoding = 0);
 };
 

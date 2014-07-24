@@ -24,10 +24,9 @@
 #include "mysql_table_editor_part_page.h"
 #include "mysql_table_editor_opt_page.h"
 //!#include "mysql_table_editor_insert_page.h"
-#include "sqlide/recordset_view.h"//!
 #include "mysql_editor_priv_page.h"
 #include "mysql_table_editor_fe.h"
-#include "mforms/../gtk/lf_native.h"
+#include "mforms/../gtk/lf_view.h"
 
 //------------------------------------------------------------------------------
 DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, const grt::BaseListRef &args)
@@ -36,7 +35,6 @@ DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, co
     , _be(new MySQLTableEditorBE(grtm, db_mysql_TableRef::cast_from(args[0])))
     , _part_page(0)
     , _inserts_panel(0)
-    , _inserts_grid(0)
     , _main_page_widget(0)
 {
   load_glade((_be->is_editing_live_object()) ? "modules/data/editor_mysql_table_live.glade" : "modules/data/editor_mysql_table.glade");
@@ -63,8 +61,7 @@ DbMySQLTableEditor::DbMySQLTableEditor(grt::Module *m, bec::GRTManager *grtm, co
 
   if (!is_editing_live_object())
   {
-    _inserts_grid= RecordsetView::create(_be->get_inserts_model());
-    _inserts_panel= _be->create_inserts_panel(mforms::native_from_widget(_inserts_grid));
+    _inserts_panel= _be->get_inserts_panel();
     _editor_notebook->append_page(*mforms::widget_for_view(_inserts_panel), "Inserts");
 
     _privs_page     = new DbMySQLEditorPrivPage(_be);
@@ -211,8 +208,7 @@ bool DbMySQLTableEditor::switch_edited_object(bec::GRTManager *grtm, const grt::
     bool active = _editor_notebook->get_current_page() == index;
     _editor_notebook->remove_page(*mforms::widget_for_view(_inserts_panel));
 
-    _inserts_grid= RecordsetView::create(_be->get_inserts_model());
-    _inserts_panel= _be->create_inserts_panel(mforms::native_from_widget(_inserts_grid));
+    _inserts_panel= _be->get_inserts_panel();
     _editor_notebook->insert_page(*mforms::widget_for_view(_inserts_panel), "Inserts", index);
     if (active)
       _editor_notebook->set_current_page(index);
@@ -290,14 +286,6 @@ void DbMySQLTableEditor::create_table_page()
 
 bool DbMySQLTableEditor::can_close()
 {
-  if (_inserts_grid && _inserts_grid->has_changes())
-  {
-    Gtk::MessageDialog dlg("<b>There are unsaved changes in the INSERTS editor</b>\nPlease Apply or Revert these changes before closing.",
-                           true, Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK, true);
-  
-    dlg.run();
-    return false;
-  }
   return _be->can_close();
 }
 
@@ -371,7 +359,6 @@ void DbMySQLTableEditor::do_refresh_form_data()
   {
     Gtk::Notebook *notebook;
     xml()->get_widget("mysql_editor_notebook", notebook);
-    _inserts_grid->reset();
 
     _privs_page->refresh();
   }
@@ -427,10 +414,6 @@ void DbMySQLTableEditor::page_changed(GtkNotebookPage* page, guint page_num)
     break;
 
   case 7: // inserts
-    //_inserts_page->refresh();
-    _be->get_inserts_model()->refresh();
-    //Called in separate way cause we don't need toolbar rebuild on each recordset refresh.
-    _be->get_inserts_model()->rebuild_toolbar();
     break;
       
   case 8: // privs

@@ -653,6 +653,8 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   int length1 = bec::EMPTY_COLUMN_LENGTH;
   std::string datatypeExplicitParams1;
   std::string type1 = r1->returnDatatype();
+
+  // XXX: always set a valid version number!
   if (!bec::parseType(type1, GrtVersionRef(), types1,    user_types1,    default_type_list1,
       simpleType1, userType1, precision1,    scale1,    length1,    datatypeExplicitParams1))
       return false;
@@ -866,12 +868,13 @@ void grt::NormalizedComparer::load_db_options(sql::DatabaseMetaData *dbc_meta)
     const unsigned int major = dbc_meta->getDatabaseMajorVersion();
     const unsigned int minor = dbc_meta->getDatabaseMinorVersion();
     const unsigned int revision = dbc_meta->getDatabasePatchVersion();
-    if ((major >= 5) && (minor >= 5) && (revision >= 5))
+    if (bec::is_supported_mysql_version_at_least(major, minor, revision, 5, 5, 5))
     {
         _maxTableCommentLength = 2048;
         _maxIndexCommentLength = 1024;
         _maxColumnCommentLength = 1024;
-    }else
+    }
+    else
     {
         _maxTableCommentLength = 60;
         _maxIndexCommentLength = 0;

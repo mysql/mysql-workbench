@@ -312,6 +312,8 @@ def enbeautificate(editor):
         try:
             result = doReformatSQLStatement(statement, True)
         except:
+            import traceback
+            log_error("Error reformating SQL: %s\n%s\n" % (statement, traceback.format_exc()))
             result = None
         if result:
             ok_count += 1
@@ -344,7 +346,7 @@ def enbeautificate(editor):
 
 def apply_to_keywords(editor, callable):
     from grt.modules import MysqlSqlFacade
-    non_keywords = ["ident", "TEXT_STRING", "text_string", "TEXT_STRING_filesystem", "TEXT_STRING_literal", "TEXT_STRING_sys",
+    non_keywords = ["ident", "ident_or_text", "TEXT_STRING", "text_string", "TEXT_STRING_filesystem", "TEXT_STRING_literal", "TEXT_STRING_sys",
                     "part_name"]
 
     text = editor.selectedText
@@ -579,7 +581,7 @@ def showInspector(editor, selection):
     for s in selection:
         if s.type == "db.Schema":
             schema_insp.append(s.schemaName)
-        elif s.type == "db.Table":
+        elif (s.type == "db.Table") or (s.type == "db.View"):
             table_insp.append((s.schemaName, s.name))
         elif s.type == "db.Index":
             table_insp_idx.append((s.schemaName, s.owner.name))

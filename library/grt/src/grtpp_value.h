@@ -606,7 +606,7 @@ namespace grt {
       //use _metaclass->get_grt() GRT *_grt;
       MetaClass* _metaclass;
       std::string _id;
-      boost::signals2::signal<void (const std::string&, const ValueRef&)> _changed_signal;
+      boost::signals2::signal<void (const std::string&, const grt::ValueRef&)> _changed_signal;
       boost::signals2::signal<void (OwnedList*, bool, const grt::ValueRef&)> _list_changed_signal;
       boost::signals2::signal<void (OwnedDict*, bool, const std::string&)> _dict_changed_signal;
 
