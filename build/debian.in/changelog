@@ -1,8 +1,8 @@
-mysql-workbench (6.2.0-1) unstable; urgency=low
+mysql-workbench (6.2.0-1) @distro@; urgency=low
 
   * New release
 
- -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com> Tue, 11 Mar 2014 18:12:43 +0100
+ -- Alfredo Kojima <alfredo.kengi.kojima@oracle.com>  Tue, 11 Mar 2014 18:12:43 +0100
 
 mysql-workbench (6.1.3-1) unstable; urgency=low
 

@@ -93,7 +93,7 @@ Current limitations:
 
 import re
 
-from workbench.log import log_info, log_error
+from workbench.log import log_info, log_error, log_warning
 
 from wb_server_management import SudoTailInputFile, LocalInputFile, SFTPInputFile
 from wb_common import LogFileAccessError, ServerIOError, InvalidPasswordError
@@ -111,8 +111,12 @@ def ts_iso_to_local(ts, fmt):
         ms = "."+ms
     else:
         ms = ""
-    local_time = calendar.timegm(datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S").timetuple())
-    return time.strftime(fmt, time.localtime(local_time))+ms
+    try:
+        local_time = calendar.timegm(datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S").timetuple())
+        return time.strftime(fmt, time.localtime(local_time))+ms
+    except Exception, e:
+        log_warning("Error parsing timestamp %s: %s\n" % (ts, e))
+        return ts
 
 
 
@@ -317,14 +321,28 @@ class BaseLogFileReader(object):
 
         if use_sudo:
             log_info("Will use sudo and dd to get contents of log file %s\n" % self.log_file_name)
-            password = ctrl_be.password_handler.get_password_for('file')
+            password = ctrl_be.password_handler.get_password_for('file', cached_only=True)
+
+            retry = False
             try:
                 self.log_file = SudoTailInputFile(self.ctrl_be.server_helper, self.log_file_name, password)
                 self.file_size = self.log_file.size
             except InvalidPasswordError, error:
-                log_error("Invalid password to sudo %s\n" % error)
-                ctrl_be.password_handler.reset_password_for('file')
-                raise
+                if password is None:
+                    retry = True
+                else:
+                    log_error("Invalid password to sudo %s\n" % error)
+                    ctrl_be.password_handler.reset_password_for('file')
+                    raise
+            if retry: # either there was no password cached or the cached password was wrong, so retry interactively
+                password = ctrl_be.password_handler.get_password_for('file', cached_only=False)
+                try:
+                    self.log_file = SudoTailInputFile(self.ctrl_be.server_helper, self.log_file_name, password)
+                    self.file_size = self.log_file.size
+                except InvalidPasswordError, error:
+                    log_error("Invalid password to sudo %s\n" % error)
+                    ctrl_be.password_handler.reset_password_for('file')
+                    raise
         elif use_sftp:
             log_info("Will use sftp to get contents of log file %s\n" % self.log_file_name)
             self.log_file = SFTPInputFile(self.ctrl_be, self.log_file_name)

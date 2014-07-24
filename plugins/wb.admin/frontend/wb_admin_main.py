@@ -221,7 +221,7 @@ class AdministratorTab(mforms.AppView):
     #---------------------------------------------------------------------------
     def handle_server_state_changed(self, name, sender, info):
         # called from outside when running state of the server changes
-        log_info("server state changed to %s\n" % info["state"])
+        log_info("received notification that server state changed to %s\n" % info["state"])
         if info["state"]:
             self.ctrl_be.event_from_main("server_started")
         else:

@@ -6,19 +6,15 @@ Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-2.4-dev, libxml2-dev, libg
 Standards-Version: 3.7.2
 Homepage: http://dev.mysql.com/workbench/
 
+Package: mysql-workbench-@edition@
 @ifdef community
-Package: mysql-workbench-community
 Replaces: mysql-workbench-gpl, mysql-workbench-oss
-@else
-Package: mysql-workbench-commercial
-@endif
-Architecture: i386 amd64
-@ifdef community
 Depends: ${shlibs:Depends}, python-paramiko, python-pexpect, python-pysqlite2, mysql-client|virtual-mysql-client
 @else
 Replaces: mysql-workbench-com-se
 Depends: ${shlibs:Depends}, python-paramiko, python-pysqlite2, mysql-client|virtual-mysql-client
 @endif
+Architecture: i386 amd64
 Suggests: gnome-keyring
 Description: MySQL Workbench
  MySQL Workbench is development, administration and data modeling tool

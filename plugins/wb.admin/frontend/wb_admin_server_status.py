@@ -284,7 +284,7 @@ class WbAdminServerStatus(mforms.Box):
         repl_error = None
         res = None
         try:
-            if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 0):
+            if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 0):
                 res = self.ctrl_be.exec_query("SHOW SLAVE STATUS NONBLOCKING")
             else:
                 res = self.ctrl_be.exec_query("SHOW SLAVE STATUS")

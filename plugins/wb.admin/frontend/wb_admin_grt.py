@@ -291,7 +291,7 @@ class AdministratorContext:
 
     def _sidebar_entry_clicked(self, entry_id):
         if entry_id == "configure":
-            grt.modules.Workbench.showInstanceManagerFor(self.editor.connection)
+            openConnectionSettings(self.editor)
         else:
             if entry_id in self.disabled_pages:
                 Utilities.show_error(self.page_titles[entry_id],
@@ -300,6 +300,13 @@ class AdministratorContext:
                 return
             self.open_into_section(entry_id)
 
+    def refresh_admin_links(self):
+        for ident in self.disabled_pages.keys():
+            if (not self.server_profile or (self.server_profile and not self.server_profile.is_local and not self.server_profile.remote_admin_enabled)):
+                pass
+            else:
+                del self.disabled_pages[ident]
+                self.sidebar.set_section_entry_enabled(ident, True)
 
     def open_into_section(self, entry_id, select_item=False):
         page_class, needs_remote_access = self.admin_pages.get(entry_id, (None, None))
@@ -853,6 +860,9 @@ except ImportError:
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
 def openConnectionSettings(editor):
     grt.modules.Workbench.showInstanceManagerFor(editor.connection)
+    context = grt.fromgrt(editor.customData["adminContext"])
+    if context:
+        context.refresh_admin_links()
 
 
 @ModuleInfo.plugin("wb.admin.reset_password_cache", type="standalone", input=[wbinputs.currentSQLEditor()])
