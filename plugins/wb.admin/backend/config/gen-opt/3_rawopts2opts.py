@@ -54,7 +54,7 @@ for section, section_items in options_layout.layout:
     for g, (group, group_items) in enumerate(section_items):
         out.write("\t( '%s', [\n" % group)
         for i, option in enumerate(group_items):
-            if option in option_dict:
+            if option in option_dict and not option in handled_options:
                 handled_options.add(option)
                 info = option_dict[option]
                 hack_option(info)
