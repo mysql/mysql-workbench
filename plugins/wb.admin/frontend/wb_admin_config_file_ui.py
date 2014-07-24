@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,7 +16,6 @@
 # 02110-1301  USA
 
 import os
-import sys
 import copy
 
 from mforms import newTabView, newBox, newTable, newPanel, TitledBoxPanel, newScrollPanel, newCheckBox, newTextEntry, newTextBox
@@ -28,7 +27,7 @@ import mforms
 import wb_admin_config_file_be
 from wb_common import dprint_ex, debug_level, PermissionDeniedError, InvalidPasswordError, OperationCancelledError, Users
 from wb_admin_config_file_be import multi_separator
-from wb_admin_utils import no_remote_admin_warning_label, make_panel_header
+from wb_admin_utils import make_panel_header
 
 from workbench.utils import server_os_path
 
@@ -92,7 +91,7 @@ def run_version_select_form(version):
 
     try:
         version_maj = int(version[0]) + int(version[1]) / 10.0
-    except (ValueError, IndexError), e:
+    except (ValueError, IndexError):
         version_maj = 5.1
 
 
@@ -138,7 +137,7 @@ def run_version_select_form(version):
         for vpart in splitted:
             newver.append(int(vpart))
         guessed_version = tuple(newver)
-    except ValueError, e:
+    except ValueError:
         guessed_version = (5,1)
 
     return guessed_version
@@ -360,7 +359,6 @@ class WbAdminConfigFileUI(mforms.Box):
 
     #---------------------------------------------------------------------------
     def locate_option(self, option_name_fragment):
-        ret = None
         for opt in self.cfg_be.get_options_containing(option_name_fragment):
             (tab_name, group_name) = self.cfg_be.get_option_location(opt)
             if tab_name is not None:
@@ -542,7 +540,6 @@ class WbAdminConfigFileUI(mforms.Box):
                             as_user = Users.ADMIN
                         file_exists = self.ctrl_be.server_helper.file_exists(remote_path, as_user, user_password)
                     except InvalidPasswordError, e:  # Wrong pwd, retry:
-                        print str(e)
                         self.ctrl_be.password_handler.reset_password_for("file")
                         pass
                     except OperationCancelledError:  # The user chose Cancel in pwd input dialog
@@ -1040,9 +1037,7 @@ class WbAdminConfigFileUI(mforms.Box):
         def control(idx):
             return ctrl[1][idx]
 
-        is_multiple = False
         if type(value) is tuple and len(value) > 1:
-            is_multiple = True
             control(1).set_name("Multiple")
         else:
             control(1).set_name("Single")

@@ -105,12 +105,8 @@ CanvasView::CanvasView(int width, int height)
   _selection= new Selection(this);
 }
 
-static CanvasView *destroyed= 0;
-
 CanvasView::~CanvasView()
 {
-  destroyed= this;
-
   delete _blayer;
   delete _ilayer;
 
@@ -1382,8 +1378,6 @@ bool CanvasView::perform_auto_scroll(const Point &mouse_pos)
 
 void CanvasView::handle_mouse_move(int x, int y, EventState state)
 {
-  g_return_if_fail(destroyed != this);
-  
   if (_destroying || _ui_lock > 0) return;
   
   if ((state&(mdc::SEnterMask|mdc::SLeaveMask)) != 0)
@@ -1588,9 +1582,6 @@ void CanvasView::handle_mouse_enter(int x, int y, EventState state)
 
 void CanvasView::handle_mouse_leave(int x, int y, EventState state)
 {
-
-  g_return_if_fail(destroyed != this);
-
    if (_destroying || _ui_lock > 0) return;
    Point point= window_to_canvas(x, y);
 

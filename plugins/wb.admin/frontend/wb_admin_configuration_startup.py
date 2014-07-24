@@ -18,7 +18,7 @@
 from mforms import newButton, newLabel, newBox, newCheckBox, newTextBox, Utilities
 import mforms
 
-from wb_common import dprint_ex
+from wb_common import dprint_ex, OperationCancelledError
 import datetime
 from wb_admin_utils import no_remote_admin_warning_label, make_panel_header
 
@@ -226,6 +226,10 @@ class WbAdminConfigurationStartup(mforms.Box):
             try:
                 self.error_log_reader = ErrorLogFileReader(self.ctrl_be, self.server_profile.error_log_file_path)
                 self.error_log_position = self.error_log_reader.file_size
+            except OperationCancelledError, e:
+                self.startup_msgs_log.append_text_with_encoding("Cancelled password input to open error log file: %s\n" % e,
+                                                              self.ctrl_be.server_helper.cmd_output_encoding)
+                raise
             except Exception, e:
                 self.startup_msgs_log.append_text_with_encoding("Could not open error log file: %s\n" % e,
                                                                 self.ctrl_be.server_helper.cmd_output_encoding)
@@ -248,17 +252,22 @@ class WbAdminConfigurationStartup(mforms.Box):
 
     #---------------------------------------------------------------------------
     def start_stop_clicked(self):
-        self.start_error_log_tracking()
+        try:
+            self.start_error_log_tracking()
+        except OperationCancelledError:
+            # we could abort everything if we knew that start/stop server also needs sudo password
+            # to avoid user having to cancel that twice, but since we're not sure if the start/stop will
+            # indeed require the sudo password, we can't give up yet
+            pass
         status = self.ctrl_be.is_server_running(verbose=1)
         # Check if server was started/stoped from outside
-        print self.is_server_running_prev_check, status
         if self.is_server_running_prev_check == status:
             if status == "running":
                 self.start_stop_btn.set_enabled(False)
                 self.refresh_button.set_enabled(False)
 
                 try:
-                    if self.server_control and not self.server_control.stop_async(self.async_stop_callback):
+                    if self.server_control and not self.server_control.stop_async(self.async_stop_callback, True):
                         self.start_stop_btn.set_enabled(True)
                         self.refresh_button.set_enabled(True)
                         return
@@ -274,7 +283,7 @@ class WbAdminConfigurationStartup(mforms.Box):
                 self.refresh_button.set_enabled(False)
 
                 try:
-                    if self.server_control and not self.server_control.start_async(self.async_start_callback):
+                    if self.server_control and not self.server_control.start_async(self.async_start_callback, True):
                         self.start_stop_btn.set_enabled(True)
                         self.refresh_button.set_enabled(True)
                         return
@@ -312,6 +321,9 @@ class WbAdminConfigurationStartup(mforms.Box):
                 return
             else:
                 self.print_output("Could not stop server. Permission denied")
+        elif status == "need_password":
+            self.server_control.stop_async(self.async_stop_callback, False)
+            return
         else:
             self.print_output("Could not stop server: %s" % (status or "unknown error"))
             Utilities.show_error("Could not stop server", str(status), "OK", "", "")
@@ -340,6 +352,9 @@ class WbAdminConfigurationStartup(mforms.Box):
                 return
             else:
                 self.print_output("Could not stop server. Permission denied")
+        elif status == "need_password":
+            self.server_control.start_async(self.async_start_callback, False)
+            return
         else:
             self.print_output("Could not start server: %s" % (status or "unknown error"))
             Utilities.show_error("Could not start server", str(status), "OK", "", "")

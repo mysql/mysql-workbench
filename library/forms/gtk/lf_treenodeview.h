@@ -114,6 +114,7 @@ private:
     void format_tri_check(Gtk::CellRenderer* cell, const Gtk::TreeIter& iter, const Gtk::TreeModelColumn<int>& column);
   };
 
+  bool _is_drag_source;
   ColumnRecord _columns;
   
 
