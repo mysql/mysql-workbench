@@ -1273,7 +1273,8 @@ void GRTShellWindow::set_editor_title(GRTCodeEditor *editor, const std::string &
  */
 bool GRTShellWindow::request_quit()
 {
-  for (std::vector<GRTCodeEditor*>::reverse_iterator editor = _editors.rbegin(); editor != _editors.rend(); editor++)
+  std::vector<GRTCodeEditor*>::reverse_iterator editor;
+  while ((editor = _editors.rbegin()) != _editors.rend())
   {
     if (!(*editor)->can_close())
       return false;

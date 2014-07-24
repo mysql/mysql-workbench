@@ -407,6 +407,10 @@ TreeNodeRef TreeNodeView::node_at_row(int row)
   return _treeview_impl->node_at_row(this, row);
 }
 
+mforms::TreeNodeRef mforms::TreeNodeView::node_at_position(base::Point position)
+{
+  return _treeview_impl->node_at_position(this, position);
+}
 
 TreeNodeRef TreeNodeView::node_with_tag(const std::string &tag)
 {

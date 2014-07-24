@@ -178,11 +178,11 @@ void TreeViewNode::Attributes::set(int index, mforms::TreeNodeTextAttributes new
 
 //----------------- TreeNodeWrapper ----------------------------------------------------------------
 
-TreeNodeWrapper::TreeNodeWrapper(TreeNodeViewWrapper *wrapper, TreeViewNode ^node)
+TreeNodeWrapper::TreeNodeWrapper(TreeNodeViewWrapper *wrapper, TreeNodeAdv ^node)
 {
   treeWrapper = wrapper;
-  nativeTree = treeWrapper->GetManagedObject<TreeViewAdv>();
-  nativeNode = node;
+  nativeNodeAdv = node;
+  nativeNode = dynamic_cast<TreeViewNode ^>(node->Tag);
   isRoot = false;
   refCount = 0;
 }
@@ -192,7 +192,9 @@ TreeNodeWrapper::TreeNodeWrapper(TreeNodeViewWrapper *wrapper, TreeViewNode ^nod
 TreeNodeWrapper::TreeNodeWrapper(TreeNodeViewWrapper *wrapper)
 {
   treeWrapper = wrapper;
-  nativeTree = treeWrapper->GetManagedObject<TreeViewAdv>();
+  nativeNodeAdv = treeWrapper->GetManagedObject<TreeViewAdv>()->Root;
+  TreeModel ^model = dynamic_cast<TreeModel ^>(treeWrapper->GetManagedObject<TreeViewAdv>()->Model);
+  nativeNode = dynamic_cast<Node ^>(model->Root);
   isRoot = true;
   refCount = 0;
 }
@@ -215,42 +217,6 @@ void TreeNodeWrapper::retain()
 
 //--------------------------------------------------------------------------------------------------
 
-bool TreeNodeWrapper::is_root() const
-{
-  return isRoot;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-static TreeNodeAdv ^find_node_adv_for(Node ^node, TreeNodeAdv ^root)
-{
-  if (node == nullptr)
-    return nullptr;
-
-  if (node->Parent == nullptr)
-    return root;
-  TreeNodeAdv ^parent = find_node_adv_for(node->Parent, root);
-  if (parent != nullptr)
-  {
-    int i = node->Index;
-    if (i >= 0 && i < parent->Children->Count)
-      return parent->Children[i];
-  }
-  return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-TreeNodeAdv^ TreeNodeWrapper::find_node_adv()
-{
-  // apparently no mapping between Node to TreeNodeAdv, so we need
-  // to scan it around for it...
-
-  return find_node_adv_for(nativeNode, nativeTree->Root);
-}
-
-//--------------------------------------------------------------------------------------------------
-
 int TreeNodeWrapper::node_index()
 {
   if (isRoot)
@@ -261,18 +227,11 @@ int TreeNodeWrapper::node_index()
 
 //--------------------------------------------------------------------------------------------------
 
-Aga::Controls::Tree::TreeModel ^TreeNodeWrapper::model() const
-{
-  return dynamic_cast<Aga::Controls::Tree::TreeModel ^>(nativeTree->Model);
-}
-
-//--------------------------------------------------------------------------------------------------
-
 bool TreeNodeWrapper::equals(const mforms::TreeNode &other)
 {
   const TreeNodeWrapper *oth = dynamic_cast<const TreeNodeWrapper*>(&other);
   if (oth)
-    return (TreeViewNode ^)oth->nativeNode == (TreeViewNode ^)nativeNode;
+    return (Node ^)oth->nativeNode == (Node ^)nativeNode;
   return false;
 }
 
@@ -281,6 +240,13 @@ bool TreeNodeWrapper::equals(const mforms::TreeNode &other)
 bool TreeNodeWrapper::is_valid() const
 {
   return !isRoot;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int TreeNodeWrapper::level() const
+{
+  return nativeNodeAdv->Level;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,10 +268,18 @@ void TreeNodeWrapper::set_icon_path(int column, const std::string &icon)
 
     if (invalidate)
     {
-      nativeNode->Icon[column] = TreeViewNode::iconStorage[str_icon];
-      nativeTree->Invalidate();
+      TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+      node->Icon[column] = TreeViewNode::iconStorage[str_icon];
+      treeWrapper->GetManagedObject<TreeViewAdv>()->Invalidate();
     }
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeWrapper::set_selected(bool flag)
+{
+  nativeNodeAdv->IsSelected = flag;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,8 +288,9 @@ void TreeNodeWrapper::set_attributes(int column, const mforms::TreeNodeTextAttri
 {
   if (!isRoot)
   {
-    nativeNode->Attributes[column] = attrs;
-    nativeTree->Invalidate();
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    node->Attributes[column] = attrs;
+    treeWrapper->GetManagedObject<TreeViewAdv>()->Invalidate();
   }
 }
 
@@ -325,9 +300,10 @@ void TreeNodeWrapper::set_string(int column, const std::string &value)
 {
   if (!isRoot)
   {
-    nativeNode->Caption[column] = CppStringToNative(value);
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    node->Caption[column] = CppStringToNative(value);
     treeWrapper->node_value_set(column);
-    nativeTree->Invalidate();
+    treeWrapper->GetManagedObject<TreeViewAdv>()->Invalidate();
   }
 }
 
@@ -337,9 +313,10 @@ void TreeNodeWrapper::set_int(int column, int value)
 {
   if (!isRoot)
   {
-    nativeNode->Caption[column] = Convert::ToString(value);
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    node->Caption[column] = Convert::ToString(value);
     treeWrapper->node_value_set(column);
-    nativeTree->Invalidate();
+    treeWrapper->GetManagedObject<TreeViewAdv>()->Invalidate();
   }
 }
 
@@ -349,9 +326,10 @@ void TreeNodeWrapper::set_long(int column, boost::int64_t value)
 {
   if (!isRoot)
   {
-    nativeNode->Caption[column] = Convert::ToString(value);
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    node->Caption[column] = Convert::ToString(value);
     treeWrapper->node_value_set(column);
-    nativeTree->Invalidate();
+    treeWrapper->GetManagedObject<TreeViewAdv>()->Invalidate();
   }
 }
 
@@ -361,9 +339,10 @@ void TreeNodeWrapper::set_bool(int column, bool value)
 {
   if (!isRoot)
   {
-    nativeNode->Caption[column] = value ? "1" : "0";
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    node->Caption[column] = value ? "1" : "0";
     treeWrapper->node_value_set(column);
-    nativeTree->Invalidate();
+    treeWrapper->GetManagedObject<TreeViewAdv>()->Invalidate();
   }
 }
 
@@ -373,9 +352,10 @@ void TreeNodeWrapper::set_float(int column, double value)
 {
   if (!isRoot)
   {
-    nativeNode->Caption[column] = Convert::ToString(value);
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    node->Caption[column] = Convert::ToString(value);
     treeWrapper->node_value_set(column);
-    nativeTree->Invalidate();
+    treeWrapper->GetManagedObject<TreeViewAdv>()->Invalidate();
   }
 }
 
@@ -384,7 +364,10 @@ void TreeNodeWrapper::set_float(int column, double value)
 std::string TreeNodeWrapper::get_string(int column) const
 {
   if (!isRoot)
-    return NativeToCppString(nativeNode->Caption[column]);
+  {
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    return NativeToCppString(node->Caption[column]);
+  }
 
   return "";
 }
@@ -394,7 +377,10 @@ std::string TreeNodeWrapper::get_string(int column) const
 int TreeNodeWrapper::get_int(int column) const
 {
   if (!isRoot)
-    return Convert::ToInt32(nativeNode->Caption[column]);
+  {
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    return Convert::ToInt32(node->Caption[column]);
+  }
 
   return 0;
 }
@@ -404,7 +390,10 @@ int TreeNodeWrapper::get_int(int column) const
 bool TreeNodeWrapper::get_bool(int column) const
 {
   if (!isRoot)
-    return (nativeNode->Caption[column] == "Checked") || (nativeNode->Caption[column] == "1") ? true : false;
+  {
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    return (node->Caption[column] == "Checked") || (node->Caption[column] == "1") ? true : false;
+  }
 
   return false;
 }
@@ -414,7 +403,10 @@ bool TreeNodeWrapper::get_bool(int column) const
 boost::int64_t TreeNodeWrapper::get_long(int column) const
 {
   if (!isRoot)
-    return Convert::ToInt64(nativeNode->Caption[column]);
+  {
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    return Convert::ToInt64(node->Caption[column]);
+  }
 
   return 0;
 }
@@ -424,7 +416,10 @@ boost::int64_t TreeNodeWrapper::get_long(int column) const
 double TreeNodeWrapper::get_float(int column) const
 {
   if (!isRoot)
-    return Convert::ToDouble(nativeNode->Caption[column]);
+  {
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    return Convert::ToDouble(node->Caption[column]);
+  }
 
   return 0;
 }
@@ -433,10 +428,7 @@ double TreeNodeWrapper::get_float(int column) const
 
 int TreeNodeWrapper::count() const
 {
-  if (isRoot)
-    return model()->Root->Nodes->Count;
-  else
-    return nativeNode->Nodes->Count;
+  return nativeNodeAdv->Children->Count;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -445,11 +437,11 @@ Bitmap^ TreeNodeWrapper::get_cached_icon(const std::string& icon_id)
 {
   Bitmap ^icon;
 
-  String^ str_icon = CppStringToNative(icon_id);
+  String ^str_icon = CppStringToNative(icon_id);
 
   if (!TreeViewNode::iconStorage.ContainsKey(str_icon))
   {
-    String^ path = CppStringToNative(mforms::App::get()->get_resource_path(icon_id));
+    String ^path = CppStringToNative(mforms::App::get()->get_resource_path(icon_id));
     if (File::Exists(path))
       TreeViewNode::iconStorage[str_icon] = gcnew Bitmap(path);
   }
@@ -462,48 +454,47 @@ Bitmap^ TreeNodeWrapper::get_cached_icon(const std::string& icon_id)
 
 //--------------------------------------------------------------------------------------------------
 
-std::vector<mforms::TreeNodeRef> TreeNodeWrapper::add_node_collection(const mforms::TreeNodeCollectionSkeleton &nodes, int position)
+std::vector<mforms::TreeNodeRef> TreeNodeWrapper::add_node_collection(
+  const mforms::TreeNodeCollectionSkeleton &nodes, int position)
 {
   std::vector<mforms::TreeNodeRef> result;
 
-  Node ^parent = isRoot ? model()->Root : nativeNode;
-
   if (!nodes.captions.empty())
   {
-    // The icon will be common to all the nodes in the collection
-    Bitmap^ icon;
+    // The icon will be the same for all first level nodes.
+    Bitmap ^icon = nullptr;
     if (!nodes.icon.empty())
       icon = get_cached_icon(nodes.icon);
 
-    // Creates an array with all the nodes in the collection
-    array<MySQL::Forms::TreeViewNode^>^ added_nodes= gcnew array<MySQL::Forms::TreeViewNode^>((int)nodes.captions.size());
-    for(int index=0; index < added_nodes->Length; index++)
-      added_nodes[index] = gcnew MySQL::Forms::TreeViewNode();
-
-    // Now initializes the nodes in the collection with the proper information
-    for ( int index = 0; index < added_nodes->Length; index++)
+    std::vector<TreeNodeWrapper> parents;
+    for (size_t i = 0; i < nodes.captions.size(); ++i)
     {
-      added_nodes[index]->Caption[0] = CppStringToNative(nodes.captions[index]);
-      added_nodes[index]->Icon[0] = icon;
-    }
-
-    // Finally we add the nodes to the tree
-    for ( int index = 0; index < added_nodes->Length; index++)
-    {
-      if (position == -1)
-        parent->Nodes->Add(added_nodes[index]);
+      MySQL::Forms::TreeViewNode ^child = gcnew MySQL::Forms::TreeViewNode();
+      TreeNodeAdv ^treeNode;
+      if (position < 0)
+      {
+        nativeNode->Nodes->Add(child);
+        treeNode = nativeNodeAdv->Children[nativeNodeAdv->Children->Count - 1];
+      }
       else
-        parent->Nodes->Insert(position++, added_nodes[index]);
-      
-      result.push_back(mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, added_nodes[index])));
+      {
+        nativeNode->Nodes->Insert(position, child);
+        treeNode = nativeNodeAdv->Children[position];
+      }
+
+      child->Caption[0] = CppStringToNative(nodes.captions[i]);
+      child->Icon[0] = icon;
+
+      TreeNodeWrapper *nodeWrapper = new TreeNodeWrapper(treeWrapper, treeNode);
+      parents.push_back(*nodeWrapper);
+      result.push_back(mforms::TreeNodeRef(nodeWrapper));
     }
 
     // Now add the child nodes.
     if (!nodes.children.empty())
-      add_children_from_skeletons(added_nodes, nodes.children);
+      add_children_from_skeletons(parents, nodes.children);
 
-    // Refreshes the Tree Control
-    nativeTree->Invalidate();
+    treeWrapper->GetManagedObject<TreeViewAdv>()->Invalidate();
   }
 
   return result;
@@ -511,51 +502,93 @@ std::vector<mforms::TreeNodeRef> TreeNodeWrapper::add_node_collection(const mfor
 
 //--------------------------------------------------------------------------------------------------
 
-void TreeNodeWrapper::add_children_from_skeletons(array<MySQL::Forms::TreeViewNode^>^ parents, const std::vector<mforms::TreeNodeSkeleton>& children)
+/**
+ *	Adds the same list of child nodes (as given in the children vector) to each node in the parents vector.
+ */
+void TreeNodeWrapper::add_children_from_skeletons(std::vector<TreeNodeWrapper> parents, const std::vector<mforms::TreeNodeSkeleton>& children)
 {
-  for (size_t child_index = 0; child_index < children.size(); child_index++)
+  for (size_t child_index = 0; child_index < children.size(); ++child_index)
   {
-    // Creates "this" child for each parent
-    array<MySQL::Forms::TreeViewNode^>^ added_nodes = gcnew array<MySQL::Forms::TreeViewNode^>(parents->Length);
-    for(int index=0; index < added_nodes->Length; index++)
-      added_nodes[index] = gcnew MySQL::Forms::TreeViewNode();
+    String ^caption = CppStringToNative(children[child_index].caption);
+    Bitmap ^icon = get_cached_icon(children[child_index].icon);
+    std::string tag = children[child_index].tag;
 
-    // Gets the attributes for "this" child
-    String^ caption = CppStringToNative(children[child_index].caption);
-    Bitmap^ icon = get_cached_icon(children[child_index].icon);
-
-    // Initializes the child for the different parents
-    for(int added_node_index = 0; added_node_index < parents->Length; added_node_index++)
+    std::vector<TreeNodeWrapper> child_nodes;
+    for (size_t parent_index = 0; parent_index < parents.size(); ++parent_index)
     {
-      added_nodes[added_node_index]->Icon[0] = icon;
-      added_nodes[added_node_index]->Caption[0] = caption;
-      added_nodes[added_node_index]->MyTag = children[child_index].tag;
+      MySQL::Forms::TreeViewNode ^child = gcnew MySQL::Forms::TreeViewNode();
+      TreeNodeAdv ^treeNode;
+      parents[parent_index].nativeNode->Nodes->Add(child);
+      treeNode = parents[parent_index].nativeNodeAdv->Children[parents[parent_index].nativeNodeAdv->Children->Count - 1];
+
+      child->Caption[0] = caption;
+      child->Icon[0] = icon;
+      child->MyTag = tag;
+
+      TreeNodeWrapper nodeWrapper(treeWrapper, treeNode);
+      child_nodes.push_back(nodeWrapper);
     }
 
-    // Now inserts each children to it's corresponding parent
-    for(int parent_index = 0; parent_index < parents->Length; parent_index++)
-      parents[parent_index]->Nodes->Add(added_nodes[parent_index]);
-
-    // If the new nodes will have children as well insert them.
-    if (children[child_index].children.size())
-      add_children_from_skeletons(added_nodes, children[child_index].children);
-
+    // For each created node insert child nodes according to the children's child list.
+    if (!children[child_index].children.empty())
+      add_children_from_skeletons(child_nodes, children[child_index].children);
   }
 }  
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+ *	The compiler doesn't allow to assign that value from outside (another wrapper instance),
+ *	so take a detour via an assignment function.
+ */
+void TreeNodeWrapper::node_changed(TreeNodeAdv ^new_node)
+{
+  nativeNodeAdv = new_node;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 mforms::TreeNodeRef TreeNodeWrapper::insert_child(int index)
 {
-  Node ^parent = isRoot ? model()->Root : nativeNode;
-
+  // Insert node into the model, which will implicitly create a tree node.
   MySQL::Forms::TreeViewNode ^child = gcnew MySQL::Forms::TreeViewNode();
+  TreeNodeAdv ^treeNode;
   if (index < 0)
-    parent->Nodes->Add(child);
+  {
+    nativeNode->Nodes->Add(child);
+    treeNode = nativeNodeAdv->Children[nativeNodeAdv->Children->Count - 1];
+  }
   else
-    parent->Nodes->Insert(index, child);
+  {
+    nativeNode->Nodes->Insert(index, child);
+    treeNode = nativeNodeAdv->Children[index];
+  }
 
-  return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, child));
+  return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, treeNode));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeWrapper::insert_child(int index, const mforms::TreeNode &child)
+{
+  // Inserting an existing node only works if both belong to the same tree.
+  TreeNodeWrapper *wrapper = (TreeNodeWrapper *)&child;
+  if (treeWrapper != wrapper->treeWrapper)
+    return;
+
+  TreeNodeAdv ^treeNode;
+  if (index < 0)
+  {
+    nativeNode->Nodes->Add(wrapper->nativeNode);
+    treeNode = nativeNodeAdv->Children[nativeNodeAdv->Children->Count - 1];
+  }
+  else
+  {
+    nativeNode->Nodes->Insert(index, wrapper->nativeNode);
+    treeNode = nativeNodeAdv->Children[index];
+  }
+
+  wrapper->node_changed(treeNode);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -564,10 +597,11 @@ void TreeNodeWrapper::remove_from_parent()
 {
   if (!isRoot && nativeNode->Parent != nullptr)
   {
-    if (!nativeNode->MyTag.empty())
-      treeWrapper->process_mapping(nullptr, nativeNode->MyTag);
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    if (!node->MyTag.empty())
+      treeWrapper->process_mapping(nullptr, node->MyTag);
 
-    nativeNode->Parent->Nodes->Remove(nativeNode);
+    node->Parent->Nodes->Remove(nativeNode);
   }
 }
 
@@ -575,23 +609,20 @@ void TreeNodeWrapper::remove_from_parent()
 
 void TreeNodeWrapper::remove_children()
 {
-  Node ^parent = isRoot ? model()->Root : nativeNode;
-  for each (Node ^child in parent->Nodes)
+  for each (Node ^child in nativeNode->Nodes)
   {
     TreeViewNode ^node = dynamic_cast<TreeViewNode^>(child);
     if (node != nullptr && !node->MyTag.empty())
       treeWrapper->process_mapping(nullptr, node->MyTag);
   }
-  parent->Nodes->Clear();
+  nativeNode->Nodes->Clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 mforms::TreeNodeRef TreeNodeWrapper::get_child(int index) const
 {
-  Node ^parent = isRoot ? model()->Root : nativeNode;
-
-  TreeViewNode ^child = dynamic_cast<TreeViewNode^>(parent->Nodes[index]);
+  TreeNodeAdv ^child = nativeNodeAdv->Children[index];
   if (child != nullptr)
     return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, child));
 
@@ -600,12 +631,20 @@ mforms::TreeNodeRef TreeNodeWrapper::get_child(int index) const
 
 //--------------------------------------------------------------------------------------------------
 
+int MySQL::Forms::TreeNodeWrapper::get_child_index(mforms::TreeNodeRef node) const
+{
+  const TreeNodeWrapper *wrapper = dynamic_cast<const TreeNodeWrapper *>(node.ptr());
+  return nativeNode->Nodes->IndexOf(wrapper->nativeNode);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 mforms::TreeNodeRef TreeNodeWrapper::get_parent() const
 {
   if (!isRoot)
   {
-    TreeViewNode ^parent = dynamic_cast<TreeViewNode^>(nativeNode->Parent);
-    if (parent != nullptr)
+    TreeNodeAdv ^parent = nativeNodeAdv->Parent;
+    if (parent != nullptr && parent->Index > -1) // The hidden root node has an index of -1;
       return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, parent));
     else
       return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper));
@@ -616,32 +655,47 @@ mforms::TreeNodeRef TreeNodeWrapper::get_parent() const
 
 //--------------------------------------------------------------------------------------------------
 
+mforms::TreeNodeRef TreeNodeWrapper::previous_sibling() const
+{
+  if (isRoot || nativeNodeAdv->Index == 0)
+    return mforms::TreeNodeRef();
+
+  TreeNodeAdv ^node = nativeNodeAdv->Parent->Children[nativeNodeAdv->Index - 1];
+  return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, node));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::TreeNodeRef TreeNodeWrapper::next_sibling() const
+{
+  if (isRoot || nativeNodeAdv->Index == nativeNodeAdv->Parent->Children->Count - 1)
+    return mforms::TreeNodeRef();
+
+  TreeNodeAdv ^node = nativeNodeAdv->Parent->Children[nativeNodeAdv->Index + 1];
+  return mforms::TreeNodeRef(new TreeNodeWrapper(treeWrapper, node));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void TreeNodeWrapper::expand()
 {
-  if (!is_root())
-    get_parent()->expand();
-  TreeNodeAdv ^nodeadv = find_node_adv();
-  if (nodeadv != nullptr)
-    nodeadv->Expand();
+  if (!isRoot)
+    get_parent()->expand(); // Recursively expand all parent nodes.
+  nativeNodeAdv->Expand();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void TreeNodeWrapper::collapse()
 {
-  TreeNodeAdv ^nodeadv = find_node_adv();
-  if (nodeadv != nullptr)
-    nodeadv->Collapse();
+  nativeNodeAdv->Collapse();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool TreeNodeWrapper::is_expanded()
 {
-  TreeNodeAdv ^nodeadv = find_node_adv();
-  if (nodeadv != nullptr)
-    return nodeadv->IsExpanded;
-  return false;
+  return nativeNodeAdv->IsExpanded;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -650,10 +704,11 @@ void TreeNodeWrapper::set_tag(const std::string &tag)
 {
   if (!isRoot)
   {
-    if (!nativeNode->MyTag.empty())
-      treeWrapper->process_mapping(nullptr, nativeNode->MyTag);
-    nativeNode->MyTag = tag;
-    treeWrapper->process_mapping(nativeNode, nativeNode->MyTag);
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    if (!node->MyTag.empty())
+      treeWrapper->process_mapping(nullptr, node->MyTag);
+    node->MyTag = tag;
+    treeWrapper->process_mapping(nativeNodeAdv, node->MyTag);
   }
 }
 
@@ -662,7 +717,10 @@ void TreeNodeWrapper::set_tag(const std::string &tag)
 std::string TreeNodeWrapper::get_tag() const
 {
   if (!isRoot)
-    return nativeNode->MyTag;
+  {
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    return node->MyTag;
+  }
 
   return "";
 }
@@ -672,7 +730,10 @@ std::string TreeNodeWrapper::get_tag() const
 void TreeNodeWrapper::set_data(mforms::TreeNodeData *data)
 {
   if (!isRoot)
-    nativeNode->Data = data;
+  {
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    node->Data = data;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -680,7 +741,10 @@ void TreeNodeWrapper::set_data(mforms::TreeNodeData *data)
 mforms::TreeNodeData *TreeNodeWrapper::get_data() const
 {
   if (!isRoot)
-    return nativeNode->Data;
+  {
+    TreeViewNode ^node = (TreeViewNode ^)(Node ^)nativeNode;
+    return node->Data;
+  }
 
   return NULL;
 }

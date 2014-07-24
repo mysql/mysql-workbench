@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_TOOLBAR_H_
-#define _MFORMS_TOOLBAR_H_
+#pragma once
 
 #include <mforms/box.h>
 #include <mforms/app.h>
@@ -166,5 +165,3 @@ namespace mforms {
     boost::function<void (const std::string&)> _search;
   };
 };
-
-#endif

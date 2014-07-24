@@ -1,10 +1,9 @@
-#ifndef __grts_structs_app_h__
-#define __grts_structs_app_h__
+#pragma once
 
 #include <grtpp.h>
 
 #ifdef _WIN32
-  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list
+  #pragma warning(disable: 4355) // 'this' : used in base member initializer list
   #ifdef GRT_STRUCTS_APP_EXPORT
   #define GRT_STRUCTS_APP_PUBLIC __declspec(dllexport)
 #else
@@ -3421,4 +3420,3 @@ inline void register_structs_app_xml()
 static struct _autoreg__structs_app_xml { _autoreg__structs_app_xml() { register_structs_app_xml(); } } __autoreg__structs_app_xml;
 #endif
 
-#endif

@@ -1,4 +1,20 @@
 #!/usr/bin/make -f
+
+# Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
 # -*- makefile -*-
 # Sample debian/rules that uses debhelper.
 # This file was originally written by Joey Hess and Craig Small.
@@ -14,25 +30,21 @@ INSTALL_PREFIX=/usr
 
 ODBC_HOME=$(HOME)/linux-res-6.2/usr/
 LINUXRES_HOME=$(HOME)/linux-res-6.2/
+
 @ifdef community
 CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
-@else
-CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
-@endif
-VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
-@ifdef community
 MYSQL_HOME=$(HOME)/mysql-server/
 @else
+CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 @endif
 
-@ifdef community
-WBDIRNAME=mysql-workbench-community
-@else
-WBDIRNAME=mysql-workbench-commercial
-@endif
+VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
+
+WBDIRNAME=mysql-workbench-@edition@
 
 WBLIBPATH=$(INSTALL_PREFIX)/lib/mysql-workbench
+WBDOCPATH=$(INSTALL_PREFIX)/share/doc/mysql-workbench-@edition@
 
 configure: configure-stamp
 configure-stamp:
@@ -91,6 +103,7 @@ install: build
 	# Bundle other unpackaged libs
 	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(CURDIR)/debian/copyright $(CURDIR)/debian/$(WBDIRNAME)/$(WBDOCPATH)
 @ifdef commercial
 	# Bundle libs only needed for SE edition
 	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)

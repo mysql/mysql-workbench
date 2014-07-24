@@ -37,7 +37,7 @@
 #include "wb_overview_physical_schema.h"
 #include "wb_catalog_tree_view.h"
 
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "workbench/wb_model_file.h"
 #include "model/wb_overview_physical.h"
 #include "model/wb_user_datatypes.h"

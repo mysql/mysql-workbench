@@ -38,7 +38,7 @@
 #include "sqlide/column_width_cache.h"
 
 #include "objimpl/db.query/db_query_Resultset.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 #include "base/string_utilities.h"
 #include "base/notifications.h"
@@ -2391,6 +2391,7 @@ void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DB
   
   int max_query_size_to_log = _grtm->get_app_option_int("DbSqlEditor:MaxQuerySizeToHistory", 0);
   
+/* this doesn't really work
   std::list<std::string> failback_statements;
   if (obj_editor)
   {
@@ -2406,12 +2407,13 @@ void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DB
         failback_statements.push_back(sql);
       sql_splitter->splitSqlScript(original_object_ddl_script, failback_statements);
     }
-  }
+  }*/
   
   sql::SqlBatchExec sql_batch_exec;
   sql_batch_exec.stop_on_error(true);
-  sql_batch_exec.failback_statements(failback_statements);
-  
+//  if (!failback_statements.empty())
+//    sql_batch_exec.failback_statements(failback_statements);
+
   sql_batch_exec.error_cb(boost::ref(on_sql_script_run_error));
   sql_batch_exec.batch_exec_progress_cb(boost::ref(on_sql_script_run_progress));
   sql_batch_exec.batch_exec_stat_cb(boost::ref(on_sql_script_run_statistics));
@@ -2906,6 +2908,9 @@ void SqlEditorForm::note_connection_open_outcome(int error)
       break;
     case 2002: // CR_CONNECTION_ERROR
     case 2003: // CR_CONN_HOST_ERROR
+      new_state = PossiblyStoppedState;
+      break;
+    case 2013: // Lost packet blabla, can happen on failure when using ssh tunnel
       new_state = PossiblyStoppedState;
       break;
     default:

@@ -89,7 +89,7 @@ void check_topics(size_t start, size_t end, const help_test_entry entries[])
     std::string statement = entries[i].query;
     if (statement.empty() && i > 0)
     {
-      int j = i;
+      ssize_t j = i;
       while (--j >= 0)
         if (!entries[j].query.empty())
         {

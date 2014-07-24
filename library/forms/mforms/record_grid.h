@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_RECORD_GRID_H_
-#define _MFORMS_RECORD_GRID_H_
+#pragma once
 
 #include "mforms/native.h"
 #include <boost/shared_ptr.hpp>
@@ -81,5 +80,3 @@ namespace mforms {
     int _clicked_header_column;
   };
 };
-
-#endif

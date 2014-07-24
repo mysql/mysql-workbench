@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_SECTIONBOX_H_
-#define _MFORMS_SECTIONBOX_H_
+#pragma once
 
 #include "mforms/box.h"
 #include "mforms/drawbox.h"
@@ -81,5 +80,3 @@ namespace mforms {
 #endif
 
 }
-
-#endif // _MFORMS_SECTIONBOX_H_

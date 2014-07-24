@@ -260,6 +260,13 @@
     <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3string.h" />
     <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3tokenstream.h" />
     <ClInclude Include="..\..\ext\antlr-runtime\include\antlr3treeparser.h" />
+    <ClInclude Include="mysql-parser-common.h" />
+    <ClInclude Include="mysql-parser.h" />
+    <ClInclude Include="mysql-scanner.h" />
+    <ClInclude Include="mysql-syntax-check.h" />
+    <ClInclude Include="MySQLLexer.h" />
+    <ClInclude Include="MySQLParser.h" />
+    <ClInclude Include="MySQLSimpleParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ext\antlr-runtime\src\antlr3baserecognizer.c" />
@@ -288,8 +295,10 @@
     <ClCompile Include="mysql-parser-common.cpp" />
     <ClCompile Include="mysql-parser.cpp" />
     <ClCompile Include="mysql-scanner.cpp" />
+    <ClCompile Include="mysql-syntax-check.cpp" />
     <ClCompile Include="MySQLLexer.c" />
     <ClCompile Include="MySQLParser.c" />
+    <ClCompile Include="MySQLSimpleParser.c" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="grammar\MySQL.g">
@@ -318,12 +327,12 @@ cd ..</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Regenerating ANTLR parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating ANTLR parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLParser.h;MySQLParser.c;MySQLSimpleParser.h;MySQLSimpleParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MySQLParser.h;MySQLParser.c;MySQLSimpleParser.h;MySQLSimpleParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">MySQLParser.h;MySQLParser.c;MySQLSimpleParser.h;MySQLSimpleParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLParser.h;MySQLParser.c;MySQLSimpleParser.h;MySQLSimpleParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>

@@ -397,7 +397,8 @@ class TransferMainView(WizardProgressPage):
         # create work list
         source_catalog = self.main.plan.migrationSource.catalog
         tables = self.main.plan.state.dataBulkTransferParams["tableList"]
-        has_catalogs = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs
+        has_catalogs = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs > 0
+        has_schema = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs >= 0
 
         source_db_module = self.main.plan.migrationSource.module_db()
         target_db_module = self.main.plan.migrationTarget.module_db()
@@ -428,7 +429,10 @@ class TransferMainView(WizardProgressPage):
                 else:
                     table_name = source_db_module.quoteIdentifier(stable.owner.name) + "." + source_db_module.quoteIdentifier(stable.name)
             else:
-                schema_name = source_db_module.quoteIdentifier(stable.owner.name)
+                if has_schema:
+                    schema_name = source_db_module.quoteIdentifier(stable.owner.name)
+                else:
+                    schema_name = ''
                 table_name = source_db_module.quoteIdentifier(stable.name)
 
             targ_schema_name = target_db_module.quoteIdentifier(table.owner.name)

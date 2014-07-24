@@ -483,7 +483,7 @@ namespace MySQL.GUI.Workbench.Plugins
         columnsListModel.RefreshModel();
         indicesListModel.RefreshModel();
         fkListModel.RefreshModel();
-        tableEditorBE.load_trigger_sql();
+        //tableEditorBE.load_trigger_sql(); no longer needed since form data refreshs are triggered by backend code.
 
         // partitioning
         if (tableEditorBE.get_partition_type() == null || tableEditorBE.get_partition_type() == "")
@@ -1737,6 +1737,12 @@ namespace MySQL.GUI.Workbench.Plugins
       }
 
       TreeNodeAdv[] nodes = (TreeNodeAdv[])e.Data.GetData(typeof(TreeNodeAdv[]));
+      if (nodes == null) // Probably drag operation from outside.
+      {
+        e.Effect = DragDropEffects.None;
+        return;
+      }
+
       int targetIndex = dropNode.Index;
       if (columnsTreeView.DropPosition.Position == NodePosition.After)
         targetIndex++;

@@ -86,3 +86,5 @@
 #include "grts/structs.workbench.model.h"
 #include "grts/structs.workbench.physical.h"
 #include "grts/structs.workbench.h"
+
+#include "grts/structs.wrapper.h"

@@ -67,6 +67,7 @@ class UtilitiesImpl
   static void reveal_file(const std::string &path);
 
   static void set_thread_name(const std::string &name);
+  static void beep();
 
 public:
   static void init();

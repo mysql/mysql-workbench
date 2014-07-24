@@ -144,7 +144,6 @@ public:
   // triggers
   mforms::View *get_trigger_panel();
   void add_trigger(const std::string &timing, const std::string &event);
-  void select_trigger(size_t index);
 
   virtual bool can_close();
 

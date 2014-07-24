@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_MENU_H_
-#define _MFORMS_MENU_H_
+#pragma once
 
 #include <map>
 #include "boost/signals2.hpp"
@@ -88,5 +87,3 @@ namespace mforms {
 #endif
   };
 };
-
-#endif

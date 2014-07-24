@@ -20,6 +20,8 @@
 #import "MFTabView.h"
 #import "MFMForms.h"
 
+#include "base/string_utilities.h"
+
 @implementation MFTabViewItemView
 
 - (NSView*)superview
@@ -80,6 +82,7 @@
 //--------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 //--------------------------------------------------------------------------------------------------
 
@@ -99,16 +102,26 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
     {
       case mforms::TabViewSystemStandard:
         break;
+
       case mforms::TabViewTabless:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         break;
+
+      case mforms::TabViewMainClosable:
+        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
+        [mTabSwitcher setTabStyle: MMainTabSwitcher];
+        [mTabSwitcher setTabView: mTabView];
+        break;
+
+      case mforms::TabViewDocument:
       case mforms::TabViewDocumentClosable:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         [mTabSwitcher setTabStyle: MEditorTabSwitcher];
-        tabSwitcherBelow = NO;
         [mTabSwitcher setTabView: mTabView];
         break;
+
       case mforms::TabViewPalette:
         [mTabView setControlSize: NSSmallControlSize];
         [mTabView setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
@@ -118,7 +131,6 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         [mTabSwitcher setTabStyle: MPaletteTabSwitcherSmallText];
-        tabSwitcherBelow = NO;
         [mTabSwitcher setTabView: mTabView];
         break;
 
@@ -128,6 +140,10 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
         [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
         tabSwitcherBelow = YES;
         [mTabSwitcher setTabView: mTabView];
+        break;
+
+      default:
+        throw std::runtime_error("mforms: invalid tab type: " + base::to_string(tabType));
         break;
     }
     [mTabView setDrawsBackground: NO];
@@ -156,6 +172,8 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
   }
   return self;
 }
+
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 - (mforms::Object*)mformsObject
 {

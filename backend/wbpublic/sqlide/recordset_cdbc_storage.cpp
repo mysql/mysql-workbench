@@ -324,6 +324,12 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
           else
             rowid_col_count--;
         }
+
+        if (rowid_col_count != rs->rowsCount())
+        {
+          _readonly = true;
+          _readonly_reason = "To edit table data, the SELECT statement must include the primary key column(s).";
+        }
       }
       else
       {

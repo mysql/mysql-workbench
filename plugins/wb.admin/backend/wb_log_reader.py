@@ -93,12 +93,32 @@ Current limitations:
 
 import re
 
-from workbench.log import log_info, log_error
+from workbench.log import log_info, log_error, log_warning
 
 from wb_server_management import SudoTailInputFile, LocalInputFile, SFTPInputFile
 from wb_common import LogFileAccessError, ServerIOError, InvalidPasswordError
 from workbench.utils import server_os_path
-import dateutil.parser
+
+import time
+import datetime
+import calendar
+
+def ts_iso_to_local(ts, fmt):
+    if ts[-1] == "Z":
+        ts = ts[:-1]
+    if "." in ts: # strip the millisecond part
+        ts, _, ms = ts.partition(".")
+        ms = "."+ms
+    else:
+        ms = ""
+    try:
+        local_time = calendar.timegm(datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S").timetuple())
+        return time.strftime(fmt, time.localtime(local_time))+ms
+    except Exception, e:
+        log_warning("Error parsing timestamp %s: %s\n" % (ts, e))
+        return ts
+
+
 
 #========================= Query Based Readers ================================
 
@@ -301,14 +321,28 @@ class BaseLogFileReader(object):
 
         if use_sudo:
             log_info("Will use sudo and dd to get contents of log file %s\n" % self.log_file_name)
-            password = ctrl_be.password_handler.get_password_for('file')
+            password = ctrl_be.password_handler.get_password_for('file', cached_only=True)
+
+            retry = False
             try:
                 self.log_file = SudoTailInputFile(self.ctrl_be.server_helper, self.log_file_name, password)
                 self.file_size = self.log_file.size
             except InvalidPasswordError, error:
-                log_error("Invalid password to sudo %s\n" % error)
-                ctrl_be.password_handler.reset_password_for('file')
-                raise
+                if password is None:
+                    retry = True
+                else:
+                    log_error("Invalid password to sudo %s\n" % error)
+                    ctrl_be.password_handler.reset_password_for('file')
+                    raise
+            if retry: # either there was no password cached or the cached password was wrong, so retry interactively
+                password = ctrl_be.password_handler.get_password_for('file', cached_only=False)
+                try:
+                    self.log_file = SudoTailInputFile(self.ctrl_be.server_helper, self.log_file_name, password)
+                    self.file_size = self.log_file.size
+                except InvalidPasswordError, error:
+                    log_error("Invalid password to sudo %s\n" % error)
+                    ctrl_be.password_handler.reset_password_for('file')
+                    raise
         elif use_sftp:
             log_info("Will use sftp to get contents of log file %s\n" % self.log_file_name)
             self.log_file = SFTPInputFile(self.ctrl_be, self.log_file_name)
@@ -522,7 +556,7 @@ class ErrorLogFileReader(BaseLogFileReader):
         elif gdict['old']:
             return ["20%s-%s-%s %s" % (g[10], g[11], g[12], g[13]), "", g[14], g[15]]
         elif gdict['v57']:
-            return [dateutil.parser.parse(g[17]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T"), g[18], g[19], g[20]]
+            return [ts_iso_to_local(g[17], "%F %T"), g[18], g[19], g[20]]
         else:
             return ["", "", "", g[-1]]
 
@@ -561,7 +595,7 @@ class GeneralLogFileReader(BaseLogFileReader):
         gdict = found.groupdict()
         g = found.groups()
         if gdict['v57']:
-            return [dateutil.parser.parse(g[1]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T"), g[2], g[3], g[4]]
+            return [ts_iso_to_local(g[1], "%F %T"), g[2], g[3], g[4]]
         else: # v56
             return list(g[6:10])
 
@@ -593,6 +627,6 @@ class SlowLogFileReader(BaseLogFileReader):
         g = found.groups()
         if gdict['v57']:
             # convert timezone from UTC to local
-            return [dateutil.parser.parse(g[1]).astimezone(dateutil.tz.tzlocal()).strftime("%F %T")]+list(g[2:8])
+            return [ts_iso_to_local(g[1], "%F %T")]+list(g[2:8])
         else: # v56
             return list(g[9:9+7])

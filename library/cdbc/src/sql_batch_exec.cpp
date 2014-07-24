@@ -39,7 +39,7 @@ long SqlBatchExec::operator()(sql::Statement *stmt, std::list<std::string> &stat
   _sql_log.clear();
 
   exec_sql_script(stmt, statements, _batch_exec_err_count);
-  if (_batch_exec_err_count)
+  if (_batch_exec_err_count && !_failback_statements.empty())
   {
     long failback_script_exec_err_count= 0;
     exec_sql_script(stmt, _failback_statements, failback_script_exec_err_count);

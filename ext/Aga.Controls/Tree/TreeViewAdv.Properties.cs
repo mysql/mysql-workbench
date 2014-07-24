@@ -80,7 +80,7 @@ namespace Aga.Controls.Tree
 		}
 
 		private bool _suspendSelectionEvent;
-		internal bool SuspendSelectionEvent
+		protected internal bool SuspendSelectionEvent
 		{
 			get { return _suspendSelectionEvent; }
 			set

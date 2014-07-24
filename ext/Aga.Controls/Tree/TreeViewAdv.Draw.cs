@@ -143,46 +143,76 @@ namespace Aga.Controls.Tree
 
             float cornerSize = 5;
             GraphicsPath fillPath = new GraphicsPath();
-            fillPath.AddArc(bounds.Left, bounds.Top, cornerSize, cornerSize, 180, 90);
-            fillPath.AddArc(bounds.Right - cornerSize, bounds.Top, cornerSize, cornerSize, -90, 90);
-            fillPath.AddArc(bounds.Right - cornerSize, bounds.Bottom - cornerSize, cornerSize, cornerSize, 0, 90);
-            fillPath.AddArc(bounds.Left, bounds.Bottom - cornerSize, cornerSize, cornerSize, 90, 90);
-            fillPath.CloseAllFigures();
+            if (isWin8OrAbove)
+              fillPath.AddRectangle(bounds);
+            else
+            {
+              fillPath.AddArc(bounds.Left, bounds.Top, cornerSize, cornerSize, 180, 90);
+              fillPath.AddArc(bounds.Right - cornerSize, bounds.Top, cornerSize, cornerSize, -90, 90);
+              fillPath.AddArc(bounds.Right - cornerSize, bounds.Bottom - cornerSize, cornerSize, cornerSize, 0, 90);
+              fillPath.AddArc(bounds.Left, bounds.Bottom - cornerSize, cornerSize, cornerSize, 90, 90);
+              fillPath.CloseAllFigures();
+            }
 
             GraphicsPath outlinePath = new GraphicsPath();
             bounds.X -= 0.5f;
             bounds.Y += 0.5f;
-            outlinePath.AddArc(bounds.Left, bounds.Top, cornerSize, cornerSize, 180, 90);
-            outlinePath.AddArc(bounds.Right - cornerSize, bounds.Top, cornerSize, cornerSize, -90, 90);
-            outlinePath.AddArc(bounds.Right - cornerSize, bounds.Bottom - cornerSize, cornerSize, cornerSize, 0, 90);
-            outlinePath.AddArc(bounds.Left, bounds.Bottom - cornerSize, cornerSize, cornerSize, 90, 90);
-            outlinePath.CloseAllFigures();
+            if (isWin8OrAbove)
+              outlinePath.AddRectangle(bounds);
+            else
+            {
+              outlinePath.AddArc(bounds.Left, bounds.Top, cornerSize, cornerSize, 180, 90);
+              outlinePath.AddArc(bounds.Right - cornerSize, bounds.Top, cornerSize, cornerSize, -90, 90);
+              outlinePath.AddArc(bounds.Right - cornerSize, bounds.Bottom - cornerSize, cornerSize, cornerSize, 0, 90);
+              outlinePath.AddArc(bounds.Left, bounds.Bottom - cornerSize, cornerSize, cornerSize, 90, 90);
+              outlinePath.CloseAllFigures();
+            }
 
             if (context.DrawSelection == DrawSelectionMode.Active)
             {
-              using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
-                new PointF(0, bounds.Top),
-                new PointF(0, bounds.Bottom),
-                Color.FromArgb(255, 0xF1, 0xF7, 0xFE),
-                Color.FromArgb(255, 0xCF, 0xE4, 0xFE)))
-                e.Graphics.FillPath(gradientBrush, fillPath);
+              if (isWin8OrAbove)
+              {
+                using (SolidBrush brush = new SolidBrush(Color.FromArgb(0xFF, 0xD1, 0xE8, 0xFF)))
+                  e.Graphics.FillPath(brush, fillPath);
+                using (Pen pen = new Pen(Color.FromArgb(255, 0x6E, 0xC0, 0xE7)))
+                  e.Graphics.DrawPath(pen, outlinePath);
+              }
+              else
+              {
+                using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
+                  new PointF(0, bounds.Top),
+                  new PointF(0, bounds.Bottom),
+                  Color.FromArgb(255, 0xF1, 0xF7, 0xFE),
+                  Color.FromArgb(255, 0xCF, 0xE4, 0xFE)))
+                  e.Graphics.FillPath(gradientBrush, fillPath);
 
-              using (Pen pen = new Pen(Color.FromArgb(255, 0x83, 0xAC, 0xDD)))
-                e.Graphics.DrawPath(pen, outlinePath);
+                using (Pen pen = new Pen(Color.FromArgb(255, 0x83, 0xAC, 0xDD)))
+                  e.Graphics.DrawPath(pen, outlinePath);
+              }
 
               context.DrawSelection = DrawSelectionMode.FullRowSelect;
             }
             else
             {
-              using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
+              if (isWin8OrAbove)
+              {
+                using (SolidBrush brush = new SolidBrush(Color.FromArgb(0xFF, 0xF7, 0xF7, 0xF7)))
+                  e.Graphics.FillPath(brush, fillPath);
+                using (Pen pen = new Pen(Color.FromArgb(0xFF, 0xDE, 0xDE, 0xDE)))
+                  e.Graphics.DrawPath(pen, outlinePath);
+              }
+              else
+              {
+                using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
                 new PointF(0, bounds.Top),
                 new PointF(0, bounds.Bottom),
                 Color.FromArgb(255, 0xF8, 0xF8, 0xF8),
                 Color.FromArgb(255, 0xE5, 0xE5, 0xE5)))
-                e.Graphics.FillPath(gradientBrush, fillPath);
+                  e.Graphics.FillPath(gradientBrush, fillPath);
 
-              using (Pen pen = new Pen(Color.FromArgb(255, 0xD9, 0xD9, 0xD9)))
-                e.Graphics.DrawPath(pen, outlinePath);
+                using (Pen pen = new Pen(Color.FromArgb(255, 0xD9, 0xD9, 0xD9)))
+                  e.Graphics.DrawPath(pen, outlinePath);
+              }
 
               context.DrawSelection = DrawSelectionMode.None;
             }
