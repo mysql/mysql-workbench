@@ -486,6 +486,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wb.fabric", "wb.fabric", "{
 	ProjectSection(SolutionItems) = preProject
 		modules\wb.fabric\wbfabric_grt.py = modules\wb.fabric\wbfabric_grt.py
 	EndProjectSection
+EndProject    
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "wb.docs", "plugins\wb.docs\wb.docs.pyproj", "{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}"
 EndProject
 Global
