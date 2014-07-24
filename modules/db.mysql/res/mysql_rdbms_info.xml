@@ -1517,6 +1517,18 @@ Leave empty to include all the available groups.</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">1</value>
           </value>        
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param8">
+            <value type="string" key="defaultValue">0000-00-00 00:00:00</value>
+            <value type="int" key="layoutAdvanced">-1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">managedConnectionsUpdateTime</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>        
         </value>
       </value>    
     </value>

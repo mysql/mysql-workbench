@@ -486,40 +486,11 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const grt::Value
  */
 void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
 {
-  grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-  grt::ListRef<db_mgmt_ServerInstance> instances = _wb->get_root()->rdbmsMgmt()->storedInstances();
+  grt::GRT *grt = connection->get_grt();
+  grt::BaseListRef args(grt);
+  args->insert_unchecked(connection);
 
-  // Remove all associated server instances.
-  for (ssize_t i = instances.count() - 1; i >= 0; --i)
-  {
-    db_mgmt_ServerInstanceRef instance(instances[i]);
-    if (instance->connection() == connection)
-      instances->remove(i);
-  }
-
-  // Remove password associated with this connection (if stored in keychain/vault). Check first
-  // this service/username combination isn't used anymore by other connections.
-  bool credentials_still_used = false;
-  grt::DictRef parameter_values = connection->parameterValues();
-  std::string host = connection->hostIdentifier();
-  std::string user = parameter_values.get_string("userName");
-  for (grt::ListRef<db_mgmt_Connection>::const_iterator i = connections.begin();
-    i != connections.end(); ++i)
-  {
-    if (*i != connection)
-    {
-      grt::DictRef current_parameters = (*i)->parameterValues();
-      if (host == *(*i)->hostIdentifier() && user == current_parameters.get_string("userName"))
-      {
-        credentials_still_used = true;
-        break;
-      }
-    }
-  }
-  if (!credentials_still_used)
-    mforms::Utilities::forget_password(host, user);
-
-  connections->remove(connection);
+  grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnection", args);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -633,25 +604,11 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     
     if (answer == mforms::ResultOk)
     {
-      size_t group_length = group.length();
+      grt::GRT *grt = _wb->get_grt();
+      grt::BaseListRef args(grt);
+      args->insert_unchecked(object);
 
-      std::vector<db_mgmt_ConnectionRef> candidates;
-      grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-
-      ssize_t index = connections.count() - 1;
-      while (index >= 0)
-      {
-        std::string name = connections[index]->name();
-
-        if (name.compare(0, group_length, group) == 0)
-          candidates.push_back(connections[index]);
-
-        index--;
-      }
-
-      for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = candidates.begin();
-        iterator != candidates.end(); ++iterator)
-        remove_connection(*iterator);
+      grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnectionGroup", args);
 
       // Internal deletion does not require the UI update
       if (action == "delete_connection_group")
