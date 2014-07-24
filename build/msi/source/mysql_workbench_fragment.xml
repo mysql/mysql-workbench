@@ -1743,7 +1743,7 @@
                   <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
                   <File Id="file66713" Name="wbfabric_grt.py"/>
 
-                  <File Id="file66713" Name="wb_docs_grt.py"/>
+                  <File Id="file66714" Name="wb_docs_grt.py"/>
                 </Component>
 
                 <?if $(var.LICENSE_TYPE) = "commercial"?>
