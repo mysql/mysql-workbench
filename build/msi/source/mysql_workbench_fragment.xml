@@ -801,6 +801,7 @@
                     <File Id="home58" Name="wb_starter_planet_mysql_52@2x.png"/>
                     <File Id="home59" Name="wb_starter_support_52.png"/>
                     <File Id="home60" Name="wb_starter_support_52@2x.png"/>
+                    <File Id="home61" Name="wb_tile_fabric.png"/>
                   </Component>
                 </Directory>
 
@@ -1740,6 +1741,7 @@
                   <File Id="file66710" Name="wb_admin_perfschema_instrumentation.py"/>
                   <File Id="file66711" Name="wb_admin_perfschema_instrumentation_be.py"/>
                   <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
+                  <File Id="file66713" Name="wbfabric_grt.py"/>
 
                   <File Id="file66713" Name="wb_docs_grt.py"/>
                 </Component>

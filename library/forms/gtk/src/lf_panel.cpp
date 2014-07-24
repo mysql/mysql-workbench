@@ -17,11 +17,11 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
   switch (type)
   {
   case TransparentPanel: // just a container with no background
-    _frame= Gtk::manage(new Gtk::Frame());
+    _frame= new Gtk::Frame();
     _frame->set_shadow_type(Gtk::SHADOW_NONE);
     break;
   case StyledHeaderPanel:      // just a container with color filled background
-    _evbox = Gtk::manage(new Gtk::EventBox());
+    _evbox = new Gtk::EventBox();
     _evbox->signal_expose_event().connect(sigc::bind(sigc::mem_fun(this, &PanelImpl::on_expose_event), _evbox));
 
     break;
@@ -39,22 +39,22 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
     }
   }
   case FilledPanel:      // just a container with color filled background
-    _evbox= Gtk::manage(new Gtk::EventBox());
+    _evbox= new Gtk::EventBox();
     break;
   case BorderedPanel:    // container with native border
-    _frame= Gtk::manage(new Gtk::Frame());
+    _frame= new Gtk::Frame();
     _frame->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
     break;
   case LineBorderPanel:  // container with a solid line border
-    _frame= Gtk::manage(new Gtk::Frame());
+    _frame= new Gtk::Frame();
     _frame->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
     break;
   case TitledBoxPanel:   // native grouping box with a title with border
-    _frame= Gtk::manage(new Gtk::Frame());
+    _frame= new Gtk::Frame();
     _frame->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
     break;
   case TitledGroupPanel: // native grouping container with a title (may have no border)
-    _frame= Gtk::manage(new Gtk::Frame());
+    _frame= new Gtk::Frame();
     _frame->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
     break;
   }
@@ -63,6 +63,14 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
   if (_evbox) _evbox->show();
 }
 
+mforms::gtk::PanelImpl::~PanelImpl()
+{
+  if (_frame)
+    delete(_frame);
+    
+  if (_evbox)
+    delete(_evbox);
+}
 
 bool mforms::gtk::PanelImpl::create(::mforms::Panel *self, ::mforms::PanelType type)
 {
@@ -115,11 +123,13 @@ void mforms::gtk::PanelImpl::set_back_color(::mforms::Panel *self, const std::st
 void mforms::gtk::PanelImpl::add(::mforms::Panel *self, ::mforms::View *child)
 {
   PanelImpl *panel= self->get_data<PanelImpl>();
+  
+  Gtk::Widget *outer_child = child->get_data<ViewImpl>()->get_outer();
 
   if (panel->_evbox)
-    panel->_evbox->add(*child->get_data<ViewImpl>()->get_outer());
+    panel->_evbox->add(*outer_child);
   else if (panel->_frame)
-    panel->_frame->add(*child->get_data<ViewImpl>()->get_outer());
+    panel->_frame->add(*outer_child);
   child->show();
 }
 
