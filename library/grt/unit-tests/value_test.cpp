@@ -62,7 +62,7 @@ TEST_FUNCTION(2)
   grt::internal::Value* value= iv.valueptr();
   iv.clear();
   ensure("Completely release value", iv.valueptr() == NULL);
-  ensure_equals("Reference count", value->refcount(), 3U);
+  ensure_equals("Reference count", value->refcount(), 3);
 
   value->release();
   value->release();

@@ -1096,7 +1096,7 @@ TEST_FUNCTION(35)
 
   MySQLRecognizer recognizer(50610, "", _charsets);
   recognizer.parse(sql.c_str(), sql.size(), true, QtUnknown);
-  ensure_equals("35.1 String concatenation", recognizer.error_info().size(), 0);
+  ensure_equals("35.1 String concatenation", recognizer.error_info().size(), 0U);
   
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
   ensure("35.2 String concatenation", walker.advance_to_type(STRING_TOKEN, true));
