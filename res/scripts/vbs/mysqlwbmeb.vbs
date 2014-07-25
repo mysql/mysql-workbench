@@ -429,7 +429,7 @@ class MEBBackup
         
         if use_tts <> "0" then
             tts_value="with-minimum-locking"
-            if use_tts == 2 then
+            if use_tts = 2 then
                 tts_value="with-full-locking"
             end if
             
