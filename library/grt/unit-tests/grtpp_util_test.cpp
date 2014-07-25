@@ -90,7 +90,7 @@ TEST_FUNCTION(10)
 
   ensure("copy", publisher_copy.id() != publisher.id());
   ensure_equals("copy name", *publisher_copy->name(), *publisher->name());
-  ensure_equals("copy book list", publisher_copy->books().count(), 1);
+  ensure_equals("copy book list", publisher_copy->books().count(), 1U);
   ensure_equals("copy book list contents", publisher_copy->books()[0].id(), book.id());
   // The bug was that a shallow_copy would modify the referenced objects that would back-reference the copied object
   ensure_equals("don't modify owned objects Bug #17324160", book->publisher().id(), publisher.id());

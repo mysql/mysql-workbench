@@ -786,13 +786,13 @@ TEST_FUNCTION(1)
     ensure_equals("TF001CHK004: Unexpected object type", target.get_type(), LiveSchemaTree::Index);
 
     ensure_equals("TF001CHK004: Unexpected initial details", target.details, "");
-    ensure_equals("TF001CHK004: Unexpected initial number of columns", target.columns.size(), 0);
+    ensure_equals("TF001CHK004: Unexpected initial number of columns", target.columns.size(), 0U);
     ensure_equals("TF001CHK004: Unexpected initial type", target.type, 0);
     ensure_equals("TF001CHK004: Unexpected initial unique", target.unique, false);
 
     target.copy(&source);
     ensure_equals("TF001CHK004: Unexpected copied details", target.details, "This is a sample to test copy");
-    ensure_equals("TF001CHK004: Unexpected copied number of columns", target.columns.size(), 2);
+    ensure_equals("TF001CHK004: Unexpected copied number of columns", target.columns.size(), 2U);
     ensure_equals("TF001CHK004: Unexpected copied column 1", target.columns[0], "one");
     ensure_equals("TF001CHK004: Unexpected copied column 2", target.columns[1], "two");
     ensure_equals("TF001CHK004: Unexpected copied type", target.type, 6);
@@ -4233,7 +4233,7 @@ void verify_filter_result(const std::string& check, mforms::TreeNodeRef root, co
   mforms::TreeNodeRef schema_node_f;
   mforms::TreeNodeRef object_node_f;
 
-  ensure_equals(check + ": Unexpected number of schema nodes after filtering", root->count(), schemas.size());
+  ensure_equals(check + ": Unexpected number of schema nodes after filtering", (size_t)root->count(), schemas.size());
 
   for(int schema_index = 0; schema_index < root->count(); schema_index++)
   {
@@ -4241,10 +4241,10 @@ void verify_filter_result(const std::string& check, mforms::TreeNodeRef root, co
 
     ensure_equals(check + ": Unexpected schema name after filtering", schema_node_f->get_string(0), schemas[schema_index]);
 
-    ensure_equals(check + ": Unexpected number of table nodes after filtering", schema_node_f->get_child(LiveSchemaTree::TABLES_NODE_INDEX)->count(), tables.size());
-    ensure_equals(check + ": Unexpected number of view nodes after filtering", schema_node_f->get_child(LiveSchemaTree::VIEWS_NODE_INDEX)->count(), views.size());
-    ensure_equals(check + ": Unexpected number of procedure nodes after filtering", schema_node_f->get_child(LiveSchemaTree::PROCEDURES_NODE_INDEX)->count(), procedures.size());
-    ensure_equals(check + ": Unexpected number of function nodes after filtering", schema_node_f->get_child(LiveSchemaTree::FUNCTIONS_NODE_INDEX)->count(), functions.size());
+    ensure_equals(check + ": Unexpected number of table nodes after filtering", (size_t)schema_node_f->get_child(LiveSchemaTree::TABLES_NODE_INDEX)->count(), tables.size());
+    ensure_equals(check + ": Unexpected number of view nodes after filtering", (size_t)schema_node_f->get_child(LiveSchemaTree::VIEWS_NODE_INDEX)->count(), views.size());
+    ensure_equals(check + ": Unexpected number of procedure nodes after filtering", (size_t)schema_node_f->get_child(LiveSchemaTree::PROCEDURES_NODE_INDEX)->count(), procedures.size());
+    ensure_equals(check + ": Unexpected number of function nodes after filtering", (size_t)schema_node_f->get_child(LiveSchemaTree::FUNCTIONS_NODE_INDEX)->count(), functions.size());
 
     for(int table_index = 0; table_index < schema_node_f->get_child(LiveSchemaTree::TABLES_NODE_INDEX)->count(); table_index++)
     {

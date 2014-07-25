@@ -60,7 +60,7 @@ public:
     grt.scan_metaclasses_in("../../res/grt/");
     grt.end_loading_metaclasses();
 
-    ensure_equals("load structs", grt.get_metaclasses().size(), INT_METACLASS_COUNT);
+    ensure_equals("load structs", grt.get_metaclasses().size(), (size_t)INT_METACLASS_COUNT);
     db_mgmt_ConnectionRef connectionProperties(&grt);
 
     setup_env(&grt, connectionProperties);
