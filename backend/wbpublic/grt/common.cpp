@@ -422,7 +422,7 @@ namespace bec {
       else 
       {
         // This adjustment is needed because of the way reorder works
-        if (ui_item_index < to)
+        if ((int)ui_item_index < to)
           to--;
       }
 
@@ -437,7 +437,7 @@ namespace bec {
       if (to == MoveBottom)
         to = names_list.size() - 1;
       // This adjustment is needed because of the way reorder works
-      else if (ui_item_index < to)
+      else if ((int)ui_item_index < to)
         to--;
 
       target_index = initial_positions[names_list[to]];
