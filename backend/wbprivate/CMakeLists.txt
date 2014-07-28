@@ -98,6 +98,7 @@ add_library(wbprivate
 
 target_link_libraries(wbprivate
     grt
+    mdcanvas
     ${CAIRO_LIBRARIES}
     ${GTK2_LIBRARIES}
     ${SIGC++_LIBRARIES}
@@ -105,5 +106,9 @@ target_link_libraries(wbprivate
     ${TINYXML_LIBRARY}
     ${PCRE_LIBRARIES}
 )
+
+set_target_properties(wbprivate
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wbprivate DESTINATION ${WB_INSTALL_LIB_DIR})

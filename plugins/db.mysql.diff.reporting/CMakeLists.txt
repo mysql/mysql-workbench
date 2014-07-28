@@ -41,4 +41,8 @@ set_target_properties(db.mysql.diff.reporting.wbp PROPERTIES
 
 target_link_libraries(db.mysql.diff.reporting.wbp grt mforms wbscintilla ${GTK2_LIBRARIES} ${LIBXML2_LIBRARIES})
 
+set_target_properties(db.mysql.diff.reporting.wbp
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS db.mysql.diff.reporting.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

@@ -52,4 +52,8 @@ add_library(sqlparser
     xml.cpp
 )
 
+set_target_properties(sqlparser
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS sqlparser DESTINATION ${WB_INSTALL_LIB_DIR})
