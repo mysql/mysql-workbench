@@ -80,17 +80,6 @@
                 <File Id="file68725" Name="sqlite3.dll"/>
               </Component>
 
-              <?if $(var.SETUP_TYPE) = "commercial" ?>
-              <Directory Id="lgpl_sources_dir" Name="lgpl_sources">
-                <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD612" Id="LGPLSrcPackages" Location="either">
-                  <File Id="file999001" Name="glib-2.12.12.tar.bz2"/>
-                  <File Id="file999002" Name="libiconv-1.14.tar.gz"/>
-                  <File Id="file999003" Name="libxml2-2.9.1.tar.gz"/>
-                  <File Id="file999005" Name="paramiko-1.7.7.1.zip"/>
-                </Component>
-              </Directory>
-              <?endif ?>
-
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
                 <File Id="file101" Name="db.grt.dll"/>
                 <File Id="file102" Name="db.mysql.editors.wbp.be.dll"/>
