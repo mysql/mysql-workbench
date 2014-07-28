@@ -90,11 +90,12 @@ clean:
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+# 	dh_clean -k 
+	dh_prep
 	dh_installdirs
 
 	# Add here commands to install the package into debian/mysql-workbench.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/$(WBDIRNAME) install
+	DESTDIR=debian/$(WBDIRNAME) $(MAKE) install
 
 	# Bundle pyodbc and iodbc
 	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
@@ -103,7 +104,6 @@ install: build
 	# Bundle other unpackaged libs
 	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(CURDIR)/debian/copyright $(CURDIR)/debian/$(WBDIRNAME)/$(WBDOCPATH)
 @ifdef commercial
 	# Bundle libs only needed for SE edition
 	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
@@ -143,13 +143,13 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman
 	dh_link
-	dh_strip
+	dh_strip --dbg-package=mysql-workbench-@edition@
 	dh_compress
 	dh_fixperms -X*.sh
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
-	LD_LIBRARY_PATH=$(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH) dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l$(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
