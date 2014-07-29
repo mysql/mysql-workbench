@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -d backend ]; then
+  cd tools
+fi
+
 while read line; do
   line_array=($line)
   
