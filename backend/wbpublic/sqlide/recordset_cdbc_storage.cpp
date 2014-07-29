@@ -261,7 +261,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
       info.table = rs_meta->getTableName(i+1);
       info.field = rs_meta->getColumnLabel(i+1);
       info.type = rs_meta->getColumnTypeName(i+1);
-#if defined(__APPLE__) || defined(_WIN32) || defined(MYSQLCPPCONN_HAVE_COLUMN_CHARSET)
+#if defined(__APPLE__) || defined(_WIN32) || defined(MYSQLCPPCONN_VERSION_1_1_4)
       info.charset = rs_meta->getColumnCharset(i+1);
 #endif
       info.display_size = rs_meta->getColumnDisplaySize(i+1);

@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -49,6 +49,10 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(MYSQLCPPCONN DEFAULT_MSG MYSQLCPPCONN_LIBRARY 
 IF(MYSQLCPPCONN_FOUND)
   SET( MYSQLCPPCONN_LIBRARIES ${MYSQLCPPCONN_LIBRARY} )
   SET( MYSQLCPPCONN_INCLUDE_DIRS ${MYSQLCPPCONN_INCLUDE_DIR} )
+  TRY_COMPILE(MYSQLCPPCONN_VERSION_1_1_4
+        ${CMAKE_BINARY_DIR}/try_compile ${CMAKE_SOURCE_DIR}/build/cmake/Modules/getColumnCharset.cpp 
+        COMPILE_DEFINITIONS ${MYSQLCPPCONN_INCLUDE_DIRS})
+  MESSAGE(STATUS "C/C++ version 1.1.4+: ${MYSQLCPPCONN_VERSION_1_1_4}")
 ELSE(MYSQLCPPCONN_FOUND)
   SET( MYSQLCPPCONN_LIBRARIES )
   SET( MYSQLCPPCONN_INCLUDE_DIRS )

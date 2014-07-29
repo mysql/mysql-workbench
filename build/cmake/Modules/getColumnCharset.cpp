@@ -2,6 +2,6 @@
 
 int main()
 {
-  void *p = &sql::ResultSetMetaData::getColumnCharset;
+  &sql::ResultSetMetaData::getColumnCharset;
   return 0;
 }

@@ -83,6 +83,10 @@ find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
 
+if (MYSQLCPPCONN_VERSION_1_1_4)
+  add_definition(-DMYSQLCPPCONN_VERSION_1_1_4)
+endif ()
+
 if (UNIX)
 	option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)
 	if (USE_UNIXODBC)

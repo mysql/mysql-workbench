@@ -22,6 +22,7 @@
 #include <grtpp.h>
 
 #include "base/trackable.h"
+#include "base/threading.h"
 #include "common.h"
 #include "grt_dispatcher.h"
 #include "grt_shell.h"
