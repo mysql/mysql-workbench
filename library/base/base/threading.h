@@ -412,7 +412,7 @@ public:
     }
   };
 #else
-  typedef boost::interprocess::interprocess_semaphore semaphore;
+  typedef boost::interprocess::interprocess_semaphore Semaphore;
 #endif
 };
 #endif

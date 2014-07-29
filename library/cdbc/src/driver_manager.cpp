@@ -304,7 +304,7 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
   properties["OPT_CAN_HANDLE_EXPIRED_PASSWORDS"] = true;
   properties["CLIENT_MULTI_STATEMENTS"] = true;
   properties["metadataUseInfoSchema"] = false; // I_S is way too slow for many things as of MySQL 5.6.10, so disable it for now
-#if 1
+#if defined(__APPLE__) || defined(_WIN32) || defined(MYSQLCPPCONN_VERSION_1_1_4)
   // set application name
   {
     std::map< sql::SQLString, sql::SQLString > attribs;
