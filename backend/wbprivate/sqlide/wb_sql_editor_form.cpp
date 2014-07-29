@@ -977,7 +977,7 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
   //! dbms-specific code
   if (dbc_conn->ref->getMetaData()->getDatabaseMajorVersion() < 5)
   {
-    throw std::runtime_error("MySQL Server version is older than 5.0, which is not supported");
+    throw std::runtime_error("MySQL Server version is older than 5.x, which is not supported");
   }
 
   // Activate default schema, if it's empty, use last active

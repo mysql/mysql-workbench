@@ -486,8 +486,8 @@ void SqlEditorResult::restore_grid_column_widths()
         // if not, we set a default width based on the display size
         int length = field_info[i].display_size;
 
-        if (length < 0)
-          length = 10;
+        if (length < 5)
+          length = 5;
         else if (length > 20)
           length = 20;
 #if defined(__APPLE__) || defined(_WIN32)
@@ -655,7 +655,8 @@ void SqlEditorResult::create_column_info_panel()
       tree->add_column(mforms::StringColumnType, "Field", 130);
       tree->add_column(mforms::StringColumnType, "Schema", 130);
       tree->add_column(mforms::StringColumnType, "Table", 130);
-      tree->add_column(mforms::StringColumnType, "Type", 200);
+      tree->add_column(mforms::StringColumnType, "Type", 150);
+      tree->add_column(mforms::StringColumnType, "Character Set", 100);
       tree->add_column(mforms::IntegerColumnType, "Display Size", 80);
       tree->add_column(mforms::IntegerColumnType, "Precision", 80);
       tree->add_column(mforms::IntegerColumnType, "Scale", 80);
@@ -679,9 +680,10 @@ void SqlEditorResult::create_column_info_panel()
         node->set_string(2, iter->schema);
         node->set_string(3, iter->table);
         node->set_string(4, iter->type);
-        node->set_int(5, iter->display_size);
-        node->set_int(6, iter->precision);
-        node->set_int(7, iter->scale);
+        node->set_string(5, iter->charset);
+        node->set_int(6, iter->display_size);
+        node->set_int(7, iter->precision);
+        node->set_int(8, iter->scale);
       }
       box->add(tree, true, true);
     }
