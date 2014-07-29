@@ -108,11 +108,12 @@ install: build
 	# Bundle libs only needed for SE edition
 	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pysqlite2 $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+@endif
 	# Bundle client programs and lib
 	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysql $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysqldump $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-@endif
+
 	# Remove these files:
 	# - The file /etc/ld.so.conf.d/mysql-workbench.conf is a non.conformance in debian based distros
 	# - The .la metadata files are not necessary
