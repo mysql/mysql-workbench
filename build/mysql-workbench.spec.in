@@ -111,9 +111,13 @@ Conflicts: mysql-workbench-commercial
 # Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering
 %if 0%{?fedora}
 %if 0%{?commercial}
-%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlide|wbbase|wbpublic|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient|sqlite3)\\.so.*$
+%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlparser|sqlide|wbbase|wbpublic|wbprivate|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient|sqlite3)\\.so.*$
+%global __requires_exclude %{__requires_exclude}|db.*)\\.so.*$
+%global __requires_exclude %{__requires_exclude}|wb.*)\\.so.*$
 %else
-%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlide|wbbase|wbpublic|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient)\\.so.*$
+%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlparser|sqlide|wbbase|wbpublic|wbprivate|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient|wb.*|db.*)\\.so.*$
+%global __requires_exclude %{__requires_exclude}|db.*)\\.so.*$
+%global __requires_exclude %{__requires_exclude}|wb.*)\\.so.*$
 %endif
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*|%{_libdir}/mysql/libmysqlclient\\.so.*|%{mysqlcppconn_dir}/lib/libmysqlcppconn\\.so.*|%{odbc_home}/lib/libiodbc\\.so.*)$
 %endif
@@ -133,9 +137,11 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libmdcanvas/d
   %filter_from_requires /libmforms/d
   %filter_from_requires /libmysqlparser/d
+  %filter_from_requires /libsqlparser/d
   %filter_from_requires /libsqlide/d
   %filter_from_requires /libwbbase/d
   %filter_from_requires /libwbpublic/d
+  %filter_from_requires /libwbprivate/d
   %filter_from_requires /libwbscintilla/d
   %filter_from_requires /libmysqlcppconn/d
   %filter_from_requires /libiodbc/d
