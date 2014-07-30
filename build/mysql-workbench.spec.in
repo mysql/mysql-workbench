@@ -123,6 +123,8 @@ Conflicts: mysql-workbench-commercial
   %filter_provides_in %{_libdir}/mysql/libmysqlclient/.*\.so.*$
   %filter_provides_in %{mysqlcppconn_dir}/lib/libmysqlcppconn/.*\.so.*$
   %filter_provides_in %{_libdir}/mysql.workbench/.*\.so.*$
+  %filter_requires_in %{_libdir}/mysql.workbench/modules/.*\.so.*$
+  %filter_requires_in %{_libdir}/mysql.workbench/plugins/.*\.so.*$
   %filter_from_requires /libantlr3c_wb/d
   %filter_from_requires /libcdbc/d
   %filter_from_requires /libgrt/d
