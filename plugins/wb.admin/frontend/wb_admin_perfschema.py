@@ -96,6 +96,7 @@ class HelperInstallPanel(mforms.Table):
         self._progress_value = 0
 
         self._update_timer = None
+        self._messages = []
 
     def __del__(self):
         if self._update_timer:
@@ -114,6 +115,7 @@ class HelperInstallPanel(mforms.Table):
 
     def report_output(self, message):
         log_info("%s\n" % message)
+        self._messages.append(message)
 
 
     def update_ui(self):
@@ -124,6 +126,8 @@ class HelperInstallPanel(mforms.Table):
                 self._worker = None
                 self.owner.page_activated()
                 self._update_timer = None
+                if self._messages:
+                    mforms.Utilities.show_message("Install sys Schema", "Import output:\n%s" % "\n".join(self._messages), "OK", "", "")
                 return False
 
             if isinstance(data, Exception):
