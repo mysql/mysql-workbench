@@ -1,8 +1,6 @@
 #!/bin/bash
-
-if [ -d backend ]; then
-  cd tools
-fi
+DIR="$(dirname  "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )"
+WB_VERSION="$DIR/backend/wbprivate/workbench/wb_version.h"
 
 while read line; do
   line_array=($line)
@@ -16,7 +14,7 @@ while read line; do
   elif [[ $line == *APP_LICENSE_TYPE* ]]; then APP_LICENSE_TYPE=${line_array[2]};
   elif [[ $line == *APP_EDITION_NAME* ]]; then APP_EDITION_NAME=${line_array[2]};
   fi
-done < ../backend/wbprivate/workbench/wb_version.h
+done < $WB_VERSION
 
 case "$1" in
   "major") echo $APP_MAJOR_NUMBER;;
