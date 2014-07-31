@@ -43,17 +43,17 @@ TEST_FUNCTION(2)
   
   node= NodeId(5);
   ensure("node(5)", node.is_valid());
-  ensure_equals("node(5).depth()", node.depth(), 1);
-  ensure_equals("node(5)[0]", node[0], 5);
+  ensure_equals("node(5).depth()", node.depth(), 1U);
+  ensure_equals("node(5)[0]", node[0], 5U);
 
   node2= node.append(7);
-  ensure_equals("node append", node.depth(), 2);
-  ensure_equals("node append[0]", node[0], 5);
-  ensure_equals("node append[1]", node[1], 7);
+  ensure_equals("node append", node.depth(), 2U);
+  ensure_equals("node append[0]", node[0], 5U);
+  ensure_equals("node append[1]", node[1], 7U);
 
-  ensure_equals("node append ret", node2.depth(), 2);
-  ensure_equals("node append ret[0]", node2[0], 5);
-  ensure_equals("node append ret[1]", node2[1], 7);
+  ensure_equals("node append ret", node2.depth(), 2U);
+  ensure_equals("node append ret[0]", node2[0], 5U);
+  ensure_equals("node append ret[1]", node2[1], 7U);
   
   ensure("node compare", node==node2);
 

@@ -178,6 +178,10 @@ add_library(wbpublic
 #	)
 #endif()
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTEMPLATE_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES})
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTEMPLATE_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES})
+
+set_target_properties(wbpublic
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wbpublic DESTINATION ${WB_INSTALL_LIB_DIR})

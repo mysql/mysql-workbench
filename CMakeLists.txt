@@ -3,6 +3,21 @@ cmake_minimum_required (VERSION 2.8)
 
 project(WORKBENCH)
 
+# Retrieve current Workbench version variables
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/get_wb_version.sh major
+                OUTPUT_VARIABLE WB_MAJOR_VERSION)
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/get_wb_version.sh minor
+                OUTPUT_VARIABLE WB_MINOR_VERSION)
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/get_wb_version.sh revision
+                OUTPUT_VARIABLE WB_RELEASE_VERSION)
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/get_wb_version.sh full_version
+                OUTPUT_VARIABLE WB_VERSION)
+
+string(STRIP ${WB_MAJOR_VERSION} WB_MAJOR_VERSION)
+string(STRIP ${WB_MINOR_VERSION} WB_MINOR_VERSION)
+string(STRIP ${WB_RELEASE_VERSION} WB_RELEASE_VERSION)
+string(STRIP ${WB_VERSION} WB_VERSION)
+
 
 #  About MySQL and CMake
 #  http://dev.mysql.com/doc/internals/en/autotools-to-cmake.html
@@ -68,6 +83,10 @@ find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
+
+if (MYSQLCPPCONN_VERSION_1_1_4)
+  add_definition(-DMYSQLCPPCONN_VERSION_1_1_4)
+endif ()
 
 if (UNIX)
 	option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)

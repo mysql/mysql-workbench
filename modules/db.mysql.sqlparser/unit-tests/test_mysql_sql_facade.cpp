@@ -69,7 +69,7 @@ TEST_FUNCTION(2)
   ensure("Unexpexted failure parsing test", sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "sakila");
   ensure_equals("Unexpected Table Name", table_name, "customer");
-  ensure_equals("Unexpected Column Count", columns.size(), 2);
+  ensure_equals("Unexpected Column Count", columns.size(), 2U);
   ensure("Unexpected Column Name", columns.front().first == "first_name");
   ensure("Unexpected Column Alias", columns.front().second == "first_name");
   columns.pop_front();
@@ -92,7 +92,7 @@ TEST_FUNCTION(3)
   ensure("Unexpexted failure parsing test", sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "sakila");
   ensure_equals("Unexpected Table Name", table_name, "customer");
-  ensure_equals("Unexpected Column Count", columns.size(), 2);
+  ensure_equals("Unexpected Column Count", columns.size(), 2U);
   ensure("Unexpected Column Name", columns.front().first == "first_name");
   ensure("Unexpected Column Alias", columns.front().second == "First Name");
   columns.pop_front();
@@ -115,7 +115,7 @@ TEST_FUNCTION(5)
   ensure("Unexpexted success parsing test", !sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "");
   ensure_equals("Unexpected Table Name", table_name, "");
-  ensure_equals("Unexpected Column Count", columns.size(), 0);
+  ensure_equals("Unexpected Column Count", columns.size(), 0U);
 }
 
 // Using text literals as columns have the function to fail
@@ -131,7 +131,7 @@ TEST_FUNCTION(6)
   ensure("Unexpexted success parsing test", !sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "");
   ensure_equals("Unexpected Table Name", table_name, "");
-  ensure_equals("Unexpected Column Count", columns.size(), 0);
+  ensure_equals("Unexpected Column Count", columns.size(), 0U);
 }
 
 // Using SELECT *
@@ -147,7 +147,7 @@ TEST_FUNCTION(7)
   ensure("Unexpexted failure parsing test", sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "sakila");
   ensure_equals("Unexpected Table Name", table_name, "address");
-  ensure_equals("Unexpected Column Count", columns.size(), 1);
+  ensure_equals("Unexpected Column Count", columns.size(), 1U);
   ensure("Unexpected Column Name", columns.front().first == "*");
   ensure("Unexpected Column Alias", columns.front().second == "*");
   columns.pop_front();
@@ -167,7 +167,7 @@ TEST_FUNCTION(8)
   ensure("Unexpexted failure parsing test", sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "sakila");
   ensure_equals("Unexpected Table Name", table_name, "address");
-  ensure_equals("Unexpected Column Count", columns.size(), 2);
+  ensure_equals("Unexpected Column Count", columns.size(), 2U);
   ensure("Unexpected Column Name", columns.front().first == "address");
   ensure("Unexpected Column Alias", columns.front().second == "address");
   columns.pop_front();
@@ -189,7 +189,7 @@ TEST_FUNCTION(9)
   ensure("Unexpexted success parsing test", !sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "");
   ensure_equals("Unexpected Table Name", table_name, "");
-  ensure_equals("Unexpected Column Count", columns.size(), 0);
+  ensure_equals("Unexpected Column Count", columns.size(), 0U);
 }
 
 // Should fail if multiple select statements are issued
@@ -205,7 +205,7 @@ TEST_FUNCTION(10)
   ensure("Unexpexted success parsing test", !sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "");
   ensure_equals("Unexpected Table Name", table_name, "");
-  ensure_equals("Unexpected Column Count", columns.size(), 0);
+  ensure_equals("Unexpected Column Count", columns.size(), 0U);
 }
 
 // Should fail if multiple functions as columns are used
@@ -221,7 +221,7 @@ TEST_FUNCTION(11)
   ensure("Unexpexted success parsing test", !sql_facade->parseSelectStatementForEdit(query, schema_name, table_name, columns));
   ensure_equals("Unexpected Schema Name", schema_name, "");
   ensure_equals("Unexpected Table Name", table_name, "");
-  ensure_equals("Unexpected Column Count", columns.size(), 0);
+  ensure_equals("Unexpected Column Count", columns.size(), 0U);
 }
 
 END_TESTS

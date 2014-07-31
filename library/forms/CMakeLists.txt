@@ -122,4 +122,8 @@ endif()
 
 target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK2_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
 
+set_target_properties(mforms
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS mforms DESTINATION ${WB_INSTALL_LIB_DIR})

@@ -16,7 +16,11 @@ add_library(db.mysql.parser.grt
 set_target_properties(db.mysql.parser.grt PROPERTIES
 #	LINK_FLAGS "-module"
 	PREFIX ""
+  VERSION   ${WB_VERSION}
+  SOVERSION ${WB_VERSION}
 )
+
+
 
 # target_link_libraries(db.mysql.parser.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
 

@@ -131,6 +131,7 @@ std::vector<std::string> TableColumnsListBE::get_datatype_names()
     std::string tmp;
 
     if ((*iter)->parameterFormatType() == 1 ||
+        (*iter)->parameterFormatType() == 2 ||
         (*iter)->parameterFormatType() == 3 ||
         (*iter)->parameterFormatType() == 4 ||
         (*iter)->parameterFormatType() == 10)

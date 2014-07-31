@@ -24,7 +24,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}
     ${GTK2_INCLUDE_DIRS}
-    ${CAIRO_INCLUDE_DIRS}
+#     ${CAIRO_INCLUDE_DIRS}
     ${SIGC++_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
 )
@@ -46,6 +46,10 @@ set_target_properties(wb.model.editors.wbp PROPERTIES
 	PREFIX ""
 )
 
-target_link_libraries(wb.model.editors.wbp linux_utilities)
+target_link_libraries(wb.model.editors.wbp linux_utilities ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
+
+set_target_properties(wb.model.editors.wbp
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wb.model.editors.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

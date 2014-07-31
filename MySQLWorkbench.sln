@@ -486,6 +486,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wb.fabric", "wb.fabric", "{
 	ProjectSection(SolutionItems) = preProject
 		modules\wb.fabric\wbfabric_grt.py = modules\wb.fabric\wbfabric_grt.py
 	EndProjectSection
+EndProject    
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "wb.docs", "plugins\wb.docs\wb.docs.pyproj", "{AD723C13-739F-42EB-AEAF-EEC7C0BCC44E}"
 EndProject
 Global
@@ -937,7 +938,6 @@ Global
 		{F228EE8C-8324-459F-83BF-1F3F6A4CF639}.Release_OSS|x64.ActiveCfg = Release_OSS|x64
 		{F228EE8C-8324-459F-83BF-1F3F6A4CF639}.Release_OSS|x64.Build.0 = Release_OSS|x64
 		{F228EE8C-8324-459F-83BF-1F3F6A4CF639}.Release_OSS|x86.ActiveCfg = Release_OSS|Win32
-		{F228EE8C-8324-459F-83BF-1F3F6A4CF639}.Release_OSS|x86.Build.0 = Release_OSS|Win32
 		{F228EE8C-8324-459F-83BF-1F3F6A4CF639}.Release|x64.ActiveCfg = Release|x64
 		{F228EE8C-8324-459F-83BF-1F3F6A4CF639}.Release|x64.Build.0 = Release|x64
 		{F228EE8C-8324-459F-83BF-1F3F6A4CF639}.Release|x86.ActiveCfg = Release|Win32
@@ -949,7 +949,6 @@ Global
 		{EAD67843-C724-46C6-8293-50C61B432218}.Release_OSS|x64.ActiveCfg = Release_OSS|x64
 		{EAD67843-C724-46C6-8293-50C61B432218}.Release_OSS|x64.Build.0 = Release_OSS|x64
 		{EAD67843-C724-46C6-8293-50C61B432218}.Release_OSS|x86.ActiveCfg = Release_OSS|Win32
-		{EAD67843-C724-46C6-8293-50C61B432218}.Release_OSS|x86.Build.0 = Release_OSS|Win32
 		{EAD67843-C724-46C6-8293-50C61B432218}.Release|x64.ActiveCfg = Release|x64
 		{EAD67843-C724-46C6-8293-50C61B432218}.Release|x64.Build.0 = Release|x64
 		{EAD67843-C724-46C6-8293-50C61B432218}.Release|x86.ActiveCfg = Release|Win32
@@ -1053,7 +1052,6 @@ Global
 		{11CC6D53-AA7D-4EED-A984-BC1BC1C37C32}.Release_OSS|x64.ActiveCfg = Release_OSS|x64
 		{11CC6D53-AA7D-4EED-A984-BC1BC1C37C32}.Release_OSS|x64.Build.0 = Release_OSS|x64
 		{11CC6D53-AA7D-4EED-A984-BC1BC1C37C32}.Release_OSS|x86.ActiveCfg = Release_OSS|Win32
-		{11CC6D53-AA7D-4EED-A984-BC1BC1C37C32}.Release_OSS|x86.Build.0 = Release_OSS|Win32
 		{11CC6D53-AA7D-4EED-A984-BC1BC1C37C32}.Release|x64.ActiveCfg = Release|x64
 		{11CC6D53-AA7D-4EED-A984-BC1BC1C37C32}.Release|x64.Build.0 = Release|x64
 		{11CC6D53-AA7D-4EED-A984-BC1BC1C37C32}.Release|x86.ActiveCfg = Release|Win32
@@ -1101,7 +1099,6 @@ Global
 		{64D6062D-40EA-43AA-A53B-F75F2BE1D723}.Release_OSS|x64.ActiveCfg = Release_OSS|x64
 		{64D6062D-40EA-43AA-A53B-F75F2BE1D723}.Release_OSS|x64.Build.0 = Release_OSS|x64
 		{64D6062D-40EA-43AA-A53B-F75F2BE1D723}.Release_OSS|x86.ActiveCfg = Release_OSS|Win32
-		{64D6062D-40EA-43AA-A53B-F75F2BE1D723}.Release_OSS|x86.Build.0 = Release_OSS|Win32
 		{64D6062D-40EA-43AA-A53B-F75F2BE1D723}.Release|x64.ActiveCfg = Release|x64
 		{64D6062D-40EA-43AA-A53B-F75F2BE1D723}.Release|x64.Build.0 = Release|x64
 		{64D6062D-40EA-43AA-A53B-F75F2BE1D723}.Release|x86.ActiveCfg = Release|Win32
