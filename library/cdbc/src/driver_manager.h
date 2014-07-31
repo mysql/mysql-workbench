@@ -29,7 +29,7 @@
 #include <set>
 
 #include "grts/structs.db.mgmt.h"
-#include "cppconn/connection.h"
+#include <cppconn/connection.h>
 
 #ifndef THROW
 #ifdef _MSC_VER

@@ -60,7 +60,7 @@ TEST_FUNCTION(1)
   grt->load_metaclasses("data/structs.test.xml");
   grt->end_loading_metaclasses();
 
-  ensure_equals("load structs", grt->get_metaclasses().size(), 6);
+  ensure_equals("load structs", grt->get_metaclasses().size(), 6U);
 }
 
 TEST_FUNCTION(5)
@@ -164,7 +164,7 @@ TEST_FUNCTION(10)
   ensure("indirect author name", *author->name() == "ABC");
 
   book->authors().remove(0);
-  assure_equal(0, book->authors().count());
+  assure_equal(0U, book->authors().count());
 }
 
 

@@ -209,11 +209,6 @@
             <ComponentRef Id="extras" />
             <ComponentRef Id="RegKeys" />
         </Feature>
-		<?if $(var.SETUP_TYPE) = "commercial" ?>
-        <Feature Id="WorkbenchLGPLSources" Absent="allow" TypicalDefault="advertise" Level="1" ConfigurableDirectory="INSTALLDIR" Description="Sourcecode Packages of LGPL components used for compiling MySQL Workbench" Title="MySQL Workbench LGPL Source Packages">
-            <ComponentRef Id="LGPLSrcPackages" />
-		</Feature>
-		<?endif?>
 
         <Feature Id="WorkbenchProgramShortcut" Description="Place a Shortcut to MySQL Workbench in your Startmenus MySQL Folder" Level="1" Title="Program Shortcut">
             <ComponentRef Id="MySQLWorkbenchProgramLink" />

@@ -1750,9 +1750,9 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     label->show();
     tvc->set_widget(*label);
   }
-  tvc->set_resizable(true);
   if (initial_width > 0)
     tvc->set_fixed_width(initial_width);
+  tvc->set_resizable(true);
   tvc->set_data("index", (void*)(intptr_t)column);
   
   return column;

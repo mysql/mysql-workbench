@@ -71,6 +71,10 @@ set_target_properties(db.mysql.editors.wbp PROPERTIES
 	PREFIX ""
 )
 
-target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla)
+target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES})
+
+set_target_properties(db.mysql.editors.wbp
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS db.mysql.editors.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

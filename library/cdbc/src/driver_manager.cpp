@@ -213,7 +213,6 @@ void DriverManager::thread_cleanup()
 
 //--------------------------------------------------------------------------------------------------
 
-
 ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &connectionProperties,
   boost::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password,
   ConnectionInitSlot connection_init_slot)
@@ -236,7 +235,7 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
 
   Driver *driver;
   if (library == "mysqlcppconn")
-    driver = reinterpret_cast<Driver *>(sql_mysql_get_driver_instance());
+    driver = get_driver_instance();
   else
   {
   #ifdef _WIN32
@@ -305,7 +304,14 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
   properties["OPT_CAN_HANDLE_EXPIRED_PASSWORDS"] = true;
   properties["CLIENT_MULTI_STATEMENTS"] = true;
   properties["metadataUseInfoSchema"] = false; // I_S is way too slow for many things as of MySQL 5.6.10, so disable it for now
-    
+#if defined(__APPLE__) || defined(_WIN32) || defined(MYSQLCPPCONN_VERSION_1_1_4)
+  // set application name
+  {
+    std::map< sql::SQLString, sql::SQLString > attribs;
+    attribs["program_name"] = "MySQLWorkbench";
+    properties["OPT_CONNECT_ATTR_ADD"] = attribs;
+  }
+#endif
   // If SSL is enabled but there's no certificate or anything, create the sslKey option to force enabling SSL without a key
   // (equivalent to starting cmdline client with mysql --ssl-key=)
   if (parameter_values.get_string("sslKey", "") == "" && parameter_values.get_int("useSSL", 0) != 0)

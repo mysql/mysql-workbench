@@ -168,7 +168,7 @@ public:
 
   int ref_count;
 
-  boost::interprocess::interprocess_semaphore sem;
+  base::Semaphore sem;
   CancellableTaskData() : finished(false), ref_count(1), sem(0) {}
 };
 
@@ -259,7 +259,7 @@ bool Utilities::run_cancelable_task(const std::string &title, const std::string 
   }
 
   // Callback for the frontend to signal the worker thread that it's ready.
-  boost::function<void ()> signal_ready = boost::bind(&boost::interprocess::interprocess_semaphore::post, &data->sem);
+  boost::function<void ()> signal_ready = boost::bind(&base::Semaphore::post, &data->sem);
 
   bool function_result = false;
 

@@ -238,6 +238,9 @@ class MySQLScriptImporter(object):
                     if e.errno == 32: # broken pipe
                         log_error("Broken pipe from child process\n")
                         break
+                    elif e.errno == 22: # invalid argument (happens in Windows, when child process just dies)
+                      log_error("Broken pipe from child process\n")
+                      break
                     raise e
                 self.report_progress(None, processed, total_size)
                 

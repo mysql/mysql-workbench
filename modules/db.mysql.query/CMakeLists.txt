@@ -21,6 +21,10 @@ set_target_properties(db.mysql.query.grt PROPERTIES
 	PREFIX ""
 )
 
-target_link_libraries(db.mysql.query.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES})
+target_link_libraries(db.mysql.query.grt grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${MYSQLCPPCONN_LIBRARIES})
+
+set_target_properties(db.mysql.query.grt
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS db.mysql.query.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

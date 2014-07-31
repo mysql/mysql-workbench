@@ -218,8 +218,8 @@ TEST_FUNCTION(5)
     RecordsetRef rs= editor.get_inserts_model();
 
     // starts with 1 row, which is the placeholder
-    ensure_equals("rows", rs->count(), (size_t)1);
-    ensure_equals("columns", rs->get_column_count(), (size_t)4);
+    ensure_equals("rows", rs->count(), 1U);
+    ensure_equals("columns", rs->get_column_count(), 4U);
 
     std::string s;
     rs->set_field(0, 0, std::string("1"));
@@ -236,8 +236,8 @@ TEST_FUNCTION(5)
 
     RecordsetRef rs= editor.get_inserts_model();
 
-    ensure_equals("rows", rs->count(), 2);
-    ensure_equals("columns", rs->get_column_count(), (size_t)4);
+    ensure_equals("rows", rs->count(), 2U);
+    ensure_equals("columns", rs->get_column_count(), 4U);
 
     std::string s;
     rs->get_field(0, 0, s);
@@ -248,13 +248,13 @@ TEST_FUNCTION(5)
     ensure_equals("get 2", s, std::string("2012-01-01"));
 
     rs->set_field(1, 0, std::string("42"));
-    ensure_equals("added temporary", rs->count(), (size_t)3);
+    ensure_equals("added temporary", rs->count(), 3U);
     rs->get_field(1, 0, s);
     ensure_equals("get 0 tmp", s, std::string("42"));
     std::string msg;
     rs->rollback_and_gather_messages(msg);
     ensure_equals("rollback", msg, "");
-    ensure_equals("reverted", rs->count(), 2);
+    ensure_equals("reverted", rs->count(), 2U);
 
     // check generation of SQL
     std::string output = table->inserts();
@@ -270,16 +270,16 @@ TEST_FUNCTION(5)
 static void test_rs_storage(RecordsetRef rs, int row, int column, const std::string &value,
   const std::string &other_value)
 {
-  ensure_equals("rows before", rs->count(), 1);  
+  ensure_equals("rows before", rs->count(), 1U);
 
   rs->set_field(row, column, value);
-  ensure_equals("rows", rs->count(), 2);
+  ensure_equals("rows", rs->count(), 2U);
 
   std::string msg;
   bool ok = rs->apply_changes_and_gather_messages(msg);
   ensure_equals("apply changes msg", msg, "Commit complete");
   ensure("apply changes", ok);
-  ensure_equals("rows after apply", rs->count(), 2);
+  ensure_equals("rows after apply", rs->count(), 2U);
 
   std::string s;
   rs->get_field(row, column, s);
@@ -291,7 +291,7 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
   ok = rs->apply_changes_and_gather_messages(msg);
   ensure_equals("apply changes msg 2", msg, "Commit complete");
   ensure("apply changes 2", ok);
-  ensure_equals("rows after apply 2", rs->count(), 2);
+  ensure_equals("rows after apply 2", rs->count(), 2U);
 
   rs->get_field(row, column, s);
   ensure_equals("get value back 2", s, other_value);
@@ -302,7 +302,7 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
   ok = rs->apply_changes_and_gather_messages(msg);
   ensure_equals("apply changes msg 3", msg, "Commit complete");
   ensure("apply changes 3", ok);
-  ensure_equals("rows after apply 3", rs->count(), 2);
+  ensure_equals("rows after apply 3", rs->count(), 2U);
 
   rs->get_field(row, column, s);
   ensure_equals("get value back 3", s, value);
