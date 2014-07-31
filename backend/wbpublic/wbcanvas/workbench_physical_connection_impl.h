@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,7 +67,8 @@ public:
   ImplData(workbench_physical_Connection *self);
   virtual ~ImplData();
   
-  void set_highlighted(bool flag);
+  virtual void highlight(const base::Color *color= 0);
+  virtual void unhighlight();
 
   virtual void set_in_view(bool flag);
 

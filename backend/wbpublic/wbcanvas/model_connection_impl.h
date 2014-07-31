@@ -69,6 +69,7 @@ protected:
   
   void object_realized(const model_ObjectRef &object);
 
+  wbfig::CaptionFigure *create_caption();
 public:
   mdc::CanvasView *get_canvas_view() const;
   bool is_canvas_view_valid();
