@@ -145,7 +145,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-in.png")); //XXX need @2x icons
+    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-in.png"));
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
@@ -163,13 +163,13 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("zoom_reset.png"));
+    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-jump.png"));
     item->set_tooltip("Specify coordinates to center screen on.");
     item->signal_activated()->connect(boost::bind(&SpatialDataView::jump_to, this));
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("zoom_reset.png"));
+    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-auto.png"));
     item->set_tooltip("Zoom to data.");
     item->signal_activated()->connect(boost::bind(&SpatialDataView::auto_zoom, this));
     _toolbar->add_item(item);

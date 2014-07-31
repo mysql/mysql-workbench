@@ -112,6 +112,10 @@ set(IMAGE_FILES
     qe_sql-editor-tb-icon_zoom-out.png
     qe_sql-editor-tb-icon_zoom-reset@2x.png
     qe_sql-editor-tb-icon_zoom-reset.png
+    qe_sql-editor-tb-icon_zoom-jump.png
+    qe_sql-editor-tb-icon_zoom-jump@2x.png
+    qe_sql-editor-tb-icon_zoom-auto.png
+    qe_sql-editor-tb-icon_zoom-auto@2x.png
     editor_breakpoint_hit.xpm
     editor_breakpoint.xpm
     editor_current_pos.xpm

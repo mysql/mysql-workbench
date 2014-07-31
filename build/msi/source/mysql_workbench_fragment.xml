@@ -761,7 +761,12 @@
                     <File Id="file606606" Name="qe_sql-editor-tb-icon_zoom-out.png" />
                     <File Id="file606607" Name="qe_sql-editor-tb-icon_zoom-reset@2x.png" />
                     <File Id="file606608" Name="qe_sql-editor-tb-icon_zoom-reset.png" />
-
+                    <File Id="file606609" Name="qe_sql-editor-tb-icon_zoom-jump.png" />
+                    <File Id="file606610" Name="qe_sql-editor-tb-icon_zoom-jump@2x.png" />
+                    <File Id="file606611" Name="qe_sql-editor-tb-icon_zoom-auto.png" />
+                    <File Id="file606612" Name="qe_sql-editor-tb-icon_zoom-auto@2x.png" />
+                    <File Id="file606613" Name="qe_sql-editor-tb-icon_zoom-center.png" />
+                    <File Id="file606614" Name="qe_sql-editor-tb-icon_zoom-center@2x.png" />
                     <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
                     <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
 
@@ -1756,7 +1761,7 @@
                   <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
                   <File Id="file66713" Name="wbfabric_grt.py"/>
 
-                  <File Id="file66713" Name="wb_docs_grt.py"/>
+                  <File Id="file66714" Name="wb_docs_grt.py"/>
                 </Component>
 
                 <?if $(var.LICENSE_TYPE) = "commercial"?>
