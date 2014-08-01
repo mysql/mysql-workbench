@@ -2159,6 +2159,8 @@
 		2BD42075198034C10061895B /* db.View.broken.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4205F198034C10061895B /* db.View.broken.side.16x16@2x.png */; };
 		2BD42076198034C10061895B /* db.View.many.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42060198034C10061895B /* db.View.many.side.16x16@2x.png */; };
 		2BD42077198034C10061895B /* db.View.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42061198034C10061895B /* db.View.side.16x16@2x.png */; };
+		2BD42089198ACC260061895B /* home_screen_connections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD42087198ACC260061895B /* home_screen_connections.cpp */; };
+		2BD4208A198ACC260061895B /* home_screen_connections.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD42088198ACC260061895B /* home_screen_connections.h */; };
 		2BD820120F4F0E7D009E485D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BD820110F4F0E7D009E485D /* Carbon.framework */; };
 		2BD9968E0FAC02B00074852E /* grtdb_connect_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */; };
 		2BD9968F0FAC02B00074852E /* grtdb_connect_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */; };
@@ -5920,6 +5922,8 @@
 		2BD4205F198034C10061895B /* db.View.broken.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.View.broken.side.16x16@2x.png"; path = "structs/db.View.broken.side.16x16@2x.png"; sourceTree = "<group>"; };
 		2BD42060198034C10061895B /* db.View.many.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.View.many.side.16x16@2x.png"; path = "structs/db.View.many.side.16x16@2x.png"; sourceTree = "<group>"; };
 		2BD42061198034C10061895B /* db.View.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.View.side.16x16@2x.png"; path = "structs/db.View.side.16x16@2x.png"; sourceTree = "<group>"; };
+		2BD42087198ACC260061895B /* home_screen_connections.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = home_screen_connections.cpp; sourceTree = "<group>"; };
+		2BD42088198ACC260061895B /* home_screen_connections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = home_screen_connections.h; sourceTree = "<group>"; };
 		2BD820110F4F0E7D009E485D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grtdb_connect_dialog.h; sourceTree = "<group>"; };
 		2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grtdb_connect_dialog.cpp; sourceTree = "<group>"; };
@@ -9058,10 +9062,7 @@
 				2BFBEFF30F50BF7F0016F9D1 /* Overview */,
 				27CC86041741348D00AAA267 /* about_box.cpp */,
 				27CC86051741348D00AAA267 /* about_box.h */,
-				27C9C9E51095DEA900C0004C /* home_screen.h */,
-				27C9C9E61095DEA900C0004C /* home_screen.cpp */,
-				2B4D1978124030D8004E6309 /* wb_context_ui_home.h */,
-				2B4D1979124030D8004E6309 /* wb_context_ui_home.cpp */,
+				2BD4208B198ACC2D0061895B /* Home */,
 				2B4BD6CF0ED202DE003E44F2 /* wb_command_ui.h */,
 				2B4BD6CE0ED202DE003E44F2 /* wb_command_ui.cpp */,
 				2B7510420E87966E0003120A /* metaclasses.cpp */,
@@ -10149,6 +10150,19 @@
 				2BD1FADE0F33C74D00FFC762 /* WBPluginEditorBase.mm */,
 			);
 			name = Plugins;
+			sourceTree = "<group>";
+		};
+		2BD4208B198ACC2D0061895B /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				27C9C9E51095DEA900C0004C /* home_screen.h */,
+				27C9C9E61095DEA900C0004C /* home_screen.cpp */,
+				2BD42087198ACC260061895B /* home_screen_connections.cpp */,
+				2BD42088198ACC260061895B /* home_screen_connections.h */,
+				2B4D1978124030D8004E6309 /* wb_context_ui_home.h */,
+				2B4D1979124030D8004E6309 /* wb_context_ui_home.cpp */,
+			);
+			name = Home;
 			sourceTree = "<group>";
 		};
 		2BDC26230E8566CF0018CE34 /* sql.parser */ = {
@@ -11363,6 +11377,7 @@
 				2B5B77060F781D6C007E54CF /* user_defined_type_editor.h in Headers */,
 				2B5B77080F781D6C007E54CF /* document_properties_form.h in Headers */,
 				2B5B770A0F781D6C007E54CF /* preferences_form.h in Headers */,
+				2BD4208A198ACC260061895B /* home_screen_connections.h in Headers */,
 				2BF879C50FA7BE730012EADA /* db_sql_editor_history_be.h in Headers */,
 				2BF879C70FA7BE730012EADA /* db_sql_editor_log.h in Headers */,
 				2BF879C80FA7BE730012EADA /* wb_live_schema_tree.h in Headers */,
@@ -14240,6 +14255,7 @@
 				2BF87A650FA7CEFB0012EADA /* wb_model_diagram_form.cpp in Sources */,
 				2BF87A670FA7CEFB0012EADA /* wb_overview_diagram.cpp in Sources */,
 				2BF87A690FA7CEFB0012EADA /* wb_overview_physical.cpp in Sources */,
+				2BD42089198ACC260061895B /* home_screen_connections.cpp in Sources */,
 				2BF87A6B0FA7CEFB0012EADA /* wb_overview_physical_schema.cpp in Sources */,
 				2BF87A6D0FA7CEFB0012EADA /* wb_overview_privileges.cpp in Sources */,
 				2BF87A6F0FA7CEFB0012EADA /* wb_physical_model_diagram_features.cpp in Sources */,

@@ -78,6 +78,7 @@ add_library(wbprivate
     workbench/wb_tunnel.cpp
     workbench/wb_overview.cpp
     workbench/home_screen.cpp
+    workbench/home_screen_connections.cpp
     workbench/wb_tunnel.cpp
     workbench/webbrowser_view.cpp
     workbench/wb_db_schema.cpp

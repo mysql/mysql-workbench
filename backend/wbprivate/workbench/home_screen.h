@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,9 +25,41 @@
 
 #include "base/notifications.h"
 #include "mforms/appview.h"
+#include "mforms/drawbox.h"
+
+#include "grts/structs.app.h"
+#include "grts/structs.db.mgmt.h"
+
+
+#ifdef __APPLE__
+#define HOME_TITLE_FONT "Helvetica Neue Light"
+#define HOME_NORMAL_FONT "Helvetica Neue Light"
+#define HOME_DETAILS_FONT "Helvetica Neue Light"
+// Info font is only used on Mac.
+#define HOME_INFO_FONT "Baskerville"
+#elif defined(_WIN32)
+#define HOME_TITLE_FONT "Segoe UI"
+#define HOME_NORMAL_FONT "Segoe UI"
+#define HOME_NORMAL_FONT_XP "Tahoma"
+
+#define HOME_DETAILS_FONT "Segoe UI"
+#else
+#define HOME_TITLE_FONT "Tahoma"
+#define HOME_NORMAL_FONT "Tahoma"
+#define HOME_DETAILS_FONT "Helvetica"
+#endif
+
+#define HOME_TITLE_FONT_SIZE 20
+#define HOME_SUBTITLE_FONT_SIZE 13
+
+#define HOME_TILES_TITLE_FONT_SIZE 16
+#define HOME_SMALL_INFO_FONT_SIZE 10
+#define HOME_DETAILS_FONT_SIZE 12
+
+#define TILE_DRAG_FORMAT "com.mysql.workbench-drag-tile-format"
+
 
 class ShortcutSection;
-class ConnectionsSection;
 class DocumentsSection;
 
 namespace mforms
@@ -37,6 +69,8 @@ namespace mforms
 
 namespace wb
 {
+  class ConnectionsSection;
+  
   /**
    * Value to tell observers which action was triggered on the home screen.
    */
@@ -82,6 +116,30 @@ namespace wb
   typedef void (*home_screen_action_callback)(HomeScreenAction action, const grt::ValueRef &object, void* user_data);
 
   class CommandUI;
+
+
+  struct HomeAccessibleButton : mforms::Accessible
+  {
+    std::string name;
+    std::string default_action;
+    base::Rect bounds;
+    boost::function <bool (int, int)> default_handler;
+
+    // ------ Accesibility Customized Methods -----
+
+    virtual std::string get_acc_name() { return name; }
+    virtual std::string get_acc_default_action() { return default_action;}
+    virtual Accessible::Role get_acc_role() { return Accessible::PushButton;}
+    virtual base::Rect get_acc_bounds() { return bounds;}
+
+    virtual void do_default_action()
+    {
+      if (default_handler)
+      default_handler((int)bounds.center().x, (int)bounds.center().y);
+    }
+  };
+
+  //--------------------------------------------------------------------------------------------------
 
   /**
    * This class implements the main (home) screen in MySQL Workbench, containing
