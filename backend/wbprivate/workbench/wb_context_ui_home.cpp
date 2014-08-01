@@ -359,6 +359,21 @@ void WBContextUI::show_home_screen()
     menu->add_item(_("Move Up"), "move_connection_up");
     menu->add_item(_("Move Down"), "move_connection_down");
     menu->add_item(_("Move To End"), "move_connection_to_end");
+    menu->add_separator();
+    {
+      std::list<std::string> groups;
+      bec::ArgumentPool argument_pool;
+      _wb->update_plugin_arguments_pool(argument_pool);
+
+      argument_pool.add_simple_value("selectedGroupName", grt::StringRef(""));
+      groups.push_back("Menu/Home/ConnectionGroup");
+      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      if (!pitems.empty())
+      {
+        menu->add_items_from_list(pitems);
+        menu->add_separator();
+      }
+    }
     menu->add_item(_("Delete Group..."), "delete_connection_group");
 
     _home_screen->set_menu(menu, HomeMenuConnectionGroup);
@@ -712,7 +727,11 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     else
       if (grt::StringRef::can_wrap(object))
       {
-        argument_pool.add_simple_value("selectedModelFile", grt::StringRef::cast_from(object));
+        grt::StringRef arg(grt::StringRef::cast_from(object));
+        if (has_suffix(arg, ".mwb"))
+          argument_pool.add_simple_value("selectedModelFile", arg); // assume a model file
+        else
+          argument_pool.add_simple_value("selectedGroupName", arg); // assume a connection group name
         get_command_ui()->activate_command(action, argument_pool);
       }
       else // Any other command.
@@ -844,7 +863,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       {
         db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(dict["object"]);
         move_list_ref_item<db_mgmt_Connection>(connections, connection, to);
-        refresh_home_connections();
+        refresh_home_connections(false, false);
       }
       else
       {
@@ -852,7 +871,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
         {
           grt::StringRef group = grt::StringRef::cast_from(dict["object"]);
           move_list_ref_item<db_mgmt_Connection>(connections, group, to);
-          refresh_home_connections();
+          refresh_home_connections(false, false);
         }
 
       }
@@ -870,7 +889,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       if (group != "" && connection.is_valid())
       {
         move_item_to_group<db_mgmt_Connection>(group, connections, connection);
-        refresh_home_connections();
+        refresh_home_connections(false, false);
       }
       break;
     }
@@ -1016,7 +1035,7 @@ void WBContextUI::refresh_home_connections(bool initial_load, bool clear_state)
   grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
   std::map<std::string, std::string> auto_save_files = WBContextSQLIDE::auto_save_sessions();
-  
+
   _home_screen->clear_connections(clear_state);
 
   // If there are no connections defined yet then create entries for all currently installed
@@ -1077,7 +1096,7 @@ void WBContextUI::refresh_home_connections(bool initial_load, bool clear_state)
   for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = fabric_managed.begin();
     iterator != fabric_managed.end(); ++iterator)
     remove_connection(*iterator);
-  
+
   _wb->save_connections();
   _wb->save_instances();
 }
