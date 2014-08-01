@@ -739,6 +739,16 @@ public:
     draw_info_tab = true;
   }
 
+  virtual std::string section_name()
+  {
+    return "";
+  }
+
+  virtual bool is_movable()
+  {
+    return true;
+  }
+
   virtual base::Color get_current_color(bool hot)
   {
 #ifndef __APPLE__
@@ -755,8 +765,7 @@ public:
     return owner->_sakila_icon;
   }
 
-  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging,
-                         bool high_contrast)
+  void draw_tile_background(cairo_t *cr, bool hot, double alpha, bool for_dragging)
   {
     base::Color current_color = get_current_color(hot);
 
@@ -815,6 +824,16 @@ public:
     double y = bounds.top() + bounds.height() - image_height(back_icon);
     cairo_set_source_surface(cr, back_icon, x, y);
     cairo_paint_with_alpha(cr, image_alpha * alpha);
+  }
+
+  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging,
+                         bool high_contrast)
+  {
+    base::Rect bounds = this->bounds;
+    if (for_dragging)
+      bounds.pos = base::Point(0, 0);
+
+    draw_tile_background(cr, hot, alpha, for_dragging);
 
     double component = 0xF9 / 255.0;
     if (high_contrast)
@@ -847,8 +866,8 @@ public:
     cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
 
     // Title string.
-    x = (int)bounds.left() + 10.5; // Left offset from the border to caption, user and network icon.
-    y = bounds.top() + 27; // Distance from top to the caption base line.
+    double x = (int)bounds.left() + 10.5; // Left offset from the border to caption, user and network icon.
+    double y = bounds.top() + 27; // Distance from top to the caption base line.
 
     if (compute_strings)
     {
@@ -890,7 +909,7 @@ public:
   }
 
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr)
+  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
     // Anything else.
     owner->_owner->trigger_callback(ActionOpenConnectionFromList, connection);
@@ -964,6 +983,11 @@ public:
 
 class wb::FabricManagedConnectionEntry : public ConnectionEntry
 {
+  virtual bool is_movable()
+  {
+    return false;
+  }
+
   virtual void menu_open(ItemPosition pos)
   {
     mforms::Menu *menu = context_menu();
@@ -1002,6 +1026,11 @@ class wb::FabricManagedConnectionEntry : public ConnectionEntry
 
     y = bounds.top() + 56 - image_height(owner->_managed_status_icon);
     draw_icon_with_text(cr, bounds.center().x, y, owner->_managed_status_icon, base::strfmt("Status: %s\nMode: %s", status.c_str(), mode.c_str()), alpha, high_contrast);
+  }
+
+  virtual std::string section_name()
+  {
+    return base::strip_text(connection->parameterValues().get("fabric_group").repr());
   }
 };
 
@@ -1055,9 +1084,11 @@ public:
     menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
   }
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr)
+  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
     owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(thisptr));
+    // force a refresh of the hot_entry even if we don't move the mouse after clicking
+    owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
 
   virtual base::Color get_current_color(bool hot)
@@ -1081,7 +1112,7 @@ public:
     draw_info_tab = true;
   }
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr)
+  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
     int created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
 
@@ -1094,7 +1125,11 @@ public:
     owner->_owner->trigger_callback(ActionCreateFabricConnections, connection);
     created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
     if (created_connections)
+    {
       owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(thisptr));
+      // force a refresh of the hot_entry even if we don't move the mouse after clicking
+      owner->mouse_move(mforms::MouseButtonNone, x, y);
+    }
   }
 
   virtual mforms::Menu *context_menu()
@@ -1149,52 +1184,28 @@ public:
     title = "< back";
   }
 
+  virtual bool is_movable()
+  {
+    return false;
+  }
+
+  virtual base::Color get_current_color(bool hot)
+  {
+    return hot ? owner->_back_tile_bk_color_hl : owner->_back_tile_bk_color;
+  }
+
+  virtual cairo_surface_t *get_background_icon()
+  {
+    return owner->_folder_icon;
+  }
+
   /**
    * Separate tile drawing for the special back tile (to return from a folder).
    */
   virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging,
                          bool high_contrast)
   {
-    base::Color current_color = hot ? owner->_back_tile_bk_color_hl : owner->_back_tile_bk_color;
-    cairo_fill(cr);
-
-#ifdef __APPLE__
-    cairo_new_sub_path(cr);
-
-    double radius = 8;
-    double degrees = M_PI / 180.0;
-    bounds.use_inter_pixel = false;
-    cairo_arc(cr, bounds.left() + bounds.width() - radius, bounds.top() + radius, radius, -90 * degrees, 0 * degrees);
-    cairo_arc(cr, bounds.left() + bounds.width() - radius, bounds.top() + bounds.height() - radius, radius, 0 * degrees, 90 * degrees);
-    cairo_arc(cr, bounds.left() + radius, bounds.top() + bounds.height() - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, bounds.left() + radius, bounds.top() + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
-    cairo_set_source_rgba(cr, current_color.red, current_color.green, current_color.blue, 1);
-    cairo_fill(cr);
-
-    // Border.
-    bounds.use_inter_pixel = true;
-    cairo_arc(cr, -2 + bounds.right() - radius, 1 + bounds.top() + radius, radius, -90 * degrees, 0 * degrees);
-    cairo_arc(cr, -2 + bounds.right() - radius, -2 + bounds.bottom() - radius, radius, 0 * degrees, 90 * degrees);
-    cairo_arc(cr, 1 + bounds.left() + radius, -2 + bounds.bottom() - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, 1 + bounds.left() + radius, 1 + bounds.top() + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.19);
-    cairo_set_line_width(cr, 3);
-    cairo_stroke(cr);
-#else
-    bounds.use_inter_pixel = false;
-    cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width(), bounds.height());
-    cairo_set_source_rgb(cr, current_color.red, current_color.green, current_color.blue);
-    cairo_fill(cr);
-
-    // Border.
-    bounds.use_inter_pixel = true;
-    cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width() - 1, bounds.height() - 1);
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.125);
-    cairo_set_line_width(cr, 1);
-    cairo_stroke(cr);
-#endif
+    draw_tile_background(cr, hot, alpha, for_dragging);
 
     // Title string.
     double x = bounds.left() + 10;
@@ -1216,12 +1227,62 @@ public:
   {
   }
 
-  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr)
+  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
     owner->change_to_folder(boost::shared_ptr<FolderEntry>());
+    // force a refresh of the hot_entry even if we don't move the mouse after clicking
+    owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
 };
 
+
+class wb::FabricServerEntry : public ConnectionEntry
+{
+public:
+  FabricServerEntry(ConnectionsSection *aowner)
+  : ConnectionEntry(aowner)
+  {
+  }
+
+  virtual bool is_movable()
+  {
+    return false;
+  }
+
+  virtual base::Color get_current_color(bool hot)
+  {
+    return owner->_fabric_tile_bk_color;
+  }
+
+  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging,
+                         bool high_contrast)
+  {
+    draw_tile_background(cr, hot, alpha, for_dragging);
+
+    // Title string.
+    double x = bounds.left() + 10;
+    double y = bounds.top() + 27;
+    cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
+    cairo_set_source_rgb(cr, 0xF9 / 255.0, 0xF9 / 255.0, 0xF9 / 255.0);
+
+    cairo_move_to(cr, x, y);
+    cairo_show_text(cr, title.c_str());
+    cairo_stroke(cr);
+  }
+
+  virtual void menu_open(ItemPosition pos)
+  {
+  }
+
+  virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
+  {
+  }
+
+  virtual mforms::Menu* context_menu()
+  {
+    return NULL;
+  }
+};
 
 //------------------------------------------------------------------------------------------------
 
@@ -1423,7 +1484,8 @@ void ConnectionsSection::on_search_text_changed()
     for (ConnectionIterator iterator = current_connections.begin(); iterator != current_connections.end(); ++iterator)
     {
       // Always keep the first entry if we are in a folder. It's not filtered.
-      if (_active_folder && iterator == current_connections.begin())
+      if (_active_folder && (iterator == current_connections.begin()
+                             || dynamic_cast<wb::FabricServerEntry*>(iterator->get())))
         _filtered_connections.push_back(*iterator);
       else
       if (base::contains_string((*iterator)->search_title, filter, false) ||
@@ -1498,6 +1560,9 @@ void ConnectionsSection::on_search_text_action(mforms::TextEntryAction action)
 /**
  * Computes the index for the given position, regardless if that is actually backed by an existing
  * entry or not.
+ *
+ * This will not work in section separated folders (like in Fabric), but it doesn't matter
+ * atm because this is only used for drag/drop, which is not supported inside a Fabric folder.
  */
 ssize_t ConnectionsSection::calculate_index_from_point(int x, int y)
 {
@@ -1535,19 +1600,25 @@ ssize_t ConnectionsSection::calculate_index_from_point(int x, int y)
 boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, int y, bool &in_details_area)
 {
   in_details_area = false;
+  boost::shared_ptr<ConnectionEntry> entry;
 
-  ssize_t index = calculate_index_from_point(x, y);
-  ssize_t count = displayed_connections().size();
+  ConnectionVector connections(displayed_connections());
+  for (ConnectionVector::iterator conn = connections.begin(); conn != connections.end(); ++conn)
+  {
+    if ((*conn)->bounds.contains(x, y))
+    {
+      entry = *conn;
+      break;
+    }
+  }
 
-  if (index < count && index > -1)
+  if (entry)
   {
     x -= CONNECTIONS_LEFT_PADDING;
     in_details_area = (x % (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING)) > 3 * CONNECTIONS_TILE_WIDTH / 4.0;
-
-    return displayed_connections()[index];
   }
 
-  return boost::shared_ptr<ConnectionEntry>();
+  return entry;
 }
 
 
@@ -1647,10 +1718,10 @@ void ConnectionsSection::draw_paging_part(cairo_t *cr, int current_page, int pag
     _page_up_button.bounds = base::Rect();
   }
   else
-  cairo_paint_with_alpha(cr, 1);
+    cairo_paint_with_alpha(cr, 1);
 
   if (high_contrast)
-  cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1667,9 +1738,9 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
   bool high_contrast = base::Color::is_high_contrast_scheme();
   if (high_contrast)
-  cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_set_source_rgb(cr, 0, 0, 0);
   else
-  cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+    cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
   cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, 45);
 
   ConnectionVector *connections;
@@ -1691,7 +1762,6 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     connections = &_filtered_connections;
 
   cairo_show_text(cr, title.c_str());
-  cairo_stroke(cr);
 
   // The + button after the title.
   cairo_text_extents_t extents;
@@ -1715,15 +1785,28 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER); // Restore default operator.
 
   int row = 0;
+  // number of tiles that act as a filler, which are used by the fabric server title tile and also in
+  // fabric groups separated by group name (or folder sections)
+  int filler_tiles = 0;
+  std::string current_section;
   base::Rect bounds(0, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   bool done = false;
+  int visible_page = (int)_prev_page_start.size();
+  int current_page = 0;
+  int num_pages = 0;
+  bool draw_partial = false;
+  int index = 0;
+  int items_after_last_visible = 0;
+  bool page_start = true;
+
+  _next_page_start = -1;
   while (!done)
   {
     bounds.pos.x = CONNECTIONS_LEFT_PADDING;
     double alpha = bounds.bottom() > height ? 0.25 : 1;
+
     for (int column = 0; column < tiles_per_row; column++)
     {
-      int index = (int)(_page_start + row * tiles_per_row + column);
       if (index >= (int)connections->size())
       {
         done = true;
@@ -1731,67 +1814,137 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
       }
       else
       {
-        // Updates the bounds on the tile
-        (*connections)[index]->bounds = bounds;
-        bool draw_hot = (*connections)[index] == _hot_entry;
-
-        int draw_position = (row % 2) + column;
-        if (!_active_folder)
-          (*connections)[index]->second_color = (draw_position % 2) != 0;
-        (*connections)[index]->draw_tile(cr, draw_hot, alpha, false, high_contrast);
-
-        // Draw drop indicator.
-        if (index == _drop_index)
+        if (page_start)
         {
-          if (high_contrast)
-            cairo_set_source_rgb(cr, 0, 0, 0);
-          else
-            cairo_set_source_rgb(cr, 1, 1, 1);
+          num_pages++;
+          page_start = false;
+        }
+        bool dont_paint = current_page != visible_page && !(draw_partial && bounds.bottom() > height);
+        if (current_page > visible_page)
+          items_after_last_visible++;
 
-          if (_drop_position == mforms::DropPositionOn)
+        if (dynamic_cast<FabricServerEntry*>((*connections)[index].get()))
+        {
+          base::Rect total_bounds = bounds;
+          int tiles_occupied = tiles_per_row - column;
+          filler_tiles += tiles_occupied;
+          column += (tiles_occupied-1);
+
+          total_bounds.size.width = CONNECTIONS_TILE_WIDTH * tiles_occupied + CONNECTIONS_SPACING * (tiles_occupied-1);
+          if (!dont_paint)
+            (*connections)[index]->bounds = total_bounds;
+        }
+        else
+        {
+          std::string section = (*connections)[index]->section_name();
+          if (!section.empty() && current_section != section)
           {
-            double x = bounds.left() - 4;
-            double y = bounds.ycenter();
-            cairo_move_to(cr, x, y - 15);
-            cairo_line_to(cr, x + 15, y);
-            cairo_line_to(cr, x, y + 15);
-            cairo_fill(cr);
+            current_section = section;
+            bounds.pos.y += HOME_TILES_TITLE_FONT_SIZE + CONNECTIONS_SPACING;
+
+            if (!dont_paint)
+            {
+              // draw the section title
+              bool high_contrast = base::Color::is_high_contrast_scheme();
+              cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+              cairo_set_font_size(cr, HOME_TILES_TITLE_FONT_SIZE);
+              if (high_contrast)
+                cairo_set_source_rgb(cr, 0, 0, 0);
+              else
+                cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+              cairo_text_extents(cr, current_section.c_str(), &extents);
+              cairo_move_to(cr, CONNECTIONS_LEFT_PADDING,
+                            bounds.pos.y - (extents.height + extents.y_bearing) - 4);
+              cairo_show_text(cr, current_section.c_str());
+            }
           }
-          else
+
+          // if the name of the next section is different, then we add some filler space after this tile
+          if (!current_section.empty() && index < (*connections).size()-1 &&
+              (*connections)[index+1]->section_name() != current_section)
           {
-            double x = bounds.left() - 4.5;
-            if (_drop_position == mforms::DropPositionRight)
-            x = bounds.right() + 4.5;
-            cairo_move_to(cr, x, bounds.top());
-            cairo_line_to(cr, x, bounds.bottom());
-            cairo_set_line_width(cr, 3);
-            cairo_stroke(cr);
-            cairo_set_line_width(cr, 1);
+            int tiles_occupied = tiles_per_row - column;
+            filler_tiles += tiles_occupied;
+            column += (tiles_occupied-1);
+          }
+
+          if (!dont_paint)
+          {
+            // Updates the bounds on the tile
+            (*connections)[index]->bounds = bounds;
+          }
+        }
+
+        if (!dont_paint)
+        {
+          bool draw_hot = (*connections)[index] == _hot_entry;
+
+          int draw_position = (row % 2) + column;
+          if (!_active_folder)
+            (*connections)[index]->second_color = (draw_position % 2) != 0;
+          (*connections)[index]->draw_tile(cr, draw_hot, alpha, false, high_contrast);
+
+          // Draw drop indicator.
+          if (index == _drop_index)
+          {
+            if (high_contrast)
+              cairo_set_source_rgb(cr, 0, 0, 0);
+            else
+              cairo_set_source_rgb(cr, 1, 1, 1);
+
+            if (_drop_position == mforms::DropPositionOn)
+            {
+              double x = bounds.left() - 4;
+              double y = bounds.ycenter();
+              cairo_move_to(cr, x, y - 15);
+              cairo_line_to(cr, x + 15, y);
+              cairo_line_to(cr, x, y + 15);
+              cairo_fill(cr);
+            }
+            else
+            {
+              double x = bounds.left() - 4.5;
+              if (_drop_position == mforms::DropPositionRight)
+              x = bounds.right() + 4.5;
+              cairo_move_to(cr, x, bounds.top());
+              cairo_line_to(cr, x, bounds.bottom());
+              cairo_set_line_width(cr, 3);
+              cairo_stroke(cr);
+              cairo_set_line_width(cr, 1);
+            }
           }
         }
       }
+      index++;
       bounds.pos.x += CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING;
     }
 
     row++;
     bounds.pos.y += CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING;
-    if (bounds.top() >= height)
-    done = true;
+    if (bounds.bottom() >= height) // next tile is on screen, but doesn't totally fit
+    {
+      if (visible_page == current_page)
+      {
+        draw_partial = true;
+        _next_page_start = index;
+      }
+      else
+        draw_partial = false;
+      current_page++;
+    }
+    if (bounds.top() >= height || (bounds.bottom() >= height && visible_page == current_page))
+    {
+      bounds.pos.y = CONNECTIONS_TOP_PADDING;
+      page_start = true;
+    }
   }
+  if (!draw_partial && page_start)
+    num_pages++;
 
   // See if we need to draw the paging indicator.
-  height -= CONNECTIONS_TOP_PADDING;
-  int rows_per_page = height / (CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING);
-  if (rows_per_page < 1)
-    rows_per_page = 1;
-  int rows = (int)ceil(connections->size() / (float)tiles_per_row);
-  _tiles_per_page = tiles_per_row * rows_per_page;
-  int pages = (int)ceil(rows / (float)rows_per_page);
-  if (pages > 1)
+  if (num_pages > 1)
   {
-    int current_row = (int)ceil(_page_start / (float)tiles_per_row);
-    int current_page = (int)ceil(current_row / (float)rows_per_page);
-    draw_paging_part(cr, current_page, pages, high_contrast);
+    draw_paging_part(cr, visible_page, num_pages, high_contrast);
   }
   else
   {
@@ -1861,6 +2014,16 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
       folder->search_title = parent_name;
 
       folder->children.push_back(boost::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
+      if (is_fabric)
+      {
+        boost::shared_ptr<ConnectionEntry> fabric(new FabricServerEntry(this));
+        fabric->title = "Fabric Server: " + *connection->name();
+        fabric->connection = connection;
+        fabric->second_color = false;
+        fabric->search_title = title;
+        folder->children.push_back(fabric);
+      }
+
       folder->children.push_back(entry);
       _connections.push_back(boost::shared_ptr<ConnectionEntry>(folder));
       if (!_active_folder_title_before_refresh_start.empty() && _active_folder_title_before_refresh_start == folder->title)
@@ -1907,6 +2070,8 @@ void ConnectionsSection::change_to_folder(boost::shared_ptr<FolderEntry> folder)
   {
     // Returning to root list.
     _page_start = _page_start_backup;
+    _next_page_start = _next_page_start_backup;
+    _prev_page_start = _prev_page_start_backup;
     _active_folder.reset();
     _filtered = false;
     _search_text.set_value("");
@@ -1917,7 +2082,11 @@ void ConnectionsSection::change_to_folder(boost::shared_ptr<FolderEntry> folder)
     _active_folder = folder;
     // Drilling into a folder.
     _page_start_backup = _page_start;
+    _next_page_start_backup = _next_page_start;
+    _prev_page_start_backup = _prev_page_start;
     _page_start = 0;
+    _next_page_start = 0;
+    _prev_page_start.clear();
     _filtered = false;
     _search_text.set_value("");
     set_needs_repaint();
@@ -1952,16 +2121,19 @@ bool ConnectionsSection::mouse_double_click(mforms::MouseButton button, int x, i
       // In order to allow quick clicking for page flipping we also handle double clicks for this.
       if (_page_up_button.bounds.contains(x, y))
       {
-        _page_start -= _tiles_per_page;
-        if (_page_start < 0)
-          _page_start = 0;
-        set_needs_repaint();
+        if (!_prev_page_start.empty())
+        {
+          _page_start = _prev_page_start.back();
+          _prev_page_start.pop_back();
+          set_needs_repaint();
+        }
         return true;
       }
 
       if (_page_down_button.bounds.contains(x, y))
       {
-        _page_start += _tiles_per_page;
+        _prev_page_start.push_back(_page_start);
+        _page_start = _next_page_start;
         set_needs_repaint();
         return true;
       }
@@ -2002,17 +2174,20 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
 
       if (_page_up_button.bounds.contains(x, y))
       {
-        // Page up clicked. Doesn't happen if we are on the first page already.
-        _page_start -= _tiles_per_page;
-        if (_page_start < 0)
-          _page_start = 0;
-        set_needs_repaint();
+        if (!_prev_page_start.empty())
+        {
+          // Page up clicked. Doesn't happen if we are on the first page already.
+          _page_start = _prev_page_start.back();
+          _prev_page_start.pop_back();
+          set_needs_repaint();
+        }
         return true;
       }
 
       if (_page_down_button.bounds.contains(x, y))
       {
-        _page_start += _tiles_per_page;
+        _prev_page_start.push_back(_page_start);
+        _page_start = _next_page_start;
         set_needs_repaint();
         return true;
       }
@@ -2032,7 +2207,7 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y)
           return true;
         }
 
-        _hot_entry->activate(_hot_entry);
+        _hot_entry->activate(_hot_entry, x, y);
 
         return true;
       }
@@ -2091,7 +2266,7 @@ bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y)
 
   if (entry && !_mouse_down_position.empty() && (!_mouse_down_position.contains(x, y)))
   {
-    if (dynamic_cast<FolderBackEntry*>(entry.get()) && _active_folder) // Back tile. Cancel drag operation.
+    if (!entry->is_movable())
     {
       _mouse_down_position = base::Rect();
       return true;

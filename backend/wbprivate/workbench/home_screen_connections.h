@@ -44,6 +44,7 @@ namespace wb
     friend class FolderEntry;
     friend class FabricFolderEntry;
     friend class FabricManagedConnectionEntry;
+    friend class FabricServerEntry;
 
   private:
     HomeScreen *_owner;
@@ -84,10 +85,15 @@ namespace wb
     base::Color _back_tile_bk_color_hl;
 
     ssize_t _page_start;        // Index into the list where root display starts.
-    ssize_t _page_start_backup; // Copy of the current page start when we go into a folder (for restauration).
     boost::shared_ptr<FolderEntry> _active_folder;     // The folder entry that is currently active.
     std::string _active_folder_title_before_refresh_start;
-    ssize_t _tiles_per_page;
+    // for the paging hack...
+    ssize_t _next_page_start;
+    std::list<ssize_t> _prev_page_start; // a stack of previous page start indexes
+  
+    ssize_t _page_start_backup; // Copy of the current page start when we go into a folder (for restauration).
+    ssize_t _next_page_start_backup;
+    std::list<ssize_t> _prev_page_start_backup; // a stack of previous page start indexes
 
     typedef std::vector<boost::shared_ptr<ConnectionEntry> > ConnectionVector;
     typedef ConnectionVector::iterator ConnectionIterator;
