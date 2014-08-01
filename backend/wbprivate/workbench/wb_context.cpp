@@ -1810,6 +1810,9 @@ void WBContext::set_default_options(grt::DictRef options)
 
   set_default(options, "@ColorScheme/Items", "System Default:0,Windows 7:1,Windows 8:2,Windows 8 (alternative):3,High Contrast:4");
 
+  //Advanced options
+  set_default(options, "sshkeepalive", 0); // by default turned off
+
   // Other options
   set_default(options, "workbench.physical.Connection:HideCaptions", 1);
   set_default(options, "workbench.physical.Connection:CenterCaptions", 0);  

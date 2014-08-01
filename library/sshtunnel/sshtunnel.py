@@ -30,7 +30,7 @@ import os
 import mforms
 
 import paramiko
-from workbench.log import log_warning, log_error, log_debug, log_debug2
+from workbench.log import log_warning, log_error, log_debug, log_debug2, log_info
 from wb_common import SSHFingerprintNewError
 
 SSH_PORT = 22
@@ -465,6 +465,21 @@ class TunnelManager:
         except Queue.Empty:
             return None
 
+
+    def set_keepalive(self, port, keepalive):
+        if keepalive == 0:
+            log_info("SSH KeepAlive setting skipped.\n")
+            return
+        tunnel = self.tunnel_by_port.get(port)
+        if not tunnel:
+            log_error("Looking up invalid port %s\n" % port)
+            return
+        transport = tunnel._client.get_transport()
+        if transport is None:
+            log_error("SSHTransport not ready yet %d\n" % port)
+            return
+
+        transport.set_keepalive(keepalive)
 
     def close(self, port):
         pass

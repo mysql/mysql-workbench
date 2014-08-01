@@ -242,7 +242,7 @@ class WbAdminSSH(object):
         pwd = None # It is ok to keep pwd set to None even if we have it in server settings
                    # it will be retrived later
         port = settings.ssh_port#loginInfo['ssh.port']
-
+        self.keepalive = settings.ssh_keepalive
         if usekey == 1:
             # We need to check if keyfile needs password. For some reason paramiko does not always
             # throw exception to request password
@@ -328,6 +328,7 @@ class WbAdminSSH(object):
         #client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.set_missing_host_key_policy(paramiko.WarningPolicy()) # This is a temp workaround, later we need to have UI with buttons accept
 
+           
         try:
             if 'timeout' in paramiko.SSHClient.connect.func_code.co_varnames:
                 client.connect(hostname = host, port = int(port), username = user, password = pwd, pkey = None,
@@ -336,6 +337,9 @@ class WbAdminSSH(object):
                 client.connect(hostname = host, port = int(port), username = user, password = pwd, pkey = None,
                                     key_filename = key, look_for_keys=False, allow_agent=bool(usekey) )
             log_info("%s: Connected via ssh to %s\n" % (self.__class__.__name__, host) )
+            if self.keepalive != 0:
+                client.get_transport().set_keepalive(self.keepalive)
+
             self.client = client
         except socket.error, exc:
             import traceback
