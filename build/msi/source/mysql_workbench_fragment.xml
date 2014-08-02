@@ -1662,6 +1662,7 @@
                   <File Id="file614046" Name="table_templates.py"/>
                   <File Id="file614047" Name="sqlide_catalogman_ext.py"/>
                   <File Id="file614048" Name="sqlide_tableman_ext.py"/>
+                  <File Id="file614049" Name="run_script.py"/>
 
                   <File Id="file650000" Name="migration_grt.py"/>
                   <File Id="file650001" Name="migration_main.py"/>

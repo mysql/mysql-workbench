@@ -2161,6 +2161,7 @@
 		2BD42077198034C10061895B /* db.View.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42061198034C10061895B /* db.View.side.16x16@2x.png */; };
 		2BD42089198ACC260061895B /* home_screen_connections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD42087198ACC260061895B /* home_screen_connections.cpp */; };
 		2BD4208A198ACC260061895B /* home_screen_connections.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD42088198ACC260061895B /* home_screen_connections.h */; };
+		2BD42094198C3B0F0061895B /* run_script.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BD42093198C3B090061895B /* run_script.py */; };
 		2BD820120F4F0E7D009E485D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BD820110F4F0E7D009E485D /* Carbon.framework */; };
 		2BD9968E0FAC02B00074852E /* grtdb_connect_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */; };
 		2BD9968F0FAC02B00074852E /* grtdb_connect_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */; };
@@ -3565,6 +3566,7 @@
 				2BBA5EDC1417E24100D47FA1 /* code_utils_grt.py in Copy Files (plugins) */,
 				2B7A73FD134652360047E0DD /* wb_dev_utils_grt.py in Copy Files (plugins) */,
 				2BF0490117398B0400A7EA35 /* wb_admin_server_status.py in Copy Files (plugins) */,
+				2BD42094198C3B0F0061895B /* run_script.py in Copy Files (plugins) */,
 				2B7FEC1A12EB9C23007945E2 /* wb_admin_main.py in Copy Files (plugins) */,
 				2BF98B00123A8892008DDCD0 /* wb_common.py in Copy Files (plugins) */,
 				75C847FF1067E9FC0067947D /* wb_admin_config_file_be.py in Copy Files (plugins) */,
@@ -5924,6 +5926,7 @@
 		2BD42061198034C10061895B /* db.View.side.16x16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "db.View.side.16x16@2x.png"; path = "structs/db.View.side.16x16@2x.png"; sourceTree = "<group>"; };
 		2BD42087198ACC260061895B /* home_screen_connections.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = home_screen_connections.cpp; sourceTree = "<group>"; };
 		2BD42088198ACC260061895B /* home_screen_connections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = home_screen_connections.h; sourceTree = "<group>"; };
+		2BD42093198C3B090061895B /* run_script.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = run_script.py; path = plugins/wb.sqlide/run_script.py; sourceTree = "<group>"; };
 		2BD820110F4F0E7D009E485D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grtdb_connect_dialog.h; sourceTree = "<group>"; };
 		2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grtdb_connect_dialog.cpp; sourceTree = "<group>"; };
@@ -8771,6 +8774,7 @@
 			children = (
 				2B6C6FC416C0BFB100C4CC98 /* text_output.py */,
 				2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */,
+				2BD42093198C3B090061895B /* run_script.py */,
 				2B6C6FC216C0BF1D00C4CC98 /* sql_reformatter.py */,
 				2B6C6FC616C0C03700C4CC98 /* sqlide_catalogman_ext.py */,
 				2BF0497417491EFB00A7EA35 /* sqlide_tableman_ext.py */,
