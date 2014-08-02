@@ -33,8 +33,12 @@ namespace mforms
 
 namespace wb
 {
-  class FolderEntry;
   class ConnectionEntry;
+  class FolderBackEntry;
+  class FolderEntry;
+  class FabricFolderEntry;
+  class FabricManagedConnectionEntry;
+  class FabricServerEntry;
   class ConnectionInfoPopup;
 
   class ConnectionsSection: public mforms::DrawBox, public mforms::DropDelegate

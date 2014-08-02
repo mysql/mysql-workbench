@@ -30,6 +30,8 @@
 #include <mforms/label.h>
 #include <mforms/utilities.h>
 
+#include "grts/structs.db.h"
+
 using namespace mforms;
 using namespace base;
 
