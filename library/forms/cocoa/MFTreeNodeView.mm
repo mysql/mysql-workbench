@@ -798,6 +798,9 @@ static NSImage *descendingSortIndicator = nil;
 STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
+#define OVERLAY_ICON_RIGHT_PADDING 8
+#define OVERLAY_ICON_SPACING 2
+
 //--------------------------------------------------------------------------------------------------
 
 - (NSMenu*)menuForEvent:(NSEvent *)event
@@ -837,7 +840,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         {
           NSRect iconRect = [self rectOfRow: row];	
 
-          iconRect.origin.x = NSMaxX([self visibleRect]);
+          iconRect.origin.x = NSMaxX([self visibleRect]) - OVERLAY_ICON_RIGHT_PADDING;
           iconRect.size.width = 0;
 
           mOverlayIcons = [[NSMutableArray alloc] initWithCapacity: icons.size()];
@@ -852,7 +855,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
             else
               [mOverlayIcons insertObject: NSNull.null atIndex: 0];
 
-            iconRect.origin.x -= img.size.width;
+            iconRect.origin.x -= img.size.width + OVERLAY_ICON_SPACING;
             iconRect.size.width = img.size.width;
 
             if (NSPointInRect(p, iconRect) && mOverOverlay < 0)
@@ -925,13 +928,13 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     NSRect rowRect = [self rectOfRow: rowIndex];
     int i = 0;
 
-    CGFloat x = NSMaxX([self visibleRect]);
+    CGFloat x = NSMaxX([self visibleRect]) - OVERLAY_ICON_RIGHT_PADDING;
     for (id icon in mOverlayIcons)
     {
       if ([icon isKindOfClass: [NSImage class]])
       {
         NSSize size = [icon size];
-        x -= size.width;
+        x -= size.width + OVERLAY_ICON_SPACING;
       }
     }
 
@@ -940,14 +943,14 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       if ([icon isKindOfClass: [NSImage class]])
       {
         NSSize size = [icon size];
-        [(NSImage*)icon drawInRect: NSMakeRect(x, NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2,
+        [(NSImage*)icon drawInRect: NSMakeRect(floor(x), floor(NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2),
                                                size.width, size.height)
                           fromRect: NSZeroRect
                          operation: NSCompositeSourceOver
                           fraction: mOverOverlay == i ? 1.0 : 0.4
                     respectFlipped: YES
                              hints: nil];
-        x += size.width;
+        x += size.width + OVERLAY_ICON_SPACING;
       }
       i++;
     }

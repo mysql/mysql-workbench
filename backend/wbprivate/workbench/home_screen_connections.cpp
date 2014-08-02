@@ -21,6 +21,7 @@
 #include "mforms/menu.h"
 #include "mforms/popup.h"
 
+#include "base/string_utilities.h"
 #include "base/file_utilities.h"
 
 using namespace wb;

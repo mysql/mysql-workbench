@@ -31,6 +31,7 @@ from workbench.notifications import NotificationCenter
 
 from sql_reformatter import formatter_for_statement_ast
 from text_output import TextOutputTab
+from run_script import RunScriptForm
 from sqlide_catalogman_ext import show_schema_manager
 from sqlide_tableman_ext import show_table_inspector
 
@@ -598,4 +599,12 @@ def showInspector(editor, selection):
 #@ModuleInfo.export(grt.INT, grt.classes.db_query_QueryBuffer)
   #def refactorRenameSchema(editor):
 #    pass
+
+
+@ModuleInfo.plugin("wb.sqlide.runScript", caption = "Run SQL Script", input=[wbinputs.currentSQLEditor()])
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
+def runSQLScript(editor):
+    form = RunScriptForm(editor)
+    form.run()
+    return 0
 
