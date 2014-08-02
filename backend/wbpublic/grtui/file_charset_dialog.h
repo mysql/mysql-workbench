@@ -21,7 +21,7 @@
 #define _FILE_CHARSET_DIALOG_H_
 
 #include <mforms/form.h>
-
+#include "grtpp.h"
 #include "wbpublic_public_interface.h"
 
 namespace mforms {

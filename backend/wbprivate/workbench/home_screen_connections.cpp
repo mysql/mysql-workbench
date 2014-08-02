@@ -855,8 +855,7 @@ public:
 
 #else
       cairo_surface_t *overlay = owner->_mouse_over_icon;
-      x = bounds.left() + bounds.width() - image_width(overlay);
-      cairo_set_source_surface(cr, overlay, x, bounds.top());
+      cairo_set_source_surface(cr, overlay, bounds.left() + bounds.width() - image_width(overlay), bounds.top());
       cairo_paint_with_alpha(cr, alpha);
 
       cairo_set_source_rgba(cr, component, component, component, alpha);

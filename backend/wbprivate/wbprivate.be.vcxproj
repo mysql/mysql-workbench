@@ -384,6 +384,7 @@
     <ClCompile Include="sqlide\wb_sql_editor_tree_controller.cpp" />
     <ClCompile Include="workbench\about_box.cpp" />
     <ClCompile Include="workbench\home_screen.cpp" />
+    <ClCompile Include="workbench\home_screen_connections.cpp" />
     <ClCompile Include="workbench\metaclasses.cpp" />
     <ClCompile Include="workbench\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
