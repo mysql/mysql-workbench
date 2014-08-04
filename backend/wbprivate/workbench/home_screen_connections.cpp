@@ -1060,6 +1060,8 @@ public:
       component = 1;
 #ifdef __APPLE__
     cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);
+#else
+    cairo_set_source_rgba(cr, component, component, component, alpha);
 #endif
 
     std::string info = base::to_string(children.size() - 1) + " " + _("Connections");
@@ -1860,7 +1862,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
           }
 
           // if the name of the next section is different, then we add some filler space after this tile
-          if (!current_section.empty() && index < (*connections).size()-1 &&
+          if (!current_section.empty() && (size_t)index < (*connections).size()-1 &&
               (*connections)[index+1]->section_name() != current_section)
           {
             int tiles_occupied = tiles_per_row - column;
