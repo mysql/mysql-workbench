@@ -20,6 +20,7 @@
 #include "home_screen_connections.h"
 #include "mforms/menu.h"
 #include "mforms/popup.h"
+#include "mforms/imagebox.h"
 
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
