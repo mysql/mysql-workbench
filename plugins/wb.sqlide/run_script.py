@@ -91,6 +91,7 @@ class RunPanel(mforms.Table):
                     self._worker.join()
                     self._worker = None
                     self._update_timer = None
+                    self.progress.show(False)
                     self.log_callback(None)
                     return False
 
