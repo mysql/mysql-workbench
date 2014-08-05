@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,10 +56,12 @@ mforms::gtk::CodeEditorImpl::CodeEditorImpl(CodeEditor* self)
   _sci_gtk_widget = scintilla_new();
   _sci_gtkmm_widget = Glib::wrap(_sci_gtk_widget);
   _sci_gtkmm_widget->reference();
+
   _sci = SCINTILLA(_sci_gtk_widget);
   _owner = self;
-  gtk_signal_connect(GTK_OBJECT(_sci_gtk_widget), "command", GTK_SIGNAL_FUNC(command_signal), this);
-  gtk_signal_connect(GTK_OBJECT(_sci_gtk_widget), SCINTILLA_NOTIFY, GTK_SIGNAL_FUNC(notify_signal), this);
+  g_signal_connect(_sci_gtk_widget, "command", GTK_SIGNAL_FUNC(command_signal), this);
+  g_signal_connect(_sci_gtk_widget, SCINTILLA_NOTIFY, GTK_SIGNAL_FUNC(notify_signal), this);
+
 
   _sci_gtkmm_widget->signal_button_press_event().connect_notify(sigc::bind(sigc::mem_fun(this, &CodeEditorImpl::mouse_button_event), self));
   _sci_gtkmm_widget->show();
@@ -73,6 +75,7 @@ mforms::gtk::CodeEditorImpl::CodeEditorImpl(CodeEditor* self)
 //------------------------------------------------------------------------------
 mforms::gtk::CodeEditorImpl::~CodeEditorImpl()
 {
+  g_signal_handlers_disconnect_by_data(_sci_gtk_widget, this);
   _sci_gtkmm_widget->unreference();
 }
 
