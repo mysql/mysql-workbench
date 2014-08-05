@@ -442,6 +442,20 @@ for o in opts:
     if not 'values' in o or len(o['values']) == 0:
         print "Warning: option", o['name'], "has no values"
 
+    if 'skip-' in o['name']:
+        for opt in opts:
+            if o['name'][5:] == opt['name']:
+                for v in opt['values']:
+                    if 'default' in v:
+                        if v['default'].lower() in ['1', 'on', 'true', 'yes']:
+                            print 'Removed option %s'%(opt['name'])
+                            opts.remove(opt)
+                        else:
+                            print 'Removed option %s'%(o['name']) 
+                            opts.remove(o)
+                        break
+                break
+
 print "Writing to raw_opts.py..."
 f = open('raw_opts.py', 'w+')
 f.write("ropts = ")
