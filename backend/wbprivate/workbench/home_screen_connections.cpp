@@ -24,6 +24,9 @@
 
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN("home");
 
 using namespace wb;
 
@@ -646,9 +649,9 @@ public:
 class wb::ConnectionEntry: mforms::Accessible
 {
   friend class ConnectionsSection;
-protected:
+public:
   db_mgmt_ConnectionRef connection;
-
+protected:
   ConnectionsSection *owner;
 
   std::string title;
@@ -701,12 +704,14 @@ protected:
   void draw_icon_with_text(cairo_t *cr, double x, double y, cairo_surface_t *icon,
                                             const std::string &text, double alpha, bool high_contrast)
   {
-    mforms::Utilities::paint_icon(cr, icon, x, y);
-    x += image_width(icon) + 3;
-
+    if (icon)
+    {
+      mforms::Utilities::paint_icon(cr, icon, x, y);
+      x += image_width(icon) + 3;
+    }
     double component = 0xF9 / 255.0;
     if (high_contrast)
-    component = 1;
+      component = 1;
 #ifdef __APPLE__
     cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);
 #else
@@ -874,8 +879,25 @@ public:
     {
       // On first render compute the actual string to show. We only need to do this once
       // as neither the available space changes nor is the entry manipulated.
-      double available_width = bounds.width() - 21;
-      title = mforms::Utilities::shorten_string(cr, title, available_width);
+
+      // we try to shrink titles at the middle, if there's a : in it we assume it's a port number
+      // and thus, we shrink everything before the :
+      if (title.find(':') != std::string::npos)
+      {
+        double available_width = bounds.width() - 21;
+        std::string left, right;
+        cairo_text_extents_t extents;
+        base::partition(title, ":", left, right);
+        right = ":"+right;
+        cairo_text_extents(cr, right.c_str(), &extents);
+        available_width -= extents.width;
+        title = mforms::Utilities::shorten_string(cr, left, available_width)+right;
+      }
+      else
+      {
+        double available_width = bounds.width() - 21;
+        title = mforms::Utilities::shorten_string(cr, title, available_width);
+      }
     }
 
     cairo_move_to(cr, x, y);
@@ -889,7 +911,7 @@ public:
     compute_strings = false;
   }
 
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, bool alpha, bool high_contrast)
+  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
   {
     if (compute_strings)
     {
@@ -984,6 +1006,12 @@ public:
 
 class wb::FabricManagedConnectionEntry : public ConnectionEntry
 {
+public:
+  FabricManagedConnectionEntry(ConnectionsSection *aowner)
+  : ConnectionEntry(aowner)
+  {
+  }
+
   virtual bool is_movable()
   {
     return false;
@@ -1018,7 +1046,7 @@ class wb::FabricManagedConnectionEntry : public ConnectionEntry
     return ConnectionEntry::get_current_color(hot);
   }
 
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, bool alpha, bool high_contrast)
+  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
   {
     ConnectionEntry::draw_tile_text(cr, x, y, alpha, high_contrast);
 
@@ -1026,12 +1054,15 @@ class wb::FabricManagedConnectionEntry : public ConnectionEntry
     std::string mode = base::strip_text(connection->parameterValues().get("fabric_mode").repr());
 
     y = bounds.top() + 56 - image_height(owner->_managed_status_icon);
-    draw_icon_with_text(cr, bounds.center().x, y, owner->_managed_status_icon, base::strfmt("Status: %s\nMode: %s", status.c_str(), mode.c_str()), alpha, high_contrast);
+    draw_icon_with_text(cr, bounds.left() + bounds.width()*2/3, y, owner->_managed_status_icon, status, alpha, high_contrast);
+
+    y = bounds.top() + 74 - image_height(owner->_managed_status_icon);
+    draw_icon_with_text(cr, bounds.left() + bounds.width()*2/3, y, owner->_managed_status_icon, mode, alpha, high_contrast);
   }
 
   virtual std::string section_name()
   {
-    return base::strip_text(connection->parameterValues().get("fabric_group").repr());
+    return "Group "+base::strip_text(connection->parameterValues().get("fabric_group_id").repr());
   }
 };
 
@@ -1054,13 +1085,13 @@ public:
     draw_info_tab = false;
   }
 
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, bool alpha, bool high_contrast)
+  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
   {
     double component = 0xF9 / 255.0;
     if (high_contrast)
       component = 1;
 #ifdef __APPLE__
-    cairo_set_source_rgba(cr, component, component, component, 0.6 * alpha);
+    cairo_set_source_rgba(cr, component, component, component, 0.8*alpha);
 #else
     cairo_set_source_rgba(cr, component, component, component, alpha);
 #endif
@@ -1109,8 +1140,11 @@ public:
 class wb::FabricFolderEntry : public wb::FolderEntry
 {
 public:
+  int total_instances;
+  std::set<std::string> groups;
+
   FabricFolderEntry(ConnectionsSection *aowner)
-  : FolderEntry(aowner)
+  : FolderEntry(aowner), total_instances(0)
   {
     draw_info_tab = true;
   }
@@ -1129,7 +1163,21 @@ public:
     created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
     if (created_connections)
     {
-      owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(thisptr));
+      // the connection recreation may recreate the entry objects, so we need a fresh pointer
+      ConnectionsSection::ConnectionVector conns(owner->displayed_connections());
+      bool flag = false;
+      for (ConnectionsSection::ConnectionVector::iterator iter = conns.begin(); iter != conns.end(); ++iter)
+      {
+        if ((*iter)->connection == connection)
+        {
+          flag = true;
+          owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(*iter));
+          break;
+        }
+      }
+      if (!flag)
+        log_error("Could not find fabric node '%s' object after refresh\n", connection->name().c_str());
+
       // force a refresh of the hot_entry even if we don't move the mouse after clicking
       owner->mouse_move(mforms::MouseButtonNone, x, y);
     }
@@ -1145,9 +1193,9 @@ public:
     return hot ? owner->_fabric_tile_bk_color_hl : owner->_fabric_tile_bk_color;
   }
 
-  virtual void draw_tile_text(cairo_t *cr, double x, double y, bool alpha, bool high_contrast)
+  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
   {
-    FolderEntry::draw_tile_text(cr, x, y, alpha, high_contrast);
+    ConnectionEntry::draw_tile_text(cr, x, y, alpha, high_contrast);
     {
       std::string ha_filter = base::strip_text(connection->parameterValues().get("haGroupFilter").repr());
 
@@ -1242,8 +1290,10 @@ public:
 class wb::FabricServerEntry : public ConnectionEntry
 {
 public:
-  FabricServerEntry(ConnectionsSection *aowner)
-  : ConnectionEntry(aowner)
+  wb::FabricFolderEntry *folder;
+
+  FabricServerEntry(ConnectionsSection *aowner, wb::FabricFolderEntry *afolder)
+  : ConnectionEntry(aowner), folder(afolder)
   {
   }
 
@@ -1271,6 +1321,18 @@ public:
     cairo_move_to(cr, x, y);
     cairo_show_text(cr, title.c_str());
     cairo_stroke(cr);
+
+    draw_tile_text(cr, x, y, alpha, high_contrast);
+  }
+
+  virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha, bool high_contrast)
+  {
+    cairo_set_font_size(cr, HOME_SMALL_INFO_FONT_SIZE);
+    y = bounds.top() + 56;
+    draw_icon_with_text(cr, x, y, NULL, base::strfmt("Managed Instances: %i", folder->total_instances), alpha, high_contrast);
+
+    y = bounds.top() + 70;
+    draw_icon_with_text(cr, x, y, NULL, base::strfmt("# of HA Groups: %i", (int)folder->groups.size()), alpha, high_contrast);
   }
 
   virtual void menu_open(ItemPosition pos)
@@ -1284,6 +1346,11 @@ public:
   virtual mforms::Menu* context_menu()
   {
     return NULL;
+  }
+
+  virtual cairo_surface_t *get_background_icon()
+  {
+    return owner->_fabric_icon;
   }
 };
 
@@ -1430,16 +1497,18 @@ void ConnectionsSection::update_colors()
   _folder_tile_bk_color_hl = base::Color::parse("#63a6c5");
 #endif
 
-  _fabric_tile_bk_color = base::Color::parse("#34a677");
-  _fabric_tile_bk_color_hl = base::Color::parse("#46b899");
-  _managed_primary_tile_bk_color = base::Color::parse("#22bf2e");
-  _managed_primary_tile_bk_color_hl = base::Color::parse("#44dd50");
-  _managed_secondary_tile_bk_color = base::Color::parse("#13cea4");
-  _managed_secondary_tile_bk_color_hl = base::Color::parse("#21ebbd");
+  _fabric_tile_bk_color = base::Color::parse("#349667");
+  _fabric_tile_bk_color_hl = base::Color::parse("#46a889");
+
+  _managed_primary_tile_bk_color = base::Color::parse("#13ae9e");
+  _managed_primary_tile_bk_color_hl = base::Color::parse("#33cebe");
+  _managed_secondary_tile_bk_color = base::Color::parse("#13b094");
+  _managed_secondary_tile_bk_color_hl = base::Color::parse("#33d0b4");
+
   _managed_faulty_tile_bk_color = base::Color::parse("#e73414");
   _managed_faulty_tile_bk_color_hl = base::Color::parse("#ee5a40");
-  _managed_spare_tile_bk_color = base::Color::parse("#f9ba44");
-  _managed_spare_tile_bk_color_hl = base::Color::parse("#fac86b");
+  _managed_spare_tile_bk_color = base::Color::parse("#8a8a8a");
+  _managed_spare_tile_bk_color_hl = base::Color::parse("#9a9a9a");
 
   _back_tile_bk_color = base::Color::parse("#d9532c");
   _back_tile_bk_color_hl = base::Color::parse("#d97457");
@@ -1962,7 +2031,29 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection, const std::string &title,
                                         const std::string &description, const std::string &user, const std::string &schema)
 {
-  boost::shared_ptr<ConnectionEntry> entry(new ConnectionEntry(this));
+  boost::shared_ptr<ConnectionEntry> entry;
+  bool is_fabric = false;
+
+  if (connection.is_valid() && connection->driver()->name() == "MySQLFabric")
+  {
+    FabricFolderEntry *fabric_folder;
+    is_fabric = true;
+    entry = boost::shared_ptr<ConnectionEntry>(fabric_folder = new FabricFolderEntry(this));
+
+    fabric_folder->children.push_back(boost::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
+    {
+      boost::shared_ptr<ConnectionEntry> fabric(new FabricServerEntry(this, fabric_folder));
+      fabric->title = "Fabric Server: " + *connection->name();
+      fabric->connection = connection;
+      fabric->second_color = false;
+      fabric->search_title = title;
+      fabric_folder->children.push_back(fabric);
+    }
+  }
+  else if (connection.is_valid() && connection->parameterValues().has_key("fabric_managed"))
+    entry = boost::shared_ptr<ConnectionEntry>(new FabricManagedConnectionEntry(this));
+  else
+    entry = boost::shared_ptr<ConnectionEntry>(new ConnectionEntry(this));
 
   entry->connection = connection;
   entry->title = title;
@@ -1990,26 +2081,29 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
     bool found_parent = false;
     for (ConnectionIterator iterator = _connections.begin(); iterator != _connections.end(); iterator++)
     {
-      if (FabricFolderEntry *folder = dynamic_cast<FabricFolderEntry*>(iterator->get()))
+      if ((*iterator)->title == parent_name)
       {
-        found_parent = true;
-        folder->children.push_back(entry);
-        break;
+        if (FabricFolderEntry *folder = dynamic_cast<FabricFolderEntry*>(iterator->get()))
+        {
+          found_parent = true;
+          folder->children.push_back(entry);
+          folder->total_instances++;
+          folder->groups.insert(entry->section_name());
+          break;
+        }
+        else if (FolderEntry *folder = dynamic_cast<FolderEntry*>(iterator->get()))
+        {
+          found_parent = true;
+          folder->children.push_back(entry);
+          break;
+        }
       }
-      else if (FolderEntry *folder = dynamic_cast<FolderEntry*>(iterator->get()))
-      {
-        found_parent = true;
-        folder->children.push_back(entry);
-        break;
-      }
-
     }
 
     // If the parent was not found, a folder should be created
     if (!found_parent)
     {
-      bool is_fabric = connection.is_valid() && connection->driver()->name() == "MySQLFabric";
-      FolderEntry *folder = is_fabric ? new FabricFolderEntry(this) : new FolderEntry(this);
+      boost::shared_ptr<FolderEntry> folder(new FolderEntry(this));
 
       folder->title = parent_name;
       folder->compute_strings = true;
@@ -2017,18 +2111,8 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
       folder->search_title = parent_name;
 
       folder->children.push_back(boost::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));
-      if (is_fabric)
-      {
-        boost::shared_ptr<ConnectionEntry> fabric(new FabricServerEntry(this));
-        fabric->title = "Fabric Server: " + *connection->name();
-        fabric->connection = connection;
-        fabric->second_color = false;
-        fabric->search_title = title;
-        folder->children.push_back(fabric);
-      }
-
       folder->children.push_back(entry);
-      _connections.push_back(boost::shared_ptr<ConnectionEntry>(folder));
+      _connections.push_back(boost::dynamic_pointer_cast<ConnectionEntry>(folder));
       if (!_active_folder_title_before_refresh_start.empty() && _active_folder_title_before_refresh_start == folder->title)
       {
         _active_folder = boost::dynamic_pointer_cast<FolderEntry>(_connections.back());
