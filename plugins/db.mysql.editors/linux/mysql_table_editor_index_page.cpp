@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@ DbMySQLTableEditorIndexPage::DbMySQLTableEditorIndexPage(DbMySQLTableEditor *own
                              : _owner(owner)
                              , _be(be)
                              , _xml(xml)
+                             , _editing_done_id(0)
+                             , _editable_cell(0)
 {
   _xml->get_widget("indexes", _indexes_tv);
   _indexes_tv->set_enable_tree_lines(true);
@@ -66,6 +68,13 @@ DbMySQLTableEditorIndexPage::DbMySQLTableEditorIndexPage(DbMySQLTableEditor *own
 //------------------------------------------------------------------------------
 DbMySQLTableEditorIndexPage::~DbMySQLTableEditorIndexPage()
 {
+  if (_editing_done_id != 0 && _editable_cell != 0)
+  {
+    g_signal_handler_disconnect(_editable_cell, _editing_done_id);
+    _editing_done_id = 0;
+    _editable_cell = 0;
+  }
+
   if (!_editing_sig.empty())
     _editing_sig.disconnect();
 
@@ -304,6 +313,12 @@ void DbMySQLTableEditorIndexPage::update_index_storage_type_in_be()
     indices_be->set_field(_index_node, ::MySQLTableIndexListBE::StorageType, new_storage_type);
   }
 }
+void DbMySQLTableEditorIndexPage::cell_editing_done_proxy(GtkCellEditable* ce, gpointer data)
+{
+  DbMySQLTableEditorIndexPage *this_ptr = static_cast<DbMySQLTableEditorIndexPage*>(data);
+  if (this_ptr)
+    this_ptr->cell_editing_done(ce);
+}
 
 //--------------------------------------------------------------------------------
 void DbMySQLTableEditorIndexPage::cell_editing_started(Gtk::CellEditable *cell, const Glib::ustring &path)
@@ -311,6 +326,56 @@ void DbMySQLTableEditorIndexPage::cell_editing_started(Gtk::CellEditable *cell, 
   bec::NodeId node(path);
   if ( node.is_valid() )
     _index_node = node;
+
+
+  if (_editing_done_id != 0 && _editable_cell != 0)
+  {
+    g_signal_handler_disconnect(_editable_cell, _editing_done_id);
+    _editing_done_id = 0;
+    _editable_cell = 0;
+  }
+
+  if (GTK_IS_CELL_EDITABLE(cell->gobj()))
+  {
+    _be->get_indexes()->get_field(node, MySQLTableIndexListBE::Name, _user_index_name);
+    _editable_cell = cell->gobj();
+    _editing_done_id = g_signal_connect(_editable_cell, "editing-done", GCallback(&DbMySQLTableEditorIndexPage::cell_editing_done_proxy), this);
+  }
+}
+//--------------------------------------------------------------------------------
+void DbMySQLTableEditorIndexPage::cell_editing_done(GtkCellEditable* ce)
+{
+  if (_editing_done_id != 0 && _editable_cell != 0)
+  {
+    g_signal_handler_disconnect(_editable_cell, _editing_done_id);
+    _editing_done_id = 0;
+    _editable_cell = 0;
+  }
+
+  //If it's Gtk::Entry, we try to find out if maybe user leave edit field empty,
+  //if so we revert it to the last known value or to the default one.
+  if (GTK_IS_ENTRY(ce))
+  {
+    GtkEntry *entry = GTK_ENTRY(ce);
+    if (entry)
+    {
+      if (entry->text_length == 0)
+      {
+          Gtk::TreeModel::Path   path;
+           Gtk::TreeView::Column *column(0);
+           _indexes_tv->get_cursor(path, column);
+           bec::NodeId node(path.to_string());
+           if (node.is_valid())
+           {
+             std::string name = _user_index_name;
+             if (name.empty())
+               name = strfmt("index%i", path[0] + 1);
+             _be->get_indexes()->set_field(node, MySQLTableIndexListBE::Name, name);
+             gtk_entry_set_text(entry, name.c_str());
+           }
+      }
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------
