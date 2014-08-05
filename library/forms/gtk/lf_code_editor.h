@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +56,6 @@ class CodeEditorImpl : public ViewImpl
     Gtk::Widget       *_sci_gtkmm_widget;
     ScintillaObject   *_sci;
     CodeEditor        *_owner;
-
     static bool create(CodeEditor* self);
     static sptr_t send_editor(CodeEditor* self, unsigned int msg, uptr_t uparam, sptr_t sparam);
     static void show_find_panel(CodeEditor *self, bool show);
