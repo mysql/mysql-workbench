@@ -25,11 +25,17 @@
 
 DEFAULT_LOG_DOMAIN("spatial");
 
-
+#ifdef _WIN32
 static void __stdcall ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 {
   log_error("gdal error: %d, %s\n", err_no, msg);
 }
+#else
+static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
+{
+  log_error("gdal error: %d, %s\n", err_no, msg);
+}
+#endif
 
 bool spatial::operator== (ProjectionView &v1, ProjectionView &v2)
 {
