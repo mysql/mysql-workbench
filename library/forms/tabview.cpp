@@ -85,6 +85,13 @@ void TabView::reordered(View *view, int index)
 
 //--------------------------------------------------------------------------------------------------
 
+void TabView::pin_changed(int tab, bool pinned)
+{
+  _signal_tab_pin_changed(tab, pinned);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 int TabView::page_count()
 {
   return get_subview_count();
