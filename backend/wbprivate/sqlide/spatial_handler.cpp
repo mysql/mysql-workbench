@@ -26,7 +26,7 @@
 DEFAULT_LOG_DOMAIN("spatial");
 
 
-static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
+static void __stdcall ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 {
   log_error("gdal error: %d, %s\n", err_no, msg);
 }
