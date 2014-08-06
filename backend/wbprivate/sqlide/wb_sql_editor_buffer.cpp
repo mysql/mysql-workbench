@@ -669,7 +669,6 @@ SqlEditorPanel *SqlEditorForm::new_sql_script_file()
   return panel;
 }
 
-
 SqlEditorPanel *SqlEditorForm::new_sql_scratch_area(bool start_collapsed)
 {
   SqlEditorPanel *panel = add_sql_editor(true, start_collapsed);

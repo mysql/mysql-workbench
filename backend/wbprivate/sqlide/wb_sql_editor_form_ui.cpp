@@ -179,12 +179,6 @@ void SqlEditorForm::update_menu_and_toolbar()
       item->set_enabled(!running && connected);
       item->set_checked(auto_commit());    
     }
-    item = _menu->find_item("query.gatherFieldInfo");
-    if (item)
-    {
-      item->set_enabled(!running && connected);
-      item->set_checked(collect_field_info());
-    }
     item = _menu->find_item("query.gatherPSInfo");
     if (item)
     {

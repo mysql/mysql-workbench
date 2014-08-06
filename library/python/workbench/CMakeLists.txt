@@ -12,6 +12,7 @@ set(PY_FILES
     ui.py
     utils.py
     plugins.py
+    wizard_form.py
     wizard_page_widget.py
     wizard_progress_page_widget.py
     tcp_utils.py
