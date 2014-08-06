@@ -116,6 +116,9 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   void close_tab_clicked();
   void close_other_tabs_clicked();
 
+  bool is_pinned(int tab);
+  void tab_pinned(int tab, bool flag);
+
 public:
   typedef boost::shared_ptr<SqlEditorPanel> Ref;
   SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed);

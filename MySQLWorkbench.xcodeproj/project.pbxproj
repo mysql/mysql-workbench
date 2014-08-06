@@ -1704,6 +1704,10 @@
 		2B83E5EF1992B76800781432 /* qe_sql-editor-resultset-tb-pin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5ED1992B76800781432 /* qe_sql-editor-resultset-tb-pin@2x.png */; };
 		2B83E5F21992B77000781432 /* qe_sql-editor-explain-tb-overview.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F01992B77000781432 /* qe_sql-editor-explain-tb-overview.png */; };
 		2B83E5F31992B77000781432 /* qe_sql-editor-explain-tb-overview@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F11992B77000781432 /* qe_sql-editor-explain-tb-overview@2x.png */; };
+		2B83E5FD1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F51992E9CF00781432 /* qe_sql-editor-resultset-tb-pin.png */; };
+		2B83E5FE1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F61992E9CF00781432 /* qe_sql-editor-resultset-tb-pin@2x.png */; };
+		2B83E5FF1992EA6C00781432 /* qe_sql-editor-resultset-tb-pinned.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F71992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned.png */; };
+		2B83E6001992EA6C00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F81992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png */; };
 		2B83FCDD1419B6B300A2C82B /* popover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B83FCDC1419B6B300A2C82B /* popover.cpp */; };
 		2B83FCE11419B70B00A2C82B /* popover.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B83FCE01419B70B00A2C82B /* popover.h */; };
 		2B83FCE41419C64500A2C82B /* MFPopover.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B83FCE21419C64500A2C82B /* MFPopover.h */; };
@@ -2190,6 +2194,8 @@
 		2BD42089198ACC260061895B /* home_screen_connections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD42087198ACC260061895B /* home_screen_connections.cpp */; };
 		2BD4208A198ACC260061895B /* home_screen_connections.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD42088198ACC260061895B /* home_screen_connections.h */; };
 		2BD42094198C3B0F0061895B /* run_script.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BD42093198C3B090061895B /* run_script.py */; };
+		2BD4209719916B180061895B /* qe_sql-editor-explain-tb-overview.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4209519916B180061895B /* qe_sql-editor-explain-tb-overview.png */; };
+		2BD4209819916B180061895B /* qe_sql-editor-explain-tb-overview@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4209619916B180061895B /* qe_sql-editor-explain-tb-overview@2x.png */; };
 		2BD820120F4F0E7D009E485D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BD820110F4F0E7D009E485D /* Carbon.framework */; };
 		2BD9968E0FAC02B00074852E /* grtdb_connect_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */; };
 		2BD9968F0FAC02B00074852E /* grtdb_connect_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */; };
@@ -5606,6 +5612,10 @@
 		2B83E5ED1992B76800781432 /* qe_sql-editor-resultset-tb-pin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pin@2x.png"; path = "images/sql/qe_sql-editor-resultset-tb-pin@2x.png"; sourceTree = "<group>"; };
 		2B83E5F01992B77000781432 /* qe_sql-editor-explain-tb-overview.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-explain-tb-overview.png"; path = "images/sql/qe_sql-editor-explain-tb-overview.png"; sourceTree = "<group>"; };
 		2B83E5F11992B77000781432 /* qe_sql-editor-explain-tb-overview@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-explain-tb-overview@2x.png"; path = "images/sql/qe_sql-editor-explain-tb-overview@2x.png"; sourceTree = "<group>"; };
+		2B83E5F51992E9CF00781432 /* qe_sql-editor-resultset-tb-pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pin.png"; path = "../sql/qe_sql-editor-resultset-tb-pin.png"; sourceTree = "<group>"; };
+		2B83E5F61992E9CF00781432 /* qe_sql-editor-resultset-tb-pin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pin@2x.png"; path = "../sql/qe_sql-editor-resultset-tb-pin@2x.png"; sourceTree = "<group>"; };
+		2B83E5F71992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pinned.png"; path = "../sql/qe_sql-editor-resultset-tb-pinned.png"; sourceTree = "<group>"; };
+		2B83E5F81992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pinned@2x.png"; path = "../sql/qe_sql-editor-resultset-tb-pinned@2x.png"; sourceTree = "<group>"; };
 		2B83FCDC1419B6B300A2C82B /* popover.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = popover.cpp; path = library/forms/popover.cpp; sourceTree = "<group>"; };
 		2B83FCE01419B70B00A2C82B /* popover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = popover.h; path = library/forms/mforms/popover.h; sourceTree = "<group>"; };
 		2B83FCE21419C64500A2C82B /* MFPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFPopover.h; path = library/forms/cocoa/MFPopover.h; sourceTree = "<group>"; };
@@ -5984,6 +5994,8 @@
 		2BD42087198ACC260061895B /* home_screen_connections.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = home_screen_connections.cpp; sourceTree = "<group>"; };
 		2BD42088198ACC260061895B /* home_screen_connections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = home_screen_connections.h; sourceTree = "<group>"; };
 		2BD42093198C3B090061895B /* run_script.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = run_script.py; path = plugins/wb.sqlide/run_script.py; sourceTree = "<group>"; };
+		2BD4209519916B180061895B /* qe_sql-editor-explain-tb-overview.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-explain-tb-overview.png"; path = "images/sql/qe_sql-editor-explain-tb-overview.png"; sourceTree = "<group>"; };
+		2BD4209619916B180061895B /* qe_sql-editor-explain-tb-overview@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-explain-tb-overview@2x.png"; path = "images/sql/qe_sql-editor-explain-tb-overview@2x.png"; sourceTree = "<group>"; };
 		2BD820110F4F0E7D009E485D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grtdb_connect_dialog.h; sourceTree = "<group>"; };
 		2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grtdb_connect_dialog.cpp; sourceTree = "<group>"; };
@@ -7941,6 +7953,10 @@
 		2B2638430E93B0F700933149 /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				2B83E5F51992E9CF00781432 /* qe_sql-editor-resultset-tb-pin.png */,
+				2B83E5F61992E9CF00781432 /* qe_sql-editor-resultset-tb-pin@2x.png */,
+				2B83E5F71992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned.png */,
+				2B83E5F81992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png */,
 				2B1434E6179E0E9A002217CF /* tab_icon_administrator.png */,
 				2B1434E7179E0E9A002217CF /* tab_icon_administrator@2x.png */,
 				2B1434E8179E0E9A002217CF /* tab_icon_db.query.QueryBuffer.png */,
@@ -12555,8 +12571,11 @@
 				2740C71218AB704E008AFE78 /* tab_extender@2x.png in Resources */,
 				2BD1FB2C0F33D2F200FFC762 /* SchemaTabSideLine.png in Resources */,
 				2BD1FB2D0F33D2F200FFC762 /* TabClose_Pressed.png in Resources */,
+				2B83E6001992EA6C00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png in Resources */,
 				2BD1FB2E0F33D2F200FFC762 /* TabClose_Unpressed.png in Resources */,
+				2B83E5FD1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin.png in Resources */,
 				2BD1FB2F0F33D2F200FFC762 /* TabDocument.png in Resources */,
+				2B83E5FF1992EA6C00781432 /* qe_sql-editor-resultset-tb-pinned.png in Resources */,
 				2BD1FB300F33D2F200FFC762 /* TabRowGradient.png in Resources */,
 				2BD1FB310F33D2F200FFC762 /* SchemaTabGradientBackground.png in Resources */,
 				16764CA80F82DC590099223D /* RightArrowIcon.png in Resources */,
@@ -12566,6 +12585,7 @@
 				2BB9A44E0FB28BD6001F9968 /* TabDragIcon.png in Resources */,
 				2B7CEA7E0FB8B3B700DCC700 /* tab_header_background2.png in Resources */,
 				2B1D6CAC177C6BDD0073C062 /* maintab_home_background@2x.png in Resources */,
+				2B83E5FE1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin@2x.png in Resources */,
 				2B1D6CAD177C6BDD0073C062 /* maintab_home_home.png in Resources */,
 				2B1D6CAE177C6BDD0073C062 /* maintab_home_home@2x.png in Resources */,
 				2B1D6CAF177C6BDD0073C062 /* maintab_home.png in Resources */,
@@ -12880,6 +12900,7 @@
 				2B263B320E9402DD00933149 /* workbench.physical.sqlite.Model.48x48.png in Resources */,
 				2B263B330E9402DD00933149 /* workbench.physical.sybase.Model.48x48.png in Resources */,
 				2B263B340E9402DD00933149 /* workbench.physical.TableFigure.16x16.png in Resources */,
+				2BD4209819916B180061895B /* qe_sql-editor-explain-tb-overview@2x.png in Resources */,
 				2B263B350E9402DD00933149 /* workbench.physical.Diagram.16x16.png in Resources */,
 				2B18EDD1196C9105004D7596 /* wb-sidebar-expand@2x.png in Resources */,
 				2B263B370E9402DD00933149 /* workbench.physical.Diagram.add.48x48.png in Resources */,
@@ -12968,6 +12989,7 @@
 				2B7FC4D2112D9C2B008C07BF /* tiny_new_script.png in Resources */,
 				2B7FC4D4112D9C2B008C07BF /* tiny_new_table.png in Resources */,
 				2B7FC4D5112D9C2B008C07BF /* tiny_new_view.png in Resources */,
+				2BD4209719916B180061895B /* qe_sql-editor-explain-tb-overview.png in Resources */,
 				2BF90F1C1979C3410029E1F9 /* ps_switcher_legende.png in Resources */,
 				2B7FC4D6112D9C2B008C07BF /* tiny_open.png in Resources */,
 				2B5FE4DA187F39C700AEC55C /* dashboard_header_network@2x.png in Resources */,
