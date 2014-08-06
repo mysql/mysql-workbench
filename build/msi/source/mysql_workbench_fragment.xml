@@ -742,21 +742,7 @@
                     <File Id="file60658" Name="audit_log.png"/>
                     <File Id="file60666" Name="wb_lock.png"/>
                     <File Id="file60667" Name="change_alert_create.png"/>
-                    <File Id="file606601" Name="qe_sql-editor-tb-icon_zoom-area@2x.png"/>
-                    <File Id="file606602" Name="qe_sql-editor-tb-icon_zoom-area.png" />
-                    <File Id="file606603" Name="qe_sql-editor-tb-icon_zoom-in@2x.png" />
-                    <File Id="file606604" Name="qe_sql-editor-tb-icon_zoom-in.png" />
-                    <File Id="file606605" Name="qe_sql-editor-tb-icon_zoom-out@2x.png" />
-                    <File Id="file606606" Name="qe_sql-editor-tb-icon_zoom-out.png" />
-                    <File Id="file606607" Name="qe_sql-editor-tb-icon_zoom-reset@2x.png" />
-                    <File Id="file606608" Name="qe_sql-editor-tb-icon_zoom-reset.png" />
-                    <File Id="file606609" Name="qe_sql-editor-tb-icon_zoom-jump.png" />
-                    <File Id="file606610" Name="qe_sql-editor-tb-icon_zoom-jump@2x.png" />
-                    <File Id="file606611" Name="qe_sql-editor-tb-icon_zoom-auto.png" />
-                    <File Id="file606612" Name="qe_sql-editor-tb-icon_zoom-auto@2x.png" />
-                    <File Id="file606613" Name="qe_sql-editor-tb-icon_zoom-center.png" />
-                    <File Id="file606614" Name="qe_sql-editor-tb-icon_zoom-center@2x.png" />
-                    <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
+                   <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
                     <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
 
                     </Component>
@@ -882,7 +868,14 @@
                     <File Id="file61785" Name="output_type-spacialview.png"/>
                     <File Id="file61786" Name="output_type-toggle-off.png"/>
                     <File Id="file61787" Name="output_type-toggle-on.png"/>
-					
+                    <File Id="file606602" Name="qe_sql-editor-tb-icon_zoom-area.png" />
+                    <File Id="file606604" Name="qe_sql-editor-tb-icon_zoom-in.png" />
+                    <File Id="file606606" Name="qe_sql-editor-tb-icon_zoom-out.png" />
+                    <File Id="file606608" Name="qe_sql-editor-tb-icon_zoom-reset.png" />
+                    <File Id="file606609" Name="qe_sql-editor-tb-icon_zoom-jump.png" />
+                    <File Id="file606611" Name="qe_sql-editor-tb-icon_zoom-auto.png" />
+                    <File Id="file606613" Name="qe_sql-editor-tb-icon_zoom-center.png" />
+ 		
                     <File Id="wb_item_overlay_editor" Name="wb_item_overlay_editor.png"/>
                     <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
                     <File Id="wb_item_overlay_inspector" Name="wb_item_overlay_inspector.png"/>

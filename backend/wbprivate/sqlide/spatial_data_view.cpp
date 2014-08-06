@@ -129,7 +129,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_separator_item();
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-    item->set_text("Zoom:");
+    item->set_text("Select Area:");
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
@@ -138,6 +138,10 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
+    item->set_text("Zoom:");
+    _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-out.png"));
@@ -150,6 +154,10 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
+    item->set_text("Reset:");
+    _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-reset.png"));
@@ -170,7 +178,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-auto.png"));
-    item->set_tooltip("Zoom to data.");
+    item->set_tooltip("Zoom to envelope of selected layer.");
     item->signal_activated()->connect(boost::bind(&SpatialDataView::auto_zoom, this));
     _toolbar->add_item(item);
 
