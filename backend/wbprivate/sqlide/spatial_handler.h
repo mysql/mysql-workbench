@@ -30,79 +30,6 @@
 #include "base/geometry.h"
 
 #include "mdc.h"
-
-//namespace GIS
-//{
-//enum ProjectionType
-//{
-//  ProjMercator = 1, ProjEquirectangular = 2, ProjRobinson = 3, ProjBonne = 4
-//};
-//enum ShapeType
-//{
-//  ShapeUnknown, ShapePoint, ShapeLineString, ShapeLinearRing, ShapePolygon
-//};
-//
-//struct ShapeContainer
-//{
-//  ShapeType type;
-//  std::vector<base::Point> points;
-//  bool interrupt;
-//};
-//
-//struct ProjectionView
-//{
-//  int width;
-//  int height;
-//  double MaxLat;
-//  double MaxLon;
-//  double MinLat;
-//  double MinLon;
-//};
-//
-//class SpatialHandler
-//{
-//  OGRGeometry *_geometry;
-//  std::string _robinson_projection;
-//  std::string _mercator_projection;
-//  std::string _equirectangular_projection;
-//  std::string _bonne_projection;
-//  std::string _geodetic_wkt;
-//  double _adf_projection[6];
-//  double _inv_projection[6];
-//  OGRCoordinateTransformation *_geo_to_proj;
-//  OGRCoordinateTransformation *_proj_to_geo;
-//
-//  bool _interrupt;
-//private:
-//
-//protected:
-//  void setup_matrix(ProjectionView &view);
-//  void extract_points(OGRGeometry *shape,
-//      std::deque<ShapeContainer> &shapes_container, ProjectionType &projection);
-//  void convert_points(std::vector<double> &x, std::vector<double> &y,
-//      ProjectionType &projection);
-//  ShapeContainer convert_to_shape_container(ShapeType type, std::vector<double> &x,
-//      std::vector<double> &y);
-//  char* get_projection_wkt(ProjectionType p);
-//public:
-//  SpatialHandler();
-//  int import_from_mysql(const std::string &data);
-//  int import_from_wkt(std::string data);
-//  virtual ~SpatialHandler();
-//  int get_output(ProjectionView &view,
-//      std::deque<ShapeContainer> &shapes_container);
-//  void to_latlon(int x, int y, double &lat,
-//      double &lon);
-//  void from_latlon(double lat, double lon, double &x,
-//      double &y);
-//
-//  void interrupt();
-//};
-//
-//}
-
-
-
 /* Spatial Object Model
 
  Feature - corresponds to the value of a single geometry column of a row in a resultset
@@ -182,50 +109,6 @@ namespace spatial
     bool within(base::Point &p);
   };
 
-//  class Projection
-//  {
-//  protected:
-//    std::string _wkt;
-//    bool _is_projected;
-//    std::string _name;
-//
-//  public:
-//    Projection();
-//    char* get_wkt();
-//    bool is_projected();
-//    const char *to_string();
-//
-//    class Mercator;
-//    class Equirectangular;
-//    class Robinson;
-//    class Bonne;
-//  };
-//
-//
-//  class Projection::Mercator : public Projection
-//  {
-//    friend class ProjectionFactory;
-//    Mercator();
-//  };
-//
-//  class Projection::Equirectangular : public Projection
-//  {
-//    friend class ProjectionFactory;
-//    Equirectangular();
-//  };
-//
-//  class Projection::Robinson : public Projection
-//  {
-//    friend class ProjectionFactory;
-//    Robinson();
-//  };
-//
-//  class Projection::Bonne : public Projection
-//  {
-//    friend class ProjectionFactory;
-//    Bonne();
-//  };
-
   class Projection
   {
   protected:
@@ -243,8 +126,6 @@ namespace spatial
     Projection(Projection const&);
     void operator=(Projection const&);
 
-
-//    static Projection get_projection(ProjectionType);
   };
 
 
