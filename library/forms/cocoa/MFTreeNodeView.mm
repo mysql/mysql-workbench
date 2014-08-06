@@ -1100,6 +1100,12 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 }
 
 
+- (BOOL)isEnabled
+{
+  return [mOutline isEnabled];
+}
+
+
 - (NSSize)minimumSize
 {
   return NSMakeSize(40, 50);

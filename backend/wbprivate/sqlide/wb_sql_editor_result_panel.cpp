@@ -21,8 +21,8 @@
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_panel.h"
 #include "wb_sql_editor_result_panel.h"
+#include "spatial_data_view.h"
 #include "result_form_view.h"
-
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "sqlide/recordset_cdbc_storage.h"
 #include "grtdb/db_helpers.h"
@@ -62,7 +62,6 @@ using namespace base;
 
 DEFAULT_LOG_DOMAIN("SqlResult")
 
-
 class SqlEditorResult::DockingDelegate : public mforms::TabViewDockingPoint
 {
   mforms::TabSwitcher *_switcher;
@@ -97,8 +96,9 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 : mforms::AppView(true, "QueryResult", false),
    _owner(owner),
   _tabview(mforms::TabViewTabless), _switcher(mforms::VerticalIconSwitcher),
-  _tabdock_delegate(new DockingDelegate(&_tabview, &_switcher, "SqlResultPanel")), _tabdock(_tabdock_delegate, true),
+  _tabdock_delegate(new DockingDelegate(&_tabview, &_switcher, std::string("SqlResultPanel"))), _tabdock(_tabdock_delegate, true),
   _pinned(false)
+
 {
   _result_grid = NULL;
   _grid_header_menu = NULL;
@@ -106,6 +106,21 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _column_info_created = false;
   _query_stats_created = false;
   _form_view_created = false;
+
+  _spatial_view_initialized = false;
+  _spatial_result_view = NULL;
+
+  add(&_tabview, true, true);
+
+  _switcher.attach_to_tabview(&_tabview);
+  _switcher.set_collapsed(_owner->owner()->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
+
+  add(&_switcher, false, true);
+  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
+  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
+
+
+  
   _execution_plan_placeholder = NULL;
 
   // put a placeholder for the resultset, which will be replaced when a resultset is actually available
@@ -123,14 +138,8 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 
   set_on_close(boost::bind(&SqlEditorResult::can_close, this));
 
-  add(&_tabview, true, true);
 
-  _switcher.attach_to_tabview(&_tabview);
-  _switcher.set_collapsed(_owner->owner()->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
 
-  add(&_switcher, false, true);
-  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
-  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
 }
 
 
@@ -183,6 +192,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
     _grtobj->resultset(grtwrap_editablerecordset(grtobj(), rset));
   else
     _grtobj->resultset(grtwrap_recordset(grtobj(), rset));
+
 
   rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_export_recordset, this));
   if (rset->get_toolbar()->find_item("record_import"))
@@ -268,6 +278,30 @@ std::string SqlEditorResult::caption() const
 }
 
 
+
+std::vector<SpatialDataView::SpatialDataSource> SqlEditorResult::get_spatial_columns()
+{
+  std::vector<SpatialDataView::SpatialDataSource> spatial_columns;
+  int i = 0;
+  Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(_rset.lock()->data_storage()));
+  std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+  for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
+       iter != field_info.end(); ++iter, ++i)
+  {
+    if (iter->type == "GEOMETRY")
+    {
+      SpatialDataView::SpatialDataSource field;
+      field.source = _owner->get_title();
+      field.resultset = _rset;
+      field.column = iter->field;
+      field.type = iter->type;
+      field.column_index = i;
+      spatial_columns.push_back(field);
+    }
+  }
+  return spatial_columns;
+}
+
 void SqlEditorResult::set_title(const std::string &title)
 {
   grtobj()->name(title);
@@ -287,7 +321,6 @@ void SqlEditorResult::close()
   if (Recordset::Ref rs = recordset())
     rs->close();
 }
-
 
 void SqlEditorResult::switch_tab()
 {
@@ -345,6 +378,15 @@ void SqlEditorResult::switch_tab()
                                         "OK");
         }
       }
+    }
+    else if (tab->identifier() == "spatial_result_view")
+    {
+      if (!_spatial_view_initialized)
+      {
+        _spatial_view_initialized = true;
+        _spatial_result_view->refresh_layers();
+      }
+      _spatial_result_view->activate();
     }
   }
 }
@@ -549,11 +591,18 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
     _tabdock.dock_view(_query_stats_box, app->get_resource_path("output_type-querystats.png"));
   }
 
+  create_spatial_view_panel_if_needed();
+
+
+
   // reorder the explain tab to last
   bool has_explain_tab = false;
   for (int i = 0; i < _tabdock_delegate->view_count(); i++)
   {
     mforms::AppView *view = _tabdock_delegate->view_at_index(i);
+    if (!view)
+      continue;
+
     if (view->identifier() == "execution_plan")
     {
       has_explain_tab = true;
@@ -573,6 +622,39 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
     _tabdock.dock_view(_execution_plan_placeholder, app->get_resource_path("output_type-executionplan.png"));
   }
   _switcher.set_selected(0);
+
+}
+
+void SqlEditorResult::create_spatial_view_panel_if_needed()
+{
+  if (Recordset::Ref rset = _rset.lock())
+  {
+    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+    bool has_geometry = false;
+    std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+    for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
+         iter != field_info.end(); ++iter)
+    {
+      if (iter->type == "GEOMETRY")
+      {
+        has_geometry = true;
+        break;
+      }
+    }
+    if (has_geometry)
+    {
+      mforms::App *app = mforms::App::get();
+
+      _spatial_result_view = mforms::manage(new SpatialDataView(this));
+      add_switch_toggle_toolbar_item(_spatial_result_view->get_toolbar());
+      mforms::AppView *box = mforms::manage(new mforms::AppView(false, "SpatialView", false));
+      box->set_title("Spatial\nView");
+      box->set_identifier("spatial_result_view");
+      box->set_name("spatial-host");
+      box->add(_spatial_result_view, true, true);
+      _tabdock.dock_view(box, app->get_resource_path("output_type-spacialview.png"));
+    }
+  }
 }
 
 
@@ -647,7 +729,7 @@ void SqlEditorResult::create_column_info_panel()
     add_switch_toggle_toolbar_item(tbar);
 
     box->add(tbar, false, true);
-    
+
     if (_owner->owner()->collect_field_info())
     {
       mforms::TreeNodeView *tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList|mforms::TreeAltRowColors|mforms::TreeShowRowLines|mforms::TreeShowColumnLines|mforms::TreeNoBorder));
@@ -686,12 +768,6 @@ void SqlEditorResult::create_column_info_panel()
         node->set_int(8, iter->scale);
       }
       box->add(tree, true, true);
-    }
-    else
-    {
-      mforms::Label *label = mforms::manage(new mforms::Label("To get field type information for query results, enable Query -> Collect Resultset Field Metadata from the main menu"));
-      label->set_style(mforms::BigBoldStyle);
-      box->add(label, true, true);
     }
   }
 }

@@ -1154,6 +1154,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     _connection_details["name"] = _connection->name();
     _connection_details["hostName"] = _connection->parameterValues().get_string("hostName");
     _connection_details["port"] = strfmt("%li\n", (long)_connection->parameterValues().get_int("port"));
+
     _connection_details["socket"] = _connection->parameterValues().get_string("socket");
     _connection_details["driverName"] = _connection->driver()->name();
     _connection_details["userName"] = _connection->parameterValues().get_string("userName");
@@ -1432,7 +1433,6 @@ void SqlEditorForm::toggle_autocommit()
   update_menu_and_toolbar();
 }
 
-
 void SqlEditorForm::toggle_collect_field_info()
 {
   if (_connection.is_valid())
@@ -1446,6 +1446,7 @@ bool SqlEditorForm::collect_field_info() const
     return _connection->parameterValues().get_int("CollectFieldMetadata", 1) != 0;
   return false;
 }
+
 
 void SqlEditorForm::toggle_collect_ps_statement_events()
 {
@@ -1688,7 +1689,6 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
   std::map<std::string, boost::int64_t> ps_stats;
   std::vector<PSStage> ps_stages;
   std::vector<PSWait> ps_waits;
-  bool fetch_field_info = collect_field_info();
   bool query_ps_stats = collect_ps_statement_events();
   std::string query_ps_statement_events_error;
   std::string statement;
@@ -1744,6 +1744,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     else
     {
       std::list<std::string> warning;
+
       warning.push_back(base::strfmt("Skipping history entries for %li statements, total %li bytes", (long)statement_ranges.size(),
                                      (long)sql->size()));
       _history->add_entry(warning);
@@ -1784,7 +1785,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
         if (!is_multiple_statement && (Sql_syntax_check::sql_select == statement_type))
         {
           data_storage= Recordset_cdbc_storage::create(_grtm);
-          data_storage->set_gather_field_info(fetch_field_info);
+          data_storage->set_gather_field_info(true);
           data_storage->rdbms(rdbms());
           data_storage->dbms_conn(_usr_dbc_conn);
           data_storage->aux_dbms_conn(_aux_dbc_conn);
@@ -1970,7 +1971,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     if (!data_storage)
                     {
                       data_storage= Recordset_cdbc_storage::create(_grtm);
-                      data_storage->set_gather_field_info(fetch_field_info);
+                      data_storage->set_gather_field_info(true);
                       data_storage->rdbms(rdbms());
                       data_storage->dbms_conn(_usr_dbc_conn);
                       data_storage->aux_dbms_conn(_aux_dbc_conn);

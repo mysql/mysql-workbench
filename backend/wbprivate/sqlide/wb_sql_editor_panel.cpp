@@ -1096,6 +1096,14 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
   }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+
+int SqlEditorPanel::result_count()
+{
+  return _lower_tabview.page_count();
+}
+
 //--------------------------------------------------------------------------------------------------
 
 SqlEditorResult *SqlEditorPanel::result_panel(int i)

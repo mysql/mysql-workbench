@@ -53,6 +53,7 @@
 #include "wf_treenodeview.h"
 #include "wf_find_panel.h"
 #include "wf_native.h"
+#include "wf_canvas.h"
 #include "wf_record_grid_view.h"
 
 #include "wf_appview.h"
@@ -108,7 +109,7 @@ Manager::Manager()
   HyperTextWrapper::init();
   PopoverWrapper::init();
   TreeNodeViewWrapper::init();
-
+  CanvasWrapper::init();
 //  mforms::ControlFactory::get_instance()->check_impl();
 }
 

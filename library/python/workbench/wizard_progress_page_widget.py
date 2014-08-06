@@ -231,7 +231,8 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         
         self._detail_label = mforms.newLabel("")
         self.content.add(self._detail_label, False, True)
-      
+
+        self._timer = None
         self._tasks = []
         self._currently_running_task_index = None
         self._progress_indeterminate = False
@@ -319,10 +320,6 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         super(WizardProgressPage, self).page_activated(advancing)
         
         self.next_button.set_enabled(self._tasks_finished or self._currently_running_task_index is None)
-        
-        if advancing:
-            if self._currently_running_task_index is None and not self._tasks_finished:
-                self.start()
 
     def reset(self, clear_log_box= False):
         self._cancel_requested = False
@@ -387,7 +384,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
             grt.push_status_query_handler(self.query_cancel_status)
             grt.push_message_handler(self._handle_task_output)
         self.send_info("Starting...")
-        mforms.Utilities.add_timeout(0.1, self.update_status)
+        self._timer = mforms.Utilities.add_timeout(0.1, self.update_status)
         
         
     def tasks_finished(self):

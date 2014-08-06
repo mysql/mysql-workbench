@@ -19,12 +19,14 @@
 
 #include "Canvas.h"
 
+#include "ConvUtils.h"
+
 using namespace MySQL::GUI::Mdc;
 using namespace base;
 
 //----------------- BaseWindowsCanvasView ----------------------------------------------------------
 
-BaseWindowsCanvasView::BaseWindowsCanvasView() : inner(nullptr), owner(NULL)
+BaseWindowsCanvasView::BaseWindowsCanvasView() : inner(nullptr)
 {
 }
 
@@ -32,9 +34,11 @@ BaseWindowsCanvasView::BaseWindowsCanvasView() : inner(nullptr), owner(NULL)
 
 BaseWindowsCanvasView::~BaseWindowsCanvasView()
 {
-  // Let the owner know we are going away.
-  if (owner != NULL && owner->get_data() != NULL)
-    owner->get_data()->unrealize();
+  //XXX TODO
+  // Let the owner know we are going away. 
+ // if (owner != NULL && owner->get_data() != NULL)
+ //   owner->get_data()->unrealize();
+ 
 
   delete inner;
   ReleaseHandle();

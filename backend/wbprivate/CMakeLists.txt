@@ -66,6 +66,9 @@ add_library(wbprivate
     sqlide/wb_live_schema_tree.cpp
     sqlide/wb_sql_editor_snippets.cpp
     sqlide/query_side_palette.cpp
+    sqlide/spatial_data_view.cpp
+    sqlide/spatial_draw_box.cpp
+    sqlide/spatial_handler.cpp
     workbench/metaclasses.cpp
     workbench/upgrade_helper.cpp
     workbench/wb_command_ui.cpp
@@ -106,6 +109,7 @@ target_link_libraries(wbprivate
     ${LIBZIP_LIBRARIES}
     ${TINYXML_LIBRARY}
     ${PCRE_LIBRARIES}
+    ${GDAL_LIBRARIES}
 )
 
 set_target_properties(wbprivate
