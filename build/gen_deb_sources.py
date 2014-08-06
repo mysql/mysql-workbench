@@ -4,13 +4,12 @@
 # from the input debian.in directory contents
 
 
-output_distros = ["trusty", "precise"]
+output_distros = [("trusty", "ubuntu14.04"), ("precise", "ubuntu12.04")]
 
 editions = ["community", "commercial"]
 
 import shutil
 import os
-import stat 
 
 def preprocess(inpath, inf, outf, vars):
         # Preprocessor accepts
@@ -75,10 +74,11 @@ def generate_distro(source_dir, vars):
 
         print target_dir, "generated"
 
-for distro in output_distros:
+for distro, distro_version in output_distros:
         for edition in editions:
                 vars = {}
                 vars['distro'] = distro
+                vars['distrov'] = distro_version
                 vars['edition'] = edition
                 generate_distro("debian.in", vars)
 
