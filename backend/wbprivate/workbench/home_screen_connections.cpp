@@ -2032,12 +2032,10 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
                                         const std::string &description, const std::string &user, const std::string &schema)
 {
   boost::shared_ptr<ConnectionEntry> entry;
-  bool is_fabric = false;
 
   if (connection.is_valid() && connection->driver()->name() == "MySQLFabric")
   {
     FabricFolderEntry *fabric_folder;
-    is_fabric = true;
     entry = boost::shared_ptr<ConnectionEntry>(fabric_folder = new FabricFolderEntry(this));
 
     fabric_folder->children.push_back(boost::shared_ptr<ConnectionEntry>(new FolderBackEntry(this)));

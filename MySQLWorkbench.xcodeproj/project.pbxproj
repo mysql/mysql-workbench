@@ -2498,8 +2498,8 @@
 		ED7D01F6195DAE0E001FE8E7 /* wb_tile_fabric.png in Resources */ = {isa = PBXBuildFile; fileRef = ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */; };
 		ED8C8460174A9EF80036E6EF /* os_utils.py in Resources */ = {isa = PBXBuildFile; fileRef = ED8C845E174A9EF80036E6EF /* os_utils.py */; };
 		ED8C8461174A9EF80036E6EF /* tcp_utils.py in Resources */ = {isa = PBXBuildFile; fileRef = ED8C845F174A9EF80036E6EF /* tcp_utils.py */; };
-		ED9251861743B7E3008F1A50 /* wb_about.png in Resources */ = {isa = PBXBuildFile; fileRef = 27CC86001741336B00AAA267 /* wb_about.png */; };
-		ED9251871743B7E5008F1A50 /* wb_about@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27CC86011741336B00AAA267 /* wb_about@2x.png */; };
+		ED9251861743B7E3008F1A50 /* MySQL-WB-about-screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 27CC86001741336B00AAA267 /* MySQL-WB-about-screen.png */; };
+		ED9251871743B7E5008F1A50 /* MySQL-WB-about-screen@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27CC86011741336B00AAA267 /* MySQL-WB-about-screen@2x.png */; };
 		EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = EDC7588B1847A47B00936C9B /* wb_admin_perfschema_instrumentation_be.py */; };
 		EDD13F3417C7B92000A57673 /* change_tracker.py in Resources */ = {isa = PBXBuildFile; fileRef = EDD13F3317C7B92000A57673 /* change_tracker.py */; };
 		EDD76C8B19573F1100D3D54F /* wbfabric_grt.py in Resources */ = {isa = PBXBuildFile; fileRef = EDD76C8A19573F1100D3D54F /* wbfabric_grt.py */; };
@@ -4058,8 +4058,8 @@
 		27C9C9E61095DEA900C0004C /* home_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = home_screen.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		27CAD24B16C24A9A00A4FA02 /* wb_sql_editor_help.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_sql_editor_help.cpp; path = backend/wbprivate/sqlide/wb_sql_editor_help.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		27CAD24C16C24A9A00A4FA02 /* wb_sql_editor_help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_sql_editor_help.h; path = backend/wbprivate/sqlide/wb_sql_editor_help.h; sourceTree = "<group>"; };
-		27CC86001741336B00AAA267 /* wb_about.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wb_about.png; sourceTree = "<group>"; };
-		27CC86011741336B00AAA267 /* wb_about@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wb_about@2x.png"; sourceTree = "<group>"; };
+		27CC86001741336B00AAA267 /* MySQL-WB-about-screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MySQL-WB-about-screen.png"; sourceTree = "<group>"; };
+		27CC86011741336B00AAA267 /* MySQL-WB-about-screen@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MySQL-WB-about-screen@2x.png"; sourceTree = "<group>"; };
 		27CC86041741348D00AAA267 /* about_box.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = about_box.cpp; sourceTree = "<group>"; };
 		27CC86051741348D00AAA267 /* about_box.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = about_box.h; sourceTree = "<group>"; };
 		27CD3E9A18E3253000CDBD39 /* myx_sql_parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = myx_sql_parser.cpp; path = library/sql.parser/source/linux/myx_sql_parser.cpp; sourceTree = SOURCE_ROOT; };
@@ -7899,8 +7899,8 @@
 				2B1434EB179E0E9A002217CF /* tab_icon_editor@2x.png */,
 				2B1434EC179E0E9A002217CF /* tab_icon_plugin.png */,
 				2B1434ED179E0E9A002217CF /* tab_icon_plugin@2x.png */,
-				27CC86001741336B00AAA267 /* wb_about.png */,
-				27CC86011741336B00AAA267 /* wb_about@2x.png */,
+				27CC86001741336B00AAA267 /* MySQL-WB-about-screen.png */,
+				27CC86011741336B00AAA267 /* MySQL-WB-about-screen.png@2x */,
 				2B1E2FDE1733E23C0037D3DD /* audit_log.png */,
 				2B1E2FDF1733E23C0037D3DD /* audit_log@2x.png */,
 				2B15CCF6172ADF0D00EEF0EA /* wb_lock.png */,
@@ -13143,8 +13143,8 @@
 				2BF04944173DF46800A7EA35 /* wb-backup-logo-small@2x.png in Resources */,
 				2BF04945173DF46800A7EA35 /* wb-backup-logo.png in Resources */,
 				2BF04946173DF46800A7EA35 /* wb-backup-logo@2x.png in Resources */,
-				ED9251861743B7E3008F1A50 /* wb_about.png in Resources */,
-				ED9251871743B7E5008F1A50 /* wb_about@2x.png in Resources */,
+				ED9251861743B7E3008F1A50 /* MySQL-WB-about-screen.png in Resources */,
+				ED9251871743B7E5008F1A50 /* MySQL-WB-about-screen@2x.png in Resources */,
 				ED8C8460174A9EF80036E6EF /* os_utils.py in Resources */,
 				2BF90F0E1979C3310029E1F9 /* ps_switcher_disabled_on.png in Resources */,
 				2BD9E781185FFF6E00A7252B /* output_type-executionplan@2x.png in Resources */,

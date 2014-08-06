@@ -73,12 +73,12 @@ AboutBox::AboutBox(const std::string &edition)
   _scale_factor = mforms::App::get()->backing_scale_factor();
   if (_scale_factor > 1)
   {
-    _back_image = mforms::Utilities::load_icon("wb_about@2x.png");
+    _back_image = mforms::Utilities::load_icon("MySQL-WB-about-screen@2x.png");
     size = base::Size(image_width(_back_image) / _scale_factor, image_height(_back_image) / _scale_factor);
   }
   else
   {
-    _back_image = mforms::Utilities::load_icon("wb_about.png");
+    _back_image = mforms::Utilities::load_icon("MySQL-WB-about-screen.png");
     size = base::Size(image_width(_back_image), image_height(_back_image));
   }
 
