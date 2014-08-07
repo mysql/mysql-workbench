@@ -2225,6 +2225,8 @@
 		2BD9E7A31860004400A7252B /* MFNative.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9E7A11860004400A7252B /* MFNative.mm */; };
 		2BD9E7A51860011000A7252B /* native.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9E7A41860011000A7252B /* native.cpp */; };
 		2BD9E7A71860012000A7252B /* native.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9E7A61860012000A7252B /* native.h */; };
+		2BDA3C3B1993FBF000AD54D9 /* libproj.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */; };
+		2BDA3C3C1993FBF000AD54D9 /* libgdal.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2B83E5CE1992B5A100781432 /* libgdal.1.dylib */; };
 		2BDAE46111139AA500AC1D7A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BDAE46B11139B3B00AC1D7A /* file_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDAE46911139B3B00AC1D7A /* file_functions.h */; };
 		2BDAE48011139E8E00AC1D7A /* wba_ssh_ui.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */; };
@@ -3710,6 +3712,8 @@
 				2B7F77E60F0133EB00C3C53E /* libcdbc.dylib in Copy Files (dylibs) */,
 				2B7F77EA0F0133EB00C3C53E /* libwbpublic.be.dylib in Copy Files (dylibs) */,
 				2B7F77EB0F0133EB00C3C53E /* libwbprivate.be.dylib in Copy Files (dylibs) */,
+				2BDA3C3B1993FBF000AD54D9 /* libproj.0.dylib in Copy Files (dylibs) */,
+				2BDA3C3C1993FBF000AD54D9 /* libgdal.1.dylib in Copy Files (dylibs) */,
 			);
 			name = "Copy Files (dylibs)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6025,6 +6029,7 @@
 		2BD9E7A11860004400A7252B /* MFNative.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFNative.mm; path = library/forms/cocoa/MFNative.mm; sourceTree = "<group>"; };
 		2BD9E7A41860011000A7252B /* native.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = native.cpp; path = library/forms/native.cpp; sourceTree = "<group>"; };
 		2BD9E7A61860012000A7252B /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = native.h; path = library/forms/mforms/native.h; sourceTree = "<group>"; };
+		2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libproj.0.dylib; path = "../mysql-mac-res/lib/libproj.0.dylib"; sourceTree = "<group>"; };
 		2BDAE46911139B3B00AC1D7A /* file_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file_functions.h; path = library/base/base/file_functions.h; sourceTree = "<group>"; };
 		2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wba_ssh_ui.py; path = plugins/wb.admin/frontend/wba_ssh_ui.py; sourceTree = "<group>"; };
 		2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -8936,6 +8941,7 @@
 		2B750F9E0E8796310003120A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */,
 				2B83E5CE1992B5A100781432 /* libgdal.1.dylib */,
 				2BF049631741C5FA00A7EA35 /* libpcre.0.dylib */,
 				270C500817329FB600CD33BB /* libpng12.0.dylib */,
