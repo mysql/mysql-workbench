@@ -92,6 +92,7 @@
                 <File Id="file106" Name="db.search.wbp.dll"/>
                 <File Id="file111" Name="db.mysql.diff.reporting.wbp.dll"/>
                 <File Id="file112" Name="db.mysql.sqlparser.grt.dll"/>
+                <File Id="file112x" Name="db.mysql.parser.grt.dll"/>
                 <File Id="file113" Name="db.mysql.wbp.dll"/>
                 <File Id="file115" Name="grt.db.fe.dll"/>
                 <File Id="file116" Name="mysql.forms.dll"/>
