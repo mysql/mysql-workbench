@@ -2217,7 +2217,7 @@ TEST_FUNCTION(55)
       std::list<std::string> test_result = base::scan_for_files_matching(search_pattern);
 
       ensure("TEST 55.1: File matching returned an empty list",!test_result.empty());
-      ensure_equals("TEST 55.2: Invalid list size", test_result.size(), 4);
+      ensure_equals("TEST 55.2: Invalid list size", test_result.size(), 4U);
 
       while (!test_result.empty())
       {
@@ -2238,7 +2238,7 @@ TEST_FUNCTION(55)
       std::list<std::string> test_result = base::scan_for_files_matching(search_pattern,true);
 
       ensure("TEST 55.1: File matching returned an empty list",!test_result.empty());
-      ensure_equals("TEST 55.2: Invalid list size", test_result.size(), 5);
+      ensure_equals("TEST 55.2: Invalid list size", test_result.size(), 5U);
 
       while (!test_result.empty())
       {

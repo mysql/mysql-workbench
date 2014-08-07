@@ -368,7 +368,8 @@ bool SqlEditorPanel::load_from(const std::string &file, const std::string &encod
 
   char *utf8_data;
   std::string original_encoding;
-  if (!FileCharsetDialog::ensure_filedata_utf8(data, length, encoding, file,
+  if (!FileCharsetDialog::ensure_filedata_utf8(_form->grt_manager()->get_grt(),
+                                               data, length, encoding, file,
                                                utf8_data, &original_encoding))
   {
     g_free(data);
@@ -1093,6 +1094,14 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
       }
     }
   }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
+int SqlEditorPanel::result_count()
+{
+  return _lower_tabview.page_count();
 }
 
 //--------------------------------------------------------------------------------------------------

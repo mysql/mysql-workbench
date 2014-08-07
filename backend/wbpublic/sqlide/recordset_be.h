@@ -192,6 +192,8 @@ public:
   void load_from_file(const bec::NodeId &node, ColumnId column, const std::string &file);
   void save_to_file(const bec::NodeId &node, ColumnId column, const std::string &file);
 
+  bool get_raw_field(const bec::NodeId &node, ColumnId column, std::string &data_ret);
+
 public:
   virtual void sort_by(ColumnId column, int direction, bool retaining);
   virtual SortColumns sort_columns() const { return _sort_columns; }

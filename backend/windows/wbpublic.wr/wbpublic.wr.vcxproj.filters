@@ -39,9 +39,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Canvas.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\stdafx.cpp" />
     <ClCompile Include="src\ActionList.cpp">
       <Filter>Source Files\grt</Filter>
@@ -105,9 +102,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Canvas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\ActionList.h">
       <Filter>Header Files\grt</Filter>

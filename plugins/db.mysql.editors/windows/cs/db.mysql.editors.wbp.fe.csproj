@@ -79,40 +79,28 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DbMysqlRelationshipEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DbMysqlRelationshipEditor.cs" />
     <Compile Include="DbMysqlRelationshipEditor.Designer.cs">
       <DependentUpon>DbMysqlRelationshipEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="DbMysqlRoleEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DbMysqlRoleEditor.cs" />
     <Compile Include="DbMysqlRoleEditor.Designer.cs">
       <DependentUpon>DbMysqlRoleEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="DbMysqlRoutineEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DbMysqlRoutineEditor.cs" />
     <Compile Include="DbMysqlRoutineEditor.Designer.cs">
       <DependentUpon>DbMysqlRoutineEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="DbMysqlRoutineGroupEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DbMysqlRoutineGroupEditor.cs" />
     <Compile Include="DbMysqlRoutineGroupEditor.Designer.cs">
       <DependentUpon>DbMysqlRoutineGroupEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="DbMysqlSchemaEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DbMysqlSchemaEditor.cs" />
     <Compile Include="DbMysqlSchemaEditor.Designer.cs">
       <DependentUpon>DbMysqlSchemaEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="DbMysqlTableColumnsListModel.cs" />
-    <Compile Include="DbMysqlTableEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DbMysqlTableEditor.cs" />
     <Compile Include="DbMysqlTableEditor.Designer.cs">
       <DependentUpon>DbMysqlTableEditor.cs</DependentUpon>
     </Compile>
@@ -120,15 +108,11 @@
     <Compile Include="DbMysqlTableFkListModel.cs" />
     <Compile Include="DbMysqlTableIndexColumnsListModel.cs" />
     <Compile Include="DbMysqlTableIndicesListModel.cs" />
-    <Compile Include="DbMysqlUserEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DbMysqlUserEditor.cs" />
     <Compile Include="DbMysqlUserEditor.Designer.cs">
       <DependentUpon>DbMysqlUserEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="DbMysqlViewEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DbMysqlViewEditor.cs" />
     <Compile Include="DbMysqlViewEditor.Designer.cs">
       <DependentUpon>DbMysqlViewEditor.cs</DependentUpon>
     </Compile>

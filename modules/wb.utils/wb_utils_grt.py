@@ -330,7 +330,7 @@ def copyJDBCConnectionString(conn):
     mforms.Utilities.set_clipboard_text(connstr+params)
 
 
-@ModuleInfo.plugin("wb.tools.createMissingLocalConnections", caption="Create Missing Local Connections", input= [], pluginMenu="Home/Connections")
+@ModuleInfo.plugin("wb.tools.createMissingLocalConnections", caption="Rescan for Local MySQL Instances", input= [], pluginMenu="Home/Connections")
 @ModuleInfo.export(grt.INT)
 def createMissingLocalConnections():
 

@@ -66,6 +66,9 @@ add_library(wbprivate
     sqlide/wb_live_schema_tree.cpp
     sqlide/wb_sql_editor_snippets.cpp
     sqlide/query_side_palette.cpp
+    sqlide/spatial_data_view.cpp
+    sqlide/spatial_draw_box.cpp
+    sqlide/spatial_handler.cpp
     workbench/metaclasses.cpp
     workbench/upgrade_helper.cpp
     workbench/wb_command_ui.cpp
@@ -78,6 +81,7 @@ add_library(wbprivate
     workbench/wb_tunnel.cpp
     workbench/wb_overview.cpp
     workbench/home_screen.cpp
+    workbench/home_screen_connections.cpp
     workbench/wb_tunnel.cpp
     workbench/webbrowser_view.cpp
     workbench/wb_db_schema.cpp
@@ -98,12 +102,18 @@ add_library(wbprivate
 
 target_link_libraries(wbprivate
     grt
+    mdcanvas
     ${CAIRO_LIBRARIES}
     ${GTK2_LIBRARIES}
     ${SIGC++_LIBRARIES}
     ${LIBZIP_LIBRARIES}
     ${TINYXML_LIBRARY}
     ${PCRE_LIBRARIES}
+    ${GDAL_LIBRARIES}
 )
+
+set_target_properties(wbprivate
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wbprivate DESTINATION ${WB_INSTALL_LIB_DIR})

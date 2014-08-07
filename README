@@ -38,7 +38,7 @@ components at the following locations:
 
 glib-2.23.5     - http://downloads.mysql.com/source/lgpl/glib-2.23.5.tar.gz
 libzip-0.9.3    - http://downloads.mysql.com/source/lgpl/libzip-0.9.3.tar.gz
-pamiko-1.7.6    - http://downloads.mysql.com/source/lgpl/paramiko-1.7.6.tar.gz
+paramiko-1.7.6  - http://downloads.mysql.com/source/lgpl/paramiko-1.7.6.tar.gz
 libiconv-1.13.1 - http://downloads.mysql.com/source/lgpl/libiconv-1.13.1.tar.gz
 
 Note: These source code downloads are provided for LGPL compliance. 
@@ -52,7 +52,7 @@ Third-Party Component Notices
 *********************************************************************
 
 %%The following software may be included in this product:
-Pamiko
+Paramiko
 
       GNU LESSER GENERAL PUBLIC LICENSE
            Version 2.1, February 1999

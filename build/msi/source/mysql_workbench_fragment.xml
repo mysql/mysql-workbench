@@ -78,18 +78,10 @@
                 <File Id="file1106" Name="Scintilla.dll"/>
                 <File Id="pcre.dll" Name="pcre.dll"/>
                 <File Id="file68725" Name="sqlite3.dll"/>
+                <File Id="gdal.dll" Name="gdal.dll"/>
+                <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
+                <File Id="ogr2ogr.exe" Name="ogr2ogr.exe"/>
               </Component>
-
-              <?if $(var.SETUP_TYPE) = "commercial" ?>
-              <Directory Id="lgpl_sources_dir" Name="lgpl_sources">
-                <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD612" Id="LGPLSrcPackages" Location="either">
-                  <File Id="file999001" Name="glib-2.12.12.tar.bz2"/>
-                  <File Id="file999002" Name="libiconv-1.14.tar.gz"/>
-                  <File Id="file999003" Name="libxml2-2.9.1.tar.gz"/>
-                  <File Id="file999005" Name="paramiko-1.7.7.1.zip"/>
-                </Component>
-              </Directory>
-              <?endif ?>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
                 <File Id="file101" Name="db.grt.dll"/>
@@ -704,7 +696,7 @@
                     <File Id="file60596" Name="task_executing.png"/>
                     <File Id="file60597" Name="task_unchecked.png"/>
                     <File Id="file60599" Name="task_warning.png"/>
-                    <File Id="file60607" Name="wb_about.png"/>
+                    <File Id="file60607" Name="MySQL-WB-about-screen.png"/>
                     <File Id="file60610" Name="check.png"/>
                     <File Id="file60611" Name="uncheck.png"/>
                     <File Id="file60612" Name="unknown.png"/>
@@ -750,8 +742,7 @@
                     <File Id="file60658" Name="audit_log.png"/>
                     <File Id="file60666" Name="wb_lock.png"/>
                     <File Id="file60667" Name="change_alert_create.png"/>
-
-                    <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
+                   <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
                     <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
 
                     </Component>
@@ -877,7 +868,14 @@
                     <File Id="file61785" Name="output_type-spacialview.png"/>
                     <File Id="file61786" Name="output_type-toggle-off.png"/>
                     <File Id="file61787" Name="output_type-toggle-on.png"/>
-					
+                    <File Id="file606602" Name="qe_sql-editor-tb-icon_zoom-area.png" />
+                    <File Id="file606604" Name="qe_sql-editor-tb-icon_zoom-in.png" />
+                    <File Id="file606606" Name="qe_sql-editor-tb-icon_zoom-out.png" />
+                    <File Id="file606608" Name="qe_sql-editor-tb-icon_zoom-reset.png" />
+                    <File Id="file606609" Name="qe_sql-editor-tb-icon_zoom-jump.png" />
+                    <File Id="file606611" Name="qe_sql-editor-tb-icon_zoom-auto.png" />
+                    <File Id="file606613" Name="qe_sql-editor-tb-icon_zoom-center.png" />
+ 		
                     <File Id="wb_item_overlay_editor" Name="wb_item_overlay_editor.png"/>
                     <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
                     <File Id="wb_item_overlay_inspector" Name="wb_item_overlay_inspector.png"/>
@@ -1617,6 +1615,7 @@
                   <File Id="file200015" Name="change_tracker.py"/>
                   <File Id="file200016" Name="client_utils.py"/>
                   <File Id="file200017" Name="log.py"/>
+                  <File Id="file200018" Name="wizard_form.py"/>
                 </Component>
                 <Directory Id="library_workbench_graphics" Name="graphics">
                   <Component DiskId="1" Guid="4b29e751-d608-47c2-b3ab-d156dcbd94c7" Id="library_workbench_graphics" Location="either">
@@ -1673,7 +1672,8 @@
                   <File Id="file614046" Name="table_templates.py"/>
                   <File Id="file614047" Name="sqlide_catalogman_ext.py"/>
                   <File Id="file614048" Name="sqlide_tableman_ext.py"/>
-
+                  <File Id="file614049" Name="run_script.py"/>
+                  <File Id="file614100" Name="sqlide_import_spatial.py" />
                   <File Id="file650000" Name="migration_grt.py"/>
                   <File Id="file650001" Name="migration_main.py"/>
                   <File Id="file650002" Name="migration_overview.py"/>
@@ -1743,7 +1743,7 @@
                   <File Id="file66712" Name="wb_admin_perfschema_reports.py"/>
                   <File Id="file66713" Name="wbfabric_grt.py"/>
 
-                  <File Id="file66713" Name="wb_docs_grt.py"/>
+                  <File Id="file66714" Name="wb_docs_grt.py"/>
                 </Component>
 
                 <?if $(var.LICENSE_TYPE) = "commercial"?>

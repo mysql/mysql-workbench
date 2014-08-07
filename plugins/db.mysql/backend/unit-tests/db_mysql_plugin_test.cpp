@@ -513,9 +513,9 @@ TEST_FUNCTION(30)
 
   db_mysql_CatalogRef new_cat= tester.db_rev_eng_schema(schemata_list);
 
-  ensure_equals("Table count mismatch", new_cat->schemata().get(0)->tables().count(), 2);
-  ensure_equals("Trigger count mismatch", new_cat->schemata().get(0)->tables().get(0)->triggers().count(), 0);
-  ensure_equals("Routines count mismatch", new_cat->schemata().get(0)->routines().count(), 0);
+  ensure_equals("Table count mismatch", new_cat->schemata().get(0)->tables().count(), 2U);
+  ensure_equals("Trigger count mismatch", new_cat->schemata().get(0)->tables().get(0)->triggers().count(), 0U);
+  ensure_equals("Routines count mismatch", new_cat->schemata().get(0)->routines().count(), 0U);
 
   tester.wb->close_document();
   tester.wb->close_document_finish();

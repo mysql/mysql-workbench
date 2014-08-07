@@ -376,14 +376,18 @@ bool WBOptions::parse_args(char **argv, int argc, int *retval)
     }
     else if (check_arg_with_value(argv, i, "run-script", argval))
     {
-      run_language= "python";
-      open_at_startup_type = "run-script";
-      open_at_startup_type= argv[start_index] + strlen(OPPREFIX);
-      std::string::size_type p = open_at_startup_type.find('=');
-      if (p != std::string::npos)
+      if (argval)
       {
-        open_at_startup = open_at_startup_type.substr(p + 1);
-        open_at_startup_type = open_at_startup_type.substr(0, p);
+        run_language= "python";
+        open_at_startup_type = "run-script";
+        open_at_startup = argval;
+      }
+      else
+      {
+        printf("%s: Missing argument for option %s\n", argv[0], argv[start_index]);
+        if (retval)
+        *retval = 1;
+        return false;
       }
     }
     else if (check_arg_with_value(argv, i, "run-lua", argval))
@@ -1166,8 +1170,13 @@ void WBContext::init_finish_(WBOptions *options)
       options->open_at_startup_type = "query";
     else if (g_str_has_suffix(initial_file.c_str(), ".py") && options->open_at_startup_type == "run-script")
       options->open_at_startup_type = "run-script";
+    else if (g_str_has_suffix(initial_file.c_str(), ".py") && options->open_at_startup_type == "script")
+    {
+      options->open_at_startup_type = "run-script";
+      printf("%s: --script option is meant for SQL scripts, assuming --run-script was meant instead\n", argv0);
+    }
     else
-      log_error("Unknown file type %s\n", initial_file.c_str());
+      printf("%s: ERROR: Unknown file type %s\n", argv0, initial_file.c_str());
   }
 
   block_user_interaction(false);
@@ -1800,6 +1809,9 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "workbench.model.ObjectFigure:ColorList", colors);
 
   set_default(options, "@ColorScheme/Items", "System Default:0,Windows 7:1,Windows 8:2,Windows 8 (alternative):3,High Contrast:4");
+
+  //Advanced options
+  set_default(options, "sshkeepalive", 0); // by default turned off
 
   // Other options
   set_default(options, "workbench.physical.Connection:HideCaptions", 1);

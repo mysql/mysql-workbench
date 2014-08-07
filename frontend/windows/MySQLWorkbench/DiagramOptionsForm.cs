@@ -27,7 +27,7 @@ namespace MySQL.GUI.Workbench
 
       this.wbContext = wbContext;
 
-      canvas = new MySQL.GUI.Mdc.WindowsGDICanvasView(contentPanel.Handle, IntPtr.Zero, 
+      canvas = new MySQL.GUI.Mdc.WindowsGDICanvasView(contentPanel.Handle,
         contentPanel.Width, contentPanel.Height);
 
       canvas.set_on_queue_repaint(canvasNeedsRepaint);

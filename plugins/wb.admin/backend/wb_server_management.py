@@ -989,9 +989,9 @@ class FileOpsLinuxBase(object):
         
         if len(output) == 3:
             if output[0] == '1':
-                raise OSError(errno.ENOENT, 'The indicated path does not exist')
+                raise OSError(errno.ENOENT, 'The path "%s" does not exist' % path)
             elif output[1] == '1':
-                raise OSError(errno.ENOTDIR, 'The indicated path is not a directory')
+                raise OSError(errno.ENOTDIR, 'The path "%s" is not a directory' % path)
             elif output[2] == '1':
                 ret_val = False
         else:
@@ -1017,8 +1017,8 @@ class FileOpsLinuxBase(object):
         output = sanitize_sudo_output(output.getvalue().strip())
         if res != 0:
             custom_messages = {
-                                errno.ENOENT:"The indicated path does not exist",
-                                errno.ENOTDIR:"The indicated path is not a directory",
+                                errno.ENOENT:"The path \"%s\" does not exist" % path,
+                                errno.ENOTDIR:"The path \"%s\" is not a directory" % path,
                                 errno.EACCES:"Permission denied accessing %s" % path
                               }
         

@@ -141,7 +141,7 @@
       <PreprocessorDefinitions>SCI_NAMESPACE;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>..;..\..\base;..\..\base.wr\src;..\..\..\ext\scintilla\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\..\base;..\..\base.wr\src;..\..\..\ext\scintilla\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\library\mysql.canvas\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4793</DisableSpecificWarnings>
@@ -159,7 +159,7 @@
       <PreprocessorDefinitions>SCI_NAMESPACE;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>..;..\..\base;..\..\base.wr\src;..\..\..\ext\scintilla\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\..\base;..\..\base.wr\src;..\..\mysql.canvas\src;..\..\..\ext\scintilla\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4793</DisableSpecificWarnings>
@@ -197,7 +197,7 @@
       <PreprocessorDefinitions>SCI_NAMESPACE;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>..;..\..\base;..\..\base.wr\src;..\..\..\ext\scintilla\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\..\base;..\..\base.wr\src;..\..\mysql.canvas\src;..\..\..\ext\scintilla\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4793</DisableSpecificWarnings>
@@ -231,7 +231,7 @@
       <PreprocessorDefinitions>SCI_NAMESPACE;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>..;..\..\base;..\..\base.wr\src;..\..\..\ext\scintilla\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\..\base;..\..\base.wr\src;..\..\mysql.canvas\src;..\..\..\ext\scintilla\include;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4793</DisableSpecificWarnings>
@@ -243,12 +243,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Canvas.h" />
+    <ClInclude Include="CanvasViewer.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\wf_app.h" />
     <ClInclude Include="src\wf_appview.h" />
     <ClInclude Include="src\wf_base.h" />
     <ClInclude Include="src\wf_box.h" />
     <ClInclude Include="src\wf_button.h" />
+    <ClInclude Include="src\wf_canvas.h" />
     <ClInclude Include="src\wf_checkbox.h" />
     <ClInclude Include="src\wf_code_editor.h" />
     <ClInclude Include="src\wf_dockingpoint.h" />
@@ -290,6 +293,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="Canvas.cpp" />
+    <ClCompile Include="CanvasViewer.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -338,6 +343,7 @@
     <ClCompile Include="src\wf_view.cpp" />
     <ClCompile Include="src\wf_webbrowser.cpp" />
     <ClCompile Include="src\wf_wizard.cpp" />
+    <ClCompile Include="src\wf_canvas.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="MySQLAssembly.ico" />
@@ -360,6 +366,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\mysql.canvas\mysql.canvas.vcxproj">
+      <Project>{1b17d534-365d-4c93-b3b6-55610df8629a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\mysql.forms.vcxproj">
       <Project>{28fcb4e3-8baa-42f2-b2c6-247d9d0745b1}</Project>

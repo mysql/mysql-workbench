@@ -100,7 +100,7 @@ set(IMAGE_FILES
     task_unchecked.png
     task_warning.png
     wb-wizard-vista-bg.png
-    wb_about.png
+    MySQL-WB-about-screen.png
     zoom_in.png
     zoom_out.png
     zoom_reset.png

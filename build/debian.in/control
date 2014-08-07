@@ -9,11 +9,10 @@ Homepage: http://dev.mysql.com/workbench/
 Package: mysql-workbench-@edition@
 @ifdef community
 Replaces: mysql-workbench-gpl, mysql-workbench-oss
-Depends: ${shlibs:Depends}, python-paramiko, python-pexpect, python-pysqlite2, mysql-client|virtual-mysql-client
 @else
 Replaces: mysql-workbench-com-se
-Depends: ${shlibs:Depends}, python-paramiko, python-pysqlite2, mysql-client|virtual-mysql-client
 @endif
+Depends: ${shlibs:Depends}, python-paramiko
 Architecture: i386 amd64
 Suggests: gnome-keyring
 Description: MySQL Workbench

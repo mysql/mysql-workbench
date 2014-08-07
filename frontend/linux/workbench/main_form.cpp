@@ -2045,10 +2045,7 @@ void MainForm::dock_view(mforms::AppView *view, const std::string &position, int
       return;
     
     if (!view->get_menubar())
-    {
       view->set_menubar(mforms::manage(_wbui_context->get_command_ui()->create_menubar_for_context(view->is_main_form() ? view->get_form_context_name() : "")));
-      view->get_menubar()->release();
-    }
 
     Gtk::Widget *decorated = reinterpret_cast<Gtk::Widget*>(w->get_data("DockDecoration"));
     if (!decorated)

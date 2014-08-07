@@ -162,6 +162,7 @@ private:
   void on_collapsed(const Gtk::TreeModel::iterator& iter, const Gtk::TreeModel::Path& path);
   void on_realize();
   bool on_header_button_event(GdkEventButton *ev, int);
+  bool on_key_release(GdkEventKey *ev);
   bool on_button_event(GdkEventButton *ev);
   bool on_button_release(GdkEventButton* ev);
   bool on_motion_notify(GdkEventMotion* ev);
