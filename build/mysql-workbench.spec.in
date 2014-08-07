@@ -31,6 +31,8 @@
 %define vsqlite_dir      $HOME/linux-res-6.2/vsqlite
 %define ctemplate_dir    $HOME/linux-res-6.2
 
+%define gdal_dir         $HOME/linux-res-6.2/gdal
+
 %if "%{edition}" == "commercial"
 %define commercial       1
 %define mysqlcppconn_dir $HOME/linux-res-6.2/cppconn-com
@@ -76,6 +78,7 @@ BuildRequires: make
 BuildRequires: tar
 BuildRequires: gcc-c++
 BuildRequires: swig >= 1.3
+BuildRequires: proj-devel
 
 %if 0%{?fedora} >= 18
 BuildRequires: libgnome-keyring-devel libuuid-devel tinyxml-devel vsqlite++-devel ctemplate-devel
@@ -176,6 +179,7 @@ Windows, Linux and Mac OS X.
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
+       -DGDAL_INCLUDE_DIR=%{gdal_dir}/include -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
 %if 0%{?rhel} == 6
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
@@ -229,6 +233,7 @@ if [ %{linuxres_home} ]; then
 %endif
 fi
 
+cp -a %{gdal_dir}/lib/libgdal.so.* %{buildroot}%{_libdir}/mysql-workbench/
 
 %post
 touch --no-create %{_datadir}/icons/hicolor || :
