@@ -267,6 +267,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 - (void)setStringValue: (NSString*)value
 {
   [self setTitle: value];
+  [self sizeToFit];
 }
 
 - (NSString*)stringValue

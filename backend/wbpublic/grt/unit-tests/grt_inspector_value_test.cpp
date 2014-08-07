@@ -58,7 +58,7 @@ TEST_FUNCTION(1)
 
   // test listing
   size_t c = vinsp->count();
-  ensure_equals("begin listing", c, 10);
+  ensure_equals("begin listing", c, 10U);
 
   std::string name, value;
   Type type;
@@ -144,17 +144,17 @@ TEST_FUNCTION(1)
   NodeId nkey;
   flag= vinsp->add_item(nkey);
   ensure("add ok", flag);
-  ensure_equals("add", nkey[0], 10);
+  ensure_equals("add", nkey[0], 10U);
   flag= vinsp->set_field(nkey, ValueInspectorBE::Value, "new value");
   ensure("set item", flag);
 
-  ensure_equals("new count", (int)list.count(), 11);
+  ensure_equals("new count", list.count(), 11U);
 
   // test delete value
   flag= vinsp->delete_item(3);
   ensure("del", flag);
   
-  ensure_equals("count", (int)list.count(), 10);
+  ensure_equals("count", list.count(), 10U);
 
   dump_tree_model("output/grt_inspector_value_test1.2.txt", vinsp, columns, true);
   ensure_files_equal("list delete", "output/grt_inspector_value_test1.2.txt", "data/be/grt_inspector_value_test1.2.txt");
@@ -178,7 +178,7 @@ TEST_FUNCTION(2)
   // create a test list
   BaseListRef list(create_string_list(&grt, 10));
 
-  ensure_equals("initial list size", (int)list.count(), 10);
+  ensure_equals("initial list size", list.count(), 10U);
   ensure_equals("list type", list.type(), ListType);
   ensure_equals("list content type", list.content_type(), StringType);
 
@@ -186,7 +186,7 @@ TEST_FUNCTION(2)
 
   // test listing
   size_t c = vinsp->count();
-  ensure_equals("begin listing", c, 10);
+  ensure_equals("begin listing", c, 10U);
 
   dump_tree_model("output/grt_inspector_value_test2.txt", vinsp, columns, true);
   ensure_files_equal("typed list check", "output/grt_inspector_value_test2.txt", "data/be/grt_inspector_value_test2.txt");
@@ -244,7 +244,7 @@ TEST_FUNCTION(3)
   // create a test list
   BaseListRef list(create_int_list(&grt, 10));
 
-  ensure_equals("initial list size", (int)list.count(), 10);
+  ensure_equals("initial list size", list.count(), 10U);
   ensure_equals("list type", list.type(), ListType);
   ensure_equals("list content type", list.content_type(), IntegerType);
 
@@ -252,7 +252,7 @@ TEST_FUNCTION(3)
 
   // test listing
   size_t c = vinsp->count();
-  ensure_equals("begin listing", c, 10);
+  ensure_equals("begin listing", c, 10U);
 
   std::string name, value;
 
@@ -318,14 +318,14 @@ TEST_FUNCTION(10)
   // create a test dict
   DictRef dict(create_dict_with_varied_data(&grt));
 
-  ensure_equals("initial dict size", (int)dict.count(), 6);
+  ensure_equals("initial dict size", dict.count(), 6U);
   ensure_equals("dict type", dict.type(), DictType);
 
   ValueInspectorBE *vinsp= ValueInspectorBE::create(&grt, dict, false, false);
 
   // test listing
   size_t c = vinsp->count();
-  ensure_equals("begin listing", c, 6);
+  ensure_equals("begin listing", c, 6U);
 
   std::string name, value;
 
@@ -364,20 +364,20 @@ TEST_FUNCTION(10)
 
   // item count still ok?
 
-  ensure_equals("item count after changes", (int)dict.count(), 6);
+  ensure_equals("item count after changes", dict.count(), 6U);
   
   // test add new value
   NodeId nkey;
   flag= vinsp->add_item(nkey);
   ensure("add ok", flag);
-  ensure_equals("add", nkey[0], 6);
+  ensure_equals("add", nkey[0], 6U);
 
   flag= vinsp->set_field(nkey, ValueInspectorBE::Name, "newk");
   ensure("set item name", flag);
   flag= vinsp->set_field(nkey, ValueInspectorBE::Value, "new value");
   ensure("set item", flag);
 
-  ensure_equals("new count", (int)dict.count(), 7);
+  ensure_equals("new count", dict.count(), 7U);
 
   dump_tree_model("output/grt_inspector_value_test10.2.txt", vinsp, columns, true);
   ensure_files_equal("dict check add", "output/grt_inspector_value_test10.2.txt", "data/be/grt_inspector_value_test10.2.txt")
@@ -386,7 +386,7 @@ TEST_FUNCTION(10)
   flag= vinsp->delete_item(3);
   ensure("del", flag);
   
-  ensure_equals("count", (int)dict.count(), 6);
+  ensure_equals("count", dict.count(), 6U);
 
   //ensure_equals("get/del value", value, "[ 1, 2, 3, 4, 5 ]");
   
@@ -398,7 +398,7 @@ TEST_FUNCTION(10)
 
   delete vinsp;
   
-  ensure_equals("final count", (int)dict.count(), 6);
+  ensure_equals("final count", dict.count(), 6U);
 }
 
 
@@ -415,7 +415,7 @@ TEST_FUNCTION(11)
   // create a test dict
   DictRef dict(create_dict_with_int_data(&grt));
 
-  ensure_equals("initial dict size", (int)dict.count(), 9);
+  ensure_equals("initial dict size", dict.count(), 9U);
   ensure_equals("dict type", dict.type(), DictType);
   ensure_equals("dict content type", dict.content_type(), IntegerType);
 
@@ -426,7 +426,7 @@ TEST_FUNCTION(11)
   
   // test listing
   size_t c = vinsp->count();
-  ensure_equals("begin listing", c, 9);
+  ensure_equals("begin listing", c, 9U);
 
   std::string name, value;
   NodeId node;
@@ -469,7 +469,7 @@ TEST_FUNCTION(11)
   NodeId nkey;
   flag= vinsp->add_item(nkey);
   ensure("add ok", flag);
-  ensure_equals("add", nkey[0], 9);
+  ensure_equals("add", nkey[0], 9U);
 
   flag= vinsp->set_field(nkey, ValueInspectorBE::Value, "new value");
   ensure("set item", !flag);
@@ -514,7 +514,7 @@ TEST_FUNCTION(11)
   flag= vinsp->delete_item(3);
   ensure("del", flag);
 
-  ensure_equals("count", (int)dict.count(), 10);
+  ensure_equals("count", dict.count(), 10U);
 
   flag= vinsp->delete_item(10);
   ensure("bad del", !flag);
@@ -528,7 +528,7 @@ TEST_FUNCTION(11)
   
   delete vinsp;
   
-  ensure_equals("final count", (int)dict.count(), 9);
+  ensure_equals("final count", dict.count(), 9U);
 }
 
 
@@ -557,7 +557,7 @@ TEST_FUNCTION(20)
 
   // test listing
   size_t c= vinsp->count();
-  ensure_equals("begin listing", c, 6);
+  ensure_equals("begin listing", c, 6U);
   
   std::string name, value;
 
@@ -634,7 +634,7 @@ TEST_FUNCTION(21)
 
   // test listing
   size_t c = vinsp->count();
-  ensure_equals("top listing", c, 3);
+  ensure_equals("top listing", c, 3U);
 
   std::string name, value;
   bool flag;

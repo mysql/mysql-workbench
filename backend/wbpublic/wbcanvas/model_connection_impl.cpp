@@ -164,6 +164,24 @@ bool model_Connection::ImplData::is_canvas_view_valid()
   return false;
 }
 
+
+wbfig::CaptionFigure *model_Connection::ImplData::create_caption()
+{
+  wbfig::CaptionFigure *figure = new wbfig::CaptionFigure(_line->get_layer(), self()->owner()->get_data(), self());
+  figure->set_tag(self()->id());
+  figure->set_font(_caption_font);
+  _line->get_layer()->add_item(figure);
+  figure->set_fill_background(false);
+  figure->set_state_drawing(false);
+  figure->set_draggable(true);
+  figure->set_accepts_selection(true);
+  figure->set_highlight_through_text(true);
+  figure->set_visible(*self()->_visible != 0);
+  scoped_connect(figure->signal_bounds_changed(),
+                 boost::bind(&model_Connection::ImplData::caption_bounds_changed, this, _1, figure));
+  return figure;
+}
+
 //--------------------------------------------------------------------------------------------------
 
 void model_Connection::ImplData::set_above_caption(const std::string &text)
@@ -184,16 +202,7 @@ void model_Connection::ImplData::set_above_caption(const std::string &text)
 
   if (!_above_caption)
   {
-    _above_caption= new wbfig::CaptionFigure(_line->get_layer(), self()->owner()->get_data(), self());
-    _above_caption->set_tag(self()->id());
-    _above_caption->set_font(_caption_font);
-    _line->get_layer()->add_item(_above_caption);
-    _above_caption->set_fill_background(false);
-    _above_caption->set_draggable(true);
-    _above_caption->set_accepts_selection(true);
-    _above_caption->set_visible(*self()->_visible != 0);
-    scoped_connect(_above_caption->signal_bounds_changed(),
-      boost::bind(&model_Connection::ImplData::caption_bounds_changed, this, _1, _above_caption));
+    _above_caption= create_caption();
   }
   _above_caption->set_text(text);
 
@@ -219,16 +228,7 @@ void model_Connection::ImplData::set_below_caption(const std::string &text)
 
   if (!_below_caption)
   {
-    _below_caption= new wbfig::CaptionFigure(_line->get_layer(), self()->owner()->get_data(), self());
-    _below_caption->set_tag(self()->id());
-    _below_caption->set_font(_caption_font);
-    _line->get_layer()->add_item(_below_caption);
-    _below_caption->set_fill_background(false);
-    _below_caption->set_draggable(true);
-    _below_caption->set_accepts_selection(true);
-    _below_caption->set_visible(*self()->_visible != 0);
-    scoped_connect(_below_caption->signal_bounds_changed(),
-      boost::bind(&model_Connection::ImplData::caption_bounds_changed, this, _1, _below_caption));
+    _below_caption= create_caption();
   }
   _below_caption->set_text(text);
 
@@ -247,17 +247,7 @@ void model_Connection::ImplData::set_start_caption(const std::string &text)
 
   if (!_start_caption)
   {
-    _start_caption= new wbfig::CaptionFigure(_line->get_layer(), self()->owner()->get_data(), self());
-    _start_caption->set_tag(self()->id());
-    _start_caption->set_font(_caption_font);
-    _line->get_layer()->add_item(_start_caption);
-    _start_caption->set_fill_color(Color::White());
-    _start_caption->set_fill_background(true);
-    _start_caption->set_draggable(true);
-    _start_caption->set_accepts_selection(true);
-    _start_caption->set_visible(*self()->_visible != 0);
-    scoped_connect(_start_caption->signal_bounds_changed(),
-      boost::bind(&model_Connection::ImplData::caption_bounds_changed, this, _1, _start_caption));
+    _start_caption= create_caption();
   }
   _start_caption->set_text(text);
 
@@ -276,17 +266,7 @@ void model_Connection::ImplData::set_end_caption(const std::string &text)
 
   if (!_end_caption)
   {
-    _end_caption= new wbfig::CaptionFigure(_line->get_layer(), self()->owner()->get_data(), self());
-    _end_caption->set_tag(self()->id());
-    _end_caption->set_font(_caption_font);
-    _line->get_layer()->add_item(_end_caption);
-    _end_caption->set_fill_color(Color::White());
-    _end_caption->set_fill_background(true);
-    _end_caption->set_draggable(true);
-    _end_caption->set_accepts_selection(true);
-    _end_caption->set_visible(*self()->_visible != 0);
-    scoped_connect(_end_caption->signal_bounds_changed(),
-      boost::bind(&model_Connection::ImplData::caption_bounds_changed, this, _1, _end_caption));
+    _end_caption= create_caption();
   }
   _end_caption->set_text(text);
 

@@ -66,7 +66,7 @@ TEST_FUNCTION(1)
   view->get_selection()->add(item1);
   view->get_selection()->add(item2);
 
-  ensure_equals("selection", view->get_selected_items().size(), 2);
+  ensure_equals("selection", view->get_selected_items().size(), 2U);
   
   std::list<mdc::CanvasItem*> items;
   Selection::ContentType selection(view->get_selected_items());

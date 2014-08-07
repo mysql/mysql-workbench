@@ -81,7 +81,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
 
   // check that it was added
   overview->refresh_node(base_node, true);
-  ensure_equals(what+" node count", overview->count_children(base_node), (int)initial_count+2);
+  ensure_equals(what+" node count", overview->count_children(base_node), initial_count+2);
   {
     grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count", list.count(), initial_count+1U);
@@ -89,7 +89,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   // check undo add
   check_undo();
   overview->refresh_node(base_node, true);
-  ensure_equals(what+" node count", overview->count_children(base_node), (int)initial_count+1);
+  ensure_equals(what+" node count", overview->count_children(base_node), initial_count+1);
   {
     grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after undo", list.count(), initial_count);
@@ -98,7 +98,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   // check redo add
   check_redo();
   overview->refresh_node(base_node, true);
-  ensure_equals("diagram node count", overview->count_children(base_node), (int)initial_count+2);
+  ensure_equals("diagram node count", overview->count_children(base_node), initial_count+2);
   {
     grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after redo", list.count(), initial_count+1U);
@@ -131,7 +131,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
 
   // check delete
   overview->refresh_node(base_node, true);
-  ensure_equals(what+" node count", overview->count_children(base_node), (int)initial_count+1);
+  ensure_equals(what+" node count", overview->count_children(base_node), initial_count+1);
   {
     grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after delete", list.count(), initial_count);
@@ -140,7 +140,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   // check undo delete
   check_undo();
   overview->refresh_node(base_node, true);
-  ensure_equals(what+" node count", overview->count_children(base_node), (int)initial_count+2);
+  ensure_equals(what+" node count", overview->count_children(base_node), initial_count+2);
   {
     grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after undo", list.count(), initial_count+1U);
@@ -149,7 +149,7 @@ void check_overview_object(const std::string &what, const NodeId &base_node,
   // check redo delete
   check_redo();
   overview->refresh_node(base_node, true);
-  ensure_equals(what+" node count", overview->count_children(base_node), (int)initial_count+1);
+  ensure_equals(what+" node count", overview->count_children(base_node), initial_count+1);
   {
     grt::BaseListRef list= grt::BaseListRef::cast_from(get_value_by_path(tester.get_pmodel(), list_path));
     ensure_equals(list_path+" "+what+" count after redo", list.count(), initial_count);
@@ -219,21 +219,21 @@ TEST_FUNCTION(12) // Schema
 {
   std::string s;
 
-  ensure_equals("schema count", overview->count_children(NodeId("1")), 1);
+  ensure_equals("schema count", overview->count_children(NodeId("1")), 1U);
   
   overview->request_add_object(NodeId("1"));
   check_only_one_undo_added();
 
   overview->refresh_node(NodeId("1"), true);
-  ensure_equals("schema count", overview->count_children(NodeId("1")), 2);
+  ensure_equals("schema count", overview->count_children(NodeId("1")), 2U);
 
   check_undo();
   overview->refresh_node(NodeId("1"), true);
-  ensure_equals("schema count", overview->count_children(NodeId("1")), 1);
+  ensure_equals("schema count", overview->count_children(NodeId("1")), 1U);
 
   check_redo();
   overview->refresh_node(NodeId("1"), true);
-  ensure_equals("schema count", overview->count_children(NodeId("1")), 2);
+  ensure_equals("schema count", overview->count_children(NodeId("1")), 2U);
   
   overview->activate_node(NodeId("1.1"));
 
@@ -263,15 +263,15 @@ TEST_FUNCTION(12) // Schema
   check_only_one_undo_added();
 
   overview->refresh_node(NodeId("1"), true);
-  ensure_equals("schema count", overview->count_children(NodeId("1")), 1);
+  ensure_equals("schema count", overview->count_children(NodeId("1")), 1U);
   
   check_undo();
   overview->refresh_node(NodeId("1"), true);
-  ensure_equals("schema count", overview->count_children(NodeId("1")), 2);
+  ensure_equals("schema count", overview->count_children(NodeId("1")), 2U);
 
   check_redo();
   overview->refresh_node(NodeId("1"), true);
-  ensure_equals("schema count", overview->count_children(NodeId("1")), 1);
+  ensure_equals("schema count", overview->count_children(NodeId("1")), 1U);
 
   check_undo();
 
@@ -282,25 +282,25 @@ TEST_FUNCTION(12) // Schema
 
 TEST_FUNCTION(14) // Table
 {
-  check_overview_object("Table", NodeId("1.0.0"), "/catalog/schemata/0/tables", 4);
+  check_overview_object("Table", NodeId("1.0.0"), "/catalog/schemata/0/tables", 4U);
 }
 
 
 TEST_FUNCTION(16) //  View
 {
-  check_overview_object("View", NodeId("1.0.1"), "/catalog/schemata/0/views", 1);
+  check_overview_object("View", NodeId("1.0.1"), "/catalog/schemata/0/views", 1U);
 }
 
 
 TEST_FUNCTION(18) //  Routine
 {
-  check_overview_object("Routine", NodeId("1.0.2"), "/catalog/schemata/0/routines", 0);
+  check_overview_object("Routine", NodeId("1.0.2"), "/catalog/schemata/0/routines", 0U);
 }
 
 
 TEST_FUNCTION(20) //  Routine Group
 {
-  check_overview_object("Group", NodeId("1.0.3"), "/catalog/schemata/0/routineGroups", 1);
+  check_overview_object("Group", NodeId("1.0.3"), "/catalog/schemata/0/routineGroups", 1U);
 }
 
 

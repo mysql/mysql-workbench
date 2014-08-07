@@ -132,7 +132,7 @@ WizardImpl::WizardImpl(::mforms::Wizard *wiz, ::mforms::Form* owner)
   _fwd_label.set_use_underline(true);
   _extra_btn.hide();
 
-  get_window()->set_size_request(800, 650);
+  get_window()->set_size_request(-1, 650);
 
   if (owner)
   {

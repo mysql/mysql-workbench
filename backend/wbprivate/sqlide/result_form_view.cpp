@@ -507,7 +507,7 @@ _editable(editable)
   }
 
   add(&_tbar, false, true);
-  _spanel.set_back_color(mforms::App::get()->get_system_color(mforms::SystemColorContainer).to_html());
+  _spanel.set_back_color("#ffffff");
 
   add(&_spanel, true, true);
   _spanel.add(&_table);

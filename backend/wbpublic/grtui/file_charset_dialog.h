@@ -21,27 +21,27 @@
 #define _FILE_CHARSET_DIALOG_H_
 
 #include <mforms/form.h>
-
+#include "grtpp.h"
 #include "wbpublic_public_interface.h"
 
 namespace mforms {
-  class TextEntry;
+  class Selector;
   class Button;
 }
 
 class WBPUBLICBACKEND_PUBLIC_FUNC FileCharsetDialog : public mforms::Form
 {
-  mforms::TextEntry* _charset;
+  mforms::Selector* _charset;
   mforms::Button* _ok;
   mforms::Button* _cancel;
 
-  FileCharsetDialog(const std::string &title, const std::string &message,
-                    const std::string &default_encoding);
+  FileCharsetDialog(const std::string &title, const std::string &message);
   
 public:
-  std::string run();
+  std::string run(grt::GRT *grt, const std::string &default_encoding);
   
-  static bool ensure_filedata_utf8(const char *data, size_t length, const std::string &encoding,
+  static bool ensure_filedata_utf8(grt::GRT *grt,
+                                   const char *data, size_t length, const std::string &encoding,
                                    const std::string &filename,
                                    char *&utf8_data,
                                    std::string *original_encoding = 0);

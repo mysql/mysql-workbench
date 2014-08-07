@@ -57,13 +57,13 @@ namespace MySQL.GUI.Workbench
 
     #region Constructors
 
-    public ModelDiagramForm(WbContext context, String id, IntPtr payload)
+    public ModelDiagramForm(WbContext context, String id)
     {
       InitializeComponent();
       
       wbContext = context;
 
-      CreateCanvas(id, payload);
+      CreateCanvas(id);
 
       canvasViewer.CanvasPanel.MouseMove += new MouseEventHandler(CanvasPanel_MouseMove);
       canvasViewer.CanvasPanel.MouseDown += new MouseEventHandler(CanvasPanel_MouseDown);
@@ -498,9 +498,9 @@ namespace MySQL.GUI.Workbench
       }
     }
 
-    public BaseWindowsCanvasView CreateCanvas(String id, IntPtr payload)
+    public BaseWindowsCanvasView CreateCanvas(String id)
     {
-      BaseWindowsCanvasView canvas = canvasViewer.CreateCanvasView(this, payload, false,
+      BaseWindowsCanvasView canvas = canvasViewer.CreateCanvasView(this, false,
         wbContext.software_rendering_enforced(), wbContext.opengl_rendering_enforced());
       formBE = wbContext.get_diagram_form_for_diagram(id);
       return canvas;

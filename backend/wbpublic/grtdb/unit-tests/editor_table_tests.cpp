@@ -198,12 +198,12 @@ TEST_FUNCTION(3)
   bool flag;
 
   // count is always +1 because of placeholder
-  ensure_equals("initial column count", clist->count(), 1);
+  ensure_equals("initial column count", clist->count(), 1U);
 
   // create column
   node= editor->add_column("id");
-  ensure_equals("new column id", node[0], 0);
-  ensure_equals("column count", clist->count(), 2);
+  ensure_equals("new column id", node[0], 0U);
+  ensure_equals("column count", clist->count(), 2U);
 
   ensure("new column", table->columns().get(0).is_valid());
 
@@ -216,8 +216,8 @@ TEST_FUNCTION(3)
 
   // create column
   node= editor->add_column("name");
-  ensure_equals("new column id", node[0], 1);
-  ensure_equals("column count", clist->count(), 3);
+  ensure_equals("new column id", node[0], 1U);
+  ensure_equals("column count", clist->count(), 3U);
 
   flag= clist->get_field(node, TableColumnsListBE::Name, name);
   ensure("name column name get", flag);
@@ -267,7 +267,7 @@ TEST_FUNCTION(3)
   // create column  
   node= editor->add_column("email");
 
-  ensure_equals("column count", clist->count(), 6);
+  ensure_equals("column count", clist->count(), 6U);
 
 
   /// full column listing
@@ -445,11 +445,11 @@ TEST_FUNCTION(4)
   TableColumnsListBE *clist= editor->get_columns();
   bool flag;
   
-  ensure_equals("column count", clist->count(), 6);
+  ensure_equals("column count", clist->count(), 6U);
 
   editor->remove_column(3);
 
-  ensure_equals("new column count", clist->count(), 5);
+  ensure_equals("new column count", clist->count(), 5U);
   
   std::string name;
 
@@ -493,16 +493,16 @@ TEST_FUNCTION(10)
   std::string name, type, comment;
   bool flag;
 
-  ensure_equals("column count", editor->get_columns()->count(), 5);
+  ensure_equals("column count", editor->get_columns()->count(), 5U);
 
-  ensure_equals("index count", editor->get_indexes()->count(), 2);
+  ensure_equals("index count", editor->get_indexes()->count(), 2U);
 
   NodeId node= editor->add_index("idx1");
 
   index->select_index(node);
 //  index->set_field(0, IndexListBE::Name, "id");
 
-  ensure_equals("index count", index->count(), 3);
+  ensure_equals("index count", index->count(), 3U);
 
   flag= index->get_field(1, IndexListBE::Name, name);
   ensure("get index name", flag);
@@ -627,7 +627,7 @@ TEST_FUNCTION(10)
   editor->remove_index(1, false);
 
 
-  ensure_equals("index count", index->count(), 2);
+  ensure_equals("index count", index->count(), 2U);
 
   // add new one with convenience func
   std::vector<NodeId> columns;
@@ -635,9 +635,9 @@ TEST_FUNCTION(10)
   columns.push_back(NodeId(3)); // email
   node= editor->add_index_with_columns(columns);
 
-  ensure_equals("new index", node[0], 1);
+  ensure_equals("new index", node[0], 1U);
 
-  ensure_equals("index count", index->count(), 3);
+  ensure_equals("index count", index->count(), 3U);
   
   index->set_field(1, IndexListBE::Name, "namemail_index");
 
@@ -690,9 +690,9 @@ TEST_FUNCTION(11)
   columns.push_back(NodeId(3)); // email
   editor->add_index_with_columns(columns);
 
-  ensure_equals("index count", index->count(), 4);
+  ensure_equals("index count", index->count(), 4U);
 
-  ensure_equals("column count", editor->get_columns()->count(), 5);
+  ensure_equals("column count", editor->get_columns()->count(), 5U);
 
   std::string name;
   bool flag;
@@ -707,7 +707,7 @@ TEST_FUNCTION(11)
 
   ensure_equals("column count", table->indices().get(1)->columns().count(), 1U);
 
-  ensure_equals("index count", index->count(), 3);
+  ensure_equals("index count", index->count(), 3U);
 
 
   flag= index->get_field(0, IndexListBE::Name, name);
@@ -766,15 +766,15 @@ TEST_FUNCTION(12)
 
   TestTableEditor ed(grtm, table,  wbt.get_rdbms());
 
-  ensure_equals("column count", ed.get_columns()->count(), 4);
+  ensure_equals("column count", ed.get_columns()->count(), 4U);
 
   ed.add_index("hello");
 
-  ensure_equals("index count", ed.get_indexes()->count(), 2);
+  ensure_equals("index count", ed.get_indexes()->count(), 2U);
 
   ed.get_indexes()->select_index(0);
 
-  ensure_equals("index column item count", ed.get_indexes()->get_columns()->count(), 3);
+  ensure_equals("index column item count", ed.get_indexes()->get_columns()->count(), 3U);
   
   
   IndexColumnsListBE *ic= ed.get_indexes()->get_columns();

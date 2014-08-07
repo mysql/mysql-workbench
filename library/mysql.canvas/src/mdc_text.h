@@ -108,6 +108,7 @@ public:
 
   void set_fill_background(bool flag);
   void set_draw_outline(bool flag);
+  void set_highlight_through_text(bool flag) { _highlight_through_text = flag; }
 
   void set_font(const FontSpec &font);
   const FontSpec &get_font() { return _font; }
@@ -136,6 +137,7 @@ protected:
   bool _allow_wrapping;
   bool _fill_background;
   bool _draw_outline;
+  bool _highlight_through_text;
 
   base::Size get_text_size();
 

@@ -35,7 +35,7 @@ namespace MySQL.GUI.Workbench
         /// </summary>
         private void InitializeComponent()
         {
-      this.canvasViewer = new MySQL.Utilities.WindowsCanvasViewer();
+      this.canvasViewer = new MySQL.GUI.Mdc.WindowsCanvasViewer();
       this.diagramPanel = new MySQL.Controls.HeaderPanel();
       this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
       this.sideSplitContainer = new System.Windows.Forms.SplitContainer();
@@ -323,7 +323,7 @@ namespace MySQL.GUI.Workbench
 
         #endregion
 
-        private MySQL.Utilities.WindowsCanvasViewer canvasViewer;
+      private MySQL.GUI.Mdc.WindowsCanvasViewer canvasViewer;
       private MySQL.Controls.HeaderPanel diagramPanel;
       private System.Windows.Forms.SplitContainer mainSplitContainer;
       private System.Windows.Forms.SplitContainer contentSplitContainer;
@@ -335,5 +335,5 @@ namespace MySQL.GUI.Workbench
       private System.Windows.Forms.SplitContainer mainContentSplitContainer;
       private Controls.HeaderPanel secondarySidebarPanel;
 
-			}
+    }
 }

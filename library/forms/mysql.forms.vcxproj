@@ -149,7 +149,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>DECL_MFORMS_EXPORT;SCI_LEXER;SCI_NAMESPACE;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;../base;../../ext/scintilla/include;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\mysql.canvas\src;../base;../../ext/scintilla/include;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -253,6 +253,7 @@
     <ClCompile Include="base.cpp" />
     <ClCompile Include="box.cpp" />
     <ClCompile Include="button.cpp" />
+    <ClCompile Include="canvas.cpp" />
     <ClCompile Include="checkbox.cpp" />
     <ClCompile Include="code_editor.cpp" />
     <ClCompile Include="container.cpp" />
@@ -311,6 +312,7 @@
     <ClInclude Include="mforms\base.h" />
     <ClInclude Include="mforms\box.h" />
     <ClInclude Include="mforms\button.h" />
+    <ClInclude Include="mforms\canvas.h" />
     <ClInclude Include="mforms\checkbox.h" />
     <ClInclude Include="mforms\code_editor.h" />
     <ClInclude Include="mforms\container.h" />

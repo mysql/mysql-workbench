@@ -31,4 +31,8 @@ set_target_properties(wb.mysql.import.grt PROPERTIES
 
 target_link_libraries(wb.mysql.import.grt wbscintilla ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${TINYXML_LIBRARIES} ${MYSQL_LIBRARIES})
 
+set_target_properties(wb.mysql.import.grt
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS wb.mysql.import.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

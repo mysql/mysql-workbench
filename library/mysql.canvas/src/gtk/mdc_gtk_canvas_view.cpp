@@ -71,7 +71,7 @@ GtkCanvas::~GtkCanvas()
 
 
 void GtkCanvas::on_realize()
-{ 
+{
   super::on_realize();
 
   switch (_canvas_type)

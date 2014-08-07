@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,12 +33,13 @@
 
 #ifdef __APPLE__
 #include <libkern/OSAtomic.h>
+#include <semaphore.h>
+#include "string_utilities.h"
 #endif
 
 #define BOOST_DATE_TIME_NO_LIB
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #undef BOOST_DATE_TIME_NO_LIB
-
 
 namespace base {
 
@@ -380,5 +381,38 @@ public:
     return ptr != NULL;
   }
 };
+
+#ifdef __APPLE__
+  // boost 1.55 uses sem_init(), which is not implemented in OSX, so we have our own impl here to workaround
+  struct BASELIBRARY_PUBLIC_FUNC Semaphore
+  {
+    sem_t *sem;
+    Semaphore(int initial_count)
+    {
+      if ((sem = sem_open(base::strfmt("/wbsemaphore%p", this).c_str(), O_CREAT, 0644, initial_count)) == SEM_FAILED)
+      {
+        throw std::logic_error("creation of semaphore failed");
+      }
+    }
+
+    ~Semaphore()
+    {
+      sem_close(sem);
+      sem_unlink(base::strfmt("/wbsemaphore%p", this).c_str());
+    }
+
+    void post()
+    {
+      sem_post(sem);
+    }
+
+    void wait()
+    {
+      sem_wait(sem);
+    }
+  };
+#else
+  typedef boost::interprocess::interprocess_semaphore Semaphore;
+#endif
 };
 #endif

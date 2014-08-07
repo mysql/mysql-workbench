@@ -1,13 +1,26 @@
-# -*- coding: utf-8 -*-
-# MySQL Workbench module
-# <description>
-# Written in MySQL Workbench 6.2.0
+# Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; version 2 of the
+# License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301  USA
 
-from wb import *
+from wb import DefineModule
 import grt
 from grt import log_warning, log_info
 import mforms
 import urllib2
+import httplib
 import traceback
 import time
 
@@ -20,7 +33,7 @@ try:
     log_info("WBFabric Module", "Successfully imported fabric module %s at : %s\n" % (fabric_module.__version__, fabric_module.__file__))
 
     from mysql.fabric.config import Config
-    from mysql.fabric.command import get_groups, get_command, get_commands
+    from mysql.fabric.command import get_command
     from mysql.fabric.services import find_client, find_commands
     from mysql.fabric.options import OptionParser
 except ImportError, e:
@@ -171,7 +184,6 @@ def createConnections(conn):
 
                 # Variables for error handling
                 fabric_group_count = 0
-                filter_group_count = 0
                 matched_groups = []
                 server_count = 0
 
@@ -187,10 +199,9 @@ def createConnections(conn):
                     fabric_group_count = len(groups)
 
                     group_filter = conn.parameterValues["haGroupFilter"].strip()
-                    group_list = []
-                    if group_filter:
-                        group_list = [group.strip() for group in group_filter.split(',')]
-                        filter_group_count = len(group_list)
+                    #group_list = []
+                    #if group_filter:
+                    #    group_list = [group.strip() for group in group_filter.split(',')]
                         
                     for group in groups:
                         include_group = not group_filter or group['group_id'] in group_filter
@@ -223,11 +234,12 @@ def createConnections(conn):
                                         address = config.get('protocol.xmlrpc', 'address')
                                         host, _ = address.split(':')
 
-                                    child_conn_name = '%s/%s/%s:%s' % (conn.name, group['group_id'], host, port)
+                                    child_conn_name = '%s/%s:%s' % (conn.name, host, port)
                             
                                     server_user = conn.parameterValues["mysqlUserName"]
                                     managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
                                     managed_conn.parameterValues["fabric_managed"] = True
+                                    managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
 
                                     # Includes the rest of the server parameters on the connection parameters
                                     for att in server.keys():

@@ -802,9 +802,9 @@ TEST_FUNCTION(45)
 
     all_objects_mwb objects = get_model_objects();
 
-    ensure_equals("New column added", objects.t1->columns().count(), 4);
+    ensure_equals("New column added", objects.t1->columns().count(), 4U);
     ensure_equals("New column name", *objects.t1->columns()[3]->name(), "newcol");
-    ensure_equals("New index added", objects.t1->indices().count(), 2);
+    ensure_equals("New index added", objects.t1->indices().count(), 2U);
     ensure_equals("New index name", *objects.t1->indices()[0]->name(), "newindex");
     
     // BUG #14588524 - MYSQL WORKBENCH SEGFAULTS WHEN UPDATING MODEL FROM A DATABASE

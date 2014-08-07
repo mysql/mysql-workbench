@@ -473,6 +473,7 @@ void CommandUI::add_recent_menu(mforms::MenuItem *parent)
     if (i < 9)
     {
       caption= strfmt("%li %s", (long)i+1, strlist.get(i).c_str());
+
 #if !defined(_WIN32) && !defined(__APPLE__)
       caption= "_"+replace_string(caption, "_", "__");
 #endif
@@ -494,6 +495,7 @@ void CommandUI::add_recent_menu(mforms::MenuItem *parent)
     
     item = mforms::manage(new mforms::MenuItem(caption));
     item->set_name(strfmt("wb.file.openRecentModel:%li", (long)i+1));
+
     scoped_connect(item->signal_clicked(), boost::bind(&WBContext::open_recent_document, _wb, (int)i + 1));
     parent->add_item(item);
   }

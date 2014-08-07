@@ -1005,9 +1005,7 @@ class GrantsColumnManager(TableManDefs, ObjectManager):
             else:
                 fields.append(field)
         
-        output.append("SELECT CONCAT(Db,'.',Table_name) as scope,%(sel_fields)s FROM mysql.tables_priv WHERE '%(schema)s' LIKE Db AND '%(table)s' LIKE Table_name" % {'sel_fields' : ",".join(fields), 'schema' : self.schema, 'table' : self.table})
-        
-        output.append("SELECT CONCAT(Db,'.',Table_name,'.',Column_name) as scope,%(sel_fields)s FROM mysql.columns_priv WHERE '%(schema)s' LIKE Db AND '%(table)s' LIKE Table_name" % {'sel_fields' : ",".join(fields), 'schema' : self.schema, 'table' : self.table})
+        output.append("SELECT CONCAT(Db,'.',Table_name,'.',Column_name) as scope,%(sel_fields)s FROM mysql.columns_priv WHERE Db LIKE '%(schema)s' AND Table_name LIKE '%(table)s'" % {'sel_fields' : ",".join(fields), 'schema' : self.schema, 'table' : self.table})
         return output
 
     def refresh(self):

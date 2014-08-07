@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,9 +28,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#define BOOST_DATE_TIME_NO_LIB
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
-#undef BOOST_DATE_TIME_NO_LIB
+
 
 namespace bec {
 
@@ -266,7 +264,6 @@ namespace bec {
     grt::ShellCommand _result;
   };
 
-
   //----------------------------------------------------------------------
 
   class WBPUBLICBACKEND_PUBLIC_FUNC GRTDispatcher 
@@ -281,7 +278,7 @@ namespace bec {
     volatile base::refcount_t _busy;
     
     bool _threading_disabled;
-    boost::interprocess::interprocess_semaphore _w_runing;
+    base::Semaphore _w_runing;
     volatile bool _shutdown_callback;
     bool _is_main_dispatcher;
     bool _shut_down;
