@@ -121,8 +121,9 @@ PythonContextHelper::~PythonContextHelper()
 {
   PyEval_RestoreThread(_main_thread_state);
   _main_thread_state = NULL;
-
+#ifdef _DEBUG
   Py_Finalize();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
