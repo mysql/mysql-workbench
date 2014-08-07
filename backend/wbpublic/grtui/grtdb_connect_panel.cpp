@@ -663,15 +663,17 @@ bool DbConnectPanel::test_connection()
   {
     std::string title;
     if (message.length())
+    {
       title = base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
+       mforms::Utilities::show_error(title, message, "OK");
+    }
     else
     {
       title = base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
       message = "Connection parameters are correct";
+      mforms::Utilities::show_message(title, message, "OK");
       ret_val = true;
     }
-    
-    mforms::Utilities::show_error(title, message, "OK");
   }
   
   return ret_val;
