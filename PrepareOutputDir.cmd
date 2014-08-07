@@ -197,16 +197,6 @@ echo * gdal library + tools ...
 copy %EXT_LIB_DIR%\gdal\gdal.dll %TARGET_DIR%\.
 copy %EXT_LIB_DIR%\gdal\*.exe %TARGET_DIR%\.
 
-rem copy LGPL source packages to bin directory - only for community release build
-if "%2"=="Release" (
-  echo * LGPL source packages ...
-  if not exist %TARGET_DIR%\lgpl_sources mkdir %TARGET_DIR%\lgpl_sources
-  xcopy /i /s /y /d %EXT_SRC_DIR%\glib-2.12.12.tar.bz2 %TARGET_DIR%\lgpl_sources
-  xcopy /i /s /y /d %EXT_SRC_DIR%\libiconv-1.14.tar.gz %TARGET_DIR%\lgpl_sources
-  xcopy /i /s /y /d %EXT_SRC_DIR%\paramiko-1.7.7.1.zip %TARGET_DIR%\lgpl_sources
-  xcopy /i /s /y /d %EXT_SRC_DIR%\libxml2-2.9.1.tar.gz %TARGET_DIR%\lgpl_sources
-)
-
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide
 xcopy /i /s /y /d %RES_DIR%\sqlidedata\templates\*.* %TARGET_DIR%\modules\data\sqlide\. 1> nul 2> nul
