@@ -389,9 +389,7 @@ class MSSQLMigration(GenericMigration):
                             type_cast_expression = "CAST(? as VARCHAR(max))"
                         elif source_datatype == 'SQL_VARIANT':
                             type_cast_expression = "CAST(? as NVARCHAR(max))"
-                        elif source_datatype in ['TIMESTAMP', 'ROWVERSION']:
-                            type_cast_expression = 'CAST(? as %s)' % ('BINARY' if source_column.isNotNull else 'VARBINARY')
-                        elif source_datatype in ['BINARY', 'VARBINARY']:
+                        elif source_datatype in ['BINARY', 'VARBINARY', 'TIMESTAMP', 'ROWVERSION']:
                             type_cast_expression = 'CONVERT(VARBINARY(MAX), ?, 0)'
 
                         if type_cast_expression:
