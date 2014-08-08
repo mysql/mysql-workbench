@@ -65,7 +65,7 @@
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">1</value>
           </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param3">
+          <!--value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param3">
             <value type="string" key="caption">Username:</value>
             <value type="string" key="defaultValue">admin</value>
             <value type="string" key="description">Name of the user to connect with.</value>
@@ -96,7 +96,7 @@
               <value type="string" key="storageKeyFormat">%userName%::MsAccess@%hostName%:%port%</value>
             </value>
             <value type="int" key="required">0</value>
-          </value>
+          </value-->
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc.param5">
             <value type="string" key="caption">Default Character Set</value>
             <value type="string" key="defaultValue">cp1252</value>
@@ -159,7 +159,7 @@ ODBC connection string.</value>
             <value type="dict" content-type="string" key="paramTypeDetails"/>
             <value type="int" key="required">1</value>
           </value>
-          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_dsn.param2">
+          <!--value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_dsn.param2">
             <value type="string" key="caption">Password:</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
@@ -175,7 +175,7 @@ ODBC connection string.</value>
               <value type="string" key="storageKeyFormat">&lt;dsn user&gt;::MsAccess@%dsn%</value>
             </value>
             <value type="int" key="required">0</value>
-          </value>
+          </value-->
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_dsn.param3">
             <value type="string" key="caption">Default Character Set</value>
             <value type="string" key="defaultValue">cp1252</value>
@@ -203,7 +203,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="string" key="files">
           <!--value type="string">libmysql.dll</value-->
         </value>
-        <value type="string" key="hostIdentifierTemplate">msaccess@DRIVER=%driver%;SERVER=%hostName%;PORT=%port%</value>
+        <value type="string" key="hostIdentifierTemplate">msaccess@%connection_string%</value>
         <value type="string" key="filesTarget">.</value>
         <value type="string" key="name">MsAccessOdbc</value>
         <link type="object" key="owner">com.mysql.rdbms.msaccess</link>
