@@ -255,6 +255,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self.advanced_button.set_text("Show Logs")
         
         self._log_progress_text = True
+        self._autostart = False
 
     
     def clear_tasks(self):
@@ -320,6 +321,10 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         super(WizardProgressPage, self).page_activated(advancing)
         
         self.next_button.set_enabled(self._tasks_finished or self._currently_running_task_index is None)
+
+        if advancing and self._autostart:
+            if self._currently_running_task_index is None and not self._tasks_finished:
+                self.start()
 
     def reset(self, clear_log_box= False):
         self._cancel_requested = False
