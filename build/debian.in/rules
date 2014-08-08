@@ -148,7 +148,8 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman
 	dh_link
-	dh_strip --dbg-package=mysql-workbench-@edition@
+	#dh_strip --dbg-package=mysql-workbench-@edition@
+	dh_strip
 	dh_compress
 	dh_fixperms -X*.sh
 #	dh_perl
