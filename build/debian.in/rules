@@ -105,8 +105,8 @@ install: build
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	# Bundle other unpackaged libs
-	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(GDAL_HOME)/lib/libgdal* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 @ifdef commercial
 	# Bundle libs only needed for SE edition
