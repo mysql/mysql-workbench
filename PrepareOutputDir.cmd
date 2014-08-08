@@ -109,10 +109,15 @@ echo Copy python/mforms
 xcopy /i /s /y /d %LIBRARY_DIR%\forms\swig\mforms.py %TARGET_DIR%\
 xcopy /i /s /y /d %LIBRARY_DIR%\forms\swig\cairo.py %TARGET_DIR%\
 
-echo Copy libraries ...
+echo Copy executables ...
 
 xcopy /i /s /y /d %EXT_BIN_DIR%\mysqldump.exe %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_BIN_DIR%\mysql.exe %TARGET_DIR%\.
+
+rem Do not remove
+rem Python executable needed by MSI Custom Action (to precompile Python files) and maybe some externally executed scripts...
+xcopy /i /s /y /d %EXT_BIN_DIR%\python*.exe %TARGET_DIR%\.
+
 
 echo * MySQL client library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql.dll %TARGET_DIR%\.

@@ -68,11 +68,14 @@
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
                 <File Id="file1099d" Name="python27_d.dll"/>
+				<File Id="python_d.exe" Name="python_d.exe"/>
                 <?else ?>
                 <File Id="file1099" Name="python27.dll"/>
+				<File Id="python.exe" Name="python.exe"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
                 <File Id="file1102" Name="mysql.exe"/>
+
                 <File Id="file1103" Name="mysql_system_status.vbs"/>
                 <File Id="file1104" Name="mysql_system_status_rmt.vbs"/>
                 <File Id="file1106" Name="Scintilla.dll"/>
