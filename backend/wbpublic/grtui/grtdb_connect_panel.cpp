@@ -699,7 +699,13 @@ void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
                         "To make the changes permanent please duplicate the connection and do the changes there."));
 
   db_mgmt_DriverRef driver = connection->driver();
-  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(connection->driver()->owner());
+  if (!driver.is_valid())
+  {
+    log_error("Connection %s has no driver set\n", connection->name().c_str());
+    return;
+  }
+
+  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(driver->owner());
   // check if the rdbms of the connection is not the selected one (usually should be)
   if (rdbms.is_valid() && selected_rdbms() != rdbms)
   {
