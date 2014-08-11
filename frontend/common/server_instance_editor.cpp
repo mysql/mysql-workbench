@@ -545,8 +545,12 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::run(db_mgmt_ConnectionRef select
 
   if (i >= _stored_connection_list.count())
       i = 0;
-  _stored_connection_list.select_node(_stored_connection_list.node_at_row((int)i));
-  show_connection();
+
+  if (i != -1)
+  {
+    _stored_connection_list.select_node(_stored_connection_list.node_at_row((int)i));
+    show_connection();
+  }
 
   if (show_admin)
     _tabview.set_active_tab(2);
