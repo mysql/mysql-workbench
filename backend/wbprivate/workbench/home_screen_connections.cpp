@@ -2033,7 +2033,7 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
 {
   boost::shared_ptr<ConnectionEntry> entry;
 
-  if (connection.is_valid() && connection->driver()->name() == "MySQLFabric")
+  if (connection.is_valid() && connection->driver().is_valid() && connection->driver()->name() == "MySQLFabric")
   {
     FabricFolderEntry *fabric_folder;
     entry = boost::shared_ptr<ConnectionEntry>(fabric_folder = new FabricFolderEntry(this));

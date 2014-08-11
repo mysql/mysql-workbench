@@ -95,6 +95,8 @@ Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 Requires: python-paramiko
 Requires: gnome-keyring
 
+Requires: gtk2 >= 2.20
+
 # our old package names
 Obsoletes: mysql-workbench < 6.1
 Conflicts: mysql-workbench-oss
@@ -153,6 +155,7 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libctemplate/d
   %filter_from_requires /libvsqlitepp/d
   %filter_from_requires /libmysqlclient/d
+  %filter_from_requires /libgdal/d
   %{?commercial:%filter_from_requires /libsqlite3/d}
   %filter_setup
 }
