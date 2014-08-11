@@ -403,6 +403,7 @@ class MEBGetProfiles(MEBCommand):
                     data = {}
                     data['LABEL'] = profile.read_value('meb_manager', 'label', False, "")
                     data['PARTIAL'] = profile.read_value('meb_manager', 'partial', False, "")
+                    data['USING_TTS'] = profile.read_value('meb_manager', 'using_tts', False, "")
                     data['BACKUP_DIR'] = profile.read_value('mysqlbackup', 'backup_dir', False, "")
 
                     # Gets the folder stats to calculate available space

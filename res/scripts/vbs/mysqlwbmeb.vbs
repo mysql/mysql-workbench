@@ -549,6 +549,7 @@ class MEBGetProfiles
                         
                         data.add "LABEL", profile.get_value("meb_manager", "label", "")
                         data.add "PARTIAL", profile.get_value("meb_manager", "partial", "")
+                        data.add "USING_TTS", profile.get_value("meb_manager", "using_tts", "")
                         data.add "BACKUP_DIR", profile.get_value("mysqlbackup", "backup_dir", "")
 
                         ' Gets the available space
