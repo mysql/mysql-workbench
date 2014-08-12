@@ -448,7 +448,7 @@ void SpatialDataView::copy_record()
         std::string text;
         std::string value;
 
-        for (int i = 0; i < rs->get_column_count(); i++)
+        for (size_t i = 0; i < rs->get_column_count(); i++)
         {
           if (i > 0)
             text.append(",");
