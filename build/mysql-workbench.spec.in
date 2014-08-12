@@ -124,6 +124,7 @@ Conflicts: mysql-workbench-commercial
 %global __requires_exclude %{__requires_exclude}|db.*)\\.so.*$
 %global __requires_exclude %{__requires_exclude}|wb.*)\\.so.*$
 %endif
+%global __requires_exclude ^libgdal\\.so*$
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*|%{_libdir}/mysql/libmysqlclient\\.so.*|%{mysqlcppconn_dir}/lib/libmysqlcppconn\\.so.*|%{odbc_home}/lib/libiodbc\\.so.*)$
 %endif
 
