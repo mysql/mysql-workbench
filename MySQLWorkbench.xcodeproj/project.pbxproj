@@ -1031,6 +1031,7 @@
 		2B3165E8144A952E0082FDD0 /* MTextFieldCellNoTooltip.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B3165E6144A952E0082FDD0 /* MTextFieldCellNoTooltip.m */; };
 		2B3384DE0F9C538400EF463C /* small_toolbar_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B3384DD0F9C538400EF463C /* small_toolbar_bg.png */; };
 		2B3386DA0F9E503600EF463C /* wb_catalog_utils.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BD04DFC0F63404A00FD47B3 /* wb_catalog_utils.py */; };
+		2B33A4731999B63A00412802 /* sqlide_import_spatial.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B33A4711999B62A00412802 /* sqlide_import_spatial.py */; };
 		2B350065152DEC0000014C0D /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
 		2B35007F152DED0800014C0D /* cairo_wrap.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2B35003C152DEBBD00014C0D /* cairo_wrap.cxx */; };
 		2B350082152DED1D00014C0D /* _cairo.so in Copy Files (python modules) */ = {isa = PBXBuildFile; fileRef = 2B35006C152DEC0000014C0D /* _cairo.so */; };
@@ -2194,8 +2195,6 @@
 		2BD42089198ACC260061895B /* home_screen_connections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD42087198ACC260061895B /* home_screen_connections.cpp */; };
 		2BD4208A198ACC260061895B /* home_screen_connections.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD42088198ACC260061895B /* home_screen_connections.h */; };
 		2BD42094198C3B0F0061895B /* run_script.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BD42093198C3B090061895B /* run_script.py */; };
-		2BD4209719916B180061895B /* qe_sql-editor-explain-tb-overview.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4209519916B180061895B /* qe_sql-editor-explain-tb-overview.png */; };
-		2BD4209819916B180061895B /* qe_sql-editor-explain-tb-overview@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4209619916B180061895B /* qe_sql-editor-explain-tb-overview@2x.png */; };
 		2BD820120F4F0E7D009E485D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BD820110F4F0E7D009E485D /* Carbon.framework */; };
 		2BD9968E0FAC02B00074852E /* grtdb_connect_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */; };
 		2BD9968F0FAC02B00074852E /* grtdb_connect_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */; };
@@ -3536,6 +3535,7 @@
 				2B18EDE3196DA6FA004D7596 /* wb_docs_grt.py in Copy Files (plugins) */,
 				27378CD31917D10000DE1AA6 /* db.mysql.parser.grt.dylib in Copy Files (plugins) */,
 				EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */,
+				2B33A4731999B63A00412802 /* sqlide_import_spatial.py in Copy Files (plugins) */,
 				2B1D6D2F178C540A0073C062 /* wb_model_utils.py in Copy Files (plugins) */,
 				2BB626D2176BAC3E0070885E /* db_sqlanywhere_migration_grt.py in Copy Files (plugins) */,
 				2BB626D3176BAC3E0070885E /* db_sqlanywhere_re_grt.py in Copy Files (plugins) */,
@@ -4878,6 +4878,7 @@
 		2B3165E5144A952E0082FDD0 /* MTextFieldCellNoTooltip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MTextFieldCellNoTooltip.h; path = frontend/mac/components/MTextFieldCellNoTooltip.h; sourceTree = "<group>"; };
 		2B3165E6144A952E0082FDD0 /* MTextFieldCellNoTooltip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MTextFieldCellNoTooltip.m; path = frontend/mac/components/MTextFieldCellNoTooltip.m; sourceTree = "<group>"; };
 		2B3384DD0F9C538400EF463C /* small_toolbar_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_toolbar_bg.png; sourceTree = "<group>"; };
+		2B33A4711999B62A00412802 /* sqlide_import_spatial.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_import_spatial.py; path = plugins/wb.sqlide/sqlide_import_spatial.py; sourceTree = "<group>"; };
 		2B35003C152DEBBD00014C0D /* cairo_wrap.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cairo_wrap.cxx; path = library/forms/swig/cairo_wrap.cxx; sourceTree = "<group>"; wrapsLines = 0; };
 		2B35003D152DEBBD00014C0D /* cairo.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = cairo.py; path = library/forms/swig/cairo.py; sourceTree = "<group>"; };
 		2B35006C152DEC0000014C0D /* _cairo.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _cairo.so; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -5998,8 +5999,6 @@
 		2BD42087198ACC260061895B /* home_screen_connections.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = home_screen_connections.cpp; sourceTree = "<group>"; };
 		2BD42088198ACC260061895B /* home_screen_connections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = home_screen_connections.h; sourceTree = "<group>"; };
 		2BD42093198C3B090061895B /* run_script.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = run_script.py; path = plugins/wb.sqlide/run_script.py; sourceTree = "<group>"; };
-		2BD4209519916B180061895B /* qe_sql-editor-explain-tb-overview.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-explain-tb-overview.png"; path = "images/sql/qe_sql-editor-explain-tb-overview.png"; sourceTree = "<group>"; };
-		2BD4209619916B180061895B /* qe_sql-editor-explain-tb-overview@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-explain-tb-overview@2x.png"; path = "images/sql/qe_sql-editor-explain-tb-overview@2x.png"; sourceTree = "<group>"; };
 		2BD820110F4F0E7D009E485D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grtdb_connect_dialog.h; sourceTree = "<group>"; };
 		2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grtdb_connect_dialog.cpp; sourceTree = "<group>"; };
@@ -8843,6 +8842,7 @@
 		2B6C6FBB16C0BDD500C4CC98 /* wb.sqlide */ = {
 			isa = PBXGroup;
 			children = (
+				2B33A4711999B62A00412802 /* sqlide_import_spatial.py */,
 				2B6C6FC416C0BFB100C4CC98 /* text_output.py */,
 				2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */,
 				2BD42093198C3B090061895B /* run_script.py */,
@@ -12906,7 +12906,6 @@
 				2B263B320E9402DD00933149 /* workbench.physical.sqlite.Model.48x48.png in Resources */,
 				2B263B330E9402DD00933149 /* workbench.physical.sybase.Model.48x48.png in Resources */,
 				2B263B340E9402DD00933149 /* workbench.physical.TableFigure.16x16.png in Resources */,
-				2BD4209819916B180061895B /* qe_sql-editor-explain-tb-overview@2x.png in Resources */,
 				2B263B350E9402DD00933149 /* workbench.physical.Diagram.16x16.png in Resources */,
 				2B18EDD1196C9105004D7596 /* wb-sidebar-expand@2x.png in Resources */,
 				2B263B370E9402DD00933149 /* workbench.physical.Diagram.add.48x48.png in Resources */,
@@ -12995,7 +12994,6 @@
 				2B7FC4D2112D9C2B008C07BF /* tiny_new_script.png in Resources */,
 				2B7FC4D4112D9C2B008C07BF /* tiny_new_table.png in Resources */,
 				2B7FC4D5112D9C2B008C07BF /* tiny_new_view.png in Resources */,
-				2BD4209719916B180061895B /* qe_sql-editor-explain-tb-overview.png in Resources */,
 				2BF90F1C1979C3410029E1F9 /* ps_switcher_legende.png in Resources */,
 				2B7FC4D6112D9C2B008C07BF /* tiny_open.png in Resources */,
 				2B5FE4DA187F39C700AEC55C /* dashboard_header_network@2x.png in Resources */,

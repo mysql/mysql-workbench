@@ -537,24 +537,12 @@ bool SpatialDrawBox::mouse_down(mforms::MouseButton button, int x, int y)
     double lat = 0, lon = 0;
     screen_to_world(x, y, lat, lon);
     _clicked_coordinates = std::make_pair(lat, lon);
+    _right_clicked_point = base::Point(x, y);
 
     if (_menu)
     {
       std::pair<int,int> p = client_to_screen(x, y);
       _menu->popup_at(this, base::Point(p.first, p.second));
-    }
-  }
-  else if (button == mforms::MouseButtonOther)
-  {
-    base::Point p(x - _offset_x, y - _offset_y);
-    base::MutexLock lock(_layer_mutex);
-    for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
-    {
-      if ((*it)->within(p))
-      {
-        fprintf(stderr, "Object clicked.\n");
-        break;
-      }
     }
   }
   return true;
@@ -564,8 +552,27 @@ bool SpatialDrawBox::mouse_up(mforms::MouseButton button, int x, int y)
 {
   if (button == mforms::MouseButtonLeft && _dragging)
   {
-    mouse_move(button, x, y);
-    invalidate();
+    if (_drag_x == x && _drag_y == y)
+    {
+      // handle feature click
+      base::Point p(x - _offset_x, y - _offset_y);
+      base::MutexLock lock(_layer_mutex);
+      for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
+      {
+        spatial::Feature *feature;
+        feature = (*it)->feature_within(p);
+        if (feature)
+        {
+          fprintf(stderr, "Object %i clicked.\n", feature->row_id());
+          break;
+        }
+      }
+    }
+    else
+    {
+      mouse_move(button, x, y);
+      invalidate();
+    }
     _dragging = false;
   }
   else if (button == mforms::MouseButtonLeft && _selecting)
@@ -600,6 +607,27 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
     position_changed_cb("", "");
 
   return true;
+}
+
+
+int SpatialDrawBox::clicked_row_id()
+{
+  int row_id = -1;
+
+  base::Point p(_right_clicked_point.x - _offset_x, _right_clicked_point.y - _offset_y);
+  base::MutexLock lock(_layer_mutex);
+  for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
+  {
+    spatial::Feature *feature;
+    feature = (*it)->feature_within(p);
+    if (feature)
+    {
+      row_id = feature->row_id();
+      break;
+    }
+  }
+
+  return row_id;
 }
 
 
