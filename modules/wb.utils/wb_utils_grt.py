@@ -446,6 +446,9 @@ if sys.platform == "linux2":
            ):
             subprocess.Popen('iodbcadm-gtk', shell=True, close_fds=True)
             return 1
+        elif (path and any( os.path.isfile(os.path.join(prefix, 'ODBCManageDataSourcesQ4')) for prefix in path.split(':') )):
+            subprocess.Popen('ODBCManageDataSourcesQ4', shell=True, close_fds=True)
+            return 1
         else:
             return 0
 elif sys.platform == "darwin":

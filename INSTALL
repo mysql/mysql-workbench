@@ -34,6 +34,9 @@ Note about antlr:
       
       export ANTLR_JAR_PATH=<path_to_your_antlr_complete_file>
 
+Note about iodbc:
+ - instead of iodbc you can use unixodbc, to do that you need to install unixodbc and add -DUSE_UNIXODBC=True to cmake
+
 Building on Windows
 -------------------
 
