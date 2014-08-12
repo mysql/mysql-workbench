@@ -1191,7 +1191,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
         ([mDelegate respondsToSelector: @selector(tabView:itemHasCloseButton:)] &&
          [mDelegate tabView: mTabView itemHasCloseButton: item]))
       mClosePressed = YES;
-    else if (mHoverItem == item && NSPointInRect(clickPos, pinRect))
+    else if (mStyle == MEditorBottomTabSwitcherPinnable && mHoverItem == item && NSPointInRect(clickPos, pinRect))
     {
       mPinPressed = YES;
       mPinRect = pinRect;

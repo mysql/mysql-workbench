@@ -85,6 +85,12 @@ private:
   void auto_zoom();
   void copy_coordinates();
 
+  int row_id_for_action(class RecordsetLayer *&layer);
+  void copy_record();
+  void view_record();
+
+  void map_menu_will_show();
+
 public:
   SpatialDataView(SqlEditorResult *owner);
   virtual ~SpatialDataView();

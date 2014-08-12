@@ -93,14 +93,10 @@ public:
   void set_pinned(bool flag) { _pinned = flag; }
   bool pinned() const { return _pinned; }
 
+  void view_record_in_form(int row_id);
 
 private:
 
-  int _column_info_tab;
-  int _query_stats_tab;
-  int _form_result_tab;
-  int _result_grid_tab;
-  int _spatial_result_tab;
   mforms::TabView _tabview;
   mforms::TabSwitcher _switcher;
   DockingDelegate *_tabdock_delegate;

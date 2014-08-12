@@ -1094,3 +1094,12 @@ void SqlEditorResult::create_query_stats_panel()
 }
 
 
+void SqlEditorResult::view_record_in_form(int row_id)
+{
+  if (_form_result_view)
+  {
+    _tabview.set_active_tab(1);
+    switch_tab();
+    _form_result_view->display_record(row_id);
+  }
+}
