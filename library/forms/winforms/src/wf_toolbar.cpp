@@ -770,6 +770,8 @@ void ToolBarWrapper::set_selector_items(mforms::ToolBarItem *item, const std::ve
         // Normal combobox.
         List<String^> list = CppStringListToNative(values);
         combobox->Items->AddRange(list.ToArray());
+        if (combobox->Items->Count > 0)
+          combobox->SelectedIndex = 0;
       }
       break;
     }
