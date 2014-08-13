@@ -895,7 +895,8 @@
 
                     <File Id="file606614" Name="qe_sql-editor-resultset-tb-pin.png" />
                     <File Id="file606615" Name="qe_sql-editor-resultset-tb-pinned.png" />
-
+                    <File Id="file606616" Name="qe_sql-editor-explain-tb-overview.png" />
+        
                   </Component>
                   
                 </Directory>
