@@ -8,9 +8,9 @@ Homepage: http://dev.mysql.com/workbench/
 
 Package: mysql-workbench-@edition@
 @ifdef community
-Replaces: mysql-workbench-gpl, mysql-workbench-oss, mysql-workbench
+Replaces: mysql-workbench-gpl, mysql-workbench-oss, mysql-workbench, mysql-workbench-data
 @else
-Replaces: mysql-workbench-com-se, mysql-workbench, mysql-workbench-community
+Replaces: mysql-workbench-com-se, mysql-workbench, mysql-workbench-community, mysql-workbench-data
 @endif
 Depends: ${shlibs:Depends}, python-paramiko
 Architecture: i386 amd64
