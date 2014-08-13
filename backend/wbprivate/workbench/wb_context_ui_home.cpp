@@ -466,13 +466,8 @@ void WBContextUI::show_home_screen()
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Called when the home screen is closed by the UI. We have to clear our reference then.
- */
 bool WBContextUI::home_screen_closing()
 {  
-  if (_home_screen)
-    _home_screen->release();
   _home_screen = NULL;
   return true;
 }
