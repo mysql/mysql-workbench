@@ -220,6 +220,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _autosave_disabled(false),
   _loading_workspace(false),
   _cancel_connect(false),
+  _closing(false),
   _sql_editors_serial(0),
   _scratch_editors_serial(0),
   _keep_alive_thread(NULL),
@@ -504,6 +505,7 @@ grt::StringRef SqlEditorForm::do_disconnect(grt::GRT *grt)
 void SqlEditorForm::close()
 {
   grt::ValueRef option(_grtm->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
+
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
   {
     _grtm->replace_status_text("Saving workspace state...");
@@ -2839,11 +2841,15 @@ bool SqlEditorForm::can_close_(bool interactive)
     // review changes 1 by 1
     if (review && editor_needs_review)
     {
+      _closing = true;
       for (int i = 0; i < sql_editor_count(); i++)
       {
         SqlEditorPanel *panel = sql_editor_panel(i);
         if (panel && !panel->can_close())
+        {
+          _closing = false;
           return false;
+        }
       }
     }
   }
@@ -2863,7 +2869,11 @@ bool SqlEditorForm::can_close_(bool interactive)
     }
   }
 
-  return true;
+  _closing = true;
+  if (_tabdock->close_all_views())
+    return true;
+  _closing = false;
+  return false;
 }
 
 

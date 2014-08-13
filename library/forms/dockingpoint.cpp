@@ -86,9 +86,10 @@ bool DockingPoint::close_view(AppView *view)
   if (view->on_close())
   {
     view->close();
-    undock_view(view);
-    if (view->is_managed())
-      view->release();
+// the close call should do the undocking
+//    undock_view(view);
+//    if (view->is_managed())
+//      view->release();
     return true;
   }
   return false;

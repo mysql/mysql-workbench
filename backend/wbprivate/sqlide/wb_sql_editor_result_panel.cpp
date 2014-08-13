@@ -118,8 +118,6 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   add(&_switcher, false, true);
   _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
   _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
-
-
   
   _execution_plan_placeholder = NULL;
 
@@ -137,9 +135,6 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   }
 
   set_on_close(boost::bind(&SqlEditorResult::can_close, this));
-
-
-
 }
 
 
@@ -310,6 +305,9 @@ void SqlEditorResult::set_title(const std::string &title)
 
 bool SqlEditorResult::can_close()
 {
+  if (!_tabdock.close_all_views())
+    return false;
+
   if (Recordset::Ref rs = recordset())
     return rs->can_close(true);
   return true;
@@ -320,6 +318,9 @@ void SqlEditorResult::close()
 {// called by DockingPoint::close_view()
   if (Recordset::Ref rs = recordset())
     rs->close();
+  _tabdock.close_all_views();
+
+  mforms::AppView::close();
 }
 
 void SqlEditorResult::switch_tab()

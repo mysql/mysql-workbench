@@ -59,6 +59,10 @@ void TabViewDockingPointDelegate::dock_view(mforms::AppView *view, const std::st
   else if (arg1 == "prepend")
     [_tabView insertTabViewItem: tabItem atIndex: 0];
 
+  if (view->release_on_add())
+    view->set_release_on_add(false);
+  else
+    view->retain();
   _views[v] = view;
 
   if ([[_tabView delegate] respondsToSelector: @selector(tabView:didSelectTabViewItem:)])
@@ -91,6 +95,7 @@ void TabViewDockingPointDelegate::undock_view(mforms::AppView *view)
     {
       [_tabView removeTabViewItem: item];
       _views.erase(view->get_data());
+      view->release();
     }
   }
 }
