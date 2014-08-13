@@ -49,7 +49,7 @@ namespace mforms {
    window not owned by mforms. This class is a subclass of Box, so it can
    be used as a container for multiple subviews as well.
    */
-  class MFORMS_EXPORT AppView : public Box , public bec::UIForm
+  class MFORMS_EXPORT AppView : public Box, public bec::UIForm
   {
   private:
 #ifdef _WIN32
@@ -95,7 +95,8 @@ namespace mforms {
     
     /** Gets the previously unique identifier for this view. */
     std::string identifier() const { return _identifier; }
-    
+
+    virtual void close();
   public:
 
 #ifndef SWIG

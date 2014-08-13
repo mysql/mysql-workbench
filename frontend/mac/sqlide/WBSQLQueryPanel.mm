@@ -682,7 +682,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     }
   }
 }
-
+/*
 - (void)tabViewDidChangeNumberOfTabViewItems:(NSTabView*)tabView
 {
   if (tabView == mUpperTabView)
@@ -690,7 +690,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, WBSQLQ
     if ([tabView numberOfTabViewItems] == 0)
       mBackEnd->new_sql_script_file();
   }
-}
+}*/
 
 
 - (BOOL)tabView:(NSTabView *)tabView itemHasCloseButton:(NSTabViewItem *)item

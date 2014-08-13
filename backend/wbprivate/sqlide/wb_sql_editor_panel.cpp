@@ -162,10 +162,14 @@ db_query_QueryEditorRef SqlEditorPanel::grtobj()
 
 bool SqlEditorPanel::on_close_by_user()
 {
+  // this can also get closed when close_all_view() is called when the connection is closed
   if (can_close())
   {
-    close();
-    return false; // return false because we'll do the undocking ourselves
+    // do not call close, since that would undock ourselves and the caller will also undock this
+    // we just need to be sure that the d-tor is called in all closing methods (close the tab itself from the X and through kbd,
+    // close the connection, close WB)
+//    close();
+    return true;
   }
   return false;
 }
@@ -1139,7 +1143,7 @@ void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
 
 SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
 {
-  SqlEditorResult *result = new SqlEditorResult(this);
+  SqlEditorResult *result = mforms::manage(new SqlEditorResult(this));
   if (rset)
     result->set_recordset(rset);
   dock_result_panel(result);

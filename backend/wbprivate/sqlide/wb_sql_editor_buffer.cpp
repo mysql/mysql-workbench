@@ -533,7 +533,11 @@ void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
   }
   _tabdock->undock_view(panel);
 
-  delete panel;
+  // no need to delete, undock_view will release the reference and delete it because panel is managed
+  //delete panel;
+
+  if (_tabdock->view_count() == 0 && !_closing)
+    new_sql_scratch_area();
 }
 
 

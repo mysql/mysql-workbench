@@ -166,6 +166,7 @@ private:
   bool _autosave_disabled;
   bool _loading_workspace;
   bool _cancel_connect;
+  bool _closing;
 
   void activate_command(const std::string &command);
 
