@@ -103,8 +103,13 @@ class TabViewImpl : public ViewImpl
   {
     TabView* tv = dynamic_cast< TabView* >(owner);
     int i = tv->get_page_index(page);
+    page->retain();
     if (tv->can_close_tab(i))
+    {
+      if (tv->get_page_index(page) >= 0)
         tv->remove_page(page);
+    }
+    page->release();
   }
 
   static bool create(::mforms::TabView *self, mforms::TabViewType tabtype)
