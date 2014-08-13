@@ -59,12 +59,20 @@ public:
     if (rs && !_loaded)
     {
       _loaded = true;
-      for (ssize_t c = rs->row_count(), row = 0; row < c; row++)
+      log_info("Loading %li rows/features from resultset\n", (long)rs->row_count());
+
+      _render_progress = 0.0;
+      ssize_t row_count = rs->row_count();
+      float step = 1.0f / row_count;
+
+      for (ssize_t c = row_count, row = 0; row < c; row++)
       {
         std::string geom_data; // data in MySQL internal binary geometry format.. this is neither WKT nor WKB
         // but the internal format seems to be 4 bytes of SRID followed by WKB data
         if (rs->get_raw_field(row, _geom_column, geom_data) && !geom_data.empty())
           add_feature((int)row, geom_data, false);
+
+        _render_progress += step;
       }
     }
   }
@@ -208,6 +216,9 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
   _map_menu = new mforms::ContextMenu();
   _map_menu->add_item_with_title("Copy Coordinates", boost::bind(&SpatialDataView::copy_coordinates, this));
+  _map_menu->add_item_with_title("Copy Record for Feature", boost::bind(&SpatialDataView::copy_record, this));
+  _map_menu->add_item_with_title("View Record for Feature", boost::bind(&SpatialDataView::view_record, this));
+  _map_menu->signal_will_show()->connect(boost::bind(&SpatialDataView::map_menu_will_show, this));
 
   _viewer->set_context_menu(_map_menu);
 
@@ -217,7 +228,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
   _layer_menu->add_item_with_title("Refresh", boost::bind(&SpatialDataView::refresh_layers, this), "refresh");
 
-   mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fillup/Clear polygon", mforms::CheckedMenuItem));
+   mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
    mitem->set_checked(true);
    mitem->set_name("fillup_polygon");
    mitem->signal_clicked()->connect(boost::bind(&SpatialDataView::fillup_polygon, this, mitem));
@@ -250,9 +261,9 @@ int SpatialDataView::get_option(const char* opt_name, int default_value)
 
 void SpatialDataView::fillup_polygon(mforms::MenuItem *mitem)
 {
-
   if (_layer_tree->is_enabled())
   {
+    mitem->set_checked(!mitem->get_checked());
     _viewer->fillup_polygon(_layer_tree->get_selected_row(), mitem->get_checked());
   }
 }
@@ -372,6 +383,105 @@ void SpatialDataView::copy_coordinates()
   std::pair<double, double> p = _viewer->clicked_coordinates();
 
   mforms::Utilities::set_clipboard_text(base::strfmt("%.6f, %.6f", p.first, p.second));
+}
+
+
+int SpatialDataView::row_id_for_action(RecordsetLayer *&layer)
+{
+  int layer_index = _layer_tree->get_selected_row();
+
+  layer = NULL;
+
+  if (layer_index < 0)
+  {
+    // if no selection, select the 1st visible one by default
+    for (int i = 1; i < _layer_tree->count(); i++)
+    {
+      if (_layer_tree->node_at_row(i)->get_bool(0))
+      {
+        layer_index = i;
+        break;
+      }
+    }
+  }
+
+  if (layer_index > 0)
+  {
+    std::deque<spatial::Layer*> layers(_viewer->get_layers());
+    int i= 0;
+
+    for (std::deque<spatial::Layer*>::const_iterator l = layers.begin(); l != layers.end(); ++l, i++)
+    {
+      if (i == layer_index-1)
+      {
+        layer = dynamic_cast<RecordsetLayer*>(*l);
+        break;
+      }
+    }
+    if (layer)
+    {
+      return _viewer->clicked_row_id();
+    }
+  }
+  return -1;
+}
+
+
+void SpatialDataView::map_menu_will_show()
+{
+  _map_menu->set_item_enabled("", _layer_tree->get_selected_row() != 1);
+}
+
+
+void SpatialDataView::copy_record()
+{
+  RecordsetLayer *layer = NULL;
+  int row_id = row_id_for_action(layer);
+  if (layer)
+  {
+    bool flag = false;
+    if (row_id >= 0)
+    {
+      Recordset::Ref rs(layer->recordset());
+      if (rs)
+      {
+        std::string text;
+        std::string value;
+
+        for (size_t i = 0; i < rs->get_column_count(); i++)
+        {
+          if (i > 0)
+            text.append(",");
+          if (rs->get_field(row_id, i, value))
+            text.append(value);
+        }
+        mforms::Utilities::set_clipboard_text(text);
+        flag = true;
+      }
+    }
+    if (!flag)
+      mforms::App::get()->set_status_text("No row found for clicked coordinates.");
+  }
+  else
+    mforms::App::get()->set_status_text("No visible layers.");
+}
+
+
+void SpatialDataView::view_record()
+{
+  RecordsetLayer *layer = NULL;
+  int row_id = row_id_for_action(layer);
+  if (layer)
+  {
+    if (row_id >= 0)
+    {
+      _owner->view_record_in_form(row_id);
+    }
+    else
+      mforms::App::get()->set_status_text("No row found for clicked coordinates.");
+  }
+  else
+    mforms::App::get()->set_status_text("No visible layers.");
 }
 
 

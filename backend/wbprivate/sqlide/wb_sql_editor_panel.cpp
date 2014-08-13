@@ -57,7 +57,12 @@ using namespace base;
 SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed)
 : mforms::AppView(false, "db.query.QueryBuffer", false), _form(owner),
   _editor_box(false), _splitter(false, true),
-  _lower_tabview(mforms::TabViewEditorBottom), _lower_dock_delegate(&_lower_tabview, db_query_QueryEditor::static_class_name()),
+#ifdef __APPLE__
+  _lower_tabview(mforms::TabViewEditorBottomPinnable), // TODO: Windows, Linux
+#else
+  _lower_tabview(mforms::TabViewEditorBottom),
+#endif
+  _lower_dock_delegate(&_lower_tabview, db_query_QueryEditor::static_class_name()),
   _lower_dock(&_lower_dock_delegate, false),
   _tab_action_box(true), _tab_action_apply(mforms::SmallButton), _tab_action_revert(mforms::SmallButton), _tab_action_info("Read Only"),
   _rs_sequence(0), _busy(false), _is_scratch(is_scratch)
@@ -124,6 +129,8 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _lower_tabview.signal_tab_changed()->connect(boost::bind(&SqlEditorPanel::lower_tab_switched, this));
   _lower_tabview.signal_tab_closing()->connect(boost::bind(&SqlEditorPanel::lower_tab_closing, this, _1));
   _lower_tabview.signal_tab_closed()->connect(boost::bind(&SqlEditorPanel::lower_tab_closed, this, _1, _2));
+  _lower_tabview.signal_tab_pin_changed()->connect(boost::bind(&SqlEditorPanel::tab_pinned, this, _1, _2));
+  _lower_tabview.is_pinned = boost::bind(&SqlEditorPanel::is_pinned, this, _1);
   _lower_tabview.set_tab_menu(&_lower_tab_menu);
 
   set_on_close(boost::bind(&SqlEditorPanel::on_close_by_user, this));
@@ -1319,6 +1326,25 @@ void SqlEditorPanel::pin_tab_clicked()
   SqlEditorResult *result = result_panel(tab);
   if (result)
     result->set_pinned(!result->pinned());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool SqlEditorPanel::is_pinned(int tab)
+{
+  SqlEditorResult *result = result_panel(tab);
+  if (result)
+    return result->pinned();
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void SqlEditorPanel::tab_pinned(int tab, bool flag)
+{
+  SqlEditorResult *result = result_panel(tab);
+  if (result)
+    result->set_pinned(flag);
 }
 
 //--------------------------------------------------------------------------------------------------

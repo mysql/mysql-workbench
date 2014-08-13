@@ -1,6 +1,7 @@
 
 set(IMAGE_FILES 
     auto-completion-column.png
+    auto-completion-engine.png
     auto-completion-function.png
     auto-completion-keyword.png
     auto-completion-operator.png
@@ -8,65 +9,8 @@ set(IMAGE_FILES
     auto-completion-schema.png
     auto-completion-table.png
     auto-completion-view.png
-    auto-completion-engine.png
-    qe_main-tb-icon_add-routine.png
-    qe_main-tb-icon_add-function.png
-    qe_main-tb-icon_add-schema.png
-    qe_main-tb-icon_add-sql-editor.png
-    qe_main-tb-icon_add-table.png
-    qe_main-tb-icon_add-view.png
-    qe_main-tb-icon_execute-sql-file.png
-    qe_main-tb-icon_open-sql-file.png
-    qe_main-tb-icon_refresh-conn.png
-    qe_main-tb-sep.png
-    qe_main-tb-icon_preferences.png
-    qe_main-tb-icon_search_db.png
-    qe_sql-editor-tb-icon_autocommit-off.png
-    qe_sql-editor-tb-icon_autocommit-on.png
-    qe_sql-editor-tb-icon_beautifier_current.png
-    qe_sql-editor-tb-icon_beautifier.png
-    qe_sql-editor-tb-icon_commit.png
-    qe_sql-editor-tb-icon_execute-current.png
-    qe_sql-editor-tb-icon_execute.png
-    qe_sql-editor-tb-icon_explain.png
-    qe_sql-editor-tb-icon_find.png
-    qe_sql-editor-tb-icon_open.png
-    qe_sql-editor-tb-icon_rollback.png
-    qe_sql-editor-tb-icon_save.png
-    qe_sql-editor-tb-icon_special-chars-off.png
-    qe_sql-editor-tb-icon_special-chars-on.png
-    qe_sql-editor-tb-icon_word-wrap-off.png
-    qe_sql-editor-tb-icon_word-wrap-on.png
-    qe_sql-editor-tb-icon_stop-on-error-off.png
-    qe_sql-editor-tb-icon_stop-on-error-on.png
-    qe_sql-editor-tb-icon_stop.png
-    qe_sql-editor-tb-icon_row-limit-off.png
-    qe_sql-editor-tb-icon_row-limit-1k-on.png
-    qe_sql-editor-tb-icon_row-limit-on.png
-    qe_sql-editor-tb-icon_zoom-area@2x.png
-    qe_sql-editor-tb-icon_zoom-area.png
-    qe_sql-editor-tb-icon_zoom-in@2x.png
-    qe_sql-editor-tb-icon_zoom-in.png
-    qe_sql-editor-tb-icon_zoom-out@2x.png
-    qe_sql-editor-tb-icon_zoom-out.png
-    qe_sql-editor-tb-icon_zoom-reset@2x.png
-    qe_sql-editor-tb-icon_zoom-reset.png
-    qe_sql-editor-tb-icon_zoom-jump.png
-    qe_sql-editor-tb-icon_zoom-jump@2x.png
-    qe_sql-editor-tb-icon_zoom-auto.png
-    qe_sql-editor-tb-icon_zoom-auto@2x.png
-    wb_item_overlay_editor.png
-    wb_item_overlay_execute.png
-    wb_item_overlay_inspector.png
-    wb_item_overlay_result.png
-    snippet_css.png
-    snippet_htm.png
-    snippet_mwb.png
-    snippet_php.png
-    snippet_py.png
-    snippet_sql.png
-    wb-sidebar-collapse.png
-    wb-sidebar-expand.png
+    object_inspector.png
+    object_inspector_mac.png
     output_type-executionplan.png
     output_type-explaindata.png
     output_type-fieldtypes.png
@@ -77,9 +21,83 @@ set(IMAGE_FILES
     output_type-spacialview.png
     output_type-toggle-off.png
     output_type-toggle-on.png
-    object_inspector.png
+    qe_main-tb-icon_add-function.png
+    qe_main-tb-icon_add-function_mac.png
+    qe_main-tb-icon_add-routine.png
+    qe_main-tb-icon_add-routine_mac.png
+    qe_main-tb-icon_add-schema.png
+    qe_main-tb-icon_add-schema_mac.png
+    qe_main-tb-icon_add-sql-editor.png
+    qe_main-tb-icon_add-sql-editor_mac.png
+    qe_main-tb-icon_add-table.png
+    qe_main-tb-icon_add-table_mac.png
+    qe_main-tb-icon_add-view.png
+    qe_main-tb-icon_add-view_mac.png
+    qe_main-tb-icon_execute-sql-file.png
+    qe_main-tb-icon_execute-sql-file_mac.png
+    qe_main-tb-icon_open-sql-file.png
+    qe_main-tb-icon_open-sql-file_mac.png
+    qe_main-tb-icon_preferences.png
+    qe_main-tb-icon_preferences_mac.png
+    qe_main-tb-icon_refresh-conn.png
+    qe_main-tb-icon_refresh-conn_mac.png
+    qe_main-tb-icon_search_db.png
+    qe_main-tb-icon_search_db_mac.png
+    qe_main-tb-sep.png
+    qe_sql-editor-explain-tb-overview.png
+    qe_sql-editor-resultset-tb-pin.png
+    qe_sql-editor-resultset-tb-pinned.png
+    qe_sql-editor-tb-icon_autocommit-off.png
+    qe_sql-editor-tb-icon_autocommit-on.png
+    qe_sql-editor-tb-icon_beautifier.png
+    qe_sql-editor-tb-icon_beautifier_current.png
+    qe_sql-editor-tb-icon_commit.png
+    qe_sql-editor-tb-icon_execute-current.png
+    qe_sql-editor-tb-icon_execute.png
+    qe_sql-editor-tb-icon_explain.png
+    qe_sql-editor-tb-icon_find.png
+    qe_sql-editor-tb-icon_open.png
+    qe_sql-editor-tb-icon_rollback.png
+    qe_sql-editor-tb-icon_row-limit-1k-on.png
+    qe_sql-editor-tb-icon_row-limit-off.png
+    qe_sql-editor-tb-icon_row-limit-on.png
+    qe_sql-editor-tb-icon_save.png
+    qe_sql-editor-tb-icon_special-chars-off.png
+    qe_sql-editor-tb-icon_special-chars-on.png
+    qe_sql-editor-tb-icon_stop-on-error-off.png
+    qe_sql-editor-tb-icon_stop-on-error-on.png
+    qe_sql-editor-tb-icon_stop.png
+    qe_sql-editor-tb-icon_word-wrap-off.png
+    qe_sql-editor-tb-icon_word-wrap-on.png
+    qe_sql-editor-tb-icon_zoom-area.png
+    qe_sql-editor-tb-icon_zoom-auto.png
+    qe_sql-editor-tb-icon_zoom-center.png
+    qe_sql-editor-tb-icon_zoom-in.png
+    qe_sql-editor-tb-icon_zoom-jump.png
+    qe_sql-editor-tb-icon_zoom-out.png
+    qe_sql-editor-tb-icon_zoom-reset.png
+    snippet_css.png
+    snippet_htm.png
+    snippet_lua.png
+    snippet_mwb.png
+    snippet_php.png
+    snippet_py.png
+    snippet_sql.png
+    switcher_bottom_off.png
+    switcher_bottom_on.png
+    switcher_left_off.png
+    switcher_left_on.png
+    switcher_right_off.png
+    switcher_right_on.png
     title_schema_inspector.png
     title_table_inspector.png
+    wb-sidebar-collapse.png
+    wb-sidebar-expand.png
+    wb-sidebar-refresh.png
+    wb_item_overlay_editor.png
+    wb_item_overlay_execute.png
+    wb_item_overlay_inspector.png
+    wb_item_overlay_result.png
 )
 
 install(FILES ${IMAGE_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/images)

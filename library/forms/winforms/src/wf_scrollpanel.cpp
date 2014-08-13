@@ -211,7 +211,7 @@ public:
     }
 
     int scrollAmount;
-    double wheelFactor = (m.WParam.ToInt32() >> 16) / (double)WHEEL_DELTA;
+    double wheelFactor = (m.WParam.ToInt64() >> 16) / (double)WHEEL_DELTA;
 
     DWORD scrollLines;
     SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0);

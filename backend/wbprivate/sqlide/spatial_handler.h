@@ -97,16 +97,16 @@ namespace spatial
   {
 
   protected:
-    bool within_linearring(base::Point &p);
-    bool within_line(std::vector<base::Point> &point_list, base::Point &p);
-    bool within_polygon(base::Point &p);
-    bool within_point(base::Point &p);
+    bool within_linearring(const base::Point &p) const;
+    bool within_line(const std::vector<base::Point> &point_list, const base::Point &p) const;
+    bool within_polygon(const base::Point &p) const;
+    bool within_point(const base::Point &p) const;
   public:
     ShapeContainer();
     ShapeType type;
     std::vector<base::Point> points;
     Envelope bounding_box;
-    bool within(base::Point &p);
+    bool within(const base::Point &p) const;
   };
 
   class Projection
@@ -192,7 +192,7 @@ namespace spatial
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, bool fill_polygons);
 
     int row_id() const { return _row_id; }
-    bool within(base::Point &p);
+    bool within(const base::Point &p);
   };
 
   class Layer
@@ -200,7 +200,7 @@ namespace spatial
     friend class Feature;
 
   protected:
-    std::list<Feature*> _features;
+    std::deque<Feature*> _features;
 
     int _layer_id;
     base::Color _color;
@@ -227,7 +227,7 @@ namespace spatial
 
     void add_feature(int row_id, const std::string &geom_data, bool wkt);
     virtual void render(spatial::Converter *converter);
-    bool within(base::Point &p);
+    spatial::Feature *feature_within(const base::Point &p);
     void set_fill_polygons(bool fill);
     bool get_fill_polygons();
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);

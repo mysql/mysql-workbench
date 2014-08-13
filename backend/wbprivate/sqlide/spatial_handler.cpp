@@ -25,11 +25,17 @@
 
 DEFAULT_LOG_DOMAIN("spatial");
 
-
+#ifdef _WIN32
 static void __stdcall ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 {
   log_error("gdal error: %d, %s\n", err_no, msg);
 }
+#else
+static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
+{
+  log_error("gdal error: %d, %s\n", err_no, msg);
+}
+#endif
 
 bool spatial::operator== (ProjectionView &v1, ProjectionView &v2)
 {
@@ -80,7 +86,7 @@ bool spatial::Envelope::is_init()
   return (top_left.x != 180 && top_left.y != -90 && bottom_right.x != -180 && bottom_right.y != 90);
 }
 
-bool spatial::ShapeContainer::within(base::Point &p)
+bool spatial::ShapeContainer::within(const base::Point &p) const
 {
   switch(type)
   {
@@ -97,7 +103,7 @@ bool spatial::ShapeContainer::within(base::Point &p)
   }
 }
 
-bool spatial::ShapeContainer::within_linearring(base::Point &p)
+bool spatial::ShapeContainer::within_linearring(const base::Point &p) const
 {
   if (points.empty())
     return false;
@@ -107,7 +113,8 @@ bool spatial::ShapeContainer::within_linearring(base::Point &p)
   return within_line(tmp, p);
 }
 
-static double distance_to_segment(base::Point &start, base::Point &end, base::Point &p)
+//XXX see if all this code can be replaced with boost
+static double distance_to_segment(const base::Point &start, const base::Point &end, const base::Point &p)
 {
   double dx = end.x - start.x;
   double dy = end.y - start.y;
@@ -134,12 +141,12 @@ static double distance_to_segment(base::Point &start, base::Point &end, base::Po
   return sqrt(pow(dx, 2) + pow(dy, 2));
 }
 
-bool spatial::ShapeContainer::within_line(std::vector<base::Point> &point_list, base::Point &p)
+bool spatial::ShapeContainer::within_line(const std::vector<base::Point> &point_list, const base::Point &p) const
 {
   if (point_list.empty())
     return false;
 
-  std::vector<base::Point>::iterator it = point_list.begin(), it_tmp = point_list.begin();
+  std::vector<base::Point>::const_iterator it = point_list.begin(), it_tmp = point_list.begin();
   while (++it != point_list.end())
   {
     try
@@ -158,7 +165,7 @@ bool spatial::ShapeContainer::within_line(std::vector<base::Point> &point_list, 
   return false;
 }
 
-bool spatial::ShapeContainer::within_polygon(base::Point &p)
+bool spatial::ShapeContainer::within_polygon(const base::Point &p) const
 {
   if (points.empty())
       return false;
@@ -177,7 +184,7 @@ bool spatial::ShapeContainer::within_polygon(base::Point &p)
   return c;
 }
 
-bool spatial::ShapeContainer::within_point(base::Point &p)
+bool spatial::ShapeContainer::within_point(const base::Point &p) const
 {
   if (points.empty())
     return false;
@@ -671,9 +678,9 @@ void Feature::render(Converter *converter)
 }
 
 
-bool Feature::within(base::Point &p)
+bool Feature::within(const base::Point &p)
 {
-  for (std::deque<ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
+  for (std::deque<ShapeContainer>::const_iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
     if ((*it).within(p))
       return true;
@@ -756,7 +763,7 @@ Layer::Layer(int layer_id, base::Color color)
 
 Layer::~Layer()
 {
-  for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
+  for (std::deque<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
     delete *it;
 }
 
@@ -773,7 +780,7 @@ bool Layer::get_fill_polygons()
 void Layer::interrupt()
 {
   _interrupt = true;
-   for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
+   for (std::deque<Feature*>::iterator it = _features.begin(); it != _features.end(); ++it)
      (*it)->interrupt();
 }
 
@@ -810,7 +817,7 @@ void Layer::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
   cr.save();
   cr.set_line_width(0.5);
   cr.set_color(_color);
-  for (std::list<Feature*>::iterator it = _features.begin(); it != _features.end() && !_interrupt; ++it)
+  for (std::deque<Feature*>::iterator it = _features.begin(); it != _features.end() && !_interrupt; ++it)
     (*it)->repaint(cr, scale, clip_area, _fill_polygons);
 
   cr.restore();
@@ -833,19 +840,20 @@ void Layer::render(Converter *converter)
   _render_progress = 0.0;
   float step = 1.0f / _features.size();
 
-  for (std::list<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
+  for (std::deque<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
   {
     (*iter)->render(converter);
     _render_progress += step;
   }
 }
 
-bool Layer::within(base::Point &p)
+spatial::Feature* Layer::feature_within(const base::Point &p)
 {
-  for (std::list<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
+  for (std::deque<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
   {
     if ((*iter)->within(p))
-      return true;
+      return *iter;
   }
-  return false;
+  return NULL;
 }
+

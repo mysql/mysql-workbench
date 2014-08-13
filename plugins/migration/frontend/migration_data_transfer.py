@@ -326,6 +326,7 @@ All tables are copied by default.""")
 class TransferMainView(WizardProgressPage):
     def __init__(self, main):
         WizardProgressPage.__init__(self, main, "Bulk Data Transfer", use_private_message_handling=True)
+        self._autostart = True
         self._resume = False
         self.retry_button = mforms.newButton()
         self.retry_button.set_text('Retry')

@@ -102,6 +102,7 @@ converted into MySQL compatible objects. Default datatype and default column val
 mappings will be used. You will be able to review and edit generated objects and column
 definitions in the Manual Editing step.""")
         
+        self._autostart = True
         self.add_threaded_task(self.task_migrate, "Migrate Selected Objects")
         self.add_threaded_task(self.task_generate_sql, "Generate SQL CREATE Statements")
 
