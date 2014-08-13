@@ -68,16 +68,6 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path)
     Py_VerboseFlag = 5;
 
 #ifdef _WIN32
-  // Looks for the installed MySQL Utilities to make the libraries available to WB
-  std::string utils_path;
-  char buffer[1024];
-
-  std::string product_name;
-  if (get_value_from_registry(HKEY_CURRENT_USER, "Software\\MySQL\\MySQL Utilities", "Location", "", buffer, 1024) == 0)
-  {
-    utils_path = buffer;
-    utils_path += "library.zip";
-  }
   // Hack needed in Windows because Python lib uses C:\Python26 as default pythonhome
   // That will cause conflicts if there is some other Python installed in there (bug #52949)
 
@@ -101,8 +91,8 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path)
   }
 
   putenv(g_strdup_printf("PYTHONHOME=%s\\Python", module_path.c_str()));
-  putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip;%s",
-    module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str(), utils_path.c_str()));
+  putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip;",
+    module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str()));
   //putenv("PYTHONHOME=C:\\nowhere");
 #endif
   Py_InitializeEx(0); // skips signal handler init
