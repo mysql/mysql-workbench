@@ -26,6 +26,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
     ${VSQLITE_INCLUDE_DIRS}
     ${TINYXML_INCLUDE_DIRS}
+    ${GDAL_INCLUDE_DIRS}
 )
 
 add_library(wbprivate

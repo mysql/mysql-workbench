@@ -68,11 +68,14 @@
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
                 <File Id="file1099d" Name="python27_d.dll"/>
+				<File Id="python_d.exe" Name="python_d.exe"/>
                 <?else ?>
                 <File Id="file1099" Name="python27.dll"/>
+				<File Id="python.exe" Name="python.exe"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
                 <File Id="file1102" Name="mysql.exe"/>
+
                 <File Id="file1103" Name="mysql_system_status.vbs"/>
                 <File Id="file1104" Name="mysql_system_status_rmt.vbs"/>
                 <File Id="file1106" Name="Scintilla.dll"/>
@@ -92,6 +95,7 @@
                 <File Id="file106" Name="db.search.wbp.dll"/>
                 <File Id="file111" Name="db.mysql.diff.reporting.wbp.dll"/>
                 <File Id="file112" Name="db.mysql.sqlparser.grt.dll"/>
+                <File Id="file112x" Name="db.mysql.parser.grt.dll"/>
                 <File Id="file113" Name="db.mysql.wbp.dll"/>
                 <File Id="file115" Name="grt.db.fe.dll"/>
                 <File Id="file116" Name="mysql.forms.dll"/>
@@ -588,8 +592,8 @@
                     <File Id="file62035" Name="admin_performance_reports.png"/>
                     <File Id="file62037" Name="title_dashboard.png"/>
                     <File Id="file62039" Name="title_instrumentation_setup.png"/>
-                    <File Id="file62041" Name="title_performance_reports.png"/>
                     <File Id="file62040" Name="dashboard_separator.png"/>
+                    <File Id="file62041" Name="title_performance_reports.png"/>
                     <File Id="file62042" Name="ps_easysetup_logo.png"/>
                     <File Id="file62043" Name="ps_easysetup_logo_enabled.png"/>
                     <File Id="file62044" Name="ps_switcher_custom_hoover.png"/>
@@ -606,6 +610,11 @@
                     <File Id="file62055" Name="ps_switcher_fully_on.png"/>
                     <File Id="file62056" Name="ps_switcher_legende.png"/>
                     <File Id="file62057" Name="ps_switcher_text.png"/>
+                    <File Id="file62058" Name="ps_overview.png"/>
+                    <File Id="file62059" Name="query_continue_on_error.png"/>
+                    <File Id="file62069" Name="query_stop_on_error.png"/>
+                    <File Id="file62070" Name="tiny_rollback.png"/>
+                    <File Id="file62071" Name="tiny_rollback_disabled.png"/>
                   </Component>
                 </Directory>
 
@@ -742,7 +751,9 @@
                     <File Id="file60658" Name="audit_log.png"/>
                     <File Id="file60666" Name="wb_lock.png"/>
                     <File Id="file60667" Name="change_alert_create.png"/>
-                   <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
+                    <File Id="file60668" Name="arrow_down.png"/>
+                    <File Id="file60669" Name="arrow_up.png"/>
+                    <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
                     <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
 
                     </Component>
@@ -868,6 +879,7 @@
                     <File Id="file61785" Name="output_type-spacialview.png"/>
                     <File Id="file61786" Name="output_type-toggle-off.png"/>
                     <File Id="file61787" Name="output_type-toggle-on.png"/>
+                    <File Id="file61788" Name="output_type-formeditor.png"/>
                     <File Id="file606602" Name="qe_sql-editor-tb-icon_zoom-area.png" />
                     <File Id="file606604" Name="qe_sql-editor-tb-icon_zoom-in.png" />
                     <File Id="file606606" Name="qe_sql-editor-tb-icon_zoom-out.png" />
@@ -880,6 +892,10 @@
                     <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
                     <File Id="wb_item_overlay_inspector" Name="wb_item_overlay_inspector.png"/>
                     <File Id="wb_item_overlay_result" Name="wb_item_overlay_result.png"/>
+
+                    <File Id="file606614" Name="qe_sql-editor-resultset-tb-pin.png" />
+                    <File Id="file606615" Name="qe_sql-editor-resultset-tb-pinned.png" />
+
                   </Component>
                   
                 </Directory>

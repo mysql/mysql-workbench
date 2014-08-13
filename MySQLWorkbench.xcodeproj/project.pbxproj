@@ -1031,6 +1031,7 @@
 		2B3165E8144A952E0082FDD0 /* MTextFieldCellNoTooltip.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B3165E6144A952E0082FDD0 /* MTextFieldCellNoTooltip.m */; };
 		2B3384DE0F9C538400EF463C /* small_toolbar_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B3384DD0F9C538400EF463C /* small_toolbar_bg.png */; };
 		2B3386DA0F9E503600EF463C /* wb_catalog_utils.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BD04DFC0F63404A00FD47B3 /* wb_catalog_utils.py */; };
+		2B33A4731999B63A00412802 /* sqlide_import_spatial.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B33A4711999B62A00412802 /* sqlide_import_spatial.py */; };
 		2B350065152DEC0000014C0D /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
 		2B35007F152DED0800014C0D /* cairo_wrap.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2B35003C152DEBBD00014C0D /* cairo_wrap.cxx */; };
 		2B350082152DED1D00014C0D /* _cairo.so in Copy Files (python modules) */ = {isa = PBXBuildFile; fileRef = 2B35006C152DEC0000014C0D /* _cairo.so */; };
@@ -1704,6 +1705,10 @@
 		2B83E5EF1992B76800781432 /* qe_sql-editor-resultset-tb-pin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5ED1992B76800781432 /* qe_sql-editor-resultset-tb-pin@2x.png */; };
 		2B83E5F21992B77000781432 /* qe_sql-editor-explain-tb-overview.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F01992B77000781432 /* qe_sql-editor-explain-tb-overview.png */; };
 		2B83E5F31992B77000781432 /* qe_sql-editor-explain-tb-overview@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F11992B77000781432 /* qe_sql-editor-explain-tb-overview@2x.png */; };
+		2B83E5FD1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F51992E9CF00781432 /* qe_sql-editor-resultset-tb-pin.png */; };
+		2B83E5FE1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F61992E9CF00781432 /* qe_sql-editor-resultset-tb-pin@2x.png */; };
+		2B83E5FF1992EA6C00781432 /* qe_sql-editor-resultset-tb-pinned.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F71992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned.png */; };
+		2B83E6001992EA6C00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5F81992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png */; };
 		2B83FCDD1419B6B300A2C82B /* popover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B83FCDC1419B6B300A2C82B /* popover.cpp */; };
 		2B83FCE11419B70B00A2C82B /* popover.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B83FCE01419B70B00A2C82B /* popover.h */; };
 		2B83FCE41419C64500A2C82B /* MFPopover.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B83FCE21419C64500A2C82B /* MFPopover.h */; };
@@ -2219,6 +2224,8 @@
 		2BD9E7A31860004400A7252B /* MFNative.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9E7A11860004400A7252B /* MFNative.mm */; };
 		2BD9E7A51860011000A7252B /* native.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9E7A41860011000A7252B /* native.cpp */; };
 		2BD9E7A71860012000A7252B /* native.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9E7A61860012000A7252B /* native.h */; };
+		2BDA3C3B1993FBF000AD54D9 /* libproj.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */; };
+		2BDA3C3C1993FBF000AD54D9 /* libgdal.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2B83E5CE1992B5A100781432 /* libgdal.1.dylib */; };
 		2BDAE46111139AA500AC1D7A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BDAE46B11139B3B00AC1D7A /* file_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDAE46911139B3B00AC1D7A /* file_functions.h */; };
 		2BDAE48011139E8E00AC1D7A /* wba_ssh_ui.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */; };
@@ -3528,6 +3535,7 @@
 				2B18EDE3196DA6FA004D7596 /* wb_docs_grt.py in Copy Files (plugins) */,
 				27378CD31917D10000DE1AA6 /* db.mysql.parser.grt.dylib in Copy Files (plugins) */,
 				EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */,
+				2B33A4731999B63A00412802 /* sqlide_import_spatial.py in Copy Files (plugins) */,
 				2B1D6D2F178C540A0073C062 /* wb_model_utils.py in Copy Files (plugins) */,
 				2BB626D2176BAC3E0070885E /* db_sqlanywhere_migration_grt.py in Copy Files (plugins) */,
 				2BB626D3176BAC3E0070885E /* db_sqlanywhere_re_grt.py in Copy Files (plugins) */,
@@ -3704,6 +3712,8 @@
 				2B7F77E60F0133EB00C3C53E /* libcdbc.dylib in Copy Files (dylibs) */,
 				2B7F77EA0F0133EB00C3C53E /* libwbpublic.be.dylib in Copy Files (dylibs) */,
 				2B7F77EB0F0133EB00C3C53E /* libwbprivate.be.dylib in Copy Files (dylibs) */,
+				2BDA3C3B1993FBF000AD54D9 /* libproj.0.dylib in Copy Files (dylibs) */,
+				2BDA3C3C1993FBF000AD54D9 /* libgdal.1.dylib in Copy Files (dylibs) */,
 			);
 			name = "Copy Files (dylibs)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4868,6 +4878,7 @@
 		2B3165E5144A952E0082FDD0 /* MTextFieldCellNoTooltip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MTextFieldCellNoTooltip.h; path = frontend/mac/components/MTextFieldCellNoTooltip.h; sourceTree = "<group>"; };
 		2B3165E6144A952E0082FDD0 /* MTextFieldCellNoTooltip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MTextFieldCellNoTooltip.m; path = frontend/mac/components/MTextFieldCellNoTooltip.m; sourceTree = "<group>"; };
 		2B3384DD0F9C538400EF463C /* small_toolbar_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_toolbar_bg.png; sourceTree = "<group>"; };
+		2B33A4711999B62A00412802 /* sqlide_import_spatial.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sqlide_import_spatial.py; path = plugins/wb.sqlide/sqlide_import_spatial.py; sourceTree = "<group>"; };
 		2B35003C152DEBBD00014C0D /* cairo_wrap.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cairo_wrap.cxx; path = library/forms/swig/cairo_wrap.cxx; sourceTree = "<group>"; wrapsLines = 0; };
 		2B35003D152DEBBD00014C0D /* cairo.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = cairo.py; path = library/forms/swig/cairo.py; sourceTree = "<group>"; };
 		2B35006C152DEC0000014C0D /* _cairo.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _cairo.so; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -5606,6 +5617,10 @@
 		2B83E5ED1992B76800781432 /* qe_sql-editor-resultset-tb-pin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pin@2x.png"; path = "images/sql/qe_sql-editor-resultset-tb-pin@2x.png"; sourceTree = "<group>"; };
 		2B83E5F01992B77000781432 /* qe_sql-editor-explain-tb-overview.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-explain-tb-overview.png"; path = "images/sql/qe_sql-editor-explain-tb-overview.png"; sourceTree = "<group>"; };
 		2B83E5F11992B77000781432 /* qe_sql-editor-explain-tb-overview@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-explain-tb-overview@2x.png"; path = "images/sql/qe_sql-editor-explain-tb-overview@2x.png"; sourceTree = "<group>"; };
+		2B83E5F51992E9CF00781432 /* qe_sql-editor-resultset-tb-pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pin.png"; path = "../sql/qe_sql-editor-resultset-tb-pin.png"; sourceTree = "<group>"; };
+		2B83E5F61992E9CF00781432 /* qe_sql-editor-resultset-tb-pin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pin@2x.png"; path = "../sql/qe_sql-editor-resultset-tb-pin@2x.png"; sourceTree = "<group>"; };
+		2B83E5F71992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pinned.png"; path = "../sql/qe_sql-editor-resultset-tb-pinned.png"; sourceTree = "<group>"; };
+		2B83E5F81992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-resultset-tb-pinned@2x.png"; path = "../sql/qe_sql-editor-resultset-tb-pinned@2x.png"; sourceTree = "<group>"; };
 		2B83FCDC1419B6B300A2C82B /* popover.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = popover.cpp; path = library/forms/popover.cpp; sourceTree = "<group>"; };
 		2B83FCE01419B70B00A2C82B /* popover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = popover.h; path = library/forms/mforms/popover.h; sourceTree = "<group>"; };
 		2B83FCE21419C64500A2C82B /* MFPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFPopover.h; path = library/forms/cocoa/MFPopover.h; sourceTree = "<group>"; };
@@ -6013,6 +6028,7 @@
 		2BD9E7A11860004400A7252B /* MFNative.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFNative.mm; path = library/forms/cocoa/MFNative.mm; sourceTree = "<group>"; };
 		2BD9E7A41860011000A7252B /* native.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = native.cpp; path = library/forms/native.cpp; sourceTree = "<group>"; };
 		2BD9E7A61860012000A7252B /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = native.h; path = library/forms/mforms/native.h; sourceTree = "<group>"; };
+		2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libproj.0.dylib; path = "../mysql-mac-res/lib/libproj.0.dylib"; sourceTree = "<group>"; };
 		2BDAE46911139B3B00AC1D7A /* file_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file_functions.h; path = library/base/base/file_functions.h; sourceTree = "<group>"; };
 		2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wba_ssh_ui.py; path = plugins/wb.admin/frontend/wba_ssh_ui.py; sourceTree = "<group>"; };
 		2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -7941,6 +7957,10 @@
 		2B2638430E93B0F700933149 /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				2B83E5F51992E9CF00781432 /* qe_sql-editor-resultset-tb-pin.png */,
+				2B83E5F61992E9CF00781432 /* qe_sql-editor-resultset-tb-pin@2x.png */,
+				2B83E5F71992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned.png */,
+				2B83E5F81992E9CF00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png */,
 				2B1434E6179E0E9A002217CF /* tab_icon_administrator.png */,
 				2B1434E7179E0E9A002217CF /* tab_icon_administrator@2x.png */,
 				2B1434E8179E0E9A002217CF /* tab_icon_db.query.QueryBuffer.png */,
@@ -8822,6 +8842,7 @@
 		2B6C6FBB16C0BDD500C4CC98 /* wb.sqlide */ = {
 			isa = PBXGroup;
 			children = (
+				2B33A4711999B62A00412802 /* sqlide_import_spatial.py */,
 				2B6C6FC416C0BFB100C4CC98 /* text_output.py */,
 				2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */,
 				2BD42093198C3B090061895B /* run_script.py */,
@@ -8920,6 +8941,7 @@
 		2B750F9E0E8796310003120A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */,
 				2B83E5CE1992B5A100781432 /* libgdal.1.dylib */,
 				2BF049631741C5FA00A7EA35 /* libpcre.0.dylib */,
 				270C500817329FB600CD33BB /* libpng12.0.dylib */,
@@ -12555,8 +12577,11 @@
 				2740C71218AB704E008AFE78 /* tab_extender@2x.png in Resources */,
 				2BD1FB2C0F33D2F200FFC762 /* SchemaTabSideLine.png in Resources */,
 				2BD1FB2D0F33D2F200FFC762 /* TabClose_Pressed.png in Resources */,
+				2B83E6001992EA6C00781432 /* qe_sql-editor-resultset-tb-pinned@2x.png in Resources */,
 				2BD1FB2E0F33D2F200FFC762 /* TabClose_Unpressed.png in Resources */,
+				2B83E5FD1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin.png in Resources */,
 				2BD1FB2F0F33D2F200FFC762 /* TabDocument.png in Resources */,
+				2B83E5FF1992EA6C00781432 /* qe_sql-editor-resultset-tb-pinned.png in Resources */,
 				2BD1FB300F33D2F200FFC762 /* TabRowGradient.png in Resources */,
 				2BD1FB310F33D2F200FFC762 /* SchemaTabGradientBackground.png in Resources */,
 				16764CA80F82DC590099223D /* RightArrowIcon.png in Resources */,
@@ -12566,6 +12591,7 @@
 				2BB9A44E0FB28BD6001F9968 /* TabDragIcon.png in Resources */,
 				2B7CEA7E0FB8B3B700DCC700 /* tab_header_background2.png in Resources */,
 				2B1D6CAC177C6BDD0073C062 /* maintab_home_background@2x.png in Resources */,
+				2B83E5FE1992EA6C00781432 /* qe_sql-editor-resultset-tb-pin@2x.png in Resources */,
 				2B1D6CAD177C6BDD0073C062 /* maintab_home_home.png in Resources */,
 				2B1D6CAE177C6BDD0073C062 /* maintab_home_home@2x.png in Resources */,
 				2B1D6CAF177C6BDD0073C062 /* maintab_home.png in Resources */,

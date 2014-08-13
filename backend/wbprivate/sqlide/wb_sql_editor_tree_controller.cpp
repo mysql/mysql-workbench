@@ -1290,8 +1290,6 @@ bool SqlEditorTreeController::sidebar_action(const std::string& name)
     }
     return true;
   }
-  else
-    log_warning("unhandled sidebar action %s", name.c_str());
 
   return false;
 }

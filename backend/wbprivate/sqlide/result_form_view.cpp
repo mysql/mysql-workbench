@@ -524,6 +524,15 @@ ResultFormView::~ResultFormView()
     delete *i;
 }
 
+
+int ResultFormView::display_record(RowId row_id)
+{
+  Recordset::Ref rset(_rset.lock());
+  if (rset)
+    rset->set_edited_field(row_id, 0);
+  return display_record();
+}
+
 int ResultFormView::display_record()
 {
   Recordset::Ref rset(_rset.lock());

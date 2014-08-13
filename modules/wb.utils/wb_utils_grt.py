@@ -446,6 +446,9 @@ if sys.platform == "linux2":
            ):
             subprocess.Popen('iodbcadm-gtk', shell=True, close_fds=True)
             return 1
+        elif (path and any( os.path.isfile(os.path.join(prefix, 'ODBCManageDataSourcesQ4')) for prefix in path.split(':') )):
+            subprocess.Popen('ODBCManageDataSourcesQ4', shell=True, close_fds=True)
+            return 1
         else:
             return 0
 elif sys.platform == "darwin":
@@ -462,14 +465,25 @@ elif sys.platform == "win32":
         return 1
 
 
+def process_not_found_utils():
+    utilities_url = ("http://dev.mysql.com/downloads/utilities/" if grt.root.wb.info.edition == "Community" else
+                        "https://edelivery.oracle.com/EPD/Search/get_form?product=18251")
+
+    source_description = "www.mysql.com" if grt.root.wb.info.edition == "Community" else "eDelivery"
+
+    if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
+                                        "located.\n\nTo use them, you must download and install the utilities "
+                                        "package for your system from %s.\n\n"
+                                        "Click on the Download button to proceed." % source_description,
+                                "Download...", "Cancel", "") == mforms.ResultOk:
+
+        mforms.Utilities.open_url(utilities_url)
+
 @ModuleInfo.plugin("wb.tools.utilitiesShell", caption="Start Shell for MySQL Utilities", groups=["Others/Menu/Ungrouped"])
 @ModuleInfo.export(grt.INT)
 def startUtilitiesShell():
     import platform
     import os
-
-    utilities_url = ("http://dev.mysql.com/downloads/utilities/" if grt.root.wb.info.edition == "Community" else
-                     "https://edelivery.oracle.com/EPD/Search/get_form?product=18251")
 
     if platform.system() == "Windows":
         guessed_path = None
@@ -488,28 +502,17 @@ def startUtilitiesShell():
             command = r'start cmd /K "%s"' % guessed_path
             subprocess.Popen(command, shell = True)
         else:
-            if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
-                                             "located.\n\nTo use them, you must download and install the utilities "
-                                             "package for your system from:\n%s" % utilities_url,
-                                       "Download...", "Cancel", "") == mforms.ResultOk:
-                mforms.Utilities.open_url(utilities_url)
+            process_not_found_utils()
+
     elif platform.system() == "Darwin":
         # PATH seems to be stripped down when WB is started from a binary .app
         if any(os.path.exists(f+"/mysqluc") for f in os.getenv("PATH").split(":") + ["/usr/local/bin"]):
             os.system(r"""osascript -e 'tell application "Terminal" to do script "mysqluc -e \"help utilities\""' -e 'tell front window of application "Terminal" to set custom title to "MySQL Utilities"'""")
         else:
-            if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
-                                             "located.\n\nTo use them, you must download and install the utilities "
-                                             "package for your system from %s" % utilities_url,
-                                             "Download...", "Cancel", "") == mforms.ResultOk:
-                mforms.Utilities.open_url(utilities_url)
+            process_not_found_utils()
     else:
         if not any(os.path.exists(f+"/mysqluc") for f in os.getenv("PATH").split(":")):
-            if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
-                                             "located.\n\nTo use them, you must download and install the utilities "
-                                             "package for your system from %s" % utilities_url,
-                                           "Download...", "Cancel", "") == mforms.ResultOk:
-                mforms.Utilities.open_url(utilities_url)
+            process_not_found_utils()
         else:
             term = get_linux_terminal_program()
             if term:

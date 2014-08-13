@@ -253,7 +253,8 @@ bool bec::is_supported_mysql_version_at_least(int mysql_major, int mysql_minor, 
 
   // assemble MMNNRRR
   unsigned int required = major * 100000 + minor * 1000 + (release < 0 ? 0 : release);
-  unsigned int available = mysql_major * 100000 + mysql_minor * 1000 + (mysql_release < 0 ? 0 : mysql_release);
+  // if the available release number is negative, that's meant to signify "any release number", so we make it the max value possible
+  unsigned int available = mysql_major * 100000 + mysql_minor * 1000 + (mysql_release < 0 ? 999 : mysql_release);
 
   if (major < 5 || (major == 5 && minor < 6))
   {

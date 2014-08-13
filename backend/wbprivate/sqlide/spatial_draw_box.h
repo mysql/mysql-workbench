@@ -58,6 +58,7 @@ class SpatialDrawBox : public mforms::DrawBox
   int _select_x, _select_y;
 
   std::pair<double,double> _clicked_coordinates;
+  base::Point _right_clicked_point;
 
   double _min_lat, _max_lat;
   double _min_lon, _max_lon;
@@ -102,6 +103,7 @@ public:
 
   void set_context_menu(mforms::ContextMenu *menu);
   std::pair<double,double> clicked_coordinates() { return _clicked_coordinates; }
+  int clicked_row_id();
 
   std::deque<spatial::Layer*> get_layers() { return _layers; }
   

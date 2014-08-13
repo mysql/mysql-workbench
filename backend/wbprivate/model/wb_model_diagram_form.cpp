@@ -894,6 +894,12 @@ void ModelDiagramForm::handle_mouse_move(int x, int y, mdc::EventState state)
 }
 
 
+void ModelDiagramForm::handle_mouse_leave(int x, int y, mdc::EventState state)
+{
+  _view->handle_mouse_leave(x, y, state);
+}
+
+
 bool ModelDiagramForm::handle_key(const mdc::KeyInfo &key, bool press, mdc::EventState state)
 {
   if (press)

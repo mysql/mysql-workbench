@@ -545,8 +545,12 @@ db_mgmt_ServerInstanceRef ServerInstanceEditor::run(db_mgmt_ConnectionRef select
 
   if (i >= _stored_connection_list.count())
       i = 0;
-  _stored_connection_list.select_node(_stored_connection_list.node_at_row((int)i));
-  show_connection();
+
+  if (i != -1)
+  {
+    _stored_connection_list.select_node(_stored_connection_list.node_at_row((int)i));
+    show_connection();
+  }
 
   if (show_admin)
     _tabview.set_active_tab(2);
@@ -801,10 +805,25 @@ void ServerInstanceEditor::tab_changed()
     {
       grt::BaseListRef args(_grtm->get_grt());
       args.ginsert(connection);
-      if (is_local_connection(connection))
-        instance = db_mgmt_ServerInstanceRef::cast_from(_grtm->get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
-      else
-        instance = db_mgmt_ServerInstanceRef::cast_from(_grtm->get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+      try
+      {
+        if (is_local_connection(connection))
+          instance = db_mgmt_ServerInstanceRef::cast_from(_grtm->get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
+        else
+          instance = db_mgmt_ServerInstanceRef::cast_from(_grtm->get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+      }
+      catch (grt::module_error &exc)
+      {
+        log_error("Error calling autoDetectRemoteInstance: %s, %s\n", exc.what(), exc.inner.c_str());
+        mforms::Utilities::show_error("Auto Detect Server Configuration",
+                                      exc.inner, "OK");
+      }
+      catch (std::exception &exc)
+      {
+        log_error("Error calling autoDetectRemoteInstance: %s\n", exc.what());
+        mforms::Utilities::show_error("Auto Detect Server Configuration",
+                                      exc.what(), "OK");
+      }
     }
   }
 

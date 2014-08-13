@@ -151,6 +151,7 @@ class ReverseEngineerProgressView(WizardProgressPage):
         WizardProgressPage.__init__(self, main, "Reverse Engineer Source", description="""Selected schema metadata will now be fetched from the source RDBMS and reverse engineered
 so that its structure can be determined.""")
         
+        self._autostart = True
         self.add_task(self.task_connect, "Connect to source DBMS")
         self.add_threaded_task(self.task_reveng, "Reverse engineer selected schemas")
         self.add_task(self.task_post_processing, "Post-processing of reverse engineered schemas")

@@ -1279,7 +1279,6 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
             bool was_null = true;
 
             // During the migration process some non standard data types are migrated as strings
-            // On the case of MS SQL geography and hierarchyid are examples
             // Those will come as SQL_C_BINARY but will be migrated as NULL for now
             if (rowbuffer[i-1].buffer_type != MYSQL_TYPE_STRING)
             {
