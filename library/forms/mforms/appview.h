@@ -122,6 +122,7 @@ namespace mforms {
 
 #ifndef SWIG
     void set_containing_docking_point(mforms::DockingPoint *dpoint);
+    mforms::DockingPoint *containing_docking_point() { return _dpoint; }
 #endif
   };
 };
