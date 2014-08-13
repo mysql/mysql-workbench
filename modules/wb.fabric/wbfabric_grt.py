@@ -19,126 +19,91 @@ from wb import DefineModule
 import grt
 from grt import log_warning, log_info
 import mforms
-import urllib2
-import httplib
 import traceback
 import time
+import os
+import ConfigParser
+import tempfile
+from workbench.os_utils import OSUtils
+import StringIO
+import json
 
 from wb_common import OperationCancelledError
 
 fabric_unavailable_message = ""
-
-try: 
-    import mysql.fabric as fabric_module
-    log_info("WBFabric Module", "Successfully imported fabric module %s at : %s\n" % (fabric_module.__version__, fabric_module.__file__))
-
-    from mysql.fabric.config import Config
-    from mysql.fabric.command import get_command
-    from mysql.fabric.services import find_client, find_commands
-    from mysql.fabric.options import OptionParser
-except ImportError, e:
-    log_warning("WBFabric Module", "Error loading MySQL Fabric components.\nMySQL Fabric support is unavailable: %s\n" % traceback.format_exc())
-
-    if str(e).find('No module named mysql.fabric') == 0:
-        fabric_unavailable_message = "MySQL Fabric support not available.\nPlease make sure MySQL Utilities version 1.4.3 is installed to use this feature.\nSee log file for more details."
-    else:
-        fabric_unavailable_message = "A component needed by the installed version of MySQL Fabric could not be found.\nPlease refer to the MySQL Workbench Release Notes for details about supported MySQL Fabric versions and setups."
-        log_warning("WBFabric Module", "Error loading MySQL Fabric components.\nMySQL Fabric support is unavailable: %s\n" % traceback.format_exc())
-except Exception, e:
-    log_warning("WBFabric Module", "Error loading MySQL Fabric components.\nMySQL Fabric support is unavailable: %s\n" % traceback.format_exc())
-    fabric_unavailable_message = "MySQL Fabric support not available.\n Error : %s" % str(e)
+fabric_client = ""
 
 ModuleInfo = DefineModule(name= "WBFabric", author= "Oracle Corp.", version="1.0")
 
-# ----------------------------------------------------------------------
-# Patch for python 2.7 which does not have getheader method for urlinfo
-# object
-# ----------------------------------------------------------------------
 
-class addinfourl(urllib2.addinfourl):
-    """
-    Replacement addinfourl class compatible with python-2.7's xmlrpclib
+def execute(command):
+    output = StringIO.StringIO()
 
-    In python-2.7, xmlrpclib expects that the response object that it receives
-    has a getheader method. httplib.HTTPResponse provides this but
-    urllib2.addinfourl does not. Add the necessary functions here, ported to
-    use the internal data structures of addinfourl.
-    """
-    def getheader(self, name, default=None):
-        if self.headers is None:
-            raise httplib.ResponseNotReady()
-        return self.headers.getheader(name, default)
+    ret_code = OSUtils.exec_command(command, output.write)
 
-    def getheaders(self):
-        if self.headers is None:
-            raise httplib.ResponseNotReady()
-        return self.headers.items()
+    out = output.getvalue().strip()
 
-urllib2.addinfourl = addinfourl
-# ----------------------------------------------------------------------
+    return ret_code, out
+
+
+def find_fabric_client():
+    if os.name == 'nt':
+        command = 'where mysqlfabric'
+    else:
+        command = 'which mysqlfabric'
+
+    ret, out = execute(command)
+
+    if ret:
+        global fabric_unavailable_message
+        fabric_unavailable_message = "MySQL Fabric support not available.\nPlease make sure MySQL Utilities version 1.4.3 or higher is installed to use this feature.\nSee log file for more details."
+        log_warning("WBFabric Module", "Unable to locate the mysqlfabric utility, the fabric functions will not be available. \n"
+                                       "Please make sure MySQL Utilities version 1.4.3 or higher is installed. \n"
+                                       "The mysqlfabric utility path should be added into the PATH environment variable: %s\n" % out)
+    else:
+        global fabric_client
+        fabric_client = out
+        log_info("WBFabric Module", "MySQL Fabric Client found at: %s\n" % fabric_client)
 
 
 def create_config(conn):
-  # Retrieves the fabric node connection data
-  host = conn.parameterValues["hostName"]
-  port = conn.parameterValues["port"]
-  user = conn.parameterValues["userName"]
-  
-  config = None
-  
-  accepted, password = mforms.Utilities.find_or_ask_for_password("Fabric Node Connection", '%s@%s' % (host, port), user, False)
-  if accepted:
-      config = Config(None, {'protocol.xmlrpc':{'address':'%s:%s' % (host, port), 'user':user, 'password':password, 'realm':'MySQL Fabric'}})
-  else:
-      raise OperationCancelledError("Password input cancelled")
-  
-  return config
+    # Retrieves the fabric node connection data
+    host = conn.parameterValues["hostName"]
+    port = conn.parameterValues["port"]
+    user = conn.parameterValues["userName"]
+
+    accepted, password = mforms.Utilities.find_or_ask_for_password("Fabric Node Connection", '%s@%s' % (host, port), user, False)
+    if accepted:
+        doc = ConfigParser.ConfigParser()
+
+        section = 'protocol.xmlrpc'
+        doc.add_section(section)
+        doc.set(section, 'address', '%s:%s' % (host, port))
+        doc.set(section, 'user', user)
+        doc.set(section, 'password', password)
+        doc.set(section, 'realm', 'MySQL Fabric')
+
+        file = tempfile.NamedTemporaryFile(delete=False)
+        file.write("# Fabric connection settings for MySQL Workbench\n\n")
+        doc.write(file)
+
+        return file.name
+    else:
+        raise OperationCancelledError("Password input cancelled")
 
 
-# ----------------------------------------------------------------------
-# The code in this section has been pulled from the mysqlfabric utility
-# and tweaked
-# ----------------------------------------------------------------------
-def create_command(group_name, command_name, options, args, config):
-    """Create command object.
-      """
-    options = None
-    
-    try:
-        # Registers the commands
-        find_commands()
+def parse_standard_output(output):
+    lines = output.split('\n')
+    dict = {}
+    for line in lines:
+        if line.find('=') != -1:
+            att, val = line.split('=', 2)
+            if att.startswith('{'):
+                att = att[1:]
 
-        # Fetch command class and create the command instance.
-        command = get_command(group_name, command_name)()
-        command.command_options=[]
-        
-        # Set up options for command
-        opt_parser = OptionParser()
-        
-        command.add_options(opt_parser)
-        
-        # Parse arguments
-        options, args = opt_parser.parse_args(args, options)
-        
-        # Create a protocol client for dispatching the command and set
-        # up the client-side information for the command. Inside a
-        # shell, this only have to be done once, but here we need to
-        # set up the client-side of the command each time we call the
-        # program.
-        client = find_client()
-        command.setup_client(client, options, config)
-        return command, args
-    except KeyError as error:
-        log_warning("WBFabric Module", "Error (%s). Command (%s %s) was not found." % (error, group_name, command_name))
-        raise KeyError("Error (%s). Command (%s %s) was not found." % (error, group_name, command_name))
+            dict[att.strip()] = val.strip()
 
-    return None
-# ----------------------------------------------------------------------
-
-def execute_command(group_name, command_name, options, args, config):
-  command, args = create_command(group_name, command_name, options, args, config)
-  
-  return command.client.dispatch(command, *(command.append_options_to_args(args)))
+    return dict
 
 
 @ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
@@ -147,118 +112,145 @@ def testConnection(conn):
     error = fabric_unavailable_message
 
     if not error:
+        config = ''
         try:
             config = create_config(conn)
 
-            if config:
-                status = execute_command('manage', 'ping', None, None, config)
-        
-                if not status:
-                    error = "Unexpected error while connecting to the fabric node"
-        
+            command = '"%s" --config="%s" manage ping' % (fabric_client, config)
+
+            ret, out = execute(command)
+
+            if ret:
+                error = "Unexpected error while connecting to the fabric node: %s" % out
+                log_warning("WBFabric Module", "Unexpected error while connecting to the fabric node: %s\n" % out)
+            else:
+                data = parse_standard_output(out)
+
+                if not data.has_key('success') or data['success'] != 'True':
+                    error = "Unexpected error while connecting to fabric node: %s" % out
+                    log_warning("WBFabric Module", "Unexpected error while connecting to the fabric node: %s\n" % out)
+
         except OperationCancelledError, e:
             error = "Operation Cancelled"
             log_warning("WBFabric Module", "User cancelled testing MySQL Fabric connection %s\n" % conn.name)
         except Exception, e:
             error = str(e)
             log_warning("WBFabric Module", "Error testing MySQL Fabric connection %s : %s\n" % (conn.name, traceback.format_exc()))
+        finally:
+            if os.path.exists(config):
+                os.remove(config)
 
     return error
 
 
+def execute_formatted_command(config, fabric_command):
+    return_data = None
+
+    command = '"%s" --config="%s" %s' % (fabric_client, config, fabric_command)
+
+    ret, out = execute(command)
+
+    if ret:
+        raise Exception("Unexpected error on fabric operation: %s, %s\n" % (fabric_command, out))
+    else:
+        formatted_data = parse_standard_output(out)
+
+        if not formatted_data.has_key('success') or formatted_data['success'] != 'True':
+            raise Exception("Unexpected error on fabric operation: %s, %s" % (fabric_command, out))
+        else:
+            # Swaps the quoting so the format is OK for the json loader
+            json_formatted = formatted_data['return'].replace("'", "`").replace('"', "'").replace('`', '"')
+            json_formatted = json_formatted.replace('False', 'false')
+            json_formatted = json_formatted.replace('True', 'true')
+            return_data = json.loads(json_formatted)
+
+    return return_data
+
+
 @ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
 def createConnections(conn):
-  
+
     error = fabric_unavailable_message
 
     if not error:
+        config = ''
+
         try:
             # Creates the configuration object from the connection
             # settings.
             config = create_config(conn)
-        
-            if config:
 
-                # Pulls the HA groups
-                group_status = execute_command('group', 'lookup_groups', None, None, config)
+            # Pulls the HA groups
+            groups = execute_formatted_command(config, 'group lookup_groups')
 
-                # Variables for error handling
-                fabric_group_count = 0
-                matched_groups = []
-                server_count = 0
+            # Variables for error handling
+            fabric_group_count = 0
+            matched_groups = []
+            server_count = 0
 
-                # If all is OK continues pulling the servers for each group
-                success = group_status[0]
-                if success:
-                    # Sorts the groups
-                    def group_key(item):
-                        return item['group_id']
-                    
-                    groups = sorted(group_status[2], key=group_key)
+            # Sorts the groups
+            def group_key(item):
+                return item['group_id']
 
-                    fabric_group_count = len(groups)
+            groups = sorted(groups, key=group_key)
 
-                    group_filter = conn.parameterValues["haGroupFilter"].strip()
-                    #group_list = []
-                    #if group_filter:
-                    #    group_list = [group.strip() for group in group_filter.split(',')]
-                        
-                    for group in groups:
-                        include_group = not group_filter or group['group_id'] in group_filter
+            fabric_group_count = len(groups)
 
-                        if include_group:
-                            matched_groups.append(group['group_id'])
-                            servers_status = execute_command('group', 'lookup_servers', None, [group['group_id']], config)
-                            success = servers_status[0]
+            group_filter = conn.parameterValues["haGroupFilter"].strip()
 
-                            if success:
-                            
-                                # Sorts the servers
-                                def server_key(item):
-                                  return item['address']
-                                  
-                                servers = sorted(servers_status[2], key=server_key)
+            for group in groups:
+                include_group = not group_filter or group['group_id'] in group_filter
 
-                                # Creates a connection for each retrieved server.
-                                for server in servers:
-                                    address = server['address']
-                                    host, port = address.split(':')
-                            
-                                    # If the managed servers are located on the fabric node
-                                    # most probably they will use localhost or 127.0.0.1 as
-                                    # address on the fabric configuration.
+                if include_group:
+                    matched_groups.append(group['group_id'])
 
-                                    # We need to replace that for the fabric node IP in order
-                                    # to create the connections in WB
-                                    if host in ['localhost', '127.0.0.1']:
-                                        address = config.get('protocol.xmlrpc', 'address')
-                                        host, _ = address.split(':')
+                    servers = execute_formatted_command(config, 'group lookup_servers %s' % group['group_id'])
 
-                                    child_conn_name = '%s/%s:%s' % (conn.name, host, port)
-                            
-                                    server_user = conn.parameterValues["mysqlUserName"]
-                                    managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
-                                    managed_conn.parameterValues["fabric_managed"] = True
-                                    managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
+                    # Sorts the servers
+                    def server_key(item):
+                        return item['address']
 
-                                    # Includes the rest of the server parameters on the connection parameters
-                                    for att in server.keys():
-                                        if att != 'address':
-                                            managed_conn.parameterValues['fabric_%s' % att] = server[att]
+                    servers = sorted(servers, key=server_key)
 
-                                    server_count += 1
+                    # Creates a connection for each retrieved server.
+                    for server in servers:
+                        address = server['address']
+                        host, port = address.split(':')
 
-                    conn.parameterValues["managedConnectionsUpdateTime"] = time.strftime('%Y-%m-%d %H:%M:%S')
+                        # If the managed servers are located on the fabric node
+                        # most probably they will use localhost or 127.0.0.1 as
+                        # address on the fabric configuration.
 
-                    if server_count:
-                        grt.modules.Workbench.refreshHomeConnections()
-                    else:
-                        if fabric_group_count == 0:
-                            error = "There are no High Availability Groups defined on the %s fabric node." % conn.name
-                        elif not matched_groups:
-                            error = "There are no High Availability Groups matching the configured group filter on %s." % conn.name
-                        else:
-                            error = "There are no Managed Servers defined for the included groups in %s: %s." % (conn.name, ','.join(matched_groups))
+                        # We need to replace that for the fabric node IP in order
+                        # to create the connections in WB
+                        if host in ['localhost', '127.0.0.1']:
+                            host = conn.parameterValues["hostName"]
+
+                        child_conn_name = '%s/%s:%s' % (conn.name, host, port)
+
+                        server_user = conn.parameterValues["mysqlUserName"]
+                        managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
+                        managed_conn.parameterValues["fabric_managed"] = True
+                        managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
+
+                        # Includes the rest of the server parameters on the connection parameters
+                        for att in server.keys():
+                            if att != 'address':
+                                managed_conn.parameterValues['fabric_%s' % att] = server[att]
+
+                        server_count += 1
+
+            conn.parameterValues["managedConnectionsUpdateTime"] = time.strftime('%Y-%m-%d %H:%M:%S')
+
+            if server_count:
+                grt.modules.Workbench.refreshHomeConnections()
+            else:
+                if fabric_group_count == 0:
+                    error = "There are no High Availability Groups defined on the %s fabric node." % conn.name
+                elif not matched_groups:
+                    error = "There are no High Availability Groups matching the configured group filter on %s." % conn.name
+                else:
+                    error = "There are no Managed Servers defined for the included groups in %s: %s." % (conn.name, ','.join(matched_groups))
 
         except OperationCancelledError, e:
             error = "Operation Cancelled"
@@ -266,7 +258,12 @@ def createConnections(conn):
         except Exception, e:
             error = str(e)
             log_warning("WBFabric Module", "Error creating connectios to managed servers in the %s fabric node : %s\n" % (conn.name, traceback.format_exc()))
-    
+        finally:
+            if os.path.exists(config):
+                os.remove(config)
+
     return error
 
 
+
+find_fabric_client()    
