@@ -32,7 +32,7 @@ using base::strfmt;
 
 RecordsetView * RecordsetView::create(Recordset::Ref model)
 {
-  RecordsetView *view= Gtk::manage(new RecordsetView(model));
+  RecordsetView *view= new RecordsetView(model);
   view->init();
   return view;
 }
