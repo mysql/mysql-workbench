@@ -823,8 +823,8 @@ class WbAdminConnections(WbAdminBaseTab):
                     cols.append("t."+field)
 
         if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 6):
-            JOIN = " LEFT JOIN performance_schema.session_connect_attrs a ON t.processlist_id = a.processlist_id"
-            ATTR = " AND a.attr_name = 'program_name'"
+            JOIN = " LEFT OUTER JOIN performance_schema.session_connect_attrs a ON t.processlist_id = a.processlist_id"
+            ATTR = " AND (a.attr_name IS NULL OR a.attr_name = 'program_name')"
         else:
             JOIN = ""
             ATTR = ""
