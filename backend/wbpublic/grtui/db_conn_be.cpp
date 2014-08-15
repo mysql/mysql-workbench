@@ -49,7 +49,7 @@ grt::StringRef DbDriverParam::get_control_name() const
 }
 
 
-DbDriverParam::ParamType DbDriverParam::decode_param_type(std::string type_name)
+DbDriverParam::ParamType DbDriverParam::decode_param_type(std::string type_name, std::string real_type)
 {
   ParamType result= ptUnknown;
   
@@ -72,7 +72,12 @@ DbDriverParam::ParamType DbDriverParam::decode_param_type(std::string type_name)
   else if (0 == type_name.compare("keychain"))
     result= ptKeychainPassword;
   else if (0 == type_name.compare("enum"))
-    result= ptEnum;
+  {
+    if (real_type == "int")
+      result= ptIntEnum;
+    else
+      result= ptEnum;
+  }
   else if (0 == type_name.compare("text"))
     result= ptText;
   else
@@ -86,7 +91,7 @@ DbDriverParam::DbDriverParam(const db_mgmt_DriverParameterRef &driver_param, con
 _inner(driver_param),
 _type(ptUnknown)
 {
-  _type= decode_param_type(_inner->paramType());
+  _type= decode_param_type(_inner->paramType(), _inner->paramTypeDetails().get_string("type"));
 
   if (stored_conn.is_valid() && !(*stored_conn->name()).empty())
     set_value(stored_conn->parameterValues().get(driver_param->name(), driver_param->defaultValue()));
@@ -100,7 +105,7 @@ DbDriverParam::DbDriverParam(const db_mgmt_DriverParameterRef &driver_param, con
 _inner(driver_param),
 _type(ptUnknown)
 {
-  _type= decode_param_type(_inner->paramType());
+  _type= decode_param_type(_inner->paramType(), _inner->paramTypeDetails().get_string("type"));
   set_value(value);
 }
 
@@ -119,6 +124,7 @@ ControlType DbDriverParam::get_control_type() const
     case DbDriverParam::ptKeychainPassword:
       return ctKeychainPassword;
     case DbDriverParam::ptEnum:
+    case DbDriverParam::ptIntEnum:
       return ctEnumSelector;
     case DbDriverParam::ptText:
       return ctText;
@@ -149,6 +155,7 @@ void DbDriverParam::set_value(const grt::ValueRef &value)
   case ptInt:
   case ptBoolean:
   case ptTristate:
+  case ptIntEnum:
     {
       if (value.type() == grt::IntegerType)
         _value= value;
@@ -185,33 +192,51 @@ void DbDriverParam::set_value(const grt::ValueRef &value)
 std::vector<std::pair<std::string, std::string> > DbDriverParam::get_enum_options()
 {
   std::vector<std::pair<std::string, std::string> > options;
-  grt::Module *module = _inner.get_grt()->get_module(*_inner->lookupValueModule());
-  if (module)
+
+  if ((*_inner->lookupValueModule()).empty())
   {
-    grt::BaseListRef args(_inner.get_grt());
-    grt::ValueRef result = module->call_function(*_inner->lookupValueMethod(), args);
-    if (result.is_valid() && grt::StringListRef::can_wrap(result))
+    std::string type = _inner->paramTypeDetails().get_string("type");
+    std::vector<std::string> optionsv = base::split(_inner->paramTypeDetails().get_string("options"), ",");
+    for (std::vector<std::string>::const_iterator opt = optionsv.begin(); opt != optionsv.end(); ++opt)
     {
-      grt::StringListRef list = grt::StringListRef::cast_from(result);
-      for (int i= 0; i < (int)list.count(); i++)
+      std::string s = *opt;
+      std::string::size_type pos;
+      if ((pos = s.find('|')) != std::string::npos)
+        options.push_back(std::make_pair(s.substr(0, pos), s.substr(pos+1)));
+      else
+        options.push_back(std::make_pair(s, s));
+    }
+  }
+  else
+  {
+    grt::Module *module = _inner.get_grt()->get_module(*_inner->lookupValueModule());
+    if (module)
+    {
+      grt::BaseListRef args(_inner.get_grt());
+      grt::ValueRef result = module->call_function(*_inner->lookupValueMethod(), args);
+      if (result.is_valid() && grt::StringListRef::can_wrap(result))
       {
-        std::string s = list[i];
-        std::string::size_type pos;
-        if ((pos = s.find('|')) != std::string::npos)
-          options.push_back(std::make_pair(s.substr(0, pos), s.substr(pos+1)));
-        else
-          options.push_back(std::make_pair(s, s));
+        grt::StringListRef list = grt::StringListRef::cast_from(result);
+        for (int i= 0; i < (int)list.count(); i++)
+        {
+          std::string s = list[i];
+          std::string::size_type pos;
+          if ((pos = s.find('|')) != std::string::npos)
+            options.push_back(std::make_pair(s.substr(0, pos), s.substr(pos+1)));
+          else
+            options.push_back(std::make_pair(s, s));
+        }
       }
+      else
+        log_warning("Error calling enum value lookup method %s.%s for DriverParameter %s",
+                    _inner->lookupValueModule().c_str(), _inner->lookupValueMethod().c_str(),
+                    _inner->name().c_str());
     }
     else
-      log_warning("Error calling enum value lookup method %s.%s for DriverParameter %s",
+      log_warning("Error searching module for enum value lookup method %s.%s for DriverParameter %s",
                   _inner->lookupValueModule().c_str(), _inner->lookupValueMethod().c_str(),
                   _inner->name().c_str());
   }
-  else
-    log_warning("Error searching module for enum value lookup method %s.%s for DriverParameter %s",
-                _inner->lookupValueModule().c_str(), _inner->lookupValueMethod().c_str(),
-                _inner->name().c_str());  
   return options;
 }
 
@@ -579,10 +604,13 @@ db_mgmt_ConnectionRef DbConnection::get_connection()
 
 void DbConnection::save_changes()
 {
-  _connection->driver(_active_driver);
-  
-  grt::replace_contents(_connection->parameterValues(), _db_driver_param_handles.get_params());
-  _connection->hostIdentifier(bec::get_host_identifier_for_connection(_connection));
+  if (_connection.is_valid())
+  {
+    _connection->driver(_active_driver);
+
+    grt::replace_contents(_connection->parameterValues(), _db_driver_param_handles.get_params());
+    _connection->hostIdentifier(bec::get_host_identifier_for_connection(_connection));
+  }
 }
 
 DbConnection::~DbConnection()

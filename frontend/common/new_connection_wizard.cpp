@@ -134,11 +134,14 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
 { 
   _connection = db_mgmt_ConnectionRef(_mgmt.get_grt());
   _connection->driver(_mgmt->rdbms()[0]->defaultDriver());
-  
-  _connection->hostIdentifier("Mysql@127.0.0.1:3306");  
+  if (find_named_object_in_list(_connection->driver()->parameters(), "useSSL").is_valid())
+  {
+    // prefer SSL if possible by default
+    _connection->parameterValues().set("useSSL", grt::IntegerRef(1));
+  }
+  _connection->hostIdentifier("Mysql@127.0.0.1:3306");
   _panel.get_be()->set_connection_and_update(_connection);
   _panel.get_be()->save_changes();
-
   // Return the newly created connection object.
   while (run_modal(&_ok_button, &_cancel_button))
   {
