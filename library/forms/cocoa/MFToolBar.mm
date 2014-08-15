@@ -434,7 +434,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 @implementation MFToolBarSelectorItemImpl
 - (id)initWithItemObject:(ToolBarItem*)item
 {
-  self = [super initWithFrame: NSMakeRect(0, 0, 200, layout_info[0].item_width)];
+  self = [super initWithFrame: NSMakeRect(0, 0, 150, layout_info[0].item_width)];
   if (self)
   {
     mOwner = item;

@@ -693,31 +693,6 @@ static void toggle_continue_on_error(SqlEditorForm *sql_editor_form)
 
 //--------------------------------------------------------------------------------------------------
 
-static void toggle_limit(mforms::ToolBarItem *item, SqlEditorForm *sql_editor_form)
-{
-  bool do_limit = item->get_checked();
-
-  sql_editor_form->grt_manager()->set_app_option("SqlEditor:LimitRows", do_limit ? grt::IntegerRef(1) : grt::IntegerRef(0));
-
-  std::string limit = do_limit ? strfmt("%li", sql_editor_form->grt_manager()->get_app_option_int("SqlEditor:LimitRowsCount")) : "0";
-
-  mforms::MenuItem *menu = sql_editor_form->get_menubar()->find_item("limit_rows");
-  int c = menu->item_count();
-  for (int i = 0; i < c; i++)
-  {
-    mforms::MenuItem *item = menu->get_item(i);
-    if (item->get_type() != mforms::SeparatorMenuItem)
-    {
-      if (item->get_name() == limit)
-        item->set_checked(true);
-      else
-        item->set_checked(false);
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
 mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 {
   mforms::ToolBar *tbar(new mforms::ToolBar(mforms::SecondaryToolBar));
@@ -783,14 +758,6 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 
   tbar->add_item(item);
 
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.toggleLimit");
-  item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_row-limit-on.png"));
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_row-limit-off.png"));
-  item->set_tooltip(_("Toggle limiting of number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries.\nYou can change the limit number in Preferences or in the Query -> Limit Rows menu."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(toggle_limit, item, _form));
-  tbar->add_item(item);
-
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
@@ -823,12 +790,52 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_tooltip(_("Save current statement or selection to the snippet list."));
   bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, _form));
   tbar->add_item(item);
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
+
+  tbar->add_separator_item();
+
+  item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
+  item->set_name("limit_rows");
+  item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
+  bec::UIForm::scoped_connect(item->signal_activated(), boost::bind(&SqlEditorPanel::limit_rows, this, item));
+  tbar->add_item(item);
+
+  tbar->add_separator_item();
 
   // adds generic SQL editor toolbar buttons
   _editor->set_base_toolbar(tbar);
 
+  update_limit_rows();
+
   return tbar;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void SqlEditorPanel::limit_rows(mforms::ToolBarItem *item)
+{
+  _form->limit_rows(item->get_text());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void SqlEditorPanel::update_limit_rows()
+{
+  mforms::MenuItem *mitem = _form->get_menubar()->find_item("limit_rows");
+  std::string selected;
+  std::vector<std::string> items;
+  for (int i = 0; i < mitem->item_count(); i++)
+  {
+    if (!mitem->get_item(i)->get_title().empty())
+    {
+      items.push_back(mitem->get_item(i)->get_title());
+      if (mitem->get_item(i)->get_checked())
+        selected = items.back();
+    }
+  }
+
+  mforms::ToolBarItem *item = get_toolbar()->find_item("limit_rows");
+  item->set_selector_items(items);
+  item->set_text(selected);
 }
 
 //--------------------------------------------------------------------------------------------------

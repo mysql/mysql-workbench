@@ -1350,7 +1350,7 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
           else if (real_action == "inspect")
             _owner->inspect_object(changes[i].name, "", "db.Schema");
           else if (real_action == "alter")
-            do_alter_live_object(LiveSchemaTree::Schema, changes[i].name, "");
+            do_alter_live_object(LiveSchemaTree::Schema, changes[i].name, changes[i].name);
           else
             _owner->active_schema(changes[i].name);
           break;

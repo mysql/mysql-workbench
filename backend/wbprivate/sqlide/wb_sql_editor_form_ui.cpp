@@ -67,8 +67,13 @@ mforms::ToolBar *SqlEditorForm::get_toolbar()
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorForm::limit_rows(mforms::MenuItem *menu, const char *limit)
+void SqlEditorForm::limit_rows(const std::string &limit_text)
 {
+  int limit;
+  if (sscanf(limit_text.c_str(), _("Limit to %i rows"), &limit) < 1)
+    limit = 0; // Don't Limit
+
+  mforms::MenuItem *menu = _menu->find_item("limit_rows");
   int c = menu->item_count();
   bool found = false;
   for (int i = 0; i < c; i++)
@@ -76,7 +81,7 @@ void SqlEditorForm::limit_rows(mforms::MenuItem *menu, const char *limit)
     mforms::MenuItem *item = menu->get_item(i);
     if (item->get_type() != mforms::SeparatorMenuItem)
     {
-      if (item->get_name().compare(limit) == 0)
+      if (item->get_name().compare(limit_text) == 0)
       {
         item->set_checked(true);
         found = true;
@@ -86,22 +91,19 @@ void SqlEditorForm::limit_rows(mforms::MenuItem *menu, const char *limit)
     }
   }
 
-  int limit_num = atoi(limit);
-
-  _grtm->set_app_option("SqlEditor:LimitRows", grt::IntegerRef(limit_num > 0));
-  if (limit_num > 0)
-    _grtm->set_app_option("SqlEditor:LimitRowsCount", grt::IntegerRef(limit_num));
-
-  set_editor_tool_items_checked("query.toggleLimit", (limit_num > 0));
+  _grtm->set_app_option("SqlEditor:LimitRows", grt::IntegerRef(limit > 0));
+  if (limit > 0)
+    _grtm->set_app_option("SqlEditor:LimitRowsCount", grt::IntegerRef(limit));
 
   // special handling for custom values not in the predefined list
   mforms::MenuItem *citem = menu->find_item("custom");
   if (!found)
   {
+    std::string s = base::strfmt("Limit to %i rows", limit);
     if (!citem)
-      citem = menu->add_item_with_title(base::strfmt("Custom (%s)", limit), boost::bind(&SqlEditorForm::limit_rows, this, menu, limit), "custom");
+      citem = menu->add_item_with_title(s, boost::bind(&SqlEditorForm::limit_rows, this, s), "custom");
     else
-      citem->set_title(base::strfmt("Custom (%s)", limit));
+      citem->set_title(s);
     citem->set_checked(true);
   }
   else
@@ -109,8 +111,19 @@ void SqlEditorForm::limit_rows(mforms::MenuItem *menu, const char *limit)
     if (citem)
       menu->remove_item(citem);
   }
+
+  // update the editors
+  for (int i = 0; i < sql_editor_count(); i++)
+  {
+    SqlEditorPanel *panel = sql_editor_panel(i);
+    if (panel)
+      panel->update_limit_rows();
+  }
 }
 
+static int limit_counts[] = {
+  10, 50, 100, 200, 300, 400, 500, 1000, 2000, 5000, 10000, 50000, 0
+};
 
 mforms::MenuBar *SqlEditorForm::get_menubar()
 {
@@ -124,19 +137,22 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
     mforms::MenuItem *limit_item = _menu->find_item("limit_rows");
     if (limit_item)
     {
-      static const char* items[] = {
-        "10", "50", "100", "200", "300", "400", "500", "1000", "2000", "5000", "10000", "50000", NULL
-      };
+      std::string dont_limit = _("Don't Limit");
+      std::string active_limit = base::strfmt(_("Limit to %i rows"), limit_count);
 
-      limit_item->add_item_with_title("Don't Limit", boost::bind(&SqlEditorForm::limit_rows, this, limit_item, "0"), "0");
+      limit_item->add_item_with_title(dont_limit, boost::bind(&SqlEditorForm::limit_rows, this, dont_limit), dont_limit);
       limit_item->add_separator();
-      for (int i = 0; items[i]; i++)
-        limit_item->add_item_with_title(items[i], boost::bind(&SqlEditorForm::limit_rows, this, limit_item, items[i]), items[i]);
-
+      for (int i = 0; limit_counts[i] != 0; i++)
+      {
+        std::string tmp = base::strfmt(_("Limit to %i rows"), limit_counts[i]);
+        if (limit_counts[i] == limit_count)
+          active_limit = tmp;
+        limit_item->add_item_with_title(tmp, boost::bind(&SqlEditorForm::limit_rows, this, tmp), tmp);
+      }
       if (limit_count <= 0)
-        limit_rows(limit_item, "0");
+        limit_rows(dont_limit);
       else
-        limit_rows(limit_item, base::strfmt("%i", limit_count).c_str());
+        limit_rows(active_limit);
     }
 
     update_menu_and_toolbar();
