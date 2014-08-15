@@ -823,15 +823,13 @@ class WbAdminConnections(WbAdminBaseTab):
                     cols.append("t."+field)
 
         if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 6):
-            JOIN = " LEFT OUTER JOIN performance_schema.session_connect_attrs a ON t.processlist_id = a.processlist_id"
-            ATTR = " AND (a.attr_name IS NULL OR a.attr_name = 'program_name')"
+            JOIN = " LEFT OUTER JOIN performance_schema.session_connect_attrs a ON t.processlist_id = a.processlist_id AND (a.attr_name IS NULL OR a.attr_name = 'program_name')"
         else:
             JOIN = ""
-            ATTR = ""
         if self.hide_background_threads.get_active():
-            result = self.ctrl_be.exec_query("SELECT %s FROM performance_schema.threads t %s WHERE t.TYPE <> 'BACKGROUND'%s" % (",".join(cols), JOIN, ATTR))
+            result = self.ctrl_be.exec_query("SELECT %s FROM performance_schema.threads t %s WHERE t.TYPE <> 'BACKGROUND'" % (",".join(cols), JOIN))
         else:
-            result = self.ctrl_be.exec_query("SELECT %s FROM performance_schema.threads t %s WHERE 1=1%s" % (",".join(cols), JOIN, ATTR))
+            result = self.ctrl_be.exec_query("SELECT %s FROM performance_schema.threads t %s WHERE 1=1" % (",".join(cols), JOIN))
         
         if result is not None:
             result_rows = []
