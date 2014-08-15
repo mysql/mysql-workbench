@@ -862,6 +862,11 @@ void ServerInstanceEditor::add_instance()
     connection->owner(_mgmt);
     connection->name(name);
     connection->driver(_connect_panel->selected_rdbms()->defaultDriver());
+    if (find_named_object_in_list(connection->driver()->parameters(), "useSSL").is_valid())
+    {
+      // prefer SSL if possible by default
+      connection->parameterValues().set("useSSL", grt::IntegerRef(1));
+    }
     _connections.insert(connection);
     _connect_panel->set_connection(connection);
   }

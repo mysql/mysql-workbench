@@ -371,19 +371,21 @@ void DbConnectPanel::enum_param_value_changed(mforms::Selector *sender, std::vec
   }
   
   DbDriverParam *param= _connection->get_db_driver_param_handles()->get(param_name);
-  
   int i = sender->get_selected_index();
   if (i >= 0)
     param->set_value(grt::StringRef(options[i]));
   else
     param->set_value(grt::StringRef(""));
-  
-  _connection->save_changes();
 
-  std::string error= _connection->validate_driver_params();
-  if (error != _last_validation)
-    _signal_validation_state_changed(error, error.empty());
-  _last_validation = error;
+  if (_connection)
+  {
+    _connection->save_changes();
+
+    std::string error= _connection->validate_driver_params();
+    if (error != _last_validation)
+      _signal_validation_state_changed(error, error.empty());
+    _last_validation = error;
+  }
 }
 
 
@@ -607,11 +609,12 @@ void DbConnectPanel::save_connection_as(const std::string &name)
 
 bool DbConnectPanel::test_connection()
 {
-  std::string message;
+  std::string message = "Connection parameters are correct";
   try
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
     db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
+    std::string ssl_cipher;
     
     if ( connectionProperties->driver()->name() == "MySQLFabric")
     {
@@ -647,6 +650,20 @@ bool DbConnectPanel::test_connection()
                                               "Continue Anyway", "Cancel") != mforms::ResultOk)
             return false;
         }
+
+        // check ssl
+        {
+          std::auto_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
+          std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
+          if (result->next())
+            ssl_cipher = result->getString(2);
+
+          if (ssl_cipher.empty())
+            message.append("\n\nSSL not enabled");
+          else
+            message.append("\n\nSSL enabled with "+ssl_cipher);
+        }
+
       }
       else
         message = "Connection Failed";
@@ -670,7 +687,6 @@ bool DbConnectPanel::test_connection()
     else
     {
       title = base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
-      message = "Connection parameters are correct";
       mforms::Utilities::show_message(title, message, "OK");
       ret_val = true;
     }

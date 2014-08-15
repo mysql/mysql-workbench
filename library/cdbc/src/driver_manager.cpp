@@ -412,6 +412,21 @@ retry:
   try
   {
     std::auto_ptr<Connection> conn(driver->connect(properties));
+    std::string ssl_cipher;
+
+    // make sure that SSL got enabled if it was requested to be required
+    // TODO: there's a client lib option to do this, but C/C++ does not support as of 1.1.4
+    if (parameter_values.get_int("useSSL", 0) > 1)
+    {
+      boost::scoped_ptr<sql::Statement> statement(conn.get()->createStatement());
+      boost::scoped_ptr<sql::ResultSet> rs(statement->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
+      if (rs->next())
+      {
+        ssl_cipher = rs->getString(2);
+        if (ssl_cipher.empty())
+          throw std::runtime_error("Unable to establish SSL connection");
+      }
+    }
     
     // make sure the user we got logged in is the user we wanted
     {

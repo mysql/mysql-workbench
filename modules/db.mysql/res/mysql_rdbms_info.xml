@@ -772,9 +772,9 @@ one per line.</value>
           </value>
 
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param7">
-            <value type="string" key="caption">Use SSL if available.</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">This option turns on SSL encryption if the client library supports it.</value>
+            <value type="string" key="caption">Use SSL</value>
+            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -782,8 +782,11 @@ one per line.</value>
             <value type="string" key="lookupValueModule"></value>
             <value type="string" key="name">useSSL</value>
             <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="options">0|No,1|If available,2|Require</value>
+                <value type="string" key="type">int</value>
+            </value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl1">
@@ -804,7 +807,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl2">
             <value type="string" key="caption">SSL CERT File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Certificate file for SSL.</value>
+            <value type="string" key="description">Path to Client Certificate file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -819,7 +822,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl3">
             <value type="string" key="caption">SSL Key File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Key file for SSL.</value>
+            <value type="string" key="description">Path to Client Key file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -834,7 +837,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl4">
             <value type="string" key="caption">SSL Cipher:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional list of permissible ciphers to use for SSL encryption.</value>
+            <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1001,9 +1004,9 @@ one per line.</value>
 
 
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl0">
-            <value type="string" key="caption">Use SSL if available.</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">This option turns on SSL encryption if the client library supports it.</value>
+            <value type="string" key="caption">Use SSL</value>
+            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1011,8 +1014,11 @@ one per line.</value>
             <value type="string" key="lookupValueModule"></value>
             <value type="string" key="name">useSSL</value>
             <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="options">0|No,1|If available,2|Require</value>
+                <value type="string" key="type">int</value>
+            </value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl1">
@@ -1033,7 +1039,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl2">
             <value type="string" key="caption">SSL CERT File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Certificate file for SSL.</value>
+            <value type="string" key="description">Path to Client Certificate file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1048,7 +1054,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl3">
             <value type="string" key="caption">SSL Key File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Key file for SSL.</value>
+            <value type="string" key="description">Path to Client Key file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1063,7 +1069,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl4">
             <value type="string" key="caption">SSL Cipher:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional list of permissible ciphers to use for SSL encryption.</value>
+            <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1323,9 +1329,9 @@ one per line.</value>
 
 
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam2">
-            <value type="string" key="caption">Use SSL if available.</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">This option turns on SSL encryption if the client library supports it.</value>
+            <value type="string" key="caption">Use SSL</value>
+            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1333,8 +1339,11 @@ one per line.</value>
             <value type="string" key="lookupValueModule"></value>
             <value type="string" key="name">useSSL</value>
             <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="options">0|No,1|If available,2|Require</value>
+                <value type="string" key="type">int</value>
+            </value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl1">
@@ -1355,7 +1364,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl2">
             <value type="string" key="caption">SSL CERT File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Certificate file for SSL.</value>
+            <value type="string" key="description">Path to Client Certificate file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1370,7 +1379,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl3">
             <value type="string" key="caption">SSL Key File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Key file for SSL.</value>
+            <value type="string" key="description">Path to Client Key file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1385,7 +1394,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl4">
             <value type="string" key="caption">SSL Cipher:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional list of permissible ciphers to use for SSL encryption.</value>
+            <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>

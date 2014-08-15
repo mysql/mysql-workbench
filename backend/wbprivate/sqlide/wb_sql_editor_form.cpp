@@ -982,6 +982,16 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
     throw std::runtime_error("MySQL Server version is older than 5.x, which is not supported");
   }
 
+  // get SSL enabled info
+  {
+    std::auto_ptr<sql::Statement> stmt(dbc_conn->ref->createStatement());
+    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
+    if (result->next())
+    {
+      dbc_conn->ssl_cipher = result->getString(2);
+    }
+  }
+
   // Activate default schema, if it's empty, use last active
   if (dbc_conn->active_schema.empty())
   {
@@ -1222,6 +1232,8 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
         if (rs->next())
           _connection_info.append(create_html_line("Current User:", rs->getString(1)));
       }
+
+      _connection_info.append(create_html_line("SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Enabled using "+_usr_dbc_conn->ssl_cipher));
 
       // get lower_case_table_names value
       std::string value;
