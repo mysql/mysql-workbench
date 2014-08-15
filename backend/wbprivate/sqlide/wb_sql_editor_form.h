@@ -249,7 +249,7 @@ public:
   
   void run_editor_contents(bool current_statement_only);
 
-  void limit_rows(mforms::MenuItem *menu, const char *limit);
+  void limit_rows(const std::string &limit_text);
 
   std::string sql_mode() const { return _sql_mode; };
   int lower_case_table_names() const { return _lower_case_table_names; }

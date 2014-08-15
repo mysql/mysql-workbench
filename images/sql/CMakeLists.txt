@@ -58,9 +58,6 @@ set(IMAGE_FILES
     qe_sql-editor-tb-icon_find.png
     qe_sql-editor-tb-icon_open.png
     qe_sql-editor-tb-icon_rollback.png
-    qe_sql-editor-tb-icon_row-limit-1k-on.png
-    qe_sql-editor-tb-icon_row-limit-off.png
-    qe_sql-editor-tb-icon_row-limit-on.png
     qe_sql-editor-tb-icon_save.png
     qe_sql-editor-tb-icon_special-chars-off.png
     qe_sql-editor-tb-icon_special-chars-on.png

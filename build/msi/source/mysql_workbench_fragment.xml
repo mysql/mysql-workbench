@@ -858,9 +858,6 @@
                     <File Id="file61755" Name="qe_main-tb-icon_search_db.png"/>
                     <File Id="file61756" Name="wb-sidebar-refresh.png"/>
                     <File Id="file61758" Name="qe_main-tb-icon_preferences.png"/>
-                    <File Id="file61760" Name="qe_sql-editor-tb-icon_row-limit-1k-on.png"/>
-                    <File Id="file61761" Name="qe_sql-editor-tb-icon_row-limit-off.png"/>
-                    <File Id="file61762" Name="qe_sql-editor-tb-icon_row-limit-on.png"/>
                     <File Id="file61770" Name="switcher_bottom_off.png"/>
                     <File Id="file61771" Name="switcher_bottom_on.png"/>
                     <File Id="file61772" Name="switcher_left_off.png"/>

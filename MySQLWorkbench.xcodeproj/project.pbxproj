@@ -468,12 +468,6 @@
 		2B14348D179DDDE7002217CF /* qe_sql-editor-tb-icon_open@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B14340C179DDDE7002217CF /* qe_sql-editor-tb-icon_open@2x.png */; };
 		2B14348E179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B14340D179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback.png */; };
 		2B14348F179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B14340E179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback@2x.png */; };
-		2B143490179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B14340F179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on.png */; };
-		2B143491179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143410179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on@2x.png */; };
-		2B143492179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143411179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off.png */; };
-		2B143493179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143412179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off@2x.png */; };
-		2B143494179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143413179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on.png */; };
-		2B143495179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143414179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on@2x.png */; };
 		2B143496179DDDE7002217CF /* qe_sql-editor-tb-icon_save.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143415179DDDE7002217CF /* qe_sql-editor-tb-icon_save.png */; };
 		2B143497179DDDE7002217CF /* qe_sql-editor-tb-icon_save@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143416179DDDE7002217CF /* qe_sql-editor-tb-icon_save@2x.png */; };
 		2B143498179DDDE7002217CF /* qe_sql-editor-tb-icon_special-chars-off.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B143417179DDDE7002217CF /* qe_sql-editor-tb-icon_special-chars-off.png */; };
@@ -4301,12 +4295,6 @@
 		2B14340C179DDDE7002217CF /* qe_sql-editor-tb-icon_open@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_open@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_open@2x.png"; sourceTree = "<group>"; };
 		2B14340D179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_rollback.png"; path = "images/sql/qe_sql-editor-tb-icon_rollback.png"; sourceTree = "<group>"; };
 		2B14340E179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_rollback@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_rollback@2x.png"; sourceTree = "<group>"; };
-		2B14340F179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_row-limit-1k-on.png"; path = "images/sql/qe_sql-editor-tb-icon_row-limit-1k-on.png"; sourceTree = "<group>"; };
-		2B143410179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_row-limit-1k-on@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_row-limit-1k-on@2x.png"; sourceTree = "<group>"; };
-		2B143411179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_row-limit-off.png"; path = "images/sql/qe_sql-editor-tb-icon_row-limit-off.png"; sourceTree = "<group>"; };
-		2B143412179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_row-limit-off@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_row-limit-off@2x.png"; sourceTree = "<group>"; };
-		2B143413179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_row-limit-on.png"; path = "images/sql/qe_sql-editor-tb-icon_row-limit-on.png"; sourceTree = "<group>"; };
-		2B143414179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_row-limit-on@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_row-limit-on@2x.png"; sourceTree = "<group>"; };
 		2B143415179DDDE7002217CF /* qe_sql-editor-tb-icon_save.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_save.png"; path = "images/sql/qe_sql-editor-tb-icon_save.png"; sourceTree = "<group>"; };
 		2B143416179DDDE7002217CF /* qe_sql-editor-tb-icon_save@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_save@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_save@2x.png"; sourceTree = "<group>"; };
 		2B143417179DDDE7002217CF /* qe_sql-editor-tb-icon_special-chars-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_special-chars-off.png"; path = "images/sql/qe_sql-editor-tb-icon_special-chars-off.png"; sourceTree = "<group>"; };
@@ -10739,12 +10727,6 @@
 				2B14340C179DDDE7002217CF /* qe_sql-editor-tb-icon_open@2x.png */,
 				2B14340D179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback.png */,
 				2B14340E179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback@2x.png */,
-				2B14340F179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on.png */,
-				2B143410179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on@2x.png */,
-				2B143411179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off.png */,
-				2B143412179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off@2x.png */,
-				2B143413179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on.png */,
-				2B143414179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on@2x.png */,
 				2B143415179DDDE7002217CF /* qe_sql-editor-tb-icon_save.png */,
 				2B143416179DDDE7002217CF /* qe_sql-editor-tb-icon_save@2x.png */,
 				2B143417179DDDE7002217CF /* qe_sql-editor-tb-icon_special-chars-off.png */,
@@ -13431,14 +13413,8 @@
 				2B14348D179DDDE7002217CF /* qe_sql-editor-tb-icon_open@2x.png in Resources */,
 				2B14348E179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback.png in Resources */,
 				2B14348F179DDDE7002217CF /* qe_sql-editor-tb-icon_rollback@2x.png in Resources */,
-				2B143490179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on.png in Resources */,
 				2B18EDBE196C8706004D7596 /* wb_starter_mysql_migration_52@2x.png in Resources */,
-				2B143491179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-1k-on@2x.png in Resources */,
 				27B923BB196EC71700D98D18 /* item_overlay_delete@2x.png in Resources */,
-				2B143492179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off.png in Resources */,
-				2B143493179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-off@2x.png in Resources */,
-				2B143494179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on.png in Resources */,
-				2B143495179DDDE7002217CF /* qe_sql-editor-tb-icon_row-limit-on@2x.png in Resources */,
 				2B143496179DDDE7002217CF /* qe_sql-editor-tb-icon_save.png in Resources */,
 				2BF90F081979C3310029E1F9 /* ps_switcher_default_on.png in Resources */,
 				2B143497179DDDE7002217CF /* qe_sql-editor-tb-icon_save@2x.png in Resources */,
