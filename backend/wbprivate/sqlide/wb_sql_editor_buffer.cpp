@@ -516,7 +516,8 @@ void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
   if (_side_palette)
     _side_palette->cancel_timer();
 
-  panel->delete_auto_save();
+  if (!_closing)
+    panel->delete_auto_save();
 
   bool found = false;
   for (int c = _tabdock->view_count(), i = 0; i < c; i++)

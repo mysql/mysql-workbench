@@ -3432,7 +3432,7 @@ bool TableEditorBE::can_close()
     else
       return false;
   }
-  return true;
+  return DBObjectEditorBE::can_close();
 }
 
 void TableEditorBE::column_count_changed()

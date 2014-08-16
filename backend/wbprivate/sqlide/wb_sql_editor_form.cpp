@@ -573,6 +573,10 @@ void SqlEditorForm::close()
       if (p)
         p->editor_be()->stop_processing();
     }
+
+    _closing = true;
+    _tabdock->close_all_views();
+    _closing = false;
   }
   _grtm->replace_status_text("Closing SQL Editor...");
   wbsql()->editor_will_close(this);
@@ -2881,11 +2885,7 @@ bool SqlEditorForm::can_close_(bool interactive)
     }
   }
 
-  _closing = true;
-  if (_tabdock->close_all_views())
-    return true;
-  _closing = false;
-  return false;
+  return true;
 }
 
 
