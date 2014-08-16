@@ -312,7 +312,6 @@ void SqlEditorForm::finish_startup()
           boost::bind(&SqlEditorForm::get_autocompletion_connection, this, _1), cache_dir,
           boost::bind(&SqlEditorForm::on_cache_action, this, _1));
         _auto_completion_cache->refresh_schema_cache(""); // Start fetching of schema names immediately.
-
       }
       catch (std::exception &e)
       {
@@ -619,6 +618,32 @@ bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::s
   return false;
 }
 
+
+void SqlEditorForm::schema_tree_did_populate()
+{
+  if (!_pending_expand_nodes.empty() && _grtm->get_app_option_int("DbSqlEditor:SchemaTreeRestoreState", 1))
+  {
+    std::string schema, groups;
+    base::partition(_pending_expand_nodes, ":", schema, groups);
+
+    mforms::TreeNodeRef node = _live_tree->get_schema_tree()->get_node_for_object(schema, wb::LiveSchemaTree::Schema, "");
+    if (node)
+    {
+      static const char *nodes[] = {
+        "tables", "views", "procedures", "functions", NULL
+      };
+      node->expand();
+      for (int i = 0; nodes[i]; i++)
+        if (strstr(groups.c_str(), nodes[i]))
+        {
+          mforms::TreeNodeRef child = node->get_child(i);
+          if (child)
+            child->expand();
+        }
+    }
+    _pending_expand_nodes.clear();
+  }
+}
 
 std::string SqlEditorForm::fetch_data_from_stored_procedure(std::string proc_call, boost::shared_ptr<sql::ResultSet> &rs)
 {

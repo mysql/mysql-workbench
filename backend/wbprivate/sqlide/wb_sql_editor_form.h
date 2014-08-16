@@ -412,6 +412,7 @@ private:
     
   mforms::View* _side_palette_host;
   QuerySidePalette* _side_palette;
+  std::string _pending_expand_nodes;
 
 public:
   std::string fetch_data_from_stored_procedure(std::string proc_call, boost::shared_ptr<sql::ResultSet> &rs);
@@ -422,7 +423,8 @@ public:
   int exec_sql_error_count() { return _exec_sql_error_count; }
   
   boost::shared_ptr<SqlEditorTreeController> get_live_tree() { return _live_tree; }
-  
+  void schema_tree_did_populate();
+
   boost::function<void (const std::string&, bool)> output_text_slot;
 protected:
   DbSqlEditorLog::Ref _log;

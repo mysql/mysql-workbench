@@ -1657,6 +1657,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "SqlEditor::SyntaxCheck::MaxErrCount", 100);
 
   // DB SQL editor
+  set_default(options, "DbSqlEditor:SchemaTreeRestoreState", 1);
   set_default(options, "DbSqlEditor:SidebarModeCombined", 1);
   set_default(options, "DbSqlEditor:CodeCompletionEnabled", 1);
   set_default(options, "DbSqlEditor:AutoStartCodeCompletion", 1);

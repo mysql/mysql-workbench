@@ -22,6 +22,8 @@
 
 #include "wb_sql_editor_panel.h"
 
+#include "wb_sql_editor_tree_controller.h"
+
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -108,6 +110,37 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   if (_connection.is_valid())
     g_file_set_contents(make_path(path, "connection_id").c_str(), _connection->id().c_str(),
       (gssize)_connection->id().size(), NULL);
+
+  // save some of the state of the schema tree
+  {
+    std::string info;
+    info.append("active_schema=").append(active_schema()).append("\n");
+
+    // save the expansion state of the active schema only, since saving everything could be very slow when restoring
+    mforms::TreeNodeRef schema_node = _live_tree->get_schema_tree()->get_node_for_object(active_schema(), wb::LiveSchemaTree::Schema, "");
+    if (schema_node)
+    {
+      std::string expand_state;
+      if (schema_node->is_expanded())
+      {
+        expand_state = active_schema();
+        expand_state.append(":schema");
+        if (schema_node->get_child(0) && schema_node->get_child(0)->is_expanded())
+          expand_state.append(",tables");
+        if (schema_node->get_child(1) && schema_node->get_child(1)->is_expanded())
+          expand_state.append(",views");
+        if (schema_node->get_child(2) && schema_node->get_child(2)->is_expanded())
+          expand_state.append(",procedures");
+        if (schema_node->get_child(3) && schema_node->get_child(3)->is_expanded())
+          expand_state.append(",functions");
+      }
+      else
+        expand_state = "";
+      info.append("expanded=").append(expand_state).append("\n");
+    }
+
+    g_file_set_contents(make_path(path, "schema_tree").c_str(), info.c_str(), info.size(), NULL);
+  }
 
   if (_tabdock)
   {
@@ -407,6 +440,29 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
           add_sql_editor(false, false);
         }
       }
+    }
+  }
+
+  {
+    gchar *data;
+    gsize length;
+    if (g_file_get_contents(make_path(workspace_path, "schema_tree").c_str(), &data, &length, NULL))
+    {
+      char *line = strtok(data, "\n");
+      while (line)
+      {
+        if (base::starts_with(line, "expanded="))
+        {
+          char *value = strchr(line, '=');
+          if (value)
+          {
+            _pending_expand_nodes = value+1; // expanded=<schema-name>:schema,tables,views,etc
+            break;
+          }
+        }
+        line = strtok(NULL, "\n");
+      }
+      g_free(data);
     }
   }
   

@@ -810,6 +810,10 @@ mforms::View *PreferencesForm::create_sqlide_page()
                                                      "If Snapshot saving is enabled, query tabs are always autosaved to temporary files when the connection is closed."));
       save_workspace->signal_clicked()->connect(boost::bind(force_checkbox_on_toggle, save_workspace, discard_unsaved, true, true));
       (*save_workspace->signal_clicked())();
+
+      table->add_checkbox_option("DbSqlEditor:SchemaTreeRestoreState",
+                                 _("Restore expanded state of the active schema objects"),
+                                 _("Re-expand (and reload) group nodes that were previously expanded in the active schema when the editor was last closed."));
     }
     box->add(table, false, true);
   }
