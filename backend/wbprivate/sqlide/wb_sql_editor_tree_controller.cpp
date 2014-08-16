@@ -2597,6 +2597,7 @@ grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(grt::GRT *gr
 
   std::list<std::string> schema_list = fetch_schema_list();
   _grtm->run_once_when_idle(this, boost::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
+  _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
 
   _is_refreshing_schema_tree= false;
 
