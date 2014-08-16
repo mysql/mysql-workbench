@@ -977,6 +977,13 @@ willCloseTabViewItem:(NSTabViewItem*)tabViewItem
 
 - (BOOL)willClose
 {
+  for (id key in mEditors)
+  {
+    id editor = [mEditors valueForKey: key];
+    if ([editor respondsToSelector: @selector(willClose)])
+      if (![editor willClose])
+        return NO;
+  }
   return mBackEnd->can_close();
 }
 
