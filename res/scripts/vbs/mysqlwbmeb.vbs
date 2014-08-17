@@ -165,7 +165,7 @@ class MEBCommandProcessor
     private sub print_usage()
         Wscript.Echo "mysqlwbmeb <command> <parameters>"
         Wscript.Echo
-        Wscript.Echo "WHERE : <command>        : is one of HELP, VERSION, BACKUP, GET_PROFILES" 
+        Wscript.Echo "WHERE : <command>        : is one of HELP, VERSION, BACKUP, GET_PROFILES, UPDATE_SCHEDULING" 
         Wscript.Echo "        <parameters>     : are the parameters needed for each command."
         Wscript.Echo
         Wscript.Echo "You can also use as follows to get each command parameters:"
@@ -187,6 +187,8 @@ class MEBCommandProcessor
                     set command = new MEBBackup
                 case "GET_PROFILES"
                     set command = new MEBGetProfiles
+                case "UPDATE_SCHEDULING"
+                    set command = new MEBUpdateScheduling
             end select    
             
             if command is Nothing then
@@ -200,6 +202,8 @@ class MEBCommandProcessor
                     ret_val = command.execute()
                 end if
             end if
+        else
+            print_usage()
         end if
         
         execute = ret_val
@@ -210,7 +214,7 @@ class MEBVersion
     private current
     
     private sub Class_Initialize()
-        current = "3"
+        current = "4"
     end sub
 
     public function execute()
@@ -223,6 +227,8 @@ class MEBBackup
     ' These will be received as parameters
     private profile_file
     private compress
+    private compress_method
+    private compress_level
     private incremental
     private to_single_file
     private report_progress
@@ -276,6 +282,8 @@ class MEBBackup
         backup_dir = profile.get_value("mysqlbackup", "backup_dir", "")
         inc_backup_dir = profile.get_value("mysqlbackup", "incremental_backup_dir", "")
         use_tts = profile.get_value("meb_manager", "using_tts", "0")
+        compress_method = profile.get_value("meb_manager", "compress_method", "lz4")
+        compress_level = profile.get_value("meb_manager", "compress_level", "1")
     end sub
     
     ' Function used to create the target name in case it is a timestamp
@@ -399,7 +407,19 @@ class MEBBackup
 
         ' Adds the compress parameter if needed
         if compress then
-            command_call =  command_call & " --compress"
+            ' lz4 is the default so id it is selected only sets the --compress option
+            if compress_method = "lz4" then
+                command_call = command_call & " --compress"
+                
+            ' Otherwise using --compress-method makes --compress to be not needed
+            else
+                command_call = command_call & " --compress-method=" & compress_method
+                
+                ' Level is only specified if not using the default value
+                if compress_level <> "1" then
+                    command_call = command_call & " --compress-level=" & compress_level
+                end if
+            end if
         end if
 
         ' Get the right path parameter, path and running type 
@@ -486,6 +506,211 @@ class MEBBackup
 end class
 
 
+class MEBUpdateScheduling
+    ' These will be received as parameters
+    private change
+    private profile_file
+    private old_label
+    private old_fb_schedule
+    private old_ib_schedule
+    
+    ' These will be read from the profile file
+    private profile
+    private uuid
+    private new_label
+    private new_fb_schedule
+    private new_ib_schedule
+    
+    ' These are for internal use
+    private fso
+    private backups_home
+    private frequency
+    private month_day
+    private week_day
+    private hour
+    private minute
+    
+    private compress
+    private apply_log
+    
+    
+    private sub Class_Initialize()
+        file_name = ""
+        set fso = CreateObject("Scripting.FileSystemObject")
+        
+        ' Sets the backups home to the parent folder of this script
+        backups_home = fso.GetParentFolderName(Wscript.ScriptFullName)
+        
+        ' Initializes these to False so they serve their purpose
+        ' in the case of a DELETE
+        new_fb_schedule = "False"
+        new_ib_schedule = "False"
+    end sub
+    
+    private function read_params()
+        read_params = false
+        
+        if Wscript.Arguments.Count > 2 then
+            change = Wscript.Arguments.Item(1)
+            if change = "NEW" then
+                param_count = 3
+            else
+                param_count = 6
+            end if
+            
+            if Wscript.Arguments.Count = param_count then
+                
+                profile_file = Wscript.Arguments.Item(2)
+                
+                if change <> "NEW" then
+                    old_label = Wscript.Arguments.Item(3)
+                    old_fb_schedule = Wscript.Arguments.Item(4)
+                    old_ib_schedule = Wscript.Arguments.Item(5)
+                end if
+                
+                read_params = true
+            end if
+        end if
+    end function
+    
+    sub init_profile()
+        set profile = new ConfigReader
+        file_name = backups_home & "\" & profile_file & ".cnf"
+        profile.load(file_name)
+        
+        new_label = profile.get_value("meb_manager", "label", "")
+        uuid = profile.get_value("meb_manager", "uuid", "")
+        new_fb_schedule = profile.get_value("meb_manager", "full_backups_enabled", "")
+        new_ib_schedule = profile.get_value("meb_manager", "inc_backups_enabled", "")
+        compress = profile.get_value("meb_manager", "compress", "")
+        apply_log = profile.get_value("meb_manager", "apply_log", "")
+    end sub
+    
+    sub read_profile_data(backup_type)
+        frequency = profile.get_value("meb_manager", backup_type & "_backups_frequency", "")
+        month_day = profile.get_value("meb_manager", backup_type & "_backups_month_day", "")
+        week_day = profile.get_value("meb_manager", backup_type & "_backups_week_days", "")
+        hour = profile.get_value("meb_manager", backup_type & "_backups_hour", "")
+        minute = profile.get_value("meb_manager", backup_type & "_backups_minute", "")
+    end sub
+    
+    
+    private function create_backup_command_call(backup_type)
+        command = "cscript /nologo \""" & Wscript.ScriptFullName & "\"""
+        command = command & " BACKUP " & uuid & ".cnf"
+        real_compress = "0"
+        real_incremental = "0"
+        
+        if backup_type = "full" then
+            if compress = "True" and apply_log = "False" then
+                real_compress = "1"
+            end if
+        else
+            real_incremental = "1"
+        end if
+        
+        command = command & " " & real_compress
+        command = command & " " & real_incremental
+        command = command & " 0" ' To single file
+        command = command & " 1" ' Report Progress
+        
+        if apply_log = "True" and backup_type = "full" then
+            command = command & " backup-and-apply-log"
+        else
+            command = command & " backup"
+        end if
+        
+        create_backup_command_call = command
+        
+    end function
+    
+    private function get_unschedule_command(backup_type)
+        get_unschedule_command = "schtasks /Delete /TN ""MySQLBackup\" & uuid & "-" & old_label & "-" & backup_type & """ /F" 
+    end function
+
+    private function get_schedule_command(backup_type)
+        command = "schtasks /Create /TN ""MySQLBackup\" & uuid & "-" & new_label & "-" & backup_type & """ /SC " 
+        
+        hour = right("00" & hour, 2)
+        minute = right("00" & minute, 2)
+        
+        select case frequency
+            case "0" 'hourly
+                command = command & "HOURLY /ST 00:" & minute
+            case "1" 'Daily
+                command = command & "DAILY /ST " & hour & ":" & minute
+            case "2" 'Weekly
+                command = command & "WEEKLY /D " & week_day & "/ST " & hour & ":" & minute
+            case "3" 'Monthly
+                command = command & "MONTHLY /D " & month_day & "/ST " & hour & ":" & minute
+        end select
+        
+        get_schedule_command = command & " /RU SYSTEM /TR """ & create_backup_command_call(backup_type) & """ /F"
+    end function
+    
+    public sub print_usage()
+        Wscript.Echo "UPDATE_SCHEDULING <profile> <old_label> <old_full> <old_incremental>"
+        Wscript.Echo "WHERE : <change>           : Indicate the operation being done with the profile: NEW, UPDATE, DELETE."
+        Wscript.Echo "        <profile>          : is the UUID of the profile to be used for the scheduling."
+        Wscript.Echo "        [<old_label>]      : indicates the label under which the jobs were scheduled. Applies on UPDATE and DELETE changes."
+        Wscript.Echo "        [<old_full>]       : indicates if the profile was scheduled for full backup. (0 or 1). Applies on UPDATE and DELETE changes."
+        Wscript.Echo "        [<old_incremental>]: indicates if the profile was scheduled for incremental backup. (0 or 1). Applies on UPDATE and DELETE changes."
+        Wscript.Echo
+        Wscript.Echo
+    end sub
+    
+    public function exec_command(shell, command)
+        set exec = shell.Exec(command)
+        do while exec.status = 0
+            WScript.Echo exec.StdOut.ReadAll()
+            WScript.Echo exec.StdErr.ReadAll()
+        loop
+        
+        exec_command = exec.exitcode
+    end function
+    
+    public function execute()
+        ret_val = 0
+        if read_params() then
+            set shell = WScript.CreateObject("WScript.Shell")
+        
+            ' Profile data would NOT be read on DELETE actions.
+            if change <> "DELETE" then
+                init_profile()
+            end if
+            
+            ' Unscheduling would NOT occur on NEW profiles
+            if change <> "NEW" then
+                if old_label <> new_label  or old_fb_schedule = "1" and new_fb_schedule = "False" then
+                    command = get_unschedule_command("full")
+                    ret_val = ret_val + exec_command(shell, command)
+                end if
+
+                if old_label <> new_label  or (old_ib_schedule = "1" and new_ib_schedule = "False") then
+                    command = get_unschedule_command("inc")
+                    ret_val = ret_val + exec_command(shell, command)
+                end if
+            end if
+            
+            if new_fb_schedule = "True" then
+                read_profile_data("full")
+                command = get_schedule_command("full")
+                ret_val = ret_val + exec_command(shell, command)
+            end if
+            
+            if new_ib_schedule = "True" then
+                read_profile_data("inc")
+                command = get_schedule_command("inc")
+                ret_val = ret_val + exec_command(shell, command)
+            end if
+        else
+            print_usage()
+        end if
+        
+        execute = ret_val
+    end function
+end class
+
 class MEBGetProfiles
     private datadir
     
@@ -549,7 +774,7 @@ class MEBGetProfiles
                         
                         data.add "LABEL", profile.get_value("meb_manager", "label", "")
                         data.add "PARTIAL", profile.get_value("meb_manager", "partial", "")
-                        data.add "USING_TTS", profile.get_value("meb_manager", "using_tts", "")
+                        data.add "USING_TTS", profile.get_value("meb_manager", "using_tts", "0")
                         data.add "BACKUP_DIR", profile.get_value("mysqlbackup", "backup_dir", "")
 
                         ' Gets the available space
