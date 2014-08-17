@@ -131,6 +131,7 @@ std::vector<std::string> TableColumnsListBE::get_datatype_names()
     std::string tmp;
 
     if ((*iter)->parameterFormatType() == 1 ||
+        (*iter)->parameterFormatType() == 2 ||
         (*iter)->parameterFormatType() == 3 ||
         (*iter)->parameterFormatType() == 4 ||
         (*iter)->parameterFormatType() == 10)
@@ -2214,6 +2215,9 @@ bool FKConstraintColumnsListBE::set_field(const NodeId &node, ColumnId column, c
       std::auto_ptr<AutoUndoEdit> undo;
 
       tcolumn= grt::find_named_object_in_list(fk->referencedTable()->columns(), value);
+      
+      if (tcolumn.is_valid() == false)
+        return false;
 
       // special handling for stub tables
       if (fk->referencedTable()->isStub() && !tcolumn.is_valid() && !_owner->get_owner()->is_editing_live_object())
@@ -2356,9 +2360,9 @@ bool FKConstraintColumnsListBE::set_field(const NodeId &node, ColumnId column, s
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-bool FKConstraintColumnsListBE::get_field_grt(const NodeId &node, int column,
-                                              grt::ValueRef &value)
+bool FKConstraintColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   switch (column)
   {
@@ -2756,7 +2760,7 @@ bool FKConstraintListBE::set_field(const NodeId &node, ColumnId column, const st
 }
 
 
-bool FKConstraintListBE::get_field_grt(const NodeId &node, int column, grt::ValueRef &value)
+bool FKConstraintListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value)
 {
   db_ForeignKeyRef fk;
 
@@ -2897,9 +2901,8 @@ TableEditorBE::TableEditorBE(GRTManager *grtm, const db_TableRef &table)
   _inserts_panel = NULL;
   _inserts_grid = NULL;
 
-  if (table.class_name() == "db.Table") throw std::logic_error("table object is abstract");
-  
-  scoped_connect(table->signal_refreshDisplay(),(boost::bind(&BaseEditor::on_object_changed, this)));
+  if (table.class_name() == "db.Table")
+    throw std::logic_error("table object is abstract");
 }
 
 #ifdef _WIN32
@@ -3217,6 +3220,7 @@ bool TableEditorBE::parse_column_type(const std::string &str, db_ColumnRef &colu
     grt::UndoManager *um= get_grt()->get_undo_manager();
 
     // call _refresh_ui when this parse column type action is undone
+    // XXX: everytime we parse a column type 2 new connections are added without removing the old ones!
     scoped_connect(um->signal_undo(),boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
     scoped_connect(um->signal_redo(),boost::bind(&TableEditorBE::undo_called, this, _1, um->get_latest_undo_action()));
   }
@@ -3262,7 +3266,7 @@ void TableEditorBE::restore_inserts_columns()
     bool flag = false;
     if (widths.is_valid() && i < (int)widths.count())
     {
-      int width = widths[i];
+      int width = (int)widths[i];
       if (width > 0)
       {
         _inserts_grid->set_column_width(i, width);
@@ -3428,7 +3432,7 @@ bool TableEditorBE::can_close()
     else
       return false;
   }
-  return true;
+  return DBObjectEditorBE::can_close();
 }
 
 void TableEditorBE::column_count_changed()

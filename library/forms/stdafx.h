@@ -19,8 +19,6 @@
 
 #pragma once
 
-#ifdef _WIN32
-
 #ifdef _WIN64
 typedef __int64 ssize_t;
 #else
@@ -55,5 +53,3 @@ typedef int ssize_t;
 #include "tinyxml.h"
 
 #include "SciLexer.h"
-
-#endif

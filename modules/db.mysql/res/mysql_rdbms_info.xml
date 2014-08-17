@@ -772,9 +772,9 @@ one per line.</value>
           </value>
 
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param7">
-            <value type="string" key="caption">Use SSL if available.</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">This option turns on SSL encryption if the client library supports it.</value>
+            <value type="string" key="caption">Use SSL</value>
+            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -782,8 +782,11 @@ one per line.</value>
             <value type="string" key="lookupValueModule"></value>
             <value type="string" key="name">useSSL</value>
             <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="options">0|No,1|If available,2|Require</value>
+                <value type="string" key="type">int</value>
+            </value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl1">
@@ -804,7 +807,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl2">
             <value type="string" key="caption">SSL CERT File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Certificate file for SSL.</value>
+            <value type="string" key="description">Path to Client Certificate file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -819,7 +822,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl3">
             <value type="string" key="caption">SSL Key File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Key file for SSL.</value>
+            <value type="string" key="description">Path to Client Key file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -834,7 +837,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl4">
             <value type="string" key="caption">SSL Cipher:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional list of permissible ciphers to use for SSL encryption.</value>
+            <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1001,9 +1004,9 @@ one per line.</value>
 
 
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl0">
-            <value type="string" key="caption">Use SSL if available.</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">This option turns on SSL encryption if the client library supports it.</value>
+            <value type="string" key="caption">Use SSL</value>
+            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1011,8 +1014,11 @@ one per line.</value>
             <value type="string" key="lookupValueModule"></value>
             <value type="string" key="name">useSSL</value>
             <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="options">0|No,1|If available,2|Require</value>
+                <value type="string" key="type">int</value>
+            </value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl1">
@@ -1033,7 +1039,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl2">
             <value type="string" key="caption">SSL CERT File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Certificate file for SSL.</value>
+            <value type="string" key="description">Path to Client Certificate file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1048,7 +1054,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl3">
             <value type="string" key="caption">SSL Key File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Key file for SSL.</value>
+            <value type="string" key="description">Path to Client Key file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1063,7 +1069,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl4">
             <value type="string" key="caption">SSL Cipher:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional list of permissible ciphers to use for SSL encryption.</value>
+            <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1323,9 +1329,9 @@ one per line.</value>
 
 
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam2">
-            <value type="string" key="caption">Use SSL if available.</value>
-            <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">This option turns on SSL encryption if the client library supports it.</value>
+            <value type="string" key="caption">Use SSL</value>
+            <value type="string" key="defaultValue">1</value>
+            <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1333,8 +1339,11 @@ one per line.</value>
             <value type="string" key="lookupValueModule"></value>
             <value type="string" key="name">useSSL</value>
             <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
-            <value type="string" key="paramType">boolean</value>
-            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="string" key="paramType">enum</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+                <value type="string" key="options">0|No,1|If available,2|Require</value>
+                <value type="string" key="type">int</value>
+            </value>
             <value type="int" key="required">0</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl1">
@@ -1355,7 +1364,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl2">
             <value type="string" key="caption">SSL CERT File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Certificate file for SSL.</value>
+            <value type="string" key="description">Path to Client Certificate file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1370,7 +1379,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl3">
             <value type="string" key="caption">SSL Key File:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to Key file for SSL.</value>
+            <value type="string" key="description">Path to Client Key file for SSL.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1385,7 +1394,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl4">
             <value type="string" key="caption">SSL Cipher:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional list of permissible ciphers to use for SSL encryption.</value>
+            <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1400,6 +1409,137 @@ one per line.</value>
 
         </value>
       </value>
+
+      <value type="object" struct-name="db.mgmt.Driver" id="com.mysql.rdbms.mysql.driver.fabric">
+        <value type="string" key="caption">MySQL Fabric Management Node</value>
+        <value type="string" key="description">Connection using the MySQL Fabric Utility</value>
+        <value type="string" key="hostIdentifierTemplate">Mysql@%hostName%:%port%</value>
+        <value type="string" key="filesTarget">.</value>
+        <value type="string" key="driverLibraryName">mysqlcppconn</value>
+        <value type="string" key="name">MySQLFabric</value>
+        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        <value type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param1">
+            <value type="string" key="caption">Hostname:</value>
+            <value type="string" key="defaultValue">127.0.0.1</value>
+            <value type="string" key="description">Name or IP address of the fabric node.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">118</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">hostName</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param2">
+            <value type="string" key="caption">Port:</value>
+            <value type="string" key="defaultValue">32274</value>
+            <value type="string" key="description">TCP/IP port.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">46</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">port</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param3">
+            <value type="string" key="caption">Username:</value>
+            <value type="string" key="defaultValue">admin</value>
+            <value type="string" key="description">Name of the user to connect with.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">userName</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param4">
+            <value type="string" key="caption">Password:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="int" key="layoutAdvanced">0</value>
+            <value type="int" key="layoutRow">3</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">password</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">keychain</value>
+            <value type="dict" content-type="string" key="paramTypeDetails">
+              <value type="string" key="storageKeyFormat">%userName%::Mysql@%hostName%:%port%</value>
+            </value>
+            <value type="int" key="required">0</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param5">
+            <value type="string" key="caption">MySQL Username:</value>
+            <value type="string" key="defaultValue">fabric</value>
+            <value type="string" key="description">MySQL account to use when connecting to managed MySQL Instances.</value>
+            <value type="int" key="layoutAdvanced">3</value>
+            <value type="int" key="layoutRow">1</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">mysqlUserName</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param6">
+            <value type="string" key="caption">H.A. Group Filter:</value>
+            <value type="string" key="defaultValue"></value>
+            <value type="string" key="description">Comma separated list of groups to be included. 
+Leave empty to include all the available groups.</value>
+            <value type="int" key="layoutAdvanced">3</value>
+            <value type="int" key="layoutRow">2</value>
+            <value type="int" key="layoutWidth">218</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">haGroupFilter</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">0</value>
+          </value>
+          <!-- Note this parameters is to store the status about the connections for managed nodes being created or not -->
+          <!-- But it is not a field displayed on the UI -->
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param7">
+            <value type="string" key="defaultValue">0</value>
+            <value type="int" key="layoutAdvanced">-1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">connections_created</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">int</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>        
+          <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param8">
+            <value type="string" key="defaultValue">0000-00-00 00:00:00</value>
+            <value type="int" key="layoutAdvanced">-1</value>
+            <value type="int" key="layoutRow">-1</value>
+            <value type="string" key="lookupValueMethod"></value>
+            <value type="string" key="lookupValueModule"></value>
+            <value type="string" key="name">managedConnectionsUpdateTime</value>
+            <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
+            <value type="string" key="paramType">string</value>
+            <value type="dict" content-type="string" key="paramTypeDetails"/>
+            <value type="int" key="required">1</value>
+          </value>        
+        </value>
+      </value>    
     </value>
 
     <!-- Datatypes -->

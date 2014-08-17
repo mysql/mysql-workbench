@@ -35,6 +35,7 @@
 #include "sqlite/command.hpp"
 #include <boost/foreach.hpp>
 #include <fstream>
+#include <sstream>
 
 #include "recordset_text_storage.h"
 
@@ -1076,7 +1077,7 @@ void Recordset::paste_rows_from_clipboard(ssize_t dest_row)
       if (parts.size() != get_column_count())
       {
         mforms::Utilities::show_error("Cannot Paste Row",
-                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%li vs %li).\n"
+                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%zi vs %zi).\n"
                                              "Data must be in the same format used by the Copy Row Content command.",
                                              (long)parts.size(), (long)get_column_count()),
                                       "OK");
@@ -1770,6 +1771,57 @@ void Recordset::load_from_file(const bec::NodeId &node, ColumnId column)
   
   if (chooser.run_modal())
     load_from_file(node, column, chooser.get_path());
+}
+
+
+
+class BlobCopier : public boost::static_visitor<void>
+{
+public:
+  BlobCopier() {}
+  std::ostringstream os;
+public:
+  result_type operator()(const sqlite::blob_ref_t &v)
+  {
+    std::copy(v->begin(), v->end(), std::ostreambuf_iterator<char>(os));
+  }
+  result_type operator()(const std::string &v) { os << v; }
+  template<typename T> result_type operator()(const T &) {}
+};
+
+
+bool Recordset::get_raw_field(const bec::NodeId &node, ColumnId column, std::string &data_ret)
+{
+  base::RecMutexLock data_mutex(_data_mutex);
+
+  sqlite::variant_t blob_value;
+  sqlite::variant_t *value;
+
+  if (sqlide::is_var_blob(_real_column_types[column]))
+  {
+    if (!_data_storage)
+      return false;
+    ssize_t rowid;
+    if (!get_field_(node, _rowid_column, rowid))
+      return false;
+    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+    _data_storage->fetch_blob_value(this, data_swap_db.get(), rowid, column, blob_value);
+    value= &blob_value;
+  }
+  else
+  {
+    Cell cell;
+    if (!get_cell(cell, node, column, false))
+      return false;
+    value= &(*cell);
+  }
+
+  BlobCopier copier;
+  boost::apply_visitor(copier, *value);
+
+  data_ret = copier.os.str();
+
+  return true;
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,8 +38,11 @@ class DbMySQLTableEditorIndexPage
     void switch_be(MySQLTableEditorBE* be);
 
     ~DbMySQLTableEditorIndexPage();
+
   private:
     void cell_editing_started(Gtk::CellEditable *cell, const Glib::ustring &path);
+    void cell_editing_done(GtkCellEditable* ce);
+    static void cell_editing_done_proxy(GtkCellEditable* ce, gpointer data);
 
     //! index_cursor_changed is called when current item in the index treeview is changed
     void index_cursor_changed();
@@ -77,6 +80,9 @@ class DbMySQLTableEditorIndexPage
     ::bec::NodeId                             _index_node;
     sigc::connection                          _editing_sig;
     sigc::connection                          _refresh_sig;
+    gulong                                    _editing_done_id;
+    GtkCellEditable                           *_editable_cell;
+    std::string                               _user_index_name;
 };
 
 #endif

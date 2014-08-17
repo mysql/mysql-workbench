@@ -343,6 +343,18 @@ void TunnelManager::close_tunnel(int port)
   Py_XDECREF(ret);
 }
 
+void TunnelManager::set_keepalive(int port, int keepalive)
+{
+  WillEnterPython lock;
+  PyObject *ret = PyObject_CallMethod(_tunnel, (char*) "set_keepalive", (char*) "ii", port, keepalive);
+  if (!ret)
+  {
+    PyErr_Print();
+    return;
+  }
+  Py_XDECREF(ret);
+}
+
 
 boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_ConnectionRef connectionProperties)
 {
@@ -433,6 +445,7 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
         if (tunnel)
         {
           tunnel->connect(connectionProperties);
+          set_keepalive(tunnel_port, _wb->get_grt_manager()->get_app_option_int("sshkeepalive", 0));
           log_info("SSH tunnel connect executed OK\n");
         }
       }

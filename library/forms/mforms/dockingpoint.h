@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_DOCKINGPOINT_H_
-#define _MFORMS_DOCKINGPOINT_H_
+#pragma once
 
 #include <map>
 
@@ -139,5 +138,3 @@ namespace mforms {
     bool _delete_delegate;
   };
 };
-
-#endif

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MFORMS_APPVIEW_H_
-#define _MFORMS_APPVIEW_H_
+#pragma once
 
 #include <mforms/box.h>
 #include <mforms/app.h>
@@ -50,10 +49,12 @@ namespace mforms {
    window not owned by mforms. This class is a subclass of Box, so it can
    be used as a container for multiple subviews as well.
    */
-  class MFORMS_EXPORT AppView : public Box , public bec::UIForm
+  class MFORMS_EXPORT AppView : public Box, public bec::UIForm
   {
-  protected:
+  private:
+#ifdef _WIN32
     AppViewImplPtrs* _app_view_impl;
+#endif
     boost::function<bool ()> _on_close_slot;
     std::string _context_name;
     std::string _identifier;
@@ -94,7 +95,8 @@ namespace mforms {
     
     /** Gets the previously unique identifier for this view. */
     std::string identifier() const { return _identifier; }
-    
+
+    virtual void close();
   public:
 
 #ifndef SWIG
@@ -120,8 +122,7 @@ namespace mforms {
 
 #ifndef SWIG
     void set_containing_docking_point(mforms::DockingPoint *dpoint);
+    mforms::DockingPoint *containing_docking_point() { return _dpoint; }
 #endif
   };
 };
-
-#endif

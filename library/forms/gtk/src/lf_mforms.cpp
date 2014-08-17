@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +47,7 @@
 #include "../lf_code_editor.h"
 #include "../lf_menubar.h"
 #include "../lf_toolbar.h"
+#include "../lf_canvas.h"
 
 extern void lf_findpanel_init();
 namespace mforms
@@ -94,6 +95,7 @@ void ::mforms::gtk::init(bool force_sys_colors_)
   mforms::gtk::HyperText_init();
   mforms::gtk::Popover_init();
   lf_findpanel_init();
+  CanvasImpl::init();
 //  GRTTreeViewImpl::init(); initialized in main program
 }
 

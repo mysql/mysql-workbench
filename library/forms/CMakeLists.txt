@@ -19,6 +19,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
@@ -34,6 +35,7 @@ add_library(mforms
     base.cpp
     box.cpp
     button.cpp
+    canvas.cpp
     checkbox.cpp
     code_editor.cpp
     container.cpp
@@ -118,6 +120,10 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	)
 endif()
 
-target_link_libraries(mforms linux_utilities ${CAIRO_LIBRARIES} ${GTK2_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
+target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK2_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${TINYXML_LIBRARY})
+
+set_target_properties(mforms
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS mforms DESTINATION ${WB_INSTALL_LIB_DIR})

@@ -22,6 +22,8 @@
 
 #include "wb_sql_editor_panel.h"
 
+#include "wb_sql_editor_tree_controller.h"
+
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -108,6 +110,37 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
   if (_connection.is_valid())
     g_file_set_contents(make_path(path, "connection_id").c_str(), _connection->id().c_str(),
       (gssize)_connection->id().size(), NULL);
+
+  // save some of the state of the schema tree
+  {
+    std::string info;
+    info.append("active_schema=").append(active_schema()).append("\n");
+
+    // save the expansion state of the active schema only, since saving everything could be very slow when restoring
+    mforms::TreeNodeRef schema_node = _live_tree->get_schema_tree()->get_node_for_object(active_schema(), wb::LiveSchemaTree::Schema, "");
+    if (schema_node)
+    {
+      std::string expand_state;
+      if (schema_node->is_expanded())
+      {
+        expand_state = active_schema();
+        expand_state.append(":schema");
+        if (schema_node->get_child(0) && schema_node->get_child(0)->is_expanded())
+          expand_state.append(",tables");
+        if (schema_node->get_child(1) && schema_node->get_child(1)->is_expanded())
+          expand_state.append(",views");
+        if (schema_node->get_child(2) && schema_node->get_child(2)->is_expanded())
+          expand_state.append(",procedures");
+        if (schema_node->get_child(3) && schema_node->get_child(3)->is_expanded())
+          expand_state.append(",functions");
+      }
+      else
+        expand_state = "";
+      info.append("expanded=").append(expand_state).append("\n");
+    }
+
+    g_file_set_contents(make_path(path, "schema_tree").c_str(), info.c_str(), info.size(), NULL);
+  }
 
   if (_tabdock)
   {
@@ -409,6 +442,29 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       }
     }
   }
+
+  {
+    gchar *data;
+    gsize length;
+    if (g_file_get_contents(make_path(workspace_path, "schema_tree").c_str(), &data, &length, NULL))
+    {
+      char *line = strtok(data, "\n");
+      while (line)
+      {
+        if (base::starts_with(line, "expanded="))
+        {
+          char *value = strchr(line, '=');
+          if (value)
+          {
+            _pending_expand_nodes = value+1; // expanded=<schema-name>:schema,tables,views,etc
+            break;
+          }
+        }
+        line = strtok(NULL, "\n");
+      }
+      g_free(data);
+    }
+  }
   
   if (restoring_autosave)
   {
@@ -450,19 +506,22 @@ SqlEditorPanel* SqlEditorForm::add_sql_editor(bool scratch, bool start_collapsed
 //--------------------------------------------------------------------------------------------------
 
 mforms::DragOperation SqlEditorForm::drag_over(mforms::View *sender, base::Point p,
-  const std::vector<std::string> &formats)
+  mforms::DragOperation allowedOperations, const std::vector<std::string> &formats)
 {
   // We can accept dropped files.
   if (std::find(formats.begin(), formats.end(), mforms::DragFormatFileName) != formats.end())
-    return mforms::DragOperationCopy; // Copy to indicate we don't do anything with the files.
+    return allowedOperations & mforms::DragOperationCopy; // Copy to indicate we don't do anything with the files.
   return mforms::DragOperationNone;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::Point p,
-  const std::vector<std::string> &file_names)
+  mforms::DragOperation allowedOperations, const std::vector<std::string> &file_names)
 {
+  if ((allowedOperations & mforms::DragOperationCopy) != mforms::DragOperationCopy)
+    return mforms::DragOperationNone;
+
 #ifdef _WIN32
   bool case_sensitive = false; // TODO: on Mac case sensitivity depends on the file system.
 #else
@@ -506,11 +565,15 @@ mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::P
 
 void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
 {
+  panel->grtobj()->owner().clear();
+  grtobj()->queryEditors().remove_value(panel->grtobj());
+
   //if we're removing editor, just cancel query side timer cause there is only one timer
   if (_side_palette)
     _side_palette->cancel_timer();
 
-  panel->delete_auto_save();
+  if (!_closing)
+    panel->delete_auto_save();
 
   bool found = false;
   for (int c = _tabdock->view_count(), i = 0; i < c; i++)
@@ -527,7 +590,11 @@ void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
   }
   _tabdock->undock_view(panel);
 
-  delete panel;
+  // no need to delete, undock_view will release the reference and delete it because panel is managed
+  //delete panel;
+
+  if (_tabdock->view_count() == 0 && !_closing)
+    new_sql_scratch_area();
 }
 
 
@@ -662,7 +729,6 @@ SqlEditorPanel *SqlEditorForm::new_sql_script_file()
   update_menu_and_toolbar();
   return panel;
 }
-
 
 SqlEditorPanel *SqlEditorForm::new_sql_scratch_area(bool start_collapsed)
 {

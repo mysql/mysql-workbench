@@ -19,4 +19,8 @@ add_library(cdbc
 
 target_link_libraries(cdbc ${MYSQLCPPCONN_LIBRARY})
 
+set_target_properties(cdbc
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS cdbc DESTINATION ${WB_INSTALL_LIB_DIR})

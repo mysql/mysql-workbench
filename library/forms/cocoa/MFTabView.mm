@@ -20,6 +20,8 @@
 #import "MFTabView.h"
 #import "MFMForms.h"
 
+#include "base/string_utilities.h"
+
 @implementation MFTabViewItemView
 
 - (NSView*)superview
@@ -80,6 +82,7 @@
 //--------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 //--------------------------------------------------------------------------------------------------
 
@@ -99,16 +102,26 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
     {
       case mforms::TabViewSystemStandard:
         break;
+
       case mforms::TabViewTabless:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         break;
+
+      case mforms::TabViewMainClosable:
+        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
+        [mTabSwitcher setTabStyle: MMainTabSwitcher];
+        [mTabSwitcher setTabView: mTabView];
+        break;
+
+      case mforms::TabViewDocument:
       case mforms::TabViewDocumentClosable:
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         [mTabSwitcher setTabStyle: MEditorTabSwitcher];
-        tabSwitcherBelow = NO;
         [mTabSwitcher setTabView: mTabView];
         break;
+
       case mforms::TabViewPalette:
         [mTabView setControlSize: NSSmallControlSize];
         [mTabView setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
@@ -118,7 +131,6 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
         [mTabView setTabViewType: NSNoTabsNoBorder];
         mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
         [mTabSwitcher setTabStyle: MPaletteTabSwitcherSmallText];
-        tabSwitcherBelow = NO;
         [mTabSwitcher setTabView: mTabView];
         break;
 
@@ -128,6 +140,18 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
         [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
         tabSwitcherBelow = YES;
         [mTabSwitcher setTabView: mTabView];
+        break;
+
+      case mforms::TabViewEditorBottomPinnable:
+        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
+        [mTabSwitcher setTabStyle: MEditorBottomTabSwitcherPinnable];
+        tabSwitcherBelow = YES;
+        [mTabSwitcher setTabView: mTabView];
+        break;
+
+      default:
+        throw std::runtime_error("mforms: invalid tab type: " + base::to_string(tabType));
         break;
     }
     [mTabView setDrawsBackground: NO];
@@ -156,6 +180,8 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
   }
   return self;
 }
+
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
 - (mforms::Object*)mformsObject
 {
@@ -198,7 +224,7 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
     NSRect rect = [self bounds];
 
     srect.size.width = NSWidth(rect);
-    if (mOwner->get_type() == mforms::TabViewEditorBottom)
+    if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewEditorBottomPinnable)
     {
       srect.origin.y = 0;
       rect.origin.y = NSHeight(srect);
@@ -228,6 +254,13 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
     [[item view] setEnabled: flag];
 }
 
+- (BOOL)isClosable
+{
+  return (mOwner->get_type() == mforms::TabViewEditorBottom
+          || mOwner->get_type() == mforms::TabViewEditorBottomPinnable
+          || mOwner->get_type() == mforms::TabViewDocumentClosable);
+}
+
 
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
@@ -248,18 +281,29 @@ STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
   mOwner->set_menu_tab([tabView indexOfTabViewItem: tabViewItem]);
 }
 
+- (BOOL)tabView:(NSTabView*)tabView itemIsPinned:(NSTabViewItem*)item
+{
+  if (mOwner->is_pinned)
+    return mOwner->is_pinned([tabView indexOfTabViewItem: item]);
+  return NO;
+}
 
 - (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)item
 {
-  if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewDocumentClosable)
+  if ([self isClosable])
     return YES;
   return NO;
 }
 
+- (void)tabView:(NSTabView*)tabView itemPinClicked:(NSTabViewItem*)item
+{
+  int i = [tabView indexOfTabViewItem: item];
+  mOwner->pin_changed(i, !mOwner->is_pinned(i));
+}
 
 - (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)item
 {
-  if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewDocumentClosable)
+  if ([self isClosable])
   {
     return mOwner->can_close_tab([mTabView indexOfTabViewItem: item]);
   }
@@ -379,7 +423,7 @@ static void tabview_remove_page(::mforms::TabView *self, mforms::View *tab)
 
 static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
 {
-  if (self->get_type() != mforms::TabViewEditorBottom)
+  if (self->get_type() != mforms::TabViewEditorBottom && self->get_type() != mforms::TabViewEditorBottomPinnable)
     throw std::invalid_argument("set_aux_view called for invalid Tab type\n");
 
   MFTabViewImpl* tabView = self->get_data();
@@ -394,7 +438,7 @@ static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
 
 static void tabview_set_allow_reordering(::mforms::TabView *self, bool flag)
 {
-  if (self->get_type() != mforms::TabViewEditorBottom || self->get_type() == mforms::TabViewDocumentClosable)
+  if (self->get_type() != mforms::TabViewEditorBottom && self->get_type() != mforms::TabViewEditorBottomPinnable && self->get_type() == mforms::TabViewDocumentClosable)
     throw std::invalid_argument("TabView is not of a reorderable type\n");
 
   MFTabViewImpl* tabView = self->get_data();

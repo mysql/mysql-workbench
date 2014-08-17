@@ -24,7 +24,7 @@
 #include "base/wb_iterators.h"
 #include "base/log.h"
 #include "mforms/../gtk/lf_view.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "sqlide_form.h"
 #include "sqlide/wb_sql_editor_panel.h"
 

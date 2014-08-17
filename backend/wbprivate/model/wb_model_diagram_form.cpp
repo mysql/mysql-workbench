@@ -510,6 +510,18 @@ void ModelDiagramForm::attach_canvas_view(mdc::CanvasView *cview)
 }
 
 
+void ModelDiagramForm::close()
+{
+  set_closed(true);
+  _mini_view->set_active_view(NULL, model_DiagramRef());
+
+  delete _mini_view;
+  _mini_view = 0;
+
+  _model_diagram->get_data()->unrealize();
+}
+
+
 void ModelDiagramForm::set_closed(bool flag)
 {
   if (_model_diagram.is_valid())
@@ -879,6 +891,12 @@ void ModelDiagramForm::handle_mouse_move(int x, int y, mdc::EventState state)
     return;
 
   _view->handle_mouse_move(x, y, state);
+}
+
+
+void ModelDiagramForm::handle_mouse_leave(int x, int y, mdc::EventState state)
+{
+  _view->handle_mouse_leave(x, y, state);
 }
 
 

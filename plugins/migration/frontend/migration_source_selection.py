@@ -392,6 +392,7 @@ class FetchProgressView(WizardProgressPage):
     def __init__(self, main):
         WizardProgressPage.__init__(self, main, "Fetch Schema List", description=PAGE_DESCRIPTION)
         
+        self._autostart = True
         self.add_task(self.task_connect, "Connect to source DBMS")
         self.add_task(self.task_test_target, "Check target DBMS connection")
         self.add_threaded_task(self.task_fetch_schemata, "Retrieve schema list from source")

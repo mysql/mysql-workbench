@@ -73,12 +73,12 @@ AboutBox::AboutBox(const std::string &edition)
   _scale_factor = mforms::App::get()->backing_scale_factor();
   if (_scale_factor > 1)
   {
-    _back_image = mforms::Utilities::load_icon("wb_about@2x.png");
+    _back_image = mforms::Utilities::load_icon("MySQL-WB-about-screen@2x.png");
     size = base::Size(image_width(_back_image) / _scale_factor, image_height(_back_image) / _scale_factor);
   }
   else
   {
-    _back_image = mforms::Utilities::load_icon("wb_about.png");
+    _back_image = mforms::Utilities::load_icon("MySQL-WB-about-screen.png");
     size = base::Size(image_width(_back_image), image_height(_back_image));
   }
 
@@ -115,8 +115,9 @@ void AboutBox::repaint(cairo_t *cr, int x, int y, int w, int h)
   cairo_paint(cr);
   cairo_identity_matrix(cr);
 
-  std::string version = base::strfmt(_("Version %i.%i.%i.%i build %i %s"), APP_MAJOR_NUMBER, APP_MINOR_NUMBER,
-                                     APP_RELEASE_NUMBER, APP_REVISION_NUMBER, APP_BUILD_NUMBER, APP_RELEASE_TYPE);
+  std::string version = base::strfmt(_("Version %i.%i.%i.%i build %i %s (%i bits)"), APP_MAJOR_NUMBER, APP_MINOR_NUMBER,
+                                     APP_RELEASE_NUMBER, APP_REVISION_NUMBER, APP_BUILD_NUMBER, APP_RELEASE_TYPE,
+                                     (int)sizeof(int)*8);
 
   cairo_select_font_face(cr, ABOUT_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, ABOUT_FONT_SIZE);

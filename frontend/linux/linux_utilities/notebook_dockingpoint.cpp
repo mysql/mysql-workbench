@@ -58,6 +58,12 @@ void NotebookDockingPoint::dock_view(mforms::AppView *view, const std::string &a
   {
     ActiveLabel *l = Gtk::manage(new ActiveLabel("mforms", sigc::bind(sigc::mem_fun(this, &NotebookDockingPoint::close_appview_page), view)));
     int i = _notebook->append_page(*w, *l);
+
+    if (view->release_on_add())
+      view->set_release_on_add(false);
+    else
+      view->retain();
+
     _notebook->set_current_page(i);
     w->set_data("NotebookDockingPoint:label", l);
 
@@ -88,6 +94,7 @@ void NotebookDockingPoint::undock_view(mforms::AppView *view)
     //before remove, unset menu if it was set
     _notebook->remove_page(*w);
     notebook_changed_signal.emit(false);
+    view->release();
   }
 }
 

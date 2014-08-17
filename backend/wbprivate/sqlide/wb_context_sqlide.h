@@ -28,7 +28,6 @@
 #include <boost/weak_ptr.hpp>
 #include "base/trackable.h"
 #include "base/notifications.h"
-
 class SqlEditorPanel;
 class SqlEditorForm;
 

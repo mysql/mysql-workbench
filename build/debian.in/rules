@@ -1,4 +1,20 @@
 #!/usr/bin/make -f
+
+# Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
 # -*- makefile -*-
 # Sample debian/rules that uses debhelper.
 # This file was originally written by Joey Hess and Craig Small.
@@ -14,34 +30,33 @@ INSTALL_PREFIX=/usr
 
 ODBC_HOME=$(HOME)/linux-res-6.2/usr/
 LINUXRES_HOME=$(HOME)/linux-res-6.2/
+
 @ifdef community
 CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-gpl
-@else
-CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
-@endif
-VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
-@ifdef community
 MYSQL_HOME=$(HOME)/mysql-server/
 @else
+CPPCONN_HOME=$(LINUXRES_HOME)/cppconn-com
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 @endif
 
-@ifdef community
-WBDIRNAME=mysql-workbench-community
-@else
-WBDIRNAME=mysql-workbench-commercial
-@endif
+VSQLITE_HOME=$(LINUXRES_HOME)/vsqlite
+
+GDAL_HOME=$(LINUXRES_HOME)/gdal
+
+WBDIRNAME=mysql-workbench-@edition@
 
 WBLIBPATH=$(INSTALL_PREFIX)/lib/mysql-workbench
+WBDOCPATH=$(INSTALL_PREFIX)/share/doc/mysql-workbench-@edition@
 
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX)\
-	        -DMYSQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
+	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
+	-DMYSQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
 	-DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
 	-DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
+	-DGDAL_INCLUDE_DIR=$(GDAL_HOME)/include -DGDAL_LIBRARY=$(GDAL_HOME)/lib/libgdal.so \
 @ifdef community
 	-DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config 
 @else
@@ -78,28 +93,31 @@ clean:
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+# 	dh_clean -k 
+	dh_prep
 	dh_installdirs
 
 	# Add here commands to install the package into debian/mysql-workbench.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/$(WBDIRNAME) install
+	DESTDIR=debian/$(WBDIRNAME) $(MAKE) install
 
 	# Bundle pyodbc and iodbc
 	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pyodbc.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	# Bundle other unpackaged libs
-	cp -a $(VSQLITE_HOME)/lib/libvsqlite* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
+	cp -a $(GDAL_HOME)/lib/libgdal* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 @ifdef commercial
 	# Bundle libs only needed for SE edition
 	cp -a $(LINUXRES_HOME)/sqlite3/libsqlite3.so $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(LINUXRES_HOME)/pysqlite2 $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)/modules/
+@endif
 	# Bundle client programs and lib
 	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysql $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysqldump $(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
-@endif
+
 	# Remove these files:
 	# - The file /etc/ld.so.conf.d/mysql-workbench.conf is a non.conformance in debian based distros
 	# - The .la metadata files are not necessary
@@ -130,13 +148,14 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman
 	dh_link
+	#dh_strip --dbg-package=mysql-workbench-@edition@
 	dh_strip
 	dh_compress
 	dh_fixperms -X*.sh
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
-	LD_LIBRARY_PATH=$(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH) dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l$(CURDIR)/debian/$(WBDIRNAME)/$(WBLIBPATH)
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

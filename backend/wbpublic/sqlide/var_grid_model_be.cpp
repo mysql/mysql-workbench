@@ -476,7 +476,7 @@ void VarGridModel::add_column(const std::string &name, const sqlite::variant_t &
 
 void VarGridModel::cache_data_frame(RowId center_row, bool force_reload)
 {
-  static const RowId half_row_count= 100; //! load from options
+  static const RowId half_row_count= 500; //! load from options
   RowId row_count= half_row_count * 2;
 
   // center_row of -1 means only to forcibly reload current data frame

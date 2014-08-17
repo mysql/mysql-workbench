@@ -242,7 +242,7 @@ class WbAdminSSH(object):
         pwd = None # It is ok to keep pwd set to None even if we have it in server settings
                    # it will be retrived later
         port = settings.ssh_port#loginInfo['ssh.port']
-
+        self.keepalive = settings.ssh_keepalive
         if usekey == 1:
             # We need to check if keyfile needs password. For some reason paramiko does not always
             # throw exception to request password
@@ -328,6 +328,7 @@ class WbAdminSSH(object):
         #client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.set_missing_host_key_policy(paramiko.WarningPolicy()) # This is a temp workaround, later we need to have UI with buttons accept
 
+           
         try:
             if 'timeout' in paramiko.SSHClient.connect.func_code.co_varnames:
                 client.connect(hostname = host, port = int(port), username = user, password = pwd, pkey = None,
@@ -336,9 +337,18 @@ class WbAdminSSH(object):
                 client.connect(hostname = host, port = int(port), username = user, password = pwd, pkey = None,
                                     key_filename = key, look_for_keys=False, allow_agent=bool(usekey) )
             log_info("%s: Connected via ssh to %s\n" % (self.__class__.__name__, host) )
+            if self.keepalive != 0:
+                client.get_transport().set_keepalive(self.keepalive)
+
             self.client = client
         except socket.error, exc:
-            raise SSHDownException()
+            import traceback
+            log_error("Error opening SSH connection to %s: %s\n" % (host, traceback.format_exc()))
+
+            if exc.args[0] == 8: # [Errno 8] nodename nor servname provided, or not known
+                raise ConnectionError("Unable to resolve host name '%s'" % host)
+            else:
+                raise SSHDownException(str(exc))
             #if exc.args[0] == 61: # connection refused
             #  raise ConnectionError("Could not establish SSH connection: %r.\nMake sure the SSH daemon is running and is accessible." % exc)
             #else:
@@ -349,15 +359,23 @@ class WbAdminSSH(object):
             else:
                 raise exc
         except paramiko.BadAuthenticationType, exc:
+            import traceback
+            log_error("Error opening SSH connection: %s\n" % traceback.format_exc())
             if 'keyboard-interactive' in exc.allowed_types and pwd is not None:
                 # wrong password
                 raise InvalidPasswordError("Authentication failed for SSH user %s" % user)
             raise ConnectionError("Could not establish SSH connection: %s." % exc)
         except paramiko.AuthenticationException, exc:
+            import traceback
+            log_error("Error opening SSH connection: %s\n" % traceback.format_exc())
             raise InvalidPasswordError("Invalid password for SSH user %s" % user)
         except paramiko.SSHException, exc:
+            import traceback
+            log_error("Error opening SSH connection: %s\n" % traceback.format_exc())
             raise ConnectionError("Could not establish SSH connection: %s." % exc)
         except Exception, exc:
+            import traceback
+            log_error("Error opening SSH connection: %s\n" % traceback.format_exc())
             raise ConnectionError("Could not establish SSH connection. %s." % exc)
 
     def is_connected(self):
@@ -370,6 +388,8 @@ class WbAdminSSH(object):
             sftp.mkdir(path)
             sftp.close()
         except:
+            import traceback
+            log_error("Error creating remote dir via ssh: %s\n" % traceback.format_exc())
             sftp.close()
             raise
 
@@ -379,6 +399,8 @@ class WbAdminSSH(object):
             sftp.rmdir(path)
             sftp.close()
         except:
+            import traceback
+            log_error("Error removing remote dir via ssh: %s\n" % traceback.format_exc())
             sftp.close()
             raise
 
@@ -389,6 +411,8 @@ class WbAdminSSH(object):
             sftp.remove(path)
             sftp.close()
         except:
+            import traceback
+            log_error("Error removing remote file via ssh: %s\n" % traceback.format_exc())
             sftp.close()
             raise
 
@@ -409,6 +433,8 @@ class WbAdminSSH(object):
             if e.errno != errno.ENOENT:
               raise
         except:
+            import traceback
+            log_error("Error checking remote file via ssh: %s\n" % traceback.format_exc())
             sftp.close()
             raise
 
@@ -425,6 +451,8 @@ class WbAdminSSH(object):
             ret = None
             sftp.close()
         except:
+            import traceback
+            log_error("Error stating remote file via ssh: %s\n" % traceback.format_exc())
             ret = None
             sftp.close()
 

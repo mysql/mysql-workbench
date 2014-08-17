@@ -23,8 +23,8 @@
  * In general these widgets are all thread-safe and can be manipulated from any thread
  * (particularly useful for animations and other timed updates).
  */
-#ifndef _WIDGETS_H_
-#define _WIDGETS_H_
+
+#pragma once
 
 #include <list>
 
@@ -225,5 +225,3 @@ namespace mforms {
 }
 
 #endif // !DOXYGEN_SHOULD_SKIP_THIS
-
-#endif // _WIDGETS_H_

@@ -232,6 +232,11 @@ void grtui::DbConnectionEditor::add_stored_conn(bool copy)
   new_connection->owner(_panel.get_be()->get_db_mgmt());
   new_connection->name(buf);
   new_connection->driver(_panel.selected_driver());
+  if (find_named_object_in_list(new_connection->driver()->parameters(), "useSSL").is_valid())
+  {
+    // prefer SSL if possible by default
+    new_connection->parameterValues().set("useSSL", grt::IntegerRef(1));
+  }
   list.insert(new_connection);
   
   if (copy)

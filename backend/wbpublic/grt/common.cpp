@@ -279,120 +279,13 @@ namespace bec {
     return !failed;
   }
 
-  template <class T>
-  void move_list_ref_item(MoveType move_type, grt::ListRef<T> items, const grt::ValueRef &object)
-  {
-    grt::Type object_type = object.type();
-
-    std::string group_name;
-    std::string item_name;
-    std::string search_name = "";
-    size_t group_indicator_position = std::string::npos;
-
-    MatchType match = (move_type == MoveUp) ? MatchBefore : MatchAfter;
-
-    grt::Ref<T> item;
-
-    // Gets the relevant index for the selected object.
-    size_t item_index = grt::BaseListRef::npos;
-    if (object_type == grt::ObjectType)
-    {
-      // For any object like connections or instances.
-      item = grt::Ref<T>::cast_from(object);
-
-      item_index = items.get_index(item);
-      item_name = item->name();
-      group_indicator_position = item_name.find("/");
-
-      // When a grouped item is selected, the movement will be done across same
-      // group items
-      if (group_indicator_position != std::string::npos)
-        search_name = item_name.substr(0, group_indicator_position + 1);
-    }
-    else
-    {
-      // For strings (i.e. group names).
-      group_name = object.repr();
-      group_name += "/";
-
-      // Searches the index of the initial element of the group.
-      item_index = find_list_ref_item_position<T>(items, group_name);
-      item = items[item_index];
-      item_name = group_name;
-    }
-
-    // This is executed whenever the target position depends on the main list.
-    // The only case where this is excluded is when the selected item belongs to a group.
-    if (group_indicator_position == std::string::npos)
-    {
-      std::vector<std::string> items_list;
-
-      // Gets the main list items (groups and non grouped items).
-      for ( grt::TypedListConstIterator<T> end = items.end(),
-           inst = items.begin(); inst != end; ++inst)
-      {
-        std::string item_name = (*inst)->name();
-        size_t position = item_name.find("/");
-
-        if (position != std::string::npos)
-        {
-          std::string group_name = item_name.substr(0, position + 1);
-          if (std::find(items_list.begin(), items_list.end(), group_name) == items_list.end())
-            items_list.push_back(group_name);
-        }
-        else
-          items_list.push_back(item_name);
-      }
-
-      // Searches the item inside the list of non grouped items/groups, will find it only if it's a non grouped item
-      size_t item_list_position = std::find(items_list.begin(), items_list.end(), std::string(item_name)) - items_list.begin();
-
-      if (move_type != MoveTop && move_type != MoveBottom)
-      {
-        size_t offset = (move_type == MoveUp) ? -1 : 1;
-
-        item_name = items_list.at(item_list_position + offset);
-
-        // If the next item is a group
-        group_indicator_position = item_name.find("/");
-
-        if(group_indicator_position != std::string::npos)
-        {
-          search_name = item_name.substr(0, group_indicator_position + 1);
-          if (move_type == MoveUp)
-            match = MatchAny;
-        }
-        else
-          search_name = item_name;
-      }
-    }
-
-    if (move_type == MoveTop)
-      items.reorder(item_index, 0);
-    else if (move_type == MoveBottom)
-      items.reorder(item_index, grt::ListRef<T>::npos);
-    else
-    {
-      // Searches the index of the target position.
-      size_t target_index = grt::BaseListRef::npos;
-      target_index = find_list_ref_item_position<T>(items, search_name, match, &item);
-
-      if (move_type == MoveDown)
-        items.reorder(target_index, item_index);
-      else
-        items.reorder(item_index, target_index);
-    }
-  }  
-
-  // Template instantiation to avoid having all this code in the header file.
-  template WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item<db_mgmt_Connection>(MoveType move_type, grt::ListRef<db_mgmt_Connection> items, const grt::ValueRef &object);
 
   /**
    * Moves the given object within the list to the given position.
    * This position must be local to the enclosing group.
    */
   template <class T>
-  void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, size_t to)
+  void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, int to)
   {
     grt::Type object_type = object.type();
 
@@ -401,126 +294,198 @@ namespace bec {
     std::string search_name;
     size_t group_indicator_position = std::string::npos;
 
-    grt::Ref<T> item;
+    grt::Ref<T> item, target_item;
+    size_t ui_item_index = grt::BaseListRef::npos;
+    size_t item_index = grt::BaseListRef::npos;
+    size_t target_index = grt::BaseListRef::npos;
 
-    // Determine the index of the given object (for groups that is for the first group member).
-    size_t item_index;
+
+    // Obtains data from the elements lists like:
+    // - Top level elements
+    // - First and Last positions of the grouped items
+    // - Grouped elements
+    bool fabric;
+    std::vector<std::string> names_list;
+    std::map<std::string, size_t> name_positions;
+    std::map<std::string, int> initial_positions;
+    std::map<std::string, int> final_positions;
+    std::map<std::string, grt::ListRef<T> >groups;
+    std::map<std::string, bool> fabric_names;
+
+    // Collect names of all ungrouped items and groups in an own list for lookup.
+    int item_count = 0;
+    for (grt::TypedListConstIterator<T> iterator = items.begin(); iterator != items.end(); ++iterator)
+    {
+      grt::ListRef<T> target_group;
+
+      fabric = false;
+      std::string item_name = (*iterator)->name();
+      size_t position = item_name.find("/");
+
+      if (position != std::string::npos)
+      {
+        std::string group_name = item_name.substr(0, position + 1);
+        if (std::find(names_list.begin(), names_list.end(), group_name) == names_list.end())
+        {
+          item_name = group_name;
+          target_group = grt::ListRef<T>(items.get_grt());
+          groups[item_name] = target_group;
+        }
+        else
+        {
+          final_positions[group_name] = item_count++;
+          target_group = groups[group_name];
+          item_name = "";
+        }
+      }
+      // On a fabric node the first tile will always be the parent node's name which does
+      // not contain the /
+      // It needs to be added to the child connections match it
+      else if ((*iterator)->driver()->name() == "MySQLFabric")
+      {
+        item_name += "/";
+        fabric = true;
+        target_group = grt::ListRef<T>(items.get_grt());
+        groups[item_name] = target_group;
+      }
+
+      // Updates data with item's element
+      if (item_name.length())
+      {
+        name_positions[item_name] = names_list.size();
+        names_list.push_back(item_name);
+        fabric_names[item_name] = fabric;
+        initial_positions[item_name] = item_count;
+        final_positions[item_name] = item_count;
+
+        item_count++;
+      }
+
+      if (target_group.is_valid())
+        target_group->insert_unchecked(*iterator);
+
+    }
+
+    // Now gets the moved element start position
+    bool grouped = false;
     if (object_type == grt::ObjectType)
     {
-      // For any object like connections or instances.
       item = grt::Ref<T>::cast_from(object);
-
-      item_index = items.get_index(item);
       item_name = item->name();
       group_indicator_position = item_name.find("/");
 
       // If this is a grouped item it is moved within its group.
       if (group_indicator_position != std::string::npos)
-        search_name = item_name.substr(0, group_indicator_position + 1);
+      {
+        group_name = item_name.substr(0, group_indicator_position + 1);
+        grouped = true;
+      }
+    }
+    else
+      item_name = object.repr();
+
+
+    if (grouped)
+    {
+      grt::ListRef<T> target_group = groups[group_name];
+      target_group->get_index(object);
+
+      ui_item_index = target_group->get_index(object);
+    }
+    else
+      ui_item_index = name_positions[item_name];
+
+
+
+    // Pre-processes the to value, to see if it is one of the move to commands
+    if (to < 0)
+    {
+      switch (to)
+      {
+        case MoveUp: to = ui_item_index - 1; break; 
+        case MoveDown: to = ui_item_index + 2; break;
+        case MoveTop: 
+          to = (grouped && fabric_names[group_name]) ? 1 : 0;
+          break;
+      }
+    }
+
+
+    if (grouped)
+    {
+      grt::ListRef<T> target_group = groups[group_name];
+      item_index = items->get_index(item);
+
+      // In case o should point to the last element on the group
+      if (to == MoveBottom)
+        to = target_group->count() - 1;
+      else 
+      {
+        // This adjustment is needed because of the way reorder works
+        if ((int)ui_item_index < to)
+          to--;
+      }
+
+      target_item = grt::Ref<T>::cast_from(target_group->get(to));
+      target_index = items->get_index(target_item);
+
+      items.reorder(item_index, target_index);
     }
     else
     {
-      // For strings (i.e. group names).
-      group_name = object.repr() + "/";
+      // In case o should point to the last element on the entire list
+      if (to == MoveBottom)
+        to = names_list.size() - 1;
+      // This adjustment is needed because of the way reorder works
+      else if ((int)ui_item_index < to)
+        to--;
 
-      // Searches the index of the initial element of the group.
-      item_index = find_list_ref_item_position<T>(items, group_name);
-      item = items[item_index];
-      item_name = group_name;
-    }
+      target_index = initial_positions[names_list[to]];
+      item_index = initial_positions[item_name];
 
-    if (search_name.empty())
-    {
-      // Working on an ungrouped item (can itself be a group, however).
-      std::vector<std::string> names_list;
-
-      // Collect names of all ungrouped items and groups in an own list for lookup.
-      for (grt::TypedListConstIterator<T> iterator = items.begin(); iterator != items.end(); ++iterator)
+      if (groups.count(item_name))
       {
-        std::string item_name = (*iterator)->name();
-        size_t position = item_name.find("/");
+        grt::ListRef<T> target_group = groups[item_name];
+        // When reordering items we need to consider the position of the reordered
+        // items in relation with the target index.
+        
+        bool before = true;
+        if (item_index > target_index)
+          before = false;;
 
-        if (position != std::string::npos)
+        for (grt::TypedListConstIterator<T> iterator = target_group.begin();
+          iterator != target_group.end(); ++iterator)
         {
-          std::string group_name = item_name.substr(0, position + 1);
-          if (std::find(names_list.begin(), names_list.end(), group_name) == names_list.end())
-            names_list.push_back(group_name);
+          item_index = items.get_index(*iterator);
+
+          // Items before the target are positioned on the target index
+          if (before)
+          {
+            // This identifies the first item AFTER the target index
+            if (item_index > target_index)
+            {
+              target_index++;
+              before = false;
+            }
+            else
+              items.reorder(item_index, target_index);
+          }
+
+          // On Items after the original target index will be inserted
+          // after each other, this is to avoid reversing the connections
+          // position which could fake the fabric structure
+          if (!before)
+            items.reorder(item_index, target_index++);
         }
-        else
-          names_list.push_back(item_name);
       }
-
-      item_name = to < names_list.size() ? names_list.at(to) : "";
-
-      // If the next item is a group search for that group. Otherwise use the item name directly.
-      group_indicator_position = item_name.find("/");
-      if (group_indicator_position != std::string::npos)
-        search_name = item_name.substr(0, group_indicator_position + 1);
-      else
-        search_name = item_name;
-    }
-    else
-    {
-      // Working within a group. Collect names of all group members.
-      std::vector<std::string> names_list;
-
-      // Collect names of all ungrouped items and groups in an own list for lookup.
-      for (grt::TypedListConstIterator<T> iterator = items.begin(); iterator != items.end(); ++iterator)
-      {
-        std::string item_name = (*iterator)->name();
-        if (item_name.find(search_name) == 0) // Same group?
-          names_list.push_back(item_name);
-      }
-      search_name = to < names_list.size() ? names_list[to] : "";
-    }
-
-    // Now find the determined search name in the complete list to get the target index.
-    // If there's no search name we have to move to the end of the list.
-    size_t target_index;
-    if (search_name.empty())
-      target_index = items->count();
-    else
-      target_index = find_list_ref_item_position<T>(items, search_name, MatchAny, &item);
-
-    if (group_name.empty())
-    {
-      // Reorder is incorrectly implemented, so we have to adjust the target index.
-      if (item_index < target_index)
-        items.reorder(item_index, target_index - 1);
       else
         items.reorder(item_index, target_index);
-    }
-    else
-    {
-      // If the group name is set then we are moving an entire group.
-      // So we have to move all entries belonging to that group to the target position.
-      grt::ListRef<T> group_members(items.get_grt());
-
-      // We iterate through the entire list to collect all members. This allows us
-      // to fix lists with members not following directly each other.
-      for (grt::TypedListConstIterator<T> iterator = items.begin(); iterator != items.end(); ++iterator)
-      {
-        std::string item_name = (*iterator)->name();
-        if (item_name.find(group_name) == 0) // Same group?
-          group_members.insert(*iterator);
-      }
-
-      for (grt::TypedListConstReverseIterator<T> iterator = group_members.rbegin();
-           iterator != group_members.rend(); ++iterator)
-      {
-        item_index = items.get_index(*iterator);
-        if (item_index < target_index)
-          items.reorder(item_index, target_index - 1);
-        else
-          items.reorder(item_index, target_index);
-      }
-
     }
   }
 
   // Template instantiation to avoid having all this code in the header file.
   template WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item<db_mgmt_Connection>(grt::ListRef<db_mgmt_Connection> items,
-                                                       const grt::ValueRef &object, size_t to);
+                                                       const grt::ValueRef &object, int to);
   
   //------------------------------------------------------------------------------------------------
 

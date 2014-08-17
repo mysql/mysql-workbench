@@ -370,7 +370,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
             std::string result_text;
             tpl->Expand(&result_text, &row_dict_base);
             
-            fprintf(outf, "%s", result_text.c_str());
+            fwrite(result_text.data(), 1, result_text.size(), outf);
           }                  
         }
         while (next_row_exists);
@@ -381,8 +381,8 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
     {
       std::string result_text;
       post_tpl->Expand(&result_text, dict.get());
-      
-      fprintf(outf, "%s", result_text.c_str());
+
+      fwrite(result_text.data(), 1, result_text.size(), outf);
     }
 
     fclose(outf);

@@ -507,7 +507,7 @@ _editable(editable)
   }
 
   add(&_tbar, false, true);
-  _spanel.set_back_color(mforms::App::get()->get_system_color(mforms::SystemColorContainer).to_html());
+  _spanel.set_back_color("#ffffff");
 
   add(&_spanel, true, true);
   _spanel.add(&_table);
@@ -522,6 +522,15 @@ ResultFormView::~ResultFormView()
   _refresh_ui_connection.disconnect();
   for (std::vector<FieldView*>::const_iterator i = _fields.begin(); i != _fields.end(); ++i)
     delete *i;
+}
+
+
+int ResultFormView::display_record(RowId row_id)
+{
+  Recordset::Ref rset(_rset.lock());
+  if (rset)
+    rset->set_edited_field(row_id, 0);
+  return display_record();
 }
 
 int ResultFormView::display_record()

@@ -44,6 +44,8 @@ public:
   ~NewConnectionWizard();
   
   db_mgmt_ConnectionRef run();
+
+  void driver_changed_cb(const db_mgmt_DriverRef &driver);
   
 private:
   wb::WBContext *_context;
@@ -58,6 +60,7 @@ private:
   mforms::Button _ok_button;
   mforms::Button _cancel_button;
   mforms::Button _test_button;
+  mforms::Button _config_button;
 
   void open_remote_mgm_config();
 };

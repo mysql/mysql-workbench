@@ -210,6 +210,14 @@ void ModelDiagramFormWrapper::set_closed(bool flag)
 
 //--------------------------------------------------------------------------------------------------
 
+void ModelDiagramFormWrapper::close()
+{
+  if (get_unmanaged_object())
+    get_unmanaged_object()->close();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 bool ModelDiagramFormWrapper::is_closed()
 {
   if (get_unmanaged_object())

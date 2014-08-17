@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -145,7 +145,7 @@ class WbAdminMonitor(mforms.Box):
         health_text.set_spacing(24)
 
         self.qps= newLineDiagramWidget()
-        self.qps.set_description("Queries per Second")
+        self.qps.set_description("Selects per Second")
         self.qps.enable_auto_scale(True)
         self.qps.set_thresholds([0.0], [50.0, 100.0, 200.0, 500.0, 1000.0, 5000.0, 10000.0])
         health.add(self.qps, True, True)
@@ -153,7 +153,7 @@ class WbAdminMonitor(mforms.Box):
         health_text.add(label, True, True)
         self.widgets['get_qps'] = (self.qps, label, lambda x: ("%.0f\n" % x), None)
         self.last_qcount = 0
-        sql['get_qps'] = {'query' : ("Com_insert", "Com_select"), 'min' : 0, 'max' : 100, 'calc' : self.calc_qps}
+        sql['get_qps'] = {'query' : ("Com_select",), 'min' : 0, 'max' : 100, 'calc' : self.calc_qps}
 
 #        self.hitrate= newLineDiagramWidget()
 #        self.hitrate.set_description("Query Cache Hitrate")

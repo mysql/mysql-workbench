@@ -43,7 +43,6 @@ AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
 }
 
 #else
-
 AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
 : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main)
 {
@@ -54,7 +53,6 @@ AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
   set_back_color("#e8e8e8");
 #endif
   _identifier = base::strfmt("avid%i", ++_serial);
-
   _dpoint = 0;
 }
 
@@ -83,11 +81,17 @@ void AppView::set_menubar(mforms::MenuBar *menu)
 {
   if (_menubar != menu)
   {
-    if (_menubar)
+    if (_menubar != NULL)
       _menubar->release();
     _menubar = menu;
-    if (menu)
-      _menubar->retain();
+
+    if (menu != NULL)
+    {
+      if (!menu->release_on_add())
+        _menubar->retain();
+      else
+        _menubar->set_release_on_add(false);
+    }
   }
 }
 
@@ -100,8 +104,14 @@ void AppView::set_toolbar(mforms::ToolBar *toolbar)
     if (_toolbar)
       _toolbar->release();
     _toolbar = toolbar;
-    if (toolbar)
-      _toolbar->retain();
+
+    if (toolbar != NULL)
+    {
+      if (!_toolbar->release_on_add())
+        _toolbar->retain();
+      else
+        _toolbar->set_release_on_add(false);
+    }
   }
 }
 
@@ -128,4 +138,11 @@ bool AppView::on_close()
   if (_on_close_slot) 
     return _on_close_slot(); 
   return true;
+}
+
+
+void AppView::close()
+{
+  if (_dpoint)
+    _dpoint->undock_view(this);
 }

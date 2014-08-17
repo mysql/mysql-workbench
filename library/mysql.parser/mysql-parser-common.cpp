@@ -22,6 +22,7 @@
 #include <set>
 #include <stack>
 #include <vector>
+#include <map>
 
 #include <antlr3.h>
 
@@ -90,10 +91,10 @@ MySQLRecognitionBase::MySQLRecognitionBase(const std::set<std::string> &charsets
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQLRecognitionBase::add_error(const std::string &text, ANTLR3_UINT32 token,
+void MySQLRecognitionBase::add_error(const std::string &message, ANTLR3_UINT32 token,
   ANTLR3_MARKER token_start, ANTLR3_UINT32 line, ANTLR3_UINT32 offset_in_line, ANTLR3_MARKER length)
 {
-  MySQLParserErrorInfo info = { text, token, (size_t)(token_start - (ANTLR3_MARKER)input_start()),
+  MySQLParserErrorInfo info = { message, token, (size_t)(token_start - (ANTLR3_MARKER)text()),
     line, offset_in_line, (size_t)length};
   d->_error_info.push_back(info);
 };
@@ -180,6 +181,37 @@ bool MySQLRecognitionBase::is_identifier(ANTLR3_UINT32 type)
     }
   }
   return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+* Returns the token value for a given keyword, which can be used to do search/replace operations.
+* Returns -1 if the keyword cannot be found.
+*/
+static std::map<std::string, size_t> keywords; // One map for all recognizers.
+extern "C" pANTLR3_UINT8 MySQLParserTokenNames[]; // Defined in MySQLParser.
+
+size_t MySQLRecognitionBase::get_keyword_token(const std::string &keyword)
+{
+  if (keywords.size() == 0)
+  {
+    for (size_t i = 4; i <= ZEROFILL_SYMBOL; ++i)
+    {
+      std::string name((char*)MySQLParserTokenNames[i]);
+      if (base::ends_with(name, "_SYMBOL"))
+        keywords[name.substr(0, name.size() - 7)] = i;
+      else if (base::ends_with(name, "_OPERATOR"))
+        keywords[name.substr(0, name.size() - 9)] = i;
+      else
+        keywords[name] = i;
+    }
+  }
+  
+  std::string lookup = base::toupper(keyword);
+  if (keywords.find(lookup) == keywords.end())
+    return -1;
+  return keywords[lookup];
 }
 
 //--------------------------------------------------------------------------------------------------

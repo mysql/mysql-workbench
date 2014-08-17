@@ -16,9 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_H_
-#define _MFORMS_H_
 
+#pragma once
 
 /*! \mainpage MForms - mini forms library
  * 
@@ -96,6 +95,7 @@
 #include <mforms/simpleform.h>
 #include <mforms/find_panel.h>
 #include <mforms/native.h>
+#include <mforms/canvas.h>
 #include <mforms/record_grid.h>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -136,7 +136,8 @@ namespace mforms
     ToolBarImplPtrs _tool_bar_impl;
     HyperTextImplPtrs _hypertext_impl;
     PopoverImplPtrs _popover_impl;
-    
+    CanvasImplPtrs _canvas_impl;
+
     AppImplPtrs _app_impl;
     AppViewImplPtrs _app_view_impl;
     UtilitiesImplPtrs _utilities_impl;
@@ -157,7 +158,5 @@ namespace mforms
     void instance_destroyed();
   };
 };
-
-#endif
 
 #endif

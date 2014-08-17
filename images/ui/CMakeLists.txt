@@ -1,7 +1,4 @@
 set(IMAGE_FILES 
-    audit_log.png
-    arrow_up.png
-    arrow_down.png
     Apply.png
     Apply_16x16.png
     Close_18x18.png
@@ -11,23 +8,33 @@ set(IMAGE_FILES
     DotDisabled.png
     DotGrey.png
     DotRed.png
-    EditorExpanded.png
     EditorCollapsed.png
+    EditorExpanded.png
     First_16x16.png
     Last_16x16.png
     MacWizardBackground.png
+    MySQL-WB-about-screen.png
     Refresh_16x16.png
     Refresh_18x18.png
     Refresh_disabled_18x18.png
+    arrow_down.png
+    arrow_up.png
+    audit_log.png
     background.png
+    background_stripes_light.png
     background_top_shadow.png
-    change_alert_thin.png
+    big_switcher_no.png
+    big_switcher_yes.png
+    busy_sidebar.png
+    busy_sidebar_mac.png
     change_alert_create.png
     change_alert_drop.png
+    change_alert_thin.png
     change_backward.png
     change_forward.png
     change_ignore.png
     change_nothing.png
+    check.png
     collapsing_panel_bg.png
     collapsing_panel_grid_bg.png
     collapsing_panel_grid_details.png
@@ -59,11 +66,14 @@ set(IMAGE_FILES
     collapsing_panel_tab_middle.png
     collapsing_panel_tab_right.png
     dialog_input.png
+    edit.png
     field_overlay_blob.png
     field_overlay_null.png
     header_bar_blue.png
     header_bar_gray.png
     header_bar_orange.png
+    item_overlay_add.png
+    item_overlay_delete.png
     message_confirm.png
     message_edit.png
     message_error.png
@@ -75,59 +85,69 @@ set(IMAGE_FILES
     navigator_zoom_out.png
     note.128x128.png
     options-horizontal-separator.png
+    refresh_sidebar.png
+    refresh_sidebar_mac.png
     sakila.png
     search_clear.png
     search_doc_action.png
     search_icon.png
+    search_sidebar.png
     section_expanded.png
     section_unexpandable.png
     section_unexpanded.png
     separator-dots.png
+    separator_vertical.png
     show_eof.png
     show_whitespace.png
     small_toolbar_bg.png
     statusbar_output.png
     statusbar_separator.png
     statusbar_shell.png
+    switcher_bottom_off_win8.png
+    switcher_bottom_on_win8.png
+    switcher_left_off_win8.png
+    switcher_left_on_win8.png
+    switcher_right_off_win8.png
+    switcher_right_on_win8.png
     tab.diagram.16x16.png
     tab.overview.home.16x16.png
     tab.overview.physical.16x16.png
     tab.sqlquery.16x16.png
     task_checked.png
+    task_checked_mac.png
     task_disabled.png
+    task_disabled_mac.png
     task_error.png
+    task_error_mac.png
     task_executing.png
+    task_executing_mac.png
     task_unchecked.png
+    task_unchecked_mac.png
     task_warning.png
+    task_warning_mac.png
+    tree_collapsed.png
+    tree_expanded.png
+    uncheck.png
+    unknown.png
+    wait_panel_cancel_button.png
     wb-wizard-vista-bg.png
-    wb_about.png
+    wb_lock.png
     zoom_in.png
     zoom_out.png
     zoom_reset.png
-    editor_breakpoint_hit.xpm
-    editor_breakpoint.xpm
-    editor_current_pos.xpm
-    editor_error.xpm
-    editor_statement.xpm
-    refresh_sidebar.png
-    busy_sidebar.png
-    wb_lock.png
-    big_switcher_yes.png
-    big_switcher_no.png
-    separator_vertical.png
 )
 
 if (UNIX)
-	set(IMAGE_FILES ${IMAGE_FILES}
+    set(IMAGE_FILES ${IMAGE_FILES}
             linux/switcher_bottom_off.png
             linux/switcher_bottom_on.png
             linux/switcher_left_off.png
             linux/switcher_left_on.png
             linux/switcher_right_off.png
             linux/switcher_right_on.png
-	   )
+       )
 elseif (APPLE)
-	set(IMAGE_FILES ${IMAGE_FILES}
+    set(IMAGE_FILES ${IMAGE_FILES}
             switcher_bottom_off.png
             switcher_bottom_on.png
             switcher_left_off.png
@@ -150,7 +170,7 @@ elseif (APPLE)
             tab_icon_db.Schema.png
             tab_icon_db.Table.png
             tab_icon_db.View.png
-	   )
+       )
 endif ()
 
 install(FILES ${IMAGE_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/images)

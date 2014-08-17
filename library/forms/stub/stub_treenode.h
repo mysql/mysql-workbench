@@ -68,6 +68,7 @@ public:
 
   virtual bool equals(const mforms::TreeNode &other);
   virtual bool is_valid() const;
+  virtual int level() const;
     
   virtual void set_icon_path(int column, const std::string &icon);
 
@@ -86,9 +87,14 @@ public:
     
   virtual int count() const;
   virtual mforms::TreeNodeRef insert_child(int index);
+  virtual void insert_child(int index, const mforms::TreeNode &node);
+  virtual void move_child(mforms::TreeNodeRef child, int new_index);
   virtual void remove_from_parent();
   virtual mforms::TreeNodeRef get_child(int index) const;
+  virtual int get_child_index(mforms::TreeNodeRef child) const;
   virtual mforms::TreeNodeRef get_parent() const;
+  virtual mforms::TreeNodeRef previous_sibling() const;
+  virtual mforms::TreeNodeRef next_sibling() const;
   virtual void remove_children();
 
   virtual std::vector<mforms::TreeNodeRef> add_node_collection(const mforms::TreeNodeCollectionSkeleton &nodes, int position = -1);

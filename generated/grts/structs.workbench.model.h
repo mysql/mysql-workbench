@@ -1,10 +1,9 @@
-#ifndef __grts_structs_workbench_model_h__
-#define __grts_structs_workbench_model_h__
+#pragma once
 
 #include <grtpp.h>
 
 #ifdef _WIN32
-  #pragma warning(disable: 4355) // 'this' : used in base member initizalizer list
+  #pragma warning(disable: 4355) // 'this' : used in base member initializer list
   #ifdef GRT_STRUCTS_WORKBENCH_MODEL_EXPORT
   #define GRT_STRUCTS_WORKBENCH_MODEL_PUBLIC __declspec(dllexport)
 #else
@@ -146,6 +145,8 @@ public:
   workbench_model_NoteFigure(grt::GRT *grt, grt::MetaClass *meta=0)
   : model_Figure(grt, meta ? meta : grt->get_metaclass(static_class_name())),
      _text(""),
+     _textColor(""),
+     _font(""),
     _data(0)
 
   {
@@ -164,12 +165,41 @@ value = obj.text
   grt::StringRef text() const { return _text; }
   /** Setter for attribute text
    
-    the text contents
+    the font for the note
     \par In Python:
 obj.text = value
    */
   virtual void text(const grt::StringRef &value);
 
+  /** Getter for attribute textColor
+
+   the textColor contents
+   \par In Python:
+   value = obj.textColor
+   */
+  grt::StringRef textColor() const { return _textColor; }
+  /** Setter for attribute textColor
+
+   the font for the note
+   \par In Python:
+   obj.textColor = value
+   */
+  virtual void textColor(const grt::StringRef &value);
+
+  /** Getter for attribute font
+
+   the textColor contents
+   \par In Python:
+   value = obj.font
+   */
+  grt::StringRef font() const { return _font; }
+  /** Setter for attribute font
+
+   the font for the note
+   \par In Python:
+   obj.font = value
+   */
+  virtual void font(const grt::StringRef &value);
 
   ImplData *get_data() const { return _data; }
 
@@ -180,6 +210,8 @@ obj.text = value
 protected:
 
   grt::StringRef _text;
+  grt::StringRef _textColor;
+  grt::StringRef _font;
 private: // wrapper methods for use by grt
   ImplData *_data;
 
@@ -200,6 +232,16 @@ public:
       grt::StringRef (workbench_model_NoteFigure::*getter)() const= &workbench_model_NoteFigure::text;
       meta->bind_member("text", new grt::MetaClass::Property<workbench_model_NoteFigure,grt::StringRef >(getter,setter));
     }
+    {
+      void (workbench_model_NoteFigure::*setter)(const grt::StringRef &)= &workbench_model_NoteFigure::textColor;
+      grt::StringRef (workbench_model_NoteFigure::*getter)() const= &workbench_model_NoteFigure::textColor;
+      meta->bind_member("textColor", new grt::MetaClass::Property<workbench_model_NoteFigure,grt::StringRef >(getter,setter));
+    }
+    {
+      void (workbench_model_NoteFigure::*setter)(const grt::StringRef &)= &workbench_model_NoteFigure::font;
+      grt::StringRef (workbench_model_NoteFigure::*getter)() const= &workbench_model_NoteFigure::font;
+      meta->bind_member("font", new grt::MetaClass::Property<workbench_model_NoteFigure,grt::StringRef >(getter,setter));
+    }
   }
 };
 
@@ -216,4 +258,3 @@ inline void register_structs_workbench_model_xml()
 static struct _autoreg__structs_workbench_model_xml { _autoreg__structs_workbench_model_xml() { register_structs_workbench_model_xml(); } } __autoreg__structs_workbench_model_xml;
 #endif
 
-#endif

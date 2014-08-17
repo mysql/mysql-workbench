@@ -41,4 +41,12 @@ set_source_files_properties(mforms.i PROPERTIES SWIG_FLAGS "-w512 -fvirtual")
 swig_add_module(mforms python mforms.i)
 swig_link_libraries(mforms mforms wbscintilla ${GTK2_LIBRARIES} ${LIBXML2_LIBRARIES})
 
+set_target_properties(_mforms
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
+set_target_properties(_cairo
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS _mforms _cairo DESTINATION ${WB_PYTHON_MODULES_DIR})

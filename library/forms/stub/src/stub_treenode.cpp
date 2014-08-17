@@ -39,6 +39,11 @@ bool TreeNodeWrapper::is_valid() const
   return true;
 }
     
+int TreeNodeWrapper::level() const
+{
+  return 1;
+}
+
 void TreeNodeWrapper::set_icon_path(int column, const std::string &icon)
 {
   set_string(column+1, icon);
@@ -116,7 +121,7 @@ std::vector<mforms::TreeNodeRef> TreeNodeWrapper::add_node_collection(const mfor
     added_nodes.push_back(child);
   }
 
-  // If the new nodes will have childrens as well, inserts them
+  // If the new nodes will have children as well, inserts them
   if (nodes.children.size())
     add_children_from_skeletons(added_nodes, nodes.children);
 
@@ -139,6 +144,8 @@ std::vector<mforms::TreeNodeRef> TreeNodeWrapper::add_node_collection(const mfor
   return result;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 mforms::TreeNodeRef TreeNodeWrapper::insert_child(int index)
 {
   if (index < 0)
@@ -150,13 +157,46 @@ mforms::TreeNodeRef TreeNodeWrapper::insert_child(int index)
     return mforms::TreeNodeRef(child);
   }
 
-    TreeNodeWrapper* child = new TreeNodeWrapper();
-    child->_parent = mforms::TreeNodeRef(this);
-    _children.insert(_children.begin()+index, child);
+  TreeNodeWrapper* child = new TreeNodeWrapper();
+  child->_parent = mforms::TreeNodeRef(this);
+  _children.insert(_children.begin()+index, child);
 
-    return mforms::TreeNodeRef(child);
-
+  return mforms::TreeNodeRef(child);
 }
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeWrapper::insert_child(int index, const mforms::TreeNode &node)
+{
+  TreeNodeWrapper *child = (TreeNodeWrapper *)&node;
+  child->_parent = mforms::TreeNodeRef(this);
+  if (index < 0)
+    _children.push_back(child);
+  else
+    _children.insert(_children.begin() + index, child);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void TreeNodeWrapper::move_child(mforms::TreeNodeRef node, int new_index)
+{
+  TreeNodeWrapper *child = (TreeNodeWrapper *)node.ptr();
+
+  std::vector<TreeNodeWrapper*>::iterator i = std::find(_children.begin(), _children.end(), child);
+  if (i == _children.end())
+    return;
+
+  int old_index = i - _children.begin();
+  if (old_index == new_index)
+    return;
+
+  _children.erase(i);
+  if (old_index < new_index)
+    --new_index;
+  _children.insert(_children.begin() + new_index, child);
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void TreeNodeWrapper::add_children_from_skeletons(std::vector<TreeNodeWrapper*> &parents, const std::vector<mforms::TreeNodeSkeleton>& children)
 {
@@ -186,6 +226,8 @@ void TreeNodeWrapper::add_children_from_skeletons(std::vector<TreeNodeWrapper*> 
   }
 }  
 
+//--------------------------------------------------------------------------------------------------
+
 void TreeNodeWrapper::remove_from_parent()
 {
   TreeNodeWrapper* inner_parent = dynamic_cast<TreeNodeWrapper*>(_parent.ptr());
@@ -199,15 +241,42 @@ void TreeNodeWrapper::remove_from_parent()
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 mforms::TreeNodeRef TreeNodeWrapper::get_child(int index) const
 {
   return (_children.size() > (size_t)index) ? mforms::TreeNodeRef(_children[index]) : mforms::TreeNodeRef();
 }
 
+//--------------------------------------------------------------------------------------------------
+
+int TreeNodeWrapper::get_child_index(mforms::TreeNodeRef node) const
+{
+  TreeNodeWrapper *child = (TreeNodeWrapper *)node.ptr();
+  std::vector<TreeNodeWrapper*>::const_iterator i = std::find(_children.begin(), _children.end(), child);
+  if (i == _children.end())
+    return -1;
+
+  return (int)(i - _children.begin());
+}
+
+//--------------------------------------------------------------------------------------------------
+
 mforms::TreeNodeRef TreeNodeWrapper::get_parent() const
 {
   return _parent;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+mforms::TreeNodeRef TreeNodeWrapper::previous_sibling() const
+{
+  return mforms::TreeNodeRef();
+}
+
+mforms::TreeNodeRef TreeNodeWrapper::next_sibling() const
+{
+  return mforms::TreeNodeRef();
 }
 
 void TreeNodeWrapper::remove_children()

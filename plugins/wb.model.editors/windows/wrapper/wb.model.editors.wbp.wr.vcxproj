@@ -257,8 +257,8 @@
     <ClCompile Include="StoredNoteEditorWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImageEditorBE.h" />
-    <ClInclude Include="LayerEditorBE.h" />
+    <ClInclude Include="ImageEditorWrapper.h" />
+    <ClInclude Include="LayerEditorWrapper.h" />
     <ClInclude Include="NoteEditorWrapper.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StoredNoteEditorWrapper.h" />

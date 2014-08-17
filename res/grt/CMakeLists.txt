@@ -18,6 +18,7 @@ set(DATA_FILES
     structs.workbench.xml
     structs.xml
     structs.ui.xml
+    structs.wrapper.xml
 )
 
 install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/grt)

@@ -936,14 +936,14 @@ void DiffSQLGeneratorBE::generate_alter_stmt(db_mysql_TableRef table, const grt:
             {
               db_mysql_TriggerRef trigger(db_mysql_TriggerRef::cast_from(
                 static_cast<const grt::ListItemAddedChange *>(trigger_change)->get_value()));
-              generate_create_stmt(trigger, false);
+              generate_create_stmt(trigger, true);
             }
             break;
           case grt::ListItemRemoved:
             {
               db_mysql_TriggerRef trigger(db_mysql_TriggerRef::cast_from(
                   static_cast<const grt::ListItemRemovedChange *>(trigger_change)->get_value()));
-              generate_drop_stmt(trigger, false);
+              generate_drop_stmt(trigger, true);
             }
             break;
           case grt::ListItemModified:
@@ -955,22 +955,22 @@ void DiffSQLGeneratorBE::generate_alter_stmt(db_mysql_TableRef table, const grt:
                 grt::ValueRef(static_cast<const grt::ListItemModifiedChange *>
                 (trigger_change)->get_new_value()));
 
-              generate_drop_stmt(old_trigger);
-              generate_create_stmt(new_trigger);
+              generate_drop_stmt(old_trigger, true);
+              generate_create_stmt(new_trigger, true);
             }
             break;
           case grt::ListItemOrderChanged:
             {
               const grt::ListItemOrderChange *order_change = dynamic_cast<const grt::ListItemOrderChange*>(trigger_change);
 
-              if (order_change && order_change->get_subchange())
+              if (order_change)// && order_change->get_subchange())
               {
-                const grt::ListItemModifiedChange *change = dynamic_cast<const grt::ListItemModifiedChange *>(order_change->get_subchange().get());
+//                const grt::ListItemModifiedChange *change = dynamic_cast<const grt::ListItemModifiedChange *>(order_change->get_subchange().get());
                 
-                if (change)
+//                if (change)
                 {
-                  generate_drop_stmt(db_mysql_TriggerRef::cast_from(change->get_old_value()));
-                  generate_create_stmt(db_mysql_TriggerRef::cast_from(change->get_new_value()));
+                  generate_drop_stmt(db_mysql_TriggerRef::cast_from(order_change->get_old_value()), true);
+                  generate_create_stmt(db_mysql_TriggerRef::cast_from(order_change->get_new_value()), true);
                 }
               }
             }

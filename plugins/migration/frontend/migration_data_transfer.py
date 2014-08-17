@@ -326,6 +326,7 @@ All tables are copied by default.""")
 class TransferMainView(WizardProgressPage):
     def __init__(self, main):
         WizardProgressPage.__init__(self, main, "Bulk Data Transfer", use_private_message_handling=True)
+        self._autostart = True
         self._resume = False
         self.retry_button = mforms.newButton()
         self.retry_button.set_text('Retry')
@@ -397,7 +398,8 @@ class TransferMainView(WizardProgressPage):
         # create work list
         source_catalog = self.main.plan.migrationSource.catalog
         tables = self.main.plan.state.dataBulkTransferParams["tableList"]
-        has_catalogs = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs
+        has_catalogs = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs > 0
+        has_schema = self.main.plan.migrationSource.connection.driver.owner.doesSupportCatalogs >= 0
 
         source_db_module = self.main.plan.migrationSource.module_db()
         target_db_module = self.main.plan.migrationTarget.module_db()
@@ -428,7 +430,10 @@ class TransferMainView(WizardProgressPage):
                 else:
                     table_name = source_db_module.quoteIdentifier(stable.owner.name) + "." + source_db_module.quoteIdentifier(stable.name)
             else:
-                schema_name = source_db_module.quoteIdentifier(stable.owner.name)
+                if has_schema:
+                    schema_name = source_db_module.quoteIdentifier(stable.owner.name)
+                else:
+                    schema_name = ''
                 table_name = source_db_module.quoteIdentifier(stable.name)
 
             targ_schema_name = target_db_module.quoteIdentifier(table.owner.name)

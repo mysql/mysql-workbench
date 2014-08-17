@@ -505,10 +505,13 @@ void WBComponentPhysical::delete_db_schema(const db_SchemaRef &schema)
 
     if (info.get_int("tables") > 0)
       objects+= strfmt("%li tables, ", (long)info.get_int("tables"));
+
     if (info.get_int("views") > 0)
       objects+= strfmt("%li views, ", (long)info.get_int("views"));
+
     if (info.get_int("routines") > 0)
       objects+= strfmt("%li routines, ", (long)info.get_int("routines"));
+
 
     if (!objects.empty())
       objects= objects.substr(0, objects.length()-2);

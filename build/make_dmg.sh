@@ -33,14 +33,12 @@ if [ $? -ne 0 ]; then
         echo "Could not copy .app to template dmg"
         exit 1
 fi
-if test "$edition" != "community"; then
-        echo "Copying LGPL srcs to commercial pkg"
-        cp ~/guibuild/lgpl-deps/* "template/$app"
-fi
 
 echo "Copying background image"
 cp build/mac/background.tiff template/
 chflags hidden template/background.tiff
+SetFile -a V template/background.tiff
+rm -fr "template/LGPL sources"
 
 echo "Detaching template"
 hdiutil detach template -force -quiet

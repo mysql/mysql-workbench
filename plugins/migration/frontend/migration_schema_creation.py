@@ -136,6 +136,7 @@ class CreationProgressView(WizardProgressPage):
 in the target database. You can monitor execution in the logs and if there are errors 
 you may correct them in the next step. Table data will be migrated at a later step.""")
 
+        self._autostart = True
         main.add_wizard_page(self, "ObjectMigration", "Create Schemas")
 
 

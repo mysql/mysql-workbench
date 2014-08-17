@@ -11,10 +11,12 @@ add_subdirectory(grammar)
 
 add_library(mysqlparser
     MySQLLexer.c
+    MySQLSimpleParser.c
     MySQLParser.c
     mysql-parser-common.cpp
     mysql-parser.cpp
     mysql-scanner.cpp
+    mysql-syntax-check.cpp
 )
 
 add_dependencies(mysqlparser
@@ -29,6 +31,9 @@ endif ()
 
 target_link_libraries(mysqlparser ${GTK2_LIBRARIES} ${ANTLR3C_LIBRARIES})
 
+set_target_properties(mysqlparser
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS mysqlparser DESTINATION ${WB_INSTALL_LIB_DIR})
 

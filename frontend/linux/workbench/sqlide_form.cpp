@@ -27,7 +27,7 @@
 #include "mforms/../gtk/lf_view.h"
 #include "mforms/../gtk/lf_menubar.h"
 #include "mforms/../gtk/lf_toolbar.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "sqlide/query_side_palette.h"
 #include "sqlide/wb_sql_editor_panel.h"
 #include "workbench/wb_context.h"
@@ -335,8 +335,6 @@ void DbSqlEditorView::editor_page_reordered(Gtk::Widget *page, guint index)
 void DbSqlEditorView::editor_page_removed(Gtk::Widget *page, guint index)
 {
   reenable_items_in_tab_menus();
-  if (_editor_note->get_n_pages() == 0 && be())
-    be()->new_sql_script_file();
 }
 
 //------------------------------------------------------------------------------

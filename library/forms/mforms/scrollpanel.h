@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_SCROLLPANEL_H_
-#define _MFORMS_SCROLLPANEL_H_
+
+#pragma once
 
 #include <mforms/panel.h>
 
@@ -91,5 +91,3 @@ namespace mforms {
     ScrollPanelImplPtrs *_spanel_impl;
   };
 };
-
-#endif /* _MFORMS_SCROLLPANEL_H_ */
