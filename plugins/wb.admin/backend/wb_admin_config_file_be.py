@@ -22,6 +22,7 @@ import os
 import tempfile
 import difflib
 import re
+import sys
 
 import opts
 import mforms
@@ -122,6 +123,10 @@ def pick_value(opt, version, platform):
     if 'values' in opt:
         # Walk all values and pick best match
         for i, cur_value in enumerate(opt['values']):
+            if 'bitsize' in cur_value:
+                is_64bit = sys.maxsize > 2**32
+                if (is_64bit and cur_value['bitsize'] != '64') or (not is_64bit and cur_value['bitsize'] != '32'):
+                    continue
             inversion  = cur_value.get('inversion')
             outversion = cur_value.get('outversion')
 
@@ -634,18 +639,24 @@ class WbAdminConfigFileBE(object):
         # split the path for / and \\
         directory, filename = splitpath(self.file_name)
 
-        if helper.check_dir_writable(directory):
-            password = None
-            as_user = Users.CURRENT
-        else:
-            password = self.ctrl_be.password_handler.get_password_for("file")
-            as_user = Users.ADMIN
+        first_try = True
+        while True:
+            if helper.check_dir_writable(directory):
+                password = None
+                as_user = Users.CURRENT
+            else:
+                password = self.ctrl_be.password_handler.get_password_for("file", cached_only=first_try)
+                as_user = Users.ADMIN
 
-        try:
-            helper.set_file_content_and_backup(self.file_name, user_modified_file_content, ".wba.bak", as_user, password)
-        except InvalidPasswordError, err:
-            self.ctrl_be.password_handler.reset_password_for("file")
-            raise err
+            try:
+                helper.set_file_content_and_backup(self.file_name, user_modified_file_content, ".wba.bak", as_user, password)
+            except InvalidPasswordError, err:
+                self.ctrl_be.password_handler.reset_password_for("file")
+                if first_try:
+                    first_try = False
+                    continue
+                raise err
+            break
 
         # read back the saved file
         data = self.read_mysql_cfg_file(self.file_name)
@@ -727,8 +738,9 @@ class WbAdminConfigFileBE(object):
                             # Some sort of validation is performed when loading options to UI,
                             # unsupported options will not be displayed and they are left
                             # unaltered in the file.
+                            value = " ".join(opt[1:]).strip(" \t")
                             if len(opt) > 1:
-                                option.append(i, (" ".join(opt[1:])).strip(" \t"))
+                                option.append(i, value)
                             else:
                                 option.append(i, True)
 
@@ -738,6 +750,17 @@ class WbAdminConfigFileBE(object):
                                     option = Option(current_section, i, 'disabledby')
                                     cur_file_original_opts[option_name[5:]] = option
                                     cur_file_original_opts[option_name] = option
+                            elif value.lower() in ['on', 'off', '1', '0','yes','no', 'true', 'false']:
+                                # since we remove one of redundant option from pairs like 'option_name' and 'skip-option_name'
+                                # we need to take care of options that exists in config file but not in UI
+                                # so if option is bool and has no 'skip-' in name we put additional option 'skip-option_name'
+                                # to cur_file_original_opts list with opposite value to properly handle every options 
+                                if len(opt) > 1:
+                                    value = not self.normalize_bool(value)
+                                else:
+                                    value = False
+                                option = Option(current_section, i, value)
+                                cur_file_original_opts['skip-'+option_name] = option
 
             self.original_opts = cur_file_original_opts
             self.sections = sorted(self.sections, lambda x,y: cmp(x[0], y[0]))

@@ -51,6 +51,7 @@ public:
 
   virtual ~ResultFormView();
   int display_record();
+  int display_record(RowId row_id);
   std::string get_full_column_type(SqlEditorForm *editor, const std::string &schema, const std::string &table, const std::string &column);
 
   void init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *editor);

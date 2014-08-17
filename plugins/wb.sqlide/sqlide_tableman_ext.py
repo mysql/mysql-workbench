@@ -530,13 +530,15 @@ class TableIndexInfoPanel(mforms.Box):
         self.index_list.set_size(500, -1)
         table.add(self.index_list, 0, 1, 1, 2, mforms.HFillFlag|mforms.VFillFlag)
 
-        table.add(make_title("Index Details"), 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
-        
+        dhbox = mforms.newBox(True)
+        dhbox.add(make_title("Index Details"), False, True)
         self.drop_index = mforms.newButton()
         self.drop_index.set_text("Drop Index")
         self.drop_index.set_enabled(False)
         self.drop_index.add_clicked_callback(self.do_drop_index)
-        table.add(self.drop_index, 2, 3, 0, 1, mforms.HFillFlag)
+        dhbox.add_end(self.drop_index, False, True)
+        table.add(dhbox, 1, 3, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
+        
         self.info = mforms.newTable()
         table.add(self.info, 1, 3, 1, 2, mforms.HFillFlag|mforms.HExpandFlag|mforms.VFillFlag)
 
@@ -1005,9 +1007,7 @@ class GrantsColumnManager(TableManDefs, ObjectManager):
             else:
                 fields.append(field)
         
-        output.append("SELECT CONCAT(Db,'.',Table_name) as scope,%(sel_fields)s FROM mysql.tables_priv WHERE '%(schema)s' LIKE Db AND '%(table)s' LIKE Table_name" % {'sel_fields' : ",".join(fields), 'schema' : self.schema, 'table' : self.table})
-        
-        output.append("SELECT CONCAT(Db,'.',Table_name,'.',Column_name) as scope,%(sel_fields)s FROM mysql.columns_priv WHERE '%(schema)s' LIKE Db AND '%(table)s' LIKE Table_name" % {'sel_fields' : ",".join(fields), 'schema' : self.schema, 'table' : self.table})
+        output.append("SELECT CONCAT(Db,'.',Table_name,'.',Column_name) as scope,%(sel_fields)s FROM mysql.columns_priv WHERE Db LIKE '%(schema)s' AND Table_name LIKE '%(table)s'" % {'sel_fields' : ",".join(fields), 'schema' : self.schema, 'table' : self.table})
         return output
 
     def refresh(self):

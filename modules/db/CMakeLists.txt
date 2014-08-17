@@ -20,4 +20,8 @@ set_target_properties(dbutils.grt PROPERTIES
 
 target_link_libraries(dbutils.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES})
 
+set_target_properties(dbutils.grt
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS dbutils.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

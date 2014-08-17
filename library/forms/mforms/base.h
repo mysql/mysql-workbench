@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _MFORMS_BASE_H_
-#define _MFORMS_BASE_H_
+
+#pragma once
 
 #include <string>
 #include <list>
@@ -51,14 +51,12 @@ namespace mforms {
     Object *retain();
     void release();    
     virtual void set_managed();    
-    void set_release_on_add();    
+    void set_release_on_add(bool flag = true);    
     bool is_managed();    
     bool release_on_add();
 
-// Below code is used only for debug purpose.
-#ifdef _DEBUG
+    // Below code is used for debugging
     inline base::refcount_t retain_count() const { return _refcount; }
-#endif
 
     void set_destroying();
     bool is_destroying();
@@ -119,4 +117,3 @@ namespace mforms {
 };
 
 #endif  // !DOXYGEN_SHOULD_SKIP_THIS
-#endif

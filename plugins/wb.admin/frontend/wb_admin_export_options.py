@@ -25,7 +25,7 @@ export_options = {
 #    },
     "Inserts":{
     "extended-insert":["Use multiple-row INSERT syntax that include several VALUES lists.","TRUE"],
-    "delayed-insert":["Write INSERT DELAYED statements rather than INSERT statements.","FALSE"],
+    "delayed-insert":["Write INSERT DELAYED statements rather than INSERT statements.","FALSE", ("5.0.0", "5.7.0")],
     "add-locks":["Surround each table dump with LOCK TABLES and UNLOCK TABLES statements.","TRUE"],
     "replace":["Write REPLACE statements rather than INSERT statements.","FALSE"],
     "insert-ignore":["Write INSERT IGNORE statements rather than INSERT statements.","FALSE"],

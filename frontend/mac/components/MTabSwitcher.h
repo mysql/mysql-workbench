@@ -26,6 +26,7 @@ typedef enum
   MPaletteTabSwitcherSmallText,
   MEditorTabSwitcher,
   MEditorBottomTabSwitcher,
+  MEditorBottomTabSwitcherPinnable,
   MMainTabSwitcher
 } MTabSwitcherStyle;
 
@@ -34,6 +35,8 @@ typedef enum
 @interface NSObject(MTabSwitcherDelegateExtras)
 - (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)item;
 - (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)item;
+- (BOOL)tabView:(NSTabView*)tabView itemIsPinned:(NSTabViewItem*)item;
+- (void)tabView:(NSTabView*)tabView itemPinClicked:(NSTabViewItem*)item;
 - (NSImage*)tabView:(NSTabView*)tabView iconForItem:(NSTabViewItem*)tabViewItem;
 - (void)tabView:(NSTabView*)tabView willDisplayMenu:(NSMenu*)menu forTabViewItem:(NSTabViewItem*)item;
 - (void)tabView:(NSTabView*)tabView didReorderTabViewItem:(NSTabViewItem*)item toIndex:(NSInteger)index;
@@ -73,7 +76,10 @@ typedef enum
   BOOL mUnselected;
   BOOL mCloseHighlighted;
   BOOL mClosePressed;
+  BOOL mPinPressed;
   BOOL mReorderingTab;
+
+  NSRect mPinRect;
 }
 
 @property (assign) float minTabWidth;

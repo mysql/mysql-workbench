@@ -116,6 +116,11 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   void close_tab_clicked();
   void close_other_tabs_clicked();
 
+  bool is_pinned(int tab);
+  void tab_pinned(int tab, bool flag);
+
+  void limit_rows(mforms::ToolBarItem *);
+
 public:
   typedef boost::shared_ptr<SqlEditorPanel> Ref;
   SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed);
@@ -126,6 +131,8 @@ public:
 
   mforms::ToolBar *get_toolbar();
   virtual void set_title(const std::string &title);
+
+  void update_limit_rows();
 
   SqlEditorForm *owner() { return _form; }
 
@@ -166,6 +173,8 @@ public:
   SqlEditorResult *active_result_panel();
 
   SqlEditorResult *result_panel(int i);
+
+  int result_count();
 
   SqlEditorResult* add_panel_for_recordset(Recordset::Ref rset);
   void add_panel_for_recordset_from_main(Recordset::Ref rset);

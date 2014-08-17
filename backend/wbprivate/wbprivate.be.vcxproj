@@ -133,13 +133,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -152,14 +152,14 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -176,7 +176,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
@@ -185,7 +185,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -199,7 +199,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -207,7 +207,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">
@@ -221,7 +221,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -229,7 +229,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -243,7 +243,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -251,7 +251,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\tinyxml\$(Configuration)\tinyxml.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libzip\libzip.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\zlib\zlib.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\gdal.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -297,6 +297,9 @@
     <ClInclude Include="sqlide\db_sql_editor_log.h" />
     <ClInclude Include="sqlide\execute_routine_wizard.h" />
     <ClInclude Include="sqlide\query_side_palette.h" />
+    <ClInclude Include="sqlide\spatial_data_view.h" />
+    <ClInclude Include="sqlide\spatial_draw_box.h" />
+    <ClInclude Include="sqlide\spatial_handler.h" />
     <ClInclude Include="sqlide\result_form_view.h" />
     <ClInclude Include="sqlide\wb_context_sqlide.h" />
     <ClInclude Include="sqlide\wb_live_schema_tree.h" />
@@ -371,6 +374,9 @@
     <ClCompile Include="sqlide\db_sql_editor_log.cpp" />
     <ClCompile Include="sqlide\execute_routine_wizard.cpp" />
     <ClCompile Include="sqlide\query_side_palette.cpp" />
+    <ClCompile Include="sqlide\spatial_data_view.cpp" />
+    <ClCompile Include="sqlide\spatial_draw_box.cpp" />
+    <ClCompile Include="sqlide\spatial_handler.cpp" />
     <ClCompile Include="sqlide\result_form_view.cpp" />
     <ClCompile Include="sqlide\wb_context_sqlide.cpp" />
     <ClCompile Include="sqlide\wb_live_schema_tree.cpp" />
@@ -384,6 +390,7 @@
     <ClCompile Include="sqlide\wb_sql_editor_tree_controller.cpp" />
     <ClCompile Include="workbench\about_box.cpp" />
     <ClCompile Include="workbench\home_screen.cpp" />
+    <ClCompile Include="workbench\home_screen_connections.cpp" />
     <ClCompile Include="workbench\metaclasses.cpp" />
     <ClCompile Include="workbench\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

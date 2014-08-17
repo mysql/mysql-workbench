@@ -26,4 +26,8 @@ add_library(sqlide
 
 target_link_libraries(sqlide ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
 
+set_target_properties(sqlide
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS sqlide DESTINATION ${WB_INSTALL_LIB_DIR})

@@ -21,7 +21,7 @@ import os
 import sys
 import grt
 
-from workbench.log import log_info, log_error
+from workbench.log import log_info, log_error, log_debug
 
 from mforms import App, Utilities, newTabView
 import mforms
@@ -137,10 +137,11 @@ class AdministratorTab(mforms.AppView):
             self.ctrl_be.event_from_main("server_started")
 
         self.ctrl_be.continue_events() # Process events which are queue during init
-        dprint_ex(1, "WBA init complete")
+        log_debug("WBA init complete\n")
 
     #---------------------------------------------------------------------------
     def handle_on_close(self):
+        log_debug("Closing admin\n")
         if self._timeout_tm:
             Utilities.cancel_timeout(self._timeout_tm)
             self._timeout_tm = None
@@ -149,6 +150,7 @@ class AdministratorTab(mforms.AppView):
         App.get().set_status_text("Closing Administator.")
         self.shutdown()
         if not self.closing:
+            log_debug("Admin close cancelled\n")
             return False
         self.ctrl_be.shutdown()
         self.release()
@@ -221,7 +223,7 @@ class AdministratorTab(mforms.AppView):
     #---------------------------------------------------------------------------
     def handle_server_state_changed(self, name, sender, info):
         # called from outside when running state of the server changes
-        log_info("server state changed to %s\n" % info["state"])
+        log_info("received notification that server state changed to %s\n" % info["state"])
         if info["state"]:
             self.ctrl_be.event_from_main("server_started")
         else:

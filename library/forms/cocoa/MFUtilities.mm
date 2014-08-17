@@ -28,6 +28,11 @@
 
 DEFAULT_LOG_DOMAIN("utilities");
 
+static void util_beep()
+{
+  NSBeep();
+}
+
 static int util_show_message(const std::string &title, const std::string &text,
                              const std::string &ok, const std::string &cancel,
                              const std::string &other)
@@ -163,24 +168,24 @@ static base::Mutex timeout_lock;
 
 - (void)fire:(NSTimer*)timer
 {
-  {
-    base::MutexLock lock(timeout_lock);
-  
-    for (std::map<mforms::TimeoutHandle, NSTimer*>::iterator it = active_timeouts.begin();
-         it != active_timeouts.end(); ++it)
-    {
-      if (it->second == timer)
-      {
-        active_timeouts.erase(it);
-        break;
-      }
-    }
-  }
   try
   {
     bool ret = (*callback)();
     if (!ret)
     {
+      {
+        base::MutexLock lock(timeout_lock);
+
+        for (std::map<mforms::TimeoutHandle, NSTimer*>::iterator it = active_timeouts.begin();
+             it != active_timeouts.end(); ++it)
+        {
+          if (it->second == timer)
+          {
+            active_timeouts.erase(it);
+            break;
+          }
+        }
+      }
       [timer invalidate];
       [self autorelease];
     }
@@ -216,6 +221,8 @@ static void util_cancel_timeout(mforms::TimeoutHandle handle)
     [it->second invalidate];
     active_timeouts.erase(it);
   }
+  else
+    log_warning("cancel_timeout called on invalid handle %i\n", handle);
 }
 
 
@@ -415,7 +422,8 @@ static void util_set_thread_name(const std::string &name)
 void cf_util_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
-    
+
+  f->_utilities_impl.beep = &util_beep;
   f->_utilities_impl.show_message= &util_show_message;
   f->_utilities_impl.show_error= &util_show_message;
   f->_utilities_impl.show_warning= &util_show_message;

@@ -6,6 +6,8 @@
       <gstruct name="workbench.model.NoteFigure" parent="model.Figure" impl-data="1" attr:caption="Text" attr:desc="a model figure representing a text box">
           <members>
               <member name="text" type="string" delegate-set="1" attr:desc="the text contents" attr:editas="longtext"/>
+              <member name="textColor" type="string" delegate-set="1" attr:desc="the text color" attr:editas="color"/>
+              <member name="font" type="string" delegate-set="1" attr:desc="the font to be used for the note"/>
           </members>
       </gstruct>
   

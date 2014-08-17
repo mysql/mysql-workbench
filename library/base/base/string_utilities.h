@@ -160,6 +160,9 @@ namespace base
   BASELIBRARY_PUBLIC_FUNC bool same_string(const std::string &first, const std::string &second, bool case_sensitive = true);
   BASELIBRARY_PUBLIC_FUNC bool contains_string(const std::string &text, const std::string &candidate, bool case_sensitive = true);
 
+  BASELIBRARY_PUBLIC_FUNC bool is_number(const std::string &word);
+
+
   /**
    * XXX: remove that, this is a totally wrong place (parser related and version dependent).
    * @brief Check if @word is a reserved word. 

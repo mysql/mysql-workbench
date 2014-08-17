@@ -21,13 +21,13 @@
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_panel.h"
 #include "wb_sql_editor_result_panel.h"
+#include "spatial_data_view.h"
 #include "result_form_view.h"
-
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "sqlide/recordset_cdbc_storage.h"
 #include "grtdb/db_helpers.h"
 #include "grtui/inserts_export_form.h"
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/db.query/db_query_EditableResultset.h"
 
@@ -61,7 +61,6 @@
 using namespace base;
 
 DEFAULT_LOG_DOMAIN("SqlResult")
-
 
 class SqlEditorResult::DockingDelegate : public mforms::TabViewDockingPoint
 {
@@ -97,8 +96,9 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
 : mforms::AppView(true, "QueryResult", false),
    _owner(owner),
   _tabview(mforms::TabViewTabless), _switcher(mforms::VerticalIconSwitcher),
-  _tabdock_delegate(new DockingDelegate(&_tabview, &_switcher, "SqlResultPanel")), _tabdock(_tabdock_delegate, true),
+  _tabdock_delegate(new DockingDelegate(&_tabview, &_switcher, std::string("SqlResultPanel"))), _tabdock(_tabdock_delegate, true),
   _pinned(false)
+
 {
   _result_grid = NULL;
   _grid_header_menu = NULL;
@@ -106,6 +106,19 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _column_info_created = false;
   _query_stats_created = false;
   _form_view_created = false;
+
+  _spatial_view_initialized = false;
+  _spatial_result_view = NULL;
+
+  add(&_tabview, true, true);
+
+  _switcher.attach_to_tabview(&_tabview);
+  _switcher.set_collapsed(_owner->owner()->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
+
+  add(&_switcher, false, true);
+  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
+  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
+  
   _execution_plan_placeholder = NULL;
 
   // put a placeholder for the resultset, which will be replaced when a resultset is actually available
@@ -122,15 +135,6 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   }
 
   set_on_close(boost::bind(&SqlEditorResult::can_close, this));
-
-  add(&_tabview, true, true);
-
-  _switcher.attach_to_tabview(&_tabview);
-  _switcher.set_collapsed(_owner->owner()->grt_manager()->get_app_option_int("Recordset:SwitcherCollapsed", 0) != 0);
-
-  add(&_switcher, false, true);
-  _switcher.signal_changed()->connect(boost::bind(&SqlEditorResult::switch_tab, this));
-  _switcher.signal_collapse_changed()->connect(boost::bind(&SqlEditorResult::switcher_collapsed, this));
 }
 
 
@@ -183,6 +187,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
     _grtobj->resultset(grtwrap_editablerecordset(grtobj(), rset));
   else
     _grtobj->resultset(grtwrap_recordset(grtobj(), rset));
+
 
   rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_export_recordset, this));
   if (rset->get_toolbar()->find_item("record_import"))
@@ -268,6 +273,30 @@ std::string SqlEditorResult::caption() const
 }
 
 
+
+std::vector<SpatialDataView::SpatialDataSource> SqlEditorResult::get_spatial_columns()
+{
+  std::vector<SpatialDataView::SpatialDataSource> spatial_columns;
+  int i = 0;
+  Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(_rset.lock()->data_storage()));
+  std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+  for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
+       iter != field_info.end(); ++iter, ++i)
+  {
+    if (iter->type == "GEOMETRY")
+    {
+      SpatialDataView::SpatialDataSource field;
+      field.source = _owner->get_title();
+      field.resultset = _rset;
+      field.column = iter->field;
+      field.type = iter->type;
+      field.column_index = i;
+      spatial_columns.push_back(field);
+    }
+  }
+  return spatial_columns;
+}
+
 void SqlEditorResult::set_title(const std::string &title)
 {
   grtobj()->name(title);
@@ -276,6 +305,9 @@ void SqlEditorResult::set_title(const std::string &title)
 
 bool SqlEditorResult::can_close()
 {
+  if (!_tabdock.close_all_views())
+    return false;
+
   if (Recordset::Ref rs = recordset())
     return rs->can_close(true);
   return true;
@@ -286,8 +318,10 @@ void SqlEditorResult::close()
 {// called by DockingPoint::close_view()
   if (Recordset::Ref rs = recordset())
     rs->close();
-}
+  _tabdock.close_all_views();
 
+  mforms::AppView::close();
+}
 
 void SqlEditorResult::switch_tab()
 {
@@ -345,6 +379,15 @@ void SqlEditorResult::switch_tab()
                                         "OK");
         }
       }
+    }
+    else if (tab->identifier() == "spatial_result_view")
+    {
+      if (!_spatial_view_initialized)
+      {
+        _spatial_view_initialized = true;
+        _spatial_result_view->refresh_layers();
+      }
+      _spatial_result_view->activate();
     }
   }
 }
@@ -486,12 +529,12 @@ void SqlEditorResult::restore_grid_column_widths()
         // if not, we set a default width based on the display size
         int length = field_info[i].display_size;
 
-        if (length < 0)
-          length = 10;
+        if (length < 5)
+          length = 5;
         else if (length > 20)
           length = 20;
 #if defined(__APPLE__) || defined(_WIN32)
-        _result_grid->set_column_width(i, length * 9);
+        _result_grid->set_column_width(i, length * 10);
 #else
         _result_grid->set_column_width(i, length * 12);
 #endif
@@ -549,11 +592,18 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
     _tabdock.dock_view(_query_stats_box, app->get_resource_path("output_type-querystats.png"));
   }
 
+  create_spatial_view_panel_if_needed();
+
+
+
   // reorder the explain tab to last
   bool has_explain_tab = false;
   for (int i = 0; i < _tabdock_delegate->view_count(); i++)
   {
     mforms::AppView *view = _tabdock_delegate->view_at_index(i);
+    if (!view)
+      continue;
+
     if (view->identifier() == "execution_plan")
     {
       has_explain_tab = true;
@@ -573,6 +623,39 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
     _tabdock.dock_view(_execution_plan_placeholder, app->get_resource_path("output_type-executionplan.png"));
   }
   _switcher.set_selected(0);
+
+}
+
+void SqlEditorResult::create_spatial_view_panel_if_needed()
+{
+  if (Recordset::Ref rset = _rset.lock())
+  {
+    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+    bool has_geometry = false;
+    std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+    for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
+         iter != field_info.end(); ++iter)
+    {
+      if (iter->type == "GEOMETRY")
+      {
+        has_geometry = true;
+        break;
+      }
+    }
+    if (has_geometry)
+    {
+      mforms::App *app = mforms::App::get();
+
+      _spatial_result_view = mforms::manage(new SpatialDataView(this));
+      add_switch_toggle_toolbar_item(_spatial_result_view->get_toolbar());
+      mforms::AppView *box = mforms::manage(new mforms::AppView(false, "SpatialView", false));
+      box->set_title("Spatial\nView");
+      box->set_identifier("spatial_result_view");
+      box->set_name("spatial-host");
+      box->add(_spatial_result_view, true, true);
+      _tabdock.dock_view(box, app->get_resource_path("output_type-spacialview.png"));
+    }
+  }
 }
 
 
@@ -647,7 +730,7 @@ void SqlEditorResult::create_column_info_panel()
     add_switch_toggle_toolbar_item(tbar);
 
     box->add(tbar, false, true);
-    
+
     if (_owner->owner()->collect_field_info())
     {
       mforms::TreeNodeView *tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList|mforms::TreeAltRowColors|mforms::TreeShowRowLines|mforms::TreeShowColumnLines|mforms::TreeNoBorder));
@@ -655,7 +738,8 @@ void SqlEditorResult::create_column_info_panel()
       tree->add_column(mforms::StringColumnType, "Field", 130);
       tree->add_column(mforms::StringColumnType, "Schema", 130);
       tree->add_column(mforms::StringColumnType, "Table", 130);
-      tree->add_column(mforms::StringColumnType, "Type", 200);
+      tree->add_column(mforms::StringColumnType, "Type", 150);
+      tree->add_column(mforms::StringColumnType, "Character Set", 100);
       tree->add_column(mforms::IntegerColumnType, "Display Size", 80);
       tree->add_column(mforms::IntegerColumnType, "Precision", 80);
       tree->add_column(mforms::IntegerColumnType, "Scale", 80);
@@ -679,17 +763,12 @@ void SqlEditorResult::create_column_info_panel()
         node->set_string(2, iter->schema);
         node->set_string(3, iter->table);
         node->set_string(4, iter->type);
-        node->set_int(5, iter->display_size);
-        node->set_int(6, iter->precision);
-        node->set_int(7, iter->scale);
+        node->set_string(5, iter->charset);
+        node->set_int(6, iter->display_size);
+        node->set_int(7, iter->precision);
+        node->set_int(8, iter->scale);
       }
       box->add(tree, true, true);
-    }
-    else
-    {
-      mforms::Label *label = mforms::manage(new mforms::Label("To get field type information for query results, enable Query -> Collect Resultset Field Metadata from the main menu"));
-      label->set_style(mforms::BigBoldStyle);
-      box->add(label, true, true);
     }
   }
 }
@@ -741,8 +820,8 @@ static std::string render_stages(std::vector<SqlEditorForm::PSStage> &stages)
     cairo_fill(cr);
 
     {
-      double capx = (i % 3) * 800 / 3 + 1;
-      double capy = 50 + (i / 3) * 25;
+      double capx = (i % 3) * 800.0 / 3 + 1;
+      double capy = 50 + (i / 3) * 25.0;
 
       cairo_text_extents_t ext;
       cairo_text_extents(cr, stages[i].name.c_str(), &ext);
@@ -827,8 +906,8 @@ static std::string render_waits(std::vector<SqlEditorForm::PSWait> &waits)
     cairo_fill(cr);
 
     {
-      size_t capx = (i % 2) * 800 / 2 + 1;
-      size_t capy = 50 + (i / 2) * 25;
+      double capx = (i % 2) * 800.0 / 2 + 1;
+      double capy = 50 + (i / 2) * 25.0;
 
       cairo_text_extents_t ext;
       cairo_text_extents(cr, waits[i].name.c_str(), &ext);
@@ -1016,3 +1095,12 @@ void SqlEditorResult::create_query_stats_panel()
 }
 
 
+void SqlEditorResult::view_record_in_form(int row_id)
+{
+  if (_form_result_view)
+  {
+    _tabview.set_active_tab(1);
+    switch_tab();
+    _form_result_view->display_record(row_id);
+  }
+}

@@ -166,6 +166,7 @@ private:
   bool _autosave_disabled;
   bool _loading_workspace;
   bool _cancel_connect;
+  bool _closing;
 
   void activate_command(const std::string &command);
 
@@ -182,6 +183,7 @@ public:
   void sql_editor_reordered(SqlEditorPanel *editor, int new_index);
 
 private:
+
   int _sql_editors_serial;
   int _scratch_editors_serial;
 
@@ -201,8 +203,10 @@ public:
   int sql_editor_count();
   int sql_editor_panel_index(SqlEditorPanel *panel);
 
-  virtual mforms::DragOperation drag_over(mforms::View *sender, base::Point p, const std::vector<std::string> &formats);
-  virtual mforms::DragOperation files_dropped(mforms::View *sender, base::Point p, const std::vector<std::string> &file_names);
+  virtual mforms::DragOperation drag_over(mforms::View *sender, base::Point p,
+    mforms::DragOperation allowedOperations, const std::vector<std::string> &formats);
+  virtual mforms::DragOperation files_dropped(mforms::View *sender, base::Point p,
+    mforms::DragOperation allowedOperations, const std::vector<std::string> &file_names);
 private:
   int count_connection_editors(const std::string& conn_name);
 
@@ -239,13 +243,13 @@ public:
   void auto_commit(bool value);
   void toggle_autocommit();
   void toggle_collect_field_info();
-  void toggle_collect_ps_statement_events();
   bool collect_field_info() const;
+  void toggle_collect_ps_statement_events();
   bool collect_ps_statement_events() const;
   
   void run_editor_contents(bool current_statement_only);
 
-  void limit_rows(mforms::MenuItem *menu, const char *limit);
+  void limit_rows(const std::string &limit_text);
 
   std::string sql_mode() const { return _sql_mode; };
   int lower_case_table_names() const { return _lower_case_table_names; }
@@ -408,6 +412,7 @@ private:
     
   mforms::View* _side_palette_host;
   QuerySidePalette* _side_palette;
+  std::string _pending_expand_nodes;
 
 public:
   std::string fetch_data_from_stored_procedure(std::string proc_call, boost::shared_ptr<sql::ResultSet> &rs);
@@ -418,7 +423,8 @@ public:
   int exec_sql_error_count() { return _exec_sql_error_count; }
   
   boost::shared_ptr<SqlEditorTreeController> get_live_tree() { return _live_tree; }
-  
+  void schema_tree_did_populate();
+
   boost::function<void (const std::string&, bool)> output_text_slot;
 protected:
   DbSqlEditorLog::Ref _log;

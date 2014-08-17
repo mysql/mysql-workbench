@@ -225,8 +225,8 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   NSInteger rowIndex = [mTableView selectedRow];
   PropertyType pt = [self propertyTypeForRowIndex: rowIndex];
   if (pt == PROPERTY_TYPE_COLOR) {
-    BOOL hasColor = [self updateColorPickerPanelWithColorAtRowIndex: rowIndex];
-    if (hasColor) {
+    [self updateColorPickerPanelWithColorAtRowIndex: rowIndex];
+    {
       NSColorPanel* scp = [NSColorPanel sharedColorPanel];
       [scp setTarget: self];
       [scp setAction: @selector(userPickColor:)];

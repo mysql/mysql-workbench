@@ -369,6 +369,7 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
     add_page(node, _("Appearance"), create_appearance_page());
     node->expand();
   }
+
   if (!_model.is_valid())
   {
 #ifdef _WIN32
@@ -377,12 +378,13 @@ PreferencesForm::PreferencesForm(wb::WBContextUI *wbui, const workbench_physical
     // Fonts only for now in Mac/Linux
     add_page(NULL, _("Fonts"), create_fonts_and_colors_page());
 #endif
-
+    add_page(NULL, _("Advanced"), create_advanced_settings_page());
 #ifdef _WIN32
     // right now, there's only a single option specific to windows
     add_page(NULL, _("Others"), create_others_page());
 #endif
   }
+
 
   _hbox.add(&_top_box, true, true);
   set_content(&_hbox);
@@ -524,7 +526,7 @@ void PreferencesForm::show_entry_option(const std::string &option_name, mforms::
 void PreferencesForm::update_entry_option(const std::string &option_name, mforms::TextEntry *entry, bool numeric)
 {
   if (numeric)
-    _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_string_value(), grt::AnyType);
+    _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_string_value(), grt::IntegerType);
   else
     _wbui->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, entry->get_string_value(), grt::StringType);
 }
@@ -808,6 +810,10 @@ mforms::View *PreferencesForm::create_sqlide_page()
                                                      "If Snapshot saving is enabled, query tabs are always autosaved to temporary files when the connection is closed."));
       save_workspace->signal_clicked()->connect(boost::bind(force_checkbox_on_toggle, save_workspace, discard_unsaved, true, true));
       (*save_workspace->signal_clicked())();
+
+      table->add_checkbox_option("DbSqlEditor:SchemaTreeRestoreState",
+                                 _("Restore expanded state of the active schema objects"),
+                                 _("Re-expand (and reload) group nodes that were previously expanded in the active schema when the editor was last closed."));
     }
     box->add(table, false, true);
   }
@@ -1861,6 +1867,36 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page()
     content->add(frame, false, true);
   }
 #endif
+
+  return content;
+}
+
+mforms::View *PreferencesForm::create_advanced_settings_page()
+{
+  Box* content = manage(new Box(false));
+  content->set_spacing(8);
+
+  mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+  frame->set_title(_("SSH"));
+  content->add(frame, false);
+
+  mforms::Box *vbox= mforms::manage(new mforms::Box(false));
+  vbox->set_padding(8);
+  vbox->set_spacing(8);
+  frame->add(vbox);
+
+  {
+    mforms::Box *tbox= mforms::manage(new mforms::Box(true));
+    tbox->set_spacing(4);
+    vbox->add(tbox, false);
+
+    tbox->add(new_label(_("SSH KeepAlive:"), true), false, false);
+    mforms::TextEntry *entry= new_entry_option("sshkeepalive", true);
+    entry->set_size(50, -1);
+    entry->set_tooltip(_(
+                         "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
+    tbox->add(entry, false, false);
+  }
 
   return content;
 }

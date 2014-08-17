@@ -695,6 +695,7 @@ class ColumnManager(ObjectManager):
     show_query = "select * from information_schema.columns where table_schema = '%(schema)s'"
     icon_column = 1
     name_column = 1
+    parent_name_column = 0
     columns = [("TABLE_NAME", StringColumnType, "Table", 150, None),
                ("COLUMN_NAME", IconStringColumnType, "Column", 150, None),
                ("COLUMN_TYPE", StringColumnType, "Type", 120, None),

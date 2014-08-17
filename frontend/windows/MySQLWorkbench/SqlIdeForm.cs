@@ -346,9 +346,6 @@ namespace MySQL.GUI.Workbench
           e.canClose = (tabDocument as IWorkbenchDocument).CanCloseDocument();
       }
  
-      if (mainContentTabControl.TabCount == 0)
-        dbSqlEditorBE.new_sql_script_file();
-
       Logger.LogDebug("WQE.net", 1, "Can close tab: " + e.canClose + "\n");
     }
 

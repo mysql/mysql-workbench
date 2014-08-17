@@ -95,7 +95,7 @@ public:
 
   base::RecMutex _sql_errors_mutex;
   std::vector<ParserErrorEntry> _recognition_errors; // List of errors from the last sql check run.
-  std::vector<size_t> _error_marker_lines;
+  std::set<size_t> _error_marker_lines;
 
   bool _splitting_required;
   bool _updating_statement_markers;
@@ -141,6 +141,8 @@ public:
     _updating_statement_markers = false;
   }
 
+  //------------------------------------------------------------------------------------------------
+
   /**
    * Determines ranges for all statements in the current text.
    */
@@ -166,6 +168,52 @@ public:
         _statement_ranges.push_back(std::make_pair(0, _text_info.second));
     }
   }
+
+  //------------------------------------------------------------------------------------------------
+
+  /**
+  * One or more markers on that line where changed. We have to stay in sync with our statement markers list
+  * to make the optimized add/remove algorithm working.
+  */
+  void marker_changed(const mforms::LineMarkupChangeset &changeset, bool deleted)
+  {
+    if (_updating_statement_markers || changeset.size() == 0)
+      return;
+
+    if (deleted)
+    {
+      for (mforms::LineMarkupChangeset::const_iterator iterator = changeset.begin();
+        iterator != changeset.end(); ++iterator)
+      {
+        if ((iterator->markup & mforms::LineMarkupStatement) != 0)
+          _statement_marker_lines.erase(iterator->original_line);
+        if ((iterator->markup & mforms::LineMarkupError) != 0)
+          _error_marker_lines.erase(iterator->original_line);
+      }
+    }
+    else
+    {
+      for (mforms::LineMarkupChangeset::const_iterator iterator = changeset.begin();
+        iterator != changeset.end(); ++iterator)
+      {
+        if ((iterator->markup & mforms::LineMarkupStatement) != 0)
+          _statement_marker_lines.erase(iterator->original_line);
+        if ((iterator->markup & mforms::LineMarkupError) != 0)
+          _error_marker_lines.erase(iterator->original_line);
+      }
+      for (mforms::LineMarkupChangeset::const_iterator iterator = changeset.begin();
+        iterator != changeset.end(); ++iterator)
+      {
+        if ((iterator->markup & mforms::LineMarkupStatement) != 0)
+          _statement_marker_lines.insert(iterator->new_line);
+        if ((iterator->markup & mforms::LineMarkupError) != 0)
+          _error_marker_lines.insert(iterator->new_line);
+      }
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +251,7 @@ MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref syntax_check_context,
   scoped_connect(_code_editor->signal_changed(), boost::bind(&MySQLEditor::text_changed, this, _1, _2, _3, _4));
   scoped_connect(_code_editor->signal_char_added(), boost::bind(&MySQLEditor::char_added, this, _1));
   scoped_connect(_code_editor->signal_dwell(), boost::bind(&MySQLEditor::dwell_event, this, _1, _2, _3, _4));
-  scoped_connect(_code_editor->signal_marker_changed(), boost::bind(&MySQLEditor::marker_changed, this, _1));
+  scoped_connect(_code_editor->signal_marker_changed(), boost::bind(&MySQLEditor::Private::marker_changed, d, _1, _2));
 
   setup_auto_completion();
 
@@ -312,7 +360,8 @@ static void open_file(MySQLEditor *sql_editor)
       char *converted;
 
       mforms::CodeEditor* code_editor = sql_editor->get_editor_control();
-      if (FileCharsetDialog::ensure_filedata_utf8(contents, length, "", file, converted))
+      if (FileCharsetDialog::ensure_filedata_utf8(sql_editor->grtm()->get_grt(),
+                                                  contents, length, "", file, converted))
       {
         code_editor->set_text_keeping_state(converted ? converted : contents);
         g_free(contents);
@@ -682,8 +731,7 @@ bool MySQLEditor::has_sql_errors() const
 
 //--------------------------------------------------------------------------------------------------
 
-#define IS_PART_INCLUDED(part) \
-((parts & part) == part)
+#define IS_PART_INCLUDED(part) ((parts & part) == part)
 
 bool MySQLEditor::fill_auto_completion_keywords(std::vector<std::pair<int, std::string> > &entries,
                                                      AutoCompletionWantedParts parts, bool upcase_keywords)
@@ -850,23 +898,6 @@ void MySQLEditor::dwell_event(bool started, size_t position, int x, int y)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * One or more markers on that line where changed. We have to stay in sync with our statement markers list
- * to make the optimized add/remove algorithm working.
- */
-void MySQLEditor::marker_changed(int line)
-{
-  if (d->_updating_statement_markers)
-    return;
-
-  // We only keep track of statement marker removal, as this can happen automatically (e.g. on paste of text),
-  // while adding markers is exclusively done by us.
-  if (d->_statement_marker_lines.count(line) > 0 && !_code_editor->has_markup(mforms::LineMarkupStatement, line))
-    d->_statement_marker_lines.erase(line);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
  * Prepares and triggers an sql check run. Runs in the context of the main thread.
  */
 bool MySQLEditor::start_sql_processing()
@@ -912,24 +943,15 @@ bool MySQLEditor::do_statement_split_and_check(int id)
   for (std::vector<std::pair<size_t, size_t> >::const_iterator range_iterator = d->_statement_ranges.begin();
     range_iterator != d->_statement_ranges.end(); ++range_iterator)
   {
+    if (d->_stop_processing)
+      return false;
+
     if (d->_services->checkSqlSyntax(d->_parser_context, d->_text_info.first + range_iterator->first,
                                  range_iterator->second, d->_parse_unit) > 0)
     {
-      d->_recognition_errors = d->_parser_context->get_errors_with_offset(range_iterator->first);
-
-        /*
-         * ATM we cannot optimize error markup so running intermediate updates just make things slower.
-         * TODO: optimize markup handling to allow intermediate updates.
-        if (d->_last_sql_check_progress_msg_timestamp + d->_sql_check_progress_msg_throttle < timestamp())
-        {
-          mforms::Utilities::perform_from_main_thread(boost::bind(&MySQLEditor::update_error_markers, this), false);
-          d->_last_sql_check_progress_msg_timestamp = timestamp();
-        }
-        */
+      std::vector<ParserErrorEntry> errors = d->_parser_context->get_errors_with_offset(range_iterator->first, true);
+      d->_recognition_errors.insert(d->_recognition_errors.end(), errors.begin(), errors.end());
     }
-    else
-      if (d->_stop_processing)
-        return false;
   }
 
   mforms::Utilities::perform_from_main_thread(boost::bind(&MySQLEditor::update_error_markers, this), false);
@@ -1017,7 +1039,7 @@ void* MySQLEditor::update_error_markers()
   std::set_difference(d->_error_marker_lines.begin(), d->_error_marker_lines.end(), lines.begin(), lines.end(),
     inserter(removal_candidates, removal_candidates.begin()));
 
-  d->_error_marker_lines.assign(lines.begin(), lines.end());
+  d->_error_marker_lines.swap(lines);
 
   for (std::set<size_t>::const_iterator iterator = removal_candidates.begin();
     iterator != removal_candidates.end(); ++iterator)

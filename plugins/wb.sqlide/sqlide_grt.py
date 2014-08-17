@@ -31,6 +31,7 @@ from workbench.notifications import NotificationCenter
 
 from sql_reformatter import formatter_for_statement_ast
 from text_output import TextOutputTab
+from run_script import RunScriptForm
 from sqlide_catalogman_ext import show_schema_manager
 from sqlide_tableman_ext import show_table_inspector
 
@@ -38,6 +39,7 @@ from sqlide_resultset_ext import handleResultsetContextMenu
 import sqlide_catalogman_ext
 import sqlide_tableman_ext
 import sqlide_schematree_ext
+import sqlide_import_spatial
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "SQLIDEUtils", author= "Oracle Corp.", version="1.1")
@@ -54,6 +56,7 @@ def initialize0():
     nc.add_observer(sqlide_schematree_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow") # must be 1st
     nc.add_observer(sqlide_catalogman_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow")
     nc.add_observer(sqlide_tableman_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow")
+    nc.add_observer(sqlide_import_spatial.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
 
 
 
@@ -598,4 +601,12 @@ def showInspector(editor, selection):
 #@ModuleInfo.export(grt.INT, grt.classes.db_query_QueryBuffer)
   #def refactorRenameSchema(editor):
 #    pass
+
+
+@ModuleInfo.plugin("wb.sqlide.runScript", caption = "Run SQL Script", input=[wbinputs.currentSQLEditor()])
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
+def runSQLScript(editor):
+    form = RunScriptForm(editor)
+    form.run()
+    return 0
 

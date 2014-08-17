@@ -19,6 +19,7 @@
 
 #import "MFTreeNodeView.h"
 #import "NSString_extras.h"
+#import "NSColor_extras.h"
 #import "MFView.h"
 #import "MFMForms.h"
 #include "base/log.h"
@@ -186,7 +187,33 @@ public:
     }
     return mforms::TreeNodeRef();
   }
-    
+
+  virtual int get_child_index(mforms::TreeNodeRef node) const
+  {
+    id child = from_ref(node)->self();
+    return [[_self children] indexOfObject: child];
+  }
+
+  virtual mforms::TreeNodeRef previous_sibling() const
+  {
+    NSUInteger index = [_self.parent.children indexOfObject: _self];
+    if (index == 0 || index == NSNotFound)
+      return mforms::TreeNodeRef();
+
+    MFTreeNodeImpl *child = [_self.parent.children objectAtIndex: index - 1];
+    return child.nodeRef;
+  }
+
+  virtual mforms::TreeNodeRef next_sibling() const
+  {
+    NSUInteger index = [_self.parent.children indexOfObject: _self];
+    if (index == _self.parent.children.count - 1 || index == NSNotFound)
+      return mforms::TreeNodeRef();
+
+    MFTreeNodeImpl *child = [_self.parent.children objectAtIndex: index + 1];
+    return child.nodeRef;
+  }
+
   virtual std::vector<mforms::TreeNodeRef> add_node_collection(const mforms::TreeNodeCollectionSkeleton &nodes, int position = -1)
   {
     std::vector<mforms::TreeNodeRef> result;
@@ -467,7 +494,14 @@ public:
     }
     return image;
   }
-  
+
+  virtual int level() const
+  {
+    // 0 for the root node, 1 for top level nodes etc.
+    // NSOutlineView returns 0 for the top level nodes, however.
+    return [_self.treeNodeView.outlineView levelForItem: _self] + 1;
+  }
+
   virtual void set_icon_path(int column, const std::string &icon)
   {
     NSImage *image = get_icon(icon);
@@ -481,9 +515,10 @@ public:
   
   virtual void set_attributes(int column, const mforms::TreeNodeTextAttributes& attrs)
   {
-    if (attrs.bold || attrs.italic)
+    if (attrs.bold || attrs.italic || attrs.color.is_valid())
     {
-      NSString *attrstr = [NSString stringWithFormat: @"%s%s", attrs.bold ? "b" : "", attrs.italic ? "i":""];
+      NSString *attrstr = [NSString stringWithFormat: @"%s%s%s", attrs.bold ? "b" : "", attrs.italic ? "i" : "",
+                           attrs.color.is_valid() ? attrs.color.to_html().c_str() : ""];
       [_self setObject: attrstr
                 forKey: [[[_self treeNodeView] keyForColumn: column] stringByAppendingString: @"attrs"]];
     }
@@ -730,6 +765,7 @@ static NSImage *descendingSortIndicator = nil;
     mClickingOverlay = -1;
     mOwner = treeView;
     [self setHeaderView: [[TreeNodeHeaderView alloc] init]];
+    self.draggingDestinationFeedbackStyle = NSTableViewDraggingDestinationFeedbackStyleSourceList;
   }
   return self;
 }
@@ -738,6 +774,11 @@ static NSImage *descendingSortIndicator = nil;
 {
   [mOverlayIcons release];
   [super dealloc];
+}
+
+- (mforms::Object*)mformsObject
+{
+  return mOwner;
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent
@@ -755,11 +796,18 @@ static NSImage *descendingSortIndicator = nil;
 //--------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
+STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+
+#define OVERLAY_ICON_RIGHT_PADDING 8
+#define OVERLAY_ICON_SPACING 2
 
 //--------------------------------------------------------------------------------------------------
 
 - (NSMenu*)menuForEvent:(NSEvent *)event
 {
+  if (mOwner == nil)
+    return nil;
+
   mforms::ContextMenu *menu = mOwner->get_context_menu();
   if (menu)
     return menu->get_data();
@@ -792,7 +840,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
         {
           NSRect iconRect = [self rectOfRow: row];	
 
-          iconRect.origin.x = NSMaxX([self visibleRect]);
+          iconRect.origin.x = NSMaxX([self visibleRect]) - OVERLAY_ICON_RIGHT_PADDING;
           iconRect.size.width = 0;
 
           mOverlayIcons = [[NSMutableArray alloc] initWithCapacity: icons.size()];
@@ -807,7 +855,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
             else
               [mOverlayIcons insertObject: NSNull.null atIndex: 0];
 
-            iconRect.origin.x -= img.size.width + 4;
+            iconRect.origin.x -= img.size.width + OVERLAY_ICON_SPACING;
             iconRect.size.width = img.size.width;
 
             if (NSPointInRect(p, iconRect) && mOverOverlay < 0)
@@ -880,13 +928,13 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
     NSRect rowRect = [self rectOfRow: rowIndex];
     int i = 0;
 
-    CGFloat x = NSMaxX([self visibleRect]);
+    CGFloat x = NSMaxX([self visibleRect]) - OVERLAY_ICON_RIGHT_PADDING;
     for (id icon in mOverlayIcons)
     {
       if ([icon isKindOfClass: [NSImage class]])
       {
         NSSize size = [icon size];
-        x -= size.width + 4;
+        x -= size.width + OVERLAY_ICON_SPACING;
       }
     }
 
@@ -895,14 +943,14 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
       if ([icon isKindOfClass: [NSImage class]])
       {
         NSSize size = [icon size];
-        [(NSImage*)icon drawInRect: NSMakeRect(x, NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2,
+        [(NSImage*)icon drawInRect: NSMakeRect(floor(x), floor(NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2),
                                                size.width, size.height)
                           fromRect: NSZeroRect
                          operation: NSCompositeSourceOver
                           fraction: mOverOverlay == i ? 1.0 : 0.4
                     respectFlipped: YES
                              hints: nil];
-        x += size.width + 4;
+        x += size.width + OVERLAY_ICON_SPACING;
       }
       i++;
     }
@@ -969,8 +1017,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
     rect.size= [NSScrollView contentSizeForFrameSize:[self frame].size hasHorizontalScroller:YES hasVerticalScroller:YES
                                           borderType:NSBezelBorder];
 
-    // TODO: might be worth making this not auto released but release it manually so we can control when it goes.
-    mOutline= [[[TreeNodeViewOutlineView alloc] initWithFrame: rect owner: mOwner] autorelease];
+    mOutline= [[TreeNodeViewOutlineView alloc] initWithFrame: rect owner: mOwner];
 
     [self setDocumentView: mOutline];
     [mOutline setColumnAutoresizingStyle: NSTableViewLastColumnOnlyAutoresizingStyle];
@@ -988,6 +1035,11 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
   return self;
 }
 
+- (void)destroy
+{
+  mOwner = nil;
+  [self autorelease];
+}
 
 - (void)enableIndexing
 {
@@ -998,10 +1050,13 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 - (void) dealloc
 {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
+
   // Setting nil is necessary since there are still datasouce and delegate messages comming in after dealloc.
   // Might become unnecessary if we don't auto release mOutline.
   [mOutline setDataSource: nil];
   [mOutline setDelegate: nil];
+  [mOutline release];
+  
   mTagMap.clear();
   [mAttributedFonts release];
   [mColumnKeys release];
@@ -1042,6 +1097,12 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 - (void)setEnabled:(BOOL)flag
 {
   [mOutline setEnabled: flag];
+}
+
+
+- (BOOL)isEnabled
+{
+  return [mOutline isEnabled];
 }
 
 
@@ -1161,7 +1222,7 @@ STANDARD_MOUSE_HANDLING_NO_RIGHT_BUTTON(self) // Add handling for mouse events.
 
 
 - (void) outlineView: (NSOutlineView *) outlineView
-didClickTableColumn: (NSTableColumn *) tableColumn
+ didClickTableColumn: (NSTableColumn *) tableColumn
 {
   if (mSortColumnEnabled)
   {
@@ -1283,6 +1344,9 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (BOOL)outlineView: (NSOutlineView *)outlineView isItemExpandable: (id)item
 {
+  if (mOwner == nil)
+    return NO;
+  
   if (item)
   {
     MFTreeNodeImpl *node = (MFTreeNodeImpl *)item;
@@ -1304,6 +1368,9 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)outlineViewItemDidExpand: (NSNotification *)notification
 {
+  if (mOwner == nil)
+    return;
+
   // Tell the backend now would be a good time to add child nodes if not yet done.
   try
   {
@@ -1319,6 +1386,9 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)outlineViewItemDidCollapse:(NSNotification *)notification
 {
+  if (mOwner == nil)
+    return;
+
   try
   {
     MFTreeNodeImpl *node = [[notification userInfo] objectForKey: @"NSObject"];
@@ -1340,27 +1410,59 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 {
   if ([cell isKindOfClass: [MTextImageCell class]])
     [cell setImage: [item objectForKey: [[tableColumn identifier] stringByAppendingString: @"icon"]]];
-  
-  NSString *attributes = [item objectForKey: [[tableColumn identifier] stringByAppendingString: @"attrs"]];
-  if (attributes)
-  {
-    NSFont *font = [mAttributedFonts objectForKey: attributes];
-    if (!font)
-    {
-      int traits = 0;
-      if ([attributes rangeOfString: @"b"].length > 0)
-        traits |= NSBoldFontMask;
-      if ([attributes rangeOfString: @"i"].length > 0)
-        traits |= NSItalicFontMask;
 
-      font = [[NSFontManager sharedFontManager] convertFont: [[[[tableColumn dataCell] font] copy] autorelease]
-                                                toHaveTrait: traits];
-      [mAttributedFonts setObject: font forKey: attributes];
+  BOOL canSetColor = [cell respondsToSelector: @selector(setTextColor:)];
+
+  NSString *attributes = [item objectForKey: [[tableColumn identifier] stringByAppendingString: @"attrs"]];
+  if (attributes.length > 0)
+  {
+    NSString *fontKey = attributes;
+    NSRange range = [attributes rangeOfString: @"#"];
+    if (range.length > 0 && canSetColor)
+    {
+      fontKey = [fontKey substringToIndex: range.location];
+      if (![cell isHighlighted])
+      {
+        NSColor *color = [NSColor colorFromHexString: [attributes substringWithRange: NSMakeRange(range.location, 7)]];
+        [cell setTextColor: color];
+      }
+      else
+        [cell setTextColor: NSColor.whiteColor];
     }
-    [cell setFont: font];
+
+    if (fontKey.length > 0)
+    {
+      NSFont *font = [mAttributedFonts objectForKey: fontKey];
+      if (!font)
+      {
+        int traits = 0;
+        if ([attributes rangeOfString: @"b"].length > 0)
+          traits |= NSBoldFontMask;
+        if ([attributes rangeOfString: @"i"].length > 0)
+          traits |= NSItalicFontMask;
+
+        font = [[NSFontManager sharedFontManager] convertFont: [[[[tableColumn dataCell] font] copy] autorelease]
+                                                  toHaveTrait: traits];
+        [mAttributedFonts setObject: font forKey: fontKey];
+      }
+      [cell setFont: font];
+    }
+    else
+      [cell setFont: [mAttributedFonts objectForKey: @""]];
   }
   else
+  {
     [cell setFont: [mAttributedFonts objectForKey: @""]];
+
+    // Restore default colors. The outline doesn't seem to auto reset.
+    if (canSetColor)
+    {
+      if (![cell isHighlighted])
+        [cell setTextColor: NSColor.controlTextColor];
+      else
+        [cell setTextColor: NSColor.whiteColor];
+    }
+  }
 }
 
 - (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
@@ -1382,7 +1484,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification
 {
-  if (![self frozen])
+  if (mOwner != nil && ![self frozen])
     mOwner->changed();
 }
 
@@ -1398,17 +1500,39 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)outlineViewColumnDidResize:(NSNotification *)notification
 {
+  if (mOwner == nil)
+    return;
+
   mOwner->column_resized([[mOutline headerView] resizedColumn]);
 }
 
 #pragma mark - Drag'n drop
 
+/**
+ * We need to redirect drop format registration from this (container) view to the actual drop target
+ * (the wrapped outline).
+ */
+- (NSArray *)acceptableDropFormats
+{
+  return mOutline.acceptableDropFormats;
+}
+
+- (void)setAcceptableDropFormats: (NSArray *)formats
+{
+  mOutline.acceptableDropFormats = formats;
+}
+
+/**
+ * Called when the outline view starts dragging implicitly (not via our drag_data or drag_text methods in MFView).
+ */
 - (BOOL)outlineView: (NSOutlineView *)outlineView
          writeItems: (NSArray *)items
        toPasteboard: (NSPasteboard *)pboard
 {
   if (!mCanBeDragSource)
     return NO;
+
+  self.lastDropPosition = mforms::DropPositionUnknown;
 
   // First write a special datatype for row reordering if enabled. This is the preferred type in that case.
   if (mCanReorderRows && [items count] == 1)
@@ -1424,13 +1548,18 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
   std::string format;
   mDraggedNodes = items; // Will be queried when the backend wants to have the current selection.
   if (mOwner->get_drag_data(details, &data, format))
+  {
     [pboard writeNativeData: data typeAsChar: format.c_str()];
+    self.allowedDragOperations = details.allowedOperations;
+  }
   else
   {
+    self.allowedDragOperations = mforms::DragOperationCopy;
     [pboard addTypes: @[NSPasteboardTypeString] owner: self];
 
-    // Further add string expressions for the selected nodes so we can drag their text to other controls.
-    // TODO: move this to the schema tree. It's too specific to be here (same for other platforms).
+    // If the tree is enabled as drag source but no custom format is given then we implictely take this as sign
+    // to allow dragging text (not only related to the schema tree). This is to ease cases where we just want
+    // node captions to be dragged around.
     NSString *text = @"";
     for (MFTreeNodeImpl *node in items)
     {
@@ -1451,28 +1580,48 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
                   proposedItem: (id)item
             proposedChildIndex: (NSInteger)index
 {
-  NSDragOperation op = NSDragOperationNone;
+  if (item == nil) // nil is passed in sometimes even if a node is hit.
+    return NSDragOperationNone;
 
-  if (mCanReorderRows)
+  // There are only 2 possible drop positions in an outline view: on and above.
+  // Except if the given index is beyond the item's last child.
+  if (index == -1)
+    self.lastDropPosition = mforms::DropPositionOn;
+  else
   {
-    NSPasteboard *pb = [info draggingPasteboard];
-    NSData *data = [pb dataForType: RowReorderPasteboardDatatype];
-    NSAssert((data != nil), @"Drag flavour was not found.");
+    if (index == [[item children] count])
+      self.lastDropPosition = mforms::DropPositionBottom;
+    else
+      self.lastDropPosition = mforms::DropPositionTop;
+  }
 
-    NSArray *indexes = [NSKeyedUnarchiver unarchiveObjectWithData: data];
-    NSInteger oldIndex = [indexes.lastObject integerValue];
+  NSDragOperation op = [self draggingUpdated: info];
 
-    // Right now only allow reordering flat lists, not trees.
-    if (oldIndex != index && item == nil)
+  if (op != NSDragOperationNone)
+  {
+    [mOutline setDropItem: item dropChildIndex: index];
+  }
+  else
+    if (mCanReorderRows)
     {
-      item= mRootNode;
-      if (index < (int)[[item children] count])
+      NSPasteboard *pb = [info draggingPasteboard];
+      NSData *data = [pb dataForType: RowReorderPasteboardDatatype];
+      NSAssert((data != nil), @"Drag flavour was not found.");
+
+      NSArray *indexes = [NSKeyedUnarchiver unarchiveObjectWithData: data];
+      NSInteger oldIndex = [indexes.lastObject integerValue];
+
+      // Right now only allow reordering flat lists, not trees.
+      if (oldIndex != index && item == nil)
       {
-        [outlineView setDropItem: nil dropChildIndex: index];
-        op = NSDragOperationMove;
+        item= mRootNode;
+        if (index < (int)[[item children] count])
+        {
+          [outlineView setDropItem: nil dropChildIndex: index];
+          op = NSDragOperationMove;
+        }
       }
     }
-  }
 
   return op;
 }
@@ -1482,32 +1631,40 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
                item: (id)item
          childIndex: (NSInteger)index
 {
-  NSPasteboard* pb = [info draggingPasteboard];
-  NSData *data = [pb dataForType: RowReorderPasteboardDatatype];
-  NSAssert((data != nil), @"Drag flavour was not found.");
+  if ([self performDragOperation: info])
+    return YES;
 
-  NSArray *indexes = [NSKeyedUnarchiver unarchiveObjectWithData: data];
-  NSInteger oldIndex = [indexes.lastObject integerValue];
-
-  if (index != oldIndex)
+  if (mCanReorderRows)
   {
-    if (item == nil)
-      item = mRootNode;
-    NSMutableArray *list = [item objectForKey: @"children"];
-    id draggedItem = [list objectAtIndex: oldIndex];
+    NSPasteboard* pb = [info draggingPasteboard];
+    NSData *data = [pb dataForType: RowReorderPasteboardDatatype];
+    NSAssert((data != nil), @"Drag flavour was not found.");
 
-    [list removeObjectAtIndex: oldIndex];
-    if (index < 0)
-      [list addObject: draggedItem];
-    else
-      if (index < oldIndex)
-        [list insertObject: draggedItem atIndex: index];
+    NSArray *indexes = [NSKeyedUnarchiver unarchiveObjectWithData: data];
+    NSInteger oldIndex = [indexes.lastObject integerValue];
+
+    if (index != oldIndex)
+    {
+      if (item == nil)
+        item = mRootNode;
+      NSMutableArray *list = [item objectForKey: @"children"];
+      id draggedItem = [list objectAtIndex: oldIndex];
+
+      [list removeObjectAtIndex: oldIndex];
+      if (index < 0)
+        [list addObject: draggedItem];
       else
-        [list insertObject: draggedItem atIndex: index-1];
-
-    [outlineView reloadData];
+        if (index < oldIndex)
+          [list insertObject: draggedItem atIndex: index];
+        else
+          [list insertObject: draggedItem atIndex: index-1];
+      
+      [outlineView reloadData];
+    }
+    return YES;
   }
-  return YES;
+
+  return NO;
 }
 
 - (void)setUseSmallFont: (BOOL)flag
@@ -1532,7 +1689,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize
 {
-  if (!mOwner->is_destroying())
+  if (mOwner != nil && !mOwner->is_destroying())
   {
     [super resizeSubviewsWithOldSize: oldSize];
     NSArray *columns = [mOutline tableColumns];
@@ -1566,17 +1723,14 @@ static bool treeview_create(mforms::TreeNodeView *self, mforms::TreeOptions opti
   {
     tree->mCanBeDragSource = YES;
 
-    [tree->mOutline setDraggingSourceOperationMask: NSDragOperationCopy forLocal: NO];
-
     // For row-reordering register also as drag target.
     if (options & mforms::TreeAllowReorderRows)
     {
       tree->mCanReorderRows = YES;
       [tree->mOutline registerForDraggedTypes: @[RowReorderPasteboardDatatype]];
-      [tree->mOutline setDraggingSourceOperationMask: NSDragOperationMove | NSDragOperationCopy forLocal: YES];
     }
-    else
-      [tree->mOutline setDraggingSourceOperationMask: NSDragOperationCopy forLocal: YES];
+    [tree->mOutline setDraggingSourceOperationMask: NSDragOperationCopy forLocal: NO];
+    [tree->mOutline setDraggingSourceOperationMask: NSDragOperationMove | NSDragOperationCopy forLocal: YES];
   }
   
   if (options & mforms::TreeNoHeader)
@@ -1662,19 +1816,25 @@ static mforms::TreeNodeRef treeview_root_node(mforms::TreeNodeView *self)
 
 static mforms::TreeNodeRef treeview_get_selected(mforms::TreeNodeView *self)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeNodeViewImpl *tree = self->get_data();
   if (tree)
   {
-    int row = [tree->mOutline selectedRow];
-    if (row >= 0)
-      return [[tree->mOutline itemAtRow: row] nodeRef];
+    NSArray *draggedNodes = tree->mDraggedNodes;
+    if (draggedNodes.count > 0)
+      return [[draggedNodes objectAtIndex: 0] nodeRef];
+    else
+    {
+      int row = [tree->mOutline selectedRow];
+      if (row >= 0)
+        return [[tree->mOutline itemAtRow: row] nodeRef];
+    }
   }
   return mforms::TreeNodeRef();
 }
 
 static std::list<mforms::TreeNodeRef> treeview_get_selection(mforms::TreeNodeView *self)
 {
-  MFTreeNodeViewImpl *tree= self->get_data();
+  MFTreeNodeViewImpl *tree = self->get_data();
   std::list<mforms::TreeNodeRef> selection;
   if (tree)
   {
@@ -1898,7 +2058,6 @@ static mforms::TreeNodeRef find_node_at_row(mforms::TreeNodeRef node, int &row_c
   return res;
 }
 
-
 static mforms::TreeNodeRef treeview_node_with_tag(mforms::TreeNodeView *self, const std::string &tag)
 {
   MFTreeNodeViewImpl *tree= self->get_data();
@@ -1935,12 +2094,26 @@ static mforms::TreeNodeRef treeview_node_at_row(mforms::TreeNodeView *self, int 
     {
       if ([tree isPendingReload])
         [tree reloadTreeData];
-        
+
       id n = [tree->mOutline itemAtRow: row];
       if (n)
         return [n nodeRef];
     }
   }
+  return mforms::TreeNodeRef();
+}
+
+mforms::TreeNodeRef treeview_node_at_position(mforms::TreeNodeView *self, base::Point position)
+{
+  MFTreeNodeViewImpl *tree = self->get_data();
+  NSInteger row = [tree->mOutline rowAtPoint: NSMakePoint(position.x, position.y)];
+  if (row < 0)
+    return mforms::TreeNodeRef();
+
+  id item = [tree->mOutline itemAtRow: row];
+  if (item != nil)
+    return [item nodeRef];
+  
   return mforms::TreeNodeRef();
 }
 
@@ -2013,6 +2186,7 @@ void cf_treenodeview_init()
   
   f->_treenodeview_impl.row_for_node = &treeview_row_for_node;
   f->_treenodeview_impl.node_at_row = &treeview_node_at_row;
+  f->_treenodeview_impl.node_at_position = &treeview_node_at_position;
   f->_treenodeview_impl.node_with_tag = &treeview_node_with_tag;
 
   f->_treenodeview_impl.set_column_visible = &treeview_set_column_visible;

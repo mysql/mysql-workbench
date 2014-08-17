@@ -215,7 +215,7 @@ Required for FreeTDS.</value>
         <value type="string" key="caption">ODBC (native)</value>
         <value type="string" key="description">Use the Native Sybase ASE ODBC driver</value>
         <value type="string" key="driverLibraryName">pyodbc</value>
-        <value type="string" key="connectionStringTemplate">DRIVER={%driver%};SERVER=%server%;DATABASE=%schema%;PORT=%port%;UID=%userName%;PWD={%password%};%extras%</value>
+        <value type="string" key="connectionStringTemplate">DRIVER={%driver%};SERVER=%hostName%;DATABASE=%schema%;PORT=%port%;UID=%userName%;PWD={%password%};%extras%</value>
 
         <value  type="list" content-type="string" key="files">
           <!--value type="string">libmysql.dll</value-->

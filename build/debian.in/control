@@ -2,23 +2,18 @@ Source: mysql-workbench
 Section: utils
 Priority: extra
 Maintainer: MySQL Workbench team <workbench@sun.com>
-Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-2.4-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python-dev (>= 2.5), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, libctemplate-dev, cmake, libtinyxml-dev, swig (>= 1.3)
+Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-2.4-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python-dev (>= 2.5), libgnome-keyring-dev, libsqlite3-dev, libboost-dev, xdg-utils, libctemplate-dev, cmake, libtinyxml-dev, swig (>= 1.3), libproj-dev
 Standards-Version: 3.7.2
 Homepage: http://dev.mysql.com/workbench/
 
+Package: mysql-workbench-@edition@
 @ifdef community
-Package: mysql-workbench-community
-Replaces: mysql-workbench-gpl, mysql-workbench-oss
+Replaces: mysql-workbench-gpl, mysql-workbench-oss, mysql-workbench, mysql-workbench-data
 @else
-Package: mysql-workbench-commercial
+Replaces: mysql-workbench-com-se, mysql-workbench, mysql-workbench-community, mysql-workbench-data
 @endif
+Depends: ${shlibs:Depends}, python-paramiko
 Architecture: i386 amd64
-@ifdef community
-Depends: ${shlibs:Depends}, python-paramiko, python-pexpect, python-pysqlite2, mysql-client|virtual-mysql-client
-@else
-Replaces: mysql-workbench-com-se
-Depends: ${shlibs:Depends}, python-paramiko, python-pysqlite2, mysql-client|virtual-mysql-client
-@endif
 Suggests: gnome-keyring
 Description: MySQL Workbench
  MySQL Workbench is development, administration and data modeling tool

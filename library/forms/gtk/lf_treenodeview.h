@@ -114,6 +114,7 @@ private:
     void format_tri_check(Gtk::CellRenderer* cell, const Gtk::TreeIter& iter, const Gtk::TreeModelColumn<int>& column);
   };
 
+  bool _is_drag_source;
   ColumnRecord _columns;
   
 
@@ -161,6 +162,7 @@ private:
   void on_collapsed(const Gtk::TreeModel::iterator& iter, const Gtk::TreeModel::Path& path);
   void on_realize();
   bool on_header_button_event(GdkEventButton *ev, int);
+  bool on_key_release(GdkEventKey *ev);
   bool on_button_event(GdkEventButton *ev);
   bool on_button_release(GdkEventButton* ev);
   bool on_motion_notify(GdkEventMotion* ev);
@@ -198,8 +200,10 @@ private:
   static void set_column_visible(TreeNodeView* self, int column, bool flag);
   static bool get_column_visible(TreeNodeView* self, int column);
   static void set_column_title(TreeNodeView* self, int column, const std::string &title);
+
   static void set_column_width(TreeNodeView* self, int column, int width);
   static int get_column_width(TreeNodeView* self, int column);
+  static TreeNodeRef node_at_position(TreeNodeView* self, base::Point position);
 
 
   Gtk::TreeModel::iterator to_list_iter(const Gtk::TreeModel::iterator &it);
@@ -209,8 +213,11 @@ private:
 
   void header_clicked(Gtk::TreeModelColumnBase*, Gtk::TreeViewColumn*);
 
+
   virtual void set_back_color(const std::string &color);
 
+protected:
+  mforms::DropPosition get_drop_position();
 public:
   static void init();
 

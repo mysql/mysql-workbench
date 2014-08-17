@@ -117,9 +117,7 @@ class MySQLScriptImporter(object):
                 params.append("--ssl-key=%s" % conn["sslKey"])
             if conn.get("sslCipher", ""):
                 params.append("--ssl-cipher=%s" % conn["sslCipher"])
-        params += ["--user=" + conn["userName"],
-                   "--default-character-set=utf8"
-                   ]
+        params += ["--user=" + conn["userName"]]
         self._connection_params = params
 
 
@@ -139,11 +137,10 @@ class MySQLScriptImporter(object):
         print text
 
 
-    def import_script(self, path, default_schema=None):
+    def import_script(self, path, default_schema=None, default_charset="utf8"):
         if not self._tool_path:
             raise RuntimeError("mysql command line client not found. Please fix its path in Preferences -> Administration")
-        
-        
+
         is_windows = platform.system() == 'Windows'
         
         if is_windows:
@@ -159,6 +156,8 @@ class MySQLScriptImporter(object):
             os.mkfifo(pwdfilename)
         params.append('--defaults-extra-file=' + pwdfilename)
 
+        if default_charset:
+            params.append("--default-character-set=%s" % default_charset)
         params += self._connection_params
         params += self._extra_params
 
@@ -182,9 +181,9 @@ class MySQLScriptImporter(object):
 
             # in !Windows feed password to client after it's started (otherwise the fifo would block on open for writing)
             pwdfile = open(pwdfilename, 'w')
-            pwdfile.write('[client]\npassword="')
+            pwdfile.write('[client]\npassword=')
             pwdfile.write(self._password.replace("\\", "\\\\"))
-            pwdfile.write('"')
+            pwdfile.write('\n')
             pwdfile.close()
 
             if is_windows:
@@ -238,6 +237,9 @@ class MySQLScriptImporter(object):
                     if e.errno == 32: # broken pipe
                         log_error("Broken pipe from child process\n")
                         break
+                    elif e.errno == 22: # invalid argument (happens in Windows, when child process just dies)
+                      log_error("Broken pipe from child process\n")
+                      break
                     raise e
                 self.report_progress(None, processed, total_size)
                 
@@ -271,7 +273,7 @@ class MySQLScriptImporter(object):
             if exitcode != 0:
                 self.report_progress("Operation failed with exitcode " + str(exitcode), None, None)
             else:
-                self.report_progress("Operation completed", None, None)
+                self.report_progress("Operation completed successfully", None, None)
             
             return exitcode
         finally:

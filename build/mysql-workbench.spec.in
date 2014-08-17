@@ -31,6 +31,8 @@
 %define vsqlite_dir      $HOME/linux-res-6.2/vsqlite
 %define ctemplate_dir    $HOME/linux-res-6.2
 
+%define gdal_dir         $HOME/linux-res-6.2/gdal
+
 %if "%{edition}" == "commercial"
 %define commercial       1
 %define mysqlcppconn_dir $HOME/linux-res-6.2/cppconn-com
@@ -76,6 +78,7 @@ BuildRequires: make
 BuildRequires: tar
 BuildRequires: gcc-c++
 BuildRequires: swig >= 1.3
+BuildRequires: proj-devel
 
 %if 0%{?fedora} >= 18
 BuildRequires: libgnome-keyring-devel libuuid-devel tinyxml-devel vsqlite++-devel ctemplate-devel
@@ -91,6 +94,8 @@ Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 
 Requires: python-paramiko
 Requires: gnome-keyring
+
+Requires: gtk2 >= 2.20
 
 # our old package names
 Obsoletes: mysql-workbench < 6.1
@@ -111,18 +116,24 @@ Conflicts: mysql-workbench-commercial
 # Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering
 %if 0%{?fedora}
 %if 0%{?commercial}
-%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlide|wbbase|wbpublic|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient|sqlite3)\\.so.*$
+%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlparser|sqlide|wbbase|wbpublic|wbprivate|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient|gdal|sqlite3)\\.so.*$
+%global __requires_exclude %{__requires_exclude}|db.*)\\.so.*$
+%global __requires_exclude %{__requires_exclude}|wb.*)\\.so.*$
 %else
-%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlide|wbbase|wbpublic|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient)\\.so.*$
+%global __requires_exclude ^lib(antlr3c_wb|cdbc|grt|linux_utilities|mdcanvasgtk|mdcanvas|mforms|mysqlparser|sqlparser|sqlide|wbbase|wbpublic|wbprivate|wbscintilla|mysqlcppconn|iodbc|iodbcadm|iodbcinst|mysqlclient|gdal|wb.*|db.*)\\.so.*$
+%global __requires_exclude %{__requires_exclude}|db.*)\\.so.*$
+%global __requires_exclude %{__requires_exclude}|wb.*)\\.so.*$
 %endif
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*|%{_libdir}/mysql/libmysqlclient\\.so.*|%{mysqlcppconn_dir}/lib/libmysqlcppconn\\.so.*|%{odbc_home}/lib/libiodbc\\.so.*)$
 %endif
 
-%if 0%{?rhel} == 6
+%if 0%{?rhel}
 %{?filter_setup:
   %filter_provides_in %{_libdir}/mysql/libmysqlclient/.*\.so.*$
   %filter_provides_in %{mysqlcppconn_dir}/lib/libmysqlcppconn/.*\.so.*$
   %filter_provides_in %{_libdir}/mysql.workbench/.*\.so.*$
+  %filter_requires_in %{_libdir}/mysql.workbench/modules/.*\.so.*$
+  %filter_requires_in %{_libdir}/mysql.workbench/plugins/.*\.so.*$
   %filter_from_requires /libantlr3c_wb/d
   %filter_from_requires /libcdbc/d
   %filter_from_requires /libgrt/d
@@ -131,9 +142,11 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libmdcanvas/d
   %filter_from_requires /libmforms/d
   %filter_from_requires /libmysqlparser/d
+  %filter_from_requires /libsqlparser/d
   %filter_from_requires /libsqlide/d
   %filter_from_requires /libwbbase/d
   %filter_from_requires /libwbpublic/d
+  %filter_from_requires /libwbprivate/d
   %filter_from_requires /libwbscintilla/d
   %filter_from_requires /libmysqlcppconn/d
   %filter_from_requires /libiodbc/d
@@ -142,6 +155,7 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libctemplate/d
   %filter_from_requires /libvsqlitepp/d
   %filter_from_requires /libmysqlclient/d
+  %filter_from_requires /libgdal/d
   %{?commercial:%filter_from_requires /libsqlite3/d}
   %filter_setup
 }
@@ -168,6 +182,7 @@ Windows, Linux and Mac OS X.
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
        -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
+       -DGDAL_INCLUDE_DIR=%{gdal_dir}/include -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
 %if 0%{?rhel} == 6
        -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
@@ -221,6 +236,7 @@ if [ %{linuxres_home} ]; then
 %endif
 fi
 
+cp -a %{gdal_dir}/lib/libgdal.so.* %{buildroot}%{_libdir}/mysql-workbench/
 
 %post
 touch --no-create %{_datadir}/icons/hicolor || :

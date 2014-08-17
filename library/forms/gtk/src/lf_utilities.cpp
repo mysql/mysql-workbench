@@ -270,13 +270,15 @@ static base::Mutex timeout_mutex;
 
 inline bool run_slot(const boost::function<bool ()> slot, TimeoutHandle handle)
 {
+  if (!slot())
   {
     base::MutexLock lock(timeout_mutex);
     std::map<TimeoutHandle, sigc::connection>::iterator it;
     if ((it = timeouts.find(handle)) != timeouts.end())
       timeouts.erase(it);
+    return false;
   }
-  return slot();
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -812,6 +814,11 @@ void UtilitiesImpl::set_thread_name(const std::string &name)
 #endif
 }
 
+void UtilitiesImpl::beep()
+{
+  get_mainwindow()->get_window()->beep();
+}
+
 //------------------------------------------------------------------------------
 
 
@@ -909,6 +916,7 @@ void UtilitiesImpl::init()
   f->_utilities_impl.reveal_file= &UtilitiesImpl::reveal_file;
   f->_utilities_impl.perform_from_main_thread = &MainThreadRequestQueue::perform;
   f->_utilities_impl.set_thread_name = &UtilitiesImpl::set_thread_name;
+  f->_utilities_impl.beep = &UtilitiesImpl::beep;
 
   MainThreadRequestQueue::get(); // init from main thread
 }

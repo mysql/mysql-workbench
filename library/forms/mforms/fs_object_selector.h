@@ -22,8 +22,7 @@
  * drive etc.
  */
 
-#ifndef _FS_OBJECT_SELECTOR_H_
-#define _FS_OBJECT_SELECTOR_H_
+#pragma once
 
 #include "mforms/label.h"
 #include "mforms/box.h"
@@ -79,5 +78,3 @@ namespace mforms {
   };
   
 }
-
-#endif // _FS_OBJECT_SELECTOR_H_

@@ -359,10 +359,40 @@ void WBContextUI::show_home_screen()
     menu->add_item(_("Move Up"), "move_connection_up");
     menu->add_item(_("Move Down"), "move_connection_down");
     menu->add_item(_("Move To End"), "move_connection_to_end");
+    menu->add_separator();
+    {
+      std::list<std::string> groups;
+      bec::ArgumentPool argument_pool;
+      _wb->update_plugin_arguments_pool(argument_pool);
+
+      argument_pool.add_simple_value("selectedGroupName", grt::StringRef(""));
+      groups.push_back("Menu/Home/ConnectionGroup");
+      bec::MenuItemList pitems = _wb->get_grt_manager()->get_plugin_context_menu_items(groups, argument_pool);
+      if (!pitems.empty())
+      {
+        menu->add_items_from_list(pitems);
+        menu->add_separator();
+      }
+    }
     menu->add_item(_("Delete Group..."), "delete_connection_group");
 
     _home_screen->set_menu(menu, HomeMenuConnectionGroup);
 
+    menu = mforms::manage(new mforms::Menu());
+    menu->add_item(_("Move To Top"), "move_connection_to_top");
+    menu->add_item(_("Move Up"), "move_connection_up");
+    menu->add_item(_("Move Down"), "move_connection_down");
+    menu->add_item(_("Move To End"), "move_connection_to_end");
+
+    menu->add_separator();
+    menu->add_item(_("Edit Connection..."), "edit_connection");
+    menu->add_item(_("Delete Connection..."), "delete_fabric_connection");
+
+    menu->add_separator();
+    menu->add_item(_("Delete Connections to Managed Servers..."), "delete_fabric_connection_servers");
+
+    _home_screen->set_menu(menu, HomeMenuConnectionFabric);
+    
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Open Model"), "open_model_from_list");
     {
@@ -413,7 +443,7 @@ void WBContextUI::show_home_screen()
   try
   {
     refresh_home_documents();
-    refresh_home_connections();
+    refresh_home_connections(true);
     refresh_home_starters();
   }
   catch (const std::exception *exc)
@@ -436,13 +466,8 @@ void WBContextUI::show_home_screen()
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Called when the home screen is closed by the UI. We have to clear our reference then.
- */
 bool WBContextUI::home_screen_closing()
 {  
-  if (_home_screen)
-    _home_screen->release();
   _home_screen = NULL;
   return true;
 }
@@ -471,40 +496,11 @@ void WBContextUI::home_action_callback(HomeScreenAction action, const grt::Value
  */
 void WBContextUI::remove_connection(const db_mgmt_ConnectionRef &connection)
 {
-  grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-  grt::ListRef<db_mgmt_ServerInstance> instances = _wb->get_root()->rdbmsMgmt()->storedInstances();
+  grt::GRT *grt = connection->get_grt();
+  grt::BaseListRef args(grt);
+  args->insert_unchecked(connection);
 
-  // Remove all associated server instances.
-  for (ssize_t i = instances.count() - 1; i >= 0; --i)
-  {
-    db_mgmt_ServerInstanceRef instance(instances[i]);
-    if (instance->connection() == connection)
-      instances->remove(i);
-  }
-
-  // Remove password associated with this connection (if stored in keychain/vault). Check first
-  // this service/username combination isn't used anymore by other connections.
-  bool credentials_still_used = false;
-  grt::DictRef parameter_values = connection->parameterValues();
-  std::string host = connection->hostIdentifier();
-  std::string user = parameter_values.get_string("userName");
-  for (grt::ListRef<db_mgmt_Connection>::const_iterator i = connections.begin();
-    i != connections.end(); ++i)
-  {
-    if (*i != connection)
-    {
-      grt::DictRef current_parameters = (*i)->parameterValues();
-      if (host == *(*i)->hostIdentifier() && user == current_parameters.get_string("userName"))
-      {
-        credentials_still_used = true;
-        break;
-      }
-    }
-  }
-  if (!credentials_still_used)
-    mforms::Utilities::forget_password(host, user);
-
-  connections->remove(connection);
+  grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnection", args);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -515,16 +511,40 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
   {
     handle_home_action(ActionOpenConnectionFromList, object);
   }
-  else if (action == "delete_connection")
+  else if (action == "delete_connection" || action == "delete_fabric_connection" || action == "delete_fabric_connection_servers")
   {
     db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
     
     std::string name = connection->name();
-    std::string text= strfmt(_("Do you want to delete connection %s?"), name.c_str());
-    int answer = Utilities::show_warning(_("Delete Connection"), text,  _("Delete"), _("Cancel"));
+    std::string title;
+    std::string warning;
+
+    if (action == "delete_fabric_connection_servers")
+    {
+      title = _("Delete Managed Server Connections");
+      warning = strfmt(_("Do you really want to delete managed server connections on this fabric node: %s?"), name.c_str());
+    }
+    else
+    {
+      title = _("Delete Connection");
+      warning = strfmt(_("Do you want to delete connection %s?"), name.c_str());
+    }
+
+    int answer = Utilities::show_warning(title, warning,  _("Delete"), _("Cancel"));
     if (answer == mforms::ResultOk)
     {
-      remove_connection(connection);
+      // In case it is not a single connection, implies it is a fabric connection and we need to
+      // delete the connections to the managed servers
+      if (action != "delete_connection")
+      {
+        handle_home_context_menu(grt::StringRef(name), "internal_delete_connection_group");
+        connection->parameterValues().set("connections_created", grt::IntegerRef(0));
+      }
+
+      // Connection is not deleted when we are just deleting the children of a fabric connection
+      if (action != "delete_fabric_connection_servers")
+        remove_connection(connection);
+
       refresh_home_connections();
     }
   }
@@ -538,28 +558,26 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     // with the name of the group. For connections it's the connection ref.
     // Similar for the other move_* actions.
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(MoveTop, connections, object);
-    refresh_home_connections();
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveTop);
+    refresh_home_connections(false, false);
   }
   else if (action == "move_connection_up")
   {
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(MoveUp, connections, object);
-    refresh_home_connections();
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveUp);
+    refresh_home_connections(false, false);
   }
   else if (action == "move_connection_down")
   {
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(MoveDown, connections, object);
-
-    refresh_home_connections();
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveDown);
+    refresh_home_connections(false, false);
   }
   else if (action == "move_connection_to_end")
   {
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
-    bec::move_list_ref_item<db_mgmt_Connection>(MoveBottom, connections, object);
-
-    refresh_home_connections();
+    bec::move_list_ref_item<db_mgmt_Connection>(connections, object, MoveBottom);
+    refresh_home_connections(false, false);
   }
   else if (action == "move_connection_to_group")
   {
@@ -581,34 +599,30 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
       refresh_home_connections();
     }
   }
-  else if (action == "delete_connection_group")
+  else if (action == "delete_connection_group" || action == "internal_delete_connection_group")
   {
     std::string group = object.repr();
-    std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), group.c_str());
-    int answer = Utilities::show_warning(_("Delete Connection Group"), text,  _("Delete"), _("Cancel"));
+    int answer = mforms::ResultOk;
+    
+
+    // Internal deletion does not require the prompt
+    if (action == "delete_connection_group")
+    {
+      std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), base::left(group, group.length() -1).c_str());
+      answer = Utilities::show_warning(_("Delete Connection Group"), text,  _("Delete"), _("Cancel"));
+    }
+    
     if (answer == mforms::ResultOk)
     {
-      group += "/";
-      size_t group_length = group.length();
+      grt::GRT *grt = _wb->get_grt();
+      grt::BaseListRef args(grt);
+      args->insert_unchecked(object);
 
-      std::vector<db_mgmt_ConnectionRef> candidates;
-      grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
+      grt::ValueRef result = grt->call_module_function("Workbench", "deleteConnectionGroup", args);
 
-      ssize_t index = connections.count() - 1;
-      while (index >= 0)
-      {
-        std::string name = connections[index]->name();
-
-        if (name.compare(0, group_length, group) == 0)
-          candidates.push_back(connections[index]);
-
-        index--;
-      }
-
-      for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = candidates.begin();
-        iterator != candidates.end(); ++iterator)
-        remove_connection(*iterator);
-      refresh_home_connections();
+      // Internal deletion does not require the UI update
+      if (action == "delete_connection_group")
+        refresh_home_connections();
     }
   }
   else if (action == "delete_connection_all")
@@ -708,7 +722,11 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     else
       if (grt::StringRef::can_wrap(object))
       {
-        argument_pool.add_simple_value("selectedModelFile", grt::StringRef::cast_from(object));
+        grt::StringRef arg(grt::StringRef::cast_from(object));
+        if (has_suffix(arg, ".mwb"))
+          argument_pool.add_simple_value("selectedModelFile", arg); // assume a model file
+        else
+          argument_pool.add_simple_value("selectedGroupName", arg); // assume a connection group name
         get_command_ui()->activate_command(action, argument_pool);
       }
       else // Any other command.
@@ -778,7 +796,8 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       if (object.is_valid())
       {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-        _wb->show_status_text("Opening SQL Editor...");          
+
+        _wb->show_status_text("Opening SQL Editor...");
         _wb->add_new_query_window(connection);
       }
       _processing_action_open_connection = false;
@@ -834,12 +853,12 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
       grt::DictRef dict = grt::DictRef::cast_from(object);
-      ssize_t to = grt::IntegerRef::cast_from(dict["to"]);
+      int to = grt::IntegerRef::cast_from(dict["to"]);
       if (db_mgmt_ConnectionRef::can_wrap(dict["object"]))
       {
         db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(dict["object"]);
         move_list_ref_item<db_mgmt_Connection>(connections, connection, to);
-        refresh_home_connections();
+        refresh_home_connections(false, false);
       }
       else
       {
@@ -847,7 +866,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
         {
           grt::StringRef group = grt::StringRef::cast_from(dict["object"]);
           move_list_ref_item<db_mgmt_Connection>(connections, group, to);
-          refresh_home_connections();
+          refresh_home_connections(false, false);
         }
 
       }
@@ -865,8 +884,43 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       if (group != "" && connection.is_valid())
       {
         move_item_to_group<db_mgmt_Connection>(group, connections, connection);
-        refresh_home_connections();
+        refresh_home_connections(false, false);
       }
+      break;
+    }
+    
+    case ActionCreateFabricConnections:
+    {
+      // Creates the fabric connections only if they have not been already created
+      // since the last connection refresh
+      GUILock lock(_wb, _("Connecting to MySQL Fabric Management Node"), _("The connections to the managed MySQL Servers will be created in a moment.\n"
+                                                                     "\nPlease stand by..."));
+      _wb->show_status_text(_("Connecting to MySQL Fabric Management Node..."));
+      db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
+      grt::GRT *grt = connection->get_grt();
+      grt::BaseListRef args(grt);
+      args->insert_unchecked(connection);
+      
+      grt::ValueRef result = grt->call_module_function("WBFabric", "createConnections", args);
+      std::string error = grt::StringRef::extract_from(result);
+      
+      if (error == "Operation Cancelled")
+        _wb->show_status_text(_("Creation of connections to Managed MySQL Servers was cancelled."));
+      else
+      {
+        if (error.length())
+        {
+          mforms::Utilities::show_error(_("MySQL Fabric Connection Error"), error, "OK");
+          _wb->show_status_text(_("Failed creating connections to Managed MySQL Servers..."));
+        }
+        else
+        {
+          // Sets the flag to indicate the connections have been crated for this fabric node
+          connection->parameterValues().set("connections_created", grt::IntegerRef(1));
+          _wb->show_status_text(_("Created connections to Managed MySQL Servers..."));
+        }
+      }
+
       break;
     }
       
@@ -968,7 +1022,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
 
 //--------------------------------------------------------------------------------------------------
 
-void WBContextUI::refresh_home_connections()
+void WBContextUI::refresh_home_connections(bool initial_load, bool clear_state)
 {
   if (!_home_screen)
     return;
@@ -976,8 +1030,8 @@ void WBContextUI::refresh_home_connections()
   grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
   std::map<std::string, std::string> auto_save_files = WBContextSQLIDE::auto_save_sessions();
-  
-  _home_screen->clear_connections();
+
+  _home_screen->clear_connections(clear_state);
 
   // If there are no connections defined yet then create entries for all currently installed
   // local servers (only if this is the first run, after application start).
@@ -992,33 +1046,52 @@ void WBContextUI::refresh_home_connections()
     module->call_function("createInstancesFromLocalServers", arguments);
   }
 
+
+  std::vector<db_mgmt_ConnectionRef> fabric_managed;
+
   for (grt::ListRef<db_mgmt_Connection>::const_iterator end = connections.end(),
-       inst = connections.begin(); inst != end; ++inst)
+      inst = connections.begin(); inst != end; ++inst)
   {
     grt::DictRef dict((*inst)->parameterValues());
 
-    std::string host_entry;
-    if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSSH")
-      host_entry = dict.get_string("sshUserName") + "@" + dict.get_string("sshHost");
+    // Fabric managed connections will be deleted the initial loading
+    if (initial_load && dict.has_key("fabric_managed"))
+      fabric_managed.push_back(*inst);
     else
     {
-      host_entry = strfmt("%s:%i", dict.get_string("hostName").c_str(), (int) dict.get_int("port", 3306));
-      if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSocket")
+      std::string host_entry;
+      if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSSH")
+        host_entry = dict.get_string("sshUserName") + "@" + dict.get_string("sshHost");
+      else
       {
-        // TODO: what about the default for sockets (only have a default for the pipe name)?
-        std::string socket= dict.get_string("socket", "MySQL"); // socket or pipe
-        host_entry= "Localhost via pipe " + socket;
+        // Fabric connectoins for which the managed server connections were created need to have the
+        // flag reset on the initial loading
+        if (initial_load && dict.has_key("connections_created"))
+          dict.set("connections_created", grt::IntegerRef(0));
+
+        host_entry = strfmt("%s:%i", dict.get_string("hostName").c_str(), (int) dict.get_int("port", 3306));
+        if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSocket")
+        {
+          // TODO: what about the default for sockets (only have a default for the pipe name)?
+          std::string socket= dict.get_string("socket", "MySQL"); // socket or pipe
+          host_entry= "Localhost via pipe " + socket;
+        }
       }
+
+      std::string title = *(*inst)->name();
+      if (auto_save_files.find((*inst)->id()) != auto_save_files.end())
+        title += " (auto saved)";
+
+      _home_screen->add_connection(*inst, title, host_entry,
+        dict.get_string("userName"), dict.get_string("schema"));
     }
-
-    std::string title = *(*inst)->name();
-    if (auto_save_files.find((*inst)->id()) != auto_save_files.end())
-      title += " (auto saved)";
-
-    _home_screen->add_connection(*inst, title, host_entry,
-      dict.get_string("userName"), dict.get_string("schema"));
   }
-  
+
+  // Deletes the fabric managed connections
+  for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = fabric_managed.begin();
+    iterator != fabric_managed.end(); ++iterator)
+    remove_connection(*iterator);
+
   _wb->save_connections();
   _wb->save_instances();
 }

@@ -35,6 +35,7 @@
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 
 using namespace Windows::Forms;
+using namespace System::Media;
 
 using namespace MySQL::Forms;
 using namespace MySQL::Utilities;
@@ -543,7 +544,14 @@ UtilitiesWrapper::UtilitiesWrapper()
 
 //--------------------------------------------------------------------------------------------------
 
-int UtilitiesWrapper::show_message(const std::string &title, const std::string &text, const std::string &ok, 
+void UtilitiesWrapper::beep()
+{
+  SystemSounds::Beep->Play();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int UtilitiesWrapper::show_message(const std::string &title, const std::string &text, const std::string &ok,
   const std::string &cancel, const std::string &other)
 {
   log_debug("Showing a message to the user\n");
@@ -1192,18 +1200,19 @@ private:
     // Also works around a deadlock of python when a timer is fired while inside a modal loop.
     if (!mforms::Utilities::in_modal_loop())
     {
-      {
-        base::RecMutexLock lock(timeout_mutex);
-        if (timeout_handles->ContainsKey(_handle))
-          timeout_handles->Remove(_handle);
-      }
       _timer->Stop();
-
       // if callback returns true, then restart the timer
       if ((*_slot)())
         _timer->Enabled = true;
       else
+      {
+        {
+          base::RecMutexLock lock(timeout_mutex);
+          if (timeout_handles->ContainsKey(_handle))
+            timeout_handles->Remove(_handle);
+        }
         delete this;
+      }
     }
   }
 };
@@ -1236,6 +1245,7 @@ void UtilitiesWrapper::init()
 
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
+  f->_utilities_impl.beep = &UtilitiesWrapper::beep;
   f->_utilities_impl.show_message = &UtilitiesWrapper::show_message;
   f->_utilities_impl.show_error = &UtilitiesWrapper::show_error;
   f->_utilities_impl.show_warning = &UtilitiesWrapper::show_warning;

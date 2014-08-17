@@ -30,7 +30,7 @@
 #include "base/log.h"
 #include "base/string_utilities.h"
 
-#include "objimpl/ui/mforms_ObjectReference_impl.h"
+#include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
 #define MODULE_VERSION "2.0.0"
 

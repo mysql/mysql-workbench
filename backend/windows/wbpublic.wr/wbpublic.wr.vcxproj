@@ -245,7 +245,6 @@
     <ClCompile Include="..\sqlide.wr\src\var_grid_model_wr.cpp" />
     <ClCompile Include="src\ActionList.cpp" />
     <ClCompile Include="src\BaseEditorWrapper.cpp" />
-    <ClCompile Include="src\Canvas.cpp" />
     <ClCompile Include="src\DBObjectFilterBE.cpp" />
     <ClCompile Include="src\DBObjectMasterFilterBE.cpp" />
     <ClCompile Include="src\Grt.cpp" />

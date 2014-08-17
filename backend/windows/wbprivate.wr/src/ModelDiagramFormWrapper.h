@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,6 +56,7 @@ namespace MySQL {
 
       void set_closed(bool flag);
       bool is_closed();
+      void close();
       void setup_mini_view(MySQL::GUI::Mdc::BaseWindowsCanvasView ^view);
       void update_mini_view_size(int w, int h);
       void update_options_toolbar();

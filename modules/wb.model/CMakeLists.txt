@@ -88,6 +88,10 @@ set_target_properties(wb.model.grt PROPERTIES
 	PREFIX ""
 )
 
-target_link_libraries(wb.model.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTEMPLATE_LIBRARIES})
+target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES} ${CTEMPLATE_LIBRARIES})
+
+set_target_properties(wb.model.grt
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wb.model.grt DESTINATION ${WB_INSTALL_LIB_DIR}/modules)

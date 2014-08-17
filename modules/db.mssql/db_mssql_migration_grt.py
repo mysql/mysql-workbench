@@ -271,7 +271,7 @@ class MSSQLMigration(GenericMigration):
                 target_column.precision = source_column.simpleType.numericPrecision
                 target_column.scale = source_column.simpleType.numericScale
             # binary datatypes:
-            elif source_datatype in ['IMAGE', 'BINARY', 'VARBINARY']:
+            elif source_datatype == 'IMAGE':
                 if source_column.length == -1:  # VARBINARY(MAX)
                    target_datatype = 'LONGBLOB'  #TODO: Give the user the choice for this target datatype
                 elif 0 <= source_column.length < 256:
@@ -389,8 +389,8 @@ class MSSQLMigration(GenericMigration):
                             type_cast_expression = "CAST(? as VARCHAR(max))"
                         elif source_datatype == 'SQL_VARIANT':
                             type_cast_expression = "CAST(? as NVARCHAR(max))"
-                        elif source_datatype in ['TIMESTAMP', 'ROWVERSION']:
-                            type_cast_expression = 'CAST(? as %s)' % ('BINARY' if source_column.isNotNull else 'VARBINARY')
+                        elif source_datatype in ['BINARY', 'VARBINARY', 'TIMESTAMP', 'ROWVERSION']:
+                            type_cast_expression = 'CONVERT(VARBINARY(MAX), ?, 0)'
 
                         if type_cast_expression:
                             target_column.owner.customData["columnTypeCastExpression:%s" % target_column.name] = "%s as ?" % type_cast_expression

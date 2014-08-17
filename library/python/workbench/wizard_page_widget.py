@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -85,6 +85,14 @@ class WizardPage(mforms.Box):
     def go_next(self):
         self.main.go_next_page()
 
+    def should_skip(self):
+        """Return True if the page should not be displayed"""
+        return False
+
+    def page_skipped(self):
+        """Called when the page is not opened, because should_skip returned True"""
+        pass
+
     #def go_cancel(self):
     #    pass
 
@@ -94,11 +102,15 @@ class WizardPage(mforms.Box):
     def page_activated(self, advancing):
         if hasattr(self.main, 'header'):
             self.main.header.set_text(self._identifier.strip())
-        if self.main.background: # this probably should be deleted (check migration in all platforms 1st)
+        if hasattr(self.main, 'background') and self.main.background: # this probably should be deleted (check migration in all platforms 1st)
             self.main.background.set_title(self._identifier.strip())
         if not self.ui_created:
             self.create_ui()
             self.ui_created = True
+
+
+    def validate(self):
+        return True
 
     def create_ui(self):
         pass

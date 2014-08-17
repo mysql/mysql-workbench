@@ -87,8 +87,7 @@ public:
 
   void set_font(const FontSpec &font);
 
-  void set_width(double width);
-  void set_height(double height);
+  void set_size(const base::Size &s);
 
   base::Size get_size();
 };
@@ -103,12 +102,13 @@ public:
   virtual ~TextFigure();
   
   virtual base::Size calc_min_size();
-  
+
   void set_text(const std::string &text);
   const std::string &get_text() const { return _text; }
 
   void set_fill_background(bool flag);
   void set_draw_outline(bool flag);
+  void set_highlight_through_text(bool flag) { _highlight_through_text = flag; }
 
   void set_font(const FontSpec &font);
   const FontSpec &get_font() { return _font; }
@@ -117,6 +117,7 @@ public:
 
   void set_multi_line(bool flag);
   void set_allow_shrinking(bool flag);
+  void set_allow_wrapping(bool flag);
 
   virtual void draw_contents(CairoCtx *cr);
 
@@ -133,11 +134,13 @@ protected:
   TextLayout *_text_layout;
   bool _multi_line;
   bool _allow_shrinking;
+  bool _allow_wrapping;
   bool _fill_background;
   bool _draw_outline;
+  bool _highlight_through_text;
 
   base::Size get_text_size();
-  
+
   void reset_shrinked_text();
 
   void draw_contents(CairoCtx *cr, const base::Rect &bounds);

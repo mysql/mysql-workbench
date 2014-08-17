@@ -230,7 +230,7 @@ class QueryPlanTab(mforms.Box):
         self.toolbar.add_item(l)
 
         btn = newToolBarItem(mforms.ActionItem)
-        btn.set_icon(get_resource_path("zoom_out.png"))
+        btn.set_icon(get_resource_path("qe_sql-editor-explain-tb-overview.png"))
         btn.add_activated_callback(self.overview)
         btn.set_tooltip("Zoom out the diagram.")
         self.toolbar.add_item(btn)
@@ -239,7 +239,7 @@ class QueryPlanTab(mforms.Box):
         self.toolbar.add_item(s)
 
         l = newToolBarItem(mforms.LabelItem)
-        l.set_text("Raw Data:")
+        l.set_text("View Source:")
         self.toolbar.add_item(l)
 
         btn = newToolBarItem(mforms.ToggleItem)

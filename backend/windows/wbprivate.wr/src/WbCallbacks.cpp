@@ -31,7 +31,7 @@ WbFrontendCallbacks::WbFrontendCallbacks(
   VoidStrDelegate^ show_status_text,
   BoolStrStrFloatDelegate^ show_progress,
   BoolStrIntStrPtrDelegate^ request_input,
-  CanvasViewStringStringIntPtrDelegate^ create_diagram,
+  CanvasViewStringStringDelegate^ create_diagram,
   VoidCanvasViewDelegate^ destroy_view,
   VoidCanvasViewDelegate^ switched_view,
   VoidCanvasViewDelegate^ tool_changed,
@@ -132,7 +132,7 @@ void WbFrontendCallbacks::set_request_input(BoolStrIntStrPtrDelegate^ dt)
 
 //--------------------------------------------------------------------------------------------------
 
-void WbFrontendCallbacks::set_create_diagram(CanvasViewStringStringIntPtrDelegate^ dt)
+void WbFrontendCallbacks::set_create_diagram(CanvasViewStringStringDelegate^ dt)
 {
   create_diagram_delegate= dt;
   create_diagram_wrapper_delegate=
@@ -298,7 +298,7 @@ void WbFrontendCallbacks::shell_output_wrapper(const std::string& str1)
 ::mdc::CanvasView* WbFrontendCallbacks::create_diagram_wrapper(const model_DiagramRef& model)
 {
   BaseWindowsCanvasView ^cv = create_diagram_delegate(CppStringToNative(model->id()),
-    CppStringToNative(model->name()), IntPtr(&model.content()));
+    CppStringToNative(model->name())/*, IntPtr(&model.content())*/);
   return cv->get_unmanaged_object();
 }
 

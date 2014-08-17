@@ -36,4 +36,8 @@ add_library(grt
 
 target_link_libraries(grt wbbase ${GLIB_LIBRARIES} ${GMODULE_LIBRARIES} ${GRT_LIBRARIES} ${UUID_LIBRARIES})
 
+set_target_properties(grt
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 install(TARGETS grt DESTINATION ${WB_INSTALL_LIB_DIR})

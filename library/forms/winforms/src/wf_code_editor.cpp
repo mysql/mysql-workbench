@@ -260,7 +260,7 @@ void ScintillaControl::WndProc(Windows::Forms::Message %m)
       POINT point;
       DragQueryPoint(hdrop, &point);
       ScreenToClient((HWND)Handle.ToPointer(), &point);
-      file_drop_target->files_dropped(backend, base::Point(point.x, point.y), file_names);
+      file_drop_target->files_dropped(backend, base::Point(point.x, point.y), mforms::DragOperationCopy, file_names);
     }
     break;
 

@@ -144,11 +144,12 @@ add_library(wbpublic
     objimpl/db.query/db_query_Editor.cpp
     objimpl/db.query/db_query_EditableResultset.cpp
     objimpl/db.migration/db_migration_Migration.cpp
-    objimpl/ui/mforms_ObjectReference.cpp
-    objimpl/ui/grt_PyObject.cpp
     objimpl/ui/ui_db_ConnectPanel.cpp
     objimpl/ui/ui_ObjectEditor.cpp
     objimpl/ui/ui_ObjectEditor_impl.cpp
+    objimpl/wrapper/grt_PyObject.cpp
+    objimpl/wrapper/mforms_ObjectReference.cpp
+    objimpl/wrapper/parser_ContextReference.cpp
     grtui/grtdb_connect_panel.cpp
     grtui/grtdb_connect_dialog.cpp
     grtui/confirm_save_dialog.cpp
@@ -177,6 +178,10 @@ add_library(wbpublic
 #	)
 #endif()
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTEMPLATE_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES})
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTEMPLATE_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES})
+
+set_target_properties(wbpublic
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wbpublic DESTINATION ${WB_INSTALL_LIB_DIR})

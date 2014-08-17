@@ -51,7 +51,7 @@
 #include "objimpl/db.query/db_query_Resultset.h"
 #include "objimpl/db.query/db_query_EditableResultset.h"
 #include "objimpl/db.query/db_query_QueryBuffer.h"
-#include "objimpl/ui/grt_PyObject_impl.h"
+#include "objimpl/wrapper/grt_PyObject_impl.h"
 #include "grts/structs.db.query.h"
 
 #include "grtdb/db_helpers.h"
@@ -336,7 +336,7 @@ public:
     grt::DictRef params(ref->connection_descriptor()->parameterValues());
 
     PyDict_SetItemString(kwarg, "host", grt::AutoPyObject(PyString_FromString(params.get_string("hostName").c_str())));
-    PyDict_SetItemString(kwarg, "port", grt::AutoPyObject(PyLong_FromLong(params.get_int("port"))));
+    PyDict_SetItemString(kwarg, "port", grt::AutoPyObject(PyLong_FromSize_t(params.get_int("port"))));
     PyDict_SetItemString(kwarg, "user", grt::AutoPyObject(PyString_FromString(params.get_string("userName").c_str())));
     PyDict_SetItemString(kwarg, "password", grt::AutoPyObject(PyString_FromString(ref->dbc_auth_data()->password())));
 
@@ -787,7 +787,6 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.commit", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::commit));
   cmdui->add_builtin_command("query.rollback", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::rollback));
   cmdui->add_builtin_command("query.autocommit", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_autocommit));
-  cmdui->add_builtin_command("query.gatherFieldInfo", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_collect_field_info));
   cmdui->add_builtin_command("query.gatherPSInfo", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_collect_ps_statement_events));
 
   cmdui->add_builtin_command("query.new_schema", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_schema"));
@@ -899,7 +898,7 @@ static void *connect_editor(SqlEditorForm::Ref editor, boost::shared_ptr<sql::Tu
     log_error("Got an authentication error during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }
-  catch (grt::user_cancelled &exc)
+  catch (grt::user_cancelled &)
   {
     log_info("User cancelled connection\n");
     return new std::string(":CANCELLED");

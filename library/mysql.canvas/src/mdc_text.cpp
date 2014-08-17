@@ -45,12 +45,13 @@ TextFigure::TextFigure(Layer *layer)
 
   _multi_line= false;
   _allow_shrinking= false;
+  _allow_wrapping= false;
 
   _align= AlignLeft;
 
   _fill_background= false;
   _draw_outline= false;
-
+  _highlight_through_text = false;
   scoped_connect(signal_bounds_changed(),boost::bind(&TextFigure::reset_shrinked_text, this));
 }
 
@@ -78,12 +79,27 @@ void TextFigure::set_draw_outline(bool flag)
   _draw_outline= flag;
 }
 
+void TextFigure::set_allow_wrapping(bool flag)
+{
+  _allow_wrapping = flag;
+}
+
 /**
  * Resets the shorted text member.
  */
 void TextFigure::reset_shrinked_text()
 {
   _shrinked_text.clear();
+  base::Size size = get_size();
+  if (_text_layout && !_auto_sizing && (_allow_wrapping || _allow_shrinking))
+  {
+    base::Size lsize(size.width - 2 * _xpadding, size.height - 2 * _ypadding);
+    if (lsize != _text_layout->get_size())
+    {
+      _text_layout->set_size(lsize);
+      set_needs_relayout();
+    }
+  }
 }
 
 /**
@@ -96,9 +112,9 @@ void TextFigure::reset_shrinked_text()
  *
  * @return A value describing the computed text width.
  */
-static double get_text_width(CairoCtx *cr, const FontSpec &font, gchar *ptr, int offset)
+static double get_text_width(CairoCtx *cr, const FontSpec &font, gchar *ptr, int offset,
+                             cairo_text_extents_t &extents)
 {
-  cairo_text_extents_t extents;
   gchar save= ptr[offset];
   ptr[offset]= 0;
 
@@ -110,16 +126,16 @@ static double get_text_width(CairoCtx *cr, const FontSpec &font, gchar *ptr, int
 
 
 static std::string fit_text_to_width(CairoCtx *cr, const FontSpec &font, const std::string &text, 
-                                double width)
+                                     double width, cairo_text_extents_t &extents)
 {
   gchar *ptr, *p, *prev;
   // calculate length in characters of string and also a mapping from character -> offset
   prev= p= ptr= g_strdup(text.c_str());
-  while (p != NULL)
+  while (p != NULL && *p)
   {
     double w;
 
-    if ((w= get_text_width(cr, font, ptr, (int)(p - ptr))) > width)
+    if (floor(w= get_text_width(cr, font, ptr, (int)(p - ptr), extents)) >= width)
     {
       g_free(ptr);
       return text.substr(0, prev-ptr);
@@ -132,6 +148,48 @@ static std::string fit_text_to_width(CairoCtx *cr, const FontSpec &font, const s
   g_free(ptr);
 
   return text;
+}
+
+
+static base::Range fit_text_to_width_word_wrap(CairoCtx *cr, const FontSpec &font, const std::string &text,
+                                               double width, cairo_text_extents_t &extents)
+{
+  gchar *ptr, *p, *prev, *pp, *start;
+  // calculate length in characters of string and also a mapping from character -> offset
+  prev = pp = p = ptr = g_strdup(text.c_str());
+
+  // skip whitespaces at the beginning of the text
+  while (*p == ' ')
+    ++p;
+  start = prev = pp = p;
+
+  // pp points to the start of the word break sequence, while p points to the end (beginning of next word)
+  while (p != NULL && *p)
+  {
+    prev= pp;
+
+    while (*p == ' ') // skip spaces in words, as they will be all trimmed at the end of the line
+      ++p;
+    pp = strchr(p, ' '); // try to find the next word
+    if (!pp && p < ptr + text.length())
+      pp = ptr + text.length();
+    p = pp;
+
+    // the ptr param must be mutable
+    if (p && get_text_width(cr, font, start, (int)(p - start), extents) > width)
+    {
+      g_free(ptr);
+      return base::Range(start-ptr, prev-start);
+    }
+  }
+
+  if (p && get_text_width(cr, font, start, (int)(p-start), extents) < width)
+  {
+    g_free(ptr);
+    return base::Range(start-ptr, p-start);
+  }
+  g_free(ptr);
+  return base::Range(0, text.length());
 }
 
 
@@ -155,7 +213,15 @@ void TextFigure::draw_contents(CairoCtx *cr, const Rect &bounds)
     size.width-= 2*_xpadding;
     size.height-= 2*_ypadding;
 
-    if (_draw_outline)
+    if (_highlight_color && _highlighted)
+    {
+      cr->set_color(*_highlight_color);
+      _text_layout->render(cr, pos - Point(1,0), size, _align);
+      _text_layout->render(cr, pos + Point(1,0), size, _align);
+      _text_layout->render(cr, pos - Point(0,1), size, _align);
+      _text_layout->render(cr, pos + Point(0,1), size, _align);
+    }
+    else if (_draw_outline)
     {
       cr->set_color(base::Color::White());
       _text_layout->render(cr, pos - Point(1,0), size, _align);
@@ -163,6 +229,7 @@ void TextFigure::draw_contents(CairoCtx *cr, const Rect &bounds)
       _text_layout->render(cr, pos - Point(0,1), size, _align);
       _text_layout->render(cr, pos + Point(0,1), size, _align);
     }
+
     cr->set_color(_pen_color);
     _text_layout->render(cr, pos, size, _align);
   }
@@ -201,35 +268,40 @@ void TextFigure::draw_contents(CairoCtx *cr, const Rect &bounds)
       {
         cr->get_text_extents(_font, "\xe2\x80\xa6", extents);
 
-        _shrinked_text= fit_text_to_width(cr, _font, _text, bounds.size.width - 2*_xpadding - extents.x_advance);
+        _shrinked_text= fit_text_to_width(cr, _font, _text, bounds.size.width - 2*_xpadding - extents.x_advance,
+                                          extents);
         _shrinked_text.append("\xe2\x80\xa6");
       }
       text = _shrinked_text;
     }
 
+    if (_highlight_color && _highlighted && _highlight_through_text)
+    {
+      cr->set_color(*_highlight_color);
+      for (int x = -3; x <= 3; x++)
+      {
+        for (int y = -3; y <= 3; y++)
+        {
+          cr->move_to(text_pos + Point(x, y));
+          cr->show_text(text);
+        }
+      }
+    }
     if (_draw_outline)
     {
       cr->set_color(base::Color::White());
       cr->move_to(text_pos + Point(1, 0));
       cr->show_text(text);
-      cr->stroke();
-      cr->set_color(base::Color::White());
       cr->move_to(text_pos - Point(1, 0));
       cr->show_text(text);
-      cr->stroke();
-      cr->set_color(base::Color::White());
       cr->move_to(text_pos + Point(0, 1));
       cr->show_text(text);
-      cr->stroke();
-      cr->set_color(base::Color::White());
       cr->move_to(text_pos - Point(0, 1));
       cr->show_text(text);
-      cr->stroke();
     }
     cr->set_color(_pen_color);
     cr->move_to(text_pos);
     cr->show_text(text);
-    cr->stroke();
 
     cr->check_state();
   }
@@ -260,6 +332,7 @@ void TextFigure::set_multi_line(bool flag)
       _text_layout= new TextLayout();
       _text_layout->set_text(_text);
       _text_layout->set_font(_font);
+      reset_shrinked_text();
     }
   }
 }
@@ -269,7 +342,7 @@ void TextFigure::set_allow_shrinking(bool flag)
 {
   _allow_shrinking= flag;
   _shrinked_text= "";
-  set_needs_relayout();
+  reset_shrinked_text();
 }
 
 
@@ -439,7 +512,32 @@ void TextLayout::layout_paragraph(CairoCtx *cr, Paragraph &para)
   }
   else
   {
+    Line line;
+    size_t offset = para.text_offset;
+    size_t length = para.text_length;
 
+    for (;;)
+    {
+      base::Range range = fit_text_to_width_word_wrap(cr, _font, std::string(_text.c_str() + offset, length), _fixed_size.width,
+                                                      ext);
+      offset += range.position;
+      line.text_offset = offset;
+      if (range.size <= 0)
+        line.text_length = 1;
+      else
+        line.text_length = range.size;
+
+      line.offset= Point(ceil(ext.x_bearing), ceil(ext.height*2 + ext.y_bearing));
+      line.size= Size(ceil(std::max(ext.width, ext.x_advance)), ceil(std::max(ext.height, ext.y_advance)));
+      
+      _lines.push_back(line);
+
+      if (line.text_offset + line.text_length >= para.text_length)
+        break;
+
+      offset += range.position + line.text_length;
+      length -= range.position + line.text_length;
+    }
   }
 }
 
@@ -478,17 +576,10 @@ void TextLayout::set_font(const FontSpec &font)
 }
 
 
-void TextLayout::set_width(double width)
+void TextLayout::set_size(const base::Size &s)
 {
-  _fixed_size.width= width;
-
+  _fixed_size = s;
   _needs_relayout= true;
-}
-
-
-void TextLayout::set_height(double height)
-{
-  _fixed_size.height= height;
 }
 
 
@@ -523,6 +614,9 @@ void TextLayout::render(CairoCtx *cr, const Point &pos, const Size &size, TextAl
   double y= pos.y;
   double line_spacing= floor(_font.size / 4) + 1;
   double line_height;
+
+  if (_needs_relayout)
+    relayout(cr);
 
   line_height= 0;
   for (std::vector<Line>::const_iterator iter= _lines.begin(); iter != _lines.end(); ++iter)

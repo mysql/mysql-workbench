@@ -59,6 +59,7 @@ protected:
  public:
   static void init();
   void add_to_radio_group(Gtk::RadioButton *radio); // called by radiobutton to add itself to a radio group
+  ~PanelImpl();
 };
 
 };

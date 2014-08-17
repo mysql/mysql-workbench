@@ -132,6 +132,14 @@ base::Rect mforms::gtk::ScrollPanelImpl::get_content_rect(mforms::ScrollPanel* s
   return rect;
 }
 
+void mforms::gtk::ScrollPanelImpl::scroll_to(mforms::ScrollPanel* self, int x, int y)
+{
+  mforms::gtk::ScrollPanelImpl *panel      = self->get_data<mforms::gtk::ScrollPanelImpl>();
+  panel->_swin->get_vadjustment()->set_value(y);
+  panel->_swin->get_hadjustment()->set_value(x);
+
+}
+
 
 void mforms::gtk::ScrollPanelImpl::init()
 {
@@ -144,4 +152,5 @@ void mforms::gtk::ScrollPanelImpl::init()
   f->_spanel_impl.set_autohide_scrollers = &mforms::gtk::ScrollPanelImpl::set_autohide_scrollers;
   f->_spanel_impl.scroll_to_view         = &mforms::gtk::ScrollPanelImpl::scroll_to_view;
   f->_spanel_impl.get_content_rect       = &mforms::gtk::ScrollPanelImpl::get_content_rect;
+  f->_spanel_impl.scroll_to              = &mforms::gtk::ScrollPanelImpl::scroll_to;
 }

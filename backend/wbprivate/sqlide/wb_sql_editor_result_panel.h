@@ -32,6 +32,10 @@
 
 #include <boost/signals2.hpp>
 
+#include "spatial_data_view.h"
+#include "wb_sql_editor_panel.h"
+
+
 namespace mforms
 {
   class ToolBar;
@@ -40,8 +44,6 @@ namespace mforms
   class TreeNodeView;
   class RecordGrid;
 };
-
-class SqlEditorPanel;
 
 class ResultFormView;
 
@@ -70,6 +72,13 @@ public:
 
   void show_export_recordset();
   void show_import_recordset();
+  void dock_result_grid(mforms::View *view);
+//  mforms::View *result_grid() { return _result_grid; }
+
+  SqlEditorPanel *owner() { return _owner; }
+
+  std::vector<SpatialDataView::SpatialDataSource> get_spatial_columns();
+
 
   mforms::RecordGrid *result_grid() { return _result_grid; }
 
@@ -84,7 +93,10 @@ public:
   void set_pinned(bool flag) { _pinned = flag; }
   bool pinned() const { return _pinned; }
 
+  void view_record_in_form(int row_id);
+
 private:
+
   mforms::TabView _tabview;
   mforms::TabSwitcher _switcher;
   DockingDelegate *_tabdock_delegate;
@@ -95,6 +107,7 @@ private:
   mforms::AppView  *_resultset_placeholder;
   mforms::AppView  *_execution_plan_placeholder;
   ResultFormView *_form_result_view;
+  SpatialDataView *_spatial_result_view;
   mforms::ContextMenu *_column_info_menu;
   mforms::ContextMenu *_grid_header_menu;
   std::list<mforms::ToolBar*> _toolbars;
@@ -109,6 +122,7 @@ private:
   bool _column_info_created;
   bool _query_stats_created;
   bool _form_view_created;
+  bool _spatial_view_initialized;
 
   bool _pinned;
 
@@ -119,6 +133,7 @@ private:
   
   void create_query_stats_panel();
   void create_column_info_panel();
+  void create_spatial_view_panel_if_needed();
 
   void dock_result_grid(mforms::RecordGrid *view);
 

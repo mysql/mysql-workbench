@@ -29,7 +29,7 @@
 #include <set>
 
 #include "grts/structs.db.mgmt.h"
-#include "cppconn/connection.h"
+#include <cppconn/connection.h>
 
 #ifndef THROW
 #ifdef _MSC_VER
@@ -171,6 +171,7 @@ public:
   std::string name;
   boost::int64_t id;
   std::string active_schema;
+  std::string ssl_cipher;
   bool autocommit_mode;
   bool is_stop_query_requested;
 };

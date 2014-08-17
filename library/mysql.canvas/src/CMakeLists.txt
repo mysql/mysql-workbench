@@ -53,13 +53,22 @@ add_library(mdcanvas
 )
 target_link_libraries(mdcanvas ${CAIRO_LIBRARIES})
 
+set_target_properties(mdcanvas        
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 include_directories(./gtk)
 
 add_library(mdcanvasgtk
     gtk/mdc_gtk_canvas_view.cpp
     gtk/mdc_gtk_canvas_scroller.cpp
 )
-target_link_libraries(mdcanvasgtk ${CAIRO_LIBRARIES} ${GTK2_LIBRARIES})
+target_link_libraries(mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK2_LIBRARIES})
+
+set_target_properties(mdcanvasgtk
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
+
 
 install(TARGETS mdcanvas DESTINATION ${WB_INSTALL_LIB_DIR})
 install(TARGETS mdcanvasgtk DESTINATION ${WB_INSTALL_LIB_DIR})

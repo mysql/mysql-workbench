@@ -144,11 +144,13 @@ class ShellDataSource(DataSource):
     def __init__(self, name, detected_os_name, mon_be, cpu_widget):
         DataSource.__init__(self, name, mon_be, cpu_widget)
         self.os_name = detected_os_name
+        self._cpu_stat_return = None
 
     def poll(self):
         output = StringIO.StringIO()
         if self.ctrl_be.server_helper.execute_command("/usr/bin/uptime", output_handler=output.write) == 0:
             data = output.getvalue().strip(" \r\t\n,:.").split("\n")[-1]
+            self._cpu_stat_return = None
             load_value = data.split()[-3]
             # in some systems, the format is x.xx x.xx x.xx and in others, it's x.xx, x.xx, x.xx
             load_value = load_value.rstrip(",")
@@ -163,7 +165,10 @@ class ShellDataSource(DataSource):
                 if self.label_cb is not None:
                     self.ctrl_be.uitask(self.label.set_text, self.label_cb(result))
         else:
-            log_debug("CPU stat command returned error: %s\n" % output.getvalue())
+            value = output.getvalue()
+            if value != self._cpu_stat_return:
+                self._cpu_stat_return = value
+                log_debug("CPU stat command returned error: %s\n" % value)
 
 
 #===============================================================================

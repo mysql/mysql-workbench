@@ -1,47 +1,39 @@
 set(IMAGE_FILES 
-wb_doc_model.png
-wb_doc_sql.png
-WB_Home_mac.png
-WB_Home.png
-wb_starter_generic_52.png
-wb_starter_grt_shell_52.png
-wb_starter_mysql_bug_reporter_52.png
-wb_starter_mysql_doc_lib_52.png
-wb_starter_mysql_forums_52.png
-wb_starter_mysql_migration_52.png
-wb_starter_mysql_news_52.png
-wb_starter_mysql_utilities_52.png
-wb_starter_mysql_wb_blog_52.png
-wb_starter_mysql_wb_twitters_52.png
-wb_starter_planet_mysql_52.png
-wb_starter_edelivery_52.png
-wb_starter_edelivery_52@2x.png
-wb_starter_grt_shell_52@2x.png
-wb_starter_mysql_bug_reporter_52@2x.png
-wb_starter_mysql_doc_lib_52@2x.png
-wb_starter_mysql_forums_52@2x.png
-wb_starter_mysql_migration_52@2x.png
-wb_starter_mysql_utilities_52@2x.png
-wb_starter_planet_mysql_52@2x.png
-wb_starter_support_52.png
-wb_starter_support_52@2x.png
-wb_tile_folder.png
-wb_tile_folder_mini.png
-wb_tile_mouseover_2.png
-wb_tile_mouseover.png
-wb_tile_network.png
-wb_tile_number.png
-wb_tile_page-down.png
-wb_tile_page-up.png
-wb_tile_plus.png
-wb_tile_sakila.png
-wb_tile_schema.png
-wb_tile_time.png
-wb_tile_user.png
-wb_close.png
-wb_tile_manage.png
-wb_tile_more.png
-wb_tile_open.png
+    WB_Home.png
+    WB_Home_mac.png
+    wb_close.png
+    wb_doc_model.png
+    wb_doc_sql.png
+    wb_starter_edelivery_52.png
+    wb_starter_generic_52.png
+    wb_starter_grt_shell_52.png
+    wb_starter_mysql_bug_reporter_52.png
+    wb_starter_mysql_doc_lib_52.png
+    wb_starter_mysql_forums_52.png
+    wb_starter_mysql_migration_52.png
+    wb_starter_mysql_news_52.png
+    wb_starter_mysql_utilities_52.png
+    wb_starter_mysql_wb_blog_52.png
+    wb_starter_mysql_wb_twitters_52.png
+    wb_starter_planet_mysql_52.png
+    wb_starter_support_52.png
+    wb_tile_fabric.png
+    wb_tile_folder.png
+    wb_tile_folder_mini.png
+    wb_tile_manage.png
+    wb_tile_more.png
+    wb_tile_mouseover.png
+    wb_tile_mouseover_2.png
+    wb_tile_network.png
+    wb_tile_number.png
+    wb_tile_open.png
+    wb_tile_page-down.png
+    wb_tile_page-up.png
+    wb_tile_plus.png
+    wb_tile_sakila.png
+    wb_tile_schema.png
+    wb_tile_time.png
+    wb_tile_user.png
 )
 
 install(FILES ${IMAGE_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/images)

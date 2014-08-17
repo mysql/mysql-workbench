@@ -18,6 +18,9 @@
  */
 
 #include "mforms/mforms.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN("mforms");
 
 #define SIDE_PADDING 12
 #define TAB_SIDE_PADDING 10
@@ -116,7 +119,7 @@ public:
       TabItem *item = _items[index];
       
       if (item->icon != NULL)
-      cairo_surface_destroy(item->icon);
+        cairo_surface_destroy(item->icon);
       item->icon= cairo_image_surface_create_from_png(icon_path.c_str());
       if (item->icon && cairo_surface_status(item->icon) != CAIRO_STATUS_SUCCESS)
       {
@@ -125,7 +128,7 @@ public:
       }
       
       if (item->alt_icon != NULL)
-      cairo_surface_destroy(item->alt_icon);
+        cairo_surface_destroy(item->alt_icon);
       item->alt_icon= cairo_image_surface_create_from_png(alt_icon_path.c_str());
       if (item->alt_icon && cairo_surface_status(item->alt_icon) != CAIRO_STATUS_SUCCESS)
       {
@@ -354,29 +357,35 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
     if (_first_visible > 0 || _last_visible < (int)_items.size()-1)
     {
       if (!_up_arrow)
-        _up_arrow = cairo_image_surface_create_from_png(mforms::App::get()->get_resource_path("arrow_up.png").c_str());
-      if (!_down_arrow)
-        _down_arrow = cairo_image_surface_create_from_png(mforms::App::get()->get_resource_path("arrow_down.png").c_str());
-      
-      int w = cairo_image_surface_get_width(_up_arrow);
-      int bottom = _owner->get_height() - 4;
-      int up_h = cairo_image_surface_get_height(_up_arrow);
-      int down_h = cairo_image_surface_get_height(_down_arrow);
-      
-      _up_arrow_y = bottom - up_h - 4 - down_h;
-      
-      cairo_set_source_surface(cr, _up_arrow, (VERTICAL_STYLE_WIDTH - w) / 2, _up_arrow_y);
-      if (_first_visible > 0)
-        cairo_paint(cr);
-      else
-        cairo_paint_with_alpha(cr, 0.4);
+        _up_arrow = mforms::Utilities::load_icon("arrow_up.png");
 
-      _down_arrow_y = bottom - down_h;
-      cairo_set_source_surface(cr, _down_arrow, (VERTICAL_STYLE_WIDTH - w) / 2, _down_arrow_y);
-      if (_last_visible < (int)_items.size()-1)
-        cairo_paint(cr);
+      if (!_down_arrow)
+        _down_arrow = mforms::Utilities::load_icon("arrow_down.png");
+
+      if (_up_arrow && _down_arrow)
+      {
+        int w = cairo_image_surface_get_width(_up_arrow);
+        int bottom = _owner->get_height() - 4;
+        int up_h = cairo_image_surface_get_height(_up_arrow);
+        int down_h = cairo_image_surface_get_height(_down_arrow);
+        
+        _up_arrow_y = bottom - up_h - 4 - down_h;
+        
+        cairo_set_source_surface(cr, _up_arrow, (VERTICAL_STYLE_WIDTH - w) / 2, _up_arrow_y);
+        if (_first_visible > 0)
+          cairo_paint(cr);
+        else
+          cairo_paint_with_alpha(cr, 0.4);
+
+        _down_arrow_y = bottom - down_h;
+        cairo_set_source_surface(cr, _down_arrow, (VERTICAL_STYLE_WIDTH - w) / 2, _down_arrow_y);
+        if (_last_visible < (int)_items.size()-1)
+          cairo_paint(cr);
+        else
+          cairo_paint_with_alpha(cr, 0.4);
+      }
       else
-        cairo_paint_with_alpha(cr, 0.4);
+        log_error("Could not load arrow_up/down.png\n");
     }
     else
     {
