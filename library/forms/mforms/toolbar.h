@@ -159,6 +159,7 @@ namespace mforms {
     std::string _icon;
     std::string _alt_icon;
     ToolBarItemType _type;
+    bool _updating;
     const bool _expandable;
     boost::signals2::signal<void (ToolBarItem*)> _clicked_signal;
     boost::function<bool ()> _validate;
