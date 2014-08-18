@@ -141,6 +141,13 @@ namespace spatial
     void get_points(std::deque<ShapeContainer> &shapes_container);
     void get_envelope(Envelope &env);
     void interrupt();
+
+    std::string as_wkt();
+    std::string as_kml();
+    std::string as_json();
+    std::string as_gml();
+
+    OGRGeometry *steal_data();
   };
 
   class Converter

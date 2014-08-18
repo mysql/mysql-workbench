@@ -22,7 +22,7 @@
 #include "base/file_utilities.h"
 #include "spatial_data_view.h"
 #include "spatial_draw_box.h"
-#include "spatial_handler.h"
+#include "grt/spatial_handler.h"
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_result_panel.h"
 

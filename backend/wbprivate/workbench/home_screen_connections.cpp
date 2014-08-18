@@ -2679,33 +2679,35 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y)
   _hot_entry.reset();
   set_needs_repaint();
 
-  mforms::DragDetails details;
-  details.allowedOperations = mforms::DragOperationMove;
-  details.location = base::Point(x, y);
+  if (index >= 0)
+  {
+    mforms::DragDetails details;
+    details.allowedOperations = mforms::DragOperationMove;
+    details.location = base::Point(x, y);
 
-  details.image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
-  cairo_t *cr = cairo_create(details.image);
-  base::Rect bounds = bounds_for_entry(index);
-  details.hotspot.x = x - bounds.pos.x;
-  details.hotspot.y = y - bounds.pos.y;
+    details.image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
+    cairo_t *cr = cairo_create(details.image);
+    base::Rect bounds = bounds_for_entry(index);
+    details.hotspot.x = x - bounds.pos.x;
+    details.hotspot.y = y - bounds.pos.y;
 
-  // We know we have no back tile here.
-  boost::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
-  entry->draw_tile(cr, false, 1, true, false); // There's no drag tile actually in high contrast mode.
+    // We know we have no back tile here.
+    boost::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
+    entry->draw_tile(cr, false, 1, true, false); // There's no drag tile actually in high contrast mode.
 
-  _drag_index = index;
-  mforms::DragOperation operation = do_drag_drop(details, entry.get(), TILE_DRAG_FORMAT);
-  _mouse_down_position = base::Rect();
-  cairo_surface_destroy(details.image);
-  cairo_destroy(cr);
+    _drag_index = index;
+    mforms::DragOperation operation = do_drag_drop(details, entry.get(), TILE_DRAG_FORMAT);
+    _mouse_down_position = base::Rect();
+    cairo_surface_destroy(details.image);
+    cairo_destroy(cr);
 
-  _drag_index = -1;
-  _drop_index = -1;
-  set_needs_repaint();
+    _drag_index = -1;
+    _drop_index = -1;
+    set_needs_repaint();
 
-  if (operation == mforms::DragOperationMove) // The actual move is done in the drop delegate method.
+    if (operation == mforms::DragOperationMove) // The actual move is done in the drop delegate method.
     return true;
-
+  }
   return false;
 }
 

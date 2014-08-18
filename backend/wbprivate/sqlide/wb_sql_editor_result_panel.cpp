@@ -173,6 +173,28 @@ void SqlEditorResult::copy_all_column_names()
   }
 }
 
+void SqlEditorResult::open_field_editor(int row, int column)
+{
+  Recordset::Ref rset(recordset());
+  if (rset)
+  {
+    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rset->data_storage()));
+    if (storage)
+    {
+      rset->open_field_data_editor(row, column, storage->field_info()[column].type);
+    }
+  }
+}
+
+void SqlEditorResult::update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column)
+{
+  mforms::MenuItem *item = menu->find_item("edit_cell");
+  if (item)
+  {
+    if (item->signal_clicked()->empty())
+      item->signal_clicked()->connect(boost::bind(&SqlEditorResult::open_field_editor, this, rows[0], column));
+  }
+}
 
 void SqlEditorResult::set_recordset(Recordset::Ref rset)
 {
@@ -188,6 +210,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   else
     _grtobj->resultset(grtwrap_recordset(grtobj(), rset));
 
+  rset->update_selection_for_menu_extra = boost::bind(&SqlEditorResult::update_selection_for_menu_extra, this, _1, _2, _3);
 
   rset->get_toolbar()->find_item("record_export")->signal_activated()->connect(boost::bind(&SqlEditorResult::show_export_recordset, this));
   if (rset->get_toolbar()->find_item("record_import"))

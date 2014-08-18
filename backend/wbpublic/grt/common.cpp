@@ -341,7 +341,7 @@ namespace bec {
       // On a fabric node the first tile will always be the parent node's name which does
       // not contain the /
       // It needs to be added to the child connections match it
-      else if ((*iterator)->driver()->name() == "MySQLFabric")
+      else if ((*iterator)->driver().is_valid() && (*iterator)->driver()->name() == "MySQLFabric")
       {
         item_name += "/";
         fabric = true;
