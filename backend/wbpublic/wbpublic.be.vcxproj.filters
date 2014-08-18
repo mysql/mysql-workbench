@@ -482,6 +482,12 @@
     <ClInclude Include="sqlide\column_width_cache.h">
       <Filter>sqlide Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="grt\spatial_handler.h">
+      <Filter>grt Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grtui\geom_draw_box.h">
+      <Filter>grtui Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -913,6 +919,12 @@
     </ClCompile>
     <ClCompile Include="sqlide\column_width_cache.cpp">
       <Filter>sqlide Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grt\spatial_handler.cpp">
+      <Filter>grt Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grtui\geom_draw_box.cpp">
+      <Filter>grtui Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

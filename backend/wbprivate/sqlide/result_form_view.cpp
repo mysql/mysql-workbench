@@ -27,7 +27,7 @@
 #include "grtui/geom_draw_box.h"
 #include "sqlide/recordset_cdbc_storage.h"
 
-#include "spatial_handler.h"
+#include "grt/spatial_handler.h"
 
 #include "base/sqlstring.h"
 #include "grt/parse_utils.h"
