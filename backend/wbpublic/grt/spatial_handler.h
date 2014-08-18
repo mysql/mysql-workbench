@@ -28,6 +28,7 @@
 #include <gdal/gdal.h>
 #include <deque>
 #include "base/geometry.h"
+#include "wbpublic_public_interface.h"
 
 #include "mdc.h"
 /* Spatial Object Model
@@ -45,7 +46,7 @@
 namespace spatial
 {
 
-  struct ProjectionView
+  struct WBPUBLICBACKEND_PUBLIC_FUNC ProjectionView
   {
     int width;
     int height;
@@ -57,7 +58,7 @@ namespace spatial
     friend bool operator!= (ProjectionView &v1, ProjectionView &v2);
   };
 
-  class Envelope
+  class WBPUBLICBACKEND_PUBLIC_FUNC Envelope
   {
   public:
     Envelope();
@@ -93,7 +94,7 @@ namespace spatial
     AxisLat = 1, AxisLon = 2
   };
 
-  class ShapeContainer
+  class WBPUBLICBACKEND_PUBLIC_FUNC ShapeContainer
   {
 
   protected:
@@ -109,7 +110,7 @@ namespace spatial
     bool within(const base::Point &p) const;
   };
 
-  class Projection
+  class WBPUBLICBACKEND_PUBLIC_FUNC Projection
   {
   protected:
     OGRSpatialReference _mercator_srs;
@@ -129,7 +130,7 @@ namespace spatial
   };
 
 
-  class Importer
+  class WBPUBLICBACKEND_PUBLIC_FUNC Importer
   {
     OGRGeometry *_geometry;
     bool _interrupt;
@@ -150,7 +151,7 @@ namespace spatial
     OGRGeometry *steal_data();
   };
 
-  class Converter
+  class WBPUBLICBACKEND_PUBLIC_FUNC Converter
   {
     base::RecMutex _projection_protector;
     double _adf_projection[6];
@@ -182,7 +183,7 @@ namespace spatial
 
   class Layer;
 
-  class Feature
+  class WBPUBLICBACKEND_PUBLIC_FUNC Feature
   {
     Layer *_owner;
     int _row_id;
@@ -202,7 +203,7 @@ namespace spatial
     bool within(const base::Point &p);
   };
 
-  class Layer
+  class WBPUBLICBACKEND_PUBLIC_FUNC Layer
   {
     friend class Feature;
 

@@ -23,8 +23,9 @@
 
 #include <mforms/drawbox.h>
 #include <gdal/ogr_geometry.h>
+#include "wbpublic_public_interface.h"
 
-class GeomDrawBox : public mforms::DrawBox
+class WBPUBLICBACKEND_PUBLIC_FUNC GeomDrawBox : public mforms::DrawBox
 {
   OGRGeometry *_geom;
 public:
