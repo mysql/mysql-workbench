@@ -27,7 +27,7 @@
 
 #include "base/log.h"
 
-DEFAULT_LOG_DOMAIN("spatial");
+//DEFAULT_LOG_DOMAIN("spatial");
 
 class ProgressPanel : public mforms::Box
 {

@@ -42,6 +42,7 @@ namespace mforms {
   class Form;
   class View;
   class Box;
+  class ContextMenu;
   class RecordGrid;
 }
 
@@ -407,6 +408,9 @@ namespace bec {
 
     void inserts_column_resized(int);
     void restore_inserts_columns();
+
+    void update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column);
+    void open_field_editor(int row, int column);
   };
 
 };

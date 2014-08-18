@@ -25,7 +25,7 @@
 #include <stack>
 
 #include "mdc.h"
-#include "spatial_handler.h"
+#include "grt/spatial_handler.h"
 
 namespace mforms
 {

@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "sqlide/spatial_handler.h"
+#include "spatial_handler.h"
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
@@ -431,6 +431,13 @@ spatial::Importer::Importer() : _geometry(NULL), _interrupt(false)
 {
 }
 
+OGRGeometry *spatial::Importer::steal_data()
+{
+  OGRGeometry *tmp = _geometry;
+  _geometry = NULL;
+  return tmp;
+}
+
 int spatial::Importer::import_from_mysql(const std::string &data)
 {
   OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin()+4))), NULL, &_geometry);
@@ -456,6 +463,83 @@ int spatial::Importer::import_from_wkt(std::string data)
     return 0;
   else
     return 1;
+}
+
+std::string spatial::Importer::as_wkt()
+{
+  char *data;
+  if (_geometry)
+  {
+    OGRErr err;
+    if ((err = _geometry->exportToWkt(&data)) != OGRERR_NONE)
+    {
+      log_error("Error exporting data to WKT (%i)\n", err);
+    }
+    else
+    {
+      std::string tmp(data);
+      OGRFree(data);
+      return tmp;
+    }
+  }
+  return "";
+}
+
+std::string spatial::Importer::as_kml()
+{
+  char *data;
+  if (_geometry)
+  {
+    if (!(data = _geometry->exportToKML()))
+    {
+      log_error("Error exporting data to KML\n");
+    }
+    else
+    {
+      std::string tmp(data);
+      CPLFree(data);
+      return tmp;
+    }
+  }
+  return "";
+}
+
+std::string spatial::Importer::as_json()
+{
+  char *data;
+  if (_geometry)
+  {
+    if (!(data = _geometry->exportToJson()))
+    {
+      log_error("Error exporting data to JSON\n");
+    }
+    else
+    {
+      std::string tmp(data);
+      CPLFree(data);
+      return tmp;
+    }
+  }
+  return "";
+}
+
+std::string spatial::Importer::as_gml()
+{
+  char *data;
+  if (_geometry)
+  {
+    if (!(data = _geometry->exportToGML()))
+    {
+      log_error("Error exporting data to GML\n");
+    }
+    else
+    {
+      std::string tmp(data);
+      CPLFree(data);
+      return tmp;
+    }
+  }
+  return "";
 }
 
 void spatial::Importer::interrupt()

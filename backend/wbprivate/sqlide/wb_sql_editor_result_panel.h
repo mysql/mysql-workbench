@@ -95,6 +95,7 @@ public:
 
   void view_record_in_form(int row_id);
 
+  void open_field_editor(int row, int column);
 private:
 
   mforms::TabView _tabview;
@@ -126,6 +127,7 @@ private:
 
   bool _pinned;
 
+  void update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column);
   void switch_tab();
   
   void toggle_switcher_collapsed();
