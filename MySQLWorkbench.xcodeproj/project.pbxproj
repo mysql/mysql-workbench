@@ -2520,6 +2520,8 @@
 		ED0955E1177374690051CF28 /* page_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DE177374690051CF28 /* page_restore.png */; };
 		ED0955E2177374690051CF28 /* title_backup.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DF177374690051CF28 /* title_backup.png */; };
 		ED0955E3177374690051CF28 /* title_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955E0177374690051CF28 /* title_restore.png */; };
+		ED3F48F019A17998001F3563 /* mysqlwbmeb.py in Resources */ = {isa = PBXBuildFile; fileRef = ED3F48EF19A17998001F3563 /* mysqlwbmeb.py */; };
+		ED3F48F119A17B3C001F3563 /* mysqlwbmeb.py in Copy Files (grt libraries) */ = {isa = PBXBuildFile; fileRef = ED3F48EF19A17998001F3563 /* mysqlwbmeb.py */; };
 		ED69F9E615DEC9DB00FF2FE3 /* profiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */; };
 		ED69F9E815DECA0C00FF2FE3 /* profiling.h in Headers */ = {isa = PBXBuildFile; fileRef = ED69F9E715DEC9F600FF2FE3 /* profiling.h */; };
 		ED69F9E915DECA2500FF2FE3 /* profiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */; };
@@ -3718,6 +3720,7 @@
 			dstPath = libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				ED3F48F119A17B3C001F3563 /* mysqlwbmeb.py in Copy Files (grt libraries) */,
 				2B7A3A1C126E91870097DDA9 /* grt_python_debugger.py in Copy Files (grt libraries) */,
 				2B75735C12077FDC00CC60E4 /* db_utils.py in Copy Files (grt libraries) */,
 				2B87631B0F48D4E6000B6DE1 /* wb.py in Copy Files (grt libraries) */,
@@ -6325,6 +6328,7 @@
 		ED0955DE177374690051CF28 /* page_restore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = page_restore.png; path = images/admin/page_restore.png; sourceTree = "<group>"; };
 		ED0955DF177374690051CF28 /* title_backup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = title_backup.png; path = images/admin/title_backup.png; sourceTree = "<group>"; };
 		ED0955E0177374690051CF28 /* title_restore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = title_restore.png; path = images/admin/title_restore.png; sourceTree = "<group>"; };
+		ED3F48EF19A17998001F3563 /* mysqlwbmeb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = mysqlwbmeb.py; path = res/scripts/python/mysqlwbmeb.py; sourceTree = "<group>"; };
 		ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = profiling.cpp; path = library/base/profiling.cpp; sourceTree = "<group>"; };
 		ED69F9E715DEC9F600FF2FE3 /* profiling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = profiling.h; path = library/base/base/profiling.h; sourceTree = "<group>"; };
 		ED70F1CB17303E2500584453 /* libmysqlcppconn.7.1.1.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.4.dylib; path = "../mysql-mac-res/lib/libmysqlcppconn.7.1.1.4.dylib"; sourceTree = "<group>"; };
@@ -7211,6 +7215,7 @@
 		279EF96A10D6B02A00C1ED1B /* Scripts */ = {
 			isa = PBXGroup;
 			children = (
+				ED3F48EF19A17998001F3563 /* mysqlwbmeb.py */,
 				2BECA53518B3A13D00E12F8B /* sys */,
 				2B75735B12077FDC00CC60E4 /* db_utils.py */,
 				279EF97610D6B08D00C1ED1B /* mysql_system_status_rmt.vbs */,
@@ -13189,6 +13194,7 @@
 				2B2909D7159A0C9300708C09 /* migration_check_current.png in Resources */,
 				2B20DCB6188DA7AA0095EA03 /* big_switcher_no.png in Resources */,
 				2B2909D8159A0C9300708C09 /* migration_check_point.png in Resources */,
+				ED3F48F019A17998001F3563 /* mysqlwbmeb.py in Resources */,
 				2BD42070198034C10061895B /* db.Table.editor.24x24.png in Resources */,
 				2BF7247215AFDA5B005948F0 /* busy_sidebar_mac.png in Resources */,
 				2BF7247315AFDA5B005948F0 /* busy_sidebar.png in Resources */,
