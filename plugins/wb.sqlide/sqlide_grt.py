@@ -186,10 +186,11 @@ def verticalOutput(editor):
     statement = editor.currentStatement
     if statement:
         rsets = editor.owner.executeScript(statement)
-        rset = rsets and rsets[0]
-        if rset:
+        output = [ '> %s\n' % statement ]
+        for idx, rset in enumerate(rsets):
+            if len(rsets) > 1:
+                output.append('Result set %i' % (idx+1))
             column_name_length = max(len(col.name) for col in rset.columns)
-            output = [ '> %s\n' % rset.sql ]
             ok = rset.goToFirstRow()
             while ok:
                 output.append('******************** %s. row *********************' % (rset.currentRow + 1))
@@ -198,16 +199,17 @@ def verticalOutput(editor):
                     output.append('%s: %s' % (col_name, col_value if col_value is not None else 'NULL'))
                 ok = rset.nextRow()
             output.append('%d rows in set' % (rset.currentRow + 1))
+            if len(rsets) > 1:
+              output.append('')
+        view = TextOutputTab('\n'.join(output) + '\n')
+        
+        dock = mforms.fromgrt(editor.resultDockingPoint)
+        dock.dock_view(view, '', 0)
+        dock.select_view(view)
+        dock.set_view_title(view, 'Vertical Output')
+      
+        rset.reset_references()
 
-            view = TextOutputTab('\n'.join(output) + '\n')
-            
-            dock = mforms.fromgrt(editor.resultDockingPoint)
-            dock.dock_view(view, '', 0)
-            dock.select_view(view)
-            dock.set_view_title(view, 'Vertical Output')
-          
-            rset.reset_references()
-            
     return 0
 
 
