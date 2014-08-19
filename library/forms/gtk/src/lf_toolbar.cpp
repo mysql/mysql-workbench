@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -554,6 +554,7 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
     {
       w->set_data("ignore_signal", (void*)1);
 
+      w->remove_all();
       const int size = values.size();
       for (int i = 0; i < size; ++i)
         w->append_text(values[i]);
