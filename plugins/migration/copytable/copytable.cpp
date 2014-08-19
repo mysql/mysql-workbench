@@ -912,7 +912,7 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
 
   SQLFreeHandle(SQL_HANDLE_STMT, stmt);
 
-  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && (size_t)spec.max_count < count)
     count = (size_t)spec.max_count;
 
   return count;
@@ -1415,7 +1415,7 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
 
   mysql_free_result(result);
 
-  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && (size_t)spec.max_count < count)
       count = (size_t)spec.max_count;
 
   return count;
