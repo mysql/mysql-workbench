@@ -166,7 +166,7 @@ namespace bec {
   }
 
   template <class T>
-  WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, int to);
+  WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, size_t to);
 
   class WBPUBLICBACKEND_PUBLIC_FUNC TimerActionThread
   {

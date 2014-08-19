@@ -251,7 +251,7 @@ RowBuffer::RowBuffer(boost::shared_ptr<std::vector<ColumnInfo> > columns,
       case MYSQL_TYPE_GEOMETRY:
         // source_length is not reliable (and returns bogus value for access)
         // so we just use the max_packet_size value
-        bind.buffer_length = std::min((unsigned long long)max_packet_size, col->source_length+1);
+        bind.buffer_length = (unsigned long)std::min(max_packet_size, col->source_length + 1);
         bind.length = (unsigned long*)malloc(sizeof(unsigned long));
         if (!bind.length)
           throw std::runtime_error("Could not allocate memory for row buffer");
@@ -906,7 +906,7 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
     throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, stmt);
 
-  long count = 0;
+  long long count = 0;
   if (SQL_SUCCEEDED(SQLFetch(stmt)))
     SQLGetData(stmt, 1, SQL_C_ULONG, &count, sizeof(count), NULL);
 
@@ -1409,7 +1409,7 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
   // Retrieves the row count...
   MYSQL_ROW row = mysql_fetch_row(result);
 
-  long count = 0;
+  long long count = 0;
   if (row)
     count = atol(row[0]);
 
