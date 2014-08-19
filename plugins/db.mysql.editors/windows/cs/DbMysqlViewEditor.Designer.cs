@@ -156,9 +156,9 @@ namespace MySQL.GUI.Workbench.Plugins
       // commentsTabpage
       // 
       this.commentsTabpage.BackColor = System.Drawing.SystemColors.Control;
-      this.commentsTabpage.Controls.Add(this.label7);
       this.commentsTabpage.Controls.Add(this.commentTextBox);
       this.commentsTabpage.Controls.Add(this.pictureBox2);
+      this.commentsTabpage.Controls.Add(this.label7);
       this.commentsTabpage.Location = new System.Drawing.Point(0, 0);
       this.commentsTabpage.Name = "commentsTabpage";
       this.commentsTabpage.Padding = new System.Windows.Forms.Padding(3);
@@ -172,7 +172,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label7.Name = "label7";
       this.label7.Size = new System.Drawing.Size(66, 21);
       this.label7.TabIndex = 20;
-      this.label7.Text = "Comments:";
+      this.label7.Text = "Comment:";
       this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // commentTextBox
@@ -182,11 +182,11 @@ namespace MySQL.GUI.Workbench.Plugins
       this.commentTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.commentTextBox.Location = new System.Drawing.Point(145, 11);
+      this.commentTextBox.Location = new System.Drawing.Point(86, 27);
       this.commentTextBox.Multiline = true;
       this.commentTextBox.Name = "commentTextBox";
       this.commentTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-      this.commentTextBox.Size = new System.Drawing.Size(0, 0);
+      this.commentTextBox.Size = new System.Drawing.Size(653, 164);
       this.commentTextBox.TabIndex = 19;
       this.commentTextBox.TextChanged += new System.EventHandler(this.commentTextBox_TextChanged);
       // 
