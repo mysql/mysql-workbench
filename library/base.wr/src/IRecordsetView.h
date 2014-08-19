@@ -43,6 +43,7 @@ namespace MySQL {
       int current_cell_row();
       int current_cell_column();
       void set_current_cell(int row, int column);
+      void update_columns();
 
       void set_font(System::String ^font, float size, System::Drawing::FontStyle style);
       void set_column_header_indicator(int column, ColumnHeaderIndicator order);

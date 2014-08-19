@@ -182,6 +182,7 @@ public:
 
   void sql_editor_reordered(SqlEditorPanel *editor, int new_index);
 
+  bool is_closing() const { return _closing; }
 private:
 
   int _sql_editors_serial;

@@ -80,6 +80,11 @@ void RecordGridView::set_column_width(int column, int width)
 }
 
 
+void RecordGridView::update_columns()
+{
+  viewer->grid_view()->refresh(true);
+}
+
 bool RecordGridView::current_cell(size_t &row, int &column)
 {
   int r, c;

@@ -163,7 +163,7 @@ db_query_QueryEditorRef SqlEditorPanel::grtobj()
 bool SqlEditorPanel::on_close_by_user()
 {
   // this can also get closed when close_all_view() is called when the connection is closed
-  if (can_close())
+  if (_form->is_closing() || can_close())
   {
     // do not call close, since that would undock ourselves and the caller will also undock this
     // we just need to be sure that the d-tor is called in all closing methods (close the tab itself from the X and through kbd,

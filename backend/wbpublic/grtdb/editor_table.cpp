@@ -3471,4 +3471,6 @@ void TableEditorBE::column_count_changed()
 {
   if (_inserts_model)
     _inserts_model->refresh();
+  if (_inserts_grid)
+    _inserts_grid->update_columns();
 }

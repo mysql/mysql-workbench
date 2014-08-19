@@ -63,10 +63,10 @@ def handleLiveTreeContextMenu(name, sender, args):
         item.add_clicked_callback(lambda sender=sender, tables_selected=tables_selected: show_table_inspector(sender, tables_selected , 'indexes' if show_index_page else None))
         if from_schema_inspector:
             menu.insert_item(0, item)
+            menu.insert_item(1, mforms.newMenuItem("", mforms.SeparatorMenuItem))
         else:
             menu.insert_item(0 if show_index_page else 1, item)
-        menu.add_separator()
-
+            #menu.insert_item(1 if show_index_page else 2, mforms.newMenuItem("", mforms.SeparatorMenuItem))
 
 class TableInfoPanel(mforms.Box):
     caption = "Info"
