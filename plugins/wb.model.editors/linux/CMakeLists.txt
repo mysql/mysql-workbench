@@ -41,15 +41,11 @@ add_library(wb.model.editors.wbp MODULE
     editor_stored_note_fe.cpp
 )
 
-set_target_properties(wb.model.editors.wbp PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-)
-
 target_link_libraries(wb.model.editors.wbp linux_utilities ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
 
 set_target_properties(wb.model.editors.wbp
-                      PROPERTIES VERSION   ${WB_VERSION}
+                      PROPERTIES PREFIX    ""
+                                 VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
 install(TARGETS wb.model.editors.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

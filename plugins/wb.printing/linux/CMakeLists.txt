@@ -25,15 +25,11 @@ add_library(wb.printing.wbp MODULE
     wb_printing_linux.cpp
 )
 
-set_target_properties(wb.printing.wbp PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-)
-
 target_link_libraries(wb.printing.wbp linux_utilities ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
 
 set_target_properties(wb.printing.wbp
-                      PROPERTIES VERSION   ${WB_VERSION}
+                      PROPERTIES PREFIX    ""
+                                 VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
 install(TARGETS wb.printing.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})
