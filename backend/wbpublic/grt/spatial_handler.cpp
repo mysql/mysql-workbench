@@ -154,7 +154,7 @@ bool spatial::ShapeContainer::within_line(const std::vector<base::Point> &point_
       if (distance_to_segment(*it_tmp, *it, p) <= 1.0)
         return true;
     }
-    catch (std::logic_error &e)
+    catch (std::logic_error &)
     {
       //distance can raise Divide by zero exception, we silently skip this
     }
@@ -176,7 +176,7 @@ bool spatial::ShapeContainer::within_polygon(const base::Point &p) const
 
   bool c = false;
   int i, j = 0;
-  int nvert = points.size();
+  int nvert = (int)points.size();
   for (i = 0, j = nvert-1; i < nvert; j = i++) {
     if ( ((points[i].y > p.y) != (points[j].y > p.y)) && (p.x < (points[j].x - points[i].x) * (p.y - points[i].y) / (points[j].y - points[i].y) + points[i].x) )
       c = !c;

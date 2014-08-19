@@ -800,8 +800,8 @@ bool ServerStatusWidget::layout(cairo_t* cr)
     float scale;
     if (mforms::Utilities::is_hidpi_icon(icon) && (scale = mforms::App::get()->backing_scale_factor()) > 1)
     {
-      _layout_width /= scale;
-      _layout_height /= scale;
+      _layout_width = (int)(_layout_width / scale);
+      _layout_height = (int)(_layout_height / scale);
     }
   }
 
