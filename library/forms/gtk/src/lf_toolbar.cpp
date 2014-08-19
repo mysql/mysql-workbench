@@ -553,8 +553,11 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
     if (w)
     {
       w->set_data("ignore_signal", (void*)1);
-
+      #if GTK_VERSION_GE(2,24)
       w->remove_all();
+      #else
+      w->clear_items();
+      #endif
       const int size = values.size();
       for (int i = 0; i < size; ++i)
         w->append_text(values[i]);
