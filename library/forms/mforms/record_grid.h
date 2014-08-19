@@ -48,6 +48,8 @@ namespace mforms {
     virtual int get_column_width(int column) = 0;
     virtual void set_column_width(int column, int width) = 0;
 
+    virtual void update_columns() = 0;
+
     virtual void set_column_header_indicator(int column, ColumnHeaderIndicator order) = 0; //TODO Windows
 
     virtual bool current_cell(size_t &row, int &column) = 0;

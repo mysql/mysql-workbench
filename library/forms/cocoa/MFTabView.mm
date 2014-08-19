@@ -299,6 +299,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 {
   int i = [tabView indexOfTabViewItem: item];
   mOwner->pin_changed(i, !mOwner->is_pinned(i));
+  [self setNeedsDisplay: YES];
 }
 
 - (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)item

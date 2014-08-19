@@ -974,6 +974,7 @@ static void set_selector_items(ToolBarItem *item, const std::vector<std::string>
       for (std::vector<std::string>::const_iterator iter = items.begin();
            iter != items.end(); ++iter)
         [array addObject: wrap_nsstring(*iter)];
+      [tbitem removeAllItems];
       [tbitem addItemsWithTitles: array];
       [tbitem sizeToFit];
     }

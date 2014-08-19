@@ -348,7 +348,8 @@ void PhysicalModelDiagramFeatures::highlight_connection(const workbench_physical
   
   if (flag)
   {
-    conn->get_data()->highlight();
+    base::Color color(_diagram->get_view()->get_highlight_color());
+    conn->get_data()->highlight(&color);
     _highlighted_connection_id = conn.id();
   }
   else
