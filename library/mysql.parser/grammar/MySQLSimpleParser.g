@@ -819,6 +819,7 @@ select_option:
 	query_spec_option
 	| SQL_NO_CACHE_SYMBOL
 	| SQL_CACHE_SYMBOL
+	| {SERVER_VERSION >= 50704}? => MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR number
 ;
 
 query_spec_option:
