@@ -555,17 +555,23 @@ spatial::Converter::Converter(ProjectionView view, OGRSpatialReference *src_srs,
   change_projection(view, src_srs, dst_srs);
 }
 
-const char* spatial::Converter::dec_to_dms(double angle, AxisType axis, int precision)
+std::string spatial::Converter::dec_to_dms(double angle, AxisType axis, int precision)
 {
+  const char *tmp = NULL;
   switch(axis)
   {
   case AxisLat:
-    return GDALDecToDMS(angle, "Lat", precision);
+    tmp = GDALDecToDMS(angle, "Lat", precision);
+    break;
   case AxisLon:
-    return GDALDecToDMS(angle, "Long", precision);
+    tmp = GDALDecToDMS(angle, "Long", precision);
+    break;
   default:
     throw std::logic_error("Unknown axis type\n");
   }
+  if (tmp)
+    return tmp;
+  return "";
 }
 
 spatial::Converter::~Converter()
@@ -777,7 +783,7 @@ void Feature::interrupt()
   _geometry.interrupt();
 }
 
-void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, bool fill_polygons)
+void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, base::Color fill_color)
 {
   for (std::deque<ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
@@ -795,8 +801,13 @@ void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_are
         for (size_t i = 1; i < (*it).points.size(); i++)
           cr.line_to((*it).points[i]);
         cr.close_path();
-        if (fill_polygons)
-          cr.fill();
+        if (fill_color.is_valid())
+        {
+          cr.save();
+          cr.set_color(fill_color);
+          cr.fill_preserve();
+          cr.restore();
+        }
         cr.stroke();
         break;
 
@@ -900,9 +911,13 @@ void Layer::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
 
   cr.save();
   cr.set_line_width(0.5);
-  cr.set_color(_color);
+  base::Color color(_color); // darken colors
+  color.red *= 0.6;
+  color.green *= 0.6;
+  color.blue *= 0.6;
+  cr.set_color(color);
   for (std::deque<Feature*>::iterator it = _features.begin(); it != _features.end() && !_interrupt; ++it)
-    (*it)->repaint(cr, scale, clip_area, _fill_polygons);
+    (*it)->repaint(cr, scale, clip_area, _fill_polygons ? _color : base::Color::Invalid());
 
   cr.restore();
 }
@@ -941,3 +956,9 @@ spatial::Feature* Layer::feature_within(const base::Point &p)
   return NULL;
 }
 
+
+spatial::LayerId spatial::new_layer_id()
+{
+  static LayerId id = 0;
+  return ++id;
+}

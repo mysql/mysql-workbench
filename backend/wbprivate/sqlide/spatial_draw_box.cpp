@@ -249,7 +249,7 @@ bool SpatialDrawBox::get_progress(std::string &action, float &pct)
 
 
 SpatialDrawBox::SpatialDrawBox()
-: _background_layer(NULL), _last_autozoom_layer(-1),
+: _background_layer(NULL), _last_autozoom_layer(0),
 _proj(spatial::ProjRobinson),  _spatial_reprojector(NULL),
 _zoom_level(1.0), _offset_x(0), _offset_y(0), _ready(false), _dragging(false),
 _rendering(false), _quitting(false), _needs_reprojection(true), _select_pending(false), _selecting(false)
@@ -309,28 +309,14 @@ void SpatialDrawBox::zoom_in()
   invalidate();
 }
 
-void SpatialDrawBox::auto_zoom(const size_t layer_idx)
+void SpatialDrawBox::auto_zoom(spatial::LayerId layer_id)
 {
   if (_layers.empty())
     return;
 
-  _last_autozoom_layer = layer_idx;
+  _last_autozoom_layer = layer_id;
 
-  spatial::Layer* lay = NULL;
-  if (_last_autozoom_layer == (size_t)-1 || _last_autozoom_layer >= _layers.size())
-    lay = _layers.back();
-  else
-  {
-    for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
-    {
-      if ((size_t)(*it)->layer_id() == layer_idx)
-      {
-        lay = *it;
-        break;
-      }
-    }
-  }
-
+  spatial::Layer* lay = get_layer(layer_id);
   if (lay == NULL)
     return;
 
@@ -439,7 +425,24 @@ void SpatialDrawBox::remove_layer(spatial::Layer *layer)
   }
 }
 
-void SpatialDrawBox::show_layer(int layer_id, bool flag)
+
+spatial::Layer *SpatialDrawBox::get_layer(spatial::LayerId layer_id)
+{
+  base::MutexLock lock(_layer_mutex);
+  for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
+  {
+    if ((*it)->layer_id() == layer_id)
+    {
+      return *it;
+    }
+  }
+  if (_background_layer && layer_id == _background_layer->layer_id())
+    return _background_layer;
+  return NULL;
+}
+
+
+void SpatialDrawBox::show_layer(spatial::LayerId layer_id, bool flag)
 {
   if (layer_id == 0 && _background_layer)
   {
@@ -459,20 +462,6 @@ void SpatialDrawBox::show_layer(int layer_id, bool flag)
   }
 }
 
-void SpatialDrawBox::fillup_polygon(int layer_id, bool flag)
-{
-  if (layer_id != 0)
-  {
-    base::MutexLock lock(_layer_mutex);
-    for (std::deque<spatial::Layer*>::iterator i = _layers.begin(); i != _layers.end(); ++i)
-      if ((*i)->layer_id() == layer_id)
-      {
-        (*i)->set_fill_polygons(flag);
-        invalidate(true);
-        return;
-      }
-  }
-}
 
 void SpatialDrawBox::activate()
 {
@@ -553,18 +542,8 @@ bool SpatialDrawBox::mouse_up(mforms::MouseButton button, int x, int y)
     if (_drag_x == x && _drag_y == y)
     {
       // handle feature click
-      base::Point p(x - _offset_x, y - _offset_y);
-      base::MutexLock lock(_layer_mutex);
-      for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
-      {
-        spatial::Feature *feature;
-        feature = (*it)->feature_within(p);
-        if (feature)
-        {
-          fprintf(stderr, "Object %i clicked.\n", feature->row_id());
-          break;
-        }
-      }
+      if (position_clicked_cb)
+        position_clicked_cb(base::Point(x - _offset_x, y - _offset_y));
     }
     else
     {
@@ -598,11 +577,7 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
     set_needs_repaint();
   }
 
-  double lat, lon;
-  if (screen_to_world(x, y, lat, lon))
-    position_changed_cb(spatial::Converter::dec_to_dms(lat, spatial::AxisLat, 2), spatial::Converter::dec_to_dms(lon, spatial::AxisLon, 2));
-  else
-    position_changed_cb("", "");
+  position_changed_cb(base::Point(x - _offset_x, y - _offset_y));
 
   return true;
 }
@@ -678,7 +653,7 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
   mdc::CairoCtx cr(crt);
   if (cache)
   {
-    cr.set_color(base::Color(1, 1, 1));
+    cr.set_color(_background_layer && _background_layer->fill() ? _background_layer->color() : base::Color(1, 1, 1));
     cr.paint();
     cr.set_source_surface(cache->get_surface(), 0, 0);
     if (_rendering) // if we're currently re-rendering the image, we paint the old version half transparent
@@ -688,7 +663,7 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
   }
   else if (!_progress)
   {
-    cr.set_color(base::Color(1, 1, 1));
+    cr.set_color(_background_layer &&  _background_layer->fill() ? _background_layer->color() : base::Color(1, 1, 1));
     cr.paint();
   }
 

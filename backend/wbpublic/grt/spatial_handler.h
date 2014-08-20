@@ -175,7 +175,7 @@ namespace spatial
 
     bool from_latlon_to_proj(double &lat, double &lon);
     bool from_proj_to_latlon(double &lat, double &lon);
-    static const char* dec_to_dms(double angle, AxisType axis, int precision);
+    static std::string dec_to_dms(double angle, AxisType axis, int precision);
     void transform_points(std::deque<ShapeContainer> &shapes_container);
     void interrupt();
   };
@@ -197,11 +197,14 @@ namespace spatial
     void interrupt();
     void get_envelope(spatial::Envelope &env);
     void render(spatial::Converter *converter);
-    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, bool fill_polygons);
+    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, base::Color fill_color=base::Color::Invalid());
 
     int row_id() const { return _row_id; }
     bool within(const base::Point &p);
   };
+
+  typedef int LayerId;
+  WBPUBLICBACKEND_PUBLIC_FUNC LayerId new_layer_id();
 
   class WBPUBLICBACKEND_PUBLIC_FUNC Layer
   {
@@ -210,7 +213,7 @@ namespace spatial
   protected:
     std::deque<Feature*> _features;
 
-    int _layer_id;
+    LayerId _layer_id;
     base::Color _color;
     float _render_progress;
     bool _show;
@@ -219,7 +222,7 @@ namespace spatial
     bool _fill_polygons;
 
   public:
-    Layer(int layer_id, base::Color color);
+    Layer(LayerId layer_id, base::Color color);
     virtual ~Layer();
 
     virtual void load_data() {}
@@ -227,18 +230,21 @@ namespace spatial
     void interrupt();
 
     bool hidden();
-    int layer_id();
+    LayerId layer_id();
 
     void set_show(bool flag);
 
     size_t size() { return _features.size(); }
+
+    base::Color color() { return _color; }
+    bool fill() { return _fill_polygons; }
 
     void add_feature(int row_id, const std::string &geom_data, bool wkt);
     virtual void render(spatial::Converter *converter);
     spatial::Feature *feature_within(const base::Point &p);
     void set_fill_polygons(bool fill);
     bool get_fill_polygons();
-    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
+    virtual void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
     float query_render_progress();
     spatial::Envelope get_envelope();
   };

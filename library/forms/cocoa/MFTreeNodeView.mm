@@ -1457,10 +1457,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
     // Restore default colors. The outline doesn't seem to auto reset.
     if (canSetColor)
     {
-      if (![cell isHighlighted])
-        [cell setTextColor: NSColor.controlTextColor];
-      else
-        [cell setTextColor: NSColor.whiteColor];
+      [cell setTextColor: NSColor.controlTextColor];
     }
   }
 }

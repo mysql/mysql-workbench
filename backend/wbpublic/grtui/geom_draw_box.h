@@ -38,6 +38,8 @@ public:
 
   void draw_ring_vertices(cairo_t *cr, OGRRawPoint *points, int num_points, double scale, double x, double y, double height);
 
+  void draw_geometry(cairo_t *cr, OGRGeometry *geom, double scale, double x, double y, double height);
+
   void draw_polygon(cairo_t *cr, OGRPolygon *poly, double scale, double x, double y, double height);
   void set_data(const std::string &text);
 

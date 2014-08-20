@@ -205,6 +205,11 @@ bool MenuItem::get_checked()
 
 void MenuItem::callback()
 {
+#if defined(_WIN32) || defined(__APPLE__)
+  // toggle the state of checkbox items, so that the behaviour works the same as in linux
+  if (_type == CheckedMenuItem)
+    set_checked(!get_checked());
+#endif
   _clicked_signal();
 }
 
