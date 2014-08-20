@@ -373,8 +373,6 @@ void SpatialDrawBox::reset_view()
   while(!_hw_zoom_history.empty())
     _hw_zoom_history.pop();
 
-  auto_zoom(_last_autozoom_layer);
-
   invalidate(_displaying_restricted);
   _displaying_restricted = false;
 }
