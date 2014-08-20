@@ -2277,7 +2277,16 @@ int WorkbenchImpl::deleteConnection(const db_mgmt_ConnectionRef &connection)
     }
   }
   if (!credentials_still_used)
-    mforms::Utilities::forget_password(host, user);
+  {
+    try
+    {
+      mforms::Utilities::forget_password(host, user);
+    }
+    catch (std::exception &exc)
+    {
+      log_warning("Could not clear password: %s\n", exc.what());
+    }    
+  }  
 
   connections->remove(connection);
 

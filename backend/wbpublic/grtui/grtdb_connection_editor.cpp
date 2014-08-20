@@ -22,9 +22,12 @@
 #include "cppdbc.h"
 #include <grt/common.h>
 #include "base/string_utilities.h"
+#include "base/log.h"
 
 #include "mforms/uistyle.h"
 #include "mforms/utilities.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 
 //------------------------------------------------------------------------------
 /*
@@ -296,7 +299,19 @@ void grtui::DbConnectionEditor::del_stored_conn()
       }
     }
     if (!credentials_still_used)
-      mforms::Utilities::forget_password(host, user);
+    {
+      try
+      {
+        mforms::Utilities::forget_password(host, user);
+      }
+      catch (std::exception &exc)
+      {
+        log_warning("Exception caught when clearning the password: %s", exc.what());
+        mforms::Utilities::show_error("Clear Password", 
+                                      base::strfmt("Could not clear password: %s", exc.what()),
+                                      "OK");
+      }    
+    }
     
     if (idx < (int)conns.count())
     {
