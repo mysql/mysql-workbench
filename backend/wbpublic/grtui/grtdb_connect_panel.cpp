@@ -548,12 +548,15 @@ void DbConnectPanel::refresh_stored_connections()
   _stored_connection_sel.add_item("");
   for (grt::ListRef<db_mgmt_Connection>::const_iterator iter= list.begin(); iter != list.end(); ++iter)
   {
-    if (!rdbms.is_valid() || ((*iter)->driver().is_valid() && (*iter)->driver()->owner() == rdbms))
+    if (is_connectable_driver_type((*iter)->driver()))
     {
-      _stored_connection_sel.add_item((*iter)->name());
-      if (*(*iter)->isDefault() && !_dont_set_default_connection)
-        selected_index = i;
-      i++;
+      if (!rdbms.is_valid() || ((*iter)->driver().is_valid() && (*iter)->driver()->owner() == rdbms))
+      {
+        _stored_connection_sel.add_item((*iter)->name());
+        if (*(*iter)->isDefault() && !_dont_set_default_connection)
+          selected_index = i;
+        i++;
+      }
     }
   }
 
@@ -1195,5 +1198,27 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       log_warning("Unknown param type for %s\n", driver_param->get_control_name().c_str());
       break;
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool DbConnectPanel::is_connectable_driver_type(db_mgmt_DriverRef driver)
+{
+  if (driver.is_valid())
+  {
+    std::string d = driver->id();
+
+    if (driver->owner().is_valid())
+    {
+      if (driver->owner()->id() != MYSQL_RDBMS_ID ||
+          d == "com.mysql.rdbms.mysql.driver.native" ||
+          d == "com.mysql.rdbms.mysql.driver.native_socket" ||
+          d == "com.mysql.rdbms.mysql.driver.native_sshtun")
+      {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 

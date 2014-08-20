@@ -194,8 +194,8 @@ def verticalOutput(editor):
             ok = rset.goToFirstRow()
             while ok:
                 output.append('******************** %s. row *********************' % (rset.currentRow + 1))
-                for column in rset.columns:
-                    col_name, col_value = column.name.rjust(column_name_length), rset.stringFieldValueByName(column.name)
+                for i, column in enumerate(rset.columns):
+                    col_name, col_value = column.name.rjust(column_name_length), rset.stringFieldValue(i)
                     output.append('%s: %s' % (col_name, col_value if col_value is not None else 'NULL'))
                 ok = rset.nextRow()
             output.append('%d rows in set' % (rset.currentRow + 1))

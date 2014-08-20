@@ -196,12 +196,16 @@ void grtui::DbConnectionEditor::reset_stored_conn_list()
   grt::ListRef<db_mgmt_Connection>::const_iterator last = list.end();
   for (; iter != last; ++iter)
   {
-    added_row = _stored_connection_list.root_node()->add_child();
-    if (added_row)
+    if (_panel.is_connectable_driver_type((*iter)->driver()))
     {
-      added_row->set_string(0, (*iter)->name());
-      if ((*iter)->name() == selected_name)
-        selected_node= added_row;
+      added_row = _stored_connection_list.root_node()->add_child();
+      if (added_row)
+      {
+        added_row->set_string(0, (*iter)->name());
+        added_row->set_tag((*iter)->id());
+        if ((*iter)->name() == selected_name)
+          selected_node= added_row;
+      }
     }
   }
 
