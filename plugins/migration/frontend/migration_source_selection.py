@@ -23,7 +23,7 @@ from grt import DBLoginError
 from workbench.ui import WizardPage, WizardProgressPage
 from workbench.utils import replace_string_parameters
 from workbench.db_driver import get_connection_parameters, get_odbc_connection_string, is_odbc_connection
-
+from workbench.log import log_error
 
 def ping_host(hostname):
     import sys
@@ -223,11 +223,10 @@ class SourceWizardPage(WizardPage):
                 mforms.Utilities.show_message("Test %s DBMS Connection" % caption, "Connection succeeded.", "OK", "", "")
                 break
             except (DBLoginError, SystemError), e:
-                if attempt == 0:
-                    if "[Driver Manager]" in e.message and "image not found" in e.message:
-                        set_status_text("Specified ODBC driver not found")
-                        show_missing_driver_error(e)
-                        return
+                if attempt == 0 and "[Driver Manager]" in e.message and "image not found" in e.message:
+                    set_status_text("Specified ODBC driver not found")
+                    show_missing_driver_error(e)
+                    return
                 elif attempt > 0:
                     if isinstance(e, DBLoginError) and not force_password:
                         force_password = True
@@ -243,6 +242,7 @@ class SourceWizardPage(WizardPage):
                                 pass
                         mforms.Utilities.show_message("Test %s DBMS Connection" % caption, "Could not connect to %s DBMS.\n%s%s" % (caption, etext, extra), "OK", "", "")
                         return
+
                 attempt += 1
                 source.password = request_password(source.connection, force_password)
                 
@@ -255,6 +255,7 @@ class SourceWizardPage(WizardPage):
                 mforms.Utilities.show_message('Unsupported Connection Method', e.message, 'OK', '', '')
                 return
             except Exception, e:
+                log_error("Exception testing connection: %s\n" % e)
                 set_status_text("Could not connect to DBMS: %s" % e)
                 if is_odbc:
                     extra = "\n\nODBC connection string: %s" % get_odbc_connection_string(source.connection, '<your password>')
