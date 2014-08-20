@@ -199,6 +199,7 @@ def verticalOutput(editor):
                     output.append('%s: %s' % (col_name, col_value if col_value is not None else 'NULL'))
                 ok = rset.nextRow()
             output.append('%d rows in set' % (rset.currentRow + 1))
+            rset.reset_references()            
             if len(rsets) > 1:
               output.append('')
         view = TextOutputTab('\n'.join(output) + '\n')
@@ -207,8 +208,7 @@ def verticalOutput(editor):
         dock.dock_view(view, '', 0)
         dock.select_view(view)
         dock.set_view_title(view, 'Vertical Output')
-      
-        rset.reset_references()
+
 
     return 0
 
