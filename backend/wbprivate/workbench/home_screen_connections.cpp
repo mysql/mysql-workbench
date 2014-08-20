@@ -1686,7 +1686,7 @@ boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, i
   boost::shared_ptr<ConnectionEntry> entry;
 
   ConnectionVector connections(displayed_connections());
-  for (ConnectionVector::iterator conn = connections.begin(); conn != connections.end(); ++conn)
+  for (ConnectionVector::iterator conn = connections.begin() + _page_start; conn != connections.end(); ++conn)
   {
     if ((*conn)->bounds.contains(x, y))
     {
@@ -1721,6 +1721,8 @@ base::Rect ConnectionsSection::bounds_for_entry(int index)
 {
   base::Rect result(CONNECTIONS_LEFT_PADDING, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   int tiles_per_row = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+
+  index -= _page_start;
 
   int column = index % tiles_per_row;
   int row = index / tiles_per_row;
@@ -2704,20 +2706,23 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y)
 
     // We know we have no back tile here.
     boost::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
-    entry->draw_tile(cr, false, 1, true, false); // There's no drag tile actually in high contrast mode.
+    if (entry)
+    {
+      entry->draw_tile(cr, false, 1, true, false); // There's no drag tile actually in high contrast mode.
 
-    _drag_index = index;
-    mforms::DragOperation operation = do_drag_drop(details, entry.get(), TILE_DRAG_FORMAT);
-    _mouse_down_position = base::Rect();
-    cairo_surface_destroy(details.image);
-    cairo_destroy(cr);
+      _drag_index = index;
+      mforms::DragOperation operation = do_drag_drop(details, entry.get(), TILE_DRAG_FORMAT);
+      _mouse_down_position = base::Rect();
+      cairo_surface_destroy(details.image);
+      cairo_destroy(cr);
 
-    _drag_index = -1;
-    _drop_index = -1;
-    set_needs_repaint();
+      _drag_index = -1;
+      _drop_index = -1;
+      set_needs_repaint();
 
-    if (operation == mforms::DragOperationMove) // The actual move is done in the drop delegate method.
-    return true;
+      if (operation == mforms::DragOperationMove) // The actual move is done in the drop delegate method.
+        return true;
+    }
   }
   return false;
 }
