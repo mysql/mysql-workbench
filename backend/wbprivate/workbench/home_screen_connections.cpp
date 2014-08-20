@@ -423,7 +423,18 @@ public:
 
     std::string password_stored = _("<not stored>");
     std::string password;
-    if (mforms::Utilities::find_password(_connection->hostIdentifier(), user_name, password))
+    bool find_result = false;
+    
+    try
+    {
+      find_result = mforms::Utilities::find_password(_connection->hostIdentifier(), user_name, password);
+    }
+    catch(std::exception &except)
+    {
+      log_warning("Exception caught when trying to find a password for '%s' connection: %s\n", _connection->name().c_str(), except.what());
+    }
+    
+    if (find_result)
     {
       password = "";
       password_stored = _("<stored>");

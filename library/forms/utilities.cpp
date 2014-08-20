@@ -687,9 +687,9 @@ bool Utilities::credentials_for_service(const std::string &title, const std::str
       }
       catch (std::exception &exc)
       {
+        log_warning("Could not store password vault: %s\n", exc.what());
         show_warning(title.empty() ? _("Error Storing Password") : title, 
                      std::string("There was an error storing the password:\n")+exc.what(), "OK");
-        log_warning("Could not store password vault: %s\n", exc.what());
       }
     }
     return true;
