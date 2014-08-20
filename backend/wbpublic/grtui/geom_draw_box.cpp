@@ -75,6 +75,27 @@ void GeomDrawBox::set_data(const std::string &text)
   set_needs_repaint();
 }
 
+
+void GeomDrawBox::draw_geometry(cairo_t *cr, OGRGeometry *geom, double scale, double x, double y, double height)
+{
+  switch (geom->getGeometryType())
+  {
+    case wkbPolygon:
+      draw_polygon(cr, dynamic_cast<OGRPolygon*>(geom), scale, x, y, height);
+      break;
+    case wkbMultiPolygon:
+      {
+        OGRGeometryCollection *geoCollection = dynamic_cast<OGRGeometryCollection*>(geom);
+        for (int i = 0; i < geoCollection->getNumGeometries(); ++i)
+          draw_geometry(cr, geoCollection->getGeometryRef(i), scale, x, y, height);
+      }
+      break;
+    default:
+      log_warning("Can't paint geometry type %s\n", geom->getGeometryName());
+      break;
+  }
+}
+
 void GeomDrawBox::repaint(cairo_t *cr, int x, int y, int w, int h)
 {
   if (_geom)
@@ -93,14 +114,7 @@ void GeomDrawBox::repaint(cairo_t *cr, int x, int y, int w, int h)
       scale = (get_height() - padding*2) / fig_height;
 
     cairo_translate(cr, padding, padding);
-    switch (_geom->getGeometryType())
-    {
-      case wkbPolygon:
-        draw_polygon(cr, dynamic_cast<OGRPolygon*>(_geom), scale, env.MinX, env.MinY, get_height()-padding*2);
-        break;
-      default:
-        log_warning("Can't paint geometry type %s\n", _geom->getGeometryName());
-        break;
-    }
+
+    draw_geometry(cr, _geom, scale, env.MinX, env.MinY, get_height()-padding*2);
   }
 }
