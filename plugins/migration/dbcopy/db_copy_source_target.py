@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -103,7 +103,7 @@ and the destination server where they should be copied to.'''), False, True)
             return i[i.find('@')+1:]
 
         # filter out ssh connections until its supported
-        self._connections = [conn for conn in grt.root.wb.rdbmsMgmt.storedConns if not conn.driver.name.endswith("SSH")]
+        self._connections = [conn for conn in grt.root.wb.rdbmsMgmt.storedConns if conn.driver and not conn.driver.name.endswith("SSH")]
         selector_items = ( ['Pick a Connection'] +
             ['%s (%s)' % (conn.name, formatConnection(conn)) for conn in self._connections] +
             ['-', 'Edit Connections...'] )
