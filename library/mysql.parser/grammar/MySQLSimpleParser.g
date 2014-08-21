@@ -1286,12 +1286,15 @@ alter_user_list:
 ;
 
 alter_user:
-	user PASSWORD_SYMBOL EXPIRE_SYMBOL
+	user PASSWORD_SYMBOL EXPIRE_SYMBOL alter_user_expire_interval?
+;
+
+alter_user_expire_interval:
 	{SERVER_VERSION >= 50704}? => (
 		INTERVAL_SYMBOL number DAY_SYMBOL
 		| NEVER_SYMBOL
 		| DEFAULT_SYMBOL
-	)?
+	)
 ;
 
 create_user:
@@ -1513,7 +1516,7 @@ show_statement:
 		| SLAVE_SYMBOL
 			(
 				HOSTS_SYMBOL
-				| STATUS_SYMBOL {SERVER_VERSION >= 50700}? => NONBLOCKING_SYMBOL
+				| STATUS_SYMBOL non_blocking?
 			)
 		| option_type? (STATUS_SYMBOL | VARIABLES_SYMBOL) like_or_where?
 		| TABLE_SYMBOL STATUS_SYMBOL in_db? like_or_where?
@@ -1521,6 +1524,10 @@ show_statement:
 		| FULL_SYMBOL? TRIGGERS_SYMBOL in_db? like_or_where?
 		| WARNINGS_SYMBOL limit_clause?
 	)
+;
+
+non_blocking:
+	{SERVER_VERSION >= 50700}? => NONBLOCKING_SYMBOL
 ;
 
 from_or_in:
