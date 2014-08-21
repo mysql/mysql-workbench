@@ -139,7 +139,7 @@ public:
   void rollback_and_gather_messages(std::string &messages);
   
   void apply_changes_();
-  grt::StringRef do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordset_data_storage_Ptr data_storage_ptr);
+  grt::StringRef do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordset_data_storage_Ptr data_storage_ptr, bool skip_commit);
   bool has_pending_changes();
   void pending_changes(int &upd_count, int &ins_count, int &del_count) const;
   void rollback();
