@@ -379,8 +379,8 @@ public:
 
 private:
   void apply_changes_to_recordset(Recordset::Ptr rs_ptr);
-  bool run_data_changes_commit_wizard(Recordset::Ptr rs_ptr);
-  void apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr);
+  bool run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool skip_commit);
+  void apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr, bool skip_commit);
   void update_editor_title_schema(const std::string& schema);
 
 public:  

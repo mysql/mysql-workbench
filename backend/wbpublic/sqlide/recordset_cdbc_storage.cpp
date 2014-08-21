@@ -464,7 +464,8 @@ public:
   result_type operator()(const std::string &v) { return result_type(new std::stringstream(v)); }
   template<typename V> result_type operator()(const V &t) { return result_type(new std::stringstream()); }
 };
-void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script)
+
+void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool skip_transaction)
 {
   sql::Dbc_connection_handler::ConnectionRef dbms_conn= dbms_conn_ref();
 
@@ -518,14 +519,16 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script)
   }
   if (err_count)
   {
-    dbms_conn->rollback();
+    if (!skip_transaction)
+      dbms_conn->rollback();
     msg= strfmt("%i error(s) saving changes to table %s", err_count, full_table_name().c_str());
     on_sql_script_run_statistics((processed_statement_count - err_count), err_count);
     throw std::runtime_error(msg.c_str());
   }
   else
   {
-    dbms_conn->commit();
+    if (!skip_transaction)
+      dbms_conn->commit();
     on_sql_script_run_statistics((processed_statement_count - err_count), err_count);
   }
 }

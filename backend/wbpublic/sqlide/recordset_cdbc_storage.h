@@ -53,7 +53,7 @@ protected:
   virtual void do_fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
 
 protected:
-  virtual void run_sql_script(const Sql_script &sql_script);
+  virtual void run_sql_script(const Sql_script &sql_script, bool skip_transaction);
 
 public:
   std::string decorated_sql_query(); // adds limit clause if defined by options

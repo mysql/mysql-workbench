@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ protected:
   virtual void do_fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
 
 protected:
-  virtual void run_sql_script(const Sql_script &sql_script);
+  virtual void run_sql_script(const Sql_script &sql_script, bool skip_commit);
 
 protected:
   std::string decorated_sql_query(Recordset::Column_names &column_names);
