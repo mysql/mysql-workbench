@@ -58,10 +58,11 @@ class JSONDumper
     
 end class
 
+
 class ConfigReader
     private my_file
     private my_file_handler
-    private configuration
+    public configuration
     
     private sub Class_Initialize()
         Set configuration = CreateObject("Scripting.Dictionary")
@@ -125,10 +126,65 @@ class ConfigReader
             get_value = default
         end if
     end function
-    
-    
-
 end class
+
+class ConfigUpdater
+    public config
+
+    private sub Class_Initialize()
+        Set config = new ConfigReader
+    end sub
+    
+    public sub load_config(file_name)
+        config.load(file_name)        
+    end sub
+    
+    public sub update(file_name)
+        set fso = CreateObject("Scripting.FileSystemObject")
+        set my_source_handler = fso.OpenTextFile(file_name)
+        set my_target_handler = fso.CreateTextFile(file_name & ".tmp", true)
+        
+        
+        set current_section = Nothing
+        while not my_source_handler.AtEndOfStream
+            strLine = my_source_handler.ReadLine()
+            strLine = TRIM(strLine)
+            lineLen = LEN(strLine)
+            
+            ' Handles a found section
+            if Left(strLine, 1) = "[" and Right(strLine, 1) = "]" then
+                section_name = Mid(strLine, 2, lineLen - 2)
+                
+                if config.configuration.exists(section_name) then
+                    set current_section = config.configuration(section_name)
+                else
+                    set current_section = CreateObject("Scripting.Dictionary")
+                end if
+            else 
+                if Left(strLine,1) <> "#" then
+                    index = INSTR(1, strLine, "=", 1)
+
+                    if index > 1 then
+                        attName  = LCase(Trim(Mid(strLine, 1, index - 1)))
+                        attValue = Trim(Mid(strLine, index+1, lineLen - index))
+                        
+                        if current_section.exists(attName) then
+                            strLine = attName & " = " & current_section(attName)
+                        end if
+                    end if
+                end if
+            end if
+            
+            my_target_handler.WriteLine(strLine)
+        wend
+        
+        my_source_handler.close()
+        my_target_handler.close()
+        
+        fso.DeleteFile file_name
+        fso.MoveFile file_name & ".tmp", file_name
+    end sub    
+end class    
 
 
 class MEBCommandProcessor
@@ -165,13 +221,13 @@ class MEBCommandProcessor
     private sub print_usage()
         Wscript.Echo "mysqlwbmeb <command> <parameters>"
         Wscript.Echo
-        Wscript.Echo "WHERE : <command>        : is one of HELP, VERSION, BACKUP, GET_PROFILES, UPDATE_SCHEDULING" 
+        Wscript.Echo "WHERE : <command>        : is one of HELP, VERSION, BACKUP, GET_PROFILES, UPDATE_SCHEDULING, PROPAGATE_DATA" 
         Wscript.Echo "        <parameters>     : are the parameters needed for each command."
         Wscript.Echo
         Wscript.Echo "You can also use as follows to get each command parameters:"
         Wscript.Echo
         Wscript.Echo "mysqlwbmeb help <command>"
-        Wscript.Echo "WHERE : <command>        : is one of VERSION, BACKUP, GET_PROFILES"
+        Wscript.Echo "WHERE : <command>        : is one of VERSION, BACKUP, GET_PROFILES, UPDATE_SCHEDULING, PROPAGATE_DATA"
     end sub
     
     public function execute()
@@ -189,6 +245,8 @@ class MEBCommandProcessor
                     set command = new MEBGetProfiles
                 case "UPDATE_SCHEDULING"
                     set command = new MEBUpdateScheduling
+                case "PROPAGATE_DATA"
+                    set command = new MEBPropagateSettings
             end select    
             
             if command is Nothing then
@@ -670,8 +728,9 @@ class MEBUpdateScheduling
     end function
     
     public function execute()
-        ret_val = 0
+        ret_val = 1
         if read_params() then
+            ret_val = 0
             set shell = WScript.CreateObject("WScript.Shell")
         
             ' Profile data would NOT be read on DELETE actions.
@@ -710,6 +769,89 @@ class MEBUpdateScheduling
         execute = ret_val
     end function
 end class
+
+class MEBPropagateSettings
+    private datadir
+    private datafile
+    
+    private fso
+    private backups_home
+    
+    
+    
+    private sub Class_Initialize()
+        datadir = ""
+        set fso = CreateObject("Scripting.FileSystemObject")
+        
+        ' Sets the backups home to the parent folder of this script
+        backups_home = fso.GetParentFolderName(Wscript.ScriptFullName)
+    end sub    
+    
+    public function read_params()
+        ret_val = false
+
+        if Wscript.Arguments.Count = 2 then
+            datafile = Wscript.Arguments.Item(1)
+            ret_val = true
+        end if
+
+        read_params = ret_val
+    end function
+
+    public sub print_usage()
+        Wscript.Echo "PROPAGATE_DATA <datadir>"
+        Wscript.Echo 
+        Wscript.Echo "WHERE : <datadir> : is the path to the datadir of the server instance for which the profiles are"
+        Wscript.Echo "                    being loaded. (There could be more than one instance on the same box)."
+        Wscript.Echo
+    end sub
+        
+
+    public function execute()
+        ret_val = 1
+        if read_params() then
+            ret_val = 0
+            ' Loads the information to be propagated
+            set updater = new ConfigUpdater
+            source_config_file = backups_home & "\" & datafile 
+            updater.load_config(source_config_file)
+        
+            datadir = updater.config.get_value("target", "datadir", "")
+            
+            if datadir <> "" then
+                Set master_data = CreateObject("Scripting.Dictionary")
+
+                Set backups_home_folder = fso.GetFolder(backups_home)
+                Set all_files = backups_home_folder.Files
+                
+                for each file in all_files
+                    profile_issues = 0
+                    if ucase(fso.GetExtensionName(file.name)) = "CNF" then
+                        set profile = new ConfigReader
+                        profile.load(backups_home & "\" & file.name)
+
+                        ' Verifies the datadir to ensure it belongs to the requested instance
+                        command = profile.get_value("meb_manager", "command", "")
+                        
+                        profile_datadir = profile.get_value("mysqlbackup", "datadir",  "")
+                        if UCase(profile_datadir) = UCase(datadir) then
+                            updater.update(backups_home & "\" & file.name)
+                        end if
+                    end if
+                next
+            else
+                WScript.Echo("Data propagation file is missing the target datadir.")
+            end if
+            
+            ' Deletes the temporary file
+            fso.DeleteFile source_config_file
+        else
+            print_usage()
+        end if
+        
+    end function
+end class
+                    
 
 class MEBGetProfiles
     private datadir
