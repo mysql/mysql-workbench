@@ -325,11 +325,38 @@ void SpatialDrawBox::auto_zoom(spatial::LayerId layer_id)
     return;
 
   double h = std::abs(env.top_left.y - env.bottom_right.y);
+  double w = std::abs(env.top_left.x - env.bottom_right.x);
 
   const double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
 
-  env.bottom_right.x = env.top_left.x + h * ratio;
-
+  if (h > w)
+  {
+    env.bottom_right.x = env.top_left.x + (h * ratio);
+    if (env.bottom_right.x > 180 || env.bottom_right.x < -180)
+    {
+      env.bottom_right.x = 180;
+      env.top_left.x = env.bottom_right.x - (h*ratio);
+    }
+    if (env.top_left.x > 180 || env.top_left.y < -180)
+    {
+      env.top_left.x = -180;
+      env.bottom_right.x = env.top_left.x + (h*ratio);
+    }
+  }
+  else
+  {
+    env.bottom_right.y = env.top_left.y - (w / ratio);
+    if (env.bottom_right.y < -90 || env.bottom_right.y > 90)
+    {
+      env.bottom_right.y = -90;
+      env.top_left.y = env.bottom_right.y + (w * ratio);
+    }
+    if (env.top_left.y < -90 || env.top_left.y > 90)
+    {
+      env.top_left.y = 90;
+      env.bottom_right.y = env.top_left.y - (w * ratio);
+    }
+  }
   _min_lat = env.top_left.x;
   _max_lat = env.bottom_right.x;
   _min_lon = env.bottom_right.y;
@@ -623,6 +650,7 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, boo
 
     double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
     lon2 = lon1 + h * ratio;
+
 
 
     _zoom_level = 1.0;

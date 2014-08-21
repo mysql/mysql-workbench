@@ -666,10 +666,8 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     base::Color(0.0, 0.0, 0.6)
   };
 
-  bool initializing = false;
   if (_layer_tree->count() == 0)
   {
-    initializing = true;
     base::Color color(layer_colors[0]);
     mforms::TreeNodeRef node = _layer_tree->add_node();
     node->set_string(1, "Grid");

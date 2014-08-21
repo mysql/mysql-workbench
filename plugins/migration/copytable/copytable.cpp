@@ -906,14 +906,14 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
     throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, stmt);
 
-  size_t count = 0;
+  long long count = 0;
   if (SQL_SUCCEEDED(SQLFetch(stmt)))
     SQLGetData(stmt, 1, SQL_C_ULONG, &count, sizeof(count), NULL);
 
   SQLFreeHandle(SQL_HANDLE_STMT, stmt);
 
-  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && (size_t)spec.max_count < count)
-    count = (size_t)spec.max_count;
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+    count = spec.max_count;
 
   return count;
 }
@@ -1409,14 +1409,14 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
   // Retrieves the row count...
   MYSQL_ROW row = mysql_fetch_row(result);
 
-  size_t count = 0;
+  long long count = 0;
   if (row)
     count = atol(row[0]);
 
   mysql_free_result(result);
 
-  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && (size_t)spec.max_count < count)
-      count = (size_t)spec.max_count;
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+      count = spec.max_count;
 
   return count;
 }
