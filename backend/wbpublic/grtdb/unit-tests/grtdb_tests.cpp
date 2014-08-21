@@ -321,7 +321,7 @@ static std::map<std::string, RuleAlternatives> rules = map_list_of
     (T(), list_of<GrammarNode>(false, true, false, "nchar_literal") (false, false, false, "field_length") (true, false, false, "BINARY"))
     (T(), list_of<GrammarNode>(true, true, false, " BINARY") (false, false, false, "field_length"))
     (T(), list_of<GrammarNode>(false, true, false, "varchar_literal") (false, true, false, "field_length") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(false, true, false, "nvarchar_literal") (false, true, false, "field_length") (false, false, false, "string_binary"))
+    (T(), list_of<GrammarNode>(false, true, false, "nvarchar_literal") (false, true, false, "field_length") (true, false, false, "BINARY"))
     (T(), list_of<GrammarNode>(true, true, false, "VARBINARY") (false, true, false, "field_length"))
     (T(), list_of<GrammarNode>(true, true, false, "YEAR") (false, false, false, "field_length") (false, false, false, "field_options"))
     (T(), list_of<GrammarNode>(true, true, false, "DATE"))
@@ -363,7 +363,7 @@ static std::map<std::string, RuleAlternatives> rules = map_list_of
   )
 
   ("field_length", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "123") (true, true, false, ")"))
+    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "6") (true, true, false, ")"))
   )
 
   ("field_options", list_of<GrammarSequence>
@@ -382,7 +382,7 @@ static std::map<std::string, RuleAlternatives> rules = map_list_of
   )
 
   ("precision", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "123") (true, true, false, ",") (true, true, false, "456") (true, true, false, ")"))
+    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "12") (true, true, false, ",") (true, true, false, "5") (true, true, false, ")"))
   )
 
   ("float_options", list_of<GrammarSequence>
@@ -390,15 +390,11 @@ static std::map<std::string, RuleAlternatives> rules = map_list_of
   )
 
   ("float_options_alt1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "123") (false, false, false, "float_options_alt1_seq1") (true, true, false, ")"))
+    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "12") (false, false, false, "float_options_alt1_seq1") (true, true, false, ")"))
   )
 
   ("float_options_alt1_seq1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, ",") (true, true, false, "123"))
-  )
-
-  ("field_length", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "123") (true, true, false, ")"))
+    (T(), list_of<GrammarNode> (true, true, false, ",") (true, true, false, "6"))
   )
 
   ("string_binary", list_of<GrammarSequence>
@@ -429,8 +425,9 @@ static std::map<std::string, RuleAlternatives> rules = map_list_of
   )
 
   ("charset_name", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(false, true, false, "text_or_identifier"))
-    (T(), list_of<GrammarNode> (true, true, false, "BINARY"))
+    (T(), list_of<GrammarNode>(true, true, false, "'utf8'"))
+    (T(), list_of<GrammarNode>(true, true, false, "utf8"))
+    (T(), list_of<GrammarNode>(true, true, false, "BINARY"))
   )
 
   ("text_or_identifier", list_of<GrammarSequence>
@@ -468,20 +465,26 @@ static std::map<std::string, RuleAlternatives> rules = map_list_of
     (T(), list_of<GrammarNode>(true, true, false, "NATIONAL CHAR") (true, true, false, "VARYING"))
     (T(), list_of<GrammarNode>(true, true, false, "NVARCHAR"))
     (T(), list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARCHAR"))
-    (T(), list_of<GrammarNode>(true, true, false, "NATIONAL CHAR") (true, true, false, "CHAR") (true, true, false, "VARYING"))
+    (T(), list_of<GrammarNode>(true, true, false, "NATIONAL") (true, true, false, "CHAR") (true, true, false, "VARYING"))
     (T(), list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARYING"))
   )
 
   ("type_datetime_precision", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "123")  (true, true, false, ")"), 50600)
+    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "6")  (true, true, false, ")"), 50600)
   )
 
   ("string_list", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "(") (false, true, false, "string_literal") (false, false, true, "string_literal_seq1") (true, true, false, ")"))
+    (T(), list_of<GrammarNode>(true, true, false, "(") (false, true, false, "text_string") (false, false, true, "string_list_seq1") (true, true, false, ")"))
   )
 
-  ("string_literal_seq1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, ",") (false, true, false, "string_literal"))
+  ("string_list_seq1", list_of<GrammarSequence>
+    (T(), list_of<GrammarNode>(true, true, false, ",") (false, true, false, "text_string"))
+  )
+
+  ("text_string", list_of<GrammarSequence>
+    (T(), list_of<GrammarNode>(true, true, false, "'text'")) // SINGLE_QUOTED_TEXT
+    (T(), list_of<GrammarNode>(true, true, false, "0x12345AABBCCDDEEFF")) // HEXNUMBER
+    (T(), list_of<GrammarNode>(true, true, false, "0b1000111101001011")) // BITNUMBER
   )
 
   ("spatial_type", list_of<GrammarSequence>
@@ -583,16 +586,19 @@ std::vector<std::string> get_variations_for_rule(std::string rule_name)
 
 TEST_FUNCTION(22)
 {
-  printf("Data types:\n");
-
   // First generate all possible combinations.
   std::vector<std::string> definitions = get_variations_for_rule("data_type");
-  std::string output;
+  int counter = 0;
+  std::stringstream s;
+  s << "create table all_data_types (\n";
+
   for (auto iterator = definitions.begin(); iterator != definitions.end(); ++iterator)
   {
-    output += "create table t1 (col " + *iterator + ");\n";
+    s << "  col" << counter++ << " " << *iterator << ",\n";
   }
-  g_file_set_contents("data_types.txt", output.c_str(), output.size(), NULL);
+  s << ");";
+  std::string text = s.str();
+  g_file_set_contents("data_types.txt", text.c_str(), text.size(), NULL);
 }
 
 TEST_FUNCTION(25)
