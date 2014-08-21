@@ -86,7 +86,7 @@ bool spatial::Envelope::is_init()
   return (top_left.x != 180 && top_left.y != -90 && bottom_right.x != -180 && bottom_right.y != 90);
 }
 
-bool spatial::ShapeContainer::within(const base::Point &p) const
+double spatial::ShapeContainer::within(const base::Point &p) const
 {
   switch(type)
   {
@@ -99,11 +99,11 @@ bool spatial::ShapeContainer::within(const base::Point &p) const
   case ShapePolygon:
     return within_polygon(p);
   default:
-    return false;
+    return -1;
   }
 }
 
-bool spatial::ShapeContainer::within_linearring(const base::Point &p) const
+double spatial::ShapeContainer::within_linearring(const base::Point &p) const
 {
   if (points.empty())
     return false;
@@ -141,18 +141,17 @@ static double distance_to_segment(const base::Point &start, const base::Point &e
   return sqrt(pow(dx, 2) + pow(dy, 2));
 }
 
-bool spatial::ShapeContainer::within_line(const std::vector<base::Point> &point_list, const base::Point &p) const
+double spatial::ShapeContainer::within_line(const std::vector<base::Point> &point_list, const base::Point &p) const
 {
   if (point_list.empty())
-    return false;
+    return -1;
 
   std::vector<base::Point>::const_iterator it = point_list.begin(), it_tmp = point_list.begin();
   while (++it != point_list.end())
   {
     try
     {
-      if (distance_to_segment(*it_tmp, *it, p) <= 1.0)
-        return true;
+      return distance_to_segment(*it_tmp, *it, p);
     }
     catch (std::logic_error &)
     {
@@ -162,17 +161,17 @@ bool spatial::ShapeContainer::within_line(const std::vector<base::Point> &point_
     it_tmp = it;
   }
 
-  return false;
+  return -1;
 }
 
-bool spatial::ShapeContainer::within_polygon(const base::Point &p) const
+double spatial::ShapeContainer::within_polygon(const base::Point &p) const
 {
   if (points.empty())
-      return false;
+      return -1;
 
   //first we check if we're in the bounding box cause maybe it's pointless to check all the polygon points
   if (!(bounding_box.top_left.x <= p.x && bounding_box.top_left.y <= p.y && bounding_box.bottom_right.x >= p.x && bounding_box.bottom_right.y >= p.y))
-    return false;
+    return -1;
 
   bool c = false;
   int i, j = 0;
@@ -181,20 +180,15 @@ bool spatial::ShapeContainer::within_polygon(const base::Point &p) const
     if ( ((points[i].y > p.y) != (points[j].y > p.y)) && (p.x < (points[j].x - points[i].x) * (p.y - points[i].y) / (points[j].y - points[i].y) + points[i].x) )
       c = !c;
   }
-  return c;
+  return c ? 0 : -1;
 }
 
-bool spatial::ShapeContainer::within_point(const base::Point &p) const
+double spatial::ShapeContainer::within_point(const base::Point &p) const
 {
   if (points.empty())
-    return false;
+    return -1;
 
-  double rval = sqrt(pow((p.x - points[0].x), 2) + pow((p.y - points[0].y), 2));
-  if (rval < 4.0) //4 is tolerance for point to point distance
-  {
-    return true;
-  }
-  return false;
+  return sqrt(pow((p.x - points[0].x), 2) + pow((p.y - points[0].y), 2));
 }
 
 spatial::ShapeContainer::ShapeContainer()
@@ -769,14 +763,20 @@ void Feature::render(Converter *converter)
 }
 
 
-bool Feature::within(const base::Point &p)
+double Feature::within(const base::Point &p, const double &allowed_distance)
 {
+  double rval = -1;
   for (std::deque<ShapeContainer>::const_iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
-    if ((*it).within(p))
-      return true;
+    double dist = (*it).within(p);
+    if (rval == -1 || (dist < allowed_distance && dist != -1 && dist < rval))
+      rval = dist;
   }
-  return false;
+
+  if (rval > allowed_distance)
+    rval = -1;
+
+  return rval;
 }
 
 void Feature::interrupt()
@@ -947,14 +947,24 @@ void Layer::render(Converter *converter)
   }
 }
 
-spatial::Feature* Layer::feature_within(const base::Point &p)
+spatial::Feature* Layer::feature_within(const base::Point &p, const double &allowed_distance)
 {
+  double rval = -1;
+  spatial::Feature *f = NULL;
   for (std::deque<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
   {
-    if ((*iter)->within(p))
-      return *iter;
+    double dist = (*iter)->within(p, allowed_distance);
+    if (rval == -1 || (dist < allowed_distance && dist != -1 && dist < rval))
+    {
+      rval = dist;
+      f = (*iter);
+    }
   }
-  return NULL;
+
+  if (rval > allowed_distance || rval == -1)
+    f = NULL;
+
+  return f;
 }
 
 
