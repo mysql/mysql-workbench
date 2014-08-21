@@ -434,15 +434,17 @@ OGRGeometry *spatial::Importer::steal_data()
 
 int spatial::Importer::import_from_mysql(const std::string &data)
 {
-  OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin()+4))), NULL, &_geometry);
+  if (data.size() > 4)
+  {
+    OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin() + 4))), NULL, &_geometry);
 
-  if (_geometry)
-    _geometry->assignSpatialReference(Projection::get_instance().get_projection(ProjGeodetic));
+    if (_geometry)
+      _geometry->assignSpatialReference(Projection::get_instance().get_projection(ProjGeodetic));
 
-  if (ret_val == OGRERR_NONE)
-    return 0;
-  else
-    return 1;
+    if (ret_val == OGRERR_NONE)
+      return 0;
+  }
+  return 1;
 }
 
 int spatial::Importer::import_from_wkt(std::string data)
