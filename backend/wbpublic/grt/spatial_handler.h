@@ -98,16 +98,16 @@ namespace spatial
   {
 
   protected:
-    bool within_linearring(const base::Point &p) const;
-    bool within_line(const std::vector<base::Point> &point_list, const base::Point &p) const;
-    bool within_polygon(const base::Point &p) const;
-    bool within_point(const base::Point &p) const;
+    double within_linearring(const base::Point &p) const;
+    double within_line(const std::vector<base::Point> &point_list, const base::Point &p) const;
+    double within_polygon(const base::Point &p) const;
+    double within_point(const base::Point &p) const;
   public:
     ShapeContainer();
     ShapeType type;
     std::vector<base::Point> points;
     Envelope bounding_box;
-    bool within(const base::Point &p) const;
+    double within(const base::Point &p) const;
   };
 
   class WBPUBLICBACKEND_PUBLIC_FUNC Projection
@@ -200,7 +200,7 @@ namespace spatial
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, base::Color fill_color=base::Color::Invalid());
 
     int row_id() const { return _row_id; }
-    bool within(const base::Point &p);
+    double within(const base::Point &p, const double &allowed_distance = 4.0);
   };
 
   typedef int LayerId;
@@ -241,7 +241,7 @@ namespace spatial
 
     void add_feature(int row_id, const std::string &geom_data, bool wkt);
     virtual void render(spatial::Converter *converter);
-    spatial::Feature *feature_within(const base::Point &p);
+    spatial::Feature *feature_within(const base::Point &p, const double &allowed_distance = 4.0);
     void set_fill_polygons(bool fill);
     bool get_fill_polygons();
     virtual void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
