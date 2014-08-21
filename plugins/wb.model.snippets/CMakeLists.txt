@@ -28,11 +28,11 @@ add_library(wb.model.snippets.wbp MODULE
     register_plugin.cpp
 )
 
-set_target_properties(wb.model.snippets.wbp PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-)
-
 target_link_libraries(wb.model.snippets.wbp wbscintilla)
+
+set_target_properties(wb.model.snippets.wbp
+                      PROPERTIES PREFIX    ""
+                                 VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wb.model.snippets.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

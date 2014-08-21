@@ -267,6 +267,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 - (void)setStringValue: (NSString*)value
 {
   [self setTitle: value];
+  [self sizeToFit];
 }
 
 - (NSString*)stringValue
@@ -433,7 +434,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
 @implementation MFToolBarSelectorItemImpl
 - (id)initWithItemObject:(ToolBarItem*)item
 {
-  self = [super initWithFrame: NSMakeRect(0, 0, 200, layout_info[0].item_width)];
+  self = [super initWithFrame: NSMakeRect(0, 0, 150, layout_info[0].item_width)];
   if (self)
   {
     mOwner = item;
@@ -973,6 +974,7 @@ static void set_selector_items(ToolBarItem *item, const std::vector<std::string>
       for (std::vector<std::string>::const_iterator iter = items.begin();
            iter != items.end(); ++iter)
         [array addObject: wrap_nsstring(*iter)];
+      [tbitem removeAllItems];
       [tbitem addItemsWithTitles: array];
       [tbitem sizeToFit];
     }

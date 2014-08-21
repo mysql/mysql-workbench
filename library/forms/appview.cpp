@@ -43,7 +43,6 @@ AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
 }
 
 #else
-
 AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
 : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main)
 {
@@ -54,7 +53,6 @@ AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
   set_back_color("#e8e8e8");
 #endif
   _identifier = base::strfmt("avid%i", ++_serial);
-
   _dpoint = 0;
 }
 
@@ -140,4 +138,11 @@ bool AppView::on_close()
   if (_on_close_slot) 
     return _on_close_slot(); 
   return true;
+}
+
+
+void AppView::close()
+{
+  if (_dpoint)
+    _dpoint->undock_view(this);
 }

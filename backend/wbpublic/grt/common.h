@@ -55,10 +55,10 @@ namespace bec {
   
   enum MoveType
   {
-    MoveTop,
-    MoveUp,
-    MoveDown,
-    MoveBottom
+    MoveTop = -1,
+    MoveUp = -2,
+    MoveDown = -3,
+    MoveBottom = -4
   };
 
   enum FindType
@@ -166,10 +166,7 @@ namespace bec {
   }
 
   template <class T>
-  WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item(MoveType move_type, grt::ListRef<T> items, const grt::ValueRef &object);
-
-  template <class T>
-  WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, size_t to);
+  WBPUBLICBACKEND_PUBLIC_FUNC void move_list_ref_item(grt::ListRef<T> items, const grt::ValueRef &object, int to);
 
   class WBPUBLICBACKEND_PUBLIC_FUNC TimerActionThread
   {

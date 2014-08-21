@@ -289,10 +289,12 @@ class WbAdminConnections(WbAdminBaseTab):
                             ("NAME", mforms.StringColumnType, "Name", 80),
                             ("PARENT_THREAD_ID", mforms.LongIntegerColumnType, "Parent Thread", 50),
                             ("INSTRUMENTED", mforms.StringColumnType, "Instrumented", 80),
-                            ("PROCESSLIST_INFO", mforms.StringColumnType, "Info", 80),
+                            ("PROCESSLIST_INFO", mforms.StringColumnType, "Info", 200),
                             ]
             self.long_int_columns = [0, 5, 7, 10]
             self.info_column = 12
+            if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 6):
+                self.columns.append(("ATTR_VALUE", mforms.StringColumnType, "Program", 150))
 
             get_path = mforms.App.get().get_resource_path
             self.icon_for_object_type = {
@@ -339,7 +341,7 @@ class WbAdminConnections(WbAdminBaseTab):
         self.connection_list.set_selection_mode(mforms.TreeSelectMultiple)
         self.connection_list.add_column_resized_callback(self.column_resized)
         for i, (field, type, caption, width) in enumerate(self.columns):
-            if column_widths:
+            if column_widths and i < len(column_widths):
                 width = column_widths[i]
             self.connection_list.add_column(type, caption, width, False)
 
@@ -736,7 +738,7 @@ class WbAdminConnections(WbAdminBaseTab):
                                 waiting_label_text = "The connection is waiting for a lock on\n%s %s,\nheld by thread %s." % (otype.lower(), obj_name, owner_list)
                             else:
                                 waiting_label_text = "The connection is waiting for a lock on\n%s %s,\nheld by threads %s" % (otype.lower(), obj_name, owner_list)
-                            waiting_label_text += "\Type: %s  Duration: %s" % (lock_type, lock_duration)
+                            waiting_label_text += "\nType: %s\nDuration: %s" % (lock_type, lock_duration)
                         elif lock_status == "GRANTED":
                             node = self.mdl_list_held.add_node()
 
@@ -811,16 +813,24 @@ class WbAdminConnections(WbAdminBaseTab):
         cols = []
         for field, type, caption, width in self.columns:
             if field == "PROCESSLIST_USER":
-                cols.append("IF (NAME = 'thread/sql/event_scheduler','event_scheduler',PROCESSLIST_USER) PROCESSLIST_USER")
+                cols.append("IF (NAME = 'thread/sql/event_scheduler','event_scheduler',t.PROCESSLIST_USER) PROCESSLIST_USER")
             elif field == "INFO" and self.truncate_info.get_active():
-                cols.append("SUBSTR(INFO, 0, 255) INFO")
-            else: 
-                cols.append(field)
+                cols.append("SUBSTR(t.INFO, 0, 255) INFO")
+            else:
+                if field == "ATTR_VALUE":
+                    cols.append("a."+field)
+                else:
+                    cols.append("t."+field)
 
-        if self.hide_background_threads.get_active():
-            result = self.ctrl_be.exec_query("SELECT %s FROM performance_schema.threads WHERE TYPE <> 'BACKGROUND'" % ",".join(cols))
+        if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 6):
+            JOIN = " LEFT OUTER JOIN performance_schema.session_connect_attrs a ON t.processlist_id = a.processlist_id AND (a.attr_name IS NULL OR a.attr_name = 'program_name')"
         else:
-            result = self.ctrl_be.exec_query("SELECT %s FROM performance_schema.threads" % ",".join(cols))
+            JOIN = ""
+        if self.hide_background_threads.get_active():
+            result = self.ctrl_be.exec_query("SELECT %s FROM performance_schema.threads t %s WHERE t.TYPE <> 'BACKGROUND'" % (",".join(cols), JOIN))
+        else:
+            result = self.ctrl_be.exec_query("SELECT %s FROM performance_schema.threads t %s WHERE 1=1" % (",".join(cols), JOIN))
+        
         if result is not None:
             result_rows = []
             while result.nextRow():

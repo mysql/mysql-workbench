@@ -84,10 +84,13 @@ grt::IntegerRef WBRecordsetResultset::rowCount() const
 grt::DoubleRef WBRecordsetResultset::floatFieldValue(ssize_t column)
 {
   double value;
-  if (column >= 0 && (size_t)column < recordset->get_column_count() &&
-    recordset->get_field(cursor, column, value))
-    return grt::DoubleRef(value);
-  throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
+  if (column >= 0 && (size_t)column < recordset->get_column_count())
+  {
+    if (recordset->get_field(cursor, column, value))
+      return grt::DoubleRef(value);
+  }
+  else
+    throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
   return grt::DoubleRef(0.0);
 }
 
@@ -137,10 +140,13 @@ grt::IntegerRef WBRecordsetResultset::goToRow(ssize_t row)
 grt::IntegerRef WBRecordsetResultset::intFieldValue(ssize_t column)
 {
   ssize_t value;
-  if (column >= 0 && (size_t)column < recordset->get_column_count() &&
-    recordset->get_field(bec::NodeId(cursor), column, value))
-    return grt::IntegerRef(value);
-  throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
+  if (column >= 0 && (size_t)column < recordset->get_column_count())
+  {
+    if (recordset->get_field(bec::NodeId(cursor), column, value))
+      return grt::IntegerRef(value);
+  }
+  else
+    throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
   return grt::IntegerRef(0);
 }
 
@@ -189,10 +195,13 @@ void WBRecordsetResultset::refresh()
 grt::StringRef WBRecordsetResultset::stringFieldValue(ssize_t column)
 {
   std::string value;
-  if (column >= 0 && (size_t)column < recordset->get_column_count() &&
-    recordset->get_field_repr_no_truncate(bec::NodeId(cursor), column, value))
-    return grt::StringRef(value);
-  throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
+  if (column >= 0 && (size_t)column < recordset->get_column_count())
+  {
+    if (recordset->get_field_repr_no_truncate(bec::NodeId(cursor), column, value))
+      return grt::StringRef(value);
+  }
+  else
+    throw std::invalid_argument(base::strfmt("invalid column %li for resultset", (long)column).c_str());
   return grt::StringRef(); // NULL
 }
 

@@ -335,8 +335,6 @@ void DbSqlEditorView::editor_page_reordered(Gtk::Widget *page, guint index)
 void DbSqlEditorView::editor_page_removed(Gtk::Widget *page, guint index)
 {
   reenable_items_in_tab_menus();
-  if (_editor_note->get_n_pages() == 0 && be())
-    be()->new_sql_script_file();
 }
 
 //------------------------------------------------------------------------------

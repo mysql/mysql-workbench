@@ -1290,8 +1290,6 @@ bool SqlEditorTreeController::sidebar_action(const std::string& name)
     }
     return true;
   }
-  else
-    log_warning("unhandled sidebar action %s", name.c_str());
 
   return false;
 }
@@ -1352,7 +1350,7 @@ void SqlEditorTreeController::tree_activate_objects(const std::string& action,
           else if (real_action == "inspect")
             _owner->inspect_object(changes[i].name, "", "db.Schema");
           else if (real_action == "alter")
-            do_alter_live_object(LiveSchemaTree::Schema, changes[i].name, "");
+            do_alter_live_object(LiveSchemaTree::Schema, changes[i].name, changes[i].name);
           else
             _owner->active_schema(changes[i].name);
           break;
@@ -2599,6 +2597,7 @@ grt::StringRef SqlEditorTreeController::do_refresh_schema_tree_safe(grt::GRT *gr
 
   std::list<std::string> schema_list = fetch_schema_list();
   _grtm->run_once_when_idle(this, boost::bind(&LiveSchemaTree::update_schemata, _schema_tree, schema_list));
+  _grtm->run_once_when_idle(this, boost::bind(&SqlEditorForm::schema_tree_did_populate, _owner));
 
   _is_refreshing_schema_tree= false;
 

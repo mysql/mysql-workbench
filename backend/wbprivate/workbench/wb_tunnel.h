@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,7 @@ namespace wb
                     const char *keyfile, const char *target);
     void wait_tunnel(int port);
     void close_tunnel(int port);
+    void set_keepalive(int port, int keepalive);
     
   public:
     TunnelManager(wb::WBContext *wb);

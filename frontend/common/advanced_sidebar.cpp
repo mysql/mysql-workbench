@@ -222,8 +222,8 @@ void SidebarSection::Button::draw(cairo_t *cr)
 
   if (image)
   {
-    double image_left = x + 0.5;
-    double image_top = y + 0.5;
+    double image_left = x;
+    double image_top = y;
     if (hot || down)
     {
       // Draw a bezel shape under the icon.
@@ -251,8 +251,8 @@ void SidebarSection::Button::draw(cairo_t *cr)
       cairo_stroke(cr);
     }
 
-    image_left += (bounds_width - width) / 2 + 1;
-    image_top += (bounds_height - height) / 2 + 1;
+    image_left += floor((bounds_width - width) / 2 + 1);
+    image_top += floor((bounds_height - height) / 2 + 1);
     Utilities::paint_icon(cr, image, image_left, image_top);
   }
 }

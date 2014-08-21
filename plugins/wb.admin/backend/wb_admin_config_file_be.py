@@ -22,6 +22,7 @@ import os
 import tempfile
 import difflib
 import re
+import sys
 
 import opts
 import mforms
@@ -122,6 +123,10 @@ def pick_value(opt, version, platform):
     if 'values' in opt:
         # Walk all values and pick best match
         for i, cur_value in enumerate(opt['values']):
+            if 'bitsize' in cur_value:
+                is_64bit = sys.maxsize > 2**32
+                if (is_64bit and cur_value['bitsize'] != '64') or (not is_64bit and cur_value['bitsize'] != '32'):
+                    continue
             inversion  = cur_value.get('inversion')
             outversion = cur_value.get('outversion')
 
@@ -733,8 +738,9 @@ class WbAdminConfigFileBE(object):
                             # Some sort of validation is performed when loading options to UI,
                             # unsupported options will not be displayed and they are left
                             # unaltered in the file.
+                            value = " ".join(opt[1:]).strip(" \t")
                             if len(opt) > 1:
-                                option.append(i, (" ".join(opt[1:])).strip(" \t"))
+                                option.append(i, value)
                             else:
                                 option.append(i, True)
 
@@ -744,6 +750,17 @@ class WbAdminConfigFileBE(object):
                                     option = Option(current_section, i, 'disabledby')
                                     cur_file_original_opts[option_name[5:]] = option
                                     cur_file_original_opts[option_name] = option
+                            elif value.lower() in ['on', 'off', '1', '0','yes','no', 'true', 'false']:
+                                # since we remove one of redundant option from pairs like 'option_name' and 'skip-option_name'
+                                # we need to take care of options that exists in config file but not in UI
+                                # so if option is bool and has no 'skip-' in name we put additional option 'skip-option_name'
+                                # to cur_file_original_opts list with opposite value to properly handle every options 
+                                if len(opt) > 1:
+                                    value = not self.normalize_bool(value)
+                                else:
+                                    value = False
+                                option = Option(current_section, i, value)
+                                cur_file_original_opts['skip-'+option_name] = option
 
             self.original_opts = cur_file_original_opts
             self.sections = sorted(self.sections, lambda x,y: cmp(x[0], y[0]))

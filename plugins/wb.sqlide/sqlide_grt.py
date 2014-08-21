@@ -31,6 +31,7 @@ from workbench.notifications import NotificationCenter
 
 from sql_reformatter import formatter_for_statement_ast
 from text_output import TextOutputTab
+from run_script import RunScriptForm
 from sqlide_catalogman_ext import show_schema_manager
 from sqlide_tableman_ext import show_table_inspector
 
@@ -38,6 +39,7 @@ from sqlide_resultset_ext import handleResultsetContextMenu
 import sqlide_catalogman_ext
 import sqlide_tableman_ext
 import sqlide_schematree_ext
+import sqlide_import_spatial
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "SQLIDEUtils", author= "Oracle Corp.", version="1.1")
@@ -54,6 +56,7 @@ def initialize0():
     nc.add_observer(sqlide_schematree_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow") # must be 1st
     nc.add_observer(sqlide_catalogman_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow")
     nc.add_observer(sqlide_tableman_ext.handleLiveTreeContextMenu, name = "GRNLiveDBObjectMenuWillShow")
+    nc.add_observer(sqlide_import_spatial.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
 
 
 
@@ -183,28 +186,30 @@ def verticalOutput(editor):
     statement = editor.currentStatement
     if statement:
         rsets = editor.owner.executeScript(statement)
-        rset = rsets and rsets[0]
-        if rset:
+        output = [ '> %s\n' % statement ]
+        for idx, rset in enumerate(rsets):
+            if len(rsets) > 1:
+                output.append('Result set %i' % (idx+1))
             column_name_length = max(len(col.name) for col in rset.columns)
-            output = [ '> %s\n' % rset.sql ]
             ok = rset.goToFirstRow()
             while ok:
                 output.append('******************** %s. row *********************' % (rset.currentRow + 1))
-                for column in rset.columns:
-                    col_name, col_value = column.name.rjust(column_name_length), rset.stringFieldValueByName(column.name)
+                for i, column in enumerate(rset.columns):
+                    col_name, col_value = column.name.rjust(column_name_length), rset.stringFieldValue(i)
                     output.append('%s: %s' % (col_name, col_value if col_value is not None else 'NULL'))
                 ok = rset.nextRow()
             output.append('%d rows in set' % (rset.currentRow + 1))
+            rset.reset_references()            
+            if len(rsets) > 1:
+              output.append('')
+        view = TextOutputTab('\n'.join(output) + '\n')
+        
+        dock = mforms.fromgrt(editor.resultDockingPoint)
+        dock.dock_view(view, '', 0)
+        dock.select_view(view)
+        dock.set_view_title(view, 'Vertical Output')
 
-            view = TextOutputTab('\n'.join(output) + '\n')
-            
-            dock = mforms.fromgrt(editor.resultDockingPoint)
-            dock.dock_view(view, '', 0)
-            dock.select_view(view)
-            dock.set_view_title(view, 'Vertical Output')
-          
-            rset.reset_references()
-            
+
     return 0
 
 
@@ -598,4 +603,12 @@ def showInspector(editor, selection):
 #@ModuleInfo.export(grt.INT, grt.classes.db_query_QueryBuffer)
   #def refactorRenameSchema(editor):
 #    pass
+
+
+@ModuleInfo.plugin("wb.sqlide.runScript", caption = "Run SQL Script", input=[wbinputs.currentSQLEditor()])
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
+def runSQLScript(editor):
+    form = RunScriptForm(editor)
+    form.run()
+    return 0
 

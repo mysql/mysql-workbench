@@ -220,6 +220,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _autosave_disabled(false),
   _loading_workspace(false),
   _cancel_connect(false),
+  _closing(false),
   _sql_editors_serial(0),
   _scratch_editors_serial(0),
   _keep_alive_thread(NULL),
@@ -311,7 +312,6 @@ void SqlEditorForm::finish_startup()
           boost::bind(&SqlEditorForm::get_autocompletion_connection, this, _1), cache_dir,
           boost::bind(&SqlEditorForm::on_cache_action, this, _1));
         _auto_completion_cache->refresh_schema_cache(""); // Start fetching of schema names immediately.
-
       }
       catch (std::exception &e)
       {
@@ -504,6 +504,7 @@ grt::StringRef SqlEditorForm::do_disconnect(grt::GRT *grt)
 void SqlEditorForm::close()
 {
   grt::ValueRef option(_grtm->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
+
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
   {
     _grtm->replace_status_text("Saving workspace state...");
@@ -571,6 +572,10 @@ void SqlEditorForm::close()
       if (p)
         p->editor_be()->stop_processing();
     }
+
+    _closing = true;
+    _tabdock->close_all_views();
+    _closing = false;
   }
   _grtm->replace_status_text("Closing SQL Editor...");
   wbsql()->editor_will_close(this);
@@ -613,6 +618,32 @@ bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::s
   return false;
 }
 
+
+void SqlEditorForm::schema_tree_did_populate()
+{
+  if (!_pending_expand_nodes.empty() && _grtm->get_app_option_int("DbSqlEditor:SchemaTreeRestoreState", 1))
+  {
+    std::string schema, groups;
+    base::partition(_pending_expand_nodes, ":", schema, groups);
+
+    mforms::TreeNodeRef node = _live_tree->get_schema_tree()->get_node_for_object(schema, wb::LiveSchemaTree::Schema, "");
+    if (node)
+    {
+      static const char *nodes[] = {
+        "tables", "views", "procedures", "functions", NULL
+      };
+      node->expand();
+      for (int i = 0; nodes[i]; i++)
+        if (strstr(groups.c_str(), nodes[i]))
+        {
+          mforms::TreeNodeRef child = node->get_child(i);
+          if (child)
+            child->expand();
+        }
+    }
+    _pending_expand_nodes.clear();
+  }
+}
 
 std::string SqlEditorForm::fetch_data_from_stored_procedure(std::string proc_call, boost::shared_ptr<sql::ResultSet> &rs)
 {
@@ -977,7 +1008,17 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
   //! dbms-specific code
   if (dbc_conn->ref->getMetaData()->getDatabaseMajorVersion() < 5)
   {
-    throw std::runtime_error("MySQL Server version is older than 5.0, which is not supported");
+    throw std::runtime_error("MySQL Server version is older than 5.x, which is not supported");
+  }
+
+  // get SSL enabled info
+  {
+    std::auto_ptr<sql::Statement> stmt(dbc_conn->ref->createStatement());
+    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
+    if (result->next())
+    {
+      dbc_conn->ssl_cipher = result->getString(2);
+    }
   }
 
   // Activate default schema, if it's empty, use last active
@@ -1154,6 +1195,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     _connection_details["name"] = _connection->name();
     _connection_details["hostName"] = _connection->parameterValues().get_string("hostName");
     _connection_details["port"] = strfmt("%li\n", (long)_connection->parameterValues().get_int("port"));
+
     _connection_details["socket"] = _connection->parameterValues().get_string("socket");
     _connection_details["driverName"] = _connection->driver()->name();
     _connection_details["userName"] = _connection->parameterValues().get_string("userName");
@@ -1219,6 +1261,8 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
         if (rs->next())
           _connection_info.append(create_html_line("Current User:", rs->getString(1)));
       }
+
+      _connection_info.append(create_html_line("SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Enabled using "+_usr_dbc_conn->ssl_cipher));
 
       // get lower_case_table_names value
       std::string value;
@@ -1432,7 +1476,6 @@ void SqlEditorForm::toggle_autocommit()
   update_menu_and_toolbar();
 }
 
-
 void SqlEditorForm::toggle_collect_field_info()
 {
   if (_connection.is_valid())
@@ -1446,6 +1489,7 @@ bool SqlEditorForm::collect_field_info() const
     return _connection->parameterValues().get_int("CollectFieldMetadata", 1) != 0;
   return false;
 }
+
 
 void SqlEditorForm::toggle_collect_ps_statement_events()
 {
@@ -1688,7 +1732,6 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
   std::map<std::string, boost::int64_t> ps_stats;
   std::vector<PSStage> ps_stages;
   std::vector<PSWait> ps_waits;
-  bool fetch_field_info = collect_field_info();
   bool query_ps_stats = collect_ps_statement_events();
   std::string query_ps_statement_events_error;
   std::string statement;
@@ -1744,6 +1787,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
     else
     {
       std::list<std::string> warning;
+
       warning.push_back(base::strfmt("Skipping history entries for %li statements, total %li bytes", (long)statement_ranges.size(),
                                      (long)sql->size()));
       _history->add_entry(warning);
@@ -1784,7 +1828,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
         if (!is_multiple_statement && (Sql_syntax_check::sql_select == statement_type))
         {
           data_storage= Recordset_cdbc_storage::create(_grtm);
-          data_storage->set_gather_field_info(fetch_field_info);
+          data_storage->set_gather_field_info(true);
           data_storage->rdbms(rdbms());
           data_storage->dbms_conn(_usr_dbc_conn);
           data_storage->aux_dbms_conn(_aux_dbc_conn);
@@ -1970,7 +2014,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     if (!data_storage)
                     {
                       data_storage= Recordset_cdbc_storage::create(_grtm);
-                      data_storage->set_gather_field_info(fetch_field_info);
+                      data_storage->set_gather_field_info(true);
                       data_storage->rdbms(rdbms());
                       data_storage->dbms_conn(_usr_dbc_conn);
                       data_storage->aux_dbms_conn(_aux_dbc_conn);
@@ -2838,11 +2882,15 @@ bool SqlEditorForm::can_close_(bool interactive)
     // review changes 1 by 1
     if (review && editor_needs_review)
     {
+      _closing = true;
       for (int i = 0; i < sql_editor_count(); i++)
       {
         SqlEditorPanel *panel = sql_editor_panel(i);
         if (panel && !panel->can_close())
+        {
+          _closing = false;
           return false;
+        }
       }
     }
   }

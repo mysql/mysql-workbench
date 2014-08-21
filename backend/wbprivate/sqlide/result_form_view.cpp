@@ -24,7 +24,10 @@
 
 #include "grtdb/db_helpers.h"
 #include "grtui/inserts_export_form.h"
+#include "grtui/geom_draw_box.h"
 #include "sqlide/recordset_cdbc_storage.h"
+
+#include "grt/spatial_handler.h"
 
 #include "base/sqlstring.h"
 #include "grt/parse_utils.h"
@@ -124,11 +127,11 @@ public:
 
 class SelectorFieldView : public ResultFormView::FieldView
 {
-  mforms::Selector *_selector;
+  mforms::Selector _selector;
 
   void changed()
   {
-    _change_callback(_selector->get_string_value());
+    _change_callback(_selector.get_string_value());
   }
 
 public:
@@ -136,22 +139,20 @@ public:
                     bool editable, const boost::function<void (const std::string &s)> &change_callback)
   : FieldView(name, change_callback)
   {
-    _selector = new mforms::Selector();
-    _selector->add_items(items);
-    _selector->set_enabled(editable);
-    _selector->signal_changed()->connect(boost::bind(&SelectorFieldView::changed, this));
+    _selector.add_items(items);
+    _selector.set_enabled(editable);
+    _selector.signal_changed()->connect(boost::bind(&SelectorFieldView::changed, this));
   }
 
   virtual ~SelectorFieldView()
   {
-    _selector->release();
   }
 
-  virtual mforms::View *value() { return _selector; }
+  virtual mforms::View *value() { return &_selector; }
 
   virtual void set_value(const std::string &value, bool is_null)
   {
-    _selector->set_value(value);
+    _selector.set_value(value);
   }
 };
 
@@ -287,6 +288,80 @@ public:
   }
 };
 
+class GeomFieldView : public ResultFormView::FieldView
+{
+  mforms::Box _box;
+  mforms::TextBox _text;
+  GeomDrawBox _image;
+  std::string _raw_data;
+  int _view_type;
+
+  virtual bool expands()
+  {
+    return true;
+  }
+
+  void update()
+  {
+    std::string text;
+    spatial::Importer importer;
+    importer.import_from_mysql(_raw_data);
+    switch (_view_type)
+    {
+      case 0:
+        text = importer.as_wkt();
+        break;
+      case 1:
+        text = importer.as_json();
+        break;
+      case 2:
+        text = importer.as_gml();
+        break;
+      case 3:
+        text = importer.as_kml();
+        break;
+    }
+    _text.set_value(text);
+  }
+
+public:
+  GeomFieldView(const std::string &name, const std::string &type, bool editable, const boost::function<void (const std::string &s)> &change_callback,
+                const boost::function<void ()> &view_callback)
+  : FieldView(name, change_callback), _box(true), _text(mforms::VerticalScrollBar)
+  {
+    _view_type = 0;
+    _box.set_spacing(8);
+    _image.set_size(150, 150);
+
+    _box.add(&_image, false, true);
+    _box.add(&_text, true, true);
+  }
+
+  virtual mforms::View *value() { return &_box; }
+
+  virtual void set_value(const std::string &value, bool is_null)
+  {
+    _image.set_data(value);
+    _text.set_read_only(false);
+    _raw_data = value;
+    update();
+    _text.set_read_only(true);
+  }
+
+  void set_view_type(const std::string &type)
+  {
+    if (type.find("WKT") != std::string::npos)
+      _view_type = 0;
+    else if (type.find("JSON") != std::string::npos)
+      _view_type = 1;
+    else if (type.find("GML") != std::string::npos)
+      _view_type = 2;
+    else if (type.find("KML") != std::string::npos)
+      _view_type = 3;
+    update();
+  }
+};
+
 
 static std::list<std::string> parse_enum_definition(const std::string &full_type)
 {
@@ -340,9 +415,13 @@ ResultFormView::FieldView *ResultFormView::FieldView::create(const Recordset_cdb
   {
     return new TextFieldView(format_label(field.field), editable, callback);
   }
-  else if (field.type == "BLOB" || field.type == "GEOMETRY")
+  else if (field.type == "BLOB")
   {
     return new BlobFieldView(format_label(field.field), field.type, editable, callback, view_blob_callback);
+  }
+  else if (field.type == "GEOMETRY")
+  {
+    return new GeomFieldView(format_label(field.field), field.type, editable, callback, view_blob_callback);
   }
   else if (field.type == "ENUM" && !full_type.empty())
   {
@@ -424,14 +503,14 @@ void ResultFormView::update_value(int column, const std::string &value)
 }
 
 
-void ResultFormView::open_field_editor(int column)
+void ResultFormView::open_field_editor(int column, const std::string &type)
 {
   Recordset::Ref rset(_rset.lock());
   if (rset)
   {
     RowId row = rset->edited_field_row();
     if (row < rset->count() && (int)row >= 0)
-      rset->open_field_data_editor(row, column);
+      rset->open_field_data_editor(row, column, type);
   }
 }
 
@@ -506,8 +585,22 @@ _editable(editable)
     _tbar.add_item(item);
   }
 
+  {
+    _tbar.add_separator_item("geom_separator");
+
+    _geom_type_item = item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem), false);
+    std::vector<std::string> options;
+    options.push_back("View Geometry as WKT");
+    options.push_back("View Geometry as GeoJSON");
+    options.push_back("View Geometry as GML");
+    options.push_back("View Geometry as KML");
+    item->set_selector_items(options);
+    item->signal_activated()->connect(boost::bind(&ResultFormView::geom_type_changed, this));
+    _tbar.add_item(item);
+  }
+
   add(&_tbar, false, true);
-  _spanel.set_back_color(mforms::App::get()->get_system_color(mforms::SystemColorContainer).to_html());
+  _spanel.set_back_color("#ffffff");
 
   add(&_spanel, true, true);
   _spanel.add(&_table);
@@ -519,9 +612,34 @@ _editable(editable)
 
 ResultFormView::~ResultFormView()
 {
+  if (_geom_type_item)
+    _geom_type_item->release();
   _refresh_ui_connection.disconnect();
   for (std::vector<FieldView*>::const_iterator i = _fields.begin(); i != _fields.end(); ++i)
     delete *i;
+}
+
+
+void ResultFormView::geom_type_changed()
+{
+  std::string type = _geom_type_item->get_text();
+  for (std::vector<FieldView*>::const_iterator i = _fields.begin(); i != _fields.end(); ++i)
+  {
+    GeomFieldView *geom = dynamic_cast<GeomFieldView *>(*i);
+    if (geom)
+    {
+      geom->set_view_type(type);
+    }
+  }
+}
+
+
+int ResultFormView::display_record(RowId row_id)
+{
+  Recordset::Ref rset(_rset.lock());
+  if (rset)
+    rset->set_edited_field(row_id, 0);
+  return display_record();
 }
 
 int ResultFormView::display_record()
@@ -534,7 +652,7 @@ int ResultFormView::display_record()
     for (std::vector<FieldView*>::const_iterator i = _fields.begin(); i != _fields.end(); ++i, ++c)
     {
       std::string value;
-      rset->get_field_repr_no_truncate(rset->edited_field_row(), c, value);
+      rset->get_raw_field(rset->edited_field_row(), c, value);
       (*i)->set_value(value, rset->is_field_null(rset->edited_field_row(), c));
     }
 
@@ -594,7 +712,10 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
     _table.set_row_count((int)field_info.size());
 
+    _tbar.remove_item(_geom_type_item);
+
     int i = 0;
+    bool seen_geometry = false;
     for (std::vector<Recordset_cdbc_storage::FieldInfo>::const_iterator iter = field_info.begin();
          iter != field_info.end(); ++iter, ++i)
     {
@@ -607,13 +728,28 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
 
       FieldView *fview = FieldView::create(*iter, full_type, _editable,
                                            boost::bind(&ResultFormView::update_value, this, i, _1),
-                                           boost::bind(&ResultFormView::open_field_editor, this, i));
+                                           boost::bind(&ResultFormView::open_field_editor, this, i, iter->type));
       if (fview)
       {
         _table.add(fview->label(), 0, 1, i, i+1, mforms::HFillFlag);
         _table.add(fview->value(), 1, 2, i, i+1, mforms::HFillFlag | (fview->expands() ? mforms::HExpandFlag : 0));
         _fields.push_back(fview);
+
+        if (iter->type == "GEOMETRY")
+          seen_geometry = true;
       }
+    }
+    if (seen_geometry)
+    {
+      const std::vector<mforms::ToolBarItem*> &items(_tbar.get_items());
+      int i = 0;
+      for (std::vector<mforms::ToolBarItem*>::const_iterator iter = items.begin(); iter != items.end(); ++iter)
+      {
+        if ((*iter)->get_name() == "geom_separator")
+          break;
+        i++;
+      }
+      _tbar.insert_item(i+1, _geom_type_item);
     }
   }
 }

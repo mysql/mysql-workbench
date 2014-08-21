@@ -1729,8 +1729,8 @@ static const char *DEFAULT_RDBMS_ID= "com.mysql.rdbms.mysql";
  */
 db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, const std::string& user,
                                                        const std::string socket_or_pipe_name,
-                                                       bool can_use_networking,
-                                                       bool can_use_socket_or_pipe,
+                                                       int can_use_networking,
+                                                       int can_use_socket_or_pipe,
                                                        int port,
                                                        const std::string& name)
 {
@@ -1764,8 +1764,8 @@ db_mgmt_ConnectionRef WorkbenchImpl::create_connection(const std::string& host, 
   connection->driver(driver);
   connection->name(name);
 
-  connection->parameterValues().gset("hostName", "localhost");
-  connection->parameterValues().gset("userName", "root");
+  connection->parameterValues().gset("hostName", host);
+  connection->parameterValues().gset("userName", user);
   connection->parameterValues().gset("port", port);
 
   connection->hostIdentifier(bec::get_host_identifier_for_connection(connection));
@@ -1883,17 +1883,17 @@ int WorkbenchImpl::createConnectionsFromLocalServers()
       if (!key_file.has_section("mysqld"))
         continue;
 
-      bool can_use_networking = true;
-      bool can_use_socket_or_pipe = false;
+      bool can_use_networking = 1;
+      bool can_use_socket_or_pipe = 0;
       std::string socket_or_pipe_name;
 
       int port = key_file.get_int("port", "mysqld");
       if (port == INT_MIN)
         port = 3306;
       if (key_file.has_key("skip-networking", "mysqld"))
-        can_use_networking = false;
+        can_use_networking = 0;
       if (key_file.has_key("enable-named-pipe", "mysqld"))
-        can_use_socket_or_pipe = true;
+        can_use_socket_or_pipe = 1;
 
       if (can_use_socket_or_pipe)
       {
@@ -2238,5 +2238,83 @@ int WorkbenchImpl::initializeOtherRDBMS()
   _wb->load_other_connections();
   
   return 1;
+}
+
+/**
+* Removes a connection from the stored connections list along with all associated data
+* (including its server instance entry).
+*/
+int WorkbenchImpl::deleteConnection(const db_mgmt_ConnectionRef &connection)
+{
+  grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
+  grt::ListRef<db_mgmt_ServerInstance> instances = _wb->get_root()->rdbmsMgmt()->storedInstances();
+
+  // Remove all associated server instances.
+  for (ssize_t i = instances.count() - 1; i >= 0; --i)
+  {
+    db_mgmt_ServerInstanceRef instance(instances[i]);
+    if (instance->connection() == connection)
+      instances->remove(i);
+  }
+
+  // Remove password associated with this connection (if stored in keychain/vault). Check first
+  // this service/username combination isn't used anymore by other connections.
+  bool credentials_still_used = false;
+  grt::DictRef parameter_values = connection->parameterValues();
+  std::string host = connection->hostIdentifier();
+  std::string user = parameter_values.get_string("userName");
+  for (grt::ListRef<db_mgmt_Connection>::const_iterator i = connections.begin();
+    i != connections.end(); ++i)
+  {
+    if (*i != connection)
+    {
+      grt::DictRef current_parameters = (*i)->parameterValues();
+      if (host == *(*i)->hostIdentifier() && user == current_parameters.get_string("userName"))
+      {
+        credentials_still_used = true;
+        break;
+      }
+    }
+  }
+  if (!credentials_still_used)
+  {
+    try
+    {
+      mforms::Utilities::forget_password(host, user);
+    }
+    catch (std::exception &exc)
+    {
+      log_warning("Could not clear password: %s\n", exc.what());
+    }    
+  }  
+
+  connections->remove(connection);
+
+  return 0;
+}
+
+int WorkbenchImpl::deleteConnectionGroup(const std::string& group)
+{
+  size_t group_length = group.length();
+
+  std::vector<db_mgmt_ConnectionRef> candidates;
+  grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
+
+  ssize_t index = connections.count() - 1;
+  while (index >= 0)
+  {
+    std::string name = connections[index]->name();
+
+    if (name.compare(0, group_length, group) == 0)
+      candidates.push_back(connections[index]);
+
+    index--;
+  }
+
+  for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = candidates.begin();
+    iterator != candidates.end(); ++iterator)
+    deleteConnection(*iterator);
+
+  return 0;
 }
 //--------------------------------------------------------------------------------------------------

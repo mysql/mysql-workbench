@@ -21,6 +21,7 @@
 #include "../sqlide/recordset_view.h"
 #include "sqlide/recordset_be.h"
 #include "mforms/menubar.h"
+#include "library/forms/gtk/lf_native.h"
 
 using namespace mforms;
 
@@ -36,7 +37,12 @@ void lf_record_grid_init()
   mforms::RecordGrid::register_factory(create_record_grid);
 }
 
-
+static void destroy_nativecontainer(void *ptr)
+{
+  mforms::gtk::NativeContainerImpl *container = (mforms::gtk::NativeContainerImpl*)ptr;
+  if (container)
+    delete container;
+}
 
 RecordGridView::RecordGridView(Recordset::Ref rset)
 {
@@ -44,7 +50,7 @@ RecordGridView::RecordGridView(Recordset::Ref rset)
   viewer->grid_view()->view_model()->column_resized = boost::bind(&RecordGridView::column_resized, this, _1);
   viewer->grid_view()->view_model()->column_right_clicked = boost::bind(&RecordGridView::column_right_clicked, this, _1, _2, _3);
   viewer->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-  set_data(viewer);
+  set_data(new mforms::gtk::NativeContainerImpl(this, viewer), destroy_nativecontainer);
   viewer->show_all();
   viewer->grid_view()->refresh(true);
 }
@@ -73,6 +79,11 @@ void RecordGridView::set_column_width(int column, int width)
   viewer->grid_view()->view_model()->set_column_width(column, width);
 }
 
+
+void RecordGridView::update_columns()
+{
+  viewer->grid_view()->refresh(true);
+}
 
 bool RecordGridView::current_cell(size_t &row, int &column)
 {

@@ -255,7 +255,7 @@ class LogView(mforms.Box):
         except Exception, error:
             import traceback
             log_error("Exception creating log reader: %s\n%s\n" % (error, traceback.format_exc()))
-            self._show_error("Unexpected error creating log reader: %s\n" % error)
+            self._show_error("Error creating log reader: %s\n" % error)
             return
 
         if self.log_reader.partial_support:

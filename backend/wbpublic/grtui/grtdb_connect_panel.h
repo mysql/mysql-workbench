@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,6 +54,8 @@ public:
   
   void init(DbConnection *conn, const db_mgmt_ConnectionRef &default_conn=db_mgmt_ConnectionRef());
 
+  static bool is_connectable_driver_type(db_mgmt_DriverRef driver);
+
   void set_default_host_name(const std::string &host, bool update=false);
   std::string default_host_name() { return _default_host_name; }
   
@@ -76,6 +78,8 @@ public:
   boost::signals2::signal<void (std::string,bool)>* signal_validation_state_changed() { return &_signal_validation_state_changed; }
 
   void save_connection_as(const std::string &name);
+  
+  void set_driver_changed_cb(const boost::function<void (db_mgmt_DriverRef)> &cb) {_driver_changed_cb = cb;};
   
   bool test_connection();
   
@@ -115,7 +119,12 @@ protected:
   mforms::Table *_advanced_table;
   std::vector<mforms::Box*> _advanced_rows;
 
+  mforms::Panel _options_panel;
+  mforms::Table *_options_table;
+  std::vector<mforms::Box*> _options_rows;
+
   std::list<mforms::View*> _views;
+  mforms::Label _warning;
 
 private:
   void save_param(const std::string& name, const grt::StringRef& param);
@@ -157,6 +166,8 @@ private:
   db_mgmt_ConnectionRef open_editor();
   
   grt::StringListRef get_enum_values(db_mgmt_DriverParameterRef param);
+  
+  boost::function<void (const db_mgmt_DriverRef &)> _driver_changed_cb;
 };
 
 };

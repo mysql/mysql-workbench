@@ -310,6 +310,12 @@ class _wbinputs:
     arg.name= "clickedColumn"
     return arg
 
+  def simpleValue(self, name):
+      arg= grt.classes.app_PluginInputDefinition()
+      arg.name= name
+      return arg
+
+
 
 wbinputs= _wbinputs()
 

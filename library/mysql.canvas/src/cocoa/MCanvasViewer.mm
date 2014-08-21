@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -498,6 +498,20 @@ static mdc::KeyInfo makeKeyInfo(NSEvent *theEvent)
 - (void)mouseMoved:(NSEvent *)theEvent
 {
   [self mouseDragged:theEvent];
+}
+
+
+- (void)mouseExited:(NSEvent *)theEvent
+{
+  if (!_view) return;
+  NSPoint point= [self convertPoint:[theEvent locationInWindow]
+                           fromView:nil];
+  mdc::EventState state= makeEventState(theEvent);
+
+//  if (![[self delegate] canvasMouseExited:point state:(mdc::EventState)(state|_buttonState)])
+  {
+    _view->handle_mouse_leave(point.x, point.y, (mdc::EventState)(state|_buttonState));
+  }
 }
 
 

@@ -491,6 +491,7 @@ public:
     grt::replace_contents(_table->triggers(), sorted_triggers);
     _editor->thaw_refresh_on_object_change(true);
 
+    refresh();
     update_warning();
   }
 
@@ -2317,16 +2318,17 @@ bool MySQLTableIndexListBE::get_field_grt(const NodeId &node, ColumnId column, g
   {
     const bool existing_node = node.end() < real_count();
     
+    db_mysql_IndexRef index = db_mysql_IndexRef::cast_from(get_selected_index());
     switch (column)
     {
     case StorageType:
-      value= existing_node ? db_mysql_IndexRef::cast_from(get_selected_index())->indexKind() : grt::StringRef("");
+      value= existing_node && index.is_valid() ? index->indexKind() : grt::StringRef("");
       return true;
     case RowBlockSize:
-      value= existing_node ? grt::StringRef(db_mysql_IndexRef::cast_from(get_selected_index())->keyBlockSize().repr()) : grt::StringRef("");
+      value= existing_node && index.is_valid() ? grt::StringRef(index->keyBlockSize().repr()) : grt::StringRef("");
       return true;
     case Parser:
-      value= existing_node ? db_mysql_IndexRef::cast_from(get_selected_index())->withParser() : grt::StringRef("");
+      value= existing_node && index.is_valid() ? index->withParser() : grt::StringRef("");
       return true;
     default:
       return IndexListBE::get_field_grt(node, column, value);

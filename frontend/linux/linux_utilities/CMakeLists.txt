@@ -22,6 +22,7 @@ include_directories(.
     ${GTK2_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${GRT_INCLUDE_DIRS}
+    ${SIGC++_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
 )
 
@@ -39,5 +40,11 @@ add_library(linux_utilities
     widgets_auto_cleaner.cpp
     widget_saver.cpp
 )
+
+target_link_libraries(linux_utilities ${GTK2_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
+
+set_target_properties(linux_utilities
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS linux_utilities DESTINATION ${WB_INSTALL_LIB_DIR})

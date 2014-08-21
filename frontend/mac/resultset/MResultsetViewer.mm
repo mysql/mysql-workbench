@@ -133,6 +133,19 @@ static const char *viewFlagsKey = "viewFlagsKey";
 {
   [mFont autorelease];
   mFont = [font retain];
+
+  float rowHeight = 0;
+  for (int index= 0, count= (*mData)->get_column_count(); index <= count; ++index)
+  {
+    NSTableColumn *column= [[mTableView tableColumns] objectAtIndex: index];
+    if (mFont)
+    {
+      [[column dataCell] setFont: mFont];
+      rowHeight = MAX(rowHeight, [[column dataCell] cellSize].height + 1);
+    }
+  }
+  if (rowHeight > 0)
+    [mTableView setRowHeight: rowHeight];
 }
 
 /*

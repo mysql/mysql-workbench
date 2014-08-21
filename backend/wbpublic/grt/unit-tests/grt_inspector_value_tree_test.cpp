@@ -63,7 +63,7 @@ TEST_FUNCTION(2)
   ValueTreeBE *tree= new ValueTreeBE(&grt);
   tree->set_displayed_global_value("/");
 
-  ensure_equals("root items", tree->count(), 1);
+  ensure_equals("root items", tree->count(), 1U);
 
   name= tree->get_path_for_node(tree->get_root());
   ensure_equals("path", name, "");
@@ -87,11 +87,11 @@ TEST_FUNCTION(5)
   tree->set_displayed_global_value("/");
 
   // counts
-  ensure_equals("root items", tree->count(), 1);
+  ensure_equals("root items", tree->count(), 1U);
 
   tnode= tree->get_child(tree->get_root(), 0);
   
-  ensure_equals("root child items", tree->count_children(tnode), 0);
+  ensure_equals("root child items", tree->count_children(tnode), 0U);
   
   flag= tree->is_expandable(tnode);
   ensure("root is expandable", flag);
@@ -99,12 +99,12 @@ TEST_FUNCTION(5)
   flag= tree->expand_node(tnode);
   ensure("expand root child", flag);
 
-  ensure_equals("root child items after expand", tree->count_children(tnode), 3);
+  ensure_equals("root child items after expand", tree->count_children(tnode), 3U);
 
   grt.set("/test", DictRef(&grt));
-  ensure_equals("root child items after add", tree->count_children(tnode), 3);
+  ensure_equals("root child items after add", tree->count_children(tnode), 3U);
   tree->refresh();
-  ensure_equals("root child items after add + refresh", tree->count_children(tnode), 4);
+  ensure_equals("root child items after add + refresh", tree->count_children(tnode), 4U);
 
   flag= tree->get_row(tnode, name, type);
   ensure("root node", flag);
@@ -114,7 +114,7 @@ TEST_FUNCTION(5)
 
   ensure_equals("get child",
                 tree->get_node_depth(tree->get_child(tree->get_child(tree->get_root(), 0), 0)),
-                2);
+                2U);
 
 
   node= tree->get_child(tnode, 0);
@@ -142,10 +142,10 @@ TEST_FUNCTION(5)
 
   node= tree->get_child(tnode, 0);
   i= tree->count_children(node);
-  ensure_equals("row 0 children (collapsed)", i, 0);
+  ensure_equals("row 0 children (collapsed)", i, 0U);
   tree->expand_node(node);
   i= tree->count_children(node);
-  ensure_equals("row 0 children", i, 2);
+  ensure_equals("row 0 children", i, 2U);
 
   node1= tree->get_child(node, 0);
   flag= tree->get_field(node1, ValueTreeBE::Name, name);
@@ -179,10 +179,10 @@ TEST_FUNCTION(5)
 
   node= tree->get_child(tnode, 1);
   i= tree->count_children(node);
-  ensure_equals("row 1 children (collapsed)", i, 0);
+  ensure_equals("row 1 children (collapsed)", i, 0U);
   tree->expand_node(node);
   i= tree->count_children(node);
-  ensure_equals("row 1 children", i, 1);
+  ensure_equals("row 1 children", i, 1U);
 
   node1= tree->get_child(node, 0);
   flag= tree->get_field(node1, ValueTreeBE::Name, name);
@@ -196,10 +196,10 @@ TEST_FUNCTION(5)
 
   node= tree->get_child(tnode, 2);
   i= tree->count_children(node);
-  ensure_equals("row 2 children (collapsed)", i, 0);
+  ensure_equals("row 2 children (collapsed)", i, 0U);
   tree->expand_node(node);
   i= tree->count_children(node);
-  ensure_equals("row 2 children", i, 2);
+  ensure_equals("row 2 children", i, 2U);
 
   node1= tree->get_child(node, 0);
   flag= tree->get_field(node1, ValueTreeBE::Name, name);
@@ -234,7 +234,7 @@ TEST_FUNCTION(6)
   tree->set_displayed_global_value("/somelist");
 
   // counts
-  ensure_equals("root items", tree->count(), 1);
+  ensure_equals("root items", tree->count(), 1U);
 
   node= tree->get_child(tree->get_root(), 0);
   tree->expand_node(node);
@@ -275,7 +275,7 @@ TEST_FUNCTION(7)
   tree->set_displayed_global_value("/books");
 
   // counts
-  ensure_equals("root items", tree->count(), 1);
+  ensure_equals("root items", tree->count(), 1U);
 
   
 

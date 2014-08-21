@@ -66,11 +66,11 @@ add_library(db.mysql.editors.wbp MODULE
     schema_editor_fe.cpp
 )
 
-set_target_properties(db.mysql.editors.wbp PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-)
+target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla wbpublic ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES})
 
-target_link_libraries(db.mysql.editors.wbp linux_utilities wbscintilla)
+set_target_properties(db.mysql.editors.wbp
+                      PROPERTIES PREFIX    ""
+                                 VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS db.mysql.editors.wbp DESTINATION ${WB_PACKAGE_PLUGINS_DIR})

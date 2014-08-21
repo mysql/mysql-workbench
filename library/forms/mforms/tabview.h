@@ -38,7 +38,8 @@ namespace mforms
                                //   and such). closable tabs
     TabViewPalette,            //!< WB style tab view (bottom hanging tabs on Win), unclosable tabs
     TabViewSelectorSecondary,  //!< Sidebar palette selector style, unclosable tabs.
-    TabViewEditorBottom        //!< Bottom facing, closable tabs to be used for docking editors
+    TabViewEditorBottom,       //!< Bottom facing, closable tabs to be used for docking editors
+    TabViewEditorBottomPinnable //!< same as earlier, but with pins
   };
   
   
@@ -52,7 +53,7 @@ namespace mforms
     int (*get_active_tab)(TabView*);
     int (*add_page)(TabView*,View*,const std::string&);
     void (*remove_page)(TabView*,View*);
-    void (*set_aux_view)(TabView*,View*);     /** XXX TODO Windows */
+    void (*set_aux_view)(TabView*,View*);
     void (*set_allows_reordering)(TabView*,bool);     /** XXX TODO Windows */
   };
 #endif
@@ -71,6 +72,7 @@ namespace mforms
     boost::signals2::signal<void (View*, int, int)> _signal_tab_reordered;
     boost::signals2::signal<bool (int)> _signal_tab_closing;
     boost::signals2::signal<void (View*, int)> _signal_tab_closed;
+    boost::signals2::signal<void (int, bool)> _signal_tab_pin_changed;
 
   public:
     /** Constructor.
@@ -108,7 +110,7 @@ namespace mforms
      void set_allows_reordering(bool flag);
 
     /** Sets a menu to be shown when right clicking on a tab (supported by select tabview types) */
-    void set_tab_menu(ContextMenu *menu); //XXX Windows
+    void set_tab_menu(ContextMenu *menu);
     ContextMenu *get_tab_menu() { return _tab_menu; }
 
     /** Returns the index of the tab for which the context menu is being shown */
@@ -122,6 +124,8 @@ namespace mforms
 
     void reordered(View *view, int index);
 
+    void pin_changed(int tab, bool pinned);
+
     /** Signal emitted when the tab is switched by user.
      
      In Python use add_tab_changed_callback()
@@ -134,6 +138,10 @@ namespace mforms
     boost::signals2::signal<bool (int)>* signal_tab_closing() { return &_signal_tab_closing; }
 
     boost::signals2::signal<void (View*, int)>* signal_tab_closed() { return &_signal_tab_closed; }
+
+    boost::signals2::signal<void (int, bool)>* signal_tab_pin_changed() { return &_signal_tab_pin_changed; }
+
+    boost::function<bool (int)> is_pinned;
 #endif
   };
 };

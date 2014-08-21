@@ -787,7 +787,6 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.commit", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::commit));
   cmdui->add_builtin_command("query.rollback", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::rollback));
   cmdui->add_builtin_command("query.autocommit", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_autocommit));
-  cmdui->add_builtin_command("query.gatherFieldInfo", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_collect_field_info));
   cmdui->add_builtin_command("query.gatherPSInfo", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::toggle_collect_ps_statement_events));
 
   cmdui->add_builtin_command("query.new_schema", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_schema"));

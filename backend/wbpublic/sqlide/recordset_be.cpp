@@ -35,6 +35,7 @@
 #include "sqlite/command.hpp"
 #include <boost/foreach.hpp>
 #include <fstream>
+#include <sstream>
 
 #include "recordset_text_storage.h"
 
@@ -1076,7 +1077,7 @@ void Recordset::paste_rows_from_clipboard(ssize_t dest_row)
       if (parts.size() != get_column_count())
       {
         mforms::Utilities::show_error("Cannot Paste Row",
-                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%li vs %li).\n"
+                                      strfmt("Number of fields in pasted data doesn't match the columns in the table (%zi vs %zi).\n"
                                              "Data must be in the same format used by the Copy Row Content command.",
                                              (long)parts.size(), (long)get_column_count()),
                                       "OK");
@@ -1129,11 +1130,9 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
 
     bool ro = is_readonly();
 
-    mforms::MenuItem *item;
+    mforms::MenuItem *item = mforms::manage(new mforms::MenuItem(ro ? "Open Value in Viewer" : "Open Value in Editor"));
+    item->set_name("edit_cell"); // action in higher level
 
-    item = _context_menu->add_item_with_title(ro ? "Open Value in Viewer" : "Open Value in Editor",
-                                              boost::bind(&Recordset::activate_menu_item, this, "edit_cell", rows, clicked_column),
-                                              "edit_cell");
     item->set_enabled((rows.size() == 1) && (clicked_column >= 0));
     if (item->get_enabled())
     {
@@ -1147,6 +1146,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
         break;
       }
     }
+    _context_menu->add_item(item);
 
     _context_menu->add_separator();
 
@@ -1226,6 +1226,9 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
                                               boost::bind(&Recordset::activate_menu_item, this, "paste_row", rows, clicked_column),
                                               "paste_row");
     item->set_enabled(rows.size() <= 1 && !mforms::Utilities::get_clipboard_text().empty() && !ro);
+
+    if (update_selection_for_menu_extra)
+      update_selection_for_menu_extra(_context_menu, rows, clicked_column);
   }
 }
 
@@ -1239,7 +1242,7 @@ void Recordset::activate_menu_item(const std::string &action, const std::vector<
   {
     if (rows.size() == 1 && clicked_column >= 0)
     {
-      open_field_data_editor(rows[0], clicked_column);
+      open_field_data_editor(rows[0], clicked_column, "");
     }
   }
   else if (action == "set_to_null")
@@ -1624,37 +1627,41 @@ class DataEditorSelector : public boost::static_visitor<BinaryDataEditor*>
 {
 public:
   DataEditorSelector(bec::GRTManager *grtm, bool read_only) : _grtm(grtm), _read_only(read_only) {}
-  DataEditorSelector(bec::GRTManager *grtm, bool read_only, const std::string &encoding) : _grtm(grtm), _encoding(encoding), _read_only(read_only) {}
+  DataEditorSelector(bec::GRTManager *grtm, bool read_only, const std::string &encoding, const std::string &type) : _grtm(grtm), _encoding(encoding), _type(type), _read_only(read_only) {}
   const std::string & encoding() const { return _encoding; }
   void encoding(const std::string &value) { _encoding= value; }
 private:
   bec::GRTManager *_grtm;
   std::string _encoding;
+  std::string _type;
   bool _read_only;
 public:
-  result_type operator()(const sqlite::null_t &v) { return new BinaryDataEditor(_grtm, NULL, 0, _encoding, _read_only); }
-  result_type operator()(const std::string &v) { return new BinaryDataEditor(_grtm, v.c_str(), v.length(), _encoding, _read_only); }
-  result_type operator()(const sqlite::blob_ref_t &v) { return new BinaryDataEditor(_grtm, ((!v || v->empty()) ? NULL : (const char*)&(*v)[0]), v->size(), _encoding, _read_only); }
+  result_type operator()(const sqlite::null_t &v) { return new BinaryDataEditor(_grtm, NULL, 0, _encoding, _type, _read_only); }
+  result_type operator()(const std::string &v) { return new BinaryDataEditor(_grtm, v.c_str(), v.length(), _encoding, _type, _read_only); }
+  result_type operator()(const sqlite::blob_ref_t &v) { return new BinaryDataEditor(_grtm, ((!v || v->empty()) ? NULL : (const char*)&(*v)[0]), v->size(), _encoding, _type, _read_only); }
   template<typename V> result_type operator()(const V &v) { return NULL; }
 };
+
 class DataEditorSelector2 : public boost::static_visitor<BinaryDataEditor*>
 {
 public:
-  DataEditorSelector2(bec::GRTManager *grtm, bool read_only) : _grtm(grtm), _read_only(read_only) {}
+  DataEditorSelector2(bec::GRTManager *grtm, bool read_only, const std::string &type) : _grtm(grtm), _type(type), _read_only(read_only) {}
 private:
   bec::GRTManager *_grtm;
+  std::string _type;
   bool _read_only;
 public:
-  template<typename V> result_type operator()(const std::string &t, const V &v) { return DataEditorSelector(_grtm, _read_only, "UTF-8")(v); }
-  template<typename V> result_type operator()(const sqlite::blob_ref_t &t, const V &v) { return DataEditorSelector(_grtm, _read_only, "LATIN1")(v); }
+  template<typename V> result_type operator()(const std::string &t, const V &v) { return DataEditorSelector(_grtm, _read_only, "UTF-8", _type)(v); }
+  template<typename V> result_type operator()(const sqlite::blob_ref_t &t, const V &v) { return DataEditorSelector(_grtm, _read_only, "LATIN1", _type)(v); }
   template<typename T, typename V> result_type operator()(const T &r, const V &v) {
     //return NULL;
     // For unknown types treat them for now as string values. Since we have a binary editor pane there that should work
     // all the time well enough.
-    return DataEditorSelector(_grtm, _read_only, "UTF-8")(v);
+    return DataEditorSelector(_grtm, _read_only, "UTF-8", _type)(v);
   }
 };
-void Recordset::open_field_data_editor(RowId row, ColumnId column)
+
+void Recordset::open_field_data_editor(RowId row, ColumnId column, const std::string &logical_type)
 {
   base::RecMutexLock data_mutex(_data_mutex);
 
@@ -1684,12 +1691,12 @@ void Recordset::open_field_data_editor(RowId row, ColumnId column)
       value= &(*cell);
     }
 
-    DataEditorSelector2 data_editor_selector2(_grtm, is_readonly());
+    DataEditorSelector2 data_editor_selector2(_grtm, is_readonly(), logical_type);
     BinaryDataEditor *data_editor=
       boost::apply_visitor(data_editor_selector2, _real_column_types[column], *value);
     if (!data_editor)
       return;
-    data_editor->set_title(base::strfmt("Edit Data for %s", _column_names[column].c_str()));
+    data_editor->set_title(base::strfmt("Edit Data for %s (%s)", _column_names[column].c_str(), logical_type.c_str()));
     data_editor->set_release_on_close(true);
     data_editor->signal_saved.connect(boost::bind(&Recordset::set_field_value,this, row, column, data_editor));
     data_editor->show(true);
@@ -1770,6 +1777,57 @@ void Recordset::load_from_file(const bec::NodeId &node, ColumnId column)
   
   if (chooser.run_modal())
     load_from_file(node, column, chooser.get_path());
+}
+
+
+
+class BlobCopier : public boost::static_visitor<void>
+{
+public:
+  BlobCopier() {}
+  std::ostringstream os;
+public:
+  result_type operator()(const sqlite::blob_ref_t &v)
+  {
+    std::copy(v->begin(), v->end(), std::ostreambuf_iterator<char>(os));
+  }
+  result_type operator()(const std::string &v) { os << v; }
+  template<typename T> result_type operator()(const T &) {}
+};
+
+
+bool Recordset::get_raw_field(const bec::NodeId &node, ColumnId column, std::string &data_ret)
+{
+  base::RecMutexLock data_mutex(_data_mutex);
+
+  sqlite::variant_t blob_value;
+  sqlite::variant_t *value;
+
+  if (sqlide::is_var_blob(_real_column_types[column]))
+  {
+    if (!_data_storage)
+      return false;
+    ssize_t rowid;
+    if (!get_field_(node, _rowid_column, rowid))
+      return false;
+    boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
+    _data_storage->fetch_blob_value(this, data_swap_db.get(), rowid, column, blob_value);
+    value= &blob_value;
+  }
+  else
+  {
+    Cell cell;
+    if (!get_cell(cell, node, column, false))
+      return false;
+    value= &(*cell);
+  }
+
+  BlobCopier copier;
+  boost::apply_visitor(copier, *value);
+
+  data_ret = copier.os.str();
+
+  return true;
 }
 
 

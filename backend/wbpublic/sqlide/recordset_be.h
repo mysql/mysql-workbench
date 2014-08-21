@@ -162,6 +162,7 @@ public:
   mforms::ContextMenu *get_context_menu();
 
   void update_selection_for_menu(const std::vector<int> &rows, int clicked_column);
+  boost::function<void (mforms::ContextMenu*, const std::vector<int> &, int)> update_selection_for_menu_extra;
 
   std::vector<int> selected_rows() { return _selected_rows; }
   int selected_column() { return _selected_column; }
@@ -191,6 +192,8 @@ protected:
 public:
   void load_from_file(const bec::NodeId &node, ColumnId column, const std::string &file);
   void save_to_file(const bec::NodeId &node, ColumnId column, const std::string &file);
+
+  bool get_raw_field(const bec::NodeId &node, ColumnId column, std::string &data_ret);
 
 public:
   virtual void sort_by(ColumnId column, int direction, bool retaining);
@@ -259,7 +262,7 @@ private:
   void register_default_actions();
 
 public:
-  void open_field_data_editor(RowId row, ColumnId column);
+  void open_field_data_editor(RowId row, ColumnId column, const std::string &logical_type);
 protected:
   void set_field_value(RowId row, ColumnId column, BinaryDataEditor *data_editor);
   void set_field_raw_data(RowId row, ColumnId column, const char *data, size_t data_length);

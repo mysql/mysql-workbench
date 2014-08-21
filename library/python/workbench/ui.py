@@ -1,4 +1,4 @@
-# Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,8 +18,9 @@
 """ This module provides custom UI widgets relevant to MySQL Workbench
 """
 
-from database_schema_selector_widget import DatabaseSchemaSelector
-from database_object_selector_widget import DatabaseObjectSelector
+from database_schema_selector_widget import DatabaseSchemaSelector  # noqa
+from database_object_selector_widget import DatabaseObjectSelector  # noqa
 
-from wizard_page_widget import WizardPage
-from wizard_progress_page_widget import WizardProgressPage
+from wizard_form import WizardForm  # noqa
+from wizard_page_widget import WizardPage  # noqa
+from wizard_progress_page_widget import WizardProgressPage  # noqa

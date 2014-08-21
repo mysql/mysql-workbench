@@ -106,6 +106,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC ServerInstanceEditor : public mforms::Form
 //  mforms::Button _delete_preset_button;
   
   mforms::Box _bottom_hbox;
+  mforms::Box _remote_admin_box;
   mforms::Button _ok_button;
   mforms::Button _test_button;
   

@@ -78,15 +78,15 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
   _bottom_hbox.set_spacing(12);
   
   _panel.init(_mgmt);
+  _panel.set_driver_changed_cb(boost::bind(&NewConnectionWizard::driver_changed_cb, this, _1));
     
   _conn_name= _panel.get_name_entry();
 
-  mforms::Button *config_button = mforms::manage(new mforms::Button());
-  scoped_connect(config_button->signal_clicked(), boost::bind(&NewConnectionWizard::open_remote_mgm_config, this));
-  config_button->set_text(_("Configure Server Management..."));
-  config_button->enable_internal_padding(true);
+  scoped_connect(_config_button.signal_clicked(), boost::bind(&NewConnectionWizard::open_remote_mgm_config, this));
+  _config_button.set_text(_("Configure Server Management..."));
+  _config_button.enable_internal_padding(true);
 
-  _bottom_hbox.add(config_button, false, true);
+  _bottom_hbox.add(&_config_button, false, true);
   _bottom_hbox.add_end(&_ok_button, false, true);
   _bottom_hbox.add_end(&_cancel_button, false, true);
   _bottom_hbox.add_end(&_test_button, false, true);
@@ -114,6 +114,14 @@ NewConnectionWizard::~NewConnectionWizard()
 
 //--------------------------------------------------------------------------------------------------
 
+void NewConnectionWizard::driver_changed_cb(const db_mgmt_DriverRef &driver)
+{
+  _config_button.show(driver->name() != "MySQLFabric");
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
 void NewConnectionWizard::open_remote_mgm_config()
 {
   NewServerInstanceWizard wizard(_context, _panel.get_connection());
@@ -126,11 +134,14 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
 { 
   _connection = db_mgmt_ConnectionRef(_mgmt.get_grt());
   _connection->driver(_mgmt->rdbms()[0]->defaultDriver());
-  
-  _connection->hostIdentifier("Mysql@127.0.0.1:3306");  
+  if (find_named_object_in_list(_connection->driver()->parameters(), "useSSL").is_valid())
+  {
+    // prefer SSL if possible by default
+    _connection->parameterValues().set("useSSL", grt::IntegerRef(1));
+  }
+  _connection->hostIdentifier("Mysql@127.0.0.1:3306");
   _panel.get_be()->set_connection_and_update(_connection);
   _panel.get_be()->save_changes();
-
   // Return the newly created connection object.
   while (run_modal(&_ok_button, &_cancel_button))
   {
@@ -165,12 +176,15 @@ db_mgmt_ConnectionRef NewConnectionWizard::run()
 
       // Auto create an unconfigured server instance for this connection.
       // The module creates the instance, adds it to the stored instances and stores them on disk.
-      grt::BaseListRef args(_mgmt.get_grt());
-      args.ginsert(_connection);
-      if (is_local_connection(_connection))
-        db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
-      else
-        db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+      if (_connection->driver()->name() != "MySQLFabric")
+      {
+        grt::BaseListRef args(_mgmt.get_grt());
+        args.ginsert(_connection);
+        if (is_local_connection(_connection))
+          db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectLocalInstance", args));
+        else
+          db_mgmt_ServerInstanceRef::cast_from(_mgmt.get_grt()->call_module_function("WbAdmin", "autoDetectRemoteInstance", args));
+      }
 
       return _connection;
     }

@@ -45,6 +45,8 @@ public:
   virtual void set_font(const std::string &font);
   virtual void set_header_menu(ContextMenu *menu);
 
+  virtual void update_columns();
+
   MResultsetViewer *control() { return viewer; }
 };
 };

@@ -24,6 +24,8 @@
 #include "grtui/grtdb_connection_editor.h"
 
 #include "mforms/uistyle.h"
+#include "base/log.h"
+DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 
 #define INTRO_TEXT \
   "This wizard will guide you through the creation of a Server Profile to manage a MySQL server. "\
@@ -833,7 +835,21 @@ void WindowsManagementPage::enter(bool advancing)
 
       std::string title = strfmt(_("Remote Windows Login (%s)"), host.c_str()) + "|";
       title += _("Please enter a Windows user login and password for the remote server with rights to WMI");
-      if (!Utilities::credentials_for_service(title, "wmi@" + host, user, false, password))
+      
+      bool result = false;
+      try
+      {
+        result = Utilities::credentials_for_service(title, "wmi@" + host, user, false, password);
+      }
+      catch(std::exception &exc)
+      {
+        log_warning("Exception caught when clearning the password: %s", exc.what());
+        mforms::Utilities::show_error("Clear Password", 
+                                      base::strfmt("Could not clear password: %s", exc.what()),
+                                      "OK");
+      }
+      
+      if (!result)
       {
         _progress_label.set_text(_("Need valid user credentials to connect to server."));
         wizard()->set_problem(_("Need valid user credentials to connect to server."));
@@ -928,7 +944,18 @@ void WindowsManagementPage::enter(bool advancing)
 
       // In case this error was caused by wrong credentials (we cannot be sure from the error message)
       // we remove the already stored password to make it possible to (re) enter the current one.
-      Utilities::forget_password("wmi@" + host, user);
+      try
+      {
+        Utilities::forget_password("wmi@" + host, user);
+      }
+      catch (std::exception &exc)
+      {
+        log_warning("Exception caught when clearning the password: %s", exc.what());
+        mforms::Utilities::show_error("Clear Password", 
+                                      base::strfmt("Could not clear password: %s", exc.what()),
+                                      "OK");
+      }
+      
       values().gset("wmi_user_name", "");
     }
   }

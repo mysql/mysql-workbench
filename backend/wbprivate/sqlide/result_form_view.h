@@ -37,13 +37,16 @@ private:
   std::vector<FieldView*> _fields;
   mforms::ToolBar _tbar;
   mforms::ToolBarItem *_label_item;
+  mforms::ToolBarItem *_geom_type_item;
 
   bool _editable;
   boost::signals2::connection _refresh_ui_connection;
 
   void navigate(mforms::ToolBarItem *item);
   void update_value(int column, const std::string &value);
-  void open_field_editor(int column);
+  void open_field_editor(int column, const std::string &type);
+
+  void geom_type_changed();
 public:
   ResultFormView(bool editable);
 
@@ -51,6 +54,7 @@ public:
 
   virtual ~ResultFormView();
   int display_record();
+  int display_record(RowId row_id);
   std::string get_full_column_type(SqlEditorForm *editor, const std::string &schema, const std::string &table, const std::string &column);
 
   void init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *editor);

@@ -125,7 +125,7 @@ const char* routine_sql =
   std::string processed_sql = rg.get_sql();
 
   std::vector<std::string> processed_routines = base::split(processed_sql, "\n\n");
-  ensure_equals("Lines unintentionally removed", 5, processed_routines.size());
+  ensure_equals("Lines unintentionally removed", 5U, processed_routines.size());
 
   // Do the same steps from above again with the processed sql.
   // There shouldn't be any change.
@@ -141,7 +141,7 @@ const char* routine_sql =
 
   std::string twice_processed_sql = rg.get_sql();
   std::vector<std::string> twice_processed_routines = base::split(twice_processed_sql, "\n\n");
-  ensure_equals("Lines unintentionally removed", 5, twice_processed_routines.size());
+  ensure_equals("Lines unintentionally removed", 5U, twice_processed_routines.size());
 
   // Now compares each routine to discard any difference
   for(size_t index = 0; index < processed_routines.size(); index++)
@@ -210,7 +210,7 @@ const char* routine_sql =
   std::string processed_sql = rg.get_sql();
 
   std::vector<std::string> processed_routines = base::split(processed_sql, "\n\n");
-  ensure_equals("Lines unintentionally removed", 5, processed_routines.size());
+  ensure_equals("Lines unintentionally removed", 5U, processed_routines.size());
 
   // Do the same steps from above again with the processed sql.
   // There shouldn't be any change.
@@ -226,7 +226,7 @@ const char* routine_sql =
 
   std::string twice_processed_sql = rg.get_sql();
   std::vector<std::string> twice_processed_routines = base::split(twice_processed_sql, "\n\n");
-  ensure_equals("Lines unintentionally removed", 5, twice_processed_routines.size());
+  ensure_equals("Lines unintentionally removed", 5U, twice_processed_routines.size());
 
   // Now compares each routine to discard any difference
   for (size_t index = 0; index < processed_routines.size(); index++)

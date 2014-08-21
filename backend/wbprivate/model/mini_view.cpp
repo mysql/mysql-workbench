@@ -45,6 +45,12 @@ MiniView::MiniView(mdc::Layer *layer)
 
 MiniView::~MiniView()
 {
+  if (_view_repaint_connection.connected())
+    _view_repaint_connection.disconnect();
+
+  if (_view_viewport_change_connection.connected())
+    _view_viewport_change_connection.disconnect();
+
   delete _viewport_figure; // not added to layer, so delete it by hand
 }
 

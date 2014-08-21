@@ -41,7 +41,7 @@ from wb_server_management import local_run_cmd
 from workbench.db_utils import QueryError, ConnectionTunnel, escape_sql_identifier
 from wb_admin_utils import not_running_warning_label, make_panel_header
 from collections import deque
-
+from workbench.utils import Version
 from workbench.log import log_warning, log_error, log_debug
 
 
@@ -1886,7 +1886,7 @@ class WbAdminExportOptionsTab(mforms.Box):
             self.entry.set_value(value)
 
 
-    def __init__(self, defaults_from_mysqldump):
+    def __init__(self, target_version, defaults_from_mysqldump):
         mforms.Box.__init__(self, False)
         self.set_managed()
         self.set_release_on_add()                           
@@ -1910,7 +1910,20 @@ class WbAdminExportOptionsTab(mforms.Box):
             panel = newPanel(mforms.TitledBoxPanel)
             panel.set_title(groupname)
 #            print groupname
-            for optname, (option, default) in reversed(options.items()):
+            for optname, option_info in reversed(options.items()):
+                if len(option_info) == 2:
+                    (option, default) = option_info
+                elif len(option_info) == 3: # includes (min_version, max_version) tuple
+                    (option, default, (min_version, max_version)) = option_info
+                    if min_version:
+                        if not target_version.is_supported_mysql_version_at_least(Version.fromstr(min_version)):
+                            log_debug("Skip option %s because it's for version %s\n" % (optname, min_version))
+                            continue
+                    if max_version:
+                        if target_version.is_supported_mysql_version_at_least(Version.fromstr(max_version)):
+                            log_debug("Skip option %s becasue it's deprecated in version %s\n" % (optname, max_version))
+                            continue
+
                 # get the default value from mysqldump --help, if we don't have that data, use the stored default
                 default = defaults_from_mysqldump.get(optname, default)
                 checkbox = newCheckBox()
@@ -2173,7 +2186,7 @@ class WbAdminExport(mforms.Box):
         self.export_tab = WbAdminExportTab(self, self.server_profile, self.progress_tab)
         self.tabview.add_page(self.export_tab, "Object Selection")
 
-        self.options_tab = WbAdminExportOptionsTab(self.export_tab.mysqldump_defaults)
+        self.options_tab = WbAdminExportOptionsTab(self.ctrl_be.target_version, self.export_tab.mysqldump_defaults)
         self.add(self.options_tab, True, True)
         self.options_tab.show(False)
 
