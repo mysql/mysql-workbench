@@ -1172,6 +1172,10 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
 
 #pragma mark Event Handlers
 
+- (BOOL)mouseDownCanMoveWindow
+{
+  return NO;
+}
 
 - (void)mouseDown:(NSEvent *)theEvent
 {
