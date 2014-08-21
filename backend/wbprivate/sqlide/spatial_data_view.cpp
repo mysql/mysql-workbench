@@ -17,7 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
 #include "base/log.h"
 #include "base/file_utilities.h"
 #include "spatial_data_view.h"

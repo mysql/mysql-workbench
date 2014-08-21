@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "LayerEditorWrapper.h"
 
 using namespace MySQL::Grt;
