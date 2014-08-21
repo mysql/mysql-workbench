@@ -648,7 +648,8 @@ void spatial::Converter::change_projection(ProjectionView view, OGRSpatialRefere
   _adf_projection[3] = maxLon;
   _adf_projection[4] = 0;
   _adf_projection[5] = -(maxLon - minLon) / (double)_view.height;
-  GDALInvGeoTransform(_adf_projection, _inv_projection);
+  if (!GDALInvGeoTransform(_adf_projection, _inv_projection))
+    log_error("Unable to invert equation\n");
 }
 
 void spatial::Converter::to_projected(int x, int y, double &lat, double &lon)
