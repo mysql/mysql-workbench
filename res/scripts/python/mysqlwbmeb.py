@@ -69,6 +69,43 @@ class ConfigReader(object):
 
         return value
 
+class ConfigUpdater(object):
+        def __init__(self):
+            self.config = None
+           
+        def load_config(self, file_name):
+            self.config = ConfigReader(file_name)
+            
+        def update(self, file_name):
+            my_source_handler = open(file_name, 'r')
+            my_target_handler = open(file_name + ".tmp", 'w')
+            
+            current_section = None
+            for line in my_source_handler:
+                line = line.strip()
+                
+                if line.startswith('[') and line.endswith(']'):
+                    current_section = line[1:-1]
+                elif not line.startswith('#') and line.find('=') != -1:
+                    att, val = line.split('=', 2)
+                    
+                    att = att.strip()
+                    val = val.strip()
+                    
+                    if current_section:
+                        new_val = self.config.read_value(current_section, att, False, None)
+                        
+                        if new_val is not None:
+                            line = '%s = %s' % (att, new_val)
+                
+                my_target_handler.write('%s\n' % line)
+                
+            my_source_handler.close()
+            my_target_handler.close()
+            
+            os.remove(file_name)
+            os.rename(file_name + ".tmp", file_name)
+            
 
 class MEBCommand(object):
     def __init__(self, params = None, output_handler = None):
@@ -119,6 +156,7 @@ class MEBCommandProcessor(MEBCommand):
         self._commands['VERSION'] = MEBVersion
         self._commands['GET_PROFILES'] = MEBGetProfiles
         self._commands['UPDATE_SCHEDULING'] = MEBUpdateScheduling
+        self._commands['PROPAGATE_DATA'] = MEBPropagateSettings
 
 
     def read_params(self):
@@ -552,8 +590,63 @@ class MEBUpdateScheduling(MEBCommand):
         
         return ret_val
 
+class MEBPropagateSettings(MEBCommand):
+    def __init__(self, params = None, output_handler = None):
+        super(MEBPropagateSettings, self).__init__(params, output_handler)
+        
+        self.datafile = ""
+        self.datadir = ""
+        this_file_path = os.path.realpath(__file__)
+        self.backups_home = os.path.dirname(this_file_path)
+    
+    def read_params(self):
+        ret_val = False
+        if self.param_count() == 1:
+            self.datafile = self.get_param(0)
+            ret_val = True
 
+        return ret_val
 
+    def print_usage(self):
+        self.write_output("PROPAGATE_DATA <datadir>")
+        self.write_output("WHERE : <datadir> : is the path to the datadir of the server instance for which the profiles are")
+        self.write_output("                    being loaded. (There could be more than one instance on the same box).")
+        
+
+    def execute(self):
+        ret_val = 1
+        if self.read_params():
+            ret_val = 0
+            
+            # Loads the information to be propagated
+            updater = ConfigUpdater()
+            source_config_file = os.path.join(self.backups_home, self.datafile)
+            updater.load_config(source_config_file)
+            self.datadir = updater.config.read_value('target', 'datadir', None, None)
+        
+            if self.datadir is not None:
+                # Creates the string to be used on the file search
+                search_string = os.path.join(self.backups_home, '*.cnf')
+
+                # The glob module will be used to list only the required files
+                import glob
+                for filename in glob.glob(search_string):
+                    # Creates a config reader for each profile
+                    profile = ConfigReader(filename)
+
+                    # Verifies the datadir to ensure it belongs to the requested instance
+                    profile_datadir = profile.read_value('mysqlbackup', 'datadir', False, "")
+                    if profile_datadir == self.datadir:
+                        updater.update(filename)
+            else:
+                self.write_output('Data propagation file is missing the target datadir.')
+                
+            # Deletes the temporary file
+            os.remove(source_config_file)
+        else:
+            self.print_usage()
+
+            
 class MEBGetProfiles(MEBCommand):
     def __init__(self, params = None, output_handler = None):
         super(MEBGetProfiles, self).__init__(params, output_handler)
