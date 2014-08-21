@@ -58,6 +58,7 @@ rem copy non-binary modules
 xcopy %MODULES_DIR%\db.sybase\* %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\wb.utils\* %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\wb.sqlide\* %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
+xcopy %MODULES_DIR%\wb.fabric\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\db.mysql\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\db.mssql\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 xcopy %MODULES_DIR%\db.generic\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul

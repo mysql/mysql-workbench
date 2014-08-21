@@ -405,6 +405,11 @@ namespace MySQL.Grt.Db
       gridView.Columns[column].Width = width;
     }
 
+    public void update_columns()
+    {
+      gridView.Refresh();
+    }
+
     public int current_cell_row()
     {
       if (gridView.CurrentCell != null)

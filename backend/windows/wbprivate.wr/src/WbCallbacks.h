@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,7 +78,7 @@ namespace MySQL {
       delegate bool BoolStrStrStrStrDelegate(String^ str0, String^ str1, String^ str2, String^ str3);
       delegate bool BoolStrStrFloatDelegate(String^ str1, String^ str2, float f3);
       delegate bool BoolStrIntStrPtrDelegate(String^ str, int i, [Out] String^ %result);
-      delegate BaseWindowsCanvasView^ CanvasViewStringStringIntPtrDelegate(String^ str1, String^ str2, IntPtr payload);
+      delegate BaseWindowsCanvasView^ CanvasViewStringStringDelegate(String^ str1, String^ str2);
       delegate void VoidCanvasViewDelegate(BaseWindowsCanvasView^ canvasView);
       delegate IntPtr IntPtrGRTManagerModuleStrStrGrtListFlagsDelegate(GrtManager^ grtManager, GrtModule^ module, String^ str1, String^ str2, GrtValue^ grtlist, GUIPluginFlags flags);
       delegate void VoidIntPtrDelegate(IntPtr p2);
@@ -94,7 +94,7 @@ namespace MySQL {
       void set_show_file_dialog(StrStrStrStrDelegate^ dt);
       void set_show_status_text(VoidStrDelegate^ dt);
       void set_request_input(BoolStrIntStrPtrDelegate^ dt);
-      void set_create_diagram(CanvasViewStringStringIntPtrDelegate^ dt);
+      void set_create_diagram(CanvasViewStringStringDelegate^ dt);
       void set_destroy_view(VoidCanvasViewDelegate^ dt);
       void set_switched_view(VoidCanvasViewDelegate^ dt);
       void set_tool_changed(VoidCanvasViewDelegate^ dt);
@@ -207,7 +207,7 @@ namespace MySQL {
       void shell_output_wrapper(const std::string& str1);
 
       // CanvasView
-      CanvasViewStringStringIntPtrDelegate^ create_diagram_delegate;
+      CanvasViewStringStringDelegate^ create_diagram_delegate;
       CanvasViewDiagramWrapperDelegate^ create_diagram_wrapper_delegate;
       ::mdc::CanvasView *create_diagram_wrapper(const model_DiagramRef& model);
 
@@ -261,7 +261,7 @@ namespace MySQL {
         VoidStrDelegate^ show_status_text,
         BoolStrStrFloatDelegate^ show_progress,
         BoolStrIntStrPtrDelegate^ request_input,
-        CanvasViewStringStringIntPtrDelegate^ create_diagram,
+        CanvasViewStringStringDelegate^ create_diagram,
         VoidCanvasViewDelegate^ destroy_view,
         VoidCanvasViewDelegate^ switched_view,
         VoidCanvasViewDelegate^ tool_changed,

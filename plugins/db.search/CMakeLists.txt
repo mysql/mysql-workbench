@@ -27,6 +27,8 @@ add_library(db.search.wbp MODULE
 set_target_properties(db.search.wbp PROPERTIES
 #	LINK_FLAGS "-module"
 	PREFIX ""
+  VERSION   ${WB_VERSION}
+  SOVERSION ${WB_VERSION}
 )
 
 #target_link_libraries(db.mysql.wbp linux_utilities wbscintilla)

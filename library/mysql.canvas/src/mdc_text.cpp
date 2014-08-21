@@ -51,7 +51,7 @@ TextFigure::TextFigure(Layer *layer)
 
   _fill_background= false;
   _draw_outline= false;
-
+  _highlight_through_text = false;
   scoped_connect(signal_bounds_changed(),boost::bind(&TextFigure::reset_shrinked_text, this));
 }
 
@@ -213,7 +213,15 @@ void TextFigure::draw_contents(CairoCtx *cr, const Rect &bounds)
     size.width-= 2*_xpadding;
     size.height-= 2*_ypadding;
 
-    if (_draw_outline)
+    if (_highlight_color && _highlighted)
+    {
+      cr->set_color(*_highlight_color);
+      _text_layout->render(cr, pos - Point(1,0), size, _align);
+      _text_layout->render(cr, pos + Point(1,0), size, _align);
+      _text_layout->render(cr, pos - Point(0,1), size, _align);
+      _text_layout->render(cr, pos + Point(0,1), size, _align);
+    }
+    else if (_draw_outline)
     {
       cr->set_color(base::Color::White());
       _text_layout->render(cr, pos - Point(1,0), size, _align);
@@ -221,6 +229,7 @@ void TextFigure::draw_contents(CairoCtx *cr, const Rect &bounds)
       _text_layout->render(cr, pos - Point(0,1), size, _align);
       _text_layout->render(cr, pos + Point(0,1), size, _align);
     }
+
     cr->set_color(_pen_color);
     _text_layout->render(cr, pos, size, _align);
   }
@@ -266,29 +275,33 @@ void TextFigure::draw_contents(CairoCtx *cr, const Rect &bounds)
       text = _shrinked_text;
     }
 
+    if (_highlight_color && _highlighted && _highlight_through_text)
+    {
+      cr->set_color(*_highlight_color);
+      for (int x = -3; x <= 3; x++)
+      {
+        for (int y = -3; y <= 3; y++)
+        {
+          cr->move_to(text_pos + Point(x, y));
+          cr->show_text(text);
+        }
+      }
+    }
     if (_draw_outline)
     {
       cr->set_color(base::Color::White());
       cr->move_to(text_pos + Point(1, 0));
       cr->show_text(text);
-      cr->stroke();
-      cr->set_color(base::Color::White());
       cr->move_to(text_pos - Point(1, 0));
       cr->show_text(text);
-      cr->stroke();
-      cr->set_color(base::Color::White());
       cr->move_to(text_pos + Point(0, 1));
       cr->show_text(text);
-      cr->stroke();
-      cr->set_color(base::Color::White());
       cr->move_to(text_pos - Point(0, 1));
       cr->show_text(text);
-      cr->stroke();
     }
     cr->set_color(_pen_color);
     cr->move_to(text_pos);
     cr->show_text(text);
-    cr->stroke();
 
     cr->check_state();
   }

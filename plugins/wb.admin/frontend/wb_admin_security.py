@@ -1279,7 +1279,7 @@ class SecurityAccount(mforms.Box):
                                  all( int(item) <= 255 for item in subnet_mask.split('.') ) )
                               )
 
-        if self.valid_name:
+        if self.valid_name or ':' in host: # give up and allow anything that looks like ipv6... this validation is silly anyway
             #self.set_dirty()
             self.hostlimithost_valid_icon.show(False)
         else:

@@ -42,7 +42,7 @@ if CATOPTS is not None:
         print "CATOPT", "'" + enabled + "', '" + cat.get_string_value() + "', '" + grp.get_string_value()
 
 # The list of versions to show to user when detected/given version is not supported
-supported_versions = [5.0, 5.1, 5.3, 5.4, 5.5, 5.6, 6.0]
+supported_versions = [5.0, 5.1, 5.5, 5.6, 5.7]
 
 #===============================================================================
 def verify_selected_version(version_selector, set_back):
@@ -803,7 +803,7 @@ class WbAdminConfigFileUI(mforms.Box):
             table.add(dir_box, 1, 2, row, row + 1, HExpandFlag | HFillFlag)
             te.add_changed_callback(lambda: self.control_action(name))
             self.opt2ctrl_map[name] = ctrl
-        elif ctype == "numeric" or ctype == "spinedit":
+        elif ctype == "numeric" or ctype == "spinedit" or ctype == "integer":
             #(spin_box, te, unitcontrol, unit_items) = self.create_numeric(name, ctrl_def)
             #ctrl = ('spn', (enabled, te, unitcontrol, unit_items), ctrl_def)
             te = self.create_numeric(name, ctrl_def)

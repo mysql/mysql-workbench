@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -95,6 +95,7 @@ namespace wb {
 
     void set_closed(bool flag);
     bool is_closed();
+    virtual void close();
     
     mdc::CanvasItem *get_leaf_item_at(const base::Point &pos);
     
@@ -165,6 +166,7 @@ namespace wb {
     void handle_mouse_move(int x, int y, mdc::EventState state);
     void handle_mouse_button(mdc::MouseButton button, bool press, int x, int y, mdc::EventState state);
     void handle_mouse_double_click(mdc::MouseButton button, int x, int y, mdc::EventState state);
+    void handle_mouse_leave(int x, int y, mdc::EventState state);
     bool handle_key(const mdc::KeyInfo &key, bool press, mdc::EventState state);
 
     bool current_mouse_position(int &x, int &y);

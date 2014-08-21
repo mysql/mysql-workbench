@@ -42,8 +42,8 @@ AppViewDockContent::AppViewDockContent()
 
 AppViewDockContent::~AppViewDockContent()
 {
-  if (appview != NULL)
-    appview->release();
+ // if (appview != NULL)
+ //   appview->release();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +51,9 @@ AppViewDockContent::~AppViewDockContent()
 void AppViewDockContent::SetBackend(mforms::AppView *backend)
 {
   appview = backend;
-  appview->retain();
+  // Don't hold a reference, the wrapper should be deleted when the backend object is deleted, 
+  // not the other way around.. this would cause a circular reference and leak
+ // appview->retain();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +103,16 @@ ToolStrip^ AppViewDockContent::GetToolBar()
 
 bool AppViewDockContent::DocumentClosing()
 {
-  return appview->on_close();
+  if (appview->containing_docking_point())
+  {
+    if (appview->containing_docking_point()->close_view(appview))
+    {
+      return true;
+    }
+    return false;
+  }
+  else
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,3 +208,9 @@ void AppViewWrapper::init()
 }
 
 //--------------------------------------------------------------------------------------------------
+
+AppViewWrapper::~AppViewWrapper()
+{
+  delete host;
+  host = nullptr;
+}

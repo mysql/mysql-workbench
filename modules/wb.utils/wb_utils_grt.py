@@ -31,7 +31,7 @@ import grt
 import mforms
 
 from grt import log_warning
-from workbench.log import log_info
+from workbench.log import log_info, log_error, log_debug
 
 # define this Python module as a GRT module
 ModuleInfo = DefineModule(name= "PyWbUtils", author= "Sun Microsystems Inc.", version="1.0")
@@ -330,7 +330,7 @@ def copyJDBCConnectionString(conn):
     mforms.Utilities.set_clipboard_text(connstr+params)
 
 
-@ModuleInfo.plugin("wb.tools.createMissingLocalConnections", caption="Create Missing Local Connections", input= [], pluginMenu="Home/Connections")
+@ModuleInfo.plugin("wb.tools.createMissingLocalConnections", caption="Rescan for Local MySQL Instances", input= [], pluginMenu="Home/Connections")
 @ModuleInfo.export(grt.INT)
 def createMissingLocalConnections():
 
@@ -446,6 +446,9 @@ if sys.platform == "linux2":
            ):
             subprocess.Popen('iodbcadm-gtk', shell=True, close_fds=True)
             return 1
+        elif (path and any( os.path.isfile(os.path.join(prefix, 'ODBCManageDataSourcesQ4')) for prefix in path.split(':') )):
+            subprocess.Popen('ODBCManageDataSourcesQ4', shell=True, close_fds=True)
+            return 1
         else:
             return 0
 elif sys.platform == "darwin":
@@ -458,18 +461,39 @@ elif sys.platform == "darwin":
 elif sys.platform == "win32":
     @ModuleInfo.export(grt.INT)
     def startODBCAdmin():
-        subprocess.Popen("odbcad32.exe", shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, close_fds=True)
-        return 1
+        # WTF alert:
+        # In 64bit windows, there are 2 versions of odbcad32.exe. One is 64bits and the other 32.
+        # The 64bit version is in \Windows\System32
+        # The 32bit version is in \Windows\SysWOW64
 
+        # so if we're a 64bit WB, then we run the 64bit odbc tool (since we can't use 32bit drivers anyway)
+
+        if sys.maxint > 2**31:
+            subprocess.Popen(r"%SYSTEMROOT%\SysWOW64\odbcad32.exe", shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, close_fds=True)
+        else:
+            subprocess.Popen(r"%SYSTEMROOT%\System32\odbcad32.exe", shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, close_fds=True)
+            return 1
+
+
+def process_not_found_utils():
+    utilities_url = ("http://dev.mysql.com/downloads/utilities/" if grt.root.wb.info.edition == "Community" else
+                        "https://edelivery.oracle.com/EPD/Search/get_form?product=18251")
+
+    source_description = "www.mysql.com" if grt.root.wb.info.edition == "Community" else "eDelivery"
+
+    if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
+                                        "located.\n\nTo use them, you must download and install the utilities "
+                                        "package for your system from %s.\n\n"
+                                        "Click on the Download button to proceed." % source_description,
+                                "Download...", "Cancel", "") == mforms.ResultOk:
+
+        mforms.Utilities.open_url(utilities_url)
 
 @ModuleInfo.plugin("wb.tools.utilitiesShell", caption="Start Shell for MySQL Utilities", groups=["Others/Menu/Ungrouped"])
 @ModuleInfo.export(grt.INT)
 def startUtilitiesShell():
     import platform
     import os
-
-    utilities_url = ("http://dev.mysql.com/downloads/utilities/" if grt.root.wb.info.edition == "Community" else
-                     "https://edelivery.oracle.com/EPD/Search/get_form?product=18251")
 
     if platform.system() == "Windows":
         guessed_path = None
@@ -488,28 +512,17 @@ def startUtilitiesShell():
             command = r'start cmd /K "%s"' % guessed_path
             subprocess.Popen(command, shell = True)
         else:
-            if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
-                                             "located.\n\nTo use them, you must download and install the utilities "
-                                             "package for your system from:\n%s" % utilities_url,
-                                       "Download...", "Cancel", "") == mforms.ResultOk:
-                mforms.Utilities.open_url(utilities_url)
+            process_not_found_utils()
+
     elif platform.system() == "Darwin":
         # PATH seems to be stripped down when WB is started from a binary .app
         if any(os.path.exists(f+"/mysqluc") for f in os.getenv("PATH").split(":") + ["/usr/local/bin"]):
             os.system(r"""osascript -e 'tell application "Terminal" to do script "mysqluc -e \"help utilities\""' -e 'tell front window of application "Terminal" to set custom title to "MySQL Utilities"'""")
         else:
-            if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
-                                             "located.\n\nTo use them, you must download and install the utilities "
-                                             "package for your system from %s" % utilities_url,
-                                             "Download...", "Cancel", "") == mforms.ResultOk:
-                mforms.Utilities.open_url(utilities_url)
+            process_not_found_utils()
     else:
         if not any(os.path.exists(f+"/mysqluc") for f in os.getenv("PATH").split(":")):
-            if mforms.Utilities.show_message("MySQL Utilities", "The command line MySQL Utilities could not be "
-                                             "located.\n\nTo use them, you must download and install the utilities "
-                                             "package for your system from %s" % utilities_url,
-                                           "Download...", "Cancel", "") == mforms.ResultOk:
-                mforms.Utilities.open_url(utilities_url)
+            process_not_found_utils()
         else:
             term = get_linux_terminal_program()
             if term:
@@ -600,4 +613,214 @@ def checkForUpdates():
     thread.start()
     mforms.App.get().set_status_text('Checking for updates...')
     ignore = mforms.Utilities.add_timeout(1.0, thread.checkForUpdatesCallback) # noqa
+
+
+
+
+
+
+class SSLGenerator(mforms.Form):
+    def __init__(self):
+        mforms.Form.__init__(self, mforms.Form.main_form(), mforms.FormNormal)
+
+        self.set_title("Generate SSL Certificates")
+
+        box = mforms.newBox(False)
+        box.set_padding(20)
+        box.set_spacing(20)
+
+        label = mforms.newLabel("This will generate a set of SSL certificates and other files that are required by the MySQL server to enable SSL.")
+        box.add(label, False, True)
+
+        table = mforms.newTable()
+        table.set_column_count(3)
+        table.set_row_count(1)
+
+        table.set_row_spacing(8)
+        table.set_column_spacing(4)
+
+        row, self.path = self.add_label_row(table, 0, "Output Directory:", mforms.newTextEntry(), "Directory to place generated files")
+
+        box.add(table, False, True)
+
+        table = mforms.newTable()
+        table.set_padding(12)
+        table.set_column_count(3)
+        table.set_row_count(7)
+
+        table.set_row_spacing(8)
+        table.set_column_spacing(4)
+
+        row, self.country_code = self.add_label_row(table, 0, "Country:", mforms.newTextEntry(), "2 letter country code (eg, US)")
+        row, self.state_name = self.add_label_row(table, row, "State or Province Name:", mforms.newTextEntry(), "Full state or province name")
+        row, self.locality_name = self.add_label_row(table, row, "Locality Name:", mforms.newTextEntry(), "eg, city")
+        row, self.org_name = self.add_label_row(table, row, "Organization Name:", mforms.newTextEntry(), "eg, company")
+        row, self.org_unit = self.add_label_row(table, row, "Organizational Unit Name:", mforms.newTextEntry(), "eg, section, department")
+        row, self.common_name = self.add_label_row(table, row, "Common Name:", mforms.newTextEntry(), "eg, put the FQDN of the server to allow server address validation")
+        row, self.email_address = self.add_label_row(table, row, "Email Address:", mforms.newTextEntry(), "")
+
+        panel = mforms.newPanel(mforms.TitledBoxPanel)
+        panel.set_title("Optional Parameters")
+        panel.add(table)
+
+        box.add(panel, False, True)
+
+        hbox = mforms.newBox(True)
+        hbox.set_spacing(8)
+        self.ok = mforms.newButton()
+        self.ok.set_text("OK")
+        self.cancel = mforms.newButton()
+        self.cancel.set_text("Cancel")
+        mforms.Utilities.add_end_ok_cancel_buttons(hbox, self.ok, self.cancel)
+
+        box.add_end(hbox, False, True)
+
+        self.set_content(box)
+
+        self.path.focus()
+
+
+    def add_label_row(self, table, row, label, control, help):
+        table.add(mforms.newLabel(label, True), 0, 1, row, row+1, mforms.HFillFlag)
+        table.add(control, 1, 2, row, row+1, mforms.HFillFlag|mforms.HExpandFlag)
+        l = mforms.newLabel(help)
+        l.set_style(mforms.SmallHelpTextStyle)
+        table.add(l, 2, 3, row, row+1, mforms.HFillFlag)
+        return row+1, control
+
+
+    def get_attributes(self):
+        l = []
+        l.append("C=%s"%self.country_code.get_string_value())
+        l.append("ST=%s"%self.state_name.get_string_value())
+        l.append("L=%s"%self.locality_name.get_string_value())
+        l.append("O=%s"%self.org_name.get_string_value())
+        l.append("OU=%s"%self.org_unit.get_string_value())
+        l.append("CN=%s"%self.common_name.get_string_value())
+        l.append("emailAddress=%s"%self.email_address.get_string_value())
+        # filter out blank values
+        l = [s for s in l if s.partition("=")[-1]]
+        return l
+
+
+    def generate_certificate(self, tool, out_path, out_name, ca_cert, ca_key, config_file, days=3600):
+        key = os.path.join(out_path, out_name+"-key.pem")
+        req = os.path.join(out_path, out_name+"-req.pem")
+        cert = os.path.join(out_path, out_name+"-cert.pem")
+
+        serial_file = os.path.join(out_path, out_name+".serial")
+
+        req_cmd = [tool, "req", "-newkey", "rsa:2048", "-days", str(days), "-nodes", "-keyout", key, "-out", req, "-config", config_file]
+        log_debug("Executing %s\n" % req_cmd)
+        out = subprocess.check_output(req_cmd, stderr=subprocess.STDOUT)
+        log_debug("%s %s: %s\n" % (key, req, out))
+
+        rsa_cmd = [tool, "rsa", "-in", key, "-out", key]
+        log_debug("Executing %s\n" % rsa_cmd)
+        out = subprocess.check_output(rsa_cmd, stderr=subprocess.STDOUT)
+        log_debug("%s strip: %s\n" % (key, out))
+
+        rsa_cmd = [tool, "x509", "-req", "-in", req, "-days", str(days), "-CA", ca_cert, "-CAkey", ca_key,
+                          "-CAserial", serial_file, "-CAcreateserial",
+                          "-out", cert]
+        log_debug("Executing %s\n" % rsa_cmd)
+        out = subprocess.check_output(rsa_cmd, stderr=subprocess.STDOUT)
+        log_debug("%s strip: %s\n" % (cert, out))
+
+        return key, req, cert
+
+
+    def generate(self, path, config_file):
+        days = 3600
+
+        tool = "openssl"
+
+        log_info("Creating CA certificate...\n")
+        ca_key = os.path.join(path, "ca-key.pem")
+        genrsa_cmd = [tool, "genrsa", "2048"]
+        out = subprocess.check_output("%s > %s" % (" ".join(genrsa_cmd), ca_key), shell=True, stderr=subprocess.STDOUT)
+        log_debug("genrsa: %s\n" % out)
+
+        ca_cert = os.path.join(path, "ca-cert.pem")
+        req_cmd = [tool, "req", "-new", "-x509", "-nodes", "-days", str(days), "-key", ca_key, "-out", ca_cert, "-config", config_file]
+        log_debug("Executing %s\n" % req_cmd)
+        out = subprocess.check_output(req_cmd, stderr=subprocess.STDOUT)
+        log_debug("req: %s\n" % out)
+        log_info("Generated CA certificate %s\n" % ca_cert)
+
+        log_info("Create server certificate and self-sign\n")
+        server_key, server_req, server_cert = self.generate_certificate(tool, path, "server", ca_cert, ca_key, config_file)
+        log_info("Generated server certificate %s\n" % server_cert)
+
+        log_info("Create client certificates and self-sign\n")
+        client_key, client_req, client_cert = self.generate_certificate(tool, path, "client", ca_cert, ca_key, config_file)
+        log_info("Generated client certificate %s\n" % server_cert)
+
+        return ca_cert, server_cert, server_key, client_cert, client_key
+
+
+    def run(self):
+        if self.run_modal(self.ok, self.cancel):
+            config_file = None
+            try:
+                path = self.path.get_string_value()
+                try:
+                    os.mkdir(path, 0700)
+                except OSError, e:
+                    if e.errno != 17:
+                        raise
+
+                if os.path.exists(os.path.join(path, "ca-cert.pem")):
+                    if mforms.Utilities.show_warning("Generate SSL Certificates",
+                                                     "Output directory %s already contains certificates, do you want to overwrite them?" % path,
+                                                     "Overwrite", "Cancel", "") == mforms.ResultCancel:
+                        return
+
+                config_file = os.path.join(path, "attribs.txt")
+                f = open(config_file, "w+")
+                f.write("[req]\ndistinguished_name=distinguished_name\nprompt=no\n")
+                f.write("\n".join(["[distinguished_name]"] + self.get_attributes())+"\n")
+                f.close()
+
+                ca_cert, server_cert, server_key, client_cert, client_key = self.generate(path, config_file)
+
+                # write a sample my.cnf file
+                sample_file = os.path.join(self.path.get_string_value(), "sample-my.cnf")
+                f = open(sample_file, "w+")
+                f.write("""
+[client]
+ssl-ca=%(ca_cert)s
+ssl-cert=%(client_cert)s
+ssl-key=%(client_key)s
+[mysqld]
+ssl-ca=%(ca_cert)s
+ssl-cert=%(server_cert)s
+ssl-key=%(server_key)s
+""" % {"ca_cert" : ca_cert, "server_cert" : server_cert, "server_key" : server_key, "client_cert" : client_cert, "client_key" : client_key})
+                f.close()
+
+                mforms.Utilities.show_message("Generate SSL Certificates",
+                                              """Certificates successfully generated.
+                                                
+You may now move the certificates directory to somewhere like /etc/mysql/ssl in the desired server and update the MySQL configuration.
+To connect to a server using these certificates, copy the client-client.pem and client-key.pem files to a safe location in the client host.
+A sample my.cnf file was written to %s.""" % sample_file,
+                                              "OK", "", "")
+
+            except Exception, e:
+                import traceback
+                log_error("Error generating SSL certificates: %s\n" % traceback.format_exc())
+                mforms.Utilities.show_error("Generate SSL Certificates", "An error occurred while generating the certificates.\n%s" % e, "OK", "", "")
+            finally:
+                if config_file:
+                    os.remove(config_file)
+
+
+
+#@ModuleInfo.plugin("wb.tools.generateSSLCertificates", caption="Generate SSL Certificates...", groups=["Others/Menu/Ungrouped"])
+@ModuleInfo.export(grt.INT)
+def generateCertificates():
+    r = SSLGenerator()
+    r.run()
+
 

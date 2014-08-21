@@ -65,6 +65,11 @@ public:
     _view->set_column_width(column, width);
   }
 
+  virtual void update_columns()
+  {
+    _view->update_columns();
+  }
+
   virtual bool current_cell(size_t &row, int &column)
   {
     row = _view->current_cell_row();

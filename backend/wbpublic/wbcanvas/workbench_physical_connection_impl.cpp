@@ -332,26 +332,49 @@ void workbench_physical_Connection::ImplData::layout_changed()
     self()->_middleSegmentOffset= offset;
 }
 
-
-void workbench_physical_Connection::ImplData::set_highlighted(bool flag)
+void workbench_physical_Connection::ImplData::highlight(const base::Color *color)
 {
-  if (_highlighting == flag)
-    return;
+  model_Connection::ImplData::highlight(color);
 
-  _highlighting= flag;
-
-  if (_line)
-    _line->set_highlighted(flag);
   if (_above_caption)
-    _above_caption->set_highlighted(flag);
+  {
+    _above_caption->set_highlighted(true);
+    if (color)
+      _above_caption->set_highlight_color(color);
+  }
   if (_below_caption)
-    _below_caption->set_highlighted(flag);
+  {
+    _below_caption->set_highlighted(true);
+    if (color)
+      _below_caption->set_highlight_color(color);
+  }
   if (_start_caption)
-    _start_caption->set_highlighted(flag);
+  {
+    _start_caption->set_highlighted(true);
+    if (color)
+      _start_caption->set_highlight_color(color);
+  }
   if (_end_caption)
-    _end_caption->set_highlighted(flag);
+  {
+    _end_caption->set_highlighted(true);
+    if (color)
+      _end_caption->set_highlight_color(color);
+  }
 }
 
+
+void workbench_physical_Connection::ImplData::unhighlight()
+{
+  if (_above_caption)
+    _above_caption->set_highlighted(false);
+  if (_below_caption)
+    _below_caption->set_highlighted(false);
+  if (_start_caption)
+    _start_caption->set_highlighted(false);
+  if (_end_caption)
+    _end_caption->set_highlighted(false);
+  model_Connection::ImplData::unhighlight();
+}
 
 static wbfig::FigureItem* get_table_column_with_id(wbfig::Table *table, const std::string &id)
 {
@@ -497,7 +520,7 @@ void workbench_physical_Connection::ImplData::unrealize()
     notify_will_unrealize();
     
     if (_highlighting)
-      set_highlighted(false);
+      unhighlight();
     
     _table_changed_conn.disconnect();
     

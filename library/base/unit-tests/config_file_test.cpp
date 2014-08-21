@@ -160,26 +160,26 @@ TEST_FUNCTION(50)
   // Specific tests for !include and !includedir entries.
   ConfigurationFile file("data/base/my-3.ini", AutoCreateNothing);
   std::vector<std::string> includes = file.get_includes("");
-  ensure_equals("50.1 Number of includes", includes.size(), 1);
+  ensure_equals("50.1 Number of includes", includes.size(), 1U);
   ensure_equals("50.2 Check include", includes[0], "C:\\\\test.cnf");
 
   includes = file.get_includes("mysqld");
-  ensure_equals("50.3 Number of includes", includes.size(), 2);
+  ensure_equals("50.3 Number of includes", includes.size(), 2U);
   ensure_equals("50.4 Check include", includes[0], "C:\\\\test.cnf");
   ensure_equals("50.5 Check include", includes[1], "C:/config-files/");
 
   file.clear_includes("xxx");
   includes = file.get_includes("mysqld");
-  ensure_equals("50.6 Number of includes", includes.size(), 2);
+  ensure_equals("50.6 Number of includes", includes.size(), 2U);
 
   file.clear_includes("mysqld");
   includes = file.get_includes("mysqld");
-  ensure_equals("50.7 Number of includes", includes.size(), 0);
+  ensure_equals("50.7 Number of includes", includes.size(), 0U);
 
   file.add_include("mysqld", "abc");
   file.add_include_dir("mysqld", "def");
   includes = file.get_includes("mysqld");
-  ensure_equals("50.8 Number of includes", includes.size(), 2);
+  ensure_equals("50.8 Number of includes", includes.size(), 2U);
   ensure_equals("50.9 Check include", includes[0], "abc");
   ensure_equals("50.10 Check include", includes[1], "def");
 }

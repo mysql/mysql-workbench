@@ -35,6 +35,7 @@
 
 #include "mforms/box.h"
 #include "mforms/form.h"
+#include "mforms/menubar.h"
 #include "mforms/record_grid.h"
 #include "mforms/toolbar.h"
 #include "mforms/utilities.h"
@@ -131,6 +132,7 @@ std::vector<std::string> TableColumnsListBE::get_datatype_names()
     std::string tmp;
 
     if ((*iter)->parameterFormatType() == 1 ||
+        (*iter)->parameterFormatType() == 2 ||
         (*iter)->parameterFormatType() == 3 ||
         (*iter)->parameterFormatType() == 4 ||
         (*iter)->parameterFormatType() == 10)
@@ -2214,6 +2216,9 @@ bool FKConstraintColumnsListBE::set_field(const NodeId &node, ColumnId column, c
       std::auto_ptr<AutoUndoEdit> undo;
 
       tcolumn= grt::find_named_object_in_list(fk->referencedTable()->columns(), value);
+      
+      if (tcolumn.is_valid() == false)
+        return false;
 
       // special handling for stub tables
       if (fk->referencedTable()->isStub() && !tcolumn.is_valid() && !_owner->get_owner()->is_editing_live_object())
@@ -3291,6 +3296,36 @@ void TableEditorBE::restore_inserts_columns()
   }
 }
 
+
+void TableEditorBE::open_field_editor(int row, int column)
+{
+  Recordset::Ref rset(get_inserts_model());
+  if (rset)
+  {
+    std::string type;
+    db_ColumnRef tcolumn(get_table()->columns()[column]);
+    if (tcolumn.is_valid())
+    {
+      if (tcolumn->simpleType().is_valid())
+        type = tcolumn->simpleType()->name();
+      else if (tcolumn->userType().is_valid() && tcolumn->userType()->actualType().is_valid())
+        type = tcolumn->userType()->actualType()->name();
+    }
+    rset->open_field_data_editor(row, column, type);
+  }
+}
+
+void TableEditorBE::update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column)
+{
+  mforms::MenuItem *item = menu->find_item("edit_cell");
+  if (item)
+  {
+    if (item->signal_clicked()->empty())
+      item->signal_clicked()->connect(boost::bind(&TableEditorBE::open_field_editor, this, rows[0], column));
+  }
+}
+
+
 // used in unit-tests
 Recordset::Ref TableEditorBE::get_inserts_model()
 {
@@ -3303,6 +3338,7 @@ Recordset::Ref TableEditorBE::get_inserts_model()
     _inserts_storage->table(get_table());
 
     _inserts_model = Recordset::create(_grtm);
+    _inserts_model->update_selection_for_menu_extra = boost::bind(&TableEditorBE::update_selection_for_menu_extra, this, _1, _2, _3);
     _inserts_model->set_inserts_editor(true);
     _inserts_model->data_storage(_inserts_storage);
     _inserts_model->refresh();
@@ -3428,11 +3464,13 @@ bool TableEditorBE::can_close()
     else
       return false;
   }
-  return true;
+  return DBObjectEditorBE::can_close();
 }
 
 void TableEditorBE::column_count_changed()
 {
   if (_inserts_model)
     _inserts_model->refresh();
+  if (_inserts_grid)
+    _inserts_grid->update_columns();
 }

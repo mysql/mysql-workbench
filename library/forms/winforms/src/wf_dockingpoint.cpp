@@ -49,6 +49,10 @@ public:
   virtual void dock_view(mforms::AppView *view, const std::string &arg1, int arg2)
   {
     AppViewWrapper *wrapper = view->get_data<AppViewWrapper>();
+    if (view->release_on_add())
+      view->set_release_on_add(false);
+    else
+      view->retain();
     _managed_delegate->dock_view(_represented_object, wrapper->GetHost(), CppStringToNative(arg1), arg2);
   }
 
@@ -62,6 +66,7 @@ public:
   {
     AppViewWrapper *wrapper = view->get_data<AppViewWrapper>();
     _managed_delegate->undock_view(_represented_object, wrapper->GetHost());
+    view->release();
   }
 
   virtual void set_view_title(mforms::AppView *view, const std::string &title)

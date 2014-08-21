@@ -1200,6 +1200,7 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
   _tree.signal_row_collapsed().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_collapsed));
 //  _tree.signal_row_expanded().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_expanded));
   _tree.signal_test_expand_row().connect(sigc::bind_return(sigc::mem_fun(this, &TreeNodeViewImpl::on_will_expand), false));
+  _tree.signal_key_release_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_key_release), false);
   _tree.signal_button_press_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_button_event), false);
 //  _tree.set_reorderable((opts & mforms::TreeAllowReorderRows) || (opts & mforms::TreeCanBeDragSource)); // we need this to have D&D working
   _tree.signal_button_release_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_button_release), false);
@@ -1603,6 +1604,21 @@ void TreeNodeViewImpl::on_collapsed(const Gtk::TreeModel::iterator& iter, const 
   }
 }
 
+bool TreeNodeViewImpl::on_key_release(GdkEventKey *ev)
+{
+  mforms::TreeNodeView* tv = dynamic_cast<mforms::TreeNodeView*>(owner);
+  TreeNodeRef node = this->get_selected_node(tv);
+  if (!node.is_valid())
+    return false;
+
+  if (ev->keyval == GDK_Left)
+    node->collapse();
+  else if (ev->keyval == GDK_Right)
+    node->expand();
+
+  return false;
+}
+
 bool TreeNodeViewImpl::on_button_event(GdkEventButton *event)
 {
   bool ret_val = false;
@@ -1750,9 +1766,9 @@ int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, i
     label->show();
     tvc->set_widget(*label);
   }
-  tvc->set_resizable(true);
   if (initial_width > 0)
     tvc->set_fixed_width(initial_width);
+  tvc->set_resizable(true);
   tvc->set_data("index", (void*)(intptr_t)column);
   
   return column;

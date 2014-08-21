@@ -57,6 +57,7 @@ namespace MySQL {
 
     protected:
       AppViewWrapper(mforms::AppView *backend);
+      ~AppViewWrapper();
 
       static bool create(mforms::AppView *backend, bool horizontal);
 

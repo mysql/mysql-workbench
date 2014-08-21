@@ -58,7 +58,8 @@ _tab(mforms::TabViewSystemStandard),
 _params_panel(mforms::TransparentPanel), _params_table(0),
 _ssl_panel(mforms::TransparentPanel), _ssl_table(0),
 _advanced_panel(mforms::TransparentPanel), _advanced_table(0),
-_show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0), 
+_options_panel(mforms::TransparentPanel), _options_table(0),
+_show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
 _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),
 _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) != 0)
 {
@@ -147,13 +148,14 @@ _dont_set_default_connection((flags & DbConnectPanelDontSetDefaultConnection) !=
   _params_panel.set_name("params_panel");
   _ssl_panel.set_name("ssl_panel");
   _advanced_panel.set_name("advanced_panel");
-  _tab.add_page(&_params_panel, _("Parameters"));
-  _tab.add_page(&_ssl_panel, _("SSL"));
-  _tab.add_page(&_advanced_panel, _("Advanced"));
-  
+  _options_panel.set_name("options_panel");
+
   set_name("connect_panel");
   add(&_table, false, false);
   add(&_tab, true, true);
+  _warning.set_style(mforms::SmallHelpTextStyle);
+  _warning.set_front_color("#FF0000");
+  add(&_warning, false, false);
 }
 
 
@@ -369,19 +371,21 @@ void DbConnectPanel::enum_param_value_changed(mforms::Selector *sender, std::vec
   }
   
   DbDriverParam *param= _connection->get_db_driver_param_handles()->get(param_name);
-  
   int i = sender->get_selected_index();
   if (i >= 0)
     param->set_value(grt::StringRef(options[i]));
   else
     param->set_value(grt::StringRef(""));
-  
-  _connection->save_changes();
 
-  std::string error= _connection->validate_driver_params();
-  if (error != _last_validation)
-    _signal_validation_state_changed(error, error.empty());
-  _last_validation = error;
+  if (_connection)
+  {
+    _connection->save_changes();
+
+    std::string error= _connection->validate_driver_params();
+    if (error != _last_validation)
+      _signal_validation_state_changed(error, error.empty());
+    _last_validation = error;
+  }
 }
 
 
@@ -493,6 +497,9 @@ void DbConnectPanel::change_active_driver()
         actual_connection->parameterValues().gset("hostName", "127.0.0.1");
       }
     
+    if (_driver_changed_cb)
+      _driver_changed_cb(new_driver);
+    
     _connection->set_driver_and_update(new_driver);
     show();
     
@@ -541,12 +548,15 @@ void DbConnectPanel::refresh_stored_connections()
   _stored_connection_sel.add_item("");
   for (grt::ListRef<db_mgmt_Connection>::const_iterator iter= list.begin(); iter != list.end(); ++iter)
   {
-    if (!rdbms.is_valid() || ((*iter)->driver().is_valid() && (*iter)->driver()->owner() == rdbms))
+    if (is_connectable_driver_type((*iter)->driver()))
     {
-      _stored_connection_sel.add_item((*iter)->name());
-      if (*(*iter)->isDefault() && !_dont_set_default_connection)
-        selected_index = i;
-      i++;
+      if (!rdbms.is_valid() || ((*iter)->driver().is_valid() && (*iter)->driver()->owner() == rdbms))
+      {
+        _stored_connection_sel.add_item((*iter)->name());
+        if (*(*iter)->isDefault() && !_dont_set_default_connection)
+          selected_index = i;
+        i++;
+      }
     }
   }
 
@@ -602,48 +612,90 @@ void DbConnectPanel::save_connection_as(const std::string &name)
 
 bool DbConnectPanel::test_connection()
 {
+  std::string message = "Connection parameters are correct";
   try
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
-    sql::ConnectionWrapper _dbc_conn= dbc_drv_man->getConnection(get_be()->get_connection());
+    db_mgmt_ConnectionRef connectionProperties = get_be()->get_connection();
+    std::string ssl_cipher;
     
-    if (_dbc_conn.get() && !_dbc_conn->isClosed())
+    if ( connectionProperties->driver()->name() == "MySQLFabric")
     {
-      // check that we're connecting to a known and supported version of the server
-      std::string version;
-      {
-        std::auto_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
-        std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT version()"));
-        if (result->next())
-          version = result->getString(1);
-      }
-      if (!bec::is_supported_mysql_version(version))
-      {
-        log_error("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
-                  version.c_str());
-        if (mforms::Utilities::show_warning("Connection Warning",
-                                            base::strfmt("Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
-                                                         "A connection to this database can be established but some MySQL Workbench features may not work properly since the database is not fully compatible with the supported versions of MySQL.\n\n"
-                                                         "MySQL Workbench is developed and tested for MySQL Server versions 5.1, 5.5, 5.6 and 5.7",
-                                                         bec::sanitize_server_version_number(version).c_str()),
-                                            "Continue Anyway", "Cancel") != mforms::ResultOk)
-          return false;
-      }
-      
-      mforms::Utilities::show_message(base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str()),
-                                      "Connection parameters are correct.", "OK");
-      return true;
+      grt::GRT *grt = connectionProperties->get_grt();
+      grt::BaseListRef args(grt);
+      args->insert_unchecked(connectionProperties);
+      grt::ValueRef result= grt->call_module_function("WBFabric", "testConnection", args);
+      message = grt::StringRef::extract_from(result);
     }
     else
-      mforms::Utilities::show_error(base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str()),
-                                    "Connection Failed", "OK");
+    {
+      sql::ConnectionWrapper _dbc_conn= dbc_drv_man->getConnection(connectionProperties);
+      
+      if (_dbc_conn.get() && !_dbc_conn->isClosed())
+      {
+        // check that we're connecting to a known and supported version of the server
+        std::string version;
+        {
+          std::auto_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
+          std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT version()"));
+          if (result->next())
+            version = result->getString(1);
+        }
+        if (!bec::is_supported_mysql_version(version))
+        {
+          log_error("Unsupported server version: %s %s\n", _dbc_conn->getMetaData()->getDatabaseProductName().c_str(),
+                    version.c_str());
+          if (mforms::Utilities::show_warning("Connection Warning",
+                                              base::strfmt("Incompatible/nonstandard server version or connection protocol detected (%s).\n\n"
+                                                           "A connection to this database can be established but some MySQL Workbench features may not work properly since the database is not fully compatible with the supported versions of MySQL.\n\n"
+                                                           "MySQL Workbench is developed and tested for MySQL Server versions 5.1, 5.5, 5.6 and 5.7",
+                                                           bec::sanitize_server_version_number(version).c_str()),
+                                              "Continue Anyway", "Cancel") != mforms::ResultOk)
+            return false;
+        }
+
+        // check ssl
+        {
+          std::auto_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
+          std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
+          if (result->next())
+            ssl_cipher = result->getString(2);
+
+          if (ssl_cipher.empty())
+            message.append("\n\nSSL not enabled");
+          else
+            message.append("\n\nSSL enabled with "+ssl_cipher);
+        }
+
+      }
+      else
+        message = "Connection Failed";
+    }
   }
   catch (const std::exception& e)
   {
-    mforms::Utilities::show_error(base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str()),
-                                  e.what(), "OK");
+    message = e.what();
   }
-  return false;
+  
+
+  bool ret_val = false;
+  if (message != "Operation Cancelled")
+  {
+    std::string title;
+    if (message.length())
+    {
+      title = base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
+       mforms::Utilities::show_error(title, message, "OK");
+    }
+    else
+    {
+      title = base::strfmt("Connected to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
+      mforms::Utilities::show_message(title, message, "OK");
+      ret_val = true;
+    }
+  }
+  
+  return ret_val;
 }
 
 
@@ -658,11 +710,21 @@ void DbConnectPanel::set_active_stored_conn(const std::string &name)
 
 void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
 {
+  _warning.set_text("");
   if (!connection.is_valid())
     connection = _anonymous_connection;
+  else if (connection->parameterValues().has_key("fabric_managed"))
+    _warning.set_text(_("This is a fabric managed connection, changes done on it will be lost once Workbench restarts.\n"
+                        "To make the changes permanent please duplicate the connection and do the changes there."));
 
   db_mgmt_DriverRef driver = connection->driver();
-  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(connection->driver()->owner());
+  if (!driver.is_valid())
+  {
+    log_error("Connection %s has no driver set\n", connection->name().c_str());
+    return;
+  }
+
+  db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(driver->owner());
   // check if the rdbms of the connection is not the selected one (usually should be)
   if (rdbms.is_valid() && selected_rdbms() != rdbms)
   {
@@ -750,17 +812,27 @@ void DbConnectPanel::begin_layout()
 {
   if (_params_table)
   {
-    _params_panel.remove(_params_table);
+    _params_panel.remove(_params_table);	  
+    _tab.remove_page(&_params_panel);
   }
   if (_ssl_table)
   {
     _ssl_panel.remove(_ssl_table);
+    _tab.remove_page(&_ssl_panel);
   }
   if (_advanced_table)
   {
     _advanced_panel.remove(_advanced_table);
+    _tab.remove_page(&_advanced_panel);
   }
+  if (_options_table)
+  {
+    _options_panel.remove(_options_table);
+    _tab.remove_page(&_options_panel);
+  }
+
   _params_table = mforms::manage(new mforms::Table());
+  _params_table->set_release_on_add();
   _params_table->set_name("params_table");
   _params_table->set_column_count(3);
   _params_table->set_row_spacing(MF_TABLE_ROW_SPACING);
@@ -781,18 +853,46 @@ void DbConnectPanel::begin_layout()
   _advanced_table->set_column_spacing(MF_TABLE_COLUMN_SPACING);
   _advanced_table->set_padding(MF_PANEL_PADDING);
   
+  _options_table = mforms::manage(new mforms::Table());
+  _options_table->set_name("options_table");
+  _options_table->set_column_count(3);
+  _options_table->set_row_spacing(MF_TABLE_ROW_SPACING);
+  _options_table->set_column_spacing(MF_TABLE_COLUMN_SPACING);
+  _options_table->set_padding(MF_PANEL_PADDING);
+
   _views.clear();
   _param_rows.clear();
   _ssl_rows.clear();
   _advanced_rows.clear();  
+  _options_rows.clear();
 }
 
 
 void DbConnectPanel::end_layout()
 {
-  _params_panel.add(_params_table);
-  _ssl_panel.add(_ssl_table);
-  _advanced_panel.add(_advanced_table);
+  if (_param_rows.size())
+  {
+    _params_panel.add(_params_table);
+    _tab.add_page(&_params_panel, _("Parameters"));
+  }
+
+  if (_ssl_rows.size())
+  {
+    _ssl_panel.add(_ssl_table);
+    _tab.add_page(&_ssl_panel, _("SSL"));
+  }
+
+  if (_advanced_rows.size())
+  {
+    _advanced_panel.add(_advanced_table);
+    _tab.add_page(&_advanced_panel, _("Advanced"));
+  }
+
+  if (_options_rows.size())
+  {
+    _options_panel.add(_options_table);
+    _tab.add_page(&_options_panel, _("Options"));
+  }
 }
 
 
@@ -879,6 +979,10 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     rows = &_ssl_rows;
     table = _ssl_table;
     break;
+  case 3:
+	  rows = &_options_rows;
+	  table = _options_table;
+	  break;
   default:
     return;
   }
@@ -1094,5 +1198,27 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       log_warning("Unknown param type for %s\n", driver_param->get_control_name().c_str());
       break;
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool DbConnectPanel::is_connectable_driver_type(db_mgmt_DriverRef driver)
+{
+  if (driver.is_valid())
+  {
+    std::string d = driver->id();
+
+    if (driver->owner().is_valid())
+    {
+      if (driver->owner()->id() != MYSQL_RDBMS_ID ||
+          d == "com.mysql.rdbms.mysql.driver.native" ||
+          d == "com.mysql.rdbms.mysql.driver.native_socket" ||
+          d == "com.mysql.rdbms.mysql.driver.native_sshtun")
+      {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 

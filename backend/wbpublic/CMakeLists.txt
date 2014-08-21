@@ -12,6 +12,7 @@ include_directories(.
     ${VSQLITE_INCLUDE_DIR}
     ${MYSQLCPPCONN_INCLUDE_DIR}
     ${ANTLR3C_INCLUDE_DIRS}
+    ${GDAL_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
@@ -31,6 +32,7 @@ add_library(wbpublic
     grt/editor_base.cpp
     grt/parse_utils.cpp
     grt/common.cpp
+    grt/spatial_handler.cpp
     grt/grt_dispatcher.cpp
     grt/grt_manager.cpp
     grt/grt_reporter.cpp
@@ -154,6 +156,7 @@ add_library(wbpublic
     grtui/grtdb_connect_dialog.cpp
     grtui/confirm_save_dialog.cpp
     grtui/binary_data_editor.cpp
+    grtui/geom_draw_box.cpp
     grtui/grtdb_connection_editor.cpp
     grtui/grtdb_object_filter.cpp
     grtui/string_list_editor.cpp
@@ -178,6 +181,10 @@ add_library(wbpublic
 #	)
 #endif()
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTEMPLATE_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES})
+target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt ${VSQLITE_LIBRARIES} wbscintilla mysqlparser ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${CTEMPLATE_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
+
+set_target_properties(wbpublic
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wbpublic DESTINATION ${WB_INSTALL_LIB_DIR})

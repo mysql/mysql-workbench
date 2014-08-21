@@ -360,7 +360,8 @@ static void open_file(MySQLEditor *sql_editor)
       char *converted;
 
       mforms::CodeEditor* code_editor = sql_editor->get_editor_control();
-      if (FileCharsetDialog::ensure_filedata_utf8(contents, length, "", file, converted))
+      if (FileCharsetDialog::ensure_filedata_utf8(sql_editor->grtm()->get_grt(),
+                                                  contents, length, "", file, converted))
       {
         code_editor->set_text_keeping_state(converted ? converted : contents);
         g_free(contents);

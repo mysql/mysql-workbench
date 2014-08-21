@@ -31,6 +31,9 @@ endif ()
 
 target_link_libraries(mysqlparser ${GTK2_LIBRARIES} ${ANTLR3C_LIBRARIES})
 
+set_target_properties(mysqlparser
+                      PROPERTIES VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS mysqlparser DESTINATION ${WB_INSTALL_LIB_DIR})
 

@@ -256,6 +256,10 @@ Please edit your connection settings and try again."""
     @property
     def ssh_key(self):
         return self._str_login_info("ssh.key")
+    
+    @property
+    def ssh_keepalive(self):
+        return grt.root.wb.options.options['sshkeepalive'] if grt.root.wb.options.options['sshkeepalive'] is not None else 0
 
     @property
     def wmi_hostname(self):

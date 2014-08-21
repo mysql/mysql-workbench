@@ -24,11 +24,11 @@ add_library(wb.mysql.import.grt
     src/wb_mysql_import_dbd4.cpp
 )
 
-set_target_properties(wb.mysql.import.grt PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-)
-
 target_link_libraries(wb.mysql.import.grt wbscintilla ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${TINYXML_LIBRARIES} ${MYSQL_LIBRARIES})
+
+set_target_properties(wb.mysql.import.grt
+                      PROPERTIES PREFIX    ""
+                                 VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS wb.mysql.import.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

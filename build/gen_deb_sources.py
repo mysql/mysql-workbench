@@ -4,13 +4,12 @@
 # from the input debian.in directory contents
 
 
-output_distros = ["trusty", "precise"]
+output_distros = [("trusty", "ubu1404"), ("precise", "ubu1204")]
 
 editions = ["community", "commercial"]
 
 import shutil
 import os
-
 
 def preprocess(inpath, inf, outf, vars):
         # Preprocessor accepts
@@ -59,22 +58,27 @@ def generate_distro(source_dir, vars):
 
         for f in os.listdir(source_dir):
                 inpath = os.path.join(source_dir, f)
+                outpath = os.path.join(target_dir, f)
                 if os.path.splitext(inpath)[-1] in edition_specific_file_exts:
                         if vars['edition'] not in inpath:
                                 continue
-                outf = open(os.path.join(target_dir, f), "w+")
+                outf = open(outpath, "w+")
                 preprocess(inpath, open(inpath), outf, vars)
                 outf.close()
-
+                
+                # set the same permissions as the original file
+                os.chmod(outpath, os.stat(inpath).st_mode)
+                        
         # always copy this file, since the tar will come with the right README file
         shutil.copyfile("../README", os.path.join(target_dir,"copyright"))
 
         print target_dir, "generated"
 
-for distro in output_distros:
+for distro, distro_version in output_distros:
         for edition in editions:
                 vars = {}
                 vars['distro'] = distro
+                vars['distrov'] = distro_version
                 vars['edition'] = edition
                 generate_distro("debian.in", vars)
 

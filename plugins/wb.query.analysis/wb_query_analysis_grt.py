@@ -20,6 +20,7 @@ from wb import DefineModule
 import grt
 import mforms
 
+from workbench.log import log_warning, log_error
 from workbench.utils import Version
 from workbench.graphics.cairo_utils import Context
 from explain_renderer import ExplainContext, decode_json
@@ -136,7 +137,7 @@ class RenderBox(mforms.PyDrawBox):
             self.econtext.repaint(c)
         except Exception:
             import traceback
-            grt.log_error("vexplain", "Exception rendering explain output: %s\n" % traceback.format_exc())
+            log_error("Exception rendering explain output: %s\n" % traceback.format_exc())
 
 
 
@@ -230,7 +231,7 @@ class QueryPlanTab(mforms.Box):
         self.toolbar.add_item(l)
 
         btn = newToolBarItem(mforms.ActionItem)
-        btn.set_icon(get_resource_path("zoom_out.png"))
+        btn.set_icon(get_resource_path("qe_sql-editor-explain-tb-overview.png"))
         btn.add_activated_callback(self.overview)
         btn.set_tooltip("Zoom out the diagram.")
         self.toolbar.add_item(btn)
@@ -239,7 +240,7 @@ class QueryPlanTab(mforms.Box):
         self.toolbar.add_item(s)
 
         l = newToolBarItem(mforms.LabelItem)
-        l.set_text("Raw Data:")
+        l.set_text("View Source:")
         self.toolbar.add_item(l)
 
         btn = newToolBarItem(mforms.ToggleItem)
@@ -395,7 +396,14 @@ class ExplainTab(mforms.AppView):
         self.on_close(self.on_tab_close)
 
         self._form_deactivated_conn = mforms.Form.main_form().add_deactivated_callback(self.form_deactivated)
-        
+
+        if not json_text and not explain:
+            label = mforms.newLabel("Explain data not available for statement")
+            label.set_style(mforms.BigBoldStyle)
+            label.set_text_align(mforms.MiddleCenter)
+            self.add(label, True, True)
+            return
+
         self._query = query
         self.tabview = mforms.newTabView(mforms.TabViewTabless)
         self.tabview.add_tab_changed_callback(self.tab_changed)
@@ -408,7 +416,7 @@ class ExplainTab(mforms.AppView):
                 json_data = decode_json(json_text)
             except Exception, e:
                 import traceback
-                grt.log_error("vexplain", "Error creating query plan: %s\n" % traceback.format_exc())
+                log_error("Error creating query plan: %s\n" % traceback.format_exc())
                 mforms.Utilities.show_error("Query Plan Generation Error",
                                             "An unexpected error occurred parsing JSON query explain data.\nPlease file a bug report at http://bugs.mysql.com along with the query and the Raw Explain Data.\n\nException: %s" % e,
                                             "OK", "", "")
@@ -428,12 +436,12 @@ class ExplainTab(mforms.AppView):
                 self._query_plan.switcher_item.add_activated_callback(self.switch_view)
             except Exception, e:
                 import traceback
-                grt.log_error("vexplain", "Error creating query plan: %s\n" % traceback.format_exc())
+                log_error("Error creating query plan: %s\n" % traceback.format_exc())
                 mforms.Utilities.show_error("Query Plan Generation Error",
                                             "An unexpected error occurred during creation of the graphical query plan.\nPlease file a bug report at http://bugs.mysql.com along with the query and the Raw Explain Data.\n\nException: %s" % e,
                                             "OK", "", "")
         else:
-            grt.log_error("vexplain", "No JSON data for explain\n")
+            log_error("No JSON data for explain\n")
 
         # Good old explain
         if explain:
@@ -509,17 +517,11 @@ def visualExplain(editor, result_panel):
         try:
             explain = editor.owner.executeQuery("EXPLAIN %s" % statement, 1)
         except Exception, e:
-            mforms.Utilities.show_error("Visual Explain",
-                                        "Error executing explain\n%s" % (e), "OK", "", "")
-            return 0
-        
-        if not explain:
-            mforms.Utilities.show_error("Visual Explain",
-                                        "Error executing explain.", "OK", "", "")
-            return 0
-        
+            log_warning("Could not execute EXPLAIN %s: %s\n" % (statement, e))
+            explain = None
+
         json = None
-        if version.is_supported_mysql_version_at_least(5, 6):
+        if explain and version.is_supported_mysql_version_at_least(5, 6):
             rset = editor.owner.executeQuery("EXPLAIN FORMAT=JSON %s" % statement, 1)
             if rset and rset.goToFirstRow():
                 json = rset.stringFieldValue(0)

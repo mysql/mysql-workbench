@@ -44,11 +44,11 @@ add_library(db.mysql.grt
     src/module_db_mysql.cpp
 )
 
-set_target_properties(db.mysql.grt PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-)
+target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES} ${CTEMPLATE_LIBRARIES})
 
-target_link_libraries(db.mysql.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES} ${CTEMPLATE_LIBRARIES})
+set_target_properties(db.mysql.grt
+                      PROPERTIES PREFIX    ""
+                                 VERSION   ${WB_VERSION}
+                                 SOVERSION ${WB_VERSION})
 
 install(TARGETS db.mysql.grt DESTINATION ${WB_PYTHON_MODULES_DIR})  #TODO: Is this where it should go?

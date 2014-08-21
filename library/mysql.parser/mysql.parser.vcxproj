@@ -327,12 +327,12 @@ cd ..</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Regenerating ANTLR parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating ANTLR parser...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating ANTLR parser...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLParser.h;MySQLParser.c;MySQLSimpleParser.h;MySQLSimpleParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MySQLParser.h;MySQLParser.c;MySQLSimpleParser.h;MySQLSimpleParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">MySQLParser.h;MySQLParser.c;MySQLSimpleParser.h;MySQLSimpleParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLParser.h;MySQLParser.c;MySQLSimpleParser.h;MySQLSimpleParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLParser.h;MySQLParser.c;MySQLLexer.h;MySQLLexer.c;MySQL.tokens;%(Outputs)</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
@@ -345,6 +345,31 @@ cd ..</Command>
     <ProjectReference Include="..\base\base.vcxproj">
       <Project>{c3b85913-b106-40c6-8dde-a7cf52a4ec80}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="grammar\MySQLSimpleParser.g">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd grammar
+build-parser.cmd
+cd ..</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">cd grammar
+build-parser.cmd
+cd ..</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cd grammar
+build-parser.cmd
+cd ..</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">cd grammar
+build-parser.cmd
+cd ..</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Regenerating simple ANTLR parser...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">Regenerating simple ANTLR parser...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|Win32'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating simple ANTLR parser...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Regenerating simple ANTLR parser...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">MySQLSimpleParser.h;MySQLSimpleParser.c;%(Outputs)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

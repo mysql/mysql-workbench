@@ -19,6 +19,8 @@
 
 #include "grt/grt_manager.h"
 #include "binary_data_editor.h"
+#include "geom_draw_box.h"
+#include "grt/spatial_handler.h"
 #include "base/log.h"
 #include "base/string_utilities.h"
 #include <glib/gstdio.h>
@@ -30,6 +32,8 @@ DEFAULT_LOG_DOMAIN("BlobViewer");
 
 #include "mforms/scrollpanel.h"
 #include "mforms/imagebox.h"
+#include "mforms/textbox.h"
+#include "mforms/selector.h"
 #include "mforms/treenodeview.h"
 #include "mforms/code_editor.h"
 #include "mforms/find_panel.h"
@@ -351,6 +355,79 @@ private:
 
 //--------------------------------------------------------------------------------
 
+class GeomDataViewer : public BinaryDataViewer
+{
+public:
+  GeomDataViewer(BinaryDataEditor *owner, bool read_only)
+  : BinaryDataViewer(owner)
+  {
+    set_spacing(8);
+    add(&_drawbox, true, true);
+  }
+
+  virtual void data_changed()
+  {
+    _drawbox.set_data(std::string(_owner->data(), _owner->length()));
+  }
+
+private:
+  GeomDrawBox _drawbox;
+};
+
+//--------------------------------------------------------------------------------
+
+
+class GeomTextDataViewer : public BinaryDataViewer
+{
+public:
+  GeomTextDataViewer(BinaryDataEditor *owner, bool read_only)
+  : BinaryDataViewer(owner), _text(mforms::VerticalScrollBar)
+  {
+    set_spacing(8);
+    add(&_selector, false, true);
+    add_end(&_text, true, true);
+    _text.set_read_only(read_only && false);
+    //TODO: data editing (need to figure out a way to send WKT data to the server when saving)
+
+    _selector.add_item("View as WKT");
+    _selector.add_item("View as GeoJSON");
+    _selector.add_item("View as GML");
+    _selector.add_item("View as KML");
+
+    _selector.signal_changed()->connect(boost::bind(&GeomTextDataViewer::data_changed, this));
+  }
+
+  virtual void data_changed()
+  {
+    std::string text;
+    spatial::Importer importer;
+    importer.import_from_mysql(std::string(_owner->data(), _owner->length()));
+    switch (_selector.get_selected_index())
+    {
+      case 0:
+        text = importer.as_wkt();
+        break;
+      case 1:
+        text = importer.as_json();
+        break;
+      case 2:
+        text = importer.as_gml();
+        break;
+      case 3:
+        text = importer.as_kml();
+        break;
+    }
+    _text.set_value(text);
+  }
+
+private:
+  mforms::TextBox _text;
+  mforms::Selector _selector;
+  std::string _encoding;
+};
+
+//--------------------------------------------------------------------------------
+
 BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, bool read_only)
 : mforms::Form(0), _grtm(grtm), _box(false), _hbox(true), _read_only(read_only)
 {
@@ -374,8 +451,8 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
   tab_changed();
 }
 
-BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, const std::string &text_encoding, bool read_only)
-: mforms::Form(0), _grtm(grtm), _box(false), _hbox(true), _read_only(read_only)
+BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, const std::string &text_encoding, const std::string &datatype, bool read_only)
+: mforms::Form(0), _grtm(grtm), _type(datatype), _box(false), _hbox(true), _read_only(read_only)
 {
   set_name("blob_editor");
   _data = 0;
@@ -385,7 +462,13 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
 
   setup();
   add_viewer(new HexDataViewer(this, read_only), "Binary");
-  add_viewer(new TextDataViewer(this, text_encoding, read_only), "Text");
+  if (datatype == "GEOMETRY")
+  {
+    add_viewer(new GeomTextDataViewer(this, read_only), "Text");
+    add_viewer(new GeomDataViewer(this, read_only), "Image");
+  }
+  else
+    add_viewer(new TextDataViewer(this, text_encoding, read_only), "Text");
   if (ImageDataViewer::can_display(data, length))
     add_viewer(new ImageDataViewer(this, read_only), "Image");
 
@@ -442,12 +525,15 @@ void BinaryDataEditor::notify_edit()
   _length_text.set_text(base::strfmt("Data Length: %i bytes", (int) _length));
 }
 
-void BinaryDataEditor::assign_data(const char *data, size_t length)
+void BinaryDataEditor::assign_data(const char *data, size_t length, bool steal_pointer)
 {
   if (data != _data)
   {
     g_free(_data);
-    _data = (char*)g_memdup(data, (guint)length);
+    if (steal_pointer)
+      _data = (char*)data;
+    else
+      _data = (char*)g_memdup(data, (guint)length);
 
     for (size_t i = 0; i < _viewers.size(); i++)
       _viewers[i].second = true;
@@ -511,9 +597,7 @@ void BinaryDataEditor::import_value()
     }
     else
     {
-      g_free(_data);
-      _data = data;
-      _length = length;
+      assign_data(data, length, true);
       tab_changed();
     }
   }

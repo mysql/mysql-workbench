@@ -57,7 +57,12 @@ using namespace base;
 SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start_collapsed)
 : mforms::AppView(false, "db.query.QueryBuffer", false), _form(owner),
   _editor_box(false), _splitter(false, true),
-  _lower_tabview(mforms::TabViewEditorBottom), _lower_dock_delegate(&_lower_tabview, db_query_QueryEditor::static_class_name()),
+#ifdef __APPLE__
+  _lower_tabview(mforms::TabViewEditorBottomPinnable), // TODO: Windows, Linux
+#else
+  _lower_tabview(mforms::TabViewEditorBottom),
+#endif
+  _lower_dock_delegate(&_lower_tabview, db_query_QueryEditor::static_class_name()),
   _lower_dock(&_lower_dock_delegate, false),
   _tab_action_box(true), _tab_action_apply(mforms::SmallButton), _tab_action_revert(mforms::SmallButton), _tab_action_info("Read Only"),
   _rs_sequence(0), _busy(false), _is_scratch(is_scratch)
@@ -124,6 +129,8 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _lower_tabview.signal_tab_changed()->connect(boost::bind(&SqlEditorPanel::lower_tab_switched, this));
   _lower_tabview.signal_tab_closing()->connect(boost::bind(&SqlEditorPanel::lower_tab_closing, this, _1));
   _lower_tabview.signal_tab_closed()->connect(boost::bind(&SqlEditorPanel::lower_tab_closed, this, _1, _2));
+  _lower_tabview.signal_tab_pin_changed()->connect(boost::bind(&SqlEditorPanel::tab_pinned, this, _1, _2));
+  _lower_tabview.is_pinned = boost::bind(&SqlEditorPanel::is_pinned, this, _1);
   _lower_tabview.set_tab_menu(&_lower_tab_menu);
 
   set_on_close(boost::bind(&SqlEditorPanel::on_close_by_user, this));
@@ -155,10 +162,14 @@ db_query_QueryEditorRef SqlEditorPanel::grtobj()
 
 bool SqlEditorPanel::on_close_by_user()
 {
-  if (can_close())
+  // this can also get closed when close_all_view() is called when the connection is closed
+  if (_form->is_closing() || can_close())
   {
-    close();
-    return false; // return false because we'll do the undocking ourselves
+    // do not call close, since that would undock ourselves and the caller will also undock this
+    // we just need to be sure that the d-tor is called in all closing methods (close the tab itself from the X and through kbd,
+    // close the connection, close WB)
+//    close();
+    return true;
   }
   return false;
 }
@@ -368,7 +379,8 @@ bool SqlEditorPanel::load_from(const std::string &file, const std::string &encod
 
   char *utf8_data;
   std::string original_encoding;
-  if (!FileCharsetDialog::ensure_filedata_utf8(data, length, encoding, file,
+  if (!FileCharsetDialog::ensure_filedata_utf8(_form->grt_manager()->get_grt(),
+                                               data, length, encoding, file,
                                                utf8_data, &original_encoding))
   {
     g_free(data);
@@ -681,31 +693,6 @@ static void toggle_continue_on_error(SqlEditorForm *sql_editor_form)
 
 //--------------------------------------------------------------------------------------------------
 
-static void toggle_limit(mforms::ToolBarItem *item, SqlEditorForm *sql_editor_form)
-{
-  bool do_limit = item->get_checked();
-
-  sql_editor_form->grt_manager()->set_app_option("SqlEditor:LimitRows", do_limit ? grt::IntegerRef(1) : grt::IntegerRef(0));
-
-  std::string limit = do_limit ? strfmt("%li", sql_editor_form->grt_manager()->get_app_option_int("SqlEditor:LimitRowsCount")) : "0";
-
-  mforms::MenuItem *menu = sql_editor_form->get_menubar()->find_item("limit_rows");
-  int c = menu->item_count();
-  for (int i = 0; i < c; i++)
-  {
-    mforms::MenuItem *item = menu->get_item(i);
-    if (item->get_type() != mforms::SeparatorMenuItem)
-    {
-      if (item->get_name() == limit)
-        item->set_checked(true);
-      else
-        item->set_checked(false);
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
 mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 {
   mforms::ToolBar *tbar(new mforms::ToolBar(mforms::SecondaryToolBar));
@@ -771,14 +758,6 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 
   tbar->add_item(item);
 
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.toggleLimit");
-  item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_row-limit-on.png"));
-  item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_row-limit-off.png"));
-  item->set_tooltip(_("Toggle limiting of number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries.\nYou can change the limit number in Preferences or in the Query -> Limit Rows menu."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(toggle_limit, item, _form));
-  tbar->add_item(item);
-
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
@@ -811,12 +790,52 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_tooltip(_("Save current statement or selection to the snippet list."));
   bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, _form));
   tbar->add_item(item);
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
+
+  tbar->add_separator_item();
+
+  item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
+  item->set_name("limit_rows");
+  item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
+  bec::UIForm::scoped_connect(item->signal_activated(), boost::bind(&SqlEditorPanel::limit_rows, this, item));
+  tbar->add_item(item);
+
+  tbar->add_separator_item();
 
   // adds generic SQL editor toolbar buttons
   _editor->set_base_toolbar(tbar);
 
+  update_limit_rows();
+
   return tbar;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void SqlEditorPanel::limit_rows(mforms::ToolBarItem *item)
+{
+  _form->limit_rows(item->get_text());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void SqlEditorPanel::update_limit_rows()
+{
+  mforms::MenuItem *mitem = _form->get_menubar()->find_item("limit_rows");
+  std::string selected;
+  std::vector<std::string> items;
+  for (int i = 0; i < mitem->item_count(); i++)
+  {
+    if (!mitem->get_item(i)->get_title().empty())
+    {
+      items.push_back(mitem->get_item(i)->get_title());
+      if (mitem->get_item(i)->get_checked())
+        selected = items.back();
+    }
+  }
+
+  mforms::ToolBarItem *item = get_toolbar()->find_item("limit_rows");
+  item->set_selector_items(items);
+  item->set_text(selected);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1095,6 +1114,14 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
   }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+
+int SqlEditorPanel::result_count()
+{
+  return _lower_tabview.page_count();
+}
+
 //--------------------------------------------------------------------------------------------------
 
 SqlEditorResult *SqlEditorPanel::result_panel(int i)
@@ -1123,7 +1150,7 @@ void SqlEditorPanel::add_panel_for_recordset_from_main(Recordset::Ref rset)
 
 SqlEditorResult* SqlEditorPanel::add_panel_for_recordset(Recordset::Ref rset)
 {
-  SqlEditorResult *result = new SqlEditorResult(this);
+  SqlEditorResult *result = mforms::manage(new SqlEditorResult(this));
   if (rset)
     result->set_recordset(rset);
   dock_result_panel(result);
@@ -1310,6 +1337,25 @@ void SqlEditorPanel::pin_tab_clicked()
   SqlEditorResult *result = result_panel(tab);
   if (result)
     result->set_pinned(!result->pinned());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool SqlEditorPanel::is_pinned(int tab)
+{
+  SqlEditorResult *result = result_panel(tab);
+  if (result)
+    return result->pinned();
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void SqlEditorPanel::tab_pinned(int tab, bool flag)
+{
+  SqlEditorResult *result = result_panel(tab);
+  if (result)
+    result->set_pinned(flag);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -55,10 +55,8 @@ namespace mforms {
     bool is_managed();    
     bool release_on_add();
 
-// Below code is used only for debug purpose.
-#ifdef _DEBUG
+    // Below code is used for debugging
     inline base::refcount_t retain_count() const { return _refcount; }
-#endif
 
     void set_destroying();
     bool is_destroying();

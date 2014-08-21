@@ -20,24 +20,26 @@
 #include <glib.h>
 #include "file_charset_dialog.h"
 #include "grt/common.h"
+#include "grtpp_util.h"
 
 #include "base/string_utilities.h"
 
 #include <mforms/button.h>
-#include <mforms/textentry.h>
+#include <mforms/selector.h>
 #include <mforms/box.h>
 #include <mforms/label.h>
 #include <mforms/utilities.h>
 
+#include "grts/structs.db.h"
+
 using namespace mforms;
 using namespace base;
 
-FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string &message,
-                                     const std::string &default_encoding)
+FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string &message)
   : Form(0)
 {
   set_name("file_charset_dialog");
-  _charset = manage(new TextEntry());
+  _charset = manage(new Selector(SelectorCombobox));
   _ok = manage(new Button());
   _cancel = manage(new Button());
 
@@ -58,7 +60,6 @@ FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string
 
   hbox->add(manage(new Label(_("Character Set Encoding Name:"))), false, true);
   hbox->add(_charset, true, true);
-  _charset->set_value(default_encoding);
   
   Box *bbox = manage(new Box(true));
   vbox->add(bbox, false, true);
@@ -67,18 +68,32 @@ FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string
   _ok->set_text(_("OK"));
   _cancel->set_text(_("Cancel"));
   Utilities::add_end_ok_cancel_buttons(bbox, _ok, _cancel);
+
+  center();
 }
 
 
-std::string FileCharsetDialog::run()
+std::string FileCharsetDialog::run(grt::GRT *grt,
+                                   const std::string &default_encoding)
 {
+  grt::ListRef<db_CharacterSet> charsets(grt::ListRef<db_CharacterSet>::cast_from(grt->get("/wb/rdbmsMgmt/rdbms/0/characterSets")));
+  std::list<std::string> chlist;
+  GRTLIST_FOREACH(db_CharacterSet, charsets, ch)
+  {
+    // insert sorted
+    chlist.insert(std::lower_bound(chlist.begin(), chlist.end(), *(*ch)->name()), *(*ch)->name());
+  }
+  _charset->add_items(chlist);
+
+  _charset->set_value(default_encoding);
   if (run_modal(_ok, _cancel))
     return _charset->get_string_value();
   return "";
 }
 
 
-bool FileCharsetDialog::ensure_filedata_utf8(const char *data, size_t length,
+bool FileCharsetDialog::ensure_filedata_utf8(grt::GRT *grt,
+                                             const char *data, size_t length,
                                              const std::string &encoding,                                             
                                              const std::string &filename,
                                              char *&utf8_data,
@@ -97,7 +112,7 @@ bool FileCharsetDialog::ensure_filedata_utf8(const char *data, size_t length,
 retry:
   if (!g_utf8_validate(data, (gssize)length, &end))
   {
-    std::string default_encoding = "LATIN1";
+    std::string default_encoding = "latin1";
 
     // Check if there is a byte-order-mark to provide a better suggestion for the source encoding.
     if (length >= 2)
@@ -130,9 +145,8 @@ retry:
                                    "has an unknown character set encoding.\n"
                                    "Please select the encoding of the file and press OK for Workbench to convert and open it.\n"
                                    "Note that as Workbench works with UTF-8 text, if you save back to the original file,\n"
-                                   "its contents will be replaced with the converted data.", filename.c_str()),
-                            default_encoding);    
-      charset = dlg.run();
+                                   "its contents will be replaced with the converted data.", filename.c_str()));
+      charset = dlg.run(grt, default_encoding);
       if (charset.empty())
         return false;
     }

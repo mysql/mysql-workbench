@@ -142,6 +142,14 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         [mTabSwitcher setTabView: mTabView];
         break;
 
+      case mforms::TabViewEditorBottomPinnable:
+        [mTabView setTabViewType: NSNoTabsNoBorder];
+        mTabSwitcher = [[MTabSwitcher alloc] initWithFrame: NSMakeRect(0, 0, 100, 26)];
+        [mTabSwitcher setTabStyle: MEditorBottomTabSwitcherPinnable];
+        tabSwitcherBelow = YES;
+        [mTabSwitcher setTabView: mTabView];
+        break;
+
       default:
         throw std::runtime_error("mforms: invalid tab type: " + base::to_string(tabType));
         break;
@@ -216,7 +224,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     NSRect rect = [self bounds];
 
     srect.size.width = NSWidth(rect);
-    if (mOwner->get_type() == mforms::TabViewEditorBottom)
+    if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewEditorBottomPinnable)
     {
       srect.origin.y = 0;
       rect.origin.y = NSHeight(srect);
@@ -246,6 +254,13 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     [[item view] setEnabled: flag];
 }
 
+- (BOOL)isClosable
+{
+  return (mOwner->get_type() == mforms::TabViewEditorBottom
+          || mOwner->get_type() == mforms::TabViewEditorBottomPinnable
+          || mOwner->get_type() == mforms::TabViewDocumentClosable);
+}
+
 
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
@@ -266,18 +281,30 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   mOwner->set_menu_tab([tabView indexOfTabViewItem: tabViewItem]);
 }
 
+- (BOOL)tabView:(NSTabView*)tabView itemIsPinned:(NSTabViewItem*)item
+{
+  if (mOwner->is_pinned)
+    return mOwner->is_pinned([tabView indexOfTabViewItem: item]);
+  return NO;
+}
 
 - (BOOL)tabView:(NSTabView*)tabView itemHasCloseButton:(NSTabViewItem*)item
 {
-  if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewDocumentClosable)
+  if ([self isClosable])
     return YES;
   return NO;
 }
 
+- (void)tabView:(NSTabView*)tabView itemPinClicked:(NSTabViewItem*)item
+{
+  int i = [tabView indexOfTabViewItem: item];
+  mOwner->pin_changed(i, !mOwner->is_pinned(i));
+  [self setNeedsDisplay: YES];
+}
 
 - (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)item
 {
-  if (mOwner->get_type() == mforms::TabViewEditorBottom || mOwner->get_type() == mforms::TabViewDocumentClosable)
+  if ([self isClosable])
   {
     return mOwner->can_close_tab([mTabView indexOfTabViewItem: item]);
   }
@@ -397,7 +424,7 @@ static void tabview_remove_page(::mforms::TabView *self, mforms::View *tab)
 
 static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
 {
-  if (self->get_type() != mforms::TabViewEditorBottom)
+  if (self->get_type() != mforms::TabViewEditorBottom && self->get_type() != mforms::TabViewEditorBottomPinnable)
     throw std::invalid_argument("set_aux_view called for invalid Tab type\n");
 
   MFTabViewImpl* tabView = self->get_data();
@@ -412,7 +439,7 @@ static void tabview_set_aux_view(::mforms::TabView *self, mforms::View *view)
 
 static void tabview_set_allow_reordering(::mforms::TabView *self, bool flag)
 {
-  if (self->get_type() != mforms::TabViewEditorBottom || self->get_type() == mforms::TabViewDocumentClosable)
+  if (self->get_type() != mforms::TabViewEditorBottom && self->get_type() != mforms::TabViewEditorBottomPinnable && self->get_type() == mforms::TabViewDocumentClosable)
     throw std::invalid_argument("TabView is not of a reorderable type\n");
 
   MFTabViewImpl* tabView = self->get_data();

@@ -36,6 +36,7 @@ public:
     std::string table;
     std::string field;
     std::string type;
+    std::string charset;
     int display_size;
     int precision;
     int scale;

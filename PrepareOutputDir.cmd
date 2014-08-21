@@ -109,10 +109,15 @@ echo Copy python/mforms
 xcopy /i /s /y /d %LIBRARY_DIR%\forms\swig\mforms.py %TARGET_DIR%\
 xcopy /i /s /y /d %LIBRARY_DIR%\forms\swig\cairo.py %TARGET_DIR%\
 
-echo Copy libraries ...
+echo Copy executables ...
 
 xcopy /i /s /y /d %EXT_BIN_DIR%\mysqldump.exe %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_BIN_DIR%\mysql.exe %TARGET_DIR%\.
+
+rem Do not remove
+rem Python executable needed by MSI Custom Action (to precompile Python files) and maybe some externally executed scripts...
+xcopy /i /s /y /d %EXT_BIN_DIR%\python*.exe %TARGET_DIR%\.
+
 
 echo * MySQL client library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql.dll %TARGET_DIR%\.
@@ -162,6 +167,7 @@ xcopy /i /y /d %PYTHON_LIB_DIR%\DLLs\*.pyd %TARGET_DIR%\python\DLLs 1> nul 2> nu
 
 rem site packages that are release type independent
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\paramiko %TARGET_DIR%\python\site-packages\paramiko 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\mysql %TARGET_DIR%\python\site-packages\mysql 1> nul 2> nul
 
 rem site packages for debug/release types
 xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\Crypto %TARGET_DIR%\python\site-packages\Crypto 1> nul 2> nul
@@ -192,15 +198,9 @@ copy %EXT_LIB_DIR%\pcre\%2\pcre.dll %TARGET_DIR%\.
 echo * sqlite library ...
 copy %EXT_LIB_DIR%\sqlite\%2\sqlite3.dll %TARGET_DIR%\.
 
-rem copy LGPL source packages to bin directory - only for community release build
-if "%2"=="Release" (
-  echo * LGPL source packages ...
-  if not exist %TARGET_DIR%\lgpl_sources mkdir %TARGET_DIR%\lgpl_sources
-  xcopy /i /s /y /d %EXT_SRC_DIR%\glib-2.12.12.tar.bz2 %TARGET_DIR%\lgpl_sources
-  xcopy /i /s /y /d %EXT_SRC_DIR%\libiconv-1.14.tar.gz %TARGET_DIR%\lgpl_sources
-  xcopy /i /s /y /d %EXT_SRC_DIR%\paramiko-1.7.7.1.zip %TARGET_DIR%\lgpl_sources
-  xcopy /i /s /y /d %EXT_SRC_DIR%\libxml2-2.9.1.tar.gz %TARGET_DIR%\lgpl_sources
-)
+echo * gdal library + tools ...
+copy %EXT_LIB_DIR%\gdal\gdal.dll %TARGET_DIR%\.
+copy %EXT_LIB_DIR%\gdal\*.exe %TARGET_DIR%\.
 
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide

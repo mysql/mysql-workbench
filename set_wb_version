@@ -67,7 +67,7 @@ echo "Checking if build/debian.in/changelog needs updating"
 if ! grep $major.$minor.$release- build/debian.in/changelog; then
 	echo "build/debian.in/changelog needs update, adding a new entry"
 	cat <<EOF > build/debian.in/changelog.new
-mysql-workbench ($major.$minor.$release$dot_release_type-1) unstable; urgency=low
+mysql-workbench ($major.$minor.$release$dot_release_type-1@distrov@) @distro@; urgency=low
 
   * New release
 
