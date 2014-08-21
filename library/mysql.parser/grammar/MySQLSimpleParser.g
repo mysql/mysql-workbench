@@ -751,7 +751,7 @@ data_or_xml:
 ;
 
 xml_rows_identified_by:
-	{SERVER_VERSION >= 50500}? => ROWS_SYMBOL IDENTIFIED_SYMBOL BY_SYMBOL string_literal
+	{SERVER_VERSION >= 50500}? => ROWS_SYMBOL IDENTIFIED_SYMBOL BY_SYMBOL text_string
 ;
 
 load_data_file_tail:
@@ -1119,7 +1119,7 @@ xa_convert:
 ;
 
 xid:
-	string_literal (COMMA_SYMBOL string_literal (COMMA_SYMBOL INTEGER)?)?
+	text_string (COMMA_SYMBOL text_string (COMMA_SYMBOL INTEGER)?)?
 ;
 
 //--------------------------------------------------------------------------------------------------
@@ -1638,7 +1638,7 @@ reset_option:
 utility_statement:
 	describe_command
 		(
-			table_identifier text_or_identifier?
+			table_identifier (text_string | identifier)?
 			|
 				(
 					// The format specifier is defined here like in the server grammar but actually defined are only
@@ -1973,7 +1973,7 @@ aggregate_function:
 	| STDDEV_SAMP_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
 	| VAR_SAMP_SYMBOL OPEN_PAR_SYMBOL in_aggregate_expression CLOSE_PAR_SYMBOL
 	| SUM_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? in_aggregate_expression CLOSE_PAR_SYMBOL
-	| GROUP_CONCAT_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expression_list order_by_clause? (SEPARATOR_SYMBOL string_literal)? CLOSE_PAR_SYMBOL
+	| GROUP_CONCAT_SYMBOL OPEN_PAR_SYMBOL DISTINCT_SYMBOL? expression_list order_by_clause? (SEPARATOR_SYMBOL text_string)? CLOSE_PAR_SYMBOL
 ;
 
 in_aggregate_expression:
@@ -2425,7 +2425,7 @@ data_type_elements:
 	| nchar_literal field_length? BINARY_SYMBOL?
 	| BINARY_SYMBOL field_length?
 	| varchar_literal field_length string_binary?
-	| nvarchar_literal field_length string_binary?
+	| nvarchar_literal field_length BINARY_SYMBOL?
 
 	| VARBINARY_SYMBOL field_length
 
@@ -2752,9 +2752,9 @@ fields_clause:
 ;
 
 field_term:
-	TERMINATED_SYMBOL BY_SYMBOL string_literal
-	| OPTIONALLY_SYMBOL? ENCLOSED_SYMBOL BY_SYMBOL string_literal
-	| ESCAPED_SYMBOL BY_SYMBOL string_literal
+	TERMINATED_SYMBOL BY_SYMBOL text_string
+	| OPTIONALLY_SYMBOL? ENCLOSED_SYMBOL BY_SYMBOL text_string
+	| ESCAPED_SYMBOL BY_SYMBOL text_string
 ;
 
 lines_clause:
@@ -2762,7 +2762,7 @@ lines_clause:
 ;
 
 line_term:
-	(TERMINATED_SYMBOL | STARTING_SYMBOL) BY_SYMBOL string_literal
+	(TERMINATED_SYMBOL | STARTING_SYMBOL) BY_SYMBOL text_string
 ;
 
 user_list:
@@ -2834,7 +2834,13 @@ integer_list:
 ;
 
 string_list:
-	OPEN_PAR_SYMBOL string_literal (COMMA_SYMBOL string_literal)* CLOSE_PAR_SYMBOL
+	OPEN_PAR_SYMBOL text_string (COMMA_SYMBOL text_string)* CLOSE_PAR_SYMBOL
+;
+
+text_string:
+	SINGLE_QUOTED_TEXT
+	| HEXNUMBER
+	| BITNUMBER
 ;
 
 literal:
@@ -2945,7 +2951,7 @@ text_or_param_marker:
 ;
 
 text_or_identifier:
-	string_literal
+	SINGLE_QUOTED_TEXT
 	| identifier
 	//| USER_VARIABLE // LEX_HOSTNAME in the server grammar.
 ;
