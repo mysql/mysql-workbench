@@ -392,10 +392,13 @@ void SpatialDrawBox::reset_view()
 
 
 
-void SpatialDrawBox::select_area()
+void SpatialDrawBox::select_area(bool flag)
 {
-  mforms::App::get()->set_status_text("Click and drag to select an area to display.");
-  _select_pending = true;
+  if (flag)
+    mforms::App::get()->set_status_text("Click and drag to select an area to display.");
+  else
+    mforms::App::get()->set_status_text("");
+  _select_pending = flag;
 }
 
 
@@ -541,7 +544,7 @@ bool SpatialDrawBox::mouse_down(mforms::MouseButton button, int x, int y)
     if (_select_pending || _selecting)
     {
       _selecting = true;
-      _select_pending = false;
+//      _select_pending = false;
     }
     else
       _dragging = true;
@@ -570,7 +573,7 @@ bool SpatialDrawBox::mouse_up(mforms::MouseButton button, int x, int y)
     {
       // handle feature click
       if (position_clicked_cb)
-        position_clicked_cb(base::Point(x - _offset_x, y - _offset_y));
+        position_clicked_cb(base::Point(x, y));
     }
     else
     {
@@ -711,6 +714,17 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
     cr.move_to(base::Point(10, 20));
     cr.show_text("Repainting...");
   }
+  else
+  {
+    for (std::vector<Pin>::const_iterator pin = _pins.begin(); pin != _pins.end(); ++pin)
+    {
+      int w, h;
+      int x, y;
+      world_to_screen(pin->lat, pin->lon, x, y);
+      mforms::Utilities::get_icon_size(pin->icon, w, h);
+      mforms::Utilities::paint_icon(cr.get_cr(), pin->icon, x-w/2, y-h+2);
+    }
+  }
 
   if (_selecting)
   {
@@ -741,4 +755,19 @@ void SpatialDrawBox::world_to_screen(double lat, double lon, int &x, int &y)
     x += _offset_x;
     y += _offset_y;
   }
+}
+
+void SpatialDrawBox::clear_pins()
+{
+  _pins.clear();
+  set_needs_repaint();
+}
+
+
+void SpatialDrawBox::place_pin(cairo_surface_t *pin, base::Point p)
+{
+  double lat, lon;
+  screen_to_world(p.x, p.y, lat, lon);
+  _pins.push_back(Pin(lat, lon, pin));
+  set_needs_repaint();
 }

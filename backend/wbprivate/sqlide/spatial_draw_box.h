@@ -60,6 +60,28 @@ class SpatialDrawBox : public mforms::DrawBox
   std::pair<double,double> _clicked_coordinates;
   base::Point _right_clicked_point;
 
+
+
+  struct Pin
+  {
+    double lat, lon;
+    cairo_surface_t *icon;
+
+    Pin(const Pin &other)
+    : lat(other.lat), lon(other.lon), icon(other.icon)
+    {
+      cairo_surface_reference(icon);
+    }
+    Pin(double lat_, double lon_, cairo_surface_t *i) : lat(lat_), lon(lon_), icon(i) {}
+
+    ~Pin()
+    {
+      if (icon)
+        cairo_surface_destroy(icon);
+    }
+  };
+  std::vector<Pin> _pins;
+
   double _min_lat, _max_lat;
   double _min_lon, _max_lon;
 
@@ -114,7 +136,7 @@ public:
   void zoom_out();
   void zoom_in();
   void auto_zoom(const spatial::LayerId layer_idx = 0);
-  void select_area();
+  void select_area(bool flag);
 
   void center_on(double lat, double lon);
 
@@ -139,6 +161,11 @@ public:
   virtual bool mouse_move(mforms::MouseButton button, int x, int y);
   virtual void repaint(cairo_t *crt, int x, int y, int w, int h);
 
+  base::Point offset() { return base::Point(_offset_x, _offset_y); }
+
   bool screen_to_world(int x, int y, double &lat, double &lon);
   void world_to_screen(double lat, double lon, int &x, int &y);
+
+  void clear_pins();
+  void place_pin(cairo_surface_t *pin, base::Point p);
 };

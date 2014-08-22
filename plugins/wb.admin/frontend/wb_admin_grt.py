@@ -449,7 +449,7 @@ def autoDetectLocalInstance(connection):
         matched_profiles = []
         for f in files:
             data = grt.unserialize(os.path.join(path, f))
-            if data.has_key("sys.system") and data["sys.system"] == system:
+            if data and data.has_key("sys.system") and data["sys.system"] == system:
                 profiles.append(data)
                 profile_version = Version.fromstr(data.get("serverVersion"))
                 if version.majorNumber == profile_version.majorNumber or version.minorNumber == profile_version.minorNumber:
