@@ -126,7 +126,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _resultset_placeholder->set_back_color("#ffffff");
   _resultset_placeholder->set_title("Result\nGrid");
   _resultset_placeholder->set_identifier("result_grid");
-  _tabdock.dock_view(_resultset_placeholder, mforms::App::get()->get_resource_path("output_type-resultset.png"));
+  _tabdock.dock_view(_resultset_placeholder, "output_type-resultset.png");
 
   {
     db_query_QueryEditorRef editor(owner->grtobj());
@@ -569,7 +569,6 @@ void SqlEditorResult::restore_grid_column_widths()
 
 void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
 {
-  mforms::App *app = mforms::App::get();
   _result_grid = view;
   view->set_name("result-grid-wrapper");
 
@@ -588,7 +587,7 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
 
     box->set_title("Result\nGrid");
     box->set_identifier("result_grid");
-    _tabdock.dock_view(box, app->get_resource_path("output_type-resultset.png"));
+    _tabdock.dock_view(box, "output_type-resultset.png");
   }
   {
     bool editable = false;
@@ -598,21 +597,21 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
     add_switch_toggle_toolbar_item(_form_result_view->get_toolbar());
     _form_result_view->set_title("Form\nEditor");
     _form_result_view->set_identifier("form_result");
-    _tabdock.dock_view(_form_result_view, app->get_resource_path("output_type-formeditor.png"));
+    _tabdock.dock_view(_form_result_view, "output_type-formeditor.png");
   }
   {
     _column_info_box = mforms::manage(new mforms::AppView(false, "ResultFieldTypes", false));
     _column_info_box->set_back_color("#ffffff");
     _column_info_box->set_title("Field\nTypes");
     _column_info_box->set_identifier("column_info");
-    _tabdock.dock_view(_column_info_box, app->get_resource_path("output_type-fieldtypes.png"));
+    _tabdock.dock_view(_column_info_box, "output_type-fieldtypes.png");
   }
   {
     _query_stats_box = mforms::manage(new mforms::AppView(false, "ResultQueryStats", false));
     _query_stats_box->set_back_color("#ffffff");
     _query_stats_box->set_title("Query\nStats");
     _query_stats_box->set_identifier("query_stats");
-    _tabdock.dock_view(_query_stats_box, app->get_resource_path("output_type-querystats.png"));
+    _tabdock.dock_view(_query_stats_box, "output_type-querystats.png");
   }
 
   create_spatial_view_panel_if_needed();
@@ -632,7 +631,7 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
       has_explain_tab = true;
       view->retain();
       _tabdock_delegate->undock_view(view);
-      _tabdock.dock_view(view, app->get_resource_path("output_type-executionplan.png"));
+      _tabdock.dock_view(view, "output_type-executionplan.png");
       view->release();
       break;
     }
@@ -643,7 +642,7 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
     _execution_plan_placeholder->set_back_color("#ffffff");
     _execution_plan_placeholder->set_title("Execution\nPlan");
     _execution_plan_placeholder->set_identifier("execution_plan");
-    _tabdock.dock_view(_execution_plan_placeholder, app->get_resource_path("output_type-executionplan.png"));
+    _tabdock.dock_view(_execution_plan_placeholder, "output_type-executionplan.png");
   }
   _switcher.set_selected(0);
 
@@ -667,8 +666,6 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
     }
     if (has_geometry)
     {
-      mforms::App *app = mforms::App::get();
-
       _spatial_result_view = mforms::manage(new SpatialDataView(this));
       add_switch_toggle_toolbar_item(_spatial_result_view->get_toolbar());
       mforms::AppView *box = mforms::manage(new mforms::AppView(false, "SpatialView", false));
@@ -676,7 +673,7 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
       box->set_identifier("spatial_result_view");
       box->set_name("spatial-host");
       box->add(_spatial_result_view, true, true);
-      _tabdock.dock_view(box, app->get_resource_path("output_type-spacialview.png"));
+      _tabdock.dock_view(box, "output_type-spacialview.png");
     }
   }
 }
