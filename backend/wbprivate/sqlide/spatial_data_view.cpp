@@ -562,7 +562,14 @@ void SpatialDataView::refresh_layers()
 
   set_geometry_columns(spatial_columns);
   if ((bool)get_option("SqlEditor::SpatialAutoZoom", 1))
-    _viewer->auto_zoom(0);
+  {
+    if (_layer_tree->count()>=2)//If there are at least two layers it means that something was loaded,
+    {
+      mforms::TreeNodeRef node = _layer_tree->node_at_row(1); //we pick up second loaded layer (it will be current resultset.
+      if (node.is_valid())
+        _viewer->auto_zoom(atoi(node->get_tag().c_str()));
+    }
+  }
 }
 
 
