@@ -37,7 +37,7 @@ static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 }
 #endif
 
-bool spatial::operator== (ProjectionView &v1, ProjectionView &v2)
+bool spatial::operator== (const ProjectionView &v1, const ProjectionView &v2)
 {
   return (v1.MaxLat == v2.MaxLat &&
       v1.MaxLon == v2.MaxLon &&
@@ -46,17 +46,17 @@ bool spatial::operator== (ProjectionView &v1, ProjectionView &v2)
       v1.height == v2.height &&
       v1.width == v2.width);
 }
-bool spatial::operator!= (ProjectionView &v1, ProjectionView &v2)
+bool spatial::operator!= (const ProjectionView &v1, const ProjectionView &v2)
 {
   return !(v1==v2);
 }
 
-bool spatial::operator== (Envelope &env1, Envelope &env2)
+bool spatial::operator== (const Envelope &env1, const Envelope &env2)
 {
   return env1.bottom_right == env2.bottom_right && env1.top_left == env2.top_left;
 }
 
-bool spatial::operator!= (Envelope &env1, Envelope &env2)
+bool spatial::operator!= (const Envelope &env1, const Envelope &env2)
 {
   return !(env1==env2);
 }
@@ -86,31 +86,36 @@ bool spatial::Envelope::is_init()
   return (top_left.x != 180 && top_left.y != -90 && bottom_right.x != -180 && bottom_right.y != 90);
 }
 
-double spatial::ShapeContainer::within(const base::Point &p) const
+bool spatial::Envelope::within(const base::Point &p) const
+{
+  return (top_left.x <= p.x && top_left.y <= p.y && bottom_right.x >= p.x && bottom_right.y >= p.y);
+}
+
+double spatial::ShapeContainer::distance(const base::Point &p) const
 {
   switch(type)
   {
   case ShapePoint:
-    return within_point(p);
+    return distance_point(p);
   case ShapeLineString:
-    return within_line(points, p);
+    return distance_line(points, p);
   case ShapeLinearRing:
-    return within_linearring(p);
+    return distance_linearring(p);
   case ShapePolygon:
-    return within_polygon(p);
+    return distance_polygon(p);
   default:
     return -1;
   }
 }
 
-double spatial::ShapeContainer::within_linearring(const base::Point &p) const
+double spatial::ShapeContainer::distance_linearring(const base::Point &p) const
 {
   if (points.empty())
     return false;
   std::vector<base::Point> tmp = points;
   tmp.push_back(*tmp.begin());
 
-  return within_line(tmp, p);
+  return distance_line(tmp, p);
 }
 
 //XXX see if all this code can be replaced with boost
@@ -141,7 +146,7 @@ static double distance_to_segment(const base::Point &start, const base::Point &e
   return sqrt(pow(dx, 2) + pow(dy, 2));
 }
 
-double spatial::ShapeContainer::within_line(const std::vector<base::Point> &point_list, const base::Point &p) const
+double spatial::ShapeContainer::distance_line(const std::vector<base::Point> &point_list, const base::Point &p) const
 {
   if (point_list.empty())
     return -1;
@@ -164,18 +169,18 @@ double spatial::ShapeContainer::within_line(const std::vector<base::Point> &poin
   return -1;
 }
 
-double spatial::ShapeContainer::within_polygon(const base::Point &p) const
+double spatial::ShapeContainer::distance_polygon(const base::Point &p) const
 {
   if (points.empty())
       return -1;
 
   //first we check if we're in the bounding box cause maybe it's pointless to check all the polygon points
-  if (!(bounding_box.top_left.x <= p.x && bounding_box.top_left.y <= p.y && bounding_box.bottom_right.x >= p.x && bounding_box.bottom_right.y >= p.y))
+  if (!bounding_box.within(p))
     return -1;
 
   bool c = false;
-  int i, j = 0;
-  int nvert = (int)points.size();
+  size_t i, j = 0;
+  size_t nvert = points.size();
   for (i = 0, j = nvert-1; i < nvert; j = i++) {
     if ( ((points[i].y > p.y) != (points[j].y > p.y)) && (p.x < (points[j].x - points[i].x) * (p.y - points[i].y) / (points[j].y - points[i].y) + points[i].x) )
       c = !c;
@@ -183,7 +188,7 @@ double spatial::ShapeContainer::within_polygon(const base::Point &p) const
   return c ? 0 : -1;
 }
 
-double spatial::ShapeContainer::within_point(const base::Point &p) const
+double spatial::ShapeContainer::distance_point(const base::Point &p) const
 {
   if (points.empty())
     return -1;
@@ -731,6 +736,36 @@ void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_con
   }
 }
 
+void spatial::Converter::transform_envelope(spatial::Envelope &env)
+{
+
+  if (!env.is_init())
+  {
+    log_error("Can't transform empty envelope.\n");
+    return;
+  }
+
+  if (_geo_to_proj->Transform(1, &env.top_left.x, &env.top_left.y) &&
+  _geo_to_proj->Transform(1, &env.bottom_right.x, &env.bottom_right.y))
+  {
+    int x, y;
+    from_projected(env.bottom_right.x, env.bottom_right.y, x, y);
+    env.bottom_right.x = x;
+    env.bottom_right.y = y;
+    from_projected(env.top_left.x, env.top_left.y, x, y);
+    env.top_left.x = x;
+    env.top_left.y = y;
+    env.converted = true;
+  }
+  else
+  {
+    log_error("Unable to transform envelope: %f, %f, %f, %f.\n", env.top_left.x, env.top_left.y, env.bottom_right.x, env.bottom_right.y);
+  }
+
+
+
+}
+
 void spatial::Converter::interrupt()
 {
   _interrupt = true;
@@ -751,9 +786,15 @@ Feature::~Feature()
 {
 }
 
-void Feature::get_envelope(spatial::Envelope &env)
+void Feature::get_envelope(spatial::Envelope &env, const bool &screen_coords)
 {
-  _geometry.get_envelope(env);
+  if (!screen_coords)
+  {
+    _geometry.get_envelope(env);
+    return;
+  }
+
+  env = _env_screen;
 }
 
 void Feature::render(Converter *converter)
@@ -761,22 +802,38 @@ void Feature::render(Converter *converter)
   std::deque<ShapeContainer> tmp_shapes;
   _geometry.get_points(tmp_shapes);
   converter->transform_points(tmp_shapes);
+  spatial::Envelope env;
+  _geometry.get_envelope(env);
+  converter->transform_envelope(env);
+  _env_screen = env;
+
   _shapes = tmp_shapes;
+
+
 }
 
 
-double Feature::within(const base::Point &p, const double &allowed_distance)
+double Feature::distance(const base::Point &p, const double &allowed_distance)
 {
+  //we need to extend the envelope by allowed_distance cuase we don't want to make assumption based on number of shapes
+  if (_env_screen.is_init())
+  {
+    spatial::Envelope env = _env_screen;
+    env.top_left.x -= allowed_distance;
+    env.top_left.y -= allowed_distance;
+    env.bottom_right.x += allowed_distance;
+    env.bottom_right.y += allowed_distance;
+    if (!env.within(p))
+      return -1;
+  }
+
   double rval = -1;
   for (std::deque<ShapeContainer>::const_iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
-    double dist = (*it).within(p);
-    if (rval == -1 || (dist < allowed_distance && dist != -1 && dist < rval))
+    double dist = (*it).distance(p);
+    if (dist < allowed_distance && dist != -1 && (dist < rval || rval == -1))
       rval = dist;
   }
-
-  if (rval > allowed_distance)
-    rval = -1;
 
   return rval;
 }
@@ -949,22 +1006,19 @@ void Layer::render(Converter *converter)
   }
 }
 
-spatial::Feature* Layer::feature_within(const base::Point &p, const double &allowed_distance)
+spatial::Feature* Layer::feature_closest(const base::Point &p, const double &allowed_distance)
 {
   double rval = -1;
   spatial::Feature *f = NULL;
   for (std::deque<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
   {
-    double dist = (*iter)->within(p, allowed_distance);
-    if (rval == -1 || (dist < allowed_distance && dist != -1 && dist < rval))
+    double dist = (*iter)->distance(p, allowed_distance);
+    if (dist < allowed_distance && dist != -1 && (dist < rval || rval == -1))
     {
       rval = dist;
       f = (*iter);
     }
   }
-
-  if (rval > allowed_distance || rval == -1)
-    f = NULL;
 
   return f;
 }
