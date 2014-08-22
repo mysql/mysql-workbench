@@ -95,6 +95,8 @@ private:
   void auto_zoom();
   void copy_coordinates();
 
+  void change_tool(mforms::ToolBarItem *item);
+
   // layer currently selected in the treeview
   LayerId get_selected_layer_id();
   // layer that's currently set as the active one (bolded in treeview)

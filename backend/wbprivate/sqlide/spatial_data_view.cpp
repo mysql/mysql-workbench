@@ -155,13 +155,22 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_separator_item();
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-    item->set_text("Select Area:");
+    item->set_text("Tool:");
     _toolbar->add_item(item);
 
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
+    item->set_name("reset_tool");
+    item->set_icon(mforms::App::get()->get_resource_path("wb_arrow.png"));
+    item->set_tooltip("Pan map and select feature to view");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::change_tool, this, item));
+    _toolbar->add_item(item);
+    item->set_checked(true);
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
+    item->set_name("zoom_to_area");
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-area.png"));
-    item->set_tooltip("Click and drag in the map to select an area to be zoomed into.");
-    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::select_area, _viewer));
+    item->set_tooltip("Zoom to area. Click and drag in the map to select an area to be zoomed into.");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::change_tool, this, item));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
@@ -232,7 +241,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _option_box->set_spacing(4);
   _option_box->set_padding(8);
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
   _option_box->set_back_color("#f0f0f0");
 #endif
 
@@ -273,11 +282,28 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _option_box->add(_info_box, true, true);
   _info_box->set_value("Click a feature to view its record");
 
-  _option_box->set_size(250, -1);
+  _option_box->set_size(220, -1);
   _main_box->add(_option_box, false, true);
 
   add(_main_box, true, true);
 }
+
+
+void SpatialDataView::change_tool(mforms::ToolBarItem *item)
+{
+  item->set_checked(true);
+  if (item->get_name() == "reset_tool")
+  {
+    _toolbar->set_item_checked("zoom_to_area", false);
+    _viewer->select_area(false);
+  }
+  else
+  {
+    _viewer->select_area(true);
+    _toolbar->set_item_checked("reset_tool", false);
+  }
+}
+
 
 int SpatialDataView::get_option(const char* opt_name, int default_value)
 {
@@ -776,9 +802,11 @@ void SpatialDataView::handle_click(base::Point p)
 {
   RecordsetLayer *layer = active_layer();
   std::string text;
+
+  _viewer->clear_pins();
   if (layer)
   {
-    spatial::Feature *feature = layer->feature_closest(p);
+    spatial::Feature *feature = layer->feature_closest(p - _viewer->offset());
     if (feature)
     {
       int row_id = feature->row_id();
@@ -788,6 +816,8 @@ void SpatialDataView::handle_click(base::Point p)
         if (rs)
         {
           std::string value;
+
+          _viewer->place_pin(mforms::Utilities::load_icon("qe_sql-editor-resultset-tb-pinned.png"), p);
 
           for (size_t i = 0; i < rs->get_column_count(); i++)
           {

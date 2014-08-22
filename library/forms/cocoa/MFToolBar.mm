@@ -33,7 +33,7 @@ static struct
 } layout_info[] = 
 {
   {32, 12, 5, 36 - 2 * 7, 9}, // Main
-  {26, 12, 2, 25 - 2 * 7, 8}, // Secondary
+  {26, 12, 2, 25 - 2 * 7, 7}, // Secondary
   {36, 12, 7, 36 - 2 * 7, 7}, // ToolPicker
   {20, 8, 1, 20-2*1, 4}, // Options
   {26, 4, 3, 26-2*3, 2} // Palette
@@ -249,13 +249,19 @@ static NSColor* colorFromHexString(const char* hexcolor)
 - (void)viewDidMoveToSuperview
 {
   MFToolBarImpl *toolbar = (MFToolBarImpl*)[self superview];
-  if (![self alternateImage] && mOwner->get_type() == ToggleItem && [toolbar type] == ToolPickerToolBar)
+  if (![self alternateImage] && mOwner->get_type() == ToggleItem)
   {
     mToolPicker = YES;
     [self setButtonType: NSOnOffButton];
     [self setBordered: NO];
     [self setBezelStyle: NSTexturedSquareBezelStyle];
     [[self cell]  setBackgroundColor: [toolbar backgroundColor]];
+
+    if ([toolbar type] == mforms::SecondaryToolBar)
+    {
+      NSSize tsize = [toolbar frame].size;
+      [self setFrameSize: NSMakeSize(tsize.height, tsize.height)];
+    }
   }
   else
   {
