@@ -507,8 +507,8 @@ static bool validate_paste(wb::WBContextUI *wbui)
 
 static bool validate_select_all(wb::WBContextUI *wbui)
 {
-  if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(isEditable)])
-    return [(id)[[NSApp keyWindow] firstResponder] isEditable];
+  if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(isSelectable)])
+    return [(id)[[NSApp keyWindow] firstResponder] isSelectable];
 
   return (wbui->get_active_form());
 }

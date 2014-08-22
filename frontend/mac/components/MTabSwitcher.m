@@ -805,6 +805,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
   [label drawAtPoint: NSMakePoint(NSMinX(tabRect) + (NSWidth(tabRect) - labelSize.width) / 2, NSMinY(tabRect) + 9 + (NSHeight(tabRect)-8-labelSize.height)/2)
       withAttributes: mLabelAttributes];
 
+  if (mStyle == MEditorBottomTabSwitcherPinnable)
   {
     NSImage *image = mClosePressed ? CloseButtonImagePressed : CloseButtonImageUnpressed;
     NSRect closeRect;
@@ -1208,7 +1209,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
 
     mTabDragPosition = clickPos;
 
-    [self display];
+    [self setNeedsDisplay: YES];
   }
 }
 
@@ -1264,7 +1265,6 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
   else if (mPinPressed && mHoverItem && NSPointInRect(position, mPinRect))
   {
     [mDelegate tabView: mTabView itemPinClicked: mHoverItem];
-    mHoverItem = nil;
   }
   if (mBusyTab)
   {
