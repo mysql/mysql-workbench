@@ -619,7 +619,7 @@ int SpatialDrawBox::clicked_row_id()
   for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
   {
     spatial::Feature *feature;
-    feature = (*it)->feature_within(p);
+    feature = (*it)->feature_closest(p);
     if (feature)
     {
       row_id = feature->row_id();

@@ -778,7 +778,7 @@ void SpatialDataView::handle_click(base::Point p)
   std::string text;
   if (layer)
   {
-    spatial::Feature *feature = layer->feature_within(p);
+    spatial::Feature *feature = layer->feature_closest(p);
     if (feature)
     {
       int row_id = feature->row_id();
