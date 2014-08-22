@@ -259,8 +259,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
   _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
   _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
-  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false);
-  _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false);
+  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false, true);
+  _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false, true);
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
   _layer_tree->set_context_menu(_layer_menu);
