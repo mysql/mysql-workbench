@@ -124,6 +124,10 @@ protected:
 
   void update_menu_and_toolbar();
   void update_toolbar_icons();
+
+  void save_workspace_order(const std::string &prefix);
+  std::string find_workspace_state(const std::string &workspace_name, std::auto_ptr<base::LockFile> &lock_file);
+
 public:
   virtual ~SqlEditorForm();
 
@@ -167,6 +171,7 @@ private:
   bool _loading_workspace;
   bool _cancel_connect;
   bool _closing;
+  bool _startup_done;
 
   void activate_command(const std::string &command);
 

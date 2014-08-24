@@ -417,6 +417,36 @@ static void util_set_thread_name(const std::string &name)
   }
 }
 
+static double util_get_text_width(const std::string &text, const std::string &font_desc)
+{
+  static NSDictionary *attributeDict = nil;
+  static std::string cachedFontName;
+
+  if (!attributeDict || cachedFontName != font_desc)
+  {
+    std::string font;
+    float size;
+    bool bold, italic;
+    [attributeDict release];
+    attributeDict = nil;
+    if (base::parse_font_description(font_desc, font, size, bold, italic))
+    {
+      NSFontDescriptor *fd = [NSFontDescriptor fontDescriptorWithName: [NSString stringWithUTF8String: font.c_str()] size: size];
+      NSFont *font = [NSFont fontWithDescriptor: [fd fontDescriptorWithSymbolicTraits: (bold ? NSFontBoldTrait : 0) | (italic ? NSFontItalicTrait : 0)]
+                                      size: size];
+
+      attributeDict = [[NSDictionary dictionaryWithObjectsAndKeys: font, NSFontAttributeName, nil] retain];
+    }
+    cachedFontName = font_desc;
+  }
+
+  NSAttributedString *str = [[NSAttributedString alloc] initWithString: [NSString stringWithUTF8String: text.c_str()]
+                                                            attributes: attributeDict];
+  double w = [str size].width;
+  [str release];
+  return w;
+}
+
 //--------------------------------------------------------------------------------------------------
 
 void cf_util_init()
@@ -445,4 +475,5 @@ void cf_util_init()
   f->_utilities_impl.reveal_file= &reveal_file;
   f->_utilities_impl.perform_from_main_thread= &util_perform_from_main_thread;
   f->_utilities_impl.set_thread_name= &util_set_thread_name;
+  f->_utilities_impl.get_text_width = &util_get_text_width;
 }

@@ -67,7 +67,14 @@ using namespace mforms;
   return self;
 }
 
-STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+// standard focus handling is not enough
+//STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+
+- (BOOL)becomeFirstResponder
+{
+  mOwner->focus_changed();
+  return [[self window] makeFirstResponder: [self content]];
+}
 
 // for MVerticalLayoutView
 - (BOOL)expandsOnLayoutVertically:(BOOL)flag

@@ -77,7 +77,7 @@ class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorPanel : public mforms::AppView
   std::string _orig_encoding;
   std::string _caption;
 
-  std::string _autosave_file_path;
+  std::string _autosave_file_suffix;
 
   time_t _file_timestamp;
 
@@ -138,8 +138,23 @@ public:
 
   bool is_scratch() { return _is_scratch; }
 public:
+
+  struct AutoSaveInfo
+  {
+    std::string orig_encoding;
+    std::string type;
+    std::string title;
+    std::string filename;
+
+    AutoSaveInfo() {}
+    AutoSaveInfo(const std::string &info_file);
+
+    static AutoSaveInfo old_scratch(const std::string &scratch_file);
+    static AutoSaveInfo old_autosave(const std::string &autosave_file);
+  };
+
   bool load_from(const std::string &file, const std::string &encoding = "", bool keep_dirty=false);
-  bool load_autosave(const std::string &file, const std::string &real_filename, const std::string &encoding = "");
+  bool load_autosave(const AutoSaveInfo &info, const std::string &text_file);
 
   virtual bool can_close();
   virtual void close();
@@ -148,10 +163,9 @@ public:
   bool save_as(const std::string &file);
   void revert_to_saved();
 
-  void auto_save(const std::string &directory, int order);
-  void delete_auto_save();
-  void rename_auto_save(int to_order);
-  int autosave_index();
+  void auto_save(const std::string &directory);
+  void delete_auto_save(const std::string &directory);
+  std::string autosave_file_suffix();
 
   void set_filename(const std::string &f);
   std::string filename() const { return _filename; }
