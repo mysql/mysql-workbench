@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <fstream>
 #include <errno.h>
 
 #include "grt/common.h"
@@ -43,9 +44,6 @@
 #include "query_side_palette.h"
 #include "grtsqlparser/mysql_parser_services.h"
 
-// 20 MB max file size for auto-restoring
-#define MAX_FILE_SIZE_FOR_AUTO_RESTORE 20000000
-
 DEFAULT_LOG_DOMAIN("SqlEditor")
 
 using namespace bec;
@@ -54,7 +52,7 @@ using namespace base;
 
 void SqlEditorForm::auto_save()
 {
-  if (!_autosave_disabled)
+  if (!_autosave_disabled && _startup_done)
   {
     try
     {
@@ -150,69 +148,29 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
       if (!editor)
         continue;
 
-      editor->auto_save(path, i);
-    }
-  }
-}
-
-
-static bool check_if_file_too_big_to_restore(const std::string &path, const std::string &file_caption,
-                                             bool allow_save_as = false)
-{
-  boost::int64_t length;
-  if ((length = get_file_size(path.c_str())) > MAX_FILE_SIZE_FOR_AUTO_RESTORE)
-  {
-  again:
-    std::string size = sizefmt(length, false);
-    int rc = mforms::Utilities::show_warning("Restore Workspace",
-      strfmt("The file %s has a size of %s. Are you sure you want to restore this file?",
-      file_caption.c_str(), size.c_str()),
-      "Restore", "Skip", allow_save_as ? "Save As..." : ""
-                                             );
-    if (rc == mforms::ResultCancel)
-      return false;
-    
-    if (rc == mforms::ResultOther)
-    {
-      mforms::FileChooser fchooser(mforms::SaveFile);
-      
-      fchooser.set_title(_("Save File As..."));
-      if (fchooser.run_modal())
+      try
       {
-        if (!copy_file(path.c_str(), fchooser.get_path().c_str()))
-        {
-          if (mforms::Utilities::show_error("Save File",
-                                            strfmt("File %s could not be saved.", fchooser.get_path().c_str()),
-                                            _("Retry"), _("Cancel"), "") == mforms::ResultOk)
-            goto again;
-        }
+        editor->auto_save(path);
       }
-      else
-        goto again;
-      return false;
+      catch (std::exception &e)
+      {
+        log_error("Could not auto-save editor %s\n", editor->get_title().c_str());
+        mforms::Utilities::show_error("Auto save", base::strfmt("Could not save contents of tab %s.\n%s",
+                                                                editor->get_title().c_str(),
+                                                                e.what()),
+                                      "OK");
+      }
     }
   }
-  return true;
+  save_workspace_order(path);
 }
 
-
-struct GuardBoolFlag
-{
-  bool *flag;
-  GuardBoolFlag(bool *ptr) : flag(ptr) { if (flag) *flag = true; }
-  ~GuardBoolFlag() { if (flag) *flag = false; }
-};
-
-// Restore a previously saved workspace for this connection. The loaded data is deleted immediately after loading (unless its an autosave)
-bool SqlEditorForm::load_workspace(const std::string &workspace_name)
+std::string SqlEditorForm::find_workspace_state(const std::string &workspace_name, std::auto_ptr<base::LockFile> &lock_file)
 {
   std::string path_prefix = make_path(_grtm->get_user_datadir(), "sql_workspaces");
-  
-  GuardBoolFlag flag(&_loading_workspace);
-  
+
   // find workspaces on disk
   std::string workspace_path;
-  std::auto_ptr<base::LockFile> lock_file;
   bool restoring_autosave = false;
   {
     GDir *dir = g_dir_open(path_prefix.c_str(), 0, NULL);
@@ -220,7 +178,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       return false;
     int lowest_index = 9999999;
     const gchar *name;
-    
+
     while ((name = g_dir_read_name(dir)) != NULL)
     {
       if (g_str_has_prefix(name, workspace_name.c_str()))
@@ -229,12 +187,12 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
         int new_index = 0;
         if (end)
           new_index = atoi(std::string(name + workspace_name.size()+1, end-name-(workspace_name.size()+1)).c_str());
-        
+
         if (g_str_has_suffix(name, ".autosave"))
         {
           if (LockFile::check(make_path(make_path(path_prefix, name), "lock")) != LockFile::NotLocked)
             continue;
-          
+
           if (!restoring_autosave)
           {
             try
@@ -259,7 +217,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
               catch (const base::file_locked_error)
               {
                 continue;
-              }              
+              }
               lowest_index = new_index;
               workspace_path = name;
             }
@@ -275,7 +233,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
             catch (const base::file_locked_error)
             {
               continue;
-            }            
+            }
             workspace_path = name;
             lowest_index = new_index;
           }
@@ -284,165 +242,153 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
     }
     g_dir_close(dir);
   }
+  return workspace_path;
+}
+
+
+struct GuardBoolFlag
+{
+  bool *flag;
+  GuardBoolFlag(bool *ptr) : flag(ptr) { if (flag) *flag = true; }
+  ~GuardBoolFlag() { if (flag) *flag = false; }
+};
+
+// Restore a previously saved workspace for this connection. The loaded data is deleted immediately after loading (unless its an autosave)
+bool SqlEditorForm::load_workspace(const std::string &workspace_name)
+{
+  std::string path_prefix = make_path(_grtm->get_user_datadir(), "sql_workspaces");
+
+  GuardBoolFlag flag(&_loading_workspace);
+
+  std::auto_ptr<base::LockFile> lock_file;
+  std::string workspace_path = find_workspace_state(workspace_name, lock_file);
   if (workspace_path.empty()) return false;
   workspace_path = make_path(path_prefix, workspace_path);
-  
-  // get list of files
-  std::vector<std::string> editor_files;
+
+  if (base::file_exists(bec::make_path(workspace_path, "tab_order")))
   {
-    GDir *dir = g_dir_open(workspace_path.c_str(), 0, NULL);
-    if (!dir)
-      return false;
-    const gchar *name;
-    while ((name = g_dir_read_name(dir)) != NULL)
+    // new WB 6.2 format workspace
+    std::ifstream f(bec::make_path(workspace_path, "tab_order").c_str());
+
+    std::vector<std::string> editor_files;
+    while (!f.eof())
     {
-      editor_files.push_back(name);
+      std::string suffix;
+      f >> suffix;
+      if (!suffix.empty())
+        editor_files.push_back(suffix);
     }
-    g_dir_close(dir);
-  }
-  std::sort(editor_files.begin(), editor_files.end());
-  
-  BOOST_FOREACH(std::string file, editor_files)
-  {
-    if (g_str_has_suffix(file.c_str(), ".scratch"))
-    {      
-      if (!check_if_file_too_big_to_restore(make_path(workspace_path, file),
-                                            strfmt("Saved scratch buffer '%s'", file.c_str())))
-      {
-        // if loading was skipped, delete it
-        try { base::remove(make_path(workspace_path, file)); }
-        catch (std::exception &e) 
-        {
-          log_error("Error deleting autosave file %s: %s", make_path(workspace_path, file).c_str(), e.what());
-        }
-        continue;
-      }
 
+    SqlEditorPanel *editor(add_sql_editor());
 
-      SqlEditorPanel* editor(add_sql_editor(true));
+    BOOST_FOREACH(std::string file, editor_files)
+    {
+      std::string info_file = bec::make_path(workspace_path, file+".info");
+      std::string text_file = bec::make_path(workspace_path, file+".scratch");
+      SqlEditorPanel::AutoSaveInfo info(info_file);
+
       try
       {
-        editor->load_autosave(make_path(workspace_path, file), "");
+        if (editor->load_autosave(info, text_file))
+        {
+          // editor load was successful, create tab for the next editor
+          editor = add_sql_editor();
+        }
       }
       catch (std::exception &e)
       {
-        int rc;
-        rc = mforms::Utilities::show_error("Restore Workspace",
-                                           strfmt("Could not read contents of '%s'.\n%s", make_path(workspace_path, file).c_str(), e.what()),
-                                           "Ignore", "Cancel", "");
-        if (rc != mforms::ResultOk)
-          return false;
+        if (!text_file.empty())
+        {
+          int rc;
+          rc = mforms::Utilities::show_error("Restore Workspace",
+                                             strfmt("Could not read contents of '%s'.\n%s", text_file.c_str(), e.what()),
+                                             "Ignore", "Cancel", "");
+          if (rc != mforms::ResultOk)
+            return false;
+        }
       }
-      
+
+      // delete the autosaves
+      try { base::remove(info_file); }
+      catch (std::exception &e)
+      {
+        log_error("Could not delete autosave file %s\n", info_file.c_str());
+      }
+      try { base::remove(text_file); }
+      catch (std::exception &e)
+      {
+        log_error("Could not delete autosave file %s\n", text_file.c_str());
+      }
     }
-    else if (g_str_has_suffix(file.c_str(), ".filename"))
+    // remove the pre-created editor
+    remove_sql_editor(editor);
+  }
+  else
+  {
+    typedef std::pair<std::string,SqlEditorPanel::AutoSaveInfo> FileItem;
+    std::vector<FileItem> editor_files;
+
+    // old format workspace
     {
-      std::string autosave_filename = file.substr(0, file.size()-strlen(".filename")).append(".autosave");
-      std::string filename;
-      std::string encoding;
-      bool filename_was_empty = false;
-      gchar *data;
-      gsize length;
-      
-      if (!g_file_get_contents(make_path(workspace_path, file).c_str(), &data, &length, NULL))
-        filename = "";
-      else
+      GDir *dir = g_dir_open(workspace_path.c_str(), 0, NULL);
+      if (!dir)
+        return false;
+      const gchar *name;
+      while ((name = g_dir_read_name(dir)) != NULL)
       {
-        char *line1 = strtok(data, "\n");
-        char *line2 = strtok(NULL, "\n");
+        SqlEditorPanel::AutoSaveInfo info;
+        std::string path = bec::make_path(workspace_path, name);
 
-        if (line1)
-          filename = line1;
-        else
-          filename_was_empty = true;
-
-        if (line2)
-          encoding = line2;
-        g_free(data);
-      }
-      
-      // check if an autosave of the edited file exists
-      if (!g_file_test(make_path(workspace_path, autosave_filename).c_str(), G_FILE_TEST_EXISTS)
-          && !filename.empty())
-      {
-        // no autosave exists, load the original
-        if (check_if_file_too_big_to_restore(filename,
-                                             strfmt("File '%s'", filename.c_str()),
-                                             false))        
+        if (bec::has_suffix(name, ".scratch"))
         {
-          SqlEditorPanel* editor(add_sql_editor(false));
-          try
-          {
-            editor->load_from(filename, encoding);
-          }
-          catch (std::exception &e)
-          {
-            int rc;
-            rc = mforms::Utilities::show_error("Restore Workspace",
-                                               strfmt("Could not read contents of '%s'.\n%s", make_path(workspace_path, file).c_str(), e.what()),
-                                               "Ignore", "Cancel", "");
-            if (rc != mforms::ResultOk)
-              return false;
-          }
+          editor_files.push_back(std::make_pair(path, SqlEditorPanel::AutoSaveInfo::old_scratch(path)));
         }
-        else
+        else if (bec::has_suffix(name, ".autosave"))
         {
-          // if loading was skipped, delete it
-          try { base::remove(make_path(workspace_path, file)); }
-          catch (std::exception &e) 
-          {
-            log_error("Error deleting autosave file %s: %s", make_path(workspace_path, file).c_str(), e.what());
-          }          
+          editor_files.push_back(std::make_pair(path, SqlEditorPanel::AutoSaveInfo::old_autosave(path)));
         }
       }
-      else
+      g_dir_close(dir);
+    }
+
+    SqlEditorPanel *editor(add_sql_editor());
+
+    BOOST_FOREACH(FileItem file, editor_files)
+    {
+      try
       {
-        // Either it's a file that was never auto-saved or an auto-save of the file exists.
-        // Load its contents if it does.
-        std::string autosave_path = make_path(workspace_path, autosave_filename);
-        
-        if (base::file_exists(autosave_path))
+        if (editor->load_autosave(file.second, file.first))
         {
-          if (!check_if_file_too_big_to_restore(autosave_path.c_str(),
-                                                strfmt("Auto-saved file '%s'", filename.c_str())))
-          {
-            // if loading was skipped, delete it
-            try { base::remove(autosave_path); }
-            catch (std::exception &e) 
-            {
-              log_error("Error deleting autosave file %s: %s", autosave_path.c_str(), e.what());
-            }
-            continue;
-          }
-
-          SqlEditorPanel *panel = add_sql_editor(false);
-
-          try
-          {
-            panel->load_autosave(autosave_path, filename, "");
-          }
-          catch (std::exception &e)
-          {
-            int rc;
-            rc = mforms::Utilities::show_error("Restore Workspace",
-                                               strfmt("Could not read auto-saved contents for '%s'.\n%s",
-                                                      (filename.empty() ? "Unsaved Script" : filename.c_str()), e.what()),
-                                               "Ignore", "Cancel", "");
-            if (rc != mforms::ResultOk)
-              return false;
-          }
-
-          if (!filename_was_empty) //it's only autosave file, we should load is a dirty
-            panel->editor_be()->get_editor_control()->reset_dirty();
+          // editor load was successful, create tab for the next editor
+          editor = add_sql_editor();
         }
-        else if (filename.empty()) // An empty sql file.
+      }
+      catch (std::exception &e)
+      {
+        if (!file.first.empty())
         {
-          add_sql_editor(false, false);
+          int rc;
+          rc = mforms::Utilities::show_error("Restore Workspace",
+                                             strfmt("Could not read contents of '%s'.\n%s", file.first.c_str(), e.what()),
+                                             "Ignore", "Cancel", "");
+          if (rc != mforms::ResultOk)
+            return false;
         }
+      }
+
+      // delete the autosaves
+      try { base::remove(file.first); }
+      catch (std::exception &e)
+      {
+        log_error("Could not delete autosave file %s\n", file.first.c_str());
       }
     }
+    // remove the pre-created editor
+    remove_sql_editor(editor);
   }
 
+
+  // load schema tree state
   {
     gchar *data;
     gsize length;
@@ -466,7 +412,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
     }
   }
   
-  if (restoring_autosave)
+  if (has_suffix(workspace_path, ".autosave"))
   {
     _autosave_lock = lock_file.release();
     _autosave_path = workspace_path;
@@ -573,21 +519,11 @@ void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
     _side_palette->cancel_timer();
 
   if (!_closing)
-    panel->delete_auto_save();
-
-  bool found = false;
-  for (int c = _tabdock->view_count(), i = 0; i < c; i++)
   {
-    SqlEditorPanel *p = sql_editor_panel(i);
-    if (p)
-    {
-      // Rename the remaining editor auto saves to match their index.
-      if (found)
-        p->rename_auto_save(i-1);
-      if (p == panel)
-        found = true;
-    }
+    panel->delete_auto_save(_autosave_path);
+    save_workspace_order(_autosave_path);
   }
+
   _tabdock->undock_view(panel);
 
   // no need to delete, undock_view will release the reference and delete it because panel is managed
@@ -616,10 +552,23 @@ void SqlEditorForm::sql_editor_panel_switched()
 }
 
 
+void SqlEditorForm::save_workspace_order(const std::string &prefix)
+{
+  std::ofstream order_file;
+
+  order_file.open(bec::make_path(prefix, "tab_order").c_str(), std::ofstream::out);
+
+  for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+  {
+    SqlEditorPanel *editor = sql_editor_panel(i);
+    if (editor)
+      order_file << editor->autosave_file_suffix() << "\n";
+  }
+}
+
 void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
 {
-  int from = panel->autosave_index();
-  if (!panel || to < 0 || from < 0)
+  if (!panel || to < 0)
     return;
 
   /// Reorder the GRT lists
@@ -640,9 +589,9 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
 
   int to_index = -1;
   // now find out where we have to move to
-  if (from < to)
+  if (from_index < to)
   {
-    for (int i = to; i > from; i--)
+    for (int i = to; i > from_index; i--)
     {
       if (panels[i].first.is_valid())
       {
@@ -653,7 +602,7 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
   }
   else
   {
-    for (int i = to; i < from; i++)
+    for (int i = to; i < from_index; i++)
     {
       if (panels[i].first.is_valid())
       {
@@ -670,28 +619,8 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
 
   grtobj()->queryEditors()->reorder(from_index, to_index);
 
-
   /// Rename autosave files to keep the order
-  panel->rename_auto_save(-1); // temporary name
-  if (from > to)
-  {
-    for (int i = from - 1; i >= to; i--)
-    {
-      SqlEditorPanel *p = sql_editor_panel(i);
-      if (p)
-        p->rename_auto_save(i+1);
-    }
-  }
-  else
-  {
-    for (int i = from + 1; i <= to; i++)
-    {
-      SqlEditorPanel *p = sql_editor_panel(i);
-      if (p)
-        p->rename_auto_save(i-1);
-    }
-  }
-  panel->rename_auto_save(to);
+  save_workspace_order(_autosave_path);
 }
 
 //--------------------------------------------------------------------------------------------------

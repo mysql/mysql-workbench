@@ -890,6 +890,12 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
   return "";
 }
 
+
+double Utilities::get_text_width(const std::string &text, const std::string &font)
+{
+  return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
+}
+
 //--------------------------------------------------------------------------------------------------
 
 bool Utilities::in_main_thread()

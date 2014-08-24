@@ -136,6 +136,8 @@ namespace mforms {
 
     void* (*perform_from_main_thread)(const boost::function<void* ()> &slot, bool wait_completion);
     void (*set_thread_name)(const std::string &name);
+
+    double (*get_text_width)(const std::string &text, const std::string &font);
   };
 #endif
 #endif
@@ -319,6 +321,9 @@ namespace mforms {
     static void get_icon_size(cairo_surface_t *icon, int &w, int &h);
 
     static std::string shorten_string(cairo_t* cr, const std::string& text, double width);
+
+    //XXX TODO Linux, Windows
+    static double get_text_width(const std::string &text, const std::string &font);
 #endif
 
 #ifndef SWIG

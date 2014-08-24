@@ -237,6 +237,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _side_palette(NULL),
   _history(DbSqlEditorHistory::create(_grtm))
 {
+  _startup_done = false;
   _log = DbSqlEditorLog::create(this, _grtm, 500);
 
   NotificationCenter::get()->add_observer(this, "GNApplicationActivated");
@@ -335,6 +336,8 @@ void SqlEditorForm::finish_startup()
   _side_palette->refresh_snippets();
 
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
+
+  _startup_done = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,9 +372,12 @@ void SqlEditorForm::restore_last_workspace()
   if (_tabdock->view_count() == 0)
     new_sql_scratch_area(false);
 
+  // immediate autosave after openingls
+  auto_save();
+
   // Gets the title for a NEW editor
   _title = create_title();
-  title_changed();  
+  title_changed();
 }
 
 void SqlEditorForm::title_changed()
