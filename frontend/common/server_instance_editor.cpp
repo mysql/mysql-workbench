@@ -379,6 +379,8 @@ ServerInstanceEditor::ServerInstanceEditor(bec::GRTManager *grtm, const db_mgmt_
     
     scoped_connect(_sudo_prefix.signal_changed(),boost::bind(&ServerInstanceEditor::entry_changed, this,
                                                           &_sudo_prefix));
+    scoped_connect(_sudo_check.signal_clicked(),boost::bind(&ServerInstanceEditor::check_changed, this,
+                                                      &_sudo_check));
     
     _sys_box.add(&_custom_sudo_box, false, true);
     
@@ -619,7 +621,7 @@ void ServerInstanceEditor::system_type_changed()
   
   if (instance.is_valid())
   {
-    std::string system= _os_type.get_string_value();
+    std::string system = _os_type.get_string_value();
     if (!system.empty())
     {
       instance->serverInfo().gset("sys.system", system);
@@ -1126,7 +1128,14 @@ void ServerInstanceEditor::check_changed(mforms::CheckBox *sender)
     if (&_ssh_usekey == sender)
       instance->loginInfo().gset("ssh.useKey", value ? 1 : 0);
     else if (&_sudo_check == sender)
+    {
+      if (_os_type.get_string_value() != "Windows")
+      {
+        _sudo_description.show(value);
+        _custom_sudo_box.show(value);
+      }
       info.gset("sys.usesudo", value ? 1 : 0);
+    }
   }
 }
 
@@ -1372,11 +1381,9 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
     _sys_win_hint_label.show(false);
   }
   
-  bool show_custom_sudo = system != "Windows";
-  _sudo_description.show(show_custom_sudo);
-  _custom_sudo_box.show(show_custom_sudo);
   
   
+
 
   // If the MySQL connection is to a local server then remote administration makes no sense.
   // Disable it in this case.
@@ -1413,6 +1420,12 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
   _sudo_prefix.set_value(serverInfo.get_string("sys.mysqld.sudo_override"));
 
   _sudo_check.set_active(serverInfo.get_int("sys.usesudo", 1) != 0);
+
+
+  bool show_custom_sudo = system != "Windows" && _sudo_check.get_active();
+
+  _sudo_description.show(show_custom_sudo);
+  _custom_sudo_box.show(show_custom_sudo);
 
   if (serverInfo.has_key("sys.sudo"))
   {

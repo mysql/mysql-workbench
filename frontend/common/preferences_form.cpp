@@ -1876,26 +1876,19 @@ mforms::View *PreferencesForm::create_advanced_settings_page()
   Box* content = manage(new Box(false));
   content->set_spacing(8);
 
-  mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-  frame->set_title(_("SSH"));
-  content->add(frame, false);
+  OptionTable *table;
 
-  mforms::Box *vbox= mforms::manage(new mforms::Box(false));
-  vbox->set_padding(8);
-  vbox->set_spacing(8);
-  frame->add(vbox);
-
+  table = mforms::manage(new OptionTable(this, _("SSH"), true));
+  content->add(table, false, true);
   {
-    mforms::Box *tbox= mforms::manage(new mforms::Box(true));
-    tbox->set_spacing(4);
-    vbox->add(tbox, false);
+      mforms::TextEntry *entry= new_numeric_entry_option("sshkeepalive", 0, 500);
+      entry->set_max_length(5);
+      entry->set_size(50, -1);
+      entry->set_tooltip(_(
+      "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
 
-    tbox->add(new_label(_("SSH KeepAlive:"), true), false, false);
-    mforms::TextEntry *entry= new_entry_option("sshkeepalive", true);
-    entry->set_size(50, -1);
-    entry->set_tooltip(_(
-                         "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
-    tbox->add(entry, false, false);
+      table->add_option(entry, _("SSH KeepAlive:"),
+                        _("SSH keep-alive interval in seconds.\nUse 0 to disable."));
   }
 
   return content;

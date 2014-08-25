@@ -175,7 +175,7 @@ std::string SqlEditorForm::find_workspace_state(const std::string &workspace_nam
   {
     GDir *dir = g_dir_open(path_prefix.c_str(), 0, NULL);
     if (!dir)
-      return false;
+      return "";
     int lowest_index = 9999999;
     const gchar *name;
 
@@ -592,9 +592,9 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
 
   int to_index = -1;
   // now find out where we have to move to
-  if (from_index < to)
+  if ((int)from_index < to)
   {
-    for (int i = to; i > from_index; i--)
+    for (int i = to; i > (int)from_index; i--)
     {
       if (panels[i].first.is_valid())
       {
@@ -605,7 +605,7 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
   }
   else
   {
-    for (int i = to; i < from_index; i++)
+    for (int i = to; i < (int)from_index; i++)
     {
       if (panels[i].first.is_valid())
       {
