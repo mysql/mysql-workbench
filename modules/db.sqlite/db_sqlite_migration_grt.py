@@ -237,6 +237,25 @@ class SQLiteMigration(GenericMigration):
                                                   )
         return target_fk
 
+
+    def migrateTablePrimaryKeyToMySQL(self, state, sourceTable, targetTable):
+
+        res = GenericMigration.migrateTablePrimaryKeyToMySQL(self, state, sourceTable, targetTable)
+
+        if targetTable.primaryKey:
+            for icolumn in targetTable.primaryKey.columns:
+                if not icolumn.referencedColumn.isNotNull:
+                    icolumn.referencedColumn.isNotNull = 1
+                    icolumn.referencedColumn.defaultValueIsNull = 0
+                    icolumn.referencedColumn.defaultValue = ''
+                    # force primary keys to be NOT NULL
+                    state.addMigrationLogEntry(1, sourceTable, targetTable,
+                                              'Source table has a PRIMARY KEY allowing NULL values, which is not supported by MySQL. Column was changed to NOT NULL.')
+
+        return res
+
+
+
 instance = SQLiteMigration()
 
 @ModuleInfo.export(grt.STRING)
