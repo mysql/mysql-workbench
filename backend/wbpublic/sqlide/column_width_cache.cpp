@@ -116,3 +116,18 @@ int ColumnWidthCache::get_column_width(const std::string &column_id)
   }
   return -1;
 }
+
+
+void ColumnWidthCache::delete_column_width(const std::string &column_id)
+{
+  sqlite::query q(*_sqconn, "delete from widths where column_id = ?");
+  q.bind(1, column_id);
+  try
+  {
+    q.emit();
+  }
+  catch (std::exception &exc)
+  {
+    log_debug("Error deleting column width to cache %s: %s\n", column_id.c_str(), exc.what());
+  }
+}

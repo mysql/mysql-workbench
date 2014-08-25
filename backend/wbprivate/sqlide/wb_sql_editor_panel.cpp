@@ -379,6 +379,7 @@ static bool check_if_file_too_big_to_restore(const std::string &path, const std:
 #define EDITOR_TEXT_LIMIT 100 * 1024 * 1024
 
 SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
+: word_wrap(false), show_special(false)
 {
   char buffer[4098];
   std::ifstream f(info_file.c_str());
@@ -394,6 +395,10 @@ SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
       filename = value;
     else if (key == "title")
       title = value;
+    else if (key == "word_wrap")
+      word_wrap = value == "1";
+    else if (key == "show_special")
+      show_special = value == "1";
   }
 }
 
@@ -461,6 +466,14 @@ bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info,
     base::file_mtime(_filename, _file_timestamp);
 
   set_title(info.title);
+
+  mforms::ToolBarItem *item = get_toolbar()->find_item("query.toggleInvisible");
+  item->set_checked(info.show_special);
+  (*item->signal_activated())(item);
+
+  item = get_toolbar()->find_item("query.toggleWordWrap");
+  item->set_checked(info.word_wrap);
+  (*item->signal_activated())(item);
 
   return true;
 }
@@ -659,6 +672,15 @@ void SqlEditorPanel::auto_save(const std::string &path)
     f << "orig_encoding=" << _orig_encoding << "\n";
 
     f << "title="<<_title<<"\n";
+
+    if (get_toolbar()->get_item_checked("query.toggleInvisible"))
+      f << "show_special=1\n";
+    else
+      f << "show_special=0\n";
+    if (get_toolbar()->get_item_checked("query.toggleWordWrap"))
+      f << "word_wrap=1\n";
+    else
+      f << "word_wrap=1\n";
     f.close();
   }
 
@@ -819,21 +841,21 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::toggle_autocommit, _form));
   tbar->add_item(item);
 
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
-
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("add_snippet");
-  item->set_icon(IconManager::get_instance()->get_icon_path("snippet_add.png"));
-  item->set_tooltip(_("Save current statement or selection to the snippet list."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, _form));
-  tbar->add_item(item);
-
   tbar->add_separator_item();
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
   item->set_name("limit_rows");
   item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
   bec::UIForm::scoped_connect(item->signal_activated(), boost::bind(&SqlEditorPanel::limit_rows, this, item));
+  tbar->add_item(item);
+
+  tbar->add_separator_item();
+
+  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+  item->set_name("add_snippet");
+  item->set_icon(IconManager::get_instance()->get_icon_path("snippet_add.png"));
+  item->set_tooltip(_("Save current statement or selection to the snippet list."));
+  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, _form));
   tbar->add_item(item);
 
   tbar->add_separator_item();

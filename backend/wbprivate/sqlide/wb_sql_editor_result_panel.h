@@ -140,6 +140,8 @@ private:
   void dock_result_grid(mforms::RecordGrid *view);
 
   void restore_grid_column_widths();
+  std::vector<float> get_autofit_column_widths(Recordset *rs);
+  void reset_column_widths();
   
   void add_switch_toggle_toolbar_item(mforms::ToolBar *tbar);
 

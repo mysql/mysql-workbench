@@ -222,6 +222,9 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   _grid_header_menu = new mforms::ContextMenu();
   _grid_header_menu->add_item_with_title("Copy Field Name", boost::bind(&SqlEditorResult::copy_column_name, this));
   _grid_header_menu->add_item_with_title("Copy All Field Names", boost::bind(&SqlEditorResult::copy_all_column_names, this));
+  _grid_header_menu->add_separator();
+  _grid_header_menu->add_item_with_title("Reset Sorting", boost::bind(&SqlEditorResult::reset_sorting, this));
+  _grid_header_menu->add_item_with_title("Reset Column Widths", boost::bind(&SqlEditorResult::reset_column_widths, this));
 
   mforms::RecordGrid *grid = mforms::manage(mforms::RecordGrid::create(rset));
   {
@@ -517,11 +520,59 @@ void SqlEditorResult::toggle_switcher_collapsed()
   _collapse_toggled(flag);
 }
 
+
 void SqlEditorResult::on_recordset_column_resized(int column)
 {
   std::string column_id = _column_width_storage_ids[column];
   int width = _result_grid->get_column_width(column);
   _owner->owner()->column_width_cache()->save_column_width(column_id, width);
+}
+
+
+void SqlEditorResult::reset_column_widths()
+{
+  ColumnWidthCache *cache = _owner->owner()->column_width_cache();
+
+  RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
+  {
+    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
+    std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+
+    for (int c = (int)field_info.size(), i = 0; i < c; i++)
+    {
+      std::string column_storage_id;
+
+      column_storage_id = field_info[i].field + "::" + field_info[i].schema + "::" + field_info[i].table;
+
+      cache->delete_column_width(column_storage_id);
+    }
+  }
+
+  restore_grid_column_widths();
+}
+
+
+std::vector<float> SqlEditorResult::get_autofit_column_widths(Recordset *rs)
+{
+  std::vector<float> widths(rs->get_column_count());
+  std::string font = _owner->owner()->grt_manager()->get_app_option_string("workbench.general.Resultset:Font");
+
+  for (int c = rs->get_column_count(), j = 0; j < c; j++)
+  {
+    widths[j] = (float)mforms::Utilities::get_text_width(rs->get_column_caption(j), font);
+  }
+
+  // look in 1st 10 rows for the max width of the columns
+  for (int i = 0; i < 10; i++)
+  {
+    for (int c = rs->get_column_count(), j = 0; j < c; j++)
+    {
+      std::string value;
+      rs->get_field(i, j, value);
+      widths[j] = std::max(widths[j], (float)mforms::Utilities::get_text_width(value, font));
+    }
+  }
+  return widths;
 }
 
 
@@ -533,6 +584,7 @@ void SqlEditorResult::restore_grid_column_widths()
   {
     Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+    std::vector<float> autofit_widths;
 
     for (int c = (int)field_info.size(), i = 0; i < c; i++)
     {
@@ -549,18 +601,16 @@ void SqlEditorResult::restore_grid_column_widths()
       }
       else
       {
-        // if not, we set a default width based on the display size
-        int length = field_info[i].display_size;
+        // if not, we set a default width based on the width of the 1st 50 rows
+        if (autofit_widths.empty())
+          autofit_widths = get_autofit_column_widths(rs);
 
-        if (length < 5)
-          length = 5;
-        else if (length > 20)
-          length = 20;
-#if defined(__APPLE__) || defined(_WIN32)
-        _result_grid->set_column_width(i, length * 10);
-#else
-        _result_grid->set_column_width(i, length * 12);
-#endif
+        float width = autofit_widths[i] + 10;
+        if (width < 40)
+          width = 40;
+        else if (width > 250)
+          width = 250;
+        _result_grid->set_column_width(i, width);
       }
     }
   }

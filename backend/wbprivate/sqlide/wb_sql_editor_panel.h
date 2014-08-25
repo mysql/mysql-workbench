@@ -145,8 +145,10 @@ public:
     std::string type;
     std::string title;
     std::string filename;
+    bool word_wrap;
+    bool show_special;
 
-    AutoSaveInfo() {}
+    AutoSaveInfo() : word_wrap(false), show_special(false) {}
     AutoSaveInfo(const std::string &info_file);
 
     static AutoSaveInfo old_scratch(const std::string &scratch_file);
