@@ -86,6 +86,9 @@ namespace MySQL.GUI.Workbench.Plugins
 
     public override bool ReinitWithArguments(GrtValue value)
     {
+      if (Backend != null && !Backend.can_close())
+        return false;  // Will open the plugin in a new editor window instead.
+
       InitializingControls = true;
       SuspendLayout();
 
@@ -101,6 +104,9 @@ namespace MySQL.GUI.Workbench.Plugins
           mainTabControl.TabPages.Remove(dbObjectEditorPages.PrivilegesTabPage);
         }
 
+        if (insertsTabPage.Controls.Count > 0)
+          insertsTabPage.Controls.Clear();
+
         Backend = new MySQLTableEditorWrapper(GrtManager, value);
 
         Control panel = tableEditorBE.get_trigger_panel();
@@ -112,6 +118,12 @@ namespace MySQL.GUI.Workbench.Plugins
         InitFormData();
         RefreshFormData();
 
+        {
+          panel = tableEditorBE.get_inserts_panel();
+          insertsTabPage.Controls.Add(panel);
+          panel.Parent = insertsTabPage;
+          panel.Dock = DockStyle.Fill;
+        }
         Backend.reset_editor_undo_stack();
       }
       finally
