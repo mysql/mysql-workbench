@@ -186,6 +186,51 @@ class ConfigUpdater
     end sub    
 end class    
 
+class Utilities
+    private shell
+    
+    private sub Class_Initialize()
+        set shell = WScript.CreateObject("WScript.Shell")
+    end sub
+
+    public function check_version_at_least(command, major, minor, revno)
+        set exec = shell.Exec(command & " --version")
+        output = ""
+        do while exec.status = 0
+            output = output & exec.StdErr.ReadAll()
+        loop
+        
+        tokens = split(output, " ")
+        
+        version = ""
+        found_major = 0
+        found_minor = 0
+        found_revno = 0
+        
+        for each token in tokens
+            if token = "version" then
+                version = "found"
+            else 
+                if version = "found" then
+                    version = token
+                    version_tokens = split(version, ".")
+                    found_major = Int(version_tokens(0))
+                    found_minor = Int(version_tokens(1))
+                    found_revno = Int(version_tokens(2))
+                end if
+            end if
+        next
+        
+        if found_major > major or _
+           (found_major = major and found_minor > minor) or _
+           (found_major = major and found_minor = minor and found_revno >= revno) then
+           check_version_at_least = True
+        else
+            check_version_at_least = False
+        end if
+    end function
+
+end class
 
 class MEBCommandProcessor
     private help_needed
@@ -280,6 +325,8 @@ class MEBVersion
         execute = 0
     end function
 end class
+
+
 
 class MEBBackup
     ' These will be received as parameters
@@ -460,50 +507,14 @@ class MEBBackup
         find_lastest_backup = lastest
     end function
     
-    private function check_version_at_least(major, minor, revno)
-        set exec = shell.Exec(command & " --version")
-        output = ""
-        do while exec.status = 0
-            output = output & exec.StdErr.ReadAll()
-        loop
-        
-        tokens = split(output, " ")
-        
-        version = ""
-        found_major = 0
-        found_minor = 0
-        found_revno = 0
-        
-        for each token in tokens
-            if token = "version" then
-                version = "found"
-            else 
-                if version = "found" then
-                    version = token
-                    version_tokens = split(version, ".")
-                    found_major = Int(version_tokens(0))
-                    found_minor = Int(version_tokens(1))
-                    found_revno = Int(version_tokens(2))
-                end if
-            end if
-        next
-        
-        if found_major > major or _
-           (found_major = major and found_minor > minor) or _
-           (found_major = major and found_minor = minor and found_revno >= revno) then
-           check_version_at_least = True
-        else
-            check_version_at_least = False
-        end if
-    end function
-        
     private function prepare_command
+        set my_utils = new Utilities
         ret_val = True
         command_call = """" & command & """ --defaults-file=""" & backups_home & "\" & profile_file & """"
         
         ' Adds the compress parameter if needed
         if compress then
-            if check_version_at_least(3,10,0) then
+            if my_utils.check_version_at_least(command, 3,10,0) then
                 ' lz4 is the default so id it is selected only sets the --compress option
                 if compress_method = "lz4" then
                     command_call = command_call & " --compress"
@@ -1004,7 +1015,25 @@ class MEBGetProfiles
                             end if
                         end if
                         
-                        ' The VALID item will cintain a numeric valid describing the issues encountered on the profile
+                        ' Validates Partial Backup Options
+                        set my_utils = new Utilities
+                        if my_utils.check_version_at_least(command, 3,10,0) then
+                            include = profile.get_value("mysqlbackup", "include", "")
+                            databases = profile.get_value("mysqlbackup", "include", "")
+                            
+                            if len(include) > 0 or len(databases) > 0 then
+                                profile_issues = profile_issues or 8
+                            end if
+                        else
+                            include = profile.get_value("mysqlbackup", "include_tables", "")
+                            exclude = profile.get_value("mysqlbackup", "exclude_tables", "")
+                            
+                            if len(include) > 0 or len(exclude) > 0 then
+                                profile_issues = profile_issues or 4
+                            end if
+                        end if
+                        
+                        ' The VALID item will contain a numeric valid describing the issues encountered on the profile
                         ' Validation. Each issue should be assigned a value of 2^x so the different issues can be joined
                         ' using bitwise operations
                         ' 1 : Indicates the backup folder is not valid to store the backups.

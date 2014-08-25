@@ -54,6 +54,32 @@ def call_system(command, spawn, output_handler = None):
     return result
 
 
+def check_version_at_least(command, major, minor, revno):
+  output = StringIO.StringIO()
+  
+  ret_val = call_system("%s --version" % command, False, output.write)
+  
+  if ret_val == 0:
+    tokens = output.getvalue().strip().split()
+    
+    version = ""
+    found_major = 0
+    found_minor = 0
+    found_revno = 0
+    
+    for token in tokens:
+      if token == 'version':
+        version = 'found'
+      else:
+        if version == 'found':
+          version = token
+          version_tokens = version.split('.')
+          found_major = int(version_tokens[0])
+          found_minor = int(version_tokens[1])
+          found_revno = int(version_tokens[2])
+    
+    return  (found_major, found_minor, found_revno) >= (major, minor, revno)
+
 
 class ConfigReader(object):
     def __init__(self, file):
@@ -63,7 +89,7 @@ class ConfigReader(object):
         data = profile_file.read()
 
         self.doc = ConfigParser.ConfigParser()
-        self.doc.readfp(StringIO.StringIO(data))        
+        self.doc.readfp(StringIO.StringIO(data))
 
     def read_value(self, section, item, mandatory = False, default = None):
         value = default
@@ -295,32 +321,7 @@ class MEBBackup(MEBCommand):
         if target_folder:
             self.backup_dir = os.path.join(self.backup_dir, target_folder)
             self.log_path = self.backup_dir + '.log'
-        
-    def check_version_at_least(self, major, minor, revno):
-        output = StringIO.StringIO()
-        
-        ret_val = call_system("%s --version" % self.command, False, output.write)
-        
-        if ret_val == 0:
-            tokens = output.getvalue().strip().split()
 
-            version = ""
-            found_major = 0
-            found_minor = 0
-            found_revno = 0
-            
-            for token in tokens:
-                if token == 'version':
-                    version = 'found'
-                else:
-                    if version == 'found':
-                        version = token
-                        version_tokens = version.split('.')
-                        found_major = int(version_tokens[0])
-                        found_minor = int(version_tokens[1])
-                        found_revno = int(version_tokens[2])
-                        
-            return  (found_major, found_minor, found_revno) >= (major, minor, revno)
 
     def prepare_command(self):
         ret_val = True
@@ -329,7 +330,7 @@ class MEBBackup(MEBCommand):
         # Adds the compress parameter if needed
         if self.compress:
         
-            if self.check_version_at_least(3, 10, 0):
+            if check_version_at_least(self.command, 3, 10, 0):
                 # lz4 is the default so id it is selected only sets the --compress option
                 if self.compress_method == 'lz4':
                     self.command_call += " --compress"
@@ -782,6 +783,20 @@ class MEBGetProfiles(MEBCommand):
                             
                             if match:
                                 profile_issues |= 2
+                
+                    command = profile.read_value('meb_manager', 'command', False, "")
+                    if check_version_at_least(command, 3, 10, 0):
+                        include   = profile.read_value('mysqlbackup', 'include', False, "")
+                        databases = profile.read_value('mysqlbackup', 'databases', False, "")
+                    
+                        if include or databases:
+                            profile_issues |= 8
+                    else:
+                        include = profile.read_value('mysqlbackup', 'include_tables', False, "")
+                        exclude = profile.read_value('mysqlbackup', 'exclude_tables', False, "")
+                        
+                        if include or exclude:
+                          profile_issues |= 4
 
                     # The VALID item will cintain a numeric valid describing the issues encountered on the profile
                     # Validation. Each issue should be assigned a value of 2^x so the different issues can be joined
