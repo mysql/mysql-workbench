@@ -303,6 +303,7 @@ class MEBBackup
     private use_tts
     
     ' These are for internal use
+    private shell
     private file_name
     private fso
     
@@ -458,25 +459,66 @@ class MEBBackup
         
         find_lastest_backup = lastest
     end function
+    
+    private function check_version_at_least(major, minor, revno)
+        set exec = shell.Exec(command & " --version")
+        output = ""
+        do while exec.status = 0
+            output = output & exec.StdErr.ReadAll()
+        loop
+        
+        tokens = split(output, " ")
+        
+        version = ""
+        found_major = 0
+        found_minor = 0
+        found_revno = 0
+        
+        for each token in tokens
+            if token = "version" then
+                version = "found"
+            else 
+                if version = "found" then
+                    version = token
+                    version_tokens = split(version, ".")
+                    found_major = Int(version_tokens(0))
+                    found_minor = Int(version_tokens(1))
+                    found_revno = Int(version_tokens(2))
+                end if
+            end if
+        next
+        
+        if found_major > major or _
+           (found_major = major and found_minor > minor) or _
+           (found_major = major and found_minor = minor and found_revno >= revno) then
+           check_version_at_least = True
+        else
+            check_version_at_least = False
+        end if
+    end function
         
     private function prepare_command
         ret_val = True
         command_call = """" & command & """ --defaults-file=""" & backups_home & "\" & profile_file & """"
-
+        
         ' Adds the compress parameter if needed
         if compress then
-            ' lz4 is the default so id it is selected only sets the --compress option
-            if compress_method = "lz4" then
-                command_call = command_call & " --compress"
-                
-            ' Otherwise using --compress-method makes --compress to be not needed
-            else
-                command_call = command_call & " --compress-method=" & compress_method
-                
-                ' Level is only specified if not using the default value
-                if compress_level <> "1" then
-                    command_call = command_call & " --compress-level=" & compress_level
+            if check_version_at_least(3,10,0) then
+                ' lz4 is the default so id it is selected only sets the --compress option
+                if compress_method = "lz4" then
+                    command_call = command_call & " --compress"
+                    
+                ' Otherwise using --compress-method makes --compress to be not needed
+                else
+                    command_call = command_call & " --compress-method=" & compress_method
+                    
+                    ' Level is only specified if not using the default value
+                    if compress_level <> "1" then
+                        command_call = command_call & " --compress-level=" & compress_level
+                    end if
                 end if
+            else
+                command_call = command_call & " --compress"
             end if
         end if
 
@@ -537,13 +579,15 @@ class MEBBackup
     
     public function execute()
         ret_val = 1
-        if read_params() then
         
+        if read_params() then
+                
             read_profile_data()
-
+            
+            ' Creates the scripting shell to execute the backup
+            set shell = WScript.CreateObject("WScript.Shell")
+            
             if prepare_command() then
-                ' Creates the scripting shell to execute the backup
-                set shell = WScript.CreateObject("WScript.Shell")
                 
                 shell.Run "%comspec% /c """ & command_call & " & del *.running""", 0
                 
