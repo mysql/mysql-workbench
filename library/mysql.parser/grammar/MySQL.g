@@ -2601,6 +2601,10 @@ data_type:
 	data_type_elements -> ^(DATA_TYPE_TOKEN data_type_elements)
 ;
 
+data_type_definition: // For external use only. Don't reference this in the normal grammar.
+	data_type_elements EOF
+;
+
 data_type_elements:
 	integer_type field_length? field_options?
 

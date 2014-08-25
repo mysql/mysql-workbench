@@ -18,7 +18,6 @@
  */
 
 #ifndef _WIN32
-#include <pcre.h>
 #include <stdio.h>
 #endif
 
@@ -35,6 +34,9 @@
 #include "grt/parse_utils.h"
 #include "grts/structs.workbench.physical.h"
 #include "grtdb/db_helpers.h"
+
+#include "mysql-parser.h"
+#include "MySQLParser.h" // For token types.
 
 DEFAULT_LOG_DOMAIN("dbhelpers");
 
@@ -950,7 +952,7 @@ static void split_comment(const std::string &comment, size_t db_comment_len,
                           std::string *comment_ret, std::string *leftover_ret)
 {
   size_t res;
-  // XXX: check for Unicode line breaks! especially asian languages don't use the ANSI new line.
+  // XXX: check for Unicode line breaks! especially asian languages may not use the ANSI new line.
   const gchar* pointer_to_linebreak = NULL;
 
   { // find 1st occurrence of 2 consecutive newlines
@@ -968,7 +970,7 @@ static void split_comment(const std::string &comment, size_t db_comment_len,
   else
     res = comment.size(); // it's wrong to use g_utf8_strlen here because the comment length must be measured in bytes, not unichars
 
-  // don't break in the middle of a utf8 sequence
+  // Don't break in the middle of a utf8 sequence
   if (res > db_comment_len)
   {
     if (g_utf8_get_char_validated(comment.c_str() + db_comment_len, (gssize)(res - db_comment_len)) == (gunichar)-1)
@@ -1076,90 +1078,47 @@ void ColumnHelper::set_default_value(db_ColumnRef column, const std::string &val
 }
 
 //------------------------------------------------------------------------------------
-//
-//
-////XXX the following code must be moved to db.mysql module
-//
-//static enum_field_types get_mysql_type_from_string(const char *type_name)
-//{
-//  if(g_strcasecmp(type_name, "INT") == 0)
-//    return MYSQL_TYPE_LONG;
-//  if(g_strcasecmp(type_name, "TINYINT") == 0)
-//    return MYSQL_TYPE_TINY;
-//  if(g_strcasecmp(type_name, "SMALLINT") == 0)
-//    return MYSQL_TYPE_SHORT;
-//  if(g_strcasecmp(type_name, "BIGINT") == 0)
-//    return MYSQL_TYPE_LONGLONG;
-//  if(g_strcasecmp(type_name, "FLOAT") == 0)
-//    return MYSQL_TYPE_FLOAT;
-//  if(g_strcasecmp(type_name, "DOUBLE") == 0)
-//    return MYSQL_TYPE_DOUBLE;
-//  if(g_strcasecmp(type_name, "TIME") == 0)
-//    return MYSQL_TYPE_TIME;
-//  if(g_strcasecmp(type_name, "DATE") == 0)
-//    return MYSQL_TYPE_DATE;
-//  if(g_strcasecmp(type_name, "DATETIME") == 0)
-//    return MYSQL_TYPE_DATETIME;
-//  if(g_strcasecmp(type_name, "TIMESTAMP") == 0)
-//    return MYSQL_TYPE_TIMESTAMP;
-//  if(g_strcasecmp(type_name, "TEXT") == 0)
-//    return MYSQL_TYPE_STRING;
-//  if(g_strcasecmp(type_name, "CHAR") == 0)
-//    return MYSQL_TYPE_STRING;
-//  if(g_strcasecmp(type_name, "VARCHAR") == 0)
-//    return MYSQL_TYPE_STRING;
-//  if(g_strcasecmp(type_name, "BLOB") == 0)
-//    return MYSQL_TYPE_BLOB;
-//  if(g_strcasecmp(type_name, "BINARY") == 0)
-//    return MYSQL_TYPE_BLOB;
-//  if(g_strcasecmp(type_name, "VARBINARY") == 0)
-//    return MYSQL_TYPE_BLOB;
-//
-//  return MYSQL_TYPE_NULL;
-//}
 
 void CatalogHelper::apply_defaults(db_mysql_ColumnRef column)
 {
 
   // for numeric types only
-  std::map<std::string, int> def_precision_map;
-  def_precision_map["INT"]= 11;
-  def_precision_map["TINYINT"]= 4;
-  def_precision_map["SMALLINT"]= 6;
-  def_precision_map["MEDIUMINT"]= 9;
-  def_precision_map["BIGINT"]= 20;
-  def_precision_map["FLOAT"]= 11;
-  def_precision_map["DOUBLE"]= 11;
-  def_precision_map["BIT"]= 1;
-  def_precision_map["CHAR"]= 1;
+  static std::map<std::string, int> def_precision_map;
+  if (def_precision_map.empty())
+  {
+    def_precision_map["INT"] = 11;
+    def_precision_map["TINYINT"] = 4;
+    def_precision_map["SMALLINT"] = 6;
+    def_precision_map["MEDIUMINT"] = 9;
+    def_precision_map["BIGINT"] = 20;
+    def_precision_map["FLOAT"] = 11;
+    def_precision_map["DOUBLE"] = 11;
+    def_precision_map["BIT"] = 1;
+    def_precision_map["CHAR"] = 1;
+  }
 
   bool default_default_value= !column->isNotNull() && (strlen(column->defaultValue().c_str()) == 0);
 
   if (!column->simpleType().is_valid())
     return;
 
-//  if (strcmp(column->simpleType()->name().c_str(), "DECIMAL") == 0)
-//    column->scale(0);
-
-  //enum_field_types ft= get_mysql_type_from_string(column->simpleType()->name().c_str());
-
   std::map<std::string, int>::const_iterator prec_map_it= 
     def_precision_map.find(column->simpleType()->name().c_str());
-  if(prec_map_it != def_precision_map.end())
+  if (prec_map_it != def_precision_map.end())
   {
-    if((strcmp(column->simpleType()->name().c_str(), "CHAR") != 0))//length should be used for chars
+    if ((strcmp(column->simpleType()->name().c_str(), "CHAR") != 0))//length should be used for chars
       column->length(grt::IntegerRef(-1));
-    if(column->precision() == bec::EMPTY_COLUMN_PRECISION)
+    if (column->precision() == bec::EMPTY_COLUMN_PRECISION)
     {
       if(column->flags().get_index("UNSIGNED") != grt::BaseListRef::npos)
-        column->precision(grt::IntegerRef(prec_map_it->second)-1);
+        column->precision(grt::IntegerRef(prec_map_it->second) - 1);
       else 
         column->precision(grt::IntegerRef(prec_map_it->second));
     }
     if (default_default_value)
       bec::ColumnHelper::set_default_value(column, "NULL");
   }
-  else if((strcmp(column->simpleType()->name().c_str(), "VARCHAR") == 0)
+  else if ((strcmp(column->simpleType()->name().c_str(), "VARCHAR") == 0)
     || (strcmp(column->simpleType()->name().c_str(), "CHAR") == 0)
     || (strcmp(column->simpleType()->name().c_str(), "DECIMAL") == 0)
     || (strcmp(column->simpleType()->name().c_str(), "BOOLEAN") == 0)
@@ -1178,7 +1137,7 @@ void CatalogHelper::apply_defaults(db_mysql_ColumnRef column)
     if (default_default_value)
       bec::ColumnHelper::set_default_value(column, "NULL");
   }
-  else if((strcmp(column->simpleType()->name().c_str(), "DATETIME") == 0)
+  else if ((strcmp(column->simpleType()->name().c_str(), "DATETIME") == 0)
     || (strcmp(column->simpleType()->name().c_str(), "DATE") == 0)
     || (strcmp(column->simpleType()->name().c_str(), "TIME") == 0)
     || (strcmp(column->simpleType()->name().c_str(), "TIMESTAMP") == 0)
@@ -1247,27 +1206,34 @@ void CatalogHelper::apply_defaults(db_mysql_CatalogRef cat, std::string default_
   }
 }
 
-static int pcre_compile_exec(const char *pattern, const char *str, int *patres, int patresnum)
+//--------------------------------------------------------------------------------------------------
+
+/**
+ *	Compares the given typename with what is in the type list, including the synonyms and returns
+ *	the type whose name or synonym matches.
+ */
+static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &types,
+  const GrtVersionRef &target_version, const std::string &name)
 {
-  const char *errptr;
-  int erroffs;
-  int c;
-  pcre *patre= pcre_compile(pattern, 0, &errptr, &erroffs, NULL);
-  if (!patre)
-    throw std::logic_error("error compiling regex "+std::string(errptr));
-
-  c= pcre_exec(patre, NULL, str, (int)strlen(str), 0, 0, patres, patresnum);
-  pcre_free(patre);
-
-  return c;
-}
-
-static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &types, const GrtVersionRef &target_version, const std::string &name)
-{
-  for (size_t c= types.count(), i= 0; i < c; i++)
+  for (size_t c = types.count(), i = 0; i < c; ++i)
   {
-    if (base::string_compare(types[i]->name(), name, false)==0)
+    bool type_found = base::same_string(types[i]->name(), name, false);
+    if (!type_found)
     {
+      // Type has not the default name, but maybe one of the synonyms.
+      for (auto synonym = types[i]->synonyms().begin(); synonym != types[i]->synonyms().end(); ++synonym)
+      {
+        if (base::same_string(*synonym, name, false))
+        {
+          type_found = true;
+          break;
+        }
+      }
+    }
+
+    if (type_found)
+    {
+      // TODO: version check still necessary? The parser will ensure version compliance.
       if (!target_version.is_valid() || CatalogHelper::is_type_valid_for_version(types[i], target_version))
         return types[i];
     }
@@ -1275,263 +1241,225 @@ static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &type
   return db_SimpleDatatypeRef();
 }
 
-static bool parseTypeDefinition(const std::string &type,
-                                const GrtVersionRef &targetVersion,
-                                const grt::ListRef<db_SimpleDatatype> &typeList,
-                                db_SimpleDatatypeRef &simpleType,
-                                int &precision,
-                                int &scale,
-                                int &length,
-                                std::string &explicitParams)
+//--------------------------------------------------------------------------------------------------
+
+static bool parse_type(const std::string &type,
+                       const std::string &sql_mode,
+                       const GrtVersionRef &targetVersion,
+                       const grt::ListRef<db_SimpleDatatype> &typeList,
+                       db_SimpleDatatypeRef &simpleType,
+                       int &precision,
+                       int &scale,
+                       int &length,
+                       std::string &explicitParams)
 {
-  auto_array_ptr<char> buffer(new char[type.size()+1]);
-  int patres[21];
-  int c;
-    
-  /* split the datatype name from the parameters
-   * (\w+)\s*(\(.*\))?
-   *
-   * 1.. TYPE
-   * 2.. params (optional)
-   */
+  // No char sets necessary for parsing data types as there's no repertoire necessary/allowed in any
+  // data type part.
+  // Note: we parse here more than the pure data type name + precision/scale (namely additional parameters
+  // like charsets etc.). That doesn't affect the main task here, however. Additionally stuff
+  // is simply ignored for now (but it must be a valid definition).
+  MySQLRecognizer recognizer(bec::version_to_long(targetVersion), sql_mode, std::set<std::string>());
+  recognizer.parse(type.c_str(), type.size(), true, PuDataType);
+  if (!recognizer.error_info().empty())
+    return false;
+
+  MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
+
+  // A type name can consist of up to 3 parts (e.g. "national char varying").
+  std::string type_name = walker.token_text();
   
-  c= pcre_compile_exec("^(\\w+)\\s*(\\(.*\\))?\\s*$", type.c_str(), patres, sizeof(patres)/sizeof(int));
-  
-  if (c > 0 &&
-      pcre_copy_substring(type.c_str(), patres, c, 1, buffer, static_cast<int>(type.size()+1)) > 0)
+  switch (walker.token_type())
   {
-    // find the simple datatype with this type_name
-    simpleType= findType(typeList, targetVersion, std::string(buffer));
-    
-    if (simpleType.is_valid())
+  case DOUBLE_SYMBOL:
+    walker.next();
+    if (walker.token_type() == PRECISION_SYMBOL)
+      walker.next(); // Simply ignore syntactic sugar.
+    break;
+
+  case NATIONAL_SYMBOL:
+    walker.next();
+    type_name += " " + walker.token_text();
+    walker.next();
+    if (walker.token_type() == VARYING_SYMBOL)
     {
-      std::string params;
-      std::string param1;
-      std::string param2;
-      
-      // split the parameter into its components
-      
-      if (pcre_copy_substring(type.c_str(), patres, c, 2, buffer, static_cast<int>(type.size()+1)) > 0)
-        params= buffer;
-      
-      switch (*simpleType->parameterFormatType())
-      {
-        case 0: // no params
-          if (!params.empty())
-            return false;
-          break;
-          
-        case 1: // (n)
-          c= pcre_compile_exec("^\\((\\d+)\\)$", params.c_str(), patres, sizeof(patres)/sizeof(int));
-          if (c < 0)
-            return false;
-          if (pcre_copy_substring(params.c_str(), patres, c, 1, buffer, static_cast<int>(params.size()+1)) > 0)
-          {
-            param1= buffer;
-          }
-          else
-            return false;
-          break;
-          
-        case 2: // [(n)]
-          c= pcre_compile_exec("^(\\((\\d+)\\))?$", params.c_str(), patres, sizeof(patres)/sizeof(int));
-          if (c < 0)
-            return false;
-          if (pcre_copy_substring(params.c_str(), patres, c, 2, buffer, static_cast<int>(params.size()+1)) > 0)
-          {
-            param1= buffer;
-          }
-          break;
-          
-        case 3: // (m, n)
-          c= pcre_compile_exec("^\\((\\d+),\\s*(\\d+)\\)$", params.c_str(), patres, sizeof(patres)/sizeof(int));
-          if (c < 0)
-            return false;
-          if (pcre_copy_substring(params.c_str(), patres, c, 1, buffer, static_cast<int>(params.size()+1)) > 0)
-          {
-            param1= buffer;
-            
-            if (pcre_copy_substring(params.c_str(), patres, c, 2, buffer, static_cast<int>(params.size()+1)) > 0)
-              param2= buffer;
-            else
-              return false;
-          }
-          else
-            return false;
-          break;
-          
-        case 4: // (m[,n])
-          c= pcre_compile_exec("^\\((\\d+)(,\\s*(\\d+))?\\)$", params.c_str(), patres, sizeof(patres)/sizeof(int));
-          if (c < 0)
-            return false;
-          if (pcre_copy_substring(params.c_str(), patres, c, 1, buffer, static_cast<int>(params.size()+1)) > 0)
-          {
-            param1= buffer;
-            if (pcre_copy_substring(params.c_str(), patres, c, 3, buffer, static_cast<int>(params.size()+1)) > 0)
-              param2= buffer;
-          }
-          else
-            return false;
-          break;
-          
-        case 5: // [(m,n)]
-          c= pcre_compile_exec("^(\\((\\d+)(,\\s*(\\d+))\\))?$", params.c_str(), patres, sizeof(patres)/sizeof(int));
-          if (c < 0)
-            return false;
-          if (pcre_copy_substring(params.c_str(), patres, c, 2, buffer, static_cast<int>(params.size()+1)) > 0)
-          {
-            param1= buffer;
-            if (pcre_copy_substring(params.c_str(), patres, c, 4, buffer, static_cast<int>(params.size()+1)) > 0)
-              param2= buffer;
-            else
-              return false;
-          }
-          break;
-          
-        case 6: // [(m[,n])]
-          c= pcre_compile_exec("^(\\((\\d+)(,\\s*(\\d+))?\\))?$", params.c_str(), patres, sizeof(patres)/sizeof(int));
-          if (c < 0)
-            return false;
-          if (pcre_copy_substring(params.c_str(), patres, c, 2, buffer, static_cast<int>(params.size()+1)) > 0)
-          {
-            param1= buffer;
-            if (pcre_copy_substring(params.c_str(), patres, c, 4, buffer, static_cast<int>(params.size()+1)) > 0)
-              param2= buffer;
-          }
-          break;
-          
-        case 10: // ('a','b','c')
-          if (params.empty())
-            return false;
-                
-          c= pcre_compile_exec("^\\((.*?)\\)?$", params.c_str(), patres, sizeof(patres)/sizeof(int));
-          if (c < 0)
-            return false;
-          // For now we just keep the parameter list as a whole. If necessary this can be split later for other uses.
-          param1= buffer;
-          // validate format
-          if (pcre_copy_substring(params.c_str(), patres, c, 1, buffer, static_cast<int>(params.size()+1)) > 0)
-          {
-            std::list<std::string> tokens;
-            if (!bec::tokenize_string_list(std::string(buffer), '\'', true, tokens))
-              return false;
-          }
-          else
-            return false;
-          break;
-      }
-      
-      // get precision
-      if (*simpleType->numericPrecision() != bec::EMPTY_TYPE_PRECISION)
-      {
-        if (!param1.empty())
-          precision= atoi(param1.c_str());
-        
-        // get scale
-        if (*simpleType->numericScale() != bec::EMPTY_TYPE_SCALE)
-        {
-          if (!param2.empty())
-            scale= atoi(param2.c_str());
-        }
-      }
-      // get length
-      else if (simpleType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH 
-               || simpleType->characterOctetLength()   != bec::EMPTY_TYPE_OCTET_LENGTH)
-      {
-        if (!param1.empty())
-          length= atoi(param1.c_str());
-      }
-      else if (*simpleType->parameterFormatType() == 10)
-        explicitParams= param1;
+      type_name += " " + walker.token_text();
+      walker.next();
     }
-    else
-      return false; // unknown type
+    break;
+
+  case NCHAR_SYMBOL:
+    walker.next();
+    if (walker.token_type() == VARCHAR_SYMBOL || walker.token_type() == VARYING_SYMBOL)
+    {
+      type_name += " " + walker.token_text();
+      walker.next();
+    }
+    break;
+
+  case CHAR_SYMBOL:
+    walker.next();
+    if (walker.token_type() == VARYING_SYMBOL)
+    {
+      type_name += " " + walker.token_text();
+      walker.next();
+    }
+    break;
+
+  case LONG_SYMBOL:
+    walker.next();
+    switch (walker.token_type())
+    {
+    case CHAR_SYMBOL: // LONG CHAR VARYING
+      if (walker.look_ahead(1) == VARYING_SYMBOL) // Otherwise we may get e.g. LONG CHAR SET...
+      {
+        type_name += " " + walker.token_text();
+        walker.next();
+        type_name += " " + walker.token_text();
+        walker.next();
+      }
+      break;
+
+    case VARBINARY_SYMBOL:
+    case VARCHAR_SYMBOL:
+      type_name += " " + walker.token_text();
+      walker.next();
+    }
+    break;
+
+  default:
+    walker.next();
   }
-  else
-    return false; // bad format
-  
+
+  simpleType = findType(typeList, targetVersion, type_name);
+
+  if (!simpleType.is_valid()) // Should always be valid at this point or we have messed up our type list.
+    return false;
+
+  if (walker.token_type() != OPEN_PAR_SYMBOL)
+    return true;
+
+  walker.next();
+
+  // We use the simple type properties for char length to learn if we have a length here or a precision.
+  // We could indicate that in the grammar instead, however the handling in WB is a bit different
+  // than what the server grammar would suggest (e.g. the length is also used for integer types, in the grammar).
+  if (simpleType->characterMaximumLength() != bec::EMPTY_TYPE_MAXIMUM_LENGTH
+    || simpleType->characterOctetLength() != bec::EMPTY_TYPE_OCTET_LENGTH)
+  {
+    if (walker.token_type() != INTEGER)
+      return false;
+    length = atoi(walker.token_text().c_str());
+    return true;
+  }
+
+  if (walker.token_type() != INTEGER)
+  {
+    // ENUM or SET. Collect all values into a long string for now.
+    explicitParams = walker.token_text();
+    do 
+    {
+      walker.next();
+      if (walker.token_type() == CLOSE_PAR_SYMBOL) // Otherwise it's a comma.
+        break;
+      walker.next();
+      explicitParams += ", " + walker.token_text();
+    } while (true);
+    return true;
+  }
+
+  // Finally all cases with either precision, scale or both.
+  precision = atoi(walker.token_text().c_str());
+  walker.next();
+  if (walker.token_type() != COMMA_SYMBOL)
+    return true;
+  walker.next();
+  scale = atoi(walker.token_text().c_str());
+
   return true;
 }
 
-bool bec::parseType(const std::string &type,
-    const GrtVersionRef &targetVersion,
-    const grt::ListRef<db_SimpleDatatype> &typeList,
-    const grt::ListRef<db_UserDatatype>& user_types,
-    const grt::ListRef<db_SimpleDatatype>& default_type_list,
-    db_SimpleDatatypeRef &simpleType,
-    db_UserDatatypeRef& userType,
-    int &precision,
-    int &scale,
-    int &length,
-    std::string &datatypeExplicitParams)
+//--------------------------------------------------------------------------------------------------
+
+bool bec::parse_type_definition(const std::string &type,
+                                const std::string &sql_mode,
+                                const GrtVersionRef &targetVersion,
+                                const grt::ListRef<db_SimpleDatatype> &typeList,
+                                const grt::ListRef<db_UserDatatype>& user_types,
+                                const grt::ListRef<db_SimpleDatatype>& default_type_list,
+                                db_SimpleDatatypeRef &simpleType,
+                                db_UserDatatypeRef& userType,
+                                int &precision,
+                                int &scale,
+                                int &length,
+                                std::string &datatypeExplicitParams)
 {
-    if (user_types.is_valid())
+  if (user_types.is_valid())
+  {
+    std::string::size_type argp = type.find('(');
+    std::string typeName = type;
+
+    if (argp != std::string::npos)
+      typeName = type.substr(0, argp);
+
+    // 1st check if this is a user defined type
+    for (size_t c = user_types.count(), i = 0; i < c; i++)
     {
-        std::string::size_type argp= type.find('(');
-        std::string typeName= type;
+      db_UserDatatypeRef utype(user_types[i]);
 
-        if (argp != std::string::npos)
-            typeName= type.substr(0, argp);
+      if (base::string_compare(utype->name(), typeName, false) == 0)
+      {
+        userType = utype;
+        break;
+      }
+    }
+  }
 
-        // 1st check if this is a user defined type
-        for (size_t c= user_types.count(), i= 0; i < c; i++)
-        {
-            db_UserDatatypeRef utype(user_types[i]);
+  if (userType.is_valid())
+  {
+    // If the type spec has an argument, we replace the arguments from the type definition
+    // with the one provided by the user.
+    std::string finalType = userType->sqlDefinition();
+    std::string::size_type tp;
+    bool overriden_args = false;
 
-            if (base::string_compare(utype->name(), typeName, false) == 0)
-            {
-                userType= utype;
-                break;
-            }
-        }
+    if ((tp = type.find('(')) != std::string::npos) // Are there user specified args?
+    {
+      std::string::size_type p = finalType.find('(');
+      if (p != std::string::npos) // Strip the original args.
+        finalType = finalType.substr(0, p);
+
+      // Extract the user specified args and append to the specification.
+      finalType.append(type.substr(tp));
+
+      overriden_args = true;
     }
 
-    if (userType.is_valid())
+    // Parse user type definition.
+    if (!parse_type(finalType, sql_mode, targetVersion, typeList.is_valid() ? typeList : default_type_list,
+      simpleType, precision, scale, length, datatypeExplicitParams))
+      return false;
+
+    simpleType = db_SimpleDatatypeRef();
+    if (!overriden_args)
     {
-        // if the type spec has an argument, we replace the arguments from the type definition
-        // with the one provided by the user
-        std::string finalType= userType->sqlDefinition();
-        std::string::size_type tp;
-        bool overriden_args= false;
-
-        if ((tp= type.find('(')) != std::string::npos) // has user specified args
-        {
-            std::string::size_type p= finalType.find('('); 
-            if (p != std::string::npos) // strip the original args
-                finalType= finalType.substr(0, p);
-
-            // extract the user spcified args and append to the specification
-            finalType.append(type.substr(tp));
-
-            overriden_args= true;
-        }
-
-        // parse usertype definition    
-        if (!parseTypeDefinition(finalType, targetVersion, typeList.is_valid() ? typeList : default_type_list, simpleType,
-            precision, scale, length, datatypeExplicitParams))
-            return false;
-
-        simpleType = db_SimpleDatatypeRef();
-        if (!overriden_args)
-        {
-            precision = bec::EMPTY_COLUMN_PRECISION;
-            scale = bec::EMPTY_COLUMN_SCALE;
-            length = bec::EMPTY_COLUMN_LENGTH;
-            datatypeExplicitParams = "";
-        }
+      precision = bec::EMPTY_COLUMN_PRECISION;
+      scale = bec::EMPTY_COLUMN_SCALE;
+      length = bec::EMPTY_COLUMN_LENGTH;
+      datatypeExplicitParams = "";
     }
-    else
-    {
-        if (!parseTypeDefinition(type, targetVersion, typeList.is_valid() ? typeList : default_type_list, simpleType,
-            precision, scale, length, datatypeExplicitParams))
-            return false;
+  }
+  else
+  {
+    if (!parse_type(type, sql_mode, targetVersion, typeList.is_valid() ? typeList : default_type_list,
+      simpleType, precision, scale, length, datatypeExplicitParams))
+      return false;
 
-        userType = db_UserDatatypeRef();
-    }
-    return true;
+    userType = db_UserDatatypeRef();
+  }
+  return true;
 }
 
-
+//--------------------------------------------------------------------------------------------------
 
 std::string bec::get_default_collation_for_charset(const db_SchemaRef &schema, const std::string &character_set)
 {

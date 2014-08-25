@@ -65,7 +65,7 @@ bool parse(const char *sql, size_t size, bool is_utf8, long server_version, cons
   const std::set<std::string> &charsets)
 {
   MySQLRecognizer recognizer(server_version, sql_mode, charsets);
-  recognizer.parse(sql, size, is_utf8, QtUnknown);
+  recognizer.parse(sql, size, is_utf8, PuGeneric);
   bool result = recognizer.error_info().size() == 0;
 
   return result;
@@ -446,7 +446,7 @@ bool parse_and_compare(const std::string &sql, long server_version, const std::s
   const std::set<std::string> &charsets, std::vector<ANTLR3_UINT32> tokens, unsigned int error_count = 0)
 {
   MySQLRecognizer recognizer(server_version, sql_mode, charsets);
-  recognizer.parse(sql.c_str(), sql.size(), true, QtUnknown);
+  recognizer.parse(sql.c_str(), sql.size(), true, PuGeneric);
   if (recognizer.error_info().size() != error_count)
     return false;
 
@@ -1095,7 +1095,7 @@ TEST_FUNCTION(35)
   std::string sql = "select \"abc\" \"def\" 'ghi''\\n\\z'";
 
   MySQLRecognizer recognizer(50610, "", _charsets);
-  recognizer.parse(sql.c_str(), sql.size(), true, QtUnknown);
+  recognizer.parse(sql.c_str(), sql.size(), true, PuGeneric);
   ensure_equals("35.1 String concatenation", recognizer.error_info().size(), 0U);
   
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
