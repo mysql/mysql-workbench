@@ -324,8 +324,8 @@ void SpatialDrawBox::auto_zoom(spatial::LayerId layer_id)
   if (!env.is_init())
     return;
 
-  double h = std::abs(env.top_left.y - env.bottom_right.y);
-  double w = std::abs(env.top_left.x - env.bottom_right.x);
+  double h = fabs(env.top_left.y - env.bottom_right.y);
+  double w = fabs(env.top_left.x - env.bottom_right.x);
 
   const double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
 
@@ -649,7 +649,7 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, boo
     _offset_x = 0;
     _offset_y = 0;
 
-    double h = std::abs(lat2 - lat1);
+    double h = fabs(lat2 - lat1);
 
     double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
     lon2 = lon1 + h * ratio;

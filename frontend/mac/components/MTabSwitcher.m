@@ -940,7 +940,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
             activeTab = current;
           }
         }
-        current = ++i < [items count] ? [items objectAtIndex: i] : nil;
+        current = ++i < (int)[items count] ? [items objectAtIndex: i] : nil;
       }
 
       mLastVisibleTabIndex = --i;
@@ -1049,7 +1049,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
         if ([current tabState] == NSSelectedTab)          
           selectedTabRect.size.width = w;
 
-        current = ++i < items.count ? [items objectAtIndex: i] : nil;
+        current = ++i < (int)items.count ? [items objectAtIndex: i] : nil;
       }
       
       mLastVisibleTabIndex = --i;
@@ -1558,7 +1558,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
   if ([mDelegate respondsToSelector: @selector(tabViewDidChangeNumberOfTabViewItems:)])
     [mDelegate tabViewDidChangeNumberOfTabViewItems: aTabView];
 
-  if ([aTabView numberOfTabViewItems] < [mCloseButtonRects count])
+  if ([aTabView numberOfTabViewItems] < (NSInteger)[mCloseButtonRects count])
   {
     for (id item in [mCloseButtonRects allKeys])
     {

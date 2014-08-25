@@ -21,6 +21,7 @@
 
 #include "base/log.h"
 #include "base/threading.h"
+#include <errno.h>
 
 DEFAULT_LOG_DOMAIN("pwdcache");
 
