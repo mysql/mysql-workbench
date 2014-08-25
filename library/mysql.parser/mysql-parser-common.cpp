@@ -299,6 +299,7 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case VERSION_COMMENT_TAIL:
   case WS:
   case XA_ID_TOKEN:
+  case ANTLR3_TOKEN_EOF:
     return false;
 
   default:

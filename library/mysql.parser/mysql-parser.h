@@ -103,7 +103,7 @@ public:
   MySQLRecognizer(long server_version, const std::string &sql_mode, const std::set<std::string> &charsets);
   virtual ~MySQLRecognizer();
   
-  void parse(const char *text, size_t length, bool is_utf8, MySQLQueryType parse_unit);
+  void parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit);
 
   std::string dump_tree();
   std::string dump_tree(pANTLR3_BASE_TREE tree, const std::string &indentation);

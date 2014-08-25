@@ -36,13 +36,14 @@ private:
   db_mysql_RoutineRef _routine;
   db_mysql_CatalogRef _catalog;
   std::vector<mforms::TextEntry *> _edits;
+  std::string _sql_mode;
 
   mforms::Button *_cancel_button;
   mforms::Button *_execxute_button;
 
   bool needs_quoting(const std::string &type);
 public:
-  ExecuteRoutineWizard(db_mysql_RoutineRef routine);
+  ExecuteRoutineWizard(db_mysql_RoutineRef routine, const std::string &sql_mode);
 
   std::string run();
 };

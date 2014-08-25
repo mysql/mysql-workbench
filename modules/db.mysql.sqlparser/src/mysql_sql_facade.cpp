@@ -1079,7 +1079,7 @@ grt::DictRef MysqlSqlFacadeImpl::parseStatement(const std::string &sql_statement
   }
   
   MySQLRecognizer recognizer(server_version, sql_mode, charsets);
-  recognizer.parse(sql_statement.c_str(), sql_statement.length(), true, QtGrant);
+  recognizer.parse(sql_statement.c_str(), sql_statement.length(), true, PuGrant);
 
   if (!recognizer.has_errors())
     ret_val = parseGrantStatement(recognizer);

@@ -94,6 +94,7 @@ std::string bec::get_description_for_connection(const db_mgmt_ConnectionRef &con
   return conn_type;  
 }
 
+//--------------------------------------------------------------------------------------------------
 
 std::string bec::sanitize_server_version_number(const std::string &version)
 {
@@ -109,6 +110,7 @@ std::string bec::sanitize_server_version_number(const std::string &version)
   return version;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 /**
  * Parses the given version string into its components and returns a GRT version class.
@@ -130,6 +132,27 @@ GrtVersionRef bec::parse_version(grt::GRT *grt, const std::string &target_versio
   return version;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Converts a grt version struct into a plain long usable by parsers.
+ * Returns a default version number if the given version is invalid or has no major version.
+ */
+long bec::version_to_long(const GrtVersionRef &version)
+{
+  if (!version.is_valid() || version->majorNumber() == -1)
+    return 50100;
+
+  size_t result = version->majorNumber() * 10000;
+  if (version->minorNumber() > -1)
+    result += version->minorNumber() * 100;
+  if (version->releaseNumber() > -1)
+    result += version->releaseNumber();
+
+  return (long)result;
+}
+
+//--------------------------------------------------------------------------------------------------
 
 /**
  * Compares the given version numbers to see if a is equal to b.

@@ -66,6 +66,17 @@ struct MySQLToken
   }
 };
 
+// Determines the sub parts of a query that can be parsed individually.
+enum MySQLParseUnit {
+  PuGeneric,
+  PuCreateTrigger,
+  PuCreateView,
+  PuCreateRoutine,
+  PuCreateEvent,
+  PuGrant,
+  PuDataType
+};
+
 // Describes the type of a given query.
 enum MySQLQueryType
 {

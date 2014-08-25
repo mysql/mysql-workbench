@@ -165,15 +165,15 @@ TEST_FUNCTION(20)
   column->name("testee");
   table->columns().insert(column);
 
-  ListRef<db_SimpleDatatype> types= tester.get_rdbms()->simpleDatatypes();
+  std::string expected_enum_parameters = "blah, foo, bar, 0b11100011011, 0x1234ABCDE";
+  ListRef<db_SimpleDatatype> types = tester.get_rdbms()->simpleDatatypes();
   for (size_t i= 0; i < tester.get_rdbms()->simpleDatatypes().count(); i++)
   {
     // Try all parameter combinations.
     string no_params= types[i]->name();
     string single_num_param= no_params + "(777)";
     string double_num_params= no_params + "(111, 5)";
-    string enum_parameters= "('blah', 'foo', 'bar', 'gah')";
-    string param_list= no_params + enum_parameters;
+    string param_list = no_params + "('blah', 'foo', 'bar', 0b11100011011, 0x1234ABCDE)";
     string invalid_list= no_params + "(1, a, 'bb')";
 
     // Depending on the server version a data type is defined for we need to set the
@@ -256,7 +256,7 @@ TEST_FUNCTION(20)
         // The following tests just check if the parameter list is properly stored.
         // No type checking takes place for now.
         grt::StringRef explicitParam= column->datatypeExplicitParams();
-        ensure_equals("Parameter list not properly stored", *explicitParam, enum_parameters);
+        ensure_equals("Parameter list not properly stored", *explicitParam, expected_enum_parameters);
         break;
     }
 
@@ -272,7 +272,6 @@ TEST_FUNCTION(20)
  *	 Another data type test, but with focus on all possible input and its proper handling,
  *	 even for corner cases.
  *	 Based on the MySQL grammar we construct here all possible input combinations.
- *	 Endless iterations are however limited, of course.
  */
 
 // Valid id string for unquoted identifiers.
@@ -588,17 +587,32 @@ TEST_FUNCTION(22)
 {
   // First generate all possible combinations.
   std::vector<std::string> definitions = get_variations_for_rule("data_type");
-  int counter = 0;
-  std::stringstream s;
-  s << "create table all_data_types (\n";
 
+  grt::ListRef<db_UserDatatype> user_types;
+  grt::ListRef<db_SimpleDatatype> type_list = tester.get_catalog()->simpleDatatypes();
+
+  // The latest version at the point of writing this, to include all possible variations.
+  GrtVersionRef version(grtm->get_grt());
+  version->majorNumber(5);
+  version->minorNumber(7);
+  version->releaseNumber(4);
+  version->buildNumber(-1);
+
+  std::string sql_mode = "ANSI_QUOTES";
   for (auto iterator = definitions.begin(); iterator != definitions.end(); ++iterator)
   {
-    s << "  col" << counter++ << " " << *iterator << ",\n";
+    db_SimpleDatatypeRef simple_type;
+    db_UserDatatypeRef user_type;
+    int precision;
+    int scale;
+    int length;
+    std::string explicit_params;
+
+    std::string sql = *iterator;
+    ensure("Data type parsing failed for: \"" + sql + "\"",
+      parse_type_definition(sql, sql_mode, version, type_list, user_types, type_list, simple_type,
+      user_type, precision, scale, length, explicit_params));
   }
-  s << ");";
-  std::string text = s.str();
-  g_file_set_contents("data_types.txt", text.c_str(), text.size(), NULL);
 }
 
 TEST_FUNCTION(25)

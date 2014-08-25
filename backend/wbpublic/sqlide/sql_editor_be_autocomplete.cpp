@@ -1523,7 +1523,7 @@ bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context, My
   {
     context.version = recognizer->server_version();
 
-    recognizer->parse(context.statement.c_str(), context.statement.length(), true, QtUnknown);
+    recognizer->parse(context.statement.c_str(), context.statement.length(), true, PuGeneric);
     MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
 
     found_errors = recognizer->has_errors();

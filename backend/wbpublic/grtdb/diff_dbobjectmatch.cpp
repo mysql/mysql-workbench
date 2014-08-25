@@ -655,8 +655,8 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   std::string type1 = r1->returnDatatype();
 
   // XXX: always set a valid version number!
-  if (!bec::parseType(type1, GrtVersionRef(), types1,    user_types1,    default_type_list1,
-      simpleType1, userType1, precision1,    scale1,    length1,    datatypeExplicitParams1))
+  if (!bec::parse_type_definition(type1, "", GrtVersionRef(), types1, user_types1, default_type_list1,
+      simpleType1, userType1, precision1, scale1, length1, datatypeExplicitParams1))
       return false;
 
   grt::ListRef<db_UserDatatype> user_types2;
@@ -679,8 +679,8 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   int length2 = bec::EMPTY_COLUMN_LENGTH;
   std::string datatypeExplicitParams2;
   std::string type2 = r1->returnDatatype();
-  if (!bec::parseType(type2, GrtVersionRef(), types2,    user_types2,    default_type_list2,
-      simpleType2, userType2, precision2,    scale2,    length2,    datatypeExplicitParams2))
+  if (!bec::parse_type_definition(type2, "", GrtVersionRef(), types2, user_types2, default_type_list2,
+      simpleType2, userType2, precision2, scale2, length2, datatypeExplicitParams2))
       return false;
 
   return (simpleType1 == simpleType2) && (userType1 == userType2) && (precision1 == precision2) && 

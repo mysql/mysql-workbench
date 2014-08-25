@@ -1560,7 +1560,11 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="list" content-type="string" key="synonyms">
+          <value type="string">BOOL</value>
+		  <value type="string">BOOLEAN</value>
+		  <value type="string">INT1</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.smallint">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1577,7 +1581,9 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="list" content-type="string" key="synonyms">
+          <value type="string">INT2</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumint">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1594,7 +1600,10 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="list" content-type="string" key="synonyms">
+          <value type="string">INT3</value>
+		  <value type="string">MIDDLEINT</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.int">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1611,9 +1620,10 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms">
+        <value type="list" content-type="string" key="synonyms">
           <value type="string">INTEGER</value>
-        </value-->
+          <value type="string">INT4</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.bigint">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1630,7 +1640,10 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="list" content-type="string" key="synonyms">
+          <value type="string">INT8</value>
+		  <value type="string">SERIAL</value> <!-- Actually, SERIAL is an alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE -->
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.float">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1647,9 +1660,25 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">30</value>
         <value type="int" key="parameterFormatType">6</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms">
+        <value type="list" content-type="string" key="synonyms">
           <value type="string">FLOAT4</value>
-        </value-->
+        </value>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.real">
+        <value type="int" key="characterMaximumLength">0</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+          <value type="string">UNSIGNED</value>
+          <value type="string">ZEROFILL</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.numeric</link>
+        <value type="string" key="name">REAL</value>
+        <value type="int" key="numericPrecision">53</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">30</value>
+        <value type="int" key="parameterFormatType">5</value>
+        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.double">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1666,7 +1695,9 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">30</value>
         <value type="int" key="parameterFormatType">5</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="list" content-type="string" key="synonyms">
+          <value type="string">FLOAT8</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.decimal">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1683,10 +1714,10 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">30</value>
         <value type="int" key="parameterFormatType">6</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms">
-          <value type="string">DEC</value>
-          <value type="string">NUMERIC</value>
-        </value-->
+        <value type="list" content-type="string" key="synonyms">
+          <value type="string">FIXED</value>
+		  <value type="string">NUMERIC</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.char">
         <value type="int" key="characterMaximumLength">255</value>
@@ -1705,9 +1736,31 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms">
-          <value type="string">CHARACTER</value>
-        </value-->
+        <value type="list" content-type="string" key="synonyms">
+          <value type="string">NCHAR</value> <!-- nchar is char with utf8 charset -->
+		  <value type="string">NATIONAL CHAR</value>
+        </value>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.nchar">
+        <value type="int" key="characterMaximumLength">255</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+          <value type="string">BINARY</value>
+          <value type="string">UNICODE</value>
+          <value type="string">ASCII</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">CHAR</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">2</value>
+        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        <value type="list" content-type="string" key="synonyms">
+		  <value type="string">NATIONAL CHAR</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.varchar">
         <value type="int" key="characterMaximumLength">65535</value>
@@ -1726,7 +1779,33 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">1</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="list" content-type="string" key="synonyms">
+		  <value type="string">CHAR VARYING</value> <!-- CHARACTER is automatically mapped to CHAR -->
+        </value>
+      </value>
+      <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.nvarchar">
+        <value type="int" key="characterMaximumLength">65535</value>
+        <value type="int" key="characterOctetLength">0</value>
+        <value type="int" key="dateTimePrecision">0</value>
+        <value type="list" content-type="string" key="flags">
+          <value type="string">BINARY</value>
+          <value type="string">UNICODE</value>
+          <value type="string">ASCII</value>
+        </value>
+        <link type="object" key="group">com.mysql.rdbms.common.typegroup.string</link>
+        <value type="string" key="name">NVARCHAR</value>
+        <value type="int" key="numericPrecision">0</value>
+        <value type="int" key="numericPrecisionRadix">0</value>
+        <value type="int" key="numericScale">0</value>
+        <value type="int" key="needsQuotes">1</value>
+        <value type="int" key="parameterFormatType">1</value>
+        <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+        <value type="list" content-type="string" key="synonyms">
+		  <value type="string">NATIONAL VARCHAR</value>
+		  <value type="string">NCHAR VARCHAR</value>
+		  <value type="string">NATIONAL CHAR VARYING</value>
+		  <value type="string">NCHAR VARYING</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.binary">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1740,7 +1819,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.varbinary">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1754,7 +1832,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">1</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.tinytext">
         <value type="int" key="characterMaximumLength">255</value>
@@ -1771,7 +1848,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.text">
         <value type="int" key="characterMaximumLength">65535</value>
@@ -1790,7 +1866,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumtext">
         <value type="int" key="characterMaximumLength">-24</value>
@@ -1809,7 +1884,11 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="list" content-type="string" key="synonyms">
+		  <value type="string">LONG</value>
+          <value type="string">LONG VARCHAR</value>
+		  <value type="string">LONG CHAR VARYING</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.longtext">
         <value type="int" key="characterMaximumLength">-32</value>
@@ -1828,7 +1907,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.tinyblob">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1843,7 +1921,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="parameterFormatType">0</value>
         <value type="int" key="needsQuotes">1</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.blob">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1858,7 +1935,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="parameterFormatType">2</value>
         <value type="int" key="needsQuotes">1</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.mediumblob">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1873,7 +1949,9 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="parameterFormatType">0</value>
         <value type="int" key="needsQuotes">1</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
+        <value type="list" content-type="string" key="synonyms">
+          <value type="string">LONG VARBINARY</value>
+        </value>
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.longblob">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1935,7 +2013,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.time">
         <value type="string" key="validity">&lt;5.6</value>
@@ -1951,7 +2028,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.time_f">
         <value type="string" key="validity">&gt;=5.6</value>
@@ -1967,7 +2043,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.year">
         <value type="int" key="characterMaximumLength">0</value>
@@ -1981,7 +2056,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.timestamp">
         <value type="string" key="validity">&lt;5.6</value>
@@ -1997,7 +2071,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.timestamp_f">
         <value type="string" key="validity">&gt;=5.6</value>
@@ -2013,7 +2086,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.geometry">
         <value type="int" key="characterMaximumLength">0</value>
@@ -2027,7 +2099,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
 	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.point">
         <value type="int" key="characterMaximumLength">0</value>
@@ -2041,9 +2112,8 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.curve">
+	  <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.curve">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2055,8 +2125,7 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
+      </value-->
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.linestring">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
@@ -2069,9 +2138,8 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.surface">
+	  <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.surface">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2083,8 +2151,7 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
+      </value-->
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.polygon">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
@@ -2097,7 +2164,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
 	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.geometrycollection">
         <value type="int" key="characterMaximumLength">0</value>
@@ -2111,7 +2177,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multipoint">
         <value type="int" key="characterMaximumLength">0</value>
@@ -2125,9 +2190,8 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multicurve">
+	  <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multicurve">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2139,8 +2203,7 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
+      </value-->
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multilinestring">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
@@ -2153,9 +2216,8 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
-	  <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multisurface">
+	  <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multisurface">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
         <value type="int" key="dateTimePrecision">0</value>
@@ -2167,8 +2229,7 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
-      </value>
+      </value-->
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.multipolygon">
         <value type="int" key="characterMaximumLength">0</value>
         <value type="int" key="characterOctetLength">0</value>
@@ -2181,7 +2242,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">0</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.bit">
         <value type="int" key="characterMaximumLength">0</value>
@@ -2195,7 +2255,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="numericScale">0</value>
         <value type="int" key="parameterFormatType">2</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <!--value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.boolean">
         <value type="int" key="characterMaximumLength">0</value>
@@ -2226,7 +2285,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">10</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
       <value type="object" struct-name="db.SimpleDatatype" id="com.mysql.rdbms.mysql.datatype.set">
         <value type="int" key="characterMaximumLength">0</value>
@@ -2241,7 +2299,6 @@ Leave empty to include all the available groups.</value>
         <value type="int" key="needsQuotes">1</value>
         <value type="int" key="parameterFormatType">10</value>
         <link type="object" key="owner">com.mysql.rdbms.mysql</link>
-        <!--value type="list" content-type="string" key="synonyms"/-->
       </value>
     </value>
   </value>

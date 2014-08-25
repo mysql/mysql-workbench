@@ -513,7 +513,7 @@ std::string DbSqlEditorContextHelp::find_help_topic_from_position(const SqlEdito
   // syntax errors. So we check first these special cases if we can solve them by
   // parsing. If not we continue with our normal strategy.
   MySQLRecognizer recognizer(form->server_version(), form->sql_mode(), form->valid_charsets());
-  recognizer.parse(query.c_str(), query.length(), true, QtUnknown);
+  recognizer.parse(query.c_str(), query.length(), true, PuGeneric);
   MySQLRecognizerTreeWalker walker = recognizer.tree_walker();
   bool found_token = walker.advance_to_position((int)caret.second, (int)caret.first);
   if (found_token && recognizer.has_errors())

@@ -1645,9 +1645,11 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
   schema->routines().insert(routine);
 
   std::string previous_sql_mode;
+  std::string sql_mode = _owner->work_parser_context()->get_sql_mode();
   if (!script.first.empty())
   {
-    previous_sql_mode = _owner->work_parser_context()->get_sql_mode();
+    previous_sql_mode = sql_mode;
+    sql_mode = script.first;
     _owner->work_parser_context()->use_sql_mode(script.first);
   }
 
@@ -1665,7 +1667,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
     return "";
   }
 
-  ExecuteRoutineWizard wizard(routine);
+  ExecuteRoutineWizard wizard(routine, sql_mode);
   wizard.center();
   return wizard.run();
 }
