@@ -106,6 +106,7 @@ def importRecordsetDataFromFile(resultset):
                             resultset.setFloatFieldValue(column, value)
                         else:
                             resultset.setFieldNull(column)
+                resultset.addNewRow() # needed in Windows to refresh display for last row
     return 0
 
 
