@@ -61,6 +61,19 @@ void workbench_physical_TableFigure::ImplData::update_options(const std::string 
   {
     if (_figure)
       sync_columns();
+
+    if (key == "workbench.physical.TableFigure:ShowSchemaName")
+    {
+      if (self()->owner()->owner()->get_data()->get_int_option("workbench.physical.TableFigure:ShowSchemaName", 0)!=0)
+      {
+        std::string title = *self()->_table->owner()->name();
+        title += ".";
+        title += *self()->_table->name();
+        _figure->get_title()->set_title(title);
+      }
+      else
+        _figure->get_title()->set_title(*self()->_table->name());
+    }
   }
 }
 

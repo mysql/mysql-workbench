@@ -120,7 +120,7 @@
               <member name="locked" type="int" attr:editas="bool"/>
               <member name="top" type="real"/>
               <member name="width" type="real"/>
-              <member name="manualSizing" type="int" attr:desc="manually resize object" attr:editas="bool" />
+              <member name="manualSizing" type="int" attr:desc="manually resize object" attr:editas="hide" />
               <member name="color" type="string" delegate-set="1" attr:desc="color style name for the figure" attr:editas="color"/>
           </members>
       </gstruct>

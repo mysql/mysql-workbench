@@ -223,7 +223,7 @@ public:
   }
   
 
-  void add_entry_option(const std::string &option, const std::string &caption, const std::string &tooltip)
+  mforms::TextEntry *add_entry_option(const std::string &option, const std::string &caption, const std::string &tooltip)
   {
     _table.set_row_count(++_rows);
 
@@ -234,14 +234,16 @@ public:
     TableItemFlags descriptionFlags = mforms::HFillFlag;
     bool right_aligned = false;
 #else
-    TableItemFlags descriptionFlags = mforms::HFillFlag | mforms::HExpandFlag;
+    TableItemFlags descriptionFlags = mforms::HFillFlag;
     bool right_aligned = true;
 #endif
 
     mforms::Label* label = new_label(caption, right_aligned);
     _table.add(label, 0, 1, _rows-1, _rows, descriptionFlags);
-    label->set_size(170, -1);
+//    label->set_size(180, -1);
     _table.add(entry, 1, 2, _rows-1, _rows, mforms::HFillFlag);
+
+    return entry;
   }
 
   mforms::CheckBox *add_checkbox_option(const std::string &option, const std::string &caption, const std::string &tooltip)
@@ -252,12 +254,7 @@ public:
     cb->set_text(caption);
     cb->set_tooltip(tooltip);
     
-#ifdef _WIN32
-    int start_column = 0;
-#else
-    int start_column = 1;
-#endif
-    _table.add(cb, start_column, 3, _rows - 1, _rows, mforms::HFillFlag);
+    _table.add(cb, 0, 3, _rows - 1, _rows, mforms::HFillFlag);
     
     return cb;
   }
@@ -855,27 +852,20 @@ mforms::View *PreferencesForm::create_sqlide_page()
   }
 
   {
-    OptionTable *otable = new OptionTable(this, _("MySQL Session"), true);
+    OptionTable *otable = new OptionTable(this, _("MySQL Session"), false);
+    mforms::TextEntry *entry;
 
-    otable->add_entry_option("DbSqlEditor:KeepAliveInterval",
+    entry = otable->add_entry_option("DbSqlEditor:KeepAliveInterval",
                              _("DBMS connection keep-alive interval (in seconds):"),
                              _("Time interval between sending keep-alive messages to DBMS.\n"
                                "Set to 0 to not send keep-alive messages."));
+    entry->set_size(80, -1);
 
-    otable->add_entry_option("DbSqlEditor:ReadTimeOut",
+    entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut",
                              _("DBMS connection read time out (in seconds):"),
                              _("Max time the a query can take to return data from the DBMS"));
-
-    otable->add_checkbox_option("DbSqlEditor:SafeUpdates", _("\"Safe Updates\". Forbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause. Requires a reconnection."),
-                                _(
-                                  "Enables the SQL_SAFE_UPDATES option for the session.\n"
-                                  "If enabled, MySQL aborts UPDATE or DELETE statements\n"
-                                  "that do not use a key in the WHERE clause or a LIMIT clause.\n"
-                                  "This makes it possible to catch UPDATE or DELETE statements\n"
-                                  "where keys are not used properly and that would probably change\n"
-                                  "or delete a large number of rows. \n"
-                                  "Changing this option requires a reconnection (Query -> Reconnect to Server)"));
-
+    entry->set_size(80, -1);
+    box->add(otable, false, true);
   }
 
   {
@@ -888,6 +878,18 @@ mforms::View *PreferencesForm::create_sqlide_page()
 
       otable->add_option(entry, _("Internal Workbench Schema:"),
                          _("This schema will be used by Workbench.\nto store information required on\ncertain operations."));
+    }
+
+    {
+      otable->add_checkbox_option("DbSqlEditor:SafeUpdates",
+                                  _("\"Safe Updates\".\nForbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause.\nRequires a reconnection."),
+                                  _("Enables the SQL_SAFE_UPDATES option for the session.\n"
+                                    "If enabled, MySQL aborts UPDATE or DELETE statements\n"
+                                    "that do not use a key in the WHERE clause or a LIMIT clause.\n"
+                                    "This makes it possible to catch UPDATE or DELETE statements\n"
+                                    "where keys are not used properly and that would probably change\n"
+                                    "or delete a large number of rows. \n"
+                                    "Changing this option requires a reconnection (Query -> Reconnect to Server)"));
     }
 
     box->add(otable, false, true);
@@ -905,17 +907,17 @@ mforms::View *PreferencesForm::create_general_editor_page()
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("SQL Parsing in Code Editors"));
     box->add(frame, false);
-    
+
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
     vbox->set_padding(8);
     vbox->set_spacing(8);
     frame->add(vbox);
-    
+
     {
       mforms::Box *tbox= mforms::manage(new mforms::Box(true));
       tbox->set_spacing(4);
       vbox->add(tbox, false);
-      
+
       tbox->add(new_label(_("Default SQL_MODE for syntax checker:"), true), false, false);
       mforms::TextEntry *entry= new_entry_option("SqlMode", false);
       entry->set_tooltip(_(
