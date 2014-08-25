@@ -18,6 +18,9 @@
  */
 
 #include "mforms/mforms.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN("mforms");
 
 using namespace mforms;
 
@@ -203,8 +206,16 @@ void ToolBarItem::set_selector_items(const std::vector<std::string>& values)
 
 void ToolBarItem::callback()
 {
-  if (!_updating)
-    _clicked_signal(this);
+  try
+  {
+    if (!_updating)
+      _clicked_signal(this);
+  }
+  catch (std::exception &exc)
+  {
+    log_error("Unhandled exception in toolbar callback for %s: %s\n", _name.c_str(), exc.what());
+    mforms::Utilities::show_error("Unhandled Exception", exc.what(), "OK");
+  }
 }
 
 void ToolBarItem::validate()

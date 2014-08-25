@@ -893,7 +893,10 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
 
 double Utilities::get_text_width(const std::string &text, const std::string &font)
 {
-  return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
+  if (ControlFactory::get_instance()->_utilities_impl.get_text_width)
+    return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
+  else
+    return text.length() * 20; // temporary hardcoded until implemented in Windows and Linux
 }
 
 //--------------------------------------------------------------------------------------------------

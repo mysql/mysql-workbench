@@ -42,8 +42,6 @@ namespace mforms
   IBOutlet WBSplitView* mView;
   IBOutlet WBSplitView* mWorkView;
 
-  IBOutlet NSSplitView* mSidebarSplit;
-
   IBOutlet WBMiniToolbar* mOutputToolbar;
   IBOutlet NSTabView* mOutputTabView;
   IBOutlet NSPopUpButton* mOutputSelector;
