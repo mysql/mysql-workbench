@@ -41,8 +41,6 @@
   mLastSecondarySidebarWidth = MAX(grtm->get_app_option_int(mOptionName+":SecondarySidebarWidth", 220), 100);
   mLastSidebarWidth = MAX(grtm->get_app_option_int(mOptionName+":SidebarWidth", 220), MIN_SIDEBAR_WIDTH);
 
-  NSLog(@"left = %f, right = %f", mLastSidebarWidth, mLastSecondarySidebarWidth);
-
   if (mSidebarHidden)
   {
     if (mSidebarAtRight)

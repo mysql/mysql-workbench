@@ -558,11 +558,14 @@ void SqlEditorForm::save_workspace_order(const std::string &prefix)
 
   order_file.open(bec::make_path(prefix, "tab_order").c_str(), std::ofstream::out);
 
-  for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+  if (_tabdock)
   {
-    SqlEditorPanel *editor = sql_editor_panel(i);
-    if (editor)
-      order_file << editor->autosave_file_suffix() << "\n";
+    for (int c = _tabdock->view_count(), i = 0; i < c; i++)
+    {
+      SqlEditorPanel *editor = sql_editor_panel(i);
+      if (editor)
+        order_file << editor->autosave_file_suffix() << "\n";
+    }
   }
 }
 
