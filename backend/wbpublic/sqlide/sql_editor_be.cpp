@@ -931,7 +931,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
   d->split_statements_if_required();
   
   // Start tasks that depend on the statement ranges (markers + auto completion).
-  mforms::Utilities::perform_from_main_thread(boost::bind(&MySQLEditor::splitting_done, this), false);
+  d->_grtm->run_once_when_idle(this, boost::bind(&MySQLEditor::splitting_done, this));
 
   if (d->_stop_processing)
     return false;
@@ -954,7 +954,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
     }
   }
 
-  mforms::Utilities::perform_from_main_thread(boost::bind(&MySQLEditor::update_error_markers, this), false);
+  d->_grtm->run_once_when_idle(this, boost::bind(&MySQLEditor::update_error_markers, this));
 
   return false;
 }
