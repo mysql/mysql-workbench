@@ -32,15 +32,24 @@ is_library = True
 
 
 
-def call_system(command, spawn):
+def call_system(command, spawn, output_handler = None):
     result = 0
 
     logging.info('Executing command: %s' % command)
-    child = subprocess.Popen(command, bufsize=0, close_fds=True, shell=True, preexec_fn=os.setpgrp)
 
+    if spawn or output_handler is None:
+        child = subprocess.Popen(command, bufsize=0, close_fds=True, shell=True, preexec_fn=os.setpgrp)
+    else:
+        child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
+        
     if not spawn:
+        if output_handler:
+            for line in iter(child.stdout.readline, ""):
+                output_handler(line)
+
         child.wait()
-        result = result = child.returncode
+        
+        result = child.returncode
 
     return result
 
@@ -287,6 +296,31 @@ class MEBBackup(MEBCommand):
             self.backup_dir = os.path.join(self.backup_dir, target_folder)
             self.log_path = self.backup_dir + '.log'
         
+    def check_version_at_least(self, major, minor, revno):
+        output = StringIO.StringIO()
+        
+        ret_val = call_system("%s --version" % self.command, False, output.write)
+        
+        if ret_val == 0:
+            tokens = output.getvalue().strip().split()
+
+            version = ""
+            found_major = 0
+            found_minor = 0
+            found_revno = 0
+            
+            for token in tokens:
+                if token == 'version':
+                    version = 'found'
+                else:
+                    if version == 'found':
+                        version = token
+                        version_tokens = version.split('.')
+                        found_major = int(version_tokens[0])
+                        found_minor = int(version_tokens[1])
+                        found_revno = int(version_tokens[2])
+                        
+            return  (found_major, found_minor, found_revno) >= (major, minor, revno)
 
     def prepare_command(self):
         ret_val = True
@@ -294,16 +328,20 @@ class MEBBackup(MEBCommand):
 
         # Adds the compress parameter if needed
         if self.compress:
-            # lz4 is the default so id it is selected only sets the --compress option
-            if self.compress_method == 'lz4':
-                self.command_call += " --compress"
-             # Otherwise using --compress-method makes --compress to be not needed
-            else:
-                self.command_call += " --compress-method=%s" % self.compress_method
+        
+            if self.check_version_at_least(3, 10, 0):
+                # lz4 is the default so id it is selected only sets the --compress option
+                if self.compress_method == 'lz4':
+                    self.command_call += " --compress"
+                 # Otherwise using --compress-method makes --compress to be not needed
+                else:
+                    self.command_call += " --compress-method=%s" % self.compress_method
 
-                # Level is only specified if not using the default value
-                if self.compress_level != '1':
-                    self.command_call += " --compress-level=%s" % self.compress_level
+                    # Level is only specified if not using the default value
+                    if self.compress_level != '1':
+                        self.command_call += " --compress-level=%s" % self.compress_level
+            else:
+                self.command_call += " --compress"
 
 
         # Get the right path parameter, path and running type 
