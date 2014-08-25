@@ -216,7 +216,7 @@ char *str_toupper(char *str)
 
   while (*s)
   {
-    *s= toupper(*s);
+    *s= (char)toupper(*s);
     s++;
   }
   return str;

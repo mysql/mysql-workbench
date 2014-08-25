@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -238,7 +238,7 @@
   }
   
   [mLeftArrow setEnabled: show && (mLastSelectedTabIndex > 0)];
-  [mRightArrow setEnabled: show && (mLastSelectedTabIndex < [mTabItems count] - 1)];
+  [mRightArrow setEnabled: show && (mLastSelectedTabIndex < (NSInteger)[mTabItems count] - 1)];
 }
 
 
@@ -342,7 +342,7 @@
   }
   
   // Adjust the scroll offset if the selected tab is not fully visible.
-  if ( (mLastSelectedTabIndex != NSNotFound) && (mLastSelectedTabIndex < [mTabItems count]) ) {
+  if ( (mLastSelectedTabIndex != NSNotFound) && (mLastSelectedTabIndex < (NSInteger)[mTabItems count]) ) {
     WBTabItem* item = [mTabItems objectAtIndex: mLastSelectedTabIndex];
     float tabLeftX = [[offsetLeftEdges objectAtIndex: mLastSelectedTabIndex] floatValue];
     float tabRightX = tabLeftX + [item frame].size.width;
@@ -438,7 +438,7 @@
     if ([[item identifier] isEqual: identifier]) {
       [[NSAnimationContext currentContext] setDuration: 0.0];
       
-      int index = [mTabItems indexOfObject: item];
+      NSInteger index = [mTabItems indexOfObject: item];
       [[item retain] autorelease];
       [item removeFromSuperlayer];
       [mTabItems removeObject: item];
@@ -446,7 +446,7 @@
       if (mSelectedTab == item) {
         mSelectedTab = nil;
         WBTabItem* newTab = nil;
-        if (index == [mTabItems count]) {
+        if (index == (NSInteger)[mTabItems count]) {
           newTab = [mTabItems lastObject];
         }
         else {
@@ -682,7 +682,7 @@
   NSTabViewItem* item = [self selectedTabViewItem];
   NSInteger index = [self indexOfTabViewItem: item];
   index ++;
-  if (index < [mTabItems count]) {
+  if (index < (NSInteger)[mTabItems count]) {
     id identifier = [[mTabItems objectAtIndex: index] identifier];
     [self selectTabViewItemWithIdentifier: identifier];
   }
@@ -936,7 +936,7 @@
   }
   
   selectedIndex = MAX(selectedIndex, 0);
-  selectedIndex = MIN(selectedIndex, [mTabItems count] - 1);
+  selectedIndex = MIN(selectedIndex, (int)[mTabItems count] - 1);
   id selectedTabIdentifier = [[mTabItems objectAtIndex: selectedIndex] identifier];
   [[NSAnimationContext currentContext] setDuration: 0.0];
   [self selectTabViewItemWithIdentifier: selectedTabIdentifier];

@@ -575,8 +575,8 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
     return;
 
   /// Reorder the GRT lists
-  size_t from_index = grtobj()->queryEditors().get_index(panel->grtobj());
-  if (from_index == grt::BaseListRef::npos)
+  int from_index = (int)grtobj()->queryEditors().get_index(panel->grtobj());
+  if (from_index == (int)grt::BaseListRef::npos)
     log_fatal("Could not find reordered editor in GRT object list\n");
 
   // first build an array of result panel objects, in the same order as the tabview

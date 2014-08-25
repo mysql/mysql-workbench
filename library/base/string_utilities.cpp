@@ -1262,7 +1262,7 @@ std::string unescape_sql_string(const std::string &s, char quote_char)
         default: out = *ch; break;
       }
     }
-    result.push_back(out);
+    result.push_back((char)out);
   }
   return result;
 }
