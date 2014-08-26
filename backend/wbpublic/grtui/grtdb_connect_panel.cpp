@@ -613,6 +613,7 @@ void DbConnectPanel::save_connection_as(const std::string &name)
 bool DbConnectPanel::test_connection()
 {
   std::string message = "Connection parameters are correct";
+  bool failed = false;
   try
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
@@ -669,12 +670,16 @@ bool DbConnectPanel::test_connection()
 
       }
       else
+      {
         message = "Connection Failed";
+        failed = true;
+      }
     }
   }
   catch (const std::exception& e)
   {
     message = e.what();
+    failed = true;
   }
   
 
@@ -682,7 +687,7 @@ bool DbConnectPanel::test_connection()
   if (message != "Operation Cancelled")
   {
     std::string title;
-    if (message.length())
+    if (failed)
     {
       title = base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
        mforms::Utilities::show_error(title, message, "OK");
