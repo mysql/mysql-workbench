@@ -148,6 +148,7 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libwbpublic/d
   %filter_from_requires /libwbprivate/d
   %filter_from_requires /libwbscintilla/d
+  %filter_from_requires /libmysqlcppconn/d
   %{?commercial:%filter_from_requires /libsqlite3/d}
   %filter_setup
 }
