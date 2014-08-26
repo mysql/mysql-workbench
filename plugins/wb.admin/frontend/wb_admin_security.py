@@ -490,8 +490,8 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.schema_priv_selected()
         self._owner.set_dirty()
         
-        self.add_button.set_enabled(True)
-        self.del_button.set_enabled(True)
+        self.add_entry_button.set_enabled(True)
+        self.del_entry_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
 
 
