@@ -1268,7 +1268,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
           _connection_info.append(create_html_line("Current User:", rs->getString(1)));
       }
 
-      _connection_info.append(create_html_line("SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Enabled using "+_usr_dbc_conn->ssl_cipher));
+      _connection_info.append(create_html_line("SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Using "+_usr_dbc_conn->ssl_cipher));
 
       // get lower_case_table_names value
       std::string value;
