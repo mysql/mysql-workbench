@@ -806,7 +806,7 @@ void SpatialDataView::handle_click(base::Point p)
   _viewer->clear_pins();
   if (layer)
   {
-    spatial::Feature *feature = layer->feature_closest(p - _viewer->offset());
+    spatial::Feature *feature = layer->feature_closest(_viewer->transform_point(p));
     if (feature)
     {
       int row_id = feature->row_id();
