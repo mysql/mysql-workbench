@@ -2362,6 +2362,8 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
         }
         break;
       }
+    default:
+      break;
     }
   }
 }
