@@ -1235,6 +1235,9 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
     if (position > _splitter.get_height()-100)
       position = _splitter.get_height()-100;
     _splitter.set_position(position);
+
+    // scroll the editor to make the cursor visible
+    _editor->get_editor_control()->set_caret_pos(_editor->get_editor_control()->get_caret_pos());
   }
 }
 
