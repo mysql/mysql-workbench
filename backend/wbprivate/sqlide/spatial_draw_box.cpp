@@ -607,7 +607,7 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
     set_needs_repaint();
   }
 
-  position_changed_cb(base::Point(x - _offset_x, y - _offset_y));
+  position_changed_cb(base::Point(x, y));
 
   return true;
 }
@@ -736,24 +736,28 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
   }
 }
 
-bool SpatialDrawBox::screen_to_world(int x, int y, double &lat, double &lon)
+bool SpatialDrawBox::screen_to_world(const int &x, const int &y, double &lat, double &lon)
 {
   if (_spatial_reprojector)
   {
 //     TODO check if x, y are inside the world image
 //    if (x >= _offset_x && y >= _offset_y) <- this is not working when we do rectangular zoom
-    return _spatial_reprojector->to_latlon(x - _offset_x, y - _offset_y, lat, lon);
+    return _spatial_reprojector->to_latlon((x - _offset_x) / _zoom_level, (y - _offset_y) / _zoom_level, lat, lon);
   }
   return false;
 }
 
-void SpatialDrawBox::world_to_screen(double lat, double lon, int &x, int &y)
+void SpatialDrawBox::world_to_screen(const double &lat, const double &lon, int &x, int &y)
 {
   if (_spatial_reprojector)
   {
     _spatial_reprojector->from_latlon(lat, lon, x, y);
+    x *= _zoom_level;
+    y *= _zoom_level;
     x += _offset_x;
     y += _offset_y;
+
+
   }
 }
 
@@ -763,8 +767,16 @@ void SpatialDrawBox::clear_pins()
   set_needs_repaint();
 }
 
+base::Point SpatialDrawBox::transform_point(const base::Point &p)
+{
+  base::Point out;
+  out.x = (p.x  - _offset_x)/ _zoom_level;
+  out.y = (p.y  - _offset_y) / _zoom_level;
+  return out;
+}
 
-void SpatialDrawBox::place_pin(cairo_surface_t *pin, base::Point p)
+
+void SpatialDrawBox::place_pin(cairo_surface_t *pin, const base::Point &p)
 {
   double lat, lon;
   screen_to_world(p.x, p.y, lat, lon);

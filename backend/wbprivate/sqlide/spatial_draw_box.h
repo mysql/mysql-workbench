@@ -163,9 +163,10 @@ public:
 
   base::Point offset() { return base::Point(_offset_x, _offset_y); }
 
-  bool screen_to_world(int x, int y, double &lat, double &lon);
-  void world_to_screen(double lat, double lon, int &x, int &y);
+  bool screen_to_world(const int &x, const int &y, double &lat, double &lon);
+  void world_to_screen(const double &lat, const double &lon, int &x, int &y);
 
+  base::Point transform_point(const base::Point &p);
   void clear_pins();
-  void place_pin(cairo_surface_t *pin, base::Point p);
+  void place_pin(cairo_surface_t *pin, const base::Point &p);
 };
