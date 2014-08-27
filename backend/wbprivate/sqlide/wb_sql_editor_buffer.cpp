@@ -518,7 +518,7 @@ void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
   if (_side_palette)
     _side_palette->cancel_timer();
 
-  if (!_closing)
+  if (!_closing && !_autosave_path.empty()) //if autosave_path is empty then it means we're not ready yet
   {
     panel->delete_auto_save(_autosave_path);
     save_workspace_order(_autosave_path);
