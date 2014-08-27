@@ -840,8 +840,8 @@ mforms::View *PreferencesForm::create_sqlide_page()
     
     {
       mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:ShowMetadataSchemata");
-      check->set_text(_("Show Data Dictionaries and Internal Schemas"));
-      check->set_tooltip(_("Whether to show data dictionaries/internal schemas in the schema tree "
+      check->set_text(_("Show Metadata and Internal Schemas"));
+      check->set_tooltip(_("Whether to show internal schemas in the schema tree "
         "(eg INFORMATION_SCHEMA, mysql and schemas starting with '.')."));
       vbox->add(check, false);
     }
