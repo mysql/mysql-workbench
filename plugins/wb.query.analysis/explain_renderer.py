@@ -429,7 +429,7 @@ class NestedLoopNode(ExplainNode):
 
 
     def get_read_eval_cost(self):
-        return float(self.child_below.cost_info.get("prefix_cost", 0))
+        return float(self.child_below.cost_info.get("prefix_cost", 0)) if self.child_below.cost_info else None
 
 
     def __repr__(self):
