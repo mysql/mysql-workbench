@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,7 +149,7 @@ namespace wb {
 
     void show_output();
     
-    void refresh_home_connections(bool initial_load = false, bool clear_state = true);
+    void refresh_home_connections(bool clear_state = true);
     void refresh_home_documents();
     void refresh_home_starters();
     bool home_screen_closing();
