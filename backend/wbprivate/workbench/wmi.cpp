@@ -183,7 +183,7 @@ WmiMonitor::WmiMonitor(IWbemServices* services, const std::string& parameter)
   hr = _refresher->QueryInterface(IID_IWbemConfigureRefresher, (void**) &config);
   if (FAILED(hr))
   {
-    log_error("QueryInterface for wbem configure refersher failed with error: %d\n", hr);
+    log_error("QueryInterface for wbem configure refresher failed with error: %d\n", hr);
 
     // _refersher is a smart pointer and is automatically freed.
     throw std::runtime_error(_("WMI - Could not create monitor object.\n\n") + wmiResultToString(hr));

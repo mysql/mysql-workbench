@@ -168,7 +168,7 @@ public:
       }
       catch (sql::SQLException &exc)
       {
-        log_error("Execption executing SQL code from GRT interface: %s\n", exc.what());
+        log_error("Exception executing SQL code from GRT interface: %s\n", exc.what());
       }
     }
     return result;
