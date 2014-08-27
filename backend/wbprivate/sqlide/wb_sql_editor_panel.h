@@ -145,10 +145,12 @@ public:
     std::string type;
     std::string title;
     std::string filename;
+    size_t first_visible_line;
+    size_t caret_pos;
     bool word_wrap;
     bool show_special;
 
-    AutoSaveInfo() : word_wrap(false), show_special(false) {}
+    AutoSaveInfo() : first_visible_line(0), caret_pos(0), word_wrap(false), show_special(false) {}
     AutoSaveInfo(const std::string &info_file);
 
     static AutoSaveInfo old_scratch(const std::string &scratch_file);

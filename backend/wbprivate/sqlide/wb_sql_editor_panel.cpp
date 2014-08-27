@@ -399,6 +399,10 @@ SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
       word_wrap = value == "1";
     else if (key == "show_special")
       show_special = value == "1";
+    else if (key == "first_visible_line")
+      first_visible_line = atoi(value.c_str());
+    else if (key == "caret_pos")
+      caret_pos = atoi(value.c_str());
   }
 }
 
@@ -474,6 +478,9 @@ bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info,
   item = get_toolbar()->find_item("query.toggleWordWrap");
   item->set_checked(info.word_wrap);
   (*item->signal_activated())(item);
+
+  _editor->get_editor_control()->set_caret_pos(info.caret_pos);
+  _editor->get_editor_control()->send_editor(SCI_SETFIRSTVISIBLELINE, info.first_visible_line, 0);
 
   return true;
 }
@@ -681,6 +688,13 @@ void SqlEditorPanel::auto_save(const std::string &path)
       f << "word_wrap=1\n";
     else
       f << "word_wrap=1\n";
+
+    size_t caret_pos = _editor->get_editor_control()->get_caret_pos();
+    f << "caret_pos=" << caret_pos << "\n";
+
+    size_t first_line = _editor->get_editor_control()->send_editor(SCI_GETFIRSTVISIBLELINE, 0, 0);
+    f << "first_visible_line=" << first_line << "\n";
+
     f.close();
   }
 

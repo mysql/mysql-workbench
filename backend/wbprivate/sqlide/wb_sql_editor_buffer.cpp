@@ -555,6 +555,10 @@ void SqlEditorForm::sql_editor_panel_switched()
 void SqlEditorForm::save_workspace_order(const std::string &prefix)
 {
   std::ofstream order_file;
+  if (prefix.empty())
+  {
+    log_error("save with empty path\n");
+  }
 
   order_file.open(bec::make_path(prefix, "tab_order").c_str(), std::ofstream::out);
 
@@ -622,8 +626,11 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to)
 
   grtobj()->queryEditors()->reorder(from_index, to_index);
 
-  /// Rename autosave files to keep the order
-  save_workspace_order(_autosave_path);
+  if (!_autosave_path.empty())
+  {
+    /// Rename autosave files to keep the order
+    save_workspace_order(_autosave_path);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

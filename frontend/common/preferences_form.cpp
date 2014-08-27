@@ -234,15 +234,20 @@ public:
     TableItemFlags descriptionFlags = mforms::HFillFlag;
     bool right_aligned = false;
 #else
-    TableItemFlags descriptionFlags = mforms::HFillFlag;
+    TableItemFlags descriptionFlags = mforms::HFillFlag|mforms::HExpandFlag;
     bool right_aligned = true;
 #endif
 
     mforms::Label* label = new_label(caption, right_aligned);
     _table.add(label, 0, 1, _rows-1, _rows, descriptionFlags);
 //    label->set_size(180, -1);
-    _table.add(entry, 1, 2, _rows-1, _rows, mforms::HFillFlag);
-
+    _table.add(entry, 1, 2, _rows-1, _rows, _help_column ? mforms::HFillFlag : mforms::HFillFlag|mforms::HExpandFlag);
+    if (_help_column)
+    {
+      label = new_label(tooltip);
+      label->set_style(mforms::SmallHelpTextStyle);
+      _table.add(label, 2, 3, _rows-1, _rows, mforms::HFillFlag|mforms::HExpandFlag);
+    }
     return entry;
   }
 
@@ -949,6 +954,17 @@ mforms::View *PreferencesForm::create_general_editor_page()
                            "SQL statement delimiter different from the normally used one (ie, shouldn't be ;). Change this only if the delimiter you normally use, specially in stored routines, happens to be the current setting."));
       tbox->add(entry, false, false);
     }
+  }
+
+  {
+    OptionTable *table;
+
+    table = mforms::manage(new OptionTable(this, _("Indentation"), true));
+    box->add(table, false, true);
+    table->add_checkbox_option("Editor:TabIndentSpaces", _("Tab key inserts spaces instead of tabs"), "Check if you want the tab key to indent using\nthe configured amount of spaces.");
+
+    table->add_entry_option("Editor:IndentWidth", "Indent width:", "How many spaces to insert when indenting with the tab key.");
+    table->add_entry_option("Editor:TabWidth", "Tab width:", "How many spaces wide are tab characters.");
   }
   return box;
 }

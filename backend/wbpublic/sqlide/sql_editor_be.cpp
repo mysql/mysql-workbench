@@ -248,6 +248,10 @@ MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref syntax_check_context,
   _editor_config = NULL;
   create_editor_config_for_version(version);
 
+  _code_editor->send_editor(SCI_SETTABWIDTH, d->_grtm->get_app_option_int("Editor:TabWidth", 4), 0);
+  _code_editor->send_editor(SCI_SETINDENT, d->_grtm->get_app_option_int("Editor:IndentWidth", 4), 0);
+  _code_editor->send_editor(SCI_SETUSETABS, !d->_grtm->get_app_option_int("Editor:TabIndentSpaces", 0), 0);
+
   scoped_connect(_code_editor->signal_changed(), boost::bind(&MySQLEditor::text_changed, this, _1, _2, _3, _4));
   scoped_connect(_code_editor->signal_char_added(), boost::bind(&MySQLEditor::char_added, this, _1));
   scoped_connect(_code_editor->signal_dwell(), boost::bind(&MySQLEditor::dwell_event, this, _1, _2, _3, _4));
