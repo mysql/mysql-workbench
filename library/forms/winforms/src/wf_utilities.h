@@ -117,6 +117,8 @@ namespace MySQL {
     private:
       static gcroot<DispatchControl ^> dispatcher;
 
+      static gcroot<Drawing::Font ^> last_font;
+
       static void load_passwords();
       static void unload_passwords(bool store);
     protected:
@@ -154,6 +156,8 @@ namespace MySQL {
 
       static void* perform_from_main_thread(const boost::function<void* ()> &slot, bool wait);
       static void set_thread_name(const std::string &name);
+
+      static double get_text_width(const std::string &text, const std::string &font);
     public:
       static Windows::Forms::Form^ get_mainform();
 
