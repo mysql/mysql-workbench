@@ -1656,6 +1656,11 @@ void WBContext::set_default_options(grt::DictRef options)
   
   set_default(options, "SqlEditor::SyntaxCheck::MaxErrCount", 100);
 
+  // All editors
+  set_default(options, "Editor:TabIndentSpaces", 0);
+  set_default(options, "Editor:TabWidth", 4);
+  set_default(options, "Editor:IndentWidth", 4);
+
   // DB SQL editor
   set_default(options, "DbSqlEditor:SchemaTreeRestoreState", 1);
   set_default(options, "DbSqlEditor:SidebarModeCombined", 1);

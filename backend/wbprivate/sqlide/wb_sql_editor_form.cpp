@@ -2805,6 +2805,8 @@ bool SqlEditorForm::save_snippet()
 
   _side_palette->refresh_snippets();
 
+  _grtm->run_once_when_idle(this, boost::bind(&QuerySidePalette::edit_last_snippet, _side_palette));
+
   return true;
 }
 

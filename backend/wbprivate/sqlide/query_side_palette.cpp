@@ -161,6 +161,20 @@ public:
     _context_menu->release();
   }
 
+
+  //------------------------------------------------------------------------------------------------
+
+  void edit_new_snippet()
+  {
+    if (!_snippets.empty())
+    {
+      _selected_index = _snippets.size()-1;
+      _selected_snippet = _snippets.back();
+      edit_snippet(_selected_snippet);
+      _snippet_popover->set_read_only(false);
+    }
+  }
+
   //------------------------------------------------------------------------------------------------
 
   std::string selected_category() { return model()->selected_category(); }
@@ -1047,4 +1061,12 @@ void QuerySidePalette::refresh_snippets()
     }
   }
   _snippet_list->refresh_snippets();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
+void QuerySidePalette::edit_last_snippet()
+{
+  _snippet_list->edit_new_snippet();
 }
