@@ -870,4 +870,85 @@ TEST_FUNCTION(42)
   ensure("TEST 42.7: Testing similar string", base::is_reserved_word("COLUM") == false);
   ensure("TEST 42.7: Testing duplicated string", base::is_reserved_word("COLUMNCOLUMN") == false);
 }
+
+TEST_FUNCTION(43)
+{
+  std::string font_description;
+  std::string font;
+  float size = 0;
+  bool bold = false;
+  bool italic = false;
+  
+  font_description = "Sans 10";
+  ensure_true(base::strfmt("TEST 43.1: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Sans");
+  ensure_equals("", size, 10);
+  assure_false(bold);
+  assure_false(italic);
+  
+  font_description = "Sans 12";
+  ensure_true(base::strfmt("TEST 43.2: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Sans");
+  ensure_equals("", size, 12);
+  assure_false(bold);
+  assure_false(italic);
+  
+  font_description = "Sans 10 bold";
+  ensure_true(base::strfmt("TEST 43.3: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Sans");
+  ensure_equals("", size, 10);
+  assure_true(bold);
+  assure_false(italic);
+  
+  font_description = "Sans 10 BOLD";
+  ensure_true(base::strfmt("TEST 43.4: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Sans");
+  ensure_equals("", size, 10);
+  assure_true(bold);
+  assure_false(italic);
+  
+  font_description = "Sans 10 italic";
+  ensure_true(base::strfmt("TEST 43.5: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Sans");
+  ensure_equals("", size, 10);
+  assure_false(bold);
+  assure_true(italic);
+  
+  font_description = "Sans 10 ITALIC";
+  ensure_true(base::strfmt("TEST 43.6: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Sans");
+  ensure_equals("", size, 10);
+  assure_false(bold);
+  assure_true(italic);
+  
+  font_description = "Sans 10 bold italic";
+  ensure_true(base::strfmt("TEST 43.7: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Sans");
+  ensure_equals("", size, 10);
+  assure_true(bold);
+  assure_true(italic);
+  
+  font_description = "Sans 10 BOLD ITALIC";
+  ensure_true(base::strfmt("TEST 43.8: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Sans");
+  ensure_equals("", size, 10);
+  assure_true(bold);
+  assure_true(italic);
+
+  font_description = "My Font 10 BOLD ITALIC";
+  ensure_true(base::strfmt("TEST 43.8: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "My Font");
+  ensure_equals("", size, 10);
+  assure_true(bold);
+  assure_true(italic);
+  
+  font_description = "Helvetica Bold 12";
+  ensure_true(base::strfmt("TEST 43.8: Parsing for \"%s\"", font_description.c_str()), base::parse_font_description(font_description, font, size, bold, italic));
+  ensure_equals("", font, "Helvetica");
+  ensure_equals("", size, 12);
+  assure_true(bold);
+  assure_false(italic);
+}
+
+
 END_TESTS
