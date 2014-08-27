@@ -66,9 +66,12 @@ void maximize_children(ControlList% list, bool horizontal, Size containerSize, i
       ViewWrapper::remove_auto_resize(entry->control, AutoResizeMode::ResizeHorizontal);
       entry->bounds.X = padding;
 
-      // Determine the preferred size based on the new width (for labels, as they can be in auto wrap mode).
+      // For labels determine the preferred height based on the new width (as they can be in auto wrap mode).
       if (is<WrapControlLabel>(entry->control))
-        entry->bounds.Size = entry->control->GetPreferredSize(Size(containerSize.Width, 0));
+      {
+        Size size = entry->control->GetPreferredSize(Size(containerSize.Width, 0));
+        entry->bounds.Size = Size(containerSize.Width, size.Height);
+      }
       else
         entry->bounds.Width = containerSize.Width;
     };
