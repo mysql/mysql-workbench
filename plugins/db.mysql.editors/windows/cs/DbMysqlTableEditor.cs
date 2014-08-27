@@ -524,12 +524,27 @@ namespace MySQL.GUI.Workbench.Plugins
       }
     }
 
-    private void nameTextBox_TextChanged(object sender, EventArgs e)
+    private void nameTextBox_KeyPress(object sender, KeyPressEventArgs e)
     {
-      if (!InitializingControls && !nameTextBox.Text.Equals(tableEditorBE.get_name()))
-        tableEditorBE.set_name(nameTextBox.Text);
+      if (e.KeyChar == '\r')
+      {
+        if (!nameTextBox.Text.Equals(tableEditorBE.get_name()))
+        {
+          tableEditorBE.set_name(nameTextBox.Text);
+          TabText = tableEditorBE.get_title();
+        }
 
-      TabText = tableEditorBE.get_title();
+        e.Handled = true;
+      }
+    }
+
+    private void nameTextBox_Leave(object sender, EventArgs e)
+    {
+      if (!nameTextBox.Text.Equals(tableEditorBE.get_name()))
+      {
+        tableEditorBE.set_name(nameTextBox.Text);
+        TabText = tableEditorBE.get_title();
+      }
     }
 
     private void commentsTextBox_TextChanged(object sender, EventArgs e)

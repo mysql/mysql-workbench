@@ -963,12 +963,10 @@ bool MySQLEditor::do_statement_split_and_check(int id)
 
 /**
  * Updates the statement markup and starts auto completion if enabled. This is called in the
- * context of the main thread by the worker thread.
+ * context of the main thread.
  */
 void* MySQLEditor::splitting_done()
 {
-  // No locking needed here for the range vector as we are being called from the thread that
-  // modifies it.
   std::set<size_t> removal_candidates;
   std::set<size_t> insert_candidates;
 
