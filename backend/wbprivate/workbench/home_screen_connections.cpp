@@ -1162,36 +1162,25 @@ public:
 
   virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
-    int created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
+    owner->_owner->trigger_callback(ActionUpdateFabricConnections, connection);
 
-    if (created_connections)
+    // the connection recreation may recreate the entry objects, so we need a fresh pointer
+    ConnectionsSection::ConnectionVector conns(owner->displayed_connections());
+    bool flag = false;
+    for (ConnectionsSection::ConnectionVector::iterator iter = conns.begin(); iter != conns.end(); ++iter)
     {
-      owner->_entry_for_menu = thisptr;
-      owner->handle_folder_command("internal_delete_connection_group", true);
-    }
-
-    owner->_owner->trigger_callback(ActionCreateFabricConnections, connection);
-    created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
-    if (created_connections)
-    {
-      // the connection recreation may recreate the entry objects, so we need a fresh pointer
-      ConnectionsSection::ConnectionVector conns(owner->displayed_connections());
-      bool flag = false;
-      for (ConnectionsSection::ConnectionVector::iterator iter = conns.begin(); iter != conns.end(); ++iter)
+      if ((*iter)->connection == connection)
       {
-        if ((*iter)->connection == connection)
-        {
-          flag = true;
-          owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(*iter));
-          break;
-        }
+        flag = true;
+        owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(*iter));
+        break;
       }
-      if (!flag)
-        log_error("Could not find fabric node '%s' object after refresh\n", connection->name().c_str());
-
-      // force a refresh of the hot_entry even if we don't move the mouse after clicking
-      owner->mouse_move(mforms::MouseButtonNone, x, y);
     }
+    if (!flag)
+      log_error("Could not find fabric node '%s' object after refresh\n", connection->name().c_str());
+
+    // force a refresh of the hot_entry even if we don't move the mouse after clicking
+    owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
 
   virtual mforms::Menu *context_menu()
@@ -2097,7 +2086,28 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
         if (FabricFolderEntry *folder = dynamic_cast<FabricFolderEntry*>(iterator->get()))
         {
           found_parent = true;
-          folder->children.push_back(entry);
+          std::vector<boost::shared_ptr<ConnectionEntry> >::iterator index, end;
+          index = folder->children.begin(); 
+          end = folder->children.end();
+
+          // Skips the back and server tiles
+          index++;
+          index++;
+
+          std::string key = base::strfmt("%s-%s", entry->section_name().c_str(), entry->title.c_str());
+          bool found = false;
+
+          while (index != end && !found)
+          {
+            std::string existing_key = base::strfmt("%s-%s", (*index)->section_name().c_str(), (*index)->title.c_str());
+
+            found = key < existing_key;
+              
+            if (!found)
+              index++;
+          }
+
+          folder->children.insert(index, entry);
           folder->total_instances++;
           folder->groups.insert(entry->section_name());
           break;

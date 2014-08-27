@@ -719,8 +719,7 @@ void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
   if (!connection.is_valid())
     connection = _anonymous_connection;
   else if (connection->parameterValues().has_key("fabric_managed"))
-    _warning.set_text(_("This is a fabric managed connection, changes done on it will be lost once Workbench restarts.\n"
-                        "To make the changes permanent please duplicate the connection and do the changes there."));
+    _warning.set_text(_("This is a fabric managed connection"));
 
   db_mgmt_DriverRef driver = connection->driver();
   if (!driver.is_valid())
