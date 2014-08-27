@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,10 +48,12 @@ namespace MySQL.GUI.Workbench
 			wbContext = context;
 
       TreeViewAdv catalogTree = wbContext.get_catalog_tree();
+      catalogTree.ShowNodeToolTips = true;
       headerPanel1.Controls.Add(catalogTree);
       headerPanel1.Controls.SetChildIndex(catalogTree, 0);
       catalogTree.Dock = DockStyle.Fill;
-		}
+
+    }
 
     public void UpdateColors()
     {

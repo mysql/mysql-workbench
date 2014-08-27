@@ -436,21 +436,4 @@ namespace MySQL.GUI.Workbench
     }
   }
 
-  public class TreeModelTooltipProvider : IToolTipProvider
-  {
-    public int TooltipColumn;
-    public MySQL.Grt.TreeModelWrapper Model;
-
-    public string GetToolTip(TreeNodeAdv node, NodeControl nodeControl)
-    {
-      GrtTreeNode grtNode = node.Tag as GrtTreeNode;
-      if (null != grtNode)
-      {
-        string tooltip;
-        Model.get_field(grtNode.NodeId, TooltipColumn, out tooltip);
-        return tooltip;
-      }
-      return "";
-    }
-  }
 }
