@@ -248,6 +248,21 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
 
   _dbc_auth = sql::Authentication::create(_connection, "");
 
+  // initialize the password with a cached value
+  {
+    std::string password;
+    bool ok = true;
+    if (!mforms::Utilities::find_password(conn->hostIdentifier(),
+                                          conn->parameterValues().get_string("userName"),
+                                          password))
+      if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
+                                                   conn->parameterValues().get_string("userName"),
+                                                   password))
+        ok = false;
+    if (ok)
+      _dbc_auth->set_password(password.c_str());
+  }
+
   exec_sql_task->send_task_res_msg(false);
   exec_sql_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, this, _1, _2, _3, ""));
 

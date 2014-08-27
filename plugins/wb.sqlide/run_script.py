@@ -148,9 +148,12 @@ class RunPanel(mforms.Table):
         if not pwd:
             username = parameterValues["userName"]
             host = self.editor.connection.hostIdentifier
-            accepted, pwd = mforms.Utilities.find_or_ask_for_password("Run SQL Script", host, username, False)
-            if not accepted:
-                return
+
+            ok, pwd = mforms.Utilities.find_cached_password(host, username)
+            if not ok:
+                accepted, pwd = mforms.Utilities.find_or_ask_for_password("Run SQL Script", host, username, False)
+                if not accepted:
+                    return
         self.importer.set_password(pwd)
 
         self._worker = Thread(target = self.work, args = (what, default_db, default_charset))
