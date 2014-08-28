@@ -916,7 +916,7 @@ double UtilitiesImpl::get_text_width(const std::string &text, const std::string 
     return 0;
   }
   
-  if (FontMeasurementDescriptors[font] == NULL)
+  if (FontMeasurementDescriptors.find(font) == FontMeasurementDescriptors.end())
   {
     FontMeasurement *font_measurement = new FontMeasurement;
     
