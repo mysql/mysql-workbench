@@ -208,6 +208,7 @@ void SnippetPopover::set_read_only(bool flag)
       _header->remove(_heading_label);
     if (!_header->contains_subview(_heading_entry))
       _header->add(_heading_entry, true, true);
+    _heading_entry->focus();
   }
   _editor->set_features(mforms::FeatureReadOnly, flag);
   _edit_button->set_enabled(flag);

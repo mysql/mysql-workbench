@@ -631,6 +631,11 @@
 		2B1AC774127F99C800AEC070 /* debug_step_out.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76F127F99C800AEC070 /* debug_step_out.png */; };
 		2B1AC775127F99C800AEC070 /* debug_stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC770127F99C800AEC070 /* debug_stop.png */; };
 		2B1ACD9D128853B500AEC070 /* debug_pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1ACD9C128853B500AEC070 /* debug_pause.png */; };
+		2B1BFF6019A00F2D00022FD8 /* spatial_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B1BFF5E19A00F2D00022FD8 /* spatial_handler.cpp */; };
+		2B1BFF6119A00F2D00022FD8 /* spatial_handler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1BFF5F19A00F2D00022FD8 /* spatial_handler.h */; };
+		2B1BFF6219A00F6B00022FD8 /* libgdal.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B83E5CE1992B5A100781432 /* libgdal.1.dylib */; };
+		2B1BFF6519A0251F00022FD8 /* geom_draw_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B1BFF6319A0251F00022FD8 /* geom_draw_box.cpp */; };
+		2B1BFF6619A0251F00022FD8 /* geom_draw_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1BFF6419A0251F00022FD8 /* geom_draw_box.h */; };
 		2B1C6DCC11B4439100D5169A /* record_fetch_next.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C6DC911B4439100D5169A /* record_fetch_next.png */; };
 		2B1C6DCD11B4439100D5169A /* record_fetch_prev.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C6DCA11B4439100D5169A /* record_fetch_prev.png */; };
 		2B1C6DCE11B4439100D5169A /* record_sort_reset.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C6DCB11B4439100D5169A /* record_sort_reset.png */; };
@@ -1678,8 +1683,6 @@
 		2B83E5C81992B54B00781432 /* spatial_data_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B83E5C21992B54B00781432 /* spatial_data_view.h */; };
 		2B83E5C91992B54B00781432 /* spatial_draw_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B83E5C31992B54B00781432 /* spatial_draw_box.cpp */; };
 		2B83E5CA1992B54B00781432 /* spatial_draw_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B83E5C41992B54B00781432 /* spatial_draw_box.h */; };
-		2B83E5CB1992B54B00781432 /* spatial_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B83E5C51992B54B00781432 /* spatial_handler.cpp */; };
-		2B83E5CC1992B54B00781432 /* spatial_handler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B83E5C61992B54B00781432 /* spatial_handler.h */; };
 		2B83E5CF1992B5A100781432 /* libgdal.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B83E5CE1992B5A100781432 /* libgdal.1.dylib */; };
 		2B83E5DE1992B6ED00781432 /* qe_sql-editor-tb-icon_zoom-area.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5D01992B6ED00781432 /* qe_sql-editor-tb-icon_zoom-area.png */; };
 		2B83E5DF1992B6ED00781432 /* qe_sql-editor-tb-icon_zoom-area@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B83E5D11992B6ED00781432 /* qe_sql-editor-tb-icon_zoom-area@2x.png */; };
@@ -4457,6 +4460,10 @@
 		2B1AC76F127F99C800AEC070 /* debug_step_out.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_step_out.png; path = images/toolbar/debug_step_out.png; sourceTree = "<group>"; };
 		2B1AC770127F99C800AEC070 /* debug_stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_stop.png; path = images/toolbar/debug_stop.png; sourceTree = "<group>"; };
 		2B1ACD9C128853B500AEC070 /* debug_pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = debug_pause.png; path = images/toolbar/debug_pause.png; sourceTree = "<group>"; };
+		2B1BFF5E19A00F2D00022FD8 /* spatial_handler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = spatial_handler.cpp; sourceTree = "<group>"; };
+		2B1BFF5F19A00F2D00022FD8 /* spatial_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spatial_handler.h; sourceTree = "<group>"; };
+		2B1BFF6319A0251F00022FD8 /* geom_draw_box.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = geom_draw_box.cpp; sourceTree = "<group>"; };
+		2B1BFF6419A0251F00022FD8 /* geom_draw_box.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geom_draw_box.h; sourceTree = "<group>"; };
 		2B1C6DC911B4439100D5169A /* record_fetch_next.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = record_fetch_next.png; path = images/toolbar/record_fetch_next.png; sourceTree = "<group>"; };
 		2B1C6DCA11B4439100D5169A /* record_fetch_prev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = record_fetch_prev.png; path = images/toolbar/record_fetch_prev.png; sourceTree = "<group>"; };
 		2B1C6DCB11B4439100D5169A /* record_sort_reset.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = record_sort_reset.png; path = images/toolbar/record_sort_reset.png; sourceTree = "<group>"; };
@@ -5587,8 +5594,6 @@
 		2B83E5C21992B54B00781432 /* spatial_data_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_data_view.h; path = backend/wbprivate/sqlide/spatial_data_view.h; sourceTree = "<group>"; };
 		2B83E5C31992B54B00781432 /* spatial_draw_box.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_draw_box.cpp; path = backend/wbprivate/sqlide/spatial_draw_box.cpp; sourceTree = "<group>"; };
 		2B83E5C41992B54B00781432 /* spatial_draw_box.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_draw_box.h; path = backend/wbprivate/sqlide/spatial_draw_box.h; sourceTree = "<group>"; };
-		2B83E5C51992B54B00781432 /* spatial_handler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_handler.cpp; path = backend/wbprivate/sqlide/spatial_handler.cpp; sourceTree = "<group>"; };
-		2B83E5C61992B54B00781432 /* spatial_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_handler.h; path = backend/wbprivate/sqlide/spatial_handler.h; sourceTree = "<group>"; };
 		2B83E5CE1992B5A100781432 /* libgdal.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.1.dylib; path = "../mysql-mac-res/lib/libgdal.1.dylib"; sourceTree = "<group>"; };
 		2B83E5D01992B6ED00781432 /* qe_sql-editor-tb-icon_zoom-area.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_zoom-area.png"; path = "images/sql/qe_sql-editor-tb-icon_zoom-area.png"; sourceTree = "<group>"; };
 		2B83E5D11992B6ED00781432 /* qe_sql-editor-tb-icon_zoom-area@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qe_sql-editor-tb-icon_zoom-area@2x.png"; path = "images/sql/qe_sql-editor-tb-icon_zoom-area@2x.png"; sourceTree = "<group>"; };
@@ -6592,6 +6597,7 @@
 				2BC0883E1465B56E00CB84D6 /* libctemplate.dylib in Frameworks */,
 				27E0E18415516CB10073FD6F /* mysql.parser.dylib in Frameworks */,
 				2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */,
+				2B1BFF6219A00F6B00022FD8 /* libgdal.1.dylib in Frameworks */,
 				2BC929AA171831D600D5BCAD /* Python in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7543,6 +7549,8 @@
 		2B03B5B7116CBFA5009987BE /* Blob Editor */ = {
 			isa = PBXGroup;
 			children = (
+				2B1BFF6319A0251F00022FD8 /* geom_draw_box.cpp */,
+				2B1BFF6419A0251F00022FD8 /* geom_draw_box.h */,
 				2B03B5B8116CC0B4009987BE /* binary_data_editor.h */,
 				2B03B5B9116CC0B4009987BE /* binary_data_editor.cpp */,
 			);
@@ -8903,6 +8911,7 @@
 		2B750F2E0E8793B50003120A /* grt */ = {
 			isa = PBXGroup;
 			children = (
+				2B1BFF5F19A00F2D00022FD8 /* spatial_handler.h */,
 				2B7CDDD8115A9D910010368F /* action_list.h */,
 				2B7CDDA7115A86A70010368F /* grt_threaded_task.h */,
 				2B41EEFE0F8BA63700F5EB1E /* validation_manager.h */,
@@ -9551,8 +9560,6 @@
 				2B83E5C21992B54B00781432 /* spatial_data_view.h */,
 				2B83E5C31992B54B00781432 /* spatial_draw_box.cpp */,
 				2B83E5C41992B54B00781432 /* spatial_draw_box.h */,
-				2B83E5C51992B54B00781432 /* spatial_handler.cpp */,
-				2B83E5C61992B54B00781432 /* spatial_handler.h */,
 			);
 			name = Spatial;
 			sourceTree = "<group>";
@@ -10448,6 +10455,7 @@
 				2B750F4D0E8793B50003120A /* icon_manager.cpp */,
 				2B750F500E8793B50003120A /* parse_utils.cpp */,
 				2B750F520E8793B50003120A /* plugin_manager.cpp */,
+				2B1BFF5E19A00F2D00022FD8 /* spatial_handler.cpp */,
 				2B750F570E8793B50003120A /* tree_model.cpp */,
 				2B7390B70F5F00BA0084CA96 /* refresh_ui.cpp */,
 			);
@@ -11221,6 +11229,7 @@
 				27B923CD196ED20000D98D18 /* mforms_ObjectReference_impl.h in Headers */,
 				2B41EE280F8B837900F5EB1E /* recordset_sqlite_storage.h in Headers */,
 				2B41EE2A0F8B837900F5EB1E /* recordset_table_inserts_storage.h in Headers */,
+				2B1BFF6119A00F2D00022FD8 /* spatial_handler.h in Headers */,
 				2B41EE2C0F8B837900F5EB1E /* recordset_text_storage.h in Headers */,
 				2B41EE2D0F8B837900F5EB1E /* sql_editor_be.h in Headers */,
 				2B41EE320F8B837900F5EB1E /* table_inserts_loader_be.h in Headers */,
@@ -11248,6 +11257,7 @@
 				27B923CB196ED20000D98D18 /* grt_PyObject_impl.h in Headers */,
 				2B0DE77E11E916EF00989395 /* db_query_Resultset.h in Headers */,
 				2B0DE78011E916EF00989395 /* db_query_QueryBuffer.h in Headers */,
+				2B1BFF6619A0251F00022FD8 /* geom_draw_box.h in Headers */,
 				2B0DE78511E919BA00989395 /* db_query_EditableResultset.h in Headers */,
 				2BCE53DC122C6BE60019C95B /* confirm_save_dialog.h in Headers */,
 				27DC56B7130ED5DE00E0200F /* inserts_export_form.h in Headers */,
@@ -11509,7 +11519,6 @@
 				2BF87A6C0FA7CEFB0012EADA /* wb_overview_physical_schema.h in Headers */,
 				2BF87A6E0FA7CEFB0012EADA /* wb_overview_privileges.h in Headers */,
 				27ED97B91802AE2D00F15650 /* wb_catalog_tree_view.h in Headers */,
-				2B83E5CC1992B54B00781432 /* spatial_handler.h in Headers */,
 				2BF87A700FA7CEFB0012EADA /* wb_physical_model_diagram_features.h in Headers */,
 				2BF87A720FA7CEFB0012EADA /* wb_user_datatypes.h in Headers */,
 				2BF87AB00FA8011A0012EADA /* wb_context_sqlide.h in Headers */,
@@ -14045,6 +14054,7 @@
 				2BAE1A810F368EB200BE725E /* workbench_physical_Connection.cpp in Sources */,
 				2BAE1A820F368EB200BE725E /* workbench_physical_Diagram.cpp in Sources */,
 				2BAE1A830F368EB200BE725E /* workbench_physical_Model.cpp in Sources */,
+				2B1BFF6519A0251F00022FD8 /* geom_draw_box.cpp in Sources */,
 				2B0609FB195A496700022F40 /* column_width_cache.cpp in Sources */,
 				2BAE1A840F368EB200BE725E /* workbench_physical_RoutineGroupFigure.cpp in Sources */,
 				2BAE1A850F368EB200BE725E /* workbench_physical_TableFigure.cpp in Sources */,
@@ -14058,6 +14068,7 @@
 				2BAE1A8C0F368EB200BE725E /* model_Diagram.cpp in Sources */,
 				27B923CE196ED20000D98D18 /* mforms_ObjectReference.cpp in Sources */,
 				2BAE1A8D0F368EB200BE725E /* model_Figure.cpp in Sources */,
+				2B1BFF6019A00F2D00022FD8 /* spatial_handler.cpp in Sources */,
 				2BAE1A8E0F368EB200BE725E /* model_Layer.cpp in Sources */,
 				2BAE1A8F0F368EB200BE725E /* model_Model.cpp in Sources */,
 				2BAE1A900F368EB200BE725E /* model_Object.cpp in Sources */,
@@ -14388,7 +14399,6 @@
 				2BF87A670FA7CEFB0012EADA /* wb_overview_diagram.cpp in Sources */,
 				2BF87A690FA7CEFB0012EADA /* wb_overview_physical.cpp in Sources */,
 				2B83E5C91992B54B00781432 /* spatial_draw_box.cpp in Sources */,
-				2B83E5CB1992B54B00781432 /* spatial_handler.cpp in Sources */,
 				2BD42089198ACC260061895B /* home_screen_connections.cpp in Sources */,
 				2BF87A6B0FA7CEFB0012EADA /* wb_overview_physical_schema.cpp in Sources */,
 				2BF87A6D0FA7CEFB0012EADA /* wb_overview_privileges.cpp in Sources */,
@@ -15404,6 +15414,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_DEBUG;
+				GCC_WARN_SIGN_COMPARE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -15437,6 +15448,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_WARN_SIGN_COMPARE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -16699,6 +16711,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
+					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
@@ -16740,6 +16753,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
+					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
@@ -17981,6 +17995,8 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_DEBUG;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)",
@@ -18017,6 +18033,8 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application: Oracle America, Inc.";
 				COPY_PHASE_STRIP = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)",

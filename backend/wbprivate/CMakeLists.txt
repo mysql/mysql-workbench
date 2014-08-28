@@ -69,7 +69,6 @@ add_library(wbprivate
     sqlide/query_side_palette.cpp
     sqlide/spatial_data_view.cpp
     sqlide/spatial_draw_box.cpp
-    sqlide/spatial_handler.cpp
     workbench/metaclasses.cpp
     workbench/upgrade_helper.cpp
     workbench/wb_command_ui.cpp

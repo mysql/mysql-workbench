@@ -496,7 +496,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     [subview removeFromSuperview];
 
   _overview->refresh();
-  for (int i= 0; i < _overview->count_children(root); i++)
+  for (size_t i= 0; i < _overview->count_children(root); i++)
   {
     std::string label;
     wb::OverviewBE::OverviewNodeType nodeType = wb::OverviewBE::ODivision;

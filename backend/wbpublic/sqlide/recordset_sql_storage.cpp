@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -240,14 +240,14 @@ void Recordset_sql_storage::do_serialize(const Recordset *recordset, sqlite::con
 }
 
 
-void Recordset_sql_storage::do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db)
+void Recordset_sql_storage::do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commit)
 {
   if (_table_name.empty())
     return;
 
   Sql_script sql_script;
   generate_sql_script(recordset, data_swap_db, sql_script, true);
-  run_sql_script(sql_script);
+  run_sql_script(sql_script, skip_commit);
 }
 
 

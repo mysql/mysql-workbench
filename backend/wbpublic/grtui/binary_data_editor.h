@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2012,Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,7 +50,7 @@ class WBPUBLICBACKEND_PUBLIC_FUNC BinaryDataEditor : public mforms::Form
 {
 public:
   BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, bool read_only=true);
-  BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, const std::string &text_encoding, bool read_only=true);
+  BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, const std::string &text_encoding, const std::string &data_type, bool read_only=true);
   virtual ~BinaryDataEditor();
   
   const char* data() const { return _data; }
@@ -62,7 +62,7 @@ public:
 public:
   void add_viewer(BinaryDataViewer *viewer, const std::string &title);
 
-  void assign_data(const char *data, size_t length);
+  void assign_data(const char *data, size_t length, bool steal_pointer=false);
   void notify_edit();
   
   bool read_only() { return _read_only; }
@@ -71,6 +71,7 @@ protected:
   bec::GRTManager *_grtm;
   char *_data;
   size_t _length;
+  std::string _type;
 
   // editor, needs-update
   std::vector<std::pair<BinaryDataViewer*, bool> > _viewers;

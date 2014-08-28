@@ -135,6 +135,11 @@ set(IMAGE_FILES
     zoom_in.png
     zoom_out.png
     zoom_reset.png
+    editor_breakpoint_hit.xpm
+    editor_breakpoint.xpm
+    editor_current_pos.xpm
+    editor_error.xpm
+    editor_statement.xpm
 )
 
 if (UNIX)

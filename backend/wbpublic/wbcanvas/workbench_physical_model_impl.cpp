@@ -46,8 +46,11 @@ workbench_physical_Model::ImplData::ImplData(workbench_physical_Model *self)
 
 void workbench_physical_Model::ImplData::handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info)
 {
-  if (name == "GRNPreferencesDidClose" && info.get_int("saved") == 1)
-    run_later(boost::bind(&workbench_physical_Model::ImplData::reset_figures, this));
+//  if (name == "GRNPreferencesDidClose" && info.get_int("saved") == 1)
+  {
+//    run_later(boost::bind(&workbench_physical_Model::ImplData::reset_figures, this));
+//    run_later(boost::bind(&workbench_physical_Model::ImplData::reset_connections, this));
+  }
 }
 
 workbench_physical_Model::ImplData::~ImplData()

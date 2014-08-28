@@ -237,6 +237,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _side_palette(NULL),
   _history(DbSqlEditorHistory::create(_grtm))
 {
+  _startup_done = false;
   _log = DbSqlEditorLog::create(this, _grtm, 500);
 
   NotificationCenter::get()->add_observer(this, "GNApplicationActivated");
@@ -335,6 +336,8 @@ void SqlEditorForm::finish_startup()
   _side_palette->refresh_snippets();
 
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
+
+  _startup_done = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,9 +372,12 @@ void SqlEditorForm::restore_last_workspace()
   if (_tabdock->view_count() == 0)
     new_sql_scratch_area(false);
 
+  // immediate autosave after openingls
+  auto_save();
+
   // Gets the title for a NEW editor
   _title = create_title();
-  title_changed();  
+  title_changed();
 }
 
 void SqlEditorForm::title_changed()
@@ -1262,7 +1268,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
           _connection_info.append(create_html_line("Current User:", rs->getString(1)));
       }
 
-      _connection_info.append(create_html_line("SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Enabled using "+_usr_dbc_conn->ssl_cipher));
+      _connection_info.append(create_html_line("SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Using "+_usr_dbc_conn->ssl_cipher));
 
       // get lower_case_table_names value
       std::string value;
@@ -2339,20 +2345,16 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
     bool auto_commit= _usr_dbc_conn->ref->getAutoCommit();
     ScopeExitTrigger autocommit_mode_keeper;
     int res= -2;
+
     if (!auto_commit)
     {
-      int res= mforms::Utilities::show_warning(
+      res= mforms::Utilities::show_warning(
         _("Apply Changes to Recordset"),
-        _("Autocommit is currently disabled. Do you want to perform a COMMIT before applying the changes?\n"
-          "If you do not commit, a failure during the recordset update will result in a rollback of the active transaction, if you have one."),
-        _("Commit and Apply"),
-        _("Cancel"),
-        _("Apply"));
-
-      if (res == mforms::ResultOk)
-      {
-        _usr_dbc_conn->ref->commit();
-      }
+        _("Autocommit is currently disabled and a transaction might be open.\n"
+          "Recordset changes will be applied within that transaction and will be left uncommited until you explicitly commit it manually.\n"
+          "If you want it to be executed separately, click Cancel and commit the transaction first."),
+        _("Apply"),
+        _("Cancel"));
     }
     else
     {
@@ -2372,18 +2374,24 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
       Recordset_sql_storage *sql_storage= dynamic_cast<Recordset_sql_storage *>(data_storage_ref.get());
       
       scoped_connection c1(on_sql_script_run_error.connect(boost::bind(&SqlEditorForm::add_log_message, this, DbSqlEditorLog::ErrorMsg, _2, _3, "")));
-      
+
+      bool skip_commit;
+      if (auto_commit)
+        skip_commit = false;
+      else
+        skip_commit = true; // if we're in an open tx, then do not commit
+
       bool is_data_changes_commit_wizard_enabled= (0 != _grtm->get_app_option_int("DbSqlEditor:IsDataChangesCommitWizardEnabled", 1));
       if (is_data_changes_commit_wizard_enabled)
       {
-        run_data_changes_commit_wizard(rs_ptr);
+        run_data_changes_commit_wizard(rs_ptr, skip_commit);
       }
       else
       {
         sql_storage->is_sql_script_substitute_enabled(false);
         
         scoped_connection on_sql_script_run_error_conn(sql_storage->on_sql_script_run_error.connect(on_sql_script_run_error));
-        rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref));
+        rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
       }
       
       // Since many messages could have been added it is possible the
@@ -2395,7 +2403,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
 }
 
 
-bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr)
+bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool skip_commit)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, rs_ptr, rs, false)
 
@@ -2417,7 +2425,7 @@ bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr)
   scoped_connection c2(on_sql_script_run_progress.connect(boost::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, _1)));
   scoped_connection c3(on_sql_script_run_statistics.connect(boost::bind(&SqlScriptApplyPage::on_exec_stat, wizard.apply_page, _1, _2)));
   wizard.values().gset("sql_script", sql_script_text);
-  wizard.apply_page->apply_sql_script= boost::bind(&SqlEditorForm::apply_data_changes_commit, this, _1, rs_ptr);
+  wizard.apply_page->apply_sql_script= boost::bind(&SqlEditorForm::apply_data_changes_commit, this, _1, rs_ptr, skip_commit);
   wizard.run_modal();
 
   return !wizard.has_errors();
@@ -2531,7 +2539,7 @@ void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DB
   }
 }
 
-void SqlEditorForm::apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr)
+void SqlEditorForm::apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr, bool skip_commit)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, rs_ptr, rs);
 
@@ -2555,7 +2563,7 @@ void SqlEditorForm::apply_data_changes_commit(std::string &sql_script_text, Reco
   scoped_connection on_sql_script_run_statistics_conn(sql_storage->on_sql_script_run_statistics.connect(on_sql_script_run_statistics));
 
   sql_storage->sql_script_substitute(sql_script);
-  rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref));
+  rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
 
   if (!max_query_size_to_log || max_query_size_to_log >= (int)sql_script_text.size() )
     _history->add_entry(sql_script.statements);
@@ -2796,6 +2804,8 @@ bool SqlEditorForm::save_snippet()
   _grtm->replace_status_text("SQL saved to snippets list.");
 
   _side_palette->refresh_snippets();
+
+  _grtm->run_once_when_idle(this, boost::bind(&QuerySidePalette::edit_last_snippet, _side_palette));
 
   return true;
 }

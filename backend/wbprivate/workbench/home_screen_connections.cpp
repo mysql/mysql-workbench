@@ -423,7 +423,18 @@ public:
 
     std::string password_stored = _("<not stored>");
     std::string password;
-    if (mforms::Utilities::find_password(_connection->hostIdentifier(), user_name, password))
+    bool find_result = false;
+    
+    try
+    {
+      find_result = mforms::Utilities::find_password(_connection->hostIdentifier(), user_name, password);
+    }
+    catch(std::exception &except)
+    {
+      log_warning("Exception caught when trying to find a password for '%s' connection: %s\n", _connection->name().c_str(), except.what());
+    }
+    
+    if (find_result)
     {
       password = "";
       password_stored = _("<stored>");
@@ -1151,36 +1162,25 @@ public:
 
   virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
-    int created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
+    owner->_owner->trigger_callback(ActionUpdateFabricConnections, connection);
 
-    if (created_connections)
+    // the connection recreation may recreate the entry objects, so we need a fresh pointer
+    ConnectionsSection::ConnectionVector conns(owner->displayed_connections());
+    bool flag = false;
+    for (ConnectionsSection::ConnectionVector::iterator iter = conns.begin(); iter != conns.end(); ++iter)
     {
-      owner->_entry_for_menu = thisptr;
-      owner->handle_folder_command("internal_delete_connection_group", true);
-    }
-
-    owner->_owner->trigger_callback(ActionCreateFabricConnections, connection);
-    created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
-    if (created_connections)
-    {
-      // the connection recreation may recreate the entry objects, so we need a fresh pointer
-      ConnectionsSection::ConnectionVector conns(owner->displayed_connections());
-      bool flag = false;
-      for (ConnectionsSection::ConnectionVector::iterator iter = conns.begin(); iter != conns.end(); ++iter)
+      if ((*iter)->connection == connection)
       {
-        if ((*iter)->connection == connection)
-        {
-          flag = true;
-          owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(*iter));
-          break;
-        }
+        flag = true;
+        owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(*iter));
+        break;
       }
-      if (!flag)
-        log_error("Could not find fabric node '%s' object after refresh\n", connection->name().c_str());
-
-      // force a refresh of the hot_entry even if we don't move the mouse after clicking
-      owner->mouse_move(mforms::MouseButtonNone, x, y);
     }
+    if (!flag)
+      log_error("Could not find fabric node '%s' object after refresh\n", connection->name().c_str());
+
+    // force a refresh of the hot_entry even if we don't move the mouse after clicking
+    owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
 
   virtual mforms::Menu *context_menu()
@@ -1675,7 +1675,7 @@ boost::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, i
   boost::shared_ptr<ConnectionEntry> entry;
 
   ConnectionVector connections(displayed_connections());
-  for (ConnectionVector::iterator conn = connections.begin(); conn != connections.end(); ++conn)
+  for (ConnectionVector::iterator conn = connections.begin() + _page_start; conn != connections.end(); ++conn)
   {
     if ((*conn)->bounds.contains(x, y))
     {
@@ -1710,6 +1710,8 @@ base::Rect ConnectionsSection::bounds_for_entry(int index)
 {
   base::Rect result(CONNECTIONS_LEFT_PADDING, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   int tiles_per_row = (get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING) / (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING);
+
+  index -= _page_start;
 
   int column = index % tiles_per_row;
   int row = index / tiles_per_row;
@@ -2084,7 +2086,28 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
         if (FabricFolderEntry *folder = dynamic_cast<FabricFolderEntry*>(iterator->get()))
         {
           found_parent = true;
-          folder->children.push_back(entry);
+          std::vector<boost::shared_ptr<ConnectionEntry> >::iterator index, end;
+          index = folder->children.begin(); 
+          end = folder->children.end();
+
+          // Skips the back and server tiles
+          index++;
+          index++;
+
+          std::string key = base::strfmt("%s-%s", entry->section_name().c_str(), entry->title.c_str());
+          bool found = false;
+
+          while (index != end && !found)
+          {
+            std::string existing_key = base::strfmt("%s-%s", (*index)->section_name().c_str(), (*index)->title.c_str());
+
+            found = key < existing_key;
+              
+            if (!found)
+              index++;
+          }
+
+          folder->children.insert(index, entry);
           folder->total_instances++;
           folder->groups.insert(entry->section_name());
           break;
@@ -2679,33 +2702,38 @@ bool ConnectionsSection::do_tile_drag(ssize_t index, int x, int y)
   _hot_entry.reset();
   set_needs_repaint();
 
-  mforms::DragDetails details;
-  details.allowedOperations = mforms::DragOperationMove;
-  details.location = base::Point(x, y);
+  if (index >= 0)
+  {
+    mforms::DragDetails details;
+    details.allowedOperations = mforms::DragOperationMove;
+    details.location = base::Point(x, y);
 
-  details.image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
-  cairo_t *cr = cairo_create(details.image);
-  base::Rect bounds = bounds_for_entry(index);
-  details.hotspot.x = x - bounds.pos.x;
-  details.hotspot.y = y - bounds.pos.y;
+    details.image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
+    cairo_t *cr = cairo_create(details.image);
+    base::Rect bounds = bounds_for_entry(index);
+    details.hotspot.x = x - bounds.pos.x;
+    details.hotspot.y = y - bounds.pos.y;
 
-  // We know we have no back tile here.
-  boost::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
-  entry->draw_tile(cr, false, 1, true, false); // There's no drag tile actually in high contrast mode.
+    // We know we have no back tile here.
+    boost::shared_ptr<ConnectionEntry> entry = entry_from_index(index);
+    if (entry)
+    {
+      entry->draw_tile(cr, false, 1, true, false); // There's no drag tile actually in high contrast mode.
 
-  _drag_index = index;
-  mforms::DragOperation operation = do_drag_drop(details, entry.get(), TILE_DRAG_FORMAT);
-  _mouse_down_position = base::Rect();
-  cairo_surface_destroy(details.image);
-  cairo_destroy(cr);
+      _drag_index = index;
+      mforms::DragOperation operation = do_drag_drop(details, entry.get(), TILE_DRAG_FORMAT);
+      _mouse_down_position = base::Rect();
+      cairo_surface_destroy(details.image);
+      cairo_destroy(cr);
 
-  _drag_index = -1;
-  _drop_index = -1;
-  set_needs_repaint();
+      _drag_index = -1;
+      _drop_index = -1;
+      set_needs_repaint();
 
-  if (operation == mforms::DragOperationMove) // The actual move is done in the drop delegate method.
-    return true;
-
+      if (operation == mforms::DragOperationMove) // The actual move is done in the drop delegate method.
+        return true;
+    }
+  }
   return false;
 }
 

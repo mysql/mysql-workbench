@@ -480,12 +480,14 @@ namespace MySQL.Controls
       int leftBorder = Margin.Left - scrollOffset;
       float rightBorder = clientArea.Width - Margin.Horizontal;
 
-      // Draw in two rounds. The selected tab first and then all others.
-      // Each tab drawing excludes its drawn area from the clip region so it can't be overdrawn.
-      ValidateTab(SelectedIndex);
-      if (layoutInfo[SelectedIndex].tabArea.Right > leftBorder || layoutInfo[SelectedIndex].tabArea.Left < rightBorder)
-        DrawTab(g, SelectedIndex, drawFocused);
-
+      if (SelectedIndex >= 0)
+      {
+        // Draw in two rounds. The selected tab first and then all others.
+        // Each tab drawing excludes its drawn area from the clip region so it can't be overdrawn.
+        ValidateTab(SelectedIndex);
+        if (layoutInfo[SelectedIndex].tabArea.Right > leftBorder || layoutInfo[SelectedIndex].tabArea.Left < rightBorder)
+          DrawTab(g, SelectedIndex, drawFocused);
+      }
       for (int i = 0; i < TabCount; i++)
       {
         if (i != SelectedIndex)

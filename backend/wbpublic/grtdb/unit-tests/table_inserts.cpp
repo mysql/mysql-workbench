@@ -228,7 +228,7 @@ TEST_FUNCTION(5)
 
     std::string msg;
     bool ok = rs->apply_changes_and_gather_messages(msg);
-    ensure_equals("apply changes msg", msg, "Commit complete");
+    ensure_equals("apply changes msg", msg, "Apply complete");
     ensure("apply changes", ok);
   }
   {
@@ -277,7 +277,7 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
 
   std::string msg;
   bool ok = rs->apply_changes_and_gather_messages(msg);
-  ensure_equals("apply changes msg", msg, "Commit complete");
+  ensure_equals("apply changes msg", msg, "Apply complete");
   ensure("apply changes", ok);
   ensure_equals("rows after apply", rs->count(), 2U);
 
@@ -289,7 +289,7 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
   // set another value to make sure that UPDATE also works
   rs->set_field(row, column, other_value);
   ok = rs->apply_changes_and_gather_messages(msg);
-  ensure_equals("apply changes msg 2", msg, "Commit complete");
+  ensure_equals("apply changes msg 2", msg, "Apply complete");
   ensure("apply changes 2", ok);
   ensure_equals("rows after apply 2", rs->count(), 2U);
 
@@ -300,7 +300,7 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
   //
   rs->set_field(row, column, value);
   ok = rs->apply_changes_and_gather_messages(msg);
-  ensure_equals("apply changes msg 3", msg, "Commit complete");
+  ensure_equals("apply changes msg 3", msg, "Apply complete");
   ensure("apply changes 3", ok);
   ensure_equals("rows after apply 3", rs->count(), 2U);
 
@@ -449,7 +449,7 @@ TEST_FUNCTION(15)
   rs->set_field(0, 2, std::string("\\func NOW()"));
   std::string msg;
   rs->apply_changes_and_gather_messages(msg);
-  ensure_equals("apply", msg, "Commit complete");
+  ensure_equals("apply", msg, "Apply complete");
 
   // check generation of SQL
   std::string output = table->inserts();

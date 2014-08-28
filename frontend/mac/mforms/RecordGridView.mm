@@ -176,3 +176,11 @@ void RecordGridView::set_font(const std::string &font_desc)
   else
     log_error("Invalid font specification: %s\n", font_desc.c_str());
 }
+
+
+void RecordGridView::update_columns()
+{
+  [viewer rebuildColumns];
+  [viewer refresh];
+}
+

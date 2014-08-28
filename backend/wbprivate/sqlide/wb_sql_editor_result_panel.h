@@ -95,6 +95,7 @@ public:
 
   void view_record_in_form(int row_id);
 
+  void open_field_editor(int row, int column);
 private:
 
   mforms::TabView _tabview;
@@ -126,6 +127,7 @@ private:
 
   bool _pinned;
 
+  void update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column);
   void switch_tab();
   
   void toggle_switcher_collapsed();
@@ -138,6 +140,8 @@ private:
   void dock_result_grid(mforms::RecordGrid *view);
 
   void restore_grid_column_widths();
+  std::vector<float> get_autofit_column_widths(Recordset *rs);
+  void reset_column_widths();
   
   void add_switch_toggle_toolbar_item(mforms::ToolBar *tbar);
 

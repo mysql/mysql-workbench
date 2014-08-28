@@ -86,6 +86,9 @@ namespace MySQL.GUI.Workbench.Plugins
 
     public override bool ReinitWithArguments(GrtValue value)
     {
+      if (Backend != null && !Backend.can_close())
+        return false;  // Will open the plugin in a new editor window instead.
+
       InitializingControls = true;
       SuspendLayout();
 
@@ -101,6 +104,9 @@ namespace MySQL.GUI.Workbench.Plugins
           mainTabControl.TabPages.Remove(dbObjectEditorPages.PrivilegesTabPage);
         }
 
+        if (insertsTabPage.Controls.Count > 0)
+          insertsTabPage.Controls.Clear();
+
         Backend = new MySQLTableEditorWrapper(GrtManager, value);
 
         Control panel = tableEditorBE.get_trigger_panel();
@@ -112,6 +118,12 @@ namespace MySQL.GUI.Workbench.Plugins
         InitFormData();
         RefreshFormData();
 
+        {
+          panel = tableEditorBE.get_inserts_panel();
+          insertsTabPage.Controls.Add(panel);
+          panel.Parent = insertsTabPage;
+          panel.Dock = DockStyle.Fill;
+        }
         Backend.reset_editor_undo_stack();
       }
       finally
@@ -512,12 +524,27 @@ namespace MySQL.GUI.Workbench.Plugins
       }
     }
 
-    private void nameTextBox_TextChanged(object sender, EventArgs e)
+    private void nameTextBox_KeyPress(object sender, KeyPressEventArgs e)
     {
-      if (!InitializingControls && !nameTextBox.Text.Equals(tableEditorBE.get_name()))
-        tableEditorBE.set_name(nameTextBox.Text);
+      if (e.KeyChar == '\r')
+      {
+        if (!nameTextBox.Text.Equals(tableEditorBE.get_name()))
+        {
+          tableEditorBE.set_name(nameTextBox.Text);
+          TabText = tableEditorBE.get_title();
+        }
 
-      TabText = tableEditorBE.get_title();
+        e.Handled = true;
+      }
+    }
+
+    private void nameTextBox_Leave(object sender, EventArgs e)
+    {
+      if (!nameTextBox.Text.Equals(tableEditorBE.get_name()))
+      {
+        tableEditorBE.set_name(nameTextBox.Text);
+        TabText = tableEditorBE.get_title();
+      }
     }
 
     private void commentsTextBox_TextChanged(object sender, EventArgs e)

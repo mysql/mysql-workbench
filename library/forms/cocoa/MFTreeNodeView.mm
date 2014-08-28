@@ -309,7 +309,7 @@ public:
         
         
         // Setups the child for all the parents (same name, icon)
-        for(int index = 0; index < [parents count]; index++)
+        for(unsigned int index = 0; index < [parents count]; index++)
         {
           MFTreeNodeImpl *child = [[[MFTreeNodeImpl alloc] initWithOwner: [_self treeNodeView]] autorelease];
           [child setObject: caption
@@ -943,11 +943,11 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
       if ([icon isKindOfClass: [NSImage class]])
       {
         NSSize size = [icon size];
-        [(NSImage*)icon drawInRect: NSMakeRect(floor(x), floor(NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2),
+        [(NSImage*)icon drawInRect: NSMakeRect(floorf(x), floorf(NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2),
                                                size.width, size.height)
                           fromRect: NSZeroRect
                          operation: NSCompositeSourceOver
-                          fraction: mOverOverlay == i ? 1.0 : 0.4
+                          fraction: mOverOverlay == i ? 1.0 : 0.4f
                     respectFlipped: YES
                              hints: nil];
         x += size.width + OVERLAY_ICON_SPACING;
@@ -1191,7 +1191,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
 - (NSString*)keyForColumn:(int)column
 {
-  if (column >= [mColumnKeys count])
+  if (column >= (int)[mColumnKeys count])
       throw std::invalid_argument(base::strfmt("invalid column %i in TreeNodeView, last column is %s", column,
                                                [[[[[mOutline tableColumns] lastObject] headerCell] stringValue] UTF8String]));
     
@@ -1336,7 +1336,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
     item= mRootNode;
 
   NSArray *children = [item children];
-  if (children && index < [children count])
+  if (children && index < (NSInteger)[children count])
     return [[item children] objectAtIndex: index];
   return nil;
 }
@@ -1457,10 +1457,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
     // Restore default colors. The outline doesn't seem to auto reset.
     if (canSetColor)
     {
-      if (![cell isHighlighted])
-        [cell setTextColor: NSColor.controlTextColor];
-      else
-        [cell setTextColor: NSColor.whiteColor];
+      [cell setTextColor: NSColor.controlTextColor];
     }
   }
 }
@@ -1589,7 +1586,7 @@ sortDescriptorsDidChange:(NSArray *)oldDescriptors
     self.lastDropPosition = mforms::DropPositionOn;
   else
   {
-    if (index == [[item children] count])
+    if (index == (NSInteger)[[item children] count])
       self.lastDropPosition = mforms::DropPositionBottom;
     else
       self.lastDropPosition = mforms::DropPositionTop;
@@ -2106,7 +2103,7 @@ static mforms::TreeNodeRef treeview_node_at_row(mforms::TreeNodeView *self, int 
 mforms::TreeNodeRef treeview_node_at_position(mforms::TreeNodeView *self, base::Point position)
 {
   MFTreeNodeViewImpl *tree = self->get_data();
-  NSInteger row = [tree->mOutline rowAtPoint: NSMakePoint(position.x, position.y)];
+  NSInteger row = [tree->mOutline rowAtPoint: NSMakePoint((float)position.x, (float)position.y)];
   if (row < 0)
     return mforms::TreeNodeRef();
 

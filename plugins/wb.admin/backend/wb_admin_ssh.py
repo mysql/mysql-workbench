@@ -575,13 +575,17 @@ class WbAdminSSH(object):
             error = ''
             
             # Reads from the stdout if available
-            if chan.recv_ready():
-                data = stdout.read(read_size)
-            
+            while chan.recv_ready() and len(data) < read_size:
+                data += stdout.read(1)
+            if data:
+                log_debug2("ssh session stdout: %s\n" % data)
+
             # Reads from the stderr if available
-            if chan.recv_stderr_ready():
-                error = stderr.read(read_size)
-            
+            while chan.recv_stderr_ready() and len(error) < read_size:
+                error += stderr.read(1)
+            if error:
+                log_debug2("ssh session stderr: %s\n" % error)
+
             # Appends any read data on stdout and stderr
             if data or error:
                 all_data += data
@@ -662,7 +666,9 @@ class WbAdminSSH(object):
             user_password = None
             
         expect_sudo_failure = False
-        
+
+        read_timeout = 10
+
         if self.client is not None:
             transport = self.client.get_transport()
             try:
@@ -680,13 +686,14 @@ class WbAdminSSH(object):
                     initial_data = ""
                     error = ""
                     more_data = True
-                  
+
+                    log_debug2("About to execute command through ssh session: %s\n" % cmd)
                     chan.exec_command(cmd)
                     pass_prompt_count = 0
                   
                     if (as_user != Users.CURRENT and user_password is not None):
                       
-                        ret_code, prompted, initial_data, error = self._read_streams(chan, stdout, stderr, 1, 'EnterPasswordHere', 15, spawn_process, wait_output)
+                        ret_code, prompted, initial_data, error = self._read_streams(chan, stdout, stderr, 1, 'EnterPasswordHere', read_timeout+5, spawn_process, wait_output)
                         log_debug2("%s.exec_cmd initial read for command [%s]:\nRetCode : [%s]\nPrompted : [%s]\nData : [%s]\nError : [%s]\n" % (self.__class__.__name__, cmd, ret_code, prompted, initial_data, error) )
                         
                         if prompted:
@@ -738,7 +745,7 @@ class WbAdminSSH(object):
                     # Note that is is needed to enter this loop even if there's no output 
                     # handler to prevent ending the channel before the command is completed.
                     while more_data:
-                        ret_code, prompted, chunk, error = self._read_streams(chan, stdout, stderr, read_size, None, 10, False, wait_output)
+                        ret_code, prompted, chunk, error = self._read_streams(chan, stdout, stderr, read_size, None, read_timeout, False, wait_output)
                         
                         if chunk or error:
                             out += chunk
@@ -773,8 +780,7 @@ class WbAdminSSH(object):
                 # A "socket closed" exception happens sometimes when sending the password, for some reason.
                 # Not sure, but it could be that the command was accepted without a password (maye sudo doing internal
                 # password caching for some time). Until that is investigated, exceptions shouldn't bubble up
-                log_error("Exception in SSH: %s\n" % str(e))
-                traceback.print_exc()
+                log_error("Exception in SSH: %s\n%s\n" % (str(e), traceback.format_exc()))
             except:
                 log_error("Unknown exception in ssh\n")
 

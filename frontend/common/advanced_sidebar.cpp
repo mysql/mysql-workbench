@@ -184,6 +184,9 @@ bool SidebarEntry::contains(double x, double y)
 SidebarSection::Button::Button(const std::string &accessible_name, const std::string &icon_name, const std::string &alt_icon_name)
 : icon(NULL), alt_icon(NULL), hot(false), down(false), state(false)
 {
+  _icon_name = icon_name;
+  _alt_icon_name = alt_icon_name;
+
   _name = accessible_name;
   move(0, 0);
 
@@ -218,6 +221,16 @@ SidebarSection::Button::~Button()
 
 void SidebarSection::Button::draw(cairo_t *cr)
 {
+  if (Utilities::icon_needs_reload(icon))
+  {
+    if (icon)
+      cairo_surface_destroy(icon);
+    if (alt_icon)
+      cairo_surface_destroy(alt_icon);
+    icon = Utilities::load_icon(_icon_name, true);
+    alt_icon = Utilities::load_icon(_alt_icon_name, true);
+  }
+
   cairo_surface_t *image = (state && alt_icon != NULL) ? alt_icon : icon;
 
   if (image)

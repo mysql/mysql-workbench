@@ -223,7 +223,7 @@ public:
   }
   
 
-  void add_entry_option(const std::string &option, const std::string &caption, const std::string &tooltip)
+  mforms::TextEntry *add_entry_option(const std::string &option, const std::string &caption, const std::string &tooltip)
   {
     _table.set_row_count(++_rows);
 
@@ -234,14 +234,21 @@ public:
     TableItemFlags descriptionFlags = mforms::HFillFlag;
     bool right_aligned = false;
 #else
-    TableItemFlags descriptionFlags = mforms::HFillFlag | mforms::HExpandFlag;
+    TableItemFlags descriptionFlags = mforms::HFillFlag|mforms::HExpandFlag;
     bool right_aligned = true;
 #endif
 
     mforms::Label* label = new_label(caption, right_aligned);
     _table.add(label, 0, 1, _rows-1, _rows, descriptionFlags);
-    label->set_size(170, -1);
-    _table.add(entry, 1, 2, _rows-1, _rows, mforms::HFillFlag);
+//    label->set_size(180, -1);
+    _table.add(entry, 1, 2, _rows-1, _rows, _help_column ? mforms::HFillFlag : mforms::HFillFlag|mforms::HExpandFlag);
+    if (_help_column)
+    {
+      label = new_label(tooltip);
+      label->set_style(mforms::SmallHelpTextStyle);
+      _table.add(label, 2, 3, _rows-1, _rows, mforms::HFillFlag|mforms::HExpandFlag);
+    }
+    return entry;
   }
 
   mforms::CheckBox *add_checkbox_option(const std::string &option, const std::string &caption, const std::string &tooltip)
@@ -252,12 +259,7 @@ public:
     cb->set_text(caption);
     cb->set_tooltip(tooltip);
     
-#ifdef _WIN32
-    int start_column = 0;
-#else
-    int start_column = 1;
-#endif
-    _table.add(cb, start_column, 3, _rows - 1, _rows, mforms::HFillFlag);
+    _table.add(cb, 0, 3, _rows - 1, _rows, mforms::HFillFlag);
     
     return cb;
   }
@@ -838,8 +840,8 @@ mforms::View *PreferencesForm::create_sqlide_page()
     
     {
       mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:ShowMetadataSchemata");
-      check->set_text(_("Show Data Dictionaries and Internal Schemas"));
-      check->set_tooltip(_("Whether to show data dictionaries/internal schemas in the schema tree "
+      check->set_text(_("Show Metadata and Internal Schemas"));
+      check->set_tooltip(_("Whether to show internal schemas in the schema tree "
         "(eg INFORMATION_SCHEMA, mysql and schemas starting with '.')."));
       vbox->add(check, false);
     }
@@ -855,27 +857,20 @@ mforms::View *PreferencesForm::create_sqlide_page()
   }
 
   {
-    OptionTable *otable = new OptionTable(this, _("MySQL Session"), true);
+    OptionTable *otable = new OptionTable(this, _("MySQL Session"), false);
+    mforms::TextEntry *entry;
 
-    otable->add_entry_option("DbSqlEditor:KeepAliveInterval",
+    entry = otable->add_entry_option("DbSqlEditor:KeepAliveInterval",
                              _("DBMS connection keep-alive interval (in seconds):"),
                              _("Time interval between sending keep-alive messages to DBMS.\n"
                                "Set to 0 to not send keep-alive messages."));
+    entry->set_size(80, -1);
 
-    otable->add_entry_option("DbSqlEditor:ReadTimeOut",
+    entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut",
                              _("DBMS connection read time out (in seconds):"),
                              _("Max time the a query can take to return data from the DBMS"));
-
-    otable->add_checkbox_option("DbSqlEditor:SafeUpdates", _("\"Safe Updates\". Forbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause. Requires a reconnection."),
-                                _(
-                                  "Enables the SQL_SAFE_UPDATES option for the session.\n"
-                                  "If enabled, MySQL aborts UPDATE or DELETE statements\n"
-                                  "that do not use a key in the WHERE clause or a LIMIT clause.\n"
-                                  "This makes it possible to catch UPDATE or DELETE statements\n"
-                                  "where keys are not used properly and that would probably change\n"
-                                  "or delete a large number of rows. \n"
-                                  "Changing this option requires a reconnection (Query -> Reconnect to Server)"));
-
+    entry->set_size(80, -1);
+    box->add(otable, false, true);
   }
 
   {
@@ -888,6 +883,18 @@ mforms::View *PreferencesForm::create_sqlide_page()
 
       otable->add_option(entry, _("Internal Workbench Schema:"),
                          _("This schema will be used by Workbench.\nto store information required on\ncertain operations."));
+    }
+
+    {
+      otable->add_checkbox_option("DbSqlEditor:SafeUpdates",
+                                  _("\"Safe Updates\".\nForbid UPDATEs and DELETEs with no key in WHERE clause or no LIMIT clause.\nRequires a reconnection."),
+                                  _("Enables the SQL_SAFE_UPDATES option for the session.\n"
+                                    "If enabled, MySQL aborts UPDATE or DELETE statements\n"
+                                    "that do not use a key in the WHERE clause or a LIMIT clause.\n"
+                                    "This makes it possible to catch UPDATE or DELETE statements\n"
+                                    "where keys are not used properly and that would probably change\n"
+                                    "or delete a large number of rows. \n"
+                                    "Changing this option requires a reconnection (Query -> Reconnect to Server)"));
     }
 
     box->add(otable, false, true);
@@ -905,17 +912,17 @@ mforms::View *PreferencesForm::create_general_editor_page()
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("SQL Parsing in Code Editors"));
     box->add(frame, false);
-    
+
     mforms::Box *vbox= mforms::manage(new mforms::Box(false));
     vbox->set_padding(8);
     vbox->set_spacing(8);
     frame->add(vbox);
-    
+
     {
       mforms::Box *tbox= mforms::manage(new mforms::Box(true));
       tbox->set_spacing(4);
       vbox->add(tbox, false);
-      
+
       tbox->add(new_label(_("Default SQL_MODE for syntax checker:"), true), false, false);
       mforms::TextEntry *entry= new_entry_option("SqlMode", false);
       entry->set_tooltip(_(
@@ -947,6 +954,17 @@ mforms::View *PreferencesForm::create_general_editor_page()
                            "SQL statement delimiter different from the normally used one (ie, shouldn't be ;). Change this only if the delimiter you normally use, specially in stored routines, happens to be the current setting."));
       tbox->add(entry, false, false);
     }
+  }
+
+  {
+    OptionTable *table;
+
+    table = mforms::manage(new OptionTable(this, _("Indentation"), true));
+    box->add(table, false, true);
+    table->add_checkbox_option("Editor:TabIndentSpaces", _("Tab key inserts spaces instead of tabs"), "Check if you want the tab key to indent using\nthe configured amount of spaces.");
+
+    table->add_entry_option("Editor:IndentWidth", "Indent width:", "How many spaces to insert when indenting with the tab key.");
+    table->add_entry_option("Editor:TabWidth", "Tab width:", "How many spaces wide are tab characters.");
   }
   return box;
 }
@@ -1876,26 +1894,19 @@ mforms::View *PreferencesForm::create_advanced_settings_page()
   Box* content = manage(new Box(false));
   content->set_spacing(8);
 
-  mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-  frame->set_title(_("SSH"));
-  content->add(frame, false);
+  OptionTable *table;
 
-  mforms::Box *vbox= mforms::manage(new mforms::Box(false));
-  vbox->set_padding(8);
-  vbox->set_spacing(8);
-  frame->add(vbox);
-
+  table = mforms::manage(new OptionTable(this, _("SSH"), true));
+  content->add(table, false, true);
   {
-    mforms::Box *tbox= mforms::manage(new mforms::Box(true));
-    tbox->set_spacing(4);
-    vbox->add(tbox, false);
+      mforms::TextEntry *entry= new_numeric_entry_option("sshkeepalive", 0, 500);
+      entry->set_max_length(5);
+      entry->set_size(50, -1);
+      entry->set_tooltip(_(
+      "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
 
-    tbox->add(new_label(_("SSH KeepAlive:"), true), false, false);
-    mforms::TextEntry *entry= new_entry_option("sshkeepalive", true);
-    entry->set_size(50, -1);
-    entry->set_tooltip(_(
-                         "The interval in seconds without sending any data over the connection, a \"keepalive\" packet will be sent.\nThis option will apply to both SSH tunnel connections and remote management via SSH."));
-    tbox->add(entry, false, false);
+      table->add_option(entry, _("SSH KeepAlive:"),
+                        _("SSH keep-alive interval in seconds.\nUse 0 to disable."));
   }
 
   return content;

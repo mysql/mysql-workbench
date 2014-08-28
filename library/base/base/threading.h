@@ -35,11 +35,11 @@
 #include <libkern/OSAtomic.h>
 #include <semaphore.h>
 #include "string_utilities.h"
-#endif
-
+#else
 #define BOOST_DATE_TIME_NO_LIB
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #undef BOOST_DATE_TIME_NO_LIB
+#endif
 
 namespace base {
 
@@ -409,6 +409,12 @@ public:
     void wait()
     {
       sem_wait(sem);
+    }
+
+    bool try_wait()
+    {
+      wait();//XXX doesn't exist in mac, needs reimplementation
+      return true;
     }
   };
 #else

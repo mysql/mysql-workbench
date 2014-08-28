@@ -39,6 +39,7 @@ public:
   virtual int get_column_count();
   virtual int get_column_width(int column);
   virtual void set_column_width(int column, int width);
+  virtual void update_columns();
 
   virtual bool current_cell(size_t &row, int &column);
   virtual void set_current_cell(size_t row, int column);

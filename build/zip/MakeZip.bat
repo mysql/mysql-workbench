@@ -4,8 +4,14 @@ if "%1"=="" goto printUsage
 if "%2"=="" goto printUsage
 if "%3"=="" goto printUsage
 
-if "%3"=="win32" set ARCH=x86
-if "%3"=="win64" set ARCH=x64
+if "%3"=="win32" (
+  set ARCH=x86
+  set FILENAME_ARCH=win32
+)
+if "%3"=="win64" (
+  set ARCH=x64
+  set FILENAME_ARCH=winx64
+)
 
 rem Set edition specific variables
 if "%1"=="commercial" set BIN_DIR=..\..\bin\%ARCH%\Release
@@ -26,8 +32,8 @@ rem Set other variables
 set DIST_DIR=.\distribution
 set UTIL_PATH=..\..\..\mysql-win-res\bin
 set PYTHON_EXE_PATH=..\..\..\..\mysql-win-res\bin\python\python.exe
-set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%3-noinstall.zip
-set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%3)"
+set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%-noinstall.zip
+set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%FILENAME_ARCH%)"
 set TMP_DIR=.\temp
 
 if not exist %BIN_DIR% goto ERROR1

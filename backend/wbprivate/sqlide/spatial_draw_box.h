@@ -25,7 +25,7 @@
 #include <stack>
 
 #include "mdc.h"
-#include "spatial_handler.h"
+#include "grt/spatial_handler.h"
 
 namespace mforms
 {
@@ -39,7 +39,7 @@ class SpatialDrawBox : public mforms::DrawBox
   base::Mutex _layer_mutex;
   spatial::Layer *_background_layer;
   std::deque<spatial::Layer*> _layers;
-  size_t _last_autozoom_layer;
+  spatial::LayerId _last_autozoom_layer;
   spatial::ProjectionType _proj;
   boost::shared_ptr<mdc::Surface> _cache;
   base::Mutex _thread_mutex;
@@ -59,6 +59,28 @@ class SpatialDrawBox : public mforms::DrawBox
 
   std::pair<double,double> _clicked_coordinates;
   base::Point _right_clicked_point;
+
+
+
+  struct Pin
+  {
+    double lat, lon;
+    cairo_surface_t *icon;
+
+    Pin(const Pin &other)
+    : lat(other.lat), lon(other.lon), icon(other.icon)
+    {
+      cairo_surface_reference(icon);
+    }
+    Pin(double lat_, double lon_, cairo_surface_t *i) : lat(lat_), lon(lon_), icon(i) {}
+
+    ~Pin()
+    {
+      if (icon)
+        cairo_surface_destroy(icon);
+    }
+  };
+  std::vector<Pin> _pins;
 
   double _min_lat, _max_lat;
   double _min_lon, _max_lon;
@@ -99,7 +121,8 @@ public:
   SpatialDrawBox();
   ~SpatialDrawBox();
 
-  boost::function<void (const std::string&,const std::string&)> position_changed_cb;
+  boost::function<void (base::Point)> position_changed_cb;
+  boost::function<void (base::Point)> position_clicked_cb;
 
   void set_context_menu(mforms::ContextMenu *menu);
   std::pair<double,double> clicked_coordinates() { return _clicked_coordinates; }
@@ -112,18 +135,21 @@ public:
   void reset_view();
   void zoom_out();
   void zoom_in();
-  void auto_zoom(const size_t layer_idx = (size_t)-1); //by default we set it to max, cause 0 can be also idx
-  void select_area();
+  void auto_zoom(const spatial::LayerId layer_idx = 0);
+  void select_area(bool flag);
 
   void center_on(double lat, double lon);
 
   void clear();
   void set_background(spatial::Layer *layer);
+  spatial::Layer *get_background() { return _background_layer; }
+  
   void add_layer(spatial::Layer *layer);
   void remove_layer(spatial::Layer *layer);
 
-  void show_layer(int layer_id, bool flag);
-  void fillup_polygon(int layer_id, bool flag);
+  spatial::Layer *get_layer(spatial::LayerId layer_id);
+
+  void show_layer(spatial::LayerId layer_id, bool flag);
 
   void activate();
 
@@ -135,6 +161,12 @@ public:
   virtual bool mouse_move(mforms::MouseButton button, int x, int y);
   virtual void repaint(cairo_t *crt, int x, int y, int w, int h);
 
-  bool screen_to_world(int x, int y, double &lat, double &lon);
-  void world_to_screen(double lat, double lon, int &x, int &y);
+  base::Point offset() { return base::Point(_offset_x, _offset_y); }
+
+  bool screen_to_world(const int &x, const int &y, double &lat, double &lon);
+  void world_to_screen(const double &lat, const double &lon, int &x, int &y);
+
+  base::Point transform_point(const base::Point &p);
+  void clear_pins();
+  void place_pin(cairo_surface_t *pin, const base::Point &p);
 };

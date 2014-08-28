@@ -140,14 +140,14 @@ mforms::MenuBar *SqlEditorForm::get_menubar()
       std::string dont_limit = _("Don't Limit");
       std::string active_limit = base::strfmt(_("Limit to %i rows"), limit_count);
 
-      limit_item->add_item_with_title(dont_limit, boost::bind(&SqlEditorForm::limit_rows, this, dont_limit), dont_limit);
+      limit_item->add_check_item_with_title(dont_limit, boost::bind(&SqlEditorForm::limit_rows, this, dont_limit), dont_limit);
       limit_item->add_separator();
       for (int i = 0; limit_counts[i] != 0; i++)
       {
         std::string tmp = base::strfmt(_("Limit to %i rows"), limit_counts[i]);
         if (limit_counts[i] == limit_count)
           active_limit = tmp;
-        limit_item->add_item_with_title(tmp, boost::bind(&SqlEditorForm::limit_rows, this, tmp), tmp);
+        limit_item->add_check_item_with_title(tmp, boost::bind(&SqlEditorForm::limit_rows, this, tmp), tmp);
       }
       if (limit_count <= 0)
         limit_rows(dont_limit);

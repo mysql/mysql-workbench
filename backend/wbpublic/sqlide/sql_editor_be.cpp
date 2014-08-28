@@ -248,6 +248,10 @@ MySQLEditor::MySQLEditor(grt::GRT *grt, ParserContext::Ref syntax_check_context,
   _editor_config = NULL;
   create_editor_config_for_version(version);
 
+  _code_editor->send_editor(SCI_SETTABWIDTH, d->_grtm->get_app_option_int("Editor:TabWidth", 4), 0);
+  _code_editor->send_editor(SCI_SETINDENT, d->_grtm->get_app_option_int("Editor:IndentWidth", 4), 0);
+  _code_editor->send_editor(SCI_SETUSETABS, !d->_grtm->get_app_option_int("Editor:TabIndentSpaces", 0), 0);
+
   scoped_connect(_code_editor->signal_changed(), boost::bind(&MySQLEditor::text_changed, this, _1, _2, _3, _4));
   scoped_connect(_code_editor->signal_char_added(), boost::bind(&MySQLEditor::char_added, this, _1));
   scoped_connect(_code_editor->signal_dwell(), boost::bind(&MySQLEditor::dwell_event, this, _1, _2, _3, _4));
@@ -931,7 +935,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
   d->split_statements_if_required();
   
   // Start tasks that depend on the statement ranges (markers + auto completion).
-  mforms::Utilities::perform_from_main_thread(boost::bind(&MySQLEditor::splitting_done, this), false);
+  d->_grtm->run_once_when_idle(this, boost::bind(&MySQLEditor::splitting_done, this));
 
   if (d->_stop_processing)
     return false;
@@ -954,7 +958,7 @@ bool MySQLEditor::do_statement_split_and_check(int id)
     }
   }
 
-  mforms::Utilities::perform_from_main_thread(boost::bind(&MySQLEditor::update_error_markers, this), false);
+  d->_grtm->run_once_when_idle(this, boost::bind(&MySQLEditor::update_error_markers, this));
 
   return false;
 }
@@ -963,12 +967,10 @@ bool MySQLEditor::do_statement_split_and_check(int id)
 
 /**
  * Updates the statement markup and starts auto completion if enabled. This is called in the
- * context of the main thread by the worker thread.
+ * context of the main thread.
  */
 void* MySQLEditor::splitting_done()
 {
-  // No locking needed here for the range vector as we are being called from the thread that
-  // modifies it.
   std::set<size_t> removal_candidates;
   std::set<size_t> insert_candidates;
 

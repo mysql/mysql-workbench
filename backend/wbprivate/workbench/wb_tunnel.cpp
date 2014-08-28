@@ -400,11 +400,23 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
       {
         // interactively ask user for password
         service = strfmt("ssh@%s", server.c_str());
-        if (!mforms::Utilities::credentials_for_service(_("Open SSH Tunnel"),
-                                                        service,
-                                                        username,
-                                                        reset_password,
-                                                        password))
+        
+        bool result = false;
+        try
+        {
+          result = mforms::Utilities::credentials_for_service(_("Open SSH Tunnel"),
+                                                              service, username,
+                                                              reset_password, password);
+        }
+        catch(std::exception &exc)
+        {
+          log_warning("Exception caught on credentials_for_service: %s", exc.what());
+          mforms::Utilities::show_error("Clear Password", 
+                                        base::strfmt("Could not clear password: %s", exc.what()),
+                                        "OK");
+        }
+        
+        if (!result)
           // we need to throw an exception to signal that tunnel could not be opened (and not that it was not needed)
           throw grt::user_cancelled("SSH password input cancelled by user");
       }
@@ -456,7 +468,15 @@ boost::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_Co
         if (mforms::Utilities::show_error("Could not connect the SSH Tunnel", exc.what(), _("Retry"), _("Cancel")) == mforms::ResultOk)
         {
           reset_password= true;
-          mforms::Utilities::forget_password(service, username);
+          try
+          {
+            mforms::Utilities::forget_password(service, username);
+          }
+          catch (std::exception &exc)
+          {
+            log_warning("Could not clear password: %s\n", exc.what());
+          }    
+          
           password = "";
           goto retry;
         }

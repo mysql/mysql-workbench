@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-#include "sqlide/spatial_handler.h"
+#include "spatial_handler.h"
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
@@ -37,7 +37,7 @@ static void ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg)
 }
 #endif
 
-bool spatial::operator== (ProjectionView &v1, ProjectionView &v2)
+bool spatial::operator== (const ProjectionView &v1, const ProjectionView &v2)
 {
   return (v1.MaxLat == v2.MaxLat &&
       v1.MaxLon == v2.MaxLon &&
@@ -46,17 +46,17 @@ bool spatial::operator== (ProjectionView &v1, ProjectionView &v2)
       v1.height == v2.height &&
       v1.width == v2.width);
 }
-bool spatial::operator!= (ProjectionView &v1, ProjectionView &v2)
+bool spatial::operator!= (const ProjectionView &v1, const ProjectionView &v2)
 {
   return !(v1==v2);
 }
 
-bool spatial::operator== (Envelope &env1, Envelope &env2)
+bool spatial::operator== (const Envelope &env1, const Envelope &env2)
 {
   return env1.bottom_right == env2.bottom_right && env1.top_left == env2.top_left;
 }
 
-bool spatial::operator!= (Envelope &env1, Envelope &env2)
+bool spatial::operator!= (const Envelope &env1, const Envelope &env2)
 {
   return !(env1==env2);
 }
@@ -86,31 +86,36 @@ bool spatial::Envelope::is_init()
   return (top_left.x != 180 && top_left.y != -90 && bottom_right.x != -180 && bottom_right.y != 90);
 }
 
-bool spatial::ShapeContainer::within(const base::Point &p) const
+bool spatial::Envelope::within(const base::Point &p) const
+{
+  return (top_left.x <= p.x && top_left.y <= p.y && bottom_right.x >= p.x && bottom_right.y >= p.y);
+}
+
+double spatial::ShapeContainer::distance(const base::Point &p) const
 {
   switch(type)
   {
   case ShapePoint:
-    return within_point(p);
+    return distance_point(p);
   case ShapeLineString:
-    return within_line(points, p);
+    return distance_line(points, p);
   case ShapeLinearRing:
-    return within_linearring(p);
+    return distance_linearring(p);
   case ShapePolygon:
-    return within_polygon(p);
+    return distance_polygon(p);
   default:
-    return false;
+    return -1;
   }
 }
 
-bool spatial::ShapeContainer::within_linearring(const base::Point &p) const
+double spatial::ShapeContainer::distance_linearring(const base::Point &p) const
 {
   if (points.empty())
     return false;
   std::vector<base::Point> tmp = points;
   tmp.push_back(*tmp.begin());
 
-  return within_line(tmp, p);
+  return distance_line(tmp, p);
 }
 
 //XXX see if all this code can be replaced with boost
@@ -141,20 +146,19 @@ static double distance_to_segment(const base::Point &start, const base::Point &e
   return sqrt(pow(dx, 2) + pow(dy, 2));
 }
 
-bool spatial::ShapeContainer::within_line(const std::vector<base::Point> &point_list, const base::Point &p) const
+double spatial::ShapeContainer::distance_line(const std::vector<base::Point> &point_list, const base::Point &p) const
 {
   if (point_list.empty())
-    return false;
+    return -1;
 
   std::vector<base::Point>::const_iterator it = point_list.begin(), it_tmp = point_list.begin();
   while (++it != point_list.end())
   {
     try
     {
-      if (distance_to_segment(*it_tmp, *it, p) <= 1.0)
-        return true;
+      return distance_to_segment(*it_tmp, *it, p);
     }
-    catch (std::logic_error &e)
+    catch (std::logic_error &)
     {
       //distance can raise Divide by zero exception, we silently skip this
     }
@@ -162,39 +166,34 @@ bool spatial::ShapeContainer::within_line(const std::vector<base::Point> &point_
     it_tmp = it;
   }
 
-  return false;
+  return -1;
 }
 
-bool spatial::ShapeContainer::within_polygon(const base::Point &p) const
+double spatial::ShapeContainer::distance_polygon(const base::Point &p) const
 {
   if (points.empty())
-      return false;
+      return -1;
 
   //first we check if we're in the bounding box cause maybe it's pointless to check all the polygon points
-  if (!(bounding_box.top_left.x <= p.x && bounding_box.top_left.y <= p.y && bounding_box.bottom_right.x >= p.x && bounding_box.bottom_right.y >= p.y))
-    return false;
+  if (!bounding_box.within(p))
+    return -1;
 
   bool c = false;
-  int i, j = 0;
-  int nvert = points.size();
+  size_t i, j = 0;
+  size_t nvert = points.size();
   for (i = 0, j = nvert-1; i < nvert; j = i++) {
     if ( ((points[i].y > p.y) != (points[j].y > p.y)) && (p.x < (points[j].x - points[i].x) * (p.y - points[i].y) / (points[j].y - points[i].y) + points[i].x) )
       c = !c;
   }
-  return c;
+  return c ? 0 : -1;
 }
 
-bool spatial::ShapeContainer::within_point(const base::Point &p) const
+double spatial::ShapeContainer::distance_point(const base::Point &p) const
 {
   if (points.empty())
-    return false;
+    return -1;
 
-  double rval = sqrt(pow((p.x - points[0].x), 2) + pow((p.y - points[0].y), 2));
-  if (rval < 4.0) //4 is tolerance for point to point distance
-  {
-    return true;
-  }
-  return false;
+  return sqrt(pow((p.x - points[0].x), 2) + pow((p.y - points[0].y), 2));
 }
 
 spatial::ShapeContainer::ShapeContainer()
@@ -431,17 +430,26 @@ spatial::Importer::Importer() : _geometry(NULL), _interrupt(false)
 {
 }
 
+OGRGeometry *spatial::Importer::steal_data()
+{
+  OGRGeometry *tmp = _geometry;
+  _geometry = NULL;
+  return tmp;
+}
+
 int spatial::Importer::import_from_mysql(const std::string &data)
 {
-  OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin()+4))), NULL, &_geometry);
+  if (data.size() > 4)
+  {
+    OGRErr ret_val = OGRGeometryFactory::createFromWkb((unsigned char*)const_cast<char*>(&(*(data.begin() + 4))), NULL, &_geometry);
 
-  if (_geometry)
-    _geometry->assignSpatialReference(Projection::get_instance().get_projection(ProjGeodetic));
+    if (_geometry)
+      _geometry->assignSpatialReference(Projection::get_instance().get_projection(ProjGeodetic));
 
-  if (ret_val == OGRERR_NONE)
-    return 0;
-  else
-    return 1;
+    if (ret_val == OGRERR_NONE)
+      return 0;
+  }
+  return 1;
 }
 
 int spatial::Importer::import_from_wkt(std::string data)
@@ -458,6 +466,83 @@ int spatial::Importer::import_from_wkt(std::string data)
     return 1;
 }
 
+std::string spatial::Importer::as_wkt()
+{
+  char *data;
+  if (_geometry)
+  {
+    OGRErr err;
+    if ((err = _geometry->exportToWkt(&data)) != OGRERR_NONE)
+    {
+      log_error("Error exporting data to WKT (%i)\n", err);
+    }
+    else
+    {
+      std::string tmp(data);
+      OGRFree(data);
+      return tmp;
+    }
+  }
+  return "";
+}
+
+std::string spatial::Importer::as_kml()
+{
+  char *data;
+  if (_geometry)
+  {
+    if (!(data = _geometry->exportToKML()))
+    {
+      log_error("Error exporting data to KML\n");
+    }
+    else
+    {
+      std::string tmp(data);
+      CPLFree(data);
+      return tmp;
+    }
+  }
+  return "";
+}
+
+std::string spatial::Importer::as_json()
+{
+  char *data;
+  if (_geometry)
+  {
+    if (!(data = _geometry->exportToJson()))
+    {
+      log_error("Error exporting data to JSON\n");
+    }
+    else
+    {
+      std::string tmp(data);
+      CPLFree(data);
+      return tmp;
+    }
+  }
+  return "";
+}
+
+std::string spatial::Importer::as_gml()
+{
+  char *data;
+  if (_geometry)
+  {
+    if (!(data = _geometry->exportToGML()))
+    {
+      log_error("Error exporting data to GML\n");
+    }
+    else
+    {
+      std::string tmp(data);
+      CPLFree(data);
+      return tmp;
+    }
+  }
+  return "";
+}
+
 void spatial::Importer::interrupt()
 {
   _interrupt = true;
@@ -471,17 +556,23 @@ spatial::Converter::Converter(ProjectionView view, OGRSpatialReference *src_srs,
   change_projection(view, src_srs, dst_srs);
 }
 
-const char* spatial::Converter::dec_to_dms(double angle, AxisType axis, int precision)
+std::string spatial::Converter::dec_to_dms(double angle, AxisType axis, int precision)
 {
+  const char *tmp = NULL;
   switch(axis)
   {
   case AxisLat:
-    return GDALDecToDMS(angle, "Lat", precision);
+    tmp = GDALDecToDMS(angle, "Lat", precision);
+    break;
   case AxisLon:
-    return GDALDecToDMS(angle, "Long", precision);
+    tmp = GDALDecToDMS(angle, "Long", precision);
+    break;
   default:
     throw std::logic_error("Unknown axis type\n");
   }
+  if (tmp)
+    return tmp;
+  return "";
 }
 
 spatial::Converter::~Converter()
@@ -558,7 +649,8 @@ void spatial::Converter::change_projection(ProjectionView view, OGRSpatialRefere
   _adf_projection[3] = maxLon;
   _adf_projection[4] = 0;
   _adf_projection[5] = -(maxLon - minLon) / (double)_view.height;
-  GDALInvGeoTransform(_adf_projection, _inv_projection);
+  if (!GDALInvGeoTransform(_adf_projection, _inv_projection))
+    log_error("Unable to invert equation\n");
 }
 
 void spatial::Converter::to_projected(int x, int y, double &lat, double &lon)
@@ -644,6 +736,36 @@ void spatial::Converter::transform_points(std::deque<ShapeContainer> &shapes_con
   }
 }
 
+void spatial::Converter::transform_envelope(spatial::Envelope &env)
+{
+
+  if (!env.is_init())
+  {
+    log_error("Can't transform empty envelope.\n");
+    return;
+  }
+
+  if (_geo_to_proj->Transform(1, &env.top_left.x, &env.top_left.y) &&
+  _geo_to_proj->Transform(1, &env.bottom_right.x, &env.bottom_right.y))
+  {
+    int x, y;
+    from_projected(env.bottom_right.x, env.bottom_right.y, x, y);
+    env.bottom_right.x = x;
+    env.bottom_right.y = y;
+    from_projected(env.top_left.x, env.top_left.y, x, y);
+    env.top_left.x = x;
+    env.top_left.y = y;
+    env.converted = true;
+  }
+  else
+  {
+    log_error("Unable to transform envelope: %f, %f, %f, %f.\n", env.top_left.x, env.top_left.y, env.bottom_right.x, env.bottom_right.y);
+  }
+
+
+
+}
+
 void spatial::Converter::interrupt()
 {
   _interrupt = true;
@@ -664,9 +786,15 @@ Feature::~Feature()
 {
 }
 
-void Feature::get_envelope(spatial::Envelope &env)
+void Feature::get_envelope(spatial::Envelope &env, const bool &screen_coords)
 {
-  _geometry.get_envelope(env);
+  if (!screen_coords)
+  {
+    _geometry.get_envelope(env);
+    return;
+  }
+
+  env = _env_screen;
 }
 
 void Feature::render(Converter *converter)
@@ -674,18 +802,40 @@ void Feature::render(Converter *converter)
   std::deque<ShapeContainer> tmp_shapes;
   _geometry.get_points(tmp_shapes);
   converter->transform_points(tmp_shapes);
+  spatial::Envelope env;
+  _geometry.get_envelope(env);
+  converter->transform_envelope(env);
+  _env_screen = env;
+
   _shapes = tmp_shapes;
+
+
 }
 
 
-bool Feature::within(const base::Point &p)
+double Feature::distance(const base::Point &p, const double &allowed_distance)
 {
+  //we need to extend the envelope by allowed_distance cuase we don't want to make assumption based on number of shapes
+  if (_env_screen.is_init())
+  {
+    spatial::Envelope env = _env_screen;
+    env.top_left.x -= allowed_distance;
+    env.top_left.y -= allowed_distance;
+    env.bottom_right.x += allowed_distance;
+    env.bottom_right.y += allowed_distance;
+    if (!env.within(p))
+      return -1;
+  }
+
+  double rval = -1;
   for (std::deque<ShapeContainer>::const_iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
-    if ((*it).within(p))
-      return true;
+    double dist = (*it).distance(p);
+    if (dist < allowed_distance && dist != -1 && (dist < rval || rval == -1))
+      rval = dist;
   }
-  return false;
+
+  return rval;
 }
 
 void Feature::interrupt()
@@ -693,7 +843,7 @@ void Feature::interrupt()
   _geometry.interrupt();
 }
 
-void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, bool fill_polygons)
+void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, base::Color fill_color)
 {
   for (std::deque<ShapeContainer>::iterator it = _shapes.begin(); it != _shapes.end() && !_owner->_interrupt; it++)
   {
@@ -711,8 +861,13 @@ void Feature::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_are
         for (size_t i = 1; i < (*it).points.size(); i++)
           cr.line_to((*it).points[i]);
         cr.close_path();
-        if (fill_polygons)
-          cr.fill();
+        if (fill_color.is_valid())
+        {
+          cr.save();
+          cr.set_color(fill_color);
+          cr.fill_preserve();
+          cr.restore();
+        }
         cr.stroke();
         break;
 
@@ -816,9 +971,13 @@ void Layer::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
 
   cr.save();
   cr.set_line_width(0.5);
-  cr.set_color(_color);
+  base::Color color(_color); // darken colors
+  color.red *= 0.6;
+  color.green *= 0.6;
+  color.blue *= 0.6;
+  cr.set_color(color);
   for (std::deque<Feature*>::iterator it = _features.begin(); it != _features.end() && !_interrupt; ++it)
-    (*it)->repaint(cr, scale, clip_area, _fill_polygons);
+    (*it)->repaint(cr, scale, clip_area, _fill_polygons ? _color : base::Color::Invalid());
 
   cr.restore();
 }
@@ -847,13 +1006,26 @@ void Layer::render(Converter *converter)
   }
 }
 
-spatial::Feature* Layer::feature_within(const base::Point &p)
+spatial::Feature* Layer::feature_closest(const base::Point &p, const double &allowed_distance)
 {
+  double rval = -1;
+  spatial::Feature *f = NULL;
   for (std::deque<spatial::Feature*>::iterator iter = _features.begin(); iter != _features.end() && !_interrupt; ++iter)
   {
-    if ((*iter)->within(p))
-      return *iter;
+    double dist = (*iter)->distance(p, allowed_distance);
+    if (dist < allowed_distance && dist != -1 && (dist < rval || rval == -1))
+    {
+      rval = dist;
+      f = (*iter);
+    }
   }
-  return NULL;
+
+  return f;
 }
 
+
+spatial::LayerId spatial::new_layer_id()
+{
+  static LayerId id = 0;
+  return ++id;
+}

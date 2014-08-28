@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +53,8 @@ public:
   void init(const db_mgmt_ManagementRef &mgmt, const db_mgmt_ConnectionRef &default_conn=db_mgmt_ConnectionRef());
   
   void init(DbConnection *conn, const db_mgmt_ConnectionRef &default_conn=db_mgmt_ConnectionRef());
+
+  static bool is_connectable_driver_type(db_mgmt_DriverRef driver);
 
   void set_default_host_name(const std::string &host, bool update=false);
   std::string default_host_name() { return _default_host_name; }
