@@ -332,6 +332,12 @@ System::Drawing::Size HorizontalGtkBoxLayout::ComputeLayout(LayoutBox ^box, Syst
       Button ^button = (Button ^)entry->control;
       if (button->FlatStyle == FlatStyle::Flat)
         entry->bounds = Drawing::Rectangle::Inflate(entry->bounds, -3, -3);
+      else
+      {
+        // If a smaller size than the preferred size is set for a button use this instead.
+        if (button->MinimumSize.Height > 0 && button->MinimumSize.Height < control->PreferredSize.Height)
+          entry->bounds.Height = button->MinimumSize.Height;
+      }
     }
 
     // Sort control into the proper alignment list.
