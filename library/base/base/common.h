@@ -17,13 +17,13 @@
  * 02110-1301  USA
  */
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#pragma once
+
+#define MIN_SERVER_VERSION 50100
+#define MAX_SERVER_VERSION 99999
 
 #ifdef _WIN32
-  #if defined(_MSC_VER)
-#pragma warning(disable:4251)
-#endif//#if defined(_WIN32)
+  #pragma warning(disable:4251) // class needs to have dll-interface
 
   #ifdef BASELIBRARY_EXPORTS
     #define BASELIBRARY_PUBLIC_FUNC __declspec(dllexport)
@@ -52,5 +52,3 @@
   #endif
 
 #endif // _WIN32
-
-#endif // _COMMON_H_
