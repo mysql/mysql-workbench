@@ -18,6 +18,9 @@
  */
 
 #include "mforms/mforms.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN("mforms");
 
 using namespace mforms;
 
@@ -129,7 +132,7 @@ void ToolBar::remove_item(ToolBarItem *item)
 
 
 ToolBarItem::ToolBarItem(ToolBarItemType type, const bool expandable)
-: _type(type), _expandable(expandable)
+: _type(type), _updating(false), _expandable(expandable)
 {
   _impl = &mforms::ControlFactory::get_instance()->_tool_bar_impl;
   _impl->create_tool_item(this, type);
@@ -137,7 +140,9 @@ ToolBarItem::ToolBarItem(ToolBarItemType type, const bool expandable)
 
 void ToolBarItem::set_text(const std::string &text)
 {
+  _updating = true;
   _impl->set_item_text(this, text);
+  _updating = false;
 }
 
 std::string ToolBarItem::get_text()
@@ -175,7 +180,9 @@ bool ToolBarItem::get_enabled()
 
 void ToolBarItem::set_checked(bool flag)
 {
+  _updating = true;
   _impl->set_item_checked(this, flag);
+  _updating = false;
 }
 
 
@@ -192,12 +199,23 @@ void ToolBarItem::set_name(const std::string &name)
 
 void ToolBarItem::set_selector_items(const std::vector<std::string>& values)
 {
+  _updating = true;
   _impl->set_selector_items(this, values);
+  _updating = false;
 }
 
 void ToolBarItem::callback()
 {
-  _clicked_signal(this);
+  try
+  {
+    if (!_updating)
+      _clicked_signal(this);
+  }
+  catch (std::exception &exc)
+  {
+    log_error("Unhandled exception in toolbar callback for %s: %s\n", _name.c_str(), exc.what());
+    mforms::Utilities::show_error("Unhandled Exception", exc.what(), "OK");
+  }
 }
 
 void ToolBarItem::validate()

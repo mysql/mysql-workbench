@@ -373,28 +373,6 @@ namespace MySQL.GUI.Workbench
         try
         {
           dlg.Color = System.Drawing.ColorTranslator.FromHtml(value);
-          /*
-          char[] excl = new char[2] { '#', ' ' };
-          string hex = value.Trim(excl);
-          UInt32 rgb = 0xFFU << 24;
-          try
-          {
-            // Microsoft.visualBasic.Conversion doesn't work as expected - converts &h00ff00 to -255
-            // hex = "&h" + hex;
-            // rgb = (int)Conversion.Val(hex);
-            // workaround:
-            for (int n = 0; 6 > n; ++n)
-            {
-              byte k = (byte)((hex[n] > '9') ? (10 + hex[n] - 'a') : (hex[n] - '0'));
-              rgb += (UInt32)k << 4 * (5 - n);
-            }
-          }
-          catch (Exception)
-          {
-            rgb = (UInt32)SystemColors.Window.ToArgb();
-          }
-          dlg.Color = Color.FromArgb((int)rgb);
-          */
         }
         catch (Exception)
         {
@@ -403,21 +381,10 @@ namespace MySQL.GUI.Workbench
         if (DialogResult.OK != dlg.ShowDialog())
           return value;
 
-        {
-          // convert from Color struct to string
-          // value = System.Drawing.ColorTranslator.ToHtml(dlg.Color);
-          value = string.Empty;
-          Color color = dlg.Color;
-          byte[] rgb = new byte[3] { color.R, color.G, color.B };
-          for (int n = 0; 3 > n; ++n)
-          {
-            string s = String.Format("%X", rgb[n]);
-            for (int k = 0; k < 2 - s.Length; ++k)
-              s += '0';
-            value += s;
-          }
-          value = "#" + value.ToLower();
-        }
+        // Cannot use ColorTranslator.ToHtml(dlg.Color) here, as it would convert known colors
+        // to text (e.g. White, Black).
+        Color color = dlg.Color;
+        value = String.Format("#{0:X2}{1:X2}{2:X2}", color.R, color.G, color.B);
       }
       catch (Exception)
       {
@@ -469,21 +436,4 @@ namespace MySQL.GUI.Workbench
     }
   }
 
-  public class TreeModelTooltipProvider : IToolTipProvider
-  {
-    public int TooltipColumn;
-    public MySQL.Grt.TreeModelWrapper Model;
-
-    public string GetToolTip(TreeNodeAdv node, NodeControl nodeControl)
-    {
-      GrtTreeNode grtNode = node.Tag as GrtTreeNode;
-      if (null != grtNode)
-      {
-        string tooltip;
-        Model.get_field(grtNode.NodeId, TooltipColumn, out tooltip);
-        return tooltip;
-      }
-      return "";
-    }
-  }
 }

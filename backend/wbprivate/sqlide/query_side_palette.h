@@ -95,5 +95,6 @@ public:
   void close_popover();
 
   void refresh_snippets();
+  void edit_last_snippet();
 };
 

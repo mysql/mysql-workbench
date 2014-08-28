@@ -738,7 +738,7 @@ class WbAdminConnections(WbAdminBaseTab):
                                 waiting_label_text = "The connection is waiting for a lock on\n%s %s,\nheld by thread %s." % (otype.lower(), obj_name, owner_list)
                             else:
                                 waiting_label_text = "The connection is waiting for a lock on\n%s %s,\nheld by threads %s" % (otype.lower(), obj_name, owner_list)
-                            waiting_label_text += "\Type: %s  Duration: %s" % (lock_type, lock_duration)
+                            waiting_label_text += "\nType: %s\nDuration: %s" % (lock_type, lock_duration)
                         elif lock_status == "GRANTED":
                             node = self.mdl_list_held.add_node()
 

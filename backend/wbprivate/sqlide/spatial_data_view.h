@@ -25,6 +25,7 @@
 
 #include "mforms/box.h"
 #include "mforms/utilities.h"
+
 #include <deque>
 
 namespace mforms
@@ -37,12 +38,15 @@ namespace mforms
   class Label;
   class ContextMenu;
   class MenuItem;
+  class TextBox;
 };
 
 class SpatialDrawBox;
 class SqlEditorResult;
 class SqlEditorForm;
 class ProgressPanel;
+
+typedef int LayerId; // must be the same as spatial::LayerId, which we can't import b/c gdal creates some weird dependencies
 
 class SpatialDataView : public mforms::Box
 {
@@ -69,6 +73,10 @@ private:
   mforms::ContextMenu *_layer_menu;
   mforms::ContextMenu *_map_menu;
 
+  mforms::TextBox *_info_box;
+
+  LayerId _active_layer;
+
   mforms::Label *_mouse_pos_label;
 
   SpatialDrawBox *_viewer;
@@ -80,16 +88,27 @@ private:
   void work_started(mforms::View *progress, bool reprojecting);
   void work_finished(mforms::View *progress);
 
-  void update_coordinates(const std::string &lat, const std::string &lon);
+  void update_coordinates(base::Point p);
+  void handle_click(base::Point p);
+
   void jump_to();
   void auto_zoom();
   void copy_coordinates();
+
+  void change_tool(mforms::ToolBarItem *item);
+
+  // layer currently selected in the treeview
+  LayerId get_selected_layer_id();
+  // layer that's currently set as the active one (bolded in treeview)
+  class RecordsetLayer *active_layer();
+  void set_active_layer(LayerId layer);
 
   int row_id_for_action(class RecordsetLayer *&layer);
   void copy_record();
   void view_record();
 
   void map_menu_will_show();
+  void layer_menu_will_show();
 
 public:
   SpatialDataView(SqlEditorResult *owner);

@@ -124,6 +124,10 @@ protected:
 
   void update_menu_and_toolbar();
   void update_toolbar_icons();
+
+  void save_workspace_order(const std::string &prefix);
+  std::string find_workspace_state(const std::string &workspace_name, std::auto_ptr<base::LockFile> &lock_file);
+
 public:
   virtual ~SqlEditorForm();
 
@@ -167,6 +171,7 @@ private:
   bool _loading_workspace;
   bool _cancel_connect;
   bool _closing;
+  bool _startup_done;
 
   void activate_command(const std::string &command);
 
@@ -182,6 +187,7 @@ public:
 
   void sql_editor_reordered(SqlEditorPanel *editor, int new_index);
 
+  bool is_closing() const { return _closing; }
 private:
 
   int _sql_editors_serial;
@@ -378,8 +384,8 @@ public:
 
 private:
   void apply_changes_to_recordset(Recordset::Ptr rs_ptr);
-  bool run_data_changes_commit_wizard(Recordset::Ptr rs_ptr);
-  void apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr);
+  bool run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool skip_commit);
+  void apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr, bool skip_commit);
   void update_editor_title_schema(const std::string& schema);
 
 public:  

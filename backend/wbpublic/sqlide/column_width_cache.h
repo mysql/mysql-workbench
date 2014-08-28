@@ -34,4 +34,5 @@ public:
 
   void save_column_width(const std::string &column_id, int width);
   int get_column_width(const std::string &column_id);
+  void delete_column_width(const std::string &column_id);
 };

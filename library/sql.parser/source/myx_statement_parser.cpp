@@ -237,7 +237,7 @@ void MyxStatementParser::process(std::istream& is, process_sql_statement_callbac
       {
         c= get_next_char(is, &len);
         _stmt_boffset+= len;
-        delim_buffer+= c;
+        delim_buffer+= (char)c;
         c= peek_next_char(is, &len);
       }
       //if(delim_buffer.length() > delim.length()) 

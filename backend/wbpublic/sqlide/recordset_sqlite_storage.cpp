@@ -185,11 +185,11 @@ void Recordset_sqlite_storage::do_serialize(const Recordset *recordset, sqlite::
   SqlFacade::Ref sql_facade= SqlFacade::instance_for_rdbms_name(_grtm->get_grt(), "Mysql"); //!
   Sql_script sql_script;
   sql_facade->splitSqlScript(this->sql_script(), sql_script.statements);
-  run_sql_script(sql_script);
+  run_sql_script(sql_script, false);
 }
 
 
-void Recordset_sqlite_storage::run_sql_script(const Sql_script &sql_script)
+void Recordset_sqlite_storage::run_sql_script(const Sql_script &sql_script, bool skip_commit)
 {
   sqlite::connection conn(_db_path);
   sqlide::optimize_sqlite_connection_for_speed(&conn);

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -263,9 +263,9 @@ void Recordset_table_inserts_storage::generate_sql_script(const Recordset *recor
 }
 
 
-void Recordset_table_inserts_storage::do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db)
+void Recordset_table_inserts_storage::do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commit)
 {
-  Recordset_sqlite_storage::do_apply_changes(recordset, data_swap_db);
+  Recordset_sqlite_storage::do_apply_changes(recordset, data_swap_db, skip_commit);
   _grtm->has_unsaved_changes(true);
 }
 

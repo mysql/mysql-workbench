@@ -348,7 +348,8 @@ void PhysicalModelDiagramFeatures::highlight_connection(const workbench_physical
   
   if (flag)
   {
-    conn->get_data()->highlight();
+    base::Color color(_diagram->get_view()->get_highlight_color());
+    conn->get_data()->highlight(&color);
     _highlighted_connection_id = conn.id();
   }
   else
@@ -465,17 +466,7 @@ void PhysicalModelDiagramFeatures::show_tooltip(const model_ObjectRef &object, m
 
       base::Point pos;
       _tooltip->set_text(text);
-      /*
-      if (workbench_physical_ConnectionRef::can_wrap(object))
-      {
-        _diagram->current_mouse_position(pos);
-        _tooltip->show(pos.x, pos.y + 5);
-      }
-      else
-      {
-        base::Point pos = item->get_root_position();
-        _tooltip->show(pos.x + item->get_size().width + 2, pos.y);
-      }*/
+
       _tooltip->show(-1, -1);
     }
   }

@@ -138,7 +138,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -155,7 +155,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -170,7 +170,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -185,7 +185,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -201,7 +201,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -217,7 +217,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalIncludeDirectories>$(SolutionDir)\library\base;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

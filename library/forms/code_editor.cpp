@@ -1166,9 +1166,23 @@ void CodeEditor::toggle_features(CodeEditorFeature features)
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::reset_dirty()
+void CodeEditor::set_read_only(bool flag)
+{
+  _code_editor_impl->send_editor(this, SCI_SETREADONLY, flag, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::reset_undo_stack()
 {
   _code_editor_impl->send_editor(this, SCI_EMPTYUNDOBUFFER, 0, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::reset_dirty()
+{
+  _code_editor_impl->send_editor(this, SCI_SETSAVEPOINT, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------

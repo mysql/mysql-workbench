@@ -145,6 +145,7 @@ private:
   cairo_surface_t* _close_icon;
   cairo_surface_t* _open_icon;
   cairo_surface_t* _action_icon;
+  float _backing_scale_when_icons_loaded;
 
   ssize_t _page_start;
   ssize_t _entries_per_page;
@@ -194,19 +195,9 @@ public:
     _entries_per_page = 0;
     _entries_per_row = 0;
     _show_selection_message = false;
+    _backing_scale_when_icons_loaded = 0.0;
 
-    _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
-    _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
-    _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
-    _model_icon = mforms::Utilities::load_icon("wb_doc_model.png", true);
-    _sql_icon = mforms::Utilities::load_icon("wb_doc_sql.png");
-    _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png", true);
-    _time_icon = mforms::Utilities::load_icon("wb_tile_time.png", true);
-    _folder_icon = mforms::Utilities::load_icon("wb_tile_folder_mini.png", true);
-    _size_icon = mforms::Utilities::load_icon("wb_tile_number.png");
-    _close_icon = mforms::Utilities::load_icon("wb_close.png");
-    _open_icon = mforms::Utilities::load_icon("wb_tile_open.png");
-    _action_icon = mforms::Utilities::load_icon("wb_tile_more.png");
+    load_icons();
 
     _add_button.name = "Add Model";
     _add_button.default_action = "Create New Model";
@@ -645,10 +636,48 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+
+  void load_icons()
+  {
+    if (_backing_scale_when_icons_loaded != mforms::App::get()->backing_scale_factor())
+    {
+      // reload icons if the backing scale changed
+      if (_backing_scale_when_icons_loaded != 0)
+      {
+        delete_surface(_model_icon);
+        delete_surface(_schema_icon);
+        delete_surface(_time_icon);
+        delete_surface(_folder_icon);
+      }
+      _model_icon = mforms::Utilities::load_icon("wb_doc_model.png", true);
+      _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png", true);
+      _time_icon = mforms::Utilities::load_icon("wb_tile_time.png", true);
+      _folder_icon = mforms::Utilities::load_icon("wb_tile_folder_mini.png", true);
+
+      if (_backing_scale_when_icons_loaded == 0)
+      {
+        _page_down_icon = mforms::Utilities::load_icon("wb_tile_page-down.png");
+        _page_up_icon = mforms::Utilities::load_icon("wb_tile_page-up.png");
+        _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
+        _sql_icon = mforms::Utilities::load_icon("wb_doc_sql.png");
+        _size_icon = mforms::Utilities::load_icon("wb_tile_number.png");
+        _close_icon = mforms::Utilities::load_icon("wb_close.png");
+        _open_icon = mforms::Utilities::load_icon("wb_tile_open.png");
+        _action_icon = mforms::Utilities::load_icon("wb_tile_more.png");
+      }
+
+      _backing_scale_when_icons_loaded = mforms::App::get()->backing_scale_factor();
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah)
   {
     int width = get_width();
     int height = get_height();
+
+    load_icons();
 
     cairo_set_line_width(cr, 1);
     cairo_select_font_face(cr, HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);

@@ -687,9 +687,9 @@ bool Utilities::credentials_for_service(const std::string &title, const std::str
       }
       catch (std::exception &exc)
       {
+        log_warning("Could not store password vault: %s\n", exc.what());
         show_warning(title.empty() ? _("Error Storing Password") : title, 
                      std::string("There was an error storing the password:\n")+exc.what(), "OK");
-        log_warning("Could not store password vault: %s\n", exc.what());
       }
     }
     return true;
@@ -768,6 +768,14 @@ bool Utilities::is_hidpi_icon(cairo_surface_t *s)
 
 //--------------------------------------------------------------------------------------------------
 
+bool Utilities::icon_needs_reload(cairo_surface_t *s)
+{
+  float scale = s && mforms::Utilities::is_hidpi_icon(s) ? 2 : 1;
+  return mforms::App::get()->backing_scale_factor() != scale;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double y, float alpha)
 {
   float backing_scale_factor = mforms::App::get()->backing_scale_factor();
@@ -783,6 +791,22 @@ void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double
       cairo_paint_with_alpha(cr, alpha);
     cairo_restore(cr);
   }
+  else if (backing_scale_factor == 1 && mforms::Utilities::is_hidpi_icon(image))
+  {
+    // special case where the icon is for hidpi but the screen is not
+    // this happens when the icon was cached while the window was
+    // in a hidpi screen but is then dragged to a stddpi screen
+    // ideally these cases would trigger a reload of the icon
+    cairo_save(cr);
+    cairo_scale(cr, 0.5, 0.5);
+    cairo_set_source_surface(cr, image, x*2, y*2);
+    if (alpha == 1.0)
+      cairo_paint(cr);
+    else
+      cairo_paint_with_alpha(cr, alpha);
+    cairo_restore(cr);
+    log_debug2("Icon is for hidpi screen but the screen is not.\n");
+  }
   else
   {
     cairo_set_source_surface(cr, image, x, y);
@@ -797,14 +821,12 @@ void Utilities::paint_icon(cairo_t *cr, cairo_surface_t *image, double x, double
 
 void Utilities::get_icon_size(cairo_surface_t *icon, int &w, int &h)
 {
-  float backing_scale_factor = mforms::App::get()->backing_scale_factor();
-
   w = cairo_image_surface_get_width(icon);
   h = cairo_image_surface_get_height(icon);
-  if (backing_scale_factor > 1 && mforms::Utilities::is_hidpi_icon(icon))
+  if (mforms::Utilities::is_hidpi_icon(icon))
   {
-    w = (int)(w / backing_scale_factor);
-    h = (int)(h / backing_scale_factor);
+    w = (int)(w / 2);
+    h = (int)(h / 2);
   }
 }
 
@@ -866,6 +888,15 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
   }
   
   return "";
+}
+
+
+double Utilities::get_text_width(const std::string &text, const std::string &font)
+{
+  if (ControlFactory::get_instance()->_utilities_impl.get_text_width)
+    return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
+  else
+    return text.length() * 20; // temporary hardcoded until implemented in Windows and Linux
 }
 
 //--------------------------------------------------------------------------------------------------

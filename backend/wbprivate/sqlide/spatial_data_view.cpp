@@ -22,7 +22,7 @@
 #include "base/file_utilities.h"
 #include "spatial_data_view.h"
 #include "spatial_draw_box.h"
-#include "spatial_handler.h"
+#include "grt/spatial_handler.h"
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_result_panel.h"
 
@@ -35,6 +35,7 @@
 #include "mforms/checkbox.h"
 #include "mforms/treenodeview.h"
 #include "mforms/label.h"
+#include "mforms/textbox.h"
 
 #include "mdc.h"
 
@@ -88,13 +89,27 @@ class GridLayer : public spatial::Layer
 {
 public:
   GridLayer(int layer_id, base::Color color)
-  : spatial::Layer(layer_id, color)
+  : spatial::Layer(layer_id, color) // the color is the background color, the grid color is always gray
   {
     _show = true;
 
+    set_fill_polygons(true);
     std::string data = "GEOMETRYCOLLECTION(LINESTRING(-179 -89,-165 -89,-150 -89,-135 -89,-120 -89,-105 -89,-89 -89,-75 -89,-60 -89,-45 -89,-30 -89,-15 -89,0 -89,15 -89,30 -89,45 -89,60 -89,75 -89,89 -89,105 -89,120 -89,135 -89,150 -89,165 -89,179 -89),LINESTRING(-179 -75,-165 -75,-150 -75,-135 -75,-120 -75,-105 -75,-89 -75,-75 -75,-60 -75,-45 -75,-30 -75,-15 -75,0 -75,15 -75,30 -75,45 -75,60 -75,75 -75,89 -75,105 -75,120 -75,135 -75,150 -75,165 -75,179 -75),LINESTRING(-179 -60,-165 -60,-150 -60,-135 -60,-120 -60,-105 -60,-89 -60,-75 -60,-60 -60,-45 -60,-30 -60,-15 -60,0 -60,15 -60,30 -60,45 -60,60 -60,75 -60,89 -60,105 -60,120 -60,135 -60,150 -60,165 -60,179 -60),LINESTRING(-179 -45,-165 -45,-150 -45,-135 -45,-120 -45,-105 -45,-89 -45,-75 -45,-60 -45,-45 -45,-30 -45,-15 -45,0 -45,15 -45,30 -45,45 -45,60 -45,75 -45,89 -45,105 -45,120 -45,135 -45,150 -45,165 -45,179 -45),LINESTRING(-179 -30,-165 -30,-150 -30,-135 -30,-120 -30,-105 -30,-89 -30,-75 -30,-60 -30,-45 -30,-30 -30,-15 -30,0 -30,15 -30,30 -30,45 -30,60 -30,75 -30,89 -30,105 -30,120 -30,135 -30,150 -30,165 -30,179 -30),LINESTRING(-179 -15,-165 -15,-150 -15,-135 -15,-120 -15,-105 -15,-89 -15,-75 -15,-60 -15,-45 -15,-30 -15,-15 -15,0 -15,15 -15,30 -15,45 -15,60 -15,75 -15,89 -15,105 -15,120 -15,135 -15,150 -15,165 -15,179 -15),LINESTRING(-179 0,-165 0,-150 0,-135 0,-120 0,-105 0,-89 0,-75 0,-60 0,-45 0,-30 0,-15 0,0 0,15 0,30 0,45 0,60 0,75 0,89 0,105 0,120 0,135 0,150 0,165 0,179 0),LINESTRING(-179 15,-165 15,-150 15,-135 15,-120 15,-105 15,-89 15,-75 15,-60 15,-45 15,-30 15,-15 15,0 15,15 15,30 15,45 15,60 15,75 15,89 15,105 15,120 15,135 15,150 15,165 15,179 15),LINESTRING(-179 30,-165 30,-150 30,-135 30,-120 30,-105 30,-89 30,-75 30,-60 30,-45 30,-30 30,-15 30,0 30,15 30,30 30,45 30,60 30,75 30,89 30,105 30,120 30,135 30,150 30,165 30,179 30),LINESTRING(-179 45,-165 45,-150 45,-135 45,-120 45,-105 45,-89 45,-75 45,-60 45,-45 45,-30 45,-15 45,0 45,15 45,30 45,45 45,60 45,75 45,89 45,105 45,120 45,135 45,150 45,165 45,179 45),LINESTRING(-179 60,-165 60,-150 60,-135 60,-120 60,-105 60,-89 60,-75 60,-60 60,-45 60,-30 60,-15 60,0 60,15 60,30 60,45 60,60 60,75 60,89 60,105 60,120 60,135 60,150 60,165 60,179 60),LINESTRING(-179 75,-165 75,-150 75,-135 75,-120 75,-105 75,-89 75,-75 75,-60 75,-45 75,-30 75,-15 75,0 75,15 75,30 75,45 75,60 75,75 75,89 75,105 75,120 75,135 75,150 75,165 75,179 75),LINESTRING(-179 89,-165 89,-150 89,-135 89,-120 89,-105 89,-89 89,-75 89,-60 89,-45 89,-30 89,-15 89,0 89,15 89,30 89,45 89,60 89,75 89,89 89,105 89,120 89,135 89,150 89,165 89,179 89),LINESTRING(-179 -89,-179 -75,-179 -60,-179 -45,-179 -30,-179 -15,-179 0,-179 15,-179 30,-179 45,-179 60,-179 75,-179 89),LINESTRING(-165 -89,-165 -75,-165 -60,-165 -45,-165 -30,-165 -15,-165 0,-165 15,-165 30,-165 45,-165 60,-165 75,-165 89),LINESTRING(-150 -89,-150 -75,-150 -60,-150 -45,-150 -30,-150 -15,-150 0,-150 15,-150 30,-150 45,-150 60,-150 75,-150 89),LINESTRING(-135 -89,-135 -75,-135 -60,-135 -45,-135 -30,-135 -15,-135 0,-135 15,-135 30,-135 45,-135 60,-135 75,-135 89),LINESTRING(-120 -89,-120 -75,-120 -60,-120 -45,-120 -30,-120 -15,-120 0,-120 15,-120 30,-120 45,-120 60,-120 75,-120 89),LINESTRING(-105 -89,-105 -75,-105 -60,-105 -45,-105 -30,-105 -15,-105 0,-105 15,-105 30,-105 45,-105 60,-105 75,-105 89),LINESTRING(-89 -89,-89 -75,-89 -60,-89 -45,-89 -30,-89 -15,-89 0,-89 15,-89 30,-89 45,-89 60,-89 75,-89 89),LINESTRING(-75 -89,-75 -75,-75 -60,-75 -45,-75 -30,-75 -15,-75 0,-75 15,-75 30,-75 45,-75 60,-75 75,-75 89),LINESTRING(-60 -89,-60 -75,-60 -60,-60 -45,-60 -30,-60 -15,-60 0,-60 15,-60 30,-60 45,-60 60,-60 75,-60 89),LINESTRING(-45 -89,-45 -75,-45 -60,-45 -45,-45 -30,-45 -15,-45 0,-45 15,-45 30,-45 45,-45 60,-45 75,-45 89),LINESTRING(-30 -89,-30 -75,-30 -60,-30 -45,-30 -30,-30 -15,-30 0,-30 15,-30 30,-30 45,-30 60,-30 75,-30 89),LINESTRING(-15 -89,-15 -75,-15 -60,-15 -45,-15 -30,-15 -15,-15 0,-15 15,-15 30,-15 45,-15 60,-15 75,-15 89),LINESTRING(0 -89,0 -75,0 -60,0 -45,0 -30,0 -15,0 0,0 15,0 30,0 45,0 60,0 75,0 89),LINESTRING(15 -89,15 -75,15 -60,15 -45,15 -30,15 -15,15 0,15 15,15 30,15 45,15 60,15 75,15 89),LINESTRING(30 -89,30 -75,30 -60,30 -45,30 -30,30 -15,30 0,30 15,30 30,30 45,30 60,30 75,30 89),LINESTRING(45 -89,45 -75,45 -60,45 -45,45 -30,45 -15,45 0,45 15,45 30,45 45,45 60,45 75,45 89),LINESTRING(60 -89,60 -75,60 -60,60 -45,60 -30,60 -15,60 0,60 15,60 30,60 45,60 60,60 75,60 89),LINESTRING(75 -89,75 -75,75 -60,75 -45,75 -30,75 -15,75 0,75 15,75 30,75 45,75 60,75 75,75 89),LINESTRING(89 -89,89 -75,89 -60,89 -45,89 -30,89 -15,89 0,89 15,89 30,89 45,89 60,89 75,89 89),LINESTRING(105 -89,105 -75,105 -60,105 -45,105 -30,105 -15,105 0,105 15,105 30,105 45,105 60,105 75,105 89),LINESTRING(120 -89,120 -75,120 -60,120 -45,120 -30,120 -15,120 0,120 15,120 30,120 45,120 60,120 75,120 89),LINESTRING(135 -89,135 -75,135 -60,135 -45,135 -30,135 -15,135 0,135 15,135 30,135 45,135 60,135 75,135 89),LINESTRING(150 -89,150 -75,150 -60,150 -45,150 -30,150 -15,150 0,150 15,150 30,150 45,150 60,150 75,150 89),LINESTRING(165 -89,165 -75,165 -60,165 -45,165 -30,165 -15,165 0,165 15,165 30,165 45,165 60,165 75,165 89),LINESTRING(179 -89,179 -75,179 -60,179 -45,179 -30,179 -15,179 0,179 15,179 30,179 45,179 60,179 75,179 89))";
 
     add_feature(0, data, true);
+  }
+
+  virtual void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
+  {
+    std::deque<spatial::ShapeContainer>::const_iterator it;
+
+    cr.save();
+    cr.set_line_width(0.5);
+    cr.set_color(base::Color(0.4, 0.4, 0.4));
+    for (std::deque<spatial::Feature*>::iterator it = _features.begin(); it != _features.end() && !_interrupt; ++it)
+      (*it)->repaint(cr, scale, clip_area);
+    
+    cr.restore();
   }
 };
 
@@ -103,10 +118,13 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 {
   _main_box = mforms::manage(new mforms::Box(true));
   _viewer = mforms::manage(new SpatialDrawBox());
-  _viewer->position_changed_cb = boost::bind(&SpatialDataView::update_coordinates, this, _1, _2);
+  _viewer->position_changed_cb = boost::bind(&SpatialDataView::update_coordinates, this, _1);
+  _viewer->position_clicked_cb = boost::bind(&SpatialDataView::handle_click, this, _1);
   _viewer->work_started = boost::bind(&SpatialDataView::work_started, this, _1, _2);
   _viewer->work_finished = boost::bind(&SpatialDataView::work_finished, this, _1);
   _viewer->get_option = boost::bind(&SpatialDataView::get_option, this, _1, _2);
+
+  _active_layer = 0;
 
   _toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
   {
@@ -137,12 +155,22 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_separator_item();
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-    item->set_text("Select Area:");
+    item->set_text("Tool:");
     _toolbar->add_item(item);
 
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
+    item->set_name("reset_tool");
+    item->set_icon(mforms::App::get()->get_resource_path("wb_arrow.png"));
+    item->set_tooltip("Pan map and select feature to view");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::change_tool, this, item));
+    _toolbar->add_item(item);
+    item->set_checked(true);
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
+    item->set_name("zoom_to_area");
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-area.png"));
-    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::select_area, _viewer));
+    item->set_tooltip("Zoom to area. Click and drag in the map to select an area to be zoomed into.");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::change_tool, this, item));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
@@ -153,11 +181,13 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-out.png"));
+    item->set_tooltip("Zoom out one step");
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_out, _viewer));
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-in.png"));
+    item->set_tooltip("Zoom in one step");
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
@@ -169,7 +199,14 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-reset.png"));
+    item->set_tooltip("Reset zoom to the outermost zoom level");
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::reset_view, _viewer));
+    _toolbar->add_item(item);
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-auto.png"));
+    item->set_tooltip("Zoom to enclose features in the active layer.");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::auto_zoom, this));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
@@ -182,12 +219,6 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-jump.png"));
     item->set_tooltip("Specify coordinates to center screen on.");
     item->signal_activated()->connect(boost::bind(&SpatialDataView::jump_to, this));
-    _toolbar->add_item(item);
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-auto.png"));
-    item->set_tooltip("Zoom to envelope of selected layer.");
-    item->signal_activated()->connect(boost::bind(&SpatialDataView::auto_zoom, this));
     _toolbar->add_item(item);
 
     /*
@@ -210,7 +241,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _option_box->set_spacing(4);
   _option_box->set_padding(8);
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
   _option_box->set_back_color("#f0f0f0");
 #endif
 
@@ -226,20 +257,19 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 //  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
 //  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
 
-  _layer_menu->add_item_with_title("Refresh", boost::bind(&SpatialDataView::refresh_layers, this), "refresh");
-
    mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
-   mitem->set_checked(true);
    mitem->set_name("fillup_polygon");
    mitem->signal_clicked()->connect(boost::bind(&SpatialDataView::fillup_polygon, this, mitem));
    _layer_menu->add_item(mitem);
 
-
+  _layer_menu->add_separator();
+  _layer_menu->add_item_with_title("Refresh", boost::bind(&SpatialDataView::refresh_layers, this), "refresh");
+  _layer_menu->signal_will_show()->connect(boost::bind(&SpatialDataView::layer_menu_will_show, this));
 
   _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
   _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
-  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false);
-  _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false);
+  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false, true);
+  _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false, true);
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
   _layer_tree->set_context_menu(_layer_menu);
@@ -248,11 +278,32 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _mouse_pos_label = mforms::manage(new mforms::Label("Lat:\nLon:"));
   _option_box->add(_mouse_pos_label, false, true);
 
-  _option_box->set_size(250, -1);
+  _info_box = mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
+  _option_box->add(_info_box, true, true);
+  _info_box->set_value("Click a feature to view its record");
+
+  _option_box->set_size(220, -1);
   _main_box->add(_option_box, false, true);
 
   add(_main_box, true, true);
 }
+
+
+void SpatialDataView::change_tool(mforms::ToolBarItem *item)
+{
+  item->set_checked(true);
+  if (item->get_name() == "reset_tool")
+  {
+    _toolbar->set_item_checked("zoom_to_area", false);
+    _viewer->select_area(false);
+  }
+  else
+  {
+    _viewer->select_area(true);
+    _toolbar->set_item_checked("reset_tool", false);
+  }
+}
+
 
 int SpatialDataView::get_option(const char* opt_name, int default_value)
 {
@@ -263,8 +314,11 @@ void SpatialDataView::fillup_polygon(mforms::MenuItem *mitem)
 {
   if (_layer_tree->is_enabled())
   {
-    mitem->set_checked(!mitem->get_checked());
-    _viewer->fillup_polygon(_layer_tree->get_selected_row(), mitem->get_checked());
+    spatial::Layer *layer = _viewer->get_layer(get_selected_layer_id());
+    if (layer)
+      layer->set_fill_polygons(mitem->get_checked());
+
+    _viewer->invalidate();
   }
 }
 
@@ -371,9 +425,18 @@ void SpatialDataView::jump_to()
   }
 }
 
+
+spatial::LayerId SpatialDataView::get_selected_layer_id()
+{
+  mforms::TreeNodeRef node(_layer_tree->get_selected_node());
+  if (node)
+    return atoi(node->get_tag().c_str());
+  return 0;
+}
+
 void SpatialDataView::auto_zoom()
 {
-  _viewer->auto_zoom(_layer_tree->get_selected_row());
+  _viewer->auto_zoom(get_selected_layer_id());
   _viewer->invalidate(true);
 }
 
@@ -386,50 +449,38 @@ void SpatialDataView::copy_coordinates()
 }
 
 
+RecordsetLayer *SpatialDataView::active_layer()
+{
+  std::deque<spatial::Layer*> layers(_viewer->get_layers());
+
+  for (std::deque<spatial::Layer*>::const_iterator l = layers.begin(); l != layers.end(); ++l)
+  {
+    if ((*l)->layer_id() == _active_layer)
+      return dynamic_cast<RecordsetLayer*>(*l);
+  }
+  return NULL;
+}
+
+
 int SpatialDataView::row_id_for_action(RecordsetLayer *&layer)
 {
-  int layer_index = _layer_tree->get_selected_row();
-
-  layer = NULL;
-
-  if (layer_index < 0)
-  {
-    // if no selection, select the 1st visible one by default
-    for (int i = 1; i < _layer_tree->count(); i++)
-    {
-      if (_layer_tree->node_at_row(i)->get_bool(0))
-      {
-        layer_index = i;
-        break;
-      }
-    }
-  }
-
-  if (layer_index > 0)
-  {
-    std::deque<spatial::Layer*> layers(_viewer->get_layers());
-    int i= 0;
-
-    for (std::deque<spatial::Layer*>::const_iterator l = layers.begin(); l != layers.end(); ++l, i++)
-    {
-      if (i == layer_index-1)
-      {
-        layer = dynamic_cast<RecordsetLayer*>(*l);
-        break;
-      }
-    }
-    if (layer)
-    {
-      return _viewer->clicked_row_id();
-    }
-  }
+  layer = active_layer();
+  if (layer)
+    return _viewer->clicked_row_id();
   return -1;
 }
 
 
 void SpatialDataView::map_menu_will_show()
 {
-  _map_menu->set_item_enabled("", _layer_tree->get_selected_row() != 1);
+}
+
+
+void SpatialDataView::layer_menu_will_show()
+{
+  spatial::Layer *layer = _viewer->get_layer(get_selected_layer_id());
+
+  _layer_menu->set_item_checked("fillup_polygon", layer && layer->fill());
 }
 
 
@@ -537,7 +588,7 @@ void SpatialDataView::refresh_layers()
 
   set_geometry_columns(spatial_columns);
   if ((bool)get_option("SqlEditor::SpatialAutoZoom", 1))
-    _viewer->auto_zoom(-1);
+    _viewer->auto_zoom(_active_layer);
 }
 
 
@@ -572,7 +623,7 @@ void SpatialDataView::tree_toggled(const mforms::TreeNodeRef &node, const std::s
     bool show = value == "1";
     node->set_bool(0, show);
     
-    _viewer->show_layer(_layer_tree->row_for_node(node), show);
+    _viewer->show_layer(atoi(node->get_tag().c_str()), show);
   }
 }
 
@@ -589,14 +640,44 @@ static spatial::Layer *find_layer_for(std::deque<spatial::Layer*> &layers, Recor
 }
 
 
+void SpatialDataView::set_active_layer(spatial::LayerId layer)
+{
+  _active_layer = layer;
+
+  mforms::TreeNodeTextAttributes plain;
+  for (int i = 0; i < _layer_tree->count(); i++)
+  {
+    mforms::TreeNodeRef node(_layer_tree->node_at_row(i));
+    if (node)
+    {
+      if (atoi(node->get_tag().c_str()) == _active_layer)
+      {
+        mforms::TreeNodeTextAttributes attribs;
+        attribs.bold = true;
+        node->set_attributes(1, attribs);
+        node->set_attributes(2, attribs);
+      }
+      else
+      {
+        node->set_attributes(1, plain);
+        node->set_attributes(2, plain);
+      }
+    }
+  }
+}
+
+
 void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> &sources)
 {
   static base::Color layer_colors[] = {
-    base::Color(0.4, 0.4, 0.4), // reserved for grid
+    base::Color::parse("#b8ddf3"), // background color
 
+    base::Color(0.9, 1, 0.9),
+    base::Color(1, 0.9, 1.0),
+
+    base::Color(0.8, 0.8, 0.4),
     base::Color(0.4, 0.8, 0.8),
     base::Color(0.8, 0.4, 0.8),
-    base::Color(0.8, 0.8, 0.4),
 
     base::Color(0.8, 0.4, 0.4),
     base::Color(0.4, 0.8, 0.4),
@@ -618,13 +699,14 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     node->set_string(1, "Grid");
     set_color_icon(node, 1, color);
     node->set_bool(0, true);
-    _viewer->set_background(new GridLayer(0, color));
+    spatial::LayerId layer_id = spatial::new_layer_id();
+    node->set_tag(base::strfmt("%i", layer_id));
+    _viewer->set_background(new GridLayer(layer_id, color));
   }
 
-  int layer_id = 1;
   std::deque<spatial::Layer*> layers(_viewer->get_layers());
   // remove layers that are gone
-  for (std::deque<spatial::Layer*>::iterator l = layers.begin(); l != layers.end(); ++l, ++layer_id)
+  for (std::deque<spatial::Layer*>::iterator l = layers.begin(); l != layers.end(); ++l)
   {
     RecordsetLayer *rsl = dynamic_cast<RecordsetLayer*>(*l);
     if (rsl)
@@ -644,7 +726,16 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
       }
       if (!found)
       {
-        _layer_tree->node_at_row(layer_id)->remove_from_parent();
+        // find the node for the layer
+        for (int i = 0; i < _layer_tree->count(); i++)
+        {
+          mforms::TreeNodeRef node;
+          if (atoi((node = _layer_tree->node_at_row(i))->get_tag().c_str()) == (*l)->layer_id())
+          {
+            node->remove_from_parent();
+            break;
+          }
+        }
         _viewer->remove_layer(*l);
         delete *l;
         *l = NULL;
@@ -652,20 +743,22 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     }
   }
 
-  layer_id = 1;
+  int idx = 1;
+  bool first = true;
   for (std::vector<SpatialDataSource>::const_iterator iter = sources.begin(); iter != sources.end(); ++iter)
   {
     // check if already exists
     if (!iter->resultset.expired() && find_layer_for(layers, iter->resultset.lock(), iter->column_index))
     {
-      layer_id++;
       continue;
     }
-    base::Color color(layer_colors[layer_id % (sizeof(layer_colors)/sizeof(base::Color))]);
+    int layer_id = spatial::new_layer_id();
+    base::Color color(layer_colors[(idx++) % (sizeof(layer_colors)/sizeof(base::Color))]);
     mforms::TreeNodeRef node = _layer_tree->add_node();
     node->set_bool(0, false);
     node->set_string(1, iter->column);
     node->set_string(2, iter->source);
+    node->set_tag(base::strfmt("%i", layer_id));
     set_color_icon(node, 1, color);
 
     spatial::Layer *layer = NULL;
@@ -673,10 +766,12 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     {
       // from recordset
       layer = new RecordsetLayer(layer_id, color, iter->resultset, iter->column_index);
-      if (layer_id == 1)
+      if (first)
       {
+        first = false;
         layer->set_show(true);
         node->set_bool(0, true);
+        set_active_layer(layer_id);
       }
     }
     else
@@ -686,12 +781,56 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     if (layer)
     {
       _viewer->add_layer(layer);
-      ++layer_id;
     }
   }
 }
 
-void SpatialDataView::update_coordinates(const std::string &lat, const std::string &lon)
+
+void SpatialDataView::update_coordinates(base::Point p)
 {
-  _mouse_pos_label->set_text("Lat: "+lat+"\n"+"Lon: "+lon);
+  double lat, lon;
+  if (_viewer->screen_to_world(p.x, p.y, lat, lon))
+    _mouse_pos_label->set_text(base::strfmt("Lat:  %s\nLon: %s",
+                                            spatial::Converter::dec_to_dms(lat, spatial::AxisLat, 2).c_str(),
+                                            spatial::Converter::dec_to_dms(lon, spatial::AxisLon, 2).c_str()));
+  else
+    _mouse_pos_label->set_text("Lat: \nLon: ");
 }
+
+
+void SpatialDataView::handle_click(base::Point p)
+{
+  RecordsetLayer *layer = active_layer();
+  std::string text;
+
+  _viewer->clear_pins();
+  if (layer)
+  {
+    spatial::Feature *feature = layer->feature_closest(_viewer->transform_point(p));
+    if (feature)
+    {
+      int row_id = feature->row_id();
+      if (row_id >= 0)
+      {
+        Recordset::Ref rs(layer->recordset());
+        if (rs)
+        {
+          std::string value;
+
+          _viewer->place_pin(mforms::Utilities::load_icon("qe_sql-editor-resultset-tb-pinned.png"), p);
+
+          for (size_t i = 0; i < rs->get_column_count(); i++)
+          {
+            if (i > 0)
+              text.append("\n");
+            text.append(rs->get_column_caption(i)).append(": ");
+            if (rs->get_field(row_id, i, value))
+              text.append(value);
+          }
+        }
+      }
+    }
+  }
+  _info_box->set_value(text);
+}
+

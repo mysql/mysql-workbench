@@ -87,7 +87,7 @@ namespace wb
     ActionFilesWithConnection,
     ActionMoveConnectionToGroup,
     ActionMoveConnection,
-    ActionCreateFabricConnections,
+    ActionUpdateFabricConnections,
 
     ActionSetupRemoteManagement,
     

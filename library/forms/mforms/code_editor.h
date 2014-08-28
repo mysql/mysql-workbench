@@ -308,6 +308,10 @@ public:
     /** Toggles the given feature(s) to their opposite state. */
     void toggle_features(CodeEditorFeature features);
 
+    void set_read_only(bool flag);
+
+    void reset_undo_stack();
+
     /** Resets the editor's dirty state or queries it. */
     void reset_dirty();
     bool is_dirty();

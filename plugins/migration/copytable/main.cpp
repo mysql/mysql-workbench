@@ -286,8 +286,8 @@ int main(int argc, char **argv)
   bool disable_triggers_on_copy = true;
   bool resume = false;
   int thread_count = 1;
-  int bulk_insert_batch = 100;
-  long long int max_count = 0;
+  long long bulk_insert_batch = 100;
+  long long max_count = 0;
 
   std::string table_file;
 

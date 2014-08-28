@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -83,7 +83,7 @@ private:
   sqlite::connection *_sqconn;
 
   GThread *_refresh_thread;
-  boost::interprocess::interprocess_semaphore _cache_working;
+  base::Semaphore _cache_working;
 
   base::RecMutex _shutdown_mutex;
 

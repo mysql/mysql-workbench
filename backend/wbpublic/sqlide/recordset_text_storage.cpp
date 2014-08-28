@@ -162,7 +162,7 @@ ColumnId Recordset_text_storage::aux_column_count()
 }
 
 
-void Recordset_text_storage::do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db)
+void Recordset_text_storage::do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commitmig )
 {
   throw std::runtime_error("Recordset_text_storage::apply_changes is not implemented");
 }

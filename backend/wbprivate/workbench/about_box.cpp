@@ -117,7 +117,7 @@ void AboutBox::repaint(cairo_t *cr, int x, int y, int w, int h)
 
   std::string version = base::strfmt(_("Version %i.%i.%i.%i build %i %s (%i bits)"), APP_MAJOR_NUMBER, APP_MINOR_NUMBER,
                                      APP_RELEASE_NUMBER, APP_REVISION_NUMBER, APP_BUILD_NUMBER, APP_RELEASE_TYPE,
-                                     (int)sizeof(int)*8);
+                                     (int)sizeof(void*)*8);
 
   cairo_select_font_face(cr, ABOUT_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, ABOUT_FONT_SIZE);

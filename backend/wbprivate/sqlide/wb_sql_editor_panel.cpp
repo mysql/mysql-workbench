@@ -28,6 +28,7 @@
 
 #include "base/log.h"
 #include "base/file_functions.h"
+#include "base/util_functions.h"
 
 #include "mforms/toolbar.h"
 #include "mforms/menubar.h"
@@ -44,8 +45,12 @@
 
 #include "grtui/file_charset_dialog.h"
 
+#include <fstream>
+#include <sstream>
 #include <boost/lexical_cast.hpp>
 
+// 20 MB max file size for auto-restoring
+#define MAX_FILE_SIZE_FOR_AUTO_RESTORE 20000000
 
 DEFAULT_LOG_DOMAIN("SqlEditorPanel");
 
@@ -71,6 +76,8 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   db_query_QueryEditorRef grtobj(grtm->get_grt());
 
   grtobj->resultDockingPoint(mforms_to_grt(grtm->get_grt(), &_lower_dock));
+
+  _autosave_file_suffix = grtobj.id();
 
   // In opposition to the object editors, each individual sql editor gets an own parser context
   // (and hence an own parser), to allow concurrent and multi threaded work.
@@ -163,7 +170,7 @@ db_query_QueryEditorRef SqlEditorPanel::grtobj()
 bool SqlEditorPanel::on_close_by_user()
 {
   // this can also get closed when close_all_view() is called when the connection is closed
-  if (can_close())
+  if (_form->is_closing() || can_close())
   {
     // do not call close, since that would undock ourselves and the caller will also undock this
     // we just need to be sure that the d-tor is called in all closing methods (close the tab itself from the X and through kbd,
@@ -188,7 +195,13 @@ bool SqlEditorPanel::can_close()
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
     check_scratch_editors = false;
 
-  if (!_is_scratch || check_scratch_editors)
+  // don't need to check for unsaved changes when closing the whole form
+  // if save-workspace is enabled, since they'll get autosaved anyway
+  // otoh, when closing the file itself, it should check
+  if (!_form->is_closing())
+    check_scratch_editors = true;
+
+  if (/*!_is_scratch || */check_scratch_editors)
   {
     if (is_dirty())
     {
@@ -323,26 +336,153 @@ void SqlEditorPanel::splitter_resized()
 
 //--------------------------------------------------------------------------------------------------
 
+static bool check_if_file_too_big_to_restore(const std::string &path, const std::string &file_caption,
+                                             bool allow_save_as = false)
+{
+  boost::int64_t length;
+  if ((length = get_file_size(path.c_str())) > MAX_FILE_SIZE_FOR_AUTO_RESTORE)
+  {
+  again:
+    std::string size = sizefmt(length, false);
+    int rc = mforms::Utilities::show_warning("Restore Workspace",
+                                             strfmt("The file %s has a size of %s. Are you sure you want to restore this file?",
+                                                    file_caption.c_str(), size.c_str()),
+                                             "Restore", "Skip", allow_save_as ? "Save As..." : ""
+                                             );
+    if (rc == mforms::ResultCancel)
+      return false;
+
+    if (rc == mforms::ResultOther)
+    {
+      mforms::FileChooser fchooser(mforms::SaveFile);
+
+      fchooser.set_title(_("Save File As..."));
+      if (fchooser.run_modal())
+      {
+        if (!copy_file(path.c_str(), fchooser.get_path().c_str()))
+        {
+          if (mforms::Utilities::show_error("Save File",
+                                            strfmt("File %s could not be saved.", fchooser.get_path().c_str()),
+                                            _("Retry"), _("Cancel"), "") == mforms::ResultOk)
+            goto again;
+        }
+      }
+      else
+        goto again;
+      return false;
+    }
+  }
+  return true;
+}
+
+
 #define EDITOR_TEXT_LIMIT 100 * 1024 * 1024
 
-bool SqlEditorPanel::load_autosave(const std::string &file, const std::string &real_filename, const std::string &encoding)
+SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
+: word_wrap(false), show_special(false)
 {
-  if (!load_from(file, encoding, true))
-    return false;
-  _filename = real_filename;
-  if (real_filename.empty())
-    _file_timestamp = 0;
+  char buffer[4098];
+  std::ifstream f(info_file.c_str());
+  while (f.getline(buffer, sizeof(buffer)))
+  {
+    std::string key, value;
+    base::partition(buffer, "=", key, value);
+    if (key == "orig_encoding")
+      orig_encoding = value;
+    else if (key == "type")
+      type = value;
+    else if (key == "filename")
+      filename = value;
+    else if (key == "title")
+      title = value;
+    else if (key == "word_wrap")
+      word_wrap = value == "1";
+    else if (key == "show_special")
+      show_special = value == "1";
+    else if (key == "first_visible_line")
+      first_visible_line = atoi(value.c_str());
+    else if (key == "caret_pos")
+      caret_pos = atoi(value.c_str());
+  }
+}
+
+
+SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_scratch(const std::string &scratch_file)
+{
+  AutoSaveInfo info;
+  info.title = base::strip_extension(base::basename(scratch_file));
+  info.type = "scratch";
+  return info;
+}
+
+
+SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_autosave(const std::string &autosave_file)
+{
+  char buffer[4098];
+
+  AutoSaveInfo info;
+  info.title = base::strip_extension(base::basename(autosave_file));
+  info.type = "file";
+  std::ifstream f(base::strip_extension(autosave_file).c_str());
+  if (f.getline(buffer, sizeof(buffer)))
+    info.filename = buffer;
+  if (f.getline(buffer, sizeof(buffer)))
+    info.orig_encoding = buffer;
+  return info;
+}
+
+
+bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info,
+                                   const std::string &text_file)
+{
+  _orig_encoding = info.orig_encoding;
+  _file_timestamp = 0;
+  _is_scratch = (info.type == "scratch");
+
+  // there's no autosave
+  if (text_file.empty() || !base::file_exists(text_file))
+  {
+    if (!info.filename.empty() && !check_if_file_too_big_to_restore(info.filename,
+                                          strfmt("Saved editor '%s'", info.title.c_str())))
+    {
+      return false;
+    }
+
+    // if this was a file, try to load it
+    if (!info.filename.empty() && !load_from(info.filename, info.orig_encoding, false))
+      return false;
+  }
   else
+  {
+    // check if autosave too big
+    if (!check_if_file_too_big_to_restore(text_file,
+                                          strfmt("Saved editor '%s'", info.title.c_str())))
+    {
+      return false;
+    }
+
+    // load the autosave
+    if (!load_from(text_file, info.orig_encoding, true))
+      return false;
+  }
+  _filename = info.filename;
+  if (!_filename.empty())
     base::file_mtime(_filename, _file_timestamp);
 
-  std::string tab_name = base::strip_extension(base::basename(file));
+  set_title(info.title);
 
-  if (!base::is_number(tab_name))
-    set_title(tab_name);
+  mforms::ToolBarItem *item = get_toolbar()->find_item("query.toggleInvisible");
+  item->set_checked(info.show_special);
+  (*item->signal_activated())(item);
 
-  _autosave_file_path = file;
+  item = get_toolbar()->find_item("query.toggleWordWrap");
+  item->set_checked(info.word_wrap);
+  (*item->signal_activated())(item);
 
-  return false;
+  _editor->get_editor_control()->set_caret_pos(info.caret_pos);
+  _editor->get_editor_control()->send_editor(SCI_SETFIRSTVISIBLELINE, info.first_visible_line, 0);
+
+  return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -479,6 +619,7 @@ bool SqlEditorPanel::save()
     return false;
   }
 
+  // reset dirty marker, but not the undo stack
   _editor->get_editor_control()->reset_dirty();
   _is_scratch = false; // saving a file makes it not a scratch buffer anymore
   file_mtime(_filename, _file_timestamp);
@@ -487,6 +628,8 @@ bool SqlEditorPanel::save()
 
   // update autosave state
   _form->auto_save();
+
+  update_title();
 
   return true;
 }
@@ -511,120 +654,58 @@ void SqlEditorPanel::revert_to_saved()
 
 //--------------------------------------------------------------------------------------------------
 
-int SqlEditorPanel::autosave_index()
+std::string SqlEditorPanel::autosave_file_suffix()
 {
-  if (_autosave_file_path.empty())
-    return -1;
-  return atoi(strip_extension(basename(_autosave_file_path)).c_str());
+  return _autosave_file_suffix;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::rename_auto_save(int to)
+void SqlEditorPanel::auto_save(const std::string &path)
 {
-  if (!_autosave_file_path.empty())
+  // save info about the file
   {
-    std::string dir = dirname(_autosave_file_path);
-    std::string prefix = strip_extension(_autosave_file_path);
-    std::string new_prefix = make_path(dir, strfmt("%i", to));
+    std::ofstream f(bec::make_path(path, _autosave_file_suffix+".info").c_str());
 
-    if (prefix != new_prefix)
-    {
-      try
-      {
-        if (file_exists(prefix + ".autosave"))
-        {
-          rename(prefix + ".autosave", new_prefix + ".autosave");
-          _autosave_file_path = new_prefix + ".autosave";
-        }
-        else
-        {
-          if (file_exists(prefix + ".scratch"))
-          {
-            rename(prefix + ".scratch", new_prefix + ".scratch");
-            _autosave_file_path = new_prefix + ".scratch";
-          }
-        }
-      }
-      catch (std::exception &exc)
-      {
-        log_warning("Could not rename temporary auto-save file: %s\n", exc.what());
-      }
-
-      try
-      {
-        if (file_exists(prefix + ".filename"))
-          rename(prefix + ".filename", new_prefix + ".filename");
-      }
-      catch (std::exception &exc)
-      {
-        log_warning("Could not rename auto-save file %s: %s\n", (prefix + ".filename").c_str(),
-                    exc.what());
-      }
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void SqlEditorPanel::auto_save(const std::string &directory, int order)
-{
-  // if the editor is saved to a file, we store the path. if the file is unsaved, we save an updated copy
-  // for scrath areas, the file is always kept as an autosave
-  std::string filename;
-
-  if (!_is_scratch)
-  {
-    GError *error = 0;
-    std::string contents = _filename + "\n" + _orig_encoding;
-    // save the path to the real file
-    if (!g_file_set_contents(make_path(directory, strfmt("%i.filename", order)).c_str(),
-                             contents.data(), contents.size(), &error))
-    {
-      log_error("Could not save snapshot of editor contents to %s: %s\n", directory.c_str(), error->message);
-      std::string msg(strfmt("Could not save snapshot of editor contents to %s: %s", directory.c_str(), error->message));
-      g_error_free(error);
-      base_rmdir_recursively(directory.c_str());
-      throw msg;
-    }
-  }
-
-  if (_is_scratch)
-  {
-    if (!starts_with(get_title(), "Query "))
-      filename = strfmt("%s.scratch", get_title().c_str());
+    if (_is_scratch)
+      f << "type=scratch\n";
     else
-      filename = strfmt("%i.scratch", order);
-    _autosave_file_path = make_path(directory, filename);
-  }
-  else
-  {
-    if (is_dirty())
-    {
-      if (extension(_autosave_file_path) == ".scratch")
-      {
-        try
-        {
-          base::remove(make_path(directory, _autosave_file_path));
-        }
-        catch (std::exception &e)
-        {
-          log_warning("Error deleting autosave file %s: %s\n", make_path(directory, _autosave_file_path).c_str(), e.what());
-        }
-      }
+      f << "type=file\n";
 
-      filename = strfmt("%i.autosave", order);
-      _autosave_file_path = make_path(directory, filename);
+    if (!_is_scratch && !_filename.empty())
+    {
+      f << "filename=" << _filename << "\n";
     }
+    f << "orig_encoding=" << _orig_encoding << "\n";
+
+    f << "title="<<_title<<"\n";
+
+    if (get_toolbar()->get_item_checked("query.toggleInvisible"))
+      f << "show_special=1\n";
+    else
+      f << "show_special=0\n";
+    if (get_toolbar()->get_item_checked("query.toggleWordWrap"))
+      f << "word_wrap=1\n";
+    else
+      f << "word_wrap=1\n";
+
+    size_t caret_pos = _editor->get_editor_control()->get_caret_pos();
+    f << "caret_pos=" << caret_pos << "\n";
+
+    size_t first_line = _editor->get_editor_control()->send_editor(SCI_GETFIRSTVISIBLELINE, 0, 0);
+    f << "first_visible_line=" << first_line << "\n";
+
+    f.close();
   }
+
+  std::string fn = bec::make_path(path, _autosave_file_suffix+".scratch");
 
   // only save editor contents for scratch areas and unsaved editors
-  if (!filename.empty())
+  if (_is_scratch || _filename.empty() || (!_filename.empty() && is_dirty()))
   {
     // We don't need to lock the editor as we are in the main thread here
     // and directly set the file content without detouring to anything that could change the text.
     GError *error = 0;
-    std::string fn = make_path(directory, filename);
 
     std::pair<const char*, size_t> text = text_data();
     if (!g_file_set_contents(fn.c_str(), text.first, text.second, &error))
@@ -632,7 +713,6 @@ void SqlEditorPanel::auto_save(const std::string &directory, int order)
       log_error("Could not save snapshot of editor contents to %s: %s\n", fn.c_str(), error->message);
       std::string msg(strfmt("Could not save snapshot of editor contents to %s: %s", fn.c_str(), error->message));
       g_error_free(error);
-      base_rmdir_recursively(directory.c_str());
       throw std::runtime_error(msg);
     }
   }
@@ -641,35 +721,28 @@ void SqlEditorPanel::auto_save(const std::string &directory, int order)
     // delete the autosave file if the file was saved
     try
     {
-      if (!_autosave_file_path.empty())
-      {
-        base::remove(_autosave_file_path);
-      }
+      base::remove(fn);
     }
     catch (std::exception &e)
     {
-      log_warning("Error deleting autosave file %s: %s\n", make_path(directory, _autosave_file_path).c_str(), e.what());
+      log_warning("Error deleting autosave file %s: %s\n", fn.c_str(), e.what());
     }
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void SqlEditorPanel::delete_auto_save()
+void SqlEditorPanel::delete_auto_save(const std::string &path)
 {
-  if (!_autosave_file_path.empty())
+  // delete the autosave related files
+  try
   {
-    std::string prefix = strip_extension(_autosave_file_path);
-    // delete the autosave related files
-    try
-    {
-      base::remove(_autosave_file_path);
-    } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
-    try
-    {
-      base::remove(strfmt("%s.filename", prefix.c_str()));
-    } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
-  }
+    base::remove(bec::make_path(path, _autosave_file_suffix+".autosave"));
+  } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
+  try
+  {
+    base::remove(bec::make_path(path, _autosave_file_suffix+".info"));
+  } catch (std::exception &exc) { log_warning("Could not delete auto-save file: %s\n", exc.what()); }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -782,21 +855,21 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::toggle_autocommit, _form));
   tbar->add_item(item);
 
-  tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::SeparatorItem)));
-
-  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("add_snippet");
-  item->set_icon(IconManager::get_instance()->get_icon_path("snippet_add.png"));
-  item->set_tooltip(_("Save current statement or selection to the snippet list."));
-  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, _form));
-  tbar->add_item(item);
-
   tbar->add_separator_item();
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
   item->set_name("limit_rows");
   item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
   bec::UIForm::scoped_connect(item->signal_activated(), boost::bind(&SqlEditorPanel::limit_rows, this, item));
+  tbar->add_item(item);
+
+  tbar->add_separator_item();
+
+  item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+  item->set_name("add_snippet");
+  item->set_icon(IconManager::get_instance()->get_icon_path("snippet_add.png"));
+  item->set_tooltip(_("Save current statement or selection to the snippet list."));
+  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::save_snippet, _form));
   tbar->add_item(item);
 
   tbar->add_separator_item();
@@ -1176,6 +1249,9 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
     if (position > _splitter.get_height()-100)
       position = _splitter.get_height()-100;
     _splitter.set_position(position);
+
+    // scroll the editor to make the cursor visible
+    _editor->get_editor_control()->set_caret_pos(_editor->get_editor_control()->get_caret_pos());
   }
 }
 

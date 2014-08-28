@@ -333,7 +333,7 @@ static void selected_record_changed(MResultsetViewer *self)
       else if (action == "record_next")
       {
         int row = [mTableView selectedRowIndex] + 1;
-        if (row >= (*mData)->count()-1)
+        if (row >= (int)(*mData)->count()-1)
           row = (*mData)->count()-1;
         [mTableView scrollRowToVisible: row];
         [mTableView selectCellAtRow: row column: 1];
@@ -443,7 +443,7 @@ static int onRefresh(MResultsetViewer *self)
       
       if (old_text != new_text)
       {
-        int oldRowCount= (*mData)->count();
+        size_t oldRowCount= (*mData)->count();
         
         (*mData)->set_field(rowIndex, [[aTableColumn identifier] intValue], 
                             new_text);

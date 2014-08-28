@@ -370,10 +370,10 @@ TEST_FUNCTION(30)  // Property
 
   std::string s;
 
-  insp->get_field(NodeId(7), ValueInspectorBE::Name, s);
+  insp->get_field(NodeId(6), ValueInspectorBE::Name, s);
   ensure_equals("node for name", s, "name");
   
-  bool flag= insp->set_field(NodeId(7), ValueInspectorBE::Value, "hello");
+  bool flag= insp->set_field(NodeId(6), ValueInspectorBE::Value, "hello");
   ensure("rename value", flag);
   check_only_one_undo_added();
 

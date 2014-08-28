@@ -45,6 +45,7 @@ class Recordset;
 
 - (BOOL)hasPendingChanges;
 
+- (void)rebuildColumns;
 - (void)refresh;
 - (void)refreshFull;
 - (void)close;

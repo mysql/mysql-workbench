@@ -84,15 +84,11 @@ add_library(db.mysql.sqlparser.grt
     ${PROJECT_SOURCE_DIR}/library/sql.parser/source/xml.cpp
 )
 
-set_target_properties(db.mysql.sqlparser.grt PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
-)
-
 target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
 
 set_target_properties(db.mysql.sqlparser.grt
-                      PROPERTIES VERSION   ${WB_VERSION}
+                      PROPERTIES PREFIX    ""
+                                 VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
 install(TARGETS db.mysql.sqlparser.grt DESTINATION ${WB_PYTHON_MODULES_DIR})

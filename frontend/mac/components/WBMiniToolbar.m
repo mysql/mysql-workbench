@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -203,11 +203,10 @@ static const float DEFAULT_HEIGHT = 24;
                                                     action:(SEL)action
 {
   NSSegmentedControl *seg = [[[NSSegmentedControl alloc] initWithFrame: NSMakeRect(0, 0, 30 * ([iconsAndTags count]/2), 24)] autorelease];
-  int i;
   [seg setSegmentCount: [iconsAndTags count] / 2];
   [seg setSegmentStyle: NSSegmentStyleTexturedSquare];
   [[seg cell] setTrackingMode: NSSegmentSwitchTrackingSelectAny];
-  for (i = 0; i < [iconsAndTags count]/2; i++)
+  for (NSUInteger i = 0; i < [iconsAndTags count]/2; i++)
   {
     [seg setImage: [iconsAndTags objectAtIndex: i*2] forSegment: i];
     [[seg cell] setTag: [[iconsAndTags objectAtIndex: i*2+1] intValue] forSegment: i];

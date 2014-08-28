@@ -2273,6 +2273,8 @@ void LiveSchemaTree::expand_toggled(mforms::TreeNodeRef node, bool value)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
 {
   LSTData *node_data = dynamic_cast<LSTData*> (node->get_data());
@@ -2281,12 +2283,12 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
   {
     std::string node_name = node->get_string(0);
 
-    switch(node_data->get_type())
+    switch (node_data->get_type())
     {
     case Schema:
       {
         std::vector<ChangeRecord> changes;
-      
+
         ChangeRecord record = { Schema, "", node_name, "" };
         changes.push_back(record);
 
@@ -2332,46 +2334,45 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
               break;
             }
           }
-          break;
         }
+        break;
       }
 
     case Procedure:
     case Function:
-    {
-      if (column < 0)
       {
-        std::vector<ChangeRecord> changes;
-        ChangeRecord record = { node_data->get_type(), get_schema_name(node), node_name, "" };
-        changes.push_back(record);
-
-        if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
+        if (column < 0)
         {
-          switch (column)
+          std::vector<ChangeRecord> changes;
+          ChangeRecord record = { node_data->get_type(), get_schema_name(node), node_name, "" };
+          changes.push_back(record);
+
+          if (boost::shared_ptr<Delegate> delegate = _delegate.lock())
           {
-          case -1:
-            delegate->tree_activate_objects("alter", changes);
-            break;
-          case -2:
-            delegate->tree_activate_objects("execute", changes);
-            break;
+            switch (column)
+            {
+            case -1:
+              delegate->tree_activate_objects("alter", changes);
+              break;
+            case -2:
+              delegate->tree_activate_objects("execute", changes);
+              break;
+            }
           }
         }
         break;
       }
-    }
-
     default:
-      node_name = base::quote_identifier_if_needed(node_name, '`');
-      sql_editor_text_insert_signal(node_name);
       break;
     }
   }
 }
 
-/*
-* get_schema_name: finds the parent schema for a specific node in the tree
-*/
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Finds the parent schema for a specific node in the tree.
+ */
 std::string LiveSchemaTree::get_schema_name(const mforms::TreeNodeRef& node)
 {
   std::string ret_val;

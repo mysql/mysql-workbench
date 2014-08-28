@@ -106,6 +106,7 @@ def importRecordsetDataFromFile(resultset):
                             resultset.setFloatFieldValue(column, value)
                         else:
                             resultset.setFieldNull(column)
+                resultset.addNewRow() # needed in Windows to refresh display for last row
     return 0
 
 
@@ -186,28 +187,30 @@ def verticalOutput(editor):
     statement = editor.currentStatement
     if statement:
         rsets = editor.owner.executeScript(statement)
-        rset = rsets and rsets[0]
-        if rset:
+        output = [ '> %s\n' % statement ]
+        for idx, rset in enumerate(rsets):
+            if len(rsets) > 1:
+                output.append('Result set %i' % (idx+1))
             column_name_length = max(len(col.name) for col in rset.columns)
-            output = [ '> %s\n' % rset.sql ]
             ok = rset.goToFirstRow()
             while ok:
                 output.append('******************** %s. row *********************' % (rset.currentRow + 1))
-                for column in rset.columns:
-                    col_name, col_value = column.name.rjust(column_name_length), rset.stringFieldValueByName(column.name)
+                for i, column in enumerate(rset.columns):
+                    col_name, col_value = column.name.rjust(column_name_length), rset.stringFieldValue(i)
                     output.append('%s: %s' % (col_name, col_value if col_value is not None else 'NULL'))
                 ok = rset.nextRow()
             output.append('%d rows in set' % (rset.currentRow + 1))
+            rset.reset_references()            
+            if len(rsets) > 1:
+              output.append('')
+        view = TextOutputTab('\n'.join(output) + '\n')
+        
+        dock = mforms.fromgrt(editor.resultDockingPoint)
+        dock.dock_view(view, '', 0)
+        dock.select_view(view)
+        dock.set_view_title(view, 'Vertical Output')
 
-            view = TextOutputTab('\n'.join(output) + '\n')
-            
-            dock = mforms.fromgrt(editor.resultDockingPoint)
-            dock.dock_view(view, '', 0)
-            dock.select_view(view)
-            dock.set_view_title(view, 'Vertical Output')
-          
-            rset.reset_references()
-            
+
     return 0
 
 
@@ -221,7 +224,7 @@ def doReformatSQLStatement(text, return_none_if_unsupported):
 
     ast = ast_list[0]
     
-    def trim_ast_fix_bq(text, node):
+    def trim_ast_fix_bq(text, node, add_rollup):
         s = node[0]
         v = node[1]
         c = node[2]
@@ -232,13 +235,18 @@ def doReformatSQLStatement(text, return_none_if_unsupported):
             if begin > 0 and text[begin-1] == '`' and text[end] == '`':
                 v = "`%s`" % v.replace("`", "``")
         l = []
-        for i in c:
-            l.append(trim_ast_fix_bq(text, i))
+        for i, nc in enumerate(c):
+            l.append(trim_ast_fix_bq(text, nc, add_rollup))
+            if add_rollup and nc[0] == "olap_opt" and nc[1].upper() == "WITH" and (i == len(c)-1 or c[i+1][1].upper() != "ROLLUP"):
+                l.append(("olap_opt", "ROLLUP", []))
         return (s, v, l)
 
     formatter = formatter_for_statement_ast(ast)
     if formatter:
-        p = formatter(trim_ast_fix_bq(text, ast))
+        # workaround a bug in parser where WITH ROLLUP is turned into WITH
+        add_rollup = "WITH ROLLUP" in text.upper()
+
+        p = formatter(trim_ast_fix_bq(text, ast, add_rollup))
         return p.run()
     else:
         if return_none_if_unsupported:

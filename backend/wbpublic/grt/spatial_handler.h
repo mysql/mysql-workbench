@@ -28,6 +28,7 @@
 #include <gdal/gdal.h>
 #include <deque>
 #include "base/geometry.h"
+#include "wbpublic_public_interface.h"
 
 #include "mdc.h"
 /* Spatial Object Model
@@ -45,7 +46,7 @@
 namespace spatial
 {
 
-  struct ProjectionView
+  struct WBPUBLICBACKEND_PUBLIC_FUNC ProjectionView
   {
     int width;
     int height;
@@ -53,11 +54,11 @@ namespace spatial
     double MaxLon;
     double MinLat;
     double MinLon;
-    friend bool operator== (ProjectionView &v1, ProjectionView &v2);
-    friend bool operator!= (ProjectionView &v1, ProjectionView &v2);
+    friend bool operator== (const ProjectionView &v1, const ProjectionView &v2);
+    friend bool operator!= (const ProjectionView &v1, const ProjectionView &v2);
   };
 
-  class Envelope
+  class WBPUBLICBACKEND_PUBLIC_FUNC Envelope
   {
   public:
     Envelope();
@@ -65,15 +66,16 @@ namespace spatial
     bool converted;
     base::Point top_left;
     base::Point bottom_right;
-    friend bool operator == (Envelope &env1, Envelope &env2);
-    friend bool operator != (Envelope &env1, Envelope &env2);
+    friend bool operator == (const Envelope &env1, const Envelope &env2);
+    friend bool operator != (const Envelope &env1, const Envelope &env2);
     bool is_init();
+    bool within(const base::Point &p) const;
   };
 
-  bool operator== (ProjectionView &v1, ProjectionView &v2);
-  bool operator!= (ProjectionView &v1, ProjectionView &v2);
-  bool operator== (Envelope &env1, Envelope &env2);
-  bool operator!= (Envelope &env1, Envelope &env2);
+  bool operator== (const ProjectionView &v1, const ProjectionView &v2);
+  bool operator!= (const ProjectionView &v1, const ProjectionView &v2);
+  bool operator== (const Envelope &env1, const Envelope &env2);
+  bool operator!= (const Envelope &env1, const Envelope &env2);
 
   enum ProjectionType
   {
@@ -93,23 +95,23 @@ namespace spatial
     AxisLat = 1, AxisLon = 2
   };
 
-  class ShapeContainer
+  class WBPUBLICBACKEND_PUBLIC_FUNC ShapeContainer
   {
 
   protected:
-    bool within_linearring(const base::Point &p) const;
-    bool within_line(const std::vector<base::Point> &point_list, const base::Point &p) const;
-    bool within_polygon(const base::Point &p) const;
-    bool within_point(const base::Point &p) const;
+    double distance_linearring(const base::Point &p) const;
+    double distance_line(const std::vector<base::Point> &point_list, const base::Point &p) const;
+    double distance_polygon(const base::Point &p) const;
+    double distance_point(const base::Point &p) const;
   public:
     ShapeContainer();
     ShapeType type;
     std::vector<base::Point> points;
     Envelope bounding_box;
-    bool within(const base::Point &p) const;
+    double distance(const base::Point &p) const;
   };
 
-  class Projection
+  class WBPUBLICBACKEND_PUBLIC_FUNC Projection
   {
   protected:
     OGRSpatialReference _mercator_srs;
@@ -129,7 +131,7 @@ namespace spatial
   };
 
 
-  class Importer
+  class WBPUBLICBACKEND_PUBLIC_FUNC Importer
   {
     OGRGeometry *_geometry;
     bool _interrupt;
@@ -141,9 +143,16 @@ namespace spatial
     void get_points(std::deque<ShapeContainer> &shapes_container);
     void get_envelope(Envelope &env);
     void interrupt();
+
+    std::string as_wkt();
+    std::string as_kml();
+    std::string as_json();
+    std::string as_gml();
+
+    OGRGeometry *steal_data();
   };
 
-  class Converter
+  class WBPUBLICBACKEND_PUBLIC_FUNC Converter
   {
     base::RecMutex _projection_protector;
     double _adf_projection[6];
@@ -167,42 +176,46 @@ namespace spatial
 
     bool from_latlon_to_proj(double &lat, double &lon);
     bool from_proj_to_latlon(double &lat, double &lon);
-    static const char* dec_to_dms(double angle, AxisType axis, int precision);
+    static std::string dec_to_dms(double angle, AxisType axis, int precision);
     void transform_points(std::deque<ShapeContainer> &shapes_container);
+    void transform_envelope(spatial::Envelope &env);
     void interrupt();
   };
 
 
   class Layer;
 
-  class Feature
+  class WBPUBLICBACKEND_PUBLIC_FUNC Feature
   {
     Layer *_owner;
     int _row_id;
     Importer _geometry;
     std::deque<ShapeContainer> _shapes;
-
+    spatial::Envelope _env_screen;
   public:
     Feature(Layer *layer, int row_id, const std::string &data, bool wkt);
     ~Feature();
 
     void interrupt();
-    void get_envelope(spatial::Envelope &env);
+    void get_envelope(spatial::Envelope &env, const bool &screen_coords = false);
     void render(spatial::Converter *converter);
-    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, bool fill_polygons);
+    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, base::Color fill_color=base::Color::Invalid());
 
     int row_id() const { return _row_id; }
-    bool within(const base::Point &p);
+    double distance(const base::Point &p, const double &allowed_distance = 4.0);
   };
 
-  class Layer
+  typedef int LayerId;
+  WBPUBLICBACKEND_PUBLIC_FUNC LayerId new_layer_id();
+
+  class WBPUBLICBACKEND_PUBLIC_FUNC Layer
   {
     friend class Feature;
 
   protected:
     std::deque<Feature*> _features;
 
-    int _layer_id;
+    LayerId _layer_id;
     base::Color _color;
     float _render_progress;
     bool _show;
@@ -211,7 +224,7 @@ namespace spatial
     bool _fill_polygons;
 
   public:
-    Layer(int layer_id, base::Color color);
+    Layer(LayerId layer_id, base::Color color);
     virtual ~Layer();
 
     virtual void load_data() {}
@@ -219,18 +232,21 @@ namespace spatial
     void interrupt();
 
     bool hidden();
-    int layer_id();
+    LayerId layer_id();
 
     void set_show(bool flag);
 
     size_t size() { return _features.size(); }
 
+    base::Color color() { return _color; }
+    bool fill() { return _fill_polygons; }
+
     void add_feature(int row_id, const std::string &geom_data, bool wkt);
     virtual void render(spatial::Converter *converter);
-    spatial::Feature *feature_within(const base::Point &p);
+    spatial::Feature *feature_closest(const base::Point &p, const double &allowed_distance = 4.0);
     void set_fill_polygons(bool fill);
     bool get_fill_polygons();
-    void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
+    virtual void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);
     float query_render_progress();
     spatial::Envelope get_envelope();
   };
