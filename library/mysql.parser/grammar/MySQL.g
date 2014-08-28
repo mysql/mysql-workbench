@@ -156,6 +156,8 @@ typedef struct {
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #endif
 #endif
+#else
+#pragma warning(disable:4296) // Condition is always true.
 #endif
 
 }
