@@ -292,14 +292,13 @@ struct GrammarNode {
 // A sequence of grammar nodes (either terminal or non-terminal) in the order they appear in the grammar.
 // Expressions in parentheses are extracted into an own rule with a private name.
 // A sequence can have an optional predicate (min/max server version).
-struct T {}; // Helper structure to guide the compiler in the list_of calls (not used otherwise).
 struct GrammarSequence {
   int min_version;
   int max_version;
   std::vector<GrammarNode> nodes;
   
-  GrammarSequence(T, std::vector<GrammarNode> _nodes, int _min_version = 0, int _max_version = MAXINT)
-    : nodes(_nodes), min_version(_min_version), max_version(_max_version)
+  GrammarSequence(std::vector<GrammarNode> _nodes, int _min_version = MIN_SERVER_VERSION, int _max_version = MAX_SERVER_VERSION)
+    : min_version(_min_version), max_version(_max_version), nodes(_nodes)
   {};
 
 };
@@ -307,194 +306,194 @@ struct GrammarSequence {
 // A list of alternatives for a given rule.
 typedef std::vector<GrammarSequence> RuleAlternatives;
 
-static std::map<std::string, RuleAlternatives> rules = map_list_of
+static std::map<std::string, RuleAlternatives> rules = map_list_of<std::string, RuleAlternatives>
   // First the root rule. Everything starts with this.
   ("data_type", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(false, true, false, "integer_type") (false, false, false, "field_length") (false, false, false, "field_options"))
-    (T(), list_of<GrammarNode>(false, true, false, "real_literal") (false, false, false, "precision") (false, false, false, "field_options"))
-    (T(), list_of<GrammarNode>(true, true, false, "FLOAT") (false, false, false, "float_options") (false, false, false, "field_options"))
-    (T(), list_of<GrammarNode>(true, true, false, "BIT") (false, false, false, "field_length"))
-    (T(), list_of<GrammarNode>(true, true, false, "BOOL"))
-    (T(), list_of<GrammarNode>(true, true, false, "BOOLEAN"))
-    (T(), list_of<GrammarNode>(true, true, false, "CHAR") (false, false, false, "field_length") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(false, true, false, "nchar_literal") (false, false, false, "field_length") (true, false, false, "BINARY"))
-    (T(), list_of<GrammarNode>(true, true, false, " BINARY") (false, false, false, "field_length"))
-    (T(), list_of<GrammarNode>(false, true, false, "varchar_literal") (false, true, false, "field_length") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(false, true, false, "nvarchar_literal") (false, true, false, "field_length") (true, false, false, "BINARY"))
-    (T(), list_of<GrammarNode>(true, true, false, "VARBINARY") (false, true, false, "field_length"))
-    (T(), list_of<GrammarNode>(true, true, false, "YEAR") (false, false, false, "field_length") (false, false, false, "field_options"))
-    (T(), list_of<GrammarNode>(true, true, false, "DATE"))
-    (T(), list_of<GrammarNode>(true, true, false, "TIME") (false, false, false, "type_datetime_precision"))
-    (T(), list_of<GrammarNode>(true, true, false, "TIMESTAMP") (false, false, false, "type_datetime_precision"))
-    (T(), list_of<GrammarNode>(true, true, false, "DATETIME") (false, false, false, "type_datetime_precision"))
-    (T(), list_of<GrammarNode>(true, true, false, "TINYBLOB"))
-    (T(), list_of<GrammarNode>(true, true, false, "BLOB") (false, false, false, "field_length"))
-    (T(), list_of<GrammarNode>(true, true, false, "MEDIUMBLOB"))
-    (T(), list_of<GrammarNode>(true, true, false, "LONGBLOB"))
-    (T(), list_of<GrammarNode>(true, true, false, "LONG") (true, true, false, "VARBINARY"))
-    (T(), list_of<GrammarNode>(true, true, false, "LONG") (false, false, false, "varchar_literal") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(true, true, false, "TINYTEXT") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(true, true, false, "TEXT") (false, false, false, "field_length") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(true, true, false, "MEDIUMTEXT") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(true, true, false, "LONGTEXT") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(true, true, false, "DECIMAL") (false, false, false, "float_options") (false, false, false, "field_options"))
-    (T(), list_of<GrammarNode>(true, true, false, "NUMERIC") (false, false, false, "float_options") (false, false, false, "field_options"))
-    (T(), list_of<GrammarNode> (true, true, false, "FIXED") (false, false, false, "float_options") (false, false, false, "field_options"))
-    (T(), list_of<GrammarNode>(true, true, false, "ENUM") (false, true, false, "string_list") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(true, true, false, "SET") (false, true, false, "string_list") (false, false, false, "string_binary"))
-    (T(), list_of<GrammarNode>(true, true, false, "SERIAL"))
-    (T(), list_of<GrammarNode>(false, true, false, "spatial_type"))
+    (list_of<GrammarNode>(false, true, false, "integer_type") (false, false, false, "field_length") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "real_literal") (false, false, false, "precision") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "FLOAT") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BIT") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BOOL").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BOOLEAN").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "CHAR") (false, false, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "nchar_literal") (false, false, false, "field_length") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, " BINARY") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "varchar_literal") (false, true, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "nvarchar_literal") (false, true, false, "field_length") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "VARBINARY") (false, true, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "YEAR") (false, false, false, "field_length") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "DATE").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TIME") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TIMESTAMP") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "DATETIME") (false, false, false, "type_datetime_precision").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TINYBLOB").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BLOB") (false, false, false, "field_length").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MEDIUMBLOB").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LONGBLOB").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LONG") (true, true, false, "VARBINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LONG") (false, false, false, "varchar_literal") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TINYTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TEXT") (false, false, false, "field_length") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MEDIUMTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LONGTEXT") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "DECIMAL") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NUMERIC") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "FIXED") (false, false, false, "float_options") (false, false, false, "field_options").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "ENUM") (false, true, false, "string_list") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "SET") (false, true, false, "string_list") (false, false, false, "string_binary").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "SERIAL").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "spatial_type").convert_to_container<std::vector<GrammarNode> >())
   )
 
   // Rules referenced from the main rule or sub rules.
   ("integer_type", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "INTEGER"))
-    (T(), list_of<GrammarNode>(true, true, false, "INT"))
-    (T(), list_of<GrammarNode>(true, true, false, "INT1"))
-    (T(), list_of<GrammarNode>(true, true, false, "INT2"))
-    (T(), list_of<GrammarNode>(true, true, false, "INT3"))
-    (T(), list_of<GrammarNode>(true, true, false, "INT4"))
-    (T(), list_of<GrammarNode>(true, true, false, "INT8"))
-    (T(), list_of<GrammarNode>(true, true, false, "TINYINT"))
-    (T(), list_of<GrammarNode>(true, true, false, "SMALLINT"))
-    (T(), list_of<GrammarNode>(true, true, false, "MEDIUMINT"))
-    (T(), list_of<GrammarNode>(true, true, false, "BIGINT"))
+    (list_of<GrammarNode>(true, true, false, "INTEGER").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT1").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT2").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT3").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT4").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "INT8").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "TINYINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "SMALLINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MEDIUMINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BIGINT").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("field_length", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "6") (true, true, false, ")"))
+    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "6") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("field_options", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (false, true, true, "field_options_alt1"))
+    (list_of<GrammarNode>(false, true, true, "field_options_alt1").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("field_options_alt1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "SIGNED"))
-    (T(), list_of<GrammarNode>(true, true, false, "UNSIGNED"))
-    (T(), list_of<GrammarNode>(true, true, false, "ZEROFILL"))
+    (list_of<GrammarNode>(true, true, false, "SIGNED").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "UNSIGNED").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "ZEROFILL").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("real_literal", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "REAL"))
-    (T(), list_of<GrammarNode> (true, true, false, "DOUBLE") (true, false, false, "PRECISION"))
+    (list_of<GrammarNode>(true, true, false, "REAL").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "DOUBLE") (true, false, false, "PRECISION").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("precision", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "12") (true, true, false, ",") (true, true, false, "5") (true, true, false, ")"))
+    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "12") (true, true, false, ",") (true, true, false, "5") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("float_options", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (false, true, false, "float_options_alt1"))
+    (list_of<GrammarNode>(false, true, false, "float_options_alt1").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("float_options_alt1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "12") (false, false, false, "float_options_alt1_seq1") (true, true, false, ")"))
+    (list_of<GrammarNode>(true, true, false, "(") (true, true, false, "12") (false, false, false, "float_options_alt1_seq1") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("float_options_alt1_seq1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, ",") (true, true, false, "6"))
+    (list_of<GrammarNode>(true, true, false, ",") (true, true, false, "6").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("string_binary", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(false, true, false, "ascii"))
-    (T(), list_of<GrammarNode>(false, true, false, "unicode"))
-    (T(), list_of<GrammarNode>(true, true, false, "BYTE"))
-    (T(), list_of<GrammarNode>(false, true, false, "charset") (false, true, false, "charset_name") (true, true, false, "BINARY"))
-    (T(), list_of<GrammarNode>(true, true, false, "BINARY") (false, false, false, "string_binary_seq1"))
+    (list_of<GrammarNode>(false, true, false, "ascii").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "unicode").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BYTE").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "charset") (false, true, false, "charset_name") (true, true, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BINARY") (false, false, false, "string_binary_seq1").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("string_binary_seq1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (false, true, false, "charset") (false, true, false, "charset_name"))
+    (list_of<GrammarNode>(false, true, false, "charset") (false, true, false, "charset_name").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("ascii", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "ASCII") (true, false, false, "BINARY"))
-    (T(), list_of<GrammarNode> (true, true, false, "BINARY") (true, true, false, "ASCII"), 50500)
+    (list_of<GrammarNode>(true, true, false, "ASCII") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode> (true, true, false, "BINARY") (true, true, false, "ASCII"), 50500)
   )
 
   ("unicode", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "UNICODE") (true, false, false, "BINARY"))
-    (T(), list_of<GrammarNode> (true, true, false, "BINARY") (true, true, false, "UNICODE"), 50500)
+    (list_of<GrammarNode>(true, true, false, "UNICODE") (true, false, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode> (true, true, false, "BINARY") (true, true, false, "UNICODE"), 50500)
   )
 
   ("charset", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "CHAR") (true, true, false, "SET"))
-    (T(), list_of<GrammarNode> (true, true, false, "CHARSET"))
+    (list_of<GrammarNode>(true, true, false, "CHAR") (true, true, false, "SET").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "CHARSET").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("charset_name", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "'utf8'"))
-    (T(), list_of<GrammarNode>(true, true, false, "utf8"))
-    (T(), list_of<GrammarNode>(true, true, false, "BINARY"))
+    (list_of<GrammarNode>(true, true, false, "'utf8'").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "utf8").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "BINARY").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("text_or_identifier", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(false, true, false, "string_literal"))
-    (T(), list_of<GrammarNode>(false, true, false, "identifier"))
+    (list_of<GrammarNode>(false, true, false, "string_literal").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(false, true, false, "identifier").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("string_literal", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "n'text'")) // NCHAR_TEXT
-    (T(), list_of<GrammarNode>(true, false, false, "_utf8") (false, true, true, "string_literal_seq1"))
+    (list_of<GrammarNode>(true, true, false, "n'text'").convert_to_container<std::vector<GrammarNode> >()) // NCHAR_TEXT
+    (list_of<GrammarNode>(true, false, false, "_utf8") (false, true, true, "string_literal_seq1").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("string_literal_seq1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "'text'")) // SINGLE_QUOTED_TEXT
-    (T(), list_of<GrammarNode>(true, true, false, "\"text\"")) // DOUBLE_QUOTED_TEXT
+    (list_of<GrammarNode>(true, true, false, "'text'").convert_to_container<std::vector<GrammarNode> >()) // SINGLE_QUOTED_TEXT
+    (list_of<GrammarNode>(true, true, false, "\"text\"").convert_to_container<std::vector<GrammarNode> >()) // DOUBLE_QUOTED_TEXT
   )
 
   ("identifier", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, special_id)) // IDENTIFIER
-    (T(), list_of<GrammarNode>(true, true, false, "`identifier`")) // BACK_TICK_QUOTED_ID
-    (T(), list_of<GrammarNode>(true, true, false, "host")) // (certain) keywords
+    (list_of<GrammarNode>(true, true, false, special_id).convert_to_container<std::vector<GrammarNode> >()) // IDENTIFIER
+    (list_of<GrammarNode>(true, true, false, "`identifier`").convert_to_container<std::vector<GrammarNode> >()) // BACK_TICK_QUOTED_ID
+    (list_of<GrammarNode>(true, true, false, "host").convert_to_container<std::vector<GrammarNode> >()) // (certain) keywords
   )
 
   ("nchar_literal", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "NCHAR"))
-    (T(), list_of<GrammarNode>(true, true, false, "NATIONAL\tCHAR"))
+    (list_of<GrammarNode>(true, true, false, "NCHAR").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NATIONAL\tCHAR").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("varchar_literal", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "CHAR") (true, true, false, "VARYING"))
-    (T(), list_of<GrammarNode>(true, true, false, "VARCHAR"))
+    (list_of<GrammarNode>(true, true, false, "CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "VARCHAR").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("nvarchar_literal", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "NATIONAL CHAR") (true, true, false, "VARYING"))
-    (T(), list_of<GrammarNode>(true, true, false, "NVARCHAR"))
-    (T(), list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARCHAR"))
-    (T(), list_of<GrammarNode>(true, true, false, "NATIONAL") (true, true, false, "CHAR") (true, true, false, "VARYING"))
-    (T(), list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARYING"))
+    (list_of<GrammarNode>(true, true, false, "NATIONAL CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NVARCHAR").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARCHAR").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NATIONAL") (true, true, false, "CHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "NCHAR") (true, true, false, "VARYING").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("type_datetime_precision", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode> (true, true, false, "(") (true, true, false, "6")  (true, true, false, ")"), 50600)
+    (list_of<GrammarNode> (true, true, false, "(") (true, true, false, "6")  (true, true, false, ")"), 50600)
   )
 
   ("string_list", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "(") (false, true, false, "text_string") (false, false, true, "string_list_seq1") (true, true, false, ")"))
+    (list_of<GrammarNode>(true, true, false, "(") (false, true, false, "text_string") (false, false, true, "string_list_seq1") (true, true, false, ")").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("string_list_seq1", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, ",") (false, true, false, "text_string"))
+    (list_of<GrammarNode>(true, true, false, ",") (false, true, false, "text_string").convert_to_container<std::vector<GrammarNode> >())
   )
 
   ("text_string", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "'text'")) // SINGLE_QUOTED_TEXT
-    (T(), list_of<GrammarNode>(true, true, false, "0x12345AABBCCDDEEFF")) // HEXNUMBER
-    (T(), list_of<GrammarNode>(true, true, false, "0b1000111101001011")) // BITNUMBER
+    (list_of<GrammarNode>(true, true, false, "'text'").convert_to_container<std::vector<GrammarNode> >()) // SINGLE_QUOTED_TEXT
+    (list_of<GrammarNode>(true, true, false, "0x12345AABBCCDDEEFF").convert_to_container<std::vector<GrammarNode> >()) // HEXNUMBER
+    (list_of<GrammarNode>(true, true, false, "0b1000111101001011").convert_to_container<std::vector<GrammarNode> >()) // BITNUMBER
   )
 
   ("spatial_type", list_of<GrammarSequence>
-    (T(), list_of<GrammarNode>(true, true, false, "GEOMETRY"))
-    (T(), list_of<GrammarNode>(true, true, false, "GEOMETRYCOLLECTION"))
-    (T(), list_of<GrammarNode>(true, true, false, "POINT"))
-    (T(), list_of<GrammarNode>(true, true, false, "MULTIPOINT"))
-    (T(), list_of<GrammarNode>(true, true, false, "LINESTRING"))
-    (T(), list_of<GrammarNode>(true, true, false, "MULTILINESTRING"))
-    (T(), list_of<GrammarNode>(true, true, false, "POLYGON"))
-    (T(), list_of<GrammarNode>(true, true, false, "MULTIPOLYGON"))
+    (list_of<GrammarNode>(true, true, false, "GEOMETRY").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "GEOMETRYCOLLECTION").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "POINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MULTIPOINT").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "LINESTRING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MULTILINESTRING").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "POLYGON").convert_to_container<std::vector<GrammarNode> >())
+    (list_of<GrammarNode>(true, true, false, "MULTIPOLYGON").convert_to_container<std::vector<GrammarNode> >())
   )
 
 ;
