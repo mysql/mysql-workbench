@@ -42,6 +42,7 @@
 
 namespace mforms {
   class ToolBar;
+  class AppView;
   class View;
   class MenuItem;
   class DockingPoint;
@@ -194,6 +195,7 @@ private:
   int _scratch_editors_serial;
 
   void sql_editor_panel_switched();
+  void sql_editor_panel_closed(mforms::AppView *view);
 
   void set_editor_tool_items_enbled(const std::string &name, bool flag);
   void set_editor_tool_items_checked(const std::string &name, bool flag);
