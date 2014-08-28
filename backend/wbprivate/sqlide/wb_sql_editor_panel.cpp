@@ -417,6 +417,8 @@ SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_scratch(const std
 {
   AutoSaveInfo info;
   info.title = base::strip_extension(base::basename(scratch_file));
+  if (base::is_number(info.title))
+    info.title = base::strfmt("Query %i", 1+atoi(info.title.c_str()));
   info.type = "scratch";
   return info;
 }

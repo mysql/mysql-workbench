@@ -528,9 +528,6 @@ void SqlEditorForm::remove_sql_editor(SqlEditorPanel *panel)
 
   // no need to delete, undock_view will release the reference and delete it because panel is managed
   //delete panel;
-
-  if (_tabdock->view_count() == 0 && !_closing)
-    new_sql_scratch_area();
 }
 
 
@@ -551,6 +548,12 @@ void SqlEditorForm::sql_editor_panel_switched()
   validate_menubar();
 }
 
+
+void SqlEditorForm::sql_editor_panel_closed(mforms::AppView *view)
+{
+  if (_tabdock->view_count() == 0 && !_closing)
+    new_sql_scratch_area();
+}
 
 void SqlEditorForm::save_workspace_order(const std::string &prefix)
 {

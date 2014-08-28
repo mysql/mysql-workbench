@@ -240,8 +240,8 @@ static void show_help(const char *arg0)
   printf("  %smodel <model file>    Open the given EER model file\n", OPPREFIX);
   printf("  %sscript <sql file>     Open the given SQL file in an connection, best in conjunction with a query parameter\n", OPPREFIX);
   printf("  %srun-script <file>     Execute Python code from a file\n", OPPREFIX);
-  printf("  %srun <script>          Execute the given code in default language for GRT shell\n", OPPREFIX);
-  printf("  %srun-python <script>   Execute the given code in Python\n", OPPREFIX);
+  printf("  %srun <code>            Execute the given Python code\n", OPPREFIX);
+  printf("  %srun-python <code>     Execute the given Python code\n", OPPREFIX);
   printf("  %smigration             Open the Migration Wizard tab\n", OPPREFIX);
   printf("  %squit-when-done        Quit Workbench when the script is done\n", OPPREFIX);
   printf("  %slog-to-stderr         Also log to stderr\n", OPPREFIX);

@@ -174,6 +174,7 @@ void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp)
   _tabdock = dp;
   grtobj()->dockingPoint(mforms_to_grt(_grtm->get_grt(), dp));
   scoped_connect(_tabdock->signal_view_switched(), boost::bind(&SqlEditorForm::sql_editor_panel_switched, this));
+  scoped_connect(_tabdock->signal_view_undocked(), boost::bind(&SqlEditorForm::sql_editor_panel_closed, this, _1));
 }
 
 
