@@ -110,13 +110,13 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
 
   _splitter.add(&_editor_box);
   _splitter.add(&_lower_tabview);
-  _splitter.set_position((int)mforms::App::get()->get_application_bounds().height());
+
   UIForm::scoped_connect(_splitter.signal_position_changed(), boost::bind(&SqlEditorPanel::splitter_resized, this));
   _tab_action_box.set_spacing(4);
   _tab_action_box.add_end(&_tab_action_info, false, true);
   _tab_action_box.add_end(&_tab_action_icon, false, false);
-  _tab_action_box.add_end(&_tab_action_revert, false, true);
-  _tab_action_box.add_end(&_tab_action_apply, false, true);
+  _tab_action_box.add_end(&_tab_action_revert, false, false);
+  _tab_action_box.add_end(&_tab_action_apply, false, false);
   _tab_action_icon.set_image(mforms::App::get()->get_resource_path("mini_notice.png"));
   _tab_action_icon.show(false);
   _tab_action_info.show(false);
@@ -127,8 +127,13 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_revert.set_text("Revert");
   _tab_action_revert.signal_clicked()->connect(boost::bind(&SqlEditorPanel::revert_clicked, this));
 
-  _tab_action_box.relayout();
-  _tab_action_box.set_size(_tab_action_box.get_preferred_width(), _tab_action_box.get_preferred_height());
+#ifdef _WIN32
+  // 19 is the size of the tabs in the bottom tabview.
+  _tab_action_apply.set_size(-1, 19);
+  _tab_action_revert.set_size(-1, 19);
+  _tab_action_box.set_size(-1, 19);
+  _tab_action_box.set_back_color(Color::get_application_color_as_string(AppColorTabUnselected, false));
+#endif
 
   _lower_tabview.set_aux_view(&_tab_action_box);
   _lower_tabview.set_allows_reordering(true);
@@ -140,6 +145,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _lower_tabview.is_pinned = boost::bind(&SqlEditorPanel::is_pinned, this, _1);
   _lower_tabview.set_tab_menu(&_lower_tab_menu);
 
+  _splitter.set_expanded(false, false);
   set_on_close(boost::bind(&SqlEditorPanel::on_close_by_user, this));
 
   _lower_tab_menu.signal_will_show()->connect(boost::bind(&SqlEditorPanel::tab_menu_will_show, this));
@@ -1145,8 +1151,8 @@ void SqlEditorPanel::lower_tab_switched()
   if (!_busy && _lower_tabview.page_count() > 0) // if we're running a query, then let dock_result handle this
   {
     int position = _form->grt_manager()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
-    if (position > _splitter.get_height()-100)
-      position = _splitter.get_height()-100;
+    if (position > _splitter.get_height() - 100)
+      position = _splitter.get_height() - 100;
     _splitter.set_position(position);
   }
 }
@@ -1243,11 +1249,12 @@ void SqlEditorPanel::dock_result_panel(SqlEditorResult *result)
 
   _lower_dock.dock_view(result);
   _lower_dock.select_view(result);
+  _splitter.set_expanded(false, true);
   if (_was_empty)
   {
     int position = _form->grt_manager()->get_app_option_int("DbSqlEditor:ResultSplitterPosition", 200);
-    if (position > _splitter.get_height()-100)
-      position = _splitter.get_height()-100;
+    if (position > _splitter.get_height() - 100)
+      position = _splitter.get_height() - 100;
     _splitter.set_position(position);
 
     // scroll the editor to make the cursor visible
@@ -1356,7 +1363,7 @@ void SqlEditorPanel::lower_tab_closed(mforms::View *page, int tab)
 void SqlEditorPanel::result_removed()
 {
   if (_lower_tabview.page_count() == 0)
-    _splitter.set_position(_splitter.get_height());
+    _splitter.set_expanded(false, false);
   lower_tab_switched();
 }
 
