@@ -187,5 +187,8 @@
     <ClInclude Include="src\ObjectRolesWrapper.h">
       <Filter>Header Files\user and roles</Filter>
     </ClInclude>
+    <ClInclude Include="src\Canvas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
