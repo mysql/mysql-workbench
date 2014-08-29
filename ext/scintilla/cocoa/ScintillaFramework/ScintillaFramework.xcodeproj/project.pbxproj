@@ -196,6 +196,10 @@
 		27FEF4540FC1B413005E115A /* info_bar_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4510FC1B413005E115A /* info_bar_bg.png */; };
 		27FEF4550FC1B413005E115A /* mac_cursor_busy.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4520FC1B413005E115A /* mac_cursor_busy.png */; };
 		27FEF4560FC1B413005E115A /* mac_cursor_flipped.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4530FC1B413005E115A /* mac_cursor_flipped.png */; };
+		280056FB188DDD2C00F200AE /* SparseState.h in Headers */ = {isa = PBXBuildFile; fileRef = 280056F8188DDD2C00F200AE /* SparseState.h */; };
+		280056FC188DDD2C00F200AE /* StringCopy.h in Headers */ = {isa = PBXBuildFile; fileRef = 280056F9188DDD2C00F200AE /* StringCopy.h */; };
+		280056FD188DDD2C00F200AE /* SubStyles.h in Headers */ = {isa = PBXBuildFile; fileRef = 280056FA188DDD2C00F200AE /* SubStyles.h */; };
+		28064A05190F12E100E6E47F /* LexDMIS.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 28064A04190F12E100E6E47F /* LexDMIS.cxx */; };
 		28D516D81830FFCA0047C93D /* info_bar_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D51830FFCA0047C93D /* info_bar_bg@2x.png */; };
 		28D516D91830FFCA0047C93D /* mac_cursor_busy@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D61830FFCA0047C93D /* mac_cursor_busy@2x.png */; };
 		28D516DA1830FFCA0047C93D /* mac_cursor_flipped@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D71830FFCA0047C93D /* mac_cursor_flipped@2x.png */; };
@@ -397,6 +401,10 @@
 		27FEF4510FC1B413005E115A /* info_bar_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = info_bar_bg.png; sourceTree = "<group>"; };
 		27FEF4520FC1B413005E115A /* mac_cursor_busy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mac_cursor_busy.png; sourceTree = "<group>"; };
 		27FEF4530FC1B413005E115A /* mac_cursor_flipped.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mac_cursor_flipped.png; sourceTree = "<group>"; };
+		280056F8188DDD2C00F200AE /* SparseState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SparseState.h; path = ../../lexlib/SparseState.h; sourceTree = "<group>"; };
+		280056F9188DDD2C00F200AE /* StringCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringCopy.h; path = ../../lexlib/StringCopy.h; sourceTree = "<group>"; };
+		280056FA188DDD2C00F200AE /* SubStyles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SubStyles.h; path = ../../lexlib/SubStyles.h; sourceTree = "<group>"; };
+		28064A04190F12E100E6E47F /* LexDMIS.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexDMIS.cxx; path = ../../lexers/LexDMIS.cxx; sourceTree = "<group>"; };
 		28D516D51830FFCA0047C93D /* info_bar_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info_bar_bg@2x.png"; sourceTree = "<group>"; };
 		28D516D61830FFCA0047C93D /* mac_cursor_busy@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mac_cursor_busy@2x.png"; sourceTree = "<group>"; };
 		28D516D71830FFCA0047C93D /* mac_cursor_flipped@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mac_cursor_flipped@2x.png"; sourceTree = "<group>"; };
@@ -526,6 +534,7 @@
 				114B6ED211FA7526004FB6AB /* LexCSS.cxx */,
 				114B6ED311FA7526004FB6AB /* LexD.cxx */,
 				11FF3FE11810EB3900E13F13 /* LexDMAP.cxx */,
+				28064A04190F12E100E6E47F /* LexDMIS.cxx */,
 				11BEB6A114EF189600BDE92A /* LexECL.cxx */,
 				114B6ED411FA7526004FB6AB /* LexEiffel.cxx */,
 				114B6ED511FA7526004FB6AB /* LexErlang.cxx */,
@@ -634,9 +643,12 @@
 				114B6FB411FA7623004FB6AB /* RunStyles.h */,
 				114B6FB511FA7623004FB6AB /* ScintillaBase.h */,
 				114B6FB611FA7623004FB6AB /* Selection.h */,
+				280056F8188DDD2C00F200AE /* SparseState.h */,
 				114B6FB711FA7623004FB6AB /* SplitVector.h */,
+				280056F9188DDD2C00F200AE /* StringCopy.h */,
 				114B6FB811FA7623004FB6AB /* Style.h */,
 				114B6FE111FA7645004FB6AB /* StyleContext.h */,
+				280056FA188DDD2C00F200AE /* SubStyles.h */,
 				1100F1EA178E393200105727 /* UnicodeFromUTF8.h */,
 				114B6FBA11FA7623004FB6AB /* UniConversion.h */,
 				114B6FBB11FA7623004FB6AB /* ViewStyle.h */,
@@ -754,6 +766,7 @@
 				2791F3E00FC1A390009DBCF9 /* ScintillaCocoa.h in Headers */,
 				2744E5AA0FC168A100E85C33 /* ScintillaView.h in Headers */,
 				2791F3C70FC19F71009DBCF9 /* Platform.h in Headers */,
+				280056FB188DDD2C00F200AE /* SparseState.h in Headers */,
 				2791F3C80FC19F71009DBCF9 /* SciLexer.h in Headers */,
 				2791F3C90FC19F71009DBCF9 /* Scintilla.h in Headers */,
 				114B6FA111FA75DB004FB6AB /* ILexer.h in Headers */,
@@ -776,10 +789,12 @@
 				114B6FCD11FA7623004FB6AB /* PositionCache.h in Headers */,
 				114B6FCE11FA7623004FB6AB /* RESearch.h in Headers */,
 				114B6FCF11FA7623004FB6AB /* RunStyles.h in Headers */,
+				280056FD188DDD2C00F200AE /* SubStyles.h in Headers */,
 				114B6FD011FA7623004FB6AB /* ScintillaBase.h in Headers */,
 				114B6FD111FA7623004FB6AB /* Selection.h in Headers */,
 				114B6FD211FA7623004FB6AB /* SplitVector.h in Headers */,
 				114B6FD311FA7623004FB6AB /* Style.h in Headers */,
+				280056FC188DDD2C00F200AE /* StringCopy.h in Headers */,
 				114B6FD511FA7623004FB6AB /* UniConversion.h in Headers */,
 				114B6FD611FA7623004FB6AB /* ViewStyle.h in Headers */,
 				114B6FD711FA7623004FB6AB /* XPM.h in Headers */,
@@ -904,6 +919,7 @@
 				114B6F2411FA7526004FB6AB /* LexErlang.cxx in Sources */,
 				114B6F2511FA7526004FB6AB /* LexEScript.cxx in Sources */,
 				114B6F2611FA7526004FB6AB /* LexFlagship.cxx in Sources */,
+				28064A05190F12E100E6E47F /* LexDMIS.cxx in Sources */,
 				114B6F2711FA7526004FB6AB /* LexForth.cxx in Sources */,
 				114B6F2811FA7526004FB6AB /* LexFortran.cxx in Sources */,
 				114B6F2911FA7526004FB6AB /* LexGAP.cxx in Sources */,
@@ -1027,7 +1043,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1059,7 +1074,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1091,7 +1105,6 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -1111,7 +1124,6 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (

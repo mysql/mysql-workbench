@@ -8,8 +8,12 @@
 
 .SUFFIXES: .cxx .c .o .h .a
 ifdef CLANG
-CC = clang
+CC = clang++
 CCOMP = clang
+# Can choose aspect to sanitize: address and undefined can simply change SANITIZE but for
+# thread also need to create Position Independent Executable -> search online documentation
+SANITIZE = address
+#SANITIZE = undefined
 else
 CC = g++
 CCOMP = gcc
@@ -56,7 +60,7 @@ endif
 
 ifdef DEBUG
 ifdef CLANG
-CTFLAGS=-DDEBUG -g -fsanitize=address $(CXXBASEFLAGS) $(THREADFLAGS)
+CTFLAGS=-DDEBUG -g -fsanitize=$(SANITIZE) $(CXXBASEFLAGS) $(THREADFLAGS)
 else
 CTFLAGS=-DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
 endif
