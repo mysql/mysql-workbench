@@ -82,7 +82,7 @@
 
     <h1>Scintilla Documentation</h1>
 
-    <p>Last edited 9 November 2013 NH</p>
+    <p>Last edited 1 May 2014 NH</p>
 
     <p>There is <a class="jump" href="Design.html">an overview of the internal design of
     Scintilla</a>.<br />
@@ -100,6 +100,8 @@
      How to implement a lexer in the container</a>.<br />
      <a class="jump" href="http://sphere.sourceforge.net/flik/docs/scintilla-folding.html">
      How to implement folding</a>.<br />
+     <a class="jump" href="https://bitbucket.org/StarFire/scintilla-doc/downloads/Scintilla-var'aq-Tutorial.pdf">
+     Beginner's Guide to lexing and folding</a>.<br />
      The <a class="jump" href="SciCoding.html">coding style</a> used in Scintilla and SciTE is
     worth following if you want to contribute code to Scintilla but is not compulsory.</p>
 
@@ -411,6 +413,7 @@
      <a class="message" href="#SCI_ADDSTYLEDTEXT">SCI_ADDSTYLEDTEXT(int length, cell *s)</a><br />
      <a class="message" href="#SCI_APPENDTEXT">SCI_APPENDTEXT(int length, const char *s)</a><br />
      <a class="message" href="#SCI_INSERTTEXT">SCI_INSERTTEXT(int pos, const char *text)</a><br />
+     <a class="message" href="#SCI_CHANGEINSERTION">SCI_CHANGEINSERTION(int length, const char *text)</a><br />
      <a class="message" href="#SCI_CLEARALL">SCI_CLEARALL</a><br />
      <a class="message" href="#SCI_DELETERANGE">SCI_DELETERANGE(int pos, int deleteLength)</a><br />
      <a class="message" href="#SCI_CLEARDOCUMENTSTYLE">SCI_CLEARDOCUMENTSTYLE</a><br />
@@ -543,6 +546,10 @@
      This inserts the zero terminated <code>text</code> string at position <code>pos</code> or at
     the current position if <code>pos</code> is -1. If the current position is after the insertion point
     then it is moved along with its surrounding text but no scrolling is performed.</p>
+
+    <p><b id="SCI_CHANGEINSERTION">SCI_CHANGEINSERTION(int length, const char *text)</b><br />
+     This may only be called from a <a class="message" href="#SC_MOD_INSERTCHECK">SC_MOD_INSERTCHECK</a>
+     notification handler and will change the text being inserted to that provided.</p>
 
     <p><b id="SCI_CLEARALL">SCI_CLEARALL</b><br />
      Unless the document is read-only, this deletes all the text.</p>
@@ -801,7 +808,7 @@ struct Sci_TextRange {
 <pre>
 struct Sci_TextToFind {
     struct <a class="jump" href="#Sci_CharacterRange">Sci_CharacterRange</a> chrg;     // range to search
-    char *lpstrText;                // the search pattern (zero terminated)
+    const char *lpstrText;                // the search pattern (zero terminated)
     struct Sci_CharacterRange chrgText; // returned as position of matching text
 };
 </pre>
@@ -976,7 +983,7 @@ struct Sci_TextToFind {
      If this property is set then when text is pasted any line ends are converted to match the document's
      end of line mode as set with
      <a class="message" href="#SCI_SETEOLMODE">SCI_SETEOLMODE</a>.
-     Currently only changeable on Windows. On GTK+ pasted text is always converted.</p>
+     Defaults to true.</p>
 
     <h2 id="ErrorHandling">Error handling</h2>
 
@@ -1565,6 +1572,7 @@ struct Sci_TextToFind {
      <a class="message" href="#SCI_CLEARSELECTIONS">SCI_CLEARSELECTIONS</a><br />
      <a class="message" href="#SCI_SETSELECTION">SCI_SETSELECTION(int caret, int anchor)</a><br />
      <a class="message" href="#SCI_ADDSELECTION">SCI_ADDSELECTION(int caret, int anchor)</a><br />
+     <a class="message" href="#SCI_DROPSELECTIONN">SCI_DROPSELECTIONN(int selection)</a><br />
      <a class="message" href="#SCI_SETMAINSELECTION">SCI_SETMAINSELECTION(int selection)</a><br />
      <a class="message" href="#SCI_GETMAINSELECTION">SCI_GETMAINSELECTION</a><br />
      <br />
@@ -1692,6 +1700,12 @@ struct Sci_TextToFind {
      added with <code>SCI_SETSELECTION</code> and later selections added with <code>SCI_ADDSELECTION</code></p>
 
     <p>
+    <b id="SCI_DROPSELECTIONN">SCI_DROPSELECTIONN(int selection)</b><br />
+     If there are multiple selections, remove the indicated selection.
+     If this was the main selection then make the previous selection the main and if it was the first then the last selection becomes main.
+     If there is only one selection, or there is no selection <code>selection</code>, then there is no effect.</p>
+
+    <p>
     <b id="SCI_SETMAINSELECTION">SCI_SETMAINSELECTION(int selection)</b><br />
     <b id="SCI_GETMAINSELECTION">SCI_GETMAINSELECTION</b><br />
      One of the selections is the main selection which is used to determine what range of text is automatically visible.
@@ -1738,8 +1752,15 @@ struct Sci_TextToFind {
      <a class="message" href="#SCI_SETSELALPHA"><code>SCI_SETSELALPHA</code></a>,
      <a class="message" href="#SCI_GETSELALPHA"><code>SCI_GETSELALPHA</code></a>,
      <a class="message" href="#SCI_SETSELFORE"><code>SCI_SETSELFORE</code></a>, and
-     <a class="message" href="#SCI_SETSELBACK"><code>SCI_SETSELBACK</code></a>.</p>
-
+     <a class="message" href="#SCI_SETSELBACK"><code>SCI_SETSELBACK</code></a>.
+     <code>SCI_SETADDITIONALSELFORE</code> and
+     <code>SCI_SETADDITIONALSELBACK</code> calls have no
+     effect until <a class="message" href="#SCI_SETSELFORE"><code>SCI_SETSELFORE</code></a>
+     and <a class="message" href="#SCI_SETSELBACK"><code>SCI_SETSELBACK</code></a> are
+     called with useSelection*Colour value set to true. Subsequent calls to
+     <a class="message" href="#SCI_SETSELFORE"><code>SCI_SETSELFORE</code></a>, 
+     and <a class="message" href="#SCI_SETSELBACK"><code>SCI_SETSELBACK</code></a> will
+     overwrite the values set by <code>SCI_SETADDITIONALSEL*</code> functions.</p>
     <p>
      <b id="SCI_SETADDITIONALCARETFORE">SCI_SETADDITIONALCARETFORE(int <a class="jump" href="#colour">colour</a>)</b><br />
      <b id="SCI_GETADDITIONALCARETFORE">SCI_GETADDITIONALCARETFORE</b><br />
@@ -2194,7 +2215,7 @@ struct Sci_TextToFind {
      baseline (its 'descent').
      Space may be added to the maximum ascent (<code>SCI_SETEXTRAASCENT</code>) and the
      maximum descent (<code>SCI_SETEXTRADESCENT</code>) to allow for more space between lines.
-     This may done to make the text easier to read or to accomodate underlines or highlights.
+     This may done to make the text easier to read or to accommodate underlines or highlights.
     </p>
 
     <h2 id="Cursor">Cursor</h2>
@@ -2242,8 +2263,8 @@ struct Sci_TextToFind {
 
     <h2 id="LineEndings">Line endings</h2>
 
-    <p>Scintilla can handle the major line end conventions <span class="provisional">and, depending on settings and
-    the current lexer also support additional Unicode line ends</span>.</p>
+    <p>Scintilla can handle the major line end conventions and, depending on settings and
+    the current lexer also support additional Unicode line ends.</p>
 
     <p>Scintilla can interpret any of the Macintosh (\r), Unix (\n) and Windows (\r\n)
     line ends.
@@ -2253,26 +2274,21 @@ struct Sci_TextToFind {
     entire document to one of these line endings with <code>SCI_CONVERTEOLS</code>. Finally, you
     can choose to display the line endings with <code>SCI_SETVIEWEOL</code>.</p>
 
-<div  class="provisional">
     <p>For the UTF-8 encoding, three additional Unicode line ends,
     Next Line (<code>NEL=U+0085</code>), Line Separator (<code>LS=U+2028</code>), and Paragraph Separator (<code>PS=U+2029</code>)
     may optionally be interpreted when Unicode line ends is turned on and the current lexer also supports
     Unicode line ends.</p>
-</div>
 
-    <code><a class="message" href="#SCI_SETEOLMODE">SCI_SETEOLMODE(int eolMode)</a><br />
+    <a class="message" href="#SCI_SETEOLMODE">SCI_SETEOLMODE(int eolMode)</a><br />
      <a class="message" href="#SCI_GETEOLMODE">SCI_GETEOLMODE</a><br />
      <a class="message" href="#SCI_CONVERTEOLS">SCI_CONVERTEOLS(int eolMode)</a><br />
      <a class="message" href="#SCI_SETVIEWEOL">SCI_SETVIEWEOL(bool visible)</a><br />
      <a class="message" href="#SCI_GETVIEWEOL">SCI_GETVIEWEOL</a><br />
 
-<div  class="provisional">
      <a class="message" href="#SCI_GETLINEENDTYPESSUPPORTED">SCI_GETLINEENDTYPESSUPPORTED</a><br />
      <a class="message" href="#SCI_SETLINEENDTYPESALLOWED">SCI_SETLINEENDTYPESALLOWED(int lineEndBitSet)</a><br />
      <a class="message" href="#SCI_GETLINEENDTYPESALLOWED">SCI_GETLINEENDTYPESALLOWED</a><br />
      <a class="message" href="#SCI_GETLINEENDTYPESACTIVE">SCI_GETLINEENDTYPESACTIVE</a><br />
-</div>
-    </code>
 
     <p><b id="SCI_SETEOLMODE">SCI_SETEOLMODE(int eolMode)</b><br />
      <b id="SCI_GETEOLMODE">SCI_GETEOLMODE</b><br />
@@ -2294,9 +2310,6 @@ struct Sci_TextToFind {
     <code>(CR)</code>, <code>(LF)</code>, or <code>(CR)(LF)</code>. <code>SCI_GETVIEWEOL</code>
     returns the current state.</p>
 
-<div  class="provisional">
-    <a href="#ProvisionalMessages">These features are provisional</a><br />
-
     <p><b id="SCI_GETLINEENDTYPESSUPPORTED">SCI_GETLINEENDTYPESSUPPORTED</b><br />
      <code>SCI_GETLINEENDTYPESSUPPORTED</code> reports the different types of line ends supported
      by the current lexer. This is a bit set although there is currently only a single choice
@@ -2313,7 +2326,6 @@ struct Sci_TextToFind {
     <p><b id="SCI_GETLINEENDTYPESACTIVE">SCI_GETLINEENDTYPESACTIVE</b><br />
      <code>SCI_GETLINEENDTYPESACTIVE</code> reports the set of line ends currently interpreted
      by Scintilla. It is <code>SCI_GETLINEENDTYPESSUPPORTED &amp; SCI_GETLINEENDTYPESALLOWED</code>.</p>
-</div>
 
     <h2 id="Styling">Styling</h2>
 
@@ -2873,8 +2885,7 @@ struct Sci_TextToFind {
     <p><b id="SCI_SETREPRESENTATION">SCI_SETREPRESENTATION(const char *encodedCharacter, const char *representation)</b><br />
      <b id="SCI_GETREPRESENTATION">SCI_GETREPRESENTATION(const char *encodedCharacter, char *representation)</b><br />
      <b id="SCI_CLEARREPRESENTATION">SCI_CLEARREPRESENTATION(const char *encodedCharacter)</b><br />
-
-    <p>Any character, including those normally displayed  as mnemonics may be represented by a
+    Any character, including those normally displayed  as mnemonics may be represented by a
     string inverted in a rounded rectangle.</p>
 
     <p>For example, the Ohm sign &#x2126; U+2126 looks very similar to the Greek Omega character &#x3a9; U+03C9 so,
@@ -2889,8 +2900,7 @@ struct Sci_TextToFind {
 
     <p><b id="SCI_SETCONTROLCHARSYMBOL">SCI_SETCONTROLCHARSYMBOL(int symbol)</b><br />
      <b id="SCI_GETCONTROLCHARSYMBOL">SCI_GETCONTROLCHARSYMBOL</b><br />
-
-    <p>The mnemonics may be replaced by a nominated symbol with an ASCII code in the
+    The mnemonics may be replaced by a nominated symbol with an ASCII code in the
     range 32 to 255. If you set a symbol value less than 32, all control characters are displayed
     as mnemonics. The symbol you set is rendered in the font of the style set for the character.
     You can read back the current symbol with the <code>SCI_GETCONTROLCHARSYMBOL</code> message.
@@ -3359,10 +3369,10 @@ struct Sci_TextToFind {
     that is unmatched. Using a position of <code>INVALID_POSITION</code> (-1) removes the
     highlight.</p>
 
-    <p><b id="#SCI_BRACEHIGHLIGHTINDICATOR">SCI_BRACEHIGHLIGHTINDICATOR(bool useBraceHighlightIndicator, int indicatorNumber)</b><br />
+    <p><b id="SCI_BRACEHIGHLIGHTINDICATOR">SCI_BRACEHIGHLIGHTINDICATOR(bool useBraceHighlightIndicator, int indicatorNumber)</b><br />
      Use specified indicator to highlight matching braces instead of changing their style.</p>
 
-    <p><b id="#SCI_BRACEBADLIGHTINDICATOR">SCI_BRACEBADLIGHTINDICATOR(bool useBraceBadLightIndicator, int indicatorNumber)</b><br />
+    <p><b id="SCI_BRACEBADLIGHTINDICATOR">SCI_BRACEBADLIGHTINDICATOR(bool useBraceBadLightIndicator, int indicatorNumber)</b><br />
      Use specified indicator to highlight non matching brace instead of changing its style.</p>
 
     <p><b id="SCI_BRACEMATCH">SCI_BRACEMATCH(int pos, int maxReStyle)</b><br />
@@ -3522,7 +3532,7 @@ struct Sci_TextToFind {
     <p>The markers are drawn in the order of their numbers, so higher numbered markers appear on
     top of lower numbered ones. Markers try to move with their text by tracking where the start of
     their line moves. When a line is deleted, its markers are combined, by an <code>OR</code>
-    operation, with the markers of the previous line.</p>
+    operation, with the markers of the next line.</p>
     <code><a class="message" href="#SCI_MARKERDEFINE">SCI_MARKERDEFINE(int markerNumber, int
     markerSymbols)</a><br />
      <a class="message" href="#SCI_MARKERDEFINEPIXMAP">SCI_MARKERDEFINEPIXMAP(int markerNumber,
@@ -3561,12 +3571,23 @@ struct Sci_TextToFind {
     <p><b id="SCI_MARKERDEFINE">SCI_MARKERDEFINE(int markerNumber, int markerSymbols)</b><br />
      This message associates a marker number in the range 0 to 31 with one of the marker symbols or
     an ASCII character. The general-purpose marker symbols currently available are:<br />
-     <code>SC_MARK_CIRCLE</code>, <code>SC_MARK_ROUNDRECT</code>, <code>SC_MARK_ARROW</code>,
-    <code>SC_MARK_SMALLRECT</code>, <code>SC_MARK_SHORTARROW</code>, <code>SC_MARK_EMPTY</code>,
-    <code>SC_MARK_ARROWDOWN</code>, <code>SC_MARK_MINUS</code>, <code>SC_MARK_PLUS</code>,
-    <code>SC_MARK_ARROWS</code>, <code>SC_MARK_DOTDOTDOT</code>,
-    <code>SC_MARK_BACKGROUND</code>, <code>SC_MARK_LEFTRECT</code>,
-    <code>SC_MARK_FULLRECT</code>, and <code>SC_MARK_UNDERLINE</code>.</p>
+    <code>SC_MARK_CIRCLE</code>,
+    <code>SC_MARK_ROUNDRECT</code>,
+    <code>SC_MARK_ARROW</code>,
+    <code>SC_MARK_SMALLRECT</code>,
+    <code>SC_MARK_SHORTARROW</code>,
+    <code>SC_MARK_EMPTY</code>,
+    <code>SC_MARK_ARROWDOWN</code>,
+    <code>SC_MARK_MINUS</code>,
+    <code>SC_MARK_PLUS</code>,
+    <code>SC_MARK_ARROWS</code>,
+    <code>SC_MARK_DOTDOTDOT</code>,
+    <code>SC_MARK_BACKGROUND</code>,
+    <code>SC_MARK_LEFTRECT</code>,
+    <code>SC_MARK_FULLRECT</code>,
+    <code>SC_MARK_BOOKMARK</code>, and 
+    <code>SC_MARK_UNDERLINE</code>.
+    </p>
 
     <p>The <code>SC_MARK_BACKGROUND</code> marker changes the background colour of the line only.
           The <code>SC_MARK_FULLRECT</code> symbol mirrors this, changing only the margin background colour.
@@ -3581,16 +3602,23 @@ struct Sci_TextToFind {
 
     <p>There are also marker symbols designed for use in the folding margin in a flattened tree
     style.<br />
-     <code>SC_MARK_BOXMINUS</code>, <code>SC_MARK_BOXMINUSCONNECTED</code>,
-    <code>SC_MARK_BOXPLUS</code>, <code>SC_MARK_BOXPLUSCONNECTED</code>,
-    <code>SC_MARK_CIRCLEMINUS</code>, <code>SC_MARK_CIRCLEMINUSCONNECTED</code>,
-    <code>SC_MARK_CIRCLEPLUS</code>, <code>SC_MARK_CIRCLEPLUSCONNECTED</code>,
-    <code>SC_MARK_LCORNER</code>, <code>SC_MARK_LCORNERCURVE</code>, <code>SC_MARK_TCORNER</code>,
-    <code>SC_MARK_TCORNERCURVE</code>, and <code>SC_MARK_VLINE</code>.</p>
-     Characters can be used as markers by adding the ASCII value of the character to
+    <code>SC_MARK_BOXMINUS</code>,
+    <code>SC_MARK_BOXMINUSCONNECTED</code>,
+    <code>SC_MARK_BOXPLUS</code>,
+    <code>SC_MARK_BOXPLUSCONNECTED</code>,
+    <code>SC_MARK_CIRCLEMINUS</code>,
+    <code>SC_MARK_CIRCLEMINUSCONNECTED</code>,
+    <code>SC_MARK_CIRCLEPLUS</code>,
+    <code>SC_MARK_CIRCLEPLUSCONNECTED</code>,
+    <code>SC_MARK_LCORNER</code>,
+    <code>SC_MARK_LCORNERCURVE</code>,
+    <code>SC_MARK_TCORNER</code>,
+    <code>SC_MARK_TCORNERCURVE</code>, and
+    <code>SC_MARK_VLINE</code>.</p>
+    Characters can be used as markers by adding the ASCII value of the character to
     <code>SC_MARK_CHARACTER</code> (10000). For example, to use 'A' (ASCII code 65) as marker
     number 1 use:<br />
-     <code>SCI_MARKERDEFINE(1, SC_MARK_CHARACTER+65)</code>. <br />
+    <code>SCI_MARKERDEFINE(1, SC_MARK_CHARACTER+65)</code>. <br />
 
     <p>The marker numbers <code>SC_MARKNUM_FOLDER</code> and <code>SC_MARKNUM_FOLDEROPEN</code> are
     used for showing that a fold is present and open or closed. Any symbols may be assigned for
@@ -3709,6 +3737,7 @@ struct Sci_TextToFind {
         </tr>
       </tbody>
     </table>
+    <p><img src="Markers.png" alt="Marker samples" /></p>
 
     <p><b id="SCI_MARKERDEFINEPIXMAP">SCI_MARKERDEFINEPIXMAP(int markerNumber, const char
     *xpm)</b><br />
@@ -4192,10 +4221,10 @@ struct Sci_TextToFind {
      <a class="message" href="#SCI_AUTOCSETIGNORECASE">SCI_AUTOCSETIGNORECASE(bool
     ignoreCase)</a><br />
      <a class="message" href="#SCI_AUTOCGETIGNORECASE">SCI_AUTOCGETIGNORECASE</a><br />
-     <a class="message" href="#SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR">SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR(int behaviour)</a><br>
-     <a class="message" href="#SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR">SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR</a><br>
-     <a class="message" href="#SCI_AUTOCSETORDER">SCI_AUTOCSETORDER(int order)</a><br>
-     <a class="message" href="#SCI_AUTOCGETORDER">SCI_AUTOCGETORDER</a><br>
+     <a class="message" href="#SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR">SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR(int behaviour)</a><br />
+     <a class="message" href="#SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR">SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR</a><br />
+     <a class="message" href="#SCI_AUTOCSETORDER">SCI_AUTOCSETORDER(int order)</a><br />
+     <a class="message" href="#SCI_AUTOCGETORDER">SCI_AUTOCGETORDER</a><br />
      <a class="message" href="#SCI_AUTOCSETAUTOHIDE">SCI_AUTOCSETAUTOHIDE(bool autoHide)</a><br />
      <a class="message" href="#SCI_AUTOCGETAUTOHIDE">SCI_AUTOCGETAUTOHIDE</a><br />
      <a class="message" href="#SCI_AUTOCSETDROPRESTOFWORD">SCI_AUTOCSETDROPRESTOFWORD(bool
@@ -4304,15 +4333,15 @@ struct Sci_TextToFind {
      By default, matching of characters to list members is case sensitive. These messages let you
     set and get case sensitivity.</p>
 
-    <p><b id="SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR">SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR(int behaviour)</b><br>
-    <b id="SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR">SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR</b><br>
+    <p><b id="SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR">SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR(int behaviour)</b><br />
+    <b id="SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR">SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR</b><br />
     When autocompletion is set to ignore case (<code>SCI_AUTOCSETIGNORECASE</code>), by default it will
     nonetheless select the first list member that matches in a case sensitive way to entered characters.
     This corresponds to a behaviour property of <code>SC_CASEINSENSITIVEBEHAVIOUR_RESPECTCASE</code> (0).
     If you want autocompletion to ignore case at all, choose <code>SC_CASEINSENSITIVEBEHAVIOUR_IGNORECASE</code> (1).</p>
 
-    <p><b id="SCI_AUTOCSETORDER">SCI_AUTOCSETORDER(int order)</b><br>
-    <b id="SCI_AUTOCGETORDER">SCI_AUTOCGETORDER</b><br>
+    <p><b id="SCI_AUTOCSETORDER">SCI_AUTOCSETORDER(int order)</b><br />
+    <b id="SCI_AUTOCGETORDER">SCI_AUTOCGETORDER</b><br />
     The default setting <code>SC_ORDER_PRESORTED</code> (0) requires that the list be provided in alphabetical sorted order.
    </p>
     <p>Sorting the list can be done by Scintilla instead of the application with <code>SC_ORDER_PERFORMSORT</code> (1).
@@ -4439,6 +4468,7 @@ struct Sci_TextToFind {
      <a class="message" href="#SCI_CALLTIPCANCEL">SCI_CALLTIPCANCEL</a><br />
      <a class="message" href="#SCI_CALLTIPACTIVE">SCI_CALLTIPACTIVE</a><br />
      <a class="message" href="#SCI_CALLTIPPOSSTART">SCI_CALLTIPPOSSTART</a><br />
+     <a class="message" href="#SCI_CALLTIPSETPOSSTART">SCI_CALLTIPSETPOSSTART(int posStart)</a><br />
      <a class="message" href="#SCI_CALLTIPSETHLT">SCI_CALLTIPSETHLT(int highlightStart, int
     highlightEnd)</a><br />
      <a class="message" href="#SCI_CALLTIPSETBACK">SCI_CALLTIPSETBACK(int colour)</a><br />
@@ -4460,18 +4490,22 @@ struct Sci_TextToFind {
     '\n' (Line Feed, ASCII code 10) characters. Do not include '\r' (Carriage Return, ASCII
      code 13), as this will most likely print as an empty box. '\t' (Tab, ASCII code 9) is
      supported if you set a tabsize with
-    <code><a class="message" href="#SCI_CALLTIPUSESTYLE">SCI_CALLTIPUSESTYLE</a></code>.<br /></p>
+    <code><a class="message" href="#SCI_CALLTIPUSESTYLE">SCI_CALLTIPUSESTYLE</a></code>.<br />
+    The position of the caret is remembered here so that the call tip can be cancelled automatically if subsequent deletion
+    moves the caret before this position.</p>
 
     <p><b id="SCI_CALLTIPCANCEL">SCI_CALLTIPCANCEL</b><br />
      This message cancels any displayed call tip. Scintilla will also cancel call tips for you if
     you use any keyboard commands that are not compatible with editing the argument list of a
-    function.</p>
+    function.
+    Call tips are cancelled if you delete back past the position where the caret was when the tip was triggered.</p>
 
     <p><b id="SCI_CALLTIPACTIVE">SCI_CALLTIPACTIVE</b><br />
      This returns 1 if a call tip is active and 0 if it is not active.</p>
 
     <p><b id="SCI_CALLTIPPOSSTART">SCI_CALLTIPPOSSTART</b><br />
-     This message returns the value of the current position when <code>SCI_CALLTIPSHOW</code>
+    <b id="SCI_CALLTIPSETPOSSTART">SCI_CALLTIPSETPOSSTART(int posStart)</b><br />
+     This message returns or sets the value of the current position when <code>SCI_CALLTIPSHOW</code>
     started to display the tip.</p>
 
     <p><b id="SCI_CALLTIPSETHLT">SCI_CALLTIPSETHLT(int hlStart, int hlEnd)</b><br />
@@ -4933,7 +4967,7 @@ struct Sci_RangeToFormat {
     <p>On GTK+, the surface IDs to use can be found from the printing context with
     <code>gtk_print_context_get_cairo_context(context)</code>.</p>
 
-     <code>chrg.cpMin</code> and <code>chrg.cpMax</code> define the start position and maximum
+     <p><code>chrg.cpMin</code> and <code>chrg.cpMax</code> define the start position and maximum
     position of characters to output. All of each line within this character range is drawn.</p>
 
     <p>When printing, the most tedious part is always working out what the margins should be to
@@ -5179,7 +5213,7 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     <p>To ensure a responsive user interface, applications may decide to load and save documents using a separate thread
     from the user interface.</p>
 
-    <h3 id="BackgroundLoad">Loading in the background</h2>
+    <h3 id="BackgroundLoad">Loading in the background</h3>
 
     <p>An application can load all of a file into a buffer it allocates on a background thread and then add the data in that buffer
     into a Scintilla document on the user interface thread. That technique uses extra memory to store a complete copy of the
@@ -5215,11 +5249,11 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     <a class="message" href="#SCI_CREATEDOCUMENT">SCI_CREATEDOCUMENT</a>.
     There is no need to call <code>Release</code> after <code>ConvertToDocument</code>.</p>
 
-    <h3 id="BackgroundSave">Saving in the background</h2>
+    <h3 id="BackgroundSave">Saving in the background</h3>
 
     <p>An application that wants to save in the background should lock the document with <code>SCI_SETREADONLY(1)</code>
     to prevent modifications and retrieve a pointer to the unified document contents with
-    <a class="message" href="#SCI_GETCHARACTERPOINTER">SCI_GETCHARACTERPOINTER</a></code>.
+    <a class="message" href="#SCI_GETCHARACTERPOINTER">SCI_GETCHARACTERPOINTER</a>.
     The buffer of a locked document will not move so the pointer is valid until the application calls <code>SCI_SETREADONLY(0)</code>.</p>
 
     <p>If the user tries to performs a modification while the document is locked then a <code><a class="message"
@@ -5386,6 +5420,14 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
 
           <td align="left">display hexadecimal fold levels in line margin to aid debugging of
           folding. The appearance of this feature may change in the future.</td>
+        </tr>
+
+        <tr>
+          <td align="left">SC_FOLDFLAG_LINESTATE</td>
+          <td align="left">128</td>
+
+          <td align="left">display hexadecimal line state in line margin to aid debugging of lexing and folding.
+	  May not be used at the same time as <code>SC_FOLDFLAG_LEVELNUMBERS</code>.</td>
         </tr>
       </tbody>
     </table>
@@ -5590,11 +5632,12 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     <p><b id="SCI_SETWRAPMODE">SCI_SETWRAPMODE(int wrapMode)</b><br />
      <b id="SCI_GETWRAPMODE">SCI_GETWRAPMODE</b><br />
      Set wrapMode to <code>SC_WRAP_WORD</code> (1) to enable wrapping
-     on word boundaries, <code>SC_WRAP_CHAR</code> (2) to enable wrapping
-     between any characters, and to <code>SC_WRAP_NONE</code> (0) to disable line
-     wrapping. <code>SC_WRAP_CHAR</code> is preferred to
-     <code>SC_WRAP_WORD</code> for Asian languages where there is no white space
-     between words.</p>
+     on word or style boundaries, <code>SC_WRAP_CHAR</code> (2) to enable wrapping
+     between any characters, <code>SC_WRAP_WHITESPACE</code> (3) to enable
+     wrapping on whitespace, and <code>SC_WRAP_NONE</code> (0) to disable line
+     wrapping. <code>SC_WRAP_CHAR</code> is preferred for Asian languages where
+     there is no white space between words.
+    </p>
 
 
     <p><b id="SCI_SETWRAPVISUALFLAGS">SCI_SETWRAPVISUALFLAGS(int wrapVisualFlags)</b><br />
@@ -5905,7 +5948,7 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     <p>Scintilla also supports external lexers. These are DLLs (on Windows) or .so modules (on GTK+/Linux) that export three
     functions: <code>GetLexerCount</code>, <code>GetLexerName</code>, and
     <code>GetLexerFactory</code>. See <code>externalLexer.cxx</code> for more.</p>
-    <code><a class="message" href="#SCI_SETLEXER">SCI_SETLEXER(int lexer)</a><br />
+     <a class="message" href="#SCI_SETLEXER">SCI_SETLEXER(int lexer)</a><br />
      <a class="message" href="#SCI_GETLEXER">SCI_GETLEXER</a><br />
      <a class="message" href="#SCI_SETLEXERLANGUAGE">SCI_SETLEXERLANGUAGE(&lt;unused&gt;, const char
     *name)</a><br />
@@ -5927,7 +5970,6 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     *keyWordList)</a><br />
      <a class="message" href="#SCI_GETSTYLEBITSNEEDED">SCI_GETSTYLEBITSNEEDED</a><br />
 
-<div  class="provisional">
      <a class="message" href="#SCI_GETSUBSTYLEBASES">SCI_GETSUBSTYLEBASES(&lt;unused&gt;, char *styles)</a><br />
      <a class="message" href="#SCI_DISTANCETOSECONDARYSTYLES">SCI_DISTANCETOSECONDARYSTYLES</a><br />
      <a class="message" href="#SCI_ALLOCATESUBSTYLES">SCI_ALLOCATESUBSTYLES(int styleBase, int numberStyles)</a><br />
@@ -5937,9 +5979,6 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
      <a class="message" href="#SCI_GETSTYLEFROMSUBSTYLE">SCI_GETSTYLEFROMSUBSTYLE(int subStyle)</a><br />
      <a class="message" href="#SCI_GETPRIMARYSTYLEFROMSTYLE">SCI_GETPRIMARYSTYLEFROMSTYLE(int style)</a><br />
      <a class="message" href="#SCI_SETIDENTIFIERS">SCI_SETIDENTIFIERS(int style, const char *identifiers)</a><br />
-</div>
-
-    </code>
 
     <p><b id="SCI_SETLEXER">SCI_SETLEXER(int lexer)</b><br />
      <b id="SCI_GETLEXER">SCI_GETLEXER</b><br />
@@ -6084,9 +6123,7 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
      to <a class="message" href="#SCI_SETSTYLEBITS">SCI_SETSTYLEBITS</a>.
      </p>
 
-<div  class="provisional">
     <h3 id="Substyles">Substyles</h3>
-    <a href="#ProvisionalMessages">These features are provisional</a><br />
     <p>Lexers may support several different sublanguages and each sublanguage may want to style some number of
     sets of identifiers (or similar lexemes such as documentation keywords) uniquely. Preallocating a large number for each
     purpose would exhaust the number of allowed styles quickly.
@@ -6120,7 +6157,6 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     <p><b id="SCI_SETIDENTIFIERS">SCI_SETIDENTIFIERS(int style, const char *identifiers)</b><br />
      Similar to <code>SCI_SETKEYWORDS</code> but for substyles.
      The prefix feature available with <code>SCI_SETKEYWORDS</code> is not implemented for <code>SCI_SETIDENTIFIERS</code>.</p>
-</div>
 
     <h2 id="LexerObjects">Lexer Objects</h2>
 
@@ -6220,6 +6256,9 @@ A simple approach is to return 0 if there is any possibility that a change requi
 optimisation could be to remember where a setting first affects the document and return that position.
 </p>
 
+<p><code>Version</code> returns an enumerated value specifying which version of the interface is implemented:
+<code>lvOriginal</code> for <code>ILexer</code> and <code>lvSubStyles</code> for <code>ILexerWithSubStyles</code>.</p>
+
 <p><code>Release</code> is called to destroy the lexer object.</p>
 
 <p><code>PrivateCall</code> allows for direct communication between the
@@ -6236,9 +6275,9 @@ needs to be folded as this allowed fixing up the last line from the previous fol
 The new approach allows the lexer to decide whether to backtrack or to handle this
 more efficiently.</p>
 
-<h4 class="provisional">ILexerWithSubStyles</h4>
+<h4>ILexerWithSubStyles</h4>
 
-<p class="provisional">
+<p>
 To allow lexers to report which line ends they support, and to support substyles,
 <code>Ilexer</code> is extended to <code>ILexerWithSubStyles</code>.
 </p>
@@ -6765,7 +6804,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MOD_INSERTTEXT</code></td>
 
-          <td align="center">0x01</td>
+          <td align="right">0x01</td>
 
           <td>Text has been inserted into the document.</td>
 
@@ -6775,7 +6814,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MOD_DELETETEXT</code></td>
 
-          <td align="center">0x02</td>
+          <td align="right">0x02</td>
 
           <td>Text has been removed from the document.</td>
 
@@ -6785,7 +6824,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MOD_CHANGESTYLE</code></td>
 
-          <td align="center">0x04</td>
+          <td align="right">0x04</td>
 
           <td>A style change has occurred.</td>
 
@@ -6795,7 +6834,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MOD_CHANGEFOLD</code></td>
 
-          <td align="center">0x08</td>
+          <td align="right">0x08</td>
 
           <td>A folding change has occurred.</td>
 
@@ -6805,7 +6844,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_PERFORMED_USER</code></td>
 
-          <td align="center">0x10</td>
+          <td align="right">0x10</td>
 
           <td>Information: the operation was done by the user.</td>
 
@@ -6815,7 +6854,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_PERFORMED_UNDO</code></td>
 
-          <td align="center">0x20</td>
+          <td align="right">0x20</td>
 
           <td>Information: this was the result of an Undo.</td>
 
@@ -6825,7 +6864,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_PERFORMED_REDO</code></td>
 
-          <td align="center">0x40</td>
+          <td align="right">0x40</td>
 
           <td>Information: this was the result of a Redo.</td>
 
@@ -6835,7 +6874,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MULTISTEPUNDOREDO</code></td>
 
-          <td align="center">0x80</td>
+          <td align="right">0x80</td>
 
           <td>This is part of a multi-step Undo or Redo transaction.</td>
 
@@ -6845,7 +6884,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_LASTSTEPINUNDOREDO</code></td>
 
-          <td align="center">0x100</td>
+          <td align="right">0x100</td>
 
           <td>This is the final step in an Undo or Redo transaction.</td>
 
@@ -6855,7 +6894,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MOD_CHANGEMARKER</code></td>
 
-          <td align="center">0x200</td>
+          <td align="right">0x200</td>
 
           <td>One or more markers has changed in a line.</td>
 
@@ -6865,7 +6904,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MOD_BEFOREINSERT</code></td>
 
-          <td align="center">0x400</td>
+          <td align="right">0x400</td>
 
           <td>Text is about to be inserted into the document.</td>
 
@@ -6875,7 +6914,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MOD_BEFOREDELETE</code></td>
 
-          <td align="center">0x800</td>
+          <td align="right">0x800</td>
 
           <td>Text is about to be deleted from the document.</td>
 
@@ -6885,7 +6924,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MOD_CHANGEINDICATOR</code></td>
 
-          <td align="center">0x4000</td>
+          <td align="right">0x4000</td>
 
           <td>An indicator has been added or removed from a range of text.</td>
 
@@ -6895,7 +6934,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code id="SC_MOD_CHANGELINESTATE">SC_MOD_CHANGELINESTATE</code></td>
 
-          <td align="center">0x8000</td>
+          <td align="right">0x8000</td>
 
           <td>A line state has changed because <a class="message" href="#SCI_SETLINESTATE">SCI_SETLINESTATE</a>
           was called.</td>
@@ -6906,7 +6945,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code id="SC_MOD_LEXERSTATE">SC_MOD_LEXERSTATE</code></td>
 
-          <td align="center">0x80000</td>
+          <td align="right">0x80000</td>
 
           <td>The internal state of a lexer has changed over a range.</td>
 
@@ -6916,7 +6955,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code id="SC_MOD_CHANGEMARGIN">SC_MOD_CHANGEMARGIN</code></td>
 
-          <td align="center">0x10000</td>
+          <td align="right">0x10000</td>
 
           <td>A text margin has changed.</td>
 
@@ -6926,7 +6965,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code id="SC_MOD_CHANGEANNOTATION">SC_MOD_CHANGEANNOTATION</code></td>
 
-          <td align="center">0x20000</td>
+          <td align="right">0x20000</td>
 
           <td>An annotation has changed.</td>
 
@@ -6934,9 +6973,21 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         </tr>
 
         <tr>
+          <td align="left"><code id="SC_MOD_INSERTCHECK">SC_MOD_INSERTCHECK</code></td>
+
+          <td align="right">0x100000</td>
+
+          <td>Text is about to be inserted. The handler may change the text being inserted by calling
+	  <a class="message" href="#SCI_CHANGEINSERTION">SCI_CHANGEINSERTION</a>.
+	  No other modifications may be made in this handler.</td>
+
+          <td><code>position, length, text</code></td>
+        </tr>
+
+        <tr>
           <td align="left"><code>SC_MULTILINEUNDOREDO</code></td>
 
-          <td align="center">0x1000</td>
+          <td align="right">0x1000</td>
 
           <td>This is part of an Undo or Redo with multi-line changes.</td>
 
@@ -6946,7 +6997,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_STARTACTION</code></td>
 
-          <td align="center">0x2000</td>
+          <td align="right">0x2000</td>
 
           <td>This is set on a SC_PERFORMED_USER action when it is the
           first or only step in an undo transaction. This can be used to integrate the Scintilla
@@ -6961,7 +7012,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code id="SC_MOD_CONTAINER">SC_MOD_CONTAINER</code></td>
 
-          <td align="center">0x40000</td>
+          <td align="right">0x40000</td>
 
           <td>This is set on for actions that the container stored into the undo stack with
 	  <a class="message" href="#SCI_ADDUNDOACTION"><code>SCI_ADDUNDOACTION</code></a>.
@@ -6973,7 +7024,7 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         <tr>
           <td align="left"><code>SC_MODEVENTMASKALL</code></td>
 
-          <td align="center">0x7FFFF</td>
+          <td align="right">0x1FFFFF</td>
 
           <td>This is a mask for all valid flags. This is the default mask state set by <a
           class="message" href="#SCI_SETMODEVENTMASK"><code>SCI_SETMODEVENTMASK</code></a>.</td>
@@ -7362,6 +7413,8 @@ for line = lineStart to lineEnd do SCI_ENSUREVISIBLE(line) next
     Provisional features may even be removed if experience shows they are a mistake.</p>
 
     <p>Provisional features are displayed in this document with <span class="provisional">a distinctive background colour</span>.</p>
+
+    <p>There are currently no provisional features.</p>
 
     <p>Some developers may want to only use features that are stable and have graduated from
     provisional status. To avoid using provisional messages compile with the symbol
