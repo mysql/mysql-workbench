@@ -156,10 +156,9 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libvsqlitepp/d
   %filter_from_requires /libmysqlclient/d
   %filter_from_requires /libgdal/d
-  %if 0%{rhel} < 7
-    %filter_from_requires /libctemplate/d
-  %endif
-
+  %filter_from_requires /libctemplate/d
+  %filter_from_requires /libzip/d
+  %filter_from_requires /libtinyxml/d
   %{?commercial:%filter_from_requires /libsqlite3/d}
   %filter_setup
 }
@@ -219,6 +218,12 @@ fi
   cp -a %{mysql_home}/lib/libmysqlclient.so.* %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{mysql_home}/bin/mysql %{buildroot}%{_libexecdir}/mysql-workbench/
   cp -a %{mysql_home}/bin/mysqldump %{buildroot}%{_libexecdir}/mysql-workbench/
+%endif
+
+%if 0%{rhel}
+  cp -a %{mysql_home}/lib/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{mysql_home}/lib/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{mysql_home}/lib/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
 %endif
 
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.a  -exec rm {} \; -print
