@@ -209,10 +209,6 @@ if [ -f %{vsqlite_dir}/lib/libvsqlitepp.so.3 ]; then
     cp -a %{vsqlite_dir}/lib/libvsqlitepp.so.3* %{buildroot}%{_libdir}/mysql-workbench
 fi
 
-if [ -f %{ctemplate_dir}/lib/libctemplate.so.0 ]; then
-    cp -a %{ctemplate_dir}/lib/libctemplate.so.0* %{buildroot}%{_libdir}/mysql-workbench
-fi
-
 # Bundle client programs and lib
 %if %{defined mysql_home}
   cp -a %{mysql_home}/lib/libmysqlclient.so.* %{buildroot}%{_libdir}/mysql-workbench/
@@ -220,11 +216,19 @@ fi
   cp -a %{mysql_home}/bin/mysqldump %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
 
-%if 0%{rhel}
-  cp -a %{mysql_home}/lib/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{mysql_home}/lib/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{mysql_home}/lib/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
+%if 0%{?rhel}
+  cp -a /usr/lib64/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a /usr/lib64/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
 %endif
+
+
+%if 0%{?rhel} < 7
+    cp -a %{ctemplate_dir}/lib/libctemplate.so.0* %{buildroot}%{_libdir}/mysql-workbench
+%endif
+%if 0%{?rhel} >= 7
+    cp -a /usr/lib64/libctemplate.so.0* %{buildroot}%{_libdir}/mysql-workbench
+%endif
+
 
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.a  -exec rm {} \; -print
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
