@@ -1468,6 +1468,16 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
   app->rdbmsMgmt(mgmt_info);
 
   grt->set_root(root);
+
+  {
+    // Default table templates list
+    grt::DictRef options(get_root()->options()->options());
+    if (!options.has_key("TableTemplates"))
+    {
+      grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(grt->unserialize(make_path(get_datadir(), "data/table_templates.xml")));
+      options.set("TableTemplates", templates);
+    }
+  }
 }
 
 
