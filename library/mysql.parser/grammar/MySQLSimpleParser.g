@@ -1262,7 +1262,7 @@ prepared_statement:
 ;
 
 execute_statement:
-	EXECUTE_SYMBOL identifier USING_SYMBOL execute_var_list
+	EXECUTE_SYMBOL identifier (USING_SYMBOL execute_var_list)?
 ;
 
 execute_var_list:
