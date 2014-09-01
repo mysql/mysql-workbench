@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,6 +36,8 @@ void base::threading_init()
 }
 #endif
 
+//--------------------------------------------------------------------------------------------------
+
 Mutex::Mutex()
 {
 #if GLIB_CHECK_VERSION(2,32,0)
@@ -47,6 +49,8 @@ Mutex::Mutex()
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
+
 Mutex::~Mutex()
 {
 #if GLIB_CHECK_VERSION(2,32,0)
@@ -55,6 +59,8 @@ Mutex::~Mutex()
   g_mutex_free(mutex);
 #endif
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void Mutex::swap(Mutex &o)
 {
@@ -69,6 +75,7 @@ void Mutex::swap(Mutex &o)
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
 
 MutexLock::MutexLock(Mutex &mutex) : ptr(&mutex)
 {
@@ -77,12 +84,16 @@ MutexLock::MutexLock(Mutex &mutex) : ptr(&mutex)
   ptr->lock();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 // take ownership of an existing lock (the other lock will be reset)
 MutexLock::MutexLock(const MutexLock &mlock)
 : ptr(mlock.ptr)
 {
   const_cast<MutexLock*>(&mlock)->ptr = NULL;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 MutexLock &MutexLock::operator= (MutexLock &mlock)
 {
@@ -91,12 +102,15 @@ MutexLock &MutexLock::operator= (MutexLock &mlock)
   return *this;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 MutexLock::~MutexLock()
 {
   if (ptr)
     ptr->unlock();
 }
 
+//----------------- Cond ---------------------------------------------------------------------------
 
 Cond::Cond()
 {
@@ -109,6 +123,8 @@ Cond::Cond()
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
+
 Cond::~Cond()
 {
 #if GLIB_CHECK_VERSION(2,32,0)
@@ -117,3 +133,38 @@ Cond::~Cond()
   g_cond_free(cond);
 #endif
 }
+
+//----------------- Semaphore ----------------------------------------------------------------------
+
+Semaphore::Semaphore(int initial_count)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+Semaphore::~Semaphore()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void Semaphore::post()
+{
+  _mutex.unlock();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void Semaphore::wait()
+{
+  _mutex.lock();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool Semaphore::try_wait()
+{
+  return _mutex.try_lock();
+}
+
+//--------------------------------------------------------------------------------------------------
