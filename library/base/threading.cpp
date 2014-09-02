@@ -136,35 +136,44 @@ Cond::~Cond()
 
 //----------------- Semaphore ----------------------------------------------------------------------
 
+static int semaphore_data = 1; // Dummy data to identify non-NULL return values.
+
 Semaphore::Semaphore(int initial_count)
 {
+  _queue = g_async_queue_new();
+
+  // Push as many "messages" to the queue as is specified by the initial count.
+  // This amount is what is available before we lock in wait() or try_wait().
+  while (initial_count-- > 0)
+    g_async_queue_push(_queue, &semaphore_data);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 Semaphore::~Semaphore()
 {
+  g_async_queue_unref(_queue);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void Semaphore::post()
 {
-  _mutex.unlock();
+  g_async_queue_push(_queue, &semaphore_data);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void Semaphore::wait()
 {
-  _mutex.lock();
+  g_async_queue_pop(_queue); // Waits if there is no data in the queue.
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool Semaphore::try_wait()
 {
-  return _mutex.try_lock();
+  return g_async_queue_try_pop(_queue) != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
