@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -21,42 +21,16 @@
 
 #include "common.h"
 
+#ifdef __linux__
 #include <glib.h>
 #include <stdexcept>
-
-#if !(defined (__LP64__) || defined (__LLP64__)) || defined (_WIN32) && !defined (_WIN64)
-  #define RUN_OS_32
-#else
-  #define RUN_OS_64
 #endif
 
-#ifdef __APPLE__
-  #include <libkern/OSAtomic.h>
-  #include <semaphore.h>
-  #include "string_utilities.h"
-#else
-  #define BOOST_DATE_TIME_NO_LIB
-  //#include <boost/interprocess/sync/interprocess_semaphore.hpp> not used atm.
-  #undef BOOST_DATE_TIME_NO_LIB
-#endif
+#include "glib.h"
 
-namespace base {
+namespace base{
 
-#if defined(_WIN32)
-  #ifdef RUN_OS_32
-    typedef LONG refcount_t;
-  #else
-    typedef LONGLONG refcount_t;
-  #endif
-#elif defined(__APPLE__)
-  #ifdef RUN_OS_32
-    typedef int32_t refcount_t;
-  #else
-    typedef int64_t refcount_t;
-  #endif
-#else
-  typedef int refcount_t;
-#endif
+  typedef gint refcount_t;
 
   inline GThread *create_thread(GThreadFunc func, gpointer data, GError **error = NULL, std::string name = "")
   {
@@ -64,54 +38,6 @@ namespace base {
     return g_thread_try_new(name.c_str(), func, data, error);
 #else
     return g_thread_create(func, data, TRUE, error);
-#endif
-  }
-
-
-  inline void atomic_int_inc(volatile refcount_t *val)
-  {
-#if defined(_WIN32)
-  #ifdef RUN_OS_32
-    InterlockedIncrement(val);
-  #else
-    InterlockedIncrement64(val);
-#endif
-#elif defined(__APPLE__)
-  #ifdef RUN_OS_32
-    OSAtomicIncrement32Barrier(val);
-  #else
-    OSAtomicIncrement64Barrier(val);
-  #endif
-#else
-    g_atomic_int_inc(val);
-#endif
-  }
-
-  inline bool atomic_int_dec_and_test_if_zero(volatile refcount_t *val)
-  {
-#if defined(_WIN32)
-  #ifdef RUN_OS_32
-    return InterlockedDecrement(val) == 0;
-  #else
-    return InterlockedDecrement64(val) == 0;
-  #endif
-#elif defined(__APPLE__)
-  #ifdef RUN_OS_32
-    return OSAtomicDecrement32Barrier(val) == 0;
-  #else
-    return OSAtomicDecrement64Barrier(val) == 0;
-  #endif
-#else
-    return g_atomic_int_dec_and_test(val);
-#endif
-  }
-
-  inline refcount_t atomic_int_get(volatile refcount_t* val)
-  {
-#if !defined(_WIN32) && !defined(__APPLE__)
-    return g_atomic_int_get(val);
-#else
-    return *val;
 #endif
   }
 
@@ -162,7 +88,6 @@ namespace base {
     }
   };
 
-
   struct BASELIBRARY_PUBLIC_FUNC MutexLock
   {
   protected:
@@ -177,7 +102,6 @@ namespace base {
 
     ~MutexLock();
   };
-
 
   class BASELIBRARY_PUBLIC_FUNC MutexTryLock : public MutexLock
   {
@@ -244,7 +168,6 @@ namespace base {
       g_cond_broadcast(gobj());
     }
   };
-
 
   struct BASELIBRARY_PUBLIC_FUNC RecMutex
   {
@@ -318,7 +241,6 @@ namespace base {
     }
   };
 
-
   struct BASELIBRARY_PUBLIC_FUNC RecMutexLock
   {
   protected:
@@ -350,7 +272,6 @@ namespace base {
         ptr->unlock();
     }
   };
-
 
   class BASELIBRARY_PUBLIC_FUNC RecMutexTryLock : public RecMutexLock
   {
