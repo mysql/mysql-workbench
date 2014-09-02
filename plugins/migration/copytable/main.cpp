@@ -208,7 +208,7 @@ bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueu
                           bool resume, long long int max_count)
 {
   std::ifstream ifs ( file_name.data() , std::ifstream::in );
-  unsigned int field_count = count_only ? 2 : 7;
+  unsigned int field_count = count_only && !resume ? 2 : 7;
   bool error = false;
 
   printf("Loading table information from file %s\n", file_name.data());
