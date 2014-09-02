@@ -382,16 +382,13 @@ namespace base {
 
   // A semaphore limits access to a bunch of resources to different threads. A count value determines
   // how many resources are available (and hence how many threads can use them at the same time).
-  // At the moment we always use a count of 1 exclusively, which is nothing but a Mutex.
-  // Hence, for now we implement the Semaphore like a Mutex (avoiding so the incomplete semaphore implementation in Boost 1.55).
-  // TODO: rework as soon as Boost has a complete implementation.
   struct BASELIBRARY_PUBLIC_FUNC Semaphore
   {
   private:
-    RecMutex _mutex;
+    GAsyncQueue *_queue;
 
   public:
-    Semaphore(int initial_count); // Count is ignore at the time being.
+    Semaphore(int initial_count);
     ~Semaphore();
 
     void post();
