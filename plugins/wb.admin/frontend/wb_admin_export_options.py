@@ -25,7 +25,7 @@ export_options = {
 #    },
     "Inserts":{
     "extended-insert":["Use multiple-row INSERT syntax that include several VALUES lists.","TRUE"],
-    "delayed-insert":["Write INSERT DELAYED statements rather than INSERT statements.","FALSE", ("5.0.0", "5.7.0")],
+    "delayed-insert":["Write INSERT DELAYED statements rather than INSERT statements.","FALSE", "BOOL", ("5.0.0", "5.7.0")],
     "add-locks":["Surround each table dump with LOCK TABLES and UNLOCK TABLES statements.","TRUE"],
     "replace":["Write REPLACE statements rather than INSERT statements.","FALSE"],
     "insert-ignore":["Write INSERT IGNORE statements rather than INSERT statements.","FALSE"],
@@ -52,8 +52,9 @@ export_options = {
     "order-by-primary":["Dump each table's rows sorted by its primary key, or by its first unique index.","FALSE"],
     "dump-date":["Include dump date as \"Dump completed on\" comment if --comments is given.","TRUE"],
     "$internal$show-internal-schemas":["Show internal MySQL schemas (mysql, information_schema, performance_schema) in the export schema list.","FALSE"],
-    "tz-utc":["Add SET TIME_ZONE='+00:00' to the dump file.","TRUE"]
+    "tz-utc":["Add SET TIME_ZONE='+00:00' to the dump file.","TRUE"],
 #    "xml":["Produce XML output.","FALSE"]
+    "set-gtid-purged":["Add 'SET @@GLOBAL.GTID_PURGED' to the output.","AUTO","STR",("5.6.9", None)]
     }
 
     }

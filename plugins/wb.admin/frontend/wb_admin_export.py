@@ -1880,6 +1880,8 @@ class WbAdminExportOptionsTab(mforms.Box):
             self.default = default
 
         def get_option(self, defaults):
+            if self.entry.get_string_value() == self.default:
+                return {}
             return {self.optname:self.entry.get_string_value() or self.default}
 
         def set_option(self, value):
@@ -1911,10 +1913,11 @@ class WbAdminExportOptionsTab(mforms.Box):
             panel.set_title(groupname)
 #            print groupname
             for optname, option_info in reversed(options.items()):
+                option_type = "BOOL"
                 if len(option_info) == 2:
                     (option, default) = option_info
-                elif len(option_info) == 3: # includes (min_version, max_version) tuple
-                    (option, default, (min_version, max_version)) = option_info
+                elif len(option_info) == 4: # includes type and (min_version, max_version) tuple
+                    (option, default, option_type, (min_version, max_version)) = option_info
                     if min_version:
                         if not target_version.is_supported_mysql_version_at_least(Version.fromstr(min_version)):
                             log_debug("Skip option %s because it's for version %s\n" % (optname, min_version))
@@ -1926,11 +1929,24 @@ class WbAdminExportOptionsTab(mforms.Box):
 
                 # get the default value from mysqldump --help, if we don't have that data, use the stored default
                 default = defaults_from_mysqldump.get(optname, default)
-                checkbox = newCheckBox()
-                checkbox.set_text("%s - %s"% (optname, option))
-                checkbox.set_active(default == "TRUE")
-                box.add(checkbox, False, True)
-                self.options[optname] = self.Check_option_model(optname,checkbox,default)
+
+                if option_type == "BOOL":
+                    checkbox = newCheckBox()
+                    checkbox.set_text("%s - %s"% (optname, option))
+                    checkbox.set_active(default == "TRUE")
+                    box.add(checkbox, False, True)
+                    self.options[optname] = self.Check_option_model(optname,checkbox,default)
+                else:
+                    hbox = newBox(True)
+                    hbox.set_spacing(4)
+                    label = newLabel("%s - %s"% (optname, option))
+                    hbox.add(label, False, True)
+                    entry = newTextEntry()
+                    hbox.add(entry, True, True)
+                    entry.set_value(default)
+                    box.add(hbox, False, True)
+                    self.options[optname] = self.Text_option_model(optname,entry,default)
+
             if groupname == "Other":
                 max_allowed_packet_box = newBox(True)
                 self.max_allowed_packet_te = newTextEntry()
