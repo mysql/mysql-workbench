@@ -105,7 +105,7 @@ gpointer thread_function2(gpointer data)
 {
   base::Semaphore *semaphore = static_cast<base::Semaphore *>(data);
   semaphore->wait();
-  base::atomic_int_inc(&counter);
+  g_atomic_int_inc(&counter);
 
   // Don't release the semaphore.
   return NULL;

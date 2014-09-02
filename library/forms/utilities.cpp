@@ -770,7 +770,7 @@ bool Utilities::is_hidpi_icon(cairo_surface_t *s)
 
 bool Utilities::icon_needs_reload(cairo_surface_t *s)
 {
-  float scale = s && mforms::Utilities::is_hidpi_icon(s) ? 2 : 1;
+  float scale = s && mforms::Utilities::is_hidpi_icon(s) ? 2.0f : 1.0f;
   return mforms::App::get()->backing_scale_factor() != scale;
 }
 
@@ -890,13 +890,11 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
   return "";
 }
 
+//--------------------------------------------------------------------------------------------------
 
 double Utilities::get_text_width(const std::string &text, const std::string &font)
 {
-  if (ControlFactory::get_instance()->_utilities_impl.get_text_width)
-    return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
-  else
-    return text.length() * 20; // temporary hardcoded until implemented in Windows and Linux
+  return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
 }
 
 //--------------------------------------------------------------------------------------------------

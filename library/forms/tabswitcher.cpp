@@ -284,7 +284,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
       Utilities::paint_icon(cr, (*i)->icon,
                             (VERTICAL_STYLE_WIDTH - (VERTICAL_STYLE_WIDTH/64.0)*iheight)/2,
                             iy + (VERTICAL_STYLE_WIDTH - iheight)/2 - font_size,
-                            _selected == ii ? 1.0 : 0.4);
+                            _selected == ii ? 1.0f : 0.4f);
       if (_selected == ii)
       {
         color = _colors[TabActiveForeground];
