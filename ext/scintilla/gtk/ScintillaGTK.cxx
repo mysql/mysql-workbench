@@ -1576,7 +1576,7 @@ void ScintillaGTK::ReceivedDrop(GtkSelectionData *selection_data) {
 		drop.push_back('\0');
 		NotifyURIDropped(&drop[0]);
 	} else if ((TypeOfGSD(selection_data) == GDK_TARGET_STRING) || (TypeOfGSD(selection_data) == atomUTF8)) {
-		if (TypeOfGSD(selection_data) > 0) {
+		if (TypeOfGSD(selection_data) > GdkAtom(0)) {
 			SelectionText selText;
 			GetGtkSelectionText(selection_data, selText);
 			DropAt(posDrop, selText.Data(), selText.Length(), false, selText.rectangular);
