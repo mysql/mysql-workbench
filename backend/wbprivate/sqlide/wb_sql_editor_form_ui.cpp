@@ -35,6 +35,10 @@
 
 #include <boost/signals2/connection.hpp>
 
+#include "base/log.h"
+
+//DEFAULT_LOG_DOMAIN("SqlEditor");
+
 #include "mforms/menubar.h"
 #include "mforms/toolbar.h"
 #include "mforms/code_editor.h"
@@ -492,6 +496,7 @@ bool SqlEditorForm::run_live_object_alteration_wizard(const std::string &alter_s
   
   wizard.values().gset("sql_script", alter_script);
   wizard.apply_page->apply_sql_script= boost::bind(&SqlEditorForm::apply_object_alter_script, this, _1, obj_editor, log_id);
+  wizard.abort_apply = boost::bind(&SqlEditorForm::abort_apply_object_alter_script, this);
   wizard.run_modal();
   
   if (wizard.applied() && !wizard.has_errors())
@@ -501,6 +506,13 @@ bool SqlEditorForm::run_live_object_alteration_wizard(const std::string &alter_s
   
   return wizard.applied() && !wizard.has_errors();
 }
+
+
+void SqlEditorForm::abort_apply_object_alter_script()
+{
+  cancel_query();
+}
+
 
 
 int SqlEditorForm::sql_script_apply_error(long long code, const std::string& msg, const std::string& stmt, std::string &errors)
@@ -524,7 +536,6 @@ int SqlEditorForm::sql_script_stats(long, long)
 {
   return 0;
 }
-
 
 void SqlEditorForm::handle_tab_menu_action(const std::string &action, int tab_index)
 {

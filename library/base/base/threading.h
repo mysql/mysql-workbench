@@ -32,6 +32,12 @@ namespace base{
 
   typedef gint refcount_t;
 
+  class BASELIBRARY_PUBLIC_FUNC mutex_busy_error : public std::runtime_error
+  {
+  public:
+    mutex_busy_error(const std::string &exc="Mutex is busy") : std::runtime_error(exc) {}
+  };
+
   inline GThread *create_thread(GThreadFunc func, gpointer data, GError **error = NULL, std::string name = "")
   {
 #if GLIB_CHECK_VERSION(2,32,0)
@@ -248,9 +254,15 @@ namespace base{
 
     RecMutexLock() : ptr(NULL) {}
   public:
-    RecMutexLock(RecMutex &mutex) : ptr(&mutex)
+    RecMutexLock(RecMutex &mutex, bool throw_on_block=false) : ptr(&mutex)
     {
-      ptr->lock();
+      if (throw_on_block)
+      {
+        if (!ptr->try_lock())
+          throw mutex_busy_error();
+      }
+      else
+        ptr->lock();
     }
 
     RecMutexLock(const RecMutexLock &mlock)
