@@ -129,7 +129,7 @@ WizardProgressPage::WizardProgressPage(WizardForm *form, const std::string &id, 
 
   if (has_progressbar)
   {
-    _progress_bar_box = manage(new mforms::Box(true));
+    _progress_bar_box = mforms::manage(new mforms::Box(true));
     _progress_bar_box->set_spacing(8);
 
     _progress_bar= manage(new mforms::ProgressBar());
