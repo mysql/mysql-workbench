@@ -23,9 +23,9 @@
 
 #ifdef __linux__
 #include <glib.h>
-#include <stdexcept>
 #endif
 
+#include <stdexcept>
 #include "glib.h"
 
 namespace base{
