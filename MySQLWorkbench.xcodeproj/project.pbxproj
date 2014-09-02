@@ -44,6 +44,9 @@
 		270C500B17329FC800CD33BB /* libtinyxml.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C50121732AD0900CD33BB /* wbcopytables in Copy Files (executables) */ = {isa = PBXBuildFile; fileRef = 2B2E91C9158915DE0078D08A /* wbcopytables */; };
 		270CE08A1725409000BEDDDD /* wb_close.png in Resources */ = {isa = PBXBuildFile; fileRef = 270CE0891725409000BEDDDD /* wb_close.png */; };
+		2716564819B6254A00FEE2E2 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
+		2716564919B6258800FEE2E2 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
+		2716564A19B625A400FEE2E2 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
 		2717A6841192E22900FED3E5 /* predefined_starters.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 2717A6831192E22900FED3E5 /* predefined_starters.xml */; };
 		2717A6871192E30F00FED3E5 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
 		271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
@@ -6392,6 +6395,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2716564A19B625A400FEE2E2 /* libglib-2.0.0.dylib in Frameworks */,
 				2B17B0EA0F4DACF20087ED42 /* wb.model.editors.wbp.dylib in Frameworks */,
 				2B17AFE50F4D94710087ED42 /* WBExtras.framework in Frameworks */,
 				2B17AFE60F4D94710087ED42 /* libgrt.dylib in Frameworks */,
@@ -6672,6 +6676,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2716564919B6258800FEE2E2 /* libglib-2.0.0.dylib in Frameworks */,
 				2B8565321836E1410081D52E /* Scintilla.framework in Frameworks */,
 				2BB37AD111094E8700DA4577 /* WBExtras.framework in Frameworks */,
 				2BB37AD211094E8700DA4577 /* libmysql.canvas.dylib in Frameworks */,
@@ -6700,6 +6705,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2716564819B6254A00FEE2E2 /* libglib-2.0.0.dylib in Frameworks */,
 				2BCAD05E1006D20B00D1772C /* libmforms.dylib in Frameworks */,
 				2BC09089106860D40069AB9A /* libwbpublic.be.dylib in Frameworks */,
 				2BE76165107283C800A1DF24 /* libcairo.2.dylib in Frameworks */,
@@ -15669,6 +15675,10 @@
 				);
 				INFOPLIST_FILE = "plugins/wb.model.editors/macosx/wb.model.editors-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
+				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -15711,6 +15721,10 @@
 				);
 				INFOPLIST_FILE = "plugins/wb.model.editors/macosx/wb.model.editors-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
+				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -16711,7 +16725,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
@@ -16753,7 +16766,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
@@ -17084,6 +17096,10 @@
 				);
 				INFOPLIST_FILE = "plugins/wb.printing/macosx/wb.printing-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
+				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -17116,6 +17132,10 @@
 				);
 				INFOPLIST_FILE = "plugins/wb.printing/macosx/wb.printing-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
+				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -17239,6 +17259,7 @@
 					"$(inherited)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/lib",
+					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
 				SKIP_INSTALL = YES;
@@ -17280,6 +17301,7 @@
 					"$(inherited)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/lib",
+					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
 				SKIP_INSTALL = YES;
@@ -17334,7 +17356,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
@@ -17380,7 +17401,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-					"/Users/kojima/wb62/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
