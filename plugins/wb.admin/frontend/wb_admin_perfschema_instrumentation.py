@@ -428,7 +428,7 @@ class SetupDataCollection(mforms.Box):
         self._variables = variables
 
         self.row_labels = []
-        self.row_labels.append('Collect current events')
+        self.row_labels.append('Current events')
         self.row_labels.append('History (%s events)')
         self.row_labels.append('Long History (%s events)')
 
@@ -607,6 +607,9 @@ class SetupDataCollection(mforms.Box):
             self.create_section(hbox, 'stages')
 
         self.create_section(hbox, 'waits')
+        if self.owner.target_version.is_supported_mysql_version_at_least(5, 7, 3):
+            self.create_section(hbox, 'transactions')
+
         self.__container.add(hbox, False, False)
 
         if not self.owner.target_version.is_supported_mysql_version_at_least(5, 6, 3):
