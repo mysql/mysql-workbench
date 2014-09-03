@@ -446,8 +446,15 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
     #---------------------------------------------------------------------------
     def connect_sql(self): # from GUI thread only, throws MySQLError
         if not self.is_sql_connected():
-            connection = MySQLConnection(self.server_profile.db_connection_params, self.sql_status_callback)
-            connection.connect()
+            password = self.get_mysql_password()
+
+            connection = MySQLConnection(self.server_profile.db_connection_params, self.sql_status_callback,
+                                        password=password)
+            try:
+                connection.connect()
+            except grt.UserInterrupt:
+                log_info("Cancelled connection\n")
+                return
 
             self.sql = SQLQueryExecutor(connection)
 
@@ -478,7 +485,8 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
     #---------------------------------------------------------------------------
     def server_polling_thread(self):
         try:
-            self.poll_connection = MySQLConnection(self.server_profile.db_connection_params)
+            password = self.get_mysql_password()
+            self.poll_connection = MySQLConnection(self.server_profile.db_connection_params, password=password)
             self.poll_connection.connect()
         except MySQLError, err:
             log_error("Error creating SQL connection for monitoring: %r\n" % err)
