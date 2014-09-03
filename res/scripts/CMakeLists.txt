@@ -100,9 +100,11 @@ install(FILES ${SYS_VIEWS_P_S_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys/vi
 set(SYS_PROCEDURES_FILES
     sys/procedures/create_synonym_db.sql
     sys/procedures/ps_setup_disable_background_threads.sql
+    sys/procedures/ps_setup_disable_consumers.sql
     sys/procedures/ps_setup_disable_instrument.sql
     sys/procedures/ps_setup_disable_thread.sql
     sys/procedures/ps_setup_enable_background_threads.sql
+    sys/procedures/ps_setup_enable_consumers.sql
     sys/procedures/ps_setup_enable_instrument.sql
     sys/procedures/ps_setup_enable_thread.sql
     sys/procedures/ps_setup_reload_saved.sql
@@ -110,7 +112,11 @@ set(SYS_PROCEDURES_FILES
     sys/procedures/ps_setup_reset_to_default_57.sql
     sys/procedures/ps_setup_save.sql
     sys/procedures/ps_setup_show_disabled.sql
+    sys/procedures/ps_setup_show_disabled_consumers.sql
+    sys/procedures/ps_setup_show_disabled_instruments.sql
     sys/procedures/ps_setup_show_enabled.sql
+    sys/procedures/ps_setup_show_enabled_consumers.sql
+    sys/procedures/ps_setup_show_enabled_instruments.sql
     sys/procedures/ps_statement_avg_latency_histogram.sql
     sys/procedures/ps_trace_statement_digest.sql
     sys/procedures/ps_trace_thread.sql

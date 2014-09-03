@@ -1426,6 +1426,42 @@ mysql> CALL sys.ps_setup_disable_instrument('');
 1 row in set (0.01 sec)
 ```
 
+#### ps_setup_disable_consumers
+
+##### Description
+
+Disables consumers within Performance Schema matching the input pattern.
+
+Requires the SUPER privilege for "SET sql_log_bin = 0;".
+
+##### Parameters
+
+* consumer (VARCHAR(128)): A LIKE pattern match (using "%consumer%") of consumers to disable
+
+##### Example
+
+To disable all consumers:
+```SQL
+mysql> CALL sys.ps_setup_disable_consumers('');
++--------------------------+
+| summary                  |
++--------------------------+
+| Disabled 15 consumers    |
++--------------------------+
+1 row in set (0.02 sec)
+```
+
+To disable just the event_stage consumers:
+```SQL
+mysql> CALL sys.ps_setup_disable_consumers('stage');
++------------------------+
+| summary                |
++------------------------+
+| Disabled 3 consumers   |
++------------------------+
+1 row in set (0.00 sec)
+```
+
 #### ps_setup_disable_thread
 
 ##### Description
@@ -1479,6 +1515,42 @@ mysql> CALL sys.ps_setup_enable_background_threads();
 +-------------------------------+
 | Enabled 18 background threads |
 +-------------------------------+
+1 row in set (0.00 sec)
+```
+
+#### ps_setup_enable_consumers
+
+##### Description
+
+Enables consumers within Performance Schema matching the input pattern.
+
+Requires the SUPER privilege for "SET sql_log_bin = 0;".
+
+##### Parameters
+
+* consumer (VARCHAR(128)): A LIKE pattern match (using "%consumer%") of consumers to enable
+
+##### Example
+
+To enable all consumers:
+```SQL
+mysql> CALL sys.ps_setup_enable_consumers('');
++-------------------------+
+| summary                 |
++-------------------------+
+| Enabled 10 consumers    |
++-------------------------+
+1 row in set (0.02 sec)
+```
+
+To enable just "waits" consumers:
+```SQL
+mysql> CALL sys.ps_setup_enable_consumers('waits');
++-----------------------+
+| summary               |
++-----------------------+
+| Enabled 3 consumers   |
++-----------------------+
 1 row in set (0.00 sec)
 ```
 
@@ -1735,6 +1807,48 @@ Empty set (0.00 sec)
 Query OK, 0 rows affected (0.01 sec)
 ```
 
+#### ps_setup_show_disabled_consumers
+
+##### Description
+
+Shows all currently disabled consumers.
+
+##### Parameters
+
+None
+ 
+##### Example
+
+```SQL
+mysql> CALL sys.ps_setup_show_disabled_consumers();
+
++---------------------------+
+| disabled_consumers        |
++---------------------------+
+| events_statements_current |
+| global_instrumentation    |
+| thread_instrumentation    |
+| statements_digest         |
++---------------------------+
+4 rows in set (0.05 sec)
+```
+
+#### ps_setup_show_disabled_instruments
+
+##### Description
+
+Shows all currently disabled instruments.
+
+##### Parameters
+
+None
+			 
+##### Example
+
+```SQL
+mysql> CALL sys.ps_setup_show_disabled_instruments();
+```
+
 #### ps_setup_show_enabled
 
 ##### Description
@@ -1807,6 +1921,48 @@ mysql> CALL sys.ps_setup_show_enabled(TRUE, TRUE);
 210 rows in set (0.08 sec)
 
 Query OK, 0 rows affected (0.89 sec)
+```
+
+#### ps_setup_show_enabled_consumers
+
+##### Description
+
+Shows all currently enabled consumers.
+
+##### Parameters
+
+None
+
+##### Example
+
+```SQL
+mysql> CALL sys.ps_setup_show_enabled_consumers();
+
++---------------------------+
+| enabled_consumers         |
++---------------------------+
+| events_statements_current |
+| global_instrumentation    |
+| thread_instrumentation    |
+| statements_digest         |
++---------------------------+
+4 rows in set (0.05 sec)
+```
+
+#### ps_setup_show_enabled_instruments
+
+##### Description
+
+Shows all currently enabled instruments.
+
+##### Parameters
+
+None
+
+##### Example
+
+```SQL
+mysql> CALL sys.ps_setup_show_enabled_instruments();
 ```
 
 #### ps_statement_avg_latency_histogram

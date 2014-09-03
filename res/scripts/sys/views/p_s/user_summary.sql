@@ -46,7 +46,7 @@ VIEW user_summary (
 SELECT accounts.user,
        SUM(stmt.total) AS statements,
        sys.format_time(SUM(stmt.total_latency)) AS statement_latency,
-       sys.format_time(SUM(stmt.total_latency) / SUM(stmt.total)) AS statement_avg_latency,
+       sys.format_time(IFNULL(SUM(stmt.total_latency) / NULLIF(SUM(stmt.total), 0), 0)) AS statement_avg_latency,
        SUM(stmt.full_scans) AS table_scans,
        SUM(io.ios) AS file_ios,
        sys.format_time(SUM(io.io_latency)) AS file_io_latency,
@@ -54,8 +54,8 @@ SELECT accounts.user,
        SUM(accounts.total_connections) AS total_connections,
        COUNT(DISTINCT host) AS unique_hosts
   FROM performance_schema.accounts
-  JOIN sys.x$user_summary_by_statement_latency AS stmt ON accounts.user = stmt.user
-  JOIN sys.x$user_summary_by_file_io AS io ON accounts.user = io.user
+  LEFT JOIN sys.x$user_summary_by_statement_latency AS stmt ON accounts.user = stmt.user
+  LEFT JOIN sys.x$user_summary_by_file_io AS io ON accounts.user = io.user
  WHERE accounts.user IS NOT NULL
  GROUP BY accounts.user;
 
@@ -92,7 +92,7 @@ VIEW x$user_summary (
 SELECT accounts.user,
        SUM(stmt.total) AS statements,
        SUM(stmt.total_latency) AS statement_latency,
-       SUM(stmt.total_latency) / SUM(stmt.total) AS statement_avg_latency,
+       IFNULL(SUM(stmt.total_latency) / NULLIF(SUM(stmt.total), 0), 0) AS statement_avg_latency,
        SUM(stmt.full_scans) AS table_scans,
        SUM(io.ios) AS file_ios,
        SUM(io.io_latency) AS file_io_latency,
@@ -100,7 +100,7 @@ SELECT accounts.user,
        SUM(accounts.total_connections) AS total_connections,
        COUNT(DISTINCT host) AS unique_hosts
   FROM performance_schema.accounts
-  JOIN sys.x$user_summary_by_statement_latency AS stmt ON accounts.user = stmt.user
-  JOIN sys.x$user_summary_by_file_io AS io ON accounts.user = io.user
+  LEFT JOIN sys.x$user_summary_by_statement_latency AS stmt ON accounts.user = stmt.user
+  LEFT JOIN sys.x$user_summary_by_file_io AS io ON accounts.user = io.user
  WHERE accounts.user IS NOT NULL
  GROUP BY accounts.user;

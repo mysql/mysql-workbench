@@ -11,9 +11,9 @@
       <?define Program_Files="ProgramFilesFolder"?>
   <?elseif $(sys.BUILDARCH)="x64"?>
       <?define Program_Files="ProgramFiles64Folder"?>
-  <?else?>
+  <?else ?>
       <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
-  <?endif?>
+  <?endif ?>
   
   <Fragment>
 
@@ -879,22 +879,22 @@
                     <File Id="file61786" Name="output_type-toggle-off.png"/>
                     <File Id="file61787" Name="output_type-toggle-on.png"/>
                     <File Id="file61788" Name="output_type-formeditor.png"/>
-                    <File Id="file606602" Name="qe_sql-editor-tb-icon_zoom-area.png" />
-                    <File Id="file606604" Name="qe_sql-editor-tb-icon_zoom-in.png" />
-                    <File Id="file606606" Name="qe_sql-editor-tb-icon_zoom-out.png" />
-                    <File Id="file606608" Name="qe_sql-editor-tb-icon_zoom-reset.png" />
-                    <File Id="file606609" Name="qe_sql-editor-tb-icon_zoom-jump.png" />
-                    <File Id="file606611" Name="qe_sql-editor-tb-icon_zoom-auto.png" />
-                    <File Id="file606613" Name="qe_sql-editor-tb-icon_zoom-center.png" />
+                    <File Id="file606602" Name="qe_sql-editor-tb-icon_zoom-area.png"/>
+                    <File Id="file606604" Name="qe_sql-editor-tb-icon_zoom-in.png"/>
+                    <File Id="file606606" Name="qe_sql-editor-tb-icon_zoom-out.png"/>
+                    <File Id="file606608" Name="qe_sql-editor-tb-icon_zoom-reset.png"/>
+                    <File Id="file606609" Name="qe_sql-editor-tb-icon_zoom-jump.png"/>
+                    <File Id="file606611" Name="qe_sql-editor-tb-icon_zoom-auto.png"/>
+                    <File Id="file606613" Name="qe_sql-editor-tb-icon_zoom-center.png"/>
  		
                     <File Id="wb_item_overlay_editor" Name="wb_item_overlay_editor.png"/>
                     <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
                     <File Id="wb_item_overlay_inspector" Name="wb_item_overlay_inspector.png"/>
                     <File Id="wb_item_overlay_result" Name="wb_item_overlay_result.png"/>
 
-                    <File Id="file606614" Name="qe_sql-editor-resultset-tb-pin.png" />
-                    <File Id="file606615" Name="qe_sql-editor-resultset-tb-pinned.png" />
-                    <File Id="file606616" Name="qe_sql-editor-explain-tb-overview.png" />
+                    <File Id="file606614" Name="qe_sql-editor-resultset-tb-pin.png"/>
+                    <File Id="file606615" Name="qe_sql-editor-resultset-tb-pinned.png"/>
+                    <File Id="file606616" Name="qe_sql-editor-explain-tb-overview.png"/>
         
                   </Component>
                   
@@ -1689,7 +1689,7 @@
                   <File Id="file614047" Name="sqlide_catalogman_ext.py"/>
                   <File Id="file614048" Name="sqlide_tableman_ext.py"/>
                   <File Id="file614049" Name="run_script.py"/>
-                  <File Id="file614100" Name="sqlide_import_spatial.py" />
+                  <File Id="file614100" Name="sqlide_import_spatial.py"/>
                   <File Id="file650000" Name="migration_grt.py"/>
                   <File Id="file650001" Name="migration_main.py"/>
                   <File Id="file650002" Name="migration_overview.py"/>
@@ -1996,12 +1996,12 @@
                 <Component DiskId="1" Guid="750471E1-68CA-4323-90D0-29D265DDD613" Id="sys" Location="either">
                   <File Id="wbsys001" Name="after_setup.sql"/>
                   <File Id="wbsys002" Name="before_setup.sql"/>
-                  <File Id="wbsys028" Name="sys_56.sql"/>
-                  <File Id="wbsys029" Name="sys_57.sql"/>
-                  <File Id="wbsys030" Name="sys_reports.js"/>
+                  <File Id="wbsys034" Name="sys_56.sql"/>
+                  <File Id="wbsys035" Name="sys_57.sql"/>
+                  <File Id="wbsys036" Name="sys_reports.js"/>
                 </Component>
                 <Directory Id="sys_functions_dir" Name="functions">
-                  <Component DiskId="1" Guid="33B5C8F0-A62C-11E3-86B1-F01FAF106FB3" Id="sys_functions" Location="either">
+                  <Component DiskId="1" Guid="E12D7AAE-33A9-11E4-ADCD-14109FD3C961" Id="sys_functions" Location="either">
                     <File Id="wbsys003" Name="extract_schema_from_file_name.sql"/>
                     <File Id="wbsys004" Name="extract_table_from_file_name.sql"/>
                     <File Id="wbsys005" Name="format_bytes.sql"/>
@@ -2013,70 +2013,76 @@
                   </Component>
                 </Directory>
                 <Directory Id="sys_procedures_dir" Name="procedures">
-                  <Component DiskId="1" Guid="33B6389E-A62C-11E3-86B1-F01FAF106FB3" Id="sys_procedures" Location="either">
+                  <Component DiskId="1" Guid="E12FBE4A-33A9-11E4-86FB-14109FD3C961" Id="sys_procedures" Location="either">
                     <File Id="wbsys011" Name="create_synonym_db.sql"/>
                     <File Id="wbsys012" Name="ps_setup_disable_background_threads.sql"/>
-                    <File Id="wbsys013" Name="ps_setup_disable_instrument.sql"/>
-                    <File Id="wbsys014" Name="ps_setup_disable_thread.sql"/>
-                    <File Id="wbsys015" Name="ps_setup_enable_background_threads.sql"/>
-                    <File Id="wbsys016" Name="ps_setup_enable_instrument.sql"/>
-                    <File Id="wbsys017" Name="ps_setup_enable_thread.sql"/>
-                    <File Id="wbsys018" Name="ps_setup_reload_saved.sql"/>
-                    <File Id="wbsys019" Name="ps_setup_reset_to_default.sql"/>
-                    <File Id="wbsys020" Name="ps_setup_reset_to_default_57.sql"/>
-                    <File Id="wbsys021" Name="ps_setup_save.sql"/>
-                    <File Id="wbsys022" Name="ps_setup_show_disabled.sql"/>
-                    <File Id="wbsys023" Name="ps_setup_show_enabled.sql"/>
-                    <File Id="wbsys024" Name="ps_statement_avg_latency_histogram.sql"/>
-                    <File Id="wbsys025" Name="ps_trace_statement_digest.sql"/>
-                    <File Id="wbsys026" Name="ps_trace_thread.sql"/>
-                    <File Id="wbsys027" Name="ps_truncate_all_tables.sql"/>
+                    <File Id="wbsys013" Name="ps_setup_disable_consumers.sql"/>
+                    <File Id="wbsys014" Name="ps_setup_disable_instrument.sql"/>
+                    <File Id="wbsys015" Name="ps_setup_disable_thread.sql"/>
+                    <File Id="wbsys016" Name="ps_setup_enable_background_threads.sql"/>
+                    <File Id="wbsys017" Name="ps_setup_enable_consumers.sql"/>
+                    <File Id="wbsys018" Name="ps_setup_enable_instrument.sql"/>
+                    <File Id="wbsys019" Name="ps_setup_enable_thread.sql"/>
+                    <File Id="wbsys020" Name="ps_setup_reload_saved.sql"/>
+                    <File Id="wbsys021" Name="ps_setup_reset_to_default.sql"/>
+                    <File Id="wbsys022" Name="ps_setup_reset_to_default_57.sql"/>
+                    <File Id="wbsys023" Name="ps_setup_save.sql"/>
+                    <File Id="wbsys024" Name="ps_setup_show_disabled.sql"/>
+                    <File Id="wbsys025" Name="ps_setup_show_disabled_consumers.sql"/>
+                    <File Id="wbsys026" Name="ps_setup_show_disabled_instruments.sql"/>
+                    <File Id="wbsys027" Name="ps_setup_show_enabled.sql"/>
+                    <File Id="wbsys028" Name="ps_setup_show_enabled_consumers.sql"/>
+                    <File Id="wbsys029" Name="ps_setup_show_enabled_instruments.sql"/>
+                    <File Id="wbsys030" Name="ps_statement_avg_latency_histogram.sql"/>
+                    <File Id="wbsys031" Name="ps_trace_statement_digest.sql"/>
+                    <File Id="wbsys032" Name="ps_trace_thread.sql"/>
+                    <File Id="wbsys033" Name="ps_truncate_all_tables.sql"/>
                   </Component>
                 </Directory>
                 <Directory Id="sys_views_dir" Name="views">
                   <Directory Id="sys_views_i_s_dir" Name="i_s">
-                    <Component DiskId="1" Guid="33B7202E-A62C-11E3-86B1-F01FAF106FB3" Id="sys_views_i_s" Location="either">
-                      <File Id="wbsys031" Name="innodb_buffer_stats_by_schema.sql"/>
-                      <File Id="wbsys032" Name="innodb_buffer_stats_by_table.sql"/>
-                      <File Id="wbsys033" Name="schema_object_overview.sql"/>
+                    <Component DiskId="1" Guid="E131494A-33A9-11E4-9E54-14109FD3C961" Id="sys_views_i_s" Location="either">
+                      <File Id="wbsys037" Name="innodb_buffer_stats_by_schema.sql"/>
+                      <File Id="wbsys038" Name="innodb_buffer_stats_by_table.sql"/>
+                      <File Id="wbsys039" Name="schema_object_overview.sql"/>
                     </Component>
                   </Directory>
                   <Directory Id="sys_views_p_s_dir" Name="p_s">
-                    <Component DiskId="1" Guid="33B76200-A62C-11E3-86B1-F01FAF106FB3" Id="sys_views_p_s" Location="either">
-                      <File Id="wbsys034" Name="io_by_thread_by_latency.sql"/>
-                      <File Id="wbsys035" Name="io_global_by_file_by_bytes.sql"/>
-                      <File Id="wbsys036" Name="io_global_by_file_by_latency.sql"/>
-                      <File Id="wbsys037" Name="io_global_by_wait_by_bytes.sql"/>
-                      <File Id="wbsys038" Name="io_global_by_wait_by_latency.sql"/>
-                      <File Id="wbsys039" Name="latest_file_io.sql"/>
-                      <File Id="wbsys040" Name="memory_by_user.sql"/>
-                      <File Id="wbsys041" Name="memory_global_by_current_allocated.sql"/>
-                      <File Id="wbsys042" Name="memory_global_total.sql"/>
-                      <File Id="wbsys043" Name="processlist.sql"/>
-                      <File Id="wbsys044" Name="processlist_57.sql"/>
-                      <File Id="wbsys045" Name="ps_check_lost_instrumentation.sql"/>
-                      <File Id="wbsys046" Name="schema_index_statistics.sql"/>
-                      <File Id="wbsys047" Name="schema_table_statistics.sql"/>
-                      <File Id="wbsys048" Name="schema_table_statistics_with_buffer.sql"/>
-                      <File Id="wbsys049" Name="schema_tables_with_full_table_scans.sql"/>
-                      <File Id="wbsys050" Name="schema_unused_indexes.sql"/>
-                      <File Id="wbsys051" Name="statement_analysis.sql"/>
-                      <File Id="wbsys052" Name="statements_with_errors_or_warnings.sql"/>
-                      <File Id="wbsys053" Name="statements_with_full_table_scans.sql"/>
-                      <File Id="wbsys054" Name="statements_with_runtimes_in_95th_percentile.sql"/>
-                      <File Id="wbsys055" Name="statements_with_sorting.sql"/>
-                      <File Id="wbsys056" Name="statements_with_temp_tables.sql"/>
-                      <File Id="wbsys057" Name="user_summary.sql"/>
-                      <File Id="wbsys058" Name="user_summary_57.sql"/>
-                      <File Id="wbsys059" Name="user_summary_by_file_io.sql"/>
-                      <File Id="wbsys060" Name="user_summary_by_file_io_type.sql"/>
-                      <File Id="wbsys061" Name="user_summary_by_stages.sql"/>
-                      <File Id="wbsys062" Name="user_summary_by_statement_latency.sql"/>
-                      <File Id="wbsys063" Name="user_summary_by_statement_type.sql"/>
-                      <File Id="wbsys064" Name="wait_classes_global_by_avg_latency.sql"/>
-                      <File Id="wbsys065" Name="wait_classes_global_by_latency.sql"/>
-                      <File Id="wbsys066" Name="waits_by_user_by_latency.sql"/>
-                      <File Id="wbsys067" Name="waits_global_by_latency.sql"/>
+                    <Component DiskId="1" Guid="E1317442-33A9-11E4-9145-14109FD3C961" Id="sys_views_p_s" Location="either">
+                      <File Id="wbsys040" Name="io_by_thread_by_latency.sql"/>
+                      <File Id="wbsys041" Name="io_global_by_file_by_bytes.sql"/>
+                      <File Id="wbsys042" Name="io_global_by_file_by_latency.sql"/>
+                      <File Id="wbsys043" Name="io_global_by_wait_by_bytes.sql"/>
+                      <File Id="wbsys044" Name="io_global_by_wait_by_latency.sql"/>
+                      <File Id="wbsys045" Name="latest_file_io.sql"/>
+                      <File Id="wbsys046" Name="memory_by_user.sql"/>
+                      <File Id="wbsys047" Name="memory_global_by_current_allocated.sql"/>
+                      <File Id="wbsys048" Name="memory_global_total.sql"/>
+                      <File Id="wbsys049" Name="processlist.sql"/>
+                      <File Id="wbsys050" Name="processlist_57.sql"/>
+                      <File Id="wbsys051" Name="ps_check_lost_instrumentation.sql"/>
+                      <File Id="wbsys052" Name="schema_index_statistics.sql"/>
+                      <File Id="wbsys053" Name="schema_table_statistics.sql"/>
+                      <File Id="wbsys054" Name="schema_table_statistics_with_buffer.sql"/>
+                      <File Id="wbsys055" Name="schema_tables_with_full_table_scans.sql"/>
+                      <File Id="wbsys056" Name="schema_unused_indexes.sql"/>
+                      <File Id="wbsys057" Name="statement_analysis.sql"/>
+                      <File Id="wbsys058" Name="statements_with_errors_or_warnings.sql"/>
+                      <File Id="wbsys059" Name="statements_with_full_table_scans.sql"/>
+                      <File Id="wbsys060" Name="statements_with_runtimes_in_95th_percentile.sql"/>
+                      <File Id="wbsys061" Name="statements_with_sorting.sql"/>
+                      <File Id="wbsys062" Name="statements_with_temp_tables.sql"/>
+                      <File Id="wbsys063" Name="user_summary.sql"/>
+                      <File Id="wbsys064" Name="user_summary_57.sql"/>
+                      <File Id="wbsys065" Name="user_summary_by_file_io.sql"/>
+                      <File Id="wbsys066" Name="user_summary_by_file_io_type.sql"/>
+                      <File Id="wbsys067" Name="user_summary_by_stages.sql"/>
+                      <File Id="wbsys068" Name="user_summary_by_statement_latency.sql"/>
+                      <File Id="wbsys069" Name="user_summary_by_statement_type.sql"/>
+                      <File Id="wbsys070" Name="wait_classes_global_by_avg_latency.sql"/>
+                      <File Id="wbsys071" Name="wait_classes_global_by_latency.sql"/>
+                      <File Id="wbsys072" Name="waits_by_user_by_latency.sql"/>
+                      <File Id="wbsys073" Name="waits_global_by_latency.sql"/>
                     </Component>
                   </Directory>
                 </Directory>
