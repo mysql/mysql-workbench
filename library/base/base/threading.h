@@ -21,10 +21,6 @@
 
 #include "common.h"
 
-#ifdef __linux__
-#include <glib.h>
-#endif
-
 #include <stdexcept>
 #include "glib.h"
 
@@ -32,11 +28,15 @@ namespace base{
 
   typedef gint refcount_t;
 
+#pragma warning (push)
+#pragma warning (disable: 4275) // Exporting a class that is derived from a non-exportable class.
+
   class BASELIBRARY_PUBLIC_FUNC mutex_busy_error : public std::runtime_error
   {
   public:
     mutex_busy_error(const std::string &exc="Mutex is busy") : std::runtime_error(exc) {}
   };
+#pragma warning (pop)
 
   inline GThread *create_thread(GThreadFunc func, gpointer data, GError **error = NULL, std::string name = "")
   {
