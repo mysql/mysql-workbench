@@ -112,6 +112,7 @@ void generate_interface_classes(const char *header, const char *outfile)
                           0, &errs, &erro, NULL);
   if (!pat)
   {
+    fclose(f);
     fprintf(stderr, "ERROR compiling internal regex pattern (%s)\n", errs);
     exit(1);
   }
@@ -128,6 +129,7 @@ void generate_interface_classes(const char *header, const char *outfile)
     }
   }
 
+  fclose(f);
   grt::GRT grt;
   
   do_generate_interface_classes(&grt, outfile, interfaces);
