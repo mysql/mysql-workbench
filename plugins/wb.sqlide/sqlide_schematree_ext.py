@@ -286,73 +286,9 @@ def open_search(editor):
 
 def do_create_object(editor, schema_name, db_type):
     if db_type == 'db.Schema':
-        ocatalog = grt.classes.db_mysql_Catalog()
-        ocatalog.name = 'default'
-        ocatalog.oldName = ocatalog.name
-        ocatalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
-
-        catalog = grt.classes.db_mysql_Catalog()
-        catalog.name = 'default'
-        catalog.oldName = catalog.name
-        catalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
-
-        schema = grt.classes.db_mysql_Schema()
-        schema.name = "new_schema"
-        schema.oldName = ""
-        schema.owner = catalog
-        catalog.schemata.append(schema)
-
-        editor.editLiveObject(schema, ocatalog)
+        editor.alterLiveObject(db_type, "", "")
     else:
-        ocatalog = grt.classes.db_mysql_Catalog()
-        ocatalog.name = 'default'
-        ocatalog.oldName = ocatalog.name
-        ocatalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
-
-        oschema = grt.classes.db_mysql_Schema()
-        oschema.name = schema_name
-        oschema.oldName = oschema.name
-        oschema.owner = ocatalog
-        ocatalog.schemata.append(oschema)
-
-        catalog = grt.classes.db_mysql_Catalog()
-        catalog.name = 'default'
-        catalog.oldName = catalog.name
-        catalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
-
-        schema = grt.classes.db_mysql_Schema()
-        schema.name = schema_name
-        schema.oldName = schema.name
-        schema.owner = catalog
-        catalog.schemata.append(schema)
-
-        if db_type == 'db.Table':
-            newobj = grt.classes.db_mysql_Table()
-            newobj.owner = schema
-            newobj.name = "new_table"
-            schema.tables.append(newobj)
-        elif db_type == 'db.StoredProcedure':
-            newobj = grt.classes.db_mysql_Routine()
-            newobj.routineType = 'procedure'
-            newobj.owner = schema
-            newobj.name = "new_procedure"
-            schema.routines.append(newobj)
-        elif db_type == 'db.Function':
-            newobj = grt.classes.db_mysql_Routine()
-            newobj.routineType = 'function'
-            newobj.owner = schema
-            newobj.name = "new_function"
-            schema.routines.append(newobj)
-        elif db_type == 'db.View':
-            newobj = grt.classes.db_mysql_View()
-            newobj.owner = schema
-            newobj.name = "new_view"
-            schema.views.append(newobj)
-        else:
-            print "Unsupported objtype", db_type
-            return
-        editor.editLiveObject(newobj, ocatalog)
-
+        editor.alterLiveObject(db_type, editor.defaultSchema, "")
 
 def do_alter_object(editor, selection):
     for obj in selection:
