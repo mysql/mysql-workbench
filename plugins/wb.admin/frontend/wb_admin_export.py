@@ -821,9 +821,14 @@ class WbAdminSchemaListTab(mforms.Box):
             if self.bad_password_detected:
                 title += ' (type the correct password)'
                 self.bad_password_detected = False
-            accepted, pwd = mforms.Utilities.find_or_ask_for_password(title, host, username, reset_password)
-            if not accepted:
-                return None
+
+            if not reset_password and not self.bad_password_detected:
+                pwd = self.owner.ctrl_be.get_mysql_password()
+
+            if pwd is None:
+                accepted, pwd = mforms.Utilities.find_or_ask_for_password(title, host, username, reset_password)
+                if not accepted:
+                    return None
         return pwd
 
     def stop(self):
@@ -1918,11 +1923,11 @@ class WbAdminExportOptionsTab(mforms.Box):
                     (option, default) = option_info
                 elif len(option_info) == 4: # includes type and (min_version, max_version) tuple
                     (option, default, option_type, (min_version, max_version)) = option_info
-                    if min_version:
+                    if min_version and target_version:
                         if not target_version.is_supported_mysql_version_at_least(Version.fromstr(min_version)):
                             log_debug("Skip option %s because it's for version %s\n" % (optname, min_version))
                             continue
-                    if max_version:
+                    if max_version and target_version:
                         if target_version.is_supported_mysql_version_at_least(Version.fromstr(max_version)):
                             log_debug("Skip option %s becasue it's deprecated in version %s\n" % (optname, max_version))
                             continue
