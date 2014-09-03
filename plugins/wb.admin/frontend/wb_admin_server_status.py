@@ -357,6 +357,9 @@ class WbAdminServerStatus(mforms.Box):
 
         semi_sync_master = tristate(info.get("rpl_semi_sync_master_enabled"))
         semi_sync_slave = tristate(info.get("rpl_semi_sync_slave_enabled"))
+        semi_sync_status = (semi_sync_master or semi_sync_slave, "(%s)"% ", ".join([x for x in [semi_sync_master and "master", semi_sync_slave and "slave"] if x]))
+        memcached_status = True if plugins.has_key('daemon_memcached') else None
+        
         if not repl:
             if semi_sync_master:
                 semi_sync_master = False
@@ -369,8 +372,8 @@ class WbAdminServerStatus(mforms.Box):
         self.add_info_section_2("Available Server Features",
                               [("Performance Schema:", lambda info, plugins: tristate(info.get("performance_schema"))),
                                ("Thread Pool:", lambda info, plugins: tristate(info.get("thread_handling"), "loaded-dynamically")),
-                               ("Memcached Plugin:", lambda info, plugins: tristate(info.get("daemon_memcached_option"))),
-                               ("Semisync Replication Plugin:", (semi_sync_master or semi_sync_slave, "(%s)"% ", ".join([x for x in [semi_sync_master and "master", semi_sync_slave and "slave"] if x]))),
+                               ("Memcached Plugin:", lambda info, plugins: memcached_status),
+                               ("Semisync Replication Plugin:", lambda info, plugins: semi_sync_status),
                                ("SSL Availability:", lambda info, plugins: info.get("have_openssl") == "YES" or info.get("have_ssl") == "YES"),
                                ("Windows Authentication:", lambda info, plugins: plugins.has_key("authentication_windows")) if self.server_profile.target_is_windows else ("PAM Authentication:", lambda info, plugins: plugins.has_key("authentication_pam")),
                                ("Password Validation:", lambda info, plugins: (tristate(info.get("validate_password_policy")), "(Policy: %s)" % info.get("validate_password_policy"))),
