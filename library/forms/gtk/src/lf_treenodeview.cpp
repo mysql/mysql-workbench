@@ -1210,6 +1210,7 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
   _tree.signal_enter_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_enter_notify), false);
   _tree.signal_leave_notify_event().connect(sigc::mem_fun(this, &TreeNodeViewImpl::on_leave_notify), false);
 
+  _is_drag_source = false;
   if (opts & mforms::TreeCanBeDragSource)
   {
     _is_drag_source = true;
@@ -1224,7 +1225,7 @@ TreeNodeViewImpl::TreeNodeViewImpl(TreeNodeView *self, mforms::TreeOptions opts)
     }
     _tree.add_events(Gdk::POINTER_MOTION_MASK);
   }
-  _is_drag_source = false;
+
 
   _swin.add(_tree);
   _swin.show_all();
