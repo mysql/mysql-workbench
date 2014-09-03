@@ -28,15 +28,20 @@ namespace base{
 
   typedef gint refcount_t;
 
+#ifdef _WIN32
 #pragma warning (push)
 #pragma warning (disable: 4275) // Exporting a class that is derived from a non-exportable class.
+#endif
 
   class BASELIBRARY_PUBLIC_FUNC mutex_busy_error : public std::runtime_error
   {
   public:
     mutex_busy_error(const std::string &exc="Mutex is busy") : std::runtime_error(exc) {}
   };
+
+#ifdef _WIN32
 #pragma warning (pop)
+#endif
 
   inline GThread *create_thread(GThreadFunc func, gpointer data, GError **error = NULL, std::string name = "")
   {
