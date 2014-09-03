@@ -98,103 +98,109 @@ extern NSString *const SCIUpdateUINotification;
   // The back end is kind of a controller and model in one.
   // It uses the content view for display.
   Scintilla::ScintillaCocoa* mBackend;
-  
+
   // This is the actual content to which the backend renders itself.
   SCIContentView* mContent;
-  
+
   NSScrollView *scrollView;
   SCIMarginView *marginView;
-  
+
   CGFloat zoomDelta;
-  
+
   // Area to display additional controls (e.g. zoom info, caret position, status info).
   NSView <InfoBarCommunicator>* mInfoBar;
   BOOL mInfoBarAtTop;
+
+  id<ScintillaNotificationProtocol> mDelegate;
 }
 
 @property (nonatomic, readonly) Scintilla::ScintillaCocoa* backend;
+@property (nonatomic, assign) id<ScintillaNotificationProtocol> delegate;
 @property (nonatomic, readonly) NSScrollView *scrollView;
 
-+ (Class)contentViewClass;
++ (Class) contentViewClass;
 
-- (void)positionSubViews;
+- (void) positionSubViews;
 
-- (void)sendNotification: (NSString*) notificationName;
-- (void)notify: (NotificationType) type message: (NSString*) message location: (NSPoint) location
+- (void) sendNotification: (NSString*) notificationName;
+- (void) notify: (NotificationType) type message: (NSString*) message location: (NSPoint) location
           value: (float) value;
-- (void)setCallback: (id <InfoBarCommunicator>) callback;
+- (void) setCallback: (id <InfoBarCommunicator>) callback;
 
-- (void)suspendDrawing: (BOOL) suspend;
-- (void)notification: (Scintilla::SCNotification*) notification;
+- (void) suspendDrawing: (BOOL) suspend;
+- (void) notification: (Scintilla::SCNotification*) notification;
 
 // Scroller handling
-- (void)setMarginWidth: (int) width;
-- (void)scrollerAction: (id) sender;
-- (SCIContentView*)content;
+- (void) setMarginWidth: (int) width;
+- (void) scrollerAction: (id) sender;
+- (SCIContentView*) content;
+- (void) updateMarginCursors;
 
 // NSTextView compatibility layer.
-- (NSString*)string;
-- (void)setString: (NSString *)aString;
-- (void)insertText: (NSString *)aString;
-- (void)setEditable: (BOOL)editable;
-- (BOOL)isEditable;
-- (NSRange)selectedRange;
+- (NSString*) string;
+- (void) setString: (NSString*) aString;
+- (void) insertText: (NSString*) aString;
+- (void) setEditable: (BOOL) editable;
+- (BOOL) isEditable;
+- (NSRange) selectedRange;
 
-- (NSString*)selectedString;
+- (NSString*) selectedString;
 
-- (void)setFontName: (NSString *)font
-               size: (int)size
-               bold: (BOOL)bold
-             italic: (BOOL)italic;
+- (void) deleteRange: (NSRange) range;
+
+- (void)setFontName: (NSString*) font
+               size: (int) size
+               bold: (BOOL) bold
+             italic: (BOOL) italic;
 
 // Native call through to the backend.
-+ (sptr_t)directCall: (ScintillaView*) sender message: (unsigned int) message wParam: (uptr_t) wParam
-              lParam: (sptr_t) lParam;
-- (sptr_t)message: (unsigned int)message wParam:(uptr_t) wParam lParam: (sptr_t)lParam;
-- (sptr_t)message: (unsigned int)message wParam:(uptr_t) wParam;
-- (sptr_t)message: (unsigned int)message;
++ (sptr_t) directCall: (ScintillaView*) sender message: (unsigned int) message wParam: (uptr_t) wParam
+               lParam: (sptr_t) lParam;
+- (sptr_t) message: (unsigned int) message wParam: (uptr_t) wParam lParam: (sptr_t) lParam;
+- (sptr_t) message: (unsigned int) message wParam: (uptr_t) wParam;
+- (sptr_t) message: (unsigned int) message;
 
 // Back end properties getters and setters.
-- (void)setGeneralProperty: (int) property parameter: (long) parameter value: (long) value;
-- (void)setGeneralProperty: (int) property value: (long) value;
+- (void) setGeneralProperty: (int) property parameter: (long) parameter value: (long) value;
+- (void) setGeneralProperty: (int) property value: (long) value;
 
-- (long)getGeneralProperty: (int)property;
-- (long)getGeneralProperty: (int)property parameter: (long)parameter;
-- (long)getGeneralProperty: (int)property parameter: (long)parameter extra: (long)extra;
-- (long)getGeneralProperty: (int)property ref: (const void *)ref;
-- (void)setColorProperty: (int)property parameter: (long)parameter value: (NSColor *)value;
-- (void)setColorProperty: (int)property parameter: (long)parameter fromHTML: (NSString *)fromHTML;
-- (NSColor*)getColorProperty: (int)property parameter: (long)parameter;
-- (void)setReferenceProperty: (int)property parameter: (long)parameter value: (const void *)value;
-- (const void*)getReferenceProperty: (int)property parameter: (long) parameter;
-- (void)setStringProperty: (int)property parameter: (long) parameter value: (NSString *)value;
-- (NSString *)getStringProperty: (int)property parameter: (long)parameter;
-- (void)setLexerProperty: (NSString *)name value: (NSString *)value;
-- (NSString *)getLexerProperty: (NSString *)name;
+- (long) getGeneralProperty: (int) property;
+- (long) getGeneralProperty: (int) property parameter: (long) parameter;
+- (long) getGeneralProperty: (int) property parameter: (long) parameter extra: (long) extra;
+- (long) getGeneralProperty: (int) property ref: (const void*) ref;
+- (void) setColorProperty: (int) property parameter: (long) parameter value: (NSColor*) value;
+- (void) setColorProperty: (int) property parameter: (long) parameter fromHTML: (NSString*) fromHTML;
+- (NSColor*) getColorProperty: (int) property parameter: (long) parameter;
+- (void) setReferenceProperty: (int) property parameter: (long) parameter value: (const void*) value;
+- (const void*) getReferenceProperty: (int) property parameter: (long) parameter;
+- (void) setStringProperty: (int) property parameter: (long) parameter value: (NSString*) value;
+- (NSString*) getStringProperty: (int) property parameter: (long) parameter;
+- (void) setLexerProperty: (NSString*) name value: (NSString*) value;
+- (NSString*) getLexerProperty: (NSString*) name;
 
 // The delegate property should be used instead of registerNotifyCallback which will be deprecated.
-- (void)registerNotifyCallback: (intptr_t)windowid value: (Scintilla::SciNotifyFunc)callback;
+- (void) registerNotifyCallback: (intptr_t) windowid value: (Scintilla::SciNotifyFunc) callback;
 
-- (void)setInfoBar: (NSView <InfoBarCommunicator> *)aView top: (BOOL)top;
-- (void)setStatusText: (NSString *)text;
+- (void) setInfoBar: (NSView <InfoBarCommunicator>*) aView top: (BOOL) top;
+- (void) setStatusText: (NSString*) text;
 
-- (BOOL)findAndHighlightText: (NSString*)searchText
-                   matchCase: (BOOL)matchCase
-                   wholeWord: (BOOL)wholeWord
-                    scrollTo: (BOOL)scrollTo
-                        wrap: (BOOL)wrap;
+- (BOOL) findAndHighlightText: (NSString*) searchText
+                    matchCase: (BOOL) matchCase
+                    wholeWord: (BOOL) wholeWord
+                     scrollTo: (BOOL) scrollTo
+                         wrap: (BOOL) wrap;
 
-- (BOOL)findAndHighlightText: (NSString*)searchText
-                   matchCase: (BOOL)matchCase
-                   wholeWord: (BOOL)wholeWord
-                    scrollTo: (BOOL)scrollTo
-                        wrap: (BOOL)wrap
-                   backwards: (BOOL)backwards;
+- (BOOL) findAndHighlightText: (NSString*) searchText
+                    matchCase: (BOOL) matchCase
+                    wholeWord: (BOOL) wholeWord
+                     scrollTo: (BOOL) scrollTo
+                         wrap: (BOOL) wrap
+                    backwards: (BOOL) backwards;
 
-- (int)findAndReplaceText: (NSString*)searchText
-                   byText: (NSString*)newText
-                matchCase: (BOOL)matchCase
-                wholeWord: (BOOL)wholeWord
-                    doAll: (BOOL)doAll;
+- (int) findAndReplaceText: (NSString*) searchText
+                    byText: (NSString*) newText
+                 matchCase: (BOOL) matchCase
+                 wholeWord: (BOOL) wholeWord
+                     doAll: (BOOL) doAll;
 
 @end

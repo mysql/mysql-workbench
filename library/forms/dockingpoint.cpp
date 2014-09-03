@@ -65,6 +65,7 @@ void DockingPoint::undock_view(AppView *view)
   view->retain();
   _delegate->undock_view(view);
   view->set_containing_docking_point(NULL);
+  _view_undocked(view);
   view->release();
 }
  

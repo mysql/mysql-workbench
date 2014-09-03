@@ -640,13 +640,21 @@ void ViewWrapper::set_size(mforms::View *backend, int w, int h)
 {
   Control ^control = GetManagedObject<Control>(backend);
   Size newSize = control->Size;
+  Size newMinSize = control->MinimumSize;
   if (w >= 0)
+  {
     newSize.Width = w;
+    newMinSize.Width = w;
+  }
   if (h >= 0)
+  {
     newSize.Height = h;
+    newMinSize.Height = h;
+  }
 
-  control->MinimumSize = newSize; // TODO: wrong place for this, when we restore loaded settings we don't want to set a min size.
-                                  //       Implement an own set_min_size function.
+  // Setting the min size here is a trick to tell layouters that we want a fixed size
+  // (not the preferred size).
+  control->MinimumSize = newMinSize;
   control->Size = newSize;
 }
 

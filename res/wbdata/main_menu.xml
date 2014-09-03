@@ -78,6 +78,7 @@
         </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.file.run_script">
+          <value type="string" key="context">*query</value>
           <value type="string" key="itemType">separator</value>
         </value>
 
@@ -124,6 +125,12 @@
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.file.close">
             <value type="string" key="itemType">separator</value>
+            <value type="string" key="context">*model</value>
+        </value>
+        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.file.close_
+          ">
+          <value type="string" key="itemType">separator</value>
+          <value type="string" key="context">*query</value>
         </value>
 
         <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.save">

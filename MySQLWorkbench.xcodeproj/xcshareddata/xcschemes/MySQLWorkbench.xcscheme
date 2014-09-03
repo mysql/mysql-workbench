@@ -91,7 +91,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--log-level=debug3"
+            argument = "--log-level=debug2"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

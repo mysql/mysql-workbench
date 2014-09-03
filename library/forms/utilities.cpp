@@ -168,11 +168,11 @@ public:
 
   int ref_count;
 
-  base::Semaphore sem;
-  CancellableTaskData() : finished(false), ref_count(1), sem(0) {}
+  base::Semaphore semaphore;
+  CancellableTaskData() : finished(false), ref_count(1), semaphore(0) {}
 };
 
-// To ensure the the shared thread data is not freed too early regardless what finishes first
+// To ensure the shared thread data is not freed too early regardless what finishes first
 // (the thread or run_cancelable_task()) we store this data here in a private structure, ref counted.
 static base::Mutex thread_data_mutex;
 static std::map<void *, CancellableTaskData *> thread_data;
@@ -200,7 +200,7 @@ static void* cancellable_task_thread(void *)
       log_error("Cancellable task threw uncaught exception: %s", exc.what());
     }
 
-    data->sem.wait();
+    data->semaphore.wait(); // Wait for the main thread to signal it is ready.
     *data->result_ptr = ptr;
     data->finished = true;
     ControlFactory::get_instance()->_utilities_impl.stop_cancelable_wait_message();
@@ -259,7 +259,7 @@ bool Utilities::run_cancelable_task(const std::string &title, const std::string 
   }
 
   // Callback for the frontend to signal the worker thread that it's ready.
-  boost::function<void ()> signal_ready = boost::bind(&base::Semaphore::post, &data->sem);
+  boost::function<void ()> signal_ready = boost::bind(&base::Semaphore::post, &data->semaphore);
 
   bool function_result = false;
 
@@ -770,7 +770,7 @@ bool Utilities::is_hidpi_icon(cairo_surface_t *s)
 
 bool Utilities::icon_needs_reload(cairo_surface_t *s)
 {
-  float scale = s && mforms::Utilities::is_hidpi_icon(s) ? 2 : 1;
+  float scale = s && mforms::Utilities::is_hidpi_icon(s) ? 2.0f : 1.0f;
   return mforms::App::get()->backing_scale_factor() != scale;
 }
 
@@ -890,13 +890,11 @@ std::string Utilities::shorten_string(cairo_t* cr, const std::string& text, doub
   return "";
 }
 
+//--------------------------------------------------------------------------------------------------
 
 double Utilities::get_text_width(const std::string &text, const std::string &font)
 {
-  if (ControlFactory::get_instance()->_utilities_impl.get_text_width)
-    return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
-  else
-    return text.length() * 20; // temporary hardcoded until implemented in Windows and Linux
+  return ControlFactory::get_instance()->_utilities_impl.get_text_width(text, font);
 }
 
 //--------------------------------------------------------------------------------------------------

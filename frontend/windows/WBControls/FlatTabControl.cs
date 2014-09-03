@@ -1854,7 +1854,7 @@ namespace MySQL.Controls
         if (auxView != value)
         {
           auxView = value;
-          auxView.BackColor = Color.Transparent;
+          //auxView.BackColor = Color.Transparent; Transparent doesn't work as expected on Win.
           auxView.Dock = DockStyle.None;
           Parent.Controls.Add(auxView);
           Parent.Controls.SetChildIndex(auxView, 0);

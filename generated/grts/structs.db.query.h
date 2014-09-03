@@ -1194,11 +1194,6 @@ obj.sidebar = value
 
    */
   virtual void alterLiveObject(const std::string &type, const std::string &schemaName, const std::string &objectName);
-  /** Method. Open a Connector/Python connection to the same instance the editor is connected to
-  \return 
-
-   */
-  virtual grt_PyObjectRef createCPyConnection();
   /** Method. executes a SELECT statement on the table and returns an editable resultset that can be used to modify its contents
   \param schema name of the table schema
   \param table name of the table to edit
@@ -1285,8 +1280,6 @@ private: // wrapper methods for use by grt
 
   static grt::ValueRef call_alterLiveObject(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_query_Editor*>(self)->alterLiveObject(grt::StringRef::cast_from(args[0]), grt::StringRef::cast_from(args[1]), grt::StringRef::cast_from(args[2])); return grt::ValueRef(); }
 
-  static grt::ValueRef call_createCPyConnection(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Editor*>(self)->createCPyConnection(); }
-
   static grt::ValueRef call_createTableEditResultset(grt::internal::Object *self, const grt::BaseListRef &args){ return dynamic_cast<db_query_Editor*>(self)->createTableEditResultset(grt::StringRef::cast_from(args[0]), grt::StringRef::cast_from(args[1]), grt::StringRef::cast_from(args[2]), grt::IntegerRef::cast_from(args[3])); }
 
   static grt::ValueRef call_editLiveObject(grt::internal::Object *self, const grt::BaseListRef &args){ dynamic_cast<db_query_Editor*>(self)->editLiveObject(db_DatabaseObjectRef::cast_from(args[0]), db_CatalogRef::cast_from(args[1])); return grt::ValueRef(); }
@@ -1351,7 +1344,6 @@ public:
     meta->bind_method("addQueryEditor", &db_query_Editor::call_addQueryEditor);
     meta->bind_method("addToOutput", &db_query_Editor::call_addToOutput);
     meta->bind_method("alterLiveObject", &db_query_Editor::call_alterLiveObject);
-    meta->bind_method("createCPyConnection", &db_query_Editor::call_createCPyConnection);
     meta->bind_method("createTableEditResultset", &db_query_Editor::call_createTableEditResultset);
     meta->bind_method("editLiveObject", &db_query_Editor::call_editLiveObject);
     meta->bind_method("executeCommand", &db_query_Editor::call_executeCommand);

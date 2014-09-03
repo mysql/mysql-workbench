@@ -167,9 +167,3 @@ void db_query_Editor::executeCommand(const std::string &sql, ssize_t log, ssize_
   _data->executeCommand(sql, log != 0, background != 0);
 }
 
-
-grt_PyObjectRef db_query_Editor::createCPyConnection()
-{
-  return _data->createCPyConnection();
-}
-

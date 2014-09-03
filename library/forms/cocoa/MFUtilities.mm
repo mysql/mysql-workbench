@@ -25,6 +25,7 @@
 #include <stdexcept>
 
 #include "base/log.h"
+#include "base/string_utilities.h"
 
 DEFAULT_LOG_DOMAIN("utilities");
 

@@ -1,16 +1,16 @@
-/* 
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+/*
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; version 2 of the
  * License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -36,6 +36,8 @@ void base::threading_init()
 }
 #endif
 
+//--------------------------------------------------------------------------------------------------
+
 Mutex::Mutex()
 {
 #if GLIB_CHECK_VERSION(2,32,0)
@@ -47,6 +49,8 @@ Mutex::Mutex()
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
+
 Mutex::~Mutex()
 {
 #if GLIB_CHECK_VERSION(2,32,0)
@@ -55,6 +59,8 @@ Mutex::~Mutex()
   g_mutex_free(mutex);
 #endif
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void Mutex::swap(Mutex &o)
 {
@@ -69,6 +75,7 @@ void Mutex::swap(Mutex &o)
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
 
 MutexLock::MutexLock(Mutex &mutex) : ptr(&mutex)
 {
@@ -77,12 +84,16 @@ MutexLock::MutexLock(Mutex &mutex) : ptr(&mutex)
   ptr->lock();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 // take ownership of an existing lock (the other lock will be reset)
 MutexLock::MutexLock(const MutexLock &mlock)
 : ptr(mlock.ptr)
 {
   const_cast<MutexLock*>(&mlock)->ptr = NULL;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 MutexLock &MutexLock::operator= (MutexLock &mlock)
 {
@@ -91,12 +102,15 @@ MutexLock &MutexLock::operator= (MutexLock &mlock)
   return *this;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 MutexLock::~MutexLock()
 {
   if (ptr)
     ptr->unlock();
 }
 
+//----------------- Cond ---------------------------------------------------------------------------
 
 Cond::Cond()
 {
@@ -109,6 +123,8 @@ Cond::Cond()
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
+
 Cond::~Cond()
 {
 #if GLIB_CHECK_VERSION(2,32,0)
@@ -117,3 +133,47 @@ Cond::~Cond()
   g_cond_free(cond);
 #endif
 }
+
+//----------------- Semaphore ----------------------------------------------------------------------
+
+static int semaphore_data = 1; // Dummy data to identify non-NULL return values.
+
+Semaphore::Semaphore(int initial_count)
+{
+  _queue = g_async_queue_new();
+
+  // Push as many "messages" to the queue as is specified by the initial count.
+  // This amount is what is available before we lock in wait() or try_wait().
+  while (initial_count-- > 0)
+    g_async_queue_push(_queue, &semaphore_data);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+Semaphore::~Semaphore()
+{
+  g_async_queue_unref(_queue);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void Semaphore::post()
+{
+  g_async_queue_push(_queue, &semaphore_data);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void Semaphore::wait()
+{
+  g_async_queue_pop(_queue); // Waits if there is no data in the queue.
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool Semaphore::try_wait()
+{
+  return g_async_queue_try_pop(_queue) != NULL;
+}
+
+//--------------------------------------------------------------------------------------------------

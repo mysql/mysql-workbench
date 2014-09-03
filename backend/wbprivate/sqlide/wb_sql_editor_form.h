@@ -42,6 +42,7 @@
 
 namespace mforms {
   class ToolBar;
+  class AppView;
   class View;
   class MenuItem;
   class DockingPoint;
@@ -194,6 +195,7 @@ private:
   int _scratch_editors_serial;
 
   void sql_editor_panel_switched();
+  void sql_editor_panel_closed(mforms::AppView *view);
 
   void set_editor_tool_items_enbled(const std::string &name, bool flag);
   void set_editor_tool_items_checked(const std::string &name, bool flag);
@@ -283,9 +285,9 @@ private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn, boost::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth, bool autocommit_mode, bool user_connection);
   void init_connection(sql::Connection* dbc_conn_ref, const db_mgmt_ConnectionRef& connectionProperties, sql::Dbc_connection_handler::Ref& dbc_conn, bool user_connection);
   void close_connection(sql::Dbc_connection_handler::Ref &dbc_conn);
-  base::RecMutexLock ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex);
-  base::RecMutexLock ensure_valid_usr_connection();
-  base::RecMutexLock ensure_valid_aux_connection();
+  base::RecMutexLock ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex, bool throw_on_block = false);
+  base::RecMutexLock ensure_valid_usr_connection(bool throw_on_block = false);
+  base::RecMutexLock ensure_valid_aux_connection(bool throw_on_block = false);
 
 public:
   base::RecMutexLock ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn);
@@ -377,15 +379,16 @@ private:
   int sql_script_apply_error(long long, const std::string&, const std::string&, std::string&);
   int sql_script_apply_progress(float);
   int sql_script_stats(long, long);
-  
+
+  void abort_apply_object_alter_script();
 public:
-  void apply_object_alter_script(std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id);
+  void apply_object_alter_script(const std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id);
   bool run_live_object_alteration_wizard(const std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id, const std::string &log_context);
 
 private:
   void apply_changes_to_recordset(Recordset::Ptr rs_ptr);
   bool run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool skip_commit);
-  void apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr, bool skip_commit);
+  void apply_data_changes_commit(const std::string &sql_script_text, Recordset::Ptr rs_ptr, bool skip_commit);
   void update_editor_title_schema(const std::string& schema);
 
 public:  
