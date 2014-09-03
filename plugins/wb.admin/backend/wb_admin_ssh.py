@@ -471,7 +471,7 @@ class WbAdminSSH(object):
             ret = True
             sftp.close()
         except IOError, e:
-            log_error('%s: Retreival of file "%s" failed: %s\n' % (self.__class__.__name__, source, str(e)) )
+            log_error('%s: Retrieval of file "%s" failed: %s\n' % (self.__class__.__name__, source, str(e)) )
             raise
 
         return ret

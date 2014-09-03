@@ -97,8 +97,9 @@ WizardProgressPage::WizardProgressPage(WizardForm *form, const std::string &id, 
 : WizardPage(form, id), _log_panel(mforms::TitledBoxPanel), _log_text(mforms::VerticalScrollBar)
 {  
   _progress_bar= 0;
+  _progress_bar_box = NULL;
   _progress_label= 0;
-  
+
   _busy= false;
   _current_task= 0;
 
@@ -128,14 +129,19 @@ WizardProgressPage::WizardProgressPage(WizardForm *form, const std::string &id, 
 
   if (has_progressbar)
   {
+    _progress_bar_box = mforms::manage(new mforms::Box(true));
+    _progress_bar_box->set_spacing(8);
+
     _progress_bar= manage(new mforms::ProgressBar());
     _progress_label= manage(new mforms::Label());
 
     _progress_label->set_text("");
     add(_progress_label, false, true);
-    add(_progress_bar, false, false);
+    _progress_bar_box->add(_progress_bar, true, true);
 
-    _progress_bar->show(false);
+    add(_progress_bar_box, false, false);
+
+    _progress_bar_box->show(false);
   }
 
   add(&_log_panel, true, true);
@@ -241,9 +247,9 @@ void WizardProgressPage::start_tasks()
 
   _form->update_buttons();
   
-  if (_progress_bar)
+  if (_progress_bar_box)
   {
-    _progress_bar->show(true);
+    _progress_bar_box->show(true);
     _progress_bar->start();
   }
   perform_tasks();
@@ -257,13 +263,12 @@ WizardProgressPage::TaskRow *WizardProgressPage::current_task()
   return 0;
 }
 
-
 void WizardProgressPage::perform_tasks()
 {
   bool failed= false;
 
   if (!_form->grtm()->in_main_thread())
-    throw std::logic_error("BAD THREAD");
+    throw std::logic_error("Method must be called from main thread");
   
   while (_current_task < (int)_tasks.size())
   {
@@ -348,10 +353,10 @@ void WizardProgressPage::perform_tasks()
       extra_clicked();
   }
 
-  if (_progress_bar)
+  if (_progress_bar_box)
   {
     _progress_bar->stop();
-    _progress_bar->show(false);
+    _progress_bar_box->show(false);
   }
   _done= true;
   _busy= false;
@@ -364,7 +369,10 @@ void WizardProgressPage::perform_tasks()
 void WizardProgressPage::set_status_text(const std::string &text, bool is_error)
 {
   if (!_form->grtm()->in_main_thread())
-    throw std::logic_error("BAD THREAD");
+  {
+    _form->grtm()->run_once_when_idle(this, boost::bind(&WizardProgressPage::set_status_text, this, text, is_error));
+    return;
+  }
 
   if (is_error)
     _status_text.set_color("#ff0000");
@@ -377,7 +385,10 @@ void WizardProgressPage::set_status_text(const std::string &text, bool is_error)
 void WizardProgressPage::update_progress(float pct, const std::string &caption)
 {
   if (!_form->grtm()->in_main_thread())
-    throw std::logic_error("BAD THREAD");
+  {
+    _form->grtm()->run_once_when_idle(this, boost::bind(&WizardProgressPage::update_progress, this, pct, caption));
+    return;
+  }
 
   if (_progress_label)
     _progress_label->set_text(caption);

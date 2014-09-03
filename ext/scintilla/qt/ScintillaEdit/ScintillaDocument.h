@@ -70,6 +70,8 @@ public:
     int decorations_end(int indic, int position);
     int get_code_page();
     void set_code_page(int code_page);
+    int get_eol_mode();
+    void set_eol_mode(int eol_mode);
     int move_position_outside_char(int pos, int move_dir, bool check_line_end);
 
 private:

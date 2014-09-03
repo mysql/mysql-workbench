@@ -26,7 +26,7 @@ using namespace mforms;
 
 Object* Object::retain()
 {
-  base::atomic_int_inc(&_refcount);
+  g_atomic_int_inc(&_refcount);
   return this;
 }
 
@@ -34,7 +34,7 @@ Object* Object::retain()
 
 void Object::release()
 {
-  if (base::atomic_int_dec_and_test_if_zero(&_refcount) && _managed)
+  if (g_atomic_int_dec_and_test(&_refcount) && _managed)
   {
     _destroying = true;
     delete this;

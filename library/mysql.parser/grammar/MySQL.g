@@ -1002,7 +1002,7 @@ select_part2_derived: // select_part2 equivalent for sub queries.
 	( options { greedy = true; }:
 		query_spec_option
 		| {SERVER_VERSION <= 50100}? => (SQL_NO_CACHE_SYMBOL | SQL_CACHE_SYMBOL)
-	)* select_item_list select_source_and_options? select_lock_type?
+	)* select_item_list
 ;
 
 select_option:
@@ -1153,12 +1153,12 @@ table_factor_select_tail:
 ;
 
 select_table_factor_union:
-	(table_references order_by_or_limit?) (UNION_SYMBOL union_option? query_specification order_by_or_limit?)*
+	(table_references order_by_or_limit?) (UNION_SYMBOL union_option? query_specification)*
 ;
 
 query_specification:
-	SELECT_SYMBOL ( options { greedy = true; }: query_spec_option)* select_item_list select_from? select_lock_type?
-	| OPEN_PAR_SYMBOL query_specification CLOSE_PAR_SYMBOL
+	SELECT_SYMBOL select_part2_derived table_expression
+	| OPEN_PAR_SYMBOL query_specification CLOSE_PAR_SYMBOL order_by_or_limit?
 ;
 
 join_table:

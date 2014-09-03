@@ -151,6 +151,8 @@
                 <File Id="file1117" Name="wb.model.advfind.wbp.dll"/>
                 <?endif ?>
                 <File Id="file1116" Name="wbadminhelper.exe"/>
+                <File Id="file1118" Name="mysqlwbmeb.py"/>
+                <File Id="file1119" Name="mysqlwbmeb.vbs"/>
               </Component>
 
               <Component DiskId="1" Guid="47641656-8430-4722-B558-DAE76CA7C0CA" Id="MySQLWorkbench.exe" Location="either">

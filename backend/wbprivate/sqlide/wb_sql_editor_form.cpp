@@ -174,6 +174,7 @@ void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp)
   _tabdock = dp;
   grtobj()->dockingPoint(mforms_to_grt(_grtm->get_grt(), dp));
   scoped_connect(_tabdock->signal_view_switched(), boost::bind(&SqlEditorForm::sql_editor_panel_switched, this));
+  scoped_connect(_tabdock->signal_view_undocked(), boost::bind(&SqlEditorForm::sql_editor_panel_closed, this, _1));
 }
 
 
@@ -247,6 +248,21 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   GRTNotificationCenter::get()->add_grt_observer(this, "GRNServerStateChanged");
 
   _dbc_auth = sql::Authentication::create(_connection, "");
+
+  // initialize the password with a cached value
+  {
+    std::string password;
+    bool ok = true;
+    if (!mforms::Utilities::find_password(conn->hostIdentifier(),
+                                          conn->parameterValues().get_string("userName"),
+                                          password))
+      if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
+                                                   conn->parameterValues().get_string("userName"),
+                                                   password))
+        ok = false;
+    if (ok)
+      _dbc_auth->set_password(password.c_str());
+  }
 
   exec_sql_task->send_task_res_msg(false);
   exec_sql_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, this, _1, _2, _3, ""));
@@ -1389,15 +1405,15 @@ base::RecMutexLock SqlEditorForm::ensure_valid_aux_connection(sql::Dbc_connectio
 }
 
 
-RecMutexLock SqlEditorForm::ensure_valid_aux_connection()
+RecMutexLock SqlEditorForm::ensure_valid_aux_connection(bool throw_on_block)
 {
-  return ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex);
+  return ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex, throw_on_block);
 }
 
 
-RecMutexLock SqlEditorForm::ensure_valid_usr_connection()
+RecMutexLock SqlEditorForm::ensure_valid_usr_connection(bool throw_on_block)
 {
-  return ensure_valid_dbc_connection(_usr_dbc_conn, _usr_dbc_conn_mutex);
+  return ensure_valid_dbc_connection(_usr_dbc_conn, _usr_dbc_conn_mutex, throw_on_block);
 }
 
 
@@ -1418,9 +1434,10 @@ void SqlEditorForm::close_connection(sql::Dbc_connection_handler::Ref &dbc_conn)
 }
 
 
-RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex)
+RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex,
+                                                        bool throw_on_block)
 {
-  RecMutexLock mutex_lock(dbc_conn_mutex);
+  RecMutexLock mutex_lock(dbc_conn_mutex, throw_on_block);
   bool valid= false;
 
   sql::Dbc_connection_handler::Ref myref(dbc_conn);
@@ -2432,7 +2449,7 @@ bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool s
 }
 
 
-void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id)
+void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id)
 {
   set_log_message(log_id, DbSqlEditorLog::BusyMsg, "", 
                           obj_editor ? strfmt(_("Applying changes to %s..."), obj_editor->get_name().c_str()) : _("Applying changes..."), "");
@@ -2482,17 +2499,27 @@ void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DB
   {
     try
     {
-      RecMutexLock aux_dbc_conn_mutex(ensure_valid_aux_connection());
-      std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+      RecMutexLock usr_dbc_conn_mutex(ensure_valid_usr_connection(true));
+      std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
       sql_batch_exec_err_count= sql_batch_exec(stmt.get(), statements);
     }
     catch (sql::SQLException &e)
     {
+      log_error("Exception applying SQL: %s\n", e.what());
       set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
+      throw; // re-throw exception so that the wizard will see that something went wrong
+    }
+    catch (base::mutex_busy_error &)
+    {
+      log_error("usr connection busy applying SQL\n");
+      set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(EXCEPTION_MSG_FORMAT, "Your connection to MySQL is currently busy. Please retry later."), strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
+      throw std::runtime_error("Connection to MySQL currently busy.");
     }
     catch (std::exception &e)
     {
+      log_error("Exception applying SQL: %s\n", e.what());
       set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(EXCEPTION_MSG_FORMAT, e.what()), strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
+      throw;
     }
   }
   
@@ -2539,7 +2566,7 @@ void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DB
   }
 }
 
-void SqlEditorForm::apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr, bool skip_commit)
+void SqlEditorForm::apply_data_changes_commit(const std::string &sql_script_text, Recordset::Ptr rs_ptr, bool skip_commit)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, rs_ptr, rs);
 

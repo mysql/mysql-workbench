@@ -168,7 +168,7 @@ public:
       }
       catch (sql::SQLException &exc)
       {
-        log_error("Execption executing SQL code from GRT interface: %s\n", exc.what());
+        log_error("Exception executing SQL code from GRT interface: %s\n", exc.what());
       }
     }
     return result;
@@ -317,34 +317,6 @@ public:
   void detach()
   {
     _editor.reset();
-  }
-
-
-  grt_PyObjectRef createCPyConnection()
-  {
-    boost::shared_ptr<SqlEditorForm> ref(_editor);
-
-    WillEnterPython lock;
-    grt::PythonContext *py = grt::PythonContext::get();
-    py->run_buffer("import mysql.connector");
-    PyObject *ctor = py->get_global("mysql.connector.Connect");
-    if (!ctor)
-      throw std::logic_error("Could not get handle to Connector method");
-
-    grt::AutoPyObject kwarg(PyDict_New());
-
-    grt::DictRef params(ref->connection_descriptor()->parameterValues());
-
-    PyDict_SetItemString(kwarg, "host", grt::AutoPyObject(PyString_FromString(params.get_string("hostName").c_str())));
-    PyDict_SetItemString(kwarg, "port", grt::AutoPyObject(PyLong_FromSize_t(params.get_int("port"))));
-    PyDict_SetItemString(kwarg, "user", grt::AutoPyObject(PyString_FromString(params.get_string("userName").c_str())));
-    PyDict_SetItemString(kwarg, "password", grt::AutoPyObject(PyString_FromString(ref->dbc_auth_data()->password())));
-
-    grt::AutoPyObject connection(PyObject_Call(ctor, grt::AutoPyObject(PyTuple_New(0)), kwarg));
-    if (!connection)
-      throw grt::python_error("error opening connection");
-
-    return pyobject_to_grt(_self->get_grt(), connection);
   }
     
 protected:  

@@ -345,9 +345,6 @@ bool MatchIgnoreCase(Accessor &styler, int currentPos, const char *s)
 // level store to make it easy to pick up with each increment.
 static void FoldMySQLDoc(unsigned int startPos, int length, int initStyle, WordList *[], Accessor &styler)
 {
-  if (styler.GetPropertyInt("fold") == 0)
-    return;
-
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	bool foldOnlyBegin = styler.GetPropertyInt("fold.sql.only.begin", 0) != 0;

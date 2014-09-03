@@ -1378,8 +1378,19 @@ bool parse_font_description(const std::string &fontspec, std::string &font, floa
   if (parts.empty())
     return false;
   
+  for (std::vector<std::string>::iterator iter = parts.begin(); iter != parts.end(); ++iter)
+  {
+    float size_check = 0;
+    if (sscanf(iter->c_str(), "%f", &size_check) == 1)
+    {
+      size = size_check;
+      parts.erase(iter);
+      break;
+    }
+  }
+/*  
   if (!parts.empty() && sscanf(parts.back().c_str(), "%f", &size) == 1)
-    parts.pop_back();
+    parts.pop_back();*/
   
   for (int i= 0; i < 2 && !parts.empty(); i++)
   {

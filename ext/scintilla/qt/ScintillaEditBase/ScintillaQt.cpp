@@ -172,11 +172,11 @@ bool ScintillaQt::DragThreshold(Point ptStart, Point ptNow)
 static QString StringFromSelectedText(const SelectionText &selectedText)
 {
 	if (selectedText.codePage == SC_CP_UTF8) {
-		return QString::fromUtf8(selectedText.Data(), selectedText.Length());
+		return QString::fromUtf8(selectedText.Data(), static_cast<int>(selectedText.Length()));
 	} else {
 		QTextCodec *codec = QTextCodec::codecForName(
 				CharacterSetID(selectedText.characterSet));
-		return codec->toUnicode(selectedText.Data(), selectedText.Length());
+		return codec->toUnicode(selectedText.Data(), static_cast<int>(selectedText.Length()));
 	}
 }
 
@@ -339,21 +339,14 @@ void ScintillaQt::PasteFromMode(QClipboard::Mode clipboardMode_)
 	bool isRectangular = IsRectangularInMime(mimeData);
 	QString text = clipboard->text(clipboardMode_);
 	QByteArray utext = BytesForDocument(text);
-	int len = utext.length();
-	std::string dest = Document::TransformLineEnds(utext, len, pdoc->eolMode);
+	std::string dest(utext.constData(), utext.length());
 	SelectionText selText;
 	selText.Copy(dest, pdoc->dbcsCodePage, CharacterSetOfDocument(), isRectangular, false);
 
 	UndoGroup ug(pdoc);
 	ClearSelection(multiPasteMode == SC_MULTIPASTE_EACH);
-	SelectionPosition selStart = sel.IsRectangular() ?
-		sel.Rectangular().Start() :
-		sel.Range(sel.Main()).Start();
-	if (selText.rectangular) {
-		PasteRectangular(selStart, selText.Data(), selText.Length());
-	} else {
-		InsertPaste(selStart, selText.Data(), selText.Length());
-	}
+	InsertPasteShape(selText.Data(), static_cast<int>(selText.Length()),
+		selText.rectangular ? pasteRectangular : pasteStream);
 	EnsureCaretVisible();
 }
 
@@ -502,7 +495,7 @@ public:
 			folded[0] = mapping[static_cast<unsigned char>(mixed[0])];
 			return 1;
 		} else if (codec) {
-			QString su = codec->toUnicode(mixed, lenMixed);
+			QString su = codec->toUnicode(mixed, static_cast<int>(lenMixed));
 			QString suFolded = su.toCaseFolded();
 			QByteArray bytesFolded = codec->fromUnicode(suFolded);
 
@@ -555,14 +548,14 @@ std::string ScintillaQt::CaseMapString(const std::string &s, int caseMapping)
 
 	if (IsUnicodeMode()) {
 		std::string retMapped(s.length() * maxExpansionCaseConversion, 0);
-		size_t lenMapped = CaseConvertString(&retMapped[0], retMapped.length(), s.c_str(), s.length(), 
+		size_t lenMapped = CaseConvertString(&retMapped[0], retMapped.length(), s.c_str(), s.length(),
 			(caseMapping == cmUpper) ? CaseConversionUpper : CaseConversionLower);
 		retMapped.resize(lenMapped);
 		return retMapped;
 	}
 
 	QTextCodec *codec = QTextCodec::codecForName(CharacterSetIDOfDocument());
-    QString text = codec->toUnicode(s.c_str(), s.length());
+	QString text = codec->toUnicode(s.c_str(), static_cast<int>(s.length()));
 
 	if (caseMapping == cmUpper) {
 		text = text.toUpper();
@@ -682,9 +675,9 @@ sptr_t ScintillaQt::DefWndProc(unsigned int, uptr_t, sptr_t)
 }
 
 sptr_t ScintillaQt::DirectFunction(
-    ScintillaQt *sciThis, unsigned int iMessage, uptr_t wParam, sptr_t lParam)
+    sptr_t ptr, unsigned int iMessage, uptr_t wParam, sptr_t lParam)
 {
-	return sciThis->WndProc(iMessage, wParam, lParam);
+	return reinterpret_cast<ScintillaQt *>(ptr)->WndProc(iMessage, wParam, lParam);
 }
 
 // Additions to merge in Scientific Toolworks widget structure
@@ -741,10 +734,9 @@ void ScintillaQt::Drop(const Point &point, const QMimeData *data, bool move)
 	bool rectangular = IsRectangularInMime(data);
 	QByteArray bytes = BytesForDocument(text);
 	int len = bytes.length();
-	std::string dest = Document::TransformLineEnds(bytes, len, pdoc->eolMode);
 
 	SelectionPosition movePos = SPositionFromLocation(point,
 				false, false, UserVirtualSpace());
 
-	DropAt(movePos, dest.c_str(), dest.length(), move, rectangular);
+	DropAt(movePos, bytes, len, move, rectangular);
 }

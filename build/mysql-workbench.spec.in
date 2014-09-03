@@ -156,10 +156,9 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libvsqlitepp/d
   %filter_from_requires /libmysqlclient/d
   %filter_from_requires /libgdal/d
-  %if 0%{rhel} < 7
-    %filter_from_requires /libctemplate/d
-  %endif
-
+  %filter_from_requires /libctemplate/d
+  %filter_from_requires /libzip/d
+  %filter_from_requires /libtinyxml/d
   %{?commercial:%filter_from_requires /libsqlite3/d}
   %filter_setup
 }
@@ -210,16 +209,30 @@ if [ -f %{vsqlite_dir}/lib/libvsqlitepp.so.3 ]; then
     cp -a %{vsqlite_dir}/lib/libvsqlitepp.so.3* %{buildroot}%{_libdir}/mysql-workbench
 fi
 
-if [ -f %{ctemplate_dir}/lib/libctemplate.so.0 ]; then
-    cp -a %{ctemplate_dir}/lib/libctemplate.so.0* %{buildroot}%{_libdir}/mysql-workbench
-fi
-
 # Bundle client programs and lib
 %if %{defined mysql_home}
   cp -a %{mysql_home}/lib/libmysqlclient.so.* %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{mysql_home}/bin/mysql %{buildroot}%{_libexecdir}/mysql-workbench/
   cp -a %{mysql_home}/bin/mysqldump %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
+
+%if 0%{?rhel}
+  cp -a /usr/lib64/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a /usr/lib64/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
+%endif
+
+
+%if 0%{?fedora} 
+  cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
+%else
+%if 0%{?rhel} < 7
+    cp -a %{ctemplate_dir}/lib/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
+%endif
+%if 0%{?rhel} >= 7
+    cp -a /usr/lib64/libctemplate.so* %{buildroot}%{_libdir}/mysql-workbench
+%endif
+%endif
+
 
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.a  -exec rm {} \; -print
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print

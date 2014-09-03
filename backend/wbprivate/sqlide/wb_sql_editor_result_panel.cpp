@@ -759,7 +759,7 @@ void SqlEditorResult::copy_column_info(mforms::TreeNodeView *tree)
     text.append(base::strfmt("%i", (*node)->get_int(0)));
     for (int i= 1; i < tree->get_column_count(); i++)
     {
-      if (i >= 1 && i <= 4)
+      if (i >= 1 && i <= 5)
         text.append(",").append((*node)->get_string(i));
       else
         text.append(",").append(base::strfmt("%i", (*node)->get_int(i)));

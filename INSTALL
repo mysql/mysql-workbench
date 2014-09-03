@@ -16,8 +16,14 @@ To Build:
 - Extract the sources into a directory, e.g. wb6
 - Install dependencies. For Ubuntu and other Debian based distros type this in a
   command line terminal:
-  $> sudo apt-get install build-essential cmake autoconf automake pkg-config libtool libzip-dev libxml2-dev libsigc++-2.0-dev libglade2-dev libgtkmm-2.4-dev libglu1-mesa-dev libgl1-mesa-glx mesa-common-dev libmysqlclient-dev libmysqlcppconn-dev uuid-dev liblua5.1-dev libpixman-1-dev libpcre3-dev libgnome2-dev libgnome-keyring-dev libgtk2.0-dev libpango1.0-dev libcairo2-dev python-dev libboost-dev libctemplate0 libctemplate-dev mysql-client python-pysqlite2 libsqlite3-dev iodbc libiodbc2 libiodbc2-dev libtinyxml-dev
-- You will also need to install VSQLite++ from https://github.com/vinzenz/vsqlite--. Check the INSTALL file there for installation instructions.
+  
+  $> sudo apt-get install build-essential cmake autoconf automake pkg-config libtool libzip-dev libxml2-dev \
+                          libsigc++-2.0-dev libglade2-dev libgtkmm-2.4-dev libglu1-mesa-dev libgl1-mesa-glx \
+                          mesa-common-dev libmysqlclient-dev libmysqlcppconn-dev uuid-dev libpixman-1-dev libpcre3-dev \
+                          libgnome2-dev libgnome-keyring-dev libgtk2.0-dev libpango1.0-dev libcairo2-dev python-dev \
+                          libboost-dev libctemplate-dev mysql-client python-pysqlite2 libsqlite3-dev iodbc libiodbc2-dev \
+                          libtinyxml-dev swig libvsqlitepp-dev libgdal-dev
+
 - Create a build directory (better if you create it outside the Workbench source tree), e.g. wb-build
 - Change the directory to the build directory you have just created, e.g. cd ../wb-build
 - Run cmake <path to workbench tree> -DCMAKE_INSTALL_PREFIX=<path where you want WB to be> -DCMAKE_BUILD_TYPE=Release
@@ -37,6 +43,9 @@ Note about antlr:
 Note about iodbc:
  - instead of iodbc you can use unixodbc, to do that you need to install unixodbc and add -DUSE_UNIXODBC=True to cmake
 
+Note about gdal:
+ - Ubuntu Packages require unixodbc, so if you're using it, there won't be any problem. If you want to use iodbc, you'll need to build it from source.
+ 
 Building on Windows
 -------------------
 

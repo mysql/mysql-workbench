@@ -153,7 +153,7 @@ def restoreConnections():
                 mforms.Utilities.show_error('Restore Connections Error', 'The selected file is not a valid backup file '
                                             'or the file is corrupted.',
                                             'OK', '', '')
-                grt.log_error('restoreConnections', 'Workbench restored %i valid connections but server configuration data coul not be found or is not valid.\n' % len(connections))
+                grt.log_error('restoreConnections', 'Workbench restored %i valid connections but server configuration data could not be found or is not valid.\n' % len(connections))
                 return
      
             existent_instance_names = set(instance.name for instance in grt.root.wb.rdbmsMgmt.storedInstances)

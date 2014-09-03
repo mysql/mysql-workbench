@@ -889,6 +889,67 @@ Glib::RefPtr<Gdk::Pixbuf> UtilitiesImpl::get_cached_icon(const std::string &icon
 
 
 //------------------------------------------------------------------------------
+#include <pango/pangoft2.h>
+
+struct FontMeasurement
+{
+  PangoFontDescription *_font_description;
+  PangoLayout *_layout;
+  
+  ~FontMeasurement()
+  {
+    g_object_unref (_layout);
+  }
+};
+
+std::map<std::string, FontMeasurement *> FontMeasurementDescriptors;
+
+double UtilitiesImpl::get_text_width(const std::string &text, const std::string &font_desc)
+{
+  std::string font;
+  float size = 0;
+  bool bold = false;
+  bool italic = false;
+  
+  if (!base::parse_font_description(font_desc, font, size, bold, italic))
+  {
+    return 0;
+  }
+  
+  if (FontMeasurementDescriptors.find(font) == FontMeasurementDescriptors.end())
+  {
+    FontMeasurement *font_measurement = new FontMeasurement;
+    
+    PangoFontMap *fontmap = pango_ft2_font_map_new();
+    PangoContext *context = pango_font_map_create_context (fontmap) ;
+    
+    font_measurement->_font_description = pango_font_description_new ();
+    font_measurement->_layout = pango_layout_new (context);
+    
+    pango_font_description_set_family (font_measurement->_font_description, font.c_str());
+    
+    FontMeasurementDescriptors[font] = font_measurement;
+  }
+
+  FontMeasurement *current_descriptor = FontMeasurementDescriptors[font];
+
+  pango_font_description_set_style (current_descriptor->_font_description, italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+  pango_font_description_set_variant (current_descriptor->_font_description, PANGO_VARIANT_NORMAL);
+  pango_font_description_set_weight (current_descriptor->_font_description, bold ?  PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL);
+  pango_font_description_set_stretch (current_descriptor->_font_description, PANGO_STRETCH_NORMAL);
+  pango_font_description_set_size (current_descriptor->_font_description, size * PANGO_SCALE);
+  pango_layout_set_text (current_descriptor->_layout, text.c_str(), -1);
+  pango_layout_set_font_description (current_descriptor->_layout, current_descriptor->_font_description);
+  
+  int width = 0;
+//   int height = 0;
+  pango_layout_get_pixel_size (current_descriptor->_layout, &width, NULL);
+  
+  return (double)width;
+  
+}
+
+//------------------------------------------------------------------------------
 
 void UtilitiesImpl::init()
 {
@@ -918,6 +979,7 @@ void UtilitiesImpl::init()
   f->_utilities_impl.set_thread_name = &UtilitiesImpl::set_thread_name;
   f->_utilities_impl.beep = &UtilitiesImpl::beep;
 
+  f->_utilities_impl.get_text_width = &UtilitiesImpl::get_text_width;
   MainThreadRequestQueue::get(); // init from main thread
 }
 

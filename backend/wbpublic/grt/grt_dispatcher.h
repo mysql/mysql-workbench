@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _GRTDISPATCHER_H_
-#define _GRTDISPATCHER_H_
+
+#pragma once
 
 #include <grtpp.h>
 #include <grtpp_util.h>
@@ -28,13 +28,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-
-
 namespace bec {
 
   class WBPUBLICBACKEND_PUBLIC_FUNC GRTDispatcher;
 
-  // Mechanism for allowing queueing of callbacks to be executed
+  // Mechanism for allowing queuing of callbacks to be executed
   // in the main thread by the GRT worked thread
   // The target object, method and arguments are all encapsulated
   // in the callback object.
@@ -52,13 +50,13 @@ namespace bec {
     
     DispatcherCallbackBase *retain()
     {
-      base::atomic_int_inc(&_refcount);
+      g_atomic_int_inc(&_refcount);
       return this;
     }
     
     void release()
     {
-      if (base::atomic_int_dec_and_test_if_zero(&_refcount))
+      if (g_atomic_int_dec_and_test(&_refcount))
         delete this;
     }
     
@@ -67,7 +65,7 @@ namespace bec {
       signal();
     }
     
-    virtual void execute()= 0;
+    virtual void execute() = 0;
     
     void wait()
     {
@@ -371,6 +369,3 @@ namespace bec {
     }
 
 };
-
-
-#endif /* _GRTDISPATCHER_H_ */

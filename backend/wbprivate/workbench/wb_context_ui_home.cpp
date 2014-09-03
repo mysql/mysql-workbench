@@ -1049,34 +1049,59 @@ void WBContextUI::refresh_home_connections(bool clear_state)
     module->call_function("createInstancesFromLocalServers", arguments);
   }
 
+  std::vector<db_mgmt_ConnectionRef> invalid_connections;
+  std::map<std::string, std::string> invalid_connection_ids;
 
   for (grt::ListRef<db_mgmt_Connection>::const_iterator end = connections.end(),
       inst = connections.begin(); inst != end; ++inst)
   {
-    grt::DictRef dict((*inst)->parameterValues());
-
-    std::string host_entry;
-    if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSSH")
-      host_entry = dict.get_string("sshUserName") + "@" + dict.get_string("sshHost");
+    // Any connection with NULL driver will be considered invalid and so deleted
+    if (!(*inst)->driver().is_valid())
+    {
+      invalid_connections.push_back(*inst);
+      invalid_connection_ids.insert(std::pair<std::string, std::string>((*inst)->id(), ""));
+    }
     else
     {
-      host_entry = strfmt("%s:%i", dict.get_string("hostName").c_str(), (int) dict.get_int("port", 3306));
-      if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSocket")
+      grt::DictRef dict((*inst)->parameterValues());
+
+      // Any fabric managed connection referencing a 
+      if (dict.has_key("fabric_managed") && invalid_connection_ids.count(dict.get_string("fabric_managed")))
+        invalid_connections.push_back(*inst);
+      else
       {
-        // TODO: what about the default for sockets (only have a default for the pipe name)?
-        std::string socket= dict.get_string("socket", "MySQL"); // socket or pipe
-        host_entry= "Localhost via pipe " + socket;
+        std::string host_entry;
+        if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSSH")
+          host_entry = dict.get_string("sshUserName") + "@" + dict.get_string("sshHost");
+        else
+        {
+          host_entry = strfmt("%s:%i", dict.get_string("hostName").c_str(), (int)dict.get_int("port", 3306));
+          if ((*inst)->driver().is_valid() && (*inst)->driver()->name() == "MysqlNativeSocket")
+          {
+            // TODO: what about the default for sockets (only have a default for the pipe name)?
+            std::string socket = dict.get_string("socket", "MySQL"); // socket or pipe
+            host_entry = "Localhost via pipe " + socket;
+          }
+        }
+
+        std::string title = *(*inst)->name();
+        if (auto_save_files.find((*inst)->id()) != auto_save_files.end())
+          title += " (auto saved)";
+
+        _home_screen->add_connection(*inst, title, host_entry,
+          dict.get_string("userName"), dict.get_string("schema"));
       }
     }
-
-    std::string title = *(*inst)->name();
-    if (auto_save_files.find((*inst)->id()) != auto_save_files.end())
-      title += " (auto saved)";
-
-    _home_screen->add_connection(*inst, title, host_entry,
-      dict.get_string("userName"), dict.get_string("schema"));
   }
 
+
+  // Deletes the fabric managed connections
+  for (std::vector<db_mgmt_ConnectionRef>::const_iterator iterator = invalid_connections.begin();
+    iterator != invalid_connections.end(); ++iterator)
+  {
+    log_warning("Invalid connection detected %s, deleting it\n", (*iterator)->name().c_str());
+    remove_connection(*iterator);
+  }
 
   _wb->save_connections();
   _wb->save_instances();
