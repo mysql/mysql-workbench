@@ -15677,7 +15677,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
+					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -15723,7 +15723,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
+					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -17098,7 +17098,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
+					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -17134,7 +17134,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
+					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
