@@ -21,10 +21,14 @@
 
 #include "grt/editor_base.h"
 
+#include "DelegateWrapper.h"
+
 using namespace MySQL::Base;
 
 namespace MySQL {
 namespace Grt {
+
+  ref class GrtManager;
 
   public ref class BaseEditorWrapper : public UIForm
   {
@@ -35,6 +39,8 @@ namespace Grt {
     DelegateSlot1<void,void,int,int> ^refresh_partial_ui_handler;
 
   public:
+    ~BaseEditorWrapper();
+
     enum class PartialRefreshType {
       RefreshTextChanged = bec::BaseEditor::RefreshTextChanged,
     };
