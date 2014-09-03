@@ -19,9 +19,4 @@
 
 #include "grtdb/editor_view.h"
 
-#include "Grt.h"
-#include "GrtTemplates.h"
-#include "DelegateWrapper.h"
-#include "GrtManager.h"
-
 #include "ViewEditorWrapper.h"

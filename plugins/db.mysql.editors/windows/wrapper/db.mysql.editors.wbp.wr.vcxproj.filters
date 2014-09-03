@@ -11,9 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MysqlEditorsWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MySQLSchemaEditorWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

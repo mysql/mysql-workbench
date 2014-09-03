@@ -17,22 +17,13 @@
  * 02110-1301  USA
  */
 
-#include "grts/structs.workbench.physical.h"
-
 #include "MySQLRoutineGroupEditorWrapper.h"
 
 using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::MySQLRoutineGroupEditorWrapper(::MySQLRoutineGroupEditorBE *inn)
-  : RoutineGroupEditorWrapper(inn)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-
-MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::MySQLRoutineGroupEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+MySQLRoutineGroupEditorWrapper::MySQLRoutineGroupEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
   : RoutineGroupEditorWrapper
     (
       new ::MySQLRoutineGroupEditorBE(grtm->get_unmanaged_object(), 
@@ -44,21 +35,28 @@ MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::MySQLRoutineGroupEditorWrapper(M
 
 //--------------------------------------------------------------------------------------------------
 
-::MySQLRoutineGroupEditorBE *MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::get_unmanaged_object()
+MySQLRoutineGroupEditorWrapper::~MySQLRoutineGroupEditorWrapper()
+{
+  delete inner; // We created it.
+}
+
+//--------------------------------------------------------------------------------------------------
+
+MySQLRoutineGroupEditorBE *MySQLRoutineGroupEditorWrapper::get_unmanaged_object()
 {
   return static_cast<::MySQLRoutineGroupEditorBE *>(inner);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::load_routines_sql()
+void MySQLRoutineGroupEditorWrapper::load_routines_sql()
 {
   get_unmanaged_object()->load_routines_sql();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQL::Grt::Db::MySQLRoutineGroupEditorWrapper::commit_changes()
+void MySQLRoutineGroupEditorWrapper::commit_changes()
 {
   get_unmanaged_object()->commit_changes();
 }

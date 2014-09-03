@@ -20,11 +20,6 @@
 #pragma once
 
 #include "mysql_routine_editor.h"
-#include "GrtTemplates.h"
-#include "grtdb/db_object_helpers.h"
-
-using namespace System;
-using namespace System::Collections::Generic;
 
 namespace MySQL {
 namespace Grt {
@@ -32,24 +27,11 @@ namespace Db {
 
 public ref class MySQLRoutineEditorWrapper : public RoutineEditorWrapper
 {
-protected:
-  MySQLRoutineEditorWrapper(::MySQLRoutineEditorBE *inn)
-    : RoutineEditorWrapper(inn)
-  {}
-
 public:
-  MySQLRoutineEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
-  : RoutineEditorWrapper(
-      new ::MySQLRoutineEditorBE(grtm->get_unmanaged_object(), 
-      db_mysql_RoutineRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
-        )
-      )
-  {
-  }
+  MySQLRoutineEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  ~MySQLRoutineEditorWrapper();
 
-  ::MySQLRoutineEditorBE *get_unmanaged_object()
-  { return static_cast<::MySQLRoutineEditorBE *>(inner); }
-  
+  MySQLRoutineEditorBE *get_unmanaged_object();
   void load_routine_sql();
   void commit_changes();
 };
