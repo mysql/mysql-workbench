@@ -402,6 +402,7 @@ void GRTDispatcher::shutdown()
     log_debug2("GRTDispatcher:Main thread waiting for worker to finish\n");
     _w_runing.wait();
     log_debug2("GRTDispatcher:Main thread worker finished\n");
+    task->release();
   }
 
   bec::GRTManager *grtm= bec::GRTManager::get_instance_for(_grt);
@@ -528,6 +529,7 @@ void GRTDispatcher::add_task(GRTTaskBase *task)
   }
   else
   {
+    task->retain();
     g_async_queue_push(_task_queue, task);
   }
 }
@@ -799,8 +801,8 @@ void GRTDispatcher::execute_async_function(const std::string &name,
 {
   GRTSimpleTask *task= new GRTSimpleTask(name, this, function);
 
-  task->retain();
-
   add_task(task);
+
+  task->release();
 }
 

@@ -1501,7 +1501,12 @@ boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_ta
         throw ConnectionError("mysql_stmt_result_metadata", &_mysql);
     }
     else
+    {
+      if(mysql_stmt_close(stmt))
+        throw ConnectionError("mysql_stmt_close", &_mysql);
+
       throw ConnectionError("mysql_stmt_prepare", &_mysql);
+    }
   }
   else
     throw ConnectionError("mysql_stmt_init", &_mysql);
@@ -2626,7 +2631,7 @@ void MySQLCopyDataTarget::restore_triggers(std::set<std::string> &schemas)
         log_debug("Restoring trigger %s\n", trigger_name.at(trigger_index).c_str());
 
         std::string trigger_def(trigger_sql.at(trigger_index));
-        if (mysql_query(&_mysql, trigger_def.data()) != 0)
+        if (mysql_query(&_mysql, trigger_def.c_str()) != 0)
         {
           // It is ok having an error for duplicated triggers
           if (mysql_errno(&_mysql) != 1235)

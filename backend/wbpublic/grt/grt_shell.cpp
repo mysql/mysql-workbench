@@ -113,9 +113,9 @@ void ShellBE::process_line_async(const std::string &line)
 
   task->signal_finished().connect(boost::bind(&ShellBE::shell_finished_cb, this, _1, _2, line));
   
-//  _dispatcher->add_task(task);
-  
   _dispatcher->execute_now(task);
+  
+  task->release();
 }
 
 
