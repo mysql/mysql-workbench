@@ -159,7 +159,7 @@ std::vector<size_t> ListBoxWrapper::get_selected_indices(mforms::ListBox *backen
 {
   std::vector<size_t> result;
   ListBox ^listbox = ListBoxWrapper::GetManagedObject<ListBox>(backend);
-  for each (size_t index in listbox->SelectedIndices)
+  for each (int index in listbox->SelectedIndices) // It's an arrow of Int32. Don't change to size_t.
     result.push_back(index);
   return result;
 }
