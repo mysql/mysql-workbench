@@ -213,9 +213,9 @@ public:
 
     bool high_contrast = base::Color::is_high_contrast_scheme();
     if (high_contrast)
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
+      cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
     else
-    cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
+      cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
     cairo_fill(cr);
 
     // Determine which side of the free area we can show the popup. We use the lower part as long
@@ -276,9 +276,9 @@ public:
     cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
     if (high_contrast)
-    cairo_set_source_rgb(cr, 0, 0, 0);
+      cairo_set_source_rgb(cr, 0, 0, 0);
     else
-    cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+      cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
     cairo_move_to(cr, content_bounds.left(), content_bounds.top() + 16);
     cairo_show_text(cr, _connection->name().c_str());
     cairo_stroke(cr);
@@ -1145,6 +1145,11 @@ public:
   {
     return owner->_folder_icon;
   }
+
+  virtual wb::ConnectionInfoPopup *show_info_popup()
+  {
+    return NULL;
+  }
 };
 
 
@@ -1276,6 +1281,11 @@ public:
 
   virtual void menu_open(ItemPosition pos)
   {
+  }
+
+  virtual wb::ConnectionInfoPopup *show_info_popup()
+  {
+    return NULL;
   }
 
   virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
