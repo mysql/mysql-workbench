@@ -24,6 +24,7 @@ from workbench.plugins import insert_item_to_plugin_context_menu
 
 from table_templates import TableTemplateManager
 
+from sqlide_tableman_ext import CreateIndexForm
 from sqlide_catalogman_ext import show_schema_manager
 
 def esc_ident(s):
@@ -279,6 +280,16 @@ def handleLiveTreeContextMenu(name, sender, args):
             item.add_clicked_callback(lambda: open_search(sender))
             insert_item_to_plugin_context_menu(menu, item)
 
+        if selection_type == 'db.Table:db.Column' and column_selected:
+            if needs_separator:
+                menu.insert_item(index, mforms.newMenuItem("", mforms.SeparatorMenuItem))
+                index += 1
+                needs_separator = False
+            item = mforms.newMenuItem("Create Index...")
+            item.add_clicked_callback(lambda: do_create_index(sender, selection))
+            menu.insert_item(index, item)
+            index += 1
+
 
 def open_search(editor):
     grt.modules.MySQLDBSearchModule.showSearchPanel(editor)
@@ -362,6 +373,27 @@ def do_truncate_table(editor, selection):
                 if mforms.Utilities.show_error("Could not Truncate Table", str(exc)+"\n\n"+stmt, "OK", "", "") == mforms.ResultCancel:
                     break
     mforms.App.get().set_status_text("%i tables truncated" % count)
+
+
+def do_create_index(editor, selection):
+    cols = []
+    schema = None
+    table = None
+    for node in selection:
+        if schema and schema != node.schemaName:
+            mforms.Utilities.show_error("Create Index", "Please select one or more columns from the same table.", "OK", "", "")
+            return
+        if table and (not node.owner or table != node.owner.name):
+            mforms.Utilities.show_error("Create Index", "Please select one or more columns from the same table.", "OK", "", "")
+            return
+        schema = node.schemaName
+        table = node.owner.name
+        cols.append(node.name)
+    if cols:
+        form = CreateIndexForm(mforms.Form.main_form(), editor, schema, table, cols, None)
+        if form.run():
+            pass
+
 
 
 def do_drop_object(editor, selection):
