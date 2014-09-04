@@ -249,6 +249,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
                               boost::bind(&SqlEditorResult::on_recordset_column_resized, this, _1));
 
   rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
+  rset->data_edited_signal.connect(boost::bind(&mforms::View::set_needs_repaint, grid));
 }
 
 
