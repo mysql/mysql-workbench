@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -152,8 +152,16 @@ static NSSize initialSize = {10,10};
 
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMax ofSubviewAt:(NSInteger)dividerIndex
 {
-  if (proposedMax > NSHeight([splitView frame]) - mMinSizes[1])
-    proposedMax = NSHeight([splitView frame]) - mMinSizes[1];
+  if (mHorizontal)
+  {
+    if (proposedMax > NSWidth([splitView frame]) - mMinSizes[1])
+      proposedMax = NSWidth([splitView frame]) - mMinSizes[1];
+  }
+  else
+  {
+    if (proposedMax > NSHeight([splitView frame]) - mMinSizes[1])
+      proposedMax = NSHeight([splitView frame]) - mMinSizes[1];
+  }
   return proposedMax;
 }
 
