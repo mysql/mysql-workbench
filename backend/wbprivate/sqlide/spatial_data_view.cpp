@@ -114,8 +114,12 @@ public:
 };
 
 SpatialDataView::SpatialDataView(SqlEditorResult *owner)
-: mforms::Box(false), _owner(owner)
+: mforms::Box(false), _owner(owner), _activated(false)
 {
+
+  _splitter = mforms::manage(new mforms::Splitter(true, true));
+  _rendering = false;
+
   _main_box = mforms::manage(new mforms::Box(true));
   _viewer = mforms::manage(new SpatialDrawBox());
   _viewer->position_changed_cb = boost::bind(&SpatialDataView::update_coordinates, this, _1);
@@ -235,7 +239,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   }
   add(_toolbar, false, true);
 
-  _main_box->add(_viewer, true, true);
+  _splitter->add(_viewer, 100);
 
   _option_box = mforms::manage(new mforms::Box(false));
   _option_box->set_spacing(4);
@@ -244,6 +248,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 #if defined(__APPLE__) || defined(_WIN32)
   _option_box->set_back_color("#f0f0f0");
 #endif
+
 
   _map_menu = new mforms::ContextMenu();
   _map_menu->add_item_with_title("Copy Coordinates", boost::bind(&SpatialDataView::copy_coordinates, this));
@@ -283,11 +288,36 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _info_box->set_value("Click a feature to view its record");
 
   _option_box->set_size(220, -1);
-  _main_box->add(_option_box, false, true);
+  _splitter->add(_option_box, 200);
 
-  add(_main_box, true, true);
+  _splitter->signal_position_changed()->connect(boost::bind(&SpatialDataView::call_refresh_viewer, this));
+
+
+  add(_splitter, true, true);
 }
 
+void SpatialDataView::call_refresh_viewer()
+{
+  if (_spliter_change_timeout != 0)
+  {
+    mforms::Utilities::cancel_timeout(_spliter_change_timeout);
+    _spliter_change_timeout = 0;
+  }
+
+  _spliter_change_timeout = mforms::Utilities::add_timeout(0.5, boost::bind(&SpatialDataView::refresh_viewer, this));
+}
+
+bool SpatialDataView::refresh_viewer()
+{
+  if (_rendering)
+    return false;
+
+  _spliter_change_timeout = 0;
+
+  _viewer->invalidate(true);
+
+  return false;
+}
 
 void SpatialDataView::change_tool(mforms::ToolBarItem *item)
 {
@@ -436,6 +466,7 @@ spatial::LayerId SpatialDataView::get_selected_layer_id()
 
 void SpatialDataView::auto_zoom()
 {
+  _viewer->clear_pins();
   _viewer->auto_zoom(get_selected_layer_id());
   _viewer->invalidate(true);
 }
@@ -538,6 +569,7 @@ void SpatialDataView::view_record()
 
 void SpatialDataView::work_started(mforms::View *progress_panel, bool reprojecting)
 {
+  _rendering = true;
   _layer_tree->set_enabled(false);
   _layer_menu->set_item_enabled("refresh", false);
   if (reprojecting)
@@ -551,6 +583,7 @@ void SpatialDataView::work_started(mforms::View *progress_panel, bool reprojecti
 
 void SpatialDataView::work_finished(mforms::View *progress_panel)
 {
+  _rendering = false;
   _layer_tree->set_enabled(true);
   _layer_menu->set_item_enabled("refresh", true);
   _viewer->remove(progress_panel);
@@ -560,6 +593,11 @@ void SpatialDataView::work_finished(mforms::View *progress_panel)
 
 void SpatialDataView::activate()
 {
+  if (!_activated)
+  {
+    _activated = true;
+    _splitter->set_position(this->get_width() - 200);
+  }
   _viewer->activate();
 }
 
@@ -806,7 +844,7 @@ void SpatialDataView::handle_click(base::Point p)
   _viewer->clear_pins();
   if (layer)
   {
-    spatial::Feature *feature = layer->feature_closest(_viewer->transform_point(p));
+    spatial::Feature *feature = layer->feature_closest(_viewer->apply_cairo_transformation(p));
     if (feature)
     {
       int row_id = feature->row_id();
