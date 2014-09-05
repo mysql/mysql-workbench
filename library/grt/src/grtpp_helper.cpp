@@ -1008,8 +1008,12 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
 
       fhdr= base_fopen(path, "wb+");
       if (!fhdr)
+      {
+        g_free(path);
         throw grt::os_error(path, errno);
+      }
       g_print("create file %s\n", path);
+      g_free(path);
 
       fprintf(fhdr, "#pragma once\n");
       fprintf(fhdr, "\n#include <grtpp.h>\n\n");
@@ -1083,8 +1087,6 @@ void grt::helper::generate_struct_code(GRT *grt, const std::string &target_file,
           fprintf(fhdr, "\n\n");
         }
       }        
-      
-      g_free(path);
 
       files[(*iter)->source()]= fhdr;
     }
@@ -1380,6 +1382,7 @@ void grt::helper::generate_module_wrappers(GRT *grt, const std::string &outpath,
   }
 
   fprintf(f, "#endif\n");
+  fclose(f);
 }
 
 //--------------------------------------------------------------------------------------------------

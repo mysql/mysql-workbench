@@ -95,7 +95,7 @@ void DbSqlEditorHistory::current_entry(int index)
     _details_model->reset();
   else
   {
-    _details_model->datestamp(_entries_model->entry_date(index));
+    update_timestamp(_entries_model->entry_date(index));
     _details_model->load(_entries_model->entry_path(index));
   }
 
@@ -216,6 +216,7 @@ void DbSqlEditorHistory::EntriesModel::add_statements(const std::list<std::strin
   {
     refresh_ui();
     _owner->current_entry((int)_row_count - 1);
+    _owner->update_timestamp(timestamp);
   }
 
   if(_ui_usage)
@@ -584,4 +585,9 @@ void DbSqlEditorHistory::DetailsModel::add_entries(const std::list<std::string> 
   //refresh_ui();
 }
 
+void DbSqlEditorHistory::update_timestamp(std::tm timestamp)
+{
+  details_model()->datestamp(timestamp);
+  write_only_details_model()->datestamp(timestamp);
+}
 //--------------------------------------------------------------------------------------------------

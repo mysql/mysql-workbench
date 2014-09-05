@@ -352,6 +352,7 @@ Module *PythonModuleLoader::init_module(const std::string &path)
       {
         PyErr_Print();
         Py_XDECREF(moduleInfo);
+        delete module;
         throw grt::module_error("ModuleInfo incorrectly defined (name attribute missing)");
       }
     }

@@ -130,6 +130,8 @@ protected:
   EntriesModel::Ref _entries_model;
   DetailsModel::Ref _details_model;
   DetailsModel::Ref _write_only_details_model;
+  
+  void update_timestamp(std::tm timestamp);
 };
 
 

@@ -298,6 +298,7 @@ public:
   bool alternateRowColors;
   bool canReorderRows;
   bool canBeDragSource;
+  bool headerRightClick;
   Drawing::Rectangle dragBox;
   int freezeCount;
   SortOrder currentSortOrder;
@@ -320,6 +321,7 @@ public:
     canBeDragSource = false;
     canReorderRows = false;
     dragBox = Rectangle::Empty;
+    headerRightClick = false;
 
     hotNode = nullptr;
     overlayInfo = gcnew List<NodeOverlay^>();
@@ -623,26 +625,8 @@ public:
       break;
 
     case ::MouseButtons::Right:
-      // Update the associated header context menu.
-      mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-      mforms::ContextMenu *header_menu = backend->get_header_menu();
-      if (header_menu != NULL)
-      {
-        ::ContextMenuStrip ^menu = MenuBarWrapper::GetManagedObject<::ContextMenuStrip>(header_menu);
-        if (menu != ContextMenuStrip)
-        {
-          ContextMenuStrip = menu;
-          if (Conversions::UseWin8Drawing())
-            ContextMenuStrip->Renderer = gcnew Win8MenuStripRenderer();
-          else
-            ContextMenuStrip->Renderer = gcnew TransparentMenuStripRenderer();
-
-          backend->header_clicked(column->Index);
-          header_menu->will_show();
-        }
-      }
-      else
-        ContextMenuStrip = nullptr;
+      // Turns ON flag indicating the right click occurred on the table header
+      headerRightClick = true;
       break;
     }
 
@@ -741,9 +725,18 @@ public:
       {
         // Update the associated standard context menu.
         mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
-        if (backend->get_context_menu())
+        mforms::ContextMenu *context_menu = nullptr;
+
+        // If the click occurred on the table header and there's aheader context menu
+        // Uses it, if not uses the regulat context menu.
+        if (headerRightClick && backend->get_header_menu())
+          context_menu = backend->get_header_menu();
+        else
+          context_menu = backend->get_context_menu();
+        
+        if (context_menu)
         {
-          ToolStrip ^menu = MenuBarWrapper::GetManagedObject<ToolStrip>(backend->get_context_menu());
+          ToolStrip ^menu = MenuBarWrapper::GetManagedObject<ToolStrip>(context_menu);
           if (menu != ContextMenuStrip)
           {
             ContextMenuStrip = (Windows::Forms::ContextMenuStrip^)menu;
@@ -751,11 +744,14 @@ public:
               ContextMenuStrip->Renderer = gcnew Win8MenuStripRenderer();
             else
               ContextMenuStrip->Renderer = gcnew TransparentMenuStripRenderer();
-            backend->get_context_menu()->will_show();
+            
+            context_menu->will_show();
           }
         }
         else
           ContextMenuStrip = nullptr;
+
+        headerRightClick = false;
         break;
       }
     }

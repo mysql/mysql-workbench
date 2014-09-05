@@ -43,7 +43,7 @@ VIEW memory_by_user_by_current_bytes (
 SELECT user,
        SUM(current_count_used) AS current_count_used,
        sys.format_bytes(SUM(current_number_of_bytes_used)) AS current_allocated,
-       sys.format_bytes(SUM(current_number_of_bytes_used) / SUM(current_count_used)) AS current_avg_alloc,
+       sys.format_bytes(IFNULL(SUM(current_number_of_bytes_used) / NULLIF(SUM(current_count_used), 0), 0)) AS current_avg_alloc,
        sys.format_bytes(MAX(current_number_of_bytes_used)) AS current_max_alloc,
        sys.format_bytes(SUM(sum_number_of_bytes_alloc)) AS total_allocated
   FROM performance_schema.memory_summary_by_user_by_event_name
@@ -80,7 +80,7 @@ VIEW x$memory_by_user_by_current_bytes (
 SELECT user,
        SUM(current_count_used) AS current_count_used,
        SUM(current_number_of_bytes_used) AS current_allocated,
-       SUM(current_number_of_bytes_used) / SUM(current_count_used) AS current_avg_alloc,
+       IFNULL(SUM(current_number_of_bytes_used) / NULLIF(SUM(current_count_used), 0), 0) AS current_avg_alloc,
        MAX(current_number_of_bytes_used) AS current_max_alloc,
        SUM(sum_number_of_bytes_alloc) AS total_allocated
   FROM performance_schema.memory_summary_by_user_by_event_name

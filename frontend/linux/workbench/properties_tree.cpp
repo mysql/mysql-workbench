@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -365,7 +365,7 @@ void PropertyInspector::populate()
       const std::string type  = _get_type_slot(node);
       const std::string name  = _get_value_slot(node,true); // true means name 
 
-      Gtk::Label* name_label = new Gtk::Label(name);
+      Gtk::Label* name_label = Gtk::manage(new Gtk::Label(name));
       name_label->property_xalign() = 0.0;
       _table->attach(*name_label, 0, 1, i2, i2+1, Gtk::FILL, Gtk::AttachOptions());
 
@@ -384,9 +384,9 @@ void PropertyInspector::populate()
   
       _table->attach(*prop, 1, 2, i2, i2+1, Gtk::EXPAND|Gtk::FILL, Gtk::AttachOptions());
 
-      Gtk::HSeparator *sep = new Gtk::HSeparator();
+      Gtk::HSeparator *sep = Gtk::manage(new Gtk::HSeparator());
       _table->attach(*sep, 0, 1, i2+1, i2+2, Gtk::FILL, Gtk::AttachOptions());
-      sep = new Gtk::HSeparator();
+      sep = Gtk::manage(new Gtk::HSeparator());
       _table->attach(*sep, 1, 2, i2+1, i2+2, Gtk::FILL, Gtk::AttachOptions());
 
       _properties.push_back(prop);

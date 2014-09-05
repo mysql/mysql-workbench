@@ -279,6 +279,8 @@ void GRTManager::execute_grt_task(const std::string &title,
   scoped_connect(task->signal_failed(),boost::bind(&GRTManager::task_error_cb, this, _1, title));
 
   _dispatcher->add_task(task);
+
+  task->release();
 }
 
 

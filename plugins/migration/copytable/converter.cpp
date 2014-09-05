@@ -68,13 +68,9 @@ void BaseConverter::convert_date(const char* source, MYSQL_TIME* target)
     return;
   }
 
-  std::string year  = time.substr(0, 4);
-  std::string month = time.substr(5, 2);
-  std::string day   = time.substr(8, 2);
-
-  target->year  = atoi(year.data());
-  target->month = atoi(month.data());
-  target->day   = atoi(day.data());
+  target->year  = atoi(time.substr(0, 4).c_str());
+  target->month = atoi(time.substr(5, 2).c_str());
+  target->day   = atoi(time.substr(8, 2).c_str());
 
   target->time_type = MYSQL_TIMESTAMP_DATE;
 }
@@ -94,19 +90,16 @@ void BaseConverter::convert_time(const char* source, MYSQL_TIME* target)
     return;
   }
 
-  std::string hour = time.substr(0, 2);
-  std::string min  = time.substr(3, 2);
-  std::string sec  = time.substr(6, 2);
   std::string msec = "0";
 
   // Get the milliseconds if present
   if (time.length() > 9)
     msec = time.substr(9, time.length()-9);
 
-  target->hour = atoi(hour.data());
-  target->minute = atoi(min.data());
-  target->second = atoi(sec.data());
-  target->second_part = atoi(msec.data());
+  target->hour = atoi(time.substr(0, 2).c_str());
+  target->minute = atoi(time.substr(3, 2).c_str());
+  target->second = atoi(time.substr(6, 2).c_str());
+  target->second_part = atoi(msec.c_str());
 
   target->time_type = MYSQL_TIMESTAMP_TIME;
 }
@@ -141,27 +134,20 @@ void BaseConverter::convert_timestamp(const char* source, MYSQL_TIME* target)
     return;
   }
 
-  std::string year  = time.substr(0, 4);
-  std::string month = time.substr(5, 2);
-  std::string day   = time.substr(8, 2);
-
-  std::string hour    = time.substr(11, 2);
-  std::string minute  = time.substr(14, 2);
-  std::string second  = time.substr(17, 2);
   std::string msecond = "0";
 
   // Get the milliseconds if present
   if (time.length() > 20)
     msecond = time.substr(20, time.length()-20);
 
-  target->year  = atoi(year.data());
-  target->month = atoi(month.data());
-  target->day   = atoi(day.data());
+  target->year  = atoi(time.substr(0, 4).c_str());
+  target->month = atoi(time.substr(5, 2).c_str());
+  target->day   = atoi(time.substr(8, 2).c_str());
 
-  target->hour        = atoi(hour.data());
-  target->minute      = atoi(minute.data());
-  target->second      = atoi(second.data());
-  target->second_part = atoi(msecond.data());
+  target->hour        = atoi(time.substr(11, 2).c_str());
+  target->minute      = atoi(time.substr(14, 2).c_str());
+  target->second      = atoi(time.substr(17, 2).c_str());
+  target->second_part = atoi(msecond.c_str());
 
   target->time_type = MYSQL_TIMESTAMP_DATETIME;
 }

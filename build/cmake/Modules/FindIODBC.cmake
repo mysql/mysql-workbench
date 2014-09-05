@@ -22,15 +22,15 @@ if (IODBC_CONFIG_PATH)
                   OUTPUT_VARIABLE IODBC_DEFINITIONS)
   exec_program(${IODBC_CONFIG_PATH} ARGS --libs
                   OUTPUT_VARIABLE IODBC_LIBRARIES)
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(IODBC DEFAULT_MSG
+    IODBC_CONFIG_PATH IODBC_LIBRARIES IODBC_DEFINITIONS
+           )
+
+  mark_as_advanced(
+    IODBC_CONFIG_PATH
+    IODBC_LIBRARIES
+    IODBC_DEFINITIONS
+    )
 endif (IODBC_CONFIG_PATH)
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(IODBC DEFAULT_MSG
-	IODBC_CONFIG_PATH IODBC_LIBRARIES IODBC_DEFINITIONS
-			   )
-
-mark_as_advanced(
-  IODBC_CONFIG_PATH
-  IODBC_LIBRARIES
-  IODBC_DEFINITIONS
-  )
