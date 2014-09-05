@@ -354,4 +354,18 @@ class RunScriptForm(mforms.Form):
                     self.editor.executeManagementCommand("CREATE SCHEMA IF NOT EXISTS `%s`" % schema, 1)
 
                 self.start_import(chooser.get_path().encode("utf8"), dlg.get_default_schema(), dlg.get_default_charset())
+                return True
+        return False
+
+
+    def run_file(self, path):
+        dlg = ParameterDialog(self.editor)
+        if dlg.run(path):
+            schema = dlg.get_default_schema()
+            if schema:
+                self.editor.executeManagementCommand("CREATE SCHEMA IF NOT EXISTS `%s`" % schema, 1)
+
+            self.start_import(path, dlg.get_default_schema(), dlg.get_default_charset())
+            return True
+        return False
 

@@ -724,7 +724,16 @@ void SqlEditorForm::open_file(const std::string &path, bool in_new_tab)
 
   try
   {
-    panel->load_from(file_path);
+    if (panel->load_from(file_path) == SqlEditorPanel::RunInstead)
+    {
+      if (in_new_tab)
+        remove_sql_editor(panel);
+      grt::BaseListRef args(_grtm->get_grt());
+      args.ginsert(grtobj());
+      args.ginsert(grt::StringRef(file_path));
+      _grtm->get_grt()->call_module_function("SQLIDEUtils", "runSQLScriptFile", args);
+      return;
+    }
   }
   catch (std::exception &exc)
   {

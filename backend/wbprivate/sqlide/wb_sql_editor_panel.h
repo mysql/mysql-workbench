@@ -157,7 +157,14 @@ public:
     static AutoSaveInfo old_autosave(const std::string &autosave_file);
   };
 
-  bool load_from(const std::string &file, const std::string &encoding = "", bool keep_dirty=false);
+  enum LoadResult
+  {
+    Cancelled,
+    Loaded,
+    RunInstead
+  };
+
+  LoadResult load_from(const std::string &file, const std::string &encoding = "", bool keep_dirty=false);
   bool load_autosave(const AutoSaveInfo &info, const std::string &text_file);
 
   virtual bool can_close();
