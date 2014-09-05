@@ -615,6 +615,11 @@ def showInspector(editor, selection):
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
 def runSQLScript(editor):
     form = RunScriptForm(editor)
-    form.run()
-    return 0
+    return form.run()
+
+
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor, grt.STRING)
+def runSQLScriptFile(editor, path):
+    form = RunScriptForm(editor)
+    return form.run_file(path)
 
