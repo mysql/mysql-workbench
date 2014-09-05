@@ -30,5 +30,5 @@ using MySQL.GUI.Workbench;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("6.2.2.0")]
-[assembly: AssemblyFileVersion("6.2.2.0")]
+[assembly: AssemblyVersion("6.2.4.0")]
+[assembly: AssemblyFileVersion("6.2.4.0")]

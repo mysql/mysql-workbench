@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,16 @@ using namespace MySQL::Grt;
 BaseEditorWrapper::BaseEditorWrapper(bec::BaseEditor *inn)
   : UIForm(inn)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+
+BaseEditorWrapper::~BaseEditorWrapper()
+{
+  // The inner class must be considered gone already at this point.
+  // So no refresh handler to reset there.
+  refresh_ui_handler = nullptr;
+  refresh_partial_ui_handler = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

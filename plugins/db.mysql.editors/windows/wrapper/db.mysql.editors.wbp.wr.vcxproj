@@ -237,7 +237,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MysqlEditorsWrapper.cpp" />
     <ClCompile Include="MySQLRelationshipEditorWrapper.cpp" />
     <ClCompile Include="MySQLRoutineEditorWrapper.cpp" />
     <ClCompile Include="MySQLRoutineGroupEditorWrapper.cpp" />

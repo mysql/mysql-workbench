@@ -756,6 +756,7 @@ int main(int argc, char **argv)
         if (check_types_only)
         {
           //XXXX
+          delete psource;
         }
         else
         {

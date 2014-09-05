@@ -48,7 +48,7 @@ SELECT SUBSTRING_INDEX(event_name,'/', 3) AS event_class,
        SUM(COUNT_STAR) AS total,
        sys.format_time(SUM(sum_timer_wait)) AS total_latency,
        sys.format_time(MIN(min_timer_wait)) min_latency,
-       sys.format_time(SUM(sum_timer_wait) / SUM(COUNT_STAR)) AS avg_latency,
+       sys.format_time(IFNULL(SUM(sum_timer_wait) / NULLIF(SUM(COUNT_STAR), 0), 0)) AS avg_latency,
        sys.format_time(MAX(max_timer_wait)) AS max_latency
   FROM performance_schema.events_waits_summary_global_by_event_name
  WHERE sum_timer_wait > 0
@@ -91,7 +91,7 @@ SELECT SUBSTRING_INDEX(event_name,'/', 3) AS event_class,
        SUM(COUNT_STAR) AS total,
        SUM(sum_timer_wait) AS total_latency,
        MIN(min_timer_wait) AS min_latency,
-       SUM(sum_timer_wait) / SUM(COUNT_STAR) AS avg_latency,
+       IFNULL(SUM(sum_timer_wait) / NULLIF(SUM(COUNT_STAR), 0), 0) AS avg_latency,
        MAX(max_timer_wait) AS max_latency
   FROM performance_schema.events_waits_summary_global_by_event_name
  WHERE sum_timer_wait > 0

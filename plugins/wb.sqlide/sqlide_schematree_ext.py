@@ -24,6 +24,7 @@ from workbench.plugins import insert_item_to_plugin_context_menu
 
 from table_templates import TableTemplateManager
 
+from sqlide_tableman_ext import CreateIndexForm
 from sqlide_catalogman_ext import show_schema_manager
 
 def esc_ident(s):
@@ -279,6 +280,16 @@ def handleLiveTreeContextMenu(name, sender, args):
             item.add_clicked_callback(lambda: open_search(sender))
             insert_item_to_plugin_context_menu(menu, item)
 
+        if selection_type == 'db.Table:db.Column' and column_selected:
+            if needs_separator:
+                menu.insert_item(index, mforms.newMenuItem("", mforms.SeparatorMenuItem))
+                index += 1
+                needs_separator = False
+            item = mforms.newMenuItem("Create Index...")
+            item.add_clicked_callback(lambda: do_create_index(sender, selection))
+            menu.insert_item(index, item)
+            index += 1
+
 
 def open_search(editor):
     grt.modules.MySQLDBSearchModule.showSearchPanel(editor)
@@ -286,73 +297,9 @@ def open_search(editor):
 
 def do_create_object(editor, schema_name, db_type):
     if db_type == 'db.Schema':
-        ocatalog = grt.classes.db_mysql_Catalog()
-        ocatalog.name = 'default'
-        ocatalog.oldName = ocatalog.name
-        ocatalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
-
-        catalog = grt.classes.db_mysql_Catalog()
-        catalog.name = 'default'
-        catalog.oldName = catalog.name
-        catalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
-
-        schema = grt.classes.db_mysql_Schema()
-        schema.name = "new_schema"
-        schema.oldName = ""
-        schema.owner = catalog
-        catalog.schemata.append(schema)
-
-        editor.editLiveObject(schema, ocatalog)
+        editor.alterLiveObject(db_type, "", "")
     else:
-        ocatalog = grt.classes.db_mysql_Catalog()
-        ocatalog.name = 'default'
-        ocatalog.oldName = ocatalog.name
-        ocatalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
-
-        oschema = grt.classes.db_mysql_Schema()
-        oschema.name = schema_name
-        oschema.oldName = oschema.name
-        oschema.owner = ocatalog
-        ocatalog.schemata.append(oschema)
-
-        catalog = grt.classes.db_mysql_Catalog()
-        catalog.name = 'default'
-        catalog.oldName = catalog.name
-        catalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
-
-        schema = grt.classes.db_mysql_Schema()
-        schema.name = schema_name
-        schema.oldName = schema.name
-        schema.owner = catalog
-        catalog.schemata.append(schema)
-
-        if db_type == 'db.Table':
-            newobj = grt.classes.db_mysql_Table()
-            newobj.owner = schema
-            newobj.name = "new_table"
-            schema.tables.append(newobj)
-        elif db_type == 'db.StoredProcedure':
-            newobj = grt.classes.db_mysql_Routine()
-            newobj.routineType = 'procedure'
-            newobj.owner = schema
-            newobj.name = "new_procedure"
-            schema.routines.append(newobj)
-        elif db_type == 'db.Function':
-            newobj = grt.classes.db_mysql_Routine()
-            newobj.routineType = 'function'
-            newobj.owner = schema
-            newobj.name = "new_function"
-            schema.routines.append(newobj)
-        elif db_type == 'db.View':
-            newobj = grt.classes.db_mysql_View()
-            newobj.owner = schema
-            newobj.name = "new_view"
-            schema.views.append(newobj)
-        else:
-            print "Unsupported objtype", db_type
-            return
-        editor.editLiveObject(newobj, ocatalog)
-
+        editor.alterLiveObject(db_type, editor.defaultSchema, "")
 
 def do_alter_object(editor, selection):
     for obj in selection:
@@ -426,6 +373,27 @@ def do_truncate_table(editor, selection):
                 if mforms.Utilities.show_error("Could not Truncate Table", str(exc)+"\n\n"+stmt, "OK", "", "") == mforms.ResultCancel:
                     break
     mforms.App.get().set_status_text("%i tables truncated" % count)
+
+
+def do_create_index(editor, selection):
+    cols = []
+    schema = None
+    table = None
+    for node in selection:
+        if schema and schema != node.schemaName:
+            mforms.Utilities.show_error("Create Index", "Please select one or more columns from the same table.", "OK", "", "")
+            return
+        if table and (not node.owner or table != node.owner.name):
+            mforms.Utilities.show_error("Create Index", "Please select one or more columns from the same table.", "OK", "", "")
+            return
+        schema = node.schemaName
+        table = node.owner.name
+        cols.append(node.name)
+    if cols:
+        form = CreateIndexForm(mforms.Form.main_form(), editor, schema, table, cols, None)
+        if form.run():
+            pass
+
 
 
 def do_drop_object(editor, selection):

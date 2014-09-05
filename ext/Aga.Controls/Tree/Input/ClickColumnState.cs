@@ -22,24 +22,29 @@ namespace Aga.Controls.Tree
 
 		public override void MouseDown(TreeNodeAdvMouseEventArgs args)
 		{
-		}
+            // Handling of the right click does not need view update
+            if (args.Button != MouseButtons.Right)
+            {
+                Tree.ChangeInput();
+                Tree.UpdateView();
+            }
+
+            Tree.OnColumnClicked(Column, args.Button);
+        }
 
 		public override bool MouseMove(MouseEventArgs args)
 		{
 			if (TreeViewAdv.Dist(_location, args.Location) > TreeViewAdv.ItemDragSensivity
 				&& Tree.AllowColumnReorder)
 			{
-				Tree.Input = new ReorderColumnState(Tree, Column, args.Location);
-				Tree.UpdateView();
+                Tree.Input = new ReorderColumnState(Tree, Column, args.Location);
+                Tree.UpdateView();
 			}
 			return true;
 		}
 
 		public override void MouseUp(TreeNodeAdvMouseEventArgs args)
 		{
-			Tree.ChangeInput();
-			Tree.UpdateView();
-			Tree.OnColumnClicked(Column, args.Button);
 		}
 	}
 }

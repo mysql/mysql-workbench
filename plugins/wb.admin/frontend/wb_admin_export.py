@@ -49,8 +49,11 @@ from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newL
 from mforms import Utilities, FileChooser
 import mforms
 
-def quote_shell_token(s):
-    t = '"%s"' % s.replace('\\', '\\\\').replace('"', '\\"').replace('$', '\\$')
+def local_quote_shell_token(s):
+    if sys.platform.lower() == "win32":
+        t = '"%s"' % s.replace('\\', '\\\\').replace('"', '\\"')
+    else:
+        t = '"%s"' % s.replace('\\', '\\\\').replace('"', '\\"').replace('$', '\\$')
     if t[:5] == '"\\\\\\\\':
         t = t[3:]
         t = '\"' + t
@@ -101,7 +104,7 @@ class DumpThread(threading.Thread):
             params = [self.command] + extra_arguments
 
             for arg in object_names:
-                params.append(quote_shell_token(arg))
+                params.append(local_quote_shell_token(arg))
 
             strcmd = " ".join(params)
 

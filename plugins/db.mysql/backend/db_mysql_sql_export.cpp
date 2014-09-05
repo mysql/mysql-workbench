@@ -255,6 +255,8 @@ void DbMySQLSQLExport::start_export(bool wait_finish)
     _manager->get_dispatcher()->add_task_and_wait(task);
   else
     _manager->get_dispatcher()->add_task(task);
+
+  task->release();
 }
 
 void DbMySQLSQLExport::export_finished(grt::ValueRef res)

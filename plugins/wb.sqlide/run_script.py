@@ -96,10 +96,15 @@ class RunPanel(mforms.Table):
                     return False
 
                 if isinstance(data, Exception):
+                    self.log_callback(str(data)+"\n")
                     if isinstance(data, grt.DBError) and data.args[1] == 1044:
                         mforms.Utilities.show_error("Run SQL Script",
                                                     "The current MySQL account does not have enough privileges to execute the script.", "OK", "", "")
                     elif isinstance(data, grt.DBLoginError):
+                        username = self.editor.connection.parameterValues["userName"]
+                        host = self.editor.connection.hostIdentifier
+                        mforms.Utilities.forget_password(host, username)
+
                         mforms.Utilities.show_error("Run SQL Script",
                                                     "Error executing SQL script.\n"+str(data), "OK", "", "")
                     else:
@@ -185,15 +190,18 @@ class ParameterDialog(mforms.Form):
         table = mforms.newTable()
         table.set_padding(20)
         table.set_row_count(2)
-        table.set_column_count(2)
+        table.set_column_count(3)
         table.set_row_spacing(8)
         table.set_column_spacing(4)
         table.add(mforms.newLabel("Default Schema Name:"), 0, 1, 0, 1, 0)
         self.schema = mforms.newSelector(mforms.SelectorCombobox)
-
         table.add(self.schema, 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
 
-        table.add(mforms.newLabel("Override Default Character Set:"), 0, 1, 1, 2, 0)
+        help = mforms.newLabel("Schema to be used unless explicitly specified in the script.\nLeave blank if the script already specified it,\npick a schema from the drop down or type a name to\ncreate a new one.")
+        help.set_style(mforms.SmallHelpTextStyle)
+        table.add(help, 2, 3, 0, 1, mforms.HFillFlag)
+
+        table.add(mforms.newLabel("Default Character Set:"), 0, 1, 1, 2, 0)
         self.charset = mforms.newSelector()
         self.charset.add_changed_callback(self.update_preview)
         l = [""]
@@ -201,6 +209,10 @@ class ParameterDialog(mforms.Form):
             l.append(ch.name)
         self.charset.add_items(sorted(l))
         table.add(self.charset, 1, 2, 1, 2, mforms.HFillFlag|mforms.HExpandFlag)
+
+        help = mforms.newLabel("Default character set to use when executing the script,\nunless specified in the script.")
+        help.set_style(mforms.SmallHelpTextStyle)
+        table.add(help, 2, 3, 1, 2, mforms.HFillFlag)
 
         box.add(table, False, True)
 

@@ -1,17 +1,17 @@
-/* Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 of the License.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA */
+-- Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; version 2 of the License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 SOURCE ./before_setup.sql
 
@@ -31,10 +31,12 @@ SOURCE ./procedures/ps_trace_statement_digest.sql
 SOURCE ./procedures/ps_trace_thread.sql
 
 SOURCE ./procedures/ps_setup_disable_background_threads.sql
+SOURCE ./procedures/ps_setup_disable_consumers.sql
 SOURCE ./procedures/ps_setup_disable_instrument.sql
 SOURCE ./procedures/ps_setup_disable_thread.sql
 
 SOURCE ./procedures/ps_setup_enable_background_threads.sql
+SOURCE ./procedures/ps_setup_enable_consumers.sql
 SOURCE ./procedures/ps_setup_enable_instrument.sql
 SOURCE ./procedures/ps_setup_enable_thread.sql
 
@@ -42,7 +44,11 @@ SOURCE ./procedures/ps_setup_reload_saved.sql
 SOURCE ./procedures/ps_setup_reset_to_default.sql
 SOURCE ./procedures/ps_setup_save.sql
 SOURCE ./procedures/ps_setup_show_disabled.sql
+SOURCE ./procedures/ps_setup_show_disabled_consumers.sql
+SOURCE ./procedures/ps_setup_show_disabled_instruments.sql
 SOURCE ./procedures/ps_setup_show_enabled.sql
+SOURCE ./procedures/ps_setup_show_enabled_consumers.sql
+SOURCE ./procedures/ps_setup_show_enabled_instruments.sql
 SOURCE ./procedures/ps_truncate_all_tables.sql
 
 SOURCE ./views/i_s/innodb_buffer_stats_by_schema.sql

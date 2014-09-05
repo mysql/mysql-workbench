@@ -101,10 +101,13 @@ std::string Shell::get_abspath(const std::string &curpath, const std::string &di
       NewPath = g_strdup("/");
     else
       NewPath = g_strjoinv("/", New);
+
+    std::string ret(NewPath);
+    g_free(NewPath);
     g_strfreev(Current);
     g_strfreev(Append);
 
-    return NewPath;
+    return ret;
   };
 }
 

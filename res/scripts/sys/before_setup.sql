@@ -21,4 +21,4 @@ CREATE DATABASE IF NOT EXISTS sys DEFAULT CHARACTER SET utf8;
 
 USE sys;
 
-CREATE OR REPLACE VIEW version AS SELECT '1.0.0' AS sys_version, version() AS mysql_version;
+CREATE OR REPLACE VIEW version AS SELECT '1.0.1' AS sys_version, version() AS mysql_version;

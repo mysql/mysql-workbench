@@ -1,4 +1,4 @@
-Source: mysql-workbench
+Source: mysql-workbench-@edition@
 Section: utils
 Priority: extra
 Maintainer: MySQL Workbench team <workbench@sun.com>
