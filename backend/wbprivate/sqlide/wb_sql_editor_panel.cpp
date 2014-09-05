@@ -44,6 +44,7 @@
 #include "objimpl/db.query/db_query_Resultset.h"
 
 #include "grtui/file_charset_dialog.h"
+#include "grtsqlparser/mysql_parser_services.h"
 
 #include <fstream>
 #include <sstream>

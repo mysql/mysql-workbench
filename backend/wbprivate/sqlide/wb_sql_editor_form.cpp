@@ -69,6 +69,8 @@
 #include "mforms/toolbar.h"
 #include "mforms/code_editor.h"
 
+#include "grtsqlparser/mysql_parser_services.h"
+
 #include <math.h>
 
 using namespace bec;
