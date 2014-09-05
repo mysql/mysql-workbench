@@ -705,7 +705,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
     if (get_toolbar()->get_item_checked("query.toggleWordWrap"))
       f << "word_wrap=1\n";
     else
-      f << "word_wrap=1\n";
+      f << "word_wrap=0\n";
 
     size_t caret_pos = _editor->get_editor_control()->get_caret_pos();
     f << "caret_pos=" << caret_pos << "\n";
