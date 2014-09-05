@@ -2658,6 +2658,17 @@ bool WBContext::open_file_by_extension(const std::string &path, bool interactive
     // open document
     return open_document(path);
   }
+  else if (g_str_has_suffix(path.c_str(), ".sql"))
+  {
+    SqlEditorForm *form = _sqlide_context->get_active_sql_editor();
+    if (form)
+    {
+      form->open_file(path, true);
+      return true;
+    }
+    show_error(_("Open SQL File"), _("Please select an open SQL editor connection tab to open a script file."));
+    return false;
+  }
   else
   {
     if (interactive)

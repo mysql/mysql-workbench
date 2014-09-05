@@ -331,11 +331,13 @@ void SqlEditorResult::set_title(const std::string &title)
 
 bool SqlEditorResult::can_close()
 {
+  if (Recordset::Ref rs = recordset())
+    if (!rs->can_close(true))
+      return false;
+
   if (!_tabdock.close_all_views())
     return false;
 
-  if (Recordset::Ref rs = recordset())
-    return rs->can_close(true);
   return true;
 }
 
