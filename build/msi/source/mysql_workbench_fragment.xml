@@ -1944,6 +1944,8 @@
                   <File Id="file12123" Name="Windows_(MySQL_5.5_Installer_Package).xml"/>
                   <File Id="file12126" Name="Windows_(MySQL_5.6_Installer_Package).xml"/>
                   <File Id="file12129" Name="Oracle_Linux_6_(MySQL_Package).xml"/>
+                  <File Id="file12130" Name="Oracle_Linux_7_(MySQL_Package).xml"/>
+                  <File Id="file12131" Name="RHEL_7_(MySQL_Package).xml"/>
                 </Component>
               </Directory>
 
