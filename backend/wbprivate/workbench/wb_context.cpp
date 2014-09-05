@@ -1796,7 +1796,7 @@ void WBContext::set_default_options(grt::DictRef options)
     set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 10");
   }
 #elif defined(__APPLE__)
-  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 13");
+  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 11");
   set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
   set_default(options, "workbench.scripting.ScriptingShell:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
   set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
