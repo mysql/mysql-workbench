@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -246,6 +246,9 @@ public:
   inline void set_line_join(cairo_line_join_t t) { cairo_set_line_join(cr, t); }
   inline void set_miter_limit(double l) { cairo_set_miter_limit(cr, l); }
 
+
+  inline void user_to_device(double *x, double *y) { cairo_user_to_device(cr, x, y); };
+  inline void device_to_user(double *x, double *y) { cairo_device_to_user(cr, x, y); };
   inline void set_dash(double dashes[], int ndashes, double offset) { cairo_set_dash(cr, dashes, ndashes, offset); }
   inline void set_operator(cairo_operator_t oper) { cairo_set_operator(cr, oper); }
 

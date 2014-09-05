@@ -26,6 +26,7 @@
 #include "mforms/progressbar.h"
 
 #include "base/log.h"
+#include <cairo.h>
 
 //DEFAULT_LOG_DOMAIN("spatial");
 
@@ -191,15 +192,25 @@ void SpatialDrawBox::render(bool reproject)
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
 
   boost::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
-  mdc::CairoCtx ctx(*surface);
+  _cache = surface;
+  if (_ctx_cache != NULL)
+    delete _ctx_cache;
+  _ctx_cache = new mdc::CairoCtx(*surface);
 
   _current_work = "Rendering layers...";
   _current_layer = NULL;
   _current_layer_index = 0;
 
-  ctx.translate(base::Point(_offset_x, _offset_y));
-  ctx.scale(base::Point(_zoom_level, _zoom_level));
-  ctx.set_line_width(0);
+  if (_zoom_level != 1)
+  {
+    _ctx_cache->translate(base::Point(this->get_width() / 2.0, this->get_height() / 2.0));
+    _ctx_cache->scale(base::Point(_zoom_level, _zoom_level));
+    _ctx_cache->translate(base::Point(- this->get_width() / 2.0, - this->get_height() / 2.0));
+  }
+
+  _ctx_cache->translate(base::Point(_offset_x, _offset_y));
+
+  _ctx_cache->set_line_width(0);
 
   if (reproject && !_background_layer->hidden())
     _background_layer->render(_spatial_reprojector);
@@ -217,12 +228,10 @@ void SpatialDrawBox::render(bool reproject)
     {
       if (reproject)
         (*it)->render(_spatial_reprojector);
-      (*it)->repaint(ctx, _zoom_level, base::Rect());
+      (*it)->repaint(*_ctx_cache, _zoom_level, base::Rect());
 
     }
   }
-
-  _cache = surface;
 
   if (reproject)
     _needs_reprojection = false;
@@ -250,7 +259,7 @@ bool SpatialDrawBox::get_progress(std::string &action, float &pct)
 
 SpatialDrawBox::SpatialDrawBox()
 : _background_layer(NULL), _last_autozoom_layer(0),
-_proj(spatial::ProjRobinson),  _spatial_reprojector(NULL),
+_proj(spatial::ProjRobinson), _ctx_cache(NULL), _spatial_reprojector(NULL),
 _zoom_level(1.0), _offset_x(0), _offset_y(0), _ready(false), _dragging(false),
 _rendering(false), _quitting(false), _needs_reprojection(true), _select_pending(false), _selecting(false)
 {
@@ -271,6 +280,8 @@ SpatialDrawBox::~SpatialDrawBox()
   clear();
   // lock the mutex, so that if the worker is still busy, we'll wait for it
   _thread_mutex.lock();
+  delete _ctx_cache;
+  _ctx_cache = NULL;
 }
 
 void SpatialDrawBox::set_projection(spatial::ProjectionType proj)
@@ -374,6 +385,8 @@ void SpatialDrawBox::center_on(double lat, double lon)
 
 void SpatialDrawBox::reset_view()
 {
+  clear_pins();
+
   _min_lat = -179;
   _max_lat = 179;
   _min_lon = -89;
@@ -474,7 +487,7 @@ spatial::Layer *SpatialDrawBox::get_layer(spatial::LayerId layer_id)
 
 void SpatialDrawBox::show_layer(spatial::LayerId layer_id, bool flag)
 {
-  if (layer_id == 0 && _background_layer)
+  if (layer_id == 1 && _background_layer)
   {
     _background_layer->set_show(flag);
     invalidate(true);
@@ -512,24 +525,15 @@ void SpatialDrawBox::invalidate(bool reproject)
 
 bool SpatialDrawBox::mouse_double_click(mforms::MouseButton button, int x, int y)
 {
-  double lat, lon;
+  int dx, dy;
+  dx = this->get_width() / 2;
+  dy = this->get_height() / 2;
+  _offset_x = _initial_offset_x - (x - dx) / _zoom_level;
+  _offset_y = _initial_offset_y - (y - dy) / _zoom_level;
+  _dragging = false;
+  invalidate();
+  zoom_in();
 
-  // zoom in and center the map at the clicked position
-  if (screen_to_world(x, y, lat, lon))
-  {
-    double clat, clon;
-    if (screen_to_world(get_width()/2, get_height()/2, clat, clon))
-    {
-      zoom_in();
-      
-      int dx, dy;
-      world_to_screen(clat - lat, clon - lon, dx, dy);
-      _offset_x = (dx - get_width()/2);
-      _offset_y = (dy - get_height()/2);
-      invalidate();
-      _dragging = false;
-    }
-  }
   return false;
 }
 
@@ -596,8 +600,8 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
 {
   if (_dragging)
   {
-    _offset_x = _initial_offset_x + x - _drag_x;
-    _offset_y = _initial_offset_y + y - _drag_y;
+    _offset_x = _initial_offset_x + (x - _drag_x) / _zoom_level;
+    _offset_y = _initial_offset_y + (y - _drag_y) / _zoom_level;
     set_needs_repaint();
   }
   else if (_selecting)
@@ -701,8 +705,16 @@ void SpatialDrawBox::repaint(cairo_t *crt, int x, int y, int w, int h)
   if (_background_layer && !_background_layer->hidden())
   {
     cr.save();
+    if (_zoom_level != 1)
+    {
+      cr.translate(base::Point(this->get_width() / 2, this->get_height() / 2));
+      cr.scale(base::Point(_zoom_level, _zoom_level));
+      cr.translate(base::Point(- this->get_width() / 2, - this->get_height() / 2));
+    }
+
     cr.translate(base::Point(_offset_x, _offset_y));
-    cr.scale(base::Point(_zoom_level, _zoom_level));
+
+
     cr.set_line_width(0);
     _background_layer->repaint(cr, _zoom_level, base::Rect());
     cr.restore();
@@ -742,7 +754,10 @@ bool SpatialDrawBox::screen_to_world(const int &x, const int &y, double &lat, do
   {
 //     TODO check if x, y are inside the world image
 //    if (x >= _offset_x && y >= _offset_y) <- this is not working when we do rectangular zoom
-    return _spatial_reprojector->to_latlon((x - _offset_x) / _zoom_level, (y - _offset_y) / _zoom_level, lat, lon);
+
+    base::Point p = apply_cairo_transformation(base::Point(x, y));
+    return _spatial_reprojector->to_latlon(p.x, p.y, lat, lon);
+
   }
   return false;
 }
@@ -752,12 +767,11 @@ void SpatialDrawBox::world_to_screen(const double &lat, const double &lon, int &
   if (_spatial_reprojector)
   {
     _spatial_reprojector->from_latlon(lat, lon, x, y);
-    x *= _zoom_level;
-    y *= _zoom_level;
-    x += _offset_x;
-    y += _offset_y;
 
+    base::Point p = unapply_cairo_transformation(base::Point(x, y));
 
+    x = p.x;
+    y = p.y;
   }
 }
 
@@ -767,12 +781,18 @@ void SpatialDrawBox::clear_pins()
   set_needs_repaint();
 }
 
-base::Point SpatialDrawBox::transform_point(const base::Point &p)
+base::Point SpatialDrawBox::unapply_cairo_transformation(const base::Point &p) const
 {
-  base::Point out;
-  out.x = (p.x  - _offset_x)/ _zoom_level;
-  out.y = (p.y  - _offset_y) / _zoom_level;
-  return out;
+  double xx = p.x, yy = p.y;
+  _ctx_cache->user_to_device(&xx, &yy);
+  return base::Point(xx, yy);
+}
+
+base::Point SpatialDrawBox::apply_cairo_transformation(const base::Point &p) const
+{
+  double xx = p.x, yy = p.y;
+  _ctx_cache->device_to_user(&xx, &yy);
+  return base::Point(xx, yy);
 }
 
 
