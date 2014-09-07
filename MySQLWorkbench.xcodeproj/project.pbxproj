@@ -17997,7 +17997,6 @@
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
-				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--deep";
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx10.8;
 				STRIP_INSTALLED_PRODUCT = YES;
@@ -18072,6 +18071,8 @@
 					"$(SRCROOT)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				OTHER_CODE_SIGN_FLAGS = "";
+				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--deep";
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx10.8;
