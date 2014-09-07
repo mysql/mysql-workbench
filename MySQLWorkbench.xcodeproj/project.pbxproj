@@ -71,8 +71,6 @@
 		27327BA5172FB2E200DE65D7 /* wb_tile_open.png in Resources */ = {isa = PBXBuildFile; fileRef = 27327BA4172FB2B300DE65D7 /* wb_tile_open.png */; };
 		27327BA6172FB2E400DE65D7 /* wb_tile_more.png in Resources */ = {isa = PBXBuildFile; fileRef = 27327BA3172FB2B300DE65D7 /* wb_tile_more.png */; };
 		27327BA7172FB2E600DE65D7 /* wb_tile_manage.png in Resources */ = {isa = PBXBuildFile; fileRef = 27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */; };
-		27364F5D10909A6A00C9EA70 /* wb_admin_export_options.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 27364F50109099E100C9EA70 /* wb_admin_export_options.py */; };
-		27364F5E10909A6A00C9EA70 /* wb_admin_export.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 27364F4E109099C500C9EA70 /* wb_admin_export.py */; };
 		273766AF17997E4600803099 /* record_import@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 273766AE17997E4600803099 /* record_import@2x.png */; };
 		27378CD01917CAB500DE1AA6 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		27378CD11917CB1800DE1AA6 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
@@ -203,6 +201,105 @@
 		278874981189DEAC00E477EF /* webbrowser_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 278874971189DEAC00E477EF /* webbrowser_view.h */; };
 		278874AE1189DFE100E477EF /* MFWebBrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 278874AC1189DFE100E477EF /* MFWebBrowser.h */; };
 		278874AF1189DFE100E477EF /* MFWebBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 278874AD1189DFE100E477EF /* MFWebBrowser.mm */; };
+		278A083D19BC84B20084C2F4 /* wbfabric_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = EDD76C8A19573F1100D3D54F /* wbfabric_grt.py */; };
+		278A083E19BC84B20084C2F4 /* db_generic_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4D156D897A0025F13F /* db_generic_migration_grt.py */; };
+		278A083F19BC84B20084C2F4 /* db_generic_re_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4E156D897A0025F13F /* db_generic_re_grt.py */; };
+		278A084019BC84B20084C2F4 /* SQLEXT.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4F156D897A0025F13F /* SQLEXT.py */; };
+		278A084119BC84B20084C2F4 /* db_mssql_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C46156D89470025F13F /* db_mssql_grt.py */; };
+		278A084219BC84B20084C2F4 /* db_mssql_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C47156D89470025F13F /* db_mssql_migration_grt.py */; };
+		278A084319BC84B20084C2F4 /* db_mysql_fe_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C3F156D89220025F13F /* db_mysql_fe_grt.py */; };
+		278A084419BC84B20084C2F4 /* db_mysql_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C40156D89220025F13F /* db_mysql_migration_grt.py */; };
+		278A084519BC84B20084C2F4 /* db_mysql_re_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C41156D89220025F13F /* db_mysql_re_grt.py */; };
+		278A084619BC84B20084C2F4 /* db_postgresql_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B9834EF160259620038D5ED /* db_postgresql_migration_grt.py */; };
+		278A084719BC84B20084C2F4 /* db_postgresql_re_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B9834F0160259620038D5ED /* db_postgresql_re_grt.py */; };
+		278A084819BC84B20084C2F4 /* db_sql92_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B9834F21602596A0038D5ED /* db_sql92_migration_grt.py */; };
+		278A084919BC84B20084C2F4 /* db_sql92_re_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B9834F31602596A0038D5ED /* db_sql92_re_grt.py */; };
+		278A084A19BC84B20084C2F4 /* db_sybase_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BCE49EB15F5341C00FA0CDC /* db_sybase_migration_grt.py */; };
+		278A084B19BC84B20084C2F4 /* db_sybase_re_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BCE49EC15F5341C00FA0CDC /* db_sybase_re_grt.py */; };
+		278A084C19BC84B20084C2F4 /* db_sqlite_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626C8176BAA920070885E /* db_sqlite_migration_grt.py */; };
+		278A084D19BC84B20084C2F4 /* db_sqlite_re_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626C9176BAA920070885E /* db_sqlite_re_grt.py */; };
+		278A084E19BC84B20084C2F4 /* db_sqlanywhere_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626CC176BAAAF0070885E /* db_sqlanywhere_migration_grt.py */; };
+		278A084F19BC84B20084C2F4 /* db_sqlanywhere_re_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626CD176BAAAF0070885E /* db_sqlanywhere_re_grt.py */; };
+		278A085019BC84B20084C2F4 /* sqlanydbwrapper.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626CF176BAAB00070885E /* sqlanydbwrapper.py */; };
+		278A085119BC84B20084C2F4 /* code_utils_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BBA5EDB1417E24100D47FA1 /* code_utils_grt.py */; };
+		278A085219BC84B20084C2F4 /* table_utils_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B4945CB138F6A91006F0C3F /* table_utils_grt.py */; };
+		278A085319BC84B20084C2F4 /* wb_dev_utils_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B7A73FC134652360047E0DD /* wb_dev_utils_grt.py */; };
+		278A085419BC84B20084C2F4 /* text_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B5C151E11FA59B800F1237A /* text_grt.py */; };
+		278A085519BC84B20084C2F4 /* table_templates.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B87B86016AA089E003C91C1 /* table_templates.py */; };
+		278A085619BC84B20084C2F4 /* wb_catalog_utils.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BD04DFC0F63404A00FD47B3 /* wb_catalog_utils.py */; };
+		278A085719BC84B20084C2F4 /* wb_model_utils.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B1D6D2E178C52950073C062 /* wb_model_utils.py */; };
+		278A085819BC84B20084C2F4 /* wb_utils_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BD04DFF0F63412800FD47B3 /* wb_utils_grt.py */; };
+		278A085919BC85410084C2F4 /* wb_docs_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */; };
+		278A085A19BC85410084C2F4 /* db_copy_report.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BA8528B16A8A4CE0048015B /* db_copy_report.py */; };
+		278A085B19BC85410084C2F4 /* db_copy_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC016A4E8C400747448 /* db_copy_grt.py */; };
+		278A085C19BC85410084C2F4 /* db_copy_main.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC116A4E8C400747448 /* db_copy_main.py */; };
+		278A085D19BC85410084C2F4 /* db_copy_overview.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC216A4E8C400747448 /* db_copy_overview.py */; };
+		278A085E19BC85410084C2F4 /* db_copy_source_target.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC516A4E8C400747448 /* db_copy_source_target.py */; };
+		278A085F19BC85410084C2F4 /* db_copy_schema_selection.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC416A4E8C400747448 /* db_copy_schema_selection.py */; };
+		278A086019BC85410084C2F4 /* db_copy_progress.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC316A4E8C400747448 /* db_copy_progress.py */; };
+		278A086119BC85410084C2F4 /* migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C9B156D8E850025F13F /* migration_grt.py */; };
+		278A086219BC85410084C2F4 /* DataMigrator.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B2E9C38158F6DE30078D08A /* DataMigrator.py */; };
+		278A086319BC85410084C2F4 /* migration.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C22156D88DA0025F13F /* migration.py */; };
+		278A086419BC85410084C2F4 /* migration_ui_style.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C30156D88DA0025F13F /* migration_ui_style.py */; };
+		278A086519BC85410084C2F4 /* migration_main.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C25156D88DA0025F13F /* migration_main.py */; };
+		278A086619BC85410084C2F4 /* migration_overview.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C29156D88DA0025F13F /* migration_overview.py */; };
+		278A086719BC85410084C2F4 /* migration_project_management.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2A156D88DA0025F13F /* migration_project_management.py */; };
+		278A086819BC85410084C2F4 /* migration_source_selection.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2D156D88DA0025F13F /* migration_source_selection.py */; };
+		278A086919BC85410084C2F4 /* migration_schema_selection.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2C156D88DA0025F13F /* migration_schema_selection.py */; };
+		278A086A19BC85410084C2F4 /* migration_object_selection.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C28156D88DA0025F13F /* migration_object_selection.py */; };
+		278A086B19BC85410084C2F4 /* migration_object_migration.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C27156D88DA0025F13F /* migration_object_migration.py */; };
+		278A086C19BC85410084C2F4 /* migration_object_editing.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C26156D88DA0025F13F /* migration_object_editing.py */; };
+		278A086D19BC85410084C2F4 /* migration_schema_creation.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2B156D88DA0025F13F /* migration_schema_creation.py */; };
+		278A086E19BC85410084C2F4 /* migration_data_transfer.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C24156D88DA0025F13F /* migration_data_transfer.py */; };
+		278A086F19BC85410084C2F4 /* migration_summary.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2E156D88DA0025F13F /* migration_summary.py */; };
+		278A087019BC85410084C2F4 /* migration_toolbars.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2F156D88DA0025F13F /* migration_toolbars.py */; };
+		278A087119BC85410084C2F4 /* datatype_mapping_editor.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B17D29B159210EC0029B71A /* datatype_mapping_editor.py */; };
+		278A087219BC85410084C2F4 /* explain_renderer.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7701156846820025F13F /* explain_renderer.py */; };
+		278A087319BC85410084C2F4 /* optimizer_trace_renderer.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7702156846820025F13F /* optimizer_trace_renderer.py */; };
+		278A087419BC85410084C2F4 /* performance_charting.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7703156846820025F13F /* performance_charting.py */; };
+		278A087519BC85410084C2F4 /* wb_query_analysis_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7704156846820025F13F /* wb_query_analysis_grt.py */; };
+		278A087619BC85410084C2F4 /* wb_admin_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B92ACDA104D96010063A35B /* wb_admin_grt.py */; };
+		278A087719BC85410084C2F4 /* wb_admin_main.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B7FEC0812EB9C0A007945E2 /* wb_admin_main.py */; };
+		278A087819BC85410084C2F4 /* wba_ssh_ui.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */; };
+		278A087919BC85410084C2F4 /* wb_admin_server_status.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BF04900173989C600A7EA35 /* wb_admin_server_status.py */; };
+		278A087A19BC85410084C2F4 /* wb_admin_monitor.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B2DF9F6105F12FF00F267F9 /* wb_admin_monitor.py */; };
+		278A087B19BC85410084C2F4 /* wb_admin_connections.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BE7639C1073A89700A1DF24 /* wb_admin_connections.py */; };
+		278A087C19BC85410084C2F4 /* wb_admin_security.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BF43850108778D600F04A6C /* wb_admin_security.py */; };
+		278A087D19BC85410084C2F4 /* wb_admin_variables.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B113C2B1073CB4F006BBE1B /* wb_admin_variables.py */; };
+		278A087E19BC85410084C2F4 /* wb_admin_export.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 27364F4E109099C500C9EA70 /* wb_admin_export.py */; };
+		278A087F19BC85410084C2F4 /* wb_admin_export_options.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 27364F50109099E100C9EA70 /* wb_admin_export_options.py */; };
+		278A088019BC85410084C2F4 /* wb_admin_config_file_ui.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 75C847F81067E9DF0067947D /* wb_admin_config_file_ui.py */; };
+		278A088119BC85410084C2F4 /* wb_admin_configuration_startup.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B2DF9F4105F12FF00F267F9 /* wb_admin_configuration_startup.py */; };
+		278A088219BC85410084C2F4 /* wb_admin_logs.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BF440BE108C90E500F04A6C /* wb_admin_logs.py */; };
+		278A088319BC85410084C2F4 /* wb_admin_utils.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B113D1E1074D5CD006BBE1B /* wb_admin_utils.py */; };
+		278A088419BC85410084C2F4 /* wb_admin_ui_profile.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 7508826212F7240E00216C47 /* wb_admin_ui_profile.py */; };
+		278A088519BC85410084C2F4 /* wb_execute_window.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B45FDAD165AE785008D1853 /* wb_execute_window.py */; };
+		278A088619BC85410084C2F4 /* wb_admin_performance_dashboard.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B2C005618327FE800543D46 /* wb_admin_performance_dashboard.py */; };
+		278A088719BC85410084C2F4 /* wb_admin_perfschema_instrumentation.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B2C0040183121A400543D46 /* wb_admin_perfschema_instrumentation.py */; };
+		278A088819BC85410084C2F4 /* wb_admin_perfschema_reports.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B2C0041183121A400543D46 /* wb_admin_perfschema_reports.py */; };
+		278A088919BC85410084C2F4 /* wb_admin_perfschema.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B2C0042183121A400543D46 /* wb_admin_perfschema.py */; };
+		278A088A19BC85410084C2F4 /* wb_admin_perfschema_instrumentation_be.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = EDC7588B1847A47B00936C9B /* wb_admin_perfschema_instrumentation_be.py */; };
+		278A088B19BC85410084C2F4 /* wb_log_reader.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B1FB9CA14313C870017A064 /* wb_log_reader.py */; };
+		278A088C19BC85410084C2F4 /* wb_server_control.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AAF123A098E008DDCD0 /* wb_server_control.py */; };
+		278A088D19BC85410084C2F4 /* wb_server_management.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AB0123A098E008DDCD0 /* wb_server_management.py */; };
+		278A088E19BC85410084C2F4 /* wb_admin_control.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BBC38F812380E9000CACF4C /* wb_admin_control.py */; };
+		278A088F19BC85410084C2F4 /* wba_monitor_be.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 27A3E8891098CA7E0014F5B1 /* wba_monitor_be.py */; };
+		278A089019BC85410084C2F4 /* wb_admin_variable_list.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B113C661073E1AF006BBE1B /* wb_admin_variable_list.py */; };
+		278A089119BC85410084C2F4 /* wb_admin_security_be.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BF4384F108778C300F04A6C /* wb_admin_security_be.py */; };
+		278A089219BC85410084C2F4 /* wb_admin_user_privileges.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B7775EB180F04EA007AF5B9 /* wb_admin_user_privileges.py */; };
+		278A089319BC85410084C2F4 /* wb_admin_ssh.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 75522B8D10877DD30077082A /* wb_admin_ssh.py */; };
+		278A089419BC85410084C2F4 /* opts.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 75C847F21067E9C70067947D /* opts.py */; };
+		278A089519BC85410084C2F4 /* wb_admin_config_file_be.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 75C847F41067E9C70067947D /* wb_admin_config_file_be.py */; };
+		278A089619BC85410084C2F4 /* wb_common.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AFF123A8892008DDCD0 /* wb_common.py */; };
+		278A089719BC85410084C2F4 /* sqlide_import_spatial.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B33A4711999B62A00412802 /* sqlide_import_spatial.py */; };
+		278A089819BC85410084C2F4 /* text_output.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FC416C0BFB100C4CC98 /* text_output.py */; };
+		278A089919BC85410084C2F4 /* sqlide_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */; };
+		278A089A19BC85410084C2F4 /* run_script.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BD42093198C3B090061895B /* run_script.py */; };
+		278A089B19BC85410084C2F4 /* sql_reformatter.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FC216C0BF1D00C4CC98 /* sql_reformatter.py */; };
+		278A089C19BC85410084C2F4 /* sqlide_catalogman_ext.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FC616C0C03700C4CC98 /* sqlide_catalogman_ext.py */; };
+		278A089D19BC85410084C2F4 /* sqlide_tableman_ext.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BF0497417491EFB00A7EA35 /* sqlide_tableman_ext.py */; };
+		278A089E19BC85410084C2F4 /* sqlide_resultset_ext.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBD16C0BE4B00C4CC98 /* sqlide_resultset_ext.py */; };
+		278A089F19BC85410084C2F4 /* sqlide_schematree_ext.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBE16C0BE4B00C4CC98 /* sqlide_schematree_ext.py */; };
 		278B09F714EA97C0009028BB /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		278B0A3614EAABD1009028BB /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		2791E52F1087530400866B8E /* admin_info_unknown.png in Resources */ = {isa = PBXBuildFile; fileRef = 2791E52E1087530400866B8E /* admin_info_unknown.png */; };
@@ -233,7 +330,6 @@
 		279EC896185214A7007D1252 /* wb-toolbar_manual-help@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 279EC890185214A7007D1252 /* wb-toolbar_manual-help@2x.png */; };
 		279EF97810D6B08D00C1ED1B /* mysql_system_status_rmt.vbs in Resources */ = {isa = PBXBuildFile; fileRef = 279EF97610D6B08D00C1ED1B /* mysql_system_status_rmt.vbs */; };
 		279EF97910D6B08D00C1ED1B /* mysql_system_status.vbs in Resources */ = {isa = PBXBuildFile; fileRef = 279EF97710D6B08D00C1ED1B /* mysql_system_status.vbs */; };
-		27A3E88B1098CAB20014F5B1 /* wba_monitor_be.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 27A3E8891098CA7E0014F5B1 /* wba_monitor_be.py */; };
 		27A3EC8E164BA997001B6D8F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 27A3EC8C164BA997001B6D8F /* MainMenu.xib */; };
 		27A3EC91164BA9AB001B6D8F /* IconCollectionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 27A3EC8F164BA9AB001B6D8F /* IconCollectionView.xib */; };
 		27A5768810FE061C00A948A6 /* fs_object_selector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27A5768610FE061C00A948A6 /* fs_object_selector.cpp */; };
@@ -322,7 +418,6 @@
 		27ED97B91802AE2D00F15650 /* wb_catalog_tree_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 27ED97B71802AE2D00F15650 /* wb_catalog_tree_view.h */; };
 		27EF538317997C710028EC8C /* tiny_rollback.png in Resources */ = {isa = PBXBuildFile; fileRef = 27EF538117997C710028EC8C /* tiny_rollback.png */; };
 		27EF538417997C710028EC8C /* tiny_rollback@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27EF538217997C710028EC8C /* tiny_rollback@2x.png */; };
-		27FEF48A0FC1B790005E115A /* Scintilla.framework in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		2B00E5150EB40439006B9A7C /* mdc_canvas_view_opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B00E5130EB40438006B9A7C /* mdc_canvas_view_opengl.cpp */; };
 		2B00E5160EB40439006B9A7C /* mdc_canvas_view_opengl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B00E5140EB40438006B9A7C /* mdc_canvas_view_opengl.h */; };
 		2B0123E81090B617009B2112 /* WBPluginPanelController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0123E71090B617009B2112 /* WBPluginPanelController.mm */; };
@@ -401,9 +496,6 @@
 		2B100E4F13F499F00001F933 /* python_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B100E4613F499F00001F933 /* python_tests.cpp */; };
 		2B100E5313F499F00001F933 /* test_helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B100E4A13F499F00001F933 /* test_helpers.cpp */; };
 		2B100E5413F499F00001F933 /* wb_helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B100E4B13F499F00001F933 /* wb_helpers.cpp */; };
-		2B113C2C1073CB5E006BBE1B /* wb_admin_variables.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B113C2B1073CB4F006BBE1B /* wb_admin_variables.py */; };
-		2B113C671073E1BD006BBE1B /* wb_admin_variable_list.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B113C661073E1AF006BBE1B /* wb_admin_variable_list.py */; };
-		2B113D1F1074D5E5006BBE1B /* wb_admin_utils.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B113D1E1074D5CD006BBE1B /* wb_admin_utils.py */; };
 		2B113E2E10755BF6006BBE1B /* dbquery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B113E2D10755BF6006BBE1B /* dbquery.cpp */; };
 		2B129A681443E39D00BC78DF /* util_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B129A671443E39D00BC78DF /* util_functions.cpp */; };
 		2B14343E179DDDE7002217CF /* auto-completion-column.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1433BD179DDDE7002217CF /* auto-completion-column.png */; };
@@ -604,7 +696,6 @@
 		2B17CA4214663BE300F6E4DA /* libctemplate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */; };
 		2B17CA4514663BEC00F6E4DA /* libctemplate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */; };
 		2B17D29C159210EC0029B71A /* datatype_mapping_editor.py in Resources */ = {isa = PBXBuildFile; fileRef = 2B17D29B159210EC0029B71A /* datatype_mapping_editor.py */; };
-		2B17D2AC159219370029B71A /* datatype_mapping_editor.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B17D29B159210EC0029B71A /* datatype_mapping_editor.py */; };
 		2B18EDB8196C8705004D7596 /* wb_doc_model@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDAD196C8705004D7596 /* wb_doc_model@2x.png */; };
 		2B18EDB9196C8706004D7596 /* wb_starter_edelivery_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDAE196C8705004D7596 /* wb_starter_edelivery_52@2x.png */; };
 		2B18EDBA196C8706004D7596 /* wb_starter_grt_shell_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDAF196C8705004D7596 /* wb_starter_grt_shell_52@2x.png */; };
@@ -627,7 +718,6 @@
 		2B18EDDB196C9650004D7596 /* admin_instrumentation_setup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDD9196C9650004D7596 /* admin_instrumentation_setup@2x.png */; };
 		2B18EDDC196C9650004D7596 /* admin_performance_reports@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDDA196C9650004D7596 /* admin_performance_reports@2x.png */; };
 		2B18EDE0196C9CDF004D7596 /* grt_plugin_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF02D051965B141008C9304 /* grt_plugin_wizard.cpp */; };
-		2B18EDE3196DA6FA004D7596 /* wb_docs_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */; };
 		2B1AC771127F99C800AEC070 /* debug_continue.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76C127F99C800AEC070 /* debug_continue.png */; };
 		2B1AC772127F99C800AEC070 /* debug_step.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76D127F99C800AEC070 /* debug_step.png */; };
 		2B1AC773127F99C800AEC070 /* debug_step_into.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1AC76E127F99C800AEC070 /* debug_step_into.png */; };
@@ -678,7 +768,6 @@
 		2B1D6D171782F9E10073C062 /* wb_tab-close_high.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6D131782F9E10073C062 /* wb_tab-close_high.png */; };
 		2B1D6D181782F9E10073C062 /* wb_tab-close_high@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6D141782F9E10073C062 /* wb_tab-close_high@2x.png */; };
 		2B1D6D2D178BA1CF0073C062 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		2B1D6D2F178C540A0073C062 /* wb_model_utils.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B1D6D2E178C52950073C062 /* wb_model_utils.py */; };
 		2B1D6D56179D9FF70073C062 /* record_refresh.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6D54179D9FF70073C062 /* record_refresh.png */; };
 		2B1D6D57179D9FF70073C062 /* record_refresh@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6D55179D9FF70073C062 /* record_refresh@2x.png */; };
 		2B1D6D59179DA00D0073C062 /* record_edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B1D6D58179DA00D0073C062 /* record_edit@2x.png */; };
@@ -698,7 +787,6 @@
 		2B1FB7FF142C00070017A064 /* wb_sql_editor_form_ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B1FB7FD142C00070017A064 /* wb_sql_editor_form_ui.cpp */; };
 		2B1FB818142C02780017A064 /* wb_sql_editor_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1FB816142C02780017A064 /* wb_sql_editor_buffer.h */; };
 		2B1FB819142C02780017A064 /* wb_sql_editor_buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B1FB817142C02780017A064 /* wb_sql_editor_buffer.cpp */; };
-		2B1FB9CB14313C870017A064 /* wb_log_reader.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B1FB9CA14313C870017A064 /* wb_log_reader.py */; };
 		2B20DCB6188DA7AA0095EA03 /* big_switcher_no.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B20DCB2188DA7AA0095EA03 /* big_switcher_no.png */; };
 		2B20DCB7188DA7AA0095EA03 /* big_switcher_no@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B20DCB3188DA7AA0095EA03 /* big_switcher_no@2x.png */; };
 		2B20DCB8188DA7AA0095EA03 /* big_switcher_yes.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B20DCB4188DA7AA0095EA03 /* big_switcher_yes.png */; };
@@ -707,12 +795,6 @@
 		2B20DCBD188DA7C00095EA03 /* ps_easysetup_logo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B20DCBB188DA7C00095EA03 /* ps_easysetup_logo@2x.png */; };
 		2B20DCC0188DA8DE0095EA03 /* separator_vertical.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B20DCBE188DA8DE0095EA03 /* separator_vertical.png */; };
 		2B20DCC1188DA8DE0095EA03 /* separator_vertical@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B20DCBF188DA8DE0095EA03 /* separator_vertical@2x.png */; };
-		2B220AC616A4E8E700747448 /* db_copy_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC016A4E8C400747448 /* db_copy_grt.py */; };
-		2B220AC716A4E8E700747448 /* db_copy_main.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC116A4E8C400747448 /* db_copy_main.py */; };
-		2B220AC816A4E8E700747448 /* db_copy_overview.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC216A4E8C400747448 /* db_copy_overview.py */; };
-		2B220AC916A4E8E700747448 /* db_copy_progress.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC316A4E8C400747448 /* db_copy_progress.py */; };
-		2B220ACA16A4E8E700747448 /* db_copy_schema_selection.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC416A4E8C400747448 /* db_copy_schema_selection.py */; };
-		2B220ACB16A4E8E700747448 /* db_copy_source_target.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B220AC516A4E8C400747448 /* db_copy_source_target.py */; };
 		2B22CA9E146DF85100625F5C /* notifications.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B22CA9D146DF85100625F5C /* notifications.h */; };
 		2B22CAC1146DF8C000625F5C /* notifications.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B22CAC0146DF8C000625F5C /* notifications.cpp */; };
 		2B22CAC5146DF91600625F5C /* grtpp_notifications.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B22CAC4146DF91600625F5C /* grtpp_notifications.h */; };
@@ -973,19 +1055,13 @@
 		2B29F9181140B20D009DA9B0 /* WBBasePanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B29F9161140B20D009DA9B0 /* WBBasePanel.h */; };
 		2B29F9191140B20D009DA9B0 /* WBBasePanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B29F9171140B20D009DA9B0 /* WBBasePanel.mm */; };
 		2B2AB0FE15A68107008E2C0B /* db_RoutineGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2AB0FD15A68107008E2C0B /* db_RoutineGroup.cpp */; };
-		2B2C0045183122E300543D46 /* wb_admin_perfschema_instrumentation.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2C0040183121A400543D46 /* wb_admin_perfschema_instrumentation.py */; };
-		2B2C0046183122E300543D46 /* wb_admin_perfschema_reports.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2C0041183121A400543D46 /* wb_admin_perfschema_reports.py */; };
-		2B2C0047183122E300543D46 /* wb_admin_perfschema.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2C0042183121A400543D46 /* wb_admin_perfschema.py */; };
 		2B2C005218327DA900543D46 /* MTextImageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2C005018327DA800543D46 /* MTextImageCell.h */; };
 		2B2C005318327DA900543D46 /* MTextImageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C005118327DA900543D46 /* MTextImageCell.m */; };
-		2B2C00571832800A00543D46 /* wb_admin_performance_dashboard.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2C005618327FE800543D46 /* wb_admin_performance_dashboard.py */; };
 		2B2DEF5D1055F90B00F267F9 /* tabswitcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2DEF5B1055F90B00F267F9 /* tabswitcher.cpp */; };
 		2B2DEF5F1055F95400F267F9 /* tabswitcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2DEF5E1055F95400F267F9 /* tabswitcher.h */; };
 		2B2DF874105EA06700F267F9 /* libcdbc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B750DAF0E877D030003120A /* libcdbc.dylib */; };
 		2B2DF875105EA06700F267F9 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2B2DF88C105EA1A900F267F9 /* db.mysql.query.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2DF86D105EA04400F267F9 /* db.mysql.query.grt.dylib */; };
-		2B2DF9FC105F132D00F267F9 /* wb_admin_configuration_startup.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2DF9F4105F12FF00F267F9 /* wb_admin_configuration_startup.py */; };
-		2B2DF9FE105F132D00F267F9 /* wb_admin_monitor.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2DF9F6105F12FF00F267F9 /* wb_admin_monitor.py */; };
 		2B2DFAB3105FD13200F267F9 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
 		2B2E91EE1589165C0078D08A /* copytable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E91ED1589165C0078D08A /* copytable.cpp */; };
 		2B2E92F20FC475F9001F9022 /* charset-def.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E92D00FC475F9001F9022 /* charset-def.cpp */; };
@@ -1026,14 +1102,11 @@
 		2B2E93130FC475F9001F9022 /* xml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E92F10FC475F9001F9022 /* xml.cpp */; };
 		2B2E9696158BBE7A0078D08A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E9695158BBE7A0078D08A /* main.cpp */; };
 		2B2E96B7158BC95E0078D08A /* converter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E96B6158BC95E0078D08A /* converter.cpp */; };
-		2B2E9C3C158F6E110078D08A /* DataMigrator.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2E9C38158F6DE30078D08A /* DataMigrator.py */; };
 		2B3009C20E99B09A002C5BBA /* WBOverviewPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3009C10E99B09A002C5BBA /* WBOverviewPanel.mm */; };
 		2B30C0A70F7039EC00D3E2B1 /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		2B3165E7144A952E0082FDD0 /* MTextFieldCellNoTooltip.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3165E5144A952E0082FDD0 /* MTextFieldCellNoTooltip.h */; };
 		2B3165E8144A952E0082FDD0 /* MTextFieldCellNoTooltip.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B3165E6144A952E0082FDD0 /* MTextFieldCellNoTooltip.m */; };
 		2B3384DE0F9C538400EF463C /* small_toolbar_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B3384DD0F9C538400EF463C /* small_toolbar_bg.png */; };
-		2B3386DA0F9E503600EF463C /* wb_catalog_utils.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BD04DFC0F63404A00FD47B3 /* wb_catalog_utils.py */; };
-		2B33A4731999B63A00412802 /* sqlide_import_spatial.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B33A4711999B62A00412802 /* sqlide_import_spatial.py */; };
 		2B350065152DEC0000014C0D /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
 		2B35007F152DED0800014C0D /* cairo_wrap.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2B35003C152DEBBD00014C0D /* cairo_wrap.cxx */; };
 		2B350082152DED1D00014C0D /* _cairo.so in Copy Files (python modules) */ = {isa = PBXBuildFile; fileRef = 2B35006C152DEC0000014C0D /* _cairo.so */; };
@@ -1242,8 +1315,6 @@
 		2B448AA118AA4CD8001F1B62 /* arrow_up.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B448A9F18AA4CD8001F1B62 /* arrow_up.png */; };
 		2B45FCD6165180EA008D1853 /* admin_meb_backup.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B45FCD4165180EA008D1853 /* admin_meb_backup.png */; };
 		2B45FCD7165180EA008D1853 /* admin_meb_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B45FCD5165180EA008D1853 /* admin_meb_restore.png */; };
-		2B45FDAE165AE7A6008D1853 /* wb_execute_window.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B45FDAD165AE785008D1853 /* wb_execute_window.py */; };
-		2B4945CC138F6A91006F0C3F /* table_utils_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B4945CB138F6A91006F0C3F /* table_utils_grt.py */; };
 		2B4949561398092E006F0C3F /* select_option_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4949541398092E006F0C3F /* select_option_dialog.cpp */; };
 		2B4949571398092E006F0C3F /* select_option_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4949551398092E006F0C3F /* select_option_dialog.h */; };
 		2B4971F113C93BBD00F6AF47 /* hypertext.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4971F013C93BBD00F6AF47 /* hypertext.h */; };
@@ -1322,7 +1393,6 @@
 		2B5B770A0F781D6C007E54CF /* preferences_form.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3D494C0F3E41C8009238A7 /* preferences_form.h */; };
 		2B5C142B11FA381300F1237A /* NSMenu_extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5C142911FA381300F1237A /* NSMenu_extras.h */; };
 		2B5C142C11FA381300F1237A /* NSMenu_extras.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B5C142A11FA381300F1237A /* NSMenu_extras.mm */; };
-		2B5C151F11FA59B800F1237A /* text_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B5C151E11FA59B800F1237A /* text_grt.py */; };
 		2B5C241D16A26BA50023598F /* notifications.py in Resources */ = {isa = PBXBuildFile; fileRef = 2B5C241C16A26BA50023598F /* notifications.py */; };
 		2B5CE236188D89B20034DD9E /* ps_overview@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5CE235188D89B20034DD9E /* ps_overview@2x.png */; };
 		2B5DE7260FFE9F7D00701821 /* sql_statement_decomposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5DE7240FFE9F7D00701821 /* sql_statement_decomposer.cpp */; };
@@ -1377,12 +1447,6 @@
 		2B6C4FBD18DDD8C500869EBE /* python_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6C4FBC18DDD8C500869EBE /* python_utils.h */; };
 		2B6C4FBF18DDE7AB00869EBE /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2B6C4FC318DE372D00869EBE /* mysql.profiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B6C4FC218DE372D00869EBE /* mysql.profiles */; };
-		2B6C6FBF16C0BE7A00C4CC98 /* sqlide_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBC16C0BE4B00C4CC98 /* sqlide_grt.py */; };
-		2B6C6FC016C0BE7B00C4CC98 /* sqlide_resultset_ext.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBD16C0BE4B00C4CC98 /* sqlide_resultset_ext.py */; };
-		2B6C6FC116C0BE7B00C4CC98 /* sqlide_schematree_ext.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBE16C0BE4B00C4CC98 /* sqlide_schematree_ext.py */; };
-		2B6C6FC316C0BF3600C4CC98 /* sql_reformatter.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FC216C0BF1D00C4CC98 /* sql_reformatter.py */; };
-		2B6C6FC516C0BFBD00C4CC98 /* text_output.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FC416C0BFB100C4CC98 /* text_output.py */; };
-		2B6C6FC716C0C04100C4CC98 /* sqlide_catalogman_ext.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FC616C0C03700C4CC98 /* sqlide_catalogman_ext.py */; };
 		2B6D772813BC22920098AA8E /* MTabSwitcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6D772613BC22920098AA8E /* MTabSwitcher.h */; };
 		2B6D772913BC22930098AA8E /* MTabSwitcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D772713BC22920098AA8E /* MTabSwitcher.m */; };
 		2B738FFD0F5EB37F0084CA96 /* grtdb_connection_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B738FFB0F5EB37F0084CA96 /* grtdb_connection_editor.cpp */; };
@@ -1458,10 +1522,8 @@
 		2B774FCA15CEC58B00923448 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
 		2B774FCB15CEC59E00923448 /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */; };
 		2B7775E8180F03EE007AF5B9 /* mysql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* mysql.parser.dylib */; };
-		2B7775ED180F0501007AF5B9 /* wb_admin_user_privileges.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B7775EB180F04EA007AF5B9 /* wb_admin_user_privileges.py */; };
 		2B77B0AE11C67230009B5103 /* tab.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2B77B0AD11C67230009B5103 /* tab.tpl */; };
 		2B7A3A1C126E91870097DDA9 /* grt_python_debugger.py in Copy Files (grt libraries) */ = {isa = PBXBuildFile; fileRef = 2B7A3A1B126E91870097DDA9 /* grt_python_debugger.py */; };
-		2B7A73FD134652360047E0DD /* wb_dev_utils_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B7A73FC134652360047E0DD /* wb_dev_utils_grt.py */; };
 		2B7A74CC15743D31003D8549 /* migration_background.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7A74C215743D31003D8549 /* migration_background.png */; };
 		2B7A74CE15743D31003D8549 /* migration_check_done.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7A74C415743D31003D8549 /* migration_check_done.png */; };
 		2B7A74D015743D31003D8549 /* migration_check_open.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7A74C615743D31003D8549 /* migration_check_open.png */; };
@@ -1567,7 +1629,6 @@
 		2B7FC725113096E9008C07BF /* output_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B7FC723113096E9008C07BF /* output_view.cpp */; };
 		2B7FC726113096E9008C07BF /* output_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7FC724113096E9008C07BF /* output_view.h */; };
 		2B7FEA9112EA067C007945E2 /* WB_Home_mac.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FEA9012EA067C007945E2 /* WB_Home_mac.png */; };
-		2B7FEC1A12EB9C23007945E2 /* wb_admin_main.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B7FEC0812EB9C0A007945E2 /* wb_admin_main.py */; };
 		2B825D210E0B578600BE52DF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B825D1D0E0B578600BE52DF /* InfoPlist.strings */; };
 		2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2B825DA50E0B604D00BE52DF /* changefactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825D960E0B604D00BE52DF /* changefactory.cpp */; };
@@ -1737,7 +1798,6 @@
 		2B8761290F47ECB5000B6DE1 /* python_module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8761270F47ECB5000B6DE1 /* python_module.cpp */; };
 		2B87631B0F48D4E6000B6DE1 /* wb.py in Copy Files (grt libraries) */ = {isa = PBXBuildFile; fileRef = 2B87628E0F48AEF2000B6DE1 /* wb.py */; };
 		2B8767C30F4B1792000B6DE1 /* WBPluginPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8767C20F4B1792000B6DE1 /* WBPluginPanel.mm */; };
-		2B87B86116AA0988003C91C1 /* table_templates.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B87B86016AA089E003C91C1 /* table_templates.py */; };
 		2B87B8CB16B0CCE6003C91C1 /* TabViewDockingDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B87B8C916B0CCE6003C91C1 /* TabViewDockingDelegate.h */; };
 		2B87B8CC16B0CCE6003C91C1 /* TabViewDockingDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B87B8CA16B0CCE6003C91C1 /* TabViewDockingDelegate.mm */; };
 		2B88344E175E46FC0099D927 /* sync_profile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B88344C175E46FC0099D927 /* sync_profile.cpp */; };
@@ -1759,7 +1819,6 @@
 		2B91E04A131EAF4700AD708D /* db_alter_script_be.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B91E048131EAF4700AD708D /* db_alter_script_be.cpp */; };
 		2B91E04B131EAF4700AD708D /* db_alter_script_be.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B91E049131EAF4700AD708D /* db_alter_script_be.h */; };
 		2B9239BA0F827A4A008ED944 /* structs.meta.xml in Copy Files (grt) */ = {isa = PBXBuildFile; fileRef = 2B9239B90F827A3D008ED944 /* structs.meta.xml */; };
-		2B92ACDF104D960F0063A35B /* wb_admin_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B92ACDA104D96010063A35B /* wb_admin_grt.py */; };
 		2B92AEEC104E0C5F0063A35B /* WBMFormsPluginPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92AEEB104E0C5F0063A35B /* WBMFormsPluginPanel.mm */; };
 		2B9616400F275AF200F0B599 /* box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B9616290F275AF200F0B599 /* box.cpp */; };
 		2B9616410F275AF200F0B599 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B96162A0F275AF200F0B599 /* button.cpp */; };
@@ -1805,10 +1864,6 @@
 		2B9617B50F277C3800F0B599 /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		2B96EA3310F43226004E6875 /* PageSetup.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B96EA3110F43226004E6875 /* PageSetup.xib */; };
 		2B98345B15FA2F080038D5ED /* record_import.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B98345A15FA2F080038D5ED /* record_import.png */; };
-		2B9834F5160259DE0038D5ED /* db_postgresql_migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B9834EF160259620038D5ED /* db_postgresql_migration_grt.py */; };
-		2B9834F6160259DE0038D5ED /* db_postgresql_re_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B9834F0160259620038D5ED /* db_postgresql_re_grt.py */; };
-		2B9834F7160259DE0038D5ED /* db_sql92_migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B9834F21602596A0038D5ED /* db_sql92_migration_grt.py */; };
-		2B9834F8160259DE0038D5ED /* db_sql92_re_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B9834F31602596A0038D5ED /* db_sql92_re_grt.py */; };
 		2B99364611E53C8E004C761B /* SQL_inserts.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2B99364511E53C8E004C761B /* SQL_inserts.tpl */; };
 		2B9BA9E213F436420090DBA9 /* db.Column.many.side.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B9BA9D913F436420090DBA9 /* db.Column.many.side.16x16.png */; };
 		2B9BA9E313F436420090DBA9 /* db.Column.pkai.11x11.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B9BA9DA13F436420090DBA9 /* db.Column.pkai.11x11.png */; };
@@ -1840,38 +1895,10 @@
 		2BA2B60F1796F57700673E8D /* maintab_left_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BA2B6041796F57600673E8D /* maintab_left_inactive.png */; };
 		2BA2B6101796F57700673E8D /* maintab_right_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BA2B6051796F57600673E8D /* maintab_right_inactive.png */; };
 		2BA6AFF213676C2C008600AF /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
-		2BA8528C16A8A4D40048015B /* db_copy_report.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BA8528B16A8A4CE0048015B /* db_copy_report.py */; };
 		2BAD74EB156182DB0025F13F /* dockingpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAD74EA156182DB0025F13F /* dockingpoint.h */; };
 		2BAD74ED156182F90025F13F /* dockingpoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD74EC156182F90025F13F /* dockingpoint.cpp */; };
-		2BAD7706156846820025F13F /* explain_renderer.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7701156846820025F13F /* explain_renderer.py */; };
-		2BAD7707156846820025F13F /* optimizer_trace_renderer.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7702156846820025F13F /* optimizer_trace_renderer.py */; };
-		2BAD7708156846820025F13F /* performance_charting.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7703156846820025F13F /* performance_charting.py */; };
-		2BAD7709156846820025F13F /* wb_query_analysis_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7704156846820025F13F /* wb_query_analysis_grt.py */; };
 		2BAD7A73156C8A6E0025F13F /* threading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD7A72156C8A6E0025F13F /* threading.cpp */; };
 		2BAD7A7E156CA4810025F13F /* db_migration_Migration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD7A7D156CA4790025F13F /* db_migration_Migration.cpp */; };
-		2BAD7C31156D88FE0025F13F /* migration.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C22156D88DA0025F13F /* migration.py */; };
-		2BAD7C32156D88FE0025F13F /* migration_data_transfer.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C24156D88DA0025F13F /* migration_data_transfer.py */; };
-		2BAD7C33156D88FE0025F13F /* migration_main.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C25156D88DA0025F13F /* migration_main.py */; };
-		2BAD7C34156D88FE0025F13F /* migration_object_editing.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C26156D88DA0025F13F /* migration_object_editing.py */; };
-		2BAD7C35156D88FE0025F13F /* migration_object_migration.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C27156D88DA0025F13F /* migration_object_migration.py */; };
-		2BAD7C36156D88FE0025F13F /* migration_object_selection.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C28156D88DA0025F13F /* migration_object_selection.py */; };
-		2BAD7C37156D88FE0025F13F /* migration_overview.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C29156D88DA0025F13F /* migration_overview.py */; };
-		2BAD7C38156D88FE0025F13F /* migration_project_management.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2A156D88DA0025F13F /* migration_project_management.py */; };
-		2BAD7C39156D88FE0025F13F /* migration_schema_creation.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2B156D88DA0025F13F /* migration_schema_creation.py */; };
-		2BAD7C3A156D88FE0025F13F /* migration_schema_selection.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2C156D88DA0025F13F /* migration_schema_selection.py */; };
-		2BAD7C3B156D88FE0025F13F /* migration_source_selection.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2D156D88DA0025F13F /* migration_source_selection.py */; };
-		2BAD7C3C156D88FE0025F13F /* migration_summary.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2E156D88DA0025F13F /* migration_summary.py */; };
-		2BAD7C3D156D88FE0025F13F /* migration_toolbars.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C2F156D88DA0025F13F /* migration_toolbars.py */; };
-		2BAD7C3E156D88FE0025F13F /* migration_ui_style.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C30156D88DA0025F13F /* migration_ui_style.py */; };
-		2BAD7C42156D89220025F13F /* db_mysql_fe_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C3F156D89220025F13F /* db_mysql_fe_grt.py */; };
-		2BAD7C43156D89220025F13F /* db_mysql_migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C40156D89220025F13F /* db_mysql_migration_grt.py */; };
-		2BAD7C44156D89220025F13F /* db_mysql_re_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C41156D89220025F13F /* db_mysql_re_grt.py */; };
-		2BAD7C49156D89470025F13F /* db_mssql_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C46156D89470025F13F /* db_mssql_grt.py */; };
-		2BAD7C4A156D89470025F13F /* db_mssql_migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C47156D89470025F13F /* db_mssql_migration_grt.py */; };
-		2BAD7C50156D897A0025F13F /* db_generic_migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4D156D897A0025F13F /* db_generic_migration_grt.py */; };
-		2BAD7C51156D897A0025F13F /* db_generic_re_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4E156D897A0025F13F /* db_generic_re_grt.py */; };
-		2BAD7C52156D897A0025F13F /* SQLEXT.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4F156D897A0025F13F /* SQLEXT.py */; };
-		2BAD7C9C156D8E850025F13F /* migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C9B156D8E850025F13F /* migration_grt.py */; };
 		2BAE1A810F368EB200BE725E /* workbench_physical_Connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE1A680F368EB200BE725E /* workbench_physical_Connection.cpp */; };
 		2BAE1A820F368EB200BE725E /* workbench_physical_Diagram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE1A690F368EB200BE725E /* workbench_physical_Diagram.cpp */; };
 		2BAE1A830F368EB200BE725E /* workbench_physical_Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAE1A6A0F368EB200BE725E /* workbench_physical_Model.cpp */; };
@@ -1995,11 +2022,6 @@
 		2BB58D4A0F4673A400089423 /* grtpp_shell_python.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB58CEC0F4664DA00089423 /* grtpp_shell_python.cpp */; };
 		2BB58F290F471B3900089423 /* python_grtobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB58F270F471B3900089423 /* python_grtobject.h */; };
 		2BB58F2A0F471B3900089423 /* python_grtobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB58F280F471B3900089423 /* python_grtobject.cpp */; };
-		2BB626D0176BAC340070885E /* db_sqlite_migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626C8176BAA920070885E /* db_sqlite_migration_grt.py */; };
-		2BB626D1176BAC340070885E /* db_sqlite_re_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626C9176BAA920070885E /* db_sqlite_re_grt.py */; };
-		2BB626D2176BAC3E0070885E /* db_sqlanywhere_migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626CC176BAAAF0070885E /* db_sqlanywhere_migration_grt.py */; };
-		2BB626D3176BAC3E0070885E /* db_sqlanywhere_re_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626CD176BAAAF0070885E /* db_sqlanywhere_re_grt.py */; };
-		2BB626D4176BAC3E0070885E /* sqlanydbwrapper.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BB626CF176BAAB00070885E /* sqlanydbwrapper.py */; };
 		2BB9A0A60FB12A7C001F9968 /* WBModelDiagram.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BB9A0A50FB12A7C001F9968 /* WBModelDiagram.xib */; };
 		2BB9A1870FB1476F001F9968 /* NSColor_extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9A1850FB1476F001F9968 /* NSColor_extras.h */; };
 		2BB9A1880FB1476F001F9968 /* NSColor_extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9A1860FB1476F001F9968 /* NSColor_extras.m */; };
@@ -2007,9 +2029,7 @@
 		2BB9A3730FB21A56001F9968 /* MStatusBar.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9A3710FB21A56001F9968 /* MStatusBar.h */; };
 		2BB9A3740FB21A56001F9968 /* MStatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9A3720FB21A56001F9968 /* MStatusBar.m */; };
 		2BB9A44E0FB28BD6001F9968 /* TabDragIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB9A44D0FB28BD6001F9968 /* TabDragIcon.png */; };
-		2BBA5EDC1417E24100D47FA1 /* code_utils_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BBA5EDB1417E24100D47FA1 /* code_utils_grt.py */; };
 		2BBC38601235C5BC00CACF4C /* tiny_load.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BBC385F1235C5A100CACF4C /* tiny_load.png */; };
-		2BBC38FB12380E9000CACF4C /* wb_admin_control.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BBC38F812380E9000CACF4C /* wb_admin_control.py */; };
 		2BC083A6145BB66000CB84D6 /* EditorCollapsed.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC083A4145BB66000CB84D6 /* EditorCollapsed.png */; };
 		2BC083A7145BB66000CB84D6 /* EditorExpanded.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC083A5145BB66000CB84D6 /* EditorExpanded.png */; };
 		2BC0883E1465B56E00CB84D6 /* libctemplate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */; };
@@ -2062,8 +2082,6 @@
 		2BCD412E13837A3500B375FD /* wait_panel_cancel_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCD412D13837A3500B375FD /* wait_panel_cancel_button.png */; };
 		2BCD495415BDD55E00F88A38 /* build_freetds.sh in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 2BCD494115BDD53C00F88A38 /* build_freetds.sh */; };
 		2BCD495515BDD55E00F88A38 /* sakila_full.mwb in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 2BCD494015BDD52F00F88A38 /* sakila_full.mwb */; };
-		2BCE49ED15F53C9D00FA0CDC /* db_sybase_migration_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BCE49EB15F5341C00FA0CDC /* db_sybase_migration_grt.py */; };
-		2BCE49EE15F53C9E00FA0CDC /* db_sybase_re_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BCE49EC15F5341C00FA0CDC /* db_sybase_re_grt.py */; };
 		2BCE4A0415F646A200FA0CDC /* Python in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2BCE4A0515F6476F00FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2BCE4A0615F6478200FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
@@ -2077,7 +2095,6 @@
 		2BCEBFBA13DBDBF500A23E75 /* MSpinProgressCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCEBFB813DBDBF500A23E75 /* MSpinProgressCell.h */; };
 		2BCEBFBB13DBDBF500A23E75 /* MSpinProgressCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCEBFB913DBDBF500A23E75 /* MSpinProgressCell.m */; };
 		2BCEC00013DC565B00A23E75 /* record_autosize.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCEBFFF13DC565B00A23E75 /* record_autosize.png */; };
-		2BD04E000F63412800FD47B3 /* wb_utils_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BD04DFF0F63412800FD47B3 /* wb_utils_grt.py */; };
 		2BD1FA490F33756400FFC762 /* libmforms.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		2BD1FA630F3375FE00FFC762 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2BD1FA6C0F33768900FFC762 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
@@ -2194,7 +2211,6 @@
 		2BD42077198034C10061895B /* db.View.side.16x16@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD42061198034C10061895B /* db.View.side.16x16@2x.png */; };
 		2BD42089198ACC260061895B /* home_screen_connections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD42087198ACC260061895B /* home_screen_connections.cpp */; };
 		2BD4208A198ACC260061895B /* home_screen_connections.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD42088198ACC260061895B /* home_screen_connections.h */; };
-		2BD42094198C3B0F0061895B /* run_script.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BD42093198C3B090061895B /* run_script.py */; };
 		2BD820120F4F0E7D009E485D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BD820110F4F0E7D009E485D /* Carbon.framework */; };
 		2BD9968E0FAC02B00074852E /* grtdb_connect_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9968C0FAC02B00074852E /* grtdb_connect_dialog.h */; };
 		2BD9968F0FAC02B00074852E /* grtdb_connect_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9968D0FAC02B00074852E /* grtdb_connect_dialog.cpp */; };
@@ -2228,7 +2244,6 @@
 		2BDA3C3C1993FBF000AD54D9 /* libgdal.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2B83E5CE1992B5A100781432 /* libgdal.1.dylib */; };
 		2BDAE46111139AA500AC1D7A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BDAE46B11139B3B00AC1D7A /* file_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDAE46911139B3B00AC1D7A /* file_functions.h */; };
-		2BDAE48011139E8E00AC1D7A /* wba_ssh_ui.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BDAE47B11139E6B00AC1D7A /* wba_ssh_ui.py */; };
 		2BDC26080E855F470018CE34 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */; };
 		2BDC261B0E8565C20018CE34 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
@@ -2305,7 +2320,6 @@
 		2BE733B00EFAFF3200287AE0 /* mysql_sql_syntax_check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE733A40EFAFF3200287AE0 /* mysql_sql_syntax_check.cpp */; };
 		2BE7345E0EFB31DC00287AE0 /* libsql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC262A0E85671D0018CE34 /* libsql.parser.dylib */; };
 		2BE76165107283C800A1DF24 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */; };
-		2BE7639D1073A8B400A1DF24 /* wb_admin_connections.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BE7639C1073A89700A1DF24 /* wb_admin_connections.py */; };
 		2BE9015E151D4D2300CC0894 /* ui_db_ConnectPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE9015D151D4D2300CC0894 /* ui_db_ConnectPanel.cpp */; };
 		2BE92EFE1060147600FFD773 /* wb_sql_editor_snippets.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE92EFC1060147600FFD773 /* wb_sql_editor_snippets.h */; };
 		2BE92EFF1060147600FFD773 /* wb_sql_editor_snippets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE92EFD1060147600FFD773 /* wb_sql_editor_snippets.cpp */; };
@@ -2321,7 +2335,6 @@
 		2BECA53618B3A13D00E12F8B /* sys in Resources */ = {isa = PBXBuildFile; fileRef = 2BECA53518B3A13D00E12F8B /* sys */; };
 		2BECA53918BD2F3000E12F8B /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
 		2BF02D031964A8CF008C9304 /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */; };
-		2BF0490117398B0400A7EA35 /* wb_admin_server_status.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF04900173989C600A7EA35 /* wb_admin_server_status.py */; };
 		2BF0491C1739925E00A7EA35 /* mysql-logo-00.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */; };
 		2BF0491D1739925E00A7EA35 /* mysql-logo-00@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */; };
 		2BF0491E1739925E00A7EA35 /* mysql-logo-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490C1739925E00A7EA35 /* mysql-logo-50.png */; };
@@ -2356,7 +2369,6 @@
 		2BF049621741C5EA00A7EA35 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BF049641741C5FB00A7EA35 /* libpcre.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BF049631741C5FA00A7EA35 /* libpcre.0.dylib */; };
 		2BF0496617426BE500A7EA35 /* register_plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF0496517426BE500A7EA35 /* register_plugin.cpp */; };
-		2BF0497517491F1400A7EA35 /* sqlide_tableman_ext.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF0497417491EFB00A7EA35 /* sqlide_tableman_ext.py */; };
 		2BF0498D174E559C00A7EA35 /* title_connections.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0497D174E559C00A7EA35 /* title_connections.png */; };
 		2BF0498E174E559C00A7EA35 /* title_connections@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0497E174E559C00A7EA35 /* title_connections@2x.png */; };
 		2BF0498F174E559C00A7EA35 /* title_export.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0497F174E559C00A7EA35 /* title_export.png */; };
@@ -2392,9 +2404,6 @@
 		2BF2CBBC1911E8A7007B0BB9 /* wb_sql_editor_panel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2CBBA1911E8A7007B0BB9 /* wb_sql_editor_panel.h */; };
 		2BF42B4416862D82007C030C /* wb_history_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF42B4216862D82007C030C /* wb_history_tree.cpp */; };
 		2BF42B4516862D82007C030C /* wb_history_tree.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF42B4316862D82007C030C /* wb_history_tree.h */; };
-		2BF43851108778F500F04A6C /* wb_admin_security.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF43850108778D600F04A6C /* wb_admin_security.py */; };
-		2BF43852108778F500F04A6C /* wb_admin_security_be.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF4384F108778C300F04A6C /* wb_admin_security_be.py */; };
-		2BF440EA108C9C6300F04A6C /* wb_admin_logs.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF440BE108C90E500F04A6C /* wb_admin_logs.py */; };
 		2BF50E3F12E7B5EA00A6CCC3 /* MFCodeEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD62C212732FD20080C832 /* MFCodeEditor.mm */; };
 		2BF510CA12E8BBEF00A6CCC3 /* admin_config_wizard.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF510BB12E8BBEF00A6CCC3 /* admin_config_wizard.png */; };
 		2BF510CB12E8BBEF00A6CCC3 /* admin_export.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF510BC12E8BBEF00A6CCC3 /* admin_export.png */; };
@@ -2506,9 +2515,6 @@
 		2BF90F1D1979C3410029E1F9 /* ps_switcher_legende@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F171979C3410029E1F9 /* ps_switcher_legende@2x.png */; };
 		2BF90F1E1979C3410029E1F9 /* ps_switcher_text.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F181979C3410029E1F9 /* ps_switcher_text.png */; };
 		2BF90F1F1979C3410029E1F9 /* ps_switcher_text@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF90F191979C3410029E1F9 /* ps_switcher_text@2x.png */; };
-		2BF98AB1123A098E008DDCD0 /* wb_server_control.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AAF123A098E008DDCD0 /* wb_server_control.py */; };
-		2BF98AB2123A098E008DDCD0 /* wb_server_management.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AB0123A098E008DDCD0 /* wb_server_management.py */; };
-		2BF98B00123A8892008DDCD0 /* wb_common.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BF98AFF123A8892008DDCD0 /* wb_common.py */; };
 		2BFBEFEA0F50941C0016F9D1 /* DiagramOptions.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BFBEFE80F50941C0016F9D1 /* DiagramOptions.xib */; };
 		2BFBEFEE0F5095E10016F9D1 /* WBDiagramSizeController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBEFED0F5095E10016F9D1 /* WBDiagramSizeController.mm */; };
 		2BFBF0150F51A1830016F9D1 /* MySQLRoutineEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0140F51A1830016F9D1 /* MySQLRoutineEditor.mm */; };
@@ -2516,12 +2522,7 @@
 		2BFBF09E0F51BEB10016F9D1 /* MySQLViewEditor.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BFBF09D0F51BEB10016F9D1 /* MySQLViewEditor.xib */; };
 		2BFBF0A10F51BF2D0016F9D1 /* MySQLViewEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF0A00F51BF2D0016F9D1 /* MySQLViewEditor.mm */; };
 		2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */; };
-		7508827612F724F600216C47 /* wb_admin_ui_profile.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 7508826212F7240E00216C47 /* wb_admin_ui_profile.py */; };
-		75522B9010877DEF0077082A /* wb_admin_ssh.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 75522B8D10877DD30077082A /* wb_admin_ssh.py */; };
 		75C847F51067E9C70067947D /* opts.py in Resources */ = {isa = PBXBuildFile; fileRef = 75C847F21067E9C70067947D /* opts.py */; };
-		75C847FC1067E9FC0067947D /* wb_admin_config_file_ui.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 75C847F81067E9DF0067947D /* wb_admin_config_file_ui.py */; };
-		75C847FD1067E9FC0067947D /* opts.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 75C847F21067E9C70067947D /* opts.py */; };
-		75C847FF1067E9FC0067947D /* wb_admin_config_file_be.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 75C847F41067E9C70067947D /* wb_admin_config_file_be.py */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		ED0955E1177374690051CF28 /* page_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DE177374690051CF28 /* page_restore.png */; };
 		ED0955E2177374690051CF28 /* title_backup.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DF177374690051CF28 /* title_backup.png */; };
@@ -2537,10 +2538,8 @@
 		ED8C8461174A9EF80036E6EF /* tcp_utils.py in Resources */ = {isa = PBXBuildFile; fileRef = ED8C845F174A9EF80036E6EF /* tcp_utils.py */; };
 		ED9251861743B7E3008F1A50 /* MySQL-WB-about-screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 27CC86001741336B00AAA267 /* MySQL-WB-about-screen.png */; };
 		ED9251871743B7E5008F1A50 /* MySQL-WB-about-screen@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27CC86011741336B00AAA267 /* MySQL-WB-about-screen@2x.png */; };
-		EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = EDC7588B1847A47B00936C9B /* wb_admin_perfschema_instrumentation_be.py */; };
 		EDD13F3417C7B92000A57673 /* change_tracker.py in Resources */ = {isa = PBXBuildFile; fileRef = EDD13F3317C7B92000A57673 /* change_tracker.py */; };
 		EDD76C8B19573F1100D3D54F /* wbfabric_grt.py in Resources */ = {isa = PBXBuildFile; fileRef = EDD76C8A19573F1100D3D54F /* wbfabric_grt.py */; };
-		EDD76C8C19573FDC00D3D54F /* wbfabric_grt.py in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = EDD76C8A19573F1100D3D54F /* wbfabric_grt.py */; };
 		EDE7748B14C50BD3005AFF52 /* wb_db_schema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDE7748914C50BD3005AFF52 /* wb_db_schema.cpp */; };
 		EDE7748C14C50BD3005AFF52 /* wb_db_schema.h in Headers */ = {isa = PBXBuildFile; fileRef = EDE7748A14C50BD3005AFF52 /* wb_db_schema.h */; };
 /* End PBXBuildFile section */
@@ -3464,6 +3463,115 @@
 			name = "Copy Files (executables)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		278A083B19BC836F0084C2F4 /* Copy Files (python plugins) */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = plugins;
+			dstSubfolderSpec = 7;
+			files = (
+				278A085919BC85410084C2F4 /* wb_docs_grt.py in Copy Files (python plugins) */,
+				278A085A19BC85410084C2F4 /* db_copy_report.py in Copy Files (python plugins) */,
+				278A085B19BC85410084C2F4 /* db_copy_grt.py in Copy Files (python plugins) */,
+				278A085C19BC85410084C2F4 /* db_copy_main.py in Copy Files (python plugins) */,
+				278A085D19BC85410084C2F4 /* db_copy_overview.py in Copy Files (python plugins) */,
+				278A085E19BC85410084C2F4 /* db_copy_source_target.py in Copy Files (python plugins) */,
+				278A085F19BC85410084C2F4 /* db_copy_schema_selection.py in Copy Files (python plugins) */,
+				278A086019BC85410084C2F4 /* db_copy_progress.py in Copy Files (python plugins) */,
+				278A086119BC85410084C2F4 /* migration_grt.py in Copy Files (python plugins) */,
+				278A086219BC85410084C2F4 /* DataMigrator.py in Copy Files (python plugins) */,
+				278A086319BC85410084C2F4 /* migration.py in Copy Files (python plugins) */,
+				278A086419BC85410084C2F4 /* migration_ui_style.py in Copy Files (python plugins) */,
+				278A086519BC85410084C2F4 /* migration_main.py in Copy Files (python plugins) */,
+				278A086619BC85410084C2F4 /* migration_overview.py in Copy Files (python plugins) */,
+				278A086719BC85410084C2F4 /* migration_project_management.py in Copy Files (python plugins) */,
+				278A086819BC85410084C2F4 /* migration_source_selection.py in Copy Files (python plugins) */,
+				278A086919BC85410084C2F4 /* migration_schema_selection.py in Copy Files (python plugins) */,
+				278A086A19BC85410084C2F4 /* migration_object_selection.py in Copy Files (python plugins) */,
+				278A086B19BC85410084C2F4 /* migration_object_migration.py in Copy Files (python plugins) */,
+				278A086C19BC85410084C2F4 /* migration_object_editing.py in Copy Files (python plugins) */,
+				278A086D19BC85410084C2F4 /* migration_schema_creation.py in Copy Files (python plugins) */,
+				278A086E19BC85410084C2F4 /* migration_data_transfer.py in Copy Files (python plugins) */,
+				278A086F19BC85410084C2F4 /* migration_summary.py in Copy Files (python plugins) */,
+				278A087019BC85410084C2F4 /* migration_toolbars.py in Copy Files (python plugins) */,
+				278A087119BC85410084C2F4 /* datatype_mapping_editor.py in Copy Files (python plugins) */,
+				278A087219BC85410084C2F4 /* explain_renderer.py in Copy Files (python plugins) */,
+				278A087319BC85410084C2F4 /* optimizer_trace_renderer.py in Copy Files (python plugins) */,
+				278A087419BC85410084C2F4 /* performance_charting.py in Copy Files (python plugins) */,
+				278A087519BC85410084C2F4 /* wb_query_analysis_grt.py in Copy Files (python plugins) */,
+				278A087619BC85410084C2F4 /* wb_admin_grt.py in Copy Files (python plugins) */,
+				278A087719BC85410084C2F4 /* wb_admin_main.py in Copy Files (python plugins) */,
+				278A087819BC85410084C2F4 /* wba_ssh_ui.py in Copy Files (python plugins) */,
+				278A087919BC85410084C2F4 /* wb_admin_server_status.py in Copy Files (python plugins) */,
+				278A087A19BC85410084C2F4 /* wb_admin_monitor.py in Copy Files (python plugins) */,
+				278A087B19BC85410084C2F4 /* wb_admin_connections.py in Copy Files (python plugins) */,
+				278A087C19BC85410084C2F4 /* wb_admin_security.py in Copy Files (python plugins) */,
+				278A087D19BC85410084C2F4 /* wb_admin_variables.py in Copy Files (python plugins) */,
+				278A087E19BC85410084C2F4 /* wb_admin_export.py in Copy Files (python plugins) */,
+				278A087F19BC85410084C2F4 /* wb_admin_export_options.py in Copy Files (python plugins) */,
+				278A088019BC85410084C2F4 /* wb_admin_config_file_ui.py in Copy Files (python plugins) */,
+				278A088119BC85410084C2F4 /* wb_admin_configuration_startup.py in Copy Files (python plugins) */,
+				278A088219BC85410084C2F4 /* wb_admin_logs.py in Copy Files (python plugins) */,
+				278A088319BC85410084C2F4 /* wb_admin_utils.py in Copy Files (python plugins) */,
+				278A088419BC85410084C2F4 /* wb_admin_ui_profile.py in Copy Files (python plugins) */,
+				278A088519BC85410084C2F4 /* wb_execute_window.py in Copy Files (python plugins) */,
+				278A088619BC85410084C2F4 /* wb_admin_performance_dashboard.py in Copy Files (python plugins) */,
+				278A088719BC85410084C2F4 /* wb_admin_perfschema_instrumentation.py in Copy Files (python plugins) */,
+				278A088819BC85410084C2F4 /* wb_admin_perfschema_reports.py in Copy Files (python plugins) */,
+				278A088919BC85410084C2F4 /* wb_admin_perfschema.py in Copy Files (python plugins) */,
+				278A088A19BC85410084C2F4 /* wb_admin_perfschema_instrumentation_be.py in Copy Files (python plugins) */,
+				278A088B19BC85410084C2F4 /* wb_log_reader.py in Copy Files (python plugins) */,
+				278A088C19BC85410084C2F4 /* wb_server_control.py in Copy Files (python plugins) */,
+				278A088D19BC85410084C2F4 /* wb_server_management.py in Copy Files (python plugins) */,
+				278A088E19BC85410084C2F4 /* wb_admin_control.py in Copy Files (python plugins) */,
+				278A088F19BC85410084C2F4 /* wba_monitor_be.py in Copy Files (python plugins) */,
+				278A089019BC85410084C2F4 /* wb_admin_variable_list.py in Copy Files (python plugins) */,
+				278A089119BC85410084C2F4 /* wb_admin_security_be.py in Copy Files (python plugins) */,
+				278A089219BC85410084C2F4 /* wb_admin_user_privileges.py in Copy Files (python plugins) */,
+				278A089319BC85410084C2F4 /* wb_admin_ssh.py in Copy Files (python plugins) */,
+				278A089419BC85410084C2F4 /* opts.py in Copy Files (python plugins) */,
+				278A089519BC85410084C2F4 /* wb_admin_config_file_be.py in Copy Files (python plugins) */,
+				278A089619BC85410084C2F4 /* wb_common.py in Copy Files (python plugins) */,
+				278A089719BC85410084C2F4 /* sqlide_import_spatial.py in Copy Files (python plugins) */,
+				278A089819BC85410084C2F4 /* text_output.py in Copy Files (python plugins) */,
+				278A089919BC85410084C2F4 /* sqlide_grt.py in Copy Files (python plugins) */,
+				278A089A19BC85410084C2F4 /* run_script.py in Copy Files (python plugins) */,
+				278A089B19BC85410084C2F4 /* sql_reformatter.py in Copy Files (python plugins) */,
+				278A089C19BC85410084C2F4 /* sqlide_catalogman_ext.py in Copy Files (python plugins) */,
+				278A089D19BC85410084C2F4 /* sqlide_tableman_ext.py in Copy Files (python plugins) */,
+				278A089E19BC85410084C2F4 /* sqlide_resultset_ext.py in Copy Files (python plugins) */,
+				278A089F19BC85410084C2F4 /* sqlide_schematree_ext.py in Copy Files (python plugins) */,
+				278A083D19BC84B20084C2F4 /* wbfabric_grt.py in Copy Files (python plugins) */,
+				278A083E19BC84B20084C2F4 /* db_generic_migration_grt.py in Copy Files (python plugins) */,
+				278A083F19BC84B20084C2F4 /* db_generic_re_grt.py in Copy Files (python plugins) */,
+				278A084019BC84B20084C2F4 /* SQLEXT.py in Copy Files (python plugins) */,
+				278A084119BC84B20084C2F4 /* db_mssql_grt.py in Copy Files (python plugins) */,
+				278A084219BC84B20084C2F4 /* db_mssql_migration_grt.py in Copy Files (python plugins) */,
+				278A084319BC84B20084C2F4 /* db_mysql_fe_grt.py in Copy Files (python plugins) */,
+				278A084419BC84B20084C2F4 /* db_mysql_migration_grt.py in Copy Files (python plugins) */,
+				278A084519BC84B20084C2F4 /* db_mysql_re_grt.py in Copy Files (python plugins) */,
+				278A084619BC84B20084C2F4 /* db_postgresql_migration_grt.py in Copy Files (python plugins) */,
+				278A084719BC84B20084C2F4 /* db_postgresql_re_grt.py in Copy Files (python plugins) */,
+				278A084819BC84B20084C2F4 /* db_sql92_migration_grt.py in Copy Files (python plugins) */,
+				278A084919BC84B20084C2F4 /* db_sql92_re_grt.py in Copy Files (python plugins) */,
+				278A084A19BC84B20084C2F4 /* db_sybase_migration_grt.py in Copy Files (python plugins) */,
+				278A084B19BC84B20084C2F4 /* db_sybase_re_grt.py in Copy Files (python plugins) */,
+				278A084C19BC84B20084C2F4 /* db_sqlite_migration_grt.py in Copy Files (python plugins) */,
+				278A084D19BC84B20084C2F4 /* db_sqlite_re_grt.py in Copy Files (python plugins) */,
+				278A084E19BC84B20084C2F4 /* db_sqlanywhere_migration_grt.py in Copy Files (python plugins) */,
+				278A084F19BC84B20084C2F4 /* db_sqlanywhere_re_grt.py in Copy Files (python plugins) */,
+				278A085019BC84B20084C2F4 /* sqlanydbwrapper.py in Copy Files (python plugins) */,
+				278A085119BC84B20084C2F4 /* code_utils_grt.py in Copy Files (python plugins) */,
+				278A085219BC84B20084C2F4 /* table_utils_grt.py in Copy Files (python plugins) */,
+				278A085319BC84B20084C2F4 /* wb_dev_utils_grt.py in Copy Files (python plugins) */,
+				278A085419BC84B20084C2F4 /* text_grt.py in Copy Files (python plugins) */,
+				278A085519BC84B20084C2F4 /* table_templates.py in Copy Files (python plugins) */,
+				278A085619BC84B20084C2F4 /* wb_catalog_utils.py in Copy Files (python plugins) */,
+				278A085719BC84B20084C2F4 /* wb_model_utils.py in Copy Files (python plugins) */,
+				278A085819BC84B20084C2F4 /* wb_utils_grt.py in Copy Files (python plugins) */,
+			);
+			name = "Copy Files (python plugins)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2B17B03B0F4D99510087ED42 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3533,107 +3641,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				EDD76C8C19573FDC00D3D54F /* wbfabric_grt.py in Copy Files (plugins) */,
-				2B18EDE3196DA6FA004D7596 /* wb_docs_grt.py in Copy Files (plugins) */,
 				27378CD31917D10000DE1AA6 /* db.mysql.parser.grt.dylib in Copy Files (plugins) */,
-				EDC7588D1847A54700936C9B /* wb_admin_perfschema_instrumentation_be.py in Copy Files (plugins) */,
-				2B33A4731999B63A00412802 /* sqlide_import_spatial.py in Copy Files (plugins) */,
-				2B1D6D2F178C540A0073C062 /* wb_model_utils.py in Copy Files (plugins) */,
-				2BB626D2176BAC3E0070885E /* db_sqlanywhere_migration_grt.py in Copy Files (plugins) */,
-				2BB626D3176BAC3E0070885E /* db_sqlanywhere_re_grt.py in Copy Files (plugins) */,
-				2B2C00571832800A00543D46 /* wb_admin_performance_dashboard.py in Copy Files (plugins) */,
-				2BB626D4176BAC3E0070885E /* sqlanydbwrapper.py in Copy Files (plugins) */,
-				2BB626D0176BAC340070885E /* db_sqlite_migration_grt.py in Copy Files (plugins) */,
-				2BB626D1176BAC340070885E /* db_sqlite_re_grt.py in Copy Files (plugins) */,
-				2B6C6FC316C0BF3600C4CC98 /* sql_reformatter.py in Copy Files (plugins) */,
-				27364F5E10909A6A00C9EA70 /* wb_admin_export.py in Copy Files (plugins) */,
-				2B6C6FBF16C0BE7A00C4CC98 /* sqlide_grt.py in Copy Files (plugins) */,
-				2B6C6FC016C0BE7B00C4CC98 /* sqlide_resultset_ext.py in Copy Files (plugins) */,
-				2B6C6FC716C0C04100C4CC98 /* sqlide_catalogman_ext.py in Copy Files (plugins) */,
-				2BF0497517491F1400A7EA35 /* sqlide_tableman_ext.py in Copy Files (plugins) */,
-				2B6C6FC116C0BE7B00C4CC98 /* sqlide_schematree_ext.py in Copy Files (plugins) */,
-				2B220AC616A4E8E700747448 /* db_copy_grt.py in Copy Files (plugins) */,
-				2B220AC716A4E8E700747448 /* db_copy_main.py in Copy Files (plugins) */,
-				2B220AC816A4E8E700747448 /* db_copy_overview.py in Copy Files (plugins) */,
-				2BA8528C16A8A4D40048015B /* db_copy_report.py in Copy Files (plugins) */,
-				2B7775ED180F0501007AF5B9 /* wb_admin_user_privileges.py in Copy Files (plugins) */,
-				2B220AC916A4E8E700747448 /* db_copy_progress.py in Copy Files (plugins) */,
-				2B220ACA16A4E8E700747448 /* db_copy_schema_selection.py in Copy Files (plugins) */,
-				2B220ACB16A4E8E700747448 /* db_copy_source_target.py in Copy Files (plugins) */,
-				2B87B86116AA0988003C91C1 /* table_templates.py in Copy Files (plugins) */,
-				2B45FDAE165AE7A6008D1853 /* wb_execute_window.py in Copy Files (plugins) */,
-				2B9834F5160259DE0038D5ED /* db_postgresql_migration_grt.py in Copy Files (plugins) */,
-				2B9834F6160259DE0038D5ED /* db_postgresql_re_grt.py in Copy Files (plugins) */,
-				2B9834F7160259DE0038D5ED /* db_sql92_migration_grt.py in Copy Files (plugins) */,
-				2B9834F8160259DE0038D5ED /* db_sql92_re_grt.py in Copy Files (plugins) */,
-				2B17D2AC159219370029B71A /* datatype_mapping_editor.py in Copy Files (plugins) */,
-				2B2E9C3C158F6E110078D08A /* DataMigrator.py in Copy Files (plugins) */,
-				2BAD7C9C156D8E850025F13F /* migration_grt.py in Copy Files (plugins) */,
-				75C847FD1067E9FC0067947D /* opts.py in Copy Files (plugins) */,
-				2BAD7C52156D897A0025F13F /* SQLEXT.py in Copy Files (plugins) */,
-				2BAD7C50156D897A0025F13F /* db_generic_migration_grt.py in Copy Files (plugins) */,
-				2BAD7C51156D897A0025F13F /* db_generic_re_grt.py in Copy Files (plugins) */,
-				2BAD7C49156D89470025F13F /* db_mssql_grt.py in Copy Files (plugins) */,
-				2BAD7C4A156D89470025F13F /* db_mssql_migration_grt.py in Copy Files (plugins) */,
-				2BAD7C42156D89220025F13F /* db_mysql_fe_grt.py in Copy Files (plugins) */,
-				2BAD7C43156D89220025F13F /* db_mysql_migration_grt.py in Copy Files (plugins) */,
-				2BAD7C44156D89220025F13F /* db_mysql_re_grt.py in Copy Files (plugins) */,
-				2BCE49ED15F53C9D00FA0CDC /* db_sybase_migration_grt.py in Copy Files (plugins) */,
-				2BCE49EE15F53C9E00FA0CDC /* db_sybase_re_grt.py in Copy Files (plugins) */,
-				2BAD7C31156D88FE0025F13F /* migration.py in Copy Files (plugins) */,
-				2BAD7C32156D88FE0025F13F /* migration_data_transfer.py in Copy Files (plugins) */,
-				2BAD7C33156D88FE0025F13F /* migration_main.py in Copy Files (plugins) */,
-				2BAD7C34156D88FE0025F13F /* migration_object_editing.py in Copy Files (plugins) */,
-				2BAD7C35156D88FE0025F13F /* migration_object_migration.py in Copy Files (plugins) */,
-				2BAD7C36156D88FE0025F13F /* migration_object_selection.py in Copy Files (plugins) */,
-				2BAD7C37156D88FE0025F13F /* migration_overview.py in Copy Files (plugins) */,
-				2BAD7C38156D88FE0025F13F /* migration_project_management.py in Copy Files (plugins) */,
-				2BAD7C39156D88FE0025F13F /* migration_schema_creation.py in Copy Files (plugins) */,
-				2BAD7C3A156D88FE0025F13F /* migration_schema_selection.py in Copy Files (plugins) */,
-				2BAD7C3B156D88FE0025F13F /* migration_source_selection.py in Copy Files (plugins) */,
-				2BAD7C3C156D88FE0025F13F /* migration_summary.py in Copy Files (plugins) */,
-				2BAD7C3D156D88FE0025F13F /* migration_toolbars.py in Copy Files (plugins) */,
-				2BAD7C3E156D88FE0025F13F /* migration_ui_style.py in Copy Files (plugins) */,
-				2BAD7709156846820025F13F /* wb_query_analysis_grt.py in Copy Files (plugins) */,
-				2BAD7706156846820025F13F /* explain_renderer.py in Copy Files (plugins) */,
-				2BAD7707156846820025F13F /* optimizer_trace_renderer.py in Copy Files (plugins) */,
-				2BAD7708156846820025F13F /* performance_charting.py in Copy Files (plugins) */,
-				2B6C6FC516C0BFBD00C4CC98 /* text_output.py in Copy Files (plugins) */,
-				2B1FB9CB14313C870017A064 /* wb_log_reader.py in Copy Files (plugins) */,
-				2B4945CC138F6A91006F0C3F /* table_utils_grt.py in Copy Files (plugins) */,
-				2BBA5EDC1417E24100D47FA1 /* code_utils_grt.py in Copy Files (plugins) */,
-				2B7A73FD134652360047E0DD /* wb_dev_utils_grt.py in Copy Files (plugins) */,
-				2BF0490117398B0400A7EA35 /* wb_admin_server_status.py in Copy Files (plugins) */,
-				2BD42094198C3B0F0061895B /* run_script.py in Copy Files (plugins) */,
-				2B7FEC1A12EB9C23007945E2 /* wb_admin_main.py in Copy Files (plugins) */,
-				2BF98B00123A8892008DDCD0 /* wb_common.py in Copy Files (plugins) */,
-				75C847FF1067E9FC0067947D /* wb_admin_config_file_be.py in Copy Files (plugins) */,
-				75C847FC1067E9FC0067947D /* wb_admin_config_file_ui.py in Copy Files (plugins) */,
-				27364F5D10909A6A00C9EA70 /* wb_admin_export_options.py in Copy Files (plugins) */,
-				7508827612F724F600216C47 /* wb_admin_ui_profile.py in Copy Files (plugins) */,
-				2BF98AB1123A098E008DDCD0 /* wb_server_control.py in Copy Files (plugins) */,
-				2BF98AB2123A098E008DDCD0 /* wb_server_management.py in Copy Files (plugins) */,
-				27A3E88B1098CAB20014F5B1 /* wba_monitor_be.py in Copy Files (plugins) */,
-				2B5C151F11FA59B800F1237A /* text_grt.py in Copy Files (plugins) */,
-				2BDAE48011139E8E00AC1D7A /* wba_ssh_ui.py in Copy Files (plugins) */,
-				2BBC38FB12380E9000CACF4C /* wb_admin_control.py in Copy Files (plugins) */,
-				2BF440EA108C9C6300F04A6C /* wb_admin_logs.py in Copy Files (plugins) */,
-				2BF43851108778F500F04A6C /* wb_admin_security.py in Copy Files (plugins) */,
-				2BF43852108778F500F04A6C /* wb_admin_security_be.py in Copy Files (plugins) */,
-				2B113D1F1074D5E5006BBE1B /* wb_admin_utils.py in Copy Files (plugins) */,
-				2B113C671073E1BD006BBE1B /* wb_admin_variable_list.py in Copy Files (plugins) */,
-				2B113C2C1073CB5E006BBE1B /* wb_admin_variables.py in Copy Files (plugins) */,
-				75522B9010877DEF0077082A /* wb_admin_ssh.py in Copy Files (plugins) */,
-				2BE7639D1073A8B400A1DF24 /* wb_admin_connections.py in Copy Files (plugins) */,
-				2B92ACDF104D960F0063A35B /* wb_admin_grt.py in Copy Files (plugins) */,
-				2B2DF9FC105F132D00F267F9 /* wb_admin_configuration_startup.py in Copy Files (plugins) */,
-				2B2DF9FE105F132D00F267F9 /* wb_admin_monitor.py in Copy Files (plugins) */,
-				2B2C0045183122E300543D46 /* wb_admin_perfschema_instrumentation.py in Copy Files (plugins) */,
-				2B2C0046183122E300543D46 /* wb_admin_perfschema_reports.py in Copy Files (plugins) */,
-				2B2C0047183122E300543D46 /* wb_admin_perfschema.py in Copy Files (plugins) */,
-				2BD04E000F63412800FD47B3 /* wb_utils_grt.py in Copy Files (plugins) */,
-				27FEF48A0FC1B790005E115A /* Scintilla.framework in Copy Files (plugins) */,
-				2B3386DA0F9E503600EF463C /* wb_catalog_utils.py in Copy Files (plugins) */,
 				2BE733650EFAFE6300287AE0 /* db.grt.dylib in Copy Files (plugins) */,
 				2BE733660EFAFE6300287AE0 /* db.mysql.grt.dylib in Copy Files (plugins) */,
 				2B8699820F7BC86C0005CB9B /* db.mysql.sqlparser.grt.dylib in Copy Files (plugins) */,
@@ -12411,11 +12419,13 @@
 				2BE6806E0F8E487600E00A97 /* Copy Files (sqlide) */,
 				2B8763180F48D460000B6DE1 /* Copy Files (grt libraries) */,
 				2BCAD0721006D30100D1772C /* Copy Files (python modules) */,
+				278A083B19BC836F0084C2F4 /* Copy Files (python plugins) */,
 				2BB58A730F45AEF100089423 /* Copy Module Data Files */,
 				270C50111732ACD700CD33BB /* Copy Files (executables) */,
 				2B7F77E00F01339B00C3C53E /* Copy Files (dylibs) */,
 				2B5284E10F1AEA60005FBF7C /* Copy Files (plugins) */,
-				2BEA13BE16E68F1500FC44F0 /* Copy plugins if exist */,
+				2BEA13BE16E68F1500FC44F0 /* Copy plugins (dylibs) if exist */,
+				2730102919BC89F4002C08EE /* Copy plugins (py files) if exist */,
 				2BE76356107390C000A1DF24 /* Copy Python Module Packages */,
 				2B4B52EB122F102000F1EA6B /* Copy Other Resource Data Folders */,
 				169CCC8F0F0121BC005152CD /* Copy and fix embedded dylibs and binaries */,
@@ -13514,7 +13524,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n\tfrom=$1\n\tto=$2/`basename $from`\n\tif [ ! -f $to -o $from -nt $to ]; then\n\t\tcp $from $to\n\tfi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH}/lib/libcairo.2.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libctemplate.0.dylib ${NEWLIBPATH}\n\n# This file is created from a pre-build scheme script\n# It will identidy the build being run (commercial/gpl)\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${NEWLIBPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysql ${EXEPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysqldump ${EXEPATH}\n\n(cd ${NEWLIBPATH}; rm -f mysqlcppconn.dylib; ln -sf libmysqlcppconn.7.1.1.4.dylib mysqlcppconn.dylib)\n\n# Use SQLCipher enabled sqlite if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/wba_audit ]; then\n    echo \"Copying vsqlite libs for commercial version\"\n    copy ${RES_SOURCE_PATH}/lib-com/libsqlite3.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH}/lib-com/libvsqlitepp.0.dylib ${NEWLIBPATH}\nelse\n    echo \"Copying vsqlite libs for community version\"\n    copy ${RES_SOURCE_PATH}/lib/libvsqlitepp.0.dylib ${NEWLIBPATH}\nfi\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n\t$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n\t CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n# Fix plugins and stuff\n##for libpath in $MODULEPATH/*.dylib; do\n##\techo \"Fix $libpath\"\n##\t$fixer $libpath\n##done\nfor libpath in \"$PLUGINPATH/*.dylib\"; do\n    #echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\nfor libpath in \"$PLUGINPATH/*.mwbplugin/Contents/MacOS/*\"; do\n\t#echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\nfor libpath in \"$PLUGINPATH/*.mwbplugin/Contents/Frameworks/*dylib\"; do\n\t#echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\n\necho \"Creating symlinks for versioned dylibs\"\npushd $NEWLIBPATH\nfor libpath in $(find *.[0-9].dylib -type f); do\n\tlinkname=$(echo $libpath|sed -e s/.[0-9].dylib/.dylib/)\n\tln -sf $libpath $linkname\n\tlinkname2=$(echo $linkname|sed -e s/.[0-9].dylib/.dylib/)\n\tif test $linkname != $linkname2; then\n\t\tln -sf $linkname $linkname2\n\tfi\ndone\npopd\n\nliblist=$(otool -L $execfile|grep /usr/local|cut -f2|cut -f1 -d\\  )\nfor lib in $liblist; do\n\t# check if all referenced libs by executable are copied\n\tif ! [ -f $NEWLIBPATH/$(basename $lib) ]; then\n\t\techo \"Library $lib is referenced by executable but not copied into bundle\"\n\t\texit 1\n\tfi\ndone\n\n# do a quick check\nif test \"$(otool -L ${NEWLIBPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some embedded libraries in ${NEWLIBPATH} still point to /usr/local\"\n\tfor lib in \"${NEWLIBPATH}/*.dylib\"; do\n\t\tif test \"$(otool -L $lib|grep /usr/local)\" != \"\"; then\n\t\t\t$fixer $lib\n\t\tfi\n\tdone\nfi\n\nif test \"$MODULEPATH\" != \"\"; then\nif test \"$(otool -L ${MODULEPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some modules in ${MODULEPATH} still point to /usr/local\"\n\texit 1\nfi\nfi\n";
+			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n\tfrom=$1\n\tto=$2/`basename $from`\n\tif [ ! -f $to -o $from -nt $to ]; then\n\t\tcp $from $to\n\tfi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH}/lib/libcairo.2.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libctemplate.0.dylib ${NEWLIBPATH}\n\n# This file is created from a pre-build scheme script\n# It will identidy the build being run (commercial/gpl)\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${NEWLIBPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysql ${EXEPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysqldump ${EXEPATH}\n\n(cd ${NEWLIBPATH}; rm -f mysqlcppconn.dylib; ln -sf libmysqlcppconn.7.1.1.4.dylib mysqlcppconn.dylib)\n\n# Use SQLCipher enabled sqlite if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/plugins/wba_audit ]; then\n    echo \"Copying vsqlite libs for commercial version\"\n    copy ${RES_SOURCE_PATH}/lib-com/libsqlite3.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH}/lib-com/libvsqlitepp.0.dylib ${NEWLIBPATH}\nelse\n    echo \"Copying vsqlite libs for community version\"\n    copy ${RES_SOURCE_PATH}/lib/libvsqlitepp.0.dylib ${NEWLIBPATH}\nfi\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n\t$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n\t CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n# Fix plugins and stuff\n##for libpath in $MODULEPATH/*.dylib; do\n##\techo \"Fix $libpath\"\n##\t$fixer $libpath\n##done\nfor libpath in \"$PLUGINPATH/*.dylib\"; do\n    #echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\nfor libpath in \"$PLUGINPATH/*.mwbplugin/Contents/MacOS/*\"; do\n\t#echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\nfor libpath in \"$PLUGINPATH/*.mwbplugin/Contents/Frameworks/*dylib\"; do\n\t#echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\n\necho \"Creating symlinks for versioned dylibs\"\npushd $NEWLIBPATH\nfor libpath in $(find *.[0-9].dylib -type f); do\n\tlinkname=$(echo $libpath|sed -e s/.[0-9].dylib/.dylib/)\n\tln -sf $libpath $linkname\n\tlinkname2=$(echo $linkname|sed -e s/.[0-9].dylib/.dylib/)\n\tif test $linkname != $linkname2; then\n\t\tln -sf $linkname $linkname2\n\tfi\ndone\npopd\n\nliblist=$(otool -L $execfile|grep /usr/local|cut -f2|cut -f1 -d\\  )\nfor lib in $liblist; do\n\t# check if all referenced libs by executable are copied\n\tif ! [ -f $NEWLIBPATH/$(basename $lib) ]; then\n\t\techo \"Library $lib is referenced by executable but not copied into bundle\"\n\t\texit 1\n\tfi\ndone\n\n# do a quick check\nif test \"$(otool -L ${NEWLIBPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some embedded libraries in ${NEWLIBPATH} still point to /usr/local\"\n\tfor lib in \"${NEWLIBPATH}/*.dylib\"; do\n\t\tif test \"$(otool -L $lib|grep /usr/local)\" != \"\"; then\n\t\t\t$fixer $lib\n\t\tfi\n\tdone\nfi\n\nif test \"$MODULEPATH\" != \"\"; then\nif test \"$(otool -L ${MODULEPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some modules in ${MODULEPATH} still point to /usr/local\"\n\texit 1\nfi\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		16E4CDC10F28A56E00C1E118 /* ShellScript */ = {
@@ -13529,6 +13539,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+		2730102919BC89F4002C08EE /* Copy plugins (py files) if exist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/plugins/wb.admin/internal/wba_audit",
+				"$(SRCROOT)/plugins/wb.admin/internal/wba_meb",
+			);
+			name = "Copy plugins (py files) if exist";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Install commercial plugins (python files)\n\n# Put all commercial plugin directories in the Input Files list below.\ni=0\nwhile true; do\n  path=$(eval \"echo \\$SCRIPT_INPUT_FILE_$i\")\n  if test \"$path\" = \"\"; then\n    break\n  fi\n  if [ -f $path -o -d $path ]; then\n    echo \"Copy $path to $$BUILT_PRODUCTS_DIR/$PLUGINS_FOLDER_PATH\"\n    cp -r $path $BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/plugins\n  fi\n  i=$(($i+1))\ndone";
 		};
 		27BDFA3A184366000028B97E /* Regenerate ANTLR parser if necessary */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -13661,28 +13687,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pyresdir=\"$SRCROOT/../mysql-mac-res/python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\ncp -R ${pyresdir}/paramiko \"$pythondir\"\ncp -R ${pyresdir}/Crypto \"$pythondir\"\n# cp -R ${pyresdir}/mysql \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/wba_audit ]; then\n    echo \"Copying pysqlite2 for Audit Inspector\"\n    rm -fr \"$pythondir\"/pysqlite2\n    cp -R ${pyresdir}/pysqlite2-com \"$pythondir\"/pysqlite2\nelse\n    cp -R ${pyresdir}/pysqlite2 \"$pythondir\"\nfi\n\ncp ${pyresdir}/pyodbc.so \"$pythondir\"\n\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"/\n";
+			shellScript = "pyresdir=\"$SRCROOT/../mysql-mac-res/python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\ncp -R ${pyresdir}/paramiko \"$pythondir\"\ncp -R ${pyresdir}/Crypto \"$pythondir\"\n# cp -R ${pyresdir}/mysql \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying pysqlite2 for Audit Inspector\"\n    rm -fr \"$pythondir\"/pysqlite2\n    cp -R ${pyresdir}/pysqlite2-com \"$pythondir\"/pysqlite2\nelse\n    cp -R ${pyresdir}/pysqlite2 \"$pythondir\"\nfi\n\ncp ${pyresdir}/pyodbc.so \"$pythondir\"\n\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"/\n";
 			showEnvVarsInLog = 0;
 		};
-		2BEA13BE16E68F1500FC44F0 /* Copy plugins if exist */ = {
+		2BEA13BE16E68F1500FC44F0 /* Copy plugins (dylibs) if exist */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/plugins/wb.admin/internal/wba_audit",
-				"$(SRCROOT)/plugins/wb.admin/internal/wba_meb",
 				"$(BUILT_PRODUCTS_DIR)/wb.mysql.validation.grt.dylib",
 				"$(BUILT_PRODUCTS_DIR)/wb.validation.grt.dylib",
 				"$(BUILT_PRODUCTS_DIR)/wb.model.reporting.wbp.dylib",
 				"$(BUILT_PRODUCTS_DIR)/wb.model.advfind.wbp.dylib",
 			);
-			name = "Copy plugins if exist";
+			name = "Copy plugins (dylibs) if exist";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Install commercial plugins\n\n# Put all commercial plugin dylibs and directories in the Input Files list below.\n# For dylibs, you must add it as a dependency in the MySQLWorkbenchCom scheme (not in the project dependencies)\n# so that they get built only for commercial builds\ni=0\nwhile true; do\n    path=$(eval \"echo \\$SCRIPT_INPUT_FILE_$i\")\n    if test \"$path\" = \"\"; then\n        break\n    fi\n    if [ -f $path -o -d $path ]; then\n        echo \"Copy $path to $$BUILT_PRODUCTS_DIR/$PLUGINS_FOLDER_PATH\"\n        cp -r $path $BUILT_PRODUCTS_DIR/$PLUGINS_FOLDER_PATH\n    fi\n    i=$(($i+1))\ndone";
+			shellScript = "# Install commercial plugins (dylibs)\n\n# Put all commercial plugin dylibs in the Input Files list below.\n# For dylibs, you must add it as a dependency in the MySQLWorkbenchCom scheme (not in the project dependencies)\n# so that they get built only for commercial builds\ni=0\nwhile true; do\n    path=$(eval \"echo \\$SCRIPT_INPUT_FILE_$i\")\n    if test \"$path\" = \"\"; then\n        break\n    fi\n    if [ -f $path -o -d $path ]; then\n        echo \"Copy $path to $$BUILT_PRODUCTS_DIR/$PLUGINS_FOLDER_PATH\"\n        cp -r $path $BUILT_PRODUCTS_DIR/$PLUGINS_FOLDER_PATH\n    fi\n    i=$(($i+1))\ndone";
 			showEnvVarsInLog = 0;
 		};
 		EDB83B3E17D8BCF100E34378 /* Copy client library for build process */ = {
@@ -18072,7 +18096,6 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CODE_SIGN_FLAGS = "";
-				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--deep";
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx10.8;
