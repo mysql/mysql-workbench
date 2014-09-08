@@ -1302,7 +1302,8 @@ bool MySQLEditor::code_completion_enabled()
 
 bool MySQLEditor::auto_start_code_completion()
 {
-  return d->_grtm->get_app_option_int("DbSqlEditor:AutoStartCodeCompletion") == 1;
+  return (d->_grtm->get_app_option_int("DbSqlEditor:AutoStartCodeCompletion") == 1) &&
+    (d->_autocompletion_context != NULL);
 }
 
 //--------------------------------------------------------------------------------------------------

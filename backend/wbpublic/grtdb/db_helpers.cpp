@@ -109,6 +109,7 @@ std::string bec::sanitize_server_version_number(const std::string &version)
   return version;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 /**
  * Parses the given version string into its components and returns a GRT version class.
@@ -130,6 +131,27 @@ GrtVersionRef bec::parse_version(grt::GRT *grt, const std::string &target_versio
   return version;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+/**
+* Parses the given version string into its components and returns a GRT version class.
+* Unspecified components are set to -1 to allow for fuzzy comparisons.
+*/
+GrtVersionRef bec::int_to_version(grt::GRT *grt, int version)
+{
+  int major = version / 10000, minor = (version / 100) % 100, release = version % 100, build = -1;
+
+  GrtVersionRef version_(grt);
+  version_->name("Version");
+  version_->majorNumber(major);
+  version_->minorNumber(minor);
+  version_->releaseNumber(release);
+  version_->buildNumber(build);
+
+  return version_;
+}
+
+//--------------------------------------------------------------------------------------------------
 
 /**
  * Compares the given version numbers to see if a is equal to b.
