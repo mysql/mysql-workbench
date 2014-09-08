@@ -298,13 +298,16 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
 void SpatialDataView::call_refresh_viewer()
 {
-  if (_spliter_change_timeout != 0)
+  if (!_rendering)
   {
-    mforms::Utilities::cancel_timeout(_spliter_change_timeout);
-    _spliter_change_timeout = 0;
+    if (_spliter_change_timeout != 0)
+    {
+      mforms::Utilities::cancel_timeout(_spliter_change_timeout);
+      _spliter_change_timeout = 0;
+    }
+    
+    _spliter_change_timeout = mforms::Utilities::add_timeout(0.5, boost::bind(&SpatialDataView::refresh_viewer, this));
   }
-
-  _spliter_change_timeout = mforms::Utilities::add_timeout(0.5, boost::bind(&SpatialDataView::refresh_viewer, this));
 }
 
 bool SpatialDataView::refresh_viewer()
