@@ -78,6 +78,7 @@ private:
   mforms::TextBox *_info_box;
 
   LayerId _active_layer;
+  LayerId _grid_layer;
 
   mforms::Label *_mouse_pos_label;
 
@@ -118,6 +119,8 @@ private:
 
   void map_menu_will_show();
   void layer_menu_will_show();
+
+  void activate_layer();
 
 public:
   SpatialDataView(SqlEditorResult *owner);
