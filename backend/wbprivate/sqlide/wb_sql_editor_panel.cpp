@@ -195,20 +195,20 @@ bool SqlEditorPanel::can_close()
   if (_busy)
     return false;
 
-  bool check_scratch_editors = true;
+  bool check_editors = true;
   // if Save of workspace on close is enabled, we don't need to check whether there are unsaved scratch
   // SQL editors but other stuff should be checked.
   grt::ValueRef option(_form->grt_manager()->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
-    check_scratch_editors = false;
+    check_editors = false;
 
   // don't need to check for unsaved changes when closing the whole form
   // if save-workspace is enabled, since they'll get autosaved anyway
   // otoh, when closing the file itself, it should check
   if (!_form->is_closing())
-    check_scratch_editors = true;
+    check_editors = true;
 
-  if (/*!_is_scratch || */check_scratch_editors)
+  if (!_is_scratch && check_editors)
   {
     if (is_dirty())
     {

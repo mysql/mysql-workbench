@@ -262,6 +262,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 //  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
 //  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
 
+  _layer_menu->add_item_with_title("Set Active", boost::bind(&SpatialDataView::activate_layer, this), "set_active");
+
    mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
    mitem->set_name("fillup_polygon");
    mitem->signal_clicked()->connect(boost::bind(&SpatialDataView::fillup_polygon, this, mitem));
@@ -278,6 +280,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
   _layer_tree->set_context_menu(_layer_menu);
+  _layer_tree->signal_node_activated()->connect(boost::bind(&SpatialDataView::activate_layer, this));
   _option_box->add(_layer_tree, true, true);
 
   _mouse_pos_label = mforms::manage(new mforms::Label("Lat:\nLon:"));
@@ -291,7 +294,6 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _splitter->add(_option_box, 200);
 
   _splitter->signal_position_changed()->connect(boost::bind(&SpatialDataView::call_refresh_viewer, this));
-
 
   add(_splitter, true, true);
 }
@@ -316,7 +318,6 @@ bool SpatialDataView::refresh_viewer()
     return false;
 
   _spliter_change_timeout = 0;
-
   _viewer->invalidate(true);
 
   return false;
@@ -514,6 +515,7 @@ void SpatialDataView::layer_menu_will_show()
 {
   spatial::Layer *layer = _viewer->get_layer(get_selected_layer_id());
 
+  _layer_menu->set_item_enabled("set_active", layer && layer->layer_id() != _grid_layer);
   _layer_menu->set_item_checked("fillup_polygon", layer && layer->fill());
 }
 
@@ -669,6 +671,16 @@ void SpatialDataView::tree_toggled(const mforms::TreeNodeRef &node, const std::s
 }
 
 
+void SpatialDataView::activate_layer()
+{
+  mforms::TreeNodeRef node = _layer_tree->get_selected_node();
+  if (node)
+  {
+    set_active_layer(atoi(node->get_tag().c_str()));
+  }
+}
+
+
 static spatial::Layer *find_layer_for(std::deque<spatial::Layer*> &layers, Recordset::Ref rset, int column)
 {
   for (std::deque<spatial::Layer*>::iterator l = layers.begin(); l != layers.end(); ++l)
@@ -683,6 +695,9 @@ static spatial::Layer *find_layer_for(std::deque<spatial::Layer*> &layers, Recor
 
 void SpatialDataView::set_active_layer(spatial::LayerId layer)
 {
+  if (_grid_layer == layer)
+    return;
+
   _active_layer = layer;
 
   mforms::TreeNodeTextAttributes plain;
@@ -740,9 +755,9 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     node->set_string(1, "Grid");
     set_color_icon(node, 1, color);
     node->set_bool(0, true);
-    spatial::LayerId layer_id = spatial::new_layer_id();
-    node->set_tag(base::strfmt("%i", layer_id));
-    _viewer->set_background(new GridLayer(layer_id, color));
+    _grid_layer = spatial::new_layer_id();
+    node->set_tag(base::strfmt("%i", _grid_layer));
+    _viewer->set_background(new GridLayer(_grid_layer, color));
   }
 
   std::deque<spatial::Layer*> layers(_viewer->get_layers());
