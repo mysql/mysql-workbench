@@ -254,6 +254,8 @@ public:
   bool collect_field_info() const;
   void toggle_collect_ps_statement_events();
   bool collect_ps_statement_events() const;
+
+  void set_connection(db_mgmt_ConnectionRef conn);
   
   void run_editor_contents(bool current_statement_only);
 

@@ -826,9 +826,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.explain_current_statement");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_explain.png"));
   item->set_tooltip(_("Execute the EXPLAIN command on the statement under the cursor"));
-  _form->wbsql()->get_cmdui()->scoped_connect(item->signal_activated(),
-                                      boost::bind((void (wb::CommandUI::*)(const std::string&))&wb::CommandUI::activate_command,
-                                                  _form->wbsql()->get_cmdui(), "builtin:query.explain_current_statement"));
+  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::explain_current_statement, _form));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
