@@ -23,6 +23,7 @@
 #include "sqlide_generics.h"
 #include "grtsqlparser/sql_facade.h"
 #include "base/string_utilities.h"
+#include "base/sqlstring.h"
 #include <sqlite/query.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/foreach.hpp>
@@ -117,6 +118,146 @@ private:
   sql::ResultSet *_rs;
   size_t _foreknown_blob_size;
 };
+
+
+size_t Recordset_cdbc_storage::determine_pkey_columns(Recordset::Column_names &column_names, Recordset::Column_types &column_types, Recordset::Column_types &real_column_types)
+{
+  // a connection other than the user connection must be used for fetching metadata, otherwise we change the state of the connection
+  sql::Dbc_connection_handler::ConnectionRef aux_dbms_conn_ref= this->aux_dbms_conn_ref();
+
+  sql::DatabaseMetaData *conn_meta(aux_dbms_conn_ref->getMetaData());
+  try
+  {
+    // XXX this can be slow because of the I_S queries, depending on the server
+    std::auto_ptr<sql::ResultSet> rs(conn_meta->getBestRowIdentifier("", _schema_name, _table_name, 0, 0));
+    size_t rowid_col_count= rs->rowsCount();
+    if (rowid_col_count > 0)
+    {
+      _pkey_columns.reserve(rowid_col_count);
+      while (rs->next())
+      {
+        Recordset::Column_names::const_iterator i=
+        std::find(column_names.begin(), column_names.end(), rs->getString("COLUMN_NAME"));
+        if (i != column_names.end())
+        {
+          ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
+          column_names.push_back(column_names[col]);
+          column_types.push_back(column_types[col]);
+          real_column_types.push_back(real_column_types[col]);
+          _pkey_columns.push_back(col); // copy original value of pk field(s)
+        }
+        else
+          rowid_col_count--;
+      }
+
+      if (rowid_col_count != rs->rowsCount())
+      {
+        _readonly = true;
+        _readonly_reason = "To edit table data, the SELECT statement must include the primary key column(s).";
+      }
+    }
+    else
+    {
+      _readonly = true;
+      _readonly_reason = "The table has no unique row identifier (primary key or a NOT NULL unique index)";
+    }
+    return rowid_col_count;
+  }
+  catch (sql::SQLException &exc)
+  {
+    _readonly = true;
+    _readonly_reason = base::strfmt("Could not determine a unique row identifier (%s)", exc.what());
+  }
+  return 0;
+}
+
+
+size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_names &column_names, Recordset::Column_types &column_types, Recordset::Column_types &real_column_types)
+{
+  // a connection other than the user connection must be used for fetching metadata, otherwise we change the state of the connection
+  sql::Dbc_connection_handler::ConnectionRef aux_dbms_conn_ref= this->aux_dbms_conn_ref();
+
+  std::auto_ptr<sql::Statement> stmt(aux_dbms_conn_ref->createStatement());
+  std::string q = base::sqlstring("SHOW INDEX FROM !.!", 0) << _schema_name << _table_name;
+  try
+  {
+    std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(q));
+    std::list<std::string> primary_columns;
+    std::list<std::string> unique_notnull_columns, columns;
+
+    bool found_not_null = false;
+    std::string prev_key;
+    while (rs->next())
+    {
+      std::string column = rs->getString("Column_name");
+      std::string null = rs->getString("Null");
+      std::string key = rs->getString("Key_name");
+
+      if (key == "PRIMARY")
+      {
+        primary_columns.push_back(column);
+      }
+      else
+      {
+        // at least one of the columns must be NOT NULL in a UNIQUE key
+        if (prev_key != key)
+        {
+          if (found_not_null)
+            unique_notnull_columns = columns;
+          found_not_null = false;
+          columns.clear();
+        }
+        columns.push_back(column);
+        if (null == "")
+          found_not_null = true;
+      }
+    }
+
+    if (!primary_columns.empty())
+      columns = primary_columns;
+    else
+      columns = unique_notnull_columns;
+
+    if (!columns.empty())
+    {
+      size_t rowid_col_count= columns.size();
+      // now check whether the query contains all the columns in the keys
+      for (std::list<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
+      {
+        Recordset::Column_names::const_iterator i = std::find(column_names.begin(), column_names.end(), *column);
+
+        if (i != column_names.end())
+        {
+          ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
+          column_names.push_back(column_names[col]);
+          column_types.push_back(column_types[col]);
+          real_column_types.push_back(real_column_types[col]);
+          _pkey_columns.push_back(col); // copy original value of pk field(s)
+        }
+        else
+          rowid_col_count--;
+      }
+
+      if (rowid_col_count != columns.size())
+      {
+        _readonly = true;
+        _readonly_reason = "To edit table data, the SELECT statement must include the primary key column(s).";
+      }
+      return rowid_col_count;
+    }
+  }
+  catch (sql::SQLException &exc)
+  {
+    _readonly = true;
+    _readonly_reason = base::strfmt("Could not determine a unique row identifier (%s)", exc.what());
+    return 0;
+  }
+
+  _readonly = true;
+  _readonly_reason = "The table has no unique row identifier (primary key or a NOT NULL unique index)";
+
+  return 0;
+}
 
 
 void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connection *data_swap_db)
@@ -298,53 +439,8 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   ColumnId rowid_col_count= 0;
   if (!_table_name.empty()) // we need PK info only for editable statements and table_name member is filled only for those
   {
-    // a connection other than the user connection must be used for fetching metadata, otherwise we change the state of the connection
-    sql::Dbc_connection_handler::ConnectionRef aux_dbms_conn_ref= this->aux_dbms_conn_ref();
-
-    sql::DatabaseMetaData *conn_meta(aux_dbms_conn_ref->getMetaData());
-    try
-    {
-      std::auto_ptr<sql::ResultSet> rs(conn_meta->getBestRowIdentifier("", _schema_name, _table_name, 0, 0));
-      rowid_col_count= rs->rowsCount();
-      if (rowid_col_count > 0)
-      {
-        _pkey_columns.reserve(rowid_col_count);
-        column_names.reserve(editable_col_count + rowid_col_count);
-        column_types.reserve(editable_col_count + rowid_col_count);
-        real_column_types.reserve(editable_col_count + rowid_col_count);
-        while (rs->next())
-        {
-          Recordset::Column_names::const_iterator i=
-          std::find(column_names.begin(), column_names.end(), rs->getString("COLUMN_NAME"));
-          if (i != column_names.end())
-          {
-            ColumnId col= std::distance((Recordset::Column_names::const_iterator)column_names.begin(), i);
-            column_names.push_back(column_names[col]);
-            column_types.push_back(column_types[col]);
-            real_column_types.push_back(real_column_types[col]);
-            _pkey_columns.push_back(col); // copy original value of pk field(s)
-          }
-          else
-            rowid_col_count--;
-        }
-
-        if (rowid_col_count != rs->rowsCount())
-        {
-          _readonly = true;
-          _readonly_reason = "To edit table data, the SELECT statement must include the primary key column(s).";
-        }
-      }
-      else
-      {
-        _readonly = true;
-        _readonly_reason = "The table has no unique row identifier (primary key or a NOT NULL unique index)";
-      }
-    }
-    catch (sql::SQLException &exc)
-    {
-      _readonly = true;
-      _readonly_reason = base::strfmt("Could not determine a unique row identifier (%s)", exc.what());
-    }
+    // some day, I_S will be fast enough and we can switch to the non-alt version of the method for that server and above
+    rowid_col_count = determine_pkey_columns_alt(column_names, column_types, real_column_types);
   }
 
   // columns values of that must be null to signify that actual value to be fetched on-demand (e.g. when open blob editor)
@@ -361,12 +457,11 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
 
     create_data_swap_tables(data_swap_db, column_names, column_types);
 
-    ColumnId col_count= editable_col_count + rowid_col_count;
     FetchVar fetch_var(rs.get());
-    Var_vector row_values(col_count);
+    Var_vector row_values(editable_col_count + rowid_col_count);
 
     std::list<boost::shared_ptr<sqlite::command> > insert_commands= prepare_data_swap_record_add_statement(data_swap_db, column_names);
-
+    // XXX this will fetch all records before displaying them, which will result in a huge unnecessary lag in the UI
     while (rs->next())
     {
       for (ColumnId n= 0; editable_col_count > n; ++n)
