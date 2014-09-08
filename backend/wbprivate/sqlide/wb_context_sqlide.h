@@ -67,7 +67,6 @@ namespace wb
     bool activate_live_object(GrtObjectRef object);
 
     void open_document(const std::string &path);
-    void run_file(const std::string &path);
     
     bool request_quit();
 

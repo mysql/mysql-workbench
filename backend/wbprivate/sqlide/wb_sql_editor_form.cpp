@@ -227,7 +227,6 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _sql_editors_serial(0),
   _scratch_editors_serial(0),
   _keep_alive_thread(NULL),
-  _connection(conn),
   _aux_dbc_conn(new sql::Dbc_connection_handler()),
   _usr_dbc_conn(new sql::Dbc_connection_handler()),
   _last_server_running_state(UnknownState),
@@ -249,22 +248,8 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   NotificationCenter::get()->add_observer(this, "GNColorsChanged");
   GRTNotificationCenter::get()->add_grt_observer(this, "GRNServerStateChanged");
 
-  _dbc_auth = sql::Authentication::create(_connection, "");
-
-  // initialize the password with a cached value
-  {
-    std::string password;
-    bool ok = true;
-    if (!mforms::Utilities::find_password(conn->hostIdentifier(),
-                                          conn->parameterValues().get_string("userName"),
-                                          password))
-      if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
-                                                   conn->parameterValues().get_string("userName"),
-                                                   password))
-        ok = false;
-    if (ok)
-      _dbc_auth->set_password(password.c_str());
-  }
+  if (conn.is_valid())
+    set_connection(conn);
 
   exec_sql_task->send_task_res_msg(false);
   exec_sql_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, this, _1, _2, _3, ""));
@@ -373,10 +358,14 @@ db_query_EditorRef SqlEditorForm::grtobj()
  */
 std::string SqlEditorForm::get_session_name()
 {
-  std::string name = _connection->name();
-  if (name.empty())
-    name = _connection->hostIdentifier();
-  return name;
+  if (_connection.is_valid())
+  {
+    std::string name = _connection->name();
+    if (name.empty())
+      name = _connection->hostIdentifier();
+    return name;
+  }
+  return "unconnected";
 }
 
 //-------------------------------------------------------------------------------------------------- 
@@ -403,7 +392,7 @@ void SqlEditorForm::title_changed()
   base::NotificationInfo info;
   info["form"] = form_id();
   info["title"] = _title;
-  info["connection"] = _connection->name();
+  info["connection"] = _connection.is_valid() ? _connection->name() : "";
   base::NotificationCenter::get()->send("GNFormTitleDidChange", this, info);
 }
 
@@ -1090,6 +1079,37 @@ struct ConnectionErrorInfo
 };
 
 
+void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn)
+{
+  if (_connection.is_valid())
+    log_warning("Setting connection on an editor with a connection already set\n");
+
+  _connection = conn;
+
+  _dbc_auth = sql::Authentication::create(_connection, "");
+
+  // initialize the password with a cached value
+  {
+    std::string password;
+    bool ok = true;
+    if (!mforms::Utilities::find_password(conn->hostIdentifier(),
+                                          conn->parameterValues().get_string("userName"),
+                                          password))
+      if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
+                                                   conn->parameterValues().get_string("userName"),
+                                                   password))
+        ok = false;
+    if (ok)
+      _dbc_auth->set_password(password.c_str());
+  }
+
+  // send editor open notification again, in case the connection is being set after the connection
+  // tab is opened. this will be caught by the admin code to init itself
+  if (_startup_done)
+    GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
+}
+
+
 bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
 {
   sql::Authentication::Ref auth = _dbc_auth;//sql::Authentication::create(_connection, "");
@@ -1313,20 +1333,27 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     else if (exc.getErrorCode() == 2013 || exc.getErrorCode() == 2003 || exc.getErrorCode() == 2002) // ERROR 2003 (HY000): Can't connect to MySQL server on X.Y.Z.W (or via socket)
     {
       _connection_info.append(create_html_line("", "<b><span style='color: red'>NO CONNECTION</span></b>"));
+      _connection_info.append("</body></html>");
       add_log_message(WarningMsg, exc.what(), "Could not connect, server may not be running.", "");
 
       err_ptr->server_probably_down = true;
 
-      // if there's no connection, then we continue anyway if this is a local connection or
-      // a remote connection with remote admin enabled.. 
-      grt::Module *m = _grtm->get_grt()->get_module("WbAdmin");
-      grt::BaseListRef args(_grtm->get_grt());
-      args.ginsert(_connection);
-      if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
+      if (_connection.is_valid())
       {
-        log_error("Connection failed but remote admin does not seem to be available, rethrowing exception...\n");
-        throw;
+        // if there's no connection, then we continue anyway if this is a local connection or
+        // a remote connection with remote admin enabled..
+        grt::Module *m = _grtm->get_grt()->get_module("WbAdmin");
+        grt::BaseListRef args(_grtm->get_grt());
+        args.ginsert(_connection);
+        if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
+        {
+          log_error("Connection failed but remote admin does not seem to be available, rethrowing exception...\n");
+          throw;
+        }
+        log_info("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
+                 exc.getErrorCode());
       }
+
       log_info("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
         exc.getErrorCode());
       _connection_info.append("</body></html>");
@@ -2707,7 +2734,7 @@ db_mgmt_RdbmsRef SqlEditorForm::rdbms()
     return db_mgmt_RdbmsRef::cast_from(_connection->driver()->owner());
   }
   else
-    return db_mgmt_RdbmsRef::cast_from(_grtm->get_grt()->get("/wb/doc/physicalModels/0/rdbms"));
+    return db_mgmt_RdbmsRef::cast_from(_grtm->get_grt()->get("/wb/rdbmsMgmt/rdbms/0/"));
 }
 
 
@@ -2736,25 +2763,28 @@ std::string SqlEditorForm::create_title()
 {
   std::string caption;
   std::string editor_connection = get_session_name();
-  
-  if (!editor_connection.empty())
-    caption += strfmt("%s", editor_connection.c_str());
-  else
+  if (_connection.is_valid())
   {
-    if (_connection->driver()->name() == "MysqlNativeSocket")
-      caption += "localhost";
+    if (!editor_connection.empty())
+      caption += strfmt("%s", editor_connection.c_str());
     else
-      caption+= strfmt("%s", truncate_text(editor_connection,21).c_str());
+    {
+      if (_connection->driver()->name() == "MysqlNativeSocket")
+        caption += "localhost";
+      else
+        caption+= strfmt("%s", truncate_text(editor_connection,21).c_str());
+    }
+
+    // only show schema name if there's more than 1 tab to the same connection, to save space
+    if (!_usr_dbc_conn->active_schema.empty() && count_connection_editors(editor_connection) > 1)
+      caption += strfmt(" (%s)", truncate_text(_usr_dbc_conn->active_schema, 20).c_str());
+
+    if (_connection_details.find("dbmsProductVersion") != _connection_details.end()
+        && !bec::is_supported_mysql_version(_connection_details["dbmsProductVersion"]))
+      caption += " - Warning - not supported";
   }
-
-  // only show schema name if there's more than 1 tab to the same connection, to save space
-  if (!_usr_dbc_conn->active_schema.empty() && count_connection_editors(editor_connection) > 1)
-    caption += strfmt(" (%s)", truncate_text(_usr_dbc_conn->active_schema, 20).c_str());
-
-  if (_connection_details.find("dbmsProductVersion") != _connection_details.end()
-      && !bec::is_supported_mysql_version(_connection_details["dbmsProductVersion"]))
-    caption += " - Warning - not supported";
-  
+  else
+    caption = editor_connection;
   return caption;
 }
 

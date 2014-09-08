@@ -56,7 +56,7 @@ void SqlEditorForm::auto_save()
   {
     try
     {
-      save_workspace(sanitize_file_name(_connection->name()), true);
+      save_workspace(sanitize_file_name(_connection.is_valid() ? _connection->name() : "unconnected"), true);
     }
     catch (std::exception &exc)
     {

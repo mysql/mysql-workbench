@@ -51,7 +51,6 @@
 
 #include "upgrade_helper.h"
 
-#include "grtui/grtdb_connect_dialog.h"
 #include "grtdb/db_helpers.h"
 
 #include "interfaces/interfaces.h"
@@ -1246,7 +1245,10 @@ void WBContext::init_finish_(WBOptions *options)
             add_new_admin_window(conn);
           else
           {
-            add_new_query_window(conn);
+            if (conn.is_valid())
+              add_new_query_window(conn);
+            else
+              add_new_query_window();
             if (!options->open_at_startup.empty())
               open_script_file(options->open_at_startup);
           }
@@ -2666,7 +2668,7 @@ bool WBContext::open_file_by_extension(const std::string &path, bool interactive
       form->open_file(path, true);
       return true;
     }
-    show_error(_("Open SQL File"), _("Please select an open SQL editor connection tab to open a script file."));
+    _sqlide_context->open_document(path);
     return false;
   }
   else
@@ -3489,19 +3491,6 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
   
   show_status_text(_("Opening SQL Editor..."));
   
-  if (!target.is_valid())
-  {
-    grtui::DbConnectionDialog dialog(get_root()->rdbmsMgmt());
-    log_debug("No connection specified, showing connection selection dialog...\n"); 
-    target= dialog.run();
-    if (!target.is_valid())
-    {
-      log_debug("Connection selection dialog was cancelled\n");
-      show_status_text(_("Connection cancelled"));
-      return SqlEditorForm::Ref();
-    }
-  }
-  
   SqlEditorForm::Ref form;
   try
   {
@@ -3564,6 +3553,34 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
 
   return form;
 }
+
+
+boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window()
+{
+  show_status_text(_("Opening SQL Editor..."));
+
+  SqlEditorForm::Ref form;
+  form= get_sqlide_context()->create_connected_editor(db_mgmt_ConnectionRef());
+
+  try
+  {
+    create_main_form_view(WB_MAIN_VIEW_DB_QUERY, form);
+  }
+  catch (std::exception &exc)
+  {
+    show_status_text(_("Could not open SQL Editor."));
+
+    show_error(_("Cannot Open SQL Editor"), strfmt(_("Error in frontend for SQL Editor: %s"), exc.what()));
+    return SqlEditorForm::Ref();
+  }
+
+  show_status_text(_("SQL Editor Opened."));
+
+  form->update_title();
+  
+  return form;
+}
+
 #endif // DB_Querying____
 
 #ifndef Admin____
