@@ -605,7 +605,7 @@ void WBContextUI::handle_home_context_menu(const grt::ValueRef &object, const st
     // Internal deletion does not require the prompt
     if (action == "delete_connection_group")
     {
-      std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), base::left(group, group.length() -1).c_str());
+      std::string text= strfmt(_("Do you really want to delete all the connections in group: %s?"), base::left(group, (unsigned int)group.length() -1).c_str());
       answer = Utilities::show_warning(_("Delete Connection Group"), text,  _("Delete"), _("Cancel"));
     }
     
@@ -850,7 +850,7 @@ void WBContextUI::handle_home_action(HomeScreenAction action, const grt::ValueRe
       grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
 
       grt::DictRef dict = grt::DictRef::cast_from(object);
-      int to = grt::IntegerRef::cast_from(dict["to"]);
+      int to = (int)grt::IntegerRef::cast_from(dict["to"]);
       if (db_mgmt_ConnectionRef::can_wrap(dict["object"]))
       {
         db_mgmt_ConnectionRef connection = db_mgmt_ConnectionRef::cast_from(dict["object"]);

@@ -1330,6 +1330,13 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       log_info("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
         exc.getErrorCode());
       _connection_info.append("</body></html>");
+
+      // Create a parser with some sensible defaults if we cannot connect.
+      // We specify no charsets here, disabling parsing of repertoires.
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(grt, 50503), true);
+      _work_parser_context->use_sql_mode(_sql_mode);
+
       return grt::StringRef();
     }
     _connection_info.append("</body></html>");

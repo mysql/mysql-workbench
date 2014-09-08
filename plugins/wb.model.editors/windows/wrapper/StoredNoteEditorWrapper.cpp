@@ -45,10 +45,6 @@ StoredNoteEditorWrapper::StoredNoteEditorWrapper(MySQL::Grt::GrtManager ^grtm, M
 
 StoredNoteEditorWrapper::~StoredNoteEditorWrapper()
 {
-  // These wrappers keep a gc pointer to this instance (if assigned);
-  set_refresh_partial_ui_handler(nullptr);
-  set_refresh_ui_handler(nullptr);
-
   delete inner; // We created it.
 }
 
