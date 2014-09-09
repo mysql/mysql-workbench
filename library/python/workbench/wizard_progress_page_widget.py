@@ -252,6 +252,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         
         self._showing_logs = False
         self._cancel_requested = False
+        self._tasks_held = False
         self.advanced_button.set_text("Show Logs")
         
         self._log_progress_text = True
@@ -301,8 +302,11 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
 
 
     def go_next(self):
-        if self._currently_running_task_index is None and not self._tasks_finished:
-            self.start()
+        if not self._tasks_finished:
+            if self._currently_running_task_index is None:
+                self.start()
+            else:
+                self.resume()
         else:
             wizard_page_widget.WizardPage.go_next(self)
 
@@ -391,6 +395,20 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self.send_info("Starting...")
         self._timer = mforms.Utilities.add_timeout(0.1, self.update_status)
         
+    def resume(self):
+        self._progress.show()
+        self.next_button.set_enabled(False)
+        self.back_button.set_enabled(False)
+        self.cancel_button.set_enabled(True)
+        
+        if not self._use_private_message_handling:
+            grt.push_status_query_handler(self.query_cancel_status)
+            grt.push_message_handler(self._handle_task_output)
+        self.send_info("Resuming...")
+
+        self._tasks_held = False
+        self._timer = mforms.Utilities.add_timeout(0.1, self.update_status)
+
         
     def tasks_finished(self):
         pass
@@ -399,6 +417,21 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
     def tasks_failed(self, canceled):
         pass
         
+    def _hold(self):
+        self.send_info("Processing Held")
+        self._flush_messages()
+        self.send_info("\n")
+
+        self._progress.show(False)
+        self._progress.stop()
+        self._progress_indeterminate = False
+        self.next_button.set_enabled(True)
+        self.back_button.set_enabled(True)
+        self.cancel_button.set_enabled(True)
+
+        self._tasks_held = True
+
+
 
     def _finished(self):
         if self._warnings > 0 or self._errors > 0:
@@ -530,9 +563,18 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
 
         return ret_val
 
+    def verify_task_preconditions(self, label):
+        """
+        Will check for specific task conditions to be met, task will be identified by its label.
+        If preconditions are met returns None, if not, returns a descriptive error message.
+        """
+        return None
 
     def update_status(self):
         self._flush_messages()
+
+        if self._tasks_held:
+            return False
     
         if self._progress_info:
             pct, text = self._progress_info
@@ -558,7 +600,14 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
                 return False
 
             try:
-                task.run()
+                error = self.verify_task_preconditions(task.label)
+                if error is None:
+                    task.run()
+                else:
+                    self._hold()
+                    mforms.Utilities.show_error("Unable To Continue", error, "OK", "", "")
+
+
             except Exception, exc:
                 #print
                 #import traceback
