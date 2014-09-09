@@ -35,6 +35,7 @@
 
 #include "base/sqlstring.h"
 #include "grt/parse_utils.h"
+#include "grt/spatial_handler.h"
 #include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/boost_smart_ptr_helpers.h"
@@ -719,6 +720,14 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
     }
     if (has_geometry)
     {
+      if (!spatial::Projection::get_instance().check_libproj_availability())
+      {
+        mforms::Utilities::show_message_and_remember("Unable to initialize Spatial Viewer",
+                                                     "Spatial support requires the PROJ.4 library (libproj). If you already have it installed, please set the PROJSO environment variable to its location before starting Worbench.",
+                                                     "Ok", "", "",
+                                                     "SqlEditorResult.libprojcheck", "");
+        return;
+      }
       _spatial_result_view = mforms::manage(new SpatialDataView(this));
       add_switch_toggle_toolbar_item(_spatial_result_view->get_toolbar());
       mforms::AppView *box = mforms::manage(new mforms::AppView(false, "SpatialView", false));
