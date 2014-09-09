@@ -223,6 +223,9 @@ std::string spatial::shape_description(ShapeType shp)
 
 spatial::Projection::Projection()
 {
+  CPLSetErrorHandler(&ogr_error_handler);
+  OGRRegisterAll();
+
   char* m_wkt = const_cast<char*>("PROJCS[\"World_Mercator\", "
       "GEOGCS[\"GCS_WGS_1984\", "
       "DATUM[\"WGS_1984\", "
@@ -300,6 +303,18 @@ spatial::Projection& spatial::Projection::get_instance()
 {
   static Projection instance;
   return instance;
+}
+
+bool spatial::Projection::check_libproj_availability()
+{
+  OGRCoordinateTransformation *ref = OGRCreateCoordinateTransformation(&_geodetic_srs, &_robinson_srs);
+  if (ref == NULL)
+    return false;
+  else
+  {
+    OCTDestroyCoordinateTransformation(ref);
+    return true;
+  }
 }
 
 OGRSpatialReference* spatial::Projection::get_projection(ProjectionType type)
@@ -551,8 +566,6 @@ void spatial::Importer::interrupt()
 spatial::Converter::Converter(ProjectionView view, OGRSpatialReference *src_srs, OGRSpatialReference *dst_srs)
 : _geo_to_proj(NULL), _proj_to_geo(NULL), _source_srs(NULL), _target_srs(NULL), _interrupt(false)
 {
-  CPLSetErrorHandler(&ogr_error_handler);
-  OGRRegisterAll();
   change_projection(view, src_srs, dst_srs);
 }
 
@@ -621,7 +634,7 @@ void spatial::Converter::change_projection(ProjectionView view, OGRSpatialRefere
     _geo_to_proj = OGRCreateCoordinateTransformation(_source_srs, _target_srs);
     _proj_to_geo = OGRCreateCoordinateTransformation(_target_srs, _source_srs);
     if (!_geo_to_proj || !_proj_to_geo)
-      throw std::logic_error("Unable to perform specified transformation.\n");
+      throw std::logic_error("Unable to create coordinate transformation context.");
   }
 
   double minLat = _view.MinLat, maxLon = _view.MaxLon, maxLat = _view.MaxLat, minLon = _view.MinLon;

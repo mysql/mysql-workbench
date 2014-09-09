@@ -28,7 +28,7 @@
 #include "base/log.h"
 #include <cairo.h>
 
-//DEFAULT_LOG_DOMAIN("spatial");
+DEFAULT_LOG_DOMAIN("spatial_draw_box");
 
 class ProgressPanel : public mforms::Box
 {
@@ -179,12 +179,20 @@ void SpatialDrawBox::render(bool reproject)
   visible_area.height = height;
   visible_area.width = width;
 
-  if (_spatial_reprojector == NULL)
-    _spatial_reprojector = new spatial::Converter(visible_area,
-                              spatial::Projection::get_instance().get_projection(spatial::ProjGeodetic),
-                              spatial::Projection::get_instance().get_projection(_proj));
+  try {
+    if (_spatial_reprojector == NULL)
+      _spatial_reprojector = new spatial::Converter(visible_area,
+                                spatial::Projection::get_instance().get_projection(spatial::ProjGeodetic),
+                                spatial::Projection::get_instance().get_projection(_proj));
+  } catch (std::exception &exc)
+  {
+    log_error("SpatialDrawBox::render: %s\n", exc.what());
+    return;
+  }
 
   _spatial_reprojector->change_projection(visible_area, NULL, spatial::Projection::get_instance().get_projection(_proj));
+
+
 
 
 
