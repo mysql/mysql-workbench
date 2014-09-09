@@ -972,7 +972,7 @@ static NSString *applicationSupportFolder()
   _options->basedir = [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation];
   _options->struct_search_path = _options->basedir + "/grt";
   _options->plugin_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]);
-  _options->module_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]);
+  _options->module_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]) + ":" + std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/plugins";
   _options->library_search_path = std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/libraries";
   _options->cdbc_driver_search_path = std::string([[[NSBundle mainBundle] privateFrameworksPath] fileSystemRepresentation]);
   _options->user_data_dir= [[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation];

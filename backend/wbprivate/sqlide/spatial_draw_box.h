@@ -42,6 +42,7 @@ class SpatialDrawBox : public mforms::DrawBox
   spatial::LayerId _last_autozoom_layer;
   spatial::ProjectionType _proj;
   boost::shared_ptr<mdc::Surface> _cache;
+  mdc::CairoCtx *_ctx_cache;
   base::Mutex _thread_mutex;
   spatial::Converter *_spatial_reprojector;
 
@@ -166,7 +167,8 @@ public:
   bool screen_to_world(const int &x, const int &y, double &lat, double &lon);
   void world_to_screen(const double &lat, const double &lon, int &x, int &y);
 
-  base::Point transform_point(const base::Point &p);
+  base::Point apply_cairo_transformation(const base::Point &p) const;
+  base::Point unapply_cairo_transformation(const base::Point &p) const;
   void clear_pins();
   void place_pin(cairo_surface_t *pin, const base::Point &p);
 };

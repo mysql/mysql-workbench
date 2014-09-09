@@ -33,6 +33,7 @@
 #include "grts/structs.app.h"
 
 #include "grt/editor_base.h"
+#include "grtui/grtdb_connect_dialog.h"
 
 #include "workbench/wb_context.h"
 #include "workbench/wb_context_ui.h"
@@ -59,6 +60,7 @@
 #include "mforms/code_editor.h"
 #include "mforms/menubar.h"
 #include "mforms/toolbar.h"
+#include "mforms/filechooser.h"
 
 using namespace wb;
 using namespace bec;
@@ -390,13 +392,6 @@ static bool validate_export(wb::WBContextSQLIDE *sqlide)
   return has_active_resultset(sqlide);
 }
 
-static void call_run_file(wb::WBContextSQLIDE *sqlide)
-{
-  std::string path= sqlide->get_wbui()->get_wb()->show_file_dialog("open", _("Execute SQL Script"), "SQL Files (*.sql)|*.sql");
-  if (!path.empty())
-    sqlide->run_file(path);
-}
-
 static void call_save_file(wb::WBContextSQLIDE *sqlide)
 {
   SqlEditorForm *editor = sqlide->get_active_sql_editor();
@@ -487,13 +482,35 @@ static void call_new_connection(wb::WBContextSQLIDE *sqlide)
   }
 }
 
+static bool validate_has_connection(wb::WBContextSQLIDE *sqlide)
+{
+  SqlEditorForm *form = sqlide->get_active_sql_editor();
+  return form && form->connection_descriptor().is_valid();
+}
+
+static void call_open_script(wb::WBContextSQLIDE *sqlide)
+{
+  mforms::FileChooser chooser(mforms::OpenFile);
+  chooser.set_title("Open SQL Script");
+  chooser.set_extensions("SQL Files (*.sql)|*.sql|Query Browser Files (*.qbquery)|*.qbquery", "sql");
+  if (chooser.run_modal())
+  {
+    boost::shared_ptr<SqlEditorForm> form = sqlide->get_wbui()->get_wb()->add_new_query_window();
+    if (form)
+    {
+      form->open_file(chooser.get_path());
+    }
+  }
+}
+
 
 static void call_exec_sql(wb::WBContextSQLIDE *sqlide, bool current_statement_only)
 {
   SqlEditorForm *form= sqlide->get_active_sql_editor();
   if (form)
     form->run_editor_contents(current_statement_only);
-}  
+}
+
 
 static bool validate_exec_sql(wb::WBContextSQLIDE *sqlide)
 {
@@ -752,6 +769,8 @@ void WBContextSQLIDE::init()
 
   cmdui->add_builtin_command("query.execute", boost::bind(call_exec_sql, this, false), boost::bind(validate_exec_sql, this));
   cmdui->add_builtin_command("query.execute_current_statement", boost::bind(call_exec_sql, this, true), boost::bind(validate_exec_sql, this));
+
+  cmdui->add_builtin_command("query.explain_current_statement", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::explain_current_statement), boost::bind(validate_exec_sql, this));
   
   cmdui->add_builtin_command("query.save_edits", boost::bind(call_save_edits, this), boost::bind(validate_save_edits, this));
   cmdui->add_builtin_command("query.discard_edits", boost::bind(call_discard_edits, this), boost::bind(validate_save_edits, this));
@@ -768,8 +787,11 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.new_routine", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_routine"));
   cmdui->add_builtin_command("query.new_function", boost::bind(&WBContextSQLIDE::call_in_editor_str, this, &SqlEditorForm::toolbar_command, "query.new_function"));
 
-  cmdui->add_builtin_command("query.new_connection", boost::bind(call_new_connection, this));
-  
+  cmdui->add_builtin_command("query.new_connection", boost::bind(call_new_connection, this),
+                             boost::bind(validate_has_connection, this));
+
+  cmdui->add_builtin_command("query.openScriptNoConnection", boost::bind(call_open_script, this));
+
   cmdui->add_builtin_command("query.newQuery", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
   //cmdui->add_builtin_command("query.newFile", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_sql_script_file));
   cmdui->add_builtin_command("query.newFile", boost::bind(new_script_tab, this));
@@ -778,8 +800,6 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.saveFileAs", boost::bind(call_save_file_as, this));
   cmdui->add_builtin_command("query.revert", boost::bind(call_revert, this), boost::bind(validate_revert, this));
 
-  cmdui->add_builtin_command("query.runFile", boost::bind(call_run_file, this));
-
   cmdui->add_builtin_command("query.export", boost::bind(call_export, this), boost::bind(validate_export, this));
   
   cmdui->add_builtin_command("query.cancel", boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::cancel_query));
@@ -787,9 +807,6 @@ void WBContextSQLIDE::init()
   cmdui->add_builtin_command("query.reconnect", boost::bind(call_reconnect, this));
 
   cmdui->add_builtin_command("query.stopOnError", boost::bind(call_continue_on_error, this));
-  
-  cmdui->add_builtin_command("query.explain_current_statement",
-                                               boost::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::explain_current_statement));
 
   cmdui->add_builtin_command("query.jump_to_placeholder", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::jump_to_placeholder));
   cmdui->add_builtin_command("list-members", boost::bind(&WBContextSQLIDE::call_in_editor_panel, this, &SqlEditorPanel::list_members),
@@ -816,6 +833,17 @@ void WBContextSQLIDE::finalize()
 void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor)
 {
   boost::shared_ptr<sql::TunnelConnection> tunnel;
+
+  if (!editor->connection_descriptor().is_valid())
+  {
+    grtui::DbConnectionDialog dialog(get_wbui()->get_wb()->get_root()->rdbmsMgmt());
+    log_debug("No connection associated with editor on reconnect, showing connection selection dialog...\n");
+    db_mgmt_ConnectionRef target= dialog.run();
+    if (!target.is_valid())
+      return;
+
+    editor->set_connection(target);
+  }
 
   // open tunnel, if needed
   try
@@ -905,54 +933,61 @@ static bool cancel_connect_editor(SqlEditorForm::Ref editor)
 SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_ConnectionRef &conn)
 {
   // start by opening the tunnel, if needed
-  boost::shared_ptr<sql::TunnelConnection> tunnel = sql::DriverManager::getDriverManager()->getTunnel(conn);
+  boost::shared_ptr<sql::TunnelConnection> tunnel;
+
+  if (conn.is_valid())
+    tunnel = sql::DriverManager::getDriverManager()->getTunnel(conn);
 
   SqlEditorForm::Ref editor(SqlEditorForm::create(this, conn));
 
-  void *result_ptr = 0;
-  if (!mforms::Utilities::run_cancelable_task(_("Opening SQL Editor"), 
-                                              strfmt(_("An SQL editor instance for '%s' is opening and should be available in a "
-                                                       "moment.\n\nPlease stand by..."), conn->name().c_str()),
-                                              boost::bind(connect_editor, editor, tunnel),
-                                              boost::bind(cancel_connect_editor, editor),
-                                              result_ptr))
-    throw grt::user_cancelled("canceled");
-  if (!result_ptr)
-    throw grt::user_cancelled("connection error");
-  
-  std::string *result = (std::string*)result_ptr;
-  if (result->empty())
-    delete result;
-  else
+  if (conn.is_valid())
   {
-    std::string tmp(*result);
-    delete result;
-    
-    if (tmp == ":PASSWORD_EXPIRED")
+    void *result_ptr = 0;
+    if (!mforms::Utilities::run_cancelable_task(_("Opening SQL Editor"),
+                                                strfmt(_("An SQL editor instance for '%s' is opening and should be available in a "
+                                                         "moment.\n\nPlease stand by..."), conn->name().c_str()),
+                                                boost::bind(connect_editor, editor, tunnel),
+                                                boost::bind(cancel_connect_editor, editor),
+                                                result_ptr))
+      throw grt::user_cancelled("canceled");
+    if (!result_ptr)
+      throw grt::user_cancelled("connection error");
+
+    std::string *result = (std::string*)result_ptr;
+    if (result->empty())
+      delete result;
+    else
     {
-      grt::BaseListRef args(conn->get_grt(), grt::AnyType);
-      args.ginsert(conn);
-      ssize_t result = *grt::IntegerRef::cast_from(conn->get_grt()->call_module_function("WbAdmin", "handleExpiredPassword", args));
-      if (result != 0)
-        return create_connected_editor(conn);
-      throw grt::user_cancelled("password reset cancelled by user");
+      std::string tmp(*result);
+      delete result;
+
+      if (tmp == ":PASSWORD_EXPIRED")
+      {
+        grt::BaseListRef args(conn->get_grt(), grt::AnyType);
+        args.ginsert(conn);
+        ssize_t result = *grt::IntegerRef::cast_from(conn->get_grt()->call_module_function("WbAdmin", "handleExpiredPassword", args));
+        if (result != 0)
+          return create_connected_editor(conn);
+        throw grt::user_cancelled("password reset cancelled by user");
+      }
+      else if (tmp == ":CANCELLED")
+      {
+        throw grt::user_cancelled("Cancelled");
+      }
+      
+      throw std::runtime_error(tmp);
     }
-    else if (tmp == ":CANCELLED")
-    {
-      throw grt::user_cancelled("Cancelled");
-    }
-    
-    throw std::runtime_error(tmp);
   }
 
   {
     // Create entry for grt tree and update volatile data in the connection.
     db_query_EditorRef object(_wbui->get_wb()->get_grt());
     object->owner(_wbui->get_wb()->get_root());
-    object->name(conn->name());
+    object->name(conn.is_valid() ? conn->name() : "unconnected");
     
     object->set_data(new db_query_EditorConcreteImplData(editor, object));
 
+    if (conn.is_valid())
     {
       std::map<std::string, std::string> details(editor->connection_details());
       grt::DictRef parameter_values = conn->parameterValues();
@@ -985,13 +1020,15 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
       _option_change_signal_connected= true;
     }
   }
-  
-  if (::auto_save_sessions.find(conn.id()) != ::auto_save_sessions.end())
+
+  if (conn.is_valid())
   {
-    ::auto_save_sessions.erase(conn.id());
-    _wbui->refresh_home_connections();
+    if (::auto_save_sessions.find(conn.id()) != ::auto_save_sessions.end())
+    {
+      ::auto_save_sessions.erase(conn.id());
+      _wbui->refresh_home_connections();
+    }
   }
-  
   return editor;
 }
 
@@ -1022,25 +1059,11 @@ void WBContextSQLIDE::open_document(const std::string &path)
     editor->open_file(path);
   }
   else
-    mforms::Utilities::show_error(_("Open SQL Script"),
-                                  _("Please select a connected SQL Editor tab to open a script file."),
-                                  _("OK"));
-}
-
-
-void WBContextSQLIDE::run_file(const std::string &path)
-{
-  SqlEditorForm *editor= get_active_sql_editor();
-  if (editor)
   {
-    
+    boost::shared_ptr<SqlEditorForm> editor(get_wbui()->get_wb()->add_new_query_window());
+    editor->open_file(path);
   }
-  else
-    mforms::Utilities::show_error(_("Execute SQL Script"),
-                                  _("Please select a connected SQL Editor tab to run a script file."),
-                                  _("OK"));
 }
-
 
 static bool compare(SqlEditorForm::Ptr ptr, SqlEditorForm *editor)
 {

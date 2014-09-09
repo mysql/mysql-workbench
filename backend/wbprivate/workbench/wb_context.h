@@ -252,6 +252,7 @@ namespace wb {
 
     // DB Querying
     boost::shared_ptr<SqlEditorForm> add_new_query_window(const db_mgmt_ConnectionRef &target, bool restore_session = true);
+    boost::shared_ptr<SqlEditorForm> add_new_query_window();
     
     // Admin
     void add_new_admin_window(const db_mgmt_ConnectionRef &target);
