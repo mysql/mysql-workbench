@@ -57,9 +57,6 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_setup_reset_to_default (
     NOT DETERMINISTIC
     MODIFIES SQL DATA
 BEGIN
-    SET @log_bin := @@sql_log_bin;
-    SET sql_log_bin = 0;
-
     SET @query = 'DELETE
                     FROM performance_schema.setup_actors
                    WHERE NOT (HOST = ''%'' AND USER = ''%'' AND ROLE = ''%'')';
@@ -84,11 +81,8 @@ BEGIN
     DEALLOCATE PREPARE reset_stmt;
 
     SET @query = 'UPDATE performance_schema.setup_instruments
-                     SET ENABLED = ''NO'', TIMED = ''NO''
-                   WHERE NAME NOT LIKE ''wait/io/file/%''
-                     AND NAME NOT LIKE ''wait/io/table/%''
-                     AND NAME NOT LIKE ''statement/%''
-                     AND NAME NOT IN (''wait/lock/table/sql/handler'', ''idle'')';
+                     SET ENABLED = sys.ps_is_instrument_default_enabled(NAME),
+                         TIMED   = sys.ps_is_instrument_default_timed(NAME)';
 
     IF (in_verbose) THEN
         SELECT CONCAT('Resetting: setup_instruments\n', REPLACE(@query, '  ', '')) AS status;
@@ -149,8 +143,6 @@ BEGIN
     PREPARE reset_stmt FROM @query;
     EXECUTE reset_stmt;
     DEALLOCATE PREPARE reset_stmt;
-
-    SET sql_log_bin = @log_bin; 
 END$$
 
 DELIMITER ;

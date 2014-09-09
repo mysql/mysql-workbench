@@ -16,7 +16,7 @@
 /*
  * View: waits_by_user_by_latency
  *
- * Lists the top wait events by their total latency, ignoring idle (this may be very large).
+ * Lists the top wait events per user by their total latency, ignoring idle (this may be very large).
  *
  * mysql> select * from waits_by_user_by_latency;
  * +------+-----------------------------------------------------+--------+---------------+-------------+-------------+
@@ -53,7 +53,7 @@ VIEW waits_by_user_by_latency (
   avg_latency,
   max_latency
 ) AS
-SELECT user,
+SELECT IF(user IS NULL, 'background', user) AS user,
        event_name AS event,
        count_star AS total,
        sys.format_time(sum_timer_wait) AS total_latency,
@@ -66,9 +66,9 @@ SELECT user,
  ORDER BY user, sum_timer_wait DESC;
 
 /*
- * View: waits_by_user_by_latency_raw
+ * View: waits_by_user_by_latency
  *
- * Lists the top wait events by their total latency, ignoring idle (this may be very large).
+ * Lists the top wait events per user by their total latency, ignoring idle (this may be very large).
  *
  * mysql> select * from x$waits_by_user_by_latency;
  * +------+-----------------------------------------------------+--------+----------------+-------------+--------------+
@@ -105,7 +105,7 @@ VIEW x$waits_by_user_by_latency (
   avg_latency,
   max_latency
 ) AS
-SELECT user,
+SELECT IF(user IS NULL, 'background', user) AS user,
        event_name AS event,
        count_star AS total,
        sum_timer_wait AS total_latency,

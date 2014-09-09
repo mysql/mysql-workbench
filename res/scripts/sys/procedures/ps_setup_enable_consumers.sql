@@ -27,8 +27,6 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_setup_enable_consumers (
              Enables consumers within Performance Schema 
              matching the input pattern.
 
-             Requires the SUPER privilege for "SET sql_log_bin = 0;".
-
              Parameters
              -----------
 
@@ -66,16 +64,11 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_setup_enable_consumers (
     NOT DETERMINISTIC
     MODIFIES SQL DATA
 BEGIN
-    SET @log_bin := @@sql_log_bin;
-    SET sql_log_bin = 0;
-
     UPDATE performance_schema.setup_consumers
        SET enabled = 'YES'
      WHERE name LIKE CONCAT('%', consumer, '%');
 
     SELECT CONCAT('Enabled ', @rows := ROW_COUNT(), ' consumer', IF(@rows != 1, 's', '')) AS summary;
-
-    SET sql_log_bin = @log_bin; 
 END$$
 
 DELIMITER ;

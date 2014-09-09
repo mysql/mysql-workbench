@@ -13,6 +13,38 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA */
 
+/*
+ * View: x$ps_schema_table_statistics_io
+ *
+ * Helper view for schema_table_statistics
+ * Having this view with ALGORITHM = TEMPTABLE means MySQL can use the optimizations for
+ * materialized views to improve the overall performance.
+ *
+ */
+
+CREATE OR REPLACE
+  ALGORITHM = TEMPTABLE
+  DEFINER = 'root'@'localhost'
+  SQL SECURITY INVOKER 
+VIEW x$ps_schema_table_statistics_io (
+  table_schema,
+  table_name,
+  count_read,
+  sum_number_of_bytes_read,
+  sum_timer_read,
+  count_write,
+  sum_number_of_bytes_write,
+  sum_timer_write,
+  count_misc,
+  sum_timer_misc
+) AS
+SELECT extract_schema_from_file_name(file_name) AS table_schema,
+       extract_table_from_file_name(file_name) AS table_name,
+       count_read, sum_number_of_bytes_read, sum_timer_read,
+       count_write, sum_number_of_bytes_write, sum_timer_write,
+       count_misc, sum_timer_misc
+  FROM performance_schema.file_summary_by_instance;
+
 /* 
  * View: schema_table_statistics
  *
@@ -42,6 +74,7 @@
  *               io_misc_latency: 433.66 ms
  *
  */ 
+
 
 CREATE OR REPLACE
   ALGORITHM = TEMPTABLE
@@ -88,9 +121,9 @@ SELECT pst.object_schema AS table_schema,
        SUM(fsbi.count_misc) AS io_misc_requests,
        sys.format_time(SUM(fsbi.sum_timer_misc)) AS io_misc_latency
   FROM performance_schema.table_io_waits_summary_by_table AS pst
-  LEFT JOIN performance_schema.file_summary_by_instance AS fsbi
-    ON pst.object_schema = extract_schema_from_file_name(fsbi.file_name)
-   AND pst.object_name = extract_table_from_file_name(fsbi.file_name)
+  LEFT JOIN x$ps_schema_table_statistics_io AS fsbi
+    ON pst.object_schema = fsbi.table_schema
+   AND pst.object_name = fsbi.table_name
  GROUP BY pst.object_schema, pst.object_name
  ORDER BY pst.sum_timer_wait DESC;
 
@@ -169,8 +202,8 @@ SELECT pst.object_schema AS table_schema,
        SUM(fsbi.count_misc) AS io_misc_requests,
        SUM(fsbi.sum_timer_misc) AS io_misc_latency
   FROM performance_schema.table_io_waits_summary_by_table AS pst
-  LEFT JOIN performance_schema.file_summary_by_instance AS fsbi
-    ON pst.object_schema = extract_schema_from_file_name(fsbi.file_name)
-   AND pst.object_name = extract_table_from_file_name(fsbi.file_name)
+  LEFT JOIN x$ps_schema_table_statistics_io AS fsbi
+    ON pst.object_schema = fsbi.table_schema
+   AND pst.object_name = fsbi.table_name
  GROUP BY pst.object_schema, pst.object_name
  ORDER BY pst.sum_timer_wait DESC;

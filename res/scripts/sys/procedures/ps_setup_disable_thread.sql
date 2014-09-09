@@ -26,8 +26,6 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_setup_disable_thread (
 
              Disable the given connection/thread in Performance Schema.
 
-             Requires the SUPER privilege for "SET sql_log_bin = 0;".
-
              Parameters
              -----------
 
@@ -60,16 +58,11 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_setup_disable_thread (
     NOT DETERMINISTIC
     MODIFIES SQL DATA
 BEGIN
-    SET @log_bin := @@sql_log_bin;
-    SET sql_log_bin = 0;
-
     UPDATE performance_schema.threads
        SET instrumented = 'NO'
      WHERE processlist_id = CONNECTION_ID();
 
     SELECT CONCAT('Disabled ', @rows := ROW_COUNT(), ' thread', IF(@rows != 1, 's', '')) AS summary;
-
-    SET sql_log_bin = @log_bin; 
 END$$
 
 DELIMITER ;
