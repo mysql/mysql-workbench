@@ -44,6 +44,7 @@
 #include "objimpl/db.query/db_query_Resultset.h"
 
 #include "grtui/file_charset_dialog.h"
+#include "grtsqlparser/mysql_parser_services.h"
 
 #include <fstream>
 #include <sstream>
@@ -194,20 +195,20 @@ bool SqlEditorPanel::can_close()
   if (_busy)
     return false;
 
-  bool check_scratch_editors = true;
+  bool check_editors = true;
   // if Save of workspace on close is enabled, we don't need to check whether there are unsaved scratch
   // SQL editors but other stuff should be checked.
   grt::ValueRef option(_form->grt_manager()->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
   if (option.is_valid() && *grt::IntegerRef::cast_from(option))
-    check_scratch_editors = false;
+    check_editors = false;
 
   // don't need to check for unsaved changes when closing the whole form
   // if save-workspace is enabled, since they'll get autosaved anyway
   // otoh, when closing the file itself, it should check
   if (!_form->is_closing())
-    check_scratch_editors = true;
+    check_editors = true;
 
-  if (/*!_is_scratch || */check_scratch_editors)
+  if (!_is_scratch && check_editors)
   {
     if (is_dirty())
     {
@@ -457,7 +458,7 @@ bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info,
     }
 
     // if this was a file, try to load it
-    if (!info.filename.empty() && !load_from(info.filename, info.orig_encoding, false))
+    if (!info.filename.empty() && load_from(info.filename, info.orig_encoding, false) != Loaded)
       return false;
   }
   else
@@ -470,7 +471,7 @@ bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info,
     }
 
     // load the autosave
-    if (!load_from(text_file, info.orig_encoding, true))
+    if (load_from(text_file, info.orig_encoding, true) != Loaded)
       return false;
   }
   _filename = info.filename;
@@ -495,7 +496,7 @@ bool SqlEditorPanel::load_autosave(const AutoSaveInfo &info,
 
 //--------------------------------------------------------------------------------------------------
 
-bool SqlEditorPanel::load_from(const std::string &file, const std::string &encoding, bool keep_dirty)
+SqlEditorPanel::LoadResult SqlEditorPanel::load_from(const std::string &file, const std::string &encoding, bool keep_dirty)
 {
   GError *error = NULL;
   gchar *data;
@@ -508,11 +509,14 @@ bool SqlEditorPanel::load_from(const std::string &file, const std::string &encod
     // auto completion.
     int result = mforms::Utilities::show_warning(_("Large File"),
                                                  strfmt(_("The file \"%s\" has a size "
-                                                                "of %.2f MB. Are you sure you want to open this large file?\n\nNote: code folding "
-                                                                "will be disabled for this file."), file.c_str(), file_size / 1024.0 / 1024.0),
-                                                 _("Open"), _("Cancel"));
-    if (result != mforms::ResultOk)
-      return false;
+                                                          "of %.2f MB. Are you sure you want to open this large file?\n\nNote: code folding "
+                                                          "will be disabled for this file.\n\nClick Run SQL Script... to just execute the file."),
+                                                        file.c_str(), file_size / 1024.0 / 1024.0),
+                                                 _("Open"), _("Cancel"), _("Run SQL Script..."));
+    if (result == mforms::ResultCancel)
+      return Cancelled;
+    else if (result == mforms::ResultOther)
+      return RunInstead;
   }
 
   _orig_encoding = encoding;
@@ -527,13 +531,20 @@ bool SqlEditorPanel::load_from(const std::string &file, const std::string &encod
 
   char *utf8_data;
   std::string original_encoding;
-  if (!FileCharsetDialog::ensure_filedata_utf8(_form->grt_manager()->get_grt(),
-                                               data, length, encoding, file,
-                                               utf8_data, &original_encoding))
+  FileCharsetDialog::Result result = FileCharsetDialog::ensure_filedata_utf8(_form->grt_manager()->get_grt(),
+                                                                             data, length, encoding, file,
+                                                                             utf8_data, &original_encoding);
+  if (result == FileCharsetDialog::Cancelled)
   {
     g_free(data);
-    return false;
+    return Cancelled;
   }
+  else if (result == FileCharsetDialog::RunInstead)
+  {
+    g_free(data);
+    return RunInstead;
+  }
+
   // if original data was in utf8, utf8_data comes back NULL
   if (!utf8_data)
     utf8_data = data;
@@ -560,8 +571,7 @@ bool SqlEditorPanel::load_from(const std::string &file, const std::string &encod
     log_warning("Can't get timestamp for %s\n", file.c_str());
     _file_timestamp = 0;
   }
-
-  return true;
+  return Loaded;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -647,7 +657,7 @@ bool SqlEditorPanel::save()
 void SqlEditorPanel::revert_to_saved()
 {
   _editor->sql("");
-  if (load_from(_filename, _orig_encoding))
+  if (load_from(_filename, _orig_encoding) == Loaded)
   {
     {
       NotificationInfo info;
@@ -695,7 +705,7 @@ void SqlEditorPanel::auto_save(const std::string &path)
     if (get_toolbar()->get_item_checked("query.toggleWordWrap"))
       f << "word_wrap=1\n";
     else
-      f << "word_wrap=1\n";
+      f << "word_wrap=0\n";
 
     size_t caret_pos = _editor->get_editor_control()->get_caret_pos();
     f << "caret_pos=" << caret_pos << "\n";
@@ -816,9 +826,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
   item->set_name("query.explain_current_statement");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_explain.png"));
   item->set_tooltip(_("Execute the EXPLAIN command on the statement under the cursor"));
-  _form->wbsql()->get_cmdui()->scoped_connect(item->signal_activated(),
-                                      boost::bind((void (wb::CommandUI::*)(const std::string&))&wb::CommandUI::activate_command,
-                                                  _form->wbsql()->get_cmdui(), "builtin:query.explain_current_statement"));
+  bec::UIForm::scoped_connect(item->signal_activated(),boost::bind(&SqlEditorForm::explain_current_statement, _form));
   tbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
@@ -1002,7 +1010,8 @@ void SqlEditorPanel::update_title()
  */
 void SqlEditorPanel::list_members()
 {
-  editor_be()->show_auto_completion(true, owner()->work_parser_context()->recognizer());
+  if (owner()->work_parser_context() != NULL)
+    editor_be()->show_auto_completion(true, owner()->work_parser_context()->recognizer());
 }
 
 //--------------------------------------------------------------------------------------------------

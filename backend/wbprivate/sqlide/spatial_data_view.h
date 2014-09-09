@@ -25,6 +25,7 @@
 
 #include "mforms/box.h"
 #include "mforms/utilities.h"
+#include "mforms/splitter.h"
 
 #include <deque>
 
@@ -62,11 +63,12 @@ public:
 
 private:
   SqlEditorResult *_owner;
-
+  bool _activated;
   mforms::ToolBar *_toolbar;
 
   mforms::Box *_main_box;
   mforms::Box *_option_box;
+  mforms::Splitter *_splitter;
 
   mforms::ToolBarItem *_projection_picker;
   mforms::TreeNodeView *_layer_tree;
@@ -76,10 +78,18 @@ private:
   mforms::TextBox *_info_box;
 
   LayerId _active_layer;
+  LayerId _grid_layer;
 
   mforms::Label *_mouse_pos_label;
 
   SpatialDrawBox *_viewer;
+
+  mforms::TimeoutHandle _spliter_change_timeout;
+  bool _rendering;
+
+  void call_refresh_viewer();
+
+  bool refresh_viewer();
 
   void tree_toggled(const mforms::TreeNodeRef &node, const std::string &value);
 
@@ -109,6 +119,8 @@ private:
 
   void map_menu_will_show();
   void layer_menu_will_show();
+
+  void activate_layer();
 
 public:
   SpatialDataView(SqlEditorResult *owner);

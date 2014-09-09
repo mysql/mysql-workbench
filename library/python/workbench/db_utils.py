@@ -34,6 +34,104 @@ def strip_password(s):
         s = ss
     return s
 
+    
+def substring_to_delimiter(source, index, limit, force_limit = False):
+    """
+        Extracts from a string starting at the given index and ending
+        once the first character in limit is found.
+        
+        If force_limit is True, will return None if the limit is not found
+        and the end of the string is reached.
+    """
+
+    # When limit is quoting handles special quote embedding cases:
+    # - Escaped quoting using \
+    # - Quoting using the quote character twice: '', "" or ``
+    quoting = '\'"`'
+    handle_embedded_quoting = True if limit in quoting else False
+    
+
+    # Sweeps the string starting at index and until a character in limit is found
+    token = ''
+    limit_found = False
+    escape_found = False
+
+    for char in source[index:]:
+        if handle_embedded_quoting:
+            if char == '\\' and not escape_found:
+                escape_found = True
+                token += char
+                continue
+                
+        if char in limit:
+            if not escape_found:
+                if not limit_found:
+                    limit_found = True
+                else:
+                    token += char
+                    limit_found = False
+        else:
+            if limit_found:
+                break
+            
+        if not limit_found:
+            escape_found = False
+            token += char
+
+    # Limit may be mandatory or not, returns None if
+    # it was not found
+    if force_limit and not limit_found:
+        return None
+    else:
+        return token
+
+def parse_mysql_ids(source):
+    """
+        Extracts from a string an array with all the valid IDs found
+        Expected format is a dot separated list of IDs where they could optionally be quoted
+        by single, double or back quotes.
+
+        If an invalid ID is found the process will stop.
+    """
+    ids = []
+    index = 0;
+    length = len(source)
+    previous_token = False
+    
+    # Sweeps a string extracting all the 
+    while index < length:
+        token = ''
+        char = source[index]
+
+        # In case of quoting found, the ID will be extracted until the closing quote is found
+        if char in '"\'`':
+            token = substring_to_delimiter(source, index + 1, char, True)
+            if token:
+                index = index + len(token) + 2
+        else:
+            # The dot as separator is just skipped as long as previos was a valid token
+            # i.e. 2 in a row is a mistake
+            if char in '. ':
+                if previous_token:
+                    index += 1
+                    previous_token = False
+                else:
+                    token = None
+
+            else:
+                # If no quoting is found, next ID will be until the delimiters are found
+                token = substring_to_delimiter(source, index, '. ')
+                index = index + len(token)
+
+        if token:
+            ids.append(token)
+            previous_token = True
+        elif token is None:
+            break
+
+    return ids   
+
+print parse_mysql_ids('"un\\"o".`do``s`') 
 
 class MySQLError(Exception):
     def __init__(self, msg, code, location):

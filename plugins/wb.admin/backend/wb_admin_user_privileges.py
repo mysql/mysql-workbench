@@ -17,6 +17,7 @@
 
 import grt
 from workbench.log import log_warning, log_error
+from workbench.db_utils import parse_mysql_ids
 
 
 class PrivilegeTarget(object):
@@ -34,10 +35,12 @@ class PrivilegeTarget(object):
 
     def set_from_string(self, data):
         if data != '*' and data != '*.*':
-          if data.find('.') == -1:
-              self.object = data
+          values = parse_mysql_ids(data)
+
+          if len(values) == 2:
+              self.schema, self.object = tuple(values)
           else:
-              self.schema, self.object = data.split('.')
+              self.object = data
 
     def identical(self, target_string):
         return target_string == '%s.%s' % (self.schema, self.object)
