@@ -293,8 +293,9 @@ class MEBBackup(MEBCommand):
         self.backup_dir = profile.read_value('mysqlbackup', 'backup_dir', True, "")
         self.inc_backup_dir = profile.read_value('mysqlbackup', 'incremental_backup_dir', True, "")
         self.use_tts = profile.read_value('meb_manager', 'using_tts', False, "0")
-        self.compress_method = profile.read_value('meb_manager', 'compress_method', 'lz4')
-        self.compress_level = profile.read_value('meb_manager', 'compress_level', '1')        
+        self.compress_method = profile.read_value('meb_manager', 'compress_method', False, 'lz4')
+        self.compress_level = profile.read_value('meb_manager', 'compress_level', False, '1')
+        self.skip_unused_pages = profile.read_value('meb_manager', 'skip_unused_pages', False, False) == 'True'
 
     def set_backup_paths(self):
         target_folder = ''
@@ -359,6 +360,8 @@ class MEBBackup(MEBCommand):
             else:
                 self.write_output("ERROR: Unable to run incremental backup without a base folder.")
                 ret_val = False
+        elif self.skip_unused_pages:
+            self.command_call += " --skip-unused-pages"
                 
         # Sets the needed backup paths
         self.set_backup_paths()

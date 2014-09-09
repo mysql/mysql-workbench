@@ -317,7 +317,7 @@ class MEBVersion
     private current
     
     private sub Class_Initialize()
-        current = "4"
+        current = "5"
     end sub
 
     public function execute()
@@ -348,6 +348,7 @@ class MEBBackup
     private target_folder
     private command_call
     private use_tts
+    private skip_unused_pages
     
     ' These are for internal use
     private shell
@@ -360,6 +361,7 @@ class MEBBackup
         
         ' Sets the backups home to the parent folder of this script
         backups_home = fso.GetParentFolderName(Wscript.ScriptFullName)
+        skip_unused_pages = false
     end sub
     
     private function read_params()
@@ -390,6 +392,10 @@ class MEBBackup
         use_tts = profile.get_value("meb_manager", "using_tts", "0")
         compress_method = profile.get_value("meb_manager", "compress_method", "lz4")
         compress_level = profile.get_value("meb_manager", "compress_level", "1")
+        
+        if profile.get_value("meb_manager", "skip_unused_pages", "False") = "True" then
+            skip_unused_pages = true
+        end if
     end sub
     
     ' Function used to create the target name in case it is a timestamp
@@ -532,6 +538,7 @@ class MEBBackup
                 command_call = command_call & " --compress"
             end if
         end if
+        
 
         ' Get the right path parameter, path and running type 
         path_param = " --backup-dir"
@@ -547,6 +554,10 @@ class MEBBackup
             else
                 Wscript.Echo "ERROR: Unable to run incremental backup without a base folder."
                 ret_val = false
+            end if
+        else
+            if skip_unused_pages then
+                command_call = command_call & " --skip-unused-pages"
             end if
         end if
                 
