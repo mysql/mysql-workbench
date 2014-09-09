@@ -106,9 +106,9 @@ SELECT pst.object_schema AS table_schema,
        SUM(ibp.pages_old) AS innodb_buffer_pages_old,
        SUM(ibp.rows_cached) AS innodb_buffer_rows_cached
   FROM performance_schema.table_io_waits_summary_by_table AS pst
-  LEFT JOIN performance_schema.file_summary_by_instance AS fsbi
-    ON pst.object_schema = extract_schema_from_file_name(fsbi.file_name)
-   AND pst.object_name = extract_table_from_file_name(fsbi.file_name)
+  LEFT JOIN x$ps_schema_table_statistics_io AS fsbi
+    ON pst.object_schema = fsbi.table_schema
+   AND pst.object_name = fsbi.table_name
   LEFT JOIN sys.x$innodb_buffer_stats_by_table AS ibp
     ON pst.object_schema = ibp.object_schema
    AND pst.object_name = ibp.object_name
@@ -208,9 +208,9 @@ SELECT pst.object_schema AS table_schema,
        SUM(ibp.pages_old) AS innodb_buffer_pages_old,
        SUM(ibp.rows_cached) AS innodb_buffer_rows_cached
   FROM performance_schema.table_io_waits_summary_by_table AS pst
-  LEFT JOIN performance_schema.file_summary_by_instance AS fsbi
-    ON pst.object_schema = extract_schema_from_file_name(fsbi.file_name)
-   AND pst.object_name = extract_table_from_file_name(fsbi.file_name)
+  LEFT JOIN x$ps_schema_table_statistics_io AS fsbi
+    ON pst.object_schema = fsbi.table_schema
+   AND pst.object_name = fsbi.table_name
   LEFT JOIN sys.x$innodb_buffer_stats_by_table AS ibp
     ON pst.object_schema = ibp.object_schema
    AND pst.object_name = ibp.object_name

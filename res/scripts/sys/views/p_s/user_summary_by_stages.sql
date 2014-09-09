@@ -18,6 +18,8 @@
  *
  * Summarizes stages by user, ordered by user and total latency per stage.
  * 
+ * When the user found is NULL, it is assumed to be a "background" thread.  
+ * 
  * mysql> select * from user_summary_by_stages;
  * +------+--------------------------------+-------+-----------+-----------+
  * | user | event_name                     | total | wait_sum  | wait_avg  |
@@ -53,20 +55,21 @@ VIEW user_summary_by_stages (
   wait_sum,
   wait_avg
 ) AS
-SELECT user,
+SELECT IF(user IS NULL, 'background', user) AS user,
        event_name,
        count_star AS total,
        sys.format_time(sum_timer_wait) AS wait_sum, 
        sys.format_time(avg_timer_wait) AS wait_avg 
   FROM performance_schema.events_stages_summary_by_user_by_event_name
- WHERE user IS NOT NULL 
-   AND sum_timer_wait != 0 
+ WHERE sum_timer_wait != 0 
  ORDER BY user, sum_timer_wait DESC;
 
 /*
  * View: x$user_summary_by_stages
  *
  * Summarizes stages by user, ordered by user and total latency per stage.
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.  
  * 
  * mysql> select * from x$user_summary_by_stages;
  * +------+--------------------------------+-------+-------------+-----------+
@@ -102,12 +105,11 @@ VIEW x$user_summary_by_stages (
   wait_sum,
   wait_avg
 ) AS
-SELECT user,
+SELECT IF(user IS NULL, 'background', user) AS user,
        event_name,
        count_star AS total,
        sum_timer_wait AS wait_sum, 
        avg_timer_wait AS wait_avg 
   FROM performance_schema.events_stages_summary_by_user_by_event_name
- WHERE user IS NOT NULL 
-   AND sum_timer_wait != 0 
+ WHERE sum_timer_wait != 0 
  ORDER BY user, sum_timer_wait DESC;

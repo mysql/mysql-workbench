@@ -22,6 +22,9 @@ SOURCE ./functions/format_path.sql
 SOURCE ./functions/format_statement.sql
 SOURCE ./functions/format_time.sql
 SOURCE ./functions/ps_is_account_enabled.sql
+SOURCE ./functions/ps_is_instrument_default_enabled.sql
+SOURCE ./functions/ps_is_instrument_default_timed.sql
+SOURCE ./functions/ps_thread_id.sql
 SOURCE ./functions/ps_thread_stack.sql
 
 SOURCE ./procedures/create_synonym_db.sql
@@ -85,9 +88,17 @@ SOURCE ./views/p_s/user_summary_by_statement_latency.sql
 SOURCE ./views/p_s/user_summary_by_stages.sql
 SOURCE ./views/p_s/user_summary.sql
 
+SOURCE ./views/p_s/host_summary_by_file_io_type.sql
+SOURCE ./views/p_s/host_summary_by_file_io.sql
+SOURCE ./views/p_s/host_summary_by_statement_type.sql
+SOURCE ./views/p_s/host_summary_by_statement_latency.sql
+SOURCE ./views/p_s/host_summary_by_stages.sql
+SOURCE ./views/p_s/host_summary.sql
+
 SOURCE ./views/p_s/wait_classes_global_by_avg_latency.sql
 SOURCE ./views/p_s/wait_classes_global_by_latency.sql
 SOURCE ./views/p_s/waits_by_user_by_latency.sql
+SOURCE ./views/p_s/waits_by_host_by_latency.sql
 SOURCE ./views/p_s/waits_global_by_latency.sql
 
 SOURCE ./after_setup.sql
