@@ -609,7 +609,7 @@ void SpatialDataView::activate()
 
 void SpatialDataView::refresh_layers()
 {
-  std::vector<SpatialDataView::SpatialDataSource> spatial_columns = _owner->get_spatial_columns();
+  std::vector<SpatialDataView::SpatialDataSource> spatial_columns;// = _owner->get_spatial_columns();
 
   for (int c= _owner->owner()->owner()->sql_editor_count(), editor = 0; editor < c; editor++)
   {
@@ -620,7 +620,7 @@ void SpatialDataView::refresh_layers()
       for (int i = 0; i < panel->result_count(); ++i)
       {
         SqlEditorResult *result = panel->result_panel(i);
-        if (result && result != _owner)
+        if (result)
         {
           std::vector<SpatialDataView::SpatialDataSource> tmp(result->get_spatial_columns());
           std::copy(tmp.begin(), tmp.end(), std::back_inserter(spatial_columns));
@@ -748,6 +748,8 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     base::Color(0.0, 0.0, 0.6)
   };
 
+
+
   if (_layer_tree->count() == 0)
   {
     base::Color color(layer_colors[0]);
@@ -800,7 +802,7 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
   }
 
   int idx = 1;
-  bool first = true;
+//  bool first = true;
   for (std::vector<SpatialDataSource>::const_iterator iter = sources.begin(); iter != sources.end(); ++iter)
   {
     // check if already exists
@@ -820,11 +822,9 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     spatial::Layer *layer = NULL;
     if (iter->column_index >= 0)
     {
-      // from recordset
       layer = new RecordsetLayer(layer_id, color, iter->resultset, iter->column_index);
-      if (first)
+      if (_owner->recordset()->key() == iter->resultset.lock()->key())
       {
-        first = false;
         layer->set_show(true);
         node->set_bool(0, true);
         set_active_layer(layer_id);
@@ -839,6 +839,8 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
       _viewer->add_layer(layer);
     }
   }
+
+
 }
 
 

@@ -27,8 +27,6 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_truncate_all_tables (
              Truncates all summary tables within Performance Schema, 
              resetting all aggregated instrumentation as a snapshot.
 
-             Requires the SUPER privilege for "SET sql_log_bin = 0;".
-
              Parameters
              -----------
 
@@ -63,9 +61,6 @@ BEGIN
             OR table_name LIKE '%history%');
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
 
-    SET @log_bin := @@sql_log_bin;
-    SET sql_log_bin = 0;
-
     OPEN ps_tables;
 
     ps_tables_loop: LOOP
@@ -87,8 +82,6 @@ BEGIN
     END LOOP;
 
     CLOSE ps_tables;
-
-    SET sql_log_bin = @log_bin;
 
     SELECT CONCAT('Truncated ', v_total_tables, ' tables') AS summary;
 

@@ -891,18 +891,34 @@ Glib::RefPtr<Gdk::Pixbuf> UtilitiesImpl::get_cached_icon(const std::string &icon
 //------------------------------------------------------------------------------
 #include <pango/pangoft2.h>
 
-struct FontMeasurement
+class FontMeasurement
 {
-  PangoFontDescription *_font_description;
+public:
   PangoLayout *_layout;
-  
+  FontMeasurement(PangoLayout *pango) : _layout(pango)
+  {
+  }
+
+//  FontMeasurement(const FontMeasurement &other)
+//  {
+//    if (other._layout!=NULL)
+//      g_object_ref(other._layout);
+//  }
+//
+//  void operator=(const FontMeasurement &other)
+//  {
+//    if (other._layout!=NULL)
+//      g_object_ref(other._layout);
+//  }
+
   ~FontMeasurement()
   {
-    g_object_unref (_layout);
+    if (_layout != NULL)
+      g_object_unref (_layout);
   }
 };
 
-std::map<std::string, FontMeasurement *> FontMeasurementDescriptors;
+std::map<std::string, FontMeasurement*> FontMeasurementDescriptors;
 
 double UtilitiesImpl::get_text_width(const std::string &text, const std::string &font_desc)
 {
@@ -912,38 +928,34 @@ double UtilitiesImpl::get_text_width(const std::string &text, const std::string 
   bool italic = false;
   
   if (!base::parse_font_description(font_desc, font, size, bold, italic))
-  {
     return 0;
-  }
-  
-  if (FontMeasurementDescriptors.find(font) == FontMeasurementDescriptors.end())
+
+  PangoLayout *layout = NULL;
+  std::map<std::string, FontMeasurement*>::iterator it = FontMeasurementDescriptors.find(font_desc);
+  if (it == FontMeasurementDescriptors.end())
   {
-    FontMeasurement *font_measurement = new FontMeasurement;
-    
-    PangoFontMap *fontmap = pango_ft2_font_map_new();
-    PangoContext *context = pango_font_map_create_context (fontmap) ;
-    
-    font_measurement->_font_description = pango_font_description_new ();
-    font_measurement->_layout = pango_layout_new (context);
-    
-    pango_font_description_set_family (font_measurement->_font_description, font.c_str());
-    
-    FontMeasurementDescriptors[font] = font_measurement;
+    PangoFontDescription *font_description = pango_font_description_new ();
+    FontMeasurement *font_measurement = new FontMeasurement(pango_layout_new(get_mainwindow()->get_pango_context()->gobj()));
+
+    pango_font_description_set_family (font_description, font.c_str());
+    pango_font_description_set_style (font_description, italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+    pango_font_description_set_variant (font_description, PANGO_VARIANT_NORMAL);
+    pango_font_description_set_weight (font_description, bold ?  PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL);
+    pango_font_description_set_stretch (font_description, PANGO_STRETCH_NORMAL);
+    pango_font_description_set_size (font_description, size * PANGO_SCALE);
+    pango_layout_set_font_description (font_measurement->_layout, font_description);
+    pango_font_description_free(font_description);
+
+    FontMeasurementDescriptors[font_desc] = font_measurement;
+    layout = font_measurement->_layout;
   }
+  else
+    layout = it->second->_layout;
 
-  FontMeasurement *current_descriptor = FontMeasurementDescriptors[font];
+  pango_layout_set_text (layout, text.c_str(), -1);
 
-  pango_font_description_set_style (current_descriptor->_font_description, italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
-  pango_font_description_set_variant (current_descriptor->_font_description, PANGO_VARIANT_NORMAL);
-  pango_font_description_set_weight (current_descriptor->_font_description, bold ?  PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL);
-  pango_font_description_set_stretch (current_descriptor->_font_description, PANGO_STRETCH_NORMAL);
-  pango_font_description_set_size (current_descriptor->_font_description, size * PANGO_SCALE);
-  pango_layout_set_text (current_descriptor->_layout, text.c_str(), -1);
-  pango_layout_set_font_description (current_descriptor->_layout, current_descriptor->_font_description);
-  
   int width = 0;
-//   int height = 0;
-  pango_layout_get_pixel_size (current_descriptor->_layout, &width, NULL);
+  pango_layout_get_pixel_size (layout, &width, NULL);
   
   return (double)width;
   

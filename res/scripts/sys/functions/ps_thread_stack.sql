@@ -18,7 +18,7 @@ DROP FUNCTION IF EXISTS ps_thread_stack;
 DELIMITER $$
 
 CREATE DEFINER='root'@'localhost' FUNCTION ps_thread_stack (
-        thd_id INT,
+        thd_id BIGINT UNSIGNED,
         debug BOOLEAN
     )
 RETURNS LONGTEXT CHARSET latin1
@@ -32,7 +32,7 @@ RETURNS LONGTEXT CHARSET latin1
              Parameters
              -----------
 
-             thd_id (BIGINT):
+             thd_id (BIGINT UNSIGNED):
                The id of the thread to trace. This should match the thread_id
                column from the performance_schema.threads table.
              in_verbose (BOOLEAN):

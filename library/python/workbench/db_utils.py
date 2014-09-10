@@ -131,8 +131,6 @@ def parse_mysql_ids(source):
 
     return ids   
 
-print parse_mysql_ids('"un\\"o".`do``s`') 
-
 class MySQLError(Exception):
     def __init__(self, msg, code, location):
         Exception.__init__(self, msg + " (code %i)"%code)
