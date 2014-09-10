@@ -175,16 +175,17 @@ void SpatialDrawBox::render(bool reproject)
       visible_area.MinLon = -89.0;
   }
 
-
   visible_area.height = height;
   visible_area.width = width;
 
-  try {
+  try
+  {
     if (_spatial_reprojector == NULL)
       _spatial_reprojector = new spatial::Converter(visible_area,
                                 spatial::Projection::get_instance().get_projection(spatial::ProjGeodetic),
                                 spatial::Projection::get_instance().get_projection(_proj));
-  } catch (std::exception &exc)
+  }
+  catch (std::exception &exc)
   {
     log_error("SpatialDrawBox::render: %s\n", exc.what());
     return;
@@ -192,13 +193,7 @@ void SpatialDrawBox::render(bool reproject)
 
   _spatial_reprojector->change_projection(visible_area, NULL, spatial::Projection::get_instance().get_projection(_proj));
 
-
-
-
-
-
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
-
   boost::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
   _cache = surface;
   if (_ctx_cache != NULL)
@@ -279,7 +274,6 @@ _rendering(false), _quitting(false), _needs_reprojection(true), _select_pending(
 
   _current_layer = NULL;
   _progress = NULL;
-
 }
 
 SpatialDrawBox::~SpatialDrawBox()
@@ -513,7 +507,6 @@ void SpatialDrawBox::show_layer(spatial::LayerId layer_id, bool flag)
   }
 }
 
-
 void SpatialDrawBox::activate()
 {
   if (!_ready)
@@ -529,7 +522,6 @@ void SpatialDrawBox::invalidate(bool reproject)
     render_in_thread(reproject);
   set_needs_repaint(); // repaint the grid
 }
-
 
 bool SpatialDrawBox::mouse_double_click(mforms::MouseButton button, int x, int y)
 {
@@ -624,7 +616,6 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
   return true;
 }
 
-
 int SpatialDrawBox::clicked_row_id()
 {
   int row_id = -1;
@@ -644,7 +635,6 @@ int SpatialDrawBox::clicked_row_id()
 
   return row_id;
 }
-
 
 void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, bool no_invalidate)
 {
