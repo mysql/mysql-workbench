@@ -20,15 +20,8 @@
 #pragma once
 
 #include "mysql_relationship_editor.h"
-#include "GrtTemplates.h"
 
 #pragma make_public(::RelationshipEditorBE)
-
-#ifdef _MSC_VER
-using namespace MySQL::Grt;
-using namespace System;
-using namespace System::Collections::Generic;
-#endif
 
 namespace MySQL {
 namespace Grt {
@@ -45,150 +38,45 @@ public enum class RelationshipVisibilityType
 
 public ref class MySQLRelationshipEditorWrapper : public BaseEditorWrapper
 {
-protected:
-  MySQLRelationshipEditorWrapper(::RelationshipEditorBE *inn)
-    : BaseEditorWrapper(inn)
-  {}
-
 public:
-  MySQLRelationshipEditorWrapper::MySQLRelationshipEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
-  : BaseEditorWrapper(
-      new ::RelationshipEditorBE(grtm->get_unmanaged_object(), 
-        workbench_physical_ConnectionRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
-        )
-      )
-  {
-  }
+  MySQLRelationshipEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist);
+  ~MySQLRelationshipEditorWrapper();
 
-  ::RelationshipEditorBE *get_unmanaged_object()
-  { return static_cast<::RelationshipEditorBE *>(inner); }
+  RelationshipEditorBE *get_unmanaged_object();
 
-  
-  void set_caption(String^ caption)
-  {
-    get_unmanaged_object()->set_caption(NativeToCppString(caption));
-  }
+  void set_caption(String^ caption);
+  String^ get_caption();
+  String^ get_caption_long();
+  void set_extra_caption(String^ caption);
+  String^ get_extra_caption();
+  String^ get_extra_caption_long();
 
-  String^ get_caption()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_caption());
-  }
+  String^ get_right_table_name();
+  String^ get_left_table_name();
+  String^ get_right_table_info();
+  String^ get_left_table_info();
 
-  String^ get_caption_long()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_caption_long());
-  }
+  String^ get_left_table_fk();
 
-  void set_extra_caption(String^ caption)
-  {
-    get_unmanaged_object()->set_extra_caption(NativeToCppString(caption));
-  }
+  void set_left_mandatory(bool flag);
+  bool get_left_mandatory();
+  void set_right_mandatory(bool flag);
+  bool get_right_mandatory();
 
-  String^ get_extra_caption()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_extra_caption());
-  }
+  void set_to_many(bool flag);
+  bool get_to_many();
 
-  String^ get_extra_caption_long()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_extra_caption_long());
-  }
+  void set_comment(String^ comment);
+  String^ get_comment();
 
-  String^ get_right_table_name()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_right_table_name());
-  }
+  RelationshipVisibilityType get_visibility();
+  void set_visibility(RelationshipVisibilityType v);
 
-  String^ get_left_table_name()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_left_table_name());
-  }
+  void open_editor_for_left_table();
+  void open_editor_for_right_table();
 
-  String^ get_right_table_info()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_right_table_info());
-  }
-
-  String^ get_left_table_info()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_left_table_info());
-  }
-
-  String^ get_left_table_fk()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_left_table_fk());
-  }
-
-  void set_left_mandatory(bool flag)
-  {
-    get_unmanaged_object()->set_left_mandatory(flag);
-  }
-
-  bool get_left_mandatory()
-  {
-    return get_unmanaged_object()->get_left_mandatory();
-  }
-
-  void set_right_mandatory(bool flag)
-  {
-    get_unmanaged_object()->set_right_mandatory(flag);
-  }
-
-  bool get_right_mandatory()
-  {
-    return get_unmanaged_object()->get_right_mandatory();
-  }
-
-  void set_to_many(bool flag)
-  {
-    get_unmanaged_object()->set_to_many(flag);
-  }
-
-  bool get_to_many()
-  {
-    return get_unmanaged_object()->get_to_many();
-  }
-
-  void set_comment(String^ comment)
-  {
-    get_unmanaged_object()->set_comment(NativeToCppString(comment));
-  }
-
-  String^ get_comment()
-  {
-    return CppStringToNative(get_unmanaged_object()->get_comment());
-  }
-
-  RelationshipVisibilityType get_visibility()
-  {
-    return (RelationshipVisibilityType)get_unmanaged_object()->get_visibility();
-  }
-
-  bool get_is_identifying()
-  {
-    return get_unmanaged_object()->get_is_identifying();
-  }
-
-  void set_visibility(RelationshipVisibilityType v)
-  {
-    get_unmanaged_object()->set_visibility((RelationshipEditorBE::VisibilityType)v);
-  }
-
-  void open_editor_for_left_table()
-  {
-    get_unmanaged_object()->open_editor_for_left_table();
-  }
-
-  void open_editor_for_right_table()
-  {
-    get_unmanaged_object()->open_editor_for_right_table();
-  }
-
-  void set_is_identifying(bool identifying)
-  {
-    get_unmanaged_object()->set_is_identifying(identifying);
-  }
-
+  bool get_is_identifying();
+  void set_is_identifying(bool identifying);
 };
 
 } // namespace Db

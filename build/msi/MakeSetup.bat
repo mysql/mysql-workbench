@@ -4,8 +4,14 @@ if "%1"=="" goto printUsage
 if "%2"=="" goto printUsage
 if "%3"=="" goto printUsage
 
-if "%3"=="win32" set RELEASE_ARCH=x86
-if "%3"=="win64" set RELEASE_ARCH=x64
+if "%3"=="win32" (
+  set RELEASE_ARCH=x86
+  set FILENAME_ARCH=win32
+)
+if "%3"=="win64" (
+  set RELEASE_ARCH=x64
+  set FILENAME_ARCH=winx64
+)
 
 if "%RELEASE_ARCH%" == "" goto arch_error
 
@@ -39,8 +45,8 @@ set BUILD_SIGNED=1
 rem Set other variables
 set DIST_DIR=.\distribution
 set UTIL_PATH=..\..\..\mysql-win-res\bin
-set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%3.msi
-set OUTPUT_FILENAME_UNSIGNED=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%3-unsigned.msi
+set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%.msi
+set OUTPUT_FILENAME_UNSIGNED=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%-unsigned.msi
 
 if not exist %BIN_DIR% goto ERROR
 if not exist %DIST_DIR% mkdir %DIST_DIR%

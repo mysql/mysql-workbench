@@ -13,7 +13,7 @@ WORKING_DIR = os.getcwd()
 
 os.chdir(os.getcwd() + "/../..")
 
-banned_files = ('README.md', 'LICENSE', '.git')
+banned_files = ('README.md', 'LICENSE', '.git', 'COPYING', 'NEWS.md')
 files_to_keep = ('sys_reports.js')
 
 PROJECT_DIR = os.getcwd() + "/"
@@ -120,7 +120,7 @@ class XMLFileManager:
         parent_dir = os.path.dirname(directory)
         current_dir = os.path.basename(directory)
         
-        parent_node = self.directories[parent_dir]
+        #parent_node = self.directories[parent_dir]
         entryId = directory.replace('/', '_')
         
         newEntry = self.xml_document.createElement("Directory")
@@ -157,9 +157,11 @@ class XMLFileManager:
         self.directories['sys'].normalize() 
         for node in self.directories:
           self.directories[node] = self.directories[node].normalize()
-        
+
+        text = self.xml_document.toxml()
+
         f = open(MSI_FRAGMENT_FILE, mode='w')
-        self.xml_document.writexml(f)
+        f.write(text.replace("\r\n", "\n"))
         f.close()
            
 

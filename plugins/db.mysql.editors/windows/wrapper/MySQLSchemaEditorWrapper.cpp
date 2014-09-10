@@ -20,7 +20,6 @@
 #include "MySQLSchemaEditorWrapper.h"
 
 #include "ConvUtils.h"
-#include "grtdb/db_object_helpers.h"
 
 using namespace System;
 

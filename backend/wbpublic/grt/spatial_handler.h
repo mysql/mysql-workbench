@@ -54,8 +54,8 @@ namespace spatial
     double MaxLon;
     double MinLat;
     double MinLon;
-    friend bool operator== (ProjectionView &v1, ProjectionView &v2);
-    friend bool operator!= (ProjectionView &v1, ProjectionView &v2);
+    friend bool operator== (const ProjectionView &v1, const ProjectionView &v2);
+    friend bool operator!= (const ProjectionView &v1, const ProjectionView &v2);
   };
 
   class WBPUBLICBACKEND_PUBLIC_FUNC Envelope
@@ -66,15 +66,16 @@ namespace spatial
     bool converted;
     base::Point top_left;
     base::Point bottom_right;
-    friend bool operator == (Envelope &env1, Envelope &env2);
-    friend bool operator != (Envelope &env1, Envelope &env2);
+    friend bool operator == (const Envelope &env1, const Envelope &env2);
+    friend bool operator != (const Envelope &env1, const Envelope &env2);
     bool is_init();
+    bool within(const base::Point &p) const;
   };
 
-  bool operator== (ProjectionView &v1, ProjectionView &v2);
-  bool operator!= (ProjectionView &v1, ProjectionView &v2);
-  bool operator== (Envelope &env1, Envelope &env2);
-  bool operator!= (Envelope &env1, Envelope &env2);
+  bool operator== (const ProjectionView &v1, const ProjectionView &v2);
+  bool operator!= (const ProjectionView &v1, const ProjectionView &v2);
+  bool operator== (const Envelope &env1, const Envelope &env2);
+  bool operator!= (const Envelope &env1, const Envelope &env2);
 
   enum ProjectionType
   {
@@ -98,16 +99,16 @@ namespace spatial
   {
 
   protected:
-    bool within_linearring(const base::Point &p) const;
-    bool within_line(const std::vector<base::Point> &point_list, const base::Point &p) const;
-    bool within_polygon(const base::Point &p) const;
-    bool within_point(const base::Point &p) const;
+    double distance_linearring(const base::Point &p) const;
+    double distance_line(const std::vector<base::Point> &point_list, const base::Point &p) const;
+    double distance_polygon(const base::Point &p) const;
+    double distance_point(const base::Point &p) const;
   public:
     ShapeContainer();
     ShapeType type;
     std::vector<base::Point> points;
     Envelope bounding_box;
-    bool within(const base::Point &p) const;
+    double distance(const base::Point &p) const;
   };
 
   class WBPUBLICBACKEND_PUBLIC_FUNC Projection
@@ -121,6 +122,7 @@ namespace spatial
 
   public:
     static Projection& get_instance();
+    bool check_libproj_availability();
     OGRSpatialReference* get_projection(ProjectionType);
   private:
     Projection();
@@ -177,6 +179,7 @@ namespace spatial
     bool from_proj_to_latlon(double &lat, double &lon);
     static std::string dec_to_dms(double angle, AxisType axis, int precision);
     void transform_points(std::deque<ShapeContainer> &shapes_container);
+    void transform_envelope(spatial::Envelope &env);
     void interrupt();
   };
 
@@ -189,18 +192,18 @@ namespace spatial
     int _row_id;
     Importer _geometry;
     std::deque<ShapeContainer> _shapes;
-
+    spatial::Envelope _env_screen;
   public:
     Feature(Layer *layer, int row_id, const std::string &data, bool wkt);
     ~Feature();
 
     void interrupt();
-    void get_envelope(spatial::Envelope &env);
+    void get_envelope(spatial::Envelope &env, const bool &screen_coords = false);
     void render(spatial::Converter *converter);
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area, base::Color fill_color=base::Color::Invalid());
 
     int row_id() const { return _row_id; }
-    bool within(const base::Point &p);
+    double distance(const base::Point &p, const double &allowed_distance = 4.0);
   };
 
   typedef int LayerId;
@@ -241,7 +244,7 @@ namespace spatial
 
     void add_feature(int row_id, const std::string &geom_data, bool wkt);
     virtual void render(spatial::Converter *converter);
-    spatial::Feature *feature_within(const base::Point &p);
+    spatial::Feature *feature_closest(const base::Point &p, const double &allowed_distance = 4.0);
     void set_fill_polygons(bool fill);
     bool get_fill_polygons();
     virtual void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area);

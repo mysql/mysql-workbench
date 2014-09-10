@@ -310,11 +310,17 @@ void ScintillaEditBase::mouseReleaseEvent(QMouseEvent *event)
 	emit buttonReleased(event);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 void ScintillaEditBase::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	// Scintilla does its own double-click detection.
 	mousePressEvent(event);
 }
+#else
+void ScintillaEditBase::mouseDoubleClickEvent(QMouseEvent *)
+{
+}
+#endif
 
 void ScintillaEditBase::mouseMoveEvent(QMouseEvent *event)
 {
@@ -405,7 +411,7 @@ void ScintillaEditBase::inputMethodEvent(QInputMethodEvent *event)
 		// Replace the selection with the commit string.
 		QByteArray commitBytes = sqt->BytesForDocument(event->commitString());
 		char *commitData = commitBytes.data();
-		sqt->AddCharUTF(commitData, strlen(commitData));
+		sqt->AddCharUTF(commitData, static_cast<unsigned int>(strlen(commitData)));
 	}
 
 	// Select the previous preedit string.
@@ -419,7 +425,7 @@ void ScintillaEditBase::inputMethodEvent(QInputMethodEvent *event)
 	bool recording = sqt->recordingMacro;
 	sqt->recordingMacro = false;
 	send(SCI_SETUNDOCOLLECTION, false);
-	sqt->AddCharUTF(data, strlen(data));
+	sqt->AddCharUTF(data, static_cast<unsigned int>(strlen(data)));
 	send(SCI_SETUNDOCOLLECTION, true);
 	sqt->recordingMacro = recording;
 	sqt->SetSelection(pos, pos);

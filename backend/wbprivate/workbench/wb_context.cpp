@@ -51,7 +51,6 @@
 
 #include "upgrade_helper.h"
 
-#include "grtui/grtdb_connect_dialog.h"
 #include "grtdb/db_helpers.h"
 
 #include "interfaces/interfaces.h"
@@ -240,8 +239,8 @@ static void show_help(const char *arg0)
   printf("  %smodel <model file>    Open the given EER model file\n", OPPREFIX);
   printf("  %sscript <sql file>     Open the given SQL file in an connection, best in conjunction with a query parameter\n", OPPREFIX);
   printf("  %srun-script <file>     Execute Python code from a file\n", OPPREFIX);
-  printf("  %srun <script>          Execute the given code in default language for GRT shell\n", OPPREFIX);
-  printf("  %srun-python <script>   Execute the given code in Python\n", OPPREFIX);
+  printf("  %srun <code>            Execute the given Python code\n", OPPREFIX);
+  printf("  %srun-python <code>     Execute the given Python code\n", OPPREFIX);
   printf("  %smigration             Open the Migration Wizard tab\n", OPPREFIX);
   printf("  %squit-when-done        Quit Workbench when the script is done\n", OPPREFIX);
   printf("  %slog-to-stderr         Also log to stderr\n", OPPREFIX);
@@ -1246,7 +1245,10 @@ void WBContext::init_finish_(WBOptions *options)
             add_new_admin_window(conn);
           else
           {
-            add_new_query_window(conn);
+            if (conn.is_valid())
+              add_new_query_window(conn);
+            else
+              add_new_query_window();
             if (!options->open_at_startup.empty())
               open_script_file(options->open_at_startup);
           }
@@ -1468,6 +1470,16 @@ void WBContext::init_grt_tree(grt::GRT *grt, WBOptions *options, boost::shared_p
   app->rdbmsMgmt(mgmt_info);
 
   grt->set_root(root);
+
+  {
+    // Default table templates list
+    grt::DictRef options(get_root()->options()->options());
+    if (!options.has_key("TableTemplates"))
+    {
+      grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(grt->unserialize(make_path(get_datadir(), "data/table_templates.xml")));
+      options.set("TableTemplates", templates);
+    }
+  }
 }
 
 
@@ -1656,6 +1668,11 @@ void WBContext::set_default_options(grt::DictRef options)
   
   set_default(options, "SqlEditor::SyntaxCheck::MaxErrCount", 100);
 
+  // All editors
+  set_default(options, "Editor:TabIndentSpaces", 0);
+  set_default(options, "Editor:TabWidth", 4);
+  set_default(options, "Editor:IndentWidth", 4);
+
   // DB SQL editor
   set_default(options, "DbSqlEditor:SchemaTreeRestoreState", 1);
   set_default(options, "DbSqlEditor:SidebarModeCombined", 1);
@@ -1781,7 +1798,7 @@ void WBContext::set_default_options(grt::DictRef options)
     set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 10");
   }
 #elif defined(__APPLE__)
-  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 13");
+  set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY" 11");
   set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
   set_default(options, "workbench.scripting.ScriptingShell:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
   set_default(options, "workbench.scripting.ScriptingEditor:Font", DEFAULT_MONOSPACE_FONT_FAMILY" 13");
@@ -2643,6 +2660,17 @@ bool WBContext::open_file_by_extension(const std::string &path, bool interactive
     // open document
     return open_document(path);
   }
+  else if (g_str_has_suffix(path.c_str(), ".sql"))
+  {
+    SqlEditorForm *form = _sqlide_context->get_active_sql_editor();
+    if (form)
+    {
+      form->open_file(path, true);
+      return true;
+    }
+    _sqlide_context->open_document(path);
+    return false;
+  }
   else
   {
     if (interactive)
@@ -3463,19 +3491,6 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
   
   show_status_text(_("Opening SQL Editor..."));
   
-  if (!target.is_valid())
-  {
-    grtui::DbConnectionDialog dialog(get_root()->rdbmsMgmt());
-    log_debug("No connection specified, showing connection selection dialog...\n"); 
-    target= dialog.run();
-    if (!target.is_valid())
-    {
-      log_debug("Connection selection dialog was cancelled\n");
-      show_status_text(_("Connection cancelled"));
-      return SqlEditorForm::Ref();
-    }
-  }
-  
   SqlEditorForm::Ref form;
   try
   {
@@ -3538,6 +3553,34 @@ boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_C
 
   return form;
 }
+
+
+boost::shared_ptr<SqlEditorForm> WBContext::add_new_query_window()
+{
+  show_status_text(_("Opening SQL Editor..."));
+
+  SqlEditorForm::Ref form;
+  form= get_sqlide_context()->create_connected_editor(db_mgmt_ConnectionRef());
+
+  try
+  {
+    create_main_form_view(WB_MAIN_VIEW_DB_QUERY, form);
+  }
+  catch (std::exception &exc)
+  {
+    show_status_text(_("Could not open SQL Editor."));
+
+    show_error(_("Cannot Open SQL Editor"), strfmt(_("Error in frontend for SQL Editor: %s"), exc.what()));
+    return SqlEditorForm::Ref();
+  }
+
+  show_status_text(_("SQL Editor Opened."));
+
+  form->update_title();
+  
+  return form;
+}
+
 #endif // DB_Querying____
 
 #ifndef Admin____

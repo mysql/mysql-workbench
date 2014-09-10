@@ -449,8 +449,8 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
       node[0] -= processed_node_count;
       RowId row= node[0];
 
-      int rowid;
-      if (get_field_(node, _rowid_column, (ssize_t&)rowid))
+      ssize_t rowid;
+      if (get_field_(node, _rowid_column, rowid))
       {
         boost::shared_ptr<sqlite::connection> data_swap_db= this->data_swap_db();
         sqlide::Sqlite_transaction_guarder transaction_guarder(data_swap_db.get());
@@ -461,28 +461,28 @@ bool Recordset::delete_nodes(std::vector<bec::NodeId> &nodes)
           std::string partition_suffix= data_swap_db_partition_suffix(partition);
           sqlite::command save_deleted_data_record_statement(*data_swap_db,
             strfmt("insert into `deleted_rows%s` select * from `data%s` where id=?", partition_suffix.c_str(), partition_suffix.c_str()));
-          save_deleted_data_record_statement % rowid;
+          save_deleted_data_record_statement % (int)rowid;
           save_deleted_data_record_statement.emit();
         }
 
         // delete data record
         {
           std::list<sqlite::variant_t> bind_vars;
-          bind_vars.push_back(rowid);
+          bind_vars.push_back((int)rowid);
           emit_partition_commands(data_swap_db.get(), data_swap_db_partition_count(), "delete from `data%s` where id=?", bind_vars);
         }
 
         // delete data index record
         {
           sqlite::command delete_data_index_record_statement(*data_swap_db, "delete from `data_index` where id=?");
-          delete_data_index_record_statement % rowid;
+          delete_data_index_record_statement % (int)rowid;
           delete_data_index_record_statement.emit();
         }
 
         // log delete action
         {
           sqlite::command add_change_record_statement(*data_swap_db, _add_change_record_statement);
-          add_change_record_statement % rowid;
+          add_change_record_statement % (int)rowid;
           add_change_record_statement % -1;
           static sqlite::null_type null_obj;
           add_change_record_statement % null_obj;
@@ -569,17 +569,20 @@ void Recordset::pending_changes(int &upd_count, int &ins_count, int &del_count) 
 }
 
 
-grt::StringRef Recordset::do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordset_data_storage::Ptr data_storage_ptr)
+grt::StringRef Recordset::do_apply_changes(grt::GRT *grt, Ptr self_ptr, Recordset_data_storage::Ptr data_storage_ptr, bool skip_commit)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, self_ptr, self, grt::StringRef(""))
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset_data_storage, data_storage_ptr, data_storage, grt::StringRef(""))
   try
   {
-    data_storage->apply_changes(self_ptr);
-    task->send_msg(grt::InfoMsg, _("Commit complete"), _("Commit recordset changes"));
+    data_storage->apply_changes(self_ptr, skip_commit);
+    if (skip_commit)
+      task->send_msg(grt::InfoMsg, _("Apply complete"), _("Applied but did not commit recordset changes"));
+    else
+      task->send_msg(grt::InfoMsg, _("Apply complete"), _("Applied and commited recordset changes"));
     reset(data_storage_ptr, false);
   }
-  CATCH_AND_DISPATCH_EXCEPTION(false, "Commit recordset changes")
+  CATCH_AND_DISPATCH_EXCEPTION(false, "Apply recordset changes")
 
   return grt::StringRef("");
 }
@@ -590,7 +593,7 @@ void Recordset::apply_changes_(Recordset_data_storage::Ptr data_storage_ptr)
   // TODO: not sure we need this function anymore. The SQL IDE form always redirects apply_changes now.
   task->finish_cb(boost::bind(&Recordset::on_apply_changes_finished, this));
   task->exec(true,
-    boost::bind(&Recordset::do_apply_changes, this, _1, weak_ptr_from(this), data_storage_ptr));
+    boost::bind(&Recordset::do_apply_changes, this, _1, weak_ptr_from(this), data_storage_ptr, false));
 }
 
 

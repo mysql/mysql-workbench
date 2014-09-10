@@ -393,13 +393,14 @@ class AdministratorContext:
 #-------------------------------------------------------------------------------
 
 def attachToSQLEditor(name, sender, args):
-    # this is called when a new SQL Editor tab is created
-    # attach our WBA related things to it
-    context = AdministratorContext(sender)
-    sender.customData["adminContext"] = grt.togrt(context)
-    if not sender.isConnected:
-        ignore = mforms.Utilities.add_timeout(0.1, lambda:context.open_into_section("admin_server_status", True))
-        del ignore
+    if sender.connection:
+        # this is called when a new SQL Editor tab is created
+        # attach our WBA related things to it
+        context = AdministratorContext(sender)
+        sender.customData["adminContext"] = grt.togrt(context)
+        if not sender.isConnected:
+            ignore = mforms.Utilities.add_timeout(0.1, lambda:context.open_into_section("admin_server_status", True))
+            del ignore
 
 #-------------------------------------------------------------------------------
 def handleReconnect(name, sender, args):
@@ -449,7 +450,7 @@ def autoDetectLocalInstance(connection):
         matched_profiles = []
         for f in files:
             data = grt.unserialize(os.path.join(path, f))
-            if data.has_key("sys.system") and data["sys.system"] == system:
+            if data and data.has_key("sys.system") and data["sys.system"] == system:
                 profiles.append(data)
                 profile_version = Version.fromstr(data.get("serverVersion"))
                 if version.majorNumber == profile_version.majorNumber or version.minorNumber == profile_version.minorNumber:

@@ -167,8 +167,22 @@ def execute_formatted_command(config, fabric_command):
     return return_data
 
 
+def get_managed_connections(conn):
+    connections = {}
+
+    for connection in grt.root.wb.rdbmsMgmt.storedConns:
+        params = connection.parameterValues
+
+        if params.has_key('fabric_managed') and params['fabric_managed'] == conn.__id__:
+            mparams = connection.parameterValues
+            address = "%s:%s" % (mparams['hostName'], mparams['port'])
+            connections[address] = connection
+
+    return connections
+
+
 @ModuleInfo.export(grt.STRING, grt.classes.db_mgmt_Connection)
-def createConnections(conn):
+def updateConnections(conn):
 
     error = fabric_unavailable_message
 
@@ -186,7 +200,8 @@ def createConnections(conn):
             # Variables for error handling
             fabric_group_count = 0
             matched_groups = []
-            server_count = 0
+            added_servers = 0
+            managed_connections = 0
 
             # Sorts the groups
             def group_key(item):
@@ -197,6 +212,9 @@ def createConnections(conn):
             fabric_group_count = len(groups)
 
             group_filter = conn.parameterValues["haGroupFilter"].strip()
+
+            # Retrieves the list of the existing managed connections
+            existing_connections = get_managed_connections(conn)
 
             for group in groups:
                 include_group = not group_filter or group['group_id'] in group_filter
@@ -226,25 +244,36 @@ def createConnections(conn):
                         if host in ['localhost', '127.0.0.1']:
                             host = conn.parameterValues["hostName"]
 
-                        child_conn_name = '%s/%s:%s' % (conn.name, host, port)
+                        address = '%s:%s' % (host, port)
 
-                        server_user = conn.parameterValues["mysqlUserName"]
-                        managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
-                        managed_conn.parameterValues["fabric_managed"] = True
-                        managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
+                        managed_connections += 1
 
-                        # Includes the rest of the server parameters on the connection parameters
-                        for att in server.keys():
-                            if att != 'address':
-                                managed_conn.parameterValues['fabric_%s' % att] = server[att]
+                        if existing_connections.has_key(address):
+                            del existing_connections[address]
+                        else:
+                            child_conn_name = '%s/%s:%s' % (conn.name, host, port)
 
-                        server_count += 1
+                            server_user = conn.parameterValues["mysqlUserName"]
+                            managed_conn = grt.modules.Workbench.create_connection(host, server_user, '', 1, 0, int(port), child_conn_name)
+                            managed_conn.parameterValues["fabric_managed"] = conn.__id__
+                            managed_conn.parameterValues["fabric_group_id"] = group["group_id"]
+
+                            # Includes the rest of the server parameters on the connection parameters
+                            for att in server.keys():
+                                if att != 'address':
+                                    managed_conn.parameterValues['fabric_%s' % att] = server[att]
+
+                            added_servers += 1
+
+            # Removes the remaining connections (which no longer exist on the fabric node)
+            for connection in existing_connections.values():
+                grt.modules.Workbench.deleteConnection(connection)
 
             conn.parameterValues["managedConnectionsUpdateTime"] = time.strftime('%Y-%m-%d %H:%M:%S')
 
-            if server_count:
+            if added_servers or existing_connections:
                 grt.modules.Workbench.refreshHomeConnections()
-            else:
+            elif managed_connections == 0:
                 if fabric_group_count == 0:
                     error = "There are no High Availability Groups defined on the %s fabric node." % conn.name
                 elif not matched_groups:

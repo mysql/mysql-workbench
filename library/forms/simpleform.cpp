@@ -18,6 +18,7 @@
  */
 
 #include "mforms/mforms.h"
+#include <sstream>
 
 #define MIN_VIEW_WIDTH 200
 #define FORM_MARGIN  12

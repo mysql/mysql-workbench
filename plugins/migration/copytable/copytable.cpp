@@ -906,14 +906,14 @@ size_t ODBCCopyDataSource::count_rows(const std::string &schema, const std::stri
   if (!SQL_SUCCEEDED(ret = SQLExecDirect(stmt, (SQLCHAR*)q.c_str(), SQL_NTS)))
     throw ConnectionError("SQLExecDirect("+q+")", ret, SQL_HANDLE_STMT, stmt);
 
-  size_t count = 0;
+  long long count = 0;
   if (SQL_SUCCEEDED(SQLFetch(stmt)))
     SQLGetData(stmt, 1, SQL_C_ULONG, &count, sizeof(count), NULL);
 
   SQLFreeHandle(SQL_HANDLE_STMT, stmt);
 
-  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && (size_t)spec.max_count < count)
-    count = (size_t)spec.max_count;
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+    count = spec.max_count;
 
   return count;
 }
@@ -1409,14 +1409,14 @@ size_t MySQLCopyDataSource::count_rows(const std::string &schema, const std::str
   // Retrieves the row count...
   MYSQL_ROW row = mysql_fetch_row(result);
 
-  size_t count = 0;
+  long long count = 0;
   if (row)
     count = atol(row[0]);
 
   mysql_free_result(result);
 
-  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && (size_t)spec.max_count < count)
-      count = (size_t)spec.max_count;
+  if ((spec.type == CopyAll || spec.type == CopyWhere) && spec.max_count > 0 && spec.max_count < count)
+      count = spec.max_count;
 
   return count;
 }
@@ -1501,7 +1501,12 @@ boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_ta
         throw ConnectionError("mysql_stmt_result_metadata", &_mysql);
     }
     else
+    {
+      if(mysql_stmt_close(stmt))
+        throw ConnectionError("mysql_stmt_close", &_mysql);
+
       throw ConnectionError("mysql_stmt_prepare", &_mysql);
+    }
   }
   else
     throw ConnectionError("mysql_stmt_init", &_mysql);
@@ -2626,7 +2631,7 @@ void MySQLCopyDataTarget::restore_triggers(std::set<std::string> &schemas)
         log_debug("Restoring trigger %s\n", trigger_name.at(trigger_index).c_str());
 
         std::string trigger_def(trigger_sql.at(trigger_index));
-        if (mysql_query(&_mysql, trigger_def.data()) != 0)
+        if (mysql_query(&_mysql, trigger_def.c_str()) != 0)
         {
           // It is ok having an error for duplicated triggers
           if (mysql_errno(&_mysql) != 1235)

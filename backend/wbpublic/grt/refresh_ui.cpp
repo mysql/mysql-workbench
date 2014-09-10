@@ -21,33 +21,34 @@
 
 using namespace bec;
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
 void RefreshUI::set_refresh_ui_slot(const RefreshSlot &slot)
 {
   _refresh_ui = slot;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
-void bec::RefreshUI::set_partial_refresh_ui_slot(const bec::RefreshUI::PartialRefreshSlot &slot)
+void bec::RefreshUI::set_partial_refresh_ui_slot(const PartialRefreshSlot &slot)
 {
   _partial_refresh_ui = slot;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
 void bec::RefreshUI::do_partial_ui_refresh(const int what)
 {
-    if (!_partial_refresh_blocked && !_partial_refresh_ui.empty())
-        _partial_refresh_ui(what);
+  if (!_partial_refresh_blocked && !_partial_refresh_ui.empty())
+    _partial_refresh_ui(what);
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
 void bec::RefreshUI::do_ui_refresh()
 {
-    if (_refresh_ui)
-        _refresh_ui();
+  if (_refresh_ui)
+    _refresh_ui();
 }
 
+//--------------------------------------------------------------------------------------------------

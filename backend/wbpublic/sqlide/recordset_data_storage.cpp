@@ -54,11 +54,11 @@ boost::shared_ptr<sqlite::connection> Recordset_data_storage::data_swap_db(const
 }
 
 
-void Recordset_data_storage::apply_changes(Recordset::Ptr recordset_ptr)
+void Recordset_data_storage::apply_changes(Recordset::Ptr recordset_ptr, bool skip_commit)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, recordset_ptr, recordset)
   boost::shared_ptr<sqlite::connection> data_swap_db= recordset->data_swap_db();
-  do_apply_changes(recordset, data_swap_db.get());
+  do_apply_changes(recordset, data_swap_db.get(), skip_commit);
 }
 
 

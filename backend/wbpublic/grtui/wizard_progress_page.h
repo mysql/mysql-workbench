@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,7 +79,8 @@ namespace grtui {
     mforms::Label _status_text;
 
     mforms::Table _task_table;
-    
+
+    mforms::Box *_progress_bar_box;
     mforms::ProgressBar *_progress_bar;
     mforms::Label *_progress_label;
 

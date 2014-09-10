@@ -613,6 +613,7 @@ void DbConnectPanel::save_connection_as(const std::string &name)
 bool DbConnectPanel::test_connection()
 {
   std::string message = "Connection parameters are correct";
+  bool failed = false;
   try
   {
     sql::DriverManager *dbc_drv_man= sql::DriverManager::getDriverManager();
@@ -669,12 +670,16 @@ bool DbConnectPanel::test_connection()
 
       }
       else
+      {
         message = "Connection Failed";
+        failed = true;
+      }
     }
   }
   catch (const std::exception& e)
   {
     message = e.what();
+    failed = true;
   }
   
 
@@ -682,7 +687,7 @@ bool DbConnectPanel::test_connection()
   if (message != "Operation Cancelled")
   {
     std::string title;
-    if (message.length())
+    if (failed)
     {
       title = base::strfmt("Failed to Connect to %s", bec::get_description_for_connection(get_be()->get_connection()).c_str());
        mforms::Utilities::show_error(title, message, "OK");
@@ -714,8 +719,7 @@ void DbConnectPanel::set_active_stored_conn(db_mgmt_ConnectionRef connection)
   if (!connection.is_valid())
     connection = _anonymous_connection;
   else if (connection->parameterValues().has_key("fabric_managed"))
-    _warning.set_text(_("This is a fabric managed connection, changes done on it will be lost once Workbench restarts.\n"
-                        "To make the changes permanent please duplicate the connection and do the changes there."));
+    _warning.set_text(_("This is a fabric managed connection"));
 
   db_mgmt_DriverRef driver = connection->driver();
   if (!driver.is_valid())

@@ -389,7 +389,7 @@ NativeHandle MainForm::open_plugin_becb(bec::GRTManager* mgr, grt::Module *grtmo
   // if not forcing a new window creation, check if there's an editor already open for it
   if (!(flags & bec::ForceNewWindowFlag) && !(flags & bec::StandaloneWindowFlag))
   {
-    std::vector<NativeHandle> handles=
+    std::vector<NativeHandle> handles =
       mgr->get_plugin_manager()->get_similar_open_plugins(grtmodule, editor_class, args);
 
     if (!handles.empty())
@@ -1374,6 +1374,7 @@ void MainForm::bring_plugin_pane(PluginEditorBase *pane)
 
 static bool close_plugin_form(GdkEventAny *ev, PluginEditorBase *frame)
 {
+  //wnd window is deleted inside closE_live_object_editor
   frame->close_live_object_editor();
   return true;
 }

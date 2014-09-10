@@ -471,7 +471,7 @@ void SurfaceImpl::MeasureWidths(Font &font,
 		int i=0;
 		while (ui<fit) {
 			size_t lenChar = utf8LengthFromLead(us[i]);
-			size_t codeUnits = (lenChar < 4) ? 1 : 2;
+			int codeUnits = (lenChar < 4) ? 1 : 2;
 			qreal xPosition = tl.cursorToX(ui+codeUnits);
 			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
 				positions[i++] = qRound(xPosition);
@@ -528,7 +528,7 @@ XYPOSITION SurfaceImpl::Descent(Font &font)
 	QFontMetrics metrics(*FontPointer(font), device);
 	// Qt returns 1 less than true descent
 	// See: QFontEngineWin::descent which says:
-	// ### we substract 1 to even out the historical +1 in QFontMetrics's
+	// ### we subtract 1 to even out the historical +1 in QFontMetrics's
 	// ### height=asc+desc+1 equation. Fix in Qt5.
 	return metrics.descent() + 1;
 }
@@ -915,6 +915,13 @@ int ListBoxImpl::Length()
 void ListBoxImpl::Select(int n)
 {
 	ListWidget *list = static_cast<ListWidget *>(wid);
+	QModelIndex index = list->model()->index(n, 0);
+	if (index.isValid()) {
+		QRect row_rect = list->visualRect(index);
+		if (!list->viewport()->rect().contains(row_rect)) {
+			list->scrollTo(index, QAbstractItemView::PositionAtTop);
+		}
+	}
 	list->setCurrentRow(n);
 }
 
@@ -977,7 +984,7 @@ void ListBoxImpl::SetList(const char *list, char separator, char typesep)
 	// This method is *not* platform dependent.
 	// It is borrowed from the GTK implementation.
 	Clear();
-	int count = strlen(list) + 1;
+	size_t count = strlen(list) + 1;
 	std::vector<char> words(list, list+count);
 	char *startword = &words[0];
 	char *numword = NULL;
@@ -1081,7 +1088,7 @@ public:
 
 	virtual Function FindFunction(const char *name) {
 		if (lib) {
-			// C++ standard doesn't like casts betwen function pointers and void pointers so use a union
+			// C++ standard doesn't like casts between function pointers and void pointers so use a union
 			union {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 				QFunctionPointer fp;

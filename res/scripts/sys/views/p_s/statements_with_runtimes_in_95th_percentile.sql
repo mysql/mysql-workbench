@@ -57,7 +57,7 @@ VIEW x$ps_digest_95th_percentile_by_avg_us (
   percentile
 ) AS
 SELECT s2.avg_us avg_us,
-       SUM(s1.cnt)/(SELECT COUNT(*) FROM performance_schema.events_statements_summary_by_digest) percentile
+       IFNULL(SUM(s1.cnt)/NULLIF((SELECT COUNT(*) FROM performance_schema.events_statements_summary_by_digest), 0), 0) percentile
   FROM sys.x$ps_digest_avg_latency_distribution AS s1
   JOIN sys.x$ps_digest_avg_latency_distribution AS s2
     ON s1.avg_us <= s2.avg_us
@@ -116,9 +116,9 @@ SELECT sys.format_statement(DIGEST_TEXT) AS query,
        sys.format_time(MAX_TIMER_WAIT) AS max_latency,
        sys.format_time(AVG_TIMER_WAIT) AS avg_latency,
        SUM_ROWS_SENT AS rows_sent,
-       ROUND(SUM_ROWS_SENT / COUNT_STAR) AS rows_sent_avg,
+       ROUND(IFNULL(SUM_ROWS_SENT / NULLIF(COUNT_STAR, 0), 0)) AS rows_sent_avg,
        SUM_ROWS_EXAMINED AS rows_examined,
-       ROUND(SUM_ROWS_EXAMINED / COUNT_STAR) AS rows_examined_avg,
+       ROUND(IFNULL(SUM_ROWS_EXAMINED / NULLIF(COUNT_STAR, 0), 0)) AS rows_examined_avg,
        FIRST_SEEN AS first_seen,
        LAST_SEEN AS last_seen,
        DIGEST AS digest
@@ -185,9 +185,9 @@ SELECT DIGEST_TEXT AS query,
        MAX_TIMER_WAIT AS max_latency,
        AVG_TIMER_WAIT AS avg_latency,
        SUM_ROWS_SENT AS rows_sent,
-       ROUND(SUM_ROWS_SENT / COUNT_STAR) AS rows_sent_avg,
+       ROUND(IFNULL(SUM_ROWS_SENT / NULLIF(COUNT_STAR, 0), 0)) AS rows_sent_avg,
        SUM_ROWS_EXAMINED AS rows_examined,
-       ROUND(SUM_ROWS_EXAMINED / COUNT_STAR) AS rows_examined_avg,
+       ROUND(IFNULL(SUM_ROWS_EXAMINED / NULLIF(COUNT_STAR, 0), 0)) AS rows_examined_avg,
        FIRST_SEEN as first_seen,
        LAST_SEEN as last_seen,
        DIGEST AS digest

@@ -128,12 +128,15 @@ namespace mforms {
 
     boost::signals2::signal<void ()>* signal_view_switched() { return &_view_switched; }
 
+    boost::signals2::signal<void (AppView*)> *signal_view_undocked() { return &_view_undocked; }
+
     //XXX Windows: need to call this whenever a tab is switched (main tabs and connection tabs)
     void view_switched();
 #endif
   protected:
     DockingPointDelegate *_delegate;
     boost::signals2::signal<void ()> _view_switched;
+    boost::signals2::signal<void (AppView*)> _view_undocked;
 
     bool _delete_delegate;
   };

@@ -106,6 +106,7 @@ def importRecordsetDataFromFile(resultset):
                             resultset.setFloatFieldValue(column, value)
                         else:
                             resultset.setFieldNull(column)
+                resultset.addNewRow() # needed in Windows to refresh display for last row
     return 0
 
 
@@ -223,7 +224,7 @@ def doReformatSQLStatement(text, return_none_if_unsupported):
 
     ast = ast_list[0]
     
-    def trim_ast_fix_bq(text, node):
+    def trim_ast_fix_bq(text, node, add_rollup):
         s = node[0]
         v = node[1]
         c = node[2]
@@ -234,13 +235,18 @@ def doReformatSQLStatement(text, return_none_if_unsupported):
             if begin > 0 and text[begin-1] == '`' and text[end] == '`':
                 v = "`%s`" % v.replace("`", "``")
         l = []
-        for i in c:
-            l.append(trim_ast_fix_bq(text, i))
+        for i, nc in enumerate(c):
+            l.append(trim_ast_fix_bq(text, nc, add_rollup))
+            if add_rollup and nc[0] == "olap_opt" and nc[1].upper() == "WITH" and (i == len(c)-1 or c[i+1][1].upper() != "ROLLUP"):
+                l.append(("olap_opt", "ROLLUP", []))
         return (s, v, l)
 
     formatter = formatter_for_statement_ast(ast)
     if formatter:
-        p = formatter(trim_ast_fix_bq(text, ast))
+        # workaround a bug in parser where WITH ROLLUP is turned into WITH
+        add_rollup = "WITH ROLLUP" in text.upper()
+
+        p = formatter(trim_ast_fix_bq(text, ast, add_rollup))
         return p.run()
     else:
         if return_none_if_unsupported:
@@ -609,6 +615,11 @@ def showInspector(editor, selection):
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
 def runSQLScript(editor):
     form = RunScriptForm(editor)
-    form.run()
-    return 0
+    return form.run()
+
+
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor, grt.STRING)
+def runSQLScriptFile(editor, path):
+    form = RunScriptForm(editor)
+    return form.run_file(path)
 

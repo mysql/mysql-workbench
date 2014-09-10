@@ -53,11 +53,14 @@ protected:
   virtual void do_fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
 
 protected:
-  virtual void run_sql_script(const Sql_script &sql_script);
+  virtual void run_sql_script(const Sql_script &sql_script, bool skip_transaction);
 
 public:
   std::string decorated_sql_query(); // adds limit clause if defined by options
 
+  // list of columns that are PK or unique not null (equivalent to getBestRowIdentifier()) provided
+  // by the caller, so that we don't need to call getBestRowIdentifier() ourselves
+  //std::vector<std::string> known_pkey_columns;
 public:
   void dbms_conn(const sql::Dbc_connection_handler::Ref &val) { _dbms_conn= val; }
   sql::Dbc_connection_handler::Ref dbms_conn() { return _dbms_conn; }
@@ -82,6 +85,9 @@ private:
   std::vector<FieldInfo> _field_info;
   bool _reloadable; // whether can be reloaded using stored sql query
   bool _gather_field_info;
+
+  size_t determine_pkey_columns(Recordset::Column_names &column_names, Recordset::Column_types &column_types, Recordset::Column_types &real_column_types);
+  size_t determine_pkey_columns_alt(Recordset::Column_names &column_names, Recordset::Column_types &column_types, Recordset::Column_types &real_column_types);
 };
 
 

@@ -32,7 +32,7 @@ public:
 	Position start;
 	Position end;
 
-	Range(Position pos=0) :
+	explicit Range(Position pos=0) :
 		start(pos), end(pos) {
 	}
 	Range(Position start_, Position end_) :
@@ -41,6 +41,14 @@ public:
 
 	bool Valid() const {
 		return (start != invalidPosition) && (end != invalidPosition);
+	}
+
+	Position First() const {
+		return (start <= end) ? start : end;
+	}
+
+	Position Last() const {
+		return (start > end) ? start : end;
 	}
 
 	// Is the position within the range?
@@ -165,7 +173,7 @@ protected:
 	ILexer *instance;
 	bool performingStyle;	///< Prevent reentrance
 public:
-	LexInterface(Document *pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false) {
+	explicit LexInterface(Document *pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false) {
 	}
 	virtual ~LexInterface() {
 	}
@@ -204,6 +212,9 @@ private:
 	int enteredModification;
 	int enteredStyling;
 	int enteredReadOnlyCount;
+
+	bool insertionSet;
+	std::string insertion;
 
 	std::vector<WatcherWithUserData> watchers;
 
@@ -274,7 +285,8 @@ public:
 	void ModifiedAt(int pos);
 	void CheckReadOnly();
 	bool DeleteChars(int pos, int len);
-	bool InsertString(int position, const char *s, int insertLength);
+	int InsertString(int position, const char *s, int insertLength);
+	void ChangeInsertion(const char *s, int length);
 	int SCI_METHOD AddData(char *data, int length);
 	void * SCI_METHOD ConvertToDocument();
 	int Undo();
@@ -296,7 +308,7 @@ public:
 	int GapPosition() const { return cb.GapPosition(); }
 
 	int SCI_METHOD GetLineIndentation(int line);
-	void SetLineIndentation(int line, int indent);
+	int SetLineIndentation(int line, int indent);
 	int GetLineIndentPosition(int line) const;
 	int GetColumn(int position);
 	int CountCharacters(int startPos, int endPos);
@@ -307,8 +319,6 @@ public:
 	void SetReadOnly(bool set) { cb.SetReadOnly(set); }
 	bool IsReadOnly() const { return cb.IsReadOnly(); }
 
-	bool InsertChar(int pos, char ch);
-	bool InsertCString(int position, const char *s);
 	void DelChar(int pos);
 	void DelCharBack(int pos);
 
@@ -390,7 +400,7 @@ public:
 	void AnnotationSetStyles(int line, const unsigned char *styles);
 	int AnnotationLines(int line) const;
 	void AnnotationClearAll();
-
+	
 	bool AddWatcher(DocWatcher *watcher, void *userData);
 	bool RemoveWatcher(DocWatcher *watcher, void *userData);
 
@@ -443,12 +453,12 @@ public:
  */
 class DocModification {
 public:
-  	int modificationType;
+	int modificationType;
 	int position;
- 	int length;
- 	int linesAdded;	/**< Negative if lines deleted. */
- 	const char *text;	/**< Only valid for changes to text, not for changes to style. */
- 	int line;
+	int length;
+	int linesAdded;	/**< Negative if lines deleted. */
+	const char *text;	/**< Only valid for changes to text, not for changes to style. */
+	int line;
 	int foldLevelNow;
 	int foldLevelPrev;
 	int annotationLinesAdded;

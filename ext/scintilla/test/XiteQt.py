@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Requires Python 2.7 or later
 
 import ctypes, os, sys, unittest
 

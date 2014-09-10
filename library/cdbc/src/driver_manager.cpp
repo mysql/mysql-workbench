@@ -253,11 +253,14 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
       fprintf(stderr, "Error: %s", g_module_error());
       throw SQLException(std::string("Database driver: Failed to open library '").append(_driver_path + "/" + library).append("'. Check settings.").c_str());
     }
-  
+
     Driver *(* get_driver_instance)()= NULL;
     g_module_symbol(gmodule, "sql_mysql_get_driver_instance", (gpointer*)&get_driver_instance);
     if (NULL == get_driver_instance)
+    {
+      g_module_close(gmodule);
       throw SQLException("Database driver: Failed to get library instance. Check settings.");
+    }
 
     driver = get_driver_instance();
   }

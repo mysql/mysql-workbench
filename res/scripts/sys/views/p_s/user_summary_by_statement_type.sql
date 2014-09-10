@@ -17,6 +17,8 @@
  * View: user_summary_by_statement_type
  *
  * Summarizes the types of statements executed by each user.
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.
  *
  * mysql> select * from user_summary_by_statement_type;
  * +------+----------------------+--------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
@@ -48,7 +50,7 @@ VIEW user_summary_by_statement_type (
   rows_affected,
   full_scans
 ) AS
-SELECT user,
+SELECT IF(user IS NULL, 'background', user) AS user,
        SUBSTRING_INDEX(event_name, '/', -1) AS statement,
        count_star AS total,
        sys.format_time(sum_timer_wait) AS total_latency,
@@ -59,14 +61,15 @@ SELECT user,
        sum_rows_affected AS rows_affected,
        sum_no_index_used + sum_no_good_index_used AS full_scans
   FROM performance_schema.events_statements_summary_by_user_by_event_name
- WHERE user IS NOT NULL
-   AND sum_timer_wait != 0
+ WHERE sum_timer_wait != 0
  ORDER BY user, sum_timer_wait DESC;
 
 /*
  * View: x$user_summary_by_statement_type
  *
  * Summarizes the types of statements executed by each user.
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.
  *
  * mysql> select * from x$user_summary_by_statement_type;
  * +------+----------------------+--------+-----------------+----------------+----------------+-----------+---------------+---------------+------------+
@@ -98,7 +101,7 @@ VIEW x$user_summary_by_statement_type (
   rows_affected,
   full_scans
 ) AS
-SELECT user,
+SELECT IF(user IS NULL, 'background', user) AS user,
        SUBSTRING_INDEX(event_name, '/', -1) AS statement,
        count_star AS total,
        sum_timer_wait AS total_latency,
@@ -109,6 +112,5 @@ SELECT user,
        sum_rows_affected AS rows_affected,
        sum_no_index_used + sum_no_good_index_used AS full_scans
   FROM performance_schema.events_statements_summary_by_user_by_event_name
- WHERE user IS NOT NULL
-   AND sum_timer_wait != 0
+ WHERE sum_timer_wait != 0
  ORDER BY user, sum_timer_wait DESC;

@@ -36,17 +36,6 @@ context: see wb_context.h for full listing
         <value type="string" key="tooltip">Open a SQL script file in a new query tab</value>
       </value>
 
-      <!-- Wizard is not yet ready.
-      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.execfile">
-        <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
-        <value type="string" key="name">query.runFile</value>
-        <value type="string" key="icon">qe_main-tb-icon_execute-sql-file.png</value>
-        <value type="string" key="itemType">action</value>
-        <value type="string" key="command">builtin:query.runFile</value>
-        <value type="string" key="tooltip">Open a large SQL script file or dump file for inspection and execution</value>
-      </value>
-      -->
-
       <!--value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.saveas">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
         <value type="string" key="name">qsaveas</value>

@@ -35,6 +35,7 @@
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_WRAPPER)
 
 using namespace Windows::Forms;
+using namespace System::Drawing;
 using namespace System::Media;
 
 using namespace MySQL::Forms;
@@ -1125,6 +1126,39 @@ void UtilitiesWrapper::set_thread_name(const std::string &name)
 
 //--------------------------------------------------------------------------------------------------
 
+gcroot<Font ^> UtilitiesWrapper::last_font;
+static std::string last_font_description;
+
+double UtilitiesWrapper::get_text_width(const std::string &text, const std::string &font)
+{
+  // We cache the last font we have used for the text width as it this computation is likely to be
+  // done multiple times for the same font.
+  if (last_font_description != font)
+  {
+    last_font_description = font;
+
+    std::string font_name;
+    float size;
+    bool bold;
+    bool italic;
+    base::parse_font_description(font, font_name, size, bold, italic);
+
+    Drawing::FontStyle style = FontStyle::Regular;
+    if (bold)
+      style = (FontStyle)(style | FontStyle::Bold);
+    if (italic)
+      style = (FontStyle)(style | FontStyle::Italic);
+
+
+    last_font = ControlUtilities::GetFont(CppStringToNativeRaw(font_name), size, style);
+  }
+
+  Size size = TextRenderer::MeasureText(CppStringToNative(text), last_font);
+  return size.Width;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Returns the main form of the application.
  */
@@ -1269,6 +1303,8 @@ void UtilitiesWrapper::init()
   f->_utilities_impl.perform_from_main_thread = &UtilitiesWrapper::perform_from_main_thread;
   f->_utilities_impl.reveal_file = &UtilitiesWrapper::reveal_file;
   f->_utilities_impl.set_thread_name = &UtilitiesWrapper::set_thread_name;
+
+  f->_utilities_impl.get_text_width = &UtilitiesWrapper::get_text_width;
 }
 
 //-------------------------------------------------------------------------------------------------

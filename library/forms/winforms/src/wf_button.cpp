@@ -82,8 +82,9 @@ bool ButtonWrapper::create(mforms::Button *backend, mforms::ButtonType btype)
     break;
 
   case mforms::SmallButton:
-    button->FlatStyle = FlatStyle::Flat;
-    button->FlatAppearance->BorderSize = 0;
+    button->FlatStyle = FlatStyle::System;
+    button->Font = gcnew Font(DEFAULT_FONT_FAMILY, 7, FontStyle::Regular, GraphicsUnit::Point);
+    button->Height = 15;
     break;
 
   default:

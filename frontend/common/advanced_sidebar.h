@@ -83,6 +83,7 @@ namespace wb {
       std::string _name;
       cairo_surface_t *icon;
       cairo_surface_t *alt_icon;
+      std::string _icon_name, _alt_icon_name;
       int x, y;
       int bounds_width, bounds_height;
       int width, height;

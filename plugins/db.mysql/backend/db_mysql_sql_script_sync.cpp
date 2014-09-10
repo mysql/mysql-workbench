@@ -324,6 +324,8 @@ void DbMySQLScriptSync::start_sync()
 
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLScriptSync::sync_finished, this, _1));
   _manager->get_dispatcher()->add_task(task);
+
+  task->release();
 }
 
 void DbMySQLScriptSync::sync_finished(grt::ValueRef res)

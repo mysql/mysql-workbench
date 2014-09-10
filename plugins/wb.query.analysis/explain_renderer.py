@@ -429,7 +429,7 @@ class NestedLoopNode(ExplainNode):
 
 
     def get_read_eval_cost(self):
-        return float(self.child_below.cost_info.get("prefix_cost", 0))
+        return float(self.child_below.cost_info.get("prefix_cost", 0)) if self.child_below.cost_info else None
 
 
     def __repr__(self):
@@ -637,7 +637,11 @@ This could also mean the search range is so broad that the index would be useles
 
         if "attached_condition_fmt" not in self.info and "attached_condition" in self.info:
             # create a formatted version of attached_condition, so it will not be too wide
-            self.info["attached_condition_fmt"] = reformat_expression(self.info["attached_condition"])
+            try:
+                self.info["attached_condition_fmt"] = reformat_expression(self.info["attached_condition"])
+            except Exception, e:
+                log_error("Could not reformat %s: %s\n" % (self.info["attached_condition"], e))
+                self.info["attached_condition_fmt"] = self.info["attached_condition"]
 
         text += self._hint_line("*Attached Condition:\n", "attached_condition_fmt")
         if "attached_condition" in self.info:

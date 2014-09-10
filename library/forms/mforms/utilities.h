@@ -136,6 +136,8 @@ namespace mforms {
 
     void* (*perform_from_main_thread)(const boost::function<void* ()> &slot, bool wait_completion);
     void (*set_thread_name)(const std::string &name);
+
+    double (*get_text_width)(const std::string &text, const std::string &font);
   };
 #endif
 #endif
@@ -313,11 +315,15 @@ namespace mforms {
     // modules... uncomment this if that's solved
     static cairo_surface_t* load_icon(const std::string& name, bool allow_hidpi=false);
     static bool is_hidpi_icon(cairo_surface_t *s);
+    static bool icon_needs_reload(cairo_surface_t *s);
 
     static void paint_icon(cairo_t *cr, cairo_surface_t *icon, double x, double y, float alpha = 1.0);
     static void get_icon_size(cairo_surface_t *icon, int &w, int &h);
 
     static std::string shorten_string(cairo_t* cr, const std::string& text, double width);
+
+    //XXX TODO Linux, Windows
+    static double get_text_width(const std::string &text, const std::string &font);
 #endif
 
 #ifndef SWIG

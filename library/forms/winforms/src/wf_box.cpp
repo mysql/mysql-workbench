@@ -66,9 +66,12 @@ void maximize_children(ControlList% list, bool horizontal, Size containerSize, i
       ViewWrapper::remove_auto_resize(entry->control, AutoResizeMode::ResizeHorizontal);
       entry->bounds.X = padding;
 
-      // Determine the preferred size based on the new width (for labels, as they can be in auto wrap mode).
+      // For labels determine the preferred height based on the new width (as they can be in auto wrap mode).
       if (is<WrapControlLabel>(entry->control))
-        entry->bounds.Size = entry->control->GetPreferredSize(Size(containerSize.Width, 0));
+      {
+        Size size = entry->control->GetPreferredSize(Size(containerSize.Width, 0));
+        entry->bounds.Size = Size(containerSize.Width, size.Height);
+      }
       else
         entry->bounds.Width = containerSize.Width;
     };
@@ -329,6 +332,12 @@ System::Drawing::Size HorizontalGtkBoxLayout::ComputeLayout(LayoutBox ^box, Syst
       Button ^button = (Button ^)entry->control;
       if (button->FlatStyle == FlatStyle::Flat)
         entry->bounds = Drawing::Rectangle::Inflate(entry->bounds, -3, -3);
+      else
+      {
+        // If a smaller size than the preferred size is set for a button use this instead.
+        if (button->MinimumSize.Height > 0 && button->MinimumSize.Height < control->PreferredSize.Height)
+          entry->bounds.Height = button->MinimumSize.Height;
+      }
     }
 
     // Sort control into the proper alignment list.

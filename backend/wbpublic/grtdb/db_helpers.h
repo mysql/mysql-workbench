@@ -34,7 +34,8 @@ namespace bec {
   std::string WBPUBLICBACKEND_PUBLIC_FUNC sanitize_server_version_number(const std::string &version);
 
   GrtVersionRef WBPUBLICBACKEND_PUBLIC_FUNC parse_version(grt::GRT *grt, const std::string &version);
-  long WBPUBLICBACKEND_PUBLIC_FUNC version_to_long(const GrtVersionRef &version);
+  int WBPUBLICBACKEND_PUBLIC_FUNC version_to_int(const GrtVersionRef &version);
+  GrtVersionRef WBPUBLICBACKEND_PUBLIC_FUNC int_to_version(grt::GRT *grt, int version);
   bool  WBPUBLICBACKEND_PUBLIC_FUNC version_equal(GrtVersionRef a, GrtVersionRef b);
   bool  WBPUBLICBACKEND_PUBLIC_FUNC version_greater(GrtVersionRef a, GrtVersionRef b);
 

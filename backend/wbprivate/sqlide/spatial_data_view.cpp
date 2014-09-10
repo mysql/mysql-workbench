@@ -113,8 +113,12 @@ public:
 };
 
 SpatialDataView::SpatialDataView(SqlEditorResult *owner)
-: mforms::Box(false), _owner(owner)
+: mforms::Box(false), _owner(owner), _activated(false)
 {
+
+  _splitter = mforms::manage(new mforms::Splitter(true, true));
+  _rendering = false;
+
   _main_box = mforms::manage(new mforms::Box(true));
   _viewer = mforms::manage(new SpatialDrawBox());
   _viewer->position_changed_cb = boost::bind(&SpatialDataView::update_coordinates, this, _1);
@@ -154,13 +158,22 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     _toolbar->add_separator_item();
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-    item->set_text("Select Area:");
+    item->set_text("Tool:");
     _toolbar->add_item(item);
 
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
+    item->set_name("reset_tool");
+    item->set_icon(mforms::App::get()->get_resource_path("wb_arrow.png"));
+    item->set_tooltip("Pan map and select feature to view");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::change_tool, this, item));
+    _toolbar->add_item(item);
+    item->set_checked(true);
+
+    item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
+    item->set_name("zoom_to_area");
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-area.png"));
-    item->set_tooltip("Click and drag in the map to select an area to be zoomed into.");
-    item->signal_activated()->connect(boost::bind(&SpatialDrawBox::select_area, _viewer));
+    item->set_tooltip("Zoom to area. Click and drag in the map to select an area to be zoomed into.");
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::change_tool, this, item));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
@@ -225,15 +238,16 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   }
   add(_toolbar, false, true);
 
-  _main_box->add(_viewer, true, true);
+  _splitter->add(_viewer, 100);
 
   _option_box = mforms::manage(new mforms::Box(false));
   _option_box->set_spacing(4);
   _option_box->set_padding(8);
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
   _option_box->set_back_color("#f0f0f0");
 #endif
+
 
   _map_menu = new mforms::ContextMenu();
   _map_menu->add_item_with_title("Copy Coordinates", boost::bind(&SpatialDataView::copy_coordinates, this));
@@ -247,6 +261,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 //  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
 //  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
 
+  _layer_menu->add_item_with_title("Set Active", boost::bind(&SpatialDataView::activate_layer, this), "set_active");
+
    mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
    mitem->set_name("fillup_polygon");
    mitem->signal_clicked()->connect(boost::bind(&SpatialDataView::fillup_polygon, this, mitem));
@@ -258,11 +274,12 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
   _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
   _layer_tree->add_column(mforms::CheckColumnType, "", 25, true);
-  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false);
-  _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false);
+  _layer_tree->add_column(mforms::IconStringColumnType, "Layer", 120, false, true);
+  _layer_tree->add_column(mforms::StringColumnType, "Source", 200, false, true);
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
   _layer_tree->set_context_menu(_layer_menu);
+  _layer_tree->signal_node_activated()->connect(boost::bind(&SpatialDataView::activate_layer, this));
   _option_box->add(_layer_tree, true, true);
 
   _mouse_pos_label = mforms::manage(new mforms::Label("Lat:\nLon:"));
@@ -272,11 +289,54 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _option_box->add(_info_box, true, true);
   _info_box->set_value("Click a feature to view its record");
 
-  _option_box->set_size(250, -1);
-  _main_box->add(_option_box, false, true);
+  _option_box->set_size(220, -1);
+  _splitter->add(_option_box, 200);
 
-  add(_main_box, true, true);
+  _splitter->signal_position_changed()->connect(boost::bind(&SpatialDataView::call_refresh_viewer, this));
+
+  add(_splitter, true, true);
 }
+
+void SpatialDataView::call_refresh_viewer()
+{
+  if (!_rendering)
+  {
+    if (_spliter_change_timeout != 0)
+    {
+      mforms::Utilities::cancel_timeout(_spliter_change_timeout);
+      _spliter_change_timeout = 0;
+    }
+    
+    _spliter_change_timeout = mforms::Utilities::add_timeout(0.5, boost::bind(&SpatialDataView::refresh_viewer, this));
+  }
+}
+
+bool SpatialDataView::refresh_viewer()
+{
+  if (_rendering)
+    return false;
+
+  _spliter_change_timeout = 0;
+  _viewer->invalidate(true);
+
+  return false;
+}
+
+void SpatialDataView::change_tool(mforms::ToolBarItem *item)
+{
+  item->set_checked(true);
+  if (item->get_name() == "reset_tool")
+  {
+    _toolbar->set_item_checked("zoom_to_area", false);
+    _viewer->select_area(false);
+  }
+  else
+  {
+    _viewer->select_area(true);
+    _toolbar->set_item_checked("reset_tool", false);
+  }
+}
+
 
 int SpatialDataView::get_option(const char* opt_name, int default_value)
 {
@@ -409,6 +469,7 @@ spatial::LayerId SpatialDataView::get_selected_layer_id()
 
 void SpatialDataView::auto_zoom()
 {
+  _viewer->clear_pins();
   _viewer->auto_zoom(get_selected_layer_id());
   _viewer->invalidate(true);
 }
@@ -453,6 +514,7 @@ void SpatialDataView::layer_menu_will_show()
 {
   spatial::Layer *layer = _viewer->get_layer(get_selected_layer_id());
 
+  _layer_menu->set_item_enabled("set_active", layer && layer->layer_id() != _grid_layer);
   _layer_menu->set_item_checked("fillup_polygon", layer && layer->fill());
 }
 
@@ -511,6 +573,7 @@ void SpatialDataView::view_record()
 
 void SpatialDataView::work_started(mforms::View *progress_panel, bool reprojecting)
 {
+  _rendering = true;
   _layer_tree->set_enabled(false);
   _layer_menu->set_item_enabled("refresh", false);
   if (reprojecting)
@@ -524,6 +587,7 @@ void SpatialDataView::work_started(mforms::View *progress_panel, bool reprojecti
 
 void SpatialDataView::work_finished(mforms::View *progress_panel)
 {
+  _rendering = false;
   _layer_tree->set_enabled(true);
   _layer_menu->set_item_enabled("refresh", true);
   _viewer->remove(progress_panel);
@@ -533,6 +597,11 @@ void SpatialDataView::work_finished(mforms::View *progress_panel)
 
 void SpatialDataView::activate()
 {
+  if (!_activated)
+  {
+    _activated = true;
+    _splitter->set_position(this->get_width() - 200);
+  }
   _viewer->activate();
 }
 
@@ -561,7 +630,7 @@ void SpatialDataView::refresh_layers()
 
   set_geometry_columns(spatial_columns);
   if ((bool)get_option("SqlEditor::SpatialAutoZoom", 1))
-    _viewer->auto_zoom(0);
+    _viewer->auto_zoom(_active_layer);
 }
 
 
@@ -601,6 +670,16 @@ void SpatialDataView::tree_toggled(const mforms::TreeNodeRef &node, const std::s
 }
 
 
+void SpatialDataView::activate_layer()
+{
+  mforms::TreeNodeRef node = _layer_tree->get_selected_node();
+  if (node)
+  {
+    set_active_layer(atoi(node->get_tag().c_str()));
+  }
+}
+
+
 static spatial::Layer *find_layer_for(std::deque<spatial::Layer*> &layers, Recordset::Ref rset, int column)
 {
   for (std::deque<spatial::Layer*>::iterator l = layers.begin(); l != layers.end(); ++l)
@@ -615,6 +694,9 @@ static spatial::Layer *find_layer_for(std::deque<spatial::Layer*> &layers, Recor
 
 void SpatialDataView::set_active_layer(spatial::LayerId layer)
 {
+  if (_grid_layer == layer)
+    return;
+
   _active_layer = layer;
 
   mforms::TreeNodeTextAttributes plain;
@@ -665,18 +747,16 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
     base::Color(0.0, 0.0, 0.6)
   };
 
-  bool initializing = false;
   if (_layer_tree->count() == 0)
   {
-    initializing = true;
     base::Color color(layer_colors[0]);
     mforms::TreeNodeRef node = _layer_tree->add_node();
     node->set_string(1, "Grid");
     set_color_icon(node, 1, color);
     node->set_bool(0, true);
-    spatial::LayerId layer_id = spatial::new_layer_id();
-    node->set_tag(base::strfmt("%i", layer_id));
-    _viewer->set_background(new GridLayer(layer_id, color));
+    _grid_layer = spatial::new_layer_id();
+    node->set_tag(base::strfmt("%i", _grid_layer));
+    _viewer->set_background(new GridLayer(_grid_layer, color));
   }
 
   std::deque<spatial::Layer*> layers(_viewer->get_layers());
@@ -777,9 +857,11 @@ void SpatialDataView::handle_click(base::Point p)
 {
   RecordsetLayer *layer = active_layer();
   std::string text;
+
+  _viewer->clear_pins();
   if (layer)
   {
-    spatial::Feature *feature = layer->feature_within(p);
+    spatial::Feature *feature = layer->feature_closest(_viewer->apply_cairo_transformation(p));
     if (feature)
     {
       int row_id = feature->row_id();
@@ -789,6 +871,8 @@ void SpatialDataView::handle_click(base::Point p)
         if (rs)
         {
           std::string value;
+
+          _viewer->place_pin(mforms::Utilities::load_icon("qe_sql-editor-resultset-tb-pinned.png"), p);
 
           for (size_t i = 0; i < rs->get_column_count(); i++)
           {

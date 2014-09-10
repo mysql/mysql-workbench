@@ -34,6 +34,7 @@
 
 #include "base/sqlstring.h"
 #include "grt/parse_utils.h"
+#include "grt/spatial_handler.h"
 #include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/boost_smart_ptr_helpers.h"
@@ -125,7 +126,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _resultset_placeholder->set_back_color("#ffffff");
   _resultset_placeholder->set_title("Result\nGrid");
   _resultset_placeholder->set_identifier("result_grid");
-  _tabdock.dock_view(_resultset_placeholder, mforms::App::get()->get_resource_path("output_type-resultset.png"));
+  _tabdock.dock_view(_resultset_placeholder, "output_type-resultset.png");
 
   {
     db_query_QueryEditorRef editor(owner->grtobj());
@@ -221,6 +222,9 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
   _grid_header_menu = new mforms::ContextMenu();
   _grid_header_menu->add_item_with_title("Copy Field Name", boost::bind(&SqlEditorResult::copy_column_name, this));
   _grid_header_menu->add_item_with_title("Copy All Field Names", boost::bind(&SqlEditorResult::copy_all_column_names, this));
+  _grid_header_menu->add_separator();
+  _grid_header_menu->add_item_with_title("Reset Sorting", boost::bind(&SqlEditorResult::reset_sorting, this));
+  _grid_header_menu->add_item_with_title("Reset Column Widths", boost::bind(&SqlEditorResult::reset_column_widths, this));
 
   mforms::RecordGrid *grid = mforms::manage(mforms::RecordGrid::create(rset));
   {
@@ -245,6 +249,7 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset)
                               boost::bind(&SqlEditorResult::on_recordset_column_resized, this, _1));
 
   rset->data_edited_signal.connect(boost::bind(&SqlEditorPanel::resultset_edited, _owner));
+  rset->data_edited_signal.connect(boost::bind(&mforms::View::set_needs_repaint, grid));
 }
 
 
@@ -327,11 +332,13 @@ void SqlEditorResult::set_title(const std::string &title)
 
 bool SqlEditorResult::can_close()
 {
+  if (Recordset::Ref rs = recordset())
+    if (!rs->can_close(true))
+      return false;
+
   if (!_tabdock.close_all_views())
     return false;
 
-  if (Recordset::Ref rs = recordset())
-    return rs->can_close(true);
   return true;
 }
 
@@ -516,11 +523,59 @@ void SqlEditorResult::toggle_switcher_collapsed()
   _collapse_toggled(flag);
 }
 
+
 void SqlEditorResult::on_recordset_column_resized(int column)
 {
   std::string column_id = _column_width_storage_ids[column];
   int width = _result_grid->get_column_width(column);
   _owner->owner()->column_width_cache()->save_column_width(column_id, width);
+}
+
+
+void SqlEditorResult::reset_column_widths()
+{
+  ColumnWidthCache *cache = _owner->owner()->column_width_cache();
+
+  RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs)
+  {
+    Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
+    std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+
+    for (int c = (int)field_info.size(), i = 0; i < c; i++)
+    {
+      std::string column_storage_id;
+
+      column_storage_id = field_info[i].field + "::" + field_info[i].schema + "::" + field_info[i].table;
+
+      cache->delete_column_width(column_storage_id);
+    }
+  }
+
+  restore_grid_column_widths();
+}
+
+
+std::vector<float> SqlEditorResult::get_autofit_column_widths(Recordset *rs)
+{
+  std::vector<float> widths(rs->get_column_count());
+  std::string font = _owner->owner()->grt_manager()->get_app_option_string("workbench.general.Resultset:Font");
+
+  for (int c = rs->get_column_count(), j = 0; j < c; j++)
+  {
+    widths[j] = (float)mforms::Utilities::get_text_width(rs->get_column_caption(j), font);
+  }
+
+  // look in 1st 10 rows for the max width of the columns
+  for (int i = 0; i < 10; i++)
+  {
+    for (int c = rs->get_column_count(), j = 0; j < c; j++)
+    {
+      std::string value;
+      rs->get_field(i, j, value);
+      widths[j] = std::max(widths[j], (float)mforms::Utilities::get_text_width(value, font));
+    }
+  }
+  return widths;
 }
 
 
@@ -532,6 +587,7 @@ void SqlEditorResult::restore_grid_column_widths()
   {
     Recordset_cdbc_storage::Ref storage(boost::dynamic_pointer_cast<Recordset_cdbc_storage>(rs->data_storage()));
     std::vector<Recordset_cdbc_storage::FieldInfo> &field_info(storage->field_info());
+    std::vector<float> autofit_widths;
 
     for (int c = (int)field_info.size(), i = 0; i < c; i++)
     {
@@ -548,18 +604,16 @@ void SqlEditorResult::restore_grid_column_widths()
       }
       else
       {
-        // if not, we set a default width based on the display size
-        int length = field_info[i].display_size;
+        // if not, we set a default width based on the width of the 1st 50 rows
+        if (autofit_widths.empty())
+          autofit_widths = get_autofit_column_widths(rs);
 
-        if (length < 5)
-          length = 5;
-        else if (length > 20)
-          length = 20;
-#if defined(__APPLE__) || defined(_WIN32)
-        _result_grid->set_column_width(i, length * 10);
-#else
-        _result_grid->set_column_width(i, length * 12);
-#endif
+        float width = autofit_widths[i] + 10;
+        if (width < 40)
+          width = 40;
+        else if (width > 250)
+          width = 250;
+        _result_grid->set_column_width(i, width);
       }
     }
   }
@@ -568,7 +622,6 @@ void SqlEditorResult::restore_grid_column_widths()
 
 void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
 {
-  mforms::App *app = mforms::App::get();
   _result_grid = view;
   view->set_name("result-grid-wrapper");
 
@@ -587,7 +640,7 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
 
     box->set_title("Result\nGrid");
     box->set_identifier("result_grid");
-    _tabdock.dock_view(box, app->get_resource_path("output_type-resultset.png"));
+    _tabdock.dock_view(box, "output_type-resultset.png");
   }
   {
     bool editable = false;
@@ -597,21 +650,21 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
     add_switch_toggle_toolbar_item(_form_result_view->get_toolbar());
     _form_result_view->set_title("Form\nEditor");
     _form_result_view->set_identifier("form_result");
-    _tabdock.dock_view(_form_result_view, app->get_resource_path("output_type-formeditor.png"));
+    _tabdock.dock_view(_form_result_view, "output_type-formeditor.png");
   }
   {
     _column_info_box = mforms::manage(new mforms::AppView(false, "ResultFieldTypes", false));
     _column_info_box->set_back_color("#ffffff");
     _column_info_box->set_title("Field\nTypes");
     _column_info_box->set_identifier("column_info");
-    _tabdock.dock_view(_column_info_box, app->get_resource_path("output_type-fieldtypes.png"));
+    _tabdock.dock_view(_column_info_box, "output_type-fieldtypes.png");
   }
   {
     _query_stats_box = mforms::manage(new mforms::AppView(false, "ResultQueryStats", false));
     _query_stats_box->set_back_color("#ffffff");
     _query_stats_box->set_title("Query\nStats");
     _query_stats_box->set_identifier("query_stats");
-    _tabdock.dock_view(_query_stats_box, app->get_resource_path("output_type-querystats.png"));
+    _tabdock.dock_view(_query_stats_box, "output_type-querystats.png");
   }
 
   create_spatial_view_panel_if_needed();
@@ -631,7 +684,7 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
       has_explain_tab = true;
       view->retain();
       _tabdock_delegate->undock_view(view);
-      _tabdock.dock_view(view, app->get_resource_path("output_type-executionplan.png"));
+      _tabdock.dock_view(view, "output_type-executionplan.png");
       view->release();
       break;
     }
@@ -642,7 +695,7 @@ void SqlEditorResult::dock_result_grid(mforms::RecordGrid *view)
     _execution_plan_placeholder->set_back_color("#ffffff");
     _execution_plan_placeholder->set_title("Execution\nPlan");
     _execution_plan_placeholder->set_identifier("execution_plan");
-    _tabdock.dock_view(_execution_plan_placeholder, app->get_resource_path("output_type-executionplan.png"));
+    _tabdock.dock_view(_execution_plan_placeholder, "output_type-executionplan.png");
   }
   _switcher.set_selected(0);
 
@@ -666,8 +719,14 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
     }
     if (has_geometry)
     {
-      mforms::App *app = mforms::App::get();
-
+      if (!spatial::Projection::get_instance().check_libproj_availability())
+      {
+        mforms::Utilities::show_message_and_remember("Unable to initialize Spatial Viewer",
+                                                     "Spatial support requires the PROJ.4 library (libproj). If you already have it installed, please set the PROJSO environment variable to its location before starting Worbench.",
+                                                     "Ok", "", "",
+                                                     "SqlEditorResult.libprojcheck", "");
+        return;
+      }
       _spatial_result_view = mforms::manage(new SpatialDataView(this));
       add_switch_toggle_toolbar_item(_spatial_result_view->get_toolbar());
       mforms::AppView *box = mforms::manage(new mforms::AppView(false, "SpatialView", false));
@@ -675,7 +734,7 @@ void SqlEditorResult::create_spatial_view_panel_if_needed()
       box->set_identifier("spatial_result_view");
       box->set_name("spatial-host");
       box->add(_spatial_result_view, true, true);
-      _tabdock.dock_view(box, app->get_resource_path("output_type-spacialview.png"));
+      _tabdock.dock_view(box, "output_type-spacialview.png");
     }
   }
 }
@@ -711,7 +770,7 @@ void SqlEditorResult::copy_column_info(mforms::TreeNodeView *tree)
     text.append(base::strfmt("%i", (*node)->get_int(0)));
     for (int i= 1; i < tree->get_column_count(); i++)
     {
-      if (i >= 1 && i <= 4)
+      if (i >= 1 && i <= 5)
         text.append(",").append((*node)->get_string(i));
       else
         text.append(",").append(base::strfmt("%i", (*node)->get_int(i)));

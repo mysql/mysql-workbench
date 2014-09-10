@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -213,9 +213,9 @@ public:
 
     bool high_contrast = base::Color::is_high_contrast_scheme();
     if (high_contrast)
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
+      cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
     else
-    cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
+      cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
     cairo_fill(cr);
 
     // Determine which side of the free area we can show the popup. We use the lower part as long
@@ -276,9 +276,9 @@ public:
     cairo_select_font_face(cr, HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, HOME_TITLE_FONT_SIZE);
     if (high_contrast)
-    cairo_set_source_rgb(cr, 0, 0, 0);
+      cairo_set_source_rgb(cr, 0, 0, 0);
     else
-    cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
+      cairo_set_source_rgb(cr, 0xf3 / 255.0, 0xf3 / 255.0, 0xf3 / 255.0);
     cairo_move_to(cr, content_bounds.left(), content_bounds.top() + 16);
     cairo_show_text(cr, _connection->name().c_str());
     cairo_stroke(cr);
@@ -1145,6 +1145,11 @@ public:
   {
     return owner->_folder_icon;
   }
+
+  virtual wb::ConnectionInfoPopup *show_info_popup()
+  {
+    return NULL;
+  }
 };
 
 
@@ -1162,36 +1167,25 @@ public:
 
   virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
   {
-    int created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
+    owner->_owner->trigger_callback(ActionUpdateFabricConnections, connection);
 
-    if (created_connections)
+    // the connection recreation may recreate the entry objects, so we need a fresh pointer
+    ConnectionsSection::ConnectionVector conns(owner->displayed_connections());
+    bool flag = false;
+    for (ConnectionsSection::ConnectionVector::iterator iter = conns.begin(); iter != conns.end(); ++iter)
     {
-      owner->_entry_for_menu = thisptr;
-      owner->handle_folder_command("internal_delete_connection_group", true);
-    }
-
-    owner->_owner->trigger_callback(ActionCreateFabricConnections, connection);
-    created_connections = grt::IntegerRef::cast_from(connection->parameterValues().get("connections_created"));
-    if (created_connections)
-    {
-      // the connection recreation may recreate the entry objects, so we need a fresh pointer
-      ConnectionsSection::ConnectionVector conns(owner->displayed_connections());
-      bool flag = false;
-      for (ConnectionsSection::ConnectionVector::iterator iter = conns.begin(); iter != conns.end(); ++iter)
+      if ((*iter)->connection == connection)
       {
-        if ((*iter)->connection == connection)
-        {
-          flag = true;
-          owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(*iter));
-          break;
-        }
+        flag = true;
+        owner->change_to_folder(boost::dynamic_pointer_cast<FolderEntry>(*iter));
+        break;
       }
-      if (!flag)
-        log_error("Could not find fabric node '%s' object after refresh\n", connection->name().c_str());
-
-      // force a refresh of the hot_entry even if we don't move the mouse after clicking
-      owner->mouse_move(mforms::MouseButtonNone, x, y);
     }
+    if (!flag)
+      log_error("Could not find fabric node '%s' object after refresh\n", connection->name().c_str());
+
+    // force a refresh of the hot_entry even if we don't move the mouse after clicking
+    owner->mouse_move(mforms::MouseButtonNone, x, y);
   }
 
   virtual mforms::Menu *context_menu()
@@ -1287,6 +1281,11 @@ public:
 
   virtual void menu_open(ItemPosition pos)
   {
+  }
+
+  virtual wb::ConnectionInfoPopup *show_info_popup()
+  {
+    return NULL;
   }
 
   virtual void activate(boost::shared_ptr<ConnectionEntry> thisptr, int x, int y)
@@ -2097,7 +2096,28 @@ void ConnectionsSection::add_connection(const db_mgmt_ConnectionRef &connection,
         if (FabricFolderEntry *folder = dynamic_cast<FabricFolderEntry*>(iterator->get()))
         {
           found_parent = true;
-          folder->children.push_back(entry);
+          std::vector<boost::shared_ptr<ConnectionEntry> >::iterator index, end;
+          index = folder->children.begin(); 
+          end = folder->children.end();
+
+          // Skips the back and server tiles
+          index++;
+          index++;
+
+          std::string key = base::strfmt("%s-%s", entry->section_name().c_str(), entry->title.c_str());
+          bool found = false;
+
+          while (index != end && !found)
+          {
+            std::string existing_key = base::strfmt("%s-%s", (*index)->section_name().c_str(), (*index)->title.c_str());
+
+            found = key < existing_key;
+              
+            if (!found)
+              index++;
+          }
+
+          folder->children.insert(index, entry);
           folder->total_instances++;
           folder->groups.insert(entry->section_name());
           break;

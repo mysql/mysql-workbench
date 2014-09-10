@@ -77,7 +77,8 @@ namespace mforms {
   enum DragOperation {
     DragOperationNone = 0,
     DragOperationCopy = 1 << 0,
-    DragOperationMove = 1 << 1
+    DragOperationMove = 1 << 1,
+    DragOperationAll = DragOperationCopy | DragOperationMove,
   };
 
 #ifndef SWIG
@@ -89,6 +90,11 @@ namespace mforms {
   inline DragOperation operator & (DragOperation a, DragOperation b)
   {
     return (DragOperation)((int)a & (int)b);
+  }
+
+  inline DragOperation operator |= (DragOperation a, DragOperation b)
+  {
+    return (DragOperation)((int)a | (int)b);
   }
 #endif
 
@@ -402,7 +408,7 @@ namespace mforms {
      *	This is a helper to ease determination of the actual drop operation if that depends on the
      *	position within the target.
      */
-    DropPosition get_drop_position(); // TODO: Mac, Linux.
+    DropPosition get_drop_position();
 
 #endif
 

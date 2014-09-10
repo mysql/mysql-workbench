@@ -43,9 +43,9 @@ DEFAULT_LOG_DOMAIN("mforms");
 #define INITIAL_TAB_HEIGHT 58
 
 
-#ifdef notdef
-#define VERTICAL_STYLE_WIDTH 50
-#define VERTICAL_STYLE_HEIGHT 60
+#ifdef _WIN32
+#define VERTICAL_STYLE_WIDTH 58
+#define VERTICAL_STYLE_HEIGHT 68
 #else
 #define VERTICAL_STYLE_WIDTH 64
 #define VERTICAL_STYLE_HEIGHT 70
@@ -120,21 +120,11 @@ public:
       
       if (item->icon != NULL)
         cairo_surface_destroy(item->icon);
-      item->icon= cairo_image_surface_create_from_png(icon_path.c_str());
-      if (item->icon && cairo_surface_status(item->icon) != CAIRO_STATUS_SUCCESS)
-      {
-        cairo_surface_destroy(item->icon);
-        item->icon= NULL;
-      }
-      
+      item->icon = Utilities::load_icon(icon_path, true);
+
       if (item->alt_icon != NULL)
         cairo_surface_destroy(item->alt_icon);
-      item->alt_icon= cairo_image_surface_create_from_png(alt_icon_path.c_str());
-      if (item->alt_icon && cairo_surface_status(item->alt_icon) != CAIRO_STATUS_SUCCESS)
-      {
-        cairo_surface_destroy(item->alt_icon);
-        item->alt_icon= NULL;
-      }
+      item->alt_icon= Utilities::load_icon(alt_icon_path, true);
     }
   }
   
@@ -146,20 +136,9 @@ public:
     
     item->title= title;
     item->sub_title= sub_title;
-    item->icon= cairo_image_surface_create_from_png(icon_path.c_str());
-    if (item->icon && cairo_surface_status(item->icon) != CAIRO_STATUS_SUCCESS)
-    {
-      cairo_surface_destroy(item->icon);
-      item->icon= NULL;
-    }
-    
-    item->alt_icon= cairo_image_surface_create_from_png(alt_icon_path.c_str());
-    if (item->alt_icon && cairo_surface_status(item->alt_icon) != CAIRO_STATUS_SUCCESS)
-    {
-      cairo_surface_destroy(item->alt_icon);
-      item->alt_icon= NULL;
-    }
-    
+    item->icon= Utilities::load_icon(icon_path, true);
+    item->alt_icon= Utilities::load_icon(alt_icon_path, true);
+
     _items.push_back(item);
     
     if (_selected == -1)
@@ -234,7 +213,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
 #endif
     _up_arrow = NULL;
     _down_arrow = NULL;
-    _selection_image = cairo_image_surface_create_from_png(mforms::App::get()->get_resource_path("output_type-item_selected.png").c_str());
+    _selection_image = Utilities::load_icon("output_type-item_selected.png", true);
   }
   
   virtual ~VerticalTabSwitcher()
@@ -257,7 +236,6 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
     cairo_set_source_rgba(cr, color.red, color.green, color.blue, 1);
     cairo_paint(cr);
     
-    float backing_scale = mforms::App::get()->backing_scale_factor();
     const int font_size = 10;
     
     cairo_select_font_face(cr, TAB_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -285,12 +263,13 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
       if (ii < _first_visible)
         continue;
 
-      double ih = cairo_image_surface_get_height((*i)->icon) / backing_scale;
-      
       if (y + VERTICAL_STYLE_HEIGHT > _owner->get_height())
         break;
 
       _last_visible = ii;
+
+      int iwidth, iheight;
+      Utilities::get_icon_size((*i)->icon, iwidth, iheight);
 
       if (_selected == ii)
       {
@@ -298,32 +277,23 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
         cairo_set_source_rgba(cr, color.red, color.green, color.blue, 1);
         cairo_rectangle(cr, 0, y, VERTICAL_STYLE_WIDTH, VERTICAL_STYLE_HEIGHT);
         cairo_fill(cr);
-        
-        cairo_save(cr);
-        cairo_scale(cr, 1/backing_scale, 1/backing_scale);
-        cairo_set_source_surface(cr, _selection_image,
-                                 0, iy + (VERTICAL_STYLE_WIDTH - ih)/2 + cairo_image_surface_get_height(_selection_image)/2);
-        cairo_paint(cr);
-        cairo_restore(cr);
+
+        Utilities::paint_icon(cr, _selection_image, 0, iy + (VERTICAL_STYLE_WIDTH - iheight)/2 + iheight/2);
       }
       
-      cairo_save(cr);
-      cairo_scale(cr, 1/backing_scale, 1/backing_scale);
-      cairo_set_source_surface(cr, (*i)->icon,
-                               (backing_scale*VERTICAL_STYLE_WIDTH - (VERTICAL_STYLE_WIDTH/64.0)*cairo_image_surface_get_width((*i)->icon))/2,
-                               iy + (VERTICAL_STYLE_WIDTH - ih)/2 - (backing_scale > 1 ? 0 : font_size));
+      Utilities::paint_icon(cr, (*i)->icon,
+                            (VERTICAL_STYLE_WIDTH - (VERTICAL_STYLE_WIDTH/64.0)*iheight)/2,
+                            iy + (VERTICAL_STYLE_WIDTH - iheight)/2 - font_size,
+                            _selected == ii ? 1.0f : 0.4f);
       if (_selected == ii)
       {
-        cairo_paint(cr);
         color = _colors[TabActiveForeground];
       }
       else
       {
-        cairo_paint_with_alpha(cr, 0.4);
         color = _colors[TabInactiveForeground];
       }
-      cairo_restore(cr);
-      
+
       cairo_set_source_rgba(cr, color.red, color.green, color.blue, 1);
       
       std::string::size_type p = (*i)->title.find('\n');
@@ -332,7 +302,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
         cairo_text_extents_t ext;
         cairo_text_extents(cr, (*i)->title.c_str(), &ext);
         
-        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext.width)/2, y + ih);
+        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext.width)/2, y + iheight);
         cairo_show_text(cr, (*i)->title.c_str());
       }
       else
@@ -343,15 +313,15 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl
         cairo_text_extents(cr, l1.c_str(), &ext1);
         cairo_text_extents(cr, l2.c_str(), &ext2);
         
-        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext1.width)/2, y + ih + 4 - (font_size + ext1.y_bearing) + (VERTICAL_STYLE_WIDTH - ih)/2);
+        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext1.width)/2, y + iheight + 4 - (font_size + ext1.y_bearing) + (VERTICAL_STYLE_WIDTH - iheight)/2);
         cairo_show_text(cr, l1.c_str());
         cairo_stroke(cr);
-        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext2.width)/2, y + ih + 4 + font_size - (font_size + ext2.y_bearing) + (VERTICAL_STYLE_WIDTH - ih)/2);
+        cairo_move_to(cr, (VERTICAL_STYLE_WIDTH - ext2.width)/2, y + iheight + 4 + font_size - (font_size + ext2.y_bearing) + (VERTICAL_STYLE_WIDTH - iheight)/2);
         cairo_show_text(cr, l2.c_str());
         cairo_stroke(cr);
       }
       y += VERTICAL_STYLE_HEIGHT;
-      iy += VERTICAL_STYLE_HEIGHT * backing_scale;
+      iy += VERTICAL_STYLE_HEIGHT;
     }
     
     if (_first_visible > 0 || _last_visible < (int)_items.size()-1)

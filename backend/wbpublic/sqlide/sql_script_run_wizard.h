@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,12 +58,17 @@ class WBPUBLICBACKEND_PUBLIC_FUNC SqlScriptApplyPage : public grtui::WizardProgr
 private:
   std::string _log;
   int _err_count;
+  mforms::Button *_abort_btn;
+
+  void abort_exec();
+
+  grt::ValueRef do_execute_sql_script(const std::string &sql_script);
 public:
   SqlScriptApplyPage(grtui::WizardForm *form);
   int on_error(long long err_code, const std::string& err_msg, const std::string& err_sql);
   int on_exec_progress(float progress);
   int on_exec_stat(long success_count, long err_count);
-  boost::function<void (std::string &)> apply_sql_script;
+  boost::function<void (const std::string &)> apply_sql_script;
   bool execute_sql_script();
   virtual std::string next_button_caption();
   virtual bool allow_back();
@@ -83,6 +88,8 @@ public:
 
   bool has_errors();
   bool applied();
+
+  boost::function<void ()> abort_apply;
 
   // Used by the wizard if an option changed.
   // Parameters: online DDL algorithm and lock.

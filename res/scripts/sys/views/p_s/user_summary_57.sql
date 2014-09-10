@@ -17,6 +17,8 @@
  * View: user_summary
  *
  * Summarizes statement activity and connections by user
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.  
  *
  * mysql> select * from user_summary;
  * +------+------------+---------------+-------------+---------------------+-------------------+--------------+----------------+------------------------+
@@ -46,10 +48,10 @@ VIEW user_summary (
   current_memory,
   total_memory_allocated
 ) AS
-SELECT accounts.user,
+SELECT IF(accounts.user IS NULL, 'background', accounts.user) AS user,
        SUM(stmt.total) AS statements,
        sys.format_time(SUM(stmt.total_latency)) AS statement_latency,
-       sys.format_time(SUM(stmt.total_latency) / SUM(stmt.total)) AS statement_avg_latency,
+       sys.format_time(IFNULL(SUM(stmt.total_latency) / NULLIF(SUM(stmt.total), 0), 0)) AS statement_avg_latency,
        SUM(stmt.full_scans) AS table_scans,
        SUM(io.ios) AS file_ios,
        sys.format_time(SUM(io.io_latency)) AS file_io_latency,
@@ -59,16 +61,17 @@ SELECT accounts.user,
        sys.format_bytes(mem.current_allocated) AS current_memory,
        sys.format_bytes(mem.total_allocated) AS total_memory_allocated
   FROM performance_schema.accounts
-  JOIN sys.x$user_summary_by_statement_latency AS stmt ON accounts.user = stmt.user
-  JOIN sys.x$user_summary_by_file_io AS io ON accounts.user = io.user
-  JOIN sys.x$memory_by_user_by_current_bytes mem ON accounts.user = mem.user
- WHERE accounts.user IS NOT NULL
- GROUP BY accounts.user;
+  LEFT JOIN sys.x$user_summary_by_statement_latency AS stmt ON IF(accounts.user IS NULL, 'background', accounts.user) = stmt.user
+  LEFT JOIN sys.x$user_summary_by_file_io AS io ON IF(accounts.user IS NULL, 'background', accounts.user) = io.user
+  LEFT JOIN sys.x$memory_by_user_by_current_bytes mem ON IF(accounts.user IS NULL, 'background', accounts.user) = mem.user
+ GROUP BY IF(accounts.user IS NULL, 'background', accounts.user);
 
 /*
  * View: x$user_summary
  *
  * Summarizes statement activity and connections by user
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.  
  *
  * mysql> select * from x$user_summary;
  * +------+------------+-----------------+------------------+---------------------+-------------------+--------------+----------------+------------------------+
@@ -98,10 +101,10 @@ VIEW x$user_summary (
   current_memory,
   total_memory_allocated
 ) AS
-SELECT accounts.user,
+SELECT IF(accounts.user IS NULL, 'background', accounts.user) AS user,
        SUM(stmt.total) AS statements,
        SUM(stmt.total_latency) AS statement_latency,
-       SUM(stmt.total_latency) / SUM(stmt.total) AS statement_avg_latency,
+       IFNULL(SUM(stmt.total_latency) / NULLIF(SUM(stmt.total), 0), 0) AS statement_avg_latency,
        SUM(stmt.full_scans) AS table_scans,
        SUM(io.ios) AS file_ios,
        SUM(io.io_latency) AS file_io_latency,
@@ -111,8 +114,7 @@ SELECT accounts.user,
        mem.current_allocated AS current_memory,
        mem.total_allocated AS total_memory_allocated
   FROM performance_schema.accounts
-  JOIN sys.x$user_summary_by_statement_latency AS stmt ON accounts.user = stmt.user
-  JOIN sys.x$user_summary_by_file_io AS io ON accounts.user = io.user
-  JOIN sys.x$memory_by_user_by_current_bytes mem ON accounts.user = mem.user
- WHERE accounts.user IS NOT NULL
- GROUP BY accounts.user;
+  LEFT JOIN sys.x$user_summary_by_statement_latency AS stmt ON IF(accounts.user IS NULL, 'background', accounts.user) = stmt.user
+  LEFT JOIN sys.x$user_summary_by_file_io AS io ON IF(accounts.user IS NULL, 'background', accounts.user) = io.user
+  LEFT JOIN sys.x$memory_by_user_by_current_bytes mem ON IF(accounts.user IS NULL, 'background', accounts.user) = mem.user
+ GROUP BY IF(accounts.user IS NULL, 'background', accounts.user);

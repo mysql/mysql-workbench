@@ -353,6 +353,18 @@ struct PasteboardDataWrapper {
   }
 };
 
+- (NSDragOperation) draggingSourceOperationMaskForLocal: (BOOL) flag
+{
+  mforms::DragOperation operations = self.allowedDragOperations;
+  NSDragOperation nativeOperations = NSDragOperationNone;
+  if ((operations & mforms::DragOperationMove) == mforms::DragOperationMove)
+    nativeOperations |= NSDragOperationMove;
+  if ((operations & mforms::DragOperationCopy) == mforms::DragOperationCopy)
+    nativeOperations |= NSDragOperationMove;
+
+  return nativeOperations;
+}
+
 - (mforms::DropDelegate *)determineDropDelegate
 {
   mforms::DropDelegate *delegate = self.dropDelegate;
@@ -375,6 +387,14 @@ struct PasteboardDataWrapper {
   // See if we can extract an mforms View from the dragging info which would indicate
   // a drag operation started by mforms.
   id source = sender.draggingSource;
+
+  NSDragOperation nativeOperations = sender.draggingSourceOperationMask;
+  mforms::DragOperation operations = mforms::DragOperationNone;
+  if ((nativeOperations & NSDragOperationMove) == NSDragOperationMove)
+    operations = operations | mforms::DragOperationMove;
+  if ((nativeOperations & NSDragOperationCopy) == NSDragOperationCopy)
+    operations = operations | mforms::DragOperationCopy;
+
   mforms::View *view = NULL;
   if ([source respondsToSelector: @selector(mformsObject)])
     view = dynamic_cast<mforms::View*>([source mformsObject]);
@@ -395,7 +415,7 @@ struct PasteboardDataWrapper {
 
   NSDragOperation result = NSDragOperationNone;
   mforms::DragOperation operation = delegate->drag_over(view, base::Point(location.x, location.y),
-                                                        self.allowedDragOperations, formats);
+                                                        operations, formats);
   self.lastDragOperation = operation;
   if ((operation & mforms::DragOperationCopy) != 0)
     result |= NSDragOperationCopy;
@@ -414,6 +434,14 @@ struct PasteboardDataWrapper {
   // See if we can extract an mforms View from the dragging info which would indicate
   // a drag operation started by mforms.
   id source = sender.draggingSource;
+
+  NSDragOperation nativeOperations = sender.draggingSourceOperationMask;
+  mforms::DragOperation operations = mforms::DragOperationNone;
+  if ((nativeOperations & NSDragOperationMove) == NSDragOperationMove)
+    operations = operations | mforms::DragOperationMove;
+  if ((nativeOperations & NSDragOperationCopy) == NSDragOperationCopy)
+    operations = operations | mforms::DragOperationCopy;
+
   mforms::View *view = NULL;
   if ([source respondsToSelector: @selector(mformsObject)])
     view = dynamic_cast<mforms::View*>([source mformsObject]);
@@ -425,7 +453,7 @@ struct PasteboardDataWrapper {
     if ([entry isEqualToString: NSStringPboardType])
     {
       NSString *text = [pasteboard stringForType: NSStringPboardType];
-      if (delegate->text_dropped(view, base::Point(location.x, location.y), self.allowedDragOperations,
+      if (delegate->text_dropped(view, base::Point(location.x, location.y), operations,
                                  [text UTF8String]) != mforms::DragOperationNone)
         return YES;
     }
@@ -437,7 +465,7 @@ struct PasteboardDataWrapper {
         for (NSString *name in fileNames)
           names.push_back([name UTF8String]);
         if (names.size() > 0 && delegate->files_dropped(view, base::Point(location.x, location.y),
-                                                        self.allowedDragOperations, names) != mforms::DragOperationNone)
+                                                        operations, names) != mforms::DragOperationNone)
           return YES;
       }
       else
@@ -446,7 +474,7 @@ struct PasteboardDataWrapper {
         void *data = [pasteboard nativeDataForTypeAsString: entry];
         if (data != NULL)
         {
-          if (delegate->data_dropped(view, base::Point(location.x, location.y), self.allowedDragOperations, data,
+          if (delegate->data_dropped(view, base::Point(location.x, location.y), operations, data,
                                      [entry UTF8String]) != mforms::DragOperationNone)
             return YES;
         }
