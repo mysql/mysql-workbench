@@ -17,11 +17,33 @@
  * 02110-1301  USA
  */
 
-#include "grts/structs.workbench.physical.h"
-
 #include "MySQLRoutineEditorWrapper.h"
 
 using namespace MySQL::Grt::Db;
+
+//--------------------------------------------------------------------------------------------------
+
+MySQLRoutineEditorWrapper::MySQLRoutineEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+  : RoutineEditorWrapper(new ::MySQLRoutineEditorBE(grtm->get_unmanaged_object(),
+    db_mysql_RoutineRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+    )
+  )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+MySQLRoutineEditorWrapper::~MySQLRoutineEditorWrapper()
+{
+  delete inner; // We created it.
+}
+
+//--------------------------------------------------------------------------------------------------
+
+MySQLRoutineEditorBE *MySQLRoutineEditorWrapper::get_unmanaged_object()
+{
+  return static_cast<::MySQLRoutineEditorBE *>(inner);
+}
 
 //--------------------------------------------------------------------------------------------------
 

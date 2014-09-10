@@ -20,6 +20,7 @@
 #import "MFMForms.h"
 #import "MFFindPanel.h"
 #import "NSString_extras.h"
+#import "MFView.h"
 
 #include "mforms/code_editor.h"
 
@@ -106,6 +107,8 @@ using namespace mforms;
     [self setFrameSize: NSMakeSize(NSWidth([self frame]), 46)];
   }
   [mFindLabel setStringValue: @""];
+  if ([[self superview] respondsToSelector: @selector(subviewMinimumSizeChanged)])
+    [(id)[self superview] subviewMinimumSizeChanged];
 }
 
 

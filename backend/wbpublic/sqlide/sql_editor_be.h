@@ -37,8 +37,13 @@
 
 #endif
 
-#include "grtsqlparser/mysql_parser_services.h"
+// #include "grtsqlparser/mysql_parser_services.h"
 #include "grtdb/db_helpers.h"
+
+namespace parser {
+  /*class ParserContext*/;
+  typedef boost::shared_ptr<class ParserContext> ParserContextRef;
+}
 
 namespace bec {
   class GRTManager;
@@ -176,7 +181,7 @@ public:
   typedef boost::shared_ptr<MySQLEditor> Ref;
   typedef boost::weak_ptr<MySQLEditor> Ptr;
 
-  static Ref create(grt::GRT *grt, parser::ParserContext::Ref syntax_check_context, parser::ParserContext::Ref autocopmlete_context,
+  static Ref create(grt::GRT *grt, parser::ParserContextRef syntax_check_context, parser::ParserContextRef autocopmlete_context,
                     db_query_QueryBufferRef grtobj = db_query_QueryBufferRef());
 
   virtual ~MySQLEditor();
@@ -251,7 +256,7 @@ public:
   void register_file_drop_for(mforms::DropDelegate *target);
 
 protected:
-  MySQLEditor(grt::GRT *grt, parser::ParserContext::Ref syntax_check_context, parser::ParserContext::Ref autocopmlete_context);
+  MySQLEditor(grt::GRT *grt, parser::ParserContextRef syntax_check_context, parser::ParserContextRef autocopmlete_context);
 
 private:
   class Private;

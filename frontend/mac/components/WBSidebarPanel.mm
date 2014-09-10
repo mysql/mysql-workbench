@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,8 @@
 {
   mToolbar = toolbar;
   mOptionName = name;
+
+  mRestoringSidebars = YES;
 
   // restore state of toolbar
   toolbar->set_item_checked("wb.toggleSecondarySidebar", !(mSecondarySidebarHidden = grtm->get_app_option_int(mOptionName+":SecondarySidebarHidden", 0)));
@@ -81,12 +83,14 @@
         [topView setPosition: NSWidth([topView frame]) - mLastSecondarySidebarWidth ofDividerAtIndex: 1];
     }
   }
+
+  mRestoringSidebars = NO;
 }
 
 
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification
 {
-  if ([notification object] != topView || mHidingSidebar)
+  if ([notification object] != topView || mHidingSidebar || mRestoringSidebars)
     return;
   if (![notification userInfo]) // for when the splitview get resized, instead of dragged
     return;
@@ -114,7 +118,14 @@
   if (secondarySidebar)
   {
     if (!mSecondarySidebarHidden)
-      grtm->set_app_option(mOptionName+":SecondarySidebarWidth", grt::IntegerRef((int)NSWidth([secondarySidebar frame])));
+    {
+      double width;
+      if (mSidebarAtRight)
+        width = NSWidth([secondarySidebar frame]);
+      else
+        width = NSWidth([topView frame]) - NSWidth([secondarySidebar frame]);
+      grtm->set_app_option(mOptionName+":SecondarySidebarWidth", grt::IntegerRef((int)width));
+    }
     {
       BOOL newCollapseState = [topView isSubviewCollapsed: secondarySidebar];
       BOOL hidden = !mToolbar->get_item_checked("wb.toggleSecondarySidebar");
@@ -179,7 +190,7 @@
     if (!hidden)
     {
       if (!mSidebarAtRight)
-        [topView setPosition: NSWidth([topView frame])-mLastSecondarySidebarWidth ofDividerAtIndex: 1];
+        [topView setPosition: NSWidth([topView frame])-mLastSecondarySidebarWidth-[topView dividerThickness] ofDividerAtIndex: 1];
       else
         [topView setPosition: mLastSecondarySidebarWidth ofDividerAtIndex: 0];
     }
@@ -200,7 +211,7 @@
       if (!mSidebarAtRight)
         [topView setPosition: mLastSidebarWidth ofDividerAtIndex: 0];
       else
-        [topView setPosition: NSWidth([topView frame])-mLastSidebarWidth ofDividerAtIndex: 1];
+        [topView setPosition: NSWidth([topView frame])-mLastSidebarWidth-[topView dividerThickness] ofDividerAtIndex: 1];
     }
     else
     {

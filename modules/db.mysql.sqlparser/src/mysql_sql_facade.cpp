@@ -1091,16 +1091,38 @@ grt::DictRef MysqlSqlFacadeImpl::parseStatement(const std::string &sql_statement
 grt::StringRef MysqlSqlFacadeImpl::concatenateTokens(MySQLRecognizerTreeWalker &walker, std::unordered_set<int> &stop_symbols, const std::string &separator)
 {
   std::string data;
+  bool is_id = walker.is_identifier();
+
+  // Identifiers are back quoted
+  if (is_id)
+    data += "`";
 
   // Starts adding the current token text
-  data = walker.token_text();
+  data += walker.token_text();
+  // Identifiers are back quoted
+  if (is_id)
+    data += "`";
+
   walker.next();
+
 
   // Now adds additional token text until the stopper is found
   while (stop_symbols.find(walker.token_type()) == stop_symbols.end())
   {
     data += separator;
+
+    is_id = walker.is_identifier();
+
+    // Identifiers are back quoted
+    if (is_id)
+      data += "`";
+
     data += walker.token_text();
+
+    // Identifiers are back quoted
+    if (is_id)
+      data += "`";
+
     walker.next();
   }
 

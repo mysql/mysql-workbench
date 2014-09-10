@@ -69,6 +69,8 @@
 #include "mforms/toolbar.h"
 #include "mforms/code_editor.h"
 
+#include "grtsqlparser/mysql_parser_services.h"
+
 #include <math.h>
 
 using namespace bec;
@@ -174,6 +176,7 @@ void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp)
   _tabdock = dp;
   grtobj()->dockingPoint(mforms_to_grt(_grtm->get_grt(), dp));
   scoped_connect(_tabdock->signal_view_switched(), boost::bind(&SqlEditorForm::sql_editor_panel_switched, this));
+  scoped_connect(_tabdock->signal_view_undocked(), boost::bind(&SqlEditorForm::sql_editor_panel_closed, this, _1));
 }
 
 
@@ -224,7 +227,6 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _sql_editors_serial(0),
   _scratch_editors_serial(0),
   _keep_alive_thread(NULL),
-  _connection(conn),
   _aux_dbc_conn(new sql::Dbc_connection_handler()),
   _usr_dbc_conn(new sql::Dbc_connection_handler()),
   _last_server_running_state(UnknownState),
@@ -237,6 +239,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   _side_palette(NULL),
   _history(DbSqlEditorHistory::create(_grtm))
 {
+  _startup_done = false;
   _log = DbSqlEditorLog::create(this, _grtm, 500);
 
   NotificationCenter::get()->add_observer(this, "GNApplicationActivated");
@@ -245,7 +248,8 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   NotificationCenter::get()->add_observer(this, "GNColorsChanged");
   GRTNotificationCenter::get()->add_grt_observer(this, "GRNServerStateChanged");
 
-  _dbc_auth = sql::Authentication::create(_connection, "");
+  if (conn.is_valid())
+    set_connection(conn);
 
   exec_sql_task->send_task_res_msg(false);
   exec_sql_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, this, _1, _2, _3, ""));
@@ -335,6 +339,8 @@ void SqlEditorForm::finish_startup()
   _side_palette->refresh_snippets();
 
   GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
+
+  _startup_done = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,10 +358,14 @@ db_query_EditorRef SqlEditorForm::grtobj()
  */
 std::string SqlEditorForm::get_session_name()
 {
-  std::string name = _connection->name();
-  if (name.empty())
-    name = _connection->hostIdentifier();
-  return name;
+  if (_connection.is_valid())
+  {
+    std::string name = _connection->name();
+    if (name.empty())
+      name = _connection->hostIdentifier();
+    return name;
+  }
+  return "unconnected";
 }
 
 //-------------------------------------------------------------------------------------------------- 
@@ -369,9 +379,12 @@ void SqlEditorForm::restore_last_workspace()
   if (_tabdock->view_count() == 0)
     new_sql_scratch_area(false);
 
+  // immediate autosave after openingls
+  auto_save();
+
   // Gets the title for a NEW editor
   _title = create_title();
-  title_changed();  
+  title_changed();
 }
 
 void SqlEditorForm::title_changed()
@@ -379,7 +392,7 @@ void SqlEditorForm::title_changed()
   base::NotificationInfo info;
   info["form"] = form_id();
   info["title"] = _title;
-  info["connection"] = _connection->name();
+  info["connection"] = _connection.is_valid() ? _connection->name() : "";
   base::NotificationCenter::get()->send("GNFormTitleDidChange", this, info);
 }
 
@@ -1066,6 +1079,37 @@ struct ConnectionErrorInfo
 };
 
 
+void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn)
+{
+  if (_connection.is_valid())
+    log_warning("Setting connection on an editor with a connection already set\n");
+
+  _connection = conn;
+
+  _dbc_auth = sql::Authentication::create(_connection, "");
+
+  // initialize the password with a cached value
+  {
+    std::string password;
+    bool ok = true;
+    if (!mforms::Utilities::find_password(conn->hostIdentifier(),
+                                          conn->parameterValues().get_string("userName"),
+                                          password))
+      if (!mforms::Utilities::find_cached_password(conn->hostIdentifier(),
+                                                   conn->parameterValues().get_string("userName"),
+                                                   password))
+        ok = false;
+    if (ok)
+      _dbc_auth->set_password(password.c_str());
+  }
+
+  // send editor open notification again, in case the connection is being set after the connection
+  // tab is opened. this will be caught by the admin code to init itself
+  if (_startup_done)
+    GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
+}
+
+
 bool SqlEditorForm::connect(boost::shared_ptr<sql::TunnelConnection> tunnel)
 {
   sql::Authentication::Ref auth = _dbc_auth;//sql::Authentication::create(_connection, "");
@@ -1262,7 +1306,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
           _connection_info.append(create_html_line("Current User:", rs->getString(1)));
       }
 
-      _connection_info.append(create_html_line("SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Enabled using "+_usr_dbc_conn->ssl_cipher));
+      _connection_info.append(create_html_line("SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Using "+_usr_dbc_conn->ssl_cipher));
 
       // get lower_case_table_names value
       std::string value;
@@ -1289,23 +1333,37 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
     else if (exc.getErrorCode() == 2013 || exc.getErrorCode() == 2003 || exc.getErrorCode() == 2002) // ERROR 2003 (HY000): Can't connect to MySQL server on X.Y.Z.W (or via socket)
     {
       _connection_info.append(create_html_line("", "<b><span style='color: red'>NO CONNECTION</span></b>"));
+      _connection_info.append("</body></html>");
       add_log_message(WarningMsg, exc.what(), "Could not connect, server may not be running.", "");
 
       err_ptr->server_probably_down = true;
 
-      // if there's no connection, then we continue anyway if this is a local connection or
-      // a remote connection with remote admin enabled.. 
-      grt::Module *m = _grtm->get_grt()->get_module("WbAdmin");
-      grt::BaseListRef args(_grtm->get_grt());
-      args.ginsert(_connection);
-      if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
+      if (_connection.is_valid())
       {
-        log_error("Connection failed but remote admin does not seem to be available, rethrowing exception...\n");
-        throw;
+        // if there's no connection, then we continue anyway if this is a local connection or
+        // a remote connection with remote admin enabled..
+        grt::Module *m = _grtm->get_grt()->get_module("WbAdmin");
+        grt::BaseListRef args(_grtm->get_grt());
+        args.ginsert(_connection);
+        if (!m || *grt::IntegerRef::cast_from(m->call_function("checkConnectionForRemoteAdmin", args)) == 0)
+        {
+          log_error("Connection failed but remote admin does not seem to be available, rethrowing exception...\n");
+          throw;
+        }
+        log_info("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
+                 exc.getErrorCode());
       }
+
       log_info("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
         exc.getErrorCode());
       _connection_info.append("</body></html>");
+
+      // Create a parser with some sensible defaults if we cannot connect.
+      // We specify no charsets here, disabling parsing of repertoires.
+      parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
+      _work_parser_context = services->createParserContext(GrtCharacterSetsRef(grt), bec::int_to_version(grt, 50503), true);
+      _work_parser_context->use_sql_mode(_sql_mode);
+
       return grt::StringRef();
     }
     _connection_info.append("</body></html>");
@@ -1383,15 +1441,15 @@ base::RecMutexLock SqlEditorForm::ensure_valid_aux_connection(sql::Dbc_connectio
 }
 
 
-RecMutexLock SqlEditorForm::ensure_valid_aux_connection()
+RecMutexLock SqlEditorForm::ensure_valid_aux_connection(bool throw_on_block)
 {
-  return ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex);
+  return ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex, throw_on_block);
 }
 
 
-RecMutexLock SqlEditorForm::ensure_valid_usr_connection()
+RecMutexLock SqlEditorForm::ensure_valid_usr_connection(bool throw_on_block)
 {
-  return ensure_valid_dbc_connection(_usr_dbc_conn, _usr_dbc_conn_mutex);
+  return ensure_valid_dbc_connection(_usr_dbc_conn, _usr_dbc_conn_mutex, throw_on_block);
 }
 
 
@@ -1412,9 +1470,10 @@ void SqlEditorForm::close_connection(sql::Dbc_connection_handler::Ref &dbc_conn)
 }
 
 
-RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex)
+RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn, base::RecMutex &dbc_conn_mutex,
+                                                        bool throw_on_block)
 {
-  RecMutexLock mutex_lock(dbc_conn_mutex);
+  RecMutexLock mutex_lock(dbc_conn_mutex, throw_on_block);
   bool valid= false;
 
   sql::Dbc_connection_handler::Ref myref(dbc_conn);
@@ -2339,20 +2398,16 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
     bool auto_commit= _usr_dbc_conn->ref->getAutoCommit();
     ScopeExitTrigger autocommit_mode_keeper;
     int res= -2;
+
     if (!auto_commit)
     {
-      int res= mforms::Utilities::show_warning(
+      res= mforms::Utilities::show_warning(
         _("Apply Changes to Recordset"),
-        _("Autocommit is currently disabled. Do you want to perform a COMMIT before applying the changes?\n"
-          "If you do not commit, a failure during the recordset update will result in a rollback of the active transaction, if you have one."),
-        _("Commit and Apply"),
-        _("Cancel"),
-        _("Apply"));
-
-      if (res == mforms::ResultOk)
-      {
-        _usr_dbc_conn->ref->commit();
-      }
+        _("Autocommit is currently disabled and a transaction might be open.\n"
+          "Recordset changes will be applied within that transaction and will be left uncommited until you explicitly commit it manually.\n"
+          "If you want it to be executed separately, click Cancel and commit the transaction first."),
+        _("Apply"),
+        _("Cancel"));
     }
     else
     {
@@ -2372,18 +2427,24 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
       Recordset_sql_storage *sql_storage= dynamic_cast<Recordset_sql_storage *>(data_storage_ref.get());
       
       scoped_connection c1(on_sql_script_run_error.connect(boost::bind(&SqlEditorForm::add_log_message, this, DbSqlEditorLog::ErrorMsg, _2, _3, "")));
-      
+
+      bool skip_commit;
+      if (auto_commit)
+        skip_commit = false;
+      else
+        skip_commit = true; // if we're in an open tx, then do not commit
+
       bool is_data_changes_commit_wizard_enabled= (0 != _grtm->get_app_option_int("DbSqlEditor:IsDataChangesCommitWizardEnabled", 1));
       if (is_data_changes_commit_wizard_enabled)
       {
-        run_data_changes_commit_wizard(rs_ptr);
+        run_data_changes_commit_wizard(rs_ptr, skip_commit);
       }
       else
       {
         sql_storage->is_sql_script_substitute_enabled(false);
         
         scoped_connection on_sql_script_run_error_conn(sql_storage->on_sql_script_run_error.connect(on_sql_script_run_error));
-        rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref));
+        rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
       }
       
       // Since many messages could have been added it is possible the
@@ -2395,7 +2456,7 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr)
 }
 
 
-bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr)
+bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool skip_commit)
 {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, rs_ptr, rs, false)
 
@@ -2417,14 +2478,14 @@ bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr)
   scoped_connection c2(on_sql_script_run_progress.connect(boost::bind(&SqlScriptApplyPage::on_exec_progress, wizard.apply_page, _1)));
   scoped_connection c3(on_sql_script_run_statistics.connect(boost::bind(&SqlScriptApplyPage::on_exec_stat, wizard.apply_page, _1, _2)));
   wizard.values().gset("sql_script", sql_script_text);
-  wizard.apply_page->apply_sql_script= boost::bind(&SqlEditorForm::apply_data_changes_commit, this, _1, rs_ptr);
+  wizard.apply_page->apply_sql_script= boost::bind(&SqlEditorForm::apply_data_changes_commit, this, _1, rs_ptr, skip_commit);
   wizard.run_modal();
 
   return !wizard.has_errors();
 }
 
 
-void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id)
+void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, bec::DBObjectEditorBE* obj_editor, RowId log_id)
 {
   set_log_message(log_id, DbSqlEditorLog::BusyMsg, "", 
                           obj_editor ? strfmt(_("Applying changes to %s..."), obj_editor->get_name().c_str()) : _("Applying changes..."), "");
@@ -2474,17 +2535,27 @@ void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DB
   {
     try
     {
-      RecMutexLock aux_dbc_conn_mutex(ensure_valid_aux_connection());
-      std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+      RecMutexLock usr_dbc_conn_mutex(ensure_valid_usr_connection(true));
+      std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
       sql_batch_exec_err_count= sql_batch_exec(stmt.get(), statements);
     }
     catch (sql::SQLException &e)
     {
+      log_error("Exception applying SQL: %s\n", e.what());
       set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()), strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
+      throw; // re-throw exception so that the wizard will see that something went wrong
+    }
+    catch (base::mutex_busy_error &)
+    {
+      log_error("usr connection busy applying SQL\n");
+      set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(EXCEPTION_MSG_FORMAT, "Your connection to MySQL is currently busy. Please retry later."), strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
+      throw std::runtime_error("Connection to MySQL currently busy.");
     }
     catch (std::exception &e)
     {
+      log_error("Exception applying SQL: %s\n", e.what());
       set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(EXCEPTION_MSG_FORMAT, e.what()), strfmt(_("Apply ALTER script for %s"), obj_editor->get_name().c_str()), "");
+      throw;
     }
   }
   
@@ -2531,7 +2602,7 @@ void SqlEditorForm::apply_object_alter_script(std::string &alter_script, bec::DB
   }
 }
 
-void SqlEditorForm::apply_data_changes_commit(std::string &sql_script_text, Recordset::Ptr rs_ptr)
+void SqlEditorForm::apply_data_changes_commit(const std::string &sql_script_text, Recordset::Ptr rs_ptr, bool skip_commit)
 {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR (Recordset, rs_ptr, rs);
 
@@ -2555,7 +2626,7 @@ void SqlEditorForm::apply_data_changes_commit(std::string &sql_script_text, Reco
   scoped_connection on_sql_script_run_statistics_conn(sql_storage->on_sql_script_run_statistics.connect(on_sql_script_run_statistics));
 
   sql_storage->sql_script_substitute(sql_script);
-  rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref));
+  rs->do_apply_changes(_grtm->get_grt(), rs_ptr, Recordset_data_storage::Ptr(data_storage_ref), skip_commit);
 
   if (!max_query_size_to_log || max_query_size_to_log >= (int)sql_script_text.size() )
     _history->add_entry(sql_script.statements);
@@ -2663,7 +2734,7 @@ db_mgmt_RdbmsRef SqlEditorForm::rdbms()
     return db_mgmt_RdbmsRef::cast_from(_connection->driver()->owner());
   }
   else
-    return db_mgmt_RdbmsRef::cast_from(_grtm->get_grt()->get("/wb/doc/physicalModels/0/rdbms"));
+    return db_mgmt_RdbmsRef::cast_from(_grtm->get_grt()->get("/wb/rdbmsMgmt/rdbms/0/"));
 }
 
 
@@ -2692,25 +2763,28 @@ std::string SqlEditorForm::create_title()
 {
   std::string caption;
   std::string editor_connection = get_session_name();
-  
-  if (!editor_connection.empty())
-    caption += strfmt("%s", editor_connection.c_str());
-  else
+  if (_connection.is_valid())
   {
-    if (_connection->driver()->name() == "MysqlNativeSocket")
-      caption += "localhost";
+    if (!editor_connection.empty())
+      caption += strfmt("%s", editor_connection.c_str());
     else
-      caption+= strfmt("%s", truncate_text(editor_connection,21).c_str());
+    {
+      if (_connection->driver()->name() == "MysqlNativeSocket")
+        caption += "localhost";
+      else
+        caption+= strfmt("%s", truncate_text(editor_connection,21).c_str());
+    }
+
+    // only show schema name if there's more than 1 tab to the same connection, to save space
+    if (!_usr_dbc_conn->active_schema.empty() && count_connection_editors(editor_connection) > 1)
+      caption += strfmt(" (%s)", truncate_text(_usr_dbc_conn->active_schema, 20).c_str());
+
+    if (_connection_details.find("dbmsProductVersion") != _connection_details.end()
+        && !bec::is_supported_mysql_version(_connection_details["dbmsProductVersion"]))
+      caption += " - Warning - not supported";
   }
-
-  // only show schema name if there's more than 1 tab to the same connection, to save space
-  if (!_usr_dbc_conn->active_schema.empty() && count_connection_editors(editor_connection) > 1)
-    caption += strfmt(" (%s)", truncate_text(_usr_dbc_conn->active_schema, 20).c_str());
-
-  if (_connection_details.find("dbmsProductVersion") != _connection_details.end()
-      && !bec::is_supported_mysql_version(_connection_details["dbmsProductVersion"]))
-    caption += " - Warning - not supported";
-  
+  else
+    caption = editor_connection;
   return caption;
 }
 
@@ -2796,6 +2870,8 @@ bool SqlEditorForm::save_snippet()
   _grtm->replace_status_text("SQL saved to snippets list.");
 
   _side_palette->refresh_snippets();
+
+  _grtm->run_once_when_idle(this, boost::bind(&QuerySidePalette::edit_last_snippet, _side_palette));
 
   return true;
 }

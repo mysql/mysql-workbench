@@ -366,7 +366,7 @@ std::vector<std::string> DBObjectEditorBE::get_all_table_names()
     std::string schema_name = schema_list[i]->name();
 
     for (size_t j = 0; j < schema->tables().count(); ++j)
-      table_list.push_back("`" + schema_name + "`.`" + *schema->tables()[i]->name() + "`");
+      table_list.push_back("`" + schema_name + "`.`" + *schema->tables()[j]->name() + "`");
   }
 
   std::sort(table_list.begin(), table_list.end());

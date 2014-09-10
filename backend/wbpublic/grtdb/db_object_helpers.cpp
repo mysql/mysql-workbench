@@ -1258,7 +1258,7 @@ static bool parse_type(const std::string &type,
   // Note: we parse here more than the pure data type name + precision/scale (namely additional parameters
   // like charsets etc.). That doesn't affect the main task here, however. Additionally stuff
   // is simply ignored for now (but it must be a valid definition).
-  MySQLRecognizer recognizer(bec::version_to_long(targetVersion), sql_mode, std::set<std::string>());
+  MySQLRecognizer recognizer(bec::version_to_int(targetVersion), sql_mode, std::set<std::string>());
   recognizer.parse(type.c_str(), type.size(), true, PuDataType);
   if (!recognizer.error_info().empty())
     return false;

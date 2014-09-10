@@ -552,7 +552,7 @@ double DbMySQLQueryImpl::resultFieldDoubleValue(int result, int field)
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
   
-  return res->getDouble(field);
+  return (double)res->getDouble(field);
 }
 
 
@@ -591,7 +591,7 @@ double DbMySQLQueryImpl::resultFieldDoubleValueByName(int result, const std::str
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
   
-  return res->getDouble(field);
+  return (double)res->getDouble(field);
 }
 
 

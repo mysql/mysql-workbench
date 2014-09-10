@@ -135,7 +135,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -154,7 +154,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
@@ -179,7 +179,7 @@
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -201,7 +201,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -223,7 +223,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -245,7 +245,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbprivate;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\frontend\common;$(SolutionDir)\generated;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\mysql.parser;$(SolutionDir)\library\base;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\cairo;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\tinyxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\libzip;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;ENABLE_LUA_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <AdditionalOptions>/Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -20,7 +20,7 @@ DELIMITER $$
 CREATE DEFINER='root'@'localhost' FUNCTION extract_schema_from_file_name (
         path VARCHAR(512)
     )
-    RETURNS VARCHAR(512) 
+    RETURNS VARCHAR(64) 
     COMMENT '
              Description
              -----------
@@ -43,7 +43,7 @@ CREATE DEFINER='root'@'localhost' FUNCTION extract_schema_from_file_name (
              Returns
              -----------
 
-             VARCHAR(512)
+             VARCHAR(64)
 
              Example
              -----------
@@ -59,7 +59,7 @@ CREATE DEFINER='root'@'localhost' FUNCTION extract_schema_from_file_name (
     SQL SECURITY INVOKER
     DETERMINISTIC
     NO SQL
-    RETURN SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(path, '\\', '/'), '/', -2), '/', 1)
+    RETURN LEFT(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(path, '\\', '/'), '/', -2), '/', 1), 64);
 $$
 
 DELIMITER ;

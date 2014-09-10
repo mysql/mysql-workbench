@@ -22,6 +22,7 @@
 
 #include "mforms/code_editor.h"
 #include "mforms/selector.h"
+#include "mforms/button.h"
 
 //--------------------------------------------------------------------------------------------------
 
@@ -192,17 +193,29 @@ SqlScriptApplyPage::SqlScriptApplyPage(grtui::WizardForm *form)
 grtui::WizardProgressPage(form, "apply", true),
 _err_count(0)
 {
-  set_title(_("Applying SQL script to the database ..."));
+  set_title(_("Applying SQL script to the database"));
   set_short_title(_("Apply SQL Script"));
 
-  /*TaskRow *task=*/ add_task(
+  /*TaskRow *task=*/ add_async_task(
     _("Execute SQL Statements"), 
     boost::bind(&SqlScriptApplyPage::execute_sql_script, this),
     _("Executing SQL Statements..."));
 
   end_adding_tasks(_("SQL script was successfully applied to the database."));
 
+  {
+    _abort_btn = mforms::manage(new mforms::Button());
+    _abort_btn->set_text("Abort");
+    _abort_btn->signal_clicked()->connect(boost::bind(&SqlScriptApplyPage::abort_exec, this));
+    _progress_bar_box->add_end(_abort_btn, false, true);
+  }
   set_status_text("");
+}
+
+
+void SqlScriptApplyPage::abort_exec()
+{
+  dynamic_cast<SqlScriptRunWizard*>(_form)->abort_apply();
 }
 
 
@@ -234,22 +247,38 @@ int SqlScriptApplyPage::on_exec_stat(long success_count, long err_count)
 }
 
 
+grt::ValueRef SqlScriptApplyPage::do_execute_sql_script(const std::string &sql_script)
+{
+  _form->grtm()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, "Executing:\n"+sql_script+"\n"));
+
+  apply_sql_script(sql_script);
+
+  if (_err_count)
+  {
+    values().gset("has_errors", 1);
+    _form->grtm()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text, this, _log));
+    throw std::runtime_error(_("There was an error while applying the SQL script to the database."));
+  }
+  else
+  {
+    _form->grtm()->run_once_when_idle(this, boost::bind(&SqlScriptApplyPage::add_log_text,
+                                                        this, _("SQL script was successfully applied to the database.")));
+  }
+
+  return grt::ValueRef();
+}
+
+
 bool SqlScriptApplyPage::execute_sql_script()
 {
   values().gset("applied", 1);
   values().gset("has_errors", 0);
   std::string sql_script= values().get_string("sql_script");
-  apply_sql_script(sql_script);
-  if (_err_count)
-  {
-    values().gset("has_errors", 1);
-    add_log_text(_log);
-    throw std::runtime_error(_("There was an error while applying the SQL script to the database."));
-  }
-  else
-  {
-    add_log_text(_("SQL script was successfully applied to the database."));
-  }
+
+  //apply_sql_script(sql_script);
+
+  execute_grt_task(boost::bind(&SqlScriptApplyPage::do_execute_sql_script, this, sql_script), false);
+
   return true;
 }
 
@@ -262,13 +291,13 @@ std::string SqlScriptApplyPage::next_button_caption()
 
 bool SqlScriptApplyPage::allow_back()
 {
-  return true;
+  return !_busy;
 }
 
 
 bool SqlScriptApplyPage::allow_next()
 {
-  return values().get_int("has_errors") == 0;
+  return !_busy && values().get_int("has_errors") == 0;
 }
 
 
@@ -280,6 +309,11 @@ bool SqlScriptApplyPage::allow_cancel()
 
 void SqlScriptApplyPage::enter(bool advancing)
 {
+  if (dynamic_cast<SqlScriptRunWizard*>(_form)->abort_apply)
+    _abort_btn->show(true);
+  else
+    _abort_btn->show(false);
+
   if (advancing)
   {
     _log_text.set_value("");

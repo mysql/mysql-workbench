@@ -17,22 +17,45 @@
  * 02110-1301  USA
  */
 
-#include "grts/structs.workbench.physical.h"
-
 #include "MySQLViewEditorWrapper.h"
 
 using namespace MySQL::Grt::Db;
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQL::Grt::Db::MySQLViewEditorWrapper::load_view_sql()
+MySQLViewEditorWrapper::MySQLViewEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
+  : ViewEditorWrapper(
+    new ::MySQLViewEditorBE(grtm->get_unmanaged_object(),
+    db_mysql_ViewRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
+    )
+  )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+MySQLViewEditorWrapper::~MySQLViewEditorWrapper()
+{
+  delete inner; // We created it.
+}
+
+//--------------------------------------------------------------------------------------------------
+
+MySQLViewEditorBE *MySQLViewEditorWrapper::get_unmanaged_object()
+{
+  return static_cast<::MySQLViewEditorBE *>(inner);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void MySQLViewEditorWrapper::load_view_sql()
 {
   get_unmanaged_object()->load_view_sql();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void MySQL::Grt::Db::MySQLViewEditorWrapper::commit_changes()
+void MySQLViewEditorWrapper::commit_changes()
 {
   get_unmanaged_object()->commit_changes();
 }

@@ -220,8 +220,6 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="grammar\MySQL.g" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="grammar\MySQLSimpleParser.g" />
+    <CustomBuild Include="grammar\MySQLSimpleParser.g" />
   </ItemGroup>
 </Project>

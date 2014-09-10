@@ -452,7 +452,7 @@ BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size
 }
 
 BinaryDataEditor::BinaryDataEditor(bec::GRTManager *grtm, const char *data, size_t length, const std::string &text_encoding, const std::string &datatype, bool read_only)
-: mforms::Form(0), _grtm(grtm), _type(datatype), _box(false), _hbox(true), _read_only(read_only)
+: mforms::Form(mforms::Form::main_form()), _grtm(grtm), _type(datatype), _box(false), _hbox(true), _read_only(read_only)
 {
   set_name("blob_editor");
   _data = 0;
@@ -488,8 +488,6 @@ BinaryDataEditor::~BinaryDataEditor()
 void BinaryDataEditor::setup()
 {
   set_title("Edit Data");
-  set_size(640, 500);
-  
   set_content(&_box);
   _box.set_padding(12);
   _box.set_spacing(12);
@@ -518,6 +516,9 @@ void BinaryDataEditor::setup()
   scoped_connect(_close.signal_clicked(),boost::bind(&BinaryDataEditor::close, this));
   scoped_connect(_import.signal_clicked(),boost::bind(&BinaryDataEditor::import_value, this));
   scoped_connect(_export.signal_clicked(),boost::bind(&BinaryDataEditor::export_value, this));
+
+  set_size(640, 500);
+  center();
 }
 
 void BinaryDataEditor::notify_edit()

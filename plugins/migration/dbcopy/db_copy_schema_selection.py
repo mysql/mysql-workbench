@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,11 +17,12 @@
 
 import mforms
 import grt
+import re
 
 from workbench.ui import WizardPage, DatabaseSchemaSelector
 
 
-SYSTEM_SCHEMAS = ['def.mysql', 'def.information_schema', 'def.performance_schema']
+SYSTEM_SCHEMAS = ['`def`.`mysql`', '`def`.`information_schema`', '`def`.`performance_schema`']
 
 class SchemaMainView(WizardPage):
 
@@ -34,8 +35,11 @@ class SchemaMainView(WizardPage):
 
         self.content.add(mforms.newLabel('Select the schemas to copy to the destination server and click [Start Copy >] to start the process.'), False, True)
 
-        self.catalog_schemata = [ full_name.partition('.')[-1]
-                                    for full_name in self.main.plan.migrationSource.schemaNames if full_name not in SYSTEM_SCHEMAS ]
+        match_str = r"\%s\.\%s" % (self.main.plan.migrationSource._db_module.quoteIdentifier('(.+)\\'), self.main.plan.migrationSource._db_module.quoteIdentifier('(.+)\\'))
+
+        self.catalog_schemata = [ schema_name for catalog_name, schema_name in (re.match(match_str, full_name).groups()
+                                            for full_name in [x for x in self.main.plan.migrationSource.schemaNames if x not in SYSTEM_SCHEMAS])]
+
         self.schema_selector = DatabaseSchemaSelector(self.catalog_schemata, tree_checked_callback=self.update_next_button)
         self.content.add(self.schema_selector, True, True)
   

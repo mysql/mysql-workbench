@@ -17,6 +17,8 @@
  * View: user_summary_by_statement_latency
  *
  * Summarizes overall statement statistics by user.
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.
  *
  * mysql> select * from user_summary_by_statement_latency;
  * +------+-------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
@@ -59,6 +61,8 @@ SELECT user,
  * View: x$user_summary_by_statement_latency
  *
  * Summarizes overall statement statistics by user.
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.
  *
  * mysql> select * from x$user_summary_by_statement_latency;
  * +------+-------+-----------------+---------------+---------------+-----------+---------------+---------------+------------+

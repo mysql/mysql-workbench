@@ -69,10 +69,10 @@ SELECT SUBSTRING_INDEX(event_name, '/', -2) event_name,
        sys.format_time(max_timer_wait) AS max_latency,
        count_read,
        sys.format_bytes(sum_number_of_bytes_read) AS total_read,
-       sys.format_bytes(IFNULL(sum_number_of_bytes_read / count_read, 0)) AS avg_read,
+       sys.format_bytes(IFNULL(sum_number_of_bytes_read / NULLIF(count_read, 0), 0)) AS avg_read,
        count_write,
        sys.format_bytes(sum_number_of_bytes_write) AS total_written,
-       sys.format_bytes(IFNULL(sum_number_of_bytes_write / count_write, 0)) AS avg_written,
+       sys.format_bytes(IFNULL(sum_number_of_bytes_write / NULLIF(count_write, 0), 0)) AS avg_written,
        sys.format_bytes(sum_number_of_bytes_write + sum_number_of_bytes_read) AS total_requested
   FROM performance_schema.file_summary_by_event_name
  WHERE event_name LIKE 'wait/io/file/%' 
@@ -130,10 +130,10 @@ SELECT SUBSTRING_INDEX(event_name, '/', -2) AS event_name,
        max_timer_wait AS max_latency,
        count_read,
        sum_number_of_bytes_read AS total_read,
-       IFNULL(sum_number_of_bytes_read / count_read, 0) AS avg_read,
+       IFNULL(sum_number_of_bytes_read / NULLIF(count_read, 0), 0) AS avg_read,
        count_write,
        sum_number_of_bytes_write AS total_written,
-       IFNULL(sum_number_of_bytes_write / count_write, 0) AS avg_written,
+       IFNULL(sum_number_of_bytes_write / NULLIF(count_write, 0), 0) AS avg_written,
        sum_number_of_bytes_write + sum_number_of_bytes_read AS total_requested
   FROM performance_schema.file_summary_by_event_name
  WHERE event_name LIKE 'wait/io/file/%' 

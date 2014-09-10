@@ -4,10 +4,21 @@
 cd ../..
 
 # ************************************************************
-# Target 1: build framework and test app with Xcode targetting OS X 10.n with n from 9 to 5
+# Target 1: Unit tests
+
+echo Unit tests
+
+cd scintilla/test/unit
+make clean
+make test
+cd ../../..
+
+# ************************************************************
+# Target 2: build framework and test app with Xcode targetting OS X 10.n with n from 9 to 5
 # Only SDK versions that are installed will be built
 # Clean both then build both -- if perform clean in ScintillaTest, also cleans ScintillaFramework
 # which can cause double build
+
 echo Building Cocoa-native ScintillaFramework and ScintillaTest
 for sdk in macosx10.9 macosx10.8 macosx10.7 macosx10.6 macosx10.5
 do
@@ -30,7 +41,7 @@ do
 done
 
 # ************************************************************
-# Target 2: Qt builds
+# Target 3: Qt builds
 # Requires Qt development libraries and qmake to be installed
 
 echo Building Qt and PySide

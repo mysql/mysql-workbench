@@ -306,6 +306,12 @@ class SourceMainView(SourceWizardPage):
 
         self.advanced_button.set_text("Test Connection")
 
+        self.odbc_button = mforms.newButton()
+        self.odbc_button.set_text("Open ODBC Administrator")
+        self.odbc_button.add_clicked_callback(self.open_odbc)
+        self.button_box.add(self.odbc_button, False, True)
+
+
 
     def go_advanced(self):
         self.main.plan.setSourceConnection(self.panel.connection)
@@ -321,13 +327,18 @@ class SourceMainView(SourceWizardPage):
         
         SourceWizardPage.go_next(self)
 
+    def open_odbc(self):
+        if not grt.modules.PyWbUtils.startODBCAdmin():
+            mforms.Utilities.show_error("Open ODBC Administrator", "ODBC Administrator utility could not be found.", "OK", "", "")
+
+
 
 class TargetMainView(SourceWizardPage):
     def __init__(self, main):
         SourceWizardPage.__init__(self, main, "Target Selection")
 
-
         self.main.add_wizard_page(self, "SourceTarget", "Target Selection")
+
 
     def just_script_toggled(self):
         pass

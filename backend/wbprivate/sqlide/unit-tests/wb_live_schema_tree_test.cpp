@@ -86,7 +86,6 @@ public:
   bool _expect_fetch_schema_contents_call;
   bool _expect_fetch_object_details_call;
   bool _expect_fetch_data_for_filter;
-  bool _expect_editor_insert_text;
   bool _expect_plugin_item_call;
 
   bool _expect_tree_activate_objects;
@@ -137,7 +136,6 @@ public:
     _expect_fetch_schema_contents_call(false),
     _expect_fetch_object_details_call(false),
     _expect_fetch_data_for_filter(false),
-    _expect_editor_insert_text(false),
     _expect_plugin_item_call(false),
     _expect_tree_activate_objects(false),
     _expect_tree_create_object(false),
@@ -372,7 +370,6 @@ public:
     ensure(check_id + " : Missed call to fetch_schema_list", !_expect_fetch_schema_list_call);
     ensure(check_id + " : Missed call to fetch_schema_contents", !_expect_fetch_schema_contents_call);
     ensure(check_id + " : Missed call to fetch_object_details", !_expect_fetch_object_details_call);
-    ensure(check_id + " : Missed call to sql_editor_text_insert_signal", !_expect_editor_insert_text);
     ensure(check_id + " : Missing expected changes.", _mock_expected_changes.size() == 0);
     
     ensure(check_id + " : Missed call to tree_refresh", !_expect_tree_refresh);
@@ -387,34 +384,9 @@ public:
     _expect_fetch_schema_list_call = false;
     _expect_fetch_schema_contents_call = false;
     _expect_fetch_object_details_call = false;
-    _expect_editor_insert_text = false;
     _expect_plugin_item_call = false;
   }
 
-  //std::string _mock_expected_text;
-  int mock_insert_text_signal(const std::string& text)
-  {
-    ensure("Unexpected text insertion received", _expect_editor_insert_text);
-    _expect_editor_insert_text = false;
-    ensure_equals("Unexpected text to insert received", text, _mock_expected_text);
-    _mock_expected_text = "";
-    return 0;
-  }
-
-  /* deprecated
-  bool mock_plugin_items_slot(std::string action, std::string schema, std::string object, std::string type)
-  {
-    ensure(_check_id + ": Unexpected plugin items slot received", _expect_plugin_item_call);
-    _expect_plugin_item_call = false;
-    ensure_equals(_check_id + ": Unexpected action on item slot call received", action, _mock_expected_action);
-    ensure_equals(_check_id + ": Unexpected schema on item slot call received", schema, _mock_expected_changes[0].schema);
-    ensure_equals(_check_id + ": Unexpected object on item slot call received", object, _mock_expected_changes[0].name);
-    ensure_equals(_check_id + ": Unexpected type on item slot call received", type, _mock_expected_changes[0].detail);
-
-    _mock_expected_changes.erase(_mock_expected_changes.begin());
-  
-    return true;
-  }*/
 };
 
 public:
@@ -3070,9 +3042,6 @@ TEST_FUNCTION(27)
   mforms::TreeNodeRef child_node;
   mforms::TreeNodeRef object_node;
 
-  _lst.sql_editor_text_insert_signal.connect(boost::bind(&LiveTreeTestDelegate::mock_insert_text_signal, deleg, _1));
- // _lst.call_object_plugin_items_slot = boost::bind(&LiveTreeTestDelegate::mock_plugin_items_slot, deleg, _1, _2, _3, _4);
-
   fill_basic_schema("TF027CHK001");
 
   schema_node = _lst.get_node_for_object("schema1", LiveSchemaTree::Schema, "");
@@ -3095,7 +3064,6 @@ TEST_FUNCTION(27)
 
   // Test activating a table node
   object_node = child_node->get_child(0);
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "table1";
   _lst.node_activated(object_node, 0);
   deleg->check_and_reset("TF027CHK003");
@@ -3105,7 +3073,6 @@ TEST_FUNCTION(27)
   _lst.node_activated(child_node, 0);
 
   // Test activating a column node
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "table_column1";
   _lst.node_activated(child_node->get_child(0), 0);
   deleg->check_and_reset("TF027CHK005");
@@ -3115,7 +3082,6 @@ TEST_FUNCTION(27)
   _lst.node_activated(child_node, 0);
 
   // Test activating an index node
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "index1";
   _lst.node_activated(child_node->get_child(0), 0);
   deleg->check_and_reset("TF027CHK007");
@@ -3125,7 +3091,6 @@ TEST_FUNCTION(27)
   _lst.node_activated(child_node, 0);
 
   // Test activating a trigger node
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "trigger1";
   _lst.node_activated(child_node->get_child(0), 0);
   deleg->check_and_reset("TF027CHK009");
@@ -3135,7 +3100,6 @@ TEST_FUNCTION(27)
   _lst.node_activated(child_node, 0);
 
   // Test activating a foreign key node
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "fk1";
   _lst.node_activated(child_node->get_child(0), 0);
   deleg->check_and_reset("TF027CHK011");
@@ -3146,13 +3110,11 @@ TEST_FUNCTION(27)
 
   // Test activating a view node
   object_node = child_node->get_child(0);
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "view1";
   _lst.node_activated(object_node, 0);
   deleg->check_and_reset("TF027CHK013");
 
   // Test activating a view column node
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "view_column1";
   _lst.node_activated(object_node->get_child(0), 0);
   deleg->check_and_reset("TF027CHK014");
@@ -3164,7 +3126,6 @@ TEST_FUNCTION(27)
 
   // Test activating a procedure node
   object_node = child_node->get_child(0);
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "procedure1";
   _lst.node_activated(object_node, 0);
   deleg->check_and_reset("TF027CHK016");
@@ -3176,7 +3137,6 @@ TEST_FUNCTION(27)
 
   // Test activating a function node
   object_node = child_node->get_child(0);
-  deleg->_expect_editor_insert_text = true;
   deleg->_mock_expected_text = "function1";
   _lst.node_activated(object_node, 0);
   deleg->check_and_reset("TF027CHK018");

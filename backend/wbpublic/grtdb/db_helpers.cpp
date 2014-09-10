@@ -138,7 +138,7 @@ GrtVersionRef bec::parse_version(grt::GRT *grt, const std::string &target_versio
  * Converts a grt version struct into a plain long usable by parsers.
  * Returns a default version number if the given version is invalid or has no major version.
  */
-long bec::version_to_long(const GrtVersionRef &version)
+int bec::version_to_int(const GrtVersionRef &version)
 {
   if (!version.is_valid() || version->majorNumber() == -1)
     return 50100;
@@ -149,7 +149,28 @@ long bec::version_to_long(const GrtVersionRef &version)
   if (version->releaseNumber() > -1)
     result += version->releaseNumber();
 
-  return (long)result;
+  return (int)result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Converts the int form of a server version to a grt version ref.
+ * The build member in the returned version is always -1.
+ */
+GrtVersionRef bec::int_to_version(grt::GRT *grt, int version)
+{
+
+  int major = version / 10000, minor = (version / 100) % 100, release = version % 100, build = -1;
+
+  GrtVersionRef version_(grt);
+  version_->name("Version");
+  version_->majorNumber(major);
+  version_->minorNumber(minor);
+  version_->releaseNumber(release);
+  version_->buildNumber(build);
+
+  return version_;
 }
 
 //--------------------------------------------------------------------------------------------------

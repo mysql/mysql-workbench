@@ -140,7 +140,7 @@ static std::map<std::string, GRTNodeId*> node_cache;
 {
   if (_list->is_editable(rowIndex))
   {
-    int count= _list->count();
+    size_t count= _list->count();
     _list->set_field(rowIndex, [[aTableColumn identifier] integerValue], [anObject UTF8String]);
     if (_list->count() > count)
       [aTableView reloadData];

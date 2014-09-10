@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRTPP_VALUE_H_
-#define _GRTPP_VALUE_H_
+#pragma once
 
 #ifdef _WIN32
   #ifdef _WIN64
@@ -34,10 +33,6 @@
 #if defined(ENABLE_DEBUG) || defined(_DEBUG)
 //#define GRT_LEAK_DETECTOR_ENABLED
 //#define GRT_LEAK_DETECTOR_RECORD_CALL_STACK
-#endif
-
-#if defined(__APPLE__)
-#include <libkern/OSAtomic.h>
 #endif
 
 namespace grt {
@@ -151,30 +146,29 @@ namespace grt {
     class MYSQLGRT_PUBLIC Value
     {
     public:
-      virtual Type get_type() const= 0;
+      virtual Type get_type() const = 0;
     
       Value *retain()
-      { /*uses mutex in some OSs  */
-        base::atomic_int_inc(&_refcount);
+      {
+        g_atomic_int_inc(&_refcount);
         return this;
-      }//*/ ++_refcount; return this; }
-
+      }
 
       void release() {
 #ifdef DEBUG
-        if (_refcount == 0) g_warning("GRT: releasing invalid object");
+        if (_refcount == 0)
+          g_warning("GRT: releasing invalid object");
 #endif
-        if(base::atomic_int_dec_and_test_if_zero(&_refcount))
+        if (g_atomic_int_dec_and_test(&_refcount))
           delete this;
       }
 
-      virtual std::string repr() const= 0;
+      virtual std::string repr() const = 0;
 
       inline base::refcount_t refcount() const
       {
-        return base::atomic_int_get(&_refcount);
-
-      } //return _refcount; } //g_atomic_int_get(&_refcount); }
+        return g_atomic_int_get(&_refcount);
+      }
 
       virtual void mark_global() const {}
       virtual void unmark_global() const {}
@@ -183,7 +177,7 @@ namespace grt {
       virtual bool less_than(const Value *) const= 0;
       
       // reset_references helps to free memory allocated
-      // by Value. The method is overridden in Object, List and Dict
+      // by Value. The method is overridden in Object, List and Dict.
       virtual void reset_references() {}
 
     protected:
@@ -195,7 +189,6 @@ namespace grt {
 
       volatile mutable base::refcount_t _refcount;
     };
-    
     
     // 32 bit or 64 bit integer type.
     class MYSQLGRT_PUBLIC Integer : public Value
@@ -457,78 +450,6 @@ namespace grt {
     };
 
     //------------------------------------------------------------------------------------------------
-    
-    /** Object validity flag for weak-references
-     * 
-     * Allocated by objects to signal whether it's valid and held by weak references
-     * to check whether the object is still valid.
-     * @ingroup GRT
-     */
-    /*
-    class ObjectValidFlag
-    {
-    public:
-      ObjectValidFlag(bool valid) : flagp(new Flag(valid))
-      {}
-      
-      ObjectValidFlag(const ObjectValidFlag &copy) : flagp(copy.flagp)
-      {
-        ref_added();
-      }
-      
-      inline ObjectValidFlag &operator= (const ObjectValidFlag &other)
-      {
-        ObjectValidFlag tmp(other); 
-        swap(tmp);
-        return *this;
-      }
-      
-      ~ObjectValidFlag()
-      {
-        ref_deleted();
-      }
-      
-      bool valid() const
-      {
-        return flagp->valid;
-      }
-      
-      void invalidate() 
-      {
-        flagp->valid= false;
-      }
-      
-      inline void swap(ObjectValidFlag &other)
-      {
-         if (flagp != other.flagp)
-         {
-           ref_deleted();
-           flagp= other.flagp;
-           ref_added();
-         }
-      }
-      
-    private:
-      struct Flag {
-        gint refcount;
-        bool valid;
-        
-        inline Flag(bool initial) : refcount(1), valid(initial) {}
-      };
-      
-      Flag *flagp;
-      
-      inline void ref_added()
-      {
-        g_atomic_int_inc(&flagp->refcount);
-      }
-      
-      inline void ref_deleted()
-      {
-        if (g_atomic_int_dec_and_test(&flagp->refcount))
-          delete flagp; // if no more refcounts, delete it
-      }
-    };*/
 
     /** Base GRT Object class.
      * 
@@ -663,5 +584,3 @@ namespace grt {
 
   }; // internal
 }; //grt
-
-#endif // _GRTPP_VALUE_H_

@@ -251,16 +251,36 @@ mysql> select * from latest_file_io limit 5;
 
 Summarizes memory use by user using the 5.7 Performance Schema instrumentation.
 
+When the user found is NULL, it is assumed to be a "background" thread.
+
 ##### Example
 
 ```SQL
-mysql> select * from memory_by_user_by_current_bytes WHERE user IS NOT NULL;
+mysql> select * from memory_by_user_by_current_bytes;
 +------+--------------------+-------------------+-------------------+-------------------+-----------------+
 | user | current_count_used | current_allocated | current_avg_alloc | current_max_alloc | total_allocated |
 +------+--------------------+-------------------+-------------------+-------------------+-----------------+
 | root |               1401 | 1.09 MiB          | 815 bytes         | 334.97 KiB        | 42.73 MiB       |
 | mark |                201 | 496.08 KiB        | 2.47 KiB          | 334.97 KiB        | 5.50 MiB        |
 +------+--------------------+-------------------+-------------------+-------------------+-----------------+
+```
+
+#### memory_by_host_by_current_bytes / x$memory_by_host_by_current_bytes
+
+##### Description
+
+Summarizes memory use by host using the 5.7 Performance Schema instrumentation.
+
+##### Example
+
+```SQL
+mysql> select * from memory_by_host_by_current_bytes WHERE host IS NOT NULL;
+  +------+--------------------+-------------------+-------------------+-------------------+-----------------+
+  | host | current_count_used | current_allocated | current_avg_alloc | current_max_alloc | total_allocated |
+  +------+--------------------+-------------------+-------------------+-------------------+-----------------+
+  | hal1 |               1401 | 1.09 MiB          | 815 bytes         | 334.97 KiB        | 42.73 MiB       |
+  | hal2 |                201 | 496.08 KiB        | 2.47 KiB          | 334.97 KiB        | 5.50 MiB        |
+  +------+--------------------+-------------------+-------------------+-------------------+-----------------+
 ```
 
 #### memory_global_by_current_allocated / x$memory_global_by_current_allocated
@@ -435,6 +455,10 @@ Statistics around tables.
 
 Ordered by the total wait time descending - top tables are most contended.
 
+Also includes the helper view (used by schema_table_statistics_with_buffer as well):
+
+* x$ps_schema_table_statistics_io
+
 ##### Example
 
 ```SQL
@@ -469,6 +493,8 @@ Statistics around tables.
 Ordered by the total wait time descending - top tables are most contended.
 
 More statistics such as caching stats for the InnoDB buffer pool with InnoDB tables
+
+Uses the x$ps_schema_table_statistics_io helper view from schema_table_statistics.
 
 ##### Example
 
@@ -724,6 +750,8 @@ avg_tmp_tables_per_query: 189
 
 Summarizes statement activity, file IO and connections by user.
 
+When the user found is NULL, it is assumed to be a "background" thread.
+
 ##### Example
 
 ```SQL
@@ -734,41 +762,6 @@ mysql> select * from user_summary;
 | root |       2924 | 00:03:59.53       | 81.92 ms              |          82 |    54702 | 55.61 s         |                   1 |                 1 |            1 |
 +------+------------+-------------------+-----------------------+-------------+----------+-----------------+---------------------+-------------------+--------------+
 ```
-
-#### user_summary_by_file_io_type / x$user_summary_by_file_io_type
-
-##### Description
-
-Summarizes file IO by event type per user.
-
-When the user found is NULL, it is assumed to be a "background" thread.
-
-##### Example
-
-```SQL
-mysql> select * from user_summary_by_file_io_type;
-+------------+--------------------------------------+-------+-----------+-------------+
-| user       | event_name                           | total | latency   | max_latency |
-+------------+--------------------------------------+-------+-----------+-------------+
-| background | wait/io/file/sql/FRM                 |   871 | 168.15 ms | 18.48 ms    |
-| background | wait/io/file/innodb/innodb_data_file |   173 | 129.56 ms | 34.09 ms    |
-| background | wait/io/file/innodb/innodb_log_file  |    20 | 77.53 ms  | 60.66 ms    |
-| background | wait/io/file/myisam/dfile            |    40 | 6.54 ms   | 4.58 ms     |
-| background | wait/io/file/mysys/charset           |     3 | 4.79 ms   | 4.71 ms     |
-| background | wait/io/file/myisam/kfile            |    67 | 4.38 ms   | 300.04 us   |
-| background | wait/io/file/sql/ERRMSG              |     5 | 2.72 ms   | 1.69 ms     |
-| background | wait/io/file/sql/pid                 |     3 | 266.30 us | 185.47 us   |
-| background | wait/io/file/sql/casetest            |     5 | 246.81 us | 150.19 us   |
-| background | wait/io/file/sql/global_ddl_log      |     2 | 21.24 us  | 18.59 us    |
-| root       | wait/io/file/sql/file_parser         |  1422 | 4.80 s    | 135.14 ms   |
-| root       | wait/io/file/sql/FRM                 |   865 | 85.82 ms  | 9.81 ms     |
-| root       | wait/io/file/myisam/kfile            |  1073 | 37.14 ms  | 15.79 ms    |
-| root       | wait/io/file/myisam/dfile            |  2991 | 25.53 ms  | 5.25 ms     |
-| root       | wait/io/file/sql/dbopt               |    20 | 1.07 ms   | 153.07 us   |
-| root       | wait/io/file/sql/misc                |     4 | 59.71 us  | 33.75 us    |
-| root       | wait/io/file/archive/data            |     1 | 13.91 us  | 13.91 us    |
-+------------+--------------------------------------+-------+-----------+-------------+
- ```
 
 #### user_summary_by_file_io / x$user_summary_by_file_io
 
@@ -840,6 +833,8 @@ mysql> select * from user_summary_by_file_io_type;
 
 Summarizes stages by user, ordered by user and total latency per stage.
 
+When the user found is NULL, it is assumed to be a "background" thread.
+
 ##### Example
 
 ```SQL
@@ -872,6 +867,8 @@ mysql> select * from user_summary_by_stages;
 
 Summarizes overall statement statistics by user.
 
+When the user found is NULL, it is assumed to be a "background" thread.
+
 ##### Example
 
 ```SQL
@@ -888,6 +885,8 @@ mysql> select * from user_summary_by_statement_latency;
 ##### Description
 
 Summarizes the types of statements executed by each user.
+
+When the user found is NULL, it is assumed to be a "background" thread.
 
 ##### Example
 
@@ -915,6 +914,148 @@ mysql> select * from user_summary_by_statement_type;
 | root | show_status      |     1 | 408.69 us     | 408.69 us   | 102.00 us    |        23 |            23 |             0 |          1 |
 +------+------------------+-------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
 ```
+
+#### host_summary / x$host_summary
+
+##### Description
+
+Summarizes statement activity, file IO and connections by host.
+
+##### Example
+
+```SQL 
+ mysql> select * from host_summary;
+  +------+------------+-------------------+-----------------------+-------------+----------+-----------------+---------------------+-------------------+--------------+
+  | host | statements | statement_latency | statement_avg_latency | table_scans | file_ios | file_io_latency | current_connections | total_connections | unique_users |
+  +------+------------+-------------------+-----------------------+-------------+----------+-----------------+---------------------+-------------------+--------------+
+  | hal1 |       2924 | 00:03:59.53       | 81.92 ms              |          82 |    54702 | 55.61 s         |                   1 |                 1 |            1 |
+  +------+------------+-------------------+-----------------------+-------------+----------+-----------------+---------------------+-------------------+--------------+
+ 
+```
+
+#### host_summary_by_file_io / x$host_summary_by_file_io
+
+##### Description
+
+Summarizes file IO totals per host.
+
+##### Example
+
+```SQL
+ mysql> select * from host_summary_by_file_io;
+  +------------+-------+------------+
+  | host       | ios   | io_latency |
+  +------------+-------+------------+
+  | hal1       | 26457 | 21.58 s    |
+  | hal2       |  1189 | 394.21 ms  |
+  +------------+-------+------------+
+```
+
+#### host_summary_by_file_io_type / x$host_summary_by_file_io_type
+
+##### Description
+
+Summarizes file IO by event type per host.
+
+##### Example
+
+```SQL
+  mysql> select * from host_summary_by_file_io_type;
+  +------------+--------------------------------------+-------+-----------+-------------+
+  | host       | event_name                           | total | latency   | max_latency |
+  +------------+--------------------------------------+-------+-----------+-------------+
+  | hal1       | wait/io/file/sql/FRM                 |   871 | 168.15 ms | 18.48 ms    |
+  | hal1       | wait/io/file/innodb/innodb_data_file |   173 | 129.56 ms | 34.09 ms    |
+  | hal1       | wait/io/file/innodb/innodb_log_file  |    20 | 77.53 ms  | 60.66 ms    |
+  | hal1       | wait/io/file/myisam/dfile            |    40 | 6.54 ms   | 4.58 ms     |
+  | hal1       | wait/io/file/mysys/charset           |     3 | 4.79 ms   | 4.71 ms     |
+  | hal1       | wait/io/file/myisam/kfile            |    67 | 4.38 ms   | 300.04 us   |
+  | hal1       | wait/io/file/sql/ERRMSG              |     5 | 2.72 ms   | 1.69 ms     |
+  | hal1       | wait/io/file/sql/pid                 |     3 | 266.30 us | 185.47 us   |
+  | hal1       | wait/io/file/sql/casetest            |     5 | 246.81 us | 150.19 us   |
+  | hal1       | wait/io/file/sql/global_ddl_log      |     2 | 21.24 us  | 18.59 us    |
+  | hal2       | wait/io/file/sql/file_parser         |  1422 | 4.80 s    | 135.14 ms   |
+  | hal2       | wait/io/file/sql/FRM                 |   865 | 85.82 ms  | 9.81 ms     |
+  | hal2       | wait/io/file/myisam/kfile            |  1073 | 37.14 ms  | 15.79 ms    |
+  | hal2       | wait/io/file/myisam/dfile            |  2991 | 25.53 ms  | 5.25 ms     |
+  | hal2       | wait/io/file/sql/dbopt               |    20 | 1.07 ms   | 153.07 us   |
+  | hal2       | wait/io/file/sql/misc                |     4 | 59.71 us  | 33.75 us    |
+  | hal2       | wait/io/file/archive/data            |     1 | 13.91 us  | 13.91 us    |
+  +------------+--------------------------------------+-------+-----------+-------------+
+ ```
+
+#### host_summary_by_stages / x$host_summary_by_stages
+
+##### Description
+
+Summarizes stages by host, ordered by host and total latency per stage.
+
+##### Example
+
+```SQL
+  mysql> select *  from host_summary_by_stages;
+  +------+--------------------------------+-------+-----------+-----------+
+  | host | event_name                     | total | wait_sum  | wait_avg  |
+  +------+--------------------------------+-------+-----------+-----------+
+  | hal  | stage/sql/Opening tables       |   889 | 1.97 ms   | 2.22 us   |
+  | hal  | stage/sql/Creating sort index  |     4 | 1.79 ms   | 446.30 us |
+  | hal  | stage/sql/init                 |    10 | 312.27 us | 31.23 us  |
+  | hal  | stage/sql/checking permissions |    10 | 300.62 us | 30.06 us  |
+  | hal  | stage/sql/freeing items        |     5 | 85.89 us  | 17.18 us  |
+  | hal  | stage/sql/statistics           |     5 | 79.15 us  | 15.83 us  |
+  | hal  | stage/sql/preparing            |     5 | 69.12 us  | 13.82 us  |
+  | hal  | stage/sql/optimizing           |     5 | 53.11 us  | 10.62 us  |
+  | hal  | stage/sql/Sending data         |     5 | 44.66 us  | 8.93 us   |
+  | hal  | stage/sql/closing tables       |     5 | 37.54 us  | 7.51 us   |
+  | hal  | stage/sql/System lock          |     5 | 34.28 us  | 6.86 us   |
+  | hal  | stage/sql/query end            |     5 | 24.37 us  | 4.87 us   |
+  | hal  | stage/sql/end                  |     5 | 8.60 us   | 1.72 us   |
+  | hal  | stage/sql/Sorting result       |     5 | 8.33 us   | 1.67 us   |
+  | hal  | stage/sql/executing            |     5 | 5.37 us   | 1.07 us   |
+  | hal  | stage/sql/cleaning up          |     5 | 4.60 us   | 919.00 ns |
+  +------+--------------------------------+-------+-----------+-----------+
+```
+
+#### host_summary_by_statement_latency / x$host_summary_by_statement_latency
+
+##### Description
+
+Summarizes overall statement statistics by host.
+
+##### Example
+
+```SQL
+mysql> select * from host_summary_by_statement_latency;
+  +------+-------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
+  | host | total | total_latency | max_latency | lock_latency | rows_sent | rows_examined | rows_affected | full_scans |
+  +------+-------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
+  | hal  |  3381 | 00:02:09.13   | 1.48 s      | 1.07 s       |      1151 |         93947 |           150 |         91 |
+  +------+-------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
+```
+
+#### host_summary_by_statement_type / x$host_summary_by_statement_type
+
+##### Description
+
+Summarizes the types of statements executed by each host.
+
+##### Example
+
+```SQL
+  mysql> select * from host_summary_by_statement_type;
+  +------+----------------------+--------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
+  | host | statement            | total  | total_latency | max_latency | lock_latency | rows_sent | rows_examined | rows_affected | full_scans |
+  +------+----------------------+--------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
+  | hal  | create_view          |   2063 | 00:05:04.20   | 463.58 ms   | 1.42 s       |         0 |             0 |             0 |          0 |
+  | hal  | select               |    174 | 40.87 s       | 28.83 s     | 858.13 ms    |      5212 |        157022 |             0 |         82 |
+  | hal  | stmt                 |   6645 | 15.31 s       | 491.78 ms   | 0 ps         |         0 |             0 |          7951 |          0 |
+  | hal  | call_procedure       |     17 | 4.78 s        | 1.02 s      | 37.94 ms     |         0 |             0 |            19 |          0 |
+  | hal  | create_table         |     19 | 3.04 s        | 431.71 ms   | 0 ps         |         0 |             0 |             0 |          0 |
+  ...
+  +------+----------------------+--------+---------------+-------------+--------------+-----------+---------------+---------------+------------+
+  
+```
+
 
 #### wait_classes_global_by_avg_latency / x$wait_classes_global_by_avg_latency
 
@@ -964,7 +1105,7 @@ mysql> select * from wait_classes_global_by_latency;
 
 ##### Description
 
-Lists the top wait events by their total latency, ignoring idle (this may be very large).
+Lists the top wait events per user by their total latency, ignoring idle (this may be very large) per user.
 
 ##### Example
 
@@ -989,6 +1130,37 @@ mysql> select * from waits_by_user_by_latency;
 | root | wait/synch/mutex/myisam/MYISAM_SHARE::intern_lock   |     60 | 12.21 us      | 203.20 ns   | 512.72 ns   |
 | root | wait/synch/mutex/innodb/trx_mutex                   |     81 | 5.93 us       | 73.14 ns    | 252.59 ns   |
 +------+-----------------------------------------------------+--------+---------------+-------------+-------------+
+```
+
+#### waits_by_host_by_latency / x$waits_by_host_by_latency
+
+##### Description
+
+Lists the top wait events per host by their total latency, ignoring idle (this may be very large) per host.
+
+##### Example
+
+```SQL
+ mysql> select * from waits_by_host_by_latency;
+  +------+-----------------------------------------------------+--------+---------------+-------------+-------------+
+  | host | event                                               | total  | total_latency | avg_latency | max_latency |
+  +------+-----------------------------------------------------+--------+---------------+-------------+-------------+
+  | hal1 | wait/io/file/sql/file_parser                        |  13743 | 00:01:00.46   | 4.40 ms     | 231.88 ms   |
+  | hal1 | wait/io/file/innodb/innodb_data_file                |   4699 | 3.02 s        | 643.38 us   | 46.93 ms    |
+  | hal1 | wait/io/file/sql/FRM                                |  11462 | 2.60 s        | 226.83 us   | 61.72 ms    |
+  | hal1 | wait/io/file/myisam/dfile                           |  26776 | 746.70 ms     | 27.89 us    | 308.79 ms   |
+  | hal1 | wait/io/file/myisam/kfile                           |   7126 | 462.66 ms     | 64.93 us    | 88.76 ms    |
+  | hal1 | wait/io/file/sql/dbopt                              |    179 | 137.58 ms     | 768.59 us   | 15.46 ms    |
+  | hal1 | wait/io/file/csv/metadata                           |      8 | 86.60 ms      | 10.82 ms    | 50.32 ms    |
+  | hal1 | wait/synch/mutex/mysys/IO_CACHE::append_buffer_lock | 798080 | 66.46 ms      | 82.94 ns    | 161.03 us   |
+  | hal1 | wait/io/file/sql/binlog                             |     19 | 49.11 ms      | 2.58 ms     | 9.40 ms     |
+  | hal1 | wait/io/file/sql/misc                               |     26 | 22.38 ms      | 860.80 us   | 15.30 ms    |
+  | hal1 | wait/io/file/csv/data                               |      4 | 297.46 us     | 74.37 us    | 111.93 us   |
+  | hal1 | wait/synch/rwlock/sql/MDL_lock::rwlock              |    944 | 287.86 us     | 304.62 ns   | 874.64 ns   |
+  | hal1 | wait/io/file/archive/data                           |      4 | 82.71 us      | 20.68 us    | 40.74 us    |
+  | hal1 | wait/synch/mutex/myisam/MYISAM_SHARE::intern_lock   |     60 | 12.21 us      | 203.20 ns   | 512.72 ns   |
+  | hal1 | wait/synch/mutex/innodb/trx_mutex                   |     81 | 5.93 us       | 73.14 ns    | 252.59 ns   |
+  +------+-----------------------------------------------------+--------+---------------+-------------+-------------+
 ```
 
 #### waits_global_by_latency / x$waits_global_by_latency
@@ -1050,7 +1222,7 @@ Currently relies on the fact that a table data file will be within a specified d
 
 ##### Returns
 
-VARCHAR(512)
+VARCHAR(64)
 
 ##### Example
 ```SQL
@@ -1077,7 +1249,7 @@ Useful for when interacting with Performance Schema data concerning IO statistic
 
 ##### Returns
 
-VARCHAR(512)
+VARCHAR(64)
 
 ##### Example
 ```SQL
@@ -1268,6 +1440,89 @@ mysql> SELECT sys.ps_is_account_enabled('localhost', 'root');
 1 row in set (0.01 sec)
 ```
 
+#### ps_is_instrument_default_enabled
+
+##### Description
+
+Returns whether an instrument is enabled by default in this version of MySQL.
+
+##### Parameters
+
+* in_instrument VARCHAR(128): The instrument to check.
+
+##### Returns
+
+ENUM('YES', 'NO')
+
+##### Example
+```SQL
+mysql> SELECT sys.ps_is_instrument_default_enabled('statement/sql/select');
++--------------------------------------------------------------+
+| sys.ps_is_instrument_default_enabled('statement/sql/select') |
++--------------------------------------------------------------+
+| YES                                                          |
++--------------------------------------------------------------+
+1 row in set (0.00 sec)
+```
+
+#### ps_is_instrument_default_timed
+
+##### Description
+
+Returns whether an instrument is timed by default in this version of MySQL.
+
+##### Parameters
+
+* in_instrument VARCHAR(128): The instrument to check.
+
+##### Returns
+
+ENUM('YES', 'NO')
+
+##### Example
+```SQL
+mysql> SELECT sys.ps_is_instrument_default_timed('statement/sql/select');
++------------------------------------------------------------+
+| sys.ps_is_instrument_default_timed('statement/sql/select') |
++------------------------------------------------------------+
+| YES                                                        |
++------------------------------------------------------------+
+1 row in set (0.00 sec)
+```
+
+#### ps_thread_id
+
+##### Description
+
+Return the Performance Schema THREAD_ID for the specified connection ID.
+
+##### Parameters
+
+* in_connection_id (BIGINT UNSIGNED): The id of the connection to return the thread id for.
+
+##### Returns
+
+BIGINT UNSIGNED
+
+##### Example
+```SQL
+mysql> SELECT sys.ps_thread_id(79);
++----------------------+
+| sys.ps_thread_id(79) |
++----------------------+
+|                   98 |
++----------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT sys.ps_thread_id(CONNECTION_ID());
++-----------------------------------+
+| sys.ps_thread_id(CONNECTION_ID()) |
++-----------------------------------+
+|                                98 |
++-----------------------------------+
+1 row in set (0.00 sec)
+```
+
 #### ps_thread_stack
 
 ##### Description
@@ -1364,8 +1619,6 @@ mysql> SHOW FULL TABLES FROM ps;
 
 Disable all background thread instrumentation within Performance Schema.
 
-Requires the SUPER privilege for "SET sql_log_bin = 0;".
-
 ##### Parameters
 
 None.
@@ -1386,8 +1639,6 @@ mysql> CALL sys.ps_setup_disable_background_threads();
 ##### Description
 
 Disables instruments within Performance Schema  matching the input pattern.
-
-Requires the SUPER privilege for "SET sql_log_bin = 0;".
 
 ##### Parameters
 
@@ -1426,13 +1677,45 @@ mysql> CALL sys.ps_setup_disable_instrument('');
 1 row in set (0.01 sec)
 ```
 
+#### ps_setup_disable_consumers
+
+##### Description
+
+Disables consumers within Performance Schema matching the input pattern.
+
+##### Parameters
+
+* consumer (VARCHAR(128)): A LIKE pattern match (using "%consumer%") of consumers to disable
+
+##### Example
+
+To disable all consumers:
+```SQL
+mysql> CALL sys.ps_setup_disable_consumers('');
++--------------------------+
+| summary                  |
++--------------------------+
+| Disabled 15 consumers    |
++--------------------------+
+1 row in set (0.02 sec)
+```
+
+To disable just the event_stage consumers:
+```SQL
+mysql> CALL sys.ps_setup_disable_consumers('stage');
++------------------------+
+| summary                |
++------------------------+
+| Disabled 3 consumers   |
++------------------------+
+1 row in set (0.00 sec)
+```
+
 #### ps_setup_disable_thread
 
 ##### Description
 
 Disable the given connection/thread in Performance Schema.
-
-Requires the SUPER privilege for "SET sql_log_bin = 0;".
 
 ##### Parameters
 
@@ -1465,8 +1748,6 @@ mysql> CALL sys.ps_setup_disable_thread(CONNECTION_ID());
 
 Enable all background thread instrumentation within Performance Schema.
 
-Requires the SUPER privilege for "SET sql_log_bin = 0;".
-
 ##### Parameters
 
 None.
@@ -1482,13 +1763,45 @@ mysql> CALL sys.ps_setup_enable_background_threads();
 1 row in set (0.00 sec)
 ```
 
+#### ps_setup_enable_consumers
+
+##### Description
+
+Enables consumers within Performance Schema matching the input pattern.
+
+##### Parameters
+
+* consumer (VARCHAR(128)): A LIKE pattern match (using "%consumer%") of consumers to enable
+
+##### Example
+
+To enable all consumers:
+```SQL
+mysql> CALL sys.ps_setup_enable_consumers('');
++-------------------------+
+| summary                 |
++-------------------------+
+| Enabled 10 consumers    |
++-------------------------+
+1 row in set (0.02 sec)
+```
+
+To enable just "waits" consumers:
+```SQL
+mysql> CALL sys.ps_setup_enable_consumers('waits');
++-----------------------+
+| summary               |
++-----------------------+
+| Enabled 3 consumers   |
++-----------------------+
+1 row in set (0.00 sec)
+```
+
 #### ps_setup_enable_instrument
 
 ##### Description
 
 Enables instruments within Performance Schema matching the input pattern.
-
-Requires the SUPER privilege for "SET sql_log_bin = 0;".
 
 ##### Parameters
 
@@ -1533,8 +1846,6 @@ mysql> CALL sys.ps_setup_enable_instrument('');
 ##### Description
 
 Enable the given connection/thread in Performance Schema.
-
-Requires the SUPER privilege for "SET sql_log_bin = 0;".
 
 ##### Parameters
 
@@ -1735,6 +2046,48 @@ Empty set (0.00 sec)
 Query OK, 0 rows affected (0.01 sec)
 ```
 
+#### ps_setup_show_disabled_consumers
+
+##### Description
+
+Shows all currently disabled consumers.
+
+##### Parameters
+
+None
+ 
+##### Example
+
+```SQL
+mysql> CALL sys.ps_setup_show_disabled_consumers();
+
++---------------------------+
+| disabled_consumers        |
++---------------------------+
+| events_statements_current |
+| global_instrumentation    |
+| thread_instrumentation    |
+| statements_digest         |
++---------------------------+
+4 rows in set (0.05 sec)
+```
+
+#### ps_setup_show_disabled_instruments
+
+##### Description
+
+Shows all currently disabled instruments.
+
+##### Parameters
+
+None
+			 
+##### Example
+
+```SQL
+mysql> CALL sys.ps_setup_show_disabled_instruments();
+```
+
 #### ps_setup_show_enabled
 
 ##### Description
@@ -1809,6 +2162,48 @@ mysql> CALL sys.ps_setup_show_enabled(TRUE, TRUE);
 Query OK, 0 rows affected (0.89 sec)
 ```
 
+#### ps_setup_show_enabled_consumers
+
+##### Description
+
+Shows all currently enabled consumers.
+
+##### Parameters
+
+None
+
+##### Example
+
+```SQL
+mysql> CALL sys.ps_setup_show_enabled_consumers();
+
++---------------------------+
+| enabled_consumers         |
++---------------------------+
+| events_statements_current |
+| global_instrumentation    |
+| thread_instrumentation    |
+| statements_digest         |
++---------------------------+
+4 rows in set (0.05 sec)
+```
+
+#### ps_setup_show_enabled_instruments
+
+##### Description
+
+Shows all currently enabled instruments.
+
+##### Parameters
+
+None
+
+##### Example
+
+```SQL
+mysql> CALL sys.ps_setup_show_enabled_instruments();
+```
+
 #### ps_statement_avg_latency_histogram
 
 ##### Description
@@ -1862,6 +2257,8 @@ When finding a statement of interest within the performance_schema.events_statem
 It will also attempt to generate an EXPLAIN for the longest running example of the digest during the interval.
 
 Note this may fail, as Performance Schema truncates long SQL_TEXT values (and hence the EXPLAIN will fail due to parse errors).
+
+Requires the SUPER privilege for "SET sql_log_bin = 0;".
 
 ##### Parameters
 
@@ -1954,6 +2351,8 @@ Dumps all data within Performance Schema for an instrumented thread, to create a
 
 Each resultset returned from the procedure should be used for a complete graph
 
+Requires the SUPER privilege for "SET sql_log_bin = 0;".
+
 ##### Parameters
 
 * in_thread_id (INT): The thread that you would like a stack trace for
@@ -2015,8 +2414,6 @@ mysql> CALL sys.ps_dump_thread_stack(25, CONCAT('/tmp/stack-', REPLACE(NOW(), ' 
 ##### Description
 
 Truncates all summary tables within Performance Schema, resetting all aggregated instrumentation as a snapshot.
-
-Requires the SUPER privilege for "SET sql_log_bin = 0;".
 
 ##### Parameters
 

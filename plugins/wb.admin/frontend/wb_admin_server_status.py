@@ -122,7 +122,7 @@ class ConnectionInfo(mforms.Box):
 
         self.info_table = mforms.newTable()
         self.info_table.set_column_count(2)
-        self.info_table.set_row_count(7)
+        self.info_table.set_row_count(8)
         self.info_table.set_column_spacing(18)
         self.info_table.set_row_spacing(5)
         self.vbox.add(self.info_table, True, True)
@@ -132,21 +132,23 @@ class ConnectionInfo(mforms.Box):
         stradd(self.info_table, 2, "Port:", info.get("port", "n/a"))
         stradd(self.info_table, 3, "Version:", "%s\n%s" % (info.get("version", "n/a"), info.get("version_comment", "")))
         stradd(self.info_table, 4, "Compiled For:", "%s   (%s)" % (info.get("version_compile_os", "n/a"), info.get("version_compile_machine", "n/a")))
-        
+
+        stradd(self.info_table, 5, "Configuration File:", ctrl_be.server_profile.config_file_path or "unknown")
+
         uptime = status.get("Uptime", None)
         if uptime:
             uptime = long(uptime)
-            stradd(self.info_table, 5, "Running Since:", "%s (%s)" % (time.ctime(ctrl_be.status_variables_time-uptime), format_duration(uptime, True)))
+            stradd(self.info_table, 6, "Running Since:", "%s (%s)" % (time.ctime(ctrl_be.status_variables_time-uptime), format_duration(uptime, True)))
         else:
-            stradd(self.info_table, 5, "Running Since:", "n/a")
-        
+            stradd(self.info_table, 6, "Running Since:", "n/a")
+
         box = mforms.newBox(True)
         refresh = mforms.newButton()
         refresh.set_text("Refresh")
         refresh.set_tooltip("Refresh server status information")
         refresh.add_clicked_callback(self.owner.refresh_status)
         box.add(refresh, False, False)
-        self.info_table.add(box, 1, 2, 6, 7, 0)
+        self.info_table.add(box, 1, 2, 7, 8, 0)
 
         version = ctrl_be.target_version
         if version and info:
@@ -355,6 +357,9 @@ class WbAdminServerStatus(mforms.Box):
 
         semi_sync_master = tristate(info.get("rpl_semi_sync_master_enabled"))
         semi_sync_slave = tristate(info.get("rpl_semi_sync_slave_enabled"))
+        semi_sync_status = (semi_sync_master or semi_sync_slave, "(%s)"% ", ".join([x for x in [semi_sync_master and "master", semi_sync_slave and "slave"] if x]))
+        memcached_status = True if plugins.has_key('daemon_memcached') else None
+        
         if not repl:
             if semi_sync_master:
                 semi_sync_master = False
@@ -367,8 +372,8 @@ class WbAdminServerStatus(mforms.Box):
         self.add_info_section_2("Available Server Features",
                               [("Performance Schema:", lambda info, plugins: tristate(info.get("performance_schema"))),
                                ("Thread Pool:", lambda info, plugins: tristate(info.get("thread_handling"), "loaded-dynamically")),
-                               ("Memcached Plugin:", lambda info, plugins: tristate(info.get("daemon_memcached_option"))),
-                               ("Semisync Replication Plugin:", (semi_sync_master or semi_sync_slave, "(%s)"% ", ".join([x for x in [semi_sync_master and "master", semi_sync_slave and "slave"] if x]))),
+                               ("Memcached Plugin:", lambda info, plugins: memcached_status),
+                               ("Semisync Replication Plugin:", lambda info, plugins: semi_sync_status),
                                ("SSL Availability:", lambda info, plugins: info.get("have_openssl") == "YES" or info.get("have_ssl") == "YES"),
                                ("Windows Authentication:", lambda info, plugins: plugins.has_key("authentication_windows")) if self.server_profile.target_is_windows else ("PAM Authentication:", lambda info, plugins: plugins.has_key("authentication_pam")),
                                ("Password Validation:", lambda info, plugins: (tristate(info.get("validate_password_policy")), "(Policy: %s)" % info.get("validate_password_policy"))),

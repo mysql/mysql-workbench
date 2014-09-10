@@ -39,9 +39,11 @@ FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string
   : Form(0)
 {
   set_name("file_charset_dialog");
+  set_title("Open SQL File");
   _charset = manage(new Selector(SelectorCombobox));
   _ok = manage(new Button());
   _cancel = manage(new Button());
+  _run = manage(new Button());
 
   Box *vbox = manage(new Box(false));
   set_content(vbox);
@@ -65,9 +67,13 @@ FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string
   vbox->add(bbox, false, true);
   bbox->set_spacing(12);
 
+  _run->signal_clicked()->connect(boost::bind(&FileCharsetDialog::run_clicked, this));
+
   _ok->set_text(_("OK"));
   _cancel->set_text(_("Cancel"));
+  _run->set_text(_("Run SQL Script..."));
   Utilities::add_end_ok_cancel_buttons(bbox, _ok, _cancel);
+  bbox->add(_run, false, true);
 
   center();
 }
@@ -85,6 +91,7 @@ std::string FileCharsetDialog::run(grt::GRT *grt,
   }
   _charset->add_items(chlist);
 
+  _run_clicked = false;
   _charset->set_value(default_encoding);
   if (run_modal(_ok, _cancel))
     return _charset->get_string_value();
@@ -92,7 +99,14 @@ std::string FileCharsetDialog::run(grt::GRT *grt,
 }
 
 
-bool FileCharsetDialog::ensure_filedata_utf8(grt::GRT *grt,
+void FileCharsetDialog::run_clicked()
+{
+  _run_clicked = true;
+  end_modal(false);
+}
+
+
+FileCharsetDialog::Result FileCharsetDialog::ensure_filedata_utf8(grt::GRT *grt,
                                              const char *data, size_t length,
                                              const std::string &encoding,                                             
                                              const std::string &filename,
@@ -141,14 +155,20 @@ retry:
     if (encoding.empty() || retrying)
     {
       FileCharsetDialog dlg(_("Unknown File Encoding"), 
-                            strfmt("The file '%s'\n"
-                                   "has an unknown character set encoding.\n"
+                            strfmt("The file '%s' is not UTF-8 encoded.\n\n"
                                    "Please select the encoding of the file and press OK for Workbench to convert and open it.\n"
                                    "Note that as Workbench works with UTF-8 text, if you save back to the original file,\n"
-                                   "its contents will be replaced with the converted data.", filename.c_str()));
+                                   "its contents will be replaced with the converted data.\n\n"
+                                   "WARNING: If your file contains binary data, it may become corrupted.\n\n"
+                                   "Click \"Run SQL Script...\" to execute the file without opening for editing.",
+                                   filename.c_str()));
       charset = dlg.run(grt, default_encoding);
       if (charset.empty())
-        return false;
+      {
+        if (dlg._run_clicked)
+          return RunInstead;
+        return Cancelled;
+      }
     }
     else
     {
@@ -173,7 +193,7 @@ retry:
       if (res == ResultOk)
         goto retry;
 
-      return false;
+      return Cancelled;
     }
     else if (bytes_read < length)
     {
@@ -198,7 +218,7 @@ retry:
       {
         g_free(converted);
         if (res == ResultCancel)
-          return false;
+          return Cancelled;
         else
           goto retry;
       }
@@ -226,6 +246,6 @@ retry:
     utf8_data_length = 0;
   }
 
-  return true;
+  return Accepted;
 }
 

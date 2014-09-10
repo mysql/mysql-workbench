@@ -69,6 +69,8 @@ class UtilitiesImpl
   static void set_thread_name(const std::string &name);
   static void beep();
 
+  static double get_text_width(const std::string &text, const std::string &font_desc);
+  
 public:
   static void init();
    

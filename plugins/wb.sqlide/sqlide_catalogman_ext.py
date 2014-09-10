@@ -374,8 +374,8 @@ class TableManager(ObjectManager):
     show_query = "show table status from `%(schema)s` where Comment <> 'VIEW'"
     name_column = 0
     columns = [("Name", IconStringColumnType, "Name", 180, None),
-               ("Engine", StringColumnType, "Engine", 80, None),
-               ("Version", StringColumnType, "Version", 100, None),
+               ("Engine", StringColumnType, "Engine", 60, None),
+               ("Version", StringColumnType, "Version", 50, None),
                ("Row_format", StringColumnType, "Row Format", 100, None),
                ("Rows", LongIntegerColumnType, "Rows", 80, None),
                ("Avg_row_length", LongIntegerColumnType, "Avg Row Length", 100, None),
@@ -384,9 +384,9 @@ class TableManager(ObjectManager):
                ({'field' : "Index_length", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Index Length", 100, None),
                ({'field' : "Data_free", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Data Free", 80, None),
                ("Auto_increment", LongIntegerColumnType, "Auto Increment", 80, None),
-               ("Create_time", StringColumnType, "Create Time", 100, None),
-               ("Update_time", StringColumnType, "Update Time", 100, None),
-               ("Check_time", StringColumnType, "Check Time", 100, None),
+               ("Create_time", StringColumnType, "Create Time", 150, None),
+               ("Update_time", StringColumnType, "Update Time", 150, None),
+               ("Check_time", StringColumnType, "Check Time", 150, None),
                ("Collation", StringColumnType, "Collation", 100, None),
                ("Checksum", StringColumnType, "Checksum", 80, None),
                ("Comment", StringColumnType, "Comment", 500, None)

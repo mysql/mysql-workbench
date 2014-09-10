@@ -4,7 +4,7 @@
  *
  * Created by Mike Lischke.
  *
- * Copyright 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011, 2013, Oracle and/or its affiliates. All rights reserved.
  * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
@@ -80,7 +80,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (void) setFrame: (NSRect) frame
 {
   [super setFrame: frame];
-  
+
   [[self window] invalidateCursorRectsForView: self];
 }
 
@@ -131,7 +131,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (void) resetCursorRects
 {
   [super resetCursorRects];
-  
+
   int x = 0;
   NSRect marginRect = [self bounds];
   size_t co = [currentCursors count];
@@ -160,18 +160,18 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (NSView*) initWithFrame: (NSRect) frame
 {
   self = [super initWithFrame: frame];
-  
+
   if (self != nil)
   {
     // Some initialization for our view.
     mCurrentCursor = [[NSCursor arrowCursor] retain];
     mCurrentTrackingRect = 0;
     mMarkedTextRange = NSMakeRange(NSNotFound, 0);
-    
+
     [self registerForDraggedTypes: [NSArray arrayWithObjects:
                                    NSStringPboardType, ScintillaRecPboardType, NSFilenamesPboardType, nil]];
   }
-  
+
   return self;
 }
 
@@ -208,6 +208,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
   // Trigger recreation of the cursor rectangle(s).
   [[self window] invalidateCursorRectsForView: self];
+  [mOwner updateMarginCursors];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,10 +219,43 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (void) resetCursorRects
 {
   [super resetCursorRects];
-  
+
   // We only have one cursor rect: our bounds.
   [self addCursorRect: [self bounds] cursor: mCurrentCursor];
   [mCurrentCursor setOnMouseEntered: YES];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Called before repainting.
+ */
+- (void) viewWillDraw
+{
+  const NSRect *rects;
+  NSInteger nRects = 0;
+  [self getRectsBeingDrawn:&rects count:&nRects];
+  if (nRects > 0) {
+    NSRect rectUnion = rects[0];
+    for (int i=0;i<nRects;i++) {
+      rectUnion = NSUnionRect(rectUnion, rects[i]);
+    }
+    mOwner.backend->WillDraw(rectUnion);
+  }
+  [super viewWillDraw];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Called before responsive scrolling overdraw.
+ */
+- (void) prepareContentInRect: (NSRect) rect
+{
+  mOwner.backend->WillDraw(rect);
+#if MAC_OS_X_VERSION_MAX_ALLOWED > 1080
+  [super prepareContentInRect: rect];
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,7 +266,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (void) drawRect: (NSRect) rect
 {
   CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-  
+
   if (!mOwner.backend->Draw(rect, context)) {
     dispatch_async(dispatch_get_main_queue(), ^{
       [self setNeedsDisplay:YES];
@@ -244,7 +278,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 /**
  * Windows uses a client coordinate system where the upper left corner is the origin in a window
- * (and so does Scintilla). We have to adjust for that. However by returning YES here, we are 
+ * (and so does Scintilla). We have to adjust for that. However by returning YES here, we are
  * already done with that.
  * Note that because of returning YES here most coordinates we use now (e.g. for painting,
  * invalidating rectangles etc.) are given with +Y pointing down!
@@ -287,16 +321,12 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 /**
  * Called by the framework if it wants to show a context menu for the editor.
  */
-- (NSMenu *)menuForEvent: (NSEvent *)theEvent
+- (NSMenu*) menuForEvent: (NSEvent*) theEvent
 {
-  NSMenu *result;
-  if ([mOwner respondsToSelector: @selector(menuForEvent:)])
-    result = [mOwner menuForEvent: theEvent];
-
-  if (result == nil)
-    result = mOwner.backend->CreateContextMenu(theEvent);
-
-  return result;
+  if (![mOwner respondsToSelector: @selector(menuForEvent:)])
+    return mOwner.backend->CreateContextMenu(theEvent);
+  else
+    return [mOwner menuForEvent: theEvent];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -386,20 +416,14 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 		// Its replacing a non-existent position so do nothing.
 		return;
 
-	if (replacementRange.length > 0)
-	{
-		[ScintillaView directCall: mOwner
-				  message: SCI_DELETERANGE
-				   wParam: replacementRange.location
-				   lParam: replacementRange.length];
-	}
+	[mOwner deleteRange: replacementRange];
 
 	NSString* newText = @"";
 	if ([aString isKindOfClass:[NSString class]])
 		newText = (NSString*) aString;
 	else if ([aString isKindOfClass:[NSAttributedString class]])
 		newText = (NSString*) [aString string];
-	
+
 	mOwner.backend->InsertText(newText);
 }
 
@@ -438,7 +462,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   else
     if ([aString isKindOfClass:[NSAttributedString class]])
       newText = (NSString*) [aString string];
-  
+
   long currentPosition = [mOwner getGeneralProperty: SCI_GETCURRENTPOS parameter: 0];
 
   // Replace marked text if there is one.
@@ -446,7 +470,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   {
     [mOwner setGeneralProperty: SCI_SETSELECTIONSTART
                          value: mMarkedTextRange.location];
-    [mOwner setGeneralProperty: SCI_SETSELECTIONEND 
+    [mOwner setGeneralProperty: SCI_SETSELECTIONEND
                          value: mMarkedTextRange.location + mMarkedTextRange.length];
     currentPosition = mMarkedTextRange.location;
   }
@@ -462,13 +486,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     mOwner.backend->SelectOnlyMainSelection();
   }
 
-  if (replacementRange.length > 0)
-  {
-    [ScintillaView directCall: mOwner
-		      message: SCI_DELETERANGE
-		       wParam: replacementRange.location
-		       lParam: replacementRange.length];
-  }
+  [mOwner deleteRange: replacementRange];
 
   // Note: Scintilla internally works almost always with bytes instead chars, so we need to take
   //       this into account when determining selection ranges and such.
@@ -477,7 +495,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
   mMarkedTextRange.location = currentPosition;
   mMarkedTextRange.length = lengthInserted;
-    
+
   if (lengthInserted > 0)
   {
     // Mark the just inserted text. Keep the marked range for later reset.
@@ -519,7 +537,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
                          value: mMarkedTextRange.length];
     mMarkedTextRange = NSMakeRange(NSNotFound, 0);
 
-    // Reenable undo action collection, after we are done with text composition.    
+    // Reenable undo action collection, after we are done with text composition.
     if (undoCollectionWasActive)
       [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: 1];
   }
@@ -535,14 +553,11 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   if (mMarkedTextRange.length > 0)
   {
     // We have already marked text. Replace that.
-    [mOwner setGeneralProperty: SCI_SETSELECTIONSTART
-                     value: mMarkedTextRange.location];
-    [mOwner setGeneralProperty: SCI_SETSELECTIONEND 
-                     value: mMarkedTextRange.location + mMarkedTextRange.length];
-    mOwner.backend->InsertText(@"");
+    [mOwner deleteRange: mMarkedTextRange];
+
     mMarkedTextRange = NSMakeRange(NSNotFound, 0);
 
-    // Reenable undo action collection, after we are done with text composition.    
+    // Reenable undo action collection, after we are done with text composition.
     if (undoCollectionWasActive)
       [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: 1];
   }
@@ -574,7 +589,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) mouseDown: (NSEvent *) theEvent  
+- (void) mouseDown: (NSEvent *) theEvent
 {
   mOwner.backend->MouseDown(theEvent);
 }
@@ -618,7 +633,11 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 /**
  * Mouse wheel with command key magnifies text.
+ * Enabling this code causes visual garbage to appear when scrolling
+ * horizontally on OS X 10.9 with a retina display.
+ * Pinch gestures and key commands can be used for magnification.
  */
+#ifdef SCROLL_WHEEL_MAGNIFICATION
 - (void) scrollWheel: (NSEvent *) theEvent
 {
   if (([theEvent modifierFlags] & NSCommandKeyMask) != 0) {
@@ -627,13 +646,14 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     [super scrollWheel:theEvent];
   }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------------
 
 /**
  * Ensure scrolling is aligned to whole lines instead of starting part-way through a line
  */
-- (NSRect)adjustScroll: (NSRect)proposedVisibleRect
+- (NSRect)adjustScroll:(NSRect)proposedVisibleRect
 {
   NSRect rc = proposedVisibleRect;
   // Snap to lines
@@ -672,16 +692,10 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Called when an external drag operation enters the view. 
+ * Called when an external drag operation enters the view.
  */
-- (NSDragOperation)draggingEntered: (id <NSDraggingInfo>) sender
+- (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender
 {
-  if ([super respondsToSelector: @selector(draggingEntered:)])
-  {
-    NSDragOperation result = [super draggingEntered: sender];
-    if (result != NSDragOperationNone)
-      return result;
-  }
   return mOwner.backend->DraggingEntered(sender);
 }
 
@@ -690,14 +704,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 /**
  * Called frequently during an external drag operation if we are the target.
  */
-- (NSDragOperation)draggingUpdated: (id <NSDraggingInfo>) sender
+- (NSDragOperation) draggingUpdated: (id <NSDraggingInfo>) sender
 {
-  if ([super respondsToSelector: @selector(draggingUpdated:)])
-  {
-    NSDragOperation result = [super draggingUpdated: sender];
-    if (result != NSDragOperationNone)
-      return result;
-  }
   return mOwner.backend->DraggingUpdated(sender);
 }
 
@@ -706,34 +714,23 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 /**
  * Drag image left the view. Clean up if necessary.
  */
-- (void)draggingExited: (id <NSDraggingInfo>) sender
+- (void) draggingExited: (id <NSDraggingInfo>) sender
 {
-  if ([super respondsToSelector: @selector(draggingExited:)])
-    [super draggingExited: sender];
   mOwner.backend->DraggingExited(sender);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL)prepareForDragOperation: (id <NSDraggingInfo>) sender
+- (BOOL) prepareForDragOperation: (id <NSDraggingInfo>) sender
 {
-  if ([super respondsToSelector: @selector(prepareForDragOperation:)])
-  {
-    if (![super prepareForDragOperation: sender])
-      return NO;
-  }
+#pragma unused(sender)
   return YES;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL)performDragOperation: (id <NSDraggingInfo>) sender
+- (BOOL) performDragOperation: (id <NSDraggingInfo>) sender
 {
-  if ([super respondsToSelector: @selector(performDragOperation:)])
-  {
-    if ([super performDragOperation: sender])
-      return YES;
-  }
   return mOwner.backend->PerformDragOperation(sender);
 }
 
@@ -742,7 +739,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 /**
  * Returns operations we allow as drag source.
  */
-- (NSDragOperation)draggingSourceOperationMaskForLocal: (BOOL) flag
+- (NSDragOperation) draggingSourceOperationMaskForLocal: (BOOL) flag
 {
   return NSDragOperationCopy | NSDragOperationMove | NSDragOperationDelete;
 }
@@ -752,10 +749,11 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 /**
  * Finished a drag: may need to delete selection.
  */
-- (void)draggedImage: (NSImage *)image endedAt: (NSPoint)screenPoint operation: (NSDragOperation)operation
-{
-  if (operation == NSDragOperationDelete)
-    mOwner.backend->WndProc(SCI_CLEAR, 0, 0);
+
+- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)screenPoint operation:(NSDragOperation)operation {
+    if (operation == NSDragOperationDelete) {
+        mOwner.backend->WndProc(SCI_CLEAR, 0, 0);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -868,6 +866,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 @implementation ScintillaView
 
 @synthesize backend = mBackend;
+@synthesize delegate = mDelegate;
 @synthesize scrollView;
 
 /**
@@ -886,11 +885,11 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   if (self == [ScintillaView class])
   {
     NSBundle* bundle = [NSBundle bundleForClass: [ScintillaView class]];
-    
+
     NSString* path = [bundle pathForResource: @"mac_cursor_busy" ofType: @"tiff" inDirectory: nil];
     NSImage* image = [[[NSImage alloc] initWithContentsOfFile: path] autorelease];
     waitCursor = [[NSCursor alloc] initWithImage: image hotSpot: NSMakePoint(2, 2)];
-    
+
     path = [bundle pathForResource: @"mac_cursor_flipped" ofType: @"tiff" inDirectory: nil];
     image = [[[NSImage alloc] initWithContentsOfFile: path] autorelease];
     reverseArrowCursor = [[NSCursor alloc] initWithImage: image hotSpot: NSMakePoint(12, 2)];
@@ -922,7 +921,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     long zoomFactor = [self getGeneralProperty: SCI_GETZOOM] + zoomDelta;
     [self setGeneralProperty: SCI_SETZOOM parameter: zoomFactor value:0];
     zoomDelta = 0.0;
-  }     
+  }
 #endif
 }
 
@@ -999,17 +998,35 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  * A delegate can be set to receive all notifications. If set no handling takes place here, except
  * for action pertaining to internal stuff (like the info bar).
  */
-- (void)notification: (Scintilla::SCNotification*)scn
+- (void) notification: (Scintilla::SCNotification*)scn
 {
   // Parent notification. Details are passed as SCNotification structure.
+
+  if (mDelegate != nil)
+  {
+    [mDelegate notification: scn];
+    if (scn->nmhdr.code != SCN_ZOOM && scn->nmhdr.code != SCN_UPDATEUI)
+      return;
+  }
+
   switch (scn->nmhdr.code)
   {
+    case SCN_MARGINCLICK:
+    {
+      if (scn->margin == 2)
+      {
+	// Click on the folder margin. Toggle the current line if possible.
+	long line = [self getGeneralProperty: SCI_LINEFROMPOSITION parameter: scn->position];
+	[self setGeneralProperty: SCI_TOGGLEFOLD value: line];
+      }
+      break;
+    };
     case SCN_MODIFIED:
     {
       // Decide depending on the modification type what to do.
       // There can be more than one modification carried by one notification.
       if (scn->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
-        [self sendNotification: NSTextDidChangeNotification];
+	[self sendNotification: NSTextDidChangeNotification];
       break;
     }
     case SCN_ZOOM:
@@ -1030,7 +1047,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
       [self sendNotification: SCIUpdateUINotification];
       if (scn->updated & (SC_UPDATE_SELECTION | SC_UPDATE_CONTENT))
       {
-        [self sendNotification: NSTextViewDidChangeSelectionNotification];
+	[self sendNotification: NSTextViewDidChangeSelectionNotification];
       }
       break;
     }
@@ -1076,26 +1093,26 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     [scrollView setHasHorizontalRuler:NO];
     [scrollView setHasVerticalRuler:YES];
     [scrollView setRulersVisible:YES];
-    
+
     mBackend = new ScintillaCocoa(mContent, marginView);
 
     // Establish a connection from the back end to this container so we can handle situations
     // which require our attention.
     mBackend->SetDelegate(self);
-    
-    // Setup a special indicator used in the editor to provide visual feedback for 
+
+    // Setup a special indicator used in the editor to provide visual feedback for
     // input composition, depending on language, keyboard etc.
     [self setColorProperty: SCI_INDICSETFORE parameter: INPUT_INDICATOR fromHTML: @"#FF0000"];
     [self setGeneralProperty: SCI_INDICSETUNDER parameter: INPUT_INDICATOR value: 1];
     [self setGeneralProperty: SCI_INDICSETSTYLE parameter: INPUT_INDICATOR value: INDIC_PLAIN];
     [self setGeneralProperty: SCI_INDICSETALPHA parameter: INPUT_INDICATOR value: 100];
-      
+
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self
                selector:@selector(applicationDidResignActive:)
                    name:NSApplicationDidResignActiveNotification
                  object:nil];
-      
+
     [center addObserver:self
                selector:@selector(applicationDidBecomeActive:)
                    name:NSApplicationDidBecomeActiveNotification
@@ -1115,11 +1132,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (void) dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+  delete mBackend;
   [marginView release];
   [super dealloc];
-
-  // Remove our backend as last step. Could be some event is triggered that needs it still.
-  delete mBackend;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1141,9 +1156,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (void) viewDidMoveToWindow
 {
   [super viewDidMoveToWindow];
-  
+
   [self positionSubViews];
-  
+
   // Enable also mouse move events for our window (and so this view).
   [[self window] setAcceptsMouseMovedEvents: YES];
 }
@@ -1235,7 +1250,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (NSString*) selectedString
 {
   NSString *result = @"";
-  
+
   const long length = mBackend->WndProc(SCI_GETSELTEXT, 0, 0);
   if (length > 0)
   {
@@ -1243,15 +1258,28 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     try
     {
       mBackend->WndProc(SCI_GETSELTEXT, length + 1, (sptr_t) &buffer[0]);
-      
+
       result = [NSString stringWithUTF8String: buffer.c_str()];
     }
     catch (...)
     {
     }
   }
-  
+
   return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Delete a range from the document.
+ */
+- (void) deleteRange: (NSRange) aRange
+{
+  if (aRange.length > 0)
+  {
+    [self message: SCI_DELETERANGE wParam: aRange.location lParam: aRange.length];
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1263,7 +1291,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (NSString*) string
 {
   NSString *result = @"";
-  
+
   const long length = mBackend->WndProc(SCI_GETLENGTH, 0, 0);
   if (length > 0)
   {
@@ -1271,14 +1299,14 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     try
     {
       mBackend->WndProc(SCI_GETTEXT, length + 1, (sptr_t) &buffer[0]);
-      
+
       result = [NSString stringWithUTF8String: buffer.c_str()];
     }
     catch (...)
     {
     }
   }
-  
+
   return result;
 }
 
@@ -1324,6 +1352,12 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 //--------------------------------------------------------------------------------------------------
 
+- (void) updateMarginCursors {
+  [[self window] invalidateCursorRectsForView: marginView];
+}
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Direct call into the backend to allow uninterpreted access to it. The values to be passed in and
  * the result heavily depend on the message that is used for the call. Refer to the Scintilla
@@ -1332,7 +1366,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 + (sptr_t) directCall: (ScintillaView*) sender message: (unsigned int) message wParam: (uptr_t) wParam
                lParam: (sptr_t) lParam
 {
-  return ScintillaCocoa::DirectFunction(sender->mBackend, message, wParam, lParam);
+  return ScintillaCocoa::DirectFunction(
+    reinterpret_cast<sptr_t>(sender->mBackend), message, wParam, lParam);
 }
 
 - (sptr_t) message: (unsigned int) message wParam: (uptr_t) wParam lParam: (sptr_t) lParam
@@ -1419,7 +1454,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (long) getGeneralProperty: (int) property ref: (const void*) ref
 {
-  return mBackend->WndProc(property, 0, (sptr_t) ref);  
+  return mBackend->WndProc(property, 0, (sptr_t) ref);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1434,7 +1469,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   long red = [value redComponent] * 255;
   long green = [value greenComponent] * 255;
   long blue = [value blueComponent] * 255;
-  
+
   long color = (blue << 16) + (green << 8) + red;
   mBackend->WndProc(property, parameter, color);
 }
@@ -1451,7 +1486,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   {
     bool longVersion = [fromHTML length] > 6;
     int index = 1;
-    
+
     char value[3] = {0, 0, 0};
     value[0] = [fromHTML characterAtIndex: index++];
     if (longVersion)
@@ -1467,7 +1502,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
       value[1] = [fromHTML characterAtIndex: index++];
     else
       value[1] = value[0];
-    
+
     unsigned rawGreen;
     [[NSScanner scannerWithString: [NSString stringWithUTF8String: value]] scanHexInt: &rawGreen];
 
@@ -1476,7 +1511,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
       value[1] = [fromHTML characterAtIndex: index++];
     else
       value[1] = value[0];
-    
+
     unsigned rawBlue;
     [[NSScanner scannerWithString: [NSString stringWithUTF8String: value]] scanHexInt: &rawBlue];
 
@@ -1590,7 +1625,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   if (mInfoBar != newBar)
   {
     [mInfoBar removeFromSuperview];
-    
+
     mInfoBar = newBar;
     mInfoBarAtTop = top;
     if (mInfoBar != nil)
@@ -1598,7 +1633,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
       [self addSubview: mInfoBar];
       [mInfoBar setCallback: self];
     }
-    
+
     [self positionSubViews];
   }
 }
@@ -1669,7 +1704,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
   int selectionStart = [self getGeneralProperty: SCI_GETSELECTIONSTART parameter: 0];
   int selectionEnd = [self getGeneralProperty: SCI_GETSELECTIONEND parameter: 0];
-  
+
   // Sets the start point for the coming search to the beginning of the current selection.
   // For forward searches we have therefore to set the selection start to the current selection end
   // for proper incremental search. This does not harm as we either get a new selection if something
@@ -1769,7 +1804,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   const char* replacement = [newText UTF8String];
   int targetLength = strlen(replacement);  // Length in bytes.
   sptr_t result;
-  
+
   int replaceCount = 0;
   if (doAll)
   {
@@ -1815,7 +1850,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     [self setGeneralProperty: SCI_SETSELECTIONEND value: [self getGeneralProperty: SCI_GETTARGETEND]];
     }
   }
-  
+
   return replaceCount;
 }
 

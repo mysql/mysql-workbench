@@ -122,7 +122,7 @@ void GRTTaskBase::cancel()
 
 void GRTTaskBase::retain()
 {
-  base::atomic_int_inc(&_refcount);
+  g_atomic_int_inc(&_refcount);
 }
 
 
@@ -130,7 +130,7 @@ void GRTTaskBase::release()
 {
   bool do_delete = false;
 
-  if (base::atomic_int_dec_and_test_if_zero(&_refcount))
+  if (g_atomic_int_dec_and_test(&_refcount))
     do_delete = true; // delete can cause a side-effect with recursion, which would deadlock
 
   if (do_delete)
@@ -402,6 +402,7 @@ void GRTDispatcher::shutdown()
     log_debug2("GRTDispatcher:Main thread waiting for worker to finish\n");
     _w_runing.wait();
     log_debug2("GRTDispatcher:Main thread worker finished\n");
+    task->release();
   }
 
   bec::GRTManager *grtm= bec::GRTManager::get_instance_for(_grt);
@@ -445,7 +446,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
     if (!task)
       continue;
 
-    base::atomic_int_inc(&self->_busy);
+    g_atomic_int_inc(&self->_busy);
     log_debug3("GRT dispatcher, running task %s", task->name().c_str());
 
     if (dynamic_cast<NULLTask*>(task) != 0) // a NULL task terminates the thread
@@ -453,7 +454,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
       DPRINT("worker: termination task received, closing...");
       task->finished(grt::ValueRef());
       task->release();
-      base::atomic_int_dec_and_test_if_zero(&self->_busy);
+      g_atomic_int_dec_and_test(&self->_busy);
       break;
     }
 
@@ -461,7 +462,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
     {
       DPRINT("%s", std::string("worker: task '"+task->name()+"' was cancelled.").c_str());
       task->release();
-      base::atomic_int_dec_and_test_if_zero(&self->_busy);
+      g_atomic_int_dec_and_test(&self->_busy);
       continue;
     }
     
@@ -477,7 +478,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
     {
       log_error("%s\n", std::string(("worker: task '"+task->name()+"' has failed with error:.")+task->get_error()->what()).c_str());
       task->release();
-      base::atomic_int_dec_and_test_if_zero(&self->_busy);
+      g_atomic_int_dec_and_test(&self->_busy);
       continue;
     }
 
@@ -488,7 +489,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
     // cleanup
     task->release();
 
-    base::atomic_int_dec_and_test_if_zero(&self->_busy);
+    g_atomic_int_dec_and_test(&self->_busy);
     DPRINT("worker: task finished.");
   }
 
@@ -508,13 +509,13 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
 void GRTDispatcher::execute_now(GRTTaskBase *task)
 {
-  base::atomic_int_inc(&_busy);
+  g_atomic_int_inc(&_busy);
   prepare_task(task);
   
   execute_task(task);
   
   task->release();
-  base::atomic_int_dec_and_test_if_zero(&_busy);
+  g_atomic_int_dec_and_test(&_busy);
 }
 
 
@@ -528,6 +529,7 @@ void GRTDispatcher::add_task(GRTTaskBase *task)
   }
   else
   {
+    task->retain();
     g_async_queue_push(_task_queue, task);
   }
 }
@@ -541,7 +543,7 @@ void GRTDispatcher::cancel_task(GRTTaskBase *task)
 
 bool GRTDispatcher::get_busy()
 {
-  return (_task_queue && g_async_queue_length(_task_queue) > 0) || base::atomic_int_get(&_busy);
+  return (_task_queue && g_async_queue_length(_task_queue) > 0) || g_atomic_int_get(&_busy);
 }
 
 
@@ -799,8 +801,8 @@ void GRTDispatcher::execute_async_function(const std::string &name,
 {
   GRTSimpleTask *task= new GRTSimpleTask(name, this, function);
 
-  task->retain();
-
   add_task(task);
+
+  task->release();
 }
 

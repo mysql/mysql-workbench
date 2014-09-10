@@ -131,6 +131,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <BrowseInformation>false</BrowseInformation>
+      <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -150,6 +151,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <BrowseInformation>false</BrowseInformation>
+      <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -172,6 +174,7 @@
       <AdditionalIncludeDirectories>src;..\base;..\..\generated;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\..\mysql-win-res\include\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_LUA_MODULES;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -193,6 +196,7 @@
       <AdditionalIncludeDirectories>src;..\base;..\..\generated;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\..\mysql-win-res\include\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_LUA_MODULES;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -214,6 +218,7 @@
       <AdditionalIncludeDirectories>src;..\base;..\..\generated;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\..\mysql-win-res\include\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_LUA_MODULES;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -235,6 +240,7 @@
       <AdditionalIncludeDirectories>src;..\base;..\..\generated;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\python;$(SolutionDir)\..\..\mysql-win-res\include\python;$(SolutionDir)\..\mysql-win-res\include\lua;$(SolutionDir)\..\..\mysql-win-res\include\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_LUA_MODULES;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

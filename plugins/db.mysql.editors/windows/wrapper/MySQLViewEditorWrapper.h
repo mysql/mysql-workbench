@@ -20,11 +20,6 @@
 #pragma once
 
 #include "mysql_view_editor.h"
-#include "GrtTemplates.h"
-#include "grtdb/db_object_helpers.h"
-
-using namespace System;
-using namespace System::Collections::Generic;
 
 namespace MySQL {
 namespace Grt {
@@ -32,24 +27,11 @@ namespace Db {
 
 public ref class MySQLViewEditorWrapper : public ViewEditorWrapper
 {
-protected:
-  MySQLViewEditorWrapper(::MySQLViewEditorBE *inn)
-    : ViewEditorWrapper(inn)
-  {}
-
 public:
-  MySQLViewEditorWrapper::MySQLViewEditorWrapper(MySQL::Grt::GrtManager^ grtm, MySQL::Grt::GrtValue^ arglist)
-  : ViewEditorWrapper(
-      new ::MySQLViewEditorBE(grtm->get_unmanaged_object(), 
-      db_mysql_ViewRef::cast_from(grt::BaseListRef::cast_from(arglist->get_unmanaged_object()).get(0))
-        )
-      )
-  {
-  }
+  MySQLViewEditorWrapper(MySQL::Grt::GrtManager ^grtm, MySQL::Grt::GrtValue ^arglist);
+  ~MySQLViewEditorWrapper();
 
-  ::MySQLViewEditorBE *get_unmanaged_object()
-  { return static_cast<::MySQLViewEditorBE *>(inner); }
-
+  MySQLViewEditorBE *get_unmanaged_object();
   void load_view_sql();
   void commit_changes();
 

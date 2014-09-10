@@ -392,7 +392,7 @@ class WbAdminConfigFileUI(mforms.Box):
         sys_config_path = self.server_profile.config_file_path
         if sys_config_path is None:
             sys_config_path = ""
-        self.file_name_ctrl.set_text(sys_config_path)
+        self.file_name_ctrl.set_text(sys_config_path or "not configured")
         self.section_ctrl.add_changed_callback(self.clear_and_load)
         try:
             self.myopts = self.cfg_be.get_possible_options()

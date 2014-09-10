@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,14 +52,14 @@ protected:
   boost::shared_ptr<sqlite::connection> data_swap_db(const Recordset::Ref &recordset);
 
 public:
-  void apply_changes(Recordset::Ptr recordset);
+  void apply_changes(Recordset::Ptr recordset, bool skip_commit);
   void serialize(Recordset::Ptr recordset);
   void unserialize(Recordset::Ptr recordset);
   void fetch_blob_value(Recordset::Ptr recordset, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
 protected:
   virtual void fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
 protected:
-  virtual void do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db) = 0;
+  virtual void do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commit) = 0;
   virtual void do_serialize(const Recordset *recordset, sqlite::connection *data_swap_db) = 0;
   virtual void do_unserialize(Recordset *recordset, sqlite::connection *data_swap_db) = 0;
   virtual void do_fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value) = 0;

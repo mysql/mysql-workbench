@@ -72,6 +72,7 @@
     </Compile>
     <Compile Include="GrtListModel.cs" />
     <Compile Include="GrtListNode.cs" />
+    <Compile Include="GrtToolTipProvider.cs" />
     <Compile Include="GrtTreeModel.cs" />
     <Compile Include="GrtTreeNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

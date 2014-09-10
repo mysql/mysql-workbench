@@ -507,8 +507,8 @@ static bool validate_paste(wb::WBContextUI *wbui)
 
 static bool validate_select_all(wb::WBContextUI *wbui)
 {
-  if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(isEditable)])
-    return [(id)[[NSApp keyWindow] firstResponder] isEditable];
+  if ([[[NSApp keyWindow] firstResponder] respondsToSelector: @selector(isSelectable)])
+    return [(id)[[NSApp keyWindow] firstResponder] isSelectable];
 
   return (wbui->get_active_form());
 }
@@ -972,7 +972,7 @@ static NSString *applicationSupportFolder()
   _options->basedir = [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation];
   _options->struct_search_path = _options->basedir + "/grt";
   _options->plugin_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]);
-  _options->module_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]);
+  _options->module_search_path = std::string([[[NSBundle mainBundle] builtInPlugInsPath] fileSystemRepresentation]) + ":" + std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/plugins";
   _options->library_search_path = std::string([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]) + "/libraries";
   _options->cdbc_driver_search_path = std::string([[[NSBundle mainBundle] privateFrameworksPath] fileSystemRepresentation]);
   _options->user_data_dir= [[applicationSupportFolder() stringByAppendingString: @"/MySQL/Workbench"] fileSystemRepresentation];

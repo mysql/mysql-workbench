@@ -531,7 +531,7 @@ def visualExplain(editor, result_panel):
         dock = mforms.fromgrt(result_panel.dockingPoint)
         view.set_identifier("execution_plan")
         view.set_title("Execution\nPlan")
-        dock.dock_view(view, mforms.App.get().get_resource_path("output_type-executionplan.png").encode("utf8"), 0)
+        dock.dock_view(view, "output_type-executionplan.png", 0)
         dock.select_view(view)
     
     return 0

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ protected:
 protected:
   virtual void fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
 protected:
-  virtual void do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db);
+  virtual void do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db, bool skip_commit);
   virtual void do_serialize(const Recordset *recordset, sqlite::connection *data_swap_db);
   virtual void do_unserialize(Recordset *recordset, sqlite::connection *data_swap_db);
   virtual void do_fetch_blob_value(Recordset *recordset, sqlite::connection *data_swap_db, RowId rowid, ColumnId column, sqlite::variant_t &blob_value);
@@ -67,7 +67,7 @@ public:
 protected:
   virtual void generate_sql_script(const Recordset *recordset, sqlite::connection *data_swap_db, Sql_script &sql_script, bool is_update_script);
   virtual void generate_inserts(const Recordset *recordset, sqlite::connection *data_swap_db, Sql_script &sql_script);
-  virtual void run_sql_script(const Sql_script &sql_script) {}
+  virtual void run_sql_script(const Sql_script &sql_script, bool skip_commit) {}
   virtual void init_variant_quoter(sqlide::QuoteVar &qv) const;
 
 public:

@@ -527,7 +527,7 @@ class TableIndexInfoPanel(mforms.Box):
         self.index_list.add_column(mforms.StringColumnType, "Columns", 200, False)
         self.index_list.end_columns()
         self.index_list.add_changed_callback(self.index_selected)
-        self.index_list.set_size(500, -1)
+        self.index_list.set_size(450, -1)
         table.add(self.index_list, 0, 1, 1, 2, mforms.HFillFlag|mforms.VFillFlag)
 
         dhbox = mforms.newBox(True)
@@ -852,9 +852,9 @@ class PartitionManager(TableManDefs, ObjectManager):
                ("data_length", IntegerColumnType, "Data length", 100, None),
                ("max_data_length", IntegerColumnType, "max data length", 100, None),
                ("index_length", IntegerColumnType, "Index length", 100, None),
-               ("create_time", StringColumnType, "Create time", 100, None),
-               ("update_time", StringColumnType, "Update time", 100, None),
-               ("check_time", StringColumnType, "Check time", 100, None)]
+               ("create_time", StringColumnType, "Create time", 150, None),
+               ("update_time", StringColumnType, "Update time", 150, None),
+               ("check_time", StringColumnType, "Check time", 150, None)]
     def __init__(self, editor):
         ObjectManager.__init__(self, editor, None)
         self.set_managed()

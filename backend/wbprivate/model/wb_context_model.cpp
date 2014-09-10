@@ -114,14 +114,6 @@ WBContextModel::WBContextModel(WBContextUI *wbui)
   _sidebar_dockpoint = NULL;
   _template_panel = NULL;
 
-  // Default table templates list
-  grt::DictRef options(_wbui->get_wb()->get_root()->options()->options());
-  if (!options.has_key("TableTemplates"))
-  {
-    grt::ListRef<db_Table> templates = grt::ListRef<db_Table>::cast_from(_wbui->get_wb()->get_grt_manager()->get_grt()->unserialize(make_path(_wbui->get_wb()->get_datadir(), "data/table_templates.xml")));
-    options.set("TableTemplates", templates);
-  }
-
   scoped_connect(_wbui->get_wb()->get_root()->options()->signal_dict_changed(),boost::bind(&WBContextModel::option_changed, this, _1, _2, _3));
 
   setup_secondary_sidebar();
