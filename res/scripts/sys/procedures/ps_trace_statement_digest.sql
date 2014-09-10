@@ -43,6 +43,8 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_trace_statement_digest (
              Performance Schema truncates long SQL_TEXT values (and hence the 
              EXPLAIN will fail due to parse errors).
 
+             Requires the SUPER privilege for "SET sql_log_bin = 0;".
+
              Parameters
              -----------
 
@@ -62,7 +64,7 @@ CREATE DEFINER='root'@'localhost' PROCEDURE ps_trace_statement_digest (
              Example
              -----------
 
-             mysql> call ps_analyze_statement_digest(\'891ec6860f98ba46d89dd20b0c03652c\', 10, 0.1, true, true);
+             mysql> call ps_trace_statement_digest(\'891ec6860f98ba46d89dd20b0c03652c\', 10, 0.1, true, true);
              +--------------------+
              | SUMMARY STATISTICS |
              +--------------------+
@@ -141,38 +143,43 @@ BEGIN
 
     DECLARE v_start_fresh BOOLEAN DEFAULT false;
     DECLARE v_auto_enable BOOLEAN DEFAULT false;
+    DECLARE v_this_thread_enabed ENUM('YES', 'NO');
     DECLARE v_runtime INT DEFAULT 0;
     DECLARE v_start INT DEFAULT 0;
     DECLARE v_found_stmts INT;
 
+    SET @log_bin := @@sql_log_bin;
+    SET sql_log_bin = 0;
+
     /* Do not track the current thread, it will kill the stack */
+    SELECT INSTRUMENTED INTO v_this_thread_enabed FROM performance_schema.threads WHERE PROCESSLIST_ID = CONNECTION_ID();
     CALL sys.ps_setup_disable_thread(CONNECTION_ID());
 
     DROP TEMPORARY TABLE IF EXISTS stmt_trace;
     CREATE TEMPORARY TABLE stmt_trace (
-        thread_id BIGINT,
-        timer_start BIGINT,
-        event_id BIGINT,
+        thread_id BIGINT UNSIGNED,
+        timer_start BIGINT UNSIGNED,
+        event_id BIGINT UNSIGNED,
         sql_text longtext,
-        timer_wait BIGINT,
-        lock_time BIGINT,
-        errors BIGINT,
-        mysql_errno BIGINT,
-        rows_sent BIGINT,
-        rows_affected BIGINT,
-        rows_examined BIGINT,
-        created_tmp_tables BIGINT,
-        created_tmp_disk_tables BIGINT,
-        no_index_used BIGINT,
+        timer_wait BIGINT UNSIGNED,
+        lock_time BIGINT UNSIGNED,
+        errors BIGINT UNSIGNED,
+        mysql_errno INT,
+        rows_sent BIGINT UNSIGNED,
+        rows_affected BIGINT UNSIGNED,
+        rows_examined BIGINT UNSIGNED,
+        created_tmp_tables BIGINT UNSIGNED,
+        created_tmp_disk_tables BIGINT UNSIGNED,
+        no_index_used BIGINT UNSIGNED,
         PRIMARY KEY (thread_id, timer_start)
     );
 
     DROP TEMPORARY TABLE IF EXISTS stmt_stages;
     CREATE TEMPORARY TABLE stmt_stages (
-       event_id BIGINT,
-       stmt_id BIGINT,
+       event_id BIGINT UNSIGNED,
+       stmt_id BIGINT UNSIGNED,
        event_name VARCHAR(128),
-       timer_wait BIGINT,
+       timer_wait BIGINT UNSIGNED,
        PRIMARY KEY (event_id)
     );
 
@@ -185,6 +192,22 @@ BEGIN
     SET v_auto_enable = in_auto_enable;
     IF v_auto_enable THEN
         CALL sys.ps_setup_save(0);
+
+        UPDATE performance_schema.threads
+           SET INSTRUMENTED = IF(PROCESSLIST_ID IS NOT NULL, 'YES', 'NO');
+
+        -- Only the events_statements_history_long and events_stages_history_long tables and their ancestors are needed
+        UPDATE performance_schema.setup_consumers
+           SET ENABLED = 'YES'
+         WHERE NAME NOT LIKE '%\_history'
+               AND NAME NOT LIKE 'events_wait%'
+               AND NAME NOT LIKE 'events_transactions%'
+               AND NAME <> 'statements_digest';
+
+        UPDATE performance_schema.setup_instruments
+           SET ENABLED = 'YES',
+               TIMED   = 'YES'
+         WHERE NAME LIKE 'statement/%' OR NAME LIKE 'stage/%';
     END IF;
 
     WHILE v_runtime < in_runtime DO
@@ -255,16 +278,20 @@ BEGIN
     DROP TEMPORARY TABLE stmt_trace;
     DROP TEMPORARY TABLE stmt_stages;
 
-    SET @stmt := CONCAT("EXPLAIN FORMAT=JSON", @sql);
+    SET @stmt := CONCAT("EXPLAIN FORMAT=JSON ", @sql);
     PREPARE explain_stmt FROM @stmt;
     EXECUTE explain_stmt;
     DEALLOCATE PREPARE explain_stmt;
 
     IF v_auto_enable THEN
-        CALL sys.ps_reload_saved();
+        CALL sys.ps_setup_reload_saved();
+    END IF;
+    /* Restore INSTRUMENTED for this thread */
+    IF (v_this_thread_enabed = 'YES') THEN
         CALL sys.ps_setup_enable_thread(CONNECTION_ID());
     END IF;
 
+    SET sql_log_bin = @log_bin;
 END$$
 
 DELIMITER ;

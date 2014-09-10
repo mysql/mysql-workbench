@@ -122,6 +122,7 @@ namespace spatial
 
   public:
     static Projection& get_instance();
+    bool check_libproj_availability();
     OGRSpatialReference* get_projection(ProjectionType);
   private:
     Projection();

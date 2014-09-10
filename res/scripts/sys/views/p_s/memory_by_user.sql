@@ -17,8 +17,10 @@
  * View: memory_by_user_by_current_bytes
  *
  * Summarizes memory use by user using the 5.7 Performance Schema instrumentation.
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.  
  *
- * mysql> select * from memory_by_user_by_current_bytes WHERE user IS NOT NULL;
+ * mysql> select * from memory_by_user_by_current_bytes;
  * +------+--------------------+-------------------+-------------------+-------------------+-----------------+
  * | user | current_count_used | current_allocated | current_avg_alloc | current_max_alloc | total_allocated |
  * +------+--------------------+-------------------+-------------------+-------------------+-----------------+
@@ -40,7 +42,7 @@ VIEW memory_by_user_by_current_bytes (
   current_max_alloc,
   total_allocated
 ) AS
-SELECT user,
+SELECT IF(user IS NULL, 'background', user) AS user,
        SUM(current_count_used) AS current_count_used,
        sys.format_bytes(SUM(current_number_of_bytes_used)) AS current_allocated,
        sys.format_bytes(IFNULL(SUM(current_number_of_bytes_used) / NULLIF(SUM(current_count_used), 0), 0)) AS current_avg_alloc,
@@ -54,8 +56,10 @@ SELECT user,
  * View: x$memory_by_user_by_current_bytes
  *
  * Summarizes memory use by user
+ * 
+ * When the user found is NULL, it is assumed to be a "background" thread.  
  *
- * mysql> select * from x$memory_by_user_by_current_bytes WHERE user IS NOT NULL;
+ * mysql> select * from x$memory_by_user_by_current_bytes;
  * +------+--------------------+-------------------+-------------------+-------------------+-----------------+
  * | user | current_count_used | current_allocated | current_avg_alloc | current_max_alloc | total_allocated |
  * +------+--------------------+-------------------+-------------------+-------------------+-----------------+
@@ -77,7 +81,7 @@ VIEW x$memory_by_user_by_current_bytes (
   current_max_alloc,
   total_allocated
 ) AS
-SELECT user,
+SELECT IF(user IS NULL, 'background', user) AS user,
        SUM(current_count_used) AS current_count_used,
        SUM(current_number_of_bytes_used) AS current_allocated,
        IFNULL(SUM(current_number_of_bytes_used) / NULLIF(SUM(current_count_used), 0), 0) AS current_avg_alloc,
