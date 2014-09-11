@@ -196,22 +196,10 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::zoom_in, _viewer));
     _toolbar->add_item(item);
 
-    _toolbar->add_separator_item();
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-    item->set_text("Reset:");
-    _toolbar->add_item(item);
-
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-reset.png"));
     item->set_tooltip("Reset zoom to the outermost zoom level");
     item->signal_activated()->connect(boost::bind(&SpatialDrawBox::reset_view, _viewer));
-    _toolbar->add_item(item);
-
-    item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-auto.png"));
-    item->set_tooltip("Zoom to enclose features in the active layer.");
-    item->signal_activated()->connect(boost::bind(&SpatialDataView::auto_zoom, this));
     _toolbar->add_item(item);
 
     _toolbar->add_separator_item();
@@ -263,7 +251,12 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 //  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
 //  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
 
-  _layer_menu->add_item_with_title("Set Active", boost::bind(&SpatialDataView::activate_layer, this), "set_active");
+  _layer_menu->add_item_with_title("Set Active",
+                                   boost::bind(&SpatialDataView::activate_layer,
+                                               this,
+                                               mforms::TreeNodeRef(),
+                                               -42), // unused dummy value... should just not conflict with possibly valid values
+                                   "set_active");
 
    mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
    mitem->set_name("fillup_polygon");
@@ -281,7 +274,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->end_columns();
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
   _layer_tree->set_context_menu(_layer_menu);
-  _layer_tree->signal_node_activated()->connect(boost::bind(&SpatialDataView::activate_layer, this));
+  _layer_tree->signal_node_activated()->connect(boost::bind(&SpatialDataView::activate_layer, this, _1, _2));
+  _layer_tree->set_row_overlay_handler(boost::bind(&SpatialDataView::layer_overlay_handler, this, _1));
   _option_box->add(_layer_tree, true, true);
 
   _mouse_pos_label = mforms::manage(new mforms::Label("Lat:\nLon:"));
@@ -297,6 +291,14 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _splitter->signal_position_changed()->connect(boost::bind(&SpatialDataView::call_refresh_viewer, this));
 
   add(_splitter, true, true);
+}
+
+
+std::vector<std::string> SpatialDataView::layer_overlay_handler(mforms::TreeNodeRef node)
+{
+  std::vector<std::string> icons;
+  icons.push_back("wb_item_overlay_autozoom.png");
+  return icons;
 }
 
 void SpatialDataView::call_refresh_viewer()
@@ -476,10 +478,10 @@ spatial::LayerId SpatialDataView::get_selected_layer_id()
   return 0;
 }
 
-void SpatialDataView::auto_zoom()
+void SpatialDataView::auto_zoom(LayerId layer)
 {
   _viewer->clear_pins();
-  _viewer->auto_zoom(get_selected_layer_id());
+  _viewer->auto_zoom(layer);
   _viewer->invalidate(true);
 }
 
@@ -679,12 +681,17 @@ void SpatialDataView::tree_toggled(const mforms::TreeNodeRef &node, const std::s
 }
 
 
-void SpatialDataView::activate_layer()
+void SpatialDataView::activate_layer(mforms::TreeNodeRef node, int column)
 {
-  mforms::TreeNodeRef node = _layer_tree->get_selected_node();
+  if (!node)
+    node = _layer_tree->get_selected_node();
+
   if (node)
   {
-    set_active_layer(atoi(node->get_tag().c_str()));
+    if (column == -1)
+      auto_zoom(atoi(node->get_tag().c_str()));
+    else
+      set_active_layer(atoi(node->get_tag().c_str()));
   }
 }
 

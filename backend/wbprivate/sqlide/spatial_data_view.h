@@ -26,6 +26,7 @@
 #include "mforms/box.h"
 #include "mforms/utilities.h"
 #include "mforms/splitter.h"
+#include "mforms/treenodeview.h"
 
 #include <deque>
 
@@ -102,10 +103,12 @@ private:
   void handle_click(base::Point p);
 
   void jump_to();
-  void auto_zoom();
+  void auto_zoom(LayerId layer);
   void copy_coordinates();
 
   void change_tool(mforms::ToolBarItem *item);
+
+  std::vector<std::string> layer_overlay_handler(mforms::TreeNodeRef node);
 
   // layer currently selected in the treeview
   LayerId get_selected_layer_id();
@@ -120,8 +123,8 @@ private:
   void map_menu_will_show();
   void layer_menu_will_show();
 
-  void activate_layer();
   void area_selected();
+  void activate_layer(mforms::TreeNodeRef, int column);
 public:
   SpatialDataView(SqlEditorResult *owner);
   virtual ~SpatialDataView();
