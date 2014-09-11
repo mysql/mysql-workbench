@@ -127,6 +127,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _viewer->work_started = boost::bind(&SpatialDataView::work_started, this, _1, _2);
   _viewer->work_finished = boost::bind(&SpatialDataView::work_finished, this, _1);
   _viewer->get_option = boost::bind(&SpatialDataView::get_option, this, _1, _2);
+  _viewer->area_selected = boost::bind(&SpatialDataView::area_selected, this);
 
   _active_layer = 0;
 
@@ -342,6 +343,13 @@ void SpatialDataView::change_tool(mforms::ToolBarItem *item)
 int SpatialDataView::get_option(const char* opt_name, int default_value)
 {
   return _owner->owner()->owner()->grt_manager()->get_app_option_int(opt_name, default_value) != 0;
+}
+
+void SpatialDataView::area_selected()
+{
+  _toolbar->set_item_checked("zoom_to_area", false);
+  _toolbar->set_item_checked("reset_tool", true);
+  _viewer->select_area(false);
 }
 
 void SpatialDataView::fillup_polygon(mforms::MenuItem *mitem)
