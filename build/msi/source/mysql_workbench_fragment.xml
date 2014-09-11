@@ -891,6 +891,7 @@
                     <File Id="wb_item_overlay_execute" Name="wb_item_overlay_execute.png"/>
                     <File Id="wb_item_overlay_inspector" Name="wb_item_overlay_inspector.png"/>
                     <File Id="wb_item_overlay_result" Name="wb_item_overlay_result.png"/>
+                    <File Id="wb_item_overlay_autozoom" Name="wb_item_overlay_autozoom.png"/>
 
                     <File Id="file606614" Name="qe_sql-editor-resultset-tb-pin.png"/>
                     <File Id="file606615" Name="qe_sql-editor-resultset-tb-pinned.png"/>
