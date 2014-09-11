@@ -1,10 +1,10 @@
-MySQL Workbench 6.1 
+MySQL Workbench 6.2
 -------------------
 
 MySQL Workbench is a complete database modeling, administration and development program for MySQL.
 
 
-This tree contains the source files for the MySQL Workbench 6.1.
+This tree contains the source files for the MySQL Workbench 6.2.
 
 MySQL Workbench is an extensible visual database design tool.
 
@@ -12,22 +12,41 @@ MySQL Workbench is an extensible visual database design tool.
 Buiding on Linux
 ----------------
 
-To Build:
-- Extract the sources into a directory, e.g. wb6
-- Install dependencies. For Ubuntu and other Debian based distros type this in a
-  command line terminal:
+To build MySQL Workbench on Ubuntu and other Debian based distros:
+
+- Remove iodbc, if necessary
+
+  $> sudo apt-get remove iodbc
+
+- Install dependencies
   
-  $> sudo apt-get install build-essential cmake autoconf automake pkg-config libtool libzip-dev libxml2-dev \
+  $> sudo apt-get install build-essential cmake cmake-data autoconf automake pkg-config libtool libzip-dev libxml2-dev \
                           libsigc++-2.0-dev libglade2-dev libgtkmm-2.4-dev libglu1-mesa-dev libgl1-mesa-glx \
                           mesa-common-dev libmysqlclient-dev libmysqlcppconn-dev uuid-dev libpixman-1-dev libpcre3-dev \
                           libgnome2-dev libgnome-keyring-dev libgtk2.0-dev libpango1.0-dev libcairo2-dev python-dev \
-                          libboost-dev libctemplate-dev mysql-client python-pysqlite2 libsqlite3-dev iodbc libiodbc2-dev \
-                          libtinyxml-dev swig libvsqlitepp-dev libgdal-dev
+                          libboost-dev libctemplate-dev mysql-client python-pysqlite2 libsqlite3-dev libtinyxml-dev \
+                          swig libvsqlitepp-dev libgdal-dev libproj0
 
-- Create a build directory (better if you create it outside the Workbench source tree), e.g. wb-build
-- Change the directory to the build directory you have just created, e.g. cd ../wb-build
-- Run cmake <path to workbench tree> -DCMAKE_INSTALL_PREFIX=<path where you want WB to be> -DCMAKE_BUILD_TYPE=Release
-- Run make -j3 install
+- Extract the sources into a directory
+
+  $> tar xvf mysql-workbench-community-<version>-src.tar.gz
+
+- Go to the project and create a build directory
+
+  $> cd mysql-workbench-community-<version>-src
+  $> mkdir wb-build
+  $> cd wb-build
+  
+- Build and install the project, and optionaly set the install prefix (should default to /usr/local)
+
+  $> cmake [-DCMAKE_INSTALL_PREFIX=/usr] ..
+  $> make
+  $> sudo make install
+
+- If you don't have permissions, you may install it on the current directory
+
+  $> make install DESTDIR=.
+  
 
 For complete and up-to-date instructions, visit http://wb.mysql.com/?page_id=152
 
