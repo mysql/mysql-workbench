@@ -117,6 +117,7 @@ public:
   boost::function<void (mforms::View*, bool reprojecting)> work_started;
   boost::function<void (mforms::View*)> work_finished;
   boost::function<int (const char*, int)> get_option;
+  boost::function<void ()> area_selected;
 
 public:
   SpatialDrawBox();

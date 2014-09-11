@@ -592,6 +592,9 @@ bool SpatialDrawBox::mouse_up(mforms::MouseButton button, int x, int y)
     _selecting = false;
     set_needs_repaint();
     mforms::App::get()->set_status_text("");
+
+    if (area_selected)
+      area_selected();
   }
   return true;
 }

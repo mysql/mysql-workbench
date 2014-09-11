@@ -121,7 +121,7 @@ private:
   void layer_menu_will_show();
 
   void activate_layer();
-
+  void area_selected();
 public:
   SpatialDataView(SqlEditorResult *owner);
   virtual ~SpatialDataView();
@@ -130,6 +130,7 @@ public:
 
   void set_geometry_columns(const std::vector<SpatialDataSource> &columns);
   int get_option(const char* opt_name, int default_value);
+
   void fillup_polygon(mforms::MenuItem *mitem);
   void projection_item_activated(mforms::ToolBarItem *item);
 
