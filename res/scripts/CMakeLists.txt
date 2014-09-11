@@ -2,6 +2,7 @@ set(LIBRARY_FILES
     python/wb.py
     python/db_utils.py
     python/grt_python_debugger.py
+    python/wbadminhelper.py
 )
 install(FILES ${LIBRARY_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/libraries)
 
