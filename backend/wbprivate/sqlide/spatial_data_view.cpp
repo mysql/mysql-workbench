@@ -310,7 +310,6 @@ void SpatialDataView::call_refresh_viewer()
       mforms::Utilities::cancel_timeout(_spliter_change_timeout);
       _spliter_change_timeout = 0;
     }
-    
     _spliter_change_timeout = mforms::Utilities::add_timeout(0.5, boost::bind(&SpatialDataView::refresh_viewer, this));
   }
 }
@@ -319,7 +318,6 @@ bool SpatialDataView::refresh_viewer()
 {
   if (_rendering)
     return false;
-
   _spliter_change_timeout = 0;
   _viewer->invalidate(true);
 
@@ -591,7 +589,10 @@ void SpatialDataView::work_started(mforms::View *progress_panel, bool reprojecti
   {
     progress_panel->set_size(500, 150);
     _viewer->add(progress_panel, mforms::MiddleCenter);
-    relayout();
+    // this is causing a loop in the Mac, where the relayout causes the splitter to be resized
+    // which then triggers a re-render and so on... commenting out the relayout() seems to
+    // not have any effects, so let's try that...
+    // relayout();
   }
 }
 
@@ -611,7 +612,8 @@ void SpatialDataView::activate()
   if (!_activated)
   {
     _activated = true;
-    _splitter->set_position(this->get_width() - 200);
+    if (_splitter->get_position() != this->get_width() - 200)
+      _splitter->set_position(this->get_width() - 200);
   }
   _viewer->activate();
 }
