@@ -251,13 +251,6 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 //  _layer_menu->add_item_with_title("Set Color...", boost::bind(&SpatialDataView::activate, this));
 //  _layer_menu->add_item_with_title("Properties...", boost::bind(&SpatialDataView::activate, this));
 
-  _layer_menu->add_item_with_title("Set Active",
-                                   boost::bind(&SpatialDataView::activate_layer,
-                                               this,
-                                               mforms::TreeNodeRef(),
-                                               -42), // unused dummy value... should just not conflict with possibly valid values
-                                   "set_active");
-
    mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
    mitem->set_name("fillup_polygon");
    mitem->signal_clicked()->connect(boost::bind(&SpatialDataView::fillup_polygon, this, mitem));
@@ -275,6 +268,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->set_cell_edit_handler(boost::bind(&SpatialDataView::tree_toggled, this, _1, _3));
   _layer_tree->set_context_menu(_layer_menu);
   _layer_tree->signal_node_activated()->connect(boost::bind(&SpatialDataView::activate_layer, this, _1, _2));
+  _layer_tree->signal_changed()->connect(boost::bind(&SpatialDataView::activate_layer, this, mforms::TreeNodeRef(), -42));// unused dummy value... should just not conflict with possibly valid values
+
   _layer_tree->set_row_overlay_handler(boost::bind(&SpatialDataView::layer_overlay_handler, this, _1));
   _option_box->add(_layer_tree, true, true);
 
@@ -297,7 +292,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 std::vector<std::string> SpatialDataView::layer_overlay_handler(mforms::TreeNodeRef node)
 {
   std::vector<std::string> icons;
-  icons.push_back("wb_item_overlay_autozoom.png");
+  icons.push_back(mforms::App::get()->get_resource_path("wb_item_overlay_autozoom.png"));
   return icons;
 }
 
@@ -819,19 +814,18 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
   }
 
   int idx = 1;
-//  bool first = true;
   for (std::vector<SpatialDataSource>::const_iterator iter = sources.begin(); iter != sources.end(); ++iter)
   {
     // check if already exists
     if (!iter->resultset.expired() && find_layer_for(layers, iter->resultset.lock(), iter->column_index))
-    {
       continue;
-    }
+
     int layer_id = spatial::new_layer_id();
     base::Color color(layer_colors[(idx++) % (sizeof(layer_colors)/sizeof(base::Color))]);
     mforms::TreeNodeRef node = _layer_tree->add_node();
     node->set_bool(0, false);
     node->set_string(1, iter->column);
+
     node->set_string(2, iter->source);
     node->set_tag(base::strfmt("%i", layer_id));
     set_color_icon(node, 1, color);
@@ -856,8 +850,6 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
       _viewer->add_layer(layer);
     }
   }
-
-
 }
 
 
