@@ -94,7 +94,10 @@ void BaseConverter::convert_time(const char* source, MYSQL_TIME* target)
 
   // Get the milliseconds if present
   if (time.length() > 9)
-    msec = time.substr(9, time.length()-9);
+  {
+    msec = time.substr(9, time.length() - 9);
+    msec.resize(6, '0');
+  }
 
   target->hour = atoi(time.substr(0, 2).c_str());
   target->minute = atoi(time.substr(3, 2).c_str());
@@ -138,7 +141,10 @@ void BaseConverter::convert_timestamp(const char* source, MYSQL_TIME* target)
 
   // Get the milliseconds if present
   if (time.length() > 20)
-    msecond = time.substr(20, time.length()-20);
+  {
+    msecond = time.substr(20, time.length() - 20);
+    msecond.resize(6, '0');
+  }
 
   target->year  = atoi(time.substr(0, 4).c_str());
   target->month = atoi(time.substr(5, 2).c_str());

@@ -2347,7 +2347,7 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
           if (_major_version >= 6
               || (_major_version == 5 && _minor_version >= 7)
               || (_major_version == 5 && _minor_version == 6 && _build_version >= 4))
-            data = base::strfmt("'%04d-%02d-%02d %02d:%02d:%02d.%lu'",
+            data = base::strfmt("'%04d-%02d-%02d %02d:%02d:%02d.%06lu'",
                          ts->year, ts->month, ts->day,
                          ts->hour, ts->minute, ts->second,
                          ts->second_part);
@@ -2364,7 +2364,7 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
           if (_major_version >= 6
                         || (_major_version == 5 && _minor_version >= 7)
                         || (_major_version == 5 && _minor_version == 6 && _build_version >= 4))
-            data = base::strfmt("'%02d:%02d:%02d.%lu'",
+            data = base::strfmt("'%02d:%02d:%02d.%06lu'",
                                 ts->hour, ts->minute, ts->second, ts->second_part);
           else
             data = base::strfmt("'%02d:%02d:%02d'",
@@ -2766,9 +2766,13 @@ void CopyDataTask::copy_table(const TableParam &task)
   }
 
   time_t end = time(NULL);
-  printf("END:%s.%s:Finished copying %lli rows in %im%02is\n",
-         task.target_schema.c_str(), task.target_table.c_str(), i,
-         (int)((end-start) / 60), (int)((end-start) % 60));
+  if (i != total)
+    printf("ERROR:%s.%s:Failed copying %lli rows\n",
+               task.target_schema.c_str(), task.target_table.c_str(), total-i);
+  else
+    printf("END:%s.%s:Finished copying %lli rows in %im%02is\n",
+           task.target_schema.c_str(), task.target_table.c_str(), i,
+           (int)((end-start) / 60), (int)((end-start) % 60));
   fflush(stdout);
 }
 
