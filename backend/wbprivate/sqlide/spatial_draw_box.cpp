@@ -196,6 +196,7 @@ void SpatialDrawBox::render(bool reproject)
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
   boost::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
   _cache = surface;
+
   if (_ctx_cache != NULL)
     delete _ctx_cache;
   _ctx_cache = new mdc::CairoCtx(*surface);
@@ -650,16 +651,10 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, boo
   if (screen_to_world(x1, y1, lat1, lon1) &&
       screen_to_world(x2, y2, lat2, lon2))
   {
-    _zoom_level = 1.0;
-    _offset_x = 0;
-    _offset_y = 0;
-
     double h = fabs(lat2 - lat1);
 
     double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
     lon2 = lon1 + h * ratio;
-
-
 
     _zoom_level = 1.0;
     _offset_x = 0;
