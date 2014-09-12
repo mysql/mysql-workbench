@@ -31,13 +31,13 @@ include_directories(.
 set(CMAKE_SWIG_FLAGS "-w312")
 
 set_source_files_properties(cairo.i PROPERTIES CPLUSPLUS ON)
-set_source_files_properties(cairo.i PROPERTIES SWIG_FLAGS "-DCAIRO_HAS_PNG_FUNCTIONS=1 -fcompact")
+set_source_files_properties(cairo.i PROPERTIES SWIG_FLAGS "-DCAIRO_HAS_PNG_FUNCTIONS=1 -fcompact -DSWIG_PYTHON_LEGACY_BOOL")
 swig_add_module(cairo python cairo.i)
 swig_link_libraries(cairo ${CAIRO_LIBRARIES})
 
 set(CMAKE_SWIG_FLAGS "-w401,402,509")
 set_source_files_properties(mforms.i PROPERTIES CPLUSPLUS ON)
-set_source_files_properties(mforms.i PROPERTIES SWIG_FLAGS "-w512 -fvirtual")
+set_source_files_properties(mforms.i PROPERTIES SWIG_FLAGS "-w512 -fvirtual -DSWIG_PYTHON_LEGACY_BOOL")
 swig_add_module(mforms python mforms.i)
 swig_link_libraries(mforms mforms wbscintilla ${GTK2_LIBRARIES} ${LIBXML2_LIBRARIES})
 
