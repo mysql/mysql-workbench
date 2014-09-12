@@ -20,13 +20,11 @@ import os
 import sys
 import StringIO
 import ConfigParser
-from time import strptime, strftime, localtime
+from time import strptime, strftime
 import re
 import subprocess
 import logging
-import time
 import json
-from multiprocessing import Process
 
 is_library = True
 
@@ -38,7 +36,19 @@ def call_system(command, spawn, output_handler = None):
     logging.info('Executing command: %s' % command)
 
     if spawn or output_handler is None:
-        child = subprocess.Popen(command, bufsize=0, close_fds=True, shell=True, preexec_fn=os.setpgrp)
+        if os.fork() != 0:
+            return
+        
+        os.setpgrp()
+        
+        for i in range(0,100):
+            try:
+                os.close(i)
+            except:
+                pass
+                  
+        os.execvp("/bin/bash", ["/bin/bash", "-c", command])
+
     else:
         child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
         
@@ -687,6 +697,8 @@ class MEBPropagateSettings(MEBCommand):
             os.remove(source_config_file)
         else:
             self.print_usage()
+						
+        return ret_val
 
             
 class MEBGetProfiles(MEBCommand):
@@ -834,7 +846,7 @@ class MEBGetProfiles(MEBCommand):
         return 0
 
 class MEBVersion(MEBCommand):
-    current = "2"
+    current = "3"
 
     def __init__(self, params = None, output_handler = None):
         super(MEBVersion, self).__init__(params, output_handler)
