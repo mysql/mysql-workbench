@@ -18,34 +18,38 @@
  */
 
 #include "active_label.h"
+#include <mforms/app.h>
 
 //--------------------------------------------------------------------------------
 ActiveLabel::ActiveLabel(const Glib::ustring& text, const sigc::slot<void> &close_callback)
             : _close_callback(close_callback)
-            , _label("\342\234\225")
+            , _closeImage(mforms::App::get()->get_resource_path("Discard_16x16.png"))
             , _text_label(text)
             , _menu(NULL)
             , _delete_menu(false)
 {
+  _closeImage.set_size_request(16, 16);
+
   _evbox.set_visible_window(false);
-  _evbox.add(_label);
+  _evbox.add(_closeImage);
+
   _evbox.signal_event().connect(sigc::mem_fun(this, &ActiveLabel::handle_event));
+  _evbox.show_all();
 
   _text_label_eventbox.set_visible_window(false);
   _text_label_eventbox.add(_text_label);
+  _text_label_eventbox.show_all();
 
   pack_start(_text_label_eventbox);
   pack_start(_evbox);
 
-  _evbox.show_all();
-  _label.show();
-  show_all();
+#if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
+  pack_start(_spinner);
+  _spinner.set_size_request(16, 16);  //  Set the same size as the _closeImage, so the tab won't resize when swaping
+  _spinner.hide();
+#endif
 
   signal_button_press_event().connect(sigc::mem_fun(this, &ActiveLabel::button_press_slot));
-
-  #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
-  _spinner.hide();
-  #endif
 }
 
 //--------------------------------------------------------------------------------
@@ -103,10 +107,9 @@ bool ActiveLabel::button_press_slot(GdkEventButton* evb)
 void ActiveLabel::start_busy()
 {
 #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
-  _label.hide();
-  _evbox.remove();
+  _evbox.hide();
+
   _spinner.show();
-  _evbox.add(_spinner);
   _spinner.start();
 #endif
 }
@@ -115,10 +118,9 @@ void ActiveLabel::start_busy()
 void ActiveLabel::stop_busy()
 {
 #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
-  _spinner.hide();
-  _evbox.remove();
-  _label.show();
-  _evbox.add(_label);
   _spinner.stop();
+  _spinner.hide();
+  
+  _evbox.show();
 #endif
 }
