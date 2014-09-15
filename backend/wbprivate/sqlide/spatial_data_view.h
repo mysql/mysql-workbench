@@ -103,6 +103,7 @@ private:
   void handle_click(base::Point p);
 
   void jump_to();
+  void export_image();
   void auto_zoom(LayerId layer);
   void copy_coordinates();
 
@@ -139,4 +140,6 @@ public:
 
   void activate();
   void refresh_layers();
+
+  void layer_menu_action(const std::string &action);
 };

@@ -231,6 +231,14 @@ ImageSurface::ImageSurface(double width, double height, cairo_format_t format)
   surface= cairo_image_surface_create(format, (int)width, (int)height);
 }
 
+void ImageSurface::save_to_png(const std::string &destination) const
+{
+  cairo_status_t status = cairo_surface_write_to_png(surface, destination.c_str());
+  if (status != CAIRO_STATUS_SUCCESS)
+    throw canvas_error("cairo error: "+std::string(cairo_status_to_string(status)));
+}
+
+
 
 PDFSurface::PDFSurface(const std::string &path, double width, double height)
 {
@@ -344,7 +352,6 @@ void CairoCtx::check_state() const
   if (status != CAIRO_STATUS_SUCCESS)
     throw canvas_error("cairo error: "+std::string(cairo_status_to_string(cairo_status(cr))));
 }
-
 
 void CairoCtx::set_font(const FontSpec &font) const
 {

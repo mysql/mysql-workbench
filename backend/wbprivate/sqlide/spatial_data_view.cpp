@@ -36,6 +36,7 @@
 #include "mforms/treenodeview.h"
 #include "mforms/label.h"
 #include "mforms/textbox.h"
+#include "mforms/filechooser.h"
 
 #include "mdc.h"
 
@@ -214,7 +215,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
     item->signal_activated()->connect(boost::bind(&SpatialDataView::jump_to, this));
     _toolbar->add_item(item);
 
-    /*
+
+
     _toolbar->add_separator_item();
     item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
     item->set_text("Export:");
@@ -222,9 +224,10 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
     item->set_icon(mforms::App::get()->get_resource_path("record_export.png"));
-    item->set_tooltip(_("Export geometry data to an external file."));
+    item->set_tooltip(_("Export visible area as PNG image."));
+    item->signal_activated()->connect(boost::bind(&SpatialDataView::export_image, this));
     _toolbar->add_item(item);
-     */
+
   }
   add(_toolbar, false, true);
 
@@ -258,6 +261,14 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
 
   _layer_menu->add_separator();
   _layer_menu->add_item_with_title("Refresh", boost::bind(&SpatialDataView::refresh_layers, this), "refresh");
+
+  _layer_menu->add_separator();
+  _layer_menu->add_item_with_title("Move Layer Up",
+        boost::bind(&SpatialDataView::layer_menu_action, this, "layer_up"), "layer_up");
+  _layer_menu->add_item_with_title("Move Layer Down",
+        boost::bind(&SpatialDataView::layer_menu_action, this, "layer_down"), "layer_down");
+
+
   _layer_menu->signal_will_show()->connect(boost::bind(&SpatialDataView::layer_menu_will_show, this));
 
   _layer_tree = mforms::manage(new mforms::TreeNodeView(mforms::TreeFlatList));
@@ -269,6 +280,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner)
   _layer_tree->set_context_menu(_layer_menu);
   _layer_tree->signal_node_activated()->connect(boost::bind(&SpatialDataView::activate_layer, this, _1, _2));
   _layer_tree->signal_changed()->connect(boost::bind(&SpatialDataView::activate_layer, this, mforms::TreeNodeRef(), -42));// unused dummy value... should just not conflict with possibly valid values
+
 
   _layer_tree->set_row_overlay_handler(boost::bind(&SpatialDataView::layer_overlay_handler, this, _1));
   _option_box->add(_layer_tree, true, true);
@@ -333,7 +345,6 @@ void SpatialDataView::change_tool(mforms::ToolBarItem *item)
     _toolbar->set_item_checked("reset_tool", false);
   }
 }
-
 
 int SpatialDataView::get_option(const char* opt_name, int default_value)
 {
@@ -462,6 +473,29 @@ void SpatialDataView::jump_to()
   }
 }
 
+void SpatialDataView::export_image()
+{
+  mforms::FileChooser fc(mforms::SaveFile);
+  fc.set_title("Save Spatial View Image to File");
+  fc.set_extensions("PNG Files (*.png)|*.png", "png");
+  if (fc.run_modal())
+  {
+    try
+    {
+      _viewer->save_to_png(fc.get_path());
+      mforms::Utilities::show_message(_("Save to File"),
+        base::strfmt(_("Image has been succesfully saved to '%s'"), fc.get_path().c_str()),
+        _("OK"));
+    }
+    catch (std::exception &exc)
+    {
+      mforms::Utilities::show_error(_("Save to File"),
+          base::strfmt(_("Could not save to file '%s': %s"), fc.get_path().c_str(), exc.what()),
+          _("OK"));
+    }
+  }
+}
+
 
 spatial::LayerId SpatialDataView::get_selected_layer_id()
 {
@@ -520,6 +554,21 @@ void SpatialDataView::layer_menu_will_show()
 
   _layer_menu->set_item_enabled("set_active", layer && layer->layer_id() != _grid_layer);
   _layer_menu->set_item_checked("fillup_polygon", layer && layer->fill());
+
+  mforms::TreeNodeRef node = _layer_tree->get_selected_node();
+  spatial::LayerId bg_layer_id = _viewer->get_background()->layer_id();
+  if (node.is_valid() && atoi(node->get_tag().c_str()) != bg_layer_id)
+  {
+    mforms::TreeNodeRef pnode = node->previous_sibling(), nnode = node->next_sibling();
+
+    _layer_menu->set_item_enabled("layer_up", pnode.is_valid() && atoi(pnode->get_tag().c_str()) != bg_layer_id);
+    _layer_menu->set_item_enabled("layer_down", nnode.is_valid() && atoi(nnode->get_tag().c_str()) != bg_layer_id);
+  }
+  else
+  {
+    _layer_menu->set_item_enabled("layer_up", false);
+    _layer_menu->set_item_enabled("layer_down", false);
+  }
 }
 
 
@@ -639,6 +688,52 @@ void SpatialDataView::refresh_layers()
   set_geometry_columns(spatial_columns);
   if ((bool)get_option("SqlEditor::SpatialAutoZoom", 1))
     _viewer->auto_zoom(_active_layer);
+}
+
+mforms::TreeNodeRef static move_node_to(mforms::TreeNodeRef &node, mforms::TreeNodeRef &new_parent, int index)
+{
+  mforms::TreeNodeRef new_node = new_parent->insert_child(index);
+  new_node->set_bool(0, node->get_bool(0));
+  new_node->set_string(1, node->get_string(1));
+  new_node->set_string(2, node->get_string(2));
+  new_node->set_tag(node->get_tag());
+  new_node->set_data(node->get_data());
+  node->remove_from_parent();
+  return new_node;
+}
+
+void SpatialDataView::layer_menu_action(const std::string &action)
+{
+
+  mforms::TreeNodeRef node = _layer_tree->get_selected_node();
+  mforms::TreeNodeRef group_node = node->get_parent();
+  size_t node_index = node->get_child_index(node), new_index = node_index;
+
+  if (action == "layer_up")
+  {
+    if (node->previous_sibling().is_valid())
+      new_index = node_index -1;
+  }
+  else if (action == "layer_down")
+  {
+    if (node->next_sibling().is_valid())
+      new_index = node_index + 2;
+  }
+
+  node = move_node_to(node, group_node, new_index);
+  std::vector<int> order;
+  order.reserve(_layer_tree->count());
+
+  for(int i = 0; i < _layer_tree->count(); ++i)
+  {
+    spatial::LayerId layer_id = atoi(_layer_tree->node_at_row(i)->get_tag().c_str());
+    if (layer_id != _viewer->get_background()->layer_id())
+      order.push_back(layer_id);
+  }
+
+  _viewer->change_layer_order(order);
+  _layer_tree->select_node(node);
+  _viewer->invalidate(false);
 }
 
 
