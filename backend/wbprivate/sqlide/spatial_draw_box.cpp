@@ -452,25 +452,36 @@ void SpatialDrawBox::set_context_menu(mforms::ContextMenu *menu)
 
 void SpatialDrawBox::add_layer(spatial::Layer *layer)
 {
-  {
-
-    base::MutexLock lock(_layer_mutex);
-    layer->set_fill_polygons((bool)get_option("SqlEditor::FillUpPolygons", 1));
-    _layers.push_back(layer);
-  }
+  base::MutexLock lock(_layer_mutex);
+  layer->set_fill_polygons((bool)get_option("SqlEditor::FillUpPolygons", 1));
+  _layers.push_back(layer);
 }
 
 void SpatialDrawBox::remove_layer(spatial::Layer *layer)
 {
-  {
-    base::MutexLock lock(_layer_mutex);
-    layer->interrupt();
-    std::deque<spatial::Layer*>::iterator l = std::find(_layers.begin(), _layers.end(), layer);
-    if (l != _layers.end())
-      _layers.erase(l);
-  }
+  base::MutexLock lock(_layer_mutex);
+  layer->interrupt();
+  std::deque<spatial::Layer*>::iterator l = std::find(_layers.begin(), _layers.end(), layer);
+  if (l != _layers.end())
+    _layers.erase(l);
 }
 
+void SpatialDrawBox::change_layer_order(const std::vector<spatial::LayerId> &order)
+{
+  base::MutexLock lock(_layer_mutex);
+  std::map<spatial::LayerId, spatial::Layer*> layers;
+  for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
+    layers[(*it)->layer_id()] = *it;
+
+  _layers.clear();
+  std::map<spatial::LayerId, spatial::Layer*>::iterator it;
+  for (size_t i = 0; i < order.size(); ++i)
+  {
+    it = layers.find(order[i]);
+    if (it != layers.end())
+      _layers.push_back(it->second);
+  }
+}
 
 spatial::Layer *SpatialDrawBox::get_layer(spatial::LayerId layer_id)
 {
@@ -774,6 +785,14 @@ void SpatialDrawBox::world_to_screen(const double &lat, const double &lon, int &
   }
 }
 
+void SpatialDrawBox::save_to_png(const std::string &destination)
+{
+  boost::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
+  mdc::CairoCtx ctx(*surface);
+  this->repaint(ctx.get_cr(), 0, 0, get_width(), get_height());
+  surface->save_to_png(destination);
+}
+
 void SpatialDrawBox::clear_pins()
 {
   _pins.clear();
@@ -802,3 +821,5 @@ void SpatialDrawBox::place_pin(cairo_surface_t *pin, const base::Point &p)
   _pins.push_back(Pin(lat, lon, pin));
   set_needs_repaint();
 }
+
+
