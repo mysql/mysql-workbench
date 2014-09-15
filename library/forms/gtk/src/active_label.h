@@ -23,6 +23,7 @@
 #include <gtkmm/box.h>
 #include <gtkmm/label.h>
 #include <gtkmm/eventbox.h>
+#include <gtkmm/image.h>
 #include "mforms/menu.h"
 #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
 #include <gtkmm/spinner.h>
@@ -57,7 +58,7 @@ class ActiveLabel : public Gtk::HBox
     bool handle_event(GdkEvent*);
     const sigc::slot<void>             _close_callback;
     Gtk::EventBox                      _evbox;
-    Gtk::Label                         _label;
+    Gtk::Image                         _closeImage;
     Gtk::EventBox                      _text_label_eventbox;
     Gtk::Label                         _text_label;
     mforms::Menu                       *_menu;
