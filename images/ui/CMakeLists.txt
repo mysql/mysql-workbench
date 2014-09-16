@@ -2,6 +2,7 @@ set(IMAGE_FILES
     Apply.png
     Apply_16x16.png
     Close_18x18.png
+    Close_16x16.png
     Discard.png
     Discard_16x16.png
     DotBlue.png
