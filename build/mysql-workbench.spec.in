@@ -94,6 +94,7 @@ Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 
 Requires: python-paramiko
 Requires: gnome-keyring
+Requires: proj
 
 Requires: gtk2 >= 2.20
 
