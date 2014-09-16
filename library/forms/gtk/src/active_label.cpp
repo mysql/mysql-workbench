@@ -23,7 +23,7 @@
 //--------------------------------------------------------------------------------
 ActiveLabel::ActiveLabel(const Glib::ustring& text, const sigc::slot<void> &close_callback)
             : _close_callback(close_callback)
-            , _closeImage(mforms::App::get()->get_resource_path("Discard_16x16.png"))
+            , _closeImage(mforms::App::get()->get_resource_path("Close_16x16.png"))
             , _text_label(text)
             , _menu(NULL)
             , _delete_menu(false)

@@ -758,6 +758,7 @@
                     <File Id="item_overlay_add.png" Name="item_overlay_add.png"/>
                     <File Id="item_overlay_delete.png" Name="item_overlay_delete.png"/>
 
+                    <File Id="file60670" Name="Close_16x16.png"/>
                     </Component>
                 </Directory>
 
