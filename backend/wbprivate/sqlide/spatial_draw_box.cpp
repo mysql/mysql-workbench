@@ -282,7 +282,8 @@ SpatialDrawBox::~SpatialDrawBox()
   _quitting = true;
   clear();
   // lock the mutex, so that if the worker is still busy, we'll wait for it
-  _thread_mutex.lock();
+
+  base::MutexLock lock(_thread_mutex);
   delete _ctx_cache;
   _ctx_cache = NULL;
 }

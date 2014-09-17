@@ -720,7 +720,12 @@ void SpatialDataView::layer_menu_action(const std::string &action)
       new_index = node_index + 2;
   }
 
+
   node = move_node_to(node, group_node, new_index);
+  spatial::Layer *layer = _viewer->get_layer(atoi(node->get_tag().c_str()));
+  if (layer)
+    set_color_icon(node, 1, layer->color());
+
   std::vector<int> order;
   order.reserve(_layer_tree->count());
 
