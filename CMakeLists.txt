@@ -85,7 +85,7 @@ find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
 
 if (MYSQLCPPCONN_VERSION_1_1_4)
-  add_definition(-DMYSQLCPPCONN_VERSION_1_1_4)
+  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)
 endif ()
 
 if (UNIX)
