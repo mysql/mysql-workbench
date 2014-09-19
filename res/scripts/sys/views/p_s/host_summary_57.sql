@@ -42,9 +42,9 @@ VIEW host_summary (
   file_io_latency,
   current_connections,
   total_connections,
-  unique_hosts,
-  current_memory,
-  total_memory_allocated
+  unique_hosts
+--   current_memory,
+--   total_memory_allocated
 ) AS
 SELECT accounts.host,
        SUM(stmt.total) AS statements,
@@ -55,13 +55,13 @@ SELECT accounts.host,
        sys.format_time(SUM(io.io_latency)) AS file_io_latency,
        SUM(accounts.current_connections) AS current_connections,
        SUM(accounts.total_connections) AS total_connections,
-       COUNT(DISTINCT user) AS unique_users,
-       sys.format_bytes(mem.current_allocated) AS current_memory,
-       sys.format_bytes(mem.total_allocated) AS total_memory_allocated
+       COUNT(DISTINCT user) AS unique_users
+--        sys.format_bytes(mem.current_allocated) AS current_memory,
+--        sys.format_bytes(mem.total_allocated) AS total_memory_allocated
   FROM performance_schema.accounts
   JOIN sys.x$host_summary_by_statement_latency AS stmt ON accounts.host = stmt.host
   JOIN sys.x$host_summary_by_file_io AS io ON accounts.host = io.host
-  JOIN sys.x$memory_by_host_by_current_bytes mem ON accounts.host = mem.host
+--   JOIN sys.x$memory_by_host_by_current_bytes mem ON accounts.host = mem.host
  WHERE accounts.host IS NOT NULL
  GROUP BY accounts.host;
 
@@ -94,9 +94,9 @@ VIEW x$host_summary (
   file_io_latency,
   current_connections,
   total_connections,
-  unique_users,
-  current_memory,
-  total_memory_allocated
+  unique_users
+--   current_memory,
+--   total_memory_allocated
 ) AS
 SELECT accounts.host,
        SUM(stmt.total) AS statements,
@@ -107,12 +107,12 @@ SELECT accounts.host,
        SUM(io.io_latency) AS file_io_latency,
        SUM(accounts.current_connections) AS current_connections,
        SUM(accounts.total_connections) AS total_connections,
-       COUNT(DISTINCT accounts.user) AS unique_users,
-       mem.current_allocated AS current_memory,
-       mem.total_allocated AS total_memory_allocated
+       COUNT(DISTINCT accounts.user) AS unique_users
+--        mem.current_allocated AS current_memory,
+--        mem.total_allocated AS total_memory_allocated
   FROM performance_schema.accounts
   JOIN sys.x$host_summary_by_statement_latency AS stmt ON accounts.host = stmt.host
   JOIN sys.x$host_summary_by_file_io AS io ON accounts.host = io.host
-  JOIN sys.x$memory_by_host_by_current_bytes mem ON accounts.host = mem.host
+--   JOIN sys.x$memory_by_host_by_current_bytes mem ON accounts.host = mem.host
  WHERE accounts.host IS NOT NULL
  GROUP BY accounts.host;
