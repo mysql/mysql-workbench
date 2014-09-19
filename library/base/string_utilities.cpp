@@ -1051,7 +1051,7 @@ std::string right(const std::string& s, unsigned int len)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Tests if t begins with part.
+ * Tests if s begins with part.
  */
 bool starts_with(const std::string& s, const std::string& part)
 {
@@ -1061,7 +1061,7 @@ bool starts_with(const std::string& s, const std::string& part)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Tests if t ends with part.
+ * Tests if s ends with part.
  */
 bool ends_with(const std::string& s, const std::string& part)
 {
