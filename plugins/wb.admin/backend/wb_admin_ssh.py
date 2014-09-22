@@ -85,8 +85,9 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
             m.add_byte(chr(MSG_CHANNEL_OPEN))
             m.add_string(kind)
             m.add_int(chanid)
-            m.add_int(self.window_size)
-            m.add_int(self.max_packet_size)
+            if (server_version_str2tuple(paramiko.__version__) <= (1, 14, 99)):
+                m.add_int(self.window_size)
+                m.add_int(self.max_packet_size)
             if (kind == 'forwarded-tcpip') or (kind == 'direct-tcpip'):
                 m.add_string(dest_addr[0])
                 m.add_int(dest_addr[1])
@@ -100,7 +101,8 @@ if paramiko and server_version_str2tuple(paramiko.__version__) >= (1, 7, 4):
             self.channel_events[chanid] = event = threading.Event()
             self.channels_seen[chanid] = True
             chan._set_transport(self)
-            chan._set_window(self.window_size, self.max_packet_size)
+            if (server_version_str2tuple(paramiko.__version__) <= (1, 14, 99)):
+                chan._set_window(self.window_size, self.max_packet_size)
         finally:
             self.lock.release()
         self._send_user_message(m)
