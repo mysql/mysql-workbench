@@ -1812,7 +1812,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
     char *ster = NULL;
     int rc=0;
     GError *err = NULL;
-    if (g_spawn_command_line_sync("/bin/bash -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs ps -fp | awk 'NR > 1 {for(i=1;i<=7;i++)$i=\\\"\\\"; print $0}'\"", &stdo, &ster, &rc, &err) && stdo)
+    if (g_spawn_command_line_sync("/bin/bash -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs ps -ww -o args= -p \"", &stdo, &ster, &rc, &err) && stdo)
     {
       std::string processes(stdo);
       
@@ -1836,15 +1836,14 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
   
     if (err)
     {
-      log_error("Error looking for installed servers, error %d : %s\n", err->code, err->message);
+      log_warning("Error looking for installed servers, error %d : %s\n", err->code, err->message);
       g_error_free(err);
     }
     
-    if (ster)
-    {
+    if (ster != NULL && strlen(ster) > 0)
       log_error("stderr from process list %s\n", ster);
-      g_free(ster);
-    }
+
+    g_free(ster);
     
 #endif
 
