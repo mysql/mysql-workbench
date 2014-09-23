@@ -24,6 +24,7 @@
 #include <gtkmm/label.h>
 #include <gtkmm/eventbox.h>
 #include <gtkmm/image.h>
+#include <gtkmm/button.h>
 #include "mforms/menu.h"
 #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
 #include <gtkmm/spinner.h>
@@ -51,13 +52,12 @@ class ActiveLabel : public Gtk::HBox
 
     void call_close() {_close_callback();}
 
-    Gtk::EventBox *get_event_box() { return &_evbox; }
-
   private:
     bool button_press_slot(GdkEventButton*);
-    bool handle_event(GdkEvent*);
+    bool handle_event(GdkEventButton*);
+    void button_style_changed(const Glib::RefPtr<Gtk::Style>& prevstyle);
     const sigc::slot<void>             _close_callback;
-    Gtk::EventBox                      _evbox;
+    Gtk::Button                        _btn_close;
     Gtk::Image                         _closeImage;
     Gtk::EventBox                      _text_label_eventbox;
     Gtk::Label                         _text_label;

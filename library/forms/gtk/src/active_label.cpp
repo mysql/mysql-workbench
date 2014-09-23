@@ -19,29 +19,39 @@
 
 #include "active_label.h"
 #include <mforms/app.h>
+#include <gtkmm/stock.h>
+#include <gtkmm/settings.h>
 
 //--------------------------------------------------------------------------------
 ActiveLabel::ActiveLabel(const Glib::ustring& text, const sigc::slot<void> &close_callback)
             : _close_callback(close_callback)
-            , _closeImage(mforms::App::get()->get_resource_path("Close_16x16.png"))
             , _text_label(text)
             , _menu(NULL)
             , _delete_menu(false)
 {
-  _closeImage.set_size_request(16, 16);
+  set_spacing(5);
 
-  _evbox.set_visible_window(false);
-  _evbox.add(_closeImage);
+  if (!Gtk::Stock::lookup(Gtk::Stock::CLOSE, Gtk::ICON_SIZE_MENU, _closeImage))
+  {
+    _closeImage.set(mforms::App::get()->get_resource_path("Close_16x16.png"));
+    _closeImage.set_size_request(16, 16);
+  }
 
-  _evbox.signal_event().connect(sigc::mem_fun(this, &ActiveLabel::handle_event));
-  _evbox.show_all();
+  _btn_close.set_relief(Gtk::RELIEF_NONE);
+  _btn_close.set_focus_on_click(false);
+  _btn_close.add(_closeImage);
+  _btn_close.add_events(Gdk::BUTTON_RELEASE_MASK);
+  _btn_close.signal_button_release_event().connect(sigc::mem_fun(this, &ActiveLabel::handle_event), false);
+  _btn_close.set_name("wbtab-close-button");
+  _btn_close.signal_style_changed().connect(sigc::mem_fun(this, &ActiveLabel::button_style_changed));
 
   _text_label_eventbox.set_visible_window(false);
   _text_label_eventbox.add(_text_label);
-  _text_label_eventbox.show_all();
 
   pack_start(_text_label_eventbox);
-  pack_start(_evbox);
+  pack_start(_btn_close);
+
+  show_all();
 
 #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
   pack_start(_spinner);
@@ -60,14 +70,13 @@ ActiveLabel::~ActiveLabel()
 }
 
 //--------------------------------------------------------------------------------
-bool ActiveLabel::handle_event(GdkEvent* e)
+bool ActiveLabel::handle_event(GdkEventButton* e)
 {
   switch (e->type)
   {
     case GDK_BUTTON_RELEASE:
       {
-        GdkEventButton *evb = (GdkEventButton*)e;
-        if (evb->button == 1)
+        if (e->button == 1 || e->button == 2) //left or middle mouse button
           _close_callback();
         break;
       }
@@ -76,6 +85,14 @@ bool ActiveLabel::handle_event(GdkEvent* e)
   }
 
   return false;
+}
+//--------------------------------------------------------------------------------
+void ActiveLabel::button_style_changed(const Glib::RefPtr<Gtk::Style>& prevstyle)
+{
+  int w, h;
+  if (Gtk::IconSize::lookup(Gtk::ICON_SIZE_MENU, w, h, _btn_close.get_settings()))
+    _btn_close.set_size_request(w - 2, h - 2);
+
 }
 //--------------------------------------------------------------------------------
 void ActiveLabel::set_menu(mforms::Menu* m, bool delete_when_done)
@@ -100,6 +117,8 @@ bool ActiveLabel::button_press_slot(GdkEventButton* evb)
 {
   if (evb->button == 3 && _menu && !_menu->empty())
     _menu->popup_at(0, evb->x, evb->y);
+  else if (evb->button == 2 && _close_callback) //middle button
+    _close_callback();
   return false;
 }
 
@@ -107,7 +126,7 @@ bool ActiveLabel::button_press_slot(GdkEventButton* evb)
 void ActiveLabel::start_busy()
 {
 #if GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 20
-  _evbox.hide();
+  _btn_close.hide();
 
   _spinner.show();
   _spinner.start();
@@ -121,6 +140,6 @@ void ActiveLabel::stop_busy()
   _spinner.stop();
   _spinner.hide();
   
-  _evbox.show();
+  _btn_close.show();
 #endif
 }
