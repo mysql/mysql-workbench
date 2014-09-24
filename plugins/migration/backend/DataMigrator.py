@@ -175,7 +175,7 @@ class TableCopyWorker(Thread):
 
 
 class DataMigrator(object):
-    copytable_path = "wbcopytables"
+    copytable_path = "wbcopytables-bin"
 
     def __init__(self, message_target, options, srcconnobj, srcpassword, tgtconnobj, tgtpassword):
         assert hasattr(message_target, "send_info") and hasattr(message_target, "send_error") and hasattr(message_target, "send_progress")
@@ -278,7 +278,7 @@ class DataMigrator(object):
             return total
         else:
             self._owner.send_info(stdout)
-            raise Exception("Error getting row count from source tables")
+            raise Exception("Error getting row count from source tables, wbcopytables exited with code %s" % out.returncode)
 
     def migrate_data(self, num_processes, working_set):
         table_param = []
