@@ -7,16 +7,32 @@ include_directories(
 
 add_definitions(${ODBC_DEFINITIONS})
 
-add_executable(wbcopytables
-    copytable/copytable.cpp
-    copytable/python_copy_data_source.cpp
-    copytable/main.cpp
-    copytable/converter.cpp
-)
-
-target_link_libraries(wbcopytables wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
-
-install(TARGETS wbcopytables DESTINATION ${WB_INSTALL_BIN_DIR})
+if (UNIX)
+  configure_file(wbcopytables.in wbcopytables)
+  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/wbcopytables DESTINATION ${WB_INSTALL_BIN_DIR})
+  
+  add_executable(wbcopytables-bin
+      copytable/copytable.cpp
+      copytable/python_copy_data_source.cpp
+      copytable/main.cpp
+      copytable/converter.cpp
+  )
+  
+  target_link_libraries(wbcopytables-bin wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+  
+  install(TARGETS wbcopytables-bin DESTINATION ${WB_INSTALL_BIN_DIR})
+else()
+  add_executable(wbcopytables
+      copytable/copytable.cpp
+      copytable/python_copy_data_source.cpp
+      copytable/main.cpp
+      copytable/converter.cpp
+  )
+  
+  target_link_libraries(wbcopytables wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+  
+  install(TARGETS wbcopytables DESTINATION ${WB_INSTALL_BIN_DIR})
+endif()
 
 set(PY_FILES 
     frontend/migration_project_management.py
