@@ -1345,8 +1345,16 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
            socket.c_str(), username.c_str());
   }
 
+
+#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+#if MYSQL_CHECK_VERSION(5,5,27)
   my_bool use_cleartext = use_cleartext_plugin;
   mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
+#else
+  if (use_cleartext_plugin)
+    log_warning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
+#endif
+#endif
 
   if (!mysql_real_connect(&_mysql, host.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
                           CLIENT_COMPRESS))
@@ -1938,8 +1946,15 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
            socket.c_str(), username.c_str());
   }
 
+#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+#if MYSQL_CHECK_VERSION(5,5,27)
   my_bool use_cleartext = use_cleartext_plugin;
   mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
+#else
+  if (use_cleartext_plugin)
+    log_warning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
+#endif
+#endif
 
 
   if (!mysql_real_connect(&_mysql, hostname.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
