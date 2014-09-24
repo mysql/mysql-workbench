@@ -20,7 +20,6 @@
 #pragma once
 
 #include "mysql-parser-common.h"
-#include <stack>
 
 /**
  * C++ interface for the ANTLR based MySQL syntax checker. It's similar to the MySQL parser

@@ -163,21 +163,24 @@ bool MySQLRecognitionBase::is_charset(const std::string &s)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns true if the given token is an identifier.
+ * Returns true if the given token is an identifier. This includes all those keywords that are
+ * allowed as identifiers too.
  */
 bool MySQLRecognitionBase::is_identifier(ANTLR3_UINT32 type)
 {
   bool result = (type == IDENTIFIER) || (type == BACK_TICK_QUOTED_ID);
   if (!result)
   {
-    // Symbols are sorted so that keywords allowed as identifiers are in a continuous range
-    // making this check easy (and reduce the parser size by 300% compared to generated token ids).
-    result = (type >= ACTION_SYMBOL && type <= PARTITION_SYMBOL);
-
+    // Double quoted text represents identifiers only if the ANSI QUOTES sql mode is active.
+    result = ((d->_sql_mode & SQL_MODE_ANSI_QUOTES) != 0) && (type == DOUBLE_QUOTED_TEXT);
     if (!result)
     {
-      // Double quoted text represents identifiers only if the ANSI QUOTES sql mode is active.
-      result = ((d->_sql_mode & SQL_MODE_ANSI_QUOTES) != 0) && (type == DOUBLE_QUOTED_TEXT);
+      // Keyword check. See also predefined.tokens in the grammar folder (which contains
+      // manually assigned token ids for these keywords) and MySQL.g (keyword and keyword_sp rules).
+      // Symbols are sorted so that keywords allowed as identifiers are in a continuous range
+      // making this check easy (and reduce the parser size significantly compared to generated token ids).
+      result = (type >= ASCII_SYMBOL && type <= YEAR_SYMBOL);
+      
     }
   }
   return result;
@@ -187,12 +190,12 @@ bool MySQLRecognitionBase::is_identifier(ANTLR3_UINT32 type)
 
 /**
 * Returns the token value for a given keyword, which can be used to do search/replace operations.
-* Returns -1 if the keyword cannot be found.
+* Returns INVALID_TOKEN if the keyword cannot be found.
 */
-static std::map<std::string, size_t> keywords; // One map for all recognizers.
+static std::map<std::string, uint32_t> keywords; // One map for all recognizers.
 extern "C" pANTLR3_UINT8 MySQLParserTokenNames[]; // Defined in MySQLParser.
 
-size_t MySQLRecognitionBase::get_keyword_token(const std::string &keyword)
+uint32_t MySQLRecognitionBase::get_keyword_token(const std::string &keyword)
 {
   if (keywords.size() == 0)
   {
@@ -210,8 +213,15 @@ size_t MySQLRecognitionBase::get_keyword_token(const std::string &keyword)
   
   std::string lookup = base::toupper(keyword);
   if (keywords.find(lookup) == keywords.end())
-    return -1;
+    return INVALID_TOKEN;
   return keywords[lookup];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+char** MySQLRecognitionBase::get_token_list()
+{
+  return (char**)&MySQLParserTokenNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,7 +259,7 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case EQUAL_OPERATOR:
   case ESCAPE_OPERATOR:
   case EXPRESSION_TOKEN:
-  case FIELD_NAME_TOKEN:
+  case COLUMN_NAME_TOKEN:
   case FLOAT:
   case FUNCTION_CALL_TOKEN:
   case GREATER_OR_EQUAL_OPERATOR:
@@ -297,7 +307,7 @@ bool MySQLRecognitionBase::is_keyword(ANTLR3_UINT32 type)
   case VERSION_COMMENT_INTRODUCER:
   case VERSION_COMMENT_START_TOKEN:
   case VERSION_COMMENT_TAIL:
-  case WS:
+  case WHITESPACE:
   case XA_ID_TOKEN:
   case ANTLR3_TOKEN_EOF:
     return false;

@@ -1245,6 +1245,8 @@ void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
           procedures_node->set_string(0, PROCEDURES_CAPTION);
           functions_node->set_string(0, FUNCTIONS_CAPTION);
 
+          // Objects are cleaned up here because we are called by an event chain that runs
+          // after our caller has finished already. So we cannot delete them there.
           delete tables;
           delete views;
           delete procedures;

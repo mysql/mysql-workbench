@@ -1871,6 +1871,9 @@ NSImage* ListBoxImpl::ImageForRow(NSInteger row)
 NSString* ListBoxImpl::TextForRow(NSInteger row)
 {
   const char* textString = ld.GetString(row);
+  if (textString == NULL)
+    return @"";
+  
   NSString* sTitle;
   if (unicodeMode)
     sTitle = [NSString stringWithUTF8String:textString];

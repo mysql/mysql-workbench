@@ -16,3 +16,9 @@ add_custom_target(generate_parser
                   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                   COMMENT "Checking if we should regenerate mysql.parser files..."
 )
+
+set(DATA_FILES 
+    MySQL.g
+)
+
+install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/data)

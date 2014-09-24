@@ -494,8 +494,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
     std::list<std::string> *views  = new std::list<std::string>();
     std::list<std::string> *procedures = new std::list<std::string>();
     std::list<std::string> *functions = new std::list<std::string>();
-    std::vector<std::pair<std::string, bool> > table_list;
-    std::vector<std::pair<std::string, bool> > routine_list;
 
     MutexLock schema_contents_mutex(_schema_contents_mutex);
 
@@ -517,8 +515,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
             views->push_back(name);
           else
             tables->push_back(name);
-
-          table_list.push_back(std::make_pair(name, type == "VIEW"));
         }
       }
 
@@ -537,15 +533,9 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
             std::string name = rs->getString(1);
             std::string type = rs->getString(2);
             if (type == "PROCEDURE")
-            {
               procedures->push_back(name);
-              routine_list.push_back(std::make_pair(name, false));
-            }
             else
-            {
               functions->push_back(name);
-              routine_list.push_back(std::make_pair(name, true));
-            }
           }
         }
         catch (std::exception &exc)
@@ -564,7 +554,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
           {
             std::string name = rs->getString(2);
             procedures->push_back(name);
-            routine_list.push_back(std::make_pair(name, false));
           }
         }
         {
@@ -573,7 +562,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
           {
             std::string name = rs->getString(2);
             functions->push_back(name);
-            routine_list.push_back(std::make_pair(name, true));
           }
         }
       }
@@ -586,7 +574,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
     }
 
     // Let the owner form know we got fresh schema meta data. Can be used to update caches.
-    _owner->schema_meta_data_refreshed(schema_name, table_list, routine_list, false);
+    _owner->schema_meta_data_refreshed(schema_name, *tables, *views, *procedures, *functions);
   }
   catch (const sql::SQLException& e)
   {
