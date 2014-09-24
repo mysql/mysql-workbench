@@ -266,12 +266,14 @@ int main(int argc, char **argv)
 
   std::string source_password;
   std::string source_connstring;
+  bool source_use_cleartext_plugin = false;
   bool source_is_utf8 = false;
   std::string source_charset;
   SourceType source_type = ST_MYSQL;
 
   std::string target_connstring;
   std::string target_password;
+  bool target_use_cleartext_plugin = false;
   std::string log_level;
   std::string log_file;
 
@@ -529,6 +531,10 @@ int main(int argc, char **argv)
     {
       max_count = atoi(argval);
     }
+    else if (strcmp(argv[i], "--source-use-cleartext") == 0)
+      source_use_cleartext_plugin = true;
+    else if (strcmp(argv[i], "--target-use-cleartext") == 0)
+      target_use_cleartext_plugin = true;
     else
     {
       fprintf(stderr, "%s: Invalid option %s\n", argv[0], argv[i]);
@@ -687,7 +693,7 @@ int main(int argc, char **argv)
         psource.reset(new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type));
       }
       else if (source_type == ST_MYSQL)
-        psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket));
+        psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket, source_use_cleartext_plugin));
       else
         psource.reset(new PythonCopyDataSource(source_connstring, source_password));
 
@@ -699,7 +705,7 @@ int main(int argc, char **argv)
         if (task.copy_spec.resume)
         {
           if(!ptarget.get())
-            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
+            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
           last_pkeys = ptarget->get_last_pkeys(task.target_pk_columns, task.target_schema, task.target_table);
         }
         count_rows(psource, task.source_schema, task.source_table, task.source_pk_columns, task.copy_spec, last_pkeys);
@@ -708,7 +714,7 @@ int main(int argc, char **argv)
     else if (reenable_triggers || disable_triggers)
     {
       boost::scoped_ptr<MySQLCopyDataTarget> ptarget;
-      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
+      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
 
       if (disable_triggers)
         ptarget->backup_triggers(trigger_schemas);
@@ -725,7 +731,7 @@ int main(int argc, char **argv)
 
       if (disable_triggers_on_copy)
       {
-        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
+        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
         ptarget_conn->backup_triggers(trigger_schemas);
       }
 
@@ -739,11 +745,11 @@ int main(int argc, char **argv)
           psource = new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type);
         }
         else if (source_type == ST_MYSQL)
-          psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket);
+          psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket, source_use_cleartext_plugin);
         else
           psource = new PythonCopyDataSource(source_connstring, source_password);
 
-        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset);
+        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset);
 
         psource->set_max_blob_chunk_size(ptarget->get_max_allowed_packet());
         psource->set_max_parameter_size((unsigned long)ptarget->get_max_long_data_size());

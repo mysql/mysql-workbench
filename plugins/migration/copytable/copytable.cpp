@@ -1312,7 +1312,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
 MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket)
+                    const std::string &socket, bool use_cleartext_plugin)
   : _select_stmt(NULL), _has_long_data(false)
 {
   std::string host = hostname;
@@ -1344,6 +1344,9 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
     log_info("Connecting to MySQL server using socket %s with user %s\n",
            socket.c_str(), username.c_str());
   }
+
+  my_bool use_cleartext = use_cleartext_plugin;
+  mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
 
   if (!mysql_real_connect(&_mysql, host.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
                           CLIENT_COMPRESS))
@@ -1884,7 +1887,7 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
 
 MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket, const std::string &app_name,
+                    const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
                     const std::string &incoming_charset)
 : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
   _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
@@ -1934,6 +1937,9 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
     log_info("Connecting to MySQL server using socket %s with user %s\n",
            socket.c_str(), username.c_str());
   }
+
+  my_bool use_cleartext = use_cleartext_plugin;
+  mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
 
 
   if (!mysql_real_connect(&_mysql, hostname.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),

@@ -273,7 +273,7 @@ class MySQLCopyDataSource : public CopyDataSource
 public:
   MySQLCopyDataSource(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket);
+                    const std::string &socket, bool use_cleartext_plugin);
   virtual ~MySQLCopyDataSource();
 
   virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
@@ -348,7 +348,7 @@ class MySQLCopyDataTarget
 public:
   MySQLCopyDataTarget(const std::string &hostname, int port,
                       const std::string &username, const std::string &password,
-                      const std::string &socket, const std::string &app_name,
+                      const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
                       const std::string &incoming_charset);
 
   ~MySQLCopyDataTarget();

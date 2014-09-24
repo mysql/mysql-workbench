@@ -117,6 +117,10 @@ class MySQLScriptImporter(object):
                 params.append("--ssl-key=%s" % conn["sslKey"])
             if conn.get("sslCipher", ""):
                 params.append("--ssl-cipher=%s" % conn["sslCipher"])
+                
+        if conn.get("OPT_ENABLE_CLEARTEXT_PLUGIN", ""):
+            params.append("--enable-cleartext-plugin")                
+            
         params += ["--user=" + conn["userName"]]
         self._connection_params = params
 

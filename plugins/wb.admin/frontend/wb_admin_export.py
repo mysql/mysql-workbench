@@ -1154,8 +1154,10 @@ class WbAdminImportTab(WbAdminSchemaListTab):
 
         params = [item for item in params if item]
         if connection_params.driver.name != "MysqlNativeSocket":
-            if tunnel.port:
-                params.insert(1, "--protocol=tcp")
+            params.insert(1, "--protocol=tcp")
+
+        if conn.get("OPT_ENABLE_CLEARTEXT_PLUGIN", ""):
+            params.insert(1, "--enable-cleartext-plugin")
 
         cmd = self.get_path_to_mysql()
         if cmd == None:
@@ -1751,8 +1753,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             "default-character-set":"utf8",
             "user":conn["userName"]
             }
-            if tunnel.port:
-                params["protocol"] = "tcp"
+            params["protocol"] = "tcp"
             if not params["port"]:
                 del params["port"]
             if not params["host"]:
@@ -1785,6 +1786,8 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         # Sets the compatibility parameters if needed
         if self._compatibility_params:
           args.append("--set-gtid-purged=OFF")
+        if conn.get("OPT_ENABLE_CLEARTEXT_PLUGIN", ""):
+            args.append("--enable-cleartext-plugin")
 
         for paramname, paramvalue in params.items():
             args.append("--"+paramname+((paramvalue != None and ["="+str(paramvalue)] or [""])[0]))

@@ -233,16 +233,7 @@ class DataMigrator(object):
         if not self.copytable_path:
             raise RuntimeError("Path to wbcopytables not found")
 
-        if self._resume:
-            args = self.helper_basic_arglist()
-        elif self._src_conn_object.driver.owner.name == "Mysql":
-            args = ['--mysql-source="%s"' % mysql_conn_string(self._src_conn_object)]
-        elif (isinstance(self._src_conn_object.driver, grt.classes.db_mgmt_PythonDBAPIDriver) and
-              self._src_conn_object.driver.driverLibraryName != 'pyodbc'):
-            args = ['--pythondbapi-source="%s"' % python_conn_string(self._src_conn_object)]
-        else:
-            args = ['--odbc-source="%s"' % odbc_conn_string(self._src_conn_object, True)]
-        args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
+        args = self.helper_basic_arglist(False)
 
         if self._resume:
             args.append("--resume")
@@ -315,7 +306,7 @@ class DataMigrator(object):
         if len(working_set) < num_processes:
             num_processes = len(working_set)
 
-        args = self.helper_basic_arglist()
+        args = self.helper_basic_arglist(True)
         args += ["--progress", "--passwords-from-stdin"]
 
         if self._options.get("TruncateTargetTables", False):
@@ -345,20 +336,27 @@ class DataMigrator(object):
         return results
 
 
-    def helper_basic_arglist(self):
+    def helper_basic_arglist(self, include_target_conn):
+        args = []
         if self._src_conn_object.driver.owner.name == "Mysql":
-            args = ['--mysql-source="%s"' % mysql_conn_string(self._src_conn_object)]
+            args.append('--mysql-source="%s"' % mysql_conn_string(self._src_conn_object))
+            if self._src_conn_object.parameterValues.get("OPT_ENABLE_CLEARTEXT_PLUGIN", False):
+                args.append("--source-use-cleartext")
         elif (isinstance(self._src_conn_object.driver, grt.classes.db_mgmt_PythonDBAPIDriver) and
               self._src_conn_object.driver.driverLibraryName != 'pyodbc'):
-            args = ['--pythondbapi-source="%s"' % python_conn_string(self._src_conn_object)]
+            args.append('--pythondbapi-source="%s"' % python_conn_string(self._src_conn_object))
         else:
-            args = ['--odbc-source="%s"' % odbc_conn_string(self._src_conn_object, True)]
-        args += [
-          '--target="%s"' % mysql_conn_string(self._tgt_conn_object),
-        ]
+            args.append('--odbc-source="%s"' % odbc_conn_string(self._src_conn_object, True))
+            
         # for FreeTDS
         if self._src_conn_object.parameterValues.get("ODBCDriverUsesUTF8", False):
             args.append("--force-utf8-for-source")
+                
+        if include_target_conn:
+            args.append('--target="%s"' % mysql_conn_string(self._tgt_conn_object))
+            if self._tgt_conn_object.parameterValues.get("OPT_ENABLE_CLEARTEXT_PLUGIN", False):
+                args.append("--target-use-cleartext")
+
         return args
 
 
