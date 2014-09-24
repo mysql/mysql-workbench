@@ -534,7 +534,7 @@ IF [%arg_source_password%] == [] (
 
             f.write("\n\n")
             f.write(self.main.plan.wbcopytables_path)
-            for arg in self._transferer.helper_basic_arglist():
+            for arg in self._transferer.helper_basic_arglist(True):
                 f.write(' %s' % arg)
             f.write(' --source-password="%arg_source_password%" --target-password="%arg_target_password%" --table-file="%table_file%"')
             f.write(' --thread-count=%arg_worker_count% %arg_truncate_target% %arg_debug_output%')
@@ -561,13 +561,19 @@ fi
             f.write( ("" if debug_table_copy else "# ") + "arg_debug_output=--log-level=debug3\n")
             f.write("\n")
             f.write(self.main.plan.wbcopytables_path)
-            for arg in self._transferer.helper_basic_arglist():
+            for arg in self._transferer.helper_basic_arglist(True):
                 f.write(' %s' % arg)
             f.write(' --source-password="$arg_source_password" --target-password="$arg_target_password"')
             f.write(' --thread-count=$arg_worker_count $arg_truncate_target $arg_debug_output')
 
             for table in self._working_set.values():
-                opt = "--table '%s' '%s' '%s' '%s' '%s' '%s' '%s'" % (table["source_schema"], table["source_table"], table["target_schema"], table["target_table"], table["source_primary_key"].replace("'", "\'"), table["target_primary_key"].replace("'", "\'"), table["select_expression"].replace("'", "\'"))
+                opt = "--table '%s' '%s' '%s' '%s' '%s' '%s' '%s'" % (table["source_schema"], 
+                                                                      table["source_table"], 
+                                                                      table["target_schema"], 
+                                                                      table["target_table"], 
+                                                                      table["source_primary_key"].replace("'", "\'"), 
+                                                                      table["target_primary_key"].replace("'", "\'"), 
+                                                                      table["select_expression"].replace("'", "\'"))
                 f.write(" "+opt)
 
         f.write("\n\n")
