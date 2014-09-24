@@ -55,6 +55,9 @@ def generate_distro(source_dir, vars):
         target_dir = '%s.deb-%s' % (vars['edition'], vars['distro'])
         shutil.rmtree(target_dir, ignore_errors=True)
         os.mkdir(target_dir)
+        target_source_dir = os.path.join(target_dir, "source")
+        os.mkdir(target_source_dir)
+
 
         for f in os.listdir(source_dir):
                 inpath = os.path.join(source_dir, f)
@@ -62,15 +65,17 @@ def generate_distro(source_dir, vars):
                 if os.path.splitext(inpath)[-1] in edition_specific_file_exts:
                         if vars['edition'] not in inpath:
                                 continue
-                outf = open(outpath, "w+")
-                preprocess(inpath, open(inpath), outf, vars)
-                outf.close()
-                
+                if not os.path.isdir(os.path.join(target_dir, f)):
+                        outf = open(outpath, "w+")
+                        preprocess(inpath, open(inpath), outf, vars)
+                        outf.close()
+
                 # set the same permissions as the original file
-                os.chmod(outpath, os.stat(inpath).st_mode)
-                        
+                        os.chmod(outpath, os.stat(inpath).st_mode)
+
         # always copy this file, since the tar will come with the right README file
         shutil.copyfile("../README", os.path.join(target_dir,"copyright"))
+        shutil.copyfile(os.path.join(source_dir, "source/format"), os.path.join(target_source_dir,"format"))
 
         print target_dir, "generated"
 

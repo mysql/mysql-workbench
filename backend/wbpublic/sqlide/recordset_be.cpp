@@ -1153,7 +1153,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
 
     _context_menu->add_separator();
 
-    item = _context_menu->add_item_with_title("Set Field(s) to NULL",
+    item = _context_menu->add_item_with_title("Set Field to NULL",
                                        boost::bind(&Recordset::activate_menu_item, this, "set_to_null", rows, clicked_column),
                                        "set_to_null");
 

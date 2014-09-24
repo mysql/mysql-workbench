@@ -92,9 +92,9 @@ namespace mforms {
     return (DragOperation)((int)a & (int)b);
   }
 
-  inline DragOperation operator |= (DragOperation a, DragOperation b)
+  inline DragOperation& operator |= (DragOperation &a, DragOperation b)
   {
-    return (DragOperation)((int)a | (int)b);
+    return a = (DragOperation)((int)a | (int)b);
   }
 #endif
 

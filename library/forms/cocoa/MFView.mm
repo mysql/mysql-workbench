@@ -391,9 +391,9 @@ struct PasteboardDataWrapper {
   NSDragOperation nativeOperations = sender.draggingSourceOperationMask;
   mforms::DragOperation operations = mforms::DragOperationNone;
   if ((nativeOperations & NSDragOperationMove) == NSDragOperationMove)
-    operations = operations | mforms::DragOperationMove;
+    operations |= mforms::DragOperationMove;
   if ((nativeOperations & NSDragOperationCopy) == NSDragOperationCopy)
-    operations = operations | mforms::DragOperationCopy;
+    operations |= mforms::DragOperationCopy;
 
   mforms::View *view = NULL;
   if ([source respondsToSelector: @selector(mformsObject)])
@@ -438,9 +438,9 @@ struct PasteboardDataWrapper {
   NSDragOperation nativeOperations = sender.draggingSourceOperationMask;
   mforms::DragOperation operations = mforms::DragOperationNone;
   if ((nativeOperations & NSDragOperationMove) == NSDragOperationMove)
-    operations = operations | mforms::DragOperationMove;
+    operations |= mforms::DragOperationMove;
   if ((nativeOperations & NSDragOperationCopy) == NSDragOperationCopy)
-    operations = operations | mforms::DragOperationCopy;
+    operations |= mforms::DragOperationCopy;
 
   mforms::View *view = NULL;
   if ([source respondsToSelector: @selector(mformsObject)])

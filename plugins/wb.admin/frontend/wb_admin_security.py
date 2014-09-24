@@ -1028,7 +1028,7 @@ class SecurityAccount(mforms.Box):
 
         privs = self.owner.secman.get_zombie_privs(user, host)
 
-        self.account_label.set_text("Account %s@%s does not exist but it still has privileges defined for the following objects:\n    %s\n\nClick the [Drop] button to completely remove the account." % (user, host, "\n    ".join(privs)))
+        self.account_label.set_text("Account %s@%s does not exist but it still has privileges defined for the following objects:\n    %s\n\nClick the [Delete] button to completely remove the account." % (user, host, "\n    ".join(privs)))
 
 
     def show_user(self, user):
@@ -1186,15 +1186,17 @@ class SecurityAccount(mforms.Box):
 
     def del_account(self):
         if self._selected_user:
-            if not self._selected_user.is_commited or Utilities.show_message("Drop Account",
+            if not self._selected_user.is_commited or Utilities.show_message("Delete Account",
                   "The account '%s' will be permanently removed. Please confirm."%(self._selected_user.formatted_name()),
-                  "Drop", "Cancel", "") == mforms.ResultOk:
+                  "Delete", "Cancel", "") == mforms.ResultOk:
                 the_name = self._selected_user.formatted_name()
                 try:
                     self.owner.secman.delete_account(self._selected_user)
                 except Exception, e:
+                    log_error("Exception while removing account: %s\n" % str(e))
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
-                    Utilities.show_error(title, message, 'OK', '', '')
+                    Utilities.show_error("Delete account", '%s\n%s' % (title, message), 'OK', '', '')
+                    return
                 self._selected_user = None
                 self._selected_user_original = None
                 self.owner.do_refresh()
@@ -1204,7 +1206,13 @@ class SecurityAccount(mforms.Box):
             user = self.user_list.get_selected_node()
             if user:
                 username, host = eval(user.get_tag())
-                self.owner.secman.wipe_zombie(username, host)
+                try:
+                    self.owner.secman.do_delete_account(username, host)
+                except Exception, e:
+                    log_error("Exception while removing zombi account: %s\n" % str(e))
+                    title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
+                    Utilities.show_error("Delete account", '%s\n%s' % (title, message), 'OK', '', '')
+                    return
                 user.remove_from_parent()
 
         self.add_button.set_enabled(True)

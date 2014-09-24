@@ -191,7 +191,7 @@ void SqlEditorResult::update_selection_for_menu_extra(mforms::ContextMenu *menu,
   mforms::MenuItem *item = menu->find_item("edit_cell");
   if (item)
   {
-    if (item->signal_clicked()->empty())
+    if (item->signal_clicked()->empty() && !rows.empty())
       item->signal_clicked()->connect(boost::bind(&SqlEditorResult::open_field_editor, this, rows[0], column));
   }
 }
@@ -313,7 +313,7 @@ std::vector<SpatialDataView::SpatialDataSource> SqlEditorResult::get_spatial_col
     if (iter->type == "GEOMETRY")
     {
       SpatialDataView::SpatialDataSource field;
-      field.source = _owner->get_title();
+      field.source = get_title();
       field.resultset = _rset;
       field.column = iter->field;
       field.type = iter->type;

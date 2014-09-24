@@ -69,7 +69,6 @@ SOURCE ./views/p_s/io_global_by_wait_by_bytes.sql
 SOURCE ./views/p_s/io_global_by_wait_by_latency.sql
 
 SOURCE ./views/p_s/memory_by_user.sql
-SOURCE ./views/p_s/memory_by_host.sql
 SOURCE ./views/p_s/memory_global_by_current_allocated.sql
 SOURCE ./views/p_s/memory_global_total.sql
 

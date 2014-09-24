@@ -20,13 +20,11 @@ import os
 import sys
 import StringIO
 import ConfigParser
-from time import strptime, strftime, localtime
+from time import strptime, strftime
 import re
 import subprocess
 import logging
-import time
 import json
-from multiprocessing import Process
 
 is_library = True
 
@@ -38,7 +36,19 @@ def call_system(command, spawn, output_handler = None):
     logging.info('Executing command: %s' % command)
 
     if spawn or output_handler is None:
-        child = subprocess.Popen(command, bufsize=0, close_fds=True, shell=True, preexec_fn=os.setpgrp)
+        if os.fork() != 0:
+            return
+        
+        os.setpgrp()
+        
+        for i in range(0,100):
+            try:
+                os.close(i)
+            except:
+                pass
+                  
+        os.execvp("/bin/bash", ["/bin/bash", "-c", command])
+
     else:
         child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
         
@@ -293,8 +303,9 @@ class MEBBackup(MEBCommand):
         self.backup_dir = profile.read_value('mysqlbackup', 'backup_dir', True, "")
         self.inc_backup_dir = profile.read_value('mysqlbackup', 'incremental_backup_dir', True, "")
         self.use_tts = profile.read_value('meb_manager', 'using_tts', False, "0")
-        self.compress_method = profile.read_value('meb_manager', 'compress_method', 'lz4')
-        self.compress_level = profile.read_value('meb_manager', 'compress_level', '1')        
+        self.compress_method = profile.read_value('meb_manager', 'compress_method', False, 'lz4')
+        self.compress_level = profile.read_value('meb_manager', 'compress_level', False, '1')
+        self.skip_unused_pages = profile.read_value('meb_manager', 'skip_unused_pages', False, False) == 'True'
 
     def set_backup_paths(self):
         target_folder = ''
@@ -359,6 +370,8 @@ class MEBBackup(MEBCommand):
             else:
                 self.write_output("ERROR: Unable to run incremental backup without a base folder.")
                 ret_val = False
+        elif self.skip_unused_pages:
+            self.command_call += " --skip-unused-pages"
                 
         # Sets the needed backup paths
         self.set_backup_paths()
@@ -684,6 +697,8 @@ class MEBPropagateSettings(MEBCommand):
             os.remove(source_config_file)
         else:
             self.print_usage()
+						
+        return ret_val
 
             
 class MEBGetProfiles(MEBCommand):
@@ -831,7 +846,7 @@ class MEBGetProfiles(MEBCommand):
         return 0
 
 class MEBVersion(MEBCommand):
-    current = "2"
+    current = "3"
 
     def __init__(self, params = None, output_handler = None):
         super(MEBVersion, self).__init__(params, output_handler)
