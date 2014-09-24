@@ -34,11 +34,6 @@ ZOMBIE_TABLE_PRIVS_QUERY = "SELECT t.User, t.Host, t.Db, t.Table_name FROM mysql
 ZOMBIE_COLUMN_PRIVS_QUERY = "SELECT c.User, c.Host, c.Db, c.Table_name, c.Column_name FROM mysql.columns_priv AS c LEFT JOIN mysql.user AS u ON c.User = u.user AND c.Host = u.Host WHERE u.User IS NULL"
 ZOMBIE_PROCS_PRIVS_QUERY = "SELECT p.User, p.Host, p.Db, p.Routine_name, p.Routine_type FROM mysql.procs_priv AS p LEFT JOIN mysql.user AS u ON p.User = u.user AND p.Host = u.Host WHERE u.User IS NULL"
 
-DROP_ZOMBIE_SCHEMA_PRIVS_QUERY = "DELETE FROM mysql.db WHERE User = '%(user)s' AND Host = '%(host)s'"
-DROP_ZOMBIE_TABLE_PRIVS_QUERY = "DELETE FROM mysql.tables_priv WHERE User = '%(user)s' AND Host = '%(host)s'"
-DROP_ZOMBIE_COLUMN_PRIVS_QUERY =  "DELETE FROM mysql.columns_priv WHERE User = '%(user)s' AND Host = '%(host)s'"
-DROP_ZOMBIE_PROCS_PRIVS_QUERY =  "DELETE FROM mysql.procs_priv WHERE User = '%(user)s' AND Host = '%(host)s'"
-
 
 GET_ACCOUNT_QUERY = "SELECT * FROM mysql.user WHERE User='%(user)s' AND Host='%(host)s' ORDER BY User, Host"
 
@@ -380,21 +375,25 @@ class AdminSecurity(object):
         return self._accounts
 
 
+    def do_delete_account(self, username, host):
+        query = REMOVE_USER % {"user":escape_sql_string(username), "host":escape_sql_string(host)}
+        try:
+            self.ctrl_be.exec_sql("use mysql")
+            self.ctrl_be.exec_sql(query)
+        except QueryError, e:
+            log_error('Error removing account %s@%s:\n%s' % (username, host, str(e)))
+            if e.error == 1227: # MySQL error code 1227 (ER_SPECIFIC_ACCESS_DENIED_ERROR)
+                raise Exception('Error removing the account  %s@%s:' % (username, host),
+                                'You must have the global CREATE USER privilege or the DELETE privilege for the mysql '
+                                'database')
+            raise e
+
     def delete_account(self, account):
         if account.is_commited:
-            query = REMOVE_USER % {"user":escape_sql_string(account.username), "host":escape_sql_string(account.host)}
-            try:
-                self.ctrl_be.exec_sql("use mysql")
-                self.ctrl_be.exec_sql(query)
-            except QueryError, e:
-                if e.error == 1227:
-                    raise Exception('Error removing the account  %s@%s:' % (account.username, account.host),
-                                    'You must have the global CREATE USER privilege or the DELETE privilege for the mysql '
-                                    'database')
+            self.do_delete_account(account.username, account.host)
         del self._account_info_cache[account.username+"@"+account.host]
         if (account.username, account.host) in self._accounts:
-            self._accounts.remove((account.username, account.host))
-
+          self._accounts.remove((account.username, account.host))
 
     def revert_account(self, account, backup):
         try:
@@ -440,28 +439,6 @@ class AdminSecurity(object):
 
     def get_zombie_privs(self, user, host):
         return self._zombie_privs.get((user,host), None)
-
-
-    def wipe_zombie(self, user, host):
-        try:
-            self.ctrl_be.exec_query(DROP_ZOMBIE_SCHEMA_PRIVS_QUERY % {'user':escape_sql_string(user), 'host':escape_sql_string(host)})
-        except Exception, e:
-            log_error("Could not delete schema privileges for %s@%s: %s\n" % (user, host, e))
-        try:
-            self.ctrl_be.exec_query(DROP_ZOMBIE_TABLE_PRIVS_QUERY % {'user':escape_sql_string(user), 'host':escape_sql_string(host)})
-        except Exception, e:
-            log_error("Could not delete table privileges for %s@%s: %s\n" % (user, host, e))
-        try:
-            self.ctrl_be.exec_query(DROP_ZOMBIE_COLUMN_PRIVS_QUERY % {'user':escape_sql_string(user), 'host':escape_sql_string(host)})
-        except Exception, e:
-            log_error("Could not delete column privileges for %s@%s: %s\n" % (user, host, e))
-        try:
-            self.ctrl_be.exec_query(DROP_ZOMBIE_PROCS_PRIVS_QUERY % {'user':escape_sql_string(user), 'host':escape_sql_string(host)})
-        except Exception, e:
-            log_error("Could not delete procs privileges for %s@%s: %s\n" % (user, host, e))
-
-
-
 
 
     def async_get_account(self, callback, name, host):

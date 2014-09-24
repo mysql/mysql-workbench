@@ -759,7 +759,12 @@ SQLRETURN ODBCCopyDataSource::get_date_time_data(RowBuffer &rowbuffer, int colum
   ret = SQLGetData(_stmt, column, SQL_C_CHAR, &out_date, sizeof(out_date), &len_or_indicator);
   if (SQL_SUCCEEDED(ret))
   {
-    if (out_date != NULL)
+    //When driver cannot determine the number of bytes of long data
+    //still available to return in an output buffer it return SQL_NO_TOTAL
+    if (len_or_indicator == SQL_NO_TOTAL)
+      throw std::runtime_error(base::strfmt("Got SQL_NO_TOTAL for string size during copy of column %i", column));
+
+    if (len_or_indicator != SQL_NULL_DATA)
       BaseConverter::convert_date_time(out_date, (MYSQL_TIME*)out_buffer, type);
     else
       ((MYSQL_TIME*)out_buffer)->time_type = MYSQL_TIMESTAMP_NONE;
@@ -2347,7 +2352,7 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
           if (_major_version >= 6
               || (_major_version == 5 && _minor_version >= 7)
               || (_major_version == 5 && _minor_version == 6 && _build_version >= 4))
-            data = base::strfmt("'%04d-%02d-%02d %02d:%02d:%02d.%lu'",
+            data = base::strfmt("'%04d-%02d-%02d %02d:%02d:%02d.%06lu'",
                          ts->year, ts->month, ts->day,
                          ts->hour, ts->minute, ts->second,
                          ts->second_part);
@@ -2364,7 +2369,7 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index)
           if (_major_version >= 6
                         || (_major_version == 5 && _minor_version >= 7)
                         || (_major_version == 5 && _minor_version == 6 && _build_version >= 4))
-            data = base::strfmt("'%02d:%02d:%02d.%lu'",
+            data = base::strfmt("'%02d:%02d:%02d.%06lu'",
                                 ts->hour, ts->minute, ts->second, ts->second_part);
           else
             data = base::strfmt("'%02d:%02d:%02d'",
@@ -2766,9 +2771,13 @@ void CopyDataTask::copy_table(const TableParam &task)
   }
 
   time_t end = time(NULL);
-  printf("END:%s.%s:Finished copying %lli rows in %im%02is\n",
-         task.target_schema.c_str(), task.target_table.c_str(), i,
-         (int)((end-start) / 60), (int)((end-start) % 60));
+  if (i != total)
+    printf("ERROR:%s.%s:Failed copying %lli rows\n",
+               task.target_schema.c_str(), task.target_table.c_str(), total-i);
+  else
+    printf("END:%s.%s:Finished copying %lli rows in %im%02is\n",
+           task.target_schema.c_str(), task.target_table.c_str(), i,
+           (int)((end-start) / 60), (int)((end-start) % 60));
   fflush(stdout);
 }
 

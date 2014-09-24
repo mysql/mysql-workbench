@@ -175,16 +175,17 @@ void SpatialDrawBox::render(bool reproject)
       visible_area.MinLon = -89.0;
   }
 
-
   visible_area.height = height;
   visible_area.width = width;
 
-  try {
+  try
+  {
     if (_spatial_reprojector == NULL)
       _spatial_reprojector = new spatial::Converter(visible_area,
                                 spatial::Projection::get_instance().get_projection(spatial::ProjGeodetic),
                                 spatial::Projection::get_instance().get_projection(_proj));
-  } catch (std::exception &exc)
+  }
+  catch (std::exception &exc)
   {
     log_error("SpatialDrawBox::render: %s\n", exc.what());
     return;
@@ -192,15 +193,10 @@ void SpatialDrawBox::render(bool reproject)
 
   _spatial_reprojector->change_projection(visible_area, NULL, spatial::Projection::get_instance().get_projection(_proj));
 
-
-
-
-
-
   // TODO lat/long ranges must be adjusted accordingly to account for the aspect ratio of the visible area
-
   boost::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
   _cache = surface;
+
   if (_ctx_cache != NULL)
     delete _ctx_cache;
   _ctx_cache = new mdc::CairoCtx(*surface);
@@ -279,7 +275,6 @@ _rendering(false), _quitting(false), _needs_reprojection(true), _select_pending(
 
   _current_layer = NULL;
   _progress = NULL;
-
 }
 
 SpatialDrawBox::~SpatialDrawBox()
@@ -287,7 +282,8 @@ SpatialDrawBox::~SpatialDrawBox()
   _quitting = true;
   clear();
   // lock the mutex, so that if the worker is still busy, we'll wait for it
-  _thread_mutex.lock();
+
+  base::MutexLock lock(_thread_mutex);
   delete _ctx_cache;
   _ctx_cache = NULL;
 }
@@ -457,25 +453,36 @@ void SpatialDrawBox::set_context_menu(mforms::ContextMenu *menu)
 
 void SpatialDrawBox::add_layer(spatial::Layer *layer)
 {
-  {
-
-    base::MutexLock lock(_layer_mutex);
-    layer->set_fill_polygons((bool)get_option("SqlEditor::FillUpPolygons", 1));
-    _layers.push_back(layer);
-  }
+  base::MutexLock lock(_layer_mutex);
+  layer->set_fill_polygons((bool)get_option("SqlEditor::FillUpPolygons", 1));
+  _layers.push_back(layer);
 }
 
 void SpatialDrawBox::remove_layer(spatial::Layer *layer)
 {
-  {
-    base::MutexLock lock(_layer_mutex);
-    layer->interrupt();
-    std::deque<spatial::Layer*>::iterator l = std::find(_layers.begin(), _layers.end(), layer);
-    if (l != _layers.end())
-      _layers.erase(l);
-  }
+  base::MutexLock lock(_layer_mutex);
+  layer->interrupt();
+  std::deque<spatial::Layer*>::iterator l = std::find(_layers.begin(), _layers.end(), layer);
+  if (l != _layers.end())
+    _layers.erase(l);
 }
 
+void SpatialDrawBox::change_layer_order(const std::vector<spatial::LayerId> &order)
+{
+  base::MutexLock lock(_layer_mutex);
+  std::map<spatial::LayerId, spatial::Layer*> layers;
+  for (std::deque<spatial::Layer*>::iterator it = _layers.begin(); it != _layers.end(); ++it)
+    layers[(*it)->layer_id()] = *it;
+
+  _layers.clear();
+  std::map<spatial::LayerId, spatial::Layer*>::iterator it;
+  for (size_t i = 0; i < order.size(); ++i)
+  {
+    it = layers.find(order[i]);
+    if (it != layers.end())
+      _layers.push_back(it->second);
+  }
+}
 
 spatial::Layer *SpatialDrawBox::get_layer(spatial::LayerId layer_id)
 {
@@ -513,7 +520,6 @@ void SpatialDrawBox::show_layer(spatial::LayerId layer_id, bool flag)
   }
 }
 
-
 void SpatialDrawBox::activate()
 {
   if (!_ready)
@@ -529,7 +535,6 @@ void SpatialDrawBox::invalidate(bool reproject)
     render_in_thread(reproject);
   set_needs_repaint(); // repaint the grid
 }
-
 
 bool SpatialDrawBox::mouse_double_click(mforms::MouseButton button, int x, int y)
 {
@@ -600,6 +605,9 @@ bool SpatialDrawBox::mouse_up(mforms::MouseButton button, int x, int y)
     _selecting = false;
     set_needs_repaint();
     mforms::App::get()->set_status_text("");
+
+    if (area_selected)
+      area_selected();
   }
   return true;
 }
@@ -624,7 +632,6 @@ bool SpatialDrawBox::mouse_move(mforms::MouseButton button, int x, int y)
   return true;
 }
 
-
 int SpatialDrawBox::clicked_row_id()
 {
   int row_id = -1;
@@ -645,7 +652,6 @@ int SpatialDrawBox::clicked_row_id()
   return row_id;
 }
 
-
 void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, bool no_invalidate)
 {
   double lat1, lat2;
@@ -657,16 +663,10 @@ void SpatialDrawBox::restrict_displayed_area(int x1, int y1, int x2, int y2, boo
   if (screen_to_world(x1, y1, lat1, lon1) &&
       screen_to_world(x2, y2, lat2, lon2))
   {
-    _zoom_level = 1.0;
-    _offset_x = 0;
-    _offset_y = 0;
-
     double h = fabs(lat2 - lat1);
 
     double ratio = 2.011235955; // taken from (179 *2) / (89*2) world boundaries
     lon2 = lon1 + h * ratio;
-
-
 
     _zoom_level = 1.0;
     _offset_x = 0;
@@ -786,6 +786,14 @@ void SpatialDrawBox::world_to_screen(const double &lat, const double &lon, int &
   }
 }
 
+void SpatialDrawBox::save_to_png(const std::string &destination)
+{
+  boost::shared_ptr<mdc::ImageSurface> surface(new mdc::ImageSurface(get_width(), get_height(), CAIRO_FORMAT_ARGB32));
+  mdc::CairoCtx ctx(*surface);
+  this->repaint(ctx.get_cr(), 0, 0, get_width(), get_height());
+  surface->save_to_png(destination);
+}
+
 void SpatialDrawBox::clear_pins()
 {
   _pins.clear();
@@ -814,3 +822,5 @@ void SpatialDrawBox::place_pin(cairo_surface_t *pin, const base::Point &p)
   _pins.push_back(Pin(lat, lon, pin));
   set_needs_repaint();
 }
+
+

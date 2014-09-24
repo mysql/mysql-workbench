@@ -117,6 +117,7 @@ public:
   boost::function<void (mforms::View*, bool reprojecting)> work_started;
   boost::function<void (mforms::View*)> work_finished;
   boost::function<int (const char*, int)> get_option;
+  boost::function<void ()> area_selected;
 
 public:
   SpatialDrawBox();
@@ -147,6 +148,7 @@ public:
   
   void add_layer(spatial::Layer *layer);
   void remove_layer(spatial::Layer *layer);
+  void change_layer_order(const std::vector<spatial::LayerId> &order);
 
   spatial::Layer *get_layer(spatial::LayerId layer_id);
 
@@ -171,4 +173,5 @@ public:
   base::Point unapply_cairo_transformation(const base::Point &p) const;
   void clear_pins();
   void place_pin(cairo_surface_t *pin, const base::Point &p);
+  void save_to_png(const std::string &destination);
 };

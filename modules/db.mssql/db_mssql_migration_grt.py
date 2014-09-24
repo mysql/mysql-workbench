@@ -283,6 +283,9 @@ class MSSQLMigration(GenericMigration):
                     target_datatype = 'MEDIUMBLOB'
                 else:
                     target_datatype = 'LONGBLOB'
+            elif source_datatype == 'VARBINARY':
+                if source_column.length == -1:  # VARBINARY(MAX)
+                   target_datatype = 'LONGBLOB'
             # datetime datatypes:
             elif source_datatype in ['DATETIME', 'SMALLDATETIME', 'DATETIME2', 'DATETIMEOFFSET']:
                 target_datatype = 'DATETIME'

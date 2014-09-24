@@ -196,6 +196,7 @@ class MYSQLCANVAS_PUBLIC_FUNC ImageSurface : public Surface
 {
 public:
   ImageSurface(double width, double height, cairo_format_t format);
+  void save_to_png(const std::string &destination) const;
 };
 
 

@@ -1494,7 +1494,6 @@ void ActionGenerateSQL::create_trigger(db_mysql_TriggerRef trigger, bool for_alt
         trigger_definition.append(" ").append(position).append(" `").append(preceding->name()).append("`");
         trigger_definition.append("\n").append(trigger->sqlBody());
       }
-      else puts("SHIT");
     }
   }
 

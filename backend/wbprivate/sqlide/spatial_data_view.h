@@ -26,6 +26,7 @@
 #include "mforms/box.h"
 #include "mforms/utilities.h"
 #include "mforms/splitter.h"
+#include "mforms/treenodeview.h"
 
 #include <deque>
 
@@ -102,10 +103,13 @@ private:
   void handle_click(base::Point p);
 
   void jump_to();
-  void auto_zoom();
+  void export_image();
+  void auto_zoom(LayerId layer);
   void copy_coordinates();
 
   void change_tool(mforms::ToolBarItem *item);
+
+  std::vector<std::string> layer_overlay_handler(mforms::TreeNodeRef node);
 
   // layer currently selected in the treeview
   LayerId get_selected_layer_id();
@@ -120,8 +124,8 @@ private:
   void map_menu_will_show();
   void layer_menu_will_show();
 
-  void activate_layer();
-
+  void area_selected();
+  void activate_layer(mforms::TreeNodeRef, int column);
 public:
   SpatialDataView(SqlEditorResult *owner);
   virtual ~SpatialDataView();
@@ -130,9 +134,12 @@ public:
 
   void set_geometry_columns(const std::vector<SpatialDataSource> &columns);
   int get_option(const char* opt_name, int default_value);
+
   void fillup_polygon(mforms::MenuItem *mitem);
   void projection_item_activated(mforms::ToolBarItem *item);
 
   void activate();
   void refresh_layers();
+
+  void layer_menu_action(const std::string &action);
 };

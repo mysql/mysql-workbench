@@ -1953,7 +1953,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                 err_msg= strfmt(_("Error Code: %i. %s\nSelect the default DB to be used by double-clicking its name in the SCHEMAS list in the sidebar."), e.getErrorCode(), e.what());
                 break;
               case 1175: // safe mode
-                err_msg= strfmt(_("Error Code: %i. %s\nTo disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect."), e.getErrorCode(), e.what());
+                err_msg= strfmt(_("Error Code: %i. %s\nTo disable safe mode, toggle the option in Preferences -> SQL Editor and reconnect."), e.getErrorCode(), e.what());
                 break;
               default:
                 err_msg= strfmt(_("Error Code: %i. %s"), e.getErrorCode(), e.what());
@@ -2054,7 +2054,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                         err_msg= strfmt(_("Error Code: %i. %s\nSelect the default DB to be used by double-clicking its name in the SCHEMAS list in the sidebar."), e.getErrorCode(), e.what());
                         break;
                         case 1175: // safe mode
-                        err_msg= strfmt(_("Error Code: %i. %s\nTo disable safe mode, toggle the option in Preferences -> SQL Queries and reconnect."), e.getErrorCode(), e.what());
+                        err_msg= strfmt(_("Error Code: %i. %s\nTo disable safe mode, toggle the option in Preferences -> SQL Editor and reconnect."), e.getErrorCode(), e.what());
                         break;
                         default:
                         err_msg= strfmt(_("Error Code: %i. %s"), e.getErrorCode(), e.what());
