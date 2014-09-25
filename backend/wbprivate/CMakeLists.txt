@@ -59,7 +59,7 @@ add_library(wbprivate
     sqlide/wb_sql_editor_form_ui.cpp
     sqlide/wb_sql_editor_help.cpp
     sqlide/wb_sql_editor_tree_controller.cpp
-	sqlide/execute_routine_wizard.cpp
+  	sqlide/execute_routine_wizard.cpp
     sqlide/wb_sql_editor_panel.cpp
     sqlide/wb_sql_editor_result_panel.cpp
     sqlide/wb_context_sqlide.cpp
@@ -69,8 +69,6 @@ add_library(wbprivate
     sqlide/query_side_palette.cpp
     sqlide/spatial_data_view.cpp
     sqlide/spatial_draw_box.cpp
-    sqlide/grammar-parser/ANTLRv3Lexer.c
-    sqlide/grammar-parser/ANTLRv3Parser.c
     workbench/metaclasses.cpp
     workbench/upgrade_helper.cpp
     workbench/wb_command_ui.cpp
