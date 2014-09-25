@@ -33,6 +33,7 @@
 #include "sqlide/db_sql_editor_log.h"
 #include "sqlide/db_sql_editor_history_be.h"
 #include "sqlide/wb_context_sqlide.h"
+#include "sqlide/wb_live_schema_tree.h"
 
 #include "cppdbc.h"
 
@@ -409,10 +410,10 @@ public:
   void active_schema(const std::string &value);
   std::string active_schema() const;
   void schema_meta_data_refreshed(const std::string &schema_name,
-                                  const std::list<std::string> &tables,
-                                  const std::list<std::string> &views,
-                                  const std::list<std::string> &procedures,
-                                  const std::list<std::string> &functions);
+                          wb::LiveSchemaTree::StringListPtr tables,
+                          wb::LiveSchemaTree::StringListPtr views,
+                          wb::LiveSchemaTree::StringListPtr procedures,
+                          wb::LiveSchemaTree::StringListPtr functions);
 private:
   void cache_active_schema_name();
 
