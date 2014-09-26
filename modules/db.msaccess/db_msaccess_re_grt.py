@@ -406,7 +406,7 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
     def reverseEngineerTables(cls, connection, schema):
         # Since there are some reverse engineering stages that requires all table names and table columns
         # in the database to be set, these should be done after a first pass that rev engs their requirements
-        progress_flags = cls._connections[connection.__id__].setdefault('_rev_eng_progress_flags', [])
+        progress_flags = cls._connections[connection.__id__].setdefault('_rev_eng_progress_flags', set())
         is_first_pass = not ('%s_tables_first_pass' % schema.name) in progress_flags
 
         if is_first_pass:
@@ -488,10 +488,6 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
     @classmethod
     def reverseEngineerTablePK(cls, connection, table):
         """Reverse engineers the primary key(s) for the given table."""
-
-        schema = table.owner
-        catalog = schema.owner
-
 
         if len(table.columns) == 0:  # Table must have columns reverse engineered before we can rev eng its primary key(s)
             grt.send_error('Migration: reverseEngineerTablePKAndIndices: Reverse engineer of table %s was attempted but the table has no columns attribute' % table.name)
@@ -614,7 +610,6 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
             return 1    # Table must have columns reverse engineered before we can rev eng its indices
 
         catalog = table.owner.owner
-        schema = table.owner
         table.foreignKeys.remove_all()
         fk_dict = {}  # Map the foreign key names to their respective columns:
 
@@ -666,7 +661,7 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
 
     @classmethod
     def resetProgressFlags(cls, connection):
-        cls._connections[connection.__id__]['_rev_eng_progress_flags'] = []
+        cls._connections[connection.__id__]['_rev_eng_progress_flags'] = set()
         return 0
 ###############################################################################################################
 

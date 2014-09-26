@@ -232,11 +232,13 @@ class ParameterDialog(mforms.Form):
     def run(self, file):
         self.set_title("Run SQL Script - %s" % file)
 
-        known_schemas = []
+        known_schemas = [""]
         result = self.editor.executeManagementQuery("SHOW SCHEMAS", 0)
         if result:
             while result.nextRow():
-                known_schemas.append(result.stringFieldValue(0))
+                s = result.stringFieldValue(0)
+                if s not in ["performance_schema", "mysql", "information_schema"]:
+                    known_schemas.append(s)
             self.schema.add_items(sorted(known_schemas))
 
         try:
