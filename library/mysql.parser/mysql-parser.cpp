@@ -58,10 +58,6 @@ std::string get_token_name(pANTLR3_UINT8 *tokenNames, ANTLR3_UINT32 token)
     return "opening curly brace";
   case CLOSE_CURLY_SYMBOL:
     return "closing curly brace";
-  case OPEN_BRACKET_SYMBOL:
-    return "opening bracket";
-  case CLOSE_BRACKET_SYMBOL:
-    return "closing bracket";
   case NULL2_SYMBOL:
     return "null escape sequence";
   case PARAM_MARKER:

@@ -584,7 +584,7 @@
         microsecond mid middleint migrate minute_microsecond minute_second minute min_rows min mode modifies modify mod month
         multilinestring multipoint multipolygon mutex mysql_errno
       names name national natural nchar_string nchar ndb ndbcluster neg never new next nodegroup none nonblocking not now no no_wait
-        no_write_to_binlog null number numeric num nvarchar
+        no_write_to_binlog null number numeric nvarchar
       offline offset old_password on one_shot one online only open options option optionally order or outer outfile out owner
       pack_keys page param_marker parser partial partitioning partitions password phase plugins plugin_dir plugin point
         polygon port position precedes precision preserve prev primary privileges procedure process processlist profile profiles proxy
