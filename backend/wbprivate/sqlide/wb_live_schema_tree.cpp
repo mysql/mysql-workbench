@@ -1180,8 +1180,8 @@ void LiveSchemaTree::update_live_object_state(ObjectType type, const std::string
 }
 
 void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
-    wb::LiveSchemaTree::StringListPtr tables, wb::LiveSchemaTree::StringListPtr views,
-    wb::LiveSchemaTree::StringListPtr procedures, wb::LiveSchemaTree::StringListPtr functions, bool just_append)
+    StringListPtr tables, StringListPtr views,
+    StringListPtr procedures, StringListPtr functions, bool just_append)
 {
   if (_base)
   {

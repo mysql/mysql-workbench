@@ -410,10 +410,10 @@ public:
   void active_schema(const std::string &value);
   std::string active_schema() const;
   void schema_meta_data_refreshed(const std::string &schema_name,
-                          wb::LiveSchemaTree::StringListPtr tables,
-                          wb::LiveSchemaTree::StringListPtr views,
-                          wb::LiveSchemaTree::StringListPtr procedures,
-                          wb::LiveSchemaTree::StringListPtr functions);
+                          wb::StringListPtr tables,
+                          wb::StringListPtr views,
+                          wb::StringListPtr procedures,
+                          wb::StringListPtr functions);
 private:
   void cache_active_schema_name();
 

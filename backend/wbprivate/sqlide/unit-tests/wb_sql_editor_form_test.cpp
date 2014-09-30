@@ -140,7 +140,8 @@ public:
     return false;
   }
 
-  void mock_schema_content_arrived(const std::string &schema_name, std::list<std::string>* tables, std::list<std::string>* views, std::list<std::string>* procedures, std::list<std::string>* functions, bool just_append)
+  void mock_schema_content_arrived(const std::string &schema_name, StringListPtr tables,
+    StringListPtr views, StringListPtr procedures, StringListPtr functions, bool just_append)
   {
     tut::ensure(_check_id + " : Unexpected call to schema_content_arrived", _expect_schema_content_arrived);
     _expect_schema_content_arrived = false;

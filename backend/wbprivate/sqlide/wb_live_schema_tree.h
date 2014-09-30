@@ -30,6 +30,8 @@
 
 namespace wb
 {
+  typedef boost::shared_ptr<std::list<std::string> > StringListPtr;
+
   class MYSQLWBBACKEND_PUBLIC_FUNC LiveSchemaTree: base::trackable
   {
   public:
@@ -300,8 +302,6 @@ namespace wb
       virtual std::string get_object_name() { return _("Schema"); }
     };
 
-
-    typedef boost::shared_ptr<std::list<std::string> > StringListPtr;
     typedef boost::function<void (const std::string& schema_name, StringListPtr tables, StringListPtr views, StringListPtr procedures, StringListPtr functions, bool just_append)> NewSchemaContentArrivedSlot;
     typedef boost::function<void (const std::string& schema_name, const std::string& object_name, ObjectType obj_type, ObjectType child_type, const std::map<std::string, LSTData*> &children)> NewObjectDetailsArrivedSlot;
     typedef boost::function<bool (mforms::TreeNodeRef, std::list<std::string>&, ObjectType, bool sorted, bool just_append)>NodeChildrenUpdaterSlot;
