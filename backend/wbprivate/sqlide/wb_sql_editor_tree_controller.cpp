@@ -490,10 +490,10 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorTreeController, self_ptr, self, grt::StringRef(""))
   try
   {
-    wb::LiveSchemaTree::StringListPtr tables(new std::list<std::string>());
-    wb::LiveSchemaTree::StringListPtr views(new std::list<std::string>());
-    wb::LiveSchemaTree::StringListPtr procedures(new std::list<std::string>());
-    wb::LiveSchemaTree::StringListPtr functions(new std::list<std::string>());
+    StringListPtr tables(new std::list<std::string>());
+    StringListPtr views(new std::list<std::string>());
+    StringListPtr procedures(new std::list<std::string>());
+    StringListPtr functions(new std::list<std::string>());
 
     MutexLock schema_contents_mutex(_schema_contents_mutex);
 
@@ -583,7 +583,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
 
     if (arrived_slot)
     {
-      wb::LiveSchemaTree::StringListPtr empty_list;
+      StringListPtr empty_list;
       boost::function<void ()> schema_contents_arrived = boost::bind(arrived_slot, schema_name, empty_list, empty_list, empty_list, empty_list, false);
       _grtm->run_once_when_idle(this, schema_contents_arrived);
     }
@@ -617,10 +617,10 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(grt::GRT *grt, 
     if (dbc_resultset && !error.length())
     {
 
-      wb::LiveSchemaTree::StringListPtr tables(new std::list<std::string>());
-      wb::LiveSchemaTree::StringListPtr views(new std::list<std::string>());
-      wb::LiveSchemaTree::StringListPtr procedures(new std::list<std::string>());
-      wb::LiveSchemaTree::StringListPtr functions(new std::list<std::string>());
+      StringListPtr tables(new std::list<std::string>());
+      StringListPtr views(new std::list<std::string>());
+      StringListPtr procedures(new std::list<std::string>());
+      StringListPtr functions(new std::list<std::string>());
 
       // Creates the needed schema/objects
       while (dbc_resultset->next())
