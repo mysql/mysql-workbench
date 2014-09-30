@@ -191,8 +191,9 @@ class DumpThread(threading.Thread):
             traceback.print_exc()
             log_error("Error executing task: %s\n" % exc)
             self.print_log_message("Error executing task: %s" % str(exc))
-#        finally:
-#            pass
+        finally:
+            pass
+
         if pwdfilename:
             os.remove(pwdfilename)
         if platform.system() != 'Windows' and tmpdir:
@@ -380,6 +381,8 @@ class WbAdminSchemaListTab(mforms.Box):
 
         super(WbAdminSchemaListTab, self).__init__(False)
 
+        self.skip_data_check = False
+
         self.suspend_layout()
 
         progress_tab.operation_tab = self
@@ -421,8 +424,17 @@ class WbAdminSchemaListTab(mforms.Box):
 
         box = newBox(True)
         box.set_spacing(12)
+        
+
+
         optionspanel = newPanel(mforms.TitledBoxPanel)
-        optionspanel.set_title("Options")
+        if is_importing:
+            self.export_objects_panel = None
+            optionspanel.set_title("Import Options")
+        else:
+            self.export_objects_panel = newPanel(mforms.TitledBoxPanel)
+            self.export_objects_panel.set_title("Objects to Export")
+            optionspanel.set_title("Export Options")
         optionsbox = newBox(False)
         optionsbox.set_padding(8)
         optionsbox.set_spacing(6)
@@ -440,18 +452,21 @@ class WbAdminSchemaListTab(mforms.Box):
             self.statlabel = newLabel("Press [Start Import] to start...")
             self.filelabel = newLabel("Select the SQL/dump file to import. Please note that the whole file will be imported.")
             self.single_transaction_check = None
+            self.include_schema_check = None
+            self.dump_triggers_check = None
             #self.dump_view_check = None
-            self.skip_data_check = None
             self.dump_routines_check = None
             self.dump_events_check = None
+            
         else:
             self.filelabel = newLabel("All selected database objects will be exported into a single, self-contained file.")
             self.folderlabel = newLabel("Each table will be exported into a separate file. This allows a selective restore, but may be slower.")
             self.folderradio = newRadioButton(self._radio_group)
             self.statlabel = newLabel("Press [Start Export] to start...")
             self.single_transaction_check = newCheckBox()
+            self.include_schema_check = newCheckBox()
+            self.dump_triggers_check = newCheckBox()
             #self.dump_view_check = newCheckBox()
-            self.skip_data_check = newCheckBox()
             self.dump_routines_check = newCheckBox()
             self.dump_events_check = newCheckBox()
 
@@ -508,25 +523,40 @@ class WbAdminSchemaListTab(mforms.Box):
         optionsbox.add(self.filelabel, False, True)
 
         if self.single_transaction_check or self.dump_routines_check:
-            checkbox_table = mforms.newTable()
-            checkbox_table.set_homogeneous(True)
-            checkbox_table.set_padding(4)
-            checkbox_table.set_row_count(2)
-            checkbox_table.set_column_count(2)
-            checkbox_table.set_row_spacing(2)
-            checkbox_table.set_column_spacing(2)
-            optionsbox.add_end(checkbox_table, False, True)
+            export_objects_opts = mforms.newTable()
+            export_objects_opts.set_homogeneous(True)
+            export_objects_opts.set_padding(4)
+            export_objects_opts.set_row_count(1)
+            export_objects_opts.set_column_count(3)
+            export_objects_opts.set_row_spacing(2)
+            export_objects_opts.set_column_spacing(2)
+            self.export_objects_panel.add(export_objects_opts)
+            
+            export_options = mforms.newTable()
+            export_options.set_homogeneous(True)
+            export_options.set_padding(4)
+            export_options.set_row_count(1)
+            export_options.set_column_count(2)
+            export_options.set_row_spacing(2)
+            export_options.set_column_spacing(2)
+            optionsbox.add(export_options, False, True)
+            
 
         if self.single_transaction_check:
-            checkbox_table.add(self.single_transaction_check,0,1,0,1)
+            export_options.add(self.single_transaction_check,0,1,0,1)
+        if self.include_schema_check:
+            export_options.add(self.include_schema_check,1,2,0,1)
+            
         #if self.dump_view_check:
         #    suboptionsbox.add(self.dump_view_check, False, True)
         if self.dump_routines_check:
-            checkbox_table.add(self.dump_routines_check,0,1,1,2)
+            export_objects_opts.add(self.dump_routines_check,0,1,0,1)
         if self.dump_events_check:
-            checkbox_table.add(self.dump_events_check,1,2,0,1)
-        if self.skip_data_check:
-            checkbox_table.add(self.skip_data_check,1,2,1,2)
+            export_objects_opts.add(self.dump_events_check,1,2,0,1)
+
+        if self.dump_triggers_check:
+            export_objects_opts.add(self.dump_triggers_check,2,3,0,1)
+            
 
         self.file_te.set_enabled(False)
 
@@ -535,12 +565,14 @@ class WbAdminSchemaListTab(mforms.Box):
         #spanel.set_autohide_scrollers(True)
         #optionspanel.add(spanel)
         optionspanel.add(optionsbox)
+        
+        
 
         selectionpanel = newPanel(mforms.TitledBoxPanel)
         if is_importing:
             selectionpanel.set_title("Select Database Objects to Import (only available for Project Folders)")
         else:
-            selectionpanel.set_title("Select Database Objects to Export")
+            selectionpanel.set_title("Tables to Export")
         selectionvbox = newBox(False)
         selectionvbox.set_padding(8)
         selectionvbox.set_spacing(8)
@@ -561,6 +593,10 @@ class WbAdminSchemaListTab(mforms.Box):
         self.select_summary_label = newLabel("")
         selectionbbox.add(self.select_summary_label, True, True)
 
+        self.select_all_views_btn = newButton()
+        self.select_all_views_btn.set_text("Select Views")
+        self.select_all_views_btn.add_clicked_callback(self.select_all_views)
+        self.select_all_views_btn.set_enabled(False)
         self.select_all_btn = newButton()
         self.select_all_btn.set_text("Select Tables")
         self.select_all_btn.add_clicked_callback(self.select_all_tables)
@@ -569,8 +605,14 @@ class WbAdminSchemaListTab(mforms.Box):
         self.unselect_all_btn.set_text("Unselect All")
         self.unselect_all_btn.add_clicked_callback(self.unselect_all_tables)
         self.unselect_all_btn.set_enabled(False)
+        
+        self.dump_type_selector = newSelector()
+        self.dump_type_selector.add_items(["Dump Structure and Data", "Dump Data Only", "Dump Structure Only"]);
+        
         selectionbbox.add_end(self.unselect_all_btn, False, True)
         selectionbbox.add_end(self.select_all_btn, False, True)
+        selectionbbox.add_end(self.select_all_views_btn, False, True)
+        selectionbbox.add_end(self.dump_type_selector, False, True)
         selectionvbox.add(selectionbbox, False, True)
         selectionpanel.add(selectionvbox)
 
@@ -598,7 +640,9 @@ class WbAdminSchemaListTab(mforms.Box):
 
             self.add(targetpanel, False, True)
         self.add(selectionpanel, True, True)
+
         if not is_importing:
+            self.add(self.export_objects_panel, False, True)
             self.add(optionspanel, False, True)
 
         box = newBox(True)
@@ -623,7 +667,6 @@ class WbAdminSchemaListTab(mforms.Box):
 
         if is_importing:
             self.file_btn.add_clicked_callback(lambda: self.open_file_chooser(mforms.OpenFile))
-            self.single_transaction_check = None
             self.folderradio.set_text("Import from Dump Project Folder")
             self.export_button.set_text("Start Import")
         else:
@@ -631,10 +674,11 @@ class WbAdminSchemaListTab(mforms.Box):
             self.single_transaction_check.set_text("Create Dump in a Single Transaction (self-contained file only)")
             self.single_transaction_check.set_enabled(False)
             self.single_transaction_check.add_clicked_callback(self.single_transaction_clicked)
+            self.include_schema_check.set_text("Include Create Schema")
+            self.dump_triggers_check.set_text("Dump Triggers")
             #self.dump_view_check.set_text("Dump Views")
-            self.dump_routines_check.set_text("Dump Stored Routines (Procedures and Functions)")
+            self.dump_routines_check.set_text("Dump Stored Procedures and Functions")
             self.dump_events_check.set_text("Dump Events")
-            self.skip_data_check.set_text("Skip table data (no-data)")
 
             self.folderradio.set_text("Export to Dump Project Folder")
             self.export_button.set_text("Start Export")
@@ -698,6 +742,7 @@ class WbAdminSchemaListTab(mforms.Box):
         if not sel:
             self.unselect_all_btn.set_enabled(False)
             self.select_all_btn.set_enabled(False)
+            self.select_all_views_btn.set_enabled(False)
             self.table_list.thaw_refresh()
             return
         schema = self.get_selected_schema()
@@ -712,8 +757,21 @@ class WbAdminSchemaListTab(mforms.Box):
         self.table_list.thaw_refresh()
         self.unselect_all_btn.set_enabled(True)
         self.select_all_btn.set_enabled(True)
+        self.select_all_views_btn.set_enabled(True)
 
         self.select_summary_label.set_text("%i tables selected" % self.table_list_model.count_selected_tables())
+
+    def select_all_views(self):
+        sel = self.schema_list.get_selected_node()
+        if not sel:
+            return
+        sel.set_bool(0, True)
+        schema = self.get_selected_schema()
+        for row in range(self.table_list.count()):
+            node = self.table_list.node_at_row(row)
+            table = node.get_string(1)
+            node.set_bool(0, self.table_list_model.is_view(schema, table))
+        self.update_table_selection()
 
     def select_all_tables(self, exclude_views=True):
         sel = self.schema_list.get_selected_node()
@@ -1555,16 +1613,16 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             DumpThread.TaskData.__init__(self, title, len(views), [], [schema] + views, None, make_pipe)
 
     class TableDumpData(DumpThread.TaskData):
-        def __init__(self,schema,table,make_pipe):
+        def __init__(self,schema,table,args, make_pipe):
             title = "Dumping " + schema
             title += " (%s)" % table
-            DumpThread.TaskData.__init__(self,title, 1, [], [schema, table], None, make_pipe)
+            DumpThread.TaskData.__init__(self,title, 1, [] + args, [schema, table], None, make_pipe)
 
     class TableDumpNoData(DumpThread.TaskData):
-        def __init__(self,schema,table,make_pipe):
+        def __init__(self,schema,table,args, make_pipe):
             title = "Dumping " + schema
             title += " (%s)" % table
-            DumpThread.TaskData.__init__(self,title, 1, ["--no-data"], [schema, table], None, make_pipe)
+            DumpThread.TaskData.__init__(self,title, 1, ["--no-data"] + args, [schema, table], None, make_pipe)
 
     class ViewsRoutinesEventsDumpData(DumpThread.TaskData):
         def __init__(self, schema, views, args, make_pipe):
@@ -1583,11 +1641,12 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         while os.path.exists(path):
             path = os.path.join(self.path, normalize_filename(schemaname) + "_" + normalize_filename(tablename) + ('%i.sql'%i))
         self.out_pipe = open(path,"w")
-        data = self.table_list_model.get_schema_sql(schemaname)
-        if type(data) is unicode:
-            data = data.encode("utf-8")
-        self.out_pipe.write(data)
-        self.out_pipe.flush()
+        if self.include_schema_check.get_active():
+            data = self.table_list_model.get_schema_sql(schemaname)
+            if type(data) is unicode:
+                data = data.encode("utf-8")
+            self.out_pipe.write(data)
+            self.out_pipe.flush()
         return self.out_pipe
 
 
@@ -1603,9 +1662,14 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             return
         single_transaction = self.single_transaction_check.get_active()
         #dump_views = self.dump_view_check.get_active()
-        skip_data = self.skip_data_check.get_active()
+        sel_index = self.dump_type_selector.get_selected_index()
+        
+        skip_data = True if sel_index == 2 else False
+        skip_table_structure = True if sel_index == 1 else False
+        
         dump_routines = self.dump_routines_check.get_active()
         dump_events = self.dump_events_check.get_active()
+        dump_triggers = self.dump_triggers_check.get_active()
 
         save_to_folder = not self.fileradio.get_active()
 
@@ -1643,10 +1707,17 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                         title = "Dumping " + schema
                         title += " (%s)" % table
                         # description, object_count, pipe_factory, extra_args, objects
+                        args = []
+                        if not dump_triggers:
+                            args.append['--skip-triggers']
+                            
+                        if skip_table_structure:
+                            args.append['--no-create-info']
+
                         if skip_data:
-                            task = self.TableDumpNoData(schema,table,lambda schema=schema,table=table:self.dump_to_folder(schema, table))
+                            task = self.TableDumpNoData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table))
                         else:
-                            task = self.TableDumpData(schema,table,lambda schema=schema,table=table:self.dump_to_folder(schema, table))
+                            task = self.TableDumpData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table))
                         operations.append(task)
                 # dump everything non-tables to file for routines
                 #if views:
@@ -1703,9 +1774,12 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                     if skip_data or not tables:
                         params.append("--no-data")
 
-                    if not tables:
+                    if not tables or skip_table_structure:
                         params.append("--no-create-info=TRUE")
+
+                    if not tables or not dump_triggers:
                         params.append("--skip-triggers")
+
                     # description, object_count, pipe_factory, extra_args, objects
                     task = DumpThread.TaskData(title, len(tables), params, objects, tables_to_ignore, lambda schema=schema:self.dump_to_file([schema]))
                     operations.append(task)
@@ -1813,9 +1887,10 @@ class WbAdminExportTab(WbAdminSchemaListTab):
     def dump_to_file(self, schemanames):
         if self.out_pipe == None:
             self.out_pipe = open(self.path,"w")
-        for schema in schemanames:
-            self.out_pipe.write(self.table_list_model.get_schema_sql(schema).encode('utf-8'))
-        self.out_pipe.flush()
+        if self.include_schema_check.get_active():
+            for schema in schemanames:
+                self.out_pipe.write(self.table_list_model.get_schema_sql(schema).encode('utf-8'))
+            self.out_pipe.flush()
         return self.out_pipe
 
     def fail_callback(self):
@@ -2250,7 +2325,8 @@ class WbAdminExport(mforms.Box):
             dic["wb.admin.export:singleTransaction"] = self.export_tab.single_transaction_check.get_active()
             dic["wb.admin.export:dumpRoutines"] = self.export_tab.dump_routines_check.get_active()
             dic["wb.admin.export:dumpEvents"] = self.export_tab.dump_events_check.get_active()
-            dic["wb.admin.export:skipData"] = self.export_tab.skip_data_check.get_active()
+            dic["wb.admin.export:dumpTriggers"] = self.export_tab.dump_triggers_check.get_active()
+            dic["wb.admin.export:skipData"] = self.export_tab.dump_type_selector.get_selected_index()
             for key, value in self.get_export_options({}).items():
                 dic["wb.admin.export.option:"+key] = value
 
@@ -2274,8 +2350,10 @@ class WbAdminExport(mforms.Box):
             self.export_tab.dump_routines_check.set_active(dic["wb.admin.export:dumpRoutines"])
         if dic.has_key("wb.admin.export:dumpEvents"):
             self.export_tab.dump_events_check.set_active(dic["wb.admin.export:dumpEvents"])
+        if dic.has_key("wb.admin.export:dumpTriggers"):
+            self.export_tab.dump_triggers_check.set_active(dic["wb.admin.export:dumpTriggers"])
         if dic.has_key("wb.admin.export:skipData"):
-            self.export_tab.skip_data_check.set_active(dic["wb.admin.export:skipData"])
+            self.export_tab.dump_type_selector.set_selected(dic["wb.admin.export:skipData"])
         values = {}
         for key in self.get_export_options({}).keys():
             if dic.has_key("wb.admin.export.option:"+key):
