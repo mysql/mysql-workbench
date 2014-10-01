@@ -1697,8 +1697,8 @@ mforms::View *PreferencesForm::create_diagram_page()
     check->set_text(_("Draw Line Crossings (slow in large diagrams)"));
     vbox->add(check, false);
 
-    check= new_checkbox_option("workbench.physical.Connection:HideCaptions");
-    check->set_text(_("Hide Captions"));
+    check= new_checkbox_option("workbench.physical.Connection:ShowCaptions");
+    check->set_text(_("Show Captions"));
     vbox->add(check, false);
 
     check= new_checkbox_option("workbench.physical.Connection:CenterCaptions");

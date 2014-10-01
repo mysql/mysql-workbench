@@ -1832,7 +1832,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "sshkeepalive", 0); // by default turned off
 
   // Other options
-  set_default(options, "workbench.physical.Connection:HideCaptions", 1);
+  set_default(options, "workbench.physical.Connection:ShowCaptions", 0);
   set_default(options, "workbench.physical.Connection:CenterCaptions", 0);  
 }
 
