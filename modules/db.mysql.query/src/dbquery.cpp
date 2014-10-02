@@ -291,7 +291,7 @@ int DbMySQLQueryImpl::openConnectionP(const db_mgmt_ConnectionRef &info, const g
       sql::Authentication::Ref auth = sql::Authentication::create(info, "");
       auth->set_password(password.c_str());
 
-       conn = dm->getConnection(info, boost::shared_ptr<sql::TunnelConnection>(), auth);
+       conn = dm->getConnection(info, dm->getTunnel(info), auth);
     }
     else
         conn = dm->getConnection(info);
