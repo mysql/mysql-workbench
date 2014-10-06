@@ -605,7 +605,8 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param1">
             <value type="string" key="caption">Hostname:</value>
             <value type="string" key="defaultValue">127.0.0.1</value>
-            <value type="string" key="description">Name or IP address of the server host.</value>
+            <value type="string" key="description">Name or IP address of the server host.
+</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">118</value>
@@ -620,7 +621,7 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param2">
             <value type="string" key="caption">Port:</value>
             <value type="string" key="defaultValue">3306</value>
-            <value type="string" key="description">TCP/IP port.</value>
+            <value type="string" key="description">and TCP/IP port.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">46</value>
@@ -650,7 +651,8 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param4">
             <value type="string" key="caption">Password:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="string" key="description">The user's password. Will be requested
+later if it's not set.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">3</value>
             <value type="int" key="layoutWidth">218</value>
@@ -667,7 +669,8 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param5">
             <value type="string" key="caption">Default Schema:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The schema to use as default schema. Leave blank to select it later.</value>
+            <value type="string" key="description">The schema to use as default schema.
+Leave blank to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">4</value>
             <value type="int" key="layoutWidth">218</value>
@@ -697,7 +700,8 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param8">
             <value type="string" key="caption">Use ANSI quotes to quote identifiers.</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
+            <value type="string" key="description">If enabled this option overwrites
+the serverside settings.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -712,7 +716,8 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param9">
             <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
+            <value type="string" key="description">Send user password in cleartext.
+Required for some authentication methods.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -727,7 +732,8 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.legacyauth">
             <value type="string" key="caption">Use the old authentication protocol.</value>
             <value type="string" key="defaultValue"></value>
-	    <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
+	    <value type="string" key="description">This option disables Connector/C++'s
+secure_auth option.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -742,7 +748,8 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.sqlmode">
             <value type="string" key="caption">SQL_MODE:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
+            <value type="string" key="description">Override the default SQL_MODE
+used by the server.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -757,8 +764,8 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.others">
             <value type="string" key="caption">Others:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Other options for Connector/C++ as option=value pairs,
-one per line.</value>
+            <value type="string" key="description">Other options for Connector/C++
+as option=value pairs, one per line.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -866,7 +873,8 @@ one per line.</value>
             <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param1">
             <value type="string" key="caption">Socket/Pipe Path:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Path to local socket or pipe file. Leave empty for default.</value>
+            <value type="string" key="description">Path to local socket or pipe file.
+Leave empty for default.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">218</value>
@@ -896,7 +904,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param4">
             <value type="string" key="caption">Password:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The user's password. Will be requested later if it's not set now.</value>
+            <value type="string" key="description">The user's password. Will be requested
+later if it's not set now.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">3</value>
             <value type="int" key="layoutWidth">218</value>
@@ -913,7 +922,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param5">
             <value type="string" key="caption">Default Schema:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The schema that will be used as default schema.</value>
+            <value type="string" key="description">The schema to use as default schema.
+Leave blank to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">4</value>
             <value type="int" key="layoutWidth">218</value>
@@ -928,7 +938,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param8">
             <value type="string" key="caption">Use ANSI quotes to quote identifiers.</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
+            <value type="string" key="description">If enabled this option overwrites
+the serverside settings.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -943,7 +954,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param9">
             <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
+            <value type="string" key="description">Send user password in cleartext.
+Required for some authentication methods.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -958,7 +970,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.legacyauth">
             <value type="string" key="caption">Use the old authentication protocol.</value>
             <value type="string" key="defaultValue"></value>
-	    <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
+	    <value type="string" key="description">This option disables Connector/C++'s
+secure_auth option.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -973,7 +986,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.sqlmode">
             <value type="string" key="caption">SQL_MODE:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
+            <value type="string" key="description">Override the default SQL_MODE
+used by the server.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -988,8 +1002,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.others">
             <value type="string" key="caption">Others:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Other options for Connector/C++ as option=value pairs,
-one per line.</value>
+            <value type="string" key="description">Other options for Connector/C++
+as option=value pairs, one per line.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1006,7 +1020,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl0">
             <value type="string" key="caption">Use SSL</value>
             <value type="string" key="defaultValue">1</value>
-            <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
+            <value type="string" key="description">Turns on SSL encryption.
+Connection will fail if SSL is not available.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1069,7 +1084,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl4">
             <value type="string" key="caption">SSL Cipher:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
+            <value type="string" key="description">Optional : separated list of permissible
+ciphers to use for SSL encryption.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1098,7 +1114,8 @@ one per line.</value>
 	      <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam1">
             <value type="string" key="caption">SSH Hostname:</value>
             <value type="string" key="defaultValue">127.0.0.1:22</value>
-            <value type="string" key="description">SSH server hostname, with optional port number.</value>
+            <value type="string" key="description">SSH server hostname, with 
+optional port number.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">218</value>
@@ -1128,7 +1145,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam4">
             <value type="string" key="caption">SSH Password:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">SSH user password to connect to the SSH tunnel.</value>
+            <value type="string" key="description">SSH user password to connect
+to the SSH tunnel.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">3</value>
             <value type="int" key="layoutWidth">218</value>
@@ -1160,7 +1178,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param1">
             <value type="string" key="caption">MySQL Hostname:</value>
             <value type="string" key="defaultValue">127.0.0.1</value>
-            <value type="string" key="description">MySQL server host relative to the SSH server.</value>
+            <value type="string" key="description">MySQL server host relative
+to the SSH server.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">6</value>
             <value type="int" key="layoutWidth">118</value>
@@ -1205,7 +1224,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param4">
             <value type="string" key="caption">Password:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The MySQL user's password. Will be requested later if not set.</value>
+            <value type="string" key="description">The MySQL user's password.
+Will be requested later if not set.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">9</value>
             <value type="int" key="layoutWidth">218</value>
@@ -1222,7 +1242,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param5">
             <value type="string" key="caption">Default Schema:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The schema that will be used as default schema.</value>
+            <value type="string" key="description">The schema to use as default schema.
+Leave blank to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">10</value>
             <value type="int" key="layoutWidth">218</value>
@@ -1253,7 +1274,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam3">
             <value type="string" key="caption">Use ANSI quotes to quote identifiers.</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
+            <value type="string" key="description">If enabled this option overwrites
+the serverside settings.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1268,7 +1290,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam4">
             <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
+            <value type="string" key="description">Send user password in cleartext.
+Required for some authentication methods.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1283,7 +1306,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.legacyauth">
             <value type="string" key="caption">Use the old authentication protocol.</value>
             <value type="string" key="defaultValue"></value>
-	    <value type="string" key="description">This option disables Connector/C++'s secure_auth option.</value>
+	    <value type="string" key="description">This option disables Connector/C++'s
+secure_auth option.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1298,7 +1322,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sqlmode">
             <value type="string" key="caption">SQL_MODE:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
+            <value type="string" key="description">Override the default SQL_MODE
+used by the server.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1313,8 +1338,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.others">
             <value type="string" key="caption">Others:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Other options for Connector/C++ as option=value pairs,
-one per line.</value>
+            <value type="string" key="description">Other options for Connector/C++
+as option=value pairs, one per line.</value>
             <value type="int" key="layoutAdvanced">1</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1331,7 +1356,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam2">
             <value type="string" key="caption">Use SSL</value>
             <value type="string" key="defaultValue">1</value>
-            <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
+            <value type="string" key="description">Turns on SSL encryption. Connection will
+fail if SSL is not available.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">318</value>
@@ -1394,7 +1420,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl4">
             <value type="string" key="caption">SSL Cipher:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
+            <value type="string" key="description">Optional : separated list of permissible
+ciphers to use for SSL encryption.</value>
             <value type="int" key="layoutAdvanced">2</value>
             <value type="int" key="layoutRow">-1</value>
             <value type="int" key="layoutWidth">180</value>
@@ -1422,7 +1449,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param1">
             <value type="string" key="caption">Hostname:</value>
             <value type="string" key="defaultValue">127.0.0.1</value>
-            <value type="string" key="description">Name or IP address of the fabric node.</value>
+            <value type="string" key="description">Name or IP address of the fabric node.
+</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">118</value>
@@ -1437,7 +1465,7 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param2">
             <value type="string" key="caption">Port:</value>
             <value type="string" key="defaultValue">32274</value>
-            <value type="string" key="description">TCP/IP port.</value>
+            <value type="string" key="description">and TCP/IP port.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">46</value>
@@ -1467,7 +1495,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param4">
             <value type="string" key="caption">Password:</value>
             <value type="string" key="defaultValue"></value>
-            <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
+            <value type="string" key="description">The user's password. Will be requested later 
+if it's not set.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">3</value>
             <value type="int" key="layoutWidth">218</value>
@@ -1484,7 +1513,8 @@ one per line.</value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param5">
             <value type="string" key="caption">MySQL Username:</value>
             <value type="string" key="defaultValue">fabric</value>
-            <value type="string" key="description">MySQL account to use when connecting to managed MySQL Instances.</value>
+            <value type="string" key="description">MySQL account to use when connecting to 
+managed MySQL Instances.</value>
             <value type="int" key="layoutAdvanced">3</value>
             <value type="int" key="layoutRow">1</value>
             <value type="int" key="layoutWidth">218</value>
