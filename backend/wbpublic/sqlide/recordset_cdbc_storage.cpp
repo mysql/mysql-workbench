@@ -202,7 +202,8 @@ size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_name
         // at least one of the columns must be NOT NULL in a UNIQUE key
         if (prev_key != key)
         {
-          if (found_not_null)
+          prev_key = key;
+          if (found_not_null && unique_notnull_columns.empty())
             unique_notnull_columns = columns;
           found_not_null = false;
           columns.clear();
@@ -212,6 +213,8 @@ size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_name
           found_not_null = true;
       }
     }
+    if (found_not_null && unique_notnull_columns.empty() && !columns.empty())
+      unique_notnull_columns = columns;
 
     if (!primary_columns.empty())
       columns = primary_columns;
