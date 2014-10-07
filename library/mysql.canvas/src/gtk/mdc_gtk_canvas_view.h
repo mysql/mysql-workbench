@@ -28,7 +28,7 @@ public:
 private:
   CanvasView *_canvas;
   CanvasType _canvas_type;
-
+  bool _reentrance;
   bool _initialized;
 
 public:

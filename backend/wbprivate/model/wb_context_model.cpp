@@ -1401,13 +1401,14 @@ void WBContextModel::add_new_diagram(const model_ModelRef &model)
   
  // model_DiagramRef view(model_DiagramRef::cast_from(_wbui->get_wb()->execute_in_grt_thread("Create new diagram",
    //                                                                       boost::bind(&model_Model::addNewDiagram, &model.content(), true))));
+  _wbui->get_wb()->lock_gui(true);
   model_DiagramRef view = model->addNewDiagram(true);
   if (view.is_valid())
   {
     model->currentDiagram(view);
     view->get_data()->realize();
   }
-  
+  _wbui->get_wb()->lock_gui(false);
   _wbui->get_wb()->show_status_text(_("Diagram added."));
 }
 

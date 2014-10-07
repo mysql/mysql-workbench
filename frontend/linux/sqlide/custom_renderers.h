@@ -28,7 +28,7 @@ public:
   { return Renderer::start_editing_vfunc(event, widget, path, background_area, cell_area, flags); }
 
   virtual void on_editing_canceled()
-  { return Renderer::on_editing_canceled(); }
+  { Renderer::on_editing_canceled(); }
 };
 
 class CustomRendererOps

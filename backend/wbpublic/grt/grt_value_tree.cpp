@@ -45,61 +45,62 @@ inline bool is_null_node(const NodeId &id)
 }
 
 //--------------------------------------------------------------------------------------------------
-
-static bool count_simple_members(const MetaClass::Member *member, int *c)
+static bool return_if_not_empty(const MetaClass::Member *member, bool *retval)
 {
   if (is_simple_type(member->type.base.type))
-    (*c)++;
+  {
+    *retval = false;
+    return false; //break the for loop
+  }
+  *retval = true;
   return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-
-static int count_container_nodes(const ValueRef &value)
+static bool check_if_container_is_empty(const ValueRef &value)
 {
-  int count= 0;
+    if (!value.is_valid())
+      return true;
 
-  if (!value.is_valid())
-    return 0;
-
-  switch (value.type())
-  {
-  case ListType:
+    switch (value.type())
     {
-      BaseListRef l(BaseListRef::cast_from(value));
-
-      for (size_t c= l.count(), i= 0; i < c; i++)
+    case ListType:
       {
-        if (!is_simple_type(l[i].type()))
-          count++;
-      }
-    }
-    break;
-  case DictType:
-    {
-      DictRef d(DictRef::cast_from(value));
+        BaseListRef l(BaseListRef::cast_from(value));
 
-      for (DictRef::const_iterator iter= d.begin(); iter != d.end(); ++iter)
+        for (size_t c= l.count(), i= 0; i < c; i++)
+        {
+          if (!is_simple_type(l[i].type()))
+            return false;
+        }
+      }
+      break;
+    case DictType:
       {
-        if (!is_simple_type(iter->second.type()))
-          count++;
+        DictRef d(DictRef::cast_from(value));
+
+        for (DictRef::const_iterator iter= d.begin(); iter != d.end(); ++iter)
+        {
+          if (!is_simple_type(iter->second.type()))
+            return false;
+        }
       }
-    }
-    break;
-  case ObjectType:
-    {
-      ObjectRef o(ObjectRef::cast_from(value));
-      MetaClass *meta= o.get_metaclass();
+      break;
+    case ObjectType:
+      {
+        ObjectRef o(ObjectRef::cast_from(value));
+        MetaClass *meta= o.get_metaclass();
+        bool retval = false;
+        meta->foreach_member(boost::bind(&return_if_not_empty, _1, &retval));
+        return retval;
+      }
+      break;
 
-      meta->foreach_member(boost::bind(&count_simple_members, _1, &count));
+    default:
+      break;
     }
-    break;
 
-  default:
-    break;
-  }
-  
-  return count;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +148,7 @@ void ValueTreeBE::set_displayed_global_value(const std::string &path, bool show_
   else
   {
     _root_value= value;
-    _root.expandable= count_container_nodes(_root_value)>0;
+    _root.expandable= !check_if_container_is_empty(_root_value);
   }
   expand_node(get_root());
 
@@ -166,7 +167,7 @@ void ValueTreeBE::set_displayed_value(const ValueRef &value, const std::string &
     _root.path= "/";
     _root.reset_children();
     _root_value= value;
-    _root.expandable= count_container_nodes(_root_value)>0;
+    _root.expandable= !check_if_container_is_empty(_root_value);
     expand_node(get_root());
   }
   else
@@ -371,7 +372,7 @@ void ValueTreeBE::fill_node_info(const ValueRef &value,
                                  Node *info)
 {
   info->type = type_to_str(value.type());
-  info->expandable = count_container_nodes(value) > 0;
+  info->expandable = !check_if_container_is_empty(value);
 
   switch (value.type())
   {
@@ -741,7 +742,7 @@ void ValueTreeBE::refresh()
 
   // collapse root node
   _root.reset_children();
-  _root.expandable = count_container_nodes(_root_value) > 0;
+  _root.expandable = !check_if_container_is_empty(_root_value);
   
   // re-expand nodes
   for (std::vector<NodeId>::const_iterator i= expanded_nodes.begin();

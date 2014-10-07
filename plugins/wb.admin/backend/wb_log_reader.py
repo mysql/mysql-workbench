@@ -318,6 +318,7 @@ class BaseLogFileReader(object):
                 if not self.ctrl_be.server_profile.uses_ssh:
                     raise LogFileAccessError('''Remote log files are only supported for SSH connection.
                         Please configure an SSH connection and try again.''')
+                use_sftp = True
 
         if use_sudo:
             log_info("Will use sudo and dd to get contents of log file %s\n" % self.log_file_name)
