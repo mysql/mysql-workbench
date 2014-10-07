@@ -18,7 +18,10 @@
  */
 
 #pragma once
+
 #include <string>
+#include <cstdint>
+
 // Generally used types by the recognizers/scanners, as well as their consumers.
 
 #define	INVALID_TOKEN	0

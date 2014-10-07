@@ -236,7 +236,7 @@ void MySQLScanner::seek(size_t position)
  * Scans the token list from the beginning and moves to the token that covers the given 
  * caret position. Line is one-based and offset is the zero-based offset in that line.
  */
-void MySQLScanner::seek(int line, int offset)
+void MySQLScanner::seek(size_t line, size_t offset)
 {
   // When scanning keep in mind a token can span more than one line (think of multi-line comments).
   // A simple pos + length computation doesn't cut it.
@@ -254,15 +254,15 @@ void MySQLScanner::seek(int line, int offset)
       // At the end of the input. We have no more tokens to make the lookahead work (nothing after EOF).
       // Instead we define: if the last good token is a separator and the caret is at its end
       // we consider the EOF as the current token (a separator is always only 1 char long).
-      if (is_separator() &&  (int)d->_tokens[d->_token_index]->charPosition < offset)
+      if (is_separator() &&  (size_t)d->_tokens[d->_token_index]->charPosition < offset)
         ++d->_token_index;
       break;
     }
 
-    if ((int)token->line > line)
+    if (token->line > line)
       break;
 
-    if ((int)token->line == line && (int)token->charPosition > offset)
+    if (token->line == line && (size_t)token->charPosition > offset)
       break;
 
     ++d->_token_index;
@@ -283,7 +283,7 @@ uint32_t MySQLScanner::look_around(int offset, bool ignore_hidden)
     return ANTLR3_TOKEN_INVALID;
 
   pANTLR3_COMMON_TOKEN token;
-  int index = d->_token_index;
+  int index = (int)d->_token_index;
   if (offset < 0)
   {
     while (index > 0 && offset < 0)

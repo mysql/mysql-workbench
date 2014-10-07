@@ -49,7 +49,7 @@ public:
 
   size_t position();
   void seek(size_t position);
-  void seek(int line, int offset);
+  void seek(size_t line, size_t offset);
   uint32_t look_around(int offset, bool ignore_hidden);
 
   bool is_keyword();

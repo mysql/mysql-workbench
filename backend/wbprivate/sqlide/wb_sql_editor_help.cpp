@@ -602,7 +602,7 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
   // If we end up in a whitespace or certain other symbols we jump to the previous token instead.
   if (scanner.token_channel() != 0)
     scanner.previous(true);
-  while (scanner.position() > 0 && scanner.is_number() || is_token_without_topic(scanner.token_type()))
+  while (scanner.position() > 0 && (scanner.is_number() || is_token_without_topic(scanner.token_type())))
     scanner.previous(true);
 
   if (scanner.token_type() == ANTLR3_TOKEN_EOF)
@@ -713,13 +713,13 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
     break;
 
   case CURRENT_SYMBOL:
-    scanner.next(true);
+    scanner.previous(true);
     if (scanner.token_type() == GET_SYMBOL)
       topic = "get diagnostics";
     else
     {
-      scanner.next(true);
-      scanner.next(true);
+      scanner.previous(true);
+      scanner.previous(true);
       if (scanner.token_type() == DIAGNOSTICS_SYMBOL)
         topic = "get diagnostics";
     }
@@ -874,7 +874,7 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
     break;
 
   case PROCEDURE_SYMBOL:
-    scanner.next(true);
+    scanner.previous(true);
     if (scanner.token_type() == ANTLR3_TOKEN_INVALID) // Is this the first token?
       topic = "procedure analyse";
     else
@@ -932,7 +932,7 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
     break;
 
   case DELAYED_SYMBOL:
-    scanner.next(true);
+    scanner.previous(true);
     switch (scanner.token_type())
     {
     case INSERT_SYMBOL:
@@ -949,7 +949,7 @@ std::string DbSqlEditorContextHelp::topic_from_position(const SqlEditorForm::Ref
     break;
 
   case SESSION_SYMBOL:
-    scanner.next(true);
+    scanner.previous(true);
     switch (scanner.token_type())
     {
     case SHOW_SYMBOL:
@@ -1334,7 +1334,7 @@ std::string DbSqlEditorContextHelp::topic_with_single_topic_equivalent(MySQLScan
       break;
 
     case IN_SYMBOL:
-      scanner.next(true);
+      scanner.previous(true);
       if (scanner.token_type() == NOT_SYMBOL)
         topic = "not in";
       break;
@@ -1361,7 +1361,7 @@ std::string DbSqlEditorContextHelp::topic_with_single_topic_equivalent(MySQLScan
       break;
 
     case REGEXP_SYMBOL:
-      scanner.next(true);
+      scanner.previous(true);
       if (scanner.token_type() == NOT_SYMBOL)
         topic = "not regexp";
       break;
@@ -1457,7 +1457,9 @@ std::string DbSqlEditorContextHelp::topic_with_single_topic_equivalent(MySQLScan
       break;
 
     case OPEN_PAR_SYMBOL: // Insert function or grant insert (...).
-      scanner.next(true);
+      scanner.reset();
+      if (scanner.token_channel() != ANTLR3_TOKEN_DEFAULT_CHANNEL)
+        scanner.next(true);
       if (scanner.token_type() == GRANTS_SYMBOL) // Could be wrong if this statement is part of a compound statement (e.g. in triggers or events).
         topic = "grant";
       else

@@ -81,7 +81,8 @@ public:
   bool is_schema_list_fetch_done();
   bool is_schema_tables_fetch_done(const std::string &schema);
   bool is_schema_table_columns_fetch_done(const std::string &schema, const std::string &table);
-  bool is_schema_routines_fetch_done(const std::string &schema);
+  bool is_schema_functions_fetch_done(const std::string &schema);
+  bool is_schema_procedure_fetch_done(const std::string &schema);
 
   void shutdown();
   
@@ -154,6 +155,7 @@ private:
                                                 const std::string &table,
                                                 const std::string &prefix);
   void touch_schema_record(const std::string &schema);
+  bool is_fetch_done(const std::string &cache, const std::string &schema);
 
   bool get_pending_refresh(RefreshTask &task);
   void add_pending_refresh(RefreshTask::RefreshType type, const std::string &schema = "",

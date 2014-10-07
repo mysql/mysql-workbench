@@ -115,7 +115,8 @@ void ShellBE::process_line_async(const std::string &line)
   
   _dispatcher->execute_now(task);
   
-  task->release();
+  // task->release(); Already released in execute_now().
+  // TODO: review this once we have a better balanced grt life cycle handling.
 }
 
 

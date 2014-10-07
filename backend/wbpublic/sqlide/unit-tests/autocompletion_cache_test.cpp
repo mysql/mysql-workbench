@@ -23,7 +23,6 @@
 #include "sqlide/wb_sql_editor_form.h"
 #include "sqlide/autocomplete_object_name_cache.h"
 
-
 using namespace grt;
 using namespace wb;
 
@@ -116,10 +115,9 @@ TEST_FUNCTION(10)
   // fetching
   ensure("uncached schema list (empty)", list.empty());
 
-  _cache->refresh_schema_list_cache_if_needed(); // TODO: is this really needed? get_matching_schema_names calls it already.
+  _cache->refresh_schema_list();
 
-  // The loops are not necessary, but there can be spurious condition signals,
-  // as the glib docs say.
+  // Wait until the schema list arrived.
   while (!_cache->is_schema_list_fetch_done())
     g_usleep(500000);
 
@@ -155,16 +153,19 @@ TEST_FUNCTION(12)
     "actor_info",
     NULL
   };
-  std::vector<std::string> list = _cache->get_matching_table_names("sakila", "ac");
 
+  _cache->refresh_schema_cache_if_needed("sakila");
   while (!_cache->is_schema_tables_fetch_done("sakila"))
     g_usleep(500000);
 
-  // get the list now
-  list = _cache->get_matching_table_names("sakila", "ac");
+  std::vector<std::string> list = _cache->get_matching_table_names("sakila", "ac");
+  std::vector<std::string> list2 = _cache->get_matching_view_names("sakila", "ac");
+  std::copy(list2.begin(), list2.end(), std::back_inserter(list));
   ensure_list_equals("tables sakila.ac*", list, sakila_ac);
 
   list = _cache->get_matching_table_names("sakila", "actor_");
+  list2 = _cache->get_matching_view_names("sakila", "ac");
+  std::copy(list2.begin(), list2.end(), std::back_inserter(list));
   ensure_list_equals("tables sakila.actor_*", list, sakila_actor_);
 }
 
@@ -175,13 +176,12 @@ TEST_FUNCTION(14)
     "inventory_in_stock",
     NULL
   };
-  std::vector<std::string> list = _cache->get_matching_function_names("sakila", "inv");
 
-  while (!_cache->is_schema_routines_fetch_done("sakila"))
+  while (!_cache->is_schema_functions_fetch_done("sakila"))
     g_usleep(500000);
 
   // get the list now
-  list = _cache->get_matching_function_names("sakila", "inv");
+  std::vector<std::string> list = _cache->get_matching_function_names("sakila", "inv");
   ensure_list_equals("functions sakila.inv*", list, sakila_inv);
 }
 
@@ -192,13 +192,12 @@ TEST_FUNCTION(16)
     "film_not_in_stock",
     NULL
   };
-  std::vector<std::string> list = _cache->get_matching_procedure_names("sakila", "fi");
 
-  while (!_cache->is_schema_routines_fetch_done("sakila"))
+  while (!_cache->is_schema_procedure_fetch_done("sakila"))
     g_usleep(500000);
 
   // get the list now
-  list = _cache->get_matching_procedure_names("sakila", "fi");
+  std::vector<std::string> list = _cache->get_matching_procedure_names("sakila", "fi");
   ensure_list_equals("procedures sakila.fi*", list, sakila_fi);
 }
 
@@ -210,13 +209,12 @@ TEST_FUNCTION(18)
     "actor_id",
     NULL
   };
-  std::vector<std::string> list = _cache->get_matching_column_names("sakila", "actor", "a");
 
   while (!_cache->is_schema_table_columns_fetch_done("sakila", "actor"))
     g_usleep(500000);
 
   // get the list now
-  list = _cache->get_matching_column_names("sakila", "actor", "a");
+  std::vector<std::string> list = _cache->get_matching_column_names("sakila", "actor", "a");
   ensure_list_equals("columns sakila.actor.a*", list, sakila_a);
 }
 
@@ -266,10 +264,15 @@ TEST_FUNCTION(22)
     "actor_info",
     NULL
   };
+
   std::vector<std::string> list = _cache->get_matching_table_names("sakila", "ac");
+  std::vector<std::string> list2 = _cache->get_matching_view_names("sakila", "ac");
+  std::copy(list2.begin(), list2.end(), std::back_inserter(list));
   ensure_list_equals("tables sakila.ac*", list, sakila_ac);
 
   list = _cache->get_matching_table_names("sakila", "actor_");
+  list2 = _cache->get_matching_view_names("sakila", "actor_");
+  std::copy(list2.begin(), list2.end(), std::back_inserter(list));
   ensure_list_equals("tables sakila.actor_*", list, sakila_actor_);
 }
 

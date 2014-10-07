@@ -80,7 +80,11 @@ echo Copy Resource files ..
 if not exist %TARGET_DIR%\data mkdir %TARGET_DIR%\data
 xcopy /i /s /y /d %RES_DIR%\grtdata\*.xml %TARGET_DIR%\data\. 1> nul 2> nul
 xcopy /i /s /y /d %RES_DIR%\wbdata\*.xml %TARGET_DIR%\data\. 1> nul 2> nul
-xcopy /i /s /y /d %RES_DIR%\wbdata\data.db %TARGET_DIR%\data\.
+xcopy /i /s /y /d %RES_DIR%\wbdata\data.db %TARGET_DIR%\data\. 1> nul 2> nul
+
+echo Copy parser grammar + support files
+xcopy /i /s /y /d %LIBRARY_DIR%\mysql.parser\MySQL.tokens %TARGET_DIR%\data 1> nul 2> nul
+xcopy /i /s /y /d %LIBRARY_DIR%\mysql.parser\grammar\MySQL.g %TARGET_DIR%\data 1> nul 2> nul
 
 if not exist %TARGET_DIR%\mysql.profiles mkdir %TARGET_DIR%\mysql.profiles
 copy %RES_DIR%\mysql.profiles\*.xml %TARGET_DIR%\mysql.profiles\. 1> nul 2> nul
@@ -93,7 +97,6 @@ copy %RES_DIR%\scripts\script_templates\*.txt %TARGET_DIR%\script_templates\. 1>
 
 if not exist %TARGET_DIR%\sys mkdir %TARGET_DIR%\sys
 xcopy /i /s /y /d %RES_DIR%\scripts\sys %TARGET_DIR%\sys 1> nul 2> nul
-
 
 echo Copy Scripting Libraries...
 xcopy /i /s /y /d %RES_DIR%\scripts\vbs\*.vbs %TARGET_DIR%\
