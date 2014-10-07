@@ -686,8 +686,8 @@ void TransparentMessage::show_message(const std::string& title, const std::strin
 #if GTK_VERSION_GE(2,12)
   window->set_opacity(0.85);
 #endif
-  window->process_updates(true);
   show_all();
+  window->process_updates(true);
 }
 
 void TransparentMessage::run()
@@ -859,18 +859,19 @@ void UtilitiesImpl::stop_cancelable_wait_message()
   }
 }
 
+static std::map<std::string, Glib::RefPtr<Gdk::Pixbuf> > icon_cache;
    
 Glib::RefPtr<Gdk::Pixbuf> UtilitiesImpl::get_cached_icon(const std::string &icon)
 {
-  std::map<std::string, Glib::RefPtr<Gdk::Pixbuf> > cache;
 
-  if (cache.find(icon) != cache.end())
-    return cache[icon];
+
+  if (icon_cache.find(icon) != icon_cache.end())
+    return icon_cache[icon];
 
   if (icon == "folder")
   {
     Glib::RefPtr<Gdk::Pixbuf> pix = get_mainwindow()->render_icon(Gtk::Stock::DIRECTORY, Gtk::ICON_SIZE_MENU);
-    cache[icon] = pix;
+    icon_cache[icon] = pix;
     return pix;
   }
   else
@@ -878,8 +879,8 @@ Glib::RefPtr<Gdk::Pixbuf> UtilitiesImpl::get_cached_icon(const std::string &icon
     std::string path = mforms::App::get()->get_resource_path(icon);
     if (!path.empty() && g_file_test(path.c_str(), G_FILE_TEST_IS_REGULAR))
     {
-      cache[icon] = Gdk::Pixbuf::create_from_file(path);
-      return cache[icon];
+      icon_cache[icon] = Gdk::Pixbuf::create_from_file(path);
+      return icon_cache[icon];
     }
     else
       g_warning("Can't find icon %s", icon.c_str());

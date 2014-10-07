@@ -712,27 +712,46 @@ bool MetaClass::validate()
 
 std::string MetaClass::get_attribute(const std::string &attr, bool search_parents)
 {
-  std::map<std::string,std::string>::const_iterator iter= _attributes.find(attr);
-  if (iter == _attributes.end())
+  MetaClass *root = this;
+
+  boost::unordered_map<std::string, std::string>::const_iterator iter;
+  do
   {
-    if (_parent && search_parents)
-      return _parent->get_attribute(attr, search_parents);
-    return "";
+    iter= root->_attributes.find(attr);
+    if (iter != root->_attributes.end())
+        return iter->second;
+    if (root->_parent && search_parents)
+      root = root->_parent;
+    else
+      return "";
   }
-  return iter->second;
+  while(root);
+
+  return "";
+
 }
 
 
 std::string MetaClass::get_member_attribute(const std::string &member, const std::string &attr, bool search_parents)
 {
-  std::map<std::string,std::string>::const_iterator iter= _attributes.find(member+":"+attr);
-  if (iter == _attributes.end())
+
+  MetaClass *root = this;
+  const std::string search_string = member+":"+attr;
+
+  boost::unordered_map<std::string, std::string>::const_iterator iter;
+  do
   {
-    if (_parent && search_parents)
-      return _parent->get_member_attribute(member, attr, search_parents);
-    return "";
+    iter= root->_attributes.find(search_string);
+    if (iter != root->_attributes.end())
+        return iter->second;
+    if (root->_parent && search_parents)
+      root = root->_parent;
+    else
+      return "";
   }
-  return iter->second;
+  while(root);
+
+  return "";
 }
 
 
