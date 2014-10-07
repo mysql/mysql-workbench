@@ -205,15 +205,17 @@ public:
     void setup();
 
     /** Replaces the text in the editor. */
+#ifndef SWIG
     void set_text(const char* text);
-
+#endif
     void set_value(const std::string& text);
 
+#ifndef SWIG
     /** Replaces the text in the editor but preserves top line, caret position and selection.
      *  This might not always work, especially when replacing large text by small text.
      */
     void set_text_keeping_state(const char* text);
-
+#endif
     /** Appends the given number of chars to end of the document. Allows to add nulls too.
      *  The length is (as always) a byte count.
      */

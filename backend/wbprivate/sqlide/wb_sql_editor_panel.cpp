@@ -875,7 +875,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
   item->set_name("limit_rows");
-  item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
+  item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbench will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
   bec::UIForm::scoped_connect(item->signal_activated(), boost::bind(&SqlEditorPanel::limit_rows, this, item));
   tbar->add_item(item);
 

@@ -404,7 +404,21 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query)
   try
   {
     std::auto_ptr<sql::Statement> pstmt(con->createStatement());
-    sql::ResultSet *res = pstmt->executeQuery(query);
+    pstmt->execute(query);
+
+    sql::ResultSet *res;
+    try
+    {
+      res = pstmt->getResultSet();
+    }
+    catch (sql::SQLException &exc)
+    {
+      if (exc.getErrorCode() == 0) // just means there's no resultset
+      {
+        return 0;
+      }
+      throw;
+    }
 
     ++_resultset_id;
 
