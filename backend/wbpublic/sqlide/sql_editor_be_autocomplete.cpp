@@ -237,13 +237,13 @@ static struct
       // We can handle here only combined and pure parser grammars (the lexer rules are ignored in a combined grammar).
       switch (tree->getType(tree))
       {
-        case COMBINED_GRAMMAR:
-        case PARSER_GRAMMAR:
+        case COMBINED_GRAMMAR_V3TOK:
+        case PARSER_GRAMMAR_V3TOK:
           // Advanced to the first rule. The first node is the grammar node. Everything else is in child nodes of this.
           for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++)
           {
             pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)tree->getChild(tree, index);
-            if (child->getType(child) == RULE)
+            if (child->getType(child) == RULE_V3TOK)
               traverse_rule(child);
           }
           break;
@@ -368,7 +368,7 @@ private:
     pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)alt->getChild(alt, index);
     switch (child->getType(child))
     {
-      case GATED_SEMPRED:
+      case GATED_SEMPRED_V3TOK:
       {
         // See if we can extract version info or SQL mode condition from that.
         ++index;
@@ -381,13 +381,13 @@ private:
         break;
       }
 
-      case SEMPRED:     // A normal semantic predicate.
-      case SYN_SEMPRED: // A syntactic predicate converted to a semantic predicate.
+      case SEMPRED_V3TOK:     // A normal semantic predicate.
+      case SYN_SEMPRED_V3TOK: // A syntactic predicate converted to a semantic predicate.
                         // Not needed for our work, so we can ignore it.
         ++index;
         break;
 
-      case EPSILON: // An empty alternative.
+      case EPSILON_V3TOK: // An empty alternative.
         return sequence;
     }
 
@@ -400,7 +400,7 @@ private:
       uint32_t type = child->getType(child);
 
       // Ignore ROOT/BANG nodes (they are just tree construction markup).
-      if (type == ROOT || type == BANG)
+      if (type == ROOT_V3TOK || type == BANG_V3TOK)
       {
         // Just one child.
         child = (pANTLR3_BASE_TREE)child->getChild(child, 0);
@@ -409,12 +409,12 @@ private:
 
       switch (type)
       {
-        case OPTIONAL:
-        case CLOSURE:
-        case POSITIVE_CLOSURE:
+        case OPTIONAL_V3TOK:
+        case CLOSURE_V3TOK:
+        case POSITIVE_CLOSURE_V3TOK:
         {
-          node.is_required = (type != OPTIONAL) && (type != CLOSURE);
-          node.multiple = (type == CLOSURE) || (type == POSITIVE_CLOSURE);
+          node.is_required = (type != OPTIONAL_V3TOK) && (type != CLOSURE_V3TOK);
+          node.multiple = (type == CLOSURE_V3TOK) || (type == POSITIVE_CLOSURE_V3TOK);
 
           child = (pANTLR3_BASE_TREE)child->getChild(child, 0);
 
@@ -488,7 +488,7 @@ private:
           break;
         }
 
-        case BLOCK:
+        case BLOCK_V3TOK:
         {
           std::stringstream block_name;
           block_name << name << "_block" << index;
@@ -527,7 +527,7 @@ private:
     for (ANTLR3_UINT32 index = 0; index < block->getChildCount(block) - 1; index++)
     {
       pANTLR3_BASE_TREE alt = (pANTLR3_BASE_TREE)block->getChild(block, index);
-      if (alt->getType(alt) == ALT) // There can be REWRITE nodes (which we don't need).
+      if (alt->getType(alt) == ALT_V3TOK) // There can be REWRITE nodes (which we don't need).
       {
         std::stringstream alt_name;
         alt_name << name << "_alt" << index;
@@ -552,7 +552,7 @@ private:
       child = (pANTLR3_BASE_TREE)rule->getChild(rule, 1);
       if (child->getType(child) == OPTIONS) // There might be an optional options block on the rule.
         child = (pANTLR3_BASE_TREE)rule->getChild(rule, 2);
-      if (child->getType(child) == BLOCK)
+      if (child->getType(child) == BLOCK_V3TOK)
         traverse_block(child, name);
     }
     
@@ -589,7 +589,7 @@ struct AutoCompletionContext
   MySQLScanner *scanner;
   std::set<std::string> completion_candidates;
 
-  uint32_t caret_line;
+  size_t caret_line;
   size_t caret_offset;
 
   std::vector<TableReference> references; // As in FROM, UPDATE etc.
@@ -821,7 +821,15 @@ private:
         if (run_state != RunStateMatching)
         {
           if (run_state == RunStateCollectionPending)
+          {
             collect_from_alternative(sequence, i + 1);
+
+            // If we just started collection in might be we are in a special rule.
+            // Check the end of the stack and if so push the rule name to the candidates.
+            // Duplicates will be handled automatically.
+            if (rules_holder.special_rules.find(walk_stack.back()) != rules_holder.special_rules.end())
+              completion_candidates.insert(walk_stack.back());
+          }
           return false;
         }
 
@@ -897,7 +905,7 @@ private:
 
   //----------------------------------------------------------------------------------------------------------------------
 
-  bool match_rule(const std::string rule)
+  bool match_rule(const std::string &rule)
   {
     if (run_state != RunStateMatching) // Sanity check - should never happen at this point.
       return false;
@@ -1247,7 +1255,7 @@ ObjectFlags determine_schema_table_qualifier(MySQLScanner *scanner, std::string 
   schema = "";
   column_schema = "";
   table = "";
-  if (scanner->is_identifier() && scanner->look_around(-1, true) == DOT_SYMBOL)
+  if (scanner->is_identifier() && scanner->look_around(1, true) == DOT_SYMBOL)
   {
     schema = scanner->token_text(); // schema.table
     table = schema;                 // table.column
@@ -1372,7 +1380,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
     // (because the statement splitter doesn't include these whitespaces in the determined ranges).
     // We set the caret pos to the first position in the query, which has the same effect for
     // code completion (we don't generate error line numbers).
-    size_t code_start_line = _code_editor->line_from_position(min);
+    uint32_t code_start_line = (uint32_t)_code_editor->line_from_position(min);
     if (code_start_line > context.caret_line)
     {
       context.caret_line = 1;
@@ -1441,12 +1449,12 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   context.server_version = scanner->get_server_version();
   context.collect_candiates(scanner);
 
-  scanner->reset();
-  scanner->seek(context.caret_line, context.caret_offset);
-
   // No sorting on the entries takes place. We group by type.
   for (auto i = context.completion_candidates.begin(); i != context.completion_candidates.end(); ++i)
   {
+    scanner->reset();
+    scanner->seek(context.caret_line, context.caret_offset);
+
     // There can be more than a single token in a candidate (e.g. for GROUP BY).
     // But if there are more than one we always have a keyword list.
     std::vector<std::string> entries = base::split( *i, " ");

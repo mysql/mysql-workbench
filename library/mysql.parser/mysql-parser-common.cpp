@@ -199,7 +199,7 @@ uint32_t MySQLRecognitionBase::get_keyword_token(const std::string &keyword)
 {
   if (keywords.size() == 0)
   {
-    for (size_t i = 4; i <= ZEROFILL_SYMBOL; ++i)
+    for (uint32_t i = 4; i <= ZEROFILL_SYMBOL; ++i)
     {
       std::string name((char*)MySQLParserTokenNames[i]);
       if (base::ends_with(name, "_SYMBOL"))

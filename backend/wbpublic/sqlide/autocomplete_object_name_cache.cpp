@@ -963,7 +963,7 @@ void AutoCompleteCache::init_db()
 
 bool AutoCompleteCache::is_schema_list_fetch_done()
 {
-  // TODO: optimize this and the other is_* functions to use a count instead the full set.
+  // TODO: optimize this.
   base::RecMutexLock lock(_sqconn_mutex);
   sqlite::query q(*_sqconn, "select * from schemas");
   if (q.emit())
@@ -975,33 +975,36 @@ bool AutoCompleteCache::is_schema_list_fetch_done()
 
 bool AutoCompleteCache::is_schema_tables_fetch_done(const std::string &schema)
 {
-  base::RecMutexLock lock(_sqconn_mutex);
-  sqlite::query q(*_sqconn, "select * from tables where schema = ?");
-  q.bind(1, schema);
-  if (q.emit())
-    return true;
-  return false;
+  return is_fetch_done("tables", schema);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 bool AutoCompleteCache::is_schema_table_columns_fetch_done(const std::string &schema, const std::string &table)
 {
-  base::RecMutexLock lock(_sqconn_mutex);
-  sqlite::query q(*_sqconn, "select * from columns where schema = ? and tabl = ?");
-  q.bind(1, schema);
-  q.bind(2, table);
-  if (q.emit())
-    return true;
-  return false;
+  return is_fetch_done("columns", schema);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool AutoCompleteCache::is_schema_routines_fetch_done(const std::string &schema)
+bool AutoCompleteCache::is_schema_functions_fetch_done(const std::string &schema)
+{
+  return is_fetch_done("functions", schema);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool AutoCompleteCache::is_schema_procedure_fetch_done(const std::string &schema)
+{
+  return is_fetch_done("procedures", schema);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool AutoCompleteCache::is_fetch_done(const std::string &cache, const std::string &schema)
 {
   base::RecMutexLock lock(_sqconn_mutex);
-  sqlite::query q(*_sqconn, "select * from routines where schema = ?");
+  sqlite::query q(*_sqconn, "select * from " + cache + " where schema_id = ?");
   q.bind(1, schema);
   if (q.emit())
     return true;

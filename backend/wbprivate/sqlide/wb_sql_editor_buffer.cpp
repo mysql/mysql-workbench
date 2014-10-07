@@ -312,12 +312,12 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       try { base::remove(info_file); }
       catch (std::exception &e)
       {
-        log_error("Could not delete autosave file %s\n", info_file.c_str());
+        log_error("Could not delete autosave file %s\n%s\n", info_file.c_str(), e.what());
       }
       try { base::remove(text_file); }
       catch (std::exception &e)
       {
-        log_error("Could not delete autosave file %s\n", text_file.c_str());
+        log_error("Could not delete autosave file %s\n%s\n", text_file.c_str(), e.what());
       }
     }
     // remove the pre-created editor
@@ -380,7 +380,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name)
       try { base::remove(file.first); }
       catch (std::exception &e)
       {
-        log_error("Could not delete autosave file %s\n", file.first.c_str());
+        log_error("Could not delete autosave file %s\n%s\n", file.first.c_str(), e.what());
       }
     }
     // remove the pre-created editor
