@@ -1546,7 +1546,7 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
   bool ret_val = true;
 
   if (mysql_stmt_bind_result(_select_stmt, &(rowbuffer[0])) != 0)
-    throw ConnectionError("mysql_stmt_bind_result", &_mysql);
+    throw ConnectionError(base::strfmt("mysql_stmt_bind_result: %s", mysql_stmt_error(_select_stmt)), &_mysql);
 
   int errcode = mysql_stmt_fetch(_select_stmt);
 
