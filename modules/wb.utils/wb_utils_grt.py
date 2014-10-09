@@ -23,6 +23,7 @@ import threading
 import zipfile
 import tempfile
 import shlex
+from workbench.utils import get_exe_path
 
 # import the wb module
 from wb import DefineModule, wbinputs
@@ -334,9 +335,16 @@ def copyJDBCConnectionString(conn):
 @ModuleInfo.export(grt.INT)
 def createMissingLocalConnections():
 
-    grt.modules.Workbench.createInstancesFromLocalServers()
+    found_instances = grt.modules.Workbench.createInstancesFromLocalServers()
     
     grt.modules.Workbench.refreshHomeConnections()
+    
+    if found_instances < 0:
+        mforms.Utilities.show_error("Rescan for Local MySQL Servers", "Rescan for local MySQL servers failed", "OK", "", "")
+    elif found_instances == 0:
+        mforms.Utilities.show_message('Rescan for Local MySQL Servers', 'No servers were found.', 'OK', '', '')
+    else:
+        mforms.Utilities.show_message('Rescan for Local MySQL Servers', 'Found %s servers.' % found_instances, 'OK', '', '')
     
     return 1
 
@@ -353,6 +361,7 @@ def newConnectionFromClipboard():
         existing.add(connectionStringFromConnection(con))
 
     parse_errors = False
+    found_instances = 0
     for line in text.encode("utf8").split("\n"):
         conn = connectionFromString(line)
         if not conn and not parse_errors:
@@ -372,9 +381,13 @@ def newConnectionFromClipboard():
             i += 1
         conn.name = name
         log_info("Added connection %s from clipboard\n" % conn.name)
+        found_instances = found_instances + 1
         grt.root.wb.rdbmsMgmt.storedConns.append(conn)
 
     grt.modules.Workbench.refreshHomeConnections()
+
+    if found_instances > 0:
+        mforms.Utilities.show_message('Add Connection(s) from Clipboard', 'Found %s servers.' % found_instances, 'OK', '', '')
 
     return 1
 
@@ -439,15 +452,12 @@ def startCommandLineClientForConnection(conn):
 if sys.platform == "linux2":
     @ModuleInfo.export(grt.INT)
     def startODBCAdmin():
-        path = os.getenv('PATH')
-        wb_bindir = os.getenv('MWB_BINARIES_DIR')
-        if ( (wb_bindir and os.path.isfile(os.path.join(wb_bindir, 'iodbcadm-gtk'))) or
-             (path and any( os.path.isfile(os.path.join(prefix, 'iodbcadm-gtk')) for prefix in path.split(':') ))
-           ):
-            subprocess.Popen('iodbcadm-gtk', shell=True, close_fds=True)
-            return 1
-        elif (path and any( os.path.isfile(os.path.join(prefix, 'ODBCManageDataSourcesQ4')) for prefix in path.split(':') )):
-            subprocess.Popen('ODBCManageDataSourcesQ4', shell=True, close_fds=True)
+        path = get_exe_path('iodbcadm-gtk')
+        if not path:
+            path = get_exe_path('ODBCManageDataSourcesQ4')
+
+        if path:
+            subprocess.Popen(path, shell=True, close_fds=True)
             return 1
         else:
             return 0

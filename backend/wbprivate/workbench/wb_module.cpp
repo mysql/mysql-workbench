@@ -1915,7 +1915,7 @@ int WorkbenchImpl::createConnectionsFromLocalServers()
  */
 int WorkbenchImpl::createInstancesFromLocalServers()
 {
-
+  int found_instances = 0;
   try
   {
     grt::DictListRef servers = getLocalServerList();
@@ -2069,10 +2069,11 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       // If we did not find a connection for this instance then create a new one.
       if (!connection.is_valid())
         connection = create_connection("localhost", "root", socket_or_pipe_name, can_use_networking,
-        can_use_socket_or_pipe, (int)port, _("Local instance ") + display_name);
+                                       can_use_socket_or_pipe, (int)port, _("Local instance ") + display_name);
 
       instance->connection(connection);
       instances.insert(instance);
+      ++found_instances;
     }
   }
   catch (std::exception &exc)
@@ -2082,7 +2083,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
     log_warning("Error auto-detecting server instance: %s\n", exc.what());
   }
 
-  return 0;
+  return found_instances;
 }
 
 //--------------------------------------------------------------------------------------------------
