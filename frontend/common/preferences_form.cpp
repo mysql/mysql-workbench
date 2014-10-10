@@ -549,7 +549,7 @@ void PreferencesForm::update_path_option(const std::string &option_name, mforms:
 
 void PreferencesForm::update_entry_option_numeric(const std::string &option_name, mforms::TextEntry *entry, int minrange, int maxrange)
 {
-  long value= atoi(entry->get_string_value().c_str());
+  long value= base::atoi<long>(entry->get_string_value(), 0l);
   if (value < minrange)
     value= minrange;
   else if (value > maxrange)
@@ -565,7 +565,7 @@ void PreferencesForm::show_checkbox_option(const std::string &option_name, mform
 
   _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
 
-  checkbox->set_active(atoi(value.c_str()) != 0);
+  checkbox->set_active(base::atoi<int>(value, 0) != 0);
 }
 
 
@@ -1020,7 +1020,7 @@ mforms::View *PreferencesForm::create_editor_page()
         // Set initial enabled state of sub settings depending on whether code completion is enabled.
         std::string value;
         _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "DbSqlEditor:CodeCompletionEnabled", value);
-        subsettings_box->set_enabled(atoi(value.c_str()) != 0);
+        subsettings_box->set_enabled(base::atoi<int>(value, 0) != 0);
 
         vbox->add(subsettings_box, false);
       }

@@ -633,19 +633,19 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language)
   {
     if (iterator->first == "usetabs")
     {
-      int int_value = atoi(iterator->second.c_str());
+      int int_value = base::atoi<int>(iterator->second, 0);
       _code_editor_impl->send_editor(this, SCI_SETUSETABS, int_value, 0);
     }
     else
       if (iterator->first == "tabwidth")
       {
-        int int_value = atoi(iterator->second.c_str());
+        int int_value = base::atoi<int>(iterator->second, 0);
         _code_editor_impl->send_editor(this, SCI_SETTABWIDTH, int_value, 0);
       }
       else
         if (iterator->first == "indentation")
         {
-          int int_value = atoi(iterator->second.c_str());
+          int int_value = base::atoi<int>(iterator->second, 0);
           _code_editor_impl->send_editor(this, SCI_SETINDENT, int_value, 0);
         }
   }

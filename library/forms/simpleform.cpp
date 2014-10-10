@@ -19,6 +19,7 @@
 
 #include "mforms/mforms.h"
 #include <sstream>
+#include "base/string_utilities.h"
 
 #define MIN_VIEW_WIDTH 200
 #define FORM_MARGIN  12
@@ -150,7 +151,7 @@ void SimpleForm::parse_definition(const std::string &definition)
       toks.getline(arg, sizeof(arg), ';');
       defaultv= parse_newlines(arg);
       
-      add_text_area(name, caption, atoi(rows.c_str()), defaultv);
+      add_text_area(name, caption, base::atoi<int>(rows, 0), defaultv);
     }
     else if (strcmp(type, "select")==0)
     {
@@ -175,7 +176,7 @@ void SimpleForm::parse_definition(const std::string &definition)
       }
       delete []s;
       
-      add_select(name, caption, items_list, defaulti.empty()?-1:atoi(defaulti.c_str()));
+      add_select(name, caption, items_list, defaulti.empty()?-1:base::atoi<int>(defaulti, 0));
     }
     else
       throw std::runtime_error(std::string("invalid simpleform view type: ").append(type));

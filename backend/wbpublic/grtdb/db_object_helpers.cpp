@@ -1425,13 +1425,13 @@ static bool parseTypeDefinition(const std::string &type,
       if (*simpleType->numericPrecision() != bec::EMPTY_TYPE_PRECISION)
       {
         if (!param1.empty())
-          precision= atoi(param1.c_str());
+          precision= base::atoi<int>(param1, 0);
         
         // get scale
         if (*simpleType->numericScale() != bec::EMPTY_TYPE_SCALE)
         {
           if (!param2.empty())
-            scale= atoi(param2.c_str());
+            scale= base::atoi<int>(param2, 0);
         }
       }
       // get length
@@ -1439,7 +1439,7 @@ static bool parseTypeDefinition(const std::string &type,
                || simpleType->characterOctetLength()   != bec::EMPTY_TYPE_OCTET_LENGTH)
       {
         if (!param1.empty())
-          length= atoi(param1.c_str());
+          length= base::atoi<int>(param1, 0);
       }
       else if (*simpleType->parameterFormatType() == 10)
         explicitParams= param1;

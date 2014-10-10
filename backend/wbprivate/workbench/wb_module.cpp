@@ -482,7 +482,7 @@ int WorkbenchImpl::openModel(const std::string &filename)
 
 int WorkbenchImpl::openRecentModel(const std::string &index)
 {
-  _wb->open_recent_document(atoi(index.c_str()));
+  _wb->open_recent_document(base::atoi<int>(index, 0));
 
   return 0;
 }
@@ -1941,7 +1941,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
     
       ssize_t port = INT_MIN;
       if (str_port.length())
-        port = atoi(str_port.c_str());
+        port = base::atoi<int>(str_port, 0);
       
       bool can_use_networking = true;
       if (path.find("--skip-networking") != std::string::npos)
@@ -2169,7 +2169,7 @@ std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent)
       std::string value = entry.get_string("AdapterRAM", "");
       if (value.size() > 0)
       {
-        int size = atoi(value.c_str()) / 1024 / 1024;
+        int64 size = base::atoi<int64>(value, 0) / 1024 / 1024;
         result << tab << "Installed video RAM: " << size << " MB\n";
       }
       else

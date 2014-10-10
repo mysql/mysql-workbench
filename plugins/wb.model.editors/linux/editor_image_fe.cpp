@@ -109,7 +109,7 @@ public:
   {
     Gtk::Entry *entry;
     _xml->get_widget("width_entry", entry);
-    int i= atoi(entry->get_text().c_str());
+    int i= base::atoi<int>(entry->get_text().c_str(), 0);
     if (i > 0)
       _be.set_width(i);
     do_refresh_form_data();
@@ -119,7 +119,7 @@ public:
   {
     Gtk::Entry *entry;
     _xml->get_widget("height_entry", entry);
-    int i= atoi(entry->get_text().c_str());
+    int i= base::atoi<int>(entry->get_text().c_str(), 0);
     if (i > 0)
       _be.set_height(i);
     do_refresh_form_data();

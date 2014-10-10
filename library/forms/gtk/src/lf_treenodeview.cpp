@@ -691,10 +691,10 @@ public:
         row.set_value(i, value != "0" ? true : false);
         break;
       case G_TYPE_INT:
-        row.set_value(i, atoi(value.c_str()));
+        row.set_value(i, base::atoi<int>(value, 0));
         break;
       case G_TYPE_INT64:
-        row.set_value(i, atoll(value.c_str()));
+        row.set_value(i, base::atoi<long long>(value, 0LL));
         break;
       default:
         {

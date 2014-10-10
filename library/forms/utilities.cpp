@@ -114,7 +114,7 @@ void Utilities::set_message_answers_storage_path(const std::string &path)
       if (ptr)
       {
         *ptr= 0;
-        remembered_message_answers[line] = atoi(ptr+1);
+        remembered_message_answers[line] = base::atoi<int>(ptr+1, 0);
       }
     }
     fclose(f);

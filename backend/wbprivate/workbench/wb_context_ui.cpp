@@ -952,14 +952,14 @@ void WBContextUI::set_wb_options_value(const std::string &model, const std::stri
   {
   case grt::DoubleType:
     {
-      grt::DoubleRef v(atof(value.c_str()));
+      grt::DoubleRef v(base::atof<double>(value, 0.0));
       if (!options.has_key(key) || options.get_double(key) != *v)
         options.set(key, v);
       break;
     }
   case grt::IntegerType:
     {
-      grt::IntegerRef v(atoi(value.c_str()));
+      grt::IntegerRef v(base::atoi<int>(value, 0));
       if (!options.has_key(key) || options.get_int(key) != *v)
         options.set(key, v);
       break;

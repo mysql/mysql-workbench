@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -284,7 +284,7 @@ void DbMySQLTableEditorOptPage::set_key_block_size()
   _xml->get_widget("key_block_size_combo", combo);
 
   std::stringstream ss;
-  ss << atoi(get_selected_combo_item(combo).c_str());
+  ss << base::atoi<int>(get_selected_combo_item(combo), 0);
 
   _be->set_table_option_by_name("KEY_BLOCK_SIZE", ss.str());
 }
