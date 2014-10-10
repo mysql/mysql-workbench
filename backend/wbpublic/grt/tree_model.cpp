@@ -74,7 +74,7 @@ NodeId::NodeId(const std::string &str)
       {
         if (!num.empty())
         {
-          index->push_back(atoi(num.c_str()));
+          index->push_back(base::atoi<int>(num, 0));
           num.clear();
         }
       }
@@ -83,7 +83,7 @@ NodeId::NodeId(const std::string &str)
     }
 
     if (!num.empty())
-      index->push_back(atoi(num.c_str()));
+      index->push_back(base::atoi<int>(num, 0));
   }
   catch (...)
   {

@@ -32,11 +32,13 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <typeinfo>
 
 #include <glib.h>
 
 #define _(s) s // TODO: replace with localization code.
 
+#include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 
 using boost::uint64_t;
@@ -238,6 +240,62 @@ namespace base
  **/
 BASELIBRARY_PUBLIC_FUNC std::string reflow_text(const std::string &text, unsigned int line_length, const std::string &left_fill="", bool indent_first=true, unsigned int max_lines=30);
 
+/**
+ * @brief Parse string and return numeric value
+ * This function parse std::string and return it's numeric value, it can throw std::exception in case of failure
+ * @param text The string to be parsed
+ * @param T Default value to return if it's not possible to convert, otherwise it will throw bad_lexical_cast exception
+ * @return Extraced numeric value
+ */
+class convert_impl
+{
+template<typename T, typename U>
+struct is_same
+{
+    static const bool value = false;
+};
+
+template<typename T>
+struct is_same<T, T>
+{
+    static const bool value = true;
+};
+
+
+template<typename T> T static string_to_number(const std::string &val, boost::optional<T> def_val = boost::none)
+{
+  T tmp;
+  std::stringstream ss(val);
+  ss >> tmp;
+  if (ss.rdstate() & std::stringstream::failbit)
+  {
+    if (def_val)
+      return def_val.get();
+    throw std::bad_cast();
+  }
+  return tmp;
+}
+  template<typename T> T friend inline atoi(const std::string &val, boost::optional<T> def_val = boost::none);
+  template<typename T> T friend inline atof(const std::string &val, boost::optional<T> def_val = boost::none);
+};
+
+template<typename T> T inline atoi(const std::string &val, boost::optional<T> def_val = boost::none)
+{
+  BOOST_STATIC_ASSERT((convert_impl::is_same<T,int>::value ||
+                           convert_impl::is_same<T,long>::value ||
+                           convert_impl::is_same<T,long long>::value ||
+                           convert_impl::is_same<T,size_t>::value ||
+                           convert_impl::is_same<T,ssize_t>::value));
+
+  return convert_impl::string_to_number<T>(val, def_val);
+}
+
+template<typename T> T inline atof(const std::string &val, boost::optional<T> def_val = boost::none)
+{
+  BOOST_STATIC_ASSERT((convert_impl::is_same<T,double>::value ||
+                             convert_impl::is_same<T,float>::value));
+  return convert_impl::string_to_number<T>(val, def_val);
+}
   
 } // namespace base
 

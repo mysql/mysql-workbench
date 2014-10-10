@@ -275,7 +275,7 @@ void DbMySQLTableEditorPartPage::part_count_changed()
   const std::string count = _part_count_entry->get_text();
   if ( !count.empty() )
   {
-    _be->set_partition_count(atoi(count.c_str()));
+    _be->set_partition_count(base::atoi<int>(count, 0));
   }
 }
 
@@ -285,7 +285,7 @@ void DbMySQLTableEditorPartPage::subpart_count_changed()
   const std::string& count = _subpart_count_entry->get_text();
   if ( !count.empty() )
   {
-    _be->set_subpartition_count(atoi(count.c_str()));
+    _be->set_subpartition_count(base::atoi<int>(count, 0));
   }
 }
 

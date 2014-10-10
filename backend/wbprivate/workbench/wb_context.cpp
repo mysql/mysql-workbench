@@ -2050,9 +2050,9 @@ void WBContext::attempt_options_upgrade(xmlDocPtr xmldoc, const std::string &ver
 {
   std::vector<std::string> ver= base::split(version, ".");
 
-  int major= atoi(ver[0].c_str());
-  int minor= atoi(ver[1].c_str());
-  int revision= atoi(ver[2].c_str());
+  int major= base::atoi<int>(ver[0], 0);
+  int minor= base::atoi<int>(ver[1], 0);
+  int revision= base::atoi<int>(ver[2], 0);
 
   // Version * -> 1.0.1
   // Performed changes:
@@ -2870,7 +2870,7 @@ bool WBContext::open_document(const std::string &file)
   
   // 5.0 -> 5.1 was done at 1.2.0, if document is from 5.0, make a backup
   std::vector<std::string> version_parts= base::split(_file->in_disk_document_version(), ".");
-  if (version_parts.size() >= 2 && version_parts[0] == "1" && atoi(version_parts[1].c_str()) <= 2)
+  if (version_parts.size() >= 2 && version_parts[0] == "1" && base::atoi<int>(version_parts[1], 0) <= 2)
   {
     std::string::size_type dot= file.rfind('.');
     std::string bakpath;
@@ -2884,7 +2884,7 @@ bool WBContext::open_document(const std::string &file)
     // make backup
     grt->send_info(strfmt("Model file is from 5.0, making backup to %s", bakpath.c_str()));
   }
-  else if (version_parts.size() >= 2 && version_parts[0] == "1" && atoi(version_parts[1].c_str()) <= 3)
+  else if (version_parts.size() >= 2 && version_parts[0] == "1" && base::atoi<int>(version_parts[1], 0) <= 3)
   {
     std::string::size_type dot= file.rfind('.');
     std::string bakpath;

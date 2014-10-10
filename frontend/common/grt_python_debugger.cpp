@@ -736,7 +736,7 @@ void PythonDebugger::stack_selected()
     std::string location = node->get_string(2);
     std::string::size_type pos = location.rfind(':');
     std::string file = node->get_tag();
-    int line = atoi(location.substr(pos+1).c_str());
+    int line = base::atoi<int>(location.substr(pos+1), 0);
     
     if (!file.empty() && line > 0)
     {

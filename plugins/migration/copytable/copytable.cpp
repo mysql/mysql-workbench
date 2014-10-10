@@ -1768,12 +1768,12 @@ void MySQLCopyDataTarget::get_server_version()
 
   std::vector<std::string> parsed_version = base::split(version, ".");
 
-  _major_version = atoi(parsed_version[0].c_str());
+  _major_version = base::atoi<int>(parsed_version[0], 0);
   if (parsed_version.size() > 1)
-    _minor_version = atoi(parsed_version[1].c_str());
+    _minor_version = base::atoi<int>(parsed_version[1], 0);
 
   if (parsed_version.size() > 2)
-    _build_version = atoi(parsed_version[2].c_str());
+    _build_version = base::atoi<int>(parsed_version[2], 0);
 
   log_debug("Detected server version=%s\n", version.c_str());
 }

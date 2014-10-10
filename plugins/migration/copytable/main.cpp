@@ -43,9 +43,6 @@
 
 #include "workbench/wb_version.h"
 
-#if defined(WIN32)
-#define atoll _atoi64
-#endif
 
 class input_error : public std::runtime_error
 {
@@ -372,13 +369,13 @@ int main(int argc, char **argv)
     }
     else if (check_arg_with_value(argv, i, "--thread-count", argval, true))
     {
-      thread_count = atoi(argval);
+      thread_count = base::atoi<int>(argval, 0);
       if (thread_count < 1)
         thread_count = 1;
     }
     else if (check_arg_with_value(argv, i, "--bulk-insert-batch-size", argval, true))
     {
-      bulk_insert_batch = atoi(argval);
+      bulk_insert_batch = base::atoi<int>(argval, 0);
       if (bulk_insert_batch < 1)
         bulk_insert_batch = 100;
     }
@@ -463,8 +460,8 @@ int main(int argc, char **argv)
         trigger_schemas.insert(param.target_schema);
       }
       param.copy_spec.range_key = argv[++i];
-      param.copy_spec.range_start = atoll(argv[++i]);
-      param.copy_spec.range_end = atoll(argv[++i]);
+      param.copy_spec.range_start = base::atoi<long long>(argv[++i], 0ll);
+      param.copy_spec.range_end = base::atoi<long long>(argv[++i], 0ll);
       param.copy_spec.type = CopyRange;
 
       tables.add_task(param);
@@ -488,7 +485,7 @@ int main(int argc, char **argv)
         param.target_pk_columns = base::split(argv[++i], ",", -1);
         param.select_expression = argv[++i];
       }
-      param.copy_spec.row_count = atoll(argv[++i]);
+      param.copy_spec.row_count = base::atoi<long long>(argv[++i], 0ll);
       param.copy_spec.resume = resume;
       param.copy_spec.type = CopyCount;
 
@@ -529,7 +526,7 @@ int main(int argc, char **argv)
     }
     else if (check_arg_with_value(argv, i, "--max-count", argval, true))
     {
-      max_count = atoi(argval);
+      max_count = base::atoi<int>(argval, 0);
     }
     else if (strcmp(argv[i], "--source-use-cleartext") == 0)
       source_use_cleartext_plugin = true;

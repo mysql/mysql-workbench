@@ -1325,7 +1325,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       // get lower_case_table_names value
       std::string value;
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
-        _lower_case_table_names = atoi(value.c_str());
+        _lower_case_table_names = base::atoi<int>(value, 0);
 
       parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
       _work_parser_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);

@@ -185,9 +185,9 @@ void DbSqlEditorHistory::EntriesModel::load()
     {
       tm t;
       memset(&t, 0, sizeof(t));
-      t.tm_year= atoi(&(*name)[0])-1900;
-      t.tm_mon= atoi(&(*name)[5])-1;
-      t.tm_mday= atoi(&(*name)[8]);
+      t.tm_year= base::atoi<int>(&(*name)[0], 0)-1900;
+      t.tm_mon= base::atoi<int>(&(*name)[5], 0)-1;
+      t.tm_mday= base::atoi<int>(&(*name)[8], 0);
       if (t.tm_year != 0)
         insert_entry(t);
     }
@@ -341,9 +341,9 @@ std::tm DbSqlEditorHistory::EntriesModel::entry_date(size_t index)
   get_field(index, 0, name);
 
   memset(&t, 0, sizeof(t));
-  t.tm_year = atoi(&name[0]) - 1900;
-  t.tm_mon = atoi(&name[5]) - 1;
-  t.tm_mday = atoi(&name[8]);
+  t.tm_year = base::atoi<int>(&name[0], 0) - 1900;
+  t.tm_mon = base::atoi<int>(&name[5], 0) - 1;
+  t.tm_mday = base::atoi<int>(&name[8], 0);
 
   return t;
 }

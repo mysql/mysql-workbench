@@ -186,7 +186,7 @@ std::string SqlEditorForm::find_workspace_state(const std::string &workspace_nam
         const char *end = strrchr(name, '.');
         int new_index = 0;
         if (end)
-          new_index = atoi(std::string(name + workspace_name.size()+1, end-name-(workspace_name.size()+1)).c_str());
+          new_index = base::atoi<int>(std::string(name + workspace_name.size()+1, end-name-(workspace_name.size()+1)), 0);
 
         if (g_str_has_suffix(name, ".autosave"))
         {

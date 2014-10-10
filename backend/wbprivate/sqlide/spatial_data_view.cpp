@@ -501,7 +501,7 @@ spatial::LayerId SpatialDataView::get_selected_layer_id()
 {
   mforms::TreeNodeRef node(_layer_tree->get_selected_node());
   if (node)
-    return atoi(node->get_tag().c_str());
+    return base::atoi<int>(node->get_tag(), 0);
   return 0;
 }
 
@@ -557,12 +557,12 @@ void SpatialDataView::layer_menu_will_show()
 
   mforms::TreeNodeRef node = _layer_tree->get_selected_node();
   spatial::LayerId bg_layer_id = _viewer->get_background()->layer_id();
-  if (node.is_valid() && atoi(node->get_tag().c_str()) != bg_layer_id)
+  if (node.is_valid() && base::atoi<int>(node->get_tag(), 0) != bg_layer_id)
   {
     mforms::TreeNodeRef pnode = node->previous_sibling(), nnode = node->next_sibling();
 
-    _layer_menu->set_item_enabled("layer_up", pnode.is_valid() && atoi(pnode->get_tag().c_str()) != bg_layer_id);
-    _layer_menu->set_item_enabled("layer_down", nnode.is_valid() && atoi(nnode->get_tag().c_str()) != bg_layer_id);
+    _layer_menu->set_item_enabled("layer_up", pnode.is_valid() && base::atoi<int>(pnode->get_tag(), 0) != bg_layer_id);
+    _layer_menu->set_item_enabled("layer_down", nnode.is_valid() && base::atoi<int>(nnode->get_tag(), 0) != bg_layer_id);
   }
   else
   {
@@ -722,7 +722,7 @@ void SpatialDataView::layer_menu_action(const std::string &action)
 
 
   node = move_node_to(node, group_node, new_index);
-  spatial::Layer *layer = _viewer->get_layer(atoi(node->get_tag().c_str()));
+  spatial::Layer *layer = _viewer->get_layer(base::atoi<int>(node->get_tag(), 0));
   if (layer)
     set_color_icon(node, 1, layer->color());
 
@@ -731,7 +731,7 @@ void SpatialDataView::layer_menu_action(const std::string &action)
 
   for(int i = 0; i < _layer_tree->count(); ++i)
   {
-    spatial::LayerId layer_id = atoi(_layer_tree->node_at_row(i)->get_tag().c_str());
+    spatial::LayerId layer_id = base::atoi<int>(_layer_tree->node_at_row(i)->get_tag(), 0);
     if (layer_id != _viewer->get_background()->layer_id())
       order.push_back(layer_id);
   }
@@ -773,7 +773,7 @@ void SpatialDataView::tree_toggled(const mforms::TreeNodeRef &node, const std::s
     bool show = value == "1";
     node->set_bool(0, show);
     
-    _viewer->show_layer(atoi(node->get_tag().c_str()), show);
+    _viewer->show_layer(base::atoi<int>(node->get_tag(), 0), show);
   }
 }
 
@@ -786,9 +786,9 @@ void SpatialDataView::activate_layer(mforms::TreeNodeRef node, int column)
   if (node)
   {
     if (column == -1)
-      auto_zoom(atoi(node->get_tag().c_str()));
+      auto_zoom(base::atoi<int>(node->get_tag(), 0));
     else
-      set_active_layer(atoi(node->get_tag().c_str()));
+      set_active_layer(base::atoi<int>(node->get_tag(), 0));
   }
 }
 
@@ -818,7 +818,7 @@ void SpatialDataView::set_active_layer(spatial::LayerId layer)
     mforms::TreeNodeRef node(_layer_tree->node_at_row(i));
     if (node)
     {
-      if (atoi(node->get_tag().c_str()) == _active_layer)
+      if (base::atoi<int>(node->get_tag(), -1) == _active_layer)
       {
         mforms::TreeNodeTextAttributes attribs;
         attribs.bold = true;
@@ -900,7 +900,7 @@ void SpatialDataView::set_geometry_columns(const std::vector<SpatialDataSource> 
         for (int i = 0; i < _layer_tree->count(); i++)
         {
           mforms::TreeNodeRef node;
-          if (atoi((node = _layer_tree->node_at_row(i))->get_tag().c_str()) == (*l)->layer_id())
+          if (base::atoi<int>((node = _layer_tree->node_at_row(i))->get_tag(), 0) == (*l)->layer_id())
           {
             node->remove_from_parent();
             break;
