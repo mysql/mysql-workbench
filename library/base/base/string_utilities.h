@@ -281,11 +281,11 @@ class convert_impl
     return tmp;
   }
 
-  template<typename T> T friend inline atoi(const std::string &val, boost::optional<T> def_val);
-  template<typename T> T friend inline atof(const std::string &val, boost::optional<T> def_val);
+  template<typename T> T friend inline atoi(const std::string &val, boost::optional<T> def_val = boost::none);
+  template<typename T> T friend inline atof(const std::string &val, boost::optional<T> def_val = boost::none);
 };
 
-template<typename T> T inline atoi(const std::string &val, boost::optional<T> def_val = boost::none)
+template<typename T> T inline atoi(const std::string &val, boost::optional<T> def_val)
 {
   BOOST_STATIC_ASSERT(convert_impl::is_same<T, int>::value ||
     convert_impl::is_same<T, long>::value ||
@@ -297,7 +297,7 @@ template<typename T> T inline atoi(const std::string &val, boost::optional<T> de
   return convert_impl::string_to_number<T>(val, def_val);
 }
 
-template<typename T> T inline atof(const std::string &val, boost::optional<T> def_val = boost::none)
+template<typename T> T inline atof(const std::string &val, boost::optional<T> def_val)
 {
   BOOST_STATIC_ASSERT(convert_impl::is_same<T,double>::value ||
     convert_impl::is_same<T, float>::value);
