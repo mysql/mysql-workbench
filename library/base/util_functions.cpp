@@ -406,7 +406,7 @@ std::string get_local_os_name()
     return "unknown";
 
   *dot_position = 0;
-  int version = base::atoi(info.release, 0);
+  int version = base::atoi<int>(info.release, 0);
   switch (version) {
     case 13:
       return "OS X 10.9.x Mavericks";
