@@ -297,7 +297,7 @@ template<typename T> T inline atoi(const std::string &val, boost::optional<T> de
   return ConvertHelper::string_to_number<T>(val, def_val);
 }
 
-template<typename T> T inline atof(const std::string &val, boost::optional<T> def_val)
+template<typename T> T inline atof(const std::string &val, boost::optional<T> def_val = boost::none)
 {
   BOOST_STATIC_ASSERT((ConvertHelper::is_same<T, double>::value ||
     ConvertHelper::is_same<T, float>::value));
