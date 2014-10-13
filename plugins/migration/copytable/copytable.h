@@ -17,14 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef _COPYTABLE_H_
-#define _COPYTABLE_H_
+#pragma once
 
-#ifdef _WIN32
-
-#define NOMINMAX
-#include <Windows.h>
-#endif
+#ifndef _WIN32
 
 #include <sql.h>
 #include <sqlext.h>
@@ -42,6 +37,9 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
+
+#endif
+
 #include "converter.h"
 #include "glib.h"
 #include "base/threading.h"
@@ -419,5 +417,3 @@ public:
   ~CopyDataTask();
   void wait() { g_thread_join(_thread); }
 };
-
-#endif

@@ -754,7 +754,7 @@ int main(int argc, char **argv)
         ptarget->set_truncate(truncate_target);
         if (max_count > 0)
           bulk_insert_batch = max_count;
-        ptarget->set_bulk_insert_batch_size(bulk_insert_batch);
+        ptarget->set_bulk_insert_batch_size((int)bulk_insert_batch);
 
         if (check_types_only)
         {

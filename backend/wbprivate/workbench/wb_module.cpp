@@ -2167,9 +2167,9 @@ std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent)
     {
       result << tab << "Active video adapter " << entry.get_string("Caption", "unknown") << '\n';
       std::string value = entry.get_string("AdapterRAM", "");
-      if (value.size() > 0)
+      if (!value.empty())
       {
-        int64 size = base::atoi<int64>(value, 0) / 1024 / 1024;
+        int64_t size = base::atoi<int64_t>(value, (int64_t)0) / 1024 / 1024;
         result << tab << "Installed video RAM: " << size << " MB\n";
       }
       else

@@ -23,6 +23,7 @@
     <ClCompile Include="python_copy_data_source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="converter.h">
@@ -34,5 +35,6 @@
     <ClInclude Include="python_copy_data_source.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
 </Project>
