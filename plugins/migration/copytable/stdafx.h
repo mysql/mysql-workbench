@@ -18,7 +18,7 @@
 */
 
 #pragma once
-
+#ifdef _WIN32
 #ifdef _WIN64
 typedef __int64 ssize_t;
 #else
@@ -47,3 +47,4 @@ typedef int ssize_t;
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#endif
