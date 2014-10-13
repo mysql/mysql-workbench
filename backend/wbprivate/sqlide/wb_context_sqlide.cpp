@@ -638,7 +638,7 @@ static bool validate_toolbar_alias_toggle(wb::WBContextSQLIDE *sqlide, const std
 //--------------------------------------------------------------------------------------------------
 
 WBContextSQLIDE::WBContextSQLIDE(WBContextUI *wbui)
-: _wbui(wbui), _auto_save_active(false), _option_change_signal_connected(false)
+: _wbui(wbui), _auto_save_handle(0), _auto_save_active(false), _option_change_signal_connected(false)
 {
 }
 
@@ -646,6 +646,8 @@ WBContextSQLIDE::WBContextSQLIDE(WBContextUI *wbui)
 
 WBContextSQLIDE::~WBContextSQLIDE()
 {
+  if (_auto_save_handle)
+    mforms::Utilities::cancel_timeout(_auto_save_handle);
   base::NotificationCenter::get()->remove_observer(this);
 }
 
@@ -666,8 +668,11 @@ bool WBContextSQLIDE::auto_save_workspaces()
   WBContext *wb= _wbui->get_wb();
   ssize_t interval= wb->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
   if (interval <= 0 || !_auto_save_active)
+  {
+    _auto_save_handle = NULL;
+    _auto_save_active = false;
     return false;
-
+  }
   for (std::list<boost::weak_ptr<SqlEditorForm> >::const_iterator iter = _open_editors.begin();
        iter != _open_editors.end(); ++iter)
   {
@@ -687,8 +692,11 @@ bool WBContextSQLIDE::auto_save_workspaces()
   
   if (interval != _auto_save_interval)
   {
+    _auto_save_interval = interval;
+    if (_auto_save_handle)
+      mforms::Utilities::cancel_timeout(_auto_save_handle);
     // schedule new interval
-    wb->get_grt_manager()->run_every(boost::bind(&WBContextSQLIDE::auto_save_workspaces, this), (double)interval);
+    _auto_save_handle = mforms::Utilities::add_timeout((float)interval, boost::bind(&WBContextSQLIDE::auto_save_workspaces, this));
     return false;
   }
   
@@ -816,7 +824,12 @@ void WBContextSQLIDE::init()
 
 void WBContextSQLIDE::finalize()
 {
-  std::list<SqlEditorForm::Ptr>::iterator next, ed = _open_editors.begin(); 
+  if (_auto_save_handle)
+  {
+    mforms::Utilities::cancel_timeout(_auto_save_handle);
+    _auto_save_handle = NULL;
+  }
+  std::list<SqlEditorForm::Ptr>::iterator next, ed = _open_editors.begin();
   while (ed != _open_editors.end())
   {
     next = ed;
@@ -1011,7 +1024,7 @@ SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_Connec
     _auto_save_active= true;
     ssize_t interval = _wbui->get_wb()->get_root()->options()->options().get_int("workbench:AutoSaveSQLEditorInterval", 60);
     if (interval > 0)
-      _wbui->get_wb()->get_grt_manager()->run_every(boost::bind(&WBContextSQLIDE::auto_save_workspaces, this), (double)interval);
+        _auto_save_handle = mforms::Utilities::add_timeout((float)interval, boost::bind(&WBContextSQLIDE::auto_save_workspaces, this));
     _auto_save_interval = interval;
 
     if (!_option_change_signal_connected)
