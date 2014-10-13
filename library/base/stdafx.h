@@ -18,7 +18,14 @@
  */
 
 #pragma once
+#if _WIN32
+#define _WIN_OS 1
+#endif
+#if _WIN64
+#define _WIN_OS 1
+#endif
 
+#ifdef _WIN_OS
 #ifdef _WIN64
 typedef __int64 ssize_t;
 #else
@@ -47,3 +54,4 @@ typedef int ssize_t;
 
 #include <glib/glib.h>
 #include <glib/gstdio.h>
+#endif

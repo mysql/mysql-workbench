@@ -252,8 +252,10 @@ BASELIBRARY_PUBLIC_FUNC std::string reflow_text(const std::string &text, unsigne
  *          a bad_cast exception is thrown on parse errors.
  * @return Extracted numeric value.
  */
-class convert_impl
+class ConvertHelper
 {
+  // Need to make this public as we cannot declare the template functions that use it as friend.
+public:
   template<typename T, typename U>
   struct is_same
   {
@@ -265,7 +267,6 @@ class convert_impl
   {
       static const bool value = true;
   };
-
 
   template<typename T> T static string_to_number(const std::string &val, boost::optional<T> def_val = boost::none)
   {
@@ -281,28 +282,27 @@ class convert_impl
     return tmp;
   }
 
-  template<typename T> T friend inline atoi(const std::string &val, boost::optional<T> def_val = boost::none);
-  template<typename T> T friend inline atof(const std::string &val, boost::optional<T> def_val = boost::none);
 };
 
-template<typename T> T inline atoi(const std::string &val, boost::optional<T> def_val)
+template<typename T> T inline atoi(const std::string &val, boost::optional<T> def_val = boost::none)
 {
-  BOOST_STATIC_ASSERT(convert_impl::is_same<T, int>::value ||
-    convert_impl::is_same<T, long>::value ||
-    convert_impl::is_same<T, long long>::value ||
-    convert_impl::is_same<T, size_t>::value ||
-    convert_impl::is_same<T, ssize_t>::value ||
-    convert_impl::is_same<T, int64_t>::value);
+  // Don't remove the double parentheses. GCC needs them here.
+  BOOST_STATIC_ASSERT((ConvertHelper::is_same<T, int>::value ||
+    ConvertHelper::is_same<T, long>::value ||
+    ConvertHelper::is_same<T, long long>::value ||
+    ConvertHelper::is_same<T, size_t>::value ||
+    ConvertHelper::is_same<T, ssize_t>::value ||
+    ConvertHelper::is_same<T, int64_t>::value));
 
-  return convert_impl::string_to_number<T>(val, def_val);
+  return ConvertHelper::string_to_number<T>(val, def_val);
 }
 
 template<typename T> T inline atof(const std::string &val, boost::optional<T> def_val)
 {
-  BOOST_STATIC_ASSERT(convert_impl::is_same<T,double>::value ||
-    convert_impl::is_same<T, float>::value);
+  BOOST_STATIC_ASSERT((ConvertHelper::is_same<T, double>::value ||
+    ConvertHelper::is_same<T, float>::value));
 
-  return convert_impl::string_to_number<T>(val, def_val);
+  return ConvertHelper::string_to_number<T>(val, def_val);
 }
   
 } // namespace base
