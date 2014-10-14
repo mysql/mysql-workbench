@@ -46,9 +46,11 @@ DbMySQLValidationPage::~DbMySQLValidationPage()
   delete messages_list;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void DbMySQLValidationPage::run_validation()
 {
-  bec::GRTTask *task= new bec::GRTTask("Catalog validation", 
+  bec::GRTTask::Ref task = bec::GRTTask::create_task("Catalog validation", 
     _manager->get_dispatcher(), 
     boost::bind(&DbMySQLSQLExport::validation_task, this, _1, grt::StringRef()));
 
@@ -56,6 +58,8 @@ void DbMySQLValidationPage::run_validation()
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLSQLExport::validation_finished, this, _1));
   _manager->get_dispatcher()->add_task(task);
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void DbMySQLValidationPage::validation_finished(grt::ValueRef res)
 {

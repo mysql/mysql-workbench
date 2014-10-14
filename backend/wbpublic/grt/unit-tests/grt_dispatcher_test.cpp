@@ -65,27 +65,24 @@ static grt::ValueRef normal_test_function(grt::GRT *grt)
 TEST_FUNCTION(1)
 {
   // test callbacks
-  GRTTask *task;
-
   grt::ValueRef result;
   bool finish_called= false;
   
-  task= new GRTTask("test", grtm.get_dispatcher(), std::ptr_fun(normal_test_function));
+  bec::GRTTask::Ref task = GRTTask::create_task("test", grtm.get_dispatcher(), std::ptr_fun(normal_test_function));
   task->signal_finished()->connect(boost::bind(&finished, _1, &finish_called));
   
-  result= grtm.get_dispatcher()->add_task_and_wait(task);
+  result = grtm.get_dispatcher()->add_task_and_wait(task);
   
   ensure("result", result.is_valid() && result.type() == grt::IntegerType);
   ensure_equals("result value", *grt::IntegerRef::cast_from(result), 123);
 
   ensure("finish callback called", finish_called);
   
-  
-  finish_called= false;
-  task= new GRTTask("test", grtm.get_dispatcher(), std::ptr_fun(normal_test_function));
+  finish_called = false;
+  task = GRTTask::create_task("test", grtm.get_dispatcher(), std::ptr_fun(normal_test_function));
   task->signal_finished()->connect(boost::bind(&finished_with_wait, _1, &finish_called));
   
-  result= grtm.get_dispatcher()->add_task_and_wait(task);
+  result = grtm.get_dispatcher()->add_task_and_wait(task);
   
   ensure("finish callback called with wait", finish_called);
 }

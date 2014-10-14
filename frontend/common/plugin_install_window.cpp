@@ -133,11 +133,12 @@ grt::ValueRef AddOnDownloadWindow::DownloadItem::perform_download(grt::GRT *grt)
   return module->call_function("downloadFile", args);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void AddOnDownloadWindow::DownloadItem::start()
 {
-  bec::GRTTask *task = new bec::GRTTask("downloading plugin", _grtm->get_dispatcher(), 
-                                        boost::bind(&AddOnDownloadWindow::DownloadItem::perform_download, this, _1));
+  bec::GRTTask::Ref task = bec::GRTTask::create_task("downloading plugin", _grtm->get_dispatcher(),
+    boost::bind(&AddOnDownloadWindow::DownloadItem::perform_download, this, _1));
   
   scoped_connect(task->signal_finished(),boost::bind(&AddOnDownloadWindow::DownloadItem::download_finished, this, _1));
   scoped_connect(task->signal_failed(),boost::bind(&AddOnDownloadWindow::DownloadItem::download_failed, this, _1));
@@ -146,6 +147,7 @@ void AddOnDownloadWindow::DownloadItem::start()
   _grtm->get_dispatcher()->add_task(task);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void AddOnDownloadWindow::DownloadItem::handle_output(const grt::Message &message)
 {

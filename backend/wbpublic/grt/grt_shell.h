@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,12 +16,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
-#ifndef _GRT_SHELL_H_
-#define _GRT_SHELL_H_
 
+#pragma once
 
-#include <grtpp.h>
-#include <grtpp_shell.h>
+#include "grtpp.h"
+#include "grtpp_shell.h"
 
 #include "grt_dispatcher.h"
 #include "wbpublic_public_interface.h"
@@ -34,7 +33,7 @@ class GRTManager;
 class WBPUBLICBACKEND_PUBLIC_FUNC ShellBE
 {
 public:
-  ShellBE(GRTManager *grtm, GRTDispatcher *dispatcher);
+  ShellBE(GRTManager *grtm, const GRTDispatcher::Ref dispatcher);
   ~ShellBE();
 
   bool setup(const std::string &lang);
@@ -85,7 +84,7 @@ protected:
   GRTManager *_grtm;
   grt::GRT *_grt;
   grt::Shell *_shell;
-  GRTDispatcher *_dispatcher;
+  GRTDispatcher::Ref _dispatcher;
   std::vector<std::string> _grt_tree_bookmarks;
 
   std::string _savedata_dir;
@@ -112,5 +111,3 @@ private:
 
 
 };
-
-#endif /* _GRT_SHELL_H_ */
