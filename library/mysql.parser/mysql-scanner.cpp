@@ -399,8 +399,6 @@ bool MySQLScanner::is_separator()
     case CLOSE_PAR_SYMBOL:
     case OPEN_CURLY_SYMBOL:
     case CLOSE_CURLY_SYMBOL:
-    case OPEN_BRACKET_SYMBOL:
-    case CLOSE_BRACKET_SYMBOL:
     case PARAM_MARKER:
       return true;
   }
