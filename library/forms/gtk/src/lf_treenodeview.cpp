@@ -739,7 +739,7 @@ public:
     if (is_valid() && !is_root())
     {
       Gtk::TreeRow row = *iter();
-      row.set_value(_treeview->index_for_column(column), base::strfmt("%"PRId64, value));
+      row.set_value(_treeview->index_for_column(column), base::strfmt("%" PRId64, value));
     }
   }
 
