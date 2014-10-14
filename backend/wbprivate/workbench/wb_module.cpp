@@ -105,7 +105,7 @@ std::string WorkbenchImpl::getSystemInfo(bool indent)
   app_InfoRef info(app_InfoRef::cast_from(_wb->get_grt()->get("/wb/info")));
 
   const char* tab = indent ? "\t" : "";
-  std::string result = strfmt("%s%s %s (%s) for "PLATFORM_NAME" version %i.%i.%i %s revision %i build %i (%s)\n",
+  std::string result = strfmt("%s%s %s (%s) for " PLATFORM_NAME " version %i.%i.%i %s revision %i build %i (%s)\n",
     tab, info->name().c_str(), APP_EDITION_NAME, APP_LICENSE_TYPE, APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER,
                               APP_RELEASE_TYPE, APP_REVISION_NUMBER, APP_BUILD_NUMBER, ARCHITECTURE);
   result += strfmt("%sConfiguration Directory: %s\n", tab, _wb->get_grt_manager()->get_user_datadir().c_str());
@@ -200,7 +200,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 #define def_plugin(group, aName, type, aCaption, descr)\
 {\
   app_PluginRef plugin(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
@@ -213,7 +213,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 #define def_object_plugin(group, klass, aName, aCaption, descr)\
 {\
   app_PluginRef plugin(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
@@ -231,7 +231,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 #define def_view_plugin(group, aName, aCaption, descr)\
 {\
   app_PluginRef plugin(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
@@ -249,7 +249,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 #define def_model_plugin(group, aName, aCaption, descr)\
 {\
   app_PluginRef plugin(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
@@ -267,7 +267,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 #define def_form_model_plugin(group, aName, aCaption, descr)\
 {\
   app_PluginRef plugin(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
@@ -285,7 +285,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 #define def_form_plugin(group, aName, aCaption, descr)\
 {\
   app_PluginRef plugin(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
@@ -300,7 +300,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 {\
   app_PluginRef plugin(get_grt());\
   app_PluginInputDefinitionRef pdef(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
@@ -316,7 +316,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 #define def_model_arg_plugin(group, aName, type, aCaption, descr)\
 {\
   app_PluginRef plugin(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\
@@ -339,7 +339,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap()
 {\
   app_PluginRef plugin(get_grt());\
   app_PluginFileInputRef pdef(get_grt());\
-  plugin->name("wb."group"."aName);\
+  plugin->name("wb." group "." aName);\
   plugin->caption(aCaption);\
   plugin->description(descr);\
   plugin->moduleName("Workbench");\

@@ -748,7 +748,7 @@ void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::st
 
   try
   {
-    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.* FROM performance_schema.events_statements_current st JOIN performance_schema.threads thr ON thr.thread_id = st.thread_id WHERE thr.processlist_id = %"PRId64, conn_id)));
+    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.* FROM performance_schema.events_statements_current st JOIN performance_schema.threads thr ON thr.thread_id = st.thread_id WHERE thr.processlist_id = %" PRId64, conn_id)));
     while (result->next())
     {
       for (const char **field = stat_fields; *field; ++field)
@@ -774,7 +774,7 @@ std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(boost::int64_
   {
     std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.*"\
                                                                          " FROM performance_schema.events_stages_history_long st"\
-                                                                         " WHERE st.nesting_event_id = %"PRId64,
+                                                                         " WHERE st.nesting_event_id = %" PRId64,
                                                                          stmt_event_id)));
     while (result->next())
     {
@@ -824,7 +824,7 @@ std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(boost::int64_t 
   {
     std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.*"\
                                                                          " FROM performance_schema.events_waits_history_long st"\
-                                                                         " WHERE st.nesting_event_id = %"PRId64,
+                                                                         " WHERE st.nesting_event_id = %" PRId64,
                                                                          stmt_event_id)));
     while (result->next())
     {

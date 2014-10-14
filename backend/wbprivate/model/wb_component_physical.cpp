@@ -109,12 +109,12 @@ void WBComponentPhysical::load_app_options(bool update)
 
     toolbar= app_ToolbarRef::cast_from(
       grt->unserialize(make_path(_wb->get_datadir(),"data/model_option_toolbar_physical_relationship.xml")));
-    _toolbars["main/"WB_TOOL_PREL11_NOID]= toolbar;
-    _toolbars["main/"WB_TOOL_PREL1n_NOID]= toolbar;
-    _toolbars["main/"WB_TOOL_PREL11]= toolbar;
-    _toolbars["main/"WB_TOOL_PREL1n]= toolbar;
-    _toolbars["main/"WB_TOOL_PRELnm]= toolbar;
-    _toolbars["main/"WB_TOOL_PREL_PICK]= toolbar;
+    _toolbars["main/" WB_TOOL_PREL11_NOID]= toolbar;
+    _toolbars["main/" WB_TOOL_PREL1n_NOID]= toolbar;
+    _toolbars["main/" WB_TOOL_PREL11]= toolbar;
+    _toolbars["main/" WB_TOOL_PREL1n]= toolbar;
+    _toolbars["main/" WB_TOOL_PRELnm]= toolbar;
+    _toolbars["main/" WB_TOOL_PREL_PICK]= toolbar;
 
     _shortcuts= grt::ListRef<app_ShortcutItem>::cast_from(
       grt->unserialize(make_path(_wb->get_datadir(),"data/shortcuts_physical.xml")));
