@@ -26,7 +26,7 @@
 class WBPUBLICBACKEND_PUBLIC_FUNC GrtThreadedTask : public base::trackable
 {
 public:
-  typedef std::shared_ptr<GrtThreadedTask> Ref;
+  typedef boost::shared_ptr<GrtThreadedTask> Ref;
 public:
   static Ref create() { return Ref(new GrtThreadedTask()); }
   static Ref create(bec::GRTManager *grtm) { return Ref(new GrtThreadedTask(grtm)); }
