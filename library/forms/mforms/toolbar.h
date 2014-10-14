@@ -50,7 +50,7 @@ namespace mforms {
     SeparatorItem,
     ExpanderItem,
     ImageBoxItem,
-#ifdef __linux__
+#if !defined(_WIN32) && !defined(__APPLE__)
     TitleItem = LabelItem // TODO implement specific TitleItem (bold with #333333 color) for Linux
 #else
     TitleItem
