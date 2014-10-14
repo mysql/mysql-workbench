@@ -58,6 +58,13 @@ namespace wb
   class UserDatatypeList;
   class HistoryTree;
   
+  enum CatalogNodeNotificationType
+  {
+    NodeAddUpdate,
+    NodeDelete,
+    NodeUnmark
+  };
+
   class MYSQLWBBACKEND_PUBLIC_FUNC WBContextModel : public ModelBridgeDelegate, public base::trackable, base::Observer
   {    
   public:
@@ -80,7 +87,6 @@ namespace wb
     GrtVersionRef get_target_version();
 
     mforms::TreeNodeView *create_history_tree();
-    mforms::TreeNodeView *create_catalog_tree();
 
     model_DiagramRef get_active_model_diagram(bool main_form);
     model_ModelRef get_active_model(bool main_form);
@@ -122,7 +128,8 @@ namespace wb
     bool remove_figure(model_ObjectRef object);
     
     GrtObjectRef duplicate_object(const db_DatabaseObjectRef &object, grt::CopyContext &copy_context);
-
+    void notify_catalog_tree_view(const CatalogNodeNotificationType &notify_type, grt::ValueRef value, const std::string &diagram_id = "");
+    void refill_catalog_tree();
   public:
     void update_plugin_arguments_pool(bec::ArgumentPool &args);
     

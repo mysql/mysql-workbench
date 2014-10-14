@@ -353,7 +353,8 @@ void ModelDiagramPanel::init(const std::string &view_id)
     #endif
 
     _xml->get_widget("side_model_note1", note);
-    _catalog_tree = _wb->get_wb()->get_model_context()->create_catalog_tree();
+
+    _catalog_tree = _be->get_catalog_tree();
     label = Gtk::manage(new Gtk::Label(_("<small>Catalog</small>")));
     note->append_page(*mforms::widget_for_view(_catalog_tree), *label);
     label->set_use_markup(true);

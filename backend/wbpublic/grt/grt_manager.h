@@ -26,7 +26,6 @@
 #include "common.h"
 #include "grt_dispatcher.h"
 #include "grt_shell.h"
-#include "grt_value_tree.h"
 #include "grt_value_inspector.h"
 #include "grt_message_list.h"
 

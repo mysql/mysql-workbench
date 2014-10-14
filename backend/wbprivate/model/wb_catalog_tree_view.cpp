@@ -20,11 +20,10 @@
 #include "mforms/menubar.h"
 
 #include "workbench/wb_context.h"
-
-#include "wb_catalog_tree.h"
 #include "grt/icon_manager.h"
-
+#include "wb_model_diagram_form.h"
 #include "wb_catalog_tree_view.h"
+#include <boost/unordered_set.hpp>
 
 using namespace wb;
 
@@ -44,15 +43,152 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------------
+static std::string get_node_icon_path(NodeIcons icon)
+{
+  bec::IconId iconid;
 
-CatalogTreeView::CatalogTreeView(CatalogTreeBE *model)
-: mforms::TreeNodeView(mforms::TreeNoBorder | mforms::TreeNoHeader | mforms::TreeSizeSmall | mforms::TreeCanBeDragSource)
+  switch(icon)
+  {
+  case IconTablesMany:
+    iconid = bec::IconManager::get_instance()->get_icon_id("db.Table.many.$.png", bec::Icon16);
+    break;
+  case IconTable:
+      iconid = bec::IconManager::get_instance()->get_icon_id("db.Table.$.png", bec::Icon16);
+      break;
+  case IconViewsMany:
+      iconid = bec::IconManager::get_instance()->get_icon_id("db.View.many.$.png", bec::Icon16);
+      break;
+  case IconView:
+      iconid = bec::IconManager::get_instance()->get_icon_id("db.View.$.png", bec::Icon16);
+      break;
+  case IconRoutineGroupsMany:
+      iconid = bec::IconManager::get_instance()->get_icon_id("db.Routine.many.$.png", bec::Icon16);
+      break;
+  case IconRoutineGroup:
+      iconid = bec::IconManager::get_instance()->get_icon_id("db.Routine.$.png", bec::Icon16);
+      break;
+  case IconSchema:
+      iconid = bec::IconManager::get_instance()->get_icon_id("db.Schema.$.png", bec::Icon16);
+      break;
+  default:
+    return "";
+  }
+
+  return bec::IconManager::get_instance()->get_icon_file(iconid);
+}
+
+
+CatalogTreeView::ObjectNodeData::ObjectNodeData(grt::ObjectRef obj_ref) : mforms::TreeNodeData(), _ref(obj_ref)
+{
+
+}
+grt::ObjectRef CatalogTreeView::ObjectNodeData::get_object_ref()
+{
+  return _ref;
+}
+
+bool CatalogTreeView::get_drag_data(mforms::DragDetails &details, void **data, std::string &format)
+{
+  std::list<mforms::TreeNodeRef> selection = get_selection();
+
+  _dragged_objects.clear();
+  for (std::list<mforms::TreeNodeRef>::const_iterator iterator = selection.begin();
+    iterator != selection.end(); ++iterator)
+  {
+    ObjectNodeData *odata = dynamic_cast<ObjectNodeData *>((*iterator)->get_data());
+    if (odata != NULL)
+    {
+      GrtObjectRef object;
+      grt::ValueRef value = odata->get_object_ref();
+      if (value.is_valid() &&
+          (db_TableRef::can_wrap(value) || db_ViewRef::can_wrap(value) || db_RoutineGroupRef::can_wrap(value)))
+        object = GrtObjectRef::cast_from(value);
+      if (object.is_valid())
+        _dragged_objects.push_back(object);
+    }
+  }
+
+  if (_dragged_objects.empty())
+    return false;
+
+  details.allowedOperations = mforms::DragOperationCopy;
+  *data = &_dragged_objects;
+  format = WB_DBOBJECT_DRAG_TYPE;
+
+  return true;
+}
+
+void CatalogTreeView::menu_action(const std::string &name, grt::ValueRef val)
+{
+  if (name == "edit" && _activate_callback)
+    _activate_callback(val);
+
+}
+
+mforms::TreeNodeRef CatalogTreeView::create_new_node(const ObjectType &otype, mforms::TreeNodeRef parent, const std::string &name, grt::ObjectRef obj)
+{
+  mforms::TreeNodeRef new_node;
+  if (parent.is_valid())
+  {
+    std::string icon_path;
+    switch(otype)
+    {
+    case ObjTable:
+    {
+      new_node = parent->get_child(0)->add_child();
+      icon_path = get_node_icon_path(IconTable);
+      break;
+    }
+    case ObjView:
+    {
+      new_node = parent->get_child(1)->add_child();
+      icon_path = get_node_icon_path(IconView);
+      break;
+    }
+    case ObjRoutineGrp:
+    {
+      new_node = parent->get_child(2)->add_child();
+      icon_path = get_node_icon_path(IconRoutineGroup);
+      break;
+    }
+    case ObjSchema:
+      new_node = parent->add_child();
+      icon_path = get_node_icon_path(IconSchema);
+    default:
+      break;
+    }
+
+    if (new_node.is_valid())
+    {
+      new_node->set_string(0, name);
+      new_node->set_icon_path(0, icon_path);
+      new_node->set_data(new ObjectNodeData(obj));
+      new_node->set_tag(obj.id());
+      if (otype == ObjSchema) //it's different we need to also create catalog nodes
+      {
+        mforms::TreeNodeRef child = new_node->add_child();
+        new_node->expand();
+        child->set_string(0, _("Tables"));
+        child->set_icon_path(0, get_node_icon_path(IconTablesMany));
+        child = new_node->add_child();
+        child->set_string(0, _("Views"));
+        child->set_icon_path(0, get_node_icon_path(IconViewsMany));
+        child = new_node->add_child();
+        child->set_string(0, _("Routine Groups"));
+        child->set_icon_path(0, get_node_icon_path(IconRoutineGroupsMany));
+      }
+    }
+  }
+
+  return new_node;
+}
+
+CatalogTreeView::CatalogTreeView(ModelDiagramForm *owner)
+: mforms::TreeNodeView(mforms::TreeNoBorder | mforms::TreeNoHeader | mforms::TreeSizeSmall | mforms::TreeCanBeDragSource | mforms::TreeIndexOnTag)
+, _owner(owner)
+
 {
   _initialized = false;
-
-  _model = model;
-  scoped_connect(_model->tree_changed_signal(), boost::bind(&CatalogTreeView::model_changed, this, _1, _2));
-  scoped_connect(_model->update_captions_signal(), boost::bind(&CatalogTreeView::update_captions, this));
 
   set_selection_mode(mforms::TreeSelectMultiple);
 #ifdef _WIN32
@@ -76,185 +212,216 @@ CatalogTreeView::~CatalogTreeView()
   delete _menu;
 }
 
+void CatalogTreeView::node_activated(mforms::TreeNodeRef row, int column)
+{
+  ObjectNodeData *data = dynamic_cast<ObjectNodeData *>(row->get_data());
+  if (data != NULL)
+    _activate_callback(data->get_object_ref());
+}
+
+
+void CatalogTreeView::refill(bool force)
+{
+  if (_initialized && !force)
+      return;
+
+  clear();
+
+
+  model_ModelRef model = _owner->get_model_diagram()->owner();
+
+  boost::unordered_set<grt::internal::Value*> uset;
+  grt::ListRef<model_Figure> figures(_owner->get_model_diagram()->figures());
+  for (size_t c= figures.count(), i= 0; i < c; i++)
+  {
+    model_FigureRef f(figures[i]);
+
+    if (f.has_member("table"))
+      uset.insert(f.get_member("table").valueptr());
+    else if (f.has_member("view"))
+      uset.insert(f.get_member("view").valueptr());
+    else if (f.has_member("routine"))
+      uset.insert(f.get_member("routine").valueptr());
+    else if (f.has_member("routineGroup"))
+      uset.insert(f.get_member("routineGroup").valueptr());
+  }
+
+  freeze_refresh();
+  grt::ListRef<db_Schema> schema_list = workbench_physical_ModelRef::cast_from(model)->catalog()->schemata();
+  for (size_t i = 0; i < schema_list.count(); ++i)
+  {
+    mforms::TreeNodeRef node = add_node();
+    node->set_string(0, schema_list[i]->name().c_str());
+    node->set_icon_path(0, get_node_icon_path(IconSchema));;
+    node->set_tag(schema_list[i].id());
+    node->set_data(new ObjectNodeData(schema_list[i]));
+    mforms::TreeNodeRef child = node->add_child();
+    if (i == 0) //we expand by default only first schema on the list
+      node->expand();
+    child->set_string(0, _("Tables"));
+    child->set_icon_path(0, get_node_icon_path(IconTablesMany));
+    for (size_t j = 0; j < schema_list[i]->tables().count(); ++j)
+    {
+      db_TableRef table(schema_list[i]->tables()[j]);
+      mforms::TreeNodeRef subchild = child->add_child();
+      subchild->set_string(0, table->name().c_str());
+      subchild->set_icon_path(0, get_node_icon_path(IconTable));
+      subchild->set_tag(table.id());
+      subchild->set_data(new ObjectNodeData(table));
+      if (uset.find(table.valueptr()) != uset.end())
+        subchild->set_string(1, "\xe2\x97\x8f");
+    }
+
+
+    child = node->add_child();
+    child->set_string(0, _("Views"));
+    child->set_icon_path(0, get_node_icon_path(IconViewsMany));
+    for (size_t j = 0; j < schema_list[i]->views().count(); ++j)
+    {
+      db_ViewRef view(schema_list[i]->views()[j]);
+      mforms::TreeNodeRef subchild = child->add_child();
+      subchild->set_string(0, view->name().c_str());
+      subchild->set_icon_path(0, get_node_icon_path(IconView));
+      subchild->set_tag(view.id());
+      subchild->set_data(new ObjectNodeData(view));
+      if (uset.find(view.valueptr()) != uset.end())
+        subchild->set_string(1, "\xe2\x97\x8f");
+    }
+
+    child = node->add_child();
+    child->set_string(0, _("Routine Groups"));
+    child->set_icon_path(0, get_node_icon_path(IconRoutineGroupsMany));
+    for (size_t j = 0; j < schema_list[i]->routineGroups().count(); ++j)
+    {
+      db_RoutineGroupRef routineGrp(schema_list[i]->routineGroups()[j]);
+      mforms::TreeNodeRef subchild = child->add_child();
+      subchild->set_string(0, routineGrp->name().c_str());
+      subchild->set_icon_path(0, get_node_icon_path(IconRoutineGroup));
+      subchild->set_tag(routineGrp.id());
+      subchild->set_data(new ObjectNodeData(routineGrp));
+      if (uset.find(routineGrp.valueptr()) != uset.end())
+        subchild->set_string(1, "\xe2\x97\x8f");
+    }
+  }
+  thaw_refresh();
+  _initialized = true;
+}
+
+void CatalogTreeView::set_activate_callback(const boost::function<void (grt::ValueRef)> &active_callback)
+{
+  _activate_callback= active_callback;
+}
+
 //--------------------------------------------------------------------------------------------------
 
 void CatalogTreeView::context_menu_will_show(mforms::MenuItem *parent_item)
 {
   std::list<mforms::TreeNodeRef> selection = get_selection();
-  std::vector<bec::NodeId> nodes;
-  for (std::list<mforms::TreeNodeRef>::const_iterator iterator = selection.begin(); iterator != selection.end(); ++iterator)
-  {
-    CatalogData *data = dynamic_cast<CatalogData *>((*iterator)->get_data());
-    if (data != NULL)
-      nodes.push_back(data->id);
-  }
 
-  if (parent_item == NULL)
-    _model->update_menu_items_for_nodes(_menu, nodes);
+  mforms::MenuBase *parent;
+  if (parent_item)
+    parent = parent_item;
   else
-    _model->update_menu_items_for_nodes(parent_item, nodes);
-}
+    parent = _menu;
 
-//--------------------------------------------------------------------------------------------------
+  parent->remove_all();
 
-/**
- * Reads all child nodes of the given parent node (usually triggered after a model change).
- * do_default_expand is to indicated if we explicitly should expand all nodes of the first and 
- * second level.
- */
-void CatalogTreeView::fill_node(mforms::TreeNodeRef parent_node, bec::NodeId parent_id)
-{
-  for (size_t count = _model->count_children(parent_id), i = 0; i < count; ++i)
+  if (!selection.empty())
   {
-    bec::NodeId child = _model->get_child(parent_id, i);
-
-    mforms::TreeNodeRef node = parent_node->add_child();
-    CatalogData *data = new CatalogData(child);
-    node->set_data(data);
-
-    bec::IconId icon = _model->get_field_icon(child, 0, bec::Icon16);
-    node->set_icon_path(0, bec::IconManager::get_instance()->get_icon_path(icon));
-
-    std::string value;
-    if (_model->get_field(child, 0, value))
-      node->set_string(0, value);
-    if (_model->get_field(child, 1, value))
-      node->set_string(1, value);
-
-    // If the model node is already expanded then also expand the tree node.
-    // In order to not fill a node more than once we have to check if a node was already
-    // expanded. This conflicts with the existing expand state, so we first collapse
-    // (a very cheap operation) and then do the actual expand.
-    // Also expand the first two node levels for easier access to the actual objects.
-    if (_model->is_expanded(child) || child.depth() <= 3)
+    ObjectNodeData *odata = dynamic_cast<ObjectNodeData *>((*selection.begin())->get_data());
+    if (odata != NULL)
     {
-      _model->collapse_node(child);
-      node->expand();
+      grt::ValueRef value(odata->get_object_ref());
+      std::string caption = "";
+      if (value.is_valid())
+      {
+        if (db_SchemaRef::can_wrap(value))
+          caption = _("Edit Schema...");
+        else if (db_TableRef::can_wrap(value))
+          caption = _("Edit Table...");
+        else if (db_ViewRef::can_wrap(value))
+          caption = _("Edit View...");
+        else if (db_RoutineRef::can_wrap(value))
+          caption = _("Edit Routine...");
+        else if (db_RoutineGroupRef::can_wrap(value))
+          caption = _("Edit Routine Group...");
+      }
+
+      if (!caption.empty())
+        parent->add_item_with_title(caption, boost::bind(&CatalogTreeView::menu_action, this, "edit", value));
     }
   }
 }
-
 //--------------------------------------------------------------------------------------------------
-
-void CatalogTreeView::model_changed(bec::NodeId id, int old_child_count)
+void CatalogTreeView::mark_node(grt::ValueRef val, bool mark)
 {
-  refresh();
+  db_DatabaseObjectRef obj;
+  if (db_DatabaseObjectRef::can_wrap(val))
+    obj = db_DatabaseObjectRef::cast_from(val);
+
+  if (!obj.is_valid())
+    return;
+
+  mforms::TreeNodeRef node = node_with_tag(obj.id());
+  if (node.is_valid())
+    node->set_string(1, mark ? "\xe2\x97\x8f" : "");
 }
 
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Updates the captions of all existing nodes. We have be tolerant here against model changes
- * we have not been notified about (e.g. expanding a node in one tree instance does not automatically
- * expand the same node in another). This is usually no problem as the catalog tree is refreshed also
- * when switching between instances. But until then model and treenodes may differ.
- */
-void CatalogTreeView::update_parent_node(mforms::TreeNodeRef parent_node, bec::NodeId parent_id)
+void CatalogTreeView::add_update_node_caption(grt::ValueRef val)
 {
-  for (size_t count = _model->count_children(parent_id), i = 0; i < count; ++i)
+  ObjectType otype = ObjNone;
+
+  db_DatabaseObjectRef obj;
+  if (db_DatabaseObjectRef::can_wrap(val))
+    obj = db_DatabaseObjectRef::cast_from(val);
+
+  if (!obj.is_valid())
+    return;
+
+  std::string new_name = obj->name().c_str();
+  if (db_TableRef::can_wrap(val))
+    otype = ObjTable;
+  else if (db_RoutineGroupRef::can_wrap(val))
+    otype = ObjRoutineGrp;
+  else if (db_ViewRef::can_wrap(val))
+    otype = ObjView;
+  else if (db_SchemaRef::can_wrap(val))
+    otype = ObjSchema;
+  else
+    return;
+
+  mforms::TreeNodeRef node = node_with_tag(obj.id());
+  if (node.is_valid())
+    node->set_string(0, new_name);
+  else // if node is invalid it means that new object was added on diagram
   {
-    bec::NodeId child = _model->get_child(parent_id, i);
-    mforms::TreeNodeRef node;
-    if ((int)i < parent_node->count())
-      node = parent_node->get_child((int)i);
+    mforms::TreeNodeRef node = node_with_tag(obj->owner().id());
     if (node.is_valid())
     {
-      std::string value;
-      if (_model->get_field(child, 0, value))
-        node->set_string(0, value);
-      if (_model->get_field(child, 1, value))
-        node->set_string(1, value);
+      node = create_new_node(otype, node, new_name, obj);
+      workbench_physical_DiagramRef view(workbench_physical_DiagramRef::cast_from(_owner->get_model_diagram()));
+      if (view->getFigureForDBObject(obj).is_valid())
+        node->set_string(1, "\xe2\x97\x8f");
 
-      if (_model->is_expanded(child))
-        update_parent_node(node, child);
     }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void CatalogTreeView::update_captions()
-{
-  if (_initialized)
-    update_parent_node(root_node(), _model->get_root());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-bool CatalogTreeView::get_drag_data(mforms::DragDetails &details, void **data, std::string &format)
-{
-  std::list<mforms::TreeNodeRef> selection = get_selection();
-
-  _dragged_objects.clear();
-  for (std::list<mforms::TreeNodeRef>::const_iterator iterator = selection.begin();
-    iterator != selection.end(); ++iterator)
-  {
-    CatalogData *cdata = dynamic_cast<CatalogData *>((*iterator)->get_data());
-    if (cdata != NULL)
+    else if (db_SchemaRef::can_wrap(obj)) //check if it's schemaref
     {
-      GrtObjectRef object;
-      grt::ValueRef value = _model->get_node_value(cdata->id);
-      if (value.is_valid() &&
-          (db_TableRef::can_wrap(value) || db_ViewRef::can_wrap(value) || db_RoutineGroupRef::can_wrap(value)))
-        object = GrtObjectRef::cast_from(value);
-      if (object.is_valid())
-        _dragged_objects.push_back(object);
-    }
-  }
-
-  if (_dragged_objects.empty())
-    return false;
-
-  details.allowedOperations = mforms::DragOperationCopy;
-  *data = &_dragged_objects;
-  format = WB_DBOBJECT_DRAG_TYPE;
-
-  return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void CatalogTreeView::refresh()
-{
-  clear();
-  fill_node(root_node(), _model->get_root());
-  _initialized = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void CatalogTreeView::node_activated(mforms::TreeNodeRef row, int column)
-{
-  CatalogData *data = dynamic_cast<CatalogData *>(row->get_data());
-  if (data != NULL)
-    _model->activate_node(data->id);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-bool CatalogTreeView::can_expand(mforms::TreeNodeRef row)
-{
-  CatalogData *data = dynamic_cast<CatalogData *>(row->get_data());
-  if (data != NULL)
-    return _model->is_expandable(data->id);
-
-  return mforms::TreeNodeView::can_expand(row);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void CatalogTreeView::expand_toggle(mforms::TreeNodeRef row, bool expanded)
-{
-  TreeNodeView::expand_toggle(row, expanded);
-  if (expanded)
-  {
-    CatalogData *data = dynamic_cast<CatalogData *>(row->get_data());
-    if (data != NULL && !_model->is_expanded(data->id))
-    {
-      _model->expand_node(data->id);
-      fill_node(row, data->id);
+      create_new_node(otype, root_node(), new_name, obj);
     }
   }
 }
 
+void CatalogTreeView::remove_node(grt::ValueRef val)
+{
+  db_DatabaseObjectRef obj;
+  if (db_DatabaseObjectRef::can_wrap(val))
+    obj = db_DatabaseObjectRef::cast_from(val);
+
+  if (!obj.is_valid())
+    return;
+
+  mforms::TreeNodeRef node = node_with_tag(obj.id());
+  if (node.is_valid())
+    node->remove_from_parent();
+}
 //--------------------------------------------------------------------------------------------------

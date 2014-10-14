@@ -350,7 +350,6 @@
     <ClCompile Include="model\canvas_floater.cpp" />
     <ClCompile Include="model\mini_view.cpp" />
     <ClCompile Include="model\relationship_canvas_floater.cpp" />
-    <ClCompile Include="model\wb_catalog_tree.cpp" />
     <ClCompile Include="model\wb_catalog_tree_view.cpp" />
     <ClCompile Include="model\wb_component.cpp" />
     <ClCompile Include="model\wb_component_basic.cpp" />

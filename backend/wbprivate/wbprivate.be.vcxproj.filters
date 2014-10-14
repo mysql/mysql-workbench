@@ -357,9 +357,6 @@
     <ClCompile Include="model\relationship_canvas_floater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="model\wb_catalog_tree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="model\wb_catalog_tree_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

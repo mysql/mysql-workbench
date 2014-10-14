@@ -24,7 +24,6 @@
 
 #include "wb_component_physical.h"
 #include "wb_model_diagram_form.h"
-#include "wb_catalog_tree.h"
 
 #include "workbench/wb_context.h"
 #include "workbench/wb_context_ui.h"
@@ -80,16 +79,12 @@ template<class C> grt::Ref<C> get_parent_for_object(const GrtObjectRef &object)
 WBComponentPhysical::WBComponentPhysical(WBContext *wb)
 : WBComponent(wb)
 {
-  _catalog_tree = NULL;
-  base::NotificationCenter::get()->add_observer(this, "GNMainFormChanged");
 }
 
 
 WBComponentPhysical::~WBComponentPhysical()
 {
-  base::NotificationCenter::get()->remove_observer(this);
   close_document();
-  delete _catalog_tree;
 }
 
 
@@ -980,9 +975,6 @@ std::list<model_FigureRef> WBComponentPhysical::interactive_place_db_objects(Mod
   if (copied > 0)
   {
     undo.end(_("Place object(s) on canvas"));
-
-    if (_catalog_tree != NULL)
-      _catalog_tree->update_captions();
   }
   return created_figures;
 }
@@ -2306,9 +2298,6 @@ void WBComponentPhysical::reset_document()
     }
   }
 
-  if (_catalog_tree != NULL)
-    _wb->get_grt_manager()->run_once_when_idle(this, boost::bind(&CatalogTreeBE::refresh, _catalog_tree));
-
   ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_scripts();
   ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_notes();
 }
@@ -2354,8 +2343,6 @@ void WBComponentPhysical::catalog_object_list_changed(grt::internal::OwnedList *
     // The requests are actually sent in flush_idle_tasks()
 
     // Send refresh messages for various UI parts.
-    if (_catalog_tree != NULL)
-      _wb->get_grt_manager()->run_once_when_idle(this, boost::bind(&CatalogTreeBE::refresh, _catalog_tree));
     _wb->request_refresh(RefreshOverviewNodeChildren, "", 0); // Non-recursive refresh for the overview page.
 
     // A refresh for the schema list specifically.
@@ -2365,6 +2352,7 @@ void WBComponentPhysical::catalog_object_list_changed(grt::internal::OwnedList *
     {
       // added new schema
       add_schema_listeners(db_SchemaRef::cast_from(value));
+      _wb->get_model_context()->notify_catalog_tree_view(NodeAddUpdate, value);
     }
     else
     {
@@ -2389,11 +2377,11 @@ void WBComponentPhysical::catalog_object_list_changed(grt::internal::OwnedList *
 void WBComponentPhysical::schema_member_changed(const std::string &member, const grt::ValueRef &ovalue,
                                                 const db_SchemaRef &schema)
 {
-  if (_catalog_tree != NULL)
-    _wb->get_grt_manager()->run_once_when_idle(this, boost::bind(&CatalogTreeBE::refresh, _catalog_tree));
 
   if (_wb->get_ui()->get_physical_overview())
     ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_for_schema(schema, true);
+
+  _wb->get_model_context()->notify_catalog_tree_view(NodeAddUpdate, schema);
 }
 
 
@@ -2416,9 +2404,11 @@ void WBComponentPhysical::schema_object_list_changed(grt::internal::OwnedList *l
   if (added)
   {
     add_schema_object_listeners(object);
+    _wb->get_model_context()->notify_catalog_tree_view(NodeAddUpdate, object);
   }
   else
   {
+    _wb->get_model_context()->notify_catalog_tree_view(NodeDelete, value);
     // remove old listeners
     if (object.is_instance(db_Table::static_class_name()))
     {
@@ -2430,9 +2420,6 @@ void WBComponentPhysical::schema_object_list_changed(grt::internal::OwnedList *l
 
   if (_wb->get_ui()->get_physical_overview())
     ((PhysicalOverviewBE*)_wb->get_ui()->get_physical_overview())->send_refresh_for_schema_object(GrtObjectRef::cast_from(value), false);
-
-  if (_catalog_tree != NULL)
-    _wb->get_grt_manager()->run_once_when_idle(this, boost::bind(&CatalogTreeBE::refresh, _catalog_tree));
 }
 
 
@@ -2468,10 +2455,6 @@ void WBComponentPhysical::view_object_list_changed(grt::internal::OwnedList *lis
       else
       {
       }
-      
-      // ask for a refresh to update the "present in this view" status in Catalog tree
-      if (_catalog_tree != NULL)
-        _catalog_tree->refresh_for_diagram(workbench_physical_DiagramRef::cast_from(view));
     }
     else
     {
@@ -2709,8 +2692,7 @@ void WBComponentPhysical::refresh_ui_for_object(const GrtObjectRef &object)
     // tree due to the change of the owners child list and hence basically useless in this case.
     // Less impact if we have updates for individual nodes one day.
     //_catalog_tree->refresh_node(object.owner().id()); Requires a node id.
-    if (_catalog_tree != NULL)
-      _wb->get_grt_manager()->run_once_when_idle(this, boost::bind(&CatalogTreeBE::refresh, _catalog_tree));
+    _wb->get_model_context()->notify_catalog_tree_view(NodeAddUpdate, object);
   }
 }
 
@@ -2872,18 +2854,6 @@ bool WBComponentPhysical::update_table_fk_connection(const db_TableRef &table, c
   return false;
 }
 
-
-void WBComponentPhysical::activate_catalog_tree_item(const grt::ValueRef &value)
-{
-  if (value.is_valid() && db_DatabaseObjectRef::can_wrap(value))
-  {
-    db_DatabaseObjectRef object(db_DatabaseObjectRef::cast_from(value));
-
-    _wb->get_grt_manager()->open_object_editor(object);
-  }
-}
-
-
 bool WBComponentPhysical::has_figure_for_object_in_active_view(const GrtObjectRef &object, ModelDiagramForm *vform)
 {
   if (!vform)
@@ -2897,75 +2867,6 @@ bool WBComponentPhysical::has_figure_for_object_in_active_view(const GrtObjectRe
       return true;
   }
   return false;
-}
-
-
-void WBComponentPhysical::update_catalog_tree_model()
-{  
-  if (!_catalog_tree)
-    return;
-
-  UIForm *form= _wb->get_active_main_form();
-  model_ModelRef model;
-  workbench_physical_DiagramRef view;
-
-  if (form)
-  {
-    ModelDiagramForm *vform= dynamic_cast<ModelDiagramForm*>(form);
-    if (vform)
-    {
-      view= workbench_physical_DiagramRef::cast_from(vform->get_model_diagram());
-      model= view->owner();
-    }
-    else
-    {
-      OverviewBE *over= dynamic_cast<OverviewBE*>(form);
-      if (over)
-        model= over->get_model();
-      else
-        return;
-    }
-  }
-
-  if (_catalog_tree != NULL)
-  {
-    _catalog_tree->refresh_for_diagram(view);
-
-    if (model.is_valid())
-      _catalog_tree->set_displayed_value(workbench_physical_ModelRef::cast_from(model)->catalog()->schemata(), "");
-    else
-      _catalog_tree->set_displayed_global_value("", true);
-  }
-}
-
-
-
-CatalogTreeBE *WBComponentPhysical::get_catalog_tree_model()
-{
-  if (_catalog_tree == NULL)
-  {
-    _catalog_tree = new CatalogTreeBE(get_grt(), this);
-    _catalog_tree->set_activate_callback(boost::bind(&WBComponentPhysical::activate_catalog_tree_item, this, _1));
-
-    update_catalog_tree_model();
-  }
-
-  return _catalog_tree;
-}
-
-
-void WBComponentPhysical::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info)
-{
-  if (name == "GNMainFormChanged" && _catalog_tree != NULL)
-  {
-    // Update the (shared) catalog tree model for diagram form changes.
-    ModelDiagramForm *form = dynamic_cast<ModelDiagramForm*>(_wb->get_active_main_form());
-    if (form != NULL)
-    {
-      _catalog_tree->refresh();    // First reload all nodes (mostly to let the UI update their visible node representations).
-      update_catalog_tree_model(); // Second update the cache for placed objects.
-    }
-  }
 }
 
 
