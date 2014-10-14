@@ -25,7 +25,6 @@
 GrtThreadedTask::GrtThreadedTask()
 :
 _grtm(NULL),
-_task(NULL),
 _send_task_res_msg(true),
 _onetime_finish_cb(false),
 _onetime_fail_cb(false)
@@ -37,7 +36,6 @@ _onetime_fail_cb(false)
 GrtThreadedTask::GrtThreadedTask(bec::GRTManager *grtm)
 :
 _grtm(grtm),
-_task(NULL),
 _send_task_res_msg(true),
 _onetime_finish_cb(false),
 _onetime_fail_cb(false)
@@ -49,7 +47,6 @@ _onetime_fail_cb(false)
 GrtThreadedTask::GrtThreadedTask(const GrtThreadedTask::Ref parent_task)
 :
 _grtm(parent_task->grtm()),
-_task(NULL),
 _send_task_res_msg(true),
 _onetime_finish_cb(false),
 _onetime_fail_cb(false)
