@@ -454,13 +454,11 @@ void WizardProgressPage::extra_clicked()
   relayout();
 }
 
-
-//--------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------
 
 void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef (grt::GRT*)> &slot, bool sync)
 {
-  bec::GRTTask *task= new bec::GRTTask("wizard task", _form->grtm()->get_dispatcher(), slot);
+  bec::GRTTask::Ref task= bec::GRTTask::create_task("wizard task", _form->grtm()->get_dispatcher(), slot);
 
   scoped_connect(task->signal_message(),boost::bind(&WizardProgressPage::process_grt_task_message, this, _1));
   scoped_connect(task->signal_failed(),boost::bind(&WizardProgressPage::process_grt_task_fail, this, _1));
@@ -472,6 +470,7 @@ void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef (g
     _form->grtm()->get_dispatcher()->add_task(task);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void WizardProgressPage::process_grt_task_message(const grt::Message &msg)
 {
@@ -481,9 +480,6 @@ void WizardProgressPage::process_grt_task_message(const grt::Message &msg)
   case grt::ErrorMsg:
     {
       _got_error_messages= true;
-      /*
-      //if (!continueOnErrMsg)
-      */
       _tasks[_current_task]->async_errors++;
 
       msgTypeStr = "ERROR: ";
@@ -540,6 +536,7 @@ void WizardProgressPage::process_grt_task_fail(const std::exception &error)
   perform_tasks();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result)
 {
@@ -557,3 +554,5 @@ void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result)
   // continue with task execution
   perform_tasks();
 }
+
+//--------------------------------------------------------------------------------------------------

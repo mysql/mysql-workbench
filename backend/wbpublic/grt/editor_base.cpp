@@ -170,9 +170,8 @@ void BaseEditor::undo_applied()
 
 void BaseEditor::run_from_grt(const boost::function<void()> &slot)
 {
-  GRTDispatcher *disp= _grtm->get_dispatcher();
-
-  disp->execute_simple_function("editor action", boost::bind(boost::bind(&base::run_and_return_value<grt::ValueRef>,slot)));
+  _grtm->get_dispatcher()->execute_simple_function("editor action",
+    boost::bind(boost::bind(&base::run_and_return_value<grt::ValueRef>, slot)));
 }
 
 //--------------------------------------------------------------------------------------------------

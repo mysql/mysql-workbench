@@ -19,6 +19,8 @@
 
 #include "wb_plugin_be.h"
 
+//--------------------------------------------------------------------------------------------------
+
 void Wb_plugin::grtm(bec::GRTManager *grtm)
 {
   _grtm= grtm;
@@ -29,12 +31,13 @@ void Wb_plugin::grtm(bec::GRTManager *grtm)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Wb_plugin::exec_task(bool sync)
 {
   set_task_proc();
 
-  bec::GRTTask *task= new bec::GRTTask(task_desc(), _grtm->get_dispatcher(), _task_proc_cb);
+  bec::GRTTask::Ref task = bec::GRTTask::create_task(task_desc(), _grtm->get_dispatcher(), _task_proc_cb);
 
   scoped_connect(task->signal_message(),boost::bind(&Wb_plugin::process_task_msg, this, _1));
   scoped_connect(task->signal_failed(),boost::bind(&Wb_plugin::process_task_fail, this, _1));
@@ -46,6 +49,7 @@ void Wb_plugin::exec_task(bool sync)
     _grtm->get_dispatcher()->add_task(task);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void Wb_plugin::process_task_msg(const grt::Message &msg)
 {

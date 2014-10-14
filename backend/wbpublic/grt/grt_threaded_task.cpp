@@ -20,6 +20,7 @@
 #include "base/wb_memory.h"
 #include "grt/grt_threaded_task.h"
 
+//--------------------------------------------------------------------------------------------------
 
 GrtThreadedTask::GrtThreadedTask()
 :
@@ -31,6 +32,7 @@ _onetime_fail_cb(false)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
 GrtThreadedTask::GrtThreadedTask(bec::GRTManager *grtm)
 :
@@ -42,8 +44,9 @@ _onetime_fail_cb(false)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
-GrtThreadedTask::GrtThreadedTask(const GrtThreadedTask::Ref &parent_task)
+GrtThreadedTask::GrtThreadedTask(const GrtThreadedTask::Ref parent_task)
 :
 _grtm(parent_task->grtm()),
 _task(NULL),
@@ -54,12 +57,14 @@ _onetime_fail_cb(false)
   this->parent_task(parent_task);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 GrtThreadedTask::~GrtThreadedTask()
 {
   parent_task(GrtThreadedTask::Ref());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GrtThreadedTask::disconnect_callbacks()
 {
@@ -72,6 +77,7 @@ void GrtThreadedTask::disconnect_callbacks()
   _send_task_res_msg= false;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GrtThreadedTask::grtm(bec::GRTManager *grtm)
 {
@@ -80,8 +86,9 @@ void GrtThreadedTask::grtm(bec::GRTManager *grtm)
   _grtm= grtm;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GrtThreadedTask::parent_task(const GrtThreadedTask::Ref &val)
+void GrtThreadedTask::parent_task(const GrtThreadedTask::Ref val)
 {
   if (_dispatcher)
   {
@@ -105,29 +112,27 @@ void GrtThreadedTask::parent_task(const GrtThreadedTask::Ref &val)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 const bec::GRTDispatcher::Ref & GrtThreadedTask::dispatcher()
 {
   if (!_dispatcher)
   {
-    _dispatcher.reset(new bec::GRTDispatcher(_grtm->get_grt(), _grtm->is_threaded(), false));
+    _dispatcher = bec::GRTDispatcher::create_dispatcher(_grtm->get_grt(), _grtm->is_threaded(), false);
     _dispatcher->set_main_thread_flush_and_wait(_grtm->get_dispatcher()->get_main_thread_flush_and_wait());
-    _dispatcher->start(_dispatcher);
+    _dispatcher->start();
   }
   return _dispatcher;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-bec::GRTTask * GrtThreadedTask::task()
+const bec::GRTTask::Ref GrtThreadedTask::task()
 {
-  return (_task) ? _task : ((_parent_task) ? _parent_task->task() : NULL);
+  return (_task) ? _task : _parent_task->task();
 }
 
-
-inline void release_task(bec::GRTTask *task)
-{
-  task->release();
-}
+//--------------------------------------------------------------------------------------------------
 
 void GrtThreadedTask::exec(bool sync, Proc_cb proc_cb)
 {
@@ -138,44 +143,22 @@ void GrtThreadedTask::exec(bool sync, Proc_cb proc_cb)
   if (proc_cb.empty())
     return;
 
-  bec::GRTDispatcher::Ref dispatcher= this->dispatcher();
+  bec::GRTDispatcher::Ref dispatcher = this->dispatcher();
 
-  base::scope_ptr<bec::GRTTask, release_task> task(new bec::GRTTask(desc(), dispatcher.get(), proc_cb));
+  _task = bec::GRTTask::create_task(desc(), dispatcher, proc_cb);
 
-  task->signal_starting_task.connect(boost::bind(&GrtThreadedTask::on_starting, this, task.get()));
-  task->signal_failing_task.connect(boost::bind(&GrtThreadedTask::on_failing, this, task.get()));
-  task->signal_finishing_task.connect(boost::bind(&GrtThreadedTask::on_finishing, this, task.get()));
-
-  scoped_connect(task->signal_message(),boost::bind(&GrtThreadedTask::process_msg, this, _1, task.get()));
-  scoped_connect(task->signal_failed(),boost::bind(&GrtThreadedTask::process_fail, this, _1, task.get()));
-  scoped_connect(task->signal_finished(),boost::bind(&GrtThreadedTask::process_finish,this,  _1, task.get()));
-  task->retain();
+  scoped_connect(_task->signal_message(), boost::bind(&GrtThreadedTask::process_msg, this, _1));
+  scoped_connect(_task->signal_failed(), boost::bind(&GrtThreadedTask::process_fail, this, _1));
+  scoped_connect(_task->signal_finished(), boost::bind(&GrtThreadedTask::process_finish, this, _1));
   if (sync)
-    dispatcher->add_task_and_wait(task.get());
+    dispatcher->add_task_and_wait(_task);
   else
-    dispatcher->add_task(task.get());
+    dispatcher->add_task(_task);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GrtThreadedTask::on_starting(bec::GRTTaskBase *task)
-{
-  _task = dynamic_cast<bec::GRTTask*>(task);
-}
-
-
-void GrtThreadedTask::on_failing(bec::GRTTaskBase *task)
-{
-  _task = NULL;
-}
-
-
-void GrtThreadedTask::on_finishing(bec::GRTTaskBase *task)
-{
-  _task = NULL;
-}
-
-
-void GrtThreadedTask::process_msg(const grt::Message &msg, bec::GRTTask *task)
+void GrtThreadedTask::process_msg(const grt::Message &msg)
 {
   switch (msg.type)
   {
@@ -194,8 +177,9 @@ void GrtThreadedTask::process_msg(const grt::Message &msg, bec::GRTTask *task)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GrtThreadedTask::process_fail(const std::exception &error, bec::GRTTask *task)
+void GrtThreadedTask::process_fail(const std::exception &error)
 {
   if(_fail_cb)
   {
@@ -203,16 +187,23 @@ void GrtThreadedTask::process_fail(const std::exception &error, bec::GRTTask *ta
     if (_onetime_fail_cb)
       _fail_cb = Fail_cb();
   }
+  disconnect_scoped_connects();
+  _task.reset();
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GrtThreadedTask::process_finish(grt::ValueRef res, bec::GRTTask *task)
+static void blind_signal_message(const grt::Message &) {}
+static void blind_signal_finished(grt::ValueRef &) {};
+static void blind_signal_failed(const std::exception &) {};
+
+void GrtThreadedTask::process_finish(grt::ValueRef res)
 {
   if (_send_task_res_msg)
   {
     grt::StringRef res_str= grt::StringRef::cast_from(res);
     if (!res_str.empty())
-      _grtm->get_grt()->send_info(grt::StringRef::cast_from(res), "", task);
+      _grtm->get_grt()->send_info(grt::StringRef::cast_from(res), "", NULL);
   }
   if (_finish_cb)
   {
@@ -220,8 +211,12 @@ void GrtThreadedTask::process_finish(grt::ValueRef res, bec::GRTTask *task)
     if (_onetime_finish_cb)
       _finish_cb = Finish_cb();
   }
+
+  disconnect_scoped_connects();
+  _task.reset();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::string &detail)
 {
@@ -239,18 +234,19 @@ void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::
     switch (msg_type)
     {
     case grt::WarningMsg:
-      grt->send_warning(msg, detail, task());
+      grt->send_warning(msg, detail, task().get());
       break;
     case grt::ErrorMsg:
-      grt->send_error(msg, detail, task());
+      grt->send_error(msg, detail, task().get());
       break;
     case grt::InfoMsg:
-      grt->send_info(msg, detail, task());
+      grt->send_info(msg, detail, task().get());
       break;
     }
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GrtThreadedTask::send_progress(float percentage, const std::string &msg, const std::string &detail)
 {
@@ -263,11 +259,14 @@ void GrtThreadedTask::send_progress(float percentage, const std::string &msg, co
       _progress_cb(percentage, msg);
   }
   else
-    _grtm->get_grt()->send_progress(percentage, msg, detail, task());
+    _grtm->get_grt()->send_progress(percentage, msg, detail, task().get());
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GrtThreadedTask::execute_in_main_thread(const boost::function<void ()> &function, bool wait, bool force_queue)
+void GrtThreadedTask::execute_in_main_thread(const boost::function<void()> &function, bool wait, bool force_queue)
 {
   dispatcher()->call_from_main_thread<void>(function, wait, force_queue);
 }
+
+//--------------------------------------------------------------------------------------------------

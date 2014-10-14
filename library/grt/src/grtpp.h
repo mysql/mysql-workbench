@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRTPP_H_
-#define _GRTPP_H_
+#pragma once
 
 #ifdef __GNUC__
 #include <cxxabi.h>
@@ -2884,5 +2883,3 @@ namespace grt {
   }
 
 };
-
-#endif
