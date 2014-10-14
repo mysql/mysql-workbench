@@ -405,7 +405,7 @@ function_body: // Both built-in functions and UDFs.
 ;
 
 udf_tail:
-	udf_name RETURNS_SYMBOL (STRING_SYMBOL | INTEGER_SYMBOL | REAL_SYMBOL | DECIMAL_SYMBOL) SONAME_SYMBOL string_literal
+	udf_name RETURNS_SYMBOL (STRING_SYMBOL | INT_SYMBOL | REAL_SYMBOL | DECIMAL_SYMBOL) SONAME_SYMBOL string_literal
 ;
 
 routine_create_options:
@@ -2898,8 +2898,7 @@ temporal_literal:
 // Support for INT1, INT2 etc. is added by mapping them to their explicitly named integer counter part.
 // See lexer rules for INT1 etc.
 integer_type:
-	INTEGER_SYMBOL
-	| INT_SYMBOL
+	INT_SYMBOL
 	| TINYINT_SYMBOL
 	| SMALLINT_SYMBOL
 	| MEDIUMINT_SYMBOL
