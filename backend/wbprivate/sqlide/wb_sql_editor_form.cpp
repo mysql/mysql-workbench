@@ -149,7 +149,17 @@ public:
   }
   std::string duration_formatted()
   {
-    return strfmt(_("%.3f sec"), duration());
+    double d = duration(), dd;
+    dd = d;
+    int zeroes = 1;
+
+    while (dd < 1.0 && dd > 0.0)
+    {
+      zeroes++;
+      dd *= 10;
+    }
+
+    return strfmt(strfmt(_("%%.%if sec"), std::max(3, zeroes)).c_str(), d);
   }
 private:
   bool _is_running;
@@ -1282,6 +1292,10 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
         _connection_details["dbmsProductName"] = value;
         get_session_variable(_usr_dbc_conn->ref.get(), "version", value);
         _connection_details["dbmsProductVersion"] = value;
+
+        log_info("Opened connection '%s' to %s version %s\n", _connection->name().c_str(),
+                 _connection_details["dbmsProductName"].c_str(),
+                 _connection_details["dbmsProductVersion"].c_str());
       }
       
       _version = parse_version(grt, _connection_details["dbmsProductVersion"]);
@@ -1311,7 +1325,7 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
       // get lower_case_table_names value
       std::string value;
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
-        _lower_case_table_names = atoi(value.c_str());
+        _lower_case_table_names = base::atoi<int>(value, 0);
 
       parser::MySQLParserServices::Ref services = parser::MySQLParserServices::get(grt);
       _work_parser_context = services->createParserContext(rdbms()->characterSets(), _version, _lower_case_table_names != 0);

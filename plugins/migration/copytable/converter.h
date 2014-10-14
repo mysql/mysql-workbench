@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +17,14 @@
  * 02110-1301  USA
  */
 
-#ifndef _CONVERTER_H_
-#define _CONVERTER_H_
+#pragma once
 
-#if defined(WIN32)
-#include <WinSock.h>
-#endif
+#ifndef _WIN32
 
 #include <mysql.h>
 #include <sql.h>
+
+#endif
 
 class BaseConverter
 {
@@ -38,5 +37,3 @@ public:
   static void convert_timestamp(TIMESTAMP_STRUCT* source, MYSQL_TIME* target);
   static void convert_date_time(const char* source, MYSQL_TIME* target, int type);
 };
-
-#endif

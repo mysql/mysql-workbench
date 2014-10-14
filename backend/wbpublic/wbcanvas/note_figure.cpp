@@ -28,7 +28,6 @@ Note::Note(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self)
   set_allowed_resizing(true, true);
   set_accepts_focus(true);
   set_accepts_selection(true);
-  set_auto_sizing(false);
 
   set_border_color(Color(0.5, 0.5, 0.5, 0.2));
   set_background_color(Color::White());
@@ -38,8 +37,6 @@ Note::Note(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self)
   _text.set_font(get_view()->get_default_font());
   _text.set_pen_color(Color::Black());
   _text.set_multi_line(true);
-  _text.set_auto_sizing(false);
-  _text.set_allow_shrinking(true);
 
   add(&_text, false, false, true);
 }
@@ -98,3 +95,19 @@ bool Note::on_double_click(mdc::CanvasItem *target, const Point &point, mdc::Mou
 }
 
 //--------------------------------------------------------------------------------------------------
+
+void Note::set_allow_manual_resizing(bool flag)
+{
+  super::set_allow_manual_resizing(flag);
+  if (flag)
+  {
+    _text.set_auto_sizing(false);
+    _text.set_allow_shrinking(true);
+  }
+  else
+  {
+    _text.set_fixed_size(base::Size(-1, -1));
+    _text.set_auto_sizing(true);
+    _text.set_allow_shrinking(false);
+  }
+}

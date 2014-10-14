@@ -221,6 +221,8 @@ class SourceWizardPage(WizardPage):
                 source.disconnect()
                 set_status_text("%s DBMS connection is OK" % caption)
                 mforms.Utilities.show_message("Test %s DBMS Connection" % caption, "Connection succeeded.", "OK", "", "")
+                if source.password is None:
+                    source.password = "" # connection succeeded with no password, so it must be blank
                 break
             except (DBLoginError, SystemError), e:
                 if attempt == 0 and "[Driver Manager]" in e.message and "image not found" in e.message:
@@ -324,7 +326,7 @@ class SourceMainView(SourceWizardPage):
             self._store_connection_check.set_active(False)
 
         self.main.plan.setSourceConnection(self.panel.connection)
-        
+
         SourceWizardPage.go_next(self)
 
     def open_odbc(self):
@@ -424,6 +426,8 @@ class FetchProgressView(WizardProgressPage):
             try:
                 if not self.main.plan.migrationSource.connect():
                     raise Exception("Could not connect to source RDBMS")
+                if self.main.plan.migrationSource.password is None: # no password and succeeded, assume blank
+                    self.main.plan.migrationSource.password = ""
                 self.main.plan.migrationSource.checkVersion()
                 break
             except (DBLoginError, SystemError), e:
@@ -464,6 +468,8 @@ class FetchProgressView(WizardProgressPage):
             try:
                 if not self.main.plan.migrationTarget.checkConnection():
                     raise Exception("Could not connect to target RDBMS")
+                if self.main.plan.migrationTarget.password is None: # no password and succeeded, assume blank
+                    self.main.plan.migrationTarget.password = ""
                 self.main.plan.migrationTarget.checkVersion()
                 break
             except (DBLoginError, SystemError), e:

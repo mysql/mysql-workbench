@@ -599,15 +599,14 @@ public:
 
   virtual void expand()
   {
-    if (is_valid())
+    if (is_valid() && !is_expanded())
     {
+
       if (!_treeview->tree_view()->expand_row(_rowref.get_path(), false)) //if somehow we got null, then we need to call expand_toggle ourselves
       {                                                                   //cause it will not emmit the test-will-expand signal that should trigger
         TreeNodeView *view = _treeview->get_owner();                      //expand_toggle call
         if (view)
-        {
           view->expand_toggle(mforms::TreeNodeRef(this), true);
-        }
       }
     }
   }
@@ -692,10 +691,10 @@ public:
         row.set_value(i, value != "0" ? true : false);
         break;
       case G_TYPE_INT:
-        row.set_value(i, atoi(value.c_str()));
+        row.set_value(i, base::atoi<int>(value, 0));
         break;
       case G_TYPE_INT64:
-        row.set_value(i, atoll(value.c_str()));
+        row.set_value(i, base::atoi<long long>(value, 0LL));
         break;
       default:
         {

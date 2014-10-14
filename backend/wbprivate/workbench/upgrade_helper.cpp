@@ -130,7 +130,7 @@ xmlNodePtr XMLTraverser::get_object_by_path(const char *path)
     }
     
     if (isindex)
-      node= get_object_child_by_index(node, atoi(parts[i]));
+      node= get_object_child_by_index(node, base::atoi<int>(parts[i], 0));
     else
       node= get_object_child(node, parts[i]);
   }

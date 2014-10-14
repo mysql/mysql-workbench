@@ -54,13 +54,14 @@ std::string mdc::detect_opengl_version()
 
 
 GtkCanvas::GtkCanvas(CanvasType type)
-  : _canvas(0), _canvas_type(type)
+  : _canvas(0), _canvas_type(type), _reentrance(false)
 {
   set_flags(get_flags()|Gtk::CAN_FOCUS|Gtk::APP_PAINTABLE);
   modify_bg(Gtk::STATE_NORMAL, get_style()->get_white());
   set_double_buffered(false);
   add_events(Gdk::POINTER_MOTION_MASK|Gdk::BUTTON_PRESS_MASK|Gdk::BUTTON_RELEASE_MASK|Gdk::KEY_PRESS_MASK|Gdk::KEY_RELEASE_MASK|Gdk::ENTER_NOTIFY_MASK|Gdk::LEAVE_NOTIFY_MASK);
   signal_expose_event().connect(sigc::mem_fun(this, &GtkCanvas::redraw));
+
 }
 
 
@@ -130,11 +131,16 @@ void GtkCanvas::on_map()
 
 void GtkCanvas::on_size_allocate(Gtk::Allocation &alloc)
 {
+  if (_reentrance)
+    return;
+  _reentrance = true;
+
   super::on_size_allocate(alloc);
 
   if (_canvas)
     _canvas->update_view_size(alloc.get_width(), alloc.get_height());
   //set_size(alloc.get_width(), alloc.get_height());
+  _reentrance = false;
 }
 
 

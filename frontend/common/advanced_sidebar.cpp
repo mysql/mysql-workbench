@@ -1217,7 +1217,7 @@ void SimpleSidebar::set_collapse_states(const std::string& data)
       if (section < 0)
         continue;
 
-      state = atoi(ptr + 1);
+      state = base::atoi<int>(ptr + 1, 0);
     }
     else
       continue;

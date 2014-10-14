@@ -134,25 +134,27 @@ class DatabaseObjectSelector(mforms.Box):
             
             # The invisible stuff:
             if len(group_objects) > 0:
-                filter_container = mforms.newTable()
-                filter_container.set_row_count(2)
-                filter_container.set_column_count(3)
-                filter_container.set_row_spacing(8)
-                filter_container.set_column_spacing(8)
-                
+                box = mforms.newBox(True)
                 search_entry = mforms.newTextEntry(mforms.SearchEntry)
                 search_entry.set_placeholder_text("Filter objects (wildcards chars * and ? are allowed)")
                 search_entry.add_changed_callback(functools.partial(self.search_entry_changed, group=group))
-                filter_container.add(search_entry, 0, 1, 0, 1)
+                box.add(search_entry, False, True)
+                group_box.add(box, False, True)
+                search_entry.set_size(350, -1)
+
+                filter_container = mforms.newBox(True)
+                filter_container.set_spacing(8)
 
                 available_list = mforms.newTreeNodeView(mforms.TreeFlatList)
-                available_list.add_column(mforms.IconColumnType, 'Available Objects', 200, False)
+                available_list.add_column(mforms.IconColumnType, 'Available Objects', 300, False)
                 available_list.end_columns()
                 available_list.set_selection_mode(mforms.TreeSelectMultiple)
                 available_list.set_allow_sorting(False)
-                filter_container.add(available_list, 0, 1, 1, 2)
+                filter_container.add(available_list, True, True)
 
                 control_box = mforms.newBox(False)
+                control_box.set_padding(0, 30, 0, 30)
+                control_box.set_spacing(4)
                 add_button = mforms.newButton()
                 add_button.set_text('>')
                 add_button.enable_internal_padding(False)
@@ -173,12 +175,11 @@ class DatabaseObjectSelector(mforms.Box):
                 remove_all_button.enable_internal_padding(False)
                 remove_all_button.add_clicked_callback(functools.partial(self.move_button_clicked, group=group, operation='remove_all'))
                 control_box.add(remove_all_button, False)
-                filter_container.add(control_box, 1, 2, 1, 2, mforms.VExpandFlag)
+                filter_container.add(control_box, False, False)
 
 
                 selected_list = mforms.newTreeNodeView(mforms.TreeFlatList)
-                selected_list.set_size(-1, 200)
-                selected_list.add_column(mforms.IconColumnType, 'Objects to Migrate', 200, False)
+                selected_list.add_column(mforms.IconColumnType, 'Objects to Migrate', 300, False)
                 selected_list.end_columns()
                 selected_list.set_selection_mode(mforms.TreeSelectMultiple)
                 selected_list.set_allow_sorting(False)
@@ -186,7 +187,7 @@ class DatabaseObjectSelector(mforms.Box):
                     node = selected_list.add_node()
                     node.set_icon_path(0, self.ui_settings[group]['small_icon'])
                     node.set_string(0, item)
-                filter_container.add(selected_list, 2, 3, 1, 2)
+                filter_container.add(selected_list, True, True)
                 
                 group_box.add(filter_container, True, True)
                 

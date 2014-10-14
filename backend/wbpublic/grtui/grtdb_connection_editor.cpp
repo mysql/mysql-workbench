@@ -225,7 +225,7 @@ void grtui::DbConnectionEditor::add_stored_conn(bool copy)
     std::string itname = list[i]->name();
     if (itname.find("New connection") == 0)
     {
-      int conn_nr = atoi(itname.substr(length).c_str());
+      int conn_nr = base::atoi<int>(itname.substr(length), 0);
       if (conn_nr > max_conn_nr)
         max_conn_nr = conn_nr;
     }

@@ -170,7 +170,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
 
       std::string name= iter->second.name;
       std::string attr= meta->get_member_attribute(name, "dontdiff");
-      int dontdiff= attr.size() && (atoi(attr.c_str()) & omf->dontdiff_mask);
+      int dontdiff= attr.size() && (base::atoi<int>(attr, 0) & omf->dontdiff_mask);
 
       if (dontdiff)
         continue;

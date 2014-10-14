@@ -43,9 +43,6 @@
 
 #include "workbench/wb_version.h"
 
-#if defined(WIN32)
-#define atoll _atoi64
-#endif
 
 class input_error : public std::runtime_error
 {
@@ -266,12 +263,14 @@ int main(int argc, char **argv)
 
   std::string source_password;
   std::string source_connstring;
+  bool source_use_cleartext_plugin = false;
   bool source_is_utf8 = false;
   std::string source_charset;
   SourceType source_type = ST_MYSQL;
 
   std::string target_connstring;
   std::string target_password;
+  bool target_use_cleartext_plugin = false;
   std::string log_level;
   std::string log_file;
 
@@ -370,13 +369,13 @@ int main(int argc, char **argv)
     }
     else if (check_arg_with_value(argv, i, "--thread-count", argval, true))
     {
-      thread_count = atoi(argval);
+      thread_count = base::atoi<int>(argval, 0);
       if (thread_count < 1)
         thread_count = 1;
     }
     else if (check_arg_with_value(argv, i, "--bulk-insert-batch-size", argval, true))
     {
-      bulk_insert_batch = atoi(argval);
+      bulk_insert_batch = base::atoi<int>(argval, 0);
       if (bulk_insert_batch < 1)
         bulk_insert_batch = 100;
     }
@@ -461,8 +460,8 @@ int main(int argc, char **argv)
         trigger_schemas.insert(param.target_schema);
       }
       param.copy_spec.range_key = argv[++i];
-      param.copy_spec.range_start = atoll(argv[++i]);
-      param.copy_spec.range_end = atoll(argv[++i]);
+      param.copy_spec.range_start = base::atoi<long long>(argv[++i], 0ll);
+      param.copy_spec.range_end = base::atoi<long long>(argv[++i], 0ll);
       param.copy_spec.type = CopyRange;
 
       tables.add_task(param);
@@ -486,7 +485,7 @@ int main(int argc, char **argv)
         param.target_pk_columns = base::split(argv[++i], ",", -1);
         param.select_expression = argv[++i];
       }
-      param.copy_spec.row_count = atoll(argv[++i]);
+      param.copy_spec.row_count = base::atoi<long long>(argv[++i], 0ll);
       param.copy_spec.resume = resume;
       param.copy_spec.type = CopyCount;
 
@@ -527,8 +526,12 @@ int main(int argc, char **argv)
     }
     else if (check_arg_with_value(argv, i, "--max-count", argval, true))
     {
-      max_count = atoi(argval);
+      max_count = base::atoi<int>(argval, 0);
     }
+    else if (strcmp(argv[i], "--source-use-cleartext") == 0)
+      source_use_cleartext_plugin = true;
+    else if (strcmp(argv[i], "--target-use-cleartext") == 0)
+      target_use_cleartext_plugin = true;
     else
     {
       fprintf(stderr, "%s: Invalid option %s\n", argv[0], argv[i]);
@@ -687,7 +690,7 @@ int main(int argc, char **argv)
         psource.reset(new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type));
       }
       else if (source_type == ST_MYSQL)
-        psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket));
+        psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket, source_use_cleartext_plugin));
       else
         psource.reset(new PythonCopyDataSource(source_connstring, source_password));
 
@@ -699,7 +702,7 @@ int main(int argc, char **argv)
         if (task.copy_spec.resume)
         {
           if(!ptarget.get())
-            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
+            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
           last_pkeys = ptarget->get_last_pkeys(task.target_pk_columns, task.target_schema, task.target_table);
         }
         count_rows(psource, task.source_schema, task.source_table, task.source_pk_columns, task.copy_spec, last_pkeys);
@@ -708,7 +711,7 @@ int main(int argc, char **argv)
     else if (reenable_triggers || disable_triggers)
     {
       boost::scoped_ptr<MySQLCopyDataTarget> ptarget;
-      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
+      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
 
       if (disable_triggers)
         ptarget->backup_triggers(trigger_schemas);
@@ -725,7 +728,7 @@ int main(int argc, char **argv)
 
       if (disable_triggers_on_copy)
       {
-        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset));
+        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
         ptarget_conn->backup_triggers(trigger_schemas);
       }
 
@@ -739,11 +742,11 @@ int main(int argc, char **argv)
           psource = new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type);
         }
         else if (source_type == ST_MYSQL)
-          psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket);
+          psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket, source_use_cleartext_plugin);
         else
           psource = new PythonCopyDataSource(source_connstring, source_password);
 
-        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, app_name, source_charset);
+        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset);
 
         psource->set_max_blob_chunk_size(ptarget->get_max_allowed_packet());
         psource->set_max_parameter_size((unsigned long)ptarget->get_max_long_data_size());
@@ -751,7 +754,7 @@ int main(int argc, char **argv)
         ptarget->set_truncate(truncate_target);
         if (max_count > 0)
           bulk_insert_batch = max_count;
-        ptarget->set_bulk_insert_batch_size(bulk_insert_batch);
+        ptarget->set_bulk_insert_batch_size((int)bulk_insert_batch);
 
         if (check_types_only)
         {

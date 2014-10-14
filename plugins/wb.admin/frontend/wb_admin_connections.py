@@ -201,12 +201,13 @@ class ConnectionDetailsPanel(mforms.Table):
 
         l = mforms.newLabel("Info:")
         l.set_style(mforms.BoldStyle)
-        self.add(l, 0, 1, 13, 14, 0)
+        self.add(l, 0, 1, 13, 14, mforms.HFillFlag|mforms.HExpandFlag)
         self.info = mforms.newCodeEditor()
         self.info.set_features(mforms.FeatureGutter, 0)
         self.info.set_features(mforms.FeatureReadOnly, 1)
         self.info.set_features(mforms.FeatureWrapText, 1)
         self.info.set_language(mforms.LanguageMySQL56)
+        self.info.set_size(0, 50)
         self.add(self.info, 0, 2, 14, 15, mforms.HFillFlag|mforms.VFillFlag|mforms.HExpandFlag|mforms.VExpandFlag)
 
         if self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 2):
@@ -223,8 +224,9 @@ class ConnectionDetailsPanel(mforms.Table):
     def make_line(self, caption, name):
         i = len(self.labels)
         l = mforms.newLabel(caption)
+        l.set_text_align(mforms.MiddleLeft)
         l.set_style(mforms.BoldStyle)
-        self.add(l, 0, 1, i, i+1, 0)
+        self.add(l, 0, 1, i, i+1, mforms.HFillFlag|mforms.HExpandFlag)
         l = mforms.newLabel("")
         self.add(l, 1, 2, i, i+1, mforms.HFillFlag|mforms.HExpandFlag)
         self.labels[name] = l
@@ -454,14 +456,16 @@ class WbAdminConnections(WbAdminBaseTab):
             self.extra_info_tab.set_size(350, -1)
             self.extra_info_tab.add_tab_changed_callback(self.extra_tab_changed)
 
+            self.connection_details_scrollarea = mforms.newScrollPanel()
             self.connection_details = ConnectionDetailsPanel(self)
-            self.details_page = self.extra_info_tab.add_page(self.connection_details, "Details")
+            self.connection_details_scrollarea.add(self.connection_details)
+            self.details_page = self.extra_info_tab.add_page(self.connection_details_scrollarea, "Details")
 
             self.mdl_list_box = None
             if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 3):
+                self.mdl_list_box_scrollarea = mforms.newScrollPanel()
                 self.mdl_list_box = mforms.newBox(False)
-                self.mdl_list_box.set_spacing(4)
-                self.mdl_list_box.set_padding(8)
+                self.mdl_list_box_scrollarea.add(self.mdl_list_box)
 
                 self.mdl_label = mforms.newLabel('Metadata locks (MDL) protect concurrent access to\nobject metadata (not table row/data locks)')
                 self.mdl_list_box.add(self.mdl_label, False, True)
@@ -474,10 +478,11 @@ class WbAdminConnections(WbAdminBaseTab):
                 self.mdl_list_box.add(label, False, True)
 
                 self.mdl_list_held = mforms.newTreeNodeView(mforms.TreeAltRowColors)
-                self.mdl_list_held.add_column(mforms.IconStringColumnType, "Object", 150, False)
+                self.mdl_list_held.add_column(mforms.IconStringColumnType, "Object", 130, False)
                 self.mdl_list_held.add_column(mforms.StringColumnType, "Type", 100, False)
                 self.mdl_list_held.add_column(mforms.StringColumnType, "Duration", 100, False)
                 self.mdl_list_held.end_columns()
+                self.mdl_list_held.set_size(0, 100)
                 self.mdl_list_box.add(self.mdl_list_held, True, True)
 
                 label = mforms.newLabel("\nPending Locks")
@@ -491,7 +496,7 @@ class WbAdminConnections(WbAdminBaseTab):
                 self.mdl_waiting_label = mforms.newLabel("Locks this connection is currently waiting for.")
                 hbox.add(self.mdl_waiting_label, True, True)
                 self.mdl_list_box.add(hbox, False, True)
-                self.mdl_locks_page = self.extra_info_tab.add_page(self.mdl_list_box, "Locks")
+                self.mdl_locks_page = self.extra_info_tab.add_page(self.mdl_list_box_scrollarea, "Locks")
 
             if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 0):
                 self.attributes_list = mforms.newTreeNodeView(mforms.TreeFlatList|mforms.TreeAltRowColors)

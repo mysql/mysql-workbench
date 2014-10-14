@@ -1598,7 +1598,7 @@ void MySQLTableEditorBE::set_table_option_by_name(const std::string& name, const
     {
       if (_table.get_metaclass()->get_member_type(table_options[i].object_field).base.type == grt::IntegerType)
       {
-        int ivalue= atoi(value.c_str());
+        int ivalue= base::atoi<int>(value, 0);
 
         if (ivalue != *grt::IntegerRef::cast_from(_table.get_member(table_options[i].object_field)))
         {
@@ -2293,10 +2293,10 @@ bool MySQLTableIndexListBE::set_field(const NodeId &node, ColumnId column, const
     }
     return true;
   case RowBlockSize:
-    if (atoi(value.c_str()) != *index->keyBlockSize())
+    if (base::atoi<int>(value, 0) != *index->keyBlockSize())
     {
       AutoUndoEdit undo(_owner, index, "keyBlockSize");
-      index->keyBlockSize(atoi(value.c_str()));
+      index->keyBlockSize(base::atoi<int>(value, 0));
       undo.end(strfmt(_("Change Key Block Size of Index '%s.%s'"), _owner->get_name().c_str(), index->name().c_str()));
     }
     return true;

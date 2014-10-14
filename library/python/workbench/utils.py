@@ -18,6 +18,30 @@
 import re
 from grt import log_error
 
+def get_exe_path(cmd):
+    import os
+    import mforms
+
+    filepath = mforms.App.get().get_executable_path(cmd).encode("utf8")
+    if len(filepath) != 0:
+        return filepath;
+    
+    filepath, filename = os.path.split(cmd)
+    
+    def is_executable(filepath):
+        return os.path.isfile(filepath) and os.access(filepath, os.X_OK)
+    
+    if filepath:
+        if is_executable(filepath):
+            return cmd
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe = os.path.join(path, cmd)
+            if is_executable(exe):
+                return exe
+    return None
+
 def human_size(num):
     for x in ['bytes','KiB','MiB','GiB']:
         if num < 1024.0:

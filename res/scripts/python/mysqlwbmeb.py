@@ -198,7 +198,7 @@ class MEBCommandProcessor(MEBCommand):
 
         self._commands = {}
         self._commands['BACKUP'] = MEBBackup
-        self._commands['VERSION'] = MEBVersion
+        self._commands['VERSION'] = MEBHelperVersion
         self._commands['GET_PROFILES'] = MEBGetProfiles
         self._commands['UPDATE_SCHEDULING'] = MEBUpdateScheduling
         self._commands['PROPAGATE_DATA'] = MEBPropagateSettings
@@ -845,11 +845,11 @@ class MEBGetProfiles(MEBCommand):
             
         return 0
 
-class MEBVersion(MEBCommand):
-    current = "3"
+class MEBHelperVersion(MEBCommand):
+    current = "4"
 
     def __init__(self, params = None, output_handler = None):
-        super(MEBVersion, self).__init__(params, output_handler)
+        super(MEBHelperVersion, self).__init__(params, output_handler)
         
     def execute(self):
         self.write_output(self.current)

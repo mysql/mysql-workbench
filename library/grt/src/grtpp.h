@@ -33,7 +33,7 @@
 #include <boost/function.hpp>
 #include <libxml/xmlmemory.h>
 #include "base/threading.h"
-
+#include <boost/unordered_map.hpp>
 #include <string>
 
 #ifndef _NODLL_
@@ -2265,7 +2265,8 @@ namespace grt {
     
     Allocator _alloc;
     
-    std::map<std::string,std::string> _attributes;
+    boost::unordered_map<std::string, std::string> _attributes;
+//    std::map<std::string,std::string> _attributes;
     MemberList _members;
     MethodList _methods;
     SignalList _signals;
@@ -2804,7 +2805,6 @@ namespace grt {
   protected:
     friend class MetaClass;
 
-    //std::map<std::string,internal::Object*> _objects;
     std::map<std::string, ObjectRef > _objects_cache;
 
     std::vector<MessageSlot> _message_slot_stack;
