@@ -193,10 +193,6 @@ void GrtThreadedTask::process_fail(const std::exception &error)
 
 //--------------------------------------------------------------------------------------------------
 
-static void blind_signal_message(const grt::Message &) {}
-static void blind_signal_finished(grt::ValueRef &) {};
-static void blind_signal_failed(const std::exception &) {};
-
 void GrtThreadedTask::process_finish(grt::ValueRef res)
 {
   if (_send_task_res_msg)
