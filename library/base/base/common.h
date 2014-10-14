@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,13 +17,10 @@
  * 02110-1301  USA
  */
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#pragma once
 
 #ifdef _WIN32
-  #if defined(_MSC_VER)
-#pragma warning(disable:4251)
-#endif//#if defined(_WIN32)
+  #pragma warning(disable:4251)
 
   #ifdef BASELIBRARY_EXPORTS
     #define BASELIBRARY_PUBLIC_FUNC __declspec(dllexport)
@@ -34,13 +31,16 @@
   #define BASELIBRARY_PUBLIC_FUNC
 #endif
 
+#if defined(_WIN32) || defined(__APPLE)
+  #define HAVE_PRECOMPILED_HEADERS
+#endif
+
+#ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
 #include <math.h>
+#endif
 
 #ifdef _WIN32
-  #define WIN32_LEAN_AND_MEAN 
-  #include <windows.h>
-
   #ifndef strcasecmp
     #define strcasecmp _stricmp
     #define strncasecmp _strnicmp
@@ -52,5 +52,3 @@
   #endif
 
 #endif // _WIN32
-
-#endif // _COMMON_H_

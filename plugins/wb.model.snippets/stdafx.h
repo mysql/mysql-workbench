@@ -22,6 +22,9 @@
 #pragma warning(disable: 4996) // 'std::_Uninitialized_copy0': Function call with parameters that may be unsafe
                                // A warning caused by the usage of boost in this context.
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include <set>
 
 #include <boost/signals2.hpp>

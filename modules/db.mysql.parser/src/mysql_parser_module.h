@@ -32,7 +32,7 @@
 #include "grtpp_module_cpp.h"
 #include "grtsqlparser/mysql_parser_services.h"
 
-#ifdef __linux__
+#ifndef HAVE_PRECOMPILED_HEADERS
   #include "grts/structs.db.mysql.h"
   #include "grts/structs.wrapper.h"
 #endif
