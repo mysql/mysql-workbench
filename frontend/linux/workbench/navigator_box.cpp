@@ -131,7 +131,7 @@ void NavigatorBox::combo_changed(bool force_update)
     _changing_zoom = true;
     if (force_update || !_combo.get_entry()->has_focus())
     {
-      _model->set_zoom(atoi(_combo.get_entry()->get_text().c_str()) / 100.0);
+      _model->set_zoom(base::atoi<int>(_combo.get_entry()->get_text(), 0) / 100.0);
 
       refresh();
     }

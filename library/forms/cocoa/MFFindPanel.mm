@@ -198,8 +198,11 @@ using namespace mforms;
       break;
       
     case 1: // find text
-    case 6: // find back/next segmented
       mOwner->perform_action(FindNext);
+      break;
+
+    case 6: // find back/next segmented
+      mOwner->perform_action([mFindSegmented selectedSegment] == 1 ? FindNext : FindPrevious);
       break;
       
     case 7: // done

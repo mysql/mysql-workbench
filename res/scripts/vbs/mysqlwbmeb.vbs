@@ -283,7 +283,7 @@ class MEBCommandProcessor
             
             select case command_name
                 case "VERSION"
-                    set command = new MEBVersion
+                    set command = new MEBHelperVersion
                 case "BACKUP"
                     set command = new MEBBackup
                 case "GET_PROFILES"
@@ -313,11 +313,11 @@ class MEBCommandProcessor
     end function
 end class        
 
-class MEBVersion
+class MEBHelperVersion
     private current
     
     private sub Class_Initialize()
-        current = "5"
+        current = "6"
     end sub
 
     public function execute()

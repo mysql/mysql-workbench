@@ -549,7 +549,7 @@ void PreferencesForm::update_path_option(const std::string &option_name, mforms:
 
 void PreferencesForm::update_entry_option_numeric(const std::string &option_name, mforms::TextEntry *entry, int minrange, int maxrange)
 {
-  long value= atoi(entry->get_string_value().c_str());
+  long value= base::atoi<long>(entry->get_string_value(), 0l);
   if (value < minrange)
     value= minrange;
   else if (value > maxrange)
@@ -565,7 +565,7 @@ void PreferencesForm::show_checkbox_option(const std::string &option_name, mform
 
   _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value);
 
-  checkbox->set_active(atoi(value.c_str()) != 0);
+  checkbox->set_active(base::atoi<int>(value, 0) != 0);
 }
 
 
@@ -799,7 +799,7 @@ mforms::View *PreferencesForm::create_sqlide_page()
                                                   _("A snapshot of all open scripts is saved when the SQL Editor is closed. Next time it is opened to the same connection that state is restored. Unsaved files will remain unsaved, but their contents will be preserved."));
 
       {
-        static const char *auto_save_intervals= "disable:0,10 seconds:10,15 seconds:15,30 seconds:30,1 minute:60,5 minutes:300,10 minutes:600,20 minutes:1200";
+        static const char *auto_save_intervals= "disable:0,5 seconds:5,10 seconds:10,15 seconds:15,30 seconds:30,1 minute:60,5 minutes:300,10 minutes:600,20 minutes:1200";
         mforms::Selector *sel = new_selector_option("workbench:AutoSaveSQLEditorInterval", auto_save_intervals, true);
 
         table->add_option(sel, _("Auto-save scripts interval:"),
@@ -1020,7 +1020,7 @@ mforms::View *PreferencesForm::create_editor_page()
         // Set initial enabled state of sub settings depending on whether code completion is enabled.
         std::string value;
         _wbui->get_wb_options_value(_model.is_valid() ? _model.id() : "", "DbSqlEditor:CodeCompletionEnabled", value);
-        subsettings_box->set_enabled(atoi(value.c_str()) != 0);
+        subsettings_box->set_enabled(base::atoi<int>(value, 0) != 0);
 
         vbox->add(subsettings_box, false);
       }
@@ -1697,8 +1697,8 @@ mforms::View *PreferencesForm::create_diagram_page()
     check->set_text(_("Draw Line Crossings (slow in large diagrams)"));
     vbox->add(check, false);
 
-    check= new_checkbox_option("workbench.physical.Connection:HideCaptions");
-    check->set_text(_("Hide Captions"));
+    check= new_checkbox_option("workbench.physical.Connection:ShowCaptions");
+    check->set_text(_("Show Captions"));
     vbox->add(check, false);
 
     check= new_checkbox_option("workbench.physical.Connection:CenterCaptions");

@@ -69,7 +69,7 @@ void iterate_object(GrtObjectRef& obj, TPred pred)
                 continue;
 
             std::string attr= meta->get_member_attribute(name, "dontdiff");
-            const int dontdiff= attr.size() && (atoi(attr.c_str()) & 1);
+            const int dontdiff= attr.size() && (base::atoi<int>(attr, 0) & 1);
 
             if (dontdiff)
                 continue;
@@ -1070,7 +1070,7 @@ public:
           continue;
         
         std::string attr= meta->get_member_attribute(name, "dontdiff");
-        const int dontdiff= attr.size() && (atoi(attr.c_str()) & 1);
+        const int dontdiff= attr.size() && (base::atoi<int>(attr, 0) & 1);
         
         if (dontdiff)
           continue;

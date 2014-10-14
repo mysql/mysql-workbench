@@ -16,9 +16,10 @@
 # 02110-1301  USA
 
 export_options = {
-    "Tables":{
-    "no-create-info":["Do not write CREATE TABLE statements that re-create each dumped table.","FALSE"],
-    },
+#     "Tables":{
+#     "no-create-info":["Do not write CREATE TABLE statements that re-create each dumped table.","FALSE"],
+#     "skip-triggers":["Do not dump triggers", "FALSE"]
+#     },
 #    "Databases":{
 #    "add-drop-database":["Add a DROP DATABASE statement before each CREATE DATABASE statement.","FALSE"],
 #    "no-create-db":["This option suppresses the CREATE DATABASE statements.","FALSE"]

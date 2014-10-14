@@ -525,7 +525,7 @@ grt::DictRef DbDriverParams::get_params() const
                 if (!isdigit(value[i]))
                   isnum= false;
               if (isnum)
-                params.set(name, grt::IntegerRef(atoi(value.c_str())));
+                params.set(name, grt::IntegerRef(base::atoi<int>(value, 0)));
               else
                 params.set(name, grt::StringRef(value));
             }

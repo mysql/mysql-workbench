@@ -21,7 +21,7 @@
 
 #include "converter.h"
 #include "base/log.h"
-
+#include "base/string_utilities.h"
 #include <string>
 #include <cstdlib>
 
@@ -68,9 +68,9 @@ void BaseConverter::convert_date(const char* source, MYSQL_TIME* target)
     return;
   }
 
-  target->year  = atoi(time.substr(0, 4).c_str());
-  target->month = atoi(time.substr(5, 2).c_str());
-  target->day   = atoi(time.substr(8, 2).c_str());
+  target->year  = base::atoi<int>(time.substr(0, 4).c_str(), 0);
+  target->month = base::atoi<int>(time.substr(5, 2).c_str(), 0);
+  target->day   = base::atoi<int>(time.substr(8, 2).c_str(), 0);
 
   target->time_type = MYSQL_TIMESTAMP_DATE;
 }
@@ -99,10 +99,10 @@ void BaseConverter::convert_time(const char* source, MYSQL_TIME* target)
     msec.resize(6, '0');
   }
 
-  target->hour = atoi(time.substr(0, 2).c_str());
-  target->minute = atoi(time.substr(3, 2).c_str());
-  target->second = atoi(time.substr(6, 2).c_str());
-  target->second_part = atoi(msec.c_str());
+  target->hour = base::atoi<int>(time.substr(0, 2).c_str(), 0);
+  target->minute = base::atoi<int>(time.substr(3, 2).c_str(), 0);
+  target->second = base::atoi<int>(time.substr(6, 2).c_str(), 0);
+  target->second_part = base::atoi<int>(msec.c_str(), 0);
 
   target->time_type = MYSQL_TIMESTAMP_TIME;
 }
@@ -146,14 +146,14 @@ void BaseConverter::convert_timestamp(const char* source, MYSQL_TIME* target)
     msecond.resize(6, '0');
   }
 
-  target->year  = atoi(time.substr(0, 4).c_str());
-  target->month = atoi(time.substr(5, 2).c_str());
-  target->day   = atoi(time.substr(8, 2).c_str());
+  target->year  = base::atoi<int>(time.substr(0, 4).c_str(), 0);
+  target->month = base::atoi<int>(time.substr(5, 2).c_str(), 0);
+  target->day   = base::atoi<int>(time.substr(8, 2).c_str(), 0);
 
-  target->hour        = atoi(time.substr(11, 2).c_str());
-  target->minute      = atoi(time.substr(14, 2).c_str());
-  target->second      = atoi(time.substr(17, 2).c_str());
-  target->second_part = atoi(msecond.c_str());
+  target->hour        = base::atoi<int>(time.substr(11, 2).c_str(), 0);
+  target->minute      = base::atoi<int>(time.substr(14, 2).c_str(), 0);
+  target->second      = base::atoi<int>(time.substr(17, 2).c_str(), 0);
+  target->second_part = base::atoi<int>(msecond.c_str(), 0);
 
   target->time_type = MYSQL_TIMESTAMP_DATETIME;
 }

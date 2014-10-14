@@ -17,14 +17,9 @@
  * 02110-1301  USA
  */
 
-#ifndef _COPYTABLE_H_
-#define _COPYTABLE_H_
+#pragma once
 
-#ifdef _WIN32
-
-#define NOMINMAX
-#include <Windows.h>
-#endif
+#ifndef _WIN32
 
 #include <sql.h>
 #include <sqlext.h>
@@ -42,6 +37,9 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
+
+#endif
+
 #include "converter.h"
 #include "glib.h"
 #include "base/threading.h"
@@ -273,7 +271,7 @@ class MySQLCopyDataSource : public CopyDataSource
 public:
   MySQLCopyDataSource(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket);
+                    const std::string &socket, bool use_cleartext_plugin);
   virtual ~MySQLCopyDataSource();
 
   virtual size_t count_rows(const std::string &schema, const std::string &table, const std::vector<std::string> &pk_columns,
@@ -348,7 +346,7 @@ class MySQLCopyDataTarget
 public:
   MySQLCopyDataTarget(const std::string &hostname, int port,
                       const std::string &username, const std::string &password,
-                      const std::string &socket, const std::string &app_name,
+                      const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
                       const std::string &incoming_charset);
 
   ~MySQLCopyDataTarget();
@@ -419,5 +417,3 @@ public:
   ~CopyDataTask();
   void wait() { g_thread_join(_thread); }
 };
-
-#endif

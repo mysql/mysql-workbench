@@ -98,9 +98,9 @@ bool ModelFile::attempt_xml_document_upgrade(xmlDocPtr xmldoc, const std::string
   std::vector<std::string> ver= base::split(version, ".");
   int major, minor, revision;
 
-  major= atoi(ver[0].c_str());
-  minor= atoi(ver[1].c_str());
-  revision= atoi(ver[2].c_str());
+  major= base::atoi<int>(ver[0], 0);
+  minor= base::atoi<int>(ver[1], 0);
+  revision= base::atoi<int>(ver[2], 0);
  
   if (major == 1 && minor == 1)
   {
@@ -441,9 +441,9 @@ workbench_DocumentRef ModelFile::attempt_document_upgrade(const workbench_Docume
   std::vector<std::string> ver= base::split(version, ".");
   int major, minor, revision;
 
-  major= atoi(ver[0].c_str());
-  minor= atoi(ver[1].c_str());
-  revision= atoi(ver[2].c_str());
+  major= base::atoi<int>(ver[0].c_str(), 0);
+  minor= base::atoi<int>(ver[1].c_str(), 0);
+  revision= base::atoi<int>(ver[2].c_str(), 0);
 
   // for all revisions <= 1.2.0
   // fix the defaultValueIsNull to correspond to defaultValue itself
@@ -1105,7 +1105,7 @@ void ModelFile::check_and_fix_inconsistencies(xmlDocPtr xmldoc, const std::strin
 {
   std::vector<std::string> ver= base::split(version, ".");
   
-  int major= atoi(ver[0].c_str());
+  int major= base::atoi<int>(ver[0], 0);
     
   XMLTraverser traverser(xmldoc);
   

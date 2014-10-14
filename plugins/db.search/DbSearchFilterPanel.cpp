@@ -21,10 +21,11 @@
 #include <sstream>
 #include <string>
 #include <boost/lambda/bind.hpp>
+#include "base/string_utilities.h"
 
 void update_numeric(mforms::TextEntry& te)
 {
-  long result = atoi(te.get_string_value().c_str());
+  long result = base::atoi<long>(te.get_string_value(), -1);
   if (result < 0)
     te.set_value("0");
 }

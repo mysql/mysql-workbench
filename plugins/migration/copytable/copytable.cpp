@@ -1312,7 +1312,7 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer)
 
 MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket)
+                    const std::string &socket, bool use_cleartext_plugin)
   : _select_stmt(NULL), _has_long_data(false)
 {
   std::string host = hostname;
@@ -1344,6 +1344,17 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port,
     log_info("Connecting to MySQL server using socket %s with user %s\n",
            socket.c_str(), username.c_str());
   }
+
+
+#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+#if MYSQL_CHECK_VERSION(5,5,27)
+  my_bool use_cleartext = use_cleartext_plugin;
+  mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
+#else
+  if (use_cleartext_plugin)
+    log_warning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
+#endif
+#endif
 
   if (!mysql_real_connect(&_mysql, host.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
                           CLIENT_COMPRESS))
@@ -1535,7 +1546,7 @@ bool MySQLCopyDataSource::fetch_row(RowBuffer &rowbuffer)
   bool ret_val = true;
 
   if (mysql_stmt_bind_result(_select_stmt, &(rowbuffer[0])) != 0)
-    throw ConnectionError("mysql_stmt_bind_result", &_mysql);
+    throw ConnectionError(base::strfmt("mysql_stmt_bind_result: %s", mysql_stmt_error(_select_stmt)), &_mysql);
 
   int errcode = mysql_stmt_fetch(_select_stmt);
 
@@ -1757,12 +1768,12 @@ void MySQLCopyDataTarget::get_server_version()
 
   std::vector<std::string> parsed_version = base::split(version, ".");
 
-  _major_version = atoi(parsed_version[0].c_str());
+  _major_version = base::atoi<int>(parsed_version[0], 0);
   if (parsed_version.size() > 1)
-    _minor_version = atoi(parsed_version[1].c_str());
+    _minor_version = base::atoi<int>(parsed_version[1], 0);
 
   if (parsed_version.size() > 2)
-    _build_version = atoi(parsed_version[2].c_str());
+    _build_version = base::atoi<int>(parsed_version[2], 0);
 
   log_debug("Detected server version=%s\n", version.c_str());
 }
@@ -1884,7 +1895,7 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
 
 MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
-                    const std::string &socket, const std::string &app_name,
+                    const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
                     const std::string &incoming_charset)
 : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
   _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
@@ -1934,6 +1945,16 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
     log_info("Connecting to MySQL server using socket %s with user %s\n",
            socket.c_str(), username.c_str());
   }
+
+#if defined(MYSQL_VERSION_MAJOR) && defined(MYSQL_VERSION_MINOR) && defined(MYSQL_VERSION_PATCH)
+#if MYSQL_CHECK_VERSION(5,5,27)
+  my_bool use_cleartext = use_cleartext_plugin;
+  mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
+#else
+  if (use_cleartext_plugin)
+    log_warning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
+#endif
+#endif
 
 
   if (!mysql_real_connect(&_mysql, hostname.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),

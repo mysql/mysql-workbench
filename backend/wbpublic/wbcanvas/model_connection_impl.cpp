@@ -193,7 +193,7 @@ void model_Connection::ImplData::set_above_caption(const std::string &text)
     return;
   }
 
-  if (self()->owner()->owner()->get_data()->get_int_option("workbench.physical.Connection:HideCaptions", 0) != 0)
+  if (self()->owner()->owner()->get_data()->get_int_option("workbench.physical.Connection:ShowCaptions", 0) == 0)
   {
     delete _above_caption;
     _above_caption= 0;
@@ -219,7 +219,7 @@ void model_Connection::ImplData::set_below_caption(const std::string &text)
     return;
   }
 
-  if (self()->owner()->owner()->get_data()->get_int_option("workbench.physical.Connection:HideCaptions", 0) != 0)
+  if (self()->owner()->owner()->get_data()->get_int_option("workbench.physical.Connection:ShowCaptions", 0) == 0)
   {
     delete _below_caption;
     _below_caption= 0;

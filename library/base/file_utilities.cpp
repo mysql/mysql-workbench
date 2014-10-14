@@ -201,7 +201,7 @@ namespace base {
           {
             CloseHandle(h);
             buffer[bytes_read]= 0;
-            if (atoi(buffer) == GetCurrentProcessId())
+            if (base::atoi<int>(buffer, -1) == GetCurrentProcessId())
               return LockedSelf;
             return LockedOther;
           }
@@ -287,7 +287,7 @@ namespace base {
       if (c < 0)
         return LockedOther;
       pid[c] = 0;
-      if (atoi(pid) != getpid())
+      if (base::atoi<int>(pid, -1) != getpid())
         return LockedOther;
       return LockedSelf;
     }

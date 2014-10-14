@@ -867,7 +867,7 @@ double ConfigurationFile::get_float(std::string key, std::string section)
     factor *= 1024;
     value[value.size() - 1] = 0;
   }
-  return factor * atof(value.c_str());
+  return factor * base::atof<float>(value, 0.0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -893,7 +893,8 @@ int	ConfigurationFile::get_int(std::string key, std::string section)
     factor *= 1024;
     value[value.size() - 1] = 0;
   }
-  return factor * atoi(value.c_str());
+
+  return factor * base::atoi<int>(value, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -905,7 +906,8 @@ bool ConfigurationFile::get_bool(std::string key, std::string section)
   if (value == "true" || value == "yes")
     return true;
   
-  if (atoi(value.c_str()) != 0)
+
+  if (base::atoi<int>(value, 0) != 0)
     return true;
 
   return false;

@@ -28,6 +28,8 @@
 #include <boost/weak_ptr.hpp>
 #include "base/trackable.h"
 #include "base/notifications.h"
+#include "mforms/utilities.h"
+
 class SqlEditorPanel;
 class SqlEditorForm;
 
@@ -43,6 +45,7 @@ namespace wb
     std::list<boost::weak_ptr<SqlEditorForm> > _open_editors;
     app_ToolbarRef _toolbar;
 
+    mforms::TimeoutHandle _auto_save_handle;
     ssize_t _auto_save_interval;
     bool _auto_save_active;
     bool _option_change_signal_connected;

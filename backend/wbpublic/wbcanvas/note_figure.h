@@ -43,6 +43,8 @@ namespace wbfig {
     void set_font(const std::string &text);
 
     virtual void set_content_font(const mdc::FontSpec &font);
+
+    virtual void set_allow_manual_resizing(bool flag);
   };
   
   

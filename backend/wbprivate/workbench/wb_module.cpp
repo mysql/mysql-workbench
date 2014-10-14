@@ -482,7 +482,7 @@ int WorkbenchImpl::openModel(const std::string &filename)
 
 int WorkbenchImpl::openRecentModel(const std::string &index)
 {
-  _wb->open_recent_document(atoi(index.c_str()));
+  _wb->open_recent_document(base::atoi<int>(index, 0));
 
   return 0;
 }
@@ -1915,7 +1915,7 @@ int WorkbenchImpl::createConnectionsFromLocalServers()
  */
 int WorkbenchImpl::createInstancesFromLocalServers()
 {
-
+  int found_instances = 0;
   try
   {
     grt::DictListRef servers = getLocalServerList();
@@ -1941,7 +1941,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
     
       ssize_t port = INT_MIN;
       if (str_port.length())
-        port = atoi(str_port.c_str());
+        port = base::atoi<int>(str_port, 0);
       
       bool can_use_networking = true;
       if (path.find("--skip-networking") != std::string::npos)
@@ -2069,10 +2069,11 @@ int WorkbenchImpl::createInstancesFromLocalServers()
       // If we did not find a connection for this instance then create a new one.
       if (!connection.is_valid())
         connection = create_connection("localhost", "root", socket_or_pipe_name, can_use_networking,
-        can_use_socket_or_pipe, (int)port, _("Local instance ") + display_name);
+                                       can_use_socket_or_pipe, (int)port, _("Local instance ") + display_name);
 
       instance->connection(connection);
       instances.insert(instance);
+      ++found_instances;
     }
   }
   catch (std::exception &exc)
@@ -2082,7 +2083,7 @@ int WorkbenchImpl::createInstancesFromLocalServers()
     log_warning("Error auto-detecting server instance: %s\n", exc.what());
   }
 
-  return 0;
+  return found_instances;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2166,9 +2167,9 @@ std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent)
     {
       result << tab << "Active video adapter " << entry.get_string("Caption", "unknown") << '\n';
       std::string value = entry.get_string("AdapterRAM", "");
-      if (value.size() > 0)
+      if (!value.empty())
       {
-        int size = atoi(value.c_str()) / 1024 / 1024;
+        int64_t size = base::atoi<int64_t>(value, (int64_t)0) / 1024 / 1024;
         result << tab << "Installed video RAM: " << size << " MB\n";
       }
       else

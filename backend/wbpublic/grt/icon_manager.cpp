@@ -118,8 +118,9 @@ static std::string get_icon_file_for_size(const std::string &aicon_file, IconSiz
 
 std::string IconManager::get_icon_path(const std::string &file)
 {
-  if (_icon_paths.find(file) != _icon_paths.end())
-    return _icon_paths[file];
+  boost::unordered_map<std::string, std::string>::const_iterator it = _icon_paths.find(file);
+  if (it != _icon_paths.end())
+    return it->second;
 
   for (std::vector<std::string>::const_iterator i= _search_path.begin();
        i != _search_path.end(); ++i)
@@ -156,12 +157,11 @@ std::string IconManager::get_icon_path(const std::string &file)
     
     if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS))
     {
-      _icon_paths[file]= path;
+      _icon_paths.insert(std::make_pair(file, path));
       return path;
     }
   }
-
-  _icon_paths[file]= "";
+  _icon_paths.insert(std::make_pair(file, ""));
 
   return "";
 }

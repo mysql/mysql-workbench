@@ -770,6 +770,23 @@ TEST_FUNCTION(36)
   
 }
 
+TEST_FUNCTION(37)
+{
+  ensure_equals("TEST 37.1: unable to extract and convert number from string", base::atoi<int>("10G", 0), 10);
+  ensure_equals("TEST 37.2: unable to convert string to number", base::atoi<int>("10", 0), 10);
+  ensure_equals("TEST 37.3: default return value mismatch ", base::atoi<int>("G", -1), -1);
+  bool test_exception = false;
+  try
+  {
+    base::atoi<int>("G");
+    test_exception = true;
+  } catch (std::exception &exc)
+  {
+
+  }
+  ensure_equals("TEST 37.4: missed exception on mismatched string", test_exception, false);
+}
+
 
 TEST_FUNCTION(40)
 {

@@ -393,11 +393,11 @@ class MigrationPlan(object):
         elif sys.platform == "darwin":
             self.wbcopytables_path = mforms.App.get().get_executable_path("wbcopytables")
         else:
-            self.wbcopytables_path = mforms.App.get().get_executable_path("wbcopytables")
+            self.wbcopytables_path = mforms.App.get().get_executable_path("wbcopytables-bin")
             if not os.path.exists(self.wbcopytables_path):
-                self.wbcopytables_path = os.path.join(os.path.dirname(grt.root.wb.registry.appExecutablePath), "wbcopytables")
+                self.wbcopytables_path = os.path.join(os.path.dirname(grt.root.wb.registry.appExecutablePath), "wbcopytables-bin")
             if not os.path.exists(self.wbcopytables_path):
-                self.wbcopytables_path = "wbcopytables"
+                self.wbcopytables_path = "wbcopytables-bin"
         if type(self.wbcopytables_path) == unicode:
             self.wbcopytables_path = self.wbcopytables_path.encode("UTF-8")
 

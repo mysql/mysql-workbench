@@ -3755,9 +3755,6 @@ OPEN_PAR_SYMBOL:			'(';
 CLOSE_PAR_SYMBOL:			')';
 OPEN_CURLY_SYMBOL:			'{';
 CLOSE_CURLY_SYMBOL:			'}';
-OPEN_BRACKET_SYMBOL:		'['; // Square brackets aren't used in the grammar, but it is essential to cover any possible input.
-CLOSE_BRACKET_SYMBOL:		']';
-
 UNDERLINE_SYMBOL:			'_';
 
 // The MySQL parser uses custom code in its lexer to allow base alphanum chars (and ._$) as variable name.
@@ -4163,7 +4160,6 @@ NO_WRITE_TO_BINLOG_SYMBOL:				'NO_WRITE_TO_BINLOG'				{ $type = TYPE_FROM_VERSIO
 NULL_SYMBOL:							'NULL';								// SQL-2003-R
 NUMBER_SYMBOL:							'NUMBER'							{ $type = TYPE_FROM_VERSION(50606, $type); };
 NUMERIC_SYMBOL:							'NUMERIC';							// SQL-2003-R
-NUM_SYMBOL:								'NUM';
 NVARCHAR_SYMBOL:						'NVARCHAR';
 OFFLINE_SYMBOL:							'OFFLINE';
 OFFSET_SYMBOL:							'OFFSET';
@@ -4467,11 +4463,20 @@ SQL_TSI_YEAR_SYMBOL:					'SQL_TSI_YEAR'						{ $type = YEAR_SYMBOL; };
 // White space handling
 WHITESPACE: ( ' ' | '\t' | '\f' | '\r'| '\n') { $channel = HIDDEN; };  // Ignore whitespaces.
 
+// Input not covered elsewhere (unless quoted).
+INVALID_INPUT:
+	'\u0001'..'\u0008'   // Control codes.
+	| '\u000B'           // Line tabulation.
+	| '\u000C'           // Form feed.
+	| '\u000E'..'\u001F' // More control codes.
+	| '['
+	| ']'
+;
+
 // Basic tokens. Tokens used in parser rules must not be fragments!
 // INTEGER includes all the integral types defined in the server parser. These have different lengths, but
 // mostly appear together anyway. So these are: NUM, LONG_NUM, DECIMAL_NUM and ULONGLONG_NUM.
 // We'd need platform specific code to separate them.
-
 INTEGER:				DIGITS;
 FLOAT:					DIGITS? DOT_SYMBOL DIGITS ('E' (MINUS_OPERATOR | PLUS_OPERATOR)? DIGITS)?;
 

@@ -118,7 +118,7 @@ static std::string dbd_string_to_utf8(const char *str)
           num[1]= ptr[1];
           num[2]= ptr[2];
           num[3]= 0;
-          *tmpstr= (gchar)atoi(num);
+          *tmpstr= (gchar)base::atoi<int>(num, 0);
           ptr+= 2;
         }
         else
@@ -208,11 +208,11 @@ void parse_table_options(db_mysql_TableRef &table, const std::string &optionsstr
     const char *option_val= option_pair[1].c_str();
 
     if (0 == option_name.compare("DelayKeyTblUpdates"))
-      table->delayKeyWrite(atoi(option_val));
+      table->delayKeyWrite(base::atoi<int>(option_val, 0));
     else if (0 == option_name.compare("PackKeys"))
       table->packKeys(option_val);
     else if (0 == option_name.compare("RowChecksum"))
-      table->checksum(atoi(option_val));
+      table->checksum(base::atoi<int>(option_val, 0));
     else if (0 == option_name.compare("RowFormat"))
     {
       // ROW_FORMAT [=] {DEFAULT|DYNAMIC|FIXED|COMPRESSED|REDUNDANT|COMPACT}

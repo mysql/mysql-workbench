@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _STRING_UTILITIES_H_
-#define _STRING_UTILITIES_H_
+#pragma once
 
 #ifdef _WIN32
 # ifndef PRId64
@@ -32,11 +31,13 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <typeinfo>
 
 #include <glib.h>
 
 #define _(s) s // TODO: replace with localization code.
 
+#include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 
 using boost::uint64_t;
@@ -224,22 +225,84 @@ namespace base
 
 /**
  * @brief Splits a string into several lines
- * This function splits the string into several lines, depending on the line_length. You can prefix each line using the 
- * left_fill string, which can be ignored if the line_length is too small. For line_length lower then the minimum length (5)
- * returns an empty string.
- * When the text is too big and max_lines is reached, it will truncate the text and add elipses, so you should account for
- * an extra line in this situation.
- * @param text The string to be splitted
- * @param line_length The length of the line in characters
- * @param left_fill A string prefixing each line. This will not be used if the line_length is too small. Defaults to "".
+ * *
+ * This function splits the given string into several lines, depending on the line_length.
+ * You can prefix each line using the left_fill string, which can be ignored if the line_length is
+ * too small. For line_length lower than the minimum length (5) an empty string is returned.
+ * When the text is too big and max_lines is reached, it will truncate the text and add ellipses,
+ * so you should account for an extra line in this situation.
+ * @param text The string to be split.
+ * @param line_length The length of the line in characters.
+ * @param left_fill A string prefixing each line. This will not be used if the line_length is too small.
+ *                  Defaults to "".
  * @param indent_first True to indent the first line. Defaults to true.
  * @param max_lines The maximum amount of lines. Defaults to 30.
- * @return A string splitted in several lines. If the string is not encoded in utf8 or the line_length is too small, it will return an empty string.
+ * @return A string split into several lines. If the string is not encoded in utf8 or the
+ *         line_length is too small, it will return an empty string.
  **/
-BASELIBRARY_PUBLIC_FUNC std::string reflow_text(const std::string &text, unsigned int line_length, const std::string &left_fill="", bool indent_first=true, unsigned int max_lines=30);
+BASELIBRARY_PUBLIC_FUNC std::string reflow_text(const std::string &text, unsigned int line_length,
+  const std::string &left_fill = "", bool indent_first = true, unsigned int max_lines = 30);
 
+/**
+ * @brief Parse a string and return a numeric value if the content of the string can be interpreted as such.
+ * This function parses std::string and return it's numeric value. It can throw std::exception in case of a failure.
+ * 
+ * @param text The string to be parsed.
+ * @param T Default value to return if it's not possible to convert. If no default value is given
+ *          a bad_cast exception is thrown on parse errors.
+ * @return Extracted numeric value.
+ */
+class ConvertHelper
+{
+  // Need to make this public as we cannot declare the template functions that use it as friend.
+public:
+  template<typename T, typename U>
+  struct is_same
+  {
+      static const bool value = false;
+  };
+
+  template<typename T>
+  struct is_same<T, T>
+  {
+      static const bool value = true;
+  };
+
+  template<typename T> T static string_to_number(const std::string &val, boost::optional<T> def_val = boost::none)
+  {
+    T tmp;
+    std::stringstream ss(val);
+    ss >> tmp;
+    if (ss.rdstate() & std::stringstream::failbit)
+    {
+      if (def_val)
+        return def_val.get();
+      throw std::bad_cast();
+    }
+    return tmp;
+  }
+
+};
+
+template<typename T> T inline atoi(const std::string &val, boost::optional<T> def_val = boost::none)
+{
+  // Don't remove the double parentheses. GCC needs them here.
+  BOOST_STATIC_ASSERT((ConvertHelper::is_same<T, int>::value ||
+    ConvertHelper::is_same<T, long>::value ||
+    ConvertHelper::is_same<T, long long>::value ||
+    ConvertHelper::is_same<T, size_t>::value ||
+    ConvertHelper::is_same<T, ssize_t>::value ||
+    ConvertHelper::is_same<T, int64_t>::value));
+
+  return ConvertHelper::string_to_number<T>(val, def_val);
+}
+
+template<typename T> T inline atof(const std::string &val, boost::optional<T> def_val = boost::none)
+{
+  BOOST_STATIC_ASSERT((ConvertHelper::is_same<T, double>::value ||
+    ConvertHelper::is_same<T, float>::value));
+
+  return ConvertHelper::string_to_number<T>(val, def_val);
+}
   
 } // namespace base
-
-
-#endif // _STRING_UTILITIES_H_

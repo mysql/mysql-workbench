@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Set the destdir=<some_dir> when ever you install using DESTDIR=<some_dir>. 
+destdir="$WB_DEST_DIR"
+
+wblibdir="$destdir@WB_INSTALL_LIB_DIR@"
+
+if test "$LD_LIBRARY_PATH" != ""; then
+    export LD_LIBRARY_PATH="$wblibdir:$LD_LIBRARY_PATH"
+else
+    export LD_LIBRARY_PATH="$wblibdir"
+fi
+
+export MWB_BINARIES_DIR="$destdir/usr/local/bin"
+
+$MWB_BINARIES_DIR/wbcopytables-bin "$@"

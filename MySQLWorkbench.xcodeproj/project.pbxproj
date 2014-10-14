@@ -12457,7 +12457,6 @@
 				2BE76356107390C000A1DF24 /* Copy Python Module Packages */,
 				2B4B52EB122F102000F1EA6B /* Copy Other Resource Data Folders */,
 				169CCC8F0F0121BC005152CD /* Copy and fix embedded dylibs and binaries */,
-				2B7F79500F0160B900C3C53E /* Fixup dylibs in builddir */,
 				2BCD496215BDD56A00F88A38 /* Copy Extra Files */,
 			);
 			buildRules = (
@@ -13555,7 +13554,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n\tfrom=$1\n\tto=$2/`basename $from`\n\tif [ ! -f $to -o $from -nt $to ]; then\n\t\tcp $from $to\n\tfi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH}/lib/libcairo.2.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libctemplate.0.dylib ${NEWLIBPATH}\n\n# This file is created from a pre-build scheme script\n# It will identidy the build being run (commercial/gpl)\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${NEWLIBPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysql ${EXEPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysqldump ${EXEPATH}\n\n(cd ${NEWLIBPATH}; rm -f mysqlcppconn.dylib; ln -sf libmysqlcppconn.7.1.1.4.dylib mysqlcppconn.dylib)\n\n# Use SQLCipher enabled sqlite if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/plugins/wba_audit ]; then\n    echo \"Copying vsqlite libs for commercial version\"\n    copy ${RES_SOURCE_PATH}/lib-com/libsqlite3.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH}/lib-com/libvsqlitepp.0.dylib ${NEWLIBPATH}\nelse\n    echo \"Copying vsqlite libs for community version\"\n    copy ${RES_SOURCE_PATH}/lib/libvsqlitepp.0.dylib ${NEWLIBPATH}\nfi\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n\t$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n\t CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n# Fix plugins and stuff\n##for libpath in $MODULEPATH/*.dylib; do\n##\techo \"Fix $libpath\"\n##\t$fixer $libpath\n##done\nfor libpath in \"$PLUGINPATH/*.dylib\"; do\n    #echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\nfor libpath in \"$PLUGINPATH/*.mwbplugin/Contents/MacOS/*\"; do\n\t#echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\nfor libpath in \"$PLUGINPATH/*.mwbplugin/Contents/Frameworks/*dylib\"; do\n\t#echo \"Fix $libpath\"\n\t$fixer $libpath\ndone\n\necho \"Creating symlinks for versioned dylibs\"\npushd $NEWLIBPATH\nfor libpath in $(find *.[0-9].dylib -type f); do\n\tlinkname=$(echo $libpath|sed -e s/.[0-9].dylib/.dylib/)\n\tln -sf $libpath $linkname\n\tlinkname2=$(echo $linkname|sed -e s/.[0-9].dylib/.dylib/)\n\tif test $linkname != $linkname2; then\n\t\tln -sf $linkname $linkname2\n\tfi\ndone\npopd\n\nliblist=$(otool -L $execfile|grep /usr/local|cut -f2|cut -f1 -d\\  )\nfor lib in $liblist; do\n\t# check if all referenced libs by executable are copied\n\tif ! [ -f $NEWLIBPATH/$(basename $lib) ]; then\n\t\techo \"Library $lib is referenced by executable but not copied into bundle\"\n\t\texit 1\n\tfi\ndone\n\n# do a quick check\nif test \"$(otool -L ${NEWLIBPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some embedded libraries in ${NEWLIBPATH} still point to /usr/local\"\n\tfor lib in \"${NEWLIBPATH}/*.dylib\"; do\n\t\tif test \"$(otool -L $lib|grep /usr/local)\" != \"\"; then\n\t\t\t$fixer $lib\n\t\tfi\n\tdone\nfi\n\nif test \"$MODULEPATH\" != \"\"; then\nif test \"$(otool -L ${MODULEPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some modules in ${MODULEPATH} still point to /usr/local\"\n\texit 1\nfi\nfi\n";
+			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n\tfrom=$1\n\tto=$2/`basename $from`\n\tif [ ! -f $to -o $from -nt $to ]; then\n\t\tcp $from $to\n\tfi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH}/lib/libcairo.2.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libctemplate.0.dylib ${NEWLIBPATH}\n\n# This file is created from a pre-build scheme script\n# It will identidy the build being run (commercial/gpl)\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${NEWLIBPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysql ${EXEPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysqldump ${EXEPATH}\n\n(cd ${NEWLIBPATH}; rm -f mysqlcppconn.dylib; ln -sf libmysqlcppconn.7.1.1.4.dylib mysqlcppconn.dylib)\n\n# Use SQLCipher enabled sqlite if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/plugins/wba_audit ]; then\n    echo \"Copying vsqlite libs for commercial version\"\n    copy ${RES_SOURCE_PATH}/lib-com/libsqlite3.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH}/lib-com/libvsqlitepp.0.dylib ${NEWLIBPATH}\nelse\n    echo \"Copying vsqlite libs for community version\"\n    copy ${RES_SOURCE_PATH}/lib/libvsqlitepp.0.dylib ${NEWLIBPATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n\t$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n\t CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n\necho \"Creating symlinks for versioned dylibs\"\npushd $NEWLIBPATH\nfor libpath in $(find *.[0-9].dylib -type f); do\n\tlinkname=$(echo $libpath|sed -e s/.[0-9].dylib/.dylib/)\n\tln -sf $libpath $linkname\n\tlinkname2=$(echo $linkname|sed -e s/.[0-9].dylib/.dylib/)\n\tif test $linkname != $linkname2; then\n\t\tln -sf $linkname $linkname2\n\tfi\ndone\npopd\n\nliblist=$(otool -L $execfile|grep /usr/local|cut -f2|cut -f1 -d\\  )\nfor lib in $liblist; do\n\t# check if all referenced libs by executable are copied\n\tif ! [ -f $NEWLIBPATH/$(basename $lib) ]; then\n\t\techo \"Library $lib is referenced by executable but not copied into bundle\"\n\t\texit 1\n\tfi\ndone\n\n# do a quick check\nif test \"$(otool -L ${NEWLIBPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some embedded libraries in ${NEWLIBPATH} still point to /usr/local\"\n\tfor lib in \"${NEWLIBPATH}/*.dylib\"; do\n\t\tif test \"$(otool -L $lib|grep /usr/local)\" != \"\"; then\n\t\t\t$fixer $lib\n\t\tfi\n\tdone\nfi\n\nif test \"$MODULEPATH\" != \"\"; then\nif test \"$(otool -L ${MODULEPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some modules in ${MODULEPATH} still point to /usr/local\"\n\texit 1\nfi\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		16E4CDC10F28A56E00C1E118 /* ShellScript */ = {
@@ -13650,21 +13649,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\nheader_path_string+=\"-I$arg \"\ndone\n\ncd \"${SRCROOT}/library/forms/swig\"\n\n# Remove the file or it won't get regenerated.\nrm -f mforms_wrap.cxx\n\n/usr/local/bin/swig -I../../../../mysql-mac-res/include -w401,402,509 -fvirtual -fcompact -c++ -python mforms.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' mforms_wrap.cxx > mforms_wrap.tmp\nmv -f mforms_wrap.tmp mforms_wrap.cxx\n";
-			showEnvVarsInLog = 0;
-		};
-		2B7F79500F0160B900C3C53E /* Fixup dylibs in builddir */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Fixup dylibs in builddir";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/bash;
-			shellScript = "\n# Fix paths in build products dir so that running from XCode will work\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\nfor file in ${BUILT_PRODUCTS_DIR}/*.dylib; do\n\t$fixer $file\ndone";
 			showEnvVarsInLog = 0;
 		};
 		2BAD7913156B29810025F13F /* Setup config Header */ = {
@@ -17320,7 +17304,6 @@
 					"$(inherited)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/lib",
-					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
 				SKIP_INSTALL = YES;
@@ -17362,7 +17345,6 @@
 					"$(inherited)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/lib",
-					"/Data/Work/MySQL/WB6.2/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
 				SKIP_INSTALL = YES;

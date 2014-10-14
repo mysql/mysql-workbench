@@ -369,6 +369,9 @@ class AdministratorContext:
                 if first:
                     flags |= mforms.TaskSectionToggleModeButton
                     first = False
+                if grt.root.wb.options.options['DbSqlEditor:SidebarModeCombined'] == 1:
+                    flags |= mforms.TaskSectionToggleModeButtonPreSelected
+
                 self.sidebar.add_section(sname, stitle, flags)
                 for ident, ititle, icon_path in sitems:
                     self.sidebar.add_section_entry(sname, ident, ititle, icon_path, mforms.TaskEntryAlwaysActiveLink)

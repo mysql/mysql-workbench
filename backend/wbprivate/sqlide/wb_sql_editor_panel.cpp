@@ -405,9 +405,9 @@ SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file)
     else if (key == "show_special")
       show_special = value == "1";
     else if (key == "first_visible_line")
-      first_visible_line = atoi(value.c_str());
+      first_visible_line = base::atoi<int>(value, 0);
     else if (key == "caret_pos")
-      caret_pos = atoi(value.c_str());
+      caret_pos = base::atoi<int>(value, 0);
   }
 }
 
@@ -417,7 +417,7 @@ SqlEditorPanel::AutoSaveInfo SqlEditorPanel::AutoSaveInfo::old_scratch(const std
   AutoSaveInfo info;
   info.title = base::strip_extension(base::basename(scratch_file));
   if (base::is_number(info.title))
-    info.title = base::strfmt("Query %i", 1+atoi(info.title.c_str()));
+    info.title = base::strfmt("Query %i", 1 + base::atoi<int>(info.title, 0));
   info.type = "scratch";
   return info;
 }
@@ -873,7 +873,7 @@ mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar()
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
   item->set_name("limit_rows");
-  item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbech will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
+  item->set_tooltip(_("Set limit for number of rows returned by queries.\nWorkbench will automatically add the LIMIT clause with the configured number of rows to SELECT queries."));
   bec::UIForm::scoped_connect(item->signal_activated(), boost::bind(&SqlEditorPanel::limit_rows, this, item));
   tbar->add_item(item);
 

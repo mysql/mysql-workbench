@@ -206,7 +206,6 @@ public:
 
     /** Replaces the text in the editor. */
     void set_text(const char* text);
-
     void set_value(const std::string& text);
 
     /** Replaces the text in the editor but preserves top line, caret position and selection.
