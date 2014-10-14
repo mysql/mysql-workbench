@@ -178,7 +178,7 @@ public:
 class GRTSimpleTask : public GRTTaskBase
 {
 public:
-  typedef std::shared_ptr<GRTSimpleTask> Ref;
+  typedef boost::shared_ptr<GRTSimpleTask> Ref;
 
   static Ref create_task(const std::string &name, const GRTDispatcher::Ref dispatcher,
     const boost::function<grt::ValueRef(grt::GRT*)> &function)
@@ -437,7 +437,7 @@ void GRTDispatcher::shutdown()
   _shutdown_callback= true;
   if (!_threading_disabled && _thread != 0) // _thread == 0, means that init was not called, but threading_disabled was set to false.
   {
-    std::shared_ptr<GrtNullTask> task(new GrtNullTask(shared_from_this()));
+    boost::shared_ptr<GrtNullTask> task(new GrtNullTask(shared_from_this()));
     add_task(task);
     log_debug2("GRTDispatcher:Main thread waiting for worker to finish\n");
     _w_runing.wait();
