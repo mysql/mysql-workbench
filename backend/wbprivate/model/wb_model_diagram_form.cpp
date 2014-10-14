@@ -77,7 +77,7 @@ static const double zoom_steps[]= {
 
 
 ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &view)
-: _view(0), _owner(owner), _model_diagram(view), _mini_view(0), _menu(0),
+: _catalog_tree(NULL), _view(0), _owner(owner), _model_diagram(view), _mini_view(0), _menu(0),
 _toolbar(0), _tools_toolbar(0), _options_toolbar(0)
 {
   _drag_panning= false;
@@ -87,7 +87,8 @@ _toolbar(0), _tools_toolbar(0), _options_toolbar(0)
   _update_count = 0;
   _layer_tree = 0;
 
-  scoped_connect(_model_diagram->signal_refreshDisplay(), boost::bind(&ModelDiagramForm::diagram_changed, this, _1));
+//  scoped_connect(_model_diagram->signal_refreshDisplay(), boost::bind(&ModelDiagramForm::diagram_changed, this, _1));
+  scoped_connect(_model_diagram->signal_list_changed(), boost::bind(&ModelDiagramForm::diagram_changed, this, _1, _2, _3));
 
   _current_mouse_x= -1;
   _current_mouse_y= -1;
@@ -107,6 +108,7 @@ _toolbar(0), _tools_toolbar(0), _options_toolbar(0)
   
   _options_toolbar = new mforms::ToolBar(mforms::OptionsToolBar);
   NotificationCenter::get()->add_observer(this, "GNColorsChanged");
+  NotificationCenter::get()->add_observer(this, "GNMainFormChanged");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +116,7 @@ _toolbar(0), _tools_toolbar(0), _options_toolbar(0)
 ModelDiagramForm::~ModelDiagramForm()
 {
   NotificationCenter::get()->remove_observer(this);
+  _idle_node_mark.disconnect();
 
   delete _layer_tree;
   delete _options_toolbar;
@@ -133,6 +136,11 @@ void ModelDiagramForm::handle_notification(const std::string &name, void *sender
     // Single colors or the entire color scheme changed.
     update_toolbar_icons();
   }
+//  else if(name == "GNMainFormChanged" && _catalog_tree != NULL)
+//  {
+//    _catalog_tree->refill();
+//  }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,6 +476,15 @@ void ModelDiagramForm::toggle_checkbox_item(const std::string &name, const std::
 }
 
 
+void ModelDiagramForm::activate_catalog_tree_item(const grt::ValueRef &value)
+{
+  if (value.is_valid() && db_DatabaseObjectRef::can_wrap(value))
+  {
+    db_DatabaseObjectRef object(db_DatabaseObjectRef::cast_from(value));
+
+    _owner->get_grt_manager()->open_object_editor(object);
+  }
+}
 
 
 void ModelDiagramForm::selection_changed()
@@ -482,10 +499,22 @@ void ModelDiagramForm::selection_changed()
 
 //--------------------------------------------------------------------------------------------------
 
-void ModelDiagramForm::diagram_changed(const model_ObjectRef &object)
+
+void ModelDiagramForm::diagram_changed(grt::internal::OwnedList* olist, bool added, const grt::ValueRef& val)
 {
-//XXX  if (_update_count == 0)
-//XXX    _layer_tree->tree_changed();
+  _idle_node_mark.disconnect();
+  if (added)
+    _idle_node_mark = get_wb()->get_grt_manager()->run_once_when_idle(boost::bind(&ModelDiagramForm::mark_catalog_node, this, val, true));
+}
+
+void ModelDiagramForm::mark_catalog_node(grt::ValueRef val, bool mark)
+{
+  if (model_ObjectRef::can_wrap(val))
+  {
+    model_ObjectRef f(model_ObjectRef::cast_from(val));
+    if (f.is_valid())
+      _catalog_tree->mark_node(_owner->get_object_for_figure(f), mark);
+  }
 }
 
 void ModelDiagramForm::attach_canvas_view(mdc::CanvasView *cview)
@@ -521,6 +550,46 @@ void ModelDiagramForm::close()
   _model_diagram->get_data()->unrealize();
 }
 
+CatalogTreeView* ModelDiagramForm::get_catalog_tree()
+{
+  if (_catalog_tree == NULL)
+  {
+    _catalog_tree = new CatalogTreeView(this);
+    _catalog_tree->set_activate_callback(boost::bind(&ModelDiagramForm::activate_catalog_tree_item, this, _1));
+  }
+  return _catalog_tree;
+}
+
+void ModelDiagramForm::notify_catalog_tree(const CatalogNodeNotificationType &notify_type, grt::ValueRef value)
+{
+  _idle_node_mark.disconnect(); //if there is pending mark_node, disable it
+  if (_catalog_tree)
+  {
+    switch(notify_type)
+    {
+    case wb::NodeUnmark:
+      _catalog_tree->mark_node(value, false);
+      break;
+    case wb::NodeAddUpdate:
+      _catalog_tree->add_update_node_caption(value);
+      break;
+    case wb::NodeDelete:
+      _catalog_tree->remove_node(value);
+    }
+  }
+
+}
+
+void ModelDiagramForm::refill_catalog_tree()
+{
+  if (!_catalog_tree)
+  {
+    _catalog_tree = new CatalogTreeView(this);
+    _catalog_tree->set_activate_callback(boost::bind(&ModelDiagramForm::activate_catalog_tree_item, this, _1));
+  }
+
+  _catalog_tree->refill(true);
+}
 
 void ModelDiagramForm::set_closed(bool flag)
 {
@@ -1692,7 +1761,14 @@ bool ModelDiagramForm::accepts_drop(int x, int y, const std::string &type, const
 
 bool ModelDiagramForm::perform_drop(int x, int y, const std::string &type, const std::list<GrtObjectRef> &objects)
 {
-  return _owner->perform_drop(this, x, y, type, objects);
+  bool retval = _owner->perform_drop(this, x, y, type, objects);
+  if (_catalog_tree && retval) // if it was accepted then we can mark all objects
+  {                            // we will do the long way so we will not need to reload the whole tree and remember expanded rows
+    std::list<GrtObjectRef>::const_iterator it;
+    for(it = objects.begin(); it != objects.end(); ++it)
+      _catalog_tree->mark_node(*it);
+  }
+  return retval;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1701,9 +1777,6 @@ bool ModelDiagramForm::perform_drop(int x, int y, const std::string &type, const
 {
   return _owner->perform_drop(this, x, y, type, text);
 }
-
-
-
 
 mdc::Layer *ModelDiagramForm::get_floater_layer()
 {

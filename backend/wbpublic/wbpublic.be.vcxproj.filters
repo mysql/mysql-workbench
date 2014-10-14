@@ -149,9 +149,6 @@
     <ClInclude Include="grt\grt_value_inspector.h">
       <Filter>grt Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="grt\grt_value_tree.h">
-      <Filter>grt Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="grt\grt_walker.h">
       <Filter>grt Header Files</Filter>
     </ClInclude>
@@ -618,9 +615,6 @@
       <Filter>grt Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grt\grt_value_inspector.cpp">
-      <Filter>grt Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="grt\grt_value_tree.cpp">
       <Filter>grt Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grt\icon_manager.cpp">

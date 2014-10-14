@@ -29,6 +29,8 @@
 
 #include "mforms/menu.h"
 #include "mforms/toolbar.h"
+#include "wb_catalog_tree_view.h"
+#include "wb_context_model.h"
 
 namespace mforms { 
   class ToolBarItem; 
@@ -92,6 +94,9 @@ namespace wb {
 
     grt::DictRef get_model_options() { return _model_diagram->owner()->options(); }
     grt::DictRef get_diagram_options() { return _model_diagram->options(); }
+    CatalogTreeView* get_catalog_tree();
+    void notify_catalog_tree(const wb::CatalogNodeNotificationType &notify_type, grt::ValueRef value);
+    void refill_catalog_tree();
 
     void set_closed(bool flag);
     bool is_closed();
@@ -219,7 +224,7 @@ namespace wb {
       base::Point pos;
       std::string layer_id;
     };
-
+    CatalogTreeView *_catalog_tree;
     mdc::CanvasView *_view;
     mdc::Layer *_main_layer;
     mdc::Layer *_floater_layer;
@@ -237,6 +242,7 @@ namespace wb {
     MiniView *_mini_view;
     
     PhysicalModelDiagramFeatures *_features;
+    boost::signals2::connection _idle_node_mark;
 
     std::map<grt::internal::Value*, OldPosition> _old_positions;
     InlineEditContext *_inline_edit_context;
@@ -276,14 +282,18 @@ namespace wb {
     void begin_selection_drag();
     void end_selection_drag();
     
-    void diagram_changed(const model_ObjectRef &object);
+    void diagram_changed(grt::internal::OwnedList*, bool, const grt::ValueRef&);
     
+    void mark_catalog_node(grt::ValueRef val, bool mark);
+
     void selection_changed();
     
     std::vector<std::string> get_dropdown_items(const std::string &name, const std::string &option, std::string &selected);
     void select_dropdown_item(const std::string &option, mforms::ToolBarItem *item);
     void toggle_checkbox_item(const std::string &name, const std::string &option, bool state);
     
+    void activate_catalog_tree_item(const grt::ValueRef &value);
+
     private:
       int _update_count; // If > 0 don't refresh depending structures.
       mforms::Menu _context_menu;

@@ -40,7 +40,6 @@ add_library(wbpublic
     grt/grt_shell.cpp
     grt/grt_string_list_model.cpp
     grt/grt_value_inspector.cpp
-    grt/grt_value_tree.cpp
     grt/icon_manager.cpp
     grt/plugin_manager.cpp
     grt/tree_model.cpp

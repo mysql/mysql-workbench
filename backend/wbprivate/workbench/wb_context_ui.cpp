@@ -268,8 +268,8 @@ void WBContextUI::reset()
   _wb->request_refresh(RefreshSelection, "", 0);
 
   get_physical_overview()->send_refresh_children(bec::NodeId());
-  
-  _wb->get_component<WBComponentPhysical>()->update_catalog_tree_model();
+
+  _wb->get_model_context()->refill_catalog_tree();
 }
 
 

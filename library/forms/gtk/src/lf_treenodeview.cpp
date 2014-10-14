@@ -568,6 +568,13 @@ public:
   {
     if (is_valid())
     {
+      if (_treeview->_tagmap_enabled)
+      {
+        std::map<std::string, Gtk::TreeRowReference>::iterator it;
+        if ((it = _treeview->_tagmap.find(get_tag())) != _treeview->_tagmap.end())
+          _treeview->_tagmap.erase(it);
+      }
+
       Glib::RefPtr<Gtk::TreeStore> store(model());
       store->erase(iter());
 
@@ -2056,7 +2063,7 @@ void TreeNodeViewImpl::freeze_refresh(TreeNodeView* self, bool flag)
     
   if (!flag)
   {
-    tv->freeze_child_notify();
+    tv->thaw_child_notify();
     //tv->set_model(impl->_tree_store);
   }
   else

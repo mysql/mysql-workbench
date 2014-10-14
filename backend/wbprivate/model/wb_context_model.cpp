@@ -158,6 +158,32 @@ void WBContextModel::setup_secondary_sidebar()
   _secondary_sidebar->add_page(_template_panel, _("Templates"));
 }
 
+void WBContextModel::notify_catalog_tree_view(const CatalogNodeNotificationType &notify_type, grt::ValueRef value, const std::string &diagram_id)
+{
+  std::map<std::string, ModelDiagramForm*>::iterator it;
+  if (diagram_id.empty())
+  {
+    for (it = _model_forms.begin(); it != _model_forms.end(); ++it)
+      it->second->notify_catalog_tree(notify_type, value);
+  }
+  else
+  {
+    it = _model_forms.find(diagram_id);
+    if (it != _model_forms.end())
+    {
+      it->second->notify_catalog_tree(notify_type, value);
+    }
+  }
+}
+
+void WBContextModel::refill_catalog_tree()
+{
+  std::map<std::string, ModelDiagramForm*>::iterator it;
+  for (it = _model_forms.begin(); it != _model_forms.end(); ++it)
+    it->second->refill_catalog_tree();
+
+}
+
 
 mforms::TreeNodeView *WBContextModel::create_user_type_list()
 {
@@ -179,18 +205,6 @@ mforms::TreeNodeView* WBContextModel::create_history_tree()
   HistoryTree *history_tree = new HistoryTree(_wbui->get_wb()->get_grt_manager(), _wbui->get_wb()->get_grt()->get_undo_manager());
   history_tree->refresh();
   return history_tree;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-mforms::TreeNodeView* WBContextModel::create_catalog_tree()
-{
-  CatalogTreeBE *model = _wbui->get_wb()->get_component<WBComponentPhysical>()->get_catalog_tree_model();
-  CatalogTreeView *tree = new CatalogTreeView(model);
-
-  // No tree loading/refresh for now. This will happen when the diagram is ready
-  // and we know which object is already placed.
-  return tree;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -613,6 +627,7 @@ void WBContextModel::activate_canvas_object(const model_ObjectRef &object, ssize
 void WBContextModel::register_diagram_form(ModelDiagramForm *view)
 {
   _model_forms[view->get_model_diagram().id()]= view;
+  view->refill_catalog_tree();
 }
 
 
@@ -1440,7 +1455,23 @@ bool WBContextModel::delete_object(model_ObjectRef object)
   FOREACH_COMPONENT(_wbui->get_wb()->_components, iter)
   {
     if ((*iter)->handles_figure(object))
-      return (*iter)->delete_model_object(object, false);
+    {
+      grt::ValueRef value;
+      grt::ObjectRef obj;
+      if (object.is_instance(model_Figure::static_class_name()))
+      {
+        obj = (*iter)->get_object_for_figure(model_FigureRef::cast_from(object));
+        value = (*iter)->get_object_for_figure(model_FigureRef::cast_from(object));
+
+      }
+
+      if ((*iter)->delete_model_object(object, false))
+      {
+        notify_catalog_tree_view(NodeDelete, value);
+        return true;
+      }
+      return false;
+    }
   }
   return false;
 }
@@ -1453,7 +1484,18 @@ bool WBContextModel::remove_figure(model_ObjectRef object)
   FOREACH_COMPONENT(_wbui->get_wb()->_components, iter)
   {
     if ((*iter)->handles_figure(object))
-      return (*iter)->delete_model_object(object, true);
+    {
+      grt::ValueRef value;
+      if (object.is_instance(model_Figure::static_class_name()))
+        value = (*iter)->get_object_for_figure(model_FigureRef::cast_from(object));
+
+      if ((*iter)->delete_model_object(object, true))
+      {
+        notify_catalog_tree_view(NodeUnmark, value, view->id());
+        return true;
+      }
+      return false;
+    }
   }
   return false;
 }
