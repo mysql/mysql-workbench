@@ -19,6 +19,9 @@
 
 #pragma once
 
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
 #include "base/threading.h"
 
 #include "grtpp.h"
@@ -48,7 +51,7 @@ namespace bec {
     DispatcherCallbackBase() {}
 
   public:
-    typedef std::shared_ptr<DispatcherCallbackBase> Ref;
+    typedef boost::shared_ptr<DispatcherCallbackBase> Ref;
 
     virtual ~DispatcherCallbackBase()
     {
@@ -76,7 +79,7 @@ namespace bec {
   {
   public:
     typedef boost::function<R()> slot_type;
-    typedef std::shared_ptr<DispatcherCallback<R> > Ref;
+    typedef boost::shared_ptr<DispatcherCallback<R> > Ref;
 
     static Ref create_callback(const slot_type &slot)
     {
@@ -106,7 +109,7 @@ namespace bec {
   {
   public:
     typedef boost::function<void()> slot_type;
-    typedef std::shared_ptr<DispatcherCallback<void> > Ref;
+    typedef boost::shared_ptr<DispatcherCallback<void> > Ref;
 
     static Ref create_callback(const slot_type &slot = slot_type())
     {
@@ -133,7 +136,7 @@ namespace bec {
   class WBPUBLICBACKEND_PUBLIC_FUNC GRTTaskBase 
   {
   public:
-    typedef std::shared_ptr<GRTTaskBase> Ref;
+    typedef boost::shared_ptr<GRTTaskBase> Ref;
 
     virtual ~GRTTaskBase();
 
@@ -178,11 +181,11 @@ namespace bec {
     FailingTaskSignal signal_failing_task;
 
   protected:
-    std::shared_ptr<GRTDispatcher> _dispatcher;
+    boost::shared_ptr<GRTDispatcher> _dispatcher;
     grt::grt_runtime_error *_exception;
     grt::ValueRef _result;
 
-    GRTTaskBase(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher)
+    GRTTaskBase(const std::string &name, const boost::shared_ptr<GRTDispatcher> dispatcher)
       : _dispatcher(dispatcher), _exception(0), _name(name), _cancelled(false), _finished(false),
       _messages_to_main_thread(true)
     {}
@@ -210,9 +213,9 @@ namespace bec {
     typedef boost::signals2::signal<void (const grt::Message&)> ProcessMessageSignal; 
 
   public:
-    typedef std::shared_ptr<GRTTask> Ref;
+    typedef boost::shared_ptr<GRTTask> Ref;
 
-    static Ref create_task(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
+    static Ref create_task(const std::string &name, const boost::shared_ptr<GRTDispatcher> dispatcher,
       const boost::function<grt::ValueRef(grt::GRT*)> &function);
 
     //XXX replace with direct slots?
@@ -231,7 +234,7 @@ namespace bec {
     
     virtual grt::ValueRef execute(grt::GRT *grt);
 
-    GRTTask(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
+    GRTTask(const std::string &name, const boost::shared_ptr<GRTDispatcher> dispatcher,
       const boost::function<grt::ValueRef(grt::GRT*)> &function);
     virtual void started_m();
     virtual void finished_m(const grt::ValueRef &result);
@@ -249,9 +252,9 @@ namespace bec {
     typedef boost::signals2::signal<void (const grt::Message&)> ProcessMessageSignal;
 
   public:
-    typedef std::shared_ptr<GRTShellTask> Ref;
+    typedef boost::shared_ptr<GRTShellTask> Ref;
 
-    static Ref create_task(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
+    static Ref create_task(const std::string &name, const boost::shared_ptr<GRTDispatcher> dispatcher,
       const std::string &command);
 
     FinishedSignal &signal_finished() { return _finished_signal; }
@@ -261,7 +264,7 @@ namespace bec {
     inline grt::ShellCommand get_result() const { return _result; }
 
   protected:
-    GRTShellTask(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher,
+    GRTShellTask(const std::string &name, const boost::shared_ptr<GRTDispatcher> dispatcher,
       const std::string &command);
 
     virtual grt::ValueRef execute(grt::GRT *grt);
@@ -281,11 +284,11 @@ namespace bec {
 
   //------------------------------------------------------------------------------------------------
 
-  class WBPUBLICBACKEND_PUBLIC_FUNC GRTDispatcher : public std::enable_shared_from_this<GRTDispatcher>
+  class WBPUBLICBACKEND_PUBLIC_FUNC GRTDispatcher : public boost::enable_shared_from_this<GRTDispatcher>
   {
   public:
     typedef void (*FlushAndWaitCallback)();
-    typedef std::shared_ptr<GRTDispatcher> Ref;
+    typedef boost::shared_ptr<GRTDispatcher> Ref;
 
   private:
     GAsyncQueue *_task_queue;
