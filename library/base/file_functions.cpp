@@ -21,6 +21,7 @@
 
 #ifndef _WIN32
 #include <errno.h>
+#include <sys/file.h>
 #endif
 
 #include "base/file_functions.h"
