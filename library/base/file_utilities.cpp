@@ -506,86 +506,14 @@ namespace base {
     return path;
   }
 
-
-  //---
-  /** @brief Wrapper around fopen that expects a filename in UTF-8 encoding
-   @param filename name of file to open
-   @param mode second argument of fopen
-   @return If successful, base_fopen returns opened FILE*.
-   *//////////////////////////////////////////////////////////////////////////////
-  FILE *fopen(const std::string &filename, const char *mode)
-  {
-#ifdef _WIN32
-    
-    // Convert filename from UTF-8 to UTF-16.
-    int required;
-    WCHAR* converted;
-    WCHAR* converted_mode;
-    WCHAR* in;
-    char* out;
-    FILE* result;
-    
-    required= MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), -1, NULL, 0);
-    if (required == 0)
-      return NULL;
-    
-    // Required contains the length for the result string including the terminating 0.
-    converted= new WCHAR[required];
-    memset(converted, 0, sizeof(WCHAR) * required);
-    MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), -1, converted, required);
-    
-    converted_mode= new WCHAR[strlen(mode) + 1];
-    memset(converted_mode, 0, sizeof(WCHAR) * (strlen(mode) + 1));
-    in= converted_mode;
-    out= (char*) mode;
-    while (*out)
-      *in++ = (WCHAR) (*out++);
-    
-    result = _wfsopen(converted, converted_mode, _SH_DENYNO);
-    delete[] converted;
-    delete[] converted_mode;
-
-    return result;
-    
-#else
-    
-    FILE *file;
-    char * local_filename;
-    
-    if (! (local_filename= g_filename_from_utf8(filename.c_str(),-1,NULL,NULL,NULL)))
-      return NULL;
-    
-    file= ::fopen(local_filename, mode);
-    
-    g_free(local_filename);
-    
-    return file;
-#endif
-  }
-  
-
-  
-FileHandle::FileHandle(const char *filename, const char *mode, bool throw_on_fail) 
+FileHandle::FileHandle(const char *filename, const char *mode, bool throw_on_fail)
 : _file(NULL) 
 { 
-    _file= base::fopen(filename, mode);
+    _file = base_fopen(filename, mode);
     if (!_file && throw_on_fail)
       throw file_error(std::string("Failed to open file \"").append(filename).append("\""), errno);
 }
 
-//   FILE * FileHandle::open_file(const char *filename, const char *mode, bool throw_on_fail)
-//   {
-//     FILE *file= base::fopen(filename, mode);
-//     if (!file && throw_on_fail)
-//       throw file_error(std::string("Failed to open file \"").append(filename), errno);
-//     return file;
-//   }
-//  
-//   void FileHandle::close_file(FILE *f)
-//   {
-//     ::fclose(f);
-//   }
- 
   FileHandle & FileHandle::operator =(FileHandle &fh)
   {
     dispose();
