@@ -68,6 +68,7 @@ namespace MySQL {
       Windows::Forms::ToolStrip^ get_tools_toolbar();
       Windows::Forms::ToolStrip^ get_options_toolbar();
       Aga::Controls::Tree::TreeViewAdv^ get_layer_tree();
+      Aga::Controls::Tree::TreeViewAdv^ get_catalog_tree();
     };
 
   } // namespace Workbench

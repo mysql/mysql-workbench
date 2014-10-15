@@ -414,7 +414,6 @@ public:
 
   // Overview.
   Overview^ get_physical_overview();
-  Aga::Controls::Tree::TreeViewAdv^ get_catalog_tree();
   Aga::Controls::Tree::TreeViewAdv^ get_history_tree();
   Aga::Controls::Tree::TreeViewAdv^ get_usertypes_tree();
   MySQL::Grt::GrtValueInspector^ get_inspector_for_selection(MySQL::Base::UIForm ^form, [Out] List<String^>^ %items);
