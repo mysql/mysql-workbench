@@ -18,6 +18,7 @@
  */
 
 #include <algorithm>
+#include <fcntl.h>
 
 #include <zip.h>
 #include "wb_model_file.h"
@@ -505,8 +506,15 @@ std::list<std::string> ModelFile::unpack_zip(const std::string &zipfile, const s
     throw grt::os_error(strfmt(_("Cannot create temporary directory for open document: %s"), destdir.c_str()), errno);
 
   int err;
-  zip *z= zip_open(zipfile.c_str(), 0, &err);
-  if (!z)
+#ifdef _WIN32
+  // Would be good if we could test for zip_fdopen, but there's no way in the preprocessor.
+  // And there's no version macro either for libzip.
+  int fd = base_open(zipfile, O_RDONLY, S_IREAD); // Error checking is done already before.
+  zip *z = zip_fdopen(fd, 0, &err);
+#else
+  zip *z = zip_open(zipfile.c_str(), 0, &err); // Older versions of libzip.
+#endif
+  if (z == NULL)
   {
     if (err == ZIP_ER_NOZIP)
       throw std::runtime_error("The file is not a Workbench document.");
@@ -665,7 +673,7 @@ static void zip_dir_contents(zip *z, const std::string &destdir, const std::stri
         if (!add_directories)
         {
           zip_source *src= zip_source_file(z, tmp.c_str(), 0, 0);
-#ifdef zip_file_add
+#ifdef _WIN32
           if (!src || zip_file_add(z, tmp.c_str(), src, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8) < 0)
           {
             zip_source_free(src);

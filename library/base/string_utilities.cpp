@@ -35,8 +35,6 @@
 
 DEFAULT_LOG_DOMAIN(DOMAIN_BASE);
 
-
-
 // updated as of 5.7
 static const char *reserved_keywords[] = {
   "ACCESSIBLE",
@@ -274,31 +272,20 @@ static const char *reserved_keywords[] = {
   NULL
 };
 
-
 namespace base {
 
 #ifdef _WIN32
 
 //--------------------------------------------------------------------------------------------------
 
+static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
 /**
  * Converts an UTF-8 encoded string to an UTF-16 string.
  */
 std::wstring string_to_wstring(const std::string &s)
 {
-  int required;
-
-  required= MultiByteToWideChar(CP_UTF8, 0, s.data(), -1, NULL, 0);
-  if (required == 0)
-    return std::wstring();
-
-  // Required contains the length for the result string including the terminating 0.
-  WCHAR *buffer = g_new(WCHAR, required);
-  MultiByteToWideChar(CP_UTF8, 0, s.data(), -1, buffer, required);
-  std::wstring converted(buffer);
-  g_free(buffer);
-
-  return converted;
+  return converter.from_bytes(s);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,21 +295,18 @@ std::wstring string_to_wstring(const std::string &s)
  */
 std::string wstring_to_string(const std::wstring &s)
 {
-  char* converted;
-  int required = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), -1, NULL, 0, NULL, NULL);
-  converted = (char*) g_malloc(required);
-  WideCharToMultiByte(CP_UTF8, 0, s.c_str(), -1, converted, required, NULL, NULL);
-  std::string result = converted;
-  g_free(converted);
-
-  return result;
+  return converter.to_bytes(s);
 }
+
+//--------------------------------------------------------------------------------------------------
 
 std::wstring path_from_utf8(const std::string &s)
 {
   return string_to_wstring(s);
 }
+
 #else
+
 std::string path_from_utf8(const std::string &s)
 {
   return s;
