@@ -451,17 +451,16 @@ class DBLevelMeter(Figure):
         cr.show_text("limit %s" % self._max_value)
 
         if p1 != p2:
-            max_y = self.height - p1 + cr.text_extents("max %s" % self._max_seen_value).height
+            max_h = cr.text_extents("max %s" % self._max_seen_value).height
+            max_y = self.height - p1 - max_h
             if max_y < limit_y:
-                cr.move_to(34, limit_y + cr.text_extents("max").height + 2)
+                cr.move_to(34, limit_y + max_h + 2)
                 cr.show_text("max %s" % self._max_seen_value)
             else:
                 cr.move_to(34, self.height - p1)
                 cr.show_text("max %s" % self._max_seen_value)
-    
-        cr.move_to(34, self.height - p2)
-        cr.show_text("curr. %s" % self._value)
-        
+
+
         cr.set_source_rgb(0.9, 0.9, 0.3)
         cr.rectangle(0, self.height - p1, 30, p1)
         cr.fill()
@@ -469,6 +468,10 @@ class DBLevelMeter(Figure):
         self.apply_attributes(cr)
         cr.rectangle(0, self.height - p2, 30, p2)
         cr.fill()
+
+        cr.set_source_rgb(0, 0, 0)
+        cr.move_to((30 - cr.text_extents("%s" % self._value).width)/2, self.height - 1 - p2)
+        cr.show_text("%s" % self._value)
 
         cr.restore()
 
