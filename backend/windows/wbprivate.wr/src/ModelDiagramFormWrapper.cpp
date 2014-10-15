@@ -56,7 +56,7 @@ ModelDiagramFormWrapper::~ModelDiagramFormWrapper()
 
 ModelDiagramForm* ModelDiagramFormWrapper::get_unmanaged_object()
 {
-  return (ModelDiagramForm*) inner;
+  return (ModelDiagramForm*)inner;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,3 +306,11 @@ TreeViewAdv^ ModelDiagramFormWrapper::get_layer_tree()
 }
 
 //--------------------------------------------------------------------------------------------------
+
+TreeViewAdv^ ModelDiagramFormWrapper::get_catalog_tree()
+{
+  return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(get_unmanaged_object()->get_catalog_tree()));
+}
+
+//--------------------------------------------------------------------------------------------------
+

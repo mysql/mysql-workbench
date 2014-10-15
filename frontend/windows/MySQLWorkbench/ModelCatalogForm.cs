@@ -17,42 +17,30 @@
  * 02110-1301  USA
  */
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.Windows.Forms;
 
 using Aga.Controls.Tree;
 
-using MySQL.Base;
 using MySQL.Controls;
-using MySQL.Grt;
-using MySQL.Utilities;
 using MySQL.Workbench;
 
 namespace MySQL.GUI.Workbench
 {
-	public partial class ModelCatalogForm : TabDocument
-	{
-		private WbContext wbContext;
+  public partial class ModelCatalogForm : TabDocument
+  {
+    private ModelCatalogForm()
+    {
+      InitializeComponent();
+    }
 
-		private ModelCatalogForm()
-		{
-			InitializeComponent();
-		}
-
-		public ModelCatalogForm(WbContext context)
-			: this()
-		{
-			wbContext = context;
-
-      TreeViewAdv catalogTree = wbContext.get_catalog_tree();
+    public ModelCatalogForm(ModelDiagramFormWrapper form)
+      : this()
+    {
+      TreeViewAdv catalogTree = form.get_catalog_tree();
       catalogTree.ShowNodeToolTips = true;
       headerPanel1.Controls.Add(catalogTree);
       headerPanel1.Controls.SetChildIndex(catalogTree, 0);
       catalogTree.Dock = DockStyle.Fill;
-
     }
 
     public void UpdateColors()
@@ -60,5 +48,5 @@ namespace MySQL.GUI.Workbench
       topPanel.BackColor = Conversions.GetApplicationColor(ApplicationColor.AppColorPanelToolbar, false);
     }
 
-	}
+  }
 }
