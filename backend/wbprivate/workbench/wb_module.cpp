@@ -1812,7 +1812,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList()
     char *ster = NULL;
     int rc=0;
     GError *err = NULL;
-    if (g_spawn_command_line_sync("/bin/bash -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs ps -ww -o args= -p \"", &stdo, &ster, &rc, &err) && stdo)
+    if (g_spawn_command_line_sync("/bin/sh -c \"ps -ec | grep \\\"mysqld\\b\\\" | awk '{ print $1 }' | xargs ps -ww -o args= -p \"", &stdo, &ster, &rc, &err) && stdo)
     {
       std::string processes(stdo);
       

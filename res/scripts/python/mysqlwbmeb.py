@@ -47,7 +47,7 @@ def call_system(command, spawn, output_handler = None):
             except:
                 pass
                   
-        os.execvp("/bin/bash", ["/bin/bash", "-c", command])
+        os.execvp("/bin/sh", ["/bin/sh", "-c", command])
 
     else:
         child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
@@ -846,7 +846,9 @@ class MEBGetProfiles(MEBCommand):
         return 0
 
 class MEBHelperVersion(MEBCommand):
-    current = "4"
+    # IMPORTANT: Any change to the current attribute must be
+    # in synch with what is returned at WBMEBHelperHandlerLinux::current_helper_version
+    current = "5"
 
     def __init__(self, params = None, output_handler = None):
         super(MEBHelperVersion, self).__init__(params, output_handler)

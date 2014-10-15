@@ -88,7 +88,6 @@ def wrap_for_sudo(command, sudo_prefix, as_user = Users.ADMIN, to_spawn = False)
         if as_user != Users.ADMIN:
             sudo_user = "sudo -u %s" % as_user
             sudo_prefix = sudo_prefix.replace('sudo', sudo_user)
-
         if '/bin/sh' in sudo_prefix or '/bin/bash' in sudo_prefix:
             command = sudo_prefix + " \"" + command.replace('\\', '\\\\').replace('"', r'\"').replace('$','\\$') + "\""
         else:
@@ -239,7 +238,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
         return data
 
     # script should already have sudo
-    child = subprocess.Popen(["/bin/bash", "-c", script], bufsize=0,
+    child = subprocess.Popen(["/bin/sh", "-c", script], bufsize=0,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                              close_fds=True)
 
@@ -1057,7 +1056,7 @@ class FileOpsLinuxBase(object):
             # for ls -l, the output format changes depending on stdout being a terminal or not
             # since both cases are possible, we need to handle both at the same time (1st line being total <nnnn> or not)
             # the good news is that if the line is there, then it will always start with total, regardless of the locale
-            command = 'LC_ALL=C /bin/ls -l -p %s | awk \'!/^total/ { print $5,$NF }\' ; exit ${PIPESTATUS[0]}' % quote_path(path)
+            command = 'LC_ALL=C /bin/ls -l -p %s' % quote_path(path)
         else:
             command = 'LC_ALL=C /bin/ls -1 -p %s' % quote_path(path)
             
@@ -1067,6 +1066,7 @@ class FileOpsLinuxBase(object):
                                         user_password,
                                         output_handler = output.write)
         output = sanitize_sudo_output(output.getvalue().strip())
+        
         if res != 0:
             custom_messages = {
                                 errno.ENOENT:"The path \"%s\" does not exist" % path,
@@ -1078,7 +1078,7 @@ class FileOpsLinuxBase(object):
         else:
             try:
                 if include_size:
-                    file_list = [(f, int(s)) for s, f in [s.strip().split(" ", 1) for s in output.split("\n")]]
+                    file_list = [(f, int(s)) for _, _, _, _, s, _, _, _, f in [s.strip().split(None, 8) for s in output.split("\n") if not s.startswith('total')]]
                 else:
                     file_list = [s.strip() for s in output.split("\n")]
                     
