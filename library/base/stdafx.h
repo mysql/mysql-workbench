@@ -46,6 +46,8 @@ typedef int ssize_t;
 #include <string.h>
 #include <iostream>
 #include <wchar.h>
+#include <codecvt>
+#include <fcntl.h>
 
 #include <VersionHelpers.h>
 
