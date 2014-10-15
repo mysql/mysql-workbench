@@ -288,7 +288,7 @@ class TestFileOpsLinuxBase(TestCase):
         
         for file in self.test_files:
             # Creates a temporary file
-            self.process_ops.exec_cmd('echo -e "1234\n6789" >  "%s"' % file)
+            self.process_ops.exec_cmd('echo "1234\n6789" >  "%s"' % file)
             
             # gets the file content
             self.assertEquals(self.target_class.get_file_content(file), '1234\n6789')
