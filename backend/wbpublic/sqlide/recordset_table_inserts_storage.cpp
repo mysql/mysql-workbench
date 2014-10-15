@@ -54,7 +54,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
   Recordset::Column_names &column_names= get_column_names(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
   Recordset::Column_types &real_column_types= get_real_column_types(recordset);
-  Recordset::Column_quoting &column_quoting= get_column_quoting(recordset);
+  Recordset::Column_flags &column_flags= get_column_flags(recordset);
 
   reinit(_mapped_colnames);
   _mapped_table_name= _table->id();
@@ -149,7 +149,12 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
 
     column_types.push_back(known_types.map_simple_datatype(stype, false));
     real_column_types.push_back(known_types.map_simple_datatype(stype, true));
-    column_quoting.push_back(stype.is_valid() ? (*stype->needsQuotes() != 0 ? 1 : 0) : 0);
+    int flags = 0;
+    if (stype.is_valid())
+      flags = *stype->needsQuotes() != 0 ? Recordset::NeedsQuoteFlag : 0;
+    if (*column->isNotNull())
+      flags = flags | (int)Recordset::NotNullFlag;
+    column_flags.push_back(flags);
   }
 
   // column names

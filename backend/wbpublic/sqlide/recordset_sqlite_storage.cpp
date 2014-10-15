@@ -76,7 +76,7 @@ void Recordset_sqlite_storage::do_unserialize(Recordset *recordset, sqlite::conn
   Recordset::Column_names &column_names= get_column_names(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
   Recordset::Column_types &real_column_types= get_real_column_types(recordset);
-  Recordset::Column_quoting &column_quoting= get_column_quoting(recordset);
+  Recordset::Column_flags &column_flags= get_column_flags(recordset);
   
   std::string sql_query= decorated_sql_query(column_names);
 
@@ -135,7 +135,10 @@ void Recordset_sqlite_storage::do_unserialize(Recordset *recordset, sqlite::conn
     type_name= type_name.substr(0, tne);
     column_types.push_back(known_types[type_name]);
     real_column_types.push_back(known_types[type_name]);
-    column_quoting.push_back(known_quoted_types[type_name]);
+    int flags = 0;
+    if (known_quoted_types[type_name])
+      flags = Recordset::NeedsQuoteFlag;
+    column_flags.push_back(flags);
   }
 
   // column names

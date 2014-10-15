@@ -230,7 +230,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
   const Recordset::Column_names *column_names= recordset->column_names();
   const Recordset::Column_types &column_types= get_column_types(recordset);
   const Recordset::Column_types &real_column_types= get_real_column_types(recordset);
-  const Recordset::Column_quoting &column_quoting= get_column_quoting(recordset);
+  const Recordset::Column_flags &column_flags= get_column_flags(recordset);
   
   ColumnId visible_col_count= recordset->get_column_count();
   sqlide::QuoteVar qv;
@@ -348,7 +348,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
               if (is_null)
                 field_value = null_syntax;
               else if (strings_are_pre_quoted)
-                field_value= column_quoting[col] || sqlide::is_var_null(v)?
+                field_value= (column_flags[col] & Recordset::NeedsQuoteFlag) || sqlide::is_var_null(v)?
                      boost::apply_visitor(qv, column_types[col], v):
                      boost::apply_visitor(var_to_str, v);
               else
@@ -416,7 +416,7 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
               sqlide::VarToStr var_to_str;
               
               if (strings_are_pre_quoted)
-                field_value= column_quoting[col] || sqlide::is_var_null(v)?
+                field_value= (column_flags[col] & Recordset::NeedsQuoteFlag) || sqlide::is_var_null(v)?
                     boost::apply_visitor(qv, column_types[col], v):
                     boost::apply_visitor(var_to_str, v);
               else
