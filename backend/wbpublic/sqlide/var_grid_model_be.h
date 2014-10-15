@@ -81,10 +81,16 @@ protected:
   std::string _readonly_reason;
 
 public:
+  enum ColumnFlags
+  {
+    NeedsQuoteFlag = 1,
+    NotNullFlag = 2
+  };
+
   typedef std::vector<std::string> Column_names;
   typedef std::vector<sqlite::variant_t> Column_types;
   typedef Data::const_iterator Cell_const;
-  typedef std::vector<int> Column_quoting; // was bool, but it had some wierd effects where returned value was random
+  typedef std::vector<int> Column_flags;
 
 protected:
   typedef Data::iterator Cell;
@@ -132,8 +138,7 @@ protected:
   Column_names _column_names;
   Column_types _column_types;
   Column_types _real_column_types; //! as a temp workaround for quick-fix of #38600: Insert statement calling function is incorrectly parsed
-  Column_quoting _column_quoting; // stored whether column values are quoted or not (ie numbers vs strings. special values like functions need extra handling)
-  //XXX maybe _real_column_types and _column_quoting can be merged somehow --alfredo
+  Column_flags _column_flags; // various flags, such as whether value should be quoted and whether it's NOT NULL (ie numbers vs strings. special values like functions need extra handling)
   
   base::RecMutex _data_mutex;
 
