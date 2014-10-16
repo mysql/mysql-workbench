@@ -275,7 +275,6 @@
     <ClInclude Include="model\canvas_floater.h" />
     <ClInclude Include="model\mini_view.h" />
     <ClInclude Include="model\relationship_canvas_floater.h" />
-    <ClInclude Include="model\wb_catalog_tree.h" />
     <ClInclude Include="model\wb_catalog_tree_view.h" />
     <ClInclude Include="model\wb_component.h" />
     <ClInclude Include="model\wb_component_basic.h" />
