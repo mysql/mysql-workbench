@@ -71,6 +71,28 @@ struct GrtDispatcherHelper
 
 //----------------- DispatcherCallback -------------------------------------------------------------
 
+DispatcherCallbackBase::~DispatcherCallbackBase()
+{
+  signal();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void DispatcherCallbackBase::wait()
+{
+  base::MutexLock lock(_mutex);
+  _cond.wait(_mutex);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void DispatcherCallbackBase::signal()
+{
+  _cond.signal();
+}
+
+//----------------- GRTTaskBase --------------------------------------------------------------------
+
 GRTTaskBase::~GRTTaskBase()
 {
   delete _exception;
@@ -687,8 +709,9 @@ bool GRTDispatcher::message_callback(const grt::Message &msgs, void *sender)
     return false; // Let it bubble up by default.
   }
 
-  GRTTaskHelper *helper = static_cast<GRTTaskHelper*>(sender);
-  return helper->task->process_message(msgs);
+  // Messages are processed synchronously and hence we don't need a Ref here.
+  GRTTaskBase *task = static_cast<GRTTaskBase*>(sender);
+  return task->process_message(msgs);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,8 +720,8 @@ static bool call_process_message(const grt::Message &msgs, void *sender, const G
 {
   if (sender != NULL)
   {
-    GRTTaskHelper *helper = static_cast<GRTTaskHelper*>(sender);
-    return helper->task->process_message(msgs);
+    GRTTaskBase *task = static_cast<GRTTask*>(sender);
+    return task->process_message(msgs);
   }
   return task->process_message(msgs);
 }

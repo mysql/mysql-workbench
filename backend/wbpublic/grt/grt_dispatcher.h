@@ -41,7 +41,7 @@ namespace bec {
   // The target object, method and arguments are all encapsulated
   // in the callback object.
 
-  class DispatcherCallbackBase
+  class WBPUBLICBACKEND_PUBLIC_FUNC DispatcherCallbackBase
   {
   private:
     base::Mutex _mutex;
@@ -53,23 +53,10 @@ namespace bec {
   public:
     typedef boost::shared_ptr<DispatcherCallbackBase> Ref;
 
-    virtual ~DispatcherCallbackBase()
-    {
-      signal();
-    }
-    
-    virtual void execute() = 0;
-    
-    void wait()
-    {
-      base::MutexLock lock(_mutex);
-      _cond.wait(_mutex);
-    }
-    
-    void signal()
-    {
-      _cond.signal();
-    }
+    virtual ~DispatcherCallbackBase();    
+    virtual void execute() = 0;    
+    void wait();
+    void signal();
   };
   
   //------------------------------------------------------------------------------------------------
