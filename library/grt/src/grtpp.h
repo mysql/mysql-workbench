@@ -551,7 +551,7 @@ namespace grt {
 #else
   #define DEFINE_SSIZE_T_FUNCTIONS
 
-  #ifdef __x86_64__
+  #ifdef __LP64__
   #define DEFINE_INT_FUNCTIONS
   #endif
 
