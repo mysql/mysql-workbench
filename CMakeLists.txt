@@ -79,7 +79,7 @@ find_package(LibXml2 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 find_package(CTemplate)
-find_package(MySQLCppConn REQUIRED)
+# find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
