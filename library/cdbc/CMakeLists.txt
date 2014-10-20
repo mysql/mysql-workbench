@@ -1,3 +1,5 @@
+find_package(MySQLCppConn REQUIRED)
+
 include_directories(${PROJECT_SOURCE_DIR}/backend
     ${PROJECT_SOURCE_DIR}/generated 
     ${PROJECT_SOURCE_DIR}/library/grt/src
@@ -6,6 +8,12 @@ include_directories(${PROJECT_SOURCE_DIR}/backend
     ${GRT_INCLUDE_DIRS}
     ${MYSQLCPPCONN_INCLUDE_DIRS}
 )
+
+check_include_files ("cppconn/version_info.h" MYSQL_CONNECTOR_VERSION_FILE)
+
+if (MYSQL_CONNECTOR_VERSION_FILE EQUAL "1")
+  add_definitions(-DMYSQLCPPCONN_VERSION_AT_LEAST_1_1_5_DETECTED)
+endif (MYSQL_CONNECTOR_VERSION_FILE EQUAL "1")
 
 #TODO: Set other compiler flags
 #if(CMAKE_COMPILER_IS_GNUCXX)
