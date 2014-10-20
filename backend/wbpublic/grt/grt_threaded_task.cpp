@@ -126,7 +126,7 @@ const bec::GRTDispatcher::Ref & GrtThreadedTask::dispatcher()
 
 const bec::GRTTask::Ref GrtThreadedTask::task()
 {
-  return (_task) ? _task : _parent_task->task();
+  return (_task) ? _task : ((_parent_task) ? _parent_task->task() : bec::GRTTask::Ref());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,6 +223,8 @@ void GrtThreadedTask::send_msg(int msg_type, const std::string &msg, const std::
   }
   else
   {
+    if (!task())
+      return;
     grt::GRT *grt= _grtm->get_grt();
     switch (msg_type)
     {
@@ -252,7 +254,11 @@ void GrtThreadedTask::send_progress(float percentage, const std::string &msg, co
       _progress_cb(percentage, msg);
   }
   else
+  {
+    if (!task())
+      return;
     _grtm->get_grt()->send_progress(percentage, msg, detail, task().get());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
