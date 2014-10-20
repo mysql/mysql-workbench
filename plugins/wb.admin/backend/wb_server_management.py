@@ -114,7 +114,7 @@ def useAbsPath(param):
             if path_index is not None:
                 path_value = args[path_index]
                 
-                if not type(path_value) is str or not os.path.isabs(path_value):
+                if type(path_value) not in [str, unicode] or not os.path.isabs(path_value):
                     raise ValueError('Error on path validation for function "%s", parameter "%s" must be an absolute path: %s' % (function.__name__, param, path_value))
                 
             return function(*args, **kw)

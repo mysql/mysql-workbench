@@ -6,12 +6,13 @@ import wb_server_management as target_module
 from wb_common import Users, InvalidPasswordError, PermissionDeniedError
 
 class TestGlobalModuleCode(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.sudo_pwd = None
         if 'WB_SUDO_PASSWD' in os.environ:
             self.sudo_pwd = os.environ['WB_SUDO_PASSWD']
         else:
-            print '---> Skipping TestGlobalModuleCode Admin Tests'
+            print '---> WB_SUDO_PASSWD is not defined, skipping TestGlobalModuleCode Admin Tests'
     
     def test_reset_sudo_prefix(self):
         target_module.reset_sudo_prefix()
@@ -71,12 +72,13 @@ class TestGlobalModuleCode(TestCase):
         
 @skip
 class TestProcessOpsLinuxLocal(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.sudo_pwd = None
         if 'WB_SUDO_PASSWD' in os.environ:
             self.sudo_pwd = os.environ['WB_SUDO_PASSWD']
         else:
-            print '---> Skipping TestFileOpsLinuxBase Admin Tests'
+            print '---> WB_SUDO_PASSWD is not defined, skipping TestFileOpsLinuxBase Admin Tests'
     
         self.target_class = target_module.ProcessOpsLinuxLocal(sudo_prefix = '/usr/bin/sudo -S -k -p EnterPasswordHere', ssh=None)
         
@@ -99,12 +101,13 @@ class TestProcessOpsLinuxLocal(TestCase):
 
 
 class TestFileOpsLinuxBase(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.sudo_pwd = None
         if 'WB_SUDO_PASSWD' in os.environ:
             self.sudo_pwd = os.environ['WB_SUDO_PASSWD']
         else:
-            print '---> Skipping TestFileOpsLinuxBase Admin Tests'
+            print '---> WB_SUDO_PASSWD is not defined, skipping TestFileOpsLinuxBase Admin Tests'
     
         self.process_ops = target_module.ProcessOpsLinuxLocal(sudo_prefix = '/usr/bin/sudo -S -k -p EnterPasswordHere', ssh=None)
         self.target_class = target_module.FileOpsLinuxBase(self.process_ops, None, 'linux')
@@ -318,7 +321,8 @@ class TestFileOpsLinuxBase(TestCase):
             
             # Checks writability
             self.assertTrue(self.target_class.check_dir_writable(folder + '_1'))
-            self.assertFalse(self.target_class.check_dir_writable(folder + '_2'))
+            if self.sudo_pwd:
+                self.assertFalse(self.target_class.check_dir_writable(folder + '_2'))
             
             self.process_ops.exec_cmd('rmdir "%s_1"' % folder)
             
@@ -398,12 +402,13 @@ class TestFileOpsLocalUnix(TestCase):
     # These test cases also exercise the variants of the methods inherited from
     # from FileOpsLinuxBase using a ProcessOpeLinuxLocal instance
     
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.sudo_pwd = None
         if 'WB_SUDO_PASSWD' in os.environ:
             self.sudo_pwd = os.environ['WB_SUDO_PASSWD']
         else:
-            print '---> Skipping TestFileOpsLinuxBase Admin Tests'
+            print '---> WB_SUDO_PASSWD is not defined, skipping TestFileOpsLinuxBase Admin Tests'
     
         self.process_ops = target_module.ProcessOpsLinuxLocal(sudo_prefix = '/usr/bin/sudo -S -k -p EnterPasswordHere', ssh=None)
         self.target_class = target_module.FileOpsLocalUnix(self.process_ops, None, 'linux')
