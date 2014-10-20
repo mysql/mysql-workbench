@@ -350,7 +350,7 @@ QuerySidePalette::~QuerySidePalette()
   base::NotificationCenter::get()->remove_observer(this);
 
   cancel_timer();
-  if (_help_task->is_busy() && _help_task->task() != NULL)
+  if (_help_task->is_busy() && _help_task->task())
     _help_task->task()->cancel();
 }
 
@@ -429,7 +429,7 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic)
 
   // Only run one query at a time. There's no sense in issuing new queries if one is still pending
   // which might indicate a slow server or broken connection.
-  if (_help_task->is_busy() || (_help_task->task() != NULL && _help_task->task()->is_cancelled()))
+  if (_help_task->is_busy() || (_help_task->task() && _help_task->task()->is_cancelled()))
     return;
 
   _last_topic = topic_upper;
@@ -468,7 +468,7 @@ grt::StringRef QuerySidePalette::get_help_text_threaded(grt::GRT *)
     _last_topic = "";
   }
 
-  if (!_help_task->task()->is_cancelled())
+  if (_help_task->task() && !_help_task->task()->is_cancelled())
     _help_task->execute_in_main_thread(boost::bind(&QuerySidePalette::update_help_ui, this), false, false);
 
   return "";
