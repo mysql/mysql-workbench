@@ -173,59 +173,52 @@ namespace base {
   
   LockFile::Status LockFile::check(const std::string &path)
   {
-    std::wstring wpath(string_to_wstring(path));
-    // open the file and see if it's locked
-    HANDLE h = CreateFileW(wpath.c_str(), 
-      GENERIC_WRITE, 
-      FILE_SHARE_WRITE|FILE_SHARE_READ,
-      NULL,
-      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-    if (h == INVALID_HANDLE_VALUE)
-    {
-      switch (GetLastError())
-      {
-      case ERROR_SHARING_VIOLATION:
-        // if file cannot be opened for writing, it is locked...
-        // so open it for reading to check the owner process id written in it
-        h = CreateFileW(wpath.c_str(), 
-              GENERIC_READ, 
-              FILE_SHARE_WRITE|FILE_SHARE_READ, 
-              NULL,
-              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (h != INVALID_HANDLE_VALUE)
-        {
-          char buffer[32];
-          DWORD bytes_read;
-          if (ReadFile(h, buffer, sizeof(buffer), &bytes_read, NULL))
-          {
-            CloseHandle(h);
-            buffer[bytes_read]= 0;
-            if (base::atoi<int>(buffer, -1) == GetCurrentProcessId())
-              return LockedSelf;
-            return LockedOther;
-          }
-          CloseHandle(h);
-          return LockedOther;
-        }
-        // if the file is locked for read, assume its locked by some unrelated process
-        // since this class never locks it for read
-        return LockedOther;
-        //throw std::runtime_error(strfmt("Could not read process id from lock file (%i)", GetLastError());
-        break;
-      case ERROR_FILE_NOT_FOUND:
-        return NotLocked;
-      case ERROR_PATH_NOT_FOUND:
-        throw std::invalid_argument("Invalid path");
-      default:
-        throw std::runtime_error(strfmt("Could not open lock file (%i)", GetLastError()));
-      }
-    }
-    else
+    // Can we open the file in exclusive mode?
+    std::wstring wpath = string_to_wstring(path);
+    HANDLE h = CreateFile(wpath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+    if (h != INVALID_HANDLE_VALUE)
     {
       CloseHandle(h);
-      // if the file could be opened with DENY_WRITE, it means no-one is locking it
       return NotLocked;
+    }
+
+    switch (GetLastError())
+    {
+    case ERROR_SHARING_VIOLATION:
+      // If file cannot be opened for writing it's open somewhere else.
+      // Try to open it and read the first bytes to see if that corresponds to our process id.
+      h = CreateFileW(wpath.c_str(), 
+            GENERIC_READ, 
+            FILE_SHARE_WRITE | FILE_SHARE_READ, 
+            NULL,
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+      if (h != INVALID_HANDLE_VALUE)
+      {
+        char buffer[32];
+        DWORD bytes_read;
+        if (ReadFile(h, buffer, sizeof(buffer), &bytes_read, NULL))
+        {
+          CloseHandle(h);
+          buffer[bytes_read] = 0;
+          if (base::atoi<int>(buffer, -1) != GetCurrentProcessId())
+            return LockedOther; // TODO: this unreliable. Any non-lock file would qualify here (which is wrong).
+          return LockedSelf;
+        }
+        CloseHandle(h);
+        return LockedOther;
+      }
+
+      // If the file cannot be read assume its locked by another process.
+      return LockedOther;
+
+    case ERROR_FILE_NOT_FOUND:
+      return NotLocked;
+
+    case ERROR_PATH_NOT_FOUND:
+      throw std::invalid_argument("Invalid path");
+
+    default:
+      throw std::runtime_error(strfmt("Unknown error while checking file %s for locks (%i)", path.c_str(), GetLastError()));
     }
   }
 #else
