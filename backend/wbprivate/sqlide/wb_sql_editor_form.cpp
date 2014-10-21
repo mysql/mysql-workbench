@@ -1760,7 +1760,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
     flags = (ExecFlags)(flags | ShowWarnings);
   auto_save();
 
-  // if we're filling an already existing result panel, we shouldn't close the old resultsets
+  // If we're filling an already existing result panel, we shouldn't close the old result sets.
   editor->query_started(into_result ? true : false);
   exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor), true);
   exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1), true);
@@ -1867,9 +1867,20 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
       logging_queries = false;
     }
 
+    // Intentionally allow any value. For values <= 0 show no result set at all.
+    ssize_t max_resultset_count = _grtm->get_app_option_int("DbSqlEditor::MaxResultsets", 50);
+    ssize_t total_result_count = (editor != NULL) ? editor->resultset_count() : 0; // Consider pinned result sets.
+
+    bool results_left = false;
     std::pair<size_t, size_t> statement_range;
     BOOST_FOREACH (statement_range, statement_ranges)
     {
+      if (total_result_count >= max_resultset_count)
+      {
+        results_left = true;
+        break;
+      }
+
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
@@ -2036,8 +2047,20 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           {
             for (size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
             {
+              if (total_result_count >= max_resultset_count)
+              {
+                results_left = true;
+                break;
+              }
+
               do
               {
+                if (total_result_count >= max_resultset_count)
+                {
+                  results_left = true;
+                  break;
+                }
+
                 if (more_results)
                 {
                   if (!reuse_log_msg && ((updated_rows_count >= 0) || (resultset_count)))
@@ -2145,6 +2168,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     //! else failed to fetch data
                     //added_recordsets.push_back(rs);
                     ++resultset_count;
+                    ++total_result_count;
                   }
                   else
                   {
@@ -2153,7 +2177,12 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                   data_storage.reset();
                 }
               }
-              while ((more_results= dbc_statement->getMoreResults()));
+              while (more_results = dbc_statement->getMoreResults());
+
+              // If we stopped fetching before we got to the end of the result sets finish
+              // fetching here.
+              while (dbc_statement->getMoreResults())
+                ;
             }
           }
           
@@ -2164,6 +2193,14 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
         }
       }
     } // BOOST_FOREACH (statement, statements)
+
+    if (results_left)
+    {
+      exec_sql_task->execute_in_main_thread(
+        boost::bind(&mforms::Utilities::show_warning, _("Result set limit reached"), _("There were more results than "
+        "result tabs could be opened, because the set maximum limit was reached. You can change this "
+        "limit in the preferences."), _("OK"), "", ""), true, false);
+    }
 
     _grtm->replace_status_text(_("Query Completed"));
     interrupted = false;

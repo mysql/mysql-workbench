@@ -199,7 +199,8 @@ public:
 
   SqlEditorResult *result_panel(int i);
 
-  int result_count();
+  size_t result_panel_count();
+  size_t resultset_count();
 
   SqlEditorResult* add_panel_for_recordset(Recordset::Ref rset);
   void add_panel_for_recordset_from_main(Recordset::Ref rset);

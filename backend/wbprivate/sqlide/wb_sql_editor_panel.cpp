@@ -1207,9 +1207,23 @@ void SqlEditorPanel::on_recordset_context_menu_show(Recordset::Ptr rs_ptr)
 
 //--------------------------------------------------------------------------------------------------
 
-int SqlEditorPanel::result_count()
+/**
+ *	Returns the number of all docked result panels in the editor panel.
+ */
+size_t SqlEditorPanel::result_panel_count()
 {
   return _lower_tabview.page_count();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+*	Returns the number of all docked resultset panels in the editor panel.
+*	That excludes all the explain, spatial etc. panels.
+*/
+size_t SqlEditorPanel::resultset_count()
+{
+  return grtobj()->resultPanels().count();
 }
 
 //--------------------------------------------------------------------------------------------------
