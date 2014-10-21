@@ -2177,7 +2177,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                   data_storage.reset();
                 }
               }
-              while (more_results = dbc_statement->getMoreResults());
+              while ((more_results = dbc_statement->getMoreResults()));
 
               // If we stopped fetching before we got to the end of the result sets finish
               // fetching here.
