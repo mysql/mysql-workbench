@@ -133,6 +133,17 @@ TreeNodeRef TreeNode::find_child_with_tag(const std::string &tag)
   return TreeNodeRef();
 }
 
+void TreeNode::toggle()
+{
+  if (can_expand())
+  {
+    if (!is_expanded())
+      expand();
+    else
+      collapse();
+  }
+}
+
 //----------------- TreeNodeView -------------------------------------------------------------------
 
 TreeNodeView::TreeNodeView(TreeOptions options)

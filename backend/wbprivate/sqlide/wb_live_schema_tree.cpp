@@ -2304,6 +2304,9 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
             break;
           default:
             delegate->tree_activate_objects("activate", changes);
+#ifndef _WIN32
+            node->toggle();
+#endif
             break;
           }
         }
@@ -2313,7 +2316,7 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
     case Table:
     case View:
       {
-        if (column < 0)
+        if (column <= 0)
         {
           std::vector<ChangeRecord> changes;
           ChangeRecord record = { node_data->get_type(), get_schema_name(node), node_name, "" };
@@ -2332,6 +2335,11 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
             case -3:
               delegate->tree_activate_objects("select_data", changes);
               break;
+#ifndef _WIN32
+            default:
+              node->toggle();
+              break;
+#endif
             }
           }
         }
@@ -2366,6 +2374,10 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
       break;
     }
   }
+#ifndef _WIN32
+  else
+    node->toggle();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

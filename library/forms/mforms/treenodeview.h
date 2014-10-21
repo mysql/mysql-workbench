@@ -203,6 +203,7 @@ namespace mforms {
 
     // Primitive check. Use TreeNodeView::can_expand() instead for potentially more sophisticated checks.
     virtual bool can_expand() { return count() > 0; };
+    virtual void toggle();
 
     virtual void set_tag(const std::string &tag) = 0;
     virtual std::string get_tag() const = 0;
