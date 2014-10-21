@@ -360,7 +360,7 @@ TEST_FUNCTION(6)
 
 
   output = table->inserts();
-  ensure_equals("output2", output, "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (NULL, NULL, NULL, NULL);\n");
+  ensure_equals("output2", output, "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
 }
 
 
@@ -404,11 +404,11 @@ TEST_FUNCTION(12)
   // check generation of SQL
   std::string output = table->inserts();
   ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (NULL, DEFAULT, NULL, NULL);\n");
+    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
 
   output = generate_sql_just_like_fwd_eng(grtm, table);
   ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (NULL, DEFAULT, NULL, NULL);\n");
+    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
 }
 
 
@@ -427,11 +427,11 @@ TEST_FUNCTION(13)
   // check generation of SQL
   std::string output = table->inserts();
   ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (NULL, NULL, DEFAULT, NULL);\n");
+    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
 
   output = generate_sql_just_like_fwd_eng(grtm, table);
   ensure_equals("generated sql", output, 
-    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (NULL, NULL, DEFAULT, NULL);\n");
+    "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
 }
 
 
