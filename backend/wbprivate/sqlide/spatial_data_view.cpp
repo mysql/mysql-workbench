@@ -667,13 +667,13 @@ void SpatialDataView::refresh_layers()
 {
   std::vector<SpatialDataView::SpatialDataSource> spatial_columns;// = _owner->get_spatial_columns();
 
-  for (int c= _owner->owner()->owner()->sql_editor_count(), editor = 0; editor < c; editor++)
+  for (int c = _owner->owner()->owner()->sql_editor_count(), editor = 0; editor < c; editor++)
   {
 
     SqlEditorPanel *panel = _owner->owner()->owner()->sql_editor_panel(editor);
-    if (panel)
+    if (panel != NULL)
     {
-      for (int i = 0; i < panel->result_count(); ++i)
+      for (size_t i = 0; i < panel->result_panel_count(); ++i)
       {
         SqlEditorResult *result = panel->result_panel(i);
         if (result)

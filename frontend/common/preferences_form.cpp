@@ -1041,17 +1041,26 @@ mforms::View *PreferencesForm::create_editor_page()
     }
 
     {
-      mforms::Box *tbox= mforms::manage(new mforms::Box(true));
-      tbox->set_spacing(4);
-      vbox->add(tbox, false);
+      mforms::Table *table = mforms::manage(new mforms::Table());
+      table->set_row_count(2);
+      table->set_column_count(2);
+      table->set_column_spacing(4);
+      table->set_row_spacing(4);
+      vbox->add(table, false);
 
-      tbox->add(new_label(_("Max syntax error count:"), true), false, false);
-      mforms::TextEntry *entry= new_entry_option("SqlEditor::SyntaxCheck::MaxErrCount", false);
+      table->add(new_label(_("Max syntax error count:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+      mforms::TextEntry *entry = new_entry_option("SqlEditor::SyntaxCheck::MaxErrCount", false);
       entry->set_size(50, -1);
       entry->set_tooltip(_("Maximum number of errors for syntax checking.\n"
                            "Syntax errors aren't highlighted beyond this threshold.\n"
                            "Set to 0 to show all errors."));
-      tbox->add(entry, false, false);
+      table->add(entry, 1, 2, 0, 1, mforms::HFillFlag);
+
+      table->add(new_label(_("Max number of result sets:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+      entry = new_entry_option("DbSqlEditor::MaxResultsets", false);
+      entry->set_size(50, -1);
+      entry->set_tooltip(_("Maximum number of result sets that can be opened for a single editor."));
+      table->add(entry, 1, 2, 1, 2, mforms::HFillFlag);
     }
   }
 
