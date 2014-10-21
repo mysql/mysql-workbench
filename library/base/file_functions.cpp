@@ -43,12 +43,11 @@ using namespace base;
 FILE* base_fopen(const char *filename, const char *mode)
 {
 #ifdef _WIN32
-  FILE* result;
-  errno_t error = _wfopen_s(&result, string_to_wstring(filename).c_str(), string_to_wstring(mode).c_str());
-
-  if (error != 0)
-    return NULL;
-  return result;
+  std::wstring wmode;
+  while (*mode != '\0')
+    wmode += *mode++;
+  wmode += L"b"; // Always open in binary mode.
+  return _wfsopen(string_to_wstring(filename).c_str(), wmode.c_str(), _SH_DENYWR);
 
 #else
   
