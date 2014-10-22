@@ -79,7 +79,7 @@ find_package(LibXml2 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 find_package(CTemplate)
-# find_package(MySQLCppConn REQUIRED)
+find_package(MySQLCppConn REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(TinyXML REQUIRED)
 find_package(GDAL REQUIRED)
@@ -87,6 +87,11 @@ find_package(GDAL REQUIRED)
 if (MYSQLCPPCONN_VERSION_1_1_4)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)
 endif ()
+
+if (MYSQLCPPCONN_VERSION_1_1_5 EQUAL "1")
+  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_5)
+endif (MYSQLCPPCONN_VERSION_1_1_5 EQUAL "1")
+
 
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)
