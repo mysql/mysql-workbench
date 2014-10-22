@@ -1,6 +1,10 @@
 import os
 
-from unittest import TestCase, skip
+import sys
+if sys.version_info < (2, 7, 0):
+    from unittest2 import TestCase
+else:
+    from unittest import TestCase
 
 import wb_server_management as target_module
 from wb_common import Users, InvalidPasswordError, PermissionDeniedError
@@ -70,7 +74,7 @@ class TestGlobalModuleCode(TestCase):
             # Deletes both folders
             self.assertEquals(target_module.local_run_cmd_linux('rmdir __testing_admin', Users.ADMIN, self.sudo_pwd, custom_sudo), 0)
         
-@skip
+
 class TestProcessOpsLinuxLocal(TestCase):
     @classmethod
     def setUpClass(self):
