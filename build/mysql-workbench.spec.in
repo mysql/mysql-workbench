@@ -158,8 +158,11 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libmysqlclient/d
   %filter_from_requires /libgdal/d
   %filter_from_requires /libctemplate/d
-  %filter_from_requires /libzip/d
-  %filter_from_requires /libtinyxml/d
+#
+# Don't bundle libzip.so neither libtinyxml.so. Those can be found in EPEL.
+#  
+#  %filter_from_requires /libzip/d
+#  %filter_from_requires /libtinyxml/d
   %{?commercial:%filter_from_requires /libsqlite3/d}
   %filter_setup
 }
@@ -217,10 +220,13 @@ fi
   cp -a %{mysql_home}/bin/mysqldump %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
 
-%if 0%{?rhel}
-  cp -a /usr/lib64/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a /usr/lib64/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
-%endif
+#
+# Don't bundle libzip.so neither libtinyxml.so. Those can be found in EPEL.
+#
+#%if 0%{?rhel}
+#  cp -a /usr/lib64/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
+#  cp -a /usr/lib64/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
+#%endif
 
 
 %if 0%{?fedora} 
