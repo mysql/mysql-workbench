@@ -302,6 +302,7 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 
 %dir %{_libexecdir}/mysql-workbench
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql-workbench-bin
+%attr(0755,root,root) %{_libexecdir}/mysql-workbench/wbcopytables-bin
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/iodbcadm-gtk
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysqldump
