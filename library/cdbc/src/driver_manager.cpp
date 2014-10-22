@@ -305,9 +305,7 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
     if (properties.find("OPT_READ_TIMEOUT") == properties.end())
       properties["OPT_READ_TIMEOUT"] = read_timeout;
   }
-#ifndef MYSQLCPPCONN_VERSION_AT_LEAST_1_1_5_DETECTED  
   properties["OPT_CAN_HANDLE_EXPIRED_PASSWORDS"] = true;
-#endif
   properties["CLIENT_MULTI_STATEMENTS"] = true;
   properties["metadataUseInfoSchema"] = false; // I_S is way too slow for many things as of MySQL 5.6.10, so disable it for now
 #if defined(__APPLE__) || defined(_WIN32) || defined(MYSQLCPPCONN_VERSION_1_1_4)
@@ -315,9 +313,7 @@ ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &conn
   {
     std::map< sql::SQLString, sql::SQLString > attribs;
     attribs["program_name"] = "MySQLWorkbench";
-#ifndef MYSQLCPPCONN_VERSION_AT_LEAST_1_1_5_DETECTED  
     properties["OPT_CONNECT_ATTR_ADD"] = attribs;
-#endif
   }
 #endif
   // If SSL is enabled but there's no certificate or anything, create the sslKey option to force enabling SSL without a key
@@ -410,7 +406,7 @@ retry:
       ConnectOptionsMap::iterator prop_iter= properties.find(prop_name);
       if (properties.end() != prop_iter)
       {
-#ifdef MYSQLCPPCONN_VERSION_AT_LEAST_1_1_5_DETECTED
+#ifdef MYSQLCPPCONN_VERSION_1_1_5
         sql::SQLString *val= prop_iter->second.get<sql::SQLString>();
         if (val->compare("") == 0)
           properties.erase(prop_iter);
