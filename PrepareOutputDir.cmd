@@ -211,8 +211,9 @@ echo * Copy Sample Files
 if not exist %TARGET_DIR%\extras mkdir %TARGET_DIR%\extras
 xcopy /i /y /d %1samples\models\* %TARGET_DIR%\extras 1> nul 2> nul
 
-echo * README file
+echo * README files
 xcopy /i /y /d %1README %TARGET_DIR%
+xcopy /i /y /d %1_README_FOR_ZIP_PACKAGE.txt %TARGET_DIR%
 
 rem -------------------------------------------------------------------------------
 rem Call sub-scripts
