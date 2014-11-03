@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,6 +54,7 @@ protected:
     int _maxColumnCommentLength;
 
     bool _case_sensitive;
+    bool _skip_routine_definer;
     void load_rules();
 public:
     void init_omf(Omf* omf);
@@ -63,6 +64,7 @@ public:
     bool normalizedComparison(const ValueRef obj1, const ValueRef obj2, const std::string name);
     grt::DictRef get_options_dict()const;
     bool is_case_sensitive()const {return _case_sensitive;};
+    bool skip_routine_definer() const { return _skip_routine_definer; };
 };
   
   
