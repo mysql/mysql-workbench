@@ -241,11 +241,12 @@ namespace grt
   {
     TSlotNormalizerSlot normalizer;
     bool case_sensitive;
+    bool skip_routine_definer;
     //some structure members needs to be skipped only when diffing model vs db but not when diffing model
     //_dontdiff_mask will hold mask to allow selective bypass of ceratin fields
     //1 always diff, 2 diff only vs db, 4 diff only vs live object
     unsigned int dontdiff_mask;
-    Omf(): case_sensitive(true), dontdiff_mask(1) {};
+    Omf(): case_sensitive(true), skip_routine_definer(false), dontdiff_mask(1) {};
     virtual ~Omf() {};
     virtual bool less(const ValueRef& , const ValueRef&) const= 0;
     virtual bool equal(const ValueRef& , const ValueRef&) const= 0;
