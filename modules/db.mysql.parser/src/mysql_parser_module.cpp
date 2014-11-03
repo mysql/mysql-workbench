@@ -359,44 +359,46 @@ void fill_routine_details(MySQLRecognizerTreeWalker &walker, db_mysql_RoutineRef
     params.remove_all();
     walker.next(); // Open par.
 
-    while (true)
+    if (walker.token_type() != CLOSE_PAR_SYMBOL) //there are no params, skip
     {
-      db_mysql_RoutineParamRef param(routine->get_grt());
-      param->owner(routine);
-
-      switch (walker.token_type())
+      while (true)
       {
-        case IN_SYMBOL:
-        case OUT_SYMBOL:
-        case INOUT_SYMBOL:
-          param->paramType(base::tolower(walker.token_text()));
-          walker.next();
+        db_mysql_RoutineParamRef param(routine->get_grt());
+        param->owner(routine);
+
+        switch (walker.token_type())
+        {
+          case IN_SYMBOL:
+          case OUT_SYMBOL:
+          case INOUT_SYMBOL:
+            param->paramType(base::tolower(walker.token_text()));
+            walker.next();
+            break;
+        }
+
+        param->name(walker.token_text());
+        walker.next();
+
+        // DATA_TYPE_TOKEN.
+        param->datatype(walker.text_for_tree());
+        params.insert(param);
+
+        walker.next_sibling();
+        if (walker.token_type() != COMMA_SYMBOL)
           break;
+        walker.next();
       }
+      walker.next(); // Closing par.
 
-      param->name(walker.token_text());
-      walker.next();
+      if (walker.token_type() == RETURNS_SYMBOL)
+      {
+        walker.next();
 
-      // DATA_TYPE_TOKEN.
-      param->datatype(walker.text_for_tree());
-      params.insert(param);
-
-      walker.next_sibling();
-      if (walker.token_type() != COMMA_SYMBOL)
-        break;
-      walker.next();
+        // DATA_TYPE_TOKEN.
+        routine->returnDatatype(walker.text_for_tree());
+        walker.next();
+      }
     }
-    walker.next(); // Closing par.
-
-    if (walker.token_type() == RETURNS_SYMBOL)
-    {
-      walker.next();
-
-      // DATA_TYPE_TOKEN.
-      routine->returnDatatype(walker.text_for_tree());
-      walker.next();
-    }
-
     if (walker.token_type() == ROUTINE_CREATE_OPTIONS)
     {
       // For now we only store comments and security settings.

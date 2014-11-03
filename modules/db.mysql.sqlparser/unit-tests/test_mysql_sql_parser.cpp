@@ -139,6 +139,7 @@ TEST_FUNCTION(50)
 {
   test_import_sql(150);
   test_import_sql(151);
+  test_import_sql(152);
 }
 
 // Triggers

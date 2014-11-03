@@ -299,6 +299,11 @@ bool TreeNodeWrapper::is_expanded()
   return _expanded;
 }
 
+void TreeNodeWrapper::toggle()
+{
+  _expanded = !_expanded;
+}
+
 void TreeNodeWrapper::set_tag(const std::string &tag)
 {
   _tag = tag;
