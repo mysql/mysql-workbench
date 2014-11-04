@@ -578,7 +578,6 @@ public:
     {
       mforms::TreeNodeView *backend = TreeNodeViewWrapper::GetBackend<mforms::TreeNodeView>(this);
       TreeNodeViewWrapper *wrapper = backend->get_data<TreeNodeViewWrapper>();
-      //int row = backend->row_for_node(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, args->Node)));
       int column = args->Control->ParentColumn->Index;
       backend->node_activated(mforms::TreeNodeRef(new TreeNodeWrapper(wrapper, args->Node)), column);
     }
