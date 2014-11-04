@@ -2316,7 +2316,7 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
     case Table:
     case View:
       {
-        if (column <= 0)
+        if (column < 0)
         {
           std::vector<ChangeRecord> changes;
           ChangeRecord record = { node_data->get_type(), get_schema_name(node), node_name, "" };
@@ -2342,8 +2342,9 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
 #endif
             }
           }
+          break;
         }
-        break;
+        // else fall through.
       }
 
     case Procedure:
@@ -2367,11 +2368,16 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
               break;
             }
           }
+          break;
         }
-        break;
+        // else fall through.
       }
+
     default:
+      node_name = base::quote_identifier_if_needed(node_name, '`');
+      sql_editor_text_insert_signal(node_name);
       break;
+
     }
   }
 #ifndef _WIN32
