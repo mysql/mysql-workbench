@@ -362,6 +362,9 @@ Recordset::Cell Recordset::cell(RowId row, ColumnId column)
     for (ColumnId col= 0; _column_count > col; ++col, ++new_cell)
       *(new_cell)= sqlite::null_t();
     _data[_data.size() - _column_count + _rowid_column] = (int)rowid;
+
+    if (rows_changed)
+      rows_changed();
   }
 
   return VarGridModel::cell(row, column);
