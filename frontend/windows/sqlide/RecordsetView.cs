@@ -302,6 +302,10 @@ namespace MySQL.Grt.Db
       if (model.get_column_count() == 0)
         return;
 
+      int row = model.edited_field_row();
+      int column = model.edited_field_column();
+      if (row < 0 || row >= gridView.Rows.Count || column < 0 || column >= gridView.Columns.Count)
+        return;
       gridView.CurrentCell = gridView[model.edited_field_column(), model.edited_field_row()];
     }
 
