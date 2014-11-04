@@ -839,13 +839,9 @@ void ViewImpl::slot_drag_data_received(const Glib::RefPtr<Gdk::DragContext> &con
   }
   else
   {
-    //We need to remove scheme if it exists:
-    std::string file_schema = "file://";
+    //We need to convert uris to file names
     for(std::vector<std::string>::iterator it = files.begin(); it < files.end(); ++it)
-    {
-      if((*it).compare(0, file_schema.size(), file_schema) == 0)
-        (*it) = (*it).substr(file_schema.size());
-    }
+        (*it) = Glib::filename_from_uri((*it));
 
     drop_delegate->files_dropped((mforms::View*)owner, base::Point(x, y), allowedOperations, files);
   }
