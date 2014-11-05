@@ -317,7 +317,7 @@ class MEBHelperVersion
     private current
     
     private sub Class_Initialize()
-        current = "6"
+        current = "7"
     end sub
 
     public function execute()
@@ -924,13 +924,10 @@ class MEBGetProfiles
     
     private fso
     private backups_home
-    private meb_version
-    
-    
+    private meb_command
     
     private sub Class_Initialize()
         datadir = ""
-        meb_version = 0
         set fso = CreateObject("Scripting.FileSystemObject")
         
         ' Sets the backups home to the parent folder of this script
@@ -941,7 +938,7 @@ class MEBGetProfiles
         ret_val = false
 
         if Wscript.Arguments.Count = 3 then
-            meb_version = CInt(Wscript.Arguments.Item(1))
+            meb_command = Wscript.Arguments.Item(1)
             datadir = Wscript.Arguments.Item(2)
             ret_val = true
         end if
@@ -950,9 +947,9 @@ class MEBGetProfiles
     end function
 
     public sub print_usage()
-        Wscript.Echo "GET_PROFILES <meb_version> <datadir>"
+        Wscript.Echo "GET_PROFILES <meb_command> <datadir>"
         Wscript.Echo 
-        Wscript.Echo "WHERE : <meb_version> : is the profile version required by the meb being used at the server for backups"
+        Wscript.Echo "WHERE : <meb_command> : is the path to a valid MEB executable"
         Wscript.Echo "        <datadir> : is the path to the datadir of the server instance for which the profiles are"
         Wscript.Echo "                    being loaded. (There could be more than one instance on the same box)."
         Wscript.Echo
@@ -973,7 +970,12 @@ class MEBGetProfiles
                     profile.load(backups_home & "\" & file.name)
 
                     ' Verifies the datadir to ensure it belongs to the requested instance
-                    command = profile.get_value("meb_manager", "command", "")
+                    profile_command = profile.get_value("meb_manager", "command", "")
+                    
+                    ' Checks that the profile command matches the one received as parameter
+                    if profile_command <> meb_command then
+                        profile_issues = profile_issues or 16
+                    end if
                     
                     profile_datadir = profile.get_value("mysqlbackup", "datadir",  "")
                     if UCase(profile_datadir) = UCase(datadir) then
@@ -1011,9 +1013,16 @@ class MEBGetProfiles
                         m = profile.get_value("meb_manager", "inc_backups_minute", "")
                         data.add "ISCHEDULE", e & "-" & f & "-" & md & "-" & wd & "-" & h & "-" & m
                         
-                        ' Gets the profile version
-                        p_version = CInt(profile.get_value("meb_manager", "version", "0"))
-                        if p_version = 0 and meb_version > 0 then
+                        ' Validates Partial Backup Options
+                        set my_utils = new Utilities
+                        
+                        ' Profiles with version 0 could have an UUID as the value for the "include" field
+                        ' It was used to make all of the InnoDB tables NOT matching the selection criteria on initial 
+                        ' versions of MEB.
+                        ' On MEB 3.9.0 this became invalid as an error would be generated so
+                        ' If found in a profile, we need to report the invalid configuration on the UI.
+                        profile_version = CInt(profile.get_value("meb_manager", "version", "0"))
+                        if profile_version = "0" and my_utils.check_version_at_least(meb_command, 3,9,0) then
                             include = profile.get_value("mysqlbackup", "include", "")
                             if include <> "" then
                                 set my_reg_exp = New RegExp
@@ -1026,9 +1035,7 @@ class MEBGetProfiles
                             end if
                         end if
                         
-                        ' Validates Partial Backup Options
-                        set my_utils = new Utilities
-                        if my_utils.check_version_at_least(command, 3,10,0) then
+                        if my_utils.check_version_at_least(meb_command, 3,10,0) then
                             include = profile.get_value("mysqlbackup", "include", "")
                             databases = profile.get_value("mysqlbackup", "include", "")
                             
