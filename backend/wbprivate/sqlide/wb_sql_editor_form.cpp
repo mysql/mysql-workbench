@@ -170,13 +170,11 @@ private:
 
 SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn)
 {
-  SqlEditorForm::Ref instance(new SqlEditorForm(wbsql, conn)); 
+  SqlEditorForm::Ref instance(new SqlEditorForm(wbsql));
   
   if (conn.is_valid())
-  {
-    //instance->connect();
-    //instance->finish_startup();
-  }
+      instance->set_connection(conn);
+
   return instance;
 }
 
@@ -222,7 +220,7 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
 }
 
 
-SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn)
+SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   :
   _wbsql(wbsql),
   _grtm(wbsql->get_grt_manager()),
@@ -257,9 +255,6 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   NotificationCenter::get()->add_observer(this, "GNFormTitleDidChange");
   NotificationCenter::get()->add_observer(this, "GNColorsChanged");
   GRTNotificationCenter::get()->add_grt_observer(this, "GRNServerStateChanged");
-
-  if (conn.is_valid())
-    set_connection(conn);
 
   exec_sql_task->send_task_res_msg(false);
   exec_sql_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, this, _1, _2, _3, ""));

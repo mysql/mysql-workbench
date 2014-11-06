@@ -27,6 +27,7 @@
 #include "mforms/panel.h"
 #include "mforms/textbox.h"
 #include "mforms/progressbar.h"
+#include "grt/grt_dispatcher.h"
 
 namespace grtui {
 
@@ -73,6 +74,7 @@ namespace grtui {
     mforms::Label _heading;
 
     std::vector<TaskRow*> _tasks;
+    std::map<bec::GRTTask*, bec::GRTTask::Ref> _task_list;
 
     std::string _finish_message;
 
@@ -92,7 +94,6 @@ namespace grtui {
     bool _done;
     bool _got_warning_messages;
     bool _got_error_messages;
-    
 
     TaskRow *add_async_task(const std::string &caption,
                             const boost::function<bool ()> &execute,
@@ -130,8 +131,8 @@ namespace grtui {
     void execute_grt_task(const boost::function<grt::ValueRef (grt::GRT*)> &slot, bool sync);
 
     void process_grt_task_message(const grt::Message &msg);
-    void process_grt_task_fail(const std::exception &error);
-    void process_grt_task_finish(const grt::ValueRef &result);
+    void process_grt_task_fail(const std::exception &error, bec::GRTTask* task);
+    void process_grt_task_finish(const grt::ValueRef &result, bec::GRTTask* task);
 
   protected:
     void perform_tasks();
