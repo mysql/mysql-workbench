@@ -168,7 +168,7 @@ public:
   {
     if (!_snippets.empty())
     {
-      _selected_index = _snippets.size()-1;
+      _selected_index = (int)_snippets.size() - 1;
       _selected_snippet = _snippets.back();
       edit_snippet(_selected_snippet);
       _snippet_popover->set_read_only(false);
@@ -427,9 +427,9 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic)
     return;
   }
 
-  // Only run one query at a time. There's no sense in issuing new queries if one is still pending
-  // which might indicate a slow server or broken connection.
-  if (_help_task->is_busy() || (_help_task->task() && _help_task->task()->is_cancelled()))
+  // Add a new task to retrieve the actual help text in the background, but only
+  // if the help task wasn't canceled, which indicates we are probably going down right now.
+  if (_help_task->task() && _help_task->task()->is_cancelled())
     return;
 
   _last_topic = topic_upper;
@@ -468,8 +468,8 @@ grt::StringRef QuerySidePalette::get_help_text_threaded(grt::GRT *)
     _last_topic = "";
   }
 
-  if (_help_task->task() && !_help_task->task()->is_cancelled())
-    _help_task->execute_in_main_thread(boost::bind(&QuerySidePalette::update_help_ui, this), false, false);
+  // At this point the previous task has already finished (it's the one that triggered this function).
+  _help_task->execute_in_main_thread(boost::bind(&QuerySidePalette::update_help_ui, this), false, false);
 
   return "";
 }
