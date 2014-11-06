@@ -121,7 +121,7 @@ public:
   boost::function<void (int)> set_busy_tab;
 
 protected:
-  SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn);
+  SqlEditorForm(wb::WBContextSQLIDE *wbsql);
 
   void update_menu_and_toolbar();
   void update_toolbar_icons();

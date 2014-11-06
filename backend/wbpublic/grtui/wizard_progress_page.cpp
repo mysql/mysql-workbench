@@ -158,6 +158,7 @@ void WizardProgressPage::set_heading(const std::string &text)
 WizardProgressPage::~WizardProgressPage()
 {
   clear_tasks();
+  _task_list.clear();
 }
 
 
@@ -458,11 +459,16 @@ void WizardProgressPage::extra_clicked()
 
 void WizardProgressPage::execute_grt_task(const boost::function<grt::ValueRef (grt::GRT*)> &slot, bool sync)
 {
+
   bec::GRTTask::Ref task= bec::GRTTask::create_task("wizard task", _form->grtm()->get_dispatcher(), slot);
 
+  //We hold an extra ptr for the task so it's not released too early
+  _task_list.insert(std::make_pair(task.get(), task));
+
+  // We need to pass task to the signals, so we can remove it from the _task_list and allow shared_ptr to release the task
   scoped_connect(task->signal_message(),boost::bind(&WizardProgressPage::process_grt_task_message, this, _1));
-  scoped_connect(task->signal_failed(),boost::bind(&WizardProgressPage::process_grt_task_fail, this, _1));
-  scoped_connect(task->signal_finished(),boost::bind(&WizardProgressPage::process_grt_task_finish, this, _1));
+  scoped_connect(task->signal_failed(),boost::bind(&WizardProgressPage::process_grt_task_fail, this, _1, task.get()));
+  scoped_connect(task->signal_finished(),boost::bind(&WizardProgressPage::process_grt_task_finish, this, _1, task.get()));
 
   if (sync)
     _form->grtm()->get_dispatcher()->add_task_and_wait(task);
@@ -515,7 +521,7 @@ void WizardProgressPage::process_grt_task_message(const grt::Message &msg)
 }
 
 
-void WizardProgressPage::process_grt_task_fail(const std::exception &error)
+void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec::GRTTask* task)
 {  
   _tasks[_current_task]->async_failed= true;
   if (_tasks[_current_task]->process_fail)
@@ -533,12 +539,16 @@ void WizardProgressPage::process_grt_task_fail(const std::exception &error)
   }
 
   // continue with task execution
+  auto it = _task_list.find(task);
+  if (it != _task_list.end())
+    _task_list.erase(it);
+
   perform_tasks();
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result)
+void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result, bec::GRTTask* task)
 {
   _form->grtm()->perform_idle_tasks();
 
@@ -550,7 +560,10 @@ void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result)
   
   if (_tasks[_current_task]->process_finish)
     _tasks[_current_task]->process_finish(result);
-  
+
+  auto it = _task_list.find(task);
+  if (it != _task_list.end())
+    _task_list.erase(it);
   // continue with task execution
   perform_tasks();
 }
