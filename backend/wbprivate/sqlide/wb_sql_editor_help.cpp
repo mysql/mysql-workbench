@@ -160,7 +160,7 @@ static std::string query_type_to_help_topic[] = {
   "analyze table",        // QtAnalyzeTable
   "check table",          // QtCheckTable
   "checksum table",       // QtChecksumTable
-  "optimze table",        // QtOptimizeTable
+  "optimize table",       // QtOptimizeTable
   "repair table",         // QtRepairTable
   "backup table",         // QtBackUpTable
   "restore table",        // QtRestoreTable
@@ -480,7 +480,7 @@ bool DbSqlEditorContextHelp::get_help_text(const SqlEditorForm::Ref &form, const
     }
     catch (...)
     {
-      log_debug2("Exception caught while looking up topic\n");
+      log_debug2("Exception caught while looking up help text\n");
     }
   }
   return false;
