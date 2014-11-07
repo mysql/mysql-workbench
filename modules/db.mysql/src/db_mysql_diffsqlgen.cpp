@@ -582,7 +582,7 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
       if(column_change->get_change_type() == grt::ListItemModified)
       {
         const grt::ListItemModifiedChange *modified_change= static_cast<const grt::ListItemModifiedChange *>(column_change.get());
-        db_mysql_ColumnRef column= db_mysql_ColumnRef::cast_from(grt::ValueRef(modified_change->get_new_value()));
+        db_mysql_ColumnRef column= db_mysql_ColumnRef::cast_from(grt::ValueRef(modified_change->get_old_value()));
         if(strcmp(column->name().c_str(), column->oldName().c_str()))
           column_rename_map[std::string(column->oldName().c_str())]= std::string(column->name().c_str());
       }
