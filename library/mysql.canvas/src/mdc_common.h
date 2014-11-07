@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MDC_COMMON_H_
-#define _MDC_COMMON_H_
+#pragma once
 
 #ifndef _WIN32
 #include <glib.h>
@@ -38,11 +37,12 @@
 
 #include "cairo/cairo.h"
 
+#endif
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
-#endif
 #endif
 
 #include "base/geometry.h"
@@ -328,5 +328,3 @@ MYSQLCANVAS_PUBLIC_FUNC Timestamp get_time();
 cairo_status_t write_to_surface(void *closure, const unsigned char *data, unsigned int length);
 
 END_MDC_DECLS
-
-#endif /* _MDC_COMMON_H_ */

@@ -29,6 +29,8 @@
 #include "mforms/mforms.h"
 #include "mforms/password_cache.h"
 
+#include "mdc_image.h"
+
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE);
 
 using namespace mforms;
@@ -749,14 +751,7 @@ cairo_surface_t* Utilities::load_icon(const std::string& name, bool allow_hidpi)
   }
 
   std::string icon_path= App::get()->get_resource_path(name);
-  cairo_surface_t* result= cairo_image_surface_create_from_png(icon_path.c_str());
-  if (result && cairo_surface_status(result) != CAIRO_STATUS_SUCCESS)
-  {
-    cairo_surface_destroy(result);
-    result= NULL;
-  }
-
-  return result;
+  return mdc::surface_from_png_image(icon_path.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------

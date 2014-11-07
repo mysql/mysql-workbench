@@ -17,6 +17,8 @@
  * 02110-1301  USA
  */
 
+#include "base/file_functions.h"
+
 #include "mdc_image.h"
 #include "mdc_image_manager.h"
 
@@ -108,3 +110,42 @@ bool ImageFigure::set_image(const std::string &path)
   return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+/**
+*	Helper function to read data from a given file.
+*/
+cairo_status_t read_png_data(void *closure, unsigned char *data, unsigned int length)
+{
+  FILE *png_file = (FILE *)closure;
+  if (fread(data, 1, length, png_file) == length)
+    return CAIRO_STATUS_SUCCESS;
+
+  return CAIRO_STATUS_READ_ERROR;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+*	Creates a cairo image surface and fills it with data from a png file.
+*	The code can load from utf-8 encoded paths.
+*/
+cairo_surface_t* mdc::surface_from_png_image(const std::string &file_name)
+{
+  FILE *png_file = base_fopen(file_name.c_str(), "r");
+  if (png_file == NULL)
+    return NULL;
+
+  cairo_surface_t *image = cairo_image_surface_create_from_png_stream(read_png_data, png_file);
+  fclose(png_file);
+  if (image == NULL || cairo_surface_status(image) != CAIRO_STATUS_SUCCESS)
+  {
+    if (image != NULL)
+      cairo_surface_destroy(image);
+    return NULL;
+  }
+
+  return image;
+}
+
+//--------------------------------------------------------------------------------------------------
