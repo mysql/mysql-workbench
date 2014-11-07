@@ -52,7 +52,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
+	cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) -DCMAKE_BUILD_TYPE=Release \
 	-DMYSQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config -DUSE_BUNDLED_MYSQLDUMP=1 \
 	-DMYSQLCPPCONN_LIBRARY="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
 	-DMYSQLCPPCONN_INCLUDE_DIR=$(CPPCONN_HOME)/include \
