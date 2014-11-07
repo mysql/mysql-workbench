@@ -21,6 +21,7 @@
 #include <cairo.h>
 #endif
 
+#include "mdc_image.h"
 #include "mdc_image_manager.h"
 
 /**
@@ -44,11 +45,13 @@ ImageManager *ImageManager::get_instance()
   return instance;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 cairo_surface_t *ImageManager::find_file(const std::string &name)
 {
-  cairo_surface_t *img= cairo_image_surface_create_from_png(name.c_str());
+  cairo_surface_t *img = mdc::surface_from_png_image(name.c_str());
 
-  if (img && cairo_surface_status(img) == CAIRO_STATUS_SUCCESS)
+  if (img != NULL)
     return img;
 
 
@@ -62,16 +65,15 @@ cairo_surface_t *ImageManager::find_file(const std::string &name)
     path+="/"+name;
 #endif
     
-    cairo_surface_t *img= cairo_image_surface_create_from_png(path.c_str());
+    cairo_surface_t *img = mdc::surface_from_png_image(path.c_str());
 
-    if (img && cairo_surface_status(img) == CAIRO_STATUS_SUCCESS)
+    if (img != NULL)
       return img;
-
-    if (img)
-      cairo_surface_destroy(img);
   }
   return 0;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 cairo_surface_t *ImageManager::get_image(const std::string &name)
 {
