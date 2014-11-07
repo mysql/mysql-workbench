@@ -369,6 +369,9 @@
     <ProjectReference Include="..\base\base.vcxproj">
       <Project>{c3b85913-b106-40c6-8dde-a7cf52a4ec80}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\mysql.canvas\mysql.canvas.vcxproj">
+      <Project>{1b17d534-365d-4c93-b3b6-55610df8629a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
