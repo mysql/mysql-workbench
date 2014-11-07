@@ -37,6 +37,7 @@
 #include "base/util_functions.h"
 
 #include "mforms/utilities.h"
+#include "mdc_image.h"
 
 #include "grt/common.h"
 #include "grt/grt_manager.h"
@@ -1086,24 +1087,14 @@ bool ModelFile::undelete_file(const std::string &path)
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 cairo_surface_t *ModelFile::get_image(const std::string &path)
 {
-  cairo_surface_t *image;
-  cairo_status_t st;
-
-  image= cairo_image_surface_create_from_png(get_path_for(path).c_str());
-  if (!image || (st= cairo_surface_status(image)) != CAIRO_STATUS_SUCCESS)
-  {
-    if (image)
-      cairo_surface_destroy(image);
-    return 0;
-  }
-
-  return image;
+  return mdc::surface_from_png_image(get_path_for(path));
 }
 
-
+//--------------------------------------------------------------------------------------------------
 
 void ModelFile::check_and_fix_data_file_bug()
 {
