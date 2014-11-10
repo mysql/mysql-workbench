@@ -186,7 +186,8 @@ Windows, Linux and Mac OS X.
 
 
 %build
-%cmake -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
+%cmake -DCMAKE_BUILD_TYPE=Release \
+       -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
        -DMYSQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
