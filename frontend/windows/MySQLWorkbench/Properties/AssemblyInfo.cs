@@ -7,7 +7,7 @@ using MySQL.GUI.Workbench;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MySQL Workbench")]
-[assembly: AssemblyDescription("MySQL Database Design Tool")]
+[assembly: AssemblyDescription("MySQL Database Design + SQL Work Tool")]
 [assembly: AssemblyConfiguration("development")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySQL Workbench")]
@@ -30,5 +30,5 @@ using MySQL.GUI.Workbench;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("6.2.4.0")]
-[assembly: AssemblyFileVersion("6.2.4.0")]
+[assembly: AssemblyVersion("6.2.5.0")]
+[assembly: AssemblyFileVersion("6.2.5.0")]

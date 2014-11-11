@@ -21,62 +21,43 @@
 
 #ifndef _WIN32
 #include <errno.h>
+#include <sys/file.h>
 #endif
 
 #include "base/file_functions.h"
+#include "base/string_utilities.h"
 
 #include <glib/gstdio.h>
 
-///////////////////////////////////////////////////////////////////////////////
-/** @brief Wrapper around fopen that expects a filename in UTF-8 encoding
-    @param filename name of file to open
-    @param mode second argument of fopen
-    @return If successful, base_fopen returns opened FILE*.
-            Otherwise, it returns NULL.
-*//////////////////////////////////////////////////////////////////////////////
+using namespace base;
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Wrapper around fopen that expects a filename in UTF-8 encoding
+ * @param filename name of file to open
+ * @param mode second argument of fopen
+ * @return If successful, base_fopen returns opened FILE*.
+ *           Otherwise, it returns NULL.
+ */
 FILE* base_fopen(const char *filename, const char *mode)
 {
 #ifdef _WIN32
-
-  // Convert filename from UTF-8 to UTF-16.
-  int required;
-  WCHAR* converted;
-  WCHAR* converted_mode;
-  WCHAR* in;
-  char* out;
-  FILE* result;
-
-  required= MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
-  if (required == 0)
-    return NULL;
-
-  // Required contains the length for the result string including the terminating 0.
-  converted= g_new0(WCHAR, required);
-  MultiByteToWideChar(CP_UTF8, 0, filename, -1, converted, required);
-
-  converted_mode= g_new0(WCHAR, (gsize)strlen(mode) + 1);
-  in= converted_mode;
-  out= (char*) mode;
-  while (*out)
-    *in++ = (WCHAR) (*out++);
-
-  errno_t error = _wfopen_s(&result, converted, converted_mode);
-  g_free(converted);
-  g_free(converted_mode);
-
-  if (error != 0)
-    return NULL;
-  return result;
+  std::wstring wmode;
+  while (*mode != '\0')
+    wmode += *mode++;
+  wmode += L"b"; // Always open in binary mode.
+  return _wfsopen(string_to_wstring(filename).c_str(), wmode.c_str(), _SH_DENYWR);
 
 #else
   
   FILE *file;
   char * local_filename;
 
-  if (! (local_filename= g_filename_from_utf8(filename,-1,NULL,NULL,NULL)))
+  if (! (local_filename = g_filename_from_utf8(filename, -1, NULL, NULL, NULL)))
     return NULL;
 
-  file= fopen(local_filename, mode);
+  file = fopen(local_filename, mode);
 
   g_free(local_filename);
 
@@ -84,29 +65,43 @@ FILE* base_fopen(const char *filename, const char *mode)
 #endif
 }
 
-int base_remove(const char *filename)
-{
-#ifdef _WIN32
+//--------------------------------------------------------------------------------------------------
 
-  int result;
-  int required;
-  WCHAR* converted;
-  required= MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
-  if (required == 0)
+/**
+ *	Similar to base_fopen but returns a file descriptor instead. The file is always opened in binary
+ *	mode (only matters on Windows).
+ *	Also here, the filename must be UTF-8 encoded.
+ */
+int base_open(const std::string &filename, int open_flag, int permissions)
+{
+  int fd;
+
+#ifdef _WIN32
+  int result = _wsopen_s(&fd, string_to_wstring(filename).c_str(), open_flag | O_BINARY, _SH_DENYWR, permissions);
+  if (result != 0)
+    return -1;
+#else
+  char * local_filename = g_filename_from_utf8(filename.c_str(), -1, NULL, NULL, NULL);
+  if (local_filename == NULL)
     return -1;
 
-  // Required contains the length for the result string including the terminating 0.
-  converted= g_new0(WCHAR, required);
-  MultiByteToWideChar(CP_UTF8, 0, filename, -1, converted, required);
+  fd = open(local_filename, open_flag, permissions);
+  g_free(local_filename);
 
-  result= _wremove(converted);
-  g_free(converted);
-  
-  return result;
+#endif
 
+  return fd;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+int base_remove(const std::string &filename)
+{
+#ifdef _WIN32
+  return _wremove(string_to_wstring(filename).c_str());
 #else
   char * local_filename;
-  if (! (local_filename= g_filename_from_utf8(filename,-1,NULL,NULL,NULL)))
+  if (! (local_filename = g_filename_from_utf8(filename.c_str(), -1, NULL, NULL, NULL)))
     return -1;
   int res= remove(local_filename);
   g_free(local_filename);
@@ -114,6 +109,8 @@ int base_remove(const char *filename)
   return res;
 #endif
 }
+
+//--------------------------------------------------------------------------------------------------
 
 int base_rename(const char *oldname, const char *newname)
 {

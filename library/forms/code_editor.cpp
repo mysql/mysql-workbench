@@ -21,9 +21,13 @@
 #include "base/drawing.h"
 #include "base/string_utilities.h"
 #include "base/notifications.h"
+#include "base/drawing.h"
+
 #include "tinyxml.h"
 #include "SciLexer.h"
+
 #include "mforms/mforms.h"
+#include "mdc_image.h"
 
 DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
 
@@ -1612,7 +1616,7 @@ void CodeEditor::auto_completion_register_images(const std::vector<std::pair<int
     {
       if (g_str_has_suffix(path.c_str(), ".png"))
       {
-        cairo_surface_t *image = cairo_image_surface_create_from_png(path.c_str());
+        cairo_surface_t *image = mdc::surface_from_png_image(path.c_str());
         if (image == NULL)
           continue;
         if (cairo_surface_status(image) != CAIRO_STATUS_SUCCESS)

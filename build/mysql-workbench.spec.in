@@ -158,8 +158,11 @@ Conflicts: mysql-workbench-commercial
   %filter_from_requires /libmysqlclient/d
   %filter_from_requires /libgdal/d
   %filter_from_requires /libctemplate/d
-  %filter_from_requires /libzip/d
-  %filter_from_requires /libtinyxml/d
+#
+# Don't bundle libzip.so neither libtinyxml.so. Those can be found in EPEL.
+#  
+#  %filter_from_requires /libzip/d
+#  %filter_from_requires /libtinyxml/d
   %{?commercial:%filter_from_requires /libsqlite3/d}
   %filter_setup
 }
@@ -183,7 +186,8 @@ Windows, Linux and Mac OS X.
 
 
 %build
-%cmake -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
+%cmake -DCMAKE_BUILD_TYPE=Release \
+       -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
        -DMYSQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
        -DMYSQLCPPCONN_LIBRARY="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
        -DMYSQLCPPCONN_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
@@ -217,10 +221,13 @@ fi
   cp -a %{mysql_home}/bin/mysqldump %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
 
-%if 0%{?rhel}
-  cp -a /usr/lib64/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a /usr/lib64/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
-%endif
+#
+# Don't bundle libzip.so neither libtinyxml.so. Those can be found in EPEL.
+#
+#%if 0%{?rhel}
+#  cp -a /usr/lib64/libzip.so* %{buildroot}%{_libdir}/mysql-workbench/
+#  cp -a /usr/lib64/libtinyxml.so* %{buildroot}%{_libdir}/mysql-workbench/
+#%endif
 
 
 %if 0%{?fedora} 
@@ -302,6 +309,7 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 
 %dir %{_libexecdir}/mysql-workbench
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql-workbench-bin
+%attr(0755,root,root) %{_libexecdir}/mysql-workbench/wbcopytables-bin
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/iodbcadm-gtk
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysqldump

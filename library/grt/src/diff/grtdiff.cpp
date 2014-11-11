@@ -29,9 +29,7 @@
 #include "base/util_functions.h"
 #include "base/log.h"
 
-#ifdef DEBUG_DIFF
 DEFAULT_LOG_DOMAIN("Diff module")
-#endif
 
 namespace grt
 {
@@ -193,6 +191,9 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
         if (grt::DictRef::cast_from(v1).count() == 0 && grt::DictRef::cast_from(v2).count() == 0)
           continue;
 
+      if (omf->skip_routine_definer && (source.class_name() == "db.mysql.Routine" || source.class_name() == "db.Routine") && (name == "sqlDefinition" || name == "definer"))
+        continue;
+
       if (omf->normalizer && omf->normalizer(source, target, name))
         continue;
 
@@ -214,7 +215,7 @@ boost::shared_ptr<DiffChange> GrtDiff::on_object(boost::shared_ptr<DiffChange> p
 #error "don't use log_calls* for debug output! This is output is not meant to end up in the log."
       // Debug code below, modify it to suit your needs to see what is the exact difference being detected
       // between 2 objects
-      if (source.class_name() == "db.mysql.Table")
+      if (source.class_name() == "db.mysql.Routine")
       {
         if (changes.empty())
           log_info("\nObject: %s <%s>  [%s]\n", source.get_string_member("name").c_str(), source.class_name().c_str(), source.id().c_str());

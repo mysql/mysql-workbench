@@ -184,7 +184,7 @@ TEST_FUNCTION(5)
     normalizer5.init_omf(&omf);
     boost::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Table Comments comparison:", change.get() == NULL);
-    
+
     traits.set("maxTableCommentLength", grt::IntegerRef(6));
     grt::NormalizedComparer normalizer6(tester.grt, traits);
     normalizer6.init_omf(&omf);
@@ -207,7 +207,7 @@ TEST_FUNCTION(6)
     normalizer5.init_omf(&omf);
     boost::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Index Comments comparison:", change.get() == NULL);
-    
+
     traits.set("maxIndexCommentLength", grt::IntegerRef(6));
     grt::NormalizedComparer normalizer6(tester.grt, traits);
     normalizer6.init_omf(&omf);
@@ -245,7 +245,7 @@ TEST_FUNCTION(8)
     normalizer5.init_omf(&omf);
     boost::shared_ptr<DiffChange> change = diff_make(model1.catalog,model2.catalog,&omf);
     ensure("Column Comments comparison:", change.get() == NULL);
-    
+
     traits.set("maxColumnCommentLength", grt::IntegerRef(6));
     grt::NormalizedComparer normalizer6(tester.grt, traits);
     normalizer6.init_omf(&omf);
@@ -357,5 +357,29 @@ TEST_FUNCTION(9)
 
 }
 
+
+
+TEST_FUNCTION(10)
+{
+    grt::DbObjectMatchAlterOmf omf;
+    db_RoutineRef routine1 = db_RoutineRef(tester.grt);
+    db_RoutineRef routine2 = db_RoutineRef(tester.grt);
+    routine1->name("routine1");
+    routine2->name("routine1");
+    routine1->definer("root@localhost");
+    grt::DictRef opts = get_traits(tester.grt,false);
+    opts.set("SkipRoutineDefiner", grt::IntegerRef(1));
+    grt::NormalizedComparer normalizer(tester.grt, opts);
+    normalizer.init_omf(&omf);
+    boost::shared_ptr<DiffChange> change = diff_make(routine1, routine2, &omf);
+    ensure("10.1 Routine deffiner, wasn't skipped", change.get() == NULL);
+
+    grt::DbObjectMatchAlterOmf omf2;
+    opts.set("SkipRoutineDefiner", grt::IntegerRef(0));
+    grt::NormalizedComparer normalizer2(tester.grt, opts);
+    normalizer2.init_omf(&omf2);
+    boost::shared_ptr<DiffChange> change2 = diff_make(routine1, routine2, &omf2);
+    ensure("10.2 Routine definer, wasn't different", change2.get() != NULL);
+}
 
 END_TESTS

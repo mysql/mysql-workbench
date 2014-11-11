@@ -157,7 +157,7 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
       _column_names.push_back("id");
       _column_types.push_back(int());
       _real_column_types.push_back(int());
-      _column_quoting.push_back(false);
+      _column_flags.push_back(0);
 
       {
         sqlite::query q(*data_swap_db, "select coalesce(max(id)+1, 0) from `data`");
@@ -362,6 +362,9 @@ Recordset::Cell Recordset::cell(RowId row, ColumnId column)
     for (ColumnId col= 0; _column_count > col; ++col, ++new_cell)
       *(new_cell)= sqlite::null_t();
     _data[_data.size() - _column_count + _rowid_column] = (int)rowid;
+
+    if (rows_changed)
+      rows_changed();
   }
 
   return VarGridModel::cell(row, column);

@@ -38,7 +38,7 @@ namespace MySQL.GUI.Workbench
     
     private WbContext wbContext;
     private SortedDictionary<String, Cursor> cursors = new SortedDictionary<String, Cursor>();
-    private MySQL.Workbench.ModelDiagramFormWrapper formBE = null;
+    private ModelDiagramFormWrapper formBE = null;
 
     private ModelCatalogForm modelCatalogForm;
     private ModelLayerForm modelLayerForm;
@@ -51,7 +51,6 @@ namespace MySQL.GUI.Workbench
     private bool splitterMovePending = false;
     private ToolStrip optionsToolStrip = null;
     private ToolStrip toolsToolStrip = null;
-    private bool closing = false;
 
     #endregion
 
@@ -63,7 +62,7 @@ namespace MySQL.GUI.Workbench
       
       wbContext = context;
 
-      CreateCanvas(id);
+      CreateCanvas(id); // Sets formBE.
 
       canvasViewer.CanvasPanel.MouseMove += new MouseEventHandler(CanvasPanel_MouseMove);
       canvasViewer.CanvasPanel.MouseDown += new MouseEventHandler(CanvasPanel_MouseDown);
@@ -77,7 +76,7 @@ namespace MySQL.GUI.Workbench
       modelNavigator = new ModelNavigatorForm(this);
       userDatatypesForm = new UserDatatypesForm(wbContext);
       modelLayerForm = new ModelLayerForm(this);
-      modelCatalogForm = new ModelCatalogForm(wbContext);
+      modelCatalogForm = new ModelCatalogForm(formBE);
       historyForm = new UndoHistoryForm(wbContext);
       modelPropertiesForm = new ModelPropertiesForm(wbContext);
       modelObjectDescriptionForm = new ModelObjectDescriptionForm(wbContext);
@@ -129,13 +128,13 @@ namespace MySQL.GUI.Workbench
 
     public void RefreshGUI(RefreshType refresh, String str, IntPtr ptr)
     {
-      if (closing)
+      if (Closing)
         return;
 
       switch (refresh)
       {
         case RefreshType.RefreshCloseDocument:
-          closing = true;
+          Closing = true;
           break;
 
         case RefreshType.RefreshSelection:
@@ -292,6 +291,8 @@ namespace MySQL.GUI.Workbench
       get { return formBE.get_zoom(); }
       set { formBE.set_zoom(value); }
     }
+
+    public bool Closing { get; set; }
 
     #endregion
 

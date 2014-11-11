@@ -88,6 +88,11 @@ if (MYSQLCPPCONN_VERSION_1_1_4)
   add_definitions(-DMYSQLCPPCONN_VERSION_1_1_4)
 endif ()
 
+if (MYSQLCPPCONN_VERSION_1_1_5 EQUAL "1")
+  add_definitions(-DMYSQLCPPCONN_VERSION_1_1_5)
+endif (MYSQLCPPCONN_VERSION_1_1_5 EQUAL "1")
+
+
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)
   find_package(IODBC)

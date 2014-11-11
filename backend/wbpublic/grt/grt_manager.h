@@ -26,7 +26,6 @@
 #include "common.h"
 #include "grt_dispatcher.h"
 #include "grt_shell.h"
-#include "grt_value_tree.h"
 #include "grt_value_inspector.h"
 #include "grt_message_list.h"
 
@@ -114,7 +113,7 @@ namespace bec {
     void push_cancel_query_callback(const boost::function<bool ()> &slot);
     void pop_cancel_query_callback();
   public:
-    GRTDispatcher *get_dispatcher() const { return _dispatcher.get(); };
+    GRTDispatcher::Ref get_dispatcher() const { return _dispatcher; };
 
     grt::GRT *get_grt() const { return _grt; };
 
@@ -204,11 +203,11 @@ namespace bec {
 
 
   public:
-    void add_dispatcher(bec::GRTDispatcher::Ref disp);
-    void remove_dispatcher(bec::GRTDispatcher *disp);
+    void add_dispatcher(const bec::GRTDispatcher::Ref disp);
+    void remove_dispatcher(const bec::GRTDispatcher::Ref disp);
   protected:
-    typedef std::map<GRTDispatcher::Ref, void*> DispMap;
-    DispMap _disp_map;
+    typedef std::map<const GRTDispatcher::Ref, void*> DispatcherMap;
+    DispatcherMap _disp_map;
     base::Mutex _disp_map_mutex;
 
     PluginManager *_plugin_manager;

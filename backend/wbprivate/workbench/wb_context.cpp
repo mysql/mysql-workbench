@@ -1698,6 +1698,7 @@ void WBContext::set_default_options(grt::DictRef options)
   set_default(options, "DbSqlEditor:DisableAutomaticContextHelp", 1);
 
   set_default(options, "DbSqlEditor:Reformatter:UpcaseKeywords", 1);
+  set_default(options, "DbSqlEditor::MaxResultsets", 50);
 
   //options.gset("DbSqlEditor:IsLiveObjectAlterationWizardEnabled", 1);
 

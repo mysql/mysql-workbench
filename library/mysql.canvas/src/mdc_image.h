@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _MDC_IMAGE_H_
-#define _MDC_IMAGE_H_
+#pragma once
 
 #include "mdc_figure.h"
 #include "mdc_draw_util.h"
@@ -44,8 +43,6 @@ protected:
   virtual base::Size calc_min_size();
 };
 
+MYSQLCANVAS_PUBLIC_FUNC cairo_surface_t *surface_from_png_image(const std::string &file_name);
 
 END_MDC_DECLS
-
-
-#endif /* _MDC_IMAGE_H_ */

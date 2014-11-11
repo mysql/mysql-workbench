@@ -113,7 +113,7 @@ bool Win32Api::UnblockFile(String^ file)
 {
   String^ streamName = file + ":Zone.Identifier";
   std::string nativeName = NativeToCppString(streamName);
-  return base_remove(nativeName.c_str()) == 0;
+  return base_remove(nativeName) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------

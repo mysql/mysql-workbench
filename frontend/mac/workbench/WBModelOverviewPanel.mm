@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
     [(id)editorTabView createDragger];
 
     [overview setupWithOverviewBE: wbui->get_physical_overview()];
-    [sidebarController setupWithWBContextUI: wbui];
+    [sidebarController setupWithContext: wbui->get_wb()->get_model_context()];
     [mSwitcherT setTabStyle: MPaletteTabSwitcherSmallText];
     [mSwitcherB setTabStyle: MPaletteTabSwitcherSmallText];
     [descriptionController setWBContext: wbui];

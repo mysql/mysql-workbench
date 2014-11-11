@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,8 @@
 #import <Cocoa/Cocoa.h>
 
 namespace wb {
-  class WBContextUI;
+  class ModelDiagramForm;
+  class WBContextModel;
 };
 
 namespace mforms {
@@ -40,14 +41,13 @@ namespace mforms {
 
   IBOutlet NSTableView *propertiesTable;
 
-  wb::WBContextUI *_wbui;
   mforms::View *_udtlist;
   mforms::View *_history;
   mforms::View *_catalog_tree;
 }
 
-- (void)setupWithWBContextUI: (wb::WBContextUI*)wbui;
-
+- (void)setupWithContext:(wb::WBContextModel*)context;
+- (void)setupWithDiagramForm:(wb::ModelDiagramForm*)form;
 - (void)invalidate;
 
 @end

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ static void *backend_destroyed(void *ptr)
     [_viewer setDelegate: self];
     [scrollView setContentCanvas: _viewer];
     
-    [sidebarController setupWithWBContextUI: _formBE->get_wb()->get_ui()];
+    [sidebarController setupWithDiagramForm: _formBE];
     
     [_viewer canvas]->set_user_data(self);
     

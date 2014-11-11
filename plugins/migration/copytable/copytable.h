@@ -329,6 +329,7 @@ class MySQLCopyDataTarget
   InsertBuffer _bulk_insert_record;
   int _bulk_record_count;
   int _bulk_insert_batch;
+  std::string _source_rdbms_type;
 
   MYSQL_RES * get_server_value(const std::string& variable);
   void get_server_value(const std::string& variable, std::string &value);
@@ -347,7 +348,7 @@ public:
   MySQLCopyDataTarget(const std::string &hostname, int port,
                       const std::string &username, const std::string &password,
                       const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
-                      const std::string &incoming_charset);
+                      const std::string &incoming_charset, const std::string &source_rdbms_type);
 
   ~MySQLCopyDataTarget();
 

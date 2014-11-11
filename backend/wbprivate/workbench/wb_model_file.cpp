@@ -18,6 +18,7 @@
  */
 
 #include <algorithm>
+#include <fcntl.h>
 
 #include <zip.h>
 #include "wb_model_file.h"
@@ -36,6 +37,7 @@
 #include "base/util_functions.h"
 
 #include "mforms/utilities.h"
+#include "mdc_image.h"
 
 #include "grt/common.h"
 #include "grt/grt_manager.h"
@@ -505,8 +507,15 @@ std::list<std::string> ModelFile::unpack_zip(const std::string &zipfile, const s
     throw grt::os_error(strfmt(_("Cannot create temporary directory for open document: %s"), destdir.c_str()), errno);
 
   int err;
-  zip *z= zip_open(zipfile.c_str(), 0, &err);
-  if (!z)
+#ifdef _WIN32
+  // Would be good if we could test for zip_fdopen, but there's no way in the preprocessor.
+  // And there's no version macro either for libzip.
+  int fd = base_open(zipfile, O_RDONLY, S_IREAD); // Error checking is done already before.
+  zip *z = zip_fdopen(fd, 0, &err);
+#else
+  zip *z = zip_open(zipfile.c_str(), 0, &err); // Older versions of libzip.
+#endif
+  if (z == NULL)
   {
     if (err == ZIP_ER_NOZIP)
       throw std::runtime_error("The file is not a Workbench document.");
@@ -665,7 +674,7 @@ static void zip_dir_contents(zip *z, const std::string &destdir, const std::stri
         if (!add_directories)
         {
           zip_source *src= zip_source_file(z, tmp.c_str(), 0, 0);
-#ifdef zip_file_add
+#ifdef _WIN32
           if (!src || zip_file_add(z, tmp.c_str(), src, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8) < 0)
           {
             zip_source_free(src);
@@ -1078,24 +1087,14 @@ bool ModelFile::undelete_file(const std::string &path)
   return true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 cairo_surface_t *ModelFile::get_image(const std::string &path)
 {
-  cairo_surface_t *image;
-  cairo_status_t st;
-
-  image= cairo_image_surface_create_from_png(get_path_for(path).c_str());
-  if (!image || (st= cairo_surface_status(image)) != CAIRO_STATUS_SUCCESS)
-  {
-    if (image)
-      cairo_surface_destroy(image);
-    return 0;
-  }
-
-  return image;
+  return mdc::surface_from_png_image(get_path_for(path));
 }
 
-
+//--------------------------------------------------------------------------------------------------
 
 void ModelFile::check_and_fix_data_file_bug()
 {

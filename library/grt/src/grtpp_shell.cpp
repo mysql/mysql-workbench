@@ -122,8 +122,8 @@ void Shell::print(const std::string &str)
 
 bool Shell::set_disable_quit(bool flag)
 {
-  bool o= _disable_quit;
-  _disable_quit= flag;
+  bool o = _disable_quit;
+  _disable_quit = flag;
   return o;
 }
 
@@ -148,14 +148,14 @@ ShellCommand Shell::execute(const std::string &linebuf)
 {
   char *cmd;
   unsigned int cmd_len;
-  char *cmd_param= NULL;
-  ShellCommand res= ShellCommandUnknown;
-  char *preprocessed_cmd= NULL;
+  char *cmd_param = NULL;
+  ShellCommand res = ShellCommandUnknown;
+  char *preprocessed_cmd = NULL;
   char *line;
 
-  line= g_strdup(linebuf.c_str());
-  cmd= g_strchug(g_strchomp(line));
-  cmd_len= (unsigned int)strlen(cmd);
+  line = g_strdup(linebuf.c_str());
+  cmd = g_strchug(g_strchomp(line));
+  cmd_len = (unsigned int)strlen(cmd);
 
   //Help command
   if (strcmp(cmd, "help")==0)
@@ -191,12 +191,12 @@ ShellCommand Shell::execute(const std::string &linebuf)
   }
   else if( (strcmp(cmd, "run")==0) || (g_str_has_prefix(cmd, "\\r")) || (g_str_has_prefix(cmd, "run ")))
   {
-    char *file_name= get_value_from_text_ex(cmd, (int)strlen(cmd), "(run|\\\\r)\\s+(.+)", 2);
+    char *file_name = get_value_from_text_ex(cmd, (int)strlen(cmd), "(run|\\\\r)\\s+(.+)", 2);
 
     if ((file_name) && (file_name[0]))
     {
-      preprocessed_cmd= g_strdup_printf("run(\"%s\")\n", file_name);
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup_printf("run(\"%s\")\n", file_name);
+      res = ShellCommandStatement;
     }
     else
     {
@@ -209,17 +209,17 @@ ShellCommand Shell::execute(const std::string &linebuf)
   //   cd objectname to cd("objectname")
   else if ((strcmp(cmd, "cd")==0) || (strcmp(cmd, "cd..")==0) || (g_str_has_prefix(cmd, "cd ")))
   {
-    char *path= get_value_from_text_ex(cmd, (int)strlen(cmd), "cd\\s*(.+)", 1);
+    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "cd\\s*(.+)", 1);
 
     if((path) && (path[0]))
     {
-      preprocessed_cmd= g_strdup_printf("cd(\"%s\")\n", path);
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup_printf("cd(\"%s\")\n", path);
+      res = ShellCommandStatement;
     }
     else
     {
-      preprocessed_cmd= g_strdup_printf("print(pwd())\n");
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup_printf("print(pwd())\n");
+      res = ShellCommandStatement;
     }
 
     g_free(path);
@@ -227,24 +227,24 @@ ShellCommand Shell::execute(const std::string &linebuf)
   // Automatically convert ls -t to table.foreach(x, print)
   else if (g_str_has_prefix(cmd, "ls -t "))
   {
-    char *path= get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-t\\s+(.+)", 1);
+    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-t\\s+(.+)", 1);
 
     if((path) && (path[0]))
     {
-      preprocessed_cmd= g_strdup_printf("table.foreach(%s, print)\n", path);
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup_printf("table.foreach(%s, print)\n", path);
+      res = ShellCommandStatement;
     }
     g_free(path);
   }
   // Automatically convert ls -m module to grtM.show()
   else if (g_str_has_prefix(cmd, "ls -m "))
   {
-    char *path= get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-m\\s+(.+)", 1);
+    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-m\\s+(.+)", 1);
 
     if((path) && (path[0]))
     {
-      preprocessed_cmd= g_strdup_printf("grtM.show(\"%s\")\n", path);
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup_printf("grtM.show(\"%s\")\n", path);
+      res = ShellCommandStatement;
     }
     g_free(path);
   }
@@ -253,25 +253,25 @@ ShellCommand Shell::execute(const std::string &linebuf)
     // TODO: Parsing for the poor. What if there is more than a space char between the command and its parameter?
     if ((strcmp(cmd, "ls -m") == 0) || (strcmp(cmd, "dir -m") == 0))
     {
-      preprocessed_cmd= g_strdup("grtM.list()\n");
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup("grtM.list()\n");
+      res = ShellCommandStatement;
     }
   // Automatically convert ls -s to grtS.list()
   else 
     if ((strcmp(cmd, "ls -s") == 0) || (strcmp(cmd, "dir -s") == 0))
     {
-      preprocessed_cmd= g_strdup("grtS.list()\n");
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup("grtS.list()\n");
+      res = ShellCommandStatement;
     }
   // Automatically convert ls -m module to grtS.show()
   else if (g_str_has_prefix(cmd, "ls -s "))
   {
-    char *path= get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-s\\s+(.+)", 1);
+    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-s\\s+(.+)", 1);
 
     if((path) && (path[0]))
     {
-      preprocessed_cmd= g_strdup_printf("grtS.show(\"%s\")\n", path);
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup_printf("grtS.show(\"%s\")\n", path);
+      res = ShellCommandStatement;
     }
     g_free(path);
   }
@@ -279,24 +279,24 @@ ShellCommand Shell::execute(const std::string &linebuf)
   else
     if ((strcmp(cmd, "ls") == 0) || (strcmp(cmd, "dir") == 0) || g_str_has_prefix(cmd, "ls ") || g_str_has_prefix(cmd, "dir "))
   {
-    preprocessed_cmd= g_strdup("ls()\n");
-    res= ShellCommandStatement;
+    preprocessed_cmd = g_strdup("ls()\n");
+    res = ShellCommandStatement;
   }
   // Automatically convert show to show(grt2Lua(pwd()))
   else if (strcmp(cmd, "show") == 0)
   {
-    preprocessed_cmd= g_strdup_printf("print("MYX_SHELL_CURNODE")\n");
-    res= ShellCommandStatement;
+    preprocessed_cmd = g_strdup_printf("print(" MYX_SHELL_CURNODE ")\n");
+    res = ShellCommandStatement;
   }
   // Automatically convert show objectname to show(getGlobal("objectname"))
   else if (g_str_has_prefix(cmd, "show "))
   {
-    char *path= get_value_from_text_ex(cmd, (int)strlen(cmd), "show\\s+(.+)", 1);
+    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "show\\s+(.+)", 1);
 
     if ((path) && (path[0]))
     {
-      preprocessed_cmd= g_strdup_printf("print(grtV.getGlobal(\"%s\"))\n", path);
-      res= ShellCommandStatement;
+      preprocessed_cmd = g_strdup_printf("print(grtV.getGlobal(\"%s\"))\n", path);
+      res = ShellCommandStatement;
     }
 
     g_free(path);
@@ -308,16 +308,16 @@ ShellCommand Shell::execute(const std::string &linebuf)
     int i;
 
     if (!preprocessed_cmd)
-      i= execute_line(linebuf);
+      i = execute_line(linebuf);
     else
-      i= execute_line(preprocessed_cmd);
+      i = execute_line(preprocessed_cmd);
 
     if (i > 0)
-      res= ShellCommandUnknown;
+      res = ShellCommandUnknown;
     else if (i < 0)
-      res= ShellCommandError;
+      res = ShellCommandError;
     else 
-      res= ShellCommandStatement;
+      res = ShellCommandStatement;
   }
 
   //g_free(cmd);

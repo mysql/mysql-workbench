@@ -389,6 +389,8 @@ static void open_file(MySQLEditor *sql_editor)
 static void save_file(MySQLEditor *sql_editor)
 {
   mforms::FileChooser fc(mforms::SaveFile);
+  fc.set_extensions("SQL Scripts (*.sql)|*.sql", "sql");
+  
   if (fc.run_modal())
   {
     GError *error = NULL;

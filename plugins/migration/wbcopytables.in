@@ -11,6 +11,6 @@ else
     export LD_LIBRARY_PATH="$wblibdir"
 fi
 
-export MWB_BINARIES_DIR="$destdir/usr/local/bin"
+export MWB_BINARIES_DIR="$destdir@WB_INSTALL_DIR_EXECUTABLE@"
 
 $MWB_BINARIES_DIR/wbcopytables-bin "$@"

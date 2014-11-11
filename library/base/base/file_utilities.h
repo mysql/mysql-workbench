@@ -39,6 +39,7 @@ namespace base
   #ifdef _WIN32
     #pragma warning(disable: 4275) // non dll-interface class used as base dll-interface class.
   #endif
+  
   class BASELIBRARY_PUBLIC_FUNC file_error : public std::runtime_error
   {
     int sys_error_code;

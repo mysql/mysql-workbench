@@ -5,13 +5,16 @@ of project/team lead Mike Zinner (DBDesigner 4).
 
 Alfredo Kojima		<alfredo.kengi.kojima@oracle.com> - backend, Linux, Mac OS X, lead developer
 Mike Lischke		<mike.lischke@oracle.com> - backend, Windows, Mac OS X, UI, testing
-Alexander Musienko	<alex.musienko@oracle.com> - Windows, synchronization, backup/restore, testing
 Rene Ramirez        <j.rene.ramirez@oracle.com> - backend, Windows, Linux
-Sergio de la Cruz   <sergio.delacruz@oracle.com> - Administration, Python development
+Miguel Tadeu        <miguel.tadeu@oracle.com>  - backend, Linux
+Milosz Bodzek       <milosz.bodzek@oracle.com> - Migration
+Marcin Szalowicz    <marcin.szalowicz@oracle.com> - backend, Linux
 Johannes Taxacher	<johannes.taxacher@oracle.com> - QA, building, testing
 Armando Lopez Valencia <armando.lopezv@oracle.com> - QA
 Rafael Bedoy        <rafael.bedoy@oracle.com> - QA
 Mike Zinner		    <mike.zinner@oracle.com> - team lead, UI design
 
+Sergio de la Cruz   <sergio.delacruz@oracle.com> - Administration, Python development
+Alexander Musienko	<alex.musienko@oracle.com> - Windows, synchronization, backup/restore, testing
 Sergei Tkachenko	<sergei.tkachenko@sun.com> - Windows, parser, SQL IDE
 Maksym Yehorov		<maksym.yehorov@oracle.com> - Linux, Administration

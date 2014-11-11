@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,8 +25,8 @@
 #import "MTextImageCell.h"
 #import "GRTIconCache.h"
 
-#include "workbench/wb_context.h"
-#include "workbench/wb_context_ui.h"
+#include "wb_context.h"
+
 #include "model/wb_history_tree.h"
 #include "model/wb_model_diagram_form.h"
 #include "model/wb_user_datatypes.h"
@@ -40,17 +40,25 @@
 
 @implementation WBModelSidebarController
 
-- (void)setupWithWBContextUI:(wb::WBContextUI*)wbui
+- (void)setupWithDiagramForm:(wb::ModelDiagramForm*)form
 {
-  _wbui= wbui;
- 
-  _catalog_tree = _wbui->get_wb()->get_model_context()->create_catalog_tree();
+  _catalog_tree = form->get_catalog_tree();
   [catalogTreeTab setView: nsviewForView(_catalog_tree)];
 
-  _udtlist = _wbui->get_wb()->get_model_context()->create_user_type_list();
+  _udtlist = form->get_wb()->get_model_context()->create_user_type_list();
   [userTypesTab setView: nsviewForView(_udtlist)];
 
-  _history = _wbui->get_wb()->get_model_context()->create_history_tree();
+  _history = form->get_wb()->get_model_context()->create_history_tree();
+  [historyTab setView: nsviewForView(_history)];
+}
+
+
+- (void)setupWithContext:(wb::WBContextModel*)context
+{
+  _udtlist = context->create_user_type_list();
+  [userTypesTab setView: nsviewForView(_udtlist)];
+
+  _history = context->create_history_tree();
   [historyTab setView: nsviewForView(_history)];
 }
 
@@ -68,7 +76,6 @@
 - (void)invalidate
 {
   // Since performSelectorOnMainThread could have pending refreshes reset wbui.
-  _wbui = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,7 +47,7 @@ def call_system(command, spawn, output_handler = None):
             except:
                 pass
                   
-        os.execvp("/bin/bash", ["/bin/bash", "-c", command])
+        os.execvp("/bin/sh", ["/bin/sh", "-c", command])
 
     else:
         child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
@@ -711,15 +711,15 @@ class MEBGetProfiles(MEBCommand):
         ret_val = False
 
         if self.param_count() == 2:
-            self.meb_version = int(self.get_param(0))
+            self.meb_command = self.get_param(0)
             self.datadir = self.get_param(1)
             ret_val = True
 
         return ret_val
 
     def print_usage(self):
-        self.write_output("GET_PROFILES <meb_version> <datadir>")
-        self.write_output("WHERE : <meb_version> : is the profile version required by the meb being used at the server for backups")
+        self.write_output("GET_PROFILES <meb_command> <datadir>")
+        self.write_output("WHERE : <meb_command> : is the path to a valid MEB executable.")
         self.write_output("WHERE :               : is the path to the datadir of the server instance for which the profiles are")
         self.write_output("                        being loaded. (There could be more than one instance on the same box).")
 
@@ -747,6 +747,11 @@ class MEBGetProfiles(MEBCommand):
                 
                 # Creates a config reader for each profile
                 profile = ConfigReader(filename)
+                
+                # Verifies the profile configured command is the same as the received as parameter
+                profile_command = profile.read_value('meb_manager', 'command', False, "")
+                if profile_command != self.meb_command:
+                    profile_issues |= 16
 
                 # Verifies the datadir to ensure it belongs to the requested instance
                 profile_datadir = profile.read_value('mysqlbackup', 'datadir', False, "")
@@ -787,9 +792,13 @@ class MEBGetProfiles(MEBCommand):
                     m = profile.read_value('meb_manager', 'inc_backups_minute', False, "")
                     data['ISCHEDULE'] = '-'.join([e, f, md, wd, h, m])
                     
-                    # Gets the profile version
-                    p_version = int(profile.read_value('meb_manager', 'version', False, "0"))
-                    if p_version == 0 and self.meb_version > 0:
+                    # Profiles with version 0 could have a UUID as the value for the "includes" field
+                    # It was used to make all of the InnoDB tables NOT matching the selection criteria on initial
+                    # versions of MEB.
+                    # On MEB 3.9.0 this became invalid as an error would be generated so
+                    # If found in a profile, we need to report the invalid configuration on the UI.
+                    profile_version = int(profile.read_value('meb_manager', 'version', False, "0"))
+                    if profile_version == '0' and check_version_at_least(self.meb_command, 3, 9, 0):
                         include = profile.read_value('mysqlbackup', 'include', False, "")
                         if include:
                             expression='^[\dA-Fa-f]{8}-([\dA-Fa-f]{4}-){3}[\dA-Fa-f]{12}$'
@@ -846,7 +855,9 @@ class MEBGetProfiles(MEBCommand):
         return 0
 
 class MEBHelperVersion(MEBCommand):
-    current = "4"
+    # IMPORTANT: Any change to the current attribute must be
+    # in synch with what is returned at WBMEBHelperHandlerLinux::current_helper_version
+    current = "6"
 
     def __init__(self, params = None, output_handler = None):
         super(MEBHelperVersion, self).__init__(params, output_handler)

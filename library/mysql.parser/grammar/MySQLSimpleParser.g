@@ -409,7 +409,7 @@ function_body: // Both built-in functions and UDFs.
 ;
 
 udf_tail:
-	udf_name RETURNS_SYMBOL (STRING_SYMBOL | INTEGER_SYMBOL | REAL_SYMBOL | DECIMAL_SYMBOL) SONAME_SYMBOL string_literal
+	udf_name RETURNS_SYMBOL (STRING_SYMBOL | INT_SYMBOL | REAL_SYMBOL | DECIMAL_SYMBOL) SONAME_SYMBOL string_literal
 ;
 
 routine_create_options:
@@ -1861,10 +1861,10 @@ runtime_function_call_expression:
 	| HOUR_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 	| INSERT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression COMMA_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
 	// | INTERVAL_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)+ CLOSE_PAR_SYMBOL => handled in interval_expression.
-	| LEFT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL INTEGER CLOSE_PAR_SYMBOL
+	| LEFT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
 	| MINUTE_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 	| MONTH_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
-	| RIGHT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL INTEGER CLOSE_PAR_SYMBOL
+	| RIGHT_SYMBOL OPEN_PAR_SYMBOL expression COMMA_SYMBOL expression CLOSE_PAR_SYMBOL
 	| SECOND_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 	| TIME_SYMBOL OPEN_PAR_SYMBOL expression CLOSE_PAR_SYMBOL
 	| TIMESTAMP_SYMBOL OPEN_PAR_SYMBOL expression (COMMA_SYMBOL expression)? CLOSE_PAR_SYMBOL
@@ -3019,8 +3019,7 @@ temporal_literal:
 // Support for INT1, INT2 etc. is added by mapping them to their explicitly named integer counter part.
 // See lexer rules for INT1 etc.
 integer_type:
-	INTEGER_SYMBOL
-	| INT_SYMBOL
+	INT_SYMBOL
 	| TINYINT_SYMBOL
 	| SMALLINT_SYMBOL
 	| MEDIUMINT_SYMBOL

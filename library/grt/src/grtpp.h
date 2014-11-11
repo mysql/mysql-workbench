@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _GRTPP_H_
-#define _GRTPP_H_
+#pragma once
 
 #ifdef __GNUC__
 #include <cxxabi.h>
@@ -552,7 +551,7 @@ namespace grt {
 #else
   #define DEFINE_SSIZE_T_FUNCTIONS
 
-  #ifdef __x86_64__
+  #ifdef __LP64__
   #define DEFINE_INT_FUNCTIONS
   #endif
 
@@ -2884,5 +2883,3 @@ namespace grt {
   }
 
 };
-
-#endif

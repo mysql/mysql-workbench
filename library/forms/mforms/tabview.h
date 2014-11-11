@@ -54,7 +54,7 @@ namespace mforms
     int (*add_page)(TabView*,View*,const std::string&);
     void (*remove_page)(TabView*,View*);
     void (*set_aux_view)(TabView*,View*);
-    void (*set_allows_reordering)(TabView*,bool);     /** XXX TODO Windows */
+    void (*set_allows_reordering)(TabView*,bool);
   };
 #endif
 #endif

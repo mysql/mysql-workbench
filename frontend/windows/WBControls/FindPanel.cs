@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,46 +27,36 @@ namespace MySQL.Utilities
     public FindPanel()
     {
       InitializeComponent();
-
     }
 
     #region Properties
 
     public IFindPanel Backend { get; set; }
 
-    private bool? showReplace;
+    private bool showReplace = true;
     public bool ShowReplace
     {
-      get { return (bool)showReplace; }
+      get { return showReplace; }
       set
       {
         if (showReplace != value)
         {
           showReplace = value;
-          if (value)
-          {
-            modeComboBox.SelectedIndex = 1;
-            layoutPanel.SetRow(doneButton, 1);
-            doneButton.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-
-            Size = new Size(Width, 50);
-          }
-          else
-          {
-            modeComboBox.SelectedIndex = 0;
-            layoutPanel.SetRow(doneButton, 0);
-            doneButton.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-
-            Size = new Size(Width, 25);
-          }
-//          layoutPanel.Size = Size;
-//          MinimumSize = Size;
-
           replaceAllButton.Visible = value;
           replaceButton.Visible = value;
           replaceAndFindButton.Visible = value;
           replaceTextBox.Visible = value;
 
+          if (value)
+          {
+            modeComboBox.SelectedIndex = 1;
+            Size = new Size(Width, layoutPanel.Height);
+          }
+          else
+          {
+            modeComboBox.SelectedIndex = 0;
+            Size = new Size(Width, layoutPanel.Height / 2);
+          }
         }
       }
     }

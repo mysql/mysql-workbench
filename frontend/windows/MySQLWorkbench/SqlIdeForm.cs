@@ -270,7 +270,7 @@ namespace MySQL.GUI.Workbench
     }
 
     void onSizeChanged(object sender, EventArgs e)
-    {//XXX this must be rewritten
+    {
       foreach (RecordsetView view in pendingRelayouts)
       {
         // Workaround for data grids added while the form was minimized.

@@ -29,6 +29,7 @@ import time
 import inspect
 import random
 import string
+import functools
 
 # Declares the global variable for sudo prefix
 default_sudo_prefix = ''
@@ -87,7 +88,6 @@ def wrap_for_sudo(command, sudo_prefix, as_user = Users.ADMIN, to_spawn = False)
         if as_user != Users.ADMIN:
             sudo_user = "sudo -u %s" % as_user
             sudo_prefix = sudo_prefix.replace('sudo', sudo_user)
-
         if '/bin/sh' in sudo_prefix or '/bin/bash' in sudo_prefix:
             command = sudo_prefix + " \"" + command.replace('\\', '\\\\').replace('"', r'\"').replace('$','\\$') + "\""
         else:
@@ -97,6 +97,29 @@ def wrap_for_sudo(command, sudo_prefix, as_user = Users.ADMIN, to_spawn = False)
 
 ###
 
+# Function decorator for absolute path validation
+def useAbsPath(param):
+    def abs_path_validator(function):
+        @functools.wraps(function)
+        def decorated_function(*args, **kw):
+            path_index = None
+            try:
+                path_index = function.__code__.co_varnames.index(param)
+            except ValueError:
+                # this implies an internal coding error and will just be logged
+                # It means the programmer indicated to validate an unexisting parameter
+                log_warning ('Error on path validation for function %s, using invalid parameter "%s"\n' % (function.__name__, param))
+            
+            # Only performs the actual validation when a valid parameter is set
+            if path_index is not None:
+                path_value = args[path_index]
+                
+                if type(path_value) not in [str, unicode] or not os.path.isabs(path_value):
+                    raise ValueError('Error on path validation for function "%s", parameter "%s" must be an absolute path: %s' % (function.__name__, param, path_value))
+                
+            return function(*args, **kw)
+        return decorated_function
+    return abs_path_validator
 
 
 class SSH(WbAdminSSH):
@@ -215,7 +238,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
         return data
 
     # script should already have sudo
-    child = subprocess.Popen(["/bin/bash", "-c", script], bufsize=0,
+    child = subprocess.Popen(["/bin/sh", "-c", script], bufsize=0,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                              close_fds=True)
 
@@ -824,8 +847,9 @@ class FileOpsLinuxBase(object):
         
     # Exception Handling will vary on local and remote
     def raise_exception(self, message, custom_messages = {}):
-        pass
+        raise Exception(message)
         
+    @useAbsPath("filename")
     def file_exists(self, filename, as_user=Users.CURRENT, user_password=None):
         res = self.process_ops.exec_cmd('test -e ' + quote_path(filename),
                             as_user,
@@ -834,6 +858,7 @@ class FileOpsLinuxBase(object):
                             options={CmdOptions.CMD_WAIT_OUTPUT:CmdOutput.WAIT_NEVER})
         return res == 0
     
+    @useAbsPath("path")
     def get_available_space(self, path, as_user=Users.CURRENT, user_password=None):
         output = StringIO.StringIO()
         res = self.process_ops.exec_cmd("LC_ALL=C df -Ph %s" % quote_path(path),
@@ -850,6 +875,7 @@ class FileOpsLinuxBase(object):
         
         return available
         
+    @useAbsPath("path")
     def get_file_owner(self, path, as_user = Users.CURRENT, user_password = None):
         if self.target_os == wbaOS.linux:
           command = 'LC_ALL=C stat -c %U '
@@ -869,11 +895,16 @@ class FileOpsLinuxBase(object):
             self.raise_exception(output)
         
         return output      
-        
+    
+    @useAbsPath("path")
     def create_directory(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
         output = StringIO.StringIO()
         if with_owner:
-            command = "/bin/mkdir %s && chown %s %s" % (quote_path(path), with_owner, quote_path(path))
+            # Chown is usually restricted to the root user
+            if as_user == Users.CURRENT:
+                raise PermissionDeniedError("Cannot set owner of directory %s" % path)        
+            else:
+                command = "/bin/mkdir %s && chown %s %s" % (quote_path(path), with_owner, quote_path(path))
         else:
             command = "/bin/mkdir %s" % (quote_path(path))
             
@@ -886,7 +917,8 @@ class FileOpsLinuxBase(object):
         if res != 0:
             output = sanitize_sudo_output(output.getvalue()).strip()
             self.raise_exception(output)      
-                
+    
+    @useAbsPath("path")
     def create_directory_recursive(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
         head, tail = splitpath(path)
         if not tail:
@@ -900,6 +932,7 @@ class FileOpsLinuxBase(object):
 
         self.create_directory(path, as_user, user_password, with_owner)
 
+    @useAbsPath("path")
     def remove_directory(self, path, as_user = Users.CURRENT, user_password = None):
         output = StringIO.StringIO()
         res = self.process_ops.exec_cmd('/bin/rmdir ' + quote_path(path),
@@ -912,6 +945,7 @@ class FileOpsLinuxBase(object):
             output = sanitize_sudo_output(output.getvalue()).strip()
             self.raise_exception(output)
 
+    @useAbsPath("path")
     def remove_directory_recursive(self, path, as_user = Users.CURRENT, user_password = None):
         output = StringIO.StringIO()
         res = self.process_ops.exec_cmd('/bin/rm -R ' + quote_path(path),
@@ -924,6 +958,7 @@ class FileOpsLinuxBase(object):
             output = sanitize_sudo_output(output.getvalue()).strip()
             self.raise_exception(output)
 
+    @useAbsPath("path")
     def delete_file(self, path, as_user = Users.CURRENT, user_password = None):
         output = StringIO.StringIO()
         res = self.process_ops.exec_cmd("/bin/rm " + quote_path(path),
@@ -936,6 +971,7 @@ class FileOpsLinuxBase(object):
             output = sanitize_sudo_output(output.getvalue()).strip()
             self.raise_exception(output)
 
+    @useAbsPath("filename")
     def get_file_content(self, filename, as_user = Users.CURRENT, user_password = None, skip_lines=0): # may raise IOError
         command = ''
         output = StringIO.StringIO()
@@ -958,8 +994,21 @@ class FileOpsLinuxBase(object):
 
         return output
         
+    @useAbsPath("path")
+    def _create_file(self, path, content):
+        try:
+            f = open(path, 'w')
+            f.write(content)
+            f.close()
+        except (IOError, OSError), err:
+            if err.errno == errno.EACCES:
+                raise PermissionDeniedError("Could not open file %s for writing" % path)
+            raise err
+        
+        
     def _copy_file(self, source, dest, as_user = Users.CURRENT, user_password = None):
         output = StringIO.StringIO()
+        
         res = self.process_ops.exec_cmd("LC_ALL=C /bin/cp " + quote_path(source) + " " + quote_path(dest),
                       as_user   = as_user,
                       user_password = user_password,
@@ -969,7 +1018,8 @@ class FileOpsLinuxBase(object):
         if res != 0:
             output = sanitize_sudo_output(output.getvalue()).strip()
             self.raise_exception(output)
-        
+    
+    @useAbsPath("path")
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         ret_val = True
         
@@ -998,14 +1048,15 @@ class FileOpsLinuxBase(object):
           raise Exception('Unable to verify directory is writable : %s' % output)
 
         return ret_val        
-        
+    
+    @useAbsPath("path")
     def listdir(self, path, as_user = Users.CURRENT, user_password = None, include_size=False): 
         file_list = []
         if include_size:
             # for ls -l, the output format changes depending on stdout being a terminal or not
             # since both cases are possible, we need to handle both at the same time (1st line being total <nnnn> or not)
             # the good news is that if the line is there, then it will always start with total, regardless of the locale
-            command = 'LC_ALL=C /bin/ls -l -p %s | awk \'!/^total/ { print $5,$NF }\' ; exit ${PIPESTATUS[0]}' % quote_path(path)
+            command = 'LC_ALL=C /bin/ls -l -p %s' % quote_path(path)
         else:
             command = 'LC_ALL=C /bin/ls -1 -p %s' % quote_path(path)
             
@@ -1015,6 +1066,7 @@ class FileOpsLinuxBase(object):
                                         user_password,
                                         output_handler = output.write)
         output = sanitize_sudo_output(output.getvalue().strip())
+        
         if res != 0:
             custom_messages = {
                                 errno.ENOENT:"The path \"%s\" does not exist" % path,
@@ -1026,7 +1078,7 @@ class FileOpsLinuxBase(object):
         else:
             try:
                 if include_size:
-                    file_list = [(f, int(s)) for s, f in [s.strip().split(" ", 1) for s in output.split("\n")]]
+                    file_list = [(f, int(s)) for _, _, _, _, s, _, _, _, f in [s.strip().split(None, 8) for s in output.split("\n") if not s.startswith('total')]]
                 else:
                     file_list = [s.strip() for s in output.split("\n")]
                     
@@ -1042,8 +1094,23 @@ class FileOpsLinuxBase(object):
         pass
         
     def _create_temp_file(self, content):
-        pass
+        tmp = tempfile.NamedTemporaryFile(delete = False)
+        tmp_name = tmp.name
 
+        try:
+            log_debug('%s: Writing file contents to tmp file "%s"\n' %  (self.__class__.__name__, tmp_name) )
+            tmp.write(content)
+            tmp.flush()
+        except Exception, exc:
+            log_error('%s: Exception caught: %s\n' % (self.__class__.__name__, str(exc)) )
+            if tmp:
+                tmp.close()
+            raise
+            
+        return tmp_name
+        
+
+    @useAbsPath("filename")
     def save_file_content_and_backup(self, filename, content, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
         log_debug('%s: Saving file "%s" with backup (sudo="%s")\n' % (self.__class__.__name__, filename, str(as_user)) )
         # Checks if the target folder is writable
@@ -1053,6 +1120,7 @@ class FileOpsLinuxBase(object):
             # Creates a backup of the existing file... if any
             if backup_extension and self.file_exists(filename, as_user, user_password):
                 log_debug('%s: Creating backup of "%s" to "%s"\n' %  (self.__class__.__name__, filename, filename+backup_extension))
+                
                 self._copy_file(source = filename, dest = filename + backup_extension,
                                 as_user = as_user, user_password = user_password)
                                     
@@ -1062,6 +1130,7 @@ class FileOpsLinuxBase(object):
                 
                          
                 log_debug('%s: Copying over tmp file to final filename using sudo: %s -> %s\n' % (self.__class__.__name__, temp_file, filename) )
+                
                 self._copy_file(source = temp_file, dest = filename, 
                                 as_user = Users.ADMIN, user_password = user_password)
                     
@@ -1130,37 +1199,12 @@ class FileOpsLocalUnix(FileOpsLinuxBase):
         raise Exception(custom_messages.get(None, message))
         
     # content must be a string
+    @useAbsPath("filename")
     def save_file_content(self, filename, content, as_user = Users.CURRENT, user_password = None, mode = None):
         self.save_file_content_and_backup(filename, content, None, as_user, user_password, mode)
 
-    def _create_file(self, path, content):
-        try:
-            f = open(path, 'w')
-            f.write(content)
-            f.close()
-        except (IOError, OSError), err:
-            if err.errno == errno.EACCES:
-                raise PermissionDeniedError("Could not open file %s for writing" % path)
-            raise err
-
-    def _create_temp_file(self, content):
-        tmp = tempfile.NamedTemporaryFile(delete = False)
-        tmp_name = tmp.name
-
-        try:
-            log_debug('%s: Writing file contents to tmp file "%s"\n' %  (self.__class__.__name__, tmp_name) )
-            tmp.write(content)
-            tmp.flush()
-        except Exception, exc:
-            log_error('%s: Exception caught: %s\n' % (self.__class__.__name__, str(exc)) )
-            if tmp:
-                tmp.close()
-            raise
-            
-        return tmp_name
-
-
     # UseCase: If get_file_content fails with exception of access, try sudo
+    @useAbsPath("filename")
     def get_file_content(self, filename, as_user = Users.CURRENT, user_password = None, skip_lines=0):
         if as_user == Users.CURRENT:
             try:
@@ -1193,25 +1237,8 @@ class FileOpsLocalUnix(FileOpsLinuxBase):
 
         return cont
 
-
-    def create_directory(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
-        if as_user == Users.CURRENT:
-            if with_owner is not None:
-                raise PermissionDeniedError("Cannot set owner of directory %s" % path)
-                
-            FileUtils.create_directory(path)
-        else:
-            FileOpsLinuxBase.create_directory(self, path, as_user, user_password, with_owner)
-
-    def create_directory_recursive(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
-        if as_user == Users.CURRENT:
-            if with_owner is not None:
-                raise PermissionDeniedError("Cannot set owner of directory %s" % path)
-                
-            FileUtils.create_directory_recursive(path)
-        else:
-            FileOpsLinuxBase.create_directory_recursive(self, path, as_user, user_password, with_owner)
-
+  
+    @useAbsPath("path")
     def delete_file(self, path, as_user = Users.CURRENT, user_password = None):
         if as_user == Users.CURRENT:
             FileUtils.delete_file(path)                   
@@ -1226,6 +1253,7 @@ class FileOpsLocalUnix(FileOpsLinuxBase):
             FileOpsLinuxBase._copy_file(self, source, dest, as_user, user_password)
 
     # Return format is list of entries in dir (directories go first, each dir name is followed by /)
+    @useAbsPath("path")
     def listdir(self, path, as_user = Users.CURRENT, user_password = None, include_size=False): # base operation to build file_exists and remote file selector
         file_list = []
         if as_user == Users.CURRENT: 

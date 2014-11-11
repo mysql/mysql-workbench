@@ -86,9 +86,12 @@ public:
   void fetch_schema_contents(const std::string &schema_name)
   {
     _form->get_live_tree()->fetch_schema_contents(schema_name, schema_content_arrived_slot);
-
     g_usleep(1000000); // 1 second
+    perform_idle_tasks();
+  }
 
+  void perform_idle_tasks()
+  {
     _form->grt_manager()->perform_idle_tasks();
   }
 
@@ -106,6 +109,8 @@ public:
   {
     mforms::TreeNodeRef schema_node = _form->get_live_tree()->_schema_tree->get_node_for_object(schema, wb::LiveSchemaTree::Schema, "");
     _form->get_live_tree()->_schema_tree->expand_toggled(schema_node, true);
+    g_usleep(1000000);
+    perform_idle_tasks();
   }
 
   void exec_sql(std::string &sql)
@@ -410,15 +415,17 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test):wb_context_sqlide(tester.wbui)
 
   form_tester.tree_refresh();
   form_tester.load_schema_data("wb_sql_editor_form_test");
- 
+
+  // Stay for some time to finish the setup (it's done in a background thread).
+  g_usleep(1000000);
+  form_tester.perform_idle_tasks();
 }
 
 END_TEST_DATA_CLASS;
 
 TEST_MODULE(wb_sql_editor_form_test, "sql editor form test");
 
-
-/* Testing fetch_schema_list */
+// Testing fetch_schema_list.
 TEST_FUNCTION(1)
 {
   std::list<std::string> schema_list = form_tester.fetch_schema_list();
@@ -434,8 +441,7 @@ TEST_FUNCTION(1)
   ensure("TF001CHK002: wb_sql_editor_form_test not found on retrieved list", found);
 }
 
-
-/* Testing fetch_schema_content */
+// Testing fetch_schema_content.
 TEST_FUNCTION(2)
 {
   // Loads the schema list
@@ -467,10 +473,9 @@ TEST_FUNCTION(2)
   form_tester.fetch_schema_contents("wb_sql_editor_form_test");
 
   form_tester.clean_and_reset();
-
 }
 
-/* Testing for SqlEditorForm::fetch_column_data */
+// Testing for SqlEditorForm::fetch_column_data.
 TEST_FUNCTION(3)
 {
   mforms::TreeNodeRef table_node;
@@ -478,14 +483,14 @@ TEST_FUNCTION(3)
   mforms::TreeNodeRef child_node;
   wb::LiveSchemaTree::TableData *pdata;
   wb::LiveSchemaTree::ColumnData *pchild_data;
-
+  
   // Loads the schema list into the tree...
   form_tester.tree_refresh();
 
   // Loads a specific schema contents...
   form_tester.load_schema_data("wb_sql_editor_form_test");
 
-  /* Loads the column data from the language table */
+  // Loads the column data from the language table.
   form_tester._expect_update_node_children = true;
   form_tester._mock_propagate_update_node_children = true;
   form_tester._check_id = "TF003CHK001";
@@ -522,7 +527,7 @@ TEST_FUNCTION(3)
   ensure("TF003CHK004 : Unexpected foreign key flag", !pchild_data->is_fk);
 }
 
-/* Testing for SqlEditorForm::fetch_index_data */
+// Testing for SqlEditorForm::fetch_index_data.
 TEST_FUNCTION(4)
 {
   mforms::TreeNodeRef table_node;
@@ -538,7 +543,7 @@ TEST_FUNCTION(4)
   form_tester._check_id = "TF004CHK001";
   form_tester.load_schema_data("wb_sql_editor_form_test");
 
-  /* Loads the index data from the film table */
+  // Loads the index data from the film table.
   form_tester._expect_update_node_children = true;
   form_tester._mock_propagate_update_node_children = true;
   form_tester._check_id = "TF004CHK002";
@@ -586,8 +591,7 @@ TEST_FUNCTION(4)
   ensure_equals("TF004CHK008 : Unexpected index type", pchild_data->type, 6);
 }
 
-
-/* Testing for SqlEditorForm::fetch_trigger_data */
+// Testing for SqlEditorForm::fetch_trigger_data.
 TEST_FUNCTION(5)
 {
   mforms::TreeNodeRef table_node;
@@ -603,7 +607,7 @@ TEST_FUNCTION(5)
   form_tester._check_id = "TF005CHK001";
   form_tester.load_schema_data("wb_sql_editor_form_test");
 
-  /* Loads the trigger data from the film table */
+  // Loads the trigger data from the film table.
   form_tester._expect_update_node_children = true;
   form_tester._mock_propagate_update_node_children = true;
   form_tester._check_id = "TF005CHK002";
@@ -643,7 +647,7 @@ TEST_FUNCTION(5)
   ensure_equals("TF005CHK006 : Unexpected trigger timing", pchild_data->timing, 14); // 14 is AFTER
 }
 
-/* Testing for SqlEditorForm::fetch_foreign_key_data */
+// Testing for SqlEditorForm::fetch_foreign_key_data.
 TEST_FUNCTION(6)
 {
   mforms::TreeNodeRef table_node;
@@ -659,7 +663,7 @@ TEST_FUNCTION(6)
   form_tester._check_id = "TF006CHK001";
   form_tester.load_schema_data("wb_sql_editor_form_test");
 
-  /* Loads the foreign key data from the film table */
+  // Loads the foreign key data from the film table.
   form_tester._expect_update_node_children = true;
   form_tester._mock_propagate_update_node_children = true;
   form_tester._check_id = "TF006CHK002";
@@ -691,7 +695,6 @@ TEST_FUNCTION(6)
   ensure_equals("TF006CHK005 : Unexpected foreign key delete rule", pchild_data->delete_rule, 4);
   ensure_equals("TF006CHK005 : Unexpected foreign key delete rule", pchild_data->referenced_table, "language");
 }
-
 
 TEST_FUNCTION(100)
 {

@@ -33,7 +33,6 @@ add_library(wbprivate
     model/canvas_floater.cpp
     model/mini_view.cpp
     model/relationship_canvas_floater.cpp
-    model/wb_catalog_tree.cpp
     model/wb_catalog_tree_view.cpp
     model/wb_component.cpp
     model/wb_component_basic.cpp

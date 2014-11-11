@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,13 +34,16 @@
   #define BASELIBRARY_PUBLIC_FUNC
 #endif
 
+#if defined(_WIN32) || defined(__APPLE)
+  #define HAVE_PRECOMPILED_HEADERS
+#endif
+
+#ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
 #include <math.h>
+#endif
 
 #ifdef _WIN32
-  #define WIN32_LEAN_AND_MEAN 
-  #include <windows.h>
-
   #ifndef strcasecmp
     #define strcasecmp _stricmp
     #define strncasecmp _strnicmp

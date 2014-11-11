@@ -422,7 +422,7 @@ namespace MySQL.Controls
         // value and not the new value
         base.OnCurrentCellChanged(e);
 
-        if (Model == null)
+        if (Model == null || refreshing)
             return;
 
         if (CurrentCell != null)

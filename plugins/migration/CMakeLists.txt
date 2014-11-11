@@ -20,7 +20,7 @@ if (UNIX)
   
   target_link_libraries(wbcopytables-bin wbbase ${MYSQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
   
-  install(TARGETS wbcopytables-bin DESTINATION ${WB_INSTALL_BIN_DIR})
+  install(TARGETS wbcopytables-bin DESTINATION ${WB_INSTALL_DIR_EXECUTABLE})
 else()
   add_executable(wbcopytables
       copytable/copytable.cpp

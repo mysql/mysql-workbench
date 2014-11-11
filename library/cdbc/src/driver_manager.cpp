@@ -23,6 +23,7 @@
 #include "cppconn/driver.h"
 #include "cppconn/statement.h"
 #include "cppconn/exception.h"
+
 #include <gmodule.h>
 #include <boost/foreach.hpp>
 
@@ -405,9 +406,15 @@ retry:
       ConnectOptionsMap::iterator prop_iter= properties.find(prop_name);
       if (properties.end() != prop_iter)
       {
+#ifdef MYSQLCPPCONN_VERSION_1_1_5
+        sql::SQLString *val= prop_iter->second.get<sql::SQLString>();
+        if (val->compare("") == 0)
+          properties.erase(prop_iter);
+#else
         sql::SQLString &val= boost::get<sql::SQLString>(prop_iter->second);
         if (val->empty())
-          properties.erase(prop_iter);
+          properties.erase(prop_iter);        
+#endif        
       }
     }
   }

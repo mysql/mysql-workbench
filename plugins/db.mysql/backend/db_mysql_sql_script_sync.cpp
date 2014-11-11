@@ -318,14 +318,12 @@ void DbMySQLScriptSync::set_option(const std::string& name, const std::string& v
 
 void DbMySQLScriptSync::start_sync()
 {
-  bec::GRTTask *task= new bec::GRTTask("SQL sync", 
+  bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL sync", 
     _manager->get_dispatcher(), 
     boost::bind(&DbMySQLScriptSync::sync_task, this, _1, grt::StringRef()));
 
   scoped_connect(task->signal_finished(),boost::bind(&DbMySQLScriptSync::sync_finished, this, _1));
   _manager->get_dispatcher()->add_task(task);
-
-  task->release();
 }
 
 void DbMySQLScriptSync::sync_finished(grt::ValueRef res)
@@ -624,7 +622,13 @@ boost::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vecto
 
   grt::DbObjectMatchAlterOmf omf;
   omf.dontdiff_mask = 3;
-  grt::NormalizedComparer comparer(_manager->get_grt(),get_db_options());
+  grt::DictRef db_opts = get_db_options();
+  if (options.is_valid())
+    db_opts.set("SkipRoutineDefiner", options.get("SkipRoutineDefiner"));
+  else
+    db_opts.set("SkipRoutineDefiner", grt::IntegerRef(0));
+
+  grt::NormalizedComparer comparer(_manager->get_grt(), db_opts);
   comparer.init_omf(&omf);
   _alter_change= diff_make(_org_cat, _mod_cat_copy, &omf);
 

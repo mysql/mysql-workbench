@@ -558,6 +558,7 @@ grt::NormalizedComparer::NormalizedComparer(grt::GRT* grt, const grt::DictRef op
   if (options.is_valid())
   {
     _case_sensitive = options.get_int("CaseSensitive") != 0;
+    _skip_routine_definer = options.get_int("SkipRoutineDefiner") != 0;
     _maxTableCommentLength = (int)options.get_int("maxTableCommentLength");
     _maxIndexCommentLength = (int)options.get_int("maxIndexCommentLength");
     _maxColumnCommentLength = (int)options.get_int("maxColumnCommentLength");
@@ -565,6 +566,7 @@ grt::NormalizedComparer::NormalizedComparer(grt::GRT* grt, const grt::DictRef op
 
   }else
   {
+    _skip_routine_definer = false;
     _case_sensitive = true;
     _maxTableCommentLength = 60;
     _maxIndexCommentLength = 0;
@@ -868,6 +870,7 @@ bool grt::NormalizedComparer::normalizedComparison(const ValueRef obj1, const Va
 void grt::NormalizedComparer::init_omf(Omf* omf)
 {
     omf->case_sensitive = _case_sensitive;
+    omf->skip_routine_definer = _skip_routine_definer;
     omf->normalizer = boost::bind(&NormalizedComparer::normalizedComparison,this, _1, _2, _3);
 };
 
@@ -897,6 +900,7 @@ grt::DictRef grt::NormalizedComparer::get_options_dict()const
 {
     grt::DictRef result(_grt);
     result.set("CaseSensitive", grt::IntegerRef(_case_sensitive));
+    result.set("SkipRoutineDefiner", grt::IntegerRef(_skip_routine_definer));
     result.set("maxTableCommentLength", grt::IntegerRef(_maxTableCommentLength));
     result.set("maxIndexCommentLength", grt::IntegerRef(_maxIndexCommentLength));
     result.set("maxColumnCommentLength", grt::IntegerRef(_maxColumnCommentLength));
