@@ -170,13 +170,11 @@ private:
 
 SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn)
 {
-  SqlEditorForm::Ref instance(new SqlEditorForm(wbsql, conn)); 
+  SqlEditorForm::Ref instance(new SqlEditorForm(wbsql));
   
   if (conn.is_valid())
-  {
-    //instance->connect();
-    //instance->finish_startup();
-  }
+      instance->set_connection(conn);
+
   return instance;
 }
 
@@ -222,7 +220,7 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
 }
 
 
-SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn)
+SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   :
   _wbsql(wbsql),
   _grtm(wbsql->get_grt_manager()),
@@ -257,9 +255,6 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql, const db_mgmt_Connectio
   NotificationCenter::get()->add_observer(this, "GNFormTitleDidChange");
   NotificationCenter::get()->add_observer(this, "GNColorsChanged");
   GRTNotificationCenter::get()->add_grt_observer(this, "GRNServerStateChanged");
-
-  if (conn.is_valid())
-    set_connection(conn);
 
   exec_sql_task->send_task_res_msg(false);
   exec_sql_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, this, _1, _2, _3, ""));
@@ -748,7 +743,7 @@ void SqlEditorForm::query_ps_statistics(boost::int64_t conn_id, std::map<std::st
 
   try
   {
-    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.* FROM performance_schema.events_statements_current st JOIN performance_schema.threads thr ON thr.thread_id = st.thread_id WHERE thr.processlist_id = %"PRId64, conn_id)));
+    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.* FROM performance_schema.events_statements_current st JOIN performance_schema.threads thr ON thr.thread_id = st.thread_id WHERE thr.processlist_id = %" PRId64, conn_id)));
     while (result->next())
     {
       for (const char **field = stat_fields; *field; ++field)
@@ -774,7 +769,7 @@ std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(boost::int64_
   {
     std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.*"\
                                                                          " FROM performance_schema.events_stages_history_long st"\
-                                                                         " WHERE st.nesting_event_id = %"PRId64,
+                                                                         " WHERE st.nesting_event_id = %" PRId64,
                                                                          stmt_event_id)));
     while (result->next())
     {
@@ -824,7 +819,7 @@ std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(boost::int64_t 
   {
     std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt("SELECT st.*"\
                                                                          " FROM performance_schema.events_waits_history_long st"\
-                                                                         " WHERE st.nesting_event_id = %"PRId64,
+                                                                         " WHERE st.nesting_event_id = %" PRId64,
                                                                          stmt_event_id)));
     while (result->next())
     {
@@ -1370,7 +1365,6 @@ grt::StringRef SqlEditorForm::do_connect(grt::GRT *grt, boost::shared_ptr<sql::T
 
       log_info("Error %i connecting to server, assuming server is down and opening editor with no connection\n",
         exc.getErrorCode());
-      _connection_info.append("</body></html>");
 
       // Create a parser with some sensible defaults if we cannot connect.
       // We specify no charsets here, disabling parsing of repertoires.
@@ -1760,7 +1754,7 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
     flags = (ExecFlags)(flags | ShowWarnings);
   auto_save();
 
-  // if we're filling an already existing result panel, we shouldn't close the old resultsets
+  // If we're filling an already existing result panel, we shouldn't close the old result sets.
   editor->query_started(into_result ? true : false);
   exec_sql_task->finish_cb(boost::bind(&SqlEditorPanel::query_finished, editor), true);
   exec_sql_task->fail_cb(boost::bind(&SqlEditorPanel::query_failed, editor, _1), true);
@@ -1867,9 +1861,20 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
       logging_queries = false;
     }
 
+    // Intentionally allow any value. For values <= 0 show no result set at all.
+    ssize_t max_resultset_count = _grtm->get_app_option_int("DbSqlEditor::MaxResultsets", 50);
+    ssize_t total_result_count = (editor != NULL) ? editor->resultset_count() : 0; // Consider pinned result sets.
+
+    bool results_left = false;
     std::pair<size_t, size_t> statement_range;
     BOOST_FOREACH (statement_range, statement_ranges)
     {
+      if (total_result_count >= max_resultset_count)
+      {
+        results_left = true;
+        break;
+      }
+
       statement = sql->substr(statement_range.first, statement_range.second);
       std::list<std::string> sub_statements;
       sql_facade->splitSqlScript(statement, sub_statements);
@@ -2036,8 +2041,20 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
           {
             for (size_t processed_substatements_count= 0; processed_substatements_count < multiple_statement_count; ++processed_substatements_count)
             {
+              if (total_result_count >= max_resultset_count)
+              {
+                results_left = true;
+                break;
+              }
+
               do
               {
+                if (total_result_count >= max_resultset_count)
+                {
+                  results_left = true;
+                  break;
+                }
+
                 if (more_results)
                 {
                   if (!reuse_log_msg && ((updated_rows_count >= 0) || (resultset_count)))
@@ -2145,6 +2162,7 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                     //! else failed to fetch data
                     //added_recordsets.push_back(rs);
                     ++resultset_count;
+                    ++total_result_count;
                   }
                   else
                   {
@@ -2153,7 +2171,12 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
                   data_storage.reset();
                 }
               }
-              while ((more_results= dbc_statement->getMoreResults()));
+              while ((more_results = dbc_statement->getMoreResults()));
+
+              // If we stopped fetching before we got to the end of the result sets finish
+              // fetching here.
+              while (dbc_statement->getMoreResults())
+                ;
             }
           }
           
@@ -2164,6 +2187,14 @@ grt::StringRef SqlEditorForm::do_exec_sql(grt::GRT *grt, Ptr self_ptr, boost::sh
         }
       }
     } // BOOST_FOREACH (statement, statements)
+
+    if (results_left)
+    {
+      exec_sql_task->execute_in_main_thread(
+        boost::bind(&mforms::Utilities::show_warning, _("Result set limit reached"), _("There were more results than "
+        "result tabs could be opened, because the set maximum limit was reached. You can change this "
+        "limit in the preferences."), _("OK"), "", ""), true, false);
+    }
 
     _grtm->replace_status_text(_("Query Completed"));
     interrupted = false;

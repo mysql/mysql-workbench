@@ -17,14 +17,14 @@
  * 02110-1301  USA
  */
 
+#include "base/threading.h"
+#include "base/log.h"
+
 #include "grt_dispatcher.h"
 #include "grt_manager.h"
-#include <grtpp_util.h>
-#include <grtpp_shell.h>
-#include "base/log.h"
-#include "base/threading.h"
+#include "grtpp_util.h"
+#include "grtpp_shell.h"
 #include "driver_manager.h"
-
 
 #include "mforms/utilities.h"
 
@@ -41,21 +41,177 @@ static bool debug_dispatcher = false;
 #define DPRINT(...) if (debug_dispatcher) log_debug3(__VA_ARGS__)
 #endif
 
-class NULLTask : public GRTTaskBase
+// Helper structures to store shared pointers into an async queue.
+struct CallbackHelper
 {
-public:
-  NULLTask(GRTDispatcher *disp) : GRTTaskBase("Terminate Worker Thread", disp) {}
-  virtual void finished(const grt::ValueRef &result) {} // dummy override to disable retain()
-  virtual grt::ValueRef execute(grt::GRT *) { return grt::ValueRef(); }
+  DispatcherCallbackBase::Ref callback;
+  CallbackHelper(const DispatcherCallbackBase::Ref callback_)
+    : callback(callback_)
+  {
+  }
 };
 
+struct GRTTaskHelper
+{
+  GRTTaskBase::Ref task;
+  GRTTaskHelper(const GRTTaskBase::Ref task_)
+    : task(task_)
+  {
+  }
+};
 
-//-----------------------------------------------------------------------------
+struct GrtDispatcherHelper
+{
+  GRTDispatcher::Ref dispatcher;
+  GrtDispatcherHelper(const GRTDispatcher::Ref dispatcher_)
+    : dispatcher(dispatcher_)
+  {
+  }
+};
 
-class GRTSimpleTask : public GRTTaskBase {
+//----------------- DispatcherCallback -------------------------------------------------------------
+
+DispatcherCallbackBase::~DispatcherCallbackBase()
+{
+  signal();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void DispatcherCallbackBase::wait()
+{
+  base::MutexLock lock(_mutex);
+  _cond.wait(_mutex);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void DispatcherCallbackBase::signal()
+{
+  _cond.signal();
+}
+
+//----------------- GRTTaskBase --------------------------------------------------------------------
+
+GRTTaskBase::~GRTTaskBase()
+{
+  delete _exception;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::set_finished()
+{
+  _finished = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::cancel()
+{
+  _cancelled = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::started()
+{
+  signal_starting_task();
+  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::started_m, this), false, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::started_m()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::finished(const grt::ValueRef &result)
+{
+  signal_finishing_task();
+  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::finished_m, this, result), true, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::finished_m(const grt::ValueRef &result)
+{
+  set_finished();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::failed(const std::exception &exc)
+{
+  const grt::grt_runtime_error *rterr = dynamic_cast<const grt::grt_runtime_error*>(&exc);
+
+  if (rterr)
+    _exception = new grt::grt_runtime_error(*rterr);
+  else
+    _exception = new grt::grt_runtime_error(exc.what(), "");
+
+  signal_failing_task();
+  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::failed_m, this, exc), false, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::failed_m(const std::exception &exc)
+{
+  set_finished();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool GRTTaskBase::process_message(const grt::Message &msg)
+{
+  if (_messages_to_main_thread)
+    _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::process_message_m, this, msg), false, false);
+  else
+    process_message_m(msg);
+
+  return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTTaskBase::process_message_m(const grt::Message &msg)
+{
+}
+
+//----------------- GrtNullTask --------------------------------------------------------------------
+
+class GrtNullTask : public GRTTaskBase
+{
 public:
-  GRTSimpleTask(const std::string &name, GRTDispatcher *disp, const boost::function<grt::ValueRef (grt::GRT*)> &function)
-    : GRTTaskBase(name, disp), _function(function)
+  GrtNullTask(const GRTDispatcher::Ref dispatcher) : GRTTaskBase("Terminate Worker Thread", dispatcher) {}
+  virtual void finished(const grt::ValueRef &result) {}
+  virtual grt::ValueRef execute(grt::GRT *)
+  {
+    _result = grt::ValueRef();
+    return _result;
+  }
+};
+
+//--------------------------------------------------------------------------------------------------
+
+class GRTSimpleTask : public GRTTaskBase
+{
+public:
+  typedef boost::shared_ptr<GRTSimpleTask> Ref;
+
+  static Ref create_task(const std::string &name, const GRTDispatcher::Ref dispatcher,
+    const boost::function<grt::ValueRef(grt::GRT*)> &function)
+  {
+    return Ref(new GRTSimpleTask(name, dispatcher, function));
+  }
+
+protected:
+  GRTSimpleTask(const std::string &name, const GRTDispatcher::Ref dispatcher,
+    const boost::function<grt::ValueRef (grt::GRT*)> &function)
+    : GRTTaskBase(name, dispatcher), _function(function)
   {
   }
 
@@ -63,13 +219,14 @@ public:
   {
     try
     {
-      return _function(grt);
+      _result = _function(grt);
     }
     catch (const std::exception &e)
     {
+      _result = grt::ValueRef();
       failed(e);
     }
-    return grt::ValueRef();
+    return _result;
   }
 
   virtual void started() {}
@@ -85,151 +242,42 @@ public:
       _exception= new grt::grt_runtime_error(exc.what(), "");
   }
 
-protected:
-  GRTDispatcher *_dispatcher;
-
 private:
   boost::function<grt::ValueRef (grt::GRT*)> _function;
 };
 
+//----------------- GRTTask ------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
-
-GRTTaskBase::GRTTaskBase(const std::string &name, GRTDispatcher *disp)
-  : _dispatcher(disp), _exception(0), _name(name), _refcount(1), _cancelled(false), _finished(false),
-_messages_to_main_thread(true)
+GRTTask::GRTTask(const std::string &name, const GRTDispatcher::Ref dispatcher,
+  const boost::function<grt::ValueRef(grt::GRT*)> &function)
+  : GRTTaskBase(name, dispatcher), _function(function)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 
-GRTTaskBase::~GRTTaskBase()
+GRTTask::Ref GRTTask::create_task(const std::string &name, const GRTDispatcher::Ref dispatcher,
+  const boost::function<grt::ValueRef(grt::GRT*)> &function)
 {
-  delete _exception;
+  return Ref(new GRTTask(name, dispatcher, function));
 }
 
-
-void GRTTaskBase::set_finished()
-{
-  _finished= true;
-}
-
-
-void GRTTaskBase::cancel()
-{
-  _cancelled= true;
-}
-
-
-void GRTTaskBase::retain()
-{
-  g_atomic_int_inc(&_refcount);
-}
-
-
-void GRTTaskBase::release()
-{
-  bool do_delete = false;
-
-  if (g_atomic_int_dec_and_test(&_refcount))
-    do_delete = true; // delete can cause a side-effect with recursion, which would deadlock
-
-  if (do_delete)
-    delete this;
-}
-
-
-void GRTTaskBase::started()
-{
-  signal_starting_task();
-  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::started_m, this), false, false);
-}
-
-
-void GRTTaskBase::started_m()
-{
-}
-
-
-void GRTTaskBase::finished(const grt::ValueRef &result)
-{
-  retain();
-  signal_finishing_task(); 
-  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::finished_m, this, result),false, false);
-}
-
-
-void GRTTaskBase::finished_m(const grt::ValueRef &result)
-{
-  set_finished();
-  release();
-}
-
-
-void GRTTaskBase::failed(const std::exception &exc)
-{
-  const grt::grt_runtime_error *rterr= dynamic_cast<const grt::grt_runtime_error*>(&exc);
-
-  if (rterr)
-    _exception= new grt::grt_runtime_error(*rterr);
-  else
-    _exception= new grt::grt_runtime_error(exc.what(), "");
-
-  retain();
-
-  signal_failing_task();
-  _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::failed_m, this, exc), false, false);
-}
-
-
-void GRTTaskBase::failed_m(const std::exception &exc)
-{
-  set_finished();
-  release();
-}
-
-bool GRTTaskBase::process_message(const grt::Message &msg)
-{
-  retain();
-  if (_messages_to_main_thread)
-    _dispatcher->call_from_main_thread<void>(boost::bind(&GRTTaskBase::process_message_m, this, msg), false/*was true*/, false);
-  else
-    process_message_m(msg);
-  
-  return true;
-}
-
-
-void GRTTaskBase::process_message_m(const grt::Message &msg)
-{
-  // if there's no message handler, the default one will be called
-//  // fallback to the original handler
-//  if (_default_callbacks.message_cb)
-//    _default_callbacks.message_cb(msg, this);
-
-  release();
-}
-
-
-//---------------------------------------------------------------------------
-
-
-GRTTask::GRTTask(const std::string &name, GRTDispatcher *owner, const boost::function<grt::ValueRef (grt::GRT*)> &function)
-  : GRTTaskBase(name, owner), _function(function)
-{
-}
-
+//--------------------------------------------------------------------------------------------------
 
 grt::ValueRef GRTTask::execute(grt::GRT *grt)
 {
-  return _function(grt);
+  _result = _function(grt);
+  return _result;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTTask::started_m()
 {
   _started();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTTask::finished_m(const grt::ValueRef &result)
 {
@@ -238,16 +286,16 @@ void GRTTask::finished_m(const grt::ValueRef &result)
   GRTTaskBase::finished_m(result);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTTask::failed_m(const std::exception &error)
 {
-  //_failed.emit(error);
   _failed(*_exception);
-  
-  //GRTTaskBase::failed_m(error);
+ 
   GRTTaskBase::failed_m(*_exception);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool GRTTask::process_message(const grt::Message &msg)
 {
@@ -257,32 +305,41 @@ bool GRTTask::process_message(const grt::Message &msg)
   return GRTTaskBase::process_message(msg);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTTask::process_message_m(const grt::Message &msgs)
 {
   _message(msgs);
-
-  release();
 }
 
-//-----------------------------------------------------------------------------
+//----------------- GRTShellTask -------------------------------------------------------------------
 
-GRTShellTask::GRTShellTask(const std::string &name, GRTDispatcher *owner, const std::string &command)
-  : GRTTaskBase(name, owner)
+GRTShellTask::GRTShellTask(const std::string &name, const GRTDispatcher::Ref dispatcher,
+  const std::string &command)
+  : GRTTaskBase(name, dispatcher)
 {
-  _command= command;
+  _command = command;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+GRTShellTask::Ref GRTShellTask::create_task(const std::string &name, const GRTDispatcher::Ref dispatcher,
+  const std::string &command)
+{
+  return Ref(new GRTShellTask(name, dispatcher, command));
+}
+
+//--------------------------------------------------------------------------------------------------
 
 grt::ValueRef GRTShellTask::execute(grt::GRT *grt)
 {
-  _result= grt->get_shell()->execute(_command);
-
-  _prompt= grt->get_shell()->get_prompt();
+  _result = grt->get_shell()->execute(_command);
+  _prompt = grt->get_shell()->get_prompt();
 
   return grt::ValueRef();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTShellTask::finished_m(const grt::ValueRef &result)
 {
@@ -291,6 +348,7 @@ void GRTShellTask::finished_m(const grt::ValueRef &result)
   GRTTaskBase::finished_m(result);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool GRTShellTask::process_message(const grt::Message &msg)
 {
@@ -300,42 +358,41 @@ bool GRTShellTask::process_message(const grt::Message &msg)
   return GRTTaskBase::process_message(msg);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTShellTask::process_message_m(const grt::Message &msg)
 {
   _message(msg);
-
-  release();
 }
 
-//-----------------------------------------------------------------------------
+//----------------- GRTDispatcher ------------------------------------------------------------------
 
 static void sleep_2ms()
 {
   g_usleep(2000);
 }
 
-static GThread *_main_thread= 0;
+static GThread *_main_thread = NULL;
 
 GRTDispatcher::GRTDispatcher(grt::GRT *grt, bool threaded, bool is_main_dispatcher)
-  : _busy(0), _threading_disabled(!threaded), _w_runing(0), _is_main_dispatcher(is_main_dispatcher), _shut_down(false), _grt(grt), _current_task(NULL)
+  : _busy(0), _threading_disabled(!threaded), _w_runing(0), _is_main_dispatcher(is_main_dispatcher),
+  _shut_down(false), _grt(grt)
 {
-  _shutdown_callback= false;
+  _shutdown_callback = false;
 
   if (threaded)
   {
-    _task_queue= g_async_queue_new();
-
-    _callback_queue= g_async_queue_new();
+    _task_queue = g_async_queue_new();
+    _callback_queue = g_async_queue_new();
   }
   else
   {
-    _task_queue= NULL;
-    _callback_queue= NULL;
+    _task_queue = NULL;
+    _callback_queue = NULL;
   }
   _thread= 0;
-  if (_is_main_dispatcher) // assuming main dispatcher is created from main thread
-    _main_thread= g_thread_self();
+  if (_is_main_dispatcher) // Assuming main dispatcher is created from main thread.
+    _main_thread = g_thread_self();
   
   // default implementation just sleeps for 2ms
   _flush_main_thread_and_wait= sleep_2ms;
@@ -344,6 +401,7 @@ GRTDispatcher::GRTDispatcher(grt::GRT *grt, bool threaded, bool is_main_dispatch
     debug_dispatcher= true;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 GRTDispatcher::~GRTDispatcher()
 {
@@ -355,15 +413,24 @@ GRTDispatcher::~GRTDispatcher()
     g_async_queue_unref(_callback_queue);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::start(boost::shared_ptr<GRTDispatcher> self)
+GRTDispatcher::Ref GRTDispatcher::create_dispatcher(grt::GRT *grt, bool threaded, bool is_main_dispatcher)
+{
+  return Ref(new GRTDispatcher(grt, threaded, is_main_dispatcher));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTDispatcher::start()
 {
   _shut_down = false;
   if (!_threading_disabled)
   {
-
     log_debug("starting worker thread\n");
-    _thread= base::create_thread(worker_thread, this);
+
+    GrtDispatcherHelper *helper = new GrtDispatcherHelper(shared_from_this());
+    _thread= base::create_thread(worker_thread, helper);
     if (_thread == 0)
     {
       log_error("base::create_thread failed to create the GRT worker thread. Falling back into non-threaded mode.\n");
@@ -371,17 +438,15 @@ void GRTDispatcher::start(boost::shared_ptr<GRTDispatcher> self)
     }
   }
 
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for(_grt);
+  bec::GRTManager *grtm = bec::GRTManager::get_instance_for(_grt);
   if (grtm) // in tests, grtm may not exist
-    grtm->add_dispatcher(self);
+    grtm->add_dispatcher(shared_from_this());
 
   if (_is_main_dispatcher)
-  {
     _grt->push_message_handler(boost::bind(&GRTDispatcher::message_callback, this, _1, _2));
-//    _grt->push_status_query_handler(boost::bind(&GRTDispatcher::status_query_callback, this));
-  }
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTDispatcher::shutdown()
 {
@@ -389,31 +454,31 @@ void GRTDispatcher::shutdown()
       return;
   _shut_down = true;
   if (_is_main_dispatcher)
-  {
     _grt->pop_message_handler();
-//    _grt->pop_status_query_handler();
-  }
 
   _shutdown_callback= true;
   if (!_threading_disabled && _thread != 0) // _thread == 0, means that init was not called, but threading_disabled was set to false.
   {
-    NULLTask *task= new NULLTask(this);
+    boost::shared_ptr<GrtNullTask> task(new GrtNullTask(shared_from_this()));
     add_task(task);
     log_debug2("GRTDispatcher:Main thread waiting for worker to finish\n");
     _w_runing.wait();
     log_debug2("GRTDispatcher:Main thread worker finished\n");
-    task->release();
   }
 
-  bec::GRTManager *grtm= bec::GRTManager::get_instance_for(_grt);
+  bec::GRTManager *grtm = bec::GRTManager::get_instance_for(_grt);
   if (grtm)
-    grtm->remove_dispatcher(this);
+    grtm->remove_dispatcher(shared_from_this());
 }
 
+//--------------------------------------------------------------------------------------------------
 
 gpointer GRTDispatcher::worker_thread(gpointer data)
 {
-  GRTDispatcher *self= static_cast<GRTDispatcher*>(data);
+  GrtDispatcherHelper *helper = static_cast<GrtDispatcherHelper *>(data);
+  GRTDispatcher::Ref self = helper->dispatcher;
+  delete helper;
+
   GAsyncQueue *task_queue= self->_task_queue;
   GAsyncQueue *callback_queue= self->_callback_queue;
 
@@ -426,34 +491,39 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
 
   self->worker_thread_init();
   
-//  self->_worker_running= true;
   while (true)
   {
-    GRTTaskBase *task;
+    GRTTaskBase::Ref task;
 
     self->worker_thread_iteration();
 
     // pop next task pushed to queue by the main thread
 
-#if GLIB_CHECK_VERSION(2,32,0)
-    task= static_cast<GRTTaskBase*>(g_async_queue_timeout_pop(task_queue, 1000000));
+#if GLIB_CHECK_VERSION(2, 32, 0)
+    GRTTaskHelper *helper = static_cast<GRTTaskHelper *>(g_async_queue_timeout_pop(task_queue, 1000000));
+    if (helper == NULL)
+      continue;
+    task = helper->task;
+    delete helper;
 #else
     GTimeVal timeout;
     g_get_current_time(&timeout);
     timeout.tv_sec+= 1;
-    task= static_cast<GRTTaskBase*>(g_async_queue_timed_pop(task_queue, &timeout));
-#endif
-    if (!task)
+
+    GRTTaskHelper *helper = static_cast<GRTTaskHelper *>(g_async_queue_timed_pop(task_queue, &timeout));
+    if (helper == NULL)
       continue;
+    task = helper->task;
+    delete helper;
+#endif
 
     g_atomic_int_inc(&self->_busy);
     log_debug3("GRT dispatcher, running task %s", task->name().c_str());
 
-    if (dynamic_cast<NULLTask*>(task) != 0) // a NULL task terminates the thread
+    if (dynamic_cast<GrtNullTask*>(task.get()) != 0) // a NULL task terminates the thread
     {
       DPRINT("worker: termination task received, closing...");
       task->finished(grt::ValueRef());
-      task->release();
       g_atomic_int_dec_and_test(&self->_busy);
       break;
     }
@@ -461,7 +531,6 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
     if (task->is_cancelled())
     {
       DPRINT("%s", std::string("worker: task '"+task->name()+"' was cancelled.").c_str());
-      task->release();
       g_atomic_int_dec_and_test(&self->_busy);
       continue;
     }
@@ -477,17 +546,15 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
     if (task->get_error())
     {
       log_error("%s\n", std::string(("worker: task '"+task->name()+"' has failed with error:.")+task->get_error()->what()).c_str());
-      task->release();
       g_atomic_int_dec_and_test(&self->_busy);
       continue;
     }
 
     if (count != self->grt()->message_handler_count())
-      log_error("INTERNAL ERROR: Message handler count mismatch after executing task '%s' (%i vs %i)", 
-                task->name().c_str(), count, self->grt()->message_handler_count());
-
-    // cleanup
-    task->release();
+    {
+      log_error("INTERNAL ERROR: Message handler count mismatch after executing task '%s' (%i vs %i)",
+        task->name().c_str(), count, self->grt()->message_handler_count());
+    }
 
     g_atomic_int_dec_and_test(&self->_busy);
     DPRINT("worker: task finished.");
@@ -498,7 +565,6 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
   g_async_queue_unref(task_queue);
   g_async_queue_unref(callback_queue);
 
-//  self->_worker_running= false;
   self->_w_runing.post();
 
   log_debug("worker thread exiting...\n");
@@ -506,46 +572,48 @@ gpointer GRTDispatcher::worker_thread(gpointer data)
   return NULL;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::execute_now(GRTTaskBase *task)
+void GRTDispatcher::execute_now(const GRTTaskBase::Ref task)
 {
   g_atomic_int_inc(&_busy);
   prepare_task(task);
   
   execute_task(task);
   
-  task->release();
   g_atomic_int_dec_and_test(&_busy);
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::add_task(GRTTaskBase *task)
+void GRTDispatcher::add_task(const GRTTaskBase::Ref task)
 {
-  // if threading is disabled or the worker thread is calling another 
-  // task, then we have to execute it immediately otherwise we'd just deadlock
+  // If threading is disabled or the worker thread is calling another 
+  // task, we have to execute it immediately otherwise we'd just deadlock.
   if (_threading_disabled || _thread == g_thread_self())
-  {
     execute_now(task);
-  }
   else
   {
-    task->retain();
-    g_async_queue_push(_task_queue, task);
+    GRTTaskHelper *helper = new GRTTaskHelper(task);
+    g_async_queue_push(_task_queue, helper);
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::cancel_task(GRTTaskBase *task)
+void GRTDispatcher::cancel_task(const GRTTaskBase::Ref task)
 {
   task->cancel();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool GRTDispatcher::get_busy()
 {
   return (_task_queue && g_async_queue_length(_task_queue) > 0) || g_atomic_int_get(&_busy);
 }
 
+//--------------------------------------------------------------------------------------------------
 
 /** Optional callback to wait and flush stuff in main thread.
  *
@@ -561,36 +629,34 @@ void GRTDispatcher::set_main_thread_flush_and_wait(FlushAndWaitCallback callback
   _flush_main_thread_and_wait= callback;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTDispatcher::flush_pending_callbacks()
 {
-  DispatcherCallbackBase *callback;
-  
   if (_callback_queue)
   {
-    while ((callback= static_cast<DispatcherCallbackBase*>(g_async_queue_try_pop(_callback_queue))))
+    while (true)
     {
+      CallbackHelper *helper = static_cast<CallbackHelper *>(g_async_queue_try_pop(_callback_queue));
+      if (helper == NULL)
+        break;
+
+      DispatcherCallbackBase::Ref callback = helper->callback;
+      delete helper;
+
       // Don't run any task, but clear the queue if we are shutting down.
       // This way the NullTask can surface up in the worker thread.
       if (!_shutdown_callback)
         callback->execute();
       callback->signal();
-      callback->release();  // this release <--------------------------------------------------+
-    }                                                                                     //   |
-  }                                                                                       //   |
-}                                                                                         //   |
-                                                                                          //   |
-                                                                                          //   |
-void GRTDispatcher::call_from_main_thread(DispatcherCallbackBase *callback,               //   |
-  bool wait,                                                                              //   |
-  bool force_queue)                                                                       //   |
-{                                                                                         //   |
-  // retain once for ourselves                                                            //   |
-  callback->retain();                                                                     //   |
-                                                                                          //   |
-  // and another time for the main-thread (will be released from main thread)             //   |
-  callback->retain();    // this retain matched by... -----------------------------------------+
+    }
+  }
+}
 
+//--------------------------------------------------------------------------------------------------
+
+void GRTDispatcher::call_from_main_thread(const DispatcherCallbackBase::Ref callback, bool wait, bool force_queue)
+{
   bool is_main_thread= (g_thread_self() == _main_thread);
   if (force_queue && is_main_thread)
     wait= false;
@@ -599,104 +665,97 @@ void GRTDispatcher::call_from_main_thread(DispatcherCallbackBase *callback,     
   {
     callback->execute();
     callback->signal();
-    callback->release();
-    wait= false;
+    wait = false;
   }
   else
-    g_async_queue_push(_callback_queue, callback);
+  {
+    CallbackHelper *helper = new CallbackHelper(callback);
+    g_async_queue_push(_callback_queue, helper);
+  }
 
   if (wait)
     callback->wait();
-
-  callback->release();
 }
 
-
-
+//--------------------------------------------------------------------------------------------------
 
 void GRTDispatcher::worker_thread_init()
 {
 //QQQ  _grt->enable_thread_notifications();
 }
 
+//--------------------------------------------------------------------------------------------------
+
 void GRTDispatcher::worker_thread_release()
 {
   mforms::Utilities::driver_shutdown();
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void GRTDispatcher::worker_thread_iteration()
 {
 //QQQ  _grt->flush_notifications();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 bool GRTDispatcher::message_callback(const grt::Message &msgs, void *sender)
 {
-  if (GRTTaskBase *task= (sender) ? static_cast<GRTTaskBase*>(sender) : _current_task)
-    return task->process_message(msgs);
-  return false; // let it bubble up by default
-}
+  if (sender == NULL)
+  {
+    if (_current_task)
+      return _current_task->process_message(msgs);
+    return false; // Let it bubble up by default.
+  }
 
-/*
-bool GRTDispatcher::status_query_callback()
-{
-  if (_current_task)
-    return _current_task->perform_status_query() != 0;
-  else
-    return _grt->query_status();
-}
-*/
-
-static bool call_process_message(const grt::Message &msgs, void *sender, GRTTaskBase *task)
-{
-  if (sender)
-    task= static_cast<GRTTaskBase*>(sender);
+  // Messages are processed synchronously and hence we don't need a Ref here.
+  GRTTaskBase *task = static_cast<GRTTaskBase*>(sender);
   return task->process_message(msgs);
 }
-/*
-static bool call_status_query(GRTTaskBase *task)
-{
-  return task->perform_status_query() != 0;
-}*/
 
+//--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::prepare_task(GRTTaskBase *gtask)
+static bool call_process_message(const grt::Message &msgs, void *sender, const GRTTaskBase::Ref task)
 {
-  gtask->retain();
-  _current_task= gtask;
-//  _grt->flush_messages();
+  if (sender != NULL)
+  {
+    GRTTaskBase *task = static_cast<GRTTask*>(sender);
+    return task->process_message(msgs);
+  }
+  return task->process_message(msgs);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void GRTDispatcher::prepare_task(const GRTTaskBase::Ref gtask)
+{
+  _current_task = gtask;
   
-  // directly set the task callbacks
+  // Directly set the task callbacks.
   if (_is_main_dispatcher)
-  {
     _grt->push_message_handler(boost::bind(call_process_message, _1, _2, gtask));
-//    _grt->push_status_query_handler(boost::bind(call_status_query, gtask));
-  }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::restore_callbacks(GRTTaskBase *task)
+void GRTDispatcher::restore_callbacks(const GRTTaskBase::Ref task)
 {
-  // restore originally set msg callbacks
+  // Restore originally set msg callbacks.
   if (_is_main_dispatcher)
-  {
     _grt->pop_message_handler();
-//    _grt->pop_status_query_handler();
-  }
  
-//  _grt->flush_messages();
-  _current_task= NULL;
-  task->release();
+  _current_task.reset();
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::execute_task(GRTTaskBase *gtask)
+void GRTDispatcher::execute_task(const GRTTaskBase::Ref gtask)
 {
   try
   {
     gtask->started();
-    grt::ValueRef result= gtask->execute(_grt);
-    gtask->__result= result; // for passing result to add_task_and_wait
+    grt::ValueRef result = gtask->execute(_grt);
 
     restore_callbacks(gtask);
     gtask->finished(result);
@@ -721,8 +780,9 @@ void GRTDispatcher::execute_task(GRTTaskBase *gtask)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::wait_task(GRTTaskBase *task)
+void GRTDispatcher::wait_task(const GRTTaskBase::Ref task)
 {
   bool is_main_thread = g_thread_self() == _main_thread;
   
@@ -739,11 +799,10 @@ void GRTDispatcher::wait_task(GRTTaskBase *task)
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 
-grt::ValueRef GRTDispatcher::add_task_and_wait(GRTTaskBase *task) THROW (grt::grt_runtime_error)
+grt::ValueRef GRTDispatcher::add_task_and_wait(const GRTTaskBase::Ref task) THROW(grt::grt_runtime_error)
 {
-  grt::ValueRef result;
-  
 #if 0
   if (is_busy())
   {
@@ -754,8 +813,6 @@ grt::ValueRef GRTDispatcher::add_task_and_wait(GRTTaskBase *task) THROW (grt::gr
   }
 #endif
 
-  task->retain();
-  
   add_task(task);
   
   // wait for the task to finish executing
@@ -766,43 +823,29 @@ grt::ValueRef GRTDispatcher::add_task_and_wait(GRTTaskBase *task) THROW (grt::gr
   if (task->get_error())
   {
     grt::grt_runtime_error error= *task->get_error();
-    task->release();
-
     throw error;
   }
 
-  result= task->__result;
-
-  task->release();
-
-  return result;
+  return task->result();
 }
 
+//--------------------------------------------------------------------------------------------------
 
-grt::ValueRef GRTDispatcher::execute_simple_function(const std::string &name, 
-                                                         const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
+grt::ValueRef GRTDispatcher::execute_simple_function(const std::string &name,
+  const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
 {
-  GRTSimpleTask *task= new GRTSimpleTask(name, this, function);
-
-  task->retain();
-
+  GRTSimpleTask::Ref task(GRTSimpleTask::create_task(name, shared_from_this(), function));
   add_task_and_wait(task);
-  
-  grt::ValueRef tmp= task->__result;
-  
-  task->release();
-  
-  return tmp;
+
+  return task->result();
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void GRTDispatcher::execute_async_function(const std::string &name,
-                                           const boost::function<grt::ValueRef (grt::GRT*)> &function) THROW (grt::grt_runtime_error)
+  const boost::function<grt::ValueRef(grt::GRT*)> &function) THROW (grt::grt_runtime_error)
 {
-  GRTSimpleTask *task= new GRTSimpleTask(name, this, function);
-
-  add_task(task);
-
-  task->release();
+  add_task(GRTSimpleTask::create_task(name, shared_from_this(), function));
 }
 
+//--------------------------------------------------------------------------------------------------

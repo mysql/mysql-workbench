@@ -377,6 +377,14 @@ bool UtilitiesImpl::find_password(const std::string &service, const std::string 
                                                             "account", account.c_str(),
                                                             NULL);
 
+  if ( res == GNOME_KEYRING_RESULT_CANCELLED)
+  {
+    if (kpwd)
+      gnome_keyring_free_password(kpwd);
+    kpwd = 0;
+    throw grt::user_cancelled("User cancelled password lookup.");
+  }
+
   if ( res != GNOME_KEYRING_RESULT_OK && res != GNOME_KEYRING_RESULT_NO_MATCH )
   {
     if (kpwd)
@@ -418,6 +426,9 @@ void UtilitiesImpl::forget_password(const std::string &service, const std::strin
                                                             "service", service.c_str(),
                                                             "account", account.c_str(),
                                                             NULL);
+
+  if ( res == GNOME_KEYRING_RESULT_CANCELLED)
+    throw grt::user_cancelled("User cancelled password lookup.");
 
   if ( res != GNOME_KEYRING_RESULT_OK && res != GNOME_KEYRING_RESULT_NO_MATCH)
     throw std::runtime_error(std::string("forget_password ") + gnome_keyring_result_to_message(res));
@@ -493,6 +504,13 @@ static guint32 find_password_and_id(const std::string &service, const std::strin
   const GnomeKeyringResult result = gnome_keyring_find_items_sync(GNOME_KEYRING_ITEM_GENERIC_SECRET,
                                                                   attrs,
                                                                   &found_items);
+
+  if (result == GNOME_KEYRING_RESULT_CANCELLED)
+  {
+    if (found_items)
+      gnome_keyring_found_list_free(found_items);
+    throw grt::user_cancelled("User cancelled password lookup.");
+  }
 
   if (result != GNOME_KEYRING_RESULT_OK)
   {

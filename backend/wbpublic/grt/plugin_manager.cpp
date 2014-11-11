@@ -745,31 +745,31 @@ std::vector<NativeHandle> PluginManagerImpl::get_similar_open_plugins(grt::Modul
   return handles;
 }
 
+//--------------------------------------------------------------------------------------------------
 
-
-std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, const grt::BaseListRef &args, GUIPluginFlags flags)
+std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, const grt::BaseListRef &args,
+  GUIPluginFlags flags)
 {
   if (!plugin.is_valid())
     throw std::invalid_argument("Attempt to open an invalid plugin");
   
+  GRTDispatcher::Ref dispatcher = _grtm->get_dispatcher();
   if (*plugin->pluginType() == GUI_PLUGIN_TYPE)
   {
     if (_grtm->in_main_thread())
       return open_gui_plugin_main(plugin, args, flags);
     else
     {
-      GRTDispatcher *disp= _grtm->get_dispatcher();
+      // Request the plugin to be executed and opened by the frontend in the main thread.
+      DispatcherCallback<std::string>::Ref cb = DispatcherCallback<std::string>::create_callback(
+        boost::bind(&PluginManagerImpl::open_gui_plugin_main, this, plugin, args, flags)
+      );
 
-      // request the plugin to be executed and opened by the frontend in the main thread
-      DispatcherCallback<std::string> *cb= new DispatcherCallback<std::string>(boost::bind(&PluginManagerImpl::open_gui_plugin_main,this,
-                                                                plugin, args, flags));
-
-      disp->call_from_main_thread(cb, false, false);
+      dispatcher->call_from_main_thread(cb, false, false);
       
-      cb->release();
-
       grt::Module *module= _grtm->get_grt()->get_module(_plugin_source_module[plugin->name()]);
-      // build the handle name ourselves
+
+      // Build the handle name ourselves.
       return make_open_plugin_id(module, plugin->moduleFunctionName(), args);
     }
   }
@@ -779,15 +779,11 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
       open_standalone_plugin_main(plugin, args);
     else
     {
-      GRTDispatcher *disp= _grtm->get_dispatcher();
-      
-      // request the plugin to be executed and opened by the frontend in the main thread
-      DispatcherCallback<void> *cb= new DispatcherCallback<void>(boost::bind(&PluginManagerImpl::open_standalone_plugin_main, this, 
-                                                                  plugin, args));
-      
-      disp->call_from_main_thread(cb, false, false);
-      
-      cb->release();
+      // Request the plugin to be executed and opened by the frontend in the main thread.
+      DispatcherCallback<void>::Ref cb = DispatcherCallback<void>::create_callback(
+        boost::bind(&PluginManagerImpl::open_standalone_plugin_main, this, plugin, args)
+      );
+      dispatcher->call_from_main_thread(cb, false, false);
     }
   }
   else if (*plugin->pluginType() == INTERNAL_PLUGIN_TYPE)
@@ -796,18 +792,15 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
       open_normal_plugin_grt(_grtm->get_grt(), plugin, args);
     else
     {
-      GRTDispatcher *disp= _grtm->get_dispatcher();
+      // Request the plugin to be executed and opened by the frontend in the main thread.
+      DispatcherCallback<grt::ValueRef>::Ref cb = DispatcherCallback<grt::ValueRef>::create_callback(
+        boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, _grtm->get_grt(), plugin, args)
+      );
       
-      // request the plugin to be executed and opened by the frontend in the main thread
-      DispatcherCallback<grt::ValueRef> *cb= new DispatcherCallback<grt::ValueRef>(boost::bind(&PluginManagerImpl::open_normal_plugin_grt, this, 
-                                                                  _grtm->get_grt(), plugin, args));
-      
-      disp->call_from_main_thread(cb, false, false);
-      
-      cb->release();
+      dispatcher->call_from_main_thread(cb, false, false);
     }
   }
-  else // a normal plugin implemented by a GRT module
+  else // A normal plugin implemented by a GRT module.
   {
     // Opening a normal plugin is usually done in the context of the grt thread and we want to
     // continue that way. But if we are currently in the main thread switch here to the grt thread
@@ -823,8 +816,9 @@ std::string PluginManagerImpl::open_gui_plugin(const app_PluginRef &plugin, cons
   return "";
 }
 
+//--------------------------------------------------------------------------------------------------
 
-/** 
+/**
  ****************************************************************************
  * @brief Executes the plugin with the given list of arguments
  *
@@ -933,17 +927,15 @@ int PluginManagerImpl::show_plugin(const std::string &handle)
     return show_gui_plugin_main(handle);
   else
   {
-    GRTDispatcher *disp= _grtm->get_dispatcher();
-    // request the plugin to be executed and opened by the frontend in the main thread
+    GRTDispatcher::Ref dispatcher = _grtm->get_dispatcher();
 
-    DispatcherCallback<int> *cb= new DispatcherCallback<int>(boost::bind(&PluginManagerImpl::show_gui_plugin_main, this, handle));
-    
-    disp->call_from_main_thread(cb, false, false);
+    // Request the plugin to be executed and opened by the frontend in the main thread.
+    DispatcherCallback<int>::Ref cb = DispatcherCallback<int>::create_callback(
+      boost::bind(&PluginManagerImpl::show_gui_plugin_main, this, handle)
+    );
+    dispatcher->call_from_main_thread(cb, false, false);
 
-    cb->release();
-
-    // return value is ignored atm.
-
+    // Return value is ignored atm.
     return 0;
   }
 }
@@ -978,17 +970,15 @@ int PluginManagerImpl::close_plugin(const std::string &handle)
     return close_gui_plugin_main(handle);
   else
   {
-    GRTDispatcher *disp= _grtm->get_dispatcher();
-    // request the plugin to be executed and opened by the frontend in the main thread
+    GRTDispatcher::Ref dispatcher = _grtm->get_dispatcher();
 
-    DispatcherCallback<int> *cb= new DispatcherCallback<int>(boost::bind(&PluginManagerImpl::close_gui_plugin_main, this, handle));
-    
-    disp->call_from_main_thread(cb, false, false);
+    // Request the plugin to be executed and opened by the frontend in the main thread.
+    DispatcherCallback<int>::Ref cb = DispatcherCallback<int>::create_callback(
+      boost::bind(&PluginManagerImpl::close_gui_plugin_main, this, handle)
+    );
+    dispatcher->call_from_main_thread(cb, false, false);
 
-    cb->release();
-
-    // return value is ignored atm.
-
+    // Return value is ignored atm.
     return 0;
   }
 }

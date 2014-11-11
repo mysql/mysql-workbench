@@ -24,7 +24,7 @@
 #include "mysql-recognition-types.h"
 #include "grtdb/db_helpers.h"
 
-#ifdef __linux__
+#ifndef HAVE_PRECOMPILED_HEADERS
   #include "grts/structs.db.mysql.h"
 #endif
 

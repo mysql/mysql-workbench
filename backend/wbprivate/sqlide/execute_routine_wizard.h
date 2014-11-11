@@ -21,8 +21,8 @@
 
 #include "mforms/form.h"
 
-#ifdef __linux__
-#include "grts/structs.db.mysql.h"
+#ifndef HAVE_PRECOMPILED_HEADERS
+  #include "grts/structs.db.mysql.h"
 #endif
 
 namespace mforms {

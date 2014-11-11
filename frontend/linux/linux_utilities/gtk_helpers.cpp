@@ -322,40 +322,6 @@ static void expand_node(bec::TreeModel* tm, const bec::NodeId& node, Gtk::TreeVi
     }
   }
 }
-
-//------------------------------------------------------------------------------
-void expand_tree_nodes_as_in_be(const Glib::RefPtr<TreeModelWrapper> &model, Gtk::TreeView *tv)
-{
-  model->block_expand_collapse_signals();
-  //TODO: This vv will work once grt_value_tree.h will have correct support for storing expanded/collapsed states 
-  //bec::TreeModel *tm = static_cast<bec::TreeModel*>(model->get_be_model());
-  //expand_node(tm, tm->get_root(), tv);
-
-  // The code below is a workaround while we do not have working support for store/retrive expanded state of the node
-  ExpandedRowsStorage* rows = model->expanded_rows_storage();
-  // As: The insert members shall not affect the validity of iterators and references 
-  // to the container, and the erase members shall invalidate only iterators and 
-  // references to the erased elements. We need to have temp vector of values of invalid rows
-  std::vector<ExpandedRowsStorage::key_type> invalid_rows;
-  if ( rows )
-  {
-    ExpandedRowsStorage::const_iterator       row  = rows->begin();
-    const ExpandedRowsStorage::const_iterator last = rows->end();
-    
-    for (; last != row; ++row)
-    {
-      if (!tv->expand_row(Gtk::TreeModel::Path(*row), false))
-        invalid_rows.push_back(*row);
-    }
-    
-    std::vector<ExpandedRowsStorage::key_type>::const_iterator i_row  = invalid_rows.begin();
-    std::vector<ExpandedRowsStorage::key_type>::const_iterator i_last = invalid_rows.end();
-    for(; i_last != i_row; ++i_row)
-      rows->erase(*i_row);
-  }
-  model->unblock_expand_collapse_signals();
-}
-
 //------------------------------------------------------------------------------
 //std::string run_string_dialog(const std::string& title, const std::string& init_value)
 //{

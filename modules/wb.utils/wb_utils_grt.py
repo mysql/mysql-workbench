@@ -446,7 +446,8 @@ def startCommandLineClientForConnection(conn):
         if not bundled_client_path:
             bundled_client_path = "mysql"
         command = """\\"%s\\" \\"-u%s\\" \\"-h%s\\" -P%i %s -p %s""" % (bundled_client_path, user, host, port, socket, schema)
-        subprocess.call(["/bin/bash", "-c", "%s -e \"%s\" &" % (get_linux_terminal_program(), command)])
+        
+        subprocess.call(["/bin/sh", "-c", "%s -e \"%s\" &" % (get_linux_terminal_program(), command)])
 
 
 if sys.platform == "linux2":
@@ -542,14 +543,14 @@ def startUtilitiesShell():
                 f.write('echo "The following MySQL Utilities are available:"\n')
                 f.write('mysqluc -e "help utilities"\n')
                 f.write('rm -f "%s"\n' % setup_script)
-                f.write('bash -i\n')
+                f.write('sh -i\n')
                 f.close()
                 os.chmod(setup_script, 0700)
 
                 if 'konsole' in term:
-                    subprocess.call([term, "-e", "/bin/bash", setup_script])
+                    subprocess.call([term, "-e", "/bin/sh", setup_script])
                 else:
-                    subprocess.call(["/bin/bash", "-c", "%s -e %s &" % (term, setup_script)])
+                    subprocess.call(["/bin/sh", "-c", "%s -e %s &" % (term, setup_script)])
             else:
                 raise RuntimeError("Terminal program could not be found")
 

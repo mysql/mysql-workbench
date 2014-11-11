@@ -275,7 +275,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
   Recordset::Column_names &column_names= get_column_names(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
   Recordset::Column_types &real_column_types= get_real_column_types(recordset);
-  Recordset::Column_quoting &column_quoting= get_column_quoting(recordset);
+  Recordset::Column_flags &column_flags= get_column_flags(recordset);
   
   boost::shared_ptr<sql::Statement> stmt;
   boost::shared_ptr<sql::ResultSet> rs;
@@ -429,7 +429,10 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
     type_name= type_name.substr(0, tne);
     column_types.push_back(known_types[type_name]);
     real_column_types.push_back(known_real_types[type_name]);
-    column_quoting.push_back(!rs_meta->isNumeric(n+1) && (sql::DataType::DECIMAL != rs_meta->getColumnType(n+1)));
+    int flags = 0;
+    if (!rs_meta->isNumeric(n+1) && (sql::DataType::DECIMAL != rs_meta->getColumnType(n+1)))
+      flags = Recordset::NeedsQuoteFlag;
+    column_flags.push_back(flags);
   }
 
   // column names

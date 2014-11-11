@@ -87,13 +87,10 @@ GRTManager::GRTManager(bool threaded, bool verbose)
     _instances[_grt]= this;
   }
   
-  _dispatcher.reset(new GRTDispatcher(_grt, _threaded, true));
-
-  _shell= new ShellBE(this, _dispatcher.get());
-
-  _plugin_manager= _grt->get_native_module<PluginManagerImpl>();
-
-  _messages_list= new MessageListStorage(this);
+  _dispatcher = GRTDispatcher::create_dispatcher(_grt, _threaded, true);
+  _shell = new ShellBE(this, _dispatcher);
+  _plugin_manager = _grt->get_native_module<PluginManagerImpl>();
+  _messages_list = new MessageListStorage(this);
 }
 
 bool GRTManager::try_soft_lock_globals_tree()
@@ -271,7 +268,7 @@ void GRTManager::execute_grt_task(const std::string &title,
                                   const boost::function<grt::ValueRef (grt::GRT*)> &function,
                                   const boost::function<void (grt::ValueRef)> &finished_cb)
 {
-  GRTTask *task(new GRTTask(title, _dispatcher.get(), function));
+  GRTTask::Ref task = GRTTask::create_task(title, _dispatcher, function);
 
   // connect finished_cb provided by caller (after ours)
   task->signal_finished()->connect(finished_cb);
@@ -279,29 +276,21 @@ void GRTManager::execute_grt_task(const std::string &title,
   scoped_connect(task->signal_failed(),boost::bind(&GRTManager::task_error_cb, this, _1, title));
 
   _dispatcher->add_task(task);
-
-  task->release();
 }
 
 
-void GRTManager::add_dispatcher(GRTDispatcher::Ref disp)
+void GRTManager::add_dispatcher(const GRTDispatcher::Ref dispatcher)
 {
   MutexLock disp_map_mutex(_disp_map_mutex);
-  _disp_map[disp];
+  _disp_map[dispatcher];
 }
 
 
-void GRTManager::remove_dispatcher(GRTDispatcher *disp)
+void GRTManager::remove_dispatcher(const GRTDispatcher::Ref dispatcher)
 {
   MutexLock disp_map_mutex(_disp_map_mutex);
-  for (DispMap::iterator i= _disp_map.begin(), end= _disp_map.end(); i != end; ++i)
-  {
-    if (i->first.get() == disp)
-    {
-      _disp_map.erase(i);
-      break;
-    }
-  }
+  if (_disp_map.find(dispatcher) != _disp_map.end())
+    _disp_map.erase(dispatcher);
 }
 
 
@@ -341,7 +330,7 @@ void GRTManager::show_message(const std::string &title, const std::string &messa
 
 void GRTManager::initialize(bool init_python, const std::string &loader_module_path)
 {
-  _dispatcher->start(_dispatcher);
+  _dispatcher->start();
 
   load_structs();
 
@@ -384,7 +373,7 @@ bool GRTManager::cancel_idle_tasks()
 {
 //   { TODO
 //     MutexLock disp_map_mutex(_disp_map_mutex);
-//     for (DispMap::iterator i = _disp_map.begin(), i_end = _disp_map.end(); i != i_end; ++i)
+//     for (DispatcherMap::iterator i = _disp_map.begin(), i_end = _disp_map.end(); i != i_end; ++i)
 //       i->first->cancel_all_tasks();
 //   }
 
@@ -408,14 +397,14 @@ void GRTManager::perform_idle_tasks()
 {
   // flush the dispatcher callback queue
   {
-    DispMap copy;
+    DispatcherMap copy;
     
     {
       MutexLock disp_map_mutex(_disp_map_mutex);
       copy= _disp_map;
     }
     
-    for (DispMap::iterator i= copy.begin(), i_end= copy.end(); i != i_end; ++i)
+    for (DispatcherMap::iterator i= copy.begin(), i_end= copy.end(); i != i_end; ++i)
       i->first->flush_pending_callbacks();
   }
 

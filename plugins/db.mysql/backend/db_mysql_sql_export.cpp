@@ -242,10 +242,11 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict(grt::GRT *grt)
   return options;
 }
 
+//--------------------------------------------------------------------------------------------------
 
 void DbMySQLSQLExport::start_export(bool wait_finish)
 {
-  bec::GRTTask *task= new bec::GRTTask("SQL export", 
+  bec::GRTTask::Ref task = bec::GRTTask::create_task("SQL export", 
     _manager->get_dispatcher(), 
     boost::bind(&DbMySQLSQLExport::export_task, this, _1, grt::StringRef()));
 
@@ -255,9 +256,9 @@ void DbMySQLSQLExport::start_export(bool wait_finish)
     _manager->get_dispatcher()->add_task_and_wait(task);
   else
     _manager->get_dispatcher()->add_task(task);
-
-  task->release();
 }
+
+//--------------------------------------------------------------------------------------------------
 
 void DbMySQLSQLExport::export_finished(grt::ValueRef res)
 {

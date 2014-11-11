@@ -85,6 +85,10 @@ public:
     _skip_routines_check.set_text(_("Skip synchronization of Stored Procedures and Functions"));
     _db_options_box.add(&_skip_routines_check, false, false);
 
+    _skip_routine_definer_check.set_text(_("Skip checking of Routine Definer"));
+    _db_options_box.add(&_skip_routine_definer_check, false, false);
+
+
     // Script
     _omit_schema_qualifier_check.set_text(_("Omit Schema Qualifier in Object Names"));
     _options_box.add(&_omit_schema_qualifier_check, false, false);
@@ -98,6 +102,7 @@ public:
     scoped_connect(signal_leave(),boost::bind(&SyncOptionsPage::gather_options, this, _1));
 
     grt::Module *module= ((WizardPlugin*)_form)->module();
+    _skip_routine_definer_check.set_active(module->document_int_data("SkipRoutineDefiner", 0) != 0);
     _skip_triggers_check.set_active(module->document_int_data("SkipTriggers", 0) != 0);
     _skip_routines_check.set_active(module->document_int_data("SkipRoutines", 0) != 0);
     _omit_schema_qualifier_check.set_active(module->document_int_data("OmitSchemata", 0) != 0);
@@ -110,12 +115,14 @@ public:
     values().gset("SkipRoutines", _skip_routines_check.get_active());
     values().gset("OmitSchemata", _omit_schema_qualifier_check.get_active());
     values().gset("GenerateAttachedScripts", _generate_attached_scripts.get_active());
+    values().gset("SkipRoutineDefiner", _skip_routine_definer_check.get_active());
 
     grt::Module *module= ((WizardPlugin*)_form)->module();
     module->set_document_data("SkipTriggers", _skip_triggers_check.get_active());
     module->set_document_data("SkipRoutines", _skip_routines_check.get_active());
     module->set_document_data("OmitSchemata", _omit_schema_qualifier_check.get_active());
     module->set_document_data("GenerateAttachedScripts", _generate_attached_scripts.get_active());
+    module->set_document_data("SkipRoutineDefiner", _skip_routine_definer_check.get_active());
   }
 
 
@@ -137,6 +144,7 @@ protected:
 
   CheckBox _skip_triggers_check;
   CheckBox _skip_routines_check;
+  CheckBox _skip_routine_definer_check;
   CheckBox _omit_schema_qualifier_check;
   CheckBox _generate_attached_scripts;
 };

@@ -528,7 +528,6 @@ void ColumnsModel::add_model_column(Gtk::TreeModelColumnBase *col, int bec_tm_id
 ListModelWrapper::ListModelWrapper(bec::ListModel* tm, Gtk::TreeView *treeview, const std::string& name)
                     : Glib::ObjectBase(typeid(ListModelWrapper))
                     , Glib::Object()
-                    , Gtk::TreeModel()
                     , _treeview(treeview)
                     , _iconview(0)
                     , _context_menu(0)

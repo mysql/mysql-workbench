@@ -17,16 +17,11 @@
  * 02110-1301  USA
  */
 
-
-#ifndef _GRT_THREADED_TASK_H_
-#define _GRT_THREADED_TASK_H_
+#pragma once
 
 #include "base/trackable.h"
 #include "wbpublic_public_interface.h"
 #include "grt/grt_manager.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-
 
 class WBPUBLICBACKEND_PUBLIC_FUNC GrtThreadedTask : public base::trackable
 {
@@ -35,14 +30,14 @@ public:
 public:
   static Ref create() { return Ref(new GrtThreadedTask()); }
   static Ref create(bec::GRTManager *grtm) { return Ref(new GrtThreadedTask(grtm)); }
-  static Ref create(const GrtThreadedTask::Ref &parent_task) { return Ref(new GrtThreadedTask(parent_task)); }
+  static Ref create(const GrtThreadedTask::Ref parent_task) { return Ref(new GrtThreadedTask(parent_task)); }
 public:
   virtual ~GrtThreadedTask();
   void disconnect_callbacks();
 protected:
   GrtThreadedTask();
   GrtThreadedTask(bec::GRTManager *grtm);
-  GrtThreadedTask(const GrtThreadedTask::Ref &parent_task);
+  GrtThreadedTask(const GrtThreadedTask::Ref parent_task);
 
 public:
   bec::GRTManager * grtm() const { return _grtm; }
@@ -58,19 +53,17 @@ private:
   bec::GRTDispatcher::Ref _dispatcher;
 
 private:
-  bec::GRTTask *_task;
+  bec::GRTTask::Ref _task;
   GrtThreadedTask::Ref _parent_task;
 
 public:
-  const GrtThreadedTask::Ref & parent_task() const { return _parent_task; }
-  void parent_task(const GrtThreadedTask::Ref &val);
+  const GrtThreadedTask::Ref parent_task() const { return _parent_task; }
+  void parent_task(const GrtThreadedTask::Ref val);
 
-  bec::GRTTask *task(); // Returns the underlying grt task.
+  const bec::GRTTask::Ref task(); // Returns the underlying grt task.
 
 private:
-  void on_starting(bec::GRTTaskBase *task);
-  void on_finishing(bec::GRTTaskBase *task);
-  void on_failing(bec::GRTTaskBase *task);
+  void on_starting(const bec::GRTTaskBase::Ref task);
 
 public:
   std::string desc() { return _desc; }
@@ -105,9 +98,9 @@ public:
   void proc_cb(Proc_cb cb) { _proc_cb= cb; }
 
 private:
-  void process_msg(const grt::Message &msgs, bec::GRTTask *task);
-  void process_finish(grt::ValueRef res, bec::GRTTask *task);
-  void process_fail(const std::exception &error, bec::GRTTask *task);
+  void process_msg(const grt::Message &msgs);
+  void process_finish(grt::ValueRef res);
+  void process_fail(const std::exception &error);
 
 private:
   Proc_cb _proc_cb;
@@ -121,5 +114,3 @@ private:
 public:
   void execute_in_main_thread(const boost::function<void ()> &function, bool wait, bool force_queue);
 };
-
-#endif /* _GRT_THREADED_TASK_H_ */

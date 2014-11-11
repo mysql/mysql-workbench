@@ -117,7 +117,7 @@ void VarGridModel::reset()
   reinit(_column_names);
   reinit(_column_types);
   reinit(_real_column_types);
-  reinit(_column_quoting);
+  reinit(_column_flags);
 
   _column_count= 0;
   _row_count= 0;

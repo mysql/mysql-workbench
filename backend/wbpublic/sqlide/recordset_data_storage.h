@@ -89,11 +89,11 @@ protected:
   static Recordset::Column_names & get_column_names(Recordset *recordset) { return recordset->_column_names; }
   static Recordset::Column_types & get_column_types(Recordset *recordset) { return recordset->_column_types; }
   static Recordset::Column_types & get_real_column_types(Recordset *recordset) { return recordset->_real_column_types; }
-  static Recordset::Column_quoting & get_column_quoting(Recordset *recordset) { return recordset->_column_quoting; }
+  static Recordset::Column_flags & get_column_flags(Recordset *recordset) { return recordset->_column_flags; }
   static const Recordset::Column_names & get_column_names(const Recordset *recordset) { return recordset->_column_names; }
   static const Recordset::Column_types & get_column_types(const Recordset *recordset) { return recordset->_column_types; }
   static const Recordset::Column_types & get_real_column_types(const Recordset *recordset) { return recordset->_real_column_types; }
-  static const Recordset::Column_quoting & get_column_quoting(const Recordset *recordset) { return recordset->_column_quoting; }  
+  static const Recordset::Column_flags & get_column_flags(const Recordset *recordset) { return recordset->_column_flags; }
   
 public:
   bool limit_rows() { return _limit_rows; }

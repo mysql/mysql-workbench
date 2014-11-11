@@ -177,17 +177,10 @@ Overview^ WbContext::get_physical_overview()
 
 //--------------------------------------------------------------------------------------------------
 
-TreeViewAdv^ WbContext::get_catalog_tree()
-{
-  // Note: this and the other 2 get_* functions below leak memory (the created trees).
-  //       This will be solved once the entire sidebars are managed by the backend.
-  return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(inner->get_wb()->get_model_context()->create_catalog_tree()));
-}
-
-//--------------------------------------------------------------------------------------------------
-
 TreeViewAdv^ WbContext::get_history_tree()
 {
+  // Note: this and the other get_* function below leak memory (the created trees).
+  //       This will be solved once the entire sidebars are managed by the backend.
   return dynamic_cast<TreeViewAdv ^>(ObjectMapper::GetManagedComponent(inner->get_wb()->get_model_context()->create_history_tree()));
 }
 

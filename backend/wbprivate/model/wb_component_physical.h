@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,7 +68,7 @@ namespace wb {
   #define WB_TOOL_PRELnm "physical/relnm"
   #define WB_TOOL_PREL_PICK "physical/relpick"
   
-  class MYSQLWBBACKEND_PUBLIC_FUNC WBComponentPhysical : virtual public WBComponent, base::Observer
+  class MYSQLWBBACKEND_PUBLIC_FUNC WBComponentPhysical : virtual public WBComponent
   {
   public:
     WBComponentPhysical(WBContext *wb);
@@ -103,9 +103,6 @@ namespace wb {
 
     virtual void block_model_notifications();
     virtual void unblock_model_notifications();
-
-    CatalogTreeBE *get_catalog_tree_model();
-    void update_catalog_tree_model();
 
     virtual void delete_db_object(const db_DatabaseObjectRef &object);
 
@@ -212,7 +209,7 @@ namespace wb {
     virtual model_ObjectRef paste_object(ModelDiagramForm *view, const grt::ObjectRef &object, grt::CopyContext &copy_context);
     virtual void copy_object_to_clipboard(const grt::ObjectRef &object, grt::CopyContext &copy_context);
 
-    virtual GrtObjectRef get_object_for_figure(const model_ObjectRef &object);
+
 
     virtual void activate_canvas_object(const model_ObjectRef &figure, bool newwindow);
 
@@ -226,6 +223,9 @@ namespace wb {
     virtual bool perform_drop(ModelDiagramForm *view, int x, int y, const std::string &type, const std::list<GrtObjectRef> &objects);
     virtual bool perform_drop(ModelDiagramForm *view, int x, int y, const std::string &type, const std::string &data);
 
+  public:
+    boost::function<void (model_ModelRef)> _refresh_catalog_tree_view;
+    virtual GrtObjectRef get_object_for_figure(const model_ObjectRef &object);
   private:
     grt::DictRef delete_db_schema(const db_SchemaRef &schema, bool check_empty);
     
@@ -248,18 +248,11 @@ namespace wb {
     std::map<std::string, boost::signals2::connection> _schema_list_listeners;
 //    std::list<sigc::connection> _blockable_listeners;
 
-    CatalogTreeBE *_catalog_tree;
     std::map<std::string, boost::signals2::connection> _figure_list_listeners;
     boost::signals2::connection _model_list_listener;
     boost::signals2::connection _catalog_object_list_listener;
-
-    virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
     
     void refresh_ui_for_object(const GrtObjectRef &object);
-
-    bool filter_catalog_tree(const bec::NodeId &node, const std::string &key, const grt::ValueRef &value, 
-      std::string &label_ret, bec::IconId &icon_ret);
-    void activate_catalog_tree_item(const grt::ValueRef &value);
 
     bool update_table_fk_connection(const db_TableRef &table, const db_ForeignKeyRef &fk, bool added);
 

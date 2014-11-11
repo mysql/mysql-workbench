@@ -104,6 +104,8 @@ public:
   virtual void collapse();
   virtual bool is_expanded();
 
+  virtual void toggle();
+
   virtual void set_tag(const std::string &tag);
   virtual std::string get_tag() const;
 

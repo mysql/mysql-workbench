@@ -702,7 +702,7 @@ int main(int argc, char **argv)
         if (task.copy_spec.resume)
         {
           if(!ptarget.get())
-            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
+            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type));
           last_pkeys = ptarget->get_last_pkeys(task.target_pk_columns, task.target_schema, task.target_table);
         }
         count_rows(psource, task.source_schema, task.source_table, task.source_pk_columns, task.copy_spec, last_pkeys);
@@ -711,7 +711,7 @@ int main(int argc, char **argv)
     else if (reenable_triggers || disable_triggers)
     {
       boost::scoped_ptr<MySQLCopyDataTarget> ptarget;
-      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
+      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type));
 
       if (disable_triggers)
         ptarget->backup_triggers(trigger_schemas);
@@ -728,7 +728,7 @@ int main(int argc, char **argv)
 
       if (disable_triggers_on_copy)
       {
-        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset));
+        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type));
         ptarget_conn->backup_triggers(trigger_schemas);
       }
 
@@ -746,7 +746,7 @@ int main(int argc, char **argv)
         else
           psource = new PythonCopyDataSource(source_connstring, source_password);
 
-        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset);
+        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket, target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type);
 
         psource->set_max_blob_chunk_size(ptarget->get_max_allowed_packet());
         psource->set_max_parameter_size((unsigned long)ptarget->get_max_long_data_size());

@@ -108,7 +108,7 @@ namespace MySQL.GUI.Workbench
 
     private void navImagePanel_SizeChanged(object sender, EventArgs e)
     {
-      if (canvas != null)
+      if (canvas != null && !form.Closing)
       {
         Size size = miniViewHost.DisplayRectangle.Size;
         form.DiagramWrapper.update_mini_view_size(size.Width, size.Height);

@@ -2299,6 +2299,9 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
             break;
           default:
             delegate->tree_activate_objects("activate", changes);
+#ifndef _WIN32
+            node->toggle();
+#endif
             break;
           }
         }
@@ -2327,10 +2330,16 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
             case -3:
               delegate->tree_activate_objects("select_data", changes);
               break;
+#ifndef _WIN32
+            default:
+              node->toggle();
+              break;
+#endif
             }
           }
+          break;
         }
-        break;
+        // else fall through.
       }
 
     case Procedure:
@@ -2354,13 +2363,22 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column)
               break;
             }
           }
+          break;
         }
-        break;
+        // else fall through.
       }
+
     default:
+      node_name = base::quote_identifier_if_needed(node_name, '`');
+      sql_editor_text_insert_signal(node_name);
       break;
+
     }
   }
+#ifndef _WIN32
+  else
+    node->toggle();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

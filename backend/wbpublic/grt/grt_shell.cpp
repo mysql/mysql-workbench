@@ -35,7 +35,7 @@ using namespace bec;
 #define BOOKMARKS_FILENAME "shell_bookmarks.txt"
 
 
-ShellBE::ShellBE(GRTManager *grtm, GRTDispatcher *dispatcher)
+ShellBE::ShellBE(GRTManager *grtm, const GRTDispatcher::Ref dispatcher)
   : _grtm(grtm), _dispatcher(dispatcher)
 {
   _grt= grtm->get_grt();
@@ -106,7 +106,7 @@ bool ShellBE::run_script(const std::string &script, const std::string &language)
 
 void ShellBE::process_line_async(const std::string &line)
 {
-  GRTShellTask *task= new GRTShellTask("User shell command", _dispatcher, line);
+  GRTShellTask::Ref task= GRTShellTask::create_task("User shell command", _dispatcher, line);
 
   task->signal_message().connect(boost::bind(&ShellBE::handle_msg, this, _1));
   task->set_handle_messages_from_thread();
@@ -114,9 +114,6 @@ void ShellBE::process_line_async(const std::string &line)
   task->signal_finished().connect(boost::bind(&ShellBE::shell_finished_cb, this, _1, _2, line));
   
   _dispatcher->execute_now(task);
-  
-  // task->release(); Already released in execute_now().
-  // TODO: review this once we have a better balanced grt life cycle handling.
 }
 
 

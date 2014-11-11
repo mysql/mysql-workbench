@@ -313,7 +313,6 @@
     <ClCompile Include="grt\grt_string_list_model.cpp" />
     <ClCompile Include="grt\grt_threaded_task.cpp" />
     <ClCompile Include="grt\grt_value_inspector.cpp" />
-    <ClCompile Include="grt\grt_value_tree.cpp" />
     <ClCompile Include="grt\icon_manager.cpp" />
     <ClCompile Include="grt\parse_utils.cpp" />
     <ClCompile Include="grt\plugin_manager.cpp" />
@@ -516,7 +515,6 @@
     <ClInclude Include="grt\grt_string_list_model.h" />
     <ClInclude Include="grt\grt_threaded_task.h" />
     <ClInclude Include="grt\grt_value_inspector.h" />
-    <ClInclude Include="grt\grt_value_tree.h" />
     <ClInclude Include="grt\grt_walker.h" />
     <ClInclude Include="grt\icon_manager.h" />
     <ClInclude Include="grt\incremental_list_updater.h" />

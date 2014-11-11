@@ -1507,6 +1507,7 @@ boost::shared_ptr<std::vector<ColumnInfo> > MySQLCopyDataSource::begin_select_ta
           if(info.is_long_data)
             _has_long_data = true;
 
+          log_debug2("%i - %s: %s\n", i + 1, info.source_name.c_str(), info.source_type.c_str());
           columns->push_back(info);
         }
 
@@ -1885,7 +1886,10 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
       ftype = MYSQL_TYPE_STRING;
       break;
     case MYSQL_TYPE_GEOMETRY:
-      ftype = MYSQL_TYPE_GEOMETRY;
+      if (_source_rdbms_type == "Mysql")
+        ftype = MYSQL_TYPE_BLOB;
+      else
+        ftype = MYSQL_TYPE_GEOMETRY;
       break;
     default:
       break;
@@ -1896,10 +1900,10 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
 MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port,
                     const std::string &username, const std::string &password,
                     const std::string &socket, bool use_cleartext_plugin, const std::string &app_name,
-                    const std::string &incoming_charset)
+                    const std::string &incoming_charset, const std::string &source_rdbms_type)
 : _insert_stmt(NULL), _max_allowed_packet(1000000), _max_long_data_size(1000000),// 1M default
   _row_buffer(NULL), _major_version(0), _minor_version(0), _build_version(0), _use_bulk_inserts(true),
-  _bulk_insert_batch(0)
+  _bulk_insert_batch(0), _source_rdbms_type(source_rdbms_type)
 {
   std::string host = hostname;
   _truncate = false;
@@ -2013,7 +2017,7 @@ void MySQLCopyDataTarget::set_target_table(const std::string &schema, const std:
             (*columns)[i].is_unsigned = (fields[i].flags & UNSIGNED_FLAG) != 0;
             if (_get_field_lengths_from_target)
                 (*columns)[i].source_length = fields[i].length;
-            log_debug2("%i - %s: %s\n", i+1, (*columns)[i].target_name.c_str(),
+            log_debug2("%i - %s: %s\n", i + 1, (*columns)[i].target_name.c_str(),
                        mysql_field_type_to_name((*columns)[i].target_type));
           }
         }

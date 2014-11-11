@@ -1256,7 +1256,11 @@ void ActionGenerateSQL::alter_table_change_column(db_mysql_TableRef table, db_my
   */
 
   sql.append("CHANGE COLUMN `");
-  sql.append(org_col->oldName().c_str()).append("` ");
+  auto it = column_rename_map.find(org_col->oldName().c_str());
+  if (it != column_rename_map.end() && modified)
+    sql.append(it->second.c_str()).append("` ");
+  else
+    sql.append(org_col->oldName().c_str()).append("` ");
   if(modified)
     sql.append(generate_create(org_col));
   else

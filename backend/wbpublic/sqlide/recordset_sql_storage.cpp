@@ -120,7 +120,7 @@ void Recordset_sql_storage::do_unserialize(Recordset *recordset, sqlite::connect
   Recordset::Column_names &column_names= get_column_names(recordset);
   Recordset::Column_types &column_types= get_column_types(recordset);
   Recordset::Column_types &real_column_types= get_real_column_types(recordset);
-  Recordset::Column_quoting &column_quoting= get_column_quoting(recordset);
+  Recordset::Column_flags &column_flags= get_column_flags(recordset);
 
   _pkey_columns.clear();
   _fields_order.clear(); //! make auto var & bind like var_list
@@ -141,8 +141,8 @@ void Recordset_sql_storage::do_unserialize(Recordset *recordset, sqlite::connect
     real_column_types.reserve(column_names.size());
     std::fill_n(std::back_inserter(real_column_types), column_names.size(), std::string());
 
-    column_quoting.reserve(column_names.size());
-    std::fill_n(std::back_inserter(column_quoting), column_names.size(), true);
+    column_flags.reserve(column_names.size());
+    std::fill_n(std::back_inserter(column_flags), column_names.size(), Recordset::NeedsQuoteFlag);
 
     if (!column_names.empty())
     {
@@ -354,7 +354,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
   const Recordset::Column_names &column_names= get_column_names(recordset);
   const Recordset::Column_types &column_types= get_column_types(recordset);
   const Recordset::Column_types &real_column_types= get_real_column_types(recordset);
-  const Recordset::Column_quoting &column_quoting = get_column_quoting(recordset);
+  const Recordset::Column_flags &column_flags = get_column_flags(recordset);
   const size_t partition_count= recordset->data_swap_db_partition_count();
   const sqlide::VarToStr var_to_str;
 
@@ -556,7 +556,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
             ColumnId partition_column= col - col_begin;
             v = data_rs->get_variant((int)partition_column);
             values+= strfmt("%s, ",
-                  column_quoting[partition_column] || sqlide::is_var_null(v)?
+                  (column_flags[partition_column] & Recordset::NeedsQuoteFlag) || sqlide::is_var_null(v)?
                   boost::apply_visitor(qv, column_types[partition_column], v).c_str():
                   boost::apply_visitor(var_to_str, v).c_str());
 
@@ -589,7 +589,7 @@ void Recordset_sql_storage::generate_inserts(const Recordset *recordset, sqlite:
   const Recordset::Column_names &column_names= get_column_names(recordset);
   const Recordset::Column_types &column_types= get_column_types(recordset);
   const Recordset::Column_types &real_column_types= get_real_column_types(recordset);
-  const Recordset::Column_quoting &column_quoted= get_column_quoting(recordset);
+  const Recordset::Column_flags &column_flags= get_column_flags(recordset);
   const size_t partition_count= recordset->data_swap_db_partition_count();
 
   //RowId min_new_rowid= recordset->min_new_rowid();
@@ -632,7 +632,14 @@ void Recordset_sql_storage::generate_inserts(const Recordset *recordset, sqlite:
           sqlide::VarToStr var_to_str;
 
           std::string value;
-          if (column_quoted[col] || sqlide::is_var_null(v))
+          if (sqlide::is_var_null(v))
+          {
+            if ((column_flags[col] & Recordset::NotNullFlag) != 0)
+              value = "DEFAULT";
+            else
+              value = boost::apply_visitor(qv, column_types[col], v);
+          }
+          else if ((column_flags[col] & Recordset::NeedsQuoteFlag))
             value = boost::apply_visitor(qv, column_types[col], v);
           else
           {

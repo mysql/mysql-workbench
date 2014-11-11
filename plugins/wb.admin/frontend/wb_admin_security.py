@@ -1266,6 +1266,7 @@ class SecurityAccount(mforms.Box):
     def validate_hostlimithost(self):
         host = self.hostlimithost.get_string_value()
         self.valid_name = True
+        self.valid_ipv6 = False
         if len(host) > 255:
             self.valid_name = False
 
@@ -1278,17 +1279,21 @@ class SecurityAccount(mforms.Box):
                 self.valid_name = False
 
         if self.valid_name:
-            allowed = re.compile(r"(?!-)[A-Z%_\d-]{1,63}(?<!-)$", re.IGNORECASE)
-            self.valid_name = all(allowed.match(x) for x in host.split("."))
+            allowed = re.compile(r"^(?!-)[\.A-Z%_-]{1,63}(?<!-)$", re.IGNORECASE)
+            allowed_ipv4 = re.compile(r"^(((%|_)?|25[0-5%_]|(%|_)?|2[0-4%_][0-9%_]|[01%_]?[0-9%_][0-9%_]?)\.){0,3}((%|_)?|25[0-5%_]|2[0-4%_][0-9%_]|[01%_]?[0-9%_][0-9%_]?)$")
+            allowed_ipv6 = re.compile(r"^\s*(?!.*::.*::)(?:(?!:)|:(?=:))(?:[0-9a-f%_]{0,4}(?:(?<=::)|(?<!::):)){6}(?:[0-9a-f%_]{0,4}(?:(?<=::)|(?<!::):)[0-9a-f%_]{0,4}(?:(?<=::)|(?<!:)|(?<=:)(?<!::):)|(?:25[0-4%_]|2[0-4%_]\d|1\d\d|[1-9%_]?\d)(?:\.(?:25[0-4%_]|2[0-4%_]\d|1\d\d|[1-9%_]?\d)){3})\s*$"
+                                      , re.IGNORECASE)
+            self.valid_ipv6 = allowed_ipv6.match(host)
+            self.valid_name = allowed.match(host) or allowed_ipv4.match(host) or self.valid_ipv6
 
         if self.valid_name and subnet_mask:
             self.valid_name = ( (subnet_mask.isdigit() and 0 <= int(subnet_mask) <= 32) or
+                                (subnet_mask.isdigit() and 0 <= int(subnet_mask) <= 128 and self.valid_ipv6) or
                                 (re.match(r'\d{1,3}(\.\d{1,3}){3}', subnet_mask) and            # 255.255.254.0 is a valid netmask
                                  all( int(item) <= 255 for item in subnet_mask.split('.') ) )
                               )
 
-        if self.valid_name or ':' in host: # give up and allow anything that looks like ipv6... this validation is silly anyway
-            #self.set_dirty()
+        if self.valid_name: 
             self.hostlimithost_valid_icon.show(False)
         else:
             #self.unset_dirty()

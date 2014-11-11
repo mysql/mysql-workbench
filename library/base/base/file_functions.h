@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _SHARED_UTIL_FUNCTIONS_H_
-#define _SHARED_UTIL_FUNCTIONS_H_
+#pragma once
 
 #include "common.h"
 
@@ -30,13 +29,10 @@
 #include <sys/stat.h>
 #endif
 
-#ifdef __cplusplus
-extern "C" {   
-#endif /* __cplusplus */
-
 // TODO: These function should probably be merged with file_utilities.
 BASELIBRARY_PUBLIC_FUNC FILE* base_fopen(const char *filename, const char *mode);
-BASELIBRARY_PUBLIC_FUNC int base_remove(const char *filename);
+BASELIBRARY_PUBLIC_FUNC int base_open(const std::string &filename, int open_flag, int permissions);
+BASELIBRARY_PUBLIC_FUNC int base_remove(const std::string &filename);
 BASELIBRARY_PUBLIC_FUNC int base_rename(const char *oldname, const char *newname);
 #ifdef _WIN32
   BASELIBRARY_PUBLIC_FUNC int base_stat(const char *filename, struct _stat *stbuf);
@@ -46,10 +42,3 @@ BASELIBRARY_PUBLIC_FUNC int base_rename(const char *oldname, const char *newname
 
 BASELIBRARY_PUBLIC_FUNC int base_rmdir_recursively(const char *dirname);
 BASELIBRARY_PUBLIC_FUNC long base_get_file_size(const char *filename);
-  
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif
-

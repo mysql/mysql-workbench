@@ -91,9 +91,6 @@
     <ClInclude Include="model\relationship_canvas_floater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="model\wb_catalog_tree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="model\wb_catalog_tree_view.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -355,9 +352,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="model\relationship_canvas_floater.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="model\wb_catalog_tree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="model\wb_catalog_tree_view.cpp">
