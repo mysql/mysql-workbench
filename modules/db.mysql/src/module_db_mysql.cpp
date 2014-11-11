@@ -1256,7 +1256,7 @@ void ActionGenerateSQL::alter_table_change_column(db_mysql_TableRef table, db_my
   */
 
   sql.append("CHANGE COLUMN `");
-  auto it = column_rename_map.find(org_col->oldName().c_str());
+  std::map<std::string, std::string>::iterator it = column_rename_map.find(org_col->oldName().c_str());
   if (it != column_rename_map.end() && modified)
     sql.append(it->second.c_str()).append("` ");
   else
