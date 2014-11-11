@@ -636,16 +636,18 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   grt::ListRef<db_UserDatatype> user_types1;
   grt::ListRef<db_SimpleDatatype> default_type_list1;
   
-  if (r1->owner().is_valid() && r1->owner()->owner().is_valid())
+  db_SchemaRef schema1 = db_SchemaRef::cast_from(r1->owner());
+  db_CatalogRef catalog1;
+  if (schema1.is_valid() && schema1->owner().is_valid())
   {
-    db_CatalogRef catalog= db_CatalogRef::cast_from(r1->owner()->owner());
-    user_types1 = catalog->userDatatypes();
-    default_type_list1 = catalog->simpleDatatypes();
+    catalog1 = db_CatalogRef::cast_from(schema1->owner());
+    user_types1 = catalog1->userDatatypes();
+    default_type_list1 = catalog1->simpleDatatypes();
   }
   
   grt::ListRef<db_SimpleDatatype> types1;
-  if(r1->owner()/*schema*/->owner()/*catalog*/->owner()/*phys.model*/.is_valid())
-    types1 = db_mgmt_RdbmsRef::cast_from(r1->owner()/*schema*/->owner()/*catalog*/->owner()/*phys.model*/->get_member("rdbms"))->simpleDatatypes();
+  if(catalog1.is_valid() && catalog1->owner()/*phys.model*/.is_valid())
+    types1 = db_mgmt_RdbmsRef::cast_from(catalog1->owner()->get_member("rdbms"))->simpleDatatypes();
   db_UserDatatypeRef userType1;
   db_SimpleDatatypeRef simpleType1;
   int precision1 = bec::EMPTY_COLUMN_PRECISION;
@@ -654,24 +656,28 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   std::string datatypeExplicitParams1;
   std::string type1 = r1->returnDatatype();
 
-  // XXX: always set a valid version number!
-  if (!bec::parse_type_definition(type1, "", GrtVersionRef(), types1, user_types1, default_type_list1,
+  GrtVersionRef version1;
+  if (catalog1.is_valid())
+    version1 = catalog1->version();
+  if (!bec::parse_type_definition(type1, version1, types1, user_types1, default_type_list1,
       simpleType1, userType1, precision1, scale1, length1, datatypeExplicitParams1))
       return false;
 
   grt::ListRef<db_UserDatatype> user_types2;
   grt::ListRef<db_SimpleDatatype> default_type_list2;
-  
-  if (r2->owner().is_valid() && r2->owner()->owner().is_valid())
+
+  db_SchemaRef schema2 = db_SchemaRef::cast_from(r2->owner());
+  db_CatalogRef catalog2;
+  if (schema2.is_valid() && schema2->owner().is_valid())
   {
-    db_CatalogRef catalog= db_CatalogRef::cast_from(r2->owner()->owner());
-    user_types2 = catalog->userDatatypes();
-    default_type_list2 = catalog->simpleDatatypes();
+    catalog2 = db_CatalogRef::cast_from(schema2->owner());
+    user_types2 = catalog2->userDatatypes();
+    default_type_list2 = catalog2->simpleDatatypes();
   }
   
   grt::ListRef<db_SimpleDatatype> types2;
-  if(r2->owner()/*schema*/->owner()/*catalog*/->owner()/*phys.model*/.is_valid())
-    types2 = db_mgmt_RdbmsRef::cast_from(r2->owner()/*schema*/->owner()/*catalog*/->owner()/*phys.model*/->get_member("rdbms"))->simpleDatatypes();
+  if(catalog2.is_valid() && catalog2->owner()/*phys.model*/.is_valid())
+    types2 = db_mgmt_RdbmsRef::cast_from(catalog2->owner()->get_member("rdbms"))->simpleDatatypes();
   db_UserDatatypeRef userType2;
   db_SimpleDatatypeRef simpleType2;
   int precision2 = bec::EMPTY_COLUMN_PRECISION;
@@ -679,7 +685,11 @@ bool returnDatatype_compare(const ValueRef obj1, const ValueRef obj2, const std:
   int length2 = bec::EMPTY_COLUMN_LENGTH;
   std::string datatypeExplicitParams2;
   std::string type2 = r1->returnDatatype();
-  if (!bec::parse_type_definition(type2, "", GrtVersionRef(), types2, user_types2, default_type_list2,
+
+  GrtVersionRef version2;
+  if (catalog2.is_valid())
+    version2 = catalog1->version();
+  if (!bec::parse_type_definition(type2, version2, types2, user_types2, default_type_list2,
       simpleType2, userType2, precision2, scale2, length2, datatypeExplicitParams2))
       return false;
 

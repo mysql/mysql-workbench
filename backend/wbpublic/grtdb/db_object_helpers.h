@@ -213,7 +213,6 @@ namespace bec {
     ct::for_each<ct::Schemata>(cat, sa);
   }
   bool WBPUBLICBACKEND_PUBLIC_FUNC parse_type_definition(const std::string &type,
-    const std::string &sql_mode,
     const GrtVersionRef &target_version,
     const grt::ListRef<db_SimpleDatatype> &typeList,
     const grt::ListRef<db_UserDatatype>& user_types,

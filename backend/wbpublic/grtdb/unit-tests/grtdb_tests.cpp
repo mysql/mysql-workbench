@@ -597,7 +597,6 @@ TEST_FUNCTION(22)
   version->releaseNumber(4);
   version->buildNumber(-1);
 
-  std::string sql_mode = "ANSI_QUOTES";
   for (auto iterator = definitions.begin(); iterator != definitions.end(); ++iterator)
   {
     db_SimpleDatatypeRef simple_type;
@@ -609,7 +608,7 @@ TEST_FUNCTION(22)
 
     std::string sql = *iterator;
     ensure("Data type parsing failed for: \"" + sql + "\"",
-      parse_type_definition(sql, sql_mode, version, type_list, user_types, type_list, simple_type,
+      parse_type_definition(sql, version, type_list, user_types, type_list, simple_type,
       user_type, precision, scale, length, explicit_params));
   }
 }
