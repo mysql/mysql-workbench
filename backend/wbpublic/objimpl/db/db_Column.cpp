@@ -211,7 +211,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
   std::string datatypeExplicitParams;
   grt::AutoUndo undo(get_grt(), !is_global());
 
-  if (!bec::parse_type_definition(type, "", target_version, typeList, user_types, default_type_list,
+  if (!bec::parse_type_definition(type, target_version, typeList, user_types, default_type_list,
       simpleType, userType, precision, scale, length, datatypeExplicitParams))
       return false;
   this->userType(userType);

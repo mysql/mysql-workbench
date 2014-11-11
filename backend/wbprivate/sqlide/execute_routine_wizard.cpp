@@ -142,7 +142,7 @@ bool ExecuteRoutineWizard::needs_quoting(const std::string &type)
 
   // Since we work with code directly from the server parsing should always succeed.
   // But just in case there's an unexpected error assume quoting is needed.
-  if (!bec::parse_type_definition(type, _sql_mode, target_version, type_list, grt::ListRef<db_UserDatatype>(),
+  if (!bec::parse_type_definition(type, target_version, type_list, grt::ListRef<db_UserDatatype>(),
     default_type_list, simpleType, userType, precision, scale, length, datatypeExplicitParams))
     return true;
 

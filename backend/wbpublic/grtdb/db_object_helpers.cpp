@@ -1233,7 +1233,6 @@ static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &type
 
     if (type_found)
     {
-      // TODO: version check still necessary? The parser will ensure version compliance.
       if (!target_version.is_valid() || CatalogHelper::is_type_valid_for_version(types[i], target_version))
         return types[i];
     }
@@ -1244,7 +1243,6 @@ static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &type
 //--------------------------------------------------------------------------------------------------
 
 static bool parse_type(const std::string &type,
-                       const std::string &sql_mode,
                        const GrtVersionRef &targetVersion,
                        const grt::ListRef<db_SimpleDatatype> &typeList,
                        db_SimpleDatatypeRef &simpleType,
@@ -1254,11 +1252,13 @@ static bool parse_type(const std::string &type,
                        std::string &explicitParams)
 {
   // No char sets necessary for parsing data types as there's no repertoire necessary/allowed in any
-  // data type part.
+  // data type part. Neither do we need an sql mode (string lists in enum defs only allow
+  // single quoted text).
+  // 
   // Note: we parse here more than the pure data type name + precision/scale (namely additional parameters
   // like charsets etc.). That doesn't affect the main task here, however. Additionally stuff
   // is simply ignored for now (but it must be a valid definition).
-  MySQLRecognizer recognizer(bec::version_to_int(targetVersion), sql_mode, std::set<std::string>());
+  MySQLRecognizer recognizer(bec::version_to_int(targetVersion), "", std::set<std::string>());
   recognizer.parse(type.c_str(), type.size(), true, PuDataType);
   if (!recognizer.error_info().empty())
     return false;
@@ -1381,7 +1381,6 @@ static bool parse_type(const std::string &type,
 //--------------------------------------------------------------------------------------------------
 
 bool bec::parse_type_definition(const std::string &type,
-                                const std::string &sql_mode,
                                 const GrtVersionRef &targetVersion,
                                 const grt::ListRef<db_SimpleDatatype> &typeList,
                                 const grt::ListRef<db_UserDatatype>& user_types,
@@ -1435,7 +1434,7 @@ bool bec::parse_type_definition(const std::string &type,
     }
 
     // Parse user type definition.
-    if (!parse_type(finalType, sql_mode, targetVersion, typeList.is_valid() ? typeList : default_type_list,
+    if (!parse_type(finalType, targetVersion, typeList.is_valid() ? typeList : default_type_list,
       simpleType, precision, scale, length, datatypeExplicitParams))
       return false;
 
@@ -1450,7 +1449,7 @@ bool bec::parse_type_definition(const std::string &type,
   }
   else
   {
-    if (!parse_type(type, sql_mode, targetVersion, typeList.is_valid() ? typeList : default_type_list,
+    if (!parse_type(type, targetVersion, typeList.is_valid() ? typeList : default_type_list,
       simpleType, precision, scale, length, datatypeExplicitParams))
       return false;
 
