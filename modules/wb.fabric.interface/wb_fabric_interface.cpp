@@ -19,7 +19,7 @@
 
 #include "stdafx.h"
 #include "wb_fabric_interface.h"
-#include "base\string_utilities.h"
+#include "base/string_utilities.h"
 
 #include <stdexcept>
 

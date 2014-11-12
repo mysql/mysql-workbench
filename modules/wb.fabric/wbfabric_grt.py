@@ -163,7 +163,7 @@ def _update_fabric_connections(params):
         if include_group:
             matched_groups.append(group['group_id'])
 
-            servers = _execute_fabric_command(conn_id, 'call group.lookup_servaers("%s")' % group['group_id'])
+            servers = _execute_fabric_command(conn_id, 'call group.lookup_servers("%s")' % group['group_id'])
 
             # Sorts the servers
             def server_key(item):
