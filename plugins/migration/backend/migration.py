@@ -242,7 +242,7 @@ class MigrationSource(object):
             if only_these_catalogs:
                 inexistent_catalogs = set(only_these_catalogs).difference(catalog_names)
                 if inexistent_catalogs:
-                    grt.send_warning('The following catalogs where not found: ' + ', '.join(list(inexistent_catalogs)))
+                    grt.send_warning('The following catalogs were not found: ' + ', '.join(list(inexistent_catalogs)))
                 catalog_names = list(set(only_these_catalogs).difference(inexistent_catalogs)) or self.getCatalogNames()
             self._catalog_names = catalog_names
             grt.send_progress(0.1, "Fetching schema names...")
