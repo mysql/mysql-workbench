@@ -24,9 +24,9 @@
 #include <stdexcept>
 
 
-GRT_MODULE_ENTRY_POINT(WbFabricInterface);
+GRT_MODULE_ENTRY_POINT(WbFabricInterfaceImpl);
 
-int WbFabricInterface::openConnection(const db_mgmt_ConnectionRef &conn, const grt::StringRef &password)
+int WbFabricInterfaceImpl::openConnection(const db_mgmt_ConnectionRef &conn, const grt::StringRef &password)
 {
   int new_connection_id = -1;
 
@@ -70,7 +70,7 @@ int WbFabricInterface::openConnection(const db_mgmt_ConnectionRef &conn, const g
   return new_connection_id;
 }
 
-std::string WbFabricInterface::execute(int connection_id, const std::string& query)
+std::string WbFabricInterfaceImpl::execute(int connection_id, const std::string& query)
 {
   int error = 0;
   std::string output;
@@ -122,7 +122,7 @@ std::string WbFabricInterface::execute(int connection_id, const std::string& que
   return output;
 }
 
-int WbFabricInterface::closeConnection(int connection_id)
+int WbFabricInterfaceImpl::closeConnection(int connection_id)
 {
   if (_connections.find(connection_id) != _connections.end())
   {
