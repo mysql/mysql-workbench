@@ -25,8 +25,7 @@
 #include <mysql.h>
 #include "grts/structs.db.mgmt.h"
 
-#define WbFabricInterface_VERSION "1.0"
-
+#define WB_FABRIC_INTERFACE_VERSION "1.0"
 
 class WB_FABRIC_INTERFACE_WBM_PUBLIC_FUNC WbFabricInterfaceImpl:
   public grt::ModuleImplBase
@@ -34,17 +33,15 @@ class WB_FABRIC_INTERFACE_WBM_PUBLIC_FUNC WbFabricInterfaceImpl:
 public:
   WbFabricInterfaceImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr), _connection_id(0) {};
 
-  DEFINE_INIT_MODULE(WbFabricInterface_VERSION, "MySQL AB", grt::ModuleImplBase,
+  DEFINE_INIT_MODULE(WB_FABRIC_INTERFACE_VERSION, "MySQL AB", grt::ModuleImplBase,
     DECLARE_MODULE_FUNCTION(WbFabricInterfaceImpl::openConnection),
-  DECLARE_MODULE_FUNCTION(WbFabricInterfaceImpl::closeConnection),
-  DECLARE_MODULE_FUNCTION(WbFabricInterfaceImpl::execute)
+    DECLARE_MODULE_FUNCTION(WbFabricInterfaceImpl::closeConnection),
+    DECLARE_MODULE_FUNCTION(WbFabricInterfaceImpl::execute)
   );
-
 
   int openConnection(const db_mgmt_ConnectionRef &info, const grt::StringRef &password);
   std::string execute(int connection_id, const std::string& query);
   int closeConnection(int connection_id);
-  
 
 private:
   int _connection_id;
