@@ -4047,6 +4047,7 @@
 		2773B87F11006A2D000CA2F9 /* splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = splitter.cpp; path = library/forms/splitter.cpp; sourceTree = "<group>"; };
 		2773B88411006B53000CA2F9 /* MFSplitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFSplitter.h; path = library/forms/cocoa/MFSplitter.h; sourceTree = "<group>"; };
 		2773B88611006B58000CA2F9 /* MFSplitter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFSplitter.mm; path = library/forms/cocoa/MFSplitter.mm; sourceTree = "<group>"; };
+		277F196B1A1507DB00E816F6 /* wb.fabric.interface.grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.fabric.interface.grt_prefix.pch; path = prefix/wb.fabric.interface.grt_prefix.pch; sourceTree = "<group>"; };
 		278874851189DA8500E477EF /* webbrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webbrowser.h; path = library/forms/mforms/webbrowser.h; sourceTree = "<group>"; };
 		278874871189DA9300E477EF /* webbrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webbrowser.cpp; path = library/forms/webbrowser.cpp; sourceTree = "<group>"; };
 		278874951189DEA500E477EF /* webbrowser_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webbrowser_view.cpp; sourceTree = "<group>"; };
@@ -11053,6 +11054,7 @@
 			children = (
 				ED08ADA81A144435001DBE04 /* wb_fabric_interface.cpp */,
 				ED08ADA91A144435001DBE04 /* wb_fabric_interface.h */,
+				277F196B1A1507DB00E816F6 /* wb.fabric.interface.grt_prefix.pch */,
 			);
 			name = wb.fabric.interface;
 			sourceTree = "<group>";
