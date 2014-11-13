@@ -52,7 +52,11 @@ RecordsetView::~RecordsetView()
 
 void RecordsetView::init()
 {
-  _grid= GridView::create(_model, false);
+  //We change the fixed_height_mode based on number of rows,
+  //it should be ok to have different row height for small results,
+  //for for bigger output we need to optimize the height so we change it to fixed.
+  _grid= GridView::create(_model, _model->count() > 201 ? true : false);
+
   _grid->get_selection()->set_mode(Gtk::SELECTION_MULTIPLE);
 
   _grid->_copy_func_ptr = sigc::mem_fun(this,&RecordsetView::copy);
