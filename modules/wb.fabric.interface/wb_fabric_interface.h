@@ -28,16 +28,16 @@
 #define WbFabricInterface_VERSION "1.0"
 
 
-class WB_FABRIC_INTERFACE_WBM_PUBLIC_FUNC WbFabricInterface:
+class WB_FABRIC_INTERFACE_WBM_PUBLIC_FUNC WbFabricInterfaceImpl:
   public grt::ModuleImplBase
 {
 public:
-  WbFabricInterface(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr), _connection_id(0) {};
+  WbFabricInterfaceImpl(grt::CPPModuleLoader *ldr) : grt::ModuleImplBase(ldr), _connection_id(0) {};
 
   DEFINE_INIT_MODULE(WbFabricInterface_VERSION, "MySQL AB", grt::ModuleImplBase,
-    DECLARE_MODULE_FUNCTION(WbFabricInterface::openConnection),
-  DECLARE_MODULE_FUNCTION(WbFabricInterface::closeConnection),
-  DECLARE_MODULE_FUNCTION(WbFabricInterface::execute)
+    DECLARE_MODULE_FUNCTION(WbFabricInterfaceImpl::openConnection),
+  DECLARE_MODULE_FUNCTION(WbFabricInterfaceImpl::closeConnection),
+  DECLARE_MODULE_FUNCTION(WbFabricInterfaceImpl::execute)
   );
 
 
