@@ -1069,11 +1069,12 @@ void ActionGenerateSQL::alter_table_generate_partitioning(
   }
 
   sql.append(comma).append(partition_sql);  
+  sql.append(" ");
 }
 
 void ActionGenerateSQL::alter_table_drop_partitioning(db_mysql_TableRef table)
 {
-  sql.append(" REMOVE PARTITIONING");
+  sql.append(" REMOVE PARTITIONING ");
 }
 
 void ActionGenerateSQL::alter_table_reorganize_partition(

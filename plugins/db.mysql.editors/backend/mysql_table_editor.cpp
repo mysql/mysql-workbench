@@ -1730,7 +1730,7 @@ bool MySQLTableEditorBE::can_close()
 
 bool MySQLTableEditorBE::set_partition_type(const std::string &type)
 {
-  if (type.compare(*_table->partitionType())!=0)
+  if (!type.empty() && type.compare(*_table->partitionType())!=0)
   {
     if (type == "RANGE" || type == "LIST")
     {
@@ -1761,6 +1761,21 @@ bool MySQLTableEditorBE::set_partition_type(const std::string &type)
       undo.end(strfmt(_("Change Partition Type for '%s'"), get_name().c_str()));
       return true;
     }
+  }
+  else if (type.empty())
+  {
+    AutoUndoEdit undo(this);
+    _table->partitionType(type);
+    _table->partitionCount(0);
+    _table->partitionExpression("");
+    _table->subpartitionCount(0);
+    _table->subpartitionExpression("");
+    _table->subpartitionType("");
+    if (get_explicit_partitions())
+      reset_partition_definitions((int)_table->partitionCount(), 0);
+    update_change_date();
+    undo.end(strfmt(_("Disable Partitioning for '%s'"), get_name().c_str()));
+    return true;
   }
   return false;
 }
