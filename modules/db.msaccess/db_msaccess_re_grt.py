@@ -574,6 +574,9 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
             
             # Find the referenced table:
             foreign_key.referencedTable = find_object_with_name(catalog.schemata[0].tables, fk_rows[0].szReferencedObject)
+            if not foreign_key.referencedTable:
+                grt.send_error('Migration: reverseEngineerTableFKs: Table "%s" not found in schemata "%s"' % (fk_rows[0].szReferencedObject, catalog.schemata[0].name) )
+                continue
             
             for fk_row in fk_rows:
                 column = find_object_with_name(table.columns, fk_row.szColumn)

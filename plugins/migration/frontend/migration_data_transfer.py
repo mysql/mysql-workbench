@@ -22,6 +22,7 @@ import os
 from workbench.ui import WizardPage, WizardProgressPage
 from DataMigrator import DataMigrator
 from migration_source_selection import request_password
+from workbench.utils import Version
 
 class SetupMainView(WizardPage):
     def _browse_files(self, option, title):
@@ -481,6 +482,7 @@ class TransferMainView(WizardProgressPage):
             f.write("#!/bin/sh\n")
 
         f.write(cmt("Workbench Table Data copy script"))
+        f.write(cmt("Workbench Version: %s" % Version.fromgrt(grt.root.wb.info.version)))
         f.write(cmt(""))
         f.write(cmt("Execute this to copy table data from a source RDBMS to MySQL."))
         f.write(cmt("Edit the options below to customize it. You will need to provide passwords, at least."))
