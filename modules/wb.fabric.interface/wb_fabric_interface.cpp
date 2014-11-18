@@ -38,7 +38,7 @@ int WbFabricInterfaceImpl::openConnection(const db_mgmt_ConnectionRef &conn, con
   std::string user = conn->parameterValues().get_string("userName");
   std::string host = conn->parameterValues().get_string("hostName");
   std::string socket = conn->parameterValues().get_string("socket");
-  int port = conn->parameterValues().get_int("port");
+  int port = (int)conn->parameterValues().get_int("port");
 
   // If the port is not specified it will take the default port to perform
   // fabric connections using mysqlrpc.
@@ -64,7 +64,7 @@ int WbFabricInterfaceImpl::openConnection(const db_mgmt_ConnectionRef &conn, con
 
   // Changes the format of the execution results to JSON
   // This saves the burden on having to parse the output in C code
-  // and allows taking advantaje of the JSON loader in python
+  // and allows taking advantage of the JSON loader in python
   execute(new_connection_id, "set format=json");
 
   return new_connection_id;
