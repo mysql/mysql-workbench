@@ -238,7 +238,7 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 # Add some common compiler flags. TODO: Shouldn't this be done checking if whatever compiler
 # we use supports each flag to allow for non-gcc compilers in Linux (as above)?
 if (CMAKE_COMPILER_IS_GNUCXX)
-	set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -std=c++0x -DTIXML_USE_STL=1")
+	set(MY_CXXFLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-deprecated -DTIXML_USE_STL=1")
 
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -ggdb3 ${MY_CXXFLAGS}")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXXFLAGS}") 

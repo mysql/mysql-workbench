@@ -1692,7 +1692,7 @@ bool TreeNodeViewImpl::on_header_button_event(GdkEventButton *event, int column)
 
 int TreeNodeViewImpl::add_column(TreeColumnType type, const std::string &name, int initial_width, bool editable, bool attributed)
 {
-  int column;
+  int column = -1;
   switch (type)
   {
   case IconColumnType:
