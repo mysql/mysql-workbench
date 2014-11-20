@@ -84,6 +84,10 @@ add_library(db.mysql.sqlparser.grt
     ${PROJECT_SOURCE_DIR}/library/sql.parser/source/xml.cpp
 )
 
+#We need to wait for mysqlparser, because we're including some antlr headers which parser depends on
+add_dependencies(db.mysql.sqlparser.grt mysqlparser)
+
+
 target_link_libraries(db.mysql.sqlparser.grt ${GRT_LIBRARIES} ${GTK2_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
 
 set_target_properties(db.mysql.sqlparser.grt
