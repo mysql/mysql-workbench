@@ -199,7 +199,7 @@ if (NOT ANTLR3C_FOUND)
         --libdir=${PROJECT_BINARY_DIR}/antlr-wb
 	--disable-abiflags
     BUILD_COMMAND make
-    BUILD_IN_SOURCE 1
+    BUILD_IN_SOURCE 2
     INSTALL_COMMAND make install
   )
 
