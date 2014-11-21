@@ -1,8 +1,11 @@
 import os
-
 import sys
+
+old_test_case = False
+
 if sys.version_info < (2, 7, 0):
     from unittest2 import TestCase
+    old_test_case = True
 else:
     from unittest import TestCase
 
@@ -10,6 +13,12 @@ import wb_server_management as target_module
 from wb_common import Users, InvalidPasswordError, PermissionDeniedError
 
 class TestGlobalModuleCode(TestCase):
+    def __init__(self, *args, **kwargs):
+        TestCase.__init__(self, *args, **kwargs)
+        
+        if old_test_case:
+            self.setUpClass()
+
     @classmethod
     def setUpClass(self):
         self.sudo_pwd = None
@@ -61,12 +70,12 @@ class TestGlobalModuleCode(TestCase):
         # Creates a folder as the current user
         self.assertEquals(target_module.local_run_cmd_linux('mkdir __testing_folder'), 0)
         
+        self.assertEquals(target_module.local_run_cmd_linux('rmdir __testing_folder'), 0)
+
         # Attempts creating a folder using sudo with the incorrect password
         with self.assertRaisesRegexp(InvalidPasswordError, 'Incorrect password for sudo'):
             self.assertEquals(target_module.local_run_cmd_linux('mkdir __testing_admin', Users.ADMIN, sudo_prefix = custom_sudo), 1)
             
-        self.assertEquals(target_module.local_run_cmd_linux('rmdir __testing_folder'), 0)
-        
         if self.sudo_pwd:
             # Creates a folder as the root user
             self.assertEquals(target_module.local_run_cmd_linux('mkdir __testing_admin', Users.ADMIN, self.sudo_pwd, custom_sudo), 0)
@@ -76,6 +85,12 @@ class TestGlobalModuleCode(TestCase):
         
 
 class TestProcessOpsLinuxLocal(TestCase):
+    def __init__(self, *args, **kwargs):
+        TestCase.__init__(self, *args, **kwargs)
+        
+        if old_test_case:
+            self.setUpClass()
+
     @classmethod
     def setUpClass(self):
         self.sudo_pwd = None
@@ -89,13 +104,12 @@ class TestProcessOpsLinuxLocal(TestCase):
     def test_exec_cmd(self):
         # Creates a folder as the current user
         self.assertEquals(self.target_class.exec_cmd('mkdir __testing_folder'), 0)
+        self.assertEquals(self.target_class.exec_cmd('rmdir __testing_folder'), 0)
         
         # Attempts creating a folder using sudo with the incorrect password
         with self.assertRaisesRegexp(InvalidPasswordError, 'Incorrect password for sudo'):
             self.assertEquals(self.target_class.exec_cmd('mkdir __testing_admin', Users.ADMIN), 1)
-            
-        self.assertEquals(self.target_class.exec_cmd('rmdir __testing_folder'), 0)
-            
+                        
         # Creates a folder as the root user
         if self.sudo_pwd:
             self.assertEquals(self.target_class.exec_cmd('mkdir __testing_admin', Users.ADMIN, self.sudo_pwd), 0)
@@ -105,6 +119,12 @@ class TestProcessOpsLinuxLocal(TestCase):
 
 
 class TestFileOpsLinuxBase(TestCase):
+    def __init__(self, *args, **kwargs):
+        TestCase.__init__(self, *args, **kwargs)
+        
+        if old_test_case:
+            self.setUpClass()
+
     @classmethod
     def setUpClass(self):
         self.sudo_pwd = None
@@ -403,6 +423,11 @@ class TestFileOpsLinuxBase(TestCase):
             self.process_ops.exec_cmd('rm -R "%s"' % folder)
         
 class TestFileOpsLocalUnix(TestCase):
+    def __init__(self, *args, **kwargs):
+        TestCase.__init__(self, *args, **kwargs)
+        
+        if old_test_case:
+            self.setUpClass()
     # These test cases also exercise the variants of the methods inherited from
     # from FileOpsLinuxBase using a ProcessOpeLinuxLocal instance
     
