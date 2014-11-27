@@ -818,13 +818,11 @@
 		2B2403C1101BC76D00079580 /* wb_copy_paste_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403B8101BC76D00079580 /* wb_copy_paste_test.cpp */; };
 		2B2403C2101BC76D00079580 /* wb_lowlevel_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403B9101BC76D00079580 /* wb_lowlevel_test.cpp */; };
 		2B2403C3101BC76D00079580 /* wb_model_file_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403BA101BC76D00079580 /* wb_model_file_test.cpp */; };
-		2B2403C4101BC76D00079580 /* wb_undo_diagram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403BB101BC76D00079580 /* wb_undo_diagram.cpp */; };
 		2B2403C6101BC76D00079580 /* wb_undo_others.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403BE101BC76D00079580 /* wb_undo_others.cpp */; };
 		2B2403D0101BC78800079580 /* common_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403C7101BC78800079580 /* common_test.cpp */; };
 		2B2403D1101BC78800079580 /* grt_dispatcher_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403C8101BC78800079580 /* grt_dispatcher_test.cpp */; };
 		2B2403D2101BC78800079580 /* grt_inspector_modules_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403C9101BC78800079580 /* grt_inspector_modules_test.cpp */; };
 		2B2403D4101BC78800079580 /* grt_inspector_value_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403CB101BC78800079580 /* grt_inspector_value_test.cpp */; };
-		2B2403D5101BC78800079580 /* grt_inspector_value_tree_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403CC101BC78800079580 /* grt_inspector_value_tree_test.cpp */; };
 		2B2403D6101BC78800079580 /* nodeid_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403CD101BC78800079580 /* nodeid_tests.cpp */; };
 		2B2403D7101BC78800079580 /* shell_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403CE101BC78800079580 /* shell_test.cpp */; };
 		2B2403D8101BC78800079580 /* tree_model_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403CF101BC78800079580 /* tree_model_test.cpp */; };
@@ -4594,7 +4592,6 @@
 		2B2403B8101BC76D00079580 /* wb_copy_paste_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_copy_paste_test.cpp; path = "backend/wbprivate/workbench/unit-tests/wb_copy_paste_test.cpp"; sourceTree = "<group>"; };
 		2B2403B9101BC76D00079580 /* wb_lowlevel_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_lowlevel_test.cpp; path = "backend/wbprivate/workbench/unit-tests/wb_lowlevel_test.cpp"; sourceTree = "<group>"; };
 		2B2403BA101BC76D00079580 /* wb_model_file_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_model_file_test.cpp; path = "backend/wbprivate/workbench/unit-tests/wb_model_file_test.cpp"; sourceTree = "<group>"; };
-		2B2403BB101BC76D00079580 /* wb_undo_diagram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_undo_diagram.cpp; path = "backend/wbprivate/workbench/unit-tests/wb_undo_diagram.cpp"; sourceTree = "<group>"; };
 		2B2403BC101BC76D00079580 /* wb_undo_editors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_undo_editors.cpp; path = "backend/wbprivate/workbench/unit-tests/wb_undo_editors.cpp"; sourceTree = "<group>"; };
 		2B2403BD101BC76D00079580 /* wb_undo_methods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_undo_methods.h; path = "backend/wbprivate/workbench/unit-tests/wb_undo_methods.h"; sourceTree = "<group>"; };
 		2B2403BE101BC76D00079580 /* wb_undo_others.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_undo_others.cpp; path = "backend/wbprivate/workbench/unit-tests/wb_undo_others.cpp"; sourceTree = "<group>"; };
@@ -4602,7 +4599,6 @@
 		2B2403C8101BC78800079580 /* grt_dispatcher_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_dispatcher_test.cpp; path = "backend/wbpublic/grt/unit-tests/grt_dispatcher_test.cpp"; sourceTree = "<group>"; };
 		2B2403C9101BC78800079580 /* grt_inspector_modules_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_inspector_modules_test.cpp; path = "backend/wbpublic/grt/unit-tests/grt_inspector_modules_test.cpp"; sourceTree = "<group>"; };
 		2B2403CB101BC78800079580 /* grt_inspector_value_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_inspector_value_test.cpp; path = "backend/wbpublic/grt/unit-tests/grt_inspector_value_test.cpp"; sourceTree = "<group>"; };
-		2B2403CC101BC78800079580 /* grt_inspector_value_tree_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grt_inspector_value_tree_test.cpp; path = "backend/wbpublic/grt/unit-tests/grt_inspector_value_tree_test.cpp"; sourceTree = "<group>"; };
 		2B2403CD101BC78800079580 /* nodeid_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nodeid_tests.cpp; path = "backend/wbpublic/grt/unit-tests/nodeid_tests.cpp"; sourceTree = "<group>"; };
 		2B2403CE101BC78800079580 /* shell_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_test.cpp; path = "backend/wbpublic/grt/unit-tests/shell_test.cpp"; sourceTree = "<group>"; };
 		2B2403CF101BC78800079580 /* tree_model_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tree_model_test.cpp; path = "backend/wbpublic/grt/unit-tests/tree_model_test.cpp"; sourceTree = "<group>"; };
@@ -7847,7 +7843,6 @@
 				2B2403C8101BC78800079580 /* grt_dispatcher_test.cpp */,
 				2B2403C9101BC78800079580 /* grt_inspector_modules_test.cpp */,
 				2B2403CB101BC78800079580 /* grt_inspector_value_test.cpp */,
-				2B2403CC101BC78800079580 /* grt_inspector_value_tree_test.cpp */,
 				2B2403CD101BC78800079580 /* nodeid_tests.cpp */,
 				2B2403CE101BC78800079580 /* shell_test.cpp */,
 				2B2403CF101BC78800079580 /* tree_model_test.cpp */,
@@ -7856,7 +7851,6 @@
 				2B2403B8101BC76D00079580 /* wb_copy_paste_test.cpp */,
 				2B2403B9101BC76D00079580 /* wb_lowlevel_test.cpp */,
 				2B2403BA101BC76D00079580 /* wb_model_file_test.cpp */,
-				2B2403BB101BC76D00079580 /* wb_undo_diagram.cpp */,
 				2B2403BD101BC76D00079580 /* wb_undo_methods.h */,
 				2B2403BE101BC76D00079580 /* wb_undo_others.cpp */,
 			);
@@ -13848,13 +13842,11 @@
 				2B2403C1101BC76D00079580 /* wb_copy_paste_test.cpp in Sources */,
 				2B2403C2101BC76D00079580 /* wb_lowlevel_test.cpp in Sources */,
 				2B2403C3101BC76D00079580 /* wb_model_file_test.cpp in Sources */,
-				2B2403C4101BC76D00079580 /* wb_undo_diagram.cpp in Sources */,
 				2B2403C6101BC76D00079580 /* wb_undo_others.cpp in Sources */,
 				2B2403D0101BC78800079580 /* common_test.cpp in Sources */,
 				2B2403D1101BC78800079580 /* grt_dispatcher_test.cpp in Sources */,
 				2B2403D2101BC78800079580 /* grt_inspector_modules_test.cpp in Sources */,
 				2B2403D4101BC78800079580 /* grt_inspector_value_test.cpp in Sources */,
-				2B2403D5101BC78800079580 /* grt_inspector_value_tree_test.cpp in Sources */,
 				2B2403D6101BC78800079580 /* nodeid_tests.cpp in Sources */,
 				2B2403D7101BC78800079580 /* shell_test.cpp in Sources */,
 				2B2403D8101BC78800079580 /* tree_model_test.cpp in Sources */,
