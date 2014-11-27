@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2005, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,9 +29,12 @@
   self= [super initWithFrame:frame];
   if (self)
   {
-    _hScroller= [[NSScroller alloc] initWithFrame:NSMakeRect(0, 0, NSWidth(frame)-[NSScroller scrollerWidth], [NSScroller scrollerWidth])];
-    _vScroller= [[NSScroller alloc] initWithFrame:NSMakeRect(NSMaxX(frame) - [NSScroller scrollerWidth], [NSScroller scrollerWidth],
-                                                             [NSScroller scrollerWidth], NSHeight(frame))];
+    CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+                                                      scrollerStyle: NSScrollerStyleOverlay];
+
+    _hScroller= [[NSScroller alloc] initWithFrame:NSMakeRect(0, 0, NSWidth(frame) - scrollerWidth, scrollerWidth)];
+    _vScroller= [[NSScroller alloc] initWithFrame:NSMakeRect(NSMaxX(frame) - scrollerWidth, scrollerWidth,
+                                                             scrollerWidth, NSHeight(frame))];
     [self addSubview:_hScroller];
     [self addSubview:_vScroller];
     
@@ -63,24 +66,24 @@
 
 - (void)tile
 {
-  NSRect frame= [self bounds];//NSInsetRect([self bounds], 1.0, 1.0);
+  NSRect frame= [self bounds];
   NSRect contentFrame;
 
-  contentFrame= NSMakeRect(0, [NSScroller scrollerWidth], 
-                           NSWidth(frame) - [NSScroller scrollerWidth],
-                           NSHeight(frame) - [NSScroller scrollerWidth]); 
+  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+                                                    scrollerStyle: NSScrollerStyleOverlay];
+  contentFrame= NSMakeRect(0, scrollerWidth, NSWidth(frame) - scrollerWidth, NSHeight(frame) - scrollerWidth);
   [_contentView setFrame:contentFrame];
   if (_hAccessoryView)
   {
     NSRect accRect= [_hAccessoryView frame];
-    [_hAccessoryView setFrame:NSMakeRect(0, 0, NSWidth(accRect), [NSScroller scrollerWidth])];
-    [_hScroller setFrame:NSMakeRect(NSWidth(accRect), 0, NSWidth(frame) - NSWidth(accRect) - [NSScroller scrollerWidth], [NSScroller scrollerWidth])];
+    [_hAccessoryView setFrame:NSMakeRect(0, 0, NSWidth(accRect), scrollerWidth)];
+    [_hScroller setFrame:NSMakeRect(NSWidth(accRect), 0, NSWidth(frame) - NSWidth(accRect) - scrollerWidth, scrollerWidth)];
   }
   else
-    [_hScroller setFrame:NSMakeRect(0, 1, NSWidth(frame) - [NSScroller scrollerWidth], [NSScroller scrollerWidth])];
+    [_hScroller setFrame:NSMakeRect(0, 1, NSWidth(frame) - scrollerWidth, scrollerWidth)];
 
-  [_vScroller setFrame:NSMakeRect(NSWidth(frame) - [NSScroller scrollerWidth], [NSScroller scrollerWidth],
-                                  [NSScroller scrollerWidth], NSHeight(frame) - [NSScroller scrollerWidth])];
+  [_vScroller setFrame:NSMakeRect(NSWidth(frame) - scrollerWidth, scrollerWidth,
+                                  scrollerWidth, NSHeight(frame) - scrollerWidth)];
   
   [self reflectContentRect];
 }
@@ -174,8 +177,10 @@ static void canvas_view_viewport_changed(MCanvasScrollView *self)
 {
   NSSize size= [self frame].size;
   
-  size.width-= [NSScroller scrollerWidth];
-  size.height-= [NSScroller scrollerWidth];
+  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+                                                    scrollerStyle: NSScrollerStyleOverlay];
+  size.width -= scrollerWidth;
+  size.height -= scrollerWidth;
   
   return size;
 }

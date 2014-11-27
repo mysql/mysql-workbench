@@ -24,14 +24,160 @@
 #import "MCPPUtilities.h"
 #import "WBMenuManager.h"
 
-
-@implementation WBOverviewGroupContainer
+#pragma mark -
 
 static NSString *stringFromNodeId(const bec::NodeId &node)
 {
   return [NSString stringWithCPPString: node.repr()];
 }
 
+@implementation WBOverviewGroup
+
+- (id)initWithOverview:(WBOverviewPanel*)owner
+                nodeId:(const bec::NodeId&)node
+               tabItem:(NSTabViewItem*)tabItem
+{
+  self= [super initWithFrame:NSMakeRect(0, 0, 100, 100)];
+  if (self != nil)
+  {
+    _owner= owner;
+    _be= [owner backend];
+    _nodeId= new bec::NodeId(node);
+    _tabItem= tabItem;
+
+    [self setExpandSubviewsByDefault: NO];
+    [self setBackgroundColor:[NSColor whiteColor]];
+    [self setSpacing: 12];
+    [self setPaddingLeft: 12 right: 12 top: 12 bottom: 12];
+  }
+
+  return self;
+}
+
+
+- (void)dealloc
+{
+  delete _nodeId;
+  [super dealloc];
+}
+
+- (void)updateNodeId:(const bec::NodeId&)node
+{
+  delete _nodeId;
+  _nodeId= new bec::NodeId(node);
+  [_owner registerContainer:self forItem:stringFromNodeId(*_nodeId)];
+
+  int i= 0;
+  for (id subview in [self subviews])
+  {
+    if ([subview respondsToSelector:@selector(updateNodeId:)])
+      [subview updateNodeId:_be->get_child(*_nodeId, i++)];
+  }
+}
+
+
+- (bec::NodeId&)nodeId
+{
+  return *_nodeId;
+}
+
+- (void)buildChildren
+{
+  // build the child items
+  ssize_t child_type;
+  _be->get_field(*_nodeId, wb::OverviewBE::ChildNodeType, child_type);
+
+  NSAssert(child_type == wb::OverviewBE::OSection, @"unexpected child type for group");
+
+  for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
+  {
+    bec::NodeId child(_be->get_child(*_nodeId, i));
+
+    WBOverviewSection *section= [[[WBOverviewSection alloc] initWithOverview:_owner
+                                                                      nodeId:child] autorelease];
+    [section setFrameSize:NSMakeSize(100, 20)];
+    [section setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    [self addSubview:section];
+
+    std::string title;
+    _be->get_field(child, wb::OverviewBE::Label, title);
+    [section setTitle:[NSString stringWithUTF8String:title.c_str()]];
+
+    [_owner registerContainer:section forItem:[NSString stringWithCPPString: child.repr().c_str()]];
+
+    // NSContainerView doens't like being refreshed here
+    //   [section refreshChildren];
+  }
+}
+
+/**
+ * Sets the view mode of all attached collection views to the given mode.
+ */
+- (void) setListMode: (ListMode) mode
+{
+  for (id subview in [self subviews])
+  {
+    WBOverviewSection* section = (WBOverviewSection*) subview;
+    switch (mode)
+    {
+      case ListModeSmallIcon:
+        [section setDisplayMode: wb::OverviewBE::MSmallIcon];
+        break;
+      case ListModeDetails:
+        [section setDisplayMode: wb::OverviewBE::MList];
+        break;
+      default:
+        [section setDisplayMode: wb::OverviewBE::MLargeIcon];
+    }
+  }
+}
+
+- (void)refreshChildren
+{
+  _be->refresh_node(*_nodeId, true);
+
+  for (id subview in [self subviews])
+  {
+    if ([subview respondsToSelector:@selector(refreshChildren)])
+      [subview refreshChildren];
+  }
+}
+
+
+- (void)refreshInfo
+{
+  std::string value;
+  try
+  {
+    _be->refresh_node(*_nodeId, false);
+
+    _be->get_field(*_nodeId, wb::OverviewBE::Label, value);
+    if (_tabItem)
+      [_tabItem setLabel:[NSString stringWithCPPString:value]];
+  }
+  catch (std::exception exc)
+  {
+    g_message("Error refreshing overview: %s", exc.what());
+  }
+}
+
+
+- (NSSize)minimumSize
+{
+  NSSize size = NSMakeSize(leftPadding + rightPadding, topPadding + bottomPadding);
+  NSArray *items = [self subviews];
+  for (NSView *subview in items)
+    size.height += NSHeight([subview frame]);
+  if ([items count] > 0)
+    size.height += ([items count] - 1) * spacing;
+  return size;
+}
+
+@end
+
+#pragma mark -
+
+@implementation WBOverviewGroupContainer
 
 - (id)initWithOverview:(WBOverviewPanel*)owner
                 nodeId:(const bec::NodeId&)node
@@ -103,9 +249,9 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   for (NSTabViewItem *tabItem in [self tabViewItems])
   {
-    [[tabItem view] tile];
-    
-    maxHeight= MAX(maxHeight, [[tabItem view] minimumSize].height);
+    WBOverviewGroup *group = (WBOverviewGroup *)tabItem.view;
+    [group tile];
+    maxHeight = MAX(maxHeight, [group minimumSize].height);
   }
   [self setFrameSize:NSMakeSize([self contentSize].width, maxHeight + _extraHeight)];
   
@@ -142,7 +288,8 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     
     if (!found)
     {
-      [_owner unregisterContainerForItem:stringFromNodeId([[item view] nodeId])];
+      WBOverviewGroup *group = (WBOverviewGroup *)item.view;
+      [_owner unregisterContainerForItem:stringFromNodeId([group nodeId])];
       [self removeTabViewItem:item];
       if (oldItem == item)
         oldItem= nil;
@@ -178,14 +325,15 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
       bec::NodeId child(_be->get_child(*_nodeId, i));
 
       // update the represented NodeId
-      [_owner unregisterContainerForItem:stringFromNodeId([[tabItem view] nodeId])];
-      [_owner registerContainer:[tabItem view] forItem:stringFromNodeId([[tabItem view] nodeId])];
-      [[tabItem view] updateNodeId: child];
+      WBOverviewGroup *group = (WBOverviewGroup *)tabItem.view;
+      [_owner unregisterContainerForItem:stringFromNodeId([group nodeId])];
+      [_owner registerContainer:[tabItem view] forItem:stringFromNodeId([group nodeId])];
+      [group updateNodeId: child];
       
-      [[tabItem view] refreshChildren]; // refresh
-      [[tabItem view] tile];
+      [group refreshChildren]; // refresh
+      [group tile];
       
-      maxHeight= MAX(maxHeight, [[tabItem view] minimumSize].height);
+      maxHeight= MAX(maxHeight, [group minimumSize].height);
             
       [self selectNextTabViewItem:nil];
       NSTabViewItem *nextItem= [self selectedTabViewItem]; 
@@ -208,7 +356,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
                withObject: [[self tabViewItemAtIndex: tab] identifier]
                afterDelay: 0.1];
 
-  /// this raises an exception, check why
+  /// TODO: this raises an exception, check why
  // if (oldItem)
  //   [self selectTabViewItem:oldItem];
 }
@@ -238,21 +386,21 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 - (void) setLargeIconMode
 {
   NSTabViewItem *activeTab = [self selectedTabViewItem];
-  WBOverviewGroup *group = [activeTab view];
+  WBOverviewGroup *group = (WBOverviewGroup *)activeTab.view;
   [group setListMode: ListModeLargeIcon];
 }
 
 - (void) setSmallIconMode
 {
   NSTabViewItem *activeTab = [self selectedTabViewItem];
-  WBOverviewGroup *group = [activeTab view];
+  WBOverviewGroup *group = (WBOverviewGroup *)activeTab.view;
   [group setListMode: ListModeSmallIcon];
 }
 
 - (void) setDetailsMode
 {
   NSTabViewItem *activeTab = [self selectedTabViewItem];
-  WBOverviewGroup *group = [activeTab view];
+  WBOverviewGroup *group = (WBOverviewGroup *)activeTab.view;
   [group setListMode: ListModeDetails];
 }
 
@@ -339,160 +487,13 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
 
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
-  [[tabViewItem view] tile];
-}
-
-
-@end
-
-
-@implementation WBOverviewGroup
-
-- (id)initWithOverview:(WBOverviewPanel*)owner
-                nodeId:(const bec::NodeId&)node
-               tabItem:(NSTabViewItem*)tabItem
-{
-  self= [super initWithFrame:NSMakeRect(0, 0, 100, 100)];
-  if (self != nil)
-  {    
-    _owner= owner;
-    _be= [owner backend];
-    _nodeId= new bec::NodeId(node);
-    _tabItem= tabItem;
-    
-    [self setExpandSubviewsByDefault: NO];
-    [self setBackgroundColor:[NSColor whiteColor]];
-    [self setSpacing: 12];
-    [self setPaddingLeft: 12 right: 12 top: 12 bottom: 12];
-  }
-  
-  return self;
-}
-
-
-- (void)dealloc
-{
-  delete _nodeId;
-  [super dealloc];
-}
-
-- (void)updateNodeId:(const bec::NodeId&)node
-{
-  delete _nodeId;
-  _nodeId= new bec::NodeId(node);
-  [_owner registerContainer:self forItem:stringFromNodeId(*_nodeId)];
-  
-  int i= 0;
-  for (id subview in [self subviews])
-  {
-    if ([subview respondsToSelector:@selector(updateNodeId:)])
-      [subview updateNodeId:_be->get_child(*_nodeId, i++)];
-  }
-}
-
-
-- (bec::NodeId&)nodeId
-{
-  return *_nodeId;
-}
-
-- (void)buildChildren
-{
-  // build the child items
-  ssize_t child_type;
-  _be->get_field(*_nodeId, wb::OverviewBE::ChildNodeType, child_type);
-  
-  NSAssert(child_type == wb::OverviewBE::OSection, @"unexpected child type for group");
-  
-  for (int c= _be->count_children(*_nodeId), i= 0; i < c; i++)
-  {
-    bec::NodeId child(_be->get_child(*_nodeId, i));
-    
-    WBOverviewSection *section= [[[WBOverviewSection alloc] initWithOverview:_owner
-                                                                      nodeId:child] autorelease];
-    [section setFrameSize:NSMakeSize(100, 20)];
-    [section setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-    [self addSubview:section];
-    
-    std::string title;
-    _be->get_field(child, wb::OverviewBE::Label, title);
-    [section setTitle:[NSString stringWithUTF8String:title.c_str()]];
-
-    [_owner registerContainer:section forItem:[NSString stringWithCPPString: child.repr().c_str()]];
-    
-  // NSContainerView doens't like being refreshed here
- //   [section refreshChildren];
-  }
-}
-
-/**
- * Sets the view mode of all attached collection views to the given mode.
- */
-- (void) setListMode: (ListMode) mode
-{
-  for (id subview in [self subviews])
-  {
-    WBOverviewSection* section = (WBOverviewSection*) subview;
-    switch (mode)
-    {
-      case ListModeSmallIcon:
-        [section setDisplayMode: wb::OverviewBE::MSmallIcon];
-        break;
-      case ListModeDetails:
-        [section setDisplayMode: wb::OverviewBE::MList];
-        break;
-      default:
-        [section setDisplayMode: wb::OverviewBE::MLargeIcon];
-    }
-  }
-}
-
-- (void)refreshChildren
-{
-  _be->refresh_node(*_nodeId, true);
-
-  for (id subview in [self subviews])
-  {
-    if ([subview respondsToSelector:@selector(refreshChildren)])
-      [subview refreshChildren];
-  }
-}
-
-
-- (void)refreshInfo
-{
-  std::string value;
-  try
-  {
-    _be->refresh_node(*_nodeId, false);
-    
-    _be->get_field(*_nodeId, wb::OverviewBE::Label, value);
-    if (_tabItem)
-      [_tabItem setLabel:[NSString stringWithCPPString:value]];
-  }
-  catch (std::exception exc) 
-  {
-    g_message("Error refreshing overview: %s", exc.what());
-  }
-}
-
-
-- (NSSize)minimumSize
-{
-  NSSize size = NSMakeSize(leftPadding + rightPadding, topPadding + bottomPadding);
-  NSArray *items = [self subviews];
-  for (NSView *subview in items)
-    size.height += NSHeight([subview frame]);
-  if ([items count] > 0)
-    size.height += ([items count] - 1) * spacing;
-  return size;
+  WBOverviewGroup *group = (WBOverviewGroup *)tabViewItem.view;
+  [group tile];
 }
 
 @end
-     
-     
 
-
+#pragma mark -
 
 @implementation WBOverviewItemContainer
 

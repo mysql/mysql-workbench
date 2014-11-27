@@ -489,11 +489,17 @@ struct PasteboardDataWrapper {
   self.lastDropPosition = mforms::DropPositionUnknown;
 }
 
+// Since drag initiation and data retrieval are now separated we need a temporary storage for the data.
+// Since this is category we would have to go the long way, or simply use a static var.
+// No concurrency here as dd is per se safe (only one drag operation at a time possible).
+static NSString *dragText = nil;
+
 - (mforms::DragOperation)startDragWithText: (NSString *)text
                                    details: (mforms::DragDetails)details
 {
   self.allowedDragOperations = details.allowedOperations;
   self.lastDropPosition = mforms::DropPositionUnknown;
+  dragText = text;
 
   NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
   [pasteboard clearContents];
@@ -555,16 +561,24 @@ struct PasteboardDataWrapper {
                                       pressure: 1];
   position.x -= details.hotspot.x;
   position.y -= details.hotspot.y;
-  [self dragImage: dragImage
-               at: position
-           offset: NSZeroSize
-            event: event
-       pasteboard: pasteboard
-           source: self
-        slideBack: YES];
 
+  NSPasteboardItem *pbItem = [NSPasteboardItem new];
+  [pbItem setDataProvider: self forTypes: @[NSStringPboardType]];
+
+  NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter: pbItem];
+
+  [dragItem setDraggingFrame: NSMakeRect(position.x, position.y, dragImage.size.width, dragImage.size.height)
+                    contents: dragImage];
+  NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem]
+                                                                     event: event
+                                                                    source: self];
+  draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
+  draggingSession.draggingFormation = NSDraggingFormationNone;
+  
   return self.lastDragOperation;
 }
+
+static void *dragData = NULL;
 
 - (mforms::DragOperation)startDragWithData: (void *)data
                                    details: (mforms::DragDetails)details
@@ -572,10 +586,7 @@ struct PasteboardDataWrapper {
 {
   self.allowedDragOperations = details.allowedOperations;
   self.lastDropPosition = mforms::DropPositionUnknown;
-
-  NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
-  [pasteboard clearContents];
-  [pasteboard writeNativeData: data typeAsString: format];
+  dragData = data;
 
   NSImage *dragImage = [[[NSImage alloc] init] autorelease];
   if (details.image != NULL)
@@ -622,20 +633,58 @@ struct PasteboardDataWrapper {
 
   // The drag image position must always be the lower left corner (regardless of the flippedness of the view).
   position.x -= details.hotspot.x;
-  position.y += cairo_image_surface_get_height(details.image) - details.hotspot.y;
-  [self dragImage: dragImage
-               at: position
-           offset: NSZeroSize
-            event: event
-       pasteboard: pasteboard
-           source: self
-        slideBack: YES];
-  
+  position.y -= details.hotspot.y;
+
+  NSPasteboardItem *pbItem = [NSPasteboardItem new];
+  [pbItem setDataProvider: self forTypes: @[format]];
+
+  NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter: pbItem];
+
+  [dragItem setDraggingFrame: NSMakeRect(position.x, position.y, dragImage.size.width, dragImage.size.height)
+                    contents: dragImage];
+  NSDraggingSession *draggingSession = [self beginDraggingSessionWithItems: @[dragItem]
+                                                                     event: event
+                                                                    source: self];
+  draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
+  draggingSession.draggingFormation = NSDraggingFormationNone;
+
   return self.lastDragOperation;
 }
 
+//--------------------------------------------------------------------------------------------------
+
+- (void)pasteboard: (NSPasteboard *)sender item: (NSPasteboardItem *)item provideDataForType: (NSString *)type
+{
+  if ([type isEqualTo: NSStringPboardType])
+    [sender setString: dragText forType: NSStringPboardType];
+  else
+    [sender writeNativeData: dragData typeAsString: type];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (NSDragOperation)   draggingSession: (NSDraggingSession *)session
+sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
+{
+  switch (context) {
+    case NSDraggingContextOutsideApplication:
+      return NSDragOperationNone;
+      break;
+
+    case NSDraggingContextWithinApplication:
+    default:
+      mforms::DragOperation operations = self.allowedDragOperations;
+      NSDragOperation nativeOperations = NSDragOperationNone;
+      if ((operations & mforms::DragOperationMove) == mforms::DragOperationMove)
+        nativeOperations |= NSDragOperationMove;
+      if ((operations & mforms::DragOperationCopy) == mforms::DragOperationCopy)
+        nativeOperations |= NSDragOperationMove;
+      return nativeOperations;
+  }
+}
 @end
 
+//--------------------------------------------------------------------------------------------------
 
 NSView *nsviewForView(mforms::View *view)
 {
@@ -741,12 +790,10 @@ static std::pair<int, int> view_client_to_screen(::mforms::View *self, int x, in
   id view = self->get_data();
   if (view)
   {
-    NSPoint pointInWindowCoordinates;
-    NSPoint pointInScreenCoords;
-    
-    pointInWindowCoordinates = [view convertPoint: NSMakePoint(x, y) toView: nil];
-    pointInScreenCoords = [[view window] convertBaseToScreen: pointInWindowCoordinates];
-    return std::make_pair(pointInScreenCoords.x, pointInScreenCoords.y);
+    NSRect rect = NSMakeRect(x, y, 0, 0);
+    rect.origin = [view convertPoint: rect.origin toView: nil];
+    rect = [[view window] convertRectToScreen: rect];
+    return std::make_pair(rect.origin.x, rect.origin.y);
   }
   return std::make_pair(0, 0);
 }
@@ -756,8 +803,9 @@ static std::pair<int, int> view_screen_to_client(mforms::View *self, int x, int 
   id view = self->get_data();
   if (view)
   {
-    NSPoint pointInWindowCoordinates = [[view window] convertScreenToBase: NSMakePoint(x, y)];
-    NSPoint localPoint = [view convertPoint: pointInWindowCoordinates fromView: nil];
+    NSRect rect = NSMakeRect(x, y, 0, 0);
+    rect = [[view window] convertRectFromScreen: rect];
+    NSPoint localPoint = [view convertPoint: rect.origin fromView: nil];
     return std::make_pair(localPoint.x, localPoint.y);
   }
   return std::make_pair(0, 0);

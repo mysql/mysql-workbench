@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,10 +31,7 @@ typedef enum {
   ListModeDetails
 } ListMode;
 
-@interface WBOverviewGroupContainer : WBSchemaTabView
-#ifdef MAC_OS_X_VERSION_10_6
-      <NSTabViewDelegate>
-#endif
+@interface WBOverviewGroupContainer : WBSchemaTabView <NSTabViewDelegate>
 {
   WBOverviewPanel *_owner;
   wb::OverviewBE *_be;
@@ -88,10 +85,7 @@ typedef enum {
 
 
 
-@interface WBOverviewItemContainer : NSView
-#ifdef MAC_OS_X_VERSION_10_6
-      <NSMenuDelegate>
-#endif
+@interface WBOverviewItemContainer : NSView <NSMenuDelegate>
 {
   WBOverviewPanel* _owner;
   wb::OverviewBE *_be;

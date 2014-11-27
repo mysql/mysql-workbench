@@ -432,7 +432,7 @@ void OverviewItemContainer::drag_data_get(const Glib::RefPtr<Gdk::DragContext> &
         }
       }
     }
-    else if (data.get_target() == "x-mysql-wb/db.DatabaseObject")
+    else if (data.get_target() == WB_DBOBJECT_DRAG_TYPE)
     {
       grt::ListRef<GrtObject> sel = _overview->get_selection();
       std::list<db_DatabaseObjectRef> objects;
