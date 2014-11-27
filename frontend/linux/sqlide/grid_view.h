@@ -34,6 +34,8 @@ class GridView : public Gtk::TreeView
     GridView(bec::GridModel::Ref model, bool fixed_row_height = true, bool allow_cell_selection = true);
     ~GridView();
 
+    void set_text_cell_fixed_height(bool val);
+
     bool allow_cell_selection() { return _allow_cell_selection; }
 
     void set_context_menu(mforms::Menu* menu);
@@ -106,6 +108,7 @@ class GridView : public Gtk::TreeView
 
     bool _allow_cell_selection;
     bool _selected_cell;
+    bool _text_cell_fixed_height;
 };
 
 

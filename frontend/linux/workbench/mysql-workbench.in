@@ -5,7 +5,7 @@
 #WB_NO_GNOME_KEYRING=1
 
 # force disable the Mac style single menu hack in Ubuntu Unity
-UBUNTU_MENUPROXY=0
+export UBUNTU_MENUPROXY=0
 
 # another Ubuntu bug, this this one causes modal dialogs to not work as intended
 # https://bugs.launchpad.net/ubuntu/+source/overlay-scrollbar/+bug/903302

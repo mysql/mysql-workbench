@@ -539,7 +539,7 @@ void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec:
   }
 
   // continue with task execution
-  auto it = _task_list.find(task);
+  std::map<bec::GRTTask*, bec::GRTTask::Ref>::iterator it = _task_list.find(task);
   if (it != _task_list.end())
     _task_list.erase(it);
 
@@ -561,7 +561,7 @@ void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result, be
   if (_tasks[_current_task]->process_finish)
     _tasks[_current_task]->process_finish(result);
 
-  auto it = _task_list.find(task);
+  std::map<bec::GRTTask*, bec::GRTTask::Ref>::iterator it = _task_list.find(task);
   if (it != _task_list.end())
     _task_list.erase(it);
   // continue with task execution

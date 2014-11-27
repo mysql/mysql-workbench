@@ -24,6 +24,7 @@ public:
   void set_ellipsize(const int column, const bool on);
 
   void set_column_width(int column, int width);
+  void set_text_cell_fixed_height(bool val);
 
   void ignore_column_resizes(bool flag) { if (flag) _ignore_column_resizes++; else _ignore_column_resizes--; }
 
@@ -42,6 +43,7 @@ private:
   std::map<int, int>                    _current_column_size;
   int                                   _ignore_column_resizes;
   bool                                  _row_numbers_visible;
+  bool                                  _text_cell_fixed_height;
 
   template <typename ValueTypeTraits>
   Gtk::TreeViewColumn * add_column(int index, const std::string &name, Editable editable, Gtk::TreeModelColumnBase *color_column);

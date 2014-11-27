@@ -53,6 +53,7 @@ RecordGridView::RecordGridView(Recordset::Ref rset)
   set_data(new mforms::gtk::NativeContainerImpl(this, viewer), destroy_nativecontainer);
   viewer->show_all();
   viewer->grid_view()->refresh(true);
+
 }
 
 RecordGridView::~RecordGridView()

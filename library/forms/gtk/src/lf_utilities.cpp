@@ -20,6 +20,11 @@
 //#include "config.h"
 #if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
 extern "C" {
+// gnome-keyring has been deprecated in favor of libsecret
+// More informations can be found here  https://mail.gnome.org/archives/commits-list/2013-October/msg08876.html
+// Below defines will turn off deprecations and allow build with never Gnome until we will not move to libsecret.
+  #define GNOME_KEYRING_DEPRECATED
+  #define GNOME_KEYRING_DEPRECATED_FOR(x)
   #include <gnome-keyring.h>
 };
   #include <string.h>
