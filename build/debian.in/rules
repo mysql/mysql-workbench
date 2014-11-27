@@ -75,7 +75,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE) -j2
+	$(MAKE) $(MAKEFLAGS)
 	#docbook-to-man debian/mysql-workbench.sgml > mysql-workbench.1
 
 	touch $@

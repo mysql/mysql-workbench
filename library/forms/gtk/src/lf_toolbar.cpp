@@ -553,7 +553,7 @@ void mforms::gtk::ToolBarImpl::set_selector_items(ToolBarItem* item, const std::
     if (w)
     {
       w->set_data("ignore_signal", (void*)1);
-      #if GTK_VERSION_GE(2,24)
+      #if ((GTKMM_MAJOR_VERSION == 2 && GTKMM_MINOR_VERSION >= 24) || GTKMM_MAJOR_VERSION > 2)
       w->remove_all();
       #else
       w->clear_items();

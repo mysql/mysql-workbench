@@ -1464,7 +1464,7 @@ ciphers to use for SSL encryption.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.fabric.param2">
             <value type="string" key="caption">Port:</value>
-            <value type="string" key="defaultValue">32274</value>
+            <value type="string" key="defaultValue">32275</value>
             <value type="string" key="description">and TCP/IP port.</value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">1</value>

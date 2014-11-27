@@ -36,18 +36,22 @@ def call_system(command, spawn, output_handler = None):
     logging.info('Executing command: %s' % command)
 
     if spawn or output_handler is None:
-        if os.fork() != 0:
-            return
-        
-        os.setpgrp()
-        
-        for i in range(0,100):
-            try:
-                os.close(i)
-            except:
-                pass
-                  
-        os.execvp("/bin/sh", ["/bin/sh", "-c", command])
+        try:
+            if os.fork() != 0:
+                return result
+            
+            os.setpgrp()
+            
+            for i in range(0,100):
+                try:
+                    os.close(i)
+                except:
+                    pass
+                      
+            os.execvp("/bin/sh", ["/bin/sh", "-c", command])
+        except OSError, e:
+            logging.error('Error on command execution: %s' % str(e))
+            result = 1
 
     else:
         child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
@@ -610,6 +614,7 @@ class MEBUpdateScheduling(MEBCommand):
         return schedule_command
 
     def execute(self):
+        output = StringIO.StringIO()
         ret_val = 0
         if self.read_params():
         
@@ -620,25 +625,35 @@ class MEBUpdateScheduling(MEBCommand):
             # Unscheduling would NOT occur on NEW profiles
             command = ""
             if self.change != "NEW":
+                message = ", renamed from %s" % self.old_label if self.old_label != self.new_label else "."
+                
                 if self.old_fb_schedule == "1" or self.old_label != self.new_label:
                     command = self.get_unschedule_command("full")
-                    ret_val = ret_val + call_system(command, False)
+                    logging.debug("Unscheduling full backup for profile: %s%s" % (self.new_label, message))
+                    ret_val = ret_val + call_system(command, False, output.write)
 
                 if self.old_ib_schedule == "1" or self.old_label != self.new_label:
                     command = self.get_unschedule_command("inc")
-                    ret_val = ret_val + call_system(command, False)
+                    logging.debug("Unscheduling incremental backup for profile: %s%s" % (self.new_label, message))
+                    ret_val = ret_val + call_system(command, False, output.write)
             
             if self.new_fb_schedule == "True":
                 self.read_profile_data("full")
                 command = self.get_schedule_command("full")
-                ret_val = ret_val + call_system(command, False)
+                logging.debug("Scheduling full backup for profile: %s." % self.new_label)
+                ret_val = ret_val + call_system(command, False, output.write)
             
             if self.new_ib_schedule == "True":
                 self.read_profile_data("inc")
                 command = self.get_schedule_command("inc")
-                ret_val = ret_val + call_system(command, False)
+                logging.debug("Scheduling incremental backup for profile: %s." % self.new_label)
+                ret_val = ret_val + call_system(command, False, output.write)
         else:
             self.print_usage()
+
+        # In case of error prints the output
+        if ret_val:
+            self.write_output(output.getvalue().strip())
         
         return ret_val
 
@@ -854,16 +869,23 @@ class MEBGetProfiles(MEBCommand):
             
         return 0
 
-class MEBHelperVersion(MEBCommand):
-    # IMPORTANT: Any change to the current attribute must be
-    # in synch with what is returned at WBMEBHelperHandlerLinux::current_helper_version
-    current = "6"
 
+class MEBHelperVersion(MEBCommand):
     def __init__(self, params = None, output_handler = None):
         super(MEBHelperVersion, self).__init__(params, output_handler)
         
     def execute(self):
-        self.write_output(self.current)
+        try:
+          import hashlib
+          
+          file = open (__file__, 'r')
+          data = file.read()
+          md5 = hashlib.md5(data)
+          
+          self.write_output(md5.digest())
+        except Exception, e:
+            logging.error('MEBHelperVersion error ' % str(e))
+            return 1
         return 0
     
 if __name__ == "__main__":

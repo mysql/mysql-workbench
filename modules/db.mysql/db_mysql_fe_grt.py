@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@ from wb import DefineModule
 import grt
 from workbench import db_utils
 from workbench.exceptions import NotConnectedError
+from workbench.utils import Version
 
 
 ModuleInfo = DefineModule(name= "DbMySQLFE", author= "Oracle Corp.", version="1.0")
@@ -246,9 +247,10 @@ def createScriptForCatalogObjects(path, catalog, objectCreationParams):
 -- Migrated Schemata: %s
 -- Source Schemata: %s
 -- Created: %s
+-- Workbench Version: %s
 -- ----------------------------------------------------------------------------
 
-""" % (", ".join([s.name for s in catalog.schemata]), ", ".join([s.oldName for s in catalog.schemata]), time.ctime()))
+""" % (", ".join([s.name for s in catalog.schemata]), ", ".join([s.oldName for s in catalog.schemata]), time.ctime(), Version.fromgrt(grt.root.wb.info.version)))
 
     preamble = catalog.customData["migration:preamble"]
     if preamble and preamble.temp_sql:

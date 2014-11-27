@@ -208,7 +208,7 @@ std::string get_server_info(db_mgmt_ServerInstanceRef instance)
   template <class T>
   void move_item_to_group(std::string group, grt::ListRef<T> items, const grt::ValueRef &object)
   {
-    size_t current_item_index, current_group_index, sibling_index, target_index;
+    size_t current_item_index = 0, current_group_index = 0, sibling_index = 0, target_index = 0;
     bool sibling_move = false;
     bool item_move = false;
     

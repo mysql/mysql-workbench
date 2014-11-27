@@ -301,8 +301,8 @@ bool WBComponentPhysical::RelationshipToolContext::finish()
 
 bool WBComponentPhysical::RelationshipToolContext::finish_for_columns()
 {
-  bool imany, fmany;
-  bool imand= true, fmand= true;
+  bool imany = false, fmany = false;
+  bool imand = true, fmand = true;
   //bool identifying= false;
   
   switch (type)
@@ -376,7 +376,7 @@ bool WBComponentPhysical::RelationshipToolContext::finish_for_columns()
 
 bool WBComponentPhysical::RelationshipToolContext::finish_for_tables()
 {
-  bool imany, fmany;
+  bool imany = false, fmany = false;
   bool imand= true, fmand= true;
   bool identifying= false;
   
