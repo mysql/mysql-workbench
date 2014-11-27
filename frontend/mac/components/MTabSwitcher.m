@@ -677,10 +677,12 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right,
   NSRect r;
 
   bool white = false;
-  // check whether this tab is set to have a white background (like the admin tab in the sql editor)
-  if ([[item view] respondsToSelector: @selector(backgroundColor)])
+
+  // Check whether this tab is set to have a white background (like the admin tab in the sql editor).
+  id view = item.view;
+  if ([view respondsToSelector: @selector(backgroundColor)])
   {
-    NSColor *color = [[item view] backgroundColor];
+    NSColor *color = [view backgroundColor];
     if ([color redComponent] == 1 && [color greenComponent] == 1 && [color blueComponent] == 1)
       white = true;
   }

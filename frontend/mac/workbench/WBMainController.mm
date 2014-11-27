@@ -1082,7 +1082,7 @@ static void init_mforms()
   {
     init_mforms();
     
-    [NSApp setDelegate: self];
+    NSApplication.sharedApplication.delegate = self;
     
     // Setup delegate to log symbolic stack traces on exceptions.
     [[NSExceptionHandler defaultExceptionHandler] setExceptionHandlingMask: NSLogUncaughtExceptionMask | NSLogUncaughtSystemExceptionMask | NSLogUncaughtRuntimeErrorMask | NSLogTopLevelExceptionMask | NSLogOtherExceptionMask];

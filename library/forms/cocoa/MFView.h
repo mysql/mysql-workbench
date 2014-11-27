@@ -86,7 +86,7 @@ namespace mforms { class View; }
 /** MForms control implementations must subclass their own NS counterpart and implement
  *  the size related methods like below if they need it.
  */
-@interface NSView(MForms) <NSDraggingDestination>
+@interface NSView(MForms) <NSDraggingDestination, NSDraggingSource, NSPasteboardItemDataProvider>
 
 @property NSInteger viewFlags;
 @property NSArray *acceptableDropFormats;

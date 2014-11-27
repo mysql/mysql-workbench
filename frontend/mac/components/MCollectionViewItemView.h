@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface MCollectionViewItemView : NSView <NSTextDelegate>
+@interface MCollectionViewItemView : NSView <NSTextDelegate, NSDraggingSource, NSPasteboardItemDataProvider>
 {
 @private
   NSCollectionViewItem* mOwner;

@@ -88,10 +88,12 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
 - (NSSize)minimumSize
 {
-  return [NSScrollView frameSizeForContentSize:NSMakeSize(50, 50)
-                         hasHorizontalScroller:YES
-                           hasVerticalScroller:YES
-                                    borderType:NSLineBorder];
+  return [NSScrollView contentSizeForFrameSize: NSMakeSize(50, 50)
+                       horizontalScrollerClass: [NSScroller class]
+                         verticalScrollerClass: [NSScroller class]
+                                    borderType: NSBezelBorder
+                                   controlSize: NSRegularControlSize
+                                 scrollerStyle: NSScrollerStyleOverlay];
 }
 
 - (void)subviewMinimumSizeChanged

@@ -488,7 +488,6 @@ public:
         rowHeight -= 2;
         size.width *= rowHeight / size.height;
         size.height = rowHeight;
-        [image setScalesWhenResized: YES];
         [image setSize: size];
       }
     }
@@ -1014,8 +1013,12 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
                          forKey: @""];
     NSRect rect;
     rect.origin= NSMakePoint(0, 0);
-    rect.size= [NSScrollView contentSizeForFrameSize:[self frame].size hasHorizontalScroller:YES hasVerticalScroller:YES
-                                          borderType:NSBezelBorder];
+    rect.size= [NSScrollView contentSizeForFrameSize: self.frame.size
+                             horizontalScrollerClass: [NSScroller class]
+                               verticalScrollerClass: [NSScroller class]
+                                          borderType: NSBezelBorder
+                                         controlSize: NSRegularControlSize
+                                       scrollerStyle: NSScrollerStyleOverlay];
 
     mOutline= [[TreeNodeViewOutlineView alloc] initWithFrame: rect owner: mOwner];
 
