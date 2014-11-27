@@ -1036,18 +1036,28 @@ std::vector<std::pair<int, std::string> > MySQLEditor::update_auto_completion(co
       g_free(entry);
     }
     
-    g_free(prefix);
-
-    if (filtered_entries.size() > 0)
+    switch (filtered_entries.size())
     {
-      log_debug2("Showing auto completion popup\n");
-      _code_editor->auto_completion_show(typed_part.size(), filtered_entries);
-    }
-    else
-    {
+    case 0:
       log_debug2("Nothing to autocomplete - hiding popup if it was active\n");
       _code_editor->auto_completion_cancel();
+      break;
+    case 1:
+      // See if that single entry matches the typed part. If so we don't need to show ac either.
+      if (base::same_string(filtered_entries[0].second, prefix, false)) // Exact (but case insensitive) match, not just string parts.
+      {
+        log_debug2("The only match is the same as the written input - hiding popup if it was active\n");
+        _code_editor->auto_completion_cancel();
+        break;
+      }
+      // Fall through.
+    default:
+      log_debug2("Showing auto completion popup\n");
+      _code_editor->auto_completion_show(typed_part.size(), filtered_entries);
+      break;
     }
+
+    g_free(prefix);
 
     return filtered_entries;
   }
