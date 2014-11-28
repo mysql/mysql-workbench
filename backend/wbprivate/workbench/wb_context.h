@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_CONTEXT_H_
-#define _WB_CONTEXT_H_
+#pragma once
 
 #ifndef _WIN32
 #include <vector>
@@ -44,7 +43,8 @@
 
 #define WBContext_VERSION 5
 
-#define WB_DBOBJECT_DRAG_TYPE "x-mysql-wb/db.DatabaseObject"
+#define WB_DBOBJECT_DRAG_TYPE "mysql-wb.DatabaseObject"
+#define WB_CONTROL_DRAG_TYPE "mysql-wb.control"
 
 namespace mdc {
   class CanvasView;
@@ -542,6 +542,3 @@ namespace wb {
   };
   
 };
-
-
-#endif /* _WB_CONTEXT_H_ */

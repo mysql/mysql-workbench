@@ -281,7 +281,7 @@
   PopoverFrameView* frameView = [super contentView];
   
   NSRect bounds = [frameView bounds];
-  NSPoint localHotSpot = [self convertScreenToBase: mHotSpot];
+  NSPoint localHotSpot = [self convertRectFromScreen: NSMakeRect(mHotSpot.x, mHotSpot.y, 0, 0)].origin;
   localHotSpot.x += 0.5;
 
   // The path is constructed counterclockwise.

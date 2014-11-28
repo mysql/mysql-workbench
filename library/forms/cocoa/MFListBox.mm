@@ -66,10 +66,12 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
     NSRect rect;
     rect.origin= NSMakePoint(0, 0);
-    rect.size= [NSScrollView contentSizeForFrameSize: [self frame].size
-                               hasHorizontalScroller: NO
-                                 hasVerticalScroller: YES
-                                          borderType: NSBezelBorder];
+    rect.size= [NSScrollView contentSizeForFrameSize: self.frame.size
+                             horizontalScrollerClass: nil
+                               verticalScrollerClass: [NSScroller class]
+                                          borderType: NSBezelBorder
+                                         controlSize: NSRegularControlSize
+                                       scrollerStyle: NSScrollerStyleOverlay];
     mTable = [[[DraggingTableView alloc] initWithFrame: rect owner: aListBox] autorelease];
     mHeader= [[mTable headerView] retain];
     [mTable setHeaderView: nil];
