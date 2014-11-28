@@ -131,11 +131,10 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
   if (eoi)
   {
     // We are at the end of the input. Seek back one token to have a meaningful error indicator.
-    // If we cannot get a previous token then the stream is messed up enough to not
-    // give us a useful error *here*. In that case we very likely have already a lexer error.
-    error_token = parser->tstream->_LT(parser->tstream, -1);
-    if (error_token == NULL)
-      return false;
+    // If we cannot get a previous token then issue a generic eoi error.
+    pANTLR3_COMMON_TOKEN previous_token = parser->tstream->_LT(parser->tstream, -1);
+    if (previous_token != NULL)
+      error_token = previous_token;
   }
   else
     token_name = get_token_name(tokenNames, error_token->type);
@@ -160,7 +159,7 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
   case ANTLR3_NO_VIABLE_ALT_EXCEPTION:
     // No alternative to choose from here.
     if (eoi)
-      error << "unexpected end of statement";
+      error << "unexpected end of input";
     else
       error << "unexpected " << token_text << " (" << token_name << ")";
 
@@ -226,7 +225,7 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
     // this when the token that follows this unwanted token would normally be part of the
     // syntactically correct stream.
     if	(exception->expecting == ANTLR3_TOKEN_EOF)
-      error << "extraneous input found - expected end of statement";
+      error << "extraneous input found - expected end of input";
     else
       error << "extraneous input found - expected '" << get_token_name(tokenNames, exception->expecting) << "'";
     break;
@@ -243,7 +242,7 @@ bool handle_parser_error(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_EXCEPTION e
       {
         if (exception->expecting == ANTLR3_TOKEN_EOF)
           // Will probably not occur since ANTLR3_UNWANTED_TOKEN_EXCEPTION will kick in instead.
-          error << "expected end of statement";
+          error << "expected end of input";
         else
           error << "missing '" << get_token_name(tokenNames, exception->expecting) << "'";
       }
@@ -1200,7 +1199,7 @@ MySQLRecognizer::~MySQLRecognizer()
  * @param parse_unit used to restrict parsing to a particular query type. 
  *                   Note: only a few types are supported, everything else is just parsed as a query.
  */
-void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQLQueryType parse_unit)
+void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQLParseUnit parse_unit)
 {
   // If the text is not using utf-8 (which it should) then we interpret as 8bit encoding
   // (everything requiring only one byte per char as Latin1, ASCII and similar).
@@ -1247,19 +1246,27 @@ void MySQLRecognizer::parse(const char *text, size_t length, bool is_utf8, MySQL
 
   switch (parse_unit)
   {
-  case QtCreateTrigger:
+  case PuCreateTrigger:
     d->_ast = d->_parser->create_trigger(d->_parser).tree;
     break;
-  case QtCreateView:
+  case PuCreateView:
     d->_ast = d->_parser->create_view(d->_parser).tree;
     break;
-  case QtCreateRoutine:
+  case PuCreateRoutine:
     d->_ast = d->_parser->create_routine(d->_parser).tree;
     break;
-  case QtCreateEvent:
-    d->_ast = d->_parser->create_trigger(d->_parser).tree;
+  case PuCreateEvent:
+    d->_ast = d->_parser->create_event(d->_parser).tree;
+    break;
+  case PuGrant:
+    d->_ast = d->_parser->grant(d->_parser).tree;
+    break;
+  case PuDataType:
+    d->_ast = d->_parser->data_type_definition(d->_parser).tree;
+    break;
   default:
     d->_ast = d->_parser->query(d->_parser).tree;
+    break;
   }
 }
 

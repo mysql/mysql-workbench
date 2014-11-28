@@ -320,7 +320,7 @@ void SqlEditorForm::finish_startup()
         _auto_completion_cache = new AutoCompleteCache(sanitize_file_name(get_session_name()),
           boost::bind(&SqlEditorForm::get_autocompletion_connection, this, _1), cache_dir,
           boost::bind(&SqlEditorForm::on_cache_action, this, _1));
-        _auto_completion_cache->refresh_schema_cache(""); // Start fetching of schema names immediately.
+        _auto_completion_cache->refresh_schema_list(); // Start fetching schema names immediately.
       }
       catch (std::exception &e)
       {
@@ -2684,22 +2684,26 @@ std::string SqlEditorForm::active_schema() const
 }
 
 /**
- * Notification from the tree controller that schema meta data has been refreshed. We use this
+ * Notification from the tree controller that (some) schema meta data has been refreshed. We use this
  * info to update the auto completion cache - avoiding so a separate set of queries to the server.
  */
 void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name,
- const std::vector<std::pair<std::string,bool> >& tables, 
- const std::vector<std::pair<std::string,bool> >& procedures, bool just_append)
+    StringListPtr tables, StringListPtr views,
+    StringListPtr procedures, StringListPtr functions)
 {
   if (_auto_completion_cache != NULL)
   {
-    _auto_completion_cache->update_schema_tables(schema_name, tables, just_append);
+    _auto_completion_cache->update_tables(schema_name, *tables);
+    _auto_completion_cache->update_views(schema_name, *views);
 
     // Schedule a refresh of column info for all tables/views.
-    for (std::vector<std::pair<std::string, bool> >::const_iterator iterator = tables.begin(); iterator != tables.end(); ++iterator)
-      _auto_completion_cache->refresh_table_cache(schema_name, iterator->first);
+    for (auto i = tables->begin(); i != tables->end(); ++i)
+      _auto_completion_cache->refresh_columns(schema_name, *i);
+    for (auto i = views->begin(); i != views->end(); ++i)
+      _auto_completion_cache->refresh_columns(schema_name, *i);
 
-    _auto_completion_cache->update_schema_routines(schema_name, procedures, just_append);
+    _auto_completion_cache->update_procedures(schema_name, *procedures);
+    _auto_completion_cache->update_functions(schema_name, *functions);
   }
 }
 

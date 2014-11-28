@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-
-#include "stdafx.h"
 #include <locale>
 
 #ifndef _WIN32

@@ -490,12 +490,10 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR (SqlEditorTreeController, self_ptr, self, grt::StringRef(""))
   try
   {
-    std::list<std::string> *tables = new std::list<std::string>();
-    std::list<std::string> *views  = new std::list<std::string>();
-    std::list<std::string> *procedures = new std::list<std::string>();
-    std::list<std::string> *functions = new std::list<std::string>();
-    std::vector<std::pair<std::string, bool> > table_list;
-    std::vector<std::pair<std::string, bool> > routine_list;
+    StringListPtr tables(new std::list<std::string>());
+    StringListPtr views(new std::list<std::string>());
+    StringListPtr procedures(new std::list<std::string>());
+    StringListPtr functions(new std::list<std::string>());
 
     MutexLock schema_contents_mutex(_schema_contents_mutex);
 
@@ -517,8 +515,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
             views->push_back(name);
           else
             tables->push_back(name);
-
-          table_list.push_back(std::make_pair(name, type == "VIEW"));
         }
       }
 
@@ -537,15 +533,9 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
             std::string name = rs->getString(1);
             std::string type = rs->getString(2);
             if (type == "PROCEDURE")
-            {
               procedures->push_back(name);
-              routine_list.push_back(std::make_pair(name, false));
-            }
             else
-            {
               functions->push_back(name);
-              routine_list.push_back(std::make_pair(name, true));
-            }
           }
         }
         catch (std::exception &exc)
@@ -564,7 +554,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
           {
             std::string name = rs->getString(2);
             procedures->push_back(name);
-            routine_list.push_back(std::make_pair(name, false));
           }
         }
         {
@@ -573,7 +562,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
           {
             std::string name = rs->getString(2);
             functions->push_back(name);
-            routine_list.push_back(std::make_pair(name, true));
           }
         }
       }
@@ -586,7 +574,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
     }
 
     // Let the owner form know we got fresh schema meta data. Can be used to update caches.
-    _owner->schema_meta_data_refreshed(schema_name, table_list, routine_list, false);
+    _owner->schema_meta_data_refreshed(schema_name, tables, views, procedures, functions);
   }
   catch (const sql::SQLException& e)
   {
@@ -595,7 +583,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(grt::GRT *
 
     if (arrived_slot)
     {
-      std::list<std::string> *empty_list = NULL;
+      StringListPtr empty_list;
       boost::function<void ()> schema_contents_arrived = boost::bind(arrived_slot, schema_name, empty_list, empty_list, empty_list, empty_list, false);
       _grtm->run_once_when_idle(this, schema_contents_arrived);
     }
@@ -628,10 +616,11 @@ grt::StringRef SqlEditorTreeController::do_fetch_data_for_filter(grt::GRT *grt, 
 
     if (dbc_resultset && !error.length())
     {
-      std::list<std::string> *tables = new std::list<std::string>();
-      std::list<std::string> *views = new std::list<std::string>();
-      std::list<std::string> *procedures = new std::list<std::string>();
-      std::list<std::string> *functions = new std::list<std::string>();
+
+      StringListPtr tables(new std::list<std::string>());
+      StringListPtr views(new std::list<std::string>());
+      StringListPtr procedures(new std::list<std::string>());
+      StringListPtr functions(new std::list<std::string>());
 
       // Creates the needed schema/objects
       while (dbc_resultset->next())
@@ -1645,9 +1634,11 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
   schema->routines().insert(routine);
 
   std::string previous_sql_mode;
+  std::string sql_mode = _owner->work_parser_context()->get_sql_mode();
   if (!script.first.empty())
   {
-    previous_sql_mode = _owner->work_parser_context()->get_sql_mode();
+    previous_sql_mode = sql_mode;
+    sql_mode = script.first;
     _owner->work_parser_context()->use_sql_mode(script.first);
   }
 
@@ -1665,7 +1656,7 @@ std::string SqlEditorTreeController::run_execute_routine_wizard(wb::LiveSchemaTr
     return "";
   }
 
-  ExecuteRoutineWizard wizard(routine);
+  ExecuteRoutineWizard wizard(routine, sql_mode);
   wizard.center();
   return wizard.run();
 }

@@ -19,8 +19,11 @@
 
 #pragma once
 
+#define MIN_SERVER_VERSION 50100
+#define MAX_SERVER_VERSION 99999
+
 #ifdef _WIN32
-  #pragma warning(disable:4251)
+  #pragma warning(disable:4251) // class needs to have dll-interface
 
   #ifdef BASELIBRARY_EXPORTS
     #define BASELIBRARY_PUBLIC_FUNC __declspec(dllexport)

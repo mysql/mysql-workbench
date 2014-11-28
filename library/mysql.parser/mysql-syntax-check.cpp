@@ -20,7 +20,6 @@
 #include <sstream>
 #include <algorithm>
 #include <string>
-#include <stack>
 #include <set>
 
 #include <antlr3.h>
@@ -52,7 +51,8 @@ public:
 
 //--------------------------------------------------------------------------------------------------
 
-MySQLSyntaxChecker::MySQLSyntaxChecker(long server_version, const std::string &sql_mode, const std::set<std::string> &charsets)
+MySQLSyntaxChecker::MySQLSyntaxChecker(long server_version, const std::string &sql_mode,
+                                       const std::set<std::string> &charsets)
   : MySQLRecognitionBase(charsets)
 {
   d = new Private();

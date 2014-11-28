@@ -21,7 +21,7 @@
 
 #include "wbpublic_public_interface.h"
 
-#include "mysql-parser-common.h"
+#include "mysql-recognition-types.h"
 #include "grtdb/db_helpers.h"
 
 #ifndef HAVE_PRECOMPILED_HEADERS
@@ -75,7 +75,8 @@ public:
   
   std::vector<ParserErrorEntry> get_errors_with_offset(size_t offset, bool for_syntax_check);
 
-  size_t get_keyword_token(const std::string &keyword);
+  uint32_t get_keyword_token(const std::string &keyword);
+  char ** get_token_name_list();
 };
 
 /**

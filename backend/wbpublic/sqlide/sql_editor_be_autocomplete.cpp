@@ -19,17 +19,29 @@
 
 #include <boost/assign/std/vector.hpp> // for 'operator += ..'
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <map>
+#include <deque>
+#include <assert.h>
+
 #include "sql_editor_be.h"
 #include "grt/grt_manager.h"
 
 #include "base/log.h"
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 
 #include "mforms/code_editor.h"
 
 #include "autocomplete_object_name_cache.h"
-#include "mysql-parser.h"
+#include "mysql-scanner.h"
 
+#include "grammar-parser/ANTLRv3Lexer.h"
+#include "grammar-parser/ANTLRv3Parser.h"
 #include "MySQLLexer.h"
 
 DEFAULT_LOG_DOMAIN("Code Completion");
@@ -39,16 +51,931 @@ using namespace boost::assign;
 using namespace bec;
 using namespace grt;
 using namespace base;
+using namespace parser;
+
+//--------------------------------------------------------------------------------------------------
+
+struct GrammarNode {
+  bool is_terminal;
+  bool is_required;     // false for * and ? operators, otherwise true.
+  bool multiple;        // true for + and * operators, otherwise false.
+  uint32_t token_ref;   // In case of a terminal the id of the token.
+  std::string rule_ref; // In case of a non-terminal the name of the rule.
+
+  GrammarNode()
+  {
+    is_terminal = true;
+    is_required = true;
+    multiple = false;
+    token_ref = INVALID_TOKEN;
+  }
+};
+
+// A sequence of grammar nodes (either terminal or non-terminal) in the order they appear in the grammar.
+// Expressions in parentheses are extracted into an own rule with a private name.
+// A sequence can have an optional predicate (min/max server version and/or sql modes active/not active).
+struct GrammarSequence {
+  // Version predicate. Values are inclusive (min <= x <= max).
+  int min_version;
+  int max_version;
+
+  // Bit mask of modes as defined in the lexer/parser.
+  int active_sql_modes;   // SQL modes that must be active to match the predicate.
+  int inactive_sql_modes; // SQL modes that must not be active. -1 for both if we don't care.
+
+  std::vector<GrammarNode> nodes;
+
+  GrammarSequence()
+  {
+    min_version = MIN_SERVER_VERSION;
+    max_version = MAX_SERVER_VERSION;
+    active_sql_modes = -1;
+    inactive_sql_modes = -1;
+  };
+  
+};
+
+typedef std::vector<GrammarSequence> RuleAlternatives; // A list of alternatives for a given rule.
+
+//--------------------------------------------------------------------------------------------------
+
+// A shared data structure for a given grammar file + some additional parsing info.
+static struct
+{
+  std::map<std::string, RuleAlternatives> rules; // The full grammar.
+  std::map<std::string, uint32_t> token_map;     // Map token names to token ids.
+
+  // Rules that must not be examined further when collecting candidates.
+  std::set<std::string> special_rules;  // Rules with a special meaning (e.g. "table_ref").
+  std::set<std::string> ignored_rules;  // Rules we don't provide completion with (e.g. "literal").
+  std::set<std::string> ignored_tokens; // Tokens we don't want to show up (e.g. operators).
+
+  //------------------------------------------------------------------------------------------------
+
+  // Parses the given grammar file (and its associated .tokens file which must be in the same folder)
+  // and fills the rule and token_map structures.
+  void parse_file(const std::string &name)
+  {
+    log_debug("Parsing grammar file: %s\n", name.c_str());
+
+    special_rules.clear();
+    special_rules.insert("schema_ref");
+
+    special_rules.insert("table_ref");
+    special_rules.insert("table_ref_with_wildcard");
+    special_rules.insert("filter_table_ref");
+    special_rules.insert("table_ref_no_db");
+
+    special_rules.insert("column_ref");
+    special_rules.insert("column_ref_with_wildcard");
+    special_rules.insert("table_wild");
+
+    special_rules.insert("function_ref"); // Pure stored function reference.
+    special_rules.insert("stored_function_call"); // Stored function call definition.
+    special_rules.insert("udf_call");
+    special_rules.insert("runtime_function_call");
+    special_rules.insert("trigger_ref");
+    special_rules.insert("view_ref");
+    special_rules.insert("procedure_ref");
+
+    special_rules.insert("logfile_group_ref");
+    special_rules.insert("tablespace_ref");
+    special_rules.insert("engine_ref");
+
+    special_rules.insert("user_variable");
+    special_rules.insert("system_variable");
+
+    ignored_rules.clear();
+    ignored_rules.insert("literal");
+    ignored_rules.insert("text_or_identifier");
+    ignored_rules.insert("identifier");
+
+    // We have to use strings for the ignored tokens, instead of their #defines because we would have
+    // to include MySQLParser.h, which conflicts with ANTLRv3Parser.h.
+    // Additionally, we need strings anyway to show in the code completion list.
+    ignored_tokens.clear();
+    ignored_tokens.insert("EQUAL_OPERATOR");
+    ignored_tokens.insert("ASSIGN_OPERATOR");
+    ignored_tokens.insert("NULL_SAFE_EQUAL_OPERATOR");
+    ignored_tokens.insert("GREATER_OR_EQUAL_OPERATOR");
+    ignored_tokens.insert("GREATER_THAN_OPERATOR");
+    ignored_tokens.insert("LESS_OR_EQUAL_OPERATOR");
+    ignored_tokens.insert("LESS_THAN_OPERATOR");
+    ignored_tokens.insert("NOT_EQUAL_OPERATOR");
+    ignored_tokens.insert("NOT_EQUAL2_OPERATOR");
+    ignored_tokens.insert("PLUS_OPERATOR");
+    ignored_tokens.insert("MINUS_OPERATOR");
+    ignored_tokens.insert("MULT_OPERATOR");
+    ignored_tokens.insert("DIV_OPERATOR");
+    ignored_tokens.insert("MOD_OPERATOR");
+    ignored_tokens.insert("LOGICAL_NOT_OPERATOR");
+    ignored_tokens.insert("BITWISE_NOT_OPERATOR");
+    ignored_tokens.insert("SHIFT_LEFT_OPERATOR");
+    ignored_tokens.insert("SHIFT_RIGHT_OPERATOR");
+    ignored_tokens.insert("LOGICAL_AND_OPERATOR");
+    ignored_tokens.insert("BITWISE_AND_OPERATOR");
+    ignored_tokens.insert("BITWISE_XOR_OPERATOR");
+    ignored_tokens.insert("LOGICAL_OR_OPERATOR");
+    ignored_tokens.insert("BITWISE_OR_OPERATOR");
+    ignored_tokens.insert("DOT_SYMBOL");
+    ignored_tokens.insert("COMMA_SYMBOL");
+    ignored_tokens.insert("SEMICOLON_SYMBOL");
+    ignored_tokens.insert("COLON_SYMBOL");
+    ignored_tokens.insert("OPEN_PAR_SYMBOL");
+    ignored_tokens.insert("CLOSE_PAR_SYMBOL");
+    ignored_tokens.insert("OPEN_CURLY_SYMBOL");
+    ignored_tokens.insert("CLOSE_CURLY_SYMBOL");
+    ignored_tokens.insert("OPEN_BRACKET_SYMBOL");
+    ignored_tokens.insert("CLOSE_BRACKET_SYMBOL");
+    ignored_tokens.insert("UNDERLINE_SYMBOL");
+    ignored_tokens.insert("AT_SIGN_SYMBOL");
+    ignored_tokens.insert("AT_AT_SIGN_SYMBOL");
+    ignored_tokens.insert("NULL2_SYMBOL");
+    ignored_tokens.insert("PARAM_MARKER");
+    ignored_tokens.insert("BACK_TICK");
+    ignored_tokens.insert("SINGLE_QUOTE");
+    ignored_tokens.insert("DOUBLE_QUOTE");
+    ignored_tokens.insert("ESCAPE_OPERATOR");
+    ignored_tokens.insert("CONCAT_PIPES_SYMBOL");
+    ignored_tokens.insert("AT_TEXT_SUFFIX");
+
+    // Load token map first. Assume the grammar file has the .g extension.
+    std::string token_file_name = name.substr(0, name.size() - 2) + ".tokens";
+    std::ifstream token_file(token_file_name.c_str());
+    assert(token_file.is_open());
+    while (!token_file.eof())
+    {
+      std::string line;
+      std::getline(token_file, line);
+      std::string::size_type p = line.find('=');
+
+      token_map[line.substr(0, p)] = atoi(line.substr(p + 1).c_str());
+    }
+    token_map["EOF"] = ANTLR3_TOKEN_EOF;
+
+    // Now parse the grammar.
+    std::ifstream stream(name.c_str(), std::ifstream::binary);
+    std::string text((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+
+    pANTLR3_INPUT_STREAM input = antlr3StringStreamNew((pANTLR3_UINT8)text.c_str(), ANTLR3_ENC_UTF8,
+                                                       (ANTLR3_UINT32)text.size(), (pANTLR3_UINT8)"");
+    pANTLRv3Lexer lexer = ANTLRv3LexerNew(input);
+    pANTLR3_COMMON_TOKEN_STREAM tokens = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lexer));
+    pANTLRv3Parser parser = ANTLRv3ParserNew(tokens);
+
+    pANTLR3_BASE_TREE tree = parser->grammarDef(parser).tree;
+
+    ANTLR3_UINT32 error_count = parser->pParser->rec->state->errorCount;
+    //std::cout << "Errors found: " << error_count << "\n";
+
+    //std::string dump = dumpTree(tree, parser->pParser->rec->state, "");
+    //std::cout << dump;
+
+    if (error_count == 0)
+    {
+      // Walk the AST and put all the rules into our data structures.
+      // We can handle here only combined and pure parser grammars (the lexer rules are ignored in a combined grammar).
+      switch (tree->getType(tree))
+      {
+        case COMBINED_GRAMMAR_V3TOK:
+        case PARSER_GRAMMAR_V3TOK:
+          // Advanced to the first rule. The first node is the grammar node. Everything else is in child nodes of this.
+          for (ANTLR3_UINT32 index = 0; index < tree->getChildCount(tree); index++)
+          {
+            pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)tree->getChild(tree, index);
+            if (child->getType(child) == RULE_V3TOK)
+              traverse_rule(child);
+          }
+          break;
+      }
+
+    }
+    
+    // Must manually clean up.
+    parser->free(parser);
+    tokens ->free(tokens);
+    lexer->free(lexer);
+    input->close(input);
+  }
+  
+private:
+  void handle_server_version(std::vector<std::string> parts, GrammarSequence &sequence)
+  {
+    bool includes_equality = parts[1].size() == 2;
+    int version = atoi(parts[2].c_str());
+    switch (parts[1][0])
+    {
+      case '<': // A max version.
+        sequence.max_version = version;
+        if (!includes_equality)
+          --sequence.max_version;
+        break;
+      case '=': // An exact version.
+        sequence.max_version = version;
+        sequence.min_version = version;
+        break;
+      case '>': // A min version.
+        sequence.min_version = version;
+        if (!includes_equality)
+          ++sequence.min_version;
+        break;
+
+      default:
+        throw std::runtime_error("Unhandled comparison operator in version number predicate (" + parts[1] + ")");
+        break;
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void parse_predicate(std::string predicate, GrammarSequence &sequence)
+  {
+    // Parsable predicates have one of these forms:
+    // - "SERVER_VERSION >= 50100"
+    // - "(SERVER_VERSION >= 50105) && (SERVER_VERSION < 50500)"
+    // - "SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)"
+    // - "!SQL_MODE_ACTIVE(SQL_MODE_ANSI_QUOTES)"
+    //
+    // We don't do full expression parsing here. Only what is given above.
+    static std::map<std::string, int> mode_map;
+    if (mode_map.empty())
+    {
+      mode_map["SQL_MODE_ANSI_QUOTES"] = 1;
+      mode_map["SQL_MODE_HIGH_NOT_PRECEDENCE"] = 2;
+      mode_map["SQL_MODE_PIPES_AS_CONCAT"] = 4;
+      mode_map["SQL_MODE_IGNORE_SPACE"] = 8;
+      mode_map["SQL_MODE_NO_BACKSLASH_ESCAPES"] = 16;
+    }
+
+    predicate = base::trim(predicate);
+    std::vector<std::string> parts = base::split(predicate, "&&");
+    if (parts.size() == 2)
+    {
+      // Min and max values for server versions.
+      std::string expression = base::trim(parts[0]);
+      if (base::starts_with(expression, "(") && base::ends_with(expression, ")"))
+        expression = expression.substr(1, expression.size() - 2);
+      std::vector<std::string> expression_parts = base::split(expression, " ");
+      if ((expression_parts[0] == "SERVER_VERSION") && (expression_parts.size() == 3))
+        handle_server_version(expression_parts, sequence);
+
+      expression = base::trim(parts[1]);
+      if (base::starts_with(expression, "(") && base::ends_with(expression, ")"))
+        expression = expression.substr(1, expression.size() - 2);
+      expression_parts = base::split(expression, " ");
+      if ((expression_parts[0] == "SERVER_VERSION") && (expression_parts.size() == 3))
+        handle_server_version(expression_parts, sequence);
+    }
+    else
+    {
+      // A single expression.
+      parts = base::split(predicate, " ");
+      if (parts.size() == 1)
+      {
+        if (base::starts_with(predicate, "SQL_MODE_ACTIVE("))
+        {
+          std::string mode = predicate.substr(16, predicate.size() - 17);
+          if (mode_map.find(mode) != mode_map.end())
+            sequence.active_sql_modes = mode_map[mode];
+        }
+        else if (base::starts_with(predicate, "!SQL_MODE_ACTIVE("))
+        {
+          std::string mode = predicate.substr(17, predicate.size() - 18);
+          if (mode_map.find(mode) != mode_map.end())
+            sequence.inactive_sql_modes = mode_map[mode];
+        }
+      }
+      else
+      {
+        if ((parts[0] == "SERVER_VERSION") && (parts.size() == 3))
+          handle_server_version(parts, sequence);
+      }
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  /**
+   * Creates a node sequence that comprises an entire alternative.
+   */
+  GrammarSequence traverse_alternative(pANTLR3_BASE_TREE alt, const std::string name)
+  {
+    GrammarSequence sequence;
+
+    uint32_t index = 0;
+
+    // Check for special nodes first.
+    pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)alt->getChild(alt, index);
+    switch (child->getType(child))
+    {
+      case GATED_SEMPRED_V3TOK:
+      {
+        // See if we can extract version info or SQL mode condition from that.
+        ++index;
+        pANTLR3_STRING token_text = child->getText(child);
+        std::string predicate((char*)token_text->chars);
+
+        // A predicate has the form "{... text ... }?".
+        predicate = predicate.substr(1, predicate.size() - 3);
+        parse_predicate(predicate, sequence);
+        break;
+      }
+
+      case SEMPRED_V3TOK:     // A normal semantic predicate.
+      case SYN_SEMPRED_V3TOK: // A syntactic predicate converted to a semantic predicate.
+                        // Not needed for our work, so we can ignore it.
+        ++index;
+        break;
+
+      case EPSILON_V3TOK: // An empty alternative.
+        return sequence;
+    }
+
+    // One less child node as the alt is always ended by an EOA node.
+    for (; index < alt->getChildCount(alt) - 1; ++index)
+    {
+      child = (pANTLR3_BASE_TREE)alt->getChild(alt, index);
+      GrammarNode node;
+
+      uint32_t type = child->getType(child);
+
+      // Ignore ROOT/BANG nodes (they are just tree construction markup).
+      if (type == ROOT_V3TOK || type == BANG_V3TOK)
+      {
+        // Just one child.
+        child = (pANTLR3_BASE_TREE)child->getChild(child, 0);
+        type = child->getType(child);
+      }
+
+      switch (type)
+      {
+        case OPTIONAL_V3TOK:
+        case CLOSURE_V3TOK:
+        case POSITIVE_CLOSURE_V3TOK:
+        {
+          node.is_required = (type != OPTIONAL_V3TOK) && (type != CLOSURE_V3TOK);
+          node.multiple = (type == CLOSURE_V3TOK) || (type == POSITIVE_CLOSURE_V3TOK);
+
+          child = (pANTLR3_BASE_TREE)child->getChild(child, 0);
+
+          // See if this block only contains a single alt with a single child node.
+          // If so optimize and make this single child node directly the current node.
+          bool optimized = false;
+          if (child->getChildCount(child) == 2) // 2 because there's always that EOB child node.
+          {
+            pANTLR3_BASE_TREE child_alt = (pANTLR3_BASE_TREE)child->getChild(child, 0);
+            if (child_alt->getChildCount(child_alt) == 2) // 2 because there's always that EOA child node.
+            {
+              optimized = true;
+              child = (pANTLR3_BASE_TREE)child_alt->getChild(child_alt, 0);
+              switch (child->getType(child))
+              {
+                case TOKEN_REF:
+                {
+                  node.is_terminal = true;
+                  pANTLR3_STRING token_text = child->getText(child);
+                  std::string name = (char*)token_text->chars;
+                  node.token_ref = token_map[name];
+                  break;
+                }
+
+                case RULE_REF:
+                {
+                  node.is_terminal = false;
+                  pANTLR3_STRING token_text = child->getText(child);
+                  std::string name = (char*)token_text->chars;
+                  node.rule_ref = name;
+                  break;
+                }
+
+                default:
+                {
+                  std::stringstream message;
+                  message << "Unhandled type: " << type << " in alternative: " << name;
+                  throw std::runtime_error(message.str());
+                }
+              }
+            }
+          }
+
+          if (!optimized)
+          {
+            std::stringstream block_name;
+            block_name << name << "_block" << index;
+            traverse_block(child, block_name.str());
+
+            node.is_terminal = false;
+            node.rule_ref = block_name.str();
+          }
+          break;
+        }
+
+        case TOKEN_REF:
+        {
+          node.is_terminal = true;
+          pANTLR3_STRING token_text = child->getText(child);
+          std::string name = (char*)token_text->chars;
+          node.token_ref = token_map[name];
+          break;
+        }
+
+        case RULE_REF:
+        {
+          node.is_terminal = false;
+          pANTLR3_STRING token_text = child->getText(child);
+          std::string name = (char*)token_text->chars;
+          node.rule_ref = name;
+          break;
+        }
+
+        case BLOCK_V3TOK:
+        {
+          std::stringstream block_name;
+          block_name << name << "_block" << index;
+          traverse_block(child, block_name.str());
+
+          node.is_terminal = false;
+          node.rule_ref = block_name.str();
+          break;
+        }
+
+        default:
+        {
+          std::stringstream message;
+          message << "Unhandled type: " << type << " in alternative: " << name;
+          throw std::runtime_error(message.str());
+        }
+      }
+      
+      sequence.nodes.push_back(node);
+    }
+    
+    return sequence;
+  }
+  
+  //------------------------------------------------------------------------------------------------
+  
+  void traverse_block(pANTLR3_BASE_TREE block, const std::string name)
+  {
+    // A block is either a rule body or a part enclosed by parentheses.
+    // A block consists of a number of alternatives which are stored as the content of that block
+    // under the given name.
+
+    RuleAlternatives alternatives;
+
+    // One less child in the loop as the list is always ended by a EOB node.
+    for (ANTLR3_UINT32 index = 0; index < block->getChildCount(block) - 1; index++)
+    {
+      pANTLR3_BASE_TREE alt = (pANTLR3_BASE_TREE)block->getChild(block, index);
+      if (alt->getType(alt) == ALT_V3TOK) // There can be REWRITE nodes (which we don't need).
+      {
+        std::stringstream alt_name;
+        alt_name << name << "_alt" << index;
+        GrammarSequence sequence = traverse_alternative(alt, alt_name.str());
+        alternatives.push_back(sequence);
+      }
+    }
+    rules[name] = alternatives;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void traverse_rule(pANTLR3_BASE_TREE rule)
+  {
+    pANTLR3_BASE_TREE child = (pANTLR3_BASE_TREE)rule->getChild(rule, 0);
+    pANTLR3_STRING token_text = child->getText(child);
+    std::string name((char*)token_text->chars);
+
+    // Parser rules start with a lower case letter.
+    if (islower(name[0]))
+    {
+      child = (pANTLR3_BASE_TREE)rule->getChild(rule, 1);
+      if (child->getType(child) == OPTIONS) // There might be an optional options block on the rule.
+        child = (pANTLR3_BASE_TREE)rule->getChild(rule, 2);
+      if (child->getType(child) == BLOCK_V3TOK)
+        traverse_block(child, name);
+    }
+    
+    // There's another child (the always present EORu node) which we ignore.
+  }
+  
+  //------------------------------------------------------------------------------------------------
+
+} rules_holder;
+
+//--------------------------------------------------------------------------------------------------
+
+struct TableReference
+{
+  std::string schema;
+  std::string table;
+  std::string alias;
+};
+
+// Context structure for code completion results and token info.
+struct AutoCompletionContext
+{
+  std::string typed_part;
+
+  long server_version;
+  int sql_mode;
+
+  char **token_names;
+  std::deque<std::string> walk_stack; // The rules as they are being matched or collected from.
+                                      // It's a deque instead of a stack as we need to iterate over it.
+
+  enum RunState { RunStateMatching, RunStateCollectionPending, RunStateCollectionDone } run_state;
+
+  MySQLScanner *scanner;
+  std::set<std::string> completion_candidates;
+
+  size_t caret_line;
+  size_t caret_offset;
+
+  std::vector<TableReference> references; // As in FROM, UPDATE etc.
+
+  //------------------------------------------------------------------------------------------------
+  
+  /**
+   * Uses the given scanner (with set input) to collect a set of possible completion candidates
+   * at the given line + offset.
+   *
+   * @returns true if the input could fully be matched (happens usually only if the given caret
+   *          is after the text and can be used to test if the algorithm parses queries fully).
+   *
+   * Actual candidates are stored in the completion_candidates member set.
+   *
+   */
+  bool collect_candiates(MySQLScanner *aScanner)
+  {
+    scanner = aScanner; // Has all the data necessary for scanning already.
+    server_version = scanner->get_server_version();
+    sql_mode = scanner->get_sql_mode_flags();
+
+    run_state = RunStateMatching;
+    completion_candidates.clear();
+
+    if (scanner->token_channel() != 0)
+      scanner->next(true);
+
+    bool matched = match_rule("query");
+
+    // Post processing some entries.
+    if (completion_candidates.find("NOT2_SYMBOL") != completion_candidates.end())
+    {
+      // NOT2 is a NOT with special meaning in the operator preceedence chain.
+      // For code completion it's the same as NOT.
+      completion_candidates.erase("NOT2_SYMBOL");
+      completion_candidates.insert("NOT_SYMBOL");
+    }
+
+    return matched;
+  }
+
+  //------------------------------------------------------------------------------------------------
+  
+private:
+  bool is_token_end_after_caret()
+  {
+    // The first time we found that the caret is before the current token we store the
+    // current position of the input stream to return to it after we collected all candidates.
+    if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+      return true;
+
+    assert(scanner->token_line() > 0);
+    if (scanner->token_line() > caret_line)
+      return true;
+
+    if (scanner->token_line() < caret_line)
+      return false;
+
+    // This determination is a bit tricky as it depends on the type of the token.
+    // For letters (like when typing a keyword) all positions directly attached to a letter must be
+    // considered within the token (as we could extend it).
+    // For example each vertical bar is a position within the token: |F|R|O|M|
+    // Not so with tokens that can separate other tokens without the need of a whitespace (comma etc.).
+    bool result;
+    if (scanner->is_separator())
+      result = scanner->token_end() > caret_offset;
+    else
+      result = scanner->token_end() >= caret_offset;
+
+    return result;
+  }
+
+  //----------------------------------------------------------------------------------------------------------------------
+  
+  /**
+   * Collects all tokens that can be reached in the sequence from the given start point. There can be more than one
+   * if there are optional rules.
+   * Returns true if the sequence between the starting point and the end consists only of optional tokens or there aren't
+   * any at all.
+   */
+  void collect_from_alternative(const GrammarSequence &sequence, size_t start_index)
+  {
+    for (size_t i = start_index; i < sequence.nodes.size(); ++i)
+    {
+      GrammarNode node = sequence.nodes[i];
+      if (node.is_terminal && node.token_ref == ANTLR3_TOKEN_EOF)
+        break;
+
+      if (node.is_terminal)
+      {
+        // Insert only tokens we are interested in.
+        std::string token_ref = token_names[node.token_ref];
+        bool ignored = rules_holder.ignored_tokens.find(token_ref) != rules_holder.ignored_tokens.end();
+        bool exists = completion_candidates.find(token_ref) != completion_candidates.end();
+        if (!ignored && !exists)
+          completion_candidates.insert(token_ref);
+        if (node.is_required)
+        {
+          // Also collect following tokens into this candidate, until we find the end of the sequence
+          // or a token that is either not required or can appear multiple times.
+          // Don't do this however, if we have an ignored token here.
+          std::string token_refs = token_ref;
+          if (!ignored && !node.multiple)
+          {
+            while (++i < sequence.nodes.size())
+            {
+              GrammarNode node = sequence.nodes[i];
+              if (!node.is_terminal || !node.is_required || node.multiple)
+                break;
+              token_refs += std::string(" ") + token_names[node.token_ref];
+            }
+            if (token_refs.size() > token_ref.size())
+            {
+              if (!exists)
+                completion_candidates.erase(token_ref);
+              completion_candidates.insert(token_refs);
+            }
+          }
+          run_state = RunStateCollectionDone;
+          return;
+        }
+      }
+      else
+      {
+        collect_from_rule(node.rule_ref);
+        if (!node.is_required)
+          run_state = RunStateCollectionPending;
+        else
+          if (run_state != RunStateCollectionPending)
+            run_state = RunStateCollectionDone;
+        if (node.is_required && run_state == RunStateCollectionDone)
+          return;
+      }
+    }
+    run_state = RunStateCollectionPending; // Parent needs to continue.
+  }
+
+  //----------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * Collects possibly reachable tokens from all alternatives in the given rule.
+   */
+  void collect_from_rule(const std::string rule)
+  {
+    // Don't go deeper if we have one of the special or ignored rules.
+    if (rules_holder.special_rules.find(rule) != rules_holder.special_rules.end())
+    {
+      completion_candidates.insert(rule);
+      run_state = RunStateCollectionDone;
+      return;
+    }
+
+    // If this is an ignored rule see if we are in a path that involves a special rule
+    // and use this if found.
+    if (rules_holder.ignored_rules.find(rule) != rules_holder.ignored_rules.end())
+    {
+      for (auto i = walk_stack.rbegin(); i != walk_stack.rend(); ++i)
+      {
+        if (rules_holder.special_rules.find(*i) != rules_holder.special_rules.end())
+        {
+          completion_candidates.insert(*i);
+          run_state = RunStateCollectionDone;
+          break;
+        }
+      }
+      return;
+    }
+
+    // Any other rule goes here.
+    RunState combined_state = RunStateCollectionDone;
+    RuleAlternatives alts = rules_holder.rules[rule];
+    for (auto i = alts.begin(); i != alts.end(); ++i)
+    {
+      // First run a predicate check if this alt can be considered at all.
+      if ((i->min_version > server_version) || (server_version > i->max_version))
+        continue;
+
+      if ((i->active_sql_modes > -1) && (i->active_sql_modes & sql_mode) != i->active_sql_modes)
+        continue;
+
+      if ((i->inactive_sql_modes > -1) && (i->inactive_sql_modes & sql_mode) != 0)
+        continue;
+
+      collect_from_alternative(*i, 0);
+      if (run_state == RunStateCollectionPending)
+        combined_state = RunStateCollectionPending;
+    }
+    run_state = combined_state;
+  }
+  
+  //------------------------------------------------------------------------------------------------
+  
+  /**
+   * Returns true if the given input token matches the given grammar node.
+   * This may involve recursive rule matching.
+   */
+  bool match(const GrammarNode &node, uint32_t token_type)
+  {
+    if (node.is_terminal)
+      return node.token_ref == token_type;
+    else
+      return match_rule(node.rule_ref);
+  }
+
+  //----------------------------------------------------------------------------------------------------------------------
+
+  bool match_alternative(const GrammarSequence &sequence)
+  {
+    // An empty sequence per se matches anything without consuming input.
+    if (sequence.nodes.empty())
+      return true;
+
+    size_t i = 0;
+    while (true)
+    {
+      // Set to true if the current node allows multiple occurences and was matched at least once.
+      bool matched_loop = false;
+
+      // Skip any optional nodes if they don't match the current input.
+      bool matched;
+      GrammarNode node;
+      do
+      {
+        node = sequence.nodes[i];
+        matched = match(node, scanner->token_type());
+
+        // If that match call caused the collection to start then don't continue with matching here.
+        if (run_state != RunStateMatching)
+        {
+          if (run_state == RunStateCollectionPending)
+          {
+            collect_from_alternative(sequence, i + 1);
+
+            // If we just started collection in might be we are in a special rule.
+            // Check the end of the stack and if so push the rule name to the candidates.
+            // Duplicates will be handled automatically.
+            if (rules_holder.special_rules.find(walk_stack.back()) != rules_holder.special_rules.end())
+              completion_candidates.insert(walk_stack.back());
+          }
+          return false;
+        }
+
+        if (matched && node.multiple)
+          matched_loop = true;
+
+        if (matched || node.is_required)
+          break;
+
+        // Did not match an optional part. That's ok, skip this then.
+        ++i;
+        if (i == sequence.nodes.size()) // Done with the sequence?
+          return true;
+
+      } while (true);
+
+      if (matched)
+      {
+        // Load next token if the grammar node is a terminal node.
+        // Otherwise the match() call will have advanced the input position already.
+        if (node.is_terminal)
+        {
+          scanner->next(true);
+          if (is_token_end_after_caret())
+          {
+            collect_from_alternative(sequence, i + 1);
+            return false;
+          }
+        }
+
+        // If the current grammar node can be matched multiple times try as often as you can.
+        // This is the greedy approach and default in ANTLR. At the moment we don't support non-greedy matches
+        // as we don't use them in MySQL parser rules.
+        if (scanner->token_type() != ANTLR3_TOKEN_EOF && node.multiple)
+        {
+          while (match(node, scanner->token_type()))
+          {
+            if (run_state != RunStateMatching)
+            {
+              if (run_state == RunStateCollectionPending)
+                collect_from_alternative(sequence, i + 1);
+              return false;
+            }
+
+            if (node.is_terminal)
+            {
+              scanner->next(true);
+              if (is_token_end_after_caret())
+              {
+                collect_from_alternative(sequence, i + 1);
+                return false;
+              }
+            }
+            if (scanner->token_type() == ANTLR3_TOKEN_EOF)
+              break;
+          }
+        }
+      }
+      else
+      {
+        // No match, but could be end of a grammar node loop.
+        if (!matched_loop)
+          return false;
+      }
+
+      ++i;
+      if (i == sequence.nodes.size())
+        break;
+    }
+
+    return true;
+  }
+
+  //----------------------------------------------------------------------------------------------------------------------
+
+  bool match_rule(const std::string &rule)
+  {
+    if (run_state != RunStateMatching) // Sanity check - should never happen at this point.
+      return false;
+
+    if (is_token_end_after_caret())
+    {
+      collect_from_rule(rule);
+      return false;
+    }
+
+    walk_stack.push_back(rule);
+
+    // The first alternative that matches wins.
+    RuleAlternatives alts = rules_holder.rules[rule];
+    bool can_seek = false;
+
+    size_t highest_token_index = 0;
+
+    RunState result_state = run_state;
+    for (size_t i = 0; i < alts.size(); ++i)
+    {
+      // First run a predicate check if this alt can be considered at all.
+      GrammarSequence alt = alts[i];
+      if ((alt.min_version > server_version) || (server_version > alt.max_version))
+        continue;
+
+      if ((alt.active_sql_modes > -1) && (alt.active_sql_modes & sql_mode) != alt.active_sql_modes)
+        continue;
+
+      if ((alt.inactive_sql_modes > -1) && (alt.inactive_sql_modes & sql_mode) != 0)
+        continue;
+
+      // When attempting to match one alt out of a list pick the one with the longest match.
+      // Reset the run state each time to have the base matching done first (in case a previous alt did collect).
+      size_t marker = scanner->position();
+      run_state = RunStateMatching;
+      if (match_alternative(alt) || run_state != RunStateMatching)
+      {
+        can_seek = true;
+        if (scanner->position() > highest_token_index)
+        {
+          highest_token_index = scanner->position();
+          result_state = run_state;
+        }
+      }
+
+      scanner->seek(marker);
+    }
+
+    if (can_seek)
+      scanner->seek(highest_token_index); // Move to the end of the longest match.
+
+    run_state = result_state;
+
+    walk_stack.pop_back();
+    return can_seek && result_state == RunStateMatching;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+};
 
 //--------------------------------------------------------------------------------------------------
 
 void MySQLEditor::setup_auto_completion()
 {
-  _code_editor->auto_completion_options(true, true, false, true, false);
-  _code_editor->auto_completion_max_size(40, 15);
+  _code_editor->auto_completion_max_size(80, 15);
 
   static std::vector<std::pair<int, std::string> > ac_images;
-  if (ac_images.size() == 0)
+  if (ac_images.empty())
     ac_images +=
       std::make_pair(AC_KEYWORD_IMAGE, "auto-completion-keyword.png"),
       std::make_pair(AC_SCHEMA_IMAGE, "auto-completion-schema.png"),
@@ -57,12 +984,30 @@ void MySQLEditor::setup_auto_completion()
       std::make_pair(AC_FUNCTION_IMAGE, "auto-completion-function.png"),
       std::make_pair(AC_VIEW_IMAGE, "auto-completion-view.png"),
       std::make_pair(AC_COLUMN_IMAGE, "auto-completion-column.png"),
-      std::make_pair(AC_OPERATOR_IMAGE, "auto-completion-operator.png"),
-      std::make_pair(AC_ENGINE_IMAGE, "auto-completion-engine.png");
+      //std::make_pair(AC_OPERATOR_IMAGE, "auto-completion-operator.png"),
+      std::make_pair(AC_ENGINE_IMAGE, "auto-completion-engine.png"),
+      std::make_pair(AC_TRIGGER_IMAGE, "auto-completion-trigger.png"),
+      std::make_pair(AC_LOGFILE_GROUP_IMAGE, "auto-completion-logfile-group.png"),
+      std::make_pair(AC_USER_VAR_IMAGE, "auto-completion-engine-user-var.png"),
+      std::make_pair(AC_SYSTEM_VAR_IMAGE, "auto-completion-engine-system-var.png"),
+      std::make_pair(AC_TABLESPACE_IMAGE, "auto-completion-engine-tablespace.png"),
+      std::make_pair(AC_EVENT_IMAGE, "auto-completion-engine-event.png"),
+      std::make_pair(AC_INDEX_IMAGE, "auto-completion-engine-index.png"),
+      std::make_pair(AC_USER_IMAGE, "auto-completion-engine-user.png"),
+      std::make_pair(AC_CHARSET_IMAGE, "auto-completion-engine-charset.png"),
+      std::make_pair(AC_COLLATION_IMAGE, "auto-completion-engine-collation.png");
 
   _code_editor->auto_completion_register_images(ac_images);
-  _code_editor->auto_completion_stops("\t,.*;)"); // Will close ac even if we are in an identifier.
+  _code_editor->auto_completion_stops("\t,.*;) "); // Will close ac even if we are in an identifier.
   _code_editor->auto_completion_fillups("");
+
+  // Set up the shared grammar data if this is the first editor.
+  if (rules_holder.rules.empty())
+  {
+    std::string grammar_path = make_path(grtm()->get_basedir(), "data/MySQL.g");
+    if (file_exists(grammar_path))
+      rules_holder.parse_file(grammar_path);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +1017,7 @@ void MySQLEditor::setup_auto_completion()
  * already typed. If auto completion is not yet active it becomes active here.
  * Returns the list sent to the editor for unit tests to validate them.
  */
-std::vector<std::pair<int, std::string> >  MySQLEditor::update_auto_completion(const std::string &typed_part)
+std::vector<std::pair<int, std::string> > MySQLEditor::update_auto_completion(const std::string &typed_part)
 {
   log_debug2("Updating auto completion popup in editor\n");
 
@@ -82,7 +1027,7 @@ std::vector<std::pair<int, std::string> >  MySQLEditor::update_auto_completion(c
     gchar *prefix = g_utf8_casefold(typed_part.c_str(), -1);
     
     std::vector<std::pair<int, std::string> > filtered_entries;
-    for (std::vector<std::pair<int, std::string> >::iterator iterator = _auto_completion_entries.begin();
+    for (auto iterator = _auto_completion_entries.begin();
       iterator != _auto_completion_entries.end(); ++iterator)
     {
       gchar *entry = g_utf8_casefold(iterator->second.c_str(), -1);
@@ -91,23 +1036,28 @@ std::vector<std::pair<int, std::string> >  MySQLEditor::update_auto_completion(c
       g_free(entry);
     }
     
-    g_free(prefix);
-
-    /* TOOD: We can use this not before we have manual handling what gets inserted by auto completion.
-    if (filtered_entries.empty())
-      filtered_entries.push_back(std::pair<int, std::string>(0, _("no entry found")));
-     */
-
-    if (filtered_entries.size() > 0)
+    switch (filtered_entries.size())
     {
-      log_debug2("Showing auto completion popup\n");
-      _code_editor->auto_completion_show(typed_part.size(), filtered_entries);
-    }
-    else
-    {
+    case 0:
       log_debug2("Nothing to autocomplete - hiding popup if it was active\n");
       _code_editor->auto_completion_cancel();
+      break;
+    case 1:
+      // See if that single entry matches the typed part. If so we don't need to show ac either.
+      if (base::same_string(filtered_entries[0].second, prefix, false)) // Exact (but case insensitive) match, not just string parts.
+      {
+        log_debug2("The only match is the same as the written input - hiding popup if it was active\n");
+        _code_editor->auto_completion_cancel();
+        break;
+      }
+      // Fall through.
+    default:
+      log_debug2("Showing auto completion popup\n");
+      _code_editor->auto_completion_show(typed_part.size(), filtered_entries);
+      break;
     }
+
+    g_free(prefix);
 
     return filtered_entries;
   }
@@ -187,6 +1137,188 @@ std::string MySQLEditor::get_written_part(size_t position)
 
 //--------------------------------------------------------------------------------------------------
 
+enum ObjectFlags {
+  // For 3 part identifiers.
+  ShowSchemas = 1 << 0,
+  ShowTables  = 1 << 1,
+  ShowColumns = 1 << 2,
+
+  // For 2 part identifiers.
+  ShowFirst  = 1 << 3,
+  ShowSecond = 1 << 4,
+};
+
+/**
+ * Determines the qualifier used for a qualified identifier with up to 2 parts (id or id.id).
+ * Returns the found qualifier (if any) and a flag indicating what should be shown.
+ */
+ObjectFlags determine_qualifier(MySQLScanner *scanner, std::string &qualfier)
+{
+  ObjectFlags result = ObjectFlags(ShowFirst | ShowSecond);
+
+  // If we are currently in whitespaces between an identifier and a dot (e.g.: "id   |  .") jump
+  // forward to the dot. We can ignore the whitespaces entirely in this case.
+  // No need to do an extra check if we are really in an identifier. We wouldn't be here if that
+  // were not the case.
+  if (scanner->token_channel() != 0)
+    scanner->next(true);
+  uint32_t token_type = scanner->token_type();
+  if (token_type != ANTLR3_TOKEN_EOF && token_type != DOT_SYMBOL && !scanner->is_identifier())
+    return result;
+
+  switch (token_type)
+  {
+    case DOT_SYMBOL:
+    {
+      // Being on a dot is the same as being in the qualifier (as the dot is only one char).
+      scanner->previous(true);
+      if (scanner->is_identifier())
+        qualfier = scanner->token_text();
+      return result;
+    }
+    case ANTLR3_TOKEN_EOF:
+    {
+      if (scanner->look_around(-1, true) == DOT_SYMBOL)
+      {
+        scanner->previous(true);
+        scanner->previous(true);
+        if (scanner->is_identifier())
+          qualfier = scanner->token_text();
+        return ShowSecond;
+      }
+      return result;
+    }
+
+    default:
+    {
+      // First look left as this is more reliable (we need valid syntax until the caret to arrive here).
+      std::string id = scanner->token_text();
+      if (scanner->look_around(-1, true) == DOT_SYMBOL)
+      {
+        // We are in the second part of a fully qualified identifier.
+        scanner->previous(true);
+        if (scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
+        {
+          scanner->previous(true);
+          qualfier = scanner->token_text();
+          return ShowSecond;
+        }
+      }
+      else
+      {
+        // No qualifier or we are in the qualifier. Look right.
+        if (scanner->look_around(2, true) == DOT_SYMBOL)
+        {
+          qualfier = id;
+          return ShowFirst;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Enhanced variant of the previous function that determines schema and table qualifiers for
+ * column references (and table_wild in multi table delete, for that matter).
+ * Returns a set of flags that indicate what to show for that identifier, as well as schema and table
+ * if given.
+ * Because id.id can be schema.table or table.column we need a second schema to indicate the second variant.
+ */
+ObjectFlags determine_schema_table_qualifier(MySQLScanner *scanner, std::string &schema,
+  std::string &table, std::string &column_schema)
+{
+  ObjectFlags result = ObjectFlags(ShowSchemas | ShowTables | ShowColumns);
+
+  if (scanner->token_channel() != 0)
+    scanner->next(true);
+  uint32_t token_type = scanner->token_type();
+  if (token_type != ANTLR3_TOKEN_EOF && token_type != DOT_SYMBOL && !scanner->is_identifier())
+    return result;
+
+  // Mark the position and go as far left as possible.
+  size_t position = scanner->position();
+  if (position > 0)
+  {
+    // Move to the previous dot symbol if there's one.
+    if ((scanner->is_identifier() || token_type == ANTLR3_TOKEN_EOF)
+        && scanner->look_around(-1, true) == DOT_SYMBOL)
+      scanner->previous(true);
+    if (scanner->token_type() == DOT_SYMBOL && scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
+    {
+      scanner->previous(true);
+
+      // And once more.
+      if (scanner->look_around(-1, true) == DOT_SYMBOL)
+      {
+        scanner->previous(true);
+        if (scanner->MySQLRecognitionBase::is_identifier(scanner->look_around(-1, true)))
+          scanner->previous(true);
+      }
+    }
+  }
+
+  // The scanner is on the leading identifier or dot (if there's no leading id).
+  schema = "";
+  column_schema = "";
+  table = "";
+  if (scanner->is_identifier() && scanner->look_around(1, true) == DOT_SYMBOL)
+  {
+    schema = scanner->token_text(); // schema.table
+    table = schema;                 // table.column
+    scanner->next(true);
+  }
+
+  if (scanner->token_type() == DOT_SYMBOL)
+  {
+    size_t dot1_position = scanner->position();
+    size_t dot2_position = 0;
+
+    scanner->next(true);
+
+    if (scanner->is_identifier())
+    {
+      std::string text = scanner->token_text();
+      scanner->next(true);
+
+      if (scanner->token_type() == DOT_SYMBOL)
+      {
+        dot2_position = scanner->position();
+        schema = table;
+        column_schema = table;
+        table = text;
+      }
+    }
+
+    // Now the flags.
+    if (dot2_position == 0)
+    {
+      if (position <= dot1_position)
+        result = ObjectFlags(ShowSchemas | ShowTables);
+      else
+        result = (table.empty()) ? ShowTables : ObjectFlags(ShowTables | ShowColumns);
+    }
+    else
+    {
+      if (position <= dot1_position)
+        result = ShowSchemas;
+      else
+        if (position < dot2_position)
+          result = ShowTables;
+      else
+        result = ShowColumns;
+    }
+  }
+
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 struct CompareAcEntries
 {
   bool operator() (const std::pair<int, std::string> &lhs, const std::pair<int, std::string> &rhs) const
@@ -195,1514 +1327,40 @@ struct CompareAcEntries
   }
 };
 
-//--------------------------------------------------------------------------------------------------
-
-#define INCLUDE_PART(part) \
-  context.wanted_parts = (MySQLEditor::AutoCompletionWantedParts)(context.wanted_parts | part)
-#define EXCLUDE_PART(part) \
-  context.wanted_parts = (MySQLEditor::AutoCompletionWantedParts)(context.wanted_parts & ~part)
-
-#define PART_IF(condition, part) \
-  context.wanted_parts = (MySQLEditor::AutoCompletionWantedParts) ((condition) ? (context.wanted_parts | part) : (context.wanted_parts & ~part))
-
-#define IS_PART_INCLUDED(part) \
-  ((context.wanted_parts & part) != 0)
+typedef std::set<std::pair<int, std::string>, CompareAcEntries> CompletionSet;
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Updates the context structure's token info with the current token in the tree walker.
- */
-void get_current_token_info(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
+void insert_schemas(AutoCompleteCache *cache, CompletionSet &set, const std::string &typed_part)
 {
-  context.token_type = walker.token_type();
-  context.token_line = walker.token_line();
-  context.token_start = walker.token_start();
-  context.token_length = walker.token_length();
-  context.token = walker.token_text();
+  std::vector<std::string> schemas = cache->get_matching_schema_names(typed_part);
+  for (auto schema = schemas.begin(); schema != schemas.end(); ++schema)
+    set.insert(std::make_pair(AC_SCHEMA_IMAGE, *schema));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Set markers for runtime function names as well as identifiers (schema, table and column names) exclusively.
- */
-void want_only_functions_schemas_tables_columns(MySQLEditor::AutoCompletionContext &context)
+void insert_tables(AutoCompleteCache *cache, CompletionSet &set, const std::string &schema,
+  const std::string &typed_part)
 {
-  context.wanted_parts = MySQLEditor::CompletionWantNothing;
-  INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
-  INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
-  INCLUDE_PART(MySQLEditor::CompletionWantTables);
-  INCLUDE_PART(MySQLEditor::CompletionWantColumns);
+  std::vector<std::string> tables = cache->get_matching_table_names(schema, typed_part);
+  for (auto table = tables.begin(); table != tables.end(); ++table)
+    set.insert(std::make_pair(AC_TABLE_IMAGE, *table));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Set markers for field references (including schemas) exclusively.
- */
-void want_only_field_references(MySQLEditor::AutoCompletionContext &context)
+void insert_views(AutoCompleteCache *cache, CompletionSet &set, const std::string &schema,
+  const std::string &typed_part)
 {
-  context.wanted_parts = MySQLEditor::CompletionWantNothing;
-  INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
-  INCLUDE_PART(MySQLEditor::CompletionWantTables);
-  INCLUDE_PART(MySQLEditor::CompletionWantColumns);
+  std::vector<std::string> views = cache->get_matching_view_names(schema, typed_part);
+  for (auto view = views.begin(); view != views.end(); ++view)
+    set.insert(std::make_pair(AC_TABLE_IMAGE, *view));
 }
 
 //--------------------------------------------------------------------------------------------------
 
-/**
- * Set markers for references (including schemas) exclusively.
- */
-void want_only_table_references(MySQLEditor::AutoCompletionContext &context)
-{
-  context.wanted_parts = MySQLEditor::CompletionWantNothing;
-  INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
-  INCLUDE_PART(MySQLEditor::CompletionWantTables);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Set markers for function names as well as identifiers (schema, table and column names) inclusively.
- */
-void want_also_functions_schemas_tables_columns(MySQLEditor::AutoCompletionContext &context)
-{
-  INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
-  INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
-  INCLUDE_PART(MySQLEditor::CompletionWantTables);
-  INCLUDE_PART(MySQLEditor::CompletionWantColumns);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Commonly used function to set markers for function normal and major keywords
- */
-void want_only_keywords(MySQLEditor::AutoCompletionContext &context)
-{
-  context.wanted_parts = MySQLEditor::CompletionWantNothing;
-  INCLUDE_PART(MySQLEditor::CompletionWantMajorKeywords);
-  INCLUDE_PART(MySQLEditor::CompletionWantKeywords);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Keywords and functions allowed when starting a new (sub)expression.
- */
-void want_also_expression_start(MySQLEditor::AutoCompletionContext &context, bool withSelect) 
-{
-  INCLUDE_PART(MySQLEditor::CompletionWantExprStartKeywords);
-  INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
-  if (withSelect)
-    INCLUDE_PART(MySQLEditor::CompletionWantSelect);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void want_only_expression_start(MySQLEditor::AutoCompletionContext &context, bool withSelect) 
-{
-  context.wanted_parts = MySQLEditor::CompletionWantExprStartKeywords;
-  INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
-  if (withSelect)
-    INCLUDE_PART(MySQLEditor::CompletionWantSelect);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Keywords that can only appear within an outer expression (e.g. "a > ALL (select ...)").
- */
-void want_only_expression_continuation(MySQLEditor::AutoCompletionContext &context) 
-{
-  context.wanted_parts = MySQLEditor::CompletionWantExprInnerKeywords;
-  want_also_functions_schemas_tables_columns(context);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void check_error_context(MySQLEditor::AutoCompletionContext &context, MySQLRecognizer &recognizer)
-{
-  log_debug2("Checking some error situations\n");
-
-  // We got here in case of an error condition. We will try to get a usable context from the last
-  // parse error found.
-  switch (recognizer.error_info().back().token_type)
-  {
-    case COMMA_SYMBOL:
-      want_only_field_references(context);
-      want_also_expression_start(context, false);
-      break;
-
-    case MULT_OPERATOR:
-      context.wanted_parts = MySQLEditor::CompletionWantColumns;
-      // fall through.
-    case FROM_SYMBOL:
-      INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
-      INCLUDE_PART(MySQLEditor::CompletionWantTables);
-      break;
-
-    case IDENTIFIER: // Probably starting a new query.
-      context.wanted_parts = MySQLEditor::CompletionWantMajorKeywords;
-      break;
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Called when we are in an identifier which is not specified as table or field ref.
- * Use the query type to know which kind of identifier we need.
- * Returns true if the object type could be found.
- */
-bool check_by_query_type(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCompletionContext &context)
-{
-  MySQLQueryType type = walker.get_current_query_type();
-  switch (type)
-  {
-  case QtDropDatabase:
-    context.wanted_parts = MySQLEditor::CompletionWantSchemas;
-    break;
-  case QtDropEvent:
-    context.wanted_parts = MySQLEditor::CompletionWantEvents;
-    break;
-  case QtDropFunction:
-    context.wanted_parts = MySQLEditor::CompletionWantFunctions;
-    break;
-  case QtDropProcedure:
-    context.wanted_parts = MySQLEditor::CompletionWantProcedures;
-    break;
-  case QtDropTable:
-  case QtDropView:
-    context.wanted_parts = MySQLEditor::CompletionWantTables;
-    break;
-  case QtDropTrigger:
-    context.wanted_parts = MySQLEditor::CompletionWantTriggers;
-    break;
-  case QtDropIndex:
-    context.wanted_parts = MySQLEditor::CompletionWantIndexes;
-    break;
-
-  case QtCall:
-    context.wanted_parts = MySQLEditor::CompletionWantProcedures;
-    break;
-
-  default:
-    return false;
-  }
-
-  return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Returns true if the given type is a top level element (e.g. the root node or any of the 
- * major keywords). Sub queries are handle just like top level queries.
- */
-bool is_top_level(unsigned type, long version)
-{
-  switch (type)
-  {
-  case 0:
-  case ANALYZE_SYMBOL:
-  case ALTER_SYMBOL:
-  case CALL_SYMBOL:
-  case CHANGE_SYMBOL:
-  case CHECK_SYMBOL:
-  case CREATE_SYMBOL:
-  case DELETE_SYMBOL:
-  case DESC_SYMBOL:
-  case DESCRIBE_SYMBOL:
-  case DROP_SYMBOL:
-  case EXPLAIN_SYMBOL:
-  case FLUSH_SYMBOL:
-  case GRANT_SYMBOL:
-  case HANDLER_SYMBOL:
-  case HELP_SYMBOL:
-  case INSERT_SYMBOL:
-  case KILL_SYMBOL:
-  case LOAD_SYMBOL:
-  case LOCK_SYMBOL:
-  case OPTIMIZE_SYMBOL:
-  case PURGE_SYMBOL:
-  case RENAME_SYMBOL:
-  case REPAIR_SYMBOL:
-  case REPLACE_SYMBOL:
-  case REVOKE_SYMBOL:
-  case SELECT_SYMBOL:
-  case SET_SYMBOL:
-  case SHOW_SYMBOL:
-  case TRUNCATE_SYMBOL:
-  case UNLOCK_SYMBOL:
-  case UPDATE_SYMBOL:
-  case USE_SYMBOL:
-    return true;
-
-  case BACKUP_SYMBOL:
-  case RESTORE_SYMBOL:
-    if (version < 50500)
-      return true;
-
-    break;
-
-  case RELEASE_SYMBOL:
-    if (version >= 50100)
-      return true;
-
-    break;
-
-  case REMOVE_SYMBOL:
-    if (version >= 50100)
-      return true;
-
-    break;
-
-  case INSTALL_SYMBOL:
-  case UNINSTALL_SYMBOL:
-  case XA_SYMBOL:
-    if (version >= 50100)
-      return true;
-
-    break;
-
-  case BINLOG_SYMBOL:
-  case CACHE_SYMBOL:
-  case CHECKSUM_SYMBOL:
-  case COMMIT_SYMBOL:
-  case DEALLOCATE_SYMBOL:
-  case DO_SYMBOL:
-  case EXECUTE_SYMBOL:
-  case PARTITION_SYMBOL:
-  case PREPARE_SYMBOL:
-  case RESET_SYMBOL:
-  case ROLLBACK_SYMBOL:
-  case SAVEPOINT_SYMBOL:
-  case START_SYMBOL:
-  case STOP_SYMBOL:
-    if (version >= 50500)
-      return true;
-
-    break;
-  }
-
-  return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * We are after a whitespace at the start of a new token.
- */
-void check_new_token_start(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCompletionContext &context)
-{
-  if (walker.is_identifier() && !walker.is_keyword()) // Certain keywords can be identifiers too.
-  {
-    context.check_identifier = false;
-
-    walker.up();
-    unsigned type = walker.token_type();
-    if (is_top_level(type, context.version))
-      type = 0;
-    switch (type)
-    {
-    case 0: // If this is a top level node then we are probably within a chain of identifiers and keywords.
-    case TABLE_NAME_TOKEN:
-      {
-        MySQLQueryType type = walker.get_current_query_type();
-        switch (type)
-        {
-        case QtExplainStatement:
-          // After a table ref in an explain statement can only be a column.
-          context.wanted_parts = MySQLEditor::CompletionWantColumns;
-          context.check_identifier = false;
-          break;
-
-        default:
-          context.wanted_parts = MySQLEditor::CompletionWantKeywords; 
-          break;
-        }
-        break;
-      }
-
-    case DEFINER_SYMBOL:
-      context.wanted_parts = MySQLEditor::CompletionWantKeywords; 
-      break;
-
-    case FIELD_NAME_TOKEN:
-      // If we are in a function call or par expression then nothing can be shown, as only
-      // identifiers or operators are valid.
-      // Otherwise however we might just enter the next query part, so we show keywords.
-      if (walker.up())
-      {
-        if (walker.token_type() == SELECT_EXPR_TOKEN)
-          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-        else
-          context.wanted_parts = MySQLEditor::CompletionWantNothing;
-      }
-      else
-        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-      break;
-    }
-  }
-  else
-  {
-    switch (walker.token_type())
-    {
-    case OPEN_PAR_SYMBOL:
-      walker.up();
-      switch (walker.token_type())
-      {
-      case KEY_CACHE_LIST_TOKEN:
-        context.wanted_parts = MySQLEditor::CompletionWantIndexes;
-        context.check_identifier = false;
-        break;
-
-      case UNION_SYMBOL:
-        context.wanted_parts = MySQLEditor::CompletionWantSelect;
-        context.check_identifier = false;
-        break;
-
-      default:
-        want_only_functions_schemas_tables_columns(context);
-
-        // If we are not in a function call we can also offer sub queries.
-        want_also_expression_start(context, walker.token_type() != FUNCTION_CALL_TOKEN);
-        break;
-      }
-      break;
-
-    case SELECT_SYMBOL:
-    case WHERE_SYMBOL:
-    case HAVING_SYMBOL:
-      want_only_functions_schemas_tables_columns(context);
-      want_also_expression_start(context, false);
-      break;
-
-    case COMMA_SYMBOL:
-      {
-        unsigned type = walker.parent_type();
-        if (is_top_level(type, context.version))
-          type = 0;
-        switch (type)
-        {
-        case 0: // We are already at top level. Normal for simple queries (e.g. grant/revoke).
-          {
-            MySQLQueryType type = walker.get_current_query_type();
-            switch (type)
-            {
-            case QtAnalyzeTable:
-            case QtRepairTable:
-              context.wanted_parts = MySQLEditor::CompletionWantTables;
-              context.check_identifier = false;
-              break;
-
-            case QtRenameUser:
-              context.wanted_parts = MySQLEditor::CompletionWantUsers;
-              context.check_identifier = false;
-              break;
-
-            case QtFlush:
-              context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-              context.check_identifier = false;
-              break;
-
-            default:
-              want_only_functions_schemas_tables_columns(context);
-              want_also_expression_start(context, false);
-              break;
-            }
-            break;
-          }
-
-        case REFERENCES_SYMBOL: // Key definition.
-          context.wanted_parts = MySQLEditor::CompletionWantColumns;
-          context.check_identifier = false;
-          break;
-
-        case CHANGE_MASTER_OPTIONS_TOKEN:
-        case SLAVE_THREAD_OPTIONS_TOKEN:
-          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-          context.check_identifier = false;
-          break;
-
-        default:
-          want_only_functions_schemas_tables_columns(context);
-          want_also_expression_start(context, false);
-          break;
-        }
-        break;
-      }
-
-    case BY_SYMBOL:
-      if (walker.previous_sibling() && (walker.token_type() == ORDER_SYMBOL || walker.token_type() == GROUP_SYMBOL))
-        want_only_functions_schemas_tables_columns(context);
-      break;
-
-    case CALL_SYMBOL:
-      context.wanted_parts = MySQLEditor::CompletionWantProcedures;
-      context.check_identifier = true;
-      break;
-
-    case FROM_SYMBOL:
-      {
-        MySQLQueryType type = walker.get_current_query_type();
-        switch (type)
-        {
-        case QtRevoke:
-          context.wanted_parts = MySQLEditor::CompletionWantUsers;
-          context.check_identifier = false;
-          break;
-
-        default:
-          want_only_functions_schemas_tables_columns(context);
-          want_also_expression_start(context, false);
-          break;
-        }
-        break;
-      }
-
-    case TABLE_NAME_TOKEN:
-      want_only_table_references(context);
-      context.check_identifier = true;
-      break;
-
-    case FIELD_NAME_TOKEN:
-      // Walk up the parent chain jumping over all math subtrees.
-      while (walker.up() && walker.is_relation())
-        ;
-      switch (walker.token_type())
-      {
-      case SELECT_EXPR_TOKEN:
-        want_only_functions_schemas_tables_columns(context);
-        want_also_expression_start(context, false);
-        break;
-      case FUNCTION_CALL_TOKEN:
-        want_only_field_references(context);
-        context.check_identifier = false;
-        break;
-
-      case GROUP_SYMBOL:
-      case ORDER_SYMBOL:   // Expressions after ORDER BY and GROUP BY.
-      case PAR_EXPRESSION_TOKEN: // Expressions after an opening parenthesis.
-        want_only_field_references(context);
-        want_also_expression_start(context, walker.token_type() == PAR_EXPRESSION_TOKEN);
-        context.check_identifier = false;
-        break;
-      }
-      break;
-
-    case SET_SYMBOL:
-      context.wanted_parts = MySQLEditor::CompletionWantTables;
-      INCLUDE_PART(MySQLEditor::CompletionWantColumns);
-      break;
-
-    case FUNCTION_CALL_TOKEN:
-      want_only_functions_schemas_tables_columns(context);
-      want_also_expression_start(context, false);
-      break;
-
-    case PAR_EXPRESSION_TOKEN: // At the beginning of a par expression. See where we come from.
-      if (walker.previous())
-      {
-        switch (walker.token_type())
-        {
-        case WHERE_SYMBOL:
-          want_only_functions_schemas_tables_columns(context);
-          INCLUDE_PART(MySQLEditor::CompletionWantExprStartKeywords);
-          break;
-        }
-      }
-      break;
-
-    case CLOSE_PAR_SYMBOL:
-      // Finishing a par expression or function call. Could be part of an expression (we don't show operators),
-      // an alias could follow (nothing to show) or the next query part comes next, so we show keywords.
-      context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-      context.check_identifier = false;
-      break;
-
-    case GROUP_SYMBOL:
-    case ORDER_SYMBOL:
-    case IDENTIFIED_SYMBOL:
-      context.wanted_parts = MySQLEditor::CompletionWantBy;
-      context.check_identifier = false;
-      break;
-
-    case DATABASE_SYMBOL:
-      context.wanted_parts = MySQLEditor::CompletionWantSchemas;
-      context.check_identifier = false;
-      break;
-
-    case DOT_SYMBOL:
-      switch (walker.parent_type())
-      {
-      case TABLE_NAME_TOKEN:
-      case FIELD_NAME_TOKEN:
-        context.check_identifier = true;
-        want_only_field_references(context);
-        break;
-      default:
-        // Other kind of references, e.g. when dropping objects.
-        if (check_by_query_type(walker, context))
-        {
-          if (walker.previous())
-          {
-            context.check_identifier = false;
-            context.table_schema = walker.token_text();
-          }
-        }
-      }
-      break;
-
-    case OPEN_CURLY_SYMBOL: // At the start of an ODBC query.
-    case SAVEPOINT_SYMBOL:  // After e.g. RELEASE SAVEPOINT.
-      // Expecting any identifier (no reference).
-      context.wanted_parts = MySQLEditor::CompletionWantNothing;
-      context.check_identifier = false;
-      break;
-
-      break;
-
-    case FUNCTION_SYMBOL:
-      if (walker.parent_type() == PRIVILEGE_TARGET_TOKEN)
-      {
-        context.wanted_parts = MySQLEditor::CompletionWantFunctions;
-        context.check_identifier = true;
-      }
-      break;
-
-    case PROCEDURE_SYMBOL:
-      if (walker.parent_type() == PRIVILEGE_TARGET_TOKEN)
-      {
-        context.wanted_parts = MySQLEditor::CompletionWantProcedures;
-        context.check_identifier = true;
-      }
-      break;
-
-    case TABLE_SYMBOL:
-    case ON_SYMBOL:
-      if (walker.parent_type() == PRIVILEGE_TARGET_TOKEN)
-      {
-        context.wanted_parts = MySQLEditor::CompletionWantTables;
-        context.check_identifier = true;
-      }
-      break;
-
-    case MULT_OPERATOR: // Either wildcard or multiplication.
-      switch (walker.parent_type())
-      {
-      case 0:
-      case OPEN_PAR_SYMBOL:
-        // On top level of a query, so it's a wildcard.
-        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-        context.check_identifier = false;
-        break;
-
-      default:
-        want_only_expression_continuation(context);
-        break;
-      }
-      break;
-
-    default:
-      if (walker.is_keyword())
-      {
-        // After any of a keyword not handled above. Continuing with another keyword.
-        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-        context.check_identifier = false;
-      }
-      else
-      {
-        if (walker.is_number())
-        {
-          // Within an expression, probably starting a new rhs.
-          context.wanted_parts = MySQLEditor::CompletionWantExprInnerKeywords;
-          context.check_identifier = false;
-        }
-        else
-          if (walker.is_relation())
-            want_only_expression_continuation(context);
-      }
-      break;
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * We are within a token (not at the first position though, but including the position directly after
- * the last char of the token).
- */
-void check_current_token(MySQLRecognizerTreeWalker &walker, MySQLEditor::AutoCompletionContext &context)
-{
-  bool look_at_previous = false;
-  bool look_at_previous_sibling = false;
-  switch (walker.token_type())
-  {
-  case ANTLR3_TOKEN_INVALID: // We are at the start of a query.
-    context.check_identifier = false;
-    break;
-
-  case COMMA_SYMBOL:
-    look_at_previous_sibling = true;
-    break;
-
-  default:
-    if (walker.is_relation())
-    {
-      context.wanted_parts = MySQLEditor::CompletionWantExprInnerKeywords;
-      context.check_identifier = false;
-      return;
-    }
-    else
-      look_at_previous = walker.is_identifier() || walker.is_keyword();
-  }
-
-  if (look_at_previous || look_at_previous_sibling)
-  {
-    // If this is the first token then we are starting a query and only show major keywords
-    // (which is on by default).
-    if (!(look_at_previous ? walker.previous() : walker.previous_sibling()))
-    {
-      walker.remove_tos();
-      return;
-    }
-
-    // Second round.
-    switch (walker.token_type())
-    {
-    case ANTLR3_TOKEN_INVALID: // We are at the start of a query.
-      context.check_identifier = false;
-      break;
-
-    case DOT_SYMBOL:
-      switch (walker.parent_type())
-      {
-      case TABLE_NAME_TOKEN:
-      case FIELD_NAME_TOKEN:
-        context.check_identifier = true;
-        want_only_field_references(context);
-        break;
-      default:
-        // Other kind of references, e.g. when dropping objects.
-        if (check_by_query_type(walker, context))
-        {
-          if (walker.previous())
-          {
-            context.check_identifier = false;
-            context.table_schema = walker.token_text();
-          }
-        }
-      }
-      break;
-
-    case OPEN_PAR_SYMBOL: // Subquery, function parameters or par expression (including element lists).
-      {
-        switch (walker.parent_type())
-        {
-        case FUNCTION_CALL_TOKEN:
-          // Some functions allow keywords, like count(distinct ...).
-          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-          INCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
-          context.check_identifier = true;
-          break;
-
-        case PAR_EXPRESSION_TOKEN:
-          // Nested function calls or field references.
-          want_only_functions_schemas_tables_columns(context);
-          want_also_expression_start(context, false);
-          context.check_identifier = true;
-
-          break;
-        case SUBQUERY_TOKEN:
-          context.wanted_parts = MySQLEditor::CompletionWantSelect;
-          context.check_identifier = false;
-          break;
-
-        case ALTER_TABLE_ITEM_TOKEN:
-          context.wanted_parts = MySQLEditor::CompletionWantColumns;
-          context.check_identifier = false;
-          break;
-
-        case UNION_SYMBOL:
-          context.wanted_parts = MySQLEditor::CompletionWantSelect;
-          context.check_identifier = false;
-          break;
-        }
-      }
-      break;
-
-    case SELECT_SYMBOL:
-    case WHERE_SYMBOL:
-    case HAVING_SYMBOL:
-    case PLUS_OPERATOR:
-    case MINUS_OPERATOR:
-    case MULT_OPERATOR:
-    case DIV_OPERATOR:
-    case MOD_OPERATOR:
-    case DIV_SYMBOL:
-    case MOD_SYMBOL:
-    case EQUAL_OPERATOR:
-    case COMMA_SYMBOL:
-    case FUNCTION_CALL_TOKEN:
-    case SELECT_EXPR_TOKEN:
-      // The parent type gives additional info here.
-      switch (walker.parent_type())
-      {
-      case OPTIONS_SYMBOL: // Server options (create/alter server). Nothing to show.
-        context.wanted_parts = MySQLEditor::CompletionWantNothing;
-        context.check_identifier = false;
-        break;
-
-      case ON_SYMBOL: // In column list of an index target table.
-        context.wanted_parts = MySQLEditor::CompletionWantColumns;
-        context.check_identifier = false;
-        break;
-
-      case LOGFILE_GROUP_OPTIONS_TOKEN:
-        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-        context.check_identifier = false;
-        break;
-
-      default:
-        // By default assume we are dealing with expressions.
-        want_only_functions_schemas_tables_columns(context);
-        want_also_expression_start(context, false);
-        
-        // Some more checks for finer granularity.
-        if (walker.token_type() == EQUAL_OPERATOR)
-          if (!walker.previous_by_index())
-            break;
-
-        switch (walker.token_type())
-        {
-        case ENGINE_SYMBOL:
-          context.wanted_parts = MySQLEditor::CompletionWantEngines;
-          context.check_identifier = false;
-          break;
-        }
-      }
-      break;
-
-    case TABLE_NAME_TOKEN:
-      want_only_table_references(context);
-      context.check_identifier = true;
-      break;
-
-    case FIELD_NAME_TOKEN:
-      // At the start of a reference. This can also mean we are in an expression or an assignment list.
-      if (walker.parent_type() == COLUMN_ASSIGNMENT_LIST_TOKEN)
-      {
-        // Often we need just a column reference (e.g. on the left hand side of an assignment).
-        // So start with this.
-        want_only_field_references(context);
-        context.check_identifier = true;
-        if (!walker.previous_sibling() || walker.token_type() == COMMA_SYMBOL)
-          return; // At the begin of the list or a new assignment.
-
-        want_also_expression_start(context, false);
-      }
-
-      // For the next check we move forward in tree order and back again in index order to get the token
-      // that is "physically" before the current one.
-      walker.next();
-
-      context.wanted_parts = MySQLEditor::CompletionWantNothing;
-      context.check_identifier = true;
-      if (walker.previous_by_index())
-      {
-        if (walker.is_operator())
-          want_also_expression_start(context, walker.token_type() == OPEN_PAR_SYMBOL);
-        else
-        {
-          switch (walker.token_type())
-          {
-          case SET_SYMBOL: // In an update list. We only need columns.
-            context.wanted_parts = MySQLEditor::CompletionWantColumns;
-            context.check_identifier = false;
-            break;
-
-          default:
-            want_only_functions_schemas_tables_columns(context);
-            want_also_expression_start(context, false);
-            context.check_identifier = false;
-            break;
-          }
-        }
-      }
-      break;
-
-    case GROUP_SYMBOL:
-    case ORDER_SYMBOL:
-    case IDENTIFIED_SYMBOL:
-      context.wanted_parts = MySQLEditor::CompletionWantBy;
-      context.check_identifier = false;
-      break;
-
-    case DATABASE_SYMBOL:
-      context.wanted_parts = MySQLEditor::CompletionWantSchemas;
-      context.check_identifier = false;
-      break;
-
-    case COLUMN_SYMBOL: // Alter table items.
-      context.wanted_parts = MySQLEditor::CompletionWantColumns;
-      context.check_identifier = false;
-      break;
-
-    case DO_SYMBOL: // Starting compound statement in an event.
-      context.wanted_parts = MySQLEditor::CompletionWantMajorKeywords;
-      context.check_identifier = false;
-      break;
-
-    case AS_SYMBOL: // AS outside a field ref is used for view definitions.
-      context.wanted_parts = MySQLEditor::CompletionWantSelect;
-      context.check_identifier = false;
-      break;
-
-    case ON_SYMBOL: // CREATE TRIGGER ... ON
-      context.wanted_parts = MySQLEditor::CompletionWantTables;
-      context.check_identifier = false;
-      break;
-
-    case EXISTS_SYMBOL: // After an "if exists".
-    case FUNCTION_SYMBOL:
-    case PROCEDURE_SYMBOL:
-    case EVENT_SYMBOL:
-    case TABLE_SYMBOL:
-    case TABLES_SYMBOL:
-    case TRIGGER_SYMBOL:
-    case VIEW_SYMBOL:
-    case INDEX_SYMBOL:
-      context.check_identifier = false;
-        if (!check_by_query_type(walker, context))
-          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-        break;
-
-    case FOR_SYMBOL:
-      context.check_identifier = false;
-      if (walker.get_current_query_type() == QtSetPassword)
-        context.wanted_parts = MySQLEditor::CompletionWantUsers;
-      else
-        context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-
-      break;
-
-    default:
-      context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-      context.check_identifier = false;
-      break;
-    }
-  }
-  else
-  {
-    if (walker.is_number())
-    {
-      // If the token is a number we are in an expression and have nothing to offer for completion.
-      context.wanted_parts = MySQLEditor::CompletionWantNothing;
-      context.check_identifier = false;
-      return;
-    }
-
-    if (walker.token_type() == CLOSE_PAR_SYMBOL)
-      // Finishing a par expression or function call. Could be part of an expression (we don't show operators),
-      // an alias could follow (nothing to show) or the next query part comes next, so we show keywords.
-      context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-    else
-    {
-      // Check if we are in a subtree.
-      if (walker.up())
-      {
-        switch (walker.token_type())
-        {
-        case FUNCTION_CALL_TOKEN:
-          want_only_functions_schemas_tables_columns(context);
-          break;
-
-        case TABLE_NAME_TOKEN:
-          want_only_table_references(context);
-          context.check_identifier = true;
-          break;
-
-        case FIELD_NAME_TOKEN:
-          context.wanted_parts = MySQLEditor::CompletionWantNothing;
-          context.check_identifier = true;
-          break;
-
-        default:
-          context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-        }
-      }
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Check for common cases.
- * Important: when the caret position is equal to a char position it is displayed as being
- *            in front of that character. This has consequences which token to consider, especially
- *            at the start of a token.
- */
-void check_general_context(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
-{
-  log_debug2("Checking some general situations\n");
-
-  // Three cases here:
-  //   1) Directly at the start of the token, i.e. the caret is visually before the first token char.
-  //      Handled like case 3 but for the token before this one.
-  //   2) Within the token. This includes the position directly after the last token char.
-  //      Find options for this very token position. If however this is a token where it doesn't matter
-  //      if there's a whitespace or not after it (e.g. operators) then handle it like case 3.
-  //   3) In the whitespaces after a token. Offer all possible options for the next position.
-
-  // Case 1.
-  if (context.line == context.token_line && context.offset == context.token_start)
-  {
-    // First check if the previous token is a virtual token. If so use this instead of the
-    // one that is physically located before the current one.
-    unsigned int previous_type = walker.previous_type();
-    walker.push();
-    if (!walker.previous())
-    {
-      walker.pop();
-      context.check_identifier = false;
-      return; // If there's no previous token then we act as we do when starting a new statement.
-    }
-
-    bool check_parent_type = false;
-    switch (walker.token_type())
-    {
-    case TABLE_NAME_TOKEN:
-    case FIELD_NAME_TOKEN:
-      walker.remove_tos();
-      check_parent_type = true;
-      break;
-    default:
-      walker.pop();
-      if (!walker.previous_by_index())
-      {
-        context.check_identifier = false;
-        return; // If there's no previous token then we act as we do when starting a new statement.
-      }
-    }
-
-    // Special case: if the previous token is a relation we know exactly what we need.
-    // Include the parent type in this check as field/table refs could be in between.
-    if (walker.is_relation() || (check_parent_type && walker.recognizer()->is_relation(walker.parent_type())))
-    {
-      want_only_field_references(context);
-      want_also_expression_start(context, previous_type == OPEN_PAR_SYMBOL);
-      context.check_identifier = false;
-      return;
-    }
-  }
-
-  walker.push();
-
-  // Case 3.
-  {
-    // For expressions like "(id" it does not matter if there's a space or not if the caret is between
-    // "(" and "id". In this case we want to check a new token start.
-    // For expressions like "a.b" with the caret between "a" and "." it matters however. In this case
-    // we want to continue finding a completion for the previous token (the "a").
-    if (walker.is_operator() || context.line > walker.token_line() ||
-      context.offset > walker.token_start() + walker.token_length())
-      check_new_token_start(walker, context);
-    else
-    {
-      // Case 2.
-      check_current_token(walker, context);
-    }
-  }
-
-  walker.pop();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Parses a schema/table/column id, collecting all specified values. The current location
- * within the id is used to determine what to show.
- */
-void check_reference(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
-{
-  log_debug2("Checking table references\n");
-
-  EXCLUDE_PART(MySQLEditor::CompletionWantMajorKeywords);
-
-  bool in_table_ref = false;
-  bool in_field_ref = false;
-  
-  // Walk the parent chain to see if we are in a table reference, but do not go higher than
-  // the current (sub) statement (to avoid wrong info when we are in a sub select).
-  bool done = walker.token_type() == TABLE_NAME_TOKEN;
-  if (done)
-  {
-    // We arrive here if the walker was moved one token backwards from a real token
-    // (we can never be at a virtual token at the start).
-    in_table_ref = true;
-    EXCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
-
-    // This could be wrong if the reference is actually complete.
-    // We do another check below.
-    EXCLUDE_PART(MySQLEditor::CompletionWantKeywords);
-  }
-
-  walker.push();
-
-  while (!done)
-  {
-    if (!walker.up())
-      break;
-    
-    unsigned int type = walker.token_type();
-    switch (type)
-    {
-      case TABLE_NAME_TOKEN:
-        EXCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
-        EXCLUDE_PART(MySQLEditor::CompletionWantKeywords);
-        in_table_ref = true;
-        done = true;
-        break;
-
-      case SUBQUERY_TOKEN:
-      //case EXPRESSION:
-      //case JOIN_EXPR:
-      //case OPEN_PAR_SYMBOL:
-        done = true;
-        break;
-    }
-  }
-  walker.pop();
-  
-  walker.push();
-
-  std::string id2, id1, id0;
-  enum {inPos2, inPos1, inPos0} caret_position = inPos0;
-
-  // Collect the 3 possible identifier parts and determine where the caret is.
-  // First advance to the rightmost part. The star is per definition the rightmost part.
-  while (true)
-  {
-    if (walker.token_type() == MULT_OPERATOR)
-      break;
-
-    unsigned int next_token = walker.look_ahead(false);
-    if (walker.is_identifier() && next_token != DOT_SYMBOL)
-      break;
-
-    if (walker.token_type() == DOT_SYMBOL && !walker.recognizer()->is_identifier(next_token))
-      break;
-
-    if (!walker.next_sibling())
-      break;
-  }
-
-  // Initially we assume the caret is at position 0 (the right most one).
-  bool has_more = true;
-  if (walker.is_identifier() || walker.token_type() == MULT_OPERATOR)
-  {
-    id0 = walker.token_text(); // Unquoting/concatenating/processing is done in the lexer.
-    has_more = walker.previous_sibling();
-  }
-
-  if (has_more && (walker.token_type() == DOT_SYMBOL))
-  {
-    id1 = '.'; // Identifiers can just be leading dot + the name (e.g. select * from .city).
-    has_more = walker.previous_sibling();
-  }
-  
-  // Second id, if there's one. At this point we cannot have a missing ID or a wildcard.
-  if (has_more && walker.is_identifier())
-  {
-    unsigned int token_start = walker.token_start();
-    unsigned int token_end = walker.token_start() + walker.token_length();
-
-    id1 = walker.token_text();
-
-    // See if the caret is within the range of this id.
-    if (token_start <= context.offset && context.offset <= token_end)
-      caret_position = inPos1;
-
-    has_more = walker.previous_sibling();
-    if (has_more && walker.token_type() == DOT_SYMBOL)
-    {
-      id2 = '.';
-      if (walker.previous_sibling())
-      {
-        // Finally the third id.
-        token_start = walker.token_start();
-        token_end = walker.token_start() + walker.token_length();
-        if (walker.is_identifier())
-          id2 = walker.token_text();
-
-        if (token_start <= context.offset && context.offset <= token_end)
-          caret_position = inPos2;
-      }
-    }
-  }
-
-  // Given the id parts and where we are in the id we can now conclude what we want.
-  if (caret_position == inPos2
-      || (id2.empty() && caret_position == inPos1)
-      || (id1.empty() && id2.empty())
-    )
-  {
-    INCLUDE_PART(MySQLEditor::CompletionWantSchemas);
-  }
-  else
-  {
-    EXCLUDE_PART(MySQLEditor::CompletionWantSchemas);
-  }
-
-  if (caret_position == inPos1
-    || (id2.empty() && !id1.empty() && caret_position == inPos0)
-    || (id2.empty() && id1.empty()))
-  {
-    INCLUDE_PART(MySQLEditor::CompletionWantTables);
-    if (caret_position == inPos1)
-      context.table_schema = id2; // Could be empty in which case we use the default schema.
-    else
-      context.table_schema = id1;
-    context.table = id1;
-  }
-  else
-  {
-    EXCLUDE_PART(MySQLEditor::CompletionWantTables);
-  }
-
-  if (!in_table_ref)
-  {
-    if (caret_position == inPos0)
-    {
-      INCLUDE_PART(MySQLEditor::CompletionWantColumns);
-      context.column_schema = id2;
-      context.table = id1;
-      context.column = (id0 == "*") ? "" : id0;
-    }
-  }
-  else
-  {
-    EXCLUDE_PART(MySQLEditor::CompletionWantColumns);
-  }
-
-  // If we are in a table ref or an identifier with more than one part we know showing expression
-  // start keywords and function names are meaningless. Hence take them out.
-  if (in_table_ref || !id2.empty() || !id1.empty())
-  {
-    EXCLUDE_PART(MySQLEditor::CompletionWantRuntimeFunctions);
-    EXCLUDE_PART(MySQLEditor::CompletionWantExprStartKeywords);
-    EXCLUDE_PART(MySQLEditor::CompletionWantSelect);
-  }
-
-  // If the caret is in a part that has another part in front of it (so it is a qualified part)
-  // then mark this to avoid including non-qualified parts.
-  if ((caret_position == inPos0 && (!id1.empty() || !id2.empty())) ||
-    (caret_position == inPos1 && !id2.empty()))
-    context.qualified_identifier = true;
-
-  walker.pop();
-}
-  
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Reads a single TABLE_NAME_TOKEN subtree and checks for a following alias.
- */
-void read_table_ref_id(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
-{
-  walker.next();
-  
-  std::string schema;
-  std::string table = walker.token_text();
-  std::string alias;
-
-  bool has_more = walker.next_sibling();
-  if (has_more && walker.token_type() == DOT_SYMBOL)
-  {
-    has_more = walker.next_sibling();
-    if (has_more && walker.is_identifier())
-    {
-      schema = table;
-      table = walker.token_text();
-    }
-  }
-
-  // Continue with the next token after the table ref subtree.
-  has_more = walker.next();
-
-  if (has_more && walker.token_type() == AS_SYMBOL)
-    has_more = walker.next_sibling();
-
-  if (has_more && walker.is_identifier())
-    alias = walker.token_text();
-  
-  if (!table.empty())
-  {
-    MySQLEditor::TableReference reference = {schema, table, alias};
-    context.references.push_back(reference);
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void scan_sub_tree(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
-{
-  bool has_more = walker.next(); // Go to the first child node.
-
-  while (has_more)
-  {
-    walker.push();
-    if (walker.token_type() == TABLE_NAME_TOKEN)
-      read_table_ref_id(context, walker);
-    else
-    {
-      if (walker.is_subtree() && walker.token_type() != SUBQUERY_TOKEN)
-        scan_sub_tree(context, walker);
-    }
-    walker.pop();
-    has_more = walker.next_sibling();
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Collects all table references (from, update etc.) in the current query.
- * The tree walker must be positioned at the caret location already.
- */
-void collect_table_references(MySQLEditor::AutoCompletionContext &context, MySQLRecognizerTreeWalker &walker)
-{
-  // Step up the tree to our owning select, update ... query.
-  bool done = false;
-  while (!done)
-  {
-    if (!walker.up() || walker.is_nil())
-      break;
-
-    switch (walker.token_type())
-    {
-    case SUBQUERY_TOKEN:
-    case REFERENCES_SYMBOL:
-      done = true;
-      break;
-
-    case TABLE_NAME_TOKEN:
-      context.in_table_reference = true;
-      break;
-    }
-  }
-
-  // There's a dedicated token type for table reference identifiers, so simply scan this in the
-  // current query but don't follow sub queries.
-  scan_sub_tree(context, walker);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * A separate routine to actually collect all auto completion entries. Works with a passed in context
- * to allow unit tests checking the result.
- * 
- * Returns false if there was a syntax error, otherwise true.
- */
-bool MySQLEditor::create_auto_completion_list(AutoCompletionContext &context, MySQLRecognizer *recognizer)
-{
-  log_debug("Creating new code completion list\n");
-
-  std::set<std::pair<int, std::string>, CompareAcEntries> new_entries;
-  _auto_completion_entries.clear();
-  context.version = 50501; // Some default. Will be improved below.
-
-  bool found_errors = false;
-  if (!context.statement.empty())
-  {
-    context.version = recognizer->server_version();
-
-    recognizer->parse(context.statement.c_str(), context.statement.length(), true, QtUnknown);
-    MySQLRecognizerTreeWalker walker = recognizer->tree_walker();
-
-    found_errors = recognizer->has_errors();
-
-    bool found_token = walker.advance_to_position((int)context.line, (int)context.offset);
-
-    if (!found_token)
-    {
-      // No useful parse info found so we show at least show keywords.
-      context.wanted_parts = MySQLEditor::CompletionWantKeywords;
-
-      // See if we can get a better result by examining the errors.
-      if (recognizer->error_info().size() > 0)
-        check_error_context(context, *recognizer);
-    }
-    else
-    {
-      get_current_token_info(context, walker);
-
-      // If we are currently in a string then we don't show any auto completion.
-      if ((context.token_type == SINGLE_QUOTED_TEXT) ||
-        ((recognizer->sql_mode() & SQL_MODE_ANSI_QUOTES) == 0) && (context.token_type == DOUBLE_QUOTED_TEXT))
-      {
-        context.wanted_parts = CompletionWantNothing;
-        return !recognizer->has_errors();
-      }
-
-      // If there's a syntax error with a token between the one we found in advance_to_position and
-      // before the current caret position then we switch to the last error token to take this into account.
-      if (recognizer->error_info().size() > 0)
-      {
-        MySQLParserErrorInfo error = recognizer->error_info().back();
-        if ((context.token_line < error.line || context.token_line == error.line && context.token_start < error.charOffset) &&
-          (error.line < context.line|| error.line == context.line && error.charOffset < context.offset))
-        {
-          context.token_type = error.token_type;
-          context.token_line = error.line;
-          context.token_start = error.charOffset;
-          context.token_length = error.length;
-        }
-      }
-
-      // The walker is now at the token at the given position or in the white spaces following it.
-      check_general_context(context, walker);
-
-      // Identifiers are a bit more complex. We cannot check them however if there was an error and
-      // we replaced the token as we could be at a totally different position.
-      if (context.check_identifier)
-      {
-        if (recognizer->is_identifier(context.token_type) || recognizer->is_keyword(context.token_type)
-          || context.token_type == DOT_SYMBOL || context.token_type == MULT_OPERATOR)
-        {
-          // Found an id, dot or star. Can be either wildcard, schema, table or column. Check which it is.
-          // We might be wrong with the star here if we are in an math expression, but that's good enough for now.
-          // Helpful fact: we get here only if there is a valid qualified identifier of the form
-          // id[.id[.(id|*)]]. Everything else (inluding something like id.id.id.id) is a syntax error.
-          check_reference(context, walker);
-        }
-      }
-    }
-
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantTables) || IS_PART_INCLUDED(MySQLEditor::CompletionWantColumns))
-      collect_table_references(context, walker);
-  }
-
-  // Let descendants fill their keywords, functions and engines into the list.
-  if (IS_PART_INCLUDED(CompletionWantAKeyword) ||
-    IS_PART_INCLUDED(MySQLEditor::CompletionWantRuntimeFunctions) ||
-    IS_PART_INCLUDED(MySQLEditor::CompletionWantEngines))
-  {
-    std::vector<std::pair<int, std::string> > rdbms_specific;
-    fill_auto_completion_keywords(rdbms_specific, context.wanted_parts, make_keywords_uppercase());
-    
-    for (size_t i = 0; i < rdbms_specific.size(); i++)
-      new_entries.insert(rdbms_specific[i]);
-  }
-
-  if (_auto_completion_cache != NULL)
-  {
-    if (context.table_schema.empty() || context.table_schema == ".")
-      context.table_schema = _current_schema;
-    if (context.column_schema.empty() || context.column_schema == ".")
-      context.column_schema = _current_schema;
-    
-    // This is syntactically not correct. Column references cannot be made with a leading dot (like for tables).
-    // But for more flexible handling we pretend it would be possible.
-    if (context.table == ".")
-      context.table = "";
-
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantSchemas))
-    {
-      log_debug3("Adding schema names from cache\n");
-
-      std::vector<std::string> object_names = _auto_completion_cache->get_matching_schema_names(context.typed_part);
-      for (std::vector<std::string>::const_iterator iterator = object_names.begin(); iterator != object_names.end(); ++iterator)
-        new_entries.insert(std::make_pair(AC_SCHEMA_IMAGE, *iterator));
-    }
-    
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantTables))
-    {
-      log_debug3("Adding table names from cache\n");
-
-      std::vector<std::string> object_names = _auto_completion_cache->get_matching_table_names(context.table_schema, context.typed_part);
-      for (std::vector<std::string>::const_iterator iterator = object_names.begin(); iterator != object_names.end(); ++iterator)
-        new_entries.insert(std::make_pair(AC_TABLE_IMAGE, *iterator));
-
-      log_debug3("Adding table + alias names from reference list\n");
-
-      // Add tables and aliases from the references list.
-      // Aliases only if we are not in a table reference, however.
-      // If we are in a qualified identifier then adding the tables doesn't make sense either.
-      if (!context.qualified_identifier)
-      {
-        for (std::vector<MySQLEditor::TableReference>::const_iterator iterator = context.references.begin();
-          iterator != context.references.end(); ++iterator)
-        {
-          if (iterator->schema.empty() || base::same_string(iterator->schema, context.table_schema, true))
-          {
-            new_entries.insert(std::make_pair(AC_TABLE_IMAGE, iterator->table));
-            if (!context.in_table_reference && !iterator->alias.empty())
-              new_entries.insert(std::make_pair(AC_TABLE_IMAGE, iterator->alias));
-          }
-        }
-      }
-    }
-    
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantProcedures))
-    {
-      log_debug3("Adding procedure names from cache\n");
-
-      std::vector<std::string> object_names = _auto_completion_cache->get_matching_procedure_names(context.table_schema, context.typed_part);
-      for (std::vector<std::string>::const_iterator iterator = object_names.begin(); iterator != object_names.end(); ++iterator)
-        new_entries.insert(std::make_pair(AC_ROUTINE_IMAGE, *iterator));
-    }
-    
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantFunctions))
-    {
-      log_debug3("Adding function names from cache\n");
-
-      std::vector<std::string> object_names = _auto_completion_cache->get_matching_function_names(context.table_schema, context.typed_part);
-      for (std::vector<std::string>::const_iterator iterator = object_names.begin(); iterator != object_names.end(); ++iterator)
-        new_entries.insert(std::make_pair(AC_ROUTINE_IMAGE, *iterator));
-    }
-
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantColumns))
-    {
-      log_debug3("Adding column names from cache\n");
-
-      std::vector<std::string> object_names = _auto_completion_cache->get_matching_column_names(context.column_schema, context.table, context.typed_part);
-      for (std::vector<std::string>::const_iterator iterator = object_names.begin(); iterator != object_names.end(); ++iterator)
-        new_entries.insert(std::make_pair(AC_COLUMN_IMAGE, *iterator));
-      
-      // Additionally, check the references list if the given table name is an alias. If so take columns from
-      // the aliased table too.
-      for (std::vector<MySQLEditor::TableReference>::const_iterator iterator = context.references.begin();
-        iterator != context.references.end(); ++iterator)
-      {
-        if (base::same_string(iterator->alias, context.table, true) || base::same_string(iterator->table, context.table, true))
-        {
-          std::string schema = iterator->schema;
-          if (schema.empty())
-            schema = _current_schema;
-          std::vector<std::string> object_names = _auto_completion_cache->get_matching_column_names(schema, iterator->table, context.typed_part);
-          for (std::vector<std::string>::const_iterator iterator = object_names.begin(); iterator != object_names.end(); ++iterator)
-            new_entries.insert(std::make_pair(AC_COLUMN_IMAGE, *iterator));
-        }
-      }
-    }
-  }
-
-  // Copy sorted and unique entries to the actual list.
-  std::copy(new_entries.begin(), new_entries.end(), std::back_inserter(_auto_completion_entries));
-
-  return !found_errors;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void MySQLEditor::show_auto_completion(bool auto_choose_single, MySQLRecognizer *recognizer)
+void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::Ref parser_context)
 {
   if (!code_completion_enabled())
     return;
@@ -1712,40 +1370,382 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, MySQLRecognizer 
   _code_editor->auto_completion_options(true, auto_choose_single, false, true, false);
 
   AutoCompletionContext context;
+  context.token_names = parser_context->get_token_name_list();
 
   // Get the statement and its absolute position.
-  size_t caret_position = _code_editor->get_caret_pos();
-  context.line = _code_editor->line_from_position(caret_position);
+  size_t caret_token_index = _code_editor->get_caret_pos();
+  context.caret_line = _code_editor->line_from_position(caret_token_index);
   ssize_t line_start, line_end;
-  _code_editor->get_range_of_line(context.line, line_start, line_end);
-  context.line++; // ANTLR parser is one-based.
-  size_t offset = caret_position - line_start; // This is a byte offset.
+  _code_editor->get_range_of_line(context.caret_line, line_start, line_end);
+  context.caret_line++; // ANTLR parser is one-based.
+  size_t offset = caret_token_index - line_start; // This is a byte offset.
 
   size_t min;
   size_t max;
-  if (get_current_statement_range(min, max))
+  std::string statement;
+  bool fixed_caret_pos = false;
+  if (get_current_statement_range(min, max, true))
   {
-    context.line -= _code_editor->line_from_position(min);
-    context.statement += _code_editor->get_text_in_range(min, max);
-    _last_ac_statement = context.statement;
+    // If the caret is in the whitespaces before the query we would get a wrong line number
+    // (because the statement splitter doesn't include these whitespaces in the determined ranges).
+    // We set the caret pos to the first position in the query, which has the same effect for
+    // code completion (we don't generate error line numbers).
+    uint32_t code_start_line = (uint32_t)_code_editor->line_from_position(min);
+    if (code_start_line > context.caret_line)
+    {
+      context.caret_line = 1;
+      context.caret_offset = 0;
+      fixed_caret_pos = true;
+    }
+    else
+      context.caret_line -= code_start_line;
+
+    statement = _code_editor->get_text_in_range(min, max);
   }
   else
-    context.statement = _last_ac_statement;
+  {
+    // No query, means we have nothing typed yet in the current query (at least nothing valuable).
+    context.caret_line = 1;
+    context.caret_offset = 0;
+    fixed_caret_pos = true;
+  }
 
   // Convert current caret position into a position of the single statement. ANTLR uses one-based line numbers.
   // The byte-based offset in the line must be converted to a character offset.
-  std::string line_text = _code_editor->get_text_in_range(line_start, line_end);
-  context.offset = g_utf8_pointer_to_offset(line_text.c_str(), line_text.c_str() + offset);
+  if (!fixed_caret_pos)
+  {
+    std::string line_text = _code_editor->get_text_in_range(line_start, line_end);
+    context.caret_offset = g_utf8_pointer_to_offset(line_text.c_str(), line_text.c_str() + offset);
+  }
 
   // Determine the word letters written up to the current caret position. If the caret is in the white
-  // space behind a token then nothing is typed.
-  context.typed_part = get_written_part(caret_position);
+  // space behind a token then nothing has been typed.
+  context.typed_part = get_written_part(caret_token_index);
 
   // Remove the escape character from the typed part so we have the pure text.
   context.typed_part.erase(std::remove(context.typed_part.begin(), context.typed_part.end(), '\\'),
     context.typed_part.end());
 
-  create_auto_completion_list(context, recognizer);
+  // A set for each object type. This will sort the groups alphabetically and avoids duplicates,
+  // but allows to add them as groups to the final list.
+  CompletionSet schema_entries;
+  CompletionSet table_entries;
+  CompletionSet column_entries;
+  CompletionSet view_entries;
+  CompletionSet function_entries;
+  CompletionSet udf_entries;
+  CompletionSet runtime_function_entries;
+  CompletionSet procedure_entries;
+  CompletionSet trigger_entries;
+  CompletionSet engine_entries;
+  CompletionSet logfile_group_entries;
+  CompletionSet tablespace_entries;
+  CompletionSet user_var_entries;
+  CompletionSet system_var_entries;
+  CompletionSet keyword_entries;
+
+  // To be done yet.
+  CompletionSet collation_entries;
+  CompletionSet charset_entries;
+  CompletionSet user_entries;
+  CompletionSet index_entries;
+  CompletionSet event_entries;
+  CompletionSet plugin_entries;
+
+  _auto_completion_entries.clear();
+
+  bool uppercase_keywords = make_keywords_uppercase();
+  MySQLScanner *scanner = parser_context->create_scanner(statement);
+  context.server_version = scanner->get_server_version();
+  context.collect_candiates(scanner);
+
+  // No sorting on the entries takes place. We group by type.
+  for (auto i = context.completion_candidates.begin(); i != context.completion_candidates.end(); ++i)
+  {
+    scanner->reset();
+    scanner->seek(context.caret_line, context.caret_offset);
+
+    // There can be more than a single token in a candidate (e.g. for GROUP BY).
+    // But if there are more than one we always have a keyword list.
+    std::vector<std::string> entries = base::split( *i, " ");
+    if (entries.size() > 1 || ends_with(*i, "_SYMBOL"))
+    {
+      std::string entry;
+      for (auto j = entries.begin(); j != entries.end(); ++j)
+      {
+        if (ends_with(*j, "_SYMBOL"))
+        {
+          // A single keyword or something in a keyword sequence. Convert the entry to a readable form.
+          std::string token = j->substr(0, j->size() - 7);
+          if (token == "OPEN_PAR")
+          {
+            // Part of a runtime function call or special constructs like PROCEDURE ANALYSE ().
+            // Make the entry a function call in the list if there's only one keyword involved.
+            // Otherrwise ignore the parentheses.
+            if (entries.size() < 3)
+            {
+              entry = base::tolower(entry);
+              entry += "()";
+
+              // Parentheses are always at the end.
+              runtime_function_entries.insert(std::make_pair(AC_FUNCTION_IMAGE, entry));
+              entry = "";
+              break;
+            }
+          }
+          else
+          {
+            if (!entry.empty())
+              entry += " ";
+
+            if (uppercase_keywords)
+              entry += token;
+            else
+              entry += base::tolower(token);
+          }
+        }
+        else if (ends_with(*j, "_OPERATOR"))
+        {
+          // Something that we accept in a keyword sequence, not standalone (very small set).
+          if (*j == "EQUAL_OPERATOR")
+            entry += " =";
+        }
+      }
+      if (!entry.empty())
+        keyword_entries.insert(std::make_pair(AC_KEYWORD_IMAGE, entry));
+    }
+    else if (rules_holder.special_rules.find(*i) != rules_holder.special_rules.end())
+    {
+      // Any of the special rules.
+      if (_editor_config != NULL)
+      {
+        std::map<std::string, std::string> keyword_map = _editor_config->get_keywords();
+        if (*i == "udf_call")
+        {
+          log_debug3("Adding udfs/runtime function names to code completion list\n");
+
+          std::vector<std::string> functions = base::split_by_set(keyword_map["Functions"], " \t\n");
+          for (auto function = functions.begin(); function != functions.end(); ++function)
+            runtime_function_entries.insert(std::make_pair(AC_FUNCTION_IMAGE, *function + "()"));
+        }
+        else if (*i == "engine_ref")
+        {
+          log_debug3("Adding engine names\n");
+
+          std::vector<std::string> engines = _auto_completion_cache->get_matching_engines(context.typed_part);
+          for (auto engine = engines.begin(); engine != engines.end(); ++engine)
+            engine_entries.insert(std::make_pair(AC_ENGINE_IMAGE, *engine));
+        }
+        else if (*i == "schema_ref")
+        {
+          log_debug3("Adding schema names from cache\n");
+          insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+        }
+        else if (*i == "procedure_ref")
+        {
+          log_debug3("Adding procedure names from cache\n");
+
+          std::string qualifier;
+          ObjectFlags flags = determine_qualifier(scanner, qualifier);
+
+          if ((flags & ShowFirst) != 0)
+            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+
+          if ((flags & ShowSecond) != 0)
+          {
+            if (qualifier.empty())
+              qualifier = _current_schema;
+
+            std::vector<std::string> procedures = _auto_completion_cache->get_matching_procedure_names(qualifier, context.typed_part);
+            for (auto procedure = procedures.begin(); procedure != procedures.end(); ++procedure)
+              procedure_entries.insert(std::make_pair(AC_ROUTINE_IMAGE, *procedure));
+          }
+        }
+        else if (*i == "function_ref" || *i == "stored_function_call")
+        {
+          log_debug3("Adding function names from cache\n");
+
+          std::string qualifier;
+          ObjectFlags flags = determine_qualifier(scanner, qualifier);
+
+          if ((flags & ShowFirst) != 0)
+            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+
+          if ((flags & ShowSecond) != 0)
+          {
+            if (qualifier.empty())
+              qualifier = _current_schema;
+
+            std::vector<std::string> functions = _auto_completion_cache->get_matching_function_names(qualifier, context.typed_part);
+            for (auto function = functions.begin(); function != functions.end(); ++function)
+              function_entries.insert(std::make_pair(AC_ROUTINE_IMAGE, *function));
+          }
+        }
+        else if (*i == "table_ref_with_wildcard")
+        {
+          // A special form of table references (id.id.*) used only in multi-table delete.
+          // Handling is similar as for column references (just that we have table/view objects instead of column refs).
+          log_debug3("Adding table + view names from cache\n");
+
+          std::string schema, table, column_schema;
+          ObjectFlags flags = determine_schema_table_qualifier(scanner, schema, table, column_schema);
+          if ((flags & ShowSchemas) != 0)
+            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+
+          if (schema.empty())
+            schema = _current_schema;
+          if ((flags & ShowTables) != 0)
+          {
+            insert_tables(_auto_completion_cache, table_entries, schema, context.typed_part);
+            insert_views(_auto_completion_cache, view_entries, schema, context.typed_part);
+          }
+        }
+        else if (*i == "table_ref" || *i == "filter_table_ref" || *i == "table_ref_no_db")
+        {
+          log_debug3("Adding table + view names from cache\n");
+
+          // Tables refs also allow view refs.
+          std::string qualifier;
+          ObjectFlags flags = determine_qualifier(scanner, qualifier);
+
+          if ((flags & ShowFirst) != 0)
+            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+
+          if ((flags & ShowSecond) != 0)
+          {
+            if (qualifier.empty())
+              qualifier = _current_schema;
+
+            insert_tables(_auto_completion_cache, table_entries, qualifier, context.typed_part);
+            insert_views(_auto_completion_cache, view_entries, qualifier, context.typed_part);
+          }
+        }
+        else if (*i == "column_ref" || *i == "column_ref_with_wildcard" || *i == "table_wild")
+        {
+          log_debug3("Adding column names from cache\n");
+
+          std::string schema, table, column_schema;
+          ObjectFlags flags = determine_schema_table_qualifier(scanner, schema, table, column_schema);
+          if ((flags & ShowSchemas) != 0)
+            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+
+          if (schema.empty())
+            schema = _current_schema;
+          if ((flags & ShowTables) != 0)
+            insert_tables(_auto_completion_cache, table_entries, schema, context.typed_part);
+
+          if ((flags & ShowColumns) != 0)
+          {
+            if (column_schema.empty())
+              column_schema = _current_schema;
+            std::vector<std::string> columns = _auto_completion_cache->get_matching_column_names(column_schema, table, context.typed_part);
+            for (auto column = columns.begin(); column != columns.end(); ++column)
+              column_entries.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
+          }
+        }
+        else if (*i == "trigger_ref")
+        {
+          // Trigger references only consist of a table name and the trigger name.
+          // However we have to make sure to show only triggers from the current schema.
+          log_debug3("Adding trigger names from cache\n");
+
+          std::string qualifier;
+          ObjectFlags flags = determine_qualifier(scanner, qualifier);
+
+          if ((flags & ShowFirst) != 0)
+            insert_tables(_auto_completion_cache, schema_entries, _current_schema, context.typed_part);
+
+          if ((flags & ShowSecond) != 0)
+          {
+            std::vector<std::string> triggers = _auto_completion_cache->get_matching_trigger_names(_current_schema, qualifier, context.typed_part);
+            for (auto trigger = triggers.begin(); trigger != triggers.end(); ++trigger)
+              trigger_entries.insert(std::make_pair(AC_TRIGGER_IMAGE, *trigger));
+          }
+        }
+        else if (*i == "view_ref")
+        {
+          log_debug3("Adding view names from cache\n");
+
+          // View refs only (no table refers), e.g. like in DROP VIEW ...
+          std::string qualifier;
+          ObjectFlags flags = determine_qualifier(scanner, qualifier);
+
+          if ((flags & ShowFirst) != 0)
+            insert_schemas(_auto_completion_cache, schema_entries, context.typed_part);
+
+          if ((flags & ShowSecond) != 0)
+          {
+            if (qualifier.empty())
+              qualifier = _current_schema;
+
+            std::vector<std::string> views = _auto_completion_cache->get_matching_view_names(qualifier, context.typed_part);
+            for (auto view = views.begin(); view != views.end(); ++view)
+              view_entries.insert(std::make_pair(AC_VIEW_IMAGE, *view));
+          }
+        }
+        else if (*i == "logfile_group_ref")
+        {
+          log_debug3("Adding logfile group names from cache\n");
+
+          std::vector<std::string> logfile_groups = _auto_completion_cache->get_matching_logfile_groups(context.typed_part);
+          for (auto logfile_group = logfile_groups.begin(); logfile_group != logfile_groups.end(); ++logfile_group)
+            logfile_group_entries.insert(std::make_pair(AC_LOGFILE_GROUP_IMAGE, *logfile_group));
+        }
+        else if (*i == "tablespace_ref")
+        {
+          log_debug3("Adding tablespace names from cache\n");
+
+          std::vector<std::string> tablespaces = _auto_completion_cache->get_matching_tablespaces(context.typed_part);
+          for (auto tablespace = tablespaces.begin(); tablespace != tablespaces.end(); ++tablespace)
+            tablespace_entries.insert(std::make_pair(AC_TABLESPACE_IMAGE, *tablespace));
+        }
+        else if (*i == "user_variable")
+        {
+          log_debug3("Adding user variables\n");
+          user_var_entries.insert(std::make_pair(AC_USER_VAR_IMAGE, "<user variable>"));
+        }
+        else if (*i == "system_variable")
+        {
+          log_debug3("Adding system variables\n");
+
+          std::vector<std::string> variables = _auto_completion_cache->get_matching_variables(context.typed_part);
+          for (auto variable = variables.begin(); variable != variables.end(); ++variable)
+            system_var_entries.insert(std::make_pair(AC_SYSTEM_VAR_IMAGE, *variable));
+        }
+      }
+    }
+    else
+    {
+      // Simply take over anything else. There should never been anything but keywords and special rules.
+      // By adding the raw token/rule entry we can better find the bug, which must be the cause
+      // for this addition.
+      keyword_entries.insert(std::make_pair(0, *i));
+    }
+  }
+
+  std::copy(keyword_entries.begin(), keyword_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(schema_entries.begin(), schema_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(table_entries.begin(), table_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(view_entries.begin(), view_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(function_entries.begin(), function_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(procedure_entries.begin(), procedure_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(trigger_entries.begin(), trigger_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(column_entries.begin(), column_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(index_entries.begin(), index_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(event_entries.begin(), event_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(user_entries.begin(), user_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(engine_entries.begin(), engine_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(plugin_entries.begin(), plugin_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(logfile_group_entries.begin(), logfile_group_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(tablespace_entries.begin(), tablespace_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(charset_entries.begin(), charset_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(collation_entries.begin(), collation_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(user_var_entries.begin(), user_var_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(runtime_function_entries.begin(), runtime_function_entries.end(), std::back_inserter(_auto_completion_entries));
+  std::copy(system_var_entries.begin(), system_var_entries.end(), std::back_inserter(_auto_completion_entries));
+
+  delete scanner;
+
   update_auto_completion(context.typed_part);
 }
 

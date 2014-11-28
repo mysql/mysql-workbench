@@ -18,8 +18,6 @@
  */
 
 
-#include "stdafx.h"
-
 #include "base/util_functions.h"
 
 #include "mysql_sql_parser.h"
