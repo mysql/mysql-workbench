@@ -89,15 +89,9 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (id)initWithObject:(::mforms::TextBox*)aTextBox
            scrollers:(mforms::ScrollBars)scrolls
 {
-  NSRect frame;
-  
-  frame.origin= NSMakePoint(0, 0);
-  frame.size= [NSScrollView frameSizeForContentSize:[self minimumSize]
-                              hasHorizontalScroller:NO
-                                hasVerticalScroller:YES
-                                         borderType:NSLineBorder];
-  
-  self= [super initWithFrame:frame];
+  NSSize size = [self minimumSize];
+  NSRect frame = NSMakeRect(0, 0, size.width, size.height);
+  self = [super initWithFrame:frame];
   if (self)
   {
     mOwner= aTextBox;
@@ -148,8 +142,10 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (NSSize)minimumSize
 {
   NSSize size;
-  size.width= [NSScroller scrollerWidth] + 50 + mPadding*2;
-  size.height= [NSScroller scrollerWidth] + 50 + mPadding*2;
+  size.width= [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+                                        scrollerStyle: NSScrollerStyleOverlay] + 50 + mPadding * 2;
+  size.height= [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+                                         scrollerStyle: NSScrollerStyleOverlay] + 50 + mPadding*2;
   return size;
 }
 

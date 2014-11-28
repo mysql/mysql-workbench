@@ -34,20 +34,27 @@
 
 static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
 {
-  NSSize imageSize= [image size];
+  NSSize imageSize = image.size;
   NSRect imageRect;
   
-  imageRect.origin= NSMakePoint(0, 0);
-  imageRect.size= imageSize;
-  for (CGFloat y= 0; y < rect.size.height; y+= imageSize.height)
+  imageRect.origin = NSMakePoint(0, 0);
+  imageRect.size = imageSize;
+
+  NSRect targetRect = NSMakeRect(rect.origin.x, rect.origin.y, imageSize.width, imageSize.height);
+  while (targetRect.origin.y < rect.size.height)
   {
-    for (CGFloat x= 0; x < rect.size.width; x+= imageSize.width)
+    while (targetRect.origin.x < rect.size.width)
     {
-      [image drawAtPoint:NSMakePoint(rect.origin.x+x, rect.origin.y+y) 
-                fromRect:imageRect
-               operation:composite ? NSCompositeSourceOver : NSCompositeCopy 
-                fraction:1.0];
+      [image drawInRect: targetRect
+               fromRect: imageRect
+              operation: composite ? NSCompositeSourceOver : NSCompositeCopy
+               fraction: 1
+         respectFlipped: YES
+                  hints: nil];
+
+      targetRect.origin.x += imageSize.width;
     }
+    targetRect.origin.y += imageSize.height;
   }
 }
 
@@ -58,7 +65,6 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
   if ((self= [super initWithFrame:rect]) != nil)
   {
     bgImage= [[NSImage imageNamed:@"background.png"] retain];
-    [bgImage setFlipped: YES];
     shadowImage= [[NSImage imageNamed:@"background_top_shadow.png"] retain];
     [self setExpandSubviewsByDefault: NO];
   }
@@ -105,9 +111,7 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
 
 @end
 
-
-
-
+#pragma mark -
 
 @implementation WBOverviewPanel
 

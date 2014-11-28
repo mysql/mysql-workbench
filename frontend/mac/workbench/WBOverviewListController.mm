@@ -357,15 +357,11 @@
   NSDictionary *item= [[sender owner] representedObject];
   if (item)
   {
-    bec::NodeId node;
-    NSString *path= [item objectForKey: @"path"];
-    
-    node= bec::NodeId([path CPPString]);
-    
-    //if (db_RoutineGroupRef::can_wrap(mOverview->get_grt_value(node)))
-    {
-      //return [NSArray arrayWithObject: [NSString stringWithUTF8String: WB_DBOBJECT_DRAG_TYPE]];
-    }
+    NSString *path = item[@"path"];
+    bec::NodeId node = bec::NodeId(path.CPPString);
+    std::string type = mOverview->get_node_drag_type(node);
+    if (!type.empty())
+      return @[[NSString stringWithCPPString: type]];
   }
   return nil;
 }
