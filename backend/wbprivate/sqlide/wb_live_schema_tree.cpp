@@ -1180,8 +1180,8 @@ void LiveSchemaTree::update_live_object_state(ObjectType type, const std::string
 }
 
 void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
-  std::list<std::string>* tables, std::list<std::string>* views,
-  std::list<std::string>* procedures, std::list<std::string>* functions, bool just_append)
+    StringListPtr tables, StringListPtr views,
+    StringListPtr procedures, StringListPtr functions, bool just_append)
 {
   if (_base)
   {
@@ -1244,11 +1244,6 @@ void LiveSchemaTree::schema_contents_arrived(const std::string &schema_name,
           views_node->set_string(0, VIEWS_CAPTION);
           procedures_node->set_string(0, PROCEDURES_CAPTION);
           functions_node->set_string(0, FUNCTIONS_CAPTION);
-
-          delete tables;
-          delete views;
-          delete procedures;
-          delete functions;
         }
         // This section will be reached whenever there´s an exception loading the schema data
         else

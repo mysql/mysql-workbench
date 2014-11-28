@@ -104,10 +104,10 @@ public:
   short _mock_flags;
 
   std::list<std::string> _mock_schema_list;
-  std::list<std::string> *_mock_table_list;
-  std::list<std::string> *_mock_view_list;
-  std::list<std::string> *_mock_procedure_list;
-  std::list<std::string> *_mock_function_list;
+  StringListPtr _mock_table_list;
+  StringListPtr _mock_view_list;
+  StringListPtr _mock_procedure_list;
+  StringListPtr _mock_function_list;
   std::list<std::string> _mock_column_list;
   std::list<std::string> _mock_index_list;
   std::list<std::string> _mock_trigger_list;
@@ -152,10 +152,10 @@ public:
 
   void expect_fetch_schema_contents_call()
   {
-    _mock_table_list = new std::list<std::string>();
-    _mock_view_list = new std::list<std::string>();
-    _mock_procedure_list = new std::list<std::string>();
-    _mock_function_list = new std::list<std::string>();
+    _mock_table_list = StringListPtr(new std::list<std::string>());
+    _mock_view_list = StringListPtr(new std::list<std::string>());
+    _mock_procedure_list = StringListPtr(new std::list<std::string>());
+    _mock_function_list = StringListPtr(new std::list<std::string>());
     _expect_fetch_schema_contents_call = true;
   }
 

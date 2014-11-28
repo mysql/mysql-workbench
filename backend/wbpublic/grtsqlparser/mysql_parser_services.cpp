@@ -166,9 +166,21 @@ std::vector<ParserErrorEntry> ParserContext::get_errors_with_offset(size_t offse
 
 //--------------------------------------------------------------------------------------------------
 
-size_t parser::ParserContext::get_keyword_token(const std::string &keyword)
+uint32_t ParserContext::get_keyword_token(const std::string &keyword)
 {
   return _recognizer->get_keyword_token(keyword);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the pointer to the internal keyword strings array in the parser, so we can directly
+ * work with those keywords. The position in the keywords list corresponds to their token value.
+ * The first user defined token name starts and index 4.
+ */
+char ** ParserContext::get_token_name_list()
+{
+  return _recognizer->get_token_list();
 }
 
 //------------------ MySQLParserServices -----------------------------------------------------------

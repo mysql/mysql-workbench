@@ -186,12 +186,8 @@ void db_Column::formattedType(const grt::StringRef &value)
 
 /** Sets the datatype defined by a string to the column.
  *
- * Assigns a datatype defined by a string like NUMERIC(7, 2) to the
- * given column.
+ * Assigns a datatype defined by a string like NUMERIC(7, 2) to the given column.
  *
- * @param rdbms
- * @param type
- * 
  * @return 1 on success or 0 on parse error or invalid type/invalid params
  */
 grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::ListRef<db_SimpleDatatype> &typeList)
@@ -215,7 +211,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
   std::string datatypeExplicitParams;
   grt::AutoUndo undo(get_grt(), !is_global());
 
-  if (!bec::parseType(type, target_version, typeList, user_types, default_type_list,
+  if (!bec::parse_type_definition(type, target_version, typeList, user_types, default_type_list,
       simpleType, userType, precision, scale, length, datatypeExplicitParams))
       return false;
   this->userType(userType);

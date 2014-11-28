@@ -783,44 +783,46 @@ public:
           bool removal_done = false;
           do
           {
-            MySQLToken token = scanner->next_token();
-            if (token.type == ANTLR3_TOKEN_EOF)
+            scanner->next(false);
+            if (scanner->token_type() == ANTLR3_TOKEN_EOF)
               break;
 
-            if (!removal_done && token.type == ordering_token)
+            if (!removal_done && scanner->token_type() == ordering_token)
             {
               // The token we are looking for. Skip this and any whitespace token following it.
               do
               {
-                token = scanner->next_token();
-                if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+                scanner->next(false);
+                if (scanner->token_channel() == 0 || scanner->token_type() == ANTLR3_TOKEN_EOF)
                   break;
               } while (true);
 
               // See if there's an identifier following the ordering keyword and if so remove that too
               // including the following whitespace).
-              if (scanner->is_identifier(token.type))
+              if (scanner->is_identifier())
               {
                 do
                 {
-                  token = scanner->next_token();
-                  if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+                  scanner->next(false);
+                  if (scanner->token_channel() == 0 || scanner->token_type() == ANTLR3_TOKEN_EOF)
                     break;
                 } while (true);
               }
 
               removal_done = true;
-              if (token.type == ANTLR3_TOKEN_EOF)
+              if (scanner->token_type() == ANTLR3_TOKEN_EOF)
                 break;
 
               // Add the following token we already scanned or it will get lost.
-              sql += token.text;
+              sql += scanner->token_text();
             }
             else
-              sql += token.text;
+              sql += scanner->token_text();
 
           } while (true);
 
+          delete scanner;
+          
           // Finally remove position information from the trigger object, regardless wether the other trigger actually
           // exists (or is valid) and update the code editor.
           _selected_trigger->ordering("");
@@ -1373,31 +1375,31 @@ public:
     bool replace_done = false;
     do
     {
-      MySQLToken token = scanner->next_token();
-      if (token.type == ANTLR3_TOKEN_EOF)
+      scanner->next(false);
+      if (scanner->token_type() == ANTLR3_TOKEN_EOF)
         break;
 
-      if (!replace_done && token.type == timing_token)
+      if (!replace_done && scanner->token_type() == timing_token)
       {
         // The token we are looking for. Replace the timing and see if there's an event token too.
         sql += timing;
         do
         { // Add any following hidden tokens (whitespace/comment).
-          token = scanner->next_token();
-          if (token.channel == 0 || token.type == ANTLR3_TOKEN_EOF)
+          scanner->next(false);
+          if (scanner->token_channel() == 0 || scanner->token_type() == ANTLR3_TOKEN_EOF)
             break;
-          sql += token.text;
+          sql += scanner->token_text();
         } while (true);
 
-        if (token.type == event_token)
+        if (scanner->token_type() == event_token)
           sql += event;
 
         replace_done = true;
-        if (token.type == ANTLR3_TOKEN_EOF)
+        if (scanner->token_type() == ANTLR3_TOKEN_EOF)
           break;
       }
       else
-        sql += token.text;
+        sql += scanner->token_text();
 
     } while (true);
 

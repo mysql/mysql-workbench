@@ -17,8 +17,7 @@
  * 02110-1301  USA
  */
 
-#ifndef _WB_SQL_EDITOR_HELP_H_
-#define _WB_SQL_EDITOR_HELP_H_
+#pragma once
 
 // Helper class to find context sensitive help based on a statement and a position in it.
 // Once a topic could be constructed the mysql help tables are used to get the help text.
@@ -26,7 +25,6 @@
 
 #include "sqlide/wb_sql_editor_form.h"
 
-struct MySQLToken;
 class MySQLScanner;
 
 class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorContextHelp // Made public for tests only.
@@ -40,8 +38,5 @@ protected:
   static std::string lookup_topic_for_string(const SqlEditorForm::Ref &form, std::string topic);
   static std::string topic_from_position(const SqlEditorForm::Ref &form, const std::string &query, std::pair<ssize_t, ssize_t> caret);
 
-  static std::string topic_with_single_topic_equivalent(MySQLToken token, MySQLScanner &scanner,
-    std::vector<MySQLToken> &tokens, size_t &index);
+  static std::string topic_with_single_topic_equivalent(MySQLScanner &scanner);
 };
-
-#endif // _WB_SQL_EDITOR_HELP_H_

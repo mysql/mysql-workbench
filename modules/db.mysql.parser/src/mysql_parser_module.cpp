@@ -110,7 +110,7 @@ size_t MySQLParserServicesImpl::parseTrigger(const ParserContext::Ref &context,
   trigger->sqlDefinition(sql);
   trigger->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
-  context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateTrigger);
+  context->recognizer()->parse(sql.c_str(), sql.length(), true, PuCreateTrigger);
   size_t error_count = context->recognizer()->error_info().size();
   int result_flag = 0;
   if (error_count == 0)
@@ -143,7 +143,7 @@ size_t MySQLParserServicesImpl::parseTrigger(const ParserContext::Ref &context,
 
     // The referenced table is not stored in the trigger object as that is defined by it's position
     // in the grt tree.
-    walker.skip_token_sequence(ON_SYMBOL, TABLE_NAME_TOKEN, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
+    walker.skip_token_sequence(ON_SYMBOL, TABLE_REF_TOKEN, FOR_SYMBOL, EACH_SYMBOL, ROW_SYMBOL, 0);
     ANTLR3_UINT32 type = walker.token_type();
     if (type == FOLLOWS_SYMBOL || type == PRECEDES_SYMBOL)
     {
@@ -230,7 +230,7 @@ size_t MySQLParserServicesImpl::parseView(const ParserContext::Ref &context,
   view->sqlDefinition(sql);
   view->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
-  context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateView);
+  context->recognizer()->parse(sql.c_str(), sql.length(), true, PuCreateView);
   size_t error_count = context->recognizer()->error_info().size();
   if (error_count == 0)
   {
@@ -502,7 +502,7 @@ size_t MySQLParserServicesImpl::parseRoutine(const ParserContext::Ref &context,
   routine->sqlDefinition(sql);
   routine->lastChangeDate(base::fmttime(0, DATETIME_FMT));
 
-  context->recognizer()->parse(sql.c_str(), sql.length(), true, QtCreateRoutine);
+  context->recognizer()->parse(sql.c_str(), sql.length(), true, PuCreateRoutine);
   MySQLRecognizerTreeWalker walker = context->recognizer()->tree_walker();
   size_t error_count = context->recognizer()->error_info().size();
   if (error_count == 0)
@@ -577,7 +577,7 @@ size_t MySQLParserServicesImpl::parseRoutines(const ParserContext::Ref &context,
   for (std::vector<std::pair<size_t, size_t> >::iterator iterator = ranges.begin(); iterator != ranges.end(); ++iterator)
   {
     std::string routine_sql = sql.substr(iterator->first, iterator->second);
-    context->recognizer()->parse(routine_sql.c_str(), routine_sql.length(), true, QtCreateRoutine);
+    context->recognizer()->parse(routine_sql.c_str(), routine_sql.length(), true, PuCreateRoutine);
     size_t local_error_count = context->recognizer()->error_info().size();
     error_count += local_error_count;
 
@@ -719,7 +719,7 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<size_t> &
   while (walker.next()) {
     switch (walker.token_type())
     {
-      case SCHEMA_NAME_TOKEN:
+      case SCHEMA_REF_TOKEN:
         if (base::same_string(walker.token_text(), schema_name, case_sensitive))
         {
           size_t pos = walker.token_offset();
@@ -729,7 +729,7 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<size_t> &
         }
         break;
 
-      case TABLE_NAME_TOKEN:
+      case TABLE_REF_TOKEN:
       {
         walker.next();
         if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(false) == DOT_SYMBOL)
@@ -746,7 +746,7 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<size_t> &
         break;
       }
 
-      case FIELD_NAME_TOKEN: // Field names only if they are fully qualified (schema.table.field/*).
+      case COLUMN_REF_TOKEN: // Field names only if they are fully qualified (schema.table.field/*).
         walker.next();
         if (walker.token_type() != DOT_SYMBOL && walker.look_ahead(false) == DOT_SYMBOL)
         {
@@ -767,11 +767,11 @@ void collect_schema_name_offsets(ParserContext::Ref context, std::list<size_t> &
         }
         break;
 
-        // All those can have schema.id or only id.
-      case VIEW_NAME_TOKEN:
-      case TRIGGER_NAME_TOKEN:
-      case PROCEDURE_NAME_TOKEN:
-      case FUNCTION_NAME_TOKEN:
+      // All those can have schema.id or only id.
+      case VIEW_REF_TOKEN:
+      case TRIGGER_REF_TOKEN:
+      case PROCEDURE_REF_TOKEN:
+      case FUNCTION_REF_TOKEN:
         walker.next();
         if (walker.look_ahead(false) == DOT_SYMBOL)
         {
@@ -818,12 +818,12 @@ void replace_schema_names(std::string &sql, const std::list<size_t> &offsets, si
 //--------------------------------------------------------------------------------------------------
 
 void rename_in_list(grt::ListRef<db_DatabaseDdlObject> list, const ParserContext::Ref &context,
-  MySQLQueryType type, const std::string old_name, const std::string new_name)
+  MySQLParseUnit unit, const std::string old_name, const std::string new_name)
 {
   for (size_t i = 0; i < list.count(); ++i)
   {
     std::string sql = list[i]->sqlDefinition();
-    context->recognizer()->parse(sql.c_str(), sql.size(), true, type);
+    context->recognizer()->parse(sql.c_str(), sql.size(), true, unit);
     size_t error_count = context->recognizer()->error_info().size();
     if (error_count == 0)
     {
@@ -865,12 +865,12 @@ size_t MySQLParserServicesImpl::renameSchemaReferences(const ParserContext::Ref 
   for (size_t i = 0; i < schemas.count(); ++i)
   {
     db_mysql_SchemaRef schema = schemas[i];
-    rename_in_list(schema->views(), context, QtCreateView, old_name, new_name);
-    rename_in_list(schema->routines(), context, QtCreateRoutine, old_name, new_name);
+    rename_in_list(schema->views(), context, PuCreateView, old_name, new_name);
+    rename_in_list(schema->routines(), context, PuCreateRoutine, old_name, new_name);
 
     grt::ListRef<db_mysql_Table> tables = schemas[i]->tables();
     for (grt::ListRef<db_mysql_Table>::const_iterator iterator = tables.begin(); iterator != tables.end(); ++iterator)
-      rename_in_list((*iterator)->triggers(), context, QtCreateTrigger, old_name, new_name);
+      rename_in_list((*iterator)->triggers(), context, PuCreateTrigger, old_name, new_name);
   }
   
   return 0;
@@ -1132,7 +1132,7 @@ std::string MySQLParserServicesImpl::replaceTokenSequenceWithText(const parser::
   const std::string &sql, size_t start_token, size_t count, const std::vector<std::string> replacements)
 {
   std::string result;
-  context->recognizer()->parse(sql.c_str(), sql.size(), true, QtUnknown);
+  context->recognizer()->parse(sql.c_str(), sql.size(), true, PuGeneric);
   size_t error_count = context->recognizer()->error_info().size();
   if (error_count > 0)
     return "";

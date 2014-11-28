@@ -17,8 +17,6 @@
  * 02110-1301  USA
  */
 
-#include "stdafx.h"
-
 #include "wb_sql_editor_form.h"
 #include "wb_sql_editor_panel.h"
 #include "wb_sql_editor_result_panel.h"
@@ -1011,7 +1009,7 @@ void SqlEditorPanel::update_title()
 void SqlEditorPanel::list_members()
 {
   if (owner()->work_parser_context() != NULL)
-    editor_be()->show_auto_completion(true, owner()->work_parser_context()->recognizer());
+    editor_be()->show_auto_completion(false, owner()->work_parser_context());
 }
 
 //--------------------------------------------------------------------------------------------------

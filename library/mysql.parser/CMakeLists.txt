@@ -41,3 +41,9 @@ install(DIRECTORY ${PROJECT_BINARY_DIR}/antlr-wb/ DESTINATION ${WB_INSTALL_LIB_D
     PATTERN "*.so"
     PATTERN "*.so.*"
 )
+
+set(DATA_FILES 
+    MySQL.tokens
+)
+
+install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/data)

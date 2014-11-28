@@ -27,8 +27,6 @@
 #include "base/threaded_timer.h"
 #include "base/util_functions.h"
 
-#include "grtsqlparser/mysql_parser_services.h"
-
 #include "grt/grt_manager.h"
 #include "grt/grt_threaded_task.h"
 
@@ -737,104 +735,6 @@ bool MySQLEditor::has_sql_errors() const
 
 //--------------------------------------------------------------------------------------------------
 
-#define IS_PART_INCLUDED(part) ((parts & part) == part)
-
-bool MySQLEditor::fill_auto_completion_keywords(std::vector<std::pair<int, std::string> > &entries,
-                                                     AutoCompletionWantedParts parts, bool upcase_keywords)
-{
-  log_debug2("Filling keywords auto completion list for MySQL.\n");
-
-  if (_editor_config != NULL)
-  {
-    log_debug2("Adding keywords + function names\n");
-
-    std::map<std::string, std::string> keyword_map = _editor_config->get_keywords();
-
-    // MySQL keywords are split into two sets. Major keywords are those that can start a statement.
-    // All other keywords appear within a statement.
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantMajorKeywords))
-    {
-      std::vector<std::string> words = base::split_by_set(keyword_map["Major Keywords"], " \t\n");
-      for (std::vector<std::string>::const_iterator iterator = words.begin(); iterator != words.end(); ++iterator)
-        entries.push_back(std::make_pair(AC_KEYWORD_IMAGE, *iterator));
-    }
-    else
-    {
-      if (IS_PART_INCLUDED(MySQLEditor::CompletionWantSelect))
-        entries.push_back(std::make_pair(AC_KEYWORD_IMAGE, "select"));
-      if (IS_PART_INCLUDED(MySQLEditor::CompletionWantBy))
-        entries.push_back(std::make_pair(AC_KEYWORD_IMAGE, "by"));
-    }
-
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantKeywords))
-    {
-      std::vector<std::string> words = base::split_by_set(keyword_map["Keywords"], " \t\n");
-      for (std::vector<std::string>::const_iterator iterator = words.begin(); iterator != words.end(); ++iterator)
-        entries.push_back(std::make_pair(AC_KEYWORD_IMAGE, *iterator));
-      words = base::split_by_set(keyword_map["Procedure keywords"], " \t\n");
-      for (std::vector<std::string>::const_iterator iterator = words.begin(); iterator != words.end(); ++iterator)
-        entries.push_back(std::make_pair(AC_KEYWORD_IMAGE, *iterator));
-      words = base::split_by_set(keyword_map["User Keywords 1"], " \t\n");
-      for (std::vector<std::string>::const_iterator iterator = words.begin(); iterator != words.end(); ++iterator)
-        entries.push_back(std::make_pair(AC_KEYWORD_IMAGE, *iterator));
-    }
-    else
-    {
-      // Expression keywords are a subset of the non-major keywords, so we only need to add them
-      // if non-major keywords are not wanted.
-      if (IS_PART_INCLUDED(MySQLEditor::CompletionWantExprStartKeywords) ||
-          IS_PART_INCLUDED(MySQLEditor::CompletionWantExprInnerKeywords))
-      {
-        std::vector<std::string> words = base::split_by_set(keyword_map["User Keywords 2"], " \t\n");
-        for (std::vector<std::string>::const_iterator iterator = words.begin(); iterator != words.end(); ++iterator)
-          entries.push_back(std::pair<int, std::string>(AC_KEYWORD_IMAGE, *iterator));
-
-        if (IS_PART_INCLUDED(MySQLEditor::CompletionWantExprInnerKeywords))
-        {
-          std::vector<std::string> words = base::split_by_set(keyword_map["User Keywords 3"], " \t\n");
-          for (std::vector<std::string>::const_iterator iterator = words.begin(); iterator != words.end(); ++iterator)
-            entries.push_back(std::make_pair(AC_KEYWORD_IMAGE, *iterator));
-        }
-      }
-    }
-
-    if (upcase_keywords)
-    {
-      for (std::vector<std::pair<int, std::string> >::iterator iterator = entries.begin(); iterator != entries.end(); ++iterator)
-        iterator->second = base::toupper(iterator->second);
-    }
-
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantRuntimeFunctions))
-    {
-      std::vector<std::string> words = base::split_by_set(keyword_map["Functions"], " \t\n");
-      for (std::vector<std::string>::const_iterator iterator = words.begin(); iterator != words.end(); ++iterator)
-        entries.push_back(std::make_pair(AC_FUNCTION_IMAGE, *iterator + "()"));
-    }
-
-    if (IS_PART_INCLUDED(MySQLEditor::CompletionWantEngines))
-    {
-      grt::GRT *grt = grtm()->get_grt();
-      grt::Module *module = grt->get_module("DbMySQL");
-      if (module != NULL)
-      {
-        grt::BaseListRef args(grt);
-        grt::ListRef<db_mysql_StorageEngine> engines =
-          grt::ListRef<db_mysql_StorageEngine>::cast_from(module->call_function("getKnownEngines", args));
-
-        if (engines.is_valid())
-        {
-          for (size_t c = engines.count(), i= 0; i < c; i++)
-            entries.push_back(std::make_pair(AC_ENGINE_IMAGE, engines[i]->name()));
-        }
-      }
-    }
-  }
-
-  return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-
 void MySQLEditor::text_changed(int position, int length, int lines_changed, bool added)
 {
   stop_processing();
@@ -850,7 +750,7 @@ void MySQLEditor::text_changed(int position, int length, int lines_changed, bool
   d->_splitting_required = true;
   d->_text_info = _code_editor->get_text_ptr();
   if (d->_is_sql_check_enabled)
-    d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.5);
+    d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.05);
   else
     d->_text_change_signal(); // If there is no timer set up then trigger change signals directly.
 }
@@ -860,7 +760,7 @@ void MySQLEditor::text_changed(int position, int length, int lines_changed, bool
 void MySQLEditor::char_added(int char_code)
 {
   if (!_code_editor->auto_completion_active())
-    d->_last_typed_char = char_code; // UTF32 encoded char.
+      d->_last_typed_char = char_code; // UTF32 encoded char.
   else
   {
     std::string text = get_written_part(_code_editor->get_caret_pos());
@@ -872,7 +772,7 @@ void MySQLEditor::char_added(int char_code)
 
 void MySQLEditor::cancel_auto_completion()
 {
-  // make sure a pending timed autocompletion won't kick in after we cancel it
+  // Make sure a pending timed autocompletion won't kick in after we cancel it.
   d->_last_typed_char = 0;
   _code_editor->auto_completion_cancel();
 }
@@ -923,7 +823,7 @@ bool MySQLEditor::start_sql_processing()
 
   _code_editor->set_status_text("");
   if (d->_text_info.first != NULL && d->_text_info.second > 0)
-    d->_current_work_timer_id = ThreadedTimer::get()->add_task(TimerTimeSpan, 0.1, true,
+    d->_current_work_timer_id = ThreadedTimer::get()->add_task(TimerTimeSpan, 0.05, true,
       boost::bind(&MySQLEditor::do_statement_split_and_check, this, _1));
   return false; // Don't re-run this task, it's a single-shot.
 }
@@ -973,6 +873,15 @@ bool MySQLEditor::do_statement_split_and_check(int id)
  */
 void* MySQLEditor::splitting_done()
 {
+  // Trigger auto completion for certain keys (if enabled).
+  // This has to be done after our statement  splitter has completed (which is the case when we appear here).
+  if (auto_start_code_completion() && !_code_editor->auto_completion_active() &&
+      (g_unichar_isalnum(d->_last_typed_char) || d->_last_typed_char == '.' || d->_last_typed_char == '@'))
+  {
+    d->_last_typed_char = 0;
+    show_auto_completion(false, d->_autocompletion_context);
+  }
+
   std::set<size_t> removal_candidates;
   std::set<size_t> insert_candidates;
 
@@ -999,15 +908,6 @@ void* MySQLEditor::splitting_done()
     _code_editor->show_markup(mforms::LineMarkupStatement, *iterator);
   d->_updating_statement_markers = false;
 
-  // Trigger auto completion for alphanumeric chars, space or dot (if enabled).
-  // This has to be done after our statement  splitter has completed (which is the case when we appear here).
-  if (auto_start_code_completion() && !_code_editor->auto_completion_active() &&
-    (g_unichar_isalnum(d->_last_typed_char)
-      || d->_last_typed_char == '.'))
-  {
-    d->_last_typed_char = 0;
-    show_auto_completion(false, d->_autocompletion_context->recognizer());
-  }
   return NULL;
 }
 
@@ -1286,7 +1186,7 @@ void MySQLEditor::set_sql_check_enabled(bool flag)
     {
       ThreadedTimer::get()->remove_task(d->_current_work_timer_id); // Does nothing if the id is -1.
       if (d->_current_delay_timer == NULL)
-        d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.5);
+        d->_current_delay_timer = d->_grtm->run_every(boost::bind(&MySQLEditor::start_sql_processing, this), 0.15);
     }
     else
       stop_processing();
@@ -1318,11 +1218,18 @@ bool MySQLEditor::make_keywords_uppercase()
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns the start and end position of the current statement, that is, the statement
+ * Determines the start and end position of the current statement, that is, the statement
  * where the caret is in. For effective search in a large set binary search is used.
- * Returns true if a statement could be found at the caret position, otherwise false.
+ *
+ * Note: search can be done in two modes:
+ *       - strict: whitespaces before a statement belong to that statement.
+ *       - loose: such whitespaces belong to the previous statement (and are ignored).
+ *       Loose mode allows to have the caret in the whitespaces after a statement and execute that,
+ *       while strict mode is needed for code completion (should be done for the following statement then).
+ *
+ * @returns true if a statement could be found at the caret position, otherwise false.
  */
-bool MySQLEditor::get_current_statement_range(size_t &start, size_t &end)
+bool MySQLEditor::get_current_statement_range(size_t &start, size_t &end, bool strict)
 {
   // In case the splitter is right now processing the text we wait here until its done.
   // If the splitter wasn't triggered yet (e.g. when typing fast and then immediately running a statement)
@@ -1356,35 +1263,17 @@ bool MySQLEditor::get_current_statement_range(size_t &start, size_t &end)
     return false;
 
   // If we are between two statements (in white spaces) then the algorithm above returns the lower one.
-  // For this special case however we want to pretend this belongs to the following query -
-  // with one exception: if this is already the last statement then use it anyway.
-
-  // TODO: some users prefer to get the previous statement in this case.
-  // So for now we return this. We might later make this switchable (loose vs strict mode).
-  /*
-  bool is_last_statement = (low + 1) == d->_statement_ranges.end();
-  if (!is_last_statement)
+  if (strict)
   {
     if (low->first + low->second < caret_position)
       ++low;
     if (low == d->_statement_ranges.end())
       return false;
   }
-  */
 
-  // Similar for the very first entry. If we are in the white space before this then we still get
-  // the first entry (which is then after our caret position).
-  /*
-   TODO: this code is only needed if the out-commented code above is reactivated.
-  if (is_last_statement || low->first > caret_position
-    || (low->first <= caret_position && caret_position <= low->first + low->second))
-  */
-  {
-    start = low->first;
-    end = low->first + low->second;
-    return true;
-  }
-  return false;
+  start = low->first;
+  end = low->first + low->second;
+  return true;
 }
 
 //--------------------------------------------------------------------------------------------------
