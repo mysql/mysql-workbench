@@ -4,7 +4,7 @@
 # from the input debian.in directory contents
 
 
-output_distros = [("trusty", "ubu1404"), ("precise", "ubu1204")]
+output_distros = [("utopic", "ubu1410"), ("trusty", "ubu1404"), ("precise", "ubu1204")]
 
 editions = ["community", "commercial"]
 
