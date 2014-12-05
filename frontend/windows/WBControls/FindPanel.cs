@@ -44,7 +44,6 @@ namespace MySQL.Utilities
           showReplace = value;
           replaceAllButton.Visible = value;
           replaceButton.Visible = value;
-          replaceAndFindButton.Visible = value;
           replaceTextBox.Visible = value;
 
           if (value)
@@ -170,10 +169,7 @@ namespace MySQL.Utilities
             AddRecentSearchItem();
           }
           else
-          {
-            Backend.FindReplaceAction(FindPanelAction.ReplaceAndFind);
             AddRecentSearchItem();
-          }
           break;
         case Keys.Escape:
           Backend.Close();
@@ -197,10 +193,7 @@ namespace MySQL.Utilities
           result = Backend.FindReplaceAction(FindPanelAction.ReplaceAll);
           break;
         case "4": // Replace button
-          result = Backend.FindReplaceAction(FindPanelAction.Replace);
-          break;
-        case "5": // Replace & Find button
-          result = Backend.FindReplaceAction(FindPanelAction.ReplaceAndFind);
+          result = Backend.FindReplaceAction(FindPanelAction.FindAndReplace);
           break;
       }
       AddRecentSearchItem();
@@ -217,8 +210,6 @@ namespace MySQL.Utilities
   {
     FindNext,
     FindPrevious,
-    Replace,
-    ReplaceAndFind,
     FindAndReplace,
     ReplaceAll
   };
