@@ -68,18 +68,6 @@ public:
     case mforms::FindPrevious:
       return editor->find_and_highlight_text(search_text, flags, true, true);
       break;
-    case mforms::Replace:
-      {
-        size_t start, length;
-        editor->get_selection(start, length);
-        if (length > 0)
-          editor->replace_selected_text(replace_text);
-        break;
-      }
-    case mforms::ReplaceAndFind:
-      editor->replace_selected_text(replace_text);
-      return editor->find_and_highlight_text(search_text, flags, true, false);
-      break;
     case mforms::FindAndReplace:
       return editor->find_and_replace_text(search_text, replace_text, flags, false);
       break;

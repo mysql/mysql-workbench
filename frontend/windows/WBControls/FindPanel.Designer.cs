@@ -48,7 +48,6 @@
       this.modeComboBox = new System.Windows.Forms.ComboBox();
       this.replaceAllButton = new System.Windows.Forms.Button();
       this.replaceButton = new System.Windows.Forms.Button();
-      this.replaceAndFindButton = new System.Windows.Forms.Button();
       this.navButtonNext = new System.Windows.Forms.Button();
       this.navButtonBack = new System.Windows.Forms.Button();
       this.layoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -66,10 +65,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
       this.replaceTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.replaceTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      this.replaceTextBox.Location = new System.Drawing.Point(305, 33);
+      this.replaceTextBox.Location = new System.Drawing.Point(219, 33);
       this.replaceTextBox.Margin = new System.Windows.Forms.Padding(1, 2, 3, 0);
       this.replaceTextBox.Name = "replaceTextBox";
-      this.replaceTextBox.Size = new System.Drawing.Size(697, 23);
+      this.replaceTextBox.Size = new System.Drawing.Size(783, 23);
       this.replaceTextBox.TabIndex = 1;
       this.replaceTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_KeyDown);
       // 
@@ -83,7 +82,7 @@
       this.searchTextBox.Margin = new System.Windows.Forms.Padding(0);
       this.searchTextBox.Multiline = true;
       this.searchTextBox.Name = "searchTextBox";
-      this.searchTextBox.Size = new System.Drawing.Size(639, 23);
+      this.searchTextBox.Size = new System.Drawing.Size(725, 23);
       this.searchTextBox.TabIndex = 0;
       this.searchTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_KeyDown);
       // 
@@ -199,7 +198,7 @@
       this.searchClearButton.FlatAppearance.BorderSize = 0;
       this.searchClearButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.searchClearButton.Image = global::MySQL.Controls.Properties.Resources.search_clear;
-      this.searchClearButton.Location = new System.Drawing.Point(675, 0);
+      this.searchClearButton.Location = new System.Drawing.Point(761, 0);
       this.searchClearButton.Margin = new System.Windows.Forms.Padding(0);
       this.searchClearButton.Name = "searchClearButton";
       this.searchClearButton.Padding = new System.Windows.Forms.Padding(0, 0, 0, 1);
@@ -226,7 +225,7 @@
       this.modeComboBox.Margin = new System.Windows.Forms.Padding(5, 1, 1, 0);
       this.modeComboBox.MaxDropDownItems = 2;
       this.modeComboBox.Name = "modeComboBox";
-      this.modeComboBox.Size = new System.Drawing.Size(184, 25);
+      this.modeComboBox.Size = new System.Drawing.Size(162, 25);
       this.modeComboBox.TabIndex = 3;
       this.modeComboBox.SelectedIndexChanged += new System.EventHandler(this.modeComboBox_SelectedIndexChanged);
       // 
@@ -251,7 +250,7 @@
       this.replaceButton.AutoSize = true;
       this.replaceButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       this.replaceButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      this.replaceButton.Location = new System.Drawing.Point(120, 31);
+      this.replaceButton.Location = new System.Drawing.Point(98, 31);
       this.replaceButton.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
       this.replaceButton.Name = "replaceButton";
       this.replaceButton.Size = new System.Drawing.Size(70, 27);
@@ -261,27 +260,10 @@
       this.replaceButton.UseVisualStyleBackColor = true;
       this.replaceButton.Click += new System.EventHandler(this.button_Click);
       // 
-      // replaceAndFindButton
-      // 
-      this.replaceAndFindButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-      this.replaceAndFindButton.AutoSize = true;
-      this.replaceAndFindButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-      this.layoutPanel.SetColumnSpan(this.replaceAndFindButton, 2);
-      this.replaceAndFindButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      this.replaceAndFindButton.Location = new System.Drawing.Point(190, 31);
-      this.replaceAndFindButton.Margin = new System.Windows.Forms.Padding(0);
-      this.replaceAndFindButton.Name = "replaceAndFindButton";
-      this.replaceAndFindButton.Size = new System.Drawing.Size(114, 27);
-      this.replaceAndFindButton.TabIndex = 8;
-      this.replaceAndFindButton.Tag = "5";
-      this.replaceAndFindButton.Text = "Replace && Find";
-      this.replaceAndFindButton.UseVisualStyleBackColor = true;
-      this.replaceAndFindButton.Click += new System.EventHandler(this.button_Click);
-      // 
       // navButtonNext
       // 
       this.navButtonNext.Image = global::MySQL.Controls.Properties.Resources.Next;
-      this.navButtonNext.Location = new System.Drawing.Point(279, 2);
+      this.navButtonNext.Location = new System.Drawing.Point(193, 2);
       this.navButtonNext.Margin = new System.Windows.Forms.Padding(0);
       this.navButtonNext.Name = "navButtonNext";
       this.navButtonNext.Size = new System.Drawing.Size(25, 28);
@@ -294,7 +276,7 @@
       // 
       this.navButtonBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.navButtonBack.Image = global::MySQL.Controls.Properties.Resources.Back;
-      this.navButtonBack.Location = new System.Drawing.Point(254, 2);
+      this.navButtonBack.Location = new System.Drawing.Point(168, 2);
       this.navButtonBack.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
       this.navButtonBack.Name = "navButtonBack";
       this.navButtonBack.Size = new System.Drawing.Size(25, 28);
@@ -317,7 +299,6 @@
       this.layoutPanel.Controls.Add(this.replaceAllButton, 0, 1);
       this.layoutPanel.Controls.Add(this.replaceButton, 1, 1);
       this.layoutPanel.Controls.Add(this.navButtonNext, 3, 0);
-      this.layoutPanel.Controls.Add(this.replaceAndFindButton, 2, 1);
       this.layoutPanel.Controls.Add(this.modeComboBox, 0, 0);
       this.layoutPanel.Controls.Add(this.replaceTextBox, 4, 1);
       this.layoutPanel.Controls.Add(this.panel1, 4, 0);
@@ -344,10 +325,10 @@
       this.panel1.Controls.Add(this.searchTextBox);
       this.panel1.Controls.Add(this.optionsButton);
       this.panel1.Controls.Add(this.searchClearButton);
-      this.panel1.Location = new System.Drawing.Point(305, 3);
+      this.panel1.Location = new System.Drawing.Point(219, 3);
       this.panel1.Margin = new System.Windows.Forms.Padding(1, 1, 3, 0);
       this.panel1.Name = "panel1";
-      this.panel1.Size = new System.Drawing.Size(697, 26);
+      this.panel1.Size = new System.Drawing.Size(783, 26);
       this.panel1.TabIndex = 0;
       this.panel1.TabStop = true;
       // 
@@ -404,7 +385,6 @@
     private System.Windows.Forms.ComboBox modeComboBox;
     private System.Windows.Forms.Button replaceAllButton;
     private System.Windows.Forms.Button replaceButton;
-    private System.Windows.Forms.Button replaceAndFindButton;
     private System.Windows.Forms.Button navButtonNext;
     private System.Windows.Forms.Button navButtonBack;
     private System.Windows.Forms.TableLayoutPanel layoutPanel;

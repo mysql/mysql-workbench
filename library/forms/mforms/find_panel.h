@@ -30,9 +30,6 @@ namespace mforms
     FindNext,        // Select next occurrence after current selection or after current caret position
                      // (if there is no selection).
     FindPrevious,    // Same as FindNext, but backwards.
-    Replace,         // Replace what is selected currently.
-    ReplaceAndFind,  // Replace current selection (whatever it is) or insert at caret position
-                     // (if there is no selection) and select the next occurrence.
     FindAndReplace,  // Replace next occurrence after current selection or after current caret position.
     ReplaceAll,      // Replace all occurrences of the search text.
   };
