@@ -747,7 +747,7 @@ private:
     // and use this if found.
     if (rules_holder.ignored_rules.find(rule) != rules_holder.ignored_rules.end())
     {
-      for (auto i = walk_stack.rbegin(); i != walk_stack.rend(); ++i)
+      for (std::deque<std::string>::const_reverse_iterator i = walk_stack.rbegin(); i != walk_stack.rend(); ++i)
       {
         if (rules_holder.special_rules.find(*i) != rules_holder.special_rules.end())
         {
@@ -762,7 +762,7 @@ private:
     // Any other rule goes here.
     RunState combined_state = RunStateCollectionDone;
     RuleAlternatives alts = rules_holder.rules[rule];
-    for (auto i = alts.begin(); i != alts.end(); ++i)
+    for (std::vector<GrammarSequence>::const_iterator i = alts.begin(); i != alts.end(); ++i)
     {
       // First run a predicate check if this alt can be considered at all.
       if ((i->min_version > server_version) || (server_version > i->max_version))
@@ -1027,7 +1027,7 @@ std::vector<std::pair<int, std::string> > MySQLEditor::update_auto_completion(co
     gchar *prefix = g_utf8_casefold(typed_part.c_str(), -1);
     
     std::vector<std::pair<int, std::string> > filtered_entries;
-    for (auto iterator = _auto_completion_entries.begin();
+    for (std::vector<std::pair<int, std::string> >::const_iterator iterator = _auto_completion_entries.begin();
       iterator != _auto_completion_entries.end(); ++iterator)
     {
       gchar *entry = g_utf8_casefold(iterator->second.c_str(), -1);
@@ -1334,7 +1334,7 @@ typedef std::set<std::pair<int, std::string>, CompareAcEntries> CompletionSet;
 void insert_schemas(AutoCompleteCache *cache, CompletionSet &set, const std::string &typed_part)
 {
   std::vector<std::string> schemas = cache->get_matching_schema_names(typed_part);
-  for (auto schema = schemas.begin(); schema != schemas.end(); ++schema)
+  for (std::vector<std::string>::const_iterator schema = schemas.begin(); schema != schemas.end(); ++schema)
     set.insert(std::make_pair(AC_SCHEMA_IMAGE, *schema));
 }
 
@@ -1344,7 +1344,7 @@ void insert_tables(AutoCompleteCache *cache, CompletionSet &set, const std::stri
   const std::string &typed_part)
 {
   std::vector<std::string> tables = cache->get_matching_table_names(schema, typed_part);
-  for (auto table = tables.begin(); table != tables.end(); ++table)
+  for (std::vector<std::string>::const_iterator table = tables.begin(); table != tables.end(); ++table)
     set.insert(std::make_pair(AC_TABLE_IMAGE, *table));
 }
 
@@ -1354,7 +1354,7 @@ void insert_views(AutoCompleteCache *cache, CompletionSet &set, const std::strin
   const std::string &typed_part)
 {
   std::vector<std::string> views = cache->get_matching_view_names(schema, typed_part);
-  for (auto view = views.begin(); view != views.end(); ++view)
+  for (std::vector<std::string>::const_iterator view = views.begin(); view != views.end(); ++view)
     set.insert(std::make_pair(AC_TABLE_IMAGE, *view));
 }
 
@@ -1460,7 +1460,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
   context.collect_candiates(scanner);
 
   // No sorting on the entries takes place. We group by type.
-  for (auto i = context.completion_candidates.begin(); i != context.completion_candidates.end(); ++i)
+  for (std::set<std::string>::const_iterator i = context.completion_candidates.begin(); i != context.completion_candidates.end(); ++i)
   {
     scanner->reset();
     scanner->seek(context.caret_line, context.caret_offset);
@@ -1471,7 +1471,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
     if (entries.size() > 1 || ends_with(*i, "_SYMBOL"))
     {
       std::string entry;
-      for (auto j = entries.begin(); j != entries.end(); ++j)
+      for (std::vector<std::string>::const_iterator j = entries.begin(); j != entries.end(); ++j)
       {
         if (ends_with(*j, "_SYMBOL"))
         {
@@ -1525,7 +1525,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           log_debug3("Adding udfs/runtime function names to code completion list\n");
 
           std::vector<std::string> functions = base::split_by_set(keyword_map["Functions"], " \t\n");
-          for (auto function = functions.begin(); function != functions.end(); ++function)
+          for (std::vector<std::string>::const_iterator function = functions.begin(); function != functions.end(); ++function)
             runtime_function_entries.insert(std::make_pair(AC_FUNCTION_IMAGE, *function + "()"));
         }
         else if (*i == "engine_ref")
@@ -1533,7 +1533,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           log_debug3("Adding engine names\n");
 
           std::vector<std::string> engines = _auto_completion_cache->get_matching_engines(context.typed_part);
-          for (auto engine = engines.begin(); engine != engines.end(); ++engine)
+          for (std::vector<std::string>::const_iterator engine = engines.begin(); engine != engines.end(); ++engine)
             engine_entries.insert(std::make_pair(AC_ENGINE_IMAGE, *engine));
         }
         else if (*i == "schema_ref")
@@ -1557,7 +1557,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
               qualifier = _current_schema;
 
             std::vector<std::string> procedures = _auto_completion_cache->get_matching_procedure_names(qualifier, context.typed_part);
-            for (auto procedure = procedures.begin(); procedure != procedures.end(); ++procedure)
+            for (std::vector<std::string>::const_iterator procedure = procedures.begin(); procedure != procedures.end(); ++procedure)
               procedure_entries.insert(std::make_pair(AC_ROUTINE_IMAGE, *procedure));
           }
         }
@@ -1577,7 +1577,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
               qualifier = _current_schema;
 
             std::vector<std::string> functions = _auto_completion_cache->get_matching_function_names(qualifier, context.typed_part);
-            for (auto function = functions.begin(); function != functions.end(); ++function)
+            for (std::vector<std::string>::const_iterator function = functions.begin(); function != functions.end(); ++function)
               function_entries.insert(std::make_pair(AC_ROUTINE_IMAGE, *function));
           }
         }
@@ -1639,7 +1639,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
             if (column_schema.empty())
               column_schema = _current_schema;
             std::vector<std::string> columns = _auto_completion_cache->get_matching_column_names(column_schema, table, context.typed_part);
-            for (auto column = columns.begin(); column != columns.end(); ++column)
+            for (std::vector<std::string>::const_iterator column = columns.begin(); column != columns.end(); ++column)
               column_entries.insert(std::make_pair(AC_COLUMN_IMAGE, *column));
           }
         }
@@ -1658,7 +1658,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           if ((flags & ShowSecond) != 0)
           {
             std::vector<std::string> triggers = _auto_completion_cache->get_matching_trigger_names(_current_schema, qualifier, context.typed_part);
-            for (auto trigger = triggers.begin(); trigger != triggers.end(); ++trigger)
+            for (std::vector<std::string>::const_iterator trigger = triggers.begin(); trigger != triggers.end(); ++trigger)
               trigger_entries.insert(std::make_pair(AC_TRIGGER_IMAGE, *trigger));
           }
         }
@@ -1679,7 +1679,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
               qualifier = _current_schema;
 
             std::vector<std::string> views = _auto_completion_cache->get_matching_view_names(qualifier, context.typed_part);
-            for (auto view = views.begin(); view != views.end(); ++view)
+            for (std::vector<std::string>::const_iterator view = views.begin(); view != views.end(); ++view)
               view_entries.insert(std::make_pair(AC_VIEW_IMAGE, *view));
           }
         }
@@ -1688,7 +1688,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           log_debug3("Adding logfile group names from cache\n");
 
           std::vector<std::string> logfile_groups = _auto_completion_cache->get_matching_logfile_groups(context.typed_part);
-          for (auto logfile_group = logfile_groups.begin(); logfile_group != logfile_groups.end(); ++logfile_group)
+          for (std::vector<std::string>::const_iterator logfile_group = logfile_groups.begin(); logfile_group != logfile_groups.end(); ++logfile_group)
             logfile_group_entries.insert(std::make_pair(AC_LOGFILE_GROUP_IMAGE, *logfile_group));
         }
         else if (*i == "tablespace_ref")
@@ -1696,7 +1696,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           log_debug3("Adding tablespace names from cache\n");
 
           std::vector<std::string> tablespaces = _auto_completion_cache->get_matching_tablespaces(context.typed_part);
-          for (auto tablespace = tablespaces.begin(); tablespace != tablespaces.end(); ++tablespace)
+          for (std::vector<std::string>::const_iterator tablespace = tablespaces.begin(); tablespace != tablespaces.end(); ++tablespace)
             tablespace_entries.insert(std::make_pair(AC_TABLESPACE_IMAGE, *tablespace));
         }
         else if (*i == "user_variable")
@@ -1709,7 +1709,7 @@ void MySQLEditor::show_auto_completion(bool auto_choose_single, ParserContext::R
           log_debug3("Adding system variables\n");
 
           std::vector<std::string> variables = _auto_completion_cache->get_matching_variables(context.typed_part);
-          for (auto variable = variables.begin(); variable != variables.end(); ++variable)
+          for (std::vector<std::string>::const_iterator variable = variables.begin(); variable != variables.end(); ++variable)
             system_var_entries.insert(std::make_pair(AC_SYSTEM_VAR_IMAGE, *variable));
         }
       }

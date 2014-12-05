@@ -1143,7 +1143,7 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
       }
 
       sqlite::execute insert(*_sqconn, "insert into " + cache + " (name) values (?)");
-      for (auto i = objects.begin(); i != objects.end(); ++i)
+      for (std::vector<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
       {
         insert.bind(1, *i);
         insert.emit();
@@ -1183,7 +1183,7 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
 
       sqlite::query insert(*_sqconn, "insert into " + cache + " (schema_id, name) values (?, ?)");
       insert.bind(1, schema);
-      for (auto i = objects.begin(); i != objects.end(); ++i)
+      for (std::list<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
       {
         insert.bind(2, *i);
         insert.emit();
@@ -1224,7 +1224,7 @@ void AutoCompleteCache::update_object_names(const std::string &cache, const std:
       sqlite::query insert(*_sqconn, "insert into " + cache + " (schema_id, table_id, name) values (?, ?, ?)");
       insert.bind(1, schema);
       insert.bind(2, table);
-      for (auto i = objects.begin(); i != objects.end(); ++i)
+      for (std::vector<std::string>::const_iterator i = objects.begin(); i != objects.end(); ++i)
       {
         insert.bind(3, *i);
         insert.emit();
@@ -1252,7 +1252,7 @@ void AutoCompleteCache::add_pending_refresh(RefreshTask::RefreshType type, const
 
     // Add the new task only if there isn't already one of the same type and for the same objects.
     bool found = false;
-    for (auto i = _pending_tasks.begin(); !found && i != _pending_tasks.end(); ++i)
+    for (std::list<RefreshTask>::const_iterator i = _pending_tasks.begin(); !found && i != _pending_tasks.end(); ++i)
     {
       if (i->type != type)
         continue;

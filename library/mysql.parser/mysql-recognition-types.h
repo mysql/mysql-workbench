@@ -20,7 +20,7 @@
 #pragma once
 
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 
 // Generally used types by the recognizers/scanners, as well as their consumers.
 

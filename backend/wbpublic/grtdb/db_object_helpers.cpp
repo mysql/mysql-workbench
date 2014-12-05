@@ -1221,7 +1221,7 @@ static db_SimpleDatatypeRef findType(const grt::ListRef<db_SimpleDatatype> &type
     if (!type_found)
     {
       // Type has not the default name, but maybe one of the synonyms.
-      for (auto synonym = types[i]->synonyms().begin(); synonym != types[i]->synonyms().end(); ++synonym)
+      for (ListRef<internal::String>::const_iterator synonym = types[i]->synonyms().begin(); synonym != types[i]->synonyms().end(); ++synonym)
       {
         if (base::same_string(*synonym, name, false))
         {
