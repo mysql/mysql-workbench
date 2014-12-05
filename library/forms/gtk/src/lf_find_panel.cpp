@@ -239,15 +239,8 @@ public:
       break;      
     case FindAndReplace:
       if (!find_text.empty())
-      {
-        if (0)
-          return editor->find_and_replace_text(find_text, repl_text, flags, false) > 0;
-        else
-        {
-          editor->replace_selected_text(repl_text);
-          return editor->find_and_highlight_text(find_text, flags, true, false);
-        }
-      }
+        return editor->find_and_replace_text(find_text, repl_text, flags, false) > 0;
+
       break;
     case ReplaceAll:
       if (!find_text.empty())
