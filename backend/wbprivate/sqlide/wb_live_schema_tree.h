@@ -336,7 +336,7 @@ namespace wb
 
     bool _case_sensitive_identifiers;
 
-    void schema_contents_arrived(const std::string &schema_name, wb::LiveSchemaTree::StringListPtr tables, wb::LiveSchemaTree::StringListPtr views, wb::LiveSchemaTree::StringListPtr procedures, wb::LiveSchemaTree::StringListPtr functions, bool just_append);
+    void schema_contents_arrived(const std::string &schema_name, StringListPtr tables, StringListPtr views, StringListPtr procedures, StringListPtr functions, bool just_append);
     void load_table_details(mforms::TreeNodeRef& node, int fetch_mask);
     void fetch_table_details(ObjectType object_type, const std::string schema_name, const std::string object_name, int fetch_mask);
     void load_routine_details(mforms::TreeNodeRef& node);

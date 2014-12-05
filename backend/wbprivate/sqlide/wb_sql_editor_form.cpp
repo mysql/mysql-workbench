@@ -2697,9 +2697,9 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name,
     _auto_completion_cache->update_views(schema_name, *views);
 
     // Schedule a refresh of column info for all tables/views.
-    for (auto i = tables->begin(); i != tables->end(); ++i)
+    for (std::list<std::string>::const_iterator i = tables->begin(); i != tables->end(); ++i)
       _auto_completion_cache->refresh_columns(schema_name, *i);
-    for (auto i = views->begin(); i != views->end(); ++i)
+    for (std::list<std::string>::const_iterator i = views->begin(); i != views->end(); ++i)
       _auto_completion_cache->refresh_columns(schema_name, *i);
 
     _auto_completion_cache->update_procedures(schema_name, *procedures);
