@@ -1,12 +1,15 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkMenu" id="search_menu">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <child>
       <object class="GtkCheckMenuItem" id="wrap_item">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Wrap Around</property>
         <property name="use_underline">True</property>
       </object>
@@ -14,6 +17,8 @@
     <child>
       <object class="GtkCheckMenuItem" id="case_item">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Ignore Case</property>
         <property name="use_underline">True</property>
       </object>
@@ -21,12 +26,16 @@
     <child>
       <object class="GtkCheckMenuItem" id="word_item">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Match Whole Word</property>
         <property name="use_underline">True</property>
       </object>
     </child>
     <child>
       <object class="GtkCheckMenuItem" id="regex_item">
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Find as Regular Expression</property>
         <property name="use_underline">True</property>
       </object>
@@ -34,12 +43,15 @@
     <child>
       <object class="GtkSeparatorMenuItem" id="menuitem1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
       </object>
     </child>
     <child>
       <object class="GtkMenuItem" id="recent_item">
         <property name="visible">True</property>
         <property name="sensitive">False</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Recent Searches</property>
         <property name="use_underline">True</property>
       </object>
@@ -47,20 +59,25 @@
     <child>
       <object class="GtkSeparatorMenuItem" id="clear_sep">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
       </object>
     </child>
     <child>
       <object class="GtkMenuItem" id="clear_item">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
         <property name="label" translatable="yes">Clear Searches</property>
         <property name="use_underline">True</property>
       </object>
     </child>
   </object>
   <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
     <child>
       <object class="GtkTable" id="container">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="n_rows">3</property>
         <property name="n_columns">3</property>
         <property name="column_spacing">4</property>
@@ -73,9 +90,13 @@
             <property name="has_tooltip">True</property>
             <property name="tooltip_markup">Text to be searched</property>
             <property name="tooltip_text" translatable="yes">Text to be searched</property>
-            <property name="invisible_char">&#x2022;</property>
+            <property name="invisible_char">•</property>
             <property name="invisible_char_set">True</property>
             <property name="primary_icon_stock">gtk-find</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -93,9 +114,11 @@
             <property name="has_tooltip">True</property>
             <property name="tooltip_markup">Close find panel</property>
             <property name="tooltip_text" translatable="yes">Close find panel</property>
+            <property name="use_action_appearance">False</property>
             <child>
               <object class="GtkImage" id="image1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="stock">gtk-close</property>
                 <property name="icon-size">1</property>
               </object>
@@ -115,8 +138,12 @@
             <property name="has_tooltip">True</property>
             <property name="tooltip_markup">Text to replace selection with</property>
             <property name="tooltip_text" translatable="yes">Text to replace selection with</property>
-            <property name="invisible_char">&#x2022;</property>
+            <property name="invisible_char">•</property>
             <property name="invisible_char_set">True</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -130,10 +157,12 @@
         <child>
           <object class="GtkHBox" id="find_bbox">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="no_show_all">True</property>
             <child>
               <object class="GtkHBox" id="hbox4">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="spacing">8</property>
                 <child>
                   <object class="GtkRadioButton" id="find_radio">
@@ -144,18 +173,22 @@
                     <property name="has_tooltip">True</property>
                     <property name="tooltip_markup">Select Find text mode</property>
                     <property name="tooltip_text" translatable="yes">Select Find text mode</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="xalign">0</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">True</property>
                     <child>
                       <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">&lt;small&gt;Find&lt;/small&gt;</property>
                         <property name="use_markup">True</property>
                       </object>
                     </child>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -168,41 +201,50 @@
                     <property name="has_tooltip">True</property>
                     <property name="tooltip_markup">Select Find and Replace text mode</property>
                     <property name="tooltip_text" translatable="yes">Select Find and Replace text mode</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="xalign">0</property>
                     <property name="draw_indicator">True</property>
                     <property name="group">find_radio</property>
                     <child>
                       <object class="GtkLabel" id="label2">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">&lt;small&gt;Replace&lt;/small&gt;</property>
                         <property name="use_markup">True</property>
                       </object>
                     </child>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkLabel" id="result_label">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="no_show_all">True</property>
                 <property name="xalign">1</property>
                 <property name="xpad">4</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkHBox" id="find_buttons_box">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="spacing">4</property>
                 <property name="homogeneous">True</property>
                 <child>
@@ -214,17 +256,20 @@
                     <property name="has_tooltip">True</property>
                     <property name="tooltip_markup">Find previous occurrence of the text</property>
                     <property name="tooltip_text" translatable="yes">Find previous occurrence of the text</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="use_underline">True</property>
                     <property name="focus_on_click">False</property>
                     <child>
                       <object class="GtkImage" id="image3">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="stock">gtk-go-back</property>
                       </object>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -239,23 +284,27 @@
                     <property name="has_tooltip">True</property>
                     <property name="tooltip_markup">Find next occurrence of the text</property>
                     <property name="tooltip_text" translatable="yes">Find next occurrence of the text</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="use_underline">True</property>
                     <property name="focus_on_click">False</property>
                     <child>
                       <object class="GtkImage" id="image2">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="stock">gtk-go-forward</property>
                       </object>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="pack_type">end</property>
                 <property name="position">2</property>
               </packing>
@@ -268,6 +317,7 @@
         <child>
           <object class="GtkHBox" id="replace_bbox">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkButton" id="replace_all_button">
                 <property name="visible">True</property>
@@ -276,36 +326,20 @@
                 <property name="has_tooltip">True</property>
                 <property name="tooltip_markup">Replace all occurrences of the searched text with the replacement text</property>
                 <property name="tooltip_text" translatable="yes">Replace all occurrences of the searched text with the replacement text</property>
+                <property name="use_action_appearance">False</property>
                 <child>
                   <object class="GtkLabel" id="label5">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">&lt;small&gt;Replace All&lt;/small&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="replace_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="has_tooltip">True</property>
-                <property name="tooltip_markup">Replace currently selected text</property>
-                <property name="tooltip_text" translatable="yes">Replace currently selected text</property>
-                <child>
-                  <object class="GtkLabel" id="label6">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Replace&lt;/small&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -313,21 +347,21 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="has_tooltip">True</property>
-                <property name="tooltip_markup">Find text and replace</property>
-                <property name="tooltip_text" translatable="yes">Find text and replace</property>
+                <property name="use_action_appearance">False</property>
                 <child>
                   <object class="GtkLabel" id="label7">
                     <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Replace selected text and find next match</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0.4699999988079071</property>
-                    <property name="label" translatable="yes">&lt;small&gt;Replace and Find&lt;/small&gt;</property>
+                    <property name="label" translatable="yes">&lt;small&gt;Replace&lt;/small&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </object>
@@ -340,6 +374,7 @@
         <child>
           <object class="GtkLabel" id="label8">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
           </object>
           <packing>
             <property name="left_attach">2</property>
@@ -353,6 +388,7 @@
         <child>
           <object class="GtkHSeparator" id="hseparator1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
           </object>
           <packing>
             <property name="right_attach">3</property>
