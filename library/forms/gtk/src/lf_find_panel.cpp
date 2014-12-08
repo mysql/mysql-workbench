@@ -97,8 +97,6 @@ public:
 
       _find_panel->get_widget("replace_all_button", btn);
       btn->signal_clicked().connect(sigc::hide_return(sigc::bind(sigc::mem_fun(this, &FindPanelImpl::perform_action), ReplaceAll)));
-      _find_panel->get_widget("replace_button", btn);
-      btn->signal_clicked().connect(sigc::hide_return(sigc::bind(sigc::mem_fun(this, &FindPanelImpl::perform_action), Replace)));
       _find_panel->get_widget("find_replace_button", btn);
       btn->signal_clicked().connect(sigc::hide_return(sigc::bind(sigc::mem_fun(this, &FindPanelImpl::perform_action), FindAndReplace)));
       _find_panel->get_widget("next_button", btn);
@@ -239,29 +237,11 @@ public:
           _find_status->set_text("Not found");
       }
       break;      
-    case Replace:
-      editor->replace_selected_text(repl_text);
-      _find_status->set_text("");
-      return 1;
-
     case FindAndReplace:
       if (!find_text.empty())
-      {
-        if (0)
-          return editor->find_and_replace_text(find_text, repl_text, flags, false) > 0;
-        else
-        {
-          editor->replace_selected_text(repl_text);
-          return editor->find_and_highlight_text(find_text, flags, true, false);
-        }
-      /*  if (editor->find_and_replace_text(find_text, repl_text, flags, false) > 0)
-        {
-          _find_status->set_text("Replaced 1 match");
-          return 1;
-        }
-        else
-          _find_status->set_text("Not found");*/
-      }
+        return editor->find_and_replace_text(find_text, repl_text, flags, false) > 0;
+
+      break;
     case ReplaceAll:
       if (!find_text.empty())
       {
