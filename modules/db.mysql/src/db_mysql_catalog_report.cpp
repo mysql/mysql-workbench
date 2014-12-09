@@ -110,7 +110,8 @@ static void get_fk_desc(db_mysql_ForeignKeyRef fk,
 }
 
 ActionGenerateReport::ActionGenerateReport(grt::StringRef template_filename)
-  : fname(template_filename.c_str()), dict("catalog diff report")
+  : fname(template_filename.c_str()), dict("catalog diff report"), curr_table(NULL), curr_schema(NULL),
+    has_attributes(false), has_partitioning(false)
 {
 }
 
