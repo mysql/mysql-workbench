@@ -502,12 +502,15 @@ void AutoCompleteCache::refresh_cache_thread()
 
   // Signal the main thread that the worker thread is (about to be) gone.
   _refresh_thread = NULL;
+
   _cache_working.post();
 
   if (_feedback && !_shutdown)
     _feedback(false);
 
   log_debug2("leaving worker thread\n");
+
+  g_thread_exit(0);
 }
 
 //--------------------------------------------------------------------------------------------------
