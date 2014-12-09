@@ -278,8 +278,7 @@ class ActionGenerateSQL : public DiffSQLGeneratorBEActionInterface
   std::string comma;
   std::string table_q_name;
   size_t empty_length;
-  bool first_column, first_index,
-  first_change, first_fk_create, first_fk_drop;
+  bool first_column, first_change, first_fk_create, first_fk_drop;
   std::string _non_std_sql_delimiter;
 
   std::string fk_add_sql;
@@ -437,6 +436,12 @@ ActionGenerateSQL::ActionGenerateSQL(grt::ValueRef target, grt::ListRef<GrtNamed
                                      const grt::DictRef options, bool use_oids_as_key = false)
   : padding(2), _use_oids_as_dict_key(use_oids_as_key),disable_object_list(false)
 {
+
+  first_column = false;
+  first_change = false;
+  empty_length = 0;
+  first_fk_create = false;
+  first_fk_drop = false;
   _case_sensitive = options.get_int("CaseSensitive") != 0;
   _maxTableCommentLength = (int)options.get_int("maxTableCommentLength");
   _maxIndexCommentLength = (int)options.get_int("maxIndexCommentLength");
@@ -1258,10 +1263,11 @@ void ActionGenerateSQL::alter_table_change_column(db_mysql_TableRef table, db_my
 
   sql.append("CHANGE COLUMN `");
   std::map<std::string, std::string>::iterator it = column_rename_map.find(org_col->oldName().c_str());
-  if (it != column_rename_map.end() && modified)
+  if (it != column_rename_map.end())
     sql.append(it->second.c_str()).append("` ");
   else
     sql.append(org_col->oldName().c_str()).append("` ");
+
   if(modified)
     sql.append(generate_create(org_col));
   else

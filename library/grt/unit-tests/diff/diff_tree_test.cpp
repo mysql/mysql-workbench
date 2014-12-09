@@ -142,4 +142,68 @@ TEST_FUNCTION(20)
   }
 }
 
+// Test for bug column rename no #19500938
+TEST_FUNCTION(21)
+{
+  ValueRef source_val(tester.grt->unserialize("data/diff/column_rename/1_src.xml"));
+  ValueRef target_val(tester.grt->unserialize("data/diff/column_rename/1_dst.xml"));
+
+  db_mysql_CatalogRef source_cat = db_mysql_CatalogRef::cast_from(source_val);
+  db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
+  DbMySQLImpl *diffsql_module= tester.grt->get_native_module<DbMySQLImpl>();
+
+  grt::DictRef options(tester.grt);
+  options.set("CaseSensitive", grt::IntegerRef(true));
+  options.set("GenerateDocumentProperties", grt::IntegerRef(0));
+
+  std::string script = diffsql_module->makeAlterScript(target_cat, source_cat, options);
+
+  std::string expected_sql = "data/diff/column_rename/1_expected.sql";
+  std::ifstream ref(expected_sql.c_str());
+  std::stringstream ss(script);
+
+  std::string line, refline;
+
+  tut::ensure(expected_sql, ref.is_open());
+
+  while (ref.good() && ss.good())
+  {
+    getline(ref, refline);
+    getline(ss, line);
+    tut::ensure_equals("SQL compare failed", line, refline);
+  }
+}
+
+// Test for bug column rename and reorder no #20128561
+TEST_FUNCTION(22)
+{
+  ValueRef source_val(tester.grt->unserialize("data/diff/column_rename/2_src.xml"));
+  ValueRef target_val(tester.grt->unserialize("data/diff/column_rename/2_dst.xml"));
+
+  db_mysql_CatalogRef source_cat = db_mysql_CatalogRef::cast_from(source_val);
+  db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
+  DbMySQLImpl *diffsql_module= tester.grt->get_native_module<DbMySQLImpl>();
+
+  grt::DictRef options(tester.grt);
+  options.set("CaseSensitive", grt::IntegerRef(true));
+  options.set("GenerateDocumentProperties", grt::IntegerRef(0));
+
+  std::string script = diffsql_module->makeAlterScript(target_cat, source_cat, options);
+
+  std::string expected_sql = "data/diff/column_rename/2_expected.sql";
+  std::ifstream ref(expected_sql.c_str());
+  std::stringstream ss(script);
+
+  std::string line, refline;
+
+  tut::ensure(expected_sql, ref.is_open());
+
+  while (ref.good() && ss.good())
+  {
+    getline(ref, refline);
+    getline(ss, line);
+    tut::ensure_equals("SQL compare failed", line, refline);
+  }
+}
+
 END_TESTS
