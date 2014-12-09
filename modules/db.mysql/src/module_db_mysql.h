@@ -62,7 +62,7 @@ protected:
   bool _gen_use;
 public:
   
-  DiffSQLGeneratorBEActionInterface():_put_if_exists(true){};
+  DiffSQLGeneratorBEActionInterface():_put_if_exists(true), _use_short_names(false), _gen_use(false) {};
   virtual ~DiffSQLGeneratorBEActionInterface();
 
   //use short or full table names
