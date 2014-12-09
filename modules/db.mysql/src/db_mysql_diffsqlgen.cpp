@@ -592,7 +592,7 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
         db_mysql_ColumnRef org_col= db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_old_value()));
         db_mysql_ColumnRef mod_col= db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_new_value()));
         if(strcmp(org_col->name().c_str(), mod_col->oldName().c_str()))
-          column_rename_map[std::string(org_col->oldName().c_str())]= std::string(mod_col->name().c_str());
+          column_rename_map[std::string(org_col->oldName().c_str())]= std::string(org_col->name().c_str());
       }
     }
   }
