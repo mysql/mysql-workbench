@@ -2190,6 +2190,10 @@ class WbAdminProgressTab(mforms.Box):
         self.set_start_enabled(True)
         self.stop_button.set_enabled(False)
         self.print_log_message("\n\n\n")
+        if self.is_export:
+            self.export_button.set_text("Export Again")
+        else:
+            self.export_button.set_text("Import Again")
 
     def did_fail(self, message):
         self.progress_log.append_text_and_scroll(message+"\n", True)
