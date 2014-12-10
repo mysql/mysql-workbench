@@ -1456,6 +1456,14 @@ MySQLTableEditorBE::~MySQLTableEditorBE()
 
 //--------------------------------------------------------------------------------------------------
 
+void MySQLTableEditorBE::refresh_live_object()
+{
+  TableEditorBE::refresh_live_object();
+  load_trigger_sql();
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void MySQLTableEditorBE::commit_changes()
 {
   _trigger_panel->code_edited();
