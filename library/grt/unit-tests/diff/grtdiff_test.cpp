@@ -22,6 +22,7 @@
 #include "grt_test_utility.h"
 
 #include "grtpp.h"
+#include <diffchange.h>
 #include "grts/structs.db.mgmt.h"
 #include "util_functions.h"
 #include "grtdb/diff_dbobjectmatch.h"
@@ -120,8 +121,8 @@ void test_suites(
   }
 
   const char* suite_name= single_suite;
-
-  while (suite_name= g_dir_read_name(root))
+  suite_name= g_dir_read_name(root);
+  while (suite_name)
   {
     if (run_single_test)
       suite_name= single_suite;
@@ -146,8 +147,8 @@ void test_suites(
 
       std::string initial_object;
       const char* test_name= single_test;
-      int i= 1;
-      while (test_name= g_dir_read_name(test_suite))
+
+      while ((test_name= g_dir_read_name(test_suite)))
       {
         // Let's assume that initial_object goes first - TODO!!
         if (initial_object.empty())
@@ -194,15 +195,17 @@ void test_files(GRT& grt, std::string source_file, std::string target_file, bool
   }
   
   test_time_point t1;
-  DiffChange* change= diff_make(v, target, omf, grt::NormalizedComparer(&grt));
+  grt::NormalizedComparer normalizer(&grt);
+  normalizer.init_omf(omf);
+  boost::shared_ptr<DiffChange> change= diff_make(v, target, omf);
   test_time_point t2;
   if (logging)
   {
-    double time_rate= test_time_point(t2 - t1).get_ticks()/1000.;
+    double time_rate= test_time_point(t2 - t1).ticks_/1000.;
     std::cout << "Xmldiff: " << time_rate << " [sec]" << std::endl;
     std::cout << std::endl;
     if (change)
-      diff_dump(*change);
+      change->dump_log(0);
   }
   
   ValueRef source_bkup= copy_value(v, true);
@@ -214,14 +217,17 @@ void test_files(GRT& grt, std::string source_file, std::string target_file, bool
 
   if (logging)
   {
-    double time_rate= (t4 - t3).get_ticks()/1000.;
+    double time_rate= (t4 - t3).ticks_/1000.;
     std::cout << "Xmlapply: " << time_rate << " [sec]" << std::endl;
 
     grt.serialize(source_to_change, target_file + ".log");
   }
   
+  grt::NormalizedComparer normalizer2(&grt);
+  normalizer2.init_omf(omf);
+  
   // QQQ Likely will fail due to diff_apply removal
-  DiffChange* zero_change= diff_make(source_to_change, target1, omf, grt::NormalizedComparer<grt::GRT*>(&grt));
+  boost::shared_ptr<DiffChange> zero_change= diff_make(source_to_change, target1, omf);
   
   ensure("unexpected change", zero_change == NULL);
 

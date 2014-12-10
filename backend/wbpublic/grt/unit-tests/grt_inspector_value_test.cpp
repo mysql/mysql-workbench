@@ -64,6 +64,8 @@ TEST_FUNCTION(1)
   Type type;
   NodeId node;
   
+  g_mkdir_with_parents("output", 0700);
+  
   std::vector<ssize_t> columns;
   columns.push_back(ValueInspectorBE::Name);
   columns.push_back(ValueInspectorBE::Value);
