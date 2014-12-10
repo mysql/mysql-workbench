@@ -398,11 +398,11 @@ namespace grt {
       
       ValueRef operator [](const std::string &key) const;
       
-      const_iterator begin() const { return _content.begin(); }
-      const_iterator end() const { return _content.end(); }
+      const_iterator begin() const;
+      const_iterator end() const;
       
-      iterator begin() { return _content.begin(); }
-      iterator end() { return _content.end(); }
+      //iterator begin() { return _content.begin(); }
+      //iterator end() { return _content.end(); }
       
       bool has_key(const std::string &key) const;
       ValueRef get(const std::string &key) const;

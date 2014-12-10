@@ -17,4 +17,5 @@
  * 02110-1301  USA
  */
 
+#include "grtpp.h"
 #include "changelistobjects.h"

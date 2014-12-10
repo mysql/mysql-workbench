@@ -30,14 +30,7 @@
 
 #include "mysql-parser.h"
 
-#ifdef _WIN32
 #include <unordered_set>
-#else
-#include <tr1/unordered_set>
-namespace std {
-  using tr1::unordered_set;
-};
-#endif
 
 #define MysqlSqlFacade_VERSION "2.0"
  

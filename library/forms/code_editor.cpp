@@ -108,7 +108,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
   if (!g_file_test(config_file.c_str(), G_FILE_TEST_EXISTS))
     config_file = App::get()->get_resource_path("") + "/data/code_editor.xml";
 
-  _document = new TiXmlDocument(config_file);
+  _document = new TiXmlDocument(config_file.c_str()); // Remove c_str() as soon as we compile against libc++ on Mac.
   if (!_document->LoadFile())
   {
     log_error("Code Editor Config: cannot load configuration file \"%s\":\n\t%s (row: %d, column: %d)\n",
@@ -127,7 +127,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
   for (TiXmlElement *language_element = element->FirstChildElement(); language_element != NULL;
     language_element = language_element->NextSiblingElement())
   {
-    std::string language_name = *language_element->Attribute(std::string("name"));
+    std::string language_name = language_element->Attribute("name");
     if (language_name == lexer)
       _language_element = language_element;
     _languages.push_back(language_name);
@@ -153,7 +153,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language)
     for (TiXmlElement *language_element = element->FirstChildElement(); language_element != NULL;
          language_element = language_element->NextSiblingElement())
     {
-      std::string language_name = *language_element->Attribute(std::string("name"));
+      std::string language_name = language_element->Attribute("name");
       if (language_name == override_lexer)
       {
         _language_element = language_element;
@@ -232,7 +232,7 @@ void CodeEditorConfig::parse_keywords()
   for (TiXmlElement* entry = _language_element->FirstChildElement("keywords"); entry != NULL;
     entry = entry->NextSiblingElement("keywords"))
   {
-    std::string property_name = *entry->Attribute(std::string("name"));
+    std::string property_name = entry->Attribute("name");
     std::string text = collect_text(entry);
     _keywords[property_name] = text;
   }

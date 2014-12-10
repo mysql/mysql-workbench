@@ -206,7 +206,7 @@ namespace bec {
     void add_dispatcher(const bec::GRTDispatcher::Ref disp);
     void remove_dispatcher(const bec::GRTDispatcher::Ref disp);
   protected:
-    typedef std::map<const GRTDispatcher::Ref, void*> DispatcherMap;
+    typedef std::map<GRTDispatcher::Ref, void*> DispatcherMap;
     DispatcherMap _disp_map;
     base::Mutex _disp_map_mutex;
 

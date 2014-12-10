@@ -1075,8 +1075,8 @@ void setup_mforms_app(WBMainWindow *mwin);
 - (void)load
 {
   log_info("Loading main window\n");
-  if (![NSBundle loadNibNamed:@"MainWindow" owner:self])
-    NSLog(@"Failed loading nib");
+  if (![NSBundle loadNibNamed: @"MainWindow" owner: self])
+    log_error("Failed loading MainWindow.nib");
 }
 
 //--------------------------------------------------------------------------------------------------

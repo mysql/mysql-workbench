@@ -23,10 +23,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <glib.h>
+
+#ifndef HAVE_PRECOMPILED_HEADERS
+  #include <glib.h>
+#endif
 
 #ifndef _WIN32
-#include <sys/stat.h>
+  #include <sys/stat.h>
 #endif
 
 // TODO: These function should probably be merged with file_utilities.

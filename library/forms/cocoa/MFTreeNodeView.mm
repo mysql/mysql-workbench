@@ -909,7 +909,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     if (node)
       mOwner->overlay_icon_for_node_clicked(node, mClickingOverlay);
     else
-      log_debug("Error getting node for row %i, shouldn't be NULL\n", mOverlayedRow);
+      log_debug("Error getting node for row %li, shouldn't be NULL\n", mOverlayedRow);
 
     mClickingOverlay = -1;
     return true;
@@ -1847,15 +1847,13 @@ static std::list<mforms::TreeNodeRef> treeview_get_selection(mforms::TreeNodeVie
     else
     {
       NSIndexSet *indexes = [tree->mOutline selectedRowIndexes];
-
-      if ([indexes count] > 0)
+      NSUInteger currentIndex = indexes.firstIndex;
+      while (currentIndex != NSNotFound)
       {
-        for (int i = [indexes firstIndex]; i <= (int)[indexes lastIndex]; i = [indexes indexGreaterThanIndex: i])
-        {
-          MFTreeNodeImpl *node = [tree->mOutline itemAtRow: i];
-          if (node)
-            selection.push_back([node nodeRef]);
-        }
+        MFTreeNodeImpl *node = [tree->mOutline itemAtRow: currentIndex];
+        if (node != nil)
+          selection.push_back(node.nodeRef);
+        currentIndex = [indexes indexGreaterThanIndex: currentIndex];
       }
     }
   }

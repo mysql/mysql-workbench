@@ -120,6 +120,9 @@
     case NSScrollerIncrementLine:
       [sender setFloatValue:MIN([sender floatValue] + line, 1.0)];
       break;
+
+    default: // Silent compiler.
+      break;
   }
 
   [_contentView scrollToPoint:NSMakePoint([_hScroller floatValue] * (NSWidth(total) - NSWidth(visible)), 

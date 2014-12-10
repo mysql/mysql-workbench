@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,11 +21,14 @@
 #define _THREADED_TIMER_H_
 
 #include "common.h"
-#include "glib.h"
-#include "base/threading.h"
 
-#include <list>
-#include <boost/function.hpp>
+#ifndef HAVE_PREDEFINED_HEADERS
+  #include "glib.h"
+  #include <list>
+  #include <boost/function.hpp>
+#endif
+
+#include "base/threading.h"
 
 // The callback type used for timer events. It gets the id of the task returned from add_task
 // and must return a boolean value which tells us if the task should continue to run or

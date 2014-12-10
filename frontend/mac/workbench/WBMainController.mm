@@ -947,7 +947,7 @@ static NSString *applicationSupportFolder()
       }
       
       // we ship 32bit binary python modules, so python needs to be started as 32bit as well
-      putenv((char*)"VERSIONER_PYTHON_PREFER_32_BIT=yes");
+      //putenv((char*)"VERSIONER_PYTHON_PREFER_32_BIT=yes");
     }
 
     _wbui->init(&wbcallbacks, _options);
