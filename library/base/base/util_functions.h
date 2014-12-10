@@ -23,7 +23,7 @@
 
 #include "common.h"
 
-#if !defined(_WIN32)
+#ifndef HAVE_PRECOMPILED_HEADERS
   #include <sys/types.h>
   #include <string.h>
   #include <errno.h>
@@ -33,12 +33,11 @@
   #include <sys/types.h>
   #include <unistd.h>
   #include <sys/time.h>
-#else
-  #include <windows.h>
-#endif
-#include <boost/cstdint.hpp>
 
-#include "glib.h"
+  #include "glib.h"
+
+  #include <boost/cstdint.hpp>
+#endif
 
 #ifdef _WIN32
 #define _br "\r\n"

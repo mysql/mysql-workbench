@@ -20,6 +20,7 @@
 #pragma once
 
 #ifndef _WIN32
+
 #include <glib.h>
 #include <list>
 #include <vector>

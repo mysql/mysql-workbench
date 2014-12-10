@@ -595,6 +595,15 @@ ValueRef Dict::operator [](const std::string &key) const
   return iter->second;
 }
 
+Dict::const_iterator Dict::begin() const
+{
+  return _content.begin();
+}
+
+Dict::const_iterator Dict::end() const
+{
+  return _content.end();
+}
 
 std::vector<std::string> Dict::keys() const
 {

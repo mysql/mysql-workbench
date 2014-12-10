@@ -273,7 +273,7 @@ class QueryPlanTab(mforms.Box):
         self._raw_explain.set_value(json_text)
         #self._raw_explain.enable_folding(True)
         self._raw_explain.set_language(mforms.LanguagePython)
-        self._raw_explain.set_features(mforms.FeatureReadOnly, 1)
+        self._raw_explain.set_features(mforms.FeatureReadOnly, True)
         self.add(self._raw_explain, True, True)
         self._raw_explain.show(False)
 

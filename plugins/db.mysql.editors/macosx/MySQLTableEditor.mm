@@ -1667,7 +1667,7 @@ objectValueForItemAtIndex: (NSInteger) index
     [mTriggerTabItem setBackgroundColor: [NSColor whiteColor]];
     [view setFrame: [mTriggerTabItem bounds]];
     [view setAutoresizesSubviews: YES];
-    [view setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable|NSMinXEdge|NSMinYEdge|NSMaxXEdge|NSMaxYEdge];
+    [(NSView *)view setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable|NSMinXEdge|NSMinYEdge|NSMaxXEdge|NSMaxYEdge];
   }
 
   // Update the GUI.

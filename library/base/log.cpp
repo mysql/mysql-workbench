@@ -17,16 +17,16 @@
  * 02110-1301  USA
  */
 
-#include <string>
-#include <stdio.h>
-#include <stdarg.h>
-#include <time.h>
-#include <string.h>
-#include <vector>
+#ifndef HAVE_PRECOMPILED_HEADERS
+  #include <string>
+  #include <stdio.h>
+  #include <stdarg.h>
+  #include <time.h>
+  #include <string.h>
+  #include <vector>
 
-#include <boost/algorithm/string/predicate.hpp> // Case insensitive compare.
-
-#include <glib/gstdio.h>
+  #include <glib/gstdio.h>
+#endif
 
 #include "base/log.h"
 #include "base/wb_memory.h"
@@ -393,7 +393,7 @@ bool Logger::active_level(const std::string& value)
   std::string levels[] = { "none", "error", "warning", "info", "debug1", "debug2", "debug3" };
 
   int levelIndex = NumOfLevels;
-  while (levelIndex >= 0 && !boost::iequals(value, levels[levelIndex]))
+  while (levelIndex >= 0 && !same_string(value, levels[levelIndex]))
     levelIndex--;
 
   if (levelIndex < 0)
