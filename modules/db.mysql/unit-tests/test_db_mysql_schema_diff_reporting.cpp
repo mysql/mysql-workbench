@@ -18,7 +18,7 @@
 */
 
 #include <pcre.h>
-#include "ctemplate/template.h"
+#include "google/template.h"
 
 #include "testgrt.h"
 #include "grt_test_utility.h"
@@ -28,7 +28,7 @@
 
 #include "db_rev_eng_be.h"
 
-// #include <diffsqlgen.h>
+#include "grti/diffsqlgen.h"
 
 #include "grt_manager.h"
 #include "wb_helpers.h"
@@ -37,17 +37,17 @@
 #include "grtdiff.h"
 #include "changeobjects.h"
 #include "changelistobjects.h"
-// #include "dbobjectmatch.h"
+#include "dbobjectmatch.h"
 
 using namespace std;
 
-using ctemplate::Template;
-using ctemplate::TemplateDictionary;
-using ctemplate::STRIP_WHITESPACE;
+using google::Template;
+using google::TemplateDictionary;
+using google::STRIP_WHITESPACE;
 
 // these functions are defined in grtdiff_alter_test.cpp
 void populate_grt(GRT *grt, const char *);
-// db_mysql_Catalog create_empty_catalog_for_import(grt::GRT *grt);
+db_mysql_Catalog create_empty_catalog_for_import(grt::GRT *grt);
 db_mysql_Catalog db_rev_eng_schema(bec::GRTManager *grtm, 
                                    const std::list<std::string>& schema_names);
 
@@ -263,8 +263,6 @@ static const TestCase testCases[] =
   }
 };
 
-#if 0
-
 // TODO: to use function from db_helpers.
 //------------------------------------------------------------------------------
 static int pcre_compile_exec(const char *pattern, const char *str, int *patres, int patresnum)
@@ -390,8 +388,7 @@ TEST_FUNCTION(5)
   }
   
   ensure("Diff report tests", testsFailed.size() == 0);
+  int q= 0;
 }
-
-#endif
 
 END_TESTS

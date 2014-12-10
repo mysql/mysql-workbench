@@ -511,7 +511,7 @@ std::vector<std::string> get_variations_for_sequence(const GrammarSequence &sequ
   // If it is an optional entry duplicate existing entries and append the values to the duplicates
   // so we have one set with and one without the value.
   // For entries with multiple appearance add more duplicates with different repeat counts.
-  for (std::vector<tut::GrammarNode>::const_iterator iterator = sequence.nodes.begin(); iterator != sequence.nodes.end(); ++iterator)
+  for (auto iterator = sequence.nodes.begin(); iterator != sequence.nodes.end(); ++iterator)
   {
     std::vector<std::string> variations;
     if (iterator->is_terminal)
@@ -523,10 +523,10 @@ std::vector<std::string> get_variations_for_sequence(const GrammarSequence &sequ
     if (!iterator->is_required)
       intermediate.insert(intermediate.begin(), result.begin(), result.end());
 
-    for (std::vector<std::string>::iterator result_iterator = result.begin(); result_iterator != result.end(); ++result_iterator)
+    for (auto result_iterator = result.begin(); result_iterator != result.end(); ++result_iterator)
     {
       // Add each variation to each result we have so far already. This is the default occurrence.
-      for (std::vector<std::string>::iterator variation_iterator = variations.begin(); variation_iterator != variations.end(); ++variation_iterator)
+      for (auto variation_iterator = variations.begin(); variation_iterator != variations.end(); ++variation_iterator)
       {
         if (result_iterator->empty())
           intermediate.push_back(*variation_iterator);
@@ -538,9 +538,9 @@ std::vector<std::string> get_variations_for_sequence(const GrammarSequence &sequ
       {
         // If there can be multiple occurrences create a cross product of all alternatives,
         // so we have at least 2 values in all possible combinations.
-        for (std::vector<std::string>::iterator outer_iterator = variations.begin(); outer_iterator != variations.end(); ++outer_iterator)
+        for (auto outer_iterator = variations.begin(); outer_iterator != variations.end(); ++outer_iterator)
         {
-          for (std::vector<std::string>::iterator inner_iterator = variations.begin(); inner_iterator != variations.end(); ++inner_iterator)
+          for (auto inner_iterator = variations.begin(); inner_iterator != variations.end(); ++inner_iterator)
           {
             if (result_iterator->empty())
               intermediate.push_back(*outer_iterator + " " + *inner_iterator);
@@ -565,14 +565,14 @@ std::vector<std::string> get_variations_for_rule(std::string rule_name)
 {
   std::vector<std::string> result;
 
-  std::map<std::string, tut::RuleAlternatives>::iterator rule = rules.find(rule_name);
+  auto rule = rules.find(rule_name);
   if (rule == rules.end())
   {
     fail("Rule: " + rule_name + " not found");
     return result;
   }
 
-  for (tut::RuleAlternatives::const_iterator iterator = rule->second.begin(); iterator != rule->second.end(); ++iterator)
+  for (auto iterator = rule->second.begin(); iterator != rule->second.end(); ++iterator)
   {
     std::vector<std::string> values = get_variations_for_sequence(*iterator);
     result.insert(result.end(), values.begin(), values.end());
@@ -597,7 +597,7 @@ TEST_FUNCTION(22)
   version->releaseNumber(4);
   version->buildNumber(-1);
 
-  for (std::vector<std::string>::iterator iterator = definitions.begin(); iterator != definitions.end(); ++iterator)
+  for (auto iterator = definitions.begin(); iterator != definitions.end(); ++iterator)
   {
     db_SimpleDatatypeRef simple_type;
     db_UserDatatypeRef user_type;
