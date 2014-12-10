@@ -241,7 +241,7 @@ public:
     const int last_column= meta->getColumnCount();
     for (int i = 1; i <= last_column; i++)
     {
-      column_by_name[meta->getColumnName(i)]= i;
+      column_by_name[meta->getColumnLabel(i)] = i;
 
       std::string type;
       switch (meta->getColumnType(i))
@@ -308,7 +308,7 @@ public:
       db_query_ResultsetColumnRef column(aself->get_grt());
 
       column->owner(aself);
-      column->name(std::string(meta->getColumnName(i)));
+      column->name(std::string(meta->getColumnLabel(i)));
       column->columnType(type);
 
       self->columns().insert(column);

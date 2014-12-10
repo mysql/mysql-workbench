@@ -25,20 +25,23 @@
 # endif
 #else
 # include <inttypes.h>
+
 #endif
 
 #include "common.h"
-#include <string>
-#include <vector>
-#include <sstream>
-#include <typeinfo>
 
-#include <glib.h>
+#ifndef HAVE_PREDEFINED_HEADERS
+  #include <string>
+  #include <vector>
+  #include <sstream>
+  #include <typeinfo>
+
+  #include <boost/optional.hpp>
+  #include <boost/cstdint.hpp>
+
+#endif
 
 #define _(s) s // TODO: replace with localization code.
-
-#include <boost/optional.hpp>
-#include <boost/cstdint.hpp>
 
 using boost::uint64_t;
 using boost::int64_t;

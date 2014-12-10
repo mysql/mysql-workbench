@@ -203,9 +203,9 @@ class ConnectionDetailsPanel(mforms.Table):
         l.set_style(mforms.BoldStyle)
         self.add(l, 0, 1, 13, 14, mforms.HFillFlag|mforms.HExpandFlag)
         self.info = mforms.newCodeEditor()
-        self.info.set_features(mforms.FeatureGutter, 0)
-        self.info.set_features(mforms.FeatureReadOnly, 1)
-        self.info.set_features(mforms.FeatureWrapText, 1)
+        self.info.set_features(mforms.FeatureGutter, False)
+        self.info.set_features(mforms.FeatureReadOnly, True)
+        self.info.set_features(mforms.FeatureWrapText, True)
         self.info.set_language(mforms.LanguageMySQL56)
         self.info.set_size(0, 50)
         self.add(self.info, 0, 2, 14, 15, mforms.HFillFlag|mforms.VFillFlag|mforms.HExpandFlag|mforms.VExpandFlag)
@@ -246,9 +246,9 @@ class ConnectionDetailsPanel(mforms.Table):
         self.labels["PARENT_THREAD_ID"].set_text("%s" % node.get_long(10) if node else "")
         self.labels["INSTRUMENTED"].set_text(node.get_string(11) if node else "")
 
-        self.info.set_features(mforms.FeatureReadOnly, 0)
+        self.info.set_features(mforms.FeatureReadOnly, False)
         self.info.set_value(node.get_tag() if node else "")
-        self.info.set_features(mforms.FeatureReadOnly, 1)
+        self.info.set_features(mforms.FeatureReadOnly, True)
         if self.explain:
             self.explain.set_enabled(node and node.get_tag())
 

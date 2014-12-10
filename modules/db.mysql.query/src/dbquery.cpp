@@ -521,7 +521,7 @@ std::string DbMySQLQueryImpl::resultFieldName(int result, int field)
     throw std::invalid_argument("Invalid resultset");
   sql::ResultSet *res = _resultsets[result];
 
-  return res->getMetaData()->getColumnName(field);
+  return res->getMetaData()->getColumnLabel(field);
 }
 
 

@@ -956,7 +956,7 @@ namespace grt {
 
     IterType iter;
     
-    TypedListConstIterator() : iter(0) {}
+    //TypedListConstIterator() : iter(0) {}
 
     TypedListConstIterator(const TypedListConstIterator &content) : iter(content.iter) {}
     
