@@ -198,9 +198,9 @@ void remove_versioning_comments(const std::string &sql, std::string &effective_s
       *ignore_statement= (0 == strncmp(ptr, " CREATE TABLE", 13));
 
     {
-      register bool quoted= false;
-      register bool escaped= false;
-      register bool commented= false;
+      bool quoted= false;
+      bool escaped= false;
+      bool commented= false;
       int nested_comments_count= 1;
       char quot_sym= 0;
 

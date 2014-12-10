@@ -26,7 +26,6 @@
 		16F7A2460F1CFFDC0084C11D /* WBObjectPropertiesController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16F7A2440F1CFFDC0084C11D /* WBObjectPropertiesController.mm */; };
 		2701535014EBE9FF00AD28BC /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		270C4FF4173293BC00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
-		270C4FF5173293DC00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C4FF6173293EA00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C4FF7173293F600CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
 		270C4FF8173293FC00CD33BB /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
@@ -38,8 +37,6 @@
 		270C500317329F6200CD33BB /* libzip.1.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2BCBAE4615E7D749009571DE /* libzip.1.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270C500417329F7100CD33BB /* libgmodule-2.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2B15AE9712D6C6B5006567D6 /* libgmodule-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270C500517329F7C00CD33BB /* libgthread-2.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		270C500717329F9400CD33BB /* libmysqlcppconn.7.1.1.4.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = ED70F1CB17303E2500584453 /* libmysqlcppconn.7.1.1.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		270C500917329FBB00CD33BB /* libpng12.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 270C500817329FB600CD33BB /* libpng12.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270C500A17329FC000CD33BB /* libintl.8.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2BCBAE4415E7D749009571DE /* libintl.8.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270C500B17329FC800CD33BB /* libtinyxml.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270C50121732AD0900CD33BB /* wbcopytables in Copy Files (executables) */ = {isa = PBXBuildFile; fileRef = 2B2E91C9158915DE0078D08A /* wbcopytables */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -81,6 +78,7 @@
 		2738042310AB272500EF15C0 /* string_utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 2738042110AB272500EF15C0 /* string_utilities.h */; };
 		273D61BC1664F2ED00F2222F /* table_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2403DB101BC7A800079580 /* table_editor.cpp */; };
 		273D61BD1664F2F500F2222F /* table_inserts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2701A844165E7E4200A9A1C7 /* table_inserts.cpp */; };
+		273D74651A322CA0000F8E2A /* libmysqlcppconn.7.1.1.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 273D74641A322CA0000F8E2A /* libmysqlcppconn.7.1.1.5.dylib */; };
 		273F6B0017044B37002117F2 /* threading.h in Headers */ = {isa = PBXBuildFile; fileRef = 273F6AFE17044B37002117F2 /* threading.h */; };
 		2740C71118AB704A008AFE78 /* tab_extender.png in Resources */ = {isa = PBXBuildFile; fileRef = 2740C70D18AB6F9C008AFE78 /* tab_extender.png */; };
 		2740C71218AB704E008AFE78 /* tab_extender@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2740C70E18AB6F9C008AFE78 /* tab_extender@2x.png */; };
@@ -195,6 +193,7 @@
 		2773B88711006B58000CA2F9 /* MFSplitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2773B88611006B58000CA2F9 /* MFSplitter.mm */; };
 		27751DDF17422A060025DEAE /* about_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CC86041741348D00AAA267 /* about_box.cpp */; };
 		27751DE017422A0F0025DEAE /* about_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CC86051741348D00AAA267 /* about_box.h */; };
+		2777A7E41A30A36400A5441E /* cdbc_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 2777A7E31A30A36400A5441E /* cdbc_prefix.pch */; };
 		278874861189DA8500E477EF /* webbrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 278874851189DA8500E477EF /* webbrowser.h */; };
 		278874881189DA9300E477EF /* webbrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278874871189DA9300E477EF /* webbrowser.cpp */; };
 		278874961189DEA500E477EF /* webbrowser_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278874951189DEA500E477EF /* webbrowser_view.cpp */; };
@@ -302,6 +301,7 @@
 		278A089F19BC85410084C2F4 /* sqlide_schematree_ext.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2B6C6FBE16C0BE4B00C4CC98 /* sqlide_schematree_ext.py */; };
 		278B09F714EA97C0009028BB /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		278B0A3614EAABD1009028BB /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
+		278DB55A1A36F2BE00707118 /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 278DB5591A36F2BE00707118 /* libiconv.2.dylib */; };
 		2791E52F1087530400866B8E /* admin_info_unknown.png in Resources */ = {isa = PBXBuildFile; fileRef = 2791E52E1087530400866B8E /* admin_info_unknown.png */; };
 		27925C7D14EA8D0B00B547C2 /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		27925C8014EA8D6200B547C2 /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
@@ -336,7 +336,7 @@
 		27A5768A10FE065000A948A6 /* fs_object_selector.h in Headers */ = {isa = PBXBuildFile; fileRef = 27A5768910FE065000A948A6 /* fs_object_selector.h */; };
 		27A7330F16C2706300C326E0 /* mysql.parser.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* mysql.parser.dylib */; };
 		27AF7C110FC2A913007160EF /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
-		27B14D5D17341D6F00E1AD5C /* libmysqlcppconn.7.1.1.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ED70F1CB17303E2500584453 /* libmysqlcppconn.7.1.1.4.dylib */; };
+		27B37DC41A32001B00C73F1F /* mforms_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27B37DC31A32001B00C73F1F /* mforms_prefix.pch */; };
 		27B3B4C319C6EDA1007D4A92 /* mysql-recognition-types.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3B4C219C6EDA1007D4A92 /* mysql-recognition-types.h */; };
 		27B3B4DE19C727E5007D4A92 /* ANTLRv3Lexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 27B3B4DA19C727E5007D4A92 /* ANTLRv3Lexer.c */; };
 		27B3B4DF19C727E5007D4A92 /* ANTLRv3Lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B3B4DB19C727E5007D4A92 /* ANTLRv3Lexer.h */; };
@@ -373,6 +373,9 @@
 		27BFE45F1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE45D1924BBB90070B8FB /* wb.model.editors.wbp_prefix.pch */; };
 		27BFE4611924BC290070B8FB /* wbprivate.be_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4601924BC290070B8FB /* wbprivate.be_prefix.pch */; };
 		27BFE4641924BC750070B8FB /* db.mysql.editors.wbp_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4621924BC670070B8FB /* db.mysql.editors.wbp_prefix.pch */; };
+		27C15E661A30989000EB73F7 /* wbbase_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E651A30989000EB73F7 /* wbbase_prefix.pch */; };
+		27C15E691A309CA000EB73F7 /* mysql.parser_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E681A309CA000EB73F7 /* mysql.parser_prefix.pch */; };
+		27C15E6B1A30A2E000EB73F7 /* grt_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 27C15E6A1A30A2E000EB73F7 /* grt_prefix.pch */; };
 		27C3A1311070C3B200DD5717 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 27C3A1301070C3B200DD5717 /* common.h */; };
 		27C5903614C9755100FFC45E /* code_editor.xml in Copy Files (data) */ = {isa = PBXBuildFile; fileRef = 27C5903514C9755100FFC45E /* code_editor.xml */; };
 		27C6887F10B58C9B00B8D810 /* new_server_instance_wizard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C6887D10B58C9A00B8D810 /* new_server_instance_wizard.cpp */; };
@@ -392,6 +395,7 @@
 		27CE5FA319179DA5005574D4 /* mysql_parser_module.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CE5FA119179DA5005574D4 /* mysql_parser_module.h */; };
 		27CE5FAF1917B48D005574D4 /* mysql_parser_services.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CE5FA41917A260005574D4 /* mysql_parser_services.h */; };
 		27CE5FB21917B5A1005574D4 /* mysql_parser_services.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5FB11917B5A1005574D4 /* mysql_parser_services.cpp */; };
+		27D4678B1A3240D300263B85 /* libctemplate.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27EE16C91A3236BB00F26303 /* libctemplate.2.dylib */; };
 		27D6590C107625FE0030F627 /* section_expanded.png in Resources */ = {isa = PBXBuildFile; fileRef = 27D65909107625FE0030F627 /* section_expanded.png */; };
 		27D6590D107625FE0030F627 /* section_unexpandable.png in Resources */ = {isa = PBXBuildFile; fileRef = 27D6590A107625FE0030F627 /* section_unexpandable.png */; };
 		27D6590E107625FE0030F627 /* section_unexpanded.png in Resources */ = {isa = PBXBuildFile; fileRef = 27D6590B107625FE0030F627 /* section_unexpanded.png */; };
@@ -423,6 +427,11 @@
 		27ED050B1071D0A000C62B57 /* threaded_timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 27ED05091071D0A000C62B57 /* threaded_timer.h */; };
 		27ED97B81802AE2D00F15650 /* wb_catalog_tree_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27ED97B61802AE2D00F15650 /* wb_catalog_tree_view.cpp */; };
 		27ED97B91802AE2D00F15650 /* wb_catalog_tree_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 27ED97B71802AE2D00F15650 /* wb_catalog_tree_view.h */; };
+		27EE16C71A322D0700F26303 /* libmysqlcppconn.7.1.1.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 273D74641A322CA0000F8E2A /* libmysqlcppconn.7.1.1.5.dylib */; };
+		27EE16C81A32335400F26303 /* libmysqlcppconn.7.1.1.5.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 273D74641A322CA0000F8E2A /* libmysqlcppconn.7.1.1.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		27EE16CA1A3236BB00F26303 /* libctemplate.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27EE16C91A3236BB00F26303 /* libctemplate.2.dylib */; };
+		27EE16CB1A323E2900F26303 /* libtinyxml.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270C4FF3173293BC00CD33BB /* libtinyxml.dylib */; };
+		27EE16CC1A32409C00F26303 /* libctemplate.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27EE16C91A3236BB00F26303 /* libctemplate.2.dylib */; };
 		27EF538317997C710028EC8C /* tiny_rollback.png in Resources */ = {isa = PBXBuildFile; fileRef = 27EF538117997C710028EC8C /* tiny_rollback.png */; };
 		27EF538417997C710028EC8C /* tiny_rollback@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27EF538217997C710028EC8C /* tiny_rollback@2x.png */; };
 		2B00E5150EB40439006B9A7C /* mdc_canvas_view_opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B00E5130EB40438006B9A7C /* mdc_canvas_view_opengl.cpp */; };
@@ -700,8 +709,6 @@
 		2B17B0EA0F4DACF20087ED42 /* wb.model.editors.wbp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B17AFC60F4D94020087ED42 /* wb.model.editors.wbp.dylib */; };
 		2B17B2B60F4E140E0087ED42 /* MySQLRelationshipEditor.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B17B2B50F4E140E0087ED42 /* MySQLRelationshipEditor.xib */; };
 		2B17B4500F4E4FBC0087ED42 /* MySQLRelationshipEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B17B44F0F4E4FBC0087ED42 /* MySQLRelationshipEditor.mm */; };
-		2B17CA4214663BE300F6E4DA /* libctemplate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */; };
-		2B17CA4514663BEC00F6E4DA /* libctemplate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */; };
 		2B17D29C159210EC0029B71A /* datatype_mapping_editor.py in Resources */ = {isa = PBXBuildFile; fileRef = 2B17D29B159210EC0029B71A /* datatype_mapping_editor.py */; };
 		2B18EDB8196C8705004D7596 /* wb_doc_model@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDAD196C8705004D7596 /* wb_doc_model@2x.png */; };
 		2B18EDB9196C8706004D7596 /* wb_starter_edelivery_52@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B18EDAE196C8705004D7596 /* wb_starter_edelivery_52@2x.png */; };
@@ -2036,7 +2043,6 @@
 		2BBC38601235C5BC00CACF4C /* tiny_load.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BBC385F1235C5A100CACF4C /* tiny_load.png */; };
 		2BC083A6145BB66000CB84D6 /* EditorCollapsed.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC083A4145BB66000CB84D6 /* EditorCollapsed.png */; };
 		2BC083A7145BB66000CB84D6 /* EditorExpanded.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC083A5145BB66000CB84D6 /* EditorExpanded.png */; };
-		2BC0883E1465B56E00CB84D6 /* libctemplate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */; };
 		2BC08B331064836C0069AB9A /* wb_tunnel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC08B311064836C0069AB9A /* wb_tunnel.h */; };
 		2BC08B341064836C0069AB9A /* wb_tunnel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC08B321064836C0069AB9A /* wb_tunnel.cpp */; };
 		2BC09089106860D40069AB9A /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
@@ -2341,7 +2347,6 @@
 		2BEC8E7C1035F80900607CA4 /* mysql_sql_semantic_check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */; };
 		2BECA53618B3A13D00E12F8B /* sys in Resources */ = {isa = PBXBuildFile; fileRef = 2BECA53518B3A13D00E12F8B /* sys */; };
 		2BECA53918BD2F3000E12F8B /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
-		2BF02D031964A8CF008C9304 /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */; };
 		2BF0491C1739925E00A7EA35 /* mysql-logo-00.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */; };
 		2BF0491D1739925E00A7EA35 /* mysql-logo-00@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */; };
 		2BF0491E1739925E00A7EA35 /* mysql-logo-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490C1739925E00A7EA35 /* mysql-logo-50.png */; };
@@ -2374,7 +2379,6 @@
 		2BF049601741BB4C00A7EA35 /* wb_find_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF0495E1741BB4C00A7EA35 /* wb_find_dialog.cpp */; };
 		2BF049611741BB4C00A7EA35 /* wb_find_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF0495F1741BB4C00A7EA35 /* wb_find_dialog.h */; };
 		2BF049621741C5EA00A7EA35 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		2BF049641741C5FB00A7EA35 /* libpcre.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BF049631741C5FA00A7EA35 /* libpcre.0.dylib */; };
 		2BF0496617426BE500A7EA35 /* register_plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF0496517426BE500A7EA35 /* register_plugin.cpp */; };
 		2BF0498D174E559C00A7EA35 /* title_connections.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0497D174E559C00A7EA35 /* title_connections.png */; };
 		2BF0498E174E559C00A7EA35 /* title_connections@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0497E174E559C00A7EA35 /* title_connections@2x.png */; };
@@ -2539,7 +2543,6 @@
 		ED69F9E615DEC9DB00FF2FE3 /* profiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */; };
 		ED69F9E815DECA0C00FF2FE3 /* profiling.h in Headers */ = {isa = PBXBuildFile; fileRef = ED69F9E715DEC9F600FF2FE3 /* profiling.h */; };
 		ED69F9E915DECA2500FF2FE3 /* profiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */; };
-		ED70F1CC17303E2500584453 /* libmysqlcppconn.7.1.1.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ED70F1CB17303E2500584453 /* libmysqlcppconn.7.1.1.4.dylib */; };
 		ED7D01F6195DAE0E001FE8E7 /* wb_tile_fabric.png in Resources */ = {isa = PBXBuildFile; fileRef = ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */; };
 		ED8C8460174A9EF80036E6EF /* os_utils.py in Resources */ = {isa = PBXBuildFile; fileRef = ED8C845E174A9EF80036E6EF /* os_utils.py */; };
 		ED8C8461174A9EF80036E6EF /* tcp_utils.py in Resources */ = {isa = PBXBuildFile; fileRef = ED8C845F174A9EF80036E6EF /* tcp_utils.py */; };
@@ -3734,8 +3737,6 @@
 				270C500217329F3C00CD33BB /* libglib-2.0.0.dylib in Copy Files (dylibs) */,
 				270C500417329F7100CD33BB /* libgmodule-2.0.0.dylib in Copy Files (dylibs) */,
 				270C500517329F7C00CD33BB /* libgthread-2.0.0.dylib in Copy Files (dylibs) */,
-				270C500717329F9400CD33BB /* libmysqlcppconn.7.1.1.4.dylib in Copy Files (dylibs) */,
-				270C500917329FBB00CD33BB /* libpng12.0.dylib in Copy Files (dylibs) */,
 				270C500A17329FC000CD33BB /* libintl.8.dylib in Copy Files (dylibs) */,
 				270C500B17329FC800CD33BB /* libtinyxml.dylib in Copy Files (dylibs) */,
 				270C4FFE17329DD600CD33BB /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
@@ -3751,6 +3752,7 @@
 				2B7F77EA0F0133EB00C3C53E /* libwbpublic.be.dylib in Copy Files (dylibs) */,
 				2B7F77EB0F0133EB00C3C53E /* libwbprivate.be.dylib in Copy Files (dylibs) */,
 				2BDA3C3B1993FBF000AD54D9 /* libproj.0.dylib in Copy Files (dylibs) */,
+				27EE16C81A32335400F26303 /* libmysqlcppconn.7.1.1.5.dylib in Copy Files (dylibs) */,
 				2BDA3C3C1993FBF000AD54D9 /* libgdal.1.dylib in Copy Files (dylibs) */,
 			);
 			name = "Copy Files (dylibs)";
@@ -3919,7 +3921,6 @@
 		2701A844165E7E4200A9A1C7 /* table_inserts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = table_inserts.cpp; path = "backend/wbpublic/grtdb/unit-tests/table_inserts.cpp"; sourceTree = "<group>"; };
 		270C4FF3173293BC00CD33BB /* libtinyxml.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtinyxml.dylib; path = "../mysql-mac-res/lib/libtinyxml.dylib"; sourceTree = "<group>"; };
 		270C500017329E9300CD33BB /* libpixman-1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libpixman-1.0.dylib"; path = "../mysql-mac-res/lib/libpixman-1.0.dylib"; sourceTree = "<group>"; };
-		270C500817329FB600CD33BB /* libpng12.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpng12.0.dylib; path = "../mysql-mac-res/lib/libpng12.0.dylib"; sourceTree = "<group>"; };
 		270CE0891725409000BEDDDD /* wb_close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_close.png; path = images/home/wb_close.png; sourceTree = "<group>"; };
 		2717A6831192E22900FED3E5 /* predefined_starters.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = predefined_starters.xml; path = res/wbdata/predefined_starters.xml; sourceTree = "<group>"; };
 		271A795010A1D8F600058CB4 /* UnitTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3946,6 +3947,7 @@
 		273766AE17997E4600803099 /* record_import@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "record_import@2x.png"; path = "images/toolbar/record_import@2x.png"; sourceTree = "<group>"; };
 		2738042010AB272500EF15C0 /* string_utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_utilities.cpp; path = library/base/string_utilities.cpp; sourceTree = "<group>"; };
 		2738042110AB272500EF15C0 /* string_utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = string_utilities.h; path = library/base/base/string_utilities.h; sourceTree = "<group>"; wrapsLines = 0; };
+		273D74641A322CA0000F8E2A /* libmysqlcppconn.7.1.1.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.5.dylib; path = "../mysql-mac-res/lib/libmysqlcppconn.7.1.1.5.dylib"; sourceTree = "<group>"; };
 		273F6AFE17044B37002117F2 /* threading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = threading.h; path = library/base/base/threading.h; sourceTree = "<group>"; };
 		2740C70D18AB6F9C008AFE78 /* tab_extender.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = tab_extender.png; path = images/ui/mac/tab_extender.png; sourceTree = "<group>"; };
 		2740C70E18AB6F9C008AFE78 /* tab_extender@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "tab_extender@2x.png"; path = "images/ui/mac/tab_extender@2x.png"; sourceTree = "<group>"; };
@@ -4054,6 +4056,7 @@
 		2773B87F11006A2D000CA2F9 /* splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = splitter.cpp; path = library/forms/splitter.cpp; sourceTree = "<group>"; };
 		2773B88411006B53000CA2F9 /* MFSplitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFSplitter.h; path = library/forms/cocoa/MFSplitter.h; sourceTree = "<group>"; };
 		2773B88611006B58000CA2F9 /* MFSplitter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFSplitter.mm; path = library/forms/cocoa/MFSplitter.mm; sourceTree = "<group>"; };
+		2777A7E31A30A36400A5441E /* cdbc_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cdbc_prefix.pch; path = prefix/cdbc_prefix.pch; sourceTree = SOURCE_ROOT; };
 		277F196B1A1507DB00E816F6 /* wb.fabric.interface.grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.fabric.interface.grt_prefix.pch; path = prefix/wb.fabric.interface.grt_prefix.pch; sourceTree = "<group>"; };
 		278874851189DA8500E477EF /* webbrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webbrowser.h; path = library/forms/mforms/webbrowser.h; sourceTree = "<group>"; };
 		278874871189DA9300E477EF /* webbrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webbrowser.cpp; path = library/forms/webbrowser.cpp; sourceTree = "<group>"; };
@@ -4061,6 +4064,8 @@
 		278874971189DEAC00E477EF /* webbrowser_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webbrowser_view.h; sourceTree = "<group>"; };
 		278874AC1189DFE100E477EF /* MFWebBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFWebBrowser.h; path = library/forms/cocoa/MFWebBrowser.h; sourceTree = "<group>"; };
 		278874AD1189DFE100E477EF /* MFWebBrowser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFWebBrowser.mm; path = library/forms/cocoa/MFWebBrowser.mm; sourceTree = "<group>"; };
+		278DB5571A36F12A00707118 /* libiconv.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.2.dylib; path = usr/lib/libiconv.2.dylib; sourceTree = SDKROOT; };
+		278DB5591A36F2BE00707118 /* libiconv.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.2.dylib; path = "../mysql-mac-res/lib/libiconv.2.dylib"; sourceTree = "<group>"; };
 		2791E52E1087530400866B8E /* admin_info_unknown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_unknown.png; path = images/admin/admin_info_unknown.png; sourceTree = "<group>"; };
 		279822EE118AFB0C00406A84 /* HUDPanel.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = HUDPanel.xib; path = library/forms/cocoa/HUDPanel.xib; sourceTree = "<group>"; };
 		279822FC118AFBC300406A84 /* message_wb_wait.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = message_wb_wait.png; sourceTree = "<group>"; };
@@ -4092,6 +4097,8 @@
 		27A3EC90164BA9AB001B6D8F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/IconCollectionView.xib; sourceTree = "<group>"; };
 		27A5768610FE061C00A948A6 /* fs_object_selector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fs_object_selector.cpp; path = library/forms/fs_object_selector.cpp; sourceTree = "<group>"; };
 		27A5768910FE065000A948A6 /* fs_object_selector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fs_object_selector.h; path = library/forms/mforms/fs_object_selector.h; sourceTree = "<group>"; };
+		27B37DC31A32001B00C73F1F /* mforms_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mforms_prefix.pch; path = prefix/mforms_prefix.pch; sourceTree = "<group>"; };
+		27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.grt_prefix.pch; path = prefix/db.mysql.grt_prefix.pch; sourceTree = "<group>"; };
 		27B3B4C219C6EDA1007D4A92 /* mysql-recognition-types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-recognition-types.h"; path = "library/mysql.parser/mysql-recognition-types.h"; sourceTree = "<group>"; };
 		27B3B4CD19C7148D007D4A92 /* MySQL.tokens */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQL.tokens; path = library/mysql.parser/MySQL.tokens; sourceTree = "<group>"; };
 		27B3B4CE19C714A4007D4A92 /* MySQL.g */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MySQL.g; path = library/mysql.parser/grammar/MySQL.g; sourceTree = "<group>"; };
@@ -4130,6 +4137,10 @@
 		27BFE4651924C31C0070B8FB /* db.mysql.editors_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.editors_prefix.pch; path = prefix/db.mysql.editors_prefix.pch; sourceTree = "<group>"; };
 		27BFE4671924C3930070B8FB /* wb.model.editors_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb.model.editors_prefix.pch; path = prefix/wb.model.editors_prefix.pch; sourceTree = "<group>"; };
 		27BFE4691924C3DB0070B8FB /* MySQLWorkbench_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLWorkbench_prefix.pch; path = prefix/MySQLWorkbench_prefix.pch; sourceTree = "<group>"; };
+		27C15E651A30989000EB73F7 /* wbbase_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbbase_prefix.pch; path = prefix/wbbase_prefix.pch; sourceTree = "<group>"; };
+		27C15E671A309C2000EB73F7 /* wbcopytables_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wbcopytables_prefix.pch; path = prefix/wbcopytables_prefix.pch; sourceTree = "<group>"; };
+		27C15E681A309CA000EB73F7 /* mysql.parser_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mysql.parser_prefix.pch; path = prefix/mysql.parser_prefix.pch; sourceTree = "<group>"; };
+		27C15E6A1A30A2E000EB73F7 /* grt_prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grt_prefix.pch; path = prefix/grt_prefix.pch; sourceTree = "<group>"; };
 		27C3A1301070C3B200DD5717 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = library/base/base/common.h; sourceTree = "<group>"; };
 		27C5903514C9755100FFC45E /* code_editor.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = code_editor.xml; path = res/wbdata/code_editor.xml; sourceTree = "<group>"; };
 		27C5B0B016440CC1009E2C41 /* autocompletion_cache_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = autocompletion_cache_test.cpp; path = "backend/wbpublic/sqlide/unit-tests/autocompletion_cache_test.cpp"; sourceTree = "<group>"; };
@@ -4180,6 +4191,7 @@
 		27ED05091071D0A000C62B57 /* threaded_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = threaded_timer.h; path = library/base/base/threaded_timer.h; sourceTree = "<group>"; };
 		27ED97B61802AE2D00F15650 /* wb_catalog_tree_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_catalog_tree_view.cpp; path = backend/wbprivate/model/wb_catalog_tree_view.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		27ED97B71802AE2D00F15650 /* wb_catalog_tree_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_catalog_tree_view.h; path = backend/wbprivate/model/wb_catalog_tree_view.h; sourceTree = "<group>"; };
+		27EE16C91A3236BB00F26303 /* libctemplate.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libctemplate.2.dylib; path = "../mysql-mac-res/lib/libctemplate.2.dylib"; sourceTree = "<group>"; };
 		27EF538117997C710028EC8C /* tiny_rollback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = tiny_rollback.png; path = images/toolbar/tiny_rollback.png; sourceTree = "<group>"; };
 		27EF538217997C710028EC8C /* tiny_rollback@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "tiny_rollback@2x.png"; path = "images/toolbar/tiny_rollback@2x.png"; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = frontend/mac/main.m; sourceTree = "<group>"; };
@@ -4228,7 +4240,6 @@
 		2B0749CE0F94344300D7E4E3 /* Refresh_16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Refresh_16x16.png; sourceTree = "<group>"; };
 		2B0749CF0F94344300D7E4E3 /* Refresh_18x18.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Refresh_18x18.png; sourceTree = "<group>"; };
 		2B0749D00F94344300D7E4E3 /* Refresh_disabled_18x18.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Refresh_disabled_18x18.png; sourceTree = "<group>"; };
-		2B08A4781194800200F8C550 /* mysqldoclib.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = mysqldoclib.py; path = plugins/wb.doclib/mysqldoclib.py; sourceTree = "<group>"; };
 		2B0CE62710C60EED00325F30 /* file_charset_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_charset_dialog.cpp; sourceTree = "<group>"; };
 		2B0CE62810C60EED00325F30 /* file_charset_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_charset_dialog.h; sourceTree = "<group>"; };
 		2B0DE77311E916EF00989395 /* db_query_EditableResultset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = db_query_EditableResultset.cpp; path = backend/wbpublic/objimpl/db.query/db_query_EditableResultset.cpp; sourceTree = "<group>"; };
@@ -4530,7 +4541,6 @@
 		2B1CA4210F965CB1001443CA /* MQResultSetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MQResultSetCell.h; path = frontend/mac/resultset/MQResultSetCell.h; sourceTree = "<group>"; };
 		2B1CA4220F965CB1001443CA /* MQResultSetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MQResultSetCell.m; path = frontend/mac/resultset/MQResultSetCell.m; sourceTree = "<group>"; };
 		2B1CA7350F96C0C2001443CA /* com.mysql.rdbms.mysql.sql.editor.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = com.mysql.rdbms.mysql.sql.editor.xml; path = modules/db.mysql.sqlide/res/com.mysql.rdbms.mysql.sql.editor.xml; sourceTree = "<group>"; };
-		2B1CF3A911931D2B00D1410D /* wb_doclib_grt.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_doclib_grt.py; path = plugins/wb.doclib/wb_doclib_grt.py; sourceTree = "<group>"; };
 		2B1CF45311939DDE00D1410D /* DB Management.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "DB Management.txt"; path = "res/snippets/DB Management.txt"; sourceTree = "<group>"; };
 		2B1D6CA3177C6BDD0073C062 /* maintab_home_background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "maintab_home_background@2x.png"; path = "images/ui/mac/maintab_home_background@2x.png"; sourceTree = "<group>"; };
 		2B1D6CA4177C6BDD0073C062 /* maintab_home_home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = maintab_home_home.png; path = images/ui/mac/maintab_home_home.png; sourceTree = "<group>"; };
@@ -5939,7 +5949,6 @@
 		2BBC38F812380E9000CACF4C /* wb_admin_control.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_control.py; path = plugins/wb.admin/backend/wb_admin_control.py; sourceTree = "<group>"; };
 		2BC083A4145BB66000CB84D6 /* EditorCollapsed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = EditorCollapsed.png; path = images/ui/EditorCollapsed.png; sourceTree = "<group>"; };
 		2BC083A5145BB66000CB84D6 /* EditorExpanded.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = EditorExpanded.png; path = images/ui/EditorExpanded.png; sourceTree = "<group>"; };
-		2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libctemplate.dylib; path = "../mysql-mac-res/lib/libctemplate.dylib"; sourceTree = "<group>"; };
 		2BC08B311064836C0069AB9A /* wb_tunnel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wb_tunnel.h; sourceTree = "<group>"; };
 		2BC08B321064836C0069AB9A /* wb_tunnel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wb_tunnel.cpp; sourceTree = "<group>"; };
 		2BC7896717D7BE24005E03D5 /* libmysqlclient.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmysqlclient.dylib; sourceTree = SOURCE_ROOT; };
@@ -6199,7 +6208,6 @@
 		2BF0495D1741ACB900A7EA35 /* wb.model.advfind.wbp.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = wb.model.advfind.wbp.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BF0495E1741BB4C00A7EA35 /* wb_find_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wb_find_dialog.cpp; path = internal/wb.model.advfind/wb_find_dialog.cpp; sourceTree = "<group>"; };
 		2BF0495F1741BB4C00A7EA35 /* wb_find_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_find_dialog.h; path = internal/wb.model.advfind/wb_find_dialog.h; sourceTree = "<group>"; };
-		2BF049631741C5FA00A7EA35 /* libpcre.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcre.0.dylib; path = usr/lib/libpcre.0.dylib; sourceTree = SDKROOT; };
 		2BF0496517426BE500A7EA35 /* register_plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = register_plugin.cpp; path = internal/wb.model.advfind/register_plugin.cpp; sourceTree = "<group>"; };
 		2BF049671742CCF400A7EA35 /* wb_version.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = wb_version.h; sourceTree = "<group>"; };
 		2BF0497417491EFB00A7EA35 /* sqlide_tableman_ext.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = sqlide_tableman_ext.py; path = plugins/wb.sqlide/sqlide_tableman_ext.py; sourceTree = "<group>"; };
@@ -6380,7 +6388,6 @@
 		ED3F48EF19A17998001F3563 /* mysqlwbmeb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = mysqlwbmeb.py; path = res/scripts/python/mysqlwbmeb.py; sourceTree = "<group>"; };
 		ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = profiling.cpp; path = library/base/profiling.cpp; sourceTree = "<group>"; };
 		ED69F9E715DEC9F600FF2FE3 /* profiling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = profiling.h; path = library/base/base/profiling.h; sourceTree = "<group>"; };
-		ED70F1CB17303E2500584453 /* libmysqlcppconn.7.1.1.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.1.1.4.dylib; path = "../mysql-mac-res/lib/libmysqlcppconn.7.1.1.4.dylib"; sourceTree = "<group>"; };
 		ED7D01F5195DAE0E001FE8E7 /* wb_tile_fabric.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_fabric.png; path = images/home/wb_tile_fabric.png; sourceTree = "<group>"; };
 		ED8C845E174A9EF80036E6EF /* os_utils.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = os_utils.py; path = library/python/workbench/os_utils.py; sourceTree = "<group>"; };
 		ED8C845F174A9EF80036E6EF /* tcp_utils.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = tcp_utils.py; path = library/python/workbench/tcp_utils.py; sourceTree = "<group>"; };
@@ -6478,7 +6485,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BF02D031964A8CF008C9304 /* libiconv.2.dylib in Frameworks */,
+				278DB55A1A36F2BE00707118 /* libiconv.2.dylib in Frameworks */,
 				2BECA53918BD2F3000E12F8B /* Python in Frameworks */,
 				2B2E92F21589991B0078D08A /* libwbbase.dylib in Frameworks */,
 				2B2E92FE158999890078D08A /* libiodbc.dylib in Frameworks */,
@@ -6531,8 +6538,8 @@
 				2B52840B0F1A5744005FBF7C /* libgrt.dylib in Frameworks */,
 				2B52851A0F1B6FB2005FBF7C /* libwbpublic.be.dylib in Frameworks */,
 				2B5285280F1B6FE7005FBF7C /* libwbbase.dylib in Frameworks */,
-				2B17CA4214663BE300F6E4DA /* libctemplate.dylib in Frameworks */,
 				27925C7D14EA8D0B00B547C2 /* libmforms.dylib in Frameworks */,
+				27EE16CC1A32409C00F26303 /* libctemplate.2.dylib in Frameworks */,
 				270C4FF8173293FC00CD33BB /* libtinyxml.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6618,9 +6625,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				273D74651A322CA0000F8E2A /* libmysqlcppconn.7.1.1.5.dylib in Frameworks */,
 				2B750E6A0E87851B0003120A /* libgrt.dylib in Frameworks */,
 				2B774FB115CEC42200923448 /* libglib-2.0.0.dylib in Frameworks */,
-				27B14D5D17341D6F00E1AD5C /* libmysqlcppconn.7.1.1.4.dylib in Frameworks */,
 				2B15AE9B12D6C6C7006567D6 /* libgmodule-2.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6639,7 +6646,7 @@
 				2B3D4F9D0F40BC98009238A7 /* libcdbc.dylib in Frameworks */,
 				2B774FB615CEC46000923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FB715CEC46000923448 /* libgthread-2.0.0.dylib in Frameworks */,
-				2BC0883E1465B56E00CB84D6 /* libctemplate.dylib in Frameworks */,
+				27EE16CA1A3236BB00F26303 /* libctemplate.2.dylib in Frameworks */,
 				27E0E18415516CB10073FD6F /* mysql.parser.dylib in Frameworks */,
 				2BFDB83516C00F6A00D0C5A8 /* libvsqlitepp.0.dylib in Frameworks */,
 				2B1BFF6219A00F6B00022FD8 /* libgdal.1.dylib in Frameworks */,
@@ -6689,13 +6696,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27EE16CB1A323E2900F26303 /* libtinyxml.dylib in Frameworks */,
 				2B2397B7103B6DF200D9023B /* libcairo.2.dylib in Frameworks */,
 				2760C4E3107499F800FD1366 /* libwbbase.dylib in Frameworks */,
 				2BB37A121108026800DA4577 /* Security.framework in Frameworks */,
 				2798BEBA118AAAD50090590E /* WebKit.framework in Frameworks */,
 				2B774FAE15CEC3F800923448 /* libglib-2.0.0.dylib in Frameworks */,
 				2B774FAF15CEC40D00923448 /* libgthread-2.0.0.dylib in Frameworks */,
-				270C4FF5173293DC00CD33BB /* libtinyxml.dylib in Frameworks */,
 				2B83E5B51992B2C600781432 /* libmysql.canvas.dylib in Frameworks */,
 				27E1EEA912796BD700CF6290 /* Scintilla.framework in Frameworks */,
 			);
@@ -6760,7 +6767,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ED70F1CC17303E2500584453 /* libmysqlcppconn.7.1.1.4.dylib in Frameworks */,
+				27EE16C71A322D0700F26303 /* libmysqlcppconn.7.1.1.5.dylib in Frameworks */,
 				2720C53A16EA1B1600E57A8D /* libpcre.1.dylib in Frameworks */,
 				2B83E5CF1992B5A100781432 /* libgdal.1.dylib in Frameworks */,
 				2720C54016EA371200E57A8D /* libpcrecpp.0.dylib in Frameworks */,
@@ -6824,7 +6831,7 @@
 				2BE733360EFAFCB500287AE0 /* libgrt.dylib in Frameworks */,
 				2BAE1B1B0F36976500BE725E /* libwbpublic.be.dylib in Frameworks */,
 				2740F52C10FF4C19007ADBE5 /* libwbbase.dylib in Frameworks */,
-				2B17CA4514663BEC00F6E4DA /* libctemplate.dylib in Frameworks */,
+				27D4678B1A3240D300263B85 /* libctemplate.2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6845,7 +6852,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BF049641741C5FB00A7EA35 /* libpcre.0.dylib in Frameworks */,
 				2BF049621741C5EA00A7EA35 /* libwbbase.dylib in Frameworks */,
 				2BF049561741ACB900A7EA35 /* libglib-2.0.0.dylib in Frameworks */,
 				2BF049571741ACB900A7EA35 /* libmforms.dylib in Frameworks */,
@@ -7243,6 +7249,7 @@
 		27467FBA154AC77A00021708 /* mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
+				27C15E681A309CA000EB73F7 /* mysql.parser_prefix.pch */,
 				27B3B4CE19C714A4007D4A92 /* MySQL.g */,
 				27B3B4CD19C7148D007D4A92 /* MySQL.tokens */,
 				27467FD9154AC8B500021708 /* mysql-parser.h */,
@@ -7602,6 +7609,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				278DB5591A36F2BE00707118 /* libiconv.2.dylib */,
+				278DB5571A36F12A00707118 /* libiconv.2.dylib */,
 				2B750F9E0E8796310003120A /* Libraries */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
@@ -7809,15 +7818,6 @@
 				2B18EDE2196DA6F2004D7596 /* wb_docs_grt.py */,
 			);
 			name = wb.docs;
-			sourceTree = "<group>";
-		};
-		2B1CF3A611931C9C00D1410D /* wb.doclib */ = {
-			isa = PBXGroup;
-			children = (
-				2B08A4781194800200F8C550 /* mysqldoclib.py */,
-				2B1CF3A911931D2B00D1410D /* wb_doclib_grt.py */,
-			);
-			name = wb.doclib;
 			sourceTree = "<group>";
 		};
 		2B1E2FCC172F03670037D3DD /* Commercial Plugins */ = {
@@ -8552,6 +8552,7 @@
 		2B2E91E8158916050078D08A /* copytable */ = {
 			isa = PBXGroup;
 			children = (
+				27C15E671A309C2000EB73F7 /* wbcopytables_prefix.pch */,
 				27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */,
 				27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */,
 				2B2E96B5158BC95E0078D08A /* converter.h */,
@@ -8959,6 +8960,7 @@
 		2B750DB40E877D7E0003120A /* cdbc */ = {
 			isa = PBXGroup;
 			children = (
+				2777A7E31A30A36400A5441E /* cdbc_prefix.pch */,
 				2753E59818E95FBC0079DAA8 /* sshtunnel.py */,
 				27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */,
 				27EADE1718E5707100D3C85D /* cppdbc.h */,
@@ -9005,30 +9007,28 @@
 		2B750F9E0E8796310003120A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */,
+				2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */,
+				27EE16C91A3236BB00F26303 /* libctemplate.2.dylib */,
 				2B83E5CE1992B5A100781432 /* libgdal.1.dylib */,
-				2BF049631741C5FA00A7EA35 /* libpcre.0.dylib */,
-				270C500817329FB600CD33BB /* libpng12.0.dylib */,
-				270C500017329E9300CD33BB /* libpixman-1.0.dylib */,
-				270C4FF3173293BC00CD33BB /* libtinyxml.dylib */,
-				27327B9D172FAF6800DE65D7 /* libpython.dylib */,
-				2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */,
-				2720C53716EA18B500E57A8D /* libpcre.1.dylib */,
-				2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */,
+				2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */,
+				2B15AE9712D6C6B5006567D6 /* libgmodule-2.0.0.dylib */,
+				2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */,
+				2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */,
 				2BCBAE4415E7D749009571DE /* libintl.8.dylib */,
+				2B2E92FD158999890078D08A /* libiodbc.dylib */,
 				2BC7896717D7BE24005E03D5 /* libmysqlclient.dylib */,
-				ED70F1CB17303E2500584453 /* libmysqlcppconn.7.1.1.4.dylib */,
+				273D74641A322CA0000F8E2A /* libmysqlcppconn.7.1.1.5.dylib */,
+				2720C53716EA18B500E57A8D /* libpcre.1.dylib */,
+				2720C53D16EA1B9200E57A8D /* libpcrecpp.0.dylib */,
+				270C500017329E9300CD33BB /* libpixman-1.0.dylib */,
+				2BDA3C3A1993FBE700AD54D9 /* libproj.0.dylib */,
+				27327B9D172FAF6800DE65D7 /* libpython.dylib */,
+				2B41EDFB0F8B819400F5EB1E /* libsqlite3.dylib */,
+				270C4FF3173293BC00CD33BB /* libtinyxml.dylib */,
+				2BFDB83416C00F6500D0C5A8 /* libvsqlitepp.0.dylib */,
+				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
 				2BCBAE4615E7D749009571DE /* libzip.1.0.0.dylib */,
 				2BCE4A0315F6467B00FA0CDC /* Python */,
-				2B774FA515CEC32900923448 /* libglib-2.0.0.dylib */,
-				2B774FA615CEC32900923448 /* libgthread-2.0.0.dylib */,
-				2BC0883D1465B56E00CB84D6 /* libctemplate.dylib */,
-				2B2E92FD158999890078D08A /* libiodbc.dylib */,
-				2B15AE9712D6C6B5006567D6 /* libgmodule-2.0.0.dylib */,
-				2B41EDFB0F8B819400F5EB1E /* libsqlite3.dylib */,
-				2BCC405A0EFFC06E008A66D4 /* libcairo.2.dylib */,
-				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
-				2B825D660E0B5F4000BE52DF /* libiconv.2.dylib */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -9398,6 +9398,7 @@
 		2B825D2F0E0B59CC00BE52DF /* base */ = {
 			isa = PBXGroup;
 			children = (
+				27C15E651A30989000EB73F7 /* wbbase_prefix.pch */,
 				ED69F9E715DEC9F600FF2FE3 /* profiling.h */,
 				ED69F9E515DEC9DB00FF2FE3 /* profiling.cpp */,
 				273F6AFE17044B37002117F2 /* threading.h */,
@@ -9443,29 +9444,30 @@
 			isa = PBXGroup;
 			children = (
 				2B825D950E0B604D00BE52DF /* diff */,
-				2BB58B1E0F45F0C300089423 /* python */,
-				2B825DBC0E0B605A00BE52DF /* grtpp_module_cpp.cpp */,
-				2B825DC10E0B605A00BE52DF /* grtpp_module_cpp.h */,
-				2B825DB50E0B605A00BE52DF /* unserializer.h */,
-				2B825DB60E0B605A00BE52DF /* unserializer.cpp */,
-				2B825DB70E0B605A00BE52DF /* grtpp.h */,
+				27C15E6A1A30A2E000EB73F7 /* grt_prefix.pch */,
 				2B825DC80E0B605A00BE52DF /* grtpp_grt.cpp */,
-				2B825DB90E0B605A00BE52DF /* grtpp_module.cpp */,
 				2B825DBA0E0B605A00BE52DF /* grtpp_helper.cpp */,
 				2B825DBD0E0B605A00BE52DF /* grtpp_helper.h */,
 				2B825DBB0E0B605A00BE52DF /* grtpp_metaclass.cpp */,
-				2B825DBE0E0B605A00BE52DF /* serializer.h */,
-				2B825DBF0E0B605A00BE52DF /* serializer.cpp */,
-				2B825DC20E0B605A00BE52DF /* grtpp_util.cpp */,
-				2B825DC50E0B605A00BE52DF /* grtpp_util.h */,
+				2B825DBC0E0B605A00BE52DF /* grtpp_module_cpp.cpp */,
+				2B825DC10E0B605A00BE52DF /* grtpp_module_cpp.h */,
+				2B825DB90E0B605A00BE52DF /* grtpp_module.cpp */,
+				2B22CACA146DFBA200625F5C /* grtpp_notifications.cpp */,
+				2B22CAC4146DF91600625F5C /* grtpp_notifications.h */,
+				2B825DCD0E0B605A00BE52DF /* grtpp_shell.cpp */,
+				2B825DCB0E0B605A00BE52DF /* grtpp_shell.h */,
 				2B825DB80E0B605A00BE52DF /* grtpp_undo_manager.cpp */,
 				2B825DC30E0B605A00BE52DF /* grtpp_undo_manager.h */,
+				2B825DC20E0B605A00BE52DF /* grtpp_util.cpp */,
+				2B825DC50E0B605A00BE52DF /* grtpp_util.h */,
 				2B825DC40E0B605A00BE52DF /* grtpp_value.cpp */,
 				2B825DC70E0B605A00BE52DF /* grtpp_value.h */,
-				2B825DCB0E0B605A00BE52DF /* grtpp_shell.h */,
-				2B825DCD0E0B605A00BE52DF /* grtpp_shell.cpp */,
-				2B22CAC4146DF91600625F5C /* grtpp_notifications.h */,
-				2B22CACA146DFBA200625F5C /* grtpp_notifications.cpp */,
+				2B825DB70E0B605A00BE52DF /* grtpp.h */,
+				2BB58B1E0F45F0C300089423 /* python */,
+				2B825DBF0E0B605A00BE52DF /* serializer.cpp */,
+				2B825DBE0E0B605A00BE52DF /* serializer.h */,
+				2B825DB60E0B605A00BE52DF /* unserializer.cpp */,
+				2B825DB50E0B605A00BE52DF /* unserializer.h */,
 			);
 			name = grt;
 			sourceTree = "<group>";
@@ -9597,7 +9599,6 @@
 				2B6BBEBD16BAB13900F8A39E /* db.mysql.search */,
 				2B17B00F0F4D979B0087ED42 /* wb.model.editors */,
 				2BF7E09F133101CA002EBA46 /* wb.model.snippets */,
-				2B1CF3A611931C9C00D1410D /* wb.doclib */,
 				2B92ACD8104D95B30063A35B /* wb.admin */,
 				2BB37A6B11094A7000DA4577 /* wb.printing */,
 				2B6C6FBB16C0BDD500C4CC98 /* wb.sqlide */,
@@ -9718,6 +9719,7 @@
 		2B9616140F27594600F0B599 /* mforms */ = {
 			isa = PBXGroup;
 			children = (
+				27B37DC31A32001B00C73F1F /* mforms_prefix.pch */,
 				27A5768C10FE078100A948A6 /* High Level Controls */,
 				27A5768D10FE07C300A948A6 /* Low level Controls */,
 				2BCAD0471006D07800D1772C /* python */,
@@ -10577,6 +10579,7 @@
 		2BE732EA0EFAFB4600287AE0 /* db.mysql */ = {
 			isa = PBXGroup;
 			children = (
+				27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.pch */,
 				2BAD7C3F156D89220025F13F /* db_mysql_fe_grt.py */,
 				2BAD7C40156D89220025F13F /* db_mysql_migration_grt.py */,
 				2BAD7C41156D89220025F13F /* db_mysql_re_grt.py */,
@@ -11107,6 +11110,7 @@
 				27467EF1154A97BC00021708 /* antlr3bitset.h in Headers */,
 				27467EF2154A97BC00021708 /* antlr3collections.h in Headers */,
 				27467EF3154A97BC00021708 /* antlr3commontoken.h in Headers */,
+				27C15E691A309CA000EB73F7 /* mysql.parser_prefix.pch in Headers */,
 				27467EF4154A97BC00021708 /* antlr3commontree.h in Headers */,
 				27467EF5154A97BC00021708 /* antlr3commontreeadaptor.h in Headers */,
 				27467EF6154A97BC00021708 /* antlr3commontreenodestream.h in Headers */,
@@ -11276,6 +11280,7 @@
 				27EADE2018E5707100D3C85D /* driver_manager.h in Headers */,
 				27EADE1D18E5707100D3C85D /* cppdbc_public_interface.h in Headers */,
 				27EADE2218E5707100D3C85D /* sql_batch_exec.h in Headers */,
+				2777A7E41A30A36400A5441E /* cdbc_prefix.pch in Headers */,
 				27EADE1E18E5707100D3C85D /* cppdbc.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -11359,6 +11364,7 @@
 				2B299C4F12CF8C3D008B57C9 /* wb_memory.h in Headers */,
 				27B3E26012E05FC700FFF572 /* log.h in Headers */,
 				274E897F1313BFC1000459A0 /* drawing.h in Headers */,
+				27C15E661A30989000EB73F7 /* wbbase_prefix.pch in Headers */,
 				2B497E6113D0DD5600F6AF47 /* sqlstring.h in Headers */,
 				2B22CA9E146DF85100625F5C /* notifications.h in Headers */,
 				2B0F1CC21501D7630087D62A /* trackable.h in Headers */,
@@ -11390,6 +11396,7 @@
 				2BB58BC10F46027E00089423 /* python_grtlist.h in Headers */,
 				2BB58D490F4673A400089423 /* grtpp_shell_python.h in Headers */,
 				2BB58F290F471B3900089423 /* python_grtobject.h in Headers */,
+				27C15E6B1A30A2E000EB73F7 /* grt_prefix.pch in Headers */,
 				2B8760E60F47E568000B6DE1 /* python_grtdict.h in Headers */,
 				2B8761280F47ECB5000B6DE1 /* python_module.h in Headers */,
 				2B7F19DA119B74730051F062 /* grtpp_shell_python_help.h in Headers */,
@@ -11485,6 +11492,7 @@
 				2B3D492A0F3E3FCA009238A7 /* MFSelector.h in Headers */,
 				2B3D492C0F3E3FCA009238A7 /* MFTable.h in Headers */,
 				2B3D49300F3E3FCA009238A7 /* MFTextBox.h in Headers */,
+				27B37DC41A32001B00C73F1F /* mforms_prefix.pch in Headers */,
 				2B83E5BE1992B3D900781432 /* MCanvasViewer.h in Headers */,
 				2B3D49320F3E3FCA009238A7 /* MFTextEntry.h in Headers */,
 				2B3D49340F3E3FCA009238A7 /* MFView.h in Headers */,
@@ -12483,7 +12491,6 @@
 				2B7F77E00F01339B00C3C53E /* Copy Files (dylibs) */,
 				2B5284E10F1AEA60005FBF7C /* Copy Files (plugins) */,
 				2BEA13BE16E68F1500FC44F0 /* Copy plugins (dylibs) if exist */,
-				2730102919BC89F4002C08EE /* Copy plugins (py files) if exist */,
 				2BE76356107390C000A1DF24 /* Copy Python Module Packages */,
 				2B4B52EB122F102000F1EA6B /* Copy Other Resource Data Folders */,
 				169CCC8F0F0121BC005152CD /* Copy and fix embedded dylibs and binaries */,
@@ -13603,7 +13610,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n\tfrom=$1\n\tto=$2/`basename $from`\n\tif [ ! -f $to -o $from -nt $to ]; then\n\t\tcp $from $to\n\tfi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH}/lib/libcairo.2.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libctemplate.0.dylib ${NEWLIBPATH}\n\n# This file is created from a pre-build scheme script\n# It will identidy the build being run (commercial/gpl)\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${NEWLIBPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysql ${EXEPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysqldump ${EXEPATH}\n\n(cd ${NEWLIBPATH}; rm -f mysqlcppconn.dylib; ln -sf libmysqlcppconn.7.1.1.4.dylib mysqlcppconn.dylib)\n\n# Use SQLCipher enabled sqlite if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/plugins/wba_audit ]; then\n    echo \"Copying vsqlite libs for commercial version\"\n    copy ${RES_SOURCE_PATH}/lib-com/libsqlite3.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH}/lib-com/libvsqlitepp.0.dylib ${NEWLIBPATH}\nelse\n    echo \"Copying vsqlite libs for community version\"\n    copy ${RES_SOURCE_PATH}/lib/libvsqlitepp.0.dylib ${NEWLIBPATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n\t$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n\t CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n\necho \"Creating symlinks for versioned dylibs\"\npushd $NEWLIBPATH\nfor libpath in $(find *.[0-9].dylib -type f); do\n\tlinkname=$(echo $libpath|sed -e s/.[0-9].dylib/.dylib/)\n\tln -sf $libpath $linkname\n\tlinkname2=$(echo $linkname|sed -e s/.[0-9].dylib/.dylib/)\n\tif test $linkname != $linkname2; then\n\t\tln -sf $linkname $linkname2\n\tfi\ndone\npopd\n\nliblist=$(otool -L $execfile|grep /usr/local|cut -f2|cut -f1 -d\\  )\nfor lib in $liblist; do\n\t# check if all referenced libs by executable are copied\n\tif ! [ -f $NEWLIBPATH/$(basename $lib) ]; then\n\t\techo \"Library $lib is referenced by executable but not copied into bundle\"\n\t\texit 1\n\tfi\ndone\n\n# do a quick check\nif test \"$(otool -L ${NEWLIBPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some embedded libraries in ${NEWLIBPATH} still point to /usr/local\"\n\tfor lib in \"${NEWLIBPATH}/*.dylib\"; do\n\t\tif test \"$(otool -L $lib|grep /usr/local)\" != \"\"; then\n\t\t\t$fixer $lib\n\t\tfi\n\tdone\nfi\n\nif test \"$MODULEPATH\" != \"\"; then\nif test \"$(otool -L ${MODULEPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n\techo \"ERROR: Some modules in ${MODULEPATH} still point to /usr/local\"\n\texit 1\nfi\nfi\n";
+			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n\tfrom=$1\n\tto=$2/`basename $from`\n\tif [ ! -f $to -o $from -nt $to ]; then\n\t\tcp $from $to\n\tfi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH}/lib/libcairo.2.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libctemplate.2.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libpng16.16.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libintl.8.dylib ${NEWLIBPATH}\ncopy ${RES_SOURCE_PATH}/lib/libiconv.2.dylib ${NEWLIBPATH} # Own version with other exported symbol names for ODBC.\n\n# This file is created from a pre-build scheme script\n# It will identidy the build being run (commercial/gpl)\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${NEWLIBPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysql ${EXEPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysqldump ${EXEPATH}\n\n#(cd ${NEWLIBPATH}; rm -f libmysqlcppconn.7.dylib; ln -sf libmysqlcppconn.7.1.1.5.dylib libmysqlcppconn.7.dylib)\n\n# Use SQLCipher enabled sqlite if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/plugins/wba_audit ]; then\n    echo \"Copying vsqlite libs for commercial version\"\n    copy ${RES_SOURCE_PATH}/lib-com/libsqlite3.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH}/lib-com/libvsqlitepp.0.dylib ${NEWLIBPATH}\nelse\n    echo \"Copying vsqlite libs for community version\"\n    copy ${RES_SOURCE_PATH}/lib/libvsqlitepp.0.dylib ${NEWLIBPATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n    $fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n    CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n# Create symlinks with only the major version number for any versioned lib.\necho \"Creating symlinks for versioned dylibs\"\npushd $NEWLIBPATH\nfor libpath in $(find * | grep \".*\\.[0-9]\\.[0-9]\\.dylib\"); do\n    linkname=$(echo $libpath | sed -E 's/(.[0-9])(.[0-9])+.dylib/\\1.dylib/')\n    ln -sf $libpath $linkname\ndone\npopd\n\nliblist=$(otool -L $execfile|grep /usr/local|cut -f2|cut -f1 -d\\  )\nfor lib in $liblist; do\n  # check if all referenced libs by executable are copied\n  if ! [ -f $NEWLIBPATH/$(basename $lib) ]; then\n    echo \"Library $lib is referenced by executable but not copied into bundle\"\n    exit 1\n  fi\ndone\n\n# do a quick check\n# TODO: there can be other paths like /usr/local/lib.\nif test \"$(otool -L ${NEWLIBPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n  echo \"ERROR: Some embedded libraries in ${NEWLIBPATH} still point to /usr/local\"\n  for lib in \"${NEWLIBPATH}/*.dylib\"; do\n    if test \"$(otool -L $lib|grep /usr/local)\" != \"\"; then\n      $fixer $lib\n    fi\n  done\nfi\n\nif test \"$MODULEPATH\" != \"\"; then\n  if test \"$(otool -L ${MODULEPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n    echo \"ERROR: Some modules in ${MODULEPATH} still point to /usr/local\"\n    exit 1\n  fi\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		16E4CDC10F28A56E00C1E118 /* ShellScript */ = {
@@ -13618,22 +13625,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-		2730102919BC89F4002C08EE /* Copy plugins (py files) if exist */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/plugins/wb.admin/internal/wba_audit",
-				"$(SRCROOT)/plugins/wb.admin/internal/wba_meb",
-			);
-			name = "Copy plugins (py files) if exist";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Install commercial plugins (python files)\n\n# Put all commercial plugin directories in the Input Files list below.\ni=0\nwhile true; do\n  path=$(eval \"echo \\$SCRIPT_INPUT_FILE_$i\")\n  if test \"$path\" = \"\"; then\n    break\n  fi\n  if [ -f $path -o -d $path ]; then\n    echo \"Copy $path to $$BUILT_PRODUCTS_DIR/$PLUGINS_FOLDER_PATH\"\n    cp -r $path $BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/plugins\n  fi\n  i=$(($i+1))\ndone";
 		};
 		27BDFA3A184366000028B97E /* Regenerate ANTLR parser if necessary */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -15531,7 +15522,6 @@
 					"ext/antlr-runtime/include",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = mysql.parser;
 				SKIP_INSTALL = YES;
@@ -15565,7 +15555,6 @@
 					"ext/antlr-runtime/include",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = mysql.parser;
 				SKIP_INSTALL = YES;
@@ -15582,8 +15571,6 @@
 		27CE5F9E1917993C005574D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -15596,7 +15583,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_NS_ASSERTIONS = YES;
-				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -15619,7 +15605,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15631,8 +15616,6 @@
 		27CE5F9F1917993C005574D4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -15647,7 +15630,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = YES;
-				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
@@ -15664,7 +15646,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -15701,10 +15682,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.model.editors.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -15737,10 +15714,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.model.editors.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -15779,10 +15752,6 @@
 				);
 				INFOPLIST_FILE = "plugins/wb.model.editors/macosx/wb.model.editors-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../mysql-mac-res/lib",
-				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -15825,10 +15794,6 @@
 				);
 				INFOPLIST_FILE = "plugins/wb.model.editors/macosx/wb.model.editors-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../mysql-mac-res/lib",
-				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -15868,10 +15833,6 @@
 					"../mysql-mac-res/mysql/include",
 					"$(SRCROOT)/testing/tut/include",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = tests;
 				SKIP_INSTALL = YES;
@@ -15902,10 +15863,6 @@
 					"../mysql-mac-res/mysql/include",
 					"$(SRCROOT)/testing/tut/include",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = tests;
 				SKIP_INSTALL = YES;
@@ -15931,10 +15888,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.mysql.query.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -15958,10 +15911,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.mysql.query.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -15987,7 +15936,7 @@
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					"/Data/Work/MySQL/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbcopytables;
 				SDKROOT = macosx;
@@ -16013,7 +15962,7 @@
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					"/Data/Work/MySQL/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wbcopytables;
 				SDKROOT = macosx;
@@ -16041,10 +15990,6 @@
 					ENABLE_LUA_MODULES,
 					SCI_NAMESPACE,
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				PRODUCT_NAME = _cairo;
 				SKIP_INSTALL = YES;
 				WARNING_CFLAGS = (
@@ -16071,10 +16016,6 @@
 					ENABLE_PYTHON_MODULES,
 					ENABLE_LUA_MODULES,
 					SCI_NAMESPACE,
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				PRODUCT_NAME = _cairo;
 				SKIP_INSTALL = YES;
@@ -16119,7 +16060,6 @@
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../mysql-mac-res/lib/";
 				PRODUCT_NAME = db.mysql.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -16155,7 +16095,6 @@
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../mysql-mac-res/lib/";
 				PRODUCT_NAME = db.mysql.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16192,10 +16131,6 @@
 					"$(SRCROOT)/plugins",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.model.reporting.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -16229,10 +16164,6 @@
 					"$(SRCROOT)/plugins",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.model.reporting.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16272,7 +16203,7 @@
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"/Data/Work/MySQL/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wb.model.grt;
 				SKIP_INSTALL = YES;
@@ -16310,7 +16241,7 @@
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"/Data/Work/MySQL/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = wb.model.grt;
 				SKIP_INSTALL = YES;
@@ -16347,10 +16278,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.mysql.editors.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -16383,10 +16310,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.mysql.editors.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16428,7 +16351,6 @@
 				);
 				INFOPLIST_FILE = "plugins/db.mysql.editors/macosx/db.mysql.editors-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -16474,7 +16396,6 @@
 				);
 				INFOPLIST_FILE = "plugins/db.mysql.editors/macosx/db.mysql.editors-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -16516,10 +16437,6 @@
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.mysql.import.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -16551,10 +16468,6 @@
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.mysql.import.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16581,10 +16494,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.validation.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -16609,10 +16518,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.validation.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16639,10 +16544,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.mysql.validation.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -16667,10 +16568,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.mysql.validation.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16700,10 +16597,6 @@
 					"$(SRCROOT)/modules",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.search.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -16730,10 +16623,6 @@
 					"$(SRCROOT)/modules",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.search.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16759,10 +16648,7 @@
 					"\"$(SRCROOT)\"/generated",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
+				OTHER_CFLAGS = "-DMYSQLCPPCONN_VERSION_1_1_5";
 				PRODUCT_NAME = cdbc;
 				SKIP_INSTALL = YES;
 			};
@@ -16786,10 +16672,7 @@
 					"\"$(SRCROOT)\"/generated",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
+				OTHER_CFLAGS = "-DMYSQLCPPCONN_VERSION_1_1_5";
 				PRODUCT_NAME = cdbc;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16829,11 +16712,6 @@
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
 			};
@@ -16870,11 +16748,6 @@
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				PRODUCT_NAME = wbpublic.be;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16895,11 +16768,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
-				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
 			};
@@ -16917,11 +16785,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
-				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -16932,7 +16795,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
@@ -16948,11 +16810,6 @@
 					"\"$(SRCROOT)\"/../mysql-mac-res/include/cppconn",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				PRODUCT_NAME = grt;
 				SKIP_INSTALL = YES;
 			};
@@ -16962,7 +16819,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -16977,11 +16833,6 @@
 					"\"$(SRCROOT)\"/../mysql-mac-res/include/cppconn",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				PRODUCT_NAME = grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17001,10 +16852,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = mysql.canvas;
 				SKIP_INSTALL = YES;
 			};
@@ -17022,10 +16869,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = mysql.canvas;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17066,7 +16909,7 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"/Data/Work/MySQL/mysql-mac-res/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -17111,7 +16954,7 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"/Data/Work/MySQL/mysql-mac-res/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -17145,10 +16988,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.printing.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -17173,10 +17012,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.printing.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17204,10 +17039,6 @@
 				);
 				INFOPLIST_FILE = "plugins/wb.printing/macosx/wb.printing-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../mysql-mac-res/lib",
-				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -17240,10 +17071,6 @@
 				);
 				INFOPLIST_FILE = "plugins/wb.printing/macosx/wb.printing-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../mysql-mac-res/lib",
-				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -17288,10 +17115,6 @@
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.mysql.diff.reporting.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -17326,10 +17149,6 @@
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.mysql.diff.reporting.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17362,11 +17181,6 @@
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/ext/scintilla/**",
 					"$(SRCROOT)/backend/wbpublic",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
-					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
 				SKIP_INSTALL = YES;
@@ -17403,11 +17217,6 @@
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/ext/scintilla/**",
 					"$(SRCROOT)/backend/wbpublic",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
-					"$(SRCROOT)/../mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = _mforms;
 				SKIP_INSTALL = YES;
@@ -17458,11 +17267,6 @@
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
 			};
@@ -17503,11 +17307,6 @@
 					"$(SRCROOT)/../mysql-mac-res/include/tinyxml",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17555,10 +17354,6 @@
 				);
 				INFOPLIST_FILE = "WBExtras-Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -17609,10 +17404,6 @@
 				);
 				INFOPLIST_FILE = "WBExtras-Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -17637,6 +17428,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"../mysql-mac-res/mysql/include",
@@ -17659,6 +17451,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.pch";
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"../mysql-mac-res/mysql/include",
@@ -17693,10 +17486,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -17723,10 +17512,6 @@
 					"$(SRCROOT)/library/grt/src",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17756,7 +17541,7 @@
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"/Data/Work/MySQL/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = db.mysql.grt;
 				SKIP_INSTALL = YES;
@@ -17785,7 +17570,7 @@
 				INSTALL_PATH = "@executable_path/../PlugIns";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
+					"/Data/Work/MySQL/mysql-mac-res/lib",
 				);
 				PRODUCT_NAME = db.mysql.grt;
 				SKIP_INSTALL = YES;
@@ -17816,10 +17601,6 @@
 					"$(SRCROOT)/ext/antlr-runtime/include",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.mysql.sqlparser.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -17847,10 +17628,6 @@
 					"$(SRCROOT)/ext/antlr-runtime/include",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = db.mysql.sqlparser.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17887,7 +17664,6 @@
 					"$(SRCROOT)/plugins",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = wb.model.advfind.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -17921,7 +17697,6 @@
 					"$(SRCROOT)/plugins",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = wb.model.advfind.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17956,10 +17731,6 @@
 					"$(SRCROOT)/plugins",
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.model.snippets.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -17991,10 +17762,6 @@
 					"$(SRCROOT)/plugins",
 				);
 				INSTALL_PATH = "@loader_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-				);
 				PRODUCT_NAME = wb.model.snippets.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -18005,6 +17772,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				COMBINE_HIDPI_IMAGES = NO;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -18045,14 +17813,11 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx;
+				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Debug;
 		};
@@ -18060,6 +17825,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				COMBINE_HIDPI_IMAGES = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -18097,15 +17863,12 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
-				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
+				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;
 		};
@@ -18113,8 +17876,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_CXX_LIBRARY = "libstdc++";
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -18137,11 +17901,13 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/../mysql-mac-res/lib/**",
 					"$(SRCROOT)",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
+				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = (
 					"-Wall",
 					"-Wno-overloaded-virtual",
@@ -18153,8 +17919,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_CXX_LIBRARY = "libstdc++";
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "Developer ID Application: Oracle America, Inc.";
 				COPY_PHASE_STRIP = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -18175,12 +17942,14 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/../mysql-mac-res/lib/**",
 					"$(SRCROOT)",
+					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
+				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = (
 					"-Wall",
 					"-Wno-overloaded-virtual",
@@ -18208,11 +17977,6 @@
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"$(PROJECT_DIR)",
-				);
 				PRODUCT_NAME = wb.fabric.interface.grt;
 				SKIP_INSTALL = YES;
 			};
@@ -18237,11 +18001,6 @@
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
 				);
 				INSTALL_PATH = "@executable_path/../PlugIns";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../mysql-mac-res/lib\"",
-					"$(PROJECT_DIR)",
-				);
 				PRODUCT_NAME = wb.fabric.interface.grt;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
