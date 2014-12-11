@@ -255,7 +255,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   NotificationCenter::get()->add_observer(this, "GNFormTitleDidChange");
   NotificationCenter::get()->add_observer(this, "GNColorsChanged");
   GRTNotificationCenter::get()->add_grt_observer(this, "GRNServerStateChanged");
-
+  exec_sql_task->desc("execute sql queries");
   exec_sql_task->send_task_res_msg(false);
   exec_sql_task->msg_cb(boost::bind(&SqlEditorForm::add_log_message, this, _1, _2, _3, ""));
 

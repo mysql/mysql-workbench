@@ -92,6 +92,7 @@ Recordset::Recordset(GRTManager *grtm)
   _id = g_atomic_int_get(&next_id);
   g_atomic_int_inc(&next_id);
 
+  task->desc("Recordset task");
   task->send_task_res_msg(false);
   apply_changes_cb= boost::bind(&Recordset::apply_changes_, this);
   register_default_actions();
