@@ -271,6 +271,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _automatic_help = _grtm->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 1) == 0;
   _switching_help = false;
   _help_task = GrtThreadedTask::create(_grtm);
+  _help_task->desc("Context Help Task");
 
   _pending_snippets_refresh = true;
 
