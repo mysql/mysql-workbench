@@ -214,15 +214,10 @@ using namespace mforms;
       break;
       
     case 11: // replace selection (without find)
-      mOwner->perform_action(Replace);
+      mOwner->perform_action(FindAndReplace);
       break;
       
-    case 12: // replace and find
-    case 13: // replace textfield
-      mOwner->perform_action(ReplaceAndFind);
-      break;
-      
-      // Menu
+    // Menu
     case 20: // plain text
       mUseRegex = NO;
       [[[sender menu] itemWithTag: 20] setState: NSOnState];
@@ -287,34 +282,13 @@ using namespace mforms;
         else
           [mFindLabel setStringValue: @"Not found"];
       }
-      break;      
-    case Replace:
-    {
-      size_t start, length;
-      mOwner->get_editor()->get_selection(start, length);
-      if (length > 0)
-        mOwner->get_editor()->replace_selected_text([[mReplaceText stringValue] UTF8String]);
-      [mFindLabel setStringValue: @""];
-      return 1;
-    }
-    case ReplaceAndFind:
-      if ([[mFindText stringValue] length] > 0)
-      {
-        if ([self replaceAndFind:NO])
-        {
-          [mFindLabel setStringValue: @"Replaced 1 match"];
-          return 1;
-        }
-        else
-          [mFindLabel setStringValue: @"Not found"];
-      }
       break;
     case FindAndReplace:
       if ([[mFindText stringValue] length] > 0)
       {
         if ([self replaceAndFind:YES])
         {
-          [mFindLabel setStringValue: @"Replaced 1 match"];
+          [mFindLabel setStringValue: @"Replaced 1"];
           return 1;
         }
         else
@@ -326,9 +300,9 @@ using namespace mforms;
       {
         int count;
         if ((count = [self replaceAll]) > 0)
-          [mFindLabel setStringValue: [NSString stringWithFormat: @"Replaced %i matches", count]];
+          [mFindLabel setStringValue: [NSString stringWithFormat: @"Replaced %i", count]];
         else
-          [mFindLabel setStringValue: @"No matches found"];
+          [mFindLabel setStringValue: @"No matches"];
         [self setNeedsDisplay: YES];
         return count;
       }
